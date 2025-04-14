@@ -11,15 +11,15 @@ import 'character/memory.dart';
 import '../engine.dart';
 import 'character/quest.dart';
 import '../game/ui.dart';
-import 'hoverinfo.dart';
+import 'hover_info.dart';
 import 'character/details.dart';
 import 'prebatle/prebattle.dart';
 import '../state/states.dart';
 import '../scene/common.dart';
 import 'character/item_select_dialog.dart';
-import 'draggable_panel.dart';
+import 'ui/draggable_panel.dart';
 import '../scene/game_dialog/game_dialog_controller.dart';
-import 'history_list.dart';
+import 'history_panel.dart';
 import 'npc_list.dart';
 import 'character/merchant.dart';
 import 'dialog/new_items.dart';
@@ -28,6 +28,7 @@ import '../game/data.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
+import 'location_panel.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -80,45 +81,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         heroData != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
 
-    final currentZone = context.watch<HeroTileState>().currentZone;
-    final currentNation = context.watch<HeroTileState>().currentNation;
-    // final currentLocation = context.watch<HeroTileState>().currentLocation;
-    final currentTerrain = context.watch<HeroTileState>().currentTerrain;
-    final currentScene = context.watch<HeroTileState>().currentScene;
-
-    final dateString = context.watch<GameTimestampState>().gameDateTimeString;
-
     final money = (heroData?['materials']['money']).toString();
     final shard = (heroData?['materials']['shard']).toString();
-
-    final locationDetails = StringBuffer();
-
-    if (currentTerrain?.isLighted ?? false) {
-      if (currentZone != null) {
-        locationDetails.write('${currentZone!['name']}');
-      }
-      if (currentNation != null) {
-        locationDetails.write(' ${currentNation['name']}');
-      }
-      // if (currentLocation != null) {
-      //   locationDetails.write(' ${currentLocation['name']}');
-      // }
-      // if (currentTerrain?.kind != null) {
-      //   locationDetails.write(' ${engine.locale(currentTerrain!.kind)}');
-      // }
-      // if (currentTerrain?.tilePosition != null) {
-      //   locationDetails.write(
-      //       ' ${engine.locale('worldPosition')}: ${currentTerrain?.tilePosition.toString()}');
-      // }
-    }
-
-    if (currentScene != null) {
-      locationDetails.write(' $currentScene');
-    }
-
-    if (currentTerrain != null) {
-      locationDetails.write(' [${currentTerrain.left}, ${currentTerrain.top}]');
-    }
 
     final content = context.watch<HoverContentState>().content;
 
@@ -193,7 +157,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 showRelationships: false,
                 showPosition: false,
                 showPersonality: false,
-                showDescription: true,
               ),
             ),
           );
@@ -290,8 +253,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 children: [
                   Avatar(
                     borderRadius: 0.0,
-                    // cursor: SystemMouseCursors.click,
-                    color: GameUI.backgroundColor2,
                     size: const Size(120, 120),
                     image: AssetImage('assets/images/${heroData['icon']}'),
                     onPressed: (_) {},
@@ -602,8 +563,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onTapUp: () {
-                                engine
-                                    .pushScene(Scenes.cardlibrary, arguments: {
+                                engine.pushScene(Scenes.library, arguments: {
                                   'enableCardCraft':
                                       engine.scene?.id == Scenes.mainmenu,
                                   'enableScrollCraft':
@@ -651,58 +611,17 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     'assets/images/icon/unknown_item.png'),
                               ),
                             ),
-                            const Spacer(),
-                            if (widget.action != null)
-                              Container(
-                                width: GameUI.infoButtonSize.width,
-                                height: GameUI.infoButtonSize.height,
-                                margin: const EdgeInsets.all(2),
-                                child: widget.action!,
-                              ),
                           ],
                         ),
                       ),
-                      Container(
-                        width: 500,
+                      SizedBox(
                         height: 75,
-                        color: GameUI.backgroundColor2,
-                        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        width: screenSize.width - 120,
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 3.0),
-                                  child: Text(dateString),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 3.0),
-                                  child: Text(locationDetails.toString()),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              width: 400,
-                              height: 46,
-                              child: HeroAndGlobalHistoryList(
-                                onTapUp: () {
-                                  context
-                                      .read<ViewPanelState>()
-                                      .toogle(ViewPanels.characterMemory);
-                                },
-                                onMouseEnter: (rect) {
-                                  context
-                                      .read<HoverContentState>()
-                                      .show(engine.locale('history'), rect);
-                                },
-                                onMouseExit: () {
-                                  context.read<HoverContentState>().hide();
-                                },
-                              ),
-                            ),
+                            HistoryPanel(width: 365, height: 75),
+                            const Spacer(),
+                            LocationPanel(width: 150, height: 75),
                           ],
                         ),
                       ),
@@ -710,10 +629,22 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   ),
                 ],
               ),
+
+            if (widget.action != null)
+              Positioned(
+                right: 5.0,
+                top: 5.0,
+                child: Container(
+                  width: GameUI.infoButtonSize.width,
+                  height: GameUI.infoButtonSize.height,
+                  margin: const EdgeInsets.all(2),
+                  child: widget.action!,
+                ),
+              ),
             if (widget.enableNpcs)
               const Positioned(
                 left: 10,
-                top: 135,
+                top: 105,
                 child: NpcList(),
               ),
             if (enemyData != null && showPrebattle)

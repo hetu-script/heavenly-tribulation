@@ -123,7 +123,12 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'nonInteractable',
+                                    'isNotEnterable',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'isEnterable',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
@@ -134,6 +139,11 @@ class _ToolboxState extends State<Toolbox> {
                                   buildToolButton(
                                     context,
                                     'plain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'snow_plain',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
@@ -368,7 +378,7 @@ class _ToolboxState extends State<Toolbox> {
                   // const Spacer(),
                   // Column(
                   //   children: [
-                  //     ElevatedButton(
+                  //     fluent.FilledButton(
                   //       onPressed: () {},
                   //       child: Text(engine.locale('editMapId')),
                   //     ),

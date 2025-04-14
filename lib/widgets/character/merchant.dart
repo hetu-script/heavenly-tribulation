@@ -3,6 +3,7 @@ import 'package:heavenly_tribulation/game/logic.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
 import '../../engine.dart';
@@ -108,7 +109,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
-                      child: ElevatedButton(
+                      child: fluent.FilledButton(
                         onPressed: () {
                           final items = _selectedHeroItemsData.values.toList();
                           if (items.isEmpty) return;
@@ -125,8 +126,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             int shards =
                                 widget.merchantData['materials']['shard'];
                             if (shards < totalPrice) {
-                              GameDialogContent.show(
-                                  context, 'hint_merchantNotEnoughShard');
+                              GameDialogContent.show(context,
+                                  engine.locale('hint_merchantNotEnoughShard'));
                               return;
                             }
                             engine.hetu.invoke(
@@ -144,8 +145,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             int money =
                                 widget.merchantData['materials']['money'];
                             if (money < totalPrice) {
-                              GameDialogContent.show(
-                                  context, 'hint_merchantNotEnoughMoney');
+                              GameDialogContent.show(context,
+                                  engine.locale('hint_merchantNotEnoughMoney'));
                               return;
                             }
                             engine.hetu.invoke(
@@ -207,7 +208,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
-                      child: ElevatedButton(
+                      child: fluent.FilledButton(
                         onPressed: () {
                           final items =
                               _selectedMerchantItemsData.values.toList();
@@ -228,8 +229,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             int shards =
                                 GameData.heroData['materials']['shard'];
                             if (shards < totalPrice) {
-                              GameDialogContent.show(
-                                  context, 'hint_notEnoughShard');
+                              GameDialogContent.show(context,
+                                  engine.locale('hint_notEnoughShard'));
                               return;
                             }
                             engine.hetu.invoke(
@@ -246,8 +247,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           } else {
                             int money = GameData.heroData['materials']['money'];
                             if (money < totalPrice) {
-                              GameDialogContent.show(
-                                  context, 'hint_notEnoughMoney');
+                              GameDialogContent.show(context,
+                                  engine.locale('hint_notEnoughMoney'));
                               return;
                             }
                             engine.hetu.invoke(

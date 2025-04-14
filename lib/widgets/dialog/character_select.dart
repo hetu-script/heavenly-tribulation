@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/common.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
@@ -13,36 +14,8 @@ import '../../game/ui.dart';
 enum SelectCharacterPopUpMenuItems {
   select,
   checkProfile,
-  checkStats,
+  checkStatsAndEquipments,
   checkMemory,
-}
-
-List<PopupMenuEntry<SelectCharacterPopUpMenuItems>>
-    buildSelectCharacterPopUpMenuItems(
-        {void Function(SelectCharacterPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<SelectCharacterPopUpMenuItems>>[
-    buildMenuItem(
-      item: SelectCharacterPopUpMenuItems.select,
-      name: engine.locale('select'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: SelectCharacterPopUpMenuItems.checkProfile,
-      name: engine.locale('checkInformation'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: SelectCharacterPopUpMenuItems.checkStats,
-      name: engine.locale('checkStats'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: SelectCharacterPopUpMenuItems.checkMemory,
-      name: engine.locale('checkMemory'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
 }
 
 const _kInformationViewCharacterColumns = [
@@ -123,6 +96,7 @@ class CharacterSelectDialog extends StatelessWidget {
     }
 
     return ResponsiveView(
+      backgroundColor: GameUI.backgroundColorOpaque,
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -133,40 +107,49 @@ class CharacterSelectDialog extends StatelessWidget {
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,
           tableData: data,
-          onItemPressed: (buttons, position, dataId) {
-            final menuPosition = RelativeRect.fromLTRB(
-                position.dx, position.dy, position.dx, 0.0);
-            final items =
-                buildSelectCharacterPopUpMenuItems(onSelectedItem: (item) {
-              switch (item) {
-                case SelectCharacterPopUpMenuItems.select:
-                  Navigator.of(context).pop(dataId);
-                case SelectCharacterPopUpMenuItems.checkProfile:
-                  showDialog(
-                    context: context,
-                    builder: (context) => ResponsiveView(
-                      alignment: AlignmentDirectional.center,
-                      width: GameUI.profileWindowSize.x,
-                      height: 400.0,
-                      child: CharacterProfile(characterId: dataId),
-                    ),
-                  );
-                case SelectCharacterPopUpMenuItems.checkStats:
-                  showDialog(
-                    context: context,
-                    builder: (context) => CharacterDetails(characterId: dataId),
-                  );
-                case SelectCharacterPopUpMenuItems.checkMemory:
-                  showDialog(
-                    context: context,
-                    builder: (context) => CharacterMemory(characterId: dataId),
-                  );
-              }
-            });
-            showMenu(
-              context: context,
-              position: menuPosition,
-              items: items,
+          onItemPressed: (position, dataId) {
+            showFluentMenu(
+              position: position,
+              items: {
+                engine.locale('select'): SelectCharacterPopUpMenuItems.select,
+                '___': null,
+                engine.locale('checkInformation'):
+                    SelectCharacterPopUpMenuItems.checkProfile,
+                engine.locale('checkStatsAndEquipments'):
+                    SelectCharacterPopUpMenuItems.checkStatsAndEquipments,
+                engine.locale('checkMemory'):
+                    SelectCharacterPopUpMenuItems.checkMemory,
+              },
+              onSelectedItem: (item) {
+                switch (item) {
+                  case SelectCharacterPopUpMenuItems.select:
+                    Navigator.of(context).pop(dataId);
+                  case SelectCharacterPopUpMenuItems.checkProfile:
+                    showDialog(
+                      context: context,
+                      builder: (context) => CharacterProfileView(
+                        characterId: dataId,
+                        mode: InformationViewMode.select,
+                      ),
+                    );
+                  case SelectCharacterPopUpMenuItems.checkStatsAndEquipments:
+                    showDialog(
+                      context: context,
+                      builder: (context) => CharacterDetails(
+                        characterId: dataId,
+                        mode: InformationViewMode.select,
+                      ),
+                    );
+                  case SelectCharacterPopUpMenuItems.checkMemory:
+                    showDialog(
+                      context: context,
+                      builder: (context) => CharacterMemory(
+                        characterId: dataId,
+                        mode: InformationViewMode.select,
+                      ),
+                    );
+                }
+              },
             );
           },
         ),

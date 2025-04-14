@@ -5,8 +5,8 @@
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
-  "unequippableHint": "点击右键卸除",
-  "cursedItemHint": "被诅咒的物品：装备后无法卸除",
+  "unequippableHint": "点击右键取下",
+  "cursedItemHint": "禁制：装备后无法取下",
   "cardpackHint": "在功法图录中使用以获取功法",
   "currentCharges": "当前充能次数: {0}∕{1}",
   "shardsPerCharge": "每次充能消耗: {0} 灵石",
@@ -43,7 +43,7 @@
   "bow": "弓",
   "dart": "飞镖",
 
-  "weapon_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
+  "weapon_flavortext": "在化外人和修真者中都很流行的兵器。",
 
   "armor": "护甲",
   "armor_flavortext": "可以在战斗中保护身体的装备。",
@@ -54,12 +54,13 @@
   "shield": "盾牌",
   "shield_flavortext": "可以在战斗中保护身体的装备。",
 
+  "vehicle": "载具",
   "boots": "鞋子",
   "ship": "船只",
   "aircraft": "飞行器",
-
-  "vehicle": "载具",
-  "vehicle_flavortext": "让你可以在一些难以跋涉的地形移动。",
+  "boots_flavortext": "提高远距离移动能力。",
+  "ship_flavortext": "提高远距离移动能力。",
+  "aircraft_flavortext": "提高远距离移动能力。",
 
   "amulet": "项链",
   "ring": "指环",

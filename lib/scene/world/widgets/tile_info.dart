@@ -41,7 +41,7 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
           Align(
             alignment: Alignment.center,
             child:
-                // ElevatedButton(
+                // fluent.FilledButton(
                 //   onPressed: () {
                 //     showDialog(
                 //       context: context,
@@ -64,7 +64,7 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
           // if (currentLocation != null)
           //   Text('${engine.locale('location')}: ${currentLocation['name']}'),
           if (currentTerrain?.isNonEnterable == true)
-            Text(engine.locale('nonInteractable')),
+            Text(engine.locale('isNotEnterable')),
           if (currentTerrain?.objectId != null)
             Text('${engine.locale('mapObject')}: ${currentTerrain!.objectId!}'),
         ],

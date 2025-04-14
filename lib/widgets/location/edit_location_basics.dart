@@ -2,33 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/extensions.dart' show StringEx;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/data.dart';
 import '../../game/ui.dart';
+import '../ui/menu_builder.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
   /// category, kind, id, name, image, background
   const EditLocationBasics({
     super.key,
+    this.id,
     this.category,
     this.kind,
-    this.id,
     this.name,
     this.image,
     this.background,
+    this.atTerrain,
     this.allowEditCategory = true,
+    this.allowEditKind = true,
   });
 
+  final String? id;
   final String? category;
   final String? kind;
-  final String? id;
   final String? name;
   final String? image;
   final String? background;
+  final dynamic atTerrain;
 
-  final bool allowEditCategory;
+  final bool allowEditCategory, allowEditKind;
 
   @override
   State<EditLocationBasics> createState() => _EditLocationBasicsState();
@@ -54,10 +59,15 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     _categories['site'] = engine.locale('site');
 
     if (widget.category != null) {
-      setCategory(category: widget.category!, kind: widget.kind);
+      setCategoryKind(category: widget.category!, kind: widget.kind);
     } else {
-      setCategory(category: 'city');
+      setCategoryKind(category: 'city');
     }
+
+    _idEditingController.text = widget.id ?? '';
+    _nameEditingController.text = widget.name ?? '';
+    _imageEditingController.text = widget.image ?? '';
+    _backgroundEditingController.text = widget.background ?? '';
   }
 
   @override
@@ -70,7 +80,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     _backgroundEditingController.dispose();
   }
 
-  void setCategory({String? category, String? kind}) {
+  void setCategoryKind({String? category, String? kind}) {
     if (category == null && kind == null) {
       return;
     }
@@ -113,8 +123,8 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      width: 400.0,
-      height: 400.0,
+      width: 600.0,
+      height: 480.0,
       backgroundColor: GameUI.backgroundColor2,
       child: Scaffold(
         appBar: AppBar(
@@ -122,151 +132,115 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
           title: Text(engine.locale('editSite')),
           actions: const [CloseButton2()],
         ),
-        body: SizedBox(
-          width: 400.0,
-          height: 400.0,
+        body: Container(
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              SizedBox(
-                width: 320.0,
-                height: 50.0,
+              Row(
+                children: [
+                  SizedBox(
+                    width: 100.0,
+                    child: Text('${engine.locale('category')}:'),
+                  ),
+                  fluent.DropDownButton(
+                    disabled: !widget.allowEditCategory,
+                    title: Text(engine.locale(_selectedCategory)),
+                    items: buildFluentMenuItems(
+                      items: {
+                        for (final key in _categories.keys)
+                          engine.locale(key): key,
+                      },
+                      onSelectedItem: (String value) {
+                        setCategoryKind(category: value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
                 child: Row(
                   children: [
                     SizedBox(
-                      width: 90.0,
-                      child: Text(engine.locale('category')),
-                    ),
-                    SizedBox(
                       width: 100.0,
-                      height: 50,
-                      child: DropdownButton<String>(
-                        style: GameUI.textTheme.bodyMedium,
-                        value: _selectedCategory,
-                        items: _categories.keys
-                            .map(
-                              (key) => DropdownMenuItem<String>(
-                                value: key,
-                                child: Text(_categories[key]!),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: widget.allowEditCategory
-                            ? (value) {
-                                setCategory(category: value);
-                              }
-                            : null,
+                      child: Text('${engine.locale('kind')}:'),
+                    ),
+                    fluent.DropDownButton(
+                      disabled: !widget.allowEditKind,
+                      title: Text(engine.locale(_selectedKind)),
+                      items: buildFluentMenuItems(
+                        items: {
+                          for (final key in _kinds.keys)
+                            engine.locale(key): key,
+                        },
+                        onSelectedItem: (String value) {
+                          setCategoryKind(kind: value);
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(
-                width: 320.0,
-                height: 50.0,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 90.0,
-                      child: Text(engine.locale('kind')),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(
+                    width: 100.0,
+                    child: Text('ID:'),
+                  ),
+                  SizedBox(
+                    width: 200.0,
+                    height: 40.0,
+                    child: TextField(
+                      controller: _idEditingController,
                     ),
-                    SizedBox(
-                      width: 100.0,
-                      height: 50,
-                      child: DropdownButton<String>(
-                          style: GameUI.textTheme.bodyMedium,
-                          value: _selectedKind,
-                          items: _kinds.keys
-                              .map(
-                                (key) => DropdownMenuItem<String>(
-                                  value: key,
-                                  child: Text(_kinds[key]!),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            setCategory(kind: value);
-                          }),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   SizedBox(
-                    width: 320.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 90.0,
-                          child: Text('ID'),
-                        ),
-                        SizedBox(
-                          width: 230.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _idEditingController,
-                          ),
-                        ),
-                      ],
-                    ),
+                    width: 100.0,
+                    child: Text('${engine.locale('name')}: '),
                   ),
                   SizedBox(
-                    width: 320.0,
+                    width: 200.0,
                     height: 40.0,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90.0,
-                          child: Text('${engine.locale('name')}: '),
-                        ),
-                        SizedBox(
-                          width: 230.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _nameEditingController,
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: _nameEditingController,
                     ),
                   ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
                   SizedBox(
-                    width: 320.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90.0,
-                          child: Text('${engine.locale('image')}: '),
-                        ),
-                        SizedBox(
-                          width: 230.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _imageEditingController,
-                          ),
-                        ),
-                      ],
-                    ),
+                    width: 100.0,
+                    child: Text('${engine.locale('image')}: '),
                   ),
                   SizedBox(
-                    width: 320.0,
+                    width: 450.0,
                     height: 40.0,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90.0,
-                          child: Text('${engine.locale('background')}: '),
-                        ),
-                        SizedBox(
-                          width: 230.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _backgroundEditingController,
-                          ),
-                        ),
-                      ],
+                    child: TextField(
+                      controller: _imageEditingController,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    width: 100.0,
+                    child: Text('${engine.locale('background')}: '),
+                  ),
+                  SizedBox(
+                    width: 450.0,
+                    height: 40.0,
+                    child: TextField(
+                      controller: _backgroundEditingController,
                     ),
                   ),
                 ],
@@ -274,24 +248,26 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
-                    String? category = _selectedCategory?.nonEmptyValue;
-                    String? kind = _selectedKind?.nonEmptyValue;
                     String? id = _idEditingController.text.nonEmptyValue;
                     String? name = _nameEditingController.text.nonEmptyValue;
+                    String? category = _selectedCategory?.nonEmptyValue;
+                    String? kind = _selectedKind?.nonEmptyValue;
                     String? image = _imageEditingController.text.nonEmptyValue;
                     String? background =
                         _backgroundEditingController.text.nonEmptyValue;
 
-                    Navigator.of(context).pop((
-                      category,
-                      kind,
-                      id,
-                      name,
-                      image,
-                      background,
-                    ));
+                    if (id != null && name != null) {
+                      Navigator.of(context).pop((
+                        id,
+                        category,
+                        kind,
+                        name,
+                        image,
+                        background,
+                      ));
+                    }
                   },
                   child: Text(
                     engine.locale('confirm'),

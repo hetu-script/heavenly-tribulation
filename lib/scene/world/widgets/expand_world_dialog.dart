@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
 import '../../../game/ui.dart';
@@ -57,7 +58,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       width: 250.0,
-      height: 160.0,
+      height: 200.0,
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -233,7 +234,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
               // ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     final x = int.tryParse(_posXController.text);
                     final y = int.tryParse(_posYController.text);

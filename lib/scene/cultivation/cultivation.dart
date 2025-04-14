@@ -22,7 +22,6 @@ import '../../engine.dart';
 import '../../game/logic.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
-import '../game_dialog/selection_dialog.dart';
 import '../../widgets/ui_overlay.dart';
 import '../common.dart';
 import '../../game/event_ids.dart';
@@ -119,6 +118,8 @@ class CultivationScene extends Scene {
 
   final Map<String, SpriteComponent2> _nodeConnections = {};
 
+  FutureOr<void> Function()? onEnterScene;
+
   bool _showPassiveTree = false;
 
   void setPassiveTreeState(bool state) {
@@ -153,6 +154,8 @@ class CultivationScene extends Scene {
     } else {
       characterData = GameData.heroData;
     }
+
+    onEnterScene = arguments['onEnterScene'];
 
     // 某些时候通过characterData传递了角色信息，但其实还是传的主角
     isHero = characterData == GameData.heroData;
@@ -392,16 +395,8 @@ class CultivationScene extends Scene {
           if (isAttribute) {
             // 如果是属性节点，需要特殊处理
             final selectedAttributeId =
-                await SelectionDialog.show(context, selectionsData: {
-              'selections': {
-                'dexterity': engine.locale('dexterity'),
-                'spirituality': engine.locale('spirituality'),
-                'strength': engine.locale('strength'),
-                'willpower': engine.locale('willpower'),
-                'perception': engine.locale('perception'),
-                'cancel': engine.locale('cancel'),
-              },
-            });
+                await engine.hetu.invoke('selectHeroAttribute');
+
             if (selectedAttributeId == null ||
                 selectedAttributeId == 'cancel') {
               return;
@@ -542,13 +537,11 @@ class CultivationScene extends Scene {
   }
 
   void _updateTimeOfDay() {
-    final timeOfDay = engine.hetu.fetch('timeOfDay');
-
-    timeOfDaySprite.tryLoadSprite(spriteId: 'time/$timeOfDay.png');
+    timeOfDaySprite.tryLoadSprite(spriteId: 'time/${GameLogic.timeOfDay}.png');
   }
 
   void _tick() async {
-    await engine.hetu.invoke('updateGame');
+    GameLogic.updateGame();
     _updateTimeOfDay();
 
     final bool success = engine.hetu.invoke(
@@ -897,7 +890,7 @@ class CultivationScene extends Scene {
   }
 
   @override
-  void onMount() {
+  void onMount() async {
     super.onMount();
 
     context.read<EnemyState>().setPrebattleVisible(false);
@@ -923,7 +916,11 @@ class CultivationScene extends Scene {
       expCollectionButton.isVisible = false;
     }
 
+    await onEnterScene?.call();
+
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
+
+    camera.snapTo(center);
   }
 
   /// 处理角色升级相关逻辑
@@ -1007,6 +1004,24 @@ class CultivationScene extends Scene {
   }
 
   @override
+  void onTapDown(int pointer, int buttons, TapDownDetails details) {
+    super.onTapDown(pointer, buttons, details);
+
+    if (buttons == kSecondaryButton) {
+      engine.setCursor(Cursors.drag);
+    }
+  }
+
+  @override
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {
+    super.onTapUp(pointer, buttons, details);
+
+    if (buttons == kSecondaryButton) {
+      engine.setCursor(Cursors.normal);
+    }
+  }
+
+  @override
   void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     super.onDragUpdate(pointer, buttons, details);
 
@@ -1020,6 +1035,8 @@ class CultivationScene extends Scene {
     super.onDragEnd(pointer, buttons, details);
 
     _focusNode.requestFocus();
+
+    engine.setCursor(Cursors.normal);
   }
 
   @override
@@ -1078,7 +1095,7 @@ class CultivationScene extends Scene {
                 border: Border.all(color: GameUI.foregroundColor),
               ),
               child: IconButton(
-                padding: EdgeInsets.zero,
+                padding: const EdgeInsets.all(0),
                 onPressed: () {
                   GameDialogContent.show(
                     context,

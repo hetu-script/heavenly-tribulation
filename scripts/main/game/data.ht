@@ -3,38 +3,23 @@
 // import '../game/player.ht'
 // export '../random.ht'
 
-/// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置
-let isDebugMode
-let isNewGame
-
 let game
-// game.characters[game.heroId]
-let hero
-
 let universe
-// universe[game.currentWorldId]
-let world
-
-let history
+// let history
 // history[game.currentWorldId]
 let timeline
 
-let ticksOfYear
-let ticksOfMonth
-let ticksOfDay
-let year
-let month
-let day
-let timeOfDay
+// universe[game.currentWorldId]
+let world
+// game.characters[game.heroId]
+let hero
 
-/// 这几个值仅在战斗场景中会被赋值，指向当前战斗的敌人
+/// 这几个值仅在特定场景中会被赋值
+let merchant
 let enemy
 let self
 let opponent
 let battleFlags
-
-/// 这个值仅在交易场景中会被赋值，指向当前交易的对象
-let merchant
 
 /// 用于限制玩家每个月的互动操作次数，月初会重置
 struct MonthlyActions {
@@ -99,6 +84,7 @@ struct GameData {
     this.timestamp = 0
     this.flags = {}
 
+    this.npcs = {}
     this.deceased = {}
     this.babies = {}
     this.characters = {}
@@ -141,13 +127,10 @@ struct GameData {
 function createGame(saveName) {
   engine.debug('准备开始新游戏')
   game = GameData(saveName: saveName)
-  calculateTimestamp()
   universe = {}
-
-  hero = null
-  world = null
-
   timeline = {}
+  world = null
+  hero = null
 }
 
 function resetPlayerMonthlyActivities() {
@@ -175,20 +158,6 @@ const kTimeOfDay = {
   '2': 'afternoon',
   '3': 'evening',
   '4': 'midnight',
-}
-
-function getTicksOfDayName() {
-  return engine.locale(timeOfDay)
-}
-
-function calculateTimestamp() {
-  ticksOfYear = (game.timestamp % kTicksPerYear) + 1
-  ticksOfMonth = (game.timestamp % kTicksPerMonth) + 1
-  ticksOfDay = (game.timestamp % kTicksPerDay) + 1
-  year = toYear(game.timestamp) + 1
-  month = toMonth(game.timestamp) + 1
-  day = toDay(game.timestamp) + 1
-  timeOfDay = kTimeOfDay[ticksOfDay]
 }
 
 function getTicksTillNextDay() {
@@ -228,8 +197,8 @@ function loadGameFromJsonData({
 
   world = universe[game.currentWorldId]
   // timeline = history[game.currentWorldId]
-  assert(world != null)
-  assert(timeline != null)
+  assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
+  // assert(timeline != null)
   
   engine.info('当前世界: [${world.id}]')
 
@@ -238,9 +207,6 @@ function loadGameFromJsonData({
     hero = game.characters[game.heroId]
     engine.info('当前英雄: [${hero.name}]')
   }
-
-  calculateTimestamp()
-  engine.info('游戏时间: [${year}年${month}月${day}日${timeOfDay}]')
 }
 
 function addWorld(newWorld) {
@@ -372,7 +338,7 @@ function getWorldIds {
 
 function setCurrentWorld(id) {
   assert(universe.containsKey(id), id)
-  assert(history.containsKey(id), id)
+  // assert(history.containsKey(id), id)
   world = universe[id]
   // timeline = history[id]
   game.currentWorldId = id
@@ -383,7 +349,7 @@ function deleteWorldById(id) {
   assert(world.id != id)
   engine.warn('删除世界数据: [${id}]')
   universe.remove(id)
-  history.remove(id)
+  // history.remove(id)
 }
 
 function getWorldSize({worldId}) {

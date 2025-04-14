@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../dropdown_menu_button.dart';
@@ -41,7 +42,6 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     _selectedValue = widget.selectedValue ?? widget.selections.keys.first;
@@ -82,7 +82,7 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(5.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       Navigator.of(context).pop(_selectedValue);
                     },

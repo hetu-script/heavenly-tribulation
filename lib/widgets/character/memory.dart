@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../bonds.dart';
 import 'history.dart';
@@ -188,7 +189,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
               if (_tabController.index == 0)
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       showDialog(
                         context: context,
@@ -214,7 +215,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop(_characterData['id']);
                   },
@@ -246,7 +247,8 @@ class CharacterMemoryView extends StatelessWidget {
       alignment: AlignmentDirectional.center,
       backgroundColor: GameUI.backgroundColor2,
       width: GameUI.profileWindowSize.x,
-      height: GameUI.profileWindowSize.y,
+      height: GameUI.profileWindowSize.y +
+          ((mode == InformationViewMode.edit) ? 50 : 0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

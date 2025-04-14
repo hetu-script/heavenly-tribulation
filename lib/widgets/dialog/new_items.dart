@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
 import '../../engine.dart';
@@ -76,7 +77,7 @@ class NewItems extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              ElevatedButton(
+              fluent.FilledButton(
                 onPressed: () {
                   completer?.complete();
                   context.read<NewItemsState>().update();

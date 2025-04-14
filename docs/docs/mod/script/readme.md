@@ -23,7 +23,6 @@ function main()
 通用事件和地图无关，在任何地图或者场景都会触发
 
 ```javascript
-/// 进入修炼界面
 /// ----------窗口操作----------
 async function onOpenInventory()
 async function onEnterLibrary()
@@ -32,8 +31,8 @@ async function onEnterCultivation()
 async function onRested()
 /// ----------角色互动----------
 async function onBeforeInteractCharacter(character)
-async function onTalkTo(character, topic)
 async function onInquiryQuest(character, quest)
+// async function onTalkTo(character, topic)
 async function onShowTo(character, item)
 /// ----------物品互动----------
 async function onEquipItem(item)
@@ -44,6 +43,13 @@ async function onShowItem(character, item)
 async function onGiftItem(character, item)
 /// 某些身上的装备，会随着时间流逝调用自定义函数刷新属性
 async function onUpdateItem(item)
+/// ----------据点场景----------
+async function onBeforeEnterLocation(location)
+/// 进入据点场景
+async function onAfterEnterLocation(location)
+async function onBeforeExitLocation(location)
+// /// 在场景中点击某个非预定义的子场景时触发
+async function onInteractLocationObject(object, location)
 ```
 
 ### 地图事件
@@ -58,7 +64,7 @@ async function onNewGame()
 async function onEnterMap()
 /// ----------世界地图----------
 /// 刷新大地图世界时间，timestamp+1 后触发，非大地图的地牢没有这个事件
-async function onAfterUpdate()
+// async function onAfterUpdate()
 /// 开始移动之前触发，如果返回值不为null，则会停止移动
 async function onBeforeMove(terrain)
 async function onAfterMove(terrain, worldId)
@@ -66,12 +72,4 @@ async function onAfterMove(terrain, worldId)
 async function onEnterTerritory(terrain, organization)
 /// 在地牢中点击某个地图上的可互动物体时触发
 async function onInteractMapObject(object, terrain)
-// /// 在场景中点击某个非预定义的子场景时触发
-async function onInteractLocationObject(object, location)
-/// ----------据点场景----------
-async function onBeforeEnterLocation(location)
-/// 进入据点场景
-async function onAfterEnterLocation(location)
-async function onBeforeExitLocation(location)
-async function onAfterExitLocation(location)
 ```

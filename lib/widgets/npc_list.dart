@@ -51,8 +51,8 @@ class _NpcListState extends State<NpcList> {
         child: Avatar(
             // cursor: SystemMouseCursors.click,
             color: GameUI.backgroundColor2,
-            displayName: (haveMet != null) ? characterData['name'] : '???',
-            size: const Size(80, 80),
+            name: (haveMet != null) ? characterData['name'] : '???',
+            size: const Size(100, 100),
             characterData: characterData,
             borderWidth: 1.0,
             borderRadius: 5.0,

@@ -276,7 +276,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             target: placeholder,
             direction: HovertipDirection.bottomCenter,
             content: engine.locale('deckbuilding_new_deck_hint'),
-            config: ScreenTextConfig(anchor: Anchor.topCenter),
+            config: ScreenTextConfig(anchor: Anchor.bottomCenter),
             width: 200,
           );
         case PlaceHolderState.editDeck:
@@ -285,7 +285,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             target: placeholder,
             direction: HovertipDirection.bottomCenter,
             content: engine.locale('deckbuilding_add_card_hint'),
-            config: ScreenTextConfig(anchor: Anchor.topCenter),
+            config: ScreenTextConfig(anchor: Anchor.bottomCenter),
+            width: 200,
           );
         case PlaceHolderState.deckCover:
           Hovertip.show(
@@ -293,7 +294,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             target: placeholder,
             direction: HovertipDirection.topCenter,
             content: engine.locale('deckbuilding_edit_deck_hint'),
-            config: ScreenTextConfig(anchor: Anchor.center),
+            config: ScreenTextConfig(anchor: Anchor.bottomCenter),
+            width: 200,
           );
       }
     };
@@ -390,9 +392,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
     card.onDragStart =
         (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int buttons, Vector2 offset) =>
+    card.onDragUpdate = (int buttons, Vector2 postion, Vector2 delta) =>
         // TODO: 这里为什么要除以 2 才能正确的得到位置???
-        (game as CardLibraryScene).draggingCard?.position += offset / 2;
+        (game as CardLibraryScene).draggingCard?.position += delta / 2;
     card.onDragEnd = (buttons, position) {
       final libraryScene = game as CardLibraryScene;
       final draggingCard = libraryScene.draggingCard;

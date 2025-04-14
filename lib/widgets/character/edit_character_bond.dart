@@ -3,6 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:flutter/services.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../dialog/character_select.dart';
 import '../../engine.dart';
@@ -93,7 +94,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                             controller: _targetCharacterIdEditingController,
                           ),
                         ),
-                        ElevatedButton(
+                        fluent.FilledButton(
                           onPressed: widget.enableTargetEdit
                               ? () async {
                                   final charactersData =
@@ -147,8 +148,8 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                           height: 40.0,
                           child: Row(
                             children: [
-                              Checkbox(
-                                value: _haveMetValue,
+                              fluent.Checkbox(
+                                checked: _haveMetValue,
                                 onChanged: (newValue) {
                                   if (newValue != null) {
                                     setState(() {
@@ -168,7 +169,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     String? id =
                         _targetCharacterIdEditingController.text.nonEmptyValue;

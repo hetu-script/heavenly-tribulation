@@ -37,12 +37,17 @@ class MainMenuScene extends Scene {
           'rank': 1,
         },
       );
-      // engine.hetu.invoke('acquireById',
-      //     namespace: 'Player', positionalArgs: ['hunguding']);
       context.read<HeroState>().update();
       context.read<HeroInfoVisibilityState>().setVisible(true);
       context.read<GameTimestampState>().update();
     }
+
+    context.read<HeroPositionState>().updateTerrain(
+          currentZoneData: null,
+          currentNationData: null,
+          currentTerrainData: null,
+        );
+    context.read<HeroPositionState>().updateLocation(null);
   }
 
   @override

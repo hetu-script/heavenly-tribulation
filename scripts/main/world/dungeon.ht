@@ -161,7 +161,7 @@ function addRestBed(tilePosition, {
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
 
-function addCultivationStatue(tilePosition, {
+function addCultivationStele(tilePosition, {
   objectId = 'cultivation',
   hoverContent,
   enableCultivate = false,

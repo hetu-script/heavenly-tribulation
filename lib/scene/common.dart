@@ -35,6 +35,7 @@ const kTerrainKindVoid = 'void';
 const kTerrainKindPlain = 'plain';
 const kTerrainKindMountain = 'mountain';
 const kTerrainKindForest = 'forest';
+const kTerrainKindSnowPlain = 'snow_plain';
 const kTerrainKindShore = 'shore';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
@@ -55,10 +56,11 @@ const kMouseCursorEffectPriority = 99999999;
 
 abstract class Scenes {
   static const mainmenu = 'mainmenu';
-  static const cardlibrary = 'cardlibrary';
+  static const library = 'library';
   static const cultivation = 'cultivation';
   static const worldmap = 'worldmap';
   static const location = 'location';
+  static const prebattle = 'prebattle';
   static const battle = 'battle';
 
   /// 这个 id 仅用于事件注册，在创建场景时，editor 使用 worldmap 作为 id

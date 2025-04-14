@@ -37,7 +37,7 @@ class SceneInfo {
   });
 }
 
-class GameDialogState with ChangeNotifier, TaskController {
+class GameDialog with ChangeNotifier, TaskController {
   bool isOpened = false;
 
   /// key是图片的asset路径
@@ -97,16 +97,12 @@ class GameDialogState with ChangeNotifier, TaskController {
   }
 
   void popBackground({String? imageId, isFadeOut = false}) {
-    if (scenes.isEmpty) {
-      engine.warn(
-          'game dialog: pop background failed, no background to pop. imageId: $imageId');
-      return;
-    }
-
     assert(isOpened == true);
     final taskId = 'pop_background_${randomUID(withTime: true)}';
     schedule(
       () {
+        assert(scenes.isNotEmpty,
+            'game dialog: pop background failed, no background to pop. imageId: $imageId');
         if (imageId != null) {
           prevScene = scenes.singleWhere(
             (scene) => scene.path == 'assets/images/$imageId',
@@ -128,15 +124,12 @@ class GameDialogState with ChangeNotifier, TaskController {
   }
 
   void popAllBackgrounds() {
-    if (scenes.isEmpty) {
-      engine.warn('game dialog: pop background failed, no background to pop.');
-      return;
-    }
-
     assert(isOpened == true);
     final taskId = 'pop_all_backgrounds_${randomUID(withTime: true)}';
     schedule(
       () {
+        assert(scenes.isNotEmpty,
+            'game dialog: pop background failed, no background to pop.');
         if (scenes.isNotEmpty) {
           prevScene = scenes.last;
         }
@@ -168,15 +161,12 @@ class GameDialogState with ChangeNotifier, TaskController {
   }
 
   void popImage({String? imageId}) {
-    if (illustrations.isEmpty) {
-      engine.warn('game dialog: pop image failed, no image to pop.');
-      return;
-    }
-
     assert(isOpened == true);
     final taskId = 'pop_image_${randomUID(withTime: true)}';
     schedule(
       () {
+        assert(illustrations.isNotEmpty,
+            'game dialog: pop image failed, no image to pop.');
         if (imageId != null) {
           illustrations
               .removeWhere((img) => img.path == 'assets/images/$imageId');
@@ -189,6 +179,29 @@ class GameDialogState with ChangeNotifier, TaskController {
     );
   }
 
+  void popAllImages() {
+    assert(isOpened == true);
+    final taskId = 'pop_all_images_${randomUID(withTime: true)}';
+    schedule(
+      () {
+        assert(illustrations.isNotEmpty,
+            'game dialog: pop image failed, no image to pop.');
+        illustrations.clear();
+        notifyListeners();
+      },
+      id: taskId,
+    );
+  }
+
+  /// 推送游戏对话，数据格式如下
+  /// ```javascript
+  /// {
+  ///   name: string,
+  ///   icon: icon,
+  ///   image: string,
+  ///   lines: []string,
+  /// }
+  /// ```
   void pushDialog(dynamic content, {String? imageId}) {
     isOpened = true;
     if (imageId != null) {
@@ -241,6 +254,16 @@ class GameDialogState with ChangeNotifier, TaskController {
     });
   }
 
+  /// selection data 数据格式：
+  /// ```
+  /// {
+  ///   selections: {
+  ///     // 可以只有一个单独的文本
+  ///     selectKey1: 'localedText1',
+  ///     // 也可以是文本加一个描述文本
+  ///     selectKey2: { text: 'localedText3', description: 'localedText4' },
+  ///   }
+  /// }
   void pushSelection(dynamic selectionsData) {
     assert(selectionsData is HTStruct || selectionsData is Map);
     final taskId = 'push_selection_${randomUID(withTime: true)}';

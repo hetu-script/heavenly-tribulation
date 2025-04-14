@@ -46,7 +46,7 @@ dependencies:
   provider: ^6.1.2
   dropdown_button2: ^2.3.9
   flutter_custom_cursor: ^0.0.4
-  fluent_ui: ^4.11.2
+  fluent_ui: ^4.11.3
 
 dev_dependencies:
   flutter_test:

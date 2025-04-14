@@ -3,14 +3,6 @@
 // import '../entity/entity.ht'
 // import '../common.ht'
 
-const kAddAffixCostRatio = 10;
-const kRerollAffixCostRatio = 20;
-const kReplaceAffixCostRatio = 20;
-const kUpgradeCardCostRatio = 10;
-const kUpgradeRankCostRatio = 10;
-
-const kBattleCardPriceRatio = 10;
-
 const kCardGenres = [
   null,
   ...kCultivationGenres,
@@ -310,11 +302,11 @@ function addAffix(card) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
   
-  final expNeeded = expForLevel(card.level) ~/ kAddAffixCostRatio
-  if (hero.unconvertedExp < expNeeded) {
-    return engine.locale('deckbuilding_insufficientExp_warning')
+  final cost = Game.getCardCraftOperationCost('addAffix', card)
+  if (hero.unconvertedExp < cost) {
+    return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= expNeeded
+  hero.unconvertedExp -= cost
 
   final affix = random.nextIterable(supportAffixes)
 
@@ -336,11 +328,11 @@ function rerollAffix(card) {
     return engine.locale('deckbuilding_rerollAffix_warning')
   }
   
-  final expNeeded = expForLevel(card.level) ~/ kRerollAffixCostRatio
-  if (hero.unconvertedExp < expNeeded) {
-    return engine.locale('deckbuilding_insufficientExp_warning')
+  final cost = Game.getCardCraftOperationCost('rerollAffix', card)
+  if (hero.unconvertedExp < cost) {
+    return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= expNeeded
+  hero.unconvertedExp -= cost
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -362,11 +354,11 @@ function replaceAffix(card) {
     return engine.locale('deckbuilding_replaceAffix_warning')
   }
 
-  final expNeeded = expForLevel(card.level) ~/ kReplaceAffixCostRatio
-  if (hero.unconvertedExp < expNeeded) {
-    return engine.locale('deckbuilding_insufficientExp_warning')
+  final cost = Game.getCardCraftOperationCost('replaceAffix', card)
+  if (hero.unconvertedExp < cost) {
+    return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= expNeeded
+  hero.unconvertedExp -= cost
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -389,11 +381,11 @@ function upgradeCard(card) {
     return engine.locale('deckbuilding_upgradeCard_warning')
   }
 
-  final expNeeded = expForLevel(card.level) ~/ kUpgradeCardCostRatio
-  if (hero.unconvertedExp < expNeeded) {
-    return engine.locale('deckbuilding_insufficientExp_warning')
+  final cost = Game.getCardCraftOperationCost('upgradeCard', card)
+  if (hero.unconvertedExp < cost) {
+    return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= expNeeded
+  hero.unconvertedExp -= cost
 
   card.level += 1
 
@@ -415,11 +407,11 @@ function upgradeRank(card) {
     return engine.locale('deckbuilding_upgradeRank_warning')
   }
 
-  final expNeeded = expForLevel(card.rank) * kUpgradeRankCostRatio
-  if (hero.unconvertedExp < expNeeded) {
-    return engine.locale('deckbuilding_insufficientExp_warning')
+  final cost = Game.getCardCraftOperationCost('upgradeRank', card)
+  if (hero.unconvertedExp < cost) {
+    return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= expNeeded
+  hero.unconvertedExp -= cost
 
   final successRate = getCardRankUpProbability(card.rank)
   if (random.nextDouble() > successRate) {

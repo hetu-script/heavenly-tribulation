@@ -4,6 +4,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../ui/bordered_icon_button.dart';
 import '../avatar.dart';
@@ -18,6 +19,7 @@ import '../../game/logic.dart';
 import '../../state/states.dart';
 import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
+import '../../game/event_ids.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
@@ -45,6 +47,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
       // _identifyStatsButtonKey = GlobalKey(),
       _identifyDeckButtonKey = GlobalKey();
 
+  final menuController = fluent.FlyoutController();
+
   List<dynamic> _heroDecks = [];
 
   List<Widget> _heroDeck = [], _enemyDeck = [];
@@ -59,6 +63,11 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
   @override
   void initState() {
     super.initState();
+
+    engine.addEventListener(Scenes.prebattle, GameEvents.heroPassivesUpdated,
+        (args) {
+      setState(() {});
+    });
 
     final int playerMonthlyIdentifiedCards =
         GameData.gameData['playerMonthly']['identifiedEnemyCards'];
@@ -76,32 +85,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemyData);
   }
 
-  List<PopupMenuEntry<int>> buildDeckSelectionPopUpMenuItems(
-      BuildContext context) {
-    if (_heroDecks.isEmpty) {
-      return <PopupMenuEntry<int>>[
-        buildMenuItem(
-          item: -1,
-          name: engine.locale('prebattle_no_decks'),
-        ),
-      ];
-    } else {
-      final items = <PopupMenuEntry<int>>[];
-      for (int i = 0; i < _heroDecks.length; i++) {
-        final deckInfo = _heroDecks[i];
-        items.add(buildMenuItem(
-          item: i,
-          name: deckInfo['title'],
-        ));
-      }
-      if (items.isEmpty) {
-        items.add(buildMenuItem(
-          item: -1,
-          name: engine.locale('prebattle_no_decks'),
-        ));
-      }
-      return items;
-    }
+  @override
+  void dispose() {
+    engine.removeEventListener(Scenes.prebattle);
+
+    menuController.dispose();
+    super.dispose();
   }
 
   List<Widget> _createDeckCardWidgets(dynamic characterData,
@@ -254,12 +243,26 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
                           onTapUp: () {
-                            engine.pushScene(Scenes.cardlibrary, arguments: {
-                              'enableCardCraft':
-                                  engine.scene?.id == Scenes.mainmenu,
-                              'enableScrollCraft':
-                                  engine.scene?.id == Scenes.mainmenu,
-                            });
+                            engine.pushScene(Scenes.cultivation);
+                          },
+                          onMouseEnter: (rect) {
+                            context
+                                .read<HoverContentState>()
+                                .show(engine.locale('skillTree'), rect);
+                          },
+                          onMouseExit: () {
+                            context.read<HoverContentState>().hide();
+                          },
+                          child: const Image(
+                            image:
+                                AssetImage('assets/images/icon/cultivate.png'),
+                          ),
+                        ),
+                        BorderedIconButton(
+                          size: GameUI.infoButtonSize,
+                          padding: const EdgeInsets.only(right: 10.0),
+                          onTapUp: () {
+                            engine.pushScene(Scenes.library);
                           },
                           onMouseEnter: (rect) {
                             context
@@ -277,35 +280,35 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         Padding(
                           padding:
                               const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                          child: Container(
-                            height: 32.0,
-                            width: 110.0,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              borderRadius: BorderRadius.circular(5.0),
-                              border: Border.all(color: Colors.white),
-                            ),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: PopupMenuButton<int>(
-                                tooltip: '',
-                                offset: const Offset(-8.0, 32.0),
-                                onSelected: (int index) {
-                                  widget.heroData['battleDeckIndex'] = index;
-                                  _heroDeck = _createDeckCardWidgets(
-                                      widget.heroData,
-                                      isHero: true);
-                                  // heroBattleDeckCards = _getBattleDeckCardsData(
-                                  //     widget.heroData,
-                                  //     isHero: true);
-                                  setState(() {});
-                                },
-                                itemBuilder: buildDeckSelectionPopUpMenuItems,
-                                child: Label(
-                                  engine.locale('decks'),
-                                  width: 150.0,
-                                  textAlign: TextAlign.center,
-                                ),
+                          child: fluent.FlyoutTarget(
+                            controller: menuController,
+                            child: fluent.FilledButton(
+                              onPressed: () {
+                                showFluentMenu(
+                                    controller: menuController,
+                                    items: _heroDecks.isEmpty
+                                        ? {
+                                            engine.locale('prebattle_no_decks'):
+                                                -1,
+                                          }
+                                        : {
+                                            for (var i = 0;
+                                                i < _heroDecks.length;
+                                                ++i)
+                                              _heroDecks[i]['title']: i
+                                          },
+                                    onSelectedItem: (int index) {
+                                      widget.heroData['battleDeckIndex'] =
+                                          index;
+                                      _heroDeck = _createDeckCardWidgets(
+                                        widget.heroData,
+                                        isHero: true,
+                                      );
+                                    });
+                              },
+                              child: Label(
+                                '${engine.locale('decks')}: ${_heroDecks.length}',
+                                width: 120.0,
                               ),
                             ),
                           ),
@@ -349,7 +352,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                     padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                     child: SizedBox(
                       height: 50.0,
-                      child: ElevatedButton(
+                      child: fluent.FilledButton(
                         onPressed: () {
                           if (_warning != null && !widget.ignoreRequirement) {
                             GameDialogContent.show(context, _warning!);
@@ -419,7 +422,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         const Spacer(),
                         // Padding(
                         //   padding: EdgeInsets.only(right: 15.0),
-                        //   child: ElevatedButton(
+                        //   child: fluent.FilledButton(
                         //     key: _identifyStatsButtonKey,
                         //     onPressed: () {},
                         //     onHover: (entered) {
@@ -439,7 +442,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         // ),
                         Padding(
                           padding: EdgeInsets.only(right: 5.0),
-                          child: ElevatedButton(
+                          child: fluent.FilledButton(
                             key: _identifyDeckButtonKey,
                             onPressed: () {
                               if (_availableIdentifyCount > 0) {
@@ -476,14 +479,13 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 );
                               }
                             },
-                            onHover: (entered) {
-                              if (entered) {
+                            child: Label(
+                              engine.locale('identifyDeck'),
+                              onMouseEnter: (rect) {
                                 final hint =
                                     '${engine.locale('identifyDeck')}\n'
                                     '${engine.locale('available_count')}: <bold ${_availableIdentifyCount > 0 ? 'yellow' : 'grey'}>${_availableIdentifyCount.toString().padLeft(4)}</>\n'
                                     '<grey>${engine.locale('identify_deck_hint')}</>';
-                                final rect = getRenderRect(
-                                    _identifyDeckButtonKey.currentContext!);
                                 context.read<HoverContentState>().show(
                                       hint,
                                       rect,
@@ -491,11 +493,11 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                       direction:
                                           HoverContentDirection.topCenter,
                                     );
-                              } else {
+                              },
+                              onMouseExit: () {
                                 context.read<HoverContentState>().hide();
-                              }
-                            },
-                            child: Text(engine.locale('identifyDeck')),
+                              },
+                            ),
                           ),
                         ),
                       ],

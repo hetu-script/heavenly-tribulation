@@ -59,7 +59,6 @@
   "deckbuilding_dismantle_description": "分解卡牌，获得灵光。",
   "deckbuilding_craftCard_description": "合成一张随机卡牌。",
 
-  "deckbuilding_insufficientExp_warning": "没有足够的灵光进行此操作。",
   "deckbuilding_identifyCard_warning": "卡牌已被鉴定过了。",
   "deckbuilding_addAffix_warning": "当前卡牌已经拥有最大数量的额外词条。",
   "deckbuilding_rerollAffix_warning": "当前卡牌没有可以重置数值的额外词条。",

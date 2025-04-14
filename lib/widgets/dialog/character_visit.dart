@@ -150,10 +150,14 @@ class CharacterVisitDialog extends StatelessWidget {
           scrollController: ScrollController(),
           empty: EmptyPlaceholder(engine.locale('empty')),
           columns: _kCharacterVisitTableColumns
-              .map((title) => DataColumn(
+              .map((title) => DataColumn2(
+                    size: ColumnSize.L,
                     label: TextButton(
                       onPressed: () {},
-                      child: Text(engine.locale(title)),
+                      child: Text(
+                        engine.locale(title),
+                        style: GameUI.textTheme.bodyLarge,
+                      ),
                     ),
                   ))
               .toList(),

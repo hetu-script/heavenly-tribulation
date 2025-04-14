@@ -25,71 +25,7 @@ enum DebugMenuItems {
   debugBattle,
   debugTribulation,
   debugAutoAllocateSkills,
-}
-
-fluent.MenuFlyout buildDebugMenuItems(
-  BuildContext context, {
-  void Function(DebugMenuItems item)? onSelectedItem,
-}) {
-  return fluent.MenuFlyout(
-    items: [
-      buildFluentMenuItem<DebugMenuItems>(
-        context: context,
-        item: DebugMenuItems.debugResetHero,
-        name: engine.locale('debugResetHero'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem<DebugMenuItems>(
-        context: context,
-        item: DebugMenuItems.debugDialog,
-        name: engine.locale('debugDialog'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugItem,
-        name: engine.locale('debugItem'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugQuest,
-        name: engine.locale('debugQuest'),
-        onSelectedItem: onSelectedItem,
-      ),
-      const fluent.MenuFlyoutSeparator(),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugMerchant,
-        name: engine.locale('debugMerchant'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugCompanion,
-        name: engine.locale('debugCompanion'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugBattle,
-        name: engine.locale('debugBattle'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugTribulation,
-        name: engine.locale('debugTribulation'),
-        onSelectedItem: onSelectedItem,
-      ),
-      buildFluentMenuItem(
-        context: context,
-        item: DebugMenuItems.debugAutoAllocateSkills,
-        name: engine.locale('debugAutoAllocateSkills'),
-        onSelectedItem: onSelectedItem,
-      ),
-    ],
-  );
+  debugPushMultipleScenes,
 }
 
 enum MenuStates {
@@ -212,10 +148,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
 
                           await GameData.loadPreset('story');
                           engine.pushScene(
-                            'story_cave',
+                            'prelude',
                             constructorId: Scenes.worldmap,
                             arguments: const {
-                              'id': 'story_cave',
+                              'id': 'prelude',
                               'savePath': 'save',
                               'method': 'preset',
                             },
@@ -414,10 +350,22 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
   }
 }
 
-class DebugButton extends StatelessWidget {
-  DebugButton({super.key});
+class DebugButton extends StatefulWidget {
+  const DebugButton({super.key});
 
-  final flyoutController = fluent.FlyoutController();
+  @override
+  State<DebugButton> createState() => _DebugButtonState();
+}
+
+class _DebugButtonState extends State<DebugButton> {
+  final menuController = fluent.FlyoutController();
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    menuController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -428,76 +376,90 @@ class DebugButton extends StatelessWidget {
         border: Border.all(color: GameUI.foregroundColor),
       ),
       child: fluent.FlyoutTarget(
-        controller: flyoutController,
+        controller: menuController,
         child: IconButton(
+          icon: const Icon(Icons.menu_open, size: 20.0),
           mouseCursor: MouseCursor.defer,
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.all(0),
           onPressed: () {
             showFluentMenu(
-              controller: flyoutController,
-              builder: (context) {
-                return buildDebugMenuItems(context, onSelectedItem: (item) {
-                  switch (item) {
-                    case DebugMenuItems.debugResetHero:
-                      context.read<HeroState>().update();
-                      engine.clearAllCachedScene(
-                        except: Scenes.mainmenu,
-                        arguments: {'reset': true},
-                        restart: true,
-                      );
-                      context.read<NpcListState>().update();
-                    case DebugMenuItems.debugDialog:
-                      engine.hetu.invoke('debugDialog', namespace: 'Debug');
-                    case DebugMenuItems.debugItem:
-                      engine.hetu.invoke('testItem', namespace: 'Debug');
-                    case DebugMenuItems.debugQuest:
-                      engine.hetu.invoke('testQuest', namespace: 'Debug');
-                    case DebugMenuItems.debugMerchant:
-                      final merchant =
-                          engine.hetu.invoke('BattleEntity', namedArgs: {
-                        'rank': 2,
-                        'level': 10,
-                      });
-                      engine.hetu.invoke('testItem',
-                          namespace: 'Debug', positionalArgs: [merchant]);
-                      context
-                          .read<MerchantState>()
-                          .show(merchant, priceFactor: {
-                        // 'useShard': true,
-                        // 'base': 0.5,
-                      });
-                    case DebugMenuItems.debugCompanion:
-                      final companion = engine.hetu.invoke('Character');
-                      engine.hetu.invoke(
-                        'accompany',
-                        namespace: 'Player',
-                        positionalArgs: [
-                          companion,
-                        ],
-                      );
-                      context.read<NpcListState>().update([companion]);
-                    case DebugMenuItems.debugBattle:
-                      final enemy = engine.hetu.invoke('Character', namedArgs: {
-                        'isFemale': true,
-                        'level': GameData.heroData['level'],
-                        'rank': GameData.heroData['rank'],
-                      });
-                      GameLogic.characterAllocateSkills(enemy);
-                      engine.hetu.invoke('characterGenerateDeck',
-                          positionalArgs: [enemy]);
-                      context.read<EnemyState>().show(enemy);
-                    case DebugMenuItems.debugTribulation:
-                      final targetRank = GameData.heroData['rank'] + 1;
-                      final levelMin = GameLogic.minLevelForRank(targetRank);
-                      GameLogic.showTribulation(levelMin + 5, targetRank);
-                    case DebugMenuItems.debugAutoAllocateSkills:
-                      GameLogic.characterAllocateSkills(GameData.heroData);
-                  }
-                });
+              controller: menuController,
+              items: {
+                engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
+                engine.locale('debugDialog'): DebugMenuItems.debugDialog,
+                engine.locale('debugItem'): DebugMenuItems.debugItem,
+                engine.locale('debugQuest'): DebugMenuItems.debugQuest,
+                '___': null,
+                engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
+                engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
+                engine.locale('debugBattle'): DebugMenuItems.debugBattle,
+                engine.locale('debugTribulation'):
+                    DebugMenuItems.debugTribulation,
+                engine.locale('debugAutoAllocateSkills'):
+                    DebugMenuItems.debugAutoAllocateSkills,
+                'debugPushMultipleScenes':
+                    DebugMenuItems.debugPushMultipleScenes,
+              },
+              onSelectedItem: (DebugMenuItems item) {
+                switch (item) {
+                  case DebugMenuItems.debugResetHero:
+                    context.read<HeroState>().update();
+                    engine.clearAllCachedScene(
+                      except: Scenes.mainmenu,
+                      arguments: {'reset': true},
+                      restart: true,
+                    );
+                    context.read<NpcListState>().update(const []);
+                  case DebugMenuItems.debugDialog:
+                    engine.hetu.invoke('debugDialog', namespace: 'Debug');
+                  case DebugMenuItems.debugItem:
+                    engine.hetu.invoke('testItem', namespace: 'Debug');
+                  case DebugMenuItems.debugQuest:
+                    engine.hetu.invoke('testQuest', namespace: 'Debug');
+                  case DebugMenuItems.debugMerchant:
+                    final merchant =
+                        engine.hetu.invoke('BattleEntity', namedArgs: {
+                      'rank': 2,
+                      'level': 10,
+                    });
+                    engine.hetu.invoke('testItem',
+                        namespace: 'Debug', positionalArgs: [merchant]);
+                    context.read<MerchantState>().show(merchant, priceFactor: {
+                      // 'useShard': true,
+                      // 'base': 0.5,
+                    });
+                  case DebugMenuItems.debugCompanion:
+                    final companion = engine.hetu.invoke('Character');
+                    engine.hetu.invoke(
+                      'accompany',
+                      namespace: 'Player',
+                      positionalArgs: [
+                        companion,
+                      ],
+                    );
+                    context.read<NpcListState>().update([companion]);
+                  case DebugMenuItems.debugBattle:
+                    final enemy = engine.hetu.invoke('Character', namedArgs: {
+                      'isFemale': true,
+                      'level': GameData.heroData['level'],
+                      'rank': GameData.heroData['rank'],
+                    });
+                    GameLogic.characterAllocateSkills(enemy);
+                    engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                    context.read<EnemyState>().show(enemy);
+                  case DebugMenuItems.debugTribulation:
+                    final targetRank = GameData.heroData['rank'] + 1;
+                    final levelMin = GameLogic.minLevelForRank(targetRank);
+                    GameLogic.showTribulation(levelMin + 5, targetRank);
+                  case DebugMenuItems.debugAutoAllocateSkills:
+                    GameLogic.characterAllocateSkills(GameData.heroData);
+                  case DebugMenuItems.debugPushMultipleScenes:
+                    engine.pushScene(Scenes.cultivation);
+                    engine.pushScene(Scenes.library);
+                }
               },
             );
           },
-          icon: const Icon(Icons.menu_open, size: 20.0),
         ),
       ),
     );

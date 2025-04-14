@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../dialog/character_select.dart';
 import '../../engine.dart';
@@ -15,16 +17,16 @@ class EditOrganizationBasics extends StatefulWidget {
     this.name,
     this.category,
     this.genre,
-    this.headquartersId,
     this.headId,
+    this.headquartersData,
   });
 
   final String? id;
   final String? name;
   final String? category;
   final String? genre;
-  final String? headquartersId;
   final String? headId;
+  final dynamic headquartersData;
 
   @override
   State<EditOrganizationBasics> createState() => _EditOrganizationBasicsState();
@@ -33,7 +35,6 @@ class EditOrganizationBasics extends StatefulWidget {
 class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
   final _idEditingController = TextEditingController();
   final _nameEditingController = TextEditingController();
-  final _headquartersIdEditingController = TextEditingController();
   final _headIdEditingController = TextEditingController();
 
   late String selectedCategory, selectedGenre;
@@ -49,7 +50,6 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
 
     _idEditingController.dispose();
     _nameEditingController.dispose();
-    _headquartersIdEditingController.dispose();
     _headIdEditingController.dispose();
   }
 
@@ -69,7 +69,6 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
         widget.category ?? GameData.organizationCategoryNames.keys.random;
     selectedGenre = widget.genre ?? GameData.cultivationGenreNames.keys.random;
 
-    _headquartersIdEditingController.text = widget.headquartersId ?? '';
     _headIdEditingController.text = widget.headId ?? '';
   }
 
@@ -89,20 +88,36 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
           actions: const [CloseButton2()],
         ),
         body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
               Column(
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
                         padding: const EdgeInsets.only(top: 15.0),
                         width: 100.0,
+                        child: Text(
+                          '${engine.locale('headquartersTilePosition')}: ',
+                        ),
+                      ),
+                      Text(
+                        '${widget.headquartersData['name']}'
+                        '(${widget.headquartersData['worldPosition']['left']}, ${widget.headquartersData['worldPosition']['top']})',
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: 100.0,
                         child: const Text('ID:'),
                       ),
                       SizedBox(
-                        width: 140.0,
+                        width: 180.0,
                         height: 40.0,
                         child: TextField(
                           controller: _idEditingController,
@@ -111,9 +126,9 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                     ],
                   ),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 15.0),
+                      SizedBox(
                         width: 100.0,
                         child: Text(
                           '${engine.locale('name')}: ',
@@ -121,83 +136,91 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                       ),
                       Container(
                         padding: const EdgeInsets.only(right: 20.0),
-                        width: 140.0,
+                        width: 180.0,
                         height: 40.0,
                         child: TextField(
                           controller: _nameEditingController,
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: randomName,
-                        child: Text(engine.locale('random')),
-                      )
                     ],
                   ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 100.0,
-                        child: Text('${engine.locale('category')}: '),
-                      ),
-                      DropdownButton<String>(
-                        style: GameUI.textTheme.bodyMedium,
-                        items: GameData.organizationCategoryNames.keys
-                            .map((name) => DropdownMenuItem<String>(
-                                  value: name,
-                                  child: Text(GameData
-                                      .organizationCategoryNames[name]!),
-                                ))
-                            .toList(),
-                        value: selectedCategory,
-                        onChanged: (value) => selectedCategory = value!,
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 100.0,
+                          child: Text('${engine.locale('category')}: '),
+                        ),
+                        fluent.DropDownButton(
+                          title: Text(engine.locale(selectedCategory)),
+                          items: buildFluentMenuItems(
+                            items: {
+                              for (final key
+                                  in GameData.organizationCategoryNames.keys)
+                                engine.locale(key): key,
+                            },
+                            onSelectedItem: (String value) {
+                              setState(() {
+                                selectedCategory = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 100.0,
+                          child: Text('${engine.locale('genre')}: '),
+                        ),
+                        fluent.DropDownButton(
+                          title: Text(engine.locale(selectedGenre)),
+                          items: buildFluentMenuItems(
+                            items: {
+                              for (final key
+                                  in GameData.cultivationGenreNames.keys)
+                                engine.locale(key): key,
+                            },
+                            onSelectedItem: (String value) {
+                              setState(() {
+                                selectedGenre = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
-                    children: [
-                      SizedBox(
-                        width: 100.0,
-                        child: Text('${engine.locale('genre')}: '),
-                      ),
-                      DropdownButton<String>(
-                        style: GameUI.textTheme.bodyMedium,
-                        items: GameData.cultivationGenreNames.keys
-                            .map((name) => DropdownMenuItem<String>(
-                                  value: name,
-                                  child: Text(
-                                      GameData.cultivationGenreNames[name]!),
-                                ))
-                            .toList(),
-                        value: selectedGenre,
-                        onChanged: (value) => selectedGenre = value!,
-                      ),
-                    ],
-                  ),
-                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
                         padding: const EdgeInsets.only(top: 15.0),
                         width: 100.0,
                         child: Text(
-                          '${engine.locale('headId')}: ',
+                          '${engine.locale('organizationHeadId')}: ',
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.only(right: 20.0),
-                        width: 140.0,
+                        width: 180.0,
                         height: 40.0,
                         child: TextField(
                           controller: _headIdEditingController,
                         ),
                       ),
-                      ElevatedButton(
+                      fluent.FilledButton(
                         onPressed: () async {
-                          final charactersData =
-                              engine.hetu.invoke('getCharacters');
                           final key = await CharacterSelectDialog.show(
                             context: context,
                             title: engine.locale('selectCharacter'),
-                            charactersData: charactersData,
+                            charactersData:
+                                GameData.gameData['characters'].values,
                             showCloseButton: true,
                           );
                           _headIdEditingController.text = key ?? '';
@@ -206,41 +229,16 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                       )
                     ],
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 15.0),
-                        width: 100.0,
-                        child: Text(
-                          '${engine.locale('headquartersId')}: ',
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.only(right: 20.0),
-                        width: 140.0,
-                        height: 40.0,
-                        child: TextField(
-                          controller: _headquartersIdEditingController,
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: randomName,
-                        child: Text(engine.locale('selectLocation')),
-                      )
-                    ],
-                  ),
                 ],
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     String? id = _idEditingController.text.nonEmptyValue;
                     String? name = _nameEditingController.text.nonEmptyValue;
                     String? category = selectedCategory;
                     String? genre = selectedGenre;
-                    String? headquartersId =
-                        _headquartersIdEditingController.text.nonEmptyValue;
                     String? headId =
                         _headIdEditingController.text.nonEmptyValue;
 
@@ -249,7 +247,6 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                       name,
                       category,
                       genre,
-                      headquartersId,
                       headId,
                     ));
                   },

@@ -25,7 +25,7 @@ const kBaseStaminaCostForMoveOnHill = 2
 
 const kBaseLife = 10
 const kBaseMana = 1
-const kBaseLightedRadius = 3
+const kBaseLightRadius = 2
 
 const kBaseidentifyCardsCountMonthly = 12
 const kBaseexpCollectEfficiency = 10
@@ -44,7 +44,7 @@ struct BattleEntity {
     race,
     icon,
     illustration,
-    characterSkin,
+    model,
     surName,
     generationName,
     shortName,
@@ -67,12 +67,12 @@ struct BattleEntity {
       const index = random.nextInt(_kFemaleAvatarCount)
       this.icon = icon ?? 'illustration/female/${index}.jpg'
       this.illustration = illustration
-      this.characterSkin = characterSkin ?? 'characterWoman1'
+      this.model = model ?? 'characterWoman1'
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
       this.icon = icon ?? 'illustration/male/${index}.jpg'
       this.illustration = illustration
-      this.characterSkin = characterSkin ?? 'characterMan1'
+      this.model = model ?? 'characterMan1'
     }
 
     if (race != null) {
@@ -83,7 +83,7 @@ struct BattleEntity {
     }
     this.usedNames = []
 
-    if (generateName) {
+    if (name == null && generateName) {
       let randomName
 
       let conflict = false
@@ -104,7 +104,7 @@ struct BattleEntity {
     } else {
       this.name = name ?? engine.locale('noname')
       this.surName = surName
-      this.generationName = middleName
+      this.generationName = generationName
       this.shortName = shortName ?? name
     }
     this.id = id ?? this.name
@@ -198,6 +198,7 @@ struct BattleEntity {
     characterCalculateStats(this, rejuvenate: true)
     
     this.mainAttribute = getMainAttribute(this)
+    // 对应于组织的genre
     this.cultivationFavor = kAttributeToGenre[this.mainAttribute]
     this.cultivationStyle = random.nextIterable(kPlayStyles[this.cultivationFavor])
 
@@ -233,7 +234,7 @@ function generateCharacterAttributes({baseAttribute, mainAttribute}) {
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-function characterCalculateStats(character, { reset = false, rejuvenate = true}) {
+function characterCalculateStats(character, { reset = false, rejuvenate = false}) {
   if (reset) {
     character.stats = {}
   }
@@ -246,7 +247,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = true})
   // character.expMax = (expForLevel(character.level) * 2.5).truncate()
 
   character.tribulationCountMax = kBaseTribulationCountMax + kTribulationCountPerRank * character.rank
-  character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
+  character.lightRadius = kBaseLightRadius + character.perception ~/ 10
   character.expCollectEfficiency = kBaseexpCollectEfficiency
   character.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.perception ~/ 10
   
@@ -272,7 +273,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = true})
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value
 
   character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
-  character.stats.lightRadius = kBaseLightedRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
+  character.stats.lightRadius = kBaseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
   character.stats.expCollectEfficiency = character.expCollectEfficiency + character.passives.expCollectEfficiency?.value
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
 
@@ -301,6 +302,23 @@ function characterCalculateStats(character, { reset = false, rejuvenate = true})
   }
 }
 
+/// 设定生命值，最终值一定大于 0
+/// 若尝试将生命设为小于 0 则会触发劫难 并返回 true
+function setCharacterLife(character, life) {
+  let tribulation = false
+  if (life < 0) {
+    life = 1
+    tribulation = true
+  }
+  character.life = life
+  
+  if (tribulation) {
+    character.tribulationCount += 1
+  }
+
+  return tribulation
+}
+
 /// 恢复指定角色指定数量的生命，返回实际恢复的数值
 function characterRestoreLife(character, count) {
   assert(count > 0)
@@ -323,38 +341,11 @@ function getCharacterStats(character) {
 
 function getCharacterMovableTerrainKinds(character) {
   let kinds = kPlainTerrains.toList()
-  let movableOnWater = getCharacterMoveCostOnWater(character)
-  if (movableOnWater) kinds.addAll(kWaterTerrains)
-  let movableOnHill = getCharacterMoveCostOnHill(character)
+  let movableOnHill = characterEquippedCategory(character, 'boots')
   if (movableOnHill) kinds.addAll(kMountainTerrains)
+  let movableOnWater = characterEquippedCategory(character, 'ship')
+  if (movableOnWater) kinds.addAll(kWaterTerrains)
   return kinds
-}
-
-/// 获取角色水上移动体力消耗，如果返回null表示不可水上移动
-/// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
-function getCharacterMoveCostOnWater(character) {
-  // TODO: 结丹境可以直接飞行，因此无需船只
-  for (let i = 1; i < kEquipmentMax; ++i) {
-    let itemId = character.equipments[i]
-    let item = character.inventory[itemId]
-    if (item != null && item.kind == kItemKindShip) {
-      return kBaseStaminaCostForMoveOnWater
-    }
-  }
-  return null
-}
-
-/// 获取角色山地移动体力消耗，如果返回null表示不可山上移动
-/// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
-function getCharacterMoveCostOnHill(character) {
-  for (let i = 1; i < kEquipmentMax; ++i) {
-    let itemId = character.equipments[i]
-    let item = character.inventory[itemId]
-    if (item != null && item.kind == kItemKindBoots) {
-      return kBaseStaminaCostForMoveOnHill
-    }
-  }
-  return null
 }
 
 /// 提升或降低天赋技能等级
@@ -427,7 +418,7 @@ function characterHasPassive(character, dataId) {
   return character.passives[dataId]
 }
 
-function characterGenerateDeck(character, { maxOutLevel = false, cardInfoList }) {
+function generateDeck(character, { maxOutLevel = false, cardInfoList }) {
   let deck = []
   if (cardInfoList is List) {
     assert(cardInfoList.isNotEmpty, 'cardInfoList is empty!')
@@ -456,7 +447,7 @@ function characterGenerateDeck(character, { maxOutLevel = false, cardInfoList })
     }
   }
   for (final card in deck) {
-    entityAcquireBattleCard(character, card)
+    characterAcquireBattleCard(character, card)
   }
   character.battleDecks.add({
     title: 'battleDeck',
@@ -466,4 +457,123 @@ function characterGenerateDeck(character, { maxOutLevel = false, cardInfoList })
   character.battleDeckIndex = character.battleDecks.length - 1
   
   engine.info('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
+}
+
+function characterEquip(entity, item, { index }) {
+  assert(index == null || (index >= 0 && index < kEquipmentMax))
+
+  if (!item.isEquippable) {
+    engine.warn('${item.name} 无法装备。')
+    return false
+  }
+  if (item.equippedPosition) {
+    engine.warn('${item.name} 已经在装备中了。')
+    return false
+  }
+
+  let equipped = false
+  // 如果有空位就装备在空位上
+  if (index == null) {
+    for (const i in range(kEquipmentMax)) {
+      if (entity.equipments[i] == null) {
+        entity.equipments[i] = item.id
+        item.equippedPosition = i
+        equipped = true
+        break
+      }
+    }
+    // 否则替换掉第一个空位
+    index = 0
+  }
+
+  if (!equipped) {
+    assert(index != null)
+
+    const oldEquipId = entity.equipments[index]
+    if (oldEquipId != null) {
+      const oldItem = entity.inventory[oldEquipId]
+      delete oldItem.equippedPosition
+    }
+    entity.equipments[index] = item.id
+    item.equippedPosition = index
+    equipped = true
+  }
+
+  if (equipped) {
+    engine.info('角色 [${entity.name}] 装备了 [${item.name}]')
+
+    if (item.affixes is List) {
+      for (final passiveData in item.affixes) {
+        characterSetPassive(entity, passiveData.id, level: passiveData.level)
+      }
+      // 重新计算角色状态值
+      characterCalculateStats(entity, rejuvenate: false)
+    }
+
+    onGameEvent('onEquipItem', item)
+  }
+
+  return equipped
+}
+
+function characterUnequip(entity, item) {
+  assert(item.equippedPosition != null)
+  hero.equipments[item.equippedPosition] = null
+  delete item.equippedPosition
+
+  if (item.affixes is List) {
+    for (final passiveData in item.affixes) {
+      refundPassive(passiveData.id, level: passiveData.level)
+    }
+    // 重新计算角色状态值
+    calculateStats(entity, rejuvenate: false)
+  }
+  
+  engine.info('角色 [${entity.name}] 取下了 [${item.name}]')
+}
+
+function characterEquippedCategory(entity, category) {
+  let count = 0
+  for (final itemId in entity.equipments.values) {
+    if (itemId == null) continue
+    final item = entity.inventory[itemId]
+    if (item.category == category) {
+      ++count
+    }
+  }
+  return count
+}
+
+function characterFirstEquippedCategory(entity, category) {
+  for (final itemId in entity.equipments.values) {
+    if (itemId == null) continue
+    final item = entity.inventory[itemId]
+    if (item.category == category) {
+      return item
+    }
+  }
+  return null
+}
+
+function characterEquippedKind(entity, kind) {
+  let count = 0
+  for (final itemId in entity.equipments.values) {
+    if (itemId == null) continue
+    final item = entity.inventory[itemId]
+    if (item.kind == kind) {
+      ++count
+    }
+  }
+  return count
+}
+
+function characterFirstEquippedKind(entity, kind) {
+  for (final itemId in entity.equipments.values) {
+    if (itemId == null) continue
+    final item = entity.inventory[itemId]
+    if (item.kind == kind) {
+      return item
+    }
+  }
+  return null
 }

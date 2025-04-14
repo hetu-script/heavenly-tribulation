@@ -47,12 +47,12 @@ const kItemCategoryKinds = {
   helmet: [
     'helmet',
   ],
-  // boots: [
-  //   'boots',
-  // ],
-  // ship: [
-  //   'ship',
-  // ],
+  boots: [
+    'boots',
+  ],
+  ship: [
+    'ship',
+  ],
   // aircraft: [
   //   'aircraft',
   // ],
@@ -73,16 +73,16 @@ const kEquipmentKinds = [
   ...kItemCategoryKinds.armor,
   ...kItemCategoryKinds.gloves,
   ...kItemCategoryKinds.helmet,
-  // ...kItemCategoryKinds.boots,
-  // ...kItemCategoryKinds.ship,
+  ...kItemCategoryKinds.boots,
+  ...kItemCategoryKinds.ship,
   // ...kItemCategoryKinds.aircraft,
   ...kItemCategoryKinds.jewelry,
   ...kItemCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
 ]
 
-const kItemKindBoots = 'boots'
-const kItemKindShip = 'ship'
-const kItemKindAircraft = 'aircraft'
+const kItemCategoryBoots = 'boots'
+const kItemCategoryShip = 'ship'
+const kItemCategoryAircraft = 'aircraft'
 
 const kMaterialBasePriceByKind = {
   'shard': 10000,
@@ -207,7 +207,7 @@ struct Equipment {
     // category 决定了能装备的数量
     // weapon, armor, helmet, boots, vehicle，talisman
     switch(this.category) {
-      'weapon': {
+      'weapon', 'boots', 'ship': {
         // 武器的固定词条是允许使用该类卡牌
         final passiveRawData = game.passives['equipment_${this.kind}']
         assert(passiveRawData != null, 'kind: ${this.kind}')
@@ -226,9 +226,6 @@ struct Equipment {
         final passiveRawData = game.passives[attributeType]
         assert(passiveRawData != null, 'attributeType: ${attributeType}')
         mainAffix = Object.create(passiveRawData)
-      }
-      'vehicle': {
-        // 载具的固定词条是获得新的移动方式（山地、水面等）
       }
       else: {
         // 法器的固定词条是获得资源
@@ -400,7 +397,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   // }
   item.id = item.isUnique ? item.prototypeId : (itemId ?? crypto.randomUID(withTime: true))
   item.entityType = kEntityTypeItem
-  item.kind = item.prototypeId
+  item.kind ??= item.prototypeId
   item.name = engine.locale(item.name)
   if (item.flavortext != null) {
     item.flavortext = engine.locale(item.flavortext)
@@ -464,7 +461,7 @@ function entityHasItemCategory(entity, category) {
   return amount
 }
 
-/// 返回某个对象所拥有的该 kind 的物品的数量
+/// 返回某个对象所拥有的该 category 的物品的数量
 function entityHasItemKind(entity, kind) {
   assert(entity.inventory != null && kind != null)
   let amount = 0
@@ -476,15 +473,26 @@ function entityHasItemKind(entity, kind) {
   return amount
 }
 
-function entityHasEquippedItemKind(entity, itemKind) {
-  assert(entity.inventory != null && itemKind != null) 
-  for (let itemId in entity.equipments) {
-    final item = entity.inventory[itemId]
-    if (item.kind == itemKind) {
-      return true
+/// 在背包中查找并返回该 kind 的物品
+function firstItemKindInCategory(entity, category) {
+  assert(entity.inventory != null && category != null)
+  for (let item of entity.inventory) {
+    if (item.category == category) {
+      return item
     }
   }
-  return false
+  return null
+}
+
+/// 在背包中查找并返回该 kind 的物品
+function firstItemKindInInventory(entity, kind) {
+  assert(entity.inventory != null && kind != null)
+  for (let item of entity.inventory) {
+    if (item.kind == kind) {
+      return item
+    }
+  }
+  return null
 }
 
 /// 直接获得资源
@@ -515,29 +523,30 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
 function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true }) {
   assert(amount > 0)
 
-  for  (const i in range(amount)) {
-    final item = createItemByPrototype(itemId)
+  final item = createItemByPrototype(itemId)
 
-    entity.inventory[item.id] = item
-    item.ownerId = entity.id
-    item.ownerType = entity.entityType
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+  item.ownerType = entity.entityType
+  item.stackSize = amount ?? 1
 
-    let incidentContent
-    incidentContent = engine.locale('characterAcquire', interpolations: [
-      entity.name,
-      item.name,
-    ])
-    if (incurIncident && entity.entityType == 'character') {
-      Incident(
-        message: incidentContent,
-        subjectId: entity.id,
-        item: item,
-        isPrivate: true,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+  let incidentContent
+  incidentContent = engine.locale('characterAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident && entity.entityType == 'character') {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
+      isPrivate: true,
+    )
+  } else {
+    engine.debug(incidentContent)
   }
+
+  return item
 }
 
 /// 消费资源，返回是否成功消费了指定的数量
@@ -627,25 +636,23 @@ function entityLose(entity, item, { incurIncident = true }) {
   }
 }
 
-function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
-  assert(!entity.cardLibrary.containsKey(card.id))
+function characterAcquireBattleCard(character, card, { incurIncident = true }) {
+  assert(!character.cardLibrary.containsKey(card.id))
   assert(card.entityType == kEntityTypeBattleCard, '${card.entityType}')
 
-  entity.cardLibrary[card.id] = card
-  if (entity.entityType == 'character') {
-    card.acquiredSequence = entity.achievements.acquiredBattleCards
-    ++entity.achievements.acquiredBattleCards
-  }
+  character.cardLibrary[card.id] = card
+  card.acquiredSequence = character.achievements.acquiredBattleCards
+  ++character.achievements.acquiredBattleCards
 
   let incidentContent
-  incidentContent = engine.locale('entityAcquire', interpolations: [
-    entity.name,
+  incidentContent = engine.locale('characterLearn', interpolations: [
+    character.name,
     card.name,
   ])
-  if (incurIncident && entity.entityType == 'character') {
+  if (incurIncident && character.entityType == 'character') {
     Incident(
       message: incidentContent,
-      subjectId: entity.id,
+      subjectId: character.id,
       card: card,
       isPrivate: true,
     )

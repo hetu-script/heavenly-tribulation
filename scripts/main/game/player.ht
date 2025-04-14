@@ -52,7 +52,7 @@ namespace Player {
   
   function setHomeLocation(location, {incurIncident = true}) {
     assert(hero != null)
-    setCharacterHomeLocation(hero, location, incurIncident: incurIncident)
+    setCharacterHome(hero, location, incurIncident: incurIncident)
   }
 
   function met(character) {
@@ -87,7 +87,7 @@ namespace Player {
   function acquireById(itemId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
-    entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
+    return entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
   }
 
   function lose(item, { incurIncident = true }) {
@@ -97,7 +97,7 @@ namespace Player {
 
   function acquireCard(card, { incurIncident = true }) {
     assert(hero != null)
-    entityAcquireBattleCard(hero, card, incurIncident: incurIncident)
+    characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
   
   /// 分解卡牌，返回获得的灵光数量
@@ -105,7 +105,7 @@ namespace Player {
     assert(hero != null)
     assert(hero.cardLibrary.containsKey(card.id))
 
-    final price = expForLevel(card.level) ~/ kBattleCardPriceRatio
+    final price = Game.getCardCraftOperationCost('dismantle', card)
 
     hero.unconvertedExp += price
     hero.cardLibrary.remove(card.id)
@@ -234,111 +234,38 @@ namespace Player {
   // 装备并非直接将物品数据保存在人物数据中，而是只保存物品id
   function equip(item, { index }) -> bool {
     assert(hero != null)
-    assert(index == null || (index >= 0 && index < kEquipmentMax))
-    if (!item.isEquippable) {
-      engine.warn('${item.name} 无法装备。')
-      return false
-    }
-    if (item.equippedPosition) {
-      engine.warn('${item.name} 已经在装备中了。')
-      return false
-    }
 
-    let equipped = false
-    // 如果有空位就装备在空位上
-    if (index == null) {
-      for (const i in range(kEquipmentMax)) {
-        if (hero.equipments[i] == null) {
-          hero.equipments[i] = item.id
-          item.equippedPosition = i
-          equipped = true
-          break
-        }
-      }
-      // 否则替换掉第一个空位
-      index = 0
-    }
-
-    if (!equipped) {
-      assert(index != null)
-
-      const oldEquipId = hero.equipments[index]
-      if (oldEquipId != null) {
-        const oldItem = hero.inventory[oldEquipId]
-        delete oldItem.equippedPosition
-      }
-      hero.equipments[index] = item.id
-      item.equippedPosition = index
-      equipped = true
-    }
-
-    if (equipped) {
-      
-      // const incidentContent = engine.locale('characterEquip', interpolations: [
-      //   hero.name,
-      //   item.name,
-      // ])
-      // Incident(
-      //   message: incidentContent,
-      //   subjectId: hero.id,
-      //   isPrivate: true,
-      // )
-
-      engine.info('角色 [${hero.name}] 装备了 [${item.name}]')
-
-      if (item.affixes is List) {
-        for (final passiveData in item.affixes) {
-          gainPassive(passiveData.id, level: passiveData.level)
-        }
-        // 重新计算角色状态值
-        calculateStats()
-      }
-
-      onGameEvent('onEquipItem', item)
-    }
-
-    return equipped
+    return characterEquip(hero, item, index: index)
   }
 
   /// 检查是否装备了某种 category 的物品，返回装备的数量
-  function hasEquipped(category) {
+  function equippedCategory(category) {
     assert(hero != null)
-    let count = 0
-    for (final itemId in hero.equipments.values) {
-      if (itemId == null) continue
-      final item = hero.inventory[itemId]
-      if (item.category == category) {
-        ++count
-      }
-    }
-    return count
+    
+    return characterEquippedCategory(hero, category)
+  }
+  
+  function firstEquippedCategory(category) {
+    assert(hero != null)
+    
+    return characterfirstEquippedCategory(hero, category)
+  }
+
+  function equippedKind(kind) {
+    assert(hero != null)
+    
+    return characterEquippedKind(hero, kind)
+  }
+
+  function firstEquippedKind(kind) {
+    assert(hero != null)
+    
+    return characterFirstEquippedKind(hero, kind)
   }
 
   function unequip(item) {
     assert(hero != null)
-    assert(item.equippedPosition != null)
-    hero.equipments[item.equippedPosition] = null
-    delete item.equippedPosition
-
-    if (item.affixes is List) {
-      for (final passiveData in item.affixes) {
-        refundPassive(passiveData.id, level: passiveData.level)
-      }
-      // 重新计算角色状态值
-      calculateStats(hero)
-    }
-
-    // const incidentContent = engine.locale('characterUnequip', interpolations: [
-    //   hero.name,
-    //   item.name,
-    // ])
-    // Incident(
-    //   message: incidentContent,
-    //   subjectId: hero.id,
-    //   isPrivate: true,
-    // )
-    
-    engine.info('角色 [${hero.name}] 取下了 [${item.name}]')
+    characterUnequip(hero, item)
   }
   
   /// 用于从一个宝箱中根据物品信息创造物品并获取
@@ -524,9 +451,14 @@ namespace Player {
     return hero.passives[dataId]
   }
 
-  function calculateStats() {
+  function calculateStats({rejuvenate = false}) {
     assert(hero != null)
-    characterCalculateStats(hero)
+    characterCalculateStats(hero, rejuvenate: rejuvenate)
+  }
+
+  function setLife(amount) {
+    assert(hero != null)
+    setCharacterLife(hero, amount)
   }
 
   function restoreLife(count) {
@@ -539,8 +471,10 @@ namespace Player {
     characterRejuvenate(hero)
   }
 
-  function acceptQuest(quest, { setAsActive = false, incurIncident = true }) {
+  function acquireQuestById(questId, { setAsActive = false, incurIncident = true }) {
     assert(hero != null)
+    final quest = generateQuestById(questId)
+
     if (hero.quests.containsKey(quest.id)) {
       engine.error('任务 [${quest.id}] 已经存在，不能再次接受！')
       return
@@ -552,7 +486,7 @@ namespace Player {
     
     const incidentContent = engine.locale(
       'characterAcceptQuest',
-      interpolations: [ hero.name, quest.name ],
+      interpolations: [ hero.name, quest.title ],
     )
     if (incurIncident) {
       Incident(
@@ -562,12 +496,7 @@ namespace Player {
     } else {
       engine.debug(incidentContent)
     }
-  }
 
-  function acquireQuestById(questId, { setAsActive = false, incurIncident = true }) {
-    assert(hero != null)
-    final quest = generateQuestById(questId)
-    acceptQuest(quest)
     return quest
   }
 
@@ -609,7 +538,7 @@ namespace Player {
       }
       let incidentContent = engine.locale(
         'characterQuestFinished',
-        interpolations: [ hero.name, quest.name ],
+        interpolations: [ hero.name, quest.title ],
       )
       if (incurIncident) {
         Incident(
@@ -620,7 +549,7 @@ namespace Player {
     } else {
       let incidentContent = engine.locale(
         'characterQuestProgressed',
-        interpolations: [ hero.name, quest.name ],
+        interpolations: [ hero.name, quest.title ],
       )
       if (incurIncident) {
         Incident(
@@ -629,6 +558,6 @@ namespace Player {
         )
       }
     }
-    engine.debug('任务「${quest.name}」进度：${quest.stage}')
+    engine.debug('任务「${quest.title}」进度：${quest.stage}')
   }
 }

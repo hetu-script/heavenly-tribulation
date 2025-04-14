@@ -8,6 +8,8 @@
   // isCorrupted: true, // 是否被腐化，腐化的物品不能通过打造来修改属性
   // isAfflicted: true, // 是否被污染，污染的物品主词条是负面属性
 
+  // 除非特别设定，否则 prototype 物品的 kind == prototypeId
+
   scroll_paper_rank_1: {
     prototypeId: "scroll_paper_rank_1",
     name: "scroll_paper_rank_1",
@@ -100,28 +102,4 @@
     isIdentified: true,
     isUntradable: true,
   },
-  // wood_boat: {
-  //   prototypeId: "wood_boat",
-  //   category: "vehicle",
-  //   kind: "ship",
-  //   isEquipable: true,
-  //   equipData: {
-  //     attributes: {
-  //       staminaCostOnWaterReduced: 0.2,
-  //     },
-  //   },
-  //   icon: "item/support/boat.png",
-  // },
-  // climb_boots: {
-  //   prototypeId: "climb_boots",
-  //   category: "boots",
-  //   kind: "boots",
-  //   isEquipable: true,
-  //   equipData: {
-  //     attributes: {
-  //       staminaCostOnHillReduced: 0.2,
-  //     },
-  //   },
-  //   icon: "item/support/climb_boots.png",
-  // },
 }

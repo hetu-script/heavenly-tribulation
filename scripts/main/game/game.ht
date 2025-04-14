@@ -2,15 +2,26 @@ namespace Game {
   
   external function updateHero()
 
-  external function setSceneName(name)
+  external function updateLocation(location)
+
+  external function pushScene(sceneId, {category, arguments})
+
+  external function switchScene(sceneId, {arguments, restart = false})
+
+  external function pushWorld(worldId, {clearCache: bool = false})
 
   external function popScene({clearCache: bool = false})
   
-  external function updateGameTime()
+  external function updateGame({
+    tick = 1,
+    timeflow = true,
+    autoCultivate = false,
+    autoWork = false,
+  })
 
   external function updateHistory()
 
-  external function updateNpcList()
+  external function hideNpc(id)
 
   external function promptNewQuest(quest)
 

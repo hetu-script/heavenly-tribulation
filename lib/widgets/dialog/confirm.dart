@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
@@ -55,7 +56,7 @@ class ConfirmDialog extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(25.0),
-                      child: ElevatedButton(
+                      child: fluent.FilledButton(
                         onPressed: () {
                           Navigator.of(context).pop(false);
                         },
@@ -66,7 +67,7 @@ class ConfirmDialog extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(25.0),
-                      child: ElevatedButton(
+                      child: fluent.FilledButton(
                         onPressed: () {
                           Navigator.of(context).pop(true);
                         },

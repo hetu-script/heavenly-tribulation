@@ -1,7 +1,7 @@
 {
   dungeon_1: {
     id: "dungeon_1",
-    isMainWorld: false,
+    isMain: false,
     name: "离尘天",
     width: 16,
     height: 12,

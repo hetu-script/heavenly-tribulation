@@ -9,7 +9,7 @@ import '../../game/ui.dart';
 import '../../game/data.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';
-import '../draggable_panel.dart';
+import '../ui/draggable_panel.dart';
 
 enum QuestViewMode { all, ongoing, finished }
 
@@ -79,8 +79,8 @@ class _QuestViewState extends State<QuestView> {
     return ScrollConfiguration(
       behavior: MaterialScrollBehavior(),
       child: SizedBox(
-        width: 300.0,
-        height: 290.0,
+        width: 360.0,
+        height: 360.0,
         child: SingleChildScrollView(
           child: ListView(
             shrinkWrap: true,
@@ -102,7 +102,7 @@ class _QuestViewState extends State<QuestView> {
       title: engine.locale('quest'),
       position: position,
       width: GameUI.profileWindowSize.x,
-      height: 400.0,
+      height: GameUI.profileWindowSize.y,
       onTapDown: (offset) {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);
         context
@@ -119,8 +119,8 @@ class _QuestViewState extends State<QuestView> {
         context.read<ViewPanelState>().hide(ViewPanels.characterQuest);
       },
       child: Container(
-        width: 630.0,
-        height: 350.0,
+        width: 640.0,
+        height: 400.0,
         padding: const EdgeInsets.symmetric(horizontal: 5.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,8 +152,8 @@ class _QuestViewState extends State<QuestView> {
             //   },
             // ),
             Container(
-              width: 300.0,
-              height: 320.0,
+              width: 240.0,
+              height: 400.0,
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
               padding: const EdgeInsets.all(5.0),
               decoration: BoxDecoration(
@@ -184,7 +184,7 @@ class _QuestViewState extends State<QuestView> {
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '${quest['name']}${quest['isFinished'] ? ' (${engine.locale('finished')})' : ''}',
+                                '${quest['title']}${quest['isFinished'] == true ? ' (${engine.locale('finished')})' : ''}',
                               ),
                             ),
                           ),
@@ -198,15 +198,16 @@ class _QuestViewState extends State<QuestView> {
             // ),
             if (_selectedQuest != null)
               Container(
-                width: 300.0,
-                height: 320.0,
+                width: 360.0,
+                height: 400.0,
                 padding: const EdgeInsets.only(left: 5.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
                         Text(
-                          _selectedQuest['name'],
+                          _selectedQuest['title'],
                           style: const TextStyle(fontSize: 20),
                         ),
                         const Spacer(),

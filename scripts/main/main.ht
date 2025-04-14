@@ -39,7 +39,7 @@ import 'event/dungeon.ht' as dungeonEvents
 // 在游戏每次运行时，会重新将函数绑定到这个对象上
 const meta = {
   id: 'main',
-  displayName: '《天道奇劫》核心脚本',
+  name: '《天道奇劫》核心脚本',
   description: '《天道奇劫》核心脚本',
   supportedLocales: ['zh'],
   version: '0.0.1',

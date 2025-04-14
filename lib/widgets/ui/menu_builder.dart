@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/popup_submenu_item.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -45,10 +47,46 @@ PopupSubMenuItem<T> buildSubMenuItem<T>({
   );
 }
 
+/// create a list of MenuFlyoutItemBase
+/// use `---` for separator
+List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
+  required Map<dynamic, dynamic> items,
+  void Function(T)? onSelectedItem,
+}) {
+  return items.keys.map((key) {
+    final text = key.toString();
+    final value = items[key];
+    if (text.startsWith('___')) {
+      return fluent.MenuFlyoutSeparator();
+    } else if (value is Map<String, T>) {
+      return fluent.MenuFlyoutSubItem(
+        text: Text(text),
+        items: (context) {
+          return value.entries
+              .map((entry) => fluent.MenuFlyoutItem(
+                    text: Text(entry.key),
+                    onPressed: () => onSelectedItem?.call(entry.value),
+                  ))
+              .toList();
+        },
+      );
+    } else if (value is T) {
+      return fluent.MenuFlyoutItem(
+        text: Text(text),
+        onPressed: () => onSelectedItem?.call(items[text] as T),
+      );
+    } else {
+      return fluent.MenuFlyoutItem(
+        text: Text('invalid menu item: {$text : $value}'),
+        onPressed: () {},
+      );
+    }
+  }).toList();
+}
+
 fluent.MenuFlyoutItem buildFluentMenuItem<T>({
-  required BuildContext context,
-  required String name,
-  required T item,
+  required String text,
+  required T value,
   void Function(T)? onSelectedItem,
   Widget? leading,
   Widget? trailing,
@@ -56,24 +94,20 @@ fluent.MenuFlyoutItem buildFluentMenuItem<T>({
 }) {
   return fluent.MenuFlyoutItem(
     text: Text(
-      name,
+      text,
       style: !enabled ? TextStyle(color: GameUI.foregroundDiabled) : null,
     ),
     leading: leading,
     trailing: trailing,
-    onPressed: enabled
-        ? () {
-            fluent.Flyout.of(context).close();
-            onSelectedItem?.call(item);
-          }
-        : null,
+    onPressed: enabled ? () => onSelectedItem?.call(value) : null,
+    closeAfterClick: true,
   );
 }
 
 fluent.MenuFlyoutSubItem buildFluentSubMenuItem<T>({
   required String text,
   required Map<String, T> items,
-  void Function(T value)? onSelected,
+  void Function(T value)? onSelectedItem,
   Widget? leading,
 }) {
   return fluent.MenuFlyoutSubItem(
@@ -83,32 +117,45 @@ fluent.MenuFlyoutSubItem buildFluentSubMenuItem<T>({
       return items.entries
           .map((e) => fluent.MenuFlyoutItem(
                 text: Text(e.key),
-                onPressed: () {
-                  onSelected?.call(e.value);
-                },
+                onPressed: () => onSelectedItem?.call(e.value),
               ))
           .toList();
     },
   );
 }
 
-final fluent.FlyoutController flyoutController = fluent.FlyoutController();
+final fluent.FlyoutController globalFlyoutController =
+    fluent.FlyoutController();
 
 void showFluentMenu<T>({
   fluent.FlyoutController? controller,
   Offset? position,
   fluent.FlyoutPlacementMode placementMode =
       fluent.FlyoutPlacementMode.bottomLeft,
-  required Widget Function(BuildContext) builder,
+  required Map<dynamic, dynamic> items,
+  required FutureOr<void> Function(T) onSelectedItem,
+  NavigatorState? navigatorKey,
 }) {
-  final ctrl = controller ?? flyoutController;
+  final ctrl = controller ?? globalFlyoutController;
   ctrl.showFlyout(
     autoModeConfiguration: fluent.FlyoutAutoConfiguration(
       preferredMode: placementMode,
     ),
     barrierDismissible: true,
     barrierColor: Colors.transparent,
+    navigatorKey: navigatorKey,
     position: position,
-    builder: builder,
+    builder: (context) {
+      return fluent.MenuFlyout(
+        items: buildFluentMenuItems<T>(
+          items: items,
+          onSelectedItem: (item) {
+            fluent.Flyout.of(context).close();
+            if (item == null) return;
+            onSelectedItem.call(item);
+          },
+        ),
+      );
+    },
   );
 }

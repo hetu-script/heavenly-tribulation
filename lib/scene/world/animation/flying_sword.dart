@@ -31,7 +31,6 @@ class FlyingSword extends GameComponent {
 
   @override
   Future<void> onLoad() async {
-    // TODO: implement onLoad
     super.onLoad();
 
     await _anim.load();

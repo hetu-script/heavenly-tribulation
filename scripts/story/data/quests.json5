@@ -1,8 +1,17 @@
 {
   mysticGirl: {
     id: "mysticGirl",
-    name: "mysticGirl",
-    // image: "story/cg/prelude/ling_in_rubbles2.png",
-    endings: [10],
+    title: "mysticGirl",
+    endings: [99],
+  },
+  nailedSoul: {
+    id: "nailedSoul",
+    title: "nailedSoul",
+    endings: [99],
+  },
+  sectOfCrane: {
+    id: "sectOfCrane",
+    title: "sectOfCrane",
+    endings: [99],
   },
 }

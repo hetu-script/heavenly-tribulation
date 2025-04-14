@@ -62,6 +62,12 @@
   "passive_equipment_poison_description": "可以使用毒术",
   "passive_equipment_music_description": "可以使用乐曲",
 
+  "passive_equipment_boots_description": "可以在山地地形上移动",
+  "passive_equipment_ship_description": "可以在水面地形上移动",
+
+  "passive_stamina_cost_reduce_on_hill_description": "山地地形移动体力消耗 {0}%",
+  "passive_stamina_cost_reduce_on_water_description": "水面地形移动体力消耗 {0}%",
+
   "passive_enable_auto_work_description": "允许离开工坊时打开自动工作",
   "passive_enable_auto_cultivate_description": "允许离开识海时打开自动修炼",
   "passive_enable_toolbar_cultivation_description": "允许在任何地方打开识海修炼界面",
@@ -81,8 +87,6 @@
   "passive_no_need_dart_description": "无需装备暗器就可以使用暗器",
   "passive_no_need_poison_description": "可以使用毒术",
   "passive_no_need_music_description": "无需装备乐器就可以使用乐曲",
-
-  "passive_equipment_cursed_description": "禁制：装备后无法取下",
 
   "passive_increase_damage_punch_description": "拳法伤害 {0}%",
   "passive_increase_damage_kick_description": "腿法伤害 {0}%",

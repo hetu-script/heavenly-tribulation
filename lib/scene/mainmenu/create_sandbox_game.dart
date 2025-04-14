@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:samsara/extensions.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 // import '../hash.dart';
@@ -13,7 +14,7 @@ import '../../game/ui.dart';
 /// {
 ///   'id': 'main',
 ///   'method': 'generate',
-///   'isMainWorld': true,
+///   'isMain': true,
 ///   'saveName': 'save_file_name',
 ///   'seedString': 'hello world!',
 ///   'style': _worldStyle, // 'islands', 'coast', 'inland'
@@ -144,7 +145,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
-                                child: ElevatedButton(
+                                child: fluent.FilledButton(
                                   onPressed: () {
                                     _seedEditingController.text = math.Random()
                                         .nextInt(1 << 32)
@@ -337,7 +338,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -346,13 +347,12 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     if (_seedEditingController.text.isNotEmpty) {
                       Navigator.of(context).pop({
-                        'id': 'main',
+                        'id': 'sandboxWorld',
                         'method': 'generate',
-                        'isMainWorld': true,
                         'saveName': _saveNameEditingController.text.isNotBlank
                             ? _saveNameEditingController.text
                             : null,

@@ -47,6 +47,14 @@
     kind: "seashelf",
     spriteIndex: 5,
   },
+  snow_plain: {
+    id: "snow_plain",
+    name: "snow_plain",
+    icon: "assets/images/object/snow_plain.png",
+    type: "terrain",
+    kind: "snow_plain",
+    spriteIndex: 6,
+  },
   dungeonStonePavedTile: {
     id: "dungeonStonePavedTile",
     name: "dungeonStonePavedTile",

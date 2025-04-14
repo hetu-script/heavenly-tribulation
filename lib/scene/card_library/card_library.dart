@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
+import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:hetu_script/utils/uid.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
@@ -22,7 +24,6 @@ import 'common.dart';
 import '../../state/states.dart';
 import '../../game/data.dart';
 import '../../widgets/ui_overlay.dart';
-import 'menus.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
 import '../../common.dart';
@@ -42,10 +43,64 @@ enum CraftType {
   shard,
 }
 
+enum DeckMenuItems {
+  setAsBattleDeck,
+  editDeck,
+  deleteDeck,
+}
+
+enum OrderByOptions {
+  byAcquiredTimeDescending,
+  byAcquiredTimeAscending,
+  byLevelDescending,
+  byLevelAscending,
+  byRankDescending,
+  byRankAscending,
+}
+
+enum FilterByOptions {
+  all,
+  requirementsMet,
+  categoryAttack,
+  categoryBuff,
+  spellcraft,
+  swordcraft,
+  avatar,
+  bodyforge,
+  vitality,
+  kind_punch,
+  kind_kick,
+  kind_qinna,
+  kind_dianxue,
+  kind_sword,
+  kind_sabre,
+  kind_staff,
+  kind_spear,
+  kind_bow,
+  kind_dart,
+  kind_flying_sword,
+  kind_shenfa,
+  kind_qinggong,
+  kind_xinfa,
+  kind_airbend,
+  kind_firebend,
+  kind_waterbend,
+  kind_lightning_control,
+  kind_earthbend,
+  kind_plant_control,
+  kind_sigil,
+  kind_power_word,
+  kind_scripture,
+  kind_music,
+  kind_array,
+  kind_potion,
+  kind_scroll,
+}
+
 class CardLibraryScene extends Scene {
   static final random = math.Random();
 
-  CardLibraryScene({required super.context}) : super(id: Scenes.cardlibrary);
+  CardLibraryScene({required super.context}) : super(id: Scenes.library);
 
   late final SpriteComponent background;
   late final SpriteComponent2 topBar, bottomBar, deckPilesZone;
@@ -90,6 +145,8 @@ class CardLibraryScene extends Scene {
   final List<LightPoint> _lightPoints = [];
 
   final List<math.PointOnCircle> _lightPointsPositions = [];
+
+  FutureOr<void> Function()? onEnterScene;
 
   bool enableCardCraft = false, enableScrollCraft = false;
 
@@ -165,7 +222,10 @@ class CardLibraryScene extends Scene {
       deckZone.updateDeckLimit();
     }
 
-    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
+    await onEnterScene?.call();
+
+    await engine.hetu
+        .invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
   }
 
   @override
@@ -180,6 +240,8 @@ class CardLibraryScene extends Scene {
         (GameData.heroData['passives']['enable_cardcraft'] ?? false);
     enableScrollCraft = arguments['enableScrollCraft'] ??
         (GameData.heroData['passives']['enable_scrollcraft'] ?? false);
+
+    onEnterScene = arguments['onEnterScene'];
 
     craftType = switch (arguments['craftType']) {
       'exp' => CraftType.exp,
@@ -243,22 +305,24 @@ class CardLibraryScene extends Scene {
   }
 
   void onOpenDeckMenu(DeckBuildingZone zone) {
-    final menuPosition = RelativeRect.fromLTRB(zone.absolutePosition.x,
-        zone.absolutePosition.y, zone.absolutePosition.x, 0.0);
-    final menu = buildDeckPopUpMenuItems(onSelectedItem: (item) {
-      switch (item) {
-        case DeckMenuItems.setAsBattleDeck:
-          _setBattleDeck(zone);
-        case DeckMenuItems.editDeck:
-          onEditDeck(zone);
-        case DeckMenuItems.deleteDeck:
-          _deleteDeck(zone);
-      }
-    });
-    showMenu(
-      context: context,
-      items: menu,
-      position: menuPosition,
+    showFluentMenu(
+      position: zone.absolutePosition.toOffset(),
+      items: {
+        engine.locale('deckbuilding_set_battle_deck'):
+            DeckMenuItems.setAsBattleDeck,
+        engine.locale('edit'): DeckMenuItems.editDeck,
+        engine.locale('delete'): DeckMenuItems.deleteDeck,
+      },
+      onSelectedItem: (item) {
+        switch (item) {
+          case DeckMenuItems.setAsBattleDeck:
+            _setBattleDeck(zone);
+          case DeckMenuItems.editDeck:
+            onEditDeck(zone);
+          case DeckMenuItems.deleteDeck:
+            _deleteDeck(zone);
+        }
+      },
     );
   }
 
@@ -471,25 +535,26 @@ class CardLibraryScene extends Scene {
     if (result != null) {
       // 返回的是提示的文本信息
       GameDialogContent.show(context, result);
-    } else {
-      engine.play('hammer-hitting-an-anvil-25390.mp3');
-
-      addHintText(
-        engine.locale('deckbuilding_${id}_hint'),
-        position: card.center,
-        offsetY: 30.0,
-        textStyle: TextStyle(
-          fontFamily: GameUI.fontFamily,
-        ),
-        horizontalVariation: 0.0,
-        verticalVariation: 0.0,
-      );
-
-      final (description, _) = GameData.getDescriptionFromCardData(card.data);
-      card.description = description;
-      _showCraftingCardInfo();
-      updateExp();
+      return;
     }
+
+    engine.play('hammer-hitting-an-anvil-25390.mp3');
+
+    addHintText(
+      engine.locale('deckbuilding_${id}_hint'),
+      position: card.center,
+      offsetY: 30.0,
+      textStyle: TextStyle(
+        fontFamily: GameUI.fontFamily,
+      ),
+      horizontalVariation: 0.0,
+      verticalVariation: 0.0,
+    );
+
+    final (description, _) = GameData.getDescriptionFromCardData(card.data);
+    card.description = description;
+    _showCraftingCardInfo();
+    updateExp();
 
     if (id == 'dismantle') {
       libraryZone.removeCard(card.id);
@@ -498,7 +563,6 @@ class CardLibraryScene extends Scene {
       }
 
       onEndCraft();
-      updateExp();
     }
   }
 
@@ -523,22 +587,23 @@ class CardLibraryScene extends Scene {
 
       final buffer = StringBuffer();
 
-      if (button.isEnabled) {
-        final expCost =
-            GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
+      final expCost =
+          GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
 
-        buffer.writeln(engine.locale('deckbuilding_${id}_description'));
+      buffer.writeln(engine.locale('deckbuilding_${id}_description'));
+
+      if (button.isEnabled) {
         if (expCost > 0) {
           if (id == 'dismantle') {
             buffer.writeln(
-                '\n ${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>');
+                '\n \n${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>');
           } else {
             buffer.writeln(
-                '\n ${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>');
+                '\n \n${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>');
           }
         }
       } else {
-        buffer.writeln(engine.locale('functionDisabled'));
+        buffer.writeln('\n \n${engine.locale('functionDisabled')}');
       }
 
       Hovertip.show(
@@ -565,9 +630,14 @@ class CardLibraryScene extends Scene {
 
     bool isScroll = card.data['isScroll'] == true;
 
-    for (final button in _craftOptionButtons) {
+    for (var i = 0; i < _craftOptionButtons.length; ++i) {
+      final button = _craftOptionButtons[i];
       button.isVisible = true;
-      button.isEnabled = enableCardCraft && !isScroll;
+      if (i == _craftOptionButtons.length - 1) {
+        button.isEnabled = true;
+      } else {
+        button.isEnabled = enableCardCraft && !isScroll;
+      }
     }
 
     craftScrollButton.isVisible = true;
@@ -603,8 +673,38 @@ class CardLibraryScene extends Scene {
   }
 
   void craftScroll() {
-    assert(_craftingCard != null);
-    if (_craftingCard == null) return;
+    if (_craftingCard == null) {
+      engine.error('expected: currently no crafting card');
+    }
+
+    final expCost =
+        GameLogic.getCardCraftOperationCost('craftScroll', _craftingCard!.data);
+
+    final paper =
+        engine.hetu.invoke('firstItemKindInInventory', positionalArgs: [
+      GameData.heroData,
+      'scroll_paper_rank_${_craftingCard!.data['rank']}',
+    ]);
+
+    if (GameData.heroData['unconvertedExp'] < expCost) {
+      GameDialogContent.show(context, engine.locale('hint_notEnoughExp'));
+      return;
+    }
+
+    if (paper == null) {
+      GameDialogContent.show(context, engine.locale('hint_notEnoughMaterial'));
+      return;
+    }
+
+    updateExp();
+
+    GameData.heroData['unconvertedExp'] -= expCost;
+    engine.hetu.invoke(
+      'lose',
+      namespace: 'Player',
+      positionalArgs: [paper],
+      namedArgs: {'incurIncident': false},
+    );
 
     final scrollCard = _craftingCard!.clone(deepCopyData: true);
     final oldTitle = scrollCard.data['name'];
@@ -684,19 +784,16 @@ class CardLibraryScene extends Scene {
       required bool isMainCard,
       required filter,
       bool isIdentified = false,
-      int packRank = 0,
     }) {
-      final genre = isMainCard
-          ? filter['genre']
-          : (filter['isBasic'] == true ? 'none' : null);
-      final kind = isMainCard
-          ? filter['kind']
-          : (filter['isBasic'] == true ? kBasicCardKinds.random : null);
-      final category = isMainCard
-          ? filter['category']
-          : (filter['isBasic'] == true ? 'attack' : null);
-      final rank = isMainCard ? packRank : null;
-      final maxRank = isMainCard ? null : packRank;
+      final bool basic = filter['isBasic'] ?? false;
+      final preferredCategory = basic ? 'attack' : filter['kind'];
+      final preferredGenre = basic ? 'none' : filter['genre'];
+      final preferredKind = basic ? kBasicCardKinds.random : filter['kind'];
+      final category = (basic || isMainCard) ? preferredCategory : null;
+      final genre = (basic || isMainCard) ? preferredGenre : null;
+      final kind = (basic || isMainCard) ? preferredKind : null;
+      final rank = (basic || isMainCard) ? filter['rank'] : null;
+      final maxRank = isMainCard ? null : rank;
       final cardData = engine.hetu.invoke(
         'BattleCard',
         namedArgs: {
@@ -713,8 +810,6 @@ class CardLibraryScene extends Scene {
 
     if (cardpacksData.length == 1) {
       final cardpackData = cardpacksData.first;
-      final filter = cardpackData['filter'];
-      int packRank = filter['rank'] ?? 0;
 
       skillBook.enableGesture = false;
       barrier.isVisible = true;
@@ -726,8 +821,7 @@ class CardLibraryScene extends Scene {
         bool isMainCard = i == 1;
         final cardData = createCard(
           isMainCard: isMainCard,
-          filter: filter,
-          packRank: packRank,
+          filter: cardpackData['filter'],
           isIdentified: false,
         );
 
@@ -800,6 +894,7 @@ class CardLibraryScene extends Scene {
         'lose',
         namespace: 'Player',
         positionalArgs: [cardpackData],
+        namedArgs: {'incurIncident': false},
       );
     } else {
       // final Iterable cardpacks =
@@ -809,16 +904,17 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.cardDealt2);
       for (final cardpackData in cardpacksData) {
-        final filter = cardpackData['filter'];
-        int packRank = filter['rank'] ?? 0;
-        engine.hetu.invoke('lose',
-            namespace: 'Player', positionalArgs: [cardpackData]);
+        engine.hetu.invoke(
+          'lose',
+          namespace: 'Player',
+          positionalArgs: [cardpackData],
+          namedArgs: {'incurIncident': false},
+        );
         for (var i = 0; i < 3; ++i) {
           bool isMainCard = i == 1;
           final cardData = createCard(
             isMainCard: isMainCard,
-            filter: filter,
-            packRank: packRank,
+            filter: cardpackData['filter'],
             isIdentified: true,
           );
 
@@ -1059,17 +1155,28 @@ class CardLibraryScene extends Scene {
       text: engine.locale('sort'),
     );
     orderBy.onTapUp = (buttons, position) {
-      final menuPosition = RelativeRect.fromLTRB(orderBy.position.x,
-          orderBy.position.y + orderBy.size.y, orderBy.position.x, 0.0);
-      final menu = buildOrderByMenuItems(onSelectedItem: (option) {
-        libraryZone.repositionToTop();
-        libraryZone.sortCards(options: option);
-        updateOrderByButtonText();
-      });
-      showMenu(
-        context: context,
-        items: menu,
-        position: menuPosition,
+      showFluentMenu<OrderByOptions>(
+        position: orderBy.bottomLeft.toOffset(),
+        items: {
+          engine.locale('acquiredTime'): {
+            engine.locale('descending'):
+                OrderByOptions.byAcquiredTimeDescending,
+            engine.locale('ascending'): OrderByOptions.byAcquiredTimeAscending,
+          },
+          engine.locale('level'): {
+            engine.locale('descending'): OrderByOptions.byLevelDescending,
+            engine.locale('ascending'): OrderByOptions.byLevelAscending,
+          },
+          engine.locale('cultivationRank'): {
+            engine.locale('descending'): OrderByOptions.byRankDescending,
+            engine.locale('ascending'): OrderByOptions.byRankAscending,
+          },
+        },
+        onSelectedItem: (OrderByOptions option) {
+          libraryZone.repositionToTop();
+          libraryZone.sortCards(options: option);
+          updateOrderByButtonText();
+        },
       );
     };
     camera.viewport.add(orderBy);
@@ -1082,17 +1189,64 @@ class CardLibraryScene extends Scene {
       text: engine.locale('filter'),
     );
     filterBy.onTapUp = (buttons, position) {
-      final menuPosition = RelativeRect.fromLTRB(filterBy.position.x,
-          filterBy.position.y + filterBy.size.y, filterBy.position.x, 0.0);
-      final menu = buildFilterByMenuItems(onSelectedItem: (option) {
-        libraryZone.repositionToTop();
-        libraryZone.filterCards(options: option);
-        updateFilterByButtonText();
-      });
-      showMenu(
-        context: context,
-        items: menu,
-        position: menuPosition,
+      showFluentMenu<FilterByOptions>(
+        position: filterBy.bottomLeft.toOffset(),
+        items: {
+          engine.locale('all'): FilterByOptions.all,
+          engine.locale('requirementsMet'): FilterByOptions.requirementsMet,
+          engine.locale('category'): {
+            engine.locale('attack'): FilterByOptions.categoryAttack,
+            engine.locale('buff'): FilterByOptions.categoryBuff,
+          },
+          engine.locale('genre'): {
+            engine.locale('spellcraft'): FilterByOptions.spellcraft,
+            engine.locale('swordcraft'): FilterByOptions.swordcraft,
+            engine.locale('bodyforge'): FilterByOptions.bodyforge,
+            engine.locale('avatar'): FilterByOptions.avatar,
+            engine.locale('vitality'): FilterByOptions.vitality,
+          },
+          engine.locale('martialArts'): {
+            engine.locale('kind_punch'): FilterByOptions.kind_punch,
+            engine.locale('kind_kick'): FilterByOptions.kind_kick,
+            engine.locale('kind_qinna'): FilterByOptions.kind_qinna,
+            engine.locale('kind_dianxue'): FilterByOptions.kind_dianxue,
+            engine.locale('kind_sword'): FilterByOptions.kind_sword,
+            engine.locale('kind_sabre'): FilterByOptions.kind_sabre,
+            engine.locale('kind_staff'): FilterByOptions.kind_staff,
+            engine.locale('kind_spear'): FilterByOptions.kind_spear,
+            engine.locale('kind_bow'): FilterByOptions.kind_bow,
+            engine.locale('kind_dart'): FilterByOptions.kind_dart,
+            engine.locale('kind_shenfa'): FilterByOptions.kind_shenfa,
+            engine.locale('kind_qinggong'): FilterByOptions.kind_qinggong,
+            engine.locale('kind_xinfa'): FilterByOptions.kind_xinfa,
+          },
+          engine.locale('sorcery'): {
+            engine.locale('kind_flying_sword'):
+                FilterByOptions.kind_flying_sword,
+            engine.locale('kind_airbend'): FilterByOptions.kind_airbend,
+            engine.locale('kind_firebend'): FilterByOptions.kind_firebend,
+            engine.locale('kind_waterbend'): FilterByOptions.kind_waterbend,
+            engine.locale('kind_lightning_control'):
+                FilterByOptions.kind_lightning_control,
+            engine.locale('kind_earthbend'): FilterByOptions.kind_earthbend,
+            engine.locale('kind_plant_control'):
+                FilterByOptions.kind_plant_control,
+          },
+          engine.locale('other'): {
+            engine.locale('kind_sigil'): FilterByOptions.kind_sigil,
+            engine.locale('kind_power_word'): FilterByOptions.kind_power_word,
+            engine.locale('kind_scripture'): FilterByOptions.kind_scripture,
+            engine.locale('kind_music'): FilterByOptions.kind_music,
+            engine.locale('kind_array'): FilterByOptions.kind_array,
+            engine.locale('kind_potion'): FilterByOptions.kind_potion,
+            engine.locale('kind_scroll'): FilterByOptions.kind_scroll,
+          },
+        },
+        onSelectedItem: (FilterByOptions option) {
+          libraryZone.repositionToTop();
+          libraryZone.filterCards(options: option);
+          updateFilterByButtonText();
+        },
       );
     };
     camera.viewport.add(filterBy);
@@ -1269,9 +1423,11 @@ class CardLibraryScene extends Scene {
 
       final rank = _craftingCard!.data['rank'];
 
-      final bool enabled = craftScrollButton.isEnabled || rank > 0;
+      final bool enabled = craftScrollButton.isEnabled && rank > 0;
 
       StringBuffer buffer = StringBuffer();
+
+      buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
       if (enabled) {
         final expCost = GameLogic.getCardCraftOperationCost(
             'craftScroll', _craftingCard!.data);
@@ -1281,16 +1437,13 @@ class CardLibraryScene extends Scene {
           GameData.heroData,
           'scroll_paper_rank_$rank',
         ]);
-
-        buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
-        buffer.writeln(' ');
         buffer.writeln(
-            '${engine.locale('deckbuilding_exp_cost')}: <bold ${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>');
+            '\n \n${engine.locale('deckbuilding_exp_cost')}: <bold ${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>');
         buffer.writeln(
             '${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
             '${engine.locale('deckbuilding_scroll_paper_count')}: <bold ${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
       } else {
-        buffer.writeln(engine.locale('functionDisabled'));
+        buffer.writeln('\n \n${engine.locale('functionDisabled')}');
       }
 
       Hovertip.show(
@@ -1343,7 +1496,7 @@ class CardLibraryScene extends Scene {
               border: Border.all(color: GameUI.foregroundColor),
             ),
             child: IconButton(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.all(0),
               onPressed: () {
                 GameDialogContent.show(
                   context,

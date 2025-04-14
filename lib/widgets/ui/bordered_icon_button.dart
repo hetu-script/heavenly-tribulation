@@ -3,6 +3,7 @@ import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/paint/paint.dart';
 
 import '../../engine.dart';
+import '../../common.dart';
 
 class BorderedIconButton extends StatelessWidget {
   const BorderedIconButton({
@@ -47,11 +48,11 @@ class BorderedIconButton extends StatelessWidget {
           },
           child: MouseRegion2(
             onMouseEnter: (rect) {
-              engine.setCursor('click');
+              engine.setCursor(Cursors.click);
               onMouseEnter?.call(rect);
             },
             onMouseExit: () {
-              engine.setCursor('default');
+              engine.setCursor(Cursors.normal);
               onMouseExit?.call();
             },
             child: Container(

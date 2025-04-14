@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 
@@ -207,7 +208,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -216,12 +217,12 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop({
                       'id': _idEditingController.text,
                       'method': 'blank',
-                      'isMainWorld': _isMainWorld,
+                      'isMain': _isMainWorld,
                       'useCustomLogic': _useCustomLogic,
                       'saveName': _filaNameEditingController.text,
                       'width': int.parse(_mapWidthEditingController.text),

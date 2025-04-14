@@ -20,6 +20,7 @@ const kTerrainKindMountain = 'mountain';
 const kTerrainKindShore = 'shore';
 const kTerrainKindForest = 'forest';
 const kTerrainKindPlain = 'plain';
+const kTerrainKindSnowPlain = 'snow_plain';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';

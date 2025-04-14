@@ -14,11 +14,13 @@ namespace Dialog {
   /// 执行对话，当执行结束时，所有场景、角色和对话数据都会被清理
   external async function execute()
   
-  external function _pushDialog(dialogData, {image})
+  external function _pushDialog(dialogData)
 
   external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0})
 
   external function popImage({image: string})
+
+  external function popAllImages()
 
   external function pushBackground(image: string, {isFadeIn: bool = false})
 
@@ -30,40 +32,44 @@ namespace Dialog {
 
   /// 这个函数会解析参数并最终生成显示用的名字、头像、插画和对话内容
   /// 此函数不能是async的
-  function pushLocales(localeKeys, {
+  function pushLocale(localeKeys, {
     character,
     characterId,
     isHero: bool,
-    displayNameId,
-    displayName,
+    nameId,
+    name,
     hideName: bool,
     icon,
     hideIcon: bool,
-    image,
-    hideImage: bool,
+    illustration,
+    hideIllustration: bool,
     interpolations,
   }) -> Future {
     character ??= isHero ? hero : game.characters[characterId]
     icon ??= hideIcon ? null : character?.icon
-    image ??= hideImage ? null : character?.illustration
+    illustration ??= hideIllustration ? null : character?.illustration
     
-    if (isHero) {
-      displayName ??= hideName ? '???' : engine.locale('me')
+    if (hideName) {
+      name = ''
     } else {
-      if (displayName == null) {
-        if (displayNameId != null) {
-          displayName = engine.locale(displayNameId)
-        } else {
-          if (character != null) {
-            let heroHaveMetChar = haveMet(hero, character)
-            if (hideName || !heroHaveMetChar) {
-              if (character.titleId != null) {
-                displayName = engine.locale(character.titleId)
+      if (isHero) {
+        name = engine.locale('me')
+      } else {
+        if (name == null) {
+          if (nameId != null) {
+            name = engine.locale(nameId)
+          } else {
+            if (character != null) {
+              let heroHaveMetChar = haveMet(hero, character)
+              if (!heroHaveMetChar) {
+                if (character.titleId != null) {
+                  name = engine.locale(character.titleId)
+                } else {
+                  name = '???'
+                }
               } else {
-                displayName = '???'
+                name = character.name
               }
-            } else {
-              displayName = character.name
             }
           }
         }
@@ -95,26 +101,69 @@ namespace Dialog {
     }
 
     return _pushDialog({
-      displayName: displayName,
+      name: name,
       icon: icon,
-      image: image,
+      image: illustration,
       lines: lines,
     })
+  }
+
+  function pushAll(lines) {
+    for (final data in lines) {
+      if (data.localeId) {
+        pushLocale(data.localeId,
+          characterId: data.characterId,
+          character: data.character,
+          isHero: data.isHero,
+          nameId: data.nameId,
+          name: data.name,
+          icon: data.icon,
+          illustration: data.illustration,
+          hideName: data.hideName,
+          hideIcon: data.hideIcon,
+          hideImage: data.hideImage,
+          interpolations: data.interpolations,
+        )
+      } else if (data.image) {
+        if (data.action == 'pop') {
+          popImage(image: data.image)
+        } else if (data.action == 'popAll') {
+          popAllImages()
+        } else {
+          pushImage(data.image, offsetX: data.offsetX, offsetY: data.offsetY)
+        }
+      } else if (data.background) {
+        if (data.action == 'pop') {
+          popBackground(image: data.background, isFadeOut: data.isFadeOut)
+        } else if (data.action == 'popAll') {
+          popAllBackgrounds()
+        } else {
+          pushBackground(data.background, isFadeIn: data.isFadeIn)
+        }
+      } else if (data.task) {
+        assert(data.task is function)
+        pushTask(data.task, flagId: data.flagId)
+      } else if (data.selection) {
+        pushSelection(data.selection)
+      } else {
+        engine.error('Dialog.pushLines: unknown data type. ${data}')
+      }
+    }
   }
 
   /// selection 对话框的 data 数据结构：
   /// {
   ///   id: 'taskId',
   ///   selections: {
-  ///     selectKey1: 'localedText1',
-  ///     selectKey2: 'localedText3',
+  ///     selectKey1: 'localedText1', // 可以只有一个单独的文本
+  ///     selectKey2: { text: 'localedText3', description: 'localedText4' }, // 也可以是文本加一个描述文本
   ///     ...
   ///   } 
   /// }
   external function pushSelection(selectionsData)
 
   // 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
-  function pushLocalesSelection(id, locales: List) {
+  function pushLocaleSelection(id, locales: List) {
     final selections = {}
     for (final key in locales) {
       selections[key] = engine.locale(key)

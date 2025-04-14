@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
 import '../../engine.dart';
@@ -44,7 +45,7 @@ class _NewRankState extends State<NewRank> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

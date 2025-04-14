@@ -27,6 +27,15 @@ class PromptTextBanner extends BorderComponent {
   }
 
   @override
+  set opacity(double value) {
+    super.opacity = value;
+
+    if (isLoaded) {
+      textComponent.opacity = value;
+    }
+  }
+
+  @override
   void onLoad() async {
     textComponent = RichTextComponent(
       text: text,

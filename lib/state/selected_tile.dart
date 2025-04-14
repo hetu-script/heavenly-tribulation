@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:samsara/tilemap.dart';
 
 class SelectedTileState with ChangeNotifier {
-  dynamic currentZone, currentNation;
+  dynamic currentZone, currentNation, currentLocation;
   TileMapTerrain? currentTerrain;
 
   void update({
@@ -13,6 +13,7 @@ class SelectedTileState with ChangeNotifier {
   }) {
     currentZone = currentZoneData;
     currentNation = currentNationData;
+    currentLocation = currentLocationData;
     currentTerrain = currentTerrainObject;
     notifyListeners();
   }
@@ -20,20 +21,19 @@ class SelectedTileState with ChangeNotifier {
   void clear() {
     currentZone = null;
     currentNation = null;
+    currentLocation = null;
     currentTerrain = null;
     notifyListeners();
   }
 }
 
-class HeroTileState with ChangeNotifier {
-  dynamic currentZone, currentNation;
+class HeroPositionState with ChangeNotifier {
+  dynamic currentZone, currentNation, currentLocation;
   TileMapTerrain? currentTerrain;
-  String? currentScene;
 
-  void update({
+  void updateTerrain({
     dynamic currentZoneData,
     dynamic currentNationData,
-    dynamic currentLocationData,
     TileMapTerrain? currentTerrainData,
   }) {
     bool changed = false;
@@ -54,9 +54,9 @@ class HeroTileState with ChangeNotifier {
     }
   }
 
-  void updateScene(sceneId) {
-    if (currentScene != sceneId) {
-      currentScene = sceneId;
+  void updateLocation(dynamic currentLocationData) {
+    if (currentLocationData != currentLocation) {
+      currentLocation = currentLocationData;
       notifyListeners();
     }
   }
@@ -65,8 +65,7 @@ class HeroTileState with ChangeNotifier {
     currentZone = null;
     currentNation = null;
     currentTerrain = null;
-    // currentLocation = null;
-    currentScene = null;
+    currentLocation = null;
     notifyListeners();
   }
 }

@@ -4,360 +4,59 @@ import 'common.ht'
 async function onNewGame() {
   initModData()
 
-  if (!entityHasItem(hero, 'hunguding')) {
-    Player.acquireById('hunguding')
-  }
-
-  if (!entityHasItemKind(hero, 'sword')) {
-    final sword = Equipment(kind: 'sword')
-    Player.acquire(sword)
-  }
-
   if (!hero.quests.mysticGirl) {
-    Player.acquireQuestById('mysticGirl')
+    final quest = Player.acquireQuestById('mysticGirl')
+    Player.progressQuestById('mysticGirl', stage: 1)
+    Player.progressQuestById('mysticGirl', stage: 2)
+    // Game.promptNewQuest(quest)
   }
 
-  if (!hero.quests.nailedSoul) {
-    Player.acquireQuestById('nailedSoul')
-  }
-
-  Dialog.pushBackground('black.png')
-  Dialog.pushTask(() {
-    Player.setTo(10, 10, worldId: 'story_main', direction: 'south')
-    Game.showHeroInfo()
-  })
-  Dialog.popBackground(isFadeOut: true)
-  await Dialog.execute()
+  // if (hero.quests.mysticGirl.stage == 3) {
+  //   Dialog.pushBackground('black.png')
+  //   Dialog.pushTask(() {
+  //     Game.showHeroInfo()
+  //     Player.setTo(74, 16, worldId: 'heavenly_prison', direction: 'south')
+  //     hero.life = 1
+  //   })
+  //   Dialog.popBackground(isFadeOut: true)
+  //   await Dialog.execute()
+  //   Game.updateHero()
+  // }
 }
   
 async function onEnterMap() {
-  if (hero.quests.mysticGirl.stage < 4) {
-    // 第一次进入地图，两个妖族修士抓走了凌初雪
-    Player.progressQuestById('mysticGirl', stage: 4)
+  if (hero.quests.mysticGirl.stage == 2) {
+    Player.progressQuestById('mysticGirl', stage: 3)
+    hero.quests.mysticGirl.title = game.characters.ling_chuxue.name
+  
+    Player.acquireQuestById('nailedSoul')
+    
+    final item = Player.acquireById('hunguding')
+    Player.equip(item)
 
-    Dialog.pushLocales('chapter1_enterMap_line0', characterId: 'yaozu_elite1', displayNameId: 'yaozu_elite')
-    Dialog.pushLocales('chapter1_enterMap_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-    Dialog.pushLocales('chapter1_enterMap_line2', characterId: 'yaozu_elite1', displayNameId: 'yaozu_elite')
-    Dialog.pushLocales('chapter1_enterMap_line4')
-    Dialog.pushBackground('story/cg/chapter1/xiao_off_the_cliff.png', fadeIn: true)
-    Dialog.pushLocales('chapter1_enterMap_line5')
-    // Dialog.pushBackground('black.png', fadeIn: true)
-    Dialog.pushLocales('chapter1_enterMap_line6')
-    Dialog.pushTask(() {
-      Player.setTo(7, 10, worldId: 'story_main', direction: 'south')
-      hero.life = 1
-      Game.updateHero()
-    })
-    Dialog.pushLocales('chapter1_enterMap_line7', isHero: true, hideImage: true)
-    Dialog.popBackground(isFadeOut: true)
-    Dialog.pushTask(async () {
-      await World.moveCameraToMapPosition(4, 8)
-    })
-    Dialog.pushLocales('chapter1_enterMap_line8', isHero: true)
-    await Dialog.execute()
+    Player.setTo(73, 12, worldId: 'heavenly_prison', direction: 'south')
+
+    final chuxue = game.characters.ling_chuxue
+    chuxue.level = 20
+    chuxue.rank = 2
+    characterCalculateStats(chuxue, rejuvenate: true)
+    generateDeck(chuxue, cardInfoList: [
+      {affixId: 'mana'},
+      {affixId: 'fireball'},
+      {affixId: 'flying_sword_exhaust_mana'},
+      {affixId: 'scripture_exhaust_karma'},
+    ])
+    characterMet(hero, chuxue)
+
+    Game.pushScene(
+      'baiheshan',
+      category: 'location',
+      arguments: {'location': game.locations.baiheshan}
+    )
+    Game.pushScene(
+      'home_ling_chuxue',
+      category: 'location',
+      arguments: {'location': game.locations.home_ling_chuxue}
+    )
   }
 }
-
-async function onAfterEnterLocation(location) {
-  switch(location.id) {
-    'wanfucun': {
-      if (!hero.quests.rebuildWanfuzong) {
-        // 第一次进入万福村并见到村长阿福
-        Player.acquireQuestById('rebuildWanfuzong')
-
-        Dialog.pushLocales('chapter1_enterWanfucun_line1', characterId: 'afu')
-        Dialog.pushLocales('chapter1_enterWanfucun_line2')
-        Dialog.pushLocales('chapter1_enterWanfucun_line3', isHero: true)
-        Dialog.pushLocales('chapter1_enterWanfucun_line4')
-        Dialog.pushLocales('chapter1_enterWanfucun_line5', characterId: 'afu')
-        Dialog.pushLocales('chapter1_enterWanfucun_line6', isHero: true)
-        Dialog.pushTask(() {
-          final afu = getCharacterById('afu')
-          characterMet(hero, afu)
-          updateBondScore(afu, hero, 10)
-        })
-        let selected
-        do {
-          Dialog.pushLocalesSelection(
-            'chapter1_enterWanfucun_question',
-            [
-              'chapter1_enterWanfucun_questionWanfucun',
-              'chapter1_enterWanfucun_questionSeal',
-              'chapter1_enterWanfucun_questionEnd',
-            ]
-          )
-          await Dialog.execute()
-          selected = Dialog.checkSelected('chapter1_enterWanfucun_question')
-          switch(selected) {
-            'chapter1_enterWanfucun_questionWanfucun': {
-              Dialog.pushLocales('chapter1_enterWanfucun_questionWanfucun_reply', characterId: 'afu')
-            }
-            'chapter1_enterWanfucun_questionSeal': {
-              Dialog.pushLocales('chapter1_enterWanfucun_questionSeal_reply', characterId: 'afu')
-            }
-            'chapter1_enterWanfucun_questionEnd': {
-              Dialog.pushLocales('chapter1_afu_generic_reply', characterId: 'afu')
-            }
-          }
-          await Dialog.execute()
-        } while (selected != 'chapter1_enterWanfucun_questionEnd')
-
-        final wanfucun = getLocationById('wanfucun')
-        Player.setHomeLocation(wanfucun)
-      } else {
-        if (hero.quests.rebuildWanfuzong.sequence.contains(5) && 
-          !hero.quests.rebuildWanfuzong.sequence.contains(6)) {
-          Dialog.pushLocales('chapter1_afu_initialCultivate_line6', characterId: 'afu')
-          await Dialog.execute()
-        }
-      }
-    }
-    'wanfucun_jihuisuo': {
-      if (hero.quests.rebuildWanfuzong?.sequence.contains(5)) {
-        if (!game.flags.hintedAutoCultivate) {
-          game.flags.hintedAutoCultivate = true
-          Dialog.pushLocales('help_autoCultivate')
-          await Dialog.execute()
-        }
-      }
-    }
-  }
-}
-
-async function onInteractLocationObject(object, location) {
-  switch(object.id) {
-    'dinglingbei': {
-      switch (hero.quests.rebuildWanfuzong.stage) {
-        0: {
-          // 第一次进入集会所并经历定灵碑事件
-          Player.progressQuestById('rebuildWanfuzong', stage: 1)
-          Dialog.pushBackground('story/cg/chapter1/dinglingbei.png', isFadeIn: true)
-          Dialog.pushLocales('chapter1_rebuildWanfuzong_line1')
-          Dialog.popBackground(isFadeOut: true)
-          Dialog.pushLocales('chapter1_rebuildWanfuzong_line2')
-          Dialog.pushLocales('chapter1_rebuildWanfuzong_line3', isHero: true)
-          await Dialog.execute()
-        }
-        1: {
-          Dialog.pushLocales('chapter1_rebuildWanfuzong_dinglingbei')
-          Dialog.pushLocales('chapter1_rebuildWanfuzong_line3', isHero: true)
-          await Dialog.execute()
-        }
-        2: {
-          // 阿福愿意帮助萧墨淬炼灵根，初入修真之途
-          Dialog.pushLocales('chapter1_afu_initialCultivate_line1', characterId: 'afu')
-          Dialog.pushLocalesSelection(
-            'chapter1_afu_initialCultivate',
-            [
-              'chapter1_afu_initialCultivate_option',
-              'forgetIt',
-            ]
-          )
-          await Dialog.execute()
-          final selected = Dialog.checkSelected('chapter1_afu_initialCultivate')
-          if (selected == 'chapter1_afu_initialCultivate_option') {
-            Player.progressQuestById('rebuildWanfuzong', stage: 3)
-            Dialog.pushLocales('chapter1_afu_initialCultivate_line2', characterId: 'afu')
-            Dialog.pushLocales('chapter1_afu_initialCultivate_line3', isHero: true)
-            await Dialog.execute()
-            // hero.unconvertedExp += 40
-            Game.showCultivation()
-          }
-        }
-        else: {
-          Game.showCultivation()
-        }
-      }
-    }
-  }
-}
-
-  // onAfterMove: async (left, top) {
-    // if (left == 9 && top == 7 && game.mods.story.flags.spiritQuestState == 0) {
-    //   await Dialog.localeLines('tutorial_ch1.hero.line6', isHero: true)
-    //   await Dialog.localeLines('tutorial_ch1.luzifu_reply6', characterId: 'luzifu')
-
-    //   let quest = Quest(
-    //     name: engine.locale('tutorial_quest1.gatherSpirit'),
-    //     publisherId: 'luzifu',
-    //     stages: [
-    //       {
-    //         description: engine.locale('tutorial_quest1.gatherSpirit.stage1.description'),
-    //       },
-    //       {
-    //         description: engine.locale('tutorial_quest1.gatherSpirit.stage2.description'),
-    //       },
-    //     ]
-    //   )
-    //   acceptQuest(hero, quest)
-    //   game.mods.story.flags.spiritQuestState = 1
-    //   game.mods.story.flags.spiritQuestId = quest.id
-    //   Player.updateQuest()
-    // }
-  // },
-  // onAfterHeroGatherSpirit: async () {
-    // if (game.mods.story.flags.spiritQuestState = 1) {
-    //   game.mods.story.flags.spiritQuestState = 2
-    //   await Dialog.localeLines('tutorial_ch1.luzifu.line7', characterId: 'luzifu')
-      
-    //   assert(game.mods.story.flags.spiritQuestId != null)
-    //   final quest = hero.quests[game.mods.story.flags.spiritQuestId]
-    //   ++quest.currentStageIndex
-    //   Player.updateQuest()
-    // }
-  // },
-  // onAfterHeroExplore: async (terrain) {
-    // if (game.mods.story.flags.spiritQuestState = 2) {
-    //   assert(game.mods.story.flags.spiritQuestId != null)
-    //   final quest = hero.quests[game.mods.story.flags.spiritQuestId]
-    //   finishQuest(hero, quest)
-    //   Player.updateQuest()
-    //   World.addHintText(engine.locale('questFinished'), terrain.left, terrain.top)
-
-    //   await Dialog.localeLines('tutorial_ch1.luzifu.line8', characterId: 'luzifu')
-    //   await Dialog.localeLines('tutorial_ch1.hero_reply8', isHero: true)
-    //   await Dialog.localeLines('tutorial_ch1.luzifu.line9', characterId: 'luzifu')
-    // }
-  // },
-  // handleAfuQuestions: async () {
-  //   final afu = getCharacterById('afu')
-  //   final aya = getCharacterById('aya')
-  //   let haveKnownAya = haveMet(hero, aya)
-  //   let afuSelection
-  //   do {
-  //     afuSelection = await Dialog.localeSelect([
-  //       'tutorial_ch1.afu.aboutAfu',
-  //       'tutorial_ch1.afu.aboutIsle',
-  //       'tutorial_ch1.afu.aboutOtherImmortal',
-  //       'tutorial_ch1.afu.aboutSeal',
-  //       haveKnownAya ? 'tutorial_ch1.afu.aboutAya' : 'tutorial_ch1.afu.aboutThatGirl',
-  //       'noreMoreQuertion',
-  //     ])
-  //     switch (afuSelection) {
-  //       'tutorial_ch1.afu.aboutAfu': {
-  //         await Dialog.localeLines('tutorial_ch1.afu.aboutAfu_reply', character: afu)
-  //         characterFirstMet(hero, afu)
-  //       }
-  //       'tutorial_ch1.afu.aboutIsle': {
-  //         await Dialog.localeLines('tutorial_ch1.afu.aboutIsle_reply', character: afu)
-  //       }
-  //       'tutorial_ch1.afu.aboutOtherImmortal': {
-  //         await Dialog.localeLines('tutorial_ch1.afu.aboutOtherImmortal_reply', character: afu)
-  //       }
-  //       'tutorial_ch1.afu.aboutSeal': {
-  //         await Dialog.localeLines('tutorial_ch1.afu.aboutSeal_reply', character: afu)
-  //       }
-  //       'tutorial_ch1.afu.aboutThatGirl', 'tutorial_ch1.afu.aboutAya': {
-  //         await Dialog.localeLines('tutorial_ch1.afu.aboutAya_reply', character: afu)
-  //       }
-  //     }
-  //   } while (afuSelection != 'noreMoreQuertion')
-  // },
-  // onAfterEnterLocation: async (location) {
-  //   final afu = getCharacterById('afu')
-  //   final aya = getCharacterById('aya')
-  //   if (game.mods.story.flags.afuState == 0 && location.id == '万福村') {
-  //     Dialog.start()
-  //     Dialog.pushImage(afu.illustration)
-
-  //     await Dialog.localeLines('tutorial_ch1.afu.intro.line1', character: afu)
-  //     await Dialog.localeLines('tutorial_ch1.hero.intro_reply1', isHero: true)
-  //     await Dialog.localeLines('tutorial_ch1.afu.intro.line2', character: afu)
-  //     await Dialog.localeLines('tutorial_ch1.hero.intro_reply2', isHero: true)
-
-  //     await this[world.id].handleAfuQuestions()
-
-  //     await Dialog.localeLines('tutorial_ch1.afu.intro.line3', character: afu)
-  //     await Dialog.localeLines('tutorial_ch1.hero.intro_reply3', isHero: true)
-  //     await Dialog.localeLines('tutorial_ch1.afu.intro.line4', character: afu)
-  //     await Dialog.localeLines('tutorial_ch1.hero.intro_reply4', isHero: true)
-  //     Dialog.end()
-
-  //     game.mods.story.flags.afuState = 1
-  //   }
-  // },
-  // onInteractCharacter: async (characterId) {
-  //   final afu = getCharacterById('afu')
-  //   final aya = getCharacterById('aya')
-  //   switch (characterId) {
-  //     'aya': {
-  //       switch (game.mods.story.flags.ayaState) {
-  //         0 : {
-  //           Dialog.pushImage(aya.illustration)
-  //           await Dialog.localeLines('tutorial_ch1.aya.intro.line1', character: aya)
-  //           let selections = [
-  //             'tutorial_ch1.aya.intro.selection1.look',
-  //             'tutorial_ch1.aya.intro.selection1.active',
-  //             'tutorial_ch1.aya.intro.selection1.passive',
-  //             'tutorial_ch1.aya.intro.selection1.leave',
-  //           ]
-  //           let selection1End = false
-  //           do {
-  //             let selection1 = await Dialog.localeSelect(selections);
-  //             switch(selection1) {
-  //               'tutorial_ch1.aya.intro.selection1.look' : {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.intro.selection1.description')
-  //                 selections.removeFirst()
-  //               }
-  //               'tutorial_ch1.aya.intro.selection1.active' : {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.intro.selection1.active_reply', character: aya)
-  //                 game.mods.story.flags.selection1Admitted = true
-  //                 selection1End = true
-  //               }
-  //               'tutorial_ch1.aya.intro.selection1.passive' : {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.intro.selection1.passive_reply')
-  //                 game.mods.story.flags.selection1Admitted = false
-  //                 selection1End = true
-  //               }
-  //               'tutorial_ch1.aya.intro.selection1.leave' : {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.intro.selection1.passive_reply')
-  //                 selection1End = true
-  //               }
-  //             }
-  //           } while (!selection1End)
-
-  //           // await Dialog.localeLines('tutorial_ch1.aya.intro.direction', character: aya)
-  //           Dialog.popImage()
-  //           game.mods.story.flags.ayaState = 1
-  //         }
-  //         1: {
-  //           Dialog.start()
-  //           if (game.mods.story.flags.selection1Admitted) {
-  //             await Dialog.localeLines('tutorial_ch1.aya.interact.01', character: aya)
-  //           } else {
-  //             await Dialog.localeLines('tutorial_ch1.aya.interact.02', character: aya)
-  //           }
-  //           let s
-  //           do {
-  //             s = await Dialog.localeSelect([
-  //               'tutorial_ch1.aya.aboutAya',
-  //               'tutorial_ch1.aya.aboutSeal',
-  //               'leave',
-  //             ]);
-  //             switch (s) {
-  //               'tutorial_ch1.aya.aboutAya': {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.aboutAya_reply', character: aya)
-  //                 characterFirstMet(hero, aya)
-  //                 await Dialog.localeLines('tutorial_ch1.aya.aboutAya_reply2', character: aya)
-  //               }
-  //               'tutorial_ch1.aya.aboutSeal': {
-  //                 await Dialog.localeLines('tutorial_ch1.aya.aboutSeal_reply', character: aya)
-  //               }
-  //             }
-  //           } while (s != 'leave')
-  //           Dialog.end()
-  //         }
-  //       }
-  //     }
-  //     'afu': {
-  //       switch (game.mods.story.flags.afuState) {
-  //         0 : {
-  //           await this[world.id].handleAfuQuestions()
-  //         }
-  //         1: {
-            
-  //         }
-  //       }
-  //     }
-  //   }
-  // },

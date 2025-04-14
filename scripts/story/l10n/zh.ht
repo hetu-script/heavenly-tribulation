@@ -1,13 +1,15 @@
 import 'zh/general.json' as general
 import 'zh/items.json' as items
-import 'zh/prelude.json' as prelude
 import 'zh/quests.json' as quests
+import 'zh/prelude.json' as prelude
+import 'zh/chapter01.json' as chapter01
 
 const zh = {
   languageId: 'zh',
   languageName: '简体中文',
   ...general,
   ...items,
-  ...prelude,
   ...quests,
+  ...prelude,
+  ...chapter01,
 }

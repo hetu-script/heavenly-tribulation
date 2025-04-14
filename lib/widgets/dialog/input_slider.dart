@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
@@ -109,7 +110,7 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       Navigator.of(context).pop(_current);
                     },

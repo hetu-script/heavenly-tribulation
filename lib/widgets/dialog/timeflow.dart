@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
+import '../../game/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
 import '../../common.dart';
@@ -69,7 +71,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             ++_progress;
             if (_progress % _kTimeFlowDivisions == 0) {
               widget.onProgress?.call();
-              engine.hetu.invoke('updateGame');
+              GameLogic.updateGame();
             }
           });
         } else {
@@ -112,7 +114,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             if (finished)
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
+                child: fluent.FilledButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

@@ -8,7 +8,6 @@ import 'package:hetu_script/utils/collection.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
-// import 'package:vector_math/vector_math_geometry.dart';
 
 import 'ui.dart';
 import '../common.dart';
@@ -61,6 +60,7 @@ abstract class GameData {
 
   static final Map<String, dynamic> maps = {};
 
+  static final Map<String, (String, String)> attributeNames = {};
   static final Map<String, String> organizationCategoryNames = {};
   static final Map<String, String> cultivationGenreNames = {};
   static final Map<String, String> cityKindNames = {};
@@ -69,16 +69,20 @@ abstract class GameData {
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic gameData, universeData, historyData, heroData;
 
+  static Set<String> worldIds = {};
+  static dynamic world;
+
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
   /// wether started a new game or load from a save.
   // static bool isGameCreated = false;
 
-  static String? currentWorldId;
-  static Set<String> worldIds = {};
-
   static Future<void> init() async {
+    if (!engine.isInitted) {
+      throw 'Game engine is not initted yet!';
+    }
+
     final animationsDataString =
         await rootBundle.loadString('assets/data/animation.json5');
     animationsData.addAll(JSON5.parse(animationsDataString));
@@ -204,6 +208,10 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/maps.json5');
     maps.addAll(JSON5.parse(mapsDataString));
 
+    for (final key in kBattleAttributes) {
+      attributeNames[key] =
+          (engine.locale(key), engine.locale('${key}_description'));
+    }
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
     }
@@ -462,6 +470,7 @@ abstract class GameData {
       titleConfig: GameUI.siteTitleConfig,
       showTitle: true,
       size: GameUI.siteCardSize,
+      preferredSize: GameUI.siteCardSize,
       position: position,
       enablePreview: true,
       focusOnPreviewing: true,
@@ -494,6 +503,7 @@ abstract class GameData {
             .compareTo((data1['priority'] ?? 0) as int);
       });
       for (final skillData in skillList) {
+        bool isAfflicted = false;
         String description;
         if ((skillData['id'] as String).endsWith('_rank')) {
           final int rank = skillData['level'];
@@ -504,14 +514,17 @@ abstract class GameData {
         } else {
           description = engine.locale(skillData['description']);
           final value = skillData['value'];
-          bool isAfflicted = false;
           if (value != null) {
             isAfflicted = value < 0;
             description =
                 description.interpolate(['${isAfflicted ? '' : '+'}$value']);
           }
         }
-        builder.writeln('<lightBlue>$description</>');
+        if (isAfflicted) {
+          builder.writeln('<red>$description</>');
+        } else {
+          builder.writeln('<lightBlue>$description</>');
+        }
       }
     }
     return builder.toString();

@@ -5,8 +5,8 @@ import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
 
 import '../../../game/ui.dart';
-// import '../../../game/data.dart';
 import '../../../engine.dart';
+import '../../../common.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 
@@ -57,12 +57,12 @@ class ItemGrid extends StatelessWidget {
             return;
           }
 
-          engine.setCursor('click');
+          engine.setCursor(Cursors.click);
           final Rect rect = getRenderRect(context);
           onMouseEnter?.call(itemData, rect);
         },
         onExit: (event) {
-          engine.setCursor('default');
+          engine.setCursor(Cursors.normal);
           onMouseExit?.call();
         },
         child: PointerDetector(

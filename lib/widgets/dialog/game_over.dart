@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 
@@ -29,7 +30,7 @@ class GameOver extends StatelessWidget {
                 ),
             Padding(
               padding: const EdgeInsets.all(25.0),
-              child: ElevatedButton(
+              child: fluent.FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

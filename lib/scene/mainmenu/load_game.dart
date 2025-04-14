@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../state/game_save.dart';
 import '../../engine.dart';
@@ -95,7 +96,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 5),
-                                        child: ElevatedButton(
+                                        child: fluent.FilledButton(
                                           onPressed: () {
                                             Navigator.of(context).pop(info);
                                           },
@@ -105,7 +106,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 5),
-                                        child: ElevatedButton(
+                                        child: fluent.FilledButton(
                                           onPressed: () {
                                             if (deleteButtonDisabled) return;
                                             setState(() {
@@ -146,7 +147,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
-              child: ElevatedButton(
+              child: fluent.FilledButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

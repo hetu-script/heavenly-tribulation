@@ -65,7 +65,7 @@ struct TileMapTerrain {
 function createBlankWorld({
     id = 'main',
     name,
-    isMainWorld,
+    isMain,
     terrainSpriteSheet = 'tilemap/fantasyhextiles_v3_borderless.png',
     width,
     height,
@@ -77,7 +77,7 @@ function createBlankWorld({
   let newWorld = TileMap(
     id: id,
     name: name,
-    isMainWorld: isMainWorld,
+    isMain: isMain,
     width: width,
     height: height,
     terrainSpriteSheet: terrainSpriteSheet,

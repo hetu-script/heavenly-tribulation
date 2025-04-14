@@ -275,7 +275,7 @@ class BattleScene extends Scene {
     );
     world.add(heroDeckZone);
 
-    final heroSkinId = heroData['characterSkin'];
+    final heroModelId = heroData['model'];
     final Set<String> heroAnimationStates = {};
     final Set<String> heroOverlayAnimationStates = {};
     for (final card in heroDeck) {
@@ -299,7 +299,7 @@ class BattleScene extends Scene {
       position: GameUI.p1CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       isHero: true,
-      skinId: heroSkinId,
+      modelId: heroModelId,
       animationStates: heroAnimationStates,
       overlayAnimationStates: heroOverlayAnimationStates,
       data: heroData,
@@ -316,7 +316,7 @@ class BattleScene extends Scene {
     );
     world.add(enemyDeckZone);
 
-    final enemySkinId = enemyData['characterSkin'];
+    final enemyModelId = enemyData['model'];
     final Set<String> enemyAnimationStates = {};
     final Set<String> enemyOverlayAnimationStates = {};
     for (final card in enemyDeck) {
@@ -339,7 +339,7 @@ class BattleScene extends Scene {
     enemy = BattleCharacter(
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
-      skinId: enemySkinId,
+      modelId: enemyModelId,
       animationStates: enemyAnimationStates,
       overlayAnimationStates: enemyOverlayAnimationStates,
       data: enemyData,
@@ -630,9 +630,9 @@ class BattleScene extends Scene {
     nextTurnButton.onTap = (_, __) => _endScene();
 
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(turnCount);
-    int life = hero.life;
+    final int life = hero.life;
     if (battleResult == true) {
-      int newLife = life + (hero.lifeMax * hpRestoreRate).toInt();
+      final int newLife = life + (hero.lifeMax * hpRestoreRate).toInt();
       hero.setLife(newLife);
     }
     hero.data['life'] = hero.life;
@@ -696,8 +696,8 @@ class BattleScene extends Scene {
                             ),
                           );
                         case BattleDropMenuItems.exit:
-                          context.read<EnemyState>().clear();
                           await onBattleEnd?.call(false);
+                          context.read<EnemyState>().clear();
                           _endScene();
                       }
                     },

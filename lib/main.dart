@@ -27,7 +27,7 @@ class CustomWindowListener extends WindowListener {
   // @override
   // void onWindowFocus() async {
   //   // engine.info('窗口获得焦点');
-  //   engine.setCursor('default');
+  //   engine.setCursor(Cursors.normal);
   // }
 }
 
@@ -82,22 +82,21 @@ void main() {
     });
 
     await engine.registerCursors();
-    // engine.setCursor('default');
+    // engine.setCursor(Cursors.normal);
 
     runApp(
       MouseRegion(
         //   opaque: false,
-        cursor: FlutterCustomMemoryImageCursor(key: 'default'),
+        cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
         child: MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => engine),
-            // ChangeNotifierProvider(create: (_) => CursorState()),
+            ChangeNotifierProvider(create: (_) => dialog),
             ChangeNotifierProvider(create: (_) => GameSavesState()),
             ChangeNotifierProvider(create: (_) => EditorToolState()),
             ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
             ChangeNotifierProvider(create: (_) => SelectedTileState()),
-            ChangeNotifierProvider(create: (_) => HeroTileState()),
-            ChangeNotifierProvider(create: (_) => GameDialogState()),
+            ChangeNotifierProvider(create: (_) => HeroPositionState()),
             ChangeNotifierProvider(create: (_) => NpcListState()),
             ChangeNotifierProvider(create: (_) => NewQuestState()),
             ChangeNotifierProvider(create: (_) => NewItemsState()),
@@ -123,12 +122,12 @@ void main() {
               home:
                   //  MouseRegion(
                   //   opaque: false,
-                  //   cursor: FlutterCustomMemoryImageCursor(key: 'default'),
+                  //   cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
                   //   child:
                   GameApp(key: mainKey),
               // ),
               // onNavigationNotification: (notification) {
-              //   engine.setCursor('default');
+              //   engine.setCursor(Cursors.normal);
               //   return notification.canHandlePop;
               // },
               // 控件绘制时发生错误，用一个显示错误信息的控件替代

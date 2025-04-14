@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
 import '../../engine.dart';
@@ -53,7 +54,7 @@ class NewQuest extends StatelessWidget {
                   }),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0),
-                    child: ElevatedButton(
+                    child: fluent.FilledButton(
                       onPressed: () {
                         context.read<NewQuestState>().update();
                       },

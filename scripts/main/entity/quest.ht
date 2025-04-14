@@ -41,12 +41,12 @@ const kQuestCatergoryEscort = 'escort'
 struct Quest {
   constructor({
     id,
-    name,
+    title,
     image,
     endings: List,
   }) {
-    assert(name != null)
-    this.name = name
+    assert(title != null)
+    this.title = title
 
     this.id = id ?? crypto.randomUID(withTime: true)
     assert(endings is List && endings.isNotEmpty)
@@ -65,11 +65,11 @@ struct Quest {
 }
 
 function generateQuestById(questId, {publishCharacterId}) {
-  assert(game.quests.containsKey(questId))
+  assert(game.quests.containsKey(questId), 'quest not found, id: ${questId}')
   final questData = game.quests[questId]
   final quest = Quest(
     id: questId,
-    name: engine.locale(questData.name),
+    title: engine.locale(questData.title ?? questData.id),
     image: questData.image,
     endings: questData.endings.toList(),
   )

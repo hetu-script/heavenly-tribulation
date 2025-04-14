@@ -62,6 +62,8 @@ const kCultivationSupportGenre = [
 
 const kCultivationRankMax = 8
 
+
+
 final kBattleCardKind = skillData.keys.toList()
 
 const kBasic = 'basic' // 未知
@@ -175,6 +177,7 @@ function getRarity({ name }) {
 // entityType决定了该对象的数据结构和保存位置
 const kEntityTypeBattleEntity = 'battle_entity'
 const kEntityTypeCharacter = 'character' //game.characters
+const kEntityTypeNpc = 'npc'  //game.npcs
 const kEntityTypeLocationObject = 'object' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
@@ -259,6 +262,8 @@ const kLocationCityKinds = [
 ]
 
 const kLocationSiteKinds = [
+  'home',
+  'headquarters',
   'cityhall',
   'arena',
   'library',

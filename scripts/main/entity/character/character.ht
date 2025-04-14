@@ -51,23 +51,17 @@ const kBaseRomanceScore = 5.0
 const _kCharacterRandomAgeMax = 40
 
 const kPersonalities = [
-  // 对他人
+  // 三观
   'idealistic', // 理想, 现实
   'orderly', // 守序, 混乱
   'goodwill', // 善良, 邪恶
+  // 对他人
   'extrovert', // 外向, 内省
   'frank', // 直率, 圆滑
   'merciful', // 仁慈, 冷酷
   'helping', // 助人, 自私
   'empathetic', // 同情, 嫉妒
   'competitive', // 好胜, 嫉妒
-  // 对事物
-  'reasoning', // 理智, 感性
-  'initiative', // 主动, 被动
-  'optimistic', // 乐观, 愤世
-  'curious', // 好奇, 冷漠
-  'prudent', // 谨慎, 冲动
-  'deepthinking', // 深沉, 轻浮
   // 对自己
   'organizing', // 自律, 不羁
   'confident', // 自负, 谦逊
@@ -75,6 +69,13 @@ const kPersonalities = [
   'frugal', // 节俭, 奢靡
   'generous', // 慷慨, 小气
   'satisfied', // 知足, 贪婪
+  // 对事物
+  'reasoning', // 理智, 感性
+  'initiative', // 主动, 被动
+  'optimistic', // 乐观, 愤世
+  'curious', // 好奇, 冷漠
+  'prudent', // 谨慎, 冲动
+  'deepthinking', // 深沉, 轻浮
 ]
 
 /// 主要动机决定了门派发展类型
@@ -318,7 +319,7 @@ function _calculateCharacterFirstImpression(subject, target) {
     assert(organization != null, 'organization not exist: ${subject.organizationId}')
     final subjectJob = organization.members[subject.id]
     final targetJob = organization.members[target.id]
-    if (targetJob.generation > subjectJob.generation) {
+    if (targetJob.rank > subjectJob.rank) {
       score += kGenerationScore
     } else if (targetJob.peer > subjectJob.peer) {
       score += kPeerScore
@@ -368,11 +369,12 @@ function _calculateCharacterFirstRomance(subject, target) {
 struct MemberRankData {
   constructor ({
     characterId,
-    generation,
+    rank,
     peer,
+
   }) {
     this.characterId = characterId
-    this.generation = generation
+    this.rank = rank
     this.peer = peer
   }
 }
@@ -519,7 +521,7 @@ function _addSpouseRelationship(subject, target) {
     if (relationship.characterId == target.id) {
       continue
     }
-    final character = getCharacterById(relationship.characterId)
+    final character = game.characters[relationship.characterId]
     character.relationships.family[target.id] = Relationship(
       characterId: target.id,
       category: 'family',
@@ -538,7 +540,7 @@ function _addSpouseRelationship(subject, target) {
     if (relationship.characterId == subject.id) {
       continue
     }
-    final character = getCharacterById(relationship.characterId)
+    final character = game.characters[relationship.characterId]
     character.relationships.family[subject.id] = Relationship(
       characterId: subject.id,
       category: 'family',
@@ -581,7 +583,7 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   // 家族辈分会更新为最后一任配偶的辈分数字
   game.families[householder.familyName][marrier.id] = MemberRankData(
     characterId: marrier.id,
-    generation: familyMemberData.generation,
+    rank: familyMemberData.rank,
     peer: 0,
   )
   _addSpouseRelationship(householder, marrier)
@@ -598,10 +600,10 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   let home = game.locations[homeId]
   assert(home != null)
   if (householder.homeLocationId != homeId) {
-    setCharacterHomeLocation(householder, home)
+    setCharacterHome(householder, home)
   }
   if (marrier.homeLocationId != homeId) {
-    setCharacterHomeLocation(marrier, home)
+    setCharacterHome(marrier, home)
   }
   const incidentContent = engine.locale('characterMarriage', interpolations: [
     householder.name,
@@ -668,7 +670,7 @@ function getFamilyMemberData(character) {
     familyMemberData = game.families[character.familyName][character.id] = MemberRankData(
       characterId: character.id,
       // 辈分决定了地位，数字越大，地位越低
-      generation: 0,
+      rank: 0,
       // 同辈中的地位，数字越大，地位越低
       peer: 0,
     )
@@ -689,7 +691,7 @@ function getSectMemberData(character) {
     sectMemberData = game.sects[character.sectName] = MemberRankData(
       characterId: character.id,
       // 辈分决定了地位，数字越大，地位越低
-      generation: 0,
+      rank: 0,
       // 同辈中的地位，数字越大，地位越低
       peer: 0,
     )
@@ -705,7 +707,7 @@ function _addChildRelationship(parent, child) {
     if (relationship.characterId == child.id) {
       continue
     }
-    final character = getCharacterById(relationship.characterId)
+    final character = game.characters[relationship.characterId]
     assert(character != null)
     if (relationship.kind == 'spouse') {
       character.relationships.family[child.id] = Relationship(
@@ -771,11 +773,11 @@ function _addShituRelationship(shifu, tudi) {
   assert(shifu.sectName != null)
   assert(!game.sects[shifu.sectName].containsKey(tudi.id))
   let peerNumber = game.sects[shifu.sectName].values.where((member) =>
-    member.generation == sectMemberData.generation + 1)
+    member.rank == sectMemberData.rank + 1)
   // 辈分是师父的辈分数字 + 1
   game.sects[shifu.sectName][tudi.id] = MemberRankData(
     characterId: tudi.id,
-    generation: sectMemberData.generation + 1,
+    rank: sectMemberData.rank + 1,
     peer: peerNumber,
   )
 
@@ -792,7 +794,7 @@ function _addShituRelationship(shifu, tudi) {
   )
 
   for (final relationship of shifu.relationships.sect) {
-    final character = getCharacterById(relationship.characterId)
+    final character = game.characters[relationship.characterId]
     let kind1 = relationship.kind == 'shifu' ? 'grandTudi' : 'tongmen'
     character.relationships.sect[tudi.id] = Relationship(
       characterId: tudi.id,
@@ -1027,8 +1029,8 @@ struct Character {
     isFemale,
     icon,
     illustration,
-    characterSkin,
-    shipSkin,
+    model,
+    shipModel,
     surName, // 姓氏
     generationName,
     shortName,
@@ -1065,7 +1067,7 @@ struct Character {
       isFemale: isFemale,
       icon: icon,
       illustration: illustration,
-      characterSkin: characterSkin,
+      model: model,
       surName: surName,
       generationName: generationName,
       shortName: shortName,
@@ -1093,7 +1095,7 @@ struct Character {
     // this.entityType = 'character'
     // this.category = category ?? 'character'
 
-    this.shipSkin = shipSkin ?? 'ship1'
+    this.shipModel = shipModel ?? 'ship1'
 
     // 经验值，获取后会体现为修炼界面的光点，点击或者划过光点才会转化为真正的修为经验
     this.unconvertedExp = unconvertedExp ?? 0
@@ -1219,11 +1221,11 @@ struct Character {
         assert(father.familyName != null)
         assert(!game.families[father.familyName].containsKey(this.id))
         let peerNumber = game.families[father.familyName].values.where((member) =>
-          member.generation == familyMemberData.generation + 1)
+          member.rank == familyMemberData.rank + 1)
         // 辈分是父母的辈分数字 + 1
         game.families[father.familyName][this.id] = MemberRankData(
           characterId: this.id,
-          generation: familyMemberData.generation + 1,
+          rank: familyMemberData.rank + 1,
           peer: peerNumber,
         )
         _addChildRelationship(father, this)
@@ -1257,7 +1259,7 @@ struct Character {
         this.homeLocationId = mother.homeLocationId
       } else {
         // 设置居住地会触发事件从而修改自身，需要放在最后处理
-        setCharacterHomeLocation(this, location)
+        setCharacterHome(this, location)
       }
     } else {
       if (worldPositionX != null && worldPositionY != null) {
@@ -1275,6 +1277,16 @@ struct Character {
 
     /// 寿命必须在已知境界之后计算
     this.deathTimestamp = this.birthTimestamp + createLifespan(this.rank)
+
+    /// 每个角色的家是一个单例对象。
+    /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
+    final home = Location(
+      id: '${kLocationKindHome}_${this.id}',
+      category: 'site',
+      kind: kLocationKindHome,
+      name: engine.locale('characterHomeSite', interpolations: [this.name]),
+      ownerId: this.id,
+    )
   }
 }
 
@@ -1420,7 +1432,7 @@ function clearCharacterHomeLocations(character, {worldId}) {
 }
 
 function removeCharacterHomeLocation(character, location) {
-  final result = location.homes.remove('${kLocationKindHome}_${character.id}')
+  final result = location.residents.remove(character.id)
   if (result) {
     engine.warn('已移除角色 ${character.name} 在 ${location.name} 的住宅')
   }
@@ -1430,23 +1442,21 @@ function getCharacterHomeLocation(character) {
   return game.locations[character.homeLocationId]
 }
 
-function setCharacterHomeLocation(character, location, {incurIncident = true}) {
+function setCharacterHome(character, location, {incurIncident = true}) {
   let homeSiteId = '${kLocationKindHome}_${character.id}'
   if (character.homeSiteId == homeSiteId) {
     engine.warn('角色 ${character.name} 已经定居在 ${location.name} 了！')
     return
   }
+  let home = game.locations[homeSiteId]
+  final oldLocation = game.locations[home.atLocationId]
+  if (oldLocation != null) {
+    oldLocation.residents.remove(character.id)
+  }
   if (!character.homeLocations.contains(location.id)) {
-    assert(!location.homes.contains(homeSiteId))
+    assert(!location.residents.contains(character.id))
+    location.residents.add(character.id)
     character.homeLocations.add(location.id)
-    Location(
-      id: homeSiteId,
-      category: 'site',
-      kind: kLocationKindHome,
-      name: engine.locale('characterHomeSite', interpolations: [character.name]),
-      atLocation: location,
-      ownerId: character.id,
-    )
   }
   character.homeSiteId = homeSiteId
   character.homeLocationId = location.id
@@ -1463,6 +1473,8 @@ function setCharacterHomeLocation(character, location, {incurIncident = true}) {
   } else {
     engine.debug(incidentContent)
   }
+  
+  return home
 }
 
 function getCharacterWorldPosition(character) {
@@ -1481,11 +1493,11 @@ function setCharacterWorldPosition(character, left, top, {worldId}) {
   }
 }
 
-function addCharacter(character) {
-  // assert(character != null)
-  // engine.debug('向当前世界添加新角色：${character.id}')
-  game.characters[character.id] = character
-}
+// function addCharacter(character) {
+//   // assert(character != null)
+//   // engine.debug('向当前世界添加新角色：${character.id}')
+//   game.characters[character.id] = character
+// }
 
 // function addCharacters(chars: List) {
 //   for (const char in chars) {
@@ -1532,7 +1544,7 @@ function getCharactersAtLocation(location) {
 
 function getResidingCharacters(location) {
   // let atWorld = universe[location.worldId]
-  location.homes.map((id) {
+  location.residents.map((id) {
     assert(game.locations.containsKey(id))
     final homeSite = game.locations[id]
     final character = game.characters[homeSite.ownerId]
@@ -1541,14 +1553,15 @@ function getResidingCharacters(location) {
   }).toList()
 }
 
-function getResidingCharactersIds(location) {
+// function getResidingCharactersIds(location) {
+//   return location.residents
   // let atWorld = universe[location.worldId]
-  location.homes.map((id) {
-    assert(game.locations.containsKey(id))
-    final homeSite = game.locations[id]
-    return homeSite.ownerId
-  }).toList()
-}
+  // location.residents.map((id) {
+  //   assert(game.locations.containsKey(id))
+  //   final homeSite = game.locations[id]
+  //   return homeSite.ownerId
+  // }).toList()
+// }
 
 // function getNpcs() {
 //   return game.characters.values.where( (char) => (char.id != game.heroId))
@@ -1579,23 +1592,17 @@ function getNpcsAtWorldMapPosition(left, top, [ worldId ]) {
 
 function getNpcsAtLocationId(locationId) {
   assert(locationId != null)
-  return game.characters.values.where((char) {
+  final result = []
+  final location = game.locations[locationId]
+  if (location.npcId != null)
+  result.add(game.npcs[location.npcId])
+  final characters = game.characters.values.where((char) {
     if (char.id == game.heroId) return false
     if (char.locationId != locationId) return false
     return true
   })
-}
-
-function getCharacterCompanions(character) {
-  return character.companions
-}
-
-function getCharacterById(id: string) {
-  return game.characters[id]
-}
-
-function getCharacterFlagsById(id: string) {
-  return game.characters[id].flags
+  result.addAll(characters)
+  return result
 }
 
 function removeCharacterById(id: string) {

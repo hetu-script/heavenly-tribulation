@@ -54,7 +54,11 @@ const _cultivationKinds = [
   'island',
 ]
 
+const kOrganizationRecruitOtherLocationProbability = 0.2
+const kOrganizationRecruitSuccessProbability = 0.4
+
 /// 生成世界地图的算法
+/// 生成的世界 ID 固定为 `sandboxWorld`
 ///
 /// spritesheet上不同地形对应的编号：
 /// 0：虚空
@@ -75,8 +79,6 @@ const _cultivationKinds = [
 /// 对于没有道路经过的地块，随机填充山脉和树林
 
 function createSandboxWorld({
-    id,
-    isMainWorld,
     name,
     seedString,
     style = 'coast',
@@ -87,7 +89,7 @@ function createSandboxWorld({
     characterNumber = _kDefaultCharacterNumber,
     // landProportion = 0.55,
   }) {
-  assert(id != null)
+  
   assert(seedString is string && seedString.isNotEmpty)
   assert(locationNumber > nationNumber)
   // assert(cultivationOrganizationNumber < locationNumber)
@@ -110,13 +112,13 @@ function createSandboxWorld({
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
   const newWorld = TileMap(
-    id: id ?? 'main',
+    id: 'sandboxWorld',
     terrainSpriteSheet: terrainSpriteSheet,
     width: width,
     height: height,
   )
 
-  newWorld.isMainWorld = isMainWorld
+  newWorld.isMain = true
   newWorld.name = name ?? generateZoneName(category: 'world')
   
   addWorld(newWorld)
@@ -427,7 +429,7 @@ function createSandboxWorld({
     assert(location.worldPosition != null)
     head.worldPosition = Object.create(location.worldPosition)
     const organization = Organization(
-      headquartersId: location.id,
+      headquarters: location,
       headId: head.id,
     )
     nations.add(organization)
@@ -600,12 +602,12 @@ function createSandboxWorld({
         }
       }
 
-      if (organizationMemberReachMax(organization)) {
-        if (organization.development < kOrganizationDevelopmentMax) {
-          // engine.debug('提升组织发展度')
-          increaseOrganizationDevelopment(organization)
-        }
-      } else {
+      // if (organizationMemberReachMax(organization)) {
+        // if (organization.development < kOrganizationDevelopmentMax) {
+        //   // engine.debug('提升组织发展度')
+        //   increaseOrganizationDevelopment(organization)
+        // }
+      // } else {
         engine.debug('组织 ${organization.id} 尝试招募新成员')
       
         let location = game.locations[organization.headquartersId]
@@ -636,7 +638,7 @@ function createSandboxWorld({
             }
           }
         }
-      }
+      // }
 
       // 从最低等级开始，尝试提升成员等级
       // for (const rank in range(kOrganizationRankMax)) {
@@ -730,7 +732,7 @@ function createSandboxWorld({
   }
 
   // 在不改变时间，不触发引擎事件和模组事件的情况下刷新世界事件
-  updateGame(
+  Game.updateGame(
     timeflow: false,
     worldEvent: true,
     moduleEvent: false,

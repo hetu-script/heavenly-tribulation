@@ -2,11 +2,14 @@
 // import 'hexagonal_tile.ht'
 // import '../../name/zone.ht'
 
+const kMaxTileMapWidth = 150
+const kMaxTileMapHeight = 100
+
 struct TileMap {
   constructor ({
     id,
     name,
-    isMainWorld,
+    isMain,
     width,
     height,
     terrainSpriteSheet,
@@ -21,11 +24,11 @@ struct TileMap {
     tileFogOffsetY = 0.0,
   }) {
     assert(id != null)
-    assert(width != null)
-    assert(height != null)
+    assert(width > 0 && width <= kMaxTileMapWidth, 'illegal map width: ${width}')
+    assert(height > 0 && height <= kMaxTileMapHeight, 'illegal map height: ${height}')
 
     this.id = id
-    this.isMainWorld = isMainWorld ?? false
+    this.isMain = isMain ?? false
     this.name = name ?? generateZoneName(category: 'world')
 
     this.width = width

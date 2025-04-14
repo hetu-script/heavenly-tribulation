@@ -44,39 +44,62 @@
   equipment_sabre: {
     id: "equipment_sabre",
     description: "passive_equipment_sabre_description",
-    priority: 4025,
+    priority: 4029,
   },
   equipment_spear: {
     id: "equipment_spear",
     description: "passive_equipment_spear_description",
-    priority: 4020,
+    priority: 4028,
   },
   equipment_staff: {
     id: "equipment_staff",
     description: "passive_equipment_staff_description",
-    priority: 4015,
+    priority: 4027,
   },
   equipment_bow: {
     id: "equipment_bow",
     description: "passive_equipment_bow_description",
-    priority: 4010,
+    priority: 4026,
   },
   equipment_dart: {
     id: "equipment_dart",
     description: "passive_equipment_dart_description",
-    priority: 4005,
+    priority: 4025,
   },
   equipment_music: {
     id: "equipment_music",
     description: "passive_equipment_music_description",
-    priority: 4000,
+    priority: 4024,
   },
 
-  /// 装备特殊词条
-  /// 这些词条不会被随机出来，只会出现在特定的装备上
-  equipment_cursed: {
-    id: "equipment_cursed",
-    description: "passive_equipment_cursed_description",
+  equipment_boots: {
+    id: "equipment_boots",
+    description: "passive_equipment_boots_description",
+    priority: 4023,
+  },
+  equipment_ship: {
+    id: "equipment_ship",
+    description: "passive_equipment_ship_description",
+    priority: 4022,
+  },
+
+  stamina_cost_reduce_on_hill: {
+    id: "stamina_cost_reduce_on_hill",
+    uniqueId: "stamina_cost_reduce_on_hill",
+    description: "passive_stamina_cost_reduce_on_hill_description",
+    priority: 4010,
+    increment: -1,
+    isItemExtraAffix: true,
+    kind: ["boots"],
+  },
+  stamina_cost_reduce_on_water: {
+    id: "stamina_cost_reduce_on_water",
+    uniqueId: "stamina_cost_reduce_on_water",
+    description: "passive_stamina_cost_reduce_on_water_description",
+    priority: 4009,
+    increment: -1,
+    isItemExtraAffix: true,
+    kind: ["ship"],
   },
 
   /// 下面这些词条既会出现在天赋树上，也会出现在装备上

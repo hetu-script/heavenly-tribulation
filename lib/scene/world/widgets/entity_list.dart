@@ -4,12 +4,13 @@ import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../widgets/game_entity_listview.dart';
 import '../../../widgets/character/memory.dart';
-import '../../../widgets/location/location.dart';
+import '../../../widgets/location/edit_location.dart';
 import '../../../widgets/organization/organization.dart';
 import '../../../widgets/ui/menu_builder.dart';
 import '../../../widgets/character/details.dart';
@@ -18,19 +19,15 @@ import '../../../widgets/dialog/input_world_position.dart';
 import '../../../widgets/common.dart';
 import '../../../widgets/dialog/input_string.dart';
 import '../../../widgets/dialog/confirm.dart';
-import '../../../widgets/dialog/input_slider.dart';
-import '../../../widgets/character/edit_character_flags.dart';
 import '../../../widgets/organization/edit_organization_basic.dart';
-// import 'edit_map_object.dart';
 import '../../../widgets/dialog/input_description.dart';
 import '../../../state/selected_tile.dart';
-// import '../../../game/data.dart';
 import '../../../game/logic.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
 import '../../../game/data.dart';
-import '../../../common.dart';
+import '../../../widgets/character/edit_rank_level.dart';
 
 const kMapObjectSourceTemplate = '''{
   id: 'object1',
@@ -67,6 +64,7 @@ const kMapObjectPortalSourceTemplate = '''{
   useCustomLogic: false,
   blockMove: false,
   hoverContent: 'portal1',
+  darkenBeforeMove: false,
   targetTilePosition: {
     left: 1,
     top: 1,
@@ -163,116 +161,19 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
 
 enum CharacterPopUpMenuItems {
   checkProfile,
-  checkEventFlags,
-  checkStats,
+  checkStatsAndEquipments,
   checkMemory,
   checkCultivation,
-  setLevel,
-  setRank,
+  setRankLevel,
   allocatePassives,
   setAsHero,
-  clearWorldMapPosition,
-  setWorldMap,
-  setWorldMapPosition,
+  clearWorldPosition,
+  setWorldPosition,
   clearLocation,
   setLocation,
   clearHome,
   setHome,
   delete,
-}
-
-List<PopupMenuEntry<CharacterPopUpMenuItems>> buildCharacterPopUpMenuItems(
-    {void Function(CharacterPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<CharacterPopUpMenuItems>>[
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkProfile,
-      name: engine.locale('checkProfile'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkEventFlags,
-      name: engine.locale('checkEventFlags'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkStats,
-      name: engine.locale('checkStats'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkMemory,
-      name: engine.locale('checkMemory'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkCultivation,
-      name: engine.locale('checkCultivation'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setLevel,
-      name: engine.locale('setLevel'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setRank,
-      name: engine.locale('setRank'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.allocatePassives,
-      name: engine.locale('allocatePassives'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setAsHero,
-      name: engine.locale('setAsHero'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.clearWorldMapPosition,
-      name: engine.locale('clearWorldMapPosition'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setWorldMap,
-      name: engine.locale('setWorldMap'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setWorldMapPosition,
-      name: engine.locale('setWorldMapPosition'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.clearHome,
-      name: engine.locale('clearHome'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setHome,
-      name: engine.locale('setHome'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.clearLocation,
-      name: engine.locale('clearLocation'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.setLocation,
-      name: engine.locale('setLocation'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.delete,
-      name: engine.locale('delete'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
 }
 
 enum CreateLocationPopUpMenuItems {
@@ -304,149 +205,11 @@ enum CreateLocationPopUpMenuItems {
   siteTheurgyAltar,
 }
 
-List<PopupMenuEntry<CreateLocationPopUpMenuItems>>
-    buildCreateLocationPopUpMenuItems(
-        {void Function(CreateLocationPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<CreateLocationPopUpMenuItems>>[
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.cityInland,
-      name: engine.locale('inland'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.cityHarbor,
-      name: engine.locale('harbor'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.cityIsland,
-      name: engine.locale('island'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.cityMountain,
-      name: engine.locale('mountain'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteArena,
-      name: engine.locale('arena'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteLibrary,
-      name: engine.locale('library'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteTradingHouse,
-      name: engine.locale('tradinghouse'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteAuctionHouse,
-      name: engine.locale('auctionhouse'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteWorkshop,
-      name: engine.locale('workshop'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteMine,
-      name: engine.locale('mine'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteTimberland,
-      name: engine.locale('timberland'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteFarmland,
-      name: engine.locale('farmland'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteHuntingground,
-      name: engine.locale('huntingground'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteFishery,
-      name: engine.locale('fishery'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteNursery,
-      name: engine.locale('nursery'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteZoo,
-      name: engine.locale('zoo'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteArraylab,
-      name: engine.locale('arraylab'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteRuneLab,
-      name: engine.locale('scrolllab'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteAlchemyLab,
-      name: engine.locale('alchemylab'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteIllusionAltar,
-      name: engine.locale('illusionaltar'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.sitePsychicAltar,
-      name: engine.locale('psychicaltar'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteDivinationAltar,
-      name: engine.locale('divinationaltar'),
-      onSelectedItem: onSelectedItem,
-    ),
-    buildMenuItem(
-      item: CreateLocationPopUpMenuItems.siteTheurgyAltar,
-      name: engine.locale('theurgyaltar'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
-}
-
 enum LocationPopUpMenuItems {
   checkInformation,
+  setWorldId,
+  setWorldPosition,
   delete,
-}
-
-List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
-    {void Function(LocationPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<LocationPopUpMenuItems>>[
-    buildMenuItem(
-      item: LocationPopUpMenuItems.checkInformation,
-      name: engine.locale('checkInformation'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: LocationPopUpMenuItems.delete,
-      name: engine.locale('delete'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
 }
 
 enum CreateObjectPopUpMenuItems {
@@ -457,49 +220,9 @@ enum CreateObjectPopUpMenuItems {
   treasureBox,
 }
 
-List<PopupMenuEntry<CreateObjectPopUpMenuItems>>
-    buildCreateObjectPopUpMenuItems(
-        {void Function(CreateObjectPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<CreateObjectPopUpMenuItems>>[
-    buildSubMenuItem(
-      items: {
-        engine.locale('portal'): CreateObjectPopUpMenuItems.portal,
-        engine.locale('worldPortal'): CreateObjectPopUpMenuItems.worldPortal,
-        engine.locale('character'): CreateObjectPopUpMenuItems.character,
-        engine.locale('treasureBox'): CreateObjectPopUpMenuItems.treasureBox,
-      },
-      name: engine.locale('preset'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: CreateObjectPopUpMenuItems.custom,
-      name: engine.locale('custom'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
-}
-
 enum ObjectPopUpMenuItems {
   edit,
   delete,
-}
-
-List<PopupMenuEntry<ObjectPopUpMenuItems>> buildObjectPopUpMenuItems(
-    {void Function(ObjectPopUpMenuItems item)? onSelectedItem}) {
-  return <PopupMenuEntry<ObjectPopUpMenuItems>>[
-    buildMenuItem(
-      item: ObjectPopUpMenuItems.edit,
-      name: engine.locale('edit'),
-      onSelectedItem: onSelectedItem,
-    ),
-    const PopupMenuDivider(),
-    buildMenuItem(
-      item: ObjectPopUpMenuItems.delete,
-      name: engine.locale('delete'),
-      onSelectedItem: onSelectedItem,
-    ),
-  ];
 }
 
 const _kCharacterColumns = [
@@ -553,8 +276,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   late List<Widget> _tabs;
 
-  final GlobalKey _createLocationButtonKey = GlobalKey(),
-      _createObjectButtonKey = GlobalKey();
+  final _createObjectFlyoutController = fluent.FlyoutController();
 
   late String? _heroId;
   // late int _worldWidth, _worldHeight;
@@ -607,6 +329,13 @@ class _EntityListPanelState extends State<EntityListPanel>
     _updateObjects();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    _createObjectFlyoutController.dispose();
+  }
+
   void _updateCharacters() {
     _heroId = engine.hetu.invoke('getHeroId');
 
@@ -652,7 +381,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     for (final org in _organizations) {
       final rowData = <String>[];
       rowData.add(org['name']);
-      rowData.add(org['characterIds'].length.toString());
+      rowData.add(org['members'].length.toString());
       // 多存一个隐藏的 id 信息，用于点击事件
       rowData.add(org['id']);
       _organizationsTableData.add(rowData);
@@ -660,24 +389,24 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
-  void _editOrganization(String dataId) {
-    showDialog(
+  void _editOrganization(String dataId) async {
+    final value = await showDialog(
       context: context,
       builder: (context) => OrganizationView(
         organizationId: dataId,
         mode: InformationViewMode.edit,
       ),
-    ).then((value) {
-      if (value == true) {
-        _updateOrganizations();
-      }
-    });
+    );
+    if (value == true) return;
+
+    _updateOrganizations();
   }
 
   void _updateLocations() {
     _locationsTableData.clear();
     _locations = engine.hetu.fetch('locations', namespace: 'game').values;
     for (final loc in _locations) {
+      if (loc['category'] != 'city') continue;
       final rowData = <String>[];
       rowData.add(loc['name']);
       rowData.add(loc['development'].toString());
@@ -691,9 +420,10 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editLocation(String dataId) async {
     final value = await showDialog(
       context: context,
-      builder: (context) => LocationView(
+      builder: (context) => EditLocation(
         locationId: dataId,
         mode: InformationViewMode.edit,
+        onTapOnSite: (siteId) => _editLocation(siteId),
       ),
     );
     if (value != true) return;
@@ -789,32 +519,36 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: ElevatedButton(
+                    child: fluent.FilledButton(
                       onPressed: () async {
                         final value = await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return EditCharacterBasics();
-                            });
+                          context: context,
+                          builder: (context) {
+                            return EditCharacterBasics();
+                          },
+                        );
                         if (value == null) return;
                         final (
                           id,
-                          name,
                           surName,
+                          name,
                           isFemale,
-                          skin,
+                          race,
                           icon,
-                          illustration
+                          illustration,
+                          model,
                         ) = value;
                         final characterData =
                             engine.hetu.invoke('Character', namedArgs: {
                           'id': id,
-                          'name': name,
+                          'name':
+                              name != null ? ((surName ?? '') + name) : name,
                           'surName': surName,
                           'isFemale': isFemale,
-                          'skin': skin,
+                          'race': race,
                           'icon': icon,
                           'illustration': illustration,
+                          'model': model,
                         });
                         await showDialog(
                             context: context,
@@ -832,7 +566,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   ),
                   // Padding(
                   //   padding: const EdgeInsets.only(top: 5.0),
-                  //   child: ElevatedButton(
+                  //   child: fluent.FilledButton(
                   //     onPressed: () async {
                   //       final result = await showDialog(
                   //           context: context,
@@ -859,195 +593,214 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kCharacterColumns,
                       tableData: _charactersTableData,
-                      onItemPressed: (buttons, position, dataId) {
+                      onItemPressed: (position, dataId) {
                         _editCharacter(dataId);
                       },
-                      onItemSecondaryPressed: (buttons, position, characterId) {
-                        final characterData =
-                            GameData.getCharacter(characterId);
-                        final menuPosition = RelativeRect.fromLTRB(
-                            position.dx, position.dy, position.dx, 0.0);
-                        final items = buildCharacterPopUpMenuItems(
-                            onSelectedItem: (item) async {
-                          switch (item) {
-                            case CharacterPopUpMenuItems.checkProfile:
-                              _editCharacter(characterId);
-                            case CharacterPopUpMenuItems.checkEventFlags:
-                              final value = await showDialog<Map<String, bool>>(
-                                context: context,
-                                builder: (context) => EditCharacterFlags(
-                                    characterData: characterData),
-                              );
-                              if (value != null) {
-                                for (final key in value.keys) {
-                                  characterData[key] = value[key];
-                                }
-                              }
-                            case CharacterPopUpMenuItems.checkStats:
-                              showDialog(
-                                context: context,
-                                builder: (context) => CharacterDetailsView(
-                                    characterData: characterData),
-                              );
-                            case CharacterPopUpMenuItems.checkMemory:
-                              showDialog(
-                                context: context,
-                                builder: (context) => CharacterMemoryView(
-                                  characterId: characterId,
-                                  mode: InformationViewMode.edit,
-                                ),
-                              );
-                            case CharacterPopUpMenuItems.checkCultivation:
-                              engine.pushScene(Scenes.cultivation,
-                                  arguments: {'character': characterData});
-                            case CharacterPopUpMenuItems.setLevel:
-                              final rank = characterData['rank'];
-                              final min = GameLogic.minLevelForRank(rank);
-                              final max = GameLogic.maxLevelForRank(rank);
-                              final level = await InputSliderDialog.show(
-                                context: context,
-                                title: engine.locale('setLevel'),
-                                labelBuilder: (value) =>
-                                    '${engine.locale('cultivationLevel')}: $value',
-                                min: min,
-                                max: max,
-                                value: characterData['level'],
-                              );
-                              if (level == null) return;
-                              characterData['level'] = level;
-                            case CharacterPopUpMenuItems.setRank:
-                              final rank = await InputSliderDialog.show(
-                                context: context,
-                                title: engine.locale('setLevel'),
-                                labelBuilder: (value) =>
-                                    '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank_$value')}',
-                                min: 0,
-                                max: kCurrentVersionCultivationRankMax,
-                                value: characterData['rank'],
-                              );
-                              if (rank == null) return;
-                              characterData['rank'] = rank;
-                            case CharacterPopUpMenuItems.allocatePassives:
-                              GameLogic.characterAllocateSkills(characterData);
-                            case CharacterPopUpMenuItems.setAsHero:
-                              engine.hetu.invoke('setHeroId',
-                                  positionalArgs: [characterId]);
-                            case CharacterPopUpMenuItems.clearWorldMapPosition:
-                              characterData.remove('worldPosition');
-                              characterData.remove('worldId');
-                              widget.onUpdateCharacters?.call();
-                            case CharacterPopUpMenuItems.setWorldMap:
-                              final worldId = await GameLogic.selectWorldId();
-                              if (worldId != null) {
-                                if (characterData['worldId'] != worldId) {
-                                  characterData['worldId'] = worldId;
-                                  widget.onUpdateCharacters?.call();
-                                }
-                              }
-                            case CharacterPopUpMenuItems.setWorldMapPosition:
-                              final charPosData =
-                                  characterData['worldPosition'];
-                              final selectedTile = context
-                                  .read<SelectedTileState>()
-                                  .currentTerrain;
-                              final currentMapId =
-                                  context.read<SamsaraEngine>().scene?.id;
-                              int? left =
-                                  charPosData?['left'] ?? selectedTile?.left;
-                              int? top =
-                                  charPosData?['top'] ?? selectedTile?.top;
-                              final value = await InputWorldPositionDialog.show(
-                                context: context,
-                                defaultX: left,
-                                defaultY: top,
-                                worldId: currentMapId,
-                              );
-                              if (value == null) return;
-                              if (value.$1 != charPosData?['left'] ||
-                                  value.$2 != charPosData?['top'] ||
-                                  value.$3 != characterData?['worldId']) {
-                                engine.hetu.invoke('setCharacterWorldPosition',
-                                    positionalArgs: [
-                                      characterData,
-                                      value.$1,
-                                      value.$2,
-                                    ],
-                                    namedArgs: {
-                                      'worldId': value.$3,
-                                    });
+                      onItemSecondaryPressed: (position, characterId) {
+                        showFluentMenu(
+                          position: position,
+                          items: {
+                            engine.locale('checkProfile'):
+                                CharacterPopUpMenuItems.checkProfile,
+                            engine.locale('checkStatsAndEquipments'):
+                                CharacterPopUpMenuItems.checkStatsAndEquipments,
+                            engine.locale('checkMemory'):
+                                CharacterPopUpMenuItems.checkMemory,
+                            engine.locale('checkCultivation'):
+                                CharacterPopUpMenuItems.checkCultivation,
+                            '___1': null,
+                            engine.locale('setAsHero'):
+                                CharacterPopUpMenuItems.setAsHero,
+                            engine.locale('setRankLevel'):
+                                CharacterPopUpMenuItems.setRankLevel,
+                            engine.locale('allocatePassives'):
+                                CharacterPopUpMenuItems.allocatePassives,
+                            '___2': null,
+                            engine.locale('setWorldPosition'):
+                                CharacterPopUpMenuItems.setWorldPosition,
+                            engine.locale('clearWorldPosition'):
+                                CharacterPopUpMenuItems.clearWorldPosition,
+                            engine.locale('setHome'):
+                                CharacterPopUpMenuItems.setHome,
+                            engine.locale('clearHome'):
+                                CharacterPopUpMenuItems.clearHome,
+                            engine.locale('setLocation'):
+                                CharacterPopUpMenuItems.setLocation,
+                            engine.locale('clearLocation'):
+                                CharacterPopUpMenuItems.clearLocation,
+                            '___3': null,
+                            engine.locale('delete'):
+                                CharacterPopUpMenuItems.delete,
+                          },
+                          onSelectedItem: (item) async {
+                            final characterData =
+                                GameData.getCharacter(characterId);
+                            switch (item) {
+                              case CharacterPopUpMenuItems.checkProfile:
+                                _editCharacter(characterId);
+                              // case CharacterPopUpMenuItems.checkEventFlags:
+                              //   final value =
+                              //       await showDialog<Map<String, bool>>(
+                              //     context: context,
+                              //     builder: (context) => EditCharacterFlags(
+                              //         characterData: characterData),
+                              //   );
+                              //   if (value != null) {
+                              //     for (final key in value.keys) {
+                              //       characterData[key] = value[key];
+                              //     }
+                              //   }
+                              case CharacterPopUpMenuItems
+                                    .checkStatsAndEquipments:
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => CharacterDetailsView(
+                                      characterData: characterData),
+                                );
+                              case CharacterPopUpMenuItems.checkMemory:
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => CharacterMemoryView(
+                                    characterId: characterId,
+                                    mode: InformationViewMode.edit,
+                                  ),
+                                );
+                              case CharacterPopUpMenuItems.checkCultivation:
+                                engine.pushScene(Scenes.cultivation,
+                                    arguments: {'character': characterData});
+                              case CharacterPopUpMenuItems.setRankLevel:
+                                final int rank = characterData['rank'];
+                                final int level = characterData['level'];
+                                final value =
+                                    await EditRankLevelSliderDialog.show(
+                                  context: context,
+                                  rank: rank,
+                                  level: level,
+                                );
+                                if (value == null) return;
+                                final (newRank, newLevel) = value;
+                                characterData['rank'] = newRank;
+                                characterData['level'] = newLevel;
+                              case CharacterPopUpMenuItems.allocatePassives:
+                                GameLogic.characterAllocateSkills(
+                                    characterData);
+                              case CharacterPopUpMenuItems.setAsHero:
+                                engine.hetu.invoke('setHeroId',
+                                    positionalArgs: [characterId]);
+                              case CharacterPopUpMenuItems.clearWorldPosition:
+                                characterData.remove('worldPosition');
+                                characterData.remove('worldId');
                                 widget.onUpdateCharacters?.call();
-                              }
-                            case CharacterPopUpMenuItems.clearHome:
-                              engine.hetu.invoke('clearCharacterHomeLocations',
-                                  positionalArgs: [characterData]);
-                            case CharacterPopUpMenuItems.setHome:
-                              InputStringDialog.show(context: context)
-                                  .then((locationId) {
-                                if (locationId != null) {
-                                  final locationData = engine.hetu.invoke(
-                                      'getLocationById',
-                                      positionalArgs: [locationId]);
-                                  if (locationData == null) {
-                                    GameDialogContent.show(
-                                        context, '输入的据点 id [$locationId] 不存在！');
-                                  } else {
-                                    engine.hetu.invoke(
-                                      'setCharacterHomeLocation',
+                              // case CharacterPopUpMenuItems.setWorldId:
+                              //   final worldId = await GameLogic.selectWorldId();
+                              //   if (worldId != null) {
+                              //     if (characterData['worldId'] != worldId) {
+                              //       characterData['worldId'] = worldId;
+                              //       widget.onUpdateCharacters?.call();
+                              //     }
+                              //   }
+                              case CharacterPopUpMenuItems.setWorldPosition:
+                                final charPosData =
+                                    characterData['worldPosition'];
+                                final selectedTile = context
+                                    .read<SelectedTileState>()
+                                    .currentTerrain;
+                                final currentMapId =
+                                    context.read<SamsaraEngine>().scene?.id;
+                                int? left =
+                                    charPosData?['left'] ?? selectedTile?.left;
+                                int? top =
+                                    charPosData?['top'] ?? selectedTile?.top;
+                                final value =
+                                    await InputWorldPositionDialog.show(
+                                  context: context,
+                                  defaultX: left,
+                                  defaultY: top,
+                                  worldId: currentMapId,
+                                );
+                                if (value == null) return;
+                                if (value.$1 != charPosData?['left'] ||
+                                    value.$2 != charPosData?['top'] ||
+                                    value.$3 != characterData?['worldId']) {
+                                  engine.hetu.invoke(
+                                      'setCharacterWorldPosition',
                                       positionalArgs: [
                                         characterData,
-                                        locationData,
+                                        value.$1,
+                                        value.$2,
                                       ],
                                       namedArgs: {
-                                        'incurIncident': false,
-                                      },
-                                    );
+                                        'worldId': value.$3,
+                                      });
+                                  widget.onUpdateCharacters?.call();
+                                }
+                              case CharacterPopUpMenuItems.clearHome:
+                                engine.hetu.invoke(
+                                    'clearCharacterHomeLocations',
+                                    positionalArgs: [characterData]);
+                              case CharacterPopUpMenuItems.setHome:
+                                InputStringDialog.show(context: context)
+                                    .then((locationId) {
+                                  if (locationId != null) {
+                                    final locationData = GameData
+                                        .gameData['locations'][locationId];
+                                    if (locationData == null) {
+                                      GameDialogContent.show(context,
+                                          '输入的据点 id [$locationId] 不存在！');
+                                    } else {
+                                      engine.hetu.invoke(
+                                        'setCharacterHome',
+                                        positionalArgs: [
+                                          characterData,
+                                          locationData,
+                                        ],
+                                        namedArgs: {
+                                          'incurIncident': false,
+                                        },
+                                      );
+                                    }
                                   }
-                                }
-                              });
-                            case CharacterPopUpMenuItems.clearLocation:
-                              characterData.remove('locationId');
-                            case CharacterPopUpMenuItems.setLocation:
-                              InputStringDialog.show(context: context)
-                                  .then((value) {
-                                if (value != null) {
-                                  engine.hetu.invoke('setCharacterLocationId',
-                                      positionalArgs: [characterData, value]);
-                                }
-                              });
-                            // case CharacterPopUpMenuItems.clearLocationSite:
-                            //   final charData = engine.hetu.invoke(
-                            //       'getCharacterById',
-                            //       positionalArgs: [dataId]);
-                            //   charData.remove('siteId');
-                            // case CharacterPopUpMenuItems.setLocationSite:
-                            //   InputStringDialog.show(context: context)
-                            //       .then((value) {
-                            //     if (value != null) {
-                            //       final charData = engine.hetu.invoke(
-                            //           'getCharacterById',
-                            //           positionalArgs: [dataId]);
-                            //       engine.hetu.invoke('setCharacterSiteId',
-                            //           positionalArgs: [charData, value]);
-                            //     }
-                            //   });
-                            case CharacterPopUpMenuItems.delete:
-                              showDialog<bool>(
-                                context: context,
-                                builder: (context) => ConfirmDialog(
-                                    description:
-                                        engine.locale('dangerOperationPrompt')),
-                              ).then((bool? value) {
+                                });
+                              case CharacterPopUpMenuItems.clearLocation:
+                                characterData.remove('locationId');
+                              case CharacterPopUpMenuItems.setLocation:
+                                InputStringDialog.show(context: context)
+                                    .then((value) {
+                                  if (value != null) {
+                                    engine.hetu.invoke('setCharacterLocationId',
+                                        positionalArgs: [characterData, value]);
+                                  }
+                                });
+                              // case CharacterPopUpMenuItems.clearLocationSite:
+                              //   final charData = engine.hetu.invoke(
+                              //       'getCharacterById',
+                              //       positionalArgs: [dataId]);
+                              //   charData.remove('siteId');
+                              // case CharacterPopUpMenuItems.setLocationSite:
+                              //   InputStringDialog.show(context: context)
+                              //       .then((value) {
+                              //     if (value != null) {
+                              //       final charData = engine.hetu.invoke(
+                              //           'getCharacterById',
+                              //           positionalArgs: [dataId]);
+                              //       engine.hetu.invoke('setCharacterSiteId',
+                              //           positionalArgs: [charData, value]);
+                              //     }
+                              //   });
+                              case CharacterPopUpMenuItems.delete:
+                                final value = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => ConfirmDialog(
+                                      description: engine
+                                          .locale('dangerOperationPrompt')),
+                                );
                                 if (value == true) {
                                   engine.hetu.invoke('removeCharacterById',
                                       positionalArgs: [characterId]);
+                                  _updateCharacters();
                                 }
-                              });
-                          }
-                        });
-                        showMenu(
-                          context: context,
-                          position: menuPosition,
-                          items: items,
+                            }
+                          },
                         );
                       },
                     ),
@@ -1059,13 +812,60 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
+                    child: fluent.FilledButton(
+                      onPressed: () async {
+                        final selectedTile =
+                            context.read<SelectedTileState>().currentTerrain;
+                        if (selectedTile == null) {
+                          GameDialogContent.show(
+                              context, engine.locale('hint_selectTilePrompt'));
+                          return;
+                        }
+                        if (selectedTile.nationId != null) {
+                          GameDialogContent.show(context,
+                              engine.locale('hint_selectedTileOccupied'));
+                          return;
+                        }
+                        if (selectedTile.locationId == null) {
+                          GameDialogContent.show(
+                              context, engine.locale('hint_selectCityPrompt'));
+                          return;
+                        }
+                        final location = GameData.gameData['locations']
+                            [selectedTile.locationId];
+                        if (location['category'] != 'city') {
+                          GameDialogContent.show(
+                              context, engine.locale('hint_selectCityPrompt'));
+                          return;
+                        }
+                        final value = await showDialog(
                             context: context,
                             builder: (context) {
-                              return const EditOrganizationBasics();
+                              return EditOrganizationBasics(
+                                headquartersData: location,
+                              );
                             });
+                        final (id, name, category, genre, headId) = value;
+                        final organizationData = engine.hetu.invoke(
+                          'Organization',
+                          namedArgs: {
+                            'id': id,
+                            'name': name,
+                            'category': category,
+                            'genre': genre,
+                            'headquarters': location,
+                            'headId': headId,
+                          },
+                        );
+                        await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return OrganizationView(
+                                mode: InformationViewMode.edit,
+                                organizationData: organizationData,
+                              );
+                            });
+                        _updateOrganizations();
                       },
                       child: Text(engine.locale('createOrganization')),
                     ),
@@ -1075,7 +875,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                         columns: _kOrganizationColumns,
                         tableData: _organizationsTableData,
-                        onItemSecondaryPressed: (buttons, position, dataId) {}),
+                        onItemPressed: (position, dataId) {
+                          _editOrganization(dataId);
+                        },
+                        onItemSecondaryPressed: (position, dataId) {}),
                   ),
                 ],
               ),
@@ -1084,27 +887,27 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0, right: 10.0),
-                    child: ElevatedButton(
-                      key: _createLocationButtonKey,
+                    child: fluent.FilledButton(
                       onPressed: () async {
-                        final value = await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return EditLocationBasics();
-                            });
-                        if (value == null) return;
                         final selectedTile =
                             context.read<SelectedTileState>().currentTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
-                              context, engine.locale('selectedTilePrompt'));
+                              context, engine.locale('hint_selectTilePrompt'));
                           return;
                         }
+                        final value = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return EditLocationBasics();
+                          },
+                        );
+                        if (value == null) return;
                         dynamic atTerrain = selectedTile.data;
                         dynamic atLocation;
                         if (selectedTile.locationId != null) {
-                          atLocation = engine.hetu.invoke('getLocationById',
-                              positionalArgs: [selectedTile.locationId]);
+                          atLocation = GameData.gameData['locations']
+                              [selectedTile.locationId];
                         }
                         final (category, kind, id, name, image, background) =
                             value;
@@ -1124,7 +927,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         await showDialog(
                             context: context,
                             builder: (context) {
-                              return LocationView(
+                              return EditLocation(
                                 mode: InformationViewMode.edit,
                                 locationData: locationData,
                               );
@@ -1140,35 +943,89 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kLocationColumns,
                       tableData: _locationsTableData,
-                      onItemPressed: (buttons, position, dataId) {
+                      onItemPressed: (position, dataId) {
                         _editLocation(dataId);
                       },
-                      onItemSecondaryPressed: (buttons, position, dataId) {
-                        final menuPosition = RelativeRect.fromLTRB(
-                            position.dx, position.dy, position.dx, 0.0);
-                        final items =
-                            buildLocationPopUpMenuItems(onSelectedItem: (item) {
-                          switch (item) {
-                            case LocationPopUpMenuItems.checkInformation:
-                              _editLocation(dataId);
-                            case LocationPopUpMenuItems.delete:
-                              showDialog<bool>(
-                                context: context,
-                                builder: (context) => ConfirmDialog(
-                                    description:
-                                        engine.locale('dangerOperationPrompt')),
-                              ).then((bool? value) {
-                                engine.hetu.invoke('removeLocationById',
-                                    positionalArgs: [dataId]);
-                                _updateLocations();
-                              });
-                          }
-                        });
-                        showMenu(
-                          context: context,
-                          position: menuPosition,
-                          items: items,
-                        );
+                      onItemSecondaryPressed: (position, dataId) {
+                        showFluentMenu(
+                            position: position,
+                            items: {
+                              engine.locale('checkInformation'):
+                                  LocationPopUpMenuItems.checkInformation,
+                              engine.locale('setWorldId'):
+                                  LocationPopUpMenuItems.setWorldId,
+                              engine.locale('setWorldPosition'):
+                                  LocationPopUpMenuItems.setWorldPosition,
+                              '___': null,
+                              engine.locale('delete'):
+                                  LocationPopUpMenuItems.delete,
+                            },
+                            onSelectedItem: (item) async {
+                              final locationData =
+                                  GameData.gameData['locations'][dataId];
+                              assert(locationData != null,
+                                  'location not found, id: $dataId');
+                              switch (item) {
+                                case LocationPopUpMenuItems.checkInformation:
+                                  _editLocation(dataId);
+                                case LocationPopUpMenuItems.setWorldId:
+                                  final worldId =
+                                      await GameLogic.selectWorldId();
+                                  if (worldId != null) {
+                                    if (locationData['worldId'] != worldId) {
+                                      locationData['worldId'] = worldId;
+                                      widget.onUpdateLocations?.call();
+                                    }
+                                  }
+                                case LocationPopUpMenuItems.setWorldPosition:
+                                  final locPosData =
+                                      locationData['worldPosition'];
+                                  final selectedTile = context
+                                      .read<SelectedTileState>()
+                                      .currentTerrain;
+                                  final currentMapId =
+                                      context.read<SamsaraEngine>().scene?.id;
+                                  int? left =
+                                      locPosData?['left'] ?? selectedTile?.left;
+                                  int? top =
+                                      locPosData?['top'] ?? selectedTile?.top;
+                                  final value =
+                                      await InputWorldPositionDialog.show(
+                                    context: context,
+                                    defaultX: left,
+                                    defaultY: top,
+                                    worldId: currentMapId,
+                                  );
+                                  if (value == null) return;
+                                  if (value.$1 != locPosData?['left'] ||
+                                      value.$2 != locPosData?['top'] ||
+                                      value.$3 != locationData?['worldId']) {
+                                    engine.hetu.invoke(
+                                        'setLocationWorldPosition',
+                                        positionalArgs: [
+                                          locationData,
+                                          value.$1,
+                                          value.$2,
+                                        ],
+                                        namedArgs: {
+                                          'worldId': value.$3,
+                                        });
+                                    widget.onUpdateLocations?.call();
+                                  }
+                                case LocationPopUpMenuItems.delete:
+                                  final value = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => ConfirmDialog(
+                                        description: engine
+                                            .locale('dangerOperationPrompt')),
+                                  );
+                                  if (value == true) {
+                                    engine.hetu.invoke('removeLocationById',
+                                        positionalArgs: [dataId]);
+                                    _updateLocations();
+                                  }
+                              }
+                            });
                       },
                     ),
                   ),
@@ -1179,7 +1036,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: ElevatedButton(
+                    child: fluent.FilledButton(
                       onPressed: () {},
                       child: Text(engine.locale('createZone')),
                     ),
@@ -1189,7 +1046,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kZoneColumns,
                       tableData: _zonesTableData,
-                      onItemSecondaryPressed: (buttons, position, dataId) {
+                      onItemSecondaryPressed: (position, dataId) {
                         // showDialog(
                         //   context: context,
                         //   builder: (context) => ZoneView(zoneId: dataId),
@@ -1204,53 +1061,60 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: ElevatedButton(
-                      key: _createObjectButtonKey,
-                      onPressed: () {
-                        final renderRect = getRenderRect(
-                            _createObjectButtonKey.currentContext!);
-                        final menuPosition = RelativeRect.fromLTRB(
-                            renderRect.right,
-                            renderRect.top,
-                            renderRect.right,
-                            0.0);
-                        final items = buildCreateObjectPopUpMenuItems(
-                            onSelectedItem: (item) async {
-                          final source = switch (item) {
-                            CreateObjectPopUpMenuItems.custom =>
-                              kMapObjectSourceTemplate,
-                            CreateObjectPopUpMenuItems.portal =>
-                              kMapObjectPortalSourceTemplate,
-                            CreateObjectPopUpMenuItems.worldPortal =>
-                              kMapObjectWorldPortalSourceTemplate,
-                            CreateObjectPopUpMenuItems.character =>
-                              kMapObjectCharacterSourceTemplate,
-                            CreateObjectPopUpMenuItems.treasureBox =>
-                              kMapObjectTreasureBoxSourceTemplate,
-                          };
-                          final result = await showDialog(
-                              context: context,
-                              builder: (context) => InputDescriptionDialog(
-                                    title: engine.locale('createObject'),
-                                    description: source,
-                                  ));
-                          if (result == null) return;
-                          final jsonData = json5Decode(result);
-                          if (jsonData != null && jsonData.isNotEmpty) {
-                            final mapObject = engine.hetu.interpreter
-                                .createStructfromJSON(jsonData);
-                            engine.hetu.invoke('addObject',
-                                positionalArgs: [mapObject]);
-                            _updateObjects();
-                          }
-                        });
-                        showMenu(
-                          context: context,
-                          position: menuPosition,
-                          items: items,
-                        );
-                      },
-                      child: Text(engine.locale('createObject')),
+                    child: fluent.FlyoutTarget(
+                      controller: _createObjectFlyoutController,
+                      child: fluent.FilledButton(
+                        onPressed: () {
+                          showFluentMenu(
+                            controller: _createObjectFlyoutController,
+                            items: {
+                              engine.locale('portal'):
+                                  CreateObjectPopUpMenuItems.portal,
+                              engine.locale('worldPortal'):
+                                  CreateObjectPopUpMenuItems.worldPortal,
+                              engine.locale('character'):
+                                  CreateObjectPopUpMenuItems.character,
+                              engine.locale('treasureBox'):
+                                  CreateObjectPopUpMenuItems.treasureBox,
+                              '___': null,
+                              engine.locale('custom'):
+                                  CreateObjectPopUpMenuItems.custom,
+                            },
+                            onSelectedItem:
+                                (CreateObjectPopUpMenuItems item) async {
+                              fluent.Flyout.of(context).close();
+                              final source = switch (item) {
+                                CreateObjectPopUpMenuItems.custom =>
+                                  kMapObjectSourceTemplate,
+                                CreateObjectPopUpMenuItems.portal =>
+                                  kMapObjectPortalSourceTemplate,
+                                CreateObjectPopUpMenuItems.worldPortal =>
+                                  kMapObjectWorldPortalSourceTemplate,
+                                CreateObjectPopUpMenuItems.character =>
+                                  kMapObjectCharacterSourceTemplate,
+                                CreateObjectPopUpMenuItems.treasureBox =>
+                                  kMapObjectTreasureBoxSourceTemplate,
+                              };
+                              final result = await showDialog(
+                                  context: context,
+                                  builder: (context) => InputDescriptionDialog(
+                                        title: engine.locale('createObject'),
+                                        description: source,
+                                      ));
+                              if (result == null) return;
+                              final jsonData = json5Decode(result);
+                              if (jsonData != null && jsonData.isNotEmpty) {
+                                final mapObject = engine.hetu.interpreter
+                                    .createStructfromJSON(jsonData);
+                                engine.hetu.invoke('addObject',
+                                    positionalArgs: [mapObject]);
+                                _updateObjects();
+                              }
+                            },
+                          );
+                        },
+                        child: Text(engine.locale('createObject')),
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -1258,34 +1122,35 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kObjectColumns,
                       tableData: _mapObjectsTableData,
-                      onItemPressed: (buttons, position, dataId) {
+                      onItemPressed: (position, dataId) {
                         _editObject(dataId);
                       },
-                      onItemSecondaryPressed: (buttons, position, dataId) {
-                        final menuPosition = RelativeRect.fromLTRB(
-                            position.dx, position.dy, position.dx, 0.0);
-                        final items =
-                            buildObjectPopUpMenuItems(onSelectedItem: (item) {
-                          switch (item) {
-                            case ObjectPopUpMenuItems.edit:
-                              _editObject(dataId);
-                            case ObjectPopUpMenuItems.delete:
-                              showDialog<bool>(
-                                context: context,
-                                builder: (context) => ConfirmDialog(
-                                    description:
-                                        engine.locale('dangerOperationPrompt')),
-                              ).then((bool? value) {
+                      onItemSecondaryPressed: (position, dataId) {
+                        showFluentMenu(
+                          position: position,
+                          items: {
+                            engine.locale('edit'): ObjectPopUpMenuItems.edit,
+                            '___': null,
+                            engine.locale('delete'):
+                                ObjectPopUpMenuItems.delete,
+                          },
+                          onSelectedItem: (item) async {
+                            switch (item) {
+                              case ObjectPopUpMenuItems.edit:
+                                _editObject(dataId);
+                              case ObjectPopUpMenuItems.delete:
+                                final value = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => ConfirmDialog(
+                                      description: engine
+                                          .locale('dangerOperationPrompt')),
+                                );
+                                if (value == null) return;
                                 engine.hetu.invoke('removeObjectById',
                                     positionalArgs: [dataId]);
                                 _updateObjects();
-                              });
-                          }
-                        });
-                        showMenu(
-                          context: context,
-                          position: menuPosition,
-                          items: items,
+                            }
+                          },
                         );
                       },
                     ),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-// import 'package:quiver/pattern.dart';
-// import 'package:samsara/event.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/responsive_view.dart';
-// import '../../game_entity_listview.dart';
 import '../../util.dart';
 import '../common.dart';
+import 'edit_organization_basic.dart';
+import '../../game/data.dart';
 
 const kOrganizationCategoryCultivation = 'cultivation';
 const kOrganizationCategoryReligion = 'religion';
-const kOrganizationCategoryGang = 'gang';
 const kOrganizationCategoryBusiness = 'business';
-const kOrganizationCategoryNation = 'nation';
+// const kOrganizationCategoryGang = 'gang';
+// const kOrganizationCategoryNation = 'nation';
 
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
@@ -78,7 +78,7 @@ class _OrganizationViewState extends State<OrganizationView> {
               padding: EdgeInsets.symmetric(horizontal: 8.0),
               child: Icon(Icons.person),
             ),
-            Text(engine.locale('history')),
+            Text(engine.locale('territory')),
           ],
         ),
       ),
@@ -103,8 +103,8 @@ class _OrganizationViewState extends State<OrganizationView> {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
-      width: 400.0,
-      height: 400.0,
+      width: 800.0,
+      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
       child: DefaultTabController(
         length: _tabs.length,
         child: Scaffold(
@@ -128,19 +128,54 @@ class _OrganizationViewState extends State<OrganizationView> {
                     Text(
                         '${engine.locale('headquarters')}: ${getNameFromId(_organizationData['headquartersId'])}'),
                     Text(
-                        '${engine.locale('head')}: ${getNameFromId(_organizationData['headId'])}'),
-                    // if (category != kOrganizationCategoryNation) ...[
-                    Text(
-                        '${engine.locale('development')}: ${_organizationData['development']}'),
+                        '${engine.locale('organizationHead')}: ${getNameFromId(_organizationData['headId'])}'),
                     Text(
                         '${engine.locale('recruitMonth')}: ${_organizationData['yearlyRecruitMonth']}'),
-                    // ],
-                    // if (category == kOrganizationCategoryCultivation) ...[
-                    // Text(
-                    //     '${engine.locale('fightSkillGenre']}: ${engine.locale(_organizationData['fightSkillGenre'])}'),
-                    // Text(
-                    //     '${engine.locale('supportSkillGenre']}: ${engine.locale(_organizationData['supportSkillGenre'])}'),
-                    // ],
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Row(
+                        children: [
+                          fluent.FilledButton(
+                            onPressed: () async {
+                              final value = await showDialog(
+                                context: context,
+                                builder: (context) => EditOrganizationBasics(
+                                  id: _organizationData['id'],
+                                  name: _organizationData['name'],
+                                  category: _organizationData['category'],
+                                  genre: _organizationData['genre'],
+                                  headId: _organizationData['headId'],
+                                  headquartersData:
+                                      GameData.gameData['locations']
+                                          [_organizationData['headquartersId']],
+                                ),
+                              );
+                              if (value == null) return;
+
+                              final (id, name, category, genre, headId) = value;
+                              _organizationData['name'] = name;
+                              _organizationData['category'] = category;
+                              _organizationData['genre'] = genre;
+
+                              if (headId != null &&
+                                  headId != _organizationData['headId']) {
+                                _organizationData['headId'] = headId;
+                              }
+
+                              if (id != null && id != _organizationData['id']) {
+                                GameData.gameData['organizations']
+                                    .remove(_organizationData['id']);
+                                _organizationData['id'] = id;
+                                GameData.gameData['organizations'][id] =
+                                    _organizationData;
+                              }
+                            },
+                            child: Text(engine.locale('editIdAndImage')),
+                          ),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),

@@ -47,7 +47,7 @@ namespace Debug {
     
     final items = []
     for (var kind in kEquipmentKinds) {
-      final item = Equipment(kind: kind, rank: character.rank)
+      final item = Equipment(kind: kind, rank: 4)
       items.add(item)
       entityAcquire(character, item)
     }
@@ -136,17 +136,17 @@ namespace Debug {
   }
 
   function debugDialog() {
-    Dialog.pushLocales(
+    Dialog.pushLocale(
       'debugDialog_content1',
-      displayName: '凌初雪',
+      name: '凌初雪',
       icon: 'story/illustration/ling_chuxue_head.png',
       image: 'story/illustration/ling_chuxue.png'
     )
-    Dialog.pushLocales(
+    Dialog.pushLocale(
       'debugDialog_content2',
-      displayName: '萧墨',
-      icon: 'story/illustration/xiaomo_head.png',
-      image: 'story/illustration/xiaomo.png'
+      name: '萧墨',
+      icon: 'story/illustration/xiao_mo_head.png',
+      image: 'story/illustration/xiao_mo.png'
     )
     Dialog.execute()
   }

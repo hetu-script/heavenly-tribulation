@@ -21,6 +21,7 @@
   "stop": "停止",
   "opened": "开启",
   "closed": "关闭",
+  "bye": "再见",
   "empty": "空",
   "void": "虚无",
   "null": "无",
@@ -57,13 +58,21 @@
   "none": "无",
   "unknown": "未知",
   "random": "随机",
-  "randomize": "随机化",
+  "randomize": "随机",
   "max": "最大",
   "min": "最小",
   "advanced": "高级",
   "detail": "详情",
   "character": "人物",
   "mapObject": "对象",
+
+  "organizationHead": "掌门",
+  "regionHead": "长老",
+  "cityHead": "堂主",
+  "locationHead": "总管",
+  "productionHead": "执事",
+  "taskHead": "杂役",
+  "homeOwner": "家主",
 
   "sort": "排序",
   "acquiredTime": "获得时间",
@@ -104,6 +113,8 @@
   "error": "错误",
   "invalid": "无效",
   "invalidData": "无效数据",
+
+  "invalidSelectionData": "错误：无效的选择对话框数据",
 
   "input": "输入",
   "inputInteger": "输入一个数字",
@@ -199,7 +210,7 @@
   "sneakAttack": "偷袭",
 
   "world": "世界",
-  "worldPosition": "位置",
+  "worldPosition": "坐标",
 
   "inventory": "物品",
   "equipments": "装备",
@@ -249,7 +260,7 @@
   "illustration": "立绘",
   "image": "图片",
   "background": "背景图",
-  "characterSkin": "外观",
+  "model": "外观",
   "offsetY": "Y轴偏移",
 
   "age": "年龄",
@@ -291,6 +302,7 @@
   "quest": "日志",
   "cardLibrary": "功法图录",
   "cultivate": "修炼",
+  "skillTree": "天道技能",
 
   "decks": "卡组",
   "identify": "鉴定",
@@ -312,13 +324,14 @@
   "diagnose": "诊断",
   "heal": "治疗",
 
-  "head": "掌门",
-  "headId": "掌门人物ID",
+  "organizationHeadId": "掌门人物ID",
   "headquarters": "总堂",
-  "headquartersId": "总堂据点ID",
+  "headquartersTilePosition": "总堂位置",
+  "headquartersId": "总堂据点",
   "territory": "疆域",
   "memberNumber": "成员数量",
 
+  "residents": "居民",
   "development": "发展度",
   "recruitMonth": "招募月份",
 
@@ -376,16 +389,27 @@
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
   "hint_itemFullyCharged": "这件物品已经充能完毕了。",
-  "hint_notEnoughMoney": "你身上没有足够的钱，无法进行这个操作。",
-  "hint_notEnoughShard": "你身上没有足够的灵石，无法进行这个操作。",
-  "hint_merchantNotEnoughMoney": "对方身上没有足够的钱，无法进行这个操作。",
-  "hint_merchantNotEnoughShard": "对方身上没有足够的灵石，无法进行这个操作。",
+
+  "hint_notEnoughMoney": "你没有足够的钱。",
+  "hint_notEnoughShard": "你没有足够的灵石。",
+  "hint_notEnoughExp": "你没有足够的灵光。",
+  "hint_notEnoughMaterial": "你没有足够的材料",
+
+  "hint_merchantNotEnoughMoney": "对方身上没有足够的钱。",
+  "hint_merchantNotEnoughShard": "对方身上没有足够的灵石。",
   "hint_noQuests": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
   "hint_cancel_tribulation": "放弃天道挑战后，扣掉的升级经验值不会返还。",
   "hint_cultivateMode": "点击左键切换到打坐修炼模式",
   "hint_passiveTreeMode": "点击左键切换到天道技能模式",
+
+  "hint_cultivationStele": "这是一座定灵碑，在这里你可以通过打坐，花费灵石和时间来获取灵光。",
+  "hint_cardLibraryStele": "这是一座玄机碑，在这里你可以花费灵光进行卡牌词条的精炼，从而提升或修改卡牌属性。",
+
+  "hint_organizationFacilityNotMember": "抱歉，因为您并非本门派的修士，不能使用这里的设施，还请回吧。",
+
+  "hint_scrollCrafter": "你身上有用不了的秘籍功法的话，可以在我这里将其转化为没有境界和装备需求的符箓。怎么样，是不是很划算？",
 
   "hint_usedObject": "这件物品上附着的灵光已经消失，无法再次使用了。",
   "hint_fullHPRest": "你的生命值已满，无需再休息了。",
@@ -418,6 +442,16 @@
 
   "hint_switch": "好像有什么地方的机关打开了……",
   "hint_deadend": "这里看样子无法前进了，看来得想想别的办法……",
+
+  "hint_tutorial": "这好像是你第一次使用这个功能，要听取使用教程吗？",
+  "listenTutorial": "听取教程",
+
+  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将灵气转化为识海中的<yellow>灵光点</>。<yellow>收集灵光点</>就可以转化为修为经验，修为经验满足要求就可以提升修为等级。\n升级后会提升你的基础生命值，并获得 1 个天道技能点。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。\n打坐的时候，每块灵石可以让你获得 10 点灵光，但也会耗去你半天时间。\n以后你日后修为精进的话，吸收的速度也会变快。",
+
+  "hint_cardLibrary": "提升修为等级可以增强身体属性，但空有身体属性，没有功法加持，也无用武之地。\n若是你拥有秘籍。便可在藏书阁打开，获得上面记载的功法。\n如果藏书阁本身的发展度够高，还可以利用灵光来修改和增强功法卡牌。\n将多张功法卡牌组合起来，形成战斗卡组，才可以在之后的战斗中使用。",
+
+  "hint_cultivation2": "我这里有 5 块灵石，就送与阁下，作为开启修真之途的助益。",
+  "hint_cardLibrary2": "我里正好有 1 本秘籍，就送与阁下，作为开启修真之途的助益。",
 
   "unconvertedExp": "灵光",
   "exp": "经验值",

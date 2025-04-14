@@ -921,8 +921,8 @@
   },
 
   // 御剑流派卡牌
-  attack_flying_sword_exhaust_chakra: {
-    id: "attack_flying_sword_exhaust_chakra",
+  flying_sword_exhaust_chakra: {
+    id: "flying_sword_exhaust_chakra",
     genre: "swordcraft",
     category: "attack",
     kind: "flying_sword",
@@ -958,8 +958,8 @@
       },
     ],
   },
-  attack_flying_sword_exhaust_mana: {
-    id: "attack_flying_sword_exhaust_mana",
+  flying_sword_exhaust_mana: {
+    id: "flying_sword_exhaust_mana",
     genre: "swordcraft",
     category: "attack",
     kind: "flying_sword",
@@ -1677,6 +1677,8 @@
     genre: "spellcraft",
     category: "buff",
     kind: "plant_control",
+    resourceType: "energy_positive_spell",
+    exhaustType: "spell",
     rank: 1,
     description: "affix_heal_exhaust_mana",
     image: "battlecard/illustration/spellcraft_plant_control.png",

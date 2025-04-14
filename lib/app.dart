@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hetu_script/utils/json.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/samsara.dart';
@@ -17,14 +18,14 @@ import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
 import 'game/data.dart';
 import 'game/ui.dart';
-import 'scene/world/location.dart';
+import 'scene/world/location/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'game/logic.dart';
 import 'scene/common.dart';
-import 'scene/game_dialog/game_dialog_content.dart';
 import 'widgets/dialog/timeflow.dart';
 import 'widgets/ui/menu_builder.dart';
+import 'common.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -65,7 +66,7 @@ class _GameAppState extends State<GameApp> {
       return CultivationScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.cardlibrary, (
+    engine.registerSceneConstructor(Scenes.library, (
         [Map<String, dynamic> arguments = const {}]) async {
       return CardLibraryScene(context: context);
     });
@@ -108,7 +109,7 @@ class _GameAppState extends State<GameApp> {
         GameData.worldIds.add(worldData['id']);
       }
 
-      engine.hetu.invoke('calculateTimestamp');
+      GameLogic.calculateTimestamp();
 
       final scene = WorldMapScene(
         context: context,
@@ -151,92 +152,99 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'getCardCraftOperationCost',
+        ({positionalArgs, namedArgs}) => GameLogic.getCardCraftOperationCost(
+            positionalArgs[0], positionalArgs[1]),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'getDeckLimitForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getDeckLimitForRank(positionalArgs.first),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'calculateItemPrice',
-        ({positionalArgs, namedArgs}) => GameLogic.calculateItemPrice(
-              positionalArgs.first,
-              priceFactor: namedArgs['priceFactor'],
-              isSell: namedArgs['isSell'] ?? true,
-            ),
-        override: true);
+    engine.hetu.interpreter.bindExternalFunction('calculateItemPrice', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.calculateItemPrice(positionalArgs.first,
+          priceFactor: namedArgs['priceFactor'],
+          isSell: namedArgs['isSell'] ?? true);
+    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
         {positionalArgs, namedArgs}) {
-      final content = positionalArgs[0];
-      context
-          .read<GameDialogState>()
-          .pushDialog(content, imageId: content['image']);
+      final content = positionalArgs.first;
+      dialog.pushDialog(content, imageId: content['image']);
     });
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::execute', (
         {positionalArgs, namedArgs}) {
-      engine.setCursor('default');
-      // context.read<CursorState>().set('default');
-      return context.read<GameDialogState>().execute();
+      engine.setCursor(Cursors.normal);
+      // context.read<CursorState>().set('normal');
+      return dialog.execute();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushImage', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushImage(
-            positionalArgs[0],
-            offsetX: namedArgs['offsetX'],
-            offsetY: namedArgs['offsetY'],
-          );
+      dialog.pushImage(
+        positionalArgs[0],
+        offsetX: namedArgs['offsetX'],
+        offsetY: namedArgs['offsetY'],
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::popImage', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popImage(
-            imageId: namedArgs['image'],
-          );
+      dialog.popImage(
+        imageId: namedArgs['image'],
+      );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::popAllImages', (
+        {positionalArgs, namedArgs}) {
+      dialog.popAllImages();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushBackground', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushBackground(positionalArgs.first,
+      dialog.pushBackground(positionalArgs.first,
           isFadeIn: namedArgs['isFadeIn'] ?? false);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::popBackground', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popBackground(
+      dialog.popBackground(
           imageId: namedArgs['image'],
           isFadeOut: namedArgs['isFadeOut'] ?? false);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::popAllBackgrounds', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popAllBackgrounds();
+      dialog.popAllBackgrounds();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushTask', (
         {positionalArgs, namedArgs}) {
       final func = positionalArgs[0] as HTFunction;
-      context.read<GameDialogState>().pushTask(
-            () => func.call(),
-            flagId: namedArgs['flagId'],
-          );
+      dialog.pushTask(
+        () => func.call(),
+        flagId: namedArgs['flagId'],
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushSelection', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushSelection(positionalArgs[0]);
+      dialog.pushSelection(positionalArgs[0]);
     });
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::checkSelected', (
         {positionalArgs, namedArgs}) {
-      return context.read<GameDialogState>().checkSelected(positionalArgs[0]);
+      return dialog.checkSelected(positionalArgs[0]);
     });
 
     engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
-      GameDialogContent.show(context, engine.locale('reloadGameDataPrompt'));
+      dialog.pushDialog(engine.locale('reloadGameDataPrompt'));
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHero', (
@@ -244,10 +252,43 @@ class _GameAppState extends State<GameApp> {
       context.read<HeroState>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::setSceneName', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateLocation', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroTileState>().updateScene(positionalArgs.first);
+      context.read<HeroPositionState>().updateLocation(positionalArgs.first);
     }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::pushScene',
+        ({positionalArgs, namedArgs}) =>
+            context.read<SamsaraEngine>().pushScene(
+                  positionalArgs.first,
+                  constructorId: namedArgs['category'],
+                  arguments:
+                      jsonify(namedArgs['arguments'], deep: false) ?? const {},
+                ),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::switchScene',
+        ({positionalArgs, namedArgs}) =>
+            context.read<SamsaraEngine>().switchScene(
+                  positionalArgs.first,
+                  arguments:
+                      jsonify(namedArgs['arguments'], deep: false) ?? const {},
+                  restart: namedArgs['restart'] ?? false,
+                ),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::pushWorld',
+        ({positionalArgs, namedArgs}) =>
+            context.read<SamsaraEngine>().pushScene(
+                  positionalArgs.first,
+                  constructorId: Scenes.worldmap,
+                  arguments: {'id': positionalArgs.first, 'method': 'load'},
+                  clearCache: namedArgs['clearCache'] ?? false,
+                ),
+        override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::popScene', (
         {positionalArgs, namedArgs}) {
@@ -256,9 +297,14 @@ class _GameAppState extends State<GameApp> {
           );
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateGame', (
         {positionalArgs, namedArgs}) {
-      context.read<GameTimestampState>().update();
+      GameLogic.updateGame(
+        tick: namedArgs['tick'] ?? 1,
+        timeflow: namedArgs['timeflow'] ?? true,
+        autoCultivate: namedArgs['autoCultivate'] ?? false,
+        autoWork: namedArgs['autoWork'] ?? false,
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHistory', (
@@ -266,15 +312,15 @@ class _GameAppState extends State<GameApp> {
       context.read<HeroAndGlobalHistoryState>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::updateNpcList', (
+    engine.hetu.interpreter.bindExternalFunction('Game::hideNpc', (
         {positionalArgs, namedArgs}) {
-      context.read<NpcListState>().update();
+      context.read<NpcListState>().hide(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuest', (
         {positionalArgs, namedArgs}) {
-      engine.setCursor('default');
-      // context.read<CursorState>().set('default');
+      engine.setCursor(Cursors.normal);
+      // context.read<CursorState>().set('normal');
       context.read<NewQuestState>().update(quest: positionalArgs.first);
     }, override: true);
 
@@ -283,8 +329,8 @@ class _GameAppState extends State<GameApp> {
       final items = positionalArgs.first is List
           ? positionalArgs.first
           : [positionalArgs.first];
-      engine.setCursor('default');
-      // context.read<CursorState>().set('default');
+      engine.setCursor(Cursors.normal);
+      // context.read<CursorState>().set('normal');
       final completer = Completer();
       context.read<NewItemsState>().update(items: items, completer: completer);
       return completer.future;
@@ -322,7 +368,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
-      engine.pushScene(Scenes.cardlibrary, arguments: {
+      engine.pushScene(Scenes.library, arguments: {
         'enableCardCraft': namedArgs['enableCardCraft'] ?? false,
         'enableScrollCraft': namedArgs['enableScrollCraft'] ?? false,
       });
@@ -449,8 +495,8 @@ class _GameAppState extends State<GameApp> {
       await _initGame();
       _isInitted = true;
 
-      // engine.setCursor('default');
-      // context.read<CursorState>().set('default');
+      // engine.setCursor(Cursors.normal);
+      // context.read<CursorState>().set('normal');
 
       engine.pushScene(Scenes.mainmenu, arguments: {'reset': true});
     } else {
@@ -485,7 +531,7 @@ class _GameAppState extends State<GameApp> {
         } else {
           final scene = context.watch<SamsaraEngine>().scene;
           return fluent.FlyoutTarget(
-            controller: flyoutController,
+            controller: globalFlyoutController,
             child: scene?.build(context) ?? const SizedBox.shrink(),
           );
         }

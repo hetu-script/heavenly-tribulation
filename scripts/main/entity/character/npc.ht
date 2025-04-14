@@ -1,0 +1,21 @@
+struct Npc {
+  constructor ({
+    id,
+    name,
+    icon,
+    illustration,
+  }) {
+    this.entityType = kEntityTypeCharacter
+    assert(name != null)
+    this.name = engine.locale(name)
+    this.id = id ?? name
+    this.icon = icon
+    this.illustration = illustration
+
+    assert(!game.npcs.containsKey(this.id), 'Duplicate NPC ID: ${this.id}')
+
+    game.npcs[this.id] = this
+
+    engine.debug('Created NPC: ${this.id}')
+  }
+}

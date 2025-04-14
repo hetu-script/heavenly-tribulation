@@ -14,10 +14,9 @@ import '../../game/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';
-// import 'cardcrafting_area.dart';
 import '../game_dialog/game_dialog_content.dart';
-import 'menus.dart';
 import 'card_library.dart';
+import '../../common.dart';
 
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。
@@ -118,9 +117,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       _reposition(-100);
     };
 
-    onDragUpdate = (int buttons, Vector2 offset) {
+    onDragUpdate = (int buttons, Vector2 position, Vector2 delta) {
       if ((game as CardLibraryScene).craftingCard != null) return;
-      _reposition(offset.y);
+      _reposition(delta.y);
     };
   }
 
@@ -375,6 +374,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     card.onTapDown = (int buttons, Vector2 position) {
       if (buttons == kPrimaryButton) {
+        engine.setCursor(Cursors.drag);
         if (!card.isEnabled) return;
         if (buildingZone != null) {
           if (buildingZone!.isFull) return;
@@ -388,8 +388,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     };
 
     card.onTapUp = (int buttons, __) async {
-      if (!card.isEnabled) return;
       if (buttons == kPrimaryButton) {
+        if (!card.isEnabled) return;
+        engine.setCursor(Cursors.normal);
         if (buildingZone != null) {
           // || craftingArea != null) {
           String? result = buildingZone!.tryAddCard(card, clone: true);
@@ -412,9 +413,10 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
     card.onDragStart =
         (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int buttons, Vector2 offset) =>
-        (game as CardLibraryScene).draggingCard?.position += offset;
+    card.onDragUpdate = (int buttons, Vector2 position, Vector2 delta) =>
+        (game as CardLibraryScene).draggingCard?.position += delta;
     card.onDragEnd = (_, __) {
+      engine.setCursor(Cursors.normal);
       (game as CardLibraryScene).cardDragRelease();
     };
     card.onPreviewed = () => previewCard(

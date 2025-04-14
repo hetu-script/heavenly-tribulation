@@ -1,0 +1,15 @@
+
+/// 任务线
+/// 当progress达到100时，任务完成
+struct TaskLine {
+  constructor ({
+    atLocation,
+    itemId,
+    target,
+    amount,
+  }) {
+    this.id = crypto.randomUID(withTime: true)
+    this.itemId = itemId
+    this.amount = 0
+  }
+}

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hetu_script/values.dart';
 
 import '../../game/ui.dart';
 
@@ -8,11 +7,12 @@ class SiteCard extends StatelessWidget {
     super.key,
     required this.siteData,
     this.imagePath,
+    this.onTap,
   });
 
-  final HTStruct siteData;
-
+  final dynamic siteData;
   final String? imagePath;
+  final void Function(String siteId)? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class SiteCard extends StatelessWidget {
             type: MaterialType.transparency,
             child: InkWell(
               borderRadius: GameUI.borderRadius,
-              onTap: () async {},
+              onTap: () => onTap?.call(siteData['id']),
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(

@@ -8,7 +8,7 @@ namespace World {
 
   external function updateTerrainData(left, top, {updateSprite: bool = false, updateOverlaySprite: bool = false})
 
-  external function resetFogOfWar()
+  external function darkenAllTiles()
 
   external function lightUpAllTiles()
 
@@ -47,8 +47,6 @@ namespace World {
   external function enterLocation(location)
 
   external function showFog(value: bool)
-
-  external function switchWorld(worldId)
 
   /// Creates a new CameraShakeEffect.
   /// [intensity] is the speed of the camera movement.

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/state/states.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 import 'package:samsara/samsara.dart';
@@ -11,11 +12,8 @@ import '../scene/game_dialog/selection_dialog.dart';
 import '../engine.dart';
 import '../scene/game_dialog/game_dialog_content.dart';
 import '../widgets/dialog/select_menu.dart';
-import '../state/view_panels.dart';
 import '../widgets/dialog/input_slider.dart';
 import '../scene/common.dart';
-import '../state/new_prompt.dart';
-import '../state/hover_content.dart';
 import 'common.dart';
 import 'data.dart';
 
@@ -23,6 +21,10 @@ import 'data.dart';
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBaseAfterBattleHPRestoreRate = 0.25;
 const kBattleCardsCount = 16;
+
+const kCharacterYearlyUpdateMonth = 3;
+const kLocationYearlyUpdateMonth = 6;
+const kOrganizationYearlyUpdateMonth = 9;
 
 /// 根据人物当前境界，获取不同境界卡牌的概率
 const kCardObtainProbabilityByRank = {
@@ -53,13 +55,13 @@ const kCardObtainProbabilityByRank = {
   }
 };
 
-const kBattleCardPriceRate = 0.15;
-const kAddAffixCostRate = 0.9;
+const kBattleCardPriceRate = 0.135;
+const kAddAffixCostRate = 0.08;
 const kRerollAffixCostRate = 0.02;
 const kReplaceAffixCostRate = 0.03;
-const kUpgradeCardCostRate = 0.11;
-const kUpgradeRankCostRate = 12.5;
-const kCraftScrollCostRate = 0.12;
+const kUpgradeCardCostRate = 0.12;
+const kUpgradeRankCostRate = 8.5;
+const kCraftScrollCostRate = 0.06;
 
 const _kCardCraftOperations = {
   'addAffix',
@@ -73,8 +75,36 @@ const _kCardCraftOperations = {
 
 const kMaxLevelForRank8 = 100;
 
+const kTimeOfDay = {
+  1: 'morning',
+  2: 'afternoon',
+  3: 'evening',
+  4: 'midnight',
+};
+
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
+
+  static int ticksOfYear = 0;
+  static int ticksOfMonth = 0;
+  static int ticksOfDay = 0;
+  static int year = 0;
+  static int month = 0;
+  static int day = 0;
+  static String timeOfDay = '';
+
+  static void calculateTimestamp() {
+    final int timestamp = GameData.gameData['timestamp'];
+    ticksOfYear = (timestamp % kTicksPerYear) + 1;
+    ticksOfMonth = (timestamp % kTicksPerMonth) + 1;
+    ticksOfDay = (timestamp % kTicksPerDay) + 1;
+    year = (timestamp ~/ kTicksPerYear) + 1;
+    month = (timestamp % kTicksPerYear) + 1;
+    day = (timestamp % kTicksPerMonth) + 1;
+    timeOfDay = kTimeOfDay[ticksOfDay]!;
+
+    engine.info('游戏时间: [$year年$month月$day日$timeOfDay]');
+  }
 
   static int minLevelForRank(int rank) {
     assert(rank >= 0);
@@ -94,6 +124,23 @@ abstract class GameLogic {
     difficulty ??= 1;
     return (difficulty * (level) * (level)) * 10 + level * 100 + 40;
   }
+
+  // // 组织中每个等级的人数上限
+  // // 数字越大，等级越高，[jobRankMax]是掌门，人数只有1
+  // function maxMemberOfJobRank(n: integer, jobRankMax) {
+  //   assert(n >= 0 && n <= jobRankMax)
+  //   return ((jobRankMax - n) + 1) * ((jobRankMax - n) + 1)
+  // }
+
+  // // 组织可以拥有的人数上限取决于组织发展度
+  // // 发展度 0，掌门 1 人，rank 1：4 人
+  // function maxMemberOfDevelopment(n: integer) {
+  //   let number = 0
+  //   for (const i in range(n + 2)) {
+  //     number += (i + 1) * (i + 1)
+  //   }
+  //   return number
+  // }
 
   static int getCardCraftOperationCost(String operation, dynamic cardData) {
     assert(_kCardCraftOperations.contains(operation));
@@ -190,7 +237,7 @@ abstract class GameLogic {
   /// 计算分解卡牌所能获得的灵光数
   static int calculateBattleCardPrice(dynamic cardData) {
     final int level = cardData['level'];
-    final int price = expForLevel(level) ~/ kBattleCardPriceRate;
+    final int price = (expForLevel(level) * kBattleCardPriceRate).round();
     return price;
   }
 
@@ -271,7 +318,7 @@ abstract class GameLogic {
     /// 内容示例：
     /// [
     ///   { genreId: 'flying_sword', probability: 0.7 },
-    ///   { genreId: 'dao', probability: 0.2 },
+    ///   { genreId: 'spellcraft', probability: 0.2 },
     ///   { genreId: 'avatar', probability: 0.1 },
     ///   ...
     /// ]
@@ -457,8 +504,45 @@ abstract class GameLogic {
       context: engine.context,
       builder: (context) => SelectMenuDialog(
           selections: {for (var element in GameData.worldIds) element: element},
-          selectedValue: GameData.worldIds
-              .firstWhere((element) => element != GameData.currentWorldId)),
+          selectedValue:
+              GameData.worldIds.firstWhere((id) => id != GameData.world['id'])),
+    );
+  }
+
+  static Future<String?> selectLocationId() async {
+    final selections = <String, String>{};
+    final locationsData = GameData.gameData['locations'];
+    if (locationsData.isEmpty) return null;
+
+    for (final element in locationsData.keys) {
+      selections[element] = element;
+    }
+    return await showDialog(
+      context: engine.context,
+      builder: (context) {
+        return SelectMenuDialog(
+          selections: selections,
+          selectedValue: null,
+        );
+      },
+    );
+  }
+
+  static Future<String?> selectObjectId() async {
+    final selections = <String, String>{};
+    if (GameData.world['objects'].isEmpty) return null;
+
+    for (final element in GameData.world['objects'].keys) {
+      selections[element] = element;
+    }
+    return await showDialog(
+      context: engine.context,
+      builder: (context) {
+        return SelectMenuDialog(
+          selections: selections,
+          selectedValue: null,
+        );
+      },
     );
   }
 
@@ -518,7 +602,7 @@ abstract class GameLogic {
         },
       );
       characterAllocateSkills(enemey);
-      engine.hetu.invoke('characterGenerateDeck', positionalArgs: [enemey]);
+      engine.hetu.invoke('generateDeck', positionalArgs: [enemey]);
 
       final arg = {
         'id': Scenes.battle,
@@ -575,7 +659,8 @@ abstract class GameLogic {
         ticks = engine.hetu.invoke('getTicksTillNextMonth');
       case 'restTillFullHealth':
         ticks =
-            GameData.heroData['stats']['lifeMax'] - GameData.heroData['life'];
+            (GameData.heroData['stats']['lifeMax'] - GameData.heroData['life'])
+                .ceil();
         if (ticks == 0) {
           GameDialogContent.show(
               engine.context, engine.locale('alreadyFullHealthNoNeedRest'));
@@ -594,6 +679,20 @@ abstract class GameLogic {
     }
   }
 
+  static double getMoveCostOnHill() {
+    double cost = kBaseMoveCostOnHill;
+    final skill = GameData.heroData['passives']['stamina_cost_reduce_on_hill'];
+    cost -= cost * (skill?['value'] ?? 0) / 100;
+    return cost;
+  }
+
+  static double getMoveCostOnWater() {
+    double cost = kBaseMoveCostOnWater;
+    final skill = GameData.heroData['passives']['stamina_cost_reduce_on_water'];
+    cost -= cost * (skill?['value'] ?? 0) / 100;
+    return cost;
+  }
+
   static void onUseItem(itemData) {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
@@ -608,7 +707,7 @@ abstract class GameLogic {
     }
     switch (itemData['category']) {
       case 'cardpack':
-        engine.pushScene(Scenes.cardlibrary, arguments: {
+        engine.pushScene(Scenes.library, arguments: {
           'cardpacks': {itemData},
           'enableCardCraft': engine.scene?.id == Scenes.mainmenu,
           'enableScrollCraft': engine.scene?.id == Scenes.mainmenu,
@@ -697,4 +796,380 @@ abstract class GameLogic {
     engine.info('物品 ${itemData['name']} 增加了 $charge 充能次数');
     engine.play('electric-sparks-68814.mp3');
   }
+
+  /// 异步函数，在显示场景窗口之前执行
+  static Future<dynamic> tryEnterLocation(dynamic locationData) async {
+    engine.debug('正在尝试进入据点 [${locationData['name']}]');
+    // [result] 值是 true 意味着不会进入场景
+    dynamic result;
+    if (locationData['isDiscovered'] != true) {
+      // TODO: 第一次发现据点事件
+      if (locationData['isHidden'] == true) {
+        dialog.pushDialog({
+          'lines': [engine.locale('hint_sensedUndiscovered')],
+        });
+        await dialog.execute();
+        result = true;
+      } else {
+        engine.hetu.invoke('discoverLocation', positionalArgs: [locationData]);
+        dialog.pushDialog({
+          'lines': [
+            engine
+                .locale('firstDiscover', interpolations: [locationData['name']])
+          ],
+        });
+        await dialog.execute();
+      }
+    }
+
+    result = await engine.hetu.invoke('onGameEvent',
+        positionalArgs: ['onBeforeEnterLocation', locationData]);
+
+    if (result == null) {
+      engine.pushScene(
+        locationData['id'],
+        constructorId: Scenes.location,
+        arguments: {'location': locationData},
+      );
+    }
+  }
+
+  static void onAfterEnterLocation(dynamic locationData) async {
+    await engine.hetu.invoke('onGameEvent',
+        positionalArgs: ['onAfterEnterLocation', locationData]);
+
+    if (locationData['kind'] == 'home') {
+      final ownerId = locationData['ownerId'];
+      if (ownerId != GameData.heroData['id']) {
+        final owner = GameData.gameData['characters'][ownerId];
+        if (owner['locationId'] != locationData['id']) {
+          GameDialogContent.show(engine.context,
+              engine.locale('visitEmptyHome', interpolations: [owner['name']]));
+        }
+      }
+    }
+  }
+
+  static void tryInteractObject(String objectId, dynamic terrainData) {
+    final objectsData = engine.hetu.fetch('objects', namespace: 'world');
+    final objectData = objectsData[objectId];
+    engine.hetu.invoke('onInteractMapObject',
+        positionalArgs: [objectData, terrainData]);
+  }
+
+  /// 和门派总堂的定灵碑交互
+  /// 如果并非此组织成员，无法使用
+  static void onInteractCultivationStele(dynamic organizationData) async {
+    if (GameData.heroData['organizationId'] == organizationData['id']) {
+      engine.pushScene(Scenes.cultivation, arguments: {
+        'enableCultivate':
+            organizationData['techs']['enableCultivate'] ?? false,
+        'onEnterScene': () async {
+          if (GameData.gameData['flags']['hintedCultivation'] != true) {
+            GameData.gameData['flags']['hintedCultivation'] = true;
+
+            dialog.pushDialog(
+              {
+                'name': engine.locale('servant'),
+                'icon': 'illustration/npc/servant_head.png',
+                'lines': [
+                  engine.locale('hint_tutorial'),
+                ]
+              },
+            );
+            dialog.pushSelection({
+              'id': 'tutorial',
+              'selections': {
+                'listenTutorial': engine.locale('listenTutorial'),
+                'forgetIt': engine.locale('forgetIt'),
+              },
+            });
+            await dialog.execute();
+            final selected = dialog.checkSelected('tutorial');
+
+            final item = engine.hetu.invoke('Materialpack', namedArgs: {
+              'kind': 'shard',
+              'amount': 5,
+            });
+            engine.hetu
+                .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
+
+            if (selected == 'listenTutorial') {
+              dialog.pushDialog(
+                {
+                  'name': engine.locale('servant'),
+                  'icon': 'illustration/npc/servant_head.png',
+                  'lines': engine.locale('hint_cultivation').split('\n'),
+                },
+                imageId: 'illustration/npc/servant.png',
+              );
+              await dialog.execute();
+            }
+
+            dialog.pushDialog(
+              {
+                'name': engine.locale('servant'),
+                'icon': 'illustration/npc/servant_head.png',
+                'lines': engine.locale('hint_cultivation2').split('\n'),
+              },
+              imageId: 'illustration/npc/servant.png',
+            );
+            await dialog.execute();
+
+            engine.context.read<NewItemsState>().update(items: [item]);
+          }
+        },
+      });
+    } else {
+      dialog.pushDialog(
+        {
+          'name': engine.locale('servant'),
+          'icon': 'illustration/npc/servant_head.png',
+          'lines': [
+            engine.locale('hint_organizationFacilityNotMember'),
+          ]
+        },
+        imageId: 'illustration/npc/servant.png',
+      );
+      await dialog.execute();
+    }
+  }
+
+  /// 和门派藏书阁的功法图录交互
+  /// 如果并非此组织成员，无法使用
+  static void onInteractCardLibraryDesk(dynamic organizationData) async {
+    if (GameData.heroData['organizationId'] == organizationData['id']) {
+      engine.pushScene(Scenes.library, arguments: {
+        'enableCardCraft':
+            organizationData['techs']['enableCardCraft'] ?? false,
+        'enableScrollCraft':
+            organizationData['techs']['enableScrollCraft'] ?? false,
+        'onEnterScene': () async {
+          if (GameData.gameData['flags']['hintedCardLibrary'] != true) {
+            GameData.gameData['flags']['hintedCardLibrary'] = true;
+
+            dialog.pushDialog(
+              {
+                'name': engine.locale('servant'),
+                'icon': 'illustration/npc/servant_head.png',
+                'lines': [
+                  engine.locale('hint_tutorial'),
+                ]
+              },
+            );
+            dialog.pushSelection({
+              'id': 'tutorial',
+              'selections': {
+                'listenTutorial': engine.locale('listenTutorial'),
+                'forgetIt': engine.locale('forgetIt'),
+              },
+            });
+            await dialog.execute();
+            final selected = dialog.checkSelected('tutorial');
+
+            final item =
+                engine.hetu.invoke('Cardpack', namedArgs: {'isBasic': true});
+            engine.hetu
+                .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
+
+            if (selected == 'listenTutorial') {
+              dialog.pushDialog(
+                {
+                  'name': engine.locale('servant'),
+                  'icon': 'illustration/npc/servant_head.png',
+                  'lines': engine.locale('hint_cardLibrary').split('\n'),
+                },
+                imageId: 'illustration/npc/servant.png',
+              );
+              await dialog.execute();
+            }
+
+            dialog.pushDialog(
+              {
+                'name': engine.locale('servant'),
+                'icon': 'illustration/npc/servant_head.png',
+                'lines': engine.locale('hint_cardLibrary2').split('\n'),
+              },
+              imageId: 'illustration/npc/servant.png',
+            );
+            await dialog.execute();
+
+            engine.context.read<NewItemsState>().update(items: [item]);
+          }
+        },
+      });
+    } else {
+      await GameDialogContent.show(engine.context, {
+        'name': engine.locale('servant'),
+        'icon': 'illustration/npc/servant_head.png',
+        'image': 'illustration/npc/servant.png',
+        'lines': [
+          engine.locale('hint_organizationFacilityNotMember'),
+        ]
+      });
+    }
+  }
+
+  /// 更新游戏逻辑，将时间向前推进一帧（tick），可以设定连续更新的帧数
+  /// 如果遇到了一些特殊事件可能提前终止
+  /// 这会影响一些连续进行的动作，例如探索或者修炼等等
+  static void updateGame({
+    tick = 1,
+    timeflow = true,
+    autoCultivate = false,
+    autoWork = false,
+  }) async {
+    final int tik = DateTime.now().millisecondsSinceEpoch;
+
+    if (timeflow) {
+      if (ticksOfDay == 1) {
+        engine.log('--------$year}年$month月$day日$ticksOfDay--------');
+      }
+    }
+
+    final int timestamp = GameData.gameData['timestamp'];
+
+    for (var i = 0; i < tick; ++i) {
+      engine.hetu.invoke('handleBabies');
+
+      if (day == 1 && ticksOfDay == 1) {
+        // 重置玩家自己的每月行动
+        engine.hetu.invoke('resetPlayerMonthlyActivities');
+      }
+
+      // 每个建筑每月会根据其属性而消耗维持费用和获得收入
+      // 生产类建筑每天都会刷新生产进度
+      // 商店类建筑会刷新物品和银两
+      // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
+      for (final locationData in GameData.gameData['locations'].values) {
+        // 玩家自己控制的据点
+        if (GameData.heroData['id'] == locationData['ownerId']) continue;
+
+        // 月度事件
+        if (day == 1 && ticksOfDay == 1) {
+          updateLocationMonthly(locationData);
+          // 年度事件
+          if (month == kLocationYearlyUpdateMonth) {
+            updateLocationYearlyStart(locationData);
+          } else if (month == kLocationYearlyUpdateMonth + 1) {
+            updateLocationYearlyEnd(locationData);
+          }
+        }
+      }
+
+      // 触发每个组织的刷新事件
+      for (final organizationData
+          in GameData.gameData['organizations'].values) {
+        // 组织管理的自动逻辑跳过玩家自己控制的组织
+        if (GameData.heroData['id'] == organizationData['headId']) continue;
+
+        // 月度事件
+        if (day == 1 && ticksOfDay == 1) {
+          updateOrganizationMonthly(organizationData);
+
+          // 年度事件
+          if (month == kOrganizationYearlyUpdateMonth) {
+            updateOrganizationYearlyStart(organizationData);
+          } else if (month == kOrganizationYearlyUpdateMonth + 1) {
+            updateOrganizationYearlyEnd(organizationData);
+          }
+        }
+      }
+
+      // 触发每个角色的刷新事件
+      for (final characterData in GameData.gameData['characters'].values) {
+        // 跳过玩家自己控制的角色
+        if (GameData.heroData['id'] == characterData['id']) continue;
+
+        // 月度事件
+        if (day == 1 && ticksOfDay == 1) {
+          updateCharacterMonthly(characterData);
+
+          // 年度事件
+          if (month == kCharacterYearlyUpdateMonth) {
+            updateCharacterYearlyStart(characterData);
+          } else if (month == kCharacterYearlyUpdateMonth + 1) {
+            updateCharacterYearlyEnd(characterData);
+          }
+        }
+      }
+
+      // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
+      // 野外遭遇包括NPC事件、随机副本等等
+      // for (const terrain in world.terrains) {
+      //   if (game.timestamp % kTicksPerMonth == 0) {
+      //     updateTerrain(terrain)
+      //   }
+      // }
+
+      if (timeflow) {
+        engine.hetu.assign('timestamp', timestamp + 1, namespace: 'game');
+        calculateTimestamp();
+
+        engine.context.read<GameTimestampState>().update();
+      }
+
+      for (final itemId in GameData.heroData['equipments'].values) {
+        if (itemId == null) continue;
+        final itemData = GameData.heroData['inventory'][itemId];
+        engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
+        await engine.hetu
+            .invoke('onGameEvent', positionalArgs: ['onUpdateItem', itemData]);
+      }
+    }
+
+    engine.log(
+        'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
+  }
+
+  static void updateLocationMonthly(dynamic locationData) {
+    engine.debug('${locationData['name']} 的月度更新');
+  }
+
+  static void updateLocationYearlyStart(dynamic locationData) {
+    engine.debug('${locationData['name']} 的年度更新开始');
+  }
+
+  static void updateLocationYearlyEnd(dynamic locationData) {
+    engine.debug('${locationData['name']} 的年度更新结束');
+  }
+
+  /// 组织年度更新开始
+  static void updateOrganizationYearlyStart(organizationData) {
+    engine.debug('${organizationData['name']} 的年度更新开始');
+
+    organizationData['isRecruiting'] = true;
+    engine.debug('${organizationData.id} 的招募活动本月开始。');
+  }
+
+  /// 组织年度更新结束
+  static void updateOrganizationYearlyEnd(organizationData) {
+    engine.debug('${organizationData['name']} 的年度更新结束');
+
+    organizationData['isRecruiting'] = false;
+    engine.debug('${organizationData.id} 的招募活动已经结束。');
+  }
+
+  /// 组织月度更新
+  static void updateOrganizationMonthly(organizationData) {
+    engine.debug('${organizationData['name']} 的月度更新');
+  }
+
+  /// 角色年度更新开始
+  static void updateCharacterYearlyStart(characterData) {
+    engine.debug('${characterData['name']} 的年度更新开始');
+  }
+
+  /// 角色年度更新结束
+  static void updateCharacterYearlyEnd(characterData) {
+    engine.debug('${characterData['name']} 的年度更新结束');
+  }
+
+  /// 角色月度更新
+  static void updateCharacterMonthly(characterData) {
+    engine.debug('${characterData['name']} 的月度更新');
+  }
+
+  /// 角色濒死，tribulationCount += 1，返回自宅
+  static void onDying() {}
 }

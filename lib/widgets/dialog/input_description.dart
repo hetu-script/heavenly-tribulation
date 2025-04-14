@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
@@ -91,7 +92,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(5.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       String result = _textEditingController.text.trim();
                       Navigator.of(context).pop(result.nonEmptyValue);

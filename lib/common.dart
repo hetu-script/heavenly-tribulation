@@ -7,6 +7,13 @@ const kGameSaveFileExtension = '.tdqjgame';
 const kUniverseSaveFilePostfix = '_universe';
 const kHistorySaveFilePostfix = '_history';
 
+abstract class Cursors {
+  static const normal = 'normal';
+  static const click = 'click';
+  static const drag = 'drag';
+  static const press = 'press';
+}
+
 const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
@@ -28,28 +35,41 @@ enum SceneStates {
 const kCurrentVersionCultivationLevelMax = 50;
 const kCurrentVersionCultivationRankMax = 3;
 
+const kRaces = [
+  'fanzu',
+  'yaozu',
+  'xianzu',
+];
+
+const kWorldViews = [
+  // 三观
+  'idealistic', // 理想, 现实
+  'orderly', // 守序, 混乱
+  'goodwill', // 善良, 邪恶
+];
+
 const kPersonalities = [
-  'idealistic',
-  'orderly',
-  'goodwill',
-  'extrovert',
-  'frank',
-  'merciful',
-  'helping',
-  'empathetic',
-  'competitive',
-  'reasoning',
-  'initiative',
-  'optimistic',
-  'curious',
-  'prudent',
-  'deepthinking',
-  'organizing',
-  'confident',
-  'humorous',
-  'frugal',
-  'generous',
-  'satisfied',
+  // 对他人
+  'extrovert', // 外向, 内省
+  'frank', // 直率, 圆滑
+  'merciful', // 仁慈, 冷酷
+  'helping', // 助人, 自私
+  'empathetic', // 同情, 嫉妒
+  'competitive', // 好胜, 嫉妒
+  // 对自己
+  'organizing', // 自律, 不羁
+  'confident', // 自负, 谦逊
+  'humorous', // 幽默, 庄重
+  'frugal', // 节俭, 奢靡
+  'generous', // 慷慨, 小气
+  'satisfied', // 知足, 贪婪
+  // 对事物
+  'reasoning', // 理智, 感性
+  'initiative', // 主动, 被动
+  'optimistic', // 乐观, 愤世
+  'curious', // 好奇, 冷漠
+  'prudent', // 谨慎, 冲动
+  'deepthinking', // 深沉, 轻浮
 ];
 
 const kOppositePersonalities = {
@@ -62,18 +82,18 @@ const kOppositePersonalities = {
   'helping': 'selfish',
   'empathetic': 'jealous',
   'competitive': 'easygoing',
-  'reasoning': 'feeling',
-  'initiative': 'reactive',
-  'optimistic': 'cynical',
-  'curious': 'indifferent',
-  'prudent': 'adventurous',
-  'deepthinking': 'superficial',
   'organizing': 'relaxing',
   'confident': 'modest',
   'humorous': 'solemn',
   'frugal': 'lavish',
   'generous': 'stingy',
   'satisfied': 'greedy',
+  'reasoning': 'feeling',
+  'initiative': 'reactive',
+  'optimistic': 'cynical',
+  'curious': 'indifferent',
+  'prudent': 'adventurous',
+  'deepthinking': 'superficial',
 };
 
 const kAttributes = [
@@ -260,6 +280,8 @@ const kLocationCityKinds = [
 ];
 
 const kLocationSiteKinds = [
+  'home',
+  'headquarters',
   'cityhall',
   'arena',
   'library',
@@ -280,6 +302,30 @@ const kLocationSiteKinds = [
   'psychicaltar',
   'divinationaltar',
   'theurgyaltar',
+];
+
+const kLocationKindManagableSites = [
+  'headquarters',
+  'cityhall',
+  'library',
+  'arena',
+  'tradinghouse',
+  'auctionhouse',
+  'workshop',
+  'alchemylab',
+  'scrolllab',
+  'arraylab',
+  'illusionaltar',
+  'divinationaltar',
+  'psychicaltar',
+  'theurgyaltar',
+  'mine',
+  'timberland',
+  'farmland',
+  'huntingground',
+  'fishery',
+  'nursery',
+  'zoo',
 ];
 
 const kMaterialMoney = 'money';
@@ -388,3 +434,10 @@ const kCardCraftOperations = [
   'upgradeRank',
   'dismantle',
 ];
+
+const kBaseMoveCostOnHill = 1.0;
+const kBaseMoveCostOnWater = 2.0;
+
+const kPlainTerrains = ['plain', 'forest', 'snow_plain'];
+const kWaterTerrains = ['sea', 'river', 'lake', 'seashelf'];
+const kMountainTerrains = ['mountain'];

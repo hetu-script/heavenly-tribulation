@@ -34,6 +34,7 @@ class BattleDropMenu extends StatelessWidget {
         border: Border.all(color: GameUI.foregroundColor),
       ),
       child: PopupMenuButton<BattleDropMenuItems>(
+        padding: const EdgeInsets.all(0),
         offset: const Offset(0, 45),
         icon: const Icon(Icons.menu_open),
         tooltip: engine.locale('menu'),

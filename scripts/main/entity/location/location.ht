@@ -24,7 +24,9 @@ const kLocationKindResidence = 'residence'
 
 // 主角设置宅家宅后的默认场景
 const kLocationKindHome = 'home'
-// 集会所，每个城市默认建筑
+// 门派总堂，每个门派在总部的默认建筑，用来管理门派
+const kLocationKindHeadquarters = 'headquarters'
+// 据点总堂，每个城市默认建筑，用来管理据点
 const kLocationKindCityHall = 'cityhall'
 // 藏书阁，交易所，拍卖行这三种建筑可以分别进行功法秘籍，材料和法宝的交易
 // 他们可能属于某个组织，也可能没有组织。
@@ -103,6 +105,7 @@ struct Location {
     isDiscovered = true,
     isHidden = false,
     updateWorldMap = false,
+    npc,
   }) {
     assert(category != null && kind != null)
 
@@ -116,14 +119,17 @@ struct Location {
     // 这个据点的子场景，这里只保存id
     this.sites = []
     
+    // 据点和场所的发展度需要花费钱币、矿石和木材来升级
+    this.development = 0
+    
     if (category == 'city') {
       // this.addDefaultSites = addDefaultSites
 
       this.worldId = worldId ?? world.id
       let atWorld = worldId != null ? universe[worldId] : world
       
-      // 定居在这个据点的角色的家，这里只保存id
-      this.homes = []
+      // 定居在这个据点的角色，这里只保存id
+      this.residents = []
 
       if (name) {
         this.name = name
@@ -137,10 +143,6 @@ struct Location {
         } while (conflict)
       }
       
-      // 据点发展度，最高5，初始0
-      // 发展度决定了据点所能拥有的普通居民人口上限，所能拥有建筑的数量，以及能产生的悬赏任务上限等
-      // 发展度需要花费钱币、矿石和木材来升级
-      this.development = 0
       this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
       if (background != null) {
@@ -163,9 +165,7 @@ struct Location {
       }
     } else if (category == 'site') {
       if (atLocation != null) {
-        if (kind == kLocationKindHome) {
-          atLocation.homes.add(this.id)
-        } else {
+        if (kind != kLocationKindHome) {
           atLocation.sites.add(this.id)
         }
       }
@@ -185,6 +185,8 @@ struct Location {
     
     // 建筑的拥有者
     // 住所的owner就是这个住所的主人
+    // city的owner就是城主
+    // 功能性建筑的owner就是总管
     // 如果同时有 ownerId 和 organizationID，意味着这个建筑为非私有
     this.ownerId = ownerId
     // 住所的owner就是这个住所的主人
@@ -208,37 +210,17 @@ struct Location {
     this.inventory = {}
     this.materials = MaterialStorage()
 
-    // 为了兼容性，地块的门派没有用organizationId而是用了nationId
-    // this.nationId
-    
-    // 普通居民决定了税收收入，以及外门弟子的数量
-    // const minP = maxPopulationOfLocationDevelopment(this.development - 1)
-    // const maxP = maxPopulationOfLocationDevelopment(this.development)
-    // this.population = random.nextInt(maxP - minP) + minP
+    if (npc) {
+      assert(game.npcs.containsKey(npc.id))
+      this.npcId = npc.id
+    }
 
-    // 被禁止进入的名单，名单可能重叠
-    // 一个人本身在名单上，但他的国家也可能在名单上，并且互相独立
-    // this.banLists = {
-    //   characterIds: [],
-    //   organizationIds: [],
-    //   // nationIds: [],
-    // }
-
-    // isMain == true 时自动添加到当前世界
-    // this.isMain = isMain
-    // if (this.isMain) {
-    //   addLocation(this, atTerrain: atTerrain, atLocation: atLocation, updateWorldMap: updateWorldMap)
-    // }
-
-    let atWorld = worldId != null ? universe[worldId] : world
     if (game.locations.containsKey(this.id)) {
-      engine.warn('世界 [${atWorld.name}] 上已经添加过场景(id [${this.id}])，数据将会被覆盖')
+      engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
     }
     game.locations[this.id] = this
 
-    if (atLocation == null) {
-      assert(atTerrain != null)
-
+    if (atTerrain != null) {
       atTerrain.locationId = this.id
       
       this.terrainIndex = atTerrain.index
@@ -255,16 +237,23 @@ struct Location {
             World.updateTerrainOverlaySprite(atTerrain.left, atTerrain.top)
           }
         }
-        // Location(category: 'site', kind: kLocationKindCityHall, atLocation: this)
-        // 城市据点默认会添加一个住所入口
-        Location(category: 'site', kind: kLocationKindResidence, atLocation: this)
+        
+        /// 默认添加一个总堂建筑
+        const cityhall = Location(
+          id: location.name + '_cityhall',
+          name: location.name + engine.locale('cityhall'),
+          category: 'site',
+          kind: kLocationKindCityhall,
+          atLocation: location,
+          organizationId: organization.id,
+        )
       }
-
       engine.debug('在 ${atWorld.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
-    } else {
+    } else if (atLocation != null) {
       this.atLocationId = atLocation.id
-
       engine.debug('在 ${atLocation.name} 建立了 ${this.name}')
+    } else {
+      engine.debug('建立了 ${this.name}')
     }
   }
 }
@@ -289,7 +278,7 @@ struct Location {
 // }
 
 function removeLocationById(locationId: string) {
-  let location = getLocationById(locationId)
+  let location = game.locations[locationId]
   if (location != null) {
     for (final siteId in location.sites) {
       removeLocationById(siteId)
@@ -333,10 +322,10 @@ function setCharacterLocationId(character, locationId: string) {
   character.locationId = locationId
 }
 
-function getLocationById(id: string, {worldId}) {
-  // let atWorld = worldId != null ? universe[worldId] : world
-  return game.locations[id]
-}
+// function getLocationById(id: string, {worldId}) {
+//   // let atWorld = worldId != null ? universe[worldId] : world
+//   return game.locations[id]
+// }
 
 function getLocations({ids, worldId}) {
   // let atWorld = worldId != null ? universe[worldId] : world
@@ -377,5 +366,16 @@ function increaseLocationDevelopment(location) {
     ++location.development
   } else {
     engine.warn('据点 ${location.name} 的发展度（${location.development}）已达到或超过最大值。')
+  }
+}
+
+function setLocationWorldPosition(location, left, top, {worldId}) {
+  if (left == null || top == null) {
+    location.worldPosition = null
+  } else {
+    location.worldPosition = { left, top }
+  }
+  if (worldId != null) {
+    location.worldId = worldId
   }
 }

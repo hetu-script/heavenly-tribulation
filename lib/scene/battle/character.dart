@@ -57,7 +57,7 @@ Color getResourceColor(String resourceType) {
 }
 
 class BattleCharacter extends GameComponent with AnimationStateController {
-  final String skinId;
+  final String modelId;
 
   final bool isHero;
 
@@ -134,13 +134,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     super.position,
     super.size,
     this.isHero = false,
-    required this.skinId,
+    required this.modelId,
     required this.animationStates,
     required this.overlayAnimationStates,
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
-    assert(GameData.animationsData.containsKey(skinId));
+    assert(GameData.animationsData.containsKey(modelId));
     audioPlayer = engine;
 
     if (!isHero) {
@@ -155,7 +155,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   Future<void> onLoad() async {
     // 普通动画在每个皮肤下都有一套单独的数据
     for (final state in animationStates) {
-      final anim = await GameData.createAnimationFromData(skinId, state);
+      final anim = await GameData.createAnimationFromData(modelId, state);
       addState(state, anim, isOverlay: false);
     }
     // 叠加动画的数据另外保存
@@ -166,8 +166,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // await loadStates();
 
-    _life = data['life'];
-    _lifeMax = data['stats']['lifeMax'];
+    _life = data['life'].toInt();
+    _lifeMax = data['stats']['lifeMax'].toInt();
 
     _hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -542,8 +542,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void reset() {
-    _life = data['life'];
-    _lifeMax = data['stats']['lifeMax'];
+    _life = data['life'].toInt();
+    _lifeMax = data['stats']['lifeMax'].toInt();
     _hpBar.max = _lifeMax;
     _hpBar.setValue(_life);
     _hpBar.labelColor = Colors.white;
@@ -551,7 +551,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     setState(kStandState);
     clearAllStatusEffects();
     turnFlags.clear();
-    // TODO: resetGameFlags
   }
 
   /// 尝试消耗指定的生命，如果消耗值大于生命，返回 false
@@ -765,6 +764,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 展示当前卡牌及其详情
     card.enablePreview = false;
     await card.setFocused(true);
+    if (card.data['isIdentified'] != true) {
+      card.data['isIdentified'] = true;
+    }
     // final isDetailed = (game as BattleScene).isDetailedHovertip;
     final (description, exDescription) = GameData.getDescriptionFromCardData(
       card.data,
@@ -773,10 +775,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       showDetailedHint: false,
       showDebugId: false,
     );
-    if (card.data['isIdentified'] != true) {
-      card.data['isIdentified'] = true;
-      card.description = description;
-    }
+    card.description = description;
     Hovertip.show(
       scene: game,
       target: card,

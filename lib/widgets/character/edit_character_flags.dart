@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
@@ -59,8 +60,8 @@ class _EditCharacterFlagsState extends State<EditCharacterFlags> {
                           height: 40,
                           child: Row(
                             children: [
-                              Checkbox(
-                                value: flags[flag],
+                              fluent.Checkbox(
+                                checked: flags[flag],
                                 onChanged: (newValue) {
                                   if (newValue != null) {
                                     setState(() {
@@ -81,7 +82,7 @@ class _EditCharacterFlagsState extends State<EditCharacterFlags> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       Navigator.of(context).pop(flags);
                     },

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'inventory/inventory.dart';
 import '../../engine.dart';
-import '../draggable_panel.dart';
+import '../ui/draggable_panel.dart';
 import '../../game/logic.dart';
 import '../../state/states.dart';
 
@@ -39,7 +40,6 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     if (widget.selectedItemsData != null) {
@@ -92,7 +92,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       context
                           .read<ViewPanelState>()
@@ -107,7 +107,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       _selectedItemsData.clear();
                       final filteredItems = GameLogic.getFilteredItems(
@@ -128,7 +128,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: ElevatedButton(
+                  child: fluent.FilledButton(
                     onPressed: () {
                       context
                           .read<ViewPanelState>()

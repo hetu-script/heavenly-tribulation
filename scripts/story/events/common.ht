@@ -11,32 +11,39 @@ function initModData() {
   
   characterCalculateStats(hero)
 
-  final feiyu = getCharacterById('du_feiyu')
+  final feiyu = game.characters.du_feiyu
   feiyu.rank = 1
   feiyu.level = 5
-  characterCalculateStats(feiyu)
-  // Game.characterAllocateSkills(feiyu)
-  // characterGenerateDeck(feiyu, cardInfoList: [
-  //   {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge'}
+  // generateDeck(feiyu, cardInfoList: [
+  //   {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge_nimble'}
   // ])
+  // Game.characterAllocateSkills(feiyu)
+  // characterCalculateStats(feiyu)
   
-  final feixiong = getCharacterById('ge_feixiong')
+  final feixiong = game.characters.ge_feixiong
   feiyu.rank = 2
   feiyu.level = 16
+  generateDeck(feixiong, cardInfoList: [
+    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'attack_punch'}, {affixId: 'heal'},
+  ])
+  // Game.characterAllocateSkills(feixiong)
   characterCalculateStats(feixiong)
-  // Game.characterAllocateSkills(feiyu)
-  characterGenerateDeck(feixiong, cardInfoList: [
-    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge_nimble_exhaust_rage'}, {affixId: 'heal'},
-  ])
 
-  final chuxue = getCharacterById('ling_chuxue')
+  final chuxue = game.characters.ling_chuxue
+  if (hero.quests.mysticGirl) {
+    chuxue.level = 20
+    chuxue.rank = 2
+    generateDeck(chuxue, cardInfoList: [
+      {affixId: 'mana'},
+      {affixId: 'fireball'},
+      {affixId: 'flying_sword_exhaust_mana'},
+      {affixId: 'scripture_exhaust_karma'},
+    ])
+  } else {
+    generateDeck(chuxue, cardInfoList: [
+      {affixId: 'defend_punch'},{affixId: 'attack_punch'},{affixId: 'attack_kick'}
+    ])
+  }
+  // Game.characterAllocateSkills(chuxue)
   characterCalculateStats(chuxue)
-  characterGenerateDeck(chuxue, cardInfoList: [
-    {affixId: 'defend_punch'},{affixId: 'attack_punch'},{affixId: 'attack_kick'}
-  ])
-  // characterGenerateDeck(chuxue, cardInfoList: [
-  //   {affixId: 'spell_energy', level: 5},{affixId: 'fireball'},{affixId: 'lightning'}
-  // ])
-  // entityCollect(chuxue, 'money', amount: 5000, incurIncident: false)
-  // entityAcquireById(chuxue, 'identify_scroll', incurIncident: false)
 }

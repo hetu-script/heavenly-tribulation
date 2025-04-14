@@ -8,6 +8,8 @@ const kCloudPriority = 20000;
 const kCouldKindCount = 12;
 
 class ParticleCloud extends GameComponent {
+  static final random = math.Random();
+
   Sprite? sprite;
 
   double _timeElasped = 0;
@@ -16,8 +18,6 @@ class ParticleCloud extends GameComponent {
   late final double duration;
 
   late final double velocity;
-
-  final random = math.Random();
 
   ParticleCloud() : super(priority: kCloudPriority) {
     velocity = 0.5 + random.nextDouble() * 2;

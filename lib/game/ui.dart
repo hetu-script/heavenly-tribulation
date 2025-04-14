@@ -75,6 +75,11 @@ abstract class GameUI {
   static final backgroundColor3Opaque = Color(0xFF270505);
   static final backgroundColor3 = Color(0xDD270505);
 
+  static final focusedColorOpaque = const Color.fromARGB(255, 0, 32, 64);
+  static final focusedColor = focusedColorOpaque.withAlpha(128);
+  static final hoverColorOpaque = Colors.lightBlue;
+  static final hoverColor = Colors.lightBlue.withAlpha(128);
+
   /// 对话框遮罩背景颜色
   static final barrierColor = Colors.black87;
 
@@ -82,11 +87,9 @@ abstract class GameUI {
 
   static const profileWindowPosition =
       Offset(largeIndent, heroInfoHeight + smallIndent);
-  static final profileWindowSize = Vector2(600.0, 450.0);
+  static final profileWindowSize = Vector2(640.0, 480.0);
 
-  static final detailsWindowPosition = Offset(
-      profileWindowPosition.dx + profileWindowSize.x + largeIndent,
-      profileWindowPosition.dy);
+  static late final Offset detailsWindowPosition;
 
   static const iconTheme = IconThemeData(
     color: foregroundColor,
@@ -121,14 +124,17 @@ abstract class GameUI {
     textTheme: textTheme,
     fontFamily: GameUI.fontFamily,
     scaffoldBackgroundColor: Colors.transparent,
-    dialogBackgroundColor: barrierColor,
     iconTheme: iconTheme,
     dividerColor: foregroundColor,
     colorScheme: ColorScheme.dark(
       surface: backgroundColor2,
     ),
-    dropdownMenuTheme: DropdownMenuThemeData(
-      textStyle: textTheme.bodyMedium,
+    dialogTheme: DialogTheme(
+      backgroundColor: barrierColor,
+    ),
+    dataTableTheme: DataTableThemeData(
+      headingCellCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
+      dataRowCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
     ),
     appBarTheme: const AppBarTheme(
       centerTitle: true,
@@ -153,6 +159,7 @@ abstract class GameUI {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
+        textStyle: textTheme.bodyMedium,
         foregroundColor: foregroundColor,
         shape: RoundedRectangleBorder(
           side: const BorderSide(
@@ -173,19 +180,26 @@ abstract class GameUI {
         ),
       ),
     ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: textTheme.bodyMedium,
+    ),
     popupMenuTheme: PopupMenuThemeData(
       color: backgroundColor2,
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: foregroundColor),
         borderRadius: borderRadius,
       ),
-      textStyle: textTheme.bodyMedium,
+      labelTextStyle: WidgetStatePropertyAll(TextStyle(
+        fontFamily: GameUI.fontFamily,
+        fontSize: 15.0,
+      )),
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: foregroundColor,
       activeTickMarkColor: foregroundColor,
       thumbColor: foregroundColor,
       valueIndicatorTextStyle: textTheme.bodyMedium,
+      showValueIndicator: ShowValueIndicator.never,
     ),
     tabBarTheme: TabBarTheme(
       labelStyle: textTheme.bodyMedium,
@@ -194,6 +208,7 @@ abstract class GameUI {
   );
 
   static final fluentTheme = fluent.FluentThemeData(
+    accentColor: fluent.Colors.teal,
     brightness: Brightness.dark,
     fontFamily: GameUI.fontFamily,
     buttonTheme: fluent.ButtonThemeData(
@@ -201,10 +216,10 @@ abstract class GameUI {
         backgroundColor: WidgetStateProperty<Color>.fromMap(
           <WidgetStatesConstraint, Color>{
             WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-                backgroundColor2Opaque,
-            WidgetState.hovered: backgroundColor2,
+                focusedColor,
+            WidgetState.hovered: hoverColor,
             WidgetState.disabled: Colors.transparent,
-            WidgetState.any: backgroundColor2Opaque,
+            WidgetState.any: backgroundColor2,
           },
         ),
         shape: WidgetStatePropertyAll<ShapeBorder>(
@@ -214,7 +229,13 @@ abstract class GameUI {
           ),
         ),
         padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-          EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+          EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+        ),
+        foregroundColor: WidgetStatePropertyAll<Color>(
+          Colors.white,
+        ),
+        textStyle: WidgetStatePropertyAll<TextStyle>(
+          textTheme.bodyMedium!.copyWith(color: Colors.white),
         ),
       ),
     ),
@@ -243,7 +264,7 @@ abstract class GameUI {
     outlined: true,
     padding: EdgeInsets.only(top: 10),
     anchor: Anchor.topCenter,
-    textStyle: textTheme.titleMedium,
+    textStyle: textTheme.titleSmall,
   );
 
   // location site scene ui
@@ -381,6 +402,9 @@ abstract class GameUI {
     Hovertip.defaultContentConfig = hovertipContentConfig;
 
     FadingText.defaultTextStyle = fadingTextStyle;
+
+    detailsWindowPosition = Offset(
+        size.x - profileWindowSize.x - largeIndent, profileWindowPosition.dy);
 
     worldmapBannerSize = Vector2(640.0, 160.0);
 

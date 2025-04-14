@@ -46,7 +46,7 @@ class _GameDialogControllerState extends State<GameDialogController>
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
         if (taskId != null) {
-          context.read<GameDialogState>().finishTask(taskId!);
+          context.read<GameDialog>().finishTask(taskId!);
           taskId == null;
         }
       }
@@ -64,11 +64,11 @@ class _GameDialogControllerState extends State<GameDialogController>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.sizeOf(context);
-    final prevScene = context.watch<GameDialogState>().prevScene;
-    final sceneInfo = context.watch<GameDialogState>().currentSceneInfo;
-    final illustrationsInfo = context.watch<GameDialogState>().illustrations;
-    final dialogContentData = context.watch<GameDialogState>().currentContent;
-    final selectionsData = context.watch<GameDialogState>().selectionsData;
+    final prevScene = context.watch<GameDialog>().prevScene;
+    final sceneInfo = context.watch<GameDialog>().currentSceneInfo;
+    final illustrationsInfo = context.watch<GameDialog>().illustrations;
+    final dialogContentData = context.watch<GameDialog>().currentContent;
+    final selectionsData = context.watch<GameDialog>().selectionsData;
 
     Widget? background;
     if (sceneInfo != null) {

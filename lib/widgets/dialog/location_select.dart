@@ -96,7 +96,7 @@ class LocationSelectDialog extends StatelessWidget {
         body: GameEntityListView(
           columns: _kInformationViewLocationColumns,
           tableData: data,
-          onItemPressed: (buttons, position, dataId) async {
+          onItemPressed: (position, dataId) async {
             final value = await showDialog(
               context: context,
               builder: (context) => ResponsiveView(

@@ -102,7 +102,7 @@ function addEncampment() {
   final encampmentKind = kEncampmentKinds.random
   switch (encampmentKind) {
     'cultivation': {
-      addCultivationStatue(
+      addCultivationStele(
         kMiddleRightTile,
         enableCultivate: true,
       )
@@ -212,7 +212,6 @@ function prepareMap() {
 
   let rankString = engine.locale('cultivationRank_${game.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
   let sceneId = '${rankString}-${game.dungeon.level + 1}-${game.dungeon.room + 1}'
-  Game.setSceneName(sceneId)
   World.promptTextBanner(sceneId)
 
   let roomInfo = game.dungeon.isTutorial ? kTutorialRoom : kNormalRooms
@@ -491,6 +490,7 @@ async function onEnterMap() {
     game.dungeon.battleEntity = null
   } else if (game.dungeon.battleResult == false) {
     game.dungeon.battleResult = null
+    await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
     Game.popScene(clearCache: true)
     return
   } else {
@@ -509,8 +509,8 @@ async function onEnterMap() {
 }
 
 async function promptExit() {
-  Dialog.pushLocales('hint_exitDungeon_description')
-  Dialog.pushLocalesSelection(
+  Dialog.pushLocale('hint_exitDungeon_description')
+  Dialog.pushLocaleSelection(
     'exitDungeon',
     [
       'exitDungeon',
@@ -559,8 +559,8 @@ async function onInteractMapObject(object, terrain) {
         onEnterMap()
       } else {
         if (game.dungeon.level < game.dungeon.levelMax) {
-          Dialog.pushLocales('hint_enterNextLevel_description')
-          Dialog.pushLocalesSelection(
+          Dialog.pushLocale('hint_enterNextLevel_description')
+          Dialog.pushLocaleSelection(
             'enterNextDungeonLevel',
             [
               'enterNextDungeonLevel',
@@ -583,7 +583,7 @@ async function onInteractMapObject(object, terrain) {
               }
             }
             if (hasStatusSpirit) {
-              Dialog.pushLocales('hint_dungeonStatusReset')
+              Dialog.pushLocale('hint_dungeonStatusReset')
               await Dialog.execute()
             }
             game.dungeon.needRebuild = true
@@ -593,8 +593,8 @@ async function onInteractMapObject(object, terrain) {
           }
         } else {
           if (game.dungeon.rank < kCultivationRankMax) {
-            Dialog.pushLocales('hint_enterNextDungeonRank_description')
-            Dialog.pushLocalesSelection(
+            Dialog.pushLocale('hint_enterNextDungeonRank_description')
+            Dialog.pushLocaleSelection(
               'enterNextDungeonRank',
               [
                 'enterNextDungeonRank',
@@ -634,7 +634,6 @@ async function onInteractMapObject(object, terrain) {
               kNormalRooms[game.dungeon.room + 1]
             addPortalByNextRoomType(nextRoomType)
           } else {
-            await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
             engine.info('战斗失败，准备退出地牢')
             game.dungeon.battleResult = false
           }

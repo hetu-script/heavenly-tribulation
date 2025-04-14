@@ -17,7 +17,7 @@ class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
     this.cursor = MouseCursor.defer,
-    this.displayName,
+    this.name,
     this.nameAlignment = AvatarNameAlignment.inside,
     this.margin,
     this.image,
@@ -36,7 +36,7 @@ class Avatar extends StatelessWidget {
 
   final MouseCursor cursor;
   final AvatarNameAlignment nameAlignment;
-  final String? displayName;
+  final String? name;
   final EdgeInsetsGeometry? margin;
   final ImageProvider<Object>? image, borderImage;
   final bool showPlaceholder;
@@ -54,7 +54,7 @@ class Avatar extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget? icon, border;
 
-    String? name = displayName;
+    String? displayName = name;
     ImageProvider<Object>? iconImg = image;
     ImageProvider<Object>? borderImg = borderImage;
 
@@ -62,7 +62,7 @@ class Avatar extends StatelessWidget {
 
     if (characterId != null) {
       charData = GameData.getCharacter(characterId!);
-      name ??= charData['name'];
+      displayName ??= charData['name'];
     }
 
     if (charData != null) {
@@ -75,9 +75,10 @@ class Avatar extends StatelessWidget {
       icon = RRectIcon(
         backgroundColor: color,
         image: iconImg,
-        size: (name != null && nameAlignment != AvatarNameAlignment.inside)
-            ? Size(size.width - kNameHeight, size.height - kNameHeight)
-            : size,
+        size:
+            (displayName != null && nameAlignment != AvatarNameAlignment.inside)
+                ? Size(size.width - kNameHeight, size.height - kNameHeight)
+                : size,
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         // borderColor: borderColor,
         borderWidth: borderWidth ?? 0.0,
@@ -89,9 +90,10 @@ class Avatar extends StatelessWidget {
       border = RRectIcon(
         backgroundColor: Colors.transparent,
         image: borderImg,
-        size: (name != null && nameAlignment != AvatarNameAlignment.inside)
-            ? Size(size.width - kNameHeight, size.height - kNameHeight)
-            : size,
+        size:
+            (displayName != null && nameAlignment != AvatarNameAlignment.inside)
+                ? Size(size.width - kNameHeight, size.height - kNameHeight)
+                : size,
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         borderColor: borderColor,
         borderWidth: borderWidth ?? 0.0,
@@ -101,7 +103,7 @@ class Avatar extends StatelessWidget {
     final widgets = <Widget>[];
 
     final outsideNameWidget = Text(
-      name.toString(),
+      displayName.toString(),
       textAlign: TextAlign.center,
       style: const TextStyle(
         fontSize: 20,
@@ -109,7 +111,7 @@ class Avatar extends StatelessWidget {
     );
 
     if (nameAlignment != AvatarNameAlignment.inside) {
-      if (name != null && nameAlignment == AvatarNameAlignment.top) {
+      if (displayName != null && nameAlignment == AvatarNameAlignment.top) {
         widgets.add(Container(
           alignment: Alignment.topCenter,
           child: outsideNameWidget,
@@ -144,7 +146,7 @@ class Avatar extends StatelessWidget {
           ),
         );
       }
-      if (name != null && nameAlignment == AvatarNameAlignment.bottom) {
+      if (displayName != null && nameAlignment == AvatarNameAlignment.bottom) {
         widgets.add(Container(
           alignment: Alignment.bottomCenter,
           child: outsideNameWidget,
@@ -154,7 +156,7 @@ class Avatar extends StatelessWidget {
       if (icon != null) {
         widgets.add(icon);
       }
-      if (name != null) {
+      if (displayName != null) {
         final br = Radius.circular(borderRadius);
         widgets.add(Align(
           alignment: Alignment.bottomCenter,
@@ -167,7 +169,7 @@ class Avatar extends StatelessWidget {
                   Border.symmetric(horizontal: BorderSide(color: Colors.grey)),
             ),
             child: Text(
-              name,
+              displayName,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: GameUI.backgroundColor2,

@@ -17,11 +17,12 @@ class GameDialogContent extends StatefulWidget {
   /// 调用这个方法不会触发 GameDialogState 的改变
   ///
   /// dialog data 数据格式
-  /// ```
+  /// ```javascript
   /// {
-  ///   "lines": ["line1", "line2"],
-  ///   "displayName": "displayName",
-  ///   "icon": "icon.png",
+  ///   name: string,
+  ///   icon: icon,
+  ///   image: string,
+  ///   lines: []string,
   /// }
   /// ```
   static Future<void> show(BuildContext context, dynamic dialogData,
@@ -63,7 +64,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
   String? currentAvatar;
   String currentLine = '';
   List<String> nodes = [];
-  String? displayName;
+  String? name;
   int currentSayIndex = 0;
   int progress = 0;
   bool lineFinished = false;
@@ -142,7 +143,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
                         Avatar(
                           margin: const EdgeInsets.only(left: 20.0),
                           // cursor: SystemMouseCursors.click,
-                          // displayName: displayName,
+                          // name: name,
                           // nameAlignment: AvatarNameAlignment.top,
                           image: currentAvatar != null
                               ? AssetImage('assets/images/$currentAvatar')
@@ -171,7 +172,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 10.0),
                                 child: Label(
-                                  displayName ?? '',
+                                  name ?? '',
                                   textStyle: TextStyle(fontSize: 20),
                                   textAlign: TextAlign.left,
                                 ),
@@ -202,7 +203,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
     progress = 0;
 
     currentAvatar = widget.data['icon'];
-    displayName = widget.data['displayName'];
+    name = widget.data['name'];
     currentLine = widget.data['lines'][currentSayIndex];
     nodes = getRichTextStream(currentLine);
 
@@ -254,7 +255,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
     currentSayIndex = 0;
     final id = widget.data?['id'];
     if (id != null) {
-      context.read<GameDialogState>().finishDialog(id);
+      context.read<GameDialog>().finishDialog(id);
     } else {
       Navigator.of(context).pop();
     }

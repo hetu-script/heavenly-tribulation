@@ -92,6 +92,30 @@ struct ObjectWorldPortal {
   }
 }
 
+struct ObjectDungeonEntrance {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    isDiscovered = true,
+    useCustomLogic = false,
+    dungeonId,
+    isTutorial = false,
+    rank,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('dungeonEntrance')
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategoryWorldPortal
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+    this.dungeonId = dungeonId
+    this.isTutorial = isTutorial
+    world.objects[this.id] = this
+  }
+}
+
 struct ObjectMerchant {
   constructor ({
     id,
@@ -171,7 +195,7 @@ struct ObjectEnemy {
       rank: rank,
     )
     Game.characterAllocateSkills(this.battleEntity)
-    characterGenerateDeck(this.battleEntity, maxOutLevel: isElite)
+    generateDeck(this.battleEntity, maxOutLevel: isElite)
 
     world.objects[this.id] = this
   }
@@ -311,4 +335,3 @@ struct ObjectCardLibrary {
     world.objects[this.id] = this
   }
 }
-

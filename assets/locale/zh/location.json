@@ -8,11 +8,11 @@
   "hospital": "医馆",
 
   "residence": "住所",
-  "cityhall": "集会所",
+  "cityhall": "总堂",
+  "cultivationStele": "定灵碑",
 
   "arena": "演武场",
   "library": "藏书阁",
-  "carddesk": "书案",
   "tradinghouse": "交易所",
   "auctionhouse": "拍卖行",
 
@@ -22,15 +22,15 @@
   "huntingground": "猎场",
   "fishery": "渔场",
 
-  "nursery": "苗圃",
-  "zoo": "兽园",
   "workshop": "工坊",
   "arraylab": "阵法所",
   "scrolllab": "制符间",
   "alchemylab": "丹房",
+  "nursery": "苗圃",
+  "zoo": "兽园",
+  "divinationaltar": "卜所",
   "illusionaltar": "幻术堂",
   "psychicaltar": "魂龛",
-  "divinationaltar": "卜所",
   "theurgyaltar": "圣殿",
 
   "chat": "闲聊",

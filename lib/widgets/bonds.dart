@@ -3,6 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 
 import '../engine.dart';
+import '../game/ui.dart';
 
 const _kCharacterBondsSubTableColumns = [
   'name',
@@ -38,10 +39,14 @@ class CharacterBondsView extends StatelessWidget {
       columns: (isHero
               ? _kHeroBondsSubTableColumns
               : _kCharacterBondsSubTableColumns)
-          .map((title) => DataColumn(
+          .map((title) => DataColumn2(
+                size: ColumnSize.L,
                 label: TextButton(
                   onPressed: () {},
-                  child: Text(engine.locale(title)),
+                  child: Text(
+                    engine.locale(title),
+                    style: GameUI.textTheme.bodyLarge,
+                  ),
                 ),
               ))
           .toList(),
