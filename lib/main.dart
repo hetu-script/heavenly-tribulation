@@ -95,7 +95,7 @@ void main() {
             ChangeNotifierProvider(create: (_) => GameSavesState()),
             ChangeNotifierProvider(create: (_) => EditorToolState()),
             ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
-            ChangeNotifierProvider(create: (_) => SelectedTileState()),
+            ChangeNotifierProvider(create: (_) => SelectedPositionState()),
             ChangeNotifierProvider(create: (_) => HeroPositionState()),
             ChangeNotifierProvider(create: (_) => NpcListState()),
             ChangeNotifierProvider(create: (_) => NewQuestState()),

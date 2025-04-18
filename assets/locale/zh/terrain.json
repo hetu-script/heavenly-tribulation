@@ -1,19 +1,21 @@
 {
-  "land": "土地",
+  "landZone": "土地",
+  "waterZone": "水域",
+
   "continent": "大陆",
   "island": "岛屿",
-
-  "seashelf": "大陆架",
-
-  "mountain": "山峰",
-  "shore": "岸边",
-  "forest": "森林",
-  "plain": "平原",
-  "snow_plain": "雪原",
-  "lake": "湖泊",
   "sea": "海洋",
+  "lake": "湖泊",
+  "shore": "岸边",
+  "shelf": "大陆架",
+
   "river": "河流",
   "road": "道路",
+
+  "plain": "平原",
+  "mountain": "山峰",
+  "forest": "森林",
+  "snow_plain": "雪原",
 
   "city": "城镇",
   "site": "场所",

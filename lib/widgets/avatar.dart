@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:samsara/ui/rrect_icon.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+
 import '../game/ui.dart';
 import '../game/data.dart';
 // import 'character/profile.dart';
@@ -16,9 +17,9 @@ const kNameHeight = 20.0;
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
-    this.cursor = MouseCursor.defer,
     this.name,
     this.nameAlignment = AvatarNameAlignment.inside,
+    this.cursor,
     this.margin,
     this.image,
     this.borderImage,
@@ -34,7 +35,7 @@ class Avatar extends StatelessWidget {
     this.onPressed,
   });
 
-  final MouseCursor cursor;
+  final MouseCursor? cursor;
   final AvatarNameAlignment nameAlignment;
   final String? name;
   final EdgeInsetsGeometry? margin;
@@ -188,7 +189,7 @@ class Avatar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onPressed?.call(characterId ?? charData?['id']),
       child: MouseRegion(
-        cursor: cursor,
+        cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
         child: Container(
           margin: margin,
           width: size.width,

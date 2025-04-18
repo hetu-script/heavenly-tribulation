@@ -3,7 +3,7 @@
 
   "cultivationLevel": "修为等级",
   "cultivationLevel2": "修为",
-  "level_description": "通过战斗，游历，冥想等行动获取<yellow>灵光点</>后，在修炼界面可利用灵光点提升修为等级。每个修为等级使你<yellow>生命上限 +5，天道技能点 +1</>。修为等级的上限由当前境界决定。",
+  "level_description": "通过打坐，战斗，游历，冥想等行动获取经验后，在修炼界面提升修为等级。每个修为等级使你<yellow>生命上限 +5，天道技能点 +1</>。修为等级的上限由当前境界决定。",
   "cultivationRank": "境界",
   "rank_description": "提升境界可以提升修为等级上限，还可以让你使用更多法宝和战斗卡牌，以及解锁更多关键的天道技能。",
 
@@ -20,8 +20,8 @@
   "manaMax_description": "灵气上限决定了你在战斗中所能保存的灵气数量。",
   "chakraMax": "剑气上限",
   "chakraMax_description": "学习天道技能后可以获得利用剑气的能力。之后在战斗中每造成 10 点伤害便可获得 1 点剑气。剑气上限决定了你在战斗中所能保存的剑气数量。<yellow>溢出的剑气会转化为随机的负面效果。</>",
-  "expCollectEfficiency": "灵光收集效率",
-  "expCollectEfficiency_description": "你在打坐时每次消耗灵石可以获得的灵光数量。",
+  "expCollectEfficiency": "灵光经验值",
+  "expCollectEfficiency_description": "你在打坐时从灵光点中获得的经验值数量。",
   "lightRadius": "视野范围",
   "lightRadius_description": "你在世界地图和地牢探险时所能照亮的范围。",
   "identifyCardsCountMonthly": "可探查对手手牌数量",
@@ -76,8 +76,8 @@
   "home": "家宅",
   "heroHome": "（你的住宅）",
   "birthPlace": "出生地点",
-  "birthday": "出生日期",
-  "restLifespan": "剩余寿命",
+  "birthday": "生日",
+  "restLifespan": "寿元",
   "currentWorld": "当前世界",
   "currentWorldPosition": "当前位置",
   "currentLocation": "当前场景",
@@ -296,7 +296,5 @@
   "avenger": "复仇",
   "prankster": "捉弄",
   "plunderer": "掠夺",
-  "destroyer": "破坏",
-
-  "autoCollectAll": "收集全部"
+  "destroyer": "破坏"
 }

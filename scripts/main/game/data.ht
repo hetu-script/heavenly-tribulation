@@ -5,16 +5,17 @@
 
 let game
 let universe
-// let history
-// history[game.currentWorldId]
-let timeline
-
 // universe[game.currentWorldId]
 let world
 // game.characters[game.heroId]
+// let history
+// history[game.currentWorldId]
+let timeline
 let hero
 
-/// 这几个值仅在特定场景中会被赋值
+/// 仅在特定场景中会被赋值
+let location
+let terrain
 let merchant
 let enemy
 let self
@@ -46,7 +47,12 @@ struct MonthlyActions {
     this.recruited = []
 
     // 对某个建筑操作
+    // 租用过的场地，在月底之前可以进行生产或使用
+    this.rented = []
+    // 打工过的场地，月底之前不能再次打工
     this.worked = []
+    // 对资源进行买卖会影响价格
+    this.tradedMaterials = {}
   }
 }
 
@@ -84,6 +90,13 @@ struct GameData {
     this.timestamp = 0
     this.flags = {}
 
+    // 游戏本身逻辑所用到的一些事件检查选项
+    // 例如每个月是否进行了某个动作之类
+    this.playerMonthly = MonthlyActions()
+    
+    // 地牢玩法的数据
+    this.dungeon = DungeonFlags()
+
     this.npcs = {}
     this.deceased = {}
     this.babies = {}
@@ -100,10 +113,6 @@ struct GameData {
     // key 是师徒传承的 id，值是一个结构体数组
     // 值的 key 是人物的 id，值是 SectMember 数据，含角色的 generation 和 peer
     this.sects = {}
-
-    // 游戏本身逻辑所用到的一些事件检查选项
-    // 例如每个月是否进行了某个动作之类
-    this.playerMonthly = MonthlyActions()
     
     // 加载到当前存档的一些MOD数据
     this.itemPrototypes = {}
@@ -117,9 +126,6 @@ struct GameData {
       // meta: {} // 模组元数据
       // events: {} // 模组事件处理函数
     }
-    
-    // 地牢玩法的数据
-    this.dungeon = DungeonFlags()
   }
 }
 
@@ -158,22 +164,6 @@ const kTimeOfDay = {
   '2': 'afternoon',
   '3': 'evening',
   '4': 'midnight',
-}
-
-function getTicksTillNextDay() {
-  if (ticksOfDay >= kTicksPerDay) {
-    return kTicksPerDay
-  } else {
-    return kTicksPerDay - ticksOfDay
-  }
-}
-
-function getTicksTillNextMonth() {
-  if (ticksOfMonth >= kTicksPerMonth) {
-    return kTicksPerMonth
-  } else {
-    return kTicksPerMonth - ticksOfMonth
-  }
 }
 
 /// 载入游戏数据，返回game

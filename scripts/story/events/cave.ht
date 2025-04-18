@@ -12,7 +12,7 @@ async function onNewGame() {
     Player.setTo(6, 22, worldId: 'prelude', direction: 'south')
   })
   // Dialog.popBackground(isFadeOut: true)
-  Dialog.pushLocale('help_movement')
+  Dialog.pushLocale('hint_movement')
   await Dialog.execute()
 }
 
@@ -105,7 +105,7 @@ async function onInteractMapObject(object, terrain) {
         Dialog.pushLocale('prelude_ling_line9', character: chuxue)
         Dialog.pushLocale('prelude_ling_line10', isHero: true)
         Dialog.pushLocale('prelude_ling_line11', character: chuxue)
-        Dialog.pushLocale('help_movement')
+        Dialog.pushLocale('hint_movement')
         await Dialog.execute()
         for (final item in items) {
           entityAcquire(chuxue, item)

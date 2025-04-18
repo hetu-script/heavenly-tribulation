@@ -56,7 +56,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
   final Map<String, Widget> attributeWidgets = {};
 
   late String homeName;
-  late String worldId, worldPosition, locationName;
+  late String worldName, worldPosition, locationName;
   late String cultivationFavor, organizationFavor;
 
   late int rank, level;
@@ -171,7 +171,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final organization = GameData.gameData['organizations'][organizationId];
     organizationName = organization != null ? organization['name'] : none;
 
-    title = _characterData['titleId'] ?? none;
+    final titleId = _characterData['titleId'];
+    title = titleId != null ? engine.locale(titleId) : none;
 
     fame = _characterData['fame'];
     infamy = _characterData['infamy'];
@@ -209,13 +210,15 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final location = GameData.gameData['locations'][locationId];
     locationName = location != null ? location['name'] : none;
 
-    worldId = _characterData['worldId'] ?? none;
+    final worldId = _characterData['worldId'];
+    worldName = worldId != null ? GameData.universeData[worldId]['name'] : none;
+
     final worldPositionX = _characterData['worldPosition']?['left'];
     final worldPositionY = _characterData['worldPosition']?['top'];
     if (worldPositionX != null && worldPositionY != null) {
-      worldPosition = '$worldPositionX, $worldPositionY';
+      worldPosition = '[$worldPositionX, $worldPositionY]';
     } else {
-      worldPosition = none;
+      worldPosition = '';
     }
 
     rank = _characterData['rank'];
@@ -277,12 +280,9 @@ class _CharacterProfileState extends State<CharacterProfile> {
                             'assets/images/${_characterData['icon']}'),
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        height: 120.0,
-                        padding: const EdgeInsets.only(top: 10.0),
-                        child: Text(_characterData['description']),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 5.0),
+                      child: Text(_characterData['description']),
                     ),
                   ],
                 ),
@@ -368,16 +368,10 @@ class _CharacterProfileState extends State<CharacterProfile> {
                           ),
                           Container(
                             padding: const EdgeInsets.only(left: 5.0, top: 7.0),
-                            width: 160.0,
+                            width: 125.0,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child:
-                                      Text('${engine.locale('race')}: $race'),
-                                ),
                                 Container(
                                   alignment: Alignment.centerLeft,
                                   height: 35.0,
@@ -389,6 +383,50 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                   height: 35.0,
                                   child: Text(
                                       '${engine.locale('cultivationLevel')}: $level'),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child:
+                                      Text('${engine.locale('race')}: $race'),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child: Text(
+                                      '${engine.locale('organization')}: $organizationName'),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child:
+                                      Text('${engine.locale('title')}: $title'),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 5.0, top: 7.0),
+                            width: 160.0,
+                            child: Column(
+                              children: [
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child:
+                                      Text('${engine.locale('fame')}: $fame'),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child: Text(
+                                      '${engine.locale('infamy')}: $infamy'),
+                                ),
+                                Container(
+                                  alignment: Alignment.centerLeft,
+                                  height: 35.0,
+                                  child: Text(
+                                      '${engine.locale('home')}: $homeName'),
                                 ),
                                 Container(
                                   alignment: Alignment.centerLeft,
@@ -408,23 +446,10 @@ class _CharacterProfileState extends State<CharacterProfile> {
                           if (widget.mode == InformationViewMode.edit ||
                               widget.showIntimacy)
                             Container(
-                              padding:
-                                  const EdgeInsets.only(left: 5.0, top: 7.0),
-                              width: 140.0,
+                              padding: const EdgeInsets.only(top: 7.0),
+                              width: 160.0,
                               child: Column(
                                 children: [
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child:
-                                        Text('${engine.locale('fame')}: $fame'),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                        '${engine.locale('infamy')}: $infamy'),
-                                  ),
                                   Container(
                                     alignment: Alignment.centerLeft,
                                     height: 35.0,
@@ -446,34 +471,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                       '${engine.locale('organizationFavor')}: $organizationFavor',
                                     ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          if (widget.mode == InformationViewMode.edit ||
-                              widget.showPosition)
-                            Container(
-                              padding:
-                                  const EdgeInsets.only(left: 5.0, top: 7.0),
-                              width: 200.0,
-                              child: Column(
-                                children: [
                                   Container(
                                     alignment: Alignment.centerLeft,
                                     height: 35.0,
                                     child: Text(
-                                        '${engine.locale('home')}: $homeName'),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                        '${engine.locale('world')}: $worldId'),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                        '${engine.locale('worldPosition')}: $worldPosition'),
+                                        '${engine.locale('world')}: $worldName$worldPosition'),
                                   ),
                                   Container(
                                     alignment: Alignment.centerLeft,
@@ -486,73 +488,24 @@ class _CharacterProfileState extends State<CharacterProfile> {
                             ),
                         ],
                       ),
-                      const Divider(),
-                      Wrap(
-                        children: [
-                          Label(
-                            textAlign: TextAlign.left,
-                            width: 125.0,
-                            '${engine.locale('organization')}: $organizationName',
-                          ),
-                          Label(
-                            textAlign: TextAlign.left,
-                            width: 125.0,
-                            '${engine.locale('title')}: $title',
-                          ),
-                          LabelsWrap(
-                            '${engine.locale('motivation')}:',
-                            minWidth: 125.0,
-                            children: motivationIds.isNotEmpty
-                                ? motivationIds
-                                    .map((e) => Label(engine.locale(e)))
-                                    .toList()
-                                : [Text(engine.locale('none'))],
-                          ),
-                        ],
-                      ),
-                      if (widget.mode == InformationViewMode.edit ||
-                          widget.showRelationships) ...[
-                        const Divider(),
-                        // Text('---${engine.locale('relationship')}---'),
-                        Wrap(
-                          alignment: WrapAlignment.start,
-                          children: [
-                            // Label(
-                            //   textAlign: TextAlign.left,
-                            //   width: 125.0,
-                            //   '${engine.locale('father')}: $father',
-                            // ),
-                            // Label(
-                            //   textAlign: TextAlign.left,
-                            //   width: 125.0,
-                            //   '${engine.locale('mother')}: $mother',
-                            // ),
-                            // Label(
-                            //   textAlign: TextAlign.left,
-                            //   width: 125.0,
-                            //   '${engine.locale('spouse')}: $spouse',
-                            // ),
-                            // LabelsWrap(
-                            //   minWidth: 125.0,
-                            //   '${engine.locale('children')}: ',
-                            //   children: childs,
-                            // ),
-                            // LabelsWrap(
-                            //   minWidth: 125.0,
-                            //   '${engine.locale('siblings')}: ',
-                            //   children: siblings,
-                            // ),
-                          ],
-                        ),
-                      ],
                       if (widget.mode == InformationViewMode.edit ||
                           widget.showPersonality) ...[
                         const Divider(),
                         // Text('---${engine.locale('personality')}---'),
-                        Wrap(
-                          children: kWorldViews
-                              .map((id) => personalityWidgets[id]!)
-                              .toList(),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            ...kWorldViews.map((id) => personalityWidgets[id]!),
+                            LabelsWrap(
+                              '${engine.locale('motivation')}:',
+                              minWidth: 125.0,
+                              children: motivationIds.isNotEmpty
+                                  ? motivationIds
+                                      .map((e) => Label(engine.locale(e)))
+                                      .toList()
+                                  : [Text(engine.locale('none'))],
+                            ),
+                          ],
                         ),
                         Wrap(
                           children: kPersonalities
@@ -567,112 +520,115 @@ class _CharacterProfileState extends State<CharacterProfile> {
             ),
           ),
         ),
-        Row(
-          children: [
-            if (isEditorMode) ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                child: fluent.FilledButton(
-                  onPressed: () {
-                    setState(() {
-                      _characterData = engine.hetu.invoke('Character');
-                      updateData();
-                    });
-                  },
-                  child: Text(engine.locale('randomize')),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                child: fluent.FilledButton(
-                  onPressed: () async {
-                    final value = await showDialog(
-                      context: context,
-                      builder: (context) => EditCharacterBasics(
-                        id: _characterData['id'],
-                        name: _characterData['shortName'],
-                        model: _characterData['model'],
-                        surName: _characterData['surName'],
-                        iconPath: _characterData['icon'],
-                        illustrationPath: _characterData['illustration'],
-                      ),
-                    );
-                    if (value == null) return;
-                    final (
-                      id,
-                      surName,
-                      name,
-                      isFemale,
-                      race,
-                      icon,
-                      illustration,
-                      model,
-                    ) = value;
-                    _characterData['surName'] = surName;
-                    assert(name != null && name.isNotEmpty);
-                    _characterData['shortName'] = name;
-                    _characterData['name'] = (_characterData['surName'] ?? '') +
-                        _characterData['shortName'];
-                    _characterData['isFemale'] = isFemale;
-                    _characterData['race'] = race;
-                    _characterData['model'] = model;
-                    _characterData['icon'] = icon;
-                    _characterData['illustration'] = illustration;
-                    if (id != null && id != _characterData['id']) {
-                      final originId = _characterData['id'];
-
-                      GameData.gameData['characters']
-                          .remove(_characterData['id']);
-                      _characterData['id'] = id;
-                      GameData.gameData['characters'][id] = _characterData;
-
-                      if (GameData.gameData['heroId'] == originId) {
-                        engine.hetu.invoke('setHeroId', positionalArgs: [id]);
-                      }
-                    }
-                    setState(() {});
-                  },
-                  child: Text(
-                    engine.locale('editIdAndImage'),
+        if (widget.mode != InformationViewMode.view)
+          Row(
+            children: [
+              if (widget.mode == InformationViewMode.edit) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () {
+                      setState(() {
+                        _characterData = engine.hetu.invoke('Character');
+                        updateData();
+                      });
+                    },
+                    child: Text(engine.locale('randomize')),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                child: fluent.FilledButton(
-                  onPressed: () {
-                    showDialog(
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () async {
+                      final value = await showDialog(
                         context: context,
-                        builder: (context) => InputDescriptionDialog(
-                              description: _characterData['description'],
-                            )).then((value) {
+                        builder: (context) => EditCharacterBasics(
+                          id: _characterData['id'],
+                          surName: _characterData['surName'],
+                          shortName: _characterData['shortName'],
+                          isFemale: _characterData['isFemale'],
+                          race: _characterData['race'],
+                          icon: _characterData['icon'],
+                          illustration: _characterData['illustration'],
+                          model: _characterData['model'],
+                        ),
+                      );
                       if (value == null) return;
-                      setState(() {
-                        _characterData['description'] = value;
-                      });
-                    });
-                  },
-                  child: Text(engine.locale('editDescription')),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                child: fluent.FilledButton(
-                  onPressed: () async {
-                    final value = await showDialog<Map<String, bool>>(
-                      context: context,
-                      builder: (context) =>
-                          EditCharacterFlags(characterData: _characterData),
-                    );
-                    if (value != null) {
-                      for (final key in value.keys) {
-                        _characterData[key] = value[key];
+                      final (
+                        id,
+                        surName,
+                        shortName,
+                        isFemale,
+                        race,
+                        icon,
+                        illustration,
+                        model,
+                      ) = value;
+                      _characterData['surName'] = surName;
+                      assert(shortName != null && shortName.isNotEmpty);
+                      _characterData['shortName'] = shortName;
+                      _characterData['name'] = (surName ?? '') + shortName;
+                      _characterData['isFemale'] = isFemale;
+                      _characterData['race'] = race;
+                      _characterData['model'] = model;
+                      _characterData['icon'] = icon;
+                      _characterData['illustration'] = illustration;
+                      if (id != null && id != _characterData['id']) {
+                        final originId = _characterData['id'];
+
+                        GameData.gameData['characters']
+                            .remove(_characterData['id']);
+                        _characterData['id'] = id;
+                        GameData.gameData['characters'][id] = _characterData;
+
+                        if (GameData.gameData['heroId'] == originId) {
+                          engine.hetu.invoke('setHeroId', positionalArgs: [id]);
+                        }
                       }
-                    }
-                  },
-                  child: Text(engine.locale('editFlags')),
+                      setState(() {});
+                    },
+                    child: Text(
+                      engine.locale('editIdAndImage'),
+                    ),
+                  ),
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => InputDescriptionDialog(
+                                description: _characterData['description'],
+                              )).then((value) {
+                        if (value == null) return;
+                        setState(() {
+                          _characterData['description'] = value;
+                        });
+                      });
+                    },
+                    child: Text(engine.locale('editDescription')),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () async {
+                      final value = await showDialog<Map<String, bool>>(
+                        context: context,
+                        builder: (context) =>
+                            EditCharacterFlags(characterData: _characterData),
+                      );
+                      if (value != null) {
+                        for (final key in value.keys) {
+                          _characterData[key] = value[key];
+                        }
+                      }
+                    },
+                    child: Text(engine.locale('editFlags')),
+                  ),
+                ),
+              ],
               const Spacer(),
               if (widget.mode != InformationViewMode.view)
                 Padding(
@@ -685,9 +641,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         case InformationViewMode.edit:
                           _saveData();
                           Navigator.of(context).pop(true);
-                        // case InformationViewMode.create:
-                        //   _saveData();
-                        //   Navigator.of(context).pop(_characterData);
                         default:
                       }
                     },
@@ -695,8 +648,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                   ),
                 ),
             ],
-          ],
-        ),
+          ),
       ],
     );
   }
@@ -723,7 +675,16 @@ class CharacterProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final h = height ?? (mode == InformationViewMode.edit ? 700.0 : 400.0);
+    double? h = height;
+    if (h == null) {
+      if (mode == InformationViewMode.edit) {
+        h = 700.0;
+      } else if (mode == InformationViewMode.select) {
+        h = 450.0;
+      } else {
+        h = 400.0;
+      }
+    }
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,

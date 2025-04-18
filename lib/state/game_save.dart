@@ -5,11 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:hetu_script/utils/uid.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path;
-import 'package:samsara/utils/json.dart';
+// import 'package:samsara/utils/json.dart';
+import 'package:hetu_script/values.dart';
+import 'package:json5/json5.dart';
 
 import '../engine.dart';
 import '../datetime.dart';
 import '../common.dart';
+import '../game/data.dart';
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
@@ -56,7 +59,7 @@ class GameSavesState with ChangeNotifier {
           final gameDataString = utf8.decoder
               .convert((await gameSave.read(await gameSave.length())).toList());
           await gameSave.close();
-          final gameData = jsonDecode(gameDataString);
+          final gameData = json5Decode(gameDataString);
           final currentWorldId = (gameData as Map)['currentWorldId'];
           final fileName = path.basenameWithoutExtension(entity.path);
           final timestamp =
@@ -84,21 +87,17 @@ class GameSavesState with ChangeNotifier {
       info = await createSaveInfo(worldId, saveName);
       saves[info.saveName] = info;
     }
-
+    engine.debug('保存游戏至：[${info.savePath}]');
     info.currentWorldId = worldId;
 
-    engine.debug('保存游戏至：[${info.savePath}]');
+    final gameJSONData = (GameData.gameData as HTStruct).toJSON();
+    final gameStringData = json5Encode(gameJSONData, space: 2);
 
     IOSink sink;
     final saveFile1 = File(info.savePath);
     if (!saveFile1.existsSync()) {
       saveFile1.createSync(recursive: true);
     }
-    // final saveFile1Access = await saveFile1.open();
-    final gameJsonData = engine.hetu.invoke('getGameJsonData');
-    final gameStringData = jsonEncodeWithIndent(gameJsonData);
-    // saveFile1Access.writeStringSync(gameStringData);
-    // saveFile1Access.close();
     sink = saveFile1.openWrite();
     sink.write(gameStringData);
     await sink.flush();
@@ -107,29 +106,25 @@ class GameSavesState with ChangeNotifier {
     final timestamp =
         saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
 
+    final universeJsonData = (GameData.universeData as HTStruct).toJSON();
+    final universeStringData = json5Encode(universeJsonData, space: 2);
+
     final saveFile2 = File('${info.savePath}$kUniverseSaveFilePostfix');
     if (!saveFile2.existsSync()) {
       saveFile2.createSync(recursive: true);
     }
-    // final saveFile2Access = await saveFile2.open();
-    final universeJsonData = engine.hetu.invoke('getUniverseJsonData');
-    final universeStringData = jsonEncodeWithIndent(universeJsonData);
-    // saveFile2Access.writeStringSync(universeStringData);
-    // saveFile2Access.close();
     sink = saveFile2.openWrite();
     sink.write(universeStringData);
     await sink.flush();
     await sink.close();
 
+    final historyJsonData = (GameData.historyData as HTStruct).toJSON();
+    final historyStringData = json5Encode(historyJsonData, space: 2);
+
     final saveFile3 = File('${info.savePath}$kHistorySaveFilePostfix');
     if (!saveFile3.existsSync()) {
       saveFile3.createSync(recursive: true);
     }
-    // final saveFile3Access = await saveFile3.open();
-    final historyJsonData = engine.hetu.invoke('getHistoryJsonData');
-    final historyStringData = jsonEncodeWithIndent(historyJsonData);
-    // saveFile3Access.writeStringSync(historyStringData);
-    // saveFile3Access.close();
     sink = saveFile3.openWrite();
     sink.write(historyStringData);
     await sink.flush();

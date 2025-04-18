@@ -1,113 +1,13 @@
-// import 'tile/tilemap.ht'
-// import 'tile/hexagonal_tile.ht'
-// import '../game/data.ht'
 import 'tile/common.ht'
+import 'zone.ht'
 
-/// 以一个种子地块出发，逐渐生长出一块大陆的算法
-function generateContinent1({width, height, landProportion, landZone}) {
-  // 当前地域的边缘格子坐标
-  const shelf = Set()
-
-  // 刷新当前地域的边缘格子坐标
-  function updateShelf(left, top) {
-    shelf.remove(tilePos2Index(left, top, width))
-    const neighbors = getMapTileNeighbors(left, top, world)
-    for (const tile in neighbors) {
-      if (tile.spriteIndex == kSpriteWater) {
-        shelf.add(tile.index)
-      }
-    }
-  }
-
-  const landArea = (width * height * landProportion).floor()
-
-  const minLeft = width ~/ 3
-  const minTop = height ~/ 3
-  const maxLeft = width ~/ 3 * 2
-  const maxTop = height ~/ 3 * 2
-
-  const startLeft = random.nextInt(maxLeft - minLeft) + minLeft
-  const startTop = random.nextInt(maxTop - minTop) + minTop
-  // engine.debug('start: ${startLeft},${startTop}')
-  const startIndex = tilePos2Index(startLeft, startTop, width)
-  const firstTile = world.terrains[startIndex]
-  firstTile.spriteIndex = kSpriteLand
-  addTerrainToZone(firstTile, landZone)
-  updateShelf(startLeft, startTop)
-
-  let currentLandSize = 1
-  while (currentLandSize < landArea) {
-    // engine.debug('expanding land')
-    ++currentLandSize
-    const tile = world.terrains[random.nextIterable(shelf)]
-    updateShelf(tile.left, tile.top)
-    tile.spriteIndex = kSpriteLand
-    addTerrainToZone(tile, landZone)
-  }
-
-  // 根据相邻的格子的地域，分配地域索引
-  function updateZone(tile, [spriteIndex, unzonedTiles]) {
-    assert(tile.zoneId == null)
-    let willCreateZone = false
-    if (spriteIndex == null) {
-      willCreateZone = true
-      spriteIndex = tile.spriteIndex
-    }
-    unzonedTiles ??= {}
-    // engine.debug('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
-    tile.zoneId = -1 // mark this tile is being processed, will skip it when process others
-    const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
-    let foundAdjacentZone = false
-    for (const neighbor in neighbors) {
-      // skip tiles that has diffrent spriteIndex and those still being processed
-      if (neighbor.spriteIndex != spriteIndex) continue
-      if (neighbor.zoneId == null) {
-        updateZone(neighbor, spriteIndex, unzonedTiles)
-      } else if (neighbor.zoneId == -1) {
-        unzonedTiles[neighbor.index] = neighbor
-        continue
-      } else {
-        final zone = getZoneById(neighbor.zoneId)
-        addTerrainToZone(tile, zone)
-        foundAdjacentZone = true
-        // engine.debug('found neighbor: ${neighbor.left},${neighbor.top}, zoneId: ${neighbor.zoneId}')
-        break
-      }
-    }
-    if (!foundAdjacentZone && willCreateZone) {
-      let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneSea
-      const zone = Zone(category: category)
-      // engine.debug('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneId: ${zone.id}')
-      addTerrainToZone(tile, zone)
-      // engine.debug('processing previoused stored unzoned tiles: ${unzonedTiles}')
-      for (const unzonedTile of unzonedTiles) {
-        if (unzonedTile.zoneId == -1) {
-          addTerrainToZone(unzonedTile, zone)
-        }
-      }
-    }
-  }
-
-  let unzonedTile
-  while (
-    unzonedTile = world.terrains.firstWhere((tile) => tile.zoneId == null)
-  ) {
-    // engine.debug('updating unzoned tile')
-    updateZone(unzonedTile)
-  }
-  
-  // 将大陆和海洋接触的地方填充为大陆架
-  // engine.debug('将大陆和海洋接触的地方填充为大陆架')
-  // for (const index in shelf) {
-  //   const tile = world.terrains[index]
-  //   tile.spriteIndex = kSpriteShelf
-  // }
-}
+const _kMinZoneSizeOfSea = 8
+const _kMinZoneSizeOfIsland = 8
 
 const kMapStyles = Set(['islands', 'coast', 'inland'])
 
 /// 利用 noise 函数生成大陆和海洋的算法
-function generateContinent(width, height, {seed, style}) {
+function generateContinent2(world, {seed, style}) {
   let noiseData
   let threshold
   assert(style in kMapStyles)
@@ -115,37 +15,38 @@ function generateContinent(width, height, {seed, style}) {
     'islands' : {
       threshold = 0.55
       noiseData = Math.noise2d(
-        width,
-        height,
+        world.width,
+        world.height,
         seed: seed,
         noiseType: 'perlinFractal',
-        frequency: 6 / ((width + height) / 2),
+        frequency: 6 / ((world.width + world.height) / 2),
       )
     }
     'coast' : {
       threshold = 0.48
       noiseData = Math.noise2d(
-        width,
-        height,
+        world.width,
+        world.height,
         seed: seed,
-        noiseType: 'cubicFractal',
-        frequency: 3.5 / ((width + height) / 2),
+        noiseType: 'valueFractal',
+        frequency: 3.5 / ((world.width + world.height) / 2),
+        octaves: 10,
       )
     }
     'inland' : {
       threshold = 0.35
       noiseData = Math.noise2d(
-        width,
-        height,
+        world.width,
+        world.height,
         seed: seed,
         noiseType: 'cubicFractal',
-        frequency: 6 / ((width + height) / 2),
+        frequency: 10 / ((world.width + world.height) / 2),
       )
     }
   }
-  for (const x in range(width)) {
-    for (const y in range(height)) {
-      const index = tilePos2Index(x + 1, y + 1, width)
+  for (const x in range(world.width)) {
+    for (const y in range(world.height)) {
+      const index = tilePos2Index(x + 1, y + 1, world.width)
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
       if (normalize > threshold) {
@@ -153,5 +54,50 @@ function generateContinent(width, height, {seed, style}) {
         tile.spriteIndex = kSpriteLand
       }
     }
+  }
+}
+
+function nameZones(world) {
+  engine.debug('为地域命名')
+  if (world.zones.isEmpty) return
+
+  world.waterIndexes = []
+  for (const zone of world.zones) {
+    // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
+    if (zone.category == kZoneSea) {
+      // 将临时类型 water 根据情况替换为 sea 和 lake
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfSea ? kZoneCategoryLake : kZoneCategorySea
+      // 为该地域中所有地块赋值 kind
+      for (const terrainIndex in zone.terrainIndexes) {
+        const terrain = world.terrains[terrainIndex]
+        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
+        world.waterIndexes.add(terrain.index)
+        terrain.isWater = true
+        // 所有的湖泊都是浅水贴图
+        // if (terrain.kind == kZoneCategoryLake) {
+        //   terrain.spriteIndex = kSpriteShelf
+        // }
+      }
+    } else if (zone.category == kZoneRiver) {
+      zone.category = kZoneCategoryRiver
+      for (const terrainIndex in zone.terrainIndexes) {
+        const terrain = world.terrains[terrainIndex]
+        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
+        world.waterIndexes.add(terrain.index)
+        terrain.isWater = true
+        // TODO: river类型和道路类型单独的贴图
+      }
+    } else if (zone.category == kZoneLand) {
+      // 将临时类型 land 根据情况替换为 continent 和 island
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfIsland ? kZoneCategoryIsland : kZoneCategoryContinent
+      // 为该地域中所有地块赋值 kind
+      for (const terrainIndex in zone.terrainIndexes) {
+        const terrain = world.terrains[terrainIndex]
+        terrain.isWater = false
+        // TODO: river类型和道路类型单独的贴图
+      }
+    }
+
+    zone.name = generateZoneName(category: zone.category)
   }
 }

@@ -12,8 +12,8 @@
 const kItemCategoryCardpack = 'cardpack'
 const kItemCategoryScroll = 'scroll'
 const kItemCategoryScrollPaper = 'scroll_paper'
-const kItemCategoryExppack = 'exppack'
-const kItemCategoryMaterialPack = 'materialpack';
+const kItemCategoryExppack = 'exp_pack'
+const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryStatusSpirit = 'status_spirit'
 
 const kItemAffixMinLevel = 5
@@ -84,14 +84,6 @@ const kItemCategoryBoots = 'boots'
 const kItemCategoryShip = 'ship'
 const kItemCategoryAircraft = 'aircraft'
 
-const kMaterialBasePriceByKind = {
-  'shard': 10000,
-  'herb': 5,
-  'timber': 10,
-  'stone': 25,
-  'ore': 50,
-}
-
 /// 物品的基础价格
 const kItemBasePriceByCategory = {
   'cardpack':              500,
@@ -112,7 +104,7 @@ const kItemBasePriceByCategory = {
 function calculatePrice(item) {
   // assert(kItemBasePriceByCategory.containsKey(item.category), item.category)
   item.price = (item.rank + 1) * (item.level + 1) *
-    (item.affixes?.length ?? 0 + 1) * (kItemBasePriceByCategory[item.category] ?? 5)
+    (item.affixes?.length ?? 0 + 1) * (kItemBasePriceByCategory[item.category] ?? 1)
 }
 
 const kTalismanEnergyTypes = [
@@ -592,8 +584,10 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   item.ownerType = entity.entityType
 
   entity.inventory[item.id] = item
-  item.acquiredSequence = entity.achievements.acquiredItems
-  ++entity.achievements.acquiredBattleCards
+  if (entity.achievements) {
+    item.acquiredSequence = entity.achievements.acquiredItems
+    ++entity.achievements.acquiredItems
+  }
 
   let incidentContent
   incidentContent = engine.locale('entityAcquire', interpolations: [
@@ -666,17 +660,13 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 /// category: ['material', 'prototype', 'equipment', 'cardpack']
 /// items = [
 ///   {
-///     type: 'exppack',
-///     amount: 100,
-///   },
-///   {
 ///     type: 'material',
 ///     kind: 'money',
 ///     amount: 100,
 ///   },
 ///   {
 ///     type: 'prototype',
-///     prototypeId: 'hunguding',
+///     prototypeId: 'exp_pack',
 ///   },
 ///   {
 ///     type: 'equipment',
@@ -697,10 +687,14 @@ function getItemsFromLootbox(box) {
   for (final itemInfo in box.items) {
     final amount = itemInfo.amount ?? 1
     switch (itemInfo.type) {
+      // 'exp': {
+      //   final pack = Exp(amount: amount)
+      //   items.add(pack)
+      // }
       'material': {
         assert(kMaterialKinds.contains(itemInfo.kind))
-        final materialpack = Materialpack(kind: itemInfo.kind, amount: amount)
-        items.add(materialpack)
+        final pack = Materialpack(kind: itemInfo.kind, amount: amount)
+        items.add(pack)
       }
       'prototype': {
         assert(game.items.contains(itemInfo.kind))

@@ -303,10 +303,10 @@ function addAffix(card) {
   }
   
   final cost = Game.getCardCraftOperationCost('addAffix', card)
-  if (hero.unconvertedExp < cost) {
+  if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= cost
+  hero.exp -= cost
 
   final affix = random.nextIterable(supportAffixes)
 
@@ -329,10 +329,10 @@ function rerollAffix(card) {
   }
   
   final cost = Game.getCardCraftOperationCost('rerollAffix', card)
-  if (hero.unconvertedExp < cost) {
+  if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= cost
+  hero.exp -= cost
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -355,10 +355,10 @@ function replaceAffix(card) {
   }
 
   final cost = Game.getCardCraftOperationCost('replaceAffix', card)
-  if (hero.unconvertedExp < cost) {
+  if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= cost
+  hero.exp -= cost
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -382,10 +382,10 @@ function upgradeCard(card) {
   }
 
   final cost = Game.getCardCraftOperationCost('upgradeCard', card)
-  if (hero.unconvertedExp < cost) {
+  if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= cost
+  hero.exp -= cost
 
   card.level += 1
 
@@ -408,10 +408,10 @@ function upgradeRank(card) {
   }
 
   final cost = Game.getCardCraftOperationCost('upgradeRank', card)
-  if (hero.unconvertedExp < cost) {
+  if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
-  hero.unconvertedExp -= cost
+  hero.exp -= cost
 
   final successRate = getCardRankUpProbability(card.rank)
   if (random.nextDouble() > successRate) {
@@ -443,7 +443,7 @@ function upgradeRank(card) {
   return null
 }
 
-/// 分解卡牌，返回获得的灵光数量
+/// 分解卡牌，返回获得的灵气数量
 function dismantle(card) {
   final price = Player.dismantleCard(card)
 
@@ -475,9 +475,10 @@ struct Cardpack {
     this.category = kItemCategoryCardpack;
 
     rank ??= 0
-    if (rank == 0 && genre != null) {
+    if (rank < 1 && genre != null) {
       rank = 1
     }
+    this.rank = rank
     this.filter = {
       category: category,
       genre: genre,

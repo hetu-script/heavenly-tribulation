@@ -2,7 +2,7 @@
   dungeon_1: {
     id: "dungeon_1",
     isMain: false,
-    name: "离尘天",
+    name: "蚀骨洞天",
     width: 16,
     height: 12,
     terrainSpriteSheet: "tilemap/fantasyhextiles_v3_borderless.png",

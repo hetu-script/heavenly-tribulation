@@ -103,7 +103,6 @@ flutter:
     - assets/images/item/
     - assets/images/item/consumable/
     - assets/images/item/material/
-    - assets/images/item/support/
     - assets/images/location/
     - assets/images/location/card/
     - assets/images/location/city/

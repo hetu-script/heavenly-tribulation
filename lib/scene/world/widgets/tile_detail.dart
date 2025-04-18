@@ -17,10 +17,11 @@ class TileDetailPanel extends StatefulWidget {
 class _TileDetailPanelState extends State<TileDetailPanel> {
   @override
   Widget build(BuildContext context) {
-    final currentZone = context.watch<SelectedTileState>().currentZone;
-    final currentNation = context.watch<SelectedTileState>().currentNation;
+    final currentZone = context.watch<SelectedPositionState>().currentZone;
+    final currentNation = context.watch<SelectedPositionState>().currentNation;
     // final currentLocation = context.watch<SelectedTileState>().currentLocation;
-    final currentTerrain = context.watch<SelectedTileState>().currentTerrain;
+    final currentTerrain =
+        context.watch<SelectedPositionState>().currentTerrain;
 
     String? coordinates;
     if (currentTerrain != null) {

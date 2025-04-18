@@ -2,7 +2,7 @@
   "file": "文件",
   "create": "创建",
   "delete": "删除",
-  "edit": "删除",
+  "edit": "编辑",
   "setAsFirstWorld": "设为初始地图",
   "addWorld": "添加新地图",
   "addSite": "添加子场景",
@@ -10,6 +10,10 @@
   "switchWorld": "切换地图",
   "deleteWorld": "删除地图",
   "expandWorld": "扩大地图",
+
+  "spriteIndex": "地形基座",
+
+  "generatedZone": "生成了 {0} 个地域。",
 
   "objectIdNonExist": "对象 [{0}] 不存在！",
 
@@ -31,6 +35,8 @@
   "createOrganization": "创建门派",
   "createZone": "创建区域",
   "createObject": "创建对象",
+  "setTerritory": "设置领土",
+  "clearTerritory": "清除领土",
   "bindLocation": "绑定场景",
   "bindObject": "绑定对象",
   "clearObject": "清除对象",

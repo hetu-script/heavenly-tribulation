@@ -149,7 +149,7 @@ abstract class GameData {
     for (final passiveTreeNodeData in passiveTree.values) {
       final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
 
-      StringBuffer nodeDescription = StringBuffer();
+      final nodeDescription = StringBuffer();
 
       if (isAttribute) {
         // nodeDescription.writeln(
@@ -215,7 +215,7 @@ abstract class GameData {
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
     }
-    for (final key in kMainCultivationGenres) {
+    for (final key in kCultivationGenres) {
       cultivationGenreNames[key] = engine.locale(key);
     }
     for (final key in kLocationCityKinds) {
@@ -287,7 +287,7 @@ abstract class GameData {
       await registerModuleEventHandlers();
     }
 
-    // isGameCreated = true;
+    GameLogic.calculateTimestamp();
   }
 
   static Future<void> _loadGame({
@@ -329,19 +329,19 @@ abstract class GameData {
     final gameDataString = utf8.decoder
         .convert((await gameSave.read(await gameSave.length())).toList());
     await gameSave.close();
-    final gameData = jsonDecode(gameDataString);
+    final gameData = json5Decode(gameDataString);
 
     final universeSave = await File(savePath + kUniverseSaveFilePostfix).open();
     final universeDataString = utf8.decoder.convert(
         (await universeSave.read(await universeSave.length())).toList());
     await universeSave.close();
-    final universeData = jsonDecode(universeDataString);
+    final universeData = json5Decode(universeDataString);
 
     final historySave = await File(savePath + kHistorySaveFilePostfix).open();
     final historyDataString = utf8.decoder
         .convert((await historySave.read(await historySave.length())).toList());
     await historySave.close();
-    final historyData = jsonDecode(historyDataString);
+    final historyData = json5Decode(historyDataString);
 
     await _loadGame(
       game: gameData,
@@ -349,6 +349,8 @@ abstract class GameData {
       history: historyData,
       isEditorMode: isEditorMode,
     );
+
+    GameLogic.calculateTimestamp();
   }
 
   static Future<void> loadPreset(String filename,
@@ -357,15 +359,15 @@ abstract class GameData {
 
     final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
     final gameDataString = await rootBundle.loadString(gameSave);
-    final gameData = jsonDecode(gameDataString);
+    final gameData = json5Decode(gameDataString);
 
     final universeSave = '$gameSave$kUniverseSaveFilePostfix';
     final universeDataString = await rootBundle.loadString(universeSave);
-    final universeData = jsonDecode(universeDataString);
+    final universeData = json5Decode(universeDataString);
 
     final historySave = '$gameSave$kHistorySaveFilePostfix';
     final historyDataString = await rootBundle.loadString(historySave);
-    final historyData = jsonDecode(historyDataString);
+    final historyData = json5Decode(historyDataString);
 
     await _loadGame(
       game: gameData,
@@ -489,7 +491,7 @@ abstract class GameData {
   static String getPassivesDescription([dynamic characterData]) {
     characterData ??= GameData.heroData;
     final passivesData = characterData['passives'];
-    StringBuffer builder = StringBuffer();
+    final builder = StringBuffer();
     builder.writeln(
         '${engine.locale('passivetree_hero_skills_description_title')}\n ');
     if (passivesData.isEmpty) {
@@ -676,7 +678,12 @@ abstract class GameData {
               description.writeln('<red>${engine.locale('cursedItemHint')}</>');
             }
           } else if (isUsable) {
-            description.writeln('<yellow>${engine.locale('usableHint')}</>');
+            if (category == 'material_pack') {
+              description
+                  .writeln('<yellow>${engine.locale('hint_materialpack')}</>');
+            } else {
+              description.writeln('<yellow>${engine.locale('usableHint')}</>');
+            }
           }
         } else {
           if (isCursed) {

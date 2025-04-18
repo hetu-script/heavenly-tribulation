@@ -58,6 +58,8 @@ abstract class GameUI {
   static const pileZoneIndent = 30.0;
   static const pileZoneMargin = 60.0;
 
+  static const borderColor = Colors.white38;
+
   static const foregroundColor = Colors.white70;
   static const foregroundColorPressed = Colors.white54;
   static final foregroundDiabled = Colors.grey[500];
@@ -76,9 +78,11 @@ abstract class GameUI {
   static final backgroundColor3 = Color(0xDD270505);
 
   static final focusedColorOpaque = const Color.fromARGB(255, 0, 32, 64);
-  static final focusedColor = focusedColorOpaque.withAlpha(128);
+  static final focusedColor = Color.fromARGB(255, 0, 32, 64).withAlpha(128);
   static final hoverColorOpaque = Colors.lightBlue;
   static final hoverColor = Colors.lightBlue.withAlpha(128);
+  static final selectedColorOpaque = Colors.yellow;
+  static final selectedColor = Colors.yellow.withAlpha(128);
 
   /// 对话框遮罩背景颜色
   static final barrierColor = Colors.black87;
@@ -369,7 +373,7 @@ abstract class GameUI {
   static final levelDescriptionSize = Vector2(500, 50);
   static final expBarSize = Vector2(600, 25);
 
-  static late Vector2 cultivateButtonPosition;
+  static late Vector2 levelUpButtonPosition;
   static late Vector2 collectButtonPosition;
   static final buttonSizeSmall = Vector2(90, 28);
   static final buttonSizeMedium = Vector2(140, 40);
@@ -559,10 +563,10 @@ abstract class GameUI {
     levelDescriptionPosition =
         Vector2(center.x, expBarPosition.y - levelDescriptionSize.y);
 
-    cultivateButtonPosition = Vector2(
+    levelUpButtonPosition = Vector2(
         center.x + buttonSizeMedium.x / 2 + indent, expBarPosition.y + 50);
     collectButtonPosition = Vector2(
-        center.x - buttonSizeMedium.x / 2 - indent, cultivateButtonPosition.y);
+        center.x - buttonSizeMedium.x / 2 - indent, levelUpButtonPosition.y);
 
     _isInitted = true;
   }

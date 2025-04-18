@@ -62,19 +62,38 @@ class EnemyState with ChangeNotifier {
 
 class MerchantState with ChangeNotifier {
   bool showMerchant = false;
+  bool materialMode = false;
+  bool useShard = false;
   dynamic data;
   dynamic priceFactor;
+  dynamic filter;
 
-  void show(dynamic data, {dynamic priceFactor}) {
+  (bool, bool, bool, dynamic, dynamic, dynamic) get() {
+    return (showMerchant, materialMode, useShard, data, priceFactor, filter);
+  }
+
+  void show(
+    dynamic data, {
+    bool materialMode = false,
+    bool useShard = false,
+    dynamic priceFactor,
+    dynamic filter,
+  }) {
+    this.materialMode = materialMode;
+    this.useShard = useShard;
     this.data = data;
     this.priceFactor = priceFactor;
+    this.filter = filter;
     showMerchant = true;
     notifyListeners();
   }
 
   void close() {
+    materialMode = false;
+    useShard = false;
     data = null;
     priceFactor = null;
+    filter = null;
     showMerchant = false;
     notifyListeners();
   }

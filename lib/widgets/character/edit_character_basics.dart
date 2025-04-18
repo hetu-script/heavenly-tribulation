@@ -24,22 +24,22 @@ class EditCharacterBasics extends StatefulWidget {
     super.key,
     this.id,
     this.surName,
-    this.name,
+    this.shortName,
     this.isFemale,
     this.race,
-    this.iconPath,
-    this.illustrationPath,
+    this.icon,
+    this.illustration,
     this.model,
   });
 
   final String? id;
-  final String? name;
+  final String? shortName;
   final bool? isFemale;
   final String? race;
   final String? model;
   final String? surName;
-  final String? iconPath;
-  final String? illustrationPath;
+  final String? icon;
+  final String? illustration;
 
   @override
   State<EditCharacterBasics> createState() => _EditCharacterBasicsState();
@@ -47,7 +47,7 @@ class EditCharacterBasics extends StatefulWidget {
 
 class _EditCharacterBasicsState extends State<EditCharacterBasics> {
   final _idEditingController = TextEditingController();
-  final _nameEditingController = TextEditingController();
+  final _shortNameEditingController = TextEditingController();
   final _modelEditingController = TextEditingController();
   final _surNameEditingController = TextEditingController();
   final _iconEditingController = TextEditingController();
@@ -61,11 +61,11 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
     super.initState();
 
     _idEditingController.text = widget.id ?? '';
-    _nameEditingController.text = widget.name ?? '';
+    _shortNameEditingController.text = widget.shortName ?? '';
     _modelEditingController.text = widget.model ?? '';
     _surNameEditingController.text = widget.surName ?? '';
-    _iconEditingController.text = widget.iconPath ?? '';
-    _illustrationEditingController.text = widget.illustrationPath ?? '';
+    _iconEditingController.text = widget.icon ?? '';
+    _illustrationEditingController.text = widget.illustration ?? '';
   }
 
   @override
@@ -73,7 +73,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
     super.dispose();
 
     _idEditingController.dispose();
-    _nameEditingController.dispose();
+    _shortNameEditingController.dispose();
     _modelEditingController.dispose();
     _surNameEditingController.dispose();
     _iconEditingController.dispose();
@@ -141,7 +141,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   SizedBox(
                     width: 180.0,
                     child: TextField(
-                      controller: _nameEditingController,
+                      controller: _shortNameEditingController,
                     ),
                   ),
                 ],
@@ -255,8 +255,8 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                         String? id = _idEditingController.text.nonEmptyValue;
                         String? surName =
                             _surNameEditingController.text.nonEmptyValue;
-                        String? name =
-                            _nameEditingController.text.nonEmptyValue;
+                        String? shortName =
+                            _shortNameEditingController.text.nonEmptyValue;
                         String? icon =
                             _iconEditingController.text.nonEmptyValue;
                         String? illustration =
@@ -267,7 +267,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                         Navigator.of(context).pop((
                           id,
                           surName,
-                          name,
+                          shortName,
                           _isFemale,
                           _race,
                           icon,

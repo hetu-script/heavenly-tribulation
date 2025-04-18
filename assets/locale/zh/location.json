@@ -24,14 +24,15 @@
 
   "workshop": "工坊",
   "arraylab": "阵法所",
-  "scrolllab": "制符间",
+  "scrollshop": "制符间",
   "alchemylab": "丹房",
+  "divinationaltar": "占卜祭坛",
+  "illusionaltar": "百幻堂",
+  "psychictemple": "通灵殿",
+  "theurgytemple": "通神殿",
+
   "nursery": "苗圃",
   "zoo": "兽园",
-  "divinationaltar": "卜所",
-  "illusionaltar": "幻术堂",
-  "psychicaltar": "魂龛",
-  "theurgyaltar": "圣殿",
 
   "chat": "闲聊",
   "visit": "拜访",

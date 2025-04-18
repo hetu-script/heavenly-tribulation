@@ -21,10 +21,11 @@ enum SelectCharacterPopUpMenuItems {
 const _kInformationViewCharacterColumns = [
   'name',
   'age',
-  // 'currentLocation',
-  'organization',
   'fame',
-  // 'infamy',
+  'organization',
+  'title',
+  'level',
+  'rank',
 ];
 
 class CharacterSelectDialog extends StatelessWidget {
@@ -82,17 +83,37 @@ class CharacterSelectDialog extends StatelessWidget {
           engine.hetu.invoke('getCharacterAgeString', positionalArgs: [char]);
       // 年龄
       row.add(age);
-      // // 当前所在地点
-      // row.add(getNameFromId(char['locationId']));
-      // 门派名字
-      row.add(char['organizationId'] ?? engine.locale('none'));
+      // 名声
       final fame =
           engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
-      // 名声
       row.add(fame);
+      // 门派名字
+      row.add(char['organizationId'] ?? engine.locale('none'));
+      // 称号
+      final titleId = char['titleId'];
+      row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
+      row.add('${char['level']}');
+      row.add(engine.locale('cultivationRank_${char['rank']}'));
       // 多存一个隐藏的 id 信息，用于点击事件
       row.add(char['id']);
       data.add(row);
+    }
+
+    void showProfile(String dataId) async {
+      final result = await showDialog(
+        context: context,
+        builder: (context) => CharacterProfileView(
+          characterId: dataId,
+          mode: InformationViewMode.select,
+          showIntimacy: true,
+          showPersonality: false,
+          showPosition: true,
+          showRelationships: true,
+        ),
+      );
+      if (result == dataId) {
+        Navigator.of(context).pop(dataId);
+      }
     }
 
     return ResponsiveView(
@@ -107,7 +128,10 @@ class CharacterSelectDialog extends StatelessWidget {
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,
           tableData: data,
-          onItemPressed: (position, dataId) {
+          onItemPressed: (position, dataId) async {
+            showProfile(dataId);
+          },
+          onItemSecondaryPressed: (position, dataId) {
             showFluentMenu(
               position: position,
               items: {
@@ -120,33 +144,23 @@ class CharacterSelectDialog extends StatelessWidget {
                 engine.locale('checkMemory'):
                     SelectCharacterPopUpMenuItems.checkMemory,
               },
-              onSelectedItem: (item) {
+              onSelectedItem: (item) async {
                 switch (item) {
                   case SelectCharacterPopUpMenuItems.select:
                     Navigator.of(context).pop(dataId);
                   case SelectCharacterPopUpMenuItems.checkProfile:
-                    showDialog(
-                      context: context,
-                      builder: (context) => CharacterProfileView(
-                        characterId: dataId,
-                        mode: InformationViewMode.select,
-                      ),
-                    );
+                    showProfile(dataId);
                   case SelectCharacterPopUpMenuItems.checkStatsAndEquipments:
                     showDialog(
                       context: context,
-                      builder: (context) => CharacterDetails(
-                        characterId: dataId,
-                        mode: InformationViewMode.select,
-                      ),
+                      builder: (context) =>
+                          CharacterDetailsView(characterId: dataId),
                     );
                   case SelectCharacterPopUpMenuItems.checkMemory:
                     showDialog(
                       context: context,
-                      builder: (context) => CharacterMemory(
-                        characterId: dataId,
-                        mode: InformationViewMode.select,
-                      ),
+                      builder: (context) =>
+                          CharacterMemoryView(characterId: dataId),
                     );
                 }
               },

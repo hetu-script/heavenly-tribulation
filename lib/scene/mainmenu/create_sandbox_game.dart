@@ -5,9 +5,11 @@ import 'package:samsara/extensions.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-// import '../hash.dart';
 import 'create_config.dart';
 import '../../game/ui.dart';
+import '../../widgets/ui/menu_builder.dart';
+
+const kWorldStyles = {'islands', 'coast', 'inland'};
 
 /// 返回一个用于创建世界场景的 Map 对象参数
 /// Map 格式如下
@@ -91,107 +93,99 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                 children: [
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Wrap(
-                      alignment: WrapAlignment.start,
+                    child: Column(
                       children: [
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 100.0,
-                                child: Text('${engine.locale('fileName')}: '),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child: Text('${engine.locale('fileName')}: '),
+                            ),
+                            SizedBox(
+                              width: 150.0,
+                              height: 40.0,
+                              child: TextField(
+                                controller: _saveNameEditingController,
                               ),
-                              SizedBox(
-                                width: 150.0,
-                                child: TextField(
-                                  controller: _saveNameEditingController,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 100.0,
-                                child: Text('${engine.locale('worldId')}: '),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child: Text('${engine.locale('worldId')}: '),
+                            ),
+                            SizedBox(
+                              width: 150.0,
+                              child: TextField(
+                                controller: _idEditingController,
                               ),
-                              SizedBox(
-                                width: 150.0,
-                                child: TextField(
-                                  controller: _idEditingController,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                         // 随机数种子
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 100.0,
-                                child: Text('${engine.locale('randomSeed')}: '),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child: Text('${engine.locale('randomSeed')}: '),
+                            ),
+                            SizedBox(
+                              width: 150.0,
+                              child: TextField(
+                                controller: _seedEditingController,
                               ),
-                              SizedBox(
-                                width: 150.0,
-                                child: TextField(
-                                  controller: _seedEditingController,
-                                ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: fluent.FilledButton(
+                                onPressed: () {
+                                  _seedEditingController.text =
+                                      math.Random().nextInt(1 << 32).toString();
+                                },
+                                child: Text(engine.locale('random')),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: fluent.FilledButton(
-                                  onPressed: () {
-                                    _seedEditingController.text = math.Random()
-                                        .nextInt(1 << 32)
-                                        .toString();
-                                  },
-                                  child: Text(engine.locale('random')),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                         // 地图风格
-                        SizedBox(
-                          width: 350,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
                           child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               SizedBox(
-                                width: 100.0,
+                                width: 120.0,
                                 child: Text('${engine.locale('worldStyle')}: '),
                               ),
-                              DropdownButton<String>(
-                                style: GameUI.textTheme.bodyMedium,
-                                items: <String>['islands', 'coast', 'inland']
-                                    .map((String value) =>
-                                        DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(engine.locale(value)),
-                                        ))
-                                    .toList(),
-                                value: _worldStyle,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _worldStyle = value!;
-                                  });
-                                },
+                              fluent.DropDownButton(
+                                title: Text(engine.locale(_worldStyle)),
+                                items: buildFluentMenuItems(
+                                  items: {
+                                    for (final style in kWorldStyles)
+                                      engine.locale(style): style
+                                  },
+                                  onSelectedItem: (String item) {
+                                    setState(() {
+                                      _worldStyle = item;
+                                    });
+                                  },
+                                ),
                               ),
                             ],
                           ),
                         ),
                         // world size
-                        SizedBox(
-                          width: 350,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
                           child: Row(
                             children: [
                               SizedBox(
-                                width: 70.0,
+                                width: 100.0,
                                 child: Text('${engine.locale('worldSize')}: '),
                               ),
                               Slider(
@@ -229,102 +223,91 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                           ),
                         ),
                         // nation number
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 70.0,
-                                child: Text(
-                                    '${engine.locale('organizationNumber')}: '),
-                              ),
-                              Slider(
-                                value: _organizationNumber.toDouble(),
-                                min: 1,
-                                max: organizationNumberMax.toDouble(),
-                                label: _organizationNumber.toString(),
-                                onChanged: (double value) {
-                                  setState(() {
-                                    _organizationNumber = value.toInt();
-                                  });
-                                },
-                              ),
-                              SizedBox(
-                                width: 40.0,
-                                child: Text(_organizationNumber.toString()),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 100.0,
+                              child: Text(
+                                  '${engine.locale('organizationNumber')}: '),
+                            ),
+                            Slider(
+                              value: _organizationNumber.toDouble(),
+                              min: 1,
+                              max: organizationNumberMax.toDouble(),
+                              label: _organizationNumber.toString(),
+                              onChanged: (double value) {
+                                setState(() {
+                                  _organizationNumber = value.toInt();
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(_organizationNumber.toString()),
+                            ),
+                          ],
                         ),
                         // location number
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 70.0,
-                                child: Text(
-                                    '${engine.locale('locationNumber')}: '),
-                              ),
-                              Slider(
-                                value: _locationNumber.toDouble(),
-                                min: 1,
-                                max: newLocationNumberMax.toDouble(),
-                                label: _locationNumber.toString(),
-                                onChanged: (double value) {
-                                  setState(() {
-                                    _locationNumber = value.toInt();
-                                    final organizationNumberMax = math.min(
-                                        _locationNumber, _characterNumber);
-                                    if (_organizationNumber >
-                                        organizationNumberMax) {
-                                      _organizationNumber =
-                                          organizationNumberMax;
-                                    }
-                                  });
-                                },
-                              ),
-                              SizedBox(
-                                width: 40.0,
-                                child: Text(_locationNumber.toString()),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 100.0,
+                              child:
+                                  Text('${engine.locale('locationNumber')}: '),
+                            ),
+                            Slider(
+                              value: _locationNumber.toDouble(),
+                              min: 1,
+                              max: newLocationNumberMax.toDouble(),
+                              label: _locationNumber.toString(),
+                              onChanged: (double value) {
+                                setState(() {
+                                  _locationNumber = value.toInt();
+                                  final organizationNumberMax = math.min(
+                                      _locationNumber, _characterNumber);
+                                  if (_organizationNumber >
+                                      organizationNumberMax) {
+                                    _organizationNumber = organizationNumberMax;
+                                  }
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(_locationNumber.toString()),
+                            ),
+                          ],
                         ),
                         // character number
-                        SizedBox(
-                          width: 350,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 70.0,
-                                child: Text(
-                                    '${engine.locale('characterNumber')}: '),
-                              ),
-                              Slider(
-                                value: _characterNumber.toDouble(),
-                                min: 1,
-                                max: 800,
-                                label: _characterNumber.toString(),
-                                onChanged: (double value) {
-                                  setState(() {
-                                    _characterNumber = value.toInt();
-                                    final organizationNumberMax = math.min(
-                                        _locationNumber, _characterNumber);
-                                    if (_organizationNumber >
-                                        organizationNumberMax) {
-                                      _organizationNumber =
-                                          organizationNumberMax;
-                                    }
-                                  });
-                                },
-                              ),
-                              SizedBox(
-                                width: 40.0,
-                                child: Text(_characterNumber.toString()),
-                              ),
-                            ],
-                          ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 100.0,
+                              child:
+                                  Text('${engine.locale('characterNumber')}: '),
+                            ),
+                            Slider(
+                              value: _characterNumber.toDouble(),
+                              min: 1,
+                              max: 800,
+                              label: _characterNumber.toString(),
+                              onChanged: (double value) {
+                                setState(() {
+                                  _characterNumber = value.toInt();
+                                  final organizationNumberMax = math.min(
+                                      _locationNumber, _characterNumber);
+                                  if (_organizationNumber >
+                                      organizationNumberMax) {
+                                    _organizationNumber = organizationNumberMax;
+                                  }
+                                });
+                              },
+                            ),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(_characterNumber.toString()),
+                            ),
+                          ],
                         ),
                       ],
                     ),

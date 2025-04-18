@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/character/details.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ enum DebugMenuItems {
   debugItem,
   debugQuest,
   debugMerchant,
+  debugMaterialMerchant,
   debugCompanion,
   debugBattle,
   debugTribulation,
@@ -391,6 +393,8 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugQuest'): DebugMenuItems.debugQuest,
                 '___': null,
                 engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
+                engine.locale('debugMaterialMerchant'):
+                    DebugMenuItems.debugMaterialMerchant,
                 engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
                 engine.locale('debugBattle'): DebugMenuItems.debugBattle,
                 engine.locale('debugTribulation'):
@@ -422,12 +426,59 @@ class _DebugButtonState extends State<DebugButton> {
                       'rank': 2,
                       'level': 10,
                     });
+                    engine.hetu.invoke('entityCollect', positionalArgs: [
+                      merchant,
+                      'money'
+                    ], namedArgs: {
+                      'amount': 50000,
+                    });
+                    engine.hetu.invoke('entityCollect', positionalArgs: [
+                      merchant,
+                      'shard'
+                    ], namedArgs: {
+                      'amount': 500,
+                    });
                     engine.hetu.invoke('testItem',
                         namespace: 'Debug', positionalArgs: [merchant]);
-                    context.read<MerchantState>().show(merchant, priceFactor: {
-                      // 'useShard': true,
-                      // 'base': 0.5,
+                    context.read<MerchantState>().show(
+                      merchant,
+                      priceFactor: {
+                        'base': 1.2,
+                      },
+                    );
+                  case DebugMenuItems.debugMaterialMerchant:
+                    final merchant =
+                        engine.hetu.invoke('BattleEntity', namedArgs: {
+                      'rank': 2,
+                      'level': 10,
                     });
+                    engine.hetu.invoke('entityCollect', positionalArgs: [
+                      merchant,
+                      'money'
+                    ], namedArgs: {
+                      'amount': 50000,
+                    });
+                    engine.hetu.invoke('entityCollect', positionalArgs: [
+                      merchant,
+                      'shard'
+                    ], namedArgs: {
+                      'amount': 500,
+                    });
+                    for (final materialId in kOtherMaterials) {
+                      engine.hetu.invoke('entityCollect', positionalArgs: [
+                        merchant,
+                        materialId,
+                      ], namedArgs: {
+                        'amount': 500,
+                      });
+                    }
+                    context.read<MerchantState>().show(
+                      merchant,
+                      useShard: true,
+                      priceFactor: {
+                        'base': 1.2,
+                      },
+                    );
                   case DebugMenuItems.debugCompanion:
                     final companion = engine.hetu.invoke('Character');
                     engine.hetu.invoke(

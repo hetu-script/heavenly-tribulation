@@ -102,9 +102,10 @@ function addEncampment() {
   final encampmentKind = kEncampmentKinds.random
   switch (encampmentKind) {
     'cultivation': {
+      final collectableLight = expForLevel(game.dungeon.level) ~/ hero.stats.expCollectEfficiency
       addCultivationStele(
         kMiddleRightTile,
-        enableCultivate: true,
+        collectableLight: collectableLight,
       )
     }
     'cardLibrary': {

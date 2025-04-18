@@ -12,10 +12,8 @@ final kWorldMapCharacterSpriteSrcSize = Vector2(32.0, 48.0);
 
 const kSpriteWater = 0;
 const kSpriteLand = 1;
-const kSpriteForest = 2;
-const kSpriteMountain = 3;
-const kSpriteFarmField = 4;
-const kSpriteDungeonStonePavedTile = 5;
+const kSpriteRiver = 2;
+const kSpriteDungeonStonePavedTile = 8;
 
 const kSpriteCity = 'object/city.png';
 const kSpriteDungeon = 'object/dungeon.png';
@@ -60,11 +58,11 @@ abstract class Scenes {
   static const cultivation = 'cultivation';
   static const worldmap = 'worldmap';
   static const location = 'location';
-  static const prebattle = 'prebattle';
   static const battle = 'battle';
 
-  /// 这个 id 仅用于事件注册，在创建场景时，editor 使用 worldmap 作为 id
+  /// 下面的 id 仅用于事件注册
   static const editor = 'editor';
+  static const prebattle = 'prebattle';
 }
 
 const kLocationKindHome = 'home';

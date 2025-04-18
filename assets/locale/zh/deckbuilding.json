@@ -44,10 +44,10 @@
   "deckbuilding_dismantle": "精炼·化尘",
   "deckbuilding_craftCard": "精炼·聚灵",
 
-  "deckbuilding_exp_cost": "灵光消耗",
-  "deckbuilding_exp_gain": "可获取灵光",
+  "deckbuilding_exp_cost": "修为经验消耗",
+  "deckbuilding_exp_gain": "可获取修为经验",
 
-  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。符箓卡牌只能在战斗中使用一次，之后便会消失。但原本的卡牌不会消失。制作符箓需要消耗灵光和空白符纸。",
+  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。符箓卡牌只能在战斗中使用一次，之后便会消失。但原本的卡牌不会消失。制作符箓需要消耗修为经验和空白符纸。",
   "deckbuilding_scroll_paper_count": "符纸数量",
 
   "deckbuilding_identifyCard_description": "鉴定卡牌。",
@@ -56,7 +56,7 @@
   "deckbuilding_replaceAffix_description": "替换一个随机额外词条。",
   "deckbuilding_upgradeCard_description": "提升卡牌等级和基础词条等级。\n等级不能超过当前境界上限。",
   "deckbuilding_upgradeRank_description": "提升卡牌境界。\n必须满足境界最低等级要求。\n提升境界后会随机化所有词条。",
-  "deckbuilding_dismantle_description": "分解卡牌，获得灵光。",
+  "deckbuilding_dismantle_description": "分解卡牌，获得修为经验。",
   "deckbuilding_craftCard_description": "合成一张随机卡牌。",
 
   "deckbuilding_identifyCard_warning": "卡牌已被鉴定过了。",
@@ -67,7 +67,7 @@
   "deckbuilding_upgradeRank_warning": "当前卡牌未达到下一境界最低等级要求。",
   "deckbuilding_upgradeRank_warning_maxRank": "当前卡牌已达到最高境界。",
 
-  "deckbuilding_dismantle_warning": "成功分解了卡牌「{0}」，获得 {1} 灵光。",
+  "deckbuilding_dismantle_warning": "成功分解了卡牌「{0}」，获得 {1} 修为经验。",
 
   "deckbuilding_identifyCard_hint": "鉴定成功！",
   "deckbuilding_addAffix_hint": "添加成功！",

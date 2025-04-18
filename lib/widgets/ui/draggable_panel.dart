@@ -56,10 +56,10 @@ class DraggablePanel extends StatelessWidget {
                 children: [
                   Expanded(
                     child: PointerDetector(
-                      onTapDown: (pointer, buttons, details) {
+                      onTapDown: (pointer, button, details) {
                         onTapDown?.call(details.globalPosition - position);
                       },
-                      onDragUpdate: (pointer, buttons, details) {
+                      onDragUpdate: (pointer, button, details) {
                         onDragUpdate?.call(details);
                       },
                       child: Text(

@@ -21,7 +21,7 @@ class MainMenuScene extends Scene {
         );
 
   @override
-  void onStart([Map<String, dynamic> arguments = const {}]) async {
+  void onStart([dynamic arguments = const {}]) async {
     super.onStart(arguments);
 
     if (arguments['reset'] == true) {

@@ -297,7 +297,7 @@ struct ObjectCultivation {
     hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
-    enableCultivate = false,
+    collectableLight,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? engine.locale('enterCultivation')
@@ -306,7 +306,7 @@ struct ObjectCultivation {
     this.category = kObjectCultivation
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
-    this.enableCultivate = enableCultivate
+    this.collectableLight = collectableLight ?? 0
 
     world.objects[this.id] = this
   }

@@ -28,6 +28,8 @@ external function getDeckLimitForRank(rank) -> Map
 
 external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
 
+external function generateZone(world)
+
 const kSearchSuccessProbability = 0.25
 
 // 打猎会增加遇到野兽的概率200%
@@ -142,7 +144,7 @@ function generateReward({probability: {}, entity}) {
     final rankRate = entity?.rank / (hero.rank + 0.1);
     final levelRatio = entity?.level / (hero.level + 0.1);
     final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
-    final expPack = createItemByPrototype('exppack', amount: exp.round())
+    final expPack = createItemByPrototype('exp_pack', amount: exp.round())
     rewards.add(expPack)
   }
   if (rewardMoney) {
@@ -194,7 +196,7 @@ function generateRewardList({probability: {}, entity}) {
     final levelRatio = entity?.level / (hero.level + 0.1);
     final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
     final expPack = {
-      type: 'exppack',
+      type: 'exp_pack',
       amount: exp,
     }
     rewards.add(expPack)
@@ -409,13 +411,14 @@ async function onBeforeMove(terrain) {
     return result
   }
   let movableTerrainKinds = getCharacterMovableTerrainKinds(hero)
+  
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
   } else {
-    if (kWaterTerrains.contains(terrain.kind)) {
+    if (kWaterTerrainKinds.contains(terrain.kind)) {
       Dialog.pushLocale('hint_ship')
       Dialog.execute()
-    } else if (kMountainTerrains.contains(terrain.kind)) {
+    } else if (kMountainTerrainKinds.contains(terrain.kind)) {
       Dialog.pushLocale('hint_boots')
       Dialog.execute()
     }
@@ -937,18 +940,10 @@ async function onBeforeMove(terrain) {
 //   })
 // }
 
-async function onInteractEnemy(battleEntity) {
-  Game.showBattle(
-    hero: hero,
-    enemy: battleEntity,
-  )
-}
-
 async function onInteractCharacter(character) {
   engine.debug('正在和 主要角色 [${character.name}] 互动。')
-
   Game.hideNpc(character.id)
-  
+
   final result = await onGameEvent('onBeforeInteractCharacter', character)
   if (result) {
     return result
@@ -1069,8 +1064,8 @@ async function onInteractCharacter(character) {
       }
       let sellRate = kBaseSellRate
       sellRate += sellRateModifier
-      if (sellRate < kMinSellRate) {
-        sellRate = kMinSellRate
+      if (sellRate < kMinPriceRate) {
+        sellRate = kMinPriceRate
       } else if (sellRate > baseRate) {
         sellRate = baseRate
       }
@@ -1220,6 +1215,13 @@ async function onInteractMapObject(object, terrain) {
   }
 }
 
+async function onInteractEnemy(battleEntity) {
+  Game.showBattle(
+    hero: hero,
+    enemy: battleEntity,
+  )
+}
+
 async function onInteractPortal(object) {
   World.moveCameraToMapPosition(object.targetTilePosition.left, object.targetTilePosition.top, animated: false)
   engine.play('magic-smite-6012.mp3')
@@ -1251,7 +1253,7 @@ async function onInteractTreasureBox(object, terrain) {
   // await Future.delayed(0.5)
   final items = getItemsFromLootbox(object)
   for (final item in items) {
-    Player.acquire(item)
+    Player.acquire(item, autoUnpack: true)
   }
   engine.play('pickup_item-64282.mp3')
   Game.promptNewItems(items)
@@ -1305,7 +1307,7 @@ async function onInteractBed(object) {
 async function onInteractCultivationStele(object) {
   Dialog.pushLocale('hint_cultivationStele')
   await Dialog.execute()
-  Game.showCultivation(enableCultivate: object.enableCultivate)
+  Game.showCultivation(location: object)
 }
 
 async function onInteractCardLibraryStele(object) {
@@ -1351,288 +1353,9 @@ async function onInteractSpiritWell(object) {
 
 }
 
-/// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
-// async function onAfterEnterLocation(location) {
-  // // 检查是否有任务满足了提交条件
-  // let future
-  // for (const quest of hero.quests) {
-  //   if (site.id == quest.destinationSiteId) {
-  //     quest.result = characterTrySubmitQuest(hero, site, quest)
-  //     // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
-  //     if (quest.modEventId) {
-  //       return onGameEvent(quest.modEventId, quest)
-  //     } else {
-  //       return handleQuestEnding(quest)
-  //     }
-  //   }
-  // }
-//   switch (location.kind) {
-//       in kCultivationGenres : await _handleHeadquartersInteraction(location)
-//     // 这里没有 kind == residence 和 kind == home，其逻辑放在Dart侧特殊处理
-//     // 'home' : await _handleHomeInteraction(location)
-//     'cityhall' : await _handleCityHallInteraction(location)
-//     'arena' : await _handleArenaInteraction(location)
-//     'library' : await _handleLibraryInteraction(location)
-//     'tradinghouse' : await _handleTradingHouseInteraction(location)
-//     'auctionhouse' : await _handleAuctionHouseInteraction(location)
-
-//     'mine' : await _handleMineInteraction(location)
-//     'timberland' : await _handleTimberlandInteraction(location)
-//     'farmland' : await _handleFarmlandInteraction(location)
-//     'fishery' : await _handleFisheryInteraction(location)
-//     'nursery' : await _handleNurseryInteraction(location)
-//     'zoo' : await _handleZooInteraction(location)
-
-//     'workshop' : await _handleWorkshopInteraction(location)
-//     'arraylab' : await _handleArrayLabInteraction(location)
-//     'scrolllab' : await _handleScrollLabInteraction(location)
-//     'alchemylab' : await _handleAlchemyLabInteraction(location)
-//     'illusionaltar' : await _handleIllusionAltarInteraction(location)
-//     'psychicaltar' : await _handlePsychicAltarInteraction(location)
-//     'divinationaltar' : await _handleDivinationAltarInteraction(location)
-//     'theurgyaltar' : await _handleTheurgyAltarInteraction(location)
-//   }
-// }
-
-async function _handleHomeInteraction(location) {
-  assert(location.ownerId != null)
-
-  if (location.ownerId != hero.id) {
-    final owner = game.characters[location.ownerId]
-    if (owner.locationId != location.id) {
-      Dialog.pushLocale('visitEmptyHome', interpolations: [owner.name])
-      await Dialog.execute()
-    }
-  }
-}
-
-async function _handleCityHallInteraction(site) {
-  
-}
-
-function _handleHeadquartersInteraction(site) {
-  const location = game.locations[site.locationId]
-  Dialog.localeSelect([
-    'practice',
-    'learn',
-    'visit',
-    'leave',
-  ]).then((key) {
-    switch (key) {
-      'practice' : {
-        // 非本门派修士,需要花钱才能训练
-        Dialog.localeLines(['organizationTrainDeny'])
-      }
-      'learn' : {
-        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
-        Dialog.localeLines(['organizationTrainDeny'])
-      }
-      'visit' : {
-        // 既然有总部，那就一定有可以拜访的成员
-        let organization = getOrganizationById(site.organizationId)
-        const ids = organization.members.toList()
-        ids.remove(game.heroId)
-        final key = Dialog.selectResidence(ids)
-        if (key != null) {
-          final char = game.characters[key]
-          onInteractCharacter(char)
-        } else {
-          
-        }
-      }
-    }
-  })
-}
-
-function _handleArenaInteraction(site) {
-
-}
-
-function _handleLibraryInteraction(site) {
-
-}
-
-function _handleBountyhouseInteraction(site) {
-  const location = game.locations[site.locationId]
-  // const selections = [
-  //   'appeal',
-  //   'tribute',
-  //   'noticeBoard',
-  //   'localExam',
-  // ]
-  // if (site.isCapital) {
-  //   selections.add('nationalExam')
-  // }
-  // selections.add('visitJail')
-
-  const selections = [
-    'questBrowse',
-    'questPost',
-  ]
-  selections.add('leave')
-  
-  Dialog.localeSelect(selections).then((key) {
-    switch (key) {
-      'questBrowse' : {
-        if (game.flags.playerMonthly.worked.contains(site.id)) {
-          Dialog.localeLines(['workedThisMonth'])
-        } else if (site.quests.isEmpty) {
-          Dialog.localeLines(['bountyhouseQuestEmpty'])
-        } else {
-          Dialog.quests(site)
-        }
-      }
-      'questPost' : {
-      }
-    }
-  })
-
-  // Dialog.localeSelect(selections).then((key) {
-  //   switch (key) {
-  //     'appeal' : {
-  //       Dialog.localeSelect([
-  //         'applyOrganization',
-  //         'applySite',
-  //         'complaintSite',
-  //         'complaintCharacter',
-  //         'appealCharacter',
-  //         'setHome',
-  //         'cancel',
-  //       ]).then((key) {
-  //         switch (key) {
-  //           'cancel' : {
-  //             _handleBountyhouseInteraction(site)
-  //           }
-  //           'applyOrganization' : {
-              
-  //           }
-  //           'applySite' : {
-              
-  //           }
-  //           'complaintSite' : {
-              
-  //           }
-  //           'complaintCharacter' : {
-              
-  //           }
-  //           'appealCharacter' : {
-              
-  //           }
-  //           'setHome' : {
-              
-  //           }
-  //         }
-  //       })
-  //     }
-  //     'tribute' : {
-  //       // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
-  //     }
-  //     'noticeBoard' : {
-  //       if (game.flags.playerMonthly.worked.contains(site.id)) {
-  //         Dialog.localeLines(['workedThisMonth'])
-  //       } else if (site.quests.isEmpty) {
-  //         Dialog.localeLines(['bountyhouseQuestEmpty'])
-  //       } else {
-  //         Dialog.quests(site)
-  //       }
-  //     }
-  //     'localExam' : {
-  //       Dialog.localeLines(['localExamIntro'])
-  //     }
-  //     'nationalExam' : {
-  //       Dialog.localeLines(['nationalExamIntro'])
-  //     }
-  //     'visitJail' : {
-  //       const entry = false
-  //       () async {
-  //         if (location.jailedCharacterIds.isEmpty) {
-  //           return Dialog.localeLines(['visitJailEmpty'])
-  //         } else {
-  //           if (hero.fame > kFameCheckThreshold) {
-  //             const title = getCharacterTitle(hero) ?? ''
-  //             return Dialog.lines(
-  //               [
-  //                 engine.locale('visitJailEntryRespect', interpolations: [title + hero.name]),
-  //               ],
-  //               returnValue: true,
-  //             )
-  //           } else {
-  //             return Dialog.localeLines(['visitJailDeny'])
-  //           }
-  //         }
-  //       }().then((value) {
-  //         if (value) {
-            
-  //         }
-  //       })
-  //     }
-  //   }
-  // })
-}
-
-// 交易所，可以在这里交易材料
-// 打工可以提升本地声望
-// 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
-// 没有提交足够数量的材料或者超过时间都会算作失败。
-function _handleTradingHouseInteraction(site) {
-  const location = game.locations[site.locationId]
-  Dialog.localeSelect([
-    'trade',
-    'work',
-    'leave',
-  ]).then((key) {
-    switch (key) {
-      'trade' : {
-        if (site.organizationId) {
-          const organization = getOrganizationById(site.organizationId)
-          Dialog.merchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
-        } else {
-          Dialog.merchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
-        }
-      }
-      'work' : {
-        if (site.workedThisMonth) {
-          Dialog.localeLines(['workedThisMonth'])
-        } else if (site.quests.isEmpty) {
-          Dialog.localeLines(['questEmpty'])
-        } else {
-          const quest = site.quests.values.first
-          assert(quest.category == kQuestCategoryDelivery)
-          const name = engine.locale('server')
-          const message = engine.locale('delivery.introDialog')
-          const description = '${quest.description}${
-            engine.locale('questRewardMoney', interpolations: [quest.rewardMoney])
-          }'
-          Dialog.lines([message,description], name: name).then((_) {
-            Dialog.localeSelect([
-              'accept',
-              'cancel',
-            ]).then((key) {
-              if (key == 'accept') {
-                site.workedThisMonth = true
-                characterAcceptQuest(hero, site, quest)
-              }
-            })
-          })
-        }
-      }
-    }
-  })  
-}
-
-const _kQuestProbability = 0.35
-
 const _kMinSizeforFishTile = 16
 const _kMinSizeforStormTile = 80
 const _kMinSizeforSpiritTile = 120
-
-function getBountyQuestMax(development) -> integer {
-  if (development > 20) {
-    return 5
-  } else {
-    return development ~/ 4 + 1
-  }
-}
 
 function setFishTile(terrain) {
   engine.debug('鱼群正在在 [${terrain.left},${terrain.top}] 周围活跃。')
@@ -1659,185 +1382,6 @@ function setStormTile(terrain) {
   // Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
   // World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   // game.spiritTileIndexes.add(terrain.index)
-// }
-
-/// 更新游戏逻辑，将时间向前推进一帧（tick），可以设定连续更新的帧数
-/// 如果遇到了一些特殊事件可能提前终止
-/// 这会影响一些连续进行的动作，例如探索或者修炼等等
-// async function updateGame({
-//   ticks = 1,
-//   timeflow = true,
-//   worldEvent = true,
-//   moduleEvent = true,
-//   autoCultivate = false,
-// }) {
-//   if (timeflow) {
-//     console.time('update time')
-//   }
-
-//   for (const i in range(ticks)) {
-//     if (worldEvent && world?.isMain) {
-
-//       // 每个tick执行的代码
-//       handleBabies()
-
-//       if (day == 1 && timeOfDay == 1) {
-//         // 重置玩家自己的每月行动
-//         resetPlayerMonthlyActivities()
-
-//         // // 更新大地图地块事件
-//         // if (world.waterIndexes.length > 0) {
-//         //   engine.debug('在水域中生成捕鱼区')
-//         //   // 清空鱼类活跃区域
-//         //   for (const index in world.fishTileIndexes) {
-//         //     const tile = world.terrains[index]
-//         //     delete tile.flags.isFishGathering
-//         //     // 清空叠加的鱼跃效果动态贴图
-//         //     World.clearTerrainOverlayAnimation(tile.left, tile.top)
-//         //   }
-//         //   world.fishTileIndexes.clear()
-//         //   const fishEventsCount = world.waterIndexes.length ~/ _kMinSizeforFishTile + 1
-//         //   for (const i in range(fishEventsCount)) {
-//         //     let fishTileIndex
-//         //     do {
-//         //       fishTileIndex = random.nextIterable(world.waterIndexes)
-//         //     } while (fishTileIndex in world.fishTileIndexes)
-//         //     const fishTile = world.terrains[fishTileIndex]
-//         //     setFishTile(fishTile)
-//         //   }
-//         // }
-
-//         // engine.debug('生成暴风雨区域')
-//         // // 清空暴风雨区域
-//         // for (const index in world.stormTileIndexes) {
-//         //   const tile = world.terrains[index]
-//         //   delete tile.flags.isInStorm
-//         //   // 清空叠加的暴风雨效果动态贴图
-//         //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
-//         // }
-//         // world.stormTileIndexes.clear()
-//         // const stormEventsCount = world.terrains.length ~/ _kMinSizeforStormTile + 1
-//         // for (const i in range(stormEventsCount)) {
-//         //   let stormTileIndex
-//         //   do {
-//         //     stormTileIndex = random.nextIterable(world.terrains).index
-//         //   } while (stormTileIndex in world.stormTileIndexes)
-//         //   const stormTile = world.terrains[stormTileIndex]
-//         //   setStormTile(stormTile)
-//         // }
-
-//         // engine.debug('生成灵气喷涌区域')
-//         // 灵气喷涌区域
-//         // for (const index in game.stormTileIndexes) {
-//         //   const tile = world.terrains[index]
-//         //   delete tile.flags.isSpiritSurging
-//         //   // 清空叠加的灵气喷涌效果动态贴图
-//         //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
-//         // }
-//         // game.spiritTileIndexes = []
-//         // const spiritEventsCount = world.terrains.length ~/ _kMinSizeforSpiritTile + 1
-//         // for (const i in range(spiritEventsCount)) {
-//         //   let spiritTileIndex
-//         //   do {
-//         //     spiritTileIndex = random.nextIterable(world.terrains).index
-//         //   } while (spiritTileIndex in game.spiritTileIndexes)
-//         //   const spiritTile = world.terrains[spiritTileIndex]
-//         //   setSpiritTile(spiritTile)
-//         // }
-//       }
-
-//       // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
-//       // 商店类建筑会刷新物品和银两
-//       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-//       for (const location of game.locations) {
-//         // 跳过玩家自己控制的据点
-//         if (game.heroId == location.ownerId) continue
-
-//         // 月度事件
-//         if (day == 1 && timeOfDay == 1) {
-//           locationMonthlyUpdate(location)
-
-//           // 年度事件
-//           if (month == kLocationYearlyUpdateMonth) {
-//             locationYearlyUpdateStart(location)
-//           } else if (month == kLocationYearlyUpdateMonth + 1) {
-//             locationYearlyUpdateEnd(location)
-//           }
-//         }
-//       }
-      
-//       // 触发每个组织的刷新事件
-//       for (const organization of game.organizations) {
-//         // 组织管理的自动逻辑跳过玩家自己控制的组织
-//         if (game.heroId == organization.headId) continue
-
-//         // 月度事件
-//         if (day == 1 && timeOfDay == 1) {
-//           organizationMonthlyUpdate(organization)
-          
-//           // 年度事件
-//           if (month == kOrganizationYearlyUpdateMonth) {
-//             organizationYearlyUpdateStart(organization)
-//           } else if (month == kOrganizationYearlyUpdateMonth + 1) {
-//             organizationYearlyUpdateEnd(organization)
-//           }
-//         }
-//       }
-      
-//       // 触发每个角色的刷新事件
-//       for (const character of game.characters) {
-//         // 跳过玩家自己控制的角色
-//         if (game.heroId == character.id) continue
-        
-//         // 月度事件
-//         if (day == 1 && timeOfDay == 1) {
-//           characterMonthlyUpdate(character)
-          
-//           // 年度事件
-//           if (month == kCharacterYearlyUpdateMonth) {
-//             characterYearlyUpdateStart(character)
-//           } else if (month == kCharacterYearlyUpdateMonth + 1) {
-//             characterYearlyUpdateEnd(character)
-//           }
-//         }
-//       }
-      
-//       // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
-//       // 野外遭遇包括NPC事件、随机副本等等
-//       // for (const terrain in world.terrains) {
-//       //   if (game.timestamp % kTicksPerMonth == 0) {
-//       //     updateTerrain(terrain)
-//       //   }
-//       // }
-
-//     }
-
-//     if (timeflow) {
-//       ++game.timestamp
-//       calculateTimestamp()
-      
-//       if (ticksOfDay == 1) {
-//         engine.log('--------${year}年${month}月${day}日${timeOfDay}--------')
-//       }
-      
-//       Game.updateGameTime()
-//     }
-
-//     if (moduleEvent) {
-//       await onWorldEvent('onAfterUpdate')
-
-//       for (final itemId in hero.equipments.values) {
-//         if (itemId == null) continue
-//         final item = hero.inventory[itemId]
-//         engine.debug('触发装备物品 ${item.name} 刷新事件')
-//         await onGameEvent('onUpdateItem', item)
-//       }
-//     }
-//   }
-  
-//   if (timeflow) {
-//     console.timeEnd('update time')
-//   }
 // }
 
 // 每个tick检查一次当前是否有婴儿出生
@@ -1868,103 +1412,6 @@ function handleBabies {
   }
   for (const id in pendingRemovedIds) {
     delete game.babies[id]
-  }
-}
-
-function updateTerrain(terrain) {
-
-}
-
-/// 据点年度更新开始
-function locationYearlyUpdateStart(location) {
-  engine.debug('${location.name} 的年度更新开始')
-
-}
-
-/// 据点年度更新结束
-function locationYearlyUpdateEnd(location) {
-  engine.debug('${location.name} 的年度更新结束')
-
-}
-
-// 据点月度更新
-// function locationMonthlyUpdate(location) {
-//   engine.debug('${location.name} 的月度更新')
-  // switch (location.category) {
-  //   'tradinghouse' : {
-    //   // 清除上个月的数据
-    //   site.workedThisMonth = false
-    //   site.quests = {}
-    //   // 商号的运送任务都是普通物品，并且送到指定地点而非人物
-    //   const destinationId = random.nextIterable(world.locations.keys)
-    //   const destination = world.locations[destinationId]
-    //   const destinationSiteId = random.nextIterable(destination.sites.keys)
-    //   const distance = getTileDistance(location.tilePosition, destination.tilePosition)
-    //   const quest = QuestDelivery(
-    //     locationId: location.id,
-    //     siteId: site.id,
-    //     destinationLocationId: destinationId,
-    //     destinationSiteId: destinationSiteId,
-    //     item: Material(stackSize: 20),
-    //     rewardMoney: distance * 10,
-    //   )
-    //   site.quests[quest.id] = quest
-    // }
-    // 'bountyhouse' : {
-      // site.workedThisMonth = false
-
-      // if (site.quests.length >= getBountyQuestMax(location.development)) return
-      
-      // // 生成盗贼副本类悬赏任务
-      // if (random.nextDouble() > _kQuestProbability) return
-      // // if (!location.nationId) return
-      // // const nation = game.organizations[location.nationId]
-      // // if (nation.hasBanditEvent) return
-      // if ((random.nextDouble() > location.stability / 100)) return
-      
-      // let tried = 0
-      // let found = false
-      // const terrain = world.terrains[location.terrainIndex]
-      // const zone = world.zones[terrain.zoneId]
-      // let mazeTerrain
-      // do {
-      //   ++tried
-      //   let terraIndex = random.nextIterable(zone.terrainIndexes)
-      //   let mazeTerrain = world.terrains[terraIndex]
-      //   if (mazeTerrain.id != terrain.id && !mazeTerrain.locationId && mazeTerrain.spriteIndex == kSpriteLand) {
-      //     found = true
-      //   }
-      // } while (!found && tried < zone.terrainIndexes.length)
-
-      // if (found && mazeTerrain) {
-      //   // nation.hasBanditEvent = true
-
-      //   const quest = QuestBanditCamp(
-      //     locationId: location.id,
-      //     mazeTerrainIndex: mazeTerrain.index,
-      //     kind: kQuestConquestMazeKindKillBanditBoss,
-      //     bossName: generateCharacterName(),
-      //   )
-      //   engine.debug('在 ${location.id} ${site.id} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
-      //   site.quests[quest.id] = quest
-      // }
-  //   }
-  // }
-// }
-
-function handleQuestEnding(quest, result) {
-  engine.debug('日志项目 ${quest.id} 已经结束。')
-  switch (quest.category) {
-    kQuestCategoryDelivery : {
-      if (quest.result) {
-        return Dialog.localeLines(['delivery.submitSuccessed']).then((_) {
-          loot(hero, quest.reward)
-          quest.isEnded = true
-        })
-      } else {
-        return Dialog.localeLines(['delivery.submitFailed'])
-      }
-    }
   }
 }
 

@@ -30,6 +30,7 @@ async function onEnterCultivation()
 /// ----------属性变化----------
 async function onRested()
 /// ----------角色互动----------
+async function onInteractNpc(npc, location)
 async function onBeforeInteractCharacter(character)
 async function onInquiryQuest(character, quest)
 // async function onTalkTo(character, topic)

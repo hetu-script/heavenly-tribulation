@@ -1,24 +1,22 @@
-// import '../random.ht'
-// import '../entity/entity.ht'
-// import '../name/zone.ht'
-// import '../game/data.ht'
-
-const kZoneEmpty = 'empty'
+const kZoneVoid = 'world'
 const kZoneLand = 'land'
 const kZoneSea = 'sea'
+const kZoneRiver = 'river'
 const kZoneCategoryContinent = 'continent'
 const kZoneCategoryIsland = 'island'
 const kZoneCategoryLake = 'lake'
+const kZoneCategoryRiver = 'river'
 const kZoneCategorySea = 'sea'
 
 struct Zone {
   constructor ({name, category, color, map}) {
     assert(category != null)
     this.category = category
-    this.name = name ?? 'unnamed'
+    // 这里不生成名字，而是在地图生成后，计算过zone大小之后，再根据情况生成
+    this.name = name
 
     map ??= world
-    this.id = 'zone.${map.zones.length}'
+    this.id = 'zone_${map.zones.length}'
     map.zones[this.id] = this
 
     this.color = color ?? random.nextBrightColorHex()
@@ -27,12 +25,15 @@ struct Zone {
   }
 }
 
-function addTerrainToZone(terrain, zone) {
+function addTerrainToZone(terrain, world, zone) {
   if (terrain.zoneId != null) {
     const oldZone = world.zones[terrain.zoneId]
-    oldZone.terrainIndexes.remove(terrain.index)
+    if (oldZone != null) {
+      // assert(oldZone != null, 'terrain zoneId is null, id: ${terrain.zoneId}')
+      oldZone.terrainIndexes.remove(terrain.index)
+    }
   }
   terrain.zoneId = zone.id
-  terrain.zoneCategory = zone.category
+  // terrain.zoneCategory = zone.category
   zone.terrainIndexes.add(terrain.index)
 }

@@ -65,7 +65,9 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
           return value.entries
               .map((entry) => fluent.MenuFlyoutItem(
                     text: Text(entry.key),
-                    onPressed: () => onSelectedItem?.call(entry.value),
+                    onPressed: () {
+                      onSelectedItem?.call(entry.value);
+                    },
                   ))
               .toList();
         },
@@ -73,7 +75,9 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
     } else if (value is T) {
       return fluent.MenuFlyoutItem(
         text: Text(text),
-        onPressed: () => onSelectedItem?.call(items[text] as T),
+        onPressed: () {
+          onSelectedItem?.call(items[text] as T);
+        },
       );
     } else {
       return fluent.MenuFlyoutItem(

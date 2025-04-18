@@ -143,6 +143,11 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
+                                    'river',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
                                     'snow_plain',
                                     selectedItem: item,
                                   ),
@@ -163,7 +168,12 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'seashelf',
+                                    'shelf',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'shore',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(

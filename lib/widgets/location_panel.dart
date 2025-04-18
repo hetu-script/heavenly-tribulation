@@ -7,23 +7,43 @@ import '../game/ui.dart';
 import '../engine.dart';
 import '../state/selected_tile.dart';
 
+const kSpriteIndexCategory = {
+  0: 'waterZone',
+  1: 'landZone',
+  2: 'river',
+};
+
 class LocationPanel extends StatelessWidget {
   const LocationPanel({
     super.key,
     required this.width,
     required this.height,
+    this.isEditorMode = false,
   });
 
   final double width, height;
+  final bool isEditorMode;
 
   @override
   Widget build(BuildContext context) {
-    final currentZone = context.watch<HeroPositionState>().currentZone;
-    final currentNation = context.watch<HeroPositionState>().currentNation;
-    final currentTerrain = context.watch<HeroPositionState>().currentTerrain;
-    final currentLocation = context.watch<HeroPositionState>().currentLocation;
+    dynamic currentZone, currentNation, currentTerrain, currentLocation;
+    if (isEditorMode) {
+      currentZone = context.watch<SelectedPositionState>().currentZone;
+      currentNation = context.watch<SelectedPositionState>().currentNation;
+      currentTerrain = context.watch<SelectedPositionState>().currentTerrain;
+      currentLocation = context.watch<SelectedPositionState>().currentLocation;
+    } else {
+      currentZone = context.watch<HeroPositionState>().currentZone;
+      currentNation = context.watch<HeroPositionState>().currentNation;
+      currentTerrain = context.watch<HeroPositionState>().currentTerrain;
+      currentLocation = context.watch<HeroPositionState>().currentLocation;
+    }
 
     final positionDetails = StringBuffer();
+
+    // if (isEditorMode) {
+    //   positionDetails.writeln(engine.locale('terrainDetail'));
+    // }
 
     if (currentZone != null) {
       positionDetails.writeln('${currentZone!['name']}');
@@ -33,9 +53,13 @@ class LocationPanel extends StatelessWidget {
     }
 
     if (currentTerrain != null) {
+      if (isEditorMode) {
+        positionDetails.write(
+            '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
+        positionDetails.write('[${currentTerrain.data?['kind']}] ');
+      }
       positionDetails
           .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
-      // positionDetails.writeln('${engine.locale(currentTerrain.kind)}');
     }
 
     if (currentLocation != null) {
@@ -69,14 +93,19 @@ class LocationPanel extends StatelessWidget {
           '${engine.locale('development')}: ${currentLocation['development']}');
     }
 
-    return positionDetails.isEmpty
+    return (positionDetails.isEmpty && !isEditorMode)
         ? SizedBox.shrink()
-        : Container(
-            color: GameUI.backgroundColor2,
-            width: width,
-            height: height,
-            padding: const EdgeInsets.all(5.0),
-            child: Text(positionDetails.toString()),
+        : Material(
+            type: MaterialType.transparency,
+            child: Container(
+              color: GameUI.backgroundColor2,
+              width: width,
+              height: height,
+              padding: const EdgeInsets.only(left: 5.0, top: 5.0),
+              child: Text(
+                positionDetails.toString(),
+              ),
+            ),
           );
   }
 }

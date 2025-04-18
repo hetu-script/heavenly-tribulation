@@ -11,11 +11,20 @@
   "currentCharges": "当前充能次数: {0}∕{1}",
   "shardsPerCharge": "每次充能消耗: {0} 灵石",
 
+  "basePriceFactor": "全部",
+  "sellPriceFactor": "卖出",
+  "expensiveSmall": "略微昂贵",
+  "expensiveMedium": "昂贵",
+  "expensiveLarge": "非常昂贵",
+  "cheapSmall": "略微便宜",
+  "cheapMedium": "便宜",
+  "cheapLarge": "非常便宜",
+
   "resource": "资源",
   "material": "材料",
   "package": "包",
 
-  "materialpack": "材料包",
+  "material_pack": "材料包",
   "equipment": "装备",
   "cardpack": "秘籍",
   "ownedBattleCard": "拥有的功法",
@@ -24,6 +33,9 @@
   "cardpack_flavortext": "打开后可以获得一张该境界和流派的功法以及两张随机功法。功法最大等级不会超过角色等级。",
 
   "price": "价格",
+  "unitPrice": "单价",
+  "totalPrice": "总价",
+  "amount": "数量",
   "stackSize": "数量",
   "damageType": "伤害类型",
   "durability": "耐久",
@@ -101,8 +113,8 @@
   "identify_scroll": "鉴定符",
   "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。",
 
-  "exppack": "一团灵光",
-  "exppack_flavortext": "使用后可以获得「灵光」。灵光可以用于提升修为等级。或者用来精炼功法卡牌。",
+  "exp_pack": "一团灵光",
+  "exp_pack_flavortext": "使用后可以获得「灵光」，可用于提升修为等级，或者精炼功法卡牌。",
 
   "status_spirit": "精魄",
   "status_spirit_flavortext": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。"

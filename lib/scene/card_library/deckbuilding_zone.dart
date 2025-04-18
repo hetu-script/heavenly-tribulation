@@ -141,7 +141,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         ) {
     title ??= engine.locale('untitled');
 
-    onDragIn = (int buttons, Vector2 position, GameComponent? component) {
+    onDragIn = (int button, Vector2 position, GameComponent? component) {
       if (component is! CustomGameCard) return;
       if (cards.contains(component)) return;
       if (containsCard(component.deckId)) return;
@@ -302,8 +302,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     placeholder.onMouseExit = () {
       Hovertip.hide(placeholder);
     };
-    placeholder.onTapUp = (buttons, position) {
-      if (buttons == kPrimaryButton) {
+    placeholder.onTapUp = (button, position) {
+      if (button == kPrimaryButton) {
         switch (placeholderState) {
           case PlaceHolderState.newDeck:
             setState(PlaceHolderState.editDeck);
@@ -322,7 +322,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           default:
             return;
         }
-      } else if (buttons == kSecondaryButton &&
+      } else if (button == kSecondaryButton &&
           placeholderState == PlaceHolderState.deckCover) {
         onOpenDeckMenu(this);
       }
@@ -374,16 +374,16 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       add(card);
     }
 
-    card.onTapDown = (buttons, position) {
-      if (buttons == kPrimaryButton) {
+    card.onTapDown = (button, position) {
+      if (button == kPrimaryButton) {
         game.context.read<HoverContentState>().hide();
         (game as CardLibraryScene).cardDragStart(card);
       }
     };
-    card.onTapUp = (buttons, position) {
-      if (buttons == kPrimaryButton) {
+    card.onTapUp = (button, position) {
+      if (button == kPrimaryButton) {
         (game as CardLibraryScene).cardDragRelease();
-      } else if (buttons == kSecondaryButton) {
+      } else if (button == kSecondaryButton) {
         library.setCardEnabledById(card.deckId, true);
         card.removeFromPile();
       }
@@ -391,11 +391,11 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
     card.onDragStart =
-        (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int buttons, Vector2 postion, Vector2 delta) =>
+        (button, dragPosition) => (game as CardLibraryScene).draggingCard;
+    card.onDragUpdate = (int button, Vector2 postion, Vector2 delta) =>
         // TODO: 这里为什么要除以 2 才能正确的得到位置???
         (game as CardLibraryScene).draggingCard?.position += delta / 2;
-    card.onDragEnd = (buttons, position) {
+    card.onDragEnd = (button, position) {
       final libraryScene = game as CardLibraryScene;
       final draggingCard = libraryScene.draggingCard;
       if (draggingCard == null) return;

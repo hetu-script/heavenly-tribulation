@@ -21,14 +21,18 @@ enum WorldInformationCharacterPopUpMenuItems {
 
 const _kInformationViewCharacterColumns = [
   'name',
-  'currentLocation',
-  'organization',
+  'age',
   'fame',
+  'organization',
+  'title',
+  'level',
+  'rank',
 ];
 
 const _kInformationViewOrganizationColumns = [
   'name',
   'organizationHead',
+  'category',
   'genre',
   'headquarters',
   'locationNumber',
@@ -70,55 +74,64 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
 
     _charactersData = engine.hetu.fetch('characters', namespace: 'game');
     for (final char in _charactersData.values) {
-      final rowData = <String>[];
-      rowData.add(char['name']);
-      // 当前所在地点
-      rowData.add(getNameFromId(char['locationId']));
-      // 门派名字
-      rowData.add(getNameFromId(char['organizationId']));
+      final row = <String>[];
+      row.add(char['name']);
+      final age =
+          engine.hetu.invoke('getCharacterAgeString', positionalArgs: [char]);
+      // 年龄
+      row.add(age);
       // 名声
       final fame =
           engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
-      rowData.add(fame);
+      row.add(fame);
+      // 门派名字
+      row.add(char['organizationId'] ?? engine.locale('none'));
+      // 称号
+      final titleId = char['titleId'];
+      row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
+      row.add('${char['level']}');
+      row.add(engine.locale('cultivationRank_${char['rank']}'));
       // 多存一个隐藏的 id 信息，用于点击事件
-      rowData.add(char['id']);
-      _charactersTableData.add(rowData);
+      row.add(char['id']);
+      _charactersTableData.add(row);
     }
 
     _locationsData = engine.hetu.fetch('locations', namespace: 'game');
     for (final loc in _locationsData.values) {
       if (loc['category'] != 'city') continue;
-      final rowData = <String>[];
-      rowData.add(loc['name']);
+      final row = <String>[];
+      row.add(loc['name']);
       // 门派名字
-      rowData.add(getNameFromId(loc['organizationId'], 'none'));
+      row.add(getNameFromId(loc['organizationId'], 'none'));
       // 类型
-      rowData.add(engine.locale(loc['kind']));
+      row.add(engine.locale(loc['kind']));
       // 发展度
-      rowData.add(loc['development'].toString());
+      row.add(loc['development'].toString());
       // 多存一个隐藏的 id 信息，用于点击事件
-      rowData.add(loc['id']);
-      _locationsTableData.add(rowData);
+      row.add(loc['id']);
+      _locationsTableData.add(row);
     }
 
     _organizationsData = engine.hetu.fetch('organizations', namespace: 'game');
     for (final org in _organizationsData.values) {
-      final rowData = <String>[];
-      rowData.add(org['name']);
+      final row = <String>[];
+      row.add(org['name']);
       // 掌门
-      rowData.add(org['headId']);
+      row.add(org['headId']);
       // 类型
-      rowData.add(engine.locale(org['genre']));
+      row.add(engine.locale(org['category']));
+      // 流派
+      row.add(engine.locale(org['genre']));
       // 总堂
       final headquarters = _locationsData[org['headquartersId']];
-      rowData.add(headquarters['name']);
+      row.add(headquarters['name']);
       // 据点数量
-      rowData.add(org['locationIds'].length.toString());
+      row.add(org['locationIds'].length.toString());
       // 成员数量
-      rowData.add(org['members'].length.toString());
+      row.add(org['members'].length.toString());
       // 多存一个隐藏的 id 信息，用于点击事件
-      rowData.add(org['id']);
-      _organizationsTableData.add(rowData);
+      row.add(org['id']);
+      _organizationsTableData.add(row);
     }
 
     _tabs = [
@@ -163,7 +176,6 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                     context: context,
                     builder: (context) => CharacterProfileView(
                       characterId: dataId,
-                      height: 600,
                       showIntimacy: true,
                       showPosition: true,
                       showPersonality: true,

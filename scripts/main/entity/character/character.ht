@@ -371,7 +371,6 @@ struct MemberRankData {
     characterId,
     rank,
     peer,
-
   }) {
     this.characterId = characterId
     this.rank = rank
@@ -773,7 +772,7 @@ function _addShituRelationship(shifu, tudi) {
   assert(shifu.sectName != null)
   assert(!game.sects[shifu.sectName].containsKey(tudi.id))
   let peerNumber = game.sects[shifu.sectName].values.where((member) =>
-    member.rank == sectMemberData.rank + 1)
+    member.rank == sectMemberData.rank + 1).length
   // 辈分是师父的辈分数字 + 1
   game.sects[shifu.sectName][tudi.id] = MemberRankData(
     characterId: tudi.id,
@@ -1047,7 +1046,6 @@ struct Character {
     cardLibrary: {},
     battleDecks: List = [],
     birthTimestamp,
-    unconvertedExp,
     exp,
     skillPoints,
     worldId,
@@ -1097,8 +1095,6 @@ struct Character {
 
     this.shipModel = shipModel ?? 'ship1'
 
-    // 经验值，获取后会体现为修炼界面的光点，点击或者划过光点才会转化为真正的修为经验
-    this.unconvertedExp = unconvertedExp ?? 0
     // 转换后的修为经验值，经验值达到下一等级需求后，自动扣除并提升修为能级
     this.exp = exp ?? 0
     this.expForLevel = expForLevel(this.level)
@@ -1199,6 +1195,17 @@ struct Character {
     assert(this.relationships.domination != null)
 
     this.organizationFavor = this.motivations.first
+    
+    /// 每个角色的家是一个单例对象。
+    /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
+    /// 此处创建的家宅场景此时尚未绑定到任何据点
+    final home = Location(
+      id: '${kLocationKindHome}_${this.id}',
+      category: 'site',
+      kind: kLocationKindHome,
+      name: engine.locale('characterHomeSite', interpolations: [this.name]),
+      ownerId: this.id,
+    )
 
     // 所有该角色拥有住所的据点的 id 列表
     this.homeLocations = []
@@ -1221,7 +1228,7 @@ struct Character {
         assert(father.familyName != null)
         assert(!game.families[father.familyName].containsKey(this.id))
         let peerNumber = game.families[father.familyName].values.where((member) =>
-          member.rank == familyMemberData.rank + 1)
+          member.rank == familyMemberData.rank + 1).length
         // 辈分是父母的辈分数字 + 1
         game.families[father.familyName][this.id] = MemberRankData(
           characterId: this.id,
@@ -1277,16 +1284,6 @@ struct Character {
 
     /// 寿命必须在已知境界之后计算
     this.deathTimestamp = this.birthTimestamp + createLifespan(this.rank)
-
-    /// 每个角色的家是一个单例对象。
-    /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
-    final home = Location(
-      id: '${kLocationKindHome}_${this.id}',
-      category: 'site',
-      kind: kLocationKindHome,
-      name: engine.locale('characterHomeSite', interpolations: [this.name]),
-      ownerId: this.id,
-    )
   }
 }
 
@@ -1353,6 +1350,12 @@ function getCharacterBirthDateString(character) {
 }
 
 function haveMet(subject, target) {
+  if (target.entityType != 'character') {
+    return true
+  }
+
+  assert(subject.entityType == 'character')
+
   const bond = subject.bonds[target.id]
   if (bond && bond.haveMet) {
     return bond
@@ -1449,6 +1452,7 @@ function setCharacterHome(character, location, {incurIncident = true}) {
     return
   }
   let home = game.locations[homeSiteId]
+  assert(home != null, 'home is null, homeSiteId: ${homeSiteId}')
   final oldLocation = game.locations[home.atLocationId]
   if (oldLocation != null) {
     oldLocation.residents.remove(character.id)
@@ -1545,10 +1549,11 @@ function getCharactersAtLocation(location) {
 function getResidingCharacters(location) {
   // let atWorld = universe[location.worldId]
   location.residents.map((id) {
-    assert(game.locations.containsKey(id))
-    final homeSite = game.locations[id]
+    final homeSiteId = '${kLocationKindHome}_${id}'
+    final homeSite = game.locations[homeSiteId]
+    assert(homeSite != null, 'home is null, id: ${homeSiteId}')
     final character = game.characters[homeSite.ownerId]
-    assert(character != null)
+    assert(character != null, 'home owner is null, home id: ${homeSiteId}, owner id: ${homeSite.ownerId}')
     return character
   }).toList()
 }
@@ -1704,7 +1709,7 @@ function characterRankUp(character, {rank, incurIncident = true }) {
 }
 
 function characterGainExp(character, value) {
-  character.unconvertedExp += value
+  character.exp += value
 
   const incidentContent = engine.locale('characterExpGained', interpolations: [
     character.name, 
@@ -1715,4 +1720,11 @@ function characterGainExp(character, value) {
     subjectId: hero.id,
     isPrivate: true,
   )
+}
+
+function setCharacterTitle(character, titleId) {
+  if (character.titles.contains(titleId)) return
+
+  character.titles.add(titleId)
+  character.titleId = titleId
 }

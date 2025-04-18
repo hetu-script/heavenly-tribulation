@@ -47,22 +47,7 @@ const kCultivationGenres = [
   'vitality',
 ]
 
-const kCultivationSupportGenre = [
-  'array',
-  'scroll',
-  'alchemy',
-  'craft',
-  'plant',
-  'animal',
-  'illusion',
-  'psychic',
-  'divination',
-  'theurgy',
-]
-
 const kCultivationRankMax = 8
-
-
 
 final kBattleCardKind = skillData.keys.toList()
 
@@ -269,21 +254,18 @@ const kLocationSiteKinds = [
   'library',
   'tradinghouse',
   'auctionhouse',
+  'psychictemple',
+  'theurgytemple',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
-  'fishery',
-  'nursery',
-  'zoo',
   'workshop',
   'arraylab',
-  'scrolllab',
+  'scrollshop',
   'alchemylab',
   'illusionaltar',
-  'psychicaltar',
   'divinationaltar',
-  'theurgyaltar',
 ]
 
 const kThresholdOfExtraAffix = 0.65

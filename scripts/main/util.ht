@@ -5,14 +5,6 @@ function getChance2Hit(accuracy, evasion) {
   return Math.min(Math.max(uncapped, 0.05), 1)
 }
 
-/// 双曲线渐近线随机数
-/// 取值离normal越远，随机出的可能性越低
-/// 公式: y=\frac{6x-6}{5x-6}
-function hyperbola(normal, deviation) {
-  const x = random.nextDouble()
-  return ((x * 6 - 6) / (x * 5 - 6) + deviation) * normal
-}
-
 function interpolate(text: string, interpolations: List) {
   if (interpolations?.isNotEmpty) {
     for (const i = 0; i < interpolations.length; ++i) {

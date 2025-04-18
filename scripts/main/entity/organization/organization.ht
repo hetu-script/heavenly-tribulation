@@ -105,6 +105,7 @@ struct Organization {
     }
     addCharacterToOrganization(head, this, incurIncident: incurIncident)
     // setCharacterJob(head, incurIncident: incurIncident)
+    setCharacterTitle(head, 'organizationHead')
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -120,7 +121,7 @@ struct Organization {
 
     // 和人物类似，也具有物品栏
     this.inventory = {}
-    this.materials = MaterialStorage()
+    this.materials = {}
 
     // 敌对名单，遇到后将会直接开始战斗
     this.enemyLists = {
@@ -132,29 +133,37 @@ struct Organization {
 }
 
 // TODO: 添加incident
-function stationOrganization(organization, location, { members, incurIncident: bool }) {
+function stationOrganization(organization, location, { incurIncident: bool }) {
   assert(location.organizationId == organization.id)
-  members ??= organization.members.keys.toList()
   
   organization.headquartersId = location.id
 
   const headquarters = Location(
-    id: organization.name + '_headquarters',
+    id: organization.id + '_headquarters',
     name: organization.name,
     category: 'site',
     kind: kLocationKindHeadquarters,
+    atLocation: location,
+    image: 'location/card/${organization.genre}.png'
+    background: 'location/site/${organization.genre}.png'
+    organizationId: organization.id,
+  )
+  
+  const library = Location(
+    id: organization.id + '_library',
+    name: engine.locale('library'),
+    category: 'site',
+    kind: kLocationKindLibrary,
     atLocation: location,
     organizationId: organization.id,
   )
 
   organization.headquartersSiteId = headquarters.id
 
-  for (const id in members) {
+  for (const id in organization.members.keys) {
     const character = game.characters[id]
     setCharacterHome(character, location)
   }
-
-  organization.locationIds.add(location.id)
 }
 
 function removeCharacterFromOrganization(character) {
@@ -328,6 +337,14 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
     location.organizationId = organization.id
     if (!organization.locationIds.contains(location.id)) {
       organization.locationIds.add(location.id)
+    }
+    for (final siteId in location.sites) {
+      final site = game.locations[siteId]
+      assert(site != null, 'location not found, id: ${siteId}')
+      site.organizationId = organization.id
+      if (!organization.locationIds.contains(site.id)) {
+        organization.locationIds.add(site.id)
+      }
     }
   }
   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')

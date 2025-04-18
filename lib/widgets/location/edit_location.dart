@@ -9,9 +9,9 @@ import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
 import 'site_card.dart';
-import '../common.dart';
+// import '../common.dart';
 import 'edit_location_basics.dart';
-import '../ui/menu_builder.dart';
+// import '../ui/menu_builder.dart';
 import 'edit_npc_basics.dart';
 
 enum NpcOperation {
@@ -27,18 +27,12 @@ class EditLocation extends StatefulWidget {
     this.locationData,
     this.category,
     this.kind,
-    this.atTerrain,
-    this.atLocation,
-    this.mode = InformationViewMode.view,
     this.onTapOnSite,
   });
 
   final String? locationId;
   final dynamic locationData;
-  final dynamic atTerrain;
-  final dynamic atLocation;
   final String? category, kind;
-  final InformationViewMode mode;
   final void Function(String siteId)? onTapOnSite;
 
   @override
@@ -46,10 +40,10 @@ class EditLocation extends StatefulWidget {
 }
 
 class _EditLocationState extends State<EditLocation> {
-  bool get isEditorMode => widget.mode == InformationViewMode.edit;
-
   late final dynamic _locationData;
   final List<Widget> _siteCards = [];
+
+  dynamic _atLocation;
 
   bool get isCity => _locationData['category'] == 'city';
   bool get isSite => _locationData['category'] == 'site';
@@ -65,6 +59,8 @@ class _EditLocationState extends State<EditLocation> {
       _locationData = GameData.gameData['locations'][widget.locationId];
     }
     assert(_locationData != null);
+
+    _atLocation = GameData.gameData['locations'][_locationData['atLocationId']];
 
     _updateSitesData();
   }
@@ -85,13 +81,49 @@ class _EditLocationState extends State<EditLocation> {
     setState(() {});
   }
 
+  void setNpc() async {
+    if (_locationData['npcId'] == null) {
+      final npcData = await showDialog(
+        context: context,
+        builder: (context) {
+          return EditNpcBasics(
+            atLocation: _locationData,
+            id: _locationData['id'] + '_npc',
+            nameId: 'servant',
+            icon: 'illustration/npc/servant_head.png',
+            illustration: 'illustration/npc/servant.png',
+          );
+        },
+      );
+      if (npcData == null) return;
+      _locationData['npcId'] = npcData['id'];
+    } else {
+      final npcData = GameData.gameData['npcs'][_locationData['npcId']];
+      assert(npcData != null);
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return EditNpcBasics(
+            id: npcData['id'],
+            nameId: npcData['nameId'],
+            icon: npcData['icon'],
+            illustration: npcData['illustration'],
+            useCustomLogic: npcData['useCustomLogic'] ?? false,
+            atLocation: _locationData,
+          );
+        },
+      );
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 800.0,
-      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
+      height: 450.0,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -110,146 +142,95 @@ class _EditLocationState extends State<EditLocation> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (isCity) ...[
+                      if (isCity)
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(
                               width: 120.0,
-                              height: 30.0,
+                              height: 35.0,
                               child: Text('${engine.locale('worldPosition')}:'),
                             ),
-                            Text(
-                                '${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
+                            SizedBox(
+                              width: 120.0,
+                              height: 35.0,
+                              child: Text(
+                                  '${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
+                            ),
+                            SizedBox(
+                              width: 120.0,
+                              height: 35.0,
+                              child: Text('${engine.locale('isDiscovered')}: '),
+                            ),
+                            Container(
+                              width: 20.0,
+                              height: 22.0,
+                              padding: const EdgeInsets.only(top: 2),
+                              child: fluent.Checkbox(
+                                checked: _locationData['isDiscovered'] ?? false,
+                                // activeColor: Colors.white,
+                                onChanged: (bool? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _locationData['isDiscovered'] = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
                           ],
                         ),
-                        Row(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 120.0,
+                            height: 35.0,
+                            child: Text('${engine.locale('development')}:'),
+                          ),
+                          Text('${_locationData['development']}'),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 35.0,
+                        child: Row(
                           children: [
                             SizedBox(
                               width: 120.0,
-                              height: 30.0,
-                              child: Text('${engine.locale('development')}:'),
+                              child: Text('NPC:'),
                             ),
-                            Text('${_locationData['development']}'),
+                            fluent.FilledButton(
+                              onPressed: () {
+                                setNpc();
+                              },
+                              child: Text(_locationData['npcId'] ??
+                                  engine.locale('setNpc')),
+                            ),
                           ],
                         ),
-                        SizedBox(
-                          height: 30.0,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 120.0,
-                                child:
-                                    Text('${engine.locale('isDiscovered')}: '),
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                                height: 20.0,
-                                child: fluent.Checkbox(
-                                  checked:
-                                      _locationData['isDiscovered'] ?? false,
-                                  // activeColor: Colors.white,
-                                  onChanged: (bool? value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        _locationData['isDiscovered'] = value;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 30.0,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 120.0,
-                                child: Text('NPC:'),
-                              ),
-                              fluent.DropDownButton(
-                                title: Text(engine.locale('setNpc')),
-                                items: buildFluentMenuItems(
-                                  items: {
-                                    if (_locationData['npcId'] == null)
-                                      engine.locale('create'):
-                                          NpcOperation.create,
-                                    if (_locationData['npcId'] != null)
-                                      engine.locale('edit'): NpcOperation.edit,
-                                    if (_locationData['npcId'] != null)
-                                      '___': null,
-                                    if (_locationData['npcId'] != null)
-                                      engine.locale('delete'):
-                                          NpcOperation.delete
-                                  },
-                                  onSelectedItem:
-                                      (NpcOperation operation) async {
-                                    switch (operation) {
-                                      case NpcOperation.create:
-                                        final npcData = await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return EditNpcBasics(
-                                              id: _locationData['id'] + '_npc',
-                                            );
-                                          },
-                                        );
-                                        _locationData['npcId'] = npcData['id'];
-                                      case NpcOperation.edit:
-                                        final npcData =
-                                            GameData.gameData['npcs']
-                                                [_locationData['npcId']];
-                                        assert(npcData != null);
-                                        await showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return EditNpcBasics(
-                                              id: npcData['id'],
-                                              name: npcData['name'],
-                                              icon: npcData['icon'],
-                                              illustration:
-                                                  npcData['illustration'],
-                                            );
-                                          },
-                                        );
-                                      case NpcOperation.delete:
-                                        final npcData =
-                                            GameData.gameData['npcs']
-                                                [_locationData['npcId']];
-                                        assert(npcData != null);
-                                        GameData.gameData['npcs']
-                                            .remove(npcData['id']);
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // SizedBox(
-                        //   width: 220.0,
-                        //   child: Row(
-                        //     children: [
-                        //       SizedBox(
-                        //         width: 150,
-                        //         child: Text(
-                        //             '${engine.locale('addDefaultSites')}: '),
-                        //       ),
-                        //       Switch(
-                        //         value:
-                        //             _locationData['addDefaultSites'] ?? false,
-                        //         activeColor: Colors.white,
-                        //         onChanged: (bool value) {
-                        //           setState(() {
-                        //             _locationData['addDefaultSites'] = value;
-                        //           });
-                        //         },
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                      ],
+                      ),
+                      // SizedBox(
+                      //   width: 220.0,
+                      //   child: Row(
+                      //     children: [
+                      //       SizedBox(
+                      //         width: 150,
+                      //         child: Text(
+                      //             '${engine.locale('addDefaultSites')}: '),
+                      //       ),
+                      //       Switch(
+                      //         value:
+                      //             _locationData['addDefaultSites'] ?? false,
+                      //         activeColor: Colors.white,
+                      //         onChanged: (bool value) {
+                      //           setState(() {
+                      //             _locationData['addDefaultSites'] = value;
+                      //           });
+                      //         },
+                      //       ),
+                      //     ],
+                      //   ),
+                      // ),
                       const Spacer(),
                       Container(
                         width: 600,
@@ -303,121 +284,122 @@ class _EditLocationState extends State<EditLocation> {
                 ],
               ),
             ),
-            if (widget.mode != InformationViewMode.view)
-              Row(
-                children: [
-                  if (isEditorMode) ...[
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: fluent.FilledButton(
-                        onPressed: () async {
-                          final value = await showDialog(
-                            context: context,
-                            builder: (context) => EditLocationBasics(
-                              id: _locationData['id'],
-                              category: _locationData['category'],
-                              kind: _locationData['kind'],
-                              name: _locationData['name'],
-                              image: _locationData['image'],
-                              background: _locationData['background'],
-                            ),
-                          );
-                          if (value == null) return;
-                          final (
-                            id,
-                            category,
-                            kind,
-                            name,
-                            image,
-                            background,
-                          ) = value;
-                          _locationData['category'] = category;
-                          _locationData['kind'] = kind;
-                          _locationData['name'] = name;
-                          _locationData['image'] = image;
-                          _locationData['background'] = background;
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () async {
+                      final value = await showDialog(
+                        context: context,
+                        builder: (context) => EditLocationBasics(
+                          id: _locationData['id'],
+                          category: _locationData['category'],
+                          kind: _locationData['kind'],
+                          name: _locationData['name'],
+                          image: _locationData['image'],
+                          background: _locationData['background'],
+                          atLocation: _atLocation,
+                        ),
+                      );
+                      if (value == null) return;
+                      final (
+                        id,
+                        category,
+                        kind,
+                        name,
+                        image,
+                        background,
+                      ) = value;
+                      _locationData['category'] = category;
+                      _locationData['kind'] = kind;
+                      _locationData['name'] = name;
+                      _locationData['image'] = image;
+                      _locationData['background'] = background;
 
-                          if (id != null && id != _locationData['id']) {
-                            GameData.gameData['locations']
-                                .remove(_locationData['id']);
-                            _locationData['id'] = id;
-                            GameData.gameData['locations'][id] = _locationData;
-                          }
-                          setState(() {});
-                        },
-                        child: Text(engine.locale('editIdAndImage')),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10.0),
-                      child: fluent.FilledButton(
-                        onPressed: () async {
-                          final value = await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return EditLocationBasics(
-                                  category: 'site',
-                                  allowEditCategory: false,
-                                );
-                              });
-                          if (value == null) return;
-                          final (
-                            id,
-                            category,
-                            kind,
-                            name,
-                            image,
-                            background,
-                          ) = value;
-                          final locationData = engine.hetu.invoke(
-                            'Location',
-                            namedArgs: {
-                              'category': 'site',
-                              'kind': kind,
-                              'id': id,
-                              'name': name,
-                              'image': image,
-                              'background': background,
-                              'atLocation': _locationData,
-                            },
-                          );
-                          await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return EditLocation(
-                                  mode: InformationViewMode.edit,
-                                  locationData: locationData,
-                                );
-                              });
-                          _updateSitesData();
-                        },
-                        child: Text(engine.locale('addSite')),
-                      ),
-                    ),
-                  ],
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                    child: fluent.FilledButton(
-                      onPressed: () {
-                        switch (widget.mode) {
-                          case InformationViewMode.view:
-                            Navigator.of(context).pop();
-                          case InformationViewMode.select:
-                            Navigator.of(context).pop(_locationData['id']);
-                          case InformationViewMode.edit:
-                            _saveData();
-                            Navigator.of(context).pop(true);
-                          // case InformationViewMode.create:
-                          //   _saveData();
-                          //   Navigator.of(context).pop(_locationData);
+                      if (id != null && id != _locationData['id']) {
+                        final oldId = _locationData['id'];
+                        GameData.gameData['locations'].remove(oldId);
+                        GameData.gameData['locations'][id] = _locationData;
+
+                        if (_locationData['category'] == 'site') {
+                          final atLocation = GameData.gameData['locations']
+                              [_locationData['atLocationId']];
+                          assert(atLocation != null);
+                          atLocation['sites'].remove(oldId);
+                          atLocation['sites'].add(id);
                         }
-                      },
-                      child: Text(engine.locale('confirm')),
-                    ),
+
+                        _locationData['id'] = id;
+                      }
+                      setState(() {});
+                    },
+                    child: Text(engine.locale('editIdAndImage')),
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () async {
+                      final value = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return EditLocationBasics(
+                              category: 'site',
+                              kind: _locationData['category'] == 'site'
+                                  ? 'custom'
+                                  : null,
+                              atLocation: _locationData,
+                              allowEditKind:
+                                  _locationData['category'] == 'city',
+                            );
+                          });
+                      if (value == null) return;
+                      final (
+                        id,
+                        category,
+                        kind,
+                        name,
+                        image,
+                        background,
+                      ) = value;
+                      final locationData = engine.hetu.invoke(
+                        'Location',
+                        namedArgs: {
+                          'category': 'site',
+                          'kind': kind,
+                          'id': id,
+                          'name': name,
+                          'image': image,
+                          'background': background,
+                          'atLocation': _locationData,
+                        },
+                      );
+                      await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return EditLocation(
+                              locationData: locationData,
+                            );
+                          });
+                      _updateSitesData();
+                    },
+                    child: Text(engine.locale('addSite')),
+                  ),
+                ),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, right: 10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () {
+                      _saveData();
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Text(engine.locale('confirm')),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

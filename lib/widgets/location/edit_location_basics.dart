@@ -20,8 +20,7 @@ class EditLocationBasics extends StatefulWidget {
     this.name,
     this.image,
     this.background,
-    this.atTerrain,
-    this.allowEditCategory = true,
+    this.atLocation,
     this.allowEditKind = true,
   });
 
@@ -31,9 +30,9 @@ class EditLocationBasics extends StatefulWidget {
   final String? name;
   final String? image;
   final String? background;
-  final dynamic atTerrain;
+  final dynamic atLocation;
 
-  final bool allowEditCategory, allowEditKind;
+  final bool allowEditKind;
 
   @override
   State<EditLocationBasics> createState() => _EditLocationBasicsState();
@@ -55,13 +54,14 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
   void initState() {
     super.initState();
 
+    _categories['custom'] = engine.locale('custom');
     _categories['city'] = engine.locale('city');
     _categories['site'] = engine.locale('site');
 
     if (widget.category != null) {
-      setCategoryKind(category: widget.category!, kind: widget.kind);
+      setCategoryKind(category: widget.category, kind: widget.kind);
     } else {
-      setCategoryKind(category: 'city');
+      setCategoryKind(category: 'custom');
     }
 
     _idEditingController.text = widget.id ?? '';
@@ -97,15 +97,11 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
         _kinds.addAll(GameData.siteKindNames);
       }
     }
-
-    if (kind != null) {
-      _selectedKind = kind;
-    } else {
-      _selectedKind = _kinds.keys.first;
-    }
+    _selectedKind = kind ?? _kinds.keys.first;
 
     if (GameData.siteKindNames.containsKey(_selectedKind)) {
-      _idEditingController.text = _selectedKind!;
+      assert(widget.atLocation != null);
+      _idEditingController.text = '${widget.atLocation['id']}_$_selectedKind';
       _nameEditingController.text = engine.locale(_selectedKind);
 
       if (_selectedCategory == 'city') {
@@ -137,25 +133,44 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
           child: Column(
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  SizedBox(
+                  const SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('category')}:'),
+                    child: Text('ID:'),
                   ),
-                  fluent.DropDownButton(
-                    disabled: !widget.allowEditCategory,
-                    title: Text(engine.locale(_selectedCategory)),
-                    items: buildFluentMenuItems(
-                      items: {
-                        for (final key in _categories.keys)
-                          engine.locale(key): key,
-                      },
-                      onSelectedItem: (String value) {
-                        setCategoryKind(category: value);
-                      },
+                  SizedBox(
+                    width: 450.0,
+                    height: 40.0,
+                    child: TextField(
+                      controller: _idEditingController,
                     ),
                   ),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 100.0,
+                      child: Text('${engine.locale('category')}:'),
+                    ),
+                    fluent.DropDownButton(
+                      disabled: true,
+                      title: Text(engine.locale(_selectedCategory)),
+                      items: buildFluentMenuItems(
+                        items: {
+                          for (final key in _categories.keys)
+                            engine.locale(key): key,
+                        },
+                        onSelectedItem: (String value) {
+                          setCategoryKind(category: value);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
@@ -180,22 +195,6 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                     ),
                   ],
                 ),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  const SizedBox(
-                    width: 100.0,
-                    child: Text('ID:'),
-                  ),
-                  SizedBox(
-                    width: 200.0,
-                    height: 40.0,
-                    child: TextField(
-                      controller: _idEditingController,
-                    ),
-                  ),
-                ],
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -258,16 +257,14 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                     String? background =
                         _backgroundEditingController.text.nonEmptyValue;
 
-                    if (id != null && name != null) {
-                      Navigator.of(context).pop((
-                        id,
-                        category,
-                        kind,
-                        name,
-                        image,
-                        background,
-                      ));
-                    }
+                    Navigator.of(context).pop((
+                      id,
+                      category,
+                      kind,
+                      name,
+                      image,
+                      background,
+                    ));
                   },
                   child: Text(
                     engine.locale('confirm'),

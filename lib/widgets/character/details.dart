@@ -24,6 +24,22 @@ const Set<String> kMaterials = {
   'money',
   'shard',
   'worker',
+  'water',
+  'grain',
+  'meat',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+};
+
+const Set<String> kOtherMaterials = {
+  'worker',
+  'water',
+  'grain',
+  'meat',
+  'leather',
   'herb',
   'timber',
   'stone',

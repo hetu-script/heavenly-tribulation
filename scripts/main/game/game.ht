@@ -1,4 +1,6 @@
 namespace Game {
+
+  external function datetime()
   
   external function updateHero()
 
@@ -40,7 +42,7 @@ namespace Game {
   
   external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
   
-  external function showCultivation({enableCultivate: bool = false})
+  external function showCultivation({location, enableCultivate: bool = false})
 
   external function showPrebattle(enemyData, { onBattleStart, onBattleEnd })
 
@@ -53,7 +55,12 @@ namespace Game {
     onBattleEnd,
   })
 
-  external function showMerchant(merchantData, {priceFactor})
+  external function showMerchant(merchantData, {
+    materialMode = false,
+    useShard = false,
+    priceFactor,
+    filter,
+  })
 
   external function characterAllocateSkills(character)
 }

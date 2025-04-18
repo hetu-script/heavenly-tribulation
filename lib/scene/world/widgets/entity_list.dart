@@ -3,6 +3,7 @@ import 'package:heavenly_tribulation/widgets/location/edit_location_basics.dart'
 import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
+import 'package:samsara/tilemap.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -176,35 +177,6 @@ enum CharacterPopUpMenuItems {
   delete,
 }
 
-enum CreateLocationPopUpMenuItems {
-  cityInland,
-  cityHarbor,
-  cityIsland,
-  cityMountain,
-
-  siteArena,
-  siteLibrary,
-  siteTradingHouse,
-  siteAuctionHouse,
-
-  siteMine,
-  siteTimberland,
-  siteFarmland,
-  siteHuntingground,
-  siteFishery,
-  siteNursery,
-  siteZoo,
-
-  siteWorkshop,
-  siteArraylab,
-  siteRuneLab,
-  siteAlchemyLab,
-  siteIllusionAltar,
-  sitePsychicAltar,
-  siteDivinationAltar,
-  siteTheurgyAltar,
-}
-
 enum LocationPopUpMenuItems {
   checkInformation,
   setWorldId,
@@ -256,12 +228,14 @@ class EntityListPanel extends StatefulWidget {
     required this.size,
     this.onUpdateCharacters,
     this.onUpdateLocations,
+    this.onCreatedOrganization,
   });
 
   final Size size;
 
   final void Function()? onUpdateCharacters;
   final void Function()? onUpdateLocations;
+  final void Function(dynamic, TileMapTerrain)? onCreatedOrganization;
 
   @override
   State<EntityListPanel> createState() => _EntityListPanelState();
@@ -309,12 +283,12 @@ class _EntityListPanelState extends State<EntityListPanel>
         text: engine.locale('location'),
       ),
       Tab(
-        icon: const Icon(Icons.public),
-        text: engine.locale('zone'),
-      ),
-      Tab(
         icon: const Icon(Icons.place),
         text: engine.locale('mapObject'),
+      ),
+      Tab(
+        icon: const Icon(Icons.public),
+        text: engine.locale('zone'),
       ),
     ];
 
@@ -422,28 +396,15 @@ class _EntityListPanelState extends State<EntityListPanel>
       context: context,
       builder: (context) => EditLocation(
         locationId: dataId,
-        mode: InformationViewMode.edit,
-        onTapOnSite: (siteId) => _editLocation(siteId),
+        onTapOnSite: (siteId) {
+          _editLocation(siteId);
+        },
       ),
     );
     if (value != true) return;
 
     _updateLocations();
     widget.onUpdateLocations?.call();
-  }
-
-  void _updateZones() {
-    _zonesTableData.clear();
-    _zones = engine.hetu.invoke('getZones');
-    for (final zone in _zones) {
-      final rowData = <String>[];
-      rowData.add(zone['name']);
-      rowData.add(zone['terrainIndexes'].length.toString());
-      // 多存一个隐藏的 index 信息，用于点击事件
-      rowData.add(zone['id']);
-      _zonesTableData.add(rowData);
-    }
-    setState(() {});
   }
 
   void _updateObjects() {
@@ -483,6 +444,42 @@ class _EntityListPanelState extends State<EntityListPanel>
       engine.hetu.invoke('addObject', positionalArgs: [mapObject]);
       _updateObjects();
     }
+  }
+
+  void _updateZones() {
+    _zonesTableData.clear();
+    _zones = engine.hetu.invoke('getZones');
+    for (final zone in _zones) {
+      final rowData = <String>[];
+      rowData.add(zone['name']);
+      rowData.add(zone['terrainIndexes'].length.toString());
+      // 多存一个隐藏的 index 信息，用于点击事件
+      rowData.add(zone['id']);
+      _zonesTableData.add(rowData);
+    }
+    _zonesTableData.sort(
+      (a, b) {
+        final sizeOfA = int.parse(a[1]);
+        final sizeOfB = int.parse(b[1]);
+        return sizeOfB.compareTo(sizeOfA);
+      },
+    );
+    setState(() {});
+  }
+
+  void _editZone(String dataId) async {
+    final zonesData = engine.hetu.fetch('zones', namespace: 'world');
+    final zone = zonesData[dataId];
+    final newName = await showDialog(
+      context: context,
+      builder: (context) => InputStringDialog(
+        title: engine.locale('inputName'),
+        value: zone['name'],
+      ),
+    );
+    if (newName == null) return;
+    zone['name'] = newName;
+    _updateZones();
   }
 
   @override
@@ -703,7 +700,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 final charPosData =
                                     characterData['worldPosition'];
                                 final selectedTile = context
-                                    .read<SelectedTileState>()
+                                    .read<SelectedPositionState>()
                                     .currentTerrain;
                                 final currentMapId =
                                     context.read<SamsaraEngine>().scene?.id;
@@ -814,8 +811,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0),
                     child: fluent.FilledButton(
                       onPressed: () async {
-                        final selectedTile =
-                            context.read<SelectedTileState>().currentTerrain;
+                        final selectedTile = context
+                            .read<SelectedPositionState>()
+                            .currentTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectTilePrompt'));
@@ -845,6 +843,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 headquartersData: location,
                               );
                             });
+                        if (value == null) return;
                         final (id, name, category, genre, headId) = value;
                         final organizationData = engine.hetu.invoke(
                           'Organization',
@@ -866,6 +865,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                               );
                             });
                         _updateOrganizations();
+                        widget.onCreatedOrganization
+                            ?.call(organizationData, selectedTile);
                       },
                       child: Text(engine.locale('createOrganization')),
                     ),
@@ -889,34 +890,38 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0, right: 10.0),
                     child: fluent.FilledButton(
                       onPressed: () async {
-                        final selectedTile =
-                            context.read<SelectedTileState>().currentTerrain;
+                        final selectedTile = context
+                            .read<SelectedPositionState>()
+                            .currentTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectTilePrompt'));
                           return;
                         }
-                        final value = await showDialog(
-                          context: context,
-                          builder: (context) {
-                            return EditLocationBasics();
-                          },
-                        );
-                        if (value == null) return;
                         dynamic atTerrain = selectedTile.data;
                         dynamic atLocation;
                         if (selectedTile.locationId != null) {
                           atLocation = GameData.gameData['locations']
                               [selectedTile.locationId];
                         }
-                        final (category, kind, id, name, image, background) =
+                        final value = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return EditLocationBasics(
+                              category: atLocation != null ? 'site' : 'city',
+                              atLocation: atLocation,
+                            );
+                          },
+                        );
+                        if (value == null) return;
+                        final (id, category, kind, name, image, background) =
                             value;
                         final locationData = engine.hetu.invoke(
                           'Location',
                           namedArgs: {
+                            'id': id,
                             'category': category,
                             'kind': kind,
-                            'id': id,
                             'name': name,
                             'image': image,
                             'background': background,
@@ -928,7 +933,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                             context: context,
                             builder: (context) {
                               return EditLocation(
-                                mode: InformationViewMode.edit,
                                 locationData: locationData,
                               );
                             });
@@ -981,7 +985,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   final locPosData =
                                       locationData['worldPosition'];
                                   final selectedTile = context
-                                      .read<SelectedTileState>()
+                                      .read<SelectedPositionState>()
                                       .currentTerrain;
                                   final currentMapId =
                                       context.read<SamsaraEngine>().scene?.id;
@@ -1026,31 +1030,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   }
                               }
                             });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: fluent.FilledButton(
-                      onPressed: () {},
-                      child: Text(engine.locale('createZone')),
-                    ),
-                  ),
-                  SizedBox(
-                    height: widget.size.height - 175,
-                    child: GameEntityListView(
-                      columns: _kZoneColumns,
-                      tableData: _zonesTableData,
-                      onItemSecondaryPressed: (position, dataId) {
-                        // showDialog(
-                        //   context: context,
-                        //   builder: (context) => ZoneView(zoneId: dataId),
-                        // );
                       },
                     ),
                   ),
@@ -1152,6 +1131,59 @@ class _EntityListPanelState extends State<EntityListPanel>
                             }
                           },
                         );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: [
+                  //     Padding(
+                  //       padding: const EdgeInsets.only(top: 5.0, right: 5.0),
+                  //       child: fluent.FilledButton(
+                  //         onPressed: () {
+                  //           final count = engine.hetu.invoke('generateZone',
+                  //               positionalArgs: [worldData]);
+                  //           engine.hetu.invoke('nameZones',
+                  //               positionalArgs: [worldData]);
+                  //           GameDialogContent.show(
+                  //             context,
+                  //             engine.locale(
+                  //               'generatedZone',
+                  //               interpolations: [count],
+                  //             ),
+                  //           );
+                  //           loadZoneColors();
+                  //         },
+                  //         child: Text(engine.locale('generateZone')),
+                  //       ),
+                  //     ),
+                  //     Padding(
+                  //       padding: const EdgeInsets.only(top: 5.0),
+                  //       child: fluent.FilledButton(
+                  //         onPressed: () {},
+                  //         child: Text(engine.locale('createZone')),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  SizedBox(
+                    height: widget.size.height - 175,
+                    child: GameEntityListView(
+                      columns: _kZoneColumns,
+                      tableData: _zonesTableData,
+                      onItemPressed: (position, dataId) {
+                        _editZone(dataId);
+                      },
+                      onItemSecondaryPressed: (position, dataId) {
+                        // showDialog(
+                        //   context: context,
+                        //   builder: (context) => ZoneView(zoneId: dataId),
+                        // );
                       },
                     ),
                   ),

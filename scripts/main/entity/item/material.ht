@@ -15,25 +15,39 @@ const kMaterialKinds = [
   'money',
   'shard',
   'worker',
-
+  'water',
+  'grain',
+  'meat',
+  'leather',
   'herb',
   'timber',
   'stone',
   'ore',
 ]
 
-struct MaterialStorage {
-  constructor {
+const kOtherMaterialKinds = [
+  'worker',
+  'water',
+  'grain',
+  'meat',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+]
 
-    this.money = 0
-    this.shard = 0
-    this.worker = 0
-
-    this.herb = 0
-    this.timber = 0
-    this.stone = 0
-    this.ore = 0
-  }
+const kMaterialBasePriceByKind = {
+  'shard': 1000,
+  'worker': 10,
+  'water': 10,
+  'grain': 20,
+  'meat': 40,
+  'herb': 40,
+  'leather': 80,
+  'timber': 80,
+  'stone': 160,
+  'ore': 320,
 }
 
 /// 材料包类物品在获得后，可以自动转化为材料数值
@@ -55,8 +69,7 @@ struct Materialpack {
 
     this.category = kItemCategoryMaterialPack
     this.kind = kind
-    this.description = engine.locale('${kind}_description')
-    this.flavortext = engine.locale('materialpack_flavortext')
+    this.flavortext = engine.locale('${kind}_description')
     this.stackSize = amount ?? 1
     this.showStack = true
     

@@ -17,12 +17,15 @@
 function addEventHandlers({worldId, moduleId, namespace}) {
   assert(moduleId is string && namespace is namespace)
   assert(game.mods[moduleId] != null)
+  if (game.mods[moduleId].$handler == null) {
+    game.mods[moduleId].$handler = {}
+  }
   if (worldId != null) {
     engine.debug('为模组 [${moduleId}] 添加 [世界(${worldId})] 事件处理...')
-    game.mods[moduleId][worldId] = namespace
+    game.mods[moduleId].$handler[worldId] = namespace
   } else {
     engine.debug('为模组 [${moduleId}] 添加 [通用] 事件处理...')
-    game.mods[moduleId]['events'] = namespace
+    game.mods[moduleId].$handler['events'] = namespace
   }
 }
 
@@ -47,8 +50,9 @@ async function onWorldEvent(eventId: string, ...args) {
   if (world == null) return
   let result
   for (const module of game.mods) {
-    if (module.contains(world.id)) {
-      let callback = module[world.id][eventId]
+    final handler = module.$handler
+    if (handler.contains(world.id)) {
+      let callback = handler[world.id][eventId]
       // callback 可能是 null
       if(callback is function) {
         engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
@@ -70,13 +74,13 @@ async function onWorldEvent(eventId: string, ...args) {
 /// 如果返回值是 [true]，则表示事件已经被模组处理完毕，不再执行游戏本身的默认逻辑
 async function onGameEvent(eventId: string, ...args) {
   let result
-  for (const mod in game.mods.values) {
-    let gameEvents = mod['events']
+  for (const module of game.mods) {
+    let gameEvents = module.$handler['events']
     if (gameEvents != null) {
       let callback = gameEvents[eventId]
       if(callback is function) {
-        engine.debug('执行模组 [${mod.id}] 的通用事件处理函数 [${eventId}]')
-        // final eventResult = await callback.apply(mod, ...args)
+        engine.debug('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
+        // final eventResult = await callback.apply(module, ...args)
         final eventResult = await callback(...args)
         if (eventResult != null) {
           result = eventResult
@@ -86,3 +90,21 @@ async function onGameEvent(eventId: string, ...args) {
   }
   return result
 }
+// 
+// let savedHanlders
+
+// function prepareSave() {
+//   savedHanlders = {}
+//   for (const module of game.mods) {
+//     savedHanlders[module.id] = module.$handler
+//     delete module.$handler
+//   }
+// }
+
+// function afterSave() {
+//   for (const module of game.mods) {
+//     assert(savedHanlders[module.id] != null)
+//     module.$handler = savedHanlders[module.id]
+//   }
+//   savedHanlder = null
+// }

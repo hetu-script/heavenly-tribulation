@@ -29,8 +29,12 @@
   "menu": "菜单",
   "untitled": "未命名",
 
+  "generateZone": "自动生成地域",
   "reloadGameData": "重新载入游戏数据",
   "reloadGameDataPrompt": "已重置所有游戏数据和脚本模块。",
+
+  "priceFactor": "物价系数",
+  "priceFactor_description": "资源的物价系数和据点纬度、城市类型有关，并且会随着季节发生波动。",
 
   "characterCalculateStats": "计算人物属性",
   "characterCalculateStatsPrompt": "已重新计算所有人物属性。",
@@ -98,7 +102,6 @@
   "nextTurn": "下一回合",
   "load": "载入",
   "add": "添加",
-  "delete": "删除",
   "retry": "重试",
   "end": "结束",
   "skip": "跳过",
@@ -117,6 +120,7 @@
   "invalidSelectionData": "错误：无效的选择对话框数据",
 
   "input": "输入",
+  "selectAmount": "选择数量",
   "inputInteger": "输入一个数字",
   "inputName": "输入一个名字",
   "inputID": "输入一个ID",
@@ -139,7 +143,7 @@
   "enterLibrary": "进入功法图录",
 
   "difficulty": "难度",
-  "level": "等级",
+  "level": "修为等级",
   "level2": "层",
   "use": "使用",
   "equip": "装备",
@@ -232,7 +236,7 @@
   "nightmare": "梦魇",
   "purgatory": "炼狱",
 
-  "zone": "区域",
+  "zone": "地域",
   "organization": "门派",
   "location": "场景",
   "terrain": "地块",
@@ -339,7 +343,7 @@
 
   "contribution": "功勋",
 
-  "levelUp": "升级",
+  "levelUp": "提升修为等级",
   "dismiss": "解散",
 
   "cultivationRank_0": "无",
@@ -362,17 +366,15 @@
   "vitality": "炼魂",
   "swordcraft": "御剑",
 
-  "plant": "灵植",
-  "animal": "灵兽",
   "array": "阵法",
   "scroll": "符箓",
   "scroll2": "符",
   "alchemy": "炼丹",
+  "pill": "丹",
+  "potion": "药",
   "craft": "炼器",
-  "divination": "卜术",
+  "divination": "占卜",
   "illusion": "幻术",
-  "theurgy": "通神",
-  "psyche": "通灵",
 
   "leisureSkillGenre": "休闲流派",
 
@@ -384,6 +386,7 @@
 
   "functionDisabled": "<red>功能不可用</>",
 
+  "hint_materialpack": "使用后转化为不占用物品栏且不可交易的资源",
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
   "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
@@ -392,7 +395,7 @@
 
   "hint_notEnoughMoney": "你没有足够的钱。",
   "hint_notEnoughShard": "你没有足够的灵石。",
-  "hint_notEnoughExp": "你没有足够的灵光。",
+  "hint_notEnoughExp": "你没有足够的修为经验。",
   "hint_notEnoughMaterial": "你没有足够的材料",
 
   "hint_merchantNotEnoughMoney": "对方身上没有足够的钱。",
@@ -400,7 +403,7 @@
   "hint_noQuests": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
-  "hint_cancel_tribulation": "放弃天道挑战后，扣掉的升级经验值不会返还。",
+  "hint_cancel_tribulation": "放弃天道挑战后，扣掉的修为经验不会返还。",
   "hint_cultivateMode": "点击左键切换到打坐修炼模式",
   "hint_passiveTreeMode": "点击左键切换到天道技能模式",
 
@@ -428,17 +431,13 @@
   "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
   "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
 
-  "hint_cultivate": "花费时间和灵石来修炼，从而获得灵光点。收集灵光可以转化为提升修为所需的经验。",
+  "hint_cultivate": "花费时间和灵石来修炼，获得修为经验，从而提升修为等级。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
   "hint_nonEnterableTile": "前方被一阵无形的阻力挡住了。",
   "hint_searchFailed": "没能成功找到奇怪踪迹的原因，可能还是要继续「搜索」这里才能有收获。",
   "hint_sensedUndiscovered": "这里似乎有些奇怪的踪迹。可能「搜索」这里的话会有收获。",
-  "hint_manaFull": "体内凝聚的灵气已满，无法再聚气了。",
-  "hint_wastedSpirit": "一部分超过上限的灵气从体内流失了。",
-  "hint_spiritGathered": "此地喷涌的灵气已经散去。",
-  "hint_openShardPackage": "聚气需要消耗灵石资源……可以在物品栏中通过转化灵石块获得灵石。",
 
   "hint_switch": "好像有什么地方的机关打开了……",
   "hint_deadend": "这里看样子无法前进了，看来得想想别的办法……",
@@ -446,15 +445,16 @@
   "hint_tutorial": "这好像是你第一次使用这个功能，要听取使用教程吗？",
   "listenTutorial": "听取教程",
 
-  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将灵气转化为识海中的<yellow>灵光点</>。<yellow>收集灵光点</>就可以转化为修为经验，修为经验满足要求就可以提升修为等级。\n升级后会提升你的基础生命值，并获得 1 个天道技能点。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。\n打坐的时候，每块灵石可以让你获得 10 点灵光，但也会耗去你半天时间。\n以后你日后修为精进的话，吸收的速度也会变快。",
+  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将天地灵气转化为识海中的<yellow>灵光点</>。打坐的时候，每次时间流逝至少可以获得 10 点灵光。若是你修为精进的话，吸收的速度会更快一些。\n<yellow>收集灵光点</>就可以转化为修为经验，以此来提升修为等级。升级后会提升你的基础生命值，并获得 1 个天道技能点。\n点击角色图标可以切换天道技能界面和灵光点收集界面。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。",
 
-  "hint_cardLibrary": "提升修为等级可以增强身体属性，但空有身体属性，没有功法加持，也无用武之地。\n若是你拥有秘籍。便可在藏书阁打开，获得上面记载的功法。\n如果藏书阁本身的发展度够高，还可以利用灵光来修改和增强功法卡牌。\n将多张功法卡牌组合起来，形成战斗卡组，才可以在之后的战斗中使用。",
+  "hint_cardLibrary": "提升修为等级可以增强身体属性，但空有身体属性，没有功法加持，也无用武之地。\n若是你拥有秘籍。便可在藏书阁打开。可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。。\n如果藏书阁本身的发展度够高，右键点击卡牌可以消耗灵光点对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n注意：某些功法卡牌需要点出某些天道技能，或是装备某些特定武器或法宝才可使用。",
 
-  "hint_cultivation2": "我这里有 5 块灵石，就送与阁下，作为开启修真之途的助益。",
-  "hint_cardLibrary2": "我里正好有 1 本秘籍，就送与阁下，作为开启修真之途的助益。",
+  "hint_cultivation2": "我这里有 5 块灵石，正好作为阁下开启修真之途的助益。",
+  "hint_cardLibrary2": "我里正好有 1 本秘籍，正好作为阁下开启修真之途的助益。",
 
-  "unconvertedExp": "灵光",
-  "exp": "经验值",
+  "collectableLight": "可收集的灵光",
+  "restShardNumber": "剩余灵石数量",
+  "exp": "修为经验",
   "rank": "境界",
   "rank2": "境",
   "rankUp!": "境界提升!",
@@ -466,6 +466,7 @@
   "cultivationSkills": "修炼",
   "supportSkills": "技艺",
 
+  "work": "工作",
   "rest1Days": "休息 1 天",
   "rest10Days": "休息 10 天",
   "rest30Days": "休息 30 天",
@@ -473,10 +474,10 @@
   "restTillNextMonth": "休息到下个月 1 日",
   "restTillFullHealth": "休息到体力全满",
 
-  "alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
+  "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
 
-  "visitEmptyVillage": "这里空无一人，看来是个荒废的村落。",
-  "visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
+  "hint_visitEmptyVillage": "这里空无一人，看来是个荒废的村落。",
+  "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
 
   "battlecard": "功法",
 
@@ -487,22 +488,37 @@
   "newQuest": "新增日志",
   "questUpdate": "日志更新",
 
-  "insufficientShard": "灵石不足!",
+  "hint_insufficientLight": "灵光不足!",
+  "hint_insufficientShard": "灵石不足!",
 
-  "help_movement": "<yellow>操作说明：</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
+  "hint_movement": "<yellow>操作说明：</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
 
-  "help_cultivation": "通过打坐并消耗身上的灵石来获得灵光点。\n点击灵光点收集经验，以此来提升修为等级，升级后可以获得技能点用来分配天道技能。\n点击角色图标可以切换天道技能界面和灵光点收集界面。\n开启打坐后，即使离开修炼界面，也会自动随着时间流逝消耗身上的灵石并获得灵光点。",
+  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道法身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，修为经验不会返还。",
 
-  "help_cardlibrary": "当拥有功法秘籍时，点击左下角的书籍可以选择并打开秘籍。\n打开时可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。\n右键点击卡牌可以消耗灵光点对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n某些功法需要装备某些特定武器或法宝才可以使用。",
+  "hint_autoCultivate": "不在修炼界面时，点击上方角色信息栏中的灵石图标，可以开启自动修炼。\n开启自动修炼后，将会随着时间流逝自动消耗身上所携带的灵石，并获得灵光点。",
 
-  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道法身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，经验值不会返还。",
+  "hint_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且修为经验不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。",
 
   "do_tribulation": "挑战天劫",
 
   "autoWork": "自动工作",
   "autoCultivate": "自动修炼",
 
-  "help_autoCultivate": "不在修炼界面时，点击上方角色信息栏中的灵石图标，可以开启自动修炼。\n开启自动修炼后，将会随着时间流逝自动消耗身上所携带的灵石，并获得灵光点。",
+  "useLocation": "使用场地",
+  "rentLocation": "租用场地",
 
-  "help_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且经验值不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。"
+  "workHere": "工作",
+
+  "work10Days": "工作 10 天",
+  "work30Days": "工作 30 天",
+  "workTillNextMonth": "工作到下个月 1 日",
+  "workTillHealthExhausted": "工作到体力耗尽",
+
+  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
+  "hint_notWorkSeason": "现在是淡季，没什么需要帮忙的工作。你还是过一阵子再来吧。",
+
+  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗不同。",
+  "baseSalary": "基本工资",
+  "staminaCost": "体力消耗",
+  "workableMonths": "可工作月份"
 }

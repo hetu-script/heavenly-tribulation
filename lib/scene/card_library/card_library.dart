@@ -154,7 +154,7 @@ class CardLibraryScene extends Scene {
 
   /// 最多只显示 4 个光点
   void addExpLightPoints() {
-    final int exp = GameData.heroData['unconvertedExp'];
+    final int exp = GameData.heroData['exp'];
     int lightCount = 0;
     if (exp > 0) {
       lightCount = exp ~/ 1000 + 1;
@@ -181,8 +181,8 @@ class CardLibraryScene extends Scene {
   }
 
   void updateExp() {
-    final int exp = GameData.heroData['unconvertedExp'];
-    expLabel.text = '${engine.locale('unconvertedExp')}: $exp';
+    final int exp = GameData.heroData['exp'];
+    expLabel.text = '${engine.locale('exp')}: $exp';
 
     if (exp > 10000) {
       if (expBottle.spriteId != 'cultivation/bottle3.png') {
@@ -208,28 +208,8 @@ class CardLibraryScene extends Scene {
     }
   }
 
-  Future<void> _enterScene() async {
-    updateOrderByButtonText();
-    updateFilterByButtonText();
-    libraryZone.repositionToTop();
-    libraryZone.updateHeroLibrary();
-    deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
-
-    updateExp();
-    addExpLightPoints();
-
-    for (final deckZone in deckPiles) {
-      deckZone.updateDeckLimit();
-    }
-
-    await onEnterScene?.call();
-
-    await engine.hetu
-        .invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
-  }
-
   @override
-  void onStart([Map<String, dynamic> arguments = const {}]) {
+  void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
     context.read<EnemyState>().setPrebattleVisible(false);
@@ -332,7 +312,7 @@ class CardLibraryScene extends Scene {
   }
 
   void _updateCardCount(DeckBuildingZone zone) {
-    StringBuffer detailedCount = StringBuffer();
+    final detailedCount = StringBuffer();
     detailedCount.writeln(
         '${engine.locale('deckbuilding_card_count')}: ${zone.cards.length}');
     // detailedCount.writeln(
@@ -567,7 +547,7 @@ class CardLibraryScene extends Scene {
   }
 
   void _addAffixOperationButton(String id, Vector2 position) {
-    final SpriteButton button = SpriteButton(
+    final SpriteButton affixButton = SpriteButton(
       position: position,
       spriteId: 'ui/button10.png',
       size: GameUI.buttonSizeMedium,
@@ -575,14 +555,14 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority + 100,
       isVisible: false,
     );
-    button.onTapUp = (buttons, position) {
-      if (!button.isEnabled) return;
-      if (buttons == kSecondaryButton) return;
+    affixButton.onTapUp = (button, position) {
+      if (!affixButton.isEnabled) return;
+      if (button == kSecondaryButton) return;
       assert(_craftingCard != null);
-      Hovertip.hide(button);
+      Hovertip.hide(affixButton);
       _affixOperation(_craftingCard!, id);
     };
-    button.onMouseEnter = () {
+    affixButton.onMouseEnter = () {
       assert(_craftingCard != null);
 
       final buffer = StringBuffer();
@@ -592,7 +572,7 @@ class CardLibraryScene extends Scene {
 
       buffer.writeln(engine.locale('deckbuilding_${id}_description'));
 
-      if (button.isEnabled) {
+      if (affixButton.isEnabled) {
         if (expCost > 0) {
           if (id == 'dismantle') {
             buffer.writeln(
@@ -608,17 +588,17 @@ class CardLibraryScene extends Scene {
 
       Hovertip.show(
         scene: this,
-        target: button,
+        target: affixButton,
         direction: HovertipDirection.leftTop,
         content: buffer.toString(),
         width: 300,
       );
     };
-    button.onMouseExit = () {
-      Hovertip.hide(button);
+    affixButton.onMouseExit = () {
+      Hovertip.hide(affixButton);
     };
-    camera.viewport.add(button);
-    _craftOptionButtons.add(button);
+    camera.viewport.add(affixButton);
+    _craftOptionButtons.add(affixButton);
   }
 
   void onStartCraft(CustomGameCard card) {
@@ -686,7 +666,7 @@ class CardLibraryScene extends Scene {
       'scroll_paper_rank_${_craftingCard!.data['rank']}',
     ]);
 
-    if (GameData.heroData['unconvertedExp'] < expCost) {
+    if (GameData.heroData['exp'] < expCost) {
       GameDialogContent.show(context, engine.locale('hint_notEnoughExp'));
       return;
     }
@@ -698,7 +678,7 @@ class CardLibraryScene extends Scene {
 
     updateExp();
 
-    GameData.heroData['unconvertedExp'] -= expCost;
+    GameData.heroData['exp'] -= expCost;
     engine.hetu.invoke(
       'lose',
       namespace: 'Player',
@@ -834,7 +814,7 @@ class CardLibraryScene extends Scene {
         card.size = Vector2.zero();
         card.position = skillBook.center;
 
-        card.onTapUp = (int buttons, Vector2 position) {
+        card.onTapUp = (int button, Vector2 position) {
           if (card.data['isIdentified'] != true) {
             unpreviewCard(context);
             engine.play(GameSound.craft);
@@ -977,8 +957,8 @@ class CardLibraryScene extends Scene {
       isVisible: false,
       enableGesture: true,
     );
-    barrier.onTapUp = (buttons, position) {
-      if (buttons == kSecondaryButton) {
+    barrier.onTapUp = (button, position) {
+      if (button == kSecondaryButton) {
         if (_craftingCard != null) {
           onEndCraft();
         }
@@ -1064,7 +1044,7 @@ class CardLibraryScene extends Scene {
     );
     cardCount.onMouseEnter = () {
       assert(_currentBuildingZone != null);
-      StringBuffer cardCountHint = StringBuffer();
+      final cardCountHint = StringBuffer();
       final rank = GameData.heroData['rank'];
       final rankString = engine.locale('cultivationRank_$rank');
       cardCountHint.writeln(
@@ -1094,7 +1074,7 @@ class CardLibraryScene extends Scene {
       priority: kDeckPilesZonePriority,
       isVisible: false,
     );
-    closeButton.onTapUp = (buttons, position) {
+    closeButton.onTapUp = (button, position) {
       assert(_currentBuildingZone != null);
       onCloseDeck();
       // else if (cardCraftingArea.isCrafting) {
@@ -1112,7 +1092,7 @@ class CardLibraryScene extends Scene {
       priority: kDeckPilesZonePriority,
       isVisible: false,
     );
-    setBattleDeckButton.onTapUp = (buttons, position) {
+    setBattleDeckButton.onTapUp = (button, position) {
       _setBattleDeck(_currentBuildingZone!);
     };
     camera.viewport.add(setBattleDeckButton);
@@ -1154,7 +1134,7 @@ class CardLibraryScene extends Scene {
       priority: kBottomBarPriority,
       text: engine.locale('sort'),
     );
-    orderBy.onTapUp = (buttons, position) {
+    orderBy.onTapUp = (button, position) {
       showFluentMenu<OrderByOptions>(
         position: orderBy.bottomLeft.toOffset(),
         items: {
@@ -1188,7 +1168,7 @@ class CardLibraryScene extends Scene {
       priority: kBottomBarPriority,
       text: engine.locale('filter'),
     );
-    filterBy.onTapUp = (buttons, position) {
+    filterBy.onTapUp = (button, position) {
       showFluentMenu<FilterByOptions>(
         position: filterBy.bottomLeft.toOffset(),
         items: {
@@ -1258,8 +1238,8 @@ class CardLibraryScene extends Scene {
       hoverSpriteId: 'cultivation/battlebook_hover.png',
       priority: kBarrierUIPriority,
     );
-    skillBook.onTapUp = (buttons, position) {
-      if (buttons == kSecondaryButton) return;
+    skillBook.onTapUp = (button, position) {
+      if (button == kSecondaryButton) return;
       showCardpackSelect();
     };
     skillBook.onMouseEnter = () {
@@ -1297,13 +1277,13 @@ class CardLibraryScene extends Scene {
       angle: math.radians(15),
     );
     expBottle.onMouseEnter = () {
-      final int exp = GameData.heroData['unconvertedExp'];
+      final int exp = GameData.heroData['exp'];
       Hovertip.show(
         scene: this,
         target: expBottle,
         direction: HovertipDirection.topCenter,
         content:
-            '${engine.locale('unconvertedExp')}: <bold ${exp > 0 ? 'yellow' : 'grey'}>$exp</>',
+            '${engine.locale('exp')}: <bold yellow ${exp > 0 ? 'yellow' : 'grey'}>$exp</>',
         width: 150,
         config: ScreenTextConfig(textAlign: TextAlign.center),
       );
@@ -1340,8 +1320,8 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
       isVisible: false,
     );
-    collectButton.onTapUp = (buttons, position) {
-      if (buttons == kSecondaryButton) return;
+    collectButton.onTapUp = (button, position) {
+      if (button == kSecondaryButton) return;
       final unidentifiedCards = _cardpackCards.where((card) {
         return card.data['isIdentified'] != true;
       });
@@ -1412,9 +1392,9 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
       isVisible: false,
     );
-    craftScrollButton.onTapUp = (buttons, position) {
+    craftScrollButton.onTapUp = (button, position) {
       if (!craftScrollButton.isEnabled) return;
-      if (buttons == kSecondaryButton) return;
+      if (button == kSecondaryButton) return;
       assert(_craftingCard != null);
       craftScroll();
     };
@@ -1425,7 +1405,7 @@ class CardLibraryScene extends Scene {
 
       final bool enabled = craftScrollButton.isEnabled && rank > 0;
 
-      StringBuffer buffer = StringBuffer();
+      final buffer = StringBuffer();
 
       buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
       if (enabled) {
@@ -1467,17 +1447,33 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
       isVisible: false,
     );
-    closeCraftButton.onTapUp = (buttons, position) {
+    closeCraftButton.onTapUp = (button, position) {
       onEndCraft();
     };
     camera.viewport.add(closeCraftButton);
   }
 
   @override
-  void onMount() {
+  void onMount() async {
     super.onMount();
 
-    _enterScene();
+    updateOrderByButtonText();
+    updateFilterByButtonText();
+    libraryZone.repositionToTop();
+    libraryZone.updateHeroLibrary();
+    deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
+
+    updateExp();
+    addExpLightPoints();
+
+    for (final deckZone in deckPiles) {
+      deckZone.updateDeckLimit();
+    }
+
+    await onEnterScene?.call();
+
+    await engine.hetu
+        .invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
   }
 
   @override
@@ -1500,7 +1496,7 @@ class CardLibraryScene extends Scene {
               onPressed: () {
                 GameDialogContent.show(
                   context,
-                  engine.locale('help_cardlibrary'),
+                  engine.locale('hint_cardLibrary'),
                   style: TextStyle(color: Colors.yellow),
                 );
               },

@@ -257,6 +257,8 @@ class GameDialog with ChangeNotifier, TaskController {
   /// selection data 数据格式：
   /// ```
   /// {
+  ///   // 用于稍后取出玩家选择的 key
+  ///   id: 'selection_id',
   ///   selections: {
   ///     // 可以只有一个单独的文本
   ///     selectKey1: 'localedText1',

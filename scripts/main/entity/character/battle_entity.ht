@@ -129,7 +129,7 @@ struct BattleEntity {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
     // 金钱也是一种材料，其他材料包括可以用来建筑的木材、石料等
-    this.materials = MaterialStorage()
+    this.materials = {}
 
     // 身上携带的普通物品，每一个都是单独生成，无法堆叠
     this.inventory = {}
@@ -274,7 +274,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
   character.stats.lightRadius = kBaseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
-  character.stats.expCollectEfficiency = character.expCollectEfficiency + character.passives.expCollectEfficiency?.value
+  character.stats.expCollectEfficiency = kBaseexpCollectEfficiency + character.passives.expCollectEfficiency?.value
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
 
   character.stats.unarmedEnhance = character.passives.unarmedEnhance?.value ?? 0
@@ -340,11 +340,11 @@ function getCharacterStats(character) {
 }
 
 function getCharacterMovableTerrainKinds(character) {
-  let kinds = kPlainTerrains.toList()
+  let kinds = kPlainTerrainKinds.toList()
   let movableOnHill = characterEquippedCategory(character, 'boots')
-  if (movableOnHill) kinds.addAll(kMountainTerrains)
+  if (movableOnHill) kinds.addAll(kMountainTerrainKinds)
   let movableOnWater = characterEquippedCategory(character, 'ship')
-  if (movableOnWater) kinds.addAll(kWaterTerrains)
+  if (movableOnWater) kinds.addAll(kWaterTerrainKinds)
   return kinds
 }
 

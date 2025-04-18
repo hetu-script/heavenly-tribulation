@@ -1,9 +1,7 @@
 const kSpriteWater = 0;
 const kSpriteLand = 1;
-const kSpriteForest = 2;
-const kSpriteMountain = 3;
-const kSpriteFarmField = 4;
-const kSpriteDungeonStonePavedTile = 5;
+const kSpriteRiver = 2;
+const kSpriteDungeonStonePavedTile = 8;
 
 const kSpriteCity = 'object/city.png';
 const kSpriteDungeon = 'object/dungeon.png';
@@ -21,9 +19,8 @@ const kTerrainKindShore = 'shore';
 const kTerrainKindForest = 'forest';
 const kTerrainKindPlain = 'plain';
 const kTerrainKindSnowPlain = 'snow_plain';
+const kTerrainKindShelf = 'shelf';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
-
-const kWaterTileKinds = Set([kTerrainKindLake, kTerrainKindSea])

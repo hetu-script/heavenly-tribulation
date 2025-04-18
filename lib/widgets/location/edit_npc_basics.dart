@@ -15,40 +15,47 @@ class EditNpcBasics extends StatefulWidget {
   /// illustration
   const EditNpcBasics({
     super.key,
+    required this.atLocation,
     required this.id,
-    this.name,
+    this.nameId,
     this.icon,
     this.illustration,
+    this.useCustomLogic = false,
   });
 
+  final dynamic atLocation;
   final String id;
-  final String? name;
+  final String? nameId;
   final String? icon;
   final String? illustration;
+  final bool useCustomLogic;
 
   @override
   State<EditNpcBasics> createState() => _EditNpcBasicsState();
 }
 
 class _EditNpcBasicsState extends State<EditNpcBasics> {
-  final _nameEditingController = TextEditingController();
+  final _nameIdEditingController = TextEditingController();
   final _iconEditingController = TextEditingController();
   final _illustrationEditingController = TextEditingController();
+  bool _useCustomLogic = false;
 
   @override
   void initState() {
     super.initState();
 
-    _nameEditingController.text = widget.name ?? '';
+    _nameIdEditingController.text = widget.nameId ?? '';
     _iconEditingController.text = widget.icon ?? '';
     _illustrationEditingController.text = widget.illustration ?? '';
+
+    _useCustomLogic = widget.useCustomLogic;
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    _nameEditingController.dispose();
+    _nameIdEditingController.dispose();
     _iconEditingController.dispose();
     _illustrationEditingController.dispose();
   }
@@ -81,8 +88,11 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     child: Text('ID: '),
                   ),
                   SizedBox(
-                    width: 180.0,
-                    child: Text(widget.id),
+                    width: 450.0,
+                    child: Text(
+                      widget.id,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -91,12 +101,12 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                 children: [
                   SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('name')}: '),
+                    child: Text('${engine.locale('name')}ID: '),
                   ),
                   SizedBox(
                     width: 180.0,
                     child: TextField(
-                      controller: _nameEditingController,
+                      controller: _nameIdEditingController,
                     ),
                   ),
                 ],
@@ -133,6 +143,34 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                   ),
                 ],
               ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 200.0,
+                      child: Text('${engine.locale('useCustomLogic')}:'),
+                    ),
+                    Container(
+                      width: 20.0,
+                      height: 22.0,
+                      padding: const EdgeInsets.only(top: 2),
+                      child: fluent.Checkbox(
+                        checked: _useCustomLogic,
+                        // activeColor: Colors.white,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            setState(() {
+                              _useCustomLogic = value;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -141,21 +179,40 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     padding: const EdgeInsets.all(10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
+                        GameData.gameData['npcs'].remove(widget.id);
+                        widget.atLocation.remove('npcId');
+                        Navigator.of(context).pop(null);
+                      },
+                      child: Text(
+                        engine.locale('delete'),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: fluent.FilledButton(
+                      onPressed: () {
                         dynamic npcData = GameData.gameData['npcs'][widget.id];
                         if (npcData != null) {
-                          npcData['name'] = _nameEditingController.text;
+                          npcData['nameId'] = _nameIdEditingController.text;
+                          npcData['name'] =
+                              engine.locale(_nameIdEditingController.text);
                           npcData['icon'] = _iconEditingController.text;
                           npcData['illustration'] =
                               _illustrationEditingController.text;
+                          npcData['useCustomLogic'] = _useCustomLogic;
                         } else {
                           npcData = engine.hetu.invoke(
                             'Npc',
                             namedArgs: {
                               'id': widget.id,
-                              'name': _nameEditingController.text,
+                              'nameId': _nameIdEditingController.text,
                               'icon': _iconEditingController.text,
                               'illustration':
                                   _illustrationEditingController.text,
+                              'atLocationId': widget.atLocation['id'],
+                              'useCustomLogic': _useCustomLogic,
                             },
                           );
                         }

@@ -21,7 +21,6 @@ namespace Debug {
     )
     // Game.characterAllocateSkills(hero)
 
-    // hero.unconvertedExp = 2000
     // hero.materials.money = 5000
     // hero.materials.shard = 100
     // hero.karma = 50
@@ -47,7 +46,7 @@ namespace Debug {
     
     final items = []
     for (var kind in kEquipmentKinds) {
-      final item = Equipment(kind: kind, rank: 4)
+      final item = Equipment(kind: kind, rank: character.rank)
       items.add(item)
       entityAcquire(character, item)
     }
@@ -61,7 +60,7 @@ namespace Debug {
       entityAcquire(character, pack)
     }
 
-    final shardPack = Materialpack(kind: 'shard', amount: 200)
+    final shardPack = Materialpack(kind: 'shard', amount: 50)
     entityAcquire(character, shardPack)
     items.add(shardPack)
 

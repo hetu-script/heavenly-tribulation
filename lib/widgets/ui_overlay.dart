@@ -21,7 +21,7 @@ import 'ui/draggable_panel.dart';
 import '../scene/game_dialog/game_dialog_controller.dart';
 import 'history_panel.dart';
 import 'npc_list.dart';
-import 'character/merchant.dart';
+import 'character/merchant/merchant.dart';
 import 'dialog/new_items.dart';
 import 'dialog/new_quest.dart';
 import '../game/data.dart';
@@ -81,8 +81,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         heroData != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
 
-    final money = (heroData?['materials']['money']).toString();
-    final shard = (heroData?['materials']['shard']).toString();
+    final money = (heroData?['materials']['money'] ?? 0).toString();
+    final shard = (heroData?['materials']['shard'] ?? 0).toString();
 
     final content = context.watch<HoverContentState>().content;
 
@@ -91,9 +91,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final onBattleStart = context.watch<EnemyState>().onBattleStart;
     final onBattleEnd = context.watch<EnemyState>().onBattleEnd;
 
-    final merchantData = context.watch<MerchantState>().data;
-    final priceFactor = context.watch<MerchantState>().priceFactor;
-    final showMerchant = context.watch<MerchantState>().showMerchant;
+    final (
+      showMerchant,
+      merchantMaterialMode,
+      merchantUseShards,
+      merchantData,
+      merchantPriceFactor,
+      merchantFilter
+    ) = context.watch<MerchantState>().get();
 
     final newQuest = context.watch<NewQuestState>().quest;
     final newItems = context.watch<NewItemsState>().items;
@@ -273,7 +278,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 value: heroData['life'],
                                 max: heroData['stats']['lifeMax'],
                                 height: 25.0,
-                                width: 245.0,
+                                width: 200.0,
                                 showNumber: true,
                                 showNumberAsPercentage: false,
                                 label: engine.locale('stamina'),
@@ -307,11 +312,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 },
                                 onMouseEnter: (rect) {
                                   String description =
-                                      engine.locale('money_description');
+                                      '${engine.locale('money')}: '
+                                      '${engine.locale('money_description')}';
                                   if (widget.enableAutoExhaust) {
                                     description +=
                                         '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  } else {}
+                                  }
                                   context
                                       .read<HoverContentState>()
                                       .show(description, rect);
@@ -337,7 +343,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                               'assets/images/item/material/money.${autoWork ? 'gif' : 'png'}')),
                                     ),
                                     Container(
-                                      width: 80.0,
+                                      width: 120.0,
                                       padding:
                                           const EdgeInsets.only(right: 5.0),
                                       child: Text(
@@ -363,11 +369,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 },
                                 onMouseEnter: (rect) {
                                   String description =
-                                      engine.locale('shard_description');
+                                      '${engine.locale('shard')}: '
+                                      '${engine.locale('shard_description')}';
                                   if (widget.enableAutoExhaust) {
                                     description +=
                                         '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  } else {}
+                                  }
                                   context
                                       .read<HoverContentState>()
                                       .show(description, rect);
@@ -393,7 +400,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                               'assets/images/item/material/shard.${autoCultivate ? 'gif' : 'png'}')),
                                     ),
                                     Container(
-                                      width: 80.0,
+                                      width: 120.0,
                                       padding:
                                           const EdgeInsets.only(right: 5.0),
                                       child: Text(
@@ -409,19 +416,34 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
                                 onMouseEnter: (rect) {
-                                  StringBuffer materials = StringBuffer();
                                   final data = heroData!['materials'];
-                                  materials.writeln(
-                                      '${engine.locale('worker')}: ${(data['worker'] as int).toString().padLeft(10)}');
-                                  materials.writeln(
-                                      '${engine.locale('herb')}: ${(data['herb'] as int).toString().padLeft(10)}');
-                                  materials.writeln(
-                                      '${engine.locale('timber')}: ${(data['timber'] as int).toString().padLeft(10)}');
-                                  materials.writeln(
-                                      '${engine.locale('stone')}: ${(data['stone'] as int).toString().padLeft(10)}');
-                                  materials.write(
-                                      '${engine.locale('ore')}: ${(data['ore'] as int).toString().padLeft(10)}');
-                                  final content = materials.toString();
+                                  final content = SizedBox(
+                                    width: 200,
+                                    height: 220,
+                                    child: Column(
+                                      children: kOtherMaterials
+                                          .map(
+                                            (id) => Row(
+                                              children: [
+                                                Image(
+                                                  width: 20,
+                                                  height: 20,
+                                                  image: AssetImage(
+                                                      'assets/images/item/material/$id.png'),
+                                                ),
+                                                Text('${engine.locale(id)}: '),
+                                                SizedBox(
+                                                  width: 120.0,
+                                                  child: Text(
+                                                      textAlign: TextAlign.end,
+                                                      '${data['id'] ?? 0}'),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  );
                                   context
                                       .read<HoverContentState>()
                                       .show(content, rect);
@@ -436,15 +458,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                         height: 20,
                                         image: AssetImage(
                                             'assets/images/item/material.png')),
-                                    // Container(
-                                    //   width: 40.0,
-                                    //   padding: const EdgeInsets.only(
-                                    //       right: 5.0),
-                                    //   child: Text(
-                                    //     engine.locale('material'),
-                                    //     textAlign: TextAlign.end,
-                                    //   ),
-                                    // ),
                                   ],
                                 ),
                               ),
@@ -535,7 +548,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onTapUp: () {
-                                engine.pushScene(Scenes.cultivation);
+                                engine
+                                    .pushScene(Scenes.cultivation, arguments: {
+                                  'enableCultivate':
+                                      engine.scene?.id == 'mainmenu',
+                                });
                               },
                               onMouseEnter: (rect) {
                                 final cultivationDescription =
@@ -658,7 +675,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             if (merchantData != null && showMerchant)
               MerchantDialog(
                 merchantData: merchantData,
-                priceFactor: priceFactor,
+                useShard: merchantUseShards,
+                materialMode: merchantMaterialMode,
+                priceFactor: merchantPriceFactor,
+                filter: merchantFilter,
               ),
             GameDialogController(),
             ...panels,

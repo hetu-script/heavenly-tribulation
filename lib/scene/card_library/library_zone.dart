@@ -99,7 +99,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
         2;
     assert(_cardsLimitInRow > 0);
 
-    onDragIn = (int buttons, Vector2 position, GameComponent? component) {
+    onDragIn = (int button, Vector2 position, GameComponent? component) {
       if (component is CustomGameCard) {
         if (buildingZone != null && buildingZone!.cards.contains(component)) {
           setCardEnabledById(component.deckId, true);
@@ -117,7 +117,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       _reposition(-100);
     };
 
-    onDragUpdate = (int buttons, Vector2 position, Vector2 delta) {
+    onDragUpdate = (int button, Vector2 position, Vector2 delta) {
       if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(delta.y);
     };
@@ -372,8 +372,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     //     _cardPositions.length == library.length + 1);
     // card.position = _generateNextCardPosition();
 
-    card.onTapDown = (int buttons, Vector2 position) {
-      if (buttons == kPrimaryButton) {
+    card.onTapDown = (int button, Vector2 position) {
+      if (button == kPrimaryButton) {
         engine.setCursor(Cursors.drag);
         if (!card.isEnabled) return;
         if (buildingZone != null) {
@@ -387,8 +387,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       }
     };
 
-    card.onTapUp = (int buttons, __) async {
-      if (buttons == kPrimaryButton) {
+    card.onTapUp = (int button, __) async {
+      if (button == kPrimaryButton) {
         if (!card.isEnabled) return;
         engine.setCursor(Cursors.normal);
         if (buildingZone != null) {
@@ -405,15 +405,15 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
           }
         }
         (game as CardLibraryScene).cardDragRelease();
-      } else if (buttons == kSecondaryButton) {
+      } else if (button == kSecondaryButton) {
         (game as CardLibraryScene).onStartCraft(card);
       }
     };
 
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
     card.onDragStart =
-        (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int buttons, Vector2 position, Vector2 delta) =>
+        (button, dragPosition) => (game as CardLibraryScene).draggingCard;
+    card.onDragUpdate = (int button, Vector2 position, Vector2 delta) =>
         (game as CardLibraryScene).draggingCard?.position += delta;
     card.onDragEnd = (_, __) {
       engine.setCursor(Cursors.normal);

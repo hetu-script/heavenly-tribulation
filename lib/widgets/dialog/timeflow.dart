@@ -10,6 +10,7 @@ import '../../game/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
 import '../../common.dart';
+import '../../state/character.dart';
 
 const _kTimeFlowDivisions = 10;
 
@@ -21,12 +22,12 @@ const kTimeOfDayImageIds = {
 };
 
 class TimeflowDialog extends StatefulWidget {
-  static Future<void> show({
+  static Future<int> show({
     required BuildContext context,
     required int max,
-    void Function()? onProgress,
-  }) {
-    return showDialog<void>(
+    bool Function()? onProgress,
+  }) async {
+    final result = await showDialog<int>(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
@@ -37,6 +38,7 @@ class TimeflowDialog extends StatefulWidget {
         );
       },
     );
+    return result ?? 0;
   }
 
   const TimeflowDialog({
@@ -46,7 +48,7 @@ class TimeflowDialog extends StatefulWidget {
   });
 
   final int max;
-  final void Function()? onProgress;
+  final bool Function()? onProgress;
 
   @override
   State<TimeflowDialog> createState() => _TimeflowDialogState();
@@ -66,16 +68,23 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
       const Duration(
           milliseconds: kAutoTimeFlowInterval ~/ _kTimeFlowDivisions),
       (timer) {
-        if (!finished) {
-          setState(() {
-            ++_progress;
-            if (_progress % _kTimeFlowDivisions == 0) {
-              widget.onProgress?.call();
-              GameLogic.updateGame();
-            }
-          });
-        } else {
+        setState(() {});
+
+        if (finished) {
           _timer!.cancel();
+          return;
+        }
+
+        ++_progress;
+        if (_progress % _kTimeFlowDivisions == 0) {
+          GameLogic.updateGame();
+          context.read<HeroState>().update();
+
+          final result = widget.onProgress?.call();
+          if (result == true) {
+            _timer!.cancel();
+            return;
+          }
         }
       },
     );
@@ -113,10 +122,10 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             Text(gameDateTimeString),
             if (finished)
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: fluent.FilledButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(_progress);
                   },
                   child: Text(
                     engine.locale('close'),

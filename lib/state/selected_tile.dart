@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:samsara/tilemap.dart';
 
-class SelectedTileState with ChangeNotifier {
+import '../engine.dart';
+
+class SelectedPositionState with ChangeNotifier {
   dynamic currentZone, currentNation, currentLocation;
   TileMapTerrain? currentTerrain;
 
@@ -48,6 +50,7 @@ class HeroPositionState with ChangeNotifier {
     if (currentTerrainData != currentTerrain) {
       currentTerrain = currentTerrainData;
       changed = true;
+      engine.hetu.assign('terrain', currentTerrainData?.data);
     }
     if (changed) {
       notifyListeners();

@@ -1,32 +1,46 @@
 {
-  "materialpack_flavortext": "使用后转化为资源。",
-
   "money": "铜钱",
   "money2": "文",
-  "money_description": "铜钱：普通百姓之间用来交易的媒介，修真者用来向其交易资源和雇佣仆役。银块和金锭可以转化为铜钱使用。",
+  "money_description": "普通百姓之间用来交易的媒介，修真者用来向其交易资源和雇佣仆役。银块和金锭可以转化为铜钱。",
   "money_package": "一堆铜钱",
 
   "shard": "灵石",
-  "shard_description": "灵石：灵石是修真者之间用来交易的媒介，可以向其他修真者委托任务和交易法宝。中灵石和大灵石可以转化为灵石来使用。",
+  "shard_description": "修真者之间用来交易的媒介，可以向其他修真者委托任务和交易法宝。灵玉和仙玉可以转化为灵石。",
   "shard_package": "一堆灵石",
 
-  "worker": "杂役",
-  "worker_description": "杂役：为修真者服务的普通人。杂役是运营和修建建筑所必须的资源。",
+  "worker": "劳工",
+  "worker_description": "为修真者服务的普通人。劳工是生产、运营和贸易活动所必须的基础资源之一。",
   "worker_package": "一组劳役契约",
 
+  "water": "清水",
+  "water_description": "劳工生存所必须的资源，同时也是农业、炼丹、炼器等生产活动的原材料。",
+  "water_package": "一袋清水",
+
+  "grain": "谷物",
+  "grain_description": "劳工生存所必须的资源，同时也是农业、炼丹等生产活动的原材料。",
+  "grain_package": "一袋谷物",
+
+  "meat": "生肉",
+  "meat_description": "劳工生存所必须的资源，同时也是炼丹等生产活动的原材料。",
+  "meat_package": "一堆生肉",
+
+  "leather": "皮革",
+  "leather_description": "从动物身上获取并进一步加工后的产品，同时也是炼器等生产活动的原材料。",
+  "leather_package": "一堆皮革",
+
   "herb": "药材",
-  "herb_description": "药材：从山林中采集到的具有特殊功能的草木，用作炼丹的材料，也是培养灵植和灵兽需要的材料。",
+  "herb_description": "从山林中采集到的具有特殊功能的草木，用作炼丹的材料，也是培养灵植和灵兽需要的材料。",
   "herb_package": "一捆药材",
 
   "timber": "木材",
-  "timber_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
+  "timber_description": "粗略加工过的圆木，用作建筑材料和炼器原材料。",
   "timber_package": "一堆木材",
 
   "stone": "石料",
-  "stone_description": "石料：从山林中开采出的石块，用作建筑材料和部分打造材料。",
+  "stone_description": "从山林中开采出的石块，用作建筑材料和炼器原材料。",
   "stone_package": "一堆石料",
 
   "ore": "矿物",
-  "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。",
+  "ore_description": "包含金属元素的矿物，是炼器和炼丹需要的材料。",
   "ore_package": "一堆矿物"
 }

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/paint/paint.dart';
-
-import '../../engine.dart';
-import '../../common.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 class BorderedIconButton extends StatelessWidget {
   const BorderedIconButton({
     super.key,
+    this.cursor,
     this.size = const Size(24.0, 24.0),
     this.child,
     this.padding = const EdgeInsets.all(0.0),
@@ -21,6 +20,7 @@ class BorderedIconButton extends StatelessWidget {
     this.isEnabled = true,
   });
 
+  final MouseCursor? cursor;
   final Size size;
   final Widget? child;
   final EdgeInsetsGeometry padding;
@@ -47,12 +47,11 @@ class BorderedIconButton extends StatelessWidget {
             onTapUp?.call();
           },
           child: MouseRegion2(
+            cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
             onMouseEnter: (rect) {
-              engine.setCursor(Cursors.click);
               onMouseEnter?.call(rect);
             },
             onMouseExit: () {
-              engine.setCursor(Cursors.normal);
               onMouseExit?.call();
             },
             child: Container(

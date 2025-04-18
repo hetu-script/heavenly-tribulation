@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../../game/ui.dart';
-import '../../../engine.dart';
-import '../../../common.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 
@@ -52,25 +51,25 @@ class ItemGrid extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: MouseRegion(
+        cursor: itemData == null
+            ? MouseCursor.defer
+            : FlutterCustomMemoryImageCursor(key: 'click'),
         onEnter: (event) {
           if (itemData == null) {
             return;
           }
-
-          engine.setCursor(Cursors.click);
           final Rect rect = getRenderRect(context);
           onMouseEnter?.call(itemData, rect);
         },
         onExit: (event) {
-          engine.setCursor(Cursors.normal);
           onMouseExit?.call();
         },
         child: PointerDetector(
-          onTapUp: (pointer, buttons, details) {
+          onTapUp: (pointer, button, details) {
             if (itemData == null) return;
-            if (buttons == kPrimaryButton) {
+            if (button == kPrimaryButton) {
               onTapped?.call(itemData, details.globalPosition);
-            } else if (buttons == kSecondaryButton) {
+            } else if (button == kSecondaryButton) {
               onSecondaryTapped?.call(itemData, details.globalPosition);
             }
           },

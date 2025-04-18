@@ -1,7 +1,4 @@
-// import 'tile/hexagonal_tile.ht'
-// import 'tile/tilemap.ht'
 import 'tile/common.ht'
-// import '../game/data.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
 
@@ -13,6 +10,7 @@ function getCurrentWorldZoneColors {
   for (const tile in world.terrains) {
     if (tile.zoneId) {
       const zone = world.zones[tile.zoneId]
+      assert(zone != null, 'zoneId: ${tile.zoneId} not found')
       zoneColors[tile.index] = zone.color
     }
     if (tile.nationId) {

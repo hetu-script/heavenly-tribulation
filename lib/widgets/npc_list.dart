@@ -8,6 +8,7 @@ import '../state/current_npc_list.dart';
 // import '../../state/game_dialog_state.dart';
 import '../game/ui.dart';
 import '../game/data.dart';
+import '../game/logic.dart';
 
 class NpcList extends StatefulWidget {
   const NpcList({super.key});
@@ -57,13 +58,7 @@ class _NpcListState extends State<NpcList> {
             borderWidth: 1.0,
             borderRadius: 5.0,
             onPressed: (charId) {
-              // if (characterData['entityType'] == 'character') {
-              engine.hetu.invoke('onInteractCharacter',
-                  positionalArgs: [characterData]);
-              // } else {
-              //   engine.hetu.invoke('onInteractLocationObject',
-              //       positionalArgs: [characterData]);
-              // }
+              GameLogic.onInteractCharacter(characterData);
             }),
       );
     }).toList();

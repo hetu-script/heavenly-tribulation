@@ -75,16 +75,17 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
-        width: 200,
-        height: 200,
+        width: 250,
+        height: 300,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(widget.title ?? engine.locale('inputInteger')),
+            title: Text(widget.title ?? engine.locale('selectAmount')),
             actions: const [CloseButton2()],
           ),
           body: Container(
             alignment: AlignmentDirectional.center,
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
                 Padding(

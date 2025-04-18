@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hetu_script/utils/json.dart';
+// import 'package:hetu_script/utils/json.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/samsara.dart';
@@ -18,7 +18,7 @@ import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
 import 'game/data.dart';
 import 'game/ui.dart';
-import 'scene/world/location/location.dart';
+import 'scene/world/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'game/logic.dart';
@@ -26,6 +26,7 @@ import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
 import 'widgets/ui/menu_builder.dart';
 import 'common.dart';
+import 'game/constants.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -56,23 +57,19 @@ class _GameAppState extends State<GameApp> {
     // 读取存档列表
     context.read<GameSavesState>().loadList();
 
-    engine.registerSceneConstructor(Scenes.mainmenu, (
-        [Map<String, dynamic> arguments = const {}]) async {
+    engine.registerSceneConstructor(Scenes.mainmenu, (arguments) async {
       return MainMenuScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.cultivation, (
-        [Map<String, dynamic> arguments = const {}]) async {
+    engine.registerSceneConstructor(Scenes.cultivation, (arguments) async {
       return CultivationScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.library, (
-        [Map<String, dynamic> arguments = const {}]) async {
+    engine.registerSceneConstructor(Scenes.library, (arguments) async {
       return CardLibraryScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.battle, (
-        [Map<String, dynamic> arguments = const {}]) async {
+    engine.registerSceneConstructor(Scenes.battle, (arguments) async {
       return BattleScene(
         heroData: arguments['hero'] ?? GameData.heroData,
         enemyData: arguments['enemy'],
@@ -82,8 +79,7 @@ class _GameAppState extends State<GameApp> {
       );
     });
 
-    engine.registerSceneConstructor(Scenes.location, (
-        [Map<String, dynamic> arguments = const {}]) async {
+    engine.registerSceneConstructor(Scenes.location, (arguments) async {
       final locationData = arguments['location'];
       assert(locationData != null);
       return LocationScene(
@@ -92,36 +88,34 @@ class _GameAppState extends State<GameApp> {
       );
     });
 
-    engine.registerSceneConstructor(Scenes.worldmap, ([dynamic args]) async {
+    engine.registerSceneConstructor(Scenes.worldmap, (arguments) async {
       dynamic worldData;
-      final method = args['method'];
-      final isEditorMode = args['isEditorMode'] ?? false;
+      final method = arguments['method'];
+      final isEditorMode = arguments['isEditorMode'] ?? false;
       if (method == 'load' || method == 'preset') {
-        worldData =
-            engine.hetu.invoke('switchWorld', positionalArgs: [args['id']]);
+        worldData = engine.hetu
+            .invoke('switchWorld', positionalArgs: [arguments['id']]);
       } else if (method == 'generate') {
         engine.debug('创建程序生成的随机世界。');
-        worldData = engine.hetu.invoke('createSandboxWorld', namedArgs: args);
+        worldData =
+            engine.hetu.invoke('createSandboxWorld', namedArgs: arguments);
         GameData.worldIds.add(worldData['id']);
       } else if (method == 'blank') {
         engine.debug('创建空白世界。');
-        worldData = engine.hetu.invoke('createBlankWorld', namedArgs: args);
+        worldData =
+            engine.hetu.invoke('createBlankWorld', namedArgs: arguments);
         GameData.worldIds.add(worldData['id']);
       }
-
-      GameLogic.calculateTimestamp();
 
       final scene = WorldMapScene(
         context: context,
         worldData: worldData,
-        backgroundSpriteId: args['background'],
+        backgroundSpriteId: arguments['background'],
         // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         isEditorMode: isEditorMode,
       );
 
-      final colors = engine.hetu.invoke('getCurrentWorldZoneColors');
-      engine.debug('刷新地图 ${scene.map.id} 上色信息');
-      engine.loadTileMapZoneColors(scene.map, colors);
+      scene.loadZoneColors();
 
       return scene;
     });
@@ -132,6 +126,7 @@ class _GameAppState extends State<GameApp> {
     await engine.init(context);
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
+    engine.hetu.interpreter.bindExternalClass(ConstantsBinding());
 
     engine.hetu.interpreter.bindExternalFunction(
         'expForLevel',
@@ -168,6 +163,11 @@ class _GameAppState extends State<GameApp> {
       return GameLogic.calculateItemPrice(positionalArgs.first,
           priceFactor: namedArgs['priceFactor'],
           isSell: namedArgs['isSell'] ?? true);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('generateZone', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.generateZone(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
@@ -247,6 +247,20 @@ class _GameAppState extends State<GameApp> {
       dialog.pushDialog(engine.locale('reloadGameDataPrompt'));
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Game::datetime', (
+        {positionalArgs, namedArgs}) {
+      return {
+        'timestamp': GameData.gameData['timestamp'],
+        'tickOfYear': GameLogic.ticksOfYear,
+        'tickOfMonth': GameLogic.ticksOfMonth,
+        'tickOfDay': GameLogic.ticksOfDay,
+        'year': GameLogic.year,
+        'month': GameLogic.month,
+        'day': GameLogic.day,
+        'timeOfDay': GameLogic.timeOfDay,
+      };
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Game::updateHero', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
@@ -263,8 +277,7 @@ class _GameAppState extends State<GameApp> {
             context.read<SamsaraEngine>().pushScene(
                   positionalArgs.first,
                   constructorId: namedArgs['category'],
-                  arguments:
-                      jsonify(namedArgs['arguments'], deep: false) ?? const {},
+                  arguments: namedArgs['arguments'] ?? const {},
                 ),
         override: true);
 
@@ -273,8 +286,7 @@ class _GameAppState extends State<GameApp> {
         ({positionalArgs, namedArgs}) =>
             context.read<SamsaraEngine>().switchScene(
                   positionalArgs.first,
-                  arguments:
-                      jsonify(namedArgs['arguments'], deep: false) ?? const {},
+                  arguments: namedArgs['arguments'] ?? const {},
                   restart: namedArgs['restart'] ?? false,
                 ),
         override: true);
@@ -377,6 +389,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
         {positionalArgs, namedArgs}) {
       engine.pushScene(Scenes.cultivation, arguments: {
+        'location': namedArgs['location'],
         'enableCultivate': namedArgs['enableCultivate'] ?? false,
       });
     }, override: true);
@@ -406,8 +419,13 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showMerchant', (
         {positionalArgs, namedArgs}) {
-      context.read<MerchantState>().show(positionalArgs.first,
-          priceFactor: namedArgs['priceFactor'] ?? {});
+      context.read<MerchantState>().show(
+            positionalArgs.first,
+            materialMode: namedArgs['materialMode'] ?? false,
+            useShard: namedArgs['useShard'] ?? false,
+            priceFactor: namedArgs['priceFactor'] ?? {},
+            filter: namedArgs['filter'],
+          );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(

@@ -14,12 +14,16 @@ class InputStringDialog extends StatefulWidget {
   static Future<String?> show({
     required BuildContext context,
     String? title,
+    String? value,
   }) {
     return showDialog<String?>(
       context: context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        return InputStringDialog(title: title);
+        return InputStringDialog(
+          title: title,
+          value: value,
+        );
       },
     );
   }
@@ -27,9 +31,11 @@ class InputStringDialog extends StatefulWidget {
   const InputStringDialog({
     super.key,
     this.title,
+    this.value,
   });
 
   final String? title;
+  final String? value;
 
   @override
   State<InputStringDialog> createState() => _InputStringDialogState();
@@ -37,6 +43,13 @@ class InputStringDialog extends StatefulWidget {
 
 class _InputStringDialogState extends State<InputStringDialog> {
   final _textEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _textEditingController.text = widget.value ?? '';
+  }
 
   @override
   void dispose() {

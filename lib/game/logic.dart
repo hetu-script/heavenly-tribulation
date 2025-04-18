@@ -14,73 +14,7 @@ import '../scene/game_dialog/game_dialog_content.dart';
 import '../widgets/dialog/select_menu.dart';
 import '../widgets/dialog/input_slider.dart';
 import '../scene/common.dart';
-import 'common.dart';
 import 'data.dart';
-
-/// 战斗结束后生命恢复比例计算时，
-/// 战斗中使用的卡牌使用过的数量的阈值
-const kBaseAfterBattleHPRestoreRate = 0.25;
-const kBattleCardsCount = 16;
-
-const kCharacterYearlyUpdateMonth = 3;
-const kLocationYearlyUpdateMonth = 6;
-const kOrganizationYearlyUpdateMonth = 9;
-
-/// 根据人物当前境界，获取不同境界卡牌的概率
-const kCardObtainProbabilityByRank = {
-  1: {
-    1: 1,
-  },
-  2: {
-    1: 0.7,
-    2: 0.3,
-  },
-  3: {
-    1: 0.6,
-    2: 0.25,
-    3: 0.15,
-  },
-  4: {
-    1: 0.5,
-    2: 0.25,
-    3: 0.15,
-    4: 0.1,
-  },
-  5: {
-    1: 0.45,
-    2: 0.25,
-    3: 0.15,
-    4: 0.1,
-    5: 0.05,
-  }
-};
-
-const kBattleCardPriceRate = 0.135;
-const kAddAffixCostRate = 0.08;
-const kRerollAffixCostRate = 0.02;
-const kReplaceAffixCostRate = 0.03;
-const kUpgradeCardCostRate = 0.12;
-const kUpgradeRankCostRate = 8.5;
-const kCraftScrollCostRate = 0.06;
-
-const _kCardCraftOperations = {
-  'addAffix',
-  'rerollAffix',
-  'replaceAffix',
-  'upgradeCard',
-  'upgradeRank',
-  'dismantle',
-  'craftScroll',
-};
-
-const kMaxLevelForRank8 = 100;
-
-const kTimeOfDay = {
-  1: 'morning',
-  2: 'afternoon',
-  3: 'evening',
-  4: 'midnight',
-};
 
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -99,11 +33,65 @@ abstract class GameLogic {
     ticksOfMonth = (timestamp % kTicksPerMonth) + 1;
     ticksOfDay = (timestamp % kTicksPerDay) + 1;
     year = (timestamp ~/ kTicksPerYear) + 1;
-    month = (timestamp % kTicksPerYear) + 1;
-    day = (timestamp % kTicksPerMonth) + 1;
+    month = (ticksOfYear ~/ kTicksPerMonth) + 1;
+    day = (ticksOfMonth ~/ kTicksPerDay) + 1;
     timeOfDay = kTimeOfDay[ticksOfDay]!;
 
     engine.info('游戏时间: [$year年$month月$day日$timeOfDay]');
+  }
+
+  static int generateZone(dynamic world) {
+    int count = 0;
+    List indexed = [];
+
+    void updateTileZone2(dynamic tile, dynamic world, [dynamic zone]) {
+      if (tile['spriteIndex'] == null) return;
+      if (tile['zoneId'] != null) return;
+      engine.debug(
+          'processing: ${tile['left']},${tile['top']}, spriteIndex: ${tile['spriteIndex']}');
+      if (zone == null) {
+        final category =
+            kTileSpriteIndexToZoneCategory[tile['spriteIndex']] as String;
+        zone = engine.hetu.invoke('Zone', namedArgs: {'category': category});
+        tile['zoneId'] = zone['id'];
+        ++count;
+      } else {
+        tile['zoneId'] = zone['id'];
+      }
+      indexed.add(tile['index']);
+      engine.hetu
+          .invoke('addTerrainToZone', positionalArgs: [tile, world, zone]);
+
+      final neighbors = engine.hetu.invoke('getMapTileNeighbors',
+          positionalArgs: [tile['left'], tile['top'], world]);
+      for (final neighbor in neighbors) {
+        engine.debug(
+            'neighbor: ${neighbor['left']},${neighbor['top']}, spriteIndex: ${neighbor['spriteIndex']}');
+        if (indexed.contains(neighbor['index'])) continue;
+        if (neighbor['zoneId'] != null) continue;
+        if (neighbor['spriteIndex'] == null) continue;
+        if (neighbor['spriteIndex'] == tile['spriteIndex']) {
+          updateTileZone2(neighbor, world, zone);
+        }
+      }
+    }
+
+    dynamic unzonedTile = (world['terrains'] as List).firstWhere(
+      (tile) => (tile['spriteIndex'] != null && tile['zoneId'] == null),
+      orElse: () => null,
+    );
+    while (unzonedTile != null) {
+      updateTileZone2(unzonedTile, world);
+
+      unzonedTile = (world['terrains'] as List).firstWhere(
+        (tile) => (tile['spriteIndex'] != null && tile['zoneId'] == null),
+        orElse: () => null,
+      );
+    }
+
+    engine.debug('生成了 $count 个地域。');
+
+    return count;
   }
 
   static int minLevelForRank(int rank) {
@@ -143,7 +131,7 @@ abstract class GameLogic {
   // }
 
   static int getCardCraftOperationCost(String operation, dynamic cardData) {
-    assert(_kCardCraftOperations.contains(operation));
+    assert(kCardOperations.contains(operation));
     switch (operation) {
       case 'dismantle':
         return calculateBattleCardPrice(cardData);
@@ -189,7 +177,7 @@ abstract class GameLogic {
       }
       final String? genreRequirement = entityData['genre'];
       if (genreRequirement != null) {
-        if (kMainCultivationGenres.contains(genreRequirement)) {
+        if (kCultivationGenres.contains(genreRequirement)) {
           bool hasGenreRankPassive = false;
           final passive =
               GameData.heroData['passives']['${genreRequirement}_rank'];
@@ -242,27 +230,82 @@ abstract class GameLogic {
   }
 
   /// 计算购买或卖出物品时的价格
+  ///
+  /// [priceFactor] 交易物品时，需要支付的价格相比商品基础价格的乘数
+  /// key为`base`, `sell`, category、kind 或 id，value 为价格乘数
+  /// category，kind 和 id 分开保存，叠加计算
+  /// 出售有单独的影响因子
+  /// ```javascript
+  /// {
+  ///   useShard: true,
+  ///   base: 1.0,
+  ///   sell: 0.5,
+  ///   category: {
+  ///     weapon: 1.0,
+  ///   },
+  ///   kind: {
+  ///     sword: 1.0,
+  ///   },
+  /// }
+  /// ```
+  /// 将所有匹配的乘数乘在一起，然后再乘以物品本身的price
+  ///
+  /// 游戏端不会显示具体的影响因子数值，只是会根据数值偏离1.0的程度显示：
+  /// 1.0 = 正常
+  /// 大于1.0时：
+  /// 1.0-1.3: 略微昂贵
+  /// 1.3-1.6: 昂贵
+  /// 1.6+: 非常昂贵
+  /// 小于1.0时：
+  /// 0.7-1.0: 略微便宜
+  /// 0.4-0.7: 便宜
+  /// 0.1-0.4: 非常便宜
   static int calculateItemPrice(dynamic itemData,
       {dynamic priceFactor, bool isSell = true}) {
-    final price = itemData['price'] ?? 0;
+    final int price = itemData['price'] ?? 0;
 
     if (priceFactor == null) {
       return price;
     } else {
-      final double base = priceFactor['base'] ?? kBaseBuyRate;
-      final double sell = priceFactor['sell'] ?? kBaseSellRate;
+      final double base = priceFactor['base'] ?? kBaseBuyRate; // 基础值：1.0
+      final double sell = priceFactor['sell'] ?? kBaseSellRate; // 基础值：0.5
 
       final double category =
           priceFactor['category']?[itemData['category']] ?? 1.0;
       final double kind = priceFactor['kind']?[itemData['kind']] ?? 1.0;
-      final double id = priceFactor['id']?[itemData['id']] ?? 1.0;
 
-      double finalPrice = isSell
-          ? price * sell * category * kind * id
-          : price * base * category * kind * id;
+      double ratio = base * category * kind * (isSell ? sell : 1.0);
+      final min = isSell ? kMinSellRate : kMinBuyRate;
+      if (ratio < min) ratio = min;
+
+      int finalPrice = (price * ratio).ceil();
 
       if (priceFactor['useShard'] == true) {
-        finalPrice /= kMoneyToShardRate;
+        finalPrice = (finalPrice / kShardToMoneyRate).ceil();
+      }
+
+      return finalPrice;
+    }
+  }
+
+  /// 参考 [calculateItemPrice]
+  static int calculateMaterialPrice(String materialId,
+      {dynamic priceFactor, bool isSell = true}) {
+    assert(kMaterialBasePriceByKind.containsKey(materialId));
+    final price = kMaterialBasePriceByKind[materialId] as int;
+
+    if (priceFactor == null) {
+      return price;
+    } else {
+      final double base = priceFactor['base'] ?? kBaseBuyRate; // 基础值：1.0
+      final double sell = priceFactor['sell'] ?? kBaseSellRate; // 基础值：0.5
+
+      final double kind = priceFactor['kind']?[materialId] ?? 1.0;
+
+      double finalPrice = price * base * kind * (isSell ? sell : 1.0);
+
+      if (priceFactor['useShard'] == true) {
+        finalPrice /= kShardToMoneyRate;
       }
 
       return finalPrice.ceil();
@@ -298,7 +341,13 @@ abstract class GameLogic {
       if (isIdentified != null && isIdentified != itemData['isIdentified']) {
         continue;
       }
-      if (type == ItemType.customer || type == ItemType.merchant) {
+      if (type == ItemType.customer) {
+        if (itemData['isUntradable'] == true) continue;
+        if (kUntradableItemKinds.contains(itemData['kind'])) {
+          continue;
+        }
+      }
+      if (type == ItemType.merchant) {
         if (kUntradableItemKinds.contains(itemData['kind'])) {
           continue;
         }
@@ -528,6 +577,25 @@ abstract class GameLogic {
     );
   }
 
+  static Future<String?> selectOrganizationId() async {
+    final selections = <String, String>{};
+    final organizationsData = GameData.gameData['organizations'];
+    if (organizationsData.isEmpty) return null;
+
+    for (final element in organizationsData.keys) {
+      selections[element] = element;
+    }
+    return await showDialog(
+      context: engine.context,
+      builder: (context) {
+        return SelectMenuDialog(
+          selections: selections,
+          selectedValue: null,
+        );
+      },
+    );
+  }
+
   static Future<String?> selectObjectId() async {
     final selections = <String, String>{};
     if (GameData.world['objects'].isEmpty) return null;
@@ -613,7 +681,7 @@ abstract class GameLogic {
         //       GameData.gameData['flags']['hintedTribulation'];
         //   if (hintedTribulation == null || hintedTribulation == false) {
         //     GameDialogContent.show(
-        //         engine.context, engine.locale('help_tribulation_beforeBattle'));
+        //         engine.context, engine.locale('hint_tribulation_beforeBattle'));
         //     GameData.gameData['flags']['hintedTribulation'] = true;
         //   }
         // },
@@ -633,8 +701,8 @@ abstract class GameLogic {
   }
 
   static void heroRest() async {
-    final selected =
-        await SelectionDialog.show(engine.context, selectionsData: {
+    dialog.pushSelection({
+      'id': 'restOption',
       'selections': {
         'rest1Days': engine.locale('rest1Days'),
         'rest10Days': engine.locale('rest10Days'),
@@ -645,6 +713,8 @@ abstract class GameLogic {
         'cancel': engine.locale('cancel'),
       },
     });
+    await dialog.execute();
+    final selected = dialog.checkSelected('restOption');
     int ticks = 0;
     switch (selected) {
       case 'rest1Days':
@@ -654,29 +724,114 @@ abstract class GameLogic {
       case 'rest30Days':
         ticks = kTicksPerDay * 30;
       case 'restTillTommorow':
-        ticks = engine.hetu.invoke('getTicksTillNextDay');
+        ticks = kTicksPerDay - ticksOfDay;
       case 'restTillNextMonth':
-        ticks = engine.hetu.invoke('getTicksTillNextMonth');
+        ticks = kTicksPerMonth - ticksOfMonth;
       case 'restTillFullHealth':
         ticks =
             (GameData.heroData['stats']['lifeMax'] - GameData.heroData['life'])
-                .ceil();
-        if (ticks == 0) {
+                .floor();
+        if (ticks <= 0) {
           GameDialogContent.show(
               engine.context, engine.locale('alreadyFullHealthNoNeedRest'));
         }
     }
+    if (ticks <= 0) return;
 
-    if (ticks > 0) {
-      TimeflowDialog.show(
-        context: engine.context,
-        max: ticks,
-        onProgress: () {
-          engine.hetu
-              .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
-        },
-      );
+    TimeflowDialog.show(
+      context: engine.context,
+      max: ticks,
+      onProgress: () {
+        engine.hetu
+            .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
+        return false;
+      },
+    );
+  }
+
+  static void heroWork(dynamic location, dynamic npc) async {
+    final kind = location['kind'];
+    if (!kWorkMounths.containsKey(kind)) {
+      engine.warn('非可工作场所：${location['name']}($kind)');
+      return;
     }
+
+    void notEnoughStamina() async {
+      dialog.pushDialog({
+        'name': npc?['name'],
+        'icon': npc?['icon'],
+        'image': npc?['image'],
+        'lines': [engine.locale('hint_notEnoughHealthToWork')]
+      });
+      await dialog.execute();
+    }
+
+    if (GameData.heroData['life'] <= 1) {
+      notEnoughStamina();
+      return;
+    }
+
+    final months = kWorkMounths[kind] as List;
+    if (!months.contains(month)) {
+      dialog.pushDialog({
+        'name': npc?['name'],
+        'icon': npc?['icon'],
+        'image': npc?['image'],
+        'lines': [engine.locale('hint_notWorkSeason')]
+      });
+      await dialog.execute();
+      return;
+    }
+
+    final baseSalary = kWorkBaseSalaries[kind] as int;
+    final baseStaminaCost = kWorkBaseStaminaCost[kind] as int;
+
+    dialog.pushSelection({
+      'id': 'workOption',
+      'selections': {
+        'work10Days': engine.locale('work10Days'),
+        'work30Days': engine.locale('work30Days'),
+        'workTillNextMonth': engine.locale('workTillNextMonth'),
+        'workTillHealthExhausted': engine.locale('workTillHealthExhausted'),
+        'cancel': engine.locale('cancel'),
+      },
+    });
+    await dialog.execute();
+    final selected = dialog.checkSelected('workOption');
+    int ticks = 0;
+    switch (selected) {
+      case 'work10Days':
+        ticks = kTicksPerDay * 10;
+      case 'work30Days':
+        ticks = kTicksPerDay * 30;
+      case 'workTillNextMonth':
+        ticks = kTicksPerMonth - ticksOfMonth;
+      case 'workTillHealthExhausted':
+        ticks = (GameData.heroData['life'].floor() - 1) ~/ baseStaminaCost;
+        if (ticks <= 0) {
+          notEnoughStamina();
+          return;
+        }
+    }
+    if (ticks <= 0) return;
+
+    final finalTicks = await TimeflowDialog.show(
+      context: engine.context,
+      max: ticks,
+      onProgress: () {
+        engine.hetu.invoke('setLife',
+            namespace: 'Player',
+            positionalArgs: [GameData.heroData['life'].floor() - 1]);
+        return GameData.heroData['life'] <= 1;
+      },
+    );
+
+    engine.play('coins-31879.mp3');
+    engine.hetu.invoke('collect', namespace: 'Player', positionalArgs: [
+      'money'
+    ], namedArgs: {
+      'amount': finalTicks * baseSalary,
+    });
   }
 
   static double getMoveCostOnHill() {
@@ -730,19 +885,19 @@ abstract class GameLogic {
             },
           },
         );
-      // case 'materialpack':
-      //   engine.hetu.invoke('lose',
-      //       namespace: 'Player',
-      //       positionalArgs: [itemData],
-      //       namedArgs: {'incurIncident': false});
-      //   engine.hetu.invoke(
-      //     'collect',
-      //     namespace: 'Player',
-      //     positionalArgs: [itemData['kind']],
-      //     namedArgs: {'amount': itemData['stackSize']},
-      //   );
-      //   engine.play('pickup_item-64282.mp3');
-      // case 'exppack':
+      case 'material_pack':
+        engine.hetu.invoke('lose',
+            namespace: 'Player',
+            positionalArgs: [itemData],
+            namedArgs: {'incurIncident': false});
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: [itemData['kind']],
+          namedArgs: {'amount': itemData['stackSize']},
+        );
+        engine.play('pickup_item-64282.mp3');
+      // case 'exp_pack':
       //   engine.hetu.invoke('gainExp',
       //       namespace: 'Player', positionalArgs: [itemData['stackSize']]);
       //   engine.hetu
@@ -760,7 +915,7 @@ abstract class GameLogic {
       return;
     }
 
-    final int shards = GameData.heroData['materials']['shard'];
+    final int shards = GameData.heroData['materials']['shard'] ?? 0;
     final int shardsPerCharge = chargeData['shardsPerCharge'];
     if (shards < shardsPerCharge) {
       GameDialogContent.show(
@@ -843,8 +998,10 @@ abstract class GameLogic {
       if (ownerId != GameData.heroData['id']) {
         final owner = GameData.gameData['characters'][ownerId];
         if (owner['locationId'] != locationData['id']) {
-          GameDialogContent.show(engine.context,
-              engine.locale('visitEmptyHome', interpolations: [owner['name']]));
+          GameDialogContent.show(
+              engine.context,
+              engine.locale('hint_visitEmptyHome',
+                  interpolations: [owner['name']]));
         }
       }
     }
@@ -859,11 +1016,15 @@ abstract class GameLogic {
 
   /// 和门派总堂的定灵碑交互
   /// 如果并非此组织成员，无法使用
-  static void onInteractCultivationStele(dynamic organizationData) async {
+  static void onInteractCultivationStele(
+    dynamic organizationData, {
+    dynamic locationData,
+    bool? enableCultivate,
+  }) async {
     if (GameData.heroData['organizationId'] == organizationData['id']) {
       engine.pushScene(Scenes.cultivation, arguments: {
-        'enableCultivate':
-            organizationData['techs']['enableCultivate'] ?? false,
+        'location': locationData,
+        'enableCultivate': locationData == null ? enableCultivate : false,
         'onEnterScene': () async {
           if (GameData.gameData['flags']['hintedCultivation'] != true) {
             GameData.gameData['flags']['hintedCultivation'] = true;
@@ -937,7 +1098,12 @@ abstract class GameLogic {
 
   /// 和门派藏书阁的功法图录交互
   /// 如果并非此组织成员，无法使用
-  static void onInteractCardLibraryDesk(dynamic organizationData) async {
+  static void onInteractCardLibraryDesk(
+    dynamic organizationData, {
+    dynamic locationData,
+  }) async {
+    assert(organizationData != null);
+
     if (GameData.heroData['organizationId'] == organizationData['id']) {
       engine.pushScene(Scenes.library, arguments: {
         'enableCardCraft':
@@ -1042,9 +1208,6 @@ abstract class GameLogic {
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
       for (final locationData in GameData.gameData['locations'].values) {
-        // 玩家自己控制的据点
-        if (GameData.heroData['id'] == locationData['ownerId']) continue;
-
         // 月度事件
         if (day == 1 && ticksOfDay == 1) {
           updateLocationMonthly(locationData);
@@ -1060,9 +1223,6 @@ abstract class GameLogic {
       // 触发每个组织的刷新事件
       for (final organizationData
           in GameData.gameData['organizations'].values) {
-        // 组织管理的自动逻辑跳过玩家自己控制的组织
-        if (GameData.heroData['id'] == organizationData['headId']) continue;
-
         // 月度事件
         if (day == 1 && ticksOfDay == 1) {
           updateOrganizationMonthly(organizationData);
@@ -1078,9 +1238,6 @@ abstract class GameLogic {
 
       // 触发每个角色的刷新事件
       for (final characterData in GameData.gameData['characters'].values) {
-        // 跳过玩家自己控制的角色
-        if (GameData.heroData['id'] == characterData['id']) continue;
-
         // 月度事件
         if (day == 1 && ticksOfDay == 1) {
           updateCharacterMonthly(characterData);
@@ -1109,12 +1266,14 @@ abstract class GameLogic {
         engine.context.read<GameTimestampState>().update();
       }
 
-      for (final itemId in GameData.heroData['equipments'].values) {
-        if (itemId == null) continue;
-        final itemData = GameData.heroData['inventory'][itemId];
-        engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
-        await engine.hetu
-            .invoke('onGameEvent', positionalArgs: ['onUpdateItem', itemData]);
+      if (GameData.heroData != null) {
+        for (final itemId in GameData.heroData['equipments'].values) {
+          if (itemId == null) continue;
+          final itemData = GameData.heroData['inventory'][itemId];
+          engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
+          await engine.hetu.invoke('onGameEvent',
+              positionalArgs: ['onUpdateItem', itemData]);
+        }
       }
     }
 
@@ -1122,54 +1281,149 @@ abstract class GameLogic {
         'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
   }
 
-  static void updateLocationMonthly(dynamic locationData) {
-    engine.debug('${locationData['name']} 的月度更新');
-  }
-
+  /// 据点年度更新开始
   static void updateLocationYearlyStart(dynamic locationData) {
-    engine.debug('${locationData['name']} 的年度更新开始');
+    engine.debug('${locationData['id']} 的年度更新开始');
   }
 
+  /// 据点年度更新结束
   static void updateLocationYearlyEnd(dynamic locationData) {
-    engine.debug('${locationData['name']} 的年度更新结束');
+    engine.debug('${locationData['id']} 的年度更新结束');
+  }
+
+  /// 据点月度更新
+  static void updateLocationMonthly(dynamic locationData) {
+    engine.debug('${locationData['id']} 的月度更新');
+
+    if (locationData['category'] == 'city') {
+    } else if (locationData['category'] == 'site') {
+      // 交易类场景每个月刷新物品
+      switch (locationData['kind']) {
+        case 'cityhall':
+          engine.hetu
+              .invoke('replenishCityhallExp', positionalArgs: [locationData]);
+        case 'tradinghouse':
+          engine.hetu.invoke('replenishTradingHouseMaterials',
+              positionalArgs: [locationData]);
+        case 'auctionhouse':
+          engine.hetu.invoke('replenishAuctionHouseItems',
+              positionalArgs: [locationData]);
+      }
+    }
   }
 
   /// 组织年度更新开始
   static void updateOrganizationYearlyStart(organizationData) {
-    engine.debug('${organizationData['name']} 的年度更新开始');
+    engine.debug('${organizationData['id']} 的年度更新开始');
 
     organizationData['isRecruiting'] = true;
-    engine.debug('${organizationData.id} 的招募活动本月开始。');
+    engine.debug('${organizationData['id']} 的招募活动本月开始。');
   }
 
   /// 组织年度更新结束
   static void updateOrganizationYearlyEnd(organizationData) {
-    engine.debug('${organizationData['name']} 的年度更新结束');
+    engine.debug('${organizationData['id']} 的年度更新结束');
 
     organizationData['isRecruiting'] = false;
-    engine.debug('${organizationData.id} 的招募活动已经结束。');
+    engine.debug('${organizationData['id']} 的招募活动已经结束。');
   }
 
   /// 组织月度更新
   static void updateOrganizationMonthly(organizationData) {
-    engine.debug('${organizationData['name']} 的月度更新');
+    engine.debug('${organizationData['id']} 的月度更新');
   }
 
   /// 角色年度更新开始
   static void updateCharacterYearlyStart(characterData) {
-    engine.debug('${characterData['name']} 的年度更新开始');
+    engine.debug('${characterData['id']} 的年度更新开始');
   }
 
   /// 角色年度更新结束
   static void updateCharacterYearlyEnd(characterData) {
-    engine.debug('${characterData['name']} 的年度更新结束');
+    engine.debug('${characterData['id']} 的年度更新结束');
   }
 
   /// 角色月度更新
   static void updateCharacterMonthly(characterData) {
-    engine.debug('${characterData['name']} 的月度更新');
+    engine.debug('${characterData['id']} 的月度更新');
   }
 
   /// 角色濒死，tribulationCount += 1，返回自宅
   static void onDying() {}
+
+  static void onInteractCharacter(dynamic character) async {
+    if (character['entityType'] != 'character') {
+      assert(character['entityType'] == 'npc');
+      final location =
+          GameData.gameData['locations'][character['atLocationId']];
+      assert(location != null, 'npc.atLocationId is null!');
+      onInteractNpc(character, location);
+      return;
+    } else {
+      engine.hetu.invoke('onIneractCharacter', positionalArgs: [character]);
+    }
+  }
+
+  static void onInteractNpc(dynamic npc, dynamic location) async {
+    engine.debug('正在和 NPC [${npc.id}] 互动。');
+    if (npc['useCustomLogic'] == true) {
+      engine.debug('NPC [${npc.id}] 使用自定义逻辑。');
+      engine.hetu.invoke('onGameEvent',
+          positionalArgs: ['onInteractNpc', npc, location]);
+      return;
+    }
+
+    switch (location['kind']) {
+      case 'tradinghouse':
+        // final months = kWorkMounths['tradinghouse'] as List;
+        dialog.pushSelection({
+          'id': 'tradinghouse',
+          'selections': {
+            'workHere': {
+              'text': engine.locale('workHere'),
+              'description': engine.locale('startWork_description'),
+            },
+            'trade': engine.locale('trade'),
+            'cancel': engine.locale('cancel'),
+          }
+        });
+        await dialog.execute();
+        final selected = dialog.checkSelected('tradinghouse');
+        switch (selected) {
+          case 'workHere':
+            heroWork(location, npc);
+          case 'trade':
+            engine.context.read<MerchantState>().show(
+                  location,
+                  materialMode: true,
+                  priceFactor: location['priceFactor'],
+                );
+        }
+      case 'auctionhouse':
+        dialog.pushSelection({
+          'id': 'auctionhouse',
+          'selections': {
+            'workHere': {
+              'text': engine.locale('workHere'),
+              'description': engine.locale('startWork_description'),
+            },
+            'trade': engine.locale('trade'),
+            'cancel': engine.locale('cancel'),
+          },
+        });
+        await dialog.execute();
+        final selected = dialog.checkSelected('auctionhouse');
+        switch (selected) {
+          case 'workHere':
+            heroWork(location, npc);
+          case 'trade':
+            engine.context.read<MerchantState>().show(
+                  location,
+                  useShard: true,
+                  priceFactor: location['priceFactor'],
+                );
+        }
+      case 'workshop':
+    }
+  }
 }

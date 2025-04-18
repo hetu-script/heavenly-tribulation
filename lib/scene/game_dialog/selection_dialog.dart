@@ -72,6 +72,7 @@ class _SelectionDialogState extends State<SelectionDialog> {
                     width: 300,
                     child: fluent.FilledButton(
                       onPressed: () {
+                        context.read<HoverContentState>().hide();
                         if (widget.data['taskId'] == null) {
                           Navigator.pop(context, key);
                         } else {

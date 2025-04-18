@@ -1,5 +1,5 @@
 {
-  "characterExpGained": "{0}获得了 {1} 点经验。",
+  "characterExpGained": "{0}获得了 {1} 点修为经验。",
   "characterStaminaRestored": "{0}恢复了 {1} 点体力。",
   "characterManaRestored": "{0}获得了 {1} 点灵气。",
   "characterAcquire": "{0}得到了{1}。",
@@ -52,7 +52,7 @@
   "characterMined": "{0}在{1}进行了挖矿，花费了 {2} 天。",
   "characterHunted": "{0}在{1}进行了狩猎，花费了 {2} 天。",
   "characterFished": "{0}在{1}进行了捕鱼，花费了 {2} 天。",
-  "characterPracticed": "{0}在{1}修炼{2}，花费了 {3} 天，获得了{4}点经验。",
+  "characterPracticed": "{0}在{1}修炼{2}，花费了 {3} 天，获得了{4}点修为经验。",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
 

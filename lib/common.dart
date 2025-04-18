@@ -35,6 +35,17 @@ enum SceneStates {
 const kCurrentVersionCultivationLevelMax = 50;
 const kCurrentVersionCultivationRankMax = 3;
 
+const kZoneVoid = 'world';
+const kZoneLand = 'land';
+const kZoneSea = 'sea';
+const kZoneRiver = 'river';
+
+const kTileSpriteIndexToZoneCategory = {
+  0: kZoneSea,
+  1: kZoneLand,
+  2: kZoneRiver,
+};
+
 const kRaces = [
   'fanzu',
   'yaozu',
@@ -122,10 +133,9 @@ const kBattleAttributes = [
 ];
 
 const kEquipmentMax = 6;
-const kLevelPerRank = 10;
 const kCultivationRankMax = 8;
 
-const kCardKinds = [
+const kBattleCardKinds = [
   'punch',
   // 'kick',
   'qinna',
@@ -161,18 +171,6 @@ const kRestrictedEquipmentTypes = {
   'ship',
   'aircraft',
 };
-
-const kCityKinds = [
-  'inland',
-  'harbor',
-  'island',
-  'mountain',
-];
-
-const kLocationKindInlandCity = 'inland';
-const kLocationKindHarborCity = 'harbor';
-const kLocationKindIslandCity = 'island';
-const kLocationKindMountainCity = 'mountain';
 
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
@@ -251,25 +249,12 @@ const kOrganizationCategories = {
   'pleasure', // 欢愉：享乐，赌博，情色
 };
 
-const kMainCultivationGenres = [
+const kCultivationGenres = [
   'swordcraft',
   'spellcraft',
   'bodyforge',
   'avatar',
   'vitality',
-];
-
-const kSupportCultivationGenres = [
-  'array',
-  'scroll',
-  'plant',
-  'animal',
-  'divination',
-  'theurgy',
-  'psychic',
-  'illusion',
-  'craft',
-  'alchemy',
 ];
 
 const kLocationCityKinds = [
@@ -287,77 +272,54 @@ const kLocationSiteKinds = [
   'library',
   'tradinghouse',
   'auctionhouse',
+  'psychictemple',
+  'theurgytemple',
+  'workshop',
+  'alchemylab',
+  'scrollshop',
+  'arraylab',
+  'illusionaltar',
+  'divinationaltar',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
-  'fishery',
-  'nursery',
-  'zoo',
-  'workshop',
-  'arraylab',
-  'scrolllab',
-  'alchemylab',
-  'illusionaltar',
-  'psychicaltar',
-  'divinationaltar',
-  'theurgyaltar',
 ];
 
-const kLocationKindManagableSites = [
+const kSiteKindsManagable = [
   'headquarters',
   'cityhall',
   'library',
   'arena',
   'tradinghouse',
   'auctionhouse',
+  'psychictemple',
+  'theurgytemple',
   'workshop',
   'alchemylab',
-  'scrolllab',
+  'scrollshop',
   'arraylab',
   'illusionaltar',
   'divinationaltar',
-  'psychicaltar',
-  'theurgyaltar',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
-  'fishery',
-  'nursery',
-  'zoo',
 ];
 
 const kMaterialMoney = 'money';
 const kMaterialShard = 'shard';
-const kMaterialFood = 'food';
+const kMaterialWorker = 'worker';
+
+const kMaterialMeat = 'meat';
+const kMaterialGrain = 'grain';
 const kMaterialWater = 'water';
+const kMaterialLeather = 'leather';
+
+const kMaterialHerb = 'herb';
+const kMaterialTimber = 'timber';
 const kMaterialStone = 'stone';
 const kMaterialOre = 'ore';
-const kMaterialTimber = 'timber';
-const kMaterialPaper = 'paper';
-const kMaterialHerb = 'herb';
-const kMaterialYinQi = 'yinqi';
-const kMaterialShaQi = 'shaqi';
-const kMaterialYuanQi = 'yuanqi';
-
-const kGenres = {
-  'spellcraft',
-  'swordcraft',
-  'bodyforge',
-  'avatar',
-  'vitality',
-  'array',
-  'scroll',
-  'alchemy',
-  'craft',
-  'animal',
-  'plant',
-  'psychic',
-  'illusion',
-  'theurgy',
-  'divination',
-};
 
 const kAttributeToGenre = {
   'spirituality': 'spellcraft',
@@ -412,11 +374,27 @@ const kDaysPerYear = 360; //每年的月数
 const kMonthsPerYear = 12; //每年的月数
 const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
 
-const kMoneyToShardRate = 10000;
-const kExpToShardRate = 100;
+const kShardToMoneyRate = 1000;
+const kShardToExpRate = 50;
 
-const kBaseBuyRate = 1.5;
+const kBaseBuyRate = 1.0;
 const kBaseSellRate = 0.5;
+
+const kMinSellRate = 0.1;
+const kMinBuyRate = 0.1;
+
+const kMaterialBasePriceByKind = {
+  'shard': 1000,
+  'worker': 10,
+  'water': 10,
+  'grain': 20,
+  'meat': 40,
+  'herb': 40,
+  'leather': 80,
+  'timber': 80,
+  'stone': 160,
+  'ore': 320,
+};
 
 const kUntradableItemKinds = {
   'money',
@@ -425,6 +403,75 @@ const kUntradableItemKinds = {
 
 const kAttributeAnyLevel = 6;
 const kBaseResistMax = 75;
+
+const kBaseMoveCostOnHill = 1.0;
+const kBaseMoveCostOnWater = 2.0;
+
+const kTerrainKindsLand = ['plain', 'shore', 'forest', 'snow_plain'];
+const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
+const kTerrainKindsMountain = ['mountain'];
+
+const kWorkMounths = {
+  'tradinghouse': [12, 1, 2, 9, 10, 11],
+  'auctionhouse': [3, 4, 5, 6, 7, 8],
+  'farmland': [3, 4, 5, 6, 7, 8],
+  'timberland': [12, 1, 2, 9, 10, 11],
+  'huntingground': [12, 1, 2, 9, 10, 11],
+  'mine': [3, 4, 5, 6, 7, 8],
+  'workshop': [6, 7, 8, 9, 10, 11],
+  'scrollshop': [6, 7, 8, 9, 10, 11],
+  'alchemylab': [6, 7, 8, 9, 10, 11],
+  'arraylab': [12, 1, 2, 3, 4, 5],
+  'illusionaltar': [12, 1, 2, 3, 4, 5],
+  'divinationaltar': [12, 1, 2, 3, 4, 5],
+};
+
+const kWorkBaseSalaries = {
+  'tradinghouse': 7,
+  'auctionhouse': 8,
+  'farmland': 10,
+  'timberland': 11,
+  'huntingground': 18,
+  'mine': 51,
+  'workshop': 28,
+  'scrollshop': 24,
+  'alchemylab': 26,
+  'arraylab': 30,
+  'illusionaltar': 80,
+  'divinationaltar': 90,
+};
+
+const kWorkBaseStaminaCost = {
+  'tradinghouse': 1,
+  'auctionhouse': 1,
+  'farmland': 1,
+  'timberland': 1,
+  'huntingground': 2,
+  'mine': 3,
+  'workshop': 2,
+  'scrollshop': 2,
+  'alchemylab': 2,
+  'arraylab': 2,
+  'illusionaltar': 5,
+  'divinationaltar': 5,
+};
+
+/// 战斗结束后生命恢复比例计算时，
+/// 战斗中使用的卡牌使用过的数量的阈值
+const kBaseAfterBattleHPRestoreRate = 0.25;
+const kBattleCardsCount = 16;
+
+const kCharacterYearlyUpdateMonth = 3;
+const kLocationYearlyUpdateMonth = 6;
+const kOrganizationYearlyUpdateMonth = 9;
+
+const kBattleCardPriceRate = 0.135;
+const kAddAffixCostRate = 0.08;
+const kRerollAffixCostRate = 0.02;
+const kReplaceAffixCostRate = 0.03;
+const kUpgradeCardCostRate = 0.12;
+const kUpgradeRankCostRate = 8.5;
+const kCraftScrollCostRate = 0.06;
 
 const kCardCraftOperations = [
   'addAffix',
@@ -435,9 +482,373 @@ const kCardCraftOperations = [
   'dismantle',
 ];
 
-const kBaseMoveCostOnHill = 1.0;
-const kBaseMoveCostOnWater = 2.0;
+const kCardOperations = [
+  'addAffix',
+  'rerollAffix',
+  'replaceAffix',
+  'upgradeCard',
+  'upgradeRank',
+  'dismantle',
+  'craftScroll',
+];
 
-const kPlainTerrains = ['plain', 'forest', 'snow_plain'];
-const kWaterTerrains = ['sea', 'river', 'lake', 'seashelf'];
-const kMountainTerrains = ['mountain'];
+const kMaxLevelForRank8 = 100;
+
+const kTimeOfDay = {
+  1: 'morning',
+  2: 'afternoon',
+  3: 'evening',
+  4: 'midnight',
+};
+
+// 预定义的天赋树节点路线，用于NPC提升等级时自动分配
+
+const kPlayStyles = {
+  'dexterity': {'standard'},
+  'spirituality': {'standard'},
+  'willpower': {'standard'},
+  'perception': {'standard'},
+  'strength': {'standard'},
+};
+
+/// 不同流派的境界节点路径
+const kCultivationRankPaths = {
+  'swordcraft': [
+    'track_5_0',
+    'track_6_0',
+    'track_7_0',
+    'track_8_0',
+    'track_9_0',
+    'track_10_0',
+    'track_11_0',
+    'track_12_0',
+  ],
+  'spellcraft': [
+    'track_5_4',
+    'track_6_8',
+    'track_7_4',
+    'track_8_8',
+    'track_9_4',
+    'track_10_8',
+    'track_11_4',
+    'track_12_8',
+  ],
+  'vitality': [
+    'track_5_8',
+    'track_6_16',
+    'track_7_8',
+    'track_8_16',
+    'track_9_8',
+    'track_10_16',
+    'track_11_8',
+    'track_12_16',
+  ],
+  'avatar': [
+    'track_5_12',
+    'track_6_24',
+    'track_7_12',
+    'track_8_24',
+    'track_9_12',
+    'track_10_24',
+    'track_11_12',
+    'track_12_24',
+  ],
+  'bodyforge': [
+    'track_5_16',
+    'track_6_32',
+    'track_7_16',
+    'track_8_32',
+    'track_9_16',
+    'track_10_32',
+    'track_11_16',
+    'track_12_32',
+  ],
+};
+
+const kCultivationStylePaths = {
+  'swordcraft': {
+    'standard': [
+      'track_0_0',
+      'track_1_0',
+      'track_2_0',
+      'track_3_0',
+      'track_4_0', // 以上5个节点是境界前置必须
+      'track_2_9',
+      'track_3_9',
+      'track_4_18', // 身法+20
+      'track_2_1',
+      'track_3_1',
+      'track_4_2', // 灵力+20
+      'track_4_19',
+      'track_5_19',
+      'track_6_38',
+      'track_6_37', // 武器攻
+      'track_4_3',
+      'track_5_3',
+      'track_6_6',
+      'track_6_5', // 法攻
+      'track_4_1',
+      'track_5_1',
+      'track_6_2',
+      'track_6_3', // 速度
+      'track_4_17',
+      'track_5_17',
+      'track_6_34',
+      'track_6_35', // 物抗
+      'track_5_18',
+      'track_6_36',
+      'track_7_18',
+      'track_8_36', // 身法+20
+      'track_9_18', // 战斗开始时剑气
+      'track_5_2',
+      'track_6_4',
+      'track_7_2',
+      'track_8_4', // 灵力+20
+      'track_9_2', // 战斗开始时灵气
+      'track_8_5',
+      'track_8_6',
+      'track_8_7',
+      'track_6_7', // 灵气不足时自动恢复
+      'track_8_3',
+      'track_8_2',
+      'track_8_1',
+      'track_6_1', // 灵气视作剑气
+      'track_8_37',
+      'track_8_38',
+      'track_8_39',
+      'track_6_39', // 无需装备剑
+      'track_8_35',
+      'track_8_34',
+      'track_8_33',
+      'track_6_33', // 剑气溢出的debuff变双方
+    ],
+  },
+  'spellcraft': {
+    'standard': [
+      'track_0_1',
+      'track_1_1',
+      'track_2_2',
+      'track_3_2',
+      'track_4_4', // 以上5个节点是境界前置必须
+      'track_2_1',
+      'track_3_1',
+      'track_4_2', // 灵力+20
+      'track_2_3',
+      'track_3_3',
+      'track_4_6', // 神识+20
+      'track_4_3',
+      'track_5_3',
+      'track_6_6',
+      'track_6_5', // 法攻
+      'track_4_1',
+      'track_5_1',
+      'track_6_2',
+      'track_6_3', // 速度
+      'track_4_5',
+      'track_5_5',
+      'track_6_10',
+      'track_6_11', // 元素抗
+      'track_4_7',
+      'track_5_7',
+      'track_6_14',
+      'track_6_13', // 真气抗
+      'track_5_2',
+      'track_6_4',
+      'track_7_2',
+      'track_8_4', // 灵力+20
+      'track_9_2', // 战斗开始时灵气
+      'track_5_6',
+      'track_6_12',
+      'track_7_6',
+      'track_8_12', // 神识+20
+      'track_9_6', // 战斗开始时元气
+      'track_8_5',
+      'track_8_6',
+      'track_8_7',
+      'track_6_7', // 灵气不足时自动恢复
+      'track_8_11',
+      'track_8_10',
+      'track_8_9',
+      'track_6_9', // 灵气溢出转化为元气
+      'track_8_13',
+      'track_8_14',
+      'track_8_15',
+      'track_6_15', // ---
+      'track_8_3',
+      'track_8_2',
+      'track_8_1',
+      'track_6_1', // 灵气视作剑气
+    ],
+  },
+  'vitality': {
+    'standard': [
+      'track_0_2',
+      'track_1_2',
+      'track_2_4',
+      'track_3_4',
+      'track_4_8', // 以上5个节点是境界前置必须
+      'track_2_5',
+      'track_3_5',
+      'track_4_10', // 念力+20
+      'track_2_3',
+      'track_3_3',
+      'track_4_6', // 神识+20
+      'track_4_11',
+      'track_5_11',
+      'track_6_22',
+      'track_6_21', // 咒攻
+      'track_4_5',
+      'track_5_5',
+      'track_6_10',
+      'track_6_11', // 元素抗
+      'track_4_7',
+      'track_5_7',
+      'track_6_14',
+      'track_6_13', // 真气抗
+      'track_4_9',
+      'track_5_9',
+      'track_6_18',
+      'track_6_19', // 精神抗
+      'track_5_10',
+      'track_6_20',
+      'track_7_10',
+      'track_8_20', // 念力+20
+      'track_9_10', // 战斗开始时辟邪
+      'track_5_6',
+      'track_6_12',
+      'track_7_6',
+      'track_8_12', // 神识+20
+      'track_9_6', // 战斗开始时元气
+      'track_8_19',
+      'track_8_18',
+      'track_8_17',
+      'track_6_17', // 咒术造成纯粹伤害
+      'track_8_11',
+      'track_8_10',
+      'track_8_9',
+      'track_6_9', // 灵气溢出转化为元气
+      'track_8_13',
+      'track_8_14',
+      'track_8_15',
+      'track_6_15', // ---
+      'track_8_21',
+      'track_8_22',
+      'track_8_23',
+      'track_6_23', // ---
+    ],
+  },
+  'avatar': {
+    'standard': [
+      'track_0_3',
+      'track_1_3',
+      'track_2_6',
+      'track_3_6',
+      'track_4_12', // 以上5个节点是境界前置必须
+      'track_2_5',
+      'track_3_5',
+      'track_4_10', // 念力+20
+      'track_2_7',
+      'track_3_7',
+      'track_4_14', // 体魄+20
+      'track_4_15',
+      'track_5_15',
+      'track_6_30',
+      'track_6_29', // 徒手攻
+      'track_4_11',
+      'track_5_11',
+      'track_6_22',
+      'track_6_21', // 咒攻
+      'track_4_13',
+      'track_5_13',
+      'track_6_26',
+      'track_6_27', // 闪避
+      'track_4_9',
+      'track_5_9',
+      'track_6_18',
+      'track_6_19', // 精神抗
+      'track_5_10',
+      'track_6_20',
+      'track_7_10',
+      'track_8_20', // 念力+20
+      'track_9_10', // 战斗开始时辟邪
+      'track_5_14',
+      'track_6_28',
+      'track_7_14',
+      'track_8_28', // 体魄+20
+      'track_9_14', // 战斗开始时怒气
+      'track_8_19',
+      'track_8_18',
+      'track_8_17',
+      'track_6_17', // 咒术造成纯粹伤害
+      'track_8_29',
+      'track_8_30',
+      'track_8_31',
+      'track_6_31', // 怒气不足时消耗生命
+      'track_8_21',
+      'track_8_22',
+      'track_8_23',
+      'track_6_23', // ---
+      'track_8_27',
+      'track_8_26',
+      'track_8_25',
+      'track_6_25', // ---
+    ],
+  },
+  'bodyforge': {
+    'standard': [
+      'track_0_4',
+      'track_1_4',
+      'track_2_8',
+      'track_3_8',
+      'track_4_16', // 以上5个节点是境界前置必须
+      'track_2_7',
+      'track_3_7',
+      'track_4_14', // 体魄+20
+      'track_2_9',
+      'track_3_9',
+      'track_4_18', // 身法+20
+      'track_4_15',
+      'track_5_15',
+      'track_6_30',
+      'track_6_29', // 徒手攻
+      'track_4_19',
+      'track_5_19',
+      'track_6_38',
+      'track_6_37', // 武器攻
+      'track_4_13',
+      'track_5_13',
+      'track_6_26',
+      'track_6_27', // 闪避
+      'track_4_17',
+      'track_5_17',
+      'track_6_34',
+      'track_6_35', // 物抗
+      'track_5_14',
+      'track_6_28',
+      'track_7_14',
+      'track_8_28', // 体魄+20
+      'track_9_14', // 战斗开始时怒气
+      'track_5_18',
+      'track_6_36',
+      'track_7_18',
+      'track_8_36', // 身法+20
+      'track_9_18', // 战斗开始时剑气
+      'track_8_29',
+      'track_8_30',
+      'track_8_31',
+      'track_6_31', // 怒气不足时消耗生命
+      'track_8_35',
+      'track_8_34',
+      'track_8_33',
+      'track_6_33', // 剑气溢出的debuff变双方
+      'track_8_37',
+      'track_8_38',
+      'track_8_39',
+      'track_6_39', // 无需装备剑
+      'track_8_27',
+      'track_8_26',
+      'track_8_25',
+      'track_6_25', // ---
+    ],
+  },
+};
