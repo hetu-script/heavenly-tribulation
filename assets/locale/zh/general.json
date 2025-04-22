@@ -34,7 +34,8 @@
   "reloadGameDataPrompt": "已重置所有游戏数据和脚本模块。",
 
   "priceFactor": "物价系数",
-  "priceFactor_description": "资源的物价系数和据点纬度、城市类型有关，并且会随着季节发生波动。",
+  "priceFactor_description_location": "商店交易时的物价系数和据点纬度、城市类型有关，并且会随着季节发生波动。",
+  "priceFactor_description_character": "角色交易时的物价系数和人物之间的关系和亲密度有关。",
 
   "characterCalculateStats": "计算人物属性",
   "characterCalculateStatsPrompt": "已重新计算所有人物属性。",
@@ -73,9 +74,10 @@
   "organizationHead": "掌门",
   "regionHead": "长老",
   "cityHead": "堂主",
-  "locationHead": "总管",
+  "siteHead": "总管",
   "productionHead": "执事",
   "taskHead": "杂役",
+
   "homeOwner": "家主",
 
   "sort": "排序",
@@ -239,6 +241,11 @@
   "zone": "地域",
   "organization": "门派",
   "location": "场景",
+  "atLocation": "所处场景",
+  "atCity": "所属据点",
+  "city": "据点",
+  "site": "场所",
+  "locations": "据点",
   "terrain": "地块",
   "coordinates": "坐标",
   "size": "大小",
@@ -250,6 +257,8 @@
   "kind": "种类",
   "genre": "流派",
   "genre2": "流",
+
+  "ideology": "主导思想",
 
   "you": "你",
   "me": "我",
@@ -267,6 +276,9 @@
   "model": "外观",
   "offsetY": "Y轴偏移",
 
+  "createNpc": "创建NPC",
+
+  "gender": "性别",
   "age": "年龄",
   "ageYear": "岁",
   "ageMonth": "个月",
@@ -294,7 +306,11 @@
 
   "doNothing": "什么都不做",
 
-  "information": "信息",
+  "information": "情报",
+  "cityInformation": "据点情报",
+  "siteInformation": "场所情报",
+  "organizationInformation": "门派情报",
+  "characterInformation": "人物情报",
   "status": "属性",
   "build": "装备",
   "stats": "属性",
@@ -304,9 +320,11 @@
   "experienced": "经历",
   "known": "见闻",
   "quest": "日志",
-  "cardLibrary": "功法图录",
   "cultivate": "修炼",
   "skillTree": "天道技能",
+  "cardlibrary": "功法图录",
+
+  "cardlibrary_description": "只有在藏书阁的功法图录中，你才可以进行卡牌精炼。花费经验值升级卡牌、修改卡牌词条属性，或者制作符箓版本的卡牌。",
 
   "decks": "卡组",
   "identify": "鉴定",
@@ -333,9 +351,11 @@
   "headquartersTilePosition": "总堂位置",
   "headquartersId": "总堂据点",
   "territory": "疆域",
+  "territorySize": "疆域大小",
   "memberNumber": "成员数量",
 
   "residents": "居民",
+  "residentsCount": "居民数量",
   "development": "发展度",
   "recruitMonth": "招募月份",
 
@@ -385,6 +405,7 @@
   "skipScene": "跳过剧情",
 
   "functionDisabled": "<red>功能不可用</>",
+  "functionOnlyAvailableInLibrary": "<red>只有在藏书阁中才能使用</>",
 
   "hint_materialpack": "使用后转化为不占用物品栏且不可交易的资源",
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
@@ -431,7 +452,7 @@
   "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
   "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
 
-  "hint_cultivate": "花费时间和灵石来修炼，获得修为经验，从而提升修为等级。",
+  "hint_cultivate": "花费时间修炼，获得修为经验，提升修为等级。\n在自宅修炼，需要消耗身上所携带的<yellow>灵石</>。\n在据点总堂等处的定灵碑修炼，需要消耗定灵碑自身的<yellow>灵光</>。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
@@ -445,7 +466,7 @@
   "hint_tutorial": "这好像是你第一次使用这个功能，要听取使用教程吗？",
   "listenTutorial": "听取教程",
 
-  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将天地灵气转化为识海中的<yellow>灵光点</>。打坐的时候，每次时间流逝至少可以获得 10 点灵光。若是你修为精进的话，吸收的速度会更快一些。\n<yellow>收集灵光点</>就可以转化为修为经验，以此来提升修为等级。升级后会提升你的基础生命值，并获得 1 个天道技能点。\n点击角色图标可以切换天道技能界面和灵光点收集界面。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。",
+  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将天地灵气转化为识海中的<yellow>灵光点</>。打坐的时候，每次时间流逝收集 1 点灵光并获得至少 10 点修为经验。若是你修为精进的话，吸收的速度会更快一些。\n在自宅修炼时，需要消耗身上所携带的灵石。在据点总堂等处的定灵碑修炼时，需要消耗定灵碑自身的灵光数量。定灵碑的灵光数量每个月初一恢复。\n修为经验达到修为等级需求时可以升级。每次升级你的基础生命值 + 5，并获得 1 个天道技能点。\n点击角色图标可以切换天道技能界面和灵光点收集界面。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。",
 
   "hint_cardLibrary": "提升修为等级可以增强身体属性，但空有身体属性，没有功法加持，也无用武之地。\n若是你拥有秘籍。便可在藏书阁打开。可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。。\n如果藏书阁本身的发展度够高，右键点击卡牌可以消耗灵光点对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n注意：某些功法卡牌需要点出某些天道技能，或是装备某些特定武器或法宝才可使用。",
 
@@ -466,7 +487,7 @@
   "cultivationSkills": "修炼",
   "supportSkills": "技艺",
 
-  "work": "工作",
+  "work": "打工",
   "rest1Days": "休息 1 天",
   "rest10Days": "休息 10 天",
   "rest30Days": "休息 30 天",
@@ -476,8 +497,10 @@
 
   "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
 
-  "hint_visitEmptyVillage": "这里空无一人，看来是个荒废的村落。",
+  "hint_visitEmptyVillage": "似乎没有任何重要人物居住在此。",
   "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
+
+  "production": "生产",
 
   "battlecard": "功法",
 
@@ -488,8 +511,10 @@
   "newQuest": "新增日志",
   "questUpdate": "日志更新",
 
-  "hint_insufficientLight": "灵光不足!",
-  "hint_insufficientShard": "灵石不足!",
+  "hint_outOfLight": "灵光耗尽！",
+  "hint_outOfShard": "灵石耗尽！",
+  "hint_insufficientLight": "此地没有足够灵光，无法继续修炼。",
+  "hint_insufficientShard": "你没有足够的灵石，无法继续修炼。",
 
   "hint_movement": "<yellow>操作说明：</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
 
@@ -507,8 +532,6 @@
   "useLocation": "使用场地",
   "rentLocation": "租用场地",
 
-  "workHere": "工作",
-
   "work10Days": "工作 10 天",
   "work30Days": "工作 30 天",
   "workTillNextMonth": "工作到下个月 1 日",
@@ -517,8 +540,10 @@
   "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
   "hint_notWorkSeason": "现在是淡季，没什么需要帮忙的工作。你还是过一阵子再来吧。",
 
-  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗不同。",
+  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
   "baseSalary": "基本工资",
   "staminaCost": "体力消耗",
-  "workableMonths": "可工作月份"
+  "workableMonths": "可工作月份",
+
+  "manage": "管理"
 }

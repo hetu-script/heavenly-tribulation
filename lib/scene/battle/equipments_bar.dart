@@ -13,13 +13,13 @@ import '../../state/hover_content.dart';
 const kItemGridSize = 30.0;
 
 class EquipmentsBar extends GameComponent {
-  final dynamic characterData;
+  final dynamic character;
 
   late final String cultivationDescription;
 
   EquipmentsBar({
     super.position,
-    required this.characterData,
+    required this.character,
     super.paint,
   }) : super(size: GameUI.equipmentsBarSize);
 
@@ -48,13 +48,13 @@ class EquipmentsBar extends GameComponent {
   FutureOr<void> onLoad() {
     super.onLoad();
 
-    cultivationDescription = GameData.getPassivesDescription(characterData);
+    cultivationDescription = GameData.getPassivesDescription(character);
 
-    final equipments = characterData['equipments'];
+    final equipments = character['equipments'];
 
     for (var i = 0; i < kEquipmentMax; ++i) {
       final itemId = equipments[i.toString()];
-      final itemData = characterData['inventory'][itemId];
+      final itemData = character['inventory'][itemId];
       _addItemGrid(i, itemData);
     }
 
@@ -67,7 +67,7 @@ class EquipmentsBar extends GameComponent {
     );
     statsButton.onMouseEnter = () {
       final Widget statsView = CharacterStats(
-        characterData: characterData,
+        character: character,
         isHero: false,
         showNonBattleStats: false,
       );

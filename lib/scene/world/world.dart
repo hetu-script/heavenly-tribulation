@@ -44,6 +44,16 @@ import 'components/banner.dart';
 import '../../common.dart';
 import '../../widgets/location_panel.dart';
 
+enum WorldMapPopUpMenuItems {
+  moveTo,
+  terrainInformation,
+  buildFarmLand,
+  buildTimberLand,
+  buildMine,
+  buildHuntingGround,
+  warMode,
+}
+
 enum WorldMapDropMenuItems {
   save,
   saveAs,
@@ -83,14 +93,15 @@ enum TerrainPopUpMenuItems {
   clearDecoration,
   empty,
   plain,
-  snow_plain,
   forest,
   mountain,
   shore,
+  shelf,
   lake,
   sea,
   river,
   road,
+  city,
   clearTerrainSprite,
   clearTerrainAnimation,
   clearTerrainOverlaySprite,
@@ -190,7 +201,7 @@ class WorldMapScene extends Scene {
     }
     final String? locationId = terrain.locationId;
     if (locationId != null) {
-      heroAtLocation = GameData.gameData['locations'][locationId];
+      heroAtLocation = GameData.game['locations'][locationId];
     } else {
       heroAtLocation = null;
     }
@@ -229,7 +240,7 @@ class WorldMapScene extends Scene {
 
     final String? locationId = _selectedTerrain!.locationId;
     if (locationId != null) {
-      _selectedLocation = GameData.gameData['locations'][locationId];
+      _selectedLocation = GameData.game['locations'][locationId];
     } else {
       _selectedLocation = null;
     }
@@ -353,8 +364,12 @@ class WorldMapScene extends Scene {
 
     engine.hetu.interpreter.bindExternalFunction('World::setTerrainCaption', (
         {positionalArgs, namedArgs}) {
-      map.setTerrainCaption(
-          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+      _setWorldMapCaption(
+        positionalArgs[0],
+        positionalArgs[1],
+        positionalArgs[2],
+        HexColor.fromString(positionalArgs[3] ?? '#ffffff'),
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::updateTerrainSprite', (
@@ -601,8 +616,8 @@ class WorldMapScene extends Scene {
     // context.read<HeroAndGlobalHistoryState>().update();
     await _updateWorldMapNpc();
 
-    if (GameData.heroData['worldId'] == map.id &&
-        GameData.heroData['worldPosition'] != null) {
+    if (GameData.hero['worldId'] == map.id &&
+        GameData.hero['worldPosition'] != null) {
       final terrain = map.getTerrain(map.hero!.left, map.hero!.top);
       // _setHeroTerrain();
       map.moveCameraToTilePosition(map.hero!.left, map.hero!.top,
@@ -711,7 +726,9 @@ class WorldMapScene extends Scene {
               'spriteIndex': toolItemData['spriteIndex'],
               'sprite': null,
             });
-            tile.kind = toolItemData['kind'];
+            if (toolItemData['kind'] != null) {
+              tile.kind = toolItemData['kind'];
+            }
             tile.overrideSpriteData(spriteData);
           case 'sprite':
             final HTStruct spriteData =
@@ -719,7 +736,9 @@ class WorldMapScene extends Scene {
               'spriteIndex': toolItemData['spriteIndex'],
               'sprite': toolItemData['sprite'],
             });
-            tile.kind = toolItemData['kind'];
+            if (toolItemData['kind'] != null) {
+              tile.kind = toolItemData['kind'];
+            }
             tile.overrideSpriteData(spriteData);
           case 'overlaySprite':
             final HTStruct overlayData =
@@ -777,14 +796,14 @@ class WorldMapScene extends Scene {
           engine.locale('setTerrainKind'): {
             engine.locale('void'): TerrainPopUpMenuItems.empty,
             engine.locale('plain'): TerrainPopUpMenuItems.plain,
-            engine.locale('snow_plain'): TerrainPopUpMenuItems.snow_plain,
-            engine.locale('forest'): TerrainPopUpMenuItems.forest,
             engine.locale('mountain'): TerrainPopUpMenuItems.mountain,
+            engine.locale('forest'): TerrainPopUpMenuItems.forest,
+            engine.locale('road'): TerrainPopUpMenuItems.road,
             engine.locale('shore'): TerrainPopUpMenuItems.shore,
+            engine.locale('shore'): TerrainPopUpMenuItems.shelf,
             engine.locale('lake'): TerrainPopUpMenuItems.lake,
             engine.locale('sea'): TerrainPopUpMenuItems.sea,
             engine.locale('river'): TerrainPopUpMenuItems.river,
-            engine.locale('road'): TerrainPopUpMenuItems.road,
           },
           // engine.locale('createLocation'):
           //     TerrainPopUpMenuItems.createLocation,
@@ -818,7 +837,7 @@ class WorldMapScene extends Scene {
               final organizationId = await GameLogic.selectOrganizationId();
               if (organizationId == null) return;
               final organization =
-                  GameData.gameData['organizations'][organizationId];
+                  GameData.game['organizations'][organizationId];
               assert(organization != null,
                   'organization not found! id: $organizationId');
               territoryMode = organization;
@@ -830,7 +849,7 @@ class WorldMapScene extends Scene {
               if (locationId == null) return;
               _selectedTerrain!.locationId = locationId;
               _selectedTerrain!.caption =
-                  GameData.gameData['locations'][locationId]['name'];
+                  GameData.game['locations'][locationId]['name'];
             case TerrainPopUpMenuItems.clearLocation:
               _selectedTerrain!.locationId = null;
               _selectedTerrain!.caption = null;
@@ -868,14 +887,14 @@ class WorldMapScene extends Scene {
               _selectedTerrain!.kind = kTerrainKindVoid;
             case TerrainPopUpMenuItems.plain:
               _selectedTerrain!.kind = kTerrainKindPlain;
-            case TerrainPopUpMenuItems.snow_plain:
-              _selectedTerrain!.kind = kTerrainKindSnowPlain;
-            case TerrainPopUpMenuItems.forest:
-              _selectedTerrain!.kind = kTerrainKindForest;
             case TerrainPopUpMenuItems.mountain:
               _selectedTerrain!.kind = kTerrainKindMountain;
+            case TerrainPopUpMenuItems.forest:
+              _selectedTerrain!.kind = kTerrainKindForest;
             case TerrainPopUpMenuItems.shore:
               _selectedTerrain!.kind = kTerrainKindShore;
+            case TerrainPopUpMenuItems.shelf:
+              _selectedTerrain!.kind = kTerrainKindShelf;
             case TerrainPopUpMenuItems.lake:
               _selectedTerrain!.kind = kTerrainKindLake;
             case TerrainPopUpMenuItems.sea:
@@ -884,6 +903,8 @@ class WorldMapScene extends Scene {
               _selectedTerrain!.kind = kTerrainKindRiver;
             case TerrainPopUpMenuItems.road:
               _selectedTerrain!.kind = kTerrainKindRoad;
+            case TerrainPopUpMenuItems.city:
+              _selectedTerrain!.kind = kTerrainKindCity;
             case TerrainPopUpMenuItems.clearTerrainSprite:
               _selectedTerrain!.clearSprite();
               _selectedTerrain!.kind = kTerrainKindVoid;
@@ -953,15 +974,15 @@ class WorldMapScene extends Scene {
 
   Future<void> _updateNpcsAtHeroPosition() async {
     _npcsAtHeroPosition.clear();
-    final worldPos = GameData.heroData?['worldPosition'];
+    final worldPos = GameData.hero?['worldPosition'];
     if (worldPos == null ||
         worldPos?['left'] == null ||
         worldPos?['top'] == null) {
       return;
     }
 
-    for (final id in GameData.heroData['companions']) {
-      final charData = GameData.gameData['characters'][id];
+    for (final id in GameData.hero['companions']) {
+      final charData = GameData.game['characters'][id];
       assert(charData != null);
       _npcsAtHeroPosition.add(charData);
     }
@@ -975,31 +996,44 @@ class WorldMapScene extends Scene {
   Future<void> _updateNpcsAtLocation() async {
     _npcsAtHeroPosition.clear();
 
-    for (final id in GameData.heroData['companions']) {
-      final charData = GameData.gameData['characters'][id];
+    for (final id in GameData.hero['companions']) {
+      final charData = GameData.game['characters'][id];
       assert(charData != null);
       _npcsAtHeroPosition.add(charData);
     }
 
     final otherNpcs =
         engine.hetu.invoke('getNpcsAtLocationId', positionalArgs: [
-      GameData.heroData?['locationId'],
+      GameData.hero?['locationId'],
     ]);
     _npcsAtHeroPosition.addAll(otherNpcs);
 
     context.read<NpcListState>().update(_npcsAtHeroPosition);
   }
 
+  void _setWorldMapCaption(int left, int top, String caption, [Color? color]) {
+    map.setTerrainCaption(
+      left,
+      top,
+      caption,
+      TextStyle(
+        fontSize: 7,
+        fontFamily: GameUI.fontFamily,
+        color: color ?? Colors.white,
+      ),
+    );
+  }
+
   Future<void> _updateWorldMapCaptions() async {
-    final locationsData =
-        engine.hetu.fetch('locations', namespace: 'game').values;
-    for (final locationData in locationsData) {
-      if (locationData['worldId'] == GameData.world['id'] &&
-          locationData['category'] == 'city' &&
-          locationData['isDiscovered'] == true) {
-        final int left = locationData['worldPosition']['left'];
-        final int top = locationData['worldPosition']['top'];
-        map.setTerrainCaption(left, top, locationData['name']);
+    final locations = engine.hetu.fetch('locations', namespace: 'game').values;
+    for (final location in locations) {
+      if (location['worldId'] == GameData.world['id'] &&
+          location['terrainIndex'] != null &&
+          location['isDiscovered'] == true) {
+        final int left = location['worldPosition']['left'];
+        final int top = location['worldPosition']['top'];
+        _setWorldMapCaption(left, top, location['name'],
+            location['category'] == 'city' ? Colors.yellow : Colors.white);
       }
     }
   }
@@ -1010,6 +1044,22 @@ class WorldMapScene extends Scene {
     await _updateNpcsAtHeroPosition();
 
     context.read<HeroAndGlobalHistoryState>().update();
+  }
+
+  void _tryEnterLocation(dynamic location) async {
+    if (location['isDiscovered'] != true) {
+      location['isDiscovered'] = true;
+      engine.hetu.invoke('discoverLocation', positionalArgs: [location]);
+      dialog.pushDialog('hint_discoveredLocation',
+          interpolations: location['name']);
+      await dialog.execute();
+      final int left = location['worldPosition']['left'];
+      final int top = location['worldPosition']['top'];
+      _setWorldMapCaption(left, top, location['name'],
+          location['category'] == 'city' ? Colors.yellow : Colors.white);
+    }
+
+    GameLogic.tryEnterLocation(location);
   }
 
   void _heroMoveTo(TileMapTerrain terrain) async {
@@ -1074,7 +1124,7 @@ class WorldMapScene extends Scene {
               if (cost > 0) {
                 final isTribulation = engine.hetu.invoke('setLife',
                     namespace: 'Player',
-                    positionalArgs: [GameData.heroData['life'] - cost]);
+                    positionalArgs: [GameData.hero['life'] - cost]);
                 context.read<HeroState>().update();
                 if (isTribulation) {
                   GameLogic.onDying();
@@ -1100,7 +1150,7 @@ class WorldMapScene extends Scene {
               _setHeroTerrain(terrain);
 
               engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
-                GameData.heroData,
+                GameData.hero,
                 hero.tilePosition.left,
                 hero.tilePosition.top
               ]);
@@ -1114,8 +1164,8 @@ class WorldMapScene extends Scene {
                   GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
                 } else if (terrain.locationId != null) {
                   final location =
-                      GameData.gameData['locations'][terrain.locationId];
-                  GameLogic.tryEnterLocation(location);
+                      GameData.game['locations'][terrain.locationId];
+                  _tryEnterLocation(location);
                 }
               }
 
@@ -1156,12 +1206,8 @@ class WorldMapScene extends Scene {
 
   void _onMapTapDownInGameMode(int button, Vector2 position) {
     _focusNode.requestFocus();
-
-    // if (GameDialog.isGameDialogOpened) return;
-
     final tilePosition = map.worldPosition2Tile(position);
     map.trySelectTile(tilePosition.left, tilePosition.top);
-
     if (button == kPrimaryButton) {
       if (engine.cursor == Cursors.click) {
         engine.setCursor(Cursors.press);
@@ -1173,6 +1219,8 @@ class WorldMapScene extends Scene {
 
   void _onMapTapUpInGameMode(int button, Vector2 position) async {
     context.read<HoverContentState>().hide();
+
+    _focusNode.requestFocus();
 
     if (_playerFreezed) return;
     if (map.hero == null) return;
@@ -1191,9 +1239,8 @@ class WorldMapScene extends Scene {
           _heroMoveTo(terrain);
         } else {
           if (terrain.locationId != null) {
-            final locationData =
-                GameData.gameData['locations'][terrain.locationId];
-            GameLogic.tryEnterLocation(locationData);
+            final location = GameData.game['locations'][terrain.locationId];
+            _tryEnterLocation(location);
           } else if (terrain.objectId != null) {
             GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
           }
@@ -1201,6 +1248,36 @@ class WorldMapScene extends Scene {
       }
     } else if (button == kSecondaryButton) {
       engine.setCursor(Cursors.normal);
+      final tileRenderPosition =
+          map.selectedTerrain!.renderRect.topRight.toVector2();
+      final screenPosition = map.worldPosition2Screen(tileRenderPosition);
+      showFluentMenu(
+          position: screenPosition.toOffset(),
+          items: {
+            engine.locale('moveTo'): WorldMapPopUpMenuItems.moveTo,
+            engine.locale('terrainInformation'):
+                WorldMapPopUpMenuItems.terrainInformation,
+            engine.locale('build'): {
+              engine.locale('farmland'): WorldMapPopUpMenuItems.buildFarmLand,
+              engine.locale('timberland'):
+                  WorldMapPopUpMenuItems.buildTimberLand,
+              engine.locale('mine'): WorldMapPopUpMenuItems.buildMine,
+              engine.locale('huntingground'):
+                  WorldMapPopUpMenuItems.buildHuntingGround,
+            },
+            engine.locale('warMode'): WorldMapPopUpMenuItems.warMode,
+          },
+          onSelectedItem: (item) {
+            switch (item) {
+              case WorldMapPopUpMenuItems.moveTo:
+              case WorldMapPopUpMenuItems.terrainInformation:
+              case WorldMapPopUpMenuItems.buildFarmLand:
+              case WorldMapPopUpMenuItems.buildTimberLand:
+              case WorldMapPopUpMenuItems.buildMine:
+              case WorldMapPopUpMenuItems.buildHuntingGround:
+              case WorldMapPopUpMenuItems.warMode:
+            }
+          });
     }
   }
 
@@ -1208,14 +1285,14 @@ class WorldMapScene extends Scene {
 
   Future<void> _onMapLoadedInGameMode() async {
     _focusNode.requestFocus();
-    final bool isNewGame = GameData.gameData['isNewGame'] ?? false;
+    final bool isNewGame = GameData.game['isNewGame'] ?? false;
     if (isNewGame) {
       GameLogic.updateGame(timeflow: false);
 
-      if (GameData.heroData == null) {
-        final charactersData = engine.hetu.invoke('getCharacters');
+      if (GameData.hero == null) {
+        final characters = GameData.game['characters'].values;
         final Iterable filteredCharacters =
-            (charactersData as Iterable).where((character) {
+            (characters as Iterable).where((character) {
           final age = engine.hetu
               .invoke('getCharacterAge', positionalArgs: [character]);
           if (age >= kMinHeroAge && age < kMaxHeroAge) {
@@ -1226,28 +1303,27 @@ class WorldMapScene extends Scene {
         final key = await CharacterSelectDialog.show(
           context: context,
           title: engine.locale('selectHero'),
-          charactersData: filteredCharacters,
+          characters: filteredCharacters,
           showCloseButton: false,
         );
         engine.hetu.invoke('setHeroId', positionalArgs: [key]);
         final heroHomeLocation = engine.hetu.invoke('getHeroHomeLocation');
         engine.hetu
             .invoke('discoverLocation', positionalArgs: [heroHomeLocation]);
-        GameData.heroData = engine.hetu.fetch('hero');
+        GameData.hero = engine.hetu.fetch('hero');
       }
     }
 
-    assert(GameData.heroData != null);
-    await map.loadHeroFromData(
-        GameData.heroData, kWorldMapCharacterSpriteSrcSize);
+    assert(GameData.hero != null);
+    await map.loadHeroFromData(GameData.hero, kWorldMapCharacterSpriteSrcSize);
 
     _updateWorldMapCaptions();
 
     if (map.data['useCustomLogic'] != true) {
       map.lightUpAroundTile(map.hero!.tilePosition,
-          size: GameData.heroData['stats']['lightRadius']);
+          size: GameData.hero['stats']['lightRadius']);
 
-      GameData.heroData['locationId'] = null;
+      GameData.hero['locationId'] = null;
     }
 
     await _updateWorldMapNpc();
@@ -1255,6 +1331,7 @@ class WorldMapScene extends Scene {
     context.read<HeroState>().update();
     context.read<HeroInfoVisibilityState>().setVisible(
         isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : null);
+    context.read<GameTimestampState>().update();
     context.read<HeroAndGlobalHistoryState>().update();
 
     if (isNewGame) {
@@ -1693,11 +1770,11 @@ class WorldMapScene extends Scene {
                                   engine.locale('reloadGameDataPrompt'));
                             case WorldEditorDropMenuItems
                                   .characterCalculateStats:
-                              for (final characterData
-                                  in GameData.gameData['characters'].values) {
+                              for (final character
+                                  in GameData.game['characters'].values) {
                                 engine.hetu.invoke(
                                   'characterCalculateStats',
-                                  positionalArgs: [characterData],
+                                  positionalArgs: [character],
                                   namedArgs: {
                                     'reset': true,
                                     'rejuvenate': true,

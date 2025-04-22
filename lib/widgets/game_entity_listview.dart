@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/gestures.dart';
-// import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../engine.dart';
 import '../game/ui.dart';
@@ -51,7 +51,7 @@ class _GameEntityListViewState extends State<GameEntityListView>
         columns: widget.columns
             .map((title) => DataColumn2(
                   size: ColumnSize.L,
-                  label: TextButton(
+                  label: fluent.Button(
                     onPressed: () => widget.onColumnPressed?.call(title),
                     child: Text(
                       engine.locale(title),

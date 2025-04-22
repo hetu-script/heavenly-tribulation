@@ -5,6 +5,6 @@
 /// 这里的事件和模组，剧情无关
 // async function onEnterCultivation() {
   // if (hero.exp > 0) return
-  // Dialog.pushLocale('tutorial_cultivation')
+  // Dialog.pushDialog('tutorial_cultivation')
   // Dialog.execute()
 // }

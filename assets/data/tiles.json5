@@ -49,15 +49,6 @@
     spriteIndex: 1,
     sprite: "object/mountain.png",
   },
-  farmfield: {
-    id: "farmfield",
-    name: "farmfield",
-    icon: "assets/images/object/farmfield.png",
-    type: "sprite",
-    kind: "plain",
-    spriteIndex: 1,
-    sprite: "object/farmfield.png",
-  },
   shelf: {
     id: "shelf",
     name: "shelf",
@@ -81,9 +72,27 @@
     name: "snow_plain",
     icon: "assets/images/object/snow_plain.png",
     type: "sprite",
-    kind: "snow_plain",
+    kind: "plain",
     spriteIndex: 1,
     sprite: "object/snow_plain.png",
+  },
+  snow_mountain: {
+    id: "snow_mountain",
+    name: "snow_mountain",
+    icon: "assets/images/object/snow_mountain.png",
+    type: "sprite",
+    kind: "mountain",
+    spriteIndex: 1,
+    sprite: "object/snow_mountain.png",
+  },
+  snow_forest: {
+    id: "snow_forest",
+    name: "snow_forest",
+    icon: "assets/images/object/snow_forest.png",
+    type: "sprite",
+    kind: "forest",
+    spriteIndex: 1,
+    sprite: "object/snow_forest.png",
   },
   fishTile: {
     id: "fishTile",
@@ -127,13 +136,40 @@
       sprite: "object/city.png",
     },
   },
-  portalArray: {
-    id: "portalArray",
-    name: "portalArray",
-    icon: "assets/images/object/portalArray.png",
+  farmfield: {
+    id: "farmfield",
+    name: "farmfield",
+    icon: "assets/images/object/farmfield.png",
     type: "overlaySprite",
     overlaySprite: {
-      sprite: "object/portalArray.png",
+      sprite: "object/farmfield.png",
+    },
+  },
+  timberland: {
+    id: "timberland",
+    name: "timberland",
+    icon: "assets/images/object/timberland.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/timberland.png",
+    },
+  },
+  huntingground: {
+    id: "huntingground",
+    name: "huntingground",
+    icon: "assets/images/object/huntingground.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/huntingground.png",
+    },
+  },
+  mine: {
+    id: "mine",
+    name: "mine",
+    icon: "assets/images/object/mine.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/mine.png",
     },
   },
   dungeon: {
@@ -143,6 +179,15 @@
     type: "overlaySprite",
     overlaySprite: {
       sprite: "object/dungeon.png",
+    },
+  },
+  portalArray: {
+    id: "portalArray",
+    name: "portalArray",
+    icon: "assets/images/object/portalArray.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/portalArray.png",
     },
   },
   dungeonStoneGate: {

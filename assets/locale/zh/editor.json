@@ -7,6 +7,7 @@
   "addWorld": "添加新地图",
   "addSite": "添加子场景",
   "editSite": "编辑子场景",
+  "buildSite": "建造新场景",
   "switchWorld": "切换地图",
   "deleteWorld": "删除地图",
   "expandWorld": "扩大地图",

@@ -154,7 +154,7 @@ class CardLibraryScene extends Scene {
 
   /// 最多只显示 4 个光点
   void addExpLightPoints() {
-    final int exp = GameData.heroData['exp'];
+    final int exp = GameData.hero['exp'];
     int lightCount = 0;
     if (exp > 0) {
       lightCount = exp ~/ 1000 + 1;
@@ -181,7 +181,7 @@ class CardLibraryScene extends Scene {
   }
 
   void updateExp() {
-    final int exp = GameData.heroData['exp'];
+    final int exp = GameData.hero['exp'];
     expLabel.text = '${engine.locale('exp')}: $exp';
 
     if (exp > 10000) {
@@ -217,9 +217,9 @@ class CardLibraryScene extends Scene {
     context.read<ViewPanelState>().clearAll();
 
     enableCardCraft = arguments['enableCardCraft'] ??
-        (GameData.heroData['passives']['enable_cardcraft'] ?? false);
+        (GameData.hero['passives']['enable_cardcraft'] ?? false);
     enableScrollCraft = arguments['enableScrollCraft'] ??
-        (GameData.heroData['passives']['enable_scrollcraft'] ?? false);
+        (GameData.hero['passives']['enable_scrollcraft'] ?? false);
 
     onEnterScene = arguments['onEnterScene'];
 
@@ -275,9 +275,9 @@ class CardLibraryScene extends Scene {
           otherZone.setBattleDeck(false);
         }
       }
-      GameData.heroData['battleDeckIndex'] = zone.index;
+      GameData.hero['battleDeckIndex'] = zone.index;
     } else {
-      GameData.heroData['battleDeckIndex'] = -1;
+      GameData.hero['battleDeckIndex'] = -1;
     }
     for (var i = 0; i < deckPiles.length - 1; ++i) {
       _heroDecks[i]['isBattleDeck'] = deckPiles[i].isBattleDeck;
@@ -377,8 +377,8 @@ class CardLibraryScene extends Scene {
       if (value == false) return;
     }
 
-    if (GameData.heroData['battleDeckIndex'] == zone.index) {
-      GameData.heroData['battleDeckIndex'] = -1;
+    if (GameData.hero['battleDeckIndex'] == zone.index) {
+      GameData.hero['battleDeckIndex'] = -1;
     }
     _heroDecks.removeAt(zone.index);
 
@@ -583,7 +583,8 @@ class CardLibraryScene extends Scene {
           }
         }
       } else {
-        buffer.writeln('\n \n${engine.locale('functionDisabled')}');
+        buffer
+            .writeln('\n \n${engine.locale('functionOnlyAvailableInLibrary')}');
       }
 
       Hovertip.show(
@@ -662,11 +663,11 @@ class CardLibraryScene extends Scene {
 
     final paper =
         engine.hetu.invoke('firstItemKindInInventory', positionalArgs: [
-      GameData.heroData,
+      GameData.hero,
       'scroll_paper_rank_${_craftingCard!.data['rank']}',
     ]);
 
-    if (GameData.heroData['exp'] < expCost) {
+    if (GameData.hero['exp'] < expCost) {
       GameDialogContent.show(context, engine.locale('hint_notEnoughExp'));
       return;
     }
@@ -678,7 +679,7 @@ class CardLibraryScene extends Scene {
 
     updateExp();
 
-    GameData.heroData['exp'] -= expCost;
+    GameData.hero['exp'] -= expCost;
     engine.hetu.invoke(
       'lose',
       namespace: 'Player',
@@ -827,7 +828,7 @@ class CardLibraryScene extends Scene {
               'cardpack_card_${card.id}',
               card.data,
               card.toAbsoluteRect(),
-              characterData: GameData.heroData,
+              character: GameData.hero,
             );
           }
           final unidentifiedCards = _cardpackCards.where((card) {
@@ -843,7 +844,7 @@ class CardLibraryScene extends Scene {
               'cardpack_card_${card.id}',
               card.data,
               card.toAbsoluteRect(),
-              characterData: GameData.heroData,
+              character: GameData.hero,
             );
         card.onUnpreviewed = () => unpreviewCard(context);
 
@@ -925,24 +926,21 @@ class CardLibraryScene extends Scene {
   }
 
   void showCardpackSelect({Iterable? selectedItems}) {
-    context.read<ViewPanelState>().toogle(
-      ViewPanels.itemSelect,
-      arguments: {
-        'characterData': GameData.heroData,
-        'title': engine.locale('selectCardpack'),
-        'filter': {'category': 'cardpack'},
-        'multiSelect': true,
-        'onSelect': onOpenCardpack,
-        'selectedItems': selectedItems,
-      },
-    );
+    engine.context.read<ItemSelectState>().show(
+          GameData.hero,
+          title: engine.locale('selectCardpack'),
+          filter: {'category': 'cardpack'},
+          multiSelect: true,
+          onSelect: onOpenCardpack,
+          selectedItems: selectedItems,
+        );
   }
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
 
-    _heroDecks = GameData.heroData['battleDecks'];
+    _heroDecks = GameData.hero['battleDecks'];
 
     _lightPointsPositions.addAll(math.generateDividingPointsFromCircle(
       center: GameUI.expBottlePosition,
@@ -1045,7 +1043,7 @@ class CardLibraryScene extends Scene {
     cardCount.onMouseEnter = () {
       assert(_currentBuildingZone != null);
       final cardCountHint = StringBuffer();
-      final rank = GameData.heroData['rank'];
+      final rank = GameData.hero['rank'];
       final rankString = engine.locale('cultivationRank_$rank');
       cardCountHint.writeln(
           '${engine.locale('cultivationRank')}: <rank$rank>$rankString</>');
@@ -1245,11 +1243,11 @@ class CardLibraryScene extends Scene {
     skillBook.onMouseEnter = () {
       final cardpackCount =
           engine.hetu.invoke('entityHasItemCategory', positionalArgs: [
-        GameData.heroData,
+        GameData.hero,
         'cardpack',
       ]);
 
-      final battleCardCount = GameData.heroData['cardLibrary'].length;
+      final battleCardCount = GameData.hero['cardLibrary'].length;
 
       final cardpackHint =
           '${engine.locale('ownedBattleCard')}: <bold ${battleCardCount > 0 ? 'yellow' : 'grey'}>$battleCardCount</>\n'
@@ -1277,7 +1275,7 @@ class CardLibraryScene extends Scene {
       angle: math.radians(15),
     );
     expBottle.onMouseEnter = () {
-      final int exp = GameData.heroData['exp'];
+      final int exp = GameData.hero['exp'];
       Hovertip.show(
         scene: this,
         target: expBottle,
@@ -1414,7 +1412,7 @@ class CardLibraryScene extends Scene {
 
         final paperCount =
             engine.hetu.invoke('entityHasItemKind', positionalArgs: [
-          GameData.heroData,
+          GameData.hero,
           'scroll_paper_rank_$rank',
         ]);
         buffer.writeln(
@@ -1423,7 +1421,8 @@ class CardLibraryScene extends Scene {
             '${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
             '${engine.locale('deckbuilding_scroll_paper_count')}: <bold ${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
       } else {
-        buffer.writeln('\n \n${engine.locale('functionDisabled')}');
+        buffer
+            .writeln('\n \n${engine.locale('functionOnlyAvailableInLibrary')}');
       }
 
       Hovertip.show(

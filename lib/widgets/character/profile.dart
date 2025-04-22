@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -14,12 +13,13 @@ import '../../common.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
 import 'edit_character_flags.dart';
+import '../ui/close_button2.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.mode = InformationViewMode.view,
     this.height = 400.0,
     this.showIntimacy = true,
@@ -29,7 +29,7 @@ class CharacterProfile extends StatefulWidget {
   });
 
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
   final InformationViewMode mode;
   final double height;
   final bool showIntimacy, showPosition, showRelationships, showPersonality;
@@ -41,7 +41,7 @@ class CharacterProfile extends StatefulWidget {
 class _CharacterProfileState extends State<CharacterProfile> {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
-  dynamic _characterData;
+  dynamic _character;
 
   late bool isFemale;
   late String age;
@@ -86,19 +86,19 @@ class _CharacterProfileState extends State<CharacterProfile> {
   void initState() {
     super.initState();
 
-    assert(widget.characterId != null || widget.characterData != null);
-    if (widget.characterData != null) {
-      _characterData = widget.characterData!;
+    assert(widget.characterId != null || widget.character != null);
+    if (widget.character != null) {
+      _character = widget.character!;
     } else if (widget.characterId != null) {
-      _characterData = GameData.getCharacter(widget.characterId!);
+      _character = GameData.getCharacter(widget.characterId!);
     }
-    assert(_characterData != null);
+    assert(_character != null);
 
     for (final id in kAttributes) {
       final ctrl = TextEditingController();
       attributeControllers[id] = ctrl;
 
-      final value = _characterData['stats'][id].toInt();
+      final value = _character['stats'][id].toInt();
       ctrl.text = value.toString();
 
       final textWidget = isEditorMode
@@ -121,7 +121,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
       final ctrl = TextEditingController();
       personalityControllers[id] = ctrl;
 
-      final value = _characterData['personality'][id].toInt();
+      final value = _character['personality'][id].toInt();
       ctrl.text = value.toString();
 
       final textWidget = isEditorMode
@@ -158,24 +158,24 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final none = engine.locale('none');
 
     age = engine.hetu
-        .invoke('getCharacterAge', positionalArgs: [_characterData]).toString();
+        .invoke('getCharacterAge', positionalArgs: [_character]).toString();
 
     _ageController.text = age;
 
-    isFemale = _characterData['isFemale'] == true;
+    isFemale = _character['isFemale'] == true;
 
-    final raceId = _characterData['race'];
+    final raceId = _character['race'];
     race = engine.locale(raceId);
 
-    final organizationId = _characterData['organizationId'];
-    final organization = GameData.gameData['organizations'][organizationId];
+    final organizationId = _character['organizationId'];
+    final organization = GameData.game['organizations'][organizationId];
     organizationName = organization != null ? organization['name'] : none;
 
-    final titleId = _characterData['titleId'];
+    final titleId = _character['titleId'];
     title = titleId != null ? engine.locale(titleId) : none;
 
-    fame = _characterData['fame'];
-    infamy = _characterData['infamy'];
+    fame = _character['fame'];
+    infamy = _character['infamy'];
 
     // final father =
     //     getNameFromId(_characterData['relationships']['fatherId'], 'none');
@@ -194,66 +194,65 @@ class _CharacterProfileState extends State<CharacterProfile> {
     // final masterName = getNameFromId(masterId, 'none');
 
     birthday = engine.hetu
-        .invoke('getCharacterBirthDayString', positionalArgs: [_characterData]);
+        .invoke('getCharacterBirthDayString', positionalArgs: [_character]);
     // final birthLocationId = getNameFromId(_characterData['birthLocationId']);
-    restLifespan = engine.hetu.invoke('getCharacterRestLifespanString',
-        positionalArgs: [_characterData]);
+    restLifespan = engine.hetu
+        .invoke('getCharacterRestLifespanString', positionalArgs: [_character]);
 
-    cultivationFavor = engine.locale(_characterData['cultivationFavor']);
-    organizationFavor = engine.locale(_characterData['organizationFavor']);
+    cultivationFavor = engine.locale(_character['cultivationFavor']);
+    organizationFavor = engine.locale(_character['organizationFavor']);
 
-    final homeId = _characterData['homeLocationId'];
-    final homeLocation = GameData.gameData['locations'][homeId];
+    final homeId = _character['homeLocationId'];
+    final homeLocation = GameData.game['locations'][homeId];
     homeName = homeLocation != null ? homeLocation['name'] : none;
 
-    final locationId = _characterData['locationId'];
-    final location = GameData.gameData['locations'][locationId];
+    final locationId = _character['locationId'];
+    final location = GameData.game['locations'][locationId];
     locationName = location != null ? location['name'] : none;
 
-    final worldId = _characterData['worldId'];
-    worldName = worldId != null ? GameData.universeData[worldId]['name'] : none;
+    final worldId = _character['worldId'];
+    worldName = worldId != null ? GameData.universe[worldId]['name'] : none;
 
-    final worldPositionX = _characterData['worldPosition']?['left'];
-    final worldPositionY = _characterData['worldPosition']?['top'];
+    final worldPositionX = _character['worldPosition']?['left'];
+    final worldPositionY = _character['worldPosition']?['top'];
     if (worldPositionX != null && worldPositionY != null) {
       worldPosition = '[$worldPositionX, $worldPositionY]';
     } else {
       worldPosition = '';
     }
 
-    rank = _characterData['rank'];
-    level = _characterData['level'];
+    rank = _character['rank'];
+    level = _character['level'];
 
-    motivationIds = _characterData['motivations'];
+    motivationIds = _character['motivations'];
 
     for (final id in kAttributes) {
-      final value = _characterData['stats'][id].toInt();
+      final value = _character['stats'][id].toInt();
       attributeControllers[id]!.text = value.toString();
     }
 
     for (final id in kPersonalities) {
-      int value = _characterData['personality'][id].toInt();
+      int value = _character['personality'][id].toInt();
       personalityControllers[id]!.text = value.toString();
     }
   }
 
   void _saveData() {
-    _characterData['isFemale'] = (isFemale == true) ? true : false;
+    _character['isFemale'] = (isFemale == true) ? true : false;
 
     final newAge = int.tryParse(_ageController.text);
     if (newAge != null) {
       final birthTimestamp =
           engine.hetu.invoke('ageToBirthTimestamp', positionalArgs: [newAge]);
-      _characterData['birthTimestamp'] = birthTimestamp;
+      _character['birthTimestamp'] = birthTimestamp;
     }
 
     for (final attr in kAttributes) {
       final newValue = int.tryParse(attributeControllers[attr]!.text);
-      if (newValue != null) _characterData[attr] = newValue;
+      if (newValue != null) _character[attr] = newValue;
     }
 
-    engine.hetu
-        .invoke('characterCalculateStats', positionalArgs: [_characterData]);
+    engine.hetu.invoke('characterCalculateStats', positionalArgs: [_character]);
   }
 
   @override
@@ -273,16 +272,16 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     Padding(
                       padding: const EdgeInsets.only(right: 15.0, top: 10.0),
                       child: Avatar(
-                        name: _characterData['name'],
+                        name: _character['name'],
                         size: const Size(120.0, 120.0),
                         nameAlignment: AvatarNameAlignment.bottom,
-                        image: AssetImage(
-                            'assets/images/${_characterData['icon']}'),
+                        image:
+                            AssetImage('assets/images/${_character['icon']}'),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 5.0),
-                      child: Text(_characterData['description']),
+                      child: Text(_character['description']),
                     ),
                   ],
                 ),
@@ -454,7 +453,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                     alignment: Alignment.centerLeft,
                                     height: 35.0,
                                     child: Text(
-                                      '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
+                                      '${engine.locale('charismaFavor')}: ${_character['charismaFavor'].truncate()}',
                                     ),
                                   ),
                                   Container(
@@ -529,7 +528,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                   child: fluent.FilledButton(
                     onPressed: () {
                       setState(() {
-                        _characterData = engine.hetu.invoke('Character');
+                        _character = engine.hetu.invoke('Character');
                         updateData();
                       });
                     },
@@ -543,14 +542,14 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       final value = await showDialog(
                         context: context,
                         builder: (context) => EditCharacterBasics(
-                          id: _characterData['id'],
-                          surName: _characterData['surName'],
-                          shortName: _characterData['shortName'],
-                          isFemale: _characterData['isFemale'],
-                          race: _characterData['race'],
-                          icon: _characterData['icon'],
-                          illustration: _characterData['illustration'],
-                          model: _characterData['model'],
+                          id: _character['id'],
+                          surName: _character['surName'],
+                          shortName: _character['shortName'],
+                          isFemale: _character['isFemale'],
+                          race: _character['race'],
+                          icon: _character['icon'],
+                          illustration: _character['illustration'],
+                          model: _character['model'],
                         ),
                       );
                       if (value == null) return;
@@ -564,24 +563,23 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         illustration,
                         model,
                       ) = value;
-                      _characterData['surName'] = surName;
+                      _character['surName'] = surName;
                       assert(shortName != null && shortName.isNotEmpty);
-                      _characterData['shortName'] = shortName;
-                      _characterData['name'] = (surName ?? '') + shortName;
-                      _characterData['isFemale'] = isFemale;
-                      _characterData['race'] = race;
-                      _characterData['model'] = model;
-                      _characterData['icon'] = icon;
-                      _characterData['illustration'] = illustration;
-                      if (id != null && id != _characterData['id']) {
-                        final originId = _characterData['id'];
+                      _character['shortName'] = shortName;
+                      _character['name'] = (surName ?? '') + shortName;
+                      _character['isFemale'] = isFemale;
+                      _character['race'] = race;
+                      _character['model'] = model;
+                      _character['icon'] = icon;
+                      _character['illustration'] = illustration;
+                      if (id != null && id != _character['id']) {
+                        final originId = _character['id'];
 
-                        GameData.gameData['characters']
-                            .remove(_characterData['id']);
-                        _characterData['id'] = id;
-                        GameData.gameData['characters'][id] = _characterData;
+                        GameData.game['characters'].remove(_character['id']);
+                        _character['id'] = id;
+                        GameData.game['characters'][id] = _character;
 
-                        if (GameData.gameData['heroId'] == originId) {
+                        if (GameData.game['heroId'] == originId) {
                           engine.hetu.invoke('setHeroId', positionalArgs: [id]);
                         }
                       }
@@ -599,11 +597,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       showDialog(
                           context: context,
                           builder: (context) => InputDescriptionDialog(
-                                description: _characterData['description'],
+                                description: _character['description'],
                               )).then((value) {
                         if (value == null) return;
                         setState(() {
-                          _characterData['description'] = value;
+                          _character['description'] = value;
                         });
                       });
                     },
@@ -617,11 +615,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       final value = await showDialog<Map<String, bool>>(
                         context: context,
                         builder: (context) =>
-                            EditCharacterFlags(characterData: _characterData),
+                            EditCharacterFlags(character: _character),
                       );
                       if (value != null) {
                         for (final key in value.keys) {
-                          _characterData[key] = value[key];
+                          _character[key] = value[key];
                         }
                       }
                     },
@@ -637,7 +635,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     onPressed: () {
                       switch (widget.mode) {
                         case InformationViewMode.select:
-                          Navigator.of(context).pop(_characterData['id']);
+                          Navigator.of(context).pop(_character['id']);
                         case InformationViewMode.edit:
                           _saveData();
                           Navigator.of(context).pop(true);
@@ -658,7 +656,7 @@ class CharacterProfileView extends StatelessWidget {
   const CharacterProfileView({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.mode = InformationViewMode.view,
     this.height,
     this.showIntimacy = false,
@@ -668,7 +666,7 @@ class CharacterProfileView extends StatelessWidget {
   });
 
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
   final InformationViewMode mode;
   final double? height;
   final bool showIntimacy, showPosition, showRelationships, showPersonality;
@@ -679,10 +677,8 @@ class CharacterProfileView extends StatelessWidget {
     if (h == null) {
       if (mode == InformationViewMode.edit) {
         h = 700.0;
-      } else if (mode == InformationViewMode.select) {
-        h = 450.0;
       } else {
-        h = 400.0;
+        h = showPersonality ? 600.0 : 450.0;
       }
     }
     return ResponsiveView(
@@ -700,7 +696,7 @@ class CharacterProfileView extends StatelessWidget {
           children: [
             CharacterProfile(
               characterId: characterId,
-              characterData: characterData,
+              character: character,
               mode: mode,
               height: h - 100.0,
               showIntimacy: showIntimacy,

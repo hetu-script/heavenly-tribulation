@@ -7,8 +7,7 @@ import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../state/editor_tool.dart';
 import '../../../game/data.dart';
-
-const double kToolbarTabBarHeight = 30.0;
+import '../../../widgets/common.dart';
 
 const Size kTileSize = Size(32, 64);
 
@@ -25,30 +24,16 @@ class Toolbox extends StatefulWidget {
 }
 
 class _ToolboxState extends State<Toolbox> {
-  late final List<Tab> _tabs;
+  static final List<Tab> _tabs = [
+    Tab(text: engine.locale('terrainTiles')),
+    Tab(text: engine.locale('decorationTiles')),
+    Tab(text: engine.locale('tileMapDecoration')),
+    Tab(text: engine.locale('objectTiles')),
+  ];
 
   @override
   void initState() {
     super.initState();
-
-    _tabs = [
-      Tab(
-        height: kToolbarTabBarHeight,
-        text: engine.locale('terrainTiles'),
-      ),
-      Tab(
-        height: kToolbarTabBarHeight,
-        text: engine.locale('decorationTiles'),
-      ),
-      Tab(
-        height: kToolbarTabBarHeight,
-        text: engine.locale('tileMapDecoration'),
-      ),
-      Tab(
-        height: kToolbarTabBarHeight,
-        text: engine.locale('objectTiles'),
-      ),
-    ];
   }
 
   @override
@@ -149,6 +134,16 @@ class _ToolboxState extends State<Toolbox> {
                                   buildToolButton(
                                     context,
                                     'snow_plain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'snow_mountain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'snow_forest',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(

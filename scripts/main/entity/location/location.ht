@@ -59,7 +59,7 @@ const kLocationKindWorkshop = 'workshop'
 // 阵法工坊
 const kLocationKindArrayLab = 'arraylab'
 // 符箓工坊
-const kLocationKindScrollShop = 'scrollshop'
+// const kLocationKindScrollShop = 'scrollshop'
 // 丹药工坊
 const kLocationKindAlchemyLab = 'alchemylab'
 // 幻术祭坛
@@ -98,6 +98,26 @@ const kBaseStoreMaterialAmount = 100
 const kBaseItemReplenishAmount = 3
 const kBaseCollectableLightReplenishAmount = 10
 
+const kLocationKindPriority = {
+  'headquarters': 20,
+  'cityhall': 19,
+  'psychictemple': 18,
+  'theurgytemple': 17,
+  'arena': 16,
+  'library': 15,
+  'tradinghouse': 14,
+  'auctionhouse': 13,
+  'workshop': 12,
+  'alchemylab': 11,
+  'arraylab': 10,
+  'illusionaltar': 9,
+  'divinationaltar': 8,
+  'mine': 7,
+  'timberland': 6,
+  'farmland': 5,
+  'huntingground': 4,
+}
+
 /// 据点、场景、建筑等
 /// 某些可能在地图上直接进入，某些则是其他场景的子场景
 /// [category]: 'city', 'site'
@@ -115,18 +135,19 @@ struct Location {
     name,
     background,
     image,
-    isDiscovered = true,
     isHidden = false,
+    isDiscovered = false,
     updateWorldMap = false,
-    npc,
     development,
+    npcId,
+    createNpc = false,
+    priority,
   }) {
     assert(category != null && kind != null)
 
     this.entityType = kEntityTypeLocation
     this.category = category
     this.kind = kind
-    this.id = id ?? crypto.randomUID(withTime: true)
 
     this.createdTimestamp = game.timestamp
 
@@ -137,14 +158,6 @@ struct Location {
     this.development = development ?? 0
     
     if (category == 'city') {
-      // this.addDefaultSites = addDefaultSites
-
-      this.worldId = worldId ?? world.id
-      let atWorld = worldId != null ? universe[worldId] : world
-      
-      // 定居在这个据点的角色，这里只保存id
-      this.residents = []
-
       if (name) {
         this.name = name
       } else {
@@ -156,6 +169,11 @@ struct Location {
             element.name == this.name).isNotEmpty
         } while (conflict)
       }
+      
+      this.id = id ?? this.name
+
+      // 定居在这个据点的角色，这里只保存id
+      this.residents = []
       
       this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
@@ -178,24 +196,35 @@ struct Location {
         }
       }
     } else if (category == 'site') {
-      if (atLocation != null) {
-        if (kind != kLocationKindHome) {
-          atLocation.sites.add(this.id)
-        }
-      }
       this.name = name ?? engine.locale(kind)
+
+      if (kind != kLocationKindHome) {
+        this.id = id ?? (this.name + crypto.randomUID(length: 6))
+      } else {
+        assert(id != null, '住宅的id不能为空')
+        this.id = id
+      }
+
+      if (atLocation != null) {
+        atLocation.sites.add(this.id)
+      }
+
       this.image = image ?? 'location/card/${kind}.png'
       if (background != null) {
         this.background = background
       } else if (kLocationSiteKinds.contains(kind)) {
         this.background = 'location/site/${kind}.png'
       }
+
+      this.priority = priority ?? kLocationKindPriority[this.kind]
     } else {
       throw 'Invalid location category: [${category}]'
     }
 
-    this.isDiscovered = isDiscovered
-    this.isHidden = isHidden
+    assert(this.id != null)
+
+    this.isHidden = isHidden ?? false
+    this.isDiscovered = !isHidden
     
     // 建筑的拥有者
     // 住所的owner就是这个住所的主人
@@ -209,6 +238,14 @@ struct Location {
     }
     // 拥有建筑的门派
     this.organizationId = organizationId
+    if (organizationId != null) {
+      final organization = game.organizations[organizationId]
+      assert(organization != null, '组织不存在，id: ${organizationId}')
+      if (!organization.locationIds.contains(this.id)) {
+        organization.locationIds.add(this.id)
+      }
+    }
+
     // 该据点的事件触发选项
     this.flags = {}
 
@@ -224,26 +261,37 @@ struct Location {
     this.inventory = {}
     this.materials = {}
 
-    if (npc) {
-      assert(game.npcs.containsKey(npc.id))
-      this.npcId = npc.id
-    }
-
     if (game.locations.containsKey(this.id)) {
       engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
     }
     game.locations[this.id] = this
 
+    if (npcId) {
+      assert(game.npcs.containsKey(npc.id))
+      this.npcId = npc.id
+    } else if (createNpc) {
+      final npc = Npc(
+        id: this.id + '_npc',
+        nameId: 'servant',
+        icon: 'illustration/npc/servant_head.png',
+        illustration: 'illustration/npc/servant.png',
+        atLocationId: this.id,
+      )
+      this.npcId = npc.id
+    }
+
     if (atTerrain != null) {
       atTerrain.locationId = this.id
       
-      this.terrainIndex = atTerrain.index
+      this.worldId = worldId ?? world?.id
       this.worldPosition = {
         left: atTerrain.left,
         top: atTerrain.top,
       }
+      this.terrainIndex = atTerrain.index
 
       if (this.category == 'city') {
+        atTerrain.kind = 'city'
         if (!this.isHidden) {
           atTerrain.overlaySprite = { sprite: kSpriteCity }
           if (updateWorldMap) {
@@ -260,7 +308,8 @@ struct Location {
           kind: kLocationKindCityhall,
           atLocation: this,
           organizationId: organizationId,
-          development: random.nextInt(this.development + 1)
+          development: random.nextInt(this.development + 1),
+          createNpc: true,
         )
         
         const tradinghouse = Location(
@@ -270,16 +319,9 @@ struct Location {
           kind: kLocationKindTradingHouse,
           atLocation: this,
           organizationId: organizationId,
-          development: random.nextInt(this.development + 1)
+          development: random.nextInt(this.development + 1),
+          createNpc: true,
         )
-        final tradinghouse_npc = Npc(
-          id: tradinghouse.id + '_npc',
-          nameId: 'servant',
-          icon: 'illustration/npc/servant_head.png',
-          illustration: 'illustration/npc/servant.png',
-          atLocationId: tradinghouse.id,
-        )
-        tradinghouse.npcId = tradinghouse_npc.id
         
         const auctionhouse = Location(
           id: this.id + '_auctionhouse',
@@ -288,16 +330,9 @@ struct Location {
           kind: kLocationKindAuctionHouse,
           atLocation: this,
           organizationId: organizationId,
-          development: random.nextInt(this.development + 1)
+          development: random.nextInt(this.development + 1),
+          createNpc: true,
         )
-        final auctionhouse_npc = Npc(
-          id: auctionhouse.id + '_npc',
-          nameId: 'servant',
-          icon: 'illustration/npc/servant_head.png',
-          illustration: 'illustration/npc/servant.png',
-          atLocationId: auctionhouse.id,
-        )
-        auctionhouse.npcId = auctionhouse_npc.id
       }
       engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
     } else if (atLocation != null) {
@@ -443,6 +478,32 @@ function replenishCityhallExp(location) {
   location.collectableLight = r.distantInt(replenishAmount) + 10
 }
 
+function replenishLibraryBooks(location) {
+  assert(location.kind == 'library')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  final organization = game.organizations[location.organizationId]
+
+  final r = Random()
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+      ~/ kMaterialBasePriceByKind.shard;
+
+  let amount = kBaseItemReplenishAmount + location.development
+
+  for (var i in range(amount)) {
+    let item = Cardpack(
+      rank: location.development,
+      genre: organization?.genre,
+    )
+    entityAcquire(location, item)
+  }
+}
+
 /// 刷新交易类场景的物品
 function replenishTradingHouseMaterials(location) {
   assert(location.kind == 'tradinghouse')
@@ -459,19 +520,7 @@ function replenishTradingHouseMaterials(location) {
     kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount)
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
-      ~/ kShardToMoneyRate
-
-  let development = {
-    worker: location.development + 1,
-    water: 1,
-    grain: 1,
-    meat: 0,
-    leather: 0,
-    herb: 0,
-    timber: 0,
-    stone: 0,
-    ore: 0,
-  }
+      ~/ kMaterialBasePriceByKind.shard
 
   let price = {
     worker: {
@@ -613,26 +662,41 @@ function replenishTradingHouseMaterials(location) {
   }
 
   location.priceFactor = { kind: price }
+
+  let development = {
+    worker: atLocation.development + 1,
+    water: 1,
+    grain: 1,
+    meat: 0,
+    leather: 0,
+    herb: 0,
+    timber: 0,
+    stone: 0,
+    ore: 0,
+  }
   
-  for (final siteId in atLocation.sites) {
-    final site = game.locations[siteId]
-    assert(site != null, 'location not found, id: ${siteId}')
-    switch (site.kind) {
-      kLocationKindFarmland: {
-        development.grain += site.development + 1
-        development.water += site.development + 1
-      }
-      kLocationKindHuntingground: {
-        development.leather += site.development + 1
-        development.meat += site.development + 1
-      }
-      kLocationKindTimberland: {
-        development.herb += site.development + 1
-        development.timber += site.development + 1
-      }
-      kLocationKindMine: {
-        development.stone += site.development + 1
-        development.ore += site.development + 1
+  final organization = game.organizations[location.organizationId]
+  if (organization != null) {
+    for (final locationId in organization.locationIds) {
+      final site = game.locations[locationId]
+      assert(site != null, 'location not found, id: ${locationId}')
+      switch (site.kind) {
+        kLocationKindFarmland: {
+          development.grain += site.development + 1
+          development.water += site.development + 1
+        }
+        kLocationKindHuntingground: {
+          development.leather += site.development + 1
+          development.meat += site.development + 1
+        }
+        kLocationKindTimberland: {
+          development.herb += site.development + 1
+          development.timber += site.development + 1
+        }
+        kLocationKindMine: {
+          development.stone += site.development + 1
+          development.ore += site.development + 1
+        }
       }
     }
   }
@@ -662,11 +726,12 @@ function replenishAuctionHouseItems(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
-    ~/ kShardToMoneyRate
+    ~/ kMaterialBasePriceByKind.shard
 
   let amount = kBaseItemReplenishAmount + location.development
 
-  let hasScrollShop = false
+  let hasScrollCraft = false
+
   let hasAlchemyLab = false
   let hasArrayLab = false
 
@@ -676,9 +741,6 @@ function replenishAuctionHouseItems(location) {
     switch (site.kind) {
       kLocationKindWorkshop: {
         amount += site.development + 1
-      }
-      kLocationKindScrollShop: {
-        hasScrollShop = true
       }
       kLocationKindAlchemyLab: {
         hasAlchemyLab = true

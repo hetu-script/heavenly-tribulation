@@ -90,7 +90,7 @@ class GameSavesState with ChangeNotifier {
     engine.debug('保存游戏至：[${info.savePath}]');
     info.currentWorldId = worldId;
 
-    final gameJSONData = (GameData.gameData as HTStruct).toJSON();
+    final gameJSONData = (GameData.game as HTStruct).toJSON();
     final gameStringData = json5Encode(gameJSONData, space: 2);
 
     IOSink sink;
@@ -106,7 +106,7 @@ class GameSavesState with ChangeNotifier {
     final timestamp =
         saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
 
-    final universeJsonData = (GameData.universeData as HTStruct).toJSON();
+    final universeJsonData = (GameData.universe as HTStruct).toJSON();
     final universeStringData = json5Encode(universeJsonData, space: 2);
 
     final saveFile2 = File('${info.savePath}$kUniverseSaveFilePostfix');
@@ -118,7 +118,7 @@ class GameSavesState with ChangeNotifier {
     await sink.flush();
     await sink.close();
 
-    final historyJsonData = (GameData.historyData as HTStruct).toJSON();
+    final historyJsonData = (GameData.history as HTStruct).toJSON();
     final historyStringData = json5Encode(historyJsonData, space: 2);
 
     final saveFile3 = File('${info.savePath}$kHistorySaveFilePostfix');

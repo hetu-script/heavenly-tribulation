@@ -340,11 +340,11 @@ function getCharacterStats(character) {
 }
 
 function getCharacterMovableTerrainKinds(character) {
-  let kinds = kPlainTerrainKinds.toList()
+  let kinds = kTerrainKindsLand.toList()
   let movableOnHill = characterEquippedCategory(character, 'boots')
-  if (movableOnHill) kinds.addAll(kMountainTerrainKinds)
+  if (movableOnHill) kinds.addAll(kTerrainKindsMountain)
   let movableOnWater = characterEquippedCategory(character, 'ship')
-  if (movableOnWater) kinds.addAll(kWaterTerrainKinds)
+  if (movableOnWater) kinds.addAll(kTerrainKindsWater)
   return kinds
 }
 

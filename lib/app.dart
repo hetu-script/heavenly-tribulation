@@ -71,7 +71,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.registerSceneConstructor(Scenes.battle, (arguments) async {
       return BattleScene(
-        heroData: arguments['hero'] ?? GameData.heroData,
+        heroData: arguments['hero'] ?? GameData.hero,
         enemyData: arguments['enemy'],
         isSneakAttack: arguments['isSneakAttack'] ?? false,
         onBattleStart: arguments['onBattleStart'],
@@ -80,11 +80,11 @@ class _GameAppState extends State<GameApp> {
     });
 
     engine.registerSceneConstructor(Scenes.location, (arguments) async {
-      final locationData = arguments['location'];
-      assert(locationData != null);
+      final location = arguments['location'];
+      assert(location != null);
       return LocationScene(
         context: context,
-        locationData: locationData,
+        location: location,
       );
     });
 
@@ -116,7 +116,6 @@ class _GameAppState extends State<GameApp> {
       );
 
       scene.loadZoneColors();
-
       return scene;
     });
   }
@@ -169,12 +168,6 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       return GameLogic.generateZone(positionalArgs.first);
     }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
-        {positionalArgs, namedArgs}) {
-      final content = positionalArgs.first;
-      dialog.pushDialog(content, imageId: content['image']);
-    });
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::execute', (
         {positionalArgs, namedArgs}) {
@@ -231,9 +224,40 @@ class _GameAppState extends State<GameApp> {
       );
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushDialogRaw', (
+        {positionalArgs, namedArgs}) {
+      dialog.pushDialogRaw(
+        positionalArgs.first,
+        imageId: namedArgs['imageId'],
+      );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushDialog', (
+        {positionalArgs, namedArgs}) {
+      dialog.pushDialog(
+        positionalArgs.first,
+        character: namedArgs['character'],
+        characterId: namedArgs['characterId'],
+        isHero: namedArgs['isHero'] ?? false,
+        nameId: namedArgs['nameId'],
+        name: namedArgs['name'],
+        hideName: namedArgs['hideName'] ?? false,
+        icon: namedArgs['icon'],
+        hideIcon: namedArgs['hideIcon'] ?? false,
+        illustration: namedArgs['illustration'],
+        hideIllustration: namedArgs['hideIllustration'] ?? false,
+        interpolations: namedArgs['interpolations'],
+      );
+    });
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushSelectionRaw', (
+        {positionalArgs, namedArgs}) {
+      dialog.pushSelectionRaw(positionalArgs.first);
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushSelection', (
         {positionalArgs, namedArgs}) {
-      dialog.pushSelection(positionalArgs[0]);
+      dialog.pushSelection(positionalArgs[0], positionalArgs[1]);
     });
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::checkSelected', (
@@ -250,7 +274,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::datetime', (
         {positionalArgs, namedArgs}) {
       return {
-        'timestamp': GameData.gameData['timestamp'],
+        'timestamp': GameData.game['timestamp'],
         'tickOfYear': GameLogic.ticksOfYear,
         'tickOfMonth': GameLogic.ticksOfMonth,
         'tickOfDay': GameLogic.ticksOfDay,
@@ -314,8 +338,6 @@ class _GameAppState extends State<GameApp> {
       GameLogic.updateGame(
         tick: namedArgs['tick'] ?? 1,
         timeflow: namedArgs['timeflow'] ?? true,
-        autoCultivate: namedArgs['autoCultivate'] ?? false,
-        autoWork: namedArgs['autoWork'] ?? false,
       );
     }, override: true);
 
@@ -362,20 +384,12 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showItemSelect', (
         {positionalArgs, namedArgs}) {
-      final completer = Completer();
-      context.read<ViewPanelState>().toogle(
-        ViewPanels.itemSelect,
-        arguments: {
-          'characterData': namedArgs['character'],
-          'title': namedArgs['title'],
-          'filter': namedArgs['filter'],
-          'multiSelect': namedArgs['multiSelect'] ?? false,
-          'onSelect': (items) {
-            completer.complete(items);
-          },
-        },
+      GameLogic.showItemSelect(
+        character: namedArgs['character'],
+        title: namedArgs['title'],
+        filter: namedArgs['filter'],
+        multiSelect: namedArgs['multiSelect'] ?? false,
       );
-      return completer.future;
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (

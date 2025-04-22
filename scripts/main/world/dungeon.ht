@@ -181,7 +181,7 @@ function addCultivationStele(tilePosition, {
 }
 
 function addCardLibraryStele(tilePosition, {
-  objectId = 'cardLibrary',
+  objectId = 'cardlibrary',
   hoverContent,
   enableCardCraft = false,
   enableScrollCraft = false,

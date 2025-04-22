@@ -20,7 +20,7 @@
   "manaMax_description": "灵气上限决定了你在战斗中所能保存的灵气数量。",
   "chakraMax": "剑气上限",
   "chakraMax_description": "学习天道技能后可以获得利用剑气的能力。之后在战斗中每造成 10 点伤害便可获得 1 点剑气。剑气上限决定了你在战斗中所能保存的剑气数量。<yellow>溢出的剑气会转化为随机的负面效果。</>",
-  "expCollectEfficiency": "灵光经验值",
+  "expCollectEfficiency": "灵光经验",
   "expCollectEfficiency_description": "你在打坐时从灵光点中获得的经验值数量。",
   "lightRadius": "视野范围",
   "lightRadius_description": "你在世界地图和地牢探险时所能照亮的范围。",

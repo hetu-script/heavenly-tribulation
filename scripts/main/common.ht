@@ -5,12 +5,9 @@ const kCurrentVersionCultivationRankMax = 3
 
 const kOrthogonalDirections = ['north', 'east', 'south', 'west']
 
-const kPlainTerrainKinds = ['plain', 'shore', 'forest', 'snow_plain']
-const kWaterTerrainKinds = ['sea', 'river', 'lake', 'shelf']
-const kMountainTerrainKinds = ['mountain']
-
-const kShardToMoneyRate = 1000;
-const kShardToExpRate = 50;
+const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city']
+const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf']
+const kTerrainKindsMountain = ['mountain']
 
 const kBaseBuyRate = 1.0;
 const kBaseSellRate = 0.5;
@@ -18,5 +15,3 @@ const kBaseSellRate = 0.5;
 const kMinSellRate = 0.1;
 const kMinBuyRate = 0.1;
 
-const kPriceFavorRate = 0.1
-const kPriceFavorIncrement = 0.05

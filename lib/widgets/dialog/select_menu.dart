@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../dropdown_menu_button.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 class SelectMenuDialog extends StatefulWidget {
   static Future<String?> show({

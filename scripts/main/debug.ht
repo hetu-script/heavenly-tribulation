@@ -135,13 +135,13 @@ namespace Debug {
   }
 
   function debugDialog() {
-    Dialog.pushLocale(
+    Dialog.pushDialog(
       'debugDialog_content1',
       name: '凌初雪',
       icon: 'story/illustration/ling_chuxue_head.png',
       image: 'story/illustration/ling_chuxue.png'
     )
-    Dialog.pushLocale(
+    Dialog.pushDialog(
       'debugDialog_content2',
       name: '萧墨',
       icon: 'story/illustration/xiao_mo_head.png',

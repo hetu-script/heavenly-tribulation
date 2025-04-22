@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
+import '../ui/close_button2.dart';
 
 class EditNpcBasics extends StatefulWidget {
   /// 返回以下值
@@ -179,7 +179,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     padding: const EdgeInsets.all(10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
-                        GameData.gameData['npcs'].remove(widget.id);
+                        GameData.game['npcs'].remove(widget.id);
                         widget.atLocation.remove('npcId');
                         Navigator.of(context).pop(null);
                       },
@@ -193,7 +193,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     padding: const EdgeInsets.all(10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
-                        dynamic npcData = GameData.gameData['npcs'][widget.id];
+                        dynamic npcData = GameData.game['npcs'][widget.id];
                         if (npcData != null) {
                           npcData['nameId'] = _nameIdEditingController.text;
                           npcData['name'] =

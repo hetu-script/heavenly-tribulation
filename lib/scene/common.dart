@@ -34,17 +34,21 @@ const kTerrainKindPlain = 'plain';
 const kTerrainKindMountain = 'mountain';
 const kTerrainKindForest = 'forest';
 const kTerrainKindSnowPlain = 'snow_plain';
+const kTerrainKindSnowMountain = 'snow_mountain';
+const kTerrainKindSnowForest = 'snow_forest';
 const kTerrainKindShore = 'shore';
+const kTerrainKindShelf = 'shelf';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
+const kTerrainKindCity = 'city';
 
 const kColorModeZone = 0;
 const kColorModeOrganization = 1;
 
 const kMinHeroAge = 10;
-const kMaxHeroAge = 20;
+const kMaxHeroAge = 30;
 
 const kWorldMapAnimationPriority = 15000;
 
@@ -75,14 +79,14 @@ void previewCard(
   Rect rect, {
   bool isLibrary = true,
   HoverContentDirection? direction,
-  dynamic characterData,
+  dynamic character,
 }) {
   context.read<HoverContentState>().show(
         cardData,
         rect,
         type: isLibrary ? ItemType.player : ItemType.none,
         direction: direction ?? HoverContentDirection.rightTop,
-        data2: characterData,
+        data2: character,
       );
 }
 

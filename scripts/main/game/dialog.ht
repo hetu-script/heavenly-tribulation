@@ -32,7 +32,7 @@ namespace Dialog {
 
   /// 这个函数会解析参数并最终生成显示用的名字、头像、插画和对话内容
   /// 此函数不能是async的
-  function pushLocale(localeKeys, {
+  external function pushDialog(localeKeys, {
     character,
     characterId,
     isHero: bool,
@@ -44,74 +44,27 @@ namespace Dialog {
     illustration,
     hideIllustration: bool,
     interpolations,
-  }) -> Future {
-    character ??= isHero ? hero : game.characters[characterId]
-    icon ??= hideIcon ? null : character?.icon
-    illustration ??= hideIllustration ? null : character?.illustration
-    
-    if (hideName) {
-      name = ''
-    } else {
-      if (isHero) {
-        name = engine.locale('me')
-      } else {
-        if (name == null) {
-          if (nameId != null) {
-            name = engine.locale(nameId)
-          } else {
-            if (character != null) {
-              let heroHaveMetChar = haveMet(hero, character)
-              if (!heroHaveMetChar) {
-                if (character.titleId != null) {
-                  name = engine.locale(character.titleId)
-                } else {
-                  name = '???'
-                }
-              } else {
-                name = character.name
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    let strings
-    if (localeKeys is List) {
-      assert(localeKeys.isNotEmpty)
-      strings = localeKeys.map( (key) => engine.locale(key, interpolations: interpolations) ).toList()
-    } else if (localeKeys is string) {
-      strings = [engine.locale(localeKeys, interpolations: interpolations)]
-    } else if (lines is List) {
-      assert(lines is List && lines.isNotEmpty)
-      strings = lines.map( (line) => interpolate(line, interpolations) ).toList()
-    } else {
-      assert(lines is string)
-      strings = [interpolate(line, interpolations)]
-    }
-    let lines = []
-    for (const message in strings) {
-      const splits = message.split('\n')
-      for (final split in splits) {
-        final trim = split.trim()
-        if (trim.isNotEmpty) {
-          lines.add(trim)
-        }
-      }
-    }
+  });
 
-    return _pushDialog({
-      name: name,
-      icon: icon,
-      image: illustration,
-      lines: lines,
-    })
-  }
+  /// selection 对话框的 data 数据结构：
+  /// {
+  ///   id: 'taskId',
+  ///   selections: {
+  ///     selectKey1: 'localedText1', // 可以只有一个单独的文本
+  ///     selectKey2: { text: 'localedText3', description: 'localedText4' }, // 也可以是文本加一个描述文本
+  ///     ...
+  ///   } 
+  /// }
+  /// 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
+  /// locales 可以是一个字符串列表，也可以是一个 Map<String, String>，
+  external function pushSelection(id, locales)
+
+  external function checkSelected(selectionsValue)
 
   function pushAll(lines) {
     for (final data in lines) {
       if (data.localeId) {
-        pushLocale(data.localeId,
+        pushDialog(data.localeId,
           characterId: data.characterId,
           character: data.character,
           isHero: data.isHero,
@@ -150,26 +103,4 @@ namespace Dialog {
       }
     }
   }
-
-  /// selection 对话框的 data 数据结构：
-  /// {
-  ///   id: 'taskId',
-  ///   selections: {
-  ///     selectKey1: 'localedText1', // 可以只有一个单独的文本
-  ///     selectKey2: { text: 'localedText3', description: 'localedText4' }, // 也可以是文本加一个描述文本
-  ///     ...
-  ///   } 
-  /// }
-  external function pushSelection(selectionsData)
-
-  // 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
-  function pushLocaleSelection(id, locales: List) {
-    final selections = {}
-    for (final key in locales) {
-      selections[key] = engine.locale(key)
-    }
-    return pushSelection({ id: id, selections: selections })
-  }
-
-  external function checkSelected(selectionsValue)
 }

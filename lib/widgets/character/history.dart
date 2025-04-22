@@ -8,40 +8,16 @@ import '../history_list.dart';
 class HistoryView extends StatelessWidget {
   const HistoryView({
     super.key,
-    required this.characterData,
+    required this.character,
     this.isHero = false,
   });
 
-  final dynamic characterData;
+  final dynamic character;
   final bool isHero;
 
   static final List<Tab> _tabs = <Tab>[
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.history),
-          ),
-          Text(engine.locale('experienced')),
-        ],
-      ),
-    ),
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.visibility),
-          ),
-          Text(engine.locale('known')),
-        ],
-      ),
-    ),
+    Tab(text: engine.locale('experienced')),
+    Tab(text: engine.locale('known')),
   ];
 
   @override
@@ -57,11 +33,11 @@ class HistoryView extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: characterData != null
+            child: character != null
                 ? TabBarView(
                     children: [
-                      HistoryList(historyData: characterData['experienced']),
-                      HistoryList(historyData: characterData['known']),
+                      HistoryList(historyData: character['experienced']),
+                      HistoryList(historyData: character['known']),
                     ],
                   )
                 : EmptyPlaceholder(engine.locale('empty')),

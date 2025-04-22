@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/common.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-// import '../../util.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../ui/menu_builder.dart';
 import '../character/details.dart';
 import '../character/memory.dart';
 import '../../game/ui.dart';
+import '../../common.dart';
+import '../../game/logic.dart';
+import '../common.dart';
+import '../ui/close_button2.dart';
 
 enum SelectCharacterPopUpMenuItems {
   select,
@@ -18,22 +20,12 @@ enum SelectCharacterPopUpMenuItems {
   checkMemory,
 }
 
-const _kInformationViewCharacterColumns = [
-  'name',
-  'age',
-  'fame',
-  'organization',
-  'title',
-  'level',
-  'rank',
-];
-
 class CharacterSelectDialog extends StatelessWidget {
   static Future<dynamic> show({
     required BuildContext context,
     required String title,
     Iterable<String>? characterIds,
-    Iterable? charactersData,
+    Iterable? characters,
     bool showCloseButton = true,
   }) async {
     return await showDialog<dynamic>(
@@ -42,7 +34,7 @@ class CharacterSelectDialog extends StatelessWidget {
         return CharacterSelectDialog(
           title: title,
           characterIds: characterIds,
-          charactersData: charactersData,
+          characters: characters,
           showCloseButton: showCloseButton,
         );
       },
@@ -53,22 +45,22 @@ class CharacterSelectDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.characterIds,
-    this.charactersData,
+    this.characters,
     this.showCloseButton = true,
   });
 
   final String title;
 
   final Iterable<String>? characterIds;
-  final Iterable? charactersData;
+  final Iterable? characters;
 
   final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
     Iterable chars;
-    if (charactersData != null) {
-      chars = charactersData!;
+    if (characters != null) {
+      chars = characters!;
     } else {
       assert(characterIds != null);
       chars =
@@ -76,26 +68,8 @@ class CharacterSelectDialog extends StatelessWidget {
     }
 
     final List<List<String>> data = [];
-    for (final char in chars) {
-      final row = <String>[];
-      row.add(char['name']);
-      final age =
-          engine.hetu.invoke('getCharacterAgeString', positionalArgs: [char]);
-      // 年龄
-      row.add(age);
-      // 名声
-      final fame =
-          engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
-      row.add(fame);
-      // 门派名字
-      row.add(char['organizationId'] ?? engine.locale('none'));
-      // 称号
-      final titleId = char['titleId'];
-      row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
-      row.add('${char['level']}');
-      row.add(engine.locale('cultivationRank_${char['rank']}'));
-      // 多存一个隐藏的 id 信息，用于点击事件
-      row.add(char['id']);
+    for (final character in chars) {
+      final row = GameLogic.getCharacterInformationRow(character);
       data.add(row);
     }
 
@@ -123,10 +97,10 @@ class CharacterSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(title),
-          actions: [if (showCloseButton) const CloseButton()],
+          actions: [if (showCloseButton) const CloseButton2()],
         ),
         body: GameEntityListView(
-          columns: _kInformationViewCharacterColumns,
+          columns: kInformationViewCharacterColumns,
           tableData: data,
           onItemPressed: (position, dataId) async {
             showProfile(dataId);

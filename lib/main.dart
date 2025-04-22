@@ -105,6 +105,7 @@ void main() {
             ChangeNotifierProvider(create: (_) => HeroState()),
             ChangeNotifierProvider(create: (_) => EnemyState()),
             ChangeNotifierProvider(create: (_) => MerchantState()),
+            ChangeNotifierProvider(create: (_) => ItemSelectState()),
             ChangeNotifierProvider(create: (_) => ViewPanelState()),
             ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
             ChangeNotifierProvider(create: (_) => HoverContentState()),
@@ -119,13 +120,7 @@ void main() {
                   NoThumbScrollBehavior().copyWith(scrollbars: false),
               debugShowCheckedModeBanner: false,
               theme: GameUI.darkMaterialTheme,
-              home:
-                  //  MouseRegion(
-                  //   opaque: false,
-                  //   cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
-                  //   child:
-                  GameApp(key: mainKey),
-              // ),
+              home: GameApp(key: mainKey),
               // onNavigationNotification: (notification) {
               //   engine.setCursor(Cursors.normal);
               //   return notification.canHandlePop;

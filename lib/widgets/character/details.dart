@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -14,11 +13,11 @@ import '../dialog/confirm.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
 import '../../common.dart';
-import '../../state/hover_content.dart';
 import '../../game/event_ids.dart';
 import '../../game/data.dart';
 import '../../game/ui.dart';
 import '../common.dart';
+import '../ui/close_button2.dart';
 
 const Set<String> kMaterials = {
   'money',
@@ -58,12 +57,12 @@ class CharacterDetails extends StatefulWidget {
   const CharacterDetails({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.mode = InformationViewMode.view,
-  }) : assert(characterId != null || characterData != null);
+  }) : assert(characterId != null || character != null);
 
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
   final InformationViewMode mode;
 
   @override
@@ -77,8 +76,8 @@ class _CharacterDetailsState extends State<CharacterDetails> {
   void initState() {
     super.initState();
 
-    if (widget.characterData != null) {
-      _characterData = widget.characterData!;
+    if (widget.character != null) {
+      _characterData = widget.character!;
     } else {
       _characterData = GameData.getCharacter(widget.characterId!);
     }
@@ -186,21 +185,20 @@ class _CharacterDetailsState extends State<CharacterDetails> {
             children: [
               EquipmentBar(
                 type: ItemType.player,
-                characterData: _characterData,
+                character: _characterData,
                 onItemSecondaryTapped: onItemSecondaryTapped,
-                isVertical: true,
+                style: EquipmentBarStyle.vertical,
               ),
               CharacterStats(
-                characterData: _characterData,
+                character: _characterData,
                 isHero: true,
                 height: 312,
               ),
               Inventory(
-                height: 312,
-                characterData: _characterData,
+                character: _characterData,
                 type: ItemType.player,
                 minSlotCount: 60,
-                gridsPerLine: 5,
+                gridsPerLine: 6,
                 onSecondaryTapped: onItemSecondaryTapped,
               ),
             ],
@@ -234,11 +232,11 @@ class CharacterDetailsView extends StatelessWidget {
   const CharacterDetailsView({
     super.key,
     this.characterId,
-    this.characterData,
-  }) : assert(characterId != null || characterData != null);
+    this.character,
+  }) : assert(characterId != null || character != null);
 
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +253,7 @@ class CharacterDetailsView extends StatelessWidget {
         ),
         body: CharacterDetails(
           characterId: characterId,
-          characterData: characterData,
+          character: character,
         ),
       ),
     );

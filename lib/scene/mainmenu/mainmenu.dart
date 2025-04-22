@@ -40,6 +40,7 @@ class MainMenuScene extends Scene {
       context.read<HeroState>().update();
       context.read<HeroInfoVisibilityState>().setVisible(true);
       context.read<GameTimestampState>().update();
+      context.read<HeroAndGlobalHistoryState>().update();
     }
 
     context.read<HeroPositionState>().updateTerrain(

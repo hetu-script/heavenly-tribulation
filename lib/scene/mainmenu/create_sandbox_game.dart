@@ -5,11 +5,25 @@ import 'package:samsara/extensions.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import 'create_config.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui/menu_builder.dart';
 
-const kWorldStyles = {'islands', 'coast', 'inland'};
+const kWorldStyles = {'coast', 'islands', 'inland'};
+
+const kWorldScaleLabel = {
+  1: 'tiny', // 24×12
+  2: 'medium', // 40×20
+  3: 'huge', // 64×32
+  4: 'massive', // 96×48
+};
+
+/// 保存了据点数量，门派数量和人物数量
+const kEnittyNumberPerWorldScale = {
+  1: (10, 6, 24),
+  2: (16, 10, 36),
+  3: (24, 16, 48),
+  4: (36, 24, 64),
+};
 
 /// 返回一个用于创建世界场景的 Map 对象参数
 /// Map 格式如下
@@ -35,12 +49,12 @@ class CreateSandboxGameDialog extends StatefulWidget {
 
 class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   final _saveNameEditingController = TextEditingController();
-  final _idEditingController = TextEditingController();
   final _seedEditingController = TextEditingController();
+
   String _worldStyle = 'coast';
   int _worldScale = 2;
-  int _organizationNumber = 6;
-  int _locationNumber = 14;
+  int _locationNumber = 16;
+  int _organizationNumber = 10;
   int _characterNumber = 36;
 
   late String _worldScaleLabel;
@@ -51,7 +65,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _worldScaleLabel = engine.locale(kWorldScaleLabel[_worldScale]!);
 
     _saveNameEditingController.text = engine.locale('unnamed');
-    _idEditingController.text = 'main';
     _seedEditingController.text = 'Hello, world!';
   }
 
@@ -60,21 +73,11 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     super.dispose();
 
     _saveNameEditingController.dispose();
-    _idEditingController.dispose();
     _seedEditingController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final organizationNumberMax = math.min(_locationNumber, _characterNumber);
-    if (_organizationNumber > organizationNumberMax) {
-      _organizationNumber = organizationNumberMax;
-    }
-    final newLocationNumberMax = kMaxLocationNumberPerWorldScale[_worldScale]!;
-    if (_locationNumber > newLocationNumberMax) {
-      _locationNumber = newLocationNumberMax;
-    }
-
     // final layout =
 
     return Scaffold(
@@ -82,7 +85,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(engine.locale('sandboxMode')),
-        // actions: const [CloseButton()],
       ),
       body: Column(
         children: [
@@ -107,21 +109,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               height: 40.0,
                               child: TextField(
                                 controller: _saveNameEditingController,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: 120.0,
-                              child: Text('${engine.locale('worldId')}: '),
-                            ),
-                            SizedBox(
-                              width: 150.0,
-                              child: TextField(
-                                controller: _idEditingController,
                               ),
                             ),
                           ],
@@ -198,20 +185,12 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                     _worldScale = value.toInt();
                                     _worldScaleLabel = engine
                                         .locale(kWorldScaleLabel[_worldScale]!);
-                                    final newLocationNumberMax =
-                                        kMaxLocationNumberPerWorldScale[
+                                    final entityNumber =
+                                        kEnittyNumberPerWorldScale[
                                             _worldScale]!;
-                                    if (_locationNumber >
-                                        newLocationNumberMax) {
-                                      _locationNumber = newLocationNumberMax;
-                                    }
-                                    final organizationNumberMax = math.min(
-                                        _locationNumber, _characterNumber);
-                                    if (_organizationNumber >
-                                        organizationNumberMax) {
-                                      _organizationNumber =
-                                          organizationNumberMax;
-                                    }
+                                    _locationNumber = entityNumber.$1;
+                                    _organizationNumber = entityNumber.$2;
+                                    _characterNumber = entityNumber.$3;
                                   });
                                 },
                               ),
@@ -223,91 +202,100 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                           ),
                         ),
                         // nation number
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 100.0,
-                              child: Text(
-                                  '${engine.locale('organizationNumber')}: '),
-                            ),
-                            Slider(
-                              value: _organizationNumber.toDouble(),
-                              min: 1,
-                              max: organizationNumberMax.toDouble(),
-                              label: _organizationNumber.toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  _organizationNumber = value.toInt();
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              width: 40.0,
-                              child: Text(_organizationNumber.toString()),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text(
+                                    '${engine.locale('organizationNumber')}: '),
+                              ),
+                              // Slider(
+                              //   value: _organizationNumber.toDouble(),
+                              //   min: 1,
+                              //   max: organizationNumberMax.toDouble(),
+                              //   label: _organizationNumber.toString(),
+                              //   onChanged: (double value) {
+                              //     setState(() {
+                              //       _organizationNumber = value.toInt();
+                              //     });
+                              //   },
+                              // ),
+                              SizedBox(
+                                width: 40.0,
+                                child: Text(_organizationNumber.toString()),
+                              ),
+                            ],
+                          ),
                         ),
                         // location number
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 100.0,
-                              child:
-                                  Text('${engine.locale('locationNumber')}: '),
-                            ),
-                            Slider(
-                              value: _locationNumber.toDouble(),
-                              min: 1,
-                              max: newLocationNumberMax.toDouble(),
-                              label: _locationNumber.toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  _locationNumber = value.toInt();
-                                  final organizationNumberMax = math.min(
-                                      _locationNumber, _characterNumber);
-                                  if (_organizationNumber >
-                                      organizationNumberMax) {
-                                    _organizationNumber = organizationNumberMax;
-                                  }
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              width: 40.0,
-                              child: Text(_locationNumber.toString()),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text(
+                                    '${engine.locale('locationNumber')}: '),
+                              ),
+                              // Slider(
+                              //   value: _locationNumber.toDouble(),
+                              //   min: 1,
+                              //   max: newLocationNumberMax.toDouble(),
+                              //   label: _locationNumber.toString(),
+                              //   onChanged: (double value) {
+                              //     setState(() {
+                              //       _locationNumber = value.toInt();
+                              //       final organizationNumberMax = math.min(
+                              //           _locationNumber, _characterNumber);
+                              //       if (_organizationNumber >
+                              //           organizationNumberMax) {
+                              //         _organizationNumber = organizationNumberMax;
+                              //       }
+                              //     });
+                              //   },
+                              // ),
+                              SizedBox(
+                                width: 40.0,
+                                child: Text(_locationNumber.toString()),
+                              ),
+                            ],
+                          ),
                         ),
                         // character number
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 100.0,
-                              child:
-                                  Text('${engine.locale('characterNumber')}: '),
-                            ),
-                            Slider(
-                              value: _characterNumber.toDouble(),
-                              min: 1,
-                              max: 800,
-                              label: _characterNumber.toString(),
-                              onChanged: (double value) {
-                                setState(() {
-                                  _characterNumber = value.toInt();
-                                  final organizationNumberMax = math.min(
-                                      _locationNumber, _characterNumber);
-                                  if (_organizationNumber >
-                                      organizationNumberMax) {
-                                    _organizationNumber = organizationNumberMax;
-                                  }
-                                });
-                              },
-                            ),
-                            SizedBox(
-                              width: 40.0,
-                              child: Text(_characterNumber.toString()),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text(
+                                    '${engine.locale('characterNumber')}: '),
+                              ),
+                              // Slider(
+                              //   value: _characterNumber.toDouble(),
+                              //   min: 1,
+                              //   max: 800,
+                              //   label: _characterNumber.toString(),
+                              //   onChanged: (double value) {
+                              //     setState(() {
+                              //       _characterNumber = value.toInt();
+                              //       final organizationNumberMax = math.min(
+                              //           _locationNumber, _characterNumber);
+                              //       if (_organizationNumber >
+                              //           organizationNumberMax) {
+                              //         _organizationNumber = organizationNumberMax;
+                              //       }
+                              //     });
+                              //   },
+                              // ),
+                              SizedBox(
+                                width: 40.0,
+                                child: Text(_characterNumber.toString()),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),

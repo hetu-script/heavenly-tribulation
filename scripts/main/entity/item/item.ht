@@ -86,19 +86,19 @@ const kItemCategoryAircraft = 'aircraft'
 
 /// 物品的基础价格
 const kItemBasePriceByCategory = {
-  'cardpack':              500,
+  'cardpack':              1000,
   'scroll_paper':          150,
-  'identify_scroll':       280,
-  'weapon':                5,
-  'shield':                5,
-  'armor':                 5,
-  'gloves':                5,
-  'helmet':                5,
-  'boots':                 5,
-  'ship':                  10,
-  'aircraft':              10,
-  'jewelry':               15,
-  'talisman':              15,
+  'identify_scroll':       500,
+  'weapon':                100,
+  'shield':                50,
+  'armor':                 50,
+  'gloves':                50,
+  'helmet':                50,
+  'boots':                 150,
+  'ship':                  200,
+  'aircraft':              500,
+  'jewelry':               100,
+  'talisman':              250,
 }
 
 function calculatePrice(item) {

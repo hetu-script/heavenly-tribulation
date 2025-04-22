@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
 
-import '../engine.dart';
+import '../game/logic.dart';
 
 class GameTimestampState with ChangeNotifier {
-  String gameDateTimeString = '';
-  int gameTimestamp = 0;
+  String datetimeString = '';
+  int timestamp = 0;
 
   void update() {
-    gameDateTimeString = engine.hetu.invoke('getCurrentDateTimeString');
-    gameTimestamp = engine.hetu.invoke('getTimestamp');
+    final (timestamp, datetimeString) = GameLogic.calculateTimestamp();
+    this.timestamp = timestamp;
+    this.datetimeString = datetimeString;
     notifyListeners();
   }
 
-  (String, int) get() {
-    return (gameDateTimeString, gameTimestamp);
+  (int, String) get() {
+    return (timestamp, datetimeString);
   }
 }

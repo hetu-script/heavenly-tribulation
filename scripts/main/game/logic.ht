@@ -415,11 +415,11 @@ async function onBeforeMove(terrain) {
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
   } else {
-    if (kWaterTerrainKinds.contains(terrain.kind)) {
-      Dialog.pushLocale('hint_ship')
+    if (kTerrainKindsWater.contains(terrain.kind)) {
+      Dialog.pushDialog('hint_ship')
       Dialog.execute()
-    } else if (kMountainTerrainKinds.contains(terrain.kind)) {
-      Dialog.pushLocale('hint_boots')
+    } else if (kTerrainKindsMountain.contains(terrain.kind)) {
+      Dialog.pushDialog('hint_boots')
       Dialog.execute()
     }
     return null
@@ -437,7 +437,7 @@ async function onBeforeMove(terrain) {
   //   if (object.isDiscovered) {
   //     onInteractMapObject(object, targetTerrain)
   //   } else {
-  //     Dialog.pushLocale('hint_sensedUndiscovered', isHero: true)
+  //     Dialog.pushDialog('hint_sensedUndiscovered', isHero: true)
   //     await Dialog.execute()
   //   }
   // }
@@ -446,7 +446,7 @@ async function onBeforeMove(terrain) {
   //   if (location.isDiscovered) {
   //     World.enterLocation(location)
   //   } else {
-  //     Dialog.pushLocale('hint_sensedUndiscovered', isHero: true)
+  //     Dialog.pushDialog('hint_sensedUndiscovered', isHero: true)
   //     await Dialog.execute()
   //   }
   // }
@@ -940,243 +940,6 @@ async function onBeforeMove(terrain) {
 //   })
 // }
 
-async function onInteractCharacter(character) {
-  engine.debug('正在和 主要角色 [${character.name}] 互动。')
-  Game.hideNpc(character.id)
-
-  final result = await onGameEvent('onBeforeInteractCharacter', character)
-  if (result) {
-    return result
-  }
-
-  let bond = characterMet(character, hero)
-  if (bond.score < 0) {
-    // TODO: 商人不会因为好感低而拒绝交易
-    Dialog.pushLocale('discourse_unfavorRefusal', character: character)
-    await Dialog.execute()
-    return
-  }
-
-  let selections = [
-    'talk',
-    'trade',
-    'show',
-  ]
-  let hasGifted = game.playerMonthly.gifted.contains(character.id)
-  let hasAttacked = game.playerMonthly.attacked.contains(character.id)
-  let hasStolen = game.playerMonthly.stolen.contains(character.id)
-  if (!hasGifted) selections.add('gift')
-  if (!hasAttacked) selections.add('attack')
-  if (!hasStolen) selections.add('steal')
-  selections.add('relationshipDiscourse')
-  selections.add('bye')
-  Dialog.pushLocaleSelection(
-    'characterInteraction',
-    selections,
-  )
-  await Dialog.execute()
-  final selected = Dialog.checkSelected('characterInteraction')
-  
-  switch(selected) {
-    'talk': {
-      let topicSelections = [
-        'questTopic',
-        'characterTopic',
-        'organizationTopic',
-        'locationTopic',
-        'itemTopic',
-        'cancel',
-      ]
-      Dialog.pushLocaleSelection(
-        'topicSelections',
-        topicSelections,
-      )
-      await Dialog.execute()
-      final topic = Dialog.checkSelected('topicSelections')
-      switch(topic) {
-        'questTopic': {
-          if (hero.quests.isEmpty) {
-            Dialog.pushLocale('hint_noQuests', isHero: true)
-            Dialog.execute()
-            return
-          }
-          final quests = { id: 'questSelections', selections: {} }
-          for (final quest of hero.quests) {
-            quests.selections[quest.id] = quest.title
-          }
-          quests.selections['cancel'] = engine.locale('cancel')
-          Dialog.pushSelection(quests)
-          await Dialog.execute()
-          final selectedQuest = Dialog.checkSelected('questSelections')
-          if (selectedQuest != 'cancel') {
-            onGameEvent('onInquiryQuest', character, hero.quests[selectedQuest])
-          }
-        }
-        'characterTopic': {
-
-        }
-        'organizationTopic': {
-
-        }
-        'locationTopic': {
-
-        }
-        'itemTopic': {
-
-        }
-      }
-    }
-    'show': {
-      // 向角色展示某个物品
-      let items = await Game.showItemSelect(character: hero, multiSelect: false)
-      let item = items?.first
-      if (item != null) {
-        engine.info('正在向 ${character.name} 出示 ${item.name}')
-        await onGameEvent('onShowItem', character, item)
-      }
-    }
-    'gift': {
-      let items = await Game.showItemSelect(character: hero, multiSelect: false)
-      let item = items?.first
-      if (item != null) {
-        engine.info('正在向 ${character.name} 赠送 ${item.name}')
-        final result = await onGameEvent('onGiftItem', character, item)
-        if (result) {
-          Player.lose(item)
-          entityAcquire(character, item)
-          Dialog.pushLocale('discourse_giftAcception', character: character)
-        } else {
-          Dialog.pushLocale('discourse_giftRefusal', character: character)
-        }
-        await Dialog.execute()
-      }
-    }
-    'trade': {
-      // TODO:
-      // 根据好感度决定折扣
-      // 根据角色技能决定不同物品的折扣
-      // 根据角色境界决定使用铜钱还是灵石交易
-      let baseRate = kBaseBuyRate
-      let sellRateModifier = (bond.score * kPriceFavorRate) * kPriceFavorIncrement
-      baseRate -= sellRateModifier
-      if (baseRate < kMinBuyRate) {
-        baseRate = kMinBuyRate
-      }
-      let sellRate = kBaseSellRate
-      sellRate += sellRateModifier
-      if (sellRate < kMinPriceRate) {
-        sellRate = kMinPriceRate
-      } else if (sellRate > baseRate) {
-        sellRate = baseRate
-      }
-      Game.showMerchant(character, priceFactor: {
-        base: baseRate,
-        sell: sellRate,
-      })
-    }
-    'attack': {
-
-    }
-    'steal': {
-      
-    }
-    'relationshipDiscourse': {
-      let relationshipSelections = []
-      
-      /// 玩家角色并不能主动发起浪漫关系
-      /// 只能有概率的被动触发 NPC 爱上自己的事件
-      /// 只有对方爱上自己的情况下，才可以创建婚姻关系
-      let isCharacterSpouse = isSpouse(character, hero)
-      if (!isCharacterSpouse) {
-        let isCharacterRomance = isRomance(character, hero)
-        if (isCharacterRomance) {
-          let hasProposed = game.playerMonthly.proposed.contains(character.id)
-          if (!hasProposed) {
-            relationshipSelections.add('propose')
-          }
-        }
-      } else {
-        relationshipSelections.add('divorce')
-      }
-
-      // 师徒关系的传授功法
-      let isCharacterShifu = isTudi(character, hero)
-      let isCharacterTudi = isTudi(hero, character)
-      // 不允许既是师父又是徒弟
-      assert(!(isCharacterShifu && isCharacterTudi))
-      let hasConsulted = game.playerMonthly.consulted.contains(character.id)
-      let hasTutored = game.playerMonthly.tutored.contains(character.id)
-      if (isCharacterShifu) {
-        if (!hasConsulted) {
-          relationshipSelections.add('consult')
-        }
-      } else if (isCharacterTudi) {
-        if (!hasTutored) {
-          relationshipSelections.add('tutor')
-        }
-      } else {
-        if (character.level > hero.level && character.rank > hero.rank) {
-          let hasBaishi = game.playerMonthly.baishi.contains(character.id)
-          if (!hasBaishi) {
-            relationshipSelections.add('baishi')
-          }
-        } else if (hero.level > character.level && hero.rank > character.rank) {
-          let hasShoutu = game.playerMonthly.shoutu.contains(character.id)
-          if (!hasShoutu) {
-            relationshipSelections.add('shoutu')
-          }
-        }
-      }
-
-      // 组织的加入，招募和开除
-      let isCharacterHead = isOrganizationHead(character)
-      let isHead = isOrganizationHead(hero)
-      let hasApplied = game.playerMonthly.applied.contains(character.id)
-      let hasRecruited = game.playerMonthly.recruited.contains(character.id)
-      if (isCharacterHead && !hasApplied) relationshipSelections.add('apply')
-      if (isHead && !hasRecruited) relationshipSelections.add('recruit')
-
-      relationshipSelections.add('forgetIt')
-
-      Dialog.pushLocaleSelection(
-        'characterRelationshipInteraction',
-        relationshipSelections,
-      )
-      
-      await Dialog.execute()
-      final selected2 = Dialog.checkSelected('characterRelationshipInteraction')
-
-      switch(selected2) {
-        'propose': {
-
-        }
-        'divorce': {
-
-        }
-        'consult': {
-
-        }
-        'tutor': {
-
-        }
-        'baishi': {
-
-        }
-        'shoutu': {
-          
-        }
-        'apply': {
-
-        }
-        'recruit': {
-
-        }
-        
-      }
-    }
-  }
-}
-
 /// 这个函数时异步的
 /// 但一般不要awai这个函数，因为有可能卡在打开物品展示对话框的地方
 /// 直到关闭对话框才会返回并继续执行
@@ -1188,7 +951,7 @@ async function onInteractMapObject(object, terrain) {
   } else {
     if (!object.isDiscovered) {
       discoverObject(object, terrain)
-      Dialog.pushLocale('firstDiscover', interpolations: [object.name])
+      Dialog.pushDialog('firstDiscover', interpolations: [object.name])
       await Dialog.execute()
     }
     switch (object.category) {
@@ -1207,7 +970,7 @@ async function onInteractMapObject(object, terrain) {
         onInteractEnemy(object.battleEntity)
       }
       'cultivation': onInteractCultivationStele(object)
-      'cardLibrary': onInteractCardLibraryStele(object)
+      'cardlibrary': onInteractCardLibraryStele(object)
       'merchant': Game.showMerchant(object.merchant)
       'spiritWell': onInteractSpiritWell(object)
       default: engine.error('不支持的地图交互物品类型: ${object.category}')
@@ -1275,13 +1038,13 @@ async function onInteractSwitch(object, terrain) {
 
 async function onInteractBed(object) {
   if (hero.life >= hero.stats.lifeMax) {
-    Dialog.pushLocale('hint_fullHPRest')
+    Dialog.pushDialog('hint_fullHPRest')
     await Dialog.execute()
     return
   }
 
   if (object.isUsed) {
-    Dialog.pushLocale('hint_usedObject')
+    Dialog.pushDialog('hint_usedObject')
     await Dialog.execute()
   } else {
     object.isUsed = true
@@ -1305,13 +1068,13 @@ async function onInteractBed(object) {
 }
 
 async function onInteractCultivationStele(object) {
-  Dialog.pushLocale('hint_cultivationStele')
+  Dialog.pushDialog('hint_cultivationStele')
   await Dialog.execute()
   Game.showCultivation(location: object)
 }
 
 async function onInteractCardLibraryStele(object) {
-  Dialog.pushLocale('hint_cardLibraryStele')
+  Dialog.pushDialog('hint_cardLibraryStele')
   await Dialog.execute()
   Game.showLibrary(
     enableCardCraft: object.enableCardCraft,
@@ -1321,7 +1084,7 @@ async function onInteractCardLibraryStele(object) {
 
 async function onInteractSpiritWell(object) {
   if (object.isUsed) {
-    Dialog.pushLocale('hint_dungeon_spiritWell_description2')
+    Dialog.pushDialog('hint_dungeon_spiritWell_description2')
     await Dialog.execute()
     return
   }
@@ -1335,7 +1098,7 @@ async function onInteractSpiritWell(object) {
   }
 
   if (!hasVacancy) {
-    Dialog.pushLocale('hint_dungeon_spiritWell_fullEquipments')
+    Dialog.pushDialog('hint_dungeon_spiritWell_fullEquipments')
     await Dialog.execute()
     return
   }
@@ -1346,7 +1109,7 @@ async function onInteractSpiritWell(object) {
     Player.acquire(spirit)
     Player.equip(spirit)
     engine.play('spell-of-healing-876.mp3')
-    Dialog.pushLocale('hint_dungeon_spiritWell_use')
+    Dialog.pushDialog('hint_dungeon_spiritWell_use')
     await Dialog.execute()
     Game.promptNewItems(spirit)
   }

@@ -4,10 +4,10 @@ import '../game/data.dart';
 import '../engine.dart';
 
 class HeroState with ChangeNotifier {
-  dynamic get heroData => GameData.heroData;
+  dynamic get hero => GameData.hero;
 
   void update() {
-    GameData.heroData = engine.hetu.fetch('hero');
+    GameData.hero = engine.hetu.fetch('hero');
     notifyListeners();
   }
 }
@@ -60,6 +60,11 @@ class EnemyState with ChangeNotifier {
   }
 }
 
+enum MerchantType {
+  location,
+  character,
+}
+
 class MerchantState with ChangeNotifier {
   bool showMerchant = false;
   bool materialMode = false;
@@ -67,9 +72,18 @@ class MerchantState with ChangeNotifier {
   dynamic data;
   dynamic priceFactor;
   dynamic filter;
+  MerchantType type = MerchantType.location;
 
-  (bool, bool, bool, dynamic, dynamic, dynamic) get() {
-    return (showMerchant, materialMode, useShard, data, priceFactor, filter);
+  (bool, bool, bool, dynamic, dynamic, dynamic, MerchantType) get() {
+    return (
+      showMerchant,
+      materialMode,
+      useShard,
+      data,
+      priceFactor,
+      filter,
+      type
+    );
   }
 
   void show(
@@ -78,12 +92,14 @@ class MerchantState with ChangeNotifier {
     bool useShard = false,
     dynamic priceFactor,
     dynamic filter,
+    MerchantType type = MerchantType.location,
   }) {
     this.materialMode = materialMode;
     this.useShard = useShard;
     this.data = data;
     this.priceFactor = priceFactor;
     this.filter = filter;
+    this.type = type;
     showMerchant = true;
     notifyListeners();
   }
@@ -94,6 +110,7 @@ class MerchantState with ChangeNotifier {
     data = null;
     priceFactor = null;
     filter = null;
+    type = MerchantType.location;
     showMerchant = false;
     notifyListeners();
   }

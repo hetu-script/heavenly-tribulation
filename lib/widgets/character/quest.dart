@@ -3,6 +3,7 @@ import 'package:samsara/ui/empty_placeholder.dart';
 // import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
@@ -17,13 +18,13 @@ class QuestView extends StatefulWidget {
   const QuestView({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.mode = InformationViewMode.view,
-  }) : assert(characterId != null || characterData != null);
+  }) : assert(characterId != null || character != null);
 
   final String? characterId;
 
-  final dynamic characterData;
+  final dynamic character;
 
   final InformationViewMode mode;
 
@@ -45,9 +46,9 @@ class _QuestViewState extends State<QuestView> {
   void initState() {
     super.initState();
 
-    assert(widget.characterId != null || widget.characterData != null);
-    if (widget.characterData != null) {
-      _characterData = widget.characterData!;
+    assert(widget.characterId != null || widget.character != null);
+    if (widget.character != null) {
+      _characterData = widget.character!;
     } else {
       _characterData = GameData.getCharacter(widget.characterId!);
     }
@@ -125,10 +126,6 @@ class _QuestViewState extends State<QuestView> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SizedBox(
-            //   width: 300.0,
-            //   child: Column(
-            //     children: [
             // SegmentedButton<QuestViewMode>(
             //   segments: <ButtonSegment<QuestViewMode>>[
             //     ButtonSegment<QuestViewMode>(
@@ -160,21 +157,12 @@ class _QuestViewState extends State<QuestView> {
                 border: Border.all(
                   color: GameUI.foregroundColor,
                 ),
-                // borderRadius: const BorderRadius.only(
-                //   bottomLeft: Radius.circular(5.0),
-                //   bottomRight: Radius.circular(5.0),
-                // ),
               ),
               child: _questsData.values.isNotEmpty
                   ? ListView(
                       children: List<Widget>.from(
                         _questsData.values.map(
-                          (quest) => TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: quest['id'] == _selectedQuestId
-                                  ? Colors.white24
-                                  : Colors.transparent,
-                            ),
+                          (quest) => fluent.Button(
                             onPressed: () {
                               setState(() {
                                 _selectedQuestId = quest['id'];
@@ -193,9 +181,6 @@ class _QuestViewState extends State<QuestView> {
                     )
                   : EmptyPlaceholder(engine.locale('empty')),
             ),
-            // ],
-            // ),
-            // ),
             if (_selectedQuest != null)
               Container(
                 width: 360.0,

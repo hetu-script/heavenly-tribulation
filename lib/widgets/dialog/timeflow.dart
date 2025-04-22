@@ -14,13 +14,6 @@ import '../../state/character.dart';
 
 const _kTimeFlowDivisions = 10;
 
-const kTimeOfDayImageIds = {
-  0: 'morning',
-  1: 'afternoon',
-  2: 'evening',
-  3: 'midnight',
-};
-
 class TimeflowDialog extends StatefulWidget {
   static Future<int> show({
     required BuildContext context,
@@ -98,11 +91,8 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final (gameDateTimeString, gameTimestamp) =
-        context.watch<GameTimestampState>().get();
-    final tickOfDay = gameTimestamp % kTicksPerDay;
-    final timeOfDayImageId =
-        'assets/images/time/${kTimeOfDayImageIds[tickOfDay]}.png';
+    final (_, dateTimeString) = context.watch<GameTimestampState>().get();
+    final timeOfDayImageId = 'assets/images/time/${GameLogic.timeOfDay}.png';
 
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
@@ -119,7 +109,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             LinearProgressIndicator(
               value: _progress / (widget.max * 10),
             ),
-            Text(gameDateTimeString),
+            Text(dateTimeString),
             if (finished)
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),

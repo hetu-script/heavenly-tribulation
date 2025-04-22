@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -9,12 +8,12 @@ import '../../../game/logic.dart';
 import '../../../engine.dart';
 import '../inventory/inventory.dart';
 import '../../../game/data.dart';
-import '../../../state/hover_content.dart';
 import '../../../state/character.dart';
 import '../../../scene/game_dialog/game_dialog_content.dart';
 import 'material_bar.dart';
 import '../inventory/material.dart';
 import '../../dialog/input_slider.dart';
+import '../../ui/close_button2.dart';
 
 class MerchantDialog extends StatefulWidget {
   const MerchantDialog({
@@ -24,6 +23,7 @@ class MerchantDialog extends StatefulWidget {
     this.materialMode = false,
     required this.priceFactor,
     this.filter,
+    this.type = MerchantType.location,
   });
 
   final dynamic merchantData;
@@ -51,6 +51,8 @@ class MerchantDialog extends StatefulWidget {
   /// key 可能是 `category`、`kind`、`id`、`isIdentified`
   /// value 为具体的category、kind 或 id
   final dynamic filter;
+
+  final MerchantType type;
 
   @override
   State<MerchantDialog> createState() => _MerchantDialogState();
@@ -102,11 +104,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
                 children: [
                   Column(
                     children: [
-                      Text(GameData.heroData['name']),
-                      MaterialBar(entity: GameData.heroData),
+                      Text(GameData.hero['name']),
+                      CurrencyBar(entity: GameData.hero),
                       if (widget.materialMode)
                         MaterialStorage(
-                          entity: GameData.heroData,
+                          entity: GameData.hero,
                           height: 312.0,
                           priceFactor: priceFactor,
                           isSell: true,
@@ -124,7 +126,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           margin: const EdgeInsets.only(top: 10.0),
                           child: Inventory(
                             height: 350,
-                            characterData: GameData.heroData,
+                            character: GameData.hero,
                             type: ItemType.customer,
                             priceFactor: priceFactor,
                             selectedItemId: _selectedHeroItemsData.keys,
@@ -146,7 +148,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           onPressed: () async {
                             if (widget.materialMode) {
                               if (_selectedHeroMaterialId == null) return;
-                              final int max = GameData.heroData['materials']
+                              final int max = GameData.hero['materials']
                                   [_selectedHeroMaterialId];
 
                               final int unitPrice =
@@ -303,7 +305,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               for (final itemData in items) {
                                 engine.hetu.invoke(
                                   'entityLose',
-                                  positionalArgs: [GameData.heroData, itemData],
+                                  positionalArgs: [GameData.hero, itemData],
                                 );
                                 engine.hetu.invoke(
                                   'entityAcquire',
@@ -325,9 +327,10 @@ class _MerchantDialogState extends State<MerchantDialog> {
                   Column(
                     children: [
                       Text(widget.merchantData['name']),
-                      MaterialBar(
+                      CurrencyBar(
                         entity: widget.merchantData,
                         priceFactor: priceFactor,
+                        type: widget.type,
                       ),
                       if (widget.materialMode)
                         MaterialStorage(
@@ -348,7 +351,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           margin: const EdgeInsets.only(top: 10.0),
                           child: Inventory(
                             height: 350,
-                            characterData: widget.merchantData,
+                            character: widget.merchantData,
                             type: ItemType.merchant,
                             priceFactor: priceFactor,
                             selectedItemId: _selectedMerchantItemsData.keys,
@@ -396,9 +399,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               final totalPrice = unitPrice * amount;
 
                               if (widget.useShard) {
-                                int shards = GameData.heroData['materials']
-                                        ['shard'] ??
-                                    0;
+                                int shards =
+                                    GameData.hero['materials']['shard'] ?? 0;
                                 if (shards < totalPrice) {
                                   GameDialogContent.show(context,
                                       engine.locale('hint_notEnoughShard'));
@@ -419,9 +421,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                   namedArgs: {'amount': totalPrice},
                                 );
                               } else {
-                                int money = GameData.heroData['materials']
-                                        ['money'] ??
-                                    0;
+                                int money =
+                                    GameData.hero['materials']['money'] ?? 0;
                                 if (money < totalPrice) {
                                   GameDialogContent.show(context,
                                       engine.locale('hint_notEnoughMoney'));
@@ -472,9 +473,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                 );
                               }
                               if (widget.useShard) {
-                                int shards = GameData.heroData['materials']
-                                        ['shard'] ??
-                                    0;
+                                int shards =
+                                    GameData.hero['materials']['shard'] ?? 0;
                                 if (shards < totalPrice) {
                                   GameDialogContent.show(context,
                                       engine.locale('hint_notEnoughShard'));
@@ -495,9 +495,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                   namedArgs: {'amount': totalPrice},
                                 );
                               } else {
-                                int money = GameData.heroData['materials']
-                                        ['money'] ??
-                                    0;
+                                int money =
+                                    GameData.hero['materials']['money'] ?? 0;
                                 if (money < totalPrice) {
                                   GameDialogContent.show(context,
                                       engine.locale('hint_notEnoughMoney'));
@@ -528,7 +527,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                 ]);
                                 engine.hetu
                                     .invoke('entityAcquire', positionalArgs: [
-                                  GameData.heroData,
+                                  GameData.hero,
                                   itemData,
                                 ]);
                                 _selectedMerchantItemsData

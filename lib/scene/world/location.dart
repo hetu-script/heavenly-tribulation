@@ -26,10 +26,10 @@ enum LocationDropMenuItems { save, saveAs, info, console, exit }
 
 class LocationScene extends Scene {
   LocationScene({
-    required this.locationData,
+    required this.location,
     required super.context,
   }) : super(
-          id: locationData['id'],
+          id: location['id'],
           // bgmFile: 'vietnam-bamboo-flute-143601.mp3',
           // bgmVolume: GameConfig.musicVolume,
         );
@@ -37,17 +37,17 @@ class LocationScene extends Scene {
 
   late final SpriteComponent _backgroundComponent;
 
-  final dynamic locationData;
-  dynamic organizationData;
+  final dynamic location;
+  dynamic organization;
 
   late final PiledZone siteList;
 
   void openResidenceList() async {
-    final List residingCharacterIds = locationData['residents'];
+    final List residingCharacterIds = location['residents'];
     if (residingCharacterIds.isNotEmpty) {
       final List characterIds = residingCharacterIds.toList();
       bool heroResidesHere = false;
-      final heroId = GameData.heroData['id'];
+      final heroId = GameData.hero['id'];
       if (characterIds.contains(heroId)) {
         characterIds.remove(heroId);
         heroResidesHere = true;
@@ -61,7 +61,7 @@ class LocationScene extends Scene {
       // 这里不知为何flutter明明Pop的是Null，传过来却变成了bool，只好用类型判断是否选择了角色
       if (selectedId is String) {
         final homeSiteId = 'home_$selectedId';
-        final homeSiteData = GameData.gameData['locations'][homeSiteId];
+        final homeSiteData = GameData.game['locations'][homeSiteId];
         assert(homeSiteData != null);
         GameLogic.tryEnterLocation(homeSiteData);
       }
@@ -80,9 +80,9 @@ class LocationScene extends Scene {
     siteList.cards.clear();
 
     // 一些纯功能性的场景内互动对象，不在数据中，而是硬编码
-    switch (locationData['kind']) {
+    switch (location['kind']) {
       case 'home':
-        if (locationData['ownerId'] == GameData.heroData['id']) {
+        if (location['ownerId'] == GameData.hero['id']) {
           final siteCardRest = GameData.createSiteCard(
               spriteId: 'location/card/bed.png', title: engine.locale('rest'));
           siteCardRest.onTap = (button, position) {
@@ -96,24 +96,26 @@ class LocationScene extends Scene {
             spriteId: 'location/card/stele.png',
             title: engine.locale('cultivationStele'));
         siteCardRest.onTap = (button, position) {
-          GameLogic.onInteractCultivationStele(organizationData,
-              locationData: locationData);
+          GameLogic.onInteractCultivationStele(organization,
+              location: location);
         };
         siteList.cards.add(siteCardRest);
         world.add(siteCardRest);
       case 'library':
         final siteCardRest = GameData.createSiteCard(
             spriteId: 'location/card/carddesk.png',
-            title: engine.locale('cardLibrary'));
+            title: engine.locale('cardlibrary'));
         siteCardRest.onTap = (button, position) {
-          GameLogic.onInteractCardLibraryDesk(organizationData,
-              locationData: locationData);
+          GameLogic.onInteractLibraryDesk(
+            organization: organization,
+            location: location,
+          );
         };
         siteList.cards.add(siteCardRest);
         world.add(siteCardRest);
       default:
-        for (final siteId in locationData['sites']) {
-          final siteData = GameData.gameData['locations'][siteId];
+        for (final siteId in location['sites']) {
+          final siteData = GameData.game['locations'][siteId];
           final siteCard = GameData.createSiteCardFromData(siteData);
           siteCard.onTap = (button, position) {
             if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
@@ -122,7 +124,7 @@ class LocationScene extends Scene {
               engine.hetu.invoke('onWorldEvent', positionalArgs: [
                 'onInteractLocationObject',
                 siteCard.data,
-                locationData,
+                location,
               ]);
             }
           };
@@ -131,7 +133,7 @@ class LocationScene extends Scene {
         }
     }
 
-    if (locationData['category'] == 'city') {
+    if (location['category'] == 'city') {
       final siteCardResidence = GameData.createSiteCard(
           spriteId: 'location/card/residence.png',
           title: engine.locale('residence'));
@@ -142,20 +144,19 @@ class LocationScene extends Scene {
       world.add(siteCardResidence);
     }
 
-    siteList.sortCards(animated: false);
+    siteList.sortCards(animated: false, reversed: true);
   }
 
   @override
   void onLoad() async {
     super.onLoad();
 
-    if (locationData['organizationId'] != null) {
-      organizationData =
-          GameData.gameData['organizations'][locationData['organizationId']];
+    if (location['organizationId'] != null) {
+      organization = GameData.game['organizations'][location['organizationId']];
     }
 
     _backgroundComponent = SpriteComponent(
-      sprite: Sprite(await Flame.images.load(locationData['background'])),
+      sprite: Sprite(await Flame.images.load(location['background'])),
       size: size,
     );
     world.add(_backgroundComponent);
@@ -178,7 +179,7 @@ class LocationScene extends Scene {
     );
     exit.onTap = (_, __) async {
       final result = await engine.hetu.invoke('onWorldEvent',
-          positionalArgs: ['onBeforeExitLocation', locationData]);
+          positionalArgs: ['onBeforeExitLocation', location]);
       if (result == true) return;
       engine.popScene(clearCache: true);
     };
@@ -194,21 +195,21 @@ class LocationScene extends Scene {
   void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
-    engine.hetu.assign('location', locationData);
+    engine.hetu.assign('location', location);
 
     final List npcs = engine.hetu
-        .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
+        .invoke('getNpcsAtLocationId', positionalArgs: [location['id']]);
     context.read<NpcListState>().update(npcs);
     context.read<HeroPositionState>().updateTerrain(
           currentZoneData: null,
           currentNationData: null,
           currentTerrainData: null,
         );
-    context.read<HeroPositionState>().updateLocation(locationData);
+    context.read<HeroPositionState>().updateLocation(location);
 
-    engine.debug('玩家进入了 ${locationData['name']}');
+    engine.debug('玩家进入了 ${location['name']}');
 
-    GameLogic.onAfterEnterLocation(locationData);
+    GameLogic.onAfterEnterLocation(location);
   }
 
   @override

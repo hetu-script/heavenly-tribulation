@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../dialog/character_select.dart';
 import '../../engine.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 class EditCharacterBond extends StatefulWidget {
   const EditCharacterBond({
@@ -97,12 +97,12 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                         fluent.FilledButton(
                           onPressed: widget.enableTargetEdit
                               ? () async {
-                                  final charactersData =
+                                  final characters =
                                       engine.hetu.invoke('getCharacters');
                                   final key = await CharacterSelectDialog.show(
                                     context: context,
                                     title: engine.locale('selectCharacter'),
-                                    charactersData: charactersData,
+                                    characters: characters,
                                     showCloseButton: true,
                                   );
                                   _targetCharacterIdEditingController.text =

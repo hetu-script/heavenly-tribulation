@@ -73,12 +73,12 @@ class CultivationScene extends Scene {
 
   static final random = math.Random();
 
-  dynamic characterData;
+  dynamic character;
 
   // 某些时候通过characterData传递了角色信息，但其实还是传的主角
-  bool get isHero => characterData == GameData.heroData;
+  bool get isHero => character == GameData.hero;
 
-  dynamic locationData;
+  dynamic location;
 
   late CultivationMode mode;
 
@@ -91,6 +91,26 @@ class CultivationScene extends Scene {
   bool isMeditating = false;
 
   void setMeditateState(bool state) {
+    if (state) {
+      assert(mode != CultivationMode.none);
+
+      if (mode == CultivationMode.collect) {
+        final int light = location['collectableLight'] ?? 0;
+        if (light <= 0) {
+          GameDialogContent.show(
+              context, engine.locale('hint_insufficientLight'));
+          return;
+        }
+      } else if (mode == CultivationMode.exhaust) {
+        final int shard = GameData.hero['materials']['shard'] ?? 0;
+        if (shard <= 0) {
+          GameDialogContent.show(
+              context, engine.locale('hint_insufficientShard'));
+          return;
+        }
+      }
+    }
+
     isMeditating = state;
 
     levelUpButton.isEnabled = !state;
@@ -159,16 +179,16 @@ class CultivationScene extends Scene {
     super.onStart(arguments);
 
     if (arguments['character'] != null) {
-      characterData = arguments['character'];
+      character = arguments['character'];
     } else if (arguments['characterId'] != null) {
-      characterData = GameData.getCharacter(arguments['characterId']);
+      character = GameData.getCharacter(arguments['characterId']);
     } else {
-      characterData = GameData.heroData;
+      character = GameData.hero;
     }
 
     if (arguments['location'] != null) {
       mode = CultivationMode.collect;
-      locationData = arguments['location'];
+      location = arguments['location'];
     } else {
       if (arguments['enableCultivate'] == true) {
         mode = CultivationMode.exhaust;
@@ -183,15 +203,15 @@ class CultivationScene extends Scene {
   void updateInformation() {
     String collectableExpString = '';
     final int expCollectEfficiency =
-        GameData.heroData['stats']['expCollectEfficiency'];
+        GameData.hero['stats']['expCollectEfficiency'];
     if (mode == CultivationMode.collect) {
-      assert(locationData != null);
-      final int collectableLight = locationData['collectableLight'] ?? 0;
+      assert(location != null);
+      final int collectableLight = location['collectableLight'] ?? 0;
       collectableExp = collectableLight * expCollectEfficiency;
       collectableExpString =
           '${engine.locale('collectableLight')}: <bold ${collectableLight > 0 ? 'yellow' : 'grey'}>$collectableLight</>';
     } else if (mode == CultivationMode.exhaust) {
-      int shard = GameData.heroData['materials']['shard'] ?? 0;
+      int shard = GameData.hero['materials']['shard'] ?? 0;
       assert(expCollectEfficiency > 0);
       collectableExp = shard * expCollectEfficiency;
       collectableExpString =
@@ -203,25 +223,25 @@ class CultivationScene extends Scene {
 
     // final int expMax = GameData.heroData['expMax'];
 
-    final int skillPoints = characterData['skillPoints'];
+    final int skillPoints = character['skillPoints'];
     final pointsString = skillPoints > 0
         ? '<bold yellow>$skillPoints</>'
         : '<bold red>$skillPoints</>';
 
-    final int rank = characterData['rank'];
+    final int rank = character['rank'];
     final rankString =
         '<bold rank$rank>${engine.locale('cultivationRank_$rank')}</>';
 
     levelDescription.text =
         '$collectableExpString $expCollectEfficiencyString\n'
-        '${engine.locale('cultivationLevel')}: ${characterData['level']} '
+        '${engine.locale('cultivationLevel')}: ${character['level']} '
         '${engine.locale('cultivationRank')}: $rankString '
         '${engine.locale('skillPoints')}: $pointsString';
   }
 
   void updateExpBar() {
-    expBar.setValue(characterData['exp']);
-    expBar.max = GameLogic.expForLevel(characterData['level']);
+    expBar.setValue(character['exp']);
+    expBar.max = GameLogic.expForLevel(character['level']);
   }
 
   void hint(
@@ -246,7 +266,7 @@ class CultivationScene extends Scene {
   /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
   (bool, bool) checkPassiveStatus(String nodeId) {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
-    final unlockedNodes = characterData['unlockedPassiveTreeNodes'] as HTStruct;
+    final unlockedNodes = character['unlockedPassiveTreeNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(nodeId);
     // 可以学的技能，如果邻近的父节点无一解锁，则无法学习
     // 如果父节点数据是空的，则是入口节点，直接可以学习
@@ -294,8 +314,7 @@ class CultivationScene extends Scene {
 
     if (collectableExp <= 0) return;
 
-    final int expPerLightPoint =
-        GameData.heroData['stats']['expCollectEfficiency'];
+    final int expPerLightPoint = GameData.hero['stats']['expCollectEfficiency'];
     assert(expPerLightPoint > 0);
 
     // final int expForLevel = characterData['expForLevel'];
@@ -388,7 +407,7 @@ class CultivationScene extends Scene {
         // 分配新的属性天赋点时，从五种属性中选择一种，并获得3点该属性值
         // 分配后，按钮也会相应变成对应该属性的颜色
         // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
-        final attributeId = characterData['unlockedPassiveTreeNodes'][nodeId];
+        final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
         assert(attributeId is String);
         final attributeSkillData = GameData.passives[attributeId];
         assert(attributeSkillData != null);
@@ -411,7 +430,7 @@ class CultivationScene extends Scene {
           }
 
           if (isHero) {
-            if (characterData['skillPoints'] <= 0) {
+            if (character['skillPoints'] <= 0) {
               GameDialogContent.show(
                   context, engine.locale('hint_notEnoughPassiveSkillPoints'));
               return;
@@ -429,7 +448,7 @@ class CultivationScene extends Scene {
             }
 
             GameLogic.characterUnlockPassiveTreeNode(
-              characterData,
+              character,
               nodeId,
               selectedAttributeId: selectedAttributeId,
             );
@@ -437,11 +456,11 @@ class CultivationScene extends Scene {
             skillButton.tryLoadSprite(
                 spriteId: GameData.passives[selectedAttributeId]['icon']);
           } else {
-            GameLogic.characterUnlockPassiveTreeNode(characterData, nodeId);
+            GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
           }
           skillButton.isSelected = true;
           if (isHero) {
-            --characterData['skillPoints'];
+            --character['skillPoints'];
           }
 
           updatePassivesDescription();
@@ -453,12 +472,12 @@ class CultivationScene extends Scene {
           Hovertip.hide(skillButton);
           skillButton.isSelected = false;
           if (isHero) {
-            ++characterData['skillPoints'];
+            ++character['skillPoints'];
           }
 
           // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
 
-          GameLogic.characterRefundPassiveTreeNode(characterData, nodeId);
+          GameLogic.characterRefundPassiveTreeNode(character, nodeId);
 
           updatePassivesDescription();
           updateInformation();
@@ -485,7 +504,7 @@ class CultivationScene extends Scene {
               '<bold yellow>${engine.locale('passivetree_attribute_any')}</>');
           skillDescription.writeln(' ');
 
-          final attributeId = characterData['unlockedPassiveTreeNodes'][nodeId];
+          final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
           assert(attributeId is String);
           final attributeSkillData = GameData.passives[attributeId];
           assert(attributeSkillData != null);
@@ -502,9 +521,9 @@ class CultivationScene extends Scene {
           skillDescription.writeln(engine.locale('passivetree_refund_hint'));
         } else {
           if (isOpen) {
-            if (characterData['skillPoints'] > 0 || !isHero) {
+            if (character['skillPoints'] > 0 || !isHero) {
               final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-              if (characterData['rank'] >= rankRequirement) {
+              if (character['rank'] >= rankRequirement) {
                 skillDescription
                     .writeln(engine.locale('passivetree_unlock_hint'));
               } else {
@@ -543,7 +562,7 @@ class CultivationScene extends Scene {
   }
 
   void updateUnlockedNode() {
-    final unlockedNodes = characterData['unlockedPassiveTreeNodes'];
+    final unlockedNodes = character['unlockedPassiveTreeNodes'];
     for (final nodeId in unlockedNodes.keys) {
       final button = _skillButtons[nodeId];
       assert(button != null);
@@ -557,7 +576,7 @@ class CultivationScene extends Scene {
   }
 
   void updatePassivesDescription() {
-    _cultivatorDescription = GameData.getPassivesDescription(characterData);
+    _cultivatorDescription = GameData.getPassivesDescription(character);
 
     engine.hetu.invoke('calculateStats', namespace: 'Player');
   }
@@ -567,26 +586,26 @@ class CultivationScene extends Scene {
   }
 
   void _tick() async {
-    GameLogic.updateGame();
-    _updateTimeOfDay();
-
     void gainExp() async {
       assert(_lightPoints.isNotEmpty);
       final light = _lightPoints.first;
       await condenseOne(light);
       light.removeFromParent();
-      characterData['exp'] += light.value;
+      character['exp'] += light.value;
       updateInformation();
       updateExpBar();
       updateExpLightPoints();
     }
 
+    bool breakOut = false;
+
     if (mode == CultivationMode.collect) {
-      if (locationData['collectableLight'] > 0) {
-        locationData['collectableLight'] -= 1;
+      if (location['collectableLight'] > 0) {
+        location['collectableLight'] -= 1;
         gainExp();
       } else {
-        hint(engine.locale('hint_insufficientLight'), color: Colors.red);
+        hint(engine.locale('hint_outOfLight'), color: Colors.red);
+        breakOut = true;
       }
     } else if (mode == CultivationMode.exhaust) {
       final bool success = engine.hetu.invoke(
@@ -601,8 +620,16 @@ class CultivationScene extends Scene {
       if (success) {
         gainExp();
       } else {
-        hint(engine.locale('hint_insufficientShard'), color: Colors.red);
+        hint(engine.locale('hint_outOfShard'), color: Colors.red);
+        breakOut = true;
       }
+    }
+
+    if (breakOut) {
+      setMeditateState(false);
+    } else {
+      GameLogic.updateGame();
+      _updateTimeOfDay();
     }
   }
 
@@ -694,8 +721,8 @@ class CultivationScene extends Scene {
     );
     camera.viewport.add(levelDescription);
 
-    final int convertedExp = characterData['exp'];
-    final int expForLevel = characterData['expForLevel'];
+    final int convertedExp = character['exp'];
+    final int expForLevel = character['expForLevel'];
     expBar = DynamicColorProgressIndicator(
       anchor: Anchor.center,
       position: GameUI.expBarPosition,
@@ -964,8 +991,8 @@ class CultivationScene extends Scene {
 
   /// 处理角色升级相关逻辑
   void tryLevelUp() {
-    int expForLevel = characterData['expForLevel'];
-    int exp = characterData['exp'];
+    int expForLevel = character['expForLevel'];
+    int exp = character['exp'];
 
     if (exp >= expForLevel) {
       // 无论渡劫是否成功，经验值都会被扣除
@@ -982,7 +1009,7 @@ class CultivationScene extends Scene {
           color: Colors.yellow,
         );
       } else {
-        characterData['exp'] = exp;
+        character['exp'] = exp;
       }
 
       updateInformation();

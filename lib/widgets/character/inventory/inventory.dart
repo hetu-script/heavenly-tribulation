@@ -7,13 +7,15 @@ import '../../../state/hover_content.dart';
 import 'item_grid.dart';
 import '../../../game/logic.dart';
 
+export '../../../common.dart' show ItemType;
+
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatefulWidget {
   const Inventory({
     super.key,
-    required this.characterData,
+    required this.character,
     required this.type,
-    required this.height,
+    this.height = 312.0,
     this.minSlotCount = 30,
     this.gridsPerLine = 5,
     this.onTapped,
@@ -23,7 +25,7 @@ class Inventory extends StatefulWidget {
     this.filter,
   });
 
-  final dynamic characterData;
+  final dynamic character;
   final ItemType type;
   final double height;
   final int minSlotCount, gridsPerLine;
@@ -52,12 +54,13 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final filteredItems = GameLogic.getFilteredItems(widget.characterData,
+    final filteredItems = GameLogic.getFilteredItems(widget.character,
         type: widget.type, filter: widget.filter);
 
     for (final itemData in filteredItems) {
       grids.add(
         ItemGrid(
+          size: kDefaultItemGridSize,
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
@@ -115,7 +118,7 @@ class _InventoryState extends State<Inventory> {
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SizedBox(
-            width: 60.0 * widget.gridsPerLine,
+            width: (kDefaultItemGridSize.width + 4.0) * widget.gridsPerLine,
             height: widget.height,
             child: ListView(
               shrinkWrap: true,

@@ -36,7 +36,7 @@ struct Incident {
     this.goodwill = goodwill
 
     this.id = crypto.randomUUID()
-    timeline[this.id] = this
+    history[this.id] = this
     
     if (subjectId != null) {
       const subject = game.characters[subjectId]
@@ -108,7 +108,7 @@ struct Incident {
 }
 
 function getIncidentByIndex(index: integer) {
-  return timeline[index]
+  return history[index]
 }
 
 function calculateCharacterScoreOfIncident(character, incident) {

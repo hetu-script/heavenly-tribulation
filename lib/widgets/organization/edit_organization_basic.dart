@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../dialog/character_select.dart';
 import '../../engine.dart';
 import '../../game/data.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 class EditOrganizationBasics extends StatefulWidget {
   const EditOrganizationBasics({
@@ -219,8 +219,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           final key = await CharacterSelectDialog.show(
                             context: context,
                             title: engine.locale('selectCharacter'),
-                            charactersData:
-                                GameData.gameData['characters'].values,
+                            characters: GameData.game['characters'].values,
                             showCloseButton: true,
                           );
                           _headIdEditingController.text = key ?? '';

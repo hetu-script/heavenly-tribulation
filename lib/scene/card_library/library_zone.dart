@@ -304,7 +304,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   void updateHeroLibrary() {
-    final libraryData = GameData.heroData['cardLibrary'];
+    final libraryData = GameData.hero['cardLibrary'];
     for (final cardData in libraryData.values) {
       if (library.containsKey(cardData['id'])) continue;
       addCardByData(cardData);
@@ -424,7 +424,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
           'library_card_${card.id}',
           card.data,
           card.toAbsoluteRect(),
-          characterData: GameData.heroData,
+          character: GameData.hero,
         );
     card.onUnpreviewed = () => unpreviewCard(game.context);
 

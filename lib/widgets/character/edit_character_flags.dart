@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 class EditCharacterFlags extends StatefulWidget {
   const EditCharacterFlags({
     super.key,
-    required this.characterData,
+    required this.character,
   });
 
-  final dynamic characterData;
+  final dynamic character;
 
   @override
   State<EditCharacterFlags> createState() => _EditCharacterFlagsState();
@@ -28,7 +28,7 @@ class _EditCharacterFlagsState extends State<EditCharacterFlags> {
     super.initState();
 
     for (final key in flags.keys) {
-      flags[key] = widget.characterData[key] ?? false;
+      flags[key] = widget.character[key] ?? false;
     }
   }
 

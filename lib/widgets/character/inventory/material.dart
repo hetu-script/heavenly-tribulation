@@ -8,21 +8,26 @@ import '../../../game/ui.dart';
 import '../../../game/logic.dart';
 import '../../../engine.dart';
 import '../../../state/hover_content.dart';
+import '../../../common.dart';
 
 class MaterialStorage extends StatelessWidget {
   const MaterialStorage({
     super.key,
+    this.width = 255.0,
     this.height,
     required this.entity,
     this.priceFactor,
+    this.filter,
     this.isSell = false,
     this.selectedItem,
     this.onSelectedItem,
   });
 
+  final double width;
   final double? height;
   final dynamic entity;
   final dynamic priceFactor;
+  final List? filter;
   final bool isSell;
   final String? selectedItem;
   final void Function(String)? onSelectedItem;
@@ -31,11 +36,16 @@ class MaterialStorage extends StatelessWidget {
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
-    for (final key in entity['materials'].keys) {
+    for (final key in kOtherMaterialKinds) {
       if (key == 'money') continue;
+      int amount = 0;
+      if (filter != null) {
+        if (filter!.isNotEmpty && !filter!.contains(key)) continue;
+      } else {
+        amount = entity['materials'][key] ?? 0;
+        if (amount <= 0) continue;
+      }
 
-      final int amount = entity['materials'][key];
-      if (amount <= 0) continue;
       final unitPrice = GameLogic.calculateMaterialPrice(key,
           priceFactor: priceFactor, isSell: isSell);
 
@@ -48,7 +58,7 @@ class MaterialStorage extends StatelessWidget {
           onMouseEnter: (rect) {
             context.read<HoverContentState>().show(
                 '${engine.locale(key)}: ${engine.locale('${key}_description')}\n'
-                '<yellow>${engine.locale('unitPrice')}: $unitPrice</>',
+                '${priceFactor != null ? '${engine.locale('unitPrice')}: $unitPrice' : ''}',
                 rect);
           },
           onMouseExit: () {
@@ -80,7 +90,7 @@ class MaterialStorage extends StatelessWidget {
                   style: TextStyle(
                     color: selectedItem == key
                         ? GameUI.selectedColorOpaque
-                        : GameUI.foregroundColor,
+                        : Colors.white,
                   ),
                 ),
                 const Spacer(),
@@ -89,7 +99,7 @@ class MaterialStorage extends StatelessWidget {
                   style: TextStyle(
                     color: selectedItem == key
                         ? GameUI.selectedColorOpaque
-                        : GameUI.foregroundColor,
+                        : Colors.white,
                   ),
                 ),
               ],
@@ -101,7 +111,7 @@ class MaterialStorage extends StatelessWidget {
 
     return Container(
       height: height,
-      width: 300.0,
+      width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5.0),
         border: Border.all(color: GameUI.foregroundColor),

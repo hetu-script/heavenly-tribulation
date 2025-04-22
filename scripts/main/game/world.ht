@@ -1,6 +1,6 @@
 namespace World {
 
-  external function setTerrainCaption(left, top, caption)
+  external function setTerrainCaption(left, top, caption, [color])
 
   external function updateTerrainSprite(left, top)
 

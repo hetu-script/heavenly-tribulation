@@ -262,7 +262,6 @@ const kLocationSiteKinds = [
   'huntingground',
   'workshop',
   'arraylab',
-  'scrollshop',
   'alchemylab',
   'illusionaltar',
   'divinationaltar',

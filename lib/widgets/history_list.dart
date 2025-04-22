@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/pointer_detector.dart';
 
-import '../engine.dart';
+// import '../engine.dart';
 import 'common.dart';
 import '../state/history.dart';
-import 'package:samsara/pointer_detector.dart';
+import '../game/data.dart';
 
 class HistoryList extends StatefulWidget {
   const HistoryList({
@@ -45,8 +46,7 @@ class _HistoryListState extends State<HistoryList> {
     final widgets = <Widget>[];
 
     for (final id in widget.historyData) {
-      final timeline = engine.hetu.fetch('timeline');
-      final incident = timeline[id];
+      final incident = GameData.history[id];
       assert(incident != null, 'Timeline incident not found: $id');
       widgets.add(Text(incident['message']));
     }

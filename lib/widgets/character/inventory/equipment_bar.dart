@@ -3,59 +3,82 @@ import 'package:provider/provider.dart';
 
 import 'item_grid.dart';
 import '../../../state/hover_content.dart';
-// import '../../../config.dart';
-// import '../../../common.dart';
+
+enum EquipmentBarStyle {
+  vertical,
+  horizontal,
+  split,
+}
 
 class EquipmentBar extends StatelessWidget {
   const EquipmentBar({
     super.key,
-    required this.characterData,
-    required this.type,
+    this.style = EquipmentBarStyle.horizontal,
+    required this.character,
+    this.type = ItemType.none,
     this.gridSize = kDefaultItemGridSize,
+    this.selectedItemId = const [],
     this.onItemTapped,
     this.onItemSecondaryTapped,
-    this.isVertical = false,
-  })  : assert(characterData != null),
-        assert(type == ItemType.player || type == ItemType.npc);
+    this.onItemMouseEnter,
+    this.onItemMouseExit,
+  });
 
-  final dynamic characterData;
+  final EquipmentBarStyle style;
+  final dynamic character;
   final ItemType type;
   final Size gridSize;
+  final Iterable selectedItemId;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onItemSecondaryTapped;
-  final bool isVertical;
+  final void Function(dynamic itemData, Rect rect)? onItemMouseEnter;
+  final void Function()? onItemMouseExit;
 
   @override
   Widget build(BuildContext context) {
     final children = List<Widget>.from(
-      (characterData['equipments'].values as Iterable).map(
+      (character['equipments'].values as Iterable).map(
         (itemId) => ItemGrid(
-          itemData: itemId != null ? characterData['inventory'][itemId] : null,
+          itemData: itemId != null ? character['inventory'][itemId] : null,
           size: gridSize,
           margin: const EdgeInsets.all(2),
           showEquippedIcon: false,
+          isSelected: selectedItemId.contains(itemId),
           onTapped: onItemTapped,
           onSecondaryTapped: onItemSecondaryTapped,
           onMouseEnter: (itemData, rect) {
-            switch (type) {
-              case ItemType.player:
-                context
-                    .read<HoverContentState>()
-                    .show(itemData, type: type, rect);
-              default:
-                context
-                    .read<HoverContentState>()
-                    .show(itemData, type: type, rect);
+            if (onItemMouseEnter != null) {
+              onItemMouseEnter!(itemData, rect);
+            } else {
+              context.read<HoverContentState>().show(
+                    itemData,
+                    type: type,
+                    rect,
+                  );
             }
           },
           onMouseExit: () {
-            context.read<HoverContentState>().hide();
+            if (onItemMouseExit != null) {
+              onItemMouseExit!();
+            } else {
+              context.read<HoverContentState>().hide();
+            }
           },
         ),
       ),
     );
 
-    return isVertical ? Column(children: children) : Row(children: children);
+    return switch (style) {
+      EquipmentBarStyle.vertical => Container(
+          height: (gridSize.width + 4.0) * character['equipments'].length,
+          child: Column(children: children),
+        ),
+      EquipmentBarStyle.horizontal => Container(
+          width: (gridSize.width + 4.0) * character['equipments'].length,
+          child: Row(children: children),
+        ),
+      EquipmentBarStyle.split => SizedBox.shrink(),
+    };
   }
 }

@@ -57,7 +57,6 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(engine.locale('newMap')),
-        // actions: const [CloseButton()],
       ),
       body: Column(
         children: [

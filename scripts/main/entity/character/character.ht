@@ -975,7 +975,7 @@ function isSect(character, target) {
 function isOrganizationHead(character) {
   if (character.organizationId != null) {
     final organization = game.organizations[character.organizationId]
-    assert(organization != null)
+    assert(organization != null, 'organization not found: ${character.organizationId}')
     if (organization.headId == character.id) {
       return true
     }
@@ -1367,6 +1367,7 @@ function haveMet(subject, target) {
 /// 计算第一印象分
 function _characterMet(subject, target) {
   assert(subject != null && target != null)
+  assert(target.entityType == 'character')
   let bond = haveMet(subject, target)
   if (bond != null) {
     if (bond.haveMet) {

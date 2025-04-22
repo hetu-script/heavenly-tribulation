@@ -79,7 +79,7 @@ const kDungeonEnemyLevelBonus = {
 
 const kEncampmentKinds = [
   'cultivation',
-  'cardLibrary',
+  'cardlibrary',
   // 'workbench',
   // 'alchemy_furnace',
 ]
@@ -108,7 +108,7 @@ function addEncampment() {
         collectableLight: collectableLight,
       )
     }
-    'cardLibrary': {
+    'cardlibrary': {
       addCardLibraryStele(
         kMiddleRightTile,
         enableCardCraft: true,
@@ -510,8 +510,8 @@ async function onEnterMap() {
 }
 
 async function promptExit() {
-  Dialog.pushLocale('hint_exitDungeon_description')
-  Dialog.pushLocaleSelection(
+  Dialog.pushDialog('hint_exitDungeon_description')
+  Dialog.pushDialogSelection(
     'exitDungeon',
     [
       'exitDungeon',
@@ -560,8 +560,8 @@ async function onInteractMapObject(object, terrain) {
         onEnterMap()
       } else {
         if (game.dungeon.level < game.dungeon.levelMax) {
-          Dialog.pushLocale('hint_enterNextLevel_description')
-          Dialog.pushLocaleSelection(
+          Dialog.pushDialog('hint_enterNextLevel_description')
+          Dialog.pushDialogSelection(
             'enterNextDungeonLevel',
             [
               'enterNextDungeonLevel',
@@ -584,7 +584,7 @@ async function onInteractMapObject(object, terrain) {
               }
             }
             if (hasStatusSpirit) {
-              Dialog.pushLocale('hint_dungeonStatusReset')
+              Dialog.pushDialog('hint_dungeonStatusReset')
               await Dialog.execute()
             }
             game.dungeon.needRebuild = true
@@ -594,8 +594,8 @@ async function onInteractMapObject(object, terrain) {
           }
         } else {
           if (game.dungeon.rank < kCultivationRankMax) {
-            Dialog.pushLocale('hint_enterNextDungeonRank_description')
-            Dialog.pushLocaleSelection(
+            Dialog.pushDialog('hint_enterNextDungeonRank_description')
+            Dialog.pushDialogSelection(
               'enterNextDungeonRank',
               [
                 'enterNextDungeonRank',

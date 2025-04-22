@@ -46,7 +46,7 @@ class CharacterStats extends StatefulWidget {
   const CharacterStats({
     super.key,
     this.title,
-    required this.characterData,
+    required this.character,
     this.isHero = false,
     this.showNonBattleStats = true,
     this.width = 220.0,
@@ -54,7 +54,7 @@ class CharacterStats extends StatefulWidget {
   });
 
   final String? title;
-  final dynamic characterData;
+  final dynamic character;
   final bool isHero;
   final bool showNonBattleStats;
   final double width;
@@ -68,20 +68,18 @@ class _CharacterStatsState extends State<CharacterStats> {
   Widget getStatsLabel(String id) {
     if (id == 'divider') return const Divider();
 
-    final int baseValue = widget.characterData[id] ?? 0;
-    final int value = widget.characterData['stats'][id] ?? 0;
+    final int baseValue = widget.character[id] ?? 0;
+    final int value = widget.character['stats'][id] ?? 0;
 
     String description;
     if (id == 'level') {
-      final int levelMax =
-          GameLogic.maxLevelForRank(widget.characterData['rank']);
+      final int levelMax = GameLogic.maxLevelForRank(widget.character['rank']);
       description =
           '${engine.locale('levelMax')}: $levelMax\n${engine.locale('level_description')}';
     } else if (id.endsWith('Resist') || id == 'tribulationCount') {
-      final int baseValueMax =
-          widget.characterData['${id}Max'] ?? kBaseResistMax;
+      final int baseValueMax = widget.character['${id}Max'] ?? kBaseResistMax;
       final int valueMax =
-          widget.characterData['stats']?['${id}Max'] ?? kBaseResistMax;
+          widget.character['stats']?['${id}Max'] ?? kBaseResistMax;
 
       final maxString =
           (valueMax > baseValueMax ? '<yellow>$valueMax</>' : valueMax)
@@ -95,7 +93,7 @@ class _CharacterStatsState extends State<CharacterStats> {
 
     String valueString;
     if (id == 'rank') {
-      final int rank = widget.characterData['rank'];
+      final int rank = widget.character['rank'];
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
     } else if (id == 'level' || id == 'karma') {
       valueString = baseValue.toString();
@@ -120,7 +118,7 @@ class _CharacterStatsState extends State<CharacterStats> {
   @override
   Widget build(BuildContext context) {
     if (widget.isHero) {
-      context.watch<HeroState>().heroData;
+      context.watch<HeroState>().hero;
     }
 
     final List<Widget> items = [];

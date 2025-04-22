@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
+import 'package:heavenly_tribulation/widgets/location/workshop.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
@@ -72,17 +73,17 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final screenSize = MediaQuery.sizeOf(context);
 
     final bool autoCultivate = widget.enableAutoExhaust &&
-        (GameData.gameData?['flags']['autoCultivate'] ?? false);
+        (GameData.game?['flags']['autoCultivate'] ?? false);
     final bool autoWork = widget.enableAutoExhaust &&
-        (GameData.gameData?['flags']['autoWork'] ?? false);
+        (GameData.game?['flags']['autoWork'] ?? false);
 
-    final heroData = context.watch<HeroState>().heroData;
+    final hero = context.watch<HeroState>().hero;
     final showHeroInfo = widget.enableHeroInfo &&
-        heroData != null &&
+        hero != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
 
-    final money = (heroData?['materials']['money'] ?? 0).toString();
-    final shard = (heroData?['materials']['shard'] ?? 0).toString();
+    final money = (hero?['materials']['money'] ?? 0).toString();
+    final shard = (hero?['materials']['shard'] ?? 0).toString();
 
     final content = context.watch<HoverContentState>().content;
 
@@ -97,8 +98,18 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
       merchantUseShards,
       merchantData,
       merchantPriceFactor,
-      merchantFilter
+      merchantFilter,
+      merchantType,
     ) = context.watch<MerchantState>().get();
+
+    final showItemSelect = context.watch<ItemSelectState>().showItemSelect;
+    final itemSelectCharacter = context.watch<ItemSelectState>().character;
+    final itemSelectTitle = context.watch<ItemSelectState>().title;
+    final itemSelectFilter = context.watch<ItemSelectState>().filter;
+    final itemSelectMultiSelect = context.watch<ItemSelectState>().multiSelect;
+    final itemSelectOnSelect = context.watch<ItemSelectState>().onSelect;
+    final itemSelectSelectedItemsData =
+        context.watch<ItemSelectState>().selectedItems;
 
     final newQuest = context.watch<NewQuestState>().quest;
     final newItems = context.watch<NewItemsState>().items;
@@ -157,7 +168,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               },
               child: CharacterProfile(
                 height: 340.0,
-                characterData: heroData,
+                character: hero,
                 showIntimacy: false,
                 showRelationships: false,
                 showPosition: false,
@@ -194,7 +205,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 5.0),
-                child: CharacterDetails(characterData: heroData),
+                child: CharacterDetails(character: hero),
               ),
             ),
           );
@@ -227,21 +238,13 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               onClose: () {
                 context.read<ViewPanelState>().hide(ViewPanels.characterMemory);
               },
-              child: CharacterMemory(characterData: heroData, isHero: true),
+              child: CharacterMemory(character: hero, isHero: true),
             ),
           );
-        case ViewPanels.itemSelect:
-          final arguments = visiblePanels[panel]!;
-          panels.add(ItemSelectDialog(
-            characterData: arguments['characterData'],
-            title: arguments['title'],
-            filter: arguments['filter'],
-            multiSelect: arguments['multiSelect'] ?? false,
-            onSelect: arguments['onSelect'],
-            selectedItemsData: arguments['selectedItems'],
-          ));
+        case ViewPanels.workbench:
+          panels.add(WorkbenchDialog());
         case ViewPanels.characterQuest:
-          panels.add(QuestView(characterData: heroData));
+          panels.add(QuestView(character: hero));
       }
     }
 
@@ -259,7 +262,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   Avatar(
                     borderRadius: 0.0,
                     size: const Size(120, 120),
-                    image: AssetImage('assets/images/${heroData['icon']}'),
+                    image: AssetImage('assets/images/${hero['icon']}'),
                     onPressed: (_) {},
                   ),
                   Column(
@@ -275,8 +278,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(
                                   left: 10.0, top: 2.5, right: 5.0),
                               child: DynamicColorProgressBar(
-                                value: heroData['life'],
-                                max: heroData['stats']['lifeMax'],
+                                value: hero['life'],
+                                max: hero['stats']['lifeMax'],
                                 height: 25.0,
                                 width: 200.0,
                                 showNumber: true,
@@ -305,7 +308,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 onTapUp: () {
                                   context.read<HoverContentState>().hide();
                                   if (widget.enableAutoExhaust) {
-                                    GameData.gameData?['flags']['autoWork'] =
+                                    GameData.game?['flags']['autoWork'] =
                                         !autoWork;
                                     setState(() {});
                                   }
@@ -328,6 +331,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 child: Row(
                                   children: [
                                     Container(
+                                      width: 120.0,
+                                      padding:
+                                          const EdgeInsets.only(right: 5.0),
+                                      child: Text(
+                                        money,
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ),
+                                    Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           color: autoWork
@@ -342,15 +354,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           image: AssetImage(
                                               'assets/images/item/material/money.${autoWork ? 'gif' : 'png'}')),
                                     ),
-                                    Container(
-                                      width: 120.0,
-                                      padding:
-                                          const EdgeInsets.only(right: 5.0),
-                                      child: Text(
-                                        money,
-                                        textAlign: TextAlign.end,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -362,8 +365,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 onTapUp: () {
                                   context.read<HoverContentState>().hide();
                                   if (widget.enableAutoExhaust) {
-                                    GameData.gameData?['flags']
-                                        ['autoCultivate'] = !autoCultivate;
+                                    GameData.game?['flags']['autoCultivate'] =
+                                        !autoCultivate;
                                     setState(() {});
                                   }
                                 },
@@ -385,6 +388,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 child: Row(
                                   children: [
                                     Container(
+                                      width: 120.0,
+                                      padding:
+                                          const EdgeInsets.only(right: 5.0),
+                                      child: Text(
+                                        shard,
+                                        textAlign: TextAlign.end,
+                                      ),
+                                    ),
+                                    Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           color: autoCultivate
@@ -399,15 +411,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           image: AssetImage(
                                               'assets/images/item/material/shard.${autoCultivate ? 'gif' : 'png'}')),
                                     ),
-                                    Container(
-                                      width: 120.0,
-                                      padding:
-                                          const EdgeInsets.only(right: 5.0),
-                                      child: Text(
-                                        shard,
-                                        textAlign: TextAlign.end,
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -416,7 +419,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
                                 onMouseEnter: (rect) {
-                                  final data = heroData!['materials'];
+                                  final data = hero!['materials'];
                                   final content = SizedBox(
                                     width: 200,
                                     height: 220,
@@ -463,8 +466,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             EquipmentBar(
-                              type: ItemType.npc,
-                              characterData: heroData,
+                              character: hero,
                               gridSize: const Size(30.0, 30.0),
                             ),
                             BorderedIconButton(
@@ -523,7 +525,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onMouseEnter: (rect) {
                                 final Widget statsView = CharacterStats(
                                   title: engine.locale('stats'),
-                                  characterData: heroData,
+                                  character: hero,
                                   isHero: false,
                                   showNonBattleStats: false,
                                 );
@@ -556,7 +558,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               },
                               onMouseEnter: (rect) {
                                 final cultivationDescription =
-                                    GameData.getPassivesDescription(heroData);
+                                    GameData.getPassivesDescription(hero);
 
                                 context.read<HoverContentState>().show(
                                       cultivationDescription,
@@ -590,7 +592,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onMouseEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
-                                    .show(engine.locale('cardLibrary'), rect);
+                                    .show(engine.locale('cardlibrary'), rect);
                               },
                               onMouseExit: () {
                                 context.read<HoverContentState>().hide();
@@ -666,8 +668,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               ),
             if (enemyData != null && showPrebattle)
               PreBattleDialog(
-                heroData: heroData,
-                enemyData: enemyData,
+                hero: hero,
+                enemy: enemyData,
                 ignoreRequirement: engine.scene?.id == Scenes.mainmenu,
                 onBattleStart: onBattleStart,
                 onBattleEnd: onBattleEnd,
@@ -679,6 +681,16 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 materialMode: merchantMaterialMode,
                 priceFactor: merchantPriceFactor,
                 filter: merchantFilter,
+                type: merchantType,
+              ),
+            if (showItemSelect)
+              ItemSelectDialog(
+                character: itemSelectCharacter,
+                title: itemSelectTitle,
+                filter: itemSelectFilter,
+                multiSelect: itemSelectMultiSelect,
+                onSelect: itemSelectOnSelect,
+                selectedItemsData: itemSelectSelectedItemsData,
               ),
             GameDialogController(),
             ...panels,

@@ -39,26 +39,25 @@ class _NpcListState extends State<NpcList> {
 
   @override
   Widget build(BuildContext context) {
-    if (GameData.heroData == null) {
+    if (GameData.hero == null) {
       return SizedBox.shrink();
     }
 
-    final characters =
-        (context.watch<NpcListState>().npcs).map((characterData) {
-      final haveMet = engine.hetu.invoke('haveMet',
-          positionalArgs: [GameData.heroData, characterData]);
+    final characters = (context.watch<NpcListState>().npcs).map((character) {
+      final haveMet = engine.hetu
+          .invoke('haveMet', positionalArgs: [GameData.hero, character]);
       return Padding(
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
             // cursor: SystemMouseCursors.click,
             color: GameUI.backgroundColor2,
-            name: (haveMet != null) ? characterData['name'] : '???',
+            name: (haveMet != null) ? character['name'] : '???',
             size: const Size(100, 100),
-            characterData: characterData,
+            character: character,
             borderWidth: 1.0,
             borderRadius: 5.0,
             onPressed: (charId) {
-              GameLogic.onInteractCharacter(characterData);
+              GameLogic.onInteractCharacter(character);
             }),
       );
     }).toList();

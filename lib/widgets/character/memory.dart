@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../bonds.dart';
@@ -12,12 +11,13 @@ import 'edit_character_bond.dart';
 import 'profile.dart';
 import '../../game/data.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 class CharacterMemory extends StatefulWidget {
   const CharacterMemory({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.tabIndex = 0,
     this.mode = InformationViewMode.view,
     this.isHero = false,
@@ -25,7 +25,7 @@ class CharacterMemory extends StatefulWidget {
 
   final String? characterId;
 
-  final dynamic characterData;
+  final dynamic character;
 
   final int tabIndex;
 
@@ -42,39 +42,15 @@ class _CharacterMemoryState extends State<CharacterMemory>
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   final _tabs = <Tab>[
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.history),
-          ),
-          Text(engine.locale('history')),
-        ],
-      ),
-    ),
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.sync_alt),
-          ),
-          Text(engine.locale('bonds')),
-        ],
-      ),
-    ),
+    Tab(text: engine.locale('history')),
+    Tab(text: engine.locale('bonds')),
   ];
 
   late TabController _tabController;
 
   // String _title = engine.locale('information'];
 
-  late final dynamic _characterData;
+  late final dynamic _character;
 
   dynamic _bondsData;
 
@@ -82,15 +58,15 @@ class _CharacterMemoryState extends State<CharacterMemory>
   void initState() {
     super.initState();
 
-    assert(widget.characterId != null || widget.characterData != null);
-    if (widget.characterData != null) {
-      _characterData = widget.characterData!;
+    assert(widget.characterId != null || widget.character != null);
+    if (widget.character != null) {
+      _character = widget.character!;
     } else {
-      _characterData = GameData.getCharacter(widget.characterId!);
+      _character = GameData.getCharacter(widget.characterId!);
     }
-    assert(_characterData != null);
+    assert(_character != null);
 
-    _bondsData = _characterData['bonds'];
+    _bondsData = _character['bonds'];
 
     if (widget.isHero) {
       final data = {};
@@ -144,7 +120,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
           child: TabBarView(
             controller: _tabController,
             children: [
-              HistoryView(characterData: _characterData),
+              HistoryView(character: _character),
               CharacterBondsView(
                 bondsData: _bondsData,
                 isHero: widget.isHero,
@@ -200,7 +176,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
                           final target = GameData.getCharacter(targetId);
                           assert(target != null);
                           engine.hetu.invoke('Bond', namedArgs: {
-                            'character': _characterData,
+                            'character': _character,
                             'target': target,
                             'score': score,
                             'haveMet': haveMet,
@@ -217,7 +193,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
                 padding: const EdgeInsets.all(10.0),
                 child: fluent.FilledButton(
                   onPressed: () {
-                    Navigator.of(context).pop(_characterData['id']);
+                    Navigator.of(context).pop(_character['id']);
                   },
                   child: Text(engine.locale('confirm')),
                 ),
@@ -233,12 +209,12 @@ class CharacterMemoryView extends StatelessWidget {
   const CharacterMemoryView({
     super.key,
     this.characterId,
-    this.characterData,
+    this.character,
     this.mode = InformationViewMode.view,
-  }) : assert(characterId != null || characterData != null);
+  }) : assert(characterId != null || character != null);
 
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
   final InformationViewMode mode;
 
   @override
@@ -257,7 +233,7 @@ class CharacterMemoryView extends StatelessWidget {
         ),
         body: CharacterMemory(
           characterId: characterId,
-          characterData: characterData,
+          character: character,
           mode: mode,
         ),
       ),

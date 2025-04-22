@@ -2,8 +2,8 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+// import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
-// import 'package:samsara/components/hovertip.dart';
 import '../common.dart';
 
 const double _kTextShadowOffset = 0.5;
@@ -216,6 +216,11 @@ abstract class GameUI {
     brightness: Brightness.dark,
     fontFamily: GameUI.fontFamily,
     buttonTheme: fluent.ButtonThemeData(
+      defaultButtonStyle: fluent.ButtonStyle(
+        shape: WidgetStatePropertyAll<ShapeBorder>(
+          RoundedRectangleBorder(),
+        ),
+      ),
       filledButtonStyle: fluent.ButtonStyle(
         backgroundColor: WidgetStateProperty<Color>.fromMap(
           <WidgetStatesConstraint, Color>{

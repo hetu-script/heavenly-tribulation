@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:samsara/extensions.dart';
 
-import '../engine.dart';
+import '../game/data.dart';
 
 class HeroAndGlobalHistoryState with ChangeNotifier {
   List<dynamic> incidents = [];
@@ -8,12 +9,11 @@ class HeroAndGlobalHistoryState with ChangeNotifier {
   void update({
     int limit = 20,
   }) {
-    final String? heroId = engine.hetu.invoke('getHeroId');
+    final String? heroId = GameData.hero?['id'];
     if (heroId == null) return;
 
-    final timeline = engine.hetu.fetch('timeline').values.toList();
     incidents.clear();
-    for (final incident in timeline.reversed) {
+    for (final incident in (GameData.history.values as Iterable).reversed) {
       if (incident['subjectId'] == heroId ||
           incident['objectId'] == heroId ||
           incident['isGlobal']) {

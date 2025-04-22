@@ -5,7 +5,7 @@ enum ViewPanels {
   characterMemory,
   characterQuest,
   characterDetails,
-  itemSelect,
+  workbench,
 }
 
 class ViewPanelState with ChangeNotifier {

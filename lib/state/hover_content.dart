@@ -2,6 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
+import '../common.dart';
+
+export '../common.dart' show ItemType;
+
 const kHoverInfoMaxWidth = 400.0;
 
 enum HoverContentDirection {
@@ -17,14 +21,6 @@ enum HoverContentDirection {
   bottomLeft,
   bottomCenter,
   bottomRight,
-}
-
-enum ItemType {
-  none,
-  player,
-  npc,
-  customer,
-  merchant,
 }
 
 class HoverContent {

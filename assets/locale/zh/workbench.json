@@ -1,0 +1,6 @@
+{
+  "hint_workshop_empty": "必须先装备物品才可以进行打造。\n点击装备栏中的物品将其选择为打造对象。",
+
+  "craft_item": "打造",
+  "modify_item": "精炼"
+}

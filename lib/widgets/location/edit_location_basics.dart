@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/extensions.dart' show StringEx;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -8,6 +7,7 @@ import '../../engine.dart';
 import '../../game/data.dart';
 import '../../game/ui.dart';
 import '../ui/menu_builder.dart';
+import '../ui/close_button2.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
@@ -21,7 +21,9 @@ class EditLocationBasics extends StatefulWidget {
     this.image,
     this.background,
     this.atLocation,
+    this.allowEditCategory = true,
     this.allowEditKind = true,
+    this.createNpc = false,
   });
 
   final String? id;
@@ -31,8 +33,8 @@ class EditLocationBasics extends StatefulWidget {
   final String? image;
   final String? background;
   final dynamic atLocation;
-
-  final bool allowEditKind;
+  final bool allowEditCategory, allowEditKind;
+  final bool createNpc;
 
   @override
   State<EditLocationBasics> createState() => _EditLocationBasicsState();
@@ -49,6 +51,8 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
 
   final Map<String, String> _categories = {};
   final Map<String, String> _kinds = {};
+
+  bool _createNpc = false;
 
   @override
   void initState() {
@@ -68,6 +72,8 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     _nameEditingController.text = widget.name ?? '';
     _imageEditingController.text = widget.image ?? '';
     _backgroundEditingController.text = widget.background ?? '';
+
+    _createNpc = widget.createNpc;
   }
 
   @override
@@ -120,7 +126,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 600.0,
-      height: 480.0,
+      height: 500.0,
       backgroundColor: GameUI.backgroundColor2,
       child: Scaffold(
         appBar: AppBar(
@@ -157,7 +163,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                       child: Text('${engine.locale('category')}:'),
                     ),
                     fluent.DropDownButton(
-                      disabled: true,
+                      disabled: !widget.allowEditCategory,
                       title: Text(engine.locale(_selectedCategory)),
                       items: buildFluentMenuItems(
                         items: {
@@ -201,7 +207,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                 children: [
                   SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('name')}: '),
+                    child: Text('${engine.locale('name')}:'),
                   ),
                   SizedBox(
                     width: 200.0,
@@ -217,7 +223,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                 children: [
                   SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('image')}: '),
+                    child: Text('${engine.locale('image')}:'),
                   ),
                   SizedBox(
                     width: 450.0,
@@ -233,7 +239,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                 children: [
                   SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('background')}: '),
+                    child: Text('${engine.locale('background')}:'),
                   ),
                   SizedBox(
                     width: 450.0,
@@ -243,6 +249,28 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                     ),
                   ),
                 ],
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    SizedBox(
+                      width: 100.0,
+                      child: Text('${engine.locale('createNpc')}:'),
+                    ),
+                    fluent.Checkbox(
+                      checked: _createNpc,
+                      onChanged: (newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _createNpc = newValue;
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
               const Spacer(),
               Padding(
@@ -264,6 +292,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                       name,
                       image,
                       background,
+                      _createNpc,
                     ));
                   },
                   child: Text(

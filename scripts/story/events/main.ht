@@ -4,6 +4,8 @@ import 'common.ht'
 async function onNewGame() {
   initModData()
 
+  game.mods.story.flags.skipStory = true
+
   if (!hero.quests.mysticGirl) {
     final quest = Player.acquireQuestById('mysticGirl')
     Player.progressQuestById('mysticGirl', stage: 1)
@@ -27,13 +29,10 @@ async function onNewGame() {
 async function onEnterMap() {
   if (hero.quests.mysticGirl.stage == 2) {
     Player.progressQuestById('mysticGirl', stage: 3)
-    hero.quests.mysticGirl.title = game.characters.ling_chuxue.name
-  
+    hero.quests.mysticGirl.title = game.characters.ling_chuxue.name\
     Player.acquireQuestById('nailedSoul')
-    
     final item = Player.acquireById('hunguding')
     Player.equip(item)
-
     Player.setTo(73, 12, worldId: 'heavenly_prison', direction: 'south')
 
     final chuxue = game.characters.ling_chuxue

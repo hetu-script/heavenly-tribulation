@@ -7,6 +7,7 @@ import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../common.dart';
 import '../../game/ui.dart';
+import '../ui/close_button2.dart';
 
 const _kInformationViewLocationColumns = [
   'name',
@@ -22,7 +23,7 @@ class LocationSelectDialog extends StatelessWidget {
     required BuildContext context,
     required String title,
     Iterable<String>? characterIds,
-    Iterable? charactersData,
+    Iterable? characters,
     bool showCloseButton = true,
   }) async {
     return await showDialog<dynamic>(
@@ -31,7 +32,7 @@ class LocationSelectDialog extends StatelessWidget {
         return LocationSelectDialog(
           title: title,
           characterIds: characterIds,
-          charactersData: charactersData,
+          characters: characters,
           showCloseButton: showCloseButton,
         );
       },
@@ -42,22 +43,22 @@ class LocationSelectDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.characterIds,
-    this.charactersData,
+    this.characters,
     this.showCloseButton = true,
   });
 
   final String title;
 
   final Iterable<String>? characterIds;
-  final Iterable? charactersData;
+  final Iterable? characters;
 
   final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
     Iterable chars;
-    if (charactersData != null) {
-      chars = charactersData!;
+    if (characters != null) {
+      chars = characters!;
     } else {
       assert(characterIds != null);
       chars =
@@ -91,7 +92,7 @@ class LocationSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(title),
-          actions: [if (showCloseButton) const CloseButton()],
+          actions: [if (showCloseButton) const CloseButton2()],
         ),
         body: GameEntityListView(
           columns: _kInformationViewLocationColumns,

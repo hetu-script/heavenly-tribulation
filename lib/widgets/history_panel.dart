@@ -19,7 +19,7 @@ class HistoryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateString = context.watch<GameTimestampState>().gameDateTimeString;
+    final dateString = context.watch<GameTimestampState>().datetimeString;
 
     return Container(
       width: width,

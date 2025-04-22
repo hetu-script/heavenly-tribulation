@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -20,19 +19,20 @@ import '../../state/states.dart';
 import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../game/event_ids.dart';
+import '../ui/close_button2.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
   const PreBattleDialog({
     super.key,
-    required this.heroData,
-    required this.enemyData,
+    required this.hero,
+    required this.enemy,
     this.onBattleStart,
     this.onBattleEnd,
     this.ignoreRequirement = false,
   });
 
-  final dynamic heroData, enemyData;
+  final dynamic hero, enemy;
 
   final void Function()? onBattleStart;
   final void Function(dynamic)? onBattleEnd;
@@ -70,19 +70,19 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     });
 
     final int playerMonthlyIdentifiedCards =
-        GameData.gameData['playerMonthly']['identifiedEnemyCards'];
+        GameData.game['playerMonthly']['identifiedEnemyCards'];
     final int playerMonthlyIdentifiedCardsCount =
-        widget.heroData['stats']['identifyCardsCountMonthly'];
+        widget.hero['stats']['identifyCardsCountMonthly'];
     _availableIdentifyCount =
         playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
     if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;
 
-    _heroDecks = widget.heroData['battleDecks'];
-    _heroDeck = _createDeckCardWidgets(widget.heroData, isHero: true);
+    _heroDecks = widget.hero['battleDecks'];
+    _heroDeck = _createDeckCardWidgets(widget.hero, isHero: true);
     // heroBattleDeckCards =
     //     _getBattleDeckCardsData(widget.heroData, isHero: true);
-    _enemyDeck = _createDeckCardWidgets(widget.enemyData);
-    enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemyData);
+    _enemyDeck = _createDeckCardWidgets(widget.enemy);
+    enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemy);
   }
 
   @override
@@ -93,12 +93,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     super.dispose();
   }
 
-  List<Widget> _createDeckCardWidgets(dynamic characterData,
+  List<Widget> _createDeckCardWidgets(dynamic character,
       {bool isHero = false}) {
     List<BattleCard> widgetCards = [];
-    final library = characterData['cardLibrary'];
-    final List decks = characterData['battleDecks'];
-    final int battleDeckIndex = characterData['battleDeckIndex'];
+    final library = character['cardLibrary'];
+    final List decks = character['battleDecks'];
+    final int battleDeckIndex = character['battleDeckIndex'];
     if (battleDeckIndex != -1) {
       if (battleDeckIndex < decks.length) {
         final dynamic battleDeckData = decks[battleDeckIndex];
@@ -109,8 +109,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
               final cardData = library[cardId];
               assert(cardData != null);
               return BattleCard(
-                cardData: cardData,
-                characterData: characterData,
+                data: cardData,
+                character: character,
                 isHero: isHero,
                 cardInfoDirection: isHero
                     ? HoverContentDirection.rightTop
@@ -121,7 +121,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
         );
       } else {
         engine.warn('Invalid battle deck index: $battleDeckIndex');
-        characterData['battleDeckIndex'] = -1;
+        character['battleDeckIndex'] = -1;
       }
     }
     if (isHero) {
@@ -130,7 +130,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
       } else {
         final String? info =
             GameLogic.checkDeckRequirement(widgetCards.map((widget) {
-          return widget.cardData;
+          return widget.data;
         }));
         _warning = info != null ? engine.locale(info) : null;
       }
@@ -138,15 +138,15 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     return widgetCards;
   }
 
-  List _getBattleDeckCardsData(dynamic characterData) {
+  List _getBattleDeckCardsData(dynamic character) {
     final List deckCards = [];
-    final List decks = characterData['battleDecks'];
-    final int battleDeckIndex = characterData['battleDeckIndex'];
+    final List decks = character['battleDecks'];
+    final int battleDeckIndex = character['battleDeckIndex'];
     if (battleDeckIndex >= 0) {
       assert(decks.length > battleDeckIndex);
       final cardIds = decks[battleDeckIndex]['cards'];
       for (final cardId in cardIds) {
-        final cardData = characterData['cardLibrary'][cardId];
+        final cardData = character['cardLibrary'][cardId];
         deckCards.add(cardData);
       }
     }
@@ -185,7 +185,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 children: [
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    characterData: widget.heroData,
+                    character: widget.hero,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
@@ -209,8 +209,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
-                    type: ItemType.player,
-                    characterData: widget.heroData,
+                    character: widget.hero,
                     gridSize: const Size(30.0, 30.0),
                   ),
                   Container(
@@ -267,7 +266,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverContentState>()
-                                .show(engine.locale('cardLibrary'), rect);
+                                .show(engine.locale('cardlibrary'), rect);
                           },
                           onMouseExit: () {
                             context.read<HoverContentState>().hide();
@@ -298,10 +297,9 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                               _heroDecks[i]['title']: i
                                           },
                                     onSelectedItem: (int index) {
-                                      widget.heroData['battleDeckIndex'] =
-                                          index;
+                                      widget.hero['battleDeckIndex'] = index;
                                       _heroDeck = _createDeckCardWidgets(
-                                        widget.heroData,
+                                        widget.hero,
                                         isHero: true,
                                       );
                                     });
@@ -362,8 +360,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           context.read<EnemyState>().setPrebattleVisible(false);
                           final arg = {
                             'id': Scenes.battle,
-                            'hero': widget.heroData,
-                            'enemy': widget.enemyData,
+                            'hero': widget.hero,
+                            'enemy': widget.enemy,
                             'onBattleStart': widget.onBattleStart,
                             'onBattleEnd': widget.onBattleEnd,
                           };
@@ -388,8 +386,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
-                    type: ItemType.npc,
-                    characterData: widget.enemyData,
+                    character: widget.enemy,
                     gridSize: const Size(30.0, 30.0),
                   ),
                   Container(
@@ -402,7 +399,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           padding: const EdgeInsets.only(left: 5.0),
                           onMouseEnter: (rect) {
                             final Widget statsView = CharacterStats(
-                              characterData: widget.enemyData,
+                              character: widget.enemy,
                               isHero: false,
                               showNonBattleStats: false,
                             );
@@ -465,12 +462,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 engine
                                     .play('hammer-hitting-an-anvil-25390.mp3');
                                 --_availableIdentifyCount;
-                                GameData.gameData['playerMonthly']
+                                GameData.game['playerMonthly']
                                     ['identifiedEnemyCards'] += 1;
                                 context.read<HoverContentState>().hide();
                                 setState(() {
                                   _enemyDeck =
-                                      _createDeckCardWidgets(widget.enemyData);
+                                      _createDeckCardWidgets(widget.enemy);
                                 });
                               } else {
                                 GameDialogContent.show(
@@ -525,7 +522,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 children: [
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    characterData: widget.enemyData,
+                    character: widget.enemy,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),

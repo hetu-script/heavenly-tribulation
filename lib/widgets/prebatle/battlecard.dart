@@ -9,14 +9,14 @@ import '../../scene/common.dart';
 
 class BattleCard extends StatelessWidget {
   BattleCard({
-    required this.cardData,
-    this.characterData,
+    required this.data,
+    this.character,
     this.isHero = false,
     this.cardInfoDirection = HoverContentDirection.rightTop,
   }) : super(key: GlobalKey());
 
-  final dynamic cardData;
-  final dynamic characterData;
+  final dynamic data;
+  final dynamic character;
   final bool isHero;
   final HoverContentDirection cardInfoDirection;
 
@@ -24,8 +24,8 @@ class BattleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     TextStyle textStyle = TextStyle(color: Colors.white);
 
-    final isIdentified = cardData['isIdentified'] == true;
-    final name = cardData['name'];
+    final isIdentified = data['isIdentified'] == true;
+    final name = data['name'];
     final title =
         isIdentified ? name : '$name - ${engine.locale('unidentified2')}';
 
@@ -33,7 +33,7 @@ class BattleCard extends StatelessWidget {
       textStyle = TextStyle(color: Colors.grey);
     } else {
       if (isHero) {
-        final warning = GameLogic.checkRequirements(cardData);
+        final warning = GameLogic.checkRequirements(data);
         if (warning != null) {
           textStyle = TextStyle(color: Colors.red);
         }
@@ -64,12 +64,12 @@ class BattleCard extends StatelessWidget {
                   final rect = getRenderRect(context);
                   previewCard(
                     context,
-                    'prebattle_card_${cardData['id']}',
-                    cardData,
+                    'prebattle_card_${data['id']}',
+                    data,
                     rect,
                     isLibrary: isHero,
                     direction: cardInfoDirection,
-                    characterData: isHero ? characterData : null,
+                    character: isHero ? character : null,
                   );
                 } else {
                   unpreviewCard(context);

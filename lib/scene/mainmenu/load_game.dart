@@ -31,7 +31,6 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale('load')),
-          actions: const [CloseButton()],
         ),
         body: Column(
           children: [

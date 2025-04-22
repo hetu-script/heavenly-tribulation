@@ -32,6 +32,7 @@
 
   "cardpack_flavortext": "打开后可以获得一张该境界和流派的功法以及两张随机功法。功法最大等级不会超过角色等级。",
 
+  "basePrice": "基础价格",
   "price": "价格",
   "unitPrice": "单价",
   "totalPrice": "总价",

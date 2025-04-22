@@ -10,7 +10,7 @@ let world
 // game.characters[game.heroId]
 // let history
 // history[game.currentWorldId]
-let timeline
+let history
 let hero
 
 /// 仅在特定场景中会被赋值
@@ -134,7 +134,7 @@ function createGame(saveName) {
   engine.debug('准备开始新游戏')
   game = GameData(saveName: saveName)
   universe = {}
-  timeline = {}
+  history = {}
   world = null
   hero = null
 }
@@ -177,8 +177,7 @@ function loadGameFromJsonData({
   game.isNewGame ??= true
   
   universe = Object.create(universeData)
-  // history = Object.create(historyData)
-  timeline = Object.create(historyData)
+  history = Object.create(historyData)
   
   assert(game.currentWorldId != null)
   // if (!isEditorMode) {
@@ -186,9 +185,7 @@ function loadGameFromJsonData({
   // }
 
   world = universe[game.currentWorldId]
-  // timeline = history[game.currentWorldId]
   assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
-  // assert(timeline != null)
   
   engine.info('当前世界: [${world.id}]')
 
@@ -201,7 +198,6 @@ function loadGameFromJsonData({
 
 function addWorld(newWorld) {
   world = universe[newWorld.id] = newWorld
-  // timeline = history[newWorld.id] = []
 
   game.currentWorldId = newWorld.id
 }
@@ -209,9 +205,6 @@ function addWorld(newWorld) {
 function switchWorld(worldId) {
   assert(universe.containsKey(worldId), worldId)
   world = universe[worldId]
-
-  // assert(history.containsKey(world.id))
-  // timeline = history[world.id]
   
   game.currentWorldId = world.id
 
@@ -252,7 +245,7 @@ function getUniverseJsonData() {
 
 function getHistoryJsonData() {
   // return history.toJSON()
-  return timeline.toJSON()
+  return history.toJSON()
 }
 
 function getTimestamp {
@@ -328,9 +321,7 @@ function getWorldIds {
 
 function setCurrentWorld(id) {
   assert(universe.containsKey(id), id)
-  // assert(history.containsKey(id), id)
   world = universe[id]
-  // timeline = history[id]
   game.currentWorldId = id
   engine.debug('设置当前世界为: [${id}]')
 }

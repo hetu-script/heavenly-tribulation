@@ -3796,7 +3796,6 @@
         known: [],
       },
     ],
-    waterIndexes: [],
     zones: {},
     objects: {
       portal1: {

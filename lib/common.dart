@@ -276,7 +276,6 @@ const kLocationSiteKinds = [
   'theurgytemple',
   'workshop',
   'alchemylab',
-  'scrollshop',
   'arraylab',
   'illusionaltar',
   'divinationaltar',
@@ -286,18 +285,17 @@ const kLocationSiteKinds = [
   'huntingground',
 ];
 
-const kSiteKindsManagable = [
+const kLocationSiteKindsManagable = [
   'headquarters',
   'cityhall',
-  'library',
   'arena',
+  'library',
   'tradinghouse',
   'auctionhouse',
   'psychictemple',
   'theurgytemple',
   'workshop',
   'alchemylab',
-  'scrollshop',
   'arraylab',
   'illusionaltar',
   'divinationaltar',
@@ -306,6 +304,23 @@ const kSiteKindsManagable = [
   'farmland',
   'huntingground',
 ];
+
+const kLocationSiteKindsBuildableInCity = {
+  'workshop',
+  'alchemylab',
+  'arraylab',
+  'illusionaltar',
+  'divinationaltar',
+  'psychictemple',
+  'theurgytemple',
+};
+
+const kLocationSiteKindsBuildableInLand = {
+  'mine', // 只会在山地地形出现
+  'timberland', // 只会在森林地形出现
+  'farmland', // 只会在平原地形且在城市周围出现
+  'huntingground', // 只会在山地或森林地形出现
+};
 
 const kMaterialMoney = 'money';
 const kMaterialShard = 'shard';
@@ -374,8 +389,39 @@ const kDaysPerYear = 360; //每年的月数
 const kMonthsPerYear = 12; //每年的月数
 const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
 
-const kShardToMoneyRate = 1000;
-const kShardToExpRate = 50;
+enum ItemType {
+  none,
+  player,
+  npc,
+  customer,
+  merchant,
+}
+
+const kMaterialKinds = [
+  'money',
+  'shard',
+  'worker',
+  'water',
+  'grain',
+  'meat',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+];
+
+const kOtherMaterialKinds = [
+  'worker',
+  'water',
+  'grain',
+  'meat',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+];
 
 const kBaseBuyRate = 1.0;
 const kBaseSellRate = 0.5;
@@ -383,17 +429,20 @@ const kBaseSellRate = 0.5;
 const kMinSellRate = 0.1;
 const kMinBuyRate = 0.1;
 
+const kPriceFavorRate = 0.1;
+const kPriceFavorIncrement = 0.05;
+
 const kMaterialBasePriceByKind = {
   'shard': 1000,
-  'worker': 10,
-  'water': 10,
-  'grain': 20,
-  'meat': 40,
-  'herb': 40,
-  'leather': 80,
-  'timber': 80,
-  'stone': 160,
-  'ore': 320,
+  'worker': 40,
+  'water': 20,
+  'grain': 40,
+  'meat': 80,
+  'herb': 80,
+  'leather': 160,
+  'timber': 160,
+  'stone': 320,
+  'ore': 640,
 };
 
 const kUntradableItemKinds = {
@@ -407,26 +456,27 @@ const kBaseResistMax = 75;
 const kBaseMoveCostOnHill = 1.0;
 const kBaseMoveCostOnWater = 2.0;
 
-const kTerrainKindsLand = ['plain', 'shore', 'forest', 'snow_plain'];
+const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
 const kTerrainKindsMountain = ['mountain'];
 
-const kWorkMounths = {
-  'tradinghouse': [12, 1, 2, 9, 10, 11],
+const kWorkableMounths = {
+  'library': [1, 2, 3, 4, 5, 6],
+  'tradinghouse': [2, 3, 4, 5, 6, 7],
   'auctionhouse': [3, 4, 5, 6, 7, 8],
-  'farmland': [3, 4, 5, 6, 7, 8],
-  'timberland': [12, 1, 2, 9, 10, 11],
-  'huntingground': [12, 1, 2, 9, 10, 11],
-  'mine': [3, 4, 5, 6, 7, 8],
-  'workshop': [6, 7, 8, 9, 10, 11],
-  'scrollshop': [6, 7, 8, 9, 10, 11],
-  'alchemylab': [6, 7, 8, 9, 10, 11],
-  'arraylab': [12, 1, 2, 3, 4, 5],
-  'illusionaltar': [12, 1, 2, 3, 4, 5],
+  'farmland': [4, 5, 6, 7, 8, 9],
+  'timberland': [5, 6, 7, 8, 9, 10],
+  'huntingground': [6, 7, 8, 9, 10, 11],
+  'mine': [7, 8, 9, 10, 11, 12],
+  'workshop': [8, 9, 10, 11, 12, 1],
+  'alchemylab': [9, 10, 11, 12, 1, 2],
+  'arraylab': [10, 11, 12, 1, 2, 3],
+  'illusionaltar': [11, 12, 1, 2, 3, 4],
   'divinationaltar': [12, 1, 2, 3, 4, 5],
 };
 
 const kWorkBaseSalaries = {
+  'library': 24,
   'tradinghouse': 7,
   'auctionhouse': 8,
   'farmland': 10,
@@ -434,7 +484,6 @@ const kWorkBaseSalaries = {
   'huntingground': 18,
   'mine': 51,
   'workshop': 28,
-  'scrollshop': 24,
   'alchemylab': 26,
   'arraylab': 30,
   'illusionaltar': 80,
@@ -442,6 +491,7 @@ const kWorkBaseSalaries = {
 };
 
 const kWorkBaseStaminaCost = {
+  'library': 2,
   'tradinghouse': 1,
   'auctionhouse': 1,
   'farmland': 1,
@@ -449,7 +499,6 @@ const kWorkBaseStaminaCost = {
   'huntingground': 2,
   'mine': 3,
   'workshop': 2,
-  'scrollshop': 2,
   'alchemylab': 2,
   'arraylab': 2,
   'illusionaltar': 5,
@@ -852,3 +901,32 @@ const kCultivationStylePaths = {
     ],
   },
 };
+
+const kInformationViewCharacterColumns = [
+  'name',
+  'gender',
+  'age',
+  'fame',
+  'organization',
+  'title',
+  'level',
+  'rank',
+];
+
+const kInformationViewOrganizationColumns = [
+  'name',
+  'organizationHead',
+  'category',
+  'genre',
+  'headquarters',
+  'locationNumber',
+  'memberNumber',
+];
+
+const kInformationViewLocationColumns = [
+  'name',
+  'category',
+  'development',
+  'residents',
+  'organization',
+];

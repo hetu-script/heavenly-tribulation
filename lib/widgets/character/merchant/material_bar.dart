@@ -6,18 +6,21 @@ import '../../ui/bordered_icon_button.dart';
 // import '../../../game/ui.dart';
 import '../../../state/hover_content.dart';
 import '../../../engine.dart';
+import '../../../state/character.dart';
 
 /// 显示货币数量，以及一个可选的物价系数
 /// [priceFactor] 物价系数，仅对于资源有影响
-class MaterialBar extends StatelessWidget {
-  const MaterialBar({
+class CurrencyBar extends StatelessWidget {
+  const CurrencyBar({
     super.key,
     required this.entity,
     this.priceFactor,
+    this.type = MerchantType.location,
   });
 
   final dynamic entity;
   final dynamic priceFactor;
+  final MerchantType type;
 
   @override
   Widget build(BuildContext context) {
@@ -95,11 +98,6 @@ class MaterialBar extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Image(
-                    width: 20,
-                    height: 20,
-                    image: AssetImage('assets/images/item/material/money.png'),
-                  ),
                   Container(
                     width: 100.0,
                     padding: const EdgeInsets.only(right: 5.0),
@@ -107,6 +105,11 @@ class MaterialBar extends StatelessWidget {
                       money,
                       textAlign: TextAlign.end,
                     ),
+                  ),
+                  Image(
+                    width: 20,
+                    height: 20,
+                    image: AssetImage('assets/images/item/material/money.png'),
                   ),
                 ],
               ),
@@ -126,11 +129,6 @@ class MaterialBar extends StatelessWidget {
               },
               child: Row(
                 children: [
-                  Image(
-                    width: 20,
-                    height: 20,
-                    image: AssetImage('assets/images/item/material/shard.png'),
-                  ),
                   Container(
                     width: 100.0,
                     padding: const EdgeInsets.only(right: 5.0),
@@ -138,6 +136,11 @@ class MaterialBar extends StatelessWidget {
                       shard,
                       textAlign: TextAlign.end,
                     ),
+                  ),
+                  Image(
+                    width: 20,
+                    height: 20,
+                    image: AssetImage('assets/images/item/material/shard.png'),
                   ),
                 ],
               ),
@@ -148,7 +151,9 @@ class MaterialBar extends StatelessWidget {
               size: const Size(20.0, 20.0),
               onMouseEnter: (rect) {
                 final content = priceFactorDescription.isNotEmpty
-                    ? '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description')}\n \n${priceFactorDescription.toString()}'
+                    ? '${engine.locale('priceFactor')}\n'
+                        '${engine.locale(type == MerchantType.location ? 'priceFactor_description_location' : 'priceFactor_description_character')}'
+                        '\n \n${priceFactorDescription.toString()}'
                     : '${engine.locale('priceFactor')}\n \n${engine.locale('none')}';
                 context.read<HoverContentState>().show(content, rect);
               },

@@ -44,8 +44,9 @@ function generateContinent2(world, {seed, style}) {
       )
     }
   }
-  for (const x in range(world.width)) {
-    for (const y in range(world.height)) {
+  for (const y in range(world.height)) {
+    for (const x in range(world.width)) {
+      if (y == 0 || y == world.height - 1 || x == 0 || x == world.width - 1) continue
       const index = tilePos2Index(x + 1, y + 1, world.width)
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
@@ -61,31 +62,32 @@ function nameZones(world) {
   engine.debug('为地域命名')
   if (world.zones.isEmpty) return
 
-  world.waterIndexes = []
+  world.seaIndexes = []
   for (const zone of world.zones) {
     // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
     if (zone.category == kZoneSea) {
       // 将临时类型 water 根据情况替换为 sea 和 lake
       zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfSea ? kZoneCategoryLake : kZoneCategorySea
+      if (zone.category == kZoneCategorySea) {
+        // 将所有海域保存在一个总表中
+        world.seaIndexes.addAll(zone.terrainIndexes)
+      }
       // 为该地域中所有地块赋值 kind
       for (const terrainIndex in zone.terrainIndexes) {
         const terrain = world.terrains[terrainIndex]
-        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
-        world.waterIndexes.add(terrain.index)
         terrain.isWater = true
-        // 所有的湖泊都是浅水贴图
-        // if (terrain.kind == kZoneCategoryLake) {
-        //   terrain.spriteIndex = kSpriteShelf
-        // }
+        // TODO: lake类型单独的贴图
+        if (terrain.kind == kZoneCategoryLake) {
+          terrain.sprite = 'object/river.png'
+        }
       }
     } else if (zone.category == kZoneRiver) {
       zone.category = kZoneCategoryRiver
       for (const terrainIndex in zone.terrainIndexes) {
         const terrain = world.terrains[terrainIndex]
-        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
-        world.waterIndexes.add(terrain.index)
         terrain.isWater = true
-        // TODO: river类型和道路类型单独的贴图
+        // TODO: river类型单独的贴图
+        terrain.sprite = 'object/river.png'
       }
     } else if (zone.category == kZoneLand) {
       // 将临时类型 land 根据情况替换为 continent 和 island
@@ -94,7 +96,7 @@ function nameZones(world) {
       for (const terrainIndex in zone.terrainIndexes) {
         const terrain = world.terrains[terrainIndex]
         terrain.isWater = false
-        // TODO: river类型和道路类型单独的贴图
+        // TODO: 道路类型单独的贴图
       }
     }
 

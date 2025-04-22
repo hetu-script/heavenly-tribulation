@@ -87,7 +87,7 @@
     name: "identify_scroll",
     flavortext: "identify_scroll_flavortext",
     category: "identify_scroll",
-    rarity: "uncommon",
+    rarity: "rare",
     icon: "item/unique_scroll.png",
     isUsable: true,
     isIdentified: true,

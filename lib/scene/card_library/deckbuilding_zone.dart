@@ -38,7 +38,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void save() {
     _saved = true;
 
-    final List decks = GameData.heroData['battleDecks'];
+    final List decks = GameData.hero['battleDecks'];
     final deckInfo = createDeckInfo();
     if (index >= decks.length) {
       decks.add(deckInfo);
@@ -250,7 +250,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   }
 
   void updateDeckLimit() {
-    final deckLimit = GameLogic.getDeckLimitForRank(GameData.heroData['rank']);
+    final deckLimit = GameLogic.getDeckLimitForRank(GameData.hero['rank']);
     limit = deckLimit['limit']!;
     limitEphemeralMax = deckLimit['ephemeralMax']!;
     // limitOngoingMax = deckLimit['ongoingMax']!;
@@ -413,7 +413,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           card.data,
           card.toAbsoluteRect(),
           direction: HoverContentDirection.leftTop,
-          characterData: GameData.heroData,
+          character: GameData.hero,
         );
     card.onUnpreviewed = () => unpreviewCard(game.context);
 

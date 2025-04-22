@@ -11,7 +11,7 @@
   "cityhall": "总堂",
   "cultivationStele": "定灵碑",
 
-  "arena": "演武场",
+  "arena": "斗技场",
   "library": "藏书阁",
   "tradinghouse": "交易所",
   "auctionhouse": "拍卖行",
@@ -23,13 +23,13 @@
   "fishery": "渔场",
 
   "workshop": "工坊",
-  "arraylab": "阵法所",
-  "scrollshop": "制符间",
+  "workbench": "工作台",
   "alchemylab": "丹房",
+  "arraylab": "阵法所",
   "divinationaltar": "占卜祭坛",
   "illusionaltar": "百幻堂",
   "psychictemple": "通灵殿",
-  "theurgytemple": "通神殿",
+  "theurgytemple": "显圣殿",
 
   "nursery": "苗圃",
   "zoo": "兽园",

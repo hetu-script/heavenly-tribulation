@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -9,6 +8,7 @@ import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../common.dart';
 import '../ui/menu_builder.dart';
+import '../ui/close_button2.dart';
 
 class EditCharacterBasics extends StatefulWidget {
   /// 返回以下值
@@ -152,7 +152,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   children: [
                     SizedBox(
                       width: 90,
-                      child: Text('${engine.locale('isFemale')}: '),
+                      child: Text('${engine.locale('gender')}: '),
                     ),
                     Container(
                       width: 55,

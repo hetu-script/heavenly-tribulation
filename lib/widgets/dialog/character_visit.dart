@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
+import '../ui/close_button2.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
@@ -56,7 +56,7 @@ class CharacterVisitDialog extends StatelessWidget {
     if (heroResidesHere) {
       tableData.add(DataRow2(
           onTap: () {
-            Navigator.of(context).pop(GameData.heroData['id']);
+            Navigator.of(context).pop(GameData.hero['id']);
           },
           cells: [
             DataCell(Text(engine.locale('heroHome'))),
@@ -74,15 +74,15 @@ class CharacterVisitDialog extends StatelessWidget {
     tableData.addAll(characterIds.map((id) {
       final character = GameData.getCharacter(id);
       final haveMet = engine.hetu
-          .invoke('haveMet', positionalArgs: [GameData.heroData, character]);
+          .invoke('haveMet', positionalArgs: [GameData.hero, character]);
       final isFriend = engine.hetu
-          .invoke('isFriend', positionalArgs: [GameData.heroData, character]);
+          .invoke('isFriend', positionalArgs: [GameData.hero, character]);
       final isRomance = engine.hetu
-          .invoke('isRomance', positionalArgs: [GameData.heroData, character]);
+          .invoke('isRomance', positionalArgs: [GameData.hero, character]);
       final isFamily = engine.hetu
-          .invoke('isFamily', positionalArgs: [GameData.heroData, character]);
+          .invoke('isFamily', positionalArgs: [GameData.hero, character]);
       final isSect = engine.hetu
-          .invoke('isSect', positionalArgs: [GameData.heroData, character]);
+          .invoke('isSect', positionalArgs: [GameData.hero, character]);
 
       return DataRow2(
           onTap: () {

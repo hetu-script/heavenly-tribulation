@@ -1,8 +1,3 @@
-// import '../../game/data.ht'
-// import '../../name/organization.ht'
-// import '../entity.ht'
-// import '../../world/tile/tilemap.ht'
-// import '../item/material.ht'
 import '../achievements.ht'
 
 /// 组织的种类
@@ -147,6 +142,17 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     image: 'location/card/${organization.genre}.png'
     background: 'location/site/${organization.genre}.png'
     organizationId: organization.id,
+    createNpc: true,
+  )
+  
+  const arena = Location(
+    id: organization.id + '_arena',
+    name: engine.locale('arena'),
+    category: 'site',
+    kind: kLocationKindArena,
+    atLocation: location,
+    organizationId: organization.id,
+    createNpc: true,
   )
   
   const library = Location(
@@ -156,6 +162,7 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     kind: kLocationKindLibrary,
     atLocation: location,
     organizationId: organization.id,
+    createNpc: true,
   )
 
   organization.headquartersSiteId = headquarters.id
@@ -206,7 +213,9 @@ function addCharacterToOrganization(character, organization, {incurIncident = tr
     removeCharacterFromOrganization(character)
   }
   // 此时还没有职位，职位数据以空对象 {} 代替
-  organization.members[character.id] = {}
+  organization.members[character.id] = {
+    id: character.id,
+  }
   // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
   character.organizationId = organization.id
 
@@ -254,23 +263,23 @@ function getOrganizations([ids]) {
   }
 }
 
-function increaseOrganizationDevelopment(organization, { incurIncident = true }) {
-  if (organization.development <= kOrganizationDevelopmentMax) {
-    ++organization.development
-  } else {
-    engine.warn('组织 ${organization.id} 的发展度（${organization.development}）已达到或超过最大值。')
-  }
+// function increaseOrganizationDevelopment(organization, { incurIncident = true }) {
+//   if (organization.development <= kOrganizationDevelopmentMax) {
+//     ++organization.development
+//   } else {
+//     engine.warn('组织 ${organization.id} 的发展度（${organization.development}）已达到或超过最大值。')
+//   }
   
-  const incidentContent = engine.locale('organizationDeveloped', interpolations: [
-    organization.name,
-    organization.development,
-  ])
-  Incident(
-    organizationId: organization.id,
-    message: incidentContent,
-    isGlobal: true,
-  )
-}
+//   const incidentContent = engine.locale('organizationDeveloped', interpolations: [
+//     organization.name,
+//     organization.development,
+//   ])
+//   Incident(
+//     organizationId: organization.id,
+//     message: incidentContent,
+//     isGlobal: true,
+//   )
+// }
 
 function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   if (terrain.nationId == null) return
@@ -340,7 +349,7 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
     }
     for (final siteId in location.sites) {
       final site = game.locations[siteId]
-      assert(site != null, 'location not found, id: ${siteId}')
+      assert(site != null, 'location site not found, siteId: ${siteId}, locationId: ${location.id}')
       site.organizationId = organization.id
       if (!organization.locationIds.contains(site.id)) {
         organization.locationIds.add(site.id)

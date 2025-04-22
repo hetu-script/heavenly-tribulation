@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/character/profile.dart';
-import 'package:heavenly_tribulation/widgets/common.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-// import '../../util.dart';
 import '../game_entity_listview.dart';
 import '../../game/ui.dart';
+import 'profile.dart';
+import '../common.dart';
+import '../ui/close_button2.dart';
 
 const _kInformationViewCharacterColumns = [
   'name',
@@ -22,7 +22,7 @@ class CharacterSelectDialog extends StatelessWidget {
     required BuildContext context,
     required String title,
     Iterable<String>? characterIds,
-    Iterable? charactersData,
+    Iterable? characters,
     bool showCloseButton = true,
   }) async {
     return await showDialog<dynamic>(
@@ -31,7 +31,7 @@ class CharacterSelectDialog extends StatelessWidget {
         return CharacterSelectDialog(
           title: title,
           characterIds: characterIds,
-          charactersData: charactersData,
+          characters: characters,
           showCloseButton: showCloseButton,
         );
       },
@@ -42,22 +42,22 @@ class CharacterSelectDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.characterIds,
-    this.charactersData,
+    this.characters,
     this.showCloseButton = true,
   });
 
   final String title;
 
   final Iterable<String>? characterIds;
-  final Iterable? charactersData;
+  final Iterable? characters;
 
   final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
     Iterable chars;
-    if (charactersData != null) {
-      chars = charactersData!;
+    if (characters != null) {
+      chars = characters!;
     } else {
       assert(characterIds != null);
       chars =
@@ -91,7 +91,7 @@ class CharacterSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(title),
-          actions: [if (showCloseButton) const CloseButton()],
+          actions: [if (showCloseButton) const CloseButton2()],
         ),
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,

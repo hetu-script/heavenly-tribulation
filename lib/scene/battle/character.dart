@@ -140,7 +140,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
-    assert(GameData.animationsData.containsKey(modelId));
+    assert(GameData.animations.containsKey(modelId));
     audioPlayer = engine;
 
     if (!isHero) {

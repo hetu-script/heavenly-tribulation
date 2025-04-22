@@ -66,7 +66,7 @@ class LocationPanel extends StatelessWidget {
       dynamic owner;
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
-      owner = GameData.gameData['characters'][ownerId];
+      owner = GameData.game['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 
@@ -82,7 +82,7 @@ class LocationPanel extends StatelessWidget {
         } else if (kind == 'home') {
           title = engine.locale('homeOwner');
         } else {
-          title = engine.locale('locationHead');
+          title = engine.locale('siteHead');
         }
       }
 

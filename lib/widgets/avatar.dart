@@ -31,7 +31,7 @@ class Avatar extends StatelessWidget {
     this.borderColor = Colors.transparent,
     this.borderWidth,
     this.characterId,
-    this.characterData,
+    this.character,
     this.onPressed,
   });
 
@@ -48,7 +48,7 @@ class Avatar extends StatelessWidget {
   final Color borderColor;
   final double? borderWidth;
   final String? characterId;
-  final dynamic characterData;
+  final dynamic character;
   final void Function(String? charId)? onPressed;
 
   @override
@@ -59,7 +59,7 @@ class Avatar extends StatelessWidget {
     ImageProvider<Object>? iconImg = image;
     ImageProvider<Object>? borderImg = borderImage;
 
-    dynamic charData = characterData;
+    dynamic charData = character;
 
     if (characterId != null) {
       charData = GameData.getCharacter(characterId!);

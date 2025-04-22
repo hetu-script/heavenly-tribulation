@@ -492,18 +492,18 @@ class _DebugButtonState extends State<DebugButton> {
                   case DebugMenuItems.debugBattle:
                     final enemy = engine.hetu.invoke('Character', namedArgs: {
                       'isFemale': true,
-                      'level': GameData.heroData['level'],
-                      'rank': GameData.heroData['rank'],
+                      'level': GameData.hero['level'],
+                      'rank': GameData.hero['rank'],
                     });
                     GameLogic.characterAllocateSkills(enemy);
                     engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
                     context.read<EnemyState>().show(enemy);
                   case DebugMenuItems.debugTribulation:
-                    final targetRank = GameData.heroData['rank'] + 1;
+                    final targetRank = GameData.hero['rank'] + 1;
                     final levelMin = GameLogic.minLevelForRank(targetRank);
                     GameLogic.showTribulation(levelMin + 5, targetRank);
                   case DebugMenuItems.debugAutoAllocateSkills:
-                    GameLogic.characterAllocateSkills(GameData.heroData);
+                    GameLogic.characterAllocateSkills(GameData.hero);
                   case DebugMenuItems.debugPushMultipleScenes:
                     engine.pushScene(Scenes.cultivation);
                     engine.pushScene(Scenes.library);

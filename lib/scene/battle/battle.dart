@@ -209,14 +209,14 @@ class BattleScene extends Scene {
     return opponentPrebattleStatus;
   }
 
-  List<CustomGameCard> getDeck(dynamic characterData) {
-    final List decks = characterData['battleDecks'];
-    final index = characterData['battleDeckIndex'];
+  List<CustomGameCard> getDeck(dynamic character) {
+    final List decks = character['battleDecks'];
+    final index = character['battleDeckIndex'];
     if (decks.isNotEmpty && index >= 0 && index < decks.length) {
       final deckInfo = decks[index];
       final List cardIds = deckInfo['cards'];
       return cardIds.map((id) {
-        final data = characterData['cardLibrary'][id];
+        final data = character['cardLibrary'][id];
         assert(data != null);
         return GameData.createBattleCardFromData(data, deepCopyData: true);
       }).toList();
@@ -352,7 +352,7 @@ class BattleScene extends Scene {
 
     versusBanner = VersusBanner(
       position: Vector2(center.x, center.y - 120),
-      heroData: heroData,
+      hero: heroData,
       enemyData: enemyData,
     );
     camera.viewport.add(versusBanner);

@@ -1,31 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../game/ui.dart';
-import 'package:samsara/ui/close_button2.dart';
-import 'package:samsara/ui/responsive_view.dart';
-import '../../util.dart';
+// import '../../util.dart';
 import '../common.dart';
 import 'edit_organization_basic.dart';
 import '../../game/data.dart';
-
-const kOrganizationCategoryCultivation = 'cultivation';
-const kOrganizationCategoryReligion = 'religion';
-const kOrganizationCategoryBusiness = 'business';
-// const kOrganizationCategoryGang = 'gang';
-// const kOrganizationCategoryNation = 'nation';
+import '../../game/logic.dart';
+import '../game_entity_listview.dart';
+import '../../common.dart';
+import '../character/profile.dart';
+import '../ui/close_button2.dart';
 
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
-  final HTStruct? organizationData;
+  final HTStruct? organization;
   final InformationViewMode mode;
 
   const OrganizationView({
     super.key,
     this.organizationId,
-    this.organizationData,
+    this.organization,
     this.mode = InformationViewMode.view,
   });
 
@@ -34,66 +32,62 @@ class OrganizationView extends StatefulWidget {
 }
 
 class _OrganizationViewState extends State<OrganizationView> {
-  late final List<Tab> _tabs;
-  late final HTStruct _organizationData;
+  static late final List<Tab> _tabs;
+  late final HTStruct _organization;
+
+  final List<List<String>> _charactersTable = [], _locationsTable = [];
+
+  late final dynamic _headquarters, _headData;
 
   @override
   void initState() {
-    _tabs = [
-      Tab(
-        iconMargin: const EdgeInsets.all(5.0),
-        height: 40,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Icon(Icons.business),
-            ),
-            Text(engine.locale('information')),
-          ],
-        ),
-      ),
-      Tab(
-        iconMargin: const EdgeInsets.all(5.0),
-        height: 40,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Icon(Icons.summarize),
-            ),
-            Text(engine.locale('character')),
-          ],
-        ),
-      ),
-      Tab(
-        iconMargin: const EdgeInsets.all(5.0),
-        height: 40,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Icon(Icons.person),
-            ),
-            Text(engine.locale('territory')),
-          ],
-        ),
-      ),
-    ];
+    super.initState();
 
-    if (widget.organizationData != null) {
-      _organizationData = widget.organizationData!;
-    } else {
-      final organizationId = widget.organizationId ??
-          ModalRoute.of(context)!.settings.arguments as String;
-      _organizationData = engine.hetu
-          .invoke('getOrganizationById', positionalArgs: [organizationId]);
+    assert(widget.organizationId != null || widget.organization != null,
+        'OrganizationView must have either organizationId or organization data.');
+    if (widget.organization != null) {
+      _organization = widget.organization!;
+    } else if (widget.organizationId != null) {
+      _organization = GameData.game['organizations'][widget.organizationId]!;
     }
 
-    super.initState();
+    final headquartersId = _organization['headquartersId'];
+    _headquarters = GameData.game['locations'][headquartersId];
+
+    final headId = _organization['headId'];
+    _headData = GameData.game['characters'][headId];
+
+    final Iterable memberIds = (_organization['members'].values as Iterable)
+        .map((member) => member['id']);
+    final Iterable members =
+        (GameData.game['characters'].values as Iterable).where(
+      (char) => memberIds.contains(char['id']),
+    );
+
+    for (final character in members) {
+      final row = GameLogic.getCharacterInformationRow(character);
+      _charactersTable.add(row);
+    }
+
+    final List locationIds = _organization['locationIds'];
+    final Iterable locations =
+        (GameData.game['locations'].values as Iterable).where(
+      (loc) => locationIds.contains(loc['id']),
+    );
+
+    int citiesCount = 0;
+    for (final location in locations) {
+      if (location['category'] != 'city') continue;
+      ++citiesCount;
+      final row = GameLogic.getLocationInformationRow(location);
+      _locationsTable.add(row);
+    }
+
+    _tabs = [
+      Tab(text: engine.locale('information')),
+      Tab(text: engine.locale('character')),
+      Tab(text: '${engine.locale('city')}($citiesCount)'),
+    ];
   }
 
   @override
@@ -104,13 +98,13 @@ class _OrganizationViewState extends State<OrganizationView> {
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 800.0,
-      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
+      height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
       child: DefaultTabController(
         length: _tabs.length,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(_organizationData['name']),
+            title: Text(_organization['name']),
             actions: const [CloseButton2()],
             bottom: TabBar(
               tabs: _tabs,
@@ -124,63 +118,82 @@ class _OrganizationViewState extends State<OrganizationView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        '${engine.locale('genre')}: ${engine.locale(_organizationData['genre'])}'),
+                        '${engine.locale('organizationHead')}: ${_headData['name']}'),
                     Text(
-                        '${engine.locale('headquarters')}: ${getNameFromId(_organizationData['headquartersId'])}'),
+                        '${engine.locale('headquarters')}: ${_headquarters['name']}'),
                     Text(
-                        '${engine.locale('organizationHead')}: ${getNameFromId(_organizationData['headId'])}'),
+                        '${engine.locale('ideology')}: ${engine.locale(_organization['category'])}'),
                     Text(
-                        '${engine.locale('recruitMonth')}: ${_organizationData['yearlyRecruitMonth']}'),
+                        '${engine.locale('genre')}: ${engine.locale(_organization['genre'])}'),
+                    Text(
+                        '${engine.locale('territorySize')}: ${_organization['territoryIndexes'].length}'),
+                    Text(
+                        '${engine.locale('recruitMonth')}: ${_organization['yearlyRecruitMonth']}'),
                     const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: Row(
-                        children: [
-                          fluent.FilledButton(
-                            onPressed: () async {
-                              final value = await showDialog(
-                                context: context,
-                                builder: (context) => EditOrganizationBasics(
-                                  id: _organizationData['id'],
-                                  name: _organizationData['name'],
-                                  category: _organizationData['category'],
-                                  genre: _organizationData['genre'],
-                                  headId: _organizationData['headId'],
-                                  headquartersData:
-                                      GameData.gameData['locations']
-                                          [_organizationData['headquartersId']],
-                                ),
-                              );
-                              if (value == null) return;
+                    if (widget.mode == InformationViewMode.edit)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          children: [
+                            fluent.FilledButton(
+                              onPressed: () async {
+                                final value = await showDialog(
+                                  context: context,
+                                  builder: (context) => EditOrganizationBasics(
+                                    id: _organization['id'],
+                                    name: _organization['name'],
+                                    category: _organization['category'],
+                                    genre: _organization['genre'],
+                                    headId: _organization['headId'],
+                                    headquartersData: GameData.game['locations']
+                                        [_organization['headquartersId']],
+                                  ),
+                                );
+                                if (value == null) return;
 
-                              final (id, name, category, genre, headId) = value;
-                              _organizationData['name'] = name;
-                              _organizationData['category'] = category;
-                              _organizationData['genre'] = genre;
+                                final (id, name, category, genre, headId) =
+                                    value;
+                                _organization['name'] = name;
+                                _organization['category'] = category;
+                                _organization['genre'] = genre;
 
-                              if (headId != null &&
-                                  headId != _organizationData['headId']) {
-                                _organizationData['headId'] = headId;
-                              }
+                                if (headId != null &&
+                                    headId != _organization['headId']) {
+                                  _organization['headId'] = headId;
+                                }
 
-                              if (id != null && id != _organizationData['id']) {
-                                GameData.gameData['organizations']
-                                    .remove(_organizationData['id']);
-                                _organizationData['id'] = id;
-                                GameData.gameData['organizations'][id] =
-                                    _organizationData;
-                              }
-                            },
-                            child: Text(engine.locale('editIdAndImage')),
-                          ),
-                        ],
-                      ),
-                    )
+                                if (id != null && id != _organization['id']) {
+                                  GameData.game['organizations']
+                                      .remove(_organization['id']);
+                                  _organization['id'] = id;
+                                  GameData.game['organizations'][id] =
+                                      _organization;
+                                }
+                              },
+                              child: Text(engine.locale('editIdAndImage')),
+                            ),
+                          ],
+                        ),
+                      )
                   ],
                 ),
               ),
-              SizedBox.shrink(),
-              SizedBox.shrink(),
+              GameEntityListView(
+                columns: kInformationViewCharacterColumns,
+                tableData: _charactersTable,
+                onItemPressed: (position, dataId) {
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        CharacterProfileView(characterId: dataId),
+                  );
+                },
+              ),
+              GameEntityListView(
+                columns: kInformationViewLocationColumns,
+                tableData: _locationsTable,
+                onItemPressed: (position, dataId) {},
+              ),
             ],
           ),
         ),

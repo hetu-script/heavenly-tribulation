@@ -11,7 +11,7 @@ import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../widgets/game_entity_listview.dart';
 import '../../../widgets/character/memory.dart';
-import '../../../widgets/location/edit_location.dart';
+import '../../../widgets/location/location.dart';
 import '../../../widgets/organization/organization.dart';
 import '../../../widgets/ui/menu_builder.dart';
 import '../../../widgets/character/details.dart';
@@ -248,7 +248,13 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   Scene? _scene;
 
-  late List<Widget> _tabs;
+  static final List<Widget> _tabs = [
+    Tab(text: engine.locale('character')),
+    Tab(text: engine.locale('organization')),
+    Tab(text: engine.locale('location')),
+    Tab(text: engine.locale('mapObject')),
+    Tab(text: engine.locale('zone')),
+  ];
 
   final _createObjectFlyoutController = fluent.FlyoutController();
 
@@ -269,28 +275,6 @@ class _EntityListPanelState extends State<EntityListPanel>
   @override
   void initState() {
     super.initState();
-    _tabs = [
-      Tab(
-        icon: const Icon(Icons.person),
-        text: engine.locale('character'),
-      ),
-      Tab(
-        icon: const Icon(Icons.groups),
-        text: engine.locale('organization'),
-      ),
-      Tab(
-        icon: const Icon(Icons.location_city),
-        text: engine.locale('location'),
-      ),
-      Tab(
-        icon: const Icon(Icons.place),
-        text: engine.locale('mapObject'),
-      ),
-      Tab(
-        icon: const Icon(Icons.public),
-        text: engine.locale('zone'),
-      ),
-    ];
 
     // final worldSizeData = engine.hetu.invoke('getWorldSize');
     // _worldWidth = worldSizeData['width'];
@@ -339,7 +323,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     final result = await showDialog(
       context: context,
       builder: (context) => CharacterProfileView(
-        characterData: data,
+        character: data,
         mode: InformationViewMode.edit,
       ),
     );
@@ -394,11 +378,9 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editLocation(String dataId) async {
     final value = await showDialog(
       context: context,
-      builder: (context) => EditLocation(
+      builder: (context) => LocationView(
         locationId: dataId,
-        onTapOnSite: (siteId) {
-          _editLocation(siteId);
-        },
+        mode: InformationViewMode.edit,
       ),
     );
     if (value != true) return;
@@ -535,7 +517,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           illustration,
                           model,
                         ) = value;
-                        final characterData =
+                        final character =
                             engine.hetu.invoke('Character', namedArgs: {
                           'id': id,
                           'name':
@@ -552,7 +534,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             builder: (context) {
                               return CharacterProfileView(
                                 mode: InformationViewMode.edit,
-                                characterData: characterData,
+                                character: character,
                               );
                             });
                         _updateCharacters();
@@ -630,7 +612,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 CharacterPopUpMenuItems.delete,
                           },
                           onSelectedItem: (item) async {
-                            final characterData =
+                            final character =
                                 GameData.getCharacter(characterId);
                             switch (item) {
                               case CharacterPopUpMenuItems.checkProfile:
@@ -652,7 +634,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 showDialog(
                                   context: context,
                                   builder: (context) => CharacterDetailsView(
-                                      characterData: characterData),
+                                      character: character),
                                 );
                               case CharacterPopUpMenuItems.checkMemory:
                                 showDialog(
@@ -664,10 +646,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 );
                               case CharacterPopUpMenuItems.checkCultivation:
                                 engine.pushScene(Scenes.cultivation,
-                                    arguments: {'character': characterData});
+                                    arguments: {'character': character});
                               case CharacterPopUpMenuItems.setRankLevel:
-                                final int rank = characterData['rank'];
-                                final int level = characterData['level'];
+                                final int rank = character['rank'];
+                                final int level = character['level'];
                                 final value =
                                     await EditRankLevelSliderDialog.show(
                                   context: context,
@@ -676,17 +658,16 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 );
                                 if (value == null) return;
                                 final (newRank, newLevel) = value;
-                                characterData['rank'] = newRank;
-                                characterData['level'] = newLevel;
+                                character['rank'] = newRank;
+                                character['level'] = newLevel;
                               case CharacterPopUpMenuItems.allocatePassives:
-                                GameLogic.characterAllocateSkills(
-                                    characterData);
+                                GameLogic.characterAllocateSkills(character);
                               case CharacterPopUpMenuItems.setAsHero:
                                 engine.hetu.invoke('setHeroId',
                                     positionalArgs: [characterId]);
                               case CharacterPopUpMenuItems.clearWorldPosition:
-                                characterData.remove('worldPosition');
-                                characterData.remove('worldId');
+                                character.remove('worldPosition');
+                                character.remove('worldId');
                                 widget.onUpdateCharacters?.call();
                               // case CharacterPopUpMenuItems.setWorldId:
                               //   final worldId = await GameLogic.selectWorldId();
@@ -697,8 +678,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                               //     }
                               //   }
                               case CharacterPopUpMenuItems.setWorldPosition:
-                                final charPosData =
-                                    characterData['worldPosition'];
+                                final charPosData = character['worldPosition'];
                                 final selectedTile = context
                                     .read<SelectedPositionState>()
                                     .currentTerrain;
@@ -718,11 +698,11 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 if (value == null) return;
                                 if (value.$1 != charPosData?['left'] ||
                                     value.$2 != charPosData?['top'] ||
-                                    value.$3 != characterData?['worldId']) {
+                                    value.$3 != character?['worldId']) {
                                   engine.hetu.invoke(
                                       'setCharacterWorldPosition',
                                       positionalArgs: [
-                                        characterData,
+                                        character,
                                         value.$1,
                                         value.$2,
                                       ],
@@ -734,22 +714,22 @@ class _EntityListPanelState extends State<EntityListPanel>
                               case CharacterPopUpMenuItems.clearHome:
                                 engine.hetu.invoke(
                                     'clearCharacterHomeLocations',
-                                    positionalArgs: [characterData]);
+                                    positionalArgs: [character]);
                               case CharacterPopUpMenuItems.setHome:
                                 InputStringDialog.show(context: context)
                                     .then((locationId) {
                                   if (locationId != null) {
-                                    final locationData = GameData
-                                        .gameData['locations'][locationId];
-                                    if (locationData == null) {
+                                    final location =
+                                        GameData.game['locations'][locationId];
+                                    if (location == null) {
                                       GameDialogContent.show(context,
                                           '输入的据点 id [$locationId] 不存在！');
                                     } else {
                                       engine.hetu.invoke(
                                         'setCharacterHome',
                                         positionalArgs: [
-                                          characterData,
-                                          locationData,
+                                          character,
+                                          location,
                                         ],
                                         namedArgs: {
                                           'incurIncident': false,
@@ -759,13 +739,13 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   }
                                 });
                               case CharacterPopUpMenuItems.clearLocation:
-                                characterData.remove('locationId');
+                                character.remove('locationId');
                               case CharacterPopUpMenuItems.setLocation:
                                 InputStringDialog.show(context: context)
                                     .then((value) {
                                   if (value != null) {
                                     engine.hetu.invoke('setCharacterLocationId',
-                                        positionalArgs: [characterData, value]);
+                                        positionalArgs: [character, value]);
                                   }
                                 });
                               // case CharacterPopUpMenuItems.clearLocationSite:
@@ -829,8 +809,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                               context, engine.locale('hint_selectCityPrompt'));
                           return;
                         }
-                        final location = GameData.gameData['locations']
-                            [selectedTile.locationId];
+                        final location =
+                            GameData.game['locations'][selectedTile.locationId];
                         if (location['category'] != 'city') {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectCityPrompt'));
@@ -845,7 +825,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             });
                         if (value == null) return;
                         final (id, name, category, genre, headId) = value;
-                        final organizationData = engine.hetu.invoke(
+                        final organization = engine.hetu.invoke(
                           'Organization',
                           namedArgs: {
                             'id': id,
@@ -861,12 +841,12 @@ class _EntityListPanelState extends State<EntityListPanel>
                             builder: (context) {
                               return OrganizationView(
                                 mode: InformationViewMode.edit,
-                                organizationData: organizationData,
+                                organization: organization,
                               );
                             });
                         _updateOrganizations();
                         widget.onCreatedOrganization
-                            ?.call(organizationData, selectedTile);
+                            ?.call(organization, selectedTile);
                       },
                       child: Text(engine.locale('createOrganization')),
                     ),
@@ -901,7 +881,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         dynamic atTerrain = selectedTile.data;
                         dynamic atLocation;
                         if (selectedTile.locationId != null) {
-                          atLocation = GameData.gameData['locations']
+                          atLocation = GameData.game['locations']
                               [selectedTile.locationId];
                         }
                         final value = await showDialog(
@@ -910,13 +890,21 @@ class _EntityListPanelState extends State<EntityListPanel>
                             return EditLocationBasics(
                               category: atLocation != null ? 'site' : 'city',
                               atLocation: atLocation,
+                              allowEditCategory: atLocation == null,
                             );
                           },
                         );
                         if (value == null) return;
-                        final (id, category, kind, name, image, background) =
-                            value;
-                        final locationData = engine.hetu.invoke(
+                        final (
+                          id,
+                          category,
+                          kind,
+                          name,
+                          image,
+                          background,
+                          createNpc
+                        ) = value;
+                        final location = engine.hetu.invoke(
                           'Location',
                           namedArgs: {
                             'id': id,
@@ -927,13 +915,15 @@ class _EntityListPanelState extends State<EntityListPanel>
                             'background': background,
                             'atTerrain': atTerrain,
                             if (category == 'site') 'atLocation': atLocation,
+                            'createNpc': createNpc,
                           },
                         );
                         await showDialog(
                             context: context,
                             builder: (context) {
-                              return EditLocation(
-                                locationData: locationData,
+                              return LocationView(
+                                location: location,
+                                mode: InformationViewMode.edit,
                               );
                             });
                         _updateLocations();
@@ -965,9 +955,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   LocationPopUpMenuItems.delete,
                             },
                             onSelectedItem: (item) async {
-                              final locationData =
-                                  GameData.gameData['locations'][dataId];
-                              assert(locationData != null,
+                              final location =
+                                  GameData.game['locations'][dataId];
+                              assert(location != null,
                                   'location not found, id: $dataId');
                               switch (item) {
                                 case LocationPopUpMenuItems.checkInformation:
@@ -976,14 +966,13 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   final worldId =
                                       await GameLogic.selectWorldId();
                                   if (worldId != null) {
-                                    if (locationData['worldId'] != worldId) {
-                                      locationData['worldId'] = worldId;
+                                    if (location['worldId'] != worldId) {
+                                      location['worldId'] = worldId;
                                       widget.onUpdateLocations?.call();
                                     }
                                   }
                                 case LocationPopUpMenuItems.setWorldPosition:
-                                  final locPosData =
-                                      locationData['worldPosition'];
+                                  final locPosData = location['worldPosition'];
                                   final selectedTile = context
                                       .read<SelectedPositionState>()
                                       .currentTerrain;
@@ -1003,11 +992,11 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   if (value == null) return;
                                   if (value.$1 != locPosData?['left'] ||
                                       value.$2 != locPosData?['top'] ||
-                                      value.$3 != locationData?['worldId']) {
+                                      value.$3 != location?['worldId']) {
                                     engine.hetu.invoke(
                                         'setLocationWorldPosition',
                                         positionalArgs: [
-                                          locationData,
+                                          location,
                                           value.$1,
                                           value.$2,
                                         ],

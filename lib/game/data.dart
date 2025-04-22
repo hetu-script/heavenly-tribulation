@@ -45,7 +45,7 @@ abstract class GameSound {
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 abstract class GameData {
-  static final Map<String, dynamic> animationsData = {};
+  static final Map<String, dynamic> animations = {};
   static final Map<String, SpriteSheet> spriteSheets = {};
   static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
 
@@ -67,10 +67,9 @@ abstract class GameData {
   static final Map<String, String> siteKindNames = {};
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
-  static dynamic gameData, universeData, historyData, heroData;
+  static dynamic game, universe, world, history, hero;
 
   static Set<String> worldIds = {};
-  static dynamic world;
 
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
@@ -85,7 +84,7 @@ abstract class GameData {
 
     final animationsDataString =
         await rootBundle.loadString('assets/data/animation.json5');
-    animationsData.addAll(JSON5.parse(animationsDataString));
+    animations.addAll(JSON5.parse(animationsDataString));
 
     final spriteSheetDataString =
         await rootBundle.loadString('assets/data/sprite_sheet.json5');
@@ -259,7 +258,7 @@ abstract class GameData {
     }
 
     // 将模组按照优先级重新排序
-    final mods = (gameData['mods'].values as Iterable).toList();
+    final mods = (game['mods'].values as Iterable).toList();
     mods.sort((mod1, mod2) {
       return (mod2['priority'] ?? 0).compareTo(mod1['priority'] ?? 0);
     });
@@ -275,31 +274,29 @@ abstract class GameData {
 
     engine.hetu.invoke('createGame', positionalArgs: [saveName]);
 
-    gameData = engine.hetu.fetch('game');
-    universeData = engine.hetu.fetch('universe');
-    historyData = engine.hetu.fetch('timeline');
+    game = engine.hetu.fetch('game');
+    universe = engine.hetu.fetch('universe');
+    history = engine.hetu.fetch('history');
     // historyData = engine.hetu.fetch('history');
-    heroData = engine.hetu.fetch('hero');
+    hero = engine.hetu.fetch('hero');
 
     initGameData();
 
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
-
-    GameLogic.calculateTimestamp();
   }
 
   static Future<void> _loadGame({
-    required dynamic game,
-    required dynamic universe,
-    required dynamic history,
+    required dynamic gameData,
+    required dynamic universeData,
+    required dynamic historyData,
     bool isEditorMode = false,
   }) async {
     engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
-      'gameData': game,
-      'universeData': universe,
-      'historyData': history,
+      'gameData': gameData,
+      'universeData': universeData,
+      'historyData': historyData,
     });
 
     worldIds.clear();
@@ -310,13 +307,10 @@ abstract class GameData {
       await registerModuleEventHandlers();
     }
 
-    // isGameCreated = true;
-
-    gameData = engine.hetu.fetch('game');
-    universeData = engine.hetu.fetch('universe');
-    // historyData = engine.hetu.fetch('history');
-    historyData = engine.hetu.fetch('timeline');
-    heroData = engine.hetu.fetch('hero');
+    game = engine.hetu.fetch('game');
+    universe = engine.hetu.fetch('universe');
+    history = engine.hetu.fetch('history');
+    hero = engine.hetu.fetch('hero');
   }
 
   /// 从存档中读取游戏数据
@@ -344,13 +338,11 @@ abstract class GameData {
     final historyData = json5Decode(historyDataString);
 
     await _loadGame(
-      game: gameData,
-      universe: universeData,
-      history: historyData,
+      gameData: gameData,
+      universeData: universeData,
+      historyData: historyData,
       isEditorMode: isEditorMode,
     );
-
-    GameLogic.calculateTimestamp();
   }
 
   static Future<void> loadPreset(String filename,
@@ -370,19 +362,19 @@ abstract class GameData {
     final historyData = json5Decode(historyDataString);
 
     await _loadGame(
-      game: gameData,
-      universe: universeData,
-      history: historyData,
+      gameData: gameData,
+      universeData: universeData,
+      historyData: historyData,
       isEditorMode: isEditorMode,
     );
   }
 
   static dynamic getCharacter(String id) {
-    final characterData = gameData['characters'][id];
-    if (characterData == null) {
+    final character = game['characters'][id];
+    if (character == null) {
       throw '无法找到角色，id: [$id]';
     }
-    return characterData;
+    return character;
   }
 
   static Future<SpriteAnimationWithTicker> createAnimationFromData(
@@ -395,7 +387,7 @@ abstract class GameData {
       }
       return cachedAnim.clone();
     } else {
-      final animData = GameData.animationsData[path][state];
+      final animData = GameData.animations[path][state];
       if (animData == null) {
         final err = 'Could not found animation state data for [$path/$state]';
         engine.error(err);
@@ -454,6 +446,7 @@ abstract class GameData {
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: siteData['image'],
     );
+    card.index = siteData['priority'] ?? 0;
     return card;
   }
 
@@ -462,8 +455,9 @@ abstract class GameData {
     required String spriteId,
     required String title,
     Vector2? position,
+    int index = 0,
   }) {
-    final exit = CustomGameCard(
+    final card = CustomGameCard(
       id: id ?? spriteId,
       deckId: id ?? spriteId,
       borderRadius: 20.0,
@@ -485,12 +479,13 @@ abstract class GameData {
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: spriteId,
     );
-    return exit;
+    card.index = index;
+    return card;
   }
 
-  static String getPassivesDescription([dynamic characterData]) {
-    characterData ??= GameData.heroData;
-    final passivesData = characterData['passives'];
+  static String getPassivesDescription([dynamic character]) {
+    character ??= GameData.hero;
+    final passivesData = character['passives'];
     final builder = StringBuffer();
     builder.writeln(
         '${engine.locale('passivetree_hero_skills_description_title')}\n ');
@@ -703,6 +698,10 @@ abstract class GameData {
       );
       description.writeln(
           '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money2')}</>');
+      if (engine.config.debugMode) {
+        description.writeln(
+            '<grey>${engine.locale('basePrice')}: ${itemData['price']}</>');
+      }
     }
 
     final out = description.toString().trim();

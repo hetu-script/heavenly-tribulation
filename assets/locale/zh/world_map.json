@@ -9,6 +9,10 @@
   "useMapSkill": "地图技能",
   "explore": "神识探查",
 
+  "terrainInformation": "地块情报",
+  "build": "建造",
+  "warMode": "战略模式",
+
   "interact": "互动",
   "gather": "采集",
   "woodcut": "伐木",
@@ -20,7 +24,7 @@
   "view": "视图",
   "saveAndExitGame": "保存并退出",
 
-  "firstDiscover": "你发现了：{0}。",
+  "hint_discoveredLocation": "你发现了隐藏据点：{0}。",
   "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
   "alreadyExplored": "你已经搜索过这里了。",
 
