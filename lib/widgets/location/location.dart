@@ -22,6 +22,11 @@ enum NpcOperation {
   edit,
 }
 
+enum SiteOperation {
+  edit,
+  delete,
+}
+
 class LocationView extends StatefulWidget {
   const LocationView({
     super.key,
@@ -42,7 +47,7 @@ class _LocationViewState extends State<LocationView>
     with SingleTickerProviderStateMixin {
   final List<Widget> _siteCards = [];
 
-  static late final List<Tab> _tabs;
+  static late List<Tab> tabs;
   final List<List<String>> _charactersTableData = [];
   late final TabController _tabController;
   final fluent.FlyoutController _siteMenuController = fluent.FlyoutController();
@@ -94,7 +99,7 @@ class _LocationViewState extends State<LocationView>
       }
     }
 
-    _tabs = [
+    tabs = [
       Tab(text: engine.locale('information')),
       Tab(text: '${engine.locale('residents')}(${residents.length})'),
     ];
@@ -123,6 +128,38 @@ class _LocationViewState extends State<LocationView>
               );
             },
           );
+        },
+        onSecondaryTap: (siteId, details) {
+          showFluentMenu(
+              position: details.globalPosition,
+              items: {
+                engine.locale('edit'): SiteOperation.edit,
+                engine.locale('delete'): SiteOperation.delete,
+              },
+              onSelectedItem: (SiteOperation item) {
+                switch (item) {
+                  case SiteOperation.edit:
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return LocationView(
+                          locationId: siteId,
+                          mode: widget.mode,
+                        );
+                      },
+                    );
+                    break;
+                  case SiteOperation.delete:
+                    final siteData = GameData.game['locations'][siteId];
+                    assert(siteData != null, 'location not found, id: $siteId');
+                    engine.hetu.invoke(
+                      'removeLocation',
+                      positionalArgs: [siteData],
+                    );
+                    _updateSitesData();
+                    break;
+                }
+              });
         },
       );
       _siteCards.add(siteCard);
@@ -182,7 +219,7 @@ class _LocationViewState extends State<LocationView>
           existedSites.add(siteData['kind']);
         }
       }
-      for (final siteKind in kLocationSiteKindsBuildableInCity) {
+      for (final siteKind in kSiteKindsBuildable) {
         if (existedSites.contains(siteKind)) {
           continue;
         }
@@ -297,7 +334,7 @@ class _LocationViewState extends State<LocationView>
                       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.white54,
+                          color: GameUI.outlineColor,
                           width: 0.5,
                         ),
                         borderRadius: BorderRadius.circular(5.0),
@@ -434,6 +471,7 @@ class _LocationViewState extends State<LocationView>
                           'background': background,
                           'atLocation': _locationData,
                           'createNpc': createNpc,
+                          'organizationId': _locationData['organizationId'],
                         },
                       );
                       await showDialog(
@@ -504,7 +542,7 @@ class _LocationViewState extends State<LocationView>
                 actions: const [CloseButton2()],
                 bottom: TabBar(
                   controller: _tabController,
-                  tabs: _tabs,
+                  tabs: tabs,
                 ),
               ),
               body: TabBarView(

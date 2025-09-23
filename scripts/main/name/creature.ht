@@ -20,17 +20,15 @@ function generateCreatureName({category, rarity}) {
   category ??= random.nextIterable(creatureNames.keys)
   assert(creatureNames.keys.contains(category), category)
   const k = random.nextIterable(creatureNames[category])
-  rarity ??= getRarity().rarity
+  rarity ??= getRarity().name
   let name
   switch (rarity) {
     'arcane' : name = random.nextIterable(strangeCreature)
     'mythic' : name = pre + cp + sp + k
-    'unique' : name = pre + sp + k
-    'legendary' : name = pre + cp + k
-    'epic' : name = pre + k
-    'rare' : name = cp + sp + k
-    'uncommon' : name = sp + k
-    'common' : name = cp + k
+    'legendary' : name = pre + sp + k
+    'epic' : name = pre + cp + k
+    'rare' : name = pre + k
+    'common' : name = cp + sp + k
   }
-  return { name, rarity, category }
+  return name
 }

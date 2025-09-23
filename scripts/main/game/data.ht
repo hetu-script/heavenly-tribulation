@@ -56,6 +56,9 @@ struct MonthlyActions {
   }
 }
 
+const _kTutorialRoomMax = 5
+const _kDungeonRoomMax = 13
+
 struct DungeonFlags {
   constructor ({
     rank,
@@ -66,15 +69,16 @@ struct DungeonFlags {
     rank = rank.clamp(0, kCultivationRankMax - 1)
 
     this.rank = rank
-    this.level = minLevelForRank(rank)
+    this.level = 0
     if (isTutorial) {
       this.levelMax = 0
     } else {
-      this.levelMax = maxLevelForRank(rank) - 10
+      this.levelMax = rank * 2 + 1
     }
+    this.minEnemyLevel = minLevelForRank(rank)
     this.isTutorial = isTutorial
     this.room = initialRoom ? 0 : 1
-    this.roomMax = isTutorial ? 5 : 13
+    this.roomMax = isTutorial ? _kTutorialRoomMax : _kDungeonRoomMax
     this.needRebuild = true
     this.battleResult = null
     this.selectedPortal = null

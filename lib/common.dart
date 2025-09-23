@@ -1,6 +1,12 @@
 import 'package:samsara/extensions.dart';
 // import 'package:samsara/cardgame.dart';
 
+/// Unicode Character "⎯" (U+23AF)
+const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+
+/// Unicode Character "∕" (U+2215)
+const kSlash = '∕';
+
 const kGameVersion = '0.0.1';
 
 const kGameSaveFileExtension = '.tdqjgame';
@@ -59,7 +65,7 @@ const kWorldViews = [
   'goodwill', // 善良, 邪恶
 ];
 
-const kPersonalities = [
+const kPersonalitiesWithoutWorldViews = [
   // 对他人
   'extrovert', // 外向, 内省
   'frank', // 直率, 圆滑
@@ -82,6 +88,11 @@ const kPersonalities = [
   'prudent', // 谨慎, 冲动
   'deepthinking', // 深沉, 轻浮
 ];
+
+const kPersonalities = {
+  ...kWorldViews,
+  ...kPersonalitiesWithoutWorldViews,
+};
 
 const kOppositePersonalities = {
   'idealistic': 'realistic',
@@ -124,6 +135,7 @@ const kNonBattleAttributes = [
   'luck',
 ];
 
+/// 战斗属性决定了角色战斗流派
 const kBattleAttributes = [
   'spirituality',
   'dexterity',
@@ -133,7 +145,7 @@ const kBattleAttributes = [
 ];
 
 const kEquipmentMax = 6;
-const kCultivationRankMax = 8;
+const kCultivationRankMax = 5;
 
 const kBattleCardKinds = [
   'punch',
@@ -172,33 +184,42 @@ const kRestrictedEquipmentTypes = {
   'aircraft',
 };
 
+const kRarities = {
+  'common',
+  'rare',
+  'epic',
+  'legendary',
+  'mythic',
+  'arcane',
+};
+
+const kRaritiesToRank = {
+  'common': 0,
+  'rare': 1,
+  'epic': 2,
+  'legendary': 3,
+  'mythic': 4,
+  'arcane': 5,
+};
+
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
-    /// 基础
-    'basic' => HexColor.fromString('#CCCCCC'),
-
     /// 凡品
-    'common' => HexColor.fromString('#D4FFFF'),
+    'common' => HexColor.fromString('#CCCCCC'),
 
     /// 良品
-    'uncommon' => HexColor.fromString('#9D9DFF'),
+    'rare' => HexColor.fromString('#D4FFFF'),
 
     /// 上品
-    'rare' => HexColor.fromString('#693DA8'),
+    'epic' => HexColor.fromString('#9D9DFF'),
 
     /// 极品
-    'epic' => HexColor.fromString('#E7E7AC'),
+    'legendary' => HexColor.fromString('#693DA8'),
+
+    /// 绝品
+    'mythic' => HexColor.fromString('#E7E7AC'),
 
     /// 神品
-    'legendary' => HexColor.fromString('#DBDB72'),
-
-    /// 秘宝
-    'unique' => HexColor.fromString('#62CC39'),
-
-    /// 古宝
-    'mythic' => HexColor.fromString('#C65043'),
-
-    /// 灵宝
     'arcane' => HexColor.fromString('#C65043'),
 
     /// 其他
@@ -208,46 +229,39 @@ Color getColorFromRarity(String rarity) {
 
 Color getColorFromRank(int rank) {
   return switch (rank) {
-    /// 未修炼 黑
+    /// 无境界 根据背景，一般是黑或白
     0 => HexColor.fromString('#CCCCCC'),
 
     /// 凝气 灰
     1 => HexColor.fromString('#D4FFFF'),
 
-    /// 筑基 蓝灰
+    /// 筑基 蓝
     2 => HexColor.fromString('#9D9DFF'),
 
-    /// 结丹 蓝
+    /// 结丹 紫
     3 => HexColor.fromString('#693DA8'),
 
-    /// 还婴 紫
+    /// 还婴 金
     4 => HexColor.fromString('#E7E7AC'),
 
-    /// 化神 金
-    5 => HexColor.fromString('#DBDB72'),
-
-    /// 洞虚 橙
-    6 => HexColor.fromString('#62CC39'),
-
-    /// 合体 红
-    7 => HexColor.fromString('#C65043'),
-
-    /// 大乘 暗红
-    8 => HexColor.fromString('#983030'),
+    /// 化神 红
+    5 => HexColor.fromString('#C65043'),
 
     /// 其他
     _ => HexColor.fromString('#CCCCCC'),
   };
 }
 
-const kOrganizationCategories = {
+/// 组织的类型即动机，代表了不同的发展方向
+const kOrganizationCategories = [
+  'wuwei',
   'cultivation', // 悟道：修真，功法，战斗
   'immortality', // 长生：宗教，等级，境界
   'chivalry', // 任侠：江湖豪杰
   'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
   'wealth', // 财富：经营商号，积累钱币和灵石
   'pleasure', // 欢愉：享乐，赌博，情色
-};
+];
 
 const kCultivationGenres = [
   'swordcraft',
@@ -266,46 +280,59 @@ const kLocationCityKinds = [
 
 const kLocationSiteKinds = [
   'home',
-  'headquarters',
   'cityhall',
-  'arena',
-  'library',
   'tradinghouse',
+  'headquarters',
+  'stele',
+  'library',
+  'arena',
+  'militarypost',
   'auctionhouse',
-  'psychictemple',
-  'theurgytemple',
+  'hotel',
   'workshop',
   'alchemylab',
   'arraylab',
   'illusionaltar',
   'divinationaltar',
+  'psychictemple',
+  'theurgytemple',
+  'dungeon',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
 ];
 
-const kLocationSiteKindsManagable = [
-  'headquarters',
+const kSiteKindsManagable = [
   'cityhall',
-  'arena',
-  'library',
   'tradinghouse',
+  'headquarters',
+  'stele',
+  'library',
+  'arena',
+  'militarypost',
   'auctionhouse',
-  'psychictemple',
-  'theurgytemple',
+  'hotel',
   'workshop',
   'alchemylab',
   'arraylab',
   'illusionaltar',
   'divinationaltar',
+  'psychictemple',
+  'theurgytemple',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
 ];
 
-const kLocationSiteKindsBuildableInCity = {
+const kSiteKindsBuildable = {
+  'stele',
+  'library',
+  'arena',
+  'militarypost',
+  'auctionhouse',
+  'hotel',
   'workshop',
   'alchemylab',
   'arraylab',
@@ -359,12 +386,12 @@ abstract class AttackType {
   static const curse = 'curse';
 }
 
-const Set<String> kAttackTypes = {
+const List<String> kAttackTypes = [
   AttackType.unarmed,
   AttackType.weapon,
   AttackType.spell,
   AttackType.curse,
-};
+];
 
 abstract class DamageType {
   static const physical = 'physical';
@@ -374,13 +401,13 @@ abstract class DamageType {
   static const pure = 'pure';
 }
 
-const Set<String> kDamageTypes = {
+const List<String> kDamageTypes = [
   DamageType.physical,
   DamageType.chi,
   DamageType.elemental,
   DamageType.psychic,
   DamageType.pure,
-};
+];
 
 const kTicksPerDay = 4; //每天的回合数 morning, afternoon, evening, night
 const kDaysPerMonth = 30; //每月的天数
@@ -411,7 +438,7 @@ const kMaterialKinds = [
   'ore',
 ];
 
-const kOtherMaterialKinds = [
+const kNoncurrencyMaterialKinds = [
   'worker',
   'water',
   'grain',
@@ -424,7 +451,7 @@ const kOtherMaterialKinds = [
 ];
 
 const kBaseBuyRate = 1.0;
-const kBaseSellRate = 0.5;
+const kBaseSellRate = 0.75;
 
 const kMinSellRate = 0.1;
 const kMinBuyRate = 0.1;
@@ -432,17 +459,35 @@ const kMinBuyRate = 0.1;
 const kPriceFavorRate = 0.1;
 const kPriceFavorIncrement = 0.05;
 
-const kMaterialBasePriceByKind = {
+final kMaterialBasePriceByKind = {
   'shard': 1000,
-  'worker': 40,
-  'water': 20,
-  'grain': 40,
-  'meat': 80,
-  'herb': 80,
-  'leather': 160,
-  'timber': 160,
-  'stone': 320,
-  'ore': 640,
+  'worker': 20,
+  'water': 10,
+  'grain': 20,
+  'meat': 40,
+  'herb': 40,
+  'leather': 80,
+  'timber': 80,
+  'stone': 160,
+  'ore': 320,
+};
+
+/// 物品的基础价格
+final kItemBasePriceByCategory = {
+  'cardpack': 1000,
+  'scroll_paper': 150,
+  'identify_scroll': 500,
+  'weapon': 100,
+  'shield': 50,
+  'armor': 50,
+  'gloves': 50,
+  'helmet': 50,
+  'boots': 50,
+  'ship': 500,
+  'aircraft': 500,
+  'jewelry': 100,
+  'talisman': 250,
+  'potion': 50,
 };
 
 const kUntradableItemKinds = {
@@ -450,7 +495,9 @@ const kUntradableItemKinds = {
   'worker',
 };
 
-const kAttributeAnyLevel = 6;
+const kMaxAffixCount = 4;
+
+const kAttributeAnyLevel = 10;
 const kBaseResistMax = 75;
 
 const kBaseMoveCostOnHill = 1.0;
@@ -460,7 +507,7 @@ const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
 const kTerrainKindsMountain = ['mountain'];
 
-const kWorkableMounths = {
+final kWorkableMounths = {
   'library': [1, 2, 3, 4, 5, 6],
   'tradinghouse': [2, 3, 4, 5, 6, 7],
   'auctionhouse': [3, 4, 5, 6, 7, 8],
@@ -475,7 +522,7 @@ const kWorkableMounths = {
   'divinationaltar': [12, 1, 2, 3, 4, 5],
 };
 
-const kWorkBaseSalaries = {
+final kWorkBaseSalaries = {
   'library': 24,
   'tradinghouse': 7,
   'auctionhouse': 8,
@@ -490,7 +537,7 @@ const kWorkBaseSalaries = {
   'divinationaltar': 90,
 };
 
-const kWorkBaseStaminaCost = {
+final kWorkBaseStaminaCost = {
   'library': 2,
   'tradinghouse': 1,
   'auctionhouse': 1,
@@ -515,18 +562,16 @@ const kLocationYearlyUpdateMonth = 6;
 const kOrganizationYearlyUpdateMonth = 9;
 
 const kBattleCardPriceRate = 0.135;
-const kAddAffixCostRate = 0.08;
-const kRerollAffixCostRate = 0.02;
-const kReplaceAffixCostRate = 0.03;
-const kUpgradeCardCostRate = 0.12;
-const kUpgradeRankCostRate = 8.5;
+const kAddAffixCostRate = 0.03;
+const kReplaceAffixCostRate = 0.08;
+const kRerollAffixCostRate = 0.16;
+const kUpgradeRankCostRate = 20.5;
 const kCraftScrollCostRate = 0.06;
 
 const kCardCraftOperations = [
   'addAffix',
-  'rerollAffix',
   'replaceAffix',
-  'upgradeCard',
+  'rerollAffix',
   'upgradeRank',
   'dismantle',
 ];
@@ -535,13 +580,10 @@ const kCardOperations = [
   'addAffix',
   'rerollAffix',
   'replaceAffix',
-  'upgradeCard',
   'upgradeRank',
   'dismantle',
   'craftScroll',
 ];
-
-const kMaxLevelForRank8 = 100;
 
 const kTimeOfDay = {
   1: 'morning',
@@ -550,9 +592,8 @@ const kTimeOfDay = {
   4: 'midnight',
 };
 
-// 预定义的天赋树节点路线，用于NPC提升等级时自动分配
-
-const kPlayStyles = {
+/// 预定义的天赋树节点路线，用于NPC提升等级时自动分配
+const kCultivationStyles = {
   'dexterity': {'standard'},
   'spirituality': {'standard'},
   'willpower': {'standard'},
@@ -930,3 +971,57 @@ const kInformationViewLocationColumns = [
   'residents',
   'organization',
 ];
+
+const kItemEquipmentCategories = {
+  'weapon',
+  'shield',
+  'armor',
+  'gloves',
+  'helmet',
+  'boots',
+  'ship',
+  // 'aircraft',
+  'jewelry',
+  'talisman',
+};
+
+const kItemEquipmentKinds = {
+  // 武器
+  'sword',
+  'sabre',
+  'spear',
+  'staff',
+  'bow',
+  'dart',
+  // 防具
+  'shield',
+  'armor',
+  'gloves',
+  'helmet',
+  // 载具
+  'boots',
+  'ship',
+  //   'aircraft',
+  // 首饰
+  'ring',
+  'amulet',
+  // 'belt',
+  // 法宝
+  'pearl',
+};
+
+const kItemModificationOperations = {
+  'upgrade',
+  'dismantle',
+  'extract',
+};
+
+const kItemCategoryCardpack = 'cardpack';
+const kItemCategoryIdentifyScroll = 'identify_scroll';
+const kItemCategoryScroll = 'scroll';
+const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryExppack = 'exp_pack';
+const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryStatusSpirit = 'status_spirit';
+const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryPotion = 'potion';

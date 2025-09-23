@@ -53,7 +53,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   bool get isHidden => data['isHidden'] ?? false;
   bool get isResource => data['isResource'] ?? false;
   bool get isNegative => data['isNegative'] ?? false;
-  bool get isPermenant => data['isPermenant'] ?? false;
+  bool get isPermanent => data['isPermanent'] ?? false;
   bool get isOngoing => data['isOngoing'] ?? false;
   bool get isUnique => data['isUnique'] ?? false;
   int get effectPriority => data['priority'] ?? 0;
@@ -80,8 +80,8 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
     spriteId = data['icon'];
 
-    size = isPermenant
-        ? GameUI.permenantStatusEffectIconSize
+    size = isPermanent
+        ? GameUI.permanentStatusEffectIconSize
         : GameUI.statusEffectIconSize;
     countTextConfig = defaultEffectCountStyle.copyWith(size: size);
 

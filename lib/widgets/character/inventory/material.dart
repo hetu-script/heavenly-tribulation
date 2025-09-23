@@ -10,15 +10,22 @@ import '../../../engine.dart';
 import '../../../state/hover_content.dart';
 import '../../../common.dart';
 
-class MaterialStorage extends StatelessWidget {
-  const MaterialStorage({
+enum MaterialListType {
+  inventory,
+  sell,
+  craft,
+}
+
+class MaterialList extends StatelessWidget {
+  MaterialList({
     super.key,
     this.width = 255.0,
     this.height,
     required this.entity,
+    this.requirements,
     this.priceFactor,
     this.filter,
-    this.isSell = false,
+    this.type = MaterialListType.inventory,
     this.selectedItem,
     this.onSelectedItem,
   });
@@ -26,28 +33,43 @@ class MaterialStorage extends StatelessWidget {
   final double width;
   final double? height;
   final dynamic entity;
+  final dynamic requirements;
   final dynamic priceFactor;
   final List? filter;
-  final bool isSell;
+  final MaterialListType type;
   final String? selectedItem;
   final void Function(String)? onSelectedItem;
+
+  final _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
-    for (final key in kOtherMaterialKinds) {
-      if (key == 'money') continue;
+    for (final key in kMaterialKinds) {
+      if (type != MaterialListType.craft && key == 'money') continue;
       int amount = 0;
-      if (filter != null) {
-        if (filter!.isNotEmpty && !filter!.contains(key)) continue;
+      int? requiredAmount;
+      if (filter != null && filter!.isNotEmpty) {
+        if (!filter!.contains(key)) continue;
       } else {
-        amount = entity['materials'][key] ?? 0;
-        if (amount <= 0) continue;
+        amount = entity?['materials']?[key] ?? 0;
+        if (requirements != null) {
+          requiredAmount = requirements[key] ?? 0;
+          if (requiredAmount! <= 0) continue;
+        } else {
+          if (amount <= 0) continue;
+        }
       }
 
-      final unitPrice = GameLogic.calculateMaterialPrice(key,
-          priceFactor: priceFactor, isSell: isSell);
+      int? unitPrice;
+      if (priceFactor != null) {
+        unitPrice = GameLogic.calculateMaterialPrice(
+          key,
+          priceFactor: priceFactor,
+          isSell: type == MaterialListType.sell,
+        );
+      }
 
       widgets.add(
         MouseRegion2(
@@ -57,15 +79,17 @@ class MaterialStorage extends StatelessWidget {
           },
           onMouseEnter: (rect) {
             context.read<HoverContentState>().show(
-                '${engine.locale(key)}: ${engine.locale('${key}_description')}\n'
-                '${priceFactor != null ? '${engine.locale('unitPrice')}: $unitPrice' : ''}',
+                '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
+                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money2')}</>' : ''}',
                 rect);
           },
           onMouseExit: () {
             context.read<HoverContentState>().hide();
           },
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 1, horizontal: 2.5),
+            margin: const EdgeInsets.only(
+                left: 2.0, right: 2.0, top: 1.0, bottom: 1.0),
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5.0),
               border: Border.all(
@@ -76,7 +100,6 @@ class MaterialStorage extends StatelessWidget {
                   ? GameUI.focusedColor
                   : Colors.transparent,
             ),
-            padding: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 5.0),
             child: Row(
               children: [
                 Image(
@@ -85,7 +108,6 @@ class MaterialStorage extends StatelessWidget {
                   image: AssetImage('assets/images/item/material/$key.png'),
                 ),
                 Text(
-                  // '${engine.locale(key)} ${'${engine.locale('unitPrice')}: $unitPrice'}',
                   engine.locale(key),
                   style: TextStyle(
                     color: selectedItem == key
@@ -95,11 +117,15 @@ class MaterialStorage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  '${engine.locale('amount')}: ${amount.toString().padLeft(8)}',
+                  requiredAmount != null
+                      ? '$requiredAmount/$amount'.padLeft(8)
+                      : amount.toString().padLeft(8),
                   style: TextStyle(
-                    color: selectedItem == key
-                        ? GameUI.selectedColorOpaque
-                        : Colors.white,
+                    color: requiredAmount != null
+                        ? (amount < requiredAmount ? Colors.red : Colors.white)
+                        : (selectedItem == key
+                            ? GameUI.selectedColorOpaque
+                            : Colors.white),
                   ),
                 ),
               ],
@@ -109,16 +135,27 @@ class MaterialStorage extends StatelessWidget {
       );
     }
 
-    return Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(color: GameUI.foregroundColor),
+    return ScrollConfiguration(
+      behavior: MaterialScrollBehavior(),
+      child: Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        trackVisibility: true,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: Container(
+            height: height,
+            width: width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: GameUI.foregroundColor),
+            ),
+            child: widgets.isEmpty
+                ? EmptyPlaceholder(engine.locale('empty'))
+                : Column(children: widgets),
+          ),
+        ),
       ),
-      child: widgets.isEmpty
-          ? EmptyPlaceholder(engine.locale('empty'))
-          : Column(children: widgets),
     );
   }
 }

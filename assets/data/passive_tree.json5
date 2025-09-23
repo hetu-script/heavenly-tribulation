@@ -23,7 +23,7 @@
   },
   track_2_0: {
     size: "small",
-    connectedNodes: ["track_1_0"],
+    connectedNodes: ["track_1_0", "track_2_1", "track_2_9"],
     isAttribute: true,
   },
   track_3_0: {
@@ -254,7 +254,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "spellEnhance",
+        id: "spellAttack",
         level: 2,
       },
     ],
@@ -266,7 +266,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "spellEnhance",
+        id: "spellAttack",
         level: 4,
       },
     ],
@@ -278,7 +278,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "spellEnhance",
+        id: "spellAttack",
         level: 4,
       },
     ],
@@ -290,7 +290,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "spellEnhance",
+        id: "spellAttack",
         level: 10,
       },
     ],
@@ -310,7 +310,7 @@
   },
   track_2_2: {
     size: "small",
-    connectedNodes: ["track_1_1"],
+    connectedNodes: ["track_1_1", "track_2_1", "track_2_3"],
     isAttribute: true,
   },
   track_3_2: {
@@ -597,7 +597,7 @@
   },
   track_2_4: {
     size: "small",
-    connectedNodes: ["track_1_2"],
+    connectedNodes: ["track_1_2", "track_2_3", "track_2_5"],
     isAttribute: true,
   },
   track_3_4: {
@@ -831,7 +831,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "curseEnhance",
+        id: "curseAttack",
         level: 2,
       },
     ],
@@ -843,7 +843,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "curseEnhance",
+        id: "curseAttack",
         level: 4,
       },
     ],
@@ -855,7 +855,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "curseEnhance",
+        id: "curseAttack",
         level: 4,
       },
     ],
@@ -867,7 +867,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "curseEnhance",
+        id: "curseAttack",
         level: 10,
       },
     ],
@@ -887,7 +887,7 @@
   },
   track_2_6: {
     size: "small",
-    connectedNodes: ["track_1_3"],
+    connectedNodes: ["track_1_3", "track_2_5", "track_2_7"],
     isAttribute: true,
   },
   track_3_6: {
@@ -1132,7 +1132,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "unarmedEnhance",
+        id: "unarmedAttack",
         level: 2,
       },
     ],
@@ -1144,7 +1144,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "unarmedEnhance",
+        id: "unarmedAttack",
         level: 4,
       },
     ],
@@ -1156,7 +1156,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "unarmedEnhance",
+        id: "unarmedAttack",
         level: 4,
       },
     ],
@@ -1168,7 +1168,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "unarmedEnhance",
+        id: "unarmedAttack",
         level: 10,
       },
     ],
@@ -1188,7 +1188,7 @@
   },
   track_2_8: {
     size: "small",
-    connectedNodes: ["track_1_4"],
+    connectedNodes: ["track_1_4", "track_2_7", "track_2_9"],
     isAttribute: true,
   },
   track_3_8: {
@@ -1379,7 +1379,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "weaponEnhance",
+        id: "weaponAttack",
         level: 2,
       },
     ],
@@ -1391,7 +1391,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "weaponEnhance",
+        id: "weaponAttack",
         level: 4,
       },
     ],
@@ -1403,7 +1403,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "weaponEnhance",
+        id: "weaponAttack",
         level: 4,
       },
     ],
@@ -1415,7 +1415,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "weaponEnhance",
+        id: "weaponAttack",
         level: 10,
       },
     ],

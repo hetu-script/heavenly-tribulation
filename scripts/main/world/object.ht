@@ -4,6 +4,7 @@ const kEntityTypeObject = 'object'
 
 const kObjectCategoryPortal = 'portal'
 const kObjectCategoryWorldPortal = 'worldPortal'
+const kObjectCategoryDungeonEntrance = 'dungeonEntrance'
 const kObjectCategoryCharacter = 'character'
 const kObjectCategoryMerchant = 'merchant'
 const kObjectCategoryEnemy = 'enemy'
@@ -38,32 +39,6 @@ function discoverObject(object, terrain) {
 ///   blockMove: true
 /// }
 
-struct ObjectPortal {
-  constructor ({
-    id,
-    name,
-    hoverContent,
-    isDiscovered = true,
-    useCustomLogic = false,
-    targetLeft,
-    targetTop,
-  }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
-    this.name = name ?? engine.locale('portal')
-    this.hoverContent = hoverContent ?? this.name
-    this.entityType = kEntityTypeObject
-    this.category = kObjectCategoryPortal
-    this.isDiscovered = isDiscovered
-    this.useCustomLogic = useCustomLogic
-    this.targetTilePosition = {
-      left: targetLeft,
-      top: targetTop,
-    }
-
-    world.objects[this.id] = this
-  }
-}
-
 struct ObjectWorldPortal {
   constructor ({
     id,
@@ -92,26 +67,28 @@ struct ObjectWorldPortal {
   }
 }
 
-struct ObjectDungeonEntrance {
+struct ObjectPortal {
   constructor ({
     id,
     name,
     hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
-    dungeonId,
-    isTutorial = false,
-    rank,
+    targetLeft,
+    targetTop,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
-    this.name = name ?? engine.locale('dungeonEntrance')
+    this.name = name ?? engine.locale('portal')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectCategoryWorldPortal
+    this.category = kObjectCategoryPortal
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
-    this.dungeonId = dungeonId
-    this.isTutorial = isTutorial
+    this.targetTilePosition = {
+      left: targetLeft,
+      top: targetTop,
+    }
+
     world.objects[this.id] = this
   }
 }
@@ -150,18 +127,24 @@ struct ObjectMerchant {
       entityCollect(this.merchant, 'shard', amount: shard)
     }
 
-    if (category is List) {
-      for (var i in range(itemCount)) {
-        final c = category.random
-        assert(c in kItemCategoryKinds)
-        final k = kItemCategoryKinds[c].random
+    if (category is! List) {
+      category = [category]
+    }
+
+    for (var i in range(itemCount)) {
+      final c = category.random
+      if(c in kEquipmentCategoryKinds) {
+        final k = kEquipmentCategoryKinds[c].random
         final item = Equipment(kind: k, rank: rank)
         entityAcquire(this.merchant, item)
-      }
-    } else if (category is string) {
-      for (var i in range(itemCount)) {
-        final item = Equipment(category: category, rank: rank)
+      } else if (c == kItemCategoryCardpack) {
+        final item = Cardpack(rank: rank)
         entityAcquire(this.merchant, item)
+      } else if (c == kItemCategoryPotion) {
+        final item = Potion(rank: rank)
+        entityAcquire(this.merchant, item)
+      } else {
+        engine.warn('未知的商人商品类别：${c}')
       }
     }
 
@@ -194,7 +177,7 @@ struct ObjectEnemy {
       level: level,
       rank: rank,
     )
-    Game.characterAllocateSkills(this.battleEntity)
+    Game.characterAllocateSkills(this.battleEntity, rejuvenate: true)
     generateDeck(this.battleEntity, maxOutLevel: isElite)
 
     world.objects[this.id] = this
@@ -235,7 +218,7 @@ struct ObjectBed {
 ///   {
 ///     type: 'equipment',
 ///     kind: 'sword',
-///     rarity: 'basic',
+///     rarity: 'common',
 ///     rank: 0,
 ///     level: 0,
 ///   },

@@ -8,11 +8,13 @@ class SiteCard extends StatelessWidget {
     required this.siteData,
     this.imagePath,
     this.onTap,
+    this.onSecondaryTap,
   });
 
   final dynamic siteData;
   final String? imagePath;
   final void Function(String siteId)? onTap;
+  final void Function(String siteId, TapUpDetails details)? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,8 @@ class SiteCard extends StatelessWidget {
             child: InkWell(
               borderRadius: GameUI.borderRadius,
               onTap: () => onTap?.call(siteData['id']),
+              onSecondaryTapUp: (details) =>
+                  onSecondaryTap?.call(siteData['id'], details),
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(

@@ -3,11 +3,6 @@
 // import '../entity/entity.ht'
 // import '../common.ht'
 
-const kCardGenres = [
-  null,
-  ...kCultivationGenres,
-]
-
 function getCardRankUpProbability(rank) {
   if (rank == 0) return 1.0
   if (rank >= kCultivationRankMax) return 0.0
@@ -110,7 +105,7 @@ struct BattleCard {
         level = minLevel + random.distantInt(maxLevel - minLevel)
       }
     } else {
-      level = level.clamp(minLevel, maxLevel)
+      level = level.clamp(Math.max(1, minLevel), maxLevel)
     }
     this.level = level
     
@@ -259,10 +254,7 @@ function _addExtraAffixes(card) {
   let extraAffixCount = affixCountInfo.minExtra
   if (affixCountInfo.maxExtra == 0) return
   if (extraAffixCount < affixCountInfo.maxExtra) {
-    let r = random.nextDouble()
-    if (r > kThresholdOfExtraAffix) {
-      ++extraAffixCount
-    }
+    extraAffixCount += random.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
   }
   
   for (var i = 0; i < extraAffixCount; ++i) {
@@ -289,6 +281,7 @@ function _addExtraAffixes(card) {
 //   return null
 // }
 
+/// 增加一个额外词条
 function addAffix(card) {
   let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
   // 这里判断的时候要 +1 因为主词条本身也在 length 中
@@ -302,7 +295,7 @@ function addAffix(card) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
   
-  final cost = Game.getCardCraftOperationCost('addAffix', card)
+  final cost = getCardCraftOperationCost('addAffix', card)
   if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
@@ -319,6 +312,7 @@ function addAffix(card) {
   return null
 }
 
+/// 重置额外词条的数值
 function rerollAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && affix.valueData != null)
@@ -328,23 +322,27 @@ function rerollAffix(card) {
     return engine.locale('deckbuilding_rerollAffix_warning')
   }
   
-  final cost = Game.getCardCraftOperationCost('rerollAffix', card)
+  final cost = getCardCraftOperationCost('rerollAffix', card)
   if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
   hero.exp -= cost
+  
+  final minLevel = minLevelForRank(card.rank)
+  final maxLevel = maxLevelForRank(card.rank)
+  card.level = minLevel + random.distantInt(maxLevel - minLevel)
+  
+  _updateMainAffixValue(this)
 
-  final affix = random.nextIterable(extraAffixes)
-
-  _randomizeAffixLevel(card, affix)
-
-  // _updateRequirementsOfCard(card)
-  // _updateCardTags(card)
+  for (final affix in extraAffixes) {
+    _randomizeAffixLevel(card, affix)
+  }
 
   // 这里显式返回空值表明成功执行
   return null
 }
 
+/// 替换一个额外词条
 function replaceAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain)
@@ -354,7 +352,7 @@ function replaceAffix(card) {
     return engine.locale('deckbuilding_replaceAffix_warning')
   }
 
-  final cost = Game.getCardCraftOperationCost('replaceAffix', card)
+  final cost = getCardCraftOperationCost('replaceAffix', card)
   if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
@@ -375,28 +373,7 @@ function replaceAffix(card) {
   return null
 }
 
-function upgradeCard(card) {
-  final maxLevel = maxLevelForRank(card.rank)
-  if (card.level >= maxLevel) {
-    return engine.locale('deckbuilding_upgradeCard_warning')
-  }
-
-  final cost = Game.getCardCraftOperationCost('upgradeCard', card)
-  if (hero.exp < cost) {
-    return engine.locale('hint_notEnoughExp')
-  }
-  hero.exp -= cost
-
-  card.level += 1
-
-  _updateMainAffixValue(card)
-
-  // _updateRequirementsOfCard(card)
-  
-  // 这里显式返回空值表明成功执行
-  return null
-}
-
+/// 升级卡牌境界
 function upgradeRank(card) {
   if (card.rank >= kCultivationRankMax) {
     return engine.locale('deckbuilding_upgradeRank_warning_maxRank')
@@ -404,10 +381,10 @@ function upgradeRank(card) {
   
   final nextRankMinLevel = minLevelForRank(card.rank + 1)
   if (card.level < nextRankMinLevel) {
-    return engine.locale('deckbuilding_upgradeRank_warning')
+    return engine.locale('deckbuilding_upgradeRank_warning', interpolations: [nextRankMinLevel])
   }
 
-  final cost = Game.getCardCraftOperationCost('upgradeRank', card)
+  final cost = getCardCraftOperationCost('upgradeRank', card)
   if (hero.exp < cost) {
     return engine.locale('hint_notEnoughExp')
   }
@@ -455,8 +432,15 @@ function dismantle(card) {
   return info
 }
 
+/// 升级卡牌等级
+/// 这个操作并非打造操作，而是某些卡牌词条效果可能会用到
+function upgradeCard(card) {
+  card.level += 1
+  _updateMainAffixValue(card)
+}
+
 /// 卡牌包是一种特殊物品，每个卡牌包包含3张牌
-/// 其中一张必然是指定的境界、流派和类型的卡牌
+/// 其中一张必然是指定的类别、流派、境界和类型的卡牌
 /// 另外两张则是随机卡牌，但境界不会超过卡包本身的境界
 /// 如果 isBasic 为 true，则另外两张卡牌不会有装备和流派要求
 struct Cardpack {
@@ -467,7 +451,7 @@ struct Cardpack {
     kind,
     isBasic = false,
   }) {
-    assert(genre == null || genre == 'general' || kCultivationGenres.contains(genre), genre)
+    assert(genre == null || genre == 'general' || Constants.cultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
     assert(kind == null || kBattleCardKind.contains(kind), kind)
     this.entityType = kEntityTypeItem
@@ -489,7 +473,7 @@ struct Cardpack {
 
     this.id = crypto.randomUID(withTime: true)
     final rankString = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
-    final genreString = genre != null ? engine.locale(genre) + engine.locale('genre2') : ''
+    final genreString = genre != null ? engine.locale(genre) : ''
     final kindString = kind != null ? engine.locale('kind_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
     this.icon = 'item/cardpack.png'

@@ -169,7 +169,7 @@
   "status_energy_positive_leech": "正气",
   "status_energy_positive_leech_description": "回合结束时，若造成了伤害，消耗 1 层正气，恢复伤害值 10% 的生命",
   "status_energy_positive_pure": "豪气",
-  "status_energy_positive_pure_description": "当你攻击时，消耗 1 层豪气，使攻击有 10% 几率获得 100% 防御穿透。",
+  "status_energy_positive_pure_description": "发动攻击时，消耗 1 层豪气，本回合获得 10% 防御穿透。",
   "status_energy_positive_spell": "灵气",
   "status_energy_positive_spell_description": "每层灵气使你的法术攻击伤害 +1。",
   "status_energy_positive_weapon": "剑气",

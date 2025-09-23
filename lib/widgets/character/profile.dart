@@ -143,10 +143,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
       );
     }
 
-    for (final id in kWorldViews) {
-      createLabel(id);
-    }
-
     for (final id in kPersonalities) {
       createLabel(id);
     }
@@ -507,7 +503,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                           ],
                         ),
                         Wrap(
-                          children: kPersonalities
+                          children: kPersonalitiesWithoutWorldViews
                               .map((id) => personalityWidgets[id]!)
                               .toList(),
                         ),
@@ -549,7 +545,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                           race: _character['race'],
                           icon: _character['icon'],
                           illustration: _character['illustration'],
-                          model: _character['model'],
+                          skin: _character['skin'],
                         ),
                       );
                       if (value == null) return;
@@ -561,7 +557,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         race,
                         icon,
                         illustration,
-                        model,
+                        skin,
                       ) = value;
                       _character['surName'] = surName;
                       assert(shortName != null && shortName.isNotEmpty);
@@ -569,7 +565,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       _character['name'] = (surName ?? '') + shortName;
                       _character['isFemale'] = isFemale;
                       _character['race'] = race;
-                      _character['model'] = model;
+                      _character['skin'] = skin;
                       _character['icon'] = icon;
                       _character['illustration'] = illustration;
                       if (id != null && id != _character['id']) {

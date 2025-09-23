@@ -5,10 +5,11 @@
   "debugQuest": "日志测试",
   "debugMerchant": "交易测试",
   "debugMaterialMerchant": "资源交易测试",
+  "debugWorkbench": "工坊测试",
+  "debugAutoAllocateSkills": "自动加点测试",
   "debugCompanion": "伙伴测试",
   "debugBattle": "战斗测试",
   "debugTribulation": "天道测试",
-  "debugAutoAllocateSkills": "自动加点测试",
 
   "debugDialog_content1": "萧墨！我这次一定会从<bold yellow>祝有芒</>手中救出你的！我去过了一切的源头，我知道了<color=#C65043 link=test>一切的真相</>！",
   "debugDialog_content2": "你是谁？为什么知道我的名字？这是什么地方？"

@@ -83,15 +83,15 @@
   "affix_defend_psychic": "精神防御 +{0}",
   "affix_defend_psychic_exhaust_karma": "使用 {0} 点煞气：精神防御 +{1}",
 
-  "affix_heal": "回复 {0} 生命",
-  "affix_vigor": "获得 {0} 元气",
+  "affix_heal": "生命 +{0}",
+
+  "affix_vigor": "元气 +{0}",
+  "affix_mana": "灵气 +{0}",
+  "affix_chakra": "剑气 +{0}",
+  "affix_rage": "怒气 +{0}",
+  "affix_karma": "煞气 +{0}",
 
   "affix_heal_exhaust_mana": "使用 {0} 灵气：回复 {1}% 生命",
-
-  "affix_mana": "获得 {0} 灵气",
-  "affix_chakra": "获得 {0} 剑气",
-  "affix_rage": "获得 {0} 怒气",
-  "affix_karma": "获得 {0} 煞气",
 
   "affix_speed_quick": "速度 +{0}",
   "affix_dodge_nimble": "闪避 +{0}",

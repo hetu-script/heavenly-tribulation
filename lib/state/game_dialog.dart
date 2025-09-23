@@ -344,20 +344,20 @@ class GameDialog with ChangeNotifier, TaskController {
           selections[value] = engine.locale(value);
         } else if (value is Map || value is HTStruct) {
           assert(value['text'] != null,
-              'Dialog.pushDialogSelection: invalid selection value data, text is null. $value');
+              'Dialog.pushSelection: invalid selection value data, text is null. $value');
           final keyData = {};
           keyData['text'] = engine.locale(value['text']);
           keyData['description'] = engine.locale(value['description']);
           selections[value['text']] = keyData;
         } else {
-          throw 'Dialog.pushDialogSelection: locales must be a List<String> or a Map<String, String>.';
+          throw 'Dialog.pushSelection: locales must be a List<String> or a Map<String, String>.';
         }
       }
     } else if (locales is Map || locales is HTStruct) {
       for (final key in locales.keys) {
         final value = locales[key];
         assert(value is Map || value is HTStruct,
-            'Dialog.pushDialogSelection: invalid selection data. $value');
+            'Dialog.pushSelection: invalid selection data. $value');
         final keyData = {};
         if (value['text'] != null) {
           keyData['text'] = engine.locale(value['text']);
@@ -368,7 +368,7 @@ class GameDialog with ChangeNotifier, TaskController {
         selections[key] = keyData;
       }
     } else {
-      throw 'Dialog.pushDialogSelection: locales must be a List<String> or a Map<String, String>.';
+      throw 'Dialog.pushSelection: locales must be a List<String> or a Map<String, String>.';
     }
     return pushSelectionRaw({'id': id, 'selections': selections});
   }

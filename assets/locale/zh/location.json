@@ -10,11 +10,14 @@
   "residence": "住所",
   "cityhall": "总堂",
   "cultivationStele": "定灵碑",
-
-  "arena": "斗技场",
-  "library": "藏书阁",
   "tradinghouse": "交易所",
+
+  "library": "藏书阁",
+  "stele": "定灵碑",
+  "arena": "斗技场",
+  "militarypost": "指挥所",
   "auctionhouse": "拍卖行",
+  "hotel": "酒楼",
 
   "mine": "矿场",
   "timberland": "林场",
@@ -22,13 +25,16 @@
   "huntingground": "猎场",
   "fishery": "渔场",
 
+  "dungeonEntrance": "秘境",
+
   "workshop": "工坊",
   "workbench": "工作台",
   "alchemylab": "丹房",
+  "alchemy_furnace": "丹炉",
   "arraylab": "阵法所",
   "divinationaltar": "占卜祭坛",
   "illusionaltar": "百幻堂",
-  "psychictemple": "通灵殿",
+  "psychictemple": "通灵居",
   "theurgytemple": "显圣殿",
 
   "nursery": "苗圃",

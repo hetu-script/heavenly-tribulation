@@ -3,6 +3,8 @@ import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/paint/paint.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
+import '../../game/ui.dart';
+
 class BorderedIconButton extends StatelessWidget {
   const BorderedIconButton({
     super.key,
@@ -11,9 +13,8 @@ class BorderedIconButton extends StatelessWidget {
     this.child,
     this.padding = const EdgeInsets.all(0.0),
     this.borderRadius = 0.0,
-    this.borderColor = Colors.white54,
     this.borderWidth = 1.0,
-    this.onTapUp,
+    this.onPressed,
     this.onMouseEnter,
     this.onMouseExit,
     this.isSelected = false,
@@ -25,12 +26,11 @@ class BorderedIconButton extends StatelessWidget {
   final Widget? child;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-  final Color borderColor;
   final double borderWidth;
   final bool isSelected;
   final bool isEnabled;
 
-  final Function()? onTapUp;
+  final Function()? onPressed;
   final Function(Rect rect)? onMouseEnter;
   final Function()? onMouseExit;
 
@@ -44,7 +44,7 @@ class BorderedIconButton extends StatelessWidget {
           mouseCursor: MouseCursor.defer,
           onTapUp: (details) {
             if (!isEnabled) return;
-            onTapUp?.call();
+            onPressed?.call();
           },
           child: MouseRegion2(
             cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
@@ -60,11 +60,13 @@ class BorderedIconButton extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color:
-                    isSelected ? Theme.of(context).colorScheme.primary : null,
+                    isSelected ? GameUI.focusedColorOpaque : Colors.transparent,
                 borderRadius: BorderRadius.circular(borderRadius),
                 border: borderWidth > 0
                     ? Border.all(
-                        color: borderColor,
+                        color: isSelected
+                            ? GameUI.selectedColorOpaque
+                            : GameUI.outlineColor,
                         width: borderWidth,
                       )
                     : null,

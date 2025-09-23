@@ -245,7 +245,7 @@ function generateRewardList({probability: {}, entity}) {
 
 async function selectHeroAttribute() {
   final selections = {};
-  for (final key in kBattleAttributes) {
+  for (final key in Constants.battleAttributes) {
     final attrName = engine.locale(key)
     final attrDescription = engine.locale('${key}_description')
     selections[key] = {
@@ -256,7 +256,7 @@ async function selectHeroAttribute() {
   }
   selections['cancel'] = engine.locale('cancel')
 
-  Dialog.pushSelection({
+  Dialog.pushSelectionRaw({
     id: 'selectedAttribute',
     selections: selections,
   })
@@ -415,10 +415,10 @@ async function onBeforeMove(terrain) {
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
   } else {
-    if (kTerrainKindsWater.contains(terrain.kind)) {
+    if (Constants.terrainKindsWater.contains(terrain.kind)) {
       Dialog.pushDialog('hint_ship')
       Dialog.execute()
-    } else if (kTerrainKindsMountain.contains(terrain.kind)) {
+    } else if (Constants.terrainKindsMountain.contains(terrain.kind)) {
       Dialog.pushDialog('hint_boots')
       Dialog.execute()
     }

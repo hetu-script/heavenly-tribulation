@@ -17,11 +17,14 @@ namespace Game {
   external function updateGame({
     tick = 1,
     timeflow = true,
-    autoCultivate = false,
-    autoWork = false,
+    forceUpdate = false,
   })
 
   external function updateHistory()
+
+  external function updateDungeon(dungeon)
+
+  external function characterAllocateSkills(character, {rejuvenate = false} )
 
   external function hideNpc(id)
 
@@ -62,5 +65,4 @@ namespace Game {
     filter,
   })
 
-  external function characterAllocateSkills(character)
 }

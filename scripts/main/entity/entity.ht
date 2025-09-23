@@ -8,15 +8,6 @@ const kNonBattleAttributes = [
   'luck',
 ]
 
-// 战斗属性决定了角色战斗流派
-const kBattleAttributes = [
-  'spirituality',
-  'dexterity',
-  'strength',
-  'willpower',
-  'perception',
-]
-
 const kAttributeToGenre = {
   'spirituality': 'spellcraft',
   'dexterity': 'swordcraft',
@@ -39,90 +30,59 @@ const kRaceNames = [
   'yaozu'
 ]
 
-const kCultivationGenres = [
-  'spellcraft',
-  'swordcraft',
-  'bodyforge',
-  'avatar',
-  'vitality',
-]
-
-const kCultivationRankMax = 8
+const kCultivationRankMax = 5
 
 final kBattleCardKind = skillData.keys.toList()
 
-const kBasic = 'basic' // 未知
-const kCommon = 'common' // 凡品：生成数量没有限制
-const kUncommon = 'uncommon' // 良品：每9世界大小
-const kRare = 'rare' // 上品：每18世界大小
-const kEpic = 'epic' // 极品：每36世界大小
-const kLegendary = 'legendary' // 神品：每72世界大小
-const kUnique = 'unique' // 秘宝：每144世界大小
-const kMythic = 'mythic' // 灵宝：每288世界大小
-const kArcane = 'arcane' // 古宝：每576世界大小
+const kRarityCommon = 'common' // 凡品：生成数量没有限制
+const kRarityRare = 'rare' // 良品：每18世界大小
+const kRarityEpic = 'epic' // 极品：每36世界大小
+const kRarityLegendary = 'legendary' // 神品：每72世界大小
+const kRarityMythic = 'mythic' // 灵宝：每144世界大小
+const kRarityArcane = 'arcane' // 古宝：每288世界大小
 
 const kRarity = {
   /// 未分类 黑
-  basic: {
+  common: {
     rank: 0,
-    name: 'basic',
+    rarity: 0.55,
+    name: 'common',
     color: '#CCCCCC',
   },
   /// 凡品 灰
-  common: {
+  rare: {
     rank: 1,
-    rarity: 0.51,
-    name: 'common',
+    rarity: 0.23,
+    name: 'rare',
     color: '#D4FFFF',
   },
-  /// 良品 蓝灰
-  uncommon:{
+  /// 良品 蓝
+  epic:{
     rank: 2,
-    rarity: 0.255,
+    rarity: 0.12,
     name: 'uncommon',
     color: '#9D9DFF',
   },
-  /// 上品 蓝
-  rare:{
+  /// 上品 紫
+  legendary:{
     rank: 3,
-    rarity: 0.12,
+    rarity: 0.06,
     name: 'rare',
     color: '#693DA8',
   },
-  /// 极品 紫
-  epic: {
+  /// 极品 金
+  mythic: {
     rank: 4,
-    rarity: 0.06,
+    rarity: 0.03,
     name: 'epic',
     color: '#E7E7AC',
   },
   /// 神品 金
-  legendary: {
-    rank: 5,
-    rarity: 0.03,
-    name: 'legendary',
-    color: '#DBDB72',
-  },
-  /// 秘宝 橙
-  unique: {
-    rank: 6,
-    rarity: 0.015,
-    name: 'unique',
-    color: '#62CC39',
-  },
-  /// 古宝 红
-  mythic: {
-    rank: 7,
-    rarity: 0.007,
-    name: 'mythic',
-    color: '#C65043',
-  },
-  /// 灵宝 暗红
   arcane: {
-    rank: 8,
-    rarity: 0.003,
+    rank: 5,
+    rarity: 0.01,
     name: 'arcane',
-    color: '#983030',
+    color: '#C65043',
   },
 }
 
@@ -132,19 +92,15 @@ function getRarity({ name }) {
     return kRarity[name]
   } else {
     const r = random.nextDouble()
-    if (r > kRarity.common.rarity) {
-      return kRarity.common.name
-    } else if (r > kRarity.uncommon.rarity) {
-      return kRarity.uncommon
-    } else if (r > kRarity.rare.rarity) {
+    if (r < kRarity.common.rarity) {
+      return kRarity.common
+    } else if (r < kRarity.rare.rarity) {
       return kRarity.rare
-    } else if (r > kRarity.epic.rarity) {
+    } else if (r < kRarity.epic.rarity) {
       return kRarity.epic
-    } else if (r > kRarity.legendary.rarity) {
+    } else if (r < kRarity.legendary.rarity) {
       return kRarity.legendary
-    } else if (r > kRarity.unique.rarity) {
-      return kRarity.unique
-    } else if (r > kRarity.mythic.rarity) {
+    } else if (r < kRarity.mythic.rarity) {
       return kRarity.mythic
     } else {
       return kRarity.arcane
@@ -171,15 +127,12 @@ const kEntityTypeLocation = 'location' // game.locations
 const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 const kRankRarity = {
-  '0': 'basic',
-  '1': 'common',
-  '2': 'uncommon',
-  '3': 'rare',
-  '4': 'epic',
-  '5': 'legendary',
-  '6': 'unique',
-  '7': 'mythic',
-  '8': 'arcane',
+  '0': 'common',
+  '1': 'rare',
+  '2': 'epic',
+  '3': 'legendary',
+  '4': 'mythic',
+  '5': 'arcane',
 }
 
 function getRandomLevel(min, max) {
@@ -187,7 +140,7 @@ function getRandomLevel(min, max) {
   return  min + random.nextInt(max - min + 1)
 }
 
-// 额外词条数量，卡牌和装备共用一个算法
+/// 获取额外词条数量，卡牌和装备共用一个算法
 function getMinMaxExtraAffixCount(rank) {
   assert(rank >= 0 && rank <= kCultivationRankMax)
   let minExtra = 0
@@ -195,14 +148,12 @@ function getMinMaxExtraAffixCount(rank) {
   let minGreater = 0
   let maxGreater = 0
   if (rank > 0) {
-    if (rank < 5) {
-      minExtra = rank - 1
-      maxExtra = rank
-    } else {
-      minExtra = maxExtra = 4
-      minGreater = rank - 5
-      maxGreater = rank - 4
-    }
+    minExtra = rank - 1
+    maxExtra = rank + 1
+  }
+  if (rank > 2) {
+    minGreater = rank - 3
+    maxGreater = rank - 2
   }
   return { minExtra, maxExtra, minGreater, maxGreater }
 }
@@ -238,33 +189,5 @@ function tryChangeStats(entity, statName, change, { overflow = false }) {
   data[statName] = value
   return residue
 }
-
-const kLocationCityKinds = [
-  'inland',
-  'harbor',
-  'island',
-  'mountain',
-]
-
-const kLocationSiteKinds = [
-  'home',
-  'headquarters',
-  'cityhall',
-  'arena',
-  'library',
-  'tradinghouse',
-  'auctionhouse',
-  'psychictemple',
-  'theurgytemple',
-  'mine',
-  'timberland',
-  'farmland',
-  'huntingground',
-  'workshop',
-  'arraylab',
-  'alchemylab',
-  'illusionaltar',
-  'divinationaltar',
-]
 
 const kThresholdOfExtraAffix = 0.65

@@ -15,7 +15,7 @@ class HistoryView extends StatelessWidget {
   final dynamic character;
   final bool isHero;
 
-  static final List<Tab> _tabs = <Tab>[
+  static List<Tab> tabs = <Tab>[
     Tab(text: engine.locale('experienced')),
     Tab(text: engine.locale('known')),
   ];
@@ -23,13 +23,13 @@ class HistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _tabs.length,
+      length: tabs.length,
       child: Column(
         children: [
           PreferredSize(
             preferredSize: const Size.fromHeight(kNestedTabBarHeight),
             child: TabBar(
-              tabs: _tabs,
+              tabs: tabs,
             ),
           ),
           Expanded(

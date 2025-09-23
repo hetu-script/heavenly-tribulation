@@ -21,12 +21,11 @@ import '../../common.dart';
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。
 class CardLibraryZone extends GameComponent with HandlesGesture {
-  static const _indent = 20.0;
   // static final _firstCardPos = Vector2(_indent, kDeckZoneHeight + _indent);
 
   // late final SpriteComponent background;
 
-  double _leftIndent = 0.0;
+  // double _leftIndent = 0.0;
 
   late final PositionComponent container;
 
@@ -60,24 +59,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   FilterByOptions _filterByOptions = FilterByOptions.all;
   FilterByOptions get filterByOptions => _filterByOptions;
 
-  List<DeckBuildingZone> preloadBuildingZones = [];
-
   void Function(CustomGameCard card)? onCardPreviewed;
   void Function()? onCardUnpreviewed;
-
-  @override
-  void onMount() {
-    super.onMount();
-
-    for (final zone in preloadBuildingZones) {
-      for (final cardId in zone.preloadCardIds) {
-        final card = library[cardId];
-        assert(card != null, 'Card $cardId not found in library');
-        zone.tryAddCard(card!, animated: false, clone: true);
-      }
-      zone.collapse(animated: false);
-    }
-  }
 
   CardLibraryZone({
     Sprite? stackSprite,
@@ -91,12 +74,13 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     if (stackSprite != null) this.stackSprite = stackSprite;
 
     _cardsLimitInRow =
-        (GameUI.libraryZoneSize.x / (GameUI.libraryCardSize.x + _indent))
-            .floor();
-    _leftIndent = (GameUI.libraryZoneSize.x -
-            (GameUI.libraryCardSize.x * _cardsLimitInRow +
-                GameUI.indent * (_cardsLimitInRow - 1))) /
-        2;
+        (GameUI.libraryZoneSize.x / (GameUI.libraryCardSize.x + GameUI.indent))
+            .ceil();
+    // _leftIndent = (GameUI.libraryZoneSize.x -
+    //         (GameUI.libraryCardSize.x * _cardsLimitInRow +
+    //             GameUI.indent * (_cardsLimitInRow - 1))) /
+    //     2;
+
     assert(_cardsLimitInRow > 0);
 
     onDragIn = (int button, Vector2 position, GameComponent? component) {
@@ -341,12 +325,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   bool containsCard(String cardId) => library.containsKey(cardId);
 
   Vector2 _generateNextCardPosition() {
-    final posX = _leftIndent +
-        (_curCardPosX * GameUI.libraryCardSize.x) +
-        (_curCardPosX * _indent);
-    final posY = _indent +
-        (_curCardPosY * GameUI.libraryCardSize.y) +
-        (_curCardPosY * _indent);
+    final posX = _curCardPosX * (GameUI.libraryCardSize.x + GameUI.indent);
+    final posY = _curCardPosY * (GameUI.libraryCardSize.y + GameUI.indent);
 
     ++_curCardPosX;
     if (_curCardPosX >= _cardsLimitInRow) {

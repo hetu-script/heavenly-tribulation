@@ -107,11 +107,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
                       Text(GameData.hero['name']),
                       CurrencyBar(entity: GameData.hero),
                       if (widget.materialMode)
-                        MaterialStorage(
+                        MaterialList(
                           entity: GameData.hero,
                           height: 312.0,
                           priceFactor: priceFactor,
-                          isSell: true,
+                          type: MaterialListType.sell,
                           selectedItem: _selectedHeroMaterialId,
                           onSelectedItem: (item) {
                             setState(() {
@@ -130,7 +130,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             type: ItemType.customer,
                             priceFactor: priceFactor,
                             selectedItemId: _selectedHeroItemsData.keys,
-                            onTapped: (itemData, screenPosition) {
+                            onItemTapped: (itemData, screenPosition) {
                               if (_selectedHeroItemsData
                                   .containsKey(itemData['id'])) {
                                 _selectedHeroItemsData.remove(itemData['id']);
@@ -333,7 +333,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                         type: widget.type,
                       ),
                       if (widget.materialMode)
-                        MaterialStorage(
+                        MaterialList(
                           entity: widget.merchantData,
                           height: 312.0,
                           priceFactor: priceFactor,
@@ -355,7 +355,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             type: ItemType.merchant,
                             priceFactor: priceFactor,
                             selectedItemId: _selectedMerchantItemsData.keys,
-                            onTapped: (itemData, screenPosition) {
+                            onItemTapped: (itemData, screenPosition) {
                               if (_selectedMerchantItemsData
                                   .containsKey(itemData['id'])) {
                                 _selectedMerchantItemsData
@@ -449,6 +449,14 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                 'collect',
                                 namespace: 'Player',
                                 positionalArgs: [_selectedMerchantMaterialId],
+                                namedArgs: {'amount': amount},
+                              );
+                              engine.hetu.invoke(
+                                'entityExhaust',
+                                positionalArgs: [
+                                  widget.merchantData,
+                                  _selectedMerchantMaterialId
+                                ],
                                 namedArgs: {'amount': amount},
                               );
                               setState(() {

@@ -2,7 +2,6 @@ import 'package:hetu_script/errors.dart';
 import 'package:hetu_script/binding.dart';
 
 import '../common.dart';
-import '../scene/common.dart';
 
 class ConstantsBinding extends HTExternalClass {
   ConstantsBinding() : super('Constants');
@@ -13,8 +12,6 @@ class ConstantsBinding extends HTExternalClass {
     switch (id) {
       case 'Constants.races':
         return kRaces;
-      case 'Constants.worldViews':
-        return kWorldViews;
       case 'Constants.personalities':
         return kPersonalities;
       case 'Constants.battleAttributes':
@@ -27,8 +24,12 @@ class ConstantsBinding extends HTExternalClass {
         return kCultivationGenres;
       case 'Constants.locationCityKinds':
         return kLocationCityKinds;
+      case 'Constants.locationSiteKinds':
+        return kLocationSiteKinds;
+      case 'Constants.siteKindsBuildable':
+        return kSiteKindsBuildable;
       case 'Constants.siteKindsManagable':
-        return kLocationSiteKindsManagable;
+        return kSiteKindsManagable;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constnats.damageTypes':
@@ -55,8 +56,8 @@ class ConstantsBinding extends HTExternalClass {
         return kMinBuyRate;
       case 'Constants.basePriceOfMaterialKind':
         return kMaterialBasePriceByKind;
-      case 'Constants.terrainKindsCity':
-        return kTerrainKindCity;
+      case 'Constants.basePriceByCategory':
+        return kItemBasePriceByCategory;
       case 'Constants.terrainKindsLand':
         return kTerrainKindsLand;
       case 'Constants.terrainKindsWater':

@@ -21,7 +21,7 @@ class CharacterMemory extends StatefulWidget {
     this.tabIndex = 0,
     this.mode = InformationViewMode.view,
     this.isHero = false,
-  }) : assert(isHero == (mode == InformationViewMode.view));
+  });
 
   final String? characterId;
 
@@ -41,7 +41,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
     with SingleTickerProviderStateMixin {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
-  final _tabs = <Tab>[
+  static List<Tab> tabs = [
     Tab(text: engine.locale('history')),
     Tab(text: engine.locale('bonds')),
   ];
@@ -86,7 +86,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
       _bondsData = data;
     }
 
-    _tabController = TabController(vsync: this, length: _tabs.length);
+    _tabController = TabController(vsync: this, length: tabs.length);
     // _tabController.addListener(() {
     //   setState(() {
     //     if (_tabController.index == 0) {
@@ -113,7 +113,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
       children: [
         TabBar(
           controller: _tabController,
-          tabs: _tabs,
+          tabs: tabs,
         ),
         SizedBox(
           height: GameUI.profileWindowSize.y - 140,

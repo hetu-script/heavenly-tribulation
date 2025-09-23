@@ -70,11 +70,11 @@ class EquipmentBar extends StatelessWidget {
     );
 
     return switch (style) {
-      EquipmentBarStyle.vertical => Container(
+      EquipmentBarStyle.vertical => SizedBox(
           height: (gridSize.width + 4.0) * character['equipments'].length,
           child: Column(children: children),
         ),
-      EquipmentBarStyle.horizontal => Container(
+      EquipmentBarStyle.horizontal => SizedBox(
           width: (gridSize.width + 4.0) * character['equipments'].length,
           child: Row(children: children),
         ),

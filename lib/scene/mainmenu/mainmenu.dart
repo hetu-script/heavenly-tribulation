@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/state/states.dart';
 import 'package:samsara/samsara.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +7,7 @@ import 'mainmenu_buttons.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../game/data.dart';
 import '../../engine.dart';
+import '../../state/states.dart';
 
 class MainMenuScene extends Scene {
   MainMenuScene({
@@ -33,15 +33,16 @@ class MainMenuScene extends Scene {
         'generateHero',
         namespace: 'Debug',
         namedArgs: {
-          'level': 6,
+          'level': 10,
           'rank': 1,
         },
       );
-      context.read<HeroState>().update();
-      context.read<HeroInfoVisibilityState>().setVisible(true);
-      context.read<GameTimestampState>().update();
-      context.read<HeroAndGlobalHistoryState>().update();
     }
+    context.read<HeroState>().update();
+    context.read<HeroInfoVisibilityState>().setVisible(true);
+    context.read<GameTimestampState>().update();
+    context.read<HeroAndGlobalHistoryState>().update();
+    context.read<NpcListState>().update();
 
     context.read<HeroPositionState>().updateTerrain(
           currentZoneData: null,

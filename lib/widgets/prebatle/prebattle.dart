@@ -220,7 +220,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         BorderedIconButton(
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
-                          onTapUp: () {
+                          onPressed: () {
                             context
                                 .read<ViewPanelState>()
                                 .toogle(ViewPanels.characterDetails);
@@ -228,7 +228,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverContentState>()
-                                .show(engine.locale('build'), rect);
+                                .show(engine.locale('equipments'), rect);
                           },
                           onMouseExit: () {
                             context.read<HoverContentState>().hide();
@@ -241,7 +241,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         BorderedIconButton(
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
-                          onTapUp: () {
+                          onPressed: () {
                             engine.pushScene(Scenes.cultivation);
                           },
                           onMouseEnter: (rect) {
@@ -260,7 +260,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         BorderedIconButton(
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
-                          onTapUp: () {
+                          onPressed: () {
                             engine.pushScene(Scenes.library);
                           },
                           onMouseEnter: (rect) {
@@ -302,11 +302,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                         widget.hero,
                                         isHero: true,
                                       );
+                                      setState(() {});
                                     });
                               },
                               child: Label(
                                 '${engine.locale('decks')}: ${_heroDecks.length}',
-                                width: 120.0,
+                                width: 100.0,
                               ),
                             ),
                           ),

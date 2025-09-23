@@ -60,7 +60,7 @@ abstract class GameUI {
 
   static const borderColor = Colors.white38;
 
-  static const foregroundColor = Colors.white70;
+  static const foregroundColor = Colors.white;
   static const foregroundColorPressed = Colors.white54;
   static final foregroundDiabled = Colors.grey[500];
 
@@ -83,6 +83,8 @@ abstract class GameUI {
   static final hoverColor = Colors.lightBlue.withAlpha(128);
   static final selectedColorOpaque = Colors.yellow;
   static final selectedColor = Colors.yellow.withAlpha(128);
+  static final outlineColorOpaque = Colors.white;
+  static final outlineColor = Colors.white54;
 
   /// 对话框遮罩背景颜色
   static final barrierColor = Colors.black87;
@@ -101,7 +103,7 @@ abstract class GameUI {
 
   static const captionStyle = TextStyle(
     fontFamily: GameUI.fontFamily,
-    fontSize: 18.0,
+    fontSize: 12.0,
   );
 
   static const textTheme = TextTheme(
@@ -133,7 +135,7 @@ abstract class GameUI {
     colorScheme: ColorScheme.dark(
       surface: backgroundColor2,
     ),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: barrierColor,
     ),
     dataTableTheme: DataTableThemeData(
@@ -148,7 +150,7 @@ abstract class GameUI {
       actionsIconTheme: iconTheme,
       titleTextStyle: captionStyle,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       elevation: 0.5,
       shape: RoundedRectangleBorder(
         borderRadius: borderRadius,
@@ -205,7 +207,7 @@ abstract class GameUI {
       valueIndicatorTextStyle: textTheme.bodyMedium,
       showValueIndicator: ShowValueIndicator.never,
     ),
-    tabBarTheme: TabBarTheme(
+    tabBarTheme: TabBarThemeData(
       labelStyle: textTheme.bodyMedium,
       unselectedLabelStyle: textTheme.bodyMedium,
     ),
@@ -215,6 +217,9 @@ abstract class GameUI {
     accentColor: fluent.Colors.teal,
     brightness: Brightness.dark,
     fontFamily: GameUI.fontFamily,
+    tooltipTheme: fluent.TooltipThemeData(
+      textStyle: textTheme.labelSmall,
+    ),
     buttonTheme: fluent.ButtonThemeData(
       defaultButtonStyle: fluent.ButtonStyle(
         shape: WidgetStatePropertyAll<ShapeBorder>(
@@ -364,7 +369,7 @@ abstract class GameUI {
 
   static final heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
   static final statusEffectIconSize = Vector2(24, 24);
-  static final permenantStatusEffectIconSize = Vector2(48, 48);
+  static final permanentStatusEffectIconSize = Vector2(48, 48);
   static const resourceBarHeight = 10.0;
 
   // cultivation ui
@@ -517,7 +522,7 @@ abstract class GameUI {
     //     indent,
     //     p1BattleDeckZonePosition.y -
     //         indent -
-    //         permenantStatusEffectIconSize.y -
+    //         permanentStatusEffectIconSize.y -
     //         battleCardFocusedSize.y -
     //         indent);
 
@@ -525,7 +530,7 @@ abstract class GameUI {
     //     size.x - indent - battleCardFocusedSize.x,
     //     p2BattleDeckZonePosition.y -
     //         indent -
-    //         permenantStatusEffectIconSize.y -
+    //         permanentStatusEffectIconSize.y -
     //         battleCardFocusedSize.y -
     //         indent);
 

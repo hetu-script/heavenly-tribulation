@@ -24,22 +24,48 @@ const kLocationKindResidence = 'residence'
 
 // 主角设置宅家宅后的默认场景
 const kLocationKindHome = 'home'
-// 门派总堂，每个门派在总部的默认建筑，用来管理门派
-const kLocationKindHeadquarters = 'headquarters'
 // 据点总堂，每个城市默认建筑，用来管理据点
 const kLocationKindCityhall = 'cityhall'
+// 交易所
+const kLocationKindTradingHouse = 'tradinghouse'
+// 门派总堂，每个门派在总部的默认建筑，用来管理门派
+const kLocationKindHeadquarters = 'headquarters'
+// 定灵碑，可以打坐获取经验值
+const kLocationKindStele = 'stele'
 // 藏书阁，交易所，拍卖行这三种建筑可以分别进行功法秘籍，材料和法宝的交易
 // 他们可能属于某个组织，也可能没有组织。
 // 交易所产生的物品、金钱等，存储于建筑本身，但可以由所有者提取。
 // 藏书阁
 const kLocationKindLibrary = 'library'
-// 交易所
-const kLocationKindTradingHouse = 'tradinghouse'
-// 拍卖行
-const kLocationKindAuctionHouse = 'auctionhouse'
-
 // 演武场
 const kLocationKindArena = 'arena'
+// 指挥所
+const kLocationKindMilitaryPost = 'militarypost'
+// 拍卖行
+const kLocationKindAuctionHouse = 'auctionhouse'
+// 酒楼
+const kLocationKindHotel = 'hotel'
+ 
+// 下面这些建筑对应于每种副职业
+// 工坊
+// 可以将谷物禽肉、兽肉、鱼肉加工成普通食物（材料）或者料理（单独的可使用物品）
+// 可以将原木加工成木材或纸张，石料加工成石材或矿石
+const kLocationKindWorkshop = 'workshop'
+// 丹药工坊
+const kLocationKindAlchemyLab = 'alchemylab'
+// 阵法工坊
+const kLocationKindArrayLab = 'arraylab'
+// 幻术祭坛
+const kLocationKindIllusionAltar= 'illusionaltar'
+// 卜卦祭坛
+const kLocationKindDivinationAltar = 'divinationaltar'
+// 炼魂祭坛
+const kLocationKindPsychicTemple = 'psychictemple'
+// 显圣祭坛
+const kLocationKindTheurgyTemple = 'theurgytemple'
+
+// 副本入口
+const kLocationDungeonEntrance = 'dungeon'
 
 // 下面这些属于对应材料的产地
 // 矿场
@@ -50,26 +76,6 @@ const kLocationKindTimberland = 'timberland'
 const kLocationKindFarmland = 'farmland'
 // 猎场
 const kLocationKindHuntingground = 'huntingground'
- 
-// 下面这些建筑对应于每种副职业
-// 工坊
-// 可以将谷物禽肉、兽肉、鱼肉加工成普通食物（材料）或者料理（单独的可使用物品）
-// 可以将原木加工成木材或纸张，石料加工成石材或矿石
-const kLocationKindWorkshop = 'workshop'
-// 阵法工坊
-const kLocationKindArrayLab = 'arraylab'
-// 符箓工坊
-// const kLocationKindScrollShop = 'scrollshop'
-// 丹药工坊
-const kLocationKindAlchemyLab = 'alchemylab'
-// 幻术祭坛
-const kLocationKindIllusionAltar= 'illusionaltar'
-// 卜卦祭坛
-const kLocationKindDivinationAltar = 'divinationaltar'
-// 炼魂祭坛
-const kLocationKindPsychicTemple = 'psychictemple'
-// 显圣祭坛
-const kLocationKindTheurgyTemple = 'theurgytemple'
 
 // number of plain city background count
 const _kCityPlainBackgroundCount = {
@@ -99,23 +105,27 @@ const kBaseItemReplenishAmount = 3
 const kBaseCollectableLightReplenishAmount = 10
 
 const kLocationKindPriority = {
-  'headquarters': 20,
-  'cityhall': 19,
-  'psychictemple': 18,
-  'theurgytemple': 17,
-  'arena': 16,
-  'library': 15,
-  'tradinghouse': 14,
-  'auctionhouse': 13,
-  'workshop': 12,
-  'alchemylab': 11,
-  'arraylab': 10,
-  'illusionaltar': 9,
-  'divinationaltar': 8,
-  'mine': 7,
-  'timberland': 6,
-  'farmland': 5,
-  'huntingground': 4,
+  'headquarters': 25,
+  'cityhall': 24,
+  'tradinghouse': 23,
+  'stele': 22,
+  'library': 21,
+  'arena': 20,
+  'militarypost': 19,
+  'auctionhouse': 18,
+  'hotel': 17,
+  'workshop': 16,
+  'alchemylab': 15,
+  'arraylab': 14,
+  'illusionaltar': 13,
+  'divinationaltar': 12,
+  'psychictemple': 11,
+  'theurgytemple': 10,
+  'dungeon': 8,
+  'mine': 4,
+  'timberland': 3,
+  'farmland': 2,
+  'huntingground': 1,
 }
 
 /// 据点、场景、建筑等
@@ -212,7 +222,7 @@ struct Location {
       this.image = image ?? 'location/card/${kind}.png'
       if (background != null) {
         this.background = background
-      } else if (kLocationSiteKinds.contains(kind)) {
+      } else if (Constants.locationSiteKinds.contains(kind)) {
         this.background = 'location/site/${kind}.png'
       }
 
@@ -222,6 +232,10 @@ struct Location {
     }
 
     assert(this.id != null)
+    if (game.locations.containsKey(this.id)) {
+      engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
+    }
+    game.locations[this.id] = this
 
     this.isHidden = isHidden ?? false
     this.isDiscovered = !isHidden
@@ -261,11 +275,6 @@ struct Location {
     this.inventory = {}
     this.materials = {}
 
-    if (game.locations.containsKey(this.id)) {
-      engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
-    }
-    game.locations[this.id] = this
-
     if (npcId) {
       assert(game.npcs.containsKey(npc.id))
       this.npcId = npc.id
@@ -300,7 +309,7 @@ struct Location {
           }
         }
         
-        /// 默认添加一个总堂建筑
+        /// 默认添加一个总堂建筑和一个交易所
         const cityhall = Location(
           id: this.id + '_cityhall',
           name: this.name + engine.locale('cityhall'),
@@ -317,17 +326,6 @@ struct Location {
           name: engine.locale('tradinghouse'),
           category: 'site',
           kind: kLocationKindTradingHouse,
-          atLocation: this,
-          organizationId: organizationId,
-          development: random.nextInt(this.development + 1),
-          createNpc: true,
-        )
-        
-        const auctionhouse = Location(
-          id: this.id + '_auctionhouse',
-          name: engine.locale('auctionhouse'),
-          category: 'site',
-          kind: kLocationKindAuctionHouse,
           atLocation: this,
           organizationId: organizationId,
           development: random.nextInt(this.development + 1),
@@ -363,25 +361,48 @@ struct Location {
 //   }
 // }
 
-function removeLocationById(locationId: string) {
-  let location = game.locations[locationId]
-  if (location != null) {
-    for (final siteId in location.sites) {
-      removeLocationById(siteId)
+function removeLocation(location, { updateWorldMap = true }) {
+  engine.warn('正在移除场景 [${location.name}]！')
+  for (final siteId in location.sites) {
+    removeLocation(siteId)
+  }
+  if (location.npcId) {
+    game.npcs.remove(location.npcId)
+  }
+  if (location.organizationId) {
+    const organization = game.organizations[location.organizationId]
+    assert(organization != null, '组织不存在，id: ${location.organizationId}')
+    if (organization.locationIds.contains(location.id)) {
+      organization.locationIds.remove(location.id)
     }
-    assert(univers.containsKey(location.worldId))
-    let atWorld = universe[location.worldId]
-    engine.warn('正在从世界 [${atWorld.name}] 移除场景 [${location.name}]！')
-    if (location.category == 'city' && location.isDiscovered) {
-      assert(location.terrainIndex != null)
-      const terrain = atWorld.terrains[location.terrainIndex]
-      delete terrain.locationId
+  }
+  if (location.kind == kLocationKindHome) {
+    const owner = game.characters[location.ownerId]
+    assert(owner != null, '角色不存在，id: ${location.ownerId}')
+    owner.homeLocations.remove(location.id)
+    if (owner.homeLocationId == location.id) {
+      owner.homeLocationId = null
+    }
+    if (owner.locationId == location.id) {
+      owner.locationId = null
+    }
+  }
+  if (location.terrainIndex != null) {
+    const terrain = atWorld.terrains[location.terrainIndex]
+    delete terrain.locationId
+    delete terrain.overlaySprite
+    if (updateWorldMap) {
       World.setTerrainCaption(terrain.left, terrain.top, null)
-      delete terrain.overlaySprite
       World.updateTerrainOverlaySprite(terrain.left, terrain.top)
     }
-    delete game.locations[locationId]
+  } else if (location.atLocationId != null) {
+    const atLocation = game.locations[location.atLocationId]
+    assert(atLocation != null, '场景不存在，id: ${location.atLocationId}')
+    if (atLocation.sites.contains(location.id)) {
+      atLocation.sites.remove(location.id)
+    }
   }
+  delete game.locations[location.id]
 }
 
 function getLocationDistance(loc1, loc2) {
@@ -478,32 +499,6 @@ function replenishCityhallExp(location) {
   location.collectableLight = r.distantInt(replenishAmount) + 10
 }
 
-function replenishLibraryBooks(location) {
-  assert(location.kind == 'library')
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
-
-  final organization = game.organizations[location.organizationId]
-
-  final r = Random()
-
-  // 商店的可用货币应该与门派货币挂钩
-  location.materials.shard =
-    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
-      ~/ kMaterialBasePriceByKind.shard;
-
-  let amount = kBaseItemReplenishAmount + location.development
-
-  for (var i in range(amount)) {
-    let item = Cardpack(
-      rank: location.development,
-      genre: organization?.genre,
-    )
-    entityAcquire(location, item)
-  }
-}
-
 /// 刷新交易类场景的物品
 function replenishTradingHouseMaterials(location) {
   assert(location.kind == 'tradinghouse')
@@ -520,7 +515,7 @@ function replenishTradingHouseMaterials(location) {
     kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount)
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
-      ~/ kMaterialBasePriceByKind.shard
+      ~/ Constants.basePriceOfMaterialKind.shard
 
   let price = {
     worker: {
@@ -657,22 +652,22 @@ function replenishTradingHouseMaterials(location) {
 
   for (final key in price.keys) {
     let v = (price[key].add * price[key].multiply).toDouble().toFixed(2)
-    if (v < kMinSellRate) v = kMinSellRate
+    if (v < Constants.minSellRate) v = Constants.minSellRate
     price[key] = v
   }
 
   location.priceFactor = { kind: price }
 
-  let development = {
+  let developmentFactor = {
     worker: atLocation.development + 1,
     water: 1,
     grain: 1,
-    meat: 0,
-    leather: 0,
-    herb: 0,
-    timber: 0,
-    stone: 0,
-    ore: 0,
+    meat: 1,
+    leather: 1,
+    herb: 1,
+    timber: 1,
+    stone: 1,
+    ore: 1,
   }
   
   final organization = game.organizations[location.organizationId]
@@ -682,33 +677,30 @@ function replenishTradingHouseMaterials(location) {
       assert(site != null, 'location not found, id: ${locationId}')
       switch (site.kind) {
         kLocationKindFarmland: {
-          development.grain += site.development + 1
-          development.water += site.development + 1
+          developmentFactor.grain += site.development + 1
+          developmentFactor.water += site.development + 1
         }
         kLocationKindHuntingground: {
-          development.leather += site.development + 1
-          development.meat += site.development + 1
+          developmentFactor.leather += site.development + 1
+          developmentFactor.meat += site.development + 1
         }
         kLocationKindTimberland: {
-          development.herb += site.development + 1
-          development.timber += site.development + 1
+          developmentFactor.herb += site.development + 1
+          developmentFactor.timber += site.development + 1
         }
         kLocationKindMine: {
-          development.stone += site.development + 1
-          development.ore += site.development + 1
+          developmentFactor.stone += site.development + 1
+          developmentFactor.ore += site.development + 1
         }
       }
     }
   }
 
-  function randomAmount(kind) {
-    assert(development.containsKey(kind))
-    final factor = development[kind]
-    return r.nearInt(kBaseStoreMaterialAmount * factor * factor)
-  }
-
-  for (final materialId in kOtherMaterialKinds) {
-    location.materials[materialId] = randomAmount(materialId)
+  for (final materialId in kNoncurrencyMaterialKinds) {
+    assert(developmentFactor.containsKey(materialId))
+    final factor = developmentFactor[materialId]
+    final amount = r.nextInt(kBaseStoreMaterialAmount * factor * factor)
+    location.materials[materialId] = amount
   }
 }
 
@@ -726,33 +718,73 @@ function replenishAuctionHouseItems(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
-    ~/ kMaterialBasePriceByKind.shard
+    ~/ Constants.basePriceOfMaterialKind.shard
 
   let amount = kBaseItemReplenishAmount + location.development
-
-  let hasScrollCraft = false
-
-  let hasAlchemyLab = false
-  let hasArrayLab = false
 
   for (final siteId in atLocation.sites) {
     final site = game.locations[siteId]
     assert(site != null, 'location not found, id: ${siteId}')
-    switch (site.kind) {
-      kLocationKindWorkshop: {
-        amount += site.development + 1
-      }
-      kLocationKindAlchemyLab: {
-        hasAlchemyLab = true
-      }
-      kLocationKindArrayLab: {
-        hasArrayLab = true
-      }
+    if (site.kind == kLocationKindWorkshop) {
+      amount += site.development + 1
     }
   }
 
   for (var i in range(amount)) {
-    let item = Equipment(rank: location.development)
+    let item = Equipment(rank: random.nextInt(location.development + 1))
+    entityAcquire(location, item)
+  }
+}
+
+/// 刷新藏书阁场景的物品
+function replenishLibraryBooks(location) {
+  assert(location.kind == 'library')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  final organization = game.organizations[location.organizationId]
+
+  final r = Random()
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+      ~/ Constants.basePriceOfMaterialKind.shard;
+
+  for (var i in range(location.development + 1)) {
+    for (var j in range(kBaseItemReplenishAmount)) {
+      let item = Cardpack(
+        rank: i,
+        genre: i > 0 ? organization?.genre : null,
+      )
+      entityAcquire(location, item)
+    }
+  }
+}
+
+/// 刷新丹房场景的物品
+function replenishAlchemyLabPotions(location) {
+  assert(location.kind == 'alchemylab')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  location.inventory = {}
+
+  final r = Random()
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+    ~/ Constants.basePriceOfMaterialKind.shard
+
+  let amount = kBaseItemReplenishAmount + location.development
+
+  // TODO: 丹房销售的丹药数量和苗圃数量有关
+
+  for (var i in range(amount)) {
+    final item = Potion(rank: random.nextInt(location.development + 1))
     entityAcquire(location, item)
   }
 }

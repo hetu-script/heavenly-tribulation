@@ -24,7 +24,7 @@ class Toolbox extends StatefulWidget {
 }
 
 class _ToolboxState extends State<Toolbox> {
-  static final List<Tab> _tabs = [
+  static List<Tab> tabs = [
     Tab(text: engine.locale('terrainTiles')),
     Tab(text: engine.locale('decorationTiles')),
     Tab(text: engine.locale('tileMapDecoration')),
@@ -82,13 +82,13 @@ class _ToolboxState extends State<Toolbox> {
             width: 600,
             height: 200,
             child: DefaultTabController(
-              length: _tabs.length,
+              length: tabs.length,
               child: Column(
                 children: [
                   PreferredSize(
                     preferredSize: const Size.fromHeight(kToolbarTabBarHeight),
                     child: TabBar(
-                      tabs: _tabs,
+                      tabs: tabs,
                     ),
                   ),
                   Expanded(

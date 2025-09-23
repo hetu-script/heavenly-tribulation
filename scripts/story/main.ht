@@ -57,6 +57,6 @@ function init(config) {
 
   addModMetaData(meta)
   addQuestsData(quests)
-  addItemPrototypesData(items)
+  addPrototypeItemsData(items)
   addPassivesData(passives)
 }

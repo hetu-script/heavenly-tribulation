@@ -297,11 +297,8 @@ function status_script_energy_positive_leech_self_turn_end(self, opponent, effec
 function status_script_energy_positive_pure_self_attacking(self, opponent, effect, details) {
   if (self.turnFlags.penetration >= 1) return
 
-  final r = Random().nextDouble()
-  if (r < 0.1) {
-    self.turnFlags.penetration = 1.0
-    self.removeStatusEffect(effect.id, amount: 1)
-  }
+  self.turnFlags.penetration += 0.1
+  self.removeStatusEffect(effect.id, amount: 1)
 }
 
 function status_script_energy_positive_spell_self_overflowed_energy(self, opponent, effect, details) {
@@ -323,6 +320,10 @@ function status_script_energy_positive_spell_self_deck_end(self, opponent, effec
 function status_script_energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
   if (details.attackType != effect.attackType) return
 
+  details.baseChange += effect.amount
+}
+
+function status_script_energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
   details.baseChange += effect.amount
 }
 

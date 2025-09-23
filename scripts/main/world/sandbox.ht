@@ -13,10 +13,12 @@ const _kForestThreshold = 0.6
 const _kMountainThreshold = 0.4
 const _kIslandThreshold = 0.1
 
-const _kFarmFieldThreshold = 0.1
-const _kTimberLandThreshold = 0.08
-const _kMineThreshold = 0.08
-const _kHuntingGroundThreshold = 0.04
+const _kFarmFieldThreshold = 0.08
+const _kTimberLandThreshold = 0.04
+const _kMineThreshold = 0.04
+const _kHuntingGroundThreshold = 0.02
+
+const _kDungeonThreshold = 0.04
 
 const _kAdultAge = 15
 const _kPregnancyAgeMax = 50
@@ -126,6 +128,7 @@ function createSandboxWorld({
   generateZone(newWorld)
   
   const lands = world.terrains.where((tile) => tile.spriteIndex == kSpriteLand)
+  const plainIndexes = Set()
   const mountainIndexes = Set()
   const forestIndexes = Set()
   
@@ -145,6 +148,8 @@ function createSandboxWorld({
         tile.sprite = 'object/forest.png'
         tile.kind = 'forest'
         forestIndexes.add(tile.index)
+      } else {
+        plainIndexes.add(tile.index)
       }
     } else if (tile.spriteIndex == kSpriteWater) {
       const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
@@ -190,7 +195,7 @@ function createSandboxWorld({
         updateWorldMap: false,
         isHidden: true,
         // 随机生成的据点，初始发展度是0-3之间随机。
-        // development: random.distantInt(_kLocationInitialDevelopmentMax),
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
       locations.add(location)
     } else {
@@ -217,7 +222,7 @@ function createSandboxWorld({
         updateWorldMap: false,
         isHidden: kind == 'mountain',
         // 随机生成的据点，初始发展度是0-3之间随机。
-        // development: random.distantInt(_kLocationInitialDevelopmentMax),
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
       locations.add(location)
     }
@@ -235,8 +240,9 @@ function createSandboxWorld({
       world,
       terrainKinds: ['plain'],
     )
-
+ 
     for (final terrain in neighbors) {
+      if (terrain.locationId != null) continue
       final r = random.nextDouble()
       if (r < _kFarmFieldThreshold) {
         terrain.overlaySprite = {
@@ -249,8 +255,9 @@ function createSandboxWorld({
           atTerrain: terrain,
           updateWorldMap: false,
           createNpc: true,
+          // 随机生成的场所，初始发展度是0-3之间随机。
+          development: random.nextInt(_kLocationInitialDevelopmentMax),
         )
-        locations.add(location)
         terrain.locationId = location.id
       }
     }
@@ -258,7 +265,8 @@ function createSandboxWorld({
 
   // 生成伐木场
   for (final index in forestIndexes) {
-    final terrain = world.terrains[index]
+    const terrain = world.terrains[index]
+    if (terrain.locationId != null) continue
     final r = random.nextDouble()
     if (r < _kHuntingGroundThreshold) {
       terrain.overlaySprite = {
@@ -271,8 +279,9 @@ function createSandboxWorld({
         atTerrain: terrain,
         updateWorldMap: false,
         createNpc: true,
+        // 随机生成的场所，初始发展度是0-3之间随机。
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
       terrain.locationId = location.id
     } else if (r < _kTimberLandThreshold) {
       terrain.overlaySprite = {
@@ -285,14 +294,16 @@ function createSandboxWorld({
         atTerrain: terrain,
         updateWorldMap: false,
         createNpc: true,
+        // 随机生成的场所，初始发展度是0-3之间随机。
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
       terrain.locationId = location.id
     }
   }
   // 生成矿场
   for (final index in mountainIndexes) {
-    final terrain = world.terrains[index]
+    const terrain = world.terrains[index]
+    if (terrain.locationId != null) continue
     final r = random.nextDouble()
     if (r < _kHuntingGroundThreshold) {
       terrain.overlaySprite = {
@@ -305,8 +316,9 @@ function createSandboxWorld({
         atTerrain: terrain,
         updateWorldMap: false,
         createNpc: true,
+        // 随机生成的场所，初始发展度是0-3之间随机。
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
       terrain.locationId = location.id
     } else if (r < _kMineThreshold) {
       terrain.overlaySprite = {
@@ -319,8 +331,31 @@ function createSandboxWorld({
         atTerrain: terrain,
         updateWorldMap: false,
         createNpc: true,
+        // 随机生成的场所，初始发展度是0-3之间随机。
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
+      terrain.locationId = location.id
+    }
+  }
+
+  for (final index in plainIndexes) {
+    const terrain = world.terrains[index]
+    if (terrain.locationId != null) continue
+    final r = random.nextDouble()
+    if (r < _kDungeonThreshold) {
+      terrain.overlaySprite = {
+        sprite: 'object/dungeon.png',
+      }
+      
+      const location = Location(
+        category: 'site',
+        kind: 'dungeon',
+        atTerrain: terrain,
+        updateWorldMap: false,
+        isHidden: true,
+      )
+      location.dungeonId = 'dungeon_1'
+      location.availableMonth = random.nextInt(12) + 1
       terrain.locationId = location.id
     }
   }
@@ -374,14 +409,14 @@ function createSandboxWorld({
   //   const searchResult = find2NearestLocation(location, restricted2Zone: true)
   //   if (searchResult.nearest) {
   //     const end = world.terrains[searchResult.nearest.terrainIndex]
-  //     const route = calculateRoute(start, end, world, terrainKinds: kTerrainKindsLand)
+  //     const route = calculateRoute(start, end, world, terrainKinds: Constants.terrainKindsLand)
   //     if (route) {
   //       resetRouteTerrainSprite(route)
   //     }
   //   }
   //   if (searchResult.secondNearest) {
   //     const end = world.terrains[searchResult.secondNearest.terrainIndex]
-  //     const route = calculateRoute(start, end, world, terrainKinds: kTerrainKindsLand)
+  //     const route = calculateRoute(start, end, world, terrainKinds: Constants.terrainKindsLand)
   //     if (route) {
   //       resetRouteTerrainSprite(route)
   //     }
@@ -404,6 +439,107 @@ function createSandboxWorld({
       headId: head.id,
     )
     nations.add(organization)
+    location.development += 1
+
+    final sites = [kLocationKindStele]
+    switch(organization.category) {
+      'immortality' : {
+        sites.add(kLocationKindStele)
+        Location(
+          id: organization.id + '_stele',
+          name: engine.locale('stele'),
+          category: 'site',
+          kind: kLocationKindStele,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+          // 随机生成的场所，初始发展度是0-3之间随机。
+          development: random.nextInt(_kLocationInitialDevelopmentMax),
+        )
+      }
+      'cultivation' : {
+        sites.add(kLocationKindLibrary)
+        Location(
+          id: organization.id + '_library',
+          name: engine.locale('library'),
+          category: 'site',
+          kind: kLocationKindLibrary,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
+      'chivalry' : {
+        sites.add(kLocationKindArena)
+        Location(
+          id: organization.id + '_arena',
+          name: engine.locale('arena'),
+          category: 'site',
+          kind: kLocationKindArena,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
+      'entrepreneur' : {
+        sites.add(kLocationKindMilitaryPost)
+        Location(
+          id: organization.id + '_militarypost',
+          name: engine.locale('militarypost'),
+          category: 'site',
+          kind: kLocationKindMilitaryPost,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
+      'wealth' : {
+        sites.add(kLocationKindAuctionHouse)
+        Location(
+          id: organization.id + '_auctionhouse',
+          name: engine.locale('auctionhouse'),
+          category: 'site',
+          kind: kLocationKindAuctionHouse,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
+      'pleasure' : {
+        sites.add(kLocationKindHotel)
+        Location(
+          id: organization.id + '_hotel',
+          name: engine.locale('hotel'),
+          category: 'site',
+          kind: kLocationKindHotel,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
+    }
+    
+    for (var i in range((location.development - 1) * 2)) {
+      final buildableKinds = Constants.siteKindsBuildable.where((item) => !sites.contains(item))
+      final kind = random.nextIterable(buildableKinds)
+      sites.add(kind)
+      Location(
+        id: organization.id + '_${kind}',
+        name: engine.locale(kind),
+        category: 'site',
+        kind: kind,
+        atLocation: location,
+        organizationId: organization.id,
+        development: random.nextInt(location.development + 1),
+        createNpc: true,
+      )
+    }
   }
 
   // function findHead {
@@ -571,7 +707,9 @@ function createSandboxWorld({
         const shuffle = random.shuffle(organization.borderIndexes).toList()
         for (const index in shuffle) {
           let tile = world.terrains[index]
-          if (tile.kind != 'mountain' && tile.kind != 'void' && !kTerrainKindsWater.contains(tile.kind) && tile.nationId == null) {
+          if (tile.kind != 'void'
+              && !Constants.terrainKindsWater.contains(tile.kind)
+              && tile.nationId == null) {
             terrain = tile
             break
           }
@@ -701,7 +839,7 @@ function createSandboxWorld({
   }
 
   // 此时时间应为1日下午，以避免重复触发月初事件
-  Game.updateGame()
+  Game.updateGame(forceUpdate: true)
 
   // engine.debug('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

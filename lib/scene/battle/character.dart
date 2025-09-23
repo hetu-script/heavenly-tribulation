@@ -57,7 +57,10 @@ Color getResourceColor(String resourceType) {
 }
 
 class BattleCharacter extends GameComponent with AnimationStateController {
-  final String modelId;
+  final String skinId;
+
+  /// 这里的流派只影响角色起始站姿
+  final String genre;
 
   final bool isHero;
 
@@ -81,22 +84,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   int get lifeMax => _lifeMax;
 
   /// 降低角色生命上限，最低为 1
-  void setLifeMax(int value) {
+  void setLifeMax(int value, {bool rejuvenate = false}) {
     if (value < 0) value = 1;
     final int characterLifeMax = data['stats']['lifeMax'];
     int diff = (value - characterLifeMax).abs();
+    _lifeMax = _hpBar.max = value;
     if (value > characterLifeMax) {
       addHintText('${engine.locale('lifeMax')} +$diff',
           color: Colors.lightGreen);
       _hpBar.labelColor = Colors.yellow;
-      _life += diff;
+      if (rejuvenate) {
+        _life += diff;
+      }
     } else if (value < characterLifeMax) {
       addHintText('${engine.locale('lifeMax')} -$diff', color: Colors.pink);
       _hpBar.labelColor = Colors.grey;
-    }
-    _lifeMax = _hpBar.max = value;
-    if (_life < _lifeMax) {
-      _life = _lifeMax;
+      if (_life > _lifeMax) {
+        _life = _lifeMax;
+      }
     }
     _hpBar.setValue(_life);
     _hpBar.max = _lifeMax;
@@ -112,16 +117,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return list;
   }
 
-  List<StatusEffect> get nonPermenantEffects {
+  List<StatusEffect> get nonPermanentEffects {
     final list =
-        _statusEffects.values.where((element) => !element.isPermenant).toList();
+        _statusEffects.values.where((element) => !element.isPermanent).toList();
     list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
     return list;
   }
 
-  List<StatusEffect> get permenantEffects {
+  List<StatusEffect> get permanentEffects {
     final list =
-        _statusEffects.values.where((element) => element.isPermenant).toList();
+        _statusEffects.values.where((element) => element.isPermanent).toList();
     list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
     return list;
   }
@@ -134,13 +139,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     super.position,
     super.size,
     this.isHero = false,
-    required this.modelId,
+    required this.skinId,
+    required this.genre,
     required this.animationStates,
     required this.overlayAnimationStates,
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
-    assert(GameData.animations.containsKey(modelId));
     audioPlayer = engine;
 
     if (!isHero) {
@@ -155,7 +160,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   Future<void> onLoad() async {
     // 普通动画在每个皮肤下都有一套单独的数据
     for (final state in animationStates) {
-      final anim = await GameData.createAnimationFromData(modelId, state);
+      final anim =
+          await GameData.createAnimationFromData('${skinId}_$genre', state);
       addState(state, anim, isOverlay: false);
     }
     // 叠加动画的数据另外保存
@@ -226,17 +232,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 永久效果位置在角色头像下方
-  void reArrangePermenantEffects() {
+  void reArrangePermanentEffects() {
     final centerPoint = Vector2(GameUI.size.x / 2,
         GameUI.hugeIndent + GameUI.battleCharacterAvatarSize.y);
-    for (var i = 0; i < permenantEffects.length; ++i) {
-      final effect = permenantEffects.elementAt(i);
+    for (var i = 0; i < permanentEffects.length; ++i) {
+      final effect = permanentEffects.elementAt(i);
       if (isHero) {
         effect.position = Vector2(
           centerPoint.x -
               GameUI.versusIconSize.x / 2 -
               GameUI.hugeIndent -
-              i * (GameUI.permenantStatusEffectIconSize.x + GameUI.smallIndent),
+              i * (GameUI.permanentStatusEffectIconSize.x + GameUI.smallIndent),
           centerPoint.y,
         );
       } else {
@@ -244,7 +250,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           centerPoint.x +
               GameUI.versusIconSize.x / 2 +
               GameUI.hugeIndent +
-              i * (GameUI.permenantStatusEffectIconSize.x + GameUI.smallIndent),
+              i * (GameUI.permanentStatusEffectIconSize.x + GameUI.smallIndent),
           centerPoint.y,
         );
       }
@@ -254,7 +260,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 非永久效果位置在血条上方
   void reArrangeNonResourceEffects() {
     final nonResourceEffects =
-        nonPermenantEffects.where((e1) => !e1.isResource);
+        nonPermanentEffects.where((e1) => !e1.isResource);
     for (var i = 0; i < nonResourceEffects.length; ++i) {
       final effect = nonResourceEffects.elementAt(i);
       if (isHero) {
@@ -277,7 +283,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 资源位于血条下方
   void reArrangeResourceEffects() {
-    final resourceEffects = nonPermenantEffects.where((e1) => e1.isResource);
+    final resourceEffects = nonPermanentEffects.where((e1) => e1.isResource);
     for (var i = 0; i < resourceEffects.length; ++i) {
       final effect = resourceEffects.elementAt(i);
       if (isHero) {
@@ -318,7 +324,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     bool resourceIconNeedsRearranging = false;
     if (_statusEffects.containsKey(id)) {
       existEffect = _statusEffects[id]!;
-      assert(!existEffect.isPermenant);
+      assert(!existEffect.isPermanent);
       assert(existEffect.amount > 0);
 
       if (amount != null) {
@@ -339,8 +345,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         existEffect.removeFromParent();
       }
 
-      if (existEffect.isPermenant) {
-        reArrangePermenantEffects();
+      if (existEffect.isPermanent) {
+        reArrangePermanentEffects();
       } else {
         if (existEffect.isResource) {
           resourceIconNeedsRearranging = true;
@@ -359,7 +365,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
 
-      final rest = amount - removeAmount;
+      final rest = (amount - removeAmount) * 3;
       final oppositeId = 'energy_negative_$exhaust';
       // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
       addStatusEffect(oppositeId, amount: rest, handleCallback: false);
@@ -463,7 +469,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       _statusEffects[id] = effect;
 
       if (!effect.isHidden) {
-        gameRef.world.add(effect);
+        game.world.add(effect);
 
         if (effect.isResource) {
           addHintText(
@@ -471,8 +477,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             color: getResourceColor(id),
           );
           reArrangeResourceEffects();
-        } else if (effect.isPermenant) {
-          reArrangePermenantEffects();
+        } else if (effect.isPermanent) {
+          reArrangePermanentEffects();
         } else {
           reArrangeNonResourceEffects();
         }
@@ -480,7 +486,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     if (finalAmount > 0) {
-      if (effectData['isPermenant'] != true && handleCallback) {
+      if (effectData['isPermanent'] != true && handleCallback) {
         if (id.startsWith('energy_positive')) {
           // 触发自己获得阳气后的效果
           handleStatusEffectCallback('self_gained_energy_positive');
@@ -509,7 +515,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     dynamic result;
 
     // 永久效果的执行优先级更高
-    for (final effect in permenantEffects) {
+    for (final effect in permanentEffects) {
       if (effect.callbacks.contains(callbackId)) {
         final r = _invokeScript(effect, callbackId, details);
         if (r != null) {
@@ -518,7 +524,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    for (final effect in nonPermenantEffects) {
+    for (final effect in nonPermanentEffects) {
       if (effect.callbacks.contains(callbackId)) {
         final r = _invokeScript(effect, callbackId, details);
         if (r != null) {
@@ -660,7 +666,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         .handleStatusEffectCallback('oponent_taking_damage', damageDetails);
 
     if (damageDetails['cancelDamage'] == true) {
-      addHintText(engine.locale('missedHit'));
+      opponent!.addHintText(engine.locale('missedHit'));
       return 0;
     }
 
@@ -669,10 +675,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     baseDamage += baseChange;
 
-    double percentage1 = damageDetails['percentageChange1'];
+    num percentage1 = damageDetails['percentageChange1'];
     if (percentage1 < kDamagePercentageMin) percentage1 = kDamagePercentageMin;
-    double percentage2 = damageDetails['percentageChange2'];
-    double percentage3 = damageDetails['percentageChange3'];
+    num percentage2 = damageDetails['percentageChange2'];
+    num percentage3 = damageDetails['percentageChange3'];
 
     int finalDamage =
         (baseDamage * (1 + percentage1) * (1 + percentage2) * (1 + percentage3))
@@ -723,13 +729,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       opponent!.turnFlags['damage']['total'] += finalDamage;
     }
 
-    bool blocked = damageDetails['blocked'] ?? false;
+    // bool blocked = damageDetails['blocked'] ?? false;
 
-    if (blocked || finalDamage == 0) {
+    if (finalDamage == 0) {
       // 这里不能用await，动画会卡住
-      setCompositeState(startup: kDodgeState, complete: kStandState);
+      setCompositeState(startup: [kDodgeState], complete: kStandState);
     } else {
-      setCompositeState(startup: kHitState, complete: kStandState);
+      setCompositeState(startup: [kHitState]);
     }
 
     return finalDamage;
@@ -747,6 +753,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     };
     // isExtra 表示这是某些机制触发的再次行动回合
     turnFlags["isExtra"] = isExtra;
+
+    setState(kStandState);
 
     opponent!.handleStatusEffectCallback('opponent_turn_start');
     handleStatusEffectCallback('self_turn_start');
@@ -770,7 +778,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // final isDetailed = (game as BattleScene).isDetailedHovertip;
     final (description, exDescription) = GameData.getDescriptionFromCardData(
       card.data,
-      isLibrary: false,
+      showRequirement: false,
       isDetailed: false,
       showDetailedHint: false,
       showDebugId: false,

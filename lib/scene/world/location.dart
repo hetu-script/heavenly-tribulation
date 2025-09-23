@@ -12,7 +12,7 @@ import '../../game/data.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/character_visit.dart';
-import '../../state/current_npc_list.dart';
+import '../../state/npc_list.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
 import '../../common.dart';
@@ -83,36 +83,43 @@ class LocationScene extends Scene {
     switch (location['kind']) {
       case 'home':
         if (location['ownerId'] == GameData.hero['id']) {
-          final siteCardRest = GameData.createSiteCard(
+          final siteCard = GameData.createSiteCard(
               spriteId: 'location/card/bed.png', title: engine.locale('rest'));
-          siteCardRest.onTap = (button, position) {
+          siteCard.onTap = (button, position) {
             GameLogic.heroRest();
           };
-          siteList.cards.add(siteCardRest);
-          world.add(siteCardRest);
+          siteList.cards.add(siteCard);
+          world.add(siteCard);
         }
-      case 'cityhall':
-        final siteCardRest = GameData.createSiteCard(
+      case 'stele':
+        final siteCard = GameData.createSiteCard(
             spriteId: 'location/card/stele.png',
-            title: engine.locale('cultivationStele'));
-        siteCardRest.onTap = (button, position) {
+            title: engine.locale('meditate'));
+        siteCard.onTap = (button, position) {
           GameLogic.onInteractCultivationStele(organization,
               location: location);
         };
-        siteList.cards.add(siteCardRest);
-        world.add(siteCardRest);
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
       case 'library':
-        final siteCardRest = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
             spriteId: 'location/card/carddesk.png',
             title: engine.locale('cardlibrary'));
-        siteCardRest.onTap = (button, position) {
+        siteCard.onTap = (button, position) {
           GameLogic.onInteractLibraryDesk(
-            organization: organization,
-            location: location,
-          );
+              organization: organization, location: location);
         };
-        siteList.cards.add(siteCardRest);
-        world.add(siteCardRest);
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
+      case 'dungeon':
+        final siteCard = GameData.createSiteCard(
+            spriteId: 'location/card/dungeon.png',
+            title: engine.locale('dungeon'));
+        siteCard.onTap = (button, position) {
+          GameLogic.onInteractDungeonEntrance(location);
+        };
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
       default:
         for (final siteId in location['sites']) {
           final siteData = GameData.game['locations'][siteId];

@@ -26,7 +26,11 @@ class LocationPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    dynamic currentZone, currentNation, currentTerrain, currentLocation;
+    dynamic currentZone,
+        currentNation,
+        currentTerrain,
+        currentLocation,
+        currentDungeon;
     if (isEditorMode) {
       currentZone = context.watch<SelectedPositionState>().currentZone;
       currentNation = context.watch<SelectedPositionState>().currentNation;
@@ -37,6 +41,7 @@ class LocationPanel extends StatelessWidget {
       currentNation = context.watch<HeroPositionState>().currentNation;
       currentTerrain = context.watch<HeroPositionState>().currentTerrain;
       currentLocation = context.watch<HeroPositionState>().currentLocation;
+      currentDungeon = context.watch<HeroPositionState>().currentDungeon;
     }
 
     final positionDetails = StringBuffer();
@@ -45,24 +50,16 @@ class LocationPanel extends StatelessWidget {
     //   positionDetails.writeln(engine.locale('terrainDetail'));
     // }
 
-    if (currentZone != null) {
-      positionDetails.writeln('${currentZone!['name']}');
-    }
-    if (currentNation != null) {
-      positionDetails.writeln('${currentNation['name']}');
-    }
-
-    if (currentTerrain != null) {
-      if (isEditorMode) {
-        positionDetails.write(
-            '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
-        positionDetails.write('[${currentTerrain.data?['kind']}] ');
-      }
-      positionDetails
-          .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
-    }
-
-    if (currentLocation != null) {
+    if (currentDungeon != null) {
+      positionDetails.writeln(
+          engine.locale('cultivationRank_${currentDungeon['rank']}') +
+              engine.locale('rank2') +
+              engine.locale('dungeon'));
+      positionDetails.writeln(
+          '${engine.locale('currentDungeonLevel')}: ${currentDungeon['level'] + 1}/${currentDungeon['levelMax'] + 1}');
+      positionDetails.writeln(
+          '${engine.locale('currentDungeonRoom')}: ${currentDungeon['room'] + 1}/${currentDungeon['roomMax'] + 1}');
+    } else if (currentLocation != null) {
       dynamic owner;
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
@@ -91,6 +88,22 @@ class LocationPanel extends StatelessWidget {
           .writeln('$title ${owner?['name'] ?? engine.locale('none')}');
       positionDetails.writeln(
           '${engine.locale('development')}: ${currentLocation['development']}');
+    } else {
+      if (currentZone != null) {
+        positionDetails.writeln('${currentZone!['name']}');
+      }
+      if (currentNation != null) {
+        positionDetails.writeln('${currentNation['name']}');
+      }
+      if (currentTerrain != null) {
+        if (isEditorMode) {
+          positionDetails.write(
+              '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
+          positionDetails.write('[${currentTerrain.data?['kind']}] ');
+        }
+        positionDetails
+            .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
+      }
     }
 
     return (positionDetails.isEmpty && !isEditorMode)

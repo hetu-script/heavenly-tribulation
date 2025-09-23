@@ -30,7 +30,7 @@ class WorldInformationPanel extends StatefulWidget {
 
 class _WorldInformationPanelState extends State<WorldInformationPanel>
     with AutomaticKeepAliveClientMixin {
-  static late List<Widget> _tabs;
+  static late List<Widget> tabs;
 
   @override
   bool get wantKeepAlive => true;
@@ -66,7 +66,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
       _organizationsTableData.add(row);
     }
 
-    _tabs = [
+    tabs = [
       Tab(
           text:
               '${engine.locale('character')}(${_charactersTableData.length})'),
@@ -84,13 +84,13 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.bottomCenter,
       child: DefaultTabController(
-        length: _tabs.length,
+        length: tabs.length,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('info')),
             actions: const [CloseButton2()],
-            bottom: TabBar(tabs: _tabs),
+            bottom: TabBar(tabs: tabs),
           ),
           body: TabBarView(
             children: [

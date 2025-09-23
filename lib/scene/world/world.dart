@@ -137,7 +137,7 @@ class WorldMapScene extends Scene {
           tileFogOffset: kTileFogOffset,
           showSelected: true,
           showHover: true,
-          showFogOfWar: !isEditorMode && !kDebugMode,
+          showFogOfWar: !isEditorMode,
           autoUpdateComponent: false,
           fogSpriteId: 'shadow.png',
           // isCameraFollowHero: false,
@@ -349,7 +349,6 @@ class WorldMapScene extends Scene {
     };
     map.onDragEnd = (int button, Vector2 offset) {
       engine.setCursor(Cursors.normal);
-      // context.read<CursorState>().set('normal');
     };
 
     world.add(map);
@@ -1025,7 +1024,7 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _updateWorldMapCaptions() async {
-    final locations = engine.hetu.fetch('locations', namespace: 'game').values;
+    final locations = GameData.game['locations'].values;
     for (final location in locations) {
       if (location['worldId'] == GameData.world['id'] &&
           location['terrainIndex'] != null &&
@@ -1033,7 +1032,7 @@ class WorldMapScene extends Scene {
         final int left = location['worldPosition']['left'];
         final int top = location['worldPosition']['top'];
         _setWorldMapCaption(left, top, location['name'],
-            location['category'] == 'city' ? Colors.yellow : Colors.white);
+            location['category'] == 'city' ? Colors.white : Colors.lightGreen);
       }
     }
   }
@@ -1056,7 +1055,7 @@ class WorldMapScene extends Scene {
       final int left = location['worldPosition']['left'];
       final int top = location['worldPosition']['top'];
       _setWorldMapCaption(left, top, location['name'],
-          location['category'] == 'city' ? Colors.yellow : Colors.white);
+          location['category'] == 'city' ? Colors.white : Colors.green);
     }
 
     GameLogic.tryEnterLocation(location);
@@ -1068,11 +1067,10 @@ class WorldMapScene extends Scene {
     if (hero.isWalking) return;
 
     final neighbors = map.getNeighborTilePositions(hero.left, hero.top);
-    if (terrain.isNonEnterable) {
-      if (neighbors.contains(terrain.tilePosition) &&
-          terrain.objectId != null) {
-        GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
-      }
+    if (terrain.isNonEnterable &&
+        neighbors.contains(terrain.tilePosition) &&
+        terrain.objectId != null) {
+      GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
       return;
     } else {
       final movableTerrainKinds = await engine.hetu
@@ -1330,7 +1328,7 @@ class WorldMapScene extends Scene {
 
     context.read<HeroState>().update();
     context.read<HeroInfoVisibilityState>().setVisible(
-        isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : null);
+        isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : true);
     context.read<GameTimestampState>().update();
     context.read<HeroAndGlobalHistoryState>().update();
 
@@ -1401,7 +1399,7 @@ class WorldMapScene extends Scene {
     );
   }
 
-  Future<void> promptTextBanner(text) async {
+  Future<void> promptTextBanner(String text) async {
     final prompt = PromptTextBanner(
       text: text,
       backgroundColor: GameUI.backgroundColor3,
@@ -1580,7 +1578,12 @@ class WorldMapScene extends Scene {
                               context.read<SelectedPositionState>().clear();
                               engine.clearAllCachedScene(
                                   except: Scenes.mainmenu,
-                                  arguments: {'reset': true});
+                                  arguments: {
+                                    'reset':
+                                        GameData.game['saveName'] == 'debug'
+                                            ? false
+                                            : true
+                                  });
                           }
                         },
                       );

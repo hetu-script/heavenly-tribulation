@@ -9,7 +9,7 @@
 
   "prebattle": "战斗准备",
   "prebattle_check_stats": "查看属性",
-  "prebattle_no_decks": "（当前无可用卡组）",
+  "prebattle_no_decks": "（未选择战斗卡组）",
 
   "resourceLacking": "{0}枯竭！",
   "resourceOverflowed": "{0}溢出！",

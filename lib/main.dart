@@ -116,6 +116,13 @@ void main() {
           child: fluent.FluentTheme(
             data: GameUI.fluentTheme,
             child: MaterialApp(
+              // locale: const Locale('en', ''),
+              // localizationsDelegates: const [
+              //   fluent.FluentLocalizations.delegate
+              // ],
+              // supportedLocales: const [
+              //   Locale('en', ''), // English, no country code
+              // ],
               scrollBehavior:
                   NoThumbScrollBehavior().copyWith(scrollbars: false),
               debugShowCheckedModeBanner: false,

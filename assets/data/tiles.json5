@@ -15,14 +15,6 @@
     kind: "plain",
     spriteIndex: 1,
   },
-  river: {
-    id: "river",
-    name: "river",
-    icon: "assets/images/object/river.png",
-    type: "terrain",
-    kind: "river",
-    spriteIndex: 2,
-  },
   dungeonStonePavedTile: {
     id: "dungeonStonePavedTile",
     name: "dungeonStonePavedTile",
@@ -49,13 +41,20 @@
     spriteIndex: 1,
     sprite: "object/mountain.png",
   },
+  river: {
+    id: "river",
+    name: "river",
+    icon: "assets/images/object/river.png",
+    type: "sprite",
+    kind: "river",
+    sprite: "object/river.png",
+  },
   shelf: {
     id: "shelf",
     name: "shelf",
     icon: "assets/images/object/shelf.png",
     type: "sprite",
     kind: "shelf",
-    spriteIndex: 0,
     sprite: "object/shelf.png",
   },
   shore: {
@@ -64,7 +63,6 @@
     icon: "assets/images/object/shore.png",
     type: "sprite",
     kind: "shore",
-    spriteIndex: 0,
     sprite: "object/shore.png",
   },
   snow_plain: {

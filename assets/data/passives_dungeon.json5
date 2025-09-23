@@ -1,0 +1,8 @@
+{
+  /// 秘境石词条数据
+  dungeon_rank1: {
+    id: "dungeon_rank1",
+    description: "passive_dungeon_rank1_description",
+    priority: 5000,
+  },
+}

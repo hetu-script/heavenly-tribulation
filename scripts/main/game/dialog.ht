@@ -50,14 +50,16 @@ namespace Dialog {
   /// {
   ///   id: 'taskId',
   ///   selections: {
-  ///     selectKey1: 'localedText1', // 可以只有一个单独的文本
-  ///     selectKey2: { text: 'localedText3', description: 'localedText4' }, // 也可以是文本加一个描述文本
+  ///     selectKey1: 'localeKey1', // 可以只有一个单独的文本
+  ///     selectKey2: { text: 'localeKey2', description: 'localeKey3' }, // 也可以是文本加一个描述文本
   ///     ...
   ///   } 
   /// }
   /// 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
   /// locales 可以是一个字符串列表，也可以是一个 Map<String, String>，
   external function pushSelection(id, locales)
+
+  external function pushSelectionRaw(selectionData)
 
   external function checkSelected(selectionsValue)
 

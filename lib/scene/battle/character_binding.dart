@@ -45,15 +45,32 @@ class BattleCharacterClassBinding extends HTExternalClass {
               isOverlay: namedArgs['isOverlay'],
             );
       case 'setCompositeState':
-        return ({object, positionalArgs, namedArgs}) =>
-            character.setCompositeState(
-              startup: namedArgs['startup'],
-              transitions: namedArgs['transitions'],
-              overlays: namedArgs['overlays'],
-              recovery: namedArgs['recovery'],
-              complete: namedArgs['complete'],
-              sound: namedArgs['sound'],
-            );
+        return ({object, positionalArgs, namedArgs}) {
+          var startup = namedArgs['startup'];
+          if (startup != null && startup is! List) {
+            startup = [startup];
+          }
+          var recovery = namedArgs['recovery'];
+          if (recovery != null && recovery is! List) {
+            recovery = [recovery];
+          }
+          var actions = namedArgs['actions'];
+          if (actions != null && actions is! List) {
+            actions = [actions];
+          }
+          var overlays = namedArgs['overlays'];
+          if (overlays != null && overlays is! List) {
+            overlays = [overlays];
+          }
+          return character.setCompositeState(
+            startup: startup,
+            recovery: recovery,
+            actions: actions,
+            overlays: overlays,
+            complete: namedArgs['complete'],
+            sound: namedArgs['sound'],
+          );
+        };
       case 'hasStatusEffect':
         return ({object, positionalArgs, namedArgs}) =>
             character.hasStatusEffect(positionalArgs.first);

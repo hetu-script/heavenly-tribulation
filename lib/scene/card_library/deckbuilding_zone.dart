@@ -211,6 +211,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   Future<void> collapse({bool animated = true}) async {
     priority = 0;
     pileOffset = Vector2(0, 0);
+
+    placeholder.isVisible = true;
+
     if (cards.isNotEmpty) {
       setTitle();
     }
@@ -389,24 +392,23 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       }
     };
 
-    // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
-    card.onDragStart =
-        (button, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int button, Vector2 postion, Vector2 delta) =>
-        // TODO: 这里为什么要除以 2 才能正确的得到位置???
-        (game as CardLibraryScene).draggingCard?.position += delta / 2;
-    card.onDragEnd = (button, position) {
-      final libraryScene = game as CardLibraryScene;
-      final draggingCard = libraryScene.draggingCard;
-      if (draggingCard == null) return;
-      int dragToIndex =
-          (draggingCard.position.y - GameUI.decksZoneBackgroundPosition.y) ~/
-              GameUI.deckbuildingZonePileOffset.y;
+    // // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
+    // card.onDragStart =
+    //     (button, dragPosition) => (game as CardLibraryScene).draggingCard;
+    // card.onDragUpdate = (int button, Vector2 postion, Vector2 delta) =>
+    //     // TODO: 这里为什么要除以 2 才能正确的得到位置???
+    //     (game as CardLibraryScene).draggingCard?.position += delta / 2;
+    // card.onDragEnd = (button, position) {
+    //   final libraryScene = game as CardLibraryScene;
+    //   final draggingCard = libraryScene.draggingCard;
+    //   if (draggingCard == null) return;
+    //   int dragToIndex =
+    //       (draggingCard.position.y - GameUI.decksZoneBackgroundPosition.y) ~/
+    //           GameUI.deckbuildingZonePileOffset.y;
+    //   libraryScene.cardDragRelease();
+    //   reorderCard(card.index, dragToIndex);
+    // };
 
-      libraryScene.cardDragRelease();
-
-      reorderCard(card.index, dragToIndex);
-    };
     card.onPreviewed = () => previewCard(
           game.context,
           'deckbuilding_card_${card.id}',

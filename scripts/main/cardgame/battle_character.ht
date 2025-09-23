@@ -2,9 +2,9 @@
 async function characterAnimate(battleCharacter, animation) {
   await battleCharacter.setCompositeState(
     startup: animation.startup,
-    transitions: animation.transitions,
-    overlays: animation.overlays,
     recovery: animation.recovery,
+    actions: animation.actions,
+    overlays: animation.overlays,
     sound: animation.sound,
   )
 }
@@ -29,10 +29,10 @@ external class BattleCharacter {
   async function setState(state, {isOverlay = false})
 
   async function setCompositeState({
-    startup: string,
-    transitions: List,
+    startup: List,
+    recovery: List,
+    actions: List,
     overlays: List,
-    recovery: string,
     complete: string = 'stand',
     sound: string,
   })

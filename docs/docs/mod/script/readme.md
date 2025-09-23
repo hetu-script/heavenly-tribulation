@@ -37,7 +37,6 @@ async function onInquiryQuest(character, quest)
 async function onShowTo(character, item)
 /// ----------物品互动----------
 async function onEquipItem(item)
-async function onUseItem(item)
 // 展示一个物品，单选
 async function onShowItem(character, item)
 // 赠送一个物品，单选

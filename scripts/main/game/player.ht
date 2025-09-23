@@ -71,7 +71,7 @@ namespace Player {
   }
 
   /// 直接获取一个已经被创造出来的物品
-  function acquire(item, { autoUnpack = false, incurIncident = true }) {
+  function acquire(item, { autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
 
     if (autoUnpack) {
@@ -109,7 +109,7 @@ namespace Player {
     assert(hero != null)
     assert(hero.cardLibrary.containsKey(card.id))
 
-    final price = Game.getCardCraftOperationCost('dismantle', card)
+    final price = getCardCraftOperationCost('dismantle', card)
 
     hero.exp += price
     hero.cardLibrary.remove(card.id)
@@ -120,21 +120,27 @@ namespace Player {
       }
     }
     
-    let incidentContent
-    incidentContent = engine.locale('entityDismantle', interpolations: [
+    let incidentContent = engine.locale('entityDismantle', interpolations: [
       hero.name,
       card.name,
     ])
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-        card: card,
-        isPrivate: true,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+    engine.debug(incidentContent)
+    
+    // let incidentContent
+    // incidentContent = engine.locale('entityDismantle', interpolations: [
+    //   hero.name,
+    //   card.name,
+    // ])
+    // if (incurIncident) {
+    //   Incident(
+    //     message: incidentContent,
+    //     subjectId: hero.id,
+    //     card: card,
+    //     isPrivate: true,
+    //   )
+    // } else {
+    //   engine.debug(incidentContent)
+    // }
 
     return price
   }
@@ -270,6 +276,12 @@ namespace Player {
   function unequip(item) {
     assert(hero != null)
     characterUnequip(hero, item)
+  }
+
+  function consumePotion(potion) {
+    assert(hero != null)
+    assert(potion.category == kItemCategoryPotion)
+    characterConsumePotion(hero, potion)
   }
   
   /// 用于从一个宝箱中根据物品信息创造物品并获取

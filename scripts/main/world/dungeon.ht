@@ -164,7 +164,7 @@ function addRestBed(tilePosition, {
 function addCultivationStele(tilePosition, {
   objectId = 'cultivation',
   hoverContent,
-  enableCultivate = false,
+  collectableLight,
 }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
@@ -174,7 +174,7 @@ function addCultivationStele(tilePosition, {
   final object = ObjectCultivation(
     id: objectId,
     hoverContent: hoverContent,
-    enableCultivate: enableCultivate,
+    collectableLight: collectableLight,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)

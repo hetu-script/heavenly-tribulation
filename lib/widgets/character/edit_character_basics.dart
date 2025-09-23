@@ -19,7 +19,7 @@ class EditCharacterBasics extends StatefulWidget {
   /// race,
   /// icon,
   /// illustration
-  /// model,
+  /// skin,
   const EditCharacterBasics({
     super.key,
     this.id,
@@ -29,14 +29,14 @@ class EditCharacterBasics extends StatefulWidget {
     this.race,
     this.icon,
     this.illustration,
-    this.model,
+    this.skin,
   });
 
   final String? id;
   final String? shortName;
   final bool? isFemale;
   final String? race;
-  final String? model;
+  final String? skin;
   final String? surName;
   final String? icon;
   final String? illustration;
@@ -48,7 +48,7 @@ class EditCharacterBasics extends StatefulWidget {
 class _EditCharacterBasicsState extends State<EditCharacterBasics> {
   final _idEditingController = TextEditingController();
   final _shortNameEditingController = TextEditingController();
-  final _modelEditingController = TextEditingController();
+  final _skinEditingController = TextEditingController();
   final _surNameEditingController = TextEditingController();
   final _iconEditingController = TextEditingController();
   final _illustrationEditingController = TextEditingController();
@@ -62,7 +62,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
 
     _idEditingController.text = widget.id ?? '';
     _shortNameEditingController.text = widget.shortName ?? '';
-    _modelEditingController.text = widget.model ?? '';
+    _skinEditingController.text = widget.skin ?? '';
     _surNameEditingController.text = widget.surName ?? '';
     _iconEditingController.text = widget.icon ?? '';
     _illustrationEditingController.text = widget.illustration ?? '';
@@ -74,7 +74,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
 
     _idEditingController.dispose();
     _shortNameEditingController.dispose();
-    _modelEditingController.dispose();
+    _skinEditingController.dispose();
     _surNameEditingController.dispose();
     _iconEditingController.dispose();
     _illustrationEditingController.dispose();
@@ -233,13 +233,13 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                 children: [
                   SizedBox(
                     width: 100.0,
-                    child: Text('${engine.locale('model')}: '),
+                    child: Text('${engine.locale('skin')}: '),
                   ),
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
                     child: TextField(
-                      controller: _modelEditingController,
+                      controller: _skinEditingController,
                     ),
                   ),
                 ],
@@ -261,8 +261,8 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                             _iconEditingController.text.nonEmptyValue;
                         String? illustration =
                             _illustrationEditingController.text.nonEmptyValue;
-                        String? model =
-                            _modelEditingController.text.nonEmptyValue;
+                        String? skin =
+                            _skinEditingController.text.nonEmptyValue;
 
                         Navigator.of(context).pop((
                           id,
@@ -272,7 +272,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                           _race,
                           icon,
                           illustration,
-                          model,
+                          skin,
                         ));
                       },
                       child: Text(

@@ -30,7 +30,7 @@ class SelectedPositionState with ChangeNotifier {
 }
 
 class HeroPositionState with ChangeNotifier {
-  dynamic currentZone, currentNation, currentLocation;
+  dynamic currentZone, currentNation, currentLocation, currentDungeon;
   TileMapTerrain? currentTerrain;
 
   void updateTerrain({
@@ -60,6 +60,13 @@ class HeroPositionState with ChangeNotifier {
   void updateLocation(dynamic currentLocationData) {
     if (currentLocationData != currentLocation) {
       currentLocation = currentLocationData;
+      notifyListeners();
+    }
+  }
+
+  void updateDungeon(dynamic currentDungeonData) {
+    if (currentDungeonData != currentDungeon) {
+      currentDungeon = currentDungeonData;
       notifyListeners();
     }
   }

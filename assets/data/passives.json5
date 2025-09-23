@@ -3,9 +3,11 @@
   /// 这里的词条公用于装备，天赋树和辅助流派技能等等场合
   /// 这里只保存单个技能词条，具体到装备或者天赋树技能时，可能是多个词条的组合
   /// 天赋树节点本身的数据另外保存在在 passive_tree.json5里面
-  /// isItemExtraAffix: true 表示会随机出现在装备词条中，否则只会出现在天赋树上或者人为设计的特殊物品上等等
+  /// isItemAffix: true 表示属于装备词条
+  /// isEphemeralPotionAffix: true 表示属于临时丹药词条
+  /// isPermanentPotionAffix: true 表示属于永久丹药词条
   /// 属性词条可能有 rank 境界需求，但只对装备生成时的筛选生效，天赋树节点无视此参数
-  /// 属性词条可能有 base 数值，但只对装备生成生效，天赋树只计算增强*等级
+  /// 属性词条没有 base 数值，只计算 increment * level
 
   /// 流派卡牌解锁入口
   swordcraft_rank: {
@@ -35,7 +37,7 @@
   },
 
   /// 装备固定词条，解锁对应装备需求的卡牌
-  /// 对于该类型武器，这些是固定有的，所以 isItemExtraAffix 是 false
+  /// 对于该类型武器，这些是固定有的，所以 isItemAffix 是 false
   equipment_sword: {
     id: "equipment_sword",
     description: "passive_equipment_sword_description",
@@ -89,7 +91,7 @@
     description: "passive_stamina_cost_reduce_on_hill_description",
     priority: 4010,
     increment: -1,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["boots"],
   },
   stamina_cost_reduce_on_water: {
@@ -98,7 +100,7 @@
     description: "passive_stamina_cost_reduce_on_water_description",
     priority: 4009,
     increment: -1,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["ship"],
   },
 
@@ -110,7 +112,7 @@
     description: "passive_increase_damage_punch_description",
     priority: 3150,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["gloves"],
   },
   increase_damage_kick: {
@@ -119,7 +121,7 @@
     description: "passive_increase_damage_kick_description",
     priority: 3149,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["boots"],
   },
   increase_damage_qinna: {
@@ -128,7 +130,7 @@
     description: "passive_increase_damage_qinna_description",
     priority: 3148,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["gloves"],
   },
   increase_damage_dianxue: {
@@ -137,7 +139,7 @@
     description: "passive_increase_damage_dianxue_description",
     priority: 3147,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["gloves"],
   },
   increase_damage_sword: {
@@ -146,7 +148,7 @@
     description: "passive_increase_damage_sword_description",
     priority: 3146,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["sword"],
   },
   increase_damage_sabre: {
@@ -155,7 +157,7 @@
     description: "passive_increase_damage_sabre_description",
     priority: 3145,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["sabre"],
   },
   increase_damage_spear: {
@@ -164,7 +166,7 @@
     description: "passive_increase_damage_spear_description",
     priority: 3144,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["spear"],
   },
   increase_damage_staff: {
@@ -173,7 +175,7 @@
     description: "passive_increase_damage_staff_description",
     priority: 3143,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["staff"],
   },
   increase_damage_bow: {
@@ -182,7 +184,7 @@
     description: "passive_increase_damage_bow_description",
     priority: 3142,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["bow"],
   },
   increase_damage_dart: {
@@ -191,7 +193,7 @@
     description: "passive_increase_damage_dart_description",
     priority: 3141,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["dart"],
   },
   increase_damage_firebend: {
@@ -200,7 +202,7 @@
     description: "passive_increase_damage_firebend_description",
     priority: 3140,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["talisman"],
   },
   increase_damage_airbend: {
@@ -209,7 +211,7 @@
     description: "passive_increase_damage_airbend_description",
     priority: 3139,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["talisman"],
   },
   increase_damage_lightning_control: {
@@ -218,7 +220,7 @@
     description: "passive_increase_damage_lightning_control_description",
     priority: 3138,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["talisman"],
   },
   increase_damage_sigil: {
@@ -227,7 +229,7 @@
     description: "passive_increase_damage_sigil_description",
     priority: 3137,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["talisman"],
   },
   increase_damage_power_word: {
@@ -236,44 +238,48 @@
     description: "passive_increase_damage_power_word_description",
     priority: 3136,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     kind: ["talisman"],
   },
 
   /// 攻击力
-  unarmedEnhance: {
-    id: "unarmedEnhance",
-    description: "passive_unarmed_enhance_description",
+  unarmedAttack: {
+    id: "unarmedAttack",
+    description: "passive_unarmed_attack_description",
     priority: 2020,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_enhance"],
     kind: ["gloves", "boots"],
   },
-  weaponEnhance: {
-    id: "weaponEnhance",
-    description: "passive_weapon_enhance_description",
+  weaponAttack: {
+    id: "weaponAttack",
+    description: "passive_weapon_attack_description",
     priority: 2015,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_enhance"],
     kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
   },
-  spellEnhance: {
-    id: "spellEnhance",
-    description: "passive_spell_enhance_description",
+  spellAttack: {
+    id: "spellAttack",
+    description: "passive_spell_attack_description",
     priority: 2010,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_enhance"],
     kind: ["amulet", "ring", "pearl", "bracelet"],
   },
-  curseEnhance: {
-    id: "curseEnhance",
-    description: "passive_curse_enhance_description",
+  curseAttack: {
+    id: "curseAttack",
+    description: "passive_curse_attack_description",
     priority: 2005,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_enhance"],
     kind: ["amulet", "ring", "pearl", "bracelet"],
   },
@@ -284,7 +290,7 @@
     description: "passive_unarmed_penetration_description",
     priority: 2020,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_penetration"],
     kind: ["gloves", "boots"],
   },
@@ -293,7 +299,7 @@
     description: "passive_weapon_penetration_description",
     priority: 2015,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_penetration"],
     kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
   },
@@ -302,7 +308,7 @@
     description: "passive_spell_penetration_description",
     priority: 2010,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_penetration"],
     kind: ["amulet", "ring", "pearl", "bracelet"],
   },
@@ -311,7 +317,7 @@
     description: "passive_curse_penetration_description",
     priority: 2005,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_penetration"],
     kind: ["amulet", "ring", "pearl", "bracelet"],
   },
@@ -319,37 +325,83 @@
   // 抗性
   physicalResist: {
     id: "physicalResist",
-    description: "passive_physical_resistant_description",
+    description: "passive_physical_resist_description",
     priority: 1565,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   elementalResist: {
     id: "elementalResist",
-    description: "passive_elemental_resistant_description",
+    description: "passive_elemental_resist_description",
     priority: 1555,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   chiResist: {
     id: "chiResist",
-    description: "passive_chi_resistant_description",
+    description: "passive_chi_resist_description",
     priority: 1560,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   psychicResist: {
     id: "psychicResist",
-    description: "passive_psychic_resistant_description",
+    description: "passive_psychic_resist_description",
     priority: 1550,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
+    tags: ["status_resist"],
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+
+  // 抗性上限
+  physicalResistMax: {
+    id: "physicalResistMax",
+    description: "passive_physical_resist_max_description",
+    priority: 1545,
+    increment: 0.5,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
+    tags: ["status_resist"],
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  elementalResistMax: {
+    id: "elementalResistMax",
+    description: "passive_elemental_resist_max_description",
+    priority: 1540,
+    increment: 0.5,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
+    tags: ["status_resist"],
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  chiResistMax: {
+    id: "chiResistMax",
+    description: "passive_chi_resist_max_description",
+    priority: 1535,
+    increment: 0.5,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
+    tags: ["status_resist"],
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  psychicResistMax: {
+    id: "psychicResistMax",
+    description: "passive_psychic_resist_max_description",
+    priority: 1530,
+    increment: 0.5,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -358,36 +410,36 @@
   physicalPersistent: {
     id: "physicalPersistent",
     description: "passive_physical_persistent_description",
-    priority: 1565,
+    priority: 1525,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_persistent"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   chiPersistent: {
     id: "chiPersistent",
     description: "passive_chi_persistent_description",
-    priority: 1560,
+    priority: 1520,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_persistent"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   elementalPersistent: {
     id: "elementalPersistent",
     description: "passive_elemental_persistent_description",
-    priority: 1555,
+    priority: 1515,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_persistent"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   psychicPersistent: {
     id: "psychicPersistent",
     description: "passive_psychic_persistent_description",
-    priority: 1550,
+    priority: 1510,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_persistent"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -429,7 +481,7 @@
     description: "passive_light_radius_description",
     priority: 1224,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["lightRadius"],
   },
   identifyCardsCountMonthly: {
@@ -443,7 +495,7 @@
     description: "passive_expCollectEfficiency_description",
     priority: 1222,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["expCollectEfficiency"],
   },
   tribulationCountMax: {
@@ -451,7 +503,7 @@
     description: "passive_tribulationCountMax_description",
     priority: 1221,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["tribulationCount"],
   },
 
@@ -462,7 +514,8 @@
     description: "passive_dexterity_description",
     priority: 1020,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["dexterity"],
   },
   spirituality: {
@@ -471,7 +524,8 @@
     description: "passive_spirituality_description",
     priority: 1019,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["spirituality"],
   },
   strength: {
@@ -480,7 +534,8 @@
     description: "passive_strength_description",
     priority: 1018,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["strength"],
   },
   willpower: {
@@ -489,7 +544,8 @@
     description: "passive_willpower_description",
     priority: 1017,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["willpower"],
   },
   perception: {
@@ -498,7 +554,8 @@
     description: "passive_perception_description",
     priority: 1016,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["perception"],
   },
 
@@ -507,7 +564,8 @@
     description: "passive_life_max_description",
     priority: 925,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["lifeMax"],
   },
   manaMax: {
@@ -515,7 +573,8 @@
     description: "passive_mana_max_description",
     priority: 924,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_energy_positive_spell"],
   },
   chakraMax: {
@@ -523,7 +582,8 @@
     description: "passive_chakra_max_description",
     priority: 923,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_energy_positive_weapon"],
   },
   karmaMax: {
@@ -531,7 +591,8 @@
     description: "passive_karma_max_description",
     priority: 922,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isPermanentPotionAffix: true,
     tags: ["status_energy_positive_curse"],
   },
 
@@ -541,7 +602,8 @@
     description: "passive_start_battle_with_defense_physical_description",
     priority: 865,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_defense"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -550,7 +612,8 @@
     description: "passive_start_battle_with_defense_chi_description",
     priority: 860,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_defense"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -559,7 +622,8 @@
     description: "passive_start_battle_with_defense_elemental_description",
     priority: 855,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_defense"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -568,7 +632,8 @@
     description: "passive_start_battle_with_defense_psychic_description",
     priority: 850,
     increment: 0.5,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_defense"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
@@ -580,7 +645,8 @@
     description: "passive_start_battle_with_speed_quick_description",
     priority: 723,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_speed_quick"],
   },
   start_battle_with_dodge_nimble: {
@@ -589,7 +655,8 @@
     description: "passive_start_battle_with_dodge_nimble_description",
     priority: 722,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_dodge_nimble"],
   },
   start_deck_with_speed_quick: {
@@ -598,7 +665,7 @@
     description: "passive_start_deck_with_speed_quick_description",
     priority: 713,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_speed_quick"],
   },
   start_deck_with_dodge_nimble: {
@@ -607,8 +674,54 @@
     description: "passive_start_deck_with_dodge_nimble_description",
     priority: 712,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_dodge_nimble"],
+  },
+
+  // 元气
+  start_battle_with_energy_positive_life: {
+    id: "start_battle_with_energy_positive_life",
+    uniqueId: "start_with_energy_positive_life",
+    description: "passive_start_battle_with_energy_positive_life_description",
+    priority: 565,
+    increment: 0.2,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
+    tags: ["status_energy_positive_life"],
+  },
+  // 正气
+  start_battle_with_energy_positive_leech: {
+    id: "start_battle_with_energy_positive_leech",
+    uniqueId: "start_with_energy_positive_leech",
+    description: "passive_start_battle_with_energy_positive_leech_description",
+    priority: 560,
+    increment: 0.2,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
+    tags: ["status_energy_positive_leech"],
+  },
+  // 豪气
+  start_battle_with_energy_positive_pure: {
+    id: "start_battle_with_energy_positive_pure",
+    uniqueId: "start_with_energy_positive_pure",
+    description: "passive_start_battle_with_energy_positive_pure_description",
+    priority: 555,
+    increment: 0.2,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
+    tags: ["status_energy_positive_pure"],
+  },
+  // 无极之气
+  start_battle_with_energy_positive_ultimate: {
+    id: "start_battle_with_energy_positive_ultimate",
+    uniqueId: "start_with_energy_positive_ultimate",
+    description: "passive_start_battle_with_energy_positive_ultimate_description",
+    priority: 525,
+    increment: 0.2,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
+    tags: ["status_energy_positive_ultimate"],
+    rank: 5,
   },
 
   // 灵气
@@ -618,7 +731,8 @@
     description: "passive_start_battle_with_energy_positive_spell_description",
     priority: 890,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_energy_positive_spell"],
   },
   start_deck_with_energy_positive_spell: {
@@ -627,7 +741,7 @@
     description: "passive_start_deck_with_energy_positive_spell_description",
     priority: 889,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_energy_positive_spell"],
   },
   start_turn_with_energy_positive_spell: {
@@ -636,7 +750,7 @@
     description: "passive_start_turn_with_energy_positive_spell_description",
     priority: 888,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_energy_positive_spell"],
   },
 
@@ -647,7 +761,8 @@
     description: "passive_start_battle_with_energy_positive_weapon_description",
     priority: 880,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_energy_positive_weapon"],
   },
   start_deck_with_energy_positive_weapon: {
@@ -656,7 +771,7 @@
     description: "passive_start_deck_with_energy_positive_weapon_description",
     priority: 879,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_energy_positive_weapon"],
   },
 
@@ -667,49 +782,8 @@
     description: "passive_start_battle_with_energy_positive_unarmed_description",
     priority: 540,
     increment: 0.2,
-    isItemExtraAffix: true,
+    isItemAffix: true,
     tags: ["status_energy_positive_unarmed"],
-  },
-
-  // 元气
-  start_battle_with_energy_positive_life: {
-    id: "start_battle_with_energy_positive_life",
-    uniqueId: "start_with_energy_positive_life",
-    description: "passive_start_battle_with_energy_positive_life_description",
-    priority: 565,
-    increment: 0.2,
-    isItemExtraAffix: true,
-    tags: ["status_energy_positive_life"],
-  },
-  // 正气
-  start_battle_with_energy_positive_leech: {
-    id: "start_battle_with_energy_positive_leech",
-    uniqueId: "start_with_energy_positive_leech",
-    description: "passive_start_battle_with_energy_positive_leech_description",
-    priority: 560,
-    increment: 0.2,
-    isItemExtraAffix: true,
-    tags: ["status_energy_positive_leech"],
-  },
-  // 豪气
-  start_battle_with_energy_positive_pure: {
-    id: "start_battle_with_energy_positive_pure",
-    uniqueId: "start_with_energy_positive_pure",
-    description: "passive_start_battle_with_energy_positive_pure_description",
-    priority: 555,
-    increment: 0.2,
-    isItemExtraAffix: true,
-    tags: ["status_energy_positive_pure"],
-  },
-  start_battle_with_energy_positive_ultimate: {
-    id: "start_battle_with_energy_positive_ultimate",
-    uniqueId: "start_with_energy_positive_ultimate",
-    description: "passive_start_battle_with_energy_positive_ultimate_description",
-    priority: 525,
-    increment: 0.2,
-    isItemExtraAffix: true,
-    tags: ["status_energy_positive_ultimate"],
-    rank: 5,
   },
 
   // 辟邪（最多5层）
@@ -719,7 +793,8 @@
     priority: 520,
     increment: 0.2,
     maxLevel: 25,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_ward"],
   },
 
@@ -730,7 +805,8 @@
     priority: 510,
     increment: 0.2,
     maxLevel: 25,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_shield"],
   },
   start_battle_with_shield_chi: {
@@ -739,7 +815,8 @@
     priority: 509,
     increment: 0.2,
     maxLevel: 25,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_shield"],
   },
   start_battle_with_shield_elemental: {
@@ -748,7 +825,8 @@
     priority: 508,
     increment: 0.2,
     maxLevel: 25,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_shield"],
   },
   start_battle_with_shield_psychic: {
@@ -757,7 +835,8 @@
     priority: 507,
     increment: 0.2,
     maxLevel: 25,
-    isItemExtraAffix: true,
+    isItemAffix: true,
+    isEphemeralPotionAffix: true,
     tags: ["status_shield"],
   },
 
@@ -766,42 +845,11 @@
   //   description: "passive_start_battle_with_opponent_negative_status_description",
   //   priority: 515,
   //   increment: 0.2,
-  //   isItemExtraAffix: true,
+  //   isItemAffix: true,
   // },
 
   /// 天赋特殊词条
   /// 这些词条是天道技能的关键节点，不会出现在装备上
-
-  enable_auto_work: {
-    id: "enable_auto_work",
-    description: "passive_enable_auto_work_description",
-    priority: 3995,
-  },
-  enable_auto_cultivate: {
-    id: "enable_auto_cultivate",
-    description: "passive_enable_auto_cultivate_description",
-    priority: 3994,
-  },
-  enable_toolbar_cultivation: {
-    id: "enable_toolbar_cultivation",
-    description: "passive_enable_toolbar_cultivation_description",
-    priority: 3993,
-  },
-  enable_toolbar_library: {
-    id: "enable_toolbar_library",
-    description: "passive_enable_toolbar_library_description",
-    priority: 3993,
-  },
-  enable_cardcraft: {
-    id: "enable_cardcraft",
-    description: "passive_enable_cardcraft_description",
-    priority: 3993,
-  },
-  enable_scrollcraft: {
-    id: "enable_scrollcraft",
-    description: "passive_enable_scrollcraft_description",
-    priority: 3993,
-  },
 
   enable_chakra: {
     id: "enable_chakra",
@@ -854,6 +902,53 @@
     priority: 3980,
   },
 
+  // 功能性特殊词条
+  enable_auto_work: {
+    id: "enable_auto_work",
+    description: "passive_enable_auto_work_description",
+    priority: 3995,
+  },
+  enable_auto_cultivate: {
+    id: "enable_auto_cultivate",
+    description: "passive_enable_auto_cultivate_description",
+    priority: 3994,
+  },
+  enable_toolbar_cultivation: {
+    id: "enable_toolbar_cultivation",
+    description: "passive_enable_toolbar_cultivation_description",
+    priority: 3993,
+  },
+  enable_toolbar_library: {
+    id: "enable_toolbar_library",
+    description: "passive_enable_toolbar_library_description",
+    priority: 3993,
+  },
+  enable_cardcraft: {
+    id: "enable_cardcraft",
+    description: "passive_enable_cardcraft_description",
+    priority: 3993,
+  },
+  enable_scrollcraft: {
+    id: "enable_scrollcraft",
+    description: "passive_enable_scrollcraft_description",
+    priority: 3993,
+  },
+
   // 地牢玩法中的debuff
   // TODO: 只能使用某个流派的卡牌
+
+  // 丹药专属词条
+  // TODO: 回复的生命超过上限时转化为资源
+  heal: {
+    id: "heal",
+    description: "passive_heal_description",
+    increment: 2,
+    priority: 2500,
+  },
+  overheal: {
+    id: "overheal",
+    description: "passive_overheal_description",
+    increment: 2,
+    priority: 2490,
+  },
 }

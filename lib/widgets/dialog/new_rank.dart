@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
 import '../ui/bordered_icon_button.dart';
+import '../../state/hover_content.dart';
 
 class NewRank extends StatefulWidget {
   const NewRank({
@@ -31,7 +33,7 @@ class _NewRankState extends State<NewRank> {
         alignment: Alignment.center,
         child: SizedBox(
           width: 800.0,
-          height: 400.0,
+          height: 450.0,
           child: Column(
             children: [
               Image(image: AssetImage('assets/images/rank_up.png')),
@@ -42,6 +44,16 @@ class _NewRankState extends State<NewRank> {
                   image: AssetImage(
                       'assets/images/cultivation/cultivation${widget.rank}.png'),
                 ),
+                onMouseEnter: (rect) {
+                  context.read<HoverContentState>().show(
+                        engine.locale('cultivationRank_${widget.rank}'),
+                        rect,
+                        direction: HoverContentDirection.topCenter,
+                      );
+                },
+                onMouseExit: () {
+                  context.read<HoverContentState>().hide();
+                },
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),

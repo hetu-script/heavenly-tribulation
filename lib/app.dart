@@ -172,7 +172,6 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Dialog::execute', (
         {positionalArgs, namedArgs}) {
       engine.setCursor(Cursors.normal);
-      // context.read<CursorState>().set('normal');
       return dialog.execute();
     }, override: true);
 
@@ -338,12 +337,26 @@ class _GameAppState extends State<GameApp> {
       GameLogic.updateGame(
         tick: namedArgs['tick'] ?? 1,
         timeflow: namedArgs['timeflow'] ?? true,
+        forceUpdate: namedArgs['forceUpdate'] ?? false,
       );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHistory', (
         {positionalArgs, namedArgs}) {
       context.read<HeroAndGlobalHistoryState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::updateDungeon', (
+        {positionalArgs, namedArgs}) {
+      context.read<HeroPositionState>().updateDungeon(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::characterAllocateSkills', ({positionalArgs, namedArgs}) {
+      GameLogic.characterAllocateSkills(
+        positionalArgs.first,
+        rejuvenate: namedArgs['rejuvenate'] ?? false,
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::hideNpc', (
@@ -354,7 +367,6 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuest', (
         {positionalArgs, namedArgs}) {
       engine.setCursor(Cursors.normal);
-      // context.read<CursorState>().set('normal');
       context.read<NewQuestState>().update(quest: positionalArgs.first);
     }, override: true);
 
@@ -364,7 +376,6 @@ class _GameAppState extends State<GameApp> {
           ? positionalArgs.first
           : [positionalArgs.first];
       engine.setCursor(Cursors.normal);
-      // context.read<CursorState>().set('normal');
       final completer = Completer();
       context.read<NewItemsState>().update(items: items, completer: completer);
       return completer.future;
@@ -443,9 +454,8 @@ class _GameAppState extends State<GameApp> {
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'Game::characterAllocateSkills', ({positionalArgs, namedArgs}) {
-      GameLogic.characterAllocateSkills(positionalArgs.first);
-    }, override: true);
+        'Game::showDungeonEntrance', ({positionalArgs, namedArgs}) {},
+        override: true);
 
     engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
@@ -528,7 +538,6 @@ class _GameAppState extends State<GameApp> {
       _isInitted = true;
 
       // engine.setCursor(Cursors.normal);
-      // context.read<CursorState>().set('normal');
 
       engine.pushScene(Scenes.mainmenu, arguments: {'reset': true});
     } else {

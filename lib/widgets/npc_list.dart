@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/ink_button.dart';
 
 import 'avatar.dart';
-import '../state/current_npc_list.dart';
+import '../state/npc_list.dart';
 // import '../../state/game_dialog_state.dart';
 import '../game/ui.dart';
 import '../game/data.dart';
@@ -58,6 +58,7 @@ class _NpcListState extends State<NpcList> {
             borderRadius: 5.0,
             onPressed: (charId) {
               GameLogic.onInteractCharacter(character);
+              setState(() {});
             }),
       );
     }).toList();

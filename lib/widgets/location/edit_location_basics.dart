@@ -4,10 +4,10 @@ import 'package:samsara/extensions.dart' show StringEx;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../game/data.dart';
 import '../../game/ui.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
+import '../../common.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
@@ -98,14 +98,18 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
       _kinds['custom'] = engine.locale('custom');
 
       if (_selectedCategory == 'city') {
-        _kinds.addAll(GameData.cityKindNames);
+        _kinds.addAll({
+          for (final key in kLocationCityKinds) key: engine.locale(key),
+        });
       } else if (_selectedCategory == 'site') {
-        _kinds.addAll(GameData.siteKindNames);
+        _kinds.addAll({
+          for (final key in kLocationSiteKinds) key: engine.locale(key),
+        });
       }
     }
     _selectedKind = kind ?? _kinds.keys.first;
 
-    if (GameData.siteKindNames.containsKey(_selectedKind)) {
+    if (kLocationSiteKinds.contains(_selectedKind)) {
       assert(widget.atLocation != null);
       _idEditingController.text = '${widget.atLocation['id']}_$_selectedKind';
       _nameEditingController.text = engine.locale(_selectedKind);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/common.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
@@ -65,9 +66,8 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
 
     _idEditingController.text = widget.id ?? _nameEditingController.text;
 
-    selectedCategory =
-        widget.category ?? GameData.organizationCategoryNames.keys.random;
-    selectedGenre = widget.genre ?? GameData.cultivationGenreNames.keys.random;
+    selectedCategory = widget.category ?? kOrganizationCategories.random;
+    selectedGenre = widget.genre ?? kCultivationGenres.random;
 
     _headIdEditingController.text = widget.headId ?? '';
   }
@@ -156,8 +156,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           title: Text(engine.locale(selectedCategory)),
                           items: buildFluentMenuItems(
                             items: {
-                              for (final key
-                                  in GameData.organizationCategoryNames.keys)
+                              for (final key in kOrganizationCategories)
                                 engine.locale(key): key,
                             },
                             onSelectedItem: (String value) {
@@ -182,8 +181,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           title: Text(engine.locale(selectedGenre)),
                           items: buildFluentMenuItems(
                             items: {
-                              for (final key
-                                  in GameData.cultivationGenreNames.keys)
+                              for (final key in kCultivationGenres)
                                 engine.locale(key): key,
                             },
                             onSelectedItem: (String value) {

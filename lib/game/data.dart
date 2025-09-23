@@ -15,11 +15,34 @@ import '../engine.dart';
 import '../scene/common.dart';
 import 'logic.dart';
 
-/// Unicode Character "⎯" (U+23AF)
-const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+const _kSkinAnimationWidth = 288.0;
+const _kSkinAnimationHeight = 112.0;
+const _kSkinAnimationStepTime1 = 0.1;
+const _kSkinAnimationStepTime2 = 0.7;
 
-/// Unicode Character "∕" (U+2215)
-const kSlash = '∕';
+const _kActionIds = [
+  'defeat',
+  'dodge',
+  'hit',
+  'melee_startup',
+  'melee_recovery',
+  'attack_bow',
+  'attack_kick',
+  'attack_punch',
+  'attack_sabre',
+  'attack_spear',
+  'attack_sword',
+  'attack_staff',
+  'attack_spell',
+  'attack_spell_recovery',
+  'buff_kick',
+  'buff_punch',
+  'buff_sabre',
+  'buff_spear',
+  'buff_sword',
+  'buff_staff',
+  'buff_spell',
+];
 
 abstract class GameMusic {
   static const menu = 'chinese-oriental-tune-06-12062.mp3';
@@ -57,6 +80,7 @@ abstract class GameData {
   static final Map<String, dynamic> items = {};
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
+  static final Map<String, dynamic> craftables = {};
 
   static final Map<String, dynamic> maps = {};
 
@@ -78,13 +102,99 @@ abstract class GameData {
   // static bool isGameCreated = false;
 
   static Future<void> init() async {
+    if (_isInitted) {
+      throw 'Game data is already initted!';
+    }
     if (!engine.isInitted) {
       throw 'Game engine is not initted yet!';
     }
 
     final animationsDataString =
         await rootBundle.loadString('assets/data/animation.json5');
-    animations.addAll(JSON5.parse(animationsDataString));
+    final animationsData = JSON5.parse(animationsDataString);
+    for (final animId in animationsData.keys) {
+      if (animId == 'skinAnimationTemplate') {
+        final Map templateData = animationsData[animId];
+        List skinIds = templateData['skins'] ?? [];
+        for (final skinId in skinIds) {
+          final battleAnimationSpriteSheetId = 'character/battle_$skinId.png';
+          // final tilemapAnimationSpriteSheetId = 'character/tilemap_$skinId.png';
+
+          for (final genre in kCultivationGenres) {
+            // 每一个皮肤对于每个流派而言有不同的站姿和启动和返回动作
+            final Map skinAnimData = deepCopy(templateData);
+            skinAnimData.remove('skins');
+
+            skinAnimData['stand'] = skinAnimData['${genre}_stand'];
+            skinAnimData['stand']['width'] = _kSkinAnimationWidth;
+            skinAnimData['stand']['height'] = _kSkinAnimationHeight;
+            skinAnimData['stand']['stepTime'] = _kSkinAnimationStepTime2;
+            skinAnimData['stand']['loop'] = true;
+            skinAnimData['stand']['spriteSheet'] = battleAnimationSpriteSheetId;
+
+            skinAnimData['before_melee_startup'] =
+                skinAnimData['${genre}_before_melee_startup'];
+            skinAnimData['before_melee_startup']['width'] =
+                _kSkinAnimationWidth;
+            skinAnimData['before_melee_startup']['height'] =
+                _kSkinAnimationHeight;
+            skinAnimData['before_melee_startup']['stepTime'] =
+                _kSkinAnimationStepTime1;
+            skinAnimData['before_melee_startup']['spriteSheet'] =
+                battleAnimationSpriteSheetId;
+
+            skinAnimData['after_melee_recovery'] =
+                skinAnimData['${genre}_after_melee_recovery'];
+            skinAnimData['after_melee_recovery']['width'] =
+                _kSkinAnimationWidth;
+            skinAnimData['after_melee_recovery']['height'] =
+                _kSkinAnimationHeight;
+            skinAnimData['after_melee_recovery']['stepTime'] =
+                _kSkinAnimationStepTime1;
+            skinAnimData['after_melee_recovery']['spriteSheet'] =
+                battleAnimationSpriteSheetId;
+
+            for (final g in kCultivationGenres) {
+              skinAnimData.remove('${g}_stand');
+              skinAnimData.remove('${g}_before_melee_startup');
+              skinAnimData.remove('${g}_after_melee_recovery');
+            }
+
+            for (final actionId in _kActionIds) {
+              skinAnimData[actionId]['width'] = _kSkinAnimationWidth;
+              skinAnimData[actionId]['height'] = _kSkinAnimationHeight;
+              skinAnimData[actionId]['stepTime'] = _kSkinAnimationStepTime1;
+              skinAnimData[actionId]['spriteSheet'] =
+                  battleAnimationSpriteSheetId;
+            }
+
+            final skinAnimId = '${skinId}_$genre';
+            animations[skinAnimId] = skinAnimData;
+          }
+
+          final image = await Flame.images
+              .load('animation/$battleAnimationSpriteSheetId');
+          final sheet = SpriteSheet(
+            image: image,
+            srcSize: Vector2(_kSkinAnimationWidth, _kSkinAnimationHeight),
+          );
+          spriteSheets[battleAnimationSpriteSheetId] = sheet;
+        }
+      } else {
+        final animDataCollection = animationsData[animId];
+        animations[animId] = animDataCollection;
+        for (final animData in animDataCollection.values) {
+          final assetId = animData['spriteSheet'];
+          final image = await Flame.images.load('animation/$assetId');
+          final sheet = SpriteSheet(
+            image: image,
+            srcSize: Vector2(animData['width'], animData['height']),
+          );
+          spriteSheets[assetId] = sheet;
+        }
+      }
+    }
+    // animations.addAll(animationsData);
 
     final spriteSheetDataString =
         await rootBundle.loadString('assets/data/sprite_sheet.json5');
@@ -95,11 +205,10 @@ abstract class GameData {
       double? srcWidth = spriteSheetData['width'];
       double? srcHeight = spriteSheetData['height'];
       assert(srcWidth != null && srcHeight != null);
-      final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
       final image = await Flame.images.load(assetId);
       final sheet = SpriteSheet(
         image: image,
-        srcSize: srcSize,
+        srcSize: Vector2(srcWidth!, srcHeight!),
       );
       spriteSheets[assetId] = sheet;
     }
@@ -143,6 +252,10 @@ abstract class GameData {
     final passiveTreeDataString =
         await rootBundle.loadString('assets/data/passive_tree.json5');
     passiveTree.addAll(JSON5.parse(passiveTreeDataString));
+
+    final craftablesDataString =
+        await rootBundle.loadString('assets/data/craftables.json5');
+    craftables.addAll(JSON5.parse(craftablesDataString));
 
     // 拼接技能树节点的描述
     for (final passiveTreeNodeData in passiveTree.values) {
@@ -207,23 +320,6 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/maps.json5');
     maps.addAll(JSON5.parse(mapsDataString));
 
-    for (final key in kBattleAttributes) {
-      attributeNames[key] =
-          (engine.locale(key), engine.locale('${key}_description'));
-    }
-    for (final key in kOrganizationCategories) {
-      organizationCategoryNames[key] = engine.locale(key);
-    }
-    for (final key in kCultivationGenres) {
-      cultivationGenreNames[key] = engine.locale(key);
-    }
-    for (final key in kLocationCityKinds) {
-      cityKindNames[key] = engine.locale(key);
-    }
-    for (final key in kLocationSiteKinds) {
-      siteKindNames[key] = engine.locale(key);
-    }
-
     _isInitted = true;
   }
 
@@ -244,6 +340,7 @@ abstract class GameData {
 
     engine.hetu.invoke('init', namedArgs: {
       'itemsData': GameData.items,
+      'craftablesData': GameData.craftables,
       'battleCardsData': GameData.battleCards,
       'battleCardAffixesData': GameData.battleCardAffixes,
       'passivesData': GameData.passives,
@@ -395,13 +492,14 @@ abstract class GameData {
       }
       double? srcWidth = animData['width'];
       double? srcHeight = animData['height'];
-      assert(srcWidth != null && srcHeight != null);
+      assert(srcWidth != null && srcHeight != null,
+          'Animation data has no width or height. [$path/$state]: $animData');
       final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
       SpriteSheet? spriteSheet = GameData.spriteSheets[animData['spriteSheet']];
       double offsetX = animData['offsetX'] ?? 0;
       double offsetY = animData['offsetY'] ?? 0;
       final anim = SpriteAnimationWithTicker(
-        animationId: animData['assetId'],
+        // animationId: animData['assetId'],
         spriteSheet: spriteSheet,
         srcSize: srcSize,
         renderRect: Rect.fromLTWH(
@@ -483,12 +581,8 @@ abstract class GameData {
     return card;
   }
 
-  static String getPassivesDescription([dynamic character]) {
-    character ??= GameData.hero;
-    final passivesData = character['passives'];
+  static String _getPassivesDescription(dynamic passivesData) {
     final builder = StringBuffer();
-    builder.writeln(
-        '${engine.locale('passivetree_hero_skills_description_title')}\n ');
     if (passivesData.isEmpty) {
       builder.writeln('<grey>${engine.locale('none')}</>');
     } else {
@@ -527,6 +621,25 @@ abstract class GameData {
     return builder.toString();
   }
 
+  static String getPassivesDescription([dynamic character]) {
+    character ??= GameData.hero;
+    final builder = StringBuffer();
+
+    final passivesDescription = _getPassivesDescription(character['passives']);
+    final potionPassivesDescription =
+        _getPassivesDescription(character['potionPassives']);
+
+    builder.writeln(
+        '${engine.locale('passivetree_passives_description_title')}\n ');
+    builder.writeln(passivesDescription);
+
+    builder.writeln(
+        '${engine.locale('passivetree_potion_passives_description_title')}\n ');
+    builder.writeln(potionPassivesDescription);
+
+    return builder.toString();
+  }
+
   static String getDescriptionFromItemData(
     dynamic itemData, {
     bool isInventory = false,
@@ -547,7 +660,7 @@ abstract class GameData {
 
     final level = itemData['level'];
     final levelString =
-        level != null ? '(${engine.locale('level')}: $level)' : '';
+        level != null ? '(${engine.locale('level2')}: $level)' : '';
 
     String titleString;
     if (isIdentified) {
@@ -576,7 +689,7 @@ abstract class GameData {
     // description.writeln(kSeparateLine);
     final flavortext = itemData['flavortext'];
     if (flavortext != null) {
-      description.writeln('<grey>$flavortext</>');
+      description.writeln('<lightGreen>$flavortext</>');
     }
 
     final chargeData = itemData['chargeData'];
@@ -622,7 +735,7 @@ abstract class GameData {
         if (i != 0 && isDetailed) {
           final level = passiveData['level'];
           final levelString =
-              level != null ? ' (${engine.locale('level')}: $level)' : '';
+              level != null ? ' (${engine.locale('level2')}: $level)' : '';
           descriptionString = '$descriptionString $levelString';
         }
 
@@ -711,8 +824,8 @@ abstract class GameData {
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
   static (String, String) getDescriptionFromCardData(
     dynamic cardData, {
-    bool isLibrary = true,
     bool isDetailed = false,
+    bool showRequirement = true,
     bool showDetailedHint = true,
     bool showDebugId = true,
   }) {
@@ -732,7 +845,7 @@ abstract class GameData {
     final description = StringBuffer();
     final extraDescription = StringBuffer();
 
-    final levelPrefix = engine.locale('level');
+    final levelPrefix = engine.locale('level2');
 
     String titleString = isDetailed
         ? '<bold rank$cardRank t7>$title ($levelPrefix $cardLevel)</>'
@@ -804,7 +917,7 @@ abstract class GameData {
       }
     }
 
-    if (isIdentified && isLibrary) {
+    if (isIdentified && showRequirement) {
       String? requirementString = GameLogic.checkRequirements(cardData);
       if (requirementString != null) {
         extraDescription.writeln(requirementString);

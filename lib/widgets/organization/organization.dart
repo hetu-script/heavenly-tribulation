@@ -32,7 +32,7 @@ class OrganizationView extends StatefulWidget {
 }
 
 class _OrganizationViewState extends State<OrganizationView> {
-  static late final List<Tab> _tabs;
+  static late List<Tab> tabs;
   late final HTStruct _organization;
 
   final List<List<String>> _charactersTable = [], _locationsTable = [];
@@ -75,18 +75,16 @@ class _OrganizationViewState extends State<OrganizationView> {
       (loc) => locationIds.contains(loc['id']),
     );
 
-    int citiesCount = 0;
     for (final location in locations) {
       if (location['category'] != 'city') continue;
-      ++citiesCount;
       final row = GameLogic.getLocationInformationRow(location);
       _locationsTable.add(row);
     }
 
-    _tabs = [
+    tabs = [
       Tab(text: engine.locale('information')),
-      Tab(text: engine.locale('character')),
-      Tab(text: '${engine.locale('city')}($citiesCount)'),
+      Tab(text: '${engine.locale('character')}(${_charactersTable.length})'),
+      Tab(text: '${engine.locale('city')}(${_locationsTable.length})'),
     ];
   }
 
@@ -100,14 +98,14 @@ class _OrganizationViewState extends State<OrganizationView> {
       width: 800.0,
       height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
       child: DefaultTabController(
-        length: _tabs.length,
+        length: tabs.length,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(_organization['name']),
             actions: const [CloseButton2()],
             bottom: TabBar(
-              tabs: _tabs,
+              tabs: tabs,
             ),
           ),
           body: TabBarView(

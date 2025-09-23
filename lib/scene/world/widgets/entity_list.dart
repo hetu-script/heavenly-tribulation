@@ -146,7 +146,7 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
     {
       type: 'equipment',
       kind: 'sword',
-      rarity: 'basic',
+      rarity: 'common',
       rank: 0,
       level: 0,
     },
@@ -248,7 +248,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   Scene? _scene;
 
-  static final List<Widget> _tabs = [
+  static List<Widget> tabs = [
     Tab(text: engine.locale('character')),
     Tab(text: engine.locale('organization')),
     Tab(text: engine.locale('location')),
@@ -482,13 +482,13 @@ class _EntityListPanelState extends State<EntityListPanel>
       width: widget.size.width,
       height: widget.size.height,
       child: DefaultTabController(
-        length: _tabs.length,
+        length: tabs.length,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('gameEntity')),
             bottom: TabBar(
-              tabs: _tabs,
+              tabs: tabs,
             ),
           ),
           body: TabBarView(
@@ -515,7 +515,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           race,
                           icon,
                           illustration,
-                          model,
+                          skin,
                         ) = value;
                         final character =
                             engine.hetu.invoke('Character', namedArgs: {
@@ -527,7 +527,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           'race': race,
                           'icon': icon,
                           'illustration': illustration,
-                          'model': model,
+                          'skin': skin,
                         });
                         await showDialog(
                             context: context,
@@ -1012,11 +1012,12 @@ class _EntityListPanelState extends State<EntityListPanel>
                                         description: engine
                                             .locale('dangerOperationPrompt')),
                                   );
-                                  if (value == true) {
-                                    engine.hetu.invoke('removeLocationById',
-                                        positionalArgs: [dataId]);
-                                    _updateLocations();
-                                  }
+                                  if (value != true) return;
+                                  final location =
+                                      GameData.game['locations'][dataId];
+                                  engine.hetu.invoke('removeLocation',
+                                      positionalArgs: [location]);
+                                  _updateLocations();
                               }
                             });
                       },

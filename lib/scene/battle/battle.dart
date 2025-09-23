@@ -28,11 +28,11 @@ const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
-const kStatsToPermenantEffects = {
-  'unarmedEnhance': ('enhance_unarmed', 'weaken_unarmed'),
-  'weaponEnhance': ('enhance_weapon', 'weaken_weapon'),
-  'spellEnhance': ('enhance_spell', 'weaken_spell'),
-  'curseEnhance': ('enhance_curse', 'weaken_curse'),
+const kStatsToPermanentEffects = {
+  'unarmedAttack': ('enhance_unarmed', 'weaken_unarmed'),
+  'weaponAttack': ('enhance_weapon', 'weaken_weapon'),
+  'spellAttack': ('enhance_spell', 'weaken_spell'),
+  'curseAttack': ('enhance_curse', 'weaken_curse'),
   'physicalResist': ('resistant_physical', 'weakness_physical'),
   'chiResist': ('resistant_chi', 'weakness_chi'),
   'elementalResist': ('resistant_elemental', 'weakness_elemental'),
@@ -146,10 +146,10 @@ class BattleScene extends Scene {
         );
 
   void _prepareBattleStart(BattleCharacter character) {
-    for (final statName in kStatsToPermenantEffects.keys) {
+    for (final statName in kStatsToPermanentEffects.keys) {
       final int value = character.data['stats'][statName];
       final (positiveEffectId, negativeEffectId) =
-          kStatsToPermenantEffects[statName]!;
+          kStatsToPermanentEffects[statName]!;
       if (value > 0) {
         character.addStatusEffect(positiveEffectId,
             amount: value, handleCallback: false);
@@ -275,21 +275,36 @@ class BattleScene extends Scene {
     );
     world.add(heroDeckZone);
 
-    final heroModelId = heroData['model'];
+    final heroSkinId = heroData['skin'];
+    final heroGenre = heroData['cultivationFavor'];
     final Set<String> heroAnimationStates = {};
     final Set<String> heroOverlayAnimationStates = {};
     for (final card in heroDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        String? startup = affix['animation']?['startup'];
-        String? recovery = affix['animation']?['recovery'];
-        List<String> transitions =
-            List<String>.from(affix['animation']?['transitions'] ?? []);
-        List<String> overlays =
-            List<String>.from(affix['animation']?['overlays'] ?? []);
-        if (startup != null) heroAnimationStates.add(startup);
-        if (recovery != null) heroAnimationStates.add(recovery);
-        heroAnimationStates.addAll(transitions);
+        var startupRaw = affix['animation']?['startup'] ?? [];
+        if (startupRaw is! List) {
+          startupRaw = [startupRaw];
+        }
+        List<String> startup = List<String>.from(startupRaw);
+        var recoveryRaw = affix['animation']?['recovery'] ?? [];
+        if (recoveryRaw is! List) {
+          recoveryRaw = [recoveryRaw];
+        }
+        List<String> recovery = List<String>.from(recoveryRaw);
+        var actionsRaw = affix['animation']?['actions'] ?? [];
+        if (actionsRaw is! List) {
+          actionsRaw = [actionsRaw];
+        }
+        List<String> actions = List<String>.from(actionsRaw);
+        var overlaysRaw = affix['animation']?['overlays'] ?? [];
+        if (overlaysRaw is! List) {
+          overlaysRaw = [overlaysRaw];
+        }
+        List<String> overlays = List<String>.from(overlaysRaw);
+        heroAnimationStates.addAll(startup);
+        heroAnimationStates.addAll(recovery);
+        heroAnimationStates.addAll(actions);
         heroOverlayAnimationStates.addAll(overlays);
       }
     }
@@ -299,7 +314,8 @@ class BattleScene extends Scene {
       position: GameUI.p1CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       isHero: true,
-      modelId: heroModelId,
+      skinId: heroSkinId,
+      genre: heroGenre,
       animationStates: heroAnimationStates,
       overlayAnimationStates: heroOverlayAnimationStates,
       data: heroData,
@@ -316,21 +332,36 @@ class BattleScene extends Scene {
     );
     world.add(enemyDeckZone);
 
-    final enemyModelId = enemyData['model'];
+    final enemySkinId = enemyData['skin'];
+    final enemyGenre = enemyData['cultivationFavor'];
     final Set<String> enemyAnimationStates = {};
     final Set<String> enemyOverlayAnimationStates = {};
     for (final card in enemyDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        String? startup = affix['animation']?['startup'];
-        String? recovery = affix['animation']?['recovery'];
-        List<String> transitions =
-            List<String>.from(affix['animation']?['transitions'] ?? []);
-        List<String> overlays =
-            List<String>.from(affix['animation']?['overlays'] ?? []);
-        if (startup != null) enemyAnimationStates.add(startup);
-        if (recovery != null) enemyAnimationStates.add(recovery);
-        enemyAnimationStates.addAll(transitions);
+        var startupRaw = affix['animation']?['startup'] ?? [];
+        if (startupRaw is! List) {
+          startupRaw = [startupRaw];
+        }
+        List<String> startup = List<String>.from(startupRaw);
+        var recoveryRaw = affix['animation']?['recovery'] ?? [];
+        if (recoveryRaw is! List) {
+          recoveryRaw = [recoveryRaw];
+        }
+        List<String> recovery = List<String>.from(recoveryRaw);
+        var actionsRaw = affix['animation']?['actions'] ?? [];
+        if (actionsRaw is! List) {
+          actionsRaw = [actionsRaw];
+        }
+        List<String> actions = List<String>.from(actionsRaw);
+        var overlaysRaw = affix['animation']?['overlays'] ?? [];
+        if (overlaysRaw is! List) {
+          overlaysRaw = [overlaysRaw];
+        }
+        List<String> overlays = List<String>.from(overlaysRaw);
+        enemyAnimationStates.addAll(startup);
+        enemyAnimationStates.addAll(recovery);
+        enemyAnimationStates.addAll(actions);
         enemyOverlayAnimationStates.addAll(overlays);
       }
     }
@@ -339,7 +370,8 @@ class BattleScene extends Scene {
     enemy = BattleCharacter(
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
-      modelId: enemyModelId,
+      skinId: enemySkinId,
+      genre: enemyGenre,
       animationStates: enemyAnimationStates,
       overlayAnimationStates: enemyOverlayAnimationStates,
       data: enemyData,
@@ -632,12 +664,18 @@ class BattleScene extends Scene {
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(turnCount);
     final int life = hero.life;
     if (battleResult == true) {
-      final int newLife = life + (hero.lifeMax * hpRestoreRate).toInt();
+      final replenish = (hero.lifeMax * hpRestoreRate).round();
+      engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
+      final int newLife = life + replenish;
       hero.setLife(newLife);
+    } else {
+      if (life <= 0) {
+        hero.setLife(1);
+      } else if (life > hero.lifeMax) {
+        hero.setLife(hero.lifeMax);
+      }
     }
     hero.data['life'] = hero.life;
-    engine.info('战斗结果：[$battleResult], 角色生命恢复：${hero.life - life}');
-
     await onBattleEnd?.call(battleResult);
 
     context.read<EnemyState>().clear();

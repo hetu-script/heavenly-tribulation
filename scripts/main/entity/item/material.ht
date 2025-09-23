@@ -25,7 +25,7 @@ const kMaterialKinds = [
   'ore',
 ]
 
-const kOtherMaterialKinds = [
+const kNoncurrencyMaterialKinds = [
   'worker',
   'water',
   'grain',
@@ -37,19 +37,6 @@ const kOtherMaterialKinds = [
   'ore',
 ]
 
-const kMaterialBasePriceByKind = {
-  'shard': 1000,
-  'worker': 40,
-  'water': 20,
-  'grain': 40,
-  'meat': 80,
-  'herb': 80,
-  'leather': 160,
-  'timber': 160,
-  'stone': 320,
-  'ore': 640,
-}
-
 /// 材料包类物品在获得后，可以自动转化为材料数值
 struct Materialpack {
   constructor ({
@@ -60,9 +47,8 @@ struct Materialpack {
     assert(kind != null)
 
     this.id = id ?? crypto.randomUID(withTime: true)
-
     this.entityType = kEntityTypeItem
-    this.rarity = kRare
+    this.rarity = kRarityRare
     this.color = kRarity[this.rarity].color
     this.name = engine.locale('${kind}_package')
     this.icon = 'item/material/${kind}.png'
@@ -76,8 +62,8 @@ struct Materialpack {
     this.isIdentified = true
     this.isUsable = true
     
-    if (kMaterialBasePriceByKind.contains(kind)) {
-      this.price = kMaterialBasePriceByKind[kind] * this.stackSize
+    if (Constants.basePriceOfMaterialKind.containsKey(kind)) {
+      this.price = Constants.basePriceOfMaterialKind[kind] * this.stackSize
     }
   }
 }

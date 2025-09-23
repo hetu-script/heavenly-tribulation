@@ -23,11 +23,11 @@ enum DebugMenuItems {
   debugQuest,
   debugMerchant,
   debugMaterialMerchant,
+  debugWorkbench,
+  debugAutoAllocateSkills,
   debugCompanion,
   debugBattle,
   debugTribulation,
-  debugAutoAllocateSkills,
-  debugPushMultipleScenes,
 }
 
 enum MenuStates {
@@ -200,8 +200,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
                           engine.hetu.invoke('resetDungeon', namedArgs: {
-                            // 'rank': GameData.heroData['rank'],
-                            // 'isTutorial': true,
+                            'rank': GameData.hero['rank'],
                           });
                           engine.pushScene(
                             'dungeon_1',
@@ -391,18 +390,18 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugDialog'): DebugMenuItems.debugDialog,
                 engine.locale('debugItem'): DebugMenuItems.debugItem,
                 engine.locale('debugQuest'): DebugMenuItems.debugQuest,
-                '___': null,
+                '___1': null,
                 engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
                 engine.locale('debugMaterialMerchant'):
                     DebugMenuItems.debugMaterialMerchant,
+                engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
+                '___2': null,
+                engine.locale('debugAutoAllocateSkills'):
+                    DebugMenuItems.debugAutoAllocateSkills,
                 engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
                 engine.locale('debugBattle'): DebugMenuItems.debugBattle,
                 engine.locale('debugTribulation'):
                     DebugMenuItems.debugTribulation,
-                engine.locale('debugAutoAllocateSkills'):
-                    DebugMenuItems.debugAutoAllocateSkills,
-                'debugPushMultipleScenes':
-                    DebugMenuItems.debugPushMultipleScenes,
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
@@ -442,7 +441,8 @@ class _DebugButtonState extends State<DebugButton> {
                         namespace: 'Debug', positionalArgs: [merchant]);
                     context.read<MerchantState>().show(
                       merchant,
-                      priceFactor: {
+                      useShard: true,
+                      priceFactor: <String, dynamic>{
                         'base': 1.2,
                       },
                     );
@@ -474,11 +474,15 @@ class _DebugButtonState extends State<DebugButton> {
                     }
                     context.read<MerchantState>().show(
                       merchant,
-                      useShard: true,
-                      priceFactor: {
+                      materialMode: true,
+                      priceFactor: <String, dynamic>{
                         'base': 1.2,
                       },
                     );
+                  case DebugMenuItems.debugWorkbench:
+                    context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+                  case DebugMenuItems.debugAutoAllocateSkills:
+                    GameLogic.characterAllocateSkills(GameData.hero);
                   case DebugMenuItems.debugCompanion:
                     final companion = engine.hetu.invoke('Character');
                     engine.hetu.invoke(
@@ -495,18 +499,13 @@ class _DebugButtonState extends State<DebugButton> {
                       'level': GameData.hero['level'],
                       'rank': GameData.hero['rank'],
                     });
-                    GameLogic.characterAllocateSkills(enemy);
+                    GameLogic.characterAllocateSkills(enemy, rejuvenate: true);
                     engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
                     context.read<EnemyState>().show(enemy);
                   case DebugMenuItems.debugTribulation:
                     final targetRank = GameData.hero['rank'] + 1;
                     final levelMin = GameLogic.minLevelForRank(targetRank);
                     GameLogic.showTribulation(levelMin + 5, targetRank);
-                  case DebugMenuItems.debugAutoAllocateSkills:
-                    GameLogic.characterAllocateSkills(GameData.hero);
-                  case DebugMenuItems.debugPushMultipleScenes:
-                    engine.pushScene(Scenes.cultivation);
-                    engine.pushScene(Scenes.library);
                 }
               },
             );

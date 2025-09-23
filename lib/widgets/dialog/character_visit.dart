@@ -26,7 +26,7 @@ class CharacterVisitDialog extends StatelessWidget {
     required Iterable<dynamic> characterIds,
     bool heroResidesHere = false,
   }) async {
-    assert(characterIds.isNotEmpty);
+    assert(characterIds.isNotEmpty || heroResidesHere);
     return await showDialog<String?>(
       context: context,
       builder: (BuildContext context) {

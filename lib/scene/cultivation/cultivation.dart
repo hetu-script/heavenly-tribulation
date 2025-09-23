@@ -288,7 +288,7 @@ class CultivationScene extends Scene {
     Vector2 randomPosition;
     do {
       randomPosition =
-          generateRandomPointInCircle(cultivator.center, 640, exponent: 0.2);
+          generateRandomPointOnCircle(cultivator.center, 640, exponent: 0.2);
     } while (cultivator.containsPoint(randomPosition));
     final lightPoint = LightPoint(
       position: randomPosition,
@@ -302,8 +302,8 @@ class CultivationScene extends Scene {
   }
 
   /// 出于性能考虑，光点数量上限 200 个
-  void updateExpLightPoints({clearCached = false}) {
-    if (clearCached) {
+  void updateExpLightPoints({bool clearCache = false}) {
+    if (clearCache) {
       for (final light in _lightPoints) {
         light.removeFromParent();
       }
@@ -510,7 +510,7 @@ class CultivationScene extends Scene {
           assert(attributeSkillData != null);
           String attributeDescription = engine.locale(
               attributeSkillData['description'],
-              interpolations: [kAttributeAnyLevel]);
+              interpolations: ['+${(kAttributeAnyLevel * 0.5).toInt()}']);
           skillDescription.writeln('<lightBlue>$attributeDescription</>');
         } else {
           skillDescription.writeln(passiveTreeNodeData['description']);
@@ -802,7 +802,7 @@ class CultivationScene extends Scene {
     for (var i = 0; i < kTrackRadius.length; i++) {
       final radius = kTrackRadius[i].$1;
       final count = kTrackRadius[i].$2;
-      final track = generateDividingPointsFromCircle(
+      final track = generateDividingPointsOnCircle(
           center: center, radius: radius.toDouble(), number: count);
       for (var j = 0; j < track.length; j++) {
         final id = 'track_${i}_$j';
@@ -854,8 +854,8 @@ class CultivationScene extends Scene {
       }
     }
 
-    final lightTrailCoordinates1 = generateDividingPointsFromCircle(
-        center: center, radius: 200, number: 24);
+    final lightTrailCoordinates1 =
+        generateDividingPointsOnCircle(center: center, radius: 200, number: 24);
     _lightTrails.addAll([
       LightTrail(
         radius: 200,
@@ -874,8 +874,8 @@ class CultivationScene extends Scene {
       ),
     ]);
 
-    final lightTrailCoordinates2 = generateDividingPointsFromCircle(
-        center: center, radius: 350, number: 30);
+    final lightTrailCoordinates2 =
+        generateDividingPointsOnCircle(center: center, radius: 350, number: 30);
     _lightTrails.addAll([
       LightTrail(
         radius: 350,
@@ -904,8 +904,8 @@ class CultivationScene extends Scene {
       ),
     ]);
 
-    final lightTrailCoordinates3 = generateDividingPointsFromCircle(
-        center: center, radius: 500, number: 36);
+    final lightTrailCoordinates3 =
+        generateDividingPointsOnCircle(center: center, radius: 500, number: 36);
     _lightTrails.addAll([
       LightTrail(
         radius: 500,
@@ -971,7 +971,7 @@ class CultivationScene extends Scene {
     updatePassivesDescription();
     updateInformation();
     updateExpBar();
-    updateExpLightPoints(clearCached: true);
+    updateExpLightPoints(clearCache: true);
     setMeditateState(false);
 
     if (mode != CultivationMode.none) {

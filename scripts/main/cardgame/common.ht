@@ -1,18 +1,3 @@
-const kAttackTypes = [
-  'unarmed',
-  'weapon',
-  'spell',
-  'curse',
-]
-
-const kDamageTypes = [
-  'physical',
-  'chi',
-  'elemental',
-  'psychic',
-  // 'pure',
-]
-
 const kDebuffs = [
   'weaken_unarmed',
   'weaken_weapon',

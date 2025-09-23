@@ -10,16 +10,16 @@ import '../../../game/logic.dart';
 export '../../../common.dart' show ItemType;
 
 /// 如果是玩家自己的物品栏，则传入characterData
-class Inventory extends StatefulWidget {
-  const Inventory({
+class Inventory extends StatelessWidget {
+  Inventory({
     super.key,
     required this.character,
     required this.type,
     this.height = 312.0,
-    this.minSlotCount = 30,
+    this.minSlotCount = 60,
     this.gridsPerLine = 5,
-    this.onTapped,
-    this.onSecondaryTapped,
+    this.onItemTapped,
+    this.onItemSecondaryTapped,
     this.selectedItemId = const [],
     this.priceFactor,
     this.filter,
@@ -29,33 +29,25 @@ class Inventory extends StatefulWidget {
   final ItemType type;
   final double height;
   final int minSlotCount, gridsPerLine;
-  final void Function(dynamic itemData, Offset screenPosition)? onTapped;
+  final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
-      onSecondaryTapped;
+      onItemSecondaryTapped;
   final Iterable selectedItemId;
   final dynamic priceFactor;
   final dynamic filter;
 
-  @override
-  State<Inventory> createState() => _InventoryState();
-}
-
-class _InventoryState extends State<Inventory> {
   final _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _scrollController.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final filteredItems = GameLogic.getFilteredItems(widget.character,
-        type: widget.type, filter: widget.filter);
+    final filteredItems = GameLogic.getFilteredItems(
+      character,
+      type: type,
+      filter: filter,
+      filterShard: priceFactor?['useShard'] ?? false,
+    );
 
     for (final itemData in filteredItems) {
       grids.add(
@@ -64,27 +56,27 @@ class _InventoryState extends State<Inventory> {
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
-            switch (widget.type) {
+            switch (type) {
               case ItemType.none:
               case ItemType.npc:
               case ItemType.player:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: widget.type,
+                      type: type,
                       rect,
                     );
               case ItemType.merchant:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: widget.type,
-                      data2: widget.priceFactor,
+                      type: type,
+                      data2: priceFactor,
                       rect,
                     );
               case ItemType.customer:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: widget.type,
-                      data2: widget.priceFactor,
+                      type: type,
+                      data2: priceFactor,
                       rect,
                     );
             }
@@ -92,16 +84,15 @@ class _InventoryState extends State<Inventory> {
           onMouseExit: () {
             context.read<HoverContentState>().hide();
           },
-          onTapped: widget.onTapped,
-          onSecondaryTapped: widget.onSecondaryTapped,
-          isSelected: widget.selectedItemId.contains(itemData['id']),
+          onTapped: onItemTapped,
+          onSecondaryTapped: onItemSecondaryTapped,
+          isSelected: selectedItemId.contains(itemData['id']),
         ),
       );
     }
 
     int gridCount = math.max(
-        (grids.length ~/ widget.gridsPerLine + 1) * widget.gridsPerLine,
-        widget.minSlotCount);
+        (grids.length ~/ gridsPerLine + 1) * gridsPerLine, minSlotCount);
 
     while (grids.length < gridCount) {
       grids.add(
@@ -118,8 +109,8 @@ class _InventoryState extends State<Inventory> {
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SizedBox(
-            width: (kDefaultItemGridSize.width + 4.0) * widget.gridsPerLine,
-            height: widget.height,
+            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine,
+            height: height,
             child: ListView(
               shrinkWrap: true,
               children: [

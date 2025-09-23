@@ -59,7 +59,7 @@ async function card_script_main_attack_multiple(self, opponent, affix) {
 }
 /// 攻击消耗资源
 async function card_script_main_attack_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -71,7 +71,7 @@ async function card_script_main_attack_exhaust(self, opponent, affix) {
 }
 /// 攻击附带缓慢消耗资源
 async function card_script_main_attack_slow_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -84,7 +84,7 @@ async function card_script_main_attack_slow_exhaust(self, opponent, affix) {
 }
 /// 攻击附带迟钝消耗资源
 async function card_script_main_attack_clumsy_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -97,7 +97,7 @@ async function card_script_main_attack_clumsy_exhaust(self, opponent, affix) {
 }
 /// 多次攻击消耗资源
 async function card_script_main_attack_multiple_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   for (final i in range(affix.value[1])) {
     await opponent.takeDamage({

@@ -1,4 +1,7 @@
 {
+  "currentDungeonLevel": "当前层数",
+  "currentDungeonRoom": "当前房间",
+
   "bed": "床",
   "bloodCoffin": "血棺",
   "bloodCoffin_description": "血棺\n在这里休息可以恢复50%的体力。只能使用一次。",
@@ -11,7 +14,7 @@
   "enchanter": "附魔师",
   "scrollCrafter": "制符师",
   "alchemist": "丹师",
-  "bookDealer": "书商",
+  "bookdealer": "书商",
   "arrayMaster": "阵法师",
 
   "dungeonGuard": "洞天守卫士兵",

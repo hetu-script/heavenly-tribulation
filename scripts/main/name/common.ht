@@ -26,14 +26,12 @@ const kNameWithLinkWordProbability = 0.15
 const kFamilyNamePostfixes = ['家', '氏']
 
 const kRarityNames = [
-  'arcane',
-  'mythic',
-  'unique',
-  'legendary',
-  'epic',
-  'rare',
-  'uncommon',
   'common',
+  'rare',
+  'epic',
+  'legendary',
+  'mythic',
+  'arcane',
 ]
 
 export {

@@ -28,6 +28,9 @@
   "loading": "载入中...",
   "menu": "菜单",
   "untitled": "未命名",
+  "execute": "执行",
+
+  "noUsableItems": "无可用项目",
 
   "generateZone": "自动生成地域",
   "reloadGameData": "重新载入游戏数据",
@@ -129,6 +132,7 @@
   "inputScriptCode": "输入脚本代码",
   "inputDescription": "输入一段文字",
   "select": "选择",
+  "unselect": "取消选择",
   "selectOne": "选择一个",
   "selectHero": "选择你要扮演的人物",
   "selectCharacter": "选择一个人物",
@@ -146,7 +150,8 @@
 
   "difficulty": "难度",
   "level": "修为等级",
-  "level2": "层",
+  "level2": "等级",
+  "level3": "层",
   "use": "使用",
   "equip": "装备",
   "unequip": "卸下",
@@ -222,15 +227,12 @@
   "equipments": "装备",
   "rarity": "品级",
 
-  "basic": "无品",
   "common": "凡品",
-  "uncommon": "良品",
-  "rare": "上品",
-  "epic": "极品",
-  "legendary": "神品",
-  "unique": "秘宝",
-  "mythic": "古宝",
-  "arcane": "灵宝",
+  "rare": "良品",
+  "epic": "上品",
+  "legendary": "极品",
+  "mythic": "绝品",
+  "arcane": "神品",
 
   "normal": "普通",
   "hard": "困难",
@@ -273,7 +275,7 @@
   "illustration": "立绘",
   "image": "图片",
   "background": "背景图",
-  "model": "外观",
+  "skin": "外观",
   "offsetY": "Y轴偏移",
 
   "createNpc": "创建NPC",
@@ -312,7 +314,6 @@
   "organizationInformation": "门派情报",
   "characterInformation": "人物情报",
   "status": "属性",
-  "build": "装备",
   "stats": "属性",
   "stats_and_inventory": "属性和装备",
   "bonds": "羁绊",
@@ -372,15 +373,12 @@
   "cultivationRank_3": "结丹",
   "cultivationRank_4": "还婴",
   "cultivationRank_5": "化神",
-  "cultivationRank_6": "洞虚",
-  "cultivationRank_7": "合体",
-  "cultivationRank_8": "大乘",
 
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
 
   "general": "通用",
-  "spellcraft": "法术",
+  "spellcraft": "悟道",
   "bodyforge": "锻体",
   "avatar": "法身",
   "vitality": "炼魂",
@@ -404,8 +402,8 @@
   "watchScene": "观看剧情",
   "skipScene": "跳过剧情",
 
-  "functionDisabled": "<red>功能不可用</>",
-  "functionOnlyAvailableInLibrary": "<red>只有在藏书阁中才能使用</>",
+  "functionDisabled": "功能当前不可用",
+  "functionOnlyAvailableInLibrary": "此功能只能在藏书阁中使用",
 
   "hint_materialpack": "使用后转化为不占用物品栏且不可交易的资源",
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",

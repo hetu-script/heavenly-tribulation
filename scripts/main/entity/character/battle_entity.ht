@@ -15,8 +15,11 @@ const kAttributeValueDeviation = 25.0
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
- // number of the female avatar images
+// number of the female avatar images
 const _kFemaleAvatarCount = 75
+
+const _kCostumeCount = 5
+const _kCostumeColorCount = 3
 
 const _kAttributesBase = 50
 
@@ -44,7 +47,7 @@ struct BattleEntity {
     race,
     icon,
     illustration,
-    model,
+    skin,
     surName,
     generationName,
     shortName,
@@ -67,13 +70,12 @@ struct BattleEntity {
       const index = random.nextInt(_kFemaleAvatarCount)
       this.icon = icon ?? 'illustration/female/${index}.jpg'
       this.illustration = illustration
-      this.model = model ?? 'characterWoman1'
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
       this.icon = icon ?? 'illustration/male/${index}.jpg'
       this.illustration = illustration
-      this.model = model ?? 'characterMan1'
     }
+    this.usedNames = []
 
     if (race != null) {
       assert(kRaceNames.contains(race))
@@ -81,7 +83,9 @@ struct BattleEntity {
     } else {
       this.race = random.nextIterable(kRaceNames)
     }
-    this.usedNames = []
+
+    let sex = this.isFemale ? 'female' : 'male'
+    this.skin = skin ?? '${sex}_${this.race}_costume${random.nextInt(_kCostumeCount) + 1}_color${random.nextInt(_kCostumeColorCount) + 1}'
 
     if (name == null && generateName) {
       let randomName
@@ -174,18 +178,21 @@ struct BattleEntity {
     // 包括：灵力、身法、体魄、念力、神识
     let generated = generateCharacterAttributes(baseAttribute: baseAttribute, mainAttribute: mainAttribute)
     Object.assign(this, generated)
-
-    // 天赋，天赋本身的数据另外保存，这里只保存了天赋的id和天赋等级
-    this.talents = {}
-
-    // 从装备或者天赋树中获得的被动加成，key是词条id
-    this.passives = {}
     
     // 已解锁的天赋技能节点， key 是 nodeId ，代表天赋盘上某个位置的坐标。
     // 如果存在某个 key 意味着该位置已经被解锁
     // 对于属性类节点，值是该属性的名字
     // 对于其他节点，值是 true
     this.unlockedPassiveTreeNodes = {}
+
+    // 从装备或者天赋树中获得的被动加成，key是词条id
+    this.passives = {}
+
+    // 从丹药中获得的被动加成，临时性加成将会在战斗结束时移除
+    this.potionPassives = {}
+
+    // 在秘境中获得的被动加成，将会在离开秘境时移除
+    this.dungeonPassives = {}
 
     // 角色的数值
     // 包括经过物品、天赋和状态加成的基本属性值
@@ -200,7 +207,7 @@ struct BattleEntity {
     this.mainAttribute = getMainAttribute(this)
     // 对应于组织的genre
     this.cultivationFavor = kAttributeToGenre[this.mainAttribute]
-    this.cultivationStyle = random.nextIterable(kPlayStyles[this.cultivationFavor])
+    this.cultivationStyle = random.nextIterable(kCultivationStyles[this.cultivationFavor])
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
@@ -222,7 +229,7 @@ function generateCharacterAttributes({baseAttribute, mainAttribute}) {
       randomGenerator: random,
     ).toInt()
   }
-  for (final id in kBattleAttributes) {
+  for (final id in Constants.battleAttributes) {
     if (id == mainAttribute) {
       attributes[id] = random.nearInt(baseAttribute)
     } else {
@@ -261,41 +268,54 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.wisdom = character.wisdom + character.passives.wisdom?.value
   character.stats.luck = character.luck + character.passives.luck?.value
 
-  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value
-  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value
-  character.stats.strength = character.strength + character.passives.strength?.value
-  character.stats.perception = character.perception + character.passives.perception?.value
-  character.stats.willpower = character.willpower + character.passives.willpower?.value
+  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value + character.potionPassives.dexterity?.value
+  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value + character.potionPassives.spirituality?.value
+  character.stats.strength = character.strength + character.passives.strength?.value + character.potionPassives.strength?.value
+  character.stats.perception = character.perception + character.passives.perception?.value + character.potionPassives.perception?.value
+  character.stats.willpower = character.willpower + character.passives.willpower?.value + character.potionPassives.willpower?.value
 
-  character.stats.lifeMax = baseLife + character.stats.strength ~/ 2 + character.passives.lifeMax?.value
-  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value
-  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value
-  character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value
+  character.stats.lifeMax = baseLife + character.stats.strength ~/ 2 + character.passives.lifeMax?.value + character.potionPassives.lifeMax?.value
+  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.potionPassives.manaMax?.value
+  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.potionPassives.chakraMax?.value
+  character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value
 
   character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
   character.stats.lightRadius = kBaseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
   character.stats.expCollectEfficiency = kBaseexpCollectEfficiency + character.passives.expCollectEfficiency?.value
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
 
-  character.stats.unarmedEnhance = character.passives.unarmedEnhance?.value ?? 0
-  character.stats.weaponEnhance = character.passives.weaponEnhance?.value ?? 0
-  character.stats.spellEnhance = character.passives.spellEnhance?.value ?? 0
-  character.stats.curseEnhance = character.passives.curseEnhance?.value ?? 0
-  
-  character.stats.physicalResist = character.passives.physicalResist?.value ?? 0
-  character.stats.chiResist = character.passives.chiResist?.value ?? 0
-  character.stats.elementalResist = character.passives.elementalResist?.value ?? 0
-  character.stats.psychicResist = character.passives.psychicResist?.value ?? 0
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value ?? 0
+  character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value ?? 0
+  character.stats.spellAttack = character.passives.spellAttack?.value + character.potionPassives.spellAttack?.value ?? 0
+  character.stats.curseAttack = character.passives.curseAttack?.value + character.potionPassives.curseAttack?.value ?? 0
 
-  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMaxModifier?.value
-  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMaxModifier?.value
-  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMaxModifier?.value
-  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMaxModifier?.value
+  character.stats.physicalResist = character.passives.physicalResist?.value + character.potionPassives.physicalResist?.value ?? 0
+  character.stats.chiResist = character.passives.chiResist?.value + character.potionPassives.chiResist?.value ?? 0
+  character.stats.elementalResist = character.passives.elementalResist?.value + character.potionPassives.elementalResist?.value ?? 0
+  character.stats.psychicResist = character.passives.psychicResist?.value + character.potionPassives.psychicResist?.value ?? 0
 
-  character.stats.quickThreshold = kQuickThreshold + character.passives.quickThresholdModifier?.value
-  character.stats.slowThreshold = kQuickThreshold + character.passives.slowThresholdModifier?.value
-  character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThresholdModifier?.value
-  character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThresholdModifier?.value
+  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.potionPassives.physicalResistMax?.value
+  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.potionPassives.chiResistMax?.value
+  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMax?.value + character.potionPassives.elementalResistMax?.value
+  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMax?.value + character.potionPassives.psychicResistMax?.value
+
+  if (character.stats.physicalResist > character.stats.physicalResistMax) {
+    character.stats.physicalResist = character.stats.physicalResistMax
+  }
+  if (character.stats.chiResist > character.stats.chiResistMax) {
+    character.stats.chiResist = character.stats.chiResistMax
+  }
+  if (character.stats.elementalResist > character.stats.elementalResistMax) {
+    character.stats.elementalResist = character.stats.elementalResistMax
+  }
+  if (character.stats.psychicResist > character.stats.psychicResistMax) {
+    character.stats.psychicResist = character.stats.psychicResistMax
+  }
+
+  character.stats.quickThreshold = kQuickThreshold + character.passives.quickThreshold?.value
+  character.stats.slowThreshold = kQuickThreshold + character.passives.slowThreshold?.value
+  character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThreshold?.value
+  character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThreshold?.value
   
   if (rejuvenate) {
     characterRejuvenate(character)
@@ -340,11 +360,11 @@ function getCharacterStats(character) {
 }
 
 function getCharacterMovableTerrainKinds(character) {
-  let kinds = kTerrainKindsLand.toList()
+  let kinds = Constants.terrainKindsLand.toList()
   let movableOnHill = characterEquippedCategory(character, 'boots')
-  if (movableOnHill) kinds.addAll(kTerrainKindsMountain)
+  if (movableOnHill) kinds.addAll(Constants.terrainKindsMountain)
   let movableOnWater = characterEquippedCategory(character, 'ship')
-  if (movableOnWater) kinds.addAll(kTerrainKindsWater)
+  if (movableOnWater) kinds.addAll(Constants.terrainKindsWater)
   return kinds
 }
 
@@ -354,11 +374,12 @@ function getCharacterMovableTerrainKinds(character) {
 /// 升级天赋时，并不会立刻影响角色数据，
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
 function characterSetPassive(character, dataId, {level = 1}) {
-  if (level == 0) {
-    engine.warn('gain passive error: level is zero')
-    return
-  }
+  assert(level != 0, 'Character set passive error: level is zero')
   if (character.passives[dataId] == null) {
+    if (level < 0) {
+      engine.warn('Could not found passive dataId [${dataId}] on character for decrease!')
+      return
+    }
     final passiveRawData = game.passives[dataId]
     assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
     final passiveData = PassiveData(
@@ -380,7 +401,10 @@ function characterSetPassive(character, dataId, {level = 1}) {
   } else {
     final passiveData = character.passives[dataId]
     passiveData.level += level
-    if (passiveData.level == 0) {
+    if (passiveData.level <= 0) {
+      if (passiveData.level < 0) {
+        engine.warn('decrease passive level below zero, dataId: ${dataId}')
+      }
       delete character.passives[dataId]
     } else {
       let passiveLevel = passiveData.level
@@ -523,10 +547,10 @@ function characterUnequip(entity, item) {
 
   if (item.affixes is List) {
     for (final passiveData in item.affixes) {
-      refundPassive(passiveData.id, level: passiveData.level)
+      characterSetPassive(entity, passiveData.id, level: -(passiveData.level ?? 1))
     }
     // 重新计算角色状态值
-    calculateStats(entity, rejuvenate: false)
+    characterCalculateStats(entity, rejuvenate: false)
   }
   
   engine.info('角色 [${entity.name}] 取下了 [${item.name}]')
@@ -576,4 +600,53 @@ function characterFirstEquippedKind(entity, kind) {
     }
   }
   return null
+}
+
+/// 修改从丹药中获得的被动属性
+/// 相同的属性会被覆盖
+/// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
+function characterSetPotionPassive(character, dataId, {level = 1}) {
+  if (level == 0) {
+    engine.warn('Character gain passive error: level is zero')
+    return
+  }
+  final passiveRawData = game.passives[dataId]
+  assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
+  final passiveData = PassiveData(
+    id: dataId,
+    priority: passiveRawData.priority ?? 0,
+    level: level,
+    description: passiveRawData.description,
+    isPermanent: passiveRawData.isPermanentPotionAffix ?? false,
+  )
+  if (passiveRawData.increment != null) {
+    passiveData.increment = passiveRawData.increment
+    let passiveLevel = passiveData.level
+    if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
+      passiveLevel = passiveData.maxLevel
+    }
+    passiveData.value = (passiveData.increment * passiveLevel).round()
+  }
+  character.potionPassives[dataId] = passiveData
+}
+
+function characterConsumePotion(entity, item) {
+  assert(item.category == kItemCategoryPotion)
+
+  engine.info('角色 [${entity.name}] 服用了 [${item.name}]')
+
+  final mainAffix = item.affixes.first
+  // if (mainAffix.id == 'heal') {
+  //   characterRestoreLife(entity, mainAffix.value)
+  // } else if (mainAffix.id == 'overheal') {
+    setCharacterLife(entity, Math.min(entity.life, entity.stats.lifeMax) + mainAffix.value)
+  // }
+
+  for (final passiveData in item.affixes.skip(1)) {
+    characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)
+  }
+  // 重新计算角色状态值
+  characterCalculateStats(entity, rejuvenate: false)
+
+  entityLose(entity, item)
 }

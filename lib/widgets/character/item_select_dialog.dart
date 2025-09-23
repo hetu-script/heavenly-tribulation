@@ -81,7 +81,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                 character: widget.character,
                 height: widget.height,
                 filter: widget.filter,
-                onTapped: (data, offset) {
+                onItemTapped: (data, offset) {
                   final itemId = data['id'];
                   if (_selectedItemsData.containsKey(itemId)) {
                     _selectedItemsData.remove(itemId);

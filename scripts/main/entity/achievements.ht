@@ -3,5 +3,6 @@ struct Achievements {
   constructor () {
     this.acquiredItems = 0
     this.acquiredBattleCards = 0
+    this.defeatedEnemies = 0
   }
 }

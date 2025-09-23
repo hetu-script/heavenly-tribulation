@@ -147,9 +147,10 @@ class _HoverInfoState extends State<HoverInfo> {
           data = description;
         case 'battle_card':
           final (_, description) = GameData.getDescriptionFromCardData(
-            isLibrary: widget.content.type == ItemType.player,
+            showRequirement: widget.content.type == ItemType.player,
             widget.content.data,
             isDetailed: isDetailed,
+            showDebugId: engine.config.debugMode,
           );
           data = description;
       }
@@ -204,7 +205,7 @@ class _HoverInfoState extends State<HoverInfo> {
             }
           },
           child: Container(
-            color: GameUI.backgroundColor3,
+            color: GameUI.backgroundColorOpaque.withAlpha(200),
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             constraints: BoxConstraints(maxWidth: widget.content.maxWidth),

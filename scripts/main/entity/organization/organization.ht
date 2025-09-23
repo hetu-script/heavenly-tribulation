@@ -1,16 +1,5 @@
 import '../achievements.ht'
 
-/// 组织的种类
-/// 对应于角色除了无欲之外的的六种主要动机，代表了不同的发展方向
-const kOrganizationCategories = [
-  'cultivation', // 悟道：修真，功法，战斗
-  'immortality', // 长生：宗教，等级，境界
-  'chivalry', // 任侠：江湖豪杰
-  'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
-  'wealth', // 财富：经营商号，积累钱币和灵石
-  'pleasure', // 欢愉：享乐，赌博，情色
-]
-
 const _kHeadRank = 80
 
 /// 创建一个门派
@@ -48,10 +37,10 @@ struct Organization {
 
     this.headquartersId = headquarters.id
     this.headId = headId
-    this.category = category ?? random.nextIterable(kOrganizationCategories)
-    this.genre = genre ?? random.nextIterable(kCultivationGenres)
-    assert(kOrganizationCategories.contains(this.category))
-    assert(kCultivationGenres.contains(this.genre))
+    this.category = category ?? random.nextIterable(Constants.organizationCategories)
+    this.genre = genre ?? random.nextIterable(Constants.cultivationGenres)
+    assert(Constants.organizationCategories.contains(this.category))
+    assert(Constants.cultivationGenres.contains(this.genre))
 
     this.index = game.organizations.length
     if (name) {
@@ -144,28 +133,9 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     organizationId: organization.id,
     createNpc: true,
   )
-  
-  const arena = Location(
-    id: organization.id + '_arena',
-    name: engine.locale('arena'),
-    category: 'site',
-    kind: kLocationKindArena,
-    atLocation: location,
-    organizationId: organization.id,
-    createNpc: true,
-  )
-  
-  const library = Location(
-    id: organization.id + '_library',
-    name: engine.locale('library'),
-    category: 'site',
-    kind: kLocationKindLibrary,
-    atLocation: location,
-    organizationId: organization.id,
-    createNpc: true,
-  )
 
   organization.headquartersSiteId = headquarters.id
+  organization.locationIds.add(headquarters.id)
 
   for (const id in organization.members.keys) {
     const character = game.characters[id]
@@ -354,6 +324,10 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
       if (!organization.locationIds.contains(site.id)) {
         organization.locationIds.add(site.id)
       }
+    }
+
+    if (location.isHidden) {
+      location.isDiscovered = true
     }
   }
   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')

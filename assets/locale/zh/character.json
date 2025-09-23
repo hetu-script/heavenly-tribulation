@@ -20,8 +20,8 @@
   "manaMax_description": "灵气上限决定了你在战斗中所能保存的灵气数量。",
   "chakraMax": "剑气上限",
   "chakraMax_description": "学习天道技能后可以获得利用剑气的能力。之后在战斗中每造成 10 点伤害便可获得 1 点剑气。剑气上限决定了你在战斗中所能保存的剑气数量。<yellow>溢出的剑气会转化为随机的负面效果。</>",
-  "expCollectEfficiency": "灵光经验",
-  "expCollectEfficiency_description": "你在打坐时从灵光点中获得的经验值数量。",
+  "expCollectEfficiency": "灵光转化效率",
+  "expCollectEfficiency_description": "你在打坐时从每个灵光点中获得的经验值数量。",
   "lightRadius": "视野范围",
   "lightRadius_description": "你在世界地图和地牢探险时所能照亮的范围。",
   "identifyCardsCountMonthly": "可探查对手手牌数量",
@@ -38,14 +38,14 @@
   "strength": "体魄",
   "strength_description": "锻体流派主属性。每 2 点体魄：体力、生命上限 +1",
 
-  "unarmedEnhance": "徒手攻击力",
-  "unarmedEnhance_description": "每点攻击力使你的徒手攻击伤害增加 1%。",
-  "weaponEnhance": "武器攻击力",
-  "weaponEnhance_description": "每点攻击力使你的武器攻击伤害增加 1%。",
-  "spellEnhance": "法术攻击力",
-  "spellEnhance_description": "每点攻击力使你的法术攻击伤害增加 1%。",
-  "curseEnhance": "咒术攻击力",
-  "curseEnhance_description": "每点攻击力使你的咒术攻击伤害增加 1%。",
+  "unarmedAttack": "徒手攻击力",
+  "unarmedAttack_description": "每点攻击力使你的徒手攻击伤害增加 1%。",
+  "weaponAttack": "武器攻击力",
+  "weaponAttack_description": "每点攻击力使你的武器攻击伤害增加 1%。",
+  "spellAttack": "法术攻击力",
+  "spellAttack_description": "每点攻击力使你的法术攻击伤害增加 1%。",
+  "curseAttack": "咒术攻击力",
+  "curseAttack_description": "每点攻击力使你的咒术攻击伤害增加 1%。",
 
   "physicalResist": "物理抗性",
   "physicalResist_description": "每点抗性使你受到物理伤害减少 1%。",
@@ -68,7 +68,6 @@
 
   "memory": "记忆",
 
-  "gender": "性别",
   "ageMax": "寿命",
   "male": "男",
   "female": "女",
@@ -249,7 +248,7 @@
 
   "motivation": "动机",
 
-  "wuwei": "无欲",
+  "wuwei": "无为",
   "cultivation": "修真",
   "immortality": "长生",
   "chivalry": "任侠",

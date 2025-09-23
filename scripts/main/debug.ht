@@ -5,6 +5,17 @@
 // import 'world/tile/hexagonal_tile.ht'
 // import 'random.ht'
 
+const _kCraftMaterials = [
+  'craftmaterial_addAffix',
+  'craftmaterial_replaceAffix',
+  'craftmaterial_rerollAffix',
+  'craftmaterial_upgradeRank1',
+  'craftmaterial_upgradeRank2',
+  'craftmaterial_upgradeRank3',
+  'craftmaterial_upgradeRank4',
+  'craftmaterial_upgradeRank5',
+]
+
 namespace Debug {
 
   external function reloadGameData()
@@ -51,13 +62,19 @@ namespace Debug {
       entityAcquire(character, item)
     }
 
-    for (var genre in kCardGenres) {
+    for (var genre in [null, ...Constants.cultivationGenres]) {
       final pack = Cardpack(
         genre: genre,
         rank: character.rank,
       )
       items.add(pack)
       entityAcquire(character, pack)
+    }
+
+    for (var i in range(5)) {
+      final item = Potion(rank: character.rank)
+      items.add(item)
+      entityAcquire(character, item)
     }
 
     final shardPack = Materialpack(kind: 'shard', amount: 50)
@@ -68,6 +85,12 @@ namespace Debug {
     entityAcquire(character, moneyPack)
     items.add(moneyPack)
 
+    for (var i in range(3)) {
+      final scroll = createItemByPrototype('identify_scroll')
+      entityAcquire(character, scroll)
+      items.add(scroll)
+    }
+
     for (var i in range(1, kCultivationRankMax + 1)) {
       final paper = createItemByPrototype('scroll_paper_rank_${i}')
       entityAcquire(character, paper)
@@ -75,15 +98,15 @@ namespace Debug {
     }
 
     for (var i in range(3)) {
-      final scroll = createItemByPrototype('identify_scroll')
-      entityAcquire(character, scroll)
-      items.add(scroll)
-    }
-
-    for (var i in range(3)) {
       final spirit = StatusSpirit(rank: character.rank + 1)
       entityAcquire(character, spirit)
       items.add(spirit)
+    }
+
+    for (var materialId in _kCraftMaterials) {
+      final material = createItemByPrototype(materialId)
+      entityAcquire(character, material)
+      items.add(material)
     }
 
     if (character == hero) {

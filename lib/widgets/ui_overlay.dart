@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
-import 'package:heavenly_tribulation/widgets/location/workshop.dart';
+import 'package:heavenly_tribulation/widgets/location/functional/workshop.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
@@ -473,7 +473,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 context
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.characterProfile);
@@ -495,7 +495,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 context
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.characterQuest);
@@ -517,7 +517,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 context
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.characterDetails);
@@ -549,7 +549,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 engine
                                     .pushScene(Scenes.cultivation, arguments: {
                                   'enableCultivate':
@@ -581,7 +581,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 engine.pushScene(Scenes.library, arguments: {
                                   'enableCardCraft':
                                       engine.scene?.id == Scenes.mainmenu,
@@ -606,7 +606,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               size: GameUI.infoButtonSize,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
-                              onTapUp: () {
+                              onPressed: () {
                                 context.read<HoverContentState>().hide();
                                 showDialog(
                                   context: context,
@@ -638,7 +638,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                         width: screenSize.width - 120,
                         child: Row(
                           children: [
-                            HistoryPanel(width: 365, height: 75),
+                            HistoryPanel(width: 535, height: 75),
                             const Spacer(),
                             LocationPanel(width: 150, height: 75),
                           ],

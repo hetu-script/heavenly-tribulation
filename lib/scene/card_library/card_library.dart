@@ -107,6 +107,7 @@ class CardLibraryScene extends Scene {
   late final SpriteComponent cardCraftingArea;
 
   late final CardLibraryZone libraryZone;
+  final List<DeckBuildingZone> preloadBuildingZones = [];
 
   late final SpriteButton closeButton, setBattleDeckButton;
   late final RichTextComponent deckCount, cardCount;
@@ -317,11 +318,12 @@ class CardLibraryScene extends Scene {
         '${engine.locale('deckbuilding_card_count')}: ${zone.cards.length}');
     // detailedCount.writeln(
     //     '${engine.locale('deckbuilding_limit_min')}: ${_currentBuildingZone!.limitMin}');
-    detailedCount.writeln(
-        '${engine.locale('deckbuilding_limit')}: ${_currentBuildingZone!.limit}');
-    detailedCount.writeln(
-        '${engine.locale('deckbuilding_limit_ephemeral')}: ${_currentBuildingZone!.ephemeralCount}/${_currentBuildingZone!.limitEphemeralMax}');
-    // detailedCount.writeln(
+    if (_currentBuildingZone != null) {
+      detailedCount.writeln(
+          '${engine.locale('deckbuilding_limit')}: ${_currentBuildingZone!.limit}');
+      detailedCount.writeln(
+          '${engine.locale('deckbuilding_limit_ephemeral')}: ${_currentBuildingZone!.ephemeralCount}/${_currentBuildingZone!.limitEphemeralMax}');
+    } // detailedCount.writeln(
     //     '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
     cardCount.text = detailedCount.toString();
   }
@@ -493,6 +495,8 @@ class CardLibraryScene extends Scene {
     Hovertip.hide(_craftingCard!);
     final (_, description) = GameData.getDescriptionFromCardData(
         _craftingCard!.data,
+        showRequirement: false,
+        showDetailedHint: false,
         isDetailed: true);
     Hovertip.show(
       scene: this,
@@ -515,25 +519,28 @@ class CardLibraryScene extends Scene {
     if (result != null) {
       // 返回的是提示的文本信息
       GameDialogContent.show(context, result);
-      return;
+      if (id != 'dismantle') {
+        return;
+      }
+    } else {
+      engine.play('hammer-hitting-an-anvil-25390.mp3');
+
+      addHintText(
+        engine.locale('deckbuilding_${id}_hint'),
+        position: card.center,
+        offsetY: 30.0,
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamily,
+        ),
+        horizontalVariation: 0.0,
+        verticalVariation: 0.0,
+      );
+
+      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      card.description = description;
+      _showCraftingCardInfo();
     }
 
-    engine.play('hammer-hitting-an-anvil-25390.mp3');
-
-    addHintText(
-      engine.locale('deckbuilding_${id}_hint'),
-      position: card.center,
-      offsetY: 30.0,
-      textStyle: TextStyle(
-        fontFamily: GameUI.fontFamily,
-      ),
-      horizontalVariation: 0.0,
-      verticalVariation: 0.0,
-    );
-
-    final (description, _) = GameData.getDescriptionFromCardData(card.data);
-    card.description = description;
-    _showCraftingCardInfo();
     updateExp();
 
     if (id == 'dismantle') {
@@ -541,6 +548,8 @@ class CardLibraryScene extends Scene {
       for (final pile in deckPiles) {
         pile.removeCardById(card.id);
       }
+
+      engine.play('paper-rip-twice-252619.mp3');
 
       onEndCraft();
     }
@@ -583,8 +592,13 @@ class CardLibraryScene extends Scene {
           }
         }
       } else {
-        buffer
-            .writeln('\n \n${engine.locale('functionOnlyAvailableInLibrary')}');
+        if (_craftingCard!.data['isScroll'] == true) {
+          buffer.writeln(
+              '\n \n<red>${engine.locale('deckbuilding_scroll_cannotCraft')}</>');
+        } else {
+          buffer.writeln(
+              '\n \n<red>${engine.locale('functionOnlyAvailableInLibrary')}</>');
+        }
       }
 
       Hovertip.show(
@@ -603,6 +617,8 @@ class CardLibraryScene extends Scene {
   }
 
   void onStartCraft(CustomGameCard card) {
+    context.read<HoverContentState>().hide();
+
     skillBook.enableGesture = false;
     expBottle.enableGesture = false;
     expLabel.isVisible = true;
@@ -622,7 +638,8 @@ class CardLibraryScene extends Scene {
     }
 
     craftScrollButton.isVisible = true;
-    craftScrollButton.isEnabled = enableScrollCraft;
+    craftScrollButton.isEnabled =
+        enableScrollCraft && !isScroll && (card.data['rank'] > 0);
 
     final clone = card.clone();
     _craftingCard = clone;
@@ -767,22 +784,20 @@ class CardLibraryScene extends Scene {
       bool isIdentified = false,
     }) {
       final bool basic = filter['isBasic'] ?? false;
-      final preferredCategory = basic ? 'attack' : filter['kind'];
-      final preferredGenre = basic ? 'none' : filter['genre'];
-      final preferredKind = basic ? kBasicCardKinds.random : filter['kind'];
-      final category = (basic || isMainCard) ? preferredCategory : null;
-      final genre = (basic || isMainCard) ? preferredGenre : null;
-      final kind = (basic || isMainCard) ? preferredKind : null;
-      final rank = (basic || isMainCard) ? filter['rank'] : null;
-      final maxRank = isMainCard ? null : rank;
+      final category = isMainCard ? filter['category'] : null;
+      final genre = isMainCard ? filter['genre'] : (basic ? 'none' : null);
+      final rank = isMainCard ? filter['rank'] : (basic ? 0 : null);
+      final kind =
+          isMainCard ? filter['kind'] : (basic ? kBasicCardKinds.random : null);
+      final maxRank = filter['rank'];
       final cardData = engine.hetu.invoke(
         'BattleCard',
         namedArgs: {
           'kind': kind,
           'genre': genre,
-          'maxRank': maxRank,
           'category': category,
           'rank': rank,
+          'maxRank': maxRank,
           'isIdentified': isIdentified,
         },
       );
@@ -942,7 +957,7 @@ class CardLibraryScene extends Scene {
 
     _heroDecks = GameData.hero['battleDecks'];
 
-    _lightPointsPositions.addAll(math.generateDividingPointsFromCircle(
+    _lightPointsPositions.addAll(math.generateDividingPointsOnCircle(
       center: GameUI.expBottlePosition,
       radius: 40,
       number: 20,
@@ -1100,7 +1115,7 @@ class CardLibraryScene extends Scene {
 
     for (final deckData in _heroDecks) {
       final zone = createNewDeckBuildingZone(deckData: deckData);
-      libraryZone.preloadBuildingZones.add(zone);
+      preloadBuildingZones.add(zone);
     }
     createNewDeckBuildingZone();
     _updateDeckCount();
@@ -1401,12 +1416,10 @@ class CardLibraryScene extends Scene {
 
       final rank = _craftingCard!.data['rank'];
 
-      final bool enabled = craftScrollButton.isEnabled && rank > 0;
-
       final buffer = StringBuffer();
 
       buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
-      if (enabled) {
+      if (craftScrollButton.isEnabled) {
         final expCost = GameLogic.getCardCraftOperationCost(
             'craftScroll', _craftingCard!.data);
 
@@ -1416,13 +1429,21 @@ class CardLibraryScene extends Scene {
           'scroll_paper_rank_$rank',
         ]);
         buffer.writeln(
-            '\n \n${engine.locale('deckbuilding_exp_cost')}: <bold ${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>');
+            '\n \n${engine.locale('deckbuilding_exp_cost')}: <${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>/${GameData.hero['exp']}');
         buffer.writeln(
             '${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
-            '${engine.locale('deckbuilding_scroll_paper_count')}: <bold ${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
+            '${engine.locale('deckbuilding_scroll_paper_count')}: 1/<${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
       } else {
-        buffer
-            .writeln('\n \n${engine.locale('functionOnlyAvailableInLibrary')}');
+        if (_craftingCard!.data['isScroll'] == true) {
+          buffer.writeln(
+              '\n \n<red>${engine.locale('deckbuilding_scroll_cannotMakeScroll')}</>');
+        } else if (_craftingCard!.data['rank'] == 0) {
+          buffer.writeln(
+              '\n \n<red>${engine.locale('deckbuilding_scroll_cannotMakeScroll2')}</>');
+        } else {
+          buffer.writeln(
+              '\n \n<red>${engine.locale('functionOnlyAvailableInLibrary')}</>');
+        }
       }
 
       Hovertip.show(
@@ -1464,6 +1485,15 @@ class CardLibraryScene extends Scene {
 
     updateExp();
     addExpLightPoints();
+
+    for (final zone in preloadBuildingZones) {
+      for (final cardId in zone.preloadCardIds) {
+        final card = libraryZone.library[cardId];
+        assert(card != null, 'Card $cardId not found in library');
+        zone.tryAddCard(card!, animated: false, clone: true);
+      }
+      zone.collapse(animated: false);
+    }
 
     for (final deckZone in deckPiles) {
       deckZone.updateDeckLimit();

@@ -11,7 +11,7 @@
 
 export 'battle_entity.ht'
 
-const kPlayStyles = {
+const kCultivationStyles = {
   'swordcraft': ['standard'],
   'spellcraft': ['standard'],
   'vitality': ['standard'],
@@ -49,34 +49,6 @@ const kConcubineCloseness = 20
 const kBaseRomanceScore = 5.0
 
 const _kCharacterRandomAgeMax = 40
-
-const kPersonalities = [
-  // 三观
-  'idealistic', // 理想, 现实
-  'orderly', // 守序, 混乱
-  'goodwill', // 善良, 邪恶
-  // 对他人
-  'extrovert', // 外向, 内省
-  'frank', // 直率, 圆滑
-  'merciful', // 仁慈, 冷酷
-  'helping', // 助人, 自私
-  'empathetic', // 同情, 嫉妒
-  'competitive', // 好胜, 嫉妒
-  // 对自己
-  'organizing', // 自律, 不羁
-  'confident', // 自负, 谦逊
-  'humorous', // 幽默, 庄重
-  'frugal', // 节俭, 奢靡
-  'generous', // 慷慨, 小气
-  'satisfied', // 知足, 贪婪
-  // 对事物
-  'reasoning', // 理智, 感性
-  'initiative', // 主动, 被动
-  'optimistic', // 乐观, 愤世
-  'curious', // 好奇, 冷漠
-  'prudent', // 谨慎, 冲动
-  'deepthinking', // 深沉, 轻浮
-]
 
 /// 主要动机决定了门派发展类型
 /// 除了无为之外，主要动机都有正反两面
@@ -349,7 +321,7 @@ function _calculateCharacterFirstRomance(subject, target) {
   // 是否符合容貌偏好
   let score = _calculateCharismaScore(subject.charismaFavor, target.stats.charisma)
   // 是否具有相似人格
-  for (final id in kPersonalities) {
+  for (final id in Constants.personalities) {
     final diff = (subject.personality[id] - target.personality[id]).abs()
     score += 1 - diff / 100
   }
@@ -988,10 +960,10 @@ const basicLibrary = [
 ]
 
 function getMainAttribute(character) {
-  let maxAttr = kBattleAttributes.first
+  let maxAttr = Constants.battleAttributes.first
   let maxValue = character[maxAttr]
 
-  for (final attr in kBattleAttributes) {
+  for (final attr in Constants.battleAttributes) {
     if (character[attr] > maxValue) {
       maxAttr = attr
       maxValue = character[attr]
@@ -1028,7 +1000,7 @@ struct Character {
     isFemale,
     icon,
     illustration,
-    model,
+    skin,
     shipModel,
     surName, // 姓氏
     generationName,
@@ -1065,7 +1037,7 @@ struct Character {
       isFemale: isFemale,
       icon: icon,
       illustration: illustration,
-      model: model,
+      skin: skin,
       surName: surName,
       generationName: generationName,
       shortName: shortName,
@@ -1137,7 +1109,7 @@ struct Character {
     // 其次是关于他人的六个，关于事物的六个，以及关于自己的六个层面
     // 人格数值最小 -50 最大 +50
     this.personality = {}
-    for (final id in kPersonalities) {
+    for (final id in Constants.personalities) {
       this.personality[id] = (random.nextDouble() * 100.0 - 50.0).toInt()
     }
 

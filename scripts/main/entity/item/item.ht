@@ -10,13 +10,17 @@
 // weapon 和 talisman 决定了战斗中可以使用的功法卡牌类型
 
 const kItemCategoryCardpack = 'cardpack'
+const kItemCategoryIdentifyScroll = 'identify_scroll'
 const kItemCategoryScroll = 'scroll'
 const kItemCategoryScrollPaper = 'scroll_paper'
 const kItemCategoryExppack = 'exp_pack'
-const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryMaterialPack = 'material_pack'
 const kItemCategoryStatusSpirit = 'status_spirit'
+const kItemCategoryEquipmentAffix = 'equipment_affix'
+const kItemCategoryPotion = 'potion'
+const kItemCategoryCraftMaterial = 'craftmaterial'
 
-const kItemAffixMinLevel = 5
+const kItemExtraAffixMinLevel = 6
 
 // kind 决定了物品名字的生成方式
 // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
@@ -25,7 +29,12 @@ const kItemAffixMinLevel = 5
 
 const kEquipmentMax = 6
 
-const kItemCategoryKinds = {
+const kConsumableCategoryKinds = [
+  kItemCategoryCardpack,
+  kItemCategoryPotion,
+]
+
+const kEquipmentCategoryKinds = {
     // 所有武器的category都是weapon
   weapon: [
     'sword',
@@ -68,49 +77,32 @@ const kItemCategoryKinds = {
 }
 
 const kEquipmentKinds = [
-  ...kItemCategoryKinds.weapon,
-  ...kItemCategoryKinds.shield,
-  ...kItemCategoryKinds.armor,
-  ...kItemCategoryKinds.gloves,
-  ...kItemCategoryKinds.helmet,
-  ...kItemCategoryKinds.boots,
-  ...kItemCategoryKinds.ship,
-  // ...kItemCategoryKinds.aircraft,
-  ...kItemCategoryKinds.jewelry,
-  ...kItemCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
+  ...kEquipmentCategoryKinds.weapon,
+  ...kEquipmentCategoryKinds.shield,
+  ...kEquipmentCategoryKinds.armor,
+  ...kEquipmentCategoryKinds.gloves,
+  ...kEquipmentCategoryKinds.helmet,
+  ...kEquipmentCategoryKinds.boots,
+  ...kEquipmentCategoryKinds.ship,
+  // ...kEquipmentCategoryKinds.aircraft,
+  ...kEquipmentCategoryKinds.jewelry,
+  ...kEquipmentCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
 ]
 
 const kItemCategoryBoots = 'boots'
 const kItemCategoryShip = 'ship'
 const kItemCategoryAircraft = 'aircraft'
 
-/// 物品的基础价格
-const kItemBasePriceByCategory = {
-  'cardpack':              1000,
-  'scroll_paper':          150,
-  'identify_scroll':       500,
-  'weapon':                100,
-  'shield':                50,
-  'armor':                 50,
-  'gloves':                50,
-  'helmet':                50,
-  'boots':                 150,
-  'ship':                  200,
-  'aircraft':              500,
-  'jewelry':               100,
-  'talisman':              250,
-}
-
 function calculatePrice(item) {
-  // assert(kItemBasePriceByCategory.containsKey(item.category), item.category)
   item.price = (item.rank + 1) * (item.level + 1) *
-    (item.affixes?.length ?? 0 + 1) * (kItemBasePriceByCategory[item.category] ?? 1)
+    (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? 1)
 }
 
 const kTalismanEnergyTypes = [
   'start_battle_with_energy_positive_spell',
   'start_battle_with_energy_positive_weapon',
   'start_battle_with_energy_positive_unarmed',
+  'start_battle_with_energy_positive_ultimate',
 ]
 
 const kArmorResistPassives = [
@@ -123,10 +115,10 @@ const kStatusSpiritPassives = [
   'elementalResist',
   'chiResist',
   'psychicResist',
-  'unarmedEnhance',
-  'weaponEnhance',
-  'spellEnhance',
-  'curseEnhance',
+  'unarmedAttack',
+  'weaponAttack',
+  'spellAttack',
+  'curseAttack',
   'lifeMax',
   'manaMax',
   'chakraMax',
@@ -146,6 +138,7 @@ struct Equipment {
     level,
     isIdentified = true,
   }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
     this.isIdentified = isIdentified
@@ -155,22 +148,20 @@ struct Equipment {
     this.category = category
     if (category == null) {
       if (this.kind != null) {
-        final categories = [...kItemCategoryKinds.keys]
+        final categories = [...kEquipmentCategoryKinds.keys]
         this.category = categories.firstWhere((key) {
-          return kItemCategoryKinds[key].contains(this.kind)
+          return kEquipmentCategoryKinds[key].contains(this.kind)
         })
       } else {
-        this.category = kItemCategoryKinds.keys.random
-        this.kind = kItemCategoryKinds[this.category].random
+        this.category = kEquipmentCategoryKinds.keys.random
+        this.kind = kEquipmentCategoryKinds[this.category].random
       }
     }
-    assert(kItemCategoryKinds.containsKey(this.category))
+    assert(kEquipmentCategoryKinds.containsKey(this.category))
     if (this.kind == null) {
-      this.kind = kItemCategoryKinds[this.category].random
+      this.kind = kEquipmentCategoryKinds[this.category].random
     }
     assert(kEquipmentKinds.contains(this.kind))
-
-    this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? generateTalismanName(kind: this.kind)
 
     if (rarity != null) {
@@ -183,7 +174,7 @@ struct Equipment {
       this.rarity = kRankRarity[rank]
     } else {
       this.rank = 0
-      this.rarity = 'basic'
+      this.rarity = kRarityCommon
     }
     this.icon = icon ?? 'item/${this.kind}.png'
 
@@ -191,9 +182,10 @@ struct Equipment {
     final maxLevel = maxLevelForRank(this.rank)
     level ??= getRandomLevel(minLevel, maxLevel)
     // 这里要再判断一次，因为可能是从外部传入的 level
-    this.level = level.clamp(minLevel, maxLevel)
+    this.level = level.clamp(Math.max(1, minLevel), maxLevel)
 
     let mainAffix
+    let passiveRawData
     this.affixes = []
     this.affixUniqueIds = Set()
     // category 决定了能装备的数量
@@ -201,32 +193,30 @@ struct Equipment {
     switch(this.category) {
       'weapon', 'boots', 'ship': {
         // 武器的固定词条是允许使用该类卡牌
-        final passiveRawData = game.passives['equipment_${this.kind}']
+        passiveRawData = game.passives['equipment_${this.kind}']
         assert(passiveRawData != null, 'kind: ${this.kind}')
-        mainAffix = Object.create(passiveRawData)
       }
       'shield', 'armor', 'gloves', 'helmet': {
         // 护甲的固定词条获得元素或物理抗性
         final resistType = kArmorResistPassives.random
-        final passiveRawData = game.passives[resistType]
+        passiveRawData = game.passives[resistType]
         assert(passiveRawData != null, 'resistType: ${resistType}')
-        mainAffix = Object.create(passiveRawData)
       }
       'jewelry': {
         // 饰品的固定词条是获得主属性
-        final attributeType = kBattleAttributes.random
-        final passiveRawData = game.passives[attributeType]
+        final attributeType = Constants.battleAttributes.random
+        passiveRawData = game.passives[attributeType]
         assert(passiveRawData != null, 'attributeType: ${attributeType}')
-        mainAffix = Object.create(passiveRawData)
       }
       else: {
         // 法器的固定词条是获得资源
         final energytype = kTalismanEnergyTypes.random
-        final passiveRawData = game.passives[energytype]
+        passiveRawData = game.passives[energytype]
         assert(passiveRawData != null, 'energytype: ${energytype}')
-        mainAffix = Object.create(passiveRawData)
       }
     }
+    mainAffix = Object.create(passiveRawData)
+    mainAffix.level = this.level
     if (mainAffix.increment != null) {
       if (mainAffix.increment < 1) {
         final minAffixLevel = (1 / mainAffix.increment).ceil()
@@ -234,7 +224,6 @@ struct Equipment {
           this.level = minAffixLevel
         }
       }
-      mainAffix.level = this.level
       mainAffix.value = (mainAffix.increment * this.level).round()
     }
     this.affixes.add(mainAffix)
@@ -248,16 +237,13 @@ struct Equipment {
     let affixCount = affixCountInfo.minExtra
     if (affixCountInfo.maxExtra > 0) {
       if (affixCount < affixCountInfo.maxExtra) {
-        let r = random.nextDouble()
-        if (r > kThresholdOfExtraAffix) {
-          ++affixCount
-        }
+        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
       }
     }
     if (affixCount > 0) {
       for (var i in range(affixCount)) {
         final supportAffixes = game.passives.values.where((affix) {
-          if (!affix.isItemExtraAffix) return false
+          if (!affix.isItemAffix) return false
           if (this.affixUniqueIds.contains(affix.id) ||
             (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
           if (affix.kind is List && !affix.kind.contains(this.kind)) return false
@@ -271,7 +257,7 @@ struct Equipment {
         final affixRawData = random.nextIterable(supportAffixes)
         final affix = Object.create(affixRawData)
         if (affix.increment != null) {
-          affix.level = getRandomLevel(kItemAffixMinLevel, this.level)
+          affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()
         }
         this.affixes.add(affix)
@@ -282,6 +268,23 @@ struct Equipment {
     calculatePrice(this)
 
     this.experienced = []
+  }
+}
+
+struct EquipmentAffix {
+  constructor ({
+    kind,
+    affix,
+  }) {
+    assert(kind != null, 'EquipmentAffix constructor error: kind: ${kind}')
+    assert(affix != null, 'EquipmentAffix constructor error: affix: ${affix}')
+    this.kind = kind
+    this.affixes = [Object.create(affix)]
+    
+    this.id = crypto.randomUID(withTime: true)
+    this.name = engine.locale('equipment_affix')
+    this.icon = 'item/affix.png'
+    this.category = kItemCategoryEquipmentAffix
   }
 }
 
@@ -348,7 +351,7 @@ struct StatusSpirit {
     assert(affixCount > 0)
     for (var i in range(affixCount)) {
       final supportAffixes = game.passives.values.where((affix) {
-        if (!affix.isItemExtraAffix) return false
+        if (!affix.isItemAffix) return false
         if (this.affixUniqueIds.contains(affix.id) ||
           (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
         if (affix.kind is List && !affix.kind.contains(this.kind)) return false
@@ -362,7 +365,7 @@ struct StatusSpirit {
       final affixRawData = random.nextIterable(supportAffixes)
       final affix = Object.create(affixRawData)
       if (affix.increment != null) {
-        affix.level = getRandomLevel(kItemAffixMinLevel, this.level)
+        affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
         affix.value = (affix.increment * affix.level).round()
       }
       this.affixes.add(affix)
@@ -375,7 +378,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   amount ??= 1
   assert(amount > 0)
   // TODO: 如果id不存在，则获得一个「未知物品」
-  final prototype = game.itemPrototypes[prototypeId]
+  final prototype = game.prototypes[prototypeId]
   assert(prototype != null)
   let item = Object.create(prototype)
   // TODO: 根据稀有度和地图大小决定物品允许存在的数量
@@ -403,7 +406,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
     item.rarity = kRankRarity[item.rank]
   } else {
     item.rank = 0
-    item.rarity = 'basic'
+    item.rarity = kRarityCommon
   }
   item.color ??= kRarity[item.rarity].color
   item.level ??= level
@@ -560,15 +563,16 @@ function entityExhaust(entity, materialId: string, { amount = 1, incurIncident =
       amount,
       engine.locale(materialId),
     ])
-    if (incurIncident && entity.entityType == 'character') {
-      Incident(
-        message: incidentContent,
-        subjectId: entity.id,
-        isPrivate: true,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+    engine.debug(incidentContent)
+    // if (incurIncident && entity.entityType == 'character') {
+    //   Incident(
+    //     message: incidentContent,
+    //     subjectId: entity.id,
+    //     isPrivate: true,
+    //   )
+    // } else {
+    //   engine.debug(incidentContent)
+    // }
   }
 
   return success
@@ -613,21 +617,27 @@ function entityLose(entity, item, { incurIncident = true }) {
   delete item.ownerId
   delete item.ownerType
 
-  let incidentContent
-  incidentContent = engine.locale('entityLose', interpolations: [
+  let incidentContent = engine.locale('entityLose', interpolations: [
     entity.name,
     item.name,
   ])
-  if (incurIncident && entity.entityType == 'character') {
-    Incident(
-      message: incidentContent,
-      subjectId: entity.id,
-      item: item,
-      isPrivate: true,
-    )
-  } else {
-    engine.debug(incidentContent)
-  }
+  engine.debug(incidentContent)
+
+  // let incidentContent
+  // incidentContent = engine.locale('entityLose', interpolations: [
+  //   entity.name,
+  //   item.name,
+  // ])
+  // if (incurIncident && entity.entityType == 'character') {
+  //   Incident(
+  //     message: incidentContent,
+  //     subjectId: entity.id,
+  //     item: item,
+  //     isPrivate: true,
+  //   )
+  // } else {
+  //   engine.debug(incidentContent)
+  // }
 }
 
 function characterAcquireBattleCard(character, card, { incurIncident = true }) {
@@ -671,7 +681,7 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///   {
 ///     type: 'equipment',
 ///     kind: 'sword',
-///     rarity: 'basic',
+///     rarity: 'common',
 ///     rank: 0,
 ///     level: 0,
 ///   },

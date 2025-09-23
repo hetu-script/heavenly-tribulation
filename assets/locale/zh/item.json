@@ -37,6 +37,7 @@
   "unitPrice": "单价",
   "totalPrice": "总价",
   "amount": "数量",
+  "requiredAmount": "需求数量",
   "stackSize": "数量",
   "damageType": "伤害类型",
   "durability": "耐久",
@@ -56,7 +57,7 @@
   "bow": "弓",
   "dart": "飞镖",
 
-  "weapon_flavortext": "在化外人和修真者中都很流行的兵器。",
+  "weapon_flavortext": "在普通人和修真者中都很流行的兵器。",
 
   "armor": "护甲",
   "armor_flavortext": "可以在战斗中保护身体的装备。",
@@ -79,6 +80,8 @@
   "ring": "指环",
   "belt": "腰带",
 
+  "pearl": "法珠",
+
   "talisman": "法器",
   "talisman_flavortext": "可以让你获得一些用于行使功法的资源。",
   "jewelry": "饰品",
@@ -98,25 +101,49 @@
   "scroll_paper_rank_3": "结丹境符纸",
   "scroll_paper_rank_4": "还婴境符纸",
   "scroll_paper_rank_5": "化神境符纸",
-  "scroll_paper_rank_6": "洞虚境符纸",
-  "scroll_paper_rank_7": "合体境符纸",
-  "scroll_paper_rank_8": "大乘境符纸",
 
-  "common_scroll": "凝气符箓",
-  "uncommon_scroll": "筑基符箓",
-  "rare_scroll": "结丹符箓",
-  "epic_scroll": "还婴符箓",
-  "legendary_scroll": "化神符箓",
-  "unique_scroll": "洞虚符箓",
-  "mythic_scroll": "合体符箓",
-  "arcane_scroll": "大乘符箓",
+  "rare_scroll": "凝气符箓",
+  "epic_scroll": "筑基符箓",
+  "legendary_scroll": "结丹符箓",
+  "mythic_scroll": "还婴符箓",
+  "arcane_scroll": "化神符箓",
+
+  "potion": "丹药",
+  "potion_flavortext": "服用后可以获得超过当前上限的生命，但在下一次战斗结束后会失去所有效果。",
 
   "identify_scroll": "鉴定符",
   "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。",
 
   "exp_pack": "一团灵光",
-  "exp_pack_flavortext": "使用后可以获得「灵光」，可用于提升修为等级，或者精炼功法卡牌。",
+  "exp_pack_flavortext": "灵光可用于提升修为等级，或者精炼功法卡牌。",
 
   "status_spirit": "精魄",
-  "status_spirit_flavortext": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。"
+  "status_spirit_flavortext": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。",
+
+  "equipment_affix": "法宝特性",
+  "equipment_affix_flavortext": "法宝特性：从法宝中析取的一条特性，可以通过打造赋予到新的法宝之上。",
+
+  "craftmaterial_addAffix": "灵宝丹",
+  "craftmaterial_addAffix_flavortext": "灵宝丹：用来给装备或功法增加一个额外词条。",
+
+  "craftmaterial_replaceAffix": "神照丹",
+  "craftmaterial_replaceAffix_flavortext": "神照丹：用来给装备或功法随机替换一个额外词条。",
+
+  "craftmaterial_rerollAffix": "混元丹",
+  "craftmaterial_rerollAffix_flavortext": "混元丹：用来给装备或功法重置所有词条等级。",
+
+  "craftmaterial_upgradeRank1": "凝气丹",
+  "craftmaterial_upgradeRank1_flavortext": "凝气丹：用来提升装备或功法的境界到凝气。",
+
+  "craftmaterial_upgradeRank2": "筑基丹",
+  "craftmaterial_upgradeRank2_flavortext": "筑基丹：用来提升装备或功法的境界到筑基。",
+
+  "craftmaterial_upgradeRank3": "结丹丹",
+  "craftmaterial_upgradeRank3_flavortext": "结丹丹：用来提升装备或功法的境界到结丹。",
+
+  "craftmaterial_upgradeRank4": "还婴丹",
+  "craftmaterial_upgradeRank4_flavortext": "还婴丹：用来提升装备或功法的境界到还婴。",
+
+  "craftmaterial_upgradeRank5": "化神丹",
+  "craftmaterial_upgradeRank5_flavortext": "化神丹：用来提升装备或功法的境界到化神。"
 }

@@ -19,7 +19,7 @@ const commonConsumableNames = [
 function generateConsumableName({category: string, rarity: string}) {
   assert(consumableNames.keys.contains(category))
   assert(consumableNames.keys.contains(category), category)
-  rarity ??= getRarity().rarity
+  rarity ??= getRarity().name
   const kind = random.nextIterable(consumableNames[category])
   let commonPrefix
   if (category == 'medicine') {
@@ -32,16 +32,10 @@ function generateConsumableName({category: string, rarity: string}) {
   const s = random.nextIterable(spiritPrefix)
   let name
   switch (rarity) {
-    'mythic', 'arcane' : name = pre + pre2 + kind
-    'legendary', 'unique' : name = pre + s + kind
+    'arcane' : name = pre + pre2 + kind
+    'mythic', 'legendary' : name = pre + s + kind
     'rare', 'epic' : name = pre + kind
-    'common', 'uncommon' : {
-      if (category == 'alchemy') {
-        name = pre + kind
-      } else {
-        name = commonPrefix + kind
-      }
-    }
+    'common' : name = (commonPrefix ?? pre) + kind
   }
-  return { name, category, rarity }
+  return name
 }

@@ -23,7 +23,7 @@ class CloseButton2 extends StatelessWidget {
       size: GameUI.infoButtonSize,
       padding: const EdgeInsets.all(2),
       borderRadius: 5.0,
-      onTapUp: () {
+      onPressed: () {
         if (onPressed != null) {
           onPressed!();
         } else {

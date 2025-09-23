@@ -1,3 +1,31 @@
 external abstract class Constants {
-  
+  static get races;
+  static get worldViews;
+  static get personalities;
+  static get battleAttributes;
+  static get battleCardKinds;
+  static get organizationCategories;
+  static get cultivationGenres;
+  static get locationCityKinds;
+  static get locationSiteKinds;
+  static get siteKindsBuildable;
+  static get siteKindsManagable;
+  static get attackTypes;
+  static get damageTypes;
+  static get ticksPerDay;
+  static get daysPerMonth;
+  static get ticksPerMonth;
+  static get daysPerYear;
+  static get monthsPerYear;
+  static get ticksPerYear;
+  static get baseBuyRate;
+  static get baseSellRate;
+  static get minSellRate;
+  static get minBuyRate;
+  static get basePriceOfMaterialKind;
+  static get basePriceByCategory;
+  static get terrainKindsCity;
+  static get terrainKindsLand;
+  static get terrainKindsWater;
+  static get terrainKindsMountain;
 }
