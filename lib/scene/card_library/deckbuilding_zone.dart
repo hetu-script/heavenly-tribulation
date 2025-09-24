@@ -9,7 +9,7 @@ import '../../game/ui.dart';
 import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
-import '../game_dialog/game_dialog_content.dart';
+// import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
 // import 'card_library.dart';
 import '../../state/hover_content.dart';
@@ -23,7 +23,7 @@ enum PlaceHolderState {
 }
 
 class DeckBuildingZone extends PiledZone with HandlesGesture {
-  static const _indent = 20.0;
+  // static const _indent = 20.0;
 
   // late final SpriteComponent background;
 
@@ -50,7 +50,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   /// 返回是否设置为true
   void setBattleDeck([bool? value]) {
     _isBattleDeck = value ?? !_isBattleDeck;
-    setTitle();
+    updateTitle();
   }
 
   late final SpriteButton placeholder;
@@ -141,22 +141,22 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         ) {
     title ??= engine.locale('untitled');
 
-    onDragIn = (int button, Vector2 position, GameComponent? component) {
-      if (component is! CustomGameCard) return;
-      if (cards.contains(component)) return;
-      if (containsCard(component.deckId)) return;
+    // onDragIn = (int button, Vector2 position, GameComponent? component) {
+    //   if (component is! CustomGameCard) return;
+    //   if (cards.contains(component)) return;
+    //   if (containsCard(component.deckId)) return;
 
-      final index =
-          ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
-              .truncate();
+    //   final index =
+    //       ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
+    //           .truncate();
 
-      final result = tryAddCard(component, index: index, clone: true);
-      if (result == null) {
-        library.setCardEnabledById(component.id, false);
-      } else {
-        GameDialogContent.show(game.context, engine.locale(result));
-      }
-    };
+    //   final result = tryAddCard(component, index: index, clone: true);
+    //   if (result == null) {
+    //     library.setCardEnabledById(component.id, false);
+    //   } else {
+    //     GameDialogContent.show(game.context, engine.locale(result));
+    //   }
+    // };
 
     onPileChanged = () {
       placeholder.isVisible = cards.isEmpty;
@@ -201,10 +201,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     }
   }
 
-  void setTitle() {
-    deckInfo.text =
-        '${_isBattleDeck ? '<yellow bold>${engine.locale('deckbuilding.battleDeck')}</>' : ''}\n'
-        '$title\n'
+  void updateTitle() {
+    deckInfo.text = '<yellow bold h1>$title</>\n'
+        '${_isBattleDeck ? '<green bold>${engine.locale('deckbuilding.battleDeck')}</>' : ''}\n'
         '${engine.locale('deckbuilding_card_count')}: ${cards.length}';
   }
 
@@ -215,7 +214,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     placeholder.isVisible = true;
 
     if (cards.isNotEmpty) {
-      setTitle();
+      updateTitle();
     }
     for (final card in cards) {
       card.enableGesture = false;

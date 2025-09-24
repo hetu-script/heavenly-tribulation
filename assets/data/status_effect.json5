@@ -762,7 +762,7 @@
     isResource: true,
     isNegative: true,
     attackType: "curse",
-    callbacks: ["self_doing_damage", "self_deck_end"],
+    callbacks: ["self_doing_damage"],
   },
 
   // 死气：回合结束时失去生命

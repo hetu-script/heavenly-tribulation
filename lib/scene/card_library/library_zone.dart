@@ -83,14 +83,14 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     assert(_cardsLimitInRow > 0);
 
-    onDragIn = (int button, Vector2 position, GameComponent? component) {
-      if (component is CustomGameCard) {
-        if (buildingZone != null && buildingZone!.cards.contains(component)) {
-          setCardEnabledById(component.deckId, true);
-          component.removeFromPile();
-        }
-      }
-    };
+    // onDragIn = (int button, Vector2 position, GameComponent? component) {
+    //   if (component is CustomGameCard) {
+    //     if (buildingZone != null && buildingZone!.cards.contains(component)) {
+    //       setCardEnabledById(component.deckId, true);
+    //       component.removeFromPile();
+    //     }
+    //   }
+    // };
 
     onMouseScrollUp = () {
       if ((game as CardLibraryScene).craftingCard != null) return;
@@ -352,31 +352,23 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     //     _cardPositions.length == library.length + 1);
     // card.position = _generateNextCardPosition();
 
-    card.onTapDown = (int button, Vector2 position) {
-      if (button == kPrimaryButton) {
-        engine.setCursor(Cursors.drag);
-        if (!card.isEnabled) return;
-        if (buildingZone != null) {
-          if (buildingZone!.isFull) return;
-          (game as CardLibraryScene).cardDragStart(card);
-        }
-        // else if (craftingArea != null) {
-        //   if (craftingArea!.isFull) return;
-        //   (game as CardLibraryScene).cardDragStart(card);
-        // }
-      }
-    };
+    // card.onTapDown = (int button, Vector2 position) {
+    //   if (button == kPrimaryButton) {
+    //     engine.setCursor(Cursors.drag);
+    //     if (!card.isEnabled) return;
+    //     if (buildingZone != null) {
+    //       if (buildingZone!.isFull) return;
+    //       (game as CardLibraryScene).cardDragStart(card);
+    //     }
+    //   }
+    // };
 
     card.onTapUp = (int button, __) async {
       if (button == kPrimaryButton) {
         if (!card.isEnabled) return;
         engine.setCursor(Cursors.normal);
         if (buildingZone != null) {
-          // || craftingArea != null) {
           String? result = buildingZone!.tryAddCard(card, clone: true);
-          // else if (craftingArea != null) {
-          //   result = craftingArea!.tryAddCard(card, clone: true);
-          // }
           if (result != null) {
             GameDialogContent.show(game.context, engine.locale(result));
           } else {
@@ -384,21 +376,22 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
             card.isEnabled = false;
           }
         }
-        (game as CardLibraryScene).cardDragRelease();
+        // (game as CardLibraryScene).cardDragRelease();
       } else if (button == kSecondaryButton) {
         (game as CardLibraryScene).onStartCraft(card);
       }
     };
 
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
-    card.onDragStart =
-        (button, dragPosition) => (game as CardLibraryScene).draggingCard;
-    card.onDragUpdate = (int button, Vector2 position, Vector2 delta) =>
-        (game as CardLibraryScene).draggingCard?.position += delta;
-    card.onDragEnd = (_, __) {
-      engine.setCursor(Cursors.normal);
-      (game as CardLibraryScene).cardDragRelease();
-    };
+    // card.onDragStart =
+    //     (button, dragPosition) => (game as CardLibraryScene).draggingCard;
+    // card.onDragUpdate = (int button, Vector2 position, Vector2 delta) =>
+    //     (game as CardLibraryScene).draggingCard?.position += delta;
+    // card.onDragEnd = (_, __) {
+    //   engine.setCursor(Cursors.normal);
+    //   (game as CardLibraryScene).cardDragRelease();
+    // };
+
     card.onPreviewed = () => previewCard(
           game.context,
           'library_card_${card.id}',

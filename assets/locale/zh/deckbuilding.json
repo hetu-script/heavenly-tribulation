@@ -1,4 +1,5 @@
 {
+  "deckbuilding_set_title": "设置标题",
   "deckbuilding_set_battle_deck": "设为出战",
   "deckbuilding.battleDeck": "出战卡组",
   "deckbuilding_deck_count": "卡组数量",
@@ -27,7 +28,7 @@
   "deckbuilding_card_invalid": "未满足卡组中卡牌的需求！",
 
   "deckbuilding_new_deck_hint": "创建新卡组",
-  "deckbuilding_add_card_hint": "将卡牌拖动至此来加入卡组",
+  "deckbuilding_add_card_hint": "点击卡牌库中的卡牌来将其加入卡组",
   "deckbuilding_edit_deck_hint": "点击鼠标左键：编辑卡组\n点击鼠标右键：打开菜单",
 
   "deckbuilding_crafing": "卡牌精炼",

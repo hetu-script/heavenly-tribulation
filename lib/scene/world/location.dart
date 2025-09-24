@@ -278,29 +278,28 @@ class LocationScene extends Scene {
                             },
                           );
                         case LocationDropMenuItems.saveAs:
-                          showDialog(
+                          final saveName = await showDialog(
                             context: context,
                             builder: (context) {
                               return InputStringDialog(
                                 title: engine.locale('inputName'),
                               );
                             },
-                          ).then((saveName) {
-                            if (saveName == null) return;
-                            engine.hetu.assign('saveName', saveName,
-                                namespace: 'game');
-                            String worldId = engine.hetu
-                                .fetch('currentWorldId', namespace: 'game');
-                            context
-                                .read<GameSavesState>()
-                                .saveGame(worldId, saveName)
-                                .then((saveInfo) {
-                              GameDialogContent.show(
-                                context,
-                                engine.locale('savedSuccessfully',
-                                    interpolations: [saveInfo.savePath]),
-                              );
-                            });
+                          );
+                          if (saveName == null) return;
+                          engine.hetu
+                              .assign('saveName', saveName, namespace: 'game');
+                          String worldId = engine.hetu
+                              .fetch('currentWorldId', namespace: 'game');
+                          context
+                              .read<GameSavesState>()
+                              .saveGame(worldId, saveName)
+                              .then((saveInfo) {
+                            GameDialogContent.show(
+                              context,
+                              engine.locale('savedSuccessfully',
+                                  interpolations: [saveInfo.savePath]),
+                            );
                           });
                         case LocationDropMenuItems.info:
                           showDialog(

@@ -102,7 +102,7 @@ struct BattleCard {
       if (maxOutLevel) {
         level = maxLevel
       } else {
-        level = minLevel + random.distantInt(maxLevel - minLevel)
+        level = minLevel + random.nextInt(maxLevel - minLevel)
       }
     } else {
       level = level.clamp(Math.max(1, minLevel), maxLevel)
@@ -315,39 +315,6 @@ function addAffix(card) {
   return null
 }
 
-/// 重置额外词条的数值
-function rerollAffix(card) {
-  final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.valueData != null)
-  })
-
-  if (extraAffixes.isEmpty) {
-    return engine.locale('deckbuilding_rerollAffix_warning')
-  }
-  
-  final materialCost = getCardCraftMaterial('addAffix', card)
-  final materialId = materialCost['materialId']
-  final cost = materialCost['count'] ?? 1
-  final hasCount = entityHasItemKind(hero, materialId)
-  if (hasCount < cost) {
-    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
-  }
-  entityLoseItemKind(hero, materialId, cost)
-  
-  final minLevel = minLevelForRank(card.rank)
-  final maxLevel = maxLevelForRank(card.rank)
-  card.level = minLevel + random.distantInt(maxLevel - minLevel)
-  
-  _updateMainAffixValue(this)
-
-  for (final affix in extraAffixes) {
-    _randomizeAffixLevel(card, affix)
-  }
-
-  // 这里显式返回空值表明成功执行
-  return null
-}
-
 /// 替换一个额外词条
 function replaceAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
@@ -358,7 +325,7 @@ function replaceAffix(card) {
     return engine.locale('deckbuilding_replaceAffix_warning')
   }
 
-  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialCost = getCardCraftMaterial('replaceAffix', card)
   final materialId = materialCost['materialId']
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
@@ -382,6 +349,39 @@ function replaceAffix(card) {
   return null
 }
 
+/// 重置额外词条的数值
+function rerollAffix(card) {
+  final extraAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain && affix.valueData != null)
+  })
+
+  if (extraAffixes.isEmpty) {
+    return engine.locale('deckbuilding_rerollAffix_warning')
+  }
+  
+  final materialCost = getCardCraftMaterial('rerollAffix', card)
+  final materialId = materialCost['materialId']
+  final cost = materialCost['count'] ?? 1
+  final hasCount = entityHasItemKind(hero, materialId)
+  if (hasCount < cost) {
+    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
+  }
+  entityLoseItemKind(hero, materialId, cost)
+  
+  final minLevel = minLevelForRank(card.rank)
+  final maxLevel = maxLevelForRank(card.rank)
+  card.level = minLevel + random.nextInt(maxLevel - minLevel)
+  
+  _updateMainAffixValue(card)
+
+  for (final affix in extraAffixes) {
+    _randomizeAffixLevel(card, affix)
+  }
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
 /// 升级卡牌境界
 function upgradeRank(card) {
   if (card.rank >= kCultivationRankMax) {
@@ -393,7 +393,7 @@ function upgradeRank(card) {
     return engine.locale('deckbuilding_upgradeRank_warning', interpolations: [nextRankMinLevel])
   }
 
-  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialCost = getCardCraftMaterial('upgradeRank', card)
   final materialId = materialCost['materialId']
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)

@@ -61,7 +61,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(engine.locale('workshop')),
+          title: Text(widget.title ?? engine.locale('selectItem')),
           actions: [
             CloseButton2(
               onPressed: () {

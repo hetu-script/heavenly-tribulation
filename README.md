@@ -1,5 +1,23 @@
 # 天道奇劫
 
-Draws inspiration from Battlebrothers & Slay the Spire.
+A game draws a lot of inspiration from Battlebrothers & Slay the Spire.
 
-这是一个借鉴了很多《太阁立志传》和《弈仙牌》的游戏。
+这是一个借鉴了很多《太阁立志传》和《弈仙牌》的玩法的游戏。
+
+关于游戏玩法和设定的更多介绍，请参考**docs**目录下的文档。
+
+## 关于本项目的授权协议 (License)
+
+### 代码 (Code)
+
+本项目的所有源代码均基于 **[MIT License](LICENSE)** 开源。欢迎您自由使用、修改和分发。详细信息请查阅 `LICENSE` 文件。
+
+### 美术与音频资产 (Art and Audio Assets)
+
+**请注意：** 本项目中包含的所有美术资源（包括但不限于图像、动画、UI 设计、模型）、音频资源（包括但不限于音乐、音效）以及其他非代码素材，**均不属于** MIT 开源协议的授权范围。
+
+我们保留这些资源和素材的所有权利 (All Rights Reserved)。
+
+**您不得在您自己的项目（无论是商业还是非商业）中，直接复制、修改或分发这些资产文件，除非获得我的明确书面授权。**
+
+本项目的开源仅限于学习、交流和贡献代码。如果您希望克隆 (fork) 本项目进行二次开发，您必须替换掉所有的非代码资产。

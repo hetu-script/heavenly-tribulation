@@ -28,6 +28,7 @@ import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
 import '../../common.dart';
 import '../particles/light_point.dart';
+import '../../widgets/dialog/input_string.dart';
 
 const kBasicCardKinds = {
   'punch',
@@ -44,6 +45,7 @@ enum CraftType {
 }
 
 enum DeckMenuItems {
+  setTitle,
   setAsBattleDeck,
   editDeck,
   deleteDeck,
@@ -289,13 +291,29 @@ class CardLibraryScene extends Scene {
     showFluentMenu(
       position: zone.absolutePosition.toOffset(),
       items: {
+        engine.locale('deckbuilding_set_title'): DeckMenuItems.setTitle,
         engine.locale('deckbuilding_set_battle_deck'):
             DeckMenuItems.setAsBattleDeck,
         engine.locale('edit'): DeckMenuItems.editDeck,
         engine.locale('delete'): DeckMenuItems.deleteDeck,
       },
-      onSelectedItem: (item) {
+      onSelectedItem: (item) async {
         switch (item) {
+          case DeckMenuItems.setTitle:
+            final String? title = await showDialog(
+              context: context,
+              builder: (context) {
+                return InputStringDialog(
+                  title: engine.locale('inputName'),
+                );
+              },
+            );
+            if (title?.isBlank ?? true) return;
+            zone.title = title;
+            zone.updateTitle();
+            final deck = GameData.hero['battleDecks'][zone.index];
+            assert(deck != null);
+            deck['title'] = title;
           case DeckMenuItems.setAsBattleDeck:
             _setBattleDeck(zone);
           case DeckMenuItems.editDeck:

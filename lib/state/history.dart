@@ -13,18 +13,19 @@ class HeroAndGlobalHistoryState with ChangeNotifier {
     if (heroId == null) return;
 
     incidents.clear();
-    for (final incident in (GameData.history.values as Iterable).reversed) {
-      if (incident['subjectId'] == heroId ||
-          incident['objectId'] == heroId ||
-          incident['isGlobal']) {
-        incidents.add(incident);
-        if (limit > 0 && incidents.length >= limit) {
-          break;
+    if (GameData.history != null) {
+      for (final incident in (GameData.history.values as Iterable).reversed) {
+        if (incident['subjectId'] == heroId ||
+            incident['objectId'] == heroId ||
+            incident['isGlobal']) {
+          incidents.add(incident);
+          if (limit > 0 && incidents.length >= limit) {
+            break;
+          }
         }
       }
+      incidents = incidents.reversed.toList();
     }
-    incidents = incidents.reversed.toList();
-
     notifyListeners();
   }
 }
