@@ -203,7 +203,7 @@ function generateReward({probability: {}, entity}) {
     let craftMaterialTypeRoll = r.nextDouble()
     let craftMaterial
     if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemByPrototype('craftmaterial_upgradeRank${r.nearInt(rank)}')
+      craftMaterial = createItemByPrototype('craftmaterial_upgradeRank${r.nearInt(rank) + 1}')
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
       craftMaterial = createItemByPrototype('craftmaterial_rerollAffix')
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {

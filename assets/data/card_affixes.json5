@@ -10,7 +10,7 @@
     valueData: [
       {
         base: 3,
-        increment: 0.3,
+        increment: 0.5,
       },
     ],
   },
@@ -27,7 +27,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.2,
       },
     ],
   },
@@ -43,7 +43,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.2,
       },
     ],
   },
@@ -58,7 +58,7 @@
     script: "consume_vigor_heal",
     valueData: [
       {
-        base: 0,
+        base: 1,
         increment: 0.1,
       },
       {
@@ -79,7 +79,7 @@
     valueData: [
       {
         base: 3,
-        increment: 0.3,
+        increment: 0.5,
       },
     ],
   },
@@ -94,7 +94,7 @@
     valueData: [
       {
         base: 3,
-        increment: 0.3,
+        increment: 0.5,
       },
     ],
   },
@@ -109,7 +109,7 @@
     valueData: [
       {
         base: 3,
-        increment: 0.3,
+        increment: 0.5,
       },
     ],
   },
@@ -124,7 +124,7 @@
     valueData: [
       {
         base: 3,
-        increment: 0.3,
+        increment: 0.5,
       },
     ],
   },
@@ -192,7 +192,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -214,7 +214,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -236,7 +236,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -258,7 +258,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -273,7 +273,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.15,
+        increment: 0.3,
       },
     ],
   },
@@ -288,7 +288,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.15,
+        increment: 0.3,
       },
     ],
   },
@@ -303,7 +303,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.15,
+        increment: 0.3,
       },
     ],
   },
@@ -318,7 +318,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.15,
+        increment: 0.3,
       },
     ],
   },
@@ -333,7 +333,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.15,
+        increment: 0.3,
       },
     ],
   },
@@ -405,7 +405,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -424,7 +424,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -443,7 +443,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },
@@ -462,7 +462,7 @@
       },
       {
         base: 5,
-        increment: 0.1,
+        increment: 0.3,
       },
     ],
   },

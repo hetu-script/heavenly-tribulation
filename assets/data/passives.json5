@@ -866,6 +866,7 @@
     description: "passive_enable_karma_description",
     priority: 3988,
   },
+
   overflowed_mana_deal_elemental_damage: {
     id: "overflowed_mana_deal_elemental_damage",
     description: "passive_overflowed_mana_deal_elemental_damage_description",
@@ -900,6 +901,11 @@
     id: "exhaust_life_for_insufficient_rage",
     description: "passive_exhaust_life_for_insufficient_rage_description",
     priority: 3980,
+  },
+  enable_multiple_weapon_equip: {
+    id: "enable_multiple_weapon_equip",
+    description: "passive_enable_multiple_weapon_equip_description",
+    priority: 3979,
   },
 
   // 功能性特殊词条

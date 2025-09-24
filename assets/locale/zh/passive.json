@@ -221,11 +221,12 @@
 
   "passive_overflowed_mana_deal_elemental_damage_description": "每次溢出灵气时，对手受到元素伤害，自身境界越高，伤害越高。",
   "passive_overflowed_mana_convert_to_vigor_description": "溢出的灵气转化为元气",
+  "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
   "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气",
   "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术伤害减少30%，并转为纯粹伤害",
   "passive_curse_deal_pure_damage_description": "咒术伤害减少30%，并转为纯粹伤害",
   "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时仍可发挥效果，但会消耗生命",
-  "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
+  "passive_enable_multiple_weapon_equip_description": "你可以同时装备不同的武器",
 
   "passive_heal_description": "生命 {0}",
   "passive_overheal_description": "生命 {0}",

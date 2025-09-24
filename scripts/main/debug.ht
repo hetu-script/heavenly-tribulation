@@ -42,85 +42,80 @@ namespace Debug {
     // testQuest()
   }
 
-  function testItem([character]) {
-    character ??= hero
+  function testItem() {
 
-    if (character == null) {
-      for (final affixId in game.battleCards.keys) {
-        final card = BattleCard(
-          affixId: affixId,
-          rank: character.rank,
-        )
-        Player.acquireCard(card)
-      }
+    for (final affixId in game.battleCards.keys) {
+      final card = BattleCard(
+        affixId: affixId,
+        rank: hero.rank,
+      )
+      Player.acquireCard(card)
     }
     
     final items = []
     for (var kind in kEquipmentKinds) {
-      final item = Equipment(kind: kind, rank: character.rank)
+      final item = Equipment(kind: kind, rank: hero.rank)
       items.add(item)
-      entityAcquire(character, item)
+      Player.acquire(item)
     }
 
     for (var genre in [null, ...Constants.cultivationGenres]) {
       final pack = Cardpack(
         genre: genre,
-        rank: character.rank,
+        rank: hero.rank,
       )
       items.add(pack)
-      entityAcquire(character, pack)
+      Player.acquire(pack)
     }
 
     for (var i in range(5)) {
-      final item = Potion(rank: character.rank)
+      final item = Potion(rank: hero.rank)
       items.add(item)
-      entityAcquire(character, item)
+      Player.acquire(item)
     }
 
     final shardPack = Materialpack(kind: 'shard', amount: 50)
-    entityAcquire(character, shardPack)
+    Player.acquire(shardPack)
     items.add(shardPack)
 
     final moneyPack = Materialpack(kind: 'money', amount: 5000)
-    entityAcquire(character, moneyPack)
+    Player.acquire(moneyPack)
     items.add(moneyPack)
 
     for (var i in range(3)) {
       final scroll = createItemByPrototype('identify_scroll')
-      entityAcquire(character, scroll)
+      Player.acquire(scroll)
       items.add(scroll)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
       final paper = createItemByPrototype('scroll_paper_rank${i}')
       paper.stackSize = 5
-      entityAcquire(character, paper)
+      Player.acquire(paper)
       items.add(paper)
     }
 
     for (var i in range(3)) {
-      final spirit = StatusSpirit(rank: character.rank + 1)
-      entityAcquire(character, spirit)
+      final spirit = StatusSpirit(rank: hero.rank + 1)
+      Player.acquire(spirit)
       items.add(spirit)
     }
 
     for (var materialId in _kCraftMaterials) {
       final material = createItemByPrototype(materialId)
       material.stackSize = 10
-      entityAcquire(character, material)
+      Player.acquire(material)
       items.add(material)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
       final ticket = createItemByPrototype('dungeon_ticket_rank${i}')
       ticket.stackSize = 3
-      entityAcquire(character, ticket)
+      Player.acquire(ticket)
       items.add(ticket)
     }
 
-    if (character == hero) {
-      Game.promptNewItems([...items])
-    }
+    Game.promptNewItems(items)
   }
 
   function testQuest() {

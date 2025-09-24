@@ -45,7 +45,7 @@
     },
     lightning: {
       spriteSheet: "overlay/lightning.png",
-      offsetY: -80.0,
+      offsetY: -60.0,
       width: 320.0,
       height: 192.0,
       stepTime: 0.1,
@@ -58,12 +58,34 @@
     },
     sigil: {
       spriteSheet: "overlay/sigil.png",
+      offsetY: -16.0,
       width: 320.0,
       height: 128.0,
       stepTime: 0.1,
     },
+    sigil_buff: {
+      spriteSheet: "overlay/sigil_buff.png",
+      offsetX: -16.0,
+      offsetY: -16.0,
+      width: 112.0,
+      height: 128.0,
+      stepTime: 0.1,
+    },
+    poison: {
+      spriteSheet: "overlay/poison.png",
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
     curse: {
       spriteSheet: "overlay/curse.png",
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
+    swamp: {
+      spriteSheet: "overlay/swamp.png",
+      offsetY: -16.0,
       width: 288.0,
       height: 128.0,
       stepTime: 0.1,

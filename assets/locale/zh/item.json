@@ -124,7 +124,7 @@
   "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。",
 
   "exp_pack": "一团灵光",
-  "exp_pack_flavortext": "灵光可用于提升修为等级，或者精炼功法卡牌。",
+  "exp_pack_flavortext": "灵光就是修为经验值，可用于提升修为等级。",
 
   "status_spirit": "精魄",
   "status_spirit_flavortext": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。",

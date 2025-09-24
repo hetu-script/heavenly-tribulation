@@ -1718,8 +1718,8 @@
         },
       ],
     },
-    plant_control_heal: {
-      id: "plant_control_heal",
+    wood_heal: {
+      id: "wood_heal",
       uniqueId: ["heal"],
       genre: "spellcraft",
       category: "buff",
@@ -1746,8 +1746,8 @@
         },
       ],
     },
-    plant_control_defense_physical: {
-      id: "plant_control_defense_physical",
+    wood_defense_physical: {
+      id: "wood_defense_physical",
       uniqueId: ["defense_physical"],
       genre: "spellcraft",
       category: "buff",

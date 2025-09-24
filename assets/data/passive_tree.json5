@@ -948,17 +948,6 @@
     ],
     rank: 2,
   },
-  // track_6_25: {
-  //   size: "medium",
-  //   connectedNodes: ["track_6_24"],
-  //   icon: "cultivation/skill/avatar_selected.png",
-  //   unselectedIcon: "cultivation/skill/avatar_unselected.png",
-  //   passives: [
-  //     {
-  //       id: "",
-  //     },
-  //   ],
-  // },
   track_7_12: {
     size: "large",
     connectedNodes: ["track_6_24"],
@@ -1060,7 +1049,13 @@
   track_6_25: {
     size: "medium",
     connectedNodes: ["track_8_25"],
-    isAttribute: true,
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    passives: [
+      {
+        id: "enable_multiple_weapon_equip",
+      },
+    ],
   },
   // 右侧分支：
   track_8_29: {

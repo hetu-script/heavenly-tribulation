@@ -205,7 +205,7 @@ const kRaritiesToRank = {
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
     /// 凡品
-    'common' => HexColor.fromString('#CCCCCC'),
+    'common' => HexColor.fromString('#B4B4B4'),
 
     /// 良品
     'rare' => HexColor.fromString('#D4FFFF'),
@@ -223,14 +223,14 @@ Color getColorFromRarity(String rarity) {
     'arcane' => HexColor.fromString('#C65043'),
 
     /// 其他
-    _ => HexColor.fromString('#CCCCCC'),
+    _ => HexColor.fromString('#B4B4B4'),
   };
 }
 
 Color getColorFromRank(int rank) {
   return switch (rank) {
     /// 无境界 根据背景，一般是黑或白
-    0 => HexColor.fromString('#CCCCCC'),
+    0 => HexColor.fromString('#B4B4B4'),
 
     /// 凝气 灰
     1 => HexColor.fromString('#D4FFFF'),
@@ -248,7 +248,7 @@ Color getColorFromRank(int rank) {
     5 => HexColor.fromString('#C65043'),
 
     /// 其他
-    _ => HexColor.fromString('#CCCCCC'),
+    _ => HexColor.fromString('#B4B4B4'),
   };
 }
 

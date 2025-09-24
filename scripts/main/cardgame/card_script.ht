@@ -161,7 +161,7 @@ async function card_script_main_dodge_nimble_exhaust(self, opponent, affix) {
 async function card_script_main_lifemax_buff_exhaust(self, opponent, affix) {
   self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
-  self.setLifeMax(self.lifeMax + affix.value[1])
+  self.setLifeMax(self.lifeMax + affix.value[1], rejuvenate: true)
 }
 /// 消耗资源降低对手生命上限
 async function card_script_main_lifemax_debuff_exhaust(self, opponent, affix) {

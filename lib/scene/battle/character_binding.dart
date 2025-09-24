@@ -22,7 +22,8 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return character.lifeMax;
       case 'setLifeMax':
         return ({object, positionalArgs, namedArgs}) {
-          character.setLifeMax(positionalArgs.first);
+          character.setLifeMax(positionalArgs.first,
+              rejuvenate: namedArgs['rejuvenate'] ?? false);
         };
       case 'addHintText':
         return ({object, positionalArgs, namedArgs}) {

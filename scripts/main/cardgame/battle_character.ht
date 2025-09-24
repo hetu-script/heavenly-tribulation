@@ -18,7 +18,7 @@ external class BattleCharacter {
 
   get lifeMax
 
-  function setLifeMax(value: integer)
+  function setLifeMax(value: integer, {rejuvenate: bool = false})
 
   function addHintText(text, {color: string})
 

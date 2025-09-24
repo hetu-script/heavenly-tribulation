@@ -47,7 +47,7 @@ const kRarity = {
     rank: 0,
     rarity: 0.55,
     name: 'common',
-    color: '#CCCCCC',
+    color: '#B4B4B4',
   },
   /// 凡品 灰
   rare: {

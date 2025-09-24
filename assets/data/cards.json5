@@ -130,7 +130,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 0.8,
       },
     ],
   },
@@ -222,7 +222,7 @@
       },
       {
         base: 7,
-        increment: 0.7,
+        increment: 0.9,
       },
     ],
   },
@@ -317,7 +317,7 @@
       },
       {
         base: 7,
-        increment: 0.7,
+        increment: 1,
       },
     ],
   },
@@ -412,7 +412,7 @@
       },
       {
         base: 7,
-        increment: 0.7,
+        increment: 1,
       },
     ],
   },
@@ -814,7 +814,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["falling_stone"],
+      overlays: "falling_stone",
       sound: "small-rock-break-194553.mp3",
     },
     script: "attack_exhaust",
@@ -846,7 +846,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["fireball"],
+      overlays: "fireball",
       sound: "fireball-whoosh-5-179129.mp3",
     },
     script: "attack_exhaust",
@@ -879,7 +879,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["wind_blade"],
+      overlays: "wind_blade",
       sound: "wind-1-44149.mp3",
     },
     script: "attack_slow_exhaust",
@@ -917,7 +917,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["lightning"],
+      overlays: "lightning",
       sound: "big-thunder-67697.mp3",
     },
     script: "attack_clumsy_exhaust",
@@ -956,7 +956,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["flying_sword"],
+      overlays: "flying_sword",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -986,7 +986,7 @@
     kind: "flying_sword",
     resourceType: "energy_positive_spell",
     attackType: "spell",
-    damageType: "physical",
+    damageType: "elemental",
     exhaustType: "spell",
     rank: 1,
     description: "affix_attack_spell_exhaust_mana_multiple",
@@ -994,7 +994,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["flying_sword"],
+      overlays: "flying_sword",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1098,7 +1098,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["sigil"],
+      overlays: "sigil",
       sound: "tibetan-monks-22297.mp3",
     },
     script: "attack",
@@ -1125,7 +1125,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["sigil"],
+      overlays: "sigil",
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack_exhaust",
@@ -1157,7 +1157,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["sigil"],
+      overlays: "sigil",
       sound: "tibetan-monks-22297.mp3",
     },
     script: "attack_exhaust",
@@ -1191,7 +1191,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["curse"],
+      overlays: "curse",
       sound: "magic-smite-6012.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1233,7 +1233,7 @@
     valueData: [
       {
         base: 4,
-        increment: 0.4,
+        increment: 0.8,
       },
     ],
   },
@@ -1263,7 +1263,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1285,7 +1285,7 @@
     valueData: [
       {
         base: 4,
-        increment: 0.4,
+        increment: 0.8,
       },
     ],
   },
@@ -1315,7 +1315,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1338,7 +1338,7 @@
     valueData: [
       {
         base: 4,
-        increment: 0.4,
+        increment: 0.8,
       },
     ],
   },
@@ -1369,7 +1369,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1392,7 +1392,7 @@
     valueData: [
       {
         base: 4,
-        increment: 0.4,
+        increment: 0.8,
       },
     ],
   },
@@ -1423,7 +1423,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1448,7 +1448,7 @@
     valueData: [
       {
         base: 7,
-        increment: 0.75,
+        increment: 0.8,
       },
     ],
   },
@@ -1479,7 +1479,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1502,7 +1502,7 @@
     valueData: [
       {
         base: 6,
-        increment: 0.6,
+        increment: 0.8,
       },
     ],
   },
@@ -1533,7 +1533,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1548,7 +1548,7 @@
     image: "battlecard/illustration/xinfa2.png",
     animation: {
       startup: "buff_spell",
-      overlays: ["restore_life"],
+      overlays: "restore_life",
       sound: "spell-of-healing-876.mp3",
     },
     script: "heal",
@@ -1556,7 +1556,7 @@
     valueData: [
       {
         base: 5,
-        increment: 1,
+        increment: 1.5,
       },
     ],
   },
@@ -1572,7 +1572,7 @@
     image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "buff_spell",
-      overlays: ["restore_mana"],
+      overlays: "restore_mana",
       sound: "spell-of-healing-876.mp3",
     },
     script: "mana",
@@ -1580,7 +1580,7 @@
     valueData: [
       {
         base: 0,
-        increment: 0.2,
+        increment: 0.3,
       },
     ],
   },
@@ -1603,7 +1603,7 @@
     valueData: [
       {
         base: 0,
-        increment: 0.2,
+        increment: 0.3,
       },
     ],
   },
@@ -1629,6 +1629,7 @@
       {
         base: 0,
         increment: 0.1,
+        maxLevel: 30,
       },
       {
         base: 1,
@@ -1658,6 +1659,7 @@
       {
         base: 0,
         increment: 0.1,
+        maxLevel: 30,
       },
       {
         base: 1,
@@ -1688,6 +1690,7 @@
       {
         base: 0,
         increment: 0.1,
+        maxLevel: 30,
       },
       {
         base: 1,
@@ -1727,8 +1730,8 @@
     ],
   },
 
-  plant_control_heal: {
-    id: "plant_control_heal",
+  wood_heal: {
+    id: "wood_heal",
     uniqueId: ["heal"],
     genre: "spellcraft",
     category: "buff",
@@ -1737,11 +1740,11 @@
     exhaustType: "spell",
     rank: 1,
     description: "affix_heal_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_plant_control.png",
+    image: "battlecard/illustration/spellcraft_wood.png",
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["wood_buff"],
+      overlays: "wood_buff",
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "heal_exhaust",
@@ -1754,25 +1757,26 @@
       },
       {
         base: 0,
-        increment: 1.2,
+        increment: 1.5,
       },
     ],
   },
-  plant_control_defense_physical: {
-    id: "plant_control_defense_physical",
+  wood_defense_physical: {
+    id: "wood_defense_physical",
     uniqueId: ["defense_physical"],
     genre: "spellcraft",
     category: "buff",
     kind: "plant_control",
     rank: 1,
+    damageType: "physical",
     resourceType: "energy_positive_spell",
     exhaustType: "leech",
     description: "affix_defend_physical_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_plant_control.png",
+    image: "battlecard/illustration/spellcraft_wood.png",
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["wood_buff"],
+      overlays: "wood_buff",
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "defend_exhaust",
@@ -1785,7 +1789,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1804,7 +1808,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["wind_buff"],
+      overlays: "wind_buff",
       sound: "wind-1-44149.mp3",
     },
     script: "defend_exhaust",
@@ -1817,7 +1821,7 @@
       },
       {
         base: 6,
-        increment: 0.6,
+        increment: 1,
       },
     ],
   },
@@ -1849,7 +1853,7 @@
       },
       {
         base: 8,
-        increment: 0.8,
+        increment: 1,
       },
     ],
   },
@@ -1869,6 +1873,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
+      overlays: "sigil_buff",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_exhaust",
@@ -1881,7 +1886,7 @@
       },
       {
         base: 8,
-        increment: 0.8,
+        increment: 1,
       },
     ],
   },
@@ -1900,7 +1905,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["restore_life"],
+      overlays: "restore_life",
       sound: "buffer-spell-88994.mp3",
     },
     script: "lifemax_buff_exhaust",
@@ -1912,7 +1917,7 @@
       },
       {
         base: 0,
-        increment: 1,
+        increment: 1.5,
       },
     ],
   },
@@ -1930,7 +1935,7 @@
     animation: {
       startup: "attack_spell",
       recovery: "attack_spell_recovery",
-      overlays: ["curse"],
+      overlays: "curse",
       sound: "magic-smite-6012.mp3",
     },
     script: "lifemax_debuff_exhaust",
@@ -1942,7 +1947,7 @@
       },
       {
         base: 0,
-        increment: 1,
+        increment: 1.5,
       },
     ],
   },
