@@ -42,7 +42,7 @@ namespace Player {
       if (direction != null) {
         assert(kOrthogonalDirections.contains(direction))
       }
-      World.setCharacterTo(hero.id, left, top, direction: direction)
+      World.setCharacterToPosition(hero, left, top, direction: direction)
       World.moveCameraToMapPosition(left, top, animated: false)
       World.lightUpAroundTile(left, top, hero.stats.lightRadius)
       final terrain = getTerrainByWorldPosition(left, top)
@@ -94,9 +94,9 @@ namespace Player {
     return entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
   }
 
-  function lose(item, { incurIncident = true }) {
+  function lose(item, { amount = 1, incurIncident = true }) {
     assert(hero != null)
-    entityLose(hero, item, incurIncident: incurIncident)
+    entityLose(hero, item, amount: amount, incurIncident: incurIncident)
   }
 
   function acquireCard(card, { incurIncident = true }) {
@@ -109,7 +109,7 @@ namespace Player {
     assert(hero != null)
     assert(hero.cardLibrary.containsKey(card.id))
 
-    final price = getCardCraftOperationCost('dismantle', card)
+    final price = getCardCraftMaterial('dismantle', card)['exp'] ?? 0
 
     hero.exp += price
     hero.cardLibrary.remove(card.id)
@@ -120,27 +120,11 @@ namespace Player {
       }
     }
     
-    let incidentContent = engine.locale('entityDismantle', interpolations: [
+    let incidentContent = engine.locale('entityLose', interpolations: [
       hero.name,
       card.name,
     ])
     engine.debug(incidentContent)
-    
-    // let incidentContent
-    // incidentContent = engine.locale('entityDismantle', interpolations: [
-    //   hero.name,
-    //   card.name,
-    // ])
-    // if (incurIncident) {
-    //   Incident(
-    //     message: incidentContent,
-    //     subjectId: hero.id,
-    //     card: card,
-    //     isPrivate: true,
-    //   )
-    // } else {
-    //   engine.debug(incidentContent)
-    // }
 
     return price
   }

@@ -92,7 +92,8 @@ namespace Debug {
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
-      final paper = createItemByPrototype('scroll_paper_rank_${i}')
+      final paper = createItemByPrototype('scroll_paper_rank${i}')
+      paper.stackSize = 5
       entityAcquire(character, paper)
       items.add(paper)
     }
@@ -105,8 +106,16 @@ namespace Debug {
 
     for (var materialId in _kCraftMaterials) {
       final material = createItemByPrototype(materialId)
+      material.stackSize = 10
       entityAcquire(character, material)
       items.add(material)
+    }
+
+    for (var i in range(1, kCultivationRankMax + 1)) {
+      final ticket = createItemByPrototype('dungeon_ticket_rank${i}')
+      ticket.stackSize = 3
+      entityAcquire(character, ticket)
+      items.add(ticket)
     }
 
     if (character == hero) {

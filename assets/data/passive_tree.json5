@@ -106,6 +106,10 @@
         id: "spirituality",
         level: 40,
       },
+      {
+        id: "start_battle_with_energy_positive_spell",
+        level: 10,
+      },
     ],
   },
   track_5_2: {
@@ -193,7 +197,13 @@
   track_6_7: {
     size: "medium",
     connectedNodes: ["track_8_7"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "overflowed_mana_deal_elemental_damage",
+      },
+    ],
   },
 
   // 御剑+悟道：灵气副轴·左(速度)
@@ -390,7 +400,10 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "perception",
+        id: "enable_karma",
+      },
+      {
+        id: "willpower",
         level: 40,
       },
     ],
@@ -417,7 +430,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "perception",
+        id: "willpower",
         level: 40,
       },
     ],
@@ -677,10 +690,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "enable_karma",
-      },
-      {
-        id: "willpower",
+        id: "perception",
         level: 40,
       },
     ],
@@ -707,7 +717,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "willpower",
+        id: "perception",
         level: 40,
       },
     ],
@@ -747,7 +757,7 @@
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
     passives: [
       {
-        id: "curse_deal_pure_damage",
+        id: "dart_and_poison_deal_pure_damage",
       },
     ],
   },
@@ -770,7 +780,13 @@
   track_6_23: {
     size: "medium",
     connectedNodes: ["track_8_23"],
-    isAttribute: true,
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    passives: [
+      {
+        id: "curse_deal_pure_damage",
+      },
+    ],
   },
 
   // 炼魂+法身：辟邪副轴·左(精神防)

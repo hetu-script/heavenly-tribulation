@@ -431,8 +431,8 @@ class WorldMapScene extends Scene {
       playerFreezed = positionalArgs.first;
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('World::setCharacterTo', (
-        {positionalArgs, namedArgs}) async {
+    engine.hetu.interpreter.bindExternalFunction(
+        'World::setCharacterToPosition', ({positionalArgs, namedArgs}) async {
       final worldId = namedArgs['worldId'];
       if (worldId == null || worldId == map.id) {
         late TileMapComponent charComponent;
@@ -447,10 +447,13 @@ class WorldMapScene extends Scene {
           if (map.components.containsKey(charId)) {
             charComponent = map.components[charId]!;
           } else {
-            final charData = GameData.getCharacter(charId);
-            charComponent = await map.loadTileMapComponentFromData(charData,
-                spriteSrcSize: kWorldMapCharacterSpriteSrcSize,
-                isCharacter: true);
+            // final charData = GameData.getCharacter(charId);
+            final charData = positionalArgs.first;
+            charComponent = await map.loadTileMapComponentFromData(
+              charData,
+              spriteSrcSize: kWorldMapCharacterSpriteSrcSize,
+              isCharacter: true,
+            );
           }
         }
         charComponent.tilePosition =
@@ -465,22 +468,15 @@ class WorldMapScene extends Scene {
       }
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('World::setObjectTo', (
+    engine.hetu.interpreter.bindExternalFunction('World::removeCharacter', (
         {positionalArgs, namedArgs}) {
-      final object = map.components[positionalArgs[0]];
-      if (object == null) {
-        engine.warn(
-            'object with id [${positionalArgs[0]}] not found in map component list.');
-        return;
-      }
-      object.tilePosition = TilePosition(positionalArgs[1], positionalArgs[2]);
-      map.updateTileInfo(object);
+      map.components.remove(positionalArgs.first)?.removeFromParent();
     });
 
-    engine.hetu.interpreter.bindExternalFunction('World::objectWalkTo', (
+    engine.hetu.interpreter.bindExternalFunction('World::characterWalkTo', (
         {positionalArgs, namedArgs}) {
-      final object = map.components[positionalArgs[0]];
-      if (object == null) {
+      final character = map.components[positionalArgs[0]];
+      if (character == null) {
         engine.warn('大地图对象 id [${positionalArgs[0]}] 不存在');
         return null;
       }
@@ -496,26 +492,38 @@ class WorldMapScene extends Scene {
       final HTFunction? onStepCallback = namedArgs['onStepCallback'];
 
       final route = _calculateRoute(
-          fromX: object.left, fromY: object.top, toX: toX, toY: toY);
+          fromX: character.left, fromY: character.top, toX: toX, toY: toY);
       if (route != null) {
         assert(route.length > 1);
         map.componentWalkToTilePositionByRoute(
-          object,
+          character,
           List<int>.from(route),
           finishMoveDirection: finishMoveDirection,
           onStepCallback: (terrain, next, isFinished) {
             onStepCallback?.call(positionalArgs: [terrain.data, next?.data]);
             completer.complete();
-            map.updateTileInfo(object);
+            map.updateTileInfo(character);
           },
         );
       } else {
         engine.error(
-            '无法将对象 ${object.id} 从大地图位置 [${object.tilePosition}] 移动到 [$toX, $toY]}');
+            '无法将对象 ${character.id} 从大地图位置 [${character.tilePosition}] 移动到 [$toX, $toY]}');
         completer.complete();
       }
       return completer.future;
     }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('World::setObjectTo', (
+        {positionalArgs, namedArgs}) {
+      final object = map.components[positionalArgs[0]];
+      if (object == null) {
+        engine.warn(
+            'object with id [${positionalArgs[0]}] not found in map component list.');
+        return;
+      }
+      object.tilePosition = TilePosition(positionalArgs[1], positionalArgs[2]);
+      map.updateTileInfo(object);
+    });
 
     engine.hetu.interpreter.bindExternalFunction(
         'World::updateNpcsAtWorldMapPosition',
@@ -940,11 +948,12 @@ class WorldMapScene extends Scene {
           worldPos['left'] == null ||
           worldPos['top'] == null) {
         toBeRemoved.add(obj.id);
-      } else {
-        if (!charactersOnWorldMap.contains(obj.id)) {
-          toBeRemoved.add(obj.id);
-        }
       }
+      // else {
+      //   if (!charactersOnWorldMap.contains(obj.id)) {
+      //     toBeRemoved.add(obj.id);
+      //   }
+      // }
     }
 
     for (final id in toBeRemoved) {
@@ -1032,7 +1041,7 @@ class WorldMapScene extends Scene {
         final int left = location['worldPosition']['left'];
         final int top = location['worldPosition']['top'];
         _setWorldMapCaption(left, top, location['name'],
-            location['category'] == 'city' ? Colors.white : Colors.lightGreen);
+            location['category'] == 'city' ? Colors.white : Colors.yellow);
       }
     }
   }
@@ -1580,9 +1589,7 @@ class WorldMapScene extends Scene {
                                   except: Scenes.mainmenu,
                                   arguments: {
                                     'reset':
-                                        GameData.game['saveName'] == 'debug'
-                                            ? false
-                                            : true
+                                        GameData.game['saveName'] != 'debug'
                                   });
                           }
                         },

@@ -142,25 +142,22 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.FilledButton(
                         onPressed: () async {
-                          context
-                              .read<HeroInfoVisibilityState>()
-                              .setVisible(false);
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
-
-                          await GameData.loadPreset('story');
+                          engine.hetu.invoke('resetDungeon', namedArgs: {
+                            'rank': GameData.hero['rank'],
+                          });
                           engine.pushScene(
-                            'prelude',
+                            'dungeon_1',
                             constructorId: Scenes.worldmap,
-                            arguments: const {
-                              'id': 'prelude',
-                              'savePath': 'save',
-                              'method': 'preset',
+                            arguments: {
+                              'id': 'dungeon_1',
+                              'method': 'load',
                             },
                           );
                         },
                         child: Label(
-                          engine.locale('storyMode'),
+                          engine.locale('endlessMode'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
@@ -196,23 +193,27 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.FilledButton(
-                        onPressed: () async {
-                          setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
-                          engine.hetu.invoke('resetDungeon', namedArgs: {
-                            'rank': GameData.hero['rank'],
-                          });
-                          engine.pushScene(
-                            'dungeon_1',
-                            constructorId: Scenes.worldmap,
-                            arguments: {
-                              'id': 'dungeon_1',
-                              'method': 'load',
-                            },
-                          );
-                        },
+                        onPressed: null,
+                        // () async {
+                        //   context
+                        //       .read<HeroInfoVisibilityState>()
+                        //       .setVisible(false);
+                        //   setMenuState(MenuStates.main);
+                        //   engine.clearAllCachedScene(except: Scenes.mainmenu);
+
+                        //   await GameData.loadPreset('story');
+                        //   engine.pushScene(
+                        //     'prelude',
+                        //     constructorId: Scenes.worldmap,
+                        //     arguments: const {
+                        //       'id': 'prelude',
+                        //       'savePath': 'save',
+                        //       'method': 'preset',
+                        //     },
+                        //   );
+                        // },
                         child: Label(
-                          engine.locale('endlessMode'),
+                          engine.locale('storyMode'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),

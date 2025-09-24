@@ -46,7 +46,7 @@
   "deckbuilding_exp_cost": "修为经验消耗",
   "deckbuilding_exp_gain": "可获取修为经验",
 
-  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。符箓卡牌只能在战斗中使用一次，之后便会消失。制作符箓需要消耗修为经验和空白符纸。原本的卡牌制作后仍会保留。",
+  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。符箓卡牌在战斗结束后会消失。制作符箓需要消耗修为经验和空白符纸。原本的卡牌制作后仍会保留。",
   "deckbuilding_scroll_paper_count": "符纸消耗",
 
   "deckbuilding_identifyCard_description": "鉴定卡牌。",

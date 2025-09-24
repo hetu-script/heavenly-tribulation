@@ -1,9 +1,18 @@
 {
+  "entityAcquire": "{0}得到了{1}。",
+  "entityAcquireMultiple": "{0}得到了 {1} 个{2}。",
+  "entityLose": "{0}失去了{1}。",
+  "entityLoseMultiple": "{0}失去了 {1} 个{2}。",
+  "entityDestroy": "{0}销毁了{1}。",
+  "entityDismantle": "{0}分解了{1}。",
+
   "characterExpGained": "{0}获得了 {1} 点修为经验。",
   "characterStaminaRestored": "{0}恢复了 {1} 点体力。",
   "characterManaRestored": "{0}获得了 {1} 点灵气。",
   "characterAcquire": "{0}得到了{1}。",
   "characterLose": "{0}失去了{1}。",
+  "characterAcquireMultiple": "{0}得到了 {1} 个{2}。",
+  "characterLoseMultiple": "{0}失去了 {1} 个{2}。",
   "characterEquip": "{0}装备了{1}。",
   "characterUnequip": "{0}卸下了{1}。",
   "characterEnlist": "{0}加入了{1}。",
@@ -23,14 +32,7 @@
   "characterBorn": "{0}在{1}生下了{2}。",
   "characterBaishi": "{0}拜{1}为师了。",
 
-  "entityAcquire": "{0}得到了{1}。",
-  "entityLose": "{0}失去了{1}。",
-  "entityDestroy": "{0}销毁了{1}。",
-  "entityDismantle": "{0}分解了{1}。",
-
   "characterLearn": "{0}学会了{1}。",
-  "characterAcquireMultiple": "{0}得到了 {1} 个{2}。",
-  "characterLoseMultipleItem": "{0}失去了 {1} 个{2}。",
   "characterGiveItem": "{0}将{1}给了{2}。",
   "characterForceToGiveItem": "{0}拿走了{1}身上的{2}。",
   "characterGiveMultipleItem": "{0}将 {1} 个{2}给了{3}。",

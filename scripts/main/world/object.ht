@@ -104,6 +104,7 @@ struct ObjectMerchant {
     shard = 100000,
     category,
     itemCount = 5,
+    useShard = false,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? engine.locale('merchant')
@@ -113,6 +114,7 @@ struct ObjectMerchant {
     this.category = kObjectCategoryMerchant
     this.isDiscovered = true
     this.useCustomLogic = useCustomLogic
+    this.useShard = useShard
 
     this.merchant = BattleEntity(
       id: this.id,
@@ -161,6 +163,7 @@ struct ObjectEnemy {
     level,
     rank,
     isElite = false,
+    tilePosition,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? engine.locale('dungeonGuard')
@@ -171,14 +174,19 @@ struct ObjectEnemy {
     this.isDiscovered = true
     this.useCustomLogic = useCustomLogic
 
-    this.battleEntity = BattleEntity(
+    enemy = BattleEntity(
       id: this.id,
       name: this.name,
       level: level,
       rank: rank,
     )
-    Game.characterAllocateSkills(this.battleEntity, rejuvenate: true)
-    generateDeck(this.battleEntity, maxOutLevel: isElite)
+    this.battleEntity = enemy
+
+    Game.characterAllocateSkills(enemy, rejuvenate: true)
+    generateDeck(enemy, maxOutLevel: isElite)
+
+    setCharacterWorldPosition(enemy, tilePosition.left, tilePosition.top, worldId: world.id)
+    World.setCharacterToPosition(enemy, tilePosition.left, tilePosition.top, direction: 'south')
 
     world.objects[this.id] = this
   }

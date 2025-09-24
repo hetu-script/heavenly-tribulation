@@ -576,20 +576,24 @@ class CardLibraryScene extends Scene {
 
       final buffer = StringBuffer();
 
-      final expCost =
-          GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
+      final craftMaterial =
+          GameLogic.getCardCraftMaterial(id, _craftingCard!.data);
 
       buffer.writeln(engine.locale('deckbuilding_${id}_description'));
 
       if (affixButton.isEnabled) {
-        if (expCost > 0) {
-          if (id == 'dismantle') {
-            buffer.writeln(
-                '\n \n${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>');
-          } else {
-            buffer.writeln(
-                '\n \n${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>');
-          }
+        if (id == 'dismantle') {
+          buffer.writeln(
+              '\n \n<yellow>${engine.locale('deckbuilding_exp_gain')}: ${craftMaterial['exp']}</>');
+        } else {
+          final String materialId = craftMaterial['materialId']!;
+          final int count = craftMaterial['count'] ?? 1;
+
+          final hasMaterial = engine.hetu.invoke('entityHasItemKind',
+              positionalArgs: [GameData.hero, materialId]);
+
+          buffer.writeln(
+              '\n \n<red>${engine.locale(materialId)}${engine.locale('cost')}:</> $count/<${hasMaterial >= count ? 'yellow' : 'grey'}>$hasMaterial</>');
         }
       } else {
         if (_craftingCard!.data['isScroll'] == true) {
@@ -675,13 +679,14 @@ class CardLibraryScene extends Scene {
       engine.error('expected: currently no crafting card');
     }
 
-    final expCost =
-        GameLogic.getCardCraftOperationCost('craftScroll', _craftingCard!.data);
+    final expCostData =
+        GameLogic.getCardCraftMaterial('craftScroll', _craftingCard!.data);
+    final int expCost = expCostData['exp'] ?? 0;
 
     final paper =
         engine.hetu.invoke('firstItemKindInInventory', positionalArgs: [
       GameData.hero,
-      'scroll_paper_rank_${_craftingCard!.data['rank']}',
+      'scroll_paper_rank${_craftingCard!.data['rank']}',
     ]);
 
     if (GameData.hero['exp'] < expCost) {
@@ -1420,19 +1425,20 @@ class CardLibraryScene extends Scene {
 
       buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
       if (craftScrollButton.isEnabled) {
-        final expCost = GameLogic.getCardCraftOperationCost(
-            'craftScroll', _craftingCard!.data);
+        final materialCost =
+            GameLogic.getCardCraftMaterial('craftScroll', _craftingCard!.data);
+        final int expCost = materialCost['exp']!;
+        final int exp = GameData.hero['exp']!;
+        final int paperCount = materialCost['paperCount']!;
 
-        final paperCount =
-            engine.hetu.invoke('entityHasItemKind', positionalArgs: [
-          GameData.hero,
-          'scroll_paper_rank_$rank',
-        ]);
+        final hasPaper = engine.hetu.invoke('entityHasItemKind',
+            positionalArgs: [GameData.hero, 'scroll_paper_rank$rank']);
+
         buffer.writeln(
-            '\n \n${engine.locale('deckbuilding_exp_cost')}: <${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>/${GameData.hero['exp']}');
+            '\n \n<red>${engine.locale('deckbuilding_exp_cost')}:</> $expCost/<${exp >= expCost ? 'yellow' : 'grey'}>$exp</>');
         buffer.writeln(
-            '${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
-            '${engine.locale('deckbuilding_scroll_paper_count')}: 1/<${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
+            '<red>${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
+            '${engine.locale('deckbuilding_scroll_paper_count')}:</> $paperCount/<${hasPaper >= paperCount ? 'yellow' : 'grey'}>$hasPaper</>');
       } else {
         if (_craftingCard!.data['isScroll'] == true) {
           buffer.writeln(

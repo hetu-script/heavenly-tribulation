@@ -251,5 +251,6 @@ async function card_script_consume_vigor_gain_defense(self, opponent, affix, mai
 }
 
 async function card_script_for_attribute_increase_damage(self, opponent, affix, mainAffix) {
-  self.turnFlags.damage.percentageChange1 = self.turnFlags.damage.percentageChange1 + self.data.stats[affix.attributeId] * 0.01
+  final amount = self.data.stats[affix.attributeId] * 0.01
+  self.turnFlags.damage.percentageChange1 += amount
 }

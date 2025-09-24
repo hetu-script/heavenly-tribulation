@@ -494,7 +494,7 @@
     id: "expCollectEfficiency",
     description: "passive_expCollectEfficiency_description",
     priority: 1222,
-    increment: 0.5,
+    increment: 5,
     isItemAffix: true,
     tags: ["expCollectEfficiency"],
   },
@@ -866,9 +866,9 @@
     description: "passive_enable_karma_description",
     priority: 3988,
   },
-  overflowed_mana_keep_to_deck_end: {
-    id: "overflowed_mana_keep_to_deck_end",
-    description: "passive_overflowed_mana_keep_to_deck_end_description",
+  overflowed_mana_deal_elemental_damage: {
+    id: "overflowed_mana_deal_elemental_damage",
+    description: "passive_overflowed_mana_deal_elemental_damage_description",
     priority: 3986,
   },
   overflowed_mana_convert_to_vigor: {

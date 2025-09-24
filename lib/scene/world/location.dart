@@ -116,7 +116,8 @@ class LocationScene extends Scene {
             spriteId: 'location/card/dungeon.png',
             title: engine.locale('dungeon'));
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractDungeonEntrance(location);
+          GameLogic.onInteractDungeonEntrance(
+              organization: organization, location: location);
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);

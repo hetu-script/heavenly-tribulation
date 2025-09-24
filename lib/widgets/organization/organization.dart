@@ -120,9 +120,9 @@ class _OrganizationViewState extends State<OrganizationView> {
                     Text(
                         '${engine.locale('headquarters')}: ${_headquarters['name']}'),
                     Text(
-                        '${engine.locale('ideology')}: ${engine.locale(_organization['category'])}'),
-                    Text(
                         '${engine.locale('genre')}: ${engine.locale(_organization['genre'])}'),
+                    Text(
+                        '${engine.locale('ideology')}: ${engine.locale(_organization['category'])}'),
                     Text(
                         '${engine.locale('territorySize')}: ${_organization['territoryIndexes'].length}'),
                     Text(

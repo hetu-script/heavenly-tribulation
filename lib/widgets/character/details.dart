@@ -159,14 +159,15 @@ class _CharacterDetailsState extends State<CharacterDetails> {
             GameLogic.onChargeItem(itemData);
             setState(() {});
           case ItemPopUpMenuItems.discard:
-            engine.play('break06-36414.mp3');
             final value = await showDialog<bool>(
               context: context,
               builder: (context) => ConfirmDialog(
                   description: engine.locale('dangerOperationPrompt')),
             );
             if (value != true) return;
-            engine.hetu.invoke('destroy', positionalArgs: [itemData]);
+            engine.play('break06-36414.mp3');
+            engine.hetu.invoke('lose',
+                namespace: 'Player', positionalArgs: [itemData]);
             setState(() {});
         }
       },

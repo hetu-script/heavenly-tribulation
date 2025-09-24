@@ -23,6 +23,7 @@ import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../../state/states.dart';
+import '../../common.dart';
 
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
@@ -147,15 +148,16 @@ class BattleScene extends Scene {
 
   void _prepareBattleStart(BattleCharacter character) {
     for (final statName in kStatsToPermanentEffects.keys) {
-      final int value = character.data['stats'][statName];
       final (positiveEffectId, negativeEffectId) =
           kStatsToPermanentEffects[statName]!;
-      if (value > 0) {
+
+      final int value1 = character.data['stats'][statName];
+      if (value1 > 0) {
         character.addStatusEffect(positiveEffectId,
-            amount: value, handleCallback: false);
-      } else if (value < 0) {
+            amount: value1, handleCallback: false);
+      } else if (value1 < 0) {
         character.addStatusEffect(negativeEffectId,
-            amount: -value, handleCallback: false);
+            amount: -value1, handleCallback: false);
       }
     }
 
@@ -183,16 +185,29 @@ class BattleScene extends Scene {
       BattleCharacter character, StatusCircumstances circumstance) {
     for (final statusId in kSelfStatusOnCircumstance) {
       final passiveId = '${circumstance.name}_with_$statusId';
+
       final passiveData = character.data['passives'][passiveId];
       if (passiveData != null) {
         int? value = passiveData['value'];
         if (value == null) {
-          engine.warn('passiveData $passiveData has no field `value`!');
+          engine.warn('passiveData has no field `value`! $passiveData');
+        }
+        character.addStatusEffect(statusId,
+            amount: value, handleCallback: false);
+      }
+
+      final potionPassiveData = character.data['potionPassives'][passiveId];
+      if (potionPassiveData != null) {
+        int? value = potionPassiveData['value'];
+        if (value == null) {
+          engine.warn(
+              'potionPassiveData has no field `value`! $potionPassiveData');
         }
         character.addStatusEffect(statusId,
             amount: value, handleCallback: false);
       }
     }
+
     Map<String, int> opponentPrebattleStatus = {};
     for (final statusId in kOpponentStatusOnCircumstance) {
       final passiveId = '${circumstance.name}_with_opponent_$statusId';
@@ -228,6 +243,8 @@ class BattleScene extends Scene {
   @override
   void onMount() {
     super.onMount();
+
+    engine.setCursor(Cursors.normal);
 
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
@@ -654,6 +671,33 @@ class BattleScene extends Scene {
         'Battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
 
     battleEnded = true;
+
+    final heroPotionPassives = hero.data['potionPassives'];
+    if (heroPotionPassives.isNotEmpty) {
+      heroPotionPassives.clear();
+      engine.hetu
+          .invoke('characterCalculateStats', positionalArgs: [hero.data]);
+    }
+
+    final enemyPotionPassives = enemy.data['potionPassives'];
+    if (enemyPotionPassives.isNotEmpty) {
+      enemyPotionPassives.clear();
+      engine.hetu
+          .invoke('characterCalculateStats', positionalArgs: [enemy.data]);
+    }
+
+    bool hasScroll = false;
+    for (final card in heroDeck) {
+      if (card.data['isScroll'] == true) {
+        hasScroll = true;
+        engine.hetu.invoke('dismantleCard',
+            namespace: 'Player', positionalArgs: [card.data]);
+      }
+    }
+    if (hasScroll) {
+      /// 清除卡牌图书馆场景的缓存，因为需要重新生成卡组的内容组件
+      engine.clearCachedScene(Scenes.library);
+    }
 
     if (!nextTurnButton.isMounted) {
       camera.viewport.add(nextTurnButton);

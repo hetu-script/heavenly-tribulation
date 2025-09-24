@@ -496,7 +496,7 @@ function replenishCityhallExp(location) {
 
   final r = Random()
   final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
-  location.collectableLight = r.distantInt(replenishAmount) + 10
+  location.collectableLight = r.nearInt(replenishAmount) + 10
 }
 
 /// 刷新交易类场景的物品
@@ -512,9 +512,9 @@ function replenishTradingHouseMaterials(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.money =
-    kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount)
+    kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
       ~/ Constants.basePriceOfMaterialKind.shard
 
   let price = {
@@ -717,7 +717,7 @@ function replenishAuctionHouseItems(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
     ~/ Constants.basePriceOfMaterialKind.shard
 
   let amount = kBaseItemReplenishAmount + location.development
@@ -731,7 +731,7 @@ function replenishAuctionHouseItems(location) {
   }
 
   for (var i in range(amount)) {
-    let item = Equipment(rank: random.nextInt(location.development + 1))
+    let item = Equipment(rank: random.nearInt(location.development + 1))
     entityAcquire(location, item)
   }
 }
@@ -749,7 +749,7 @@ function replenishLibraryBooks(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
       ~/ Constants.basePriceOfMaterialKind.shard;
 
   for (var i in range(location.development + 1)) {
@@ -776,7 +776,7 @@ function replenishAlchemyLabPotions(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.distantInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
     ~/ Constants.basePriceOfMaterialKind.shard
 
   let amount = kBaseItemReplenishAmount + location.development
@@ -784,7 +784,7 @@ function replenishAlchemyLabPotions(location) {
   // TODO: 丹房销售的丹药数量和苗圃数量有关
 
   for (var i in range(amount)) {
-    final item = Potion(rank: random.nextInt(location.development + 1))
+    final item = Potion(rank: random.nearInt(location.development + 1))
     entityAcquire(location, item)
   }
 }

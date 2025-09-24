@@ -633,7 +633,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     damageDetails['percentageChange1'] ??= 0.0;
     damageDetails['percentageChange2'] ??= 0.0;
     damageDetails['percentageChange3'] ??= 0.0;
-    damageDetails['penetration'] ??= 0;
+    damageDetails['penetration'] ??= 0.0;
 
     assert(opponent != null && opponent!.turnFlags['damage'] != null);
 
@@ -748,7 +748,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // turnFlags 是词条 callback 调用使用的出入参
     turnFlags.clear();
     // 重置主词条本回合累计伤害计数
-    turnFlags['damage'] = {
+    turnFlags['damage'] = <String, dynamic>{
       'total': 0,
     };
     // isExtra 表示这是某些机制触发的再次行动回合

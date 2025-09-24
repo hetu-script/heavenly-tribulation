@@ -9,16 +9,18 @@
 // weapon, armor, helmet, boots, vehicle 每种只能装备一个，amulet 和 talisman 无限制
 // weapon 和 talisman 决定了战斗中可以使用的功法卡牌类型
 
-const kItemCategoryCardpack = 'cardpack'
-const kItemCategoryIdentifyScroll = 'identify_scroll'
-const kItemCategoryScroll = 'scroll'
-const kItemCategoryScrollPaper = 'scroll_paper'
-const kItemCategoryExppack = 'exp_pack'
-const kItemCategoryMaterialPack = 'material_pack'
-const kItemCategoryStatusSpirit = 'status_spirit'
-const kItemCategoryEquipmentAffix = 'equipment_affix'
-const kItemCategoryPotion = 'potion'
-const kItemCategoryCraftMaterial = 'craftmaterial'
+
+const kItemCategoryCardpack = 'cardpack';
+const kItemCategoryIdentifyScroll = 'identify_scroll';
+const kItemCategoryScroll = 'scroll';
+const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryDungeonTicket = 'dungeon_ticket';
+const kItemCategoryExppack = 'exp_pack';
+const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryStatusSpirit = 'status_spirit';
+const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryPotion = 'potion';
+const kItemCategoryCraftMaterial = 'craftmaterial';
 
 const kItemExtraAffixMinLevel = 6
 
@@ -379,7 +381,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   assert(amount > 0)
   // TODO: 如果id不存在，则获得一个「未知物品」
   final prototype = game.prototypes[prototypeId]
-  assert(prototype != null)
+  assert(prototype != null, 'prototypeId: ${prototypeId}')
   let item = Object.create(prototype)
   // TODO: 根据稀有度和地图大小决定物品允许存在的数量
   // if (item.isUnique) {
@@ -390,7 +392,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   //     item.isCreated = true
   //   }
   // }
-  item.id = item.isUnique ? item.prototypeId : (itemId ?? crypto.randomUID(withTime: true))
+  item.id = itemId ?? (item.isUnique ? crypto.randomUID(withTime: true) : item.prototypeId)
   item.entityType = kEntityTypeItem
   item.kind ??= item.prototypeId
   item.name = engine.locale(item.name)
@@ -441,7 +443,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
 
 function entityHasItem(entity, itemId) {
   assert(entity.inventory != null && itemId != null)
-  return entity.inventory.containsKey(itemId)
+  return entity.inventory[itemId]
 }
 
 /// 返回某个对象所拥有的该 category 的物品的数量
@@ -462,7 +464,7 @@ function entityHasItemKind(entity, kind) {
   let amount = 0
   for (let item of entity.inventory) {
     if (item.kind == kind) {
-      ++amount
+      amount += item.stackSize ?? 1
     }
   }
   return amount
@@ -558,7 +560,7 @@ function entityExhaust(entity, materialId: string, { amount = 1, incurIncident =
     success = true
     entity.materials[materialId] = rest
     
-    let incidentContent = engine.locale('characterLoseMultipleItem', interpolations: [
+    let incidentContent = engine.locale('characterLoseMultiple', interpolations: [
       entity.name,
       amount,
       engine.locale(materialId),
@@ -580,29 +582,43 @@ function entityExhaust(entity, materialId: string, { amount = 1, incurIncident =
 
 /// 对象（人物、据点等）获得一个已经存在与世界上的物品
 function entityAcquire(entity, item, { incurIncident = true }) {
-  assert(!entity.inventory.containsKey(item.id))
   assert(item.entityType == kEntityTypeItem, '${item.entityType}')
 
-  // item.isNew = true
-  item.ownerId = entity.id
-  item.ownerType = entity.entityType
+  let amount = item.stackSize ?? 1
+  let acquiredItem
 
-  entity.inventory[item.id] = item
+  if (entity.inventory.containsKey(item.id)) {
+    acquiredItem = entity.inventory[item.id]
+    acquiredItem.stackSize += amount
+  } else {
+    acquiredItem = entity.inventory[item.id] = item
+    acquiredItem.ownerId = entity.id
+    acquiredItem.ownerType = entity.entityType
+  }
+
   if (entity.achievements) {
-    item.acquiredSequence = entity.achievements.acquiredItems
+    acquiredItem.acquiredSequence = entity.achievements.acquiredItems
     ++entity.achievements.acquiredItems
   }
 
   let incidentContent
-  incidentContent = engine.locale('entityAcquire', interpolations: [
-    entity.name,
-    item.name,
-  ])
+  if (amount > 1) {
+    incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
+      entity.name,
+      amount,
+      item.name,
+    ])
+  } else {
+    incidentContent = engine.locale('entityAcquire', interpolations: [
+      entity.name,
+      item.name,
+    ])
+  }
   if (incurIncident && entity.entityType == 'character') {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
-      item: item,
+      item: acquiredItem,
       isPrivate: true,
     )
   } else {
@@ -610,17 +626,33 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   }
 }
 
-/// 失去物品
-function entityLose(entity, item, { incurIncident = true }) {
+/// 失去指定数量的某个物品，返回实际失去的数量
+function entityLose(entity, item, { amount = 1, incurIncident = true }) {
   assert(entity.inventory.containsKey(item.id))
-  delete entity.inventory[item.id]
-  delete item.ownerId
-  delete item.ownerType
+  final count = Math.min(amount, item.stackSize ?? 1)
+  assert(count > 0)
+  if (item.stackSize > amount) {
+    item.stackSize -= count
+    if (item.stackSize <= 0) {
+      delete entity.inventory[item.id]
+    }
+  } else if (item.stackSize <= amount) {
+    delete entity.inventory[item.id]
+  }
 
-  let incidentContent = engine.locale('entityLose', interpolations: [
-    entity.name,
-    item.name,
-  ])
+  let incidentContent
+  if (count > 1) {
+    incidentContent = engine.locale('entityLoseMultiple', interpolations: [
+      entity.name,
+      count,
+      item.name,
+    ])
+  } else {
+    incidentContent = engine.locale('entityLose', interpolations: [
+      entity.name,
+      item.name,
+    ])
+  }
   engine.debug(incidentContent)
 
   // let incidentContent
@@ -638,6 +670,22 @@ function entityLose(entity, item, { incurIncident = true }) {
   // } else {
   //   engine.debug(incidentContent)
   // }
+
+  return count
+}
+
+/// 失去指定数量的某个物品种类，返回实际失去的数量
+function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
+  assert(entity.inventory != null)
+  let rest = amount
+  for (let item of entity.inventory) {
+    if (item.kind == kind) {
+      final count = entityLose(entity, item, { amount: rest, incurIncident: incurIncident })
+      rest -= count
+      if (rest <= 0) break
+    }
+  }
+  return amount - rest
 }
 
 function characterAcquireBattleCard(character, card, { incurIncident = true }) {

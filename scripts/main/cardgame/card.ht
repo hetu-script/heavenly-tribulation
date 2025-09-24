@@ -295,11 +295,14 @@ function addAffix(card) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
   
-  final cost = getCardCraftOperationCost('addAffix', card)
-  if (hero.exp < cost) {
-    return engine.locale('hint_notEnoughExp')
+  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialId = materialCost['materialId']
+  final cost = materialCost['count'] ?? 1
+  final hasCount = entityHasItemKind(hero, materialId)
+  if (hasCount < cost) {
+    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
   }
-  hero.exp -= cost
+  entityLoseItemKind(hero, materialId, cost)
 
   final affix = random.nextIterable(supportAffixes)
 
@@ -322,11 +325,14 @@ function rerollAffix(card) {
     return engine.locale('deckbuilding_rerollAffix_warning')
   }
   
-  final cost = getCardCraftOperationCost('rerollAffix', card)
-  if (hero.exp < cost) {
-    return engine.locale('hint_notEnoughExp')
+  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialId = materialCost['materialId']
+  final cost = materialCost['count'] ?? 1
+  final hasCount = entityHasItemKind(hero, materialId)
+  if (hasCount < cost) {
+    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
   }
-  hero.exp -= cost
+  entityLoseItemKind(hero, materialId, cost)
   
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
@@ -352,11 +358,14 @@ function replaceAffix(card) {
     return engine.locale('deckbuilding_replaceAffix_warning')
   }
 
-  final cost = getCardCraftOperationCost('replaceAffix', card)
-  if (hero.exp < cost) {
-    return engine.locale('hint_notEnoughExp')
+  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialId = materialCost['materialId']
+  final cost = materialCost['count'] ?? 1
+  final hasCount = entityHasItemKind(hero, materialId)
+  if (hasCount < cost) {
+    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
   }
-  hero.exp -= cost
+  entityLoseItemKind(hero, materialId, cost)
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -384,11 +393,14 @@ function upgradeRank(card) {
     return engine.locale('deckbuilding_upgradeRank_warning', interpolations: [nextRankMinLevel])
   }
 
-  final cost = getCardCraftOperationCost('upgradeRank', card)
-  if (hero.exp < cost) {
-    return engine.locale('hint_notEnoughExp')
+  final materialCost = getCardCraftMaterial('addAffix', card)
+  final materialId = materialCost['materialId']
+  final cost = materialCost['count'] ?? 1
+  final hasCount = entityHasItemKind(hero, materialId)
+  if (hasCount < cost) {
+    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
   }
-  hero.exp -= cost
+  entityLoseItemKind(hero, materialId, cost)
 
   final successRate = getCardRankUpProbability(card.rank)
   if (random.nextDouble() > successRate) {
@@ -476,7 +488,7 @@ struct Cardpack {
     final genreString = genre != null ? engine.locale(genre) : ''
     final kindString = kind != null ? engine.locale('kind_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
-    this.icon = 'item/cardpack.png'
+    this.icon = 'item/craft/cardpack_rank${this.rank}.png'
     
     this.flavortext = engine.locale('cardpack_flavortext')
     this.rarity = kRankRarity[this.rank]

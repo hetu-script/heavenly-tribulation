@@ -116,7 +116,7 @@
 
   "passive_light_radius_description": "大地图视野范围 {0}",
   "passive_identifyCardsCountMonthly_description": "每月可探查对手手牌数量 {0}",
-  "passive_expCollectEfficiency_description": "灵光收集效率 {0}",
+  "passive_expCollectEfficiency_description": "灵光收集效率 {0}%",
   "passive_tribulationCountMax_description": "劫数上限 {0}",
 
   "passive_dexterity_description": "身法 {0}",
@@ -219,13 +219,13 @@
   "passive_start_turn_with_opponent_energy_negative_curse_description": "回合开始时对手 {0} 无心之气",
   "passive_start_turn_with_opponent_energy_negative_ultimate_description": "回合开始时对手 {0} 虚空之气",
 
-  "passive_overflowed_mana_keep_to_deck_end_description": "溢出的灵气在卡组结束时才消失",
+  "passive_overflowed_mana_deal_elemental_damage_description": "每次溢出灵气时，对手受到元素伤害，自身境界越高，伤害越高。",
   "passive_overflowed_mana_convert_to_vigor_description": "溢出的灵气转化为元气",
   "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气",
   "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术伤害减少30%，并转为纯粹伤害",
   "passive_curse_deal_pure_damage_description": "咒术伤害减少30%，并转为纯粹伤害",
   "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时仍可发挥效果，但会消耗生命",
-  "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时双方都会获得随机负面效果",
+  "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
 
   "passive_heal_description": "生命 {0}",
   "passive_overheal_description": "生命 {0}",

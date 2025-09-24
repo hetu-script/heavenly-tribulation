@@ -22,7 +22,7 @@ external function minLevelForRank(rank) -> integer
 
 external function maxLevelForRank(rank) -> integer
 
-external function getCardCraftOperationCost(operationId, card) -> integer 
+external function getCardCraftMaterial(operationId, card) -> integer 
 
 external function getDeckLimitForRank(rank) -> Map
 
@@ -113,13 +113,23 @@ const maxSpiritSurgingGain = {
 
 const kMoneyRewardRate = 0.4
 
-const kRewardProbabilityExppack = 1
-const kRewardProbabilityMoney = 1
-const kRewardProbabilityShard = 0.1
-const kRewardProbabilityEquipment = 0.2
+const kRewardProbabilityExppack = 1.0
+const kRewardProbabilityMoney = 1.0
+const kRewardProbabilityShard = 0.4
+const kRewardProbabilityEquipment = 0.3
+const kRewardProbabilityPotion = 0.2
 const kRewardProbabilityCardpack = 0.2
+const kRewardProbabilityScrollPaper = 0.1
+const kRewardProbabilityDungeonTicket = 0.02
+const kRewardProbabilityDungeonTicketNextLevel = 0.4
+const kRewardProbabilityCraftMaterial = 0.1
+const kRewardProbabilityCraftMaterialReplaceAffix = 0.4
+const kRewardProbabilityCraftMaterialRerollAffix = 0.25
+const kRewardProbabilityCraftMaterialUpgradeRank = 0.1
 
 function generateReward({probability: {}, entity}) {
+  let rank = entity?.rank ?? hero.rank
+
   final r = Random()
   let rewardExp
   if (entity == null || (hero.rank - entity.rank) > 2) {
@@ -128,15 +138,26 @@ function generateReward({probability: {}, entity}) {
     rewardExp = r.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
   }
   
-  final rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
+  let rewardMoney
   let rewardShard
   if (entity?.rank <= 0) {
     rewardShard = false
+    rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
   } else {
+    rewardMoney = false
     rewardShard = r.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
   }
   final rewardEquipment = r.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
   final rewardCardpack = r.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
+  final rewardPotion = r.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
+  let rewardScrollPaper
+  let rewardCraftMaterial
+  let rewardDungeonTicket
+  if (rank > 0) {
+    rewardScrollPaper = r.nextDouble() < (probability?.scrollPaper ?? kRewardProbabilityScrollPaper)
+    rewardCraftMaterial = r.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
+    rewardDungeonTicket = r.nextDouble() < (probability?.dungeonTicket ?? kRewardProbabilityDungeonTicket)
+  }
 
   final rewards = []
   final refQuantity = expForLevel(entity?.level ?? 0)
@@ -158,14 +179,66 @@ function generateReward({probability: {}, entity}) {
     rewards.add(shardPack)
   }
   if (rewardEquipment) {
-    final equipment = Equipment(rank: entity?.rank ?? hero.rank)
+    final equipment = Equipment(rank: rank)
     rewards.add(equipment)
   }
   if (rewardCardpack) {
-    let rank = entity?.rank ?? hero.rank
     let genre = kAttributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
     final cardpack = Cardpack(rank: rank, genre: genre)
     rewards.add(cardpack)
+  }
+  if (rewardPotion) {
+    final potion = Potion(rank: rank)
+    rewards.add(potion)
+  }
+  if (rewardScrollPaper) {
+    assert(rank > 0)
+    final scrollPaper = createItemByPrototype('scroll_paper_rank${rank}')
+    rewards.add(scrollPaper)
+  }
+  if (rewardCraftMaterial) {
+    let craftMaterialTypeRoll = r.nextDouble()
+    let craftMaterial
+    if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
+      let ticketRank
+      if (entity != null) {
+        ticketRank = entity.rank
+      } else {
+        ticketRank = hero.rank + 1
+      }
+      assert(ticketRank > 0)
+      if (ticketRank > kCultivationRankMax) {
+        ticketRank = kCultivationRankMax
+      }
+      craftMaterial = createItemByPrototype('craftmaterial_upgradeRank${r.nearInt(ticketRank)}')
+    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
+      craftMaterial = createItemByPrototype('craftmaterial_rerollAffix')
+    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
+      craftMaterial = createItemByPrototype('craftmaterial_replaceAffix')
+    } else {
+      craftMaterial = createItemByPrototype('craftmaterial_addAffix')
+    }
+    rewards.add(craftMaterial)
+  }
+  if (rewardDungeonTicket) {
+    let ticketRank
+    if (entity != null) {
+      if (entity.rank > 1) {
+        ticketRank = entity.rank - 1
+      } else {
+        ticketRank = 1
+      }
+    } else {
+      ticketRank = hero.rank
+    }
+    assert(rank > 0)
+    if (ticketRank < kCultivationRankMax) {
+      if (r.nextDouble() < (probability?.dungeonTicketNextLevel ?? kRewardProbabilityDungeonTicketNextLevel)) {
+        ticketRank += 1
+      }
+    }
+    final dungeonTicket = createItemByPrototype('dungeon_ticket_rank${ticketRank}')
+    rewards.add(dungeonTicket)
   }
 
   if (rewards.isEmpty) {
@@ -971,7 +1044,10 @@ async function onInteractMapObject(object, terrain) {
       }
       'cultivation': onInteractCultivationStele(object)
       'cardlibrary': onInteractCardLibraryStele(object)
-      'merchant': Game.showMerchant(object.merchant)
+      'merchant': {
+        print(object)
+        Game.showMerchant(object.merchant, useShard: object.useShard)
+      }
       'spiritWell': onInteractSpiritWell(object)
       default: engine.error('不支持的地图交互物品类型: ${object.category}')
     }

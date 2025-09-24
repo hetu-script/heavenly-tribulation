@@ -146,8 +146,8 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'getCardCraftOperationCost',
-        ({positionalArgs, namedArgs}) => GameLogic.getCardCraftOperationCost(
+        'getCardCraftMaterial',
+        ({positionalArgs, namedArgs}) => GameLogic.getCardCraftMaterial(
             positionalArgs[0], positionalArgs[1]),
         override: true);
 
@@ -451,6 +451,16 @@ class _GameAppState extends State<GameApp> {
             priceFactor: namedArgs['priceFactor'] ?? {},
             filter: namedArgs['filter'],
           );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::tryEnterDungeon', (
+        {positionalArgs, namedArgs}) {
+      GameLogic.tryEnterDungeon(
+        rank: namedArgs['rank'],
+        isCommon: namedArgs['isCommon'] ?? true,
+        dungeonId: namedArgs['dungeonId'] ?? 'dungeon_1',
+        pushScene: namedArgs['pushScene'] ?? true,
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(

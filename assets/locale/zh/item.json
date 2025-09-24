@@ -96,11 +96,20 @@
   "scroll_paper": "符纸",
   "scroll_paper_flavortext": "用来制作符箓的材料。",
 
-  "scroll_paper_rank_1": "凝气境符纸",
-  "scroll_paper_rank_2": "筑基境符纸",
-  "scroll_paper_rank_3": "结丹境符纸",
-  "scroll_paper_rank_4": "还婴境符纸",
-  "scroll_paper_rank_5": "化神境符纸",
+  "scroll_paper_rank1": "凝气境符纸",
+  "scroll_paper_rank2": "筑基境符纸",
+  "scroll_paper_rank3": "结丹境符纸",
+  "scroll_paper_rank4": "还婴境符纸",
+  "scroll_paper_rank5": "化神境符纸",
+
+  "dungeon_ticket": "秘境石",
+  "dungeon_ticket_flavortext": "进入凝气或以上境界的洞天秘境需要消耗对应的秘境石。",
+
+  "dungeon_ticket_rank1": "凝气期秘境石",
+  "dungeon_ticket_rank2": "筑基期秘境石",
+  "dungeon_ticket_rank3": "结丹期秘境石",
+  "dungeon_ticket_rank4": "还婴期秘境石",
+  "dungeon_ticket_rank5": "化神期秘境石",
 
   "rare_scroll": "凝气符箓",
   "epic_scroll": "筑基符箓",
@@ -124,13 +133,13 @@
   "equipment_affix_flavortext": "法宝特性：从法宝中析取的一条特性，可以通过打造赋予到新的法宝之上。",
 
   "craftmaterial_addAffix": "灵宝丹",
-  "craftmaterial_addAffix_flavortext": "灵宝丹：用来给装备或功法增加一个额外词条。",
+  "craftmaterial_addAffix_flavortext": "灵宝丹：用来给装备或功法增加一个额外词条。凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",
 
   "craftmaterial_replaceAffix": "神照丹",
   "craftmaterial_replaceAffix_flavortext": "神照丹：用来给装备或功法随机替换一个额外词条。",
 
   "craftmaterial_rerollAffix": "混元丹",
-  "craftmaterial_rerollAffix_flavortext": "混元丹：用来给装备或功法重置所有词条等级。",
+  "craftmaterial_rerollAffix_flavortext": "混元丹：用来给装备或功法重置所有词条等级。等级不会超过境界所允许的上限。",
 
   "craftmaterial_upgradeRank1": "凝气丹",
   "craftmaterial_upgradeRank1_flavortext": "凝气丹：用来提升装备或功法的境界到凝气。",

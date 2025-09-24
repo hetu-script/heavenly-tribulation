@@ -22,13 +22,15 @@ namespace World {
 
   external function setPlayerFreeze(value: bool)
 
-  external function setCharacterTo(id, left, top, { worldId, direction })
+  external function setCharacterToPosition(character, left, top, { worldId, direction })
+
+  external function removeCharacter(id)
+
+  /// endDirection: 'north' | 'east' | 'south' | 'west'
+  external function characterWalkTo(id, left, top, {endDirection, onStepCallback})
 
   /// 修改地图对象的位置，此函数不会修改脚本侧对象的位置数据
   external function setObjectTo(id, left, top)
-
-  /// endDirection: 'north' | 'east' | 'south' | 'west'
-  external function objectWalkTo(id, left, top, {endDirection, onStepCallback})
 
   external function updateNpcsAtWorldMapPosition()
 

@@ -31,7 +31,7 @@ const kBaseMana = 1
 const kBaseLightRadius = 2
 
 const kBaseidentifyCardsCountMonthly = 12
-const kBaseexpCollectEfficiency = 10
+const kBaseExpCollectEfficiency = 10
 
 const kBaseTribulationCountMax = 2
 const kTribulationCountPerRank = 2
@@ -255,7 +255,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.tribulationCountMax = kBaseTribulationCountMax + kTribulationCountPerRank * character.rank
   character.lightRadius = kBaseLightRadius + character.perception ~/ 10
-  character.expCollectEfficiency = kBaseexpCollectEfficiency
+  character.expCollectEfficiency = character.rank * character.rank * kBaseExpCollectEfficiency + (character.rank + 1) * kBaseExpCollectEfficiency
   character.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.perception ~/ 10
   
   character.physicalResistMax = kBaseResistMax
@@ -281,7 +281,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
   character.stats.lightRadius = kBaseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
-  character.stats.expCollectEfficiency = kBaseexpCollectEfficiency + character.passives.expCollectEfficiency?.value
+  character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + (character.passives.expCollectEfficiency?.value ?? 0) / 100)).round()
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value ?? 0

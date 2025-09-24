@@ -475,6 +475,8 @@ final kMaterialBasePriceByKind = {
 /// 物品的基础价格
 final kItemBasePriceByCategory = {
   'cardpack': 1000,
+  'craftmaterial': 2000,
+  'dungeon_ticket': 4000,
   'scroll_paper': 150,
   'identify_scroll': 500,
   'weapon': 100,
@@ -562,10 +564,6 @@ const kLocationYearlyUpdateMonth = 6;
 const kOrganizationYearlyUpdateMonth = 9;
 
 const kBattleCardPriceRate = 0.135;
-const kAddAffixCostRate = 0.03;
-const kReplaceAffixCostRate = 0.08;
-const kRerollAffixCostRate = 0.16;
-const kUpgradeRankCostRate = 20.5;
 const kCraftScrollCostRate = 0.06;
 
 const kCardCraftOperations = [
@@ -1020,8 +1018,10 @@ const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
 const kItemCategoryScroll = 'scroll';
 const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryStatusSpirit = 'status_spirit';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
+const kItemCategoryCraftMaterial = 'craftmaterial';

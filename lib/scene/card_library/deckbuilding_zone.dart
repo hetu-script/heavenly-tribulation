@@ -3,7 +3,7 @@ import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:samsara/components.dart';
 import 'package:samsara/samsara.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
@@ -11,7 +11,7 @@ import 'library_zone.dart';
 import 'common.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
-import 'card_library.dart';
+// import 'card_library.dart';
 import '../../state/hover_content.dart';
 import '../common.dart';
 import '../../game/data.dart';
@@ -377,16 +377,17 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       add(card);
     }
 
-    card.onTapDown = (button, position) {
-      if (button == kPrimaryButton) {
-        game.context.read<HoverContentState>().hide();
-        (game as CardLibraryScene).cardDragStart(card);
-      }
-    };
+    // card.onTapDown = (button, position) {
+    //   if (button == kPrimaryButton) {
+    //     game.context.read<HoverContentState>().hide();
+    //     (game as CardLibraryScene).cardDragStart(card);
+    //   }
+    // };
     card.onTapUp = (button, position) {
-      if (button == kPrimaryButton) {
-        (game as CardLibraryScene).cardDragRelease();
-      } else if (button == kSecondaryButton) {
+      // if (button == kPrimaryButton) {
+      //   (game as CardLibraryScene).cardDragRelease();
+      // } else
+      if (button == kSecondaryButton) {
         library.setCardEnabledById(card.deckId, true);
         card.removeFromPile();
       }

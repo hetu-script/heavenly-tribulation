@@ -28,8 +28,16 @@
   "dungeon_encounter_description": "事件\n下个房间包含一个随机遭遇事件。",
   "dungeon_encampment_description": "营地\n下个房间可以休息，同时包含一个随机的修炼或打造场地。",
 
+  "exitDungeon": "离开秘境",
+  "enterNextDungeonRank": "秘境升阶",
+  "enterNextDungeonLevel": "继续挑战",
+
   "dungeon_nextLevel_description": "继续\n探索下一难度层级。",
   "dungeon_nextRank_description": "继续\n探索下一个境界的洞天。",
   "dungeon_replay_description": "重玩\n再次挑战当前难度的洞天",
-  "dungeon_exit_description": "离开\n结束挑战。"
+  "dungeon_exit_description": "离开\n结束挑战。",
+
+  "about_dungeon": "什么是秘境？",
+  "enter_common_dungeon": "进入无境界秘境",
+  "enter_advanced_dungeon": "进入高等级秘境"
 }

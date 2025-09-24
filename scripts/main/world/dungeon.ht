@@ -93,6 +93,7 @@ function addMerchant(tilePosition, {
     shard = 100000,
     category,
     itemCount = 5,
+    useShard = false,
   }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
@@ -109,6 +110,7 @@ function addMerchant(tilePosition, {
     shard: shard,
     category: category,
     itemCount: itemCount,
+    useShard: useShard,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
@@ -127,9 +129,9 @@ function addEnemy(tilePosition, {
   }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
-  tile.overlaySprite = {
-    sprite: sprite ?? 'object/characterMan11.png',
-  }
+  // tile.overlaySprite = {
+  //   sprite: sprite ?? 'object/characterMan11.png',
+  // }
   final object = ObjectEnemy(
     id: objectId,
     name: name,
@@ -137,6 +139,7 @@ function addEnemy(tilePosition, {
     rank: rank,
     useCustomLogic: useCustomLogic,
     isElite: isElite,
+    tilePosition: tilePosition,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)

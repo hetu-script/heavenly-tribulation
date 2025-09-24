@@ -65,4 +65,10 @@ namespace Game {
     filter,
   })
 
+  external function tryEnterDungeon({
+    rank,
+    isCommon = true,
+    dungeonId = 'dungeon_1',
+    pushScene = true,
+  })
 }

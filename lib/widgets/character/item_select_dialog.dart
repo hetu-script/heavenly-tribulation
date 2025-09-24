@@ -97,7 +97,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
               ),
               const Spacer(),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -112,27 +112,30 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: fluent.FilledButton(
-                      onPressed: () {
-                        _selectedItemsData.clear();
-                        final filteredItems = GameLogic.getFilteredItems(
-                          widget.character,
-                          type: widget.type,
-                          filter: widget.filter,
-                        );
-                        for (final item in filteredItems) {
-                          _selectedItemsData[item['id']] = item;
-                        }
-                        setState(() {});
-                      },
-                      child: Label(
-                        engine.locale('selectAll'),
-                        textAlign: TextAlign.center,
+                  if (widget.multiSelect)
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: fluent.FilledButton(
+                        onPressed: () {
+                          _selectedItemsData.clear();
+                          final filteredItems = GameLogic.getFilteredItems(
+                            widget.character,
+                            type: widget.type,
+                            filter: widget.filter,
+                          );
+                          for (final item in filteredItems) {
+                            _selectedItemsData[item['id']] = item;
+                          }
+                          setState(() {});
+                        },
+                        child: Label(
+                          engine.locale('selectAll'),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                  ),
+                    )
+                  else
+                    const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: fluent.FilledButton(

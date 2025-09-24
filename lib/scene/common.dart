@@ -48,7 +48,7 @@ const kColorModeZone = 0;
 const kColorModeOrganization = 1;
 
 const kMinHeroAge = 10;
-const kMaxHeroAge = 30;
+const kMaxHeroAge = 40;
 
 const kWorldMapAnimationPriority = 15000;
 

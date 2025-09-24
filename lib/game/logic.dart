@@ -232,24 +232,46 @@ abstract class GameLogic {
   //   return number
   // }
 
-  static int getCardCraftOperationCost(String operation, dynamic cardData) {
+  static Map<String, dynamic> getCardCraftMaterial(
+      String operation, dynamic cardData) {
     assert(kCardOperations.contains(operation));
     switch (operation) {
       case 'dismantle':
-        return calculateBattleCardPrice(cardData);
+        return {'exp': calculateBattleCardPrice(cardData)};
       case 'addAffix':
-        return (expForLevel(cardData['level']) * kAddAffixCostRate).round();
+        return {
+          'materialId': 'craftmaterial_addAffix',
+          'count': 1,
+        };
       case 'replaceAffix':
-        return (expForLevel(cardData['level']) * kReplaceAffixCostRate).round();
+        return {
+          'materialId': 'craftmaterial_replaceAffix',
+          'count': 1,
+        };
       case 'rerollAffix':
-        return (expForLevel(cardData['level']) * kRerollAffixCostRate).round();
+        return {
+          'materialId': 'craftmaterial_rerollAffix',
+          'count': 1,
+        };
       case 'upgradeRank':
-        return (expForLevel(cardData['rank']) * kUpgradeRankCostRate).round();
+        final int rank = cardData['rank']!;
+        if (rank < kCultivationRankMax) {
+          return {
+            'materialId': 'craftmaterial_upgradeRank${rank + 1}',
+            'count': 1,
+          };
+        } else {
+          return {};
+        }
       case 'craftScroll':
-        return (expForLevel(cardData['level']) * kCraftScrollCostRate).round();
+        return {
+          'exp':
+              (expForLevel(cardData['level']) * kCraftScrollCostRate).round(),
+          'paperCount': 1,
+        };
       default:
         engine.error('未知的卡牌操作类型 $operation');
-        return 0;
+        return {};
     }
   }
 
@@ -323,6 +345,9 @@ abstract class GameLogic {
 
   /// 计算分解卡牌所能获得的灵光数
   static int calculateBattleCardPrice(dynamic cardData) {
+    if (cardData['isScroll'] == true) {
+      return 0;
+    }
     final int level = cardData['level'];
     final int price = (expForLevel(level) * kBattleCardPriceRate).round();
     return price;
@@ -1436,7 +1461,7 @@ abstract class GameLogic {
 
         // 师徒关系的传授功法
         final bool isCharacterShifu = engine.hetu
-            .invoke('isShifu', positionalArgs: [character, GameData.hero]);
+            .invoke('isTudi', positionalArgs: [character, GameData.hero]);
         final bool isCharacterTudi = engine.hetu
             .invoke('isTudi', positionalArgs: [GameData.hero, character]);
         // 不允许既是师父又是徒弟
@@ -1916,9 +1941,114 @@ abstract class GameLogic {
     }
   }
 
+  static void tryEnterDungeon({
+    int? rank,
+    bool isCommon = false,
+    String dungeonId = 'dungeon_1',
+    bool pushScene = true,
+  }) {
+    if (rank == 0 || isCommon) {
+      engine.hetu.invoke('resetDungeon', namedArgs: {
+        'rank': 0,
+      });
+      if (!pushScene) return;
+      engine.pushScene(
+        'dungeon_1',
+        constructorId: Scenes.worldmap,
+        arguments: {
+          'id': 'dungeon_1',
+          'method': 'load',
+        },
+      );
+    } else {
+      engine.context.read<ItemSelectState>().show(
+        GameData.hero,
+        title: engine.locale('selectItem'),
+        filter: rank != null
+            ? {'kind': 'dungeon_ticket_rank$rank'}
+            : {'category': 'dungeon_ticket'},
+        multiSelect: false,
+        onSelect: (Iterable<dynamic> items) {
+          if (items.isEmpty) return;
+          assert(items.length == 1);
+          final selectedItem = items.first;
+          engine.hetu.invoke('lose',
+              namespace: 'Player', positionalArgs: [selectedItem]);
+          engine.hetu.invoke('resetDungeon', namedArgs: {
+            'rank': selectedItem['rank'],
+          });
+          if (!pushScene) return;
+          engine.pushScene(
+            dungeonId,
+            constructorId: Scenes.worldmap,
+            arguments: {
+              'id': dungeonId,
+              'method': 'load',
+            },
+          );
+        },
+      );
+    }
+  }
+
   /// 和秘境入口交互
   /// 秘境在生成时，会随机产生一个开放月份，只有在开放月份时才能进入。
   /// 秘境如果被某个门派占领，则非门派成员无法进入。
   /// 秘境进入时可以选择境界。无境界无需门票。凝气期以上则需要支付对应境界的秘境石。
-  static void onInteractDungeonEntrance(dynamic dungeon) {}
+  static void onInteractDungeonEntrance({
+    dynamic organization,
+    dynamic location,
+  }) async {
+    final availableMonth = location['availableMonth'];
+    if (month != availableMonth) {
+      dialog.pushDialog(
+        'hint_dungeonNotAvailable',
+        interpolations: [availableMonth],
+        name: engine.locale('guard'),
+        icon: 'illustration/npc/guard_head.png',
+        illustration: 'illustration/npc/guard.png',
+      );
+      await dialog.execute();
+      return;
+    }
+
+    if (organization == null ||
+        GameData.hero['organizationId'] == organization['id']) {
+      dialog.pushSelection('dungeonEntrance', [
+        'about_dungeon',
+        'enter_common_dungeon',
+        'enter_advanced_dungeon',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected('dungeonEntrance');
+      switch (selected) {
+        case 'about_dungeon':
+          {
+            dialog.pushDialog(
+              'hint_dungeonEntrance',
+              name: engine.locale('guard'),
+              icon: 'illustration/npc/guard_head.png',
+              illustration: 'illustration/npc/guard.png',
+            );
+          }
+        case 'enter_common_dungeon':
+          {
+            tryEnterDungeon(isCommon: true, dungeonId: 'dungeon_1');
+          }
+        case 'enter_advanced_dungeon':
+          {
+            tryEnterDungeon(isCommon: false, dungeonId: 'dungeon_1');
+          }
+      }
+    } else if (organization != null) {
+      dialog.pushDialog(
+        'hint_organizationFacilityNotMember',
+        name: engine.locale('guard'),
+        icon: 'illustration/npc/guard_head.png',
+        illustration: 'illustration/npc/guard.png',
+      );
+      await dialog.execute();
+    }
+  }
 }

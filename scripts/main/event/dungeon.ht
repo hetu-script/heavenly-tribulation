@@ -126,6 +126,7 @@ function addEncampment() {
     shard: 100000,
     category: ['weapon', 'armor', 'jewelry', 'talisman', 'potion', 'cardpack'],
     itemCount: 8 + game.dungeon.rank,
+    useShard: game.dungeon.rank > 0,
   )
 }
 
@@ -143,6 +144,7 @@ function addRandomMerchant() {
         shard: 100000,
         category: ['weapon', 'armor'],
         itemCount: 5 + game.dungeon.rank,
+        useShard: game.dungeon.rank > 0,
       )
     }
     'enchanter': {
@@ -156,6 +158,7 @@ function addRandomMerchant() {
         shard: 100000,
         category: ['jewelry', 'talisman'],
         itemCount: 5 + game.dungeon.rank,
+        useShard: game.dungeon.rank > 0,
       )
     }
     'alchemist': {
@@ -169,6 +172,7 @@ function addRandomMerchant() {
         shard: 100000,
         category: ['potion'],
         itemCount: 5 + game.dungeon.rank,
+        useShard: game.dungeon.rank > 0,
       )
     }
     'bookdealer': {
@@ -182,14 +186,15 @@ function addRandomMerchant() {
         shard: 100000,
         category: ['cardpack'],
         itemCount: 5 + game.dungeon.rank,
+        useShard: game.dungeon.rank > 0,
       )
     }
   }
 }
 
-function addPortalByCategory(tilePositioin, {id = 'portal1', tilePositioin, category}) {
-  tilePositioin ??= kPortal1Tile
-  assert(tilePositioin?.left != null && tilePositioin?.top != null, 'addPortalByCategory error: tilePositioin is null')
+function addPortalByCategory(tilePosition, {id = 'portal1', tilePosition, category}) {
+  tilePosition ??= kPortal1Tile
+  assert(tilePosition?.left != null && tilePosition?.top != null, 'addPortalByCategory error: tilePosition is null')
   let hoverContent
   category ??= 'enemy'
   switch (category) {
@@ -219,7 +224,7 @@ function addPortalByCategory(tilePositioin, {id = 'portal1', tilePositioin, cate
     }
   }
   addPortal(
-    tilePositioin,
+    tilePosition,
     objectId: id,
     useCustomLogic: true,
     hoverContent: hoverContent,
@@ -271,6 +276,8 @@ function addPortalByNextRoomType(nextRoomType) {
 function prepareMap() {
   engine.info('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
   game.dungeon.needRebuild = false
+  game.dungeon.isElite = false
+  game.dungeon.isBoss = false
   /// 清理所有的地块贴图和临时对象，还原到空地图
   world.objects = {}
   for (final tile in world.terrains) {
@@ -359,6 +366,7 @@ function prepareMap() {
         }
       }
       4: {
+        game.dungeon.isElite = true
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonElite'),
@@ -375,6 +383,7 @@ function prepareMap() {
         addEncampment()
       }
       6: {
+        game.dungeon.isBoss = true
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonBoss'),
@@ -462,6 +471,7 @@ function prepareMap() {
         addEncampment()
       }
       8: {
+        game.dungeon.isElite = true
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonElite'),
@@ -473,6 +483,7 @@ function prepareMap() {
         )
       }
       14: {
+        game.dungeon.isBoss = true
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonBoss'),
@@ -494,9 +505,20 @@ async function onEnterMap() {
       probability: {
         exp: kRewardProbabilityExppack,
         money: kRewardProbabilityMoney,
-        shard: kRewardProbabilityShard,
-        equipment: kRewardProbabilityEquipment,
-        cardpack: kRewardProbabilityCardpack,
+        shard: game.dungeon.isBoss ? 1.0 : 
+          (game.dungeon.isElite ? 0.5 : kRewardProbabilityShard),
+        equipment: game.dungeon.isBoss ? 0.8 : 
+          (game.dungeon.isElite ? 0.4 : kRewardProbabilityEquipment),
+        potion: game.dungeon.isBoss ? 0.6 : 
+          (game.dungeon.isElite ? 0.3 : kRewardProbabilityPotion),
+        cardpack: game.dungeon.isBoss ? 0.6 : 
+          (game.dungeon.isElite ? 0.3 : kRewardProbabilityCardpack),
+        scrollPaper: game.dungeon.isBoss ? 0.4 : 
+          (game.dungeon.isElite ? 0.2 : kRewardProbabilityScrollPaper),
+        craftMaterial: game.dungeon.isBoss ? 0.6 : 
+          (game.dungeon.isElite ? 0.3 : kRewardProbabilityCraftMaterial),
+        dungeonTicket: game.dungeon.isBoss ? 0.8 : 
+          (game.dungeon.isElite ? 0.4 : kRewardProbabilityDungeonTicket),
       },
       entity: game.dungeon.battleEntity,
     )
@@ -563,8 +585,8 @@ async function onInteractMapObject(object, terrain) {
         game.dungeon.room += 1
         onEnterMap()
       } else {
-        game.dungeon.needRebuild = true
-        game.dungeon.room = 0
+        engine.info('即将重玩当前地牢，当前境界：${game.dungeon.rank}')
+        Game.tryEnterDungeon(rank: game.dungeon.rank, pushScene: false)
         onEnterMap()
       }
     }
@@ -623,12 +645,7 @@ async function onInteractMapObject(object, terrain) {
             final selected = Dialog.checkSelected('enterNextDungeonRank')
             if (selected == 'enterNextDungeonRank') {
               engine.info('即将进入下一个境界的地牢，当前境界：${game.dungeon.rank}')
-              ++game.dungeon.rank
-              game.dungeon.minEnemyLevel = minLevelForRank(game.dungeon.rank)
-              game.dungeon.level = 0
-              game.dungeon.levelMax = game.dungeon.rank * 2 + 1
-              game.dungeon.room = 0
-              game.dungeon.needRebuild = true
+              Game.tryEnterDungeon(isCommon: false, pushScene: false)
               onEnterMap()
             }
           } else {
@@ -646,10 +663,12 @@ async function onInteractMapObject(object, terrain) {
             game.dungeon.battleResult = true
             game.dungeon.battleEntity = object.battleEntity
             let tile = getTerrainByWorldPosition(kCenterTile.left, kCenterTile.top)
-            tile.isNonEnterable = false
-            tile.overlaySprite = {}
             tile.objectId = null
-            World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
+            tile.isNonEnterable = false
+            world.objects.remove(object.id)
+            // tile.overlaySprite = {}
+            World.updateTerrainData(tile.left, tile.top)
+            World.removeCharacter(object.battleEntity.id)
             final nextRoomType = game.dungeon.isTutorial ?
               kTutorialRooms[game.dungeon.room + 1] :
               kNormalRooms[game.dungeon.room + 1]

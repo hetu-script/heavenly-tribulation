@@ -37,6 +37,8 @@ class MainMenuScene extends Scene {
           'rank': 1,
         },
       );
+    } else {
+      engine.hetu.invoke('rejuvenate', namespace: 'Player');
     }
     context.read<HeroState>().update();
     context.read<HeroInfoVisibilityState>().setVisible(true);
