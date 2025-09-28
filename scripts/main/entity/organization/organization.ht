@@ -33,7 +33,7 @@ struct Organization {
     // 例如招募大比时间等等，都发生在这个日期
     const randomMonth = random.nextInt(kMonthsPerYear)
     this.yearlyUpdateTime = randomMonth * kTicksPerMonth + random.nextInt(kTicksPerMonth)
-    this.yearlyRecruitMonth = randomMonth + 1
+    this.recruitMonth = randomMonth + 1
 
     this.headquartersId = headquarters.id
     this.headId = headId
@@ -87,9 +87,7 @@ struct Organization {
     } else {
       engine.debug(incidentContent)
     }
-    addCharacterToOrganization(head, this, incurIncident: incurIncident)
-    // setCharacterJob(head, incurIncident: incurIncident)
-    setCharacterTitle(head, 'organizationHead')
+    addCharacterToOrganization(head, this, title: 'organizationHead', incurIncident: incurIncident)
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -166,8 +164,7 @@ function getOrganizationMemberIdsOfRank(organization, rank) {
 /// 角色加入组织
 /// 注意，这里并不处理师徒关系，可以理解为这里处理的是雇佣性质的工作岗位
 /// 师徒关系需要另外调用 createShitu api来创建
-/// 新加入的成员的等级，是当前的组织发展度 + 1
-function addCharacterToOrganization(character, organization, {incurIncident = true }) {
+function addCharacterToOrganization(character, organization, {title = 'taskman', incurIncident = true }) {
   assert(!organization.members.contains(character.id))
   // 组织人数上限由发展度决定
   // if (organizationMemberReachMax(organization)) {
@@ -188,6 +185,9 @@ function addCharacterToOrganization(character, organization, {incurIncident = tr
   }
   // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
   character.organizationId = organization.id
+  
+  assert(title != null)
+  setCharacterTitle(character, title)
 
   if (incurIncident) {
     const incidentContent = engine.locale('organizationEnlist', interpolations: [
@@ -286,7 +286,12 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
 }
 
 // TODO: 添加incident
-function addTerrainToOrganization(terrain, organization, { incurIncident = true }) {
+/// 将某个地块划归到某个组织，这里不检查地块是否已经属于另一个组织
+function addTerrainToOrganization(terrain, organization, { updateWorldMap = false, incurIncident = true }) {
+  if (terrain.nationId != null) {
+    engine.error('地块 [${terrain.left}, ${terrain.top}] 已经被组织 [${terrain.nationId}] 占领，无法添加到组织 [${organization.id}]')
+    return
+  }
   if (organization.territoryIndexes.contains(terrain.index)) {
     engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
     return
@@ -296,9 +301,9 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
     return
   }
   organization.territoryIndexes.add(terrain.index)
-  if (terrain.nationId != null) {
-    removeTerrainFromOrganization(terrain)
-  }
+  // if (terrain.nationId != null) {
+  //   removeTerrainFromOrganization(terrain)
+  // }
   terrain.nationId = organization.id
   if (organization.borderIndexes.contains(terrain.index)) {
     organization.borderIndexes.remove(terrain.index)
@@ -327,7 +332,9 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
     }
 
     if (location.isHidden) {
-      location.isDiscovered = true
+      if (organization.id == hero.organizationId) {
+        discoverLocation(location, updateWorldMap: updateWorldMap)
+      }
     }
   }
   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')

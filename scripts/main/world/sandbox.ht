@@ -715,7 +715,7 @@ function createSandboxWorld({
           }
         }
         if (terrain != null) {
-          addTerrainToOrganization(terrain, organization)
+          addTerrainToOrganization(terrain, organization, updateWorldMap: false)
         }
       }
 

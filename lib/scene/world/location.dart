@@ -189,6 +189,24 @@ class LocationScene extends Scene {
       final result = await engine.hetu.invoke('onWorldEvent',
           positionalArgs: ['onBeforeExitLocation', location]);
       if (result == true) return;
+      final worldId = location['worldId'];
+      if (worldId != null) {
+        final left = location['worldPosition']['left'];
+        final top = location['worldPosition']['top'];
+        assert(left != null && top != null,
+            'Location ${location['id']} 缺少 worldPosition 数据');
+        engine.hetu.invoke(
+          'setCharacterWorldPosition',
+          positionalArgs: [
+            GameData.hero,
+            location['worldPosition']['left'],
+            location['worldPosition']['top'],
+          ],
+          namedArgs: {
+            'worldId': location['worldId'],
+          },
+        );
+      }
       engine.popScene(clearCache: true);
     };
     world.add(exit);
@@ -265,18 +283,21 @@ class LocationScene extends Scene {
                               .fetch('currentWorldId', namespace: 'game');
                           String? saveName =
                               engine.hetu.fetch('saveName', namespace: 'game');
-                          context
+                          final saveInfo = await context
                               .read<GameSavesState>()
-                              .saveGame(worldId, saveName)
-                              .then(
-                            (saveInfo) {
-                              GameDialogContent.show(
-                                context,
-                                engine.locale('savedSuccessfully',
-                                    interpolations: [saveInfo.savePath]),
-                              );
-                            },
-                          );
+                              .saveGame(worldId, saveName);
+                          if (saveInfo != null) {
+                            GameDialogContent.show(
+                              context,
+                              engine.locale('savedSuccessfully',
+                                  interpolations: [saveInfo.savePath]),
+                            );
+                          } else {
+                            GameDialogContent.show(
+                              context,
+                              engine.locale('saveFailed'),
+                            );
+                          }
                         case LocationDropMenuItems.saveAs:
                           final saveName = await showDialog(
                             context: context,
@@ -291,16 +312,21 @@ class LocationScene extends Scene {
                               .assign('saveName', saveName, namespace: 'game');
                           String worldId = engine.hetu
                               .fetch('currentWorldId', namespace: 'game');
-                          context
+                          final saveInfo = await context
                               .read<GameSavesState>()
-                              .saveGame(worldId, saveName)
-                              .then((saveInfo) {
+                              .saveGame(worldId, saveName);
+                          if (saveInfo != null) {
                             GameDialogContent.show(
                               context,
                               engine.locale('savedSuccessfully',
                                   interpolations: [saveInfo.savePath]),
                             );
-                          });
+                          } else {
+                            GameDialogContent.show(
+                              context,
+                              engine.locale('saveFailed'),
+                            );
+                          }
                         case LocationDropMenuItems.info:
                           showDialog(
                               context: context,

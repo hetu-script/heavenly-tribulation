@@ -35,7 +35,7 @@ class PreBattleDialog extends StatefulWidget {
   final dynamic hero, enemy;
 
   final void Function()? onBattleStart;
-  final void Function(dynamic)? onBattleEnd;
+  final void Function(bool, int)? onBattleEnd;
   final bool ignoreRequirement;
 
   @override

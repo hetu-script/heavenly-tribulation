@@ -91,6 +91,40 @@
       stepTime: 0.1,
     },
   },
+  wooden_dummy: {
+    stand: {
+      spriteSheet: "wooden_dummy.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+      from: 0,
+      to: 1,
+    },
+    defeat: {
+      spriteSheet: "wooden_dummy.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+      from: 0,
+      to: 1,
+    },
+    dodge: {
+      spriteSheet: "wooden_dummy.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+      from: 0,
+      to: 1,
+    },
+    hit: {
+      spriteSheet: "wooden_dummy.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+      from: 0,
+      to: 4,
+    },
+  },
   // 每一个皮肤有一套自己单独的动画，但每个动画的参数目前其实是相同的
   // 在游戏载入时，会对这里的数据进行处理，分拆成很多个不同的皮肤的动画数据
   skinAnimationTemplate: {
@@ -188,147 +222,147 @@
     ],
     avatar_stand: {
       from: 0,
-      to: 5,
+      to: 6,
     },
     avatar_before_melee_startup: {
       from: 6,
-      to: 8,
+      to: 9,
     },
     avatar_after_melee_recovery: {
       from: 9,
-      to: 11,
+      to: 12,
     },
     bodyforge_stand: {
       from: 12,
-      to: 17,
+      to: 18,
     },
     bodyforge_before_melee_startup: {
       from: 18,
-      to: 20,
+      to: 21,
     },
     bodyforge_after_melee_recovery: {
       from: 21,
-      to: 23,
+      to: 24,
     },
     spellcraft_stand: {
       from: 24,
-      to: 30,
+      to: 31,
     },
     spellcraft_before_melee_startup: {
       from: 31,
-      to: 33,
+      to: 34,
     },
     spellcraft_after_melee_recovery: {
       from: 34,
-      to: 36,
+      to: 37,
     },
     swordcraft_stand: {
       from: 37,
-      to: 43,
+      to: 44,
     },
     swordcraft_before_melee_startup: {
       from: 44,
-      to: 46,
+      to: 47,
     },
     swordcraft_after_melee_recovery: {
       from: 47,
-      to: 49,
+      to: 50,
     },
     vitality_stand: {
       from: 50,
-      to: 56,
+      to: 57,
     },
     vitality_before_melee_startup: {
       from: 57,
-      to: 59,
+      to: 60,
     },
     vitality_after_melee_recovery: {
       from: 60,
-      to: 62,
+      to: 63,
     },
     melee_startup: {
       from: 63,
-      to: 65,
+      to: 66,
     },
     melee_recovery: {
       from: 66,
-      to: 70,
+      to: 71,
     },
     dodge: {
       from: 71,
-      to: 78,
+      to: 79,
     },
     defeat: {
       from: 79,
-      to: 89,
+      to: 90,
     },
     hit: {
       from: 90,
-      to: 93,
+      to: 94,
     },
     attack_punch: {
       from: 94,
-      to: 102,
+      to: 103,
     },
     attack_kick: {
       from: 103,
-      to: 109,
+      to: 110,
     },
     attack_sabre: {
       from: 110,
-      to: 120,
+      to: 121,
     },
     attack_spear: {
       from: 121,
-      to: 131,
+      to: 132,
     },
     attack_sword: {
       from: 132,
-      to: 142,
+      to: 143,
     },
     attack_staff: {
       from: 143,
-      to: 150,
+      to: 151,
     },
     attack_bow: {
       from: 151,
-      to: 162,
+      to: 163,
     },
     attack_spell: {
       from: 163,
-      to: 169,
+      to: 170,
     },
     attack_spell_recovery: {
       from: 170,
-      to: 172,
+      to: 173,
     },
     buff_punch: {
       from: 173,
-      to: 181,
+      to: 182,
     },
     buff_kick: {
       from: 182,
-      to: 191,
+      to: 192,
     },
     buff_sabre: {
       from: 192,
-      to: 206,
+      to: 207,
     },
     buff_spear: {
       from: 207,
-      to: 221,
+      to: 222,
     },
     buff_sword: {
       from: 222,
-      to: 241,
+      to: 242,
     },
     buff_staff: {
       from: 242,
-      to: 256,
+      to: 257,
     },
     buff_spell: {
       from: 257,
-      to: 263,
+      to: 264,
     },
   },
 }

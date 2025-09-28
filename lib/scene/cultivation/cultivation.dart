@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
@@ -28,6 +27,7 @@ import '../../game/event_ids.dart';
 import '../particles/light_trail.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../state/states.dart';
+import '../../common.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -72,6 +72,8 @@ class CultivationScene extends Scene {
       : super(id: Scenes.cultivation, enableLighting: true);
 
   static final random = math.Random();
+
+  late FpsComponent fps;
 
   dynamic character;
 
@@ -637,6 +639,8 @@ class CultivationScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
+    fps = FpsComponent();
+
     engine.addEventListener(Scenes.cultivation, GameEvents.heroPassivesUpdated,
         (args) {
       updatePassivesDescription();
@@ -1112,8 +1116,28 @@ class CultivationScene extends Scene {
   void update(double dt) {
     super.update(dt);
 
+    fps.update(dt);
+
     if (isMeditating) {
       timer.update(dt);
+    }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    if (engine.config.debugMode || engine.config.showFps) {
+      drawScreenText(
+        canvas,
+        'FPS: ${fps.fps.toStringAsFixed(0)}',
+        config: ScreenTextConfig(
+          textStyle: const TextStyle(fontSize: 20),
+          size: GameUI.size,
+          anchor: Anchor.topCenter,
+          padding: const EdgeInsets.only(top: 40),
+        ),
+      );
     }
   }
 

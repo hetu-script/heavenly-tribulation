@@ -210,6 +210,7 @@ abstract class GameLogic {
     row.add(organization['locationIds'].length.toString());
     // 成员数量
     row.add(organization['members'].length.toString());
+    row.add('${organization['recruitMonth']}${engine.locale('dateMonth')}');
     // 多存一个隐藏的 id 信息，用于点击事件
     row.add(organization['id']);
     return row;
@@ -676,11 +677,10 @@ abstract class GameLogic {
     return (rank + 1) ~/ 2 + 2;
   }
 
-  static double getHPRestoreRateAfterBattle(int turnCount) {
-    assert(turnCount > 0);
+  static double getHPRestoreRateAfterBattle(int roundCount) {
     final rate = kBaseAfterBattleHPRestoreRate -
         kBaseAfterBattleHPRestoreRate *
-            math.gradualValue(turnCount - 1, kBattleCardsCount, power: 0.5);
+            math.gradualValue(roundCount, kBattleCardsCount, power: 0.5);
 
     return rate;
   }
@@ -822,7 +822,7 @@ abstract class GameLogic {
         //     GameData.gameData['flags']['hintedTribulation'] = true;
         //   }
         // },
-        'onBattleEnd': (bool? result) {
+        'onBattleEnd': (bool result, int roundCount) {
           if (result == true) {
             engine.hetu.invoke('levelUp', namespace: 'Player');
             final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
@@ -894,7 +894,7 @@ abstract class GameLogic {
         'hint_notEnoughHealthToWork',
         name: npc?['name'],
         icon: npc?['icon'],
-        illustration: npc?['image'],
+        image: npc?['image'],
       );
       await dialog.execute();
     }
@@ -910,7 +910,7 @@ abstract class GameLogic {
         'hint_notWorkSeason',
         name: npc?['name'],
         icon: npc?['icon'],
-        illustration: npc?['image'],
+        image: npc?['image'],
       );
       await dialog.execute();
       return;
@@ -1821,7 +1821,7 @@ abstract class GameLogic {
               'hint_tutorial',
               name: engine.locale('servant'),
               icon: 'illustration/npc/servant_head.png',
-              illustration: 'illustration/npc/servant.png',
+              image: 'illustration/npc/servant.png',
             );
             dialog.pushSelection('tutorial', [
               'listenTutorial',
@@ -1835,7 +1835,7 @@ abstract class GameLogic {
                 'hint_cultivation',
                 name: engine.locale('servant'),
                 icon: 'illustration/npc/servant_head.png',
-                illustration: 'illustration/npc/servant.png',
+                image: 'illustration/npc/servant.png',
               );
               await dialog.execute();
             }
@@ -1866,7 +1866,7 @@ abstract class GameLogic {
         'hint_organizationFacilityNotMember',
         name: engine.locale('servant'),
         icon: 'illustration/npc/servant_head.png',
-        illustration: 'illustration/npc/servant.png',
+        image: 'illustration/npc/servant.png',
       );
       await dialog.execute();
     }
@@ -1892,7 +1892,7 @@ abstract class GameLogic {
               'hint_tutorial',
               name: engine.locale('servant'),
               icon: 'illustration/npc/servant_head.png',
-              illustration: 'illustration/npc/servant.png',
+              image: 'illustration/npc/servant.png',
             );
             dialog.pushSelection('tutorial', [
               'listenTutorial',
@@ -1906,7 +1906,7 @@ abstract class GameLogic {
                 'hint_cardLibrary',
                 name: engine.locale('servant'),
                 icon: 'illustration/npc/servant_head.png',
-                illustration: 'illustration/npc/servant.png',
+                image: 'illustration/npc/servant.png',
               );
               await dialog.execute();
             }
@@ -1935,7 +1935,7 @@ abstract class GameLogic {
         'hint_organizationFacilityNotMember',
         name: engine.locale('servant'),
         icon: 'illustration/npc/servant_head.png',
-        illustration: 'illustration/npc/servant.png',
+        image: 'illustration/npc/servant.png',
       );
       await dialog.execute();
     }
@@ -1999,17 +1999,36 @@ abstract class GameLogic {
     dynamic organization,
     dynamic location,
   }) async {
-    final availableMonth = location['availableMonth'];
-    if (month != availableMonth) {
-      dialog.pushDialog(
-        'hint_dungeonNotAvailable',
-        interpolations: [availableMonth],
-        name: engine.locale('guard'),
-        icon: 'illustration/npc/guard_head.png',
-        illustration: 'illustration/npc/guard.png',
-      );
-      await dialog.execute();
-      return;
+    bool checkAvailableMonth() {
+      final availableMonth = location['availableMonth'];
+      if (month != availableMonth) {
+        dialog.pushDialog(
+          'hint_dungeonNotAvailable',
+          interpolations: [availableMonth],
+          name: engine.locale('guard'),
+          icon: 'illustration/npc/guard_head.png',
+          image: 'illustration/npc/guard.png',
+        );
+        dialog.execute();
+        return true;
+      }
+      return false;
+    }
+
+    bool checkEntered() {
+      final List enteredList =
+          GameData.game['playerMonthly']['enteredDungeons'];
+      final entered = enteredList.contains(location['id']);
+      if (entered) {
+        dialog.pushDialog(
+          'hint_dungeonAlreadyEntered',
+          name: engine.locale('guard'),
+          icon: 'illustration/npc/guard_head.png',
+          image: 'illustration/npc/guard.png',
+        );
+        dialog.execute();
+      }
+      return entered;
     }
 
     if (organization == null ||
@@ -2029,16 +2048,32 @@ abstract class GameLogic {
               'hint_dungeonEntrance',
               name: engine.locale('guard'),
               icon: 'illustration/npc/guard_head.png',
-              illustration: 'illustration/npc/guard.png',
+              image: 'illustration/npc/guard.png',
             );
           }
         case 'enter_common_dungeon':
           {
-            tryEnterDungeon(isCommon: true, dungeonId: 'dungeon_1');
+            final notAvailable = checkAvailableMonth();
+            final alreadyEntered = checkEntered();
+            if (notAvailable || alreadyEntered) return;
+
+            GameData.game['playerMonthly']['enteredDungeons']
+                .add(location['id']);
+            tryEnterDungeon(
+                isCommon: true,
+                dungeonId: location['dungeonId'] ?? 'dungeon_1');
           }
         case 'enter_advanced_dungeon':
           {
-            tryEnterDungeon(isCommon: false, dungeonId: 'dungeon_1');
+            final notAvailable = checkAvailableMonth();
+            final alreadyEntered = checkEntered();
+            if (notAvailable || alreadyEntered) return;
+
+            GameData.game['playerMonthly']['enteredDungeons']
+                .add(location['id']);
+            tryEnterDungeon(
+                isCommon: false,
+                dungeonId: location['dungeonId'] ?? 'dungeon_1');
           }
       }
     } else if (organization != null) {
@@ -2046,7 +2081,7 @@ abstract class GameLogic {
         'hint_organizationFacilityNotMember',
         name: engine.locale('guard'),
         icon: 'illustration/npc/guard_head.png',
-        illustration: 'illustration/npc/guard.png',
+        image: 'illustration/npc/guard.png',
       );
       await dialog.execute();
     }

@@ -657,7 +657,7 @@ async function onInteractMapObject(object, terrain) {
     'enemy': {
       Game.showPrebattle(
         object.battleEntity,
-        onBattleEnd: async function [ValueCallback] (battleResult) {
+        onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
           if (battleResult) {
             engine.info('战斗胜利，添加出口')
             game.dungeon.battleResult = true

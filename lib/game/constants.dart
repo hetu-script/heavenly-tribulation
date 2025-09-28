@@ -14,6 +14,10 @@ class ConstantsBinding extends HTExternalClass {
         return kRaces;
       case 'Constants.personalities':
         return kPersonalities;
+      case 'Constants.attributes':
+        return kAttributes;
+      case 'Constants.nonBattleAttributes':
+        return kNonBattleAttributes;
       case 'Constants.battleAttributes':
         return kBattleAttributes;
       case 'Constants.battleCardKinds':
@@ -22,6 +26,8 @@ class ConstantsBinding extends HTExternalClass {
         return kOrganizationCategories;
       case 'Constants.cultivationGenres':
         return kCultivationGenres;
+      case 'Constants.cultivationStyles':
+        return kCultivationStyles;
       case 'Constants.locationCityKinds':
         return kLocationCityKinds;
       case 'Constants.locationSiteKinds':

@@ -361,7 +361,7 @@ struct Location {
 //   }
 // }
 
-function removeLocation(location, { updateWorldMap = true }) {
+function removeLocation(location, { updateWorldMap = false }) {
   engine.warn('正在移除场景 [${location.name}]！')
   for (final siteId in location.sites) {
     removeLocation(siteId)
@@ -452,19 +452,23 @@ function getLocationByWorldPosition(left, top, {worldId}) {
   }
 }
 
-function discoverLocation(location) {
+function discoverLocation(location, { updateWorldMap = false }) {
   if (location.isDiscovered) return
   engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
   assert(universe.containsKey(location.worldId), location.worldId)
   let atWorld = universe[location.worldId]
-  World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+  if (updateWorldMap) {
+    World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+  }
   if (location.isHidden) {
     const tile = atWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite = { sprite: kSpriteCity }
-    // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
-    World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
+    if (updateWorldMap) {
+      // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+      World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
+    }
   }
 }
 

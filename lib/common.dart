@@ -11,6 +11,7 @@ const kGameVersion = '0.0.1';
 
 const kGameSaveFileExtension = '.tdqjgame';
 const kUniverseSaveFilePostfix = '_universe';
+const kWorldSaveFilePostfix = '_world';
 const kHistorySaveFilePostfix = '_history';
 
 abstract class Cursors {
@@ -254,10 +255,10 @@ Color getColorFromRank(int rank) {
 
 /// 组织的类型即动机，代表了不同的发展方向
 const kOrganizationCategories = [
-  'wuwei',
+  'wuwei', // 无为：清净，隐居，不问世事
   'cultivation', // 悟道：修真，功法，战斗
   'immortality', // 长生：宗教，等级，境界
-  'chivalry', // 任侠：江湖豪杰
+  'chivalry', // 任侠：江湖义气，路见不平拔刀相助
   'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
   'wealth', // 财富：经营商号，积累钱币和灵石
   'pleasure', // 欢愉：享乐，赌博，情色
@@ -522,6 +523,8 @@ final kWorkableMounths = {
   'arraylab': [10, 11, 12, 1, 2, 3],
   'illusionaltar': [11, 12, 1, 2, 3, 4],
   'divinationaltar': [12, 1, 2, 3, 4, 5],
+  'psychictemple': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'theurgytemple': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
 };
 
 final kWorkBaseSalaries = {
@@ -532,11 +535,13 @@ final kWorkBaseSalaries = {
   'timberland': 11,
   'huntingground': 18,
   'mine': 51,
-  'workshop': 28,
-  'alchemylab': 26,
-  'arraylab': 30,
-  'illusionaltar': 80,
-  'divinationaltar': 90,
+  'workshop': 22,
+  'alchemylab': 28,
+  'arraylab': 35,
+  'illusionaltar': 60,
+  'divinationaltar': 75,
+  'psychictemple': 140,
+  'theurgytemple': 200,
 };
 
 final kWorkBaseStaminaCost = {
@@ -552,6 +557,8 @@ final kWorkBaseStaminaCost = {
   'arraylab': 2,
   'illusionaltar': 5,
   'divinationaltar': 5,
+  'psychictemple': 10,
+  'theurgytemple': 15,
 };
 
 /// 战斗结束后生命恢复比例计算时，
@@ -960,6 +967,7 @@ const kInformationViewOrganizationColumns = [
   'headquarters',
   'locationNumber',
   'memberNumber',
+  'recruitMonth',
 ];
 
 const kInformationViewLocationColumns = [

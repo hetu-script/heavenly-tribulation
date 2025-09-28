@@ -37,6 +37,7 @@ export 'util.ht'
 
 import 'event/game.ht' as gameEvents
 import 'event/dungeon.ht' as dungeonEvents
+import 'event/cultivation_trial.ht' as cultivationTrialEvents
 
 // 这里的数据会被添加到game.mods上，并序列化为字符串进入存档
 // 在游戏每次运行时，会重新将函数绑定到这个对象上
@@ -63,6 +64,12 @@ function main() {
     moduleId: meta.id,
     worldId: 'dungeon_1',
     namespace: dungeonEvents,
+  )
+
+  addEventHandlers(
+    moduleId: meta.id,
+    worldId: 'cultivation_trial_1',
+    namespace: cultivationTrialEvents,
   )
 }
 
@@ -174,6 +181,7 @@ function addQuestsData(questsData) {
   engine.debug('载入剧情日志数据：[${questsData.length}]')
 }
 
+/// 向 universe 中添加数据
 function addMapsData(mapsData) {
   for (final map of mapsData) {
     if (universe.containsKey(map.id)) {

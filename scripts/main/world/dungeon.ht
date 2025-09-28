@@ -14,20 +14,11 @@ function resetDungeon({
   )
 }
 
-function getRankFromDungeonLevel(level) {
-  assert(level > 0)
-  let r = (level - 1) ~/ 10
-  if (r > kCultivationRankMax) {
-    r = kCultivationRankMax
-  }
-  return r
-}
-
 function addOverlaySprite(tilePosition, overlaySprite) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.overlaySprite = overlaySprite
   World.updateTerrainOverlaySprite(tilePosition.left, tilePosition.top)
-} 
+}
 
 function addPortal(tilePosition, {
     objectId,

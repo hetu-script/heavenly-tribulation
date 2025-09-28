@@ -25,12 +25,12 @@ class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
   dynamic data;
   void Function()? onBattleStart;
-  void Function(dynamic)? onBattleEnd;
+  void Function(bool, int)? onBattleEnd;
 
   void show(
     dynamic data, {
     void Function()? onBattleStart,
-    void Function(dynamic)? onBattleEnd,
+    void Function(bool, int)? onBattleEnd,
   }) {
     assert(data != null);
     showPrebattle = true;

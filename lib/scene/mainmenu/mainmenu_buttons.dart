@@ -18,16 +18,15 @@ import '../../widgets/ui/menu_builder.dart';
 
 enum DebugMenuItems {
   debugResetHero,
-  debugDialog,
   debugItem,
   debugQuest,
   debugMerchant,
   debugMaterialMerchant,
   debugWorkbench,
-  debugAutoAllocateSkills,
   debugCompanion,
   debugBattle,
   debugTribulation,
+  debugImmortalityTrial,
 }
 
 enum MenuStates {
@@ -176,12 +175,13 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
 
-                          await GameData.createGame(args['saveName']);
-                          engine.pushScene(
-                            args['id'],
-                            constructorId: Scenes.worldmap,
-                            arguments: args,
-                          );
+                          GameData.createGame(args['saveName']).then((_) {
+                            engine.pushScene(
+                              args['id'],
+                              constructorId: Scenes.worldmap,
+                              arguments: args,
+                            );
+                          });
                         },
                         child: Label(
                           engine.locale('sandboxMode'),
@@ -388,7 +388,6 @@ class _DebugButtonState extends State<DebugButton> {
               controller: menuController,
               items: {
                 engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
-                engine.locale('debugDialog'): DebugMenuItems.debugDialog,
                 engine.locale('debugItem'): DebugMenuItems.debugItem,
                 engine.locale('debugQuest'): DebugMenuItems.debugQuest,
                 '___1': null,
@@ -397,12 +396,12 @@ class _DebugButtonState extends State<DebugButton> {
                     DebugMenuItems.debugMaterialMerchant,
                 engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
                 '___2': null,
-                engine.locale('debugAutoAllocateSkills'):
-                    DebugMenuItems.debugAutoAllocateSkills,
                 engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
                 engine.locale('debugBattle'): DebugMenuItems.debugBattle,
                 engine.locale('debugTribulation'):
                     DebugMenuItems.debugTribulation,
+                engine.locale('debugImmortalityTrial'):
+                    DebugMenuItems.debugImmortalityTrial,
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
@@ -414,8 +413,6 @@ class _DebugButtonState extends State<DebugButton> {
                       restart: true,
                     );
                     context.read<NpcListState>().update(const []);
-                  case DebugMenuItems.debugDialog:
-                    engine.hetu.invoke('debugDialog', namespace: 'Debug');
                   case DebugMenuItems.debugItem:
                     engine.hetu.invoke('testItem', namespace: 'Debug');
                   case DebugMenuItems.debugQuest:
@@ -482,8 +479,6 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                   case DebugMenuItems.debugWorkbench:
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);
-                  case DebugMenuItems.debugAutoAllocateSkills:
-                    GameLogic.characterAllocateSkills(GameData.hero);
                   case DebugMenuItems.debugCompanion:
                     final companion = engine.hetu.invoke('Character');
                     engine.hetu.invoke(
@@ -495,18 +490,68 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                     context.read<NpcListState>().update([companion]);
                   case DebugMenuItems.debugBattle:
+                    // final enemy = engine.hetu.invoke('Character', namedArgs: {
+                    //   'level': GameData.hero['level'],
+                    //   'rank': GameData.hero['rank'],
+                    // });
                     final enemy = engine.hetu.invoke('Character', namedArgs: {
-                      'isFemale': true,
-                      'level': GameData.hero['level'],
-                      'rank': GameData.hero['rank'],
+                      'name': 'wooden_dummy',
+                      'isFemale': false,
+                      'level': 10,
+                      'rank': 0,
+                      'icon': 'illustration/npc/wooden_dummy_head.png',
+                      'skin': 'wooden_dummy',
+                      'attributes': {
+                        'charisma': 0,
+                        'wisdom': 0,
+                        'luck': 0,
+                        'spirituality': 0,
+                        'dexterity': 0,
+                        'strength': 120,
+                        'willpower': 0,
+                        'perception': 0,
+                      },
+                      'cultivationFavor': '',
                     });
-                    GameLogic.characterAllocateSkills(enemy, rejuvenate: true);
-                    engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
-                    context.read<EnemyState>().show(enemy);
+                    engine.hetu.invoke('characterCalculateStats',
+                        positionalArgs: [enemy]);
+                    // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                    engine.hetu.invoke('generateDeck', positionalArgs: [
+                      enemy
+                    ], namedArgs: {
+                      'cardInfoList': [
+                        {
+                          'affixId': 'blank_default',
+                        },
+                        {
+                          'affixId': 'blank_default',
+                        },
+                        {
+                          'affixId': 'blank_default',
+                        },
+                      ],
+                    });
+                    context.read<EnemyState>().show(enemy,
+                        onBattleEnd: (bool battleResult, int roundCount) {
+                      dialog.pushDialogRaw(
+                          'It took you $roundCount rounds to defeat the dummy.');
+                      dialog.execute();
+                    });
                   case DebugMenuItems.debugTribulation:
                     final targetRank = GameData.hero['rank'] + 1;
                     final levelMin = GameLogic.minLevelForRank(targetRank);
                     GameLogic.showTribulation(levelMin + 5, targetRank);
+                  case DebugMenuItems.debugImmortalityTrial:
+                    engine.clearAllCachedScene(except: Scenes.mainmenu);
+                    GameData.game['flags']['cultivationTrial'] = null;
+                    engine.pushScene(
+                      'cultivation_trial_1',
+                      constructorId: Scenes.worldmap,
+                      arguments: {
+                        'id': 'cultivation_trial_1',
+                        'method': 'load',
+                      },
+                    );
                 }
               },
             );

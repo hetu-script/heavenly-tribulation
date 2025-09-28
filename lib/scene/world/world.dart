@@ -7,14 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flame/components.dart';
-import 'package:samsara/pointer_detector.dart';
+// import 'package:samsara/pointer_detector.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/effect/camera_shake.dart';
-import 'package:flame/game.dart';
+// import 'package:flame/game.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -72,6 +72,7 @@ enum WorldEditorDropMenuItems {
   expandWorld,
   save,
   saveAs,
+  saveMapAs,
   viewNone,
   viewZones,
   viewOrganizations,
@@ -137,7 +138,7 @@ class WorldMapScene extends Scene {
           tileFogOffset: kTileFogOffset,
           showSelected: true,
           showHover: true,
-          showFogOfWar: !isEditorMode,
+          showFogOfWar: false, // !isEditorMode,
           autoUpdateComponent: false,
           fogSpriteId: 'shadow.png',
           // isCameraFollowHero: false,
@@ -261,12 +262,8 @@ class WorldMapScene extends Scene {
 
     fps.update(dt);
 
-    // for (final cloud in _clouds) {
-    //   cloud.update(dt);
-    // }
-
     if (!isEditorMode && isMainWorld) {
-      final r = math.Random().nextDouble();
+      final r = random.nextDouble();
       if (r < 0.01) {
         _addCloud();
       }
@@ -618,6 +615,8 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _onEnterScene() async {
+    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+
     // context.read<HeroState>().update();
     // context.read<GameTimestampState>().update();
     // context.read<HeroAndGlobalHistoryState>().update();
@@ -631,9 +630,6 @@ class WorldMapScene extends Scene {
           animated: false);
       _setHeroTerrain(terrain);
     }
-
-    engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
-
     // final worldPos = GameData.heroData['worldPosition'];
     // if (worldPos != null) {
     //   map.lightUpAroundTile(
@@ -649,10 +645,6 @@ class WorldMapScene extends Scene {
 
     context.read<HeroPositionState>().updateLocation(null);
     GameData.world = worldData;
-
-    if (isMounted) {
-      _onEnterScene();
-    }
   }
 
   @override
@@ -792,8 +784,7 @@ class WorldMapScene extends Scene {
       engine.setCursor(Cursors.normal);
       context.read<EditorToolState>().clear();
       territoryMode = null;
-      final tileRenderPosition =
-          map.selectedTerrain!.renderRect.topRight.toVector2();
+      final tileRenderPosition = map.selectedTerrain!.bottomRightRenderRect;
       final screenPosition = map.worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
         position: screenPosition.toOffset(),
@@ -1057,7 +1048,11 @@ class WorldMapScene extends Scene {
   void _tryEnterLocation(dynamic location) async {
     if (location['isDiscovered'] != true) {
       location['isDiscovered'] = true;
-      engine.hetu.invoke('discoverLocation', positionalArgs: [location]);
+      engine.hetu.invoke('discoverLocation', positionalArgs: [
+        location
+      ], namedArgs: {
+        'updateWorldMap': true,
+      });
       dialog.pushDialog('hint_discoveredLocation',
           interpolations: location['name']);
       await dialog.execute();
@@ -1075,9 +1070,10 @@ class WorldMapScene extends Scene {
     final hero = map.hero!;
     if (hero.isWalking) return;
 
-    final neighbors = map.getNeighborTilePositions(hero.left, hero.top);
+    final heroTerrain = map.getTerrain(hero.left, hero.top);
+    final neighbors = map.getNeighborTiles(heroTerrain!);
     if (terrain.isNonEnterable &&
-        neighbors.contains(terrain.tilePosition) &&
+        neighbors.containsValue(terrain) &&
         terrain.objectId != null) {
       GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
       return;
@@ -1088,9 +1084,8 @@ class WorldMapScene extends Scene {
         return;
       }
       final calculatedRoute = _calculateRoute(
-        fromX: hero.left,
-        fromY: hero.top,
-        toTile: terrain.data,
+        fromTile: heroTerrain,
+        toTile: terrain,
         terrainKinds: movableTerrainKinds,
       );
       if (calculatedRoute != null) {
@@ -1184,29 +1179,30 @@ class WorldMapScene extends Scene {
             }
           },
         );
+      } else {
+        engine.warn(
+            '无法将英雄从大地图位置 [${hero.tilePosition}] 移动到 [${terrain.tilePosition}]');
       }
     }
   }
 
   List? _calculateRoute({
-    dynamic fromTile,
-    dynamic toTile,
+    TileMapTerrain? fromTile,
+    TileMapTerrain? toTile,
     int? fromX,
     int? fromY,
     int? toX,
     int? toY,
-    List<dynamic> terrainKinds = const [],
+    List terrainKinds = const [],
   }) {
     assert(fromTile != null || (fromX != null && fromY != null));
     assert(toTile != null || (toX != null && toY != null));
-    fromTile ??= engine.hetu.invoke('getTerrainByWorldPosition',
-        positionalArgs: [fromX, fromY, worldData]);
-    toTile ??= engine.hetu.invoke('getTerrainByWorldPosition',
-        positionalArgs: [toX, toY, worldData]);
-    List? calculatedRoute = engine.hetu.invoke(
-      'calculateRoute',
-      positionalArgs: [fromTile, toTile, worldData],
-      namedArgs: {'terrainKinds': terrainKinds},
+    fromTile ??= map.getTerrain(fromX!, fromY!);
+    toTile ??= map.getTerrain(toX!, toY!);
+    List? calculatedRoute = map.calculateRoute(
+      fromTile!,
+      toTile!,
+      terrainKinds: terrainKinds,
     );
     return calculatedRoute;
   }
@@ -1255,8 +1251,7 @@ class WorldMapScene extends Scene {
       }
     } else if (button == kSecondaryButton) {
       engine.setCursor(Cursors.normal);
-      final tileRenderPosition =
-          map.selectedTerrain!.renderRect.topRight.toVector2();
+      final tileRenderPosition = map.selectedTerrain!.bottomRightRenderRect;
       final screenPosition = map.worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
           position: screenPosition.toOffset(),
@@ -1302,11 +1297,21 @@ class WorldMapScene extends Scene {
             (characters as Iterable).where((character) {
           final age = engine.hetu
               .invoke('getCharacterAge', positionalArgs: [character]);
-          if (age >= kMinHeroAge && age < kMaxHeroAge) {
-            return true;
+          if (age < kMinHeroAge || age > kMaxHeroAge) {
+            return false;
           }
-          return false;
+          final organizationId = character['organizationId'];
+          if (organizationId != null) {
+            return false;
+          }
+          final titleId = character['titleId'];
+          if (titleId != null) {
+            return false;
+          }
+          return true;
         });
+        assert(filteredCharacters.isNotEmpty,
+            'No available character to be selected as hero!');
         final key = await CharacterSelectDialog.show(
           context: context,
           title: engine.locale('selectHero'),
@@ -1315,8 +1320,11 @@ class WorldMapScene extends Scene {
         );
         engine.hetu.invoke('setHeroId', positionalArgs: [key]);
         final heroHomeLocation = engine.hetu.invoke('getHeroHomeLocation');
-        engine.hetu
-            .invoke('discoverLocation', positionalArgs: [heroHomeLocation]);
+        engine.hetu.invoke('discoverLocation', positionalArgs: [
+          heroHomeLocation,
+        ], namedArgs: {
+          'updateWorldMap': true,
+        });
         GameData.hero = engine.hetu.fetch('hero');
       }
     }
@@ -1346,6 +1354,13 @@ class WorldMapScene extends Scene {
     }
 
     await _onEnterScene();
+
+    if (GameData.game['flags']['hintedMovement'] != true) {
+      GameData.game['flags']['hintedMovement'] = true;
+
+      dialog.pushDialog('hint_movement');
+      await dialog.execute();
+    }
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
@@ -1359,8 +1374,7 @@ class WorldMapScene extends Scene {
       assert(objectData != null, 'objectId: ${tile.objectId} not found!');
       String? hoverContent = objectData?['hoverContent'];
 
-      final screenPosition =
-          map.worldPosition2Screen(tile.renderRect.topLeft.toVector2());
+      final screenPosition = map.worldPosition2Screen(tile.renderPosition);
       if (hoverContent != null) {
         if (engine.config.debugMode) {
           hoverContent += '\n${objectData['id']}';
@@ -1370,8 +1384,8 @@ class WorldMapScene extends Scene {
               Rect.fromLTWH(
                 screenPosition.x + map.tileOffset.x * camera.zoom,
                 screenPosition.y + map.tileOffset.y * camera.zoom,
-                tile.renderRect.width * camera.zoom,
-                tile.renderRect.height * camera.zoom,
+                tile.renderSize.x * camera.zoom,
+                tile.renderSize.y * camera.zoom,
               ),
               direction: HoverContentDirection.topCenter,
             );
@@ -1470,21 +1484,7 @@ class WorldMapScene extends Scene {
       },
       child: Stack(
         children: [
-          GameWidget(game: this),
-          PointerDetector(
-            behavior: HitTestBehavior.translucent,
-            onTapDown: onTapDown,
-            onTapUp: onTapUp,
-            onDragStart: onDragStart,
-            onDragUpdate: onDragUpdate,
-            onDragEnd: onDragEnd,
-            onScaleStart: onScaleStart,
-            onScaleUpdate: onScaleUpdate,
-            onScaleEnd: onScaleEnd,
-            onLongPress: onLongPress,
-            onMouseHover: onMouseHover,
-            onMouseScroll: onMouseScroll,
-          ),
+          SceneWidget(scene: this),
           if (!isEditorMode) ...[
             GameUIOverlay(
               action: Container(
@@ -1532,37 +1532,46 @@ class WorldMapScene extends Scene {
                               final saveInfo = await context
                                   .read<GameSavesState>()
                                   .saveGame(worldId, saveName);
-                              GameDialogContent.show(
-                                context,
-                                engine.locale('savedSuccessfully',
-                                    interpolations: [saveInfo.savePath]),
-                              );
+                              if (saveInfo != null) {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('savedSuccessfully',
+                                      interpolations: [saveInfo.savePath]),
+                                );
+                              } else {
+                                GameDialogContent.show(
+                                    context, engine.locale('saveFailed'));
+                              }
                             case WorldMapDropMenuItems.saveAs:
                               map.saveComponentsFrameData();
-                              showDialog(
+                              final saveName = await showDialog(
                                 context: context,
                                 builder: (context) {
                                   return InputStringDialog(
                                     title: engine.locale('inputName'),
                                   );
                                 },
-                              ).then((saveName) {
-                                if (saveName == null) return;
-                                engine.hetu.assign('saveName', saveName,
-                                    namespace: 'game');
-                                String worldId = engine.hetu
-                                    .fetch('currentWorldId', namespace: 'game');
-                                context
-                                    .read<GameSavesState>()
-                                    .saveGame(worldId, saveName)
-                                    .then((saveInfo) {
-                                  GameDialogContent.show(
-                                    context,
-                                    engine.locale('savedSuccessfully',
-                                        interpolations: [saveInfo.savePath]),
-                                  );
-                                });
-                              });
+                              );
+                              if (saveName == null) return;
+                              engine.hetu.assign('saveName', saveName,
+                                  namespace: 'game');
+                              String worldId = engine.hetu
+                                  .fetch('currentWorldId', namespace: 'game');
+                              final saveInfo = await context
+                                  .read<GameSavesState>()
+                                  .saveGame(worldId, saveName);
+                              if (saveInfo != null) {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('savedSuccessfully',
+                                      interpolations: [saveInfo.savePath]),
+                                );
+                              } else {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('saveFailed'),
+                                );
+                              }
                             case WorldMapDropMenuItems.info:
                               showDialog(
                                   context: context,
@@ -1585,6 +1594,7 @@ class WorldMapScene extends Scene {
                               );
                             case WorldMapDropMenuItems.exit:
                               context.read<SelectedPositionState>().clear();
+                              context.read<HeroPositionState>().clear();
                               engine.clearAllCachedScene(
                                   except: Scenes.mainmenu,
                                   arguments: {
@@ -1622,6 +1632,8 @@ class WorldMapScene extends Scene {
                           engine.locale('save'): WorldEditorDropMenuItems.save,
                           engine.locale('saveAs'):
                               WorldEditorDropMenuItems.saveAs,
+                          engine.locale('saveMapAs'):
+                              WorldEditorDropMenuItems.saveMapAs,
                           '___0': null,
                           engine.locale('addWorld'):
                               WorldEditorDropMenuItems.addWorld,
@@ -1725,11 +1737,18 @@ class WorldMapScene extends Scene {
                               final saveInfo = await context
                                   .read<GameSavesState>()
                                   .saveGame(worldId, saveName);
-                              GameDialogContent.show(
-                                context,
-                                engine.locale('savedSuccessfully',
-                                    interpolations: [saveInfo.savePath]),
-                              );
+                              if (saveInfo != null) {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('savedSuccessfully',
+                                      interpolations: [saveInfo.savePath]),
+                                );
+                              } else {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('saveFailed'),
+                                );
+                              }
                             case WorldEditorDropMenuItems.saveAs:
                               final saveName = await showDialog(
                                 context: context,
@@ -1744,16 +1763,48 @@ class WorldMapScene extends Scene {
                                   namespace: 'game');
                               String worldId = engine.hetu
                                   .fetch('currentWorldId', namespace: 'game');
-                              context
+                              final saveInfo = await context
                                   .read<GameSavesState>()
-                                  .saveGame(worldId, saveName)
-                                  .then((saveInfo) {
+                                  .saveGame(worldId, saveName);
+                              if (saveInfo != null) {
                                 GameDialogContent.show(
                                   context,
                                   engine.locale('savedSuccessfully',
                                       interpolations: [saveInfo.savePath]),
                                 );
-                              });
+                              } else {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('saveFailed'),
+                                );
+                              }
+                            case WorldEditorDropMenuItems.saveMapAs:
+                              String worldId = worldData['id'];
+                              final saveName = await showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return InputStringDialog(
+                                    title: engine.locale('inputName'),
+                                    value: worldId,
+                                  );
+                                },
+                              );
+                              if (saveName == null) return;
+                              final savePath = await context
+                                  .read<GameSavesState>()
+                                  .saveMap(worldId, saveName);
+                              if (savePath != null) {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('savedSuccessfully',
+                                      interpolations: [savePath]),
+                                );
+                              } else {
+                                GameDialogContent.show(
+                                  context,
+                                  engine.locale('saveFailed'),
+                                );
+                              }
                             case WorldEditorDropMenuItems.viewNone:
                               map.colorMode = kColorModeNone;
                             case WorldEditorDropMenuItems.viewZones:

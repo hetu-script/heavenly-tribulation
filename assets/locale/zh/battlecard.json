@@ -7,6 +7,8 @@
   "requirement_hint": "未满足",
   "explanation_hint": "按 Ctrl 键查看详细信息",
 
+  "blank_default": "什么都不做",
+
   "buff": "加持",
   "ongoing": "持续",
   "ephemeral": "消耗",

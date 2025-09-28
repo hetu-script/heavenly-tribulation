@@ -126,7 +126,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                     Text(
                         '${engine.locale('territorySize')}: ${_organization['territoryIndexes'].length}'),
                     Text(
-                        '${engine.locale('recruitMonth')}: ${_organization['yearlyRecruitMonth']}'),
+                        '${engine.locale('recruitMonth')}: ${_organization['recruitMonth']}'),
                     const Spacer(),
                     if (widget.mode == InformationViewMode.edit)
                       Padding(

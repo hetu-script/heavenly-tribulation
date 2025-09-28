@@ -25,7 +25,6 @@ namespace Debug {
   function generateHero({rank = 0, level = 0}) {
     final hero = Character(
       id: 'hero',
-      isFemale: false,
       level: level,
       rank: rank,
       skillPoints: level,
@@ -126,27 +125,6 @@ namespace Debug {
       Player.progressQuestById(quest.id, stage: 3)
     }
     Game.promptNewQuest(quest)
-  }
- 
-  function getCurrentTerrain() {
-    if (world == null) return
-    if (hero == null) return
-    const position = hero.worldPosition
-    const terrainIndex = tilePos2Index(position.left, position.top, world.width)
-    let terrain = world.terrains[terrainIndex]
-    return terrain
-  }
-
-  function getCurrentLocation() {
-    if (world == null) return
-    if (hero == null) return
-    const position = getHeroPosition()
-    const terrainIndex = tilePos2Index(position.left, position.top, world.width)
-    const terrain = world.terrains[terrainIndex]
-    if (terrain.locationId) {
-      const location = game.locations[terrain.locationId]
-      return location
-    }
   }
 
   function updateAllCaptions() {

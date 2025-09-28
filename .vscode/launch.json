@@ -8,7 +8,10 @@
       "name": "editor",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart"
+      "program": "lib/main.dart",
+      "windows": {
+        "program": "lib/main.dart"
+      },
     }
   ]
 }

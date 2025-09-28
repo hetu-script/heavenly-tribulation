@@ -76,6 +76,7 @@ class HeroPositionState with ChangeNotifier {
     currentNation = null;
     currentTerrain = null;
     currentLocation = null;
+    currentDungeon = null;
     notifyListeners();
   }
 }

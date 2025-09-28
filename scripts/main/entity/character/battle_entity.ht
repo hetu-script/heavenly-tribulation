@@ -21,12 +21,13 @@ const _kFemaleAvatarCount = 75
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
 
-const _kAttributesBase = 50
+const _kAttributesBaseValue = 50
 
 const kBaseStaminaCostForMoveOnWater = 2
 const kBaseStaminaCostForMoveOnHill = 2
 
 const kBaseLife = 10
+const kBaseLifePerLevel = 5
 const kBaseMana = 1
 const kBaseLightRadius = 2
 
@@ -37,7 +38,6 @@ const kBaseTribulationCountMax = 2
 const kTribulationCountPerRank = 2
 
 const kBaseResistMax = 75
-const kBaseLifePerLevel = 5
 
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
@@ -58,11 +58,13 @@ struct BattleEntity {
     level,
     rank,
     attributes,
-    baseAttribute,
+    baseAttributeValue,
     mainAttribute,
     stats,
     cardLibrary,
     battleDecks,
+    cultivationFavor,
+    cultivationStyle,
   }) {
     this.entityType = kEntityTypeBattleEntity
     this.isFemale = isFemale ?? random.nextBool()
@@ -176,8 +178,14 @@ struct BattleEntity {
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
-    let generated = generateCharacterAttributes(baseAttribute: baseAttribute, mainAttribute: mainAttribute)
-    Object.assign(this, generated)
+    if (attributes == null) {
+      let generated = generateCharacterAttributes(baseAttributeValue: baseAttributeValue, mainAttribute: mainAttribute)
+      Object.assign(this, generated)
+    } else {
+      for (final id in Constants.attributes) {
+        this[id] = attributes[id] ?? 0
+      }
+    }
     
     // 已解锁的天赋技能节点， key 是 nodeId ，代表天赋盘上某个位置的坐标。
     // 如果存在某个 key 意味着该位置已经被解锁
@@ -205,22 +213,19 @@ struct BattleEntity {
     characterCalculateStats(this, rejuvenate: true)
     
     this.mainAttribute = getMainAttribute(this)
-    // 对应于组织的genre
-    this.cultivationFavor = kAttributeToGenre[this.mainAttribute]
-    this.cultivationStyle = random.nextIterable(kCultivationStyles[this.cultivationFavor])
 
     // 主流派：御剑、道术、锻体、炼魂、法身
-    // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
-    // this.cultivationGenre = cultivationGenre
+    this.cultivationFavor = cultivationFavor ?? kAttributeToGenre[this.mainAttribute]
+    this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
   }
 }
 
-function generateCharacterAttributes({baseAttribute, mainAttribute}) {
-  baseAttribute ??= _kAttributesBase
+function generateCharacterAttributes({baseAttributeValue, mainAttribute}) {
+  baseAttributeValue ??= _kAttributesBaseValue
   let attributes = {}
-  for (final id in kNonBattleAttributes) {
+  for (final id in Constants.nonBattleAttributes) {
     attributes[id] = Math.gaussianNoise(
       kAttributeValueAverage,
       kAttributeValueDeviation,
@@ -231,9 +236,9 @@ function generateCharacterAttributes({baseAttribute, mainAttribute}) {
   }
   for (final id in Constants.battleAttributes) {
     if (id == mainAttribute) {
-      attributes[id] = random.nearInt(baseAttribute)
+      attributes[id] = random.nearInt(baseAttributeValue)
     } else {
-      attributes[id] = random.distantInt(baseAttribute)
+      attributes[id] = random.distantInt(baseAttributeValue)
     }
   }
   return attributes
@@ -444,8 +449,7 @@ function characterHasPassive(character, dataId) {
 
 function generateDeck(character, { maxOutLevel = false, cardInfoList }) {
   let deck = []
-  if (cardInfoList is List) {
-    assert(cardInfoList.isNotEmpty, 'cardInfoList is empty!')
+  if (cardInfoList is List && cardInfoList.isNotEmpty) {
     for (final info in cardInfoList) {
       final card = BattleCard(
         category: info.category,

@@ -11,14 +11,6 @@
 
 export 'battle_entity.ht'
 
-const kCultivationStyles = {
-  'swordcraft': ['standard'],
-  'spellcraft': ['standard'],
-  'vitality': ['standard'],
-  'avatar': ['standard'],
-  'bodyforge': ['standard'],
-}
-
 // 进行某些互动的时候的判定阈值
 const kCharacterImpressionCheck = 10
 
@@ -373,8 +365,8 @@ struct Bond {
   }
 }
 
-/// 关系：人和人之间的客观纽带，包括亲情，师徒，友情(仇恨)，爱情，等等
-/// [category]: 'romance', 'friendship', 'family', 'sect'
+/// 关系：人和人之间的客观纽带，包括亲情，宗门，爱情，友情(仇恨)，雇佣等等
+/// [category]: 'family', 'sect', 'romance', 'friendship'
 /// [kind]: 'parent', 'spouse'
 /// 配偶、亲情和师徒关系会有[kind]，用来描述具体的关系
 /// 其他的关系则只有[category]
@@ -1017,6 +1009,8 @@ struct Character {
     stats,
     cardLibrary: {},
     battleDecks: List = [],
+    cultivationFavor,
+    cultivationStyle,
     birthTimestamp,
     exp,
     skillPoints,
@@ -1052,6 +1046,8 @@ struct Character {
       stats: stats,
       cardLibrary: cardLibrary,
       battleDecks: battleDecks,
+      cultivationFavor: cultivationFavor,
+      cultivationStyle: cultivationStyle,
     )
     Object.assign(this, battleInfo)
     

@@ -76,6 +76,7 @@ class _GameAppState extends State<GameApp> {
         isSneakAttack: arguments['isSneakAttack'] ?? false,
         onBattleStart: arguments['onBattleStart'],
         onBattleEnd: arguments['onBattleEnd'],
+        endBattleAfterRounds: arguments['endBattleAfterTurns'] ?? 0,
       );
     });
 
@@ -123,6 +124,15 @@ class _GameAppState extends State<GameApp> {
   Future<void> _initGame() async {
     int tik = DateTime.now().millisecondsSinceEpoch;
     await engine.init(context);
+
+    engine.hetu.interpreter.bindExternalFunctionType(
+      'BoolInt',
+      (HTFunction function) {
+        return (bool arg1, int arg2) {
+          return function.call(positionalArgs: [arg1, arg2]);
+        };
+      },
+    );
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
     engine.hetu.interpreter.bindExternalClass(ConstantsBinding());
@@ -243,8 +253,8 @@ class _GameAppState extends State<GameApp> {
         hideName: namedArgs['hideName'] ?? false,
         icon: namedArgs['icon'],
         hideIcon: namedArgs['hideIcon'] ?? false,
-        illustration: namedArgs['illustration'],
-        hideIllustration: namedArgs['hideIllustration'] ?? false,
+        image: namedArgs['illustration'],
+        hideImage: namedArgs['hideIllustration'] ?? false,
         interpolations: namedArgs['interpolations'],
       );
     });

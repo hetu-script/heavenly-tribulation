@@ -25,4 +25,4 @@ final SamsaraEngine engine = SamsaraEngine(
   ),
 );
 
-final dialog = GameDialog();
+final dialog = GameDialog.singleton;

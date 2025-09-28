@@ -5,6 +5,13 @@
   // 被腐化的卡牌，无法再进行精炼
   // isCorrupted: false,
 
+  blank_default: {
+    id: "blank_default",
+    description: "blank_default",
+    image: "battlecard/illustration/blank_default.png",
+    isMain: true,
+  },
+
   // ------------攻击卡牌------------
   attack_punch: {
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。

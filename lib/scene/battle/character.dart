@@ -59,15 +59,12 @@ Color getResourceColor(String resourceType) {
 class BattleCharacter extends GameComponent with AnimationStateController {
   final String skinId;
 
-  /// 这里的流派只影响角色起始站姿
-  final String genre;
-
   final bool isHero;
 
   final dynamic data;
 
-  final Set<String> animationStates;
-  final Set<String> overlayAnimationStates;
+  final Set<String> animationStates = {};
+  final Set<String> overlayAnimationStates = {};
 
   late final DynamicColorProgressIndicator _hpBar; //, _mpBar;
 
@@ -140,12 +137,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     super.size,
     this.isHero = false,
     required this.skinId,
-    required this.genre,
-    required this.animationStates,
-    required this.overlayAnimationStates,
+    Iterable<String> animationStates = const [],
+    Iterable<String> overlayAnimationStates = const [],
     required this.data,
     required this.deckZone,
+    bool isDummy = false,
   }) : super(anchor: Anchor.topCenter) {
+    // 这一行是为了让 AnimationStateController 可以在恰当的时机播放音效
     audioPlayer = engine;
 
     if (!isHero) {
@@ -153,15 +151,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     currentAnimationState = kStandState;
-    animationStates.addAll(kPreloadAnimationStates);
+
+    this.animationStates.addAll(animationStates);
+    this.overlayAnimationStates.addAll(overlayAnimationStates);
+
+    this.animationStates.addAll(kPreloadAnimationStates);
   }
 
   @override
   Future<void> onLoad() async {
     // 普通动画在每个皮肤下都有一套单独的数据
     for (final state in animationStates) {
-      final anim =
-          await GameData.createAnimationFromData('${skinId}_$genre', state);
+      final anim = await GameData.createAnimationFromData(skinId, state);
       addState(state, anim, isOverlay: false);
     }
     // 叠加动画的数据另外保存
@@ -847,7 +848,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     });
     for (final affix in beforeMain) {
       final scriptId = affix['script'];
-      assert(scriptId != null);
+      if (scriptId == null) continue;
       await engine.hetu.invoke(
         'card_script_$scriptId',
         positionalArgs: [this, opponent, affix, mainAffix],
@@ -856,11 +857,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 处理主词条
     final mainScriptId = mainAffix['script'];
-    assert(mainScriptId != null);
-    await engine.hetu.invoke(
-      'card_script_main_$mainScriptId',
-      positionalArgs: [this, opponent, mainAffix],
-    );
+    if (mainScriptId != null) {
+      await engine.hetu.invoke(
+        'card_script_main_$mainScriptId',
+        positionalArgs: [this, opponent, mainAffix],
+      );
+    }
 
     // 最后处理其他词条
     // 其中可能包含一些需求资源或有关主词条造成的伤害等情况的词条
@@ -874,7 +876,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     });
     for (final affix in afterMain) {
       final scriptId = affix['script'];
-      assert(scriptId != null);
+      if (scriptId == null) continue;
       await engine.hetu.invoke(
         'card_script_$scriptId',
         positionalArgs: [this, opponent, affix, mainAffix],

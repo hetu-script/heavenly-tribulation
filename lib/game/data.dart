@@ -118,7 +118,6 @@ abstract class GameData {
         List skinIds = templateData['skins'] ?? [];
         for (final skinId in skinIds) {
           final battleAnimationSpriteSheetId = 'character/battle_$skinId.png';
-          // final tilemapAnimationSpriteSheetId = 'character/tilemap_$skinId.png';
 
           for (final genre in kCultivationGenres) {
             // 每一个皮肤对于每个流派而言有不同的站姿和启动和返回动作
@@ -185,6 +184,9 @@ abstract class GameData {
         animations[animId] = animDataCollection;
         for (final animData in animDataCollection.values) {
           final assetId = animData['spriteSheet'];
+          if (spriteSheets.containsKey(assetId)) {
+            continue;
+          }
           final image = await Flame.images.load('animation/$assetId');
           final sheet = SpriteSheet(
             image: image,

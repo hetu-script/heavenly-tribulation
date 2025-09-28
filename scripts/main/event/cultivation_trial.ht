@@ -1,0 +1,77 @@
+
+const kStartTile = {
+  left: 8,
+  top: 10,
+}
+const kCenterTile = {
+  left: 8,
+  top: 7,
+}
+const kPortal1Tile = {
+  left: 8,
+  top: 4,
+}
+const kPortal2Tile = {
+  left: 4,
+  top: 6,
+}
+const kPortal3Tile = {
+  left: 12,
+  top: 6,
+}
+const kFunction1 = {
+  left: 6,
+  top: 6,
+}
+const kFunction2 = {
+  left: 10,
+  top: 6,
+}
+const kFunction3 = {
+  left: 6,
+  top: 8,
+}
+const kFunction4 = {
+  left: 10,
+  top: 8,
+}
+
+function prepareMap() {
+  
+}
+
+async function onEnterMap() {
+  if (game.flags.cultivationTrial == null) {
+    game.flags.cultivationTrial = {}
+    Dialog.pushBackground('black.png')
+    Dialog.pushTask(() {
+      prepareMap()
+      World.lightUpAllTiles()
+      Player.setTo(kStartTile.left, kStartTile.top, worldId: world.id, direction: 'north')
+      Game.showHeroInfo()
+    })
+    Dialog.pushDialog('cultivation_trial_intro_1')
+    Dialog.popBackground(isFadeOut: true)
+    await Dialog.execute()
+  } else {
+
+  }
+}
+
+async function onAfterMove(terrain) {
+  
+}
+
+async function onInteractMapObject(object, terrain) {
+  switch (object.id) {
+    'portal1': {
+      
+    }
+    'portal2': {
+      
+    }
+    'portal3': {
+
+    }
+  }
+}

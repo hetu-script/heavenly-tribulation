@@ -38,16 +38,14 @@ namespace Player {
     }
     engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
-    if (worldId == null || worldId == world.id) {
-      if (direction != null) {
-        assert(kOrthogonalDirections.contains(direction))
-      }
-      World.setCharacterToPosition(hero, left, top, direction: direction)
-      World.moveCameraToMapPosition(left, top, animated: false)
-      World.lightUpAroundTile(left, top, hero.stats.lightRadius)
-      final terrain = getTerrainByWorldPosition(left, top)
-      onWorldEvent('onAfterMove', terrain)
+    if (direction != null) {
+      assert(kOrthogonalDirections.contains(direction))
     }
+    World.setCharacterToPosition(hero, left, top, direction: direction)
+    World.moveCameraToMapPosition(left, top, animated: false)
+    World.lightUpAroundTile(left, top, hero.stats.lightRadius)
+    final terrain = getTerrainByWorldPosition(left, top)
+    onWorldEvent('onAfterMove', terrain)
   }
   
   function setHomeLocation(location, {incurIncident = true}) {

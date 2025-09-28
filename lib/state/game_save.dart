@@ -78,60 +78,93 @@ class GameSavesState with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<SaveInfo> saveGame(String worldId, [String? saveName]) async {
-    late SaveInfo info;
-    if (saveName != null && saves.containsKey(saveName)) {
-      info = saves[saveName]!;
-    } else {
-      saveName ??= DateTime.now().toMeaningfulString(useUnderscore: true);
-      info = await createSaveInfo(worldId, saveName);
-      saves[info.saveName] = info;
+  Future<String?> saveMap(String worldId, [String? saveName]) async {
+    try {
+      final worldJSONData = (GameData.world as HTStruct).toJSON();
+      worldJSONData['id'] = saveName ?? worldId;
+      final worldStringData = json5Encode(worldJSONData, space: 2);
+
+      final directory = await path.getApplicationDocumentsDirectory();
+      final savePath = path.join(directory.path, engine.name, 'save',
+          '$saveName$kGameSaveFileExtension$kWorldSaveFilePostfix');
+
+      IOSink sink;
+      final saveFile = File(savePath);
+      if (!saveFile.existsSync()) {
+        saveFile.createSync(recursive: true);
+      }
+      sink = saveFile.openWrite();
+      sink.write(worldStringData);
+      await sink.flush();
+      await sink.close();
+
+      return savePath;
+    } catch (e) {
+      engine.error(e.toString());
+
+      return null;
     }
-    engine.debug('保存游戏至：[${info.savePath}]');
-    info.currentWorldId = worldId;
+  }
 
-    final gameJSONData = (GameData.game as HTStruct).toJSON();
-    final gameStringData = json5Encode(gameJSONData, space: 2);
+  Future<SaveInfo?> saveGame(String worldId, [String? saveName]) async {
+    try {
+      late SaveInfo info;
+      if (saveName != null && saves.containsKey(saveName)) {
+        info = saves[saveName]!;
+      } else {
+        saveName ??= DateTime.now().toMeaningfulString(useUnderscore: true);
+        info = await createSaveInfo(worldId, saveName);
+        saves[info.saveName] = info;
+      }
+      engine.debug('保存游戏至：[${info.savePath}]');
+      info.currentWorldId = worldId;
 
-    IOSink sink;
-    final saveFile1 = File(info.savePath);
-    if (!saveFile1.existsSync()) {
-      saveFile1.createSync(recursive: true);
+      final gameJSONData = (GameData.game as HTStruct).toJSON();
+      final gameStringData = json5Encode(gameJSONData, space: 2);
+
+      IOSink sink;
+      final saveFile1 = File(info.savePath);
+      if (!saveFile1.existsSync()) {
+        saveFile1.createSync(recursive: true);
+      }
+      sink = saveFile1.openWrite();
+      sink.write(gameStringData);
+      await sink.flush();
+      await sink.close();
+
+      final timestamp =
+          saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
+
+      final universeJsonData = (GameData.universe as HTStruct).toJSON();
+      final universeStringData = json5Encode(universeJsonData, space: 2);
+
+      final saveFile2 = File('${info.savePath}$kUniverseSaveFilePostfix');
+      if (!saveFile2.existsSync()) {
+        saveFile2.createSync(recursive: true);
+      }
+      sink = saveFile2.openWrite();
+      sink.write(universeStringData);
+      await sink.flush();
+      await sink.close();
+
+      final historyJsonData = (GameData.history as HTStruct).toJSON();
+      final historyStringData = json5Encode(historyJsonData, space: 2);
+
+      final saveFile3 = File('${info.savePath}$kHistorySaveFilePostfix');
+      if (!saveFile3.existsSync()) {
+        saveFile3.createSync(recursive: true);
+      }
+      sink = saveFile3.openWrite();
+      sink.write(historyStringData);
+      await sink.flush();
+      await sink.close();
+
+      info.timestamp = timestamp;
+
+      return info;
+    } catch (e) {
+      engine.error(e.toString());
+      return null;
     }
-    sink = saveFile1.openWrite();
-    sink.write(gameStringData);
-    await sink.flush();
-    await sink.close();
-
-    final timestamp =
-        saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
-
-    final universeJsonData = (GameData.universe as HTStruct).toJSON();
-    final universeStringData = json5Encode(universeJsonData, space: 2);
-
-    final saveFile2 = File('${info.savePath}$kUniverseSaveFilePostfix');
-    if (!saveFile2.existsSync()) {
-      saveFile2.createSync(recursive: true);
-    }
-    sink = saveFile2.openWrite();
-    sink.write(universeStringData);
-    await sink.flush();
-    await sink.close();
-
-    final historyJsonData = (GameData.history as HTStruct).toJSON();
-    final historyStringData = json5Encode(historyJsonData, space: 2);
-
-    final saveFile3 = File('${info.savePath}$kHistorySaveFilePostfix');
-    if (!saveFile3.existsSync()) {
-      saveFile3.createSync(recursive: true);
-    }
-    sink = saveFile3.openWrite();
-    sink.write(historyStringData);
-    await sink.flush();
-    await sink.close();
-
-    info.timestamp = timestamp;
-
-    return info;
   }
 }

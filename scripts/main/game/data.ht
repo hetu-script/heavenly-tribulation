@@ -23,7 +23,7 @@ let opponent
 let battleFlags
 
 /// 用于限制玩家每个月的互动操作次数，月初会重置
-struct MonthlyActions {
+struct MonthlyActivities {
   constructor {
     // 战斗相关
     this.identifiedEnemyCards = 0 // 鉴定敌人卡牌数量
@@ -51,7 +51,12 @@ struct MonthlyActions {
     this.rented = []
     // 打工过的场地，月底之前不能再次打工
     this.worked = []
+    
+    // 进入过的秘境，在月底之前不能再次进入
+    this.enteredDungeons = []
+
     // 对资源进行买卖会影响价格
+    // 这里保存的除了进行过买卖的地点，还会保存交易的总数量，每次交易都会累加
     this.tradedMaterials = {}
   }
 }
@@ -96,7 +101,7 @@ struct GameData {
 
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
-    this.playerMonthly = MonthlyActions()
+    this.playerMonthly = MonthlyActivities()
     
     // 地牢玩法的数据
     this.dungeon = DungeonFlags()
@@ -144,7 +149,7 @@ function createGame(saveName) {
 }
 
 function resetPlayerMonthlyActivities() {
-  game.playerMonthly = MonthlyActions()
+  game.playerMonthly = MonthlyActivities()
 }
 
 function monthlyActionContains(actionId, targetId) {
@@ -263,7 +268,7 @@ function getHeroId() {
 function setHeroId(id: string) {
   assert(game.characters.containsKey(id))
   if (hero != null) {
-    game.playerMonthly = MonthlyActions()
+    game.playerMonthly = MonthlyActivities()
   }
 
   hero = game.characters[id]

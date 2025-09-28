@@ -144,7 +144,7 @@ abstract class GameUI {
     ),
     appBarTheme: const AppBarTheme(
       centerTitle: true,
-      color: Colors.transparent,
+      backgroundColor: Colors.transparent,
       toolbarHeight: 36,
       iconTheme: iconTheme,
       actionsIconTheme: iconTheme,

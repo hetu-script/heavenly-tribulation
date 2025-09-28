@@ -21,5 +21,7 @@
   "missedHit": "MISS！",
   "immuneDebuff": "辟邪！",
   "staggeringTurn": "踉跄！",
-  "defensePersisted": "防御保持！"
+  "defensePersisted": "防御保持！",
+
+  "wooden_dummy": "木人"
 }

@@ -41,6 +41,7 @@
   "mapSize": "地图大小",
   "timestamp": "日期",
   "saveAs": "另存为",
+  "saveMapAs": "地图另存为",
   "reload": "重新载入",
   "saveSuccessed": "保存成功！",
   "directoryNotEmpty": "保存失败：目录不是空的。",

@@ -39,6 +39,10 @@ class SceneInfo {
 }
 
 class GameDialog with ChangeNotifier, TaskController {
+  static final singleton = GameDialog._();
+
+  GameDialog._();
+
   bool isOpened = false;
 
   /// key是图片的asset路径
@@ -205,14 +209,14 @@ class GameDialog with ChangeNotifier, TaskController {
     bool hideName = false,
     String? icon,
     bool hideIcon = false,
-    String? illustration,
-    bool hideIllustration = false,
+    String? image,
+    bool hideImage = false,
     dynamic interpolations,
   }) {
     character ??=
         isHero ? GameData.hero : GameData.game['characters'][characterId];
     icon ??= hideIcon ? null : character?['icon'];
-    illustration ??= hideIllustration ? null : character?['illustration'];
+    image ??= hideImage ? null : character?['illustration'];
 
     if (hideName) {
       name = '';
@@ -270,7 +274,7 @@ class GameDialog with ChangeNotifier, TaskController {
         'icon': icon,
         'lines': lines,
       },
-      imageId: illustration,
+      imageId: image,
     );
   }
 
@@ -289,12 +293,17 @@ class GameDialog with ChangeNotifier, TaskController {
       pushImage(imageId);
     }
     assert(content != null);
-    final resolved = content is String
-        ? {
-            'lines': [content]
-          }
-        : (content is List ? {'lines': content} : content);
-    assert(resolved is Map || resolved is HTStruct);
+    final resolved = <String, dynamic>{};
+
+    if (content is String) {
+      resolved['lines'] = [content];
+    } else if (content is List) {
+      resolved['lines'] = content;
+    } else if (content is Map || content is HTStruct) {
+      resolved.addAll(content);
+    } else {
+      throw 'Dialog.pushDialogRaw: content must be a String, List<String>, Map or HTStruct. $content';
+    }
     isOpened = true;
     final taskId = 'push_dialog_${randomUID(withTime: true)}';
     resolved['id'] = taskId;

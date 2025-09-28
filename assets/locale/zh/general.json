@@ -79,7 +79,7 @@
   "cityHead": "堂主",
   "siteHead": "总管",
   "productionHead": "执事",
-  "taskHead": "杂役",
+  "taskman": "杂役",
 
   "homeOwner": "家主",
 
@@ -143,7 +143,8 @@
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
-  "savedSuccessfully": "成功保存游戏至：[<yellow>{0}</>]",
+  "savedSuccessfully": "成功保存至：[<yellow>{0}</>]",
+  "saveFailed": "保存失败！",
 
   "enterCultivation": "进入修炼",
   "enterLibrary": "进入功法图录",
@@ -388,8 +389,6 @@
   "scroll": "符箓",
   "scroll2": "符",
   "alchemy": "炼丹",
-  "pill": "丹",
-  "potion": "药",
   "craft": "炼器",
   "divination": "占卜",
   "illusion": "幻术",
@@ -440,6 +439,7 @@
   "hint_dungeonEntrance": "这里是通往<yellow>「洞天秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以直接进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n秘境只会在一年中的特定月份开启。每个秘境的开放月份不同。",
 
   "hint_dungeonNotAvailable": "这里的秘境开启时间是每年的<yellow>{0}月份</>。因此目前无法进入，你还是请回吧。",
+  "hint_dungeonAlreadyEntered": "你这个月已经进入过一次这个秘境了。因此目前无法进入，你还是请回吧。",
 
   "hint_dungeonStatusReset": "就在你打算踏入下一层洞天之时，你忽然发觉之获得的精魄之力已经不知什么时候离开了你。你身上一阵轻松。",
   "hint_exitDungeon_description": "确定要离开洞天吗？离开后将会重置探索进度。",

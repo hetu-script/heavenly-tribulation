@@ -2,12 +2,6 @@
 // import '../game/dialog.ht'
 import '../name/skill/skill.json5' as skillData
 
-const kNonBattleAttributes = [
-  'charisma',
-  'wisdom',
-  'luck',
-]
-
 const kAttributeToGenre = {
   'spirituality': 'spellcraft',
   'dexterity': 'swordcraft',

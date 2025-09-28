@@ -95,6 +95,8 @@ enum StatusCircumstances {
 class BattleScene extends Scene {
   final _focusNode = FocusNode();
 
+  late FpsComponent fps;
+
   late final SpriteComponent2 background;
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -108,8 +110,7 @@ class BattleScene extends Scene {
   final bool isSneakAttack;
   final bool isAutoBattle;
 
-  int turn = 0;
-  int turnCount = 0;
+  int roundCount = 0;
 
   // 先手角色
   late final bool isFirsthand;
@@ -127,9 +128,11 @@ class BattleScene extends Scene {
   final Map<String, dynamic> battleFlags = {};
 
   FutureOr<void> Function()? onBattleStart;
-  FutureOr<void> Function(bool? result)? onBattleEnd;
+  FutureOr<void> Function(bool result, int roundCount)? onBattleEnd;
 
   bool isDetailedHovertip = false;
+
+  final int endBattleAfterRounds;
 
   BattleScene({
     required this.heroData,
@@ -138,6 +141,7 @@ class BattleScene extends Scene {
     this.isAutoBattle = true,
     this.onBattleStart,
     this.onBattleEnd,
+    this.endBattleAfterRounds = 0,
   }) : super(
           context: engine.context,
           id: Scenes.battle,
@@ -241,8 +245,8 @@ class BattleScene extends Scene {
   }
 
   @override
-  void onMount() {
-    super.onMount();
+  void onStart([dynamic arguments = const {}]) {
+    super.onStart();
 
     engine.setCursor(Cursors.normal);
 
@@ -257,6 +261,8 @@ class BattleScene extends Scene {
 
     engine.hetu.assign('enemy', enemyData);
     engine.hetu.assign('battleFlags', battleFlags);
+
+    fps = FpsComponent();
 
     heroDeck = getDeck(heroData);
     enemyDeck = getDeck(enemyData);
@@ -292,8 +298,8 @@ class BattleScene extends Scene {
     );
     world.add(heroDeckZone);
 
-    final heroSkinId = heroData['skin'];
-    final heroGenre = heroData['cultivationFavor'];
+    final String heroSkinId = heroData['skin'];
+    final String heroGenre = heroData['cultivationFavor'];
     final Set<String> heroAnimationStates = {};
     final Set<String> heroOverlayAnimationStates = {};
     for (final card in heroDeck) {
@@ -331,8 +337,7 @@ class BattleScene extends Scene {
       position: GameUI.p1CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       isHero: true,
-      skinId: heroSkinId,
-      genre: heroGenre,
+      skinId: '${heroSkinId}_$heroGenre',
       animationStates: heroAnimationStates,
       overlayAnimationStates: heroOverlayAnimationStates,
       data: heroData,
@@ -349,8 +354,8 @@ class BattleScene extends Scene {
     );
     world.add(enemyDeckZone);
 
-    final enemySkinId = enemyData['skin'];
-    final enemyGenre = enemyData['cultivationFavor'];
+    final String enemySkinId = enemyData['skin'];
+    final String enemyGenre = enemyData['cultivationFavor'];
     final Set<String> enemyAnimationStates = {};
     final Set<String> enemyOverlayAnimationStates = {};
     for (final card in enemyDeck) {
@@ -387,8 +392,7 @@ class BattleScene extends Scene {
     enemy = BattleCharacter(
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
-      skinId: enemySkinId,
-      genre: enemyGenre,
+      skinId: '$enemySkinId${enemyGenre.isNotEmpty ? '_$enemyGenre' : ''}',
       animationStates: enemyAnimationStates,
       overlayAnimationStates: enemyOverlayAnimationStates,
       data: enemyData,
@@ -505,23 +509,21 @@ class BattleScene extends Scene {
   }
 
   Future<void> nextTurn() async {
-    if (!battleEnded) {
-      if (!battleStarted) {
-        battleStarted = true;
-        versusBanner.moveTo(
-          duration: 0.3,
-          toPosition: Vector2(center.x, GameUI.hugeIndent),
-        );
-        camera.viewport.add(restartButton);
-        await _onBattleStart();
-      } else if (battleResult == null) {
-        final skipped = await _startTurn();
-        if (skipped) {
-          _startTurn();
-        }
-      } else {
-        _onBattleEnd();
+    if (!battleStarted) {
+      battleStarted = true;
+      versusBanner.moveTo(
+        duration: 0.3,
+        toPosition: Vector2(center.x, GameUI.hugeIndent),
+      );
+      camera.viewport.add(restartButton);
+      await _onBattleStart();
+    } else if (battleResult == null) {
+      final skipped = await _startTurn();
+      if (skipped) {
+        _startTurn();
       }
+    } else {
+      _onBattleEnd();
     }
   }
 
@@ -556,10 +558,6 @@ class BattleScene extends Scene {
 
     engine.hetu.assign('self', currentCharacter);
     engine.hetu.assign('opponent', currentOpponent);
-
-    if (currentCharacter == hero) {
-      turnCount += 1;
-    }
 
     currentCharacter.priority = kTopLayerAnimationPriority;
     currentOpponent.priority = 0;
@@ -625,8 +623,8 @@ class BattleScene extends Scene {
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
 
-    if (heroTurn == isFirsthand) {
-      ++turn;
+    if (currentCharacter == hero) {
+      roundCount += 1;
     }
 
     // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
@@ -634,6 +632,12 @@ class BattleScene extends Scene {
       battleResult = true;
     } else if (hero.life <= 0) {
       battleResult = false;
+    } else if (endBattleAfterRounds > 0 && roundCount >= endBattleAfterRounds) {
+      if (hero.life > enemy.life) {
+        battleResult = true;
+      } else {
+        battleResult = false;
+      }
     }
 
     nextTurnButton.isVisible = true;
@@ -705,7 +709,7 @@ class BattleScene extends Scene {
     nextTurnButton.text = engine.locale('end');
     nextTurnButton.onTap = (_, __) => _endScene();
 
-    final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(turnCount);
+    final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(roundCount);
     final int life = hero.life;
     if (battleResult == true) {
       final replenish = (hero.lifeMax * hpRestoreRate).round();
@@ -720,7 +724,7 @@ class BattleScene extends Scene {
       }
     }
     hero.data['life'] = hero.life;
-    await onBattleEnd?.call(battleResult);
+    await onBattleEnd?.call(battleResult!, roundCount);
 
     context.read<EnemyState>().clear();
   }
@@ -778,7 +782,7 @@ class BattleScene extends Scene {
                             ),
                           );
                         case BattleDropMenuItems.exit:
-                          await onBattleEnd?.call(false);
+                          await onBattleEnd?.call(false, roundCount);
                           context.read<EnemyState>().clear();
                           _endScene();
                       }
@@ -789,5 +793,30 @@ class BattleScene extends Scene {
         ],
       ),
     );
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    fps.update(dt);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    if (engine.config.debugMode || engine.config.showFps) {
+      drawScreenText(
+        canvas,
+        'FPS: ${fps.fps.toStringAsFixed(0)}',
+        config: ScreenTextConfig(
+          textStyle: const TextStyle(fontSize: 20),
+          size: GameUI.size,
+          anchor: Anchor.topCenter,
+          padding: const EdgeInsets.only(top: 40),
+        ),
+      );
+    }
   }
 }

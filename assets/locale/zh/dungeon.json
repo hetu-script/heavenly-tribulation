@@ -39,5 +39,7 @@
 
   "about_dungeon": "什么是秘境？",
   "enter_common_dungeon": "进入无境界秘境",
-  "enter_advanced_dungeon": "进入高等级秘境"
+  "enter_advanced_dungeon": "进入高等级秘境",
+
+  "cultivation_trial_intro_1": "你来到了一处宗门试炼的神秘洞天。在这里，<red>你每次移动时都会消耗体力</>，体力耗尽前如果不能找到出口，将会失败。"
 }

@@ -91,7 +91,7 @@ void main() {
         child: MultiProvider(
           providers: [
             ChangeNotifierProvider(create: (_) => engine),
-            ChangeNotifierProvider(create: (_) => dialog),
+            ChangeNotifierProvider(create: (_) => GameDialog.singleton),
             ChangeNotifierProvider(create: (_) => GameSavesState()),
             ChangeNotifierProvider(create: (_) => EditorToolState()),
             ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),

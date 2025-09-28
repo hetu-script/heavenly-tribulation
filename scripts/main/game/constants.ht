@@ -2,10 +2,13 @@ external abstract class Constants {
   static get races;
   static get worldViews;
   static get personalities;
+  static get attributes;
+  static get nonBattleAttributes;
   static get battleAttributes;
   static get battleCardKinds;
   static get organizationCategories;
   static get cultivationGenres;
+  static get cultivationStyles;
   static get locationCityKinds;
   static get locationSiteKinds;
   static get siteKindsBuildable;

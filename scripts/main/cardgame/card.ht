@@ -88,7 +88,11 @@ struct BattleCard {
     if (mainAffix.rank > this.rank) {
       this.rank = mainAffix.rank
     }
-    this.name = generateSkillName(kind: mainAffix.kind)
+    if (mainAffix.kind != null) {
+      this.name = generateSkillName(kind: mainAffix.kind)
+    } else {
+      this.name = engine.locale('blank_default')
+    }
     this.image = mainAffix.image
     this.genre = mainAffix.genre
     this.category = mainAffix.category
@@ -261,7 +265,8 @@ function _addExtraAffixes(card) {
     // 检索出所有符合条件的额外词条
     let supportAffixes = _getSupportAffixes(card)
     if (supportAffixes.isEmpty) {
-      throw('Found no extra affix for: genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
+      engine.warn('Found no extra affix for: mainAffix: ${card.affixes.first.id} genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
+      break
     }
 
     let affix = Object.create(random.nextIterable(supportAffixes))
