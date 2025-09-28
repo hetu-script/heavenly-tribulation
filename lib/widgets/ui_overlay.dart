@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
+import 'package:heavenly_tribulation/widgets/location/functional/alchemy.dart';
 import 'package:heavenly_tribulation/widgets/location/functional/workshop.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
@@ -241,10 +242,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               child: CharacterMemory(character: hero, isHero: true),
             ),
           );
-        case ViewPanels.workbench:
-          panels.add(WorkbenchDialog());
         case ViewPanels.characterQuest:
           panels.add(QuestView(character: hero));
+        case ViewPanels.workbench:
+          panels.add(WorkbenchDialog());
+        case ViewPanels.alchemy:
+          panels.add(AlchemyDialog());
       }
     }
 

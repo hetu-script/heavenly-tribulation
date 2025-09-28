@@ -23,6 +23,7 @@ enum DebugMenuItems {
   debugMerchant,
   debugMaterialMerchant,
   debugWorkbench,
+  debugAlchemy,
   debugCompanion,
   debugBattle,
   debugTribulation,
@@ -395,6 +396,7 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugMaterialMerchant'):
                     DebugMenuItems.debugMaterialMerchant,
                 engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
+                engine.locale('debugAlchemy'): DebugMenuItems.debugAlchemy,
                 '___2': null,
                 engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
                 engine.locale('debugBattle'): DebugMenuItems.debugBattle,
@@ -479,6 +481,8 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                   case DebugMenuItems.debugWorkbench:
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+                  case DebugMenuItems.debugAlchemy:
+                    context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
                   case DebugMenuItems.debugCompanion:
                     final companion = engine.hetu.invoke('Character');
                     engine.hetu.invoke(
@@ -543,7 +547,12 @@ class _DebugButtonState extends State<DebugButton> {
                     GameLogic.showTribulation(levelMin + 5, targetRank);
                   case DebugMenuItems.debugImmortalityTrial:
                     engine.clearAllCachedScene(except: Scenes.mainmenu);
-                    GameData.game['flags']['cultivationTrial'] = null;
+                    GameData.game['flags']['cultivationTrial'] = {
+                      'difficulty': 0,
+                      'introCompleted': false,
+                      'buildCompleted': false,
+                      'room': 0,
+                    };
                     engine.pushScene(
                       'cultivation_trial_1',
                       constructorId: Scenes.worldmap,

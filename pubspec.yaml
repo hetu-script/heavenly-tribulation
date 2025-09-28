@@ -30,7 +30,8 @@ dependencies:
   samsara:
     path: ../samsara-engine
 
-  fluent_ui: 4.12.0
+  fluent_ui:
+    path: ../fluent_ui
 
   # fluent_ui:
   #   path: ../fluent_ui

@@ -252,11 +252,10 @@ packages:
   fluent_ui:
     dependency: "direct main"
     description:
-      name: fluent_ui
-      sha256: "8645eabacb46bfc9632fadc6e106756cdc6f2a4efb5a4fed4410bd3131306fe8"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.12.0"
+      path: "../fluent_ui"
+      relative: true
+    source: path
+    version: "4.13.0"
   flutter:
     dependency: "direct main"
     description: flutter

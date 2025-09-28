@@ -20,6 +20,27 @@ function addOverlaySprite(tilePosition, overlaySprite) {
   World.updateTerrainOverlaySprite(tilePosition.left, tilePosition.top)
 }
 
+function addSwitch(tilePosition, {
+    objectId,
+    hoverContent,
+    isOn = false,
+    useCustomLogic = false,
+  }) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: isOn ? 'object/switchOn.png' : 'object/switchOff.png',
+  }
+  final object = ObjectSwitch(
+    id: objectId,
+    hoverContent: hoverContent,
+    isOn: isOn,
+    useCustomLogic: useCustomLogic,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
 function addPortal(tilePosition, {
     objectId,
     targetTilePosition,
@@ -193,6 +214,23 @@ function addCardLibraryStele(tilePosition, {
     hoverContent: hoverContent,
     enableCardCraft: enableCardCraft,
     enableScrollCraft: enableScrollCraft,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
+function addAlchemyFurnace(tilePosition, {
+  objectId = 'potionFurnace',
+  hoverContent,
+}) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: 'object/furnace.png',
+  }
+  final object = ObjectAlchemyFurnace(
+    id: objectId,
+    hoverContent: hoverContent,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)

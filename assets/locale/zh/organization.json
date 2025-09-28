@@ -1,4 +1,11 @@
 {
+  "head": "掌门",
+  "governor": "长老",
+  "mayor": "堂主",
+  "manager": "总管",
+  "executor": "执事",
+  "taskman": "杂役",
+
   "wuwei": "无为",
   "cultivation": "修真",
   "immortality": "长生",

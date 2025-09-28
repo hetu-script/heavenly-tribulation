@@ -5,6 +5,8 @@ external abstract class Constants {
   static get attributes;
   static get nonBattleAttributes;
   static get battleAttributes;
+  static get attributeToGenre;
+  static get genreToAttribute;
   static get battleCardKinds;
   static get organizationCategories;
   static get cultivationGenres;
@@ -31,4 +33,6 @@ external abstract class Constants {
   static get terrainKindsLand;
   static get terrainKindsWater;
   static get terrainKindsMountain;
+  static get titleToOrganizationRank;
+  static get rankToOrganizationTitle;
 }

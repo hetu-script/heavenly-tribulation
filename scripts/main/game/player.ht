@@ -44,8 +44,8 @@ namespace Player {
     World.setCharacterToPosition(hero, left, top, direction: direction)
     World.moveCameraToMapPosition(left, top, animated: false)
     World.lightUpAroundTile(left, top, hero.stats.lightRadius)
-    final terrain = getTerrainByWorldPosition(left, top)
-    onWorldEvent('onAfterMove', terrain)
+    // final terrain = getTerrainByWorldPosition(left, top)
+    // onWorldEvent('onAfterMove', terrain)
   }
   
   function setHomeLocation(location, {incurIncident = true}) {

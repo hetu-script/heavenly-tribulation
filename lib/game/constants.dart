@@ -20,6 +20,10 @@ class ConstantsBinding extends HTExternalClass {
         return kNonBattleAttributes;
       case 'Constants.battleAttributes':
         return kBattleAttributes;
+      case 'Constants.attributeToGenre':
+        return kAttributeToGenre;
+      case 'Constants.genreToAttribute':
+        return kGenreToAttribute;
       case 'Constants.battleCardKinds':
         return kBattleCardKinds;
       case 'Constants.organizationCategories':
@@ -70,6 +74,10 @@ class ConstantsBinding extends HTExternalClass {
         return kTerrainKindsWater;
       case 'Constants.terrainKindsMountain':
         return kTerrainKindsMountain;
+      case 'Constants.titleToOrganizationRank':
+        return kTitleToOrganizationRank;
+      case 'Constants.rankToOrganizationTitle':
+        return kRankToOrganizationTitle;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

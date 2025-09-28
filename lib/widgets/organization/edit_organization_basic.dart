@@ -201,7 +201,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                         padding: const EdgeInsets.only(top: 15.0),
                         width: 100.0,
                         child: Text(
-                          '${engine.locale('organizationHeadId')}: ',
+                          '${engine.locale('headId')}: ',
                         ),
                       ),
                       Container(

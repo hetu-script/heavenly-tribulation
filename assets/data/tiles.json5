@@ -217,13 +217,13 @@
       sprite: "object/glowingTile.png",
     },
   },
-  lever: {
-    id: "lever",
-    name: "lever",
-    icon: "assets/images/object/lever.png",
+  switch: {
+    id: "switch",
+    name: "switch",
+    icon: "assets/images/object/switchOff.png",
     type: "overlaySprite",
     overlaySprite: {
-      sprite: "object/lever.png",
+      sprite: "object/switchOff.png",
     },
   },
   pressurePlate: {
@@ -308,6 +308,15 @@
       offsetY: -32.0,
       srcWidth: 32.0,
       srcHeight: 96.0,
+    },
+  },
+  furnace: {
+    id: "furnace",
+    name: "furnace",
+    icon: "assets/images/object/furnace.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/furnace.png",
     },
   },
   stain1: {

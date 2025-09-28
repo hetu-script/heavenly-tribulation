@@ -823,7 +823,7 @@ abstract class GameLogic {
         //   }
         // },
         'onBattleEnd': (bool result, int roundCount) {
-          if (result == true) {
+          if (result) {
             engine.hetu.invoke('levelUp', namespace: 'Player');
             final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
             engine.context.read<NewRankState>().update(rank: rank);
@@ -1583,6 +1583,53 @@ abstract class GameLogic {
     }
 
     switch (location['kind']) {
+      case 'headquarters':
+        dialog.pushSelection('headquarters', [
+          'organizationInformation',
+          'organizationRelationshipDiscourse',
+          'cancel',
+        ]);
+        await dialog.execute();
+        final selected = dialog.checkSelected('headquarters');
+        switch (selected) {
+          case 'organizationInformation':
+            showDialog(
+              context: engine.context,
+              builder: (context) => OrganizationView(
+                organization: organization,
+                mode: isManager
+                    ? InformationViewMode.manage
+                    : InformationViewMode.view,
+              ),
+            );
+          case 'organizationRelationshipDiscourse':
+            {
+              final relationshipSelections = [];
+              final heroOrganizationId = GameData.hero['organizationId'];
+              if (heroOrganizationId == null) {
+                relationshipSelections.add('apply');
+              } else {
+                if (heroOrganizationId == organization['id']) {
+                  relationshipSelections.add('resign');
+                } else {
+                  final heroTitleId = GameData.hero['titleId'];
+                  if (heroTitleId == 'head') {
+                    relationshipSelections.add('formAlliance');
+                    relationshipSelections.add('cancelAlliance');
+                    relationshipSelections.add('declareWar');
+                    relationshipSelections.add('startPeaceTalk');
+                  }
+                }
+              }
+
+              relationshipSelections.add('forgetIt');
+              dialog.pushSelection(
+                  'organizationRelationship', relationshipSelections);
+              await dialog.execute();
+              final selected = dialog.checkSelected('organizationRelationship');
+              switch (selected) {}
+            }
+        }
       case 'cityhall':
         dialog.pushSelection('cityhall', [
           'cityInformation',
@@ -1645,25 +1692,6 @@ abstract class GameLogic {
               useShard: location['development'] > 0,
               priceFactor: location['priceFactor'],
               filter: {'category': 'equipment'},
-            );
-        }
-      case 'headquarters':
-        dialog.pushSelection('headquarters', [
-          'organizationInformation',
-          'cancel',
-        ]);
-        await dialog.execute();
-        final selected = dialog.checkSelected('headquarters');
-        switch (selected) {
-          case 'organizationInformation':
-            showDialog(
-              context: engine.context,
-              builder: (context) => OrganizationView(
-                organization: organization,
-                mode: isManager
-                    ? InformationViewMode.manage
-                    : InformationViewMode.view,
-              ),
             );
         }
       case 'arena':

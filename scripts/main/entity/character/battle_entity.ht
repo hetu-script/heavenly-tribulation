@@ -215,7 +215,7 @@ struct BattleEntity {
     this.mainAttribute = getMainAttribute(this)
 
     // 主流派：御剑、道术、锻体、炼魂、法身
-    this.cultivationFavor = cultivationFavor ?? kAttributeToGenre[this.mainAttribute]
+    this.cultivationFavor = cultivationFavor ?? Constants.attributeToGenre[this.mainAttribute]
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
@@ -332,19 +332,17 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 function setCharacterLife(character, life) {
   let tribulation = false
   if (life < 0) {
+    engine.info('Character ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1
     tribulation = true
-  }
-  character.life = life
-  
-  if (tribulation) {
     character.tribulationCount += 1
   }
+  character.life = life
 
   return tribulation
 }
 
-/// 恢复指定角色指定数量的生命，返回实际恢复的数值
+/// 恢复指定角色指定数量的生命，不会超过当前生命上限，并返回实际恢复的数值
 function characterRestoreLife(character, count) {
   assert(count > 0)
   let original = character.life

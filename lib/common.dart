@@ -145,6 +145,22 @@ const kBattleAttributes = [
   'perception',
 ];
 
+const kAttributeToGenre = {
+  'spirituality': 'spellcraft',
+  'dexterity': 'swordcraft',
+  'strength': 'bodyforge',
+  'willpower': 'vitality',
+  'perception': 'avatar',
+};
+
+const kGenreToAttribute = {
+  'spellcraft': 'spirituality',
+  'swordcraft': 'dexterity',
+  'bodyforge': 'strength',
+  'vitality': 'willpower',
+  'avatar': 'perception',
+};
+
 const kEquipmentMax = 6;
 const kCultivationRankMax = 5;
 
@@ -363,22 +379,6 @@ const kMaterialHerb = 'herb';
 const kMaterialTimber = 'timber';
 const kMaterialStone = 'stone';
 const kMaterialOre = 'ore';
-
-const kAttributeToGenre = {
-  'spirituality': 'spellcraft',
-  'dexterity': 'swordcraft',
-  'strength': 'bodyforge',
-  'willpower': 'vitality',
-  'perception': 'avatar',
-};
-
-const kGenreToAttribute = {
-  'spellcraft': 'spirituality',
-  'swordcraft': 'dexterity',
-  'bodyforge': 'strength',
-  'vitality': 'willpower',
-  'avatar': 'perception',
-};
 
 abstract class AttackType {
   static const unarmed = 'unarmed';
@@ -961,7 +961,7 @@ const kInformationViewCharacterColumns = [
 
 const kInformationViewOrganizationColumns = [
   'name',
-  'organizationHead',
+  'head',
   'category',
   'genre',
   'headquarters',
@@ -1033,3 +1033,21 @@ const kItemCategoryStatusSpirit = 'status_spirit';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';
+
+const kTitleToOrganizationRank = {
+  'taskman': 0,
+  'executor': 1,
+  'manager': 2,
+  'mayor': 3,
+  'governor': 4,
+  'head': 5,
+};
+
+const kRankToOrganizationTitle = {
+  0: 'taskman',
+  1: 'executor',
+  2: 'manager',
+  3: 'mayor',
+  4: 'governor',
+  5: 'head',
+};

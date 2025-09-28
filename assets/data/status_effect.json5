@@ -530,7 +530,7 @@
     script: "vulnerable",
     isNegative: true,
     priority: 1505,
-    callbacks: ["self_turn_end", "self_taking_damage"],
+    callbacks: ["self_turn_start", "self_taking_damage"],
   },
   vulnerable_chi: {
     id: "vulnerable_chi",
@@ -541,7 +541,7 @@
     script: "vulnerable",
     isNegative: true,
     priority: 1504,
-    callbacks: ["self_turn_end", "self_taking_damage"],
+    callbacks: ["self_turn_start", "self_taking_damage"],
   },
   vulnerable_elemental: {
     id: "vulnerable_elemental",
@@ -552,7 +552,7 @@
     script: "vulnerable",
     isNegative: true,
     priority: 1503,
-    callbacks: ["self_turn_end", "self_taking_damage"],
+    callbacks: ["self_turn_start", "self_taking_damage"],
   },
   vulnerable_psychic: {
     id: "vulnerable_psychic",
@@ -563,7 +563,7 @@
     script: "vulnerable",
     isNegative: true,
     priority: 1502,
-    callbacks: ["self_turn_end", "self_taking_damage"],
+    callbacks: ["self_turn_start", "self_taking_damage"],
   },
 
   shield_physical: {

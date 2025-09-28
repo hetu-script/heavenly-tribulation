@@ -6,6 +6,7 @@ enum ViewPanels {
   characterQuest,
   characterDetails,
   workbench,
+  alchemy,
 }
 
 class ViewPanelState with ChangeNotifier {

@@ -11,8 +11,8 @@ const kObjectCategoryEnemy = 'enemy'
 const kObjectCategoryTreasureBox = 'treasureBox'
 const kObjectCategorySpiritWell = 'spiritWell'
 const kObjectCategoryBed = 'bed'
-const kObjectSwitch = 'switch'
-const kObjectCultivation = 'cultivation'
+const kObjectCategorySwitch = 'switch'
+const kObjectCategoryCultivation = 'cultivation'
 const kObjectCategoryCardLibrary = 'cardlibrary'
 // const kObjectCategoryScrollTable = 'scrollTable'
 const kObjectCategoryWorkbench = 'workbench'
@@ -89,6 +89,26 @@ struct ObjectPortal {
       left: targetLeft,
       top: targetTop,
     }
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectSwitch {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    isDiscovered = true,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('switch')
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategorySwitch
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
 
     world.objects[this.id] = this
   }
@@ -295,7 +315,7 @@ struct ObjectCultivation {
     this.name = name ?? engine.locale('enterCultivation')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectCultivation
+    this.category = kObjectCategoryCultivation
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.collectableLight = collectableLight ?? 0
@@ -323,6 +343,26 @@ struct ObjectCardLibrary {
     this.useCustomLogic = useCustomLogic
     this.enableCardCraft = enableCardCraft
     this.enableScrollCraft = enableScrollCraft
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectAlchemyFurnace {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    isDiscovered = true,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('furnace')
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategoryAlchemyFurnace
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
 
     world.objects[this.id] = this
   }

@@ -536,14 +536,14 @@ class WorldMapScene extends Scene {
         ({positionalArgs, namedArgs}) => _updateWorldMapCaptions(),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('World::hintTextOnTile', (
+    engine.hetu.interpreter.bindExternalFunction('World::addHintText', (
         {positionalArgs, namedArgs}) {
       final hexString = positionalArgs[3];
       Color? color;
       if (hexString != null) {
         color = HexColor.fromString(hexString);
       }
-      hintTextOnTile(
+      addHintTextOnTile(
         positionalArgs[0],
         positionalArgs[1],
         positionalArgs[2],
@@ -1106,7 +1106,6 @@ class WorldMapScene extends Scene {
                   map.hero!.isWalkCanceled = true;
                   engine.hetu.invoke('onInteractMapObject',
                       positionalArgs: [objectData, next.data]);
-                  return;
                 }
               }
 
@@ -1139,8 +1138,9 @@ class WorldMapScene extends Scene {
                 size: map.hero!.data['stats']['lightRadius'],
                 // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
               );
-              await engine.hetu.invoke('onWorldEvent',
+              final result = await engine.hetu.invoke('onWorldEvent',
                   positionalArgs: ['onAfterMove', terrain.data]);
+              map.hero!.isWalkCanceled = result ?? false;
               // TODO: 某些情况下，让英雄返回上一格
               // map.objectWalkToPreviousTile(map.hero!);
               if (isMainWorld) {
@@ -1397,7 +1397,7 @@ class WorldMapScene extends Scene {
     }
   }
 
-  void hintTextOnTile(
+  void addHintTextOnTile(
     String text,
     int left,
     int top, {
@@ -1405,10 +1405,11 @@ class WorldMapScene extends Scene {
     Color? color,
   }) {
     final worldPosition = map.tilePosition2TileCenter(left, top);
+    final screenPosition = map.worldPosition2Screen(worldPosition);
 
     super.addHintText(
       text,
-      position: worldPosition,
+      position: screenPosition,
       horizontalVariation: 10.0,
       verticalVariation: 10.0,
       offsetY: 20.0,

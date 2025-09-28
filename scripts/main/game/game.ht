@@ -24,6 +24,13 @@ namespace Game {
 
   external function updateDungeon(dungeon)
 
+  external function tryEnterDungeon({
+    rank,
+    isCommon = true,
+    dungeonId = 'dungeon_1',
+    pushScene = true,
+  })
+
   external function characterAllocateSkills(character, {rejuvenate = false} )
 
   external function hideNpc(id)
@@ -65,10 +72,7 @@ namespace Game {
     filter,
   })
 
-  external function tryEnterDungeon({
-    rank,
-    isCommon = true,
-    dungeonId = 'dungeon_1',
-    pushScene = true,
-  })
+  external function showWorkbench()
+
+  external function showAlchemy()
 }

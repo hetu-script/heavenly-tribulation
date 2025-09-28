@@ -7,11 +7,11 @@ const kSpriteCity = 'object/city.png';
 const kSpriteDungeon = 'object/dungeon.png';
 
 const kSpriteArray = 'object/portalArray.png';
-const kSpriteDungeonLever = 'object/lever.png';
-const kSpriteDungeonLeverOn = 'object/leverOn.png';
+const kSpriteSwitch = 'object/switchOff.png';
+const kSpriteSwitchOn = 'object/switchOn.png';
 const kSpriteTreasureBox = 'object/treasureBox.png';
 const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
-const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
+const kSpriteGlowingTile = 'object/glowingTile.png';
 
 const kTerrainKindVoid = 'void';
 const kTerrainKindPlain = 'plain';

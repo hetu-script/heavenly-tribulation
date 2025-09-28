@@ -69,17 +69,17 @@ class LocationPanel extends StatelessWidget {
 
       String title;
       if (currentLocation['category'] == 'city') {
-        title = engine.locale('cityHead');
+        title = engine.locale('mayor');
       } else {
         final kind = currentLocation['kind'];
         if (kind == 'headquarters') {
-          title = engine.locale('organizationHead');
+          title = engine.locale('head');
         } else if (kind == 'cityhall') {
-          title = engine.locale('cityHead');
+          title = engine.locale('mayor');
         } else if (kind == 'home') {
           title = engine.locale('homeOwner');
         } else {
-          title = engine.locale('siteHead');
+          title = engine.locale('manager');
         }
       }
 

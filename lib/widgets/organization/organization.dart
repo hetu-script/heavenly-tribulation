@@ -115,8 +115,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                        '${engine.locale('organizationHead')}: ${_headData['name']}'),
+                    Text('${engine.locale('head')}: ${_headData['name']}'),
                     Text(
                         '${engine.locale('headquarters')}: ${_headquarters['name']}'),
                     Text(

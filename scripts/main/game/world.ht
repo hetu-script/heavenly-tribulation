@@ -38,7 +38,7 @@ namespace World {
   
   external function updateWorldMapLocations()
 
-  external function hintTextOnTile(text, left, top, [color])
+  external function addHintText(text, left, top, [color])
 
   external function promptTextBanner(text)
 

@@ -32,10 +32,10 @@ class MainMenuScene extends Scene {
       engine.hetu.invoke(
         'generateHero',
         namespace: 'Debug',
-        namedArgs: {
-          'level': 10,
-          'rank': 1,
-        },
+        // namedArgs: {
+        //   'level': 10,
+        //   'rank': 1,
+        // },
       );
     } else {
       engine.hetu.invoke('rejuvenate', namespace: 'Player');

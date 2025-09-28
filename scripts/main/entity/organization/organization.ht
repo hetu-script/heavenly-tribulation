@@ -1,6 +1,40 @@
 import '../achievements.ht'
 
-const _kHeadRank = 80
+const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
+
+/// 门派外交关系数据
+/// 外交关系必然会在双方的数据中同时创建
+struct Diplomacy {
+  constructor ({
+    organizationId,
+    type = 'neutral', // neutral | ally | enemy,
+    score = 0,
+  }) {
+    assert(['neutral', 'ally', 'enemy'].contains(type))
+
+    this.organizationId = organizationId
+    this.timestamp = game.timestamp
+    this.type = type
+    this.score = score,
+  }
+}
+
+/// 门派成员数据，包含了职级、头衔和贡献值
+struct MemberData {
+  constructor ({
+    id,
+    rank = 0,
+    title = 'taskman',
+    contribution = 0,
+  }) {
+    assert(this.rank >= 0)
+
+    this.id = id
+    this.rank = rank
+    this.title = title
+    this.contribution = contribution
+  }
+}
 
 /// 创建一个门派
 /// [category] 决定了经营类型
@@ -68,6 +102,10 @@ struct Organization {
 
     // 门派的历史
     this.experienced = []
+    
+    // 门派外交信息
+    // key 是另一个门派的 id, 值是一个结构体数组
+    this.diplomacies = {}
 
     const head = game.characters[headId]
     const incidentContent = engine.locale('organizationCreate', interpolations: [
@@ -87,7 +125,7 @@ struct Organization {
     } else {
       engine.debug(incidentContent)
     }
-    addCharacterToOrganization(head, this, title: 'organizationHead', incurIncident: incurIncident)
+    addCharacterToOrganization(head, this, title: 'head', incurIncident: incurIncident)
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -153,8 +191,8 @@ function getOrganizationMemberIdsOfRank(organization, rank) {
   assert(rank >= 0 && rank <= organization.jobRankMax)
   const ids = []
   for (const id in organization.members.keys) {
-    const memberRankData = organization.members[id]
-    if (memberRankData.rank == rank) {
+    const memberData = organization.members[id]
+    if (memberData.rank == rank) {
       ids.add(id)
     }
   }
@@ -179,15 +217,17 @@ function addCharacterToOrganization(character, organization, {title = 'taskman',
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  // 此时还没有职位，职位数据以空对象 {} 代替
-  organization.members[character.id] = {
-    id: character.id,
-  }
-  // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
-  character.organizationId = organization.id
-  
   assert(title != null)
   setCharacterTitle(character, title)
+  // 职位数据
+  organization.members[character.id] = MemberData(
+    id: character.id,
+    rank: 0,
+    title: title,
+    contribution: 0,
+  )
+  // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
+  character.organizationId = organization.id
 
   if (incurIncident) {
     const incidentContent = engine.locale('organizationEnlist', interpolations: [
@@ -232,24 +272,6 @@ function getOrganizations([ids]) {
     return game.organizations.values
   }
 }
-
-// function increaseOrganizationDevelopment(organization, { incurIncident = true }) {
-//   if (organization.development <= kOrganizationDevelopmentMax) {
-//     ++organization.development
-//   } else {
-//     engine.warn('组织 ${organization.id} 的发展度（${organization.development}）已达到或超过最大值。')
-//   }
-  
-//   const incidentContent = engine.locale('organizationDeveloped', interpolations: [
-//     organization.name,
-//     organization.development,
-//   ])
-//   Incident(
-//     organizationId: organization.id,
-//     message: incidentContent,
-//     isGlobal: true,
-//   )
-// }
 
 function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   if (terrain.nationId == null) return
@@ -340,29 +362,15 @@ function addTerrainToOrganization(terrain, organization, { updateWorldMap = fals
   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
 }
 
-// /// 将某个功法记录在这个组织的 skillRecords 中
-// /// 根据技能来生成一个道具，也就是技能书
-// function organizationRecordSkill(organization, skill) {
-//   assert(organization != null)
-//   assert(skill != null)
-//   organization.skills[skill.id] = book
-
-//   const incidentContent = engine.locale('organizationRecordSkill', interpolations: [
-//     organization.name,
-//     skill.name,
-//   ])
-//   Incident(
-//     organizationId: organization.id,
-//     message: incidentContent,
-//   )
-// }
-
-// function organizationRecordSkill({organization, rank, skill, requirement}) {
-//   assert(organization != null)
-//   rank ??= -1
-//   assert(skill != null)
-//   organization.skills[rank].add({
-//     requirement,
-//     skill: skill.clone(),
-//   })
-// }
+function createDiplomacy(organization1, organization2, { type = 'neutral', score = 0 }) {
+  organization1.diplomacies[organization2.id] = Diplomacy(
+    organizationId: organization2.id,
+    type: type,
+    score: score,
+  )
+  organization2.diplomacies[organization1.id] = Diplomacy(
+    organizationId: organization1.id,
+    type: type,
+    score: score,
+  )
+}

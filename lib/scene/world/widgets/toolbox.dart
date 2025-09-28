@@ -285,6 +285,11 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
+                                    'furnace',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
                                     'stain1',
                                     selectedItem: item,
                                   ),

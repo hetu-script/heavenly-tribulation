@@ -31,6 +31,10 @@ const kNormalRooms = {
 
 const kStartTile = {
   left: 8,
+  top: 9,
+}
+const kReturnTile = {
+  left: 8,
   top: 10,
 }
 const kCenterTile = {
@@ -275,7 +279,7 @@ function addPortalByNextRoomType(nextRoomType) {
 
 function prepareMap() {
   engine.info('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
-  game.dungeon.needRebuild = false
+  game.dungeon.buildCompleted = true
   game.dungeon.isElite = false
   game.dungeon.isBoss = false
   /// 清理所有的地块贴图和临时对象，还原到空地图
@@ -533,9 +537,7 @@ async function onEnterMap() {
     Game.updateDungeon(null)
     Game.popScene(clearCache: true)
     return
-  } else {
-    if (!game.dungeon.needRebuild) return
-    
+  } else if (!game.dungeon.buildCompleted) {
     Dialog.pushBackground('black.png')
     Dialog.pushTask(() {
       prepareMap()
@@ -570,7 +572,7 @@ async function onInteractMapObject(object, terrain) {
     'portal1': {
       if (game.dungeon.room < game.dungeon.roomMax) {
         game.dungeon.selectedPortal = object.id
-        game.dungeon.needRebuild = true
+        game.dungeon.buildCompleted = false
         game.dungeon.room += 1
         onEnterMap()
       } else {
@@ -581,7 +583,7 @@ async function onInteractMapObject(object, terrain) {
       if (game.dungeon.room < game.dungeon.roomMax) {
         assert(game.dungeon.room < game.dungeon.roomMax)
         game.dungeon.selectedPortal = object.id
-        game.dungeon.needRebuild = true
+        game.dungeon.buildCompleted = false
         game.dungeon.room += 1
         onEnterMap()
       } else {
@@ -594,7 +596,7 @@ async function onInteractMapObject(object, terrain) {
       if (game.dungeon.room < game.dungeon.roomMax) {
         assert(game.dungeon.room < game.dungeon.roomMax)
         game.dungeon.selectedPortal = object.id
-        game.dungeon.needRebuild = true
+        game.dungeon.buildCompleted = false
         game.dungeon.room += 1
         onEnterMap()
       } else {
@@ -626,7 +628,7 @@ async function onInteractMapObject(object, terrain) {
               Dialog.pushDialog('hint_dungeonStatusReset')
               await Dialog.execute()
             }
-            game.dungeon.needRebuild = true
+            game.dungeon.buildCompleted = false
             game.dungeon.room = 0
             game.dungeon.level += 1
             onEnterMap()

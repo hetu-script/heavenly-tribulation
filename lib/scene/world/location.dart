@@ -188,7 +188,7 @@ class LocationScene extends Scene {
     exit.onTap = (_, __) async {
       final result = await engine.hetu.invoke('onWorldEvent',
           positionalArgs: ['onBeforeExitLocation', location]);
-      if (result == true) return;
+      if (GameLogic.truthy(result)) return;
       final worldId = location['worldId'];
       if (worldId != null) {
         final left = location['worldPosition']['left'];

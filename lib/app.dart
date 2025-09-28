@@ -361,6 +361,16 @@ class _GameAppState extends State<GameApp> {
       context.read<HeroPositionState>().updateDungeon(positionalArgs.first);
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Game::tryEnterDungeon', (
+        {positionalArgs, namedArgs}) {
+      GameLogic.tryEnterDungeon(
+        rank: namedArgs['rank'],
+        isCommon: namedArgs['isCommon'] ?? true,
+        dungeonId: namedArgs['dungeonId'] ?? 'dungeon_1',
+        pushScene: namedArgs['pushScene'] ?? true,
+      );
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction(
         'Game::characterAllocateSkills', ({positionalArgs, namedArgs}) {
       GameLogic.characterAllocateSkills(
@@ -462,20 +472,15 @@ class _GameAppState extends State<GameApp> {
             filter: namedArgs['filter'],
           );
     }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Game::tryEnterDungeon', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showWorkbench', (
         {positionalArgs, namedArgs}) {
-      GameLogic.tryEnterDungeon(
-        rank: namedArgs['rank'],
-        isCommon: namedArgs['isCommon'] ?? true,
-        dungeonId: namedArgs['dungeonId'] ?? 'dungeon_1',
-        pushScene: namedArgs['pushScene'] ?? true,
-      );
+      engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'Game::showDungeonEntrance', ({positionalArgs, namedArgs}) {},
-        override: true);
+    engine.hetu.interpreter.bindExternalFunction('Game::showAlchemy', (
+        {positionalArgs, namedArgs}) {
+      engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+    }, override: true);
 
     engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 

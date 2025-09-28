@@ -1,6 +1,10 @@
 
 const kStartTile = {
   left: 8,
+  top: 9,
+}
+const kReturnTile = {
+  left: 8,
   top: 10,
 }
 const kCenterTile = {
@@ -37,41 +41,161 @@ const kFunction4 = {
 }
 
 function prepareMap() {
-  
+  game.flags.cultivationTrial.buildCompleted = true
+  /// 清理所有的地块贴图和临时对象，还原到空地图
+  world.objects = {}
+  for (final tile in world.terrains) {
+    tile.isNonEnterable = false
+    tile.overlaySprite = {}
+    tile.objectId = null
+    World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
+  }
+  World.promptTextBanner(engine.locale('cultivation_trial'))
+
+  /// 根据房间填充地图
+  switch (game.flags.cultivationTrial.room) {
+    0: {
+      final portalIds = ['portal1', 'portal2', 'portal3']
+      final p1 = portalIds.random
+      addPortal(
+        kPortal1Tile,
+        objectId: p1,
+        useCustomLogic: true,
+      )
+      portalIds.remove(p1)
+      final p2 = portalIds.random
+      addPortal(
+        kPortal2Tile,
+        objectId: p2,
+        useCustomLogic: true,
+      )
+      portalIds.remove(p2)
+      final p3 = portalIds.first
+      addPortal(
+        kPortal3Tile,
+        objectId: p3,
+        useCustomLogic: true,
+      )
+    }
+    1: {
+      addPortal(
+        kReturnTile,
+        objectId: 'portalReturn',
+        useCustomLogic: true,
+      )
+      addPortal(
+        kPortal1Tile,
+        objectId: 'portalExit',
+        useCustomLogic: true,
+      )
+    }
+    2: {
+      addPortal(
+        kReturnTile,
+        objectId: 'portalReturn',
+        useCustomLogic: true,
+      )
+      addSwitch(
+        kCenterTile,
+        objectId: 'switch1',
+        useCustomLogic: true,
+        isOn: game.flags.cultivationTrial.switchOn == true,
+      )
+    }
+    3: {
+      addPortal(
+        kReturnTile,
+        objectId: 'portalReturn',
+        useCustomLogic: true,
+      )
+      addAlchemyFurnace(
+        kCenterTile,
+      )
+    }
+  }
 }
 
+/// 试炼地图事件
+/// 一共有4个房间：
+/// 0, 初始房间，有三个传送门
+/// 1, 包含一个开关
+/// 2, 包含一个炼丹炉
+/// 3, 包含一个出口，必须先打开开关才能从出口离开
 async function onEnterMap() {
-  if (game.flags.cultivationTrial == null) {
-    game.flags.cultivationTrial = {}
+  if (!game.flags.cultivationTrial.buildCompleted) {
     Dialog.pushBackground('black.png')
     Dialog.pushTask(() {
       prepareMap()
       World.lightUpAllTiles()
-      Player.setTo(kStartTile.left, kStartTile.top, worldId: world.id, direction: 'north')
+      Player.setTo(kCenterTile.left, kStartTile.top, worldId: world.id, direction: 'north')
       Game.showHeroInfo()
     })
-    Dialog.pushDialog('cultivation_trial_intro_1')
     Dialog.popBackground(isFadeOut: true)
+    if (!game.flags.cultivationTrial.introCompleted) {
+      game.flags.cultivationTrial.introCompleted = true
+      Dialog.pushDialog('cultivation_trial_intro_1')
+    }
     await Dialog.execute()
-  } else {
-
   }
 }
 
 async function onAfterMove(terrain) {
-  
+  let failed
+  if (hero.life <= 1) {
+    failed = true
+  }
+  final value = game.flags.cultivationTrial.difficulty + 1
+  setCharacterLife(hero, hero.life - value)
+  Game.updateHero()
+  World.addHintText('${engine.locale('life')} -${value}', terrain.left, terrain.top, Colors.red)
+  if (failed) {
+    Dialog.pushDialog('cultivation_trial_failed')
+    await Dialog.execute()
+    Game.popScene(clearCache: true)
+  }
 }
 
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
+    'portalReturn': {
+      game.flags.cultivationTrial.buildCompleted = false
+      game.flags.cultivationTrial.room = 0
+      onEnterMap()
+    }
     'portal1': {
-      
+      game.flags.cultivationTrial.buildCompleted = false
+      game.flags.cultivationTrial.room = 1
+      onEnterMap()
     }
     'portal2': {
-      
+      game.flags.cultivationTrial.buildCompleted = false
+      game.flags.cultivationTrial.room = 2
+      onEnterMap()
     }
     'portal3': {
-
+      game.flags.cultivationTrial.buildCompleted = false
+      game.flags.cultivationTrial.room = 3
+      onEnterMap()
+    }
+    'portalExit': {
+      if (game.flags.cultivationTrial.switchOn == true) {
+        Dialog.pushDialog('cultivation_trial_exit_succeeded')
+        await Dialog.execute()
+        game.flags.cultivationTrial.succeeded = true
+        Game.popScene(clearCache: true)
+      } else {
+        Dialog.pushDialog('cultivation_trial_exit_hint')
+        await Dialog.execute()
+      }
+    }
+    'switch1': {
+      if (!object.isOn) {
+        onInteractSwitch(object, terrain)
+        game.flags.cultivationTrial.switchOn = true
+      } else {
+        Dialog.pushDialog('switch_already_on')
+        await Dialog.execute()
+      }
     }
   }
 }

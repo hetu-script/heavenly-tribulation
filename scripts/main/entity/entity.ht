@@ -2,22 +2,6 @@
 // import '../game/dialog.ht'
 import '../name/skill/skill.json5' as skillData
 
-const kAttributeToGenre = {
-  'spirituality': 'spellcraft',
-  'dexterity': 'swordcraft',
-  'strength': 'bodyforge',
-  'willpower': 'vitality',
-  'perception': 'avatar',
-}
-
-const kGenreToAttribute = {
-  'spellcraft': 'spirituality',
-  'swordcraft': 'dexterity',
-  'bodyforge': 'strength',
-  'vitality': 'willpower',
-  'avatar': 'perception',
-}
-
 const kRaceNames = [
   'xianzu',
   'fanzu',

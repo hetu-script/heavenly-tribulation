@@ -6,6 +6,7 @@
   "debugMerchant": "交易测试",
   "debugMaterialMerchant": "资源交易测试",
   "debugWorkbench": "工坊测试",
+  "debugAlchemy": "丹炉测试",
   "debugAutoAllocateSkills": "自动加点测试",
   "debugCompanion": "伙伴测试",
   "debugBattle": "战斗测试",

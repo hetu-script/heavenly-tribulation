@@ -186,7 +186,7 @@ function generateReward({probability: {}, entity}) {
     rewards.add(equipment)
   }
   if (rewardCardpack) {
-    let genre = kAttributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
+    let genre = Constants.attributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
     final cardpack = Cardpack(rank: rank, genre: genre)
     rewards.add(cardpack)
   }
@@ -955,7 +955,7 @@ async function onInteractMapObject(object, terrain) {
       kObjectCategoryPortal: onInteractPortal(object)
       kObjectCategoryWorldPortal: onInteractWorldPortal(object)
       kObjectCategoryTreasureBox: onInteractTreasureBox(object, terrain)
-      kObjectSwitch: onInteractSwitch(object, terrain)
+      kObjectCategorySwitch: onInteractSwitch(object, terrain)
       kObjectCategoryBed: onInteractBed(object)
       kObjectCategoryCharacter: {
         final character = game.characters[object.characterId]
@@ -966,13 +966,12 @@ async function onInteractMapObject(object, terrain) {
         assert(object.battleEntity != null)
         onInteractEnemy(object.battleEntity)
       }
-      kObjectCultivation: onInteractCultivationStele(object)
+      kObjectCategoryCultivation: onInteractCultivationStele(object)
       kObjectCategoryCardLibrary: onInteractCardLibraryStele(object)
-      kObjectCategoryMerchant: {
-        print(object)
-        Game.showMerchant(object.merchant, useShard: object.useShard)
-      }
+      kObjectCategoryMerchant: Game.showMerchant(object.merchant, useShard: object.useShard)
       kObjectCategorySpiritWell: onInteractSpiritWell(object)
+      kObjectCategoryWorkbench: Game.showWorkbench()
+      kObjectCategoryAlchemyFurnace: Game.showAlchemy()
       default: engine.error('不支持的地图交互物品类型: ${object.category}')
     }
   }
@@ -986,6 +985,10 @@ async function onInteractEnemy(battleEntity) {
 }
 
 async function onInteractPortal(object) {
+  if (object.targetTilePosition == null || object.targetTilePosition.left == null || object.targetTilePosition.top == null) {
+    engine.error('传送点 ${object.id} 的目标位置未定义！')
+    return
+  }
   World.moveCameraToMapPosition(object.targetTilePosition.left, object.targetTilePosition.top, animated: false)
   engine.play('magic-smite-6012.mp3')
   await Future.delayed(0.5)
@@ -1023,12 +1026,17 @@ async function onInteractTreasureBox(object, terrain) {
 }
 
 async function onInteractSwitch(object, terrain) {
-  if (object.isOn) return
+  if (object.isOn) {
+    Dialog.pushDialog('hint_switch_alreadyOn', isHero: true)
+    Dialog.execute()
+    return
+  }
 
   object.isOn = true
   engine.play('stone-push-37412.mp3')
-  Dialog.localeLines('hint_switch', isHero: true)
-  terrain.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
+  Dialog.pushDialog('hint_switch', isHero: true)
+  Dialog.execute()
+  terrain.overlaySprite = {sprite: kSpriteSwitchOn} 
   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   
   // final openedRoadTile = getTerrainByWorldPosition(targetTilePosition.left, targetTilePosition.top)

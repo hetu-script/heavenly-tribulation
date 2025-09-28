@@ -247,7 +247,7 @@ class _LocationViewState extends State<LocationView>
                         SizedBox(
                           width: 120.0,
                           height: 35.0,
-                          child: Text('${engine.locale('siteHead')}:'),
+                          child: Text('${engine.locale('manager')}:'),
                         ),
                         Text('${_ownerData?['name'] ?? engine.locale('none')}'),
                       ],
