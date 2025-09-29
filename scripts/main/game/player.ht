@@ -36,7 +36,7 @@ namespace Player {
     if (worldId != null) {
       assert(universe.containsKey(worldId), worldId)
     }
-    engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
+    engine.debug('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (direction != null) {
       assert(kOrthogonalDirections.contains(direction))
@@ -63,9 +63,9 @@ namespace Player {
     entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
   }
 
-  function exhaust(materialId, { amount = 1, incurIncident = true }) -> bool {
+  function exhaust(materialId, { amount = 1 }) -> bool {
     assert(hero != null)
-    return entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
+    return entityExhaust(hero, materialId, amount: amount)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -557,5 +557,16 @@ namespace Player {
       }
     }
     engine.debug('任务「${quest.title}」进度：${quest.stage}')
+  }
+
+  async function enroll(organization, { npcId, title = 'taskman', incurIncident = true }) {
+    assert(hero != null)
+    addCharacterToOrganization(hero, organization, title: title, incurIncident: incurIncident)
+    if (game.flags.hintedJoinedOrganization != true) {
+      game.flags.hintedJoinedOrganization = true;
+      Dialog.pushDialog('hint_organization_join_success',
+          interpolations: [organization.name]);
+      await Dialog.execute();
+    }
   }
 }

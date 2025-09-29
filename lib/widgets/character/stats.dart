@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../engine.dart';
 import '../../state/character.dart';
 import '../../state/hover_content.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../game/logic.dart';
 
 const kStatsItems = [

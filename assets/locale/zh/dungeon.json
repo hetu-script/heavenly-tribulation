@@ -49,6 +49,7 @@
   "switch_already_on": "你已经启动过机关了，不能再重复操作。",
 
   "cultivation_trial_exit": "离开试炼",
-  "cultivation_trial_exit_succeeded": "你成功完成了试炼！",
-  "cultivation_trial_exit_hint": "你似乎被一股无形的力量挡住了，无法离开。\n（或许需要启动某个「机关」才能离开这里……）"
+  "cultivation_trial_exit_hint": "你似乎被一股无形的力量挡住了，无法离开。\n（或许需要启动某个「机关」才能离开这里……）",
+
+  "cultivation_trial_succeeded": "你成功完成了试炼！"
 }

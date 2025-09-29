@@ -1,6 +1,13 @@
 import 'package:samsara/samsara.dart';
 import 'state/game_dialog.dart';
 
+abstract class Cursors {
+  static const normal = 'normal';
+  static const click = 'click';
+  static const drag = 'drag';
+  static const press = 'press';
+}
+
 // TODO: 将读取config挪到GameData中
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(

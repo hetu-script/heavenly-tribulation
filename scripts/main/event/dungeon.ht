@@ -278,7 +278,7 @@ function addPortalByNextRoomType(nextRoomType) {
 }
 
 function prepareMap() {
-  engine.info('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
+  engine.debug('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
   game.dungeon.buildCompleted = true
   game.dungeon.isElite = false
   game.dungeon.isBoss = false
@@ -562,7 +562,7 @@ async function promptExit() {
   await Dialog.execute()
   final selected = Dialog.checkSelected('exitDungeon')
   if (selected == 'exitDungeon') {
-    engine.info('地牢已经完成，准备退出')
+    engine.debug('地牢已经完成，准备退出')
     Game.popScene(clearCache: true)
   }
 }
@@ -587,7 +587,7 @@ async function onInteractMapObject(object, terrain) {
         game.dungeon.room += 1
         onEnterMap()
       } else {
-        engine.info('即将重玩当前地牢，当前境界：${game.dungeon.rank}')
+        engine.debug('即将重玩当前地牢，当前境界：${game.dungeon.rank}')
         Game.tryEnterDungeon(rank: game.dungeon.rank, pushScene: false)
         onEnterMap()
       }
@@ -612,7 +612,7 @@ async function onInteractMapObject(object, terrain) {
           await Dialog.execute()
           final selected = Dialog.checkSelected('enterNextDungeonLevel')
           if (selected == 'enterNextDungeonLevel') {
-            engine.info('将进入下一层地牢，等级：${game.dungeon.level}')
+            engine.debug('将进入下一层地牢，等级：${game.dungeon.level}')
             let hasStatusSpirit = false
             for (final itemId of hero.equipments) {
               if (itemId == null) continue
@@ -646,7 +646,7 @@ async function onInteractMapObject(object, terrain) {
             await Dialog.execute()
             final selected = Dialog.checkSelected('enterNextDungeonRank')
             if (selected == 'enterNextDungeonRank') {
-              engine.info('即将进入下一个境界的地牢，当前境界：${game.dungeon.rank}')
+              engine.debug('即将进入下一个境界的地牢，当前境界：${game.dungeon.rank}')
               Game.tryEnterDungeon(isCommon: false, pushScene: false)
               onEnterMap()
             }
@@ -661,7 +661,7 @@ async function onInteractMapObject(object, terrain) {
         object.battleEntity,
         onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
           if (battleResult) {
-            engine.info('战斗胜利，添加出口')
+            engine.debug('战斗胜利，添加出口')
             game.dungeon.battleResult = true
             game.dungeon.battleEntity = object.battleEntity
             let tile = getTerrainByWorldPosition(kCenterTile.left, kCenterTile.top)
@@ -676,7 +676,7 @@ async function onInteractMapObject(object, terrain) {
               kNormalRooms[game.dungeon.room + 1]
             addPortalByNextRoomType(nextRoomType)
           } else {
-            engine.info('战斗失败，准备退出地牢')
+            engine.debug('战斗失败，准备退出地牢')
             game.dungeon.battleResult = false
           }
         }

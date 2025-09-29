@@ -9,7 +9,7 @@ import '../common.dart';
 import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
 import '../ui/int_editor_field.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
 import 'edit_character_flags.dart';

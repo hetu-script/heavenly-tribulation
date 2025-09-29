@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../game/data.dart';
@@ -23,17 +25,20 @@ class HeroPassivesDescriptionUpdate with ChangeNotifier {
 
 class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
+  bool prebattlePreventClose = false;
   dynamic data;
   void Function()? onBattleStart;
-  void Function(bool, int)? onBattleEnd;
+  FutureOr<void> Function(bool, int)? onBattleEnd;
 
   void show(
     dynamic data, {
+    bool prebattlePreventClose = false,
     void Function()? onBattleStart,
-    void Function(bool, int)? onBattleEnd,
+    FutureOr<void> Function(bool, int)? onBattleEnd,
   }) {
     assert(data != null);
     showPrebattle = true;
+    prebattlePreventClose = prebattlePreventClose;
     this.data = data;
     this.onBattleStart = onBattleStart;
     this.onBattleEnd = onBattleEnd;
@@ -52,8 +57,9 @@ class EnemyState with ChangeNotifier {
   }
 
   void clear() {
-    data = null;
     showPrebattle = false;
+    prebattlePreventClose = false;
+    data = null;
     onBattleStart = null;
     onBattleEnd = null;
     notifyListeners();

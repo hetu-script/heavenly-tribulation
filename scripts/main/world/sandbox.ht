@@ -430,7 +430,10 @@ function createSandboxWorld({
     let availableLocations = game.locations.values.where((data) => data.category == 'city' && data.organizationId == null).toList()
     assert(availableLocations.isNotEmpty)
     const location = random.nextIterable(availableLocations)
-    const head = Character(birthTimestamp: createBirthTimestamp(min: 40, max: 70))
+    const head = Character(
+      birthTimestamp: createBirthTimestamp(min: 40, max: 70),
+      rank: kCultivationRankMax,
+    )
     head.locationId = location.id
     assert(location.worldPosition != null)
     head.worldPosition = Object.create(location.worldPosition)

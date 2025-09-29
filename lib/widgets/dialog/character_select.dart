@@ -8,7 +8,7 @@ import '../ui/menu_builder.dart';
 import '../character/details.dart';
 import '../character/memory.dart';
 import '../../game/ui.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../game/logic.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';

@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../game/logic.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../ui/close_button2.dart';
 
 class EditRankLevelSliderDialog extends StatefulWidget {

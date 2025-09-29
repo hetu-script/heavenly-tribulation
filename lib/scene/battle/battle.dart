@@ -23,7 +23,6 @@ import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../../state/states.dart';
-import '../../common.dart';
 
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
@@ -713,7 +712,7 @@ class BattleScene extends Scene {
     final int life = hero.life;
     if (battleResult == true) {
       final replenish = (hero.lifeMax * hpRestoreRate).round();
-      engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
+      engine.debug('战斗结果：[$battleResult], 角色生命恢复：$replenish');
       final int newLife = life + replenish;
       hero.setLife(newLife);
     } else {

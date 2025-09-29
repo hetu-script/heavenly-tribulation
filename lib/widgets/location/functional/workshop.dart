@@ -11,7 +11,7 @@ import '../../../game/data.dart';
 import '../../../game/logic.dart';
 import '../../../state/view_panels.dart';
 import '../../../state/hover_content.dart';
-import '../../../common.dart';
+import '../../../game/common.dart';
 import '../../ui/close_button2.dart';
 import '../../ui/menu_builder.dart';
 import '../../character/inventory/equipment_bar.dart';
@@ -248,7 +248,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                     engine.locale('material_requirements')),
                               ),
                               MaterialList(
-                                height: 120.0,
+                                height: 128.0,
                                 requirements: _selectedCraftItemRequirements,
                                 entity: GameData.hero,
                               ),

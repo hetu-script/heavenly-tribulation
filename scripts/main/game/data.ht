@@ -42,8 +42,10 @@ struct MonthlyActivities {
     this.consulted = []
     this.tutored = []
 
-    // 组织的加入，招募和开除
-    this.applied = []
+    // 组织的加入
+    this.enrolled = []
+
+    // 门派成员的招募
     this.recruited = []
 
     // 对某个建筑操作
@@ -122,9 +124,13 @@ struct GameData {
     // key 是师徒传承的 id，值是一个结构体数组
     // 值的 key 是人物的 id，值是 SectMember 数据，含角色的 generation 和 peer
     this.sects = {}
+    // 门派之间的外交关系
+    // key 是外交关系的 id，值是 Diplomacy 数据
+    // 在门派自己的数据中保存的则是对方门派和外交关系 id 的对应关系表
+    this.diplomacies = {}
     
     // 加载到当前存档的一些MOD数据
-    this.itemPrototypes = {}
+    this.prototypes = {}
     this.battleCards = {}
     this.battleCardAffixes = {}
     this.passives = {}
@@ -196,12 +202,12 @@ function loadGameFromJsonData({
   world = universe[game.currentWorldId]
   assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
   
-  engine.info('当前世界: [${world.id}]')
+  engine.debug('当前世界: [${world.id}]')
 
   if (game.heroId != null) {
     assert(game.characters.containsKey(game.heroId))
     hero = game.characters[game.heroId]
-    engine.info('当前英雄: [${hero.name}]')
+    engine.debug('当前英雄: [${hero.name}]')
   }
 }
 
@@ -228,19 +234,19 @@ function getMapComponents() {
 function createMapComponent(componentData, left, top) {
   assert(componentData.entityType == null)
   final component = Object.fromJSON(componentData)
-  engine.info('添加显示组件：[${component.id}]')
+  engine.debug('添加显示组件：[${component.id}]')
   component.worldPosition = { left, top }
   world.components.add(component)
   return component
 }
 
 function removeMapComponentByPosition(left, top) {
-  engine.info('移除显示组件，位于: [${left}, ${top}]')
+  engine.debug('移除显示组件，位于: [${left}, ${top}]')
   world.components.removeWhere((c) => c.worldPosition.left == left && c.worldPosition.top == top)
 }
 
 function removeMapComponentById(id) {
-  engine.info('移除显示组件，id: [${id}]')
+  engine.debug('移除显示组件，id: [${id}]')
   world.components.removeWhere((c) => c.id == id)
 }
 

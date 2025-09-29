@@ -16,7 +16,6 @@ import '../common.dart';
 import '../../engine.dart';
 import '../game_dialog/game_dialog_content.dart';
 import 'card_library.dart';
-import '../../common.dart';
 
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。

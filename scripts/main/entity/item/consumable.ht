@@ -139,8 +139,7 @@ struct Potion {
           throw('Found no support affix for potion. rank: ${this.rank}')
         }
         
-        final affixRawData = random.nextIterable(supportAffixes)
-        final affix = Object.create(affixRawData)
+        final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()

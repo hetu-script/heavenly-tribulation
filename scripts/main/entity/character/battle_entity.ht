@@ -332,7 +332,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 function setCharacterLife(character, life) {
   let tribulation = false
   if (life < 0) {
-    engine.info('Character ${character.id} 遭遇劫难，生命值重设为 1')
+    engine.debug('Character ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1
     tribulation = true
     character.tribulationCount += 1
@@ -482,7 +482,7 @@ function generateDeck(character, { maxOutLevel = false, cardInfoList }) {
   })
   character.battleDeckIndex = character.battleDecks.length - 1
   
-  engine.info('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
+  engine.debug('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
 }
 
 function characterEquip(entity, item, { index }) {
@@ -526,7 +526,7 @@ function characterEquip(entity, item, { index }) {
   }
 
   if (equipped) {
-    engine.info('角色 [${entity.name}] 装备了 [${item.name}]')
+    engine.debug('角色 [${entity.name}] 装备了 [${item.name}]')
 
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
@@ -555,7 +555,7 @@ function characterUnequip(entity, item) {
     characterCalculateStats(entity, rejuvenate: false)
   }
   
-  engine.info('角色 [${entity.name}] 取下了 [${item.name}]')
+  engine.debug('角色 [${entity.name}] 取下了 [${item.name}]')
 }
 
 function characterEquippedCategory(entity, category) {
@@ -635,7 +635,7 @@ function characterSetPotionPassive(character, dataId, {level = 1}) {
 function characterConsumePotion(entity, item) {
   assert(item.category == kItemCategoryPotion)
 
-  engine.info('角色 [${entity.name}] 服用了 [${item.name}]')
+  engine.debug('角色 [${entity.name}] 服用了 [${item.name}]')
 
   final mainAffix = item.affixes.first
   // if (mainAffix.id == 'heal') {

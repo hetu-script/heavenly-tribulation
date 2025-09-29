@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
 import '../../game/data.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../widgets/character/stats.dart';
 import '../../state/hover_content.dart';
 

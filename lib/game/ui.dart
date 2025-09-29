@@ -4,7 +4,7 @@ import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 // import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
-import '../common.dart';
+import 'common.dart';
 
 const double _kTextShadowOffset = 0.5;
 

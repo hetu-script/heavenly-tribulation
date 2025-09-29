@@ -20,13 +20,13 @@ class CustomWindowListener extends WindowListener {
   @override
   void onWindowResize() async {
     final size = await windowManager.getSize();
-    // engine.info('窗口大小修改为：${size.width}x${size.height}');
+    // engine.debug('窗口大小修改为：${size.width}x${size.height}');
     GameUI.resizeTo(size.toVector2());
   }
 
   // @override
   // void onWindowFocus() async {
-  //   // engine.info('窗口获得焦点');
+  //   // engine.debug('窗口获得焦点');
   //   engine.setCursor(Cursors.normal);
   // }
 }

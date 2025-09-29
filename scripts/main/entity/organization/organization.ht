@@ -2,20 +2,37 @@ import '../achievements.ht'
 
 const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
 
+const kDiplomacyDefaultScore = 0
+
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
+/// score 和 type 都反映了外交关系，type 代表了关系的大致方向
+/// score 代表了关系的具体数值，score 可以正负变化
+/// 修改 type 为 enemy，意味着宣战，ally 则意味着结盟
+/// 盟友门派的成员可以共享各自领地上的设施
+/// 宣战门派的成员则无法进入对方领地
+/// 需要满足一定的 score 条件才能宣战和结盟，否则无法执行修改 type 的操作
+/// 要提升 score，可以通过向其他门派赠送礼物、完成对方的帮助请求等方式
+/// 要降低 score，可以通过
 struct Diplomacy {
   constructor ({
-    organizationId,
+    organization1Id,
+    organization2Id,
     type = 'neutral', // neutral | ally | enemy,
     score = 0,
+    timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久
   }) {
     assert(['neutral', 'ally', 'enemy'].contains(type))
 
-    this.organizationId = organizationId
+    this.id = crypto.randomUID(withTime: true)
+    this.organization1Id = organization1Id
+    this.organization2Id = organization2Id
     this.timestamp = game.timestamp
     this.type = type
-    this.score = score,
+    this.score = score
+    this.timespanByMonth = timespanByMonth
+    
+    game.diplomacies[this.id] = this
   }
 }
 
@@ -104,7 +121,8 @@ struct Organization {
     this.experienced = []
     
     // 门派外交信息
-    // key 是另一个门派的 id, 值是一个结构体数组
+    // key 是另一个门派的 id, 值是 外交关系 的id
+    // 完整的外交关系数据保存在 game.diplomacies 中
     this.diplomacies = {}
 
     const head = game.characters[headId]
@@ -201,9 +219,12 @@ function getOrganizationMemberIdsOfRank(organization, rank) {
 
 /// 角色加入组织
 /// 注意，这里并不处理师徒关系，可以理解为这里处理的是雇佣性质的工作岗位
-/// 师徒关系需要另外调用 createShitu api来创建
-function addCharacterToOrganization(character, organization, {title = 'taskman', incurIncident = true }) {
-  assert(!organization.members.contains(character.id))
+/// 师徒关系需要另外调用 createShitu api 来创建
+/// 角色可以加入多个组织，但只会保留最后一次加入时组织的 id
+/// 只有角色最后一次加入的组织不是当前组织，才可以调用这个 api
+/// 这个 api 不会检查角色的境界和贡献是否达到职位要求
+function addCharacterToOrganization(character, organization, {title, incurIncident = true }) {
+  assert(character.organizationId != organization.id)
   // 组织人数上限由发展度决定
   // if (organizationMemberReachMax(organization)) {
   //   engine.warn('组织 ${organization.id} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
@@ -213,27 +234,35 @@ function addCharacterToOrganization(character, organization, {title = 'taskman',
   //   engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
   //   return false
   // }
-  if (character.organizationId != null) {
-    assert(character.organizationId != organization.id)
-    removeCharacterFromOrganization(character)
+  if (!organization.members.contains(character.id)) {
+    // if (character.organizationId != null) {
+    //   assert(character.organizationId != organization.id)
+    //   removeCharacterFromOrganization(character)
+    // }
+    title ??= 'taskman'
+    assert(Constants.titleToOrganizationRank.containsKey(title))
+    final jobRank = Constants.titleToOrganizationRank[title]
+
+    setCharacterTitle(character, title)
+    // 职位数据
+    organization.members[character.id] = MemberData(
+      id: character.id,
+      rank: jobRank,
+      title: title,
+      contribution: 0,
+    )
+  } else {
+    final memberData = organization.members[character.id]
+    setCharacterTitle(character, memberData.title)
   }
-  assert(title != null)
-  setCharacterTitle(character, title)
-  // 职位数据
-  organization.members[character.id] = MemberData(
-    id: character.id,
-    rank: 0,
-    title: title,
-    contribution: 0,
-  )
-  // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
+
   character.organizationId = organization.id
 
+  const incidentContent = engine.locale('organizationEnlist', interpolations: [
+    character.name,
+    organization.name,
+  ])
   if (incurIncident) {
-    const incidentContent = engine.locale('organizationEnlist', interpolations: [
-      character.name,
-      organization.name,
-    ])
     Incident(
       subjectId: character.id,
       organizationId: organization.id,
@@ -241,12 +270,26 @@ function addCharacterToOrganization(character, organization, {title = 'taskman',
       orderly: 10,
       isPrivate: false,
     )
+  } else {
+    engine.debug(incidentContent)
   }
 
   const location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
   
   return true
+}
+
+/// 设置角色在组织中的职位，这个 api 不会检查角色的境界和贡献是否达到职位要求
+function setCharacterOrganizationJob(character, organization, title) {
+  assert(character.organizationId == organization.id)
+  assert(organization.members.containsKey(character.id))
+  assert(Constants.titleToOrganizationRank.containsKey(title))
+  final jobRank = Constants.titleToOrganizationRank[title]
+  final memberData = organization.members[character.id]
+  memberData.title = title
+  memberData.rank = jobRank
+  setCharacterTitle(character, title)
 }
 
 function addOrganizations(orgs: List) {
@@ -291,14 +334,14 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   if (terrain.locationId != null) {
     const location = game.locations[terrain.locationId]
     delete location.organizationId
-    engine.info('${oldOrg.id} 失去了据点：${location.id}')
+    engine.debug('${oldOrg.id} 失去了据点：${location.id}')
     organization.locationIds.remove(location.id)
     
     let toBeRemoved
     for (let siteId in location.sites) {
       const site = game.locations[siteId]
       if (site.name == organization.name) {
-        engine.info('${organization.id} 失去了总堂所在地块！')
+        engine.debug('${organization.id} 失去了总堂所在地块！')
         toBeRemoved = site.id
         break
       }
@@ -354,7 +397,7 @@ function addTerrainToOrganization(terrain, organization, { updateWorldMap = fals
     }
 
     if (location.isHidden) {
-      if (organization.id == hero.organizationId) {
+      if (organization.id == hero?.organizationId) {
         discoverLocation(location, updateWorldMap: updateWorldMap)
       }
     }
@@ -362,15 +405,25 @@ function addTerrainToOrganization(terrain, organization, { updateWorldMap = fals
   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
 }
 
-function createDiplomacy(organization1, organization2, { type = 'neutral', score = 0 }) {
-  organization1.diplomacies[organization2.id] = Diplomacy(
-    organizationId: organization2.id,
+function createDiplomacy(organization1, organization2, {
+  type = 'neutral',
+  score = kDiplomacyDefaultScore,
+  timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久, > 0 表示持续多少个月
+}) {
+  assert(organization1.id != organization2.id)
+  assert(!organization1.diplomacies.containsKey(organization2.id))
+  assert(!organization2.diplomacies.containsKey(organization1.id))
+
+  final diplomacyData = Diplomacy(
+    organization1Id: organization1.id,
+    organization2Id: organization2.id,
     type: type,
     score: score,
+    timespanByMonth: timespanByMonth,
   )
-  organization2.diplomacies[organization1.id] = Diplomacy(
-    organizationId: organization1.id,
-    type: type,
-    score: score,
-  )
+
+  organization1.diplomacies[organization2.id] = diplomacyData.id
+  organization2.diplomacies[organization1.id] = diplomacyData.id
+
+  engine.debug('${organization1.id} 和 ${organization2.id} 建立了外交关系，初始好感度为 ${score}，关系类型为 ${type}')
 }

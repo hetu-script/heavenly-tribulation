@@ -10,7 +10,7 @@ import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
 
 import 'ui.dart';
-import '../common.dart';
+import 'common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
 import 'logic.dart';
@@ -77,7 +77,7 @@ abstract class GameData {
   static final Map<String, dynamic> battleCards = {};
   static final Map<String, dynamic> battleCardAffixes = {};
   static final Map<String, dynamic> statusEffects = {};
-  static final Map<String, dynamic> items = {};
+  static final Map<String, dynamic> prototypes = {};
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
   static final Map<String, dynamic> craftables = {};
@@ -223,10 +223,6 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/map_components.json5');
     mapComponents.addAll(JSON5.parse(mapComponentsDataString));
 
-    // final cardsDataString =
-    //     await rootBundle.loadString('assets/data/cards.json5');
-    // cardsData = JSON5.parse(cardsDataString);
-
     final battleCardDataString =
         await rootBundle.loadString('assets/data/cards.json5');
     battleCards.addAll(JSON5.parse(battleCardDataString));
@@ -241,7 +237,7 @@ abstract class GameData {
 
     final itemsDataString =
         await rootBundle.loadString('assets/data/items.json5');
-    items.addAll(JSON5.parse(itemsDataString));
+    prototypes.addAll(JSON5.parse(itemsDataString));
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');
@@ -340,14 +336,18 @@ abstract class GameData {
   static void initGameData() {
     engine.debug('初始化当前载入的模组...');
 
-    engine.hetu.invoke('init', namedArgs: {
-      'itemsData': GameData.items,
-      'craftablesData': GameData.craftables,
-      'battleCardsData': GameData.battleCards,
-      'battleCardAffixesData': GameData.battleCardAffixes,
-      'passivesData': GameData.passives,
-      'mapsData': GameData.maps,
-    });
+    engine.hetu.invoke(
+      'init',
+      namedArgs: {
+        'prototypesData': GameData.prototypes,
+        'craftablesData': GameData.craftables,
+        'battleCardsData': GameData.battleCards,
+        'battleCardAffixesData': GameData.battleCardAffixes,
+        'passivesData': GameData.passives,
+        // 'questsData': GameData.quests,
+        'mapsData': GameData.maps,
+      },
+    );
 
     for (final id in engine.mods.keys) {
       if (engine.mods[id]?['enabled'] == true) {

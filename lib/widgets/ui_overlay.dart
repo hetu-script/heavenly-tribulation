@@ -90,6 +90,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
+    final prebattlePreventClose =
+        context.watch<EnemyState>().prebattlePreventClose;
     final onBattleStart = context.watch<EnemyState>().onBattleStart;
     final onBattleEnd = context.watch<EnemyState>().onBattleEnd;
 
@@ -673,6 +675,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               PreBattleDialog(
                 hero: hero,
                 enemy: enemyData,
+                prebattlePreventClose: prebattlePreventClose,
                 ignoreRequirement: engine.scene?.id == Scenes.mainmenu,
                 onBattleStart: onBattleStart,
                 onBattleEnd: onBattleEnd,

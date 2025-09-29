@@ -14,17 +14,6 @@ const kUniverseSaveFilePostfix = '_universe';
 const kWorldSaveFilePostfix = '_world';
 const kHistorySaveFilePostfix = '_history';
 
-abstract class Cursors {
-  static const normal = 'normal';
-  static const click = 'click';
-  static const drag = 'drag';
-  static const press = 'press';
-}
-
-const kValueTypeInt = 'int';
-const kValueTypeFloat = 'float';
-const kValueTypePercentage = 'percentage';
-
 const kAutoTimeFlowInterval = 500;
 
 const kSpriteScale = 2.0;
@@ -1017,8 +1006,7 @@ const kItemEquipmentKinds = {
 };
 
 const kItemModificationOperations = {
-  'upgrade',
-  'dismantle',
+  'rerollAffix',
   'extract',
 };
 
@@ -1034,6 +1022,8 @@ const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';
 
+/// 职位等级
+/// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位
 const kTitleToOrganizationRank = {
   'taskman': 0,
   'executor': 1,
@@ -1041,13 +1031,29 @@ const kTitleToOrganizationRank = {
   'mayor': 3,
   'governor': 4,
   'head': 5,
+  'guard': 1,
+  'guardLeader': 2,
+  'diplomat': 3,
+  'chancellor': 4,
+  "guest": 4,
 };
 
-const kRankToOrganizationTitle = {
-  0: 'taskman',
-  1: 'executor',
-  2: 'manager',
-  3: 'mayor',
-  4: 'governor',
-  5: 'head',
+/// 职位对应的贡献度需求
+const kTitleToContribution = {
+  'taskman': 0,
+  'executor': 100,
+  'manager': 300,
+  'mayor': 800,
+  'governor': 1000,
+  'head': 2500,
+  'guard': 200,
+  'guardLeader': 600,
+  'diplomat': 900,
+  'chancellor': 1200,
+  "guestChancellor": 1000,
 };
+
+const kDiplomacyScoreAllyThreshold = 50;
+const kDiplomacyScoreEnemyThreshold = -50;
+
+const kDiplomacyDefaultScore = 0;

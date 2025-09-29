@@ -446,7 +446,7 @@ function createRomance(subject, target) {
 
   updateBondScore(subject, target, score)
 
-  engine.info('${subject.name} 和 ${target.name} 现在是浪漫关系，亲密度提高 [${score}]')
+  engine.debug('${subject.name} 和 ${target.name} 现在是浪漫关系，亲密度提高 [${score}]')
 }
 
 /// 创建 **单方面** 的朋友关系，意味着[subject]认为[target]是自己的朋友
@@ -468,7 +468,7 @@ function createFriendship(subject, target, [score = 0]) {
   
   updateBondScore(subject, target, score)
 
-  engine.info('${subject.name} 和 ${target.name} 现在是朋友关系，亲密度提高 [${score}]')
+  engine.debug('${subject.name} 和 ${target.name} 现在是朋友关系，亲密度提高 [${score}]')
 }
 
 function _addSpouseRelationship(subject, target) {
@@ -522,7 +522,7 @@ function _addSpouseRelationship(subject, target) {
   let score = kRelationshipScore.family.spouse
   updateBondScore(subject, target, score)
   
-  engine.info('${target.name} 现在是 ${subject.name} 的 配偶，${subject.name} 对 ${target.name} 的好感度提高 [${score}]')
+  engine.debug('${target.name} 现在是 ${subject.name} 的 配偶，${subject.name} 对 ${target.name} 的好感度提高 [${score}]')
 }
 
 /// 创建双方面的夫妻关系
@@ -562,7 +562,7 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   
   let homeId = householder.homeLocationId ?? marrier.homeLocationId ?? locationId
   let home = game.locations[homeId]
-  assert(home != null)
+  assert(home != null, 'location not exist: ${homeId}')
   if (householder.homeLocationId != homeId) {
     setCharacterHome(householder, home)
   }
@@ -583,7 +583,7 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
       orderly: 20,
     )
   } else {
-    engine.info(incidentContent)
+    engine.debug(incidentContent)
   }
 }
 
@@ -619,7 +619,7 @@ function createShitu(shifu, tudi, {incurIncident = true}) {
       orderly: 20,
     )
   } else {
-    engine.info(incidentContent)
+    engine.debug(incidentContent)
   }
 }
 
@@ -649,7 +649,7 @@ function getFamilyMemberData(character) {
 /// TODO: 单独保存一个relationship图，值是一个包含角色ID，师父和徒弟的结构体
 function getSectMemberData(character) {
   let sectMemberData
-  if (character.sectName != null) {
+  if (character.sectName == null) {
     character.sectName = '${(character.surName ?? character.name) + engine.locale('sectName')}_${crypto.randomUID()}'
     assert(!game.sects.containsKey(character.sectName))
     sectMemberData = game.sects[character.sectName] = MemberRankData(
@@ -847,7 +847,7 @@ struct Baby {
         orderly: 20,
       )
     } else {
-      engine.info(incidentContent)
+      engine.debug(incidentContent)
     }
   }
 }
@@ -1145,10 +1145,10 @@ struct Character {
     // 关系分为：家族、宗门、爱情、友情(仇恨)四种主要类型
     // | 类型         | score ~= 50             | score ~= 70         | score ~= 90     |
     // | ------------ | ----------------------- | ------------------- | --------------- |
-    // | 爱情         | 恋慕(单方面)            | 情人                | 知己            |
-    // | 友情 <> 仇恨 | 同伴 <> 霸凌者/被霸凌者 | 朋友 <> 仇敌        | 至交 <> 死敌    |
     // | 亲情         | 远亲                    | 血亲/结拜/收养/过继 | 夫妻/父母/儿女  |
     // | 宗门         | 同门                    | 同辈                | 师父/弟子       |
+    // | 爱情         | 恋慕(单方面)            | 情人                | 知己            |
+    // | 友情 <> 仇恨 | 同伴 <> 霸凌者/被霸凌者 | 朋友 <> 仇敌        | 至交 <> 死敌    |
     // 数据保存时，每种具体类型下以对方角色的id为key，value是一个relationship data
     this.relationships = relationships ?? {
       family: {},
@@ -1588,7 +1588,7 @@ function removeCharacterById(id: string) {
 
 /// 改变评价，如果之前不存在羁绊会创建新的羁绊数据
 function updateBondScore(subject, target, score) {
-  // engine.info('updateBondScore: ${subject.name} -> ${target.name} : ${score}')
+  // engine.debug('updateBondScore: ${subject.name} -> ${target.name} : ${score}')
   let bond = subject.bonds[target.id]
   if (bond == null) {
     bond = Bond(character: subject, target: target)

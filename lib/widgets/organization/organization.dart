@@ -11,7 +11,7 @@ import 'edit_organization_basic.dart';
 import '../../game/data.dart';
 import '../../game/logic.dart';
 import '../game_entity_listview.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
 

@@ -11,7 +11,7 @@ import 'character/profile.dart';
 import 'character/details.dart';
 import '../game/ui.dart';
 import '../game/data.dart';
-import '../common.dart';
+import '../game/common.dart';
 import '../game/logic.dart';
 import 'ui/close_button2.dart';
 

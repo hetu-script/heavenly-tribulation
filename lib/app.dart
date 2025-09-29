@@ -25,7 +25,6 @@ import 'game/logic.dart';
 import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
 import 'widgets/ui/menu_builder.dart';
-import 'common.dart';
 import 'game/constants.dart';
 
 class GameApp extends StatefulWidget {
@@ -443,6 +442,7 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       context.read<EnemyState>().show(
             positionalArgs.first,
+            prebattlePreventClose: namedArgs['prebattlePreventClose'] ?? false,
             onBattleStart: namedArgs['onBattleStart'],
             onBattleEnd: namedArgs['onBattleEnd'],
           );
@@ -482,7 +482,7 @@ class _GameAppState extends State<GameApp> {
       engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
     }, override: true);
 
-    engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.debug('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     tik = DateTime.now().millisecondsSinceEpoch;
     final mainConfig = {'locale': engine.languageId};
@@ -527,12 +527,12 @@ class _GameAppState extends State<GameApp> {
         }
       }
     }
-    engine.info('脚本引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.debug('脚本引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     tik = DateTime.now().millisecondsSinceEpoch;
     await GameData.init();
-    engine.info('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.debug('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     engine.hetu.invoke('build', positionalArgs: [context]);
 

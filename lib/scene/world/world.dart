@@ -41,7 +41,7 @@ import 'widgets/toolbox.dart';
 import '../../widgets/dialog/confirm.dart';
 import '../../game/logic.dart';
 import 'components/banner.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../widgets/location_panel.dart';
 
 enum WorldMapPopUpMenuItems {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/common.dart';
+import 'package:heavenly_tribulation/game/common.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';

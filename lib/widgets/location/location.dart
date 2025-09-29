@@ -10,7 +10,7 @@ import 'edit_location_basics.dart';
 import 'edit_npc_basics.dart';
 import '../common.dart';
 import '../../game/logic.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../ui/menu_builder.dart';

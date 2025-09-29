@@ -9,7 +9,7 @@ import '../../game/ui.dart';
 import '../../game/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../state/character.dart';
 
 const _kTimeFlowDivisions = 10;

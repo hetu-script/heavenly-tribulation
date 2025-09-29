@@ -149,7 +149,13 @@ async function onAfterMove(terrain) {
   Game.updateHero()
   World.addHintText('${engine.locale('life')} -${value}', terrain.left, terrain.top, Colors.red)
   if (failed) {
-    Dialog.pushDialog('cultivation_trial_failed')
+    final npc = game.npcs[game.flags.cultivationTrial.npcId]
+    Dialog.pushDialog(
+      'organization_immortality_trial_pass',
+      name: npc?['name'],
+      icon: npc?['icon'],
+      image: npc?['illustration'],
+    )
     await Dialog.execute()
     Game.popScene(clearCache: true)
   }
@@ -179,9 +185,19 @@ async function onInteractMapObject(object, terrain) {
     }
     'portalExit': {
       if (game.flags.cultivationTrial.switchOn == true) {
-        Dialog.pushDialog('cultivation_trial_exit_succeeded')
-        await Dialog.execute()
-        game.flags.cultivationTrial.succeeded = true
+        final organizationId = game.flags.cultivationTrial.organizationId
+        if (organizationId != null) {
+          final organization = game.organizations[organizationId]
+          await Player.enroll(organization, npcId: game.flags.cultivationTrial.npcId);
+          final npc = game.npcs[game.flags.cultivationTrial.npcId]
+          Dialog.pushDialog(
+            'organization_immortality_trial_pass',
+            name: npc?['name'],
+            icon: npc?['icon'],
+            image: npc?['illustration'],
+          )
+          await Dialog.execute()
+        }
         Game.popScene(clearCache: true)
       } else {
         Dialog.pushDialog('cultivation_trial_exit_hint')

@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
-import '../common.dart';
+import '../game/common.dart';
 
-export '../common.dart' show ItemType;
+export '../game/common.dart' show ItemType;
 
 const kHoverInfoMaxWidth = 400.0;
 

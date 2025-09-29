@@ -10,8 +10,8 @@ import 'package:hetu_script/values.dart';
 import 'package:json5/json5.dart';
 
 import '../engine.dart';
-import '../datetime.dart';
-import '../common.dart';
+import '../extensions.dart';
+import '../game/common.dart';
 import '../game/data.dart';
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,

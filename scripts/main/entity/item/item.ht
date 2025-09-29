@@ -256,8 +256,7 @@ struct Equipment {
           throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
         }
         
-        final affixRawData = random.nextIterable(supportAffixes)
-        final affix = Object.create(affixRawData)
+        final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()
@@ -364,8 +363,7 @@ struct StatusSpirit {
         throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
       }
       
-      final affixRawData = random.nextIterable(supportAffixes)
-      final affix = Object.create(affixRawData)
+      final affix = Object.create(random.nextIterable(supportAffixes))
       if (affix.increment != null) {
         affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
         affix.value = (affix.increment * affix.level).round()
@@ -547,7 +545,7 @@ function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true })
 }
 
 /// 消费资源，返回是否成功消费了指定的数量
-function entityExhaust(entity, materialId: string, { amount = 1, incurIncident = true }) -> bool {
+function entityExhaust(entity, materialId: string, { amount = 1 }) -> bool {
   assert(kMaterialKinds.contains(materialId))
   if (amount <= 0) {
     engine.warn('entity [${entity.id}] exhaust [${materialId}] amount <=0')

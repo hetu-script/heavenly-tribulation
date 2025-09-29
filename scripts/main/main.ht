@@ -76,16 +76,17 @@ function main() {
 /// Initialize the core script module.
 /// Only run once when a new game is created
 function init({
-  itemsData,
+  prototypesData,
   craftablesData,
   battleCardsData,
   battleCardAffixesData,
   passivesData,
+  questsData,
   mapsData,
 }) {
   engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
-  // 清空游戏上的已有数据
+  // 重新载入模组数据
   game.mods = {}
   game.prototypes = {}
   game.craftables = {}
@@ -94,18 +95,18 @@ function init({
   game.passives = {}
   game.quests = {}
 
-  // 重新载入数据
   addModMetaData(meta)
-  addPrototypeItemsData(itemsData)
-  addCraftableItemsData(craftablesData)
+  addPrototypesData(prototypesData)
+  addCraftablesData(craftablesData)
   addBattleCardsData(battleCardsData)
   addBattleCardAffixesData(battleCardAffixesData)
   addPassivesData(passivesData)
+  addQuestsData(questsData)
   addMapsData(mapsData)
 }
 
 function addModMetaData(mod) {
-  assert(mod.id != null)
+  assert(mod?.id != null)
   // assert(game.mods.containsKey(mod.id))
   // game.mods[mod.id] ??= {}
   // Object.assign(game.mods[mod.id], mod)
@@ -114,18 +115,26 @@ function addModMetaData(mod) {
 }
 
 /// 向 game.prototypes 中添加数据
-function addPrototypeItemsData(itemsData) {
-  for (let item of itemsData) {
+function addPrototypesData(prototypesData) {
+  if (prototypesData == null) {
+    engine.debug('载入预定义物品：[0]')
+    return
+  }
+  for (let item of prototypesData) {
     if (game.prototypes.containsKey(item.prototypeId)) {
       engine.warn('预定义物品数据 id 冲突：[${item.prototypeId}]')
     }
     game.prototypes[item.prototypeId] = item
   }
-  engine.debug('载入预定义物品：[${itemsData.length}]')
+  engine.debug('载入预定义物品：[${prototypesData.length}]')
 }
 
 /// 向 game.craftables 中添加数据
-function addCraftableItemsData(craftablesData) {
+function addCraftablesData(craftablesData) {
+  if (craftablesData == null) {
+    engine.debug('载入打造数据：[0]')
+    return
+  }
   for (let craftable of craftablesData) {
     if (game.craftables.containsKey(craftable.id)) {
       engine.warn('打造数据 id 冲突：[${craftable.id}]')
@@ -137,6 +146,10 @@ function addCraftableItemsData(craftablesData) {
 
 /// 向 game.battleCards 中添加数据
 function addBattleCardsData(cardsData) {
+  if (cardsData == null) {
+    engine.debug('载入战斗卡牌主词条：[0]')
+    return
+  }
   for (let card of cardsData) {
     if (game.battleCards.containsKey(card.id)) {
       engine.warn('战斗卡牌主词条数据 id 冲突：[${card.id}]')
@@ -148,6 +161,10 @@ function addBattleCardsData(cardsData) {
 
 /// 向 game.battleCardAffixes 中添加数据
 function addBattleCardAffixesData(affixesData) {
+  if (affixesData == null) {
+    engine.debug('载入战斗卡牌额外词条：[0]')
+    return
+  }
   for (let affix of affixesData) {
     if (game.battleCardAffixes.containsKey(affix.id)) {
       engine.warn('战斗卡牌额外词条数据 id 冲突：[${affix.id}]')
@@ -159,6 +176,10 @@ function addBattleCardAffixesData(affixesData) {
 
 /// 向 game.passives 中添加数据
 function addPassivesData(passivesData) {
+  if (passivesData == null) {
+    engine.debug('载入被动技能词条：[0]')
+    return
+  }
   for (let skill of passivesData) {
     if (game.passives.containsKey(skill.id)) {
       engine.warn('被动技能词条数据 id 冲突：[${skill.id}]')
@@ -172,6 +193,10 @@ function addPassivesData(passivesData) {
 /// game.quests中保存的是任务原型数据
 /// 实际创建任务时会重新创建，并填入本地化字符串等
 function addQuestsData(questsData) {
+  if (questsData == null) {
+    engine.debug('载入剧情日志数据：[0]')
+    return
+  }
   for (let quest of questsData) {
     if (game.quests.containsKey(quest.id)) {
       engine.warn('任务数据 id 冲突：[${quest.id}]')
@@ -183,9 +208,13 @@ function addQuestsData(questsData) {
 
 /// 向 universe 中添加数据
 function addMapsData(mapsData) {
+  if (mapsData == null) {
+    engine.debug('载入预定义地图：[0]')
+    return
+  }
   for (final map of mapsData) {
     if (universe.containsKey(map.id)) {
-      engine.warn('地图数据 id 冲突：[${map.id}]')
+      engine.warn('地图数据 [${map.id}] 已存在，将会被覆盖')
     }
     universe[map.id] = Object.create(map)
     // history[map.id] = []

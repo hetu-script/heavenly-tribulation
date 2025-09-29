@@ -4,19 +4,15 @@
   "craft_item": "制作",
   "modify_item": "精炼",
 
-  "modify_item_upgrade": "精炼·提升",
-  "modify_item_dismantle": "精炼·分解",
+  "modify_item_rerollAffix": "精炼·重铸",
   "modify_item_extract": "精炼·析取",
 
-  "modify_item_upgrade_description": "提升装备等级和基础词条等级。\n不能超过装备品级所允许的等级上限。",
-  "modify_item_dismantle_description": "将装备分解，回收部分原材料。",
-  "modify_item_extract_description": "将装备分解，获得一个指定的词缀材料。",
+  "modify_item_rerollAffix_description": "重置所有词条等级。\n不能超过装备品级所允许的等级上限。",
+  "modify_item_extract_description": "将装备分解，并获得一个指定的词缀材料。",
 
   "material_requirements": "材料需求",
 
   "extra_material": "额外材料",
 
-  "modify_item_upgrade_warning": "此物品已经达到品级允许的最高等级({0})。",
-  "modify_item_dismantle_warning": "将要分解物品，这个操作无法撤销。",
   "modify_item_extract_warning": "此物品没有可以析取的额外词条。"
 }

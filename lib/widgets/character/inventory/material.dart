@@ -8,7 +8,7 @@ import '../../../game/ui.dart';
 import '../../../game/logic.dart';
 import '../../../engine.dart';
 import '../../../state/hover_content.dart';
-import '../../../common.dart';
+import '../../../game/common.dart';
 
 enum MaterialListType {
   inventory,

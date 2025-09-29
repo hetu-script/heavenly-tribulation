@@ -65,8 +65,8 @@ struct Quest {
 }
 
 function generateQuestById(questId, {publishCharacterId}) {
-  assert(game.quests.containsKey(questId), 'quest not found, id: ${questId}')
-  final questData = game.quests[questId]
+  assert(Game.quests.containsKey(questId), 'quest not found, id: ${questId}')
+  final questData = Game.quests[questId]
   final quest = Quest(
     id: questId,
     title: engine.locale(questData.title ?? questData.id),

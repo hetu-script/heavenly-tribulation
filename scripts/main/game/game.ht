@@ -54,7 +54,11 @@ namespace Game {
   
   external function showCultivation({location, enableCultivate: bool = false})
 
-  external function showPrebattle(enemyData, { onBattleStart, onBattleEnd })
+  external function showPrebattle(enemyData, {
+    prebattlePreventClose: bool = false,
+    onBattleStart,
+    onBattleEnd,
+  })
 
   external function showBattle({
     hero,

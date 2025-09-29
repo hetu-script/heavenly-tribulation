@@ -309,7 +309,7 @@ function addAffix(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final affix = random.nextIterable(supportAffixes)
+  final affix = Object.create(random.nextIterable(supportAffixes))
 
   _addAffixToCard(card, affix)
 

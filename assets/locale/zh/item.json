@@ -134,26 +134,26 @@
   "equipment_affix_flavortext": "法宝特性：从法宝中析取的一条特性，可以通过打造赋予到新的法宝之上。",
 
   "craftmaterial_addAffix": "灵宝丹",
-  "craftmaterial_addAffix_flavortext": "灵宝丹：用来给装备或功法增加一个额外词条。凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",
+  "craftmaterial_addAffix_flavortext": "灵宝丹：用来给功法增加一个额外词条。凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",
 
   "craftmaterial_replaceAffix": "神照丹",
-  "craftmaterial_replaceAffix_flavortext": "神照丹：用来给装备或功法随机替换一个额外词条。",
+  "craftmaterial_replaceAffix_flavortext": "神照丹：用来给功法随机替换一个额外词条。",
 
   "craftmaterial_rerollAffix": "混元丹",
-  "craftmaterial_rerollAffix_flavortext": "混元丹：用来给装备或功法重置所有词条等级。等级不会超过境界所允许的上限。",
+  "craftmaterial_rerollAffix_flavortext": "混元丹：用来给功法重置所有词条等级。等级不会超过境界所允许的上限。",
 
   "craftmaterial_upgradeRank1": "凝气丹",
-  "craftmaterial_upgradeRank1_flavortext": "凝气丹：用来提升装备或功法的境界到凝气。",
+  "craftmaterial_upgradeRank1_flavortext": "凝气丹：用来提升功法的境界到凝气。",
 
   "craftmaterial_upgradeRank2": "筑基丹",
-  "craftmaterial_upgradeRank2_flavortext": "筑基丹：用来提升装备或功法的境界到筑基。",
+  "craftmaterial_upgradeRank2_flavortext": "筑基丹：用来提升功法的境界到筑基。",
 
   "craftmaterial_upgradeRank3": "结丹丹",
-  "craftmaterial_upgradeRank3_flavortext": "结丹丹：用来提升装备或功法的境界到结丹。",
+  "craftmaterial_upgradeRank3_flavortext": "结丹丹：用来提升功法的境界到结丹。",
 
   "craftmaterial_upgradeRank4": "还婴丹",
-  "craftmaterial_upgradeRank4_flavortext": "还婴丹：用来提升装备或功法的境界到还婴。",
+  "craftmaterial_upgradeRank4_flavortext": "还婴丹：用来提升功法的境界到还婴。",
 
   "craftmaterial_upgradeRank5": "化神丹",
-  "craftmaterial_upgradeRank5_flavortext": "化神丹：用来提升装备或功法的境界到化神。"
+  "craftmaterial_upgradeRank5_flavortext": "化神丹：用来提升功法的境界到化神。"
 }

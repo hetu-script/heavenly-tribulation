@@ -27,7 +27,7 @@ import '../../game/event_ids.dart';
 import '../particles/light_trail.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../state/states.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -614,10 +614,7 @@ class CultivationScene extends Scene {
         'exhaust',
         namespace: 'Player',
         positionalArgs: ['shard'],
-        namedArgs: {
-          'amount': 1,
-          'incurIncident': false,
-        },
+        namedArgs: {'amount': 1},
       );
       if (success) {
         gainExp();

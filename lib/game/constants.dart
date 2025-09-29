@@ -1,7 +1,7 @@
 import 'package:hetu_script/errors.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../common.dart';
+import 'common.dart';
 
 class ConstantsBinding extends HTExternalClass {
   ConstantsBinding() : super('Constants');
@@ -76,8 +76,6 @@ class ConstantsBinding extends HTExternalClass {
         return kTerrainKindsMountain;
       case 'Constants.titleToOrganizationRank':
         return kTitleToOrganizationRank;
-      case 'Constants.rankToOrganizationTitle':
-        return kRankToOrganizationTitle;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

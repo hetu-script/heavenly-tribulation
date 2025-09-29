@@ -5,12 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "editor",
+      "name": "game",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "windows": {
-        "program": "lib/main.dart"
+        "program": "lib/main.dart",
       },
     }
   ]

@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 import 'package:samsara/samsara.dart';
 
-import '../common.dart';
+import 'common.dart';
 import '../widgets/dialog/timeflow.dart';
 import '../scene/game_dialog/selection_dialog.dart';
 import '../engine.dart';
@@ -20,6 +20,27 @@ import '../scene/common.dart';
 import 'data.dart';
 import '../widgets/organization/organization.dart';
 import '../widgets/location/location.dart';
+
+const kWuweiTrialQuestionCount = 8;
+const kWuweiTrialOptionsCount = 3;
+const kWuweiTrialAnswers = {
+  1: 2,
+  2: 1,
+  3: 3,
+  4: 2,
+  5: 3,
+  6: 1,
+  7: 3,
+  8: 1,
+};
+
+// 修真试炼最少需要的战斗回合数
+const kCultivationTrialMinBattleRound = 4;
+
+// 财富试炼需要支付的灵石数量
+const kWealthTrialCost = 30;
+
+const kPleasureTrialMinCharisma = 70;
 
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -127,14 +148,12 @@ abstract class GameLogic {
     int minGreater = 0;
     int maxGreater = 0;
     if (rank > 0) {
-      if (rank < 5) {
-        minExtra = rank - 1;
-        maxExtra = rank;
-      } else {
-        minExtra = maxExtra = 4;
-        minGreater = rank - 5;
-        maxGreater = rank - 4;
-      }
+      minExtra = rank - 1;
+      maxExtra = rank + 1;
+    }
+    if (rank > 2) {
+      minGreater = rank - 3;
+      maxGreater = rank - 2;
     }
     return (minExtra, maxExtra, minGreater, maxGreater);
   }
@@ -637,7 +656,7 @@ abstract class GameLogic {
       'rejuvenate': rejuvenate,
     });
 
-    engine.info(
+    engine.debug(
         '为角色 ${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
   }
 
@@ -809,11 +828,10 @@ abstract class GameLogic {
       characterAllocateSkills(enemy, rejuvenate: true);
       engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
 
-      final arg = {
-        'id': Scenes.battle,
-        'hero': GameData.hero,
-        'enemy': enemy,
-        // 'onBattleStart': () {
+      engine.context.read<EnemyState>().show(
+        enemy,
+        prebattlePreventClose: true,
+        // onBattleStart: () {
         //   bool? hintedTribulation =
         //       GameData.gameData['flags']['hintedTribulation'];
         //   if (hintedTribulation == null || hintedTribulation == false) {
@@ -822,15 +840,23 @@ abstract class GameLogic {
         //     GameData.gameData['flags']['hintedTribulation'] = true;
         //   }
         // },
-        'onBattleEnd': (bool result, int roundCount) {
+        onBattleEnd: (bool result, int roundCount) {
           if (result) {
             engine.hetu.invoke('levelUp', namespace: 'Player');
             final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
             engine.context.read<NewRankState>().update(rank: rank);
           }
         },
-      };
-      engine.pushScene(Scenes.battle, arguments: arg);
+      );
+
+      // engine.pushScene(
+      //   Scenes.battle,
+      //   arguments: {
+      //     'id': Scenes.battle,
+      //     'hero': GameData.hero,
+      //     'enemy': enemy,
+      //   },
+      // );
     } else {
       GameDialogContent.show(
           engine.context, engine.locale('hint_cancel_tribulation'));
@@ -1083,7 +1109,7 @@ abstract class GameLogic {
       'amount': value,
     });
 
-    engine.info('物品 ${itemData['name']} 增加了 $charge 充能次数');
+    engine.debug('物品 ${itemData['name']} 增加了 $charge 充能次数');
     engine.play('electric-sparks-68814.mp3');
   }
 
@@ -1379,7 +1405,7 @@ abstract class GameLogic {
             await showItemSelect(character: GameData.hero, multiSelect: false);
         final item = items.firstOrNull;
         if (item != null) {
-          engine.info('正在向 ${character['name']} 出示 ${item['name']}');
+          engine.debug('正在向 ${character['name']} 出示 ${item['name']}');
           engine.hetu.invoke('onGameEvent',
               positionalArgs: ['onShowItem', character, item]);
         }
@@ -1389,7 +1415,7 @@ abstract class GameLogic {
             await showItemSelect(character: GameData.hero, multiSelect: false);
         final item = items.first;
         if (item != null) {
-          engine.info('正在向 ${character.name} 赠送 ${item.name}');
+          engine.debug('正在向 ${character.name} 赠送 ${item.name}');
           final result = await engine.hetu.invoke('onGameEvent',
               positionalArgs: ['onGiftItem', character, item]);
           if (result) {
@@ -1603,31 +1629,412 @@ abstract class GameLogic {
               ),
             );
           case 'organizationRelationshipDiscourse':
-            {
-              final relationshipSelections = [];
-              final heroOrganizationId = GameData.hero['organizationId'];
-              if (heroOrganizationId == null) {
-                relationshipSelections.add('apply');
+            final relationshipSelections = [];
+            final heroOrganizationId = GameData.hero['organizationId'];
+            if (heroOrganizationId == null) {
+              relationshipSelections.add('enroll');
+            } else {
+              if (heroOrganizationId == organization['id']) {
+                relationshipSelections.add('resign');
               } else {
-                if (heroOrganizationId == organization['id']) {
-                  relationshipSelections.add('resign');
-                } else {
-                  final heroTitleId = GameData.hero['titleId'];
-                  if (heroTitleId == 'head') {
-                    relationshipSelections.add('formAlliance');
-                    relationshipSelections.add('cancelAlliance');
-                    relationshipSelections.add('declareWar');
-                    relationshipSelections.add('startPeaceTalk');
+                final heroTitleId = GameData.hero['titleId'];
+                if (heroTitleId == 'head' || heroTitleId == 'diplomat') {
+                  final heroOrganization =
+                      GameData.game['organizations'][heroOrganizationId];
+                  assert(heroOrganization != null);
+                  final diplomacyDataId = organization['diplomacies']
+                      [heroOrganizationId][heroOrganizationId];
+                  if (diplomacyDataId == null) {
+                    engine.hetu.invoke(
+                      'createDiplomacy',
+                      positionalArgs: [heroOrganization, organization],
+                      namedArgs: {
+                        'type': 'neutral',
+                        'score': kDiplomacyDefaultScore,
+                      },
+                    );
+                  }
+
+                  final diplomacyData =
+                      GameData.game['diplomacies'][diplomacyDataId];
+                  assert(diplomacyData != null);
+                  final String type = diplomacyData['type'];
+                  final score = diplomacyData['score'] as int;
+                  switch (type) {
+                    case 'ally':
+                      relationshipSelections.add('breakAlliance');
+                    case 'enemy':
+                      relationshipSelections.add('startPeaceTalk');
+                    case 'neutral':
+                      if (score >= kDiplomacyScoreAllyThreshold) {
+                        relationshipSelections.add('formAlliance');
+                      } else if (score <= kDiplomacyScoreEnemyThreshold) {
+                        relationshipSelections.add('declareWar');
+                      }
+                      relationshipSelections.add('gift');
+                      relationshipSelections.add('askHelp');
                   }
                 }
               }
+            }
 
-              relationshipSelections.add('forgetIt');
-              dialog.pushSelection(
-                  'organizationRelationship', relationshipSelections);
-              await dialog.execute();
-              final selected = dialog.checkSelected('organizationRelationship');
-              switch (selected) {}
+            relationshipSelections.add('forgetIt');
+            dialog.pushSelection(
+                'organizationRelationship', relationshipSelections);
+            await dialog.execute();
+            final selected = dialog.checkSelected('organizationRelationship');
+            switch (selected) {
+              case 'enroll':
+                if (GameData.game['playerMonthly']['enrolled']
+                    .contains(organization['id'])) {
+                  dialog.pushDialog('hint_alreadyTrialedThisMonth',
+                      name: npc['name'],
+                      icon: npc['icon'],
+                      image: npc['illustration']);
+                  return;
+                }
+                final organizationCategory = organization['category'];
+                assert(kOrganizationCategories.contains(organizationCategory));
+                dialog.pushDialog(
+                  'organization_${organizationCategory}_trial_intro',
+                  name: npc['name'],
+                  icon: npc['icon'],
+                  image: npc['illustration'],
+                );
+                await dialog.execute();
+                switch (organizationCategory) {
+                  case 'wuwei':
+                    bool passed = true;
+                    final questions = List<int>.generate(
+                        kWuweiTrialQuestionCount, (i) => i + 1);
+                    questions.shuffle();
+                    final selectedQuestions = questions.skip(5);
+                    for (final q in selectedQuestions) {
+                      final qString = 'organization_wuwei_trial_question_$q';
+                      dialog.pushDialog(
+                        qString,
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                      final trialQuestionAnswers = [];
+                      for (var i = 0; i < kWuweiTrialOptionsCount; ++i) {
+                        trialQuestionAnswers.add('${qString}_option_${i + 1}');
+                      }
+                      dialog.pushSelection(qString, trialQuestionAnswers);
+                      await dialog.execute();
+                      final selectedAnswer = dialog.checkSelected(qString);
+                      dialog.pushDialog(
+                        '${selectedAnswer}_comment',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                      final correctAnswer = kWuweiTrialAnswers[q];
+                      if (selectedAnswer !=
+                          '${qString}_option_$correctAnswer') {
+                        passed = false;
+                        break;
+                      }
+                    }
+                    if (passed) {
+                      await engine.hetu.invoke(
+                        'enroll',
+                        namespace: 'Player',
+                        positionalArgs: [organization],
+                        namedArgs: {
+                          'npcId': npc['id'],
+                        },
+                      );
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_pass',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                    } else {
+                      GameData.game['playerMonthly']['enrolled']
+                          .add(organization['id']);
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_fail',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                    }
+                  case 'cultivation':
+                    final enemy = engine.hetu.invoke('Character', namedArgs: {
+                      'name': 'wooden_dummy',
+                      'isFemale': false,
+                      'level': 10,
+                      'rank': 0,
+                      'icon': 'illustration/npc/wooden_dummy_head.png',
+                      'skin': 'wooden_dummy',
+                      'attributes': {
+                        'charisma': 0,
+                        'wisdom': 0,
+                        'luck': 0,
+                        'spirituality': 0,
+                        'dexterity': 0,
+                        'strength': 120,
+                        'willpower': 0,
+                        'perception': 0,
+                      },
+                      'cultivationFavor': '',
+                    });
+                    engine.hetu.invoke('characterCalculateStats',
+                        positionalArgs: [enemy]);
+                    // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                    engine.hetu.invoke('generateDeck', positionalArgs: [
+                      enemy
+                    ], namedArgs: {
+                      'cardInfoList': [
+                        {
+                          'affixId': 'blank_default',
+                        },
+                        {
+                          'affixId': 'blank_default',
+                        },
+                        {
+                          'affixId': 'blank_default',
+                        },
+                      ],
+                    });
+                    engine.context.read<EnemyState>().show(enemy,
+                        onBattleEnd: (bool battleResult, int roundCount) async {
+                      if (roundCount <= kCultivationTrialMinBattleRound) {
+                        await engine.hetu.invoke(
+                          'enroll',
+                          namespace: 'Player',
+                          positionalArgs: [organization],
+                          namedArgs: {
+                            'npcId': npc['id'],
+                          },
+                        );
+                        dialog.pushDialog(
+                          'organization_${organizationCategory}_trial_pass',
+                          name: npc['name'],
+                          icon: npc['icon'],
+                          image: npc['illustration'],
+                        );
+                        await dialog.execute();
+                      } else {
+                        GameData.game['playerMonthly']['enrolled']
+                            .add(organization['id']);
+                        dialog.pushDialog(
+                          'organization_${organizationCategory}_trial_fail',
+                          name: npc['name'],
+                          icon: npc['icon'],
+                          image: npc['illustration'],
+                        );
+                        await dialog.execute();
+                      }
+                    });
+                  case 'immortality':
+                    GameData.game['flags']['cultivationTrial'] = {
+                      'difficulty': 0,
+                      'introCompleted': false,
+                      'buildCompleted': false,
+                      'room': 0,
+                      'organizationId': organization['id'],
+                      'npcId': npc['id'],
+                    };
+                    engine.pushScene(
+                      'cultivation_trial_1',
+                      constructorId: Scenes.worldmap,
+                      arguments: {
+                        'id': 'cultivation_trial_1',
+                        'method': 'load',
+                      },
+                    );
+                  case 'chivalry':
+                    final enemy = engine.hetu.invoke('Character', namedArgs: {
+                      'rank': GameData.hero['rank'],
+                    });
+                    engine.hetu.invoke('characterCalculateStats',
+                        positionalArgs: [enemy]);
+                    engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                    engine.context.read<EnemyState>().show(
+                      enemy,
+                      prebattlePreventClose: true,
+                      onBattleEnd: (bool battleResult, int roundCount) async {
+                        if (battleResult) {
+                          await engine.hetu.invoke(
+                            'enroll',
+                            namespace: 'Player',
+                            positionalArgs: [organization],
+                            namedArgs: {
+                              'npcId': npc['id'],
+                            },
+                          );
+                          dialog.pushDialog(
+                            'organization_${organizationCategory}_trial_pass',
+                            name: npc['name'],
+                            icon: npc['icon'],
+                            image: npc['illustration'],
+                          );
+                          await dialog.execute();
+                        } else {
+                          GameData.game['playerMonthly']['enrolled']
+                              .add(organization['id']);
+                          dialog.pushDialog(
+                            'organization_${organizationCategory}_trial_fail',
+                            name: npc['name'],
+                            icon: npc['icon'],
+                            image: npc['illustration'],
+                          );
+                          await dialog.execute();
+                        }
+                      },
+                    );
+                  case 'entrepreneur':
+                    final List testersData =
+                        organization['members'].values.where((m) {
+                      if (m['rank'] >= 1) return true;
+                    }).toList();
+                    assert(testersData.isNotEmpty);
+                    testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
+                    final tester = testersData.first;
+                    engine.context.read<EnemyState>().show(
+                      tester,
+                      prebattlePreventClose: true,
+                      onBattleEnd: (bool battleResult, int roundCount) async {
+                        if (battleResult) {
+                          await engine.hetu.invoke(
+                            'enroll',
+                            namespace: 'Player',
+                            positionalArgs: [organization],
+                            namedArgs: {
+                              'npcId': npc['id'],
+                            },
+                          );
+                          dialog.pushDialog(
+                            'organization_${organizationCategory}_trial_pass',
+                            name: npc['name'],
+                            icon: npc['icon'],
+                            image: npc['illustration'],
+                          );
+                          await dialog.execute();
+                        } else {
+                          GameData.game['playerMonthly']['enrolled']
+                              .add(organization['id']);
+                          dialog.pushDialog(
+                            'organization_${organizationCategory}_trial_fail',
+                            name: npc['name'],
+                            icon: npc['icon'],
+                            image: npc['illustration'],
+                          );
+                          await dialog.execute();
+                        }
+                      },
+                    );
+                  case 'wealth':
+                    final int cost = kWealthTrialCost;
+                    dialog.pushDialog('organization_wealth_intro',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                        interpolations: [cost]);
+                    await dialog.execute();
+                    final weathTrialSelections = [
+                      'pay_shard',
+                      'forgetIt',
+                    ];
+                    dialog.pushSelection(
+                        'organization_wealth_trial', weathTrialSelections);
+                    await dialog.execute();
+                    final selected =
+                        dialog.checkSelected('organization_wealth_trial');
+                    if (selected == 'pay_shard') {
+                      final int shard =
+                          GameData.hero['materials']['shard'] ?? 0;
+                      if (shard >= cost) {
+                        engine.hetu.invoke(
+                          'exhaust',
+                          namespace: 'Player',
+                          positionalArgs: ['shard'],
+                          namedArgs: {'amount': cost},
+                        );
+                        await engine.hetu.invoke(
+                          'enroll',
+                          namespace: 'Player',
+                          positionalArgs: [organization],
+                          namedArgs: {
+                            'npcId': npc['id'],
+                          },
+                        );
+                        dialog.pushDialog(
+                          'organization_${organizationCategory}_trial_pass',
+                          name: npc['name'],
+                          icon: npc['icon'],
+                          image: npc['illustration'],
+                        );
+                        await dialog.execute();
+                      } else {
+                        dialog.pushDialog('hint_notEnoughShard');
+                        dialog.pushDialog(
+                          'organization_${organizationCategory}_trial_fail',
+                          name: npc['name'],
+                          icon: npc['icon'],
+                          image: npc['illustration'],
+                        );
+                        await dialog.execute();
+                      }
+                    }
+                  case 'pleasure':
+                    final heroCharisma = GameData.hero['stats']['charisma'];
+                    if (heroCharisma >= kPleasureTrialMinCharisma) {
+                      await engine.hetu.invoke(
+                        'enroll',
+                        namespace: 'Player',
+                        positionalArgs: [organization],
+                        namedArgs: {
+                          'npcId': npc['id'],
+                        },
+                      );
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_pass',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                    } else {
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_fail',
+                        name: npc['name'],
+                        icon: npc['icon'],
+                        image: npc['illustration'],
+                      );
+                      await dialog.execute();
+                    }
+                }
+              case 'resign':
+                final resignSelections = [
+                  'resign_confirm',
+                  'forgetIt',
+                ];
+                dialog.pushSelection('resign_selections', resignSelections);
+                final selected = dialog.checkSelected('resign_selections');
+                if (selected == 'resign_confirm') {
+                  engine.hetu.invoke(
+                    'removeCharacterFromOrganization',
+                    positionalArgs: [GameData.hero],
+                  );
+                  dialog.pushDialog('organization_resign_success',
+                      interpolations: [organization['name']]);
+                  await dialog.execute();
+                }
+              case 'formAlliance':
+              case 'breakAlliance':
+              case 'makePeace':
+              case 'declareWar':
+              case 'gift':
+              case 'askHelp':
             }
         }
       case 'cityhall':
@@ -1775,15 +2182,10 @@ abstract class GameLogic {
                 );
         }
       case 'arraylab':
-        {}
       case 'illusionaltar':
-        {}
       case 'divinationaltar':
-        {}
       case 'psychictemple':
-        {}
       case 'theurgytemple':
-        {}
     }
   }
 
@@ -2059,59 +2461,38 @@ abstract class GameLogic {
       return entered;
     }
 
-    if (organization == null ||
-        GameData.hero['organizationId'] == organization['id']) {
-      dialog.pushSelection('dungeonEntrance', [
-        'about_dungeon',
-        'enter_common_dungeon',
-        'enter_advanced_dungeon',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected('dungeonEntrance');
-      switch (selected) {
-        case 'about_dungeon':
-          {
-            dialog.pushDialog(
-              'hint_dungeonEntrance',
-              name: engine.locale('guard'),
-              icon: 'illustration/npc/guard_head.png',
-              image: 'illustration/npc/guard.png',
-            );
-          }
-        case 'enter_common_dungeon':
-          {
-            final notAvailable = checkAvailableMonth();
-            final alreadyEntered = checkEntered();
-            if (notAvailable || alreadyEntered) return;
+    dialog.pushSelection('dungeonEntrance', [
+      'about_dungeon',
+      'enter_common_dungeon',
+      'enter_advanced_dungeon',
+      'cancel',
+    ]);
+    await dialog.execute();
+    final selected = dialog.checkSelected('dungeonEntrance');
+    switch (selected) {
+      case 'about_dungeon':
+        dialog.pushDialog(
+          'hint_dungeonEntrance',
+          name: engine.locale('guard'),
+          icon: 'illustration/npc/guard_head.png',
+          image: 'illustration/npc/guard.png',
+        );
+      case 'enter_common_dungeon':
+        final notAvailable = checkAvailableMonth();
+        final alreadyEntered = checkEntered();
+        if (notAvailable || alreadyEntered) return;
 
-            GameData.game['playerMonthly']['enteredDungeons']
-                .add(location['id']);
-            tryEnterDungeon(
-                isCommon: true,
-                dungeonId: location['dungeonId'] ?? 'dungeon_1');
-          }
-        case 'enter_advanced_dungeon':
-          {
-            final notAvailable = checkAvailableMonth();
-            final alreadyEntered = checkEntered();
-            if (notAvailable || alreadyEntered) return;
+        GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
+        tryEnterDungeon(
+            isCommon: true, dungeonId: location['dungeonId'] ?? 'dungeon_1');
+      case 'enter_advanced_dungeon':
+        final notAvailable = checkAvailableMonth();
+        final alreadyEntered = checkEntered();
+        if (notAvailable || alreadyEntered) return;
 
-            GameData.game['playerMonthly']['enteredDungeons']
-                .add(location['id']);
-            tryEnterDungeon(
-                isCommon: false,
-                dungeonId: location['dungeonId'] ?? 'dungeon_1');
-          }
-      }
-    } else if (organization != null) {
-      dialog.pushDialog(
-        'hint_organizationFacilityNotMember',
-        name: engine.locale('guard'),
-        icon: 'illustration/npc/guard_head.png',
-        image: 'illustration/npc/guard.png',
-      );
-      await dialog.execute();
+        GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
+        tryEnterDungeon(
+            isCommon: false, dungeonId: location['dungeonId'] ?? 'dungeon_1');
     }
   }
 }

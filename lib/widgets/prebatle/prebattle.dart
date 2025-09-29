@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_view.dart';
@@ -27,6 +29,7 @@ class PreBattleDialog extends StatefulWidget {
     super.key,
     required this.hero,
     required this.enemy,
+    this.prebattlePreventClose = false,
     this.onBattleStart,
     this.onBattleEnd,
     this.ignoreRequirement = false,
@@ -34,8 +37,10 @@ class PreBattleDialog extends StatefulWidget {
 
   final dynamic hero, enemy;
 
+  final bool prebattlePreventClose;
+
   final void Function()? onBattleStart;
-  final void Function(bool, int)? onBattleEnd;
+  final FutureOr<void> Function(bool, int)? onBattleEnd;
   final bool ignoreRequirement;
 
   @override
@@ -169,11 +174,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
             engine.locale('prebattle'),
           ),
           actions: [
-            CloseButton2(
-              onPressed: () {
-                context.read<EnemyState>().clear();
-              },
-            )
+            if (!widget.prebattlePreventClose)
+              CloseButton2(
+                onPressed: () {
+                  context.read<EnemyState>().clear();
+                },
+              )
           ],
         ),
         body: Container(

@@ -7,7 +7,7 @@ import '../../engine.dart';
 import '../../game/ui.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：

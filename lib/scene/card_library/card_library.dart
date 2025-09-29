@@ -26,7 +26,7 @@ import '../../game/data.dart';
 import '../../widgets/ui_overlay.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../particles/light_point.dart';
 import '../../widgets/dialog/input_string.dart';
 

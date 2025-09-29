@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../state/game_save.dart';
 import '../../engine.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../game/ui.dart';
 
 class LoadGameDialog extends StatefulWidget {

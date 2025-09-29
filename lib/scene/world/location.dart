@@ -15,7 +15,7 @@ import '../../widgets/dialog/character_visit.dart';
 import '../../state/npc_list.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
-import '../../common.dart';
+import '../../game/common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../state/game_save.dart';
 import '../../widgets/dialog/input_string.dart';

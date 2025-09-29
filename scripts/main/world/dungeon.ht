@@ -127,7 +127,7 @@ function addMerchant(tilePosition, {
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 
-  engine.info('添加商人：${objectId} (category: ${category})')
+  engine.debug('添加商人：${objectId} (category: ${category})')
 }
 
 function addEnemy(tilePosition, {
@@ -156,7 +156,7 @@ function addEnemy(tilePosition, {
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 
-  engine.info('添加敌人：${objectId} (rank: ${rank}, level: ${level})')
+  engine.debug('添加敌人：${objectId} (rank: ${rank}, level: ${level})')
 }
 
 function addRestBed(tilePosition, {

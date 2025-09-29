@@ -1068,7 +1068,7 @@ async function onInteractBed(object) {
       newLife = hero.stats.lifeMax
     }
     hero.life = newLife
-    engine.info('休息恢复了 ${newLife - life} 生命值')
+    engine.debug('休息恢复了 ${newLife - life} 生命值')
     Game.updateHero()
 
     await Dialog.execute()
