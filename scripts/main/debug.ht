@@ -52,7 +52,7 @@ namespace Debug {
     }
     
     final items = []
-    for (var kind in kEquipmentKinds) {
+    for (var kind in Constants.equipmentKinds) {
       final item = Equipment(kind: kind, rank: hero.rank)
       items.add(item)
       Player.acquire(item)

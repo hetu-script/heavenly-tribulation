@@ -362,7 +362,7 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       GameLogic.tryEnterDungeon(
         rank: namedArgs['rank'],
-        isCommon: namedArgs['isCommon'] ?? true,
+        isBasic: namedArgs['isCommon'] ?? true,
         dungeonId: namedArgs['dungeonId'] ?? 'dungeon_1',
         pushScene: namedArgs['pushScene'] ?? true,
       );
@@ -381,21 +381,19 @@ class _GameAppState extends State<GameApp> {
       context.read<NpcListState>().hide(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptQuest', (
-        {positionalArgs, namedArgs}) {
-      engine.setCursor(Cursors.normal);
-      context.read<NewQuestState>().update(quest: positionalArgs.first);
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Game::promptItems', (
         {positionalArgs, namedArgs}) {
-      final items = positionalArgs.first is List
-          ? positionalArgs.first
-          : [positionalArgs.first];
-      engine.setCursor(Cursors.normal);
-      final completer = Completer();
-      context.read<NewItemsState>().update(items: items, completer: completer);
-      return completer.future;
+      return GameLogic.promptItems(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::promptQuest', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.promptQuest(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::promptNewRank', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.promptNewRank(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::selectCharacter', (

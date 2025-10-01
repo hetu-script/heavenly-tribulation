@@ -61,8 +61,7 @@ class LocationScene extends Scene {
       // 这里不知为何flutter明明Pop的是Null，传过来却变成了bool，只好用类型判断是否选择了角色
       if (selectedId is String) {
         final homeSiteId = 'home_$selectedId';
-        final homeSiteData = GameData.game['locations'][homeSiteId];
-        assert(homeSiteData != null);
+        final homeSiteData = GameData.getLocation(homeSiteId);
         GameLogic.tryEnterLocation(homeSiteData);
       }
     } else {
@@ -123,7 +122,7 @@ class LocationScene extends Scene {
         world.add(siteCard);
       default:
         for (final siteId in location['sites']) {
-          final siteData = GameData.game['locations'][siteId];
+          final siteData = GameData.getLocation(siteId);
           final siteCard = GameData.createSiteCardFromData(siteData);
           siteCard.onTap = (button, position) {
             if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
@@ -159,8 +158,9 @@ class LocationScene extends Scene {
   void onLoad() async {
     super.onLoad();
 
-    if (location['organizationId'] != null) {
-      organization = GameData.game['organizations'][location['organizationId']];
+    final organizationId = location['organizationId'];
+    if (organizationId != null) {
+      organization = GameData.getOrganization(organizationId);
     }
 
     _backgroundComponent = SpriteComponent(

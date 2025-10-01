@@ -143,7 +143,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
   /// 这里的 organization 可能是 null
   final organization =
       GameData.game['organizations'][location['organizationId']];
-  final atLocation = GameData.game['locations'][location['atLocationId']];
+  final atLocation = GameData.getLocation(location['atLocationId']);
 
   bool isManager = false;
   if (organization != null) {
@@ -186,8 +186,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               final heroTitleId = GameData.hero['titleId'];
               if (heroTitleId == 'head' || heroTitleId == 'diplomat') {
                 final heroOrganization =
-                    GameData.game['organizations'][heroOrganizationId];
-                assert(heroOrganization != null);
+                    GameData.getOrganization(heroOrganizationId);
                 final diplomacyDataId = organization['diplomacies']
                     [heroOrganizationId][heroOrganizationId];
                 if (diplomacyDataId == null) {
@@ -739,8 +738,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
   if (character['entityType'] != 'character') {
     assert(character['entityType'] == 'npc',
         'invalid character entity type, ${character['entityType']}');
-    final location = GameData.game['locations'][character['atLocationId']];
-    assert(location != null, 'npc.atLocationId is null!');
+    final location = GameData.getLocation(character['atLocationId']);
     _onInteractNpc(character, location);
     return;
   }
@@ -813,15 +811,15 @@ Future<void> _onInteractCharacter(dynamic character) async {
       switch (topic) {
         case 'questTopic':
           final questsData = GameData.hero['quests'];
-          if (questsData.isEmpty) {
-            dialog.pushDialog('hint_noQuests', isHero: true);
-            await dialog.execute();
-            return;
-          }
           final questsSelections = {};
           for (final quest in questsData.values) {
             if (quest['isFinished'] == true) continue;
             questsSelections[quest['id']] = quest['title'];
+          }
+          if (questsData.isEmpty || questsSelections.isEmpty) {
+            dialog.pushDialog('hint_noQuests', isHero: true);
+            await dialog.execute();
+            return;
           }
           questsSelections['cancel'] = engine.locale('cancel');
           dialog.pushSelectionRaw(
@@ -856,9 +854,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
                 assert(reportLocation != null,
                     'Location is null, location id: $reportLocationId');
                 final superiorId = memberData['superiorId'];
-                final superior = GameData.game['characters'][superiorId];
-                assert(superior != null,
-                    'Character is null, character id: $superiorId');
+                final superior = GameData.getCharacter(superiorId);
                 if (superiorId == character['id']) {
                   dialog.pushDialog(
                     'quest_organizationInitiation_topic_superior',
@@ -973,8 +969,9 @@ Future<void> _onInteractCharacter(dynamic character) async {
         final bool isCharacterRomance = engine.hetu
             .invoke('isRomance', positionalArgs: [character, GameData.hero]);
         if (isCharacterRomance) {
-          final bool hasProposed = GameData.game['playerMonthly']['proposed']
-              .contains(character['id']);
+          final bool hasProposed =
+              (GameData.game['playerMonthly']['proposed'] as List)
+                  .contains(character['id']);
           if (!hasProposed) {
             relationshipSelections.add('propose');
           }
@@ -1023,19 +1020,22 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
 
       // 组织的加入，招募和开除
-      final bool isCharacterHead =
-          engine.hetu.invoke('isOrganizationHead', positionalArgs: [character]);
-      final bool isHeroHead = engine.hetu
-          .invoke('isOrganizationHead', positionalArgs: [GameData.hero]);
-      final bool hasApplied =
-          GameData.game['playerMonthly']['applied'].contains(character.id);
-      final bool hasRecruited =
-          GameData.game['playerMonthly']['recruited'].contains(character.id);
-      if (isCharacterHead && !hasApplied) {
-        relationshipSelections.add('apply');
-      }
-      if (isHeroHead && !hasRecruited) {
-        relationshipSelections.add('recruit');
+      if (GameData.hero['organizationId'] == null) {
+        final bool isCharacterHead = engine.hetu
+            .invoke('isOrganizationHead', positionalArgs: [character]);
+        final bool hasEnrolled = GameData.game['playerMonthly']['enrolled']
+            .contains(character['organizationId']);
+        if (isCharacterHead && !hasEnrolled) {
+          relationshipSelections.add('enroll');
+        }
+      } else {
+        final bool isHeroHead = engine.hetu
+            .invoke('isOrganizationHead', positionalArgs: [GameData.hero]);
+        final bool hasRecruited =
+            GameData.game['playerMonthly']['recruited'].contains(character.id);
+        if (isHeroHead && !hasRecruited) {
+          relationshipSelections.add('recruit');
+        }
       }
 
       relationshipSelections.add('forgetIt');

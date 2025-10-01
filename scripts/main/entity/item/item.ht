@@ -31,70 +31,6 @@ const kItemExtraAffixMinLevel = 6
 
 const kEquipmentMax = 6
 
-const kConsumableCategoryKinds = [
-  kItemCategoryCardpack,
-  kItemCategoryPotion,
-]
-
-const kEquipmentCategoryKinds = {
-    // 所有武器的category都是weapon
-  weapon: [
-    'sword',
-    'sabre',
-    'spear',
-    'staff',
-    'bow',
-    'dart',
-  ],
-  shield: [
-    'shield',
-  ],
-  armor: [
-    'armor',
-  ],
-  gloves: [
-    'gloves',
-  ]
-  helmet: [
-    'helmet',
-  ],
-  boots: [
-    'boots',
-  ],
-  ship: [
-    'ship',
-  ],
-  // aircraft: [
-  //   'aircraft',
-  // ],
-  // 所有首饰的 category 都是 jewelry
-  jewelry: [
-    'ring',
-    'amulet',
-    // 'belt',
-  ],
-  talisman: [
-    'pearl',
-  ],
-}
-
-const kEquipmentKinds = [
-  ...kEquipmentCategoryKinds.weapon,
-  ...kEquipmentCategoryKinds.shield,
-  ...kEquipmentCategoryKinds.armor,
-  ...kEquipmentCategoryKinds.gloves,
-  ...kEquipmentCategoryKinds.helmet,
-  ...kEquipmentCategoryKinds.boots,
-  ...kEquipmentCategoryKinds.ship,
-  // ...kEquipmentCategoryKinds.aircraft,
-  ...kEquipmentCategoryKinds.jewelry,
-  ...kEquipmentCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
-]
-
-const kItemCategoryBoots = 'boots'
-const kItemCategoryShip = 'ship'
-const kItemCategoryAircraft = 'aircraft'
-
 function calculatePrice(item) {
   item.price = (item.rank + 1) * (item.level + 1) *
     (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? 1)
@@ -150,20 +86,20 @@ struct Equipment {
     this.category = category
     if (category == null) {
       if (this.kind != null) {
-        final categories = [...kEquipmentCategoryKinds.keys]
+        final categories = [...Constants.equipmentCategoryKinds.keys]
         this.category = categories.firstWhere((key) {
-          return kEquipmentCategoryKinds[key].contains(this.kind)
+          return Constants.equipmentCategoryKinds[key].contains(this.kind)
         })
       } else {
-        this.category = kEquipmentCategoryKinds.keys.random
-        this.kind = kEquipmentCategoryKinds[this.category].random
+        this.category = Constants.equipmentCategoryKinds.keys.random
+        this.kind = Constants.equipmentCategoryKinds[this.category].random
       }
     }
-    assert(kEquipmentCategoryKinds.containsKey(this.category))
+    assert(Constants.equipmentCategoryKinds.containsKey(this.category))
     if (this.kind == null) {
-      this.kind = kEquipmentCategoryKinds[this.category].random
+      this.kind = Constants.equipmentCategoryKinds[this.category].random
     }
-    assert(kEquipmentKinds.contains(this.kind))
+    assert(Constants.equipmentKinds.contains(this.kind))
     this.name = name ?? generateTalismanName(kind: this.kind)
 
     if (rarity != null) {
@@ -738,9 +674,9 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///     rank: 0,
 ///   },
 /// ]
-function getItemsFromLootbox(box) {
+function createLoot(itemsInfo: List) {
   final items = []
-  for (final itemInfo in box.items) {
+  for (final itemInfo in itemsInfo) {
     final amount = itemInfo.amount ?? 1
     switch (itemInfo.type) {
       // 'exp': {
@@ -760,7 +696,7 @@ function getItemsFromLootbox(box) {
         }
       }
       'equipment': {
-        assert(kEquipmentKinds.contains(itemInfo.kind))
+        assert(Constants.equipmentKinds.contains(itemInfo.kind))
         for (var i in range(amount)) {
           final equipment = Equipment(
             kind: itemInfo.kind,

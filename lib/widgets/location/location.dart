@@ -52,12 +52,12 @@ class _LocationViewState extends State<LocationView>
   late final TabController _tabController;
   final fluent.FlyoutController _siteMenuController = fluent.FlyoutController();
 
-  late final dynamic _locationData;
-  dynamic _ownerData;
+  late final dynamic _location;
+  dynamic _owner;
   dynamic _atLocation;
 
-  bool get isCity => _locationData['category'] == 'city';
-  bool get isSite => _locationData['category'] == 'site';
+  bool get isCity => _location['category'] == 'city';
+  bool get isSite => _location['category'] == 'site';
   bool get isEditMode => widget.mode == InformationViewMode.edit;
   bool get isManageMode => widget.mode == InformationViewMode.manage;
 
@@ -76,22 +76,22 @@ class _LocationViewState extends State<LocationView>
     assert(widget.location != null || widget.locationId != null,
         'LocationView must have either organizationId or organization data.');
     if (widget.location != null) {
-      _locationData = widget.location!;
+      _location = widget.location!;
     } else if (widget.locationId != null) {
-      _locationData = GameData.game['locations'][widget.locationId];
+      _location = GameData.getLocation(widget.locationId);
     }
-    assert(_locationData != null);
+    assert(_location != null);
 
-    final ownerId = _locationData['ownerId'];
-    _ownerData = GameData.game['characters'][ownerId];
+    final ownerId = _location['ownerId'];
+    _owner = GameData.getCharacter(ownerId);
 
     Iterable residents = [];
 
-    if (_locationData['category'] == 'site') {
-      _atLocation = GameData.game['locations'][_locationData['atLocationId']];
-    } else if (_locationData['category'] == 'city') {
-      residents = (_locationData['residents'] as Iterable)
-          .map((id) => GameData.game['characters'][id]);
+    if (_location['category'] == 'site') {
+      _atLocation = GameData.game['locations'][_location['atLocationId']];
+    } else if (_location['category'] == 'city') {
+      residents = (_location['residents'] as Iterable)
+          .map((id) => GameData.getCharacter(id));
 
       for (final character in residents) {
         final row = GameLogic.getCharacterInformationRow(character);
@@ -113,8 +113,8 @@ class _LocationViewState extends State<LocationView>
 
   void _updateSitesData() {
     _siteCards.clear();
-    for (final siteId in _locationData['sites']) {
-      final siteData = GameData.game['locations'][siteId];
+    for (final siteId in _location['sites']) {
+      final siteData = GameData.getLocation(siteId);
       final siteCard = SiteCard(
         siteData: siteData,
         imagePath: siteData['image'],
@@ -150,8 +150,7 @@ class _LocationViewState extends State<LocationView>
                     );
                     break;
                   case SiteOperation.delete:
-                    final siteData = GameData.game['locations'][siteId];
-                    assert(siteData != null, 'location not found, id: $siteId');
+                    final siteData = GameData.getLocation(siteId);
                     engine.hetu.invoke(
                       'removeLocation',
                       positionalArgs: [siteData],
@@ -173,13 +172,13 @@ class _LocationViewState extends State<LocationView>
   }
 
   void setNpc() async {
-    if (_locationData['npcId'] == null) {
+    if (_location['npcId'] == null) {
       final npcData = await showDialog(
         context: context,
         builder: (context) {
           return EditNpcBasics(
-            atLocation: _locationData,
-            id: _locationData['id'] + '_npc',
+            atLocation: _location,
+            id: _location['id'] + '_npc',
             nameId: 'servant',
             icon: 'illustration/npc/servant_head.png',
             illustration: 'illustration/npc/servant.png',
@@ -187,9 +186,9 @@ class _LocationViewState extends State<LocationView>
         },
       );
       if (npcData == null) return;
-      _locationData['npcId'] = npcData['id'];
+      _location['npcId'] = npcData['id'];
     } else {
-      final npcData = GameData.game['npcs'][_locationData['npcId']];
+      final npcData = GameData.game['npcs'][_location['npcId']];
       assert(npcData != null);
       await showDialog(
         context: context,
@@ -200,7 +199,7 @@ class _LocationViewState extends State<LocationView>
             icon: npcData['icon'],
             illustration: npcData['illustration'],
             useCustomLogic: npcData['useCustomLogic'] ?? false,
-            atLocation: _locationData,
+            atLocation: _location,
           );
         },
       );
@@ -213,7 +212,7 @@ class _LocationViewState extends State<LocationView>
     final Set<String> buildableSites = {};
     if (isCity && isManageMode) {
       final Set<String> existedSites = {};
-      for (final siteId in _locationData['sites']) {
+      for (final siteId in _location['sites']) {
         final siteData = GameData.game['locations'][siteId];
         if (siteData != null) {
           existedSites.add(siteData['kind']);
@@ -249,7 +248,7 @@ class _LocationViewState extends State<LocationView>
                           height: 35.0,
                           child: Text('${engine.locale('manager')}:'),
                         ),
-                        Text('${_ownerData?['name'] ?? engine.locale('none')}'),
+                        Text('${_owner?['name'] ?? engine.locale('none')}'),
                       ],
                     ),
                     Row(
@@ -260,7 +259,7 @@ class _LocationViewState extends State<LocationView>
                           height: 35.0,
                           child: Text('${engine.locale('development')}:'),
                         ),
-                        Text('${_locationData['development']}'),
+                        Text('${_location['development']}'),
                       ],
                     ),
                     if (isCity) ...[
@@ -278,12 +277,12 @@ class _LocationViewState extends State<LocationView>
                               height: 22.0,
                               padding: const EdgeInsets.only(top: 2),
                               child: fluent.Checkbox(
-                                checked: _locationData['isDiscovered'] ?? false,
+                                checked: _location['isDiscovered'] ?? false,
                                 // activeColor: Colors.white,
                                 onChanged: (bool? value) {
                                   if (value != null) {
                                     setState(() {
-                                      _locationData['isDiscovered'] = value;
+                                      _location['isDiscovered'] = value;
                                     });
                                   }
                                 },
@@ -303,7 +302,7 @@ class _LocationViewState extends State<LocationView>
                             width: 120.0,
                             height: 35.0,
                             child: Text(
-                                '${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
+                                '${_location['worldPosition']['left']}, ${_location['worldPosition']['top']}'),
                           ),
                         ],
                       ),
@@ -321,7 +320,7 @@ class _LocationViewState extends State<LocationView>
                               onPressed: () {
                                 setNpc();
                               },
-                              child: Text(_locationData['npcId'] ??
+                              child: Text(_location['npcId'] ??
                                   engine.locale('setNpc')),
                             ),
                           ],
@@ -365,14 +364,14 @@ class _LocationViewState extends State<LocationView>
                       final value = await showDialog(
                         context: context,
                         builder: (context) => EditLocationBasics(
-                          id: _locationData['id'],
-                          category: _locationData['category'],
-                          kind: _locationData['kind'],
-                          name: _locationData['name'],
-                          image: _locationData['image'],
-                          background: _locationData['background'],
+                          id: _location['id'],
+                          category: _location['category'],
+                          kind: _location['kind'],
+                          name: _location['name'],
+                          image: _location['image'],
+                          background: _location['background'],
                           atLocation: _atLocation,
-                          createNpc: _locationData['npcId'] != null,
+                          createNpc: _location['npcId'] != null,
                           allowEditCategory: false,
                         ),
                       );
@@ -386,45 +385,44 @@ class _LocationViewState extends State<LocationView>
                         background,
                         createNpc,
                       ) = value;
-                      _locationData['category'] = category;
-                      _locationData['kind'] = kind;
-                      _locationData['name'] = name;
-                      _locationData['image'] = image;
-                      _locationData['background'] = background;
+                      _location['category'] = category;
+                      _location['kind'] = kind;
+                      _location['name'] = name;
+                      _location['image'] = image;
+                      _location['background'] = background;
 
-                      if (id != null && id != _locationData['id']) {
-                        final oldId = _locationData['id'];
+                      if (id != null && id != _location['id']) {
+                        final oldId = _location['id'];
                         GameData.game['locations'].remove(oldId);
-                        GameData.game['locations'][id] = _locationData;
+                        GameData.game['locations'][id] = _location;
 
-                        if (_locationData['category'] == 'site') {
-                          final atLocation = GameData.game['locations']
-                              [_locationData['atLocationId']];
-                          assert(atLocation != null);
+                        if (_location['category'] == 'site') {
+                          final atLocation =
+                              GameData.getLocation(_location['atLocationId']);
                           atLocation['sites'].remove(oldId);
                           atLocation['sites'].add(id);
                         }
 
-                        _locationData['id'] = id;
+                        _location['id'] = id;
                       }
 
                       if (createNpc) {
-                        if (_locationData['npcId'] == null) {
+                        if (_location['npcId'] == null) {
                           final npcData = engine.hetu.invoke(
                             'Npc',
                             namedArgs: {
-                              'id': _locationData['id'] + '_npc',
+                              'id': _location['id'] + '_npc',
                               'nameId': 'servant',
                               'icon': 'illustration/npc/servant_head.png',
                               'illustration': 'illustration/npc/servant.png',
-                              'atLocationId': _locationData['id'],
+                              'atLocationId': _location['id'],
                             },
                           );
-                          _locationData['npcId'] = npcData['id'];
+                          _location['npcId'] = npcData['id'];
                         }
                       } else {
-                        if (_locationData['npcId'] != null) {
-                          _locationData['npcId'] = null;
+                        if (_location['npcId'] != null) {
+                          _location['npcId'] = null;
                         }
                       }
                       setState(() {});
@@ -441,12 +439,12 @@ class _LocationViewState extends State<LocationView>
                         builder: (context) {
                           return EditLocationBasics(
                             category: 'site',
-                            kind: _locationData['category'] == 'site'
+                            kind: _location['category'] == 'site'
                                 ? 'custom'
                                 : null,
-                            atLocation: _locationData,
+                            atLocation: _location,
                             allowEditCategory: false,
-                            allowEditKind: _locationData['category'] == 'city',
+                            allowEditKind: _location['category'] == 'city',
                           );
                         },
                       );
@@ -469,9 +467,9 @@ class _LocationViewState extends State<LocationView>
                           'name': name,
                           'image': image,
                           'background': background,
-                          'atLocation': _locationData,
+                          'atLocation': _location,
                           'createNpc': createNpc,
-                          'organizationId': _locationData['organizationId'],
+                          'organizationId': _location['organizationId'],
                         },
                       );
                       await showDialog(
@@ -534,11 +532,11 @@ class _LocationViewState extends State<LocationView>
       width: 800.0,
       height: 600.0,
       // height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
-      child: _locationData['category'] == 'city'
+      child: _location['category'] == 'city'
           ? Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                title: Text(_locationData['name']),
+                title: Text(_location['name']),
                 actions: const [CloseButton2()],
                 bottom: TabBar(
                   controller: _tabController,
@@ -566,7 +564,7 @@ class _LocationViewState extends State<LocationView>
           : Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                title: Text(_locationData['name']),
+                title: Text(_location['name']),
                 actions: const [CloseButton2()],
               ),
               body: mainPanel,

@@ -6,7 +6,7 @@
     // endings 数组代表了任务结束节点
     // 当任务的 stage 推进到这些值时
     // 会将任务标记为 isFinished
-    endings: [2],
+    endings: [1],
     isEphemeral: false,
   },
 }

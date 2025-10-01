@@ -202,7 +202,7 @@ class WorldMapScene extends Scene {
     }
     // final String? locationId = terrain.locationId;
     // if (locationId != null) {
-    //   heroAtLocation = GameData.game['locations'][locationId];
+    //   heroAtLocation = GameData.getLocation(locationId);
     // } else {
     //   heroAtLocation = null;
     // }
@@ -243,7 +243,7 @@ class WorldMapScene extends Scene {
 
     final String? locationId = _selectedTerrain!.locationId;
     if (locationId != null) {
-      _selectedLocation = GameData.game['locations'][locationId];
+      _selectedLocation = GameData.getLocation(locationId);
     } else {
       _selectedLocation = null;
     }
@@ -838,10 +838,7 @@ class WorldMapScene extends Scene {
             case TerrainPopUpMenuItems.setTerritory:
               final organizationId = await GameLogic.selectOrganizationId();
               if (organizationId == null) return;
-              final organization =
-                  GameData.game['organizations'][organizationId];
-              assert(organization != null,
-                  'organization not found! id: $organizationId');
+              final organization = GameData.getOrganization(organizationId);
               territoryMode = organization;
               engine.setCursor(Cursors.click);
             case TerrainPopUpMenuItems.clearTerritory:
@@ -850,8 +847,8 @@ class WorldMapScene extends Scene {
               final locationId = await GameLogic.selectLocationId();
               if (locationId == null) return;
               _selectedTerrain!.locationId = locationId;
-              _selectedTerrain!.caption =
-                  GameData.game['locations'][locationId]['name'];
+              final location = GameData.getLocation(locationId);
+              _selectedTerrain!.caption = location['name'];
             case TerrainPopUpMenuItems.clearLocation:
               _selectedTerrain!.locationId = null;
               _selectedTerrain!.caption = null;
@@ -987,8 +984,7 @@ class WorldMapScene extends Scene {
     }
 
     for (final id in GameData.hero['companions']) {
-      final charData = GameData.game['characters'][id];
-      assert(charData != null);
+      final charData = GameData.getCharacter(id);
       _npcsAtHeroPosition.add(charData);
     }
 
@@ -1002,8 +998,7 @@ class WorldMapScene extends Scene {
     _npcsAtHeroPosition.clear();
 
     for (final id in GameData.hero['companions']) {
-      final charData = GameData.game['characters'][id];
-      assert(charData != null);
+      final charData = GameData.getCharacter(id);
       _npcsAtHeroPosition.add(charData);
     }
 
@@ -1171,8 +1166,7 @@ class WorldMapScene extends Scene {
                 if (terrain.objectId != null) {
                   GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
                 } else if (terrain.locationId != null) {
-                  final location =
-                      GameData.game['locations'][terrain.locationId];
+                  final location = GameData.getLocation(terrain.locationId);
                   _tryEnterLocation(location);
                 }
               }
@@ -1248,7 +1242,7 @@ class WorldMapScene extends Scene {
           _heroMoveTo(terrain);
         } else {
           if (terrain.locationId != null) {
-            final location = GameData.game['locations'][terrain.locationId];
+            final location = GameData.getLocation(terrain.locationId);
             _tryEnterLocation(location);
           } else if (terrain.objectId != null) {
             GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
@@ -1298,9 +1292,8 @@ class WorldMapScene extends Scene {
       GameLogic.updateGame(timeflow: false);
 
       if (GameData.hero == null) {
-        final characters = GameData.game['characters'].values;
-        final Iterable filteredCharacters =
-            (characters as Iterable).where((character) {
+        final Iterable characters = GameData.game['characters'].values;
+        final Iterable filteredCharacters = characters.where((character) {
           final age = engine.hetu
               .invoke('getCharacterAge', positionalArgs: [character]);
           if (age < kMinHeroAge || age > kMaxHeroAge) {
@@ -1330,9 +1323,7 @@ class WorldMapScene extends Scene {
         engine.hetu.invoke('setHeroId', positionalArgs: [key]);
         GameData.hero = engine.hetu.fetch('hero');
         final heroHomeLocation =
-            GameData.game['locations'][GameData.hero['homeLocationId']];
-        assert(heroHomeLocation != null,
-            'Hero homeLocationId is not set or invalid! [${GameData.hero['homeLocationId']}]');
+            GameData.getLocation(GameData.hero['homeLocationId']);
         engine.hetu.invoke('discoverLocation', positionalArgs: [
           heroHomeLocation,
         ], namedArgs: {

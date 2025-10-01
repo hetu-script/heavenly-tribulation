@@ -5,12 +5,12 @@
 function resetDungeon({
   rank,
   initialRoom = true,
-  isTutorial = false,
+  isBasic = false,
 }) {
   game.dungeon = DungeonFlags(
     rank: rank,
     initialRoom: initialRoom,
-    isTutorial: isTutorial,
+    isBasic: isBasic,
   )
 }
 

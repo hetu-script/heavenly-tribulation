@@ -115,9 +115,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         context.watch<ItemSelectState>().selectedItems;
 
     final newQuest = context.watch<NewQuestState>().quest;
+    final newQuestCompleter = context.watch<NewQuestState>().completer;
     final newItems = context.watch<NewItemsState>().items;
     final newItemsCompleter = context.watch<NewItemsState>().completer;
     final newRank = context.watch<NewRankState>().rank;
+    final newRankCompleter = context.watch<NewRankState>().completer;
 
     if (newRank != null) {
       _prompts.add('rank');
@@ -702,8 +704,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             ...panels,
             if (_prompts.isNotEmpty)
               switch (_prompts.last) {
-                'rank' => NewRank(rank: newRank!),
-                'quest' => NewQuest(questData: newQuest!),
+                'rank' => NewRank(rank: newRank!, completer: newRankCompleter),
+                'quest' =>
+                  NewQuest(questData: newQuest!, completer: newQuestCompleter),
                 'item' =>
                   NewItems(itemsData: newItems!, completer: newItemsCompleter),
                 _ => SizedBox.shrink(),

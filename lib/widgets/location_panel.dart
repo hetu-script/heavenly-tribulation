@@ -63,6 +63,7 @@ class LocationPanel extends StatelessWidget {
       dynamic owner;
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
+      // 这里 owner 可能是 null
       owner = GameData.game['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];

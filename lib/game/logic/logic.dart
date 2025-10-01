@@ -159,15 +159,14 @@ abstract class GameLogic {
         .invoke('getCharacterFameString', positionalArgs: [character]);
     row.add(fame);
     final homeLocationId = character['homeLocationId'];
-    final homeLocation = GameData.game['locations'][homeLocationId];
-    assert(homeLocation != null,
-        'character home location not found, ${character['id']}, $homeLocationId');
+    final homeLocation = GameData.getLocation(homeLocationId);
     row.add(homeLocation['name']);
     // 门派名字
     String organizationName = engine.locale('none');
     final organizationId = character['organizationId'];
     if (organizationId != null) {
-      organizationName = GameData.game['organizations'][organizationId]['name'];
+      final organization = GameData.getOrganization(organizationId);
+      organizationName = organization['name'];
     }
     row.add(organizationName);
     // 称号
@@ -193,7 +192,8 @@ abstract class GameLogic {
     String organizationName = engine.locale('none');
     final organizationId = location['organizationId'];
     if (organizationId != null) {
-      organizationName = GameData.game['organizations'][organizationId]['name'];
+      final organization = GameData.getOrganization(organizationId);
+      organizationName = organization['name'];
     }
     row.add(organizationName);
     // 多存一个隐藏的 id 信息，用于点击事件
@@ -211,10 +211,7 @@ abstract class GameLogic {
     // 流派
     row.add(engine.locale(organization['genre']));
     // 总堂
-    final headquarters =
-        GameData.game['locations'][organization['headquartersId']];
-    assert(headquarters != null,
-        'organization headquarters not found, ${organization['id']}, ${organization['headquartersId']}');
+    final headquarters = GameData.getLocation(organization['headquartersId']);
     row.add(headquarters['name']);
     // 据点数量
     row.add(organization['locationIds'].length.toString());
@@ -871,7 +868,7 @@ abstract class GameLogic {
           if (result) {
             engine.hetu.invoke('levelUp', namespace: 'Player');
             final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
-            engine.context.read<NewRankState>().update(rank: rank);
+            promptNewRank(rank);
           }
         },
       );
@@ -902,6 +899,33 @@ abstract class GameLogic {
     final skill = GameData.hero['passives']['stamina_cost_reduce_on_water'];
     cost -= cost * (skill?['value'] ?? 0) / 100;
     return cost;
+  }
+
+  static Future<void> promptItems(List items) async {
+    engine.setCursor(Cursors.normal);
+    final completer = Completer();
+    engine.context
+        .read<NewItemsState>()
+        .update(items: items, completer: completer);
+    return completer.future;
+  }
+
+  static Future<void> promptQuest(dynamic quest) async {
+    engine.setCursor(Cursors.normal);
+    final completer = Completer();
+    engine.context
+        .read<NewQuestState>()
+        .update(quest: quest, completer: completer);
+    return completer.future;
+  }
+
+  static Future<void> promptNewRank(int rank) async {
+    engine.setCursor(Cursors.normal);
+    final completer = Completer();
+    engine.context
+        .read<NewRankState>()
+        .update(rank: rank, completer: completer);
+    return completer.future;
   }
 
   static void onUseItem(dynamic itemData) {
@@ -1370,13 +1394,14 @@ abstract class GameLogic {
 
   static void tryEnterDungeon({
     int? rank,
-    bool isCommon = false,
+    bool isBasic = false,
     String dungeonId = 'dungeon_1',
     bool pushScene = true,
   }) {
-    if (rank == 0 || isCommon) {
+    if (isBasic) {
       engine.hetu.invoke('resetDungeon', namedArgs: {
-        'rank': 0,
+        'rank': rank ?? 0,
+        'isBasic': true,
       });
       if (!pushScene) return;
       engine.pushScene(
@@ -1403,6 +1428,7 @@ abstract class GameLogic {
               namespace: 'Player', positionalArgs: [selectedItem]);
           engine.hetu.invoke('resetDungeon', namedArgs: {
             'rank': selectedItem['rank'],
+            'isBasic': false,
           });
           if (!pushScene) return;
           engine.pushScene(
@@ -1481,7 +1507,7 @@ abstract class GameLogic {
 
         GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
         tryEnterDungeon(
-            isCommon: true, dungeonId: location['dungeonId'] ?? 'dungeon_1');
+            isBasic: true, dungeonId: location['dungeonId'] ?? 'dungeon_1');
       case 'enter_advanced_dungeon':
         final notAvailable = checkAvailableMonth();
         final alreadyEntered = checkEntered();
@@ -1489,7 +1515,7 @@ abstract class GameLogic {
 
         GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
         tryEnterDungeon(
-            isCommon: false, dungeonId: location['dungeonId'] ?? 'dungeon_1');
+            isBasic: false, dungeonId: location['dungeonId'] ?? 'dungeon_1');
     }
   }
 }

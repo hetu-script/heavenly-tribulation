@@ -213,6 +213,7 @@ class GameDialog with ChangeNotifier, TaskController {
     bool hideImage = false,
     dynamic interpolations,
   }) {
+    // 这里 character 有可能是 null
     character ??=
         isHero ? GameData.hero : GameData.game['characters'][characterId];
     icon ??= hideIcon ? null : character?['icon'];

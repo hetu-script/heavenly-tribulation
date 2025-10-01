@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
@@ -11,9 +13,11 @@ class NewQuest extends StatelessWidget {
   const NewQuest({
     super.key,
     required this.questData,
+    this.completer,
   });
 
   final dynamic questData;
+  final Completer? completer;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +63,7 @@ class NewQuest extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
+                        completer?.complete();
                         context.read<NewQuestState>().update();
                       },
                       child: Text(

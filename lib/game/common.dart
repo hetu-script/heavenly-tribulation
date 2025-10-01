@@ -1025,3 +1025,63 @@ const kDiplomacyScoreAllyThreshold = 50;
 const kDiplomacyScoreEnemyThreshold = -50;
 
 const kDiplomacyDefaultScore = 0;
+
+const kConsumableCategoryKinds = [
+  kItemCategoryCardpack,
+  kItemCategoryPotion,
+];
+
+const kEquipmentCategoryKinds = {
+  // 所有武器的category都是weapon
+  'weapon': [
+    'sword',
+    'sabre',
+    'spear',
+    'staff',
+    'bow',
+    'dart',
+  ],
+  'shield': [
+    'shield',
+  ],
+  'armor': [
+    'armor',
+  ],
+  'gloves': [
+    'gloves',
+  ],
+  'helmet': [
+    'helmet',
+  ],
+  'boots': [
+    'boots',
+  ],
+  'ship': [
+    'ship',
+  ],
+  // aircraft: [
+  //   'aircraft',
+  // ],
+  // 所有首饰的 category 都是 jewelry
+  'jewelry': [
+    'ring',
+    'amulet',
+    // 'belt',
+  ],
+  'talisman': [
+    'pearl',
+  ],
+};
+
+final kEquipmentKinds = [
+  ...kEquipmentCategoryKinds['weapon']!,
+  ...kEquipmentCategoryKinds['shield']!,
+  ...kEquipmentCategoryKinds['armor']!,
+  ...kEquipmentCategoryKinds['gloves']!,
+  ...kEquipmentCategoryKinds['helmet']!,
+  ...kEquipmentCategoryKinds['boots']!,
+  ...kEquipmentCategoryKinds['ship']!,
+  // ...kEquipmentCategoryKinds['aircraft']!,
+  ...kEquipmentCategoryKinds['jewelry']!,
+  ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman
+];

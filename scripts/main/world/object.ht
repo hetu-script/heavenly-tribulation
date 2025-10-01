@@ -156,8 +156,8 @@ struct ObjectMerchant {
 
     for (var i in range(itemCount)) {
       final c = category.random
-      if(c in kEquipmentCategoryKinds) {
-        final k = kEquipmentCategoryKinds[c].random
+      if(c in Constants.equipmentCategoryKinds) {
+        final k = Constants.equipmentCategoryKinds[c].random
         final item = Equipment(kind: k, rank: rank)
         entityAcquire(this.merchant, item)
       } else if (c == kItemCategoryCardpack) {

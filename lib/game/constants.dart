@@ -78,6 +78,10 @@ class ConstantsBinding extends HTExternalClass {
         return kTerrainKindsMountain;
       case 'Constants.titleToOrganizationRank':
         return kTitleToOrganizationRank;
+      case 'Constants.equipmentCategoryKinds':
+        return kEquipmentCategoryKinds;
+      case 'Constants.equipmentKinds':
+        return kEquipmentKinds;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

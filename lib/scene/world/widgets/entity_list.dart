@@ -810,7 +810,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           return;
                         }
                         final location =
-                            GameData.game['locations'][selectedTile.locationId];
+                            GameData.getLocation(selectedTile.locationId);
                         if (location['category'] != 'city') {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectCityPrompt'));
@@ -881,8 +881,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                         dynamic atTerrain = selectedTile.data;
                         dynamic atLocation;
                         if (selectedTile.locationId != null) {
-                          atLocation = GameData.game['locations']
-                              [selectedTile.locationId];
+                          atLocation =
+                              GameData.getLocation(selectedTile.locationId);
                         }
                         final value = await showDialog(
                           context: context,
@@ -955,10 +955,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   LocationPopUpMenuItems.delete,
                             },
                             onSelectedItem: (item) async {
-                              final location =
-                                  GameData.game['locations'][dataId];
-                              assert(location != null,
-                                  'location not found, id: $dataId');
+                              final location = GameData.getLocation(dataId);
                               switch (item) {
                                 case LocationPopUpMenuItems.checkInformation:
                                   _editLocation(dataId);
@@ -1012,8 +1009,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                             .locale('dangerOperationPrompt')),
                                   );
                                   if (value != true) return;
-                                  final location =
-                                      GameData.game['locations'][dataId];
+                                  final location = GameData.getLocation(dataId);
                                   engine.hetu.invoke('removeLocation',
                                       positionalArgs: [location]);
                                   _updateLocations();

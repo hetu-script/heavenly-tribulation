@@ -1,7 +1,7 @@
 // import '../entity/item/item.ht'
 // import '../world/dungeon.ht'
 
-const kTutorialRooms = {
+const kBasicRooms = {
   '0': 'chest',
   '1': 'enemy',
   '2': '3portal',
@@ -297,7 +297,7 @@ function prepareMap() {
 
   Game.updateDungeon(game.dungeon)
 
-  let roomInfo = game.dungeon.isTutorial ? kTutorialRoom : kNormalRooms
+  let roomInfo = game.dungeon.isBasic ? kBasicRooms : kNormalRooms
 
   assert(game.dungeon.room <= game.dungeon.roomMax &&
         roomInfo.contains(game.dungeon.room.toString()) &&
@@ -306,27 +306,13 @@ function prepareMap() {
 
   final nextRoomType = roomInfo[game.dungeon.room + 1]
   /// 用随机遭遇填充地图
-  if (game.dungeon.isTutorial) {
+  if (game.dungeon.isBasic) {
     switch (game.dungeon.room + 1) {
       1: {
         addPortalByNextRoomType(nextRoomType)
         addDebris()
-        // 第一层固定是一个宝箱，没有敌人。
-        final randomEquipment = kEquipmentCategoryKinds.weapon.random
-        addTreasureBox(kCenterTile, items: [
-          {
-            type: 'equipment',
-            kind: randomEquipment,
-            rank: hero.rank,
-          },
-          {
-            type: 'cardpack',
-            category: 'attack',
-            kind: randomEquipment,
-            rank: hero.rank,
-            isBasic: true,
-          },
-        ])
+        // 第一层固定是一个恢复生命的床，没有敌人。
+        addRestBed(kCenterTile)
       }
       2: {
         addEnemy(
@@ -404,29 +390,8 @@ function prepareMap() {
       1: {
         addPortalByNextRoomType(nextRoomType)
         addDebris()
-        // 第一层固定是一个宝箱，没有敌人。
-        final randomEquipment = kEquipmentCategoryKinds.weapon.random
-        addTreasureBox(kCenterTile, items: [
-          {
-            type: 'equipment',
-            kind: randomEquipment,
-            rank: hero.rank,
-          },
-          {
-            type: 'cardpack',
-            category: 'attack',
-            kind: randomEquipment,
-            rank: hero.rank,
-            isBasic: true,
-          },
-          {
-            type: 'cardpack',
-            kind: randomEquipment,
-            rank: hero.rank,
-          },
-        ])
-        // final rewards = generateRewardList()
-        // addTreasureBox(kCenterTile, items: rewards)
+        // 第一层固定是一个恢复生命的床，没有敌人。
+        addRestBed(kCenterTile)
       }
       2, 4, 6, 10, 12: {
         addEnemy(
@@ -671,8 +636,8 @@ async function onInteractMapObject(object, terrain) {
             // tile.overlaySprite = {}
             World.updateTerrainData(tile.left, tile.top)
             World.removeCharacter(object.battleEntity.id)
-            final nextRoomType = game.dungeon.isTutorial ?
-              kTutorialRooms[game.dungeon.room + 1] :
+            final nextRoomType = game.dungeon.isBasic ?
+              kBasicRooms[game.dungeon.room + 1] :
               kNormalRooms[game.dungeon.room + 1]
             addPortalByNextRoomType(nextRoomType)
           } else {

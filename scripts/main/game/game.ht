@@ -35,9 +35,11 @@ namespace Game {
 
   external function hideNpc(id)
 
+  external function promptItems(items: Iterable)
+
   external function promptQuest(quest)
 
-  external function promptItems(items: Iterable)
+  external function promptNewRank(rank)
 
   external async function selectCharacter([ids])
 

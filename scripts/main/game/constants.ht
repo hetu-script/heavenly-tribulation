@@ -36,4 +36,6 @@ external abstract class Constants {
   static get terrainKindsMountain;
   static get titleToOrganizationRank;
   static get rankToOrganizationTitle;
+  static get equipmentCategoryKinds;
+  static get equipmentKinds;
 }

@@ -162,4 +162,6 @@ function characterProgressQuestById(character, questId, { stage,  incurIncident 
     }
   }
   engine.debug('角色 [${character.id}] 的任务 [${quest.title}] 推进了进度：${quest.stage}')
+
+  return quest
 }

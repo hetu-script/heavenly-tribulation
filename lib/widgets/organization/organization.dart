@@ -36,7 +36,7 @@ class _OrganizationViewState extends State<OrganizationView> {
 
   final List<List<String>> _charactersTable = [], _locationsTable = [];
 
-  late final dynamic _headquarters, _headData;
+  late final dynamic _headquarters, _head;
 
   @override
   void initState() {
@@ -47,14 +47,14 @@ class _OrganizationViewState extends State<OrganizationView> {
     if (widget.organization != null) {
       _organization = widget.organization!;
     } else if (widget.organizationId != null) {
-      _organization = GameData.game['organizations'][widget.organizationId]!;
+      _organization = GameData.getOrganization(widget.organizationId);
     }
 
     final headquartersId = _organization['headquartersId'];
-    _headquarters = GameData.game['locations'][headquartersId];
+    _headquarters = GameData.getLocation(headquartersId);
 
     final headId = _organization['headId'];
-    _headData = GameData.game['characters'][headId];
+    _head = GameData.getCharacter(headId);
 
     final Iterable memberIds = (_organization['members'].values as Iterable)
         .map((member) => member['id']);
@@ -114,7 +114,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${engine.locale('head')}: ${_headData['name']}'),
+                    Text('${engine.locale('head')}: ${_head['name']}'),
                     Text(
                         '${engine.locale('headquarters')}: ${_headquarters['name']}'),
                     Text(
@@ -141,8 +141,8 @@ class _OrganizationViewState extends State<OrganizationView> {
                                     category: _organization['category'],
                                     genre: _organization['genre'],
                                     headId: _organization['headId'],
-                                    headquartersData: GameData.game['locations']
-                                        [_organization['headquartersId']],
+                                    headquartersData: GameData.getLocation(
+                                        _organization['headquartersId']),
                                   ),
                                 );
                                 if (value == null) return;

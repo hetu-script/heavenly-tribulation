@@ -1017,7 +1017,7 @@ async function onInteractTreasureBox(object, terrain) {
   Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   // await Future.delayed(0.5)
-  final items = getItemsFromLootbox(object)
+  final items = createLoot(object.items)
   for (final item in items) {
     Player.acquire(item, autoUnpack: true)
   }

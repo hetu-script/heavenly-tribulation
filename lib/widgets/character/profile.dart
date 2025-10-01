@@ -164,6 +164,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     race = engine.locale(raceId);
 
     final organizationId = _character['organizationId'];
+    // 这里有可能为 null
     final organization = GameData.game['organizations'][organizationId];
     organizationName = organization != null ? organization['name'] : none;
 

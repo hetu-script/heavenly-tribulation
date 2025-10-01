@@ -91,16 +91,31 @@ abstract class GameData {
   static final Map<String, String> cityKindNames = {};
   static final Map<String, String> siteKindNames = {};
 
-  /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
-  static dynamic game, universe, world, history, hero;
-
   static Set<String> worldIds = {};
 
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
-  /// wether started a new game or load from a save.
-  // static bool isGameCreated = false;
+  /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
+  static dynamic game, universe, world, history, hero;
+
+  static dynamic getCharacter(dynamic id) {
+    final character = GameData.game['characters'][id];
+    assert(character != null, 'Character not found, id: $id');
+    return character;
+  }
+
+  static dynamic getLocation(dynamic id) {
+    final location = GameData.game['locations'][id];
+    assert(location != null, 'Location not found, id: $id');
+    return location;
+  }
+
+  static dynamic getOrganization(dynamic id) {
+    final organization = GameData.game['organizations'][id];
+    assert(organization != null, 'Organization not found, id: $id');
+    return organization;
+  }
 
   static Future<void> init() async {
     if (_isInitted) {
@@ -471,14 +486,6 @@ abstract class GameData {
       historyData: historyData,
       isEditorMode: isEditorMode,
     );
-  }
-
-  static dynamic getCharacter(String id) {
-    final character = game['characters'][id];
-    if (character == null) {
-      throw '无法找到角色，id: [$id]';
-    }
-    return character;
   }
 
   static Future<SpriteAnimationWithTicker> createAnimationFromData(

@@ -22,11 +22,14 @@ let self
 let opponent
 let battleFlags
 
-/// 用于限制玩家每个月的互动操作次数，月初会重置
+/// 玩家每个月的互动操作记录，月初会重置
 struct MonthlyActivities {
   constructor {
     // 战斗相关
-    this.identifiedEnemyCards = 0 // 鉴定敌人卡牌数量
+    // 本月鉴定敌人卡牌数量
+    this.identifiedEnemyCards = 0
+
+    this.attendedMeeting = false
 
     // 对其他角色操作
     this.gifted = []
@@ -63,29 +66,29 @@ struct MonthlyActivities {
   }
 }
 
-const _kTutorialRoomMax = 5
+const _kBasicDungeonRoomMax = 5
 const _kDungeonRoomMax = 13
 
 struct DungeonFlags {
   constructor ({
     rank,
     initialRoom = true,
-    isTutorial = false,
+    isBasic = false,
   }) {
     rank ??= 0
     rank = rank.clamp(0, kCultivationRankMax - 1)
 
     this.rank = rank
     this.level = 0
-    if (isTutorial) {
+    if (isBasic) {
       this.levelMax = 0
     } else {
       this.levelMax = rank * 2 + 1
     }
     this.minEnemyLevel = minLevelForRank(rank)
-    this.isTutorial = isTutorial
+    this.isBasic = isBasic
     this.room = initialRoom ? 0 : 1
-    this.roomMax = isTutorial ? _kTutorialRoomMax : _kDungeonRoomMax
+    this.roomMax = isBasic ? _kBasicDungeonRoomMax : _kDungeonRoomMax
     this.needRebuild = true
     this.battleResult = null
     this.selectedPortal = null

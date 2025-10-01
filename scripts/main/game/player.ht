@@ -267,11 +267,12 @@ namespace Player {
   }
   
   /// 用于从一个宝箱中根据物品信息创造物品并获取
-  function loot(box) {
-    final items = getItemsFromLootbox(box)
+  function loot(itemsInfo: List) {
+    final items = createLoot(itemsInfo)
     for (final item in items) {
       acquire(item)
     }
+    return items
   }
 
   /// 用于从另一个角色身上批量拿取
@@ -487,7 +488,7 @@ namespace Player {
   /// 这里不处理任务的成功和失败
   function progressQuestById(questId, { stage,  incurIncident = true }) {
     assert(hero != null)
-    characterProgressQuestById(hero, questId, stage: stage, incurIncident: incurIncident)
+    return characterProgressQuestById(hero, questId, stage: stage, incurIncident: incurIncident)
   }
 
   function setActiveQuest(quest) {
