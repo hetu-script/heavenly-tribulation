@@ -7,7 +7,7 @@ import '../../engine.dart';
 import '../../state/character.dart';
 import '../../state/hover_content.dart';
 import '../../game/common.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 
 const kStatsItems = [
   'level',

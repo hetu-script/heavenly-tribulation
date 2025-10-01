@@ -529,7 +529,7 @@ async function onEnterMap() {
     for (final item in rewards) {
       Player.acquire(item)
     }
-    Game.promptNewItems(rewards)
+    Game.promptItems(rewards)
     game.dungeon.battleEntity = null
   } else if (game.dungeon.battleResult == false) {
     game.dungeon.battleResult = null

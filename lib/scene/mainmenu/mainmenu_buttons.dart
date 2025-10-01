@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../game/data.dart';
 import '../../engine.dart';
 import 'load_game.dart';
@@ -173,10 +173,15 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                                 const CreateSandboxGameDialog(),
                           );
                           if (args == null) return;
+                          engine.setLoading(true);
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
-
-                          GameData.createGame(args['saveName']).then((_) {
+                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          Future.delayed(const Duration(milliseconds: 250),
+                              () async {
+                            await GameData.createGame(
+                              args['saveName'],
+                            );
                             engine.pushScene(
                               args['id'],
                               constructorId: Scenes.worldmap,
@@ -277,17 +282,22 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             ),
                           );
                           if (args == null) return;
+                          engine.setLoading(true);
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
-                          await GameData.createGame(
-                            args['saveName'],
-                            isEditorMode: true,
-                          );
-                          engine.pushScene(
-                            args['id'],
-                            constructorId: Scenes.worldmap,
-                            arguments: args,
-                          );
+                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          Future.delayed(const Duration(milliseconds: 250),
+                              () async {
+                            await GameData.createGame(
+                              args['saveName'],
+                              isEditorMode: true,
+                            );
+                            engine.pushScene(
+                              args['id'],
+                              constructorId: Scenes.worldmap,
+                              arguments: args,
+                            );
+                          });
                         },
                         child: Label(
                           engine.locale('createMap'),

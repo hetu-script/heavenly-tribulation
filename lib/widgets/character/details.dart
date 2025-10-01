@@ -11,7 +11,7 @@ import '../ui/menu_builder.dart';
 import '../dialog/confirm.dart';
 // import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../../game/event_ids.dart';
 import '../../game/data.dart';

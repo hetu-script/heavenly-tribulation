@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:hetu_script/utils/json.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/samsara.dart';
 import 'package:hetu_script/value/function/function.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'scene/mainmenu/mainmenu.dart';
 import 'engine.dart';
@@ -21,11 +19,11 @@ import 'game/ui.dart';
 import 'scene/world/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
-import 'game/logic.dart';
+import 'game/logic/logic.dart';
 import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
-import 'widgets/ui/menu_builder.dart';
 import 'game/constants.dart';
+import 'scene/loading_screen.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -383,13 +381,13 @@ class _GameAppState extends State<GameApp> {
       context.read<NpcListState>().hide(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuest', (
+    engine.hetu.interpreter.bindExternalFunction('Game::promptQuest', (
         {positionalArgs, namedArgs}) {
       engine.setCursor(Cursors.normal);
       context.read<NewQuestState>().update(quest: positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptNewItems', (
+    engine.hetu.interpreter.bindExternalFunction('Game::promptItems', (
         {positionalArgs, namedArgs}) {
       final items = positionalArgs.first is List
           ? positionalArgs.first
@@ -398,6 +396,21 @@ class _GameAppState extends State<GameApp> {
       final completer = Completer();
       context.read<NewItemsState>().update(items: items, completer: completer);
       return completer.future;
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::selectCharacter', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.selectCharacter(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::selectLocation', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.selectLocation(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::selectOrganization', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.selectOrganization(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (
@@ -553,7 +566,7 @@ class _GameAppState extends State<GameApp> {
   }
 
   // FutureBuilder 根据返回值是否为null来判断是否成功，因此这里无论如何需要返回一个值
-  Future<bool> _loadScene() async {
+  Future<bool> _initEngine() async {
     if (_isLoading) return false;
     _isLoading = true;
 
@@ -585,20 +598,26 @@ class _GameAppState extends State<GameApp> {
     }
 
     return FutureBuilder(
-      future: _loadScene(),
+      future: _initEngine(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-        }
-        if (!snapshot.hasData) {
-          return LoadingScreen(
-            text: engine.isInitted ? engine.locale('loading') : 'Loading...',
-          );
+        } else if (!snapshot.hasData) {
+          return LoadingScreen();
         } else {
           final scene = context.watch<SamsaraEngine>().scene;
-          return fluent.FlyoutTarget(
-            controller: globalFlyoutController,
-            child: scene?.build(context) ?? const SizedBox.shrink(),
+          final isLoading = context.watch<SamsaraEngine>().isLoading;
+          return Scaffold(
+            body: Stack(
+              children: [
+                scene?.build(
+                      context,
+                      loadingBuilder: (context) => LoadingScreen(),
+                    ) ??
+                    const SizedBox.shrink(),
+                if (isLoading) LoadingScreen(),
+              ],
+            ),
           );
         }
       },

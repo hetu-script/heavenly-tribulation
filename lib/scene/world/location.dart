@@ -14,12 +14,12 @@ import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/character_visit.dart';
 import '../../state/npc_list.dart';
 import '../game_dialog/game_dialog_content.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../state/game_save.dart';
 import '../../widgets/dialog/input_string.dart';
-import '../../widgets/world_infomation.dart';
+import '../../widgets/entity_listview.dart';
 import '../common.dart';
 
 enum LocationDropMenuItems { save, saveAs, info, console, exit }
@@ -106,7 +106,7 @@ class LocationScene extends Scene {
             spriteId: 'location/card/carddesk.png',
             title: engine.locale('cardlibrary'));
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractLibraryDesk(
+          GameLogic.onInteractCardLibraryDesk(
               organization: organization, location: location);
         };
         siteList.cards.add(siteCard);
@@ -188,7 +188,7 @@ class LocationScene extends Scene {
     exit.onTap = (_, __) async {
       final result = await engine.hetu.invoke('onWorldEvent',
           positionalArgs: ['onBeforeExitLocation', location]);
-      if (GameLogic.truthy(result)) return;
+      if (result == true) return;
       final worldId = location['worldId'];
       if (worldId != null) {
         final left = location['worldPosition']['left'];
@@ -246,10 +246,20 @@ class LocationScene extends Scene {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext)? loadingBuilder,
+    Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
+    List<String>? initialActiveOverlays,
+  }) {
     return Stack(
       children: [
-        SceneWidget(scene: this),
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
         GameUIOverlay(
           action: Container(
             decoration: BoxDecoration(
@@ -330,8 +340,7 @@ class LocationScene extends Scene {
                         case LocationDropMenuItems.info:
                           showDialog(
                               context: context,
-                              builder: (context) =>
-                                  const WorldInformationPanel());
+                              builder: (context) => const EntityListView());
                         case LocationDropMenuItems.console:
                           showDialog(
                             context: context,

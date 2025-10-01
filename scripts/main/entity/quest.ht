@@ -44,6 +44,8 @@ struct Quest {
     title,
     image,
     endings: List,
+    interpolations: List,
+    isEphemeral = false,
   }) {
     assert(title != null)
     this.title = title
@@ -52,11 +54,14 @@ struct Quest {
     assert(endings is List && endings.isNotEmpty)
     this.image = image
     this.endings = endings ?? []
+    // 是否为非重要的短暂任务，此类任务无论完成情况如何，都会在月初被清理
+    this.isEphemeral = isEphemeral ?? false
+    this.interpolations = interpolations ?? []
     // 当前所处的阶段，以数字表示
     // 每个阶段的文本按照约定格式为：'${quest.id}_stage${stage}'
     this.stage = 0
-    // 日志进展，每个阶段的index对应了一段描述
-    // 故事并不要求是连续的，可能有不同的路径和结尾
+    // 日志进程，每个阶段的index对应了一段描述
+    // 进程并不一定是连续的，可能有不同的路径和结尾
     // 但起点一定是 0
     this.sequence = [ 0 ]
     // 只要stage达到endings中记录的任何一个数字，就算结束
@@ -64,53 +69,97 @@ struct Quest {
   }
 }
 
-function generateQuestById(questId, {publishCharacterId}) {
-  assert(Game.quests.containsKey(questId), 'quest not found, id: ${questId}')
-  final questData = Game.quests[questId]
+function characterAcquireQuestById(character, questId, {
+  setAsActive = false,
+  interpolations = [],
+  incurIncident = true,
+}) {
+  if (character.quests.containsKey(questId)) {
+    engine.error('角色 [${character.id}] 的任务 [${quest.id}] 已经存在，不能再次接受！')
+    return
+  }
+
+  final questData = game.quests[questId]
+  assert(questData != null, 'quest data not found, id: ${questId}')
+  if (questData.isUnique && character.flags.uniqueQuests[questId] != null) {
+    engine.error('任务 [${questId}] 是唯一的，不能再次接受！')
+    return
+  }
+
   final quest = Quest(
     id: questId,
     title: engine.locale(questData.title ?? questData.id),
     image: questData.image,
     endings: questData.endings.toList(),
+    isEphemeral: questData.isEphemeral,
+    interpolations: interpolations,
   )
+
+  character.quests[quest.id] = quest
+  if (setAsActive) {
+    character.activeQuestId = quest.id
+  }
+  
+  const incidentContent = engine.locale(
+    'characterAcceptQuest',
+    interpolations: [ character.name, quest.title ],
+  )
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
   return quest
 }
 
-// function generateQuestReward(difficulty) {
-//   const reward = Lootbox()
-//   return reward
-// }
+/// 推动任务进度
+/// 这里不处理任务的成功和失败
+function characterProgressQuestById(character, questId, { stage,  incurIncident = true }) {
+  final quest = character.quests[questId]
+  assert(quest != null)
+  if (quest.isFinished) {
+    engine.error('角色 [${character.id}] 的任务 [${quest.id}] 已经完成，不能再推进进度！')
+    return
+  }
+  assert(quest.sequence.length > 0)
+  stage ??= quest.stage + 1
+  assert(stage > quest.stage)
+  assert(!quest.sequence.contains(stage))
+  
+  quest.sequence.add(stage)
+  quest.stage = stage
 
-// // 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等
-// function characterTrySubmitQuest(character, target, quest) -> bool {
-//   if (quest.questEntitiesSubmit) {
-//     for (const data in quest.questEntitiesSubmit) {
-//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
-//         if (!character.companions.containsKey(game.id)) return false
-//       } else if (game.entityType == kEntityTypeItem) {
-//         if (!character.inventory.containsKey(game.id)) {
-//           return false
-//         } else {
-//           const item = character.inventory[game.id]
-//           if (item.stackSize < game.count) {
-//             return false
-//           }
-//         }
-//       } else {
-//         print(data)
-//         engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${game.entityType}')
-//       }
-//     }
-
-//     for (const data in quest.questEntitiesSubmit) {
-//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
-//         const entity = character.companions[game.id]
-//         characterDismissCompanion(character, entity)
-//       } else if (game.entityType == kEntityTypeItem) {
-//         give(character, target, game.id, count: game.count)
-//       }
-//     }
-//   }
-//   return true
-// }
-
+  if (quest.endings.contains(stage)) {
+    quest.isFinished = true
+    
+    if (character.activeQuestId == quest.id) {
+      character.activeQuestId = null
+    }
+    let incidentContent = engine.locale(
+      'characterQuestFinished',
+      interpolations: [ character.name, quest.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  } else {
+    let incidentContent = engine.locale(
+      'characterQuestProgressed',
+      interpolations: [ character.name, quest.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  }
+  engine.debug('角色 [${character.id}] 的任务 [${quest.title}] 推进了进度：${quest.stage}')
+}

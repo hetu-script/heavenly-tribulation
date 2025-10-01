@@ -39,7 +39,6 @@ class _QuestViewState extends State<QuestView> {
 
   // QuestViewMode _selectedMode = QuestViewMode.all;
 
-  String? _selectedQuestId;
   dynamic _selectedQuest;
 
   @override
@@ -56,7 +55,6 @@ class _QuestViewState extends State<QuestView> {
 
     if (_questsData.isNotEmpty) {
       _selectedQuest = _questsData.values.last;
-      _selectedQuestId = _selectedQuest['id'];
     }
   }
 
@@ -70,7 +68,10 @@ class _QuestViewState extends State<QuestView> {
         RichText(
           text: TextSpan(
             children: buildFlutterRichText(
-              engine.locale('${questId}_stage$index'),
+              engine.locale(
+                'quest_${questId}_stage_$index',
+                interpolations: questData['interpolations'],
+              ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -165,7 +166,6 @@ class _QuestViewState extends State<QuestView> {
                           (quest) => fluent.Button(
                             onPressed: () {
                               setState(() {
-                                _selectedQuestId = quest['id'];
                                 _selectedQuest = quest;
                               });
                             },

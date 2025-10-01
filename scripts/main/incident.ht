@@ -143,7 +143,6 @@ function characterKnowIncident(character, incident, { witnessed }) {
     }
     const subject = game.characters[incident.subjectId]
     updateBondScore(character, subject, score)
-    engine.debug('${character.name} 对 ${subject.name} 的好感度改变了 [${score}]')
   }
   
   // if (!character.bonds.containsKey(id)) {
@@ -198,8 +197,8 @@ function entityExperienceIncident(entity, incident) {
     const score = (calculateCharacterScoreOfIncident(entity, incident) * 1.5).toInt()
     if (score != 0) {
       let bond = entity.bonds[incident.subjectId]
-      engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${score}]')
       bond.score += score
+      engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${bond.score}]')
     }
   }
 }

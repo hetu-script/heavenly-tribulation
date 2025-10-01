@@ -4,7 +4,7 @@ import 'package:samsara/ui/label.dart';
 import '../../game/ui.dart';
 import '../../engine.dart';
 import '../../state/hover_content.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../scene/common.dart';
 
 class BattleCard extends StatelessWidget {

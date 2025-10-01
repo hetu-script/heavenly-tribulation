@@ -469,33 +469,25 @@ namespace Player {
     characterRejuvenate(hero)
   }
 
-  function acquireQuestById(questId, { setAsActive = false, incurIncident = true }) {
+  function acquireQuestById(questId, {
+    setAsActive = true,
+    interpolations,
+    incurIncident = true,
+  }) {
     assert(hero != null)
-    final quest = generateQuestById(questId)
-
-    if (hero.quests.containsKey(quest.id)) {
-      engine.error('任务 [${quest.id}] 已经存在，不能再次接受！')
-      return
-    }
-    hero.quests[quest.id] = quest
-    if (setAsActive) {
-      hero.activeQuestId = quest.id
-    }
-    
-    const incidentContent = engine.locale(
-      'characterAcceptQuest',
-      interpolations: [ hero.name, quest.title ],
+    return characterAcquireQuestById(
+      hero, questId,
+      setAsActive: setAsActive,
+      interpolations: interpolations,
+      incurIncident: incurIncident,
     )
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+  }
 
-    return quest
+  /// 推动任务进度
+  /// 这里不处理任务的成功和失败
+  function progressQuestById(questId, { stage,  incurIncident = true }) {
+    assert(hero != null)
+    characterProgressQuestById(hero, questId, stage: stage, incurIncident: incurIncident)
   }
 
   function setActiveQuest(quest) {
@@ -505,68 +497,44 @@ namespace Player {
   }
 
   function getActiveQuest() {
-    assert(hero != null)
+    assert(hero?.activeQuestId != null)
     assert(hero.quests.containsKey(hero.activeQuestId))
     return hero.quests[hero.activeQuestId]
   }
 
-  /// 推动任务进度
-  /// 这里不处理任务的成功和失败
-  function progressQuestById(questId, { stage,  incurIncident = true }) {
-    assert(hero != null)
-    final quest = hero.quests[questId]
-    assert(quest != null)
-    if (quest.isFinished) {
-      engine.error('任务 [${quest.id}] 已经完成，不能再推进进度！')
-      return
-    }
-    assert(quest.sequence.length > 0)
-    stage ??= quest.stage + 1
-    assert(stage > quest.stage)
-    assert(!quest.sequence.contains(stage))
-    
-    quest.sequence.add(stage)
-    quest.stage = stage
-
-    if (quest.endings.contains(stage)) {
-      quest.isFinished = true
-      
-      if (hero.activeQuestId == quest.id) {
-        hero.activeQuestId = null
-      }
-      let incidentContent = engine.locale(
-        'characterQuestFinished',
-        interpolations: [ hero.name, quest.title ],
-      )
-      if (incurIncident) {
-        Incident(
-          message: incidentContent,
-          subjectId: hero.id,
-        )
-      }
-    } else {
-      let incidentContent = engine.locale(
-        'characterQuestProgressed',
-        interpolations: [ hero.name, quest.title ],
-      )
-      if (incurIncident) {
-        Incident(
-          message: incidentContent,
-          subjectId: hero.id,
-        )
-      }
-    }
-    engine.debug('任务「${quest.title}」进度：${quest.stage}')
-  }
-
   async function enroll(organization, { npcId, title = 'taskman', incurIncident = true }) {
     assert(hero != null)
-    addCharacterToOrganization(hero, organization, title: title, incurIncident: incurIncident)
-    if (game.flags.hintedJoinedOrganization != true) {
-      game.flags.hintedJoinedOrganization = true;
-      Dialog.pushDialog('hint_organization_join_success',
-          interpolations: [organization.name]);
-      await Dialog.execute();
-    }
+    addCharacterToOrganization(
+      hero,
+      organization,
+      title: title,
+      setHome: false,
+      incurIncident: incurIncident,
+    )
+    Dialog.pushDialog('hint_select_organization_home')
+    await Dialog.execute()
+    final locationIds = organization.locationIds
+    assert(locationIds.isNotEmpty, 'organization has no locationIds: ${organization.id}')
+    // 玩家需要手动选择一个据点作为家宅所在地
+    final homeId = await Game.selectLocation(locationIds)
+    const home = game.locations[homeId]
+    assert(home != null, 'location is null for id: ${homeId}')
+    setCharacterHome(hero, home)
+
+    final superiorId = assignCharacterSuperior(hero, organization)
+    assert(superiorId != null, 'no superior for hero found in organization: ${organization.id}')
+    final superior = game.characters[superiorId]
+    assert(superior != null, 'character is null for id: ${superiorId}')
+    
+    final interpolations = [
+      organization.name,
+      home.name,
+      superior.name,
+    ]
+    Dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
+    await Dialog.execute()
+
+    final quest = Player.acquireQuestById('organizationInitiation', interpolations: interpolations)
+    Game.promptQuest(quest)
   }
 }

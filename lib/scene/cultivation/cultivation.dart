@@ -18,7 +18,7 @@ import 'package:provider/provider.dart';
 
 import '../particles/light_point.dart';
 import '../../engine.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
 import '../../widgets/ui_overlay.dart';
@@ -983,11 +983,11 @@ class CultivationScene extends Scene {
       cultivateButton.isEnabled = false;
     }
 
+    camera.snapTo(center);
+
     await onEnterScene?.call();
 
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
-
-    camera.snapTo(center);
   }
 
   /// 处理角色升级相关逻辑
@@ -1139,7 +1139,12 @@ class CultivationScene extends Scene {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext)? loadingBuilder,
+    Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
+    List<String>? initialActiveOverlays,
+  }) {
     return KeyboardListener(
       autofocus: true,
       focusNode: _focusNode,
@@ -1154,7 +1159,12 @@ class CultivationScene extends Scene {
       },
       child: Stack(
         children: [
-          SceneWidget(scene: this),
+          SceneWidget(
+            scene: this,
+            loadingBuilder: loadingBuilder,
+            overlayBuilderMap: overlayBuilderMap,
+            initialActiveOverlays: initialActiveOverlays,
+          ),
           GameUIOverlay(
             enableHeroInfo: isHero,
             enableNpcs: false,

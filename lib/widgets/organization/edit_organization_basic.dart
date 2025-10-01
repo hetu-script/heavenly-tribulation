@@ -5,9 +5,8 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../dialog/character_select.dart';
+import '../entity_listview.dart';
 import '../../engine.dart';
-import '../../game/data.dart';
 import '../../game/ui.dart';
 import '../ui/close_button2.dart';
 
@@ -214,11 +213,13 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                       ),
                       fluent.FilledButton(
                         onPressed: () async {
-                          final key = await CharacterSelectDialog.show(
+                          final key = await showDialog<String>(
                             context: context,
-                            title: engine.locale('selectCharacter'),
-                            characters: GameData.game['characters'].values,
-                            showCloseButton: true,
+                            barrierDismissible: false,
+                            builder: (context) => EntityListView(
+                              showCloseButton: false,
+                              mode: EntityListViewMode.selectCharacter,
+                            ),
                           );
                           _headIdEditingController.text = key ?? '';
                         },

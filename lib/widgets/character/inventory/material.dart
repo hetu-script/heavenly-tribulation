@@ -5,7 +5,7 @@ import 'package:samsara/ui/mouse_region2.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../../game/ui.dart';
-import '../../../game/logic.dart';
+import '../../../game/logic/logic.dart';
 import '../../../engine.dart';
 import '../../../state/hover_content.dart';
 import '../../../game/common.dart';

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../game/ui.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
 import '../../game/common.dart';

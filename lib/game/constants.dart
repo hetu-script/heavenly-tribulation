@@ -36,10 +36,12 @@ class ConstantsBinding extends HTExternalClass {
         return kLocationCityKinds;
       case 'Constants.locationSiteKinds':
         return kLocationSiteKinds;
-      case 'Constants.siteKindsBuildable':
-        return kSiteKindsBuildable;
       case 'Constants.siteKindsManagable':
         return kSiteKindsManagable;
+      case 'Constants.siteKindsBuildable':
+        return kSiteKindsBuildable;
+      case 'Constants.siteKindsBuildableOnWorldMap':
+        return kSiteKindsBuildableOnWorldMap;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constnats.damageTypes':

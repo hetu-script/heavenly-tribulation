@@ -434,10 +434,8 @@ function setCharacterLocationId(character, locationId: string) {
 //   return game.locations[id]
 // }
 
-function getLocations({ids, worldId}) {
-  // let atWorld = worldId != null ? universe[worldId] : world
-  if (ids != null) {
-    assert(ids.isNotEmpty)
+function getLocations([ids]) {
+  if (ids?.isNotEmpty) {
     return game.locations.values.where( (value) => value.id in ids )
   } else {
     return game.locations.values

@@ -298,15 +298,15 @@ const kLocationSiteKinds = [
   'workshop',
   'alchemylab',
   'arraylab',
-  'illusionaltar',
-  'divinationaltar',
-  'psychictemple',
-  'theurgytemple',
-  'dungeon',
+  // 'illusionaltar',
+  // 'divinationaltar',
+  // 'psychictemple',
+  // 'theurgytemple',
   'mine',
   'timberland',
   'farmland',
   'huntingground',
+  'dungeon',
 ];
 
 const kSiteKindsManagable = [
@@ -322,10 +322,10 @@ const kSiteKindsManagable = [
   'workshop',
   'alchemylab',
   'arraylab',
-  'illusionaltar',
-  'divinationaltar',
-  'psychictemple',
-  'theurgytemple',
+  // 'illusionaltar',
+  // 'divinationaltar',
+  // 'psychictemple',
+  // 'theurgytemple',
   'mine',
   'timberland',
   'farmland',
@@ -342,13 +342,13 @@ const kSiteKindsBuildable = {
   'workshop',
   'alchemylab',
   'arraylab',
-  'illusionaltar',
-  'divinationaltar',
-  'psychictemple',
-  'theurgytemple',
+  // 'illusionaltar',
+  // 'divinationaltar',
+  // 'psychictemple',
+  // 'theurgytemple',
 };
 
-const kLocationSiteKindsBuildableInLand = {
+const kSiteKindsBuildableOnWorldMap = {
   'mine', // 只会在山地地形出现
   'timberland', // 只会在森林地形出现
   'farmland', // 只会在平原地形且在城市周围出现
@@ -937,36 +937,6 @@ const kCultivationStylePaths = {
   },
 };
 
-const kInformationViewCharacterColumns = [
-  'name',
-  'gender',
-  'age',
-  'fame',
-  'organization',
-  'title',
-  'level',
-  'rank',
-];
-
-const kInformationViewOrganizationColumns = [
-  'name',
-  'head',
-  'category',
-  'genre',
-  'headquarters',
-  'locationNumber',
-  'memberNumber',
-  'recruitMonth',
-];
-
-const kInformationViewLocationColumns = [
-  'name',
-  'category',
-  'development',
-  'residents',
-  'organization',
-];
-
 const kItemEquipmentCategories = {
   'weapon',
   'shield',
@@ -1031,26 +1001,24 @@ const kTitleToOrganizationRank = {
   'mayor': 3,
   'governor': 4,
   'head': 5,
-  'guard': 1,
-  'guardLeader': 2,
-  'diplomat': 3,
+  'guard': 2,
+  'minister': 3,
   'chancellor': 4,
-  "guest": 4,
+  "guestChancellor": 4,
 };
 
 /// 职位对应的贡献度需求
 const kTitleToContribution = {
   'taskman': 0,
-  'executor': 100,
+  'executor': 90,
   'manager': 300,
   'mayor': 800,
-  'governor': 1000,
-  'head': 2500,
-  'guard': 200,
-  'guardLeader': 600,
-  'diplomat': 900,
+  'governor': 1200,
+  'head': 5000,
+  'guard': 300,
+  'minister': 800,
   'chancellor': 1200,
-  "guestChancellor": 1000,
+  "guestChancellor": 1200,
 };
 
 const kDiplomacyScoreAllyThreshold = 50;

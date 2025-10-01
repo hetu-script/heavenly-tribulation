@@ -15,6 +15,10 @@ import 'app.dart';
 import 'engine.dart';
 import 'state/states.dart';
 import 'game/ui.dart';
+import 'widgets/ui/menu_builder.dart';
+
+const _kWindowsFrameWidth = 16.0;
+const _kWindowsFrameHeight = 39.0;
 
 class CustomWindowListener extends WindowListener {
   @override
@@ -67,7 +71,8 @@ void main() {
     windowManager.addListener(CustomWindowListener());
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
-    const windowSize = Size(1440.0, 900.0);
+    const windowSize =
+        Size(1440.0 + _kWindowsFrameWidth, 900.0 + _kWindowsFrameHeight);
     await windowManager.waitUntilReadyToShow(
         const WindowOptions(
           title: 'Heavenly Tribulation',
@@ -127,7 +132,10 @@ void main() {
                   NoThumbScrollBehavior().copyWith(scrollbars: false),
               debugShowCheckedModeBanner: false,
               theme: GameUI.darkMaterialTheme,
-              home: GameApp(key: mainKey),
+              home: fluent.FlyoutTarget(
+                controller: globalFlyoutController,
+                child: GameApp(key: mainKey),
+              ),
               // onNavigationNotification: (notification) {
               //   engine.setCursor(Cursors.normal);
               //   return notification.canHandlePop;

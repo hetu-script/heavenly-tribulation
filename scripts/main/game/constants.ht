@@ -13,8 +13,9 @@ external abstract class Constants {
   static get cultivationStyles;
   static get locationCityKinds;
   static get locationSiteKinds;
-  static get siteKindsBuildable;
   static get siteKindsManagable;
+  static get siteKindsBuildable;
+  static get siteKindsBuildableOnWorldMap;
   static get attackTypes;
   static get damageTypes;
   static get ticksPerDay;

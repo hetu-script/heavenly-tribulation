@@ -8,7 +8,7 @@ import 'package:samsara/ui/empty_placeholder.dart';
 import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../game/data.dart';
-import '../../../game/logic.dart';
+import '../../../game/logic/logic.dart';
 import '../../../state/view_panels.dart';
 import '../../../state/hover_content.dart';
 import '../../../game/common.dart';

@@ -31,8 +31,10 @@ async function onEnterCultivation()
 async function onRested()
 /// ----------角色互动----------
 async function onInteractNpc(npc, location)
-async function onBeforeInteractCharacter(character)
-async function onInquiryQuest(character, quest)
+// 如果返回 true，会跳过游戏内置的交互逻辑
+async function onBeforeInteractCharacter(character) -> bool
+// 如果返回 true，会跳过游戏内置的交互逻辑
+async function onInquiryQuest(character, quest) -> bool
 // async function onTalkTo(character, topic)
 async function onShowTo(character, item)
 /// ----------物品互动----------

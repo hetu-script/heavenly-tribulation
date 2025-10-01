@@ -1,19 +1,25 @@
 {
   "head": "掌门",
   "governor": "长老",
-  "mayor": "领事",
-  "manager": "管事",
+  "mayor": "堂主",
+  "manager": "总管",
   "executor": "执事",
   "taskman": "杂役",
 
-  "guard": "护法",
-  "guardLeader": "护法队长",
-  "diplomat": "外务领事",
+  "guard": "护法总管",
+  "diplomat": "领事堂主",
   "chancellor": "内务长老",
   "guestChancellor": "客卿长老",
 
   "hint_organization_diplomacy_already_ally": "我们已经是盟友了。",
   "hint_alreadyTrialedThisMonth": "本月你已经尝试过这个门派的招募试炼了，需要等到明年的这个月才可以再次尝试。",
+  "hint_select_organization_home": "请选择一个门派下辖的据点作为你的宅邸所在地。",
+
+  "hint_organization_initiation": "你已成功加入了{0}。\n你可以使用宗门领地上的设施，并且可以以杂役身份领取任务并获得奖励。\n作为初入门派的第一件任务，<yellow>你需要去{1}的据点会堂，找你的上级{2}报告。</>",
+
+  "hint_organization_initiation2": "你就是新来的弟子吧。\n这里是宗门配发的装备和秘籍，你收下吧。",
+
+  "hint_organization_initiation3": "从下个月起，每个月 5 号前你都要向我报告，我会向你发布新的任务。\n根据你的任务完成情况，你可以积累功勋，之后也可以升级到更高的职位。\n记住，我只是你的上级，只负责你的工作和报酬。我并不是你的师父。如果你想要拜师的话，需要在门派中自行结交。",
 
   "wuwei": "无为",
   "cultivation": "修真",
@@ -27,16 +33,13 @@
   "resign": "退出宗门",
   "resign_confirm": "我意已决，退出宗门。",
 
-  "organization_resign_success": "你已成功退出了{0}。\n你将失去使用宗门领地上设施的权限，并且无法再领取宗门任务。",
+  "hint_organization_resign": "你已成功退出了{0}。\n你将失去使用宗门领地上设施的权限，并且无法再领取宗门任务。",
 
   "formAlliance": "结为同盟",
   "breakAlliance": "解除同盟",
   "declareWar": "宣战",
   "makePeace": "和解",
   "askHelp": "请求帮助",
-
-  "hint_organization_join_success": "你已成功加入了{0}。\n你可以使用宗门领地上的设施，并且可以以杂役身份领取任务并获得奖励。\n但如果你想要拜师，还需要自行寻找你心仪的师傅并与其结交。",
-  "hint_job_rank": "职位 {0} 需求角色境界达到 {1} 不符合要求",
 
   "organization_wuwei_trial_question_1": "有顽石阻拦溪流，致使下游村庄断水，你将如何？",
   "organization_wuwei_trial_question_1_option_1": "运使真气，以雷霆之势击碎顽石，此为最直接之法。",
@@ -102,7 +105,7 @@
   "organization_wuwei_trial_question_8_option_3": "「我」是独一无二的。修行是要让「我」变得更强，更完美。",
   "organization_wuwei_trial_question_8_option_3_comment": "我执，是一切烦恼的根源。\n你越是想抓住它，它便越是像一座山，压得你喘不过气。",
 
-  "organization_wuwei_trial_intro": "寻路而来的人很多，但他们要找的，往往不是路，而是一个‘答案’。\n你呢，你的‘答案’是什么？",
+  "organization_wuwei_trial_intro": "寻路而来的人很多，但他们要找的，往往不是路，而是一个「答案」。\n你呢，你的「答案」是什么？",
   "organization_wuwei_trial_pass": "今日起，你便可在此住下。\n观云，听雨，扫雪……或许有一天，你会忘记自己是来修行的。",
   "organization_wuwei_trial_fail": "缘分未到，不必强求。\n你所求之道，或许不在山中，而在山下的红尘里。\n去吧，你的路在别处。",
 
@@ -110,23 +113,23 @@
   "organization_cultivation_trial_pass": "入我门派，无需你有多高的修为。\n能以功法照见自己的内心，便已足够。\n来吧，你的路，在这里开始了。",
   "organization_cultivation_trial_fail": "你所求的「道」，不在此处，而在你那颗焦躁的心里。\n回去吧，等你什么时候能通过试炼，再来此处。",
 
-  "organization_immortality_trial_intro": "又一个……不甘心被时间化为尘土的灵魂。\n为了‘活下去’，你愿意付出什么？",
+  "organization_immortality_trial_intro": "又一个……不甘心被时间化为尘土的灵魂。\n为了「活下去」，你愿意付出什么？",
   "organization_immortality_trial_pass": "入我门派，要的不是你有多强的战力，而是你有多么顽强的求生意志。\n你在洞中已经证明了，你的命很硬，你对活下去的执念也足够强烈。这就够了。\n欢迎加入我们，一同探寻长生的秘密。",
-  "organization_immortality_trial_fail": "我们寻求的是能够撬动‘生死’法则的同道。\n而你的意志，还太过脆弱。\n回去吧，当你某天真正体会到生命流逝的恐惧，并愿意为此付出一切时，再来尝试敲响我们的大门。",
+  "organization_immortality_trial_fail": "我们寻求的是能够撬动「生死」法则的同道。\n而你的意志，还太过脆弱。\n回去吧，当你某天真正体会到生命流逝的恐惧，并愿意为此付出一切时，再来尝试敲响我们的大门。",
 
   "organization_chivalry_trial_intro": "想加入我们？可以。\n不过你要先证明自己。\n你手中的剑，是为自己而握，还是为天下苍生而握？",
   "organization_chivalry_trial_pass": "修行为何？不过是以手中之剑，为这天下劈开一丝光明！\n你有这个实力，更有一颗侠义之心。从今天起，你便是我们的兄弟！！",
   "organization_chivalry_trial_fail": "我们不需要常胜的将军，但绝不收软弱的懦夫。\n回去再练一年，把你的剑磨得再快一些吧！\n明年此时，我们会在这里等你！",
 
   "organization_entrepreneur_trial_intro": "哼，想加入门派？\n在这里，我们只想看到一样东西。\n你是否拥有在这里存活下去的「力量」。",
-  "organization_entrepreneur_trial_pass": "在这里，唯一的法则，就是弱肉强食。\n你今天能站在这里，不是因为你有多努力，也不是因为你运气好，只因为你比他‘强’。记住这一点，进来吧。",
+  "organization_entrepreneur_trial_pass": "在这里，唯一的法则，就是弱肉强食。\n你今天能站在这里，不是因为你有多努力，也不是因为你运气好，只因为你比他「强」。记住这一点，进来吧。",
   "organization_entrepreneur_trial_fail": "垃圾。想挑战我们，就先掂量掂量自己的斤两。\n这里不是你这种弱者该来的地方。滚吧！",
 
-  "organization_wealth_trial_intro": "哦？看来又有一位道友，想为自己的仙途，做一笔最明智的‘投资’了。\n入我门中，无需繁琐的考验。只看你是否能拿出足够的灵石。",
+  "organization_wealth_trial_intro": "哦？看来又有一位道友，想为自己的仙途，做一笔最明智的「投资」了。\n入我门中，无需繁琐的考验。只看你是否能拿出足够的灵石。",
   "organization_wealth_trial_pass": "很好。你为自己的仙途买下了一张最快的船票。从今天起，我们这里所有的资源，只要你出得起价，皆可换取。",
   "organization_wealth_trial_fail": "看来，道友的「机缘」尚未成熟。\n如果连入门的「价值」都无法体现，你又如何在这条路上走得更远呢？",
 
   "organization_pleasure_trial_intro": "你的到来，让这谷中的花，似乎都开得更艳了一些。是什么样的风，把你这样有趣的人儿吹来了？",
-  "organization_pleasure_trial_pass": "你或许不知，你身上的气息，与这方天地很是相称。\n修行，并非只有苦寒与争斗。真正的‘道’，藏于琴棋书画，藏于一颦一笑。\n你的眼中有光，心中有美，这是我派最看重的天赋。\n欢迎加入我们，这里的姐妹们早就想认识你了。",
-  "organization_pleasure_trial_fail": "我派之道，在于‘悦己’，而后‘悦人’，最后‘悦天地’。\n你若连自身的美都无法呈现，又如何能体悟这天地大美呢？\n抱歉，你与此地，暂时无缘。"
+  "organization_pleasure_trial_pass": "你或许不知，你身上的气息，与这方天地很是相称。\n修行，并非只有苦寒与争斗。真正的「道」，藏于琴棋书画，藏于一颦一笑。\n你的眼中有光，心中有美，这是我派最看重的天赋。\n欢迎加入我们，这里的姐妹们早就想认识你了。",
+  "organization_pleasure_trial_fail": "我派之道，在于「悦己」，而后「悦人」，最后「悦天地」。\n你若连自身的美都无法呈现，又如何能体悟这天地大美呢？\n抱歉，你与此地，暂时无缘。"
 }

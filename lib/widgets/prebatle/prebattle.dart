@@ -16,7 +16,7 @@ import 'battlecard.dart';
 import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../../scene/common.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../state/states.dart';
 import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';

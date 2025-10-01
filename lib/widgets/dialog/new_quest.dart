@@ -34,7 +34,7 @@ class NewQuest extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Label(
-                      '${engine.locale('questUpdate')}: ${questData['name']}'),
+                      '${engine.locale('questUpdate')}: ${questData['title']}'),
                   if (questData['image'] != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
@@ -47,7 +47,10 @@ class NewQuest extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Label(
-                        engine.locale('${questData['id']}_stage$index'),
+                        engine.locale(
+                          'quest_${questData['id']}_stage_$index',
+                          interpolations: questData['interpolations'],
+                        ),
                         textAlign: TextAlign.left,
                       ),
                     );

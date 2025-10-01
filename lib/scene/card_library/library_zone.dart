@@ -10,7 +10,7 @@ import 'package:samsara/gestures.dart';
 
 import '../../game/data.dart';
 import '../../game/ui.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';

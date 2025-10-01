@@ -105,8 +105,6 @@ async function onInquiryQuest(character, quest) {
       }
     }
   }
-  Dialog.pushDialog('discourse_defaultUnknown', character: character)
-  Dialog.execute()
 }
 
 async function onShowItem(character, item) {
@@ -140,7 +138,7 @@ async function onEnterCultivation() {
 
     final shardPack = Materialpack(kind: 'shard', amount: 4)
     Player.acquire(shardPack)
-    Game.promptNewItems([shardPack])
+    Game.promptItems([shardPack])
   }
 }
 
@@ -156,7 +154,7 @@ async function onEnterCardLibrary() {
       kind: 'sword',
     )
     Player.acquire(cardPack)
-    Game.promptNewItems([cardPack])
+    Game.promptItems([cardPack])
   }
 }
 

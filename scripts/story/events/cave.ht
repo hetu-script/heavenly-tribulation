@@ -93,7 +93,7 @@ async function onInteractMapObject(object, terrain) {
       // 萧墨拿取了洞天中的宝物，并且第一次遇到凌初雪
       if (!hero.quests.mysticGirl) {
         final items = getItemsFromLootbox(object)
-        await Game.promptNewItems(items)
+        await Game.promptItems(items)
         final chuxue = game.characters.ling_chuxue
         Dialog.pushDialog('prelude_ling_line2')
         Dialog.pushDialog('prelude_ling_line3', character: chuxue)

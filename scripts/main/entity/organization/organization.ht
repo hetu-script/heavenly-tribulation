@@ -4,6 +4,8 @@ const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
 
 const kDiplomacyDefaultScore = 0
 
+const kOrganizationJobRankMax = 5
+
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
 /// score 和 type 都反映了外交关系，type 代表了关系的大致方向
@@ -205,16 +207,16 @@ function removeCharacterFromOrganization(character) {
   character.organizationId = null
 }
 
-function getOrganizationMemberIdsOfRank(organization, rank) {
-  assert(rank >= 0 && rank <= organization.jobRankMax)
-  const ids = []
-  for (const id in organization.members.keys) {
-    const memberData = organization.members[id]
-    if (memberData.rank == rank) {
-      ids.add(id)
-    }
-  }
-  return ids
+/// 查找某个组织中比指定职级高的成员数据列表
+/// 返回的列表已经按职级从低到高排序
+/// 输入的 rank 如果已经最高，会导致返回一个空数组
+function getOrganizationMembersDataByRank(organization, rank) {
+  assert(rank >= 0 && rank <= kOrganizationJobRankMax)
+  let membersData = organization.members.values.where(
+    (m) => m.rank > rank
+  ).toList()
+  membersData.sort( (a, b) => a.rank.compareTo(b.rank) )
+  return membersData
 }
 
 /// 角色加入组织
@@ -223,17 +225,13 @@ function getOrganizationMemberIdsOfRank(organization, rank) {
 /// 角色可以加入多个组织，但只会保留最后一次加入时组织的 id
 /// 只有角色最后一次加入的组织不是当前组织，才可以调用这个 api
 /// 这个 api 不会检查角色的境界和贡献是否达到职位要求
-function addCharacterToOrganization(character, organization, {title, incurIncident = true }) {
+function addCharacterToOrganization(character, organization, {
+    title,
+    setHome = true,
+    incurIncident = true,
+  }) {
   assert(character.organizationId != organization.id)
-  // 组织人数上限由发展度决定
-  // if (organizationMemberReachMax(organization)) {
-  //   engine.warn('组织 ${organization.id} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
-  //   return false
-  // }
-  // if (getOrganizationMemberIdsOfRank(organization, 0).length >= maxMemberOfJobRank(0, organization.jobRankMax)) {
-  //   engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
-  //   return false
-  // }
+  let memberData
   if (!organization.members.contains(character.id)) {
     // if (character.organizationId != null) {
     //   assert(character.organizationId != organization.id)
@@ -241,18 +239,17 @@ function addCharacterToOrganization(character, organization, {title, incurIncide
     // }
     title ??= 'taskman'
     assert(Constants.titleToOrganizationRank.containsKey(title))
-    final jobRank = Constants.titleToOrganizationRank[title]
 
     setCharacterTitle(character, title)
     // 职位数据
-    organization.members[character.id] = MemberData(
+    memberData = organization.members[character.id] = MemberData(
       id: character.id,
-      rank: jobRank,
+      rank: Constants.titleToOrganizationRank[title],
       title: title,
       contribution: 0,
     )
   } else {
-    final memberData = organization.members[character.id]
+    memberData = organization.members[character.id]
     setCharacterTitle(character, memberData.title)
   }
 
@@ -274,10 +271,74 @@ function addCharacterToOrganization(character, organization, {title, incurIncide
     engine.debug(incidentContent)
   }
 
-  const location = game.locations[organization.headquartersId]
-  setCharacterHome(character, location)
+  if (setHome) {
+    const location = game.locations[organization.headquartersId]
+    setCharacterHome(character, location)
+  }
   
   return true
+}
+
+/// 为角色分配合适的上级，注意上下级关系并非师徒关系
+/// 因为上级涉及到角色家宅位置，所以和 addCharacterToOrganization api 分开
+/// 这里也会同时保存向上级报告时的位置
+/// 对于 rank 小于 3 (总管或以下) 的成员，报告位置在角色所在据点的会堂场景
+/// 对于 rank 大于等于 3 (堂主) 的成员，报告位置在门派总堂所在据点的门派场景
+function assignCharacterSuperior(character, organization) {
+  assert(character.organizationId == organization.id)
+  assert(organization.members.containsKey(character.id))
+  const memberData = organization.members[character.id]
+  assert(memberData != null)
+
+  // 找到比自己职级高一级的成员
+  let superiorsData = getOrganizationMembersDataByRank(organization, memberData.rank)
+  let memberAtCharacterHome
+  for (final memberData in superiorsData) {
+    final character = game.characters[memberData.id]
+    assert(character != null, 'character not found for id: ${memberData.id}')
+    if (character.homeLocationId == character.homeLocationId) {
+      memberAtCharacterHome = memberData
+      break
+    }
+  }
+
+  if (memberAtCharacterHome != null) {
+    memberData.superiorId = memberAtCharacterHome.id
+  } else {
+    if (superiorsData.isNotEmpty) {
+      // 没有找到在同一据点的上级，就近分配
+      memberData.superiorId = superiorsData.first.id
+    }
+  }
+  
+  if (memberData.superiorId != null) {
+    if (memberData.rank < 3) {
+      // 总管或以下，报告位置在角色所在据点的会堂场景
+      const location = game.locations[character.homeLocationId]
+      assert(location != null, 'location not found for id: ${character.homeLocationId}')
+      let cityhallSiteId
+      for (let siteId in location.sites) {
+        const site = game.locations[siteId]
+        if (site.kind == kLocationKindCityhall) {
+          cityhallSiteId = site.id
+          break
+        }
+      }
+      assert(cityhallSiteId != null, 'cityhall site not found for location id: ${location.id}')
+      memberData.reportSiteId = cityhallSiteId
+      memberData.reportLocationId = location.id
+    } else {
+      // 堂主，报告位置在门派总堂所在据点的门派场景
+      const headquarters = game.locations[organization.headquartersId]
+      assert(headquarters != null, 'headquarters not found! organization id: [${organization.id}], headquarters id: ${organization.headquartersId}')
+      memberData.reportSiteId = headquarters.id
+      memberData.reportLocationId = organization.headquartersId
+    }
+  }
+
+  engine.debug('角色 [${character.id}] 在 [${organization.id}] 中的上级被分配为 [${memberData.superiorId}]')
+
+  return memberData.superiorId
 }
 
 /// 设置角色在组织中的职位，这个 api 不会检查角色的境界和贡献是否达到职位要求
@@ -308,8 +369,7 @@ function getOrganizationById(id: string) {
 }
 
 function getOrganizations([ids]) {
-  if (ids != null) {
-    assert(ids.isNotEmpty)
+  if (ids?.isNotEmpty) {
     return game.organizations.values.where( (value) => value.id in ids )
   } else {
     return game.organizations.values

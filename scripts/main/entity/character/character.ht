@@ -1085,7 +1085,10 @@ struct Character {
     ).toInt()
 
     // 该人物的事件触发选项
-    this.flags = {}
+    this.flags = {
+      // 唯一任务触发标记
+      uniqueQuests: {},
+    }
 
     // 该角色的称号，只保存 id
     this.titles = []
@@ -1416,13 +1419,13 @@ function getCharacterHomeLocation(character) {
 }
 
 function setCharacterHome(character, location, {incurIncident = true}) {
-  let homeSiteId = '${kLocationKindHome}_${character.id}'
-  if (character.homeSiteId == homeSiteId) {
+  if (character.homeLocationId == location.id) {
     engine.warn('角色 ${character.name} 已经定居在 ${location.name} 了！')
     return
   }
+  let homeSiteId = '${kLocationKindHome}_${character.id}'
   let home = game.locations[homeSiteId]
-  assert(home != null, 'home is null, homeSiteId: ${homeSiteId}')
+  assert(home != null, 'home site is null, homeSiteId: ${homeSiteId}')
   final oldLocation = game.locations[home.atLocationId]
   if (oldLocation != null) {
     oldLocation.residents.remove(character.id)
@@ -1594,7 +1597,7 @@ function updateBondScore(subject, target, score) {
     bond = Bond(character: subject, target: target)
   }
   bond.score += score
-  engine.debug('${subject.name} 对 ${target.name} 的好感度改变了: [${score >= 0 ? '+' : '-'}${score.abs()}]')
+  engine.debug('${subject.name} 对 ${target.name} 的好感度改变了: [${bond.score}]')
 }
 
 function getBondScore(subject, target) {

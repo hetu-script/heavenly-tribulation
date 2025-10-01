@@ -17,7 +17,7 @@ import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../game/ui.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../engine.dart';
 import 'common.dart';
 // import 'cardcrafting_area.dart';
@@ -1530,10 +1530,20 @@ class CardLibraryScene extends Scene {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext)? loadingBuilder,
+    Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
+    List<String>? initialActiveOverlays,
+  }) {
     return Stack(
       children: [
-        SceneWidget(scene: this),
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
         GameUIOverlay(
           enableNpcs: false,
           enableLibrary: false,

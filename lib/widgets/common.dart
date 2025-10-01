@@ -11,3 +11,34 @@ const kTabBarHeight = 72.0;
 const kNestedTabBarHeight = 178.0;
 
 const double kToolbarTabBarHeight = 30.0;
+
+const kEntityListViewCharacterColumns = [
+  'name',
+  'gender',
+  'age',
+  'fame',
+  'home',
+  'organization',
+  'title',
+  'level',
+  'rank',
+];
+
+const kEntityListViewLocationColumns = [
+  'name',
+  'category',
+  'development',
+  'residents',
+  'organization',
+];
+
+const kEntityListViewOrganizationColumns = [
+  'name',
+  'head',
+  'category',
+  'genre',
+  'headquarters',
+  'locationNumber',
+  'memberNumber',
+  'recruitMonth',
+];

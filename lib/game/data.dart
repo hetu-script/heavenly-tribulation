@@ -13,7 +13,7 @@ import 'ui.dart';
 import 'common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
-import 'logic.dart';
+import 'logic/logic.dart';
 
 const _kSkinAnimationWidth = 288.0;
 const _kSkinAnimationHeight = 112.0;
@@ -81,6 +81,7 @@ abstract class GameData {
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
   static final Map<String, dynamic> craftables = {};
+  static final Map<String, dynamic> quests = {};
 
   static final Map<String, dynamic> maps = {};
 
@@ -255,6 +256,10 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/craftables.json5');
     craftables.addAll(JSON5.parse(craftablesDataString));
 
+    final questsDataString =
+        await rootBundle.loadString('assets/data/quests.json5');
+    quests.addAll(JSON5.parse(questsDataString));
+
     // 拼接技能树节点的描述
     for (final passiveTreeNodeData in passiveTree.values) {
       final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
@@ -344,7 +349,7 @@ abstract class GameData {
         'battleCardsData': GameData.battleCards,
         'battleCardAffixesData': GameData.battleCardAffixes,
         'passivesData': GameData.passives,
-        // 'questsData': GameData.quests,
+        'questsData': GameData.quests,
         'mapsData': GameData.maps,
       },
     );

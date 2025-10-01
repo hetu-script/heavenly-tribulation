@@ -10,7 +10,7 @@ async function onNewGame() {
     final quest = Player.acquireQuestById('mysticGirl')
     Player.progressQuestById('mysticGirl', stage: 1)
     Player.progressQuestById('mysticGirl', stage: 2)
-    // Game.promptNewQuest(quest)
+    // Game.promptQuest(quest)
   }
 
   // if (hero.quests.mysticGirl.stage == 3) {

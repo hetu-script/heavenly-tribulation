@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../state/hover_content.dart';
 import 'item_grid.dart';
-import '../../../game/logic.dart';
+import '../../../game/logic/logic.dart';
 
 export '../../../game/common.dart' show ItemType;
 

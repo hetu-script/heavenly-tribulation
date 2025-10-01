@@ -23,7 +23,7 @@ import '../../../widgets/dialog/confirm.dart';
 import '../../../widgets/organization/edit_organization_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
 import '../../../state/selected_tile.dart';
-import '../../../game/logic.dart';
+import '../../../game/logic/logic.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
@@ -963,8 +963,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 case LocationPopUpMenuItems.checkInformation:
                                   _editLocation(dataId);
                                 case LocationPopUpMenuItems.setWorldId:
-                                  final worldId =
-                                      await GameLogic.selectWorldId();
+                                  final worldId = await GameLogic.selectWorld();
                                   if (worldId != null) {
                                     if (location['worldId'] != worldId) {
                                       location['worldId'] = worldId;

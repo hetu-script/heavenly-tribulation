@@ -2,7 +2,7 @@ import 'tile/common.ht'
 import 'generation_algorithm.ht'
 import 'zone.ht'
 
-const kWorldSizePerWorldScale = {
+const _kWorldSizePerWorldScale = {
   '1': 24,
   '2': 40,
   '3': 64,
@@ -28,6 +28,8 @@ const _kLocationInitialDevelopmentMax = 4
 
 const _kOrganizationRecruitOtherLocationProbability = 0.2
 const _kOrganizationRecruitSuccessProbability = 0.4
+
+const _kSandboxInitialHeadRank = 2
 
 /// 生成世界地图的算法
 /// 生成的世界 ID 固定为 `sandboxWorld`
@@ -80,7 +82,7 @@ function createSandboxWorld({
   let width
   let height
 
-  let size = kWorldSizePerWorldScale[worldScale]
+  let size = _kWorldSizePerWorldScale[worldScale]
   width = size
   height = size ~/ 2
   assert(width != null && height != null, 'wrong worldScale: ${worldScale}')
@@ -263,7 +265,7 @@ function createSandboxWorld({
     }
   }
 
-  // 生成伐木场
+  // 生成猎场和伐木场
   for (final index in forestIndexes) {
     const terrain = world.terrains[index]
     if (terrain.locationId != null) continue
@@ -300,7 +302,7 @@ function createSandboxWorld({
       terrain.locationId = location.id
     }
   }
-  // 生成矿场
+  // 生成猎场和矿场
   for (final index in mountainIndexes) {
     const terrain = world.terrains[index]
     if (terrain.locationId != null) continue
@@ -338,6 +340,7 @@ function createSandboxWorld({
     }
   }
 
+  // 生成地牢
   for (final index in plainIndexes) {
     const terrain = world.terrains[index]
     if (terrain.locationId != null) continue
@@ -432,7 +435,7 @@ function createSandboxWorld({
     const location = random.nextIterable(availableLocations)
     const head = Character(
       birthTimestamp: createBirthTimestamp(min: 40, max: 70),
-      rank: kCultivationRankMax,
+      rank: _kSandboxInitialHeadRank,
     )
     head.locationId = location.id
     assert(location.worldPosition != null)
@@ -448,6 +451,7 @@ function createSandboxWorld({
     switch(organization.category) {
       'immortality' : {
         sites.add(kLocationKindStele)
+        // 定灵碑
         Location(
           id: organization.id + '_stele',
           name: engine.locale('stele'),
@@ -463,6 +467,7 @@ function createSandboxWorld({
       }
       'cultivation' : {
         sites.add(kLocationKindLibrary)
+        // 藏经阁
         Location(
           id: organization.id + '_library',
           name: engine.locale('library'),
@@ -476,6 +481,7 @@ function createSandboxWorld({
       }
       'chivalry' : {
         sites.add(kLocationKindArena)
+        // 比武场
         Location(
           id: organization.id + '_arena',
           name: engine.locale('arena'),
@@ -489,6 +495,7 @@ function createSandboxWorld({
       }
       'entrepreneur' : {
         sites.add(kLocationKindMilitaryPost)
+        // 军营
         Location(
           id: organization.id + '_militarypost',
           name: engine.locale('militarypost'),
@@ -502,6 +509,7 @@ function createSandboxWorld({
       }
       'wealth' : {
         sites.add(kLocationKindAuctionHouse)
+        // 拍卖行
         Location(
           id: organization.id + '_auctionhouse',
           name: engine.locale('auctionhouse'),
@@ -515,6 +523,7 @@ function createSandboxWorld({
       }
       'pleasure' : {
         sites.add(kLocationKindHotel)
+        // 旅馆
         Location(
           id: organization.id + '_hotel',
           name: engine.locale('hotel'),

@@ -10,7 +10,7 @@ import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
 // import '../game_dialog/game_dialog_content.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 // import 'card_library.dart';
 import '../../state/hover_content.dart';
 import '../common.dart';
@@ -85,12 +85,12 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     return true;
   }
 
-  int get ongoingCount {
-    return cards.where((card) {
-      final cardData = (card as CustomGameCard).data;
-      return cardData['category'] == 'ongoing';
-    }).length;
-  }
+  // int get ongoingCount {
+  //   return cards.where((card) {
+  //     final cardData = (card as CustomGameCard).data;
+  //     return cardData['category'] == 'ongoing';
+  //   }).length;
+  // }
 
   int get ephemeralCount {
     return cards.where((card) {

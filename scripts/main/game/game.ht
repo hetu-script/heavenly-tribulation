@@ -35,9 +35,15 @@ namespace Game {
 
   external function hideNpc(id)
 
-  external function promptNewQuest(quest)
+  external function promptQuest(quest)
 
-  external function promptNewItems(items: Iterable)
+  external function promptItems(items: Iterable)
+
+  external async function selectCharacter([ids])
+
+  external async function selectLocation([ids])
+
+  external async function selectOrganization([ids])
 
   external function showHeroInfo([value: bool = true])
 

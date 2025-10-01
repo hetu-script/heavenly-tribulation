@@ -9,7 +9,7 @@ import 'site_card.dart';
 import 'edit_location_basics.dart';
 import 'edit_npc_basics.dart';
 import '../common.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
@@ -550,7 +550,7 @@ class _LocationViewState extends State<LocationView>
                 children: [
                   mainPanel,
                   GameEntityListView(
-                    columns: kInformationViewCharacterColumns,
+                    columns: kEntityListViewCharacterColumns,
                     tableData: _charactersTableData,
                     onItemPressed: (position, dataId) {
                       showDialog(

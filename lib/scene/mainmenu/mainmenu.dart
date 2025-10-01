@@ -21,6 +21,11 @@ class MainMenuScene extends Scene {
         );
 
   @override
+  Future<void> onLoad() async {
+    super.onLoad();
+  }
+
+  @override
   void onStart([dynamic arguments = const {}]) async {
     super.onStart(arguments);
 
@@ -55,10 +60,20 @@ class MainMenuScene extends Scene {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext)? loadingBuilder,
+    Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
+    List<String>? initialActiveOverlays,
+  }) {
     return Stack(
       children: [
-        SceneWidget(scene: this),
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
         MainMenuButtons(),
         GameUIOverlay(action: DebugButton()),
       ],

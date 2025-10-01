@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../game/logic.dart';
+import '../game/logic/logic.dart';
 
 class GameTimestampState with ChangeNotifier {
   String datetimeString = '';

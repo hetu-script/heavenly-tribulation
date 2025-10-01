@@ -128,11 +128,11 @@
   "unselect": "取消选择",
   "selectOne": "选择一个",
   "selectHero": "选择你要扮演的人物",
-  "selectCharacter": "选择一个人物",
-  "selectLocation": "选择一个场景",
-  "selectOrganization": "选择一个门派",
-  "selectItem": "选择一个物品",
-  "selectCardpack": "选择一个秘籍来打开",
+  "selectCharacter": "选择人物",
+  "selectLocation": "选择场景",
+  "selectOrganization": "选择门派",
+  "selectItem": "选择物品",
+  "selectCardpack": "选择秘籍",
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
@@ -532,7 +532,7 @@
   "workTillHealthExhausted": "工作到体力耗尽",
 
   "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
-  "hint_notWorkSeason": "现在是淡季，没什么需要帮忙的工作。你还是过一阵子再来吧。",
+  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
 
   "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
   "baseSalary": "基本工资",

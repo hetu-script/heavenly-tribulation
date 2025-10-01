@@ -9,9 +9,8 @@ import '../../game/ui.dart';
 import '../common.dart';
 import 'edit_organization_basic.dart';
 import '../../game/data.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import '../game_entity_listview.dart';
-import '../../game/common.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
 
@@ -176,7 +175,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                 ),
               ),
               GameEntityListView(
-                columns: kInformationViewCharacterColumns,
+                columns: kEntityListViewCharacterColumns,
                 tableData: _charactersTable,
                 onItemPressed: (position, dataId) {
                   showDialog(
@@ -187,7 +186,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                 },
               ),
               GameEntityListView(
-                columns: kInformationViewLocationColumns,
+                columns: kEntityListViewLocationColumns,
                 tableData: _locationsTable,
                 onItemPressed: (position, dataId) {},
               ),

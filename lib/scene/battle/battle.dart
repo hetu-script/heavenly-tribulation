@@ -13,7 +13,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
-import '../../game/logic.dart';
+import '../../game/logic/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
 import '../../engine.dart';
@@ -255,7 +255,7 @@ class BattleScene extends Scene {
   }
 
   @override
-  void onLoad() async {
+  Future<void> onLoad() async {
     super.onLoad();
 
     engine.hetu.assign('enemy', enemyData);
@@ -745,7 +745,12 @@ class BattleScene extends Scene {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context, {
+    Widget Function(BuildContext)? loadingBuilder,
+    Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
+    List<String>? initialActiveOverlays,
+  }) {
     _focusNode.requestFocus();
 
     return KeyboardListener(
@@ -763,7 +768,12 @@ class BattleScene extends Scene {
       },
       child: Stack(
         children: [
-          SceneWidget(scene: this),
+          SceneWidget(
+            scene: this,
+            loadingBuilder: loadingBuilder,
+            overlayBuilderMap: overlayBuilderMap,
+            initialActiveOverlays: initialActiveOverlays,
+          ),
           GameUIOverlay(
             enableHeroInfo: false,
             enableNpcs: false,
