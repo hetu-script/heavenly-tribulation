@@ -19,7 +19,7 @@ const _kTimberLandThreshold = 0.04
 const _kMineThreshold = 0.04
 const _kHuntingGroundThreshold = 0.02
 
-const _kDungeonThreshold = 0.04
+const _kDungeonOnTerritoryProbability = 0.6
 
 const _kAdultAge = 15
 const _kPregnancyAgeMax = 50
@@ -134,47 +134,49 @@ function createSandboxWorld({
   engine.debug('生成地域')
   generateZone(newWorld)
   
-  const lands = world.terrains.where((tile) => tile.spriteIndex == kSpriteLand)
   const plainIndexes = Set()
   const mountainIndexes = Set()
   const forestIndexes = Set()
+
+  const lands = world.landIndexes.map((index) => world.terrains[index])
   
   // 地形装饰贴图
   // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
   // 这些修改不影响该地块的 kind
   engine.debug('填充地形装饰贴图：大陆架、平原、森林、山地')
-  for (const tile in world.terrains) {
-    if (tile.spriteIndex == kSpriteLand) {
+  for (const tile in lands) {
+    if (tile.spriteIndex != kSpriteLand) continue
+    const r = random.nextDouble()
+    if (r < _kMountainThreshold) {
+      tile.sprite = 'object/mountain.png'
+      tile.kind = 'mountain'
+      mountainIndexes.add(tile.index)
+    } else if (r < _kForestThreshold) {
+      tile.sprite = 'object/forest.png'
+      tile.kind = 'forest'
+      forestIndexes.add(tile.index)
+    } else {
       tile.kind = 'plain'
-      const r = random.nextDouble()
-      if (r < _kMountainThreshold) {
-        tile.sprite = 'object/mountain.png'
-        tile.kind = 'mountain'
-        mountainIndexes.add(tile.index)
-      } else if (r < _kForestThreshold) {
-        tile.sprite = 'object/forest.png'
-        tile.kind = 'forest'
-        forestIndexes.add(tile.index)
-      } else {
-        plainIndexes.add(tile.index)
+      plainIndexes.add(tile.index)
+    }
+  }
+  for (const tile in world.waterIndexes.map((index) => world.terrains[index])) {
+    if (tile.spriteIndex != kSpriteWater) continue
+    let isShelf = false
+    const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
+    for (const neighbor in neighbors) {
+      if (neighbor.spriteIndex == kSpriteLand) {
+        neighbor.sprite = 'object/shore.png'
+        neighbor.kind = 'shore'
+        isShelf = true
       }
-    } else if (tile.spriteIndex == kSpriteWater) {
-      const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
-      let isShelf = false
-      for (const neighbor in neighbors) {
-        if (neighbor.spriteIndex == kSpriteLand) {
-          neighbor.sprite = 'object/shore.png'
-          neighbor.kind = 'shore'
-          isShelf = true
-        }
-      }
-      if (isShelf) {
-        tile.sprite = 'object/shelf.png'
-        tile.kind = 'shelf'
-        world.fisheryIndexes.add(tile.index)
-      } else {
-        tile.kind = 'sea'
-      }
+    }
+    if (isShelf) {
+      tile.sprite = 'object/shelf.png'
+      tile.kind = 'shelf'
+      world.fisheryIndexes.add(tile.index)
+    } else {
+      tile.kind = 'sea'
     }
   }
 
@@ -393,29 +395,6 @@ function createSandboxWorld({
         // 随机生成的场所，初始发展度是0-3之间随机。
         development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      terrain.locationId = location.id
-    }
-  }
-
-  // 生成地牢
-  for (final index in plainIndexes) {
-    const terrain = world.terrains[index]
-    if (terrain.locationId != null) continue
-    final r = random.nextDouble()
-    if (r < _kDungeonThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/dungeon.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'dungeon',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        isHidden: true,
-      )
-      location.dungeonId = 'dungeon_1'
-      location.availableMonth = random.nextInt(12) + 1
       terrain.locationId = location.id
     }
   }
@@ -671,7 +650,31 @@ function createSandboxWorld({
     }
   }
 
-  // 为生成的世界填充一些必要信息
+
+  // 生成地牢
+  engine.debug('在各个门派的领地上添加秘境')
+  for (final nation in nations) {
+    final r = random.nextDouble()
+    if (r > _kDungeonOnTerritoryProbability) continue
+
+    let availableTiles = nation.territoryIndexes.map((index) => world.terrains[index]).where((tile) => !tile.isWater && tile.locationId == null)
+    if (availableTiles.isEmpty) continue
+    final dungeionTile = random.nextIterable(availableTiles)
+    dungeionTile.overlaySprite = {
+      sprite: 'object/dungeon.png',
+    }
+
+    const location = Location(
+      category: 'site',
+      kind: 'dungeon',
+      atTerrain: dungeionTile,
+      updateWorldMap: false,
+      // isHidden: true,
+      organizationId: nation.id,
+    )
+    location.dungeonId = 'dungeon_1'
+    dungeionTile.locationId = location.id
+  }
 
   engine.debug('为角色添加次要动机')
   for (const char of game.characters) {

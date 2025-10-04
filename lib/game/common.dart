@@ -634,7 +634,7 @@ final kSiteRentMoneyCostByDay = {
   'psychictemple': 1200,
   'divinationaltar': 2200,
   'theurgytemple': 2800,
-  'dungeon': 1000,
+  'dungeon': 5000,
 };
 
 const kMaterialMoney = 'money';

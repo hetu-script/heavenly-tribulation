@@ -1,6 +1,7 @@
 part of 'logic.dart';
 
-Future<bool> _checkRented(dynamic location) async {
+Future<bool> _checkRented(dynamic location,
+    {bool perAvailableDaysTillMonthEnd = true}) async {
   final locationId = location['id'];
 
   if (GameData.game['playerMonthly']['rented'].contains(locationId)) {
@@ -23,7 +24,10 @@ Future<bool> _checkRented(dynamic location) async {
     int rentCost = rentCostRaw;
     final int availableDays = kDaysPerMonth - GameLogic.day;
     final int development = location['development'] ?? 0;
-    rentCost = rentCost * (development + 1) * (availableDays + 1);
+    rentCost *= (development + 1);
+    if (perAvailableDaysTillMonthEnd) {
+      rentCost *= (availableDays + 1);
+    }
     if (useShard) {
       rentCost = (rentCost / shardPrice).ceil();
     }
@@ -128,7 +132,8 @@ void _onInteractDungeonEntrance({
     // organization 可能为 null，此时该据点没有被门派占领
     if (organization != null &&
         GameData.hero['organizationId'] != organization['id']) {
-      final isRented = await _checkRented(location);
+      final isRented =
+          await _checkRented(location, perAvailableDaysTillMonthEnd: false);
       if (!isRented) return;
     }
 

@@ -44,6 +44,8 @@ struct TileMap {
     this.tileOffsetY = tileOffsetY
 
     this.terrains = []
+    this.landIndexes = []
+    this.waterIndexes = []
     this.seaIndexes = []
     this.fisheryIndexes = []
     // 地区上的区域，例如大陆、海洋、国家等

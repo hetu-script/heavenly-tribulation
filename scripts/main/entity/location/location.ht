@@ -306,7 +306,7 @@ struct Location {
       this.terrainIndex = atTerrain.index
 
       if (this.category == 'city') {
-        atTerrain.kind = 'city'
+        // atTerrain.kind = 'city'
         if (!this.isHidden) {
           atTerrain.overlaySprite = { sprite: kSpriteCity }
           if (updateWorldMap) {

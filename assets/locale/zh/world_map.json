@@ -12,7 +12,7 @@
   "view": "视图",
   "saveAndExitGame": "保存并退出",
 
-  "hint_discoveredLocation": "你发现了隐藏据点：{0}。",
+  "hint_discoveredLocation": "你发现了隐藏地点：{0}。",
   "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
   "alreadyExplored": "你已经搜索过这里了。",
 

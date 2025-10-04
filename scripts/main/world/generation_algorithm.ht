@@ -4,7 +4,7 @@ import 'zone.ht'
 const _kMinZoneSizeOfSea = 8
 const _kMinZoneSizeOfIsland = 8
 
-const kMapStyles = Set(['islands', 'coast', 'inland'])
+const kMapStyles = ['islands', 'coast', 'inland']
 
 /// 利用 noise 函数生成大陆和海洋的算法
 function generateContinent2(world, {seed, style}) {
@@ -47,12 +47,15 @@ function generateContinent2(world, {seed, style}) {
   for (const y in range(world.height)) {
     for (const x in range(world.width)) {
       if (y == 0 || y == world.height - 1 || x == 0 || x == world.width - 1) continue
-      const index = tilePos2Index(x + 1, y + 1, world.width)
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
+      const index = tilePos2Index(x + 1, y + 1, world.width)
+      const tile = world.terrains[index]
       if (normalize > threshold) {
-        const tile = world.terrains[index]
         tile.spriteIndex = kSpriteLand
+        world.landIndexes.add(index)
+      } else {
+        world.waterIndexes.add(index)
       }
     }
   }

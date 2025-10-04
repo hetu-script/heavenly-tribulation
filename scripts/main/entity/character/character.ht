@@ -1418,7 +1418,7 @@ function getCharacterHomeLocation(character) {
   return game.locations[character.homeLocationId]
 }
 
-function setCharacterHome(character, location, {incurIncident = true}) {
+function setCharacterHome(character, location, { moveToHome = true, incurIncident = true }) {
   if (character.homeLocationId == location.id) {
     engine.warn('角色 ${character.name} 已经定居在 ${location.name} 了！')
     return
@@ -1437,6 +1437,10 @@ function setCharacterHome(character, location, {incurIncident = true}) {
   }
   character.homeSiteId = homeSiteId
   character.homeLocationId = location.id
+  character.worldPosition = {
+    left: location.worldPosition.left,
+    top: location.worldPosition.top,
+  }
   let incidentContent
   incidentContent = engine.locale('characterSettle', interpolations: [
     character.name,
