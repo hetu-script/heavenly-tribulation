@@ -25,20 +25,20 @@ class HeroPassivesDescriptionUpdate with ChangeNotifier {
 
 class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
-  bool prebattlePreventClose = false;
+  // bool prebattlePreventClose = false;
   dynamic data;
   void Function()? onBattleStart;
   FutureOr<void> Function(bool, int)? onBattleEnd;
 
   void show(
     dynamic data, {
-    bool prebattlePreventClose = false,
+    // bool prebattlePreventClose = false,
     void Function()? onBattleStart,
     FutureOr<void> Function(bool, int)? onBattleEnd,
   }) {
     assert(data != null);
     showPrebattle = true;
-    prebattlePreventClose = prebattlePreventClose;
+    // prebattlePreventClose = prebattlePreventClose;
     this.data = data;
     this.onBattleStart = onBattleStart;
     this.onBattleEnd = onBattleEnd;
@@ -58,7 +58,7 @@ class EnemyState with ChangeNotifier {
 
   void clear() {
     showPrebattle = false;
-    prebattlePreventClose = false;
+    // prebattlePreventClose = false;
     data = null;
     onBattleStart = null;
     onBattleEnd = null;

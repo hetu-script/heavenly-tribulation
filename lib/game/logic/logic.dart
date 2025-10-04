@@ -63,13 +63,14 @@ abstract class GameLogic {
     List indexed = [];
 
     void updateTileZone2(dynamic tile, dynamic world, [dynamic zone]) {
-      if (tile['spriteIndex'] == null) return;
+      final spriteIndex = tile['spriteIndex'];
+      if (spriteIndex == null) return;
       if (tile['zoneId'] != null) return;
       // engine.debug(
       //     'processing: ${tile['left']},${tile['top']}, spriteIndex: ${tile['spriteIndex']}');
       if (zone == null) {
-        final category =
-            kTileSpriteIndexToZoneCategory[tile['spriteIndex']] as String;
+        assert(kTileSpriteIndexToZoneCategory.containsKey(spriteIndex));
+        final String category = kTileSpriteIndexToZoneCategory[spriteIndex]!;
         zone = engine.hetu.invoke('Zone', namedArgs: {'category': category});
         tile['zoneId'] = zone['id'];
         ++count;
@@ -353,7 +354,7 @@ abstract class GameLogic {
 
   /// 计算分解卡牌所能获得的灵光数
   static int calculateBattleCardPrice(dynamic cardData) {
-    if (cardData['isScroll'] == true) {
+    if (cardData['genre'] == 'scroll') {
       return 0;
     }
     final int level = cardData['level'];
@@ -854,7 +855,7 @@ abstract class GameLogic {
 
       engine.context.read<EnemyState>().show(
         enemy,
-        prebattlePreventClose: true,
+        // prebattlePreventClose: true,
         // onBattleStart: () {
         //   bool? hintedTribulation =
         //       GameData.gameData['flags']['hintedTribulation'];
@@ -1039,8 +1040,8 @@ abstract class GameLogic {
 
   static void heroRest() => _heroRest();
 
-  static Future<void> heroWork(dynamic npc, dynamic location) =>
-      _heroWork(npc, location);
+  static Future<void> heroWork(dynamic location, dynamic npc) =>
+      _heroWork(location, npc);
 
   static Future<void> onInteractNpc(dynamic npc, dynamic location) =>
       _onInteractNpc(npc, location);
@@ -1054,6 +1055,7 @@ abstract class GameLogic {
   static void updateGame({
     int tick = 1,
     bool timeflow = true,
+    bool udpateWorldMap = true,
     bool forceUpdate = false,
   }) async {
     final int tik = DateTime.now().millisecondsSinceEpoch;
@@ -1170,18 +1172,21 @@ abstract class GameLogic {
         case 'cityhall':
           engine.hetu
               .invoke('replenishCityhallExp', positionalArgs: [location]);
-        case 'library':
-          engine.hetu
-              .invoke('replenishLibraryBooks', positionalArgs: [location]);
         case 'tradinghouse':
           engine.hetu.invoke('replenishTradingHouseMaterials',
               positionalArgs: [location]);
+        case 'library':
+          engine.hetu
+              .invoke('replenishLibraryBooks', positionalArgs: [location]);
         case 'auctionhouse':
           engine.hetu
               .invoke('replenishAuctionHouseItems', positionalArgs: [location]);
         case 'alchemylab':
           engine.hetu
               .invoke('replenishAlchemyLabPotions', positionalArgs: [location]);
+        case 'runelab':
+          engine.hetu
+              .invoke('replenishRuneLabScrolls', positionalArgs: [location]);
       }
     }
   }
@@ -1251,147 +1256,6 @@ abstract class GameLogic {
         positionalArgs: [objectData, terrainData]);
   }
 
-  /// 和门派总堂的定灵碑交互
-  /// 如果并非此组织成员，无法使用
-  static void onInteractCultivationStele(
-    dynamic organization, {
-    dynamic location,
-    bool? enableCultivate,
-  }) async {
-    // organizationData可能为 null，此时该据点没有被门派占领
-    if (organization == null ||
-        GameData.hero['organizationId'] == organization['id']) {
-      engine.pushScene(Scenes.cultivation, arguments: {
-        'location': location,
-        'enableCultivate': location == null ? enableCultivate : false,
-        'onEnterScene': () async {
-          if (GameData.game['flags']['hintedCultivation'] != true) {
-            GameData.game['flags']['hintedCultivation'] = true;
-
-            dialog.pushDialog(
-              'hint_tutorial',
-              name: engine.locale('servant'),
-              icon: 'illustration/npc/servant_head.png',
-              image: 'illustration/npc/servant.png',
-            );
-            dialog.pushSelection('tutorial', [
-              'listenTutorial',
-              'forgetIt',
-            ]);
-            await dialog.execute();
-            final selected = dialog.checkSelected('tutorial');
-
-            if (selected == 'listenTutorial') {
-              dialog.pushDialog(
-                'hint_cultivation',
-                name: engine.locale('servant'),
-                icon: 'illustration/npc/servant_head.png',
-                image: 'illustration/npc/servant.png',
-              );
-              await dialog.execute();
-            }
-
-            // final item = engine.hetu.invoke('Materialpack', namedArgs: {
-            //   'kind': 'shard',
-            //   'amount': 5,
-            // });
-            // engine.hetu
-            //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
-
-            // dialog.pushDialog(
-            //   {
-            //     'name': engine.locale('servant'),
-            //     'icon': 'illustration/npc/servant_head.png',
-            //     'lines': engine.locale('hint_cultivation2').split('\n'),
-            //   },
-            //   imageId: 'illustration/npc/servant.png',
-            // );
-            // await dialog.execute();
-
-            // engine.context.read<NewItemsState>().update(items: [item]);
-          }
-        },
-      });
-    } else {
-      dialog.pushDialog(
-        'hint_organizationFacilityNotMember',
-        name: engine.locale('servant'),
-        icon: 'illustration/npc/servant_head.png',
-        image: 'illustration/npc/servant.png',
-      );
-      await dialog.execute();
-    }
-  }
-
-  /// 和门派藏书阁的功法图录交互
-  /// 如果并非此组织成员，无法使用
-  static void onInteractCardLibraryDesk({
-    dynamic organization,
-    dynamic location,
-  }) async {
-    if (organization == null ||
-        GameData.hero['organizationId'] == organization['id']) {
-      engine.pushScene(Scenes.library, arguments: {
-        'enableCardCraft': true,
-        'enableScrollCraft':
-            organization?['techs']?['enableScrollCraft'] ?? false,
-        'onEnterScene': () async {
-          if (GameData.game['flags']['hintedCardLibrary'] != true) {
-            GameData.game['flags']['hintedCardLibrary'] = true;
-
-            dialog.pushDialog(
-              'hint_tutorial',
-              name: engine.locale('servant'),
-              icon: 'illustration/npc/servant_head.png',
-              image: 'illustration/npc/servant.png',
-            );
-            dialog.pushSelection('tutorial', [
-              'listenTutorial',
-              'forgetIt',
-            ]);
-            await dialog.execute();
-            final selected = dialog.checkSelected('tutorial');
-
-            if (selected == 'listenTutorial') {
-              dialog.pushDialog(
-                'hint_cardLibrary',
-                name: engine.locale('servant'),
-                icon: 'illustration/npc/servant_head.png',
-                image: 'illustration/npc/servant.png',
-              );
-              await dialog.execute();
-            }
-
-            // final item =
-            //     engine.hetu.invoke('Cardpack', namedArgs: {'isBasic': true});
-            // engine.hetu
-            //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
-
-            // dialog.pushDialog(
-            //   {
-            //     'name': engine.locale('servant'),
-            //     'icon': 'illustration/npc/servant_head.png',
-            //     'lines': engine.locale('hint_cardLibrary2').split('\n'),
-            //   },
-            //   imageId: 'illustration/npc/servant.png',
-            // );
-            // await dialog.execute();
-
-            // engine.context.read<NewItemsState>().update(items: [item]);
-          }
-        },
-      });
-    } else if (organization != null) {
-      dialog.pushDialog(
-        'hint_organizationFacilityNotMember',
-        name: engine.locale('servant'),
-        icon: 'illustration/npc/servant_head.png',
-        image: 'illustration/npc/servant.png',
-      );
-      await dialog.execute();
-    }
-  }
-
   static void tryEnterDungeon({
     int? rank,
     bool isBasic = false,
@@ -1444,78 +1308,30 @@ abstract class GameLogic {
     }
   }
 
-  /// 和秘境入口交互
-  /// 秘境在生成时，会随机产生一个开放月份，只有在开放月份时才能进入。
-  /// 秘境如果被某个门派占领，则非门派成员无法进入。
-  /// 秘境进入时可以选择境界。无境界无需门票。凝气期以上则需要支付对应境界的秘境石。
   static void onInteractDungeonEntrance({
     dynamic organization,
     dynamic location,
-  }) async {
-    bool checkAvailableMonth() {
-      final availableMonth = location['availableMonth'];
-      if (month != availableMonth) {
-        dialog.pushDialog(
-          'hint_dungeonNotAvailable',
-          interpolations: [availableMonth],
-          name: engine.locale('guard'),
-          icon: 'illustration/npc/guard_head.png',
-          image: 'illustration/npc/guard.png',
-        );
-        dialog.execute();
-        return true;
-      }
-      return false;
-    }
+  }) =>
+      _onInteractDungeonEntrance(
+        organization: organization,
+        location: location,
+      );
 
-    bool checkEntered() {
-      final List enteredList =
-          GameData.game['playerMonthly']['enteredDungeons'];
-      final entered = enteredList.contains(location['id']);
-      if (entered) {
-        dialog.pushDialog(
-          'hint_dungeonAlreadyEntered',
-          name: engine.locale('guard'),
-          icon: 'illustration/npc/guard_head.png',
-          image: 'illustration/npc/guard.png',
-        );
-        dialog.execute();
-      }
-      return entered;
-    }
+  static void onInteractExpArray(
+    dynamic organization, {
+    dynamic location,
+  }) =>
+      _onInteractExpArray(
+        organization,
+        location: location,
+      );
 
-    dialog.pushSelection('dungeonEntrance', [
-      'about_dungeon',
-      'enter_common_dungeon',
-      'enter_advanced_dungeon',
-      'cancel',
-    ]);
-    await dialog.execute();
-    final selected = dialog.checkSelected('dungeonEntrance');
-    switch (selected) {
-      case 'about_dungeon':
-        dialog.pushDialog(
-          'hint_dungeonEntrance',
-          name: engine.locale('guard'),
-          icon: 'illustration/npc/guard_head.png',
-          image: 'illustration/npc/guard.png',
-        );
-      case 'enter_common_dungeon':
-        final notAvailable = checkAvailableMonth();
-        final alreadyEntered = checkEntered();
-        if (notAvailable || alreadyEntered) return;
-
-        GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
-        tryEnterDungeon(
-            isBasic: true, dungeonId: location['dungeonId'] ?? 'dungeon_1');
-      case 'enter_advanced_dungeon':
-        final notAvailable = checkAvailableMonth();
-        final alreadyEntered = checkEntered();
-        if (notAvailable || alreadyEntered) return;
-
-        GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
-        tryEnterDungeon(
-            isBasic: false, dungeonId: location['dungeonId'] ?? 'dungeon_1');
-    }
-  }
+  static void onInteractCardLibraryDesk({
+    dynamic organization,
+    dynamic location,
+  }) =>
+      _onInteractCardLibraryDesk(
+        organization: organization,
+        location: location,
+      );
 }

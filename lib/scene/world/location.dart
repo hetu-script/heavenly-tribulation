@@ -90,13 +90,15 @@ class LocationScene extends Scene {
           siteList.cards.add(siteCard);
           world.add(siteCard);
         }
-      case 'stele':
+      case 'exparray':
         final siteCard = GameData.createSiteCard(
-            spriteId: 'location/card/stele.png',
+            spriteId: 'location/card/exparray.png',
             title: engine.locale('meditate'));
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractCultivationStele(organization,
-              location: location);
+          GameLogic.onInteractExpArray(
+            organization,
+            location: location,
+          );
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);

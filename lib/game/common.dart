@@ -33,13 +33,139 @@ const kCurrentVersionCultivationRankMax = 3;
 
 const kZoneVoid = 'world';
 const kZoneLand = 'land';
-const kZoneSea = 'sea';
-const kZoneRiver = 'river';
+const kZoneWater = 'water';
+
+const kTerrainKindToNaturalResources = {
+  'void': null,
+  'city': null,
+  'road': null,
+  'plain': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'mountain': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'forest': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'snow_plain': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'snow_mountain': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'snow_forest': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'shore': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'shelf': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'lake': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'sea': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+  'river': {
+    'grain': 5,
+    'meat': 1,
+    'water': 0,
+    'leather': 1,
+    'herb': 1,
+    'timber': 2,
+    'stone': 1,
+    'ore': 1,
+    'spirit': 1,
+  },
+};
 
 const kTileSpriteIndexToZoneCategory = {
-  0: kZoneSea,
+  0: kZoneWater,
   1: kZoneLand,
-  2: kZoneRiver,
+  // 2: kZoneRiver,
 };
 
 const kRaces = [
@@ -261,7 +387,7 @@ Color getColorFromRank(int rank) {
 /// 组织的类型即动机，代表了不同的发展方向
 const kOrganizationCategories = [
   'wuwei', // 无为：清净，隐居，不问世事
-  'cultivation', // 悟道：修真，功法，战斗
+  'cultivation', // 修真：功法，战斗
   'immortality', // 长生：宗教，等级，境界
   'chivalry', // 任侠：江湖义气，路见不平拔刀相助
   'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
@@ -286,73 +412,229 @@ const kLocationCityKinds = [
 
 const kLocationSiteKinds = [
   'home',
+  'headquarters',
   'cityhall',
   'tradinghouse',
-  'headquarters',
-  'stele',
+  'daostele',
+  'exparray',
   'library',
   'arena',
   'militarypost',
   'auctionhouse',
   'hotel',
   'workshop',
+  // 'enchantshop',
   'alchemylab',
-  'arraylab',
-  // 'illusionaltar',
-  // 'divinationaltar',
+  // 'tatooshop',
+  'runelab',
+  // 'arraylab',
+  'illusionaltar',
   // 'psychictemple',
+  'divinationaltar',
   // 'theurgytemple',
-  'mine',
-  'timberland',
   'farmland',
+  'fishery',
+  'timberland',
   'huntingground',
+  'mine',
   'dungeon',
 ];
 
-const kSiteKindsManagable = [
-  'cityhall',
+const kSiteKindsWorkable = [
   'tradinghouse',
-  'headquarters',
-  'stele',
+  'daostele',
+  'exparray',
   'library',
   'arena',
   'militarypost',
   'auctionhouse',
   'hotel',
   'workshop',
+  // 'enchantshop',
   'alchemylab',
-  'arraylab',
-  // 'illusionaltar',
-  // 'divinationaltar',
+  // 'tatooshop',
+  'runelab',
+  // 'arraylab',
+  'illusionaltar',
   // 'psychictemple',
+  'divinationaltar',
   // 'theurgytemple',
-  'mine',
-  'timberland',
   'farmland',
+  'fishery',
+  'timberland',
   'huntingground',
+  'mine',
 ];
 
 const kSiteKindsBuildable = {
-  'stele',
+  'daostele',
+  'exparray',
   'library',
   'arena',
   'militarypost',
   'auctionhouse',
   'hotel',
   'workshop',
+  // 'enchantshop',
   'alchemylab',
-  'arraylab',
-  // 'illusionaltar',
-  // 'divinationaltar',
+  // 'tatooshop',
+  'runelab',
+  // 'arraylab',
+  'illusionaltar',
   // 'psychictemple',
+  'divinationaltar',
   // 'theurgytemple',
 };
 
 const kSiteKindsBuildableOnWorldMap = {
-  'mine', // 只会在山地地形出现
-  'timberland', // 只会在森林地形出现
   'farmland', // 只会在平原地形且在城市周围出现
+  'fishery', // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
+  'timberland', // 只会在森林地形出现
   'huntingground', // 只会在山地或森林地形出现
+  'mine', // 只会在山地地形出现
+};
+
+const kOrganizationCategoryToSiteKind = {
+  'wuwei': 'daostele',
+  'cultivation': 'library',
+  'immortality': 'exparray',
+  'chivalry': 'arena',
+  'entrepreneur': 'militarypost',
+  'wealth': 'auctionhouse',
+  'pleasure': 'hotel',
+};
+
+const kOrganizationGenreToSiteKinds = {
+  'swordcraft': [
+    'workshop',
+    // 'enchantshop',
+  ],
+  'bodyforge': [
+    'alchemylab',
+    // 'tatooshop',
+  ],
+  'spellcraft': [
+    'runelab',
+    // 'arraylab',
+  ],
+  'avatar': [
+    'divinationaltar',
+    // 'theurgytemple',
+  ],
+  'vitality': [
+    'illusionaltar',
+    // 'psychictemple',
+  ],
+};
+
+/// 非门派成员打工时的可用月份
+final kSiteWorkableMounths = {
+  'tradinghouse': [10, 11, 12, 1, 2, 3],
+  'daostele': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'exparray': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'library': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'arena': [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  'militarypost': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1],
+  'auctionhouse': [9, 10, 11, 12, 1, 2, 3, 4],
+  'hotel': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'farmland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'fishery': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'timberland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'huntingground': [9, 10, 11, 12, 1, 2, 3, 4],
+  'mine': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'workshop': [10, 11, 12, 1, 2, 3, 4, 5, 6],
+  'enchantshop': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'alchemylab': [10, 11, 12, 1, 2, 3, 4, 5, 6],
+  'tatooshop': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'runelab': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'arraylab': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  'illusionaltar': [10, 11, 12, 1, 2, 3, 4, 5, 6],
+  'psychictemple': [10, 11, 12, 1, 2, 3, 4, 5, 6],
+  'divinationaltar': [8, 9, 10, 11, 12, 1],
+  'theurgytemple': [9, 10, 11, 12, 1, 2],
+};
+
+/// 工作时的基础工资
+final kSiteWorkableBaseSalaries = {
+  'tradinghouse': 7,
+  'daostele': 8,
+  'exparray': 12,
+  'library': 21,
+  'arena': 24,
+  'militarypost': 50,
+  'auctionhouse': 28,
+  'hotel': 56,
+  'farmland': 14,
+  'fishery': 44,
+  'timberland': 23,
+  'huntingground': 32,
+  'mine': 64,
+  'workshop': 46,
+  'enchantshop': 22,
+  'alchemylab': 20,
+  'tatooshop': 25,
+  'runelab': 27,
+  'arraylab': 48,
+  'illusionaltar': 26,
+  'psychictemple': 27,
+  'divinationaltar': 29,
+  'theurgytemple': 60,
+};
+
+/// 工作时消耗的体力值
+final kSiteWorkableBaseStaminaCost = {
+  'tradinghouse': 1,
+  'daostele': 1,
+  'exparray': 1,
+  'library': 2,
+  'arena': 2,
+  'militarypost': 4,
+  'auctionhouse': 2,
+  'hotel': 4,
+  'farmland': 2,
+  'fishery': 5,
+  'timberland': 3,
+  'huntingground': 4,
+  'mine': 7,
+  'workshop': 4,
+  'enchantshop': 2,
+  'alchemylab': 2,
+  'tatooshop': 2,
+  'runelab': 2,
+  'arraylab': 4,
+  'illusionaltar': 2,
+  'psychictemple': 2,
+  'divinationaltar': 2,
+  'theurgytemple': 4,
+};
+
+/// 非门派成员使用设施的日租金
+/// 以 money 为单位，但可能会被转化为灵石
+final kSiteRentMoneyCostByDay = {
+  'tradinghouse': null,
+  'daostele': 1000,
+  'exparray': 1000,
+  'library': 1500,
+  'arena': null,
+  'militarypost': null,
+  'auctionhouse': null,
+  'hotel': 1000,
+  'farmland': 100,
+  'fishery': 150,
+  'timberland': 50,
+  'huntingground': 100,
+  'mine': 250,
+  'workshop': 1200,
+  'enchantshop': 1350,
+  'alchemylab': 1000,
+  'tatooshop': 1350,
+  'runelab': 1800,
+  'arraylab': 1800,
+  'illusionaltar': 1800,
+  'psychictemple': 1200,
+  'divinationaltar': 2200,
+  'theurgytemple': 2800,
+  'dungeon': 1000,
 };
 
 const kMaterialMoney = 'money';
@@ -414,32 +696,6 @@ enum ItemType {
   merchant,
 }
 
-const kMaterialKinds = [
-  'money',
-  'shard',
-  'worker',
-  'water',
-  'grain',
-  'meat',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-];
-
-const kNoncurrencyMaterialKinds = [
-  'worker',
-  'water',
-  'grain',
-  'meat',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-];
-
 const kBaseBuyRate = 1.0;
 const kBaseSellRate = 0.75;
 
@@ -449,12 +705,50 @@ const kMinBuyRate = 0.1;
 const kPriceFavorRate = 0.1;
 const kPriceFavorIncrement = 0.05;
 
+const kMaterialKinds = [
+  'money',
+  'shard',
+  'worker',
+  'grain',
+  'meat',
+  'water',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+];
+
+const kNonCurrencyMaterialKinds = [
+  'worker',
+  'grain',
+  'meat',
+  'water',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+];
+
+const kNaturalResourceKinds = [
+  'grain',
+  'meat',
+  'water',
+  'leather',
+  'herb',
+  'timber',
+  'stone',
+  'ore',
+  'spirit',
+];
+
 final kMaterialBasePriceByKind = {
   'shard': 1000,
   'worker': 20,
-  'water': 10,
   'grain': 20,
   'meat': 40,
+  'water': 10,
   'herb': 40,
   'leather': 80,
   'timber': 80,
@@ -498,57 +792,6 @@ const kBaseMoveCostOnWater = 2.0;
 const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
 const kTerrainKindsMountain = ['mountain'];
-
-final kWorkableMounths = {
-  'library': [1, 2, 3, 4, 5, 6],
-  'tradinghouse': [2, 3, 4, 5, 6, 7],
-  'auctionhouse': [3, 4, 5, 6, 7, 8],
-  'farmland': [4, 5, 6, 7, 8, 9],
-  'timberland': [5, 6, 7, 8, 9, 10],
-  'huntingground': [6, 7, 8, 9, 10, 11],
-  'mine': [7, 8, 9, 10, 11, 12],
-  'workshop': [8, 9, 10, 11, 12, 1],
-  'alchemylab': [9, 10, 11, 12, 1, 2],
-  'arraylab': [10, 11, 12, 1, 2, 3],
-  'illusionaltar': [11, 12, 1, 2, 3, 4],
-  'divinationaltar': [12, 1, 2, 3, 4, 5],
-  'psychictemple': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'theurgytemple': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-};
-
-final kWorkBaseSalaries = {
-  'library': 24,
-  'tradinghouse': 7,
-  'auctionhouse': 8,
-  'farmland': 10,
-  'timberland': 11,
-  'huntingground': 18,
-  'mine': 51,
-  'workshop': 22,
-  'alchemylab': 28,
-  'arraylab': 35,
-  'illusionaltar': 60,
-  'divinationaltar': 75,
-  'psychictemple': 140,
-  'theurgytemple': 200,
-};
-
-final kWorkBaseStaminaCost = {
-  'library': 2,
-  'tradinghouse': 1,
-  'auctionhouse': 1,
-  'farmland': 1,
-  'timberland': 1,
-  'huntingground': 2,
-  'mine': 3,
-  'workshop': 2,
-  'alchemylab': 2,
-  'arraylab': 2,
-  'illusionaltar': 5,
-  'divinationaltar': 5,
-  'psychictemple': 10,
-  'theurgytemple': 15,
-};
 
 /// 战斗结束后生命恢复比例计算时，
 /// 战斗中使用的卡牌使用过的数量的阈值

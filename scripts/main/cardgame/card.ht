@@ -17,13 +17,13 @@ struct BattleCard {
     category, // 'attack', 'buff'
     affixId,
     kind, // 'sword',
-    genre, // 'spellcraft', 'swordcraft', 'none'
+    genre, // 'spellcraft', 'swordcraft', 'none', 'scroll'
     level,
     rank, // 境界决定了额外词条数量
     maxOutLevel = false, // 是否最大化等级
     maxRank,
     isIdentified = true,
-    isScroll = false,
+    isEphemeral = false,
   }) {
     this.entityType = kEntityTypeBattleCard
     if (rank != null) {
@@ -46,7 +46,7 @@ struct BattleCard {
 
     this.id = crypto.randomUID(withTime: true)
     this.isIdentified = isIdentified
-    this.isScroll = isScroll
+    this.isEphemeral = isEphemeral
 
     this.tags = []
 
@@ -305,7 +305,7 @@ function addAffix(card) {
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
   if (hasCount < cost) {
-    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
+    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
   }
   entityLoseItemKind(hero, materialId, cost)
 
@@ -335,7 +335,7 @@ function replaceAffix(card) {
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
   if (hasCount < cost) {
-    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
+    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
   }
   entityLoseItemKind(hero, materialId, cost)
 
@@ -369,7 +369,7 @@ function rerollAffix(card) {
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
   if (hasCount < cost) {
-    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
+    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
   }
   entityLoseItemKind(hero, materialId, cost)
   
@@ -403,7 +403,7 @@ function upgradeRank(card) {
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
   if (hasCount < cost) {
-    return engine.locale('hint_notEnoughCraftMaterial', interpolations: [engine.locale(materialId)] )
+    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
   }
   entityLoseItemKind(hero, materialId, cost)
 

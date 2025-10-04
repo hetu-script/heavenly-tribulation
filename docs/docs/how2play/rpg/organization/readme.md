@@ -16,7 +16,7 @@
 
 入门需要回答一系列问题，全部答对才能加入。
 
-### 悟道 cultivation
+### 修真 cultivation
 
 修真，功法，战斗
 
@@ -54,9 +54,9 @@
 
 ## 门派的功法流派
 
-功法流派和角色的功法偏好一样，对应了天赋树某个分支，也对应了某个种类的卡牌。
+门派的功法流派和角色的功法偏好一样，对应了天赋树某个分支，也对应了某个种类的卡牌。同时也对应了副职业建筑。
 
-## 加入门派后
+## 职位
 
 加入门派后角色仅仅是可以使用门派内的建筑、设施和秘境。
 
@@ -149,7 +149,7 @@
 
 开会时，可以对堂主或掌门的当前政策提出意见。但不一定会被采纳。并且可能会影响到好感度。
 
-### 政策
+## 政策
 
 堂主指定的某个据点的政策。或者掌门指定的整个门派的政策。
 
@@ -161,17 +161,23 @@
 
 ·扩张：修建新建筑，招募人才，结盟/宣战，攻占新的领地
 
-### 任务
+## 任务
 
 任务只有门派成员在每个月 5 日之前参加例会后才会领取到。
 
 例会时，未完成的任务会减少角色在门派中的功勋。例会后上个月的任务会被清空。
 
+### 门派成员任务
+
+这些任务仅限门派成员
+
 ### 杂役的任务
 
-·(固定的任务)领取装备和秘籍，组建卡组，并击败木人桩。
+·提升等级、境界
 
-·提升等级
+·探索普通秘境
+
+·探索某个地块附近的隐藏据点
 
 ·在某个建筑中打工 15 天
 
@@ -183,19 +189,23 @@
 
 ·猎场：生产指定数量的皮革、生肉
 
-·交易所：购买材料：给与一定数量的金钱，要求购买指定数量的材料。可以去较为便宜的地方购买。剩余的金钱可以自行保留。
-
 ·交易所：将某些材料从某个据点运送到门派的据点，或者从门派据点运送到另一个据点
 
 ### 执事的任务
 
-·提升等级
+·提升等级、境界
 
-·探索普通秘境
+·探索高阶秘境
+
+·获取指定数量和境界的装备、功法、丹药
+
+·探索敌对角色、建筑和门派情报
 
 ·守卫某个建筑
 
-·定灵碑：收集灵光：每个月会在每个门派的地块上刷新一定数量的灵光。可以使用大地图技能「灵视」探查并收集。
+·交易所：获取某几种指定材料：给与一定数量的金钱，要求购买指定数量的材料。获取方式不限，可以生产、购买。可以去较为便宜的地方购买。剩余的金钱可以自行保留。
+
+·聚灵阵：收集灵光：每个月会在每个门派的地块上刷新一定数量的灵光。可以使用大地图技能「灵视」探查并收集。最终交给门派的聚灵阵。
 
 ·藏书阁：制作符纸。
 
@@ -203,47 +213,61 @@
 
 ·斗技厅：应对挑战者。
 
-·指挥所：获取其他据点的情报
+·指挥所：获取其他势力的某个建筑的情报
 
 ·拍卖行：采购法宝：给与一定数量的灵石，要求购买指定类型、稀有度的法宝。程序生成此任务时一定会是目前地图上已有的某个拍卖行中的物品。
 
 ·酒楼：打造酒饮。
 
+·阵法所：打造指定的阵法卡牌
+
+·符法所：打造指定的符箓卡牌
+
 ·工坊：打造指定的物品
 
 ·丹炉：打造指定的药剂
 
-·阵法所：打造指定的阵法书
-
-·百幻堂：识别乔装的奸细
-
-·占卜祭坛：获取指定情报
-
-·通灵居：获取指定死者的情报
+·观星台：通过占卜获取指定情报
 
 ·显圣殿：获取神通并在某个地方使用
 
+·幻术堂：识别乔装的奸细
+
+·通灵居：获取指定死者的情报
+
 ### 总管的任务
 
-·提升等级
+·提升等级、境界
 
 ·探索高阶秘境
+
+·获取指定数量和境界的装备、功法、丹药
+
+·探索敌对角色、建筑和门派情报
+
+·抢夺敌对势力资源、物品、功法
+
+·刺杀敌对角色
 
 ·守卫某个据点，和入侵者战斗
 
 ·破坏某个敌对门派据点
 
-·打探某个敌对门派据点的情报
-
-·为某个建筑获取某几种指定材料：获取方式不限，可以生产、购买。
-
-·升级某个建筑的发展度：花费材料升级建筑的发展度
-
 ### 堂主的任务
 
-·提升等级
+·提升等级、境界
 
-·提升某个建筑的发展度
+·探索高阶秘境
+
+·获取指定数量和境界的装备、功法、丹药
+
+·探索敌对角色、建筑和门派情报
+
+·抢夺敌对势力资源、物品、功法
+
+·刺杀敌对角色
+
+·花费材料升级某个建筑的发展度
 
 ·修建某个建筑
 
@@ -255,10 +279,80 @@
 
 ### 长老的任务
 
-·提升等级
+·提升等级、境界
+
+·探索普通秘境
+
+·获取指定数量和境界的装备、功法、丹药
+
+·探索敌对角色、建筑和门派情报
+
+·抢夺敌对势力资源、物品、功法
+
+·刺杀敌对角色
 
 ·扩充门派成员达到某个数量
 
-·配置指定数量和境界的装备、功法、丹药
-
 ·带领队伍，进攻某个其他门派的据点
+
+## 悬赏
+
+任务只有本门派的弟子可以在月初自动领取。而悬赏则是非门派成员也可以领取。但悬赏的任务本身的等级最高只到总管等级。
+
+门派弟子在完成了指定任务后，也可以继续接取悬赏任务。
+
+虽然不是门派成员，但完成悬赏任务同样可以积累一些功勋。这些功勋在角色后期选择加入此门派时会保留。
+
+悬赏任务没有职位等级的概念，只是分成简单、常规、困难三种。粗略可以对应杂役、执事、总管级别的任务。
+
+### 简单
+
+·探索某个地块附近的隐藏据点
+
+·交易所：将某些材料从某个据点运送到门派的据点，或者从门派据点运送到另一个据点
+
+### 常规
+
+·守卫某个建筑
+
+·获取指定数量和境界的装备、功法、丹药
+
+·探索敌对角色、建筑和门派情报
+
+### 困难
+
+·守卫某个据点，和入侵者战斗
+
+·抢夺敌对势力资源、物品、功法
+
+·刺杀敌对角色
+
+·破坏某个敌对门派据点
+
+### Reference: Mission types
+
+- Escort-based Mission: The player(s) have to escort another character to a set location protecting them from incoming enemies.
+
+- Combat-based Mission: The player(s) must eliminate a certain number of (or all) enemies.
+
+- Rescue-based Mission: The player(s) must rescue another character from waves of enemies and escape.
+
+- Collect-based Mission: The player(s) must obtain a certain number of (or all) items.
+
+- Delivery-based Mission: The player(s) must deliver a specific item from one location to another location. Sometimes, the player must collect the item - first, instead of being handed the item to deliver.
+
+- Pursuit-based Mission: The player(s) have to pursue and assassinate or capture the enemy. Sometimes, the player(s) must escape from incoming enemies by - remaining unseen.
+
+- Boss-based Mission: The player(s) must assassinate the main boss character.
+
+- Defence-based Mission: The player(s) have to protect a stationary object or character from incoming enemies.
+
+- Stealth-based Mission: The player(s) must sneak through an area infested with enemies without being spotted. Sometimes, the player(s) must follow a - non-playable character to a set location.
+
+- Time-based Mission: The player(s) have an set amount of time to complete a mission.
+
+- Destroy-based Mission: The player(s) must destroy a certain number of (or all) objects.
+
+- Race-based Mission: The player must race a number of laps (circuit) or (sprints) against other players or AI racers.
+
+- Search-based Mission: The player(s) must locate a particular object or character, usually as a prelude to another mission.

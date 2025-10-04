@@ -10,5 +10,5 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "chengfubeiming@live.com",
-  "license": "MPL-2.0"
+  "license": "MIT"
 }

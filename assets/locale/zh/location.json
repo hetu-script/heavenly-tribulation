@@ -9,11 +9,11 @@
 
   "residence": "住所",
   "cityhall": "会堂",
-  "cultivationStele": "定灵碑",
   "tradinghouse": "交易所",
 
+  "daostele": "问道碑",
   "library": "藏书阁",
-  "stele": "定灵碑",
+  "exparray": "聚灵阵",
   "arena": "斗技场",
   "militarypost": "指挥所",
   "auctionhouse": "拍卖行",
@@ -24,21 +24,24 @@
   "farmland": "农场",
   "huntingground": "猎场",
   "fishery": "渔场",
-
-  "dungeonEntrance": "秘境",
-
-  "workshop": "工坊",
-  "workbench": "工作台",
-  "alchemylab": "丹房",
-  "alchemy_furnace": "丹炉",
-  "arraylab": "阵法所",
-  "divinationaltar": "占卜祭坛",
-  "illusionaltar": "百幻堂",
-  "psychictemple": "通灵居",
-  "theurgytemple": "显圣殿",
-
   "nursery": "苗圃",
   "zoo": "兽园",
+
+  "workshop": "炼器工坊",
+  "enchantshop": "灌灵池",
+  "alchemylab": "丹房",
+  "tattooshop": "纹身工坊",
+  "arraylab": "阵法所",
+  "runelab": "符法所",
+  "illusionaltar": "幻术堂",
+  "psychictemple": "通灵居",
+  "divinationaltar": "观星台",
+  "theurgytemple": "显圣殿",
+
+  "workbench": "工作台",
+  "alchemy_furnace": "丹炉",
+
+  "dungeonEntrance": "秘境",
 
   "chat": "闲聊",
   "visit": "拜访",

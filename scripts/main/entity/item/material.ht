@@ -6,36 +6,13 @@ const kMaterialMoney = 'money'
 const kMaterialShard =  'shard'
 const kMaterialWorker =  'worker'
 
+const kMaterialGrain =  'grain'
+const kMaterialMeat =   'meat'
+const kMaterialWater =  'water'
 const kMaterialHerb =  'herb'
 const kMaterialTimber = 'timber'
 const kMaterialStone = 'stone'
 const kMaterialOre =   'ore'
-
-const kMaterialKinds = [
-  'money',
-  'shard',
-  'worker',
-  'water',
-  'grain',
-  'meat',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-]
-
-const kNoncurrencyMaterialKinds = [
-  'worker',
-  'water',
-  'grain',
-  'meat',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-]
 
 /// 材料包类物品在获得后，可以自动转化为材料数值
 struct Materialpack {

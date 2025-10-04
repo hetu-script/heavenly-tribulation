@@ -132,7 +132,7 @@ class _GameAppState extends State<GameApp> {
     );
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
-    engine.hetu.interpreter.bindExternalClass(ConstantsBinding());
+    engine.hetu.interpreter.bindExternalClass(Constants());
 
     engine.hetu.interpreter.bindExternalFunction(
         'expForLevel',
@@ -344,6 +344,7 @@ class _GameAppState extends State<GameApp> {
       GameLogic.updateGame(
         tick: namedArgs['tick'] ?? 1,
         timeflow: namedArgs['timeflow'] ?? true,
+        udpateWorldMap: namedArgs['updateWorldMap'] ?? true,
         forceUpdate: namedArgs['forceUpdate'] ?? false,
       );
     }, override: true);
@@ -453,7 +454,7 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       context.read<EnemyState>().show(
             positionalArgs.first,
-            prebattlePreventClose: namedArgs['prebattlePreventClose'] ?? false,
+            // prebattlePreventClose: namedArgs['prebattlePreventClose'] ?? false,
             onBattleStart: namedArgs['onBattleStart'],
             onBattleEnd: namedArgs['onBattleEnd'],
           );

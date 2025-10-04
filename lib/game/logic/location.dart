@@ -1,5 +1,273 @@
 part of 'logic.dart';
 
+Future<bool> _checkRented(dynamic location) async {
+  final locationId = location['id'];
+
+  if (GameData.game['playerMonthly']['rented'].contains(locationId)) {
+    return true;
+  } else {
+    dialog.pushDialog(
+      'hint_organizationFacilityNotMember',
+      name: engine.locale('servant'),
+      icon: 'illustration/npc/servant_head.png',
+      image: 'illustration/npc/servant.png',
+    );
+    await dialog.execute();
+
+    final siteKind = location['kind'];
+    assert(kSiteRentMoneyCostByDay.containsKey(siteKind),
+        'Rent cost not defined for site kind: $siteKind');
+    final int rentCostRaw = kSiteRentMoneyCostByDay[siteKind]!;
+    final int shardPrice = kMaterialBasePriceByKind['shard']!;
+    bool useShard = rentCostRaw >= shardPrice;
+    int rentCost = rentCostRaw;
+    final int availableDays = kDaysPerMonth - GameLogic.day;
+    final int development = location['development'] ?? 0;
+    rentCost = rentCost * (development + 1) * (availableDays + 1);
+    if (useShard) {
+      rentCost = (rentCost / shardPrice).ceil();
+    }
+    final materialId = useShard ? 'shard' : 'money';
+    final materialName =
+        useShard ? engine.locale('shard') : engine.locale('money');
+
+    dialog.pushSelectionRaw(
+      {
+        'id': 'rentQuery',
+        'selections': {
+          'rentFacility': {
+            'text': engine.locale('rentFacility'),
+            'description': engine.locale(
+              'rentFacility_description',
+              interpolations: [
+                rentCost,
+                materialName,
+              ],
+            ),
+          },
+          'forgetIt': engine.locale('forgetIt'),
+        },
+      },
+    );
+    await dialog.execute();
+    final selected = dialog.checkSelected('rentQuery');
+    if (selected != 'rentFacility') return false;
+    bool success = engine.hetu.invoke(
+      'exhaust',
+      namespace: 'Player',
+      positionalArgs: [materialId],
+      namedArgs: {
+        'amount': rentCost,
+      },
+    );
+    if (success) {
+      dialog.pushDialog(
+        'hint_rentedFacility',
+        name: engine.locale('servant'),
+        icon: 'illustration/npc/servant_head.png',
+        image: 'illustration/npc/servant.png',
+      );
+      await dialog.execute();
+      return true;
+    } else {
+      dialog.pushDialog(
+        'hint_notEnough',
+        name: engine.locale('servant'),
+        icon: 'illustration/npc/servant_head.png',
+        image: 'illustration/npc/servant.png',
+        interpolations: [materialName],
+      );
+      await dialog.execute();
+      return false;
+    }
+  }
+}
+
+/// 和秘境入口交互
+/// 秘境在生成时，会随机产生一个开放月份，只有在开放月份时才能进入。
+/// 秘境如果被某个门派占领，则非门派成员无法进入。
+/// 秘境进入时可以选择境界。无境界无需门票。凝气期以上则需要支付对应境界的秘境石。
+void _onInteractDungeonEntrance({
+  dynamic organization,
+  dynamic location,
+}) async {
+  bool checkEntered() {
+    final List enteredList = GameData.game['playerMonthly']['enteredDungeons'];
+    final entered = enteredList.contains(location['id']);
+    if (entered) {
+      dialog.pushDialog(
+        'hint_dungeonAlreadyEntered',
+        name: engine.locale('guard'),
+        icon: 'illustration/npc/guard_head.png',
+        image: 'illustration/npc/guard.png',
+      );
+      dialog.execute();
+    }
+    return entered;
+  }
+
+  dialog.pushSelection('dungeonEntrance', [
+    'about_dungeon',
+    'enter_common_dungeon',
+    'enter_advanced_dungeon',
+    'cancel',
+  ]);
+  await dialog.execute();
+  final selected = dialog.checkSelected('dungeonEntrance');
+  if (selected == 'cancel') return;
+
+  if (selected == 'about_dungeon') {
+    dialog.pushDialog(
+      'hint_dungeonEntrance',
+      name: engine.locale('guard'),
+      icon: 'illustration/npc/guard_head.png',
+      image: 'illustration/npc/guard.png',
+    );
+    await dialog.execute();
+  } else {
+    // organization 可能为 null，此时该据点没有被门派占领
+    if (organization != null &&
+        GameData.hero['organizationId'] != organization['id']) {
+      final isRented = await _checkRented(location);
+      if (!isRented) return;
+    }
+
+    final alreadyEnteredThisMonth = checkEntered();
+    if (alreadyEnteredThisMonth) return;
+
+    GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
+    GameLogic.tryEnterDungeon(
+      isBasic: selected == 'enter_common_dungeon',
+      dungeonId: location['dungeonId'] ?? 'dungeon_1',
+    );
+  }
+}
+
+/// 和门派总堂的聚灵阵交互
+/// 如果并非此组织成员，无法使用
+void _onInteractExpArray(
+  dynamic organization, {
+  dynamic location,
+}) async {
+  if (GameData.hero['organizationId'] != organization['id']) {
+    final isRented = await _checkRented(location);
+    if (!isRented) return;
+  }
+
+  engine.pushScene(Scenes.cultivation, arguments: {
+    'location': location,
+    'enableCultivate': true,
+    'onEnterScene': () async {
+      if (GameData.game['flags']['hintedCultivation'] != true) {
+        GameData.game['flags']['hintedCultivation'] = true;
+
+        dialog.pushDialog(
+          'hint_tutorial',
+          name: engine.locale('servant'),
+          icon: 'illustration/npc/servant_head.png',
+          image: 'illustration/npc/servant.png',
+        );
+        dialog.pushSelection('tutorial', [
+          'listenTutorial',
+          'forgetIt',
+        ]);
+        await dialog.execute();
+        final selected = dialog.checkSelected('tutorial');
+        if (selected == 'listenTutorial') {
+          dialog.pushDialog(
+            'hint_cultivation',
+            name: engine.locale('servant'),
+            icon: 'illustration/npc/servant_head.png',
+            image: 'illustration/npc/servant.png',
+          );
+          await dialog.execute();
+        }
+
+        // final item = engine.hetu.invoke('Materialpack', namedArgs: {
+        //   'kind': 'shard',
+        //   'amount': 5,
+        // });
+        // engine.hetu
+        //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
+
+        // dialog.pushDialog(
+        //   {
+        //     'name': engine.locale('servant'),
+        //     'icon': 'illustration/npc/servant_head.png',
+        //     'lines': engine.locale('hint_cultivation2').split('\n'),
+        //   },
+        //   imageId: 'illustration/npc/servant.png',
+        // );
+        // await dialog.execute();
+
+        // engine.context.read<NewItemsState>().update(items: [item]);
+      }
+    },
+  });
+}
+
+/// 和门派藏书阁的功法图录交互
+/// 如果并非此组织成员，无法使用
+void _onInteractCardLibraryDesk({
+  dynamic organization,
+  dynamic location,
+}) async {
+  if (GameData.hero['organizationId'] != organization['id']) {
+    final isRented = await _checkRented(location);
+    if (!isRented) return;
+  }
+
+  engine.pushScene(Scenes.library, arguments: {
+    'enableCardCraft': true,
+    'enableScrollCraft': organization?['techs']?['enableScrollCraft'] ?? false,
+    'onEnterScene': () async {
+      if (GameData.game['flags']['hintedCardLibrary'] != true) {
+        GameData.game['flags']['hintedCardLibrary'] = true;
+
+        dialog.pushDialog(
+          'hint_tutorial',
+          name: engine.locale('servant'),
+          icon: 'illustration/npc/servant_head.png',
+          image: 'illustration/npc/servant.png',
+        );
+        dialog.pushSelection('tutorial', [
+          'listenTutorial',
+          'forgetIt',
+        ]);
+        await dialog.execute();
+        final selected = dialog.checkSelected('tutorial');
+
+        if (selected == 'listenTutorial') {
+          dialog.pushDialog(
+            'hint_cardLibrary',
+            name: engine.locale('servant'),
+            icon: 'illustration/npc/servant_head.png',
+            image: 'illustration/npc/servant.png',
+          );
+          await dialog.execute();
+        }
+
+        // final item =
+        //     engine.hetu.invoke('Cardpack', namedArgs: {'isBasic': true});
+        // engine.hetu
+        //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
+
+        // dialog.pushDialog(
+        //   {
+        //     'name': engine.locale('servant'),
+        //     'icon': 'illustration/npc/servant_head.png',
+        //     'lines': engine.locale('hint_cardLibrary2').split('\n'),
+        //   },
+        //   imageId: 'illustration/npc/servant.png',
+        // );
+        // await dialog.execute();
+
+        // engine.context.read<NewItemsState>().update(items: [item]);
+      }
+    },
+  });
+}
+
 void _onAfterEnterLocation(dynamic location) async {
   await engine.hetu.invoke('onGameEvent',
       positionalArgs: ['onAfterEnterLocation', location]);
@@ -67,7 +335,7 @@ void _onAfterEnterLocation(dynamic location) async {
         engine.hetu.invoke('progressQuestById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);
       } else {
-        final playerMonthly = GameData.game['monthlyActivities'];
+        final playerMonthly = GameData.game['playerMonthly'];
         if (playerMonthly['attendedMeeting'] != true && GameLogic.day <= 5) {}
       }
     }

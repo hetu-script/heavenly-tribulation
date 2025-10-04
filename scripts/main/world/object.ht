@@ -12,7 +12,7 @@ const kObjectCategoryTreasureBox = 'treasureBox'
 const kObjectCategorySpiritWell = 'spiritWell'
 const kObjectCategoryBed = 'bed'
 const kObjectCategorySwitch = 'switch'
-const kObjectCategoryCultivation = 'cultivation'
+const kObjectCategoryExpArray = 'exparray'
 const kObjectCategoryCardLibrary = 'cardlibrary'
 // const kObjectCategoryScrollTable = 'scrollTable'
 const kObjectCategoryWorkbench = 'workbench'
@@ -302,7 +302,7 @@ struct ObjectSpiritWell {
   }
 }
 
-struct ObjectCultivation {
+struct ObjectExpArray {
   constructor ({
     id,
     name,
@@ -315,7 +315,7 @@ struct ObjectCultivation {
     this.name = name ?? engine.locale('enterCultivation')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectCategoryCultivation
+    this.category = kObjectCategoryExpArray
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.collectableLight = collectableLight ?? 0

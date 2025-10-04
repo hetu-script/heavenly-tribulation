@@ -691,7 +691,7 @@ class BattleScene extends Scene {
 
     bool hasScroll = false;
     for (final card in heroDeck) {
-      if (card.data['isScroll'] == true) {
+      if (card.data['isEphemeral'] == true) {
         hasScroll = true;
         engine.hetu.invoke('dismantleCard',
             namespace: 'Player', positionalArgs: [card.data]);

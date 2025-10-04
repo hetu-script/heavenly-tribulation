@@ -966,7 +966,7 @@ async function onInteractMapObject(object, terrain) {
         assert(object.battleEntity != null)
         onInteractEnemy(object.battleEntity)
       }
-      kObjectCategoryCultivation: onInteractCultivationStele(object)
+      kObjectCategoryExpArray: onInteractExpArray(object)
       kObjectCategoryCardLibrary: onInteractCardLibraryDesk(object)
       kObjectCategoryMerchant: Game.showMerchant(object.merchant, useShard: object.useShard)
       kObjectCategorySpiritWell: onInteractSpiritWell(object)
@@ -1075,8 +1075,8 @@ async function onInteractBed(object) {
   }
 }
 
-async function onInteractCultivationStele(object) {
-  Dialog.pushDialog('hint_cultivationStele')
+async function onInteractExpArray(object) {
+  Dialog.pushDialog('hint_expArray')
   await Dialog.execute()
   Game.showCultivation(location: object)
 }

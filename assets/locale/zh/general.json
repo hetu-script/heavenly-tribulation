@@ -228,8 +228,10 @@
   "mythic": "绝品",
   "arcane": "神品",
 
-  "normal": "普通",
+  "easy": "简单",
+  "normal": "常规",
   "hard": "困难",
+
   "torment": "折磨",
   "nightmare": "梦魇",
   "purgatory": "炼狱",
@@ -299,6 +301,42 @@
   "timeOfDay3": "傍晚",
   "timeOfDay4": "午夜",
   "timeflow": "时间流逝",
+
+  "landZone": "土地",
+  "waterZone": "水域",
+
+  "continent": "大陆",
+  "island": "岛屿",
+
+  "sea": "海洋",
+  "lake": "湖泊",
+  "shore": "岸边",
+  "shelf": "大陆架",
+
+  "river": "河流",
+  "road": "道路",
+
+  "plain": "平原",
+  "mountain": "山地",
+  "forest": "森林",
+  "snow_plain": "雪原",
+  "snow_mountain": "雪山",
+  "snow_forest": "雪林",
+
+  "farmfield": "农田",
+  "harbor": "港口",
+
+  "arcana": "洞天",
+  "mirage": "福地",
+
+  "dungeon": "秘境",
+  "portalArray": "传送阵",
+
+  "spirit": "灵气",
+
+  "fishTile": "鱼群",
+  "stormTile": "暴风雨",
+  "spiritTile": "灵气喷涌",
 
   "doNothing": "什么都不做",
 
@@ -397,6 +435,85 @@
   "functionDisabled": "功能当前不可用",
   "functionOnlyAvailableInLibrary": "此功能只能在藏书阁或玄机碑处使用",
 
+  "startTutorial": "开始教程",
+
+  "collectableLight": "可收集的灵光",
+  "availableShard": "剩余灵石",
+  "exp": "修为经验",
+  "rank": "境界",
+  "rank2": "境",
+  "rank3": "期",
+  "rankUp!": "境界提升!",
+
+  "skillPoints": "天道技能点",
+
+  "condenseAll": "自动收集",
+
+  "cultivationSkills": "修炼",
+  "supportSkills": "技艺",
+
+  "interact": "互动",
+  "moveTo": "移动",
+  "enter": "进入",
+  "work": "打工",
+  "produce": "生产",
+  "build": "建造",
+  "rest": "休息",
+  "meditate": "打坐",
+
+  "restTillTommorow": "休息到明天早上",
+  "rest1Days": "休息 1 天",
+  "rest10Days": "休息 10 天",
+  "rest30Days": "休息 30 天",
+  "restTillNextMonth": "休息到下个月 1 日",
+  "restTillFullHealth": "休息到体力全满",
+
+  "produce5Days": "生产 5 天",
+  "produce15Days": "生产 15 天",
+  "produceTillNextMonth": "生产到下个月 1 日",
+  "produceTillEmptyHealth": "生产到体力耗尽",
+
+  "battlecard": "功法",
+
+  "familyName": "氏",
+  "sectName": "宗",
+
+  "newItems": "获得物品",
+  "newQuest": "新增日志",
+  "questUpdate": "日志更新",
+
+  "rentFacility": "租用此设施",
+
+  "rentFacility_description": "花费 <yellow>{0} {1}</>",
+
+  "do_tribulation": "挑战天劫",
+
+  "autoWork": "自动工作",
+  "autoCultivate": "自动修炼",
+
+  "useLocation": "使用场地",
+  "rentLocation": "租用场地",
+
+  "work10Days": "工作 10 天",
+  "work30Days": "工作 30 天",
+  "workTillNextMonth": "工作到下个月 1 日",
+  "workTillHealthExhausted": "工作到体力耗尽",
+
+  "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
+  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
+  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
+
+  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
+  "baseSalary": "基本工资",
+  "staminaCost": "体力消耗",
+  "workableMonths": "可工作月份",
+
+  "manage": "管理",
+
+  "cost": "消耗",
+
+  "pay_shard": "支付灵石",
+
   "hint_materialpack": "使用后转化为不占用物品栏且不可交易的资源",
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
   "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
@@ -407,8 +524,8 @@
   "hint_notEnoughMoney": "你没有足够的钱。",
   "hint_notEnoughShard": "你没有足够的灵石。",
   "hint_notEnoughExp": "你没有足够的修为经验。",
-  "hint_notEnoughCraftMaterial": "你没有足够的{0}。",
   "hint_notEnoughMaterial": "你没有足够的材料",
+  "hint_notEnough": "你没有足够的{0}。",
 
   "hint_merchantNotEnoughMoney": "对方身上没有足够的钱。",
   "hint_merchantNotEnoughShard": "对方身上没有足够的灵石。",
@@ -419,10 +536,10 @@
   "hint_cultivateMode": "点击左键切换到打坐修炼模式",
   "hint_passiveTreeMode": "点击左键切换到天道技能模式",
 
-  "hint_cultivationStele": "这是一座定灵碑，在这里你可以通过打坐，花费灵石和时间来获取灵光。",
+  "hint_expArray": "这是一座聚灵阵，在这里你可以通过打坐，花费灵石和时间来获取灵光。",
   "hint_cardLibraryStele": "这是一座玄机碑，在这里你可以花费灵光进行卡牌词条的精炼，从而提升或修改卡牌属性。",
 
-  "hint_organizationFacilityNotMember": "抱歉，因为您并非本门派的修士，不能使用这里的设施，还请回吧。",
+  "hint_organizationFacilityNotMember": "您并非本门派的修士，要想使用这里的设施，需要支付一定的费用才行。",
 
   "hint_scrollCrafter": "你身上有用不了的秘籍功法的话，可以在我这里将其转化为没有境界和装备需求的符箓。怎么样，是不是很划算？",
 
@@ -445,7 +562,7 @@
   "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
   "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
 
-  "hint_cultivate": "花费时间修炼，获得修为经验，提升修为等级。\n在自宅修炼，需要消耗身上所携带的<yellow>灵石</>。\n在据点总堂等处的定灵碑修炼，需要消耗定灵碑自身的<yellow>灵光</>。",
+  "hint_cultivate": "花费时间修炼，获得修为经验，提升修为等级。\n在自宅修炼，需要消耗身上所携带的<yellow>灵石</>。\n在据点总堂等处的聚灵阵修炼，需要消耗聚灵阵自身的<yellow>灵光</>。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
@@ -457,53 +574,15 @@
   "hint_deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
   "hint_tutorial": "这好像是你第一次使用这个功能，要听取使用教程吗？",
-  "listenTutorial": "听取教程",
 
-  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将天地灵气转化为识海中的<yellow>灵光点</>。打坐的时候，每次时间流逝收集 1 点灵光并获得至少 10 点修为经验。若是你修为精进的话，吸收的速度会更快一些。\n在自宅修炼时，需要消耗身上所携带的灵石。在定灵碑修炼时，需要消耗定灵碑自身的灵光数量。定灵碑的灵光数量每个月初一恢复。\n修为经验达到修为等级需求时可以升级。每次升级你的基础生命值 + 5，并获得 1 个天道技能点。\n点击角色图标可以切换天道技能界面和灵光点收集界面。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。",
+  "hint_cultivation": "修真一途，根基在于内功。这里便是提升修为等级之所。\n在这里打坐可将天地灵气转化为识海中的<yellow>灵光点</>。打坐的时候，每次时间流逝收集 1 点灵光并获得至少 10 点修为经验。若是你修为精进的话，吸收的速度会更快一些。\n在自宅修炼时，需要消耗身上所携带的灵石。在聚灵阵修炼时，需要消耗聚灵阵自身的灵光数量。聚灵阵的灵光数量每个月初一恢复。\n修为经验达到修为等级需求时可以升级。每次升级你的基础生命值 + 5，并获得 1 个天道技能点。\n点击角色图标可以切换天道技能界面和灵光点收集界面。学习天道技能可以提升自身属性，或者解锁使用某些功法的能力。",
 
   "hint_cardLibrary": "提升修为等级可以增强身体属性，但空有身体属性，没有功法加持，也无用武之地。\n打开秘籍可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。。\n在藏书阁或者玄机碑打开功法图录时，右键点击卡牌可以消耗材料对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击功法图录右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n注意：某些功法卡牌需要点出某些天道技能，或是装备某些特定武器或法宝才可使用。",
-
-  "hint_cultivation2": "我这里有 5 块灵石，正好作为阁下开启修真之途的助益。",
-  "hint_cardLibrary2": "我里正好有 1 本秘籍，正好作为阁下开启修真之途的助益。",
-
-  "collectableLight": "可收集的灵光",
-  "restShardNumber": "剩余灵石数量",
-  "exp": "修为经验",
-  "rank": "境界",
-  "rank2": "境",
-  "rank3": "期",
-  "rankUp!": "境界提升!",
-
-  "skillPoints": "天道技能点",
-
-  "condenseAll": "自动收集",
-
-  "cultivationSkills": "修炼",
-  "supportSkills": "技艺",
-
-  "work": "打工",
-  "rest1Days": "休息 1 天",
-  "rest10Days": "休息 10 天",
-  "rest30Days": "休息 30 天",
-  "restTillTommorow": "休息到明天早上",
-  "restTillNextMonth": "休息到下个月 1 日",
-  "restTillFullHealth": "休息到体力全满",
-
-  "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
 
   "hint_visitEmptyVillage": "似乎没有任何重要人物居住在此。",
   "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
 
-  "production": "生产",
-
-  "battlecard": "功法",
-
-  "familyName": "氏",
-  "sectName": "宗",
-
-  "newItems": "获得物品",
-  "newQuest": "新增日志",
-  "questUpdate": "日志更新",
+  "hint_rentedFacility": "没问题，直到下个月前你都可以使用这里的设施了。",
 
   "hint_outOfLight": "灵光耗尽！",
   "hint_outOfShard": "灵石耗尽！",
@@ -516,32 +595,5 @@
 
   "hint_autoCultivate": "不在修炼界面时，点击上方角色信息栏中的灵石图标，可以开启自动修炼。\n开启自动修炼后，将会随着时间流逝自动消耗身上所携带的灵石，并获得灵光点。",
 
-  "hint_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且修为经验不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。",
-
-  "do_tribulation": "挑战天劫",
-
-  "autoWork": "自动工作",
-  "autoCultivate": "自动修炼",
-
-  "useLocation": "使用场地",
-  "rentLocation": "租用场地",
-
-  "work10Days": "工作 10 天",
-  "work30Days": "工作 30 天",
-  "workTillNextMonth": "工作到下个月 1 日",
-  "workTillHealthExhausted": "工作到体力耗尽",
-
-  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
-  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
-
-  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
-  "baseSalary": "基本工资",
-  "staminaCost": "体力消耗",
-  "workableMonths": "可工作月份",
-
-  "manage": "管理",
-
-  "cost": "消耗",
-
-  "pay_shard": "支付灵石"
+  "hint_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且修为经验不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。"
 }

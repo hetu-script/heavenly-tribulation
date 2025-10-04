@@ -847,11 +847,7 @@ abstract class GameData {
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
     final bool isIdentified = cardData['isIdentified'] == true;
-    // final bool isScroll = cardData['isScroll'] == true;
     String title = cardData['name'];
-    // if (isScroll) {
-    //   title = '$title(${engine.locale('scroll2')})';
-    // }
 
     assert(affixes.isNotEmpty);
     // final mainAffix = affixes[0];

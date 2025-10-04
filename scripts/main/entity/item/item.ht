@@ -432,7 +432,7 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
     engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
   }
-  assert(kMaterialKinds.contains(materialId))
+  assert(Constants.materialKinds.contains(materialId))
   entity.materials[materialId] += amount
 
   let incidentContent = engine.locale('characterAcquireMultiple', interpolations: [
@@ -482,9 +482,9 @@ function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true })
 
 /// 消费资源，返回是否成功消费了指定的数量
 function entityExhaust(entity, materialId: string, { amount = 1 }) -> bool {
-  assert(kMaterialKinds.contains(materialId))
+  assert(Constants.materialKinds.contains(materialId))
   if (amount <= 0) {
-    engine.warn('entity [${entity.id}] exhaust [${materialId}] amount <=0')
+    engine.warn('entity [${entity.id}] exhaust [${materialId}] by amount <=0')
     return true
   }
   let success = false
@@ -684,7 +684,7 @@ function createLoot(itemsInfo: List) {
       //   items.add(pack)
       // }
       'material': {
-        assert(kMaterialKinds.contains(itemInfo.kind))
+        assert(Constants.materialKinds.contains(itemInfo.kind))
         final pack = Materialpack(kind: itemInfo.kind, amount: amount)
         items.add(pack)
       }

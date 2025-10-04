@@ -176,8 +176,8 @@ function addRestBed(tilePosition, {
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
 
-function addCultivationStele(tilePosition, {
-  objectId = 'cultivation',
+function addExpArray(tilePosition, {
+  objectId = 'exparray',
   hoverContent,
   collectableLight,
 }) {
@@ -186,7 +186,7 @@ function addCultivationStele(tilePosition, {
   tile.overlaySprite = {
     sprite: 'object/statue.png',
   }
-  final object = ObjectCultivation(
+  final object = ObjectExpArray(
     id: objectId,
     hoverContent: hoverContent,
     collectableLight: collectableLight,

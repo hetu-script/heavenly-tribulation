@@ -83,7 +83,8 @@ class _LocationViewState extends State<LocationView>
     assert(_location != null);
 
     final ownerId = _location['ownerId'];
-    _owner = GameData.getCharacter(ownerId);
+    // 这里的 owner 可能是 null
+    _owner = GameData.game['characters'][ownerId];
 
     Iterable residents = [];
 

@@ -62,43 +62,52 @@ function nameZones(world) {
   engine.debug('为地域命名')
   if (world.zones.isEmpty) return
 
-  world.seaIndexes = []
   for (const zone of world.zones) {
-    // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
-    if (zone.category == kZoneSea) {
+    // kZoneWater & kZoneLand 只是临时类型，现在替换为具体的类型
+    if (zone.category == kZoneWater) {
       // 将临时类型 water 根据情况替换为 sea 和 lake
-      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfSea ? kZoneCategoryLake : kZoneCategorySea
-      if (zone.category == kZoneCategorySea) {
-        // 将所有海域保存在一个总表中
+      if (zone.terrainIndexes.length < _kMinZoneSizeOfSea) {
+        zone.category = kZoneCategoryLake
+        // 将可捕鱼区域保存在一个总表中
+        world.fisheryIndexes.addAll(zone.terrainIndexes)
+      } else {
+        zone.category = kZoneCategorySea
+        // 将海域保存在一个总表中
         world.seaIndexes.addAll(zone.terrainIndexes)
       }
       // 为该地域中所有地块赋值 kind
       for (const terrainIndex in zone.terrainIndexes) {
         const terrain = world.terrains[terrainIndex]
         terrain.isWater = true
-        // TODO: lake类型单独的贴图
-        if (terrain.kind == kZoneCategoryLake) {
+        if (zone.category == kZoneCategoryLake) {
+          terrain.kind = 'lake'
+          // TODO: lake类型单独的贴图
           terrain.sprite = 'object/river.png'
         }
       }
-    } else if (zone.category == kZoneRiver) {
-      zone.category = kZoneCategoryRiver
-      for (const terrainIndex in zone.terrainIndexes) {
-        const terrain = world.terrains[terrainIndex]
-        terrain.isWater = true
-        // TODO: river类型单独的贴图
-        terrain.sprite = 'object/river.png'
-      }
     } else if (zone.category == kZoneLand) {
       // 将临时类型 land 根据情况替换为 continent 和 island
-      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfIsland ? kZoneCategoryIsland : kZoneCategoryContinent
-      // 为该地域中所有地块赋值 kind
-      for (const terrainIndex in zone.terrainIndexes) {
-        const terrain = world.terrains[terrainIndex]
-        terrain.isWater = false
-        // TODO: 道路类型单独的贴图
+      if (zone.terrainIndexes.length < _kMinZoneSizeOfIsland) {
+        zone.category = kZoneCategoryIsland
+      } else {
+        zone.category = kZoneCategoryContinent
       }
+      // 这里并不会为地块赋值 kind
+      // 因为陆地上会生成多种地形类型，在其他的函数中处理
+      // for (const terrainIndex in zone.terrainIndexes) {
+      //   const terrain = world.terrains[terrainIndex]
+      //   // TODO: 道路类型单独的贴图
+      // }
     }
+    // else if (zone.category == kZoneRiver) {
+    //   zone.category = kZoneCategoryRiver
+    //   for (const terrainIndex in zone.terrainIndexes) {
+    //     const terrain = world.terrains[terrainIndex]
+    //     terrain.isWater = true
+    //     // TODO: river类型单独的贴图
+    //     terrain.sprite = 'object/river.png'
+    //   }
+    // }
 
     zone.name = generateZoneName(category: zone.category)
   }

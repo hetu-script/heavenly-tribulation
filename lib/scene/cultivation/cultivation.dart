@@ -217,7 +217,7 @@ class CultivationScene extends Scene {
       assert(expCollectEfficiency > 0);
       collectableExp = shard * expCollectEfficiency;
       collectableExpString =
-          '${engine.locale('restShardNumber')}: <bold ${shard > 0 ? 'yellow' : 'grey'}>$shard</>';
+          '${engine.locale('availableShard')}: <bold ${shard > 0 ? 'yellow' : 'grey'}>$shard</>';
     }
 
     String expCollectEfficiencyString =

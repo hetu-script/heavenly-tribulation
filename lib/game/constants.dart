@@ -3,8 +3,8 @@ import 'package:hetu_script/binding.dart';
 
 import 'common.dart';
 
-class ConstantsBinding extends HTExternalClass {
-  ConstantsBinding() : super('Constants');
+class Constants extends HTExternalClass {
+  Constants() : super('Constants');
 
   @override
   dynamic memberGet(String id,
@@ -30,18 +30,30 @@ class ConstantsBinding extends HTExternalClass {
         return kOrganizationCategories;
       case 'Constants.cultivationGenres':
         return kCultivationGenres;
+      case 'Constants.materialKinds':
+        return kMaterialKinds;
+      case 'Constants.nonCurrencyMaterialKinds':
+        return kNonCurrencyMaterialKinds;
+      case 'Constants.naturalResourceKinds':
+        return kNaturalResourceKinds;
+      case 'Constants.terrainKindToNaturalResources':
+        return kTerrainKindToNaturalResources;
       case 'Constants.cultivationStyles':
         return kCultivationStyles;
       case 'Constants.locationCityKinds':
         return kLocationCityKinds;
       case 'Constants.locationSiteKinds':
         return kLocationSiteKinds;
-      case 'Constants.siteKindsManagable':
-        return kSiteKindsManagable;
+      case 'Constants.siteKindsWorkable':
+        return kSiteKindsWorkable;
       case 'Constants.siteKindsBuildable':
         return kSiteKindsBuildable;
       case 'Constants.siteKindsBuildableOnWorldMap':
         return kSiteKindsBuildableOnWorldMap;
+      case 'Constants.organizationCategoryToSiteKind':
+        return kOrganizationCategoryToSiteKind;
+      case 'Constants.organizationGenreToSiteKinds':
+        return kOrganizationGenreToSiteKinds;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constnats.damageTypes':

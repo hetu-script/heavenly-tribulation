@@ -4,4 +4,3 @@ const kCurrentVersionCultivationLevelMax = 50
 const kCurrentVersionCultivationRankMax = 3
 
 const kOrthogonalDirections = ['north', 'east', 'south', 'west']
-

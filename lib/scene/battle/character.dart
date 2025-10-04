@@ -890,12 +890,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       opponent!.handleStatusEffectCallback('opponent_attacked');
     }
 
-    if (mainAffix['isEphemeral'] == true) {
-      // 触发自己使用消耗牌后的效果
-      handleStatusEffectCallback('self_consumed');
-      // 触发对方使用消耗牌后的效果
-      opponent!.handleStatusEffectCallback('opponent_consumed');
-    }
+    // if (mainAffix['isEphemeral'] == true) {
+    //   // 触发自己使用消耗牌后的效果
+    //   handleStatusEffectCallback('self_consumed');
+    //   // 触发对方使用消耗牌后的效果
+    //   opponent!.handleStatusEffectCallback('opponent_consumed');
+    // }
 
     return turnFlags;
   }

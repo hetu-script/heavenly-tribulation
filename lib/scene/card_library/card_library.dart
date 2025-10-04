@@ -614,7 +614,7 @@ class CardLibraryScene extends Scene {
               '\n \n<red>${engine.locale(materialId)}${engine.locale('cost')}:</> $count/<${hasMaterial >= count ? 'yellow' : 'grey'}>$hasMaterial</>');
         }
       } else {
-        if (_craftingCard!.data['isScroll'] == true) {
+        if (_craftingCard!.data['genre'] == 'scroll') {
           buffer.writeln(
               '\n \n<red>${engine.locale('deckbuilding_scroll_cannotCraft')}</>');
         } else {
@@ -647,7 +647,7 @@ class CardLibraryScene extends Scene {
     barrier.isVisible = true;
     closeCraftButton.isVisible = true;
 
-    bool isScroll = card.data['isScroll'] == true;
+    bool isScroll = card.data['genre'] == 'scroll';
 
     for (var i = 0; i < _craftOptionButtons.length; ++i) {
       final button = _craftOptionButtons[i];
@@ -713,7 +713,7 @@ class CardLibraryScene extends Scene {
     }
 
     if (paper == null) {
-      GameDialogContent.show(context, engine.locale('hint_notEnoughMaterial'));
+      GameDialogContent.show(context, engine.locale('hint_notEnoughMaterial2'));
       return;
     }
 
@@ -734,10 +734,8 @@ class CardLibraryScene extends Scene {
     scrollCard.data['image'] = 'battlecard/illustration/scroll.png';
     scrollCard.title =
         scrollCard.data['name'] = '$oldTitle(${engine.locale('scroll2')})';
-    scrollCard.data['isScroll'] = true;
 
     // scrollCard.data['category'] = 'scroll';
-    scrollCard.data['rank'] = 0;
     scrollCard.data['genre'] = 'scroll';
     scrollCard.data['equipment'] = null;
     scrollCard.data['isEphemeral'] = true;
@@ -1458,7 +1456,7 @@ class CardLibraryScene extends Scene {
             '<red>${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
             '${engine.locale('deckbuilding_scroll_paper_count')}:</> $paperCount/<${hasPaper >= paperCount ? 'yellow' : 'grey'}>$hasPaper</>');
       } else {
-        if (_craftingCard!.data['isScroll'] == true) {
+        if (_craftingCard!.data['genre'] == 'scroll') {
           buffer.writeln(
               '\n \n<red>${engine.locale('deckbuilding_scroll_cannotMakeScroll')}</>');
         } else if (_craftingCard!.data['rank'] == 0) {

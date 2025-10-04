@@ -24,58 +24,63 @@ const kLocationKindResidence = 'residence'
 
 // 主角设置宅家宅后的默认场景
 const kLocationKindHome = 'home'
-// 据点总堂，每个城市默认建筑，用来管理据点
-const kLocationKindCityhall = 'cityhall'
-// 交易所
-const kLocationKindTradingHouse = 'tradinghouse'
 // 门派总堂，每个门派在总部的默认建筑，用来管理门派
 const kLocationKindHeadquarters = 'headquarters'
-// 定灵碑，可以打坐获取经验值
-const kLocationKindStele = 'stele'
-// 藏书阁，交易所，拍卖行这三种建筑可以分别进行功法秘籍，材料和法宝的交易
-// 他们可能属于某个组织，也可能没有组织。
-// 交易所产生的物品、金钱等，存储于建筑本身，但可以由所有者提取。
-// 藏书阁
+// 据点总堂，每个城市默认建筑，用来管理据点
+const kLocationKindCityhall = 'cityhall'
+// 交易所，每个城市默认建筑，用来进行材料的交易
+const kLocationKindTradingHouse = 'tradinghouse'
+// 无为：问道碑，可以打坐获取功法
+const kLocationKindDaoStele = 'daostele'
+// 长生：聚灵阵，可以打坐获取经验值
+const kLocationKindExpArray = 'exparray'
+// 修真：藏书阁
 const kLocationKindLibrary = 'library'
-// 演武场
+// 任侠：斗技场
 const kLocationKindArena = 'arena'
-// 指挥所
+// 权霸：指挥所
 const kLocationKindMilitaryPost = 'militarypost'
-// 拍卖行
+// 财富：拍卖行
 const kLocationKindAuctionHouse = 'auctionhouse'
-// 酒楼
+// 欢愉：酒楼
 const kLocationKindHotel = 'hotel'
  
-// 下面这些建筑对应于每种副职业
-// 工坊
-// 可以将谷物禽肉、兽肉、鱼肉加工成普通食物（材料）或者料理（单独的可使用物品）
-// 可以将原木加工成木材或纸张，石料加工成石材或矿石
+// 下面这些建筑是副职业，每种流派有两个
+// 炼器工坊
 const kLocationKindWorkshop = 'workshop'
-// 丹药工坊
+// 灌灵池
+const kLocationKindEnchantShop = 'enchantshop'
+// 丹炉
 const kLocationKindAlchemyLab = 'alchemylab'
-// 阵法工坊
+// 纹身工坊
+const kLocationKindTattooShop = 'tattooshop'
+// 符法所
+const kLocationKindRunelab = 'runelab'
+// 阵法所
 const kLocationKindArrayLab = 'arraylab'
 // 幻术祭坛
 const kLocationKindIllusionAltar= 'illusionaltar'
-// 卜卦祭坛
-const kLocationKindDivinationAltar = 'divinationaltar'
-// 炼魂祭坛
+// 通灵居
 const kLocationKindPsychicTemple = 'psychictemple'
-// 显圣祭坛
+// 观星台
+const kLocationKindDivinationAltar = 'divinationaltar'
+// 显圣殿
 const kLocationKindTheurgyTemple = 'theurgytemple'
+
+// 下面这些属于对应材料的产地
+// 农场
+const kLocationKindFarmland = 'farmland'
+// 农场
+const kLocationKindFishery = 'fishery'
+// 林场
+const kLocationKindTimberland = 'timberland'
+// 猎场
+const kLocationKindHuntingground = 'huntingground'
+// 矿场
+const kLocationKindMine = 'mine'
 
 // 副本入口
 const kLocationDungeonEntrance = 'dungeon'
-
-// 下面这些属于对应材料的产地
-// 矿场
-const kLocationKindMine = 'mine'
-// 林场
-const kLocationKindTimberland = 'timberland'
-// 农场
-const kLocationKindFarmland = 'farmland'
-// 猎场
-const kLocationKindHuntingground = 'huntingground'
 
 // number of plain city background count
 const _kCityPlainBackgroundCount = {
@@ -108,7 +113,7 @@ const kLocationKindPriority = {
   'headquarters': 25,
   'cityhall': 24,
   'tradinghouse': 23,
-  'stele': 22,
+  'exparray': 22,
   'library': 21,
   'arena': 20,
   'militarypost': 19,
@@ -122,10 +127,11 @@ const kLocationKindPriority = {
   'psychictemple': 11,
   'theurgytemple': 10,
   'dungeon': 8,
-  'mine': 4,
+  'farmland': 1,
+  'fishery': 2,
   'timberland': 3,
-  'farmland': 2,
-  'huntingground': 1,
+  'huntingground': 4,
+  'mine': 5,
 }
 
 /// 据点、场景、建筑等
@@ -489,7 +495,7 @@ function setLocationWorldPosition(location, left, top, {worldId}) {
   }
 }
 
-/// 刷新定灵碑中的可用灵气
+/// 刷新聚灵阵中的可用灵气
 function replenishCityhallExp(location) {
   // assert(location.kind == 'cityhall')
   // final atLocation = game.locations[location.atLocationId]
@@ -622,7 +628,7 @@ function replenishTradingHouseMaterials(location) {
     // 港口
     cityFactor = 0.8
   } else if (atLocation.kind == 'mountain') {
-    // 山峰
+    // 山地
     cityFactor = 1.2
   } else if (atLocation.kind == 'inland') {
     // 内陆
@@ -698,7 +704,7 @@ function replenishTradingHouseMaterials(location) {
     }
   }
 
-  for (final materialId in kNoncurrencyMaterialKinds) {
+  for (final materialId in Constants.nonCurrencyMaterialKinds) {
     assert(developmentFactor.containsKey(materialId))
     final factor = developmentFactor[materialId]
     final amount = r.nextInt(kBaseStoreMaterialAmount * factor * factor)
@@ -788,5 +794,32 @@ function replenishAlchemyLabPotions(location) {
   for (var i in range(amount)) {
     final item = Potion(rank: random.nearInt(location.development + 1))
     entityAcquire(location, item)
+  }
+}
+
+/// 刷新符法所的物品
+function replenishRuneLabScrolls(location) {
+  assert(location.kind == 'runelab')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  location.inventory = {}
+
+  final r = Random()
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    ~/ Constants.basePriceOfMaterialKind.shard
+  
+  if (location.development == 0) return
+  
+  let amount = kBaseItemReplenishAmount + location.development
+  for (var i in range(1, location.development + 1)) {
+    for (var j in range(amount)) {
+      final paper = createItemByPrototype('scroll_paper_rank${i}')
+      entityAcquire(location, paper)
+    }
   }
 }

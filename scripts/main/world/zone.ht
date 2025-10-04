@@ -1,12 +1,11 @@
 const kZoneVoid = 'world'
 const kZoneLand = 'land'
-const kZoneSea = 'sea'
-const kZoneRiver = 'river'
+const kZoneWater = 'water'
 const kZoneCategoryContinent = 'continent'
 const kZoneCategoryIsland = 'island'
 const kZoneCategoryLake = 'lake'
-const kZoneCategoryRiver = 'river'
 const kZoneCategorySea = 'sea'
+// const kZoneCategoryRiver = 'river'
 
 struct Zone {
   constructor ({name, category, color, map}) {

@@ -14,6 +14,7 @@ const _kMountainThreshold = 0.4
 const _kIslandThreshold = 0.1
 
 const _kFarmFieldThreshold = 0.08
+const _kFisheryThreshold = 0.04
 const _kTimberLandThreshold = 0.04
 const _kMineThreshold = 0.04
 const _kHuntingGroundThreshold = 0.02
@@ -30,6 +31,10 @@ const _kOrganizationRecruitOtherLocationProbability = 0.2
 const _kOrganizationRecruitSuccessProbability = 0.4
 
 const _kSandboxInitialHeadRank = 2
+
+const _kTerrainResourceBase = 5;
+const _kTerrainResourceVariation = 5;
+const _kTerrainKindsWithNoResources = ['void', 'city', 'road']
 
 /// 生成世界地图的算法
 /// 生成的世界 ID 固定为 `sandboxWorld`
@@ -166,6 +171,7 @@ function createSandboxWorld({
       if (isShelf) {
         tile.sprite = 'object/shelf.png'
         tile.kind = 'shelf'
+        world.fisheryIndexes.add(tile.index)
       } else {
         tile.kind = 'sea'
       }
@@ -174,23 +180,28 @@ function createSandboxWorld({
 
   // zone 的名字和其大小有关
   nameZones(newWorld)
+
   // 命名区域后，才会得到海洋地块，因为某些水体会被命名为湖泊和河流
-  let seas = world.seaIndexes.map((index) => world.terrains[index])
+  const seas = world.seaIndexes.map((index) => world.terrains[index])
 
   // 生成据点
   engine.debug('生成大陆上的据点')
   final locations = []
+  final locationNeighbors = {}
+  const fisheryKinds = ['lake', 'shelf', 'sea']
   while (locations.length < locationNumber) {
     let island = random.nextDouble() < _kIslandThreshold
+    let terrain
+    let location
     if (island) {
-      let terrain
       let availableWater = seas.where((tile) => tile.locationId == null)
       if (availableWater.isEmpty) {
         // 没有可用的地块了，继续尝试生成非海岛据点
         continue
       }
       terrain = random.nextIterable(availableWater)
-      const location = Location(
+      // terrain.kind = 'city'
+      location = Location(
         category: 'city',
         kind: 'island',
         atTerrain: terrain,
@@ -199,16 +210,14 @@ function createSandboxWorld({
         // 随机生成的据点，初始发展度是0-3之间随机。
         development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
     } else {
-      let terrain
       let availableLands = lands.where((tile) => tile.locationId == null)
       if (availableLands.isEmpty) {
         // 没有可用的地块了，跳出循环
         break
       }
       terrain = random.nextIterable(availableLands)
-      // city kind 有四种：城市、港口、山峰（洞天）和岛屿（福地），后两者为隐藏据点
+      // city kind 有四种：城市、港口、山地（洞天）和岛屿（福地），后两者为隐藏据点
       let kind
       if (terrain.kind == 'shore') {
         kind = 'harbor'
@@ -217,7 +226,8 @@ function createSandboxWorld({
       } else {
         kind = 'inland'
       }
-      const location = Location(
+      // terrain.kind = 'city'
+      location = Location(
         category: 'city',
         kind: kind,
         atTerrain: terrain,
@@ -226,8 +236,36 @@ function createSandboxWorld({
         // 随机生成的据点，初始发展度是0-3之间随机。
         development: random.nextInt(_kLocationInitialDevelopmentMax),
       )
-      locations.add(location)
     }
+
+    locations.add(location)
+    final neighbors = getMapTileNeighbors(
+      location.worldPosition.left,
+      location.worldPosition.top,
+      world,
+    )
+    // 生成据点后，据点周围的水体会被添加到可捕鱼范围
+    for (final neighbor in neighbors) {
+      if (neighbor.kind in fisheryKinds) {
+        world.fisheryIndexes.add(neighbor.index)
+      }
+    }
+    locationNeighbors[location.terrainIndex] = neighbors
+  }
+  world.fisheryIndexes = world.fisheryIndexes.toSet().toList()
+  
+  engine.debug('生成自然资源')
+  for (final terrain in world.terrains) {
+    if (terrain.kind in _kTerrainKindsWithNoResources) continue
+    final resourceMultiplierData = Constants.terrainKindToNaturalResources[terrain.kind]
+    assert(resourceMultiplierData != null, 'missing resourceMultiplierData for terrain kind: ${terrain.kind}')
+    final resources = {}
+    for (final resourceType in Constants.naturalResourceKinds) {
+      assert(resourceMultiplierData.containsKey(resourceType), 'missing resourceMultiplier for resource type: ${resourceType} in terrain: ${terrain.index}')
+      final resourceMultiplier = resourceMultiplierData[resourceType]
+      resources[resourceType] = (random.nextInt(_kTerrainResourceVariation) + _kTerrainResourceBase) * resourceMultiplier
+    }
+    terrain.resources = resources
   }
 
   engine.debug('生成生产类建筑')
@@ -236,15 +274,11 @@ function createSandboxWorld({
     location.category == 'city' && location.isHidden == false
   ).toList()
   for (final city in cities) {
-    final neighbors = getMapTileNeighbors(
-      city.worldPosition.left,
-      city.worldPosition.top,
-      world,
-      terrainKinds: ['plain'],
-    )
- 
+    final neighbors = locationNeighbors[city.terrainIndex]
+    assert(neighbors != null)
     for (final terrain in neighbors) {
       if (terrain.locationId != null) continue
+      if (terrain.kind != 'plain') continue
       final r = random.nextDouble()
       if (r < _kFarmFieldThreshold) {
         terrain.overlaySprite = {
@@ -262,6 +296,29 @@ function createSandboxWorld({
         )
         terrain.locationId = location.id
       }
+    }
+  }
+
+  // 生成渔场
+  for (final index in world.fisheryIndexes) {
+    const terrain = world.terrains[index]
+    if (terrain.locationId != null) continue
+    final r = random.nextDouble()
+    if (r < _kFisheryThreshold) {
+      terrain.overlaySprite = {
+        sprite: 'object/fishery.png',
+      }
+      
+      const location = Location(
+        category: 'site',
+        kind: 'fishery',
+        atTerrain: terrain,
+        updateWorldMap: false,
+        createNpc: true,
+        // 随机生成的场所，初始发展度是0-3之间随机。
+        development: random.nextInt(_kLocationInitialDevelopmentMax),
+      )
+      terrain.locationId = location.id
     }
   }
 
@@ -447,158 +504,51 @@ function createSandboxWorld({
     nations.add(organization)
     location.development += 1
 
-    final sites = [kLocationKindStele]
-    switch(organization.category) {
-      'immortality' : {
-        sites.add(kLocationKindStele)
-        // 定灵碑
-        Location(
-          id: organization.id + '_stele',
-          name: engine.locale('stele'),
-          category: 'site',
-          kind: kLocationKindStele,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-          // 随机生成的场所，初始发展度是0-3之间随机。
-          development: random.nextInt(_kLocationInitialDevelopmentMax),
-        )
-      }
-      'cultivation' : {
-        sites.add(kLocationKindLibrary)
-        // 藏经阁
-        Location(
-          id: organization.id + '_library',
-          name: engine.locale('library'),
-          category: 'site',
-          kind: kLocationKindLibrary,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-        )
-      }
-      'chivalry' : {
-        sites.add(kLocationKindArena)
-        // 比武场
-        Location(
-          id: organization.id + '_arena',
-          name: engine.locale('arena'),
-          category: 'site',
-          kind: kLocationKindArena,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-        )
-      }
-      'entrepreneur' : {
-        sites.add(kLocationKindMilitaryPost)
-        // 军营
-        Location(
-          id: organization.id + '_militarypost',
-          name: engine.locale('militarypost'),
-          category: 'site',
-          kind: kLocationKindMilitaryPost,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-        )
-      }
-      'wealth' : {
-        sites.add(kLocationKindAuctionHouse)
-        // 拍卖行
-        Location(
-          id: organization.id + '_auctionhouse',
-          name: engine.locale('auctionhouse'),
-          category: 'site',
-          kind: kLocationKindAuctionHouse,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-        )
-      }
-      'pleasure' : {
-        sites.add(kLocationKindHotel)
-        // 旅馆
-        Location(
-          id: organization.id + '_hotel',
-          name: engine.locale('hotel'),
-          category: 'site',
-          kind: kLocationKindHotel,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          createNpc: true,
-        )
-      }
-    }
+    final siteKinds = Constants.siteKindsBuildable.toList()
+    final organizationCategoryKind = Constants.organizationCategoryToSiteKind[organization.category]
+    siteKinds.remove(organizationCategoryKind)
+    Location(
+      id: organization.id + '_${organizationCategoryKind}',
+      name: engine.locale(organizationCategoryKind),
+      category: 'site',
+      kind: organizationCategoryKind,
+      atLocation: location,
+      organizationId: organization.id,
+      development: random.nextInt(location.development + 1),
+      createNpc: true,
+    )
     
-    for (var i in range((location.development - 1) * 2)) {
-      final buildableKinds = Constants.siteKindsBuildable.where((item) => !sites.contains(item))
-      final kind = random.nextIterable(buildableKinds)
-      sites.add(kind)
-      Location(
-        id: organization.id + '_${kind}',
-        name: engine.locale(kind),
-        category: 'site',
-        kind: kind,
-        atLocation: location,
-        organizationId: organization.id,
-        development: random.nextInt(location.development + 1),
-        createNpc: true,
-      )
+    final organizationGenreKinds = Constants.organizationGenreToSiteKinds[organization.genre]
+    final secondaryClassSiteKind = random.nextIterable(organizationGenreKinds)
+    siteKinds.remove(secondaryClassSiteKind)
+    Location(
+      id: organization.id + '_${secondaryClassSiteKind}',
+      name: engine.locale(secondaryClassSiteKind),
+      category: 'site',
+      kind: secondaryClassSiteKind,
+      atLocation: location,
+      organizationId: organization.id,
+      development: random.nextInt(location.development + 1),
+      createNpc: true,
+    )
+
+    if (location.development >= 2) {
+      for (var i in range(2, location.development + 1)) {
+        final kind = random.nextIterable(siteKinds)
+        siteKinds.remove(kind)
+        Location(
+          id: organization.id + '_${kind}',
+          name: engine.locale(kind),
+          category: 'site',
+          kind: kind,
+          atLocation: location,
+          organizationId: organization.id,
+          development: random.nextInt(location.development + 1),
+          createNpc: true,
+        )
+      }
     }
   }
-
-  // function findHead {
-  //   let head
-  //   if (game.characters.length == 0) {
-  //     // 人物列表是空的，此时要创造第一个角色
-  //     head = Character(
-  //       birthTimestamp: createBirthTimestamp(min: 20), // 年龄至少是20岁
-  //     )
-  //   } else {
-  //     let found = false
-  //     for (const id in random.shuffle(game.characters.keys)) {
-  //       const character = game.characters[id]
-  //       const age = datetime.toYear(game.timestamp - character.birthTimestamp)
-  //       // 年龄至少是20岁，并且不能担任其他组织职务
-  //       if (character.jobRank.isEmpty && age >= 20) {
-  //         found = true
-  //         head = character
-  //         break
-  //       }
-  //     }
-  //     if (!found) {
-  //       // 没有找到合适的人，则立刻创建一个
-  //       // 年龄至少是20岁
-  //       head = Character(birthTimestamp: createBirthTimestamp(min: 20))
-  //     }
-  //   }
-  //   return head
-  // }
-
-  // 修真门派
-  // let createdCultivationOrganizationCount = 0
-  // let cultivationOrganizationCreatedDate = []
-  // for (const i in range(cultivationOrganizationNumber)) {
-  //   cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  // }
-  // cultivationOrganizationCreatedDate.sort()
-  // cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
-  
-  // 商号
-  // let createdTradinghouseOrganizationCount = 0
-  // let tradinghouseOrganizationCreatedDate = []
-  // for (const i in range(tradinghouseOrganizationNumber)) {
-  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  // }
-  // tradinghouseOrganizationCreatedDate.sort()
-  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
 
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
@@ -608,93 +558,6 @@ function createSandboxWorld({
   let tick = 0 // 最长5年时间的演化
   while (tick < 60) {
     ++tick
-    // 因为是模拟运行，时间直接以月为单位流逝
-    // game.timestamp += kTicksPerMonth
-
-  //   if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
-  //     if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
-  //       // 组织数量不够，在来到下一个组织创建时间时，创建组织
-  //       cultivationOrganizationCreatedDate.removeLast()
-
-  //       // 修真门派根据所处地块可以分成三种：入世、洞天、福地。
-  //       // 入世是公开的据点。洞天是大陆上秘境所在地，福地是大海中的岛屿。
-  //       // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
-  //       // 如果据点生成在海洋之中，就将该地块设定为岛屿
-  //       // 洞天福地的据点都直接以“xx山”, "xx岛"命名。
-
-  //       // 两个修真组织不会在同一个据点
-  //       let headquarters
-
-  //       const cultivationKind = random.nextIterable(_cultivationKinds)
-  //       let isHermit = false
-  //       switch (cultivationKind) {
-  //         'location' : {
-  //           do {
-  //             // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-  //             const headquartersId = random.nextIterable(world.locations.keys)
-  //             headquarters = world.locations[headquartersId]
-  //           } while (headquarters.hasCultivation)
-  //         }
-  //         'mountain' : {
-  //           isHermit = true
-  //           // 临时生成一个新的隐藏据点
-  //           let mountainTile
-  //           do {
-  //             const mountainTileIndex = random.nextIterable(mountains)
-  //             mountainTile = world.terrains[mountainTileIndex]
-  //           } while (mountainTile.locationId != null)
-
-  //           headquarters = Location(
-  //             terrainIndex: mountainTile.index,
-  //             left: mountainTile.left,
-  //             top: mountainTile.top,
-  //             category: kLocationCategoryMountain,
-  //           )
-  //           mountainTile.locationId = headquarters.id
-  //           // 隐居门派据点，名字在地图上一开始不可见
-  //           // mountainTile.caption = headquarters.name
-  //         }
-  //         'island' : {
-  //           isHermit = true
-  //           // 临时生成一个新的隐藏据点
-  //           let islandTile
-  //           do {
-  //             const islandTileIndex = random.nextIterable(seas)
-  //             islandTile = world.terrains[islandTileIndex]
-  //           } while (islandTile.locationId != null)
-
-  //           const islandZone = Zone(category: kZoneCategoryIsland)
-  //           addTerrainToZone(islandTile, islandZone.index, world)
-            
-  //           const neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, world)
-  //           for (const neighbor in neighbors) {
-  //             seas.remove(neighbor.index)
-  //             neighbor.spriteIndex == kSpriteShelf
-  //           }
-
-  //           headquarters = Location(
-  //             terrainIndex: islandTile.index,
-  //             left: islandTile.left,
-  //             top: islandTile.top,
-  //             category: kLocationCategoryIsland,
-  //           )
-  //           islandTile.locationId = headquarters.id
-  //           // 隐居门派据点，名字在地图上一开始不可见
-  //           // islandTile.caption = headquarters.name
-  //         }
-  //       }
-
-  //       const head = findHead()
-  //       // 创建组织
-  //       const organization = Organization(
-  //         category: kOrganizationCategoryCultivation,
-  //         headquartersId: headquarters.id,
-  //         headId: head.id,
-  //       )
-
-  //       ++createdCultivationOrganizationCount
-  //     }
-  //   }
 
     // 婴儿出生
     handleBabies()

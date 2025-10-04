@@ -47,6 +47,7 @@ enum WorldMapPopUpMenuItems {
   moveTo,
   terrainInformation,
   buildFarmLand,
+  buildFishery,
   buildTimberLand,
   buildMine,
   buildHuntingGround,
@@ -1261,6 +1262,7 @@ class WorldMapScene extends Scene {
                 WorldMapPopUpMenuItems.terrainInformation,
             engine.locale('build'): {
               engine.locale('farmland'): WorldMapPopUpMenuItems.buildFarmLand,
+              engine.locale('fishery'): WorldMapPopUpMenuItems.buildFishery,
               engine.locale('timberland'):
                   WorldMapPopUpMenuItems.buildTimberLand,
               engine.locale('mine'): WorldMapPopUpMenuItems.buildMine,
@@ -1274,6 +1276,7 @@ class WorldMapScene extends Scene {
               case WorldMapPopUpMenuItems.moveTo:
               case WorldMapPopUpMenuItems.terrainInformation:
               case WorldMapPopUpMenuItems.buildFarmLand:
+              case WorldMapPopUpMenuItems.buildFishery:
               case WorldMapPopUpMenuItems.buildTimberLand:
               case WorldMapPopUpMenuItems.buildMine:
               case WorldMapPopUpMenuItems.buildHuntingGround:

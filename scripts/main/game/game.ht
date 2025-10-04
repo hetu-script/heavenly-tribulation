@@ -17,6 +17,7 @@ namespace Game {
   external function updateGame({
     tick = 1,
     timeflow = true,
+    udpateWorldMap = true,
     forceUpdate = false,
   })
 
@@ -63,7 +64,7 @@ namespace Game {
   external function showCultivation({location, enableCultivate: bool = false})
 
   external function showPrebattle(enemyData, {
-    prebattlePreventClose: bool = false,
+    // prebattlePreventClose: bool = false,
     onBattleStart,
     onBattleEnd,
   })

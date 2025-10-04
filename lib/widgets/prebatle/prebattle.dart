@@ -29,7 +29,7 @@ class PreBattleDialog extends StatefulWidget {
     super.key,
     required this.hero,
     required this.enemy,
-    this.prebattlePreventClose = false,
+    // this.prebattlePreventClose = false,
     this.onBattleStart,
     this.onBattleEnd,
     this.ignoreRequirement = false,
@@ -37,7 +37,7 @@ class PreBattleDialog extends StatefulWidget {
 
   final dynamic hero, enemy;
 
-  final bool prebattlePreventClose;
+  // final bool prebattlePreventClose;
 
   final void Function()? onBattleStart;
   final FutureOr<void> Function(bool, int)? onBattleEnd;
@@ -174,12 +174,13 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
             engine.locale('prebattle'),
           ),
           actions: [
-            if (!widget.prebattlePreventClose)
-              CloseButton2(
-                onPressed: () {
-                  context.read<EnemyState>().clear();
-                },
-              )
+            // if (!widget.prebattlePreventClose)
+            CloseButton2(
+              onPressed: () async {
+                context.read<EnemyState>().clear();
+                widget.onBattleEnd?.call(false, 0);
+              },
+            )
           ],
         ),
         body: Container(

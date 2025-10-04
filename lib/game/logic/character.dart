@@ -2,34 +2,35 @@ part of 'logic.dart';
 
 void _heroRest() async {
   dialog.pushSelection('restOption', [
+    'restTillTommorow',
     'rest1Days',
     'rest10Days',
     'rest30Days',
-    'restTillTommorow',
     'restTillNextMonth',
     'restTillFullHealth',
     'cancel',
   ]);
   await dialog.execute();
   final selected = dialog.checkSelected('restOption');
+
   int ticks = 0;
   switch (selected) {
+    case 'restTillTommorow':
+      ticks = kTicksPerDay - GameLogic.ticksOfDay;
     case 'rest1Days':
       ticks = kTicksPerDay;
     case 'rest10Days':
       ticks = kTicksPerDay * 10;
     case 'rest30Days':
       ticks = kTicksPerDay * 30;
-    case 'restTillTommorow':
-      ticks = kTicksPerDay - GameLogic.ticksOfDay;
     case 'restTillNextMonth':
       ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
     case 'restTillFullHealth':
       ticks =
           (GameData.hero['stats']['lifeMax'] - GameData.hero['life']).floor();
       if (ticks <= 0) {
-        GameDialogContent.show(
-            engine.context, engine.locale('alreadyFullHealthNoNeedRest'));
+        dialog.pushDialog('hint_alreadyFullHealthNoNeedRest');
+        await dialog.execute();
       }
   }
   if (ticks <= 0) return;
@@ -45,17 +46,104 @@ void _heroRest() async {
   );
 }
 
-Future<void> _heroWork(dynamic npc, dynamic location) async {
+void _notEnoughStamina([dynamic npc]) async {
+  dialog.pushDialog(
+    'hint_notEnoughHealthToWork',
+    name: npc?['name'],
+    icon: npc?['icon'],
+    image: npc?['image'],
+  );
+  await dialog.execute();
+}
+
+Future<void> _heroProduce(dynamic location, String materialId) async {
+  final siteKind = location['kind'];
+  assert(
+      kSiteKindsBuildableOnWorldMap.contains(siteKind) &&
+          kSiteWorkableBaseStaminaCost.containsKey(siteKind),
+      '非可生产场所：${location['name']} ($siteKind)');
+
+  if (location['organizationId'] != null &&
+      location['organizationId'] != GameData.hero['organizationId']) {
+    final isRented = await _checkRented(location);
+    if (!isRented) return;
+  }
+
+  dialog.pushSelection('produceOption', [
+    'produce5Days',
+    'produce15Days',
+    'produceTillNextMonth',
+    'produceTillEmptyHealth',
+    'cancel',
+  ]);
+  await dialog.execute();
+  final selected = dialog.checkSelected('produceOption');
+
+  int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
+  int life = GameData.hero['life'];
+
+  if (life <= staminaCost) {
+    dialog.pushDialog('hint_notEnoughHealthToWork');
+    await dialog.execute();
+    return;
+  }
+
+  int maxAffordableTicks = life ~/ staminaCost;
+  int availableTicksTillNextMonth = kTicksPerMonth - GameLogic.ticksOfMonth;
+  final maxTicks = math.min(maxAffordableTicks, availableTicksTillNextMonth);
+
+  int ticks = 0;
+  switch (selected) {
+    case 'produce5Days':
+      ticks = GameLogic.ticksOfDay * 5;
+    case 'produce15Days':
+      ticks = GameLogic.ticksOfDay * 15;
+    case 'produceTillNextMonth':
+      ticks = availableTicksTillNextMonth;
+    case 'produceTillEmptyHealth':
+      ticks = maxAffordableTicks;
+  }
+  final finalTicks = math.min(ticks, maxTicks);
+  if (finalTicks <= 0) return;
+
+  final terrainIndex = location['terrainIndex'];
+  final terrain = GameData.world['terrains'][terrainIndex];
+  assert(terrain != null);
+  final materialData = terrain['resources'];
+  assert(materialData != null && materialData.containsKey(materialId));
+  final int materialStorage = materialData[materialId];
+
+  await TimeflowDialog.show(
+    context: engine.context,
+    max: ticks,
+    onProgress: () {
+      engine.hetu.invoke('setLife',
+          namespace: 'Player',
+          positionalArgs: [GameData.hero['life'] - staminaCost]);
+      return false;
+    },
+  );
+
+  engine.play('pickup_item-64282.mp3');
+  engine.hetu.invoke('collect', namespace: 'Player', positionalArgs: [
+    materialId
+  ], namedArgs: {
+    'amount': finalTicks * (materialStorage ~/ kTicksPerDay),
+  });
+}
+
+Future<void> _heroWork(dynamic location, dynamic npc) async {
   final kind = location['kind'];
-  if (!kWorkableMounths.containsKey(kind)) {
-    engine.warn('非可工作场所：${location['name']}($kind)');
+  if (!kSiteKindsWorkable.contains(kind)) {
+    engine.error('非可工作场所：${location['name']} ($kind)');
     return;
   }
 
   // 非门派成员，只能在一年中的指定时间打工
   // 门派成员则不受时间限制
-  if (location['organizationId'] != GameData.hero['organizationId']) {
-    final months = kWorkableMounths[kind] as List;
+  if (location['organizationId'] != null &&
+      location['organizationId'] != GameData.hero['organizationId']) {
+    final months = kSiteWorkableMounths[kind] as List;
     if (!months.contains(GameLogic.month)) {
       dialog.pushDialog(
         'hint_notWorkSeason',
@@ -68,23 +156,13 @@ Future<void> _heroWork(dynamic npc, dynamic location) async {
     }
   }
 
-  void notEnoughStamina() async {
-    dialog.pushDialog(
-      'hint_notEnoughHealthToWork',
-      name: npc?['name'],
-      icon: npc?['icon'],
-      image: npc?['image'],
-    );
-    await dialog.execute();
-  }
-
   if (GameData.hero['life'] <= 1) {
-    notEnoughStamina();
+    _notEnoughStamina(npc);
     return;
   }
 
-  final salary = kWorkBaseSalaries[kind] as int;
-  final staminaCost = kWorkBaseStaminaCost[kind] as int;
+  final salary = kSiteWorkableBaseSalaries[kind] as int;
+  final staminaCost = kSiteWorkableBaseStaminaCost[kind] as int;
 
   dialog.pushSelection('workOption', [
     'work10Days',
@@ -106,7 +184,7 @@ Future<void> _heroWork(dynamic npc, dynamic location) async {
     case 'workTillHealthExhausted':
       ticks = (GameData.hero['life'] ~/ staminaCost) - 1;
       if (ticks <= 0) {
-        notEnoughStamina();
+        _notEnoughStamina(npc);
         return;
       }
   }
@@ -143,33 +221,33 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
   /// 这里的 organization 可能是 null
   final organization =
       GameData.game['organizations'][location['organizationId']];
-  final atLocation = GameData.getLocation(location['atLocationId']);
 
-  bool isManager = false;
-  if (organization != null) {
-    if (GameData.hero['id'] == organization['headId']) {
-      isManager = true;
-    } else if (GameData.hero['id'] == location['ownerId']) {
-      isManager = true;
-    }
-  }
+  /// 这里的 atLocation 可能是 null
+  final atLocation = GameData.game['locations'][location['atLocationId']];
 
-  switch (location['kind']) {
+  bool isManager = GameData.hero['id'] == location['ownerId'];
+  bool isMayor = GameData.hero['id'] == atLocation?['ownerId'];
+  bool isHead = GameData.hero['id'] == organization['headId'];
+
+  bool hasAuthority = isManager || isMayor || isHead;
+
+  final siteKind = location['kind'];
+  switch (siteKind) {
     case 'headquarters':
-      dialog.pushSelection('headquarters', [
+      dialog.pushSelection(siteKind, [
         'organizationInformation',
         'organizationRelationshipDiscourse',
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('headquarters');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'organizationInformation':
           showDialog(
             context: engine.context,
             builder: (context) => OrganizationView(
               organization: organization,
-              mode: isManager
+              mode: hasAuthority
                   ? InformationViewMode.manage
                   : InformationViewMode.view,
             ),
@@ -404,7 +482,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
                   engine.context.read<EnemyState>().show(
                     enemy,
-                    prebattlePreventClose: true,
+                    // prebattlePreventClose: true,
                     onBattleEnd: (bool battleResult, int roundCount) async {
                       if (battleResult) {
                         dialog.pushDialog(
@@ -445,7 +523,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   final tester = testersData.first;
                   engine.context.read<EnemyState>().show(
                     tester,
-                    prebattlePreventClose: true,
+                    // prebattlePreventClose: true,
                     onBattleEnd: (bool battleResult, int roundCount) async {
                       if (battleResult) {
                         dialog.pushDialog(
@@ -581,26 +659,26 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           }
       }
     case 'cityhall':
-      dialog.pushSelection('cityhall', [
+      dialog.pushSelection(siteKind, [
         'cityInformation',
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('cityhall');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'cityInformation':
           showDialog(
             context: engine.context,
             builder: (context) => LocationView(
               location: atLocation,
-              mode: isManager
+              mode: hasAuthority
                   ? InformationViewMode.manage
                   : InformationViewMode.view,
             ),
           );
       }
     case 'tradinghouse':
-      dialog.pushSelection('tradinghouse', [
+      dialog.pushSelection(siteKind, [
         'siteInformation',
         {
           'text': 'work',
@@ -610,7 +688,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('tradinghouse');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'work':
           _heroWork(location, npc);
@@ -621,42 +699,38 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 priceFactor: location['priceFactor'],
               );
       }
-    case 'auctionhouse':
-      dialog.pushSelection('auctionhouse', [
+    case 'daostele':
+      dialog.pushSelection(siteKind, [
         'siteInformation',
         {
           'text': 'work',
           'description': 'startWork_description',
         },
-        'trade',
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('auctionhouse');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'work':
           _heroWork(location, npc);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-            location,
-            useShard: location['development'] > 0,
-            priceFactor: location['priceFactor'],
-            filter: {'category': 'equipment'},
-          );
       }
-    case 'arena':
-      dialog.pushSelection('arena', [
+    case 'exparray':
+      dialog.pushSelection(siteKind, [
         'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('arena');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
-        case 'siteInformation':
-          {}
+        case 'work':
+          _heroWork(location, npc);
       }
     case 'library':
-      dialog.pushSelection('library', [
+      dialog.pushSelection(siteKind, [
         'siteInformation',
         {
           'text': 'work',
@@ -666,7 +740,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('library');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'work':
           _heroWork(location, npc);
@@ -675,11 +749,77 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 location,
                 useShard: true,
                 priceFactor: location['priceFactor'],
-                // filter: {'category': 'cardpack'},
               );
       }
+    case 'arena':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
+    case 'militarypost':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
+    case 'auctionhouse':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'trade',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+        case 'trade':
+          engine.context.read<MerchantState>().show(
+                location,
+                useShard: true,
+                priceFactor: location['priceFactor'],
+              );
+      }
+    case 'hotel':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
     case 'workshop':
-      dialog.pushSelection('workshop', [
+      dialog.pushSelection(siteKind, [
         'siteInformation',
         {
           'text': 'work',
@@ -689,7 +829,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('workshop');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'siteInformation':
           {}
@@ -698,8 +838,23 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         case 'workbench':
           engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
       }
+    case 'enchantshop':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
     case 'alchemylab':
-      dialog.pushSelection('alchemylab', [
+      dialog.pushSelection(siteKind, [
         'siteInformation',
         {
           'text': 'work',
@@ -710,27 +865,133 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'cancel',
       ]);
       await dialog.execute();
-      final selected = dialog.checkSelected('alchemylab');
+      final selected = dialog.checkSelected(siteKind);
       switch (selected) {
         case 'siteInformation':
           {}
         case 'work':
           _heroWork(location, npc);
         case 'alchemy_furnace':
-          {}
+          engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
         case 'trade':
           engine.context.read<MerchantState>().show(
                 location,
                 useShard: true,
                 priceFactor: location['priceFactor'],
-                // filter: {'category': 'potion'},
               );
       }
-    case 'arraylab':
+    case 'tatooshop':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
+    case 'runelab':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'trade',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+        case 'trade':
+          engine.context.read<MerchantState>().show(
+                location,
+                useShard: true,
+                priceFactor: location['priceFactor'],
+              );
+      }
     case 'illusionaltar':
-    case 'divinationaltar':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
     case 'psychictemple':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
+    case 'divinationaltar':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
     case 'theurgytemple':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
+    case 'farmland' || 'fishery' || 'timberland' || 'huntingground' || 'mine':
+      dialog.pushSelection(siteKind, [
+        'siteInformation',
+        {
+          'text': 'work',
+          'description': 'startWork_description',
+        },
+        'cancel',
+      ]);
+      await dialog.execute();
+      final selected = dialog.checkSelected(siteKind);
+      switch (selected) {
+        case 'work':
+          _heroWork(location, npc);
+      }
   }
 }
 

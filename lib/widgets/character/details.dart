@@ -23,9 +23,9 @@ const Set<String> kMaterials = {
   'money',
   'shard',
   'worker',
-  'water',
   'grain',
   'meat',
+  'water',
   'leather',
   'herb',
   'timber',
@@ -35,9 +35,9 @@ const Set<String> kMaterials = {
 
 const Set<String> kOtherMaterials = {
   'worker',
-  'water',
   'grain',
   'meat',
+  'water',
   'leather',
   'herb',
   'timber',

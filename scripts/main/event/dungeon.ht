@@ -90,7 +90,7 @@ const kDungeonEnemyLevelBonus = {
 }
 
 const kEncampmentKinds = [
-  'cultivation',
+  'exparray',
   'cardlibrary',
   // 'workbench',
   // 'alchemy_furnace',
@@ -110,7 +110,7 @@ const kEncounterKinds = [
 
 function addEncampment() {
   final collectableLight = (expForLevel(hero.level) ~/ 4) ~/ hero.stats.expCollectEfficiency
-  addCultivationStele(
+  addExpArray(
     kFunction1,
     collectableLight: collectableLight,
   )

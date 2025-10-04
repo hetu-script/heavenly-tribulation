@@ -44,6 +44,8 @@ struct TileMap {
     this.tileOffsetY = tileOffsetY
 
     this.terrains = []
+    this.seaIndexes = []
+    this.fisheryIndexes = []
     // 地区上的区域，例如大陆、海洋、国家等
     this.zones = {}
     // 地图上的可互动对象，例如传送阵等
