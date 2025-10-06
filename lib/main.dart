@@ -86,8 +86,12 @@ void main() {
       engine.debug('系统版本：${Platform.operatingSystemVersion}');
     });
 
-    await engine.registerCursors();
-    // engine.setCursor(Cursors.normal);
+    await engine.registerCursors({
+      'normal': 'assets/images/cursor/sword.png',
+      'click': 'assets/images/cursor/click.png',
+      'press': 'assets/images/cursor/press.png',
+      'drag': 'assets/images/cursor/drag.png',
+    });
 
     runApp(
       MouseRegion(
@@ -103,7 +107,7 @@ void main() {
             ChangeNotifierProvider(create: (_) => SelectedPositionState()),
             ChangeNotifierProvider(create: (_) => HeroPositionState()),
             ChangeNotifierProvider(create: (_) => NpcListState()),
-            ChangeNotifierProvider(create: (_) => NewQuestState()),
+            ChangeNotifierProvider(create: (_) => NewJournalState()),
             ChangeNotifierProvider(create: (_) => NewItemsState()),
             ChangeNotifierProvider(create: (_) => NewRankState()),
             ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),

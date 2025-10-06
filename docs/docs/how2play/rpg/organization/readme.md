@@ -191,17 +191,23 @@
 
 ·交易所：将某些材料从某个据点运送到门派的据点，或者从门派据点运送到另一个据点
 
+·交易所：以一定金钱作为预算，获取指定数量的某种材料
+
+·将某个物品送给某个据点的某个角色
+
 ### 执事的任务
 
 ·提升等级、境界
 
 ·探索高阶秘境
 
+·护送某个角色从某个据点到另一个据点
+
+·守卫某个建筑
+
 ·获取指定数量和境界的装备、功法、丹药
 
 ·探索敌对角色、建筑和门派情报
-
-·守卫某个建筑
 
 ·交易所：获取某几种指定材料：给与一定数量的金钱，要求购买指定数量的材料。获取方式不限，可以生产、购买。可以去较为便宜的地方购买。剩余的金钱可以自行保留。
 
@@ -243,15 +249,15 @@
 
 ·获取指定数量和境界的装备、功法、丹药
 
+·守卫某个据点，和入侵者战斗
+
 ·探索敌对角色、建筑和门派情报
+
+·破坏某个敌对门派据点
 
 ·抢夺敌对势力资源、物品、功法
 
 ·刺杀敌对角色
-
-·守卫某个据点，和入侵者战斗
-
-·破坏某个敌对门派据点
 
 ### 堂主的任务
 
@@ -294,65 +300,3 @@
 ·扩充门派成员达到某个数量
 
 ·带领队伍，进攻某个其他门派的据点
-
-## 悬赏
-
-任务只有本门派的弟子可以在月初自动领取。而悬赏则是非门派成员也可以领取。但悬赏的任务本身的等级最高只到总管等级。
-
-门派弟子在完成了指定任务后，也可以继续接取悬赏任务。
-
-虽然不是门派成员，但完成悬赏任务同样可以积累一些功勋。这些功勋在角色后期选择加入此门派时会保留。
-
-悬赏任务没有职位等级的概念，只是分成简单、常规、困难三种。粗略可以对应杂役、执事、总管级别的任务。
-
-### 简单
-
-·探索某个地块附近的隐藏据点
-
-·交易所：将某些材料从某个据点运送到门派的据点，或者从门派据点运送到另一个据点
-
-### 常规
-
-·守卫某个建筑
-
-·获取指定数量和境界的装备、功法、丹药
-
-·探索敌对角色、建筑和门派情报
-
-### 困难
-
-·守卫某个据点，和入侵者战斗
-
-·抢夺敌对势力资源、物品、功法
-
-·刺杀敌对角色
-
-·破坏某个敌对门派据点
-
-### Reference: Mission types
-
-- Escort-based Mission: The player(s) have to escort another character to a set location protecting them from incoming enemies.
-
-- Combat-based Mission: The player(s) must eliminate a certain number of (or all) enemies.
-
-- Rescue-based Mission: The player(s) must rescue another character from waves of enemies and escape.
-
-- Collect-based Mission: The player(s) must obtain a certain number of (or all) items.
-
-- Delivery-based Mission: The player(s) must deliver a specific item from one location to another location. Sometimes, the player must collect the item - first, instead of being handed the item to deliver.
-
-- Pursuit-based Mission: The player(s) have to pursue and assassinate or capture the enemy. Sometimes, the player(s) must escape from incoming enemies by - remaining unseen.
-
-- Boss-based Mission: The player(s) must assassinate the main boss character.
-
-- Defence-based Mission: The player(s) have to protect a stationary object or character from incoming enemies.
-
-- Stealth-based Mission: The player(s) must sneak through an area infested with enemies without being spotted. Sometimes, the player(s) must follow a - non-playable character to a set location.
-
-- Time-based Mission: The player(s) have an set amount of time to complete a mission.
-
-- Destroy-based Mission: The player(s) must destroy a certain number of (or all) objects.
-
-- Race-based Mission: The player must race a number of laps (circuit) or (sprints) against other players or AI racers.
-
-- Search-based Mission: The player(s) must locate a particular object or character, usually as a prelude to another mission.

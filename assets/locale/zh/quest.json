@@ -1,8 +1,0 @@
-{
-  "quest_organizationInitiation_title": "初入门派",
-  "quest_organizationInitiation_stage_0": "初次加入{0}的你，要去{1}，找你的上级{2}报到。",
-  "quest_organizationInitiation_stage_1": "你已经完成了这个任务，拿到了门派配发的武器和秘籍。",
-
-  "quest_organizationInitiation_topic": "原来你就是{0}新来的弟子？\n<yellow>别忘了去{1}的会堂找你的上级{2}报到</>，你应该可以领到一件装备和一本秘籍。",
-  "quest_organizationInitiation_topic_superior": "原来你就是{0}新来的弟子？\n看来我是你的上级。\n<yellow>别忘了去{1}的会堂找我报到</>，你可以领到一件装备和一本秘籍。"
-}

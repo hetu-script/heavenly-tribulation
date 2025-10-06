@@ -42,9 +42,7 @@ class HistoryPanel extends StatelessWidget {
             height: 46,
             child: HeroAndGlobalHistoryList(
               onTapUp: () {
-                context
-                    .read<ViewPanelState>()
-                    .toogle(ViewPanels.characterMemory);
+                context.read<ViewPanelState>().toogle(ViewPanels.memory);
               },
               onMouseEnter: (rect) {
                 context

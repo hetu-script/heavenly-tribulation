@@ -97,10 +97,11 @@ class LocationPanel extends StatelessWidget {
         positionDetails.writeln('${currentNation['name']}');
       }
       if (currentTerrain != null) {
+        positionDetails
+            .write('${engine.locale(currentTerrain.data?['kind'])} ');
         if (isEditorMode) {
           positionDetails.write(
               '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
-          positionDetails.write('[${currentTerrain.data?['kind']}] ');
         }
         positionDetails
             .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');

@@ -90,7 +90,7 @@ class CurrencyBar extends StatelessWidget {
               onMouseEnter: (rect) {
                 context.read<HoverContentState>().show(
                     '${engine.locale('money')}: '
-                    '${engine.locale('shard_description')}',
+                    '${engine.locale('money_description')}',
                     rect);
               },
               onMouseExit: () {

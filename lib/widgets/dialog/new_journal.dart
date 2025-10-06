@@ -9,14 +9,14 @@ import '../../game/ui.dart';
 import '../../engine.dart';
 import '../../state/new_prompt.dart';
 
-class NewQuest extends StatelessWidget {
-  const NewQuest({
+class NewJournal extends StatelessWidget {
+  const NewJournal({
     super.key,
-    required this.questData,
+    required this.journalData,
     this.completer,
   });
 
-  final dynamic questData;
+  final dynamic journalData;
   final Completer? completer;
 
   @override
@@ -38,22 +38,22 @@ class NewQuest extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Label(
-                      '${engine.locale('questUpdate')}: ${questData['title']}'),
-                  if (questData['image'] != null)
+                      '${engine.locale('journalUpdate')}: ${journalData['title']}'),
+                  if (journalData['image'] != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Image(
                         image:
-                            AssetImage('assets/images/${questData['image']}'),
+                            AssetImage('assets/images/${journalData['image']}'),
                       ),
                     ),
-                  ...(questData['sequence'] as List).map((index) {
+                  ...(journalData['sequence'] as List).map((index) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Label(
                         engine.locale(
-                          'quest_${questData['id']}_stage_$index',
-                          interpolations: questData['interpolations'],
+                          'journal_${journalData['id']}_stage_$index',
+                          interpolations: journalData['interpolations'],
                         ),
                         textAlign: TextAlign.left,
                       ),
@@ -64,7 +64,7 @@ class NewQuest extends StatelessWidget {
                     child: fluent.FilledButton(
                       onPressed: () {
                         completer?.complete();
-                        context.read<NewQuestState>().update();
+                        context.read<NewJournalState>().update();
                       },
                       child: Text(
                         engine.locale('confirm'),

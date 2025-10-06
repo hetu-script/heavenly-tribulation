@@ -81,7 +81,7 @@ abstract class GameData {
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
   static final Map<String, dynamic> craftables = {};
-  static final Map<String, dynamic> quests = {};
+  static final Map<String, dynamic> journals = {};
 
   static final Map<String, dynamic> maps = {};
 
@@ -98,6 +98,12 @@ abstract class GameData {
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic game, universe, world, history, hero;
+
+  static dynamic getTerrain(int index) {
+    final terrain = GameData.world['terrains'][index];
+    assert(terrain != null, 'Terrain not found, id: $index');
+    return terrain;
+  }
 
   static dynamic getCharacter(dynamic id) {
     final character = GameData.game['characters'][id];
@@ -271,9 +277,9 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/craftables.json5');
     craftables.addAll(JSON5.parse(craftablesDataString));
 
-    final questsDataString =
-        await rootBundle.loadString('assets/data/quests.json5');
-    quests.addAll(JSON5.parse(questsDataString));
+    final journalsDataString =
+        await rootBundle.loadString('assets/data/journals.json5');
+    journals.addAll(JSON5.parse(journalsDataString));
 
     // 拼接技能树节点的描述
     for (final passiveTreeNodeData in passiveTree.values) {
@@ -364,7 +370,7 @@ abstract class GameData {
         'battleCardsData': GameData.battleCards,
         'battleCardAffixesData': GameData.battleCardAffixes,
         'passivesData': GameData.passives,
-        'questsData': GameData.quests,
+        'journalsData': GameData.journals,
         'mapsData': GameData.maps,
       },
     );
@@ -535,7 +541,7 @@ abstract class GameData {
     }
   }
 
-  static CustomGameCard createSiteCardFromData(dynamic siteData) {
+  static CustomGameCard getSiteCard(dynamic siteData) {
     final id = siteData['id'];
     final card = CustomGameCard(
       id: id,
@@ -654,7 +660,7 @@ abstract class GameData {
     return builder.toString();
   }
 
-  static String getDescriptionFromItemData(
+  static String getItemDescription(
     dynamic itemData, {
     bool isInventory = false,
     dynamic priceFactor,
@@ -824,7 +830,7 @@ abstract class GameData {
         isSell: isSell,
       );
       description.writeln(
-          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money2')}</>');
+          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money')}</>');
       if (engine.config.debugMode) {
         description.writeln(
             '<grey>${engine.locale('basePrice')}: ${itemData['price']}</>');
@@ -836,7 +842,7 @@ abstract class GameData {
   }
 
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
-  static (String, String) getDescriptionFromCardData(
+  static (String, String) getBattleCardDescription(
     dynamic cardData, {
     bool isDetailed = false,
     bool showRequirement = true,
@@ -963,7 +969,7 @@ abstract class GameData {
     return cardData;
   }
 
-  static CustomGameCard createBattleCardFromData(dynamic data,
+  static CustomGameCard createBattleCard(dynamic data,
       {bool deepCopyData = false}) {
     assert(data != null && data['id'] != null, 'Invalid battle card data!');
     assert(_isInitted, 'Game data is not loaded yet!');
@@ -976,8 +982,7 @@ abstract class GameData {
     final String title = cardData['name'];
     final int cardRank = cardData['rank'];
 
-    final (description, extraDescription) =
-        getDescriptionFromCardData(cardData);
+    final (description, extraDescription) = getBattleCardDescription(cardData);
 
     return CustomGameCard(
       id: id,

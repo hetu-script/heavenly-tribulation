@@ -119,25 +119,25 @@ class _HoverInfoState extends State<HoverInfo> {
           switch (widget.content.type) {
             case ItemType.none:
             case ItemType.npc:
-              description = GameData.getDescriptionFromItemData(
+              description = GameData.getItemDescription(
                 data,
                 isDetailed: isDetailed,
               );
             case ItemType.player:
-              description = GameData.getDescriptionFromItemData(
+              description = GameData.getItemDescription(
                 data,
                 isInventory: true,
                 isDetailed: isDetailed,
               );
             case ItemType.customer:
-              description = GameData.getDescriptionFromItemData(
+              description = GameData.getItemDescription(
                 data,
                 priceFactor: widget.content.data2,
                 isSell: true,
                 isDetailed: isDetailed,
               );
             case ItemType.merchant:
-              description = GameData.getDescriptionFromItemData(
+              description = GameData.getItemDescription(
                 data,
                 priceFactor: widget.content.data2,
                 isSell: false,
@@ -146,7 +146,7 @@ class _HoverInfoState extends State<HoverInfo> {
           }
           data = description;
         case 'battle_card':
-          final (_, description) = GameData.getDescriptionFromCardData(
+          final (_, description) = GameData.getBattleCardDescription(
             showRequirement: widget.content.type == ItemType.player,
             widget.content.data,
             isDetailed: isDetailed,

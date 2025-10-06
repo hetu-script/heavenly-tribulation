@@ -2,7 +2,7 @@
 // import '../colors.ht'
 // import '../game/world.ht'
 // import '../entity/entity.ht'
-// import '../entity/quest.ht'
+// import '../entity/journal.ht'
 // import '../common.ht'
 
 const kQuickThreshold = 10
@@ -42,7 +42,7 @@ namespace Player {
       assert(kOrthogonalDirections.contains(direction))
     }
     World.setCharacterToPosition(hero, left, top, direction: direction)
-    World.moveCameraToMapPosition(left, top, animated: false)
+    World.moveCameraToTilePosition(left, top, animated: false)
     World.lightUpAroundTile(left, top, hero.stats.lightRadius)
     // final terrain = getTerrainByWorldPosition(left, top)
     // onWorldEvent('onAfterMove', terrain)
@@ -61,6 +61,11 @@ namespace Player {
   function collect(materialId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
+  }
+
+  function collectAll(materials, { incurIncident = true }) {
+    assert(hero != null)
+    entityCollectAll(hero, materials, incurIncident: incurIncident)
   }
 
   function exhaust(materialId, { amount = 1 }) -> bool {
@@ -470,14 +475,14 @@ namespace Player {
     characterRejuvenate(hero)
   }
 
-  function acquireQuestById(questId, {
+  function acquireJournalById(journalId, {
     setAsActive = true,
     interpolations,
     incurIncident = true,
   }) {
     assert(hero != null)
-    return characterAcquireQuestById(
-      hero, questId,
+    return characterAcquireJournalById(
+      hero, journalId,
       setAsActive: setAsActive,
       interpolations: interpolations,
       incurIncident: incurIncident,
@@ -486,21 +491,21 @@ namespace Player {
 
   /// 推动任务进度
   /// 这里不处理任务的成功和失败
-  function progressQuestById(questId, { stage,  incurIncident = true }) {
+  function progressJournalById(journalId, { stage,  incurIncident = true }) {
     assert(hero != null)
-    return characterProgressQuestById(hero, questId, stage: stage, incurIncident: incurIncident)
+    return characterProgressJournalById(hero, journalId, stage: stage, incurIncident: incurIncident)
   }
 
-  function setActiveQuest(quest) {
+  function setActiveJournal(journal) {
     assert(hero != null)
-    assert(hero.quests.containsKey(quest.id))
-    hero.activeQuestId = quest.id
+    assert(hero.journals.containsKey(journal.id))
+    hero.activeJournalId = journal.id
   }
 
-  function getActiveQuest() {
-    assert(hero?.activeQuestId != null)
-    assert(hero.quests.containsKey(hero.activeQuestId))
-    return hero.quests[hero.activeQuestId]
+  function getActiveJournal() {
+    assert(hero?.activeJournalId != null)
+    assert(hero.journals.containsKey(hero.activeJournalId))
+    return hero.journals[hero.activeJournalId]
   }
 
   async function enroll(organization, { npcId, title = 'taskman', incurIncident = true }) {
@@ -535,7 +540,7 @@ namespace Player {
     Dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
     await Dialog.execute()
 
-    final quest = Player.acquireQuestById('organizationInitiation', interpolations: interpolations)
-    Game.promptQuest(quest)
+    final journal = Player.acquireJournalById('organizationInitiation', interpolations: interpolations)
+    Game.promptJournal(journal)
   }
 }

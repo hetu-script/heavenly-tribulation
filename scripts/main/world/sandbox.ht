@@ -2,13 +2,6 @@ import 'tile/common.ht'
 import 'generation_algorithm.ht'
 import 'zone.ht'
 
-const _kWorldSizePerWorldScale = {
-  '1': 24,
-  '2': 40,
-  '3': 64,
-  '4': 96,
-}
-
 const _kForestThreshold = 0.6
 const _kMountainThreshold = 0.4
 const _kIslandThreshold = 0.1
@@ -87,7 +80,7 @@ function createSandboxWorld({
   let width
   let height
 
-  let size = _kWorldSizePerWorldScale[worldScale]
+  let size = Constants.worldSizeByScale[worldScale]
   width = size
   height = size ~/ 2
   assert(width != null && height != null, 'wrong worldScale: ${worldScale}')
@@ -575,7 +568,7 @@ function createSandboxWorld({
 
       engine.debug('组织 ${organization.id} 尝试招募新成员')
     
-      let location = game.locations[organization.headquartersId]
+      let location = game.locations[organization.headquartersLocationId]
       let residingCharacters = getResidingCharacters(location)
 
       if (residingCharacters.isEmpty) {
@@ -583,7 +576,7 @@ function createSandboxWorld({
         if (random.nextDouble() < _kOrganizationRecruitOtherLocationProbability) {
           for (const otherLocation of game.locations) {
             if (location.category != 'city') continue
-            if (otherLocation.id == organization.headquartersId) continue
+            if (otherLocation.id == organization.headquartersLocationId) continue
             residingCharacters = getResidingCharacters(otherLocation)
             if (residingCharacters.isNotEmpty) {
               break

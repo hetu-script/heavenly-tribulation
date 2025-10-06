@@ -5,6 +5,13 @@
 const kMaxTileMapWidth = 150
 const kMaxTileMapHeight = 100
 
+const kWaterTerrainKinds = [
+  'sea',
+  'shelf',
+  'lake',
+  'river',
+]
+
 struct TileMap {
   constructor ({
     id,

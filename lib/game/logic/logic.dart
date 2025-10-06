@@ -19,6 +19,7 @@ import '../data.dart';
 import '../../widgets/entity_listview.dart';
 
 import '../../widgets/organization/organization.dart';
+import '../../widgets/location/functional/bounty.dart';
 import '../../widgets/location/location.dart';
 import '../../widgets/character/profile.dart';
 import '../../widgets/common.dart';
@@ -128,7 +129,15 @@ abstract class GameLogic {
   }
 
   /// 获取额外词条数量，卡牌和装备共用一个算法
-  static (int, int, int, int) getMinMaxExtraAffixCount(int rank) {
+  /// ```
+  /// {
+  ///   'minExtra': minExtra,
+  ///   'maxExtra': maxExtra,
+  ///   'minGreater': minGreater,
+  ///   'maxGreater': maxGreater
+  /// }
+  /// ```
+  static Map<String, int> getMinMaxExtraAffixCount(int rank) {
     assert(rank >= 0 && rank <= kCultivationRankMax);
     int minExtra = 0;
     int maxExtra = 0;
@@ -142,7 +151,12 @@ abstract class GameLogic {
       minGreater = rank - 3;
       maxGreater = rank - 2;
     }
-    return (minExtra, maxExtra, minGreater, maxGreater);
+    return {
+      'minExtra': minExtra,
+      'maxExtra': maxExtra,
+      'minGreater': minGreater,
+      'maxGreater': maxGreater
+    };
   }
 
   static List<String> getCharacterInformationRow(dynamic character) {
@@ -212,7 +226,8 @@ abstract class GameLogic {
     // 流派
     row.add(engine.locale(organization['genre']));
     // 总堂
-    final headquarters = GameData.getLocation(organization['headquartersId']);
+    final headquarters =
+        GameData.getLocation(organization['headquartersLocationId']);
     row.add(headquarters['name']);
     // 据点数量
     row.add(organization['locationIds'].length.toString());
@@ -419,7 +434,7 @@ abstract class GameLogic {
 
       useShard ??= priceFactor['useShard'] == true;
       if (useShard) {
-        final shardToMoneyRate = kMaterialBasePriceByKind['shard'] as int;
+        final shardToMoneyRate = kMaterialBasePrice['shard'] as int;
         finalPrice = (finalPrice / shardToMoneyRate).ceil();
       }
 
@@ -430,8 +445,8 @@ abstract class GameLogic {
   /// 参考 [calculateItemPrice]
   static int calculateMaterialPrice(String materialId,
       {dynamic priceFactor, bool isSell = true}) {
-    assert(kMaterialBasePriceByKind.containsKey(materialId));
-    final price = kMaterialBasePriceByKind[materialId] as int;
+    assert(kMaterialBasePrice.containsKey(materialId));
+    final price = kMaterialBasePrice[materialId] as int;
 
     if (priceFactor == null) {
       return price;
@@ -444,7 +459,7 @@ abstract class GameLogic {
       double finalPrice = price * base * kind * (isSell ? sell : 1.0);
 
       if (priceFactor['useShard'] == true) {
-        final shardToMoneyRate = kMaterialBasePriceByKind['shard'] as int;
+        final shardToMoneyRate = kMaterialBasePrice['shard'] as int;
         finalPrice /= shardToMoneyRate;
       }
 
@@ -911,12 +926,12 @@ abstract class GameLogic {
     return completer.future;
   }
 
-  static Future<void> promptQuest(dynamic quest) async {
+  static Future<void> promptJournal(dynamic journal) async {
     engine.setCursor(Cursors.normal);
     final completer = Completer();
     engine.context
-        .read<NewQuestState>()
-        .update(quest: quest, completer: completer);
+        .read<NewJournalState>()
+        .update(journal: journal, completer: completer);
     return completer.future;
   }
 
@@ -1170,23 +1185,21 @@ abstract class GameLogic {
       // 交易类场景每个月刷新物品
       switch (location['kind']) {
         case 'cityhall':
-          engine.hetu
-              .invoke('replenishCityhallExp', positionalArgs: [location]);
+          engine.hetu.invoke('replenishCityhall', positionalArgs: [location]);
         case 'tradinghouse':
-          engine.hetu.invoke('replenishTradingHouseMaterials',
-              positionalArgs: [location]);
-        case 'library':
           engine.hetu
-              .invoke('replenishLibraryBooks', positionalArgs: [location]);
+              .invoke('replenishTradingHouse', positionalArgs: [location]);
+        case 'exparray':
+          engine.hetu.invoke('replenishExpArray', positionalArgs: [location]);
+        case 'library':
+          engine.hetu.invoke('replenishLibrary', positionalArgs: [location]);
         case 'auctionhouse':
           engine.hetu
-              .invoke('replenishAuctionHouseItems', positionalArgs: [location]);
+              .invoke('replenishAuctionHouse', positionalArgs: [location]);
         case 'alchemylab':
-          engine.hetu
-              .invoke('replenishAlchemyLabPotions', positionalArgs: [location]);
+          engine.hetu.invoke('replenishAlchemyLab', positionalArgs: [location]);
         case 'runelab':
-          engine.hetu
-              .invoke('replenishRuneLabScrolls', positionalArgs: [location]);
+          engine.hetu.invoke('replenishRuneLab', positionalArgs: [location]);
       }
     }
   }

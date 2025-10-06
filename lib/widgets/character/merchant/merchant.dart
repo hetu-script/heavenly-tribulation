@@ -71,9 +71,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
     super.initState();
 
     priceFactor = widget.priceFactor ?? {};
-    if (widget.useShard) {
-      priceFactor['useShard'] = true;
-    }
+    priceFactor['useShard'] = widget.useShard;
   }
 
   @override

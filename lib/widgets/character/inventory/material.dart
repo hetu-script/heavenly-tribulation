@@ -80,7 +80,7 @@ class MaterialList extends StatelessWidget {
           onMouseEnter: (rect) {
             context.read<HoverContentState>().show(
                 '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
-                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money2')}</>' : ''}',
+                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money')}</>' : ''}',
                 rect);
           },
           onMouseExit: () {

@@ -1,7 +1,7 @@
 {
   "defaultItemDescription": "未知来历的神秘物品。",
 
-  "questItem": "重要物品",
+  "importantItem": "重要物品",
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",

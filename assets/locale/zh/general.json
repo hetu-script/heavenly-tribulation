@@ -58,7 +58,7 @@
   "continued": "进行中",
   "finished": "已完成",
   "current": "当前",
-  "questFinished": "任务完成",
+  "journalFinished": "日志完成",
   "successed": "成功",
   "failed": "失败",
   "any": "任意",
@@ -142,7 +142,6 @@
   "enterCultivation": "进入修炼",
   "enterLibrary": "进入功法图录",
 
-  "difficulty": "难度",
   "level": "修为等级",
   "level2": "等级",
   "level3": "层",
@@ -182,7 +181,7 @@
   "smallTalk": "闲聊",
   "topicTalk": "话题",
 
-  "questTopic": "重要话题",
+  "journalTopic": "重要话题",
   "characterTopic": "人物话题",
   "organizationTopic": "门派话题",
   "locationTopic": "场景话题",
@@ -193,6 +192,7 @@
   "other": "其他",
 
   "show": "出示",
+  "tradeMaterial": "材料贸易",
   "trade": "交易",
   "gift": "赠礼",
   "attack": "攻击",
@@ -228,9 +228,12 @@
   "mythic": "绝品",
   "arcane": "神品",
 
-  "easy": "简单",
-  "normal": "常规",
+  "easy": "轻松",
+  "normal": "普通",
+  "challenging": "挑战",
   "hard": "困难",
+  "tough": "艰巨",
+  "brutal": "残酷",
 
   "torment": "折磨",
   "nightmare": "梦魇",
@@ -352,7 +355,9 @@
   "history": "历史",
   "experienced": "经历",
   "known": "见闻",
-  "quest": "日志",
+  "journal": "日志",
+  "quest": "任务",
+  "bounty": "悬赏",
   "cultivate": "修炼",
   "skillTree": "天道技能",
   "cardlibrary": "功法图录",
@@ -382,7 +387,7 @@
   "headId": "掌门人物ID",
   "headquarters": "总堂",
   "headquartersTilePosition": "总堂位置",
-  "headquartersId": "总堂据点",
+  "headquartersLocationId": "总堂据点",
   "territory": "疆域",
   "territorySize": "疆域大小",
   "memberNumber": "成员数量",
@@ -479,8 +484,8 @@
   "sectName": "宗",
 
   "newItems": "获得物品",
-  "newQuest": "新增日志",
-  "questUpdate": "日志更新",
+  "newJournal": "新增日志",
+  "journalUpdate": "日志更新",
 
   "rentFacility": "租用此设施",
 
@@ -499,11 +504,6 @@
   "workTillNextMonth": "工作到下个月 1 日",
   "workTillHealthExhausted": "工作到体力耗尽",
 
-  "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
-  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
-  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
-
-  "startWork_description": "开始工作后会随着时间流逝消耗体力，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
   "baseSalary": "基本工资",
   "staminaCost": "体力消耗",
   "workableMonths": "可工作月份",
@@ -513,6 +513,21 @@
   "cost": "消耗",
 
   "pay_shard": "支付灵石",
+
+  "difficulty": "难度",
+  "timeLimit": "时限",
+
+  "budget": "预算",
+  "reward": "酬劳",
+
+  "worldMap": "大地图",
+
+  "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
+  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
+  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
+
+  "hint_work_description": "消耗体力和时间，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
+  "hint_produce_description": "消耗体力和时间，生产结束后根据时长获得材料。不同场所的体力消耗、获取材料的种类和概率不同。",
 
   "hint_materialpack": "使用后转化为不占用物品栏且不可交易的资源",
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
@@ -529,7 +544,7 @@
 
   "hint_merchantNotEnoughMoney": "对方身上没有足够的钱。",
   "hint_merchantNotEnoughShard": "对方身上没有足够的灵石。",
-  "hint_noQuests": "我目前似乎没有什么要紧的事情。",
+  "hint_noJournals": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
   "hint_cancel_tribulation": "放弃天道挑战后，扣掉的修为经验不会返还。",

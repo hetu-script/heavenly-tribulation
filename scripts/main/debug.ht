@@ -37,6 +37,22 @@ namespace Debug {
 
     setHeroId('hero')
 
+    final randomEquipmentKind = Constants.equipmentCategoryKinds['weapon'].random
+    final item = Equipment(kind: randomEquipmentKind, rank: hero.rank)
+    Player.acquire(item)
+
+    final pack = Cardpack(
+      kind: randomEquipmentKind,
+      rank: hero.rank,
+      isBasic: true,
+    )
+    Player.acquire(pack)
+    final pack2 = Cardpack(
+      rank: hero.rank,
+      isBasic: true,
+    )
+    Player.acquire(pack2)
+
     // testItem(hero)
     // testQuest()
   }
@@ -117,14 +133,14 @@ namespace Debug {
     Game.promptItems(items)
   }
 
-  function testQuest() {
-    final quest = hero.quests.mysticGirl
-    if (!quest) {
-      quest = Player.acquireQuestById('mysticGirl')
-      Player.progressQuestById(quest.id, stage: 1)
-      Player.progressQuestById(quest.id, stage: 3)
+  function testJournal() {
+    final journal = hero.journals.mysticGirl
+    if (!journal) {
+      journal = Player.acquireJournalById('mysticGirl')
+      Player.progressJournalById(journal.id, stage: 1)
+      Player.progressJournalById(journal.id, stage: 3)
     }
-    Game.promptQuest(quest)
+    Game.promptJournal(journal)
   }
 
   function updateAllCaptions() {

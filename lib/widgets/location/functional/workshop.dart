@@ -90,7 +90,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
       }
     }
     final extraAffixConfig = GameLogic.getMinMaxExtraAffixCount(rank);
-    _extraAffixCount = extraAffixConfig.$2;
+    _extraAffixCount = extraAffixConfig['maxExtra'] as int;
   }
 
   void onExtraCraftMaterialSecondaryTapped(

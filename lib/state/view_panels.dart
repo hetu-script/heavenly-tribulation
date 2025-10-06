@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 enum ViewPanels {
-  characterProfile,
-  characterMemory,
-  characterQuest,
-  characterDetails,
+  profile,
+  memory,
+  journal,
+  details,
   workbench,
   alchemy,
 }

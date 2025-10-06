@@ -1,7 +1,7 @@
 // import '../entity/item/item.ht'
 // import '../world/dungeon.ht'
 
-const kBasicRooms = {
+const _kBasicRooms = {
   '0': 'chest',
   '1': 'enemy',
   '2': '3portal',
@@ -11,7 +11,7 @@ const kBasicRooms = {
   '14': 'exit',
 }
 
-const kNormalRooms = {
+const _kNormalRooms = {
   '0': 'chest',
   '1': 'enemy',
   '2': '3portal',
@@ -29,48 +29,48 @@ const kNormalRooms = {
   '14': '3exit',
 }
 
-const kStartTile = {
+const _kStartTile = {
   left: 8,
   top: 9,
 }
-const kReturnTile = {
+const _kReturnTile = {
   left: 8,
   top: 10,
 }
-const kCenterTile = {
+const _kCenterTile = {
   left: 8,
   top: 7,
 }
-const kPortal1Tile = {
+const _kPortal1Tile = {
   left: 8,
   top: 4,
 }
-const kPortal2Tile = {
+const _kPortal2Tile = {
   left: 4,
   top: 6,
 }
-const kPortal3Tile = {
+const _kPortal3Tile = {
   left: 12,
   top: 6,
 }
-const kFunction1 = {
+const _kFunction1 = {
   left: 6,
   top: 6,
 }
-const kFunction2 = {
+const _kFunction2 = {
   left: 10,
   top: 6,
 }
-const kFunction3 = {
+const _kFunction3 = {
   left: 6,
   top: 8,
 }
-const kFunction4 = {
+const _kFunction4 = {
   left: 10,
   top: 8,
 }
 
-const kDungeonEnemyLevelBonus = {
+const _kDungeonEnemyLevelBonus = {
   tutorial: {
     '2': 1,
     '3': 2,
@@ -89,14 +89,14 @@ const kDungeonEnemyLevelBonus = {
   },
 }
 
-const kEncampmentKinds = [
+const _kEncampmentKinds = [
   'exparray',
   'cardlibrary',
   // 'workbench',
   // 'alchemy_furnace',
 ]
 
-const kMerchantKinds = [
+const _kMerchantKinds = [
   'smith',
   'enchanter',
   'alchemist',
@@ -104,24 +104,24 @@ const kMerchantKinds = [
   // 'arrayMaster',
 ]
 
-const kEncounterKinds = [
+const _kEncounterKinds = [
   'spiritWell'
 ]
 
-function addEncampment() {
+function _addEncampment() {
   final collectableLight = (expForLevel(hero.level) ~/ 4) ~/ hero.stats.expCollectEfficiency
   addExpArray(
-    kFunction1,
+    _kFunction1,
     collectableLight: collectableLight,
   )
   addCardLibraryStele(
-    kFunction2,
+    _kFunction2,
     enableCardCraft: true,
     enableScrollCraft: true,
   )
-  addRestBed(kFunction3)
+  addRestBed(_kFunction3)
   addMerchant(
-    kFunction4,
+    _kFunction4,
     objectId: 'merchant',
     name: engine.locale('merchant'),
     sprite: 'object/characterMan31.png',
@@ -134,12 +134,12 @@ function addEncampment() {
   )
 }
 
-function addRandomMerchant() {
-  final merchantKind = kMerchantKinds.random
+function _addRandomMerchant() {
+  final merchantKind = _kMerchantKinds.random
   switch (merchantKind) {
     'smith': {
       addMerchant(
-        kCenterTile,
+        _kCenterTile,
         objectId: 'merchant',
         name: engine.locale('smith'),
         sprite: 'object/characterMan31.png',
@@ -153,7 +153,7 @@ function addRandomMerchant() {
     }
     'enchanter': {
       addMerchant(
-        kCenterTile,
+        _kCenterTile,
         objectId: 'merchant',
         name: engine.locale('enchanter'),
         sprite: 'object/characterMan31.png',
@@ -167,7 +167,7 @@ function addRandomMerchant() {
     }
     'alchemist': {
       addMerchant(
-        kCenterTile,
+        _kCenterTile,
         objectId: 'merchant',
         name: engine.locale('alchemist'),
         sprite: 'object/characterMan31.png',
@@ -181,7 +181,7 @@ function addRandomMerchant() {
     }
     'bookdealer': {
       addMerchant(
-        kCenterTile,
+        _kCenterTile,
         objectId: 'merchant',
         name: engine.locale('bookdealer'),
         sprite: 'object/characterMan31.png',
@@ -196,9 +196,9 @@ function addRandomMerchant() {
   }
 }
 
-function addPortalByCategory(tilePosition, {id = 'portal1', tilePosition, category}) {
-  tilePosition ??= kPortal1Tile
-  assert(tilePosition?.left != null && tilePosition?.top != null, 'addPortalByCategory error: tilePosition is null')
+function _addPortalByCategory(tilePosition, {id = 'portal1', tilePosition, category}) {
+  tilePosition ??= _kPortal1Tile
+  assert(tilePosition?.left != null && tilePosition?.top != null, '_addPortalByCategory error: tilePosition is null')
   let hoverContent
   category ??= 'enemy'
   switch (category) {
@@ -235,49 +235,49 @@ function addPortalByCategory(tilePosition, {id = 'portal1', tilePosition, catego
   )
 }
 
-function addDebris() {
-  addOverlaySprite(kPortal2Tile, {
+function _addDebris() {
+  addOverlaySprite(_kPortal2Tile, {
     sprite: "object/stoneDebris.png",
   })
-  addOverlaySprite(kPortal3Tile, {
+  addOverlaySprite(_kPortal3Tile, {
     sprite: "object/stoneDebris.png",
   })
 }
 
-function addPortalByNextRoomType(nextRoomType) {
+function _addPortalByNextRoomType(nextRoomType) {
   switch (nextRoomType) {
     'encampment': {
-      addPortalByCategory(kPortal1Tile, category: 'encapment')
+      _addPortalByCategory(_kPortal1Tile, category: 'encapment')
     }
     'merchant': {
-      addPortalByCategory(kPortal1Tile, category: 'merchant')
+      _addPortalByCategory(_kPortal1Tile, category: 'merchant')
     }
     'encounter': {
-      addPortalByCategory(kPortal1Tile, category: 'encounter')
+      _addPortalByCategory(_kPortal1Tile, category: 'encounter')
     }
     'enemy': {
-      addPortalByCategory(kPortal1Tile, category: 'enemy')
+      _addPortalByCategory(_kPortal1Tile, category: 'enemy')
     }
     'elite': {
-      addPortalByCategory(kPortal1Tile, category: 'elite')
+      _addPortalByCategory(_kPortal1Tile, category: 'elite')
     }
     'boss': {
-      addPortalByCategory(kPortal1Tile, category: 'boss')
+      _addPortalByCategory(_kPortal1Tile, category: 'boss')
     }
     '3portal': {
-      addPortalByCategory(kPortal1Tile, category: 'enemy')
-      addPortalByCategory(kPortal2Tile, id: 'portal2', category: 'merchant')
-      addPortalByCategory(kPortal3Tile, id: 'portal3', category: 'encounter')
+      _addPortalByCategory(_kPortal1Tile, category: 'enemy')
+      _addPortalByCategory(_kPortal2Tile, id: 'portal2', category: 'merchant')
+      _addPortalByCategory(_kPortal3Tile, id: 'portal3', category: 'encounter')
     }
     '3exit': {
-      addPortalByCategory(kPortal1Tile, category: 'exit')
-      addPortalByCategory(kPortal2Tile, id: 'portal2', category: 'replay')
-      addPortalByCategory(kPortal3Tile, id: 'portal3', category: 'nextLevel')
+      _addPortalByCategory(_kPortal1Tile, category: 'exit')
+      _addPortalByCategory(_kPortal2Tile, id: 'portal2', category: 'replay')
+      _addPortalByCategory(_kPortal3Tile, id: 'portal3', category: 'nextLevel')
     }
   }
 }
 
-function prepareMap() {
+function _prepareMap() {
   engine.debug('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
   game.dungeon.buildCompleted = true
   game.dungeon.isElite = false
@@ -297,7 +297,7 @@ function prepareMap() {
 
   Game.updateDungeon(game.dungeon)
 
-  let roomInfo = game.dungeon.isBasic ? kBasicRooms : kNormalRooms
+  let roomInfo = game.dungeon.isBasic ? _kBasicRooms : _kNormalRooms
 
   assert(game.dungeon.room <= game.dungeon.roomMax &&
         roomInfo.contains(game.dungeon.room.toString()) &&
@@ -309,18 +309,18 @@ function prepareMap() {
   if (game.dungeon.isBasic) {
     switch (game.dungeon.room + 1) {
       1: {
-        addPortalByNextRoomType(nextRoomType)
-        addDebris()
+        _addPortalByNextRoomType(nextRoomType)
+        _addDebris()
         // 第一层固定是一个恢复生命的床，没有敌人。
-        addRestBed(kCenterTile)
+        addRestBed(_kCenterTile)
       }
       2: {
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonGuard'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
           rank: game.dungeon.rank,
         )
       }
@@ -328,25 +328,25 @@ function prepareMap() {
         switch (game.dungeon.selectedPortal) {
           'portal1': {
             addEnemy(
-              kCenterTile,
+              _kCenterTile,
               name: engine.locale('dungeonGuard'),
               objectId: 'enemy',
               useCustomLogic: true,
-              level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+              level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
               rank: game.dungeon.rank,
             )
           }
           'portal2': {
-            addPortalByNextRoomType(nextRoomType)
-            addRandomMerchant()
+            _addPortalByNextRoomType(nextRoomType)
+            _addRandomMerchant()
           }
           'portal3': {
-            addPortalByNextRoomType(nextRoomType)
-            final encounterKind = kEncounterKinds.random
+            _addPortalByNextRoomType(nextRoomType)
+            final encounterKind = _kEncounterKinds.random
             switch (encounterKind) {
               'spiritWell': {
                 addSpiritWell(
-                  kCenterTile,
+                  _kCenterTile,
                   objectId: 'spiritWell',
                   rank: game.dungeon.rank + 1,
                 )
@@ -358,28 +358,28 @@ function prepareMap() {
       4: {
         game.dungeon.isElite = true
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonElite'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
           rank: game.dungeon.rank,
           isElite: true,
         )
       }
       5: {
-        addPortalByNextRoomType(nextRoomType)
-        addDebris()
-        addEncampment()
+        _addPortalByNextRoomType(nextRoomType)
+        _addDebris()
+        _addEncampment()
       }
       6: {
         game.dungeon.isBoss = true
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonBoss'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
           rank: game.dungeon.rank + 1,
           isElite: true,
         )
@@ -388,18 +388,18 @@ function prepareMap() {
   } else {
     switch (game.dungeon.room + 1) {
       1: {
-        addPortalByNextRoomType(nextRoomType)
-        addDebris()
+        _addPortalByNextRoomType(nextRoomType)
+        _addDebris()
         // 第一层固定是一个恢复生命的床，没有敌人。
-        addRestBed(kCenterTile)
+        addRestBed(_kCenterTile)
       }
       2, 4, 6, 10, 12: {
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonGuard'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
           rank: game.dungeon.rank,
         )
       }
@@ -407,25 +407,25 @@ function prepareMap() {
         switch (game.dungeon.selectedPortal) {
           'portal1': {
             addEnemy(
-              kCenterTile,
+              _kCenterTile,
               name: engine.locale('dungeonGuard'),
               objectId: 'enemy',
               useCustomLogic: true,
-              level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+              level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
               rank: game.dungeon.rank,
             )
           }
           'portal2': {
-            addPortalByNextRoomType(nextRoomType)
-            addRandomMerchant()
+            _addPortalByNextRoomType(nextRoomType)
+            _addRandomMerchant()
           }
           'portal3': {
-            addPortalByNextRoomType(nextRoomType)
-            final encounterKind = kEncounterKinds.random
+            _addPortalByNextRoomType(nextRoomType)
+            final encounterKind = _kEncounterKinds.random
             switch (encounterKind) {
               'spiritWell': {
                 addSpiritWell(
-                  kCenterTile,
+                  _kCenterTile,
                   objectId: 'spiritWell',
                   rank: game.dungeon.rank + 1,
                 )
@@ -435,18 +435,18 @@ function prepareMap() {
         }
       }
       7, 13: {
-        addPortalByNextRoomType(nextRoomType)
-        addDebris()
-        addEncampment()
+        _addPortalByNextRoomType(nextRoomType)
+        _addDebris()
+        _addEncampment()
       }
       8: {
         game.dungeon.isElite = true
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonElite'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
           rank: game.dungeon.rank,
           isElite: true,
         )
@@ -454,11 +454,11 @@ function prepareMap() {
       14: {
         game.dungeon.isBoss = true
         addEnemy(
-          kCenterTile,
+          _kCenterTile,
           name: engine.locale('dungeonBoss'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
           rank: game.dungeon.rank + 1,
           isElite: true,
         )
@@ -467,10 +467,120 @@ function prepareMap() {
   }
 }
 
+function _generateReward({probability: {}, entity}) {
+  let rank = entity?.rank ?? hero.rank
+
+  final r = Random()
+  let rewardExp
+  if (entity == null || (hero.rank - entity.rank) > 2) {
+    rewardExp = false
+  } else {
+    rewardExp = r.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
+  }
+  
+  let rewardMoney
+  let rewardShard
+  if (entity?.rank <= 0) {
+    rewardShard = false
+    rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
+  } else {
+    rewardMoney = false
+    rewardShard = r.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
+  }
+  final rewardEquipment = r.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
+  final rewardCardpack = r.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
+  final rewardPotion = r.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
+  let rewardScrollPaper
+  let rewardCraftMaterial
+  let rewardDungeonTicket
+  if (rank > 0) {
+    rewardScrollPaper = r.nextDouble() < (probability?.scrollPaper ?? kRewardProbabilityScrollPaper)
+    rewardCraftMaterial = r.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
+    rewardDungeonTicket = r.nextDouble() < (probability?.dungeonTicket ?? kRewardProbabilityDungeonTicket)
+  }
+
+  final rewards = []
+  final refQuantity = expForLevel(entity?.level ?? 0)
+  if (rewardExp) {
+    final rankRate = entity?.rank / (hero.rank + 0.1);
+    final levelRatio = entity?.level / (hero.level + 0.1);
+    final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
+    final expPack = createItemByPrototype('exp_pack', amount: exp.round())
+    rewards.add(expPack)
+  }
+  if (rewardMoney) {
+    final money = r.nextInt(refQuantity * kMoneyRewardRate) + 50
+    final moneyPack = Materialpack(kind: 'money', amount: money)
+    rewards.add(moneyPack)
+  }
+  if (rewardShard) {
+    final shard = r.nextInt((entity?.level ?? hero.level) + 1) + 1
+    final shardPack = Materialpack(kind: 'shard', amount: shard)
+    rewards.add(shardPack)
+  }
+  if (rewardEquipment) {
+    final equipment = Equipment(rank: rank)
+    rewards.add(equipment)
+  }
+  if (rewardCardpack) {
+    let genre = Constants.attributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
+    final cardpack = Cardpack(rank: rank, genre: genre)
+    rewards.add(cardpack)
+  }
+  if (rewardPotion) {
+    final potion = Potion(rank: rank)
+    rewards.add(potion)
+  }
+  if (rewardScrollPaper) {
+    assert(rank > 0)
+    final scrollPaper = createItemByPrototype('scroll_paper_rank${rank}')
+    rewards.add(scrollPaper)
+  }
+  if (rewardCraftMaterial) {
+    let craftMaterialTypeRoll = r.nextDouble()
+    let craftMaterial
+    if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
+      craftMaterial = createItemByPrototype('craftmaterial_upgradeRank${r.nearInt(rank) + 1}')
+    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
+      craftMaterial = createItemByPrototype('craftmaterial_rerollAffix')
+    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
+      craftMaterial = createItemByPrototype('craftmaterial_replaceAffix')
+    } else {
+      craftMaterial = createItemByPrototype('craftmaterial_addAffix')
+    }
+    rewards.add(craftMaterial)
+  }
+  if (rewardDungeonTicket) {
+    let ticketRank
+    if (entity != null) {
+      if (entity.rank > 1) {
+        ticketRank = entity.rank - 1
+      } else {
+        ticketRank = 1
+      }
+    } else {
+      ticketRank = hero.rank
+    }
+    assert(rank > 0)
+    if (ticketRank < kCultivationRankMax) {
+      if (r.nextDouble() < (probability?.dungeonTicketNextLevel ?? kRewardProbabilityDungeonTicketNextLevel)) {
+        ticketRank += 1
+      }
+    }
+    final dungeonTicket = createItemByPrototype('dungeon_ticket_rank${ticketRank}')
+    rewards.add(dungeonTicket)
+  }
+
+  if (rewards.isEmpty) {
+    engine.warn('生成的奖励列表为空！')
+  }
+  return rewards
+}
+
 async function onEnterMap() {
   if (game.dungeon.battleResult == true) {
     game.dungeon.battleResult = null
-    final rewards = generateReward(
+    final rewards = _generateReward(
       probability: {
         exp: kRewardProbabilityExppack,
         money: kRewardProbabilityMoney,
@@ -505,9 +615,9 @@ async function onEnterMap() {
   } else if (!game.dungeon.buildCompleted) {
     Dialog.pushBackground('black.png')
     Dialog.pushTask(() {
-      prepareMap()
+      _prepareMap()
       World.lightUpAllTiles()
-      Player.setTo(kStartTile.left, kStartTile.top, worldId: world.id, direction: 'north')
+      Player.setTo(_kStartTile.left, _kStartTile.top, worldId: world.id, direction: 'north')
       Game.showHeroInfo()
     })
     Dialog.popBackground(isFadeOut: true)
@@ -629,7 +739,7 @@ async function onInteractMapObject(object, terrain) {
             engine.debug('战斗胜利，添加出口')
             game.dungeon.battleResult = true
             game.dungeon.battleEntity = object.battleEntity
-            let tile = getTerrainByWorldPosition(kCenterTile.left, kCenterTile.top)
+            let tile = getTerrainByWorldPosition(_kCenterTile.left, _kCenterTile.top)
             tile.objectId = null
             tile.isNonEnterable = false
             world.objects.remove(object.id)
@@ -637,9 +747,9 @@ async function onInteractMapObject(object, terrain) {
             World.updateTerrainData(tile.left, tile.top)
             World.removeCharacter(object.battleEntity.id)
             final nextRoomType = game.dungeon.isBasic ?
-              kBasicRooms[game.dungeon.room + 1] :
-              kNormalRooms[game.dungeon.room + 1]
-            addPortalByNextRoomType(nextRoomType)
+              _kBasicRooms[game.dungeon.room + 1] :
+              _kNormalRooms[game.dungeon.room + 1]
+            _addPortalByNextRoomType(nextRoomType)
           } else {
             engine.debug('战斗失败，准备退出地牢')
             game.dungeon.battleResult = false

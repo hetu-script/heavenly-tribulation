@@ -120,6 +120,23 @@ class _GameAppState extends State<GameApp> {
 
   Future<void> _initGame() async {
     int tik = DateTime.now().millisecondsSinceEpoch;
+
+    engine.config = EngineConfig(
+      name: 'Heavenly Tribulation',
+      desktop: true,
+      debugMode: true,
+      musicVolume: 0.5,
+      soundEffectVolume: 0.5,
+      mods: {
+        'story': {
+          'enabled': true,
+        },
+      },
+      showFps: true,
+    );
+
+    // engine.setCursor(Cursors.normal);
+
     await engine.init(context);
 
     engine.hetu.interpreter.bindExternalFunctionType(
@@ -150,6 +167,12 @@ class _GameAppState extends State<GameApp> {
         'maxLevelForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.maxLevelForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'getMinMaxExtraAffixCount',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.getMinMaxExtraAffixCount(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -387,9 +410,9 @@ class _GameAppState extends State<GameApp> {
       return GameLogic.promptItems(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptQuest', (
+    engine.hetu.interpreter.bindExternalFunction('Game::promptJournal', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.promptQuest(positionalArgs.first);
+      return GameLogic.promptJournal(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewRank', (
@@ -508,12 +531,10 @@ class _GameAppState extends State<GameApp> {
 
       for (final key in engine.mods.keys) {
         if (engine.mods[key]?['enabled'] == true) {
-          if (engine.mods[key]?['preinclude'] == true) {
-            await engine.loadModFromAssetsString(
-              '$key/main.ht',
-              module: key,
-            );
-          }
+          await engine.loadModFromAssetsString(
+            '$key/main.ht',
+            module: key,
+          );
         }
       }
     } else {
@@ -528,14 +549,12 @@ class _GameAppState extends State<GameApp> {
 
       for (final key in engine.mods.keys) {
         if (engine.mods[key]?['enabled'] == true) {
-          if (engine.mods[key]?['preinclude'] == true) {
-            final mod = await rootBundle.load('assets/mods/$key.mod');
-            final modBytes = mod.buffer.asUint8List();
-            await engine.loadModFromBytes(
-              modBytes,
-              module: key,
-            );
-          }
+          final mod = await rootBundle.load('assets/mods/$key.mod');
+          final modBytes = mod.buffer.asUint8List();
+          await engine.loadModFromBytes(
+            modBytes,
+            module: key,
+          );
         }
       }
     }

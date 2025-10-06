@@ -36,7 +36,7 @@ class _OrganizationViewState extends State<OrganizationView> {
 
   final List<List<String>> _charactersTable = [], _locationsTable = [];
 
-  late final dynamic _headquarters, _head;
+  late final dynamic _headquartersLocation, _head;
 
   @override
   void initState() {
@@ -50,8 +50,8 @@ class _OrganizationViewState extends State<OrganizationView> {
       _organization = GameData.getOrganization(widget.organizationId);
     }
 
-    final headquartersId = _organization['headquartersId'];
-    _headquarters = GameData.getLocation(headquartersId);
+    final headquartersLocationId = _organization['headquartersLocationId'];
+    _headquartersLocation = GameData.getLocation(headquartersLocationId);
 
     final headId = _organization['headId'];
     _head = GameData.getCharacter(headId);
@@ -116,7 +116,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                   children: [
                     Text('${engine.locale('head')}: ${_head['name']}'),
                     Text(
-                        '${engine.locale('headquarters')}: ${_headquarters['name']}'),
+                        '${engine.locale('headquarters')}: ${_headquartersLocation['name']}'),
                     Text(
                         '${engine.locale('genre')}: ${engine.locale(_organization['genre'])}'),
                     Text(
@@ -142,7 +142,8 @@ class _OrganizationViewState extends State<OrganizationView> {
                                     genre: _organization['genre'],
                                     headId: _organization['headId'],
                                     headquartersData: GameData.getLocation(
-                                        _organization['headquartersId']),
+                                        _organization[
+                                            'headquartersLocationId']),
                                   ),
                                 );
                                 if (value == null) return;

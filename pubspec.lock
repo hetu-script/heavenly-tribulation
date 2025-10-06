@@ -255,7 +255,7 @@ packages:
       path: "../fluent_ui"
       relative: true
     source: path
-    version: "4.11.4"
+    version: "4.13.0"
   flutter:
     dependency: "direct main"
     description: flutter

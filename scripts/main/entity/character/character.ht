@@ -1130,9 +1130,9 @@ struct Character {
     // 相比思想和动机，情绪十分短暂，可能只是持续几个月或几天
     this.emotions = {}
 
-    // 该角色当前的任务
-    this.quests = {}
-    this.activeQuestId = null
+    // 该角色当前的日志
+    this.journals = {}
+    this.activeJournalId = null
     
     // 这些列表保存的是incident的index
     // 该角色经历过的事情
@@ -1184,7 +1184,6 @@ struct Character {
     
     if (locationId) {
       const location = game.locations[locationId]
-      this.locationId = location.id
 
       this.worldPosition = {
         left: location.worldPosition?.left,
@@ -1234,8 +1233,13 @@ struct Character {
           idealistic: -10,
         )
         characterMet(mother, this)
-        this.homeSiteId = mother.homeSiteId
+        this.locationId = this.homeSiteId = mother.homeSiteId
         this.homeLocationId = mother.homeLocationId
+        final homeLocation = game.locations[this.homeLocationId]
+        this.worldPosition = {
+          left: homeLocation.worldPosition.left,
+          top: homeLocation.worldPosition.top,
+        }
       } else {
         // 设置居住地会触发事件从而修改自身，需要放在最后处理
         setCharacterHome(this, location)
@@ -1437,6 +1441,13 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
   }
   character.homeSiteId = homeSiteId
   character.homeLocationId = location.id
+  if (moveToHome) {
+    character.locationId = homeSiteId
+    character.worldPosition = {
+      left: location.worldPosition.left,
+      top: location.worldPosition.top,
+    }
+  }
   character.worldPosition = {
     left: location.worldPosition.left,
     top: location.worldPosition.top,

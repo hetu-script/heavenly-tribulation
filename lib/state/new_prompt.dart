@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-class NewQuestState with ChangeNotifier {
-  dynamic quest;
+class NewJournalState with ChangeNotifier {
+  dynamic journal;
   Completer? completer;
 
-  void update({dynamic quest, Completer? completer}) {
-    this.quest = quest;
+  void update({dynamic journal, Completer? completer}) {
+    this.journal = journal;
     this.completer = completer;
     notifyListeners();
   }

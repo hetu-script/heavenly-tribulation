@@ -3,87 +3,89 @@ part of 'logic.dart';
 Future<bool> _checkRented(dynamic location,
     {bool perAvailableDaysTillMonthEnd = true}) async {
   final locationId = location['id'];
-
-  if (GameData.game['playerMonthly']['rented'].contains(locationId)) {
+  if (location['organizationId'] == null ||
+      location['organizationId'] == GameData.hero['organizationId'] ||
+      GameData.game['playerMonthly']['rented'].contains(locationId)) {
     return true;
-  } else {
+  }
+
+  dialog.pushDialog(
+    'hint_organizationFacilityNotMember',
+    name: engine.locale('servant'),
+    icon: 'illustration/npc/servant_head.png',
+    image: 'illustration/npc/servant.png',
+  );
+  await dialog.execute();
+
+  final siteKind = location['kind'];
+  assert(kSiteRentMoneyCostByDay.containsKey(siteKind),
+      'Rent cost not defined for site kind: $siteKind');
+  final int rentCostRaw = kSiteRentMoneyCostByDay[siteKind]!;
+  final int shardPrice = kMaterialBasePrice['shard']!;
+  bool useShard = rentCostRaw >= shardPrice;
+  int rentCost = rentCostRaw;
+  final int availableDays = kDaysPerMonth - GameLogic.day;
+  final int development = location['development'] ?? 0;
+  rentCost *= (development + 1);
+  if (perAvailableDaysTillMonthEnd) {
+    rentCost *= (availableDays + 1);
+  }
+  if (useShard) {
+    rentCost = (rentCost / shardPrice).ceil();
+  }
+  final materialId = useShard ? 'shard' : 'money';
+  final materialName = engine.locale(useShard ? 'shard' : 'money');
+
+  dialog.pushSelectionRaw(
+    {
+      'id': 'rentQuery',
+      'selections': {
+        'rentFacility': {
+          'text': engine.locale('rentFacility'),
+          'description': engine.locale(
+            'rentFacility_description',
+            interpolations: [
+              rentCost,
+              materialName,
+            ],
+          ),
+        },
+        'forgetIt': engine.locale('forgetIt'),
+      },
+    },
+  );
+  await dialog.execute();
+  final selected = dialog.checkSelected('rentQuery');
+  if (selected != 'rentFacility') return false;
+  bool success = engine.hetu.invoke(
+    'exhaust',
+    namespace: 'Player',
+    positionalArgs: [materialId],
+    namedArgs: {
+      'amount': rentCost,
+    },
+  );
+  if (success) {
+    engine.play('coins-31879.mp3');
+    GameData.game['playerMonthly']['rented'].add(locationId);
     dialog.pushDialog(
-      'hint_organizationFacilityNotMember',
+      'hint_rentedFacility',
       name: engine.locale('servant'),
       icon: 'illustration/npc/servant_head.png',
       image: 'illustration/npc/servant.png',
     );
     await dialog.execute();
-
-    final siteKind = location['kind'];
-    assert(kSiteRentMoneyCostByDay.containsKey(siteKind),
-        'Rent cost not defined for site kind: $siteKind');
-    final int rentCostRaw = kSiteRentMoneyCostByDay[siteKind]!;
-    final int shardPrice = kMaterialBasePriceByKind['shard']!;
-    bool useShard = rentCostRaw >= shardPrice;
-    int rentCost = rentCostRaw;
-    final int availableDays = kDaysPerMonth - GameLogic.day;
-    final int development = location['development'] ?? 0;
-    rentCost *= (development + 1);
-    if (perAvailableDaysTillMonthEnd) {
-      rentCost *= (availableDays + 1);
-    }
-    if (useShard) {
-      rentCost = (rentCost / shardPrice).ceil();
-    }
-    final materialId = useShard ? 'shard' : 'money';
-    final materialName =
-        useShard ? engine.locale('shard') : engine.locale('money');
-
-    dialog.pushSelectionRaw(
-      {
-        'id': 'rentQuery',
-        'selections': {
-          'rentFacility': {
-            'text': engine.locale('rentFacility'),
-            'description': engine.locale(
-              'rentFacility_description',
-              interpolations: [
-                rentCost,
-                materialName,
-              ],
-            ),
-          },
-          'forgetIt': engine.locale('forgetIt'),
-        },
-      },
+    return true;
+  } else {
+    dialog.pushDialog(
+      'hint_notEnough',
+      name: engine.locale('servant'),
+      icon: 'illustration/npc/servant_head.png',
+      image: 'illustration/npc/servant.png',
+      interpolations: [materialName],
     );
     await dialog.execute();
-    final selected = dialog.checkSelected('rentQuery');
-    if (selected != 'rentFacility') return false;
-    bool success = engine.hetu.invoke(
-      'exhaust',
-      namespace: 'Player',
-      positionalArgs: [materialId],
-      namedArgs: {
-        'amount': rentCost,
-      },
-    );
-    if (success) {
-      dialog.pushDialog(
-        'hint_rentedFacility',
-        name: engine.locale('servant'),
-        icon: 'illustration/npc/servant_head.png',
-        image: 'illustration/npc/servant.png',
-      );
-      await dialog.execute();
-      return true;
-    } else {
-      dialog.pushDialog(
-        'hint_notEnough',
-        name: engine.locale('servant'),
-        icon: 'illustration/npc/servant_head.png',
-        image: 'illustration/npc/servant.png',
-        interpolations: [materialName],
-      );
-      await dialog.execute();
-      return false;
-    }
+    return false;
   }
 }
 
@@ -95,20 +97,20 @@ void _onInteractDungeonEntrance({
   dynamic organization,
   dynamic location,
 }) async {
-  bool checkEntered() {
-    final List enteredList = GameData.game['playerMonthly']['enteredDungeons'];
-    final entered = enteredList.contains(location['id']);
-    if (entered) {
-      dialog.pushDialog(
-        'hint_dungeonAlreadyEntered',
-        name: engine.locale('guard'),
-        icon: 'illustration/npc/guard_head.png',
-        image: 'illustration/npc/guard.png',
-      );
-      dialog.execute();
-    }
-    return entered;
-  }
+  // bool checkEntered() {
+  //   final List enteredList = GameData.game['playerMonthly']['enteredDungeons'];
+  //   final entered = enteredList.contains(location['id']);
+  //   if (entered) {
+  //     dialog.pushDialog(
+  //       'hint_dungeonAlreadyEntered',
+  //       name: engine.locale('guard'),
+  //       icon: 'illustration/npc/guard_head.png',
+  //       image: 'illustration/npc/guard.png',
+  //     );
+  //     dialog.execute();
+  //   }
+  //   return entered;
+  // }
 
   dialog.pushSelection('dungeonEntrance', [
     'about_dungeon',
@@ -130,17 +132,14 @@ void _onInteractDungeonEntrance({
     await dialog.execute();
   } else {
     // organization 可能为 null，此时该据点没有被门派占领
-    if (organization != null &&
-        GameData.hero['organizationId'] != organization['id']) {
-      final isRented =
-          await _checkRented(location, perAvailableDaysTillMonthEnd: false);
-      if (!isRented) return;
-    }
+    final isRented =
+        await _checkRented(location, perAvailableDaysTillMonthEnd: false);
+    if (!isRented) return;
 
-    final alreadyEnteredThisMonth = checkEntered();
-    if (alreadyEnteredThisMonth) return;
+    // final alreadyEnteredThisMonth = checkEntered();
+    // if (alreadyEnteredThisMonth) return;
 
-    GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
+    // GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
     GameLogic.tryEnterDungeon(
       isBasic: selected == 'enter_common_dungeon',
       dungeonId: location['dungeonId'] ?? 'dungeon_1',
@@ -154,10 +153,8 @@ void _onInteractExpArray(
   dynamic organization, {
   dynamic location,
 }) async {
-  if (GameData.hero['organizationId'] != organization['id']) {
-    final isRented = await _checkRented(location);
-    if (!isRented) return;
-  }
+  final isRented = await _checkRented(location);
+  if (!isRented) return;
 
   engine.pushScene(Scenes.cultivation, arguments: {
     'location': location,
@@ -217,10 +214,8 @@ void _onInteractCardLibraryDesk({
   dynamic organization,
   dynamic location,
 }) async {
-  if (GameData.hero['organizationId'] != organization['id']) {
-    final isRented = await _checkRented(location);
-    if (!isRented) return;
-  }
+  final isRented = await _checkRented(location);
+  if (!isRented) return;
 
   engine.pushScene(Scenes.library, arguments: {
     'enableCardCraft': true,
@@ -300,7 +295,7 @@ void _onAfterEnterLocation(dynamic location) async {
     final reportSiteId = memberData['reportSiteId'];
     if (reportSiteId == location['id']) {
       final organizationInitiationQuest =
-          GameData.hero['quests']['organizationInitiation'];
+          GameData.hero['journals']['organizationInitiation'];
       if (organizationInitiationQuest != null &&
           organizationInitiationQuest['isFinished'] != true) {
         final superiorId = memberData['superiorId'];
@@ -337,7 +332,7 @@ void _onAfterEnterLocation(dynamic location) async {
             .invoke('loot', namespace: 'Player', positionalArgs: [itemsInfo]);
         GameLogic.promptItems(items);
 
-        engine.hetu.invoke('progressQuestById',
+        engine.hetu.invoke('progressJournalById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);
       } else {
         final playerMonthly = GameData.game['playerMonthly'];

@@ -50,7 +50,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
 
         card.onPreviewed = () {
           final isDetailed = (game as BattleScene).isDetailedHovertip;
-          final (_, description) = GameData.getDescriptionFromCardData(
+          final (_, description) = GameData.getBattleCardDescription(
             (card as CustomGameCard).data,
             isDetailed: isDetailed,
             showDetailedHint: false,

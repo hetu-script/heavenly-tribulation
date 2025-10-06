@@ -1,16 +1,18 @@
 namespace World {
 
+  external async function updateTerrainSprite(left, top)
+
+  external async function updateTerrainOverlaySprite(left, top)
+
+  external async function updateTerrainData(left, top, {updateSprite: bool = false, updateOverlaySprite: bool = false})
+
   external function setTerrainCaption(left, top, caption, [color])
-
-  external function updateTerrainSprite(left, top)
-
-  external function updateTerrainOverlaySprite(left, top)
-
-  external function updateTerrainData(left, top, {updateSprite: bool = false, updateOverlaySprite: bool = false})
 
   external function darkenAllTiles()
 
   external function lightUpAllTiles()
+
+  external function getNeighborTiles(left, top)
 
   // external function clearTerrainSprite(left, top)
 
@@ -42,13 +44,13 @@ namespace World {
 
   external function promptTextBanner(text)
 
-  external async function moveCameraToMapPosition(left, top, {animated = true})
-
   external function lightUpAroundTile(left, top, [ size = 1 ])
 
   external function enterLocation(location)
 
   external function showFog(value: bool)
+
+  external async function moveCameraToTilePosition(left, top, {animated = true})
 
   /// Creates a new CameraShakeEffect.
   /// [intensity] is the speed of the camera movement.

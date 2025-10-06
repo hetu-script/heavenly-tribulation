@@ -1,7 +1,7 @@
 {
   organizationInitiation: {
     id: "organizationInitiation",
-    title: "quest_organizationInitiation_title",
+    title: "journal_organizationInitiation_title",
     isUnique: true,
     // endings 数组代表了任务结束节点
     // 当任务的 stage 推进到这些值时

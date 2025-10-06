@@ -342,7 +342,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   CustomGameCard addCardByData(dynamic data) {
-    final card = GameData.createBattleCardFromData(data);
+    final card = GameData.createBattleCard(data);
     container.add(card);
     // add(card);
     card.size = GameUI.libraryCardSize;

@@ -1,6 +1,6 @@
 import 'zh/general.json' as general
 import 'zh/items.json' as items
-import 'zh/quests.json' as quests
+import 'zh/journals.json' as journals
 import 'zh/prelude.json' as prelude
 import 'zh/chapter01.json' as chapter01
 
@@ -9,7 +9,7 @@ const zh = {
   languageName: '简体中文',
   ...general,
   ...items,
-  ...quests,
+  ...journals,
   ...prelude,
   ...chapter01,
 }

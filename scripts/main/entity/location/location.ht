@@ -456,9 +456,9 @@ function getLocationByWorldPosition(left, top, {worldId}) {
   }
 }
 
-function discoverLocation(location, { updateWorldMap = false }) {
+async function discoverLocation(location, { updateWorldMap = false }) {
   if (location.isDiscovered) return
-  engine.debug('发现新据点：${location.name}')
+  // engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
   assert(universe.containsKey(location.worldId), location.worldId)
   let atWorld = universe[location.worldId]
@@ -466,12 +466,13 @@ function discoverLocation(location, { updateWorldMap = false }) {
     World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   }
   if (location.isHidden) {
+    engine.warn('据点 ${location.name} 被发现，刷新大地图显示。')
     const tile = atWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite = { sprite: kSpriteCity }
     if (updateWorldMap) {
       // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
-      World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
+      await World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
     }
   }
 }
@@ -495,26 +496,15 @@ function setLocationWorldPosition(location, left, top, {worldId}) {
   }
 }
 
-/// 刷新聚灵阵中的可用灵气
-function replenishCityhallExp(location) {
-  // assert(location.kind == 'cityhall')
-  // final atLocation = game.locations[location.atLocationId]
-  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  // assert(atLocation.category == 'city')
-
-  final r = Random()
-  final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
-  location.collectableLight = r.nearInt(replenishAmount) + 10
-}
-
 /// 刷新交易类场景的物品
-function replenishTradingHouseMaterials(location) {
+function replenishTradingHouse(location) {
   assert(location.kind == 'tradinghouse')
   final atLocation = game.locations[location.atLocationId]
   assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
   assert(atLocation.category == 'city')
 
   location.materials = {}
+  location.inventory = {}
 
   final r = Random()
 
@@ -523,8 +513,46 @@ function replenishTradingHouseMaterials(location) {
     kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
-      ~/ Constants.basePriceOfMaterialKind.shard
+      ~/ Constants.materialBasePrice.shard
 
+  // 根据地形，决定商店里是否有船只和靴子
+  final neighbors = getNeighborTiles(atLocation.worldPosition.left, atLocation.worldPosition.top)
+  let hasMountainNeighbor = false
+  let hasWaterNeighbor = false
+  for (final neighbor in neighbors) {
+    if (neighbor.kind == 'mountain') {
+      hasMountainNeighbor = true
+    } else if (kWaterTerrainKinds.contains(neighbor.kind)) {
+      hasWaterNeighbor = true
+    }
+  }
+  if (hasMountainNeighbor) {
+    let item = Equipment(kind: 'boots', rank: 0)
+    entityAcquire(location, item)
+  }
+  if (hasWaterNeighbor) {
+    let item = Equipment(kind: 'ship', rank: 0)
+    entityAcquire(location, item)
+  }
+
+  // 刷新物品
+  let amount = kBaseItemReplenishAmount + location.development
+  for (var i in range(amount)) {
+    final typeRoll = r.nextDouble()
+    let item
+    if (typeRoll < 0.5) {
+      item = Equipment(rank: 0)
+    } else if (typeRoll < 0.7) {
+      item = Potion(rank: 0)
+    } else if (typeRoll < 0.9) {
+      item = Cardpack(rank: 0)
+    } else {
+      item = createItemByPrototype('identify_scroll')
+    }
+    entityAcquire(location, item)
+  }
+
+  // 刷新材料
   let price = {
     worker: {
       add: 1.0,
@@ -712,8 +740,27 @@ function replenishTradingHouseMaterials(location) {
   }
 }
 
+/// 刷新会堂悬赏列表
+function replenishCityhall(location) {
+  assert(location.kind == 'cityhall')
+
+  replenishBounty(location)
+}
+
+/// 刷新聚灵阵中的可用灵气
+function replenishExpArray(location) {
+  assert(location.kind == 'exparray')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
+
+  final r = Random()
+  final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
+  location.collectableLight = r.nearInt(replenishAmount) + 10
+}
+
 /// 刷新交易类场景的物品
-function replenishAuctionHouseItems(location) {
+function replenishAuctionHouse(location) {
   assert(location.kind == 'auctionhouse')
   final atLocation = game.locations[location.atLocationId]
   assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
@@ -726,7 +773,7 @@ function replenishAuctionHouseItems(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
-    ~/ Constants.basePriceOfMaterialKind.shard
+    ~/ Constants.materialBasePrice.shard
 
   let amount = kBaseItemReplenishAmount + location.development
 
@@ -745,11 +792,11 @@ function replenishAuctionHouseItems(location) {
 }
 
 /// 刷新藏书阁场景的物品
-function replenishLibraryBooks(location) {
+function replenishLibrary(location) {
   assert(location.kind == 'library')
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
 
   final organization = game.organizations[location.organizationId]
 
@@ -758,7 +805,7 @@ function replenishLibraryBooks(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
-      ~/ Constants.basePriceOfMaterialKind.shard;
+      ~/ Constants.materialBasePrice.shard;
 
   for (var i in range(location.development + 1)) {
     for (var j in range(kBaseItemReplenishAmount)) {
@@ -772,11 +819,11 @@ function replenishLibraryBooks(location) {
 }
 
 /// 刷新丹房场景的物品
-function replenishAlchemyLabPotions(location) {
+function replenishAlchemyLab(location) {
   assert(location.kind == 'alchemylab')
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
 
   location.inventory = {}
 
@@ -785,7 +832,7 @@ function replenishAlchemyLabPotions(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
-    ~/ Constants.basePriceOfMaterialKind.shard
+    ~/ Constants.materialBasePrice.shard
 
   let amount = kBaseItemReplenishAmount + location.development
 
@@ -798,11 +845,11 @@ function replenishAlchemyLabPotions(location) {
 }
 
 /// 刷新符法所的物品
-function replenishRuneLabScrolls(location) {
+function replenishRuneLab(location) {
   assert(location.kind == 'runelab')
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
 
   location.inventory = {}
 
@@ -811,7 +858,7 @@ function replenishRuneLabScrolls(location) {
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
     (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
-    ~/ Constants.basePriceOfMaterialKind.shard
+    ~/ Constants.materialBasePrice.shard
   
   if (location.development == 0) return
   

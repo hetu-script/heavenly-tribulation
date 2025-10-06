@@ -26,7 +26,6 @@ dependencies:
     path: ../hetu-script/packages/hetu_script
   hetu_script_flutter:
     path: ../hetu-script/packages/hetu_script_flutter
-
   samsara:
     path: ../samsara-engine
 

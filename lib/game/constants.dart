@@ -10,6 +10,10 @@ class Constants extends HTExternalClass {
   dynamic memberGet(String id,
       {String? from, bool isRecursive = false, bool ignoreUndefined = false}) {
     switch (id) {
+      case 'Constants.worldSizeByScale':
+        return kWorldSizeByScale;
+      case 'Constants.rankToRarity':
+        return kRankToRarity;
       case 'Constants.races':
         return kRaces;
       case 'Constants.personalities':
@@ -30,6 +34,8 @@ class Constants extends HTExternalClass {
         return kOrganizationCategories;
       case 'Constants.cultivationGenres':
         return kCultivationGenres;
+      case 'Constants.cardpackGenres':
+        return kCardpackGenres;
       case 'Constants.materialKinds':
         return kMaterialKinds;
       case 'Constants.nonCurrencyMaterialKinds':
@@ -50,6 +56,8 @@ class Constants extends HTExternalClass {
         return kSiteKindsBuildable;
       case 'Constants.siteKindsBuildableOnWorldMap':
         return kSiteKindsBuildableOnWorldMap;
+      case 'Constants.siteKindsToMaterialProducable':
+        return kSiteKindsToMaterialProducable;
       case 'Constants.organizationCategoryToSiteKind':
         return kOrganizationCategoryToSiteKind;
       case 'Constants.organizationGenreToSiteKinds':
@@ -78,8 +86,8 @@ class Constants extends HTExternalClass {
         return kMinSellRate;
       case 'Constants.minBuyRate':
         return kMinBuyRate;
-      case 'Constants.basePriceOfMaterialKind':
-        return kMaterialBasePriceByKind;
+      case 'Constants.materialBasePrice':
+        return kMaterialBasePrice;
       case 'Constants.basePriceByCategory':
         return kItemBasePriceByCategory;
       case 'Constants.terrainKindsLand':
@@ -94,6 +102,8 @@ class Constants extends HTExternalClass {
         return kEquipmentCategoryKinds;
       case 'Constants.equipmentKinds':
         return kEquipmentKinds;
+      case 'Constants.questKinds':
+        return kQuestKinds;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

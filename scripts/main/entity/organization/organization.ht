@@ -3,8 +3,10 @@ import '../achievements.ht'
 const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
 
 const kDiplomacyDefaultScore = 0
-
 const kOrganizationJobRankMax = 5
+
+/// 贡献值低于 -100 ，此人将会被门派视为敌人
+const kOrganizationEnemyContributionThreshold = -100
 
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
@@ -38,7 +40,8 @@ struct Diplomacy {
   }
 }
 
-/// 门派成员数据，包含了职级、头衔和贡献值
+/// 成员或有关系的非成员在门派中的地位数据，包含了职级、头衔和贡献值
+/// 贡献值可能是负的，这意味着此人在这个门派中的声望很差
 struct MemberData {
   constructor ({
     id,
@@ -88,7 +91,6 @@ struct Organization {
     this.yearlyUpdateTime = randomMonth * kTicksPerMonth + random.nextInt(kTicksPerMonth)
     this.recruitMonth = randomMonth + 1
 
-    this.headquartersId = headquarters.id
     this.headId = headId
     this.category = category ?? random.nextIterable(Constants.organizationCategories)
     this.genre = genre ?? random.nextIterable(Constants.cultivationGenres)
@@ -127,6 +129,18 @@ struct Organization {
     // 完整的外交关系数据保存在 game.diplomacies 中
     this.diplomacies = {}
 
+    // 国家区块颜色
+    this.color = random.nextBrightColorHex()
+    // 本国统治的区块
+    this.territoryIndexes = []
+    // 与本国国界线相邻的外国区块
+    this.borderIndexes = []
+
+    const terrain = world.terrains[headquarters.terrainIndex]
+    addTerrainToOrganization(terrain, this)
+    headquarters.organizationId = this.id
+    stationOrganization(this, headquarters, members: [headId])
+    
     const head = game.characters[headId]
     const incidentContent = engine.locale('organizationCreate', interpolations: [
       head.name,
@@ -147,18 +161,6 @@ struct Organization {
     }
     addCharacterToOrganization(head, this, title: 'head', incurIncident: incurIncident)
 
-    // 国家区块颜色
-    this.color = random.nextBrightColorHex()
-    // 本国统治的区块
-    this.territoryIndexes = []
-    // 与本国国界线相邻的外国区块
-    this.borderIndexes = []
-
-    const terrain = world.terrains[headquarters.terrainIndex]
-    addTerrainToOrganization(terrain, this)
-    headquarters.organizationId = this.id
-    stationOrganization(this, headquarters, members: [headId])
-
     // 和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = {}
@@ -176,7 +178,7 @@ struct Organization {
 function stationOrganization(organization, location, { incurIncident: bool }) {
   assert(location.organizationId == organization.id)
   
-  organization.headquartersId = location.id
+  organization.headquartersLocationId = location.id
 
   const headquarters = Location(
     id: organization.id + '_headquarters',
@@ -272,7 +274,8 @@ function addCharacterToOrganization(character, organization, {
   }
 
   if (setHome) {
-    const location = game.locations[organization.headquartersId]
+    const location = game.locations[organization.headquartersLocationId]
+    assert(location != null, 'headquarters location not found! organization id: [${organization.id}], headquarters id: ${organization.headquartersLocationId}')
     setCharacterHome(character, location)
   }
   
@@ -329,10 +332,10 @@ function assignCharacterSuperior(character, organization) {
       memberData.reportLocationId = location.id
     } else {
       // 堂主，报告位置在门派总堂所在据点的门派场景
-      const headquarters = game.locations[organization.headquartersId]
-      assert(headquarters != null, 'headquarters not found! organization id: [${organization.id}], headquarters id: ${organization.headquartersId}')
+      const headquarters = game.locations[organization.headquartersLocationId]
+      assert(headquarters != null, 'headquarters not found! organization id: [${organization.id}], headquarters id: ${organization.headquartersLocationId}')
       memberData.reportSiteId = headquarters.id
-      memberData.reportLocationId = organization.headquartersId
+      memberData.reportLocationId = organization.headquartersLocationId
     }
   }
 

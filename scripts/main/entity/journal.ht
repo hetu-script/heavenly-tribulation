@@ -1,0 +1,129 @@
+
+/// 剧情日志，用于记录一段故事
+struct Journal {
+  constructor({
+    id,
+    title,
+    image,
+    endings: List,
+    interpolations: List,
+    isEphemeral = false,
+  }) {
+    assert(title != null)
+    this.title = title
+
+    this.id = id ?? crypto.randomUID(withTime: true)
+    assert(endings is List && endings.isNotEmpty)
+    this.image = image
+    this.endings = endings ?? []
+    // 是否为非重要的短暂任务，此类任务无论完成情况如何，都会在月初被清理
+    this.isEphemeral = isEphemeral ?? false
+    this.interpolations = interpolations ?? []
+    // 当前所处的阶段，以数字表示
+    // 每个阶段的文本按照约定格式为：'${journal.id}_stage${stage}'
+    this.stage = 0
+    // 日志进程，每个阶段的index对应了一段描述
+    // 进程并不一定是连续的，可能有不同的路径和结尾
+    // 但起点一定是 0
+    this.sequence = [ 0 ]
+    // 只要stage达到endings中记录的任何一个数字，就算结束
+    this.isFinished = false
+  }
+}
+
+function characterAcquireJournalById(character, journalId, {
+  setAsActive = false,
+  interpolations = [],
+  incurIncident = true,
+}) {
+  if (character.journals.containsKey(journalId)) {
+    engine.error('角色 [${character.id}] 的日志 [${journal.id}] 已经存在，不能再次创建！')
+    return
+  }
+
+  final journalData = game.journals[journalId]
+  assert(journalData != null, 'journal data not found, id: ${journalId}')
+  if (journalData.isUnique && character.flags.uniqueJournals[journalId] != null) {
+    engine.error('日志 [${journalId}] 是唯一的，不能再次接受！')
+    return
+  }
+
+  final journal = Journal(
+    id: journalId,
+    title: engine.locale(journalData.title ?? journalData.id),
+    image: journalData.image,
+    endings: journalData.endings.toList(),
+    isEphemeral: journalData.isEphemeral,
+    interpolations: interpolations,
+  )
+
+  character.journals[journal.id] = journal
+  if (setAsActive) {
+    character.activejournalId = journal.id
+  }
+  
+  const incidentContent = engine.locale(
+    'characterAcceptJournal',
+    interpolations: [ character.name, journal.title ],
+  )
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
+  return journal
+}
+
+/// 推动任务进度
+/// 这里不处理任务的成功和失败
+function characterProgressJournalById(character, journalId, { stage,  incurIncident = true }) {
+  final journal = character.journals[journalId]
+  assert(journal != null)
+  if (journal.isFinished) {
+    engine.error('角色 [${character.id}] 的任务 [${journal.id}] 已经完成，不能再推进进度！')
+    return
+  }
+  assert(journal.sequence.length > 0)
+  stage ??= journal.stage + 1
+  assert(stage > journal.stage)
+  assert(!journal.sequence.contains(stage))
+  
+  journal.sequence.add(stage)
+  journal.stage = stage
+
+  if (journal.endings.contains(stage)) {
+    journal.isFinished = true
+    
+    if (character.activejournalId == journal.id) {
+      character.activejournalId = null
+    }
+    let incidentContent = engine.locale(
+      'characterJournalFinished',
+      interpolations: [ character.name, journal.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  } else {
+    let incidentContent = engine.locale(
+      'characterJournalProgressed',
+      interpolations: [ character.name, journal.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  }
+  engine.debug('角色 [${character.id}] 的任务 [${journal.title}] 推进了进度：${journal.stage}')
+
+  return journal
+}

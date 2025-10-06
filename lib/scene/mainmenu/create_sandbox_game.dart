@@ -7,22 +7,12 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui/menu_builder.dart';
+import '../../game/common.dart';
 
-const kWorldStyles = {'coast', 'islands', 'inland'};
-
-const kWorldScaleLabel = {
-  1: 'tiny', // 24×12
-  2: 'medium', // 40×20
-  3: 'huge', // 64×32
-  4: 'massive', // 96×48
-};
-
-/// 保存了据点数量，门派数量和人物数量
-const kEnittyNumberPerWorldScale = {
-  1: (10, 6, 24),
-  2: (16, 10, 36),
-  3: (24, 16, 48),
-  4: (36, 24, 64),
+const _kWorldScaleLabel = {
+  1: 'tiny', // 40 × 20
+  2: 'huge', // 72 × 36
+  3: 'massive', // 128 × 64
 };
 
 /// 返回一个用于创建世界场景的 Map 对象参数
@@ -52,7 +42,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   final _seedEditingController = TextEditingController();
 
   String _worldStyle = 'coast';
-  int _worldScale = 2;
+  int _worldScale = 1;
   int _locationNumber = 16;
   int _organizationNumber = 10;
   int _characterNumber = 36;
@@ -62,7 +52,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   @override
   void initState() {
     super.initState();
-    _worldScaleLabel = engine.locale(kWorldScaleLabel[_worldScale]!);
+    _worldScaleLabel = engine.locale(_kWorldScaleLabel[_worldScale]!);
 
     _saveNameEditingController.text = engine.locale('unnamed');
     _seedEditingController.text = 'Hello, world!';
@@ -183,8 +173,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                 onChanged: (double value) {
                                   setState(() {
                                     _worldScale = value.toInt();
-                                    _worldScaleLabel = engine
-                                        .locale(kWorldScaleLabel[_worldScale]!);
+                                    _worldScaleLabel = engine.locale(
+                                        _kWorldScaleLabel[_worldScale]!);
                                     final entityNumber =
                                         kEnittyNumberPerWorldScale[
                                             _worldScale]!;

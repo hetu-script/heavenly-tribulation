@@ -56,8 +56,7 @@ class _LocationViewState extends State<LocationView>
   dynamic _owner;
   dynamic _atLocation;
 
-  bool get isCity => _location['category'] == 'city';
-  bool get isSite => _location['category'] == 'site';
+  late final bool isCity;
   bool get isEditMode => widget.mode == InformationViewMode.edit;
   bool get isManageMode => widget.mode == InformationViewMode.manage;
 
@@ -81,6 +80,7 @@ class _LocationViewState extends State<LocationView>
       _location = GameData.getLocation(widget.locationId);
     }
     assert(_location != null);
+    isCity = _location['category'] == 'city';
 
     final ownerId = _location['ownerId'];
     // 这里的 owner 可能是 null
@@ -88,9 +88,7 @@ class _LocationViewState extends State<LocationView>
 
     Iterable residents = [];
 
-    if (_location['category'] == 'site') {
-      _atLocation = GameData.game['locations'][_location['atLocationId']];
-    } else if (_location['category'] == 'city') {
+    if (isCity) {
       residents = (_location['residents'] as Iterable)
           .map((id) => GameData.getCharacter(id));
 
@@ -98,6 +96,8 @@ class _LocationViewState extends State<LocationView>
         final row = GameLogic.getCharacterInformationRow(character);
         _charactersTableData.add(row);
       }
+    } else {
+      _atLocation = GameData.game['locations'][_location['atLocationId']];
     }
 
     tabs = [
@@ -440,12 +440,10 @@ class _LocationViewState extends State<LocationView>
                         builder: (context) {
                           return EditLocationBasics(
                             category: 'site',
-                            kind: _location['category'] == 'site'
-                                ? 'custom'
-                                : null,
+                            kind: isCity ? null : 'custom',
                             atLocation: _location,
                             allowEditCategory: false,
-                            allowEditKind: _location['category'] == 'city',
+                            allowEditKind: isCity,
                           );
                         },
                       );
@@ -533,7 +531,7 @@ class _LocationViewState extends State<LocationView>
       width: 800.0,
       height: 600.0,
       // height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
-      child: _location['category'] == 'city'
+      child: isCity
           ? Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,

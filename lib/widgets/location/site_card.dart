@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../game/ui.dart';
 
@@ -37,23 +38,16 @@ class SiteCard extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
+              mouseCursor: FlutterCustomMemoryImageCursor(key: 'click'),
               borderRadius: GameUI.borderRadius,
               onTap: () => onTap?.call(siteData['id']),
               onSecondaryTapUp: (details) =>
                   onSecondaryTap?.call(siteData['id'], details),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(2),
-                      color: Theme.of(context).primaryColor.withAlpha(128),
-                      child: Text(
-                        siteData['name'],
-                      ),
-                    ),
-                  ],
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                color: Theme.of(context).primaryColor.withAlpha(128),
+                child: Text(
+                  siteData['name'],
                 ),
               ),
             ),

@@ -39,9 +39,11 @@ struct MonthlyActivities {
     // 婚姻关系的嫁娶和离婚
     this.proposed = []
 
-    // 师徒关系的传授功法
+    // 拜师和收徒的尝试
     this.baishi = []
     this.shoutu = []
+
+    // 师徒关系的传授功法
     this.consulted = []
     this.tutored = []
 
@@ -55,10 +57,10 @@ struct MonthlyActivities {
     // 租用过的场地，在月底之前可以进行生产或使用
     this.rented = []
     // 打工过的场地，月底之前不能再次打工
-    this.worked = []
+    // this.worked = []
     
     // 进入过的秘境，在月底之前不能再次进入
-    this.enteredDungeons = []
+    // this.enteredDungeons = []
 
     // 对资源进行买卖会影响价格
     // 这里保存的除了进行过买卖的地点，还会保存交易的总数量，每次交易都会累加
@@ -137,7 +139,7 @@ struct GameData {
     this.battleCards = {}
     this.battleCardAffixes = {}
     this.passives = {}
-    this.quests = {}
+    this.journals = {}
 
     // 本次游戏加载的 module，这里是元数据和事件函数绑定的空间
     this.mods = {

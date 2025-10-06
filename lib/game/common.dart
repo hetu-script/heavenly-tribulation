@@ -168,6 +168,39 @@ const kTileSpriteIndexToZoneCategory = {
   // 2: kZoneRiver,
 };
 
+const kWorldStyles = {'coast', 'islands', 'inland'};
+
+const kWorldSizeByScale = {
+  1: 40,
+  2: 72,
+  3: 128,
+};
+
+/// 据点数量，门派数量和人物数量
+const kEnittyNumberPerWorldScale = {
+  1: (16, 8, 36),
+  2: (40, 20, 81),
+  3: (100, 48, 200),
+};
+
+const kDifficultyLabels = {
+  0: 'easy',
+  1: 'normal',
+  2: 'challenging',
+  3: 'hard',
+  4: 'tough',
+  5: 'brutal',
+};
+
+const kRankToRarity = {
+  0: 'common',
+  1: 'rare',
+  2: 'epic',
+  3: 'legendary',
+  4: 'mythic',
+  5: 'arcane',
+};
+
 const kRaces = [
   'fanzu',
   'yaozu',
@@ -403,6 +436,15 @@ const kCultivationGenres = [
   'vitality',
 ];
 
+const kCardpackGenres = [
+  'none',
+  'swordcraft',
+  'spellcraft',
+  'bodyforge',
+  'avatar',
+  'vitality',
+];
+
 const kLocationCityKinds = [
   'inland',
   'harbor',
@@ -486,12 +528,48 @@ const kSiteKindsBuildable = {
   // 'theurgytemple',
 };
 
+const kSiteKindsTradable = {
+  'tradinghouse',
+  'library',
+  'auctionhouse',
+  'alchemylab',
+  'runelab',
+};
+
 const kSiteKindsBuildableOnWorldMap = {
-  'farmland', // 只会在平原地形且在城市周围出现
-  'fishery', // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
-  'timberland', // 只会在森林地形出现
-  'huntingground', // 只会在山地或森林地形出现
-  'mine', // 只会在山地地形出现
+  // 只会在平原地形且在城市周围出现
+  'farmland',
+  // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
+  'fishery',
+  // 只会在森林地形出现
+  'timberland',
+  // 只会在山地或森林地形出现
+  'huntingground',
+  // 只会在山地地形出现
+  'mine',
+};
+
+const kSiteKindsToMaterialProducable = {
+  'farmland': {
+    'grain': 0.7,
+    'meat': 0.25,
+  },
+  'fishery': {
+    'meat': 0.55,
+    'water': 0.4,
+  },
+  'timberland': {
+    'grain': 0.65,
+    'herb': 0.3,
+  },
+  'huntingground': {
+    'leather': 0.6,
+    'meat': 0.35,
+  },
+  'mine': {
+    'stone': 0.75,
+    'ore': 0.2,
+  },
 };
 
 const kOrganizationCategoryToSiteKind = {
@@ -743,7 +821,7 @@ const kNaturalResourceKinds = [
   'spirit',
 ];
 
-final kMaterialBasePriceByKind = {
+final kMaterialBasePrice = {
   'shard': 1000,
   'worker': 20,
   'grain': 20,
@@ -755,6 +833,8 @@ final kMaterialBasePriceByKind = {
   'stone': 160,
   'ore': 320,
 };
+
+const kUnknownItemBasePrice = 100;
 
 /// 物品的基础价格
 final kItemBasePriceByCategory = {
@@ -1327,4 +1407,13 @@ final kEquipmentKinds = [
   // ...kEquipmentCategoryKinds['aircraft']!,
   ...kEquipmentCategoryKinds['jewelry']!,
   ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman
+];
+
+const kQuestKinds = [
+  'purchase_material',
+  'purchase_item',
+  'deliver_material',
+  'deliver_item',
+  'escort',
+  'discover_location',
 ];

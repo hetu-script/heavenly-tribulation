@@ -51,7 +51,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
   Timer? _timer;
   int _progress = 0;
 
-  bool get finished => _progress >= widget.max * 10;
+  bool _isFinished = false;
 
   @override
   void initState() {
@@ -63,18 +63,20 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
       (timer) {
         setState(() {});
 
-        if (finished) {
+        if (_isFinished) {
           _timer!.cancel();
           return;
         }
 
         ++_progress;
+        _isFinished = _progress >= widget.max * _kTimeFlowDivisions;
         if (_progress % _kTimeFlowDivisions == 0) {
           GameLogic.updateGame();
           context.read<HeroState>().update();
 
           final result = widget.onProgress?.call();
           if (result == true) {
+            _isFinished = true;
             _timer!.cancel();
             return;
           }
@@ -107,10 +109,10 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
           children: [
             Image(image: AssetImage(timeOfDayImageId)),
             LinearProgressIndicator(
-              value: _progress / (widget.max * 10),
+              value: _progress / (widget.max * _kTimeFlowDivisions),
             ),
             Text(dateTimeString),
-            if (finished)
+            if (_isFinished)
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: fluent.FilledButton(

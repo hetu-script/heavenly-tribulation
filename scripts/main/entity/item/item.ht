@@ -33,7 +33,22 @@ const kEquipmentMax = 6
 
 function calculatePrice(item) {
   item.price = (item.rank + 1) * (item.level + 1) *
-    (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? 1)
+    (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+}
+
+function estimatePrice(category, rank) {
+  assert(category != null)
+  rank ??= 0
+  final maxLevel = maxLevelForRank(rank)
+  final maxExtra = getMinMaxExtraAffixCount(rank).maxExtra
+
+  return (rank + 1) * (maxLevel + 1) * (maxExtra + 1) *
+    (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
+}
+
+function convertMoneyToShard(money) {
+  final amount = money ~/ Constants.materialBasePrice['shard']
+  return amount < 1 ? 1 : amount
 }
 
 const kTalismanEnergyTypes = [
@@ -109,7 +124,7 @@ struct Equipment {
     } else if (rank != null) {
       assert(rank >= 0 && rank <= kCultivationRankMax)
       this.rank = rank
-      this.rarity = kRankRarity[rank]
+      this.rarity = Constants.rankToRarity[rank]
     } else {
       this.rank = 0
       this.rarity = kRarityCommon
@@ -175,7 +190,8 @@ struct Equipment {
     let affixCount = affixCountInfo.minExtra
     if (affixCountInfo.maxExtra > 0) {
       if (affixCount < affixCountInfo.maxExtra) {
-        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+        final r = Random()
+        affixCount += r.nextInt(affixCountInfo.maxExtra - affixCount + 1)
       }
     }
     if (affixCount > 0) {
@@ -192,7 +208,7 @@ struct Equipment {
           throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
         }
         
-        final affix = Object.create(random.nextIterable(supportAffixes))
+        final affix = Object.create(supportAffixes.random)
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()
@@ -244,7 +260,7 @@ struct StatusSpirit {
     this.category = kItemCategoryStatusSpirit
     // 这里的rank是生成此buff的地牢的境界
     this.rank = rank.clamp(1, kCultivationRankMax)
-    this.rarity = kRankRarity[rank]
+    this.rarity = Constants.rankToRarity[rank]
     this.icon = icon ?? 'item/status_spirit.png'
 
     final minLevel = minLevelForRank(rank)
@@ -299,7 +315,7 @@ struct StatusSpirit {
         throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
       }
       
-      final affix = Object.create(random.nextIterable(supportAffixes))
+      final affix = Object.create(supportAffixes.random)
       if (affix.increment != null) {
         affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
         affix.value = (affix.increment * affix.level).round()
@@ -339,7 +355,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
     item.rank = kRarity[item.rarity].rank
   } else if (item.rank != null) {
     assert(item.rank >= 0 && item.rank <= kCultivationRankMax)
-    item.rarity = kRankRarity[item.rank]
+    item.rarity = Constants.rankToRarity[item.rank]
   } else {
     item.rank = 0
     item.rarity = kRarityCommon
@@ -448,6 +464,13 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
     )
   } else {
     engine.debug(incidentContent)
+  }
+}
+
+function entityCollectAll(entity, materials, { incurIncident = true }) {
+  for (let materialId in materials.keys) {
+    final amount = materials[materialId]
+    entityCollect(entity, materialId, amount: amount, incurIncident: incurIncident)
   }
 }
 
@@ -679,10 +702,6 @@ function createLoot(itemsInfo: List) {
   for (final itemInfo in itemsInfo) {
     final amount = itemInfo.amount ?? 1
     switch (itemInfo.type) {
-      // 'exp': {
-      //   final pack = Exp(amount: amount)
-      //   items.add(pack)
-      // }
       'material': {
         assert(Constants.materialKinds.contains(itemInfo.kind))
         final pack = Materialpack(kind: itemInfo.kind, amount: amount)
@@ -707,6 +726,14 @@ function createLoot(itemsInfo: List) {
           items.add(equipment)
         }
       }
+      'potion': {
+        for (var i in range(amount)) {
+          final potion = Potion(
+            rank: itemInfo.rank,
+          )
+          items.add(potion)
+        }
+      }
       'cardpack': {
         for (var i in range(amount)) {
           final cardpack = Cardpack(
@@ -723,33 +750,6 @@ function createLoot(itemsInfo: List) {
   }
   return items
 }
-
-// 如果成功支付返回 0，否则返回 欠缺的数量
-// 支付身上的材料作为货币
-// function pay(target, materialId, amount, entity, { isForced = false, incurIncident = true }) {
-//   if (value < 0) {
-//     engine.error('函数 giveMoney 调用时的金额参数无效（小于 0）。')
-//     return
-//   }
-//   if (value == 0) return
-
-  // const goldValue = value ~/ kGoldExchange
-  // let rest = value - goldValue
-  // const restAfterGold = give(entity, target, 'item.goldCoin', amount: goldValue)
-  // rest += restAfterGold
-
-  // const silverValue = rest ~/ kSilverExchange
-  // let rest = value - silverValue
-  // const restAfterSilver = give(entity, target, 'item.silverCoint', amount: silverValue)
-  // rest += restAfterSilver
-
-  // const money = entity.materialId
-  // if (money != null && money.stackSize >= value) {
-  //   give(entity, target, money.id, amount: value, isForced: isForced, incurIncident: incurIncident)
-  //   return true
-  // }
-  // return false
-// }
 
 // 某个对象将其拥有的物品交给另一个对象
 // isForced 如果为 true，表示 target 强行夺取了 entity 的物品
@@ -837,34 +837,4 @@ function createLoot(itemsInfo: List) {
 //   }
 
 //   return rest
-// }
-
-
-// 战斗胜利后，根据情况获得战利品
-// 如果对方逃跑，则随机获得对方一部分物品
-// 否则，如果对方活着，则根据我们对其投降的处理方案（杀死活着放走）
-// function characterLoot(character, target, { takeAll = false, incurIncident = true }) {
-//   if (takeAll) {
-//     // 为了避免在循环中修改 iterable，先提取出 id 列表
-//     const itemIds = target.inventory.keys.toList()
-//     for (const itemId in itemIds) {
-//       give(target, character, itemId, isForced: true, incurIncident: incurIncident)
-//     }
-//     if (target.money) {
-//       giveMoney(target, character, target.money, isForced: true, incurIncident: incurIncident)
-//     }
-//   } else {
-//     // 为了避免在循环中修改 iterable，先提取出 id 列表
-//     const itemIds = target.inventory.keys.toList()
-//     for (const itemId in itemIds) {
-//       const stackSize = target.inventory[itemId].stackSize
-//       if (random.nextDouble() < kEscapedLootProbability) {
-//         let amount = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
-//         give(target, character, itemId, amount: amount, isForced: true, incurIncident: incurIncident)
-//       }
-//     }
-//     if (target.money && random.nextDouble() < kEscapedLootProbability) {
-//       giveMoney(target, character, random.nextInt(target.money) + 1, isForced: true, incurIncident: incurIncident)
-//     }
-//   }
 // }

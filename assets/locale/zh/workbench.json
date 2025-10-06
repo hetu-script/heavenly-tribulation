@@ -5,9 +5,8 @@
   "modify_item": "精炼",
 
   "modify_item_rerollAffix": "精炼·重铸",
-  "modify_item_extract": "精炼·析取",
-
   "modify_item_rerollAffix_description": "重置所有词条等级。\n不能超过装备品级所允许的等级上限。",
+  "modify_item_extract": "精炼·析取",
   "modify_item_extract_description": "将装备分解，并获得一个指定的词缀材料。",
 
   "material_requirements": "材料需求",

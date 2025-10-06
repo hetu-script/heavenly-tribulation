@@ -1,7 +1,3 @@
-// import '../random.ht'
-// import '../name/skill.ht'
-// import '../entity/entity.ht'
-// import '../common.ht'
 
 function getCardRankUpProbability(rank) {
   if (rank == 0) return 1.0
@@ -25,6 +21,8 @@ struct BattleCard {
     isIdentified = true,
     isEphemeral = false,
   }) {
+    final r = Random()
+
     this.entityType = kEntityTypeBattleCard
     if (rank != null) {
       assert(rank >= 0 && rank <= kCultivationRankMax)
@@ -34,7 +32,7 @@ struct BattleCard {
       if (maxRank == 0) {
         this.rank = 0
       } else {
-        this.rank = random.nearInt(maxRank + 1)
+        this.rank = r.nearInt(maxRank + 1)
       }
     } else {
       this.rank = 0
@@ -81,7 +79,7 @@ struct BattleCard {
       throw('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
     }
 
-    const mainAffix = Object.create(random.nextIterable(mainAffixes))
+    const mainAffix = Object.create(mainAffixes.random)
 
     this.affixes = [mainAffix]
 
@@ -106,7 +104,7 @@ struct BattleCard {
       if (maxOutLevel) {
         level = maxLevel
       } else {
-        level = minLevel + random.nextInt(maxLevel - minLevel)
+        level = minLevel + r.nextInt(maxLevel - minLevel)
       }
     } else {
       level = level.clamp(Math.max(1, minLevel), maxLevel)
@@ -258,7 +256,8 @@ function _addExtraAffixes(card) {
   let extraAffixCount = affixCountInfo.minExtra
   if (affixCountInfo.maxExtra == 0) return
   if (extraAffixCount < affixCountInfo.maxExtra) {
-    extraAffixCount += random.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
+    final r = Random()
+    extraAffixCount += r.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
   }
   
   for (var i = 0; i < extraAffixCount; ++i) {
@@ -269,7 +268,7 @@ function _addExtraAffixes(card) {
       break
     }
 
-    let affix = Object.create(random.nextIterable(supportAffixes))
+    let affix = Object.create(supportAffixes.random)
 
     _addAffixToCard(card, affix)
   }
@@ -309,7 +308,7 @@ function addAffix(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final affix = Object.create(random.nextIterable(supportAffixes))
+  final affix = Object.create(supportAffixes.random)
 
   _addAffixToCard(card, affix)
 
@@ -339,7 +338,7 @@ function replaceAffix(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final affix = random.nextIterable(extraAffixes)
+  final affix = extraAffixes.random
 
   card.affixes.remove(affix)
   
@@ -375,7 +374,8 @@ function rerollAffix(card) {
   
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
-  card.level = minLevel + random.nextInt(maxLevel - minLevel)
+  final r = Random()
+  card.level = minLevel + r.nextInt(maxLevel - minLevel)
   
   _updateMainAffixValue(card)
 
@@ -407,10 +407,11 @@ function upgradeRank(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final successRate = getCardRankUpProbability(card.rank)
-  if (random.nextDouble() > successRate) {
-    return 'deckbuilding_upgradeRank_failed_hint'
-  }
+  // final successRate = getCardRankUpProbability(card.rank)
+  // final r = Random()
+  // if (r.nextDouble() > successRate) {
+  //   return 'deckbuilding_upgradeRank_failed_hint'
+  // }
 
   card.rank += 1
   // card.minLevel = minLevelForRank(card.rank)
@@ -468,7 +469,7 @@ struct Cardpack {
     kind,
     isBasic = false,
   }) {
-    assert(genre == null || genre == 'general' || Constants.cultivationGenres.contains(genre), genre)
+    assert(genre == null || genre == 'none' || Constants.cultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
     assert(kind == null || kBattleCardKind.contains(kind), kind)
     this.entityType = kEntityTypeItem
@@ -496,7 +497,7 @@ struct Cardpack {
     this.icon = 'item/craft/cardpack_rank${this.rank}.png'
     
     this.flavortext = engine.locale('cardpack_flavortext')
-    this.rarity = kRankRarity[this.rank]
+    this.rarity = Constants.rankToRarity[this.rank]
 
     // 秘籍无需鉴定
     this.isIdentified = true

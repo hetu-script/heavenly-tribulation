@@ -236,7 +236,7 @@ class BattleScene extends Scene {
       return cardIds.map((id) {
         final data = character['cardLibrary'][id];
         assert(data != null);
-        return GameData.createBattleCardFromData(data, deepCopyData: true);
+        return GameData.createBattleCard(data, deepCopyData: true);
       }).toList();
     } else {
       return [];

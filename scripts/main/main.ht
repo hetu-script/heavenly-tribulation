@@ -11,7 +11,7 @@ export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
 export 'entity/entity.ht'
-export 'entity/quest.ht'
+export 'entity/journal.ht'
 export 'event/event.ht'
 export 'game/constants.ht'
 export 'game/data.ht'
@@ -19,6 +19,7 @@ export 'game/dialog.ht'
 export 'game/game.ht'
 export 'game/logic.ht'
 export 'game/player.ht'
+export 'game/quest.ht'
 export 'game/world.ht'
 export 'name/name.ht'
 export 'world/tile/hexagonal_tile.ht'
@@ -81,7 +82,7 @@ function init({
   battleCardsData,
   battleCardAffixesData,
   passivesData,
-  questsData,
+  journalsData,
   mapsData,
 }) {
   engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
@@ -93,7 +94,7 @@ function init({
   game.battleCards = {}
   game.battleCardAffixes = {}
   game.passives = {}
-  game.quests = {}
+  game.journals = {}
 
   addModMetaData(meta)
   addPrototypesData(prototypesData)
@@ -101,7 +102,7 @@ function init({
   addBattleCardsData(battleCardsData)
   addBattleCardAffixesData(battleCardAffixesData)
   addPassivesData(passivesData)
-  addQuestsData(questsData)
+  addJournalsData(journalsData)
   addMapsData(mapsData)
 }
 
@@ -189,21 +190,21 @@ function addPassivesData(passivesData) {
   engine.debug('载入被动技能词条：[${passivesData.length}]')
 }
 
-/// 向 game.quests 中添加数据
-/// game.quests中保存的是任务原型数据
+/// 向 game.journals 中添加数据
+/// game.journals 中保存的是日志原型数据
 /// 实际创建任务时会重新创建，并填入本地化字符串等
-function addQuestsData(questsData) {
-  if (questsData == null) {
+function addJournalsData(journalsData) {
+  if (journalsData == null) {
     engine.debug('载入剧情日志数据：[0]')
     return
   }
-  for (let quest of questsData) {
-    if (game.quests.containsKey(quest.id)) {
-      engine.warn('任务数据 id 冲突：[${quest.id}]')
+  for (let journal of journalsData) {
+    if (game.journals.containsKey(journal.id)) {
+      engine.warn('日志数据 id 冲突：[${journal.id}]')
     }
-    game.quests[quest.id] = quest
+    game.journals[journal.id] = journal
   }
-  engine.debug('载入剧情日志数据：[${questsData.length}]')
+  engine.debug('载入剧情日志数据：[${journalsData.length}]')
 }
 
 /// 向 universe 中添加数据

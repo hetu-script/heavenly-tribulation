@@ -41,7 +41,7 @@ void _heroRest() async {
     onProgress: () {
       engine.hetu
           .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
-      return false;
+      return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
     },
   );
 }
@@ -56,18 +56,15 @@ void _notEnoughStamina([dynamic npc]) async {
   await dialog.execute();
 }
 
-Future<void> _heroProduce(dynamic location, String materialId) async {
+Future<void> _heroProduce(dynamic location) async {
   final siteKind = location['kind'];
   assert(
       kSiteKindsBuildableOnWorldMap.contains(siteKind) &&
           kSiteWorkableBaseStaminaCost.containsKey(siteKind),
       '非可生产场所：${location['name']} ($siteKind)');
 
-  if (location['organizationId'] != null &&
-      location['organizationId'] != GameData.hero['organizationId']) {
-    final isRented = await _checkRented(location);
-    if (!isRented) return;
-  }
+  final isRented = await _checkRented(location);
+  if (!isRented) return;
 
   dialog.pushSelection('produceOption', [
     'produce5Days',
@@ -78,6 +75,7 @@ Future<void> _heroProduce(dynamic location, String materialId) async {
   ]);
   await dialog.execute();
   final selected = dialog.checkSelected('produceOption');
+  if (selected == 'cancel') return;
 
   int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
   int life = GameData.hero['life'];
@@ -95,9 +93,9 @@ Future<void> _heroProduce(dynamic location, String materialId) async {
   int ticks = 0;
   switch (selected) {
     case 'produce5Days':
-      ticks = GameLogic.ticksOfDay * 5;
+      ticks = kTicksPerDay * 5;
     case 'produce15Days':
-      ticks = GameLogic.ticksOfDay * 15;
+      ticks = kTicksPerDay * 15;
     case 'produceTillNextMonth':
       ticks = availableTicksTillNextMonth;
     case 'produceTillEmptyHealth':
@@ -106,30 +104,40 @@ Future<void> _heroProduce(dynamic location, String materialId) async {
   final finalTicks = math.min(ticks, maxTicks);
   if (finalTicks <= 0) return;
 
-  final terrainIndex = location['terrainIndex'];
-  final terrain = GameData.world['terrains'][terrainIndex];
-  assert(terrain != null);
-  final materialData = terrain['resources'];
-  assert(materialData != null && materialData.containsKey(materialId));
-  final int materialStorage = materialData[materialId];
+  // 该建筑所能产出的资源类型及其概率
+  assert(kSiteKindsToMaterialProducable.containsKey(siteKind));
+  final materialData = kSiteKindsToMaterialProducable[siteKind]!;
+
+  // 该地块所拥有的资源类型及其丰富度
+  final terrain = GameData.getTerrain(location['terrainIndex']);
+  final resourceData = terrain['resources'];
+
+  final produced = <String, int>{};
+  final r = math.Random();
 
   await TimeflowDialog.show(
     context: engine.context,
     max: ticks,
     onProgress: () {
+      final roll = r.nextDouble();
+      for (String key in materialData.keys) {
+        final double chance = materialData[key]!;
+        if (roll <= chance) {
+          final int abundance = resourceData[key] ?? 0;
+          final int amount = (abundance ~/ kTicksPerDay);
+          produced[key] = (produced[key] ?? 0) + amount;
+        }
+      }
       engine.hetu.invoke('setLife',
           namespace: 'Player',
           positionalArgs: [GameData.hero['life'] - staminaCost]);
-      return false;
+      return GameData.hero['life'] <= staminaCost;
     },
   );
 
   engine.play('pickup_item-64282.mp3');
-  engine.hetu.invoke('collect', namespace: 'Player', positionalArgs: [
-    materialId
-  ], namedArgs: {
-    'amount': finalTicks * (materialStorage ~/ kTicksPerDay),
-  });
+  engine.hetu
+      .invoke('collectAll', namespace: 'Player', positionalArgs: [produced]);
 }
 
 Future<void> _heroWork(dynamic location, dynamic npc) async {
@@ -161,8 +169,8 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
     return;
   }
 
-  final salary = kSiteWorkableBaseSalaries[kind] as int;
-  final staminaCost = kSiteWorkableBaseStaminaCost[kind] as int;
+  final int salary = kSiteWorkableBaseSalaries[kind]!;
+  final int staminaCost = kSiteWorkableBaseStaminaCost[kind]!;
 
   dialog.pushSelection('workOption', [
     'work10Days',
@@ -232,136 +240,202 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
   bool hasAuthority = isManager || isMayor || isHead;
 
   final siteKind = location['kind'];
-  switch (siteKind) {
-    case 'headquarters':
-      dialog.pushSelection(siteKind, [
-        'organizationInformation',
-        'organizationRelationshipDiscourse',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'organizationInformation':
-          showDialog(
-            context: engine.context,
-            builder: (context) => OrganizationView(
-              organization: organization,
-              mode: hasAuthority
-                  ? InformationViewMode.manage
-                  : InformationViewMode.view,
-            ),
-          );
-        case 'organizationRelationshipDiscourse':
-          final relationshipSelections = [];
-          final heroOrganizationId = GameData.hero['organizationId'];
-          if (heroOrganizationId == null) {
-            relationshipSelections.add('enroll');
+  if (siteKind == 'headquarters') {
+    dialog.pushSelection(siteKind, [
+      'organizationInformation',
+      'organizationRelationshipDiscourse',
+      'cancel',
+    ]);
+    await dialog.execute();
+    final selected = dialog.checkSelected(siteKind);
+    switch (selected) {
+      case 'organizationInformation':
+        showDialog(
+          context: engine.context,
+          builder: (context) => OrganizationView(
+            organization: organization,
+            mode: hasAuthority
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ),
+        );
+      case 'organizationRelationshipDiscourse':
+        final relationshipSelections = [];
+        final heroOrganizationId = GameData.hero['organizationId'];
+        if (heroOrganizationId == null) {
+          relationshipSelections.add('enroll');
+        } else {
+          if (heroOrganizationId == organization['id']) {
+            relationshipSelections.add('resign');
           } else {
-            if (heroOrganizationId == organization['id']) {
-              relationshipSelections.add('resign');
-            } else {
-              final heroTitleId = GameData.hero['titleId'];
-              if (heroTitleId == 'head' || heroTitleId == 'diplomat') {
-                final heroOrganization =
-                    GameData.getOrganization(heroOrganizationId);
-                final diplomacyDataId = organization['diplomacies']
-                    [heroOrganizationId][heroOrganizationId];
-                if (diplomacyDataId == null) {
-                  engine.hetu.invoke(
-                    'createDiplomacy',
-                    positionalArgs: [heroOrganization, organization],
-                    namedArgs: {
-                      'type': 'neutral',
-                      'score': kDiplomacyDefaultScore,
-                    },
-                  );
-                }
+            final heroTitleId = GameData.hero['titleId'];
+            if (heroTitleId == 'head' || heroTitleId == 'diplomat') {
+              final heroOrganization =
+                  GameData.getOrganization(heroOrganizationId);
+              final diplomacyDataId = organization['diplomacies']
+                  [heroOrganizationId][heroOrganizationId];
+              if (diplomacyDataId == null) {
+                engine.hetu.invoke(
+                  'createDiplomacy',
+                  positionalArgs: [heroOrganization, organization],
+                  namedArgs: {
+                    'type': 'neutral',
+                    'score': kDiplomacyDefaultScore,
+                  },
+                );
+              }
 
-                final diplomacyData =
-                    GameData.game['diplomacies'][diplomacyDataId];
-                assert(diplomacyData != null);
-                final String type = diplomacyData['type'];
-                final score = diplomacyData['score'] as int;
-                switch (type) {
-                  case 'ally':
-                    relationshipSelections.add('breakAlliance');
-                  case 'enemy':
-                    relationshipSelections.add('startPeaceTalk');
-                  case 'neutral':
-                    if (score >= kDiplomacyScoreAllyThreshold) {
-                      relationshipSelections.add('formAlliance');
-                    } else if (score <= kDiplomacyScoreEnemyThreshold) {
-                      relationshipSelections.add('declareWar');
-                    }
-                    relationshipSelections.add('gift');
-                    relationshipSelections.add('askHelp');
-                }
+              final diplomacyData =
+                  GameData.game['diplomacies'][diplomacyDataId];
+              assert(diplomacyData != null);
+              final String type = diplomacyData['type'];
+              final score = diplomacyData['score'] as int;
+              switch (type) {
+                case 'ally':
+                  relationshipSelections.add('breakAlliance');
+                case 'enemy':
+                  relationshipSelections.add('startPeaceTalk');
+                case 'neutral':
+                  if (score >= kDiplomacyScoreAllyThreshold) {
+                    relationshipSelections.add('formAlliance');
+                  } else if (score <= kDiplomacyScoreEnemyThreshold) {
+                    relationshipSelections.add('declareWar');
+                  }
+                  relationshipSelections.add('gift');
+                  relationshipSelections.add('askHelp');
               }
             }
           }
+        }
 
-          relationshipSelections.add('forgetIt');
-          dialog.pushSelection(
-              'organizationRelationship', relationshipSelections);
-          await dialog.execute();
-          final selected = dialog.checkSelected('organizationRelationship');
-          switch (selected) {
-            case 'enroll':
-              if (GameData.game['playerMonthly']['enrolled']
-                  .contains(organization['id'])) {
-                dialog.pushDialog('hint_alreadyTrialedThisMonth',
+        relationshipSelections.add('forgetIt');
+        dialog.pushSelection(
+            'organizationRelationship', relationshipSelections);
+        await dialog.execute();
+        final selected = dialog.checkSelected('organizationRelationship');
+        switch (selected) {
+          case 'enroll':
+            if (GameData.game['playerMonthly']['enrolled']
+                .contains(organization['id'])) {
+              dialog.pushDialog('hint_alreadyTrialedThisMonth',
+                  name: npc['name'],
+                  icon: npc['icon'],
+                  image: npc['illustration']);
+              return;
+            }
+            final organizationCategory = organization['category'];
+            assert(kOrganizationCategories.contains(organizationCategory));
+            dialog.pushDialog(
+              'organization_${organizationCategory}_trial_intro',
+              name: npc['name'],
+              icon: npc['icon'],
+              image: npc['illustration'],
+            );
+            await dialog.execute();
+            switch (organizationCategory) {
+              case 'wuwei':
+                bool passed = true;
+                final questions =
+                    List<int>.generate(kWuweiTrialQuestionCount, (i) => i + 1);
+                questions.shuffle();
+                final selectedQuestions = questions.skip(5);
+                for (final q in selectedQuestions) {
+                  final qString = 'organization_wuwei_trial_question_$q';
+                  dialog.pushDialog(
+                    qString,
                     name: npc['name'],
                     icon: npc['icon'],
-                    image: npc['illustration']);
-                return;
-              }
-              final organizationCategory = organization['category'];
-              assert(kOrganizationCategories.contains(organizationCategory));
-              dialog.pushDialog(
-                'organization_${organizationCategory}_trial_intro',
-                name: npc['name'],
-                icon: npc['icon'],
-                image: npc['illustration'],
-              );
-              await dialog.execute();
-              switch (organizationCategory) {
-                case 'wuwei':
-                  bool passed = true;
-                  final questions = List<int>.generate(
-                      kWuweiTrialQuestionCount, (i) => i + 1);
-                  questions.shuffle();
-                  final selectedQuestions = questions.skip(5);
-                  for (final q in selectedQuestions) {
-                    final qString = 'organization_wuwei_trial_question_$q';
-                    dialog.pushDialog(
-                      qString,
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
-                    );
-                    await dialog.execute();
-                    final trialQuestionAnswers = [];
-                    for (var i = 0; i < kWuweiTrialOptionsCount; ++i) {
-                      trialQuestionAnswers.add('${qString}_option_${i + 1}');
-                    }
-                    dialog.pushSelection(qString, trialQuestionAnswers);
-                    await dialog.execute();
-                    final selectedAnswer = dialog.checkSelected(qString);
-                    dialog.pushDialog(
-                      '${selectedAnswer}_comment',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
-                    );
-                    await dialog.execute();
-                    final correctAnswer = kWuweiTrialAnswers[q];
-                    if (selectedAnswer != '${qString}_option_$correctAnswer') {
-                      passed = false;
-                      break;
-                    }
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                  final trialQuestionAnswers = [];
+                  for (var i = 0; i < kWuweiTrialOptionsCount; ++i) {
+                    trialQuestionAnswers.add('${qString}_option_${i + 1}');
                   }
-                  if (passed) {
+                  dialog.pushSelection(qString, trialQuestionAnswers);
+                  await dialog.execute();
+                  final selectedAnswer = dialog.checkSelected(qString);
+                  dialog.pushDialog(
+                    '${selectedAnswer}_comment',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                  final correctAnswer = kWuweiTrialAnswers[q];
+                  if (selectedAnswer != '${qString}_option_$correctAnswer') {
+                    passed = false;
+                    break;
+                  }
+                }
+                if (passed) {
+                  dialog.pushDialog(
+                    'organization_${organizationCategory}_trial_pass',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                  await engine.hetu.invoke(
+                    'enroll',
+                    namespace: 'Player',
+                    positionalArgs: [organization],
+                    namedArgs: {
+                      'npcId': npc['id'],
+                    },
+                  );
+                } else {
+                  GameData.game['playerMonthly']['enrolled']
+                      .add(organization['id']);
+                  dialog.pushDialog(
+                    'organization_${organizationCategory}_trial_fail',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                }
+              case 'cultivation':
+                final enemy = engine.hetu.invoke('Character', namedArgs: {
+                  'name': 'wooden_dummy',
+                  'isFemale': false,
+                  'level': 10,
+                  'rank': 0,
+                  'icon': 'illustration/npc/wooden_dummy_head.png',
+                  'skin': 'wooden_dummy',
+                  'attributes': {
+                    'charisma': 0,
+                    'wisdom': 0,
+                    'luck': 0,
+                    'spirituality': 0,
+                    'dexterity': 0,
+                    'strength': 120,
+                    'willpower': 0,
+                    'perception': 0,
+                  },
+                  'cultivationFavor': '',
+                });
+                engine.hetu
+                    .invoke('characterCalculateStats', positionalArgs: [enemy]);
+                // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                engine.hetu.invoke('generateDeck', positionalArgs: [
+                  enemy
+                ], namedArgs: {
+                  'cardInfoList': [
+                    {
+                      'affixId': 'blank_default',
+                    },
+                    {
+                      'affixId': 'blank_default',
+                    },
+                    {
+                      'affixId': 'blank_default',
+                    },
+                  ],
+                });
+                engine.context.read<EnemyState>().show(enemy,
+                    onBattleEnd: (bool battleResult, int roundCount) async {
+                  if (roundCount <= kCultivationTrialMinBattleRound) {
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_pass',
                       name: npc['name'],
@@ -388,47 +462,36 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     );
                     await dialog.execute();
                   }
-                case 'cultivation':
-                  final enemy = engine.hetu.invoke('Character', namedArgs: {
-                    'name': 'wooden_dummy',
-                    'isFemale': false,
-                    'level': 10,
-                    'rank': 0,
-                    'icon': 'illustration/npc/wooden_dummy_head.png',
-                    'skin': 'wooden_dummy',
-                    'attributes': {
-                      'charisma': 0,
-                      'wisdom': 0,
-                      'luck': 0,
-                      'spirituality': 0,
-                      'dexterity': 0,
-                      'strength': 120,
-                      'willpower': 0,
-                      'perception': 0,
-                    },
-                    'cultivationFavor': '',
-                  });
-                  engine.hetu.invoke('characterCalculateStats',
-                      positionalArgs: [enemy]);
-                  // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
-                  engine.hetu.invoke('generateDeck', positionalArgs: [
-                    enemy
-                  ], namedArgs: {
-                    'cardInfoList': [
-                      {
-                        'affixId': 'blank_default',
-                      },
-                      {
-                        'affixId': 'blank_default',
-                      },
-                      {
-                        'affixId': 'blank_default',
-                      },
-                    ],
-                  });
-                  engine.context.read<EnemyState>().show(enemy,
-                      onBattleEnd: (bool battleResult, int roundCount) async {
-                    if (roundCount <= kCultivationTrialMinBattleRound) {
+                });
+              case 'immortality':
+                GameData.game['flags']['cultivationTrial'] = {
+                  'difficulty': 0,
+                  'introCompleted': false,
+                  'buildCompleted': false,
+                  'room': 0,
+                  'organizationId': organization['id'],
+                  'npcId': npc['id'],
+                };
+                engine.pushScene(
+                  'cultivation_trial_1',
+                  constructorId: Scenes.worldmap,
+                  arguments: {
+                    'id': 'cultivation_trial_1',
+                    'method': 'load',
+                  },
+                );
+              case 'chivalry':
+                final enemy = engine.hetu.invoke('Character', namedArgs: {
+                  'rank': GameData.hero['rank'],
+                });
+                engine.hetu
+                    .invoke('characterCalculateStats', positionalArgs: [enemy]);
+                engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                engine.context.read<EnemyState>().show(
+                  enemy,
+                  // prebattlePreventClose: true,
+                  onBattleEnd: (bool battleResult, int roundCount) async {
+                    if (battleResult) {
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_pass',
                         name: npc['name'],
@@ -455,131 +518,21 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       );
                       await dialog.execute();
                     }
-                  });
-                case 'immortality':
-                  GameData.game['flags']['cultivationTrial'] = {
-                    'difficulty': 0,
-                    'introCompleted': false,
-                    'buildCompleted': false,
-                    'room': 0,
-                    'organizationId': organization['id'],
-                    'npcId': npc['id'],
-                  };
-                  engine.pushScene(
-                    'cultivation_trial_1',
-                    constructorId: Scenes.worldmap,
-                    arguments: {
-                      'id': 'cultivation_trial_1',
-                      'method': 'load',
-                    },
-                  );
-                case 'chivalry':
-                  final enemy = engine.hetu.invoke('Character', namedArgs: {
-                    'rank': GameData.hero['rank'],
-                  });
-                  engine.hetu.invoke('characterCalculateStats',
-                      positionalArgs: [enemy]);
-                  engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
-                  engine.context.read<EnemyState>().show(
-                    enemy,
-                    // prebattlePreventClose: true,
-                    onBattleEnd: (bool battleResult, int roundCount) async {
-                      if (battleResult) {
-                        dialog.pushDialog(
-                          'organization_${organizationCategory}_trial_pass',
-                          name: npc['name'],
-                          icon: npc['icon'],
-                          image: npc['illustration'],
-                        );
-                        await dialog.execute();
-                        await engine.hetu.invoke(
-                          'enroll',
-                          namespace: 'Player',
-                          positionalArgs: [organization],
-                          namedArgs: {
-                            'npcId': npc['id'],
-                          },
-                        );
-                      } else {
-                        GameData.game['playerMonthly']['enrolled']
-                            .add(organization['id']);
-                        dialog.pushDialog(
-                          'organization_${organizationCategory}_trial_fail',
-                          name: npc['name'],
-                          icon: npc['icon'],
-                          image: npc['illustration'],
-                        );
-                        await dialog.execute();
-                      }
-                    },
-                  );
-                case 'entrepreneur':
-                  final List testersData =
-                      organization['members'].values.where((m) {
-                    if (m['rank'] >= 1) return true;
-                  }).toList();
-                  assert(testersData.isNotEmpty);
-                  testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
-                  final tester = testersData.first;
-                  engine.context.read<EnemyState>().show(
-                    tester,
-                    // prebattlePreventClose: true,
-                    onBattleEnd: (bool battleResult, int roundCount) async {
-                      if (battleResult) {
-                        dialog.pushDialog(
-                          'organization_${organizationCategory}_trial_pass',
-                          name: npc['name'],
-                          icon: npc['icon'],
-                          image: npc['illustration'],
-                        );
-                        await dialog.execute();
-                        await engine.hetu.invoke(
-                          'enroll',
-                          namespace: 'Player',
-                          positionalArgs: [organization],
-                          namedArgs: {
-                            'npcId': npc['id'],
-                          },
-                        );
-                      } else {
-                        GameData.game['playerMonthly']['enrolled']
-                            .add(organization['id']);
-                        dialog.pushDialog(
-                          'organization_${organizationCategory}_trial_fail',
-                          name: npc['name'],
-                          icon: npc['icon'],
-                          image: npc['illustration'],
-                        );
-                        await dialog.execute();
-                      }
-                    },
-                  );
-                case 'wealth':
-                  final int cost = kWealthTrialCost;
-                  dialog.pushDialog('organization_wealth_intro',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
-                      interpolations: [cost]);
-                  await dialog.execute();
-                  final weathTrialSelections = [
-                    'pay_shard',
-                    'forgetIt',
-                  ];
-                  dialog.pushSelection(
-                      'organization_wealth_trial', weathTrialSelections);
-                  await dialog.execute();
-                  final selected =
-                      dialog.checkSelected('organization_wealth_trial');
-                  if (selected == 'pay_shard') {
-                    final int shard = GameData.hero['materials']['shard'] ?? 0;
-                    if (shard >= cost) {
-                      engine.hetu.invoke(
-                        'exhaust',
-                        namespace: 'Player',
-                        positionalArgs: ['shard'],
-                        namedArgs: {'amount': cost},
-                      );
+                  },
+                );
+              case 'entrepreneur':
+                final List testersData =
+                    organization['members'].values.where((m) {
+                  if (m['rank'] >= 1) return true;
+                }).toList();
+                assert(testersData.isNotEmpty);
+                testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
+                final tester = testersData.first;
+                engine.context.read<EnemyState>().show(
+                  tester,
+                  // prebattlePreventClose: true,
+                  onBattleEnd: (bool battleResult, int roundCount) async {
+                    if (battleResult) {
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_pass',
                         name: npc['name'],
@@ -596,7 +549,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         },
                       );
                     } else {
-                      dialog.pushDialog('hint_notEnoughShard');
+                      GameData.game['playerMonthly']['enrolled']
+                          .add(organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
                         name: npc['name'],
@@ -605,10 +559,34 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       );
                       await dialog.execute();
                     }
-                  }
-                case 'pleasure':
-                  final heroCharisma = GameData.hero['stats']['charisma'];
-                  if (heroCharisma >= kPleasureTrialMinCharisma) {
+                  },
+                );
+              case 'wealth':
+                final int cost = kWealthTrialCost;
+                dialog.pushDialog('organization_wealth_intro',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                    interpolations: [cost]);
+                await dialog.execute();
+                final weathTrialSelections = [
+                  'pay_shard',
+                  'forgetIt',
+                ];
+                dialog.pushSelection(
+                    'organization_wealth_trial', weathTrialSelections);
+                await dialog.execute();
+                final selected =
+                    dialog.checkSelected('organization_wealth_trial');
+                if (selected == 'pay_shard') {
+                  final int shard = GameData.hero['materials']['shard'] ?? 0;
+                  if (shard >= cost) {
+                    engine.hetu.invoke(
+                      'exhaust',
+                      namespace: 'Player',
+                      positionalArgs: ['shard'],
+                      namedArgs: {'amount': cost},
+                    );
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_pass',
                       name: npc['name'],
@@ -625,6 +603,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       },
                     );
                   } else {
+                    dialog.pushDialog('hint_notEnoughShard');
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_fail',
                       name: npc['name'],
@@ -633,365 +612,163 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     );
                     await dialog.execute();
                   }
-              }
-            case 'resign':
-              final resignSelections = [
-                'resign_confirm',
-                'forgetIt',
-              ];
-              dialog.pushSelection('resign_selections', resignSelections);
-              final selected = dialog.checkSelected('resign_selections');
-              if (selected == 'resign_confirm') {
-                engine.hetu.invoke(
-                  'removeCharacterFromOrganization',
-                  positionalArgs: [GameData.hero],
-                );
-                dialog.pushDialog('hint_organization_resign',
-                    interpolations: [organization['name']]);
-                await dialog.execute();
-              }
-            case 'formAlliance':
-            case 'breakAlliance':
-            case 'makePeace':
-            case 'declareWar':
-            case 'gift':
-            case 'askHelp':
-          }
-      }
-    case 'cityhall':
-      dialog.pushSelection(siteKind, [
-        'cityInformation',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'cityInformation':
-          showDialog(
-            context: engine.context,
-            builder: (context) => LocationView(
-              location: atLocation,
-              mode: hasAuthority
-                  ? InformationViewMode.manage
-                  : InformationViewMode.view,
-            ),
-          );
-      }
-    case 'tradinghouse':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'trade',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-                location,
-                materialMode: true,
-                priceFactor: location['priceFactor'],
+                }
+              case 'pleasure':
+                final heroCharisma = GameData.hero['stats']['charisma'];
+                if (heroCharisma >= kPleasureTrialMinCharisma) {
+                  dialog.pushDialog(
+                    'organization_${organizationCategory}_trial_pass',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                  await engine.hetu.invoke(
+                    'enroll',
+                    namespace: 'Player',
+                    positionalArgs: [organization],
+                    namedArgs: {
+                      'npcId': npc['id'],
+                    },
+                  );
+                } else {
+                  dialog.pushDialog(
+                    'organization_${organizationCategory}_trial_fail',
+                    name: npc['name'],
+                    icon: npc['icon'],
+                    image: npc['illustration'],
+                  );
+                  await dialog.execute();
+                }
+            }
+          case 'resign':
+            final resignSelections = [
+              'resign_confirm',
+              'forgetIt',
+            ];
+            dialog.pushSelection('resign_selections', resignSelections);
+            final selected = dialog.checkSelected('resign_selections');
+            if (selected == 'resign_confirm') {
+              engine.hetu.invoke(
+                'removeCharacterFromOrganization',
+                positionalArgs: [GameData.hero],
               );
-      }
-    case 'daostele':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'exparray':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'library':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'trade',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-                location,
-                useShard: true,
-                priceFactor: location['priceFactor'],
-              );
-      }
-    case 'arena':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'militarypost':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'auctionhouse':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'trade',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-                location,
-                useShard: true,
-                priceFactor: location['priceFactor'],
-              );
-      }
-    case 'hotel':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'workshop':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'workbench',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'siteInformation':
-          {}
-        case 'work':
-          _heroWork(location, npc);
-        case 'workbench':
-          engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
-      }
-    case 'enchantshop':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'alchemylab':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'alchemy_furnace',
-        'trade',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'siteInformation':
-          {}
-        case 'work':
-          _heroWork(location, npc);
-        case 'alchemy_furnace':
-          engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-                location,
-                useShard: true,
-                priceFactor: location['priceFactor'],
-              );
-      }
-    case 'tatooshop':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'runelab':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'trade',
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-        case 'trade':
-          engine.context.read<MerchantState>().show(
-                location,
-                useShard: true,
-                priceFactor: location['priceFactor'],
-              );
-      }
-    case 'illusionaltar':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'psychictemple':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'divinationaltar':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'theurgytemple':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
-    case 'farmland' || 'fishery' || 'timberland' || 'huntingground' || 'mine':
-      dialog.pushSelection(siteKind, [
-        'siteInformation',
-        {
-          'text': 'work',
-          'description': 'startWork_description',
-        },
-        'cancel',
-      ]);
-      await dialog.execute();
-      final selected = dialog.checkSelected(siteKind);
-      switch (selected) {
-        case 'work':
-          _heroWork(location, npc);
-      }
+              dialog.pushDialog('hint_organization_resign',
+                  interpolations: [organization['name']]);
+              await dialog.execute();
+            }
+          case 'formAlliance':
+          case 'breakAlliance':
+          case 'makePeace':
+          case 'declareWar':
+          case 'gift':
+          case 'askHelp':
+        }
+    }
+  } else {
+    final siteOptions = <dynamic>[];
+    if (siteKind == 'headquarters') {
+      siteOptions.add('organizationInformation');
+    } else if (siteKind == 'cityhall') {
+      siteOptions.add('cityInformation');
+    } else {
+      siteOptions.add('siteInformation');
+    }
+
+    if (kSiteKindsWorkable.contains(siteKind)) {
+      siteOptions.add({
+        'text': 'work',
+        'description': 'hint_work_description',
+      });
+    }
+    if (kSiteKindsBuildableOnWorldMap.contains(siteKind) &&
+        kSiteWorkableBaseStaminaCost.containsKey(siteKind)) {
+      siteOptions.add({
+        'text': 'produce',
+        'description': 'hint_produce_description',
+      });
+    }
+    if (kSiteKindsTradable.contains(siteKind)) {
+      siteOptions.add('trade');
+    }
+    if (siteKind == 'cityhall') {
+      siteOptions.add('bounty');
+    } else if (siteKind == 'tradinghouse') {
+      siteOptions.add('tradeMaterial');
+    } else if (siteKind == 'workshop') {
+      siteOptions.add('workbench');
+    } else if (siteKind == 'alchemylab') {
+      siteOptions.add('alchemy_furnace');
+    }
+    siteOptions.add('cancel');
+
+    dialog.pushSelection(
+      siteKind,
+      siteOptions,
+    );
+    await dialog.execute();
+    final selected = dialog.checkSelected(siteKind);
+    switch (selected) {
+      case 'organizationInformation':
+        showDialog(
+          context: engine.context,
+          builder: (context) => OrganizationView(
+            organization: organization,
+            mode: hasAuthority
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ),
+        );
+      case 'cityInformation':
+        showDialog(
+          context: engine.context,
+          builder: (context) => LocationView(
+            location: atLocation,
+            mode: hasAuthority
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ),
+        );
+      case 'siteInformation':
+        showDialog(
+          context: engine.context,
+          builder: (context) => LocationView(
+            location: location,
+            mode: hasAuthority
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ),
+        );
+      case 'work':
+        _heroWork(location, npc);
+      case 'produce':
+        _heroProduce(location);
+      case 'bounty':
+        showDialog(
+          context: engine.context,
+          builder: (context) => BountyView(
+            data: location['bounty'] ?? const [],
+          ),
+        );
+      case 'tradeMaterial':
+        engine.context.read<MerchantState>().show(
+              location,
+              materialMode: true,
+              useShard: false,
+              priceFactor: location['priceFactor'],
+            );
+      case 'trade':
+        engine.context.read<MerchantState>().show(
+              location,
+              materialMode: false,
+              useShard: siteKind != 'tradinghouse',
+              priceFactor: location['priceFactor'],
+            );
+      case 'workbench':
+        engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+      case 'alchemy_furnace':
+        engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+    }
   }
 }
 
@@ -1056,7 +833,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
       );
     case 'talk':
       final topicSelections = [
-        'questTopic',
+        'journalTopic',
         'characterTopic',
         'organizationTopic',
         'locationTopic',
@@ -1070,34 +847,34 @@ Future<void> _onInteractCharacter(dynamic character) async {
       await dialog.execute();
       final topic = dialog.checkSelected('topicSelections');
       switch (topic) {
-        case 'questTopic':
-          final questsData = GameData.hero['quests'];
-          final questsSelections = {};
-          for (final quest in questsData.values) {
-            if (quest['isFinished'] == true) continue;
-            questsSelections[quest['id']] = quest['title'];
+        case 'journalsTopic':
+          final journalsData = GameData.hero['journals'];
+          final journalsSelections = {};
+          for (final journal in journalsData.values) {
+            if (journal['isFinished'] == true) continue;
+            journalsSelections[journal['id']] = journal['title'];
           }
-          if (questsData.isEmpty || questsSelections.isEmpty) {
-            dialog.pushDialog('hint_noQuests', isHero: true);
+          if (journalsData.isEmpty || journalsSelections.isEmpty) {
+            dialog.pushDialog('hint_noJournals', isHero: true);
             await dialog.execute();
             return;
           }
-          questsSelections['cancel'] = engine.locale('cancel');
+          journalsSelections['cancel'] = engine.locale('cancel');
           dialog.pushSelectionRaw(
-              {'id': 'questSelections', 'selections': questsSelections});
+              {'id': 'journalSelections', 'selections': journalsSelections});
           await dialog.execute();
-          final selectedQuestId = dialog.checkSelected('questSelections');
-          if (selectedQuestId == 'cancel') return;
-          // final selectedQuest = questsData[selectedQuestId];
+          final selectedJournalId = dialog.checkSelected('journalSelections');
+          if (selectedJournalId == 'cancel') return;
+          // final selectedJournal = journalsData[selectedJournalId];
           final result = await engine.hetu.invoke('onGameEvent',
               positionalArgs: [
-                'onInquiryQuest',
+                'onInquiryJournal',
                 character,
-                questsData[selectedQuestId]
+                journalsData[selectedJournalId]
               ]);
           if (result == true) return;
           bool topicRejected = true;
-          switch (selectedQuestId) {
+          switch (selectedJournalId) {
             case 'organizationInitiation':
               if (character['organizationId'] ==
                   GameData.hero['organizationId']) {

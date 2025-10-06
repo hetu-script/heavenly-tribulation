@@ -116,7 +116,7 @@ function getYearString(count) {
   return '${count} ${engine.locale('timeYear')}'
 }
 
-function ageToBirthTimestamp(age) {
-  let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
-  return game.timestamp - time
-}
+// function ageToBirthTimestamp(age) {
+//   let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
+//   return game.timestamp - time
+// }

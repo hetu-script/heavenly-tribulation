@@ -101,11 +101,6 @@ abstract class GameUI {
     color: foregroundColor,
   );
 
-  static const captionStyle = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 12.0,
-  );
-
   static const textTheme = TextTheme(
     displayLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0),
     displayMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 34.0),
@@ -123,6 +118,10 @@ abstract class GameUI {
     labelMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 10.0),
     labelSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0),
   );
+
+  static final captionStyle = textTheme.labelLarge!;
+
+  static final titleStyle = textTheme.titleLarge!;
 
   static final darkMaterialTheme = ThemeData(
     splashFactory: NoSplash.splashFactory,
@@ -142,13 +141,13 @@ abstract class GameUI {
       headingCellCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
       dataRowCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       centerTitle: true,
       backgroundColor: Colors.transparent,
       toolbarHeight: 36,
       iconTheme: iconTheme,
       actionsIconTheme: iconTheme,
-      titleTextStyle: captionStyle,
+      titleTextStyle: titleStyle,
     ),
     cardTheme: CardThemeData(
       elevation: 0.5,

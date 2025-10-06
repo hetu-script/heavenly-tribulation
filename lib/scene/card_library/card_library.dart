@@ -511,7 +511,7 @@ class CardLibraryScene extends Scene {
   void _showCraftingCardInfo() {
     assert(_craftingCard != null);
     Hovertip.hide(_craftingCard!);
-    final (_, description) = GameData.getDescriptionFromCardData(
+    final (_, description) = GameData.getBattleCardDescription(
         _craftingCard!.data,
         showRequirement: false,
         showDetailedHint: false,
@@ -554,7 +554,7 @@ class CardLibraryScene extends Scene {
         verticalVariation: 0.0,
       );
 
-      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      final (description, _) = GameData.getBattleCardDescription(card.data);
       card.description = description;
       _showCraftingCardInfo();
     }
@@ -740,8 +740,7 @@ class CardLibraryScene extends Scene {
     scrollCard.data['equipment'] = null;
     scrollCard.data['isEphemeral'] = true;
 
-    final (description, _) =
-        GameData.getDescriptionFromCardData(scrollCard.data);
+    final (description, _) = GameData.getBattleCardDescription(scrollCard.data);
     scrollCard.description = description;
 
     scrollCard.tryLoadSprite(
@@ -842,7 +841,7 @@ class CardLibraryScene extends Scene {
           isIdentified: false,
         );
 
-        final card = GameData.createBattleCardFromData(cardData);
+        final card = GameData.createBattleCard(cardData);
         _cardpackCards.add(card);
 
         card.showGlow = true;
@@ -857,7 +856,7 @@ class CardLibraryScene extends Scene {
             engine.play(GameSound.craft);
             card.data['isIdentified'] = true;
             final (description, _) =
-                GameData.getDescriptionFromCardData(card.data);
+                GameData.getBattleCardDescription(card.data);
             card.description = description;
             previewCard(
               context,
@@ -1364,8 +1363,7 @@ class CardLibraryScene extends Scene {
         engine.play(GameSound.craft);
         for (final card in unidentifiedCards) {
           card.data['isIdentified'] = true;
-          final (description, _) =
-              GameData.getDescriptionFromCardData(card.data);
+          final (description, _) = GameData.getBattleCardDescription(card.data);
           card.description = description;
         }
         collectButton.text = engine.locale('deckbuilding_collect_all');

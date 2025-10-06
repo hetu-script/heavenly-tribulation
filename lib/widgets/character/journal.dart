@@ -12,10 +12,10 @@ import '../common.dart';
 import '../../state/view_panels.dart';
 import '../ui/draggable_panel.dart';
 
-enum QuestViewMode { all, ongoing, finished }
+enum JournalViewMode { all, ongoing, finished }
 
-class QuestView extends StatefulWidget {
-  const QuestView({
+class JournalView extends StatefulWidget {
+  const JournalView({
     super.key,
     this.characterId,
     this.character,
@@ -29,17 +29,17 @@ class QuestView extends StatefulWidget {
   final InformationViewMode mode;
 
   @override
-  State<QuestView> createState() => _QuestViewState();
+  State<JournalView> createState() => _JournalViewState();
 }
 
-class _QuestViewState extends State<QuestView> {
+class _JournalViewState extends State<JournalView> {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
-  dynamic _characterData, _questsData;
+  dynamic _characterData, _journalsData;
 
   // QuestViewMode _selectedMode = QuestViewMode.all;
 
-  dynamic _selectedQuest;
+  dynamic _selectedJournal;
 
   @override
   void initState() {
@@ -51,17 +51,17 @@ class _QuestViewState extends State<QuestView> {
     } else {
       _characterData = GameData.getCharacter(widget.characterId!);
     }
-    _questsData = _characterData['quests'];
+    _journalsData = _characterData['journals'];
 
-    if (_questsData.isNotEmpty) {
-      _selectedQuest = _questsData.values.last;
+    if (_journalsData.isNotEmpty) {
+      _selectedJournal = _journalsData.values.last;
     }
   }
 
-  Widget _buildQuestDescription(dynamic questData) {
+  Widget _buildJournalDescription(dynamic journalData) {
     final List<Widget> descriptions = [];
-    final String questId = questData['id'];
-    final List sequence = questData['sequence'];
+    final String journalId = journalData['id'];
+    final List sequence = journalData['sequence'];
 
     for (var index in sequence) {
       descriptions.add(
@@ -69,8 +69,8 @@ class _QuestViewState extends State<QuestView> {
           text: TextSpan(
             children: buildFlutterRichText(
               engine.locale(
-                'quest_${questId}_stage_$index',
-                interpolations: questData['interpolations'],
+                'journal_${journalId}_stage_$index',
+                interpolations: journalData['interpolations'],
               ),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -95,30 +95,29 @@ class _QuestViewState extends State<QuestView> {
 
   @override
   Widget build(BuildContext context) {
-    final position = context
-            .watch<ViewPanelPositionState>()
-            .get(ViewPanels.characterQuest) ??
-        GameUI.detailsWindowPosition;
+    final position =
+        context.watch<ViewPanelPositionState>().get(ViewPanels.journal) ??
+            GameUI.detailsWindowPosition;
 
     return DraggablePanel(
-      title: engine.locale('quest'),
+      title: engine.locale('journal'),
       position: position,
       width: GameUI.profileWindowSize.x,
       height: GameUI.profileWindowSize.y,
       onTapDown: (offset) {
-        context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);
+        context.read<ViewPanelState>().setUpFront(ViewPanels.journal);
         context
             .read<ViewPanelPositionState>()
-            .set(ViewPanels.characterQuest, position);
+            .set(ViewPanels.journal, position);
       },
       onDragUpdate: (details) {
         context.read<ViewPanelPositionState>().update(
-              ViewPanels.characterQuest,
+              ViewPanels.journal,
               details.delta,
             );
       },
       onClose: () {
-        context.read<ViewPanelState>().hide(ViewPanels.characterQuest);
+        context.read<ViewPanelState>().hide(ViewPanels.journal);
       },
       child: Container(
         width: 640.0,
@@ -159,20 +158,20 @@ class _QuestViewState extends State<QuestView> {
                   color: GameUI.foregroundColor,
                 ),
               ),
-              child: _questsData.values.isNotEmpty
+              child: _journalsData.values.isNotEmpty
                   ? ListView(
                       children: List<Widget>.from(
-                        _questsData.values.map(
-                          (quest) => fluent.Button(
+                        _journalsData.values.map(
+                          (journal) => fluent.Button(
                             onPressed: () {
                               setState(() {
-                                _selectedQuest = quest;
+                                _selectedJournal = journal;
                               });
                             },
                             child: Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                '${quest['title']}${quest['isFinished'] == true ? ' (${engine.locale('finished')})' : ''}',
+                                '${journal['title']}${journal['isFinished'] == true ? ' (${engine.locale('finished')})' : ''}',
                               ),
                             ),
                           ),
@@ -181,7 +180,7 @@ class _QuestViewState extends State<QuestView> {
                     )
                   : EmptyPlaceholder(engine.locale('empty')),
             ),
-            if (_selectedQuest != null)
+            if (_selectedJournal != null)
               Container(
                 width: 360.0,
                 height: 400.0,
@@ -192,11 +191,11 @@ class _QuestViewState extends State<QuestView> {
                     Row(
                       children: [
                         Text(
-                          _selectedQuest['title'],
+                          _selectedJournal['title'],
                           style: const TextStyle(fontSize: 20),
                         ),
                         const Spacer(),
-                        if (_selectedQuest['isFinished'])
+                        if (_selectedJournal['isFinished'])
                           Text(
                             engine.locale('finished'),
                             style: const TextStyle(fontSize: 20),
@@ -208,7 +207,7 @@ class _QuestViewState extends State<QuestView> {
                           ),
                       ],
                     ),
-                    _buildQuestDescription(_selectedQuest),
+                    _buildJournalDescription(_selectedJournal),
                   ],
                 ),
               ),

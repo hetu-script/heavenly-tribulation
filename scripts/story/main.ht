@@ -1,9 +1,9 @@
 // import 'meta:main' as game
 
 import 'l10n/l10n.ht'
-import 'data/quests.json5' as quests
 import 'data/items.json5' as items
 import 'data/passives.json5' as passives
+import 'data/journals.json5' as journals
 import 'events/game.ht' as gameEvents
 import 'events/cave.ht' as preludeEvents
 import 'events/main.ht' as mainWorldEvents
@@ -58,5 +58,5 @@ function init(config) {
   addModMetaData(meta)
   addPrototypesData(items)
   addPassivesData(passives)
-  addQuestsData(quests)
+  addJournalsData(journals)
 }

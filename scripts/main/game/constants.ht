@@ -1,4 +1,6 @@
 external abstract class Constants {
+  static get worldSizeByScale;
+  static get rankToRarity;
   static get races;
   static get worldViews;
   static get personalities;
@@ -10,6 +12,7 @@ external abstract class Constants {
   static get battleCardKinds;
   static get organizationCategories;
   static get cultivationGenres;
+  static get cardpackGenres;
   static get materialKinds;
   static get nonCurrencyMaterialKinds;
   static get naturalResourceKinds;
@@ -34,7 +37,7 @@ external abstract class Constants {
   static get baseSellRate;
   static get minSellRate;
   static get minBuyRate;
-  static get basePriceOfMaterialKind;
+  static get materialBasePrice;
   static get basePriceByCategory;
   static get terrainKindsCity;
   static get terrainKindsLand;
@@ -44,4 +47,5 @@ external abstract class Constants {
   static get rankToOrganizationTitle;
   static get equipmentCategoryKinds;
   static get equipmentKinds;
+  static get questKinds;
 }

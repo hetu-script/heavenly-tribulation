@@ -11,7 +11,7 @@ import 'avatar.dart';
 import 'character/profile.dart';
 import 'character/memory.dart';
 import '../engine.dart';
-import 'character/quest.dart';
+import 'character/journal.dart';
 import '../game/ui.dart';
 import 'hover_info.dart';
 import 'character/details.dart';
@@ -25,7 +25,7 @@ import 'history_panel.dart';
 import 'npc_list.dart';
 import 'character/merchant/merchant.dart';
 import 'dialog/new_items.dart';
-import 'dialog/new_quest.dart';
+import 'dialog/new_journal.dart';
 import '../game/data.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
@@ -98,7 +98,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final (
       showMerchant,
       merchantMaterialMode,
-      merchantUseShards,
+      merchantUseShard,
       merchantData,
       merchantPriceFactor,
       merchantFilter,
@@ -114,8 +114,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final itemSelectSelectedItemsData =
         context.watch<ItemSelectState>().selectedItems;
 
-    final newQuest = context.watch<NewQuestState>().quest;
-    final newQuestCompleter = context.watch<NewQuestState>().completer;
+    final newJournal = context.watch<NewJournalState>().journal;
+    final newQuestCompleter = context.watch<NewJournalState>().completer;
     final newItems = context.watch<NewItemsState>().items;
     final newItemsCompleter = context.watch<NewItemsState>().completer;
     final newRank = context.watch<NewRankState>().rank;
@@ -131,10 +131,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     } else {
       _prompts.remove('item');
     }
-    if (newQuest != null) {
-      _prompts.add('quest');
+    if (newJournal != null) {
+      _prompts.add('journal');
     } else {
-      _prompts.remove('quest');
+      _prompts.remove('journal');
     }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
@@ -144,7 +144,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     for (final panel in visiblePanels.keys) {
       // final arguments = visiblePanels[panel];
       switch (panel) {
-        case ViewPanels.characterProfile:
+        case ViewPanels.profile:
           final position =
               panelPositions[panel] ?? GameUI.profileWindowPosition;
           panels.add(
@@ -154,22 +154,18 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               width: GameUI.profileWindowSize.x,
               height: GameUI.profileWindowSize.y,
               onTapDown: (offset) {
-                context
-                    .read<ViewPanelState>()
-                    .setUpFront(ViewPanels.characterProfile);
+                context.read<ViewPanelState>().setUpFront(ViewPanels.profile);
                 context
                     .read<ViewPanelPositionState>()
-                    .set(ViewPanels.characterProfile, position);
+                    .set(ViewPanels.profile, position);
               },
               onDragUpdate: (details) {
                 context
                     .read<ViewPanelPositionState>()
-                    .update(ViewPanels.characterProfile, details.delta);
+                    .update(ViewPanels.profile, details.delta);
               },
               onClose: () {
-                context
-                    .read<ViewPanelState>()
-                    .hide(ViewPanels.characterProfile);
+                context.read<ViewPanelState>().hide(ViewPanels.profile);
               },
               child: CharacterProfile(
                 height: 340.0,
@@ -181,7 +177,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               ),
             ),
           );
-        case ViewPanels.characterDetails:
+        case ViewPanels.details:
           final position =
               panelPositions[panel] ?? GameUI.detailsWindowPosition;
           panels.add(
@@ -191,22 +187,18 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               width: GameUI.profileWindowSize.x,
               height: GameUI.profileWindowSize.y,
               onTapDown: (offset) {
-                context
-                    .read<ViewPanelState>()
-                    .setUpFront(ViewPanels.characterDetails);
+                context.read<ViewPanelState>().setUpFront(ViewPanels.details);
                 context
                     .read<ViewPanelPositionState>()
-                    .set(ViewPanels.characterDetails, position);
+                    .set(ViewPanels.details, position);
               },
               onDragUpdate: (details) {
                 context
                     .read<ViewPanelPositionState>()
-                    .update(ViewPanels.characterDetails, details.delta);
+                    .update(ViewPanels.details, details.delta);
               },
               onClose: () {
-                context
-                    .read<ViewPanelState>()
-                    .hide(ViewPanels.characterDetails);
+                context.read<ViewPanelState>().hide(ViewPanels.details);
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 5.0),
@@ -214,11 +206,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               ),
             ),
           );
-        case ViewPanels.characterMemory:
-          final position = context
-                  .watch<ViewPanelPositionState>()
-                  .get(ViewPanels.characterMemory) ??
-              GameUI.profileWindowPosition;
+        case ViewPanels.memory:
+          final position =
+              context.watch<ViewPanelPositionState>().get(ViewPanels.memory) ??
+                  GameUI.profileWindowPosition;
           panels.add(
             DraggablePanel(
               title: engine.locale('memory'),
@@ -227,27 +218,25 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               height: GameUI.profileWindowSize.y,
               // titleHeight: 100,
               onTapDown: (offset) {
-                context
-                    .read<ViewPanelState>()
-                    .setUpFront(ViewPanels.characterMemory);
+                context.read<ViewPanelState>().setUpFront(ViewPanels.memory);
                 context
                     .read<ViewPanelPositionState>()
-                    .set(ViewPanels.characterMemory, position);
+                    .set(ViewPanels.memory, position);
               },
               onDragUpdate: (details) {
                 context.read<ViewPanelPositionState>().update(
-                      ViewPanels.characterMemory,
+                      ViewPanels.memory,
                       details.delta,
                     );
               },
               onClose: () {
-                context.read<ViewPanelState>().hide(ViewPanels.characterMemory);
+                context.read<ViewPanelState>().hide(ViewPanels.memory);
               },
               child: CharacterMemory(character: hero, isHero: true),
             ),
           );
-        case ViewPanels.characterQuest:
-          panels.add(QuestView(character: hero));
+        case ViewPanels.journal:
+          panels.add(JournalView(character: hero));
         case ViewPanels.workbench:
           panels.add(WorkbenchDialog());
         case ViewPanels.alchemy:
@@ -446,7 +435,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                                   width: 120.0,
                                                   child: Text(
                                                       textAlign: TextAlign.end,
-                                                      '${data['id'] ?? 0}'),
+                                                      '${data[id] ?? 0}'),
                                                 ),
                                               ],
                                             ),
@@ -483,7 +472,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onPressed: () {
                                 context
                                     .read<ViewPanelState>()
-                                    .toogle(ViewPanels.characterProfile);
+                                    .toogle(ViewPanels.profile);
                               },
                               onMouseEnter: (rect) {
                                 context
@@ -505,12 +494,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onPressed: () {
                                 context
                                     .read<ViewPanelState>()
-                                    .toogle(ViewPanels.characterQuest);
+                                    .toogle(ViewPanels.journal);
                               },
                               onMouseEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
-                                    .show(engine.locale('quest'), rect);
+                                    .show(engine.locale('journal'), rect);
                               },
                               onMouseExit: () {
                                 context.read<HoverContentState>().hide();
@@ -527,7 +516,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onPressed: () {
                                 context
                                     .read<ViewPanelState>()
-                                    .toogle(ViewPanels.characterDetails);
+                                    .toogle(ViewPanels.details);
                               },
                               onMouseEnter: (rect) {
                                 final Widget statsView = CharacterStats(
@@ -685,7 +674,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             if (merchantData != null && showMerchant)
               MerchantDialog(
                 merchantData: merchantData,
-                useShard: merchantUseShards,
+                useShard: merchantUseShard,
                 materialMode: merchantMaterialMode,
                 priceFactor: merchantPriceFactor,
                 filter: merchantFilter,
@@ -705,8 +694,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             if (_prompts.isNotEmpty)
               switch (_prompts.last) {
                 'rank' => NewRank(rank: newRank!, completer: newRankCompleter),
-                'quest' =>
-                  NewQuest(questData: newQuest!, completer: newQuestCompleter),
+                'journal' => NewJournal(
+                    journalData: newJournal!, completer: newQuestCompleter),
                 'item' =>
                   NewItems(itemsData: newItems!, completer: newItemsCompleter),
                 _ => SizedBox.shrink(),

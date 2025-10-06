@@ -125,7 +125,7 @@ class LocationScene extends Scene {
       default:
         for (final siteId in location['sites']) {
           final siteData = GameData.getLocation(siteId);
-          final siteCard = GameData.createSiteCardFromData(siteData);
+          final siteCard = GameData.getSiteCard(siteData);
           siteCard.onTap = (button, position) {
             if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
               GameLogic.tryEnterLocation(siteCard.data);

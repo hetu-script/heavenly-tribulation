@@ -38,7 +38,7 @@ namespace Game {
 
   external function promptItems(items: Iterable)
 
-  external function promptQuest(quest)
+  external function promptJournal(journal)
 
   external function promptNewRank(rank)
 
