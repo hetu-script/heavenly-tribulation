@@ -20,10 +20,12 @@ struct Npc {
     this.atLocationId = atLocationId
     this.useCustomLogic = useCustomLogic
 
-    assert(!game.npcs.containsKey(this.id), 'Duplicate NPC ID: ${this.id}')
-
+    if (game.npcs.containsKey(this.id)) {
+      engine.warn('Npc with id ${this.id} already exists, overwriting.')
+    } else {
+      engine.debug('Created NPC: ${this.id}')
+    }
+    
     game.npcs[this.id] = this
-
-    engine.debug('Created NPC: ${this.id}')
   }
 }

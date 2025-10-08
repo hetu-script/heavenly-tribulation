@@ -47,8 +47,7 @@ const kTerrainKindCity = 'city';
 const kColorModeZone = 0;
 const kColorModeOrganization = 1;
 
-const kMinHeroAge = 10;
-const kMaxHeroAge = 40;
+const kMaxHeroAge = 25;
 
 const kWorldMapAnimationPriority = 15000;
 

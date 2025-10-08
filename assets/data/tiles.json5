@@ -92,6 +92,17 @@
     spriteIndex: 1,
     sprite: "object/snow_forest.png",
   },
+  markArrow: {
+    id: "markArrow",
+    name: "markArrow",
+    icon: "assets/images/object/arrow.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      animation: {
+        path: "object/animation/arrow.png",
+      },
+    },
+  },
   fishTile: {
     id: "fishTile",
     name: "fishTile",

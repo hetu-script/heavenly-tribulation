@@ -178,7 +178,8 @@ class WorldMapScene extends Scene {
 
   final List<dynamic> _npcsAtHeroPosition = [];
 
-  Future<void> _updateHeroTerrain([TileMapTerrain? tile]) async {
+  Future<void> _updateHeroTerrain(
+      {TileMapTerrain? tile, bool animated = false}) async {
     if (map.hero == null) return;
 
     final terrain = tile ?? map.getTerrain(map.hero!.left, map.hero!.top)!;
@@ -214,7 +215,7 @@ class WorldMapScene extends Scene {
     // context.read<HeroPositionState>().updateLocation(heroAtLocation);
 
     await map.moveCameraToTilePosition(terrain.left, terrain.top,
-        animated: false);
+        animated: animated);
   }
 
   TileMapTerrain? _selectedTerrain;
@@ -309,24 +310,22 @@ class WorldMapScene extends Scene {
       backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
     }
 
-    map.onLoaded =
+    map.onAfterLoaded =
         isEditorMode ? _onMapLoadedInEditorMode : _onMapLoadedInGameMode;
-
-    map.onMounted = _enterScene;
 
     map.onMouseEnterTile = _onMouseEnterTile;
 
-    map.onMouseScrollUp = () {
-      if (camera.zoom < 4) {
-        camera.zoom += 0.2;
-      }
-    };
+    // map.onMouseScrollUp = () {
+    //   if (camera.zoom < 4) {
+    //     camera.zoom += 0.2;
+    //   }
+    // };
 
-    map.onMouseScrollDown = () {
-      if (camera.zoom > 1) {
-        camera.zoom -= 0.2;
-      }
-    };
+    // map.onMouseScrollDown = () {
+    //   if (camera.zoom > 2) {
+    //     camera.zoom -= 0.2;
+    //   }
+    // };
 
     map.onTapDown =
         isEditorMode ? _onMapTapDownInEditorMode : _onMapTapDownInGameMode;
@@ -406,16 +405,6 @@ class WorldMapScene extends Scene {
     engine.hetu.interpreter.bindExternalFunction('World::lightUpAllTiles', (
         {positionalArgs, namedArgs}) {
       map.lightUpAllTiles();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('World::getNeighborTiles', (
-        {positionalArgs, namedArgs}) {
-      final terrain = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-      if (terrain != null) {
-        return map.getNeighborTiles(terrain).values.map((t) => t.data).toList();
-      } else {
-        return const [];
-      }
     }, override: true);
 
     // engine.hetu.interpreter.bindExternalFunction('World::clearTerrainSprite', (
@@ -787,7 +776,7 @@ class WorldMapScene extends Scene {
       engine.setCursor(Cursors.normal);
       context.read<EditorToolState>().clear();
       territoryMode = null;
-      final tileRenderPosition = map.selectedTerrain!.bottomRightRenderRect;
+      final tileRenderPosition = map.selectedTerrain!.renderBottomRight;
       final screenPosition = map.worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
         position: screenPosition.toOffset(),
@@ -924,6 +913,12 @@ class WorldMapScene extends Scene {
     await _updateCharactersOnWorldMap();
 
     _updateWorldMapCaptions();
+
+    map.moveCameraToTilePosition(
+      map.tileMapWidth ~/ 2,
+      map.tileMapHeight ~/ 2,
+      animated: false,
+    );
 
     engine.setLoading(false);
   }
@@ -1148,12 +1143,20 @@ class WorldMapScene extends Scene {
             }
 
             if (isFinished) {
+              final List markedTiles = map.data['markedTiles'] ?? const [];
+              if (markedTiles.contains(terrain.index)) {
+                markedTiles.remove(terrain.index);
+                final overlaySpriteData = terrain.data['overlaySprite'];
+                overlaySpriteData.remove('animation');
+                await terrain.tryLoadSprite(isOverlay: true);
+              }
+
               engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
                 GameData.hero,
                 hero.tilePosition.left,
                 hero.tilePosition.top
               ]);
-              await _updateHeroTerrain(terrain);
+              await _updateHeroTerrain(tile: terrain, animated: true);
               // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
               await _updateWorldMapNpc();
 
@@ -1204,6 +1207,8 @@ class WorldMapScene extends Scene {
     return calculatedRoute;
   }
 
+  Future<void> _onMapDragUpdateInGameMode(Vector2 position) async {}
+
   void _onMapTapDownInGameMode(int button, Vector2 position) {
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
@@ -1248,7 +1253,7 @@ class WorldMapScene extends Scene {
       }
     } else if (button == kSecondaryButton) {
       engine.setCursor(Cursors.normal);
-      final tileRenderPosition = map.selectedTerrain!.bottomRightRenderRect;
+      final tileRenderPosition = map.selectedTerrain!.renderBottomRight;
       final screenPosition = map.worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
           position: screenPosition.toOffset(),
@@ -1282,8 +1287,6 @@ class WorldMapScene extends Scene {
     }
   }
 
-  Future<void> _onMapDragUpdateInGameMode(Vector2 offset) async {}
-
   Future<void> _onMapLoadedInGameMode() async {
     _focusNode.requestFocus();
     final bool isNewGame = GameData.game['isNewGame'] ?? false;
@@ -1295,15 +1298,18 @@ class WorldMapScene extends Scene {
         final Iterable filteredCharacters = characters.where((character) {
           final age = engine.hetu
               .invoke('getCharacterAge', positionalArgs: [character]);
-          if (age < kMinHeroAge || age > kMaxHeroAge) {
+          if (age > kMaxHeroAge) {
             return false;
           }
           final organizationId = character['organizationId'];
           if (organizationId != null) {
             return false;
           }
-          final titleId = character['titleId'];
-          if (titleId != null) {
+          final homeLocationId = character['homeLocationId'];
+          assert(homeLocationId != null,
+              'Character ${character['id']} has no homeLocationId!');
+          final homeLocation = GameData.getLocation(homeLocationId);
+          if (homeLocation['isHidden']) {
             return false;
           }
           return true;
@@ -1319,11 +1325,12 @@ class WorldMapScene extends Scene {
             characters: filteredCharacters,
           ),
         );
-        engine.hetu.invoke('setHeroId', positionalArgs: [key]);
+        engine.hetu.invoke('setHero', positionalArgs: [key]);
+        engine.hetu.invoke('randomizeHeroWorldPosition');
         GameData.hero = engine.hetu.fetch('hero');
         final heroHomeLocation =
             GameData.getLocation(GameData.hero['homeLocationId']);
-        engine.hetu.invoke('discoverLocation', positionalArgs: [
+        await engine.hetu.invoke('discoverLocation', positionalArgs: [
           heroHomeLocation,
         ], namedArgs: {
           'updateWorldMap': true,
@@ -1333,6 +1340,8 @@ class WorldMapScene extends Scene {
 
     assert(GameData.hero != null);
     await map.loadHeroFromData(GameData.hero, kWorldMapCharacterSpriteSrcSize);
+
+    await _updateHeroTerrain();
 
     _updateWorldMapCaptions();
 
@@ -1354,32 +1363,17 @@ class WorldMapScene extends Scene {
     if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
     }
+
+    await _enterScene(updateHeroTerrain: false);
   }
 
-  Future<void> _enterScene() async {
-    if (isEditorMode) {
-      map.moveCameraToTilePosition(
-        map.tileMapWidth ~/ 2,
-        map.tileMapHeight ~/ 2,
-        animated: false,
-      );
-    } else {
-      // context.read<HeroState>().update();
-      // context.read<GameTimestampState>().update();
-      // context.read<HeroAndGlobalHistoryState>().update();
-      await _updateWorldMapNpc();
-
+  Future<void> _enterScene({bool updateHeroTerrain = true}) async {
+    await _updateWorldMapNpc();
+    if (updateHeroTerrain) {
       await _updateHeroTerrain();
-
-      await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
-
-      if (GameData.game['flags']['hintedMovement'] != true) {
-        GameData.game['flags']['hintedMovement'] = true;
-
-        dialog.pushDialog('hint_movement');
-        await dialog.execute();
-      }
     }
+
+    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
   }
 
   @override
@@ -1569,9 +1563,7 @@ class WorldMapScene extends Scene {
                               switch (item) {
                                 case WorldMapDropMenuItems.save:
                                   map.saveComponentsFrameData();
-                                  String worldId = engine.hetu.fetch(
-                                      'currentWorldId',
-                                      namespace: 'game');
+                                  String worldId = GameData.world['id'];
                                   String? saveName = engine.hetu
                                       .fetch('saveName', namespace: 'game');
                                   final saveInfo = await context
@@ -1600,9 +1592,7 @@ class WorldMapScene extends Scene {
                                   if (saveName == null) return;
                                   engine.hetu.assign('saveName', saveName,
                                       namespace: 'game');
-                                  String worldId = engine.hetu.fetch(
-                                      'currentWorldId',
-                                      namespace: 'game');
+                                  String worldId = GameData.world['id'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
                                       .saveGame(worldId, saveName);
@@ -1780,9 +1770,7 @@ class WorldMapScene extends Scene {
                                       ]);
                                   map.loadTerrainData();
                                 case WorldEditorDropMenuItems.save:
-                                  String worldId = engine.hetu.fetch(
-                                      'currentWorldId',
-                                      namespace: 'game');
+                                  String worldId = GameData.world['id'];
                                   String? saveName = engine.hetu
                                       .fetch('saveName', namespace: 'game');
                                   final saveInfo = await context
@@ -1812,9 +1800,7 @@ class WorldMapScene extends Scene {
                                   if (saveName == null) return;
                                   engine.hetu.assign('saveName', saveName,
                                       namespace: 'game');
-                                  String worldId = engine.hetu.fetch(
-                                      'currentWorldId',
-                                      namespace: 'game');
+                                  String worldId = GameData.world['id'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
                                       .saveGame(worldId, saveName);

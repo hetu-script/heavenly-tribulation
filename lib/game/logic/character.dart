@@ -35,7 +35,7 @@ void _heroRest() async {
   }
   if (ticks <= 0) return;
 
-  TimeflowDialog.show(
+  await TimeflowDialog.show(
     context: engine.context,
     max: ticks,
     onProgress: () {
@@ -44,6 +44,8 @@ void _heroRest() async {
       return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
     },
   );
+
+  engine.hetu.invoke('onGameEvent', positionalArgs: ['onRested']);
 }
 
 void _notEnoughStamina([dynamic npc]) async {
@@ -218,7 +220,7 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
 }
 
 Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
-  engine.debug('正在和 NPC [${npc['id']}] 互动。');
+  engine.debug('正在和 NPC [${npc['name']}] 互动。');
   if (npc['useCustomLogic'] == true) {
     engine.debug('NPC [${npc.id}] 使用自定义逻辑。');
     engine.hetu.invoke('onGameEvent',
@@ -235,7 +237,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
 
   bool isManager = GameData.hero['id'] == location['ownerId'];
   bool isMayor = GameData.hero['id'] == atLocation?['ownerId'];
-  bool isHead = GameData.hero['id'] == organization['headId'];
+  bool isHead = GameData.hero['id'] == organization?['headId'];
 
   bool hasAuthority = isManager || isMayor || isHead;
 
@@ -744,10 +746,21 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
       case 'produce':
         _heroProduce(location);
       case 'bounty':
+        final bounties = location['bounties'] ?? const [];
+        if (bounties.isEmpty) {
+          dialog.pushDialog(
+            'hint_noBountiesAvailable',
+            name: npc['name'],
+            icon: npc['icon'],
+            image: npc['illustration'],
+          );
+          await dialog.execute();
+          return;
+        }
         showDialog(
           context: engine.context,
           builder: (context) => BountyView(
-            data: location['bounty'] ?? const [],
+            data: bounties,
           ),
         );
       case 'tradeMaterial':
@@ -763,6 +776,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               materialMode: false,
               useShard: siteKind != 'tradinghouse',
               priceFactor: location['priceFactor'],
+              merchantType: MerchantType.location,
             );
       case 'workbench':
         engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
@@ -847,7 +861,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
       await dialog.execute();
       final topic = dialog.checkSelected('topicSelections');
       switch (topic) {
-        case 'journalsTopic':
+        case 'journalTopic':
           final journalsData = GameData.hero['journals'];
           final journalsSelections = {};
           for (final journal in journalsData.values) {
@@ -987,7 +1001,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
               'base': baseRate,
               'sell': sellRate,
             },
-            type: MerchantType.character,
+            merchantType: MerchantType.character,
           );
     case 'attack':
       interacted = true;

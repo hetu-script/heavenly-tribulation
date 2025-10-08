@@ -17,7 +17,7 @@ async function onNewGame() {
 }
 
 async function onEnterMap() {
-  if (hero.quests.mysticGirl?.stage == 1) {
+  if (hero.journals.mysticGirl?.stage == 1) {
     Player.progressQuestById('mysticGirl', stage: 2)
     final feixiong = game.characters.ge_feixiong
     final chuxue = game.characters.ling_chuxue
@@ -49,7 +49,7 @@ async function onEnterMap() {
       {affixId: 'scripture_exhaust_karma'},
     ])
     Game.showBattle(hero: chuxue, enemy: feixiong)
-  } else if (hero.quests.mysticGirl?.stage == 2) {
+  } else if (hero.journals.mysticGirl?.stage == 2) {
     Dialog.pushDialog('prelude_afterBattle2_line1', characterId: 'ge_feixiong')
     Dialog.pushDialog('prelude_afterBattle2_line2', characterId: 'ling_chuxue', hideName: true)
     Dialog.pushBackground('story/cg/prelude/xiao_mo_nailed.png', isFadeIn: true)
@@ -73,7 +73,7 @@ async function onEnterMap() {
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     'portalNextLevel': {
-      if (hero.quests.mysticGirl) {
+      if (hero.journals.mysticGirl) {
         Dialog.pushDialog('prelude_portalHint_line1', characterId: 'ling_chuxue')
         await Dialog.execute()
       } else {
@@ -82,7 +82,7 @@ async function onInteractMapObject(object, terrain) {
       }
     }
     'portal1': {
-      if (hero.quests.mysticGirl) {
+      if (hero.journals.mysticGirl) {
         onInteractPortal(object)
       } else {
         Dialog.pushDialog('prelude_treasureBoxHint', isHero: true)
@@ -91,7 +91,7 @@ async function onInteractMapObject(object, terrain) {
     }
     'treasureBox1': {
       // 萧墨拿取了洞天中的宝物，并且第一次遇到凌初雪
-      if (!hero.quests.mysticGirl) {
+      if (!hero.journals.mysticGirl) {
         final items = createLoot(object.items)
         await Game.promptItems(items)
         final chuxue = game.characters.ling_chuxue
@@ -124,7 +124,7 @@ async function onInteractMapObject(object, terrain) {
     'deadBody1': {
       Dialog.pushDialog('prelude_deadBody_line1', isHero: true)
       await Dialog.execute()
-      if (hero.quests.mysticGirl.stage > 0) return
+      if (hero.journals.mysticGirl.stage > 0) return
       Player.progressQuestById('mysticGirl', stage: 1)
       final chuxue = game.characters.ling_chuxue
       final feixiong = game.characters.ge_feixiong

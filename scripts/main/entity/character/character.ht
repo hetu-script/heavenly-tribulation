@@ -30,6 +30,7 @@ const kSameHomeLocationScore = 5.0
 
 const _kPregnancyTime = kTicksPerMonth * 9
 const _kPregnancyTimeVariable = kTicksPerMonth * 2
+const kChildTime = kTicksPerYear * 12
 
 const kParentCloseness = 45
 const kSpouseCloseness = 40
@@ -40,7 +41,8 @@ const kConcubineCloseness = 20
 
 const kBaseRomanceScore = 5.0
 
-const _kCharacterRandomAgeMax = 40
+const _kCharacterRandomAgeMin = 12
+const _kCharacterRandomAgeMax = 29
 
 /// 主要动机决定了门派发展类型
 /// 除了无为之外，主要动机都有正反两面
@@ -182,7 +184,7 @@ const kLifespan = {
   }
 }
 
-function createBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
+function createBirthTimestamp({min = _kCharacterRandomAgeMin, max = _kCharacterRandomAgeMax}) {
   assert(min > 0)
   const age = random.nextInt(max - min) + min
   const randomDateInAYear = random.nextInt(kTicksPerYear)
@@ -1178,7 +1180,7 @@ struct Character {
       name: engine.locale('characterHomeSite', interpolations: [this.name]),
       ownerId: this.id,
     )
-
+    this.homeSiteId = home.id
     // 所有该角色拥有住所的据点的 id 列表
     this.homeLocations = []
     
@@ -1191,7 +1193,8 @@ struct Character {
       }
 
       if (isNewBorn) {
-        this.birthTimestamp = game.timestamp
+        assert(birthTimestamp != null, '新生儿必须指定出生时间')
+        this.birthTimestamp = birthTimestamp
         final father = game.characters[fatherId]
         assert(father != null)
         // 如果此时尚未建立家族，会创建新的家族数据
@@ -1260,6 +1263,9 @@ struct Character {
 
     /// 寿命必须在已知境界之后计算
     this.deathTimestamp = this.birthTimestamp + createLifespan(this.rank)
+    
+    // 随角色移动的孩童（Baby 对象），这里只保存id
+    this.carrying = []
   }
 }
 
@@ -1439,7 +1445,6 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
     location.residents.add(character.id)
     character.homeLocations.add(location.id)
   }
-  character.homeSiteId = homeSiteId
   character.homeLocationId = location.id
   if (moveToHome) {
     character.locationId = homeSiteId

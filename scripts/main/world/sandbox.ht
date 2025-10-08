@@ -3,7 +3,6 @@ import 'generation_algorithm.ht'
 import 'zone.ht'
 
 const _kForestThreshold = 0.6
-const _kMountainThreshold = 0.4
 const _kIslandThreshold = 0.1
 
 const _kFarmFieldThreshold = 0.08
@@ -73,8 +72,8 @@ function createSandboxWorld({
   // assert(tradinghouseOrganizationNumber < locationNumber)
   // assert(tradinghouseOrganizationNumber < characterNumber)
 
-  const seed = crypto.crcInt(seedString)
-  engine.debug('开始生成世界，设置随机数种子为：${seedString}(${seed})')
+  const seed = crypto.crcInt('${seedString}_${worldScale}')
+  engine.debug('开始生成世界，随机种子：${seedString}, 地图大小：${worldScale}，地图风格：${style}，国家数量：${nationNumber}，据点数量：${locationNumber}，角色数量：${characterNumber}')
   setRandomSeed(seed)
 
   let width
@@ -134,30 +133,31 @@ function createSandboxWorld({
   const lands = world.landIndexes.map((index) => world.terrains[index])
   
   // 地形装饰贴图
-  // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
+  // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为森林
   // 这些修改不影响该地块的 kind
   engine.debug('填充地形装饰贴图：大陆架、平原、森林、山地')
   for (const tile in lands) {
     if (tile.spriteIndex != kSpriteLand) continue
-    const r = random.nextDouble()
-    if (r < _kMountainThreshold) {
-      tile.sprite = 'object/mountain.png'
-      tile.kind = 'mountain'
+    // 山脉在之前随机生成陆地和海洋时已经一并生成了
+    if (tile.kind == 'mountain') {
       mountainIndexes.add(tile.index)
-    } else if (r < _kForestThreshold) {
-      tile.sprite = 'object/forest.png'
-      tile.kind = 'forest'
-      forestIndexes.add(tile.index)
     } else {
-      tile.kind = 'plain'
-      plainIndexes.add(tile.index)
+      const r = random.nextDouble()
+      if (r < _kForestThreshold) {
+        tile.kind = 'forest'
+        tile.sprite = 'object/forest.png'
+        forestIndexes.add(tile.index)
+      } else {
+        tile.kind = 'plain'
+        plainIndexes.add(tile.index)
+      }
     }
   }
   for (const tile in world.waterIndexes.map((index) => world.terrains[index])) {
     if (tile.spriteIndex != kSpriteWater) continue
     let isShelf = false
-    const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
-    for (const neighbor in neighbors) {
+    const neighbors = getNeighborTiles(tile.left, tile.top)
+    for (const neighbor in neighbors.values) {
       if (neighbor.spriteIndex == kSpriteLand) {
         neighbor.sprite = 'object/shore.png'
         neighbor.kind = 'shore'
@@ -234,18 +234,14 @@ function createSandboxWorld({
     }
 
     locations.add(location)
-    final neighbors = getMapTileNeighbors(
-      location.worldPosition.left,
-      location.worldPosition.top,
-      world,
-    )
+    final neighbors = getNeighborTiles(location.worldPosition.left, location.worldPosition.top)
     // 生成据点后，据点周围的水体会被添加到可捕鱼范围
-    for (final neighbor in neighbors) {
+    for (final neighbor in neighbors.values) {
       if (neighbor.kind in fisheryKinds) {
         world.fisheryIndexes.add(neighbor.index)
       }
     }
-    locationNeighbors[location.terrainIndex] = neighbors
+    locationNeighbors[location.terrainIndex] = neighbors.values
   }
   world.fisheryIndexes = world.fisheryIndexes.toSet().toList()
   

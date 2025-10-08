@@ -11,11 +11,11 @@
 async function onBeforeInteractCharacter(character) {
   switch(character.id) {
     'ling_chuxue': {
-      if (hero.quests.mysticGirl.stage == 0) {
+      if (hero.journals.mysticGirl.stage == 0) {
         Dialog.pushDialog('prelude_ling_chat', character: character)
         await Dialog.execute()
         return true
-      } else if (hero.quests.nailedSoul.stage == 0) {
+      } else if (hero.journals.nailedSoul.stage == 0) {
         Dialog.pushDialog('chapter01_ling_chat1', character: character)
         await Dialog.execute()
         return true
@@ -77,7 +77,7 @@ async function onInquiryQuest(character, quest) {
       }
       'nailedSoul': {
         /// 出示，交谈中提到魂骨钉时，触发此处代码
-        switch(hero.quests.nailedSoul.stage) {
+        switch(hero.journals.nailedSoul.stage) {
           0: {
             Player.progressQuestById('nailedSoul', stage: 1)
             Dialog.pushDialog('chapter1_afu_nail_line1')
@@ -88,7 +88,7 @@ async function onInquiryQuest(character, quest) {
             return
           }
           1: {
-            if (hero.quests.rebuildWanfuzong.stage >= 2) {
+            if (hero.journals.rebuildWanfuzong.stage >= 2) {
               Dialog.pushDialog('chapter1_afu_nail_line5', characterId: 'afu')
               await Dialog.execute()
             } else {
@@ -110,8 +110,8 @@ async function onInquiryQuest(character, quest) {
 async function onShowItem(character, item) {
   if (character.id == 'afu') {
     if (item.id == 'hunguding') {
-      assert(hero.quests.nailedSoul != null)
-      await onInquiryQuest(character, hero.quests.nailedSoul)
+      assert(hero.journals.nailedSoul != null)
+      await onInquiryQuest(character, hero.journals.nailedSoul)
     }
   }
 }
@@ -130,8 +130,8 @@ async function onGiftItem(character, item) {
 }
 
 async function onEnterCultivation() {
-  if (hero.quests.rebuildWanfuzong?.stage > 2 &&
-      !hero.quests.rebuildWanfuzong.sequence.contains(5)) {
+  if (hero.journals.rebuildWanfuzong?.stage > 2 &&
+      !hero.journals.rebuildWanfuzong.sequence.contains(5)) {
     Player.progressQuestById('rebuildWanfuzong', stage: 5)
     Dialog.pushDialog('chapter1_afu_initialCultivate_line4', characterId: 'afu')
     await Dialog.execute()
@@ -143,8 +143,8 @@ async function onEnterCultivation() {
 }
 
 async function onEnterCardLibrary() {
-  if (hero.quests.rebuildWanfuzong?.stage > 2 &&
-      !hero.quests.rebuildWanfuzong.sequence.contains(6)) {
+  if (hero.journals.rebuildWanfuzong?.stage > 2 &&
+      !hero.journals.rebuildWanfuzong.sequence.contains(6)) {
     Player.progressQuestById('rebuildWanfuzong', stage: 6)
     Dialog.pushDialog('chapter1_afu_initialCultivate_line5', characterId: 'afu')
     await Dialog.execute()
@@ -161,7 +161,7 @@ async function onEnterCardLibrary() {
 async function onAfterEnterLocation(location) {
   switch(location.id) {
     'home_ling_chuxue': {
-      if (!hero.quests.sectOfCrane) {
+      if (!hero.journals.sectOfCrane) {
         Player.acquireQuestById('sectOfCrane')
 
         if (game.mods.story.flags.skipStory) return
@@ -190,7 +190,7 @@ async function onAfterEnterLocation(location) {
       }
     }
     'home_nan_wuzhen': {
-      if (hero.quests.sectOfCrane.stage == 0) {
+      if (hero.journals.sectOfCrane.stage == 0) {
         Player.progressQuestById('sectOfCrane', stage: 1)
         final wuzhen = game.characters.nan_wuzhen
         characterMet(hero, wuzhen)

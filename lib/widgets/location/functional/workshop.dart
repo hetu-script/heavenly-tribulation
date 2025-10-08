@@ -400,7 +400,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                       selectedItemId: _selectedModifyItem != null
                           ? [_selectedModifyItem['id']]
                           : [],
-                      type: ItemType.none,
+                      itemType: ItemType.none,
                       gridsPerLine: 6,
                       onItemSecondaryTapped: onInventoryItemSecondaryTapped,
                     ),

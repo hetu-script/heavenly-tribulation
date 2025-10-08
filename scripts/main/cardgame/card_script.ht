@@ -145,17 +145,31 @@ async function card_script_main_heal_exhaust(self, opponent, affix) {
   self.changeLife(regen, isHeal: true)
 }
 
-/// 消耗资源获得速度
-async function card_script_main_speed_quick_exhaust(self, opponent, affix) {
+/// 获得速度和防御
+async function card_script_main_speed_quick_defend(self, opponent, affix) {
+  await characterAnimate(self, affix.animation)
+  self.addStatusEffect('speed_quick', amount: affix.value[0])
+  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+}
+/// 获得闪避和防御
+async function card_script_main_dodge_nimble_defend(self, opponent, affix) {
+  await characterAnimate(self, affix.animation)
+  self.addStatusEffect('dodge_nimble', amount: affix.value[0])
+  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+}
+/// 消耗资源获得速度和防御
+async function card_script_main_speed_quick_exhaust_defend(self, opponent, affix) {
   self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('speed_quick', amount: affix.value[0])
+  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
 }
-/// 消耗资源获得闪避
-async function card_script_main_dodge_nimble_exhaust(self, opponent, affix) {
+/// 消耗资源获得闪避和防御
+async function card_script_main_dodge_nimble_exhaust_defend(self, opponent, affix) {
   self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('dodge_nimble', amount: affix.value[0])
+  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
 }
 /// 消耗资源提升生命上限
 async function card_script_main_lifemax_buff_exhaust(self, opponent, affix) {

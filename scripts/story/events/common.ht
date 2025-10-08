@@ -30,7 +30,7 @@ function initModData() {
   characterCalculateStats(feixiong)
 
   final chuxue = game.characters.ling_chuxue
-  if (hero.quests.mysticGirl) {
+  if (hero.journals.mysticGirl) {
     chuxue.level = 20
     chuxue.rank = 2
     generateDeck(chuxue, cardInfoList: [

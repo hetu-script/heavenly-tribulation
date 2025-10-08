@@ -311,8 +311,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 },
                                 onMouseEnter: (rect) {
                                   String description =
-                                      '${engine.locale('money')}: '
-                                      '${engine.locale('money_description')}';
+                                      engine.locale('money_description');
                                   if (widget.enableAutoExhaust) {
                                     description +=
                                         '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
@@ -368,8 +367,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 },
                                 onMouseEnter: (rect) {
                                   String description =
-                                      '${engine.locale('shard')}: '
-                                      '${engine.locale('shard_description')}';
+                                      engine.locale('shard_description');
                                   if (widget.enableAutoExhaust) {
                                     description +=
                                         '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
@@ -678,7 +676,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 materialMode: merchantMaterialMode,
                 priceFactor: merchantPriceFactor,
                 filter: merchantFilter,
-                type: merchantType,
+                merchantType: merchantType,
               ),
             if (showItemSelect)
               ItemSelectDialog(

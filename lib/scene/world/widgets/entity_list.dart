@@ -663,7 +663,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                               case CharacterPopUpMenuItems.allocatePassives:
                                 GameLogic.characterAllocateSkills(character);
                               case CharacterPopUpMenuItems.setAsHero:
-                                engine.hetu.invoke('setHeroId',
+                                engine.hetu.invoke('setHero',
                                     positionalArgs: [characterId]);
                               case CharacterPopUpMenuItems.clearWorldPosition:
                                 character.remove('worldPosition');

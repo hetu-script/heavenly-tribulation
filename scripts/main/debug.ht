@@ -35,7 +35,7 @@ namespace Debug {
     // hero.materials.shard = 100
     // hero.karma = 50
 
-    setHeroId('hero')
+    setHero('hero')
 
     final randomEquipmentKind = Constants.equipmentCategoryKinds['weapon'].random
     final item = Equipment(kind: randomEquipmentKind, rank: hero.rank)
@@ -158,9 +158,7 @@ namespace Debug {
   function debugDialog() {
     Dialog.pushDialog(
       'debugDialog_content1',
-      name: '凌初雪',
-      icon: 'story/illustration/ling_chuxue_head.png',
-      image: 'story/illustration/ling_chuxue.png'
+      characterId: 'xitong',
     )
     Dialog.pushDialog(
       'debugDialog_content2',

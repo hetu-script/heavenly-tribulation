@@ -24,8 +24,7 @@ function main()
 
 ```javascript
 /// ----------窗口操作----------
-async function onOpenInventory()
-async function onEnterLibrary()
+async function onEnterCardLibrary()
 async function onEnterCultivation()
 /// ----------属性变化----------
 async function onRested()

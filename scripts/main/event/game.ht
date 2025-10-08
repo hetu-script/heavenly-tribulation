@@ -1,10 +1,103 @@
-// import '../game/data.ht'
-// import '../game/dialog.ht'
-
 /// 预定义游戏事件
 /// 这里的事件和模组，剧情无关
-// async function onEnterCultivation() {
-  // if (hero.exp > 0) return
-  // Dialog.pushDialog('tutorial_cultivation')
-  // Dialog.execute()
-// }
+async function onEnterCultivation() {
+  if (game.enableTutorial) {
+    if (game.flags.tutorial.cultivation) return
+    // 修炼界面教程
+    game.flags.tutorial.cultivation = true
+
+    Dialog.pushDialog('hint_cultivation', npc: game.npcs['xitong'])
+    await Dialog.execute()
+  }
+}
+
+async function onEnterCardLibrary() {
+  if (game.enableTutorial) {
+    if (game.flags.tutorial.cardLibrary) return
+    // 功法图录教程
+    game.flags.tutorial.cardLibrary = true
+
+    Dialog.pushDialog('hint_cardLibrary', npc: game.npcs['xitong'])
+    await Dialog.execute()
+  }
+}
+
+async function onRested() {
+  if (game.enableTutorial) {
+    if (game.flags.tutorial.basicEquipmentAndCardpacks) return
+    // 提示拿取物品
+    game.flags.tutorial.basicEquipmentAndCardpacks = true
+
+    Dialog.pushDialog('tutorial_homeLocation_line_3', npc: game.npcs['xitong'])
+    await Dialog.execute()
+  }
+}
+
+async function onInteractNpc(npc, location) {
+  if (game.enableTutorial) {
+    if (npc.id == 'xitong' && location.id == 'home') {
+      // 教程模式下，家宅中的系统角色对话
+    }
+  }
+}
+
+async function onAfterEnterLocation(location) {
+  if (game.enableTutorial) {
+    switch (location.id) {
+      hero.homeLocationId: {
+        if (!game.flags.tutorial.homeLocation) {
+          // 提示进入家宅
+          game.flags.tutorial.homeLocation = true
+          
+          Dialog.pushDialog('tutorial_homeLocation_line_1', npc: game.npcs['xitong'])
+          await Dialog.execute()
+        } else if (!game.flags.tutorial.dummyPractice) {
+          Dialog.pushDialog('tutorial_homeLocation_line_4', npc: game.npcs['xitong'])
+          await Dialog.execute()
+
+          final dummy = Character(
+            name: 'wooden_dummy',
+            isFemale: false,
+            level: 0,
+            rank: 0,
+            icon: 'illustration/npc/wooden_dummy_head.png',
+            skin: 'wooden_dummy',
+            attributes: {
+              'charisma': 0,
+              'wisdom': 0,
+              'luck': 0,
+              'spirituality': 0,
+              'dexterity': 0,
+              'strength': 20,
+              'willpower': 0,
+              'perception': 0,
+            },
+            cultivationFavor: '',
+          )
+          generateDeck(dummy,
+            cardInfoList: [
+              {'affixId': 'blank_default'},
+              {'affixId': 'blank_default'},
+              {'affixId': 'blank_default'},
+            ]
+          )
+
+          Game.showPrebattle(
+            dummy,
+            onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
+              game.flags.tutorial.dummyPractice = true
+            }
+          )
+        }
+      }
+      hero.homeSiteId: {
+        if (game.flags.tutorial.homeSite) return
+        // 提示休息
+        game.flags.tutorial.homeSite = true
+        
+        Dialog.pushDialog('tutorial_homeLocation_line_2', npc: game.npcs['xitong'])
+        await Dialog.execute()
+      }
+    }
+  }
+}

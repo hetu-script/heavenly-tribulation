@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../state/view_panels.dart';
 import '../state/game_update.dart';
@@ -29,18 +30,15 @@ class HistoryPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 3.0),
-                child: Text(dateString),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 3.0),
+            child: Text(dateString),
           ),
           SizedBox(
             width: 480,
             height: 46,
             child: HeroAndGlobalHistoryList(
+              cursor: FlutterCustomMemoryImageCursor(key: 'click'),
               onTapUp: () {
                 context.read<ViewPanelState>().toogle(ViewPanels.memory);
               },

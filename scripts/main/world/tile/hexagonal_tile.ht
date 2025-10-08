@@ -104,84 +104,50 @@ function getTileDistance(start, end) {
   return result
 }
 
-// 获取相邻并且在地图范围内的格子
-// 如果 [terrainKinds] 不为 空，则只会返回和起点所在 tile 具有相同 kind 属性的格子
+/// 获取相邻并且在地图范围内的格子
+/// 返回一个Map，index 是 1-6 (六边形地块)
+/// 每个编号对应一个固定位置的相邻地块，如果值为 null 表示这个位置没有符合要求的相邻地块
+/// 对于横向六边形tilemap，邻居顺序是左上(1)上(2)右上(3)右下(4)下(5)左下(6)
+/// 如果 [terrainKinds] 不为 空，则只会返回指定 kind 属性范围的格子
 function getMapTileNeighbors(left: integer, top: integer, map, { terrainKinds = [] }) {
-  assert(isPositionWithinMap(left, top, map.width, map.height))
-  const origin = map.terrains[tilePos2Index(left, top, map.width)]
-  const neighbors = []
-
-  function addNeighbor(tile) {
+  map ??= world
+  const neighbors = {}
+  function addNeighbor(neighborIndex, tileIndex) {
+    if (tileIndex < 0 || tileIndex >= map.terrains.length) return
+    final tile = map.terrains[tileIndex]
     if (terrainKinds.isEmpty || tile.kind in terrainKinds) {
-      neighbors.add(tile)
+      neighbors[neighborIndex] = tile
     }
   }
 
-  // 奇数列
-  if (left % 2 != 0) {
-    // 上面
-    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 下面
-    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
-      addNeighbor(tile)
-    }
+  if (left.isOdd) {
+    // 奇数列
     // 左上
-    if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左下
-    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
-      addNeighbor(tile)
-    }
-    // 右上
-    if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 右下
-    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
-      addNeighbor(tile)
-    }
-  }
-  // 偶数列
-  else {
+    addNeighbor(1, tilePos2Index(left - 1, top - 1, map.width))
     // 上面
-    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 下面
-    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左上
-    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
-      addNeighbor(tile)
-    }
-    // 左下
-    if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(2, tilePos2Index(left, top - 1, map.width))
     // 右上
-    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(3, tilePos2Index(left + 1, top - 1, map.width))
     // 右下
-    if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(4, tilePos2Index(left + 1, top, map.width))
+    // 下面
+    addNeighbor(5, tilePos2Index(left, top + 1, map.width))
+    // 左下
+    addNeighbor(6, tilePos2Index(left - 1, top, map.width))
+  } else {
+    // 偶数列
+    // 左上
+    addNeighbor(1, tilePos2Index(left - 1, top, map.width))
+    // 上面
+    addNeighbor(2, tilePos2Index(left, top - 1, map.width))
+    // 右上
+    addNeighbor(3, tilePos2Index(left + 1, top, map.width))
+    // 右下
+    addNeighbor(4, tilePos2Index(left + 1, top + 1, map.width))
+    // 下面
+    addNeighbor(5, tilePos2Index(left, top + 1, map.width))
+    // 左下
+    addNeighbor(6, tilePos2Index(left - 1, top + 1, map.width))
   }
   return neighbors
 }

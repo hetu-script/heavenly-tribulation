@@ -197,7 +197,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
               ),
               Inventory(
                 character: _characterData,
-                type: ItemType.player,
+                itemType: ItemType.player,
                 gridsPerLine: 6,
                 onItemSecondaryTapped: onItemSecondaryTapped,
               ),

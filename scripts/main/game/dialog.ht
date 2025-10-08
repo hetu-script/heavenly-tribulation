@@ -35,6 +35,8 @@ namespace Dialog {
   external function pushDialog(localeKeys, {
     character,
     characterId,
+    npc,
+    npcId,
     isHero: bool,
     nameId,
     name,

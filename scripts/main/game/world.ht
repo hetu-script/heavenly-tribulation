@@ -12,8 +12,6 @@ namespace World {
 
   external function lightUpAllTiles()
 
-  external function getNeighborTiles(left, top)
-
   // external function clearTerrainSprite(left, top)
 
   // external function clearTerrainAnimation(left, top)
@@ -68,4 +66,14 @@ namespace World {
 
   external async function setMapComponentVisible(id, visible: bool)
 
+  function markTile(left, top) {
+    final terrain = getTerrainByWorldPosition(left, top)
+    if (world.markedTiles == null) {
+      world.markedTiles = []
+    }
+    world.markedTiles.add(terrain.index)
+    terrain.overlaySprite ??= {}
+    Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/arrow.png'}})
+    World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  }
 }

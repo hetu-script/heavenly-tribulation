@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/paint/paint.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../game/ui.dart';
 
 class BorderedIconButton extends StatelessWidget {
-  const BorderedIconButton({
-    super.key,
+  BorderedIconButton({
     this.cursor,
     this.size = const Size(24.0, 24.0),
     this.child,
@@ -19,7 +17,7 @@ class BorderedIconButton extends StatelessWidget {
     this.onMouseExit,
     this.isSelected = false,
     this.isEnabled = true,
-  });
+  }) : super(key: GlobalKey());
 
   final MouseCursor? cursor;
   final Size size;
@@ -41,45 +39,50 @@ class BorderedIconButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          mouseCursor: MouseCursor.defer,
+          mouseCursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
           onTapUp: (details) {
             if (!isEnabled) return;
             onPressed?.call();
           },
-          child: MouseRegion2(
-            cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
-            onMouseEnter: (rect) {
-              onMouseEnter?.call(rect);
-            },
-            onMouseExit: () {
+          onHover: (hovering) {
+            if (hovering) {
+              if (onMouseEnter == null) return;
+
+              final renderBox = context.findRenderObject() as RenderBox;
+              final Size size = renderBox.size;
+              final Offset offset = renderBox.localToGlobal(Offset.zero);
+              final Rect rect =
+                  Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+              onMouseEnter!.call(rect);
+            } else {
               onMouseExit?.call();
-            },
-            child: Container(
-              width: size.width,
-              height: size.height,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color:
-                    isSelected ? GameUI.focusedColorOpaque : Colors.transparent,
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: borderWidth > 0
-                    ? Border.all(
-                        color: isSelected
-                            ? GameUI.selectedColorOpaque
-                            : GameUI.outlineColor,
-                        width: borderWidth,
-                      )
-                    : null,
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: isEnabled
-                    ? child
-                    : ColorFiltered(
-                        colorFilter: kColorFilterGreyscale,
-                        child: child,
-                      ),
-              ),
+            }
+          },
+          child: Container(
+            width: size.width,
+            height: size.height,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color:
+                  isSelected ? GameUI.focusedColorOpaque : Colors.transparent,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: borderWidth > 0
+                  ? Border.all(
+                      color: isSelected
+                          ? GameUI.selectedColorOpaque
+                          : GameUI.outlineColor,
+                      width: borderWidth,
+                    )
+                  : null,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: isEnabled
+                  ? child
+                  : ColorFiltered(
+                      colorFilter: kColorFilterGreyscale,
+                      child: child,
+                    ),
             ),
           ),
         ),

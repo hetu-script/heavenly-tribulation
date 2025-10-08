@@ -177,7 +177,7 @@ const kWorldSizeByScale = {
 };
 
 /// 据点数量，门派数量和人物数量
-const kEnittyNumberPerWorldScale = {
+const kEntityNumberPerWorldScale = {
   1: (16, 8, 36),
   2: (40, 20, 81),
   3: (100, 48, 200),

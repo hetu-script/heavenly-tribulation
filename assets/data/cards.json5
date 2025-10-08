@@ -1239,7 +1239,7 @@
     isMain: true,
     valueData: [
       {
-        base: 4,
+        base: 8,
         increment: 0.8,
       },
     ],
@@ -1269,7 +1269,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 10,
         increment: 1,
       },
     ],
@@ -1291,7 +1291,7 @@
     isMain: true,
     valueData: [
       {
-        base: 4,
+        base: 8,
         increment: 0.8,
       },
     ],
@@ -1321,7 +1321,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 10,
         increment: 1,
       },
     ],
@@ -1344,7 +1344,7 @@
     equipment: "staff",
     valueData: [
       {
-        base: 4,
+        base: 9,
         increment: 0.8,
       },
     ],
@@ -1375,7 +1375,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 11,
         increment: 1,
       },
     ],
@@ -1398,7 +1398,7 @@
     equipment: "sword",
     valueData: [
       {
-        base: 4,
+        base: 8,
         increment: 0.8,
       },
     ],
@@ -1429,7 +1429,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 9,
         increment: 1,
       },
     ],
@@ -1454,7 +1454,7 @@
     equipment: "sabre",
     valueData: [
       {
-        base: 7,
+        base: 8,
         increment: 0.8,
       },
     ],
@@ -1485,7 +1485,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 9,
         increment: 1,
       },
     ],
@@ -1508,7 +1508,7 @@
     equipment: "spear",
     valueData: [
       {
-        base: 6,
+        base: 10,
         increment: 0.8,
       },
     ],
@@ -1539,7 +1539,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 11,
         increment: 1,
       },
     ],
@@ -1615,22 +1615,77 @@
     ],
   },
 
-  speed_quick_exhaust_mana: {
-    id: "speed_quick_exhaust_mana",
+  affix_speed_quick_defend_physical: {
+    id: "affix_speed_quick_defend_physical",
     uniqueId: ["speed_quick"],
     category: "buff",
     kind: "shenfa",
-    resourceType: "energy_positive_spell",
-    exhaustType: "pure",
-    rank: 1,
-    description: "affix_speed_quick_exhaust_mana",
+    damageType: "physical",
+    description: "affix_speed_quick_defend_physical",
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
-    script: "speed_quick_exhaust",
-    tags: ["exhaustResource", "status_speed_quick"],
+    script: "speed_quick_defend",
+    tags: ["status_speed_quick", "status_defense"],
+    isMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+        maxLevel: 30,
+      },
+      {
+        base: 8,
+        increment: 1,
+      },
+    ],
+  },
+  affix_dodge_nimble_defend_physical: {
+    id: "affix_dodge_nimble_defend_physical",
+    uniqueId: ["dodge_nimble"],
+    category: "buff",
+    kind: "qinggong",
+    damageType: "physical",
+    description: "affix_dodge_nimble_defend_physical",
+    image: "battlecard/illustration/nimble.png",
+    animation: {
+      startup: "buff_punch",
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "dodge_nimble_defend",
+    tags: ["status_dodge_nimble", "status_defense"],
+    isMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+        maxLevel: 30,
+      },
+      {
+        base: 8,
+        increment: 1,
+      },
+    ],
+  },
+  speed_quick_exhaust_mana_defend_elemental: {
+    id: "speed_quick_exhaust_mana_defend_elemental",
+    uniqueId: ["speed_quick"],
+    category: "buff",
+    kind: "shenfa",
+    damageType: "elemental",
+    resourceType: "energy_positive_spell",
+    exhaustType: "pure",
+    rank: 1,
+    description: "affix_speed_quick_exhaust_mana_defend_elemental",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "buff_punch",
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "speed_quick_exhaust_defend",
+    tags: ["exhaustResource", "status_speed_quick", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1643,24 +1698,29 @@
         increment: 0.2,
         maxLevel: 30,
       },
+      {
+        base: 8,
+        increment: 1,
+      },
     ],
   },
-  dodge_nimble_exhaust_mana: {
-    id: "dodge_nimble_exhaust_mana",
+  dodge_nimble_exhaust_mana_defend_elemental: {
+    id: "dodge_nimble_exhaust_mana_defend_elemental",
     uniqueId: ["dodge_nimble"],
     category: "buff",
     kind: "qinggong",
+    damageType: "elemental",
     resourceType: "energy_positive_spell",
     exhaustType: "pure",
     rank: 1,
-    description: "affix_dodge_nimble_exhaust_mana",
+    description: "affix_dodge_nimble_exhaust_mana_defend_elemental",
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
-    script: "dodge_nimble_exhaust",
-    tags: ["exhaustResource", "status_dodge_nimble"],
+    script: "dodge_nimble_exhaust_defend",
+    tags: ["exhaustResource", "status_dodge_nimble", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1673,25 +1733,30 @@
         increment: 0.2,
         maxLevel: 30,
       },
+      {
+        base: 8,
+        increment: 1,
+      },
     ],
   },
-  speed_quick_exhaust_rage: {
-    id: "speed_quick_exhaust_rage",
+  speed_quick_exhaust_rage_defend_chi: {
+    id: "speed_quick_exhaust_rage_defend_chi",
     uniqueId: ["speed_quick"],
     genre: "bodyforge",
     category: "buff",
     kind: "shenfa",
+    damageType: "chi",
     resourceType: "energy_positive_unarmed",
     exhaustType: "pure",
     rank: 1,
-    description: "affix_speed_quick_exhaust_rage",
+    description: "affix_speed_quick_exhaust_rage_defend_chi",
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
-    script: "speed_quick_exhaust",
-    tags: ["exhaustResource", "status_speed_quick"],
+    script: "speed_quick_exhaust_defend",
+    tags: ["exhaustResource", "status_speed_quick", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1704,25 +1769,30 @@
         increment: 0.3,
         maxLevel: 30,
       },
+      {
+        base: 8,
+        increment: 1,
+      },
     ],
   },
-  dodge_nimble_exhaust_rage: {
-    id: "dodge_nimble_exhaust_rage",
+  dodge_nimble_exhaust_rage_defend_chi: {
+    id: "dodge_nimble_exhaust_rage_defend_chi",
     uniqueId: ["dodge_nimble"],
     genre: "bodyforge",
     category: "buff",
     kind: "qinggong",
+    damageType: "chi",
     resourceType: "energy_positive_unarmed",
     exhaustType: "pure",
     rank: 1,
-    description: "affix_dodge_nimble_exhaust_rage",
+    description: "affix_dodge_nimble_exhaust_rage_defend_chi",
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
-    script: "dodge_nimble_exhaust",
-    tags: ["exhaustResource", "status_dodge_nimble"],
+    script: "dodge_nimble_exhaust_defend",
+    tags: ["exhaustResource", "status_dodge_nimble", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1733,6 +1803,10 @@
         base: 1,
         increment: 0.3,
         maxLevel: 30,
+      },
+      {
+        base: 8,
+        increment: 1,
       },
     ],
   },
@@ -1795,7 +1869,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 10,
         increment: 1,
       },
     ],
@@ -1827,7 +1901,7 @@
         increment: 0.1,
       },
       {
-        base: 6,
+        base: 10,
         increment: 1,
       },
     ],
@@ -1859,7 +1933,7 @@
         increment: 0.1,
       },
       {
-        base: 8,
+        base: 10,
         increment: 1,
       },
     ],
@@ -1892,7 +1966,7 @@
         increment: 0.1,
       },
       {
-        base: 8,
+        base: 10,
         increment: 1,
       },
     ],

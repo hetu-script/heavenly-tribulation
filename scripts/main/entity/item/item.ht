@@ -39,10 +39,10 @@ function calculatePrice(item) {
 function estimatePrice(category, rank) {
   assert(category != null)
   rank ??= 0
-  final maxLevel = maxLevelForRank(rank)
-  final maxExtra = getMinMaxExtraAffixCount(rank).maxExtra
+  final minLevel = minLevelForRank(rank)
+  final minExtra = getMinMaxExtraAffixCount(rank).minExtra
 
-  return (rank + 1) * (maxLevel + 1) * (maxExtra + 1) *
+  return (rank + 1) * (minLevel + 1) * (minExtra + 1) *
     (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
 }
 

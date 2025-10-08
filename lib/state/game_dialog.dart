@@ -203,6 +203,8 @@ class GameDialog with ChangeNotifier, TaskController {
     dynamic localeKeys, {
     dynamic character,
     String? characterId,
+    dynamic npc,
+    String? npcId,
     bool isHero = false,
     String? nameId,
     String? name,
@@ -214,8 +216,13 @@ class GameDialog with ChangeNotifier, TaskController {
     dynamic interpolations,
   }) {
     // 这里 character 有可能是 null
-    character ??=
-        isHero ? GameData.hero : GameData.game['characters'][characterId];
+    if (npcId != null || npc != null) {
+      npc ??= GameData.game['npcs'][npcId];
+      character ??= npc;
+    } else {
+      character ??=
+          isHero ? GameData.hero : GameData.game['characters'][characterId];
+    }
     icon ??= hideIcon ? null : character?['icon'];
     image ??= hideImage ? null : character?['illustration'];
 
@@ -230,13 +237,17 @@ class GameDialog with ChangeNotifier, TaskController {
             name = engine.locale(nameId);
           } else {
             if (character != null) {
-              final heroHaveMetChar = engine.hetu.invoke('haveMet',
-                  positionalArgs: [GameData.hero, character]);
-              if (heroHaveMetChar == null || heroHaveMetChar == false) {
-                if (character['titleId'] != null) {
-                  name = engine.locale(character['titleId']);
+              if (character['entityType'] == 'character') {
+                final heroHaveMetChar = engine.hetu.invoke('haveMet',
+                    positionalArgs: [GameData.hero, character]);
+                if (heroHaveMetChar == null || heroHaveMetChar == false) {
+                  if (character['titleId'] != null) {
+                    name = engine.locale(character['titleId']);
+                  } else {
+                    name = '???';
+                  }
                 } else {
-                  name = '???';
+                  name = character['name'];
                 }
               } else {
                 name = character['name'];

@@ -79,12 +79,11 @@ abstract class GameLogic {
         tile['zoneId'] = zone['id'];
       }
       indexed.add(tile['index']);
-      engine.hetu
-          .invoke('addTerrainToZone', positionalArgs: [tile, world, zone]);
+      engine.hetu.invoke('addTerrainToZone', positionalArgs: [tile, zone]);
 
-      final neighbors = engine.hetu.invoke('getMapTileNeighbors',
-          positionalArgs: [tile['left'], tile['top'], world]);
-      for (final neighbor in neighbors) {
+      final neighbors = engine.hetu.invoke('getNeighborTiles',
+          positionalArgs: [tile['left'], tile['top']]);
+      for (final neighbor in neighbors.values) {
         // engine.debug(
         //     'neighbor: ${neighbor['left']},${neighbor['top']}, spriteIndex: ${neighbor['spriteIndex']}');
         if (indexed.contains(neighbor['index'])) continue;
@@ -174,8 +173,8 @@ abstract class GameLogic {
         .invoke('getCharacterFameString', positionalArgs: [character]);
     row.add(fame);
     final homeLocationId = character['homeLocationId'];
-    final homeLocation = GameData.getLocation(homeLocationId);
-    row.add(homeLocation['name']);
+    final homeLocation = GameData.game['locations'][homeLocationId];
+    row.add(homeLocation?['name'] ?? engine.locale('none'));
     // 门派名字
     String organizationName = engine.locale('none');
     final organizationId = character['organizationId'];
@@ -1058,6 +1057,13 @@ abstract class GameLogic {
   static Future<void> heroWork(dynamic location, dynamic npc) =>
       _heroWork(location, npc);
 
+  static void onInteractDepositBox(dynamic home) {
+    engine.context.read<MerchantState>().show(
+          home,
+          merchantType: MerchantType.depositBox,
+        );
+  }
+
   static Future<void> onInteractNpc(dynamic npc, dynamic location) =>
       _onInteractNpc(npc, location);
 
@@ -1088,7 +1094,7 @@ abstract class GameLogic {
 
       if (forceUpdate || (day == 1 && ticksOfDay == 1)) {
         // 重置玩家自己的每月行动
-        engine.hetu.invoke('resetPlayerMonthlyActivities');
+        engine.hetu.invoke('resetPlayerMonthly');
       }
 
       // 每个建筑每月会根据其属性而消耗维持费用和获得收入

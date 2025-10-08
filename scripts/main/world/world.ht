@@ -102,64 +102,8 @@ function createBlankWorld({
   return newWorld
 }
 
-function getNeighborTiles(left, top) {
-  final neighbors = []
-  final index = tilePos2Index(left, top, world.width)
-  const terrain = world.terrains[index]
-  if (terrain != null) {
-    if (left.isOdd) {
-      final i1 = tilePos2Index(left - 1, top - 1, world.width)
-      if (i1 >= 0 && i1 < world.terrains.length) {
-        neighbors.add(world.terrains[i1])
-      }
-      final i2 = tilePos2Index(left, top - 1, world.width)
-      if (i2 >= 0 && i2 < world.terrains.length) { 
-        neighbors.add(world.terrains[i2])
-      }
-      final i3 = tilePos2Index(left + 1, top - 1, world.width)
-      if (i3 >= 0 && i3 < world.terrains.length) {
-        neighbors.add(world.terrains[i3])
-      }
-      final i4 = tilePos2Index(left + 1, top, world.width)
-      if (i4 >= 0 && i4 < world.terrains.length) {
-        neighbors.add(world.terrains[i4])
-      }
-      final i5 = tilePos2Index(left, top + 1, world.width)
-      if (i5 >= 0 && i5 < world.terrains.length) {
-        neighbors.add(world.terrains[i5])
-      }
-      final i6 = tilePos2Index(left - 1, top, world.width)
-      if (i6 >= 0 && i6 < world.terrains.length) {
-        neighbors.add(world.terrains[i6])
-      }
-    } else {
-      final i1 = tilePos2Index(left - 1, top, world.width)
-      if (i1 >= 0 && i1 < world.terrains.length) {
-        neighbors.add(world.terrains[i1])
-      }
-      final i2 = tilePos2Index(left, top - 1, world.width)
-      if (i2 >= 0 && i2 < world.terrains.length) { 
-        neighbors.add(world.terrains[i2])
-      }
-      final i3 = tilePos2Index(left + 1, top, world.width)
-      if (i3 >= 0 && i3 < world.terrains.length) {
-        neighbors.add(world.terrains[i3])
-      }
-      final i4 = tilePos2Index(left + 1, top + 1, world.width)
-      if (i4 >= 0 && i4 < world.terrains.length) {
-        neighbors.add(world.terrains[i4])
-      }
-      final i5 = tilePos2Index(left, top + 1, world.width)
-      if (i5 >= 0 && i5 < world.terrains.length) {
-        neighbors.add(world.terrains[i5])
-      }
-      final i6 = tilePos2Index(left - 1, top + 1, world.width)
-      if (i6 >= 0 && i6 < world.terrains.length) {
-        neighbors.add(world.terrains[i6])
-      }
-    }
-  }
-  return neighbors
+function getNeighborTiles(left, top, {terrainKinds = []}) {
+  return getMapTileNeighbors(left, top, world, terrainKinds: terrainKinds)
 }
 
 function expandCurrentWorldBySize(width, height, [direction = 'bottomRight']) {
@@ -273,11 +217,10 @@ function expandCurrentWorldBySize(width, height, [direction = 'bottomRight']) {
   correctTerrainIndexAndPosition()
 }
 
-function correctTerrainIndexAndPosition([map]) {
-  map ??= world
-  for (let i in range(map.terrains.length)) {
-    let terrain = map.terrains[i]
-    let tilePosition = index2TilePosition(i, map.width)
+function correctTerrainIndexAndPosition() {
+  for (let i in range(world.terrains.length)) {
+    let terrain = world.terrains[i]
+    let tilePosition = index2TilePosition(i, world.width)
     Object.assign(terrain, Tile(tilePosition.left, tilePosition.top, index: i))
   }
   engine.debug('corrected terrain indexes and tile position!')

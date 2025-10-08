@@ -37,6 +37,7 @@ export 'random.ht'
 export 'util.ht'
 
 import 'event/game.ht' as gameEvents
+import 'event/sandbox.ht' as sandboxEvents
 import 'event/dungeon.ht' as dungeonEvents
 import 'event/cultivation_trial.ht' as cultivationTrialEvents
 
@@ -59,6 +60,12 @@ function main() {
   addEventHandlers(
     moduleId: meta.id,
     namespace: gameEvents,
+  )
+
+  addEventHandlers(
+    moduleId: meta.id,
+    worldId: 'sandboxWorld',
+    namespace: sandboxEvents,
   )
 
   addEventHandlers(

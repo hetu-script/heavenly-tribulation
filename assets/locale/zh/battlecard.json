@@ -95,16 +95,16 @@
 
   "affix_heal_exhaust_mana": "使用 {0} 灵气：回复 {1}% 生命",
 
-  "affix_speed_quick": "速度 +{0}",
-  "affix_dodge_nimble": "闪避 +{0}",
+  "affix_speed_quick_defend_physical": "速度 +{0}, 物理防御 +{1}",
+  "affix_dodge_nimble_defend_physical": "闪避 +{0}, 物理防御 +{1}",
 
-  "affix_speed_quick_exhaust_mana": "使用 {0} 点灵气：速度 +{1}",
-  "affix_dodge_nimble_exhaust_mana": "使用 {0} 点灵气：闪避 +{1}",
-  "affix_speed_quick_exhaust_rage": "使用 {0} 点怒气：速度 +{1}",
-  "affix_dodge_nimble_exhaust_rage": "使用 {0} 点怒气：闪避 +{1}",
+  "affix_speed_quick_exhaust_mana_defend_elemental": "使用 {0} 点灵气：速度 +{1}, 元素防御 +{2}",
+  "affix_dodge_nimble_exhaust_mana_defend_elemental": "使用 {0} 点灵气：闪避 +{1}, 元素防御 +{2}",
+  "affix_speed_quick_exhaust_rage_defend_chi": "使用 {0} 点怒气：速度 +{1}, 真气防御 +{2}",
+  "affix_dodge_nimble_exhaust_rage_defend_chi": "使用 {0} 点怒气：闪避 +{1}, 真气防御 +{2}",
 
   "affix_lifemax_debuff_exhaust_karma": "使用 {0} 点煞气：对手生命上限 -{1}",
-  "affix_lifemax_buff_exhaust_karma": "使用 {0} 点煞气：生命及生命上限 +{1}",
+  "affix_lifemax_buff_exhaust_karma": "使用 {0} 点煞气：自身生命及生命上限 +{1}",
 
   "affix_consume_chakra_for_extra_damage_physical": "每使用 {0} 剑气：造成 {1} 物理伤害",
   "affix_consume_rage_for_extra_damage_chi": "每使用 {0} 怒气：造成 {1} 真气伤害",

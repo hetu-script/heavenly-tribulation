@@ -67,8 +67,10 @@ class EnemyState with ChangeNotifier {
 }
 
 enum MerchantType {
+  none,
   location,
   character,
+  depositBox,
 }
 
 class MerchantState with ChangeNotifier {
@@ -78,7 +80,7 @@ class MerchantState with ChangeNotifier {
   dynamic data;
   dynamic priceFactor;
   dynamic filter;
-  MerchantType type = MerchantType.location;
+  MerchantType type = MerchantType.none;
 
   (bool, bool, bool, dynamic, dynamic, dynamic, MerchantType) get() {
     return (
@@ -88,7 +90,7 @@ class MerchantState with ChangeNotifier {
       data,
       priceFactor,
       filter,
-      type
+      type,
     );
   }
 
@@ -98,14 +100,14 @@ class MerchantState with ChangeNotifier {
     bool useShard = false,
     dynamic priceFactor,
     dynamic filter,
-    MerchantType type = MerchantType.location,
+    MerchantType merchantType = MerchantType.none,
   }) {
     this.materialMode = materialMode;
     this.useShard = useShard;
     this.data = data;
     this.priceFactor = priceFactor;
     this.filter = filter;
-    this.type = type;
+    this.type = merchantType;
     showMerchant = true;
     notifyListeners();
   }

@@ -8,15 +8,14 @@ const kZoneCategorySea = 'sea'
 // const kZoneCategoryRiver = 'river'
 
 struct Zone {
-  constructor ({name, category, color, map}) {
+  constructor ({name, category, color}) {
     assert(category != null)
     this.category = category
     // 这里不生成名字，而是在地图生成后，计算过zone大小之后，再根据情况生成
     this.name = name
 
-    map ??= world
-    this.id = 'zone_${map.zones.length}'
-    map.zones[this.id] = this
+    this.id = 'zone_${world.zones.length}'
+    world.zones[this.id] = this
 
     this.color = color ?? random.nextBrightColorHex()
 
@@ -24,7 +23,7 @@ struct Zone {
   }
 }
 
-function addTerrainToZone(terrain, world, zone) {
+function addTerrainToZone(terrain, zone) {
   if (terrain.zoneId != null) {
     const oldZone = world.zones[terrain.zoneId]
     if (oldZone != null) {

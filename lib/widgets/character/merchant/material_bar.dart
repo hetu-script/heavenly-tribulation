@@ -15,12 +15,12 @@ class CurrencyBar extends StatelessWidget {
     super.key,
     required this.entity,
     this.priceFactor,
-    this.type = MerchantType.location,
+    this.merchantType = MerchantType.location,
   });
 
   final dynamic entity;
   final dynamic priceFactor;
-  final MerchantType type;
+  final MerchantType merchantType;
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +88,9 @@ class CurrencyBar extends StatelessWidget {
             padding: const EdgeInsets.only(right: 5.0),
             child: MouseRegion2(
               onMouseEnter: (rect) {
-                context.read<HoverContentState>().show(
-                    '${engine.locale('money')}: '
-                    '${engine.locale('money_description')}',
-                    rect);
+                context
+                    .read<HoverContentState>()
+                    .show(engine.locale('money_description'), rect);
               },
               onMouseExit: () {
                 context.read<HoverContentState>().hide();
@@ -119,10 +118,9 @@ class CurrencyBar extends StatelessWidget {
             padding: const EdgeInsets.only(right: 5.0),
             child: MouseRegion2(
               onMouseEnter: (rect) {
-                context.read<HoverContentState>().show(
-                    '${engine.locale('shard')}: '
-                    '${engine.locale('shard_description')}',
-                    rect);
+                context
+                    .read<HoverContentState>()
+                    .show(engine.locale('shard_description'), rect);
               },
               onMouseExit: () {
                 context.read<HoverContentState>().hide();
@@ -150,12 +148,25 @@ class CurrencyBar extends StatelessWidget {
             BorderedIconButton(
               size: const Size(20.0, 20.0),
               onMouseEnter: (rect) {
-                final content = priceFactorDescription.isNotEmpty
-                    ? '${engine.locale('priceFactor')}\n'
-                        '${engine.locale(type == MerchantType.location ? 'priceFactor_description_location' : 'priceFactor_description_character')}'
-                        '\n \n${priceFactorDescription.toString()}'
-                    : '${engine.locale('priceFactor')}\n \n${engine.locale('none')}';
-                context.read<HoverContentState>().show(content, rect);
+                final StringBuffer content = StringBuffer();
+                if (priceFactorDescription.isNotEmpty) {
+                  if (merchantType == MerchantType.location) {
+                    content.writeln(
+                        '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_location')}\n \n${priceFactorDescription.toString()}');
+                  } else if (merchantType == MerchantType.character) {
+                    content.writeln(
+                        '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
+                  } else {
+                    content.writeln(
+                        '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
+                  }
+                } else {
+                  content.writeln(
+                      '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
+                }
+                context
+                    .read<HoverContentState>()
+                    .show(content.toString(), rect);
               },
               onMouseExit: () {
                 context.read<HoverContentState>().hide();

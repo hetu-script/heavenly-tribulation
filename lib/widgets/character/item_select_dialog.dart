@@ -77,7 +77,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
           child: Column(
             children: [
               Inventory(
-                type: ItemType.player,
+                itemType: ItemType.player,
                 character: widget.character,
                 height: widget.height,
                 filter: widget.filter,

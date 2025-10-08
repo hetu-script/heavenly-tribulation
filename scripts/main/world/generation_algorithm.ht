@@ -10,52 +10,68 @@ const kMapStyles = ['islands', 'coast', 'inland']
 function generateContinent2(world, {seed, style}) {
   let noiseData
   let threshold
+  let threshold2
   assert(style in kMapStyles)
+  final dimension = (world.width + world.height) / 2
   switch (style) {
     'islands' : {
-      threshold = 0.55
+      threshold = 0.45
+      threshold2 = 0.3
       noiseData = Math.noise2d(
         world.width,
         world.height,
         seed: seed,
         noiseType: 'perlinFractal',
-        frequency: 6 / ((world.width + world.height) / 2),
+        frequency: 6 / dimension,
+        octaves: 3,
       )
     }
     'coast' : {
-      threshold = 0.48
+      threshold = 0.55
+      threshold2 = 0.33
       noiseData = Math.noise2d(
         world.width,
         world.height,
         seed: seed,
         noiseType: 'valueFractal',
-        frequency: 3.5 / ((world.width + world.height) / 2),
+        frequency: 3.5 / dimension,
         octaves: 10,
       )
     }
     'inland' : {
-      threshold = 0.35
+      threshold = 0.65
+      threshold2 = 0.42
       noiseData = Math.noise2d(
         world.width,
         world.height,
         seed: seed,
         noiseType: 'cubicFractal',
-        frequency: 10 / ((world.width + world.height) / 2),
+        frequency: 10 / dimension,
+        octaves: 3,
       )
     }
   }
   for (const y in range(world.height)) {
     for (const x in range(world.width)) {
+      // 地图边缘留空
       if (y == 0 || y == world.height - 1 || x == 0 || x == world.width - 1) continue
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
       const index = tilePos2Index(x + 1, y + 1, world.width)
       const tile = world.terrains[index]
       if (normalize > threshold) {
+        // 海洋
+        world.waterIndexes.add(index)
+      } else if (normalize > threshold2) {
+        // 陆地
         tile.spriteIndex = kSpriteLand
         world.landIndexes.add(index)
       } else {
-        world.waterIndexes.add(index)
+        // 山地
+        tile.spriteIndex = kSpriteLand
+        tile.kind = 'mountain'
+        tile.sprite = 'object/mountain.png'
+        world.landIndexes.add(index)
       }
     }
   }

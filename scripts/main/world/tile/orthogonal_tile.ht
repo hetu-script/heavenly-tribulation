@@ -48,60 +48,39 @@ function getTileDistance(start, end) {
   return result
 }
 
-// 获取相邻并且在地图范围内的格子
-// 如果 [terrainKinds] 不为空，则只会返回和起点所在 tile 具有相同 kind 的格子
+/// 获取相邻并且在地图范围内的格子
+/// 返回一个Map，index 是 1-8 (边和角)
+/// 每个编号对应一个固定位置的相邻地块，如果值为 null 表示这个位置没有符合要求的相邻地块
+/// 对于方格tile，邻居顺序是上(1)右(2)下(3)左(4)左上(5)右上(6)右下(7)左下(8)
+/// 如果 [terrainKinds] 不为 空，则只会返回指定 kind 属性范围的格子
 function getMapTileNeighbors(left: integer, top: integer, map, { terrainKinds = [], includeDiagonal = false }) {
-  assert(isPositionWithinMap(left, top, map.width, map.height))
-  const origin = map.terrains[tilePos2Index(left, top, map.width)]
-  const neighbors = []
+  const neighbors = {}
 
-  function addNeighbor(tile) {
+  function addNeighbor(neighborIndex, tileIndex) {
+    if (tileIndex < 0 || tileIndex >= map.terrains.length) return
+    final tile = map.terrains[tileIndex]
     if (terrainKinds.isEmpty || tile.kind in terrainKinds) {
-      neighbors.add(tile)
+      neighbors[neighborIndex] = tile
     }
   }
 
   // 上面
-  if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-    const tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
-    addNeighbor(tile)
-  }
-  // 下面
-  if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-    const tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
-    addNeighbor(tile)
-  }
-  // 左边
-  if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-    const tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
-    addNeighbor(tile)
-  }
+  addNeighbor(1, tilePos2Index(left, top - 1, map.width))
   // 右边
-  if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-    const tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
-    addNeighbor(tile)
-  }
+  addNeighbor(2, tilePos2Index(left + 1, top, map.width))
+  // 下面
+  addNeighbor(3, tilePos2Index(left, top + 1, map.width))
+  // 左边
+  addNeighbor(4, tilePos2Index(left - 1, top, map.width))
   if (includeDiagonal) {
     // 左上
-    if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(5, tilePos2Index(left - 1, top - 1, map.width))
     // 右上
-    if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左下
-    if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(6, tilePos2Index(left + 1, top - 1, map.width))
     // 右下
-    if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
-      const tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
+    addNeighbor(7, tilePos2Index(left + 1, top + 1, map.width))
+    // 左下
+    addNeighbor(8, tilePos2Index(left - 1, top + 1, map.width))
   }
   return neighbors
 }

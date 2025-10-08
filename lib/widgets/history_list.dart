@@ -76,12 +76,15 @@ class HeroAndGlobalHistoryList extends StatefulWidget {
     this.onMouseEnter,
     this.onMouseExit,
     this.limit = 2,
+    this.cursor = MouseCursor.defer,
   }) : super(key: GlobalKey());
 
   final void Function()? onTapUp;
   final void Function(Rect rect)? onMouseEnter;
   final void Function()? onMouseExit;
   final int limit;
+
+  final MouseCursor cursor;
 
   @override
   State<HeroAndGlobalHistoryList> createState() =>
@@ -123,6 +126,7 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
     jumpToBottom();
 
     return MouseRegion(
+      cursor: widget.cursor,
       onEnter: (event) {
         if (widget.onMouseEnter == null) return;
 

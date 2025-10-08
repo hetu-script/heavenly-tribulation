@@ -8,6 +8,8 @@ const kOrganizationJobRankMax = 5
 /// 贡献值低于 -100 ，此人将会被门派视为敌人
 const kOrganizationEnemyContributionThreshold = -100
 
+const _kNeighborIndex = [1, 2, 3, 4, 5, 6]
+
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
 /// score 和 type 都反映了外交关系，type 代表了关系的大致方向
@@ -55,6 +57,21 @@ struct MemberData {
     this.rank = rank
     this.title = title
     this.contribution = contribution
+  }
+}
+
+function updateTerritoryBorders(tile) {
+  if (tile.nationId == null) return
+  tile.borders ??= {}
+  final neighbors = getNeighborTiles(tile.left, tile.top)
+  for (final index in _kNeighborIndex) {
+    final neighbor = neighbors[index]
+    if (neighbor == null) continue
+    if (neighbor.nationId != tile.nationId) {
+      tile.borders[index] = true
+    } else {
+      delete tile.borders[index]
+    }
   }
 }
 
@@ -297,9 +314,9 @@ function assignCharacterSuperior(character, organization) {
   let superiorsData = getOrganizationMembersDataByRank(organization, memberData.rank)
   let memberAtCharacterHome
   for (final memberData in superiorsData) {
-    final character = game.characters[memberData.id]
-    assert(character != null, 'character not found for id: ${memberData.id}')
-    if (character.homeLocationId == character.homeLocationId) {
+    final member = game.characters[memberData.id]
+    assert(member != null, 'character not found for id: ${memberData.id}')
+    if (character.homeLocationId == member.homeLocationId) {
       memberAtCharacterHome = memberData
       break
     }
@@ -386,12 +403,15 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   organization.territoryIndexes.remove(terrain.index)
   organization.borderIndexes.remove(terrain.index)
 
-  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, world)
-  for (final neighbor in neighbors) {
+  terrain.nationId = null
+  updateTerritoryBorders(terrain)
+  final neighbors = getNeighborTiles(terrain.left, terrain.top)
+  for (final neighbor in neighbors.values) {
     if (neighbor.nationId = organization.id &&
         !organization.borderIndexes.contains(neighbor.index)) {
       organization.borderIndexes.add(neighbor.index)
     }
+    updateTerritoryBorders(neighbor)
   }
 
   if (terrain.locationId != null) {
@@ -429,18 +449,17 @@ function addTerrainToOrganization(terrain, organization, { updateWorldMap = fals
     return
   }
   organization.territoryIndexes.add(terrain.index)
-  // if (terrain.nationId != null) {
-  //   removeTerrainFromOrganization(terrain)
-  // }
   terrain.nationId = organization.id
   if (organization.borderIndexes.contains(terrain.index)) {
     organization.borderIndexes.remove(terrain.index)
   }
-  const neighbors = getMapTileNeighbors(terrain.left, terrain.top, world)
-  for (const neighbor in neighbors) {
+  updateTerritoryBorders(terrain)
+  final neighbors = getNeighborTiles(terrain.left, terrain.top)
+  for (final neighbor in neighbors.values) {
     if (neighbor.nationId != organization.id) {
       organization.borderIndexes.add(neighbor.index)
     }
+    updateTerritoryBorders(neighbor)
   }
   if (terrain.locationId) {
     const location = game.locations[terrain.locationId]

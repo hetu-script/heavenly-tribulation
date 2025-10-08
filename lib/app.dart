@@ -129,7 +129,7 @@ class _GameAppState extends State<GameApp> {
       soundEffectVolume: 0.5,
       mods: {
         'story': {
-          'enabled': true,
+          'enabled': false,
         },
       },
       showFps: true,
@@ -267,6 +267,8 @@ class _GameAppState extends State<GameApp> {
         positionalArgs.first,
         character: namedArgs['character'],
         characterId: namedArgs['characterId'],
+        npc: namedArgs['npc'],
+        npcId: namedArgs['npcId'],
         isHero: namedArgs['isHero'] ?? false,
         nameId: namedArgs['nameId'],
         name: namedArgs['name'],
@@ -499,13 +501,21 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showMerchant', (
         {positionalArgs, namedArgs}) {
-      context.read<MerchantState>().show(
-            positionalArgs.first,
-            materialMode: namedArgs['materialMode'] ?? false,
-            useShard: namedArgs['useShard'] ?? false,
-            priceFactor: namedArgs['priceFactor'] ?? {},
-            filter: namedArgs['filter'],
-          );
+      if (namedArgs['depositMode'] == true) {
+        context.read<MerchantState>().show(
+              positionalArgs.first,
+              materialMode: namedArgs['materialMode'] ?? false,
+              merchantType: MerchantType.depositBox,
+            );
+      } else {
+        context.read<MerchantState>().show(
+              positionalArgs.first,
+              materialMode: namedArgs['materialMode'] ?? false,
+              useShard: namedArgs['useShard'] ?? false,
+              priceFactor: namedArgs['priceFactor'] ?? {},
+              filter: namedArgs['filter'],
+            );
+      }
     }, override: true);
     engine.hetu.interpreter.bindExternalFunction('Game::showWorkbench', (
         {positionalArgs, namedArgs}) {

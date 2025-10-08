@@ -1067,18 +1067,23 @@ function setStormTile(terrain) {
 function handleBabies {
   const pendingRemovedIds = Set()
   for (const baby of game.babies) {
-    if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
+    final babyTime = game.timestamp - baby.conceptionTimestamp
+    if (babyTime < baby.pregnancyTime) continue
     const mother = game.characters[baby.motherId]
-    if (!mother.isDead) {
+    if (mother.isPregnant) {
       mother.isPregnant = false
-      assert(mother.locationId != null)
-      const location = game.locations[mother.locationId]
+      mother.carrying.add(baby.id)
+    }
+    if (babyTime > baby.pregnancyTime + kChildTime) {
+      mother.carrying.remove(baby.id)
+      assert(mother.homeLocationId != null)
+      const location = game.locations[mother.homeLocationId]
       const character = Character(
         surName: baby.surName,
         generateName: baby.generateName,
         shorname: baby.shorname,
         isFemale: baby.isFemale,
-        birthTimestamp: game.timestamp,
+        birthTimestamp: baby.conceptionTimestamp + baby.pregnancyTime,
         locationId: location.id,
         isNewBorn: true,
         motherId: baby.motherId,
@@ -1086,8 +1091,8 @@ function handleBabies {
         relationships: baby.relationships,
         bonds: baby.bonds,
       )
+      pendingRemovedIds.add(baby.id)
     }
-    pendingRemovedIds.add(baby.id)
   }
   for (const id in pendingRemovedIds) {
     delete game.babies[id]

@@ -79,6 +79,7 @@ namespace Game {
   })
 
   external function showMerchant(merchantData, {
+    depositMode = false,
     materialMode = false,
     useShard = false,
     priceFactor,

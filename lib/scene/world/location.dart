@@ -82,13 +82,22 @@ class LocationScene extends Scene {
     switch (location['kind']) {
       case 'home':
         if (location['ownerId'] == GameData.hero['id']) {
-          final siteCard = GameData.createSiteCard(
+          final restCard = GameData.createSiteCard(
               spriteId: 'location/card/bed.png', title: engine.locale('rest'));
-          siteCard.onTap = (button, position) {
+          restCard.onTap = (button, position) {
             GameLogic.heroRest();
           };
-          siteList.cards.add(siteCard);
-          world.add(siteCard);
+          siteList.cards.add(restCard);
+          world.add(restCard);
+
+          final depositCard = GameData.createSiteCard(
+              spriteId: 'location/card/depositBox.png',
+              title: engine.locale('depositBox'));
+          depositCard.onTap = (button, position) {
+            GameLogic.onInteractDepositBox(location);
+          };
+          siteList.cards.add(depositCard);
+          world.add(depositCard);
         }
       case 'exparray':
         final siteCard = GameData.createSiteCard(
@@ -291,8 +300,7 @@ class LocationScene extends Scene {
                     onSelectedItem: (LocationDropMenuItems item) async {
                       switch (item) {
                         case LocationDropMenuItems.save:
-                          String worldId = engine.hetu
-                              .fetch('currentWorldId', namespace: 'game');
+                          String worldId = GameData.world['id'];
                           String? saveName =
                               engine.hetu.fetch('saveName', namespace: 'game');
                           final saveInfo = await context
@@ -322,8 +330,7 @@ class LocationScene extends Scene {
                           if (saveName == null) return;
                           engine.hetu
                               .assign('saveName', saveName, namespace: 'game');
-                          String worldId = engine.hetu
-                              .fetch('currentWorldId', namespace: 'game');
+                          String worldId = GameData.world['id'];
                           final saveInfo = await context
                               .read<GameSavesState>()
                               .saveGame(worldId, saveName);

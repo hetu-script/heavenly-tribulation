@@ -5,11 +5,7 @@
 
 let game
 let universe
-// universe[game.currentWorldId]
 let world
-// game.characters[game.heroId]
-// let history
-// history[game.currentWorldId]
 let history
 let hero
 
@@ -23,7 +19,7 @@ let opponent
 let battleFlags
 
 /// 玩家每个月的互动操作记录，月初会重置
-struct MonthlyActivities {
+struct PlayerMonthly {
   constructor {
     // 战斗相关
     // 本月鉴定敌人卡牌数量
@@ -91,24 +87,29 @@ struct DungeonFlags {
     this.isBasic = isBasic
     this.room = initialRoom ? 0 : 1
     this.roomMax = isBasic ? _kBasicDungeonRoomMax : _kDungeonRoomMax
-    this.needRebuild = true
+    this.buildCompleted = false
     this.battleResult = null
     this.selectedPortal = null
   }
 }
 
 struct GameData {
-  constructor ({saveName}) {
+  constructor ({ saveName, enableTutorial = true }) {
+    assert(saveName != null && saveName.isNotEmpty, '创建游戏时 saveName 不能为空!')
     this.saveName = saveName
     this.isNewGame = true
+    this.enableTutorial = enableTutorial
     this.currentWorldId = null
     this.heroId = null
     this.timestamp = 0
-    this.flags = {}
+    this.flags = {
+      tutorial: {},
+      cultivationTrial: {},
+    }
 
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
-    this.playerMonthly = MonthlyActivities()
+    this.playerMonthly = PlayerMonthly()
     
     // 地牢玩法的数据
     this.dungeon = DungeonFlags()
@@ -150,17 +151,17 @@ struct GameData {
 }
 
 /// 创建新游戏，重置所有状态，返回game
-function createGame(saveName) {
+function createGame(saveName, { enableTutorial = true }) {
   engine.debug('准备开始新游戏')
-  game = GameData(saveName: saveName)
+  game = GameData(saveName: saveName, enableTutorial: enableTutorial)
   universe = {}
   history = {}
   world = null
   hero = null
 }
 
-function resetPlayerMonthlyActivities() {
-  game.playerMonthly = MonthlyActivities()
+function resetPlayerMonthly() {
+  game.playerMonthly = PlayerMonthly()
 }
 
 function monthlyActionContains(actionId, targetId) {
@@ -198,13 +199,8 @@ function loadGameFromJsonData({
   
   universe = Object.create(universeData)
   history = Object.create(historyData)
-  
-  assert(game.currentWorldId != null)
-  // if (!isEditorMode) {
-  //   assert(game.heroId != null)
-  // }
-
   world = universe[game.currentWorldId]
+
   assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
   
   engine.debug('当前世界: [${world.id}]')
@@ -218,14 +214,12 @@ function loadGameFromJsonData({
 
 function addWorld(newWorld) {
   world = universe[newWorld.id] = newWorld
-
   game.currentWorldId = newWorld.id
 }
 
 function switchWorld(worldId) {
   assert(universe.containsKey(worldId), worldId)
   world = universe[worldId]
-  
   game.currentWorldId = world.id
 
   return world
@@ -276,17 +270,55 @@ function getHeroId() {
   return game.heroId
 }
 
-function setHeroId(id: string) {
+function setHero(id: string) {
   assert(game.characters.containsKey(id))
-  if (hero != null) {
-    game.playerMonthly = MonthlyActivities()
-  }
-
   hero = game.characters[id]
+  game.playerMonthly = PlayerMonthly()
 
   Player.calculateStats()
   engine.debug('设置当前玩家人物为 [${hero.id}]。')
   game.heroId = id
+
+  hero = game.characters[id]
+
+  if (game.enableTutorial) {
+    /// 用于新手教程的系统角色
+    final xitong = Npc(
+      id: 'xitong',
+      name: engine.locale('npc_xitong_name'),
+      icon: 'story/illustration/sitone_head.png',
+      illustration: 'story/illustration/sitone.png',
+      atLocationId: hero.homeSiteId,
+      useCustomLogic: true,
+    )
+  }
+}
+
+function randomizeHeroWorldPosition() {
+  final location = game.locations[hero.homeLocationId]
+  if (location.organizationId) {
+    final organization = game.organizations[location.organizationId]
+    final randomTileIndex = organization.territoryIndexes.random
+    final randomTile = world.terrains[randomTileIndex]
+    hero.locationId = null
+    hero.worldPosition = {
+      left: randomTile.left,
+      top: randomTile.top,
+    }
+  } else {
+    final terrain = world.terrains[location.terrainIndex]
+    final zone = world.zones[terrain.zoneId]
+    final randomTileIndex = zone.terrainIndexes.where((index) {
+      final tile = world.terrains[index]
+      return !tile.isWater && tile.organizationId == null
+    }).random
+    final randomTile = world.terrains[randomTileIndex]
+    hero.locationId = null
+    hero.worldPosition = {
+      left: randomTile.left,
+      top: randomTile.top,
+    }
+  }
 }
 
 function setHeroWorldId(worldId) {

@@ -17,7 +17,7 @@ String _buildBriefDescription(dynamic bounty) {
   final int difficulty = bounty['difficulty'] ?? 0;
   final String difficultyLable = kDifficultyLabels[difficulty]!;
   final timeLimitDays = bounty['timeLimitDays'];
-  desc.writeln(engine.locale('bounty_$kind'));
+  desc.writeln('<bold rank$difficulty t7>${engine.locale('bounty_$kind')}</>');
   desc.writeln(
       '${engine.locale('difficulty')}: <rank$difficulty>${engine.locale(difficultyLable)}</>');
   desc.writeln(
@@ -31,19 +31,20 @@ String _buildBudget(dynamic budget) {
   final kind = budget['kind'];
   final amount = budget['amount'];
   desc.writeln(kSeparateLine);
-  desc.writeln(
-      '<lightGreen>${engine.locale('budget')}: $amount ${engine.locale(kind)}</>');
+  desc.writeln('<lightGreen>${engine.locale('budget')}: </>');
+  desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
   return desc.toString();
 }
 
 String _buildReward(List reward) {
   final desc = StringBuffer();
-  desc.write('${engine.locale('reward')}: ');
+  desc.writeln(kSeparateLine);
+  desc.writeln('<lightGreen>${engine.locale('reward')}: </>');
   for (final itemInfo in reward) {
     if (itemInfo['type'] == 'material') {
       final kind = itemInfo['kind'];
       final amount = itemInfo['amount'];
-      desc.writeln('$amount ${engine.locale(kind)}');
+      desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
     }
   }
   return desc.toString();
@@ -88,7 +89,7 @@ String _buildDetailDescription(dynamic bounty) {
             '${engine.locale(itemRequired['rarity'])}${engine.locale(category)}';
       } else if (category == 'cardpack') {
         itemDesc =
-            '${engine.locale('cultivationRank_${itemRequired['rank']}}')}${engine.locale('rank2"')}${engine.locale(category)}';
+            '${engine.locale('cultivationRank_${itemRequired['rank']}')}${engine.locale('rank2')}${engine.locale(category)}';
       } else {
         throw ('Unknown itemRequired category: $category');
       }
@@ -110,13 +111,15 @@ String _buildDetailDescription(dynamic bounty) {
       final reportSiteId = bounty['reportSiteId'];
       final reportSite = GameData.getLocation(reportSiteId);
       final reportLocationId = bounty['reportLocationId'];
-      final reportLocation = GameData.getLocation(reportLocationId);
+      final reportLocation = GameData.game['locations'][reportLocationId];
+      final worldPosition = bounty['reportWorldPosition'];
       desc.writeln(
           engine.locale('bounty_deliver_material_description', interpolations: [
         amount,
         engine.locale(materialKind),
+        reportLocation?['name'] ??
+            ('${engine.locale('worldMap')}[${worldPosition['left']}, ${worldPosition['top']}]'),
         reportSite['name'],
-        reportLocation?['name'] ?? engine.locale('worldMap'),
       ]));
       final reward = _buildReward(bounty['reward']);
       desc.writeln(reward);
@@ -125,13 +128,15 @@ String _buildDetailDescription(dynamic bounty) {
       final reportSiteId = bounty['reportSiteId'];
       final reportSite = GameData.getLocation(reportSiteId);
       final reportLocationId = bounty['reportLocationId'];
-      final reportLocation = GameData.getLocation(reportLocationId);
+      final reportLocation = GameData.game['locations'][reportLocationId];
+      final worldPosition = bounty['reportWorldPosition'];
       desc.writeln();
       desc.writeln(
           engine.locale('bounty_deliver_item_description', interpolations: [
         itemName,
+        reportLocation?['name'] ??
+            ('${engine.locale('worldMap')}[${worldPosition['left']}, ${worldPosition['top']}]'),
         reportSite['name'],
-        reportLocation?['name'] ?? engine.locale('worldMap'),
       ]));
       final reward = _buildReward(bounty['reward']);
       desc.writeln(reward);
@@ -141,12 +146,14 @@ String _buildDetailDescription(dynamic bounty) {
       final reportSiteId = bounty['reportSiteId'];
       final reportSite = GameData.getLocation(reportSiteId);
       final reportLocationId = bounty['reportLocationId'];
-      final reportLocation = GameData.getLocation(reportLocationId);
+      final reportLocation = GameData.game['locations'][reportLocationId];
+      final worldPosition = bounty['reportWorldPosition'];
       desc.writeln();
       desc.writeln(engine.locale('bounty_escort_description', interpolations: [
         escortee['name'],
+        reportLocation?['name'] ??
+            ('${engine.locale('worldMap')}[${worldPosition['left']}, ${worldPosition['top']}]'),
         reportSite['name'],
-        reportLocation?['name'] ?? engine.locale('worldMap'),
       ]));
       final reward = _buildReward(bounty['reward']);
       desc.writeln(reward);
@@ -182,9 +189,7 @@ class BountyDetail extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(
-            engine.locale('editIdAndImage'),
-          ),
+          title: Text(engine.locale('detail')),
           actions: const [CloseButton2()],
         ),
         body: Container(
@@ -265,6 +270,7 @@ class _BountyViewState extends State<BountyView> {
       height: 500.0,
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: Text(engine.locale('bounty')),
           actions: [
             CloseButton2(

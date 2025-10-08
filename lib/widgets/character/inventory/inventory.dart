@@ -14,7 +14,7 @@ class Inventory extends StatelessWidget {
   Inventory({
     super.key,
     required this.character,
-    required this.type,
+    required this.itemType,
     this.height = 312.0,
     this.minSlotCount = 60,
     this.gridsPerLine = 5,
@@ -26,7 +26,7 @@ class Inventory extends StatelessWidget {
   });
 
   final dynamic character;
-  final ItemType type;
+  final ItemType itemType;
   final double height;
   final int minSlotCount, gridsPerLine;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
@@ -44,7 +44,7 @@ class Inventory extends StatelessWidget {
 
     final filteredItems = GameLogic.getFilteredItems(
       character,
-      type: type,
+      type: itemType,
       filter: filter,
       filterShard: priceFactor?['useShard'] ?? false,
     );
@@ -56,26 +56,26 @@ class Inventory extends StatelessWidget {
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
-            switch (type) {
+            switch (itemType) {
               case ItemType.none:
               case ItemType.npc:
               case ItemType.player:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: type,
+                      type: itemType,
                       rect,
                     );
               case ItemType.merchant:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: type,
+                      type: itemType,
                       data2: priceFactor,
                       rect,
                     );
               case ItemType.customer:
                 context.read<HoverContentState>().show(
                       itemData,
-                      type: type,
+                      type: itemType,
                       data2: priceFactor,
                       rect,
                     );

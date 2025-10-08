@@ -577,7 +577,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         GameData.game['characters'][id] = _character;
 
                         if (GameData.game['heroId'] == originId) {
-                          engine.hetu.invoke('setHeroId', positionalArgs: [id]);
+                          engine.hetu.invoke('setHero', positionalArgs: [id]);
                         }
                       }
                       setState(() {});

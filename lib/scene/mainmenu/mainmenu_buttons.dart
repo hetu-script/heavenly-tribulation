@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/character/details.dart';
+import 'package:samsara/samsara.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../game/ui.dart';
 import '../../game/logic/logic.dart';
@@ -15,6 +16,8 @@ import 'create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
+import '../../widgets/character/details.dart';
+// import '../../game/common.dart';
 
 enum DebugMenuItems {
   debugResetHero,
@@ -181,6 +184,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                               () async {
                             await GameData.createGame(
                               args['saveName'],
+                              enableTutorial: args['enableTutorial'],
                             );
                             engine.pushScene(
                               args['id'],
@@ -392,7 +396,7 @@ class _DebugButtonState extends State<DebugButton> {
         controller: menuController,
         child: IconButton(
           icon: const Icon(Icons.menu_open, size: 20.0),
-          mouseCursor: MouseCursor.defer,
+          mouseCursor: FlutterCustomMemoryImageCursor(key: 'click'),
           padding: const EdgeInsets.all(0),
           onPressed: () {
             showFluentMenu(

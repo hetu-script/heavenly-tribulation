@@ -516,10 +516,10 @@ function replenishTradingHouse(location) {
       ~/ Constants.materialBasePrice.shard
 
   // 根据地形，决定商店里是否有船只和靴子
-  final neighbors = getNeighborTiles(atLocation.worldPosition.left, atLocation.worldPosition.top)
   let hasMountainNeighbor = false
   let hasWaterNeighbor = false
-  for (final neighbor in neighbors) {
+  final neighbors = getNeighborTiles(atLocation.worldPosition.left, atLocation.worldPosition.top)
+  for (final neighbor in neighbors.values) {
     if (neighbor.kind == 'mountain') {
       hasMountainNeighbor = true
     } else if (kWaterTerrainKinds.contains(neighbor.kind)) {
@@ -696,9 +696,9 @@ function replenishTradingHouse(location) {
 
   let developmentFactor = {
     worker: atLocation.development + 1,
-    water: 1,
     grain: 1,
     meat: 1,
+    water: 1,
     leather: 1,
     herb: 1,
     timber: 1,

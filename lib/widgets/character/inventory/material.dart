@@ -25,7 +25,7 @@ class MaterialList extends StatelessWidget {
     this.requirements,
     this.priceFactor,
     this.filter,
-    this.type = MaterialListType.inventory,
+    this.materialListType = MaterialListType.inventory,
     this.selectedItem,
     this.onSelectedItem,
   });
@@ -36,7 +36,7 @@ class MaterialList extends StatelessWidget {
   final dynamic requirements;
   final dynamic priceFactor;
   final List? filter;
-  final MaterialListType type;
+  final MaterialListType materialListType;
   final String? selectedItem;
   final void Function(String)? onSelectedItem;
 
@@ -47,7 +47,8 @@ class MaterialList extends StatelessWidget {
     final widgets = <Widget>[];
 
     for (final key in kMaterialKinds) {
-      if (type != MaterialListType.craft && key == 'money') continue;
+      if (materialListType != MaterialListType.craft && key == 'money')
+        continue;
       int amount = 0;
       int? requiredAmount;
       if (filter != null && filter!.isNotEmpty) {
@@ -67,7 +68,7 @@ class MaterialList extends StatelessWidget {
         unitPrice = GameLogic.calculateMaterialPrice(
           key,
           priceFactor: priceFactor,
-          isSell: type == MaterialListType.sell,
+          isSell: materialListType == MaterialListType.sell,
         );
       }
 

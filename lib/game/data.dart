@@ -394,10 +394,15 @@ abstract class GameData {
   static Future<void> createGame(
     String saveName, {
     bool isEditorMode = false,
+    bool enableTutorial = true,
   }) async {
     worldIds.clear();
 
-    engine.hetu.invoke('createGame', positionalArgs: [saveName]);
+    engine.hetu.invoke('createGame', positionalArgs: [
+      saveName
+    ], namedArgs: {
+      'enableTutorial': enableTutorial,
+    });
 
     game = engine.hetu.fetch('game');
     universe = engine.hetu.fetch('universe');

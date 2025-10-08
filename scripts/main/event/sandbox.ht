@@ -1,0 +1,52 @@
+
+async function onNewGame() {
+  final homeSite = game.locations[hero.homeSiteId]
+  final randomEquipment = Constants.equipmentCategoryKinds['weapon'].random
+  final itemsInfo = [
+    {
+      'type': 'equipment',
+      'kind': randomEquipment,
+      'rank': hero.rank,
+    },
+    {
+      'type': 'cardpack',
+      'category': 'attack',
+      'kind': randomEquipment,
+      'rank': hero.rank,
+      'isBasic': true,
+    },
+    {
+      'type': 'cardpack',
+      'kind': randomEquipment,
+      'rank': hero.rank,
+    },
+  ]
+  final items = createLoot(itemsInfo)
+  for (final item in items) {
+    entityAcquire(homeSite, item)
+  }
+
+  if (game.enableTutorial) {
+    if (game.flags.tutorial.newGame) return
+    game.flags.tutorial.newGame = true
+
+    Player.setLife(1)
+
+    final xitong = game.npcs['xitong']
+    Dialog.pushDialog('tutorial_newGame_line_1', isHero: true)
+    Dialog.pushDialog('tutorial_newGame_line_2', npc: xitong)
+    Dialog.pushDialog('tutorial_newGame_line_3', isHero: true)
+    Dialog.pushDialog('tutorial_newGame_line_4', npc: xitong)
+    Dialog.pushDialog('tutorial_newGame_line_5', isHero: true)
+    Dialog.pushDialog('tutorial_newGame_line_6', npc: xitong)
+    Dialog.pushDialog('tutorial_newGame_line_7', isHero: true)
+    Dialog.pushDialog('tutorial_newGame_line_8', npc: xitong)
+    Dialog.pushDialog('tutorial_newGame_line_9', isHero: true)
+    Dialog.pushDialog('tutorial_newGame_line_10', npc: xitong)
+    Dialog.pushDialog('hint_movement', npc: xitong)
+    await Dialog.execute()
+
+    final homeLocation = game.locations[hero.homeLocationId]
+    World.markTile(homeLocation.worldPosition.left, homeLocation.worldPosition.top)
+  }
+}
