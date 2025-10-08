@@ -19,9 +19,9 @@
   "characterAcquireCompanion": "{0}加入了{1}的队伍。",
   "characterLoseCompanion": "{0}离开了{1}的队伍。",
   "characterOpen": "{0}打开了{1}。",
-  "characterAcceptQuest": "{0}开启了新的日志「{1}」。",
-  "characterQuestProgressed": "{0}的日志「{1}」有新的进展。",
-  "characterQuestFinished": "{0}的日志「{1}」已结束。",
+  "characterCreateJournal": "{0}开启了新的日志「{1}」。",
+  "characterJournalProgressed": "{0}的日志「{1}」有新的进展。",
+  "characterJournalFinished": "{0}的日志「{1}」已结束。",
 
   "characterFirstMeetNormal": "{0}认识了{1}。",
   "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",

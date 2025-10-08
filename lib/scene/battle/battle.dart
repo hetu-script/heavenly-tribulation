@@ -96,6 +96,8 @@ class BattleScene extends Scene {
 
   late FpsComponent fps;
 
+  final String backgroundImageId;
+
   late final SpriteComponent2 background;
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -141,6 +143,7 @@ class BattleScene extends Scene {
     this.onBattleStart,
     this.onBattleEnd,
     this.endBattleAfterRounds = 0,
+    required this.backgroundImageId,
   }) : super(
           context: engine.context,
           id: Scenes.battle,
@@ -267,7 +270,7 @@ class BattleScene extends Scene {
     enemyDeck = getDeck(enemyData);
 
     background = SpriteComponent2(
-      spriteId: 'battle/scene/002.png',
+      spriteId: backgroundImageId,
       anchor: Anchor.center,
       position: center,
       size: size,

@@ -26,6 +26,7 @@ const kEntityListViewCharacterColumns = [
 
 const kEntityListViewLocationColumns = [
   'name',
+  'worldPosition',
   'category',
   'development',
   'residents',

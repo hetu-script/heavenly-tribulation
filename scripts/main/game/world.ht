@@ -33,8 +33,6 @@ namespace World {
   external function setObjectTo(id, left, top)
 
   external function updateNpcsAtWorldMapPosition()
-
-  external function updateNpcsAtLocation()
   
   external function updateWorldMapLocations()
 

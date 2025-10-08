@@ -107,7 +107,7 @@ async function onInquiryQuest(character, quest) {
   }
 }
 
-async function onShowItem(character, item) {
+async function onShow(character, item) {
   if (character.id == 'afu') {
     if (item.id == 'hunguding') {
       assert(hero.journals.nailedSoul != null)
@@ -116,7 +116,7 @@ async function onShowItem(character, item) {
   }
 }
 
-async function onGiftItem(character, item) {
+async function onGift(character, item) {
   if (character.id == 'afu') {
     if (item.id == 'hunguding') {
       Dialog.pushDialog('chapter1_afu_nail_line7_1')
@@ -137,7 +137,7 @@ async function onEnterCultivation() {
     await Dialog.execute()
 
     final shardPack = Materialpack(kind: 'shard', amount: 4)
-    Player.acquire(shardPack)
+    await Player.acquire(shardPack)
     Game.promptItems([shardPack])
   }
 }
@@ -153,7 +153,7 @@ async function onEnterCardLibrary() {
       rank: hero.rank,
       kind: 'sword',
     )
-    Player.acquire(cardPack)
+    await Player.acquire(cardPack)
     Game.promptItems([cardPack])
   }
 }

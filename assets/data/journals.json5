@@ -1,11 +1,18 @@
 {
-  organizationInitiation: {
-    id: "organizationInitiation",
-    title: "journal_organizationInitiation_title",
-    isUnique: true,
+  sandboxTutorial: {
+    id: "sandboxTutorial",
+    // 任务标题，这里保存的是 本地化字符串的 key
+    title: "journal_sandboxTutorial_title",
     // endings 数组代表了任务结束节点
     // 当任务的 stage 推进到这些值时
     // 会将任务标记为 isFinished
+    endings: [3],
+    isEphemeral: false,
+    isUnique: true,
+  },
+  organizationInitiation: {
+    id: "organizationInitiation",
+    title: "journal_organizationInitiation_title",
     endings: [1],
     isEphemeral: false,
   },

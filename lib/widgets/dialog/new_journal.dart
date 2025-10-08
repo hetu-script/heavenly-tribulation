@@ -51,10 +51,7 @@ class NewJournal extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Label(
-                        engine.locale(
-                          'journal_${journalData['id']}_stage_$index',
-                          interpolations: journalData['interpolations'],
-                        ),
+                        journalData['stages'][index],
                         textAlign: TextAlign.left,
                       ),
                     );

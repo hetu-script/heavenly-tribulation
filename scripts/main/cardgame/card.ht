@@ -53,6 +53,10 @@ struct BattleCard {
       if (affixId) {
         return affix.id == affixId
       } else {
+        if (affix.isHidden) return false
+        if (kind != null && affix.kind != kind) return false
+        if (category != null && affix.category != category) return false
+        if (affix.rank > this.rank) return false
         if (genre != null) {
           if (genre == 'none') {
             if (affix.genre != null) {
@@ -61,15 +65,6 @@ struct BattleCard {
           } else if (genre != affix.genre) {
             return false
           }
-        }
-        if (kind != null && affix.kind != kind) {
-          return false
-        }
-        if (category != null && affix.category != category) {
-          return false
-        }
-        if (affix.rank > this.rank) {
-          return false
         }
         return true
       }

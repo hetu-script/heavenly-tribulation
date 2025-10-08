@@ -211,19 +211,28 @@ class _LocationViewState extends State<LocationView>
   @override
   Widget build(BuildContext context) {
     final Set<String> buildableSites = {};
-    if (isCity && isManageMode) {
-      final Set<String> existedSites = {};
-      for (final siteId in _location['sites']) {
-        final siteData = GameData.game['locations'][siteId];
-        if (siteData != null) {
-          existedSites.add(siteData['kind']);
-        }
+    String organizationName = engine.locale('none');
+    if (isCity) {
+      final organizationId = _location['organizationId'];
+      if (organizationId != null) {
+        final organizationData = GameData.getOrganization(organizationId);
+        organizationName = organizationData['name'];
       }
-      for (final siteKind in kSiteKindsBuildable) {
-        if (existedSites.contains(siteKind)) {
-          continue;
+
+      if (isManageMode) {
+        final Set<String> existedSites = {};
+        for (final siteId in _location['sites']) {
+          final siteData = GameData.game['locations'][siteId];
+          if (siteData != null) {
+            existedSites.add(siteData['kind']);
+          }
         }
-        buildableSites.add(siteKind);
+        for (final siteKind in kSiteKindsBuildable) {
+          if (existedSites.contains(siteKind)) {
+            continue;
+          }
+          buildableSites.add(siteKind);
+        }
       }
     }
 
@@ -264,6 +273,37 @@ class _LocationViewState extends State<LocationView>
                       ],
                     ),
                     if (isCity) ...[
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 120.0,
+                            height: 35.0,
+                            child: Text('${engine.locale('worldPosition')}:'),
+                          ),
+                          SizedBox(
+                            width: 120.0,
+                            height: 35.0,
+                            child: Text(
+                                '${_location['worldPosition']['left']}, ${_location['worldPosition']['top']}'),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 120.0,
+                            height: 35.0,
+                            child: Text('${engine.locale('organization')}:'),
+                          ),
+                          SizedBox(
+                            width: 120.0,
+                            height: 35.0,
+                            child: Text(organizationName),
+                          ),
+                        ],
+                      ),
                       if (isEditMode)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,22 +331,6 @@ class _LocationViewState extends State<LocationView>
                             ),
                           ],
                         ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 120.0,
-                            height: 35.0,
-                            child: Text('${engine.locale('worldPosition')}:'),
-                          ),
-                          SizedBox(
-                            width: 120.0,
-                            height: 35.0,
-                            child: Text(
-                                '${_location['worldPosition']['left']}, ${_location['worldPosition']['top']}'),
-                          ),
-                        ],
-                      ),
                     ],
                     if (isEditMode)
                       SizedBox(

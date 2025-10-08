@@ -10,7 +10,6 @@ import '../../game/logic/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
 import '../../game/common.dart';
-import '../../state/character.dart';
 
 const _kTimeFlowDivisions = 10;
 
@@ -72,7 +71,6 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
         _isFinished = _progress >= widget.max * _kTimeFlowDivisions;
         if (_progress % _kTimeFlowDivisions == 0) {
           GameLogic.updateGame();
-          context.read<HeroState>().update();
 
           final result = widget.onProgress?.call();
           if (result == true) {

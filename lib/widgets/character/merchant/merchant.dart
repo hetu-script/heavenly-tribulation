@@ -23,7 +23,7 @@ class MerchantDialog extends StatefulWidget {
     this.materialMode = false,
     required this.priceFactor,
     this.filter,
-    this.merchantType = MerchantType.location,
+    this.merchantType = MerchantType.none,
   });
 
   final dynamic merchantData;
@@ -325,8 +325,9 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               engine.play('coins-31879.mp3');
                               for (final itemData in items) {
                                 engine.hetu.invoke(
-                                  'entityLose',
-                                  positionalArgs: [GameData.hero, itemData],
+                                  'lose',
+                                  namespace: 'Player',
+                                  positionalArgs: [itemData],
                                 );
                                 engine.hetu.invoke(
                                   'entityAcquire',
@@ -568,11 +569,13 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                   widget.merchantData,
                                   itemData,
                                 ]);
-                                engine.hetu
-                                    .invoke('entityAcquire', positionalArgs: [
-                                  GameData.hero,
-                                  itemData,
-                                ]);
+                                engine.hetu.invoke(
+                                  'acquire',
+                                  namespace: 'Player',
+                                  positionalArgs: [
+                                    itemData,
+                                  ],
+                                );
                                 _selectedMerchantItemsData
                                     .remove(itemData['id']);
                                 setState(() {});

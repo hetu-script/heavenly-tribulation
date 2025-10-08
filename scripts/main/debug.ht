@@ -22,7 +22,7 @@ namespace Debug {
 
   external function reloadModules()
 
-  function generateHero({rank = 0, level = 0}) {
+  async function generateHero({rank = 0, level = 0}) {
     final hero = Character(
       id: 'hero',
       level: level,
@@ -39,39 +39,42 @@ namespace Debug {
 
     final randomEquipmentKind = Constants.equipmentCategoryKinds['weapon'].random
     final item = Equipment(kind: randomEquipmentKind, rank: hero.rank)
-    Player.acquire(item)
+    await Player.acquire(item)
 
     final pack = Cardpack(
       kind: randomEquipmentKind,
       rank: hero.rank,
       isBasic: true,
     )
-    Player.acquire(pack)
+    await Player.acquire(pack)
+    
     final pack2 = Cardpack(
       rank: hero.rank,
       isBasic: true,
     )
-    Player.acquire(pack2)
+    await Player.acquire(pack2)
 
     // testItem(hero)
     // testQuest()
   }
 
-  function testItem() {
+  function testItem([character]) {
+    engine.warn('Debug.testItem ${character?.name}')
+    character ??= hero
 
     for (final affixId in game.battleCards.keys) {
       final card = BattleCard(
         affixId: affixId,
-        rank: hero.rank,
+        rank: character.rank,
       )
-      Player.acquireCard(card)
+      characterAcquireBattleCard(character, card)
     }
     
     final items = []
     for (var kind in Constants.equipmentKinds) {
       final item = Equipment(kind: kind, rank: hero.rank)
       items.add(item)
-      Player.acquire(item)
+      entityAcquire(character, item)
     }
 
     for (var genre in [null, ...Constants.cultivationGenres]) {
@@ -80,65 +83,65 @@ namespace Debug {
         rank: hero.rank,
       )
       items.add(pack)
-      Player.acquire(pack)
+      entityAcquire(character, pack)
     }
 
     for (var i in range(5)) {
       final item = Potion(rank: hero.rank)
       items.add(item)
-      Player.acquire(item)
+      entityAcquire(character, item)
     }
 
     final shardPack = Materialpack(kind: 'shard', amount: 50)
-    Player.acquire(shardPack)
+    entityAcquire(character, shardPack)
     items.add(shardPack)
 
     final moneyPack = Materialpack(kind: 'money', amount: 5000)
-    Player.acquire(moneyPack)
+    entityAcquire(character, moneyPack)
     items.add(moneyPack)
 
     for (var i in range(3)) {
       final scroll = createItemByPrototype('identify_scroll')
-      Player.acquire(scroll)
+      entityAcquire(character, scroll)
       items.add(scroll)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
       final paper = createItemByPrototype('scroll_paper_rank${i}')
       paper.stackSize = 5
-      Player.acquire(paper)
+      entityAcquire(character, paper)
       items.add(paper)
     }
 
     for (var i in range(3)) {
       final spirit = StatusSpirit(rank: hero.rank + 1)
-      Player.acquire(spirit)
+      entityAcquire(character, spirit)
       items.add(spirit)
     }
 
     for (var materialId in _kCraftMaterials) {
       final material = createItemByPrototype(materialId)
       material.stackSize = 10
-      Player.acquire(material)
+      entityAcquire(character, material)
       items.add(material)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
       final ticket = createItemByPrototype('dungeon_ticket_rank${i}')
       ticket.stackSize = 3
-      Player.acquire(ticket)
+      entityAcquire(character, ticket)
       items.add(ticket)
     }
 
-    Game.promptItems(items)
+    if (character == hero) {
+      Game.promptItems(items)
+    }
   }
 
   function testJournal() {
-    final journal = hero.journals.mysticGirl
+    final journal = hero.journals.organizationInitiation
     if (!journal) {
-      journal = Player.acquireJournalById('mysticGirl')
-      Player.progressJournalById(journal.id, stage: 1)
-      Player.progressJournalById(journal.id, stage: 3)
+      journal = Player.createJournalById('organizationInitiation')
     }
     Game.promptJournal(journal)
   }

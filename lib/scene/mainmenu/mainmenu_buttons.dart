@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/samsara.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:samsara/console.dart';
 
 import '../../game/ui.dart';
 import '../../game/logic/logic.dart';
@@ -20,9 +20,10 @@ import '../../widgets/character/details.dart';
 // import '../../game/common.dart';
 
 enum DebugMenuItems {
+  debugConsole,
   debugResetHero,
   debugItem,
-  debugQuest,
+  debugJournal,
   debugMerchant,
   debugMaterialMerchant,
   debugWorkbench,
@@ -184,6 +185,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                               () async {
                             await GameData.createGame(
                               args['saveName'],
+                              seedString: args['seedString'],
                               enableTutorial: args['enableTutorial'],
                             );
                             engine.pushScene(
@@ -294,6 +296,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                               () async {
                             await GameData.createGame(
                               args['saveName'],
+                              seedString: args['seedString'],
                               isEditorMode: true,
                             );
                             engine.pushScene(
@@ -402,9 +405,10 @@ class _DebugButtonState extends State<DebugButton> {
             showFluentMenu(
               controller: menuController,
               items: {
+                engine.locale('console'): DebugMenuItems.debugConsole,
                 engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
                 engine.locale('debugItem'): DebugMenuItems.debugItem,
-                engine.locale('debugQuest'): DebugMenuItems.debugQuest,
+                engine.locale('debugJournal'): DebugMenuItems.debugJournal,
                 '___1': null,
                 engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
                 engine.locale('debugMaterialMerchant'):
@@ -421,18 +425,25 @@ class _DebugButtonState extends State<DebugButton> {
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
+                  case DebugMenuItems.debugConsole:
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => Console(
+                        engine: engine,
+                        margin: const EdgeInsets.all(50.0),
+                        backgroundColor: GameUI.backgroundColor2,
+                      ),
+                    );
                   case DebugMenuItems.debugResetHero:
-                    context.read<HeroState>().update();
                     engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
                       restart: true,
                     );
-                    context.read<NpcListState>().update(const []);
                   case DebugMenuItems.debugItem:
                     engine.hetu.invoke('testItem', namespace: 'Debug');
-                  case DebugMenuItems.debugQuest:
-                    engine.hetu.invoke('testQuest', namespace: 'Debug');
+                  case DebugMenuItems.debugJournal:
+                    engine.hetu.invoke('testJournal', namespace: 'Debug');
                   case DebugMenuItems.debugMerchant:
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {
@@ -454,12 +465,13 @@ class _DebugButtonState extends State<DebugButton> {
                     engine.hetu.invoke('testItem',
                         namespace: 'Debug', positionalArgs: [merchant]);
                     context.read<MerchantState>().show(
-                      merchant,
-                      useShard: true,
-                      priceFactor: <String, dynamic>{
-                        'base': 1.2,
-                      },
-                    );
+                          merchant,
+                          useShard: true,
+                          priceFactor: <String, dynamic>{
+                            'base': 1.2,
+                          },
+                          merchantType: MerchantType.character,
+                        );
                   case DebugMenuItems.debugMaterialMerchant:
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {
@@ -502,9 +514,7 @@ class _DebugButtonState extends State<DebugButton> {
                     engine.hetu.invoke(
                       'accompany',
                       namespace: 'Player',
-                      positionalArgs: [
-                        companion,
-                      ],
+                      positionalArgs: [companion],
                     );
                     context.read<NpcListState>().update([companion]);
                   case DebugMenuItems.debugBattle:
@@ -562,10 +572,12 @@ class _DebugButtonState extends State<DebugButton> {
                   case DebugMenuItems.debugImmortalityTrial:
                     engine.clearAllCachedScene(except: Scenes.mainmenu);
                     GameData.game['flags']['cultivationTrial'] = {
+                      'name': engine.locale('cultivation_trial'),
                       'difficulty': 0,
                       'introCompleted': false,
                       'buildCompleted': false,
                       'room': 0,
+                      'roomMax': 3,
                     };
                     engine.pushScene(
                       'cultivation_trial_1',

@@ -29,8 +29,9 @@
     icon: "assets/images/object/forest.png",
     type: "sprite",
     kind: "forest",
-    spriteIndex: 1,
-    sprite: "object/forest.png",
+    overlaySprite: {
+      sprite: "object/forest.png",
+    },
   },
   mountain: {
     id: "mountain",
@@ -38,8 +39,9 @@
     icon: "assets/images/object/mountain.png",
     type: "sprite",
     kind: "mountain",
-    spriteIndex: 1,
-    sprite: "object/mountain.png",
+    overlaySprite: {
+      sprite: "object/mountain.png",
+    },
   },
   river: {
     id: "river",
@@ -47,7 +49,9 @@
     icon: "assets/images/object/river.png",
     type: "sprite",
     kind: "river",
-    sprite: "object/river.png",
+    overlaySprite: {
+      sprite: "object/river.png",
+    },
   },
   shelf: {
     id: "shelf",
@@ -55,7 +59,9 @@
     icon: "assets/images/object/shelf.png",
     type: "sprite",
     kind: "shelf",
-    sprite: "object/shelf.png",
+    overlaySprite: {
+      sprite: "object/shelf.png",
+    },
   },
   shore: {
     id: "shore",
@@ -63,7 +69,9 @@
     icon: "assets/images/object/shore.png",
     type: "sprite",
     kind: "shore",
-    sprite: "object/shore.png",
+    overlaySprite: {
+      sprite: "object/shore.png",
+    },
   },
   snow_plain: {
     id: "snow_plain",
@@ -71,8 +79,9 @@
     icon: "assets/images/object/snow_plain.png",
     type: "sprite",
     kind: "plain",
-    spriteIndex: 1,
-    sprite: "object/snow_plain.png",
+    overlaySprite: {
+      sprite: "object/snow_plain.png",
+    },
   },
   snow_mountain: {
     id: "snow_mountain",
@@ -80,8 +89,9 @@
     icon: "assets/images/object/snow_mountain.png",
     type: "sprite",
     kind: "mountain",
-    spriteIndex: 1,
-    sprite: "object/snow_mountain.png",
+    overlaySprite: {
+      sprite: "object/snow_mountain.png",
+    },
   },
   snow_forest: {
     id: "snow_forest",
@@ -89,8 +99,9 @@
     icon: "assets/images/object/snow_forest.png",
     type: "sprite",
     kind: "forest",
-    spriteIndex: 1,
-    sprite: "object/snow_forest.png",
+    overlaySprite: {
+      sprite: "object/snow_forest.png",
+    },
   },
   markArrow: {
     id: "markArrow",

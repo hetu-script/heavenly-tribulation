@@ -67,6 +67,7 @@ namespace Game {
     // prebattlePreventClose: bool = false,
     onBattleStart,
     onBattleEnd,
+    background,
   })
 
   external function showBattle({

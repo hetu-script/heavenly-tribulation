@@ -332,7 +332,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 function setCharacterLife(character, life) {
   let tribulation = false
   if (life < 0) {
-    engine.debug('Character ${character.id} 遭遇劫难，生命值重设为 1')
+    engine.warn('Character ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1
     tribulation = true
     character.tribulationCount += 1
@@ -536,7 +536,7 @@ function characterEquip(entity, item, { index }) {
       characterCalculateStats(entity, rejuvenate: false)
     }
 
-    onGameEvent('onEquipItem', item)
+    onGameEvent('onEquip', item)
   }
 
   return equipped

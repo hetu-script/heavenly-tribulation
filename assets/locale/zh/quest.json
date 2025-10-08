@@ -1,0 +1,19 @@
+{
+  "quest_content": "任务内容",
+
+  "quest_purchase_material": "购买物资",
+  "quest_purchase_item": "购买物品",
+  "quest_deliver_material": "运送物资",
+  "quest_deliver_item": "运送物品",
+  "quest_escort": "护送",
+  "quest_discover_location": "探索",
+
+  "quest_finished": "任务已完成。",
+
+  "quest_purchase_material_description": "购买 {0} 个{1}，然后返回{2}的{3}交付。",
+  "quest_purchase_item_description": "购买{0}，然后返回{1}的{2}交付。",
+  "quest_deliver_material_description": "将 {0} 个{1}送到{2}的{3}。",
+  "quest_deliver_item_description": "将{0}送到{1}的{2}。",
+  "quest_escort_description": "护送{0}到{1}的{2}。",
+  "quest_discover_location_description": "在{0}的领土内探索{1}。"
+}

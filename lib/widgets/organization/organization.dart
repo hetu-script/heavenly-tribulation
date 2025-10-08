@@ -76,7 +76,7 @@ class _OrganizationViewState extends State<OrganizationView> {
 
     for (final location in locations) {
       if (location['category'] != 'city') continue;
-      final row = GameLogic.getLocationInformationRow(location);
+      final row = GameLogic.getCityInformationRow(location);
       _locationsTable.add(row);
     }
 

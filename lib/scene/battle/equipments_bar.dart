@@ -68,7 +68,6 @@ class EquipmentsBar extends GameComponent {
     statsButton.onMouseEnter = () {
       final Widget statsView = CharacterStats(
         character: character,
-        isHero: false,
         showNonBattleStats: false,
       );
       game.context.read<HoverContentState>().show(

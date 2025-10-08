@@ -1,46 +1,52 @@
 
-const kStartTile = {
+const _kStartTile = {
   left: 8,
   top: 9,
 }
-const kReturnTile = {
+const _kReturnTile = {
   left: 8,
   top: 10,
 }
-const kCenterTile = {
+const _kCenterTile = {
   left: 8,
   top: 7,
 }
-const kPortal1Tile = {
+const _kPortal1Tile = {
   left: 8,
   top: 4,
 }
-const kPortal2Tile = {
+const _kPortal2Tile = {
   left: 4,
   top: 6,
 }
-const kPortal3Tile = {
+const _kPortal3Tile = {
   left: 12,
   top: 6,
 }
-const kFunction1 = {
+const _kFunction1 = {
   left: 6,
   top: 6,
 }
-const kFunction2 = {
+const _kFunction2 = {
   left: 10,
   top: 6,
 }
-const kFunction3 = {
+const _kFunction3 = {
   left: 6,
   top: 8,
 }
-const kFunction4 = {
+const _kFunction4 = {
   left: 10,
   top: 8,
 }
 
-function prepareMap() {
+/// 试炼地图事件
+/// 一共有4个房间：
+/// 1, 初始房间，有三个传送门
+/// 2, 包含一个开关
+/// 3, 包含一个炼丹炉
+/// 4, 包含一个出口，必须先打开开关才能从出口离开
+function _prepareMap() {
   game.flags.cultivationTrial.buildCompleted = true
   /// 清理所有的地块贴图和临时对象，还原到空地图
   world.objects = {}
@@ -50,84 +56,84 @@ function prepareMap() {
     tile.objectId = null
     World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
   }
-  World.promptTextBanner(engine.locale('cultivation_trial'))
 
   /// 根据房间填充地图
-  switch (game.flags.cultivationTrial.room) {
-    0: {
-      final portalIds = ['portal1', 'portal2', 'portal3']
-      final p1 = portalIds.random
-      addPortal(
-        kPortal1Tile,
-        objectId: p1,
-        useCustomLogic: true,
-      )
-      portalIds.remove(p1)
-      final p2 = portalIds.random
-      addPortal(
-        kPortal2Tile,
-        objectId: p2,
-        useCustomLogic: true,
-      )
-      portalIds.remove(p2)
-      final p3 = portalIds.first
-      addPortal(
-        kPortal3Tile,
-        objectId: p3,
-        useCustomLogic: true,
-      )
-    }
+  switch (game.flags.cultivationTrial.room + 1) {
     1: {
+      let roomSequence = game.flags.cultivationTrial.roomSequence
+      if (roomSequence == null) {
+        roomSequence = game.flags.cultivationTrial.roomSequence = [1, 2, 3]
+        roomSequence.shuffle()
+      }
       addPortal(
-        kReturnTile,
-        objectId: 'portalReturn',
+        _kPortal1Tile,
+        objectId: 'portal${roomSequence[0]}',
         useCustomLogic: true,
       )
       addPortal(
-        kPortal1Tile,
-        objectId: 'portalExit',
+        _kPortal2Tile,
+        objectId: 'portal${roomSequence[1]}',
+        useCustomLogic: true,
+      )
+      addPortal(
+        _kPortal3Tile,
+        objectId: 'portal${roomSequence[2]}',
         useCustomLogic: true,
       )
     }
     2: {
       addPortal(
-        kReturnTile,
+        _kReturnTile,
+        objectId: 'portalReturn',
+        useCustomLogic: true,
+      )
+      addPortal(
+        _kPortal1Tile,
+        objectId: 'portalExit',
+        useCustomLogic: true,
+      )
+    }
+    3: {
+      addPortal(
+        _kReturnTile,
         objectId: 'portalReturn',
         useCustomLogic: true,
       )
       addSwitch(
-        kCenterTile,
+        _kCenterTile,
         objectId: 'switch1',
         useCustomLogic: true,
         isOn: game.flags.cultivationTrial.switchOn == true,
       )
     }
-    3: {
+    4: {
       addPortal(
-        kReturnTile,
+        _kReturnTile,
         objectId: 'portalReturn',
         useCustomLogic: true,
       )
       addAlchemyFurnace(
-        kCenterTile,
+        _kCenterTile,
       )
     }
   }
 }
 
-/// 试炼地图事件
-/// 一共有4个房间：
-/// 0, 初始房间，有三个传送门
-/// 1, 包含一个开关
-/// 2, 包含一个炼丹炉
-/// 3, 包含一个出口，必须先打开开关才能从出口离开
 async function onEnterMap() {
+  Game.updateDungeon(game.flags.cultivationTrial)
+
+  if (!game.flags.cultivationTrial.promptedDungeonTitle) {
+    game.flags.cultivationTrial.promptedDungeonTitle = true
+    World.promptTextBanner(engine.locale('cultivation_trial'))
+  }
+
   if (!game.flags.cultivationTrial.buildCompleted) {
+    game.flags.cultivationTrial.buildCompleted = true
     Dialog.pushBackground('black.png')
     Dialog.pushTask(() {
-      prepareMap()
+      _prepareMap()
       World.lightUpAllTiles()
-      Player.setTo(kCenterTile.left, kStartTile.top, worldId: world.id, direction: 'north')
+      Player.setTo(_kStartTile.left, _kStartTile.top, worldId: world.id, direction: 'north')
       Game.showHeroInfo()
     })
     Dialog.popBackground(isFadeOut: true)
@@ -151,7 +157,7 @@ async function onAfterMove(terrain) {
   if (failed) {
     final npc = game.npcs[game.flags.cultivationTrial.npcId]
     Dialog.pushDialog(
-      'organization_immortality_trial_pass',
+      'organization_immortality_trial_fail',
       name: npc?['name'],
       icon: npc?['icon'],
       image: npc?['illustration'],
@@ -189,15 +195,17 @@ async function onInteractMapObject(object, terrain) {
         if (organizationId != null) {
           final organization = game.organizations[organizationId]
           await Player.enroll(organization, npcId: game.flags.cultivationTrial.npcId);
-          final npc = game.npcs[game.flags.cultivationTrial.npcId]
-          Dialog.pushDialog(
-            'organization_immortality_trial_pass',
-            name: npc?['name'],
-            icon: npc?['icon'],
-            image: npc?['illustration'],
-          )
-          await Dialog.execute()
         }
+        final npc = game.npcs[game.flags.cultivationTrial.npcId]
+        Dialog.pushDialog(
+          'organization_immortality_trial_pass',
+          name: npc?['name'],
+          icon: npc?['icon'],
+          image: npc?['illustration'],
+        )
+        await Dialog.execute()
+        game.flags.cultivationTrial = null
+        Game.updateDungeon(null)
         Game.popScene(clearCache: true)
       } else {
         Dialog.pushDialog('cultivation_trial_exit_hint')

@@ -282,17 +282,17 @@ struct Location {
     this.materials = {}
 
     if (npcId) {
-      assert(game.npcs.containsKey(npc.id))
-      this.npcId = npc.id
+      final npc = game.npcs[npcId]
+      assert(npc != null, 'NPC不存在，id: ${npcId}')
+      npc.atLocationId = this.id
     } else if (createNpc) {
       final npc = Npc(
         id: this.id + '_npc',
         nameId: 'servant',
         icon: 'illustration/npc/servant_head.png',
         illustration: 'illustration/npc/servant.png',
-        atLocationId: this.id,
+        locationId: this.id,
       )
-      this.npcId = npc.id
     }
 
     if (atTerrain != null) {

@@ -83,7 +83,6 @@ class _GameDialogContentState extends State<GameDialogContent> {
       fontSize: 20,
       letterSpacing: 2,
       fontWeight: FontWeight.normal,
-      color: Colors.white,
       fontFamily: GameUI.fontFamily,
       decoration: TextDecoration.none,
     ).merge(widget.style ?? TextStyle());

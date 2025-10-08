@@ -1,7 +1,9 @@
-let random = Random()
+let random
 
 function setRandomSeed([seed: integer]) {
+  game.seed = seed ?? Random().nextInt(1 << 32)
   random = Random(seed)
+  return random
 }
 
 function getRandomObject() {

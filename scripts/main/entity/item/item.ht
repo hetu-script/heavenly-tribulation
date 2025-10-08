@@ -454,7 +454,7 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
   let incidentContent = engine.locale('characterAcquireMultiple', interpolations: [
     entity.name,
     amount,
-    engine.locale(materialId),
+    engine.locale(materialId == 'money' ? 'money2' : materialId),
   ])
   if (incurIncident && entity.entityType == 'character') {
     Incident(
@@ -474,10 +474,10 @@ function entityCollectAll(entity, materials, { incurIncident = true }) {
   }
 }
 
-function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true }) {
+function entityAcquireByPrototype(entity, prototypeId, { amount = 1, incurIncident = true }) {
   assert(amount > 0)
 
-  final item = createItemByPrototype(itemId)
+  final item = createItemByPrototype(prototypeId)
 
   entity.inventory[item.id] = item
   item.ownerId = entity.id
@@ -516,22 +516,6 @@ function entityExhaust(entity, materialId: string, { amount = 1 }) -> bool {
   if (rest >= 0) {
     success = true
     entity.materials[materialId] = rest
-    
-    let incidentContent = engine.locale('characterLoseMultiple', interpolations: [
-      entity.name,
-      amount,
-      engine.locale(materialId),
-    ])
-    engine.debug(incidentContent)
-    // if (incurIncident && entity.entityType == 'character') {
-    //   Incident(
-    //     message: incidentContent,
-    //     subjectId: entity.id,
-    //     isPrivate: true,
-    //   )
-    // } else {
-    //   engine.debug(incidentContent)
-    // }
   }
 
   return success
@@ -581,6 +565,8 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   } else {
     engine.debug(incidentContent)
   }
+
+  return acquiredItem
 }
 
 /// 失去指定数量的某个物品，返回实际失去的数量
@@ -596,37 +582,6 @@ function entityLose(entity, item, { amount = 1, incurIncident = true }) {
   } else if (item.stackSize <= amount) {
     delete entity.inventory[item.id]
   }
-
-  let incidentContent
-  if (count > 1) {
-    incidentContent = engine.locale('entityLoseMultiple', interpolations: [
-      entity.name,
-      count,
-      item.name,
-    ])
-  } else {
-    incidentContent = engine.locale('entityLose', interpolations: [
-      entity.name,
-      item.name,
-    ])
-  }
-  engine.debug(incidentContent)
-
-  // let incidentContent
-  // incidentContent = engine.locale('entityLose', interpolations: [
-  //   entity.name,
-  //   item.name,
-  // ])
-  // if (incurIncident && entity.entityType == 'character') {
-  //   Incident(
-  //     message: incidentContent,
-  //     subjectId: entity.id,
-  //     item: item,
-  //     isPrivate: true,
-  //   )
-  // } else {
-  //   engine.debug(incidentContent)
-  // }
 
   return count
 }
@@ -750,91 +705,3 @@ function createLoot(itemsInfo: List) {
   }
   return items
 }
-
-// 某个对象将其拥有的物品交给另一个对象
-// isForced 如果为 true，表示 target 强行夺取了 entity 的物品
-// 将会立刻移除该物品，不要在物品栏循环中使用这个函数
-// 此函数即便数量不够也会尽量支付
-// 如果成功提供足够数量的指定物品，返回 0，否则返回 欠缺的数量
-// function give(entity, target, itemId, { amount, removeItem = true, isForced = false, incurIncident = true}) {
-//   if (amount <= 0) return 0
-//   let rest = amount ?? 1
-//   if (!entity.inventory.containsKey(itemId)) {
-//     engine.warn('${entity.id} 没有 ${item.id} ，无法支付。')
-//     return rest
-//   }
-//   const item = entity.inventory[itemId]
-//   amount ??= item.stackSize ?? 1
-//   if (item.equippedPosition) unequip(entity, item)
-//   let incidentContent
-
-//   let actualNumber = amount
-//   if (item.stackSize > amount) {
-//     item.stackSize -= amount
-//   } else if (item.stackSize < amount) {
-//     // 身上的数量不够支付
-//     actualNumber = item.stackSize
-//     engine.warn('${entity.id} 身上的 ${item.id} 不够 ${amount} 个，实际数量：${actualNumber}。')
-//     delete entity.inventory[item.id]
-//   } else {
-//     // 数量刚好
-//     delete entity.inventory[item.id]
-//   }
-//   rest = amount - actualNumber
-//   if (target.inventory.containsKey(item.id)) {
-//     target.inventory[item.id].stackSize += actualNumber
-//   } else {
-//     const itemCopy = item.clone()
-//     itemCopy.stackSize = actualNumber
-//     target.inventory[itemCopy.id] = itemCopy
-//   }
-//   if (amount > 1) {
-//     incidentContent = isForced ?
-//       engine.locale('characterGiveMultipleItemForced', interpolations: [
-//         target.name,
-//         entity.name,
-//         amount,
-//         item.name,
-//       ]) :
-//       engine.locale('characterGiveMultipleItem', interpolations: [
-//         entity.name,
-//         amount,
-//         item.name,
-//         target.name,
-//       ])
-//   } else {
-//     incidentContent = isForced ?
-//       engine.locale('characterGiveItemForced', interpolations: [
-//         target.name,
-//         entity.name,
-//         amount,
-//         item.name,
-//       ]) :
-//       engine.locale('characterGiveItem', interpolations: [
-//         entity.name,
-//         amount,
-//         item.name,
-//         target.name,
-//       ])
-//   }
-
-//   if (incurIncident) {
-//     let subjectIds
-//     let objectIds
-//     if (isForced) {
-//       subjectIds = entity.isMain ? [entity.id] : null
-//       objectIds = target.isMain ? [target.id] : null
-//     } else {
-//       subjectIds = target.isMain ? [target.id] : null
-//       objectIds = entity.isMain ? [entity.id] : null
-//     }
-//     Incident(
-//       message: incidentContent,
-//       subjectIds: subjectIds,
-//       objectIds: objectIds,
-//       isPrivate: true,
-//     )
-//   }
-
-//   return rest
-// }

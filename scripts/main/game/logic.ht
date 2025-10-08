@@ -910,7 +910,7 @@ async function onInteractTreasureBox(object, terrain) {
   // await Future.delayed(0.5)
   final items = createLoot(object.items)
   for (final item in items) {
-    Player.acquire(item, autoUnpack: true)
+    await Player.acquire(item)
   }
   engine.play('pickup_item-64282.mp3')
   Game.promptItems(items)
@@ -1002,7 +1002,7 @@ async function onInteractSpiritWell(object) {
   final spiritWellDropRoll = r.nextDouble()
   if (hasVacancy && spiritWellDropRoll < kSpiritWellProbabilitySpirit) {
     final spirit = StatusSpirit(rank: object.rank)
-    Player.acquire(spirit)
+    await Player.acquire(spirit)
     Player.equip(spirit)
     engine.play('spell-of-healing-876.mp3')
     Dialog.pushDialog('hint_dungeon_spiritWell_use')

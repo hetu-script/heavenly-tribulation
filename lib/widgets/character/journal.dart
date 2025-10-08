@@ -60,29 +60,71 @@ class _JournalViewState extends State<JournalView> {
 
   Widget _buildJournalDescription(dynamic journalData) {
     final List<Widget> descriptions = [];
-    final String journalId = journalData['id'];
     final List sequence = journalData['sequence'];
 
-    for (var index in sequence) {
+    for (var index = sequence.length - 1; index >= 0; --index) {
+      final stageIndex = sequence[index];
       descriptions.add(
-        RichText(
-          text: TextSpan(
-            children: buildFlutterRichText(
-              engine.locale(
-                'journal_${journalId}_stage_$index',
-                interpolations: journalData['interpolations'],
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '· ',
+                style: TextStyles.bodyMedium,
               ),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
+              SizedBox(
+                width: 330.0,
+                child: RichText(
+                  text: TextSpan(
+                    children: buildFlutterRichText(
+                      _selectedJournal['stages'][stageIndex],
+                      style: (index == sequence.length - 1 &&
+                              journalData['isFinished'] != true)
+                          ? TextStyles.bodyMedium
+                          : TextStyles.bodyMedium.copyWith(
+                              color: Colors.grey,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
+
+    if (_selectedJournal['quest']?['budget'] != null) {
+      descriptions.add(
+        RichText(
+          text: TextSpan(
+            children: buildFlutterRichText(GameData.getQuestRewardDescription(
+                _selectedJournal['quest']['budget'])),
+            style: TextStyles.bodyMedium,
+          ),
+        ),
+      );
+    }
+    if (_selectedJournal['quest']?['reward'] != null) {
+      descriptions.add(
+        RichText(
+          text: TextSpan(
+            children: buildFlutterRichText(GameData.getQuestRewardDescription(
+                _selectedJournal['quest']['reward'])),
+            style: TextStyles.bodyMedium,
+          ),
+        ),
+      );
+    }
+
     return ScrollConfiguration(
       behavior: MaterialScrollBehavior(),
-      child: SizedBox(
+      child: Container(
         width: 360.0,
         height: 360.0,
+        padding: const EdgeInsets.only(top: 10.0),
         child: SingleChildScrollView(
           child: ListView(
             shrinkWrap: true,
@@ -192,19 +234,30 @@ class _JournalViewState extends State<JournalView> {
                       children: [
                         Text(
                           _selectedJournal['title'],
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const Spacer(),
-                        if (_selectedJournal['isFinished'])
-                          Text(
-                            engine.locale('finished'),
-                            style: const TextStyle(fontSize: 20),
-                          )
-                        else
-                          Text(
-                            engine.locale('continued'),
-                            style: const TextStyle(fontSize: 20),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 15.0),
+                          child: _selectedJournal['isFinished'] == true
+                              ? Text(
+                                  engine.locale('finished'),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              : Text(
+                                  engine.locale('continued'),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.lightGreen,
+                                  ),
+                                ),
+                        ),
                       ],
                     ),
                     _buildJournalDescription(_selectedJournal),

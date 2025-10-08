@@ -234,8 +234,8 @@ class LocationScene extends Scene {
 
     engine.hetu.assign('location', location);
 
-    final List npcs = engine.hetu
-        .invoke('getNpcsAtLocationId', positionalArgs: [location['id']]);
+    final List npcs =
+        engine.hetu.invoke('getNpcsAtLocation', positionalArgs: [location]);
     context.read<NpcListState>().update(npcs);
     context.read<HeroPositionState>().updateTerrain(
           currentZoneData: null,

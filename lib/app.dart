@@ -74,6 +74,8 @@ class _GameAppState extends State<GameApp> {
         onBattleStart: arguments['onBattleStart'],
         onBattleEnd: arguments['onBattleEnd'],
         endBattleAfterRounds: arguments['endBattleAfterTurns'] ?? 0,
+        backgroundImageId:
+            arguments['background'] ?? 'battle/scene/001_day.png',
       );
     });
 
@@ -461,6 +463,8 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
+      engine.context.read<HoverContentState>().hide();
+      engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.library, arguments: {
         'enableCardCraft': namedArgs['enableCardCraft'] ?? false,
         'enableScrollCraft': namedArgs['enableScrollCraft'] ?? false,
@@ -469,6 +473,8 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
         {positionalArgs, namedArgs}) {
+      engine.context.read<HoverContentState>().hide();
+      engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.cultivation, arguments: {
         'location': namedArgs['location'],
         'enableCultivate': namedArgs['enableCultivate'] ?? false,
@@ -477,11 +483,14 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showPrebattle', (
         {positionalArgs, namedArgs}) {
+      engine.context.read<HoverContentState>().hide();
+      engine.context.read<ViewPanelState>().clearAll();
       context.read<EnemyState>().show(
             positionalArgs.first,
             // prebattlePreventClose: namedArgs['prebattlePreventClose'] ?? false,
             onBattleStart: namedArgs['onBattleStart'],
             onBattleEnd: namedArgs['onBattleEnd'],
+            background: namedArgs['background'],
           );
     }, override: true);
 
@@ -495,6 +504,7 @@ class _GameAppState extends State<GameApp> {
         'isAutoBattle': namedArgs['isAutoBattle'] ?? false,
         'onBattleStart': namedArgs['onBattleStart'],
         'onBattleEnd': namedArgs['onBattleEnd'],
+        'background': namedArgs['background'],
       };
       engine.pushScene(Scenes.battle, arguments: arg);
     }, override: true);

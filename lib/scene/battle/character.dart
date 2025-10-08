@@ -800,6 +800,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final List affixes = card.data['affixes'];
     assert(affixes.isNotEmpty);
     final mainAffix = affixes[0];
+    final extraAffixes = affixes.skip(1);
 
     final category = mainAffix['category'];
     final genre = mainAffix['genre'];
@@ -839,8 +840,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 先处理优先级高于主词条的额外词条
     // 其中可能包含一些当前回合就立即起作用的buff
-    final beforeMain = affixes.where((affix) {
-      return affix['isMain'] != true && (affix['priority'] ?? 0) < 0;
+    final beforeMain = extraAffixes.where((affix) {
+      return (affix['priority'] ?? 0) < 0;
     }).toList();
     // 多个词条时，按照优先级排序
     beforeMain.sort((a, b) {
@@ -867,8 +868,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 最后处理其他词条
     // 其中可能包含一些需求资源或有关主词条造成的伤害等情况的词条
     // 这样可能会当回合就触发一些联动
-    final afterMain = affixes.where((affix) {
-      return affix['isMain'] != true && (affix['priority'] ?? 0) >= 0;
+    final afterMain = extraAffixes.where((affix) {
+      return (affix['priority'] ?? 0) >= 0;
     }).toList();
     // 多个词条时，按照优先级排序
     afterMain.sort((a, b) {

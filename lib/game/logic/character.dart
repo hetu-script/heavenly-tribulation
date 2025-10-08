@@ -41,6 +41,7 @@ void _heroRest() async {
     onProgress: () {
       engine.hetu
           .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
+      engine.context.read<HeroState>().update();
       return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
     },
   );
@@ -317,6 +318,20 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         final selected = dialog.checkSelected('organizationRelationship');
         switch (selected) {
           case 'enroll':
+            // 检查门派招募月份
+            final recruitMonth = organization['recruitMonth'];
+            if (recruitMonth != GameLogic.month) {
+              dialog.pushDialog(
+                'hint_notRecruitMonth',
+                interpolations: [recruitMonth],
+                name: npc?['name'],
+                icon: npc?['icon'],
+                image: npc?['image'],
+              );
+              await dialog.execute();
+              return;
+            }
+            // 玩家本月是否已经进行过此门派的试炼
             if (GameData.game['playerMonthly']['enrolled']
                 .contains(organization['id'])) {
               dialog.pushDialog('hint_alreadyTrialedThisMonth',
@@ -467,10 +482,12 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 });
               case 'immortality':
                 GameData.game['flags']['cultivationTrial'] = {
+                  'name': engine.locale('cultivation_trial'),
                   'difficulty': 0,
                   'introCompleted': false,
                   'buildCompleted': false,
                   'room': 0,
+                  'roomMax': 3,
                   'organizationId': organization['id'],
                   'npcId': npc['id'],
                 };
@@ -525,7 +542,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               case 'entrepreneur':
                 final List testersData =
                     organization['members'].values.where((m) {
-                  if (m['rank'] >= 1) return true;
+                  return m['rank'] >= 1;
                 }).toList();
                 assert(testersData.isNotEmpty);
                 testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
@@ -694,7 +711,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
       siteOptions.add('trade');
     }
     if (siteKind == 'cityhall') {
-      siteOptions.add('bounty');
+      siteOptions.add('bountyQuest');
     } else if (siteKind == 'tradinghouse') {
       siteOptions.add('tradeMaterial');
     } else if (siteKind == 'workshop') {
@@ -722,6 +739,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           ),
         );
       case 'cityInformation':
+        assert(atLocation != null,
+            '试图查看 cityInformation 但 atLocation 为空, id: ${location['atLocationId']}');
         showDialog(
           context: engine.context,
           builder: (context) => LocationView(
@@ -745,11 +764,11 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         _heroWork(location, npc);
       case 'produce':
         _heroProduce(location);
-      case 'bounty':
+      case 'bountyQuest':
         final bounties = location['bounties'] ?? const [];
         if (bounties.isEmpty) {
           dialog.pushDialog(
-            'hint_noBountiesAvailable',
+            'hint_noAvailableQuests',
             name: npc['name'],
             icon: npc['icon'],
             image: npc['illustration'],
@@ -757,12 +776,57 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           await dialog.execute();
           return;
         }
-        showDialog(
+        final bountyQuest = await showDialog(
           context: engine.context,
-          builder: (context) => BountyView(
+          builder: (context) => BountyQuestView(
             data: bounties,
           ),
         );
+        if (bountyQuest != null) {
+          final journal = await engine.hetu.invoke('createJournalByQuest',
+              namespace: 'Player', positionalArgs: [bountyQuest]);
+          final budget = bountyQuest['budget'];
+          if (budget != null) {
+            final items = await engine.hetu.invoke(
+              'loot',
+              namespace: 'player',
+              positionalArgs: [
+                [budget]
+              ],
+            );
+            GameLogic.promptItems(items);
+          }
+          final package = bountyQuest['package'];
+          if (package != null) {
+            switch (package['type']) {
+              case 'material':
+                final material = package['material'];
+                final amount = package['amount'];
+                engine.hetu
+                    .invoke('collect', namespace: 'Player', positionalArgs: [
+                  material
+                ], namedArgs: {
+                  'amount': amount,
+                });
+              case 'item':
+                final item = package['item'];
+                engine.hetu.invoke('acquire',
+                    namespace: 'Player', positionalArgs: [item]);
+              case 'character':
+                final characterId = package['characterId'];
+                final character = GameData.getCharacter(characterId);
+                engine.hetu.invoke(
+                  'accompany',
+                  namespace: 'Player',
+                  positionalArgs: [character],
+                );
+                final List npcs = engine.hetu
+                    .invoke('getNpcsAtLocation', positionalArgs: [location]);
+                engine.context.read<NpcListState>().update(npcs);
+            }
+          }
+          GameLogic.promptJournal(journal);
+        }
       case 'tradeMaterial':
         engine.context.read<MerchantState>().show(
               location,
@@ -790,7 +854,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
   if (character['entityType'] != 'character') {
     assert(character['entityType'] == 'npc',
         'invalid character entity type, ${character['entityType']}');
-    final location = GameData.getLocation(character['atLocationId']);
+    final location = GameData.getLocation(character['locationId']);
     _onInteractNpc(character, location);
     return;
   }
@@ -952,8 +1016,8 @@ Future<void> _onInteractCharacter(dynamic character) async {
       final item = items.firstOrNull;
       if (item != null) {
         engine.debug('正在向 ${character['name']} 出示 ${item['name']}');
-        engine.hetu.invoke('onGameEvent',
-            positionalArgs: ['onShowItem', character, item]);
+        engine.hetu
+            .invoke('onGameEvent', positionalArgs: ['onShow', character, item]);
       }
     case 'gift':
       interacted = true;
@@ -962,8 +1026,8 @@ Future<void> _onInteractCharacter(dynamic character) async {
       final item = items.first;
       if (item != null) {
         engine.debug('正在向 ${character.name} 赠送 ${item.name}');
-        final result = await engine.hetu.invoke('onGameEvent',
-            positionalArgs: ['onGiftItem', character, item]);
+        final result = await engine.hetu
+            .invoke('onGameEvent', positionalArgs: ['onGift', character, item]);
         if (result) {
           engine.hetu
               .invoke('lose', namespace: 'Player', positionalArgs: [item]);

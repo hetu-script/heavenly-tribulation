@@ -45,12 +45,23 @@ function _createBountyPurchaseMaterial(organization, cityhall, difficulty) {
   final moneyBudget = kBaseReward * (difficulty + 1)
         + (Constants.materialBasePrice[material] * kBudgetFactorForPurchaseMaterial).round() * amount
 
+  final interpolations = [
+    amount,
+    engine.locale(material),
+    atLocation.name,
+    cityhall.name,
+  ]
+
   return {
     'kind': 'purchase_material',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
-    'material': material,
-    'amount': amount,
+    'acquiredFromSiteId': cityhall.id,
+    'requirement': {
+      type: 'material',
+      material: material,
+      amount: amount,
+    },
     'budget': {
       type: 'material',
       kind: 'money',
@@ -58,6 +69,7 @@ function _createBountyPurchaseMaterial(organization, cityhall, difficulty) {
     },
     'reportSiteId': cityhall.id,
     'reportLocationId': atLocation.id,
+    'interpolations': interpolations,
   }
 }
 
@@ -70,39 +82,54 @@ function _createBountyPurchaseItem(organization, cityhall, difficulty) {
 
   final r = Random()
 
-  let itemRequired
+  let requirement
+  let itemDesc
+  final rarity = Constants.rankToRarity[difficulty]
   final typeRoll = r.nextDouble()
   if (typeRoll < 0.33) {
     final randomEquipmentCategory = Constants.equipmentCategoryKinds.keys.random
     final randomEquipmentKind = Constants.equipmentCategoryKinds[randomEquipmentCategory].random
-    itemRequired = {
+    requirement = {
+      'type': 'equipment',
       category: randomEquipmentCategory,
       kind: randomEquipmentKind,
       rank: difficulty,
-      rarity: Constants.rankToRarity[difficulty],
+      rarity: rarity,
     }
+    itemDesc = engine.locale(rarity) + engine.locale(randomEquipmentKind)
   } else if (typeRoll < 0.66) {
-    itemRequired = {
+    requirement = {
+      'type': 'potion',
       category: 'potion',
       rank: difficulty,
-      rarity: Constants.rankToRarity[difficulty],
+      rarity: rarity,
     }
+    itemDesc = engine.locale(rarity) + engine.locale('potion')
   } else {
-    itemRequired = {
+    requirement = {
+      'type': 'cardpack',
       category: 'cardpack',
       genre: difficulty == 0 ? 'none' : Constants.cultivationGenres.random,
       rank: difficulty,
     }
+    itemDesc = engine.locale('cultivationRank_${difficulty}') + engine.locale('rank2') + engine.locale('cardpack')
   }
 
-  final budget = kBaseReward * (difficulty + 1) + estimatePrice(itemRequired.category, itemRequired.rank)
+  final budget = kBaseReward * (difficulty + 1) + estimatePrice(requirement.category, requirement.rank)
   final shardRewardAmount = convertMoneyToShard(budget)
+
+  final interpolations = [
+    itemDesc,
+    atLocation.name,
+    cityhall.name,
+  ]
 
   return {
     'kind': 'purchase_item',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
-    'itemRequired': itemRequired,
+    'acquiredFromSiteId': cityhall.id,
+    'requirement': requirement,
     'budget': {
       type: 'material',
       kind: difficulty == 0 ? 'money' : 'shard',
@@ -110,6 +137,7 @@ function _createBountyPurchaseItem(organization, cityhall, difficulty) {
     },
     'reportSiteId': cityhall.id,
     'reportLocationId': atLocation.id,
+    interpolations: interpolations,
   }
 }
 
@@ -146,13 +174,32 @@ function _createBountyDeliverMaterial(organization, cityhall, difficulty) {
   final moneyRewardAmount = kBaseReward * (difficulty + 1) + Constants.materialBasePrice[material] * amount ~/ 5
   final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
+  final endLocationDesc
+  if (endLocation != null) {
+    endLocationDesc = endLocation.name
+  } else {
+    final reportWorldPosition = endSite.worldPosition
+    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
+  }
+
+  final interpolations = [
+    amount,
+    engine.locale(material),
+    endLocationDesc,
+    endSite.name,
+  ]
+
   return {
     'kind': 'deliver_material',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
+    'acquiredFromSiteId': cityhall.id,
     'receiverId': receiver?.id,
-    'material': material,
-    'amount': amount,
+    'package': {
+      'type': 'material',
+      'material': material,
+      'amount': amount,
+    },
     'reward': [
       {
         type: 'material',
@@ -162,7 +209,7 @@ function _createBountyDeliverMaterial(organization, cityhall, difficulty) {
     ],
     'reportSiteId': endSite.id,
     'reportLocationId': endLocation?.id,
-    'reportWorldPosition': endLocation?.worldPosition ?? endSite.worldPosition,
+    interpolations: interpolations,
   }
 }
 
@@ -209,12 +256,30 @@ function _createBountyDeliverItem(organization, cityhall, difficulty) {
   final moneyRewardAmount = kBaseReward * (difficulty + 1) + item.basePrice ~/ 5
   final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
+  final endLocationDesc
+  if (endLocation != null) {
+    endLocationDesc = endLocation.name
+  } else {
+    final reportWorldPosition = endSite.worldPosition
+    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
+  }
+
+  final interpolations = [
+    item.name,
+    endLocationDesc,
+    endSite.name,
+  ]
+
   return {
     'kind': 'deliver_item',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
+    'acquiredFromSiteId': cityhall.id,
     'receiverId': receiver?.id,
-    'item': item,
+    'package': {
+      'type': 'item',
+      'item': item,
+    },
     'reward': [
       {
         type: 'material',
@@ -225,6 +290,7 @@ function _createBountyDeliverItem(organization, cityhall, difficulty) {
     'reportSiteId': endSite.id,
     'reportLocationId': endLocation?.id,
     'reportWorldPosition': endLocation?.worldPosition ?? endSite.worldPosition,
+    interpolations: interpolations,
   }
 }
 
@@ -246,19 +312,37 @@ function _createBountyEscort(organization, cityhall, difficulty) {
   final characterIds = organization.members.values
     .map((data) => data.id)
     .toList()
-  let escorteeId
+  let escortee
   if (characterIds.isNotEmpty) {
-    escorteeId = characterIds.random
+    escortee = game.characters[characterIds.random]
   }
 
   final moneyRewardAmount = kBaseRewardForEscort * (difficulty + 1)
   final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
+  final endLocationDesc
+  if (endLocation != null) {
+    endLocationDesc = endLocation.name
+  } else {
+    final reportWorldPosition = endSite.worldPosition
+    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
+  }
+  
+  final interpolations = [
+    escortee.name,
+    endLocationDesc,
+    endSite.name,
+  ]
+
   return {
     'kind': 'escort',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
-    'escorteeId': escorteeId,
+    'acquiredFromSiteId': cityhall.id,
+    'package': {
+      'type': 'character',
+      'characterId': escortee.id,
+    },
     'reward': [
       {
         type: 'material',
@@ -268,7 +352,7 @@ function _createBountyEscort(organization, cityhall, difficulty) {
     ],
     'reportSiteId': endSite.id,
     'reportLocationId': endLocation?.id,
-    'reportWorldPosition': endLocation?.worldPosition ?? endSite.worldPosition,
+    interpolations: interpolations,
   }
 }
 
@@ -282,17 +366,23 @@ function _createBountyDiscoverLocation(organization, cityhall, difficulty) {
     .where((loc) => loc.category == 'city' && loc.isHidden == true && loc.isDiscovered == false)
     .toList()
   if (sites.isEmpty) return
-  final targetCityId = sites.random.id
-
+  final targetLocation = sites.random
+  
   final moneyRewardAmount = kBaseRewardForDiscoverLocation * (difficulty + 1)
   final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+
+  final interpolations = [
+    organization.name,
+    targetLocation.name,
+  ]
 
   return {
     'kind': 'discover_location',
     'difficulty': difficulty,
     'timeLimitDays': _getTimeLimit(difficulty),
+    'acquiredFromSiteId': cityhall.id,
     'organizationId': organization.id,
-    'targetCityId': targetCityId,
+    'targetLocationId': targetLocation.id,
     'reward': [
       {
         type: 'material',
@@ -302,6 +392,7 @@ function _createBountyDiscoverLocation(organization, cityhall, difficulty) {
     ],
     'reportSiteId': cityhall.id,
     'reportLocationId': atLocation.id,
+    interpolations: interpolations,
   }
 }
 

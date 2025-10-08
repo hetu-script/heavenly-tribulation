@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 
 import '../game/data.dart';
@@ -51,14 +50,24 @@ class LocationPanel extends StatelessWidget {
     // }
 
     if (currentDungeon != null) {
-      positionDetails.writeln(
-          engine.locale('cultivationRank_${currentDungeon['rank']}') +
-              engine.locale('rank2') +
-              engine.locale('dungeon'));
-      positionDetails.writeln(
-          '${engine.locale('currentDungeonLevel')}: ${currentDungeon['level'] + 1}/${currentDungeon['levelMax'] + 1}');
-      positionDetails.writeln(
-          '${engine.locale('currentDungeonRoom')}: ${currentDungeon['room'] + 1}/${currentDungeon['roomMax'] + 1}');
+      final rank = currentDungeon?['rank'];
+      if (rank != null) {
+        positionDetails.writeln(engine.locale('cultivationRank_$rank') +
+            engine.locale('rank2') +
+            engine.locale('dungeon'));
+      } else {
+        positionDetails.writeln(currentDungeon['name']);
+      }
+      final level = currentDungeon['level'];
+      if (level != null) {
+        positionDetails.writeln(
+            '${engine.locale('currentDungeonLevel')}: ${level + 1}/${currentDungeon['levelMax'] + 1}');
+      }
+      final room = currentDungeon['room'];
+      if (room != null) {
+        positionDetails.writeln(
+            '${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
+      }
     } else if (currentLocation != null) {
       dynamic owner;
       // dynamic organization;

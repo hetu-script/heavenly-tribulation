@@ -47,8 +47,9 @@ class MaterialList extends StatelessWidget {
     final widgets = <Widget>[];
 
     for (final key in kMaterialKinds) {
-      if (materialListType != MaterialListType.craft && key == 'money')
+      if (materialListType != MaterialListType.craft && key == 'money') {
         continue;
+      }
       int amount = 0;
       int? requiredAmount;
       if (filter != null && filter!.isNotEmpty) {

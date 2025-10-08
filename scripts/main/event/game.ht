@@ -30,6 +30,8 @@ async function onRested() {
 
     Dialog.pushDialog('tutorial_homeLocation_line_3', npc: game.npcs['xitong'])
     await Dialog.execute()
+
+    Player.progressJournalById('sandboxTutorial')
   }
 }
 
@@ -51,7 +53,7 @@ async function onAfterEnterLocation(location) {
           
           Dialog.pushDialog('tutorial_homeLocation_line_1', npc: game.npcs['xitong'])
           await Dialog.execute()
-        } else if (!game.flags.tutorial.dummyPractice) {
+        } else if (!game.flags.tutorial.dummyPractice && hero.journals.sandboxTutorial.stage == 1) {
           Dialog.pushDialog('tutorial_homeLocation_line_4', npc: game.npcs['xitong'])
           await Dialog.execute()
 
@@ -85,7 +87,13 @@ async function onAfterEnterLocation(location) {
           Game.showPrebattle(
             dummy,
             onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
+              if (!battleResult) return
+
               game.flags.tutorial.dummyPractice = true
+              Player.progressJournalById('sandboxTutorial')
+
+              Dialog.pushDialog('tutorial_homeLocation_line_5', npc: game.npcs['xitong'])
+              await Dialog.execute()
             }
           )
         }

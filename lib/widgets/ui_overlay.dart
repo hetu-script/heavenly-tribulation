@@ -73,11 +73,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.sizeOf(context);
 
-    final bool autoCultivate = widget.enableAutoExhaust &&
-        (GameData.game?['flags']['autoCultivate'] ?? false);
-    final bool autoWork = widget.enableAutoExhaust &&
-        (GameData.game?['flags']['autoWork'] ?? false);
+    // final bool autoCultivate = widget.enableAutoExhaust &&
+    //     (GameData.game?['flags']['autoCultivate'] ?? false);
+    // final bool autoWork = widget.enableAutoExhaust &&
+    //     (GameData.game?['flags']['autoWork'] ?? false);
 
+    // final hero = context.watch<HeroState>().hero;
     final hero = context.watch<HeroState>().hero;
     final showHeroInfo = widget.enableHeroInfo &&
         hero != null &&
@@ -90,6 +91,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
+    final battleBackground = context.watch<EnemyState>().background;
     // final prebattlePreventClose =
     //     context.watch<EnemyState>().prebattlePreventClose;
     final onBattleStart = context.watch<EnemyState>().onBattleStart;
@@ -301,21 +303,21 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
                                 // cursor: SystemMouseCursors.click,
-                                onTapUp: () {
-                                  context.read<HoverContentState>().hide();
-                                  if (widget.enableAutoExhaust) {
-                                    GameData.game?['flags']['autoWork'] =
-                                        !autoWork;
-                                    setState(() {});
-                                  }
-                                },
+                                // onTapUp: () {
+                                //   context.read<HoverContentState>().hide();
+                                //   if (widget.enableAutoExhaust) {
+                                //     GameData.game?['flags']['autoWork'] =
+                                //         !autoWork;
+                                //     setState(() {});
+                                //   }
+                                // },
                                 onMouseEnter: (rect) {
                                   String description =
                                       engine.locale('money_description');
-                                  if (widget.enableAutoExhaust) {
-                                    description +=
-                                        '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  }
+                                  // if (widget.enableAutoExhaust) {
+                                  //   description +=
+                                  //       '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
+                                  // }
                                   context
                                       .read<HoverContentState>()
                                       .show(description, rect);
@@ -337,9 +339,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                          color: autoWork
-                                              ? GameUI.foregroundColor
-                                              : Colors.transparent,
+                                          color:
+                                              //  autoWork
+                                              //     ? GameUI.foregroundColor
+                                              //     :
+                                              Colors.transparent,
                                           width: 1.0,
                                         ),
                                       ),
@@ -347,7 +351,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           width: 20,
                                           height: 20,
                                           image: AssetImage(
-                                              'assets/images/item/material/money.${autoWork ? 'gif' : 'png'}')),
+                                              'assets/images/item/material/money.png')),
                                     ),
                                   ],
                                 ),
@@ -357,21 +361,21 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
                                 // cursor: SystemMouseCursors.click,
-                                onTapUp: () {
-                                  context.read<HoverContentState>().hide();
-                                  if (widget.enableAutoExhaust) {
-                                    GameData.game?['flags']['autoCultivate'] =
-                                        !autoCultivate;
-                                    setState(() {});
-                                  }
-                                },
+                                // onTapUp: () {
+                                //   context.read<HoverContentState>().hide();
+                                //   if (widget.enableAutoExhaust) {
+                                //     GameData.game?['flags']['autoCultivate'] =
+                                //         !autoCultivate;
+                                //     setState(() {});
+                                //   }
+                                // },
                                 onMouseEnter: (rect) {
                                   String description =
                                       engine.locale('shard_description');
-                                  if (widget.enableAutoExhaust) {
-                                    description +=
-                                        '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  }
+                                  // if (widget.enableAutoExhaust) {
+                                  //   description +=
+                                  //       '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
+                                  // }
                                   context
                                       .read<HoverContentState>()
                                       .show(description, rect);
@@ -393,9 +397,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     Container(
                                       decoration: BoxDecoration(
                                         border: Border.all(
-                                          color: autoCultivate
-                                              ? GameUI.foregroundColor
-                                              : Colors.transparent,
+                                          color:
+                                              //  autoCultivate
+                                              //     ? GameUI.foregroundColor
+                                              //     :
+                                              Colors.transparent,
                                           width: 1.0,
                                         ),
                                       ),
@@ -403,7 +409,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           width: 20,
                                           height: 20,
                                           image: AssetImage(
-                                              'assets/images/item/material/shard.${autoCultivate ? 'gif' : 'png'}')),
+                                              'assets/images/item/material/shard.png')),
                                     ),
                                   ],
                                 ),
@@ -520,7 +526,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 final Widget statsView = CharacterStats(
                                   title: engine.locale('stats'),
                                   character: hero,
-                                  isHero: false,
                                   showNonBattleStats: false,
                                 );
                                 context.read<HoverContentState>().show(
@@ -544,6 +549,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
+                                engine.context.read<HoverContentState>().hide();
+                                engine.context
+                                    .read<ViewPanelState>()
+                                    .clearAll();
                                 engine
                                     .pushScene(Scenes.cultivation, arguments: {
                                   'enableCultivate':
@@ -576,6 +585,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
+                                engine.context.read<HoverContentState>().hide();
+                                engine.context
+                                    .read<ViewPanelState>()
+                                    .clearAll();
                                 engine.pushScene(Scenes.library, arguments: {
                                   'enableCardCraft':
                                       engine.scene?.id == Scenes.mainmenu,
@@ -664,6 +677,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               PreBattleDialog(
                 hero: hero,
                 enemy: enemyData,
+                background: battleBackground,
                 // prebattlePreventClose: prebattlePreventClose,
                 ignoreRequirement: engine.scene?.id == Scenes.mainmenu,
                 onBattleStart: onBattleStart,

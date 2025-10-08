@@ -5,19 +5,19 @@ struct Npc {
     name,
     icon,
     illustration,
-    atLocationId,
+    locationId,
     useCustomLogic = false,
   }) {
     this.entityType = kEntityTypeNpc
     assert(name != null || nameId != null)
-    assert(atLocationId != null)
+    assert(locationId != null)
     nameId ??= 'servant'
     this.name = name
     this.name ??= engine.locale(nameId)
     this.id = id ?? name
     this.icon = icon
     this.illustration = illustration
-    this.atLocationId = atLocationId
+    this.locationId = locationId
     this.useCustomLogic = useCustomLogic
 
     if (game.npcs.containsKey(this.id)) {

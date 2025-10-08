@@ -35,6 +35,69 @@ const List<Shadow> kTextShadow = [
   ),
 ];
 
+abstract class TextStyles {
+  static const displayLarge = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 36.0,
+  );
+  static const displayMedium = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 34.0,
+  );
+  static const displaySmall = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 32.0,
+  );
+  static const headlineLarge = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 30.0,
+  );
+  static const headlineMedium = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 28.0,
+  );
+  static const headlineSmall = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 26.0,
+  );
+  static const titleLarge = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 24.0,
+  );
+  static const titleMedium = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 22.0,
+  );
+  static const titleSmall = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 20.0,
+  );
+  static const bodyLarge = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 18.0,
+  );
+  static const bodyMedium = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 16.0,
+  );
+  static const bodySmall = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 14.0,
+  );
+  static const labelLarge = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 12.0,
+  );
+  static const labelMedium = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 10.0,
+  );
+  static const labelSmall = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 8.0,
+  );
+}
+
 abstract class GameUI {
   static Vector2 size = Vector2.zero();
 
@@ -102,21 +165,21 @@ abstract class GameUI {
   );
 
   static const textTheme = TextTheme(
-    displayLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0),
-    displayMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 34.0),
-    displaySmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 32.0),
-    headlineLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 30.0),
-    headlineMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 28.0),
-    headlineSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 26.0),
-    titleLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 24.0),
-    titleMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 22.0),
-    titleSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 20.0),
-    bodyLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 18.0),
-    bodyMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 16.0),
-    bodySmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 14.0),
-    labelLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 12.0),
-    labelMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 10.0),
-    labelSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0),
+    displayLarge: TextStyles.displayLarge,
+    displayMedium: TextStyles.displayMedium,
+    displaySmall: TextStyles.displaySmall,
+    headlineLarge: TextStyles.headlineLarge,
+    headlineMedium: TextStyles.headlineMedium,
+    headlineSmall: TextStyles.headlineSmall,
+    titleLarge: TextStyles.titleLarge,
+    titleMedium: TextStyles.titleMedium,
+    titleSmall: TextStyles.titleSmall,
+    bodyLarge: TextStyles.bodyLarge,
+    bodyMedium: TextStyles.bodyMedium,
+    bodySmall: TextStyles.bodySmall,
+    labelLarge: TextStyles.labelLarge,
+    labelMedium: TextStyles.labelMedium,
+    labelSmall: TextStyles.labelSmall,
   );
 
   static final captionStyle = textTheme.labelLarge!;

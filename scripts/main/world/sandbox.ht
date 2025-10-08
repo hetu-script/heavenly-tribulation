@@ -72,9 +72,7 @@ function createSandboxWorld({
   // assert(tradinghouseOrganizationNumber < locationNumber)
   // assert(tradinghouseOrganizationNumber < characterNumber)
 
-  const seed = crypto.crcInt('${seedString}_${worldScale}')
   engine.debug('开始生成世界，随机种子：${seedString}, 地图大小：${worldScale}，地图风格：${style}，国家数量：${nationNumber}，据点数量：${locationNumber}，角色数量：${characterNumber}')
-  setRandomSeed(seed)
 
   let width
   let height
@@ -122,7 +120,7 @@ function createSandboxWorld({
 
   // 生成地域
   engine.debug('生成大陆')
-  generateContinent2(newWorld, seed: seed, style: style)
+  generateContinent2(newWorld, seed: game.seed, style: style)
   engine.debug('生成地域')
   generateZone(newWorld)
   

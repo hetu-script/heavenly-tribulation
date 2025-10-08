@@ -33,9 +33,12 @@ class PreBattleDialog extends StatefulWidget {
     this.onBattleStart,
     this.onBattleEnd,
     this.ignoreRequirement = false,
+    this.background,
   });
 
   final dynamic hero, enemy;
+
+  final String? background;
 
   // final bool prebattlePreventClose;
 
@@ -372,6 +375,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             'enemy': widget.enemy,
                             'onBattleStart': widget.onBattleStart,
                             'onBattleEnd': widget.onBattleEnd,
+                            'background': widget.background,
                           };
                           engine.pushScene(Scenes.battle, arguments: arg);
                         },
@@ -408,7 +412,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onMouseEnter: (rect) {
                             final Widget statsView = CharacterStats(
                               character: widget.enemy,
-                              isHero: false,
                               showNonBattleStats: false,
                             );
                             context.read<HoverContentState>().show(

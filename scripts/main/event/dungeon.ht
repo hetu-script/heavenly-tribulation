@@ -291,12 +291,6 @@ function _prepareMap() {
     World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
   }
 
-  let rankString = engine.locale('cultivationRank_${game.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
-  let sceneId = '${rankString}-${game.dungeon.level + 1}-${game.dungeon.room + 1}'
-  World.promptTextBanner(sceneId)
-
-  Game.updateDungeon(game.dungeon)
-
   let roomInfo = game.dungeon.isBasic ? _kBasicRooms : _kNormalRooms
 
   assert(game.dungeon.room <= game.dungeon.roomMax &&
@@ -578,6 +572,15 @@ function _generateReward({probability: {}, entity}) {
 }
 
 async function onEnterMap() {
+  Game.updateDungeon(game.dungeon)
+  
+  if (!game.dungeon.promptedDungeonTitle) {
+    game.dungeon.promptedDungeonTitle = true
+    let rankString = engine.locale('cultivationRank_${game.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
+    let sceneId = '${rankString} - ${engine.locale('currentLevel3')} ${game.dungeon.level + 1}'
+    World.promptTextBanner(sceneId)
+  }
+
   if (game.dungeon.battleResult == true) {
     game.dungeon.battleResult = null
     final rewards = _generateReward(
@@ -602,13 +605,14 @@ async function onEnterMap() {
       entity: game.dungeon.battleEntity,
     )
     for (final item in rewards) {
-      Player.acquire(item)
+      await Player.acquire(item)
     }
     Game.promptItems(rewards)
     game.dungeon.battleEntity = null
   } else if (game.dungeon.battleResult == false) {
     game.dungeon.battleResult = null
     await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
+    game.dungeon = null
     Game.updateDungeon(null)
     Game.popScene(clearCache: true)
     return
@@ -638,6 +642,8 @@ async function promptExit() {
   final selected = Dialog.checkSelected('exitDungeon')
   if (selected == 'exitDungeon') {
     engine.debug('地牢已经完成，准备退出')
+    game.dungeon = null
+    Game.updateDungeon(null)
     Game.popScene(clearCache: true)
   }
 }
@@ -734,6 +740,7 @@ async function onInteractMapObject(object, terrain) {
     'enemy': {
       Game.showPrebattle(
         object.battleEntity,
+        background: 'battle/scene/002_night.png',
         onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
           if (battleResult) {
             engine.debug('战斗胜利，添加出口')

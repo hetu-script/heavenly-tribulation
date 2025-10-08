@@ -8,8 +8,8 @@ class NpcListState with ChangeNotifier {
     notifyListeners();
   }
 
-  void update([Iterable? characters]) {
-    npcs = characters ?? const [];
+  void update([Iterable characters = const []]) {
+    npcs = characters;
     notifyListeners();
   }
 }

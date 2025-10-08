@@ -308,23 +308,14 @@ void _onAfterEnterLocation(dynamic location) async {
         );
         await dialog.execute();
 
-        final randomEquipment = kEquipmentCategoryKinds['weapon']!.random;
         final itemsInfo = [
           {
-            'type': 'equipment',
-            'kind': randomEquipment,
+            'type': 'potion',
             'rank': GameData.hero['rank'],
           },
           {
             'type': 'cardpack',
-            'category': 'attack',
-            'kind': randomEquipment,
-            'rank': GameData.hero['rank'],
-            'isBasic': true,
-          },
-          {
-            'type': 'cardpack',
-            'kind': randomEquipment,
+            'genre': organization['genre'],
             'rank': GameData.hero['rank'],
           },
         ];

@@ -191,7 +191,6 @@ class _CharacterDetailsState extends State<CharacterDetails> {
                 style: EquipmentBarStyle.vertical,
               ),
               CharacterStats(
-                character: _characterData,
                 isHero: true,
                 height: 312,
               ),

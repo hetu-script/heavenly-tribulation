@@ -151,9 +151,10 @@ struct GameData {
 }
 
 /// 创建新游戏，重置所有状态，返回game
-function createGame(saveName, { enableTutorial = true }) {
+function createGame(saveName, { seedString: string, enableTutorial = true }) {
   engine.debug('准备开始新游戏')
   game = GameData(saveName: saveName, enableTutorial: enableTutorial)
+  setRandomSeed(crypto.crcInt(seedString ?? 'heavenly_tribulation_2025'))
   universe = {}
   history = {}
   world = null
@@ -288,35 +289,55 @@ function setHero(id: string) {
       name: engine.locale('npc_xitong_name'),
       icon: 'story/illustration/sitone_head.png',
       illustration: 'story/illustration/sitone.png',
-      atLocationId: hero.homeSiteId,
+      locationId: hero.homeSiteId,
       useCustomLogic: true,
     )
   }
+
+  Game.updateHero()
 }
 
 function randomizeHeroWorldPosition() {
+  hero.locationId = null
   final location = game.locations[hero.homeLocationId]
   if (location.organizationId) {
     final organization = game.organizations[location.organizationId]
-    final randomTileIndex = organization.territoryIndexes.random
-    final randomTile = world.terrains[randomTileIndex]
-    hero.locationId = null
-    hero.worldPosition = {
-      left: randomTile.left,
-      top: randomTile.top,
+    final availableTiles = organization.territoryIndexes.where((index) {
+      final tile = world.terrains[index]
+      return !tile.isWater && tile.kind != 'mountain'
+    })
+    if (availableTiles.isEmpty) {
+      hero.worldPosition = {
+        left: location.worldPosition.left,
+        top: location.worldPosition.top,
+      }
+    } else {
+      final randomTileIndex = availableTiles.random
+      final randomTile = world.terrains[randomTileIndex]
+      hero.worldPosition = {
+        left: randomTile.left,
+        top: randomTile.top,
+      }
     }
   } else {
     final terrain = world.terrains[location.terrainIndex]
     final zone = world.zones[terrain.zoneId]
-    final randomTileIndex = zone.terrainIndexes.where((index) {
+    final availableTiles = zone.terrainIndexes.where((index) {
       final tile = world.terrains[index]
-      return !tile.isWater && tile.organizationId == null
-    }).random
-    final randomTile = world.terrains[randomTileIndex]
-    hero.locationId = null
-    hero.worldPosition = {
-      left: randomTile.left,
-      top: randomTile.top,
+      return !tile.isWater && tile.kind != 'mountain' && tile.nationId == null
+    })
+    if (availableTiles.isEmpty) {
+      hero.worldPosition = {
+        left: location.worldPosition.left,
+        top: location.worldPosition.top,
+      }
+    } else {
+      final randomTileIndex = availableTiles.random
+      final randomTile = world.terrains[randomTileIndex]
+      hero.worldPosition = {
+        left: randomTile.left,
+        top: randomTile.top,
+      }
     }
   }
 }

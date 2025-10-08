@@ -37,11 +37,16 @@ async function onInquireJournal(character, journal) -> bool
 // async function onTalkTo(character, topic)
 async function onShowTo(character, item)
 /// ----------物品互动----------
-async function onEquipItem(item)
-// 展示一个物品，单选
-async function onShowItem(character, item)
-// 赠送一个物品，单选
-async function onGiftItem(character, item)
+// 获得材料
+async function onCollect(materialId, amount)
+// 获得物品
+async function onAcquire(item)
+// 装备物品
+async function onEquip(item)
+// 展示物品
+async function onShow(character, item)
+// 赠送物品
+async function onGift(character, item)
 /// 某些身上的装备，会随着时间流逝调用自定义函数刷新属性
 async function onUpdateItem(item)
 /// ----------据点场景----------

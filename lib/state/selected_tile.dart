@@ -39,32 +39,34 @@ class HeroPositionState with ChangeNotifier {
     TileMapTerrain? currentTerrainData,
   }) {
     bool changed = false;
-    if (currentZoneData != currentZone) {
+    if (currentZone != currentZoneData) {
       currentZone = currentZoneData;
       changed = true;
     }
-    if (currentNationData != currentNation) {
+    if (currentNation != currentNationData) {
       currentNation = currentNationData;
       changed = true;
     }
-    if (currentTerrainData != currentTerrain) {
+    if (currentTerrain != currentTerrainData) {
       currentTerrain = currentTerrainData;
       changed = true;
-      engine.hetu.assign('terrain', currentTerrainData?.data);
+      if (currentTerrain != null) {
+        engine.hetu.assign('terrain', currentTerrain!.data);
+      }
     }
     if (changed) {
       notifyListeners();
     }
   }
 
-  void updateLocation(dynamic currentLocationData) {
+  void updateLocation([dynamic currentLocationData]) {
     if (currentLocationData != currentLocation) {
       currentLocation = currentLocationData;
       notifyListeners();
     }
   }
 
-  void updateDungeon(dynamic currentDungeonData) {
+  void updateDungeon([dynamic currentDungeonData]) {
     if (currentDungeonData != currentDungeon) {
       currentDungeon = currentDungeonData;
       notifyListeners();

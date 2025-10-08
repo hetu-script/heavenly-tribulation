@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
@@ -98,6 +99,8 @@ abstract class GameData {
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic game, universe, world, history, hero;
+
+  static math.Random random = math.Random();
 
   static dynamic getTerrain(int index) {
     final terrain = GameData.world['terrains'][index];
@@ -393,22 +396,24 @@ abstract class GameData {
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
   static Future<void> createGame(
     String saveName, {
-    bool isEditorMode = false,
+    String? seedString,
     bool enableTutorial = true,
+    bool isEditorMode = false,
   }) async {
     worldIds.clear();
 
     engine.hetu.invoke('createGame', positionalArgs: [
       saveName
     ], namedArgs: {
+      'seedString': seedString,
       'enableTutorial': enableTutorial,
     });
 
     game = engine.hetu.fetch('game');
     universe = engine.hetu.fetch('universe');
     history = engine.hetu.fetch('history');
-    // historyData = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
+    random = engine.hetu.fetch('random');
 
     initGameData();
 
@@ -441,6 +446,7 @@ abstract class GameData {
     universe = engine.hetu.fetch('universe');
     history = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
+    random = engine.hetu.fetch('random');
   }
 
   /// 从存档中读取游戏数据
@@ -657,6 +663,7 @@ abstract class GameData {
     builder.writeln(
         '${engine.locale('passivetree_passives_description_title')}\n ');
     builder.writeln(passivesDescription);
+    builder.writeln(' ');
 
     builder.writeln(
         '${engine.locale('passivetree_potion_passives_description_title')}\n ');
@@ -887,16 +894,15 @@ abstract class GameData {
     extraDescription.writeln(kSeparateLine);
 
     final Map<String, String> explanations = {};
-    for (final affix in affixes) {
+    for (var i = 0; i < affixes.length; ++i) {
+      final affix = affixes[i];
       final affixDescriptionRaw = engine.locale(affix['description']);
       final affixDescription =
           affixDescriptionRaw.interpolate(affix['value']).split(RegExp('\n'));
 
       if (isIdentified) {
-        final bool isMainAffix = affix['isMain'] ?? false;
-
         for (var line in affixDescription) {
-          if (isMainAffix) {
+          if (i == 0) {
             description.writeln(line);
             extraDescription.writeln(line);
           } else {
@@ -1025,5 +1031,102 @@ abstract class GameData {
       glowSpriteId: 'battlecard/glow.png',
       enablePreview: true,
     );
+  }
+
+  static String getQuestBriefDescription(dynamic quest) {
+    final desc = StringBuffer();
+
+    final kind = quest['kind'];
+    final int difficulty = quest['difficulty'] ?? 0;
+    final String difficultyLable = kDifficultyLabels[difficulty]!;
+    final timeLimitDays = quest['timeLimitDays'];
+    desc.writeln('<bold rank$difficulty t7>${engine.locale('quest_$kind')}</>');
+    desc.writeln(
+        '${engine.locale('difficulty')}: <rank$difficulty>${engine.locale(difficultyLable)}</>');
+    desc.writeln(
+        '${engine.locale('timeLimit')}: <yellow>$timeLimitDays ${engine.locale('ageDay')}</>');
+
+    return desc.toString();
+  }
+
+  static String getQuestBudgetDescription(dynamic budget) {
+    final desc = StringBuffer();
+    final kind = budget['kind'];
+    final amount = budget['amount'];
+    desc.writeln('<lightGreen>${engine.locale('budget')}: </>');
+    desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
+    return desc.toString();
+  }
+
+  static String getQuestRewardDescription(List reward) {
+    final desc = StringBuffer();
+    desc.writeln('<lightGreen>${engine.locale('reward')}: </>');
+    for (final itemInfo in reward) {
+      if (itemInfo['type'] == 'material') {
+        final kind = itemInfo['kind'];
+        final amount = itemInfo['amount'];
+        desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
+      }
+    }
+    return desc.toString();
+  }
+
+  static String getBountyDetailDescription(dynamic quest) {
+    final desc = StringBuffer();
+
+    final brief = GameData.getQuestBriefDescription(quest);
+    desc.write(brief);
+    desc.writeln(kSeparateLine);
+    desc.writeln('${engine.locale('quest_content')}:');
+
+    final kind = quest['kind'];
+    assert(kQuestKinds.contains(kind), 'Unknown bounty kind: $kind');
+    switch (kind) {
+      case 'purchase_material':
+        desc.writeln(engine.locale('quest_purchase_material_description',
+            interpolations: quest['interpolations']));
+        desc.writeln(kSeparateLine);
+        final budget = getQuestBudgetDescription(quest['budget']);
+        desc.writeln(budget);
+      case 'purchase_item':
+        desc.writeln(engine.locale('quest_purchase_item_description',
+            interpolations: quest['interpolations']));
+        desc.writeln(kSeparateLine);
+        final budget = getQuestBudgetDescription(quest['budget']);
+        desc.writeln(budget);
+      case 'deliver_material':
+        desc.writeln(engine.locale('quest_deliver_material_description',
+            interpolations: quest['interpolations']));
+        desc.writeln(kSeparateLine);
+        final reward = getQuestRewardDescription(quest['reward']);
+        desc.writeln(reward);
+      case 'deliver_item':
+        desc.writeln(engine.locale('quest_deliver_item_description',
+            interpolations: quest['interpolations']));
+        desc.writeln(kSeparateLine);
+        final reward = getQuestRewardDescription(quest['reward']);
+        desc.writeln(reward);
+      case 'escort':
+        desc.writeln(engine.locale('quest_escort_description',
+            interpolations: quest['interpolations']));
+        desc.writeln(kSeparateLine);
+        final reward = getQuestRewardDescription(quest['reward']);
+        desc.writeln(reward);
+      case 'discover_location':
+        final targetLocationId = quest['targetLocationId'];
+        final targetLocation = GameData.getLocation(targetLocationId);
+        final organizationId = quest['organizationId'];
+        final organization = GameData.getOrganization(organizationId);
+        desc.writeln(engine
+            .locale('quest_discover_location_description', interpolations: [
+          organization['name'],
+          targetLocation['name'],
+        ]));
+        desc.writeln(kSeparateLine);
+        final reward = getQuestRewardDescription(quest['reward']);
+        desc.writeln(reward);
+    }
+
+    return desc.toString();
   }
 }

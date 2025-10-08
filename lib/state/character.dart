@@ -29,12 +29,14 @@ class EnemyState with ChangeNotifier {
   dynamic data;
   void Function()? onBattleStart;
   FutureOr<void> Function(bool, int)? onBattleEnd;
+  String? background;
 
   void show(
     dynamic data, {
     // bool prebattlePreventClose = false,
     void Function()? onBattleStart,
     FutureOr<void> Function(bool, int)? onBattleEnd,
+    String? background,
   }) {
     assert(data != null);
     showPrebattle = true;
@@ -42,6 +44,7 @@ class EnemyState with ChangeNotifier {
     this.data = data;
     this.onBattleStart = onBattleStart;
     this.onBattleEnd = onBattleEnd;
+    this.background = background;
     notifyListeners();
   }
 
@@ -80,7 +83,7 @@ class MerchantState with ChangeNotifier {
   dynamic data;
   dynamic priceFactor;
   dynamic filter;
-  MerchantType type = MerchantType.none;
+  MerchantType merchantType = MerchantType.none;
 
   (bool, bool, bool, dynamic, dynamic, dynamic, MerchantType) get() {
     return (
@@ -90,7 +93,7 @@ class MerchantState with ChangeNotifier {
       data,
       priceFactor,
       filter,
-      type,
+      merchantType,
     );
   }
 
@@ -107,7 +110,7 @@ class MerchantState with ChangeNotifier {
     this.data = data;
     this.priceFactor = priceFactor;
     this.filter = filter;
-    this.type = merchantType;
+    this.merchantType = merchantType;
     showMerchant = true;
     notifyListeners();
   }
@@ -118,7 +121,7 @@ class MerchantState with ChangeNotifier {
     data = null;
     priceFactor = null;
     filter = null;
-    type = MerchantType.location;
+    merchantType = MerchantType.location;
     showMerchant = false;
     notifyListeners();
   }

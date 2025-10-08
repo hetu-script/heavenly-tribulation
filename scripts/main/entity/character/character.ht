@@ -580,7 +580,7 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
     Incident(
       message: incidentContent,
       subjectId: householder.id,
-      objectId: marrier.id,
+      targetId: marrier.id,
       locationId: home.id,
       orderly: 20,
     )
@@ -617,7 +617,7 @@ function createShitu(shifu, tudi, {incurIncident = true}) {
     Incident(
       message: incidentContent,
       subjectId: shifu.id,
-      objectId: tudi.id,
+      targetId: tudi.id,
       orderly: 20,
     )
   } else {
@@ -845,7 +845,7 @@ struct Baby {
       Incident(
         message: incidentContent,
         subjectId: father.id,
-        objectId: mother.id,
+        targetId: mother.id,
         orderly: 20,
       )
     } else {
@@ -1088,8 +1088,6 @@ struct Character {
 
     // 该人物的事件触发选项
     this.flags = {
-      // 唯一任务触发标记
-      uniqueQuests: {},
     }
 
     // 该角色的称号，只保存 id
@@ -1135,6 +1133,10 @@ struct Character {
     // 该角色当前的日志
     this.journals = {}
     this.activeJournalId = null
+
+    // 该角色当前拥有的任务
+    this.quests = {}
+    this.activeQuestId
     
     // 这些列表保存的是incident的index
     // 该角色经历过的事情
@@ -1229,7 +1231,7 @@ struct Character {
         Incident(
           message: incidentContent,
           subjectId: mother.id,
-          objectId: this.id,
+          targetId: this.id,
           locationId: locationId,
           isPrivate: false,
           orderly: 10,
@@ -1588,19 +1590,25 @@ function getNpcsAtWorldMapPosition(left, top, [ worldId ]) {
   })
 }
 
-function getNpcsAtLocationId(locationId) {
-  assert(locationId != null)
-  final result = []
-  final location = game.locations[locationId]
-  if (location.npcId != null)
-  result.add(game.npcs[location.npcId])
-  final characters = game.characters.values.where((char) {
-    if (char.id == game.heroId) return false
-    if (char.locationId != locationId) return false
+function getNpcsAtLocation(location) {
+  final npcsHere = []
+  
+  final npcs = game.npcs.values.where((npc) {
+    if (npc.locationId != location.id) return false
     return true
   })
-  result.addAll(characters)
-  return result
+  npcsHere.addAll(npcs)
+
+  final companions = hero.companions.map((id) => game.characters[id])
+  npcsHere.addAll(companions)
+
+  final characters = game.characters.values.where((char) {
+    if (char.id == game.heroId) return false
+    if (char.locationId != location.id) return false
+    return true
+  })
+  npcsHere.addAll(characters)
+  return npcsHere
 }
 
 function removeCharacterById(id: string) {

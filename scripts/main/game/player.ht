@@ -58,14 +58,19 @@ namespace Player {
     return characterMet(hero, character)
   }
 
-  function collect(materialId, { amount = 1, incurIncident = true }) {
+  async function collect(materialId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
+    
+    await onGameEvent('onCollect', materialId, amount)
   }
 
-  function collectAll(materials, { incurIncident = true }) {
+  async function collectAll(materials, { incurIncident = true }) {
     assert(hero != null)
-    entityCollectAll(hero, materials, incurIncident: incurIncident)
+    for (let materialId in materials.keys) {
+      final amount = materials[materialId]
+      await collect(materialId, amount: amount, incurIncident: incurIncident)
+    }
   }
 
   function exhaust(materialId, { amount = 1 }) -> bool {
@@ -74,9 +79,8 @@ namespace Player {
   }
 
   /// 直接获取一个已经被创造出来的物品
-  function acquire(item, { autoUnpack = true, incurIncident = true }) {
+  async function acquire(item, { autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
-
     if (autoUnpack) {
       if (item.category == kItemCategoryExppack) {
         gainExp(item.stackSize)
@@ -86,15 +90,18 @@ namespace Player {
         return
       }
     }
-    
-    entityAcquire(hero, item, incurIncident: incurIncident)
+    final item = entityAcquire(hero, item, incurIncident: incurIncident)
+    await onGameEvent('onAcquire', item)
+    return item
   }
 
   /// 从物品库中复制并获取一个物品
-  function acquireById(itemId, { amount = 1, incurIncident = true }) {
+  async function acquireByPrototype(prototypeId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
-    return entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
+    final item = entityAcquireByPrototype(hero, prototypeId, amount: amount, incurIncident: incurIncident)
+    await onGameEvent('onAcquire', item)
+    return item
   }
 
   function lose(item, { amount = 1, incurIncident = true }) {
@@ -272,23 +279,25 @@ namespace Player {
   }
   
   /// 用于从一个宝箱中根据物品信息创造物品并获取
-  function loot(itemsInfo: List) {
+  async function loot(itemsInfo: List) {
     final items = createLoot(itemsInfo)
     for (final item in items) {
-      acquire(item)
+      await acquire(item)
     }
     return items
   }
 
   /// 用于从另一个角色身上批量拿取
-  function lootEntity(entity, { incurIncident = true }) {
+  async function lootEntity(entity, { incurIncident = true }) {
     assert(hero != null)
+
     for (const item of entity.inventory) {
-      acquire(item, incurIncident: incurIncident)
+      await acquire(item, incurIncident: incurIncident)
     }
+
     for (const materialId in entity.materials.keys) {
       const amount = entity.materials[materialId]
-      collect(materialId, amount: amount, incurIncident: incurIncident)
+      await collect(materialId, amount: amount, incurIncident: incurIncident)
     }
 
     // 清空
@@ -315,16 +324,16 @@ namespace Player {
       companion.name,
       hero.name,
     ])
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: companion.id,
-        objectId: hero.id,
-        isPrivate: true,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+    // if (incurIncident) {
+    //   Incident(
+    //     message: incidentContent,
+    //     subjectId: companion.id,
+    //     targetId: hero.id,
+    //     isPrivate: true,
+    //   )
+    // } else {
+    engine.debug(incidentContent)
+    // }
   }
 
   function dismiss(companion, { incurIncident = true }) {
@@ -344,15 +353,11 @@ namespace Player {
       Incident(
         message: incidentContent,
         subjectId: companion.id,
-        objectId: hero.id,
+        targetId: hero.id,
         isPrivate: true,
       )
     }
     engine.debug(incidentContent)
-  }
-
-  function getCompanions() {
-    return hero.companions
   }
 
   function levelUp({ incurIncident = true }) {
@@ -475,18 +480,31 @@ namespace Player {
     characterRejuvenate(hero)
   }
 
-  function acquireJournalById(journalId, {
+  function createJournal(journal, { setAsActive = true, incurIncident = true }) {
+    assert(hero != null)
+    return characterCreateJournal(hero, journal, setAsActive: setAsActive, incurIncident: incurIncident)
+  }
+
+  function createJournalById(journalId, {
     setAsActive = true,
     interpolations,
     incurIncident = true,
   }) {
     assert(hero != null)
-    return characterAcquireJournalById(
+    return characterCreateJournalById(
       hero, journalId,
       setAsActive: setAsActive,
       interpolations: interpolations,
       incurIncident: incurIncident,
     )
+  }
+
+  /// 注意这个函数不处理任务本身的预算
+  /// 需要另行调用 loot([journal.quest.budget]) 来处理
+  function createJournalByQuest(quest, { setAsActive = true, incurIncident = true }) {
+    assert(hero != null)
+    final journal = Journal.fromQuest(quest)
+    return createJournal(journal, setAsActive: setAsActive, incurIncident: incurIncident)
   }
 
   /// 推动任务进度
@@ -540,7 +558,7 @@ namespace Player {
     Dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
     await Dialog.execute()
 
-    final journal = Player.acquireJournalById('organizationInitiation', interpolations: interpolations)
+    final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
     Game.promptJournal(journal)
   }
 }

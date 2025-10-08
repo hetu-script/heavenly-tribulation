@@ -19,7 +19,7 @@ import '../data.dart';
 import '../../widgets/entity_listview.dart';
 
 import '../../widgets/organization/organization.dart';
-import '../../widgets/location/functional/bounty.dart';
+import '../../widgets/location/functional/bounty_quest.dart';
 import '../../widgets/location/location.dart';
 import '../../widgets/character/profile.dart';
 import '../../widgets/common.dart';
@@ -193,9 +193,13 @@ abstract class GameLogic {
     return row;
   }
 
-  static List<String> getLocationInformationRow(dynamic location) {
+  static List<String> getCityInformationRow(dynamic location) {
+    assert(location['category'] == 'city');
+
     final row = <String>[];
     row.add(location['name']);
+    final worldPosition = location['worldPosition'];
+    row.add('[${worldPosition['left']}, ${worldPosition['top']}]');
     // 类型
     row.add(engine.locale(location['kind']));
     // 发展度
@@ -1257,6 +1261,8 @@ abstract class GameLogic {
         positionalArgs: ['onBeforeEnterLocation', location]);
     if (truthy(result)) return;
 
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
     GameLogic.updateGame();
     engine.pushScene(
       location['id'],

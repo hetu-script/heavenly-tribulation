@@ -109,7 +109,7 @@ class _EntityListViewState extends State<EntityListView>
     }
     for (final location in _locations) {
       if (location['category'] != 'city') continue;
-      final row = GameLogic.getLocationInformationRow(location);
+      final row = GameLogic.getCityInformationRow(location);
       _locationsTable.add(row);
     }
 
