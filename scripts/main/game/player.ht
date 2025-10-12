@@ -1,10 +1,3 @@
-// import 'data.ht'
-// import '../colors.ht'
-// import '../game/world.ht'
-// import '../entity/entity.ht'
-// import '../entity/journal.ht'
-// import '../common.ht'
-
 const kQuickThreshold = 10
 const kSlowThreshold = 10
 const kNimbleThreshold = 10
@@ -29,23 +22,20 @@ struct PassiveData {
   }
 }
 
+const kOrthogonalDirections = ['north', 'east', 'south', 'west']
+
 namespace Player {
 
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
-    if (worldId != null) {
-      assert(universe.containsKey(worldId), worldId)
-    }
     engine.debug('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (direction != null) {
       assert(kOrthogonalDirections.contains(direction))
     }
-    World.setCharacterToPosition(hero, left, top, direction: direction)
+    World.setCharacterToWorldPosition(hero, left, top, direction: direction)
     World.moveCameraToTilePosition(left, top, animated: false)
     World.lightUpAroundTile(left, top, hero.stats.lightRadius)
-    // final terrain = getTerrainByWorldPosition(left, top)
-    // onWorldEvent('onAfterMove', terrain)
   }
   
   function setHomeLocation(location, {incurIncident = true}) {
@@ -58,9 +48,9 @@ namespace Player {
     return characterMet(hero, character)
   }
 
-  async function collect(materialId, { amount = 1, incurIncident = true }) {
+  async function collect(materialId, amount, { incurIncident = true }) {
     assert(hero != null)
-    entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
+    entityCollect(hero, materialId, amount, incurIncident: incurIncident)
     
     await onGameEvent('onCollect', materialId, amount)
   }
@@ -69,13 +59,13 @@ namespace Player {
     assert(hero != null)
     for (let materialId in materials.keys) {
       final amount = materials[materialId]
-      await collect(materialId, amount: amount, incurIncident: incurIncident)
+      await collect(materialId, amount, incurIncident: incurIncident)
     }
   }
 
-  function exhaust(materialId, { amount = 1 }) -> bool {
+  function exhaust(materialId, amount) -> bool {
     assert(hero != null)
-    return entityExhaust(hero, materialId, amount: amount)
+    return entityExhaust(hero, materialId, amount)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -86,7 +76,7 @@ namespace Player {
         gainExp(item.stackSize)
         return
       } else if (item.category == kItemCategoryMaterialPack) {
-        collect(item.kind, amount: item.stackSize)
+        collect(item.kind, item.stackSize)
         return
       }
     }
@@ -95,16 +85,23 @@ namespace Player {
     return item
   }
 
+  async function acquireAll(items, { autoUnpack = true, incurIncident = true }) {
+    assert(hero != null)
+    for (final item in items) {
+      await acquire(item, autoUnpack: autoUnpack, incurIncident: incurIncident)
+    }
+  }
+
   /// 从物品库中复制并获取一个物品
-  async function acquireByPrototype(prototypeId, { amount = 1, incurIncident = true }) {
+  async function acquireById(id, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
-    final item = entityAcquireByPrototype(hero, prototypeId, amount: amount, incurIncident: incurIncident)
+    final item = entityAcquireById(hero, id, amount: amount, incurIncident: incurIncident)
     await onGameEvent('onAcquire', item)
     return item
   }
 
-  function lose(item, { amount = 1, incurIncident = true }) {
+  function lose(item, { amount, incurIncident = true }) {
     assert(hero != null)
     entityLose(hero, item, amount: amount, incurIncident: incurIncident)
   }
@@ -287,6 +284,64 @@ namespace Player {
     return items
   }
 
+  async function unpack(package) {
+    switch (package['type']) {
+      case 'material': {
+        await Player.collect(package.material, package.amount)
+      }
+      case 'item': {
+        await Player.acquire(package.item)
+      }
+      case 'character': {
+        final character = game.characters[package['characterId']]
+        assert(character != null, 'character not found: ${package["characterId"]}')
+        Player.accompany(character)
+      }
+    }
+  }
+
+  async function unpackAll(packages: List) {
+    for (final package in packages) {
+      await unpack(package)
+    }
+  }
+
+  function deliver(package, { forceExhaust = false }) {
+    let hasPackage = false
+    switch (package['type']) {
+      case 'material': {
+        if (hero.materials[package.material] >= package.amount) {
+          hasPackage = true
+          Player.exhaust(package.material, package.amount)
+        }
+      }
+      case 'item': {
+        final inventoryItem = hero.inventory[package.item.id]
+        if (inventoryItem != null &&
+            inventoryItem.stackSize >= package.item.stackSize) {
+          hasPackage = true
+          Player.lose(inventoryItem)
+        }
+      }
+      case 'character': {
+        final characterId = package['characterId']
+        if (hero.companions.contains(characterId)) {
+          hasPackage = true
+          final character = game.characters[characterId]
+          assert(character != null, 'character not found: ${characterId}')
+          Player.dismiss(character)
+        }
+      }
+    }
+    return hasPackage
+  }
+
+  function deliverAll(packages: List) {
+    for (final package in packages) {
+      deliver(package)
+    }
+  }
+
   /// 用于从另一个角色身上批量拿取
   async function lootEntity(entity, { incurIncident = true }) {
     assert(hero != null)
@@ -297,7 +352,7 @@ namespace Player {
 
     for (const materialId in entity.materials.keys) {
       const amount = entity.materials[materialId]
-      await collect(materialId, amount: amount, incurIncident: incurIncident)
+      await collect(materialId, amount, incurIncident: incurIncident)
     }
 
     // 清空
@@ -320,7 +375,7 @@ namespace Player {
     }
     hero.companions.add(companion.id)
     
-    const incidentContent = engine.locale('characterAcquireCompanion', interpolations: [
+    const incidentContent = engine.locale('characterJoin', interpolations: [
       companion.name,
       hero.name,
     ])
@@ -345,7 +400,7 @@ namespace Player {
 
     hero.companions.remove(companion.id)
     
-    const incidentContent = engine.locale('characterLoseCompanion', interpolations: [
+    const incidentContent = engine.locale('characterDepart', interpolations: [
       companion.name,
       hero.name,
     ])
@@ -364,11 +419,7 @@ namespace Player {
     assert(hero != null)
     final levelMax = maxLevelForRank(hero.rank)
     if (hero.level >= levelMax) {
-      engine.warn('角色已达到游戏允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
-      return
-    }
-    if (hero.level >= kCurrentVersionCultivationLevelMax) {
-      engine.warn('角色已达到版本允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
+      engine.warn('角色已达到境界允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
       return
     }
 
@@ -402,10 +453,6 @@ namespace Player {
 
   function rankUp({ incurIncident = true }) {
     assert(hero != null)
-    if (hero.rank >= kCurrentVersionCultivationRankMax ) {
-      engine.error('角色已达到版本允许的最高境界，无法再提升！当前境界: [${hero.rank}]')
-      return
-    }
 
     if (hero.rank >= kCultivationRankMax ) {
       engine.error('角色已达到游戏允许的最高境界，无法再提升！当前境界: [${hero.rank}]')
@@ -467,17 +514,17 @@ namespace Player {
 
   function setLife(amount) {
     assert(hero != null)
-    setCharacterLife(hero, amount)
+    return setCharacterLife(hero, amount)
   }
 
   function restoreLife(count) {
     assert(hero != null)
-    characterRestoreLife(hero, count)
+    return characterRestoreLife(hero, count)
   }
 
   function rejuvenate() {
     assert(hero != null)
-    characterRejuvenate(hero)
+    return characterRejuvenate(hero)
   }
 
   function createJournal(journal, { setAsActive = true, incurIncident = true }) {
@@ -535,28 +582,30 @@ namespace Player {
       setHome: false,
       incurIncident: incurIncident,
     )
-    Dialog.pushDialog('hint_select_organization_home')
-    await Dialog.execute()
+    dialog.pushDialog('hint_select_organization_home')
+    await dialog.execute()
     final locationIds = organization.locationIds
     assert(locationIds.isNotEmpty, 'organization has no locationIds: ${organization.id}')
     // 玩家需要手动选择一个据点作为家宅所在地
     final homeId = await Game.selectLocation(locationIds)
     const home = game.locations[homeId]
-    assert(home != null, 'location is null for id: ${homeId}')
     setCharacterHome(hero, home)
+    
+    final cityhall = home.sites.map((id) => game.locations[id]).firstWhere((site) => site.kind == 'cityhall')
+    assert(cityhall != null, 'could not find cityhall in location: [${home.name}]')
 
     final superiorId = assignCharacterSuperior(hero, organization)
     assert(superiorId != null, 'no superior for hero found in organization: ${organization.id}')
     final superior = game.characters[superiorId]
     assert(superior != null, 'character is null for id: ${superiorId}')
-    
+
     final interpolations = [
       organization.name,
-      home.name,
+      cityhall.name,
       superior.name,
     ]
-    Dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
-    await Dialog.execute()
+    dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
+    await dialog.execute()
 
     final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
     Game.promptJournal(journal)

@@ -22,7 +22,7 @@ namespace World {
 
   external function setPlayerFreeze(value: bool)
 
-  external function setCharacterToPosition(character, left, top, { worldId, direction })
+  external function setCharacterToWorldPosition(character, left, top, { worldId, direction })
 
   external function removeCharacter(id)
 

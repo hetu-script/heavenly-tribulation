@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:flame/components.dart';
@@ -100,9 +99,12 @@ enum FilterByOptions {
 }
 
 class CardLibraryScene extends Scene {
-  static final random = math.Random();
+  CardLibraryScene({
+    required super.context,
+    this.isEditorMode = false,
+  }) : super(id: Scenes.library);
 
-  CardLibraryScene({required super.context}) : super(id: Scenes.library);
+  final bool isEditorMode;
 
   late final SpriteComponent background;
   late final SpriteComponent2 topBar, bottomBar, deckPilesZone;
@@ -807,8 +809,9 @@ class CardLibraryScene extends Scene {
       final category = isMainCard ? filter['category'] : null;
       final genre = isMainCard ? filter['genre'] : (basic ? 'none' : null);
       final rank = isMainCard ? filter['rank'] : (basic ? 0 : null);
-      final kind =
-          isMainCard ? filter['kind'] : (basic ? kBasicCardKinds.random : null);
+      final kind = isMainCard
+          ? filter['kind']
+          : (basic ? GameData.random.nextIterable(kBasicCardKinds) : null);
       final maxRank = filter['rank'];
       final cardData = engine.hetu.invoke(
         'BattleCard',
@@ -951,8 +954,8 @@ class CardLibraryScene extends Scene {
       if (!point.isMoving) {
         final targetPosition = _lightPointsPositions.random;
         point.moveTo(
-          duration: random.nextDouble() * 2 + 2,
-          delay: random.nextDouble() * 2 + 2,
+          duration: LightPoint.random.nextDouble() * 2 + 2,
+          delay: LightPoint.random.nextDouble() * 2 + 2,
           toPosition: targetPosition.position,
           curve: Curves.easeOut,
         );
@@ -1495,8 +1498,6 @@ class CardLibraryScene extends Scene {
 
   @override
   void onMount() async {
-    super.onMount();
-
     updateOrderByButtonText();
     updateFilterByButtonText();
     libraryZone.repositionToTop();
@@ -1517,6 +1518,16 @@ class CardLibraryScene extends Scene {
 
     for (final deckZone in deckPiles) {
       deckZone.updateDeckLimit();
+    }
+
+    if (GameData.game['enableTutorial'] == true) {
+      if (GameData.game['flags']['tutorial']['cardLibrary'] == true) return;
+      // 功法图录教程
+      GameData.game['flags']['tutorial']['cardLibrary'] = true;
+
+      dialog.pushDialog('hint_cardLibrary',
+          npc: GameData.game['npcs']['xitong']);
+      await dialog.execute();
     }
 
     await onEnterScene?.call();

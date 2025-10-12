@@ -3,7 +3,7 @@ async function onNewGame() {
   final homeSite = game.locations[hero.homeSiteId]
   final xitong = game.npcs['xitong']
 
-  final randomEquipment = Constants.equipmentCategoryKinds['weapon'].random
+  final randomEquipment = random.nextIterable(Constants.equipmentCategoryKinds['weapon'])
   final itemsInfo = [
     {
       'type': 'equipment',
@@ -34,22 +34,83 @@ async function onNewGame() {
 
     Player.setLife(hero.life ~/ 2)
 
-    Dialog.pushDialog('tutorial_newGame_line_1', isHero: true)
-    Dialog.pushDialog('tutorial_newGame_line_2', npc: xitong)
-    Dialog.pushDialog('tutorial_newGame_line_3', isHero: true)
-    Dialog.pushDialog('tutorial_newGame_line_4', npc: xitong)
-    Dialog.pushDialog('tutorial_newGame_line_5', isHero: true)
-    Dialog.pushDialog('tutorial_newGame_line_6', npc: xitong)
-    Dialog.pushDialog('tutorial_newGame_line_7', isHero: true)
-    Dialog.pushDialog('tutorial_newGame_line_8', npc: xitong)
-    Dialog.pushDialog('tutorial_newGame_line_9', isHero: true)
-    Dialog.pushDialog('tutorial_newGame_line_10', npc: xitong)
-    Dialog.pushDialog('hint_movement', npc: xitong)
-    await Dialog.execute()
+    dialog.pushDialog('tutorial_newGame_line_1', isHero: true)
+    dialog.pushDialog('tutorial_newGame_line_2', npc: xitong)
+    dialog.pushDialog('tutorial_newGame_line_3', isHero: true)
+    dialog.pushDialog('tutorial_newGame_line_4', npc: xitong)
+    dialog.pushDialog('tutorial_newGame_line_5', isHero: true)
+    dialog.pushDialog('tutorial_newGame_line_6', npc: xitong)
+    dialog.pushDialog('tutorial_newGame_line_7', isHero: true)
+    dialog.pushDialog('tutorial_newGame_line_8', npc: xitong)
+    dialog.pushDialog('tutorial_newGame_line_9', isHero: true)
+    dialog.pushDialog('tutorial_newGame_line_10', npc: xitong)
+    dialog.pushDialog('hint_movement', npc: xitong)
+    await dialog.execute()
 
     Player.createJournalById('sandboxTutorial')
 
     final homeLocation = game.locations[hero.homeLocationId]
     World.markTile(homeLocation.worldPosition.left, homeLocation.worldPosition.top)
   }
+}
+
+async function onAfterMove(terrain) {
+  final tradeQuest = hero.journals.values.where((journal) =>
+   !journal.isFinished &&
+   journal.quest != null &&
+   Constants.enemyEncounterQuests.contains(journal.quest.kind) &&
+   !journal.hasEncounteredEnemy
+  )
+
+  if (tradeQuest.isEmpty) return
+
+  final roll = engine.random.nextDouble()
+  let rate = Constants.terrainKindToEnemyEncounterRate[terrain.kind] ?? kEnemyEncounterRateBase
+  let er = rate * (1 - hero.rank * kEnemyEncounterRateRankFactor)
+  if (roll > er) return
+
+  final journal = tradeQuest.first
+  journal.hasEncounteredEnemy = true
+
+  encounterEnemy(terrain, battleEndCallback: async function (result, roundCount) {
+    if (result) return
+
+    final materialLostRate = kEncounterDefeatMaterialLostBase + kEncounterDefeatMaterialLostPerRank * journal.quest.difficulty
+    final materials = hero.materials.keys.where((materialId) =>
+      hero.materials[materialId] > 0
+    ).toList()
+    if (materials.isNotEmpty) {
+      final materialId = engine.random.nextIterable(materials)
+      final amount = hero.materials[materialId]
+      final lost = (amount * materialLostRate).ceil()
+      Player.exhaust(materialId, lost)
+      dialog.pushDialog('heroLoseMultiple', interpolations: [lost, engine.locale(materialId)])
+      await dialog.execute()
+    }
+
+    final equipmentLostRate = kEncounterDefeatEquipmentLostBase + kEncounterDefeatEquipmentLostPerRank * journal.quest.difficulty
+    let equippedIndexes = hero.equipments.keys.where((slot) =>
+      hero.equipments[slot] != null
+    ).toList()
+    final roll = engine.random.nextDouble()
+    if (equippedIndexes.isNotEmpty && roll < equipmentLostRate) {
+      final slot = engine.random.nextIterable(equippedIndexes)
+      final itemId = hero.equipments[slot]
+      final item = hero.inventory[itemId]
+      Player.unequip(item)
+      Player.lose(item)
+      dialog.pushDialog('heroLose', interpolations: [item.name])
+      await dialog.execute()
+    }
+
+    if (journal.quest.kind == 'escort') {
+      Player.progressJournalById(journal.id, stage: 2)
+      final character = game.characters[journal.quest.package.characterId]
+      final escortType = journal.quest.escortType;
+      dialog.pushDialog('quest_escort_failed_${escortType}', character: character);
+      await dialog.execute()
+    }
+  })
+  
+  return true
 }

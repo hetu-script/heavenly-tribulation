@@ -29,11 +29,6 @@ namespace Debug {
       rank: rank,
       skillPoints: level,
     )
-    // Game.characterAllocateSkills(hero)
-
-    // hero.materials.money = 5000
-    // hero.materials.shard = 100
-    // hero.karma = 50
 
     setHero('hero')
 
@@ -53,9 +48,6 @@ namespace Debug {
       isBasic: true,
     )
     await Player.acquire(pack2)
-
-    // testItem(hero)
-    // testQuest()
   }
 
   function testItem([character]) {
@@ -101,13 +93,13 @@ namespace Debug {
     items.add(moneyPack)
 
     for (var i in range(3)) {
-      final scroll = createItemByPrototype('identify_scroll')
+      final scroll = createItemById('identify_scroll')
       entityAcquire(character, scroll)
       items.add(scroll)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
-      final paper = createItemByPrototype('scroll_paper_rank${i}')
+      final paper = createItemById('scroll_paper_rank${i}')
       paper.stackSize = 5
       entityAcquire(character, paper)
       items.add(paper)
@@ -120,17 +112,18 @@ namespace Debug {
     }
 
     for (var materialId in _kCraftMaterials) {
-      final material = createItemByPrototype(materialId)
+      final material = createItemById(materialId)
       material.stackSize = 10
       entityAcquire(character, material)
       items.add(material)
     }
 
     for (var i in range(1, kCultivationRankMax + 1)) {
-      final ticket = createItemByPrototype('dungeon_ticket_rank${i}')
-      ticket.stackSize = 3
-      entityAcquire(character, ticket)
-      items.add(ticket)
+      for (var j in range(3)) {
+        final ticket = createItemById('dungeon_ticket_rank${i}')
+        entityAcquire(character, ticket)
+        items.add(ticket)
+      }
     }
 
     if (character == hero) {
@@ -157,19 +150,4 @@ namespace Debug {
       }
     }
   }
-
-  function debugDialog() {
-    Dialog.pushDialog(
-      'debugDialog_content1',
-      characterId: 'xitong',
-    )
-    Dialog.pushDialog(
-      'debugDialog_content2',
-      name: '萧墨',
-      icon: 'story/illustration/xiao_mo_head.png',
-      image: 'story/illustration/xiao_mo.png'
-    )
-    Dialog.execute()
-  }
-  
 }

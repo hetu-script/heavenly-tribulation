@@ -62,6 +62,53 @@ class _JournalViewState extends State<JournalView> {
     final List<Widget> descriptions = [];
     final List sequence = journalData['sequence'];
 
+    final budget = _selectedJournal['quest']?['budget'];
+    if (budget != null) {
+      descriptions.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: RichText(
+            text: TextSpan(
+              children: buildFlutterRichText(
+                  GameData.getQuestBudgetDescription(budget)),
+              style: TextStyles.bodyMedium,
+            ),
+          ),
+        ),
+      );
+    }
+    final reward = _selectedJournal['quest']?['reward'];
+    if (reward != null) {
+      descriptions.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: RichText(
+            text: TextSpan(
+              children: buildFlutterRichText(
+                  GameData.getQuestRewardDescription(reward)),
+              style: TextStyles.bodyMedium,
+            ),
+          ),
+        ),
+      );
+    }
+    final timeLimit = _selectedJournal['quest']?['timeLimit'];
+    if (timeLimit != null) {
+      descriptions.add(
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: RichText(
+            text: TextSpan(
+              children: buildFlutterRichText(
+                  GameData.getQuestTimeLimitDescription(timeLimit,
+                      isFinished: journalData['isFinished'] == true)),
+              style: TextStyles.bodyMedium,
+            ),
+          ),
+        ),
+      );
+    }
+
     for (var index = sequence.length - 1; index >= 0; --index) {
       final stageIndex = sequence[index];
       descriptions.add(
@@ -91,29 +138,6 @@ class _JournalViewState extends State<JournalView> {
                 ),
               ),
             ],
-          ),
-        ),
-      );
-    }
-
-    if (_selectedJournal['quest']?['budget'] != null) {
-      descriptions.add(
-        RichText(
-          text: TextSpan(
-            children: buildFlutterRichText(GameData.getQuestRewardDescription(
-                _selectedJournal['quest']['budget'])),
-            style: TextStyles.bodyMedium,
-          ),
-        ),
-      );
-    }
-    if (_selectedJournal['quest']?['reward'] != null) {
-      descriptions.add(
-        RichText(
-          text: TextSpan(
-            children: buildFlutterRichText(GameData.getQuestRewardDescription(
-                _selectedJournal['quest']['reward'])),
-            style: TextStyles.bodyMedium,
           ),
         ),
       );
@@ -214,6 +238,12 @@ class _JournalViewState extends State<JournalView> {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 '${journal['title']}${journal['isFinished'] == true ? ' (${engine.locale('finished')})' : ''}',
+                                softWrap: false,
+                                style: TextStyles.labelLarge.copyWith(
+                                  color: _selectedJournal == journal
+                                      ? Colors.yellow
+                                      : null,
+                                ),
                               ),
                             ),
                           ),

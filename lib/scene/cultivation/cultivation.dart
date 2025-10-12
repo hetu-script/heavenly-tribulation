@@ -68,17 +68,19 @@ enum CultivationMode {
 }
 
 class CultivationScene extends Scene {
-  CultivationScene({required super.context})
-      : super(id: Scenes.cultivation, enableLighting: true);
-
-  static final random = math.Random();
+  CultivationScene({
+    required super.context,
+    this.isEditorMode = false,
+  }) : super(
+          id: Scenes.cultivation,
+          enableLighting: true,
+        );
 
   late FpsComponent fps;
 
   dynamic character;
 
-  // 某些时候通过characterData传递了角色信息，但其实还是传的主角
-  bool get isHero => character == GameData.hero;
+  final bool isEditorMode;
 
   dynamic location;
 
@@ -431,7 +433,7 @@ class CultivationScene extends Scene {
             return;
           }
 
-          if (isHero) {
+          if (!isEditorMode) {
             if (character['skillPoints'] <= 0) {
               GameDialogContent.show(
                   context, engine.locale('hint_notEnoughPassiveSkillPoints'));
@@ -461,7 +463,7 @@ class CultivationScene extends Scene {
             GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
           }
           skillButton.isSelected = true;
-          if (isHero) {
+          if (!isEditorMode) {
             --character['skillPoints'];
           }
 
@@ -473,7 +475,7 @@ class CultivationScene extends Scene {
           if (!isLearned) return;
           Hovertip.hide(skillButton);
           skillButton.isSelected = false;
-          if (isHero) {
+          if (!isEditorMode) {
             ++character['skillPoints'];
           }
 
@@ -523,7 +525,7 @@ class CultivationScene extends Scene {
           skillDescription.writeln(engine.locale('passivetree_refund_hint'));
         } else {
           if (isOpen) {
-            if (character['skillPoints'] > 0 || !isHero) {
+            if (character['skillPoints'] > 0 || isEditorMode) {
               final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
               if (character['rank'] >= rankRequirement) {
                 skillDescription
@@ -679,7 +681,7 @@ class CultivationScene extends Scene {
       ),
     );
     cultivator.onTapUp = (button, position) async {
-      if (!isHero) return;
+      if (isEditorMode) return;
       if (isMeditating) return;
       setPassiveTreeState(!_showPassiveTree);
     };
@@ -962,8 +964,6 @@ class CultivationScene extends Scene {
 
   @override
   void onMount() async {
-    super.onMount();
-
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
@@ -984,6 +984,16 @@ class CultivationScene extends Scene {
     }
 
     camera.snapTo(center);
+
+    if (GameData.game['enableTutorial'] == true && !isEditorMode) {
+      if (GameData.game['flags']['tutorial']['cultivation'] == true) return;
+      // 修炼界面教程
+      GameData.game['flags']['tutorial']['cultivation'] = true;
+
+      dialog.pushDialog('hint_cultivation',
+          npc: GameData.game['npcs']['xitong']);
+      await dialog.execute();
+    }
 
     await onEnterScene?.call();
 
@@ -1166,7 +1176,7 @@ class CultivationScene extends Scene {
             initialActiveOverlays: initialActiveOverlays,
           ),
           GameUIOverlay(
-            enableHeroInfo: isHero,
+            enableHeroInfo: !isEditorMode,
             enableNpcs: false,
             enableCultivation: false,
             enableAutoExhaust: false,

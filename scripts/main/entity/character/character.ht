@@ -1,14 +1,3 @@
-// import '../../game/data.ht'
-// import '../../datetime.ht'
-// import '../../incident.ht'
-// import '../../util.ht'
-// import '../entity.ht'
-// import '../../world/tile/hexagonal_tile.ht'
-// import 'battle_entity.ht'
-// import '../item/item.ht'
-// import '../../game/dialog.ht'
-// import '../../random.ht'
-
 export 'battle_entity.ht'
 
 // 进行某些互动的时候的判定阈值
@@ -283,8 +272,8 @@ function _calculateCharacterFirstImpression(subject, target) {
     score += kSameOrganizationScore
     final organization = game.organizations[subject.organizationId]
     assert(organization != null, 'organization not exist: ${subject.organizationId}')
-    final subjectJob = organization.members[subject.id]
-    final targetJob = organization.members[target.id]
+    final subjectJob = organization.membersData[subject.id]
+    final targetJob = organization.membersData[target.id]
     if (targetJob.rank > subjectJob.rank) {
       score += kGenerationScore
     } else if (targetJob.peer > subjectJob.peer) {
@@ -1075,8 +1064,6 @@ struct Character {
     this.worldId = worldId ?? world?.id
 
     // let atWorld = universe[this.worldId]
-
-    this.color = kRarity.rare.color
     
     this.charismaFavor =  Math.gaussianNoise(
       kAttributeValueAverage,
@@ -1131,12 +1118,9 @@ struct Character {
     this.emotions = {}
 
     // 该角色当前的日志
+    // 门派任务和悬赏任务同样以日志形式保存在这里
     this.journals = {}
     this.activeJournalId = null
-
-    // 该角色当前拥有的任务
-    this.quests = {}
-    this.activeQuestId
     
     // 这些列表保存的是incident的index
     // 该角色经历过的事情
@@ -1181,6 +1165,7 @@ struct Character {
       kind: kLocationKindHome,
       name: engine.locale('characterHomeSite', interpolations: [this.name]),
       ownerId: this.id,
+      isAffiliate: true,
     )
     this.homeSiteId = home.id
     // 所有该角色拥有住所的据点的 id 列表
@@ -1274,7 +1259,7 @@ struct Character {
 // 必须已经是门派成员，才可以设定职责
 // function setCharacterJob(character, organization, {jobRank, titleId, incurIncident = true }) {
 //   assert(jobRank != null && titleId != null)
-//   assert(organization.members.keys.contains(character.id))
+//   assert(organization.membersData.keys.contains(character.id))
 //   assert(character.organizationId == organization.id)
 //   assert(jobRank >= 0 && jobRank <= organization.jobRankMax)
 //   const membersOfRank = getOrganizationMemberIdsOfRank(organization, jobRank)
@@ -1295,7 +1280,7 @@ struct Character {
 //     }
 //     organization.headId = character.id
 //   }
-//   const incidentContent = engine.locale('characterGainJobRank', interpolations: [
+//   const incidentContent = engine.locale('characterGainJob', interpolations: [
 //     character.name,
 //     organization.name,
 //     engine.locale(titleId),
@@ -1590,27 +1575,6 @@ function getNpcsAtWorldMapPosition(left, top, [ worldId ]) {
   })
 }
 
-function getNpcsAtLocation(location) {
-  final npcsHere = []
-  
-  final npcs = game.npcs.values.where((npc) {
-    if (npc.locationId != location.id) return false
-    return true
-  })
-  npcsHere.addAll(npcs)
-
-  final companions = hero.companions.map((id) => game.characters[id])
-  npcsHere.addAll(companions)
-
-  final characters = game.characters.values.where((char) {
-    if (char.id == game.heroId) return false
-    if (char.locationId != location.id) return false
-    return true
-  })
-  npcsHere.addAll(characters)
-  return npcsHere
-}
-
 function removeCharacterById(id: string) {
   engine.warn('正在移除ID为 [${id}] 的角色。')
   // TODO: 角色相关的信息，例如门派首领，拥有的建筑等等需要一并清除才行
@@ -1721,11 +1685,4 @@ function characterGainExp(character, value) {
     subjectId: hero.id,
     isPrivate: true,
   )
-}
-
-function setCharacterTitle(character, titleId) {
-  if (character.titles.contains(titleId)) return
-
-  character.titles.add(titleId)
-  character.titleId = titleId
 }

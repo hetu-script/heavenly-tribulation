@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import '../../engine.dart';
 import '../../state/character.dart';
 import '../../state/hover_content.dart';
-import '../../game/common.dart';
 import '../../game/logic/logic.dart';
 
 const kStatsItems = [
@@ -65,20 +64,20 @@ class CharacterStats extends StatefulWidget {
 }
 
 class _CharacterStatsState extends State<CharacterStats> {
-  Widget getStatsLabel(String id, dynamic data) {
+  Widget _buildStatsLabel(String id, dynamic data) {
     if (id == 'divider') return const Divider();
 
     final int baseValue = data[id] ?? 0;
-    final int value = data['stats'][id] ?? 0;
+    final int value = data['stats'][id] ?? baseValue;
 
     String description;
     if (id == 'level') {
       final int levelMax = GameLogic.maxLevelForRank(data['rank']);
       description =
           '${engine.locale('levelMax')}: $levelMax\n${engine.locale('level_description')}';
-    } else if (id.endsWith('Resist') || id == 'tribulationCount') {
-      final int baseValueMax = data['${id}Max'] ?? kBaseResistMax;
-      final int valueMax = data['stats']?['${id}Max'] ?? kBaseResistMax;
+    } else if (id.endsWith('Resist')) {
+      final int baseValueMax = data['${id}Max'];
+      final int valueMax = data['stats']?['${id}Max'];
 
       final maxString =
           (valueMax > baseValueMax ? '<yellow>$valueMax</>' : valueMax)
@@ -96,6 +95,13 @@ class _CharacterStatsState extends State<CharacterStats> {
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
     } else if (id == 'level' || id == 'karma') {
       valueString = baseValue.toString();
+    } else if (id == 'tribulationCount') {
+      final int baseValueMax = data['${id}Max'];
+      final int valueMax = data['stats']?['${id}Max'];
+      final maxString =
+          (valueMax > baseValueMax ? '<yellow>$valueMax</>' : valueMax)
+              .toString();
+      valueString = '$value/$maxString';
     } else {
       valueString =
           (value > baseValue ? '<yellow>$value</>' : value).toString();
@@ -117,7 +123,7 @@ class _CharacterStatsState extends State<CharacterStats> {
   @override
   Widget build(BuildContext context) {
     dynamic data =
-        widget.isHero ? context.watch<HeroState>().hero : widget.character;
+        widget.isHero ? context.watch<GameState>().hero : widget.character;
     assert(data != null);
 
     final List<Widget> items = [];
@@ -135,7 +141,7 @@ class _CharacterStatsState extends State<CharacterStats> {
         : kStatsItems.length - kNonBattleItemsLength;
     for (var i = 0; i < length; ++i) {
       final id = kStatsItems[i];
-      items.add(getStatsLabel(id, data));
+      items.add(_buildStatsLabel(id, data));
     }
 
     return ScrollConfiguration(

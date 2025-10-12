@@ -9,7 +9,6 @@ import 'site_card.dart';
 import 'edit_location_basics.dart';
 import 'edit_npc_basics.dart';
 import '../common.dart';
-import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
@@ -93,7 +92,7 @@ class _LocationViewState extends State<LocationView>
           .map((id) => GameData.getCharacter(id));
 
       for (final character in residents) {
-        final row = GameLogic.getCharacterInformationRow(character);
+        final row = GameData.getCharacterInformationRow(character);
         _charactersTableData.add(row);
       }
     } else {
@@ -396,7 +395,7 @@ class _LocationViewState extends State<LocationView>
                           image: _location['image'],
                           background: _location['background'],
                           atLocation: _atLocation,
-                          createNpc: _location['npcId'] != null,
+                          npcId: _location['npcId'],
                           allowEditCategory: false,
                         ),
                       );
@@ -408,13 +407,14 @@ class _LocationViewState extends State<LocationView>
                         name,
                         image,
                         background,
-                        createNpc,
+                        npcId,
                       ) = value;
                       _location['category'] = category;
                       _location['kind'] = kind;
                       _location['name'] = name;
                       _location['image'] = image;
                       _location['background'] = background;
+                      _location['npcId'] = npcId;
 
                       if (id != null && id != _location['id']) {
                         final oldId = _location['id'];
@@ -431,25 +431,25 @@ class _LocationViewState extends State<LocationView>
                         _location['id'] = id;
                       }
 
-                      if (createNpc) {
-                        if (_location['npcId'] == null) {
-                          final npcData = engine.hetu.invoke(
-                            'Npc',
-                            namedArgs: {
-                              'id': _location['id'] + '_npc',
-                              'nameId': 'servant',
-                              'icon': 'illustration/npc/servant_head.png',
-                              'illustration': 'illustration/npc/servant.png',
-                              'atLocationId': _location['id'],
-                            },
-                          );
-                          _location['npcId'] = npcData['id'];
-                        }
-                      } else {
-                        if (_location['npcId'] != null) {
-                          _location['npcId'] = null;
-                        }
-                      }
+                      // if (createNpc) {
+                      //   if (_location['npcId'] == null) {
+                      //     final npcData = engine.hetu.invoke(
+                      //       'Npc',
+                      //       namedArgs: {
+                      //         'id': _location['id'] + '_npc',
+                      //         'nameId': 'servant',
+                      //         'icon': 'illustration/npc/servant_head.png',
+                      //         'illustration': 'illustration/npc/servant.png',
+                      //         'atLocationId': _location['id'],
+                      //       },
+                      //     );
+                      //     _location['npcId'] = npcData['id'];
+                      //   }
+                      // } else {
+                      //   if (_location['npcId'] != null) {
+                      //     _location['npcId'] = null;
+                      //   }
+                      // }
                       setState(() {});
                     },
                     child: Text(engine.locale('editIdAndImage')),
@@ -479,7 +479,7 @@ class _LocationViewState extends State<LocationView>
                         name,
                         image,
                         background,
-                        createNpc,
+                        npcId,
                       ) = value;
                       final location = engine.hetu.invoke(
                         'Location',
@@ -491,7 +491,7 @@ class _LocationViewState extends State<LocationView>
                           'image': image,
                           'background': background,
                           'atLocation': _location,
-                          'createNpc': createNpc,
+                          'npcId': npcId,
                           'organizationId': _location['organizationId'],
                         },
                       );

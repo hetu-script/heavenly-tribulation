@@ -12,11 +12,11 @@ import '../../state/new_prompt.dart';
 class NewJournal extends StatelessWidget {
   const NewJournal({
     super.key,
-    required this.journalData,
+    required this.journal,
     this.completer,
   });
 
-  final dynamic journalData;
+  final dynamic journal;
   final Completer? completer;
 
   @override
@@ -38,26 +38,29 @@ class NewJournal extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Label(
-                      '${engine.locale('journalUpdate')}: ${journalData['title']}'),
-                  if (journalData['image'] != null)
+                      '${engine.locale('journalUpdate')}: ${journal['title']}'),
+                  if (journal['image'] != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Image(
-                        image:
-                            AssetImage('assets/images/${journalData['image']}'),
+                        image: AssetImage('assets/images/${journal['image']}'),
                       ),
                     ),
-                  ...(journalData['sequence'] as List).map((index) {
+                  ...(journal['sequence'] as List).map((index) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 10.0),
                       child: Label(
-                        journalData['stages'][index],
+                        journal['stages'][index],
                         textAlign: TextAlign.left,
+                        textStyle: journal['stage'] > index
+                            ? TextStyles.bodyMedium.copyWith(color: Colors.grey)
+                            : TextStyles.bodyMedium
+                                .copyWith(color: Colors.yellow),
                       ),
                     );
                   }),
                   Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
+                    padding: const EdgeInsets.only(top: 50.0),
                     child: fluent.FilledButton(
                       onPressed: () {
                         completer?.complete();

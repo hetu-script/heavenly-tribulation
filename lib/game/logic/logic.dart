@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/state/states.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
-import 'package:samsara/samsara.dart';
 
 import '../common.dart';
 import '../../widgets/dialog/timeflow.dart';
@@ -29,6 +28,19 @@ import 'common.dart';
 part 'character.dart';
 part 'location.dart';
 
+// 为据点分配领地时候的最大循环数
+const _kMaxCityTerritorySize = 100;
+
+const _kLandCityTerritoryTerrainKinds = {
+  'plain',
+  'forest',
+  'shore',
+  'shelf',
+  'lake'
+};
+
+const _kHintDyingVariants = 5;
+
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
 
@@ -38,6 +50,7 @@ abstract class GameLogic {
   static int year = 0;
   static int month = 0;
   static int day = 0;
+  static int time = 0;
   static String timeOfDay = '';
 
   static String getDatetimeString() {
@@ -46,17 +59,146 @@ abstract class GameLogic {
 
   static (int, String) calculateTimestamp() {
     final int timestamp = GameData.game['timestamp'];
-    ticksOfYear = (timestamp % kTicksPerYear) + 1;
-    ticksOfMonth = (timestamp % kTicksPerMonth) + 1;
-    ticksOfDay = (timestamp % kTicksPerDay) + 1;
+    ticksOfYear = timestamp % kTicksPerYear;
+    ticksOfMonth = timestamp % kTicksPerMonth;
+    ticksOfDay = timestamp % kTicksPerDay;
+
+    // 当前年数
     year = (timestamp ~/ kTicksPerYear) + 1;
+
+    // 当前月数 1-12
     month = (ticksOfYear ~/ kTicksPerMonth) + 1;
+
+    // 当前月的天数 1-30
     day = (ticksOfMonth ~/ kTicksPerDay) + 1;
-    timeOfDay = kTimeOfDay[ticksOfDay]!;
+
+    // 当前的时刻 1-4
+    time = ticksOfDay + 1;
+
+    // 清晨、下午、傍晚、午夜
+    timeOfDay = kTimeOfDay[time]!;
 
     final datetimeString = getDatetimeString();
 
     return (timestamp, datetimeString);
+  }
+
+  static void generateCityTerritory(dynamic world) {
+    final cities = GameData.game['locations'].values.where(
+      (location) =>
+          location['category'] == 'city' && location['worldId'] == world['id'],
+    );
+
+    // 给据点添加一个控制的地块作为领地
+    // 只能添加边界地块
+    void addTileToCityTerritory(dynamic city, int tileIndex, Set terrainKinds) {
+      assert(terrainKinds.isNotEmpty);
+      final List territoryIndexes = city['territoryIndexes'];
+      assert(!territoryIndexes.contains(tileIndex));
+      territoryIndexes.add(tileIndex);
+      final List borderIndexes = city['borderIndexes'];
+      assert(borderIndexes.contains(tileIndex) || borderIndexes.isEmpty);
+      borderIndexes.remove(tileIndex);
+
+      final tile = world['terrains'][tileIndex];
+      tile['cityId'] = city['id'];
+
+      final neighbors = engine.hetu.invoke(
+        'getTileNeighbors',
+        positionalArgs: [tile['left'], tile['top']],
+        namedArgs: {'terrainKinds': terrainKinds},
+      );
+      for (final neighbor in neighbors.values) {
+        final neighborIndex = neighbor['index'];
+        if (territoryIndexes.contains(neighborIndex)) continue;
+        if (borderIndexes.contains(neighborIndex)) continue;
+        borderIndexes.add(neighborIndex);
+      }
+    }
+
+    Map<int, Set<dynamic>> cityTerrainKinds = {};
+
+    for (var i = 0; i < _kMaxCityTerritorySize; ++i) {
+      for (final city in cities) {
+        final int cityIndex = city['terrainIndex'];
+        final terrain = world['terrains'][cityIndex];
+        final terrainKind = terrain['kind'];
+        Set? terrainKinds = cityTerrainKinds[cityIndex];
+        if (terrainKinds == null) {
+          if (_kLandCityTerritoryTerrainKinds.contains(terrainKind)) {
+            terrainKinds =
+                cityTerrainKinds[cityIndex] = _kLandCityTerritoryTerrainKinds;
+          } else {
+            terrainKinds = cityTerrainKinds[cityIndex] = {terrainKind};
+          }
+        }
+
+        final List territoryIndexes = city['territoryIndexes'];
+        final List borderIndexes = city['borderIndexes'];
+        if (borderIndexes.isEmpty) {
+          if (territoryIndexes.isEmpty) {
+            // 据点没有任何领地，以据点本身的地块开始
+            addTileToCityTerritory(city, cityIndex, terrainKinds);
+          }
+        } else {
+          final availableTileIndexes = borderIndexes.toList();
+          // 复制一份用来随机化领地扩张顺序
+          availableTileIndexes.shuffle(GameData.random);
+          int? selectedIndex;
+          for (final tileIndex in availableTileIndexes) {
+            final borderTile = world['terrains'][tileIndex];
+            if (borderTile['cityId'] != null ||
+                borderTile['locationId'] != null) {
+              // 因为城市扩张是并行进行的
+              // 因此有可能当前边界地块已经被别的城市占领了
+              borderIndexes.remove(tileIndex);
+              continue;
+            }
+            selectedIndex = tileIndex;
+          }
+          if (selectedIndex != null) {
+            addTileToCityTerritory(city, selectedIndex, terrainKinds);
+          }
+        }
+      }
+    }
+
+    // 检查被完全围起来的地块，将其划归给邻近的据点
+    final unoccupiedTiles = world['terrains'].where(
+      (tile) => tile['cityId'] == null,
+    );
+    for (final tile in unoccupiedTiles) {
+      final neighbors = engine.hetu.invoke(
+        'getTileNeighbors',
+        positionalArgs: [tile['left'], tile['top']],
+      );
+      if (neighbors.isEmpty) continue;
+
+      final firstNeighbor = neighbors.values.first;
+      final firstCityId = firstNeighbor['cityId'];
+      if (firstCityId == null) continue;
+
+      final firstCity = GameData.game['locations'][firstCityId];
+
+      if (neighbors.length == 1) {
+        addTileToCityTerritory(firstCity, tile['index'],
+            cityTerrainKinds[firstCity['terrainIndex']]!);
+      } else {
+        bool isLocked = true;
+        for (final neighbor in neighbors.values.skip(1)) {
+          if (neighbor['cityId'] != firstCityId) {
+            isLocked = false;
+            break;
+          }
+        }
+        if (isLocked) {
+          addTileToCityTerritory(firstCity, tile['index'],
+              cityTerrainKinds[firstCity['terrainIndex']]!);
+        }
+      }
+    }
+
+    engine.debug('生成了 ${cities.length} 个据点的领地范围。');
   }
 
   static int generateZone(dynamic world) {
@@ -81,7 +223,7 @@ abstract class GameLogic {
       indexed.add(tile['index']);
       engine.hetu.invoke('addTerrainToZone', positionalArgs: [tile, zone]);
 
-      final neighbors = engine.hetu.invoke('getNeighborTiles',
+      final neighbors = engine.hetu.invoke('getTileNeighbors',
           positionalArgs: [tile['left'], tile['top']]);
       for (final neighbor in neighbors.values) {
         // engine.debug(
@@ -109,7 +251,6 @@ abstract class GameLogic {
     }
 
     engine.debug('生成了 $count 个地域。');
-
     return count;
   }
 
@@ -156,90 +297,6 @@ abstract class GameLogic {
       'minGreater': minGreater,
       'maxGreater': maxGreater
     };
-  }
-
-  static List<String> getCharacterInformationRow(dynamic character) {
-    final row = <String>[];
-    row.add(character['name']);
-    // 性别
-    final bool isFemale = character['isFemale'];
-    row.add(engine.locale(isFemale ? 'female' : 'male'));
-    final age = engine.hetu
-        .invoke('getCharacterAgeString', positionalArgs: [character]);
-    // 年龄
-    row.add(age);
-    // 名声
-    final fame = engine.hetu
-        .invoke('getCharacterFameString', positionalArgs: [character]);
-    row.add(fame);
-    final homeLocationId = character['homeLocationId'];
-    final homeLocation = GameData.game['locations'][homeLocationId];
-    row.add(homeLocation?['name'] ?? engine.locale('none'));
-    // 门派名字
-    String organizationName = engine.locale('none');
-    final organizationId = character['organizationId'];
-    if (organizationId != null) {
-      final organization = GameData.getOrganization(organizationId);
-      organizationName = organization['name'];
-    }
-    row.add(organizationName);
-    // 称号
-    final titleId = character['titleId'];
-    row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
-    row.add('${character['level']}');
-    row.add(engine.locale('cultivationRank_${character['rank']}'));
-    // 多存一个隐藏的 id 信息，用于点击事件
-    row.add(character['id']);
-    return row;
-  }
-
-  static List<String> getCityInformationRow(dynamic location) {
-    assert(location['category'] == 'city');
-
-    final row = <String>[];
-    row.add(location['name']);
-    final worldPosition = location['worldPosition'];
-    row.add('[${worldPosition['left']}, ${worldPosition['top']}]');
-    // 类型
-    row.add(engine.locale(location['kind']));
-    // 发展度
-    row.add(location['development'].toString());
-    // 居民
-    row.add(location['residents'].length.toString());
-    // 门派名字
-    String organizationName = engine.locale('none');
-    final organizationId = location['organizationId'];
-    if (organizationId != null) {
-      final organization = GameData.getOrganization(organizationId);
-      organizationName = organization['name'];
-    }
-    row.add(organizationName);
-    // 多存一个隐藏的 id 信息，用于点击事件
-    row.add(location['id']);
-    return row;
-  }
-
-  static List<String> getOrganizationInformationRow(dynamic organization) {
-    final row = <String>[];
-    row.add(organization['name']);
-    // 掌门
-    row.add(organization['headId']);
-    // 类型
-    row.add(engine.locale(organization['category']));
-    // 流派
-    row.add(engine.locale(organization['genre']));
-    // 总堂
-    final headquarters =
-        GameData.getLocation(organization['headquartersLocationId']);
-    row.add(headquarters['name']);
-    // 据点数量
-    row.add(organization['locationIds'].length.toString());
-    // 成员数量
-    row.add(organization['members'].length.toString());
-    row.add('${organization['recruitMonth']}${engine.locale('dateMonth')}');
-    // 多存一个隐藏的 id 信息，用于点击事件
-    row.add(organization['id']);
-    return row;
   }
 
   // // 组织中每个等级的人数上限
@@ -521,7 +578,7 @@ abstract class GameLogic {
     return filteredItems;
   }
 
-  static Future<Iterable<dynamic>> showItemSelect({
+  static Future<Iterable<dynamic>> selectItem({
     required dynamic character,
     String? title,
     dynamic filter,
@@ -560,11 +617,11 @@ abstract class GameLogic {
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
     if (selectedAttributeId == null) {
-      final r = math.Random().nextDouble();
+      final r = GameData.random.nextDouble();
       if (r < 0.4) {
         selectedAttributeId = character['mainAttribute'];
       } else {
-        selectedAttributeId = kBattleAttributes.random;
+        selectedAttributeId = GameData.random.nextIterable(kBattleAttributes);
       }
     } else {
       assert(kBattleAttributes.contains(selectedAttributeId));
@@ -831,7 +888,7 @@ abstract class GameLogic {
       } else {
         final probability = math.gradualValue(level - currentRankMinLevel,
             currentRankMaxLevel - currentRankMinLevel);
-        final r = math.Random().nextDouble();
+        final r = GameData.random.nextDouble();
         if (r < probability) {
           doTribulation = true;
         }
@@ -990,8 +1047,7 @@ abstract class GameLogic {
         engine.hetu.invoke(
           'collect',
           namespace: 'Player',
-          positionalArgs: [itemData['kind']],
-          namedArgs: {'amount': itemData['stackSize']},
+          positionalArgs: [itemData['kind'], itemData['stackSize']],
         );
         engine.play('pickup_item-64282.mp3');
       // case kItemCategoryExppack:
@@ -1031,6 +1087,11 @@ abstract class GameLogic {
     assert(chargeLimit > 0);
     final max = math.min(shards ~/ shardsPerCharge, chargeLimit);
 
+    if (max < 1) {
+      dialog.pushDialog(engine.locale('hint_notEnoughShard'));
+      return;
+    }
+
     final int? value = await showDialog(
       context: engine.context,
       builder: (context) => InputSliderDialog(
@@ -1047,10 +1108,11 @@ abstract class GameLogic {
     final charge = value ~/ shardsPerCharge;
 
     chargeData['current'] += charge;
-    engine.hetu.invoke('exhaust', namespace: 'Player', namedArgs: {
-      'kind': 'shard',
-      'amount': value,
-    });
+    engine.hetu.invoke(
+      'exhaust',
+      namespace: 'Player',
+      positionalArgs: ['shard', value],
+    );
 
     engine.debug('物品 ${itemData['name']} 增加了 $charge 充能次数');
     engine.play('electric-sparks-68814.mp3');
@@ -1086,9 +1148,7 @@ abstract class GameLogic {
     final int tik = DateTime.now().millisecondsSinceEpoch;
 
     if (timeflow) {
-      if (ticksOfDay == 1) {
-        engine.log('--------${GameLogic.getDatetimeString()}--------');
-      }
+      engine.log('game update begin: ${GameLogic.getDatetimeString()}');
     }
 
     final int timestamp = GameData.game['timestamp'];
@@ -1096,7 +1156,7 @@ abstract class GameLogic {
     for (var i = 0; i < tick; ++i) {
       engine.hetu.invoke('handleBabies');
 
-      if (forceUpdate || (day == 1 && ticksOfDay == 1)) {
+      if (forceUpdate || (day == 1 && time == 1)) {
         // 重置玩家自己的每月行动
         engine.hetu.invoke('resetPlayerMonthly');
       }
@@ -1107,7 +1167,7 @@ abstract class GameLogic {
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
       for (final location in GameData.game['locations'].values) {
         // 月度事件
-        if (forceUpdate || (day == 1 && ticksOfDay == 1)) {
+        if (forceUpdate || (day == 1 && time == 1)) {
           updateLocationMonthly(location);
           // 年度事件
           if (month == kLocationYearlyUpdateMonth) {
@@ -1121,7 +1181,7 @@ abstract class GameLogic {
       // 触发每个组织的刷新事件
       for (final organization in GameData.game['organizations'].values) {
         // 月度事件
-        if (forceUpdate || (day == 1 && ticksOfDay == 1)) {
+        if (forceUpdate || (day == 1 && time == 1)) {
           updateOrganizationMonthly(organization);
 
           // 年度事件
@@ -1136,7 +1196,7 @@ abstract class GameLogic {
       // 触发每个角色的刷新事件
       for (final character in GameData.game['characters'].values) {
         // 月度事件
-        if (forceUpdate || (day == 1 && ticksOfDay == 1)) {
+        if (forceUpdate || (day == 1 && time == 1)) {
           updateCharacterMonthly(character);
 
           // 年度事件
@@ -1165,6 +1225,7 @@ abstract class GameLogic {
         for (final itemId in GameData.hero['equipments'].values) {
           if (itemId == null) continue;
           final itemData = GameData.hero['inventory'][itemId];
+          if (itemData['isUpdatable'] != true) continue;
           engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
           await engine.hetu.invoke('onGameEvent',
               positionalArgs: ['onUpdateItem', itemData]);
@@ -1178,17 +1239,17 @@ abstract class GameLogic {
 
   /// 据点年度更新开始
   static void updateLocationYearlyStart(dynamic location) {
-    engine.debug('${location['id']} 的年度更新开始');
+    // engine.debug('${location['id']} 的年度更新开始');
   }
 
   /// 据点年度更新结束
   static void updateLocationYearlyEnd(dynamic location) {
-    engine.debug('${location['id']} 的年度更新结束');
+    // engine.debug('${location['id']} 的年度更新结束');
   }
 
   /// 据点月度更新
   static void updateLocationMonthly(dynamic location) {
-    engine.debug('${location['id']} 的月度更新');
+    // engine.debug('${location['id']} 的月度更新');
 
     if (location['category'] == 'city') {
     } else if (location['category'] == 'site') {
@@ -1210,48 +1271,115 @@ abstract class GameLogic {
           engine.hetu.invoke('replenishAlchemyLab', positionalArgs: [location]);
         case 'runelab':
           engine.hetu.invoke('replenishRuneLab', positionalArgs: [location]);
+        case 'farmland' ||
+              'fishery' ||
+              'timberland' ||
+              'huntingground' ||
+              'mine':
+          engine.hetu
+              .invoke('replenishProductionSite', positionalArgs: [location]);
       }
     }
   }
 
   /// 组织年度更新开始
   static void updateOrganizationYearlyStart(dynamic organization) {
-    engine.debug('${organization['id']} 的年度更新开始');
+    // engine.debug('${organization['id']} 的年度更新开始');
 
-    organization['isRecruiting'] = true;
-    engine.debug('${organization['id']} 的招募活动本月开始。');
+    // organization['isRecruiting'] = true;
+    // engine.debug('${organization['id']} 的招募活动本月开始。');
   }
 
   /// 组织年度更新结束
   static void updateOrganizationYearlyEnd(dynamic organization) {
-    engine.debug('${organization['id']} 的年度更新结束');
+    // engine.debug('${organization['id']} 的年度更新结束');
 
-    organization['isRecruiting'] = false;
-    engine.debug('${organization['id']} 的招募活动已经结束。');
+    // organization['isRecruiting'] = false;
+    // engine.debug('${organization['id']} 的招募活动已经结束。');
   }
 
   /// 组织月度更新
   static void updateOrganizationMonthly(dynamic organization) {
-    engine.debug('${organization['id']} 的月度更新');
+    // engine.debug('${organization['id']} 的月度更新');
   }
 
   /// 角色年度更新开始
   static void updateCharacterYearlyStart(dynamic character) {
-    engine.debug('${character['id']} 的年度更新开始');
+    // engine.debug('${character['id']} 的年度更新开始');
   }
 
   /// 角色年度更新结束
   static void updateCharacterYearlyEnd(dynamic character) {
-    engine.debug('${character['id']} 的年度更新结束');
+    // engine.debug('${character['id']} 的年度更新结束');
   }
 
   /// 角色月度更新
   static void updateCharacterMonthly(dynamic character) {
-    engine.debug('${character['id']} 的月度更新');
+    // engine.debug('${character['id']} 的月度更新');
   }
 
   /// 角色濒死，tribulationCount += 1，返回自宅
-  static void onDying() {}
+  static Future<void> onDying() async {
+    await GameDialogContent.show(engine.context, engine.locale('hint_dying'));
+
+    final int tribulationCount = GameData.hero['tribulationCount'];
+    final int tribulationCountMax =
+        GameData.hero['stats']['tribulationCountMax'];
+
+    if (tribulationCount > tribulationCountMax) {
+      // TODO: 展示战败CG
+      engine.context.read<SelectedPositionState>().clear();
+      engine.context.read<HeroPositionState>().clear();
+      engine.clearAllCachedScene(
+          except: Scenes.mainmenu,
+          arguments: {'reset': GameData.game['saveName'] != 'debug'});
+      return;
+    }
+
+    final result =
+        await engine.hetu.invoke('onGameEvent', positionalArgs: ['onDying']);
+    if (result == true) {
+      return;
+    }
+
+    engine.setLoading(true, tip: engine.locale('tips_dying'));
+
+    await engine.popSceneTill(GameData.game['mainWorldId']);
+
+    final homeLocationId = GameData.hero['homeLocationId'];
+    final homeLocation = GameData.getLocation(homeLocationId);
+    final homeSiteId = GameData.hero['homeSiteId'];
+    final homeSite = GameData.getLocation(homeSiteId);
+
+    final worldPosition = homeLocation['worldPosition'];
+    engine.hetu.invoke('setTo', namespace: 'Player', positionalArgs: [
+      worldPosition['left'],
+      worldPosition['top'],
+    ]);
+
+    engine.pushScene(
+      homeLocationId,
+      constructorId: Scenes.location,
+      arguments: {'location': homeLocation},
+    );
+    engine.pushScene(
+      homeSiteId,
+      constructorId: Scenes.location,
+      arguments: {
+        'location': homeSite,
+        'onEnterScene': () async {
+          dialog.pushDialog(
+            'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
+            isHero: true,
+          );
+          await dialog.execute();
+        }
+      },
+    );
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    engine.setLoading(false);
+  }
 
   /// 异步函数，在显示场景窗口之前执行
   static Future<dynamic> tryEnterLocation(dynamic location) async {
@@ -1263,6 +1391,7 @@ abstract class GameLogic {
 
     engine.context.read<HoverContentState>().hide();
     engine.context.read<ViewPanelState>().clearAll();
+
     GameLogic.updateGame();
     engine.pushScene(
       location['id'],
@@ -1271,7 +1400,7 @@ abstract class GameLogic {
     );
   }
 
-  static void onAfterEnterLocation(dynamic location) =>
+  static Future<void> onAfterEnterLocation(dynamic location) =>
       _onAfterEnterLocation(location);
 
   static void tryInteractObject(String objectId, dynamic terrainData) {

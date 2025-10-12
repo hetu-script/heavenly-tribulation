@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/ui/mouse_region2.dart';
 
 import '../game/data.dart';
 import '../game/ui.dart';
 import '../engine.dart';
 import '../state/selected_tile.dart';
+import '../state/hover_content.dart';
 
 const kSpriteIndexCategory = {
   0: 'waterZone',
@@ -119,15 +121,20 @@ class LocationPanel extends StatelessWidget {
 
     return (positionDetails.isEmpty && !isEditorMode)
         ? SizedBox.shrink()
-        : Material(
-            type: MaterialType.transparency,
-            child: Container(
-              color: GameUI.backgroundColor2,
-              width: width,
-              height: height,
-              padding: const EdgeInsets.only(left: 5.0, top: 5.0),
-              child: Text(
-                positionDetails.toString(),
+        : MouseRegion2(
+            onEnter: (rect) {
+              context.read<HoverContentState>().hide();
+            },
+            child: Material(
+              type: MaterialType.transparency,
+              child: Container(
+                color: GameUI.backgroundColor2,
+                width: width,
+                height: height,
+                padding: const EdgeInsets.only(left: 5.0, top: 5.0),
+                child: Text(
+                  positionDetails.toString(),
+                ),
               ),
             ),
           );

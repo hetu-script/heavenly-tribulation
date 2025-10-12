@@ -84,6 +84,10 @@ class HoverContentState extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void clear() {
+    content = null;
+  }
 }
 
 class HoverContentDeterminedRectState extends ChangeNotifier {

@@ -1,8 +1,10 @@
 import 'package:samsara/extensions.dart';
-// import 'package:samsara/cardgame.dart';
+import 'package:fast_noise/fast_noise.dart';
 
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+
+const kSeparateDot = '・';
 
 /// Unicode Character "∕" (U+2215)
 const kSlash = '∕';
@@ -14,9 +16,9 @@ const kUniverseSaveFilePostfix = '_universe';
 const kWorldSaveFilePostfix = '_world';
 const kHistorySaveFilePostfix = '_history';
 
-const kAutoTimeFlowInterval = 500;
-
 const kSpriteScale = 2.0;
+
+const kAutoTimeFlowInterval = 500;
 
 enum SceneStates {
   mainmenu,
@@ -27,22 +29,33 @@ enum SceneStates {
   cardLibrary,
 }
 
-/// 当前版本等级限制为50
-const kCurrentVersionCultivationLevelMax = 50;
-const kCurrentVersionCultivationRankMax = 3;
-
-const kZoneVoid = 'world';
-const kZoneLand = 'land';
-const kZoneWater = 'water';
+const kTips = [
+  'tips_rank',
+  'tips_level',
+  'tips_rarity',
+  'tips_bounty_quest',
+  'tips_organization_quest',
+  'tips_organization_policy',
+  'tips_master_apprentice',
+  'tips_work_and_produce',
+  'tips_identify_item',
+  'tips_faction_facility',
+  'tips_deckbuilding',
+  'tips_heavenly_tribulation',
+  'tips_hidden_location',
+  'tips_sandbox_freedom',
+  'tips_terrain_movement',
+  'tips_reputation',
+];
 
 const kTerrainKindToNaturalResources = {
   'void': null,
   'city': null,
   'road': null,
   'plain': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -51,9 +64,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'mountain': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -62,9 +75,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'forest': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -73,9 +86,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'snow_plain': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -84,9 +97,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'snow_mountain': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -95,9 +108,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'snow_forest': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -106,9 +119,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'shore': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -117,9 +130,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'shelf': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -128,9 +141,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'lake': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -139,9 +152,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'sea': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -150,9 +163,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
   'river': {
+    'water': 0,
     'grain': 5,
     'meat': 1,
-    'water': 0,
     'leather': 1,
     'herb': 1,
     'timber': 2,
@@ -161,6 +174,9 @@ const kTerrainKindToNaturalResources = {
     'spirit': 1,
   },
 };
+
+const kZoneLand = 'land';
+const kZoneWater = 'water';
 
 const kTileSpriteIndexToZoneCategory = {
   0: kZoneWater,
@@ -170,17 +186,32 @@ const kTileSpriteIndexToZoneCategory = {
 
 const kWorldStyles = {'coast', 'islands', 'inland'};
 
-const kWorldSizeByScale = {
-  1: 40,
-  2: 72,
-  3: 128,
+const kWorldWidthByScale = {
+  1: 40, // 40 × 20 = 800
+  2: 64, // 64 × 32 = 2048
+  3: 96, // 96 × 48 = 4608
+  4: 128, // 128 × 64 = 8192
+};
+
+const kWorldScaleLabel = {
+  1: 'tiny', // 40 × 20
+  2: 'medium', // 64 × 32
+  3: 'huge', // 90 × 45
+  4: 'gigantic', // 128 × 64
+};
+
+const kNoiseConfigByWorldStyle = {
+  'islands': (0.45, 0.3, 6, NoiseType.perlinFractal, 3),
+  'coast': (0.55, 0.33, 3.5, NoiseType.valueFractal, 10),
+  'inland': (0.65, 0.42, 10, NoiseType.cubicFractal, 3),
 };
 
 /// 据点数量，门派数量和人物数量
 const kEntityNumberPerWorldScale = {
-  1: (16, 8, 36),
-  2: (40, 20, 81),
-  3: (100, 48, 200),
+  1: (30, 6, 80),
+  2: (80, 16, 200),
+  3: (160, 32, 450),
+  4: (320, 64, 800),
 };
 
 const kDifficultyLabels = {
@@ -218,16 +249,14 @@ const kPersonalitiesWithoutWorldViews = [
   // 对他人
   'extrovert', // 外向, 内省
   'frank', // 直率, 圆滑
-  'merciful', // 仁慈, 冷酷
-  'helping', // 助人, 自私
-  'empathetic', // 同情, 嫉妒
-  'competitive', // 好胜, 嫉妒
+  'empathetic', // 仁慈, 冷酷
+  'generous', // 慷慨, 自私
+  'competitive', // 好胜, 随和
   // 对自己
   'organizing', // 自律, 不羁
   'confident', // 自负, 谦逊
   'humorous', // 幽默, 庄重
   'frugal', // 节俭, 奢靡
-  'generous', // 慷慨, 小气
   'satisfied', // 知足, 贪婪
   // 对事物
   'reasoning', // 理智, 感性
@@ -235,7 +264,6 @@ const kPersonalitiesWithoutWorldViews = [
   'optimistic', // 乐观, 愤世
   'curious', // 好奇, 冷漠
   'prudent', // 谨慎, 冲动
-  'deepthinking', // 深沉, 轻浮
 ];
 
 const kPersonalities = {
@@ -536,7 +564,7 @@ const kSiteKindsTradable = {
   'runelab',
 };
 
-const kSiteKindsBuildableOnWorldMap = {
+const kProductionSiteKinds = {
   // 只会在平原地形且在城市周围出现
   'farmland',
   // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
@@ -580,6 +608,16 @@ const kOrganizationCategoryToSiteKind = {
   'entrepreneur': 'militarypost',
   'wealth': 'auctionhouse',
   'pleasure': 'hotel',
+};
+
+const kOrganizationCategoryExpansionRate = {
+  'wuwei': 0.2,
+  'cultivation': 0.5,
+  'immortality': 0.3,
+  'chivalry': 0.6,
+  'entrepreneur': 0.8,
+  'wealth': 0.7,
+  'pleasure': 0.4,
 };
 
 const kOrganizationGenreToSiteKinds = {
@@ -690,44 +728,30 @@ final kSiteWorkableBaseStaminaCost = {
 /// 以 money 为单位，但可能会被转化为灵石
 final kSiteRentMoneyCostByDay = {
   'tradinghouse': null,
-  'daostele': 1000,
-  'exparray': 1000,
-  'library': 1500,
+  'daostele': 10000,
+  'exparray': 10000,
+  'library': 15000,
   'arena': null,
   'militarypost': null,
   'auctionhouse': null,
   'hotel': 1000,
-  'farmland': 100,
-  'fishery': 150,
-  'timberland': 50,
-  'huntingground': 100,
-  'mine': 250,
-  'workshop': 1200,
-  'enchantshop': 1350,
-  'alchemylab': 1000,
-  'tatooshop': 1350,
-  'runelab': 1800,
-  'arraylab': 1800,
-  'illusionaltar': 1800,
-  'psychictemple': 1200,
-  'divinationaltar': 2200,
-  'theurgytemple': 2800,
-  'dungeon': 5000,
+  'farmland': 250,
+  'fishery': 350,
+  'timberland': 500,
+  'huntingground': 1000,
+  'mine': 1500,
+  'workshop': 12000,
+  'enchantshop': 13500,
+  'alchemylab': 10000,
+  'tatooshop': 13500,
+  'runelab': 18000,
+  'arraylab': 18000,
+  'illusionaltar': 18000,
+  'psychictemple': 12000,
+  'divinationaltar': 22000,
+  'theurgytemple': 28000,
+  'dungeon': 50000,
 };
-
-const kMaterialMoney = 'money';
-const kMaterialShard = 'shard';
-const kMaterialWorker = 'worker';
-
-const kMaterialMeat = 'meat';
-const kMaterialGrain = 'grain';
-const kMaterialWater = 'water';
-const kMaterialLeather = 'leather';
-
-const kMaterialHerb = 'herb';
-const kMaterialTimber = 'timber';
-const kMaterialStone = 'stone';
-const kMaterialOre = 'ore';
 
 abstract class AttackType {
   static const unarmed = 'unarmed';
@@ -787,9 +811,9 @@ const kMaterialKinds = [
   'money',
   'shard',
   'worker',
+  'water',
   'grain',
   'meat',
-  'water',
   'leather',
   'herb',
   'timber',
@@ -799,9 +823,9 @@ const kMaterialKinds = [
 
 const kNonCurrencyMaterialKinds = [
   'worker',
+  'water',
   'grain',
   'meat',
-  'water',
   'leather',
   'herb',
   'timber',
@@ -810,9 +834,9 @@ const kNonCurrencyMaterialKinds = [
 ];
 
 const kNaturalResourceKinds = [
+  'water',
   'grain',
   'meat',
-  'water',
   'leather',
   'herb',
   'timber',
@@ -822,11 +846,11 @@ const kNaturalResourceKinds = [
 ];
 
 final kMaterialBasePrice = {
-  'shard': 1000,
+  'shard': 10000,
   'worker': 20,
+  'water': 10,
   'grain': 20,
   'meat': 40,
-  'water': 10,
   'herb': 40,
   'leather': 80,
   'timber': 80,
@@ -838,30 +862,44 @@ const kUnknownItemBasePrice = 100;
 
 /// 物品的基础价格
 final kItemBasePriceByCategory = {
-  'cardpack': 1000,
-  'craftmaterial': 2000,
-  'dungeon_ticket': 4000,
-  'scroll_paper': 150,
-  'identify_scroll': 500,
-  'weapon': 100,
-  'shield': 50,
-  'armor': 50,
-  'gloves': 50,
-  'helmet': 50,
-  'boots': 50,
+  'cardpack': 10000,
+  'craftmaterial': 20000,
+  'dungeon_ticket': 40000,
+  'scroll_paper': 500,
+  'identify_scroll': 1500,
+  'weapon': 200,
+  'shield': 100,
+  'armor': 100,
+  'gloves': 100,
+  'helmet': 100,
+  'boots': 200,
   'ship': 500,
-  'aircraft': 500,
-  'jewelry': 100,
-  'talisman': 250,
-  'potion': 50,
+  'aircraft': 1000,
+  'jewelry': 350,
+  'talisman': 500,
+  'potion': 100,
 };
+
+const kItemWithAffixCategories = [
+  'weapon',
+  'shield',
+  'armor',
+  'gloves',
+  'helmet',
+  'boots',
+  'ship',
+  'aircraft',
+  'jewelry',
+  'talisman',
+  'potion',
+];
 
 const kUntradableItemKinds = {
   'money',
   'worker',
 };
 
-const kMaxAffixCount = 4;
+const kMaxAffixCount = 6;
 
 const kAttributeAnyLevel = 10;
 const kBaseResistMax = 75;
@@ -872,10 +910,16 @@ const kBaseMoveCostOnWater = 2.0;
 const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
 const kTerrainKindsMountain = ['mountain'];
+const kTerrainKindsAll = [
+  ...kTerrainKindsLand,
+  ...kTerrainKindsWater,
+  ...kTerrainKindsMountain,
+];
 
 /// 战斗结束后生命恢复比例计算时，
-/// 战斗中使用的卡牌使用过的数量的阈值
 const kBaseAfterBattleHPRestoreRate = 0.25;
+
+/// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;
 
 const kCharacterYearlyUpdateMonth = 3;
@@ -1310,7 +1354,6 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
-const kItemCategoryStatusSpirit = 'status_spirit';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';
@@ -1409,11 +1452,24 @@ final kEquipmentKinds = [
   ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman
 ];
 
-const kQuestKinds = [
-  'purchase_material',
-  'purchase_item',
+const kEnemyEncounterQuests = {
   'deliver_material',
   'deliver_item',
   'escort',
-  'discover_location',
-];
+  'purchase_material',
+  'purchase_item',
+};
+
+const kTerrainKindToEnemyEncounterRate = {
+  'plain': 0.05,
+  'mountain': 0.12,
+  'forest': 0.1,
+  'snow_plain': 0.075,
+  'snow_mountain': 0.18,
+  'snow_forest': 0.15,
+  'shore': 0.05,
+  'shelf': 0.05,
+  'sea': 0.1,
+  'lake': 0.06,
+  'river': 0.04,
+};

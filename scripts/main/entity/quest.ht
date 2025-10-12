@@ -18,411 +18,416 @@ const kHiddenCityShardReward = 2
 
 const kBaseReward = 500
 const kBaseRewardForEscort = 500
-const kBaseRewardForDiscoverLocation = 500
+const kBaseRewardForDiscoverLocation = 1000
 
 const kBudgetFactorForPurchaseMaterial = 0.8
 
-function _getTimeLimit(difficulty) {
-  final r = Random()
-  return kTimeLimitDaysBase
-          + r.nextInt(kTimeLimitDaysVariation1)
-          + (kTimeLimitDaysVariation2 * (1 - difficulty / kQuestDifficultyMax)).round()
+function _createTimeLimit(difficulty) {
+  return (kTimeLimitDaysBase
+          + random.nextInt(kTimeLimitDaysVariation1)
+          + (kTimeLimitDaysVariation2 * (1 - difficulty / kQuestDifficultyMax)).round()) * kTicksPerDay
 }
 
-// 购买任务，材料，获取某种数量的指定材料
-// 报酬是剩余的预算
-function _createBountyPurchaseMaterial(organization, cityhall, difficulty) {
-  final atLocation = game.locations[cityhall.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-  assert(atLocation.category == 'city')
+struct Quest {
+  // 运送材料
+  // 报酬是材料基础价值的 1/5
+  // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
+  function deliver_material(organization, cityhall, difficulty) {
+    final sites = game.locations.values
+      .where((loc) {
+        if (loc.atLocationId != null) {
+          final atLocation = game.locations[loc.atLocationId]
+          if (!atLocation.isDiscovered) return false
+        }
+        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+      })
+    if (sites.isEmpty) return
+    final endSite = random.nextIterable(sites)
+    final endLocation = game.locations[endSite.atLocationId]
 
-  final r = Random()
-
-  final material = Constants.nonCurrencyMaterialKinds.random
-  final baseMount = kBaseAmountForDeliveryMaterial + r.nextInt(kBaseAmountForDeliveryMaterial)
-  final amount = baseMount * (difficulty + 1) * (difficulty + 1)
-
-  final moneyBudget = kBaseReward * (difficulty + 1)
-        + (Constants.materialBasePrice[material] * kBudgetFactorForPurchaseMaterial).round() * amount
-
-  final interpolations = [
-    amount,
-    engine.locale(material),
-    atLocation.name,
-    cityhall.name,
-  ]
-
-  return {
-    'kind': 'purchase_material',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'requirement': {
-      type: 'material',
-      material: material,
-      amount: amount,
-    },
-    'budget': {
-      type: 'material',
-      kind: 'money',
-      amount: moneyBudget,
-    },
-    'reportSiteId': cityhall.id,
-    'reportLocationId': atLocation.id,
-    'interpolations': interpolations,
-  }
-}
-
-// 购买任务，获取某种指定的装备、丹药或者秘籍
-// 报酬是剩余的预算
-function _createBountyPurchaseItem(organization, cityhall, difficulty) {
-  final atLocation = game.locations[cityhall.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-  assert(atLocation.category == 'city')
-
-  final r = Random()
-
-  let requirement
-  let itemDesc
-  final rarity = Constants.rankToRarity[difficulty]
-  final typeRoll = r.nextDouble()
-  if (typeRoll < 0.33) {
-    final randomEquipmentCategory = Constants.equipmentCategoryKinds.keys.random
-    final randomEquipmentKind = Constants.equipmentCategoryKinds[randomEquipmentCategory].random
-    requirement = {
-      'type': 'equipment',
-      category: randomEquipmentCategory,
-      kind: randomEquipmentKind,
-      rank: difficulty,
-      rarity: rarity,
+    final characters = organization.membersData.values
+      .map((data) => game.characters[data.id])
+    let receiver
+    if (characters.isNotEmpty) {
+      receiver = random.nextIterable((characters))
     }
-    itemDesc = engine.locale(rarity) + engine.locale(randomEquipmentKind)
-  } else if (typeRoll < 0.66) {
-    requirement = {
-      'type': 'potion',
-      category: 'potion',
-      rank: difficulty,
-      rarity: rarity,
+
+    final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
+    final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial * difficulty + 1)
+    
+    final moneyRewardAmount = kBaseReward * (difficulty + 1) + Constants.materialBasePrice[material] * amount ~/ 5
+    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+
+    final endLocationDesc
+    if (endLocation != null) {
+      endLocationDesc = endLocation.name
+    } else {
+      assert(endSite.worldPosition != null)
+      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
     }
-    itemDesc = engine.locale(rarity) + engine.locale('potion')
-  } else {
-    requirement = {
-      'type': 'cardpack',
-      category: 'cardpack',
-      genre: difficulty == 0 ? 'none' : Constants.cultivationGenres.random,
-      rank: difficulty,
+
+    final interpolations = [
+      amount,
+      engine.locale(material),
+      endLocationDesc,
+      endSite.name,
+    ]
+
+    return {
+      'kind': 'deliver_material',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'receiverId': receiver?.id,
+      'package': {
+        'type': 'material',
+        'material': material,
+        'amount': amount,
+      },
+      'reward': [
+        {
+          type: 'material',
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+        }
+      ],
+      'reportSiteId': endSite.id,
+      interpolations: interpolations,
     }
-    itemDesc = engine.locale('cultivationRank_${difficulty}') + engine.locale('rank2') + engine.locale('cardpack')
   }
 
-  final budget = kBaseReward * (difficulty + 1) + estimatePrice(requirement.category, requirement.rank)
-  final shardRewardAmount = convertMoneyToShard(budget)
+  // 运送物品
+  // 报酬是物品基础价值的 1/5
+  // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
+  function deliver_item(organization, cityhall, difficulty) {
+    final sites = game.locations.values
+      .where((loc)  {
+        if (loc.atLocationId != null) {
+          final atLocation = game.locations[loc.atLocationId]
+          if (!atLocation.isDiscovered) return false
+        }
+        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+      })
+    if (sites.isEmpty) return
+    final endSite = random.nextIterable(sites)
+    final endLocation = game.locations[endSite.atLocationId]
 
-  final interpolations = [
-    itemDesc,
-    atLocation.name,
-    cityhall.name,
-  ]
+    final characters = organization.membersData.values
+      .map((data) => game.characters[data.id])
+    let receiver
+    if (characters.isNotEmpty) {
+      receiver = random.nextIterable(characters)
+    }
 
-  return {
-    'kind': 'purchase_item',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'requirement': requirement,
-    'budget': {
-      type: 'material',
-      kind: difficulty == 0 ? 'money' : 'shard',
-      amount: difficulty == 0 ? budget : shardRewardAmount,
-    },
-    'reportSiteId': cityhall.id,
-    'reportLocationId': atLocation.id,
-    interpolations: interpolations,
+    let item
+    final typeRoll = random.nextDouble()
+    if (typeRoll < 0.33) {
+      item = Equipment(rank: difficulty)
+    } else if (typeRoll < 0.66) {
+      item = Potion(rank: difficulty)
+    } else {
+      item = Cardpack(rank: difficulty)
+    }
+
+    final moneyRewardAmount = kBaseReward * (difficulty + 1) + item.basePrice ~/ 5
+    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+
+    final endLocationDesc
+    if (endLocation != null) {
+      endLocationDesc = endLocation.name
+    } else {
+      if (endSite.worldPosition == null) {
+        engine.warn('endSite worldPosition is null, id: ${endSite.id}, name: ${endSite.name}, kind: ${endSite.kind}')
+      }
+      assert(endSite.worldPosition != null)
+      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
+    }
+
+    final interpolations = [
+      item.name,
+      endLocationDesc,
+      endSite.name,
+    ]
+
+    return {
+      'kind': 'deliver_item',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'receiverId': receiver?.id,
+      'package': {
+        'type': 'item',
+        'item': item,
+      },
+      'reward': [
+        {
+          type: 'material',
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+        }
+      ],
+      'reportSiteId': endSite.id,
+      interpolations: interpolations,
+    }
+  }
+
+  // 护送角色
+  // 陪同某个人从一个据点的某个场景到另一个据点的某个场景
+  function escort(organization, cityhall, difficulty) {
+    final sites = game.locations.values
+      .where((loc)  {
+        if (loc.atLocationId != null) {
+          final atLocation = game.locations[loc.atLocationId]
+          if (!atLocation.isDiscovered) return false
+        }
+        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+      })
+    if (sites.isEmpty) return
+    final endSite = random.nextIterable(sites)
+    final endLocation = game.locations[endSite.atLocationId]
+
+    final characterIds = organization.membersData.values
+      .map((data) => data.id)
+    let escortee
+    if (characterIds.isNotEmpty) {
+      escortee = game.characters[random.nextIterable(characterIds)]
+    }
+
+    final moneyRewardAmount = kBaseRewardForEscort * (difficulty + 1)
+    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+
+    final endLocationDesc
+    if (endLocation != null) {
+      endLocationDesc = endLocation.name
+    } else {
+      assert(endSite.worldPosition != null)
+      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
+    }
+    
+    final interpolations = [
+      escortee.name,
+      endLocationDesc,
+      endSite.name,
+    ]
+
+    return {
+      'kind': 'escort',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'package': {
+        'type': 'character',
+        'characterId': escortee.id,
+      },
+      'reward': [
+        {
+          type: 'material',
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+        }
+      ],
+      'reportSiteId': endSite.id,
+      interpolations: interpolations,
+    }
+  }
+
+  // 购买任务，材料，获取某种数量的指定材料
+  // 报酬是剩余的预算
+  function purchase_material(organization, cityhall, difficulty) {
+    final atLocation = game.locations[cityhall.atLocationId]
+    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
+    assert(atLocation.category == 'city')
+
+    final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
+    final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)
+
+    final moneyBudget = kBaseReward * (difficulty + 1) +
+            (Constants.materialBasePrice[material] * amount * kBudgetFactorForPurchaseMaterial).round()
+
+    final interpolations = [
+      amount,
+      engine.locale(material),
+      atLocation.name,
+      cityhall.name,
+    ]
+
+    return {
+      'kind': 'purchase_material',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'requirement': {
+        type: 'material',
+        material: material,
+        amount: amount,
+      },
+      'budget': {
+        type: 'material',
+        kind: 'money',
+        amount: moneyBudget,
+      },
+      'reportSiteId': cityhall.id,
+      'interpolations': interpolations,
+    }
+  }
+
+  // 购买任务，获取某种指定的装备、丹药或者秘籍
+  // 报酬是剩余的预算
+  function purchase_item(organization, cityhall, difficulty) {
+    final atLocation = game.locations[cityhall.atLocationId]
+    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
+    assert(atLocation.category == 'city')
+
+    let requirement
+    let itemDesc
+    final rarity = Constants.rankToRarity[difficulty]
+    final typeRoll = random.nextDouble()
+    if (typeRoll < 0.33) {
+      final randomEquipmentCategory = random.nextIterable(Constants.equipmentCategoryKinds.keys)
+      final randomEquipmentKind = random.nextIterable(Constants.equipmentCategoryKinds[randomEquipmentCategory])
+      requirement = {
+        'type': 'equipment',
+        category: randomEquipmentCategory,
+        kind: randomEquipmentKind,
+        rank: difficulty,
+        rarity: rarity,
+      }
+      itemDesc = engine.locale(rarity) + engine.locale(randomEquipmentKind)
+    } else if (typeRoll < 0.66) {
+      requirement = {
+        'type': 'potion',
+        category: 'potion',
+        rank: difficulty,
+        rarity: rarity,
+      }
+      itemDesc = engine.locale(rarity) + engine.locale('potion')
+    } else {
+      requirement = {
+        'type': 'cardpack',
+        category: 'cardpack',
+        genre: difficulty == 0 ? 'none' : random.nextIterable(Constants.cultivationGenres),
+        rank: difficulty,
+      }
+      itemDesc = engine.locale('cultivationRank_${difficulty}') + engine.locale('rank2') + engine.locale('cardpack')
+    }
+
+    final budget = kBaseReward * (difficulty + 1) +
+          (estimatePrice(requirement.category, requirement.rank) * kEstimatePriceFactor).round()
+    final shardRewardAmount = convertMoneyToShard(budget)
+
+    final interpolations = [
+      itemDesc,
+      atLocation.name,
+      cityhall.name,
+    ]
+
+    return {
+      'kind': 'purchase_item',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'requirement': requirement,
+      'budget': {
+        type: 'material',
+        kind: difficulty == 0 ? 'money' : 'shard',
+        amount: difficulty == 0 ? budget : shardRewardAmount,
+      },
+      'reportSiteId': cityhall.id,
+      interpolations: interpolations,
+    }
+  }
+
+  // 探索某个隐藏据点
+  function discover_location(organization, cityhall, difficulty) {
+    final atLocation = game.locations[cityhall.atLocationId]
+    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
+    assert(atLocation.category == 'city')
+
+    final sites = game.locations.values
+      .where((loc) => loc.category == 'city' && loc.isHidden == true && loc.isDiscovered == false)
+    if (sites.isEmpty) return
+    final targetLocation = random.nextIterable(sites)
+
+    final targetLeft = targetLocation.worldPosition.left
+    final targetTop = targetLocation.worldPosition.top
+
+    final deviationLeft = targetLeft + (random.nextBool() ? difficulty : -difficulty)
+    final deviationTop = targetTop + (random.nextBool() ? difficulty : -difficulty)
+    
+    let moneyRewardAmount = kBaseRewardForDiscoverLocation * (difficulty + 1)
+    if (targetLocation.kind == 'island') {
+      moneyRewardAmount *= difficulty + 1
+    } 
+    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+
+    final interpolations = [
+      '[${deviationLeft}, ${deviationTop}]',
+      targetLocation.name,
+    ]
+
+    return {
+      'kind': 'discover_location',
+      'difficulty': difficulty,
+      'timeLimit': _createTimeLimit(difficulty),
+      'acquiredFromSiteId': cityhall.id,
+      'targetLocationId': targetLocation.id,
+      'reward': [
+        {
+          type: 'material',
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+        }
+      ],
+      'reportSiteId': cityhall.id,
+      interpolations: interpolations,
+    }
   }
 }
 
-// 运送材料
-// 报酬是材料基础价值的 1/5
-// 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
-function _createBountyDeliverMaterial(organization, cityhall, difficulty) {
-  final r = Random()
 
-  final sites = organization.locationIds.map((id) => game.locations[id])
-    .where((loc) {
-      if (loc.atLocationId != null) {
-        final atLocation = game.locations[loc.atLocationId]
-        if (!atLocation.isDiscovered) return false
-      }
-      return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId
-    })
-    .toList()
-  if (sites.isEmpty) return
-  final endSite = sites.random
-  final endLocation = game.locations[endSite.atLocationId]
+function initEscort(quest) {
+  assert(quest.kind == 'escort', 'quest kind is not escort, kind: ${quest.kind}')
+  final escorteeId = quest.package.characterId;
+  final escortee = game.characters[escorteeId];
 
-  final characters = organization.members.values
-    .map((data) => game.characters[data.id])
-    .toList()
-  let receiver
-  if (characters.isNotEmpty) {
-    receiver = characters.random
+  let escortType = 'stranger'
+  final bond = haveMet(escortee, hero)
+  if (bond?.score > 0) {
+    escortType = 'acquintance'
   }
 
-  final material = Constants.nonCurrencyMaterialKinds.random
-  final amount = kBaseAmountForDeliveryMaterial + r.nextInt(kBaseAmountForDeliveryMaterial * difficulty + 1)
-  
-  final moneyRewardAmount = kBaseReward * (difficulty + 1) + Constants.materialBasePrice[material] * amount ~/ 5
-  final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
-
-  final endLocationDesc
-  if (endLocation != null) {
-    endLocationDesc = endLocation.name
+  if (escortee.organizationId && escortee.organizationId == hero.organizationId) {
+    final escorteeMemberData = organization.membersData[escortee.id]
+    final heroMemberData = organization.membersData[hero.id]
+    if (escorteeMemberData.rank > heroMemberData.rank) {
+      escortType = 'superior'
+    } else if (escorteeMemberData.rank < heroMemberData.rank) {
+      escortType = 'respectful'
+    }
   } else {
-    final reportWorldPosition = endSite.worldPosition
-    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
+    if (escortee.rank > hero.rank) {
+      escortType = 'intimidate'
+    } else if (escortee.rank < hero.rank) {
+      escortType = 'respectful'
+    }
   }
 
-  final interpolations = [
-    amount,
-    engine.locale(material),
-    endLocationDesc,
-    endSite.name,
-  ]
+  quest.escortType = escortType
 
-  return {
-    'kind': 'deliver_material',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'receiverId': receiver?.id,
-    'package': {
-      'type': 'material',
-      'material': material,
-      'amount': amount,
-    },
-    'reward': [
-      {
-        type: 'material',
-        kind: difficulty == 0 ? 'money' : 'shard',
-        amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-      }
-    ],
-    'reportSiteId': endSite.id,
-    'reportLocationId': endLocation?.id,
-    interpolations: interpolations,
-  }
-}
+  characterMet(escortee, hero)
 
-// 运送物品
-// 报酬是物品基础价值的 1/5
-// 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
-function _createBountyDeliverItem(organization, cityhall, difficulty) {
-  final r = Random()
-
-  final sites = organization.locationIds.map((id) => game.locations[id])
-    .where((loc)  {
-      if (loc.atLocationId != null) {
-        final atLocation = game.locations[loc.atLocationId]
-        if (!atLocation.isDiscovered) return false
-      }
-      return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId
-    })
-    .toList()
-  if (sites.isEmpty) return
-  final endSite = sites.random
-  final endLocation = game.locations[endSite.atLocationId]
-
-  final characters = organization.members.values
-    .map((data) => game.characters[data.id])
-    .toList()
-  let sender
-  let receiver
-  if (characters.isNotEmpty) {
-    // 这里发货人和收货人有可能相同
-    sender = characters.random
-    receiver = characters.random
-  }
-
-  let item
-  final typeRoll = r.nextDouble()
-  if (typeRoll < 0.33) {
-    item = Equipment(rank: difficulty)
-  } else if (typeRoll < 0.66) {
-    item = Potion(rank: difficulty)
-  } else {
-    item = Cardpack(rank: difficulty)
-  }
-
-  final moneyRewardAmount = kBaseReward * (difficulty + 1) + item.basePrice ~/ 5
-  final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
-
-  final endLocationDesc
-  if (endLocation != null) {
-    endLocationDesc = endLocation.name
-  } else {
-    final reportWorldPosition = endSite.worldPosition
-    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
-  }
-
-  final interpolations = [
-    item.name,
-    endLocationDesc,
-    endSite.name,
-  ]
-
-  return {
-    'kind': 'deliver_item',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'receiverId': receiver?.id,
-    'package': {
-      'type': 'item',
-      'item': item,
-    },
-    'reward': [
-      {
-        type: 'material',
-        kind: difficulty == 0 ? 'money' : 'shard',
-        amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-      }
-    ],
-    'reportSiteId': endSite.id,
-    'reportLocationId': endLocation?.id,
-    'reportWorldPosition': endLocation?.worldPosition ?? endSite.worldPosition,
-    interpolations: interpolations,
-  }
-}
-
-// 护送任务，陪同某个角色从一个据点的某个场景到另一个据点的某个场景
-function _createBountyEscort(organization, cityhall, difficulty) {
-  final sites = organization.locationIds.map((id) => game.locations[id])
-    .where((loc)  {
-      if (loc.atLocationId != null) {
-        final atLocation = game.locations[loc.atLocationId]
-        if (!atLocation.isDiscovered) return false
-      }
-      return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId
-    })
-    .toList()
-  if (sites.isEmpty) return
-  final endSite = sites.random
-  final endLocation = game.locations[endSite.atLocationId]
-
-  final characterIds = organization.members.values
-    .map((data) => data.id)
-    .toList()
-  let escortee
-  if (characterIds.isNotEmpty) {
-    escortee = game.characters[characterIds.random]
-  }
-
-  final moneyRewardAmount = kBaseRewardForEscort * (difficulty + 1)
-  final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
-
-  final endLocationDesc
-  if (endLocation != null) {
-    endLocationDesc = endLocation.name
-  } else {
-    final reportWorldPosition = endSite.worldPosition
-    endLocationDesc = '${engine.locale('worldMap')}[${reportWorldPosition['left']}, ${reportWorldPosition['top']}]'
-  }
-  
-  final interpolations = [
-    escortee.name,
-    endLocationDesc,
-    endSite.name,
-  ]
-
-  return {
-    'kind': 'escort',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'package': {
-      'type': 'character',
-      'characterId': escortee.id,
-    },
-    'reward': [
-      {
-        type: 'material',
-        kind: difficulty == 0 ? 'money' : 'shard',
-        amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-      }
-    ],
-    'reportSiteId': endSite.id,
-    'reportLocationId': endLocation?.id,
-    interpolations: interpolations,
-  }
-}
-
-// 探索某个隐藏据点
-function _createBountyDiscoverLocation(organization, cityhall, difficulty) {
-  final atLocation = game.locations[cityhall.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-  assert(atLocation.category == 'city')
-
-  final sites = organization.locationIds.map((id) => game.locations[id])
-    .where((loc) => loc.category == 'city' && loc.isHidden == true && loc.isDiscovered == false)
-    .toList()
-  if (sites.isEmpty) return
-  final targetLocation = sites.random
-  
-  final moneyRewardAmount = kBaseRewardForDiscoverLocation * (difficulty + 1)
-  final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
-
-  final interpolations = [
-    organization.name,
-    targetLocation.name,
-  ]
-
-  return {
-    'kind': 'discover_location',
-    'difficulty': difficulty,
-    'timeLimitDays': _getTimeLimit(difficulty),
-    'acquiredFromSiteId': cityhall.id,
-    'organizationId': organization.id,
-    'targetLocationId': targetLocation.id,
-    'reward': [
-      {
-        type: 'material',
-        kind: difficulty == 0 ? 'money' : 'shard',
-        amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-      }
-    ],
-    'reportSiteId': cityhall.id,
-    'reportLocationId': atLocation.id,
-    interpolations: interpolations,
-  }
+  return escortType
 }
 
 function createBounty(organization, cityhall, { maxDifficulty: integer }) {
   let bounty
-  final r = Random()
   // 因为任务可能会因为一些原因生成失败导致返回 null，这里需要循环尝试
   while(bounty == null) {
-    final kind = Constants.questKinds.random
-    final difficulty = r.nextInt(maxDifficulty + 1)
-    switch (kind) {
-      'purchase_material': {
-        bounty = _createBountyPurchaseMaterial(organization, cityhall, difficulty)
-      }
-      'purchase_item': {
-        bounty = _createBountyPurchaseItem(organization, cityhall, difficulty)
-      }
-      'deliver_material': {
-        bounty = _createBountyDeliverMaterial(organization, cityhall, difficulty)
-      }
-      'deliver_item': {
-        bounty = _createBountyDeliverItem(organization, cityhall, difficulty)
-      }
-      'escort': {
-        bounty = _createBountyEscort(organization, cityhall, difficulty)
-      }
-      'discover_location': {
-        bounty = _createBountyDiscoverLocation(organization, cityhall, difficulty)
-      }
-    }
+    final kind = random.nextIterable(game.quests.keys)
+    final difficulty = random.nextInt(maxDifficulty + 1)
+    final ctor = Quest[kind]
+    assert(ctor != null, 'quest generator function not found: ${kind}')
+    bounty = ctor(organization, cityhall, difficulty)
   }
 
   return bounty
@@ -440,7 +445,6 @@ function replenishBounty(location) {
   location.bounties = []
   
   final amount = kBaseBountyReplenishAmount + location.development
-  final r = Random()
 
   for (var i in range(amount)) {
     final bounty = createBounty(organization, location, maxDifficulty: location.development)

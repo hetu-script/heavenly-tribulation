@@ -23,7 +23,7 @@ class EditLocationBasics extends StatefulWidget {
     this.atLocation,
     this.allowEditCategory = true,
     this.allowEditKind = true,
-    this.createNpc = false,
+    this.npcId,
   });
 
   final String? id;
@@ -34,7 +34,7 @@ class EditLocationBasics extends StatefulWidget {
   final String? background;
   final dynamic atLocation;
   final bool allowEditCategory, allowEditKind;
-  final bool createNpc;
+  final String? npcId;
 
   @override
   State<EditLocationBasics> createState() => _EditLocationBasicsState();
@@ -45,14 +45,13 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
   final _nameEditingController = TextEditingController();
   final _imageEditingController = TextEditingController();
   final _backgroundEditingController = TextEditingController();
+  final _npcIdEditingController = TextEditingController();
 
   String? _selectedCategory;
   String? _selectedKind;
 
   final Map<String, String> _categories = {};
   final Map<String, String> _kinds = {};
-
-  bool _createNpc = false;
 
   @override
   void initState() {
@@ -72,8 +71,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     _nameEditingController.text = widget.name ?? '';
     _imageEditingController.text = widget.image ?? '';
     _backgroundEditingController.text = widget.background ?? '';
-
-    _createNpc = widget.createNpc;
+    _npcIdEditingController.text = widget.npcId ?? '';
   }
 
   @override
@@ -254,27 +252,21 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 100.0,
-                      child: Text('${engine.locale('createNpc')}:'),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const SizedBox(
+                    width: 100.0,
+                    child: Text('NPC ID:'),
+                  ),
+                  SizedBox(
+                    width: 450.0,
+                    height: 40.0,
+                    child: TextField(
+                      controller: _npcIdEditingController,
                     ),
-                    fluent.Checkbox(
-                      checked: _createNpc,
-                      onChanged: (newValue) {
-                        if (newValue != null) {
-                          setState(() {
-                            _createNpc = newValue;
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const Spacer(),
               Padding(
@@ -288,6 +280,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                     String? image = _imageEditingController.text.nonEmptyValue;
                     String? background =
                         _backgroundEditingController.text.nonEmptyValue;
+                    String? npcId = _npcIdEditingController.text.nonEmptyValue;
 
                     Navigator.of(context).pop((
                       id,
@@ -296,7 +289,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                       name,
                       image,
                       background,
-                      _createNpc,
+                      npcId,
                     ));
                   },
                   child: Text(

@@ -1,14 +1,3 @@
-// import '../../game/data.ht'
-// import '../character/character.ht'
-// import '../../game/dialog.ht'
-// import '../../name/location.ht'
-// import '../entity.ht'
-// import '../../world/tile/hexagonal_tile.ht'
-// import '../item/material.ht'
-// import '../item/item.ht'
-// import '../../datetime.ht'
-// import '../entity.ht'
-// import '../organization/organization.ht'
 import '../../world/tile/common.ht'
 
 const _kLocationInitialStabilityMax = 50
@@ -138,11 +127,13 @@ const kLocationKindPriority = {
 /// 某些可能在地图上直接进入，某些则是其他场景的子场景
 /// [category]: 'city', 'site'
 /// [kind]: 'inland' | 'island'；'home', 'cityhall'
+/// [isAffiliate] 表示这个建筑是某种不出现在据点场景列表中的场景，比如生产建筑的交易所 或者角色的住宅等
 struct Location {
   constructor ({
     id,
     category,
     kind,
+    isAffiliate,
     worldId,
     atTerrain,
     atLocation,
@@ -156,7 +147,6 @@ struct Location {
     updateWorldMap = false,
     development,
     npcId,
-    createNpc = false,
     priority,
   }) {
     assert(category != null && kind != null)
@@ -164,6 +154,7 @@ struct Location {
     this.entityType = kEntityTypeLocation
     this.category = category
     this.kind = kind
+    this.isAffiliate = isAffiliate ?? false
 
     this.createdTimestamp = game.timestamp
 
@@ -193,6 +184,8 @@ struct Location {
       
       this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
+      this.color = random.nextBrightColorHex()
+
       if (background != null) {
         this.background = background
       } else {
@@ -281,21 +274,11 @@ struct Location {
     this.inventory = {}
     this.materials = {}
 
-    if (npcId) {
-      final npc = game.npcs[npcId]
-      assert(npc != null, 'NPC不存在，id: ${npcId}')
-      npc.atLocationId = this.id
-    } else if (createNpc) {
-      final npc = Npc(
-        id: this.id + '_npc',
-        nameId: 'servant',
-        icon: 'illustration/npc/servant_head.png',
-        illustration: 'illustration/npc/servant.png',
-        locationId: this.id,
-      )
-    }
+    this.npcId = npcId
 
     if (atTerrain != null) {
+      engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
+      
       atTerrain.locationId = this.id
       
       this.worldId = worldId ?? world?.id
@@ -306,6 +289,11 @@ struct Location {
       this.terrainIndex = atTerrain.index
 
       if (this.category == 'city') {
+        // 这个据点周围所控制的地块
+        this.territoryIndexes = []
+        // 保存了据点领地范围外可以扩张到的地块
+        this.borderIndexes = []
+        
         // atTerrain.kind = 'city'
         if (!this.isHidden) {
           atTerrain.overlaySprite = { sprite: kSpriteCity }
@@ -324,7 +312,7 @@ struct Location {
           atLocation: this,
           organizationId: organizationId,
           development: random.nextInt(this.development + 1),
-          createNpc: true,
+          npcId: 'servant',
         )
         
         const tradinghouse = Location(
@@ -335,13 +323,13 @@ struct Location {
           atLocation: this,
           organizationId: organizationId,
           development: random.nextInt(this.development + 1),
-          createNpc: true,
+          npcId: 'servant',
         )
       }
-      engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
     } else if (atLocation != null) {
-      this.atLocationId = atLocation.id
       engine.debug('在 ${atLocation.name} 建立了 ${this.name}')
+
+      this.atLocationId = atLocation.id
     } else {
       engine.debug('建立了 ${this.name}')
     }
@@ -506,19 +494,17 @@ function replenishTradingHouse(location) {
   location.materials = {}
   location.inventory = {}
 
-  final r = Random()
-
   // 商店的可用货币应该与门派货币挂钩
   location.materials.money =
-    kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
       ~/ Constants.materialBasePrice.shard
 
   // 根据地形，决定商店里是否有船只和靴子
   let hasMountainNeighbor = false
   let hasWaterNeighbor = false
-  final neighbors = getNeighborTiles(atLocation.worldPosition.left, atLocation.worldPosition.top)
+  final neighbors = getTileNeighbors(atLocation.worldPosition.left, atLocation.worldPosition.top)
   for (final neighbor in neighbors.values) {
     if (neighbor.kind == 'mountain') {
       hasMountainNeighbor = true
@@ -538,7 +524,7 @@ function replenishTradingHouse(location) {
   // 刷新物品
   let amount = kBaseItemReplenishAmount + location.development
   for (var i in range(amount)) {
-    final typeRoll = r.nextDouble()
+    final typeRoll = random.nextDouble()
     let item
     if (typeRoll < 0.5) {
       item = Equipment(rank: 0)
@@ -547,152 +533,124 @@ function replenishTradingHouse(location) {
     } else if (typeRoll < 0.9) {
       item = Cardpack(rank: 0)
     } else {
-      item = createItemByPrototype('identify_scroll')
+      item = createItemById('identify_scroll')
     }
     entityAcquire(location, item)
   }
 
   // 刷新材料
-  let price = {
-    worker: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    water: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    grain: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    meat: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    leather: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    herb: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    timber: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    stone: {
-      add: 1.0,
-      multiply: 1.0,
-    }
-    ore: {
-      add: 1.0,
-      multiply: 1.0,
-    }
+  let price = {}
+  for (final materialId in Constants.nonCurrencyMaterialKinds) {
+    price[materialId] = 1.0
   }
 
-  // 反比于纬度的变量
-  let latitudeFactor = (atLocation.worldPosition.top / world.height)
+  // 根据据点的纬度、季节和城市类型，决定材料的价格
+  // 所有的变量的范围在 -0.25 ~ +0.25 之间
+
+  // 纬度变量
+  let latitudeFactor = (0.5 - (atLocation.worldPosition.top / world.height)) / 2
   // 纬度越高，劳工价格越高
-  price.worker.multiply += 1 - latitudeFactor
+  price.worker += latitudeFactor
   // 纬度越高，水资源价格越高
-  price.water.add += 1 - latitudeFactor
+  price.water += latitudeFactor
   // 纬度越高，谷物价格越高
-  price.grain.add += 1 - latitudeFactor
+  price.grain += latitudeFactor
   // 纬度越高，生肉价格越低
-  price.meat.multiply *= latitudeFactor
+  price.meat += -latitudeFactor
   // 纬度越高，皮革价格越低
-  price.leather.multiply *= latitudeFactor
+  price.leather += -latitudeFactor
   // 纬度越高，药材价格越低
-  price.herb.multiply *= latitudeFactor
+  price.herb += -latitudeFactor
   // 纬度越高，木材价格越低
-  price.timber.multiply *= latitudeFactor
+  price.timber += -latitudeFactor
   // 纬度越高，石料价格越高
-  price.stone.add += 1 - latitudeFactor
+  price.stone += latitudeFactor
   // 纬度越高，矿物价格越高
-  price.ore.add += 1 - latitudeFactor
+  price.ore += latitudeFactor
   
-  let seasonFactor = 1.0
+  // 季节变量
+  let seasonFactor
   final dt = Game.datetime()
   if (dt.month in [6,7,8]) {
     // 夏天
-    seasonFactor = 0.7
+    seasonFactor = -0.25
   } else if (dt.month in [9,10,11]) {
     // 秋天
-    seasonFactor = 0.85
+    seasonFactor = -0.125
   } else if (dt.month in [12,1,2]) {
     // 冬天
-    seasonFactor = 1.3
+    seasonFactor = 0.25
   } else if (dt.month in [3,4,5]) {
     // 春天
-    seasonFactor = 1.15
+    seasonFactor = 0.125
   }
 
-  // 夏秋劳工价格越低
-  price.worker.multiply *= seasonFactor
-  // 夏秋清水价格越低
-  price.water.multiply *= seasonFactor
-  // 夏秋谷物价格越低
-  price.grain.multiply *= seasonFactor
-  // 夏秋生肉价格越低
-  price.meat.multiply *= seasonFactor
-  // 夏秋皮革价格越高
-  price.leather.add += 1 - seasonFactor
-  // 夏秋药材价格越低
-  price.herb.multiply *= seasonFactor
-  // 夏秋木材价格越高
-  price.timber.add += 1 - seasonFactor
-  // 夏秋石料价格越高
-  price.stone.add += 1 - seasonFactor
-  // 夏秋矿物价格越高
-  price.ore.add += 1 - seasonFactor
+  // 夏秋劳工价格低，冬春劳工价格高
+  price.worker += seasonFactor
+  // 夏秋清水价格低，冬春清水价格高
+  price.water += seasonFactor
+  // 夏秋谷物价格低，冬春谷物价格高
+  price.grain += seasonFactor
+  // 夏秋生肉价格低，冬春生肉价格高
+  price.meat += seasonFactor
+  // 夏秋皮革价格高，冬春皮革价格低
+  price.leather += -seasonFactor
+  // 夏秋药材价格低，冬春药材价格高
+  price.herb += seasonFactor
+  // 夏秋木材价格高，冬春木材价格低
+  price.timber += -seasonFactor
+  // 夏秋石料价格高，冬春石料价格低
+  price.stone += -seasonFactor
+  // 夏秋矿物价格高，冬春矿物价格低
+  price.ore += -seasonFactor
 
-  let cityFactor = 1.0
-  if (atLocation.kind == 'island') {
-    // 岛屿
-    cityFactor = 0.9
-  } else if (atLocation.kind == 'harbor') {
-    // 港口
-    cityFactor = 0.8
-  } else if (atLocation.kind == 'mountain') {
+  let cityFactor
+  if (atLocation.kind == 'mountain') {
     // 山地
-    cityFactor = 1.2
+    cityFactor = 0.25
   } else if (atLocation.kind == 'inland') {
     // 内陆
-    cityFactor = 1.1
+    cityFactor = 0.125
+  } else if (atLocation.kind == 'island') {
+    // 岛屿
+    cityFactor = -0.125
+  } else if (atLocation.kind == 'harbor') {
+    // 港口
+    cityFactor = -0.25
   }
 
   // 港口岛屿劳工价格低
-  price.worker.multiply *= cityFactor
+  price.worker += cityFactor
   // 港口岛屿清水价格低
-  price.water.multiply *= cityFactor
+  price.water += cityFactor
   // 港口岛屿谷物价格低
-  price.grain.multiply *= cityFactor
+  price.grain += cityFactor
   // 港口岛屿生肉价格低
-  price.meat.multiply *= cityFactor
+  price.meat += cityFactor
   // 港口岛屿皮革价格低
-  price.leather.multiply *= cityFactor
+  price.leather += cityFactor
   // 港口岛屿药材价格高
-  price.herb.add += 1 - cityFactor
+  price.herb += -cityFactor
   // 港口岛屿木材价格高
-  price.timber.add += 1 - cityFactor
+  price.timber += -cityFactor
   // 港口岛屿石料价格高
-  price.stone.add += 1 - cityFactor
+  price.stone += -cityFactor
   // 港口岛屿矿物价格高
-  price.ore.add += 1 - cityFactor
+  price.ore += -cityFactor
 
   // engine.log('latitude', atLocation.worldPosition.top, atLocation.id, 'latitude factor:', latitudeFactor)
   // engine.log('season', dt.month, atLocation.id, 'season factor:', seasonFactor)
   // engine.log('city', atLocation.category, atLocation.id, 'city factor:', cityFactor)
 
   for (final key in price.keys) {
-    let v = (price[key].add * price[key].multiply).toDouble().toFixed(2)
+    let v = price[key].toDouble().toFixed(2)
     if (v < Constants.minSellRate) v = Constants.minSellRate
     price[key] = v
   }
 
   location.priceFactor = { kind: price }
+
+  // 根据据点和其下属的生产场所的发展度，决定材料的刷新数量
 
   let developmentFactor = {
     worker: atLocation.development + 1,
@@ -711,6 +669,7 @@ function replenishTradingHouse(location) {
     for (final locationId in organization.locationIds) {
       final site = game.locations[locationId]
       assert(site != null, 'location not found, id: ${locationId}')
+      if (site.category != 'site') continue
       switch (site.kind) {
         kLocationKindFarmland: {
           developmentFactor.grain += site.development + 1
@@ -735,7 +694,63 @@ function replenishTradingHouse(location) {
   for (final materialId in Constants.nonCurrencyMaterialKinds) {
     assert(developmentFactor.containsKey(materialId))
     final factor = developmentFactor[materialId]
-    final amount = r.nextInt(kBaseStoreMaterialAmount * factor * factor)
+    final amount = random.nextInt(kBaseStoreMaterialAmount * factor * factor)
+    // engine.log(location.id, materialId, 'factor:', factor, 'amount:', amount)
+    location.materials[materialId] = amount
+  }
+}
+
+const _kProductionSiteResourceGeneration = 10
+
+function replenishProductionSite(location) {
+  assert(Constants.productionSiteKinds.contains(location.kind))
+
+  location.materials = {}
+
+  location.materials.money =
+    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+  
+  let price
+
+  switch (location.kind) {
+    'farmland': {
+      price = {
+        'grain': 0.55,
+        'meat': 0.8,
+      }
+    }
+    'fishery': {
+      price = {
+        'water': 0.55,
+        'meat': 0.65,
+      }
+    }
+    'timberland': {
+      price = {
+        'herb': 0.8,
+        'timber': 0.65,
+      }
+    }
+    'huntingground': {
+      price = {
+        'leather': 0.8,
+        'meat': 0.65,
+      }
+    }
+    'mine': {
+      price = {
+        'stone': 0.65,
+        'ore': 0.8,
+      }
+    }
+  }
+
+  location.priceFactor = { kind: price }
+
+  let terrain = world.terrains[location.terrainIndex]
+  
+  for (final materialId in price.keys) {
+    final amount = terrain.resources[materialId] * (location.development + 1) * _kProductionSiteResourceGeneration
     location.materials[materialId] = amount
   }
 }
@@ -754,9 +769,8 @@ function replenishExpArray(location) {
   // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
   // assert(atLocation.category == 'city')
 
-  final r = Random()
   final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
-  location.collectableLight = r.nearInt(replenishAmount) + 10
+  location.collectableLight = random.nearInt(replenishAmount) + 10
 }
 
 /// 刷新交易类场景的物品
@@ -768,11 +782,9 @@ function replenishAuctionHouse(location) {
 
   location.inventory = {}
 
-  final r = Random()
-
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
 
   let amount = kBaseItemReplenishAmount + location.development
@@ -800,11 +812,9 @@ function replenishLibrary(location) {
 
   final organization = game.organizations[location.organizationId]
 
-  final r = Random()
-
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
       ~/ Constants.materialBasePrice.shard;
 
   for (var i in range(location.development + 1)) {
@@ -827,11 +837,9 @@ function replenishAlchemyLab(location) {
 
   location.inventory = {}
 
-  final r = Random()
-
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
 
   let amount = kBaseItemReplenishAmount + location.development
@@ -853,11 +861,9 @@ function replenishRuneLab(location) {
 
   location.inventory = {}
 
-  final r = Random()
-
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + r.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
   
   if (location.development == 0) return
@@ -865,7 +871,7 @@ function replenishRuneLab(location) {
   let amount = kBaseItemReplenishAmount + location.development
   for (var i in range(1, location.development + 1)) {
     for (var j in range(amount)) {
-      final paper = createItemByPrototype('scroll_paper_rank${i}')
+      final paper = createItemById('scroll_paper_rank${i}')
       entityAcquire(location, paper)
     }
   }

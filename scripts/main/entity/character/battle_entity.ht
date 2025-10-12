@@ -1,12 +1,11 @@
-/// battle entity 指一个可以参与战斗的对象。
-/// 此对象拥有一个牌库和一个卡组。
-/// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
 
-// import '../entity.ht'
-// import '../item/material.ht'
-// import '../../cardgame/card.ht'
-// import '../../common.ht'
 import '../achievements.ht'
+
+const kRaceNames = [
+  'xianzu',
+  'fanzu',
+  'yaozu'
+]
 
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0
@@ -39,7 +38,9 @@ const kTribulationCountPerRank = 2
 
 const kBaseResistMax = 75
 
-// 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
+/// battle entity 指一个可以参与战斗的对象。
+/// 此对象拥有一个牌库和一个卡组。
+/// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
 struct BattleEntity {
   constructor ({
     id,
@@ -289,15 +290,15 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + (character.passives.expCollectEfficiency?.value ?? 0) / 100)).round()
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
 
-  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value ?? 0
-  character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value ?? 0
-  character.stats.spellAttack = character.passives.spellAttack?.value + character.potionPassives.spellAttack?.value ?? 0
-  character.stats.curseAttack = character.passives.curseAttack?.value + character.potionPassives.curseAttack?.value ?? 0
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + (character.potionPassives.unarmedAttack?.value ?? 0)
+  character.stats.weaponAttack = character.passives.weaponAttack?.value + (character.potionPassives.weaponAttack?.value ?? 0)
+  character.stats.spellAttack = character.passives.spellAttack?.value + (character.potionPassives.spellAttack?.value ?? 0)
+  character.stats.curseAttack = character.passives.curseAttack?.value + (character.potionPassives.curseAttack?.value ?? 0)
 
-  character.stats.physicalResist = character.passives.physicalResist?.value + character.potionPassives.physicalResist?.value ?? 0
-  character.stats.chiResist = character.passives.chiResist?.value + character.potionPassives.chiResist?.value ?? 0
-  character.stats.elementalResist = character.passives.elementalResist?.value + character.potionPassives.elementalResist?.value ?? 0
-  character.stats.psychicResist = character.passives.psychicResist?.value + character.potionPassives.psychicResist?.value ?? 0
+  character.stats.physicalResist = character.passives.physicalResist?.value + (character.potionPassives.physicalResist?.value ?? 0)
+  character.stats.chiResist = character.passives.chiResist?.value + (character.potionPassives.chiResist?.value ?? 0)
+  character.stats.elementalResist = character.passives.elementalResist?.value + (character.potionPassives.elementalResist?.value ?? 0)
+  character.stats.psychicResist = character.passives.psychicResist?.value + (character.potionPassives.psychicResist?.value ?? 0)
 
   character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.potionPassives.physicalResistMax?.value
   character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.potionPassives.chiResistMax?.value
@@ -330,16 +331,16 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 /// 设定生命值，最终值一定大于 0
 /// 若尝试将生命设为小于 0 则会触发劫难 并返回 true
 function setCharacterLife(character, life) {
-  let tribulation = false
-  if (life < 0) {
-    engine.warn('Character ${character.id} 遭遇劫难，生命值重设为 1')
+  let isDying = false
+  if (life <= 0) {
+    engine.warn('角色 ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1
-    tribulation = true
+    isDying = true
     character.tribulationCount += 1
   }
   character.life = life
 
-  return tribulation
+  return isDying
 }
 
 /// 恢复指定角色指定数量的生命，不会超过当前生命上限，并返回实际恢复的数值
@@ -363,12 +364,19 @@ function getCharacterStats(character) {
 }
 
 function getCharacterMovableTerrainKinds(character) {
-  let kinds = Constants.terrainKindsLand.toList()
-  let movableOnHill = characterEquippedCategory(character, 'boots')
-  if (movableOnHill) kinds.addAll(Constants.terrainKindsMountain)
-  let movableOnWater = characterEquippedCategory(character, 'ship')
-  if (movableOnWater) kinds.addAll(Constants.terrainKindsWater)
-  return kinds
+  let aircraft = characterEquippedCategory(character, 'aircraft')
+  if (aircraft) {
+    return Constants.terrainKindsAll
+  } else {
+    let kinds = Constants.terrainKindsLand.toList()
+    if (characterEquippedCategory(character, 'boots')) {
+      kinds.addAll(Constants.terrainKindsMountain)
+    }
+    if (characterEquippedCategory(character, 'ship')) {
+      kinds.addAll(Constants.terrainKindsWater)
+    }
+    return kinds
+  }
 }
 
 /// 提升或降低天赋技能等级
@@ -464,8 +472,12 @@ function generateDeck(character, { maxOutLevel = false, cardInfoList }) {
   } else {
     final deckLimit = getDeckLimitForRank(character.rank)
     for (var i in range(deckLimit.limit)) {
+      let isBuff = false
+      if (i == 0 || i == deckLimit.limit) {      
+        isBuff = random.nextBool()
+      }
       final card = BattleCard(
-        category: (i == 0 || i == deckLimit.limit) ? 'buff' : 'attack',
+        category: isBuff ? 'buff' : 'attack',
         rank: character.rank,
         isIdentified: false,
       )
@@ -509,21 +521,21 @@ function characterEquip(entity, item, { index }) {
       }
     }
     // 否则替换掉第一个空位
-    index = 0
+    // index = 0
   }
 
-  if (!equipped) {
-    assert(index != null)
+  // if (!equipped) {
+  //   assert(index != null)
 
-    const oldEquipId = entity.equipments[index]
-    if (oldEquipId != null) {
-      const oldItem = entity.inventory[oldEquipId]
-      delete oldItem.equippedPosition
-    }
-    entity.equipments[index] = item.id
-    item.equippedPosition = index
-    equipped = true
-  }
+  //   const oldEquipId = entity.equipments[index]
+  //   if (oldEquipId != null) {
+  //     const oldItem = entity.inventory[oldEquipId]
+  //     delete oldItem.equippedPosition
+  //   }
+  //   entity.equipments[index] = item.id
+  //   item.equippedPosition = index
+  //   equipped = true
+  // }
 
   if (equipped) {
     engine.debug('角色 [${entity.name}] 装备了 [${item.name}]')

@@ -12,12 +12,12 @@ async function onBeforeInteractCharacter(character) {
   switch(character.id) {
     'ling_chuxue': {
       if (hero.journals.mysticGirl.stage == 0) {
-        Dialog.pushDialog('prelude_ling_chat', character: character)
-        await Dialog.execute()
+        dialog.pushDialog('prelude_ling_chat', character: character)
+        await dialog.execute()
         return true
       } else if (hero.journals.nailedSoul.stage == 0) {
-        Dialog.pushDialog('chapter01_ling_chat1', character: character)
-        await Dialog.execute()
+        dialog.pushDialog('chapter01_ling_chat1', character: character)
+        await dialog.execute()
         return true
       }
     }
@@ -41,36 +41,36 @@ async function onInquiryQuest(character, quest) {
         switch(quest.stage) {
           1: {
             /// 阿福讲述万福宗的故事并希望萧墨帮助重建万福宗
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line2', isHero: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line3', characterId: 'afu')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line4', isHero: true)
-            Dialog.pushBackground('story/cg/chapter1/wanfuzong.png', isFadeIn: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line5', characterId: 'afu')
-            Dialog.pushBackground('story/cg/chapter1/wanfuzong2.png', isFadeIn: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line6', characterId: 'afu')
-            Dialog.popBackground(image: 'story/cg/chapter1/wanfuzong.png')
-            Dialog.popBackground(image: 'story/cg/chapter1/wanfuzong2.png', isFadeOut: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line7', characterId: 'afu')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line8', characterId: 'afu')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line9')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line10', characterId: 'afu')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line11', isHero: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line12', characterId: 'afu')
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line13', isHero: true)
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line14', characterId: 'afu')
-            await Dialog.execute()
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line2', isHero: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line3', characterId: 'afu')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line4', isHero: true)
+            dialog.pushBackground('story/cg/chapter1/wanfuzong.png', isFadeIn: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line5', characterId: 'afu')
+            dialog.pushBackground('story/cg/chapter1/wanfuzong2.png', isFadeIn: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line6', characterId: 'afu')
+            dialog.popBackground(image: 'story/cg/chapter1/wanfuzong.png')
+            dialog.popBackground(image: 'story/cg/chapter1/wanfuzong2.png', isFadeOut: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line7', characterId: 'afu')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line8', characterId: 'afu')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line9')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line10', characterId: 'afu')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line11', isHero: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line12', characterId: 'afu')
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line13', isHero: true)
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line14', characterId: 'afu')
+            await dialog.execute()
             Player.progressQuestById('rebuildWanfuzong', stage: 2)
             return
           }
           2: {
-            Dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line14', characterId: 'afu')
-            await Dialog.execute()
+            dialog.pushDialog('chapter1_rebuildWanfuzong_afu_line14', characterId: 'afu')
+            await dialog.execute()
             return
           }
           else: {
             // 其他情况下的默认回复
-            Dialog.pushDialog('chapter1_afu_generic_reply', character: afu)
-            await Dialog.execute()
+            dialog.pushDialog('chapter1_afu_generic_reply', character: afu)
+            await dialog.execute()
             return
           }
         }
@@ -80,20 +80,20 @@ async function onInquiryQuest(character, quest) {
         switch(hero.journals.nailedSoul.stage) {
           0: {
             Player.progressQuestById('nailedSoul', stage: 1)
-            Dialog.pushDialog('chapter1_afu_nail_line1')
-            Dialog.pushDialog('chapter1_afu_nail_line2', characterId: 'afu')
-            Dialog.pushDialog('chapter1_afu_nail_line3')
-            Dialog.pushDialog('chapter1_afu_nail_line4', characterId: 'afu')
-            await Dialog.execute()
+            dialog.pushDialog('chapter1_afu_nail_line1')
+            dialog.pushDialog('chapter1_afu_nail_line2', characterId: 'afu')
+            dialog.pushDialog('chapter1_afu_nail_line3')
+            dialog.pushDialog('chapter1_afu_nail_line4', characterId: 'afu')
+            await dialog.execute()
             return
           }
           1: {
             if (hero.journals.rebuildWanfuzong.stage >= 2) {
-              Dialog.pushDialog('chapter1_afu_nail_line5', characterId: 'afu')
-              await Dialog.execute()
+              dialog.pushDialog('chapter1_afu_nail_line5', characterId: 'afu')
+              await dialog.execute()
             } else {
-              Dialog.pushDialog('chapter1_afu_nail_line6', characterId: 'afu')
-              await Dialog.execute()
+              dialog.pushDialog('chapter1_afu_nail_line6', characterId: 'afu')
+              await dialog.execute()
             }
             return
           }
@@ -119,9 +119,9 @@ async function onShow(character, item) {
 async function onGift(character, item) {
   if (character.id == 'afu') {
     if (item.id == 'hunguding') {
-      Dialog.pushDialog('chapter1_afu_nail_line7_1')
-      Dialog.pushDialog('chapter1_afu_nail_line7_2', characterId: 'afu')
-      await Dialog.execute()
+      dialog.pushDialog('chapter1_afu_nail_line7_1')
+      dialog.pushDialog('chapter1_afu_nail_line7_2', characterId: 'afu')
+      await dialog.execute()
       Player.progressQuestById('nailedSoul', stage: 2)
       // 确定收下物品，返回 true
       return true
@@ -133,8 +133,8 @@ async function onEnterCultivation() {
   if (hero.journals.rebuildWanfuzong?.stage > 2 &&
       !hero.journals.rebuildWanfuzong.sequence.contains(5)) {
     Player.progressQuestById('rebuildWanfuzong', stage: 5)
-    Dialog.pushDialog('chapter1_afu_initialCultivate_line4', characterId: 'afu')
-    await Dialog.execute()
+    dialog.pushDialog('chapter1_afu_initialCultivate_line4', characterId: 'afu')
+    await dialog.execute()
 
     final shardPack = Materialpack(kind: 'shard', amount: 4)
     await Player.acquire(shardPack)
@@ -146,8 +146,8 @@ async function onEnterCardLibrary() {
   if (hero.journals.rebuildWanfuzong?.stage > 2 &&
       !hero.journals.rebuildWanfuzong.sequence.contains(6)) {
     Player.progressQuestById('rebuildWanfuzong', stage: 6)
-    Dialog.pushDialog('chapter1_afu_initialCultivate_line5', characterId: 'afu')
-    await Dialog.execute()
+    dialog.pushDialog('chapter1_afu_initialCultivate_line5', characterId: 'afu')
+    await dialog.execute()
 
     final cardPack = Cardpack(
       rank: hero.rank,
@@ -167,26 +167,26 @@ async function onAfterEnterLocation(location) {
         if (game.mods.story.flags.skipStory) return
         
         final chuxue = game.characters.ling_chuxue
-        Dialog.pushBackground('black.png')
-        Dialog.popBackground(isFadeOut: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line1', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line2', isHero: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line3', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line4', isHero: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line5')
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line6', isHero: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line7', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line8')
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line9', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line10', isHero: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line11', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line12', isHero: true)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line13', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line14')
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line15', character: chuxue)
-        Dialog.pushDialog('chapter1_intro_ling_chuxue_line16')
-        Dialog.pushDialog('chapter01_ling_chat1', character: chuxue)
-        await Dialog.execute()
+        dialog.pushBackground('black.png')
+        dialog.popBackground(isFadeOut: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line1', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line2', isHero: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line3', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line4', isHero: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line5')
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line6', isHero: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line7', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line8')
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line9', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line10', isHero: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line11', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line12', isHero: true)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line13', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line14')
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line15', character: chuxue)
+        dialog.pushDialog('chapter1_intro_ling_chuxue_line16')
+        dialog.pushDialog('chapter01_ling_chat1', character: chuxue)
+        await dialog.execute()
       }
     }
     'home_nan_wuzhen': {
@@ -194,15 +194,15 @@ async function onAfterEnterLocation(location) {
         Player.progressQuestById('sectOfCrane', stage: 1)
         final wuzhen = game.characters.nan_wuzhen
         characterMet(hero, wuzhen)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line1', character: wuzhen)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line2', isHero: true)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line3', character: wuzhen)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line4', isHero: true)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line5', character: wuzhen, hideIllustration: true)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line6', character: wuzhen)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line7', isHero: true)
-        Dialog.pushDialog('chapter1_intro_nan_wuzhen_line8', character: wuzhen)
-        await Dialog.execute()
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line1', character: wuzhen)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line2', isHero: true)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line3', character: wuzhen)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line4', isHero: true)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line5', character: wuzhen, hideIllustration: true)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line6', character: wuzhen)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line7', isHero: true)
+        dialog.pushDialog('chapter1_intro_nan_wuzhen_line8', character: wuzhen)
+        await dialog.execute()
         addCharacterToOrganization(hero, game.organizations.baihepai)
         return true
       }

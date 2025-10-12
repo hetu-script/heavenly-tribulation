@@ -44,10 +44,11 @@ const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
 const kTerrainKindCity = 'city';
 
-const kColorModeZone = 0;
-const kColorModeOrganization = 1;
+const kColorModeContinent = 0;
+const kColorModeCity = 1;
+const kColorModeOrganization = 2;
 
-const kMaxHeroAge = 25;
+const kMaxHeroAge = 15;
 
 const kWorldMapAnimationPriority = 15000;
 

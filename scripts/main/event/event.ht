@@ -5,12 +5,16 @@
 ///   // 第一层key是世界名字，每个世界有自己的一套逻辑
 ///   worldName1: {
 ///     // 第二层是事件名字
-///     onNewGame: () {
+///     onNewGame: async function () {
 ///       engine.debug('[${this.id}]: 新游戏事件回调函数')
+///     }
+///   },
+///   events: {
+///     onAcquire: async function (item) {
+///       engine.debug('[${this.id}]: 物品获得事件回调函数')
 ///     }
 ///   }
 /// }
-
 /// 将自定义事件处理函数所在的命名空间绑定到
 /// 因为函数不会被序列化，因此每次启动游戏都会执行一次绑定
 /// 此时模组元数据尚未加载
@@ -35,14 +39,6 @@ function sortMods(sorted) {
     game.mods[mod.id] = mod
   }
 }
-
-/// [onWorldEvent] 和 [onGameEvent] 用来触发 mod 的回调函数
-/// 游戏自己的逻辑不用这个
-/// 回调函数需要在游戏开始时就读取，不要动态添加
-/// 因为函数无法保存，因此一旦读档，回调就会消失
-/// 事件处理函数将会收到两个参数
-/// 第一个参数module是模组数据，可以保存一些flag之类
-/// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
 
 /// 世界事件，该类事件只会触发绑定到当前世界的模组，返回值通常是null
 /// 如果返回值是 [true]，则表示事件已经被模组处理完毕，不再执行游戏本身的默认逻辑
@@ -90,21 +86,3 @@ async function onGameEvent(eventId: string, ...args) {
   }
   return result
 }
-// 
-// let savedHanlders
-
-// function prepareSave() {
-//   savedHanlders = {}
-//   for (const module of game.mods) {
-//     savedHanlders[module.id] = module.$handler
-//     delete module.$handler
-//   }
-// }
-
-// function afterSave() {
-//   for (const module of game.mods) {
-//     assert(savedHanlders[module.id] != null)
-//     module.$handler = savedHanlders[module.id]
-//   }
-//   savedHanlder = null
-// }

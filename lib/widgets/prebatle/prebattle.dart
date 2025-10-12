@@ -235,12 +235,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 .read<ViewPanelState>()
                                 .toogle(ViewPanels.details);
                           },
-                          onMouseEnter: (rect) {
+                          onEnter: (rect) {
                             context
                                 .read<HoverContentState>()
                                 .show(engine.locale('equipments'), rect);
                           },
-                          onMouseExit: () {
+                          onExit: () {
                             context.read<HoverContentState>().hide();
                           },
                           child: const Image(
@@ -254,12 +254,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onPressed: () {
                             engine.pushScene(Scenes.cultivation);
                           },
-                          onMouseEnter: (rect) {
+                          onEnter: (rect) {
                             context
                                 .read<HoverContentState>()
                                 .show(engine.locale('skillTree'), rect);
                           },
-                          onMouseExit: () {
+                          onExit: () {
                             context.read<HoverContentState>().hide();
                           },
                           child: const Image(
@@ -273,12 +273,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onPressed: () {
                             engine.pushScene(Scenes.library);
                           },
-                          onMouseEnter: (rect) {
+                          onEnter: (rect) {
                             context
                                 .read<HoverContentState>()
                                 .show(engine.locale('cardlibrary'), rect);
                           },
-                          onMouseExit: () {
+                          onExit: () {
                             context.read<HoverContentState>().hide();
                           },
                           child: const Image(
@@ -409,7 +409,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         BorderedIconButton(
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(left: 5.0),
-                          onMouseEnter: (rect) {
+                          onEnter: (rect) {
                             final Widget statsView = CharacterStats(
                               character: widget.enemy,
                               showNonBattleStats: false,
@@ -420,7 +420,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                   direction: HoverContentDirection.leftTop,
                                 );
                           },
-                          onMouseExit: () {
+                          onExit: () {
                             context.read<HoverContentState>().hide();
                           },
                           child: const Image(

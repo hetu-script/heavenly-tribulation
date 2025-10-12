@@ -4,7 +4,7 @@ import 'creature/creature.json5' as creatureNames
 import 'creature/prefix.json5' as creaturePrefix
 import 'common/strange.json5' as strangeCreature
 import '../random.ht'
-import '../entity/entity.ht'
+import '../game/common.ht'
 
 const commonCreatureNames = [
   ...commonNamesData.dao,
@@ -23,12 +23,12 @@ function generateCreatureName({category, rarity}) {
   rarity ??= getRarity().name
   let name
   switch (rarity) {
-    'arcane' : name = random.nextIterable(strangeCreature)
-    'mythic' : name = pre + cp + sp + k
-    'legendary' : name = pre + sp + k
-    'epic' : name = pre + cp + k
-    'rare' : name = pre + k
-    'common' : name = cp + sp + k
+    'arcane' => name = random.nextIterable(strangeCreature)
+    'mythic' => name = pre + cp + sp + k
+    'legendary' => name = pre + sp + k
+    'epic' => name = pre + cp + k
+    'rare' => name = pre + k
+    'common' => name = cp + sp + k
   }
   return name
 }

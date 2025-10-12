@@ -14,14 +14,14 @@ async function onNewGame() {
   }
 
   // if (hero.journals.mysticGirl.stage == 3) {
-  //   Dialog.pushBackground('black.png')
-  //   Dialog.pushTask(() {
+  //   dialog.pushBackground('black.png')
+  //   dialog.pushTask(() {
   //     Game.showHeroInfo()
   //     Player.setTo(74, 16, worldId: 'heavenly_prison', direction: 'south')
   //     hero.life = 1
   //   })
-  //   Dialog.popBackground(isFadeOut: true)
-  //   await Dialog.execute()
+  //   dialog.popBackground(isFadeOut: true)
+  //   await dialog.execute()
   //   Game.updateHero()
   // }
 }

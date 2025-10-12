@@ -4,7 +4,7 @@ import 'consumable/consumable.json5' as consumableNames
 import 'consumable/medicine.json5' as medicineNames
 import 'consumable/beverage.json5' as beverageNames
 import '../random.ht'
-import '../entity/entity.ht'
+import '../game/common.ht'
 
 const commonConsumableNames = [
   ...commonNamesData.dao,
@@ -32,10 +32,10 @@ function generateConsumableName({category: string, rarity: string}) {
   const s = random.nextIterable(spiritPrefix)
   let name
   switch (rarity) {
-    'arcane' : name = pre + pre2 + kind
-    'mythic', 'legendary' : name = pre + s + kind
-    'rare', 'epic' : name = pre + kind
-    'common' : name = (commonPrefix ?? pre) + kind
+    'arcane' => name = pre + pre2 + kind
+    'mythic', 'legendary' => name = pre + s + kind
+    'rare', 'epic' => name = pre + kind
+    'common' => name = (commonPrefix ?? pre) + kind
   }
   return name
 }

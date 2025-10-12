@@ -53,7 +53,8 @@ function getTileDistance(start, end) {
 /// 每个编号对应一个固定位置的相邻地块，如果值为 null 表示这个位置没有符合要求的相邻地块
 /// 对于方格tile，邻居顺序是上(1)右(2)下(3)左(4)左上(5)右上(6)右下(7)左下(8)
 /// 如果 [terrainKinds] 不为 空，则只会返回指定 kind 属性范围的格子
-function getMapTileNeighbors(left: integer, top: integer, map, { terrainKinds = [], includeDiagonal = false }) {
+function getMapTileNeighbors(left: integer, top: integer, { map, terrainKinds = [], includeDiagonal = false }) {
+  map ??= world
   const neighbors = {}
 
   function addNeighbor(neighborIndex, tileIndex) {

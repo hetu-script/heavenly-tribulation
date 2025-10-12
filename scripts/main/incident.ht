@@ -80,7 +80,7 @@ struct Incident {
     } else if (!isPrivate) {
       if (organization) {
         if (!isPrivate) {
-          for (const id in organization.members.keys) {
+          for (const id in organization.membersData.keys) {
             if (id == subjectId || id == targetId) continue
             const character = game.characters[id]
             characterKnowIncident(character, this, witnessed: true)
@@ -175,17 +175,17 @@ function entityExperienceIncident(entity, incident) {
     let idealChange = entity.personality.idealistic * incident.idealistic / 100
     if (idealChange != 0) {
       entity.personality.idealistic += idealChange
-      engine.debug('角色 ${entity.id} 的 idealistic 改变了  [${idealChange}]。')
+      engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}]。')
     }
     let orderChange = entity.personality.orderly * incident.orderly / 100
     if (orderChange != 0) {
       entity.personality.orderly += orderChange
-      engine.debug('角色 ${entity.id} 的 orderly 改变了  [${orderChange}]。')
+      engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}]。')
     }
     let goodChange = entity.personality.goodwill * incident.goodwill / 100
     if (goodChange != 0) {
       entity.personality.goodwill += goodChange
-      engine.debug('角色 ${entity.id} 的 goodwill 改变了  [${goodChange}]。')
+      engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}]。')
     }
   } else if (entity.id == incident.targetId) {
     const subject = game.characters[incident.subjectId]

@@ -6,6 +6,8 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'common.dart';
 
+export 'package:samsara/colors.dart';
+
 const double _kTextShadowOffset = 0.5;
 
 const List<Shadow> kTextShadow = [
@@ -36,66 +38,36 @@ const List<Shadow> kTextShadow = [
 ];
 
 abstract class TextStyles {
-  static const displayLarge = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 36.0,
-  );
-  static const displayMedium = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 34.0,
-  );
-  static const displaySmall = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 32.0,
-  );
-  static const headlineLarge = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 30.0,
-  );
-  static const headlineMedium = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 28.0,
-  );
-  static const headlineSmall = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 26.0,
-  );
-  static const titleLarge = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 24.0,
-  );
-  static const titleMedium = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 22.0,
-  );
-  static const titleSmall = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 20.0,
-  );
-  static const bodyLarge = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 18.0,
-  );
-  static const bodyMedium = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 16.0,
-  );
-  static const bodySmall = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 14.0,
-  );
-  static const labelLarge = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 12.0,
-  );
-  static const labelMedium = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 10.0,
-  );
-  static const labelSmall = TextStyle(
-    fontFamily: GameUI.fontFamily,
-    fontSize: 8.0,
-  );
+  static const displayLarge =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0);
+  static const displayMedium =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 34.0);
+  static const displaySmall =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 32.0);
+  static const headlineLarge =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 30.0);
+  static const headlineMedium =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 28.0);
+  static const headlineSmall =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 26.0);
+  static const titleLarge =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 24.0);
+  static const titleMedium =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 22.0);
+  static const titleSmall =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 20.0);
+  static const bodyLarge =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 18.0);
+  static const bodyMedium =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 16.0);
+  static const bodySmall =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 14.0);
+  static const labelLarge =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 12.0);
+  static const labelMedium =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 10.0);
+  static const labelSmall =
+      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0);
 }
 
 abstract class GameUI {

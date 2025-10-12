@@ -1,4 +1,4 @@
-const kZoneVoid = 'world'
+const kZoneVoid = 'void'
 const kZoneLand = 'land'
 const kZoneWater = 'water'
 const kZoneCategoryContinent = 'continent'

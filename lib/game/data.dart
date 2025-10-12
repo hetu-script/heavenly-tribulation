@@ -9,6 +9,9 @@ import 'package:hetu_script/utils/collection.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
+// import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:samsara/markdown_wiki.dart';
+import 'package:animated_tree_view/animated_tree_view.dart';
 
 import 'ui.dart';
 import 'common.dart';
@@ -73,17 +76,20 @@ abstract class GameData {
   static final Map<String, SpriteSheet> spriteSheets = {};
   static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
 
+  static final List<dynamic> wikiData = [];
+  static late final TreeNode<WikiPageData> wikiTreeNodes;
+
   static final Map<String, dynamic> tiles = {};
   static final Map<String, dynamic> mapComponents = {};
   static final Map<String, dynamic> battleCards = {};
   static final Map<String, dynamic> battleCardAffixes = {};
   static final Map<String, dynamic> statusEffects = {};
-  static final Map<String, dynamic> prototypes = {};
+  static final Map<String, dynamic> items = {};
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
   static final Map<String, dynamic> craftables = {};
   static final Map<String, dynamic> journals = {};
-
+  static final Map<String, dynamic> quests = {};
   static final Map<String, dynamic> maps = {};
 
   static final Map<String, (String, String)> attributeNames = {};
@@ -106,6 +112,35 @@ abstract class GameData {
     final terrain = GameData.world['terrains'][index];
     assert(terrain != null, 'Terrain not found, id: $index');
     return terrain;
+  }
+
+  static dynamic getNpc(dynamic id) {
+    final npc = GameData.game['npcs'][id];
+    assert(npc != null, 'NPC not found, id: $id');
+    return npc;
+  }
+
+  static List getNpcsAtLocation(dynamic location) {
+    final npcs = [];
+
+    final locationNpc = location['npcId'];
+    if (locationNpc != null) {
+      final npc = GameData.game['npcs'][locationNpc];
+      npcs.add(npc);
+    }
+
+    final companions =
+        GameData.hero['companions'].map((id) => GameData.getCharacter(id));
+    npcs.addAll(companions);
+
+    final characters = GameData.game['characters'].values.where((char) {
+      if (char['id'] == GameData.hero['id']) return false;
+      if (char['locationId'] != location['id']) return false;
+      return true;
+    });
+    npcs.addAll(characters);
+
+    return npcs;
   }
 
   static dynamic getCharacter(dynamic id) {
@@ -134,6 +169,64 @@ abstract class GameData {
       throw 'Game engine is not initted yet!';
     }
 
+    final docsDataString = await rootBundle.loadString('docs/wiki.json5');
+    wikiData.addAll(JSON5.parse(docsDataString));
+    wikiTreeNodes = await buildWikiTreeNodesFromData(wikiData);
+    wikiTreeNodes.data = WikiPageData(
+      key: '/',
+      title: engine.locale('wiki_root_title'),
+    );
+
+    final tilesDataString =
+        await rootBundle.loadString('assets/data/tiles.json5');
+    tiles.addAll(JSON5.parse(tilesDataString));
+
+    final mapsDataString =
+        await rootBundle.loadString('assets/data/maps.json5');
+    maps.addAll(JSON5.parse(mapsDataString));
+
+    final mapComponentsDataString =
+        await rootBundle.loadString('assets/data/map_components.json5');
+    mapComponents.addAll(JSON5.parse(mapComponentsDataString));
+
+    final battleCardDataString =
+        await rootBundle.loadString('assets/data/cards.json5');
+    battleCards.addAll(JSON5.parse(battleCardDataString));
+
+    final battleCardAffixDataString =
+        await rootBundle.loadString('assets/data/card_affixes.json5');
+    battleCardAffixes.addAll(JSON5.parse(battleCardAffixDataString));
+
+    final itemsDataString =
+        await rootBundle.loadString('assets/data/items.json5');
+    items.addAll(JSON5.parse(itemsDataString));
+
+    final craftablesDataString =
+        await rootBundle.loadString('assets/data/craftables.json5');
+    craftables.addAll(JSON5.parse(craftablesDataString));
+
+    final passiveTreeDataString =
+        await rootBundle.loadString('assets/data/passive_tree.json5');
+    passiveTree.addAll(JSON5.parse(passiveTreeDataString));
+
+    final passiveDataString =
+        await rootBundle.loadString('assets/data/passives.json5');
+    passives.addAll(JSON5.parse(passiveDataString));
+
+    final statusEffectDataString =
+        await rootBundle.loadString('assets/data/status_effect.json5');
+    statusEffects.addAll(JSON5.parse(statusEffectDataString));
+
+    final journalsDataString =
+        await rootBundle.loadString('assets/data/journals.json5');
+    journals.addAll(JSON5.parse(journalsDataString));
+
+    final questsDataString =
+        await rootBundle.loadString('assets/data/quests.json5');
+    quests.addAll(JSON5.parse(questsDataString));
+
+    // 载入动画，其中皮肤动画需要特殊处理
+    // 每个皮肤保存了所有的站姿，实际游戏运行时会分拆开来
     final animationsDataString =
         await rootBundle.loadString('assets/data/animation.json5');
     final animationsData = JSON5.parse(animationsDataString);
@@ -221,7 +314,6 @@ abstract class GameData {
         }
       }
     }
-    // animations.addAll(animationsData);
 
     final spriteSheetDataString =
         await rootBundle.loadString('assets/data/sprite_sheet.json5');
@@ -239,50 +331,6 @@ abstract class GameData {
       );
       spriteSheets[assetId] = sheet;
     }
-
-    final tilesDataString =
-        await rootBundle.loadString('assets/data/tiles.json5');
-    tiles.addAll(JSON5.parse(tilesDataString));
-
-    final mapComponentsDataString =
-        await rootBundle.loadString('assets/data/map_components.json5');
-    mapComponents.addAll(JSON5.parse(mapComponentsDataString));
-
-    final battleCardDataString =
-        await rootBundle.loadString('assets/data/cards.json5');
-    battleCards.addAll(JSON5.parse(battleCardDataString));
-
-    final battleCardAffixDataString =
-        await rootBundle.loadString('assets/data/card_affixes.json5');
-    battleCardAffixes.addAll(JSON5.parse(battleCardAffixDataString));
-
-    final statusEffectDataString =
-        await rootBundle.loadString('assets/data/status_effect.json5');
-    statusEffects.addAll(JSON5.parse(statusEffectDataString));
-
-    final itemsDataString =
-        await rootBundle.loadString('assets/data/items.json5');
-    prototypes.addAll(JSON5.parse(itemsDataString));
-
-    final passiveDataString =
-        await rootBundle.loadString('assets/data/passives.json5');
-    passives.addAll(JSON5.parse(passiveDataString));
-
-    // final supportSkillDataString =
-    //     await rootBundle.loadString('assets/data/skills_support.json5');
-    // supportSkillData = JSON5.parse(supportSkillDataString);
-
-    final passiveTreeDataString =
-        await rootBundle.loadString('assets/data/passive_tree.json5');
-    passiveTree.addAll(JSON5.parse(passiveTreeDataString));
-
-    final craftablesDataString =
-        await rootBundle.loadString('assets/data/craftables.json5');
-    craftables.addAll(JSON5.parse(craftablesDataString));
-
-    final journalsDataString =
-        await rootBundle.loadString('assets/data/journals.json5');
-    journals.addAll(JSON5.parse(journalsDataString));
 
     // 拼接技能树节点的描述
     for (final passiveTreeNodeData in passiveTree.values) {
@@ -343,10 +391,6 @@ abstract class GameData {
       passiveTreeNodeData['description'] = nodeDescription.toString();
     }
 
-    final mapsDataString =
-        await rootBundle.loadString('assets/data/maps.json5');
-    maps.addAll(JSON5.parse(mapsDataString));
-
     _isInitted = true;
   }
 
@@ -368,13 +412,14 @@ abstract class GameData {
     engine.hetu.invoke(
       'init',
       namedArgs: {
-        'prototypesData': GameData.prototypes,
-        'craftablesData': GameData.craftables,
+        'mapsData': GameData.maps,
         'battleCardsData': GameData.battleCards,
         'battleCardAffixesData': GameData.battleCardAffixes,
+        'itemsData': GameData.items,
+        'craftablesData': GameData.craftables,
         'passivesData': GameData.passives,
         'journalsData': GameData.journals,
-        'mapsData': GameData.maps,
+        'questsData': GameData.quests,
       },
     );
 
@@ -396,7 +441,8 @@ abstract class GameData {
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
   static Future<void> createGame(
     String saveName, {
-    String? seedString,
+    String? mainWorldId,
+    int? seed,
     bool enableTutorial = true,
     bool isEditorMode = false,
   }) async {
@@ -405,7 +451,8 @@ abstract class GameData {
     engine.hetu.invoke('createGame', positionalArgs: [
       saveName
     ], namedArgs: {
-      'seedString': seedString,
+      'seed': seed,
+      'mainWorldId': mainWorldId,
       'enableTutorial': enableTutorial,
     });
 
@@ -1039,28 +1086,30 @@ abstract class GameData {
     final kind = quest['kind'];
     final int difficulty = quest['difficulty'] ?? 0;
     final String difficultyLable = kDifficultyLabels[difficulty]!;
-    final timeLimitDays = quest['timeLimitDays'];
+    final timeLimit = quest['timeLimit'];
     desc.writeln('<bold rank$difficulty t7>${engine.locale('quest_$kind')}</>');
     desc.writeln(
         '${engine.locale('difficulty')}: <rank$difficulty>${engine.locale(difficultyLable)}</>');
     desc.writeln(
-        '${engine.locale('timeLimit')}: <yellow>$timeLimitDays ${engine.locale('ageDay')}</>');
+        '${engine.locale('timeLimit')}: <yellow>${timeLimit ~/ kTicksPerDay} ${engine.locale('ageDay')}</>');
 
     return desc.toString();
   }
 
-  static String getQuestBudgetDescription(dynamic budget) {
+  static String getQuestBudgetDescription(dynamic budget,
+      {bool isFinished = false}) {
     final desc = StringBuffer();
     final kind = budget['kind'];
     final amount = budget['amount'];
-    desc.writeln('<lightGreen>${engine.locale('budget')}: </>');
+    desc.writeln('${engine.locale('budget')}:');
     desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
     return desc.toString();
   }
 
-  static String getQuestRewardDescription(List reward) {
+  static String getQuestRewardDescription(List reward,
+      {bool isFinished = false}) {
     final desc = StringBuffer();
-    desc.writeln('<lightGreen>${engine.locale('reward')}: </>');
+    desc.writeln('${engine.locale('reward')}:');
     for (final itemInfo in reward) {
       if (itemInfo['type'] == 'material') {
         final kind = itemInfo['kind'];
@@ -1071,62 +1120,136 @@ abstract class GameData {
     return desc.toString();
   }
 
+  static String getQuestTimeLimitDescription(int timestamp,
+      {bool isFinished = false}) {
+    final desc = StringBuffer();
+    desc.writeln('${engine.locale('deadline')}:');
+    final currentTimestamp = GameData.game['timestamp'];
+    final timeString =
+        engine.hetu.invoke('getDateTimeString', positionalArgs: [timestamp]);
+    String color;
+    if (currentTimestamp > timestamp && !isFinished) {
+      color = 'red';
+    } else {
+      color = 'lightGreen';
+    }
+    desc.writeln('<$color>$timeString</>');
+    return desc.toString();
+  }
+
   static String getBountyDetailDescription(dynamic quest) {
     final desc = StringBuffer();
-
     final brief = GameData.getQuestBriefDescription(quest);
     desc.write(brief);
     desc.writeln(kSeparateLine);
     desc.writeln('${engine.locale('quest_content')}:');
-
     final kind = quest['kind'];
-    assert(kQuestKinds.contains(kind), 'Unknown bounty kind: $kind');
-    switch (kind) {
-      case 'purchase_material':
-        desc.writeln(engine.locale('quest_purchase_material_description',
-            interpolations: quest['interpolations']));
-        desc.writeln(kSeparateLine);
-        final budget = getQuestBudgetDescription(quest['budget']);
-        desc.writeln(budget);
-      case 'purchase_item':
-        desc.writeln(engine.locale('quest_purchase_item_description',
-            interpolations: quest['interpolations']));
-        desc.writeln(kSeparateLine);
-        final budget = getQuestBudgetDescription(quest['budget']);
-        desc.writeln(budget);
-      case 'deliver_material':
-        desc.writeln(engine.locale('quest_deliver_material_description',
-            interpolations: quest['interpolations']));
-        desc.writeln(kSeparateLine);
-        final reward = getQuestRewardDescription(quest['reward']);
-        desc.writeln(reward);
-      case 'deliver_item':
-        desc.writeln(engine.locale('quest_deliver_item_description',
-            interpolations: quest['interpolations']));
-        desc.writeln(kSeparateLine);
-        final reward = getQuestRewardDescription(quest['reward']);
-        desc.writeln(reward);
-      case 'escort':
-        desc.writeln(engine.locale('quest_escort_description',
-            interpolations: quest['interpolations']));
-        desc.writeln(kSeparateLine);
-        final reward = getQuestRewardDescription(quest['reward']);
-        desc.writeln(reward);
-      case 'discover_location':
-        final targetLocationId = quest['targetLocationId'];
-        final targetLocation = GameData.getLocation(targetLocationId);
-        final organizationId = quest['organizationId'];
-        final organization = GameData.getOrganization(organizationId);
-        desc.writeln(engine
-            .locale('quest_discover_location_description', interpolations: [
-          organization['name'],
-          targetLocation['name'],
-        ]));
-        desc.writeln(kSeparateLine);
-        final reward = getQuestRewardDescription(quest['reward']);
-        desc.writeln(reward);
+    desc.writeln(engine.locale('quest_${kind}_description',
+        interpolations: quest['interpolations']));
+    final reward = quest['reward'];
+    final budget = quest['budget'];
+    if (reward != null || budget != null) {
+      desc.writeln(kSeparateLine);
     }
-
+    if (reward != null) {
+      final rewardDesc = getQuestRewardDescription(reward);
+      desc.writeln(rewardDesc);
+    }
+    if (budget != null) {
+      final budgetDesc = getQuestBudgetDescription(budget);
+      desc.writeln(budgetDesc);
+    }
     return desc.toString();
+  }
+
+  static List<String> getCharacterInformationRow(dynamic character) {
+    final row = <String>[];
+    row.add(character['name']);
+    // 性别
+    final bool isFemale = character['isFemale'];
+    row.add(engine.locale(isFemale ? 'female' : 'male'));
+    final age = engine.hetu
+        .invoke('getCharacterAgeString', positionalArgs: [character]);
+    // 年龄
+    row.add(age);
+    // 名声
+    final fame = engine.hetu
+        .invoke('getCharacterFameString', positionalArgs: [character]);
+    row.add(fame);
+    final homeLocationId = character['homeLocationId'];
+    final homeLocation = GameData.game['locations'][homeLocationId];
+    row.add(homeLocation?['name'] ?? engine.locale('none'));
+    // 门派名字
+    String organizationName = engine.locale('none');
+    final organizationId = character['organizationId'];
+    if (organizationId != null) {
+      final organization = GameData.getOrganization(organizationId);
+      organizationName = organization['name'];
+    }
+    row.add(organizationName);
+    // 称号
+    final titleId = character['titleId'];
+    row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
+    row.add('${character['level']}');
+    row.add(engine.locale('cultivationRank_${character['rank']}'));
+    // 多存一个隐藏的 id 信息，用于点击事件
+    row.add(character['id']);
+    return row;
+  }
+
+  static List<String> getCityInformationRow(dynamic location) {
+    assert(location['category'] == 'city');
+
+    final row = <String>[];
+    row.add(location['name']);
+    final worldPosition = location['worldPosition'];
+    row.add('[${worldPosition['left']}, ${worldPosition['top']}]');
+    // 类型
+    row.add(engine.locale(location['kind']));
+    // 发展度
+    row.add(location['development'].toString());
+    // 居民
+    row.add(location['residents'].length.toString());
+    // 门派名字
+    String organizationName = engine.locale('none');
+    final organizationId = location['organizationId'];
+    if (organizationId != null) {
+      final organization = GameData.getOrganization(organizationId);
+      organizationName = organization['name'];
+    }
+    row.add(organizationName);
+    // 多存一个隐藏的 id 信息，用于点击事件
+    row.add(location['id']);
+    return row;
+  }
+
+  static List<String> getOrganizationInformationRow(dynamic organization) {
+    final row = <String>[];
+    row.add(organization['name']);
+    // 掌门
+    row.add(organization['headId']);
+    // 类型
+    row.add(engine.locale(organization['category']));
+    // 流派
+    row.add(engine.locale(organization['genre']));
+    // 总堂
+    final headquarters =
+        GameData.getLocation(organization['headquartersLocationId']);
+    row.add(headquarters['name']);
+    // 据点数量
+    final locationIds = organization['locationIds'] as List;
+    row.add(locationIds
+        .where((id) {
+          final location = GameData.getLocation(id);
+          return location['category'] == 'city';
+        })
+        .length
+        .toString());
+    // 成员数量
+    row.add(organization['membersData'].length.toString());
+    row.add('${organization['recruitMonth']}${engine.locale('dateMonth')}');
+    // 多存一个隐藏的 id 信息，用于点击事件
+    row.add(organization['id']);
+    return row;
   }
 }

@@ -504,10 +504,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     assert(effect.script != null);
     details ??= {};
 
-    final funcId = 'status_script_${effect.script}_$callbackId';
+    final funcId = '${effect.script}_$callbackId';
     engine.debug('invoke effect callback: [$funcId]');
-    dynamic result = engine.hetu
-        .invoke(funcId, positionalArgs: [this, opponent, effect.data, details]);
+    dynamic result = engine.hetu.invoke(
+      funcId,
+      namespace: 'StatusScript',
+      positionalArgs: [this, opponent, effect.data, details],
+    );
     return result;
   }
 
@@ -851,7 +854,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
       await engine.hetu.invoke(
-        'card_script_$scriptId',
+        scriptId,
+        namespace: 'CardScriptExtra',
         positionalArgs: [this, opponent, affix, mainAffix],
       );
     }
@@ -860,7 +864,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final mainScriptId = mainAffix['script'];
     if (mainScriptId != null) {
       await engine.hetu.invoke(
-        'card_script_main_$mainScriptId',
+        mainScriptId,
+        namespace: 'CardScriptMain',
         positionalArgs: [this, opponent, mainAffix],
       );
     }
@@ -879,7 +884,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
       await engine.hetu.invoke(
-        'card_script_$scriptId',
+        scriptId,
+        namespace: 'CardScriptExtra',
         positionalArgs: [this, opponent, affix, mainAffix],
       );
     }

@@ -109,9 +109,10 @@ function getTileDistance(start, end) {
 /// 每个编号对应一个固定位置的相邻地块，如果值为 null 表示这个位置没有符合要求的相邻地块
 /// 对于横向六边形tilemap，邻居顺序是左上(1)上(2)右上(3)右下(4)下(5)左下(6)
 /// 如果 [terrainKinds] 不为 空，则只会返回指定 kind 属性范围的格子
-function getMapTileNeighbors(left: integer, top: integer, map, { terrainKinds = [] }) {
+function getMapTileNeighbors(left: integer, top: integer, { map, terrainKinds = [] }) {
   map ??= world
   const neighbors = {}
+
   function addNeighbor(neighborIndex, tileIndex) {
     if (tileIndex < 0 || tileIndex >= map.terrains.length) return
     final tile = map.terrains[tileIndex]

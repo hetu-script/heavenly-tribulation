@@ -6,6 +6,7 @@ export { createSandboxWorld } from 'sandbox.ht'
 function getCurrentWorldZoneColors {
   const colors = []
   const zoneColors = Map()
+  const cityColors = Map()
   const organizationColors = Map()
   for (const tile in world.terrains) {
     if (tile.zoneId) {
@@ -13,12 +14,17 @@ function getCurrentWorldZoneColors {
       assert(zone != null, 'zoneId: ${tile.zoneId} not found')
       zoneColors[tile.index] = zone.color
     }
+    if (tile.cityId) {
+      const city = game.locations[tile.cityId]
+      cityColors[tile.index] = city.color
+    }
     if (tile.nationId) {
       const organization = game.organizations[tile.nationId]
       organizationColors[tile.index] = organization.color
     }
   }
   colors.add(zoneColors)
+  colors.add(cityColors)
   colors.add(organizationColors)
 
   return colors
@@ -85,15 +91,19 @@ function createBlankWorld({
 
   addWorld(newWorld)
 
-  engine.debug('生成空白地块，默认为海洋')
   for (const j in range(height)) {
     for (const i in range(width)) {
+      let spriteIndex
+      if (y > 0 && y < height - 1 && x > 0 && x < width - 1) {
+        // 边界地块为 void
+        spriteIndex = kSpriteWater
+      }
       newWorld.terrains.add(
         TileMapTerrain(
           left: i + 1,
           top: j + 1,
           index: tilePos2Index(i + 1, j + 1, width),
-          // spriteIndex: kSpriteWater,
+          spriteIndex: spriteIndex,
         )
       )
     }
@@ -102,8 +112,8 @@ function createBlankWorld({
   return newWorld
 }
 
-function getNeighborTiles(left, top, {terrainKinds = []}) {
-  return getMapTileNeighbors(left, top, world, terrainKinds: terrainKinds)
+function getTileNeighbors(left, top, {terrainKinds = []}) {
+  return getMapTileNeighbors(left, top, world: world, terrainKinds: terrainKinds)
 }
 
 function expandCurrentWorldBySize(width, height, [direction = 'bottomRight']) {

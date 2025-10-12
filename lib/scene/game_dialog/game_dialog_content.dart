@@ -209,6 +209,10 @@ class _GameDialogContentState extends State<GameDialogContent> {
     timer = Timer.periodic(
       const Duration(milliseconds: 100),
       (timer) {
+        if (lineFinished) {
+          timer.cancel();
+          return;
+        }
         progress++;
         if (progress >= nodes.length) {
           finishLine();
@@ -241,12 +245,11 @@ class _GameDialogContentState extends State<GameDialogContent> {
   }
 
   void finishLine() {
-    timer?.cancel();
+    lineFinished = true;
     if (!textShowController.isClosed) {
       textShowController.add(
           TextSpan(children: buildFlutterRichText(currentLine, style: style)));
     }
-    lineFinished = true;
   }
 
   void finishDialog() {

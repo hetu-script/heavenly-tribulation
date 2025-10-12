@@ -5,25 +5,22 @@ struct Npc {
     name,
     icon,
     illustration,
-    locationId,
     useCustomLogic = false,
   }) {
     this.entityType = kEntityTypeNpc
     assert(name != null || nameId != null)
-    assert(locationId != null)
     nameId ??= 'servant'
     this.name = name
     this.name ??= engine.locale(nameId)
     this.id = id ?? name
     this.icon = icon
     this.illustration = illustration
-    this.locationId = locationId
     this.useCustomLogic = useCustomLogic
 
     if (game.npcs.containsKey(this.id)) {
-      engine.warn('Npc with id ${this.id} already exists, overwriting.')
+      engine.warn('NPC 已存在，id: ${this.id}，将会被覆盖')
     } else {
-      engine.debug('Created NPC: ${this.id}')
+      engine.debug('创建 NPC: ${this.name}')
     }
     
     game.npcs[this.id] = this

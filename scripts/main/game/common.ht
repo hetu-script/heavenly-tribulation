@@ -1,12 +1,4 @@
-// import '../random.ht'
-// import '../game/dialog.ht'
 import '../name/skill/skill.json5' as skillData
-
-const kRaceNames = [
-  'xianzu',
-  'fanzu',
-  'yaozu'
-]
 
 const kCultivationRankMax = 5
 
@@ -69,16 +61,16 @@ function getRarity({ name }) {
     assert(kRarity.containsKey(name))
     return kRarity[name]
   } else {
-    final r = Random().nextDouble()
-    if (r < kRarity.common.rarity) {
+    final roll = random.nextDouble()
+    if (roll < kRarity.common.rarity) {
       return kRarity.common
-    } else if (r < kRarity.rare.rarity) {
+    } else if (roll < kRarity.rare.rarity) {
       return kRarity.rare
-    } else if (r < kRarity.epic.rarity) {
+    } else if (roll < kRarity.epic.rarity) {
       return kRarity.epic
-    } else if (r < kRarity.legendary.rarity) {
+    } else if (roll < kRarity.legendary.rarity) {
       return kRarity.legendary
-    } else if (r < kRarity.mythic.rarity) {
+    } else if (roll < kRarity.mythic.rarity) {
       return kRarity.mythic
     } else {
       return kRarity.arcane
@@ -90,7 +82,7 @@ function getRarity({ name }) {
 // function getMappedRarityValue(valueMap) {
 //   const r = getRarity()
 //   const v = valueMap[r.rarity]
-//   return (v is Iterable) ? v.random : v
+//   return (v is Iterable) ? random.nextIterable(v) : v
 // }
 
 // entityType决定了该对象的数据结构和保存位置
@@ -106,8 +98,7 @@ const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 function getRandomLevel(min, max) {
   if (min >= max) return max
-  final r = Random()
-  return  min + r .nextInt(max - min + 1)
+  return  min + random.nextInt(max - min + 1)
 }
 
 function getCultivationRankName(character) {
@@ -143,3 +134,30 @@ function tryChangeStats(entity, statName, change, { overflow = false }) {
 }
 
 const kThresholdOfExtraAffix = 0.65
+
+const kEnemyEncounterRateBase = 0.05
+const kEnemyEncounterRateRankFactor = 0.2
+
+const kEnemyEncounterDialogCount = 5
+
+const kTerrainKindToBackground = {
+  'plain': 'battle/scene/plain',
+  'mountain': 'battle/scene/mountain',
+  'forest': 'battle/scene/forest',
+  'snow_plain': 'battle/scene/plain',
+  'snow_mountain': 'battle/scene/mountain',
+  'snow_forest': 'battle/scene/forest',
+  'shore': 'battle/scene/beach',
+  'shelf': 'battle/scene/beach',
+  'sea': 'battle/scene/boat',
+  'lake': 'battle/scene/boat',
+  'river': 'battle/scene/boat',
+}
+
+// 遭遇战失败后，材料损失的比例
+const kEncounterDefeatMaterialLostBase = 0.2
+const kEncounterDefeatMaterialLostPerRank = 0.1
+
+// 遭遇战失败后，装备丢失的概率
+const kEncounterDefeatEquipmentLostBase = 0.4
+const kEncounterDefeatEquipmentLostPerRank = 0.1

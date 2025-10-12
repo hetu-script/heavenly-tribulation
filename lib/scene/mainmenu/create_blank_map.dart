@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:hetu_script/utils/crc32b.dart';
+import 'package:samsara/samsara.dart';
 
 import '../../engine.dart';
 
@@ -218,9 +220,15 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                 padding: const EdgeInsets.all(10.0),
                 child: fluent.FilledButton(
                   onPressed: () {
+                    if (_idEditingController.text.isBlank) {
+                      dialog.pushDialog('hint_mustEnterId');
+                      dialog.execute();
+                      return;
+                    }
                     Navigator.of(context).pop({
                       'id': _idEditingController.text,
                       'method': 'blank',
+                      'seed': crcInt(_idEditingController.text),
                       'isMain': _isMainWorld,
                       'useCustomLogic': _useCustomLogic,
                       'saveName': _filaNameEditingController.text,

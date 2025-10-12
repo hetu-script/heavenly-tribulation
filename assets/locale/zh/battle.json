@@ -23,5 +23,11 @@
   "staggeringTurn": "踉跄！",
   "defensePersisted": "防御保持！",
 
-  "wooden_dummy": "木人"
+  "wooden_dummy": "木人",
+
+  "enemy_encounter_1": "道友，你身负的灵光过于耀眼，不如分我一些，免遭横祸如何？",
+  "enemy_encounter_2": "哼，区区蝼蚁，也敢身怀重宝招摇过市？正好拿来孝敬你家爷爷！",
+  "enemy_encounter_3": "道友，你命数已尽，今日合该陨落于此。",
+  "enemy_encounter_4": "要么死，要么把东西交出来，选一个吧。",
+  "enemy_encounter_5": "道友请留步！我看你印堂发黑，今日恐有血光之灾……而我，便是你的灾星。"
 }

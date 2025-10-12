@@ -60,10 +60,7 @@ Future<bool> _checkRented(dynamic location,
   bool success = engine.hetu.invoke(
     'exhaust',
     namespace: 'Player',
-    positionalArgs: [materialId],
-    namedArgs: {
-      'amount': rentCost,
-    },
+    positionalArgs: [materialId, rentCost],
   );
   if (success) {
     engine.play('coins-31879.mp3');
@@ -159,52 +156,6 @@ void _onInteractExpArray(
   engine.pushScene(Scenes.cultivation, arguments: {
     'location': location,
     'enableCultivate': true,
-    'onEnterScene': () async {
-      if (GameData.game['flags']['hintedCultivation'] != true) {
-        GameData.game['flags']['hintedCultivation'] = true;
-
-        dialog.pushDialog(
-          'hint_tutorial',
-          name: engine.locale('servant'),
-          icon: 'illustration/npc/servant_head.png',
-          image: 'illustration/npc/servant.png',
-        );
-        dialog.pushSelection('tutorial', [
-          'listenTutorial',
-          'forgetIt',
-        ]);
-        await dialog.execute();
-        final selected = dialog.checkSelected('tutorial');
-        if (selected == 'listenTutorial') {
-          dialog.pushDialog(
-            'hint_cultivation',
-            name: engine.locale('servant'),
-            icon: 'illustration/npc/servant_head.png',
-            image: 'illustration/npc/servant.png',
-          );
-          await dialog.execute();
-        }
-
-        // final item = engine.hetu.invoke('Materialpack', namedArgs: {
-        //   'kind': 'shard',
-        //   'amount': 5,
-        // });
-        // engine.hetu
-        //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
-
-        // dialog.pushDialog(
-        //   {
-        //     'name': engine.locale('servant'),
-        //     'icon': 'illustration/npc/servant_head.png',
-        //     'lines': engine.locale('hint_cultivation2').split('\n'),
-        //   },
-        //   imageId: 'illustration/npc/servant.png',
-        // );
-        // await dialog.execute();
-
-        // engine.context.read<NewItemsState>().update(items: [item]);
-      }
-    },
   });
 }
 
@@ -218,57 +169,13 @@ void _onInteractCardLibraryDesk({
   if (!isRented) return;
 
   engine.pushScene(Scenes.library, arguments: {
+    'location': location,
     'enableCardCraft': true,
-    'enableScrollCraft': organization?['techs']?['enableScrollCraft'] ?? false,
-    'onEnterScene': () async {
-      if (GameData.game['flags']['hintedCardLibrary'] != true) {
-        GameData.game['flags']['hintedCardLibrary'] = true;
-
-        dialog.pushDialog(
-          'hint_tutorial',
-          name: engine.locale('servant'),
-          icon: 'illustration/npc/servant_head.png',
-          image: 'illustration/npc/servant.png',
-        );
-        dialog.pushSelection('tutorial', [
-          'listenTutorial',
-          'forgetIt',
-        ]);
-        await dialog.execute();
-        final selected = dialog.checkSelected('tutorial');
-
-        if (selected == 'listenTutorial') {
-          dialog.pushDialog(
-            'hint_cardLibrary',
-            name: engine.locale('servant'),
-            icon: 'illustration/npc/servant_head.png',
-            image: 'illustration/npc/servant.png',
-          );
-          await dialog.execute();
-        }
-
-        // final item =
-        //     engine.hetu.invoke('Cardpack', namedArgs: {'isBasic': true});
-        // engine.hetu
-        //     .invoke('acquire', namespace: 'Player', positionalArgs: [item]);
-
-        // dialog.pushDialog(
-        //   {
-        //     'name': engine.locale('servant'),
-        //     'icon': 'illustration/npc/servant_head.png',
-        //     'lines': engine.locale('hint_cardLibrary2').split('\n'),
-        //   },
-        //   imageId: 'illustration/npc/servant.png',
-        // );
-        // await dialog.execute();
-
-        // engine.context.read<NewItemsState>().update(items: [item]);
-      }
-    },
+    'enableScrollCraft': true,
   });
 }
 
-void _onAfterEnterLocation(dynamic location) async {
+Future<void> _onAfterEnterLocation(dynamic location) async {
   await engine.hetu.invoke('onGameEvent',
       positionalArgs: ['onAfterEnterLocation', location]);
 
@@ -288,7 +195,7 @@ void _onAfterEnterLocation(dynamic location) async {
   final heroOrganizationId = GameData.hero['organizationId'];
   if (heroOrganizationId != null) {
     final organization = GameData.getOrganization(heroOrganizationId);
-    final memberData = organization['members'][GameData.hero['id']];
+    final memberData = organization['membersData'][GameData.hero['id']];
     assert(memberData != null,
         'Member data not found in organization [${organization['id']}], member id: ${GameData.hero['id']}');
 
@@ -319,9 +226,12 @@ void _onAfterEnterLocation(dynamic location) async {
             'rank': GameData.hero['rank'],
           },
         ];
-        final items = engine.hetu
+        final items = await engine.hetu
             .invoke('loot', namespace: 'Player', positionalArgs: [itemsInfo]);
         GameLogic.promptItems(items);
+        engine.hetu.invoke('progressJournalById',
+            namespace: 'Player', positionalArgs: ['organizationInitiation']);
+        GameLogic.promptJournal(organizationInitiationQuest);
 
         engine.hetu.invoke('progressJournalById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);

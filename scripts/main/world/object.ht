@@ -144,10 +144,10 @@ struct ObjectMerchant {
     )
 
     if (money > 0) {
-      entityCollect(this.merchant, 'money', amount: money)
+      entityCollect(this.merchant, 'money', money)
     }
     if (shard > 0) {
-      entityCollect(this.merchant, 'shard', amount: shard)
+      entityCollect(this.merchant, 'shard', shard)
     }
 
     if (category is! List) {
@@ -155,9 +155,9 @@ struct ObjectMerchant {
     }
 
     for (var i in range(itemCount)) {
-      final c = category.random
-      if(c in Constants.equipmentCategoryKinds) {
-        final k = Constants.equipmentCategoryKinds[c].random
+      final c = random.nextIterable(category)
+      if(Constants.equipmentCategoryKinds.containsKey(c)) {
+        final k = random.nextIterable(Constants.equipmentCategoryKinds[c])
         final item = Equipment(kind: k, rank: rank)
         entityAcquire(this.merchant, item)
       } else if (c == kItemCategoryCardpack) {
@@ -207,7 +207,7 @@ struct ObjectEnemy {
     generateDeck(enemy, maxOutLevel: isElite)
 
     setCharacterWorldPosition(enemy, tilePosition.left, tilePosition.top, worldId: world.id)
-    World.setCharacterToPosition(enemy, tilePosition.left, tilePosition.top, direction: 'south')
+    World.setCharacterToWorldPosition(enemy, tilePosition.left, tilePosition.top, direction: 'south')
 
     world.objects[this.id] = this
   }

@@ -32,7 +32,10 @@ class MainMenuScene extends Scene {
     if (arguments['reset'] == true) {
       // 创建一个空游戏存档并初始化一些数据，这主要是为了在主菜单快速测试和debug相关功能，并不会保存
       // 真正开始游戏后还会再执行一遍，
-      await GameData.createGame('debug', seedString: DateTime.now().toString());
+      await GameData.createGame(
+        'debug',
+        seed: DateTime.now().millisecondsSinceEpoch,
+      );
       // GameData.isGameCreated = false;
       await engine.hetu.invoke(
         'generateHero',

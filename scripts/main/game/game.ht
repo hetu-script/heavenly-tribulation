@@ -10,9 +10,11 @@ namespace Game {
 
   external function switchScene(sceneId, {arguments, restart = false})
 
-  external function pushWorld(worldId, {clearCache: bool = false})
-
   external function popScene({clearCache: bool = false})
+
+  external function popSceneTill(sceneId, {clearCache: bool = false})
+
+  external function pushWorld(worldId, {clearCache: bool = false})
   
   external function updateGame({
     tick = 1,
@@ -32,7 +34,11 @@ namespace Game {
     pushScene = true,
   })
 
+  external function onDying()
+
   external function characterAllocateSkills(character, {rejuvenate = false} )
+
+  external function updateNpcs(npcs)
 
   external function hideNpc(id)
 
@@ -48,16 +54,16 @@ namespace Game {
 
   external async function selectOrganization([ids])
 
-  external function showHeroInfo([value: bool = true])
-
-  external function showTimeflow(max)
-
-  external function showItemSelect({
+  external function selectItem({
     character,
     title,
     filter,
-    multiSelect: bool = true,
+    multiSelect: bool = false,
   }) -> Iterable
+
+  external function showHeroInfo([value: bool = true])
+
+  external function showTimeflow(max)
   
   external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
   

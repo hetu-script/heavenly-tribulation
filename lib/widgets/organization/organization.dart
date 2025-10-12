@@ -9,7 +9,6 @@ import '../../game/ui.dart';
 import '../common.dart';
 import 'edit_organization_basic.dart';
 import '../../game/data.dart';
-import '../../game/logic/logic.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
@@ -56,27 +55,21 @@ class _OrganizationViewState extends State<OrganizationView> {
     final headId = _organization['headId'];
     _head = GameData.getCharacter(headId);
 
-    final Iterable memberIds = (_organization['members'].values as Iterable)
-        .map((member) => member['id']);
-    final Iterable members =
-        (GameData.game['characters'].values as Iterable).where(
-      (char) => memberIds.contains(char['id']),
-    );
+    final Iterable members = (_organization['membersData'].values as Iterable)
+        .map((member) => member['id'])
+        .map((id) => GameData.getCharacter(id));
 
     for (final character in members) {
-      final row = GameLogic.getCharacterInformationRow(character);
+      final row = GameData.getCharacterInformationRow(character);
       _charactersTable.add(row);
     }
 
-    final List locationIds = _organization['locationIds'];
-    final Iterable locations =
-        (GameData.game['locations'].values as Iterable).where(
-      (loc) => locationIds.contains(loc['id']),
-    );
+    final Iterable locations = (_organization['locationIds'] as Iterable)
+        .map((id) => GameData.getLocation(id));
 
     for (final location in locations) {
       if (location['category'] != 'city') continue;
-      final row = GameLogic.getCityInformationRow(location);
+      final row = GameData.getCityInformationRow(location);
       _locationsTable.add(row);
     }
 
@@ -122,9 +115,11 @@ class _OrganizationViewState extends State<OrganizationView> {
                     Text(
                         '${engine.locale('ideology')}: ${engine.locale(_organization['category'])}'),
                     Text(
-                        '${engine.locale('territorySize')}: ${_organization['territoryIndexes'].length}'),
+                        '${engine.locale('locationNumber')}: ${_organization['locationIds'].length}'),
                     Text(
-                        '${engine.locale('recruitMonth')}: ${_organization['recruitMonth']}'),
+                        '${engine.locale('memberNumber')}: ${_organization['membersData'].length}'),
+                    Text(
+                        '${engine.locale('recruitMonth')}: ${_organization['recruitMonth']}${engine.locale('dateMonth')}'),
                     const Spacer(),
                     if (widget.mode == InformationViewMode.edit)
                       Padding(

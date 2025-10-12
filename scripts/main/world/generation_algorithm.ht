@@ -1,7 +1,7 @@
 import 'tile/common.ht'
 import 'zone.ht'
 
-const _kMinZoneSizeOfSea = 8
+const _kMinZoneSizeOfSea = 16
 const _kMinZoneSizeOfIsland = 8
 
 const kMapStyles = ['islands', 'coast', 'inland']
@@ -51,6 +51,11 @@ function generateContinent2(world, {seed, style}) {
       )
     }
   }
+  world.landIndexes = []
+  world.waterIndexes = []
+  world.mountainIndexes = []
+  world.seaIndexes = []
+  world.fisheryIndexes = []
   for (const y in range(world.height)) {
     for (const x in range(world.width)) {
       // 地图边缘留空
@@ -60,10 +65,10 @@ function generateContinent2(world, {seed, style}) {
       const index = tilePos2Index(x + 1, y + 1, world.width)
       const tile = world.terrains[index]
       if (normalize > threshold) {
-        // 海洋
+        // 海洋（包括大陆架）
         world.waterIndexes.add(index)
       } else if (normalize > threshold2) {
-        // 陆地
+        // 陆地（包括森林）
         tile.spriteIndex = kSpriteLand
         world.landIndexes.add(index)
       } else {
@@ -71,7 +76,7 @@ function generateContinent2(world, {seed, style}) {
         tile.spriteIndex = kSpriteLand
         tile.kind = 'mountain'
         tile.sprite = 'object/mountain.png'
-        world.landIndexes.add(index)
+        world.mountainIndexes.add(index)
       }
     }
   }
@@ -100,8 +105,11 @@ function nameZones(world) {
         terrain.isWater = true
         if (zone.category == kZoneCategoryLake) {
           terrain.kind = 'lake'
-          // TODO: lake类型单独的贴图
-          terrain.sprite = 'object/river.png'
+          terrain.sprite = 'object/lake.png'
+        } else {
+          if (terrain.kind != 'shelf') {
+            terrain.kind = 'sea'
+          }
         }
       }
     } else if (zone.category == kZoneLand) {
@@ -118,6 +126,7 @@ function nameZones(world) {
       //   // TODO: 道路类型单独的贴图
       // }
     }
+    // TODO: 河流类型单独的贴图
     // else if (zone.category == kZoneRiver) {
     //   zone.category = kZoneCategoryRiver
     //   for (const terrainIndex in zone.terrainIndexes) {

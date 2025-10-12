@@ -1,0 +1,46 @@
+{
+  // 任务数据
+  // 这里的数据包含了任务和政策的对应关系
+  // 政策分为：发展 growth , 巩固 consolidation 和 expansion 三种。每种政策对应于不同的任务种类。发展可以接取任意任务，巩固只能接取防御任务，扩张只能接取攻击任务。如果任务本身 policy 为 null, 则可以被任何政策接取。
+
+  deliver_material: {
+    id: "deliver_material",
+    policy: null,
+    script: "deliver_material",
+  },
+  deliver_item: {
+    id: "deliver_item",
+    policy: null,
+    script: "deliver_item",
+  },
+  escort: {
+    id: "escort",
+    policy: null,
+    script: "escort",
+  },
+  // guard_site: {
+  //   id: "guard_site",
+  //   policy: null,
+  //   script: "guard_site",
+  // },
+  purchase_material: {
+    id: "purchase_material",
+    policy: "consolidation",
+    script: "purchase_material",
+  },
+  purchase_item: {
+    id: "purchase_item",
+    policy: "consolidation",
+    script: "purchase_item",
+  },
+  discover_location: {
+    id: "discover_location",
+    policy: "consolidation",
+    script: "discover_location",
+  },
+  // gather_information: {
+  //   id: "gather_information",
+  //   policy: "consolidation",
+  //   script: "gather_information",
+  // },
+}

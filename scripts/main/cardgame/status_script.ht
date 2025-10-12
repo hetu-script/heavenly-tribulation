@@ -5,8 +5,9 @@ import 'common.ht'
 /// 每张状态都对应一个脚本
 /// 这个脚本将会根据该状态在例如回合开始时等时机触发
 /// 状态脚本必须是非阻塞，不能是async
-/// 所有的卡牌词条脚本按照约定都以 `status_script_${effectId}_${callbackId}` 的形式命名
 /// 函数的类型固定为：function (self, opponent, effect, details)
+/// 战斗角色对象上的 turnFlags 保存了此角色此回合的卡牌的一些参数
+/// details 则是此次脚本事件本身的参数（如果有的话）
 
 /// 触发时机包括：
 /// 对方/自己回合开始时 opponent/self_turn_start
@@ -80,327 +81,324 @@ import 'common.ht'
 
 /// 对方/自己再次行动时 opponent/self
 
-const kDefaultThreshold = 10
-
-/// 战斗角色对象上的 turnFlags 保存了此角色此回合的卡牌的一些参数
-/// details 则是此次脚本事件本身的参数（如果有的话）
-
-function status_script_speed_quick_self_turn_end(self, opponent, effect, details) {
-  final existed = self.hasStatusEffect('speed_quick')
-  final threshold = self.data.stats.quickThreshold ?? kDefaultThreshold
-  if (existed >= threshold) {
-    self.removeStatusEffect('speed_quick', amount: threshold)
-    self.turnFlags.extraTurn = true
+struct StatusScript {
+  function speed_quick_self_turn_end(self, opponent, effect, details) {
+    final existed = self.hasStatusEffect('speed_quick')
+    final threshold = self.data.stats.quickThreshold
+    if (existed >= threshold) {
+      self.removeStatusEffect('speed_quick', amount: threshold)
+      self.turnFlags.extraTurn = true
+    }
   }
-}
 
-function status_script_speed_slow_self_turn_start(self, opponent, effect, details) {
-  final existed = self.hasStatusEffect('speed_slow')
-  final threshold = self.data.stats.slowThreshold ?? kDefaultThreshold
-  if (existed >= threshold) {
-    self.removeStatusEffect('speed_slow', amount: threshold)
-    self.turnFlags.skipTurn = true
+  function speed_slow_self_turn_start(self, opponent, effect, details) {
+    final existed = self.hasStatusEffect('speed_slow')
+    final threshold = self.data.stats.slowThreshold
+    if (existed >= threshold) {
+      self.removeStatusEffect('speed_slow', amount: threshold)
+      self.turnFlags.skipTurn = true
+    }
   }
-}
 
-function status_script_dodge_nimble_self_turn_end(self, opponent, effect, details) {
-  final existed = self.hasStatusEffect('dodge_nimble')
-  final threshold = self.data.stats.nimbleThreshold ?? kDefaultThreshold
-  if (existed >= threshold) {
-    self.removeStatusEffect('dodge_nimble', amount: threshold)
-    self.turnFlags.immuneDamage = true
-    self.addStatusEffect('dodge_invincible')
+  function dodge_nimble_self_turn_end(self, opponent, effect, details) {
+    final existed = self.hasStatusEffect('dodge_nimble')
+    final threshold = self.data.stats.nimbleThreshold
+    if (existed >= threshold) {
+      self.removeStatusEffect('dodge_nimble', amount: threshold)
+      self.turnFlags.immuneDamage = true
+      self.addStatusEffect('dodge_invincible')
+    }
   }
-}
 
-function status_script_dodge_clumsy_self_turn_end(self, opponent, effect, details) {
-  final existed = self.hasStatusEffect('dodge_clumsy')
-  final threshold = self.data.stats.clumsyThreshold ?? kDefaultThreshold
-  if (existed >= threshold) {
-    self.removeStatusEffect('dodge_clumsy', amount: threshold)
-    self.turnFlags.staggeringTurn = true
-    self.addStatusEffect('dodge_staggering')
+  function dodge_clumsy_self_turn_end(self, opponent, effect, details) {
+    final existed = self.hasStatusEffect('dodge_clumsy')
+    final threshold = self.data.stats.clumsyThreshold
+    if (existed >= threshold) {
+      self.removeStatusEffect('dodge_clumsy', amount: threshold)
+      self.turnFlags.staggeringTurn = true
+      self.addStatusEffect('dodge_staggering')
+    }
   }
-}
 
-function status_script_dodge_invincible_opponent_turn_end(self, opponent, effect, details) {
-  self.removeStatusEffect('dodge_invincible')
-}
-
-function status_script_dodge_invincible_self_taking_damage(self, opponent, effect, details) {
-  details.percentageChange2 += -0.75
-}
-
-function status_script_dodge_staggering_opponent_turn_end(self, opponent, effect, details) {
-  self.removeStatusEffect('dodge_staggering')
-}
-
-function status_script_dodge_staggering_self_taking_damage(self, opponent, effect, details) {
-  details.percentageChange2 += 0.75
-}
-
-function status_script_enhance_self_doing_damage(self, opponent, effect, details) {
-  if (effect.attackType != details.attackType) return
-  
-  let percentage = 0.01 * effect.amount
-  details.percentageChange1 += percentage
-}
-
-function status_script_weaken_self_doing_damage(self, opponent, effect, details) {
-  if (effect.attackType != details.attackType) return
-  
-  let percentage = -0.01 * effect.amount
-  details.percentageChange1 += percentage
-}
-
-function status_script_penetration_self_doing_damage(self, opponent, effect, details) {
-  if (effect.attackType != details.attackType) return
-  
-  details.penetration += effect.amount
-}
-
-function status_script_increase_damage_self_doing_damage(self, opponent, effect, details) {
-  if (effect.kind != details.kind) return
-  
-  let percentage = 0.01 * effect.amount
-  details.percentageChange1 += percentage
-}
-
-function status_script_resistant_self_taking_damage(self, opponent, effect, details) {
-  if (effect.damageType != details.damageType) return
-  
-  let percentage = -0.01 * effect.amount
-  details.percentageChange1 += percentage
-}
-
-function status_script_weakness_self_taking_damage(self, opponent, effect, details) {
-  if (effect.damageType != details.damageType) return
-  
-  let percentage = 0.01 * effect.amount
-  details.percentageChange1 += percentage
-}
-
-function status_script_defense_self_turn_start(self, opponent, effect, details) {
-  let persistent = self.hasStatusEffect('persistent_${effect.damageType}')
-  if (persistent > 0) {
-    self.turnFlags.defensePersisted = true
+  function dodge_invincible_opponent_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect('dodge_invincible')
   }
-  let reserved = 0.5 + persistent * 0.01
-  let percentage = 1 - reserved
-  self.removeStatusEffect('defense_${effect.damageType}', percentage: percentage)
-}
 
-function status_script_defense_self_taking_damage(self, opponent, effect, details) {
-  if (effect.damageType != details.damageType) return
-  
-  let penetration = details.penetration.clamp(0, 1)
-  final toBeBlocked = details.baseValue * (1 - penetration)
-  let blocked = self.removeStatusEffect('defense_${details.damageType}', amount: toBeBlocked)
-  if (blocked > 0) {
-    details.blocked = true
+  function dodge_invincible_self_taking_damage(self, opponent, effect, details) {
+    details.percentageChange2 += -0.75
   }
-  details.baseChange -= blocked
-}
 
-function status_script_vulnerable_self_turn_start(self, opponent, effect, details) {
-  self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
-}
+  function dodge_staggering_opponent_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect('dodge_staggering')
+  }
 
-function status_script_vulnerable_self_taking_damage(self, opponent, effect, details) {
-  if (effect.damageType != details.damageType) return
-  
-  let added = self.removeStatusEffect('vulnerable_${details.damageType}', amount: details.baseValue)
-  details.baseChange += added
-}
+  function dodge_staggering_self_taking_damage(self, opponent, effect, details) {
+    details.percentageChange2 += 0.75
+  }
 
-function status_script_shield_self_taking_damage(self, opponent, effect, details) {
-  if (effect.damageType != details.damageType) return
-  
-  if (!details.cancelDamage) {
-    details.cancelDamage = true
+  function enhance_self_doing_damage(self, opponent, effect, details) {
+    if (effect.attackType != details.attackType) return
+    
+    let percentage = 0.01 * effect.amount
+    details.percentageChange1 += percentage
+  }
+
+  function weaken_self_doing_damage(self, opponent, effect, details) {
+    if (effect.attackType != details.attackType) return
+    
+    let percentage = -0.01 * effect.amount
+    details.percentageChange1 += percentage
+  }
+
+  function penetration_self_doing_damage(self, opponent, effect, details) {
+    if (effect.attackType != details.attackType) return
+    
+    details.penetration += effect.amount
+  }
+
+  function increase_damage_self_doing_damage(self, opponent, effect, details) {
+    if (effect.kind != details.kind) return
+    
+    let percentage = 0.01 * effect.amount
+    details.percentageChange1 += percentage
+  }
+
+  function resistant_self_taking_damage(self, opponent, effect, details) {
+    if (effect.damageType != details.damageType) return
+    
+    let percentage = -0.01 * effect.amount
+    details.percentageChange1 += percentage
+  }
+
+  function weakness_self_taking_damage(self, opponent, effect, details) {
+    if (effect.damageType != details.damageType) return
+    
+    let percentage = 0.01 * effect.amount
+    details.percentageChange1 += percentage
+  }
+
+  function defense_self_turn_start(self, opponent, effect, details) {
+    let persistent = self.hasStatusEffect('persistent_${effect.damageType}')
+    if (persistent > 0) {
+      self.turnFlags.defensePersisted = true
+    }
+    let reserved = 0.5 + persistent * 0.01
+    let percentage = 1 - reserved
+    self.removeStatusEffect('defense_${effect.damageType}', percentage: percentage)
+  }
+
+  function defense_self_taking_damage(self, opponent, effect, details) {
+    if (effect.damageType != details.damageType) return
+    
+    let penetration = details.penetration.clamp(0, 1)
+    final toBeBlocked = details.baseValue * (1 - penetration)
+    let blocked = self.removeStatusEffect('defense_${details.damageType}', amount: toBeBlocked)
+    if (blocked > 0) {
+      details.blocked = true
+    }
+    details.baseChange -= blocked
+  }
+
+  function vulnerable_self_turn_start(self, opponent, effect, details) {
+    self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
+  }
+
+  function vulnerable_self_taking_damage(self, opponent, effect, details) {
+    if (effect.damageType != details.damageType) return
+    
+    let added = self.removeStatusEffect('vulnerable_${details.damageType}', amount: details.baseValue)
+    details.baseChange += added
+  }
+
+  function shield_self_taking_damage(self, opponent, effect, details) {
+    if (effect.damageType != details.damageType) return
+    
+    if (!details.cancelDamage) {
+      details.cancelDamage = true
+      self.removeStatusEffect(effect.id, amount: 1)
+    }
+  }
+
+  function ward_self_gaining_debuff(self, opponent, effect, details) {
+    if (!details.cancelDebuff) {
+      details.cancelDebuff = true
+      self.removeStatusEffect(effect.id, amount: 1)
+    }
+  }
+
+  function ward_self_turn_end(self, opponent, effect, details) {
     self.removeStatusEffect(effect.id, amount: 1)
   }
-}
 
-function status_script_ward_self_gaining_debuff(self, opponent, effect, details) {
-  if (!details.cancelDebuff) {
-    details.cancelDebuff = true
+  function injury_external_self_attacking(self, opponent, effect, details) {
+    self.changeLife(-effect.amount)
+  }
+
+  function injury_external_self_heal(self, opponent, effect, details) {
     self.removeStatusEffect(effect.id, amount: 1)
   }
-}
 
-function status_script_ward_self_turn_end(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_injury_external_self_attacking(self, opponent, effect, details) {
-  self.changeLife(-effect.amount)
-}
-
-function status_script_injury_external_self_heal(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_injury_internal_self_buffing(self, opponent, effect, details) {
-  self.changeLife(-effect.amount)
-}
-
-function status_script_injury_internal_self_gain_energy_positive(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_injury_poison_self_turn_start(self, opponent, effect, details) {
-  self.changeLife(-effect.amount)
-}
-
-function status_script_injury_hallucination_self_turn_start(self, opponent, effect, details) {
-  final isSlow = Random().nextBool()
-  if (isSlow) {
-    opponent.addStatusEffect('speed_slow', amount: 1)
-  } else {
-    opponent.addStatusEffect('dodge_clumsy', amount: 1)
+  function injury_internal_self_buffing(self, opponent, effect, details) {
+    self.changeLife(-effect.amount)
   }
-}
 
-function status_script_enable_chakra_self_turn_end(self, opponent, effect, details) {
-  final chakra = self.turnFlags.damage.total ~/ 10
-  if (chakra > 0) {
-    self.addStatusEffect('energy_positive_weapon', amount: chakra)
-  }
-}
-
-function status_script_enable_rage_opponent_turn_end(self, opponent, effect, details) {
-  final rage = opponent.turnFlags.damage.total ~/ 10
-  if (rage > 0) {
-    self.addStatusEffect('energy_positive_unarmed', amount: rage)
-  }
-}
-
-function status_script_energy_positive_life_self_turn_end(self, opponent, effect, details) {
-  if (self.life >= self.lifeMax) return
-
-  let regen = (self.lifeMax / 10).round()
-  self.changeLife(regen)
-
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_energy_positive_leech_self_turn_end(self, opponent, effect, details) {
-  if (self.turnFlags.damage.total <= 0) return
-
-  let gain = ((self.turnFlags.damage.total / 10) * effect.amount).round()
-  self.changeLife(gain)
-  
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_energy_positive_pure_self_attacking(self, opponent, effect, details) {
-  if (self.turnFlags.penetration >= 1) return
-
-  self.turnFlags.penetration += 0.1
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_energy_positive_spell_self_overflowed_energy(self, opponent, effect, details) {
-  if (self.hasStatusEffect('overflowed_mana_convert_to_vigor')) {
-    self.addStatusEffect('energy_positive_life', amount: details.overflow)
-  } else if (self.hasStatusEffect('overflowed_mana_keep_to_deck_end')) {
-    return true
-  }
-}
-
-function status_script_energy_positive_spell_self_deck_end(self, opponent, effect, details) {
-  final manaCount = self.hasStatusEffect('energy_positive_spell')
-  final manaMax = self.data.stats.manaMax
-  if (manaCount > manaMax) {
-    self.removeStatusEffect(effect.id, amount: manaCount - manaMax)
-  }
-}
-
-function status_script_energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
-
-  details.baseChange += effect.amount
-}
-
-function status_script_energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
-  details.baseChange += effect.amount
-}
-
-function status_script_energy_positive_weapon_self_overflowed_energy(self, opponent, effect, details) {
-  final debuff = kDebuffs.random
-
-  self.addStatusEffect(debuff, amount: details.overflow)
-
-  if (self.data.passives.overflowed_chakra_debuff_affect_opponent) {
-    opponent.addStatusEffect(debuff, amount: details.overflow)
-  }
-}
-
-function status_script_energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
-
-  details.baseChange += effect.amount
-}
-
-function status_script_energy_positive_unarmed_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
-
-  details.baseChange += effect.amount
-}
-
-function status_script_energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
-
-  details.baseChange += effect.amount
-}
-
-function status_script_energy_negative_life_self_turn_start(self, opponent, effect, details) {
-  let lost = -(self.lifeMax / 10).round()
-  self.changeLife(lost)
-
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_energy_negative_leech_self_turn_end(self, opponent, effect, details) {
-  if (self.turnFlags.damage.total <= 0) return
-
-  let lost = -((self.turnFlags.damage.total / 10) * effect.amount).round()
-  self.changeLife(lost)
-  
-  self.removeStatusEffect(effect.id, amount: 1)
-}
-
-function status_script_energy_negative_pure_self_turn_start(self, opponent, effect, details) {
-  if (self.turnFlags.skipTurn) return
-
-  final r = Random().nextDouble()
-  if (r < 0.1) {
-    self.turnFlags.skipTurn = true
+  function injury_internal_self_gain_energy_positive(self, opponent, effect, details) {
     self.removeStatusEffect(effect.id, amount: 1)
   }
-}
 
-function status_script_energy_negative_spell_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
+  function injury_poison_self_turn_start(self, opponent, effect, details) {
+    self.changeLife(-effect.amount)
+  }
 
-  details.baseChange -= effect.amount
-}
+  function injury_hallucination_self_turn_start(self, opponent, effect, details) {
+    final isSlow = random.nextBool()
+    if (isSlow) {
+      opponent.addStatusEffect('speed_slow', amount: 1)
+    } else {
+      opponent.addStatusEffect('dodge_clumsy', amount: 1)
+    }
+  }
 
-function status_script_energy_negative_weapon_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
+  function enable_chakra_self_turn_end(self, opponent, effect, details) {
+    final chakra = self.turnFlags.damage.total ~/ 10
+    if (chakra > 0) {
+      self.addStatusEffect('energy_positive_weapon', amount: chakra)
+    }
+  }
 
-  details.baseChange -= effect.amount
-}
+  function enable_rage_opponent_turn_end(self, opponent, effect, details) {
+    final rage = opponent.turnFlags.damage.total ~/ 10
+    if (rage > 0) {
+      self.addStatusEffect('energy_positive_unarmed', amount: rage)
+    }
+  }
 
-function status_script_energy_negative_unarmed_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
+  function energy_positive_life_self_turn_end(self, opponent, effect, details) {
+    if (self.life >= self.lifeMax) return
 
-  details.baseChange -= effect.amount
-}
+    let regen = (self.lifeMax / 10).round()
+    self.changeLife(regen)
 
-function status_script_energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
-  if (details.attackType != effect.attackType) return
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
 
-  details.baseChange -= effect.amount
+  function energy_positive_leech_self_turn_end(self, opponent, effect, details) {
+    if (self.turnFlags.damage.total <= 0) return
+
+    let gain = ((self.turnFlags.damage.total / 10) * effect.amount).round()
+    self.changeLife(gain)
+    
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  function energy_positive_pure_self_attacking(self, opponent, effect, details) {
+    if (self.turnFlags.penetration >= 1) return
+
+    self.turnFlags.penetration += 0.1
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  function energy_positive_spell_self_overflowed_energy(self, opponent, effect, details) {
+    if (self.hasStatusEffect('overflowed_mana_convert_to_vigor')) {
+      self.addStatusEffect('energy_positive_life', amount: details.overflow)
+    } else if (self.hasStatusEffect('overflowed_mana_keep_to_deck_end')) {
+      return true
+    }
+  }
+
+  function energy_positive_spell_self_deck_end(self, opponent, effect, details) {
+    final manaCount = self.hasStatusEffect('energy_positive_spell')
+    final manaMax = self.data.stats.manaMax
+    if (manaCount > manaMax) {
+      self.removeStatusEffect(effect.id, amount: manaCount - manaMax)
+    }
+  }
+
+  function energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange += effect.amount
+  }
+
+  function energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
+    details.baseChange += effect.amount
+  }
+
+  function energy_positive_weapon_self_overflowed_energy(self, opponent, effect, details) {
+    final debuff = random.nextIterable(kDebuffs)
+
+    self.addStatusEffect(debuff, amount: details.overflow)
+
+    if (self.data.passives.overflowed_chakra_debuff_affect_opponent) {
+      opponent.addStatusEffect(debuff, amount: details.overflow)
+    }
+  }
+
+  function energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange += effect.amount
+  }
+
+  function energy_positive_unarmed_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange += effect.amount
+  }
+
+  function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange += effect.amount
+  }
+
+  function energy_negative_life_self_turn_start(self, opponent, effect, details) {
+    let lost = -(self.lifeMax / 10).round()
+    self.changeLife(lost)
+
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  function energy_negative_leech_self_turn_end(self, opponent, effect, details) {
+    if (self.turnFlags.damage.total <= 0) return
+
+    let lost = -((self.turnFlags.damage.total / 10) * effect.amount).round()
+    self.changeLife(lost)
+    
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  function energy_negative_pure_self_turn_start(self, opponent, effect, details) {
+    if (self.turnFlags.skipTurn) return
+
+    final roll = random.nextDouble()
+    if (roll < 0.1) {
+      self.turnFlags.skipTurn = true
+      self.removeStatusEffect(effect.id, amount: 1)
+    }
+  }
+
+  function energy_negative_spell_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange -= effect.amount
+  }
+
+  function energy_negative_weapon_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange -= effect.amount
+  }
+
+  function energy_negative_unarmed_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange -= effect.amount
+  }
+
+  function energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
+    if (details.attackType != effect.attackType) return
+
+    details.baseChange -= effect.amount
+  }
 }

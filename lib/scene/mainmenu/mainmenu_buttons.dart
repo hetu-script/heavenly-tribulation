@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:samsara/console.dart';
+import 'package:samsara/extensions.dart';
 
 import '../../game/ui.dart';
 import '../../game/logic/logic.dart';
@@ -17,7 +18,8 @@ import '../../state/states.dart';
 import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../widgets/character/details.dart';
-// import '../../game/common.dart';
+import '../../game/common.dart';
+import '../../widgets/ui/close_button2.dart';
 
 enum DebugMenuItems {
   debugConsole,
@@ -146,6 +148,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.FilledButton(
                         onPressed: () async {
+                          engine.setLoading(true,
+                              tip: engine.locale(kTips.random));
+                          await Future.delayed(
+                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
                           engine.hetu.invoke('resetDungeon', namedArgs: {
@@ -177,23 +183,24 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                                 const CreateSandboxGameDialog(),
                           );
                           if (args == null) return;
-                          engine.setLoading(true);
+                          engine.setLoading(true,
+                              tip: engine.locale(kTips.random));
+                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          await Future.delayed(
+                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
-                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
-                          Future.delayed(const Duration(milliseconds: 250),
-                              () async {
-                            await GameData.createGame(
-                              args['saveName'],
-                              seedString: args['seedString'],
-                              enableTutorial: args['enableTutorial'],
-                            );
-                            engine.pushScene(
-                              args['id'],
-                              constructorId: Scenes.worldmap,
-                              arguments: args,
-                            );
-                          });
+                          await GameData.createGame(
+                            args['saveName'],
+                            seed: args['seed'],
+                            mainWorldId: args['id'],
+                            enableTutorial: args['enableTutorial'],
+                          );
+                          engine.pushScene(
+                            args['id'],
+                            constructorId: Scenes.worldmap,
+                            arguments: args,
+                          );
                         },
                         child: Label(
                           engine.locale('sandboxMode'),
@@ -210,6 +217,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         //   context
                         //       .read<HeroInfoVisibilityState>()
                         //       .setVisible(false);
+                        // // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                        // await Future.delayed(
+                        //     const Duration(milliseconds: 250));
                         //   setMenuState(MenuStates.main);
                         //   engine.clearAllCachedScene(except: Scenes.mainmenu);
 
@@ -240,6 +250,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
+                          engine.setLoading(true,
+                              tip: engine.locale(kTips.random));
+                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          await Future.delayed(
+                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
                           await GameData.loadGame(info.savePath);
@@ -288,23 +303,25 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             ),
                           );
                           if (args == null) return;
-                          engine.setLoading(true);
+                          engine.setLoading(true,
+                              tip: engine.locale(kTips.random));
+                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          await Future.delayed(
+                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
-                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
-                          Future.delayed(const Duration(milliseconds: 250),
-                              () async {
-                            await GameData.createGame(
-                              args['saveName'],
-                              seedString: args['seedString'],
-                              isEditorMode: true,
-                            );
-                            engine.pushScene(
-                              args['id'],
-                              constructorId: Scenes.worldmap,
-                              arguments: args,
-                            );
-                          });
+                          await GameData.createGame(
+                            args['saveName'],
+                            seed: args['seed'],
+                            mainWorldId:
+                                args['isMain'] == true ? args['id'] : null,
+                            isEditorMode: true,
+                          );
+                          engine.pushScene(
+                            args['id'],
+                            constructorId: Scenes.worldmap,
+                            arguments: args,
+                          );
                         },
                         child: Label(
                           engine.locale('createMap'),
@@ -322,6 +339,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
+                          engine.setLoading(true,
+                              tip: engine.locale(kTips.random));
+                          await Future.delayed(
+                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
                           await GameData.loadGame(
@@ -432,6 +453,7 @@ class _DebugButtonState extends State<DebugButton> {
                         engine: engine,
                         margin: const EdgeInsets.all(50.0),
                         backgroundColor: GameUI.backgroundColor2,
+                        closeButton: CloseButton2(),
                       ),
                     );
                   case DebugMenuItems.debugResetHero:
@@ -452,16 +474,11 @@ class _DebugButtonState extends State<DebugButton> {
                     });
                     engine.hetu.invoke('entityCollect', positionalArgs: [
                       merchant,
-                      'money'
-                    ], namedArgs: {
-                      'amount': 50000,
-                    });
-                    engine.hetu.invoke('entityCollect', positionalArgs: [
-                      merchant,
-                      'shard'
-                    ], namedArgs: {
-                      'amount': 500,
-                    });
+                      'money',
+                      50000,
+                    ]);
+                    engine.hetu.invoke('entityCollect',
+                        positionalArgs: [merchant, 'shard', 500]);
                     engine.hetu.invoke('testItem',
                         namespace: 'Debug', positionalArgs: [merchant]);
                     context.read<MerchantState>().show(
@@ -478,25 +495,13 @@ class _DebugButtonState extends State<DebugButton> {
                       'rank': 2,
                       'level': 10,
                     });
-                    engine.hetu.invoke('entityCollect', positionalArgs: [
-                      merchant,
-                      'money'
-                    ], namedArgs: {
-                      'amount': 50000,
-                    });
-                    engine.hetu.invoke('entityCollect', positionalArgs: [
-                      merchant,
-                      'shard'
-                    ], namedArgs: {
-                      'amount': 500,
-                    });
+                    engine.hetu.invoke('entityCollect',
+                        positionalArgs: [merchant, 'money', 50000]);
+                    engine.hetu.invoke('entityCollect',
+                        positionalArgs: [merchant, 'shard', 500]);
                     for (final materialId in kOtherMaterials) {
-                      engine.hetu.invoke('entityCollect', positionalArgs: [
-                        merchant,
-                        materialId,
-                      ], namedArgs: {
-                        'amount': 500,
-                      });
+                      engine.hetu.invoke('entityCollect',
+                          positionalArgs: [merchant, materialId, 500]);
                     }
                     context.read<MerchantState>().show(
                       merchant,
@@ -518,11 +523,8 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                     context.read<NpcListState>().update([companion]);
                   case DebugMenuItems.debugBattle:
-                    // final enemy = engine.hetu.invoke('Character', namedArgs: {
-                    //   'level': GameData.hero['level'],
-                    //   'rank': GameData.hero['rank'],
-                    // });
-                    final enemy = engine.hetu.invoke('Character', namedArgs: {
+                    final enemy =
+                        engine.hetu.invoke('BattleEntity', namedArgs: {
                       'name': 'wooden_dummy',
                       'isFemale': false,
                       'level': 10,

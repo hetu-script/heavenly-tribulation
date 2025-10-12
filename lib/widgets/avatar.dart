@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/rrect_icon.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:samsara/ui/mouse_region2.dart';
 
 import '../game/ui.dart';
 import '../game/data.dart';
@@ -33,6 +34,8 @@ class Avatar extends StatelessWidget {
     this.characterId,
     this.character,
     this.onPressed,
+    this.onEnter,
+    this.onExit,
   });
 
   final MouseCursor? cursor;
@@ -50,6 +53,8 @@ class Avatar extends StatelessWidget {
   final String? characterId;
   final dynamic character;
   final void Function(String? charId)? onPressed;
+  final void Function(Rect)? onEnter;
+  final void Function()? onExit;
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +193,9 @@ class Avatar extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => onPressed?.call(characterId ?? charData?['id']),
-      child: MouseRegion(
+      child: MouseRegion2(
+        onEnter: onEnter,
+        onExit: onExit,
         cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
         child: Container(
           margin: margin,

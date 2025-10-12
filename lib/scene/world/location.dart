@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/state/selected_tile.dart';
 import 'package:samsara/samsara.dart';
@@ -21,6 +23,9 @@ import '../../state/game_save.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/entity_listview.dart';
 import '../common.dart';
+import '../../state/hover_content.dart';
+import '../../state/view_panels.dart';
+import '../../widgets/ui/close_button2.dart';
 
 enum LocationDropMenuItems { save, saveAs, info, console, exit }
 
@@ -41,6 +46,8 @@ class LocationScene extends Scene {
   dynamic organization;
 
   late final PiledZone siteList;
+
+  FutureOr<void> Function()? onEnterScene;
 
   void openResidenceList() async {
     final List residingCharacterIds = location['residents'];
@@ -234,8 +241,9 @@ class LocationScene extends Scene {
 
     engine.hetu.assign('location', location);
 
-    final List npcs =
-        engine.hetu.invoke('getNpcsAtLocation', positionalArgs: [location]);
+    context.read<HoverContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+    final npcs = GameData.getNpcsAtLocation(location);
     context.read<NpcListState>().update(npcs);
     context.read<HeroPositionState>().updateTerrain(
           currentZoneData: null,
@@ -244,9 +252,15 @@ class LocationScene extends Scene {
         );
     context.read<HeroPositionState>().updateLocation(location);
 
-    engine.debug('玩家进入了 ${location['name']}');
+    onEnterScene = arguments['onEnterScene'];
+  }
 
-    GameLogic.onAfterEnterLocation(location);
+  @override
+  void onMount() async {
+    await onEnterScene?.call();
+
+    engine.debug('玩家进入了 ${location['name']}');
+    await GameLogic.onAfterEnterLocation(location);
   }
 
   @override
@@ -357,6 +371,7 @@ class LocationScene extends Scene {
                               engine: engine,
                               margin: const EdgeInsets.all(50.0),
                               backgroundColor: GameUI.backgroundColor2,
+                              closeButton: CloseButton2(),
                             ),
                           );
                         case LocationDropMenuItems.exit:

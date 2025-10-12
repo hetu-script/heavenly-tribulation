@@ -2,10 +2,7 @@
 // import 'data.ht'
 import '../util.ht'
 
-/// 加载到本次游戏的对话资源
-let gDialogs = {}
-
-namespace Dialog {
+namespace dialog {
 
   // 对应 GameDialogContent 的接口，这种对话框会以模态的形式显示在游戏界面上
 
@@ -103,7 +100,7 @@ namespace Dialog {
       } else if (data.selection) {
         pushSelection(data.selection)
       } else {
-        engine.error('Dialog.pushLines: unknown data type. ${data}')
+        engine.error('dialog.pushLines: unknown data type. ${data}')
       }
     }
   }

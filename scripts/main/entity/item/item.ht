@@ -1,14 +1,7 @@
-// import '../entity.ht'
-// import '../../game/data.ht'
-// import '../../random.ht'
-// import '../../incident.ht'
-// import '../../name/talisman.ht'
-// import 'material.ht'
 
 // category 的作用：
 // weapon, armor, helmet, boots, vehicle 每种只能装备一个，amulet 和 talisman 无限制
 // weapon 和 talisman 决定了战斗中可以使用的功法卡牌类型
-
 
 const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
@@ -17,19 +10,16 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
-const kItemCategoryStatusSpirit = 'status_spirit';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';
 
-const kItemExtraAffixMinLevel = 6
+const kItemExtraAffixMinLevel = 6;
 
-// kind 决定了物品名字的生成方式
-// weapon具体分为：sabre, sword, spear, staff, bow, dart, music
-// talisman具体分为：buff, ongoing, consume
-// 其他情况下 kind == type
+const kEquipmentMax = 6;
+const kEstimatePriceFactor = 0.8;
 
-const kEquipmentMax = 6
+const kUnknownItemBasePrice = 100;
 
 function calculatePrice(item) {
   item.price = (item.rank + 1) * (item.level + 1) *
@@ -39,11 +29,12 @@ function calculatePrice(item) {
 function estimatePrice(category, rank) {
   assert(category != null)
   rank ??= 0
-  final minLevel = minLevelForRank(rank)
-  final minExtra = getMinMaxExtraAffixCount(rank).minExtra
+  final maxLevel = maxLevelForRank(rank)
+  final maxExtra = getMinMaxExtraAffixCount(rank).minExtra
 
-  return (rank + 1) * (minLevel + 1) * (minExtra + 1) *
+  final price = (rank + 1) * (Constants.itemWithAffixCategories.contains(category) ? (maxLevel + 1) * (maxExtra + 1) : 1) *
     (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
+  return price
 }
 
 function convertMoneyToShard(money) {
@@ -53,7 +44,10 @@ function convertMoneyToShard(money) {
 
 const kTalismanEnergyTypes = [
   'start_battle_with_energy_positive_spell',
+  'start_deck_with_energy_positive_spell',
+  'start_turn_with_energy_positive_spell',
   'start_battle_with_energy_positive_weapon',
+  'start_deck_with_energy_positive_weapon',
   'start_battle_with_energy_positive_unarmed',
   'start_battle_with_energy_positive_ultimate',
 ]
@@ -106,15 +100,19 @@ struct Equipment {
           return Constants.equipmentCategoryKinds[key].contains(this.kind)
         })
       } else {
-        this.category = Constants.equipmentCategoryKinds.keys.random
-        this.kind = Constants.equipmentCategoryKinds[this.category].random
+        this.category = random.nextIterable(Constants.equipmentCategoryKinds.keys)
+        this.kind = random.nextIterable(Constants.equipmentCategoryKinds[this.category])
       }
     }
     assert(Constants.equipmentCategoryKinds.containsKey(this.category))
     if (this.kind == null) {
-      this.kind = Constants.equipmentCategoryKinds[this.category].random
+      this.kind = random.nextIterable(Constants.equipmentCategoryKinds[this.category])
     }
     assert(Constants.equipmentKinds.contains(this.kind))
+    // kind 决定了物品名字的生成方式
+    // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
+    // talisman具体分为：buff, ongoing, consume
+    // 其他情况下 kind == type
     this.name = name ?? generateTalismanName(kind: this.kind)
 
     if (rarity != null) {
@@ -151,19 +149,19 @@ struct Equipment {
       }
       'shield', 'armor', 'gloves', 'helmet': {
         // 护甲的固定词条获得元素或物理抗性
-        final resistType = kArmorResistPassives.random
+        final resistType = random.nextIterable(kArmorResistPassives)
         passiveRawData = game.passives[resistType]
         assert(passiveRawData != null, 'resistType: ${resistType}')
       }
       'jewelry': {
         // 饰品的固定词条是获得主属性
-        final attributeType = Constants.battleAttributes.random
+        final attributeType = random.nextIterable(Constants.battleAttributes)
         passiveRawData = game.passives[attributeType]
         assert(passiveRawData != null, 'attributeType: ${attributeType}')
       }
       else: {
         // 法器的固定词条是获得资源
-        final energytype = kTalismanEnergyTypes.random
+        final energytype = random.nextIterable(kTalismanEnergyTypes)
         passiveRawData = game.passives[energytype]
         assert(passiveRawData != null, 'energytype: ${energytype}')
       }
@@ -190,8 +188,7 @@ struct Equipment {
     let affixCount = affixCountInfo.minExtra
     if (affixCountInfo.maxExtra > 0) {
       if (affixCount < affixCountInfo.maxExtra) {
-        final r = Random()
-        affixCount += r.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
       }
     }
     if (affixCount > 0) {
@@ -208,7 +205,7 @@ struct Equipment {
           throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
         }
         
-        final affix = Object.create(supportAffixes.random)
+        final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()
@@ -271,7 +268,7 @@ struct StatusSpirit {
     this.affixes = []
     this.affixUniqueIds = Set()
 
-    final statusType = kStatusSpiritPassives.random
+    final statusType = random.nextIterable(kStatusSpiritPassives)
     final passiveRawData = game.passives[statusType]
     assert(passiveRawData != null, statusType)
     mainAffix = Object.create(passiveRawData)
@@ -285,7 +282,7 @@ struct StatusSpirit {
     }
     mainAffix.level = this.level
 
-    final isAfflicted = Random().nextBool()
+    final isAfflicted = random.nextBool()
     if (isAfflicted) {
       mainAffix.level = -mainAffix.level
     }
@@ -315,7 +312,7 @@ struct StatusSpirit {
         throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
       }
       
-      final affix = Object.create(supportAffixes.random)
+      final affix = Object.create(random.nextIterable(supportAffixes))
       if (affix.increment != null) {
         affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
         affix.value = (affix.increment * affix.level).round()
@@ -326,12 +323,10 @@ struct StatusSpirit {
   }
 }
 
-function createItemByPrototype(prototypeId, {amount, level, itemId}) {
-  amount ??= 1
-  assert(amount > 0)
+function createItemById(id, {amount, level, itemId}) {
   // TODO: 如果id不存在，则获得一个「未知物品」
-  final prototype = game.prototypes[prototypeId]
-  assert(prototype != null, 'prototypeId: ${prototypeId}')
+  final prototype = game.items[id]
+  assert(prototype != null, 'id: ${id}')
   let item = Object.create(prototype)
   // TODO: 根据稀有度和地图大小决定物品允许存在的数量
   // if (item.isUnique) {
@@ -342,9 +337,9 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   //     item.isCreated = true
   //   }
   // }
-  item.id = itemId ?? (item.isUnique ? crypto.randomUID(withTime: true) : item.prototypeId)
+  item.kind ??= item.id
+  item.id = itemId ?? (item.isUnstackable ? crypto.randomUID(withTime: true) : item.id)
   item.entityType = kEntityTypeItem
-  item.kind ??= item.prototypeId
   item.name = engine.locale(item.name)
   if (item.flavortext != null) {
     item.flavortext = engine.locale(item.flavortext)
@@ -362,7 +357,7 @@ function createItemByPrototype(prototypeId, {amount, level, itemId}) {
   }
   item.color ??= kRarity[item.rarity].color
   item.level ??= level
-  item.stackSize = amount
+  item.stackSize = amount ?? 1
   item.experienced = []
 
   // game.items[item.id] = item
@@ -443,7 +438,8 @@ function firstItemKindInInventory(entity, kind) {
 }
 
 /// 直接获得资源
-function entityCollect(entity, materialId: string, { amount = 1, incurIncident = true }) {
+function entityCollect(entity, materialId, amount, { incurIncident = true }) {
+  // engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
   if (amount <= 0) {
     engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
@@ -451,7 +447,7 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
   assert(Constants.materialKinds.contains(materialId))
   entity.materials[materialId] += amount
 
-  let incidentContent = engine.locale('characterAcquireMultiple', interpolations: [
+  let incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
     entity.name,
     amount,
     engine.locale(materialId == 'money' ? 'money2' : materialId),
@@ -465,19 +461,21 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
   } else {
     engine.debug(incidentContent)
   }
+
+  return
 }
 
 function entityCollectAll(entity, materials, { incurIncident = true }) {
   for (let materialId in materials.keys) {
     final amount = materials[materialId]
-    entityCollect(entity, materialId, amount: amount, incurIncident: incurIncident)
+    entityCollect(entity, materialId, amount, incurIncident: incurIncident)
   }
 }
 
-function entityAcquireByPrototype(entity, prototypeId, { amount = 1, incurIncident = true }) {
+function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
   assert(amount > 0)
 
-  final item = createItemByPrototype(prototypeId)
+  final item = createItemById(id)
 
   entity.inventory[item.id] = item
   item.ownerId = entity.id
@@ -485,7 +483,7 @@ function entityAcquireByPrototype(entity, prototypeId, { amount = 1, incurIncide
   item.stackSize = amount ?? 1
 
   let incidentContent
-  incidentContent = engine.locale('characterAcquire', interpolations: [
+  incidentContent = engine.locale('entityAcquire', interpolations: [
     entity.name,
     item.name,
   ])
@@ -504,18 +502,23 @@ function entityAcquireByPrototype(entity, prototypeId, { amount = 1, incurIncide
 }
 
 /// 消费资源，返回是否成功消费了指定的数量
-function entityExhaust(entity, materialId: string, { amount = 1 }) -> bool {
+function entityExhaust(entity, materialId: string, amount, { forceExhaust = false }) -> bool {
   assert(Constants.materialKinds.contains(materialId))
   if (amount <= 0) {
-    engine.warn('entity [${entity.id}] exhaust [${materialId}] by amount <=0')
+    engine.warn('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
     return true
   }
   let success = false
   final existed = entity.materials[materialId]
-  let rest = existed - amount
-  if (rest >= 0) {
+  if (existed >= amount) {
     success = true
-    entity.materials[materialId] = rest
+    entity.materials[materialId] = existed - amount
+    engine.warn('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+  } else if (forceExhaust) {
+    entity.materials[materialId] = existed - amount
+    engine.warn('[${entity.name}] 失去了 [${materialId} × ${existed}], 而且还欠 [${amount - existed}] 个。')
+  } else {
+    engine.warn('[${entity.name}] 只有 [${existed}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
   }
 
   return success
@@ -523,9 +526,13 @@ function entityExhaust(entity, materialId: string, { amount = 1 }) -> bool {
 
 /// 对象（人物、据点等）获得一个已经存在与世界上的物品
 function entityAcquire(entity, item, { incurIncident = true }) {
+  if (item.isUnique)
   assert(item.entityType == kEntityTypeItem, '${item.entityType}')
 
-  let amount = item.stackSize ?? 1
+  if (item.stackSize < 1) {
+    item.stackSize = 1
+  }
+  let amount = item.stackSize
   let acquiredItem
 
   if (entity.inventory.containsKey(item.id)) {
@@ -569,35 +576,58 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   return acquiredItem
 }
 
-/// 失去指定数量的某个物品，返回实际失去的数量
-function entityLose(entity, item, { amount = 1, incurIncident = true }) {
+/// 失去指定数量的某个物品，返回 bool 表示是否成功
+function entityLose(entity, item, { amount, incurIncident = true }) {
   assert(entity.inventory.containsKey(item.id))
-  final count = Math.min(amount, item.stackSize ?? 1)
-  assert(count > 0)
-  if (item.stackSize > amount) {
-    item.stackSize -= count
-    if (item.stackSize <= 0) {
+  let itemAmount = item.stackSize ?? 1
+  amount ??= itemAmount
+  assert(amount > 0, 'entityLose amount <= 0')
+  if (itemAmount >= amount) {
+    itemAmount -= amount
+    if (itemAmount <= 0) {
       delete entity.inventory[item.id]
+    } else {
+      item.stackSize = itemAmount
     }
-  } else if (item.stackSize <= amount) {
-    delete entity.inventory[item.id]
+    engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+    return true
+  } else {
+    engine.warn('[${entity.name}] 只有 [${item.stackSize}] 个 [${item.name}]，但需要支付 [${amount}] 个。')
+    return false
   }
-
-  return count
 }
 
-/// 失去指定数量的某个物品种类，返回实际失去的数量
+/// 失去指定数量的某个物品种类，返回 bool 表示是否成功
 function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
   assert(entity.inventory != null)
-  let rest = amount
+  final items = []
+  let count
   for (let item of entity.inventory) {
     if (item.kind == kind) {
-      final count = entityLose(entity, item, { amount: rest, incurIncident: incurIncident })
-      rest -= count
-      if (rest <= 0) break
+      items.add(item)
+      count += item.stackSize ?? 1
+      if (count >= amount) break
     }
   }
-  return amount - rest
+  if (count >= amount) {
+    for (final item in items) {
+      if (amount <= 0) break
+      let itemAmount = item.stackSize ?? 1
+      if (itemAmount > amount) {
+        item.stackSize -= amount
+        amount = 0
+        engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+      } else {
+        amount -= itemAmount
+        delete entity.inventory[item.id]
+        engine.warn('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
+      }
+    }
+    return true
+  } else {
+    engine.warn('对象 [${entity.id}] 只有 [${count}] 个 [${kind}] 物品，但需要支付 [${amount}] 个。')
+    return false
+  }
 }
 
 function characterAcquireBattleCard(character, card, { incurIncident = true }) {
@@ -636,7 +666,7 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///   },
 ///   {
 ///     type: 'prototype',
-///     prototypeId: 'exp_pack',
+///     id: 'exp_pack',
 ///   },
 ///   {
 ///     type: 'equipment',
@@ -665,7 +695,7 @@ function createLoot(itemsInfo: List) {
       'prototype': {
         assert(game.items.contains(itemInfo.kind))
         for (var i in range(amount)) {
-          final created = createItemByPrototype(itemInfo.prototypeId)
+          final created = createItemById(itemInfo.id)
           items.add(created)
         }
       }

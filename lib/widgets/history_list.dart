@@ -75,7 +75,7 @@ class HeroAndGlobalHistoryList extends StatefulWidget {
     this.onTapUp,
     this.onMouseEnter,
     this.onMouseExit,
-    this.limit = 2,
+    this.limit = 5,
     this.cursor = MouseCursor.defer,
   }) : super(key: GlobalKey());
 

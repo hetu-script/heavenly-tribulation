@@ -9,11 +9,51 @@
   "quest_discover_location": "探索",
 
   "quest_finished": "任务已完成。",
+  "quest_failed": "任务失败。",
+
+  "quest_unfinished": "关于之前拜托给您的任务「{0}」，到现在还没完成吗？我们可等不了太久啊，还请抓紧时间。",
+  "quest_late_failed": "关于之前拜托给您的任务「{0}」，已经超过了时限啊。这次委托只能算是失败了。\n真令人失望啊，我们下次可能就不会再找你帮忙了。",
+  "quest_purchase_late_failed": "关于之前拜托给您的任务「{0}」，已经超过了时限啊。这次委托只能算是失败了。之前给你的预算金我们也会扣除。",
 
   "quest_purchase_material_description": "购买 {0} 个{1}，然后返回{2}的{3}交付。",
   "quest_purchase_item_description": "购买{0}，然后返回{1}的{2}交付。",
   "quest_deliver_material_description": "将 {0} 个{1}送到{2}的{3}。",
   "quest_deliver_item_description": "将{0}送到{1}的{2}。",
   "quest_escort_description": "护送{0}到{1}的{2}。",
-  "quest_discover_location_description": "在{0}的领土内探索{1}。"
+  "quest_discover_location_description": "在 {0} 附近探索隐藏据点{1}。",
+
+  "quest_deliver_success": "你是来送货的吧，交给我就行了，多谢你一路辛苦。",
+  "quest_deliver_late_success": "你是来送货的吧，怎么这么久才来？无论如何，赶紧把物资给我吧。",
+
+  "quest_escort_greeting_acquaintance": "这么巧啊！\n居然是你来护送我！\n有你在，这趟路我就放心多了。我们出发吧！",
+  "quest_escort_greeting_superior": "嗯，你来了。\n此行路途遥远，还望你尽心尽力，不要懈怠。\n若咱们顺利抵达，宗门自有赏赐。",
+  "quest_escort_greeting_respectful": "原来是前辈您来护送我！\n晚辈真是受宠若惊。\n有您在，此行定能安然无恙。一切都听前辈安排就行！",
+  "quest_escort_greeting_intimidate": "哼，就派了你这么个货色来？算了，聊胜于无。别拖我后腿就行，不然有你好看的。",
+  "quest_escort_greeting_stranger": "你就是来护送我的人？\n看起来还算可靠。\n我这次出门，路上就靠你的照应了，希望不要出什么岔子。",
+
+  "quest_escort_success_acquaintance": "咱们果然是安全抵达！\n多亏有你在，这趟路程比我想象的要轻松多了。别忘了拿上你的报酬，咱们下次有缘再会！",
+  "quest_escort_success_superior": "很好，你没有让我失望。这是宗门给你的赏赐，拿着吧。我还有要事处理，你请自便。",
+  "quest_escort_success_respectful": "前辈，我们到这就可以了。\n多谢前辈一路上的照拂，晚辈感激不尽！这点心意还请前辈务必收下。",
+  "quest_escort_success_intimidate": "哼，总算是到了，比我预想的要慢。算了，任务总归是完成了。这是你的报酬，赶紧拿了走人。",
+  "quest_escort_success_stranger": "总算到了，万幸一路上还算顺利。\n多谢你一路护送，这是你的报酬。后会有期。",
+
+  "quest_escort_failed_acquaintance": "你怎么样？伤得重不重？\n不行，此地不宜久留，我得赶紧去找人帮忙！你看情况脱身！",
+  "quest_escort_failed_superior": "连这点小事都办不好！真是废物！\n我先走了，你好自为之！",
+  "quest_escort_failed_respectful": "前辈！您没事吧？\n留得青山在，不怕没柴烧，我们分头撤！您多保重！",
+  "quest_escort_failed_intimidate": "我就知道你靠不住！\n别挡我的路，快滚开！",
+  "quest_escort_failed_stranger": "唉，看来是我看错人了。\n你自己多保重，我得先走一步了！",
+
+  "quest_escort_late_success_acquaintance": "总算是到了！我还以为路上出了什么岔子呢。虽然比预想的要久，但总归是安全抵达了。这是你的报酬，拿着吧。",
+  "quest_escort_late_success_superior": "哼，磨磨蹭蹭的总算到了。这次任务完成得勉勉强强，下次再这样可不行。这是赏赐，拿着快走吧。",
+  "quest_escort_late_success_respectful": "前辈，我们总算到了。虽然路上有些耽搁，但多亏了前辈，总算有惊无险。这点心意，还请前辈务必收下。",
+  "quest_escort_late_success_intimidate": "你怎么搞的？这么久才到！真是浪费我的时间。算了，懒得跟你计较。这是报酬，拿了赶紧滚。",
+  "quest_escort_late_success_stranger": "终于到了。比约定的时间晚了不少，不过人没事就好。这是你的报酬，我们两清了。",
+
+  "quest_purchase_greeting": "你是来送货的吧，那就快点把之前约定的物资交给我吧。",
+  "quest_purchase_late_greeting": "你是来送货的吧，怎么这么久才来？无论如何，快点把之前约定的物资给我吧。",
+  "quest_purchase_success": "这确实是约定的物资，多谢你一路辛苦。\n预算中剩余的部分你收好就行，那就是你的报酬。",
+  "quest_purchase_late_success": "这确实是约定的物资。虽然你送到了，但也耽搁太久了。无论如何，先交给我吧。",
+
+  "quest_discover_success": "你真的找到了{0}！\n看来你确实有点本事。这是报酬，你收好吧。",
+  "quest_discover_late_success": "你怎么这么久才来？不过，你真的找到了{0}啊！\n看来你确实有点本事。这是报酬，你收好吧。"
 }

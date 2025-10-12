@@ -22,8 +22,9 @@ external abstract class Constants {
   static get locationSiteKinds;
   static get siteKindsWorkable;
   static get siteKindsBuildable;
-  static get siteKindsBuildableOnWorldMap;
+  static get productionSiteKinds;
   static get organizationCategoryToSiteKind;
+  static get organizationCategoryExpansionRate;
   static get organizationGenreToSiteKinds;
   static get attackTypes;
   static get damageTypes;
@@ -39,13 +40,16 @@ external abstract class Constants {
   static get minBuyRate;
   static get materialBasePrice;
   static get basePriceByCategory;
+  static get itemWithAffixCategories;
   static get terrainKindsCity;
   static get terrainKindsLand;
   static get terrainKindsWater;
   static get terrainKindsMountain;
+  static get terrainKindsAll;
   static get titleToOrganizationRank;
   static get rankToOrganizationTitle;
   static get equipmentCategoryKinds;
   static get equipmentKinds;
-  static get questKinds;
+  static get terrainKindToEnemyEncounterRate;
+  static get enemyEncounterQuests;
 }

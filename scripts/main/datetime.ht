@@ -16,8 +16,8 @@ function toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 /// 0-3 当前的时刻（清晨、下午、傍晚、午夜）
 function toTime(timestamp) => (timestamp % kTicksPerDay)
 
-function getCurrentDateTimeString() {
-  return formatDateTimeString(game.timestamp ?? 0, format: 'datetime.ymdh')
+function getDateTimeString(timestamp) {
+  return formatDateTimeString(timestamp, format: 'datetime.ymdh')
 }
 
 /// [format] = ('age' | 'date' | 'time' | 'datetime' | 'number').('ymdh' | 'ymd' | 'ym' | 'md' | 'y' | 'm' | 'd' | 'h')
@@ -99,7 +99,7 @@ function formatTimeString(timestamp) => formatDateTimeString(timestamp, format: 
 
 function formatAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')
 
-function formatAge(timestamp) => formatDateTimeString(timestamp, format: 'number.y')
+// function formatAge(timestamp) => formatDateTimeString(timestamp, format: 'number.y')
 
 function getDayString(count) {
   assert(count > 0)
@@ -115,8 +115,3 @@ function getYearString(count) {
   assert(count > 0)
   return '${count} ${engine.locale('timeYear')}'
 }
-
-// function ageToBirthTimestamp(age) {
-//   let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
-//   return game.timestamp - time
-// }

@@ -1,7 +1,3 @@
-// import 'world.ht'
-// import 'object.ht'
-// import '../entity/entity.ht'
-
 function resetDungeon({
   rank,
   initialRoom = true,

@@ -111,7 +111,7 @@ void main() {
             ChangeNotifierProvider(create: (_) => NewItemsState()),
             ChangeNotifierProvider(create: (_) => NewRankState()),
             ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
-            ChangeNotifierProvider(create: (_) => HeroState()),
+            ChangeNotifierProvider(create: (_) => GameState()),
             ChangeNotifierProvider(create: (_) => EnemyState()),
             ChangeNotifierProvider(create: (_) => MerchantState()),
             ChangeNotifierProvider(create: (_) => ItemSelectState()),

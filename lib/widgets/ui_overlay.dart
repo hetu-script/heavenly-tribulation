@@ -6,6 +6,7 @@ import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/samsara.dart';
+import 'package:samsara/markdown_wiki.dart';
 
 import 'avatar.dart';
 import 'character/profile.dart';
@@ -30,7 +31,9 @@ import '../game/data.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
-import 'location_panel.dart';
+// import 'location_panel.dart';
+import '../game/game.dart';
+import 'ui/close_button2.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -79,7 +82,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     //     (GameData.game?['flags']['autoWork'] ?? false);
 
     // final hero = context.watch<HeroState>().hero;
-    final hero = context.watch<HeroState>().hero;
+    final hero = context.watch<GameState>().hero;
     final showHeroInfo = widget.enableHeroInfo &&
         hero != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
@@ -140,6 +143,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
+    Game.isInteractable = visiblePanels.isEmpty;
     final panelPositions =
         context.watch<ViewPanelPositionState>().panelPositions;
     final List<Widget> panels = [];
@@ -261,14 +265,24 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                     borderRadius: 0.0,
                     size: const Size(120, 120),
                     image: AssetImage('assets/images/${hero['icon']}'),
-                    onPressed: (_) {},
+                    onPressed: (_) {
+                      context.read<ViewPanelState>().toogle(ViewPanels.profile);
+                    },
+                    onEnter: (rect) {
+                      context
+                          .read<HoverContentState>()
+                          .show(GameData.hero['name'], rect);
+                    },
+                    onExit: () {
+                      context.read<HoverContentState>().hide();
+                    },
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         color: GameUI.backgroundColor2,
-                        height: 45,
+                        height: 35,
                         width: screenSize.width - 120,
                         child: Row(
                           children: [
@@ -311,7 +325,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 //     setState(() {});
                                 //   }
                                 // },
-                                onMouseEnter: (rect) {
+                                onEnter: (rect) {
                                   String description =
                                       engine.locale('money_description');
                                   // if (widget.enableAutoExhaust) {
@@ -322,7 +336,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       .read<HoverContentState>()
                                       .show(description, rect);
                                 },
-                                onMouseExit: () {
+                                onExit: () {
                                   context.read<HoverContentState>().hide();
                                 },
                                 child: Row(
@@ -369,7 +383,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 //     setState(() {});
                                 //   }
                                 // },
-                                onMouseEnter: (rect) {
+                                onEnter: (rect) {
                                   String description =
                                       engine.locale('shard_description');
                                   // if (widget.enableAutoExhaust) {
@@ -380,7 +394,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       .read<HoverContentState>()
                                       .show(description, rect);
                                 },
-                                onMouseExit: () {
+                                onExit: () {
                                   context.read<HoverContentState>().hide();
                                 },
                                 child: Row(
@@ -418,7 +432,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             Container(
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
-                                onMouseEnter: (rect) {
+                                onEnter: (rect) {
                                   final data = hero!['materials'];
                                   final content = SizedBox(
                                     width: 200,
@@ -451,7 +465,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       .read<HoverContentState>()
                                       .show(content, rect);
                                 },
-                                onMouseExit: () {
+                                onExit: () {
                                   context.read<HoverContentState>().hide();
                                 },
                                 child: Row(
@@ -478,12 +492,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.profile);
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
                                     .show(engine.locale('information'), rect);
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -500,12 +514,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.journal);
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
                                     .show(engine.locale('journal'), rect);
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -522,7 +536,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .read<ViewPanelState>()
                                     .toogle(ViewPanels.details);
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 final Widget statsView = CharacterStats(
                                   title: engine.locale('stats'),
                                   character: hero,
@@ -535,7 +549,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           HoverContentDirection.bottomLeft,
                                     );
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -559,7 +573,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       engine.scene?.id == 'mainmenu',
                                 });
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 final cultivationDescription =
                                     GameData.getPassivesDescription(hero);
 
@@ -571,7 +585,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       textAlign: TextAlign.left,
                                     );
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -596,12 +610,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       engine.scene?.id == Scenes.mainmenu,
                                 });
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
                                     .show(engine.locale('cardlibrary'), rect);
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -617,19 +631,50 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 context.read<HoverContentState>().hide();
                                 showDialog(
                                   context: context,
+                                  builder: (context) => MarkdownWiki(
+                                    engine: engine,
+                                    margin: const EdgeInsets.all(50.0),
+                                    backgroundColor: GameUI.backgroundColor2,
+                                    treeNodes: GameData.wikiTreeNodes,
+                                    closeButton: CloseButton2(),
+                                  ),
+                                );
+                              },
+                              onEnter: (rect) {
+                                context
+                                    .read<HoverContentState>()
+                                    .show(engine.locale('wiki'), rect);
+                              },
+                              onExit: () {
+                                context.read<HoverContentState>().hide();
+                              },
+                              child: const Image(
+                                image:
+                                    AssetImage('assets/images/icon/wiki.png'),
+                              ),
+                            ),
+                            BorderedIconButton(
+                              size: GameUI.infoButtonSize,
+                              padding: const EdgeInsets.all(2),
+                              borderRadius: 5.0,
+                              onPressed: () {
+                                context.read<HoverContentState>().hide();
+                                showDialog(
+                                  context: context,
                                   builder: (BuildContext context) => Console(
                                     engine: engine,
                                     margin: const EdgeInsets.all(50.0),
                                     backgroundColor: GameUI.backgroundColor2,
+                                    closeButton: CloseButton2(),
                                   ),
                                 );
                               },
-                              onMouseEnter: (rect) {
+                              onEnter: (rect) {
                                 context
                                     .read<HoverContentState>()
                                     .show(engine.locale('console'), rect);
                               },
-                              onMouseExit: () {
+                              onExit: () {
                                 context.read<HoverContentState>().hide();
                               },
                               child: const Image(
@@ -641,13 +686,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                         ),
                       ),
                       SizedBox(
-                        height: 75,
+                        height: 95,
                         width: screenSize.width - 120,
                         child: Row(
                           children: [
-                            HistoryPanel(width: 535, height: 75),
-                            const Spacer(),
-                            LocationPanel(width: 150, height: 75),
+                            HistoryPanel(width: 535, height: 95),
                           ],
                         ),
                       ),
@@ -707,7 +750,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               switch (_prompts.last) {
                 'rank' => NewRank(rank: newRank!, completer: newRankCompleter),
                 'journal' => NewJournal(
-                    journalData: newJournal!, completer: newQuestCompleter),
+                    journal: newJournal!, completer: newQuestCompleter),
                 'item' =>
                   NewItems(itemsData: newItems!, completer: newItemsCompleter),
                 _ => SizedBox.shrink(),

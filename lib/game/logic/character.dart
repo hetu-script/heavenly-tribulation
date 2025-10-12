@@ -28,12 +28,14 @@ void _heroRest() async {
     case 'restTillFullHealth':
       ticks =
           (GameData.hero['stats']['lifeMax'] - GameData.hero['life']).floor();
-      if (ticks <= 0) {
-        dialog.pushDialog('hint_alreadyFullHealthNoNeedRest');
-        await dialog.execute();
-      }
+    case 'cancel':
+      return;
   }
-  if (ticks <= 0) return;
+  if (ticks <= 0) {
+    GameDialogContent.show(
+        engine.context, engine.locale('hint_alreadyFullHealthNoNeedRest'));
+    return;
+  }
 
   await TimeflowDialog.show(
     context: engine.context,
@@ -41,7 +43,7 @@ void _heroRest() async {
     onProgress: () {
       engine.hetu
           .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
-      engine.context.read<HeroState>().update();
+      engine.context.read<GameState>().update();
       return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
     },
   );
@@ -52,9 +54,7 @@ void _heroRest() async {
 void _notEnoughStamina([dynamic npc]) async {
   dialog.pushDialog(
     'hint_notEnoughHealthToWork',
-    name: npc?['name'],
-    icon: npc?['icon'],
-    image: npc?['image'],
+    npc: npc,
   );
   await dialog.execute();
 }
@@ -62,7 +62,7 @@ void _notEnoughStamina([dynamic npc]) async {
 Future<void> _heroProduce(dynamic location) async {
   final siteKind = location['kind'];
   assert(
-      kSiteKindsBuildableOnWorldMap.contains(siteKind) &&
+      kProductionSiteKinds.contains(siteKind) &&
           kSiteWorkableBaseStaminaCost.containsKey(siteKind),
       '非可生产场所：${location['name']} ($siteKind)');
 
@@ -84,8 +84,8 @@ Future<void> _heroProduce(dynamic location) async {
   int life = GameData.hero['life'];
 
   if (life <= staminaCost) {
-    dialog.pushDialog('hint_notEnoughHealthToWork');
-    await dialog.execute();
+    GameDialogContent.show(
+        engine.context, engine.locale('hint_notEnoughHealthToWork'));
     return;
   }
 
@@ -116,13 +116,12 @@ Future<void> _heroProduce(dynamic location) async {
   final resourceData = terrain['resources'];
 
   final produced = <String, int>{};
-  final r = math.Random();
 
   await TimeflowDialog.show(
     context: engine.context,
     max: ticks,
     onProgress: () {
-      final roll = r.nextDouble();
+      final roll = GameData.random.nextDouble();
       for (String key in materialData.keys) {
         final double chance = materialData[key]!;
         if (roll <= chance) {
@@ -158,9 +157,7 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
     if (!months.contains(GameLogic.month)) {
       dialog.pushDialog(
         'hint_notWorkSeason',
-        name: npc?['name'],
-        icon: npc?['icon'],
-        image: npc?['image'],
+        npc: npc,
       );
       await dialog.execute();
       return;
@@ -213,11 +210,9 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
   );
 
   engine.play('coins-31879.mp3');
-  engine.hetu.invoke('collect', namespace: 'Player', positionalArgs: [
-    'money'
-  ], namedArgs: {
-    'amount': finalTicks * salary,
-  });
+  engine.hetu.invoke('collect',
+      namespace: 'Player', positionalArgs: ['money', finalTicks * salary]);
+  engine.context.read<GameState>().update();
 }
 
 Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
@@ -324,9 +319,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               dialog.pushDialog(
                 'hint_notRecruitMonth',
                 interpolations: [recruitMonth],
-                name: npc?['name'],
-                icon: npc?['icon'],
-                image: npc?['image'],
+                npc: npc,
               );
               await dialog.execute();
               return;
@@ -334,19 +327,17 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
             // 玩家本月是否已经进行过此门派的试炼
             if (GameData.game['playerMonthly']['enrolled']
                 .contains(organization['id'])) {
-              dialog.pushDialog('hint_alreadyTrialedThisMonth',
-                  name: npc['name'],
-                  icon: npc['icon'],
-                  image: npc['illustration']);
+              dialog.pushDialog(
+                'hint_alreadyTrialedThisMonth',
+                npc: npc,
+              );
               return;
             }
             final organizationCategory = organization['category'];
             assert(kOrganizationCategories.contains(organizationCategory));
             dialog.pushDialog(
               'organization_${organizationCategory}_trial_intro',
-              name: npc['name'],
-              icon: npc['icon'],
-              image: npc['illustration'],
+              npc: npc,
             );
             await dialog.execute();
             switch (organizationCategory) {
@@ -360,9 +351,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   final qString = 'organization_wuwei_trial_question_$q';
                   dialog.pushDialog(
                     qString,
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                   final trialQuestionAnswers = [];
@@ -374,9 +363,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   final selectedAnswer = dialog.checkSelected(qString);
                   dialog.pushDialog(
                     '${selectedAnswer}_comment',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                   final correctAnswer = kWuweiTrialAnswers[q];
@@ -388,9 +375,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 if (passed) {
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_pass',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                   await engine.hetu.invoke(
@@ -406,9 +391,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       .add(organization['id']);
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_fail',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                 }
@@ -455,9 +438,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   if (roundCount <= kCultivationTrialMinBattleRound) {
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_pass',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
+                      npc: npc,
                     );
                     await dialog.execute();
                     await engine.hetu.invoke(
@@ -473,9 +454,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         .add(organization['id']);
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_fail',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
+                      npc: npc,
                     );
                     await dialog.execute();
                   }
@@ -513,9 +492,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     if (battleResult) {
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_pass',
-                        name: npc['name'],
-                        icon: npc['icon'],
-                        image: npc['illustration'],
+                        npc: npc,
                       );
                       await dialog.execute();
                       await engine.hetu.invoke(
@@ -531,9 +508,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                           .add(organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
-                        name: npc['name'],
-                        icon: npc['icon'],
-                        image: npc['illustration'],
+                        npc: npc,
                       );
                       await dialog.execute();
                     }
@@ -541,7 +516,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 );
               case 'entrepreneur':
                 final List testersData =
-                    organization['members'].values.where((m) {
+                    organization['membersData'].values.where((m) {
                   return m['rank'] >= 1;
                 }).toList();
                 assert(testersData.isNotEmpty);
@@ -554,9 +529,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     if (battleResult) {
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_pass',
-                        name: npc['name'],
-                        icon: npc['icon'],
-                        image: npc['illustration'],
+                        npc: npc,
                       );
                       await dialog.execute();
                       await engine.hetu.invoke(
@@ -572,9 +545,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                           .add(organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
-                        name: npc['name'],
-                        icon: npc['icon'],
-                        image: npc['illustration'],
+                        npc: npc,
                       );
                       await dialog.execute();
                     }
@@ -583,10 +554,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               case 'wealth':
                 final int cost = kWealthTrialCost;
                 dialog.pushDialog('organization_wealth_intro',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
-                    interpolations: [cost]);
+                    npc: npc, interpolations: [cost]);
                 await dialog.execute();
                 final weathTrialSelections = [
                   'pay_shard',
@@ -603,14 +571,11 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     engine.hetu.invoke(
                       'exhaust',
                       namespace: 'Player',
-                      positionalArgs: ['shard'],
-                      namedArgs: {'amount': cost},
+                      positionalArgs: ['shard', cost],
                     );
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_pass',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
+                      npc: npc,
                     );
                     await dialog.execute();
                     await engine.hetu.invoke(
@@ -622,12 +587,10 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       },
                     );
                   } else {
-                    dialog.pushDialog('hint_notEnoughShard');
+                    dialog.pushDialog(engine.locale('hint_notEnoughShard'));
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_fail',
-                      name: npc['name'],
-                      icon: npc['icon'],
-                      image: npc['illustration'],
+                      npc: npc,
                     );
                     await dialog.execute();
                   }
@@ -637,9 +600,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 if (heroCharisma >= kPleasureTrialMinCharisma) {
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_pass',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                   await engine.hetu.invoke(
@@ -653,9 +614,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 } else {
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_fail',
-                    name: npc['name'],
-                    icon: npc['icon'],
-                    image: npc['illustration'],
+                    npc: npc,
                   );
                   await dialog.execute();
                 }
@@ -700,7 +659,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'description': 'hint_work_description',
       });
     }
-    if (kSiteKindsBuildableOnWorldMap.contains(siteKind) &&
+    if (kProductionSiteKinds.contains(siteKind) &&
         kSiteWorkableBaseStaminaCost.containsKey(siteKind)) {
       siteOptions.add({
         'text': 'produce',
@@ -712,7 +671,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
     }
     if (siteKind == 'cityhall') {
       siteOptions.add('bountyQuest');
-    } else if (siteKind == 'tradinghouse') {
+    } else if (siteKind == 'tradinghouse' ||
+        kProductionSiteKinds.contains(siteKind)) {
       siteOptions.add('tradeMaterial');
     } else if (siteKind == 'workshop') {
       siteOptions.add('workbench');
@@ -783,13 +743,11 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           ),
         );
         if (bountyQuest != null) {
-          final journal = await engine.hetu.invoke('createJournalByQuest',
-              namespace: 'Player', positionalArgs: [bountyQuest]);
           final budget = bountyQuest['budget'];
           if (budget != null) {
             final items = await engine.hetu.invoke(
               'loot',
-              namespace: 'player',
+              namespace: 'Player',
               positionalArgs: [
                 [budget]
               ],
@@ -798,34 +756,26 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           }
           final package = bountyQuest['package'];
           if (package != null) {
-            switch (package['type']) {
-              case 'material':
-                final material = package['material'];
-                final amount = package['amount'];
-                engine.hetu
-                    .invoke('collect', namespace: 'Player', positionalArgs: [
-                  material
-                ], namedArgs: {
-                  'amount': amount,
-                });
-              case 'item':
-                final item = package['item'];
-                engine.hetu.invoke('acquire',
-                    namespace: 'Player', positionalArgs: [item]);
-              case 'character':
-                final characterId = package['characterId'];
-                final character = GameData.getCharacter(characterId);
-                engine.hetu.invoke(
-                  'accompany',
-                  namespace: 'Player',
-                  positionalArgs: [character],
-                );
-                final List npcs = engine.hetu
-                    .invoke('getNpcsAtLocation', positionalArgs: [location]);
-                engine.context.read<NpcListState>().update(npcs);
-            }
+            await engine.hetu.invoke('unpack',
+                namespace: 'Player', positionalArgs: [package]);
           }
-          GameLogic.promptJournal(journal);
+          final journal = engine.hetu.invoke('createJournalByQuest',
+              namespace: 'Player', positionalArgs: [bountyQuest]);
+          if (bountyQuest['kind'] == 'escort') {
+            final escortType = engine.hetu.invoke(
+              'initEscort',
+              positionalArgs: [journal['quest']],
+            );
+            dialog.pushDialog(
+              'quest_escort_greeting_$escortType',
+              characterId: package['characterId'],
+            );
+            await dialog.execute();
+            final npcs = GameData.getNpcsAtLocation(location);
+            engine.context.read<NpcListState>().update(npcs);
+          } else {
+            await GameLogic.promptJournal(journal);
+          }
         }
       case 'tradeMaterial':
         engine.context.read<MerchantState>().show(
@@ -833,6 +783,9 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               materialMode: true,
               useShard: false,
               priceFactor: location['priceFactor'],
+              merchantType: kProductionSiteKinds.contains(siteKind)
+                  ? MerchantType.productionSite
+                  : MerchantType.location,
             );
       case 'trade':
         engine.context.read<MerchantState>().show(
@@ -854,7 +807,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
   if (character['entityType'] != 'character') {
     assert(character['entityType'] == 'npc',
         'invalid character entity type, ${character['entityType']}');
-    final location = GameData.getLocation(character['locationId']);
+    final location = engine.hetu.fetch('location');
     _onInteractNpc(character, location);
     return;
   }
@@ -961,14 +914,12 @@ Future<void> _onInteractCharacter(dynamic character) async {
                     GameData.game['organizations'][character['organizationId']];
                 assert(organization != null,
                     'organization is null, id: ${character['organizationId']}');
-                final memberData = organization['members'][GameData.hero['id']];
+                final memberData =
+                    organization['membersData'][GameData.hero['id']];
                 assert(memberData != null,
                     'memberData is null, organization id: [${character['organizationId']}], character id: ${GameData.hero['id']}');
                 final reportLocationId = memberData['reportLocationId'];
-                final reportLocation =
-                    GameData.game['locations'][reportLocationId];
-                assert(reportLocation != null,
-                    'Location is null, location id: $reportLocationId');
+                final reportLocation = GameData.getLocation(reportLocationId);
                 final superiorId = memberData['superiorId'];
                 final superior = GameData.getCharacter(superiorId);
                 if (superiorId == character['id']) {
@@ -1011,7 +962,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
     case 'show':
       interacted = true;
       // 向角色展示某个物品
-      final items = await GameLogic.showItemSelect(
+      final items = await GameLogic.selectItem(
           character: GameData.hero, multiSelect: false);
       final item = items.firstOrNull;
       if (item != null) {
@@ -1021,7 +972,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
     case 'gift':
       interacted = true;
-      final items = await GameLogic.showItemSelect(
+      final items = await GameLogic.selectItem(
           character: GameData.hero, multiSelect: false);
       final item = items.first;
       if (item != null) {

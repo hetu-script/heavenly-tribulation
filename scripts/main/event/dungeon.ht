@@ -135,7 +135,7 @@ function _addEncampment() {
 }
 
 function _addRandomMerchant() {
-  final merchantKind = _kMerchantKinds.random
+  final merchantKind = random.nextIterable(_kMerchantKinds)
   switch (merchantKind) {
     'smith': {
       addMerchant(
@@ -336,7 +336,7 @@ function _prepareMap() {
           }
           'portal3': {
             _addPortalByNextRoomType(nextRoomType)
-            final encounterKind = _kEncounterKinds.random
+            final encounterKind = random.nextIterable(_kEncounterKinds)
             switch (encounterKind) {
               'spiritWell': {
                 addSpiritWell(
@@ -415,7 +415,7 @@ function _prepareMap() {
           }
           'portal3': {
             _addPortalByNextRoomType(nextRoomType)
-            final encounterKind = _kEncounterKinds.random
+            final encounterKind = random.nextIterable(_kEncounterKinds)
             switch (encounterKind) {
               'spiritWell': {
                 addSpiritWell(
@@ -461,116 +461,6 @@ function _prepareMap() {
   }
 }
 
-function _generateReward({probability: {}, entity}) {
-  let rank = entity?.rank ?? hero.rank
-
-  final r = Random()
-  let rewardExp
-  if (entity == null || (hero.rank - entity.rank) > 2) {
-    rewardExp = false
-  } else {
-    rewardExp = r.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
-  }
-  
-  let rewardMoney
-  let rewardShard
-  if (entity?.rank <= 0) {
-    rewardShard = false
-    rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
-  } else {
-    rewardMoney = false
-    rewardShard = r.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
-  }
-  final rewardEquipment = r.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
-  final rewardCardpack = r.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
-  final rewardPotion = r.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
-  let rewardScrollPaper
-  let rewardCraftMaterial
-  let rewardDungeonTicket
-  if (rank > 0) {
-    rewardScrollPaper = r.nextDouble() < (probability?.scrollPaper ?? kRewardProbabilityScrollPaper)
-    rewardCraftMaterial = r.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
-    rewardDungeonTicket = r.nextDouble() < (probability?.dungeonTicket ?? kRewardProbabilityDungeonTicket)
-  }
-
-  final rewards = []
-  final refQuantity = expForLevel(entity?.level ?? 0)
-  if (rewardExp) {
-    final rankRate = entity?.rank / (hero.rank + 0.1);
-    final levelRatio = entity?.level / (hero.level + 0.1);
-    final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
-    final expPack = createItemByPrototype('exp_pack', amount: exp.round())
-    rewards.add(expPack)
-  }
-  if (rewardMoney) {
-    final money = r.nextInt(refQuantity * kMoneyRewardRate) + 50
-    final moneyPack = Materialpack(kind: 'money', amount: money)
-    rewards.add(moneyPack)
-  }
-  if (rewardShard) {
-    final shard = r.nextInt((entity?.level ?? hero.level) + 1) + 1
-    final shardPack = Materialpack(kind: 'shard', amount: shard)
-    rewards.add(shardPack)
-  }
-  if (rewardEquipment) {
-    final equipment = Equipment(rank: rank)
-    rewards.add(equipment)
-  }
-  if (rewardCardpack) {
-    let genre = Constants.attributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
-    final cardpack = Cardpack(rank: rank, genre: genre)
-    rewards.add(cardpack)
-  }
-  if (rewardPotion) {
-    final potion = Potion(rank: rank)
-    rewards.add(potion)
-  }
-  if (rewardScrollPaper) {
-    assert(rank > 0)
-    final scrollPaper = createItemByPrototype('scroll_paper_rank${rank}')
-    rewards.add(scrollPaper)
-  }
-  if (rewardCraftMaterial) {
-    let craftMaterialTypeRoll = r.nextDouble()
-    let craftMaterial
-    if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemByPrototype('craftmaterial_upgradeRank${r.nearInt(rank) + 1}')
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
-      craftMaterial = createItemByPrototype('craftmaterial_rerollAffix')
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
-      craftMaterial = createItemByPrototype('craftmaterial_replaceAffix')
-    } else {
-      craftMaterial = createItemByPrototype('craftmaterial_addAffix')
-    }
-    rewards.add(craftMaterial)
-  }
-  if (rewardDungeonTicket) {
-    let ticketRank
-    if (entity != null) {
-      if (entity.rank > 1) {
-        ticketRank = entity.rank - 1
-      } else {
-        ticketRank = 1
-      }
-    } else {
-      ticketRank = hero.rank
-    }
-    assert(rank > 0)
-    if (ticketRank < kCultivationRankMax) {
-      if (r.nextDouble() < (probability?.dungeonTicketNextLevel ?? kRewardProbabilityDungeonTicketNextLevel)) {
-        ticketRank += 1
-      }
-    }
-    final dungeonTicket = createItemByPrototype('dungeon_ticket_rank${ticketRank}')
-    rewards.add(dungeonTicket)
-  }
-
-  if (rewards.isEmpty) {
-    engine.warn('生成的奖励列表为空！')
-  }
-  return rewards
-}
-
 async function onEnterMap() {
   Game.updateDungeon(game.dungeon)
   
@@ -583,7 +473,8 @@ async function onEnterMap() {
 
   if (game.dungeon.battleResult == true) {
     game.dungeon.battleResult = null
-    final rewards = _generateReward(
+    final rewards = generateReward(
+      entity: game.dungeon.battleEntity,
       probability: {
         exp: kRewardProbabilityExppack,
         money: kRewardProbabilityMoney,
@@ -602,7 +493,6 @@ async function onEnterMap() {
         dungeonTicket: game.dungeon.isBoss ? 0.8 : 
           (game.dungeon.isElite ? 0.4 : kRewardProbabilityDungeonTicket),
       },
-      entity: game.dungeon.battleEntity,
     )
     for (final item in rewards) {
       await Player.acquire(item)
@@ -617,34 +507,35 @@ async function onEnterMap() {
     Game.popScene(clearCache: true)
     return
   } else if (!game.dungeon.buildCompleted) {
-    Dialog.pushBackground('black.png')
-    Dialog.pushTask(() {
+    dialog.pushBackground('black.png')
+    dialog.pushTask(() {
       _prepareMap()
       World.lightUpAllTiles()
       Player.setTo(_kStartTile.left, _kStartTile.top, worldId: world.id, direction: 'north')
       Game.showHeroInfo()
     })
-    Dialog.popBackground(isFadeOut: true)
-    await Dialog.execute()
+    dialog.popBackground(isFadeOut: true)
+    await dialog.execute()
   }
 }
 
 async function promptExit() {
-  Dialog.pushDialog('hint_exitDungeon_description')
-  Dialog.pushSelection(
+  dialog.pushDialog('hint_exitDungeon_description')
+  dialog.pushSelection(
     'exitDungeon',
     [
       'exitDungeon',
       'forgetIt',
     ]
   )
-  await Dialog.execute()
-  final selected = Dialog.checkSelected('exitDungeon')
+  await dialog.execute()
+  final selected = dialog.checkSelected('exitDungeon')
   if (selected == 'exitDungeon') {
     engine.debug('地牢已经完成，准备退出')
     game.dungeon = null
     Game.updateDungeon(null)
     Game.popScene(clearCache: true)
+    setCurrentWorld(game.mainWorldId)
   }
 }
 
@@ -682,16 +573,16 @@ async function onInteractMapObject(object, terrain) {
         onEnterMap()
       } else {
         if (game.dungeon.level < game.dungeon.levelMax) {
-          Dialog.pushDialog('hint_enterNextLevel_description')
-          Dialog.pushSelection(
+          dialog.pushDialog('hint_enterNextLevel_description')
+          dialog.pushSelection(
             'enterNextDungeonLevel',
             [
               'enterNextDungeonLevel',
               'forgetIt',
             ]
           )
-          await Dialog.execute()
-          final selected = Dialog.checkSelected('enterNextDungeonLevel')
+          await dialog.execute()
+          final selected = dialog.checkSelected('enterNextDungeonLevel')
           if (selected == 'enterNextDungeonLevel') {
             engine.debug('将进入下一层地牢，等级：${game.dungeon.level}')
             let hasStatusSpirit = false
@@ -706,8 +597,8 @@ async function onInteractMapObject(object, terrain) {
               }
             }
             if (hasStatusSpirit) {
-              Dialog.pushDialog('hint_dungeonStatusReset')
-              await Dialog.execute()
+              dialog.pushDialog('hint_dungeonStatusReset')
+              await dialog.execute()
             }
             game.dungeon.buildCompleted = false
             game.dungeon.room = 0
@@ -716,16 +607,16 @@ async function onInteractMapObject(object, terrain) {
           }
         } else {
           if (game.dungeon.rank < kCultivationRankMax) {
-            Dialog.pushDialog('hint_enterNextDungeonRank_description')
-            Dialog.pushSelection(
+            dialog.pushDialog('hint_enterNextDungeonRank_description')
+            dialog.pushSelection(
               'enterNextDungeonRank',
               [
                 'enterNextDungeonRank',
                 'forgetIt',
               ]
             )
-            await Dialog.execute()
-            final selected = Dialog.checkSelected('enterNextDungeonRank')
+            await dialog.execute()
+            final selected = dialog.checkSelected('enterNextDungeonRank')
             if (selected == 'enterNextDungeonRank') {
               engine.debug('即将进入下一个境界的地牢，当前境界：${game.dungeon.rank}')
               Game.tryEnterDungeon(isCommon: false, pushScene: false)
@@ -740,8 +631,8 @@ async function onInteractMapObject(object, terrain) {
     'enemy': {
       Game.showPrebattle(
         object.battleEntity,
-        background: 'battle/scene/002_night.png',
-        onBattleEnd: async function [BoolInt] (battleResult, roundCount) {
+        background: 'battle/scene/dungeon_night.png',
+        onBattleEnd: async function [onBattleEnd] (battleResult, roundCount) {
           if (battleResult) {
             engine.debug('战斗胜利，添加出口')
             game.dungeon.battleResult = true

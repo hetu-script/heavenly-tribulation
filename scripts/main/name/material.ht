@@ -1,6 +1,6 @@
 import 'common.ht'
 import 'material/material.json5' as materialNames
-import '../entity/entity.ht'
+import '../game/common.ht'
 import '../random.ht'
 
 function generateMaterialName({category, rarity}) {
@@ -12,12 +12,12 @@ function generateMaterialName({category, rarity}) {
   const kind = random.nextIterable(materialNames[category])
   let name
   switch (rarity) {
-    'arcane' : name = pre + cp + sp + kind
-    'mythic' : name = pre + sp + kind
-    'legendary' : name = pre + cp + kind
-    'epic' : name = pre + kind
-    'rare' : name = sp + kind
-    'common' : name = cp + kind
+    'arcane' => name = pre + cp + sp + kind
+    'mythic' => name = pre + sp + kind
+    'legendary' => name = pre + cp + kind
+    'epic' => name = pre + kind
+    'rare' => name = sp + kind
+    'common' => name = cp + kind
   }
   return name
 }

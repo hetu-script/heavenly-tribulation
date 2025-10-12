@@ -30,8 +30,8 @@ class CloseButton2 extends StatelessWidget {
           Navigator.maybePop(context, null);
         }
       },
-      onMouseEnter: (rect) {},
-      onMouseExit: () {},
+      onEnter: (rect) {},
+      onExit: () {},
       child: const Icon(Icons.close),
     );
   }

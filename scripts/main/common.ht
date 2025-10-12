@@ -1,6 +1,0 @@
-
-/// 当前版本等级限制为50
-const kCurrentVersionCultivationLevelMax = 50
-const kCurrentVersionCultivationRankMax = 3
-
-const kOrthogonalDirections = ['north', 'east', 'south', 'west']

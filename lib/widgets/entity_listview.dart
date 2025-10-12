@@ -10,7 +10,7 @@ import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/details.dart';
 import '../game/ui.dart';
-import '../game/logic/logic.dart';
+import '../game/data.dart';
 import 'ui/close_button2.dart';
 import 'common.dart';
 
@@ -97,7 +97,7 @@ class _EntityListViewState extends State<EntityListView>
           .invoke('getCharacters', positionalArgs: [widget.characterIds]);
     }
     for (final character in _characters) {
-      final row = GameLogic.getCharacterInformationRow(character);
+      final row = GameData.getCharacterInformationRow(character);
       _charactersTable.add(row);
     }
 
@@ -109,7 +109,7 @@ class _EntityListViewState extends State<EntityListView>
     }
     for (final location in _locations) {
       if (location['category'] != 'city') continue;
-      final row = GameLogic.getCityInformationRow(location);
+      final row = GameData.getCityInformationRow(location);
       _locationsTable.add(row);
     }
 
@@ -120,7 +120,7 @@ class _EntityListViewState extends State<EntityListView>
           .invoke('getOrganizations', positionalArgs: [widget.organizationIds]);
     }
     for (final organization in _organizations) {
-      final row = GameLogic.getOrganizationInformationRow(organization);
+      final row = GameData.getOrganizationInformationRow(organization);
       _organizationsTable.add(row);
     }
 

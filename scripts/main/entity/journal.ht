@@ -42,10 +42,11 @@ struct Journal {
     final acquiredFromSiteId = quest.acquiredFromSiteId
     final site = game.locations[acquiredFromSiteId]
     assert(site != null, 'quest acquiredFromSite not found, id: ${acquiredFromSiteId}')
-    final kind = engine.locale('quest_${quest.kind}')
-    this.title = '${site.name} - ${kind}'
+    final kindName = engine.locale('quest_${quest.kind}')
+    this.title = '${site.name}・${kindName}'
     this.image = quest.image
-    this.endings = [1]
+    // 任务固定有两个结局
+    this.endings = [ 1, 2 ]
     this.interpolations = quest.interpolations
     this.quest = quest
 
@@ -56,6 +57,7 @@ struct Journal {
       engine.locale('quest_${quest.kind}_description', interpolations: this.interpolations)
     )
     this.stages.add(engine.locale('quest_finished'))
+    this.stages.add(engine.locale('quest_failed'))
 
     this.sequence = [ 0 ]
     this.isEphemeral = quest.isEphemeral
@@ -71,6 +73,8 @@ function characterCreateJournal(character, journal, {
     engine.error('角色 [${character.id}] 的日志 [${journal.id}] 已经存在，不能再次创建！')
     return
   }
+
+  journal.timestamp = game.timestamp
 
   character.journals[journal.id] = journal
   if (setAsActive) {

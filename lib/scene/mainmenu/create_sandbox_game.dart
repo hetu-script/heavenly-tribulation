@@ -13,18 +13,7 @@ import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../game/common.dart';
-
-const _kWorldScaleLabel = {
-  1: 'tiny', // 40 × 20
-  2: 'huge', // 72 × 36
-  3: 'massive', // 128 × 64
-};
-
-const _kNoiseConfigByWorldStyle = {
-  'islands': (0.45, 0.3, 6, NoiseType.perlinFractal, 3),
-  'coast': (0.55, 0.33, 3.5, NoiseType.valueFractal, 10),
-  'inland': (0.65, 0.42, 10, NoiseType.cubicFractal, 3),
-};
+import '../../scene/game_dialog/game_dialog_content.dart';
 
 int _floatToInt8(double x) {
   // return (x * 255.0).round() & 0xff;
@@ -116,6 +105,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   late int _locationNumber;
   late int _organizationNumber;
   late int _characterNumber;
+  late int _seed;
 
   bool _enableTutorial = true;
 
@@ -123,19 +113,39 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
 
   ui.Image? _image;
 
-  Future<void> makeImage() async {
-    final seed = crcInt('${_seedEditingController.text}_$_worldScale');
+  final random = math.Random();
 
-    _worldWidth = kWorldSizeByScale[_worldScale]!;
+  final Map<int, ui.Image> _imageCache = {};
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _saveNameEditingController.dispose();
+    _seedEditingController.dispose();
+
+    _imageCache.clear();
+  }
+
+  Future<void> makeImage() async {
+    _worldWidth = kWorldWidthByScale[_worldScale]!;
     _worldHeight = _worldWidth ~/ 2;
+    _seed = crcInt(
+        '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+    if (_imageCache[_seed] != null) {
+      _image = _imageCache[_seed]!;
+      setState(() {});
+      return;
+    }
+
     final dimension = (_worldWidth + _worldHeight) ~/ 2;
 
     final (threshold, threshold2, frequency, noiseType, octaves) =
-        _kNoiseConfigByWorldStyle[_worldStyle]!;
+        kNoiseConfigByWorldStyle[_worldStyle]!;
     final noiseData = noise2(
       _worldWidth,
       _worldHeight,
-      seed: seed,
+      seed: _seed,
       frequency: frequency / dimension,
       noiseType: noiseType,
       octaves: octaves,
@@ -147,34 +157,36 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
       threshold: threshold,
       threshold2: threshold2,
     );
+    _imageCache[_seed] = image;
+
     setState(() {
       _image = image;
     });
+  }
+
+  void applyConfig() {
+    final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
+    _locationNumber = entityNumber.$1;
+    _organizationNumber = entityNumber.$2;
+    _characterNumber = entityNumber.$3;
+
+    _worldScaleLabel = engine.locale(kWorldScaleLabel[_worldScale]!);
+    _worldWidth = kWorldWidthByScale[_worldScale]!;
+    _worldHeight = _worldWidth ~/ 2;
+    _seed = crcInt(
+        '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
   }
 
   @override
   void initState() {
     super.initState();
 
-    final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
-    _locationNumber = entityNumber.$1;
-    _organizationNumber = entityNumber.$2;
-    _characterNumber = entityNumber.$3;
-
-    _worldScaleLabel = engine.locale(_kWorldScaleLabel[_worldScale]!);
-
     _saveNameEditingController.text = engine.locale('unnamed');
     _seedEditingController.text = 'Hello, world!';
 
+    applyConfig();
+
     makeImage();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-
-    _saveNameEditingController.dispose();
-    _seedEditingController.dispose();
   }
 
   @override
@@ -261,9 +273,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                   child: fluent.FilledButton(
                                     onPressed: () {
                                       _seedEditingController.text =
-                                          math.Random()
-                                              .nextInt(1 << 32)
-                                              .toString();
+                                          random.nextInt(1 << 32).toString();
                                       makeImage();
                                     },
                                     child: Text(engine.locale('random')),
@@ -311,21 +321,20 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                   Slider(
                                     value: _worldScale.toDouble(),
                                     min: 1,
-                                    max: 3,
+                                    max: 4,
                                     label: _worldScaleLabel,
                                     onChanged: (double value) {
-                                      setState(() {
-                                        _worldScale = value.toInt();
-                                        _worldScaleLabel = engine.locale(
-                                            _kWorldScaleLabel[_worldScale]!);
-                                        final entityNumber =
-                                            kEntityNumberPerWorldScale[
-                                                _worldScale]!;
-                                        _locationNumber = entityNumber.$1;
-                                        _organizationNumber = entityNumber.$2;
-                                        _characterNumber = entityNumber.$3;
-                                        makeImage();
-                                      });
+                                      _worldScale = value.toInt();
+                                      _worldScaleLabel = engine.locale(
+                                          kWorldScaleLabel[_worldScale]!);
+                                      final entityNumber =
+                                          kEntityNumberPerWorldScale[
+                                              _worldScale]!;
+                                      _locationNumber = entityNumber.$1;
+                                      _organizationNumber = entityNumber.$2;
+                                      _characterNumber = entityNumber.$3;
+                                      makeImage();
+                                      setState(() {});
                                     },
                                   ),
                                   SizedBox(
@@ -466,21 +475,21 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                 child: fluent.FilledButton(
                   onPressed: () async {
                     if (_seedEditingController.text.isBlank) {
-                      dialog.pushDialog('hint_emptySeed');
-                      await dialog.execute();
+                      GameDialogContent.show(
+                          context, engine.locale('hint_emptySeed'));
                       return;
                     }
+                    final worldWidthByScale = kWorldWidthByScale[_worldScale]!;
                     Navigator.of(context).pop({
                       'id': 'sandboxWorld',
                       'method': 'generate',
                       'saveName': _saveNameEditingController.text.isNotBlank
                           ? _saveNameEditingController.text
                           : null,
-                      'seedString': _seedEditingController.text.isNotBlank
-                          ? _seedEditingController.text
-                          : null,
+                      'seed': _seed,
                       'style': _worldStyle,
-                      'worldScale': _worldScale,
+                      'width': worldWidthByScale,
+                      'height': worldWidthByScale ~/ 2,
                       'nationNumber': _organizationNumber,
                       'locationNumber': _locationNumber,
                       'characterNumber': _characterNumber,

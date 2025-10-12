@@ -43,6 +43,7 @@
   "clearObject": "清除对象",
   "clearDecoration": "清除装饰",
 
+  "hint_mustEnterId": "必须输入一个 ID！",
   "hint_selectTilePrompt": "需要先选择一个地块才能进行此操作。",
   "hint_selectCityPrompt": "需要先选择一个城市才能进行此操作。",
   "hint_selectedTileOccupied": "该地块已经是门派领地了，不能在此创建新的门派。",

@@ -56,7 +56,7 @@ function init(config) {
   engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
   addModMetaData(meta)
-  addPrototypesData(items)
+  addItemsData(items)
   addPassivesData(passives)
   addJournalsData(journals)
 }

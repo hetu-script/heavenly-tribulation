@@ -29,6 +29,7 @@
   "menu": "菜单",
   "untitled": "未命名",
   "execute": "执行",
+  "wiki": "资料库",
 
   "noUsableItems": "无可用项目",
 
@@ -37,8 +38,9 @@
   "reloadGameDataPrompt": "已重置所有游戏数据和脚本模块。",
 
   "priceFactor": "物价系数",
-  "priceFactor_description_location": "商店交易时的物价系数和据点纬度、城市类型有关，并且会随着季节发生波动。",
-  "priceFactor_description_character": "角色交易时的物价系数和人物之间的关系和亲密度有关。",
+  "priceFactor_description_location": "商店物价和季节、纬度和城市类型有关。",
+  "priceFactor_description_character": "角色物价和人物关系以及亲密度有关。",
+  "priceFactor_description_productionSite": "生产建筑的物价和地块的自然资源有关。",
 
   "characterCalculateStats": "计算人物属性",
   "characterCalculateStatsPrompt": "已重新计算所有人物属性。",
@@ -194,7 +196,7 @@
   "other": "其他",
 
   "show": "出示",
-  "tradeMaterial": "材料贸易",
+  "tradeMaterial": "贸易",
   "trade": "交易",
   "exchange": "交换",
 
@@ -253,7 +255,7 @@
   "atLocation": "所处场景",
   "atCity": "所属据点",
   "city": "据点",
-  "site": "场所",
+  "site": "建筑",
   "locations": "据点",
   "terrain": "地块",
   "coordinates": "坐标",
@@ -322,7 +324,7 @@
   "sea": "海洋",
   "lake": "湖泊",
   "shore": "岸边",
-  "shelf": "大陆架",
+  "shelf": "浅滩",
 
   "river": "河流",
   "road": "道路",
@@ -523,11 +525,36 @@
 
   "difficulty": "难度",
   "timeLimit": "时限",
+  "deadline": "截止日期",
 
   "budget": "预算",
   "reward": "酬劳",
 
   "worldMap": "大地图",
+
+  "policy": "政策",
+  "growth": "发展",
+  "consolidation": "巩固",
+  "expansion": "扩张",
+
+  "gameDataMap": "地图",
+  "gameDataCard": "战斗卡牌",
+  "gameDataCardAffix": "战斗卡牌词条",
+  "gameDataItem": "物品",
+  "gameDataCraftable": "打造",
+  "gameDataPassive": "天道技能",
+  "gameDataJournal": "日志",
+  "gameDataQuest": "任务",
+
+  "enemyStranger": "陌生修士",
+
+  "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
+
+  "hint_return_home_afterDying_1": "我……这是在哪？头好痛……好像是我的房间。我是怎么回来的？",
+  "hint_return_home_afterDying_2": "刚才发生了什么？我只记得眼前一黑，就什么都不知道了。还好捡回了一条命。",
+  "hint_return_home_afterDying_3": "可恶，就差一点……没想到竟然会昏过去。必须得想办法变得更强才行。",
+  "hint_return_home_afterDying_4": "身体好沉重……看来伤得不轻。得先想办法恢复一下体力。",
+  "hint_return_home_afterDying_5": "是被人送回来的吗？完全没有印象了。总之，先检查一下身体状况吧。",
 
   "hint_emptySeed": "地图种子不能为空。",
 
@@ -617,7 +644,7 @@
   "hint_insufficientLight": "此地没有足够灵光，无法继续修炼。",
   "hint_insufficientShard": "你没有足够的灵石，无法继续修炼。",
 
-  "hint_movement": "<yellow>在大地图上时，</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
+  "hint_movement": "在大地图上时，点击<yellow>鼠标左键</>移动角色，点击并拖动<yellow>鼠标右键</>移动地图。",
 
   "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道法身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，修为经验不会返还。",
 

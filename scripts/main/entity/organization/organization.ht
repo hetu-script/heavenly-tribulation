@@ -63,7 +63,7 @@ struct MemberData {
 function updateTerritoryBorders(tile) {
   if (tile.nationId == null) return
   tile.borders ??= {}
-  final neighbors = getNeighborTiles(tile.left, tile.top)
+  final neighbors = getTileNeighbors(tile.left, tile.top)
   for (final index in _kNeighborIndex) {
     final neighbor = neighbors[index]
     if (neighbor == null) continue
@@ -86,13 +86,11 @@ struct Organization {
     name,
     category,
     genre,
-    headquarters,
+    headquartersLocation,
     headId,
     incurIncident = true,
   }) {
-    assert(headquarters != null && headId != null)
-    assert(game.locations.containsKey(headquarters.id))
-    assert(game.characters.containsKey(headId))
+    assert(headquartersLocation != null && headId != null)
 
     this.entityType = kEntityTypeOrganization
 
@@ -100,7 +98,7 @@ struct Organization {
     // 该组织的事件触发选项
     this.flags = {}
     // 该组织解锁的科技
-    this.techs = {}
+    // this.techs = {}
 
     // 该组织每年刷新时间的时间，一般都为 X 月 1 日
     // 例如招募大比时间等等，都发生在这个日期
@@ -136,7 +134,7 @@ struct Organization {
     // 本门派统治的据点 id 列表
     this.locationIds = []
     // 本门派成员，key 是 角色的 id，value 是角色的 MemberRankData
-    this.members = {}
+    this.membersData = {}
 
     // 门派的历史
     this.experienced = []
@@ -148,20 +146,17 @@ struct Organization {
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
-    // 本国统治的区块
-    this.territoryIndexes = []
-    // 与本国国界线相邻的外国区块
-    this.borderIndexes = []
+    // // 本国统治的区块
+    // this.territoryIndexes = []
+    // // 与本国国界线相邻的外国区块
+    // this.borderIndexes = []
 
-    const terrain = world.terrains[headquarters.terrainIndex]
-    addTerrainToOrganization(terrain, this)
-    headquarters.organizationId = this.id
-    stationOrganization(this, headquarters, members: [headId])
+    stationOrganization(this, headquartersLocation)
     
     const head = game.characters[headId]
-    const incidentContent = engine.locale('organizationCreate', interpolations: [
+    const incidentContent = engine.locale('organizationBuild', interpolations: [
       head.name,
-      headquarters.name,
+      headquartersLocation.name,
       this.name,
     ])
     if (incurIncident) {
@@ -193,7 +188,8 @@ struct Organization {
 
 // TODO: 添加incident
 function stationOrganization(organization, location, { incurIncident: bool }) {
-  assert(location.organizationId == organization.id)
+  
+  addLocationToOrganization(location, organization, incurIncident: incurIncident)
   
   organization.headquartersLocationId = location.id
 
@@ -206,13 +202,13 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     image: 'location/card/${organization.genre}.png'
     background: 'location/site/${organization.genre}.png'
     organizationId: organization.id,
-    createNpc: true,
+    npcId: 'servant',
   )
 
   organization.headquartersSiteId = headquarters.id
   organization.locationIds.add(headquarters.id)
 
-  for (const id in organization.members.keys) {
+  for (const id in organization.membersData.keys) {
     const character = game.characters[id]
     setCharacterHome(character, location)
   }
@@ -222,7 +218,7 @@ function removeCharacterFromOrganization(character) {
   if (character.organizationId == null) return
 
   const organization = game.organizations[character.organizationId]
-  organization.members.remove(character.id)
+  organization.membersData.remove(character.id)
   character.organizationId = null
 }
 
@@ -231,7 +227,7 @@ function removeCharacterFromOrganization(character) {
 /// 输入的 rank 如果已经最高，会导致返回一个空数组
 function getOrganizationMembersDataByRank(organization, rank) {
   assert(rank >= 0 && rank <= kOrganizationJobRankMax)
-  let membersData = organization.members.values.where(
+  let membersData = organization.membersData.values.where(
     (m) => m.rank > rank
   ).toList()
   membersData.sort( (a, b) => a.rank.compareTo(b.rank) )
@@ -251,7 +247,7 @@ function addCharacterToOrganization(character, organization, {
   }) {
   assert(character.organizationId != organization.id)
   let memberData
-  if (!organization.members.contains(character.id)) {
+  if (!organization.membersData.contains(character.id)) {
     // if (character.organizationId != null) {
     //   assert(character.organizationId != organization.id)
     //   removeCharacterFromOrganization(character)
@@ -259,22 +255,15 @@ function addCharacterToOrganization(character, organization, {
     title ??= 'taskman'
     assert(Constants.titleToOrganizationRank.containsKey(title))
 
-    setCharacterTitle(character, title)
-    // 职位数据
-    memberData = organization.members[character.id] = MemberData(
-      id: character.id,
-      rank: Constants.titleToOrganizationRank[title],
-      title: title,
-      contribution: 0,
-    )
+    setCharacterTitle(character, title, organization)
   } else {
-    memberData = organization.members[character.id]
-    setCharacterTitle(character, memberData.title)
+    memberData = organization.membersData[character.id]
+    setCharacterTitle(character, memberData.title, organization)
   }
 
   character.organizationId = organization.id
 
-  const incidentContent = engine.locale('organizationEnlist', interpolations: [
+  const incidentContent = engine.locale('characterEnlist', interpolations: [
     character.name,
     organization.name,
   ])
@@ -306,8 +295,8 @@ function addCharacterToOrganization(character, organization, {
 /// 对于 rank 大于等于 3 (堂主) 的成员，报告位置在门派总堂所在据点的门派场景
 function assignCharacterSuperior(character, organization) {
   assert(character.organizationId == organization.id)
-  assert(organization.members.containsKey(character.id))
-  const memberData = organization.members[character.id]
+  assert(organization.membersData.containsKey(character.id))
+  const memberData = organization.membersData[character.id]
   assert(memberData != null)
 
   // 找到比自己职级高一级的成员
@@ -361,16 +350,44 @@ function assignCharacterSuperior(character, organization) {
   return memberData.superiorId
 }
 
-/// 设置角色在组织中的职位，这个 api 不会检查角色的境界和贡献是否达到职位要求
-function setCharacterOrganizationJob(character, organization, title) {
-  assert(character.organizationId == organization.id)
-  assert(organization.members.containsKey(character.id))
-  assert(Constants.titleToOrganizationRank.containsKey(title))
-  final jobRank = Constants.titleToOrganizationRank[title]
-  final memberData = organization.members[character.id]
-  memberData.title = title
-  memberData.rank = jobRank
-  setCharacterTitle(character, title)
+function setCharacterTitle(character, titleId, organization, { incurIncident = true }) {
+  
+  if (!character.titles.contains(titleId)) {
+    character.titles.add(titleId)
+  }
+  character.titleId = titleId
+
+  let jobRank = Constants.titleToOrganizationRank[titleId]
+  if (organization.membersData.containsKey(character.id)) {
+    let memberData = organization.membersData[character.id]
+    memberData.title = titleId
+    memberData.rank = jobRank
+  } else {
+    organization.membersData[character.id] = MemberData(
+      id: character.id,
+      rank: jobRank,
+      title: titleId,
+      contribution: 0,
+    )
+  }
+  
+  const incidentContent = engine.locale('characterPromote', interpolations: [
+    character.name,
+    organization.name,
+    engine.locale(titleId),
+  ])
+  if (incurIncident) {
+    Incident(
+      subjectId: character.id,
+      organizationId: organization.id,
+      locationId: organization.headquartersLocationId,
+      message: incidentContent,
+      orderly: 15,
+      isGlobal: jobRank > 3,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
 }
 
 function addOrganizations(orgs: List) {
@@ -396,96 +413,211 @@ function getOrganizations([ids]) {
   }
 }
 
-function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
-  if (terrain.nationId == null) return
+function removeLocationFromOrganization(location, organization) {
+  if (location.organizationId == null) return
 
-  const organization = game.organizations[terrain.nationId]
-  organization.territoryIndexes.remove(terrain.index)
-  organization.borderIndexes.remove(terrain.index)
+  assert(location.organizationId == organization.id)
 
-  terrain.nationId = null
-  updateTerritoryBorders(terrain)
-  final neighbors = getNeighborTiles(terrain.left, terrain.top)
-  for (final neighbor in neighbors.values) {
-    if (neighbor.nationId = organization.id &&
-        !organization.borderIndexes.contains(neighbor.index)) {
-      organization.borderIndexes.add(neighbor.index)
-    }
-    updateTerritoryBorders(neighbor)
+  organization ??= game.organizations[location.organizationId]
+  organization.locationIds.remove(location.id)
+  location.organizationId = null
+
+  for (let siteId in location.sites) {
+    const site = game.locations[siteId]
+    removeLocationFromOrganization(site, organization)
   }
 
-  if (terrain.locationId != null) {
-    const location = game.locations[terrain.locationId]
-    delete location.organizationId
-    engine.debug('${oldOrg.id} 失去了据点：${location.id}')
-    organization.locationIds.remove(location.id)
+  if (location.terrainIndex != null) {
+    if (location.category == 'city') {
+      for (final tileIndex in location.territoryIndexes) {
+        final terrain = world.terrains[tileIndex]
+        terrain.nationId = null
+      }
+
+      for (let siteId in location.sites) {
+        const site = game.locations[siteId]
+        if (site.kind == kLocationKindHeadquarters) {
+          engine.warn('${organization.id} 失去了总堂所在地块！')
+          delete game.locations[siteId]
+          break
+        }
+      }
+    }
+
+    const incidentContent = engine.locale('entityLose', interpolations: [
+      organization.name,
+      location.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        organizationId: organization.id,
+        locationId: location.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+  }
+
+  // for (final tileIndex in location.territoryIndexes) {
+  //   final terrain = world.terrains[tileIndex]
+  //   updateTerritoryBorders(terrain)
+  // }
+
+  // for (final tileIndex in location.borderIndexes) {
+  //   final terrain = world.terrains[tileIndex]
+  //   updateTerritoryBorders(terrain)
+  // }
+}
+
+function addLocationToOrganization(location, organization, { updateWorldMap = false, incurIncident = true }) {
+  if (location.organizationId != null) {
+    engine.error('城市 [${location.name}] 已经被组织 [${location.organizationId}] 占领，无法添加到组织 [${organization.id}]')
+    return
+  }
+  if (organization.locationIds.contains(location.id)) {
+    engine.error('组织 [${organization.id}] 已经拥有城市 [${location.name}]，不能再次添加！')
+    return
+  }
+
+  organization.locationIds.add(location.id)
+  location.organizationId = organization.id
+  for (let siteId in location.sites) {
+    const site = game.locations[siteId]
+    site.organizationId = organization.id
+    organization.locationIds.add(site.id)
+  }
+
+  if (location.terrainIndex != null) {
+    if (location.category == 'city') {
+      for (final tileIndex in location.territoryIndexes) {
+        final terrain = world.terrains[tileIndex]
+        terrain.nationId = organization.id
+      }
+
+      if (location.isHidden) {
+        if (organization.id == hero?.organizationId) {
+          discoverLocation(location, updateWorldMap: updateWorldMap)
+        }
+      }
+    }
+
+    const incidentContent = engine.locale('entityAcquire', interpolations: [
+      organization.name,
+      location.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        organizationId: organization.id,
+        locationId: location.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+  }
+
+  // for (final tileIndex in location.territoryIndexes) {
+  //   final terrain = world.terrains[tileIndex]
+  //   updateTerritoryBorders(terrain)
+  // }
+
+  // for (final tileIndex in location.borderIndexes) {
+  //   final terrain = world.terrains[tileIndex]
+  //   updateTerritoryBorders(terrain)
+  // }
+}
+
+// function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
+//   if (terrain.nationId == null) return
+
+//   const organization = game.organizations[terrain.nationId]
+//   organization.territoryIndexes.remove(terrain.index)
+//   organization.borderIndexes.remove(terrain.index)
+
+//   terrain.nationId = null
+//   updateTerritoryBorders(terrain)
+//   final neighbors = getTileNeighbors(terrain.left, terrain.top)
+//   for (final neighbor in neighbors.values) {
+//     if (neighbor.nationId = organization.id &&
+//         !organization.borderIndexes.contains(neighbor.index)) {
+//       organization.borderIndexes.add(neighbor.index)
+//     }
+//     updateTerritoryBorders(neighbor)
+//   }
+
+//   if (terrain.locationId != null) {
+//     const location = game.locations[terrain.locationId]
+//     delete location.organizationId
+//     engine.debug('${oldOrg.id} 失去了据点：${location.id}')
+//     organization.locationIds.remove(location.id)
     
-    let toBeRemoved
-    for (let siteId in location.sites) {
-      const site = game.locations[siteId]
-      if (site.name == organization.name) {
-        engine.debug('${organization.id} 失去了总堂所在地块！')
-        toBeRemoved = site.id
-        break
-      }
-    }
-    delete game.locations[toBeRemoved]
-  }
-}
+//     let toBeRemoved
+//     for (let siteId in location.sites) {
+//       const site = game.locations[siteId]
+//       if (site.name == organization.name) {
+//         engine.debug('${organization.id} 失去了总堂所在地块！')
+//         toBeRemoved = site.id
+//         break
+//       }
+//     }
+//     delete game.locations[toBeRemoved]
+//   }
+// }
 
-// TODO: 添加incident
-/// 将某个地块划归到某个组织，这里不检查地块是否已经属于另一个组织
-function addTerrainToOrganization(terrain, organization, { updateWorldMap = false, incurIncident = true }) {
-  if (terrain.nationId != null) {
-    engine.error('地块 [${terrain.left}, ${terrain.top}] 已经被组织 [${terrain.nationId}] 占领，无法添加到组织 [${organization.id}]')
-    return
-  }
-  if (organization.territoryIndexes.contains(terrain.index)) {
-    engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
-    return
-  }
-  if (terrain.nationId == organization.id) {
-    engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
-    return
-  }
-  organization.territoryIndexes.add(terrain.index)
-  terrain.nationId = organization.id
-  if (organization.borderIndexes.contains(terrain.index)) {
-    organization.borderIndexes.remove(terrain.index)
-  }
-  updateTerritoryBorders(terrain)
-  final neighbors = getNeighborTiles(terrain.left, terrain.top)
-  for (final neighbor in neighbors.values) {
-    if (neighbor.nationId != organization.id) {
-      organization.borderIndexes.add(neighbor.index)
-    }
-    updateTerritoryBorders(neighbor)
-  }
-  if (terrain.locationId) {
-    const location = game.locations[terrain.locationId]
-    // 应该已经从原本的门派中移除
-    assert(location.organizationId == null)
-    location.organizationId = organization.id
-    if (!organization.locationIds.contains(location.id)) {
-      organization.locationIds.add(location.id)
-    }
-    for (final siteId in location.sites) {
-      final site = game.locations[siteId]
-      assert(site != null, 'location site not found, siteId: ${siteId}, locationId: ${location.id}')
-      site.organizationId = organization.id
-      if (!organization.locationIds.contains(site.id)) {
-        organization.locationIds.add(site.id)
-      }
-    }
+// // TODO: 添加incident
+// /// 将某个地块划归到某个组织，这里不检查地块是否已经属于另一个组织
+// function addTerrainToOrganization(terrain, organization, { updateWorldMap = false, incurIncident = true }) {
+//   if (terrain.nationId != null) {
+//     engine.error('地块 [${terrain.left}, ${terrain.top}] 已经被组织 [${terrain.nationId}] 占领，无法添加到组织 [${organization.id}]')
+//     return
+//   }
+//   if (organization.territoryIndexes.contains(terrain.index)) {
+//     engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
+//     return
+//   }
+//   if (terrain.nationId == organization.id) {
+//     engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
+//     return
+//   }
+//   organization.territoryIndexes.add(terrain.index)
+//   terrain.nationId = organization.id
+//   if (organization.borderIndexes.contains(terrain.index)) {
+//     organization.borderIndexes.remove(terrain.index)
+//   }
+//   updateTerritoryBorders(terrain)
+//   final neighbors = getTileNeighbors(terrain.left, terrain.top)
+//   for (final neighbor in neighbors.values) {
+//     if (neighbor.nationId != organization.id) {
+//       organization.borderIndexes.add(neighbor.index)
+//     }
+//     updateTerritoryBorders(neighbor)
+//   }
+//   if (terrain.locationId) {
+//     const location = game.locations[terrain.locationId]
+//     // 应该已经从原本的门派中移除
+//     assert(location.organizationId == null)
+//     location.organizationId = organization.id
+//     if (!organization.locationIds.contains(location.id)) {
+//       organization.locationIds.add(location.id)
+//     }
+//     for (final siteId in location.sites) {
+//       final site = game.locations[siteId]
+//       assert(site != null, 'location site not found, siteId: ${siteId}, locationId: ${location.id}')
+//       site.organizationId = organization.id
+//       if (!organization.locationIds.contains(site.id)) {
+//         organization.locationIds.add(site.id)
+//       }
+//     }
 
-    if (location.isHidden) {
-      if (organization.id == hero?.organizationId) {
-        discoverLocation(location, updateWorldMap: updateWorldMap)
-      }
-    }
-  }
-  engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
-}
+//     if (location.isHidden) {
+//       if (organization.id == hero?.organizationId) {
+//         discoverLocation(location, updateWorldMap: updateWorldMap)
+//       }
+//     }
+//   }
+//   engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
+// }
 
 function createDiplomacy(organization1, organization2, {
   type = 'neutral',

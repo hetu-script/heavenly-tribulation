@@ -43,14 +43,14 @@
       sprite: "object/mountain.png",
     },
   },
-  river: {
-    id: "river",
-    name: "river",
-    icon: "assets/images/object/river.png",
+  lake: {
+    id: "lake",
+    name: "lake",
+    icon: "assets/images/object/lake.png",
     type: "sprite",
-    kind: "river",
+    kind: "lake",
     overlaySprite: {
-      sprite: "object/river.png",
+      sprite: "object/lake.png",
     },
   },
   shelf: {

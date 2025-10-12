@@ -21,8 +21,6 @@ struct BattleCard {
     isIdentified = true,
     isEphemeral = false,
   }) {
-    final r = Random()
-
     this.entityType = kEntityTypeBattleCard
     if (rank != null) {
       assert(rank >= 0 && rank <= kCultivationRankMax)
@@ -32,7 +30,7 @@ struct BattleCard {
       if (maxRank == 0) {
         this.rank = 0
       } else {
-        this.rank = r.nearInt(maxRank + 1)
+        this.rank = random.nearInt(maxRank + 1)
       }
     } else {
       this.rank = 0
@@ -74,7 +72,7 @@ struct BattleCard {
       throw('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
     }
 
-    const mainAffix = Object.create(mainAffixes.random)
+    const mainAffix = Object.create(random.nextIterable(mainAffixes))
 
     this.affixes = [mainAffix]
 
@@ -99,7 +97,7 @@ struct BattleCard {
       if (maxOutLevel) {
         level = maxLevel
       } else {
-        level = minLevel + r.nextInt(maxLevel - minLevel)
+        level = minLevel + random.nextInt(maxLevel - minLevel)
       }
     } else {
       level = level.clamp(Math.max(1, minLevel), maxLevel)
@@ -251,8 +249,7 @@ function _addExtraAffixes(card) {
   let extraAffixCount = affixCountInfo.minExtra
   if (affixCountInfo.maxExtra == 0) return
   if (extraAffixCount < affixCountInfo.maxExtra) {
-    final r = Random()
-    extraAffixCount += r.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
+    extraAffixCount += random.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
   }
   
   for (var i = 0; i < extraAffixCount; ++i) {
@@ -263,7 +260,7 @@ function _addExtraAffixes(card) {
       break
     }
 
-    let affix = Object.create(supportAffixes.random)
+    let affix = Object.create(random.nextIterable(supportAffixes))
 
     _addAffixToCard(card, affix)
   }
@@ -303,7 +300,7 @@ function addAffix(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final affix = Object.create(supportAffixes.random)
+  final affix = Object.create(random.nextIterable(supportAffixes))
 
   _addAffixToCard(card, affix)
 
@@ -333,7 +330,7 @@ function replaceAffix(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  final affix = extraAffixes.random
+  final affix = random.nextIterable(extraAffixes)
 
   card.affixes.remove(affix)
   
@@ -369,8 +366,7 @@ function rerollAffix(card) {
   
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
-  final r = Random()
-  card.level = minLevel + r.nextInt(maxLevel - minLevel)
+  card.level = minLevel + random.nextInt(maxLevel - minLevel)
   
   _updateMainAffixValue(card)
 
@@ -403,8 +399,7 @@ function upgradeRank(card) {
   entityLoseItemKind(hero, materialId, cost)
 
   // final successRate = getCardRankUpProbability(card.rank)
-  // final r = Random()
-  // if (r.nextDouble() > successRate) {
+  // if (random.nextDouble() > successRate) {
   //   return 'deckbuilding_upgradeRank_failed_hint'
   // }
 

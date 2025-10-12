@@ -11,7 +11,7 @@ class Constants extends HTExternalClass {
       {String? from, bool isRecursive = false, bool ignoreUndefined = false}) {
     switch (id) {
       case 'Constants.worldSizeByScale':
-        return kWorldSizeByScale;
+        return kWorldWidthByScale;
       case 'Constants.rankToRarity':
         return kRankToRarity;
       case 'Constants.races':
@@ -54,17 +54,19 @@ class Constants extends HTExternalClass {
         return kSiteKindsWorkable;
       case 'Constants.siteKindsBuildable':
         return kSiteKindsBuildable;
-      case 'Constants.siteKindsBuildableOnWorldMap':
-        return kSiteKindsBuildableOnWorldMap;
+      case 'Constants.productionSiteKinds':
+        return kProductionSiteKinds;
       case 'Constants.siteKindsToMaterialProducable':
         return kSiteKindsToMaterialProducable;
       case 'Constants.organizationCategoryToSiteKind':
         return kOrganizationCategoryToSiteKind;
+      case 'Constants.organizationCategoryExpansionRate':
+        return kOrganizationCategoryExpansionRate;
       case 'Constants.organizationGenreToSiteKinds':
         return kOrganizationGenreToSiteKinds;
       case 'Constants.attackTypes':
         return kAttackTypes;
-      case 'Constnats.damageTypes':
+      case 'Constants.damageTypes':
         return kDamageTypes;
       case 'Constants.ticksPerDay':
         return kTicksPerDay;
@@ -90,20 +92,26 @@ class Constants extends HTExternalClass {
         return kMaterialBasePrice;
       case 'Constants.basePriceByCategory':
         return kItemBasePriceByCategory;
+      case 'Constants.itemWithAffixCategories':
+        return kItemWithAffixCategories;
       case 'Constants.terrainKindsLand':
         return kTerrainKindsLand;
       case 'Constants.terrainKindsWater':
         return kTerrainKindsWater;
       case 'Constants.terrainKindsMountain':
         return kTerrainKindsMountain;
+      case 'Constants.terrainKindsAll':
+        return kTerrainKindsAll;
       case 'Constants.titleToOrganizationRank':
         return kTitleToOrganizationRank;
       case 'Constants.equipmentCategoryKinds':
         return kEquipmentCategoryKinds;
       case 'Constants.equipmentKinds':
         return kEquipmentKinds;
-      case 'Constants.questKinds':
-        return kQuestKinds;
+      case 'Constants.terrainKindToEnemyEncounterRate':
+        return kTerrainKindToEnemyEncounterRate;
+      case 'Constants.enemyEncounterQuests':
+        return kEnemyEncounterQuests;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

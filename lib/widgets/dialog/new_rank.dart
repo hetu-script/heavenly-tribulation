@@ -50,14 +50,14 @@ class _NewRankState extends State<NewRank> {
                   image: AssetImage(
                       'assets/images/cultivation/cultivation${widget.rank}.png'),
                 ),
-                onMouseEnter: (rect) {
+                onEnter: (rect) {
                   context.read<HoverContentState>().show(
                         engine.locale('cultivationRank_${widget.rank}'),
                         rect,
                         direction: HoverContentDirection.topCenter,
                       );
                 },
-                onMouseExit: () {
+                onExit: () {
                   context.read<HoverContentState>().hide();
                 },
               ),

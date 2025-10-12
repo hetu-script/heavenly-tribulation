@@ -1,8 +1,10 @@
 {
   "journal_sandboxTutorial_title": "系统教程",
-  "journal_sandboxTutorial_stage_0": "你<cyan>「穿越」</>到了这个奇怪的世界，并且还见到了一个神秘的<cyan>「系统」</>。它承诺帮助你变强，在这个修真世界活下去。不过，因为你现在体力不支，所以要先<yellow>想办法回家</>。",
-  "journal_sandboxTutorial_stage_1": "你在家中休息后，恢复了体力。你发现家里收藏着一件装备和几本秘籍。它们是你在这个修真世界立足的起点。<yellow>装备武器，打开秘籍，构筑战斗卡组，这样你才可以面对未来的战斗。</>",
+  "journal_sandboxTutorial_stage_0": "你<yellow>「穿越」</>到了这个奇怪的世界，并且还见到了一个神秘的<yellow>「系统」</>。它承诺帮助你变强，在这个修真世界活下去。不过，因为你现在体力不支，所以要先<yellow>想办法回家</>。",
+  "journal_sandboxTutorial_stage_1": "你在家中休息，恢复了体力。然后发现家里收藏着一件装备和几本秘籍。它们是你在这个修真世界立足的起点。<yellow>装备武器，打开秘籍，构筑战斗卡组，这样你才可以面对未来的战斗。</>",
   "journal_sandboxTutorial_stage_2": "你需要<yellow>将修为等级提升到 1 级，并积累 2000 铜钱。</>然后回家找「系统」获取进一步的指引。",
+  "journal_sandboxTutorial_stage_3": "你需要<yellow>加入任意门派</>。然后回家找「系统」获取进一步的指引。",
+  "journal_sandboxTutorial_stage_4": "你需要<yellow>提升境界到「凝气」</>，并<yellow>提升门派职位到「执事」</>。然后回家找「系统」获取进一步的指引。",
 
   "journal_organizationInitiation_title": "初入门派",
   "journal_organizationInitiation_stage_0": "初次加入{0}的你，要去{1}，找你的上级{2}报到。",

@@ -52,6 +52,8 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
 
   data_table_2: 2.6.0
+  flutter_markdown_plus: ^1.0.5
+  animated_tree_view: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -166,6 +168,47 @@ flutter:
     - scripts/story/l10n/zh/
     - scripts/story/events/
     - scripts/story/data/
+
+    - docs/
+    - docs/docs/
+    - docs/docs/how2play/
+    - docs/docs/how2play/rpg/
+    - docs/docs/how2play/rpg/battle/
+    - docs/docs/how2play/rpg/battle/battle_card/
+    - docs/docs/how2play/rpg/battle/resource/
+    - docs/docs/how2play/rpg/character/
+    - docs/docs/how2play/rpg/character/attribute/
+    - docs/docs/how2play/rpg/character/equipment/
+    - docs/docs/how2play/rpg/character/inventory/
+    - docs/docs/how2play/rpg/character/personality/
+    - docs/docs/how2play/rpg/character/relationship/
+    - docs/docs/how2play/rpg/character/skin/
+    - docs/docs/how2play/rpg/craft/
+    - docs/docs/how2play/rpg/cultivation/
+    - docs/docs/how2play/rpg/cultivation/level/
+    - docs/docs/how2play/rpg/cultivation/passive_skill/
+    - docs/docs/how2play/rpg/dungeon/
+    - docs/docs/how2play/rpg/encounter/
+    - docs/docs/how2play/rpg/incident/
+    - docs/docs/how2play/rpg/item/
+    - docs/docs/how2play/rpg/item/consumable/
+    - docs/docs/how2play/rpg/item/equipment/
+    - docs/docs/how2play/rpg/organization/
+    - docs/docs/how2play/rpg/quest/
+
+    - docs/docs/how2play/tutorial/
+    - docs/docs/how2play/tycoon/
+    - docs/docs/how2play/tycoon/tile/
+    - docs/docs/how2play/tycoon/resource/
+    - docs/docs/how2play/tycoon/location/
+
+    - docs/docs/story/
+    - docs/docs/story/main/
+    - docs/docs/story/pivotal/
+    - docs/docs/story/ending/
+    - docs/docs/story/world_setting/
+
+    - docs/docs/mod/
 
   fonts:
     - family: NotoSansMono

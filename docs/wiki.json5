@@ -1,0 +1,221 @@
+[
+  {
+    id: "how2play",
+    title: "wiki_how2play_title",
+    // description: "wiki_how2play_description",
+    path: "docs/docs/how2play/readme.md",
+    children: [
+      {
+        id: "tutorial",
+        title: "wiki_tutorial_title",
+        path: "docs/docs/how2play/tutorial/readme.md",
+        children: [],
+      },
+      {
+        id: "rpg",
+        title: "wiki_rpg_title",
+        path: "docs/docs/how2play/rpg/readme.md",
+        children: [
+          {
+            id: "battle",
+            title: "wiki_battle_title",
+            path: "docs/docs/how2play/rpg/battle/readme.md",
+            children: [
+              {
+                id: "battle_card",
+                title: "wiki_battle_card_title",
+                path: "docs/docs/how2play/rpg/battle/battle_card/readme.md",
+                children: [],
+              },
+              {
+                id: "resource",
+                title: "wiki_resource_title",
+                path: "docs/docs/how2play/rpg/battle/resource/readme.md",
+                children: [],
+              },
+            ],
+          },
+          {
+            id: "character",
+            title: "wiki_character_title",
+            path: "docs/docs/how2play/rpg/character/readme.md",
+            children: [
+              {
+                id: "attribute",
+                title: "wiki_attribute_title",
+                path: "docs/docs/how2play/rpg/character/attribute/readme.md",
+                children: [],
+              },
+              {
+                id: "equipment",
+                title: "wiki_equipment_title",
+                path: "docs/docs/how2play/rpg/character/equipment/readme.md",
+                children: [],
+              },
+              {
+                id: "inventory",
+                title: "wiki_inventory_title",
+                path: "docs/docs/how2play/rpg/character/inventory/readme.md",
+                children: [],
+              },
+              {
+                id: "personality",
+                title: "wiki_personality_title",
+                path: "docs/docs/how2play/rpg/character/personality/readme.md",
+                children: [],
+              },
+              {
+                id: "relationship",
+                title: "wiki_relationship_title",
+                path: "docs/docs/how2play/rpg/character/relationship/readme.md",
+                children: [],
+              },
+              {
+                id: "skin",
+                title: "wiki_skin_title",
+                path: "docs/docs/how2play/rpg/character/skin/readme.md",
+                children: [],
+              },
+            ],
+          },
+          {
+            id: "craft",
+            title: "wiki_craft_title",
+            path: "docs/docs/how2play/rpg/craft/readme.md",
+            children: [],
+          },
+          {
+            id: "cultivation",
+            title: "wiki_cultivation_title",
+            path: "docs/docs/how2play/rpg/cultivation/readme.md",
+            children: [
+              {
+                id: "level",
+                title: "wiki_level_title",
+                path: "docs/docs/how2play/rpg/cultivation/level/readme.md",
+                children: [],
+              },
+              {
+                id: "passive_skill",
+                title: "wiki_passive_skill_title",
+                path: "docs/docs/how2play/rpg/cultivation/passive_skill/readme.md",
+                children: [],
+              },
+            ],
+          },
+          {
+            id: "dungeon",
+            title: "wiki_dungeon_title",
+            path: "docs/docs/how2play/rpg/dungeon/readme.md",
+            children: [],
+          },
+          {
+            id: "encounter",
+            title: "wiki_encounter_title",
+            path: "docs/docs/how2play/rpg/encounter/readme.md",
+            children: [],
+          },
+          {
+            id: "incident",
+            title: "wiki_incident_title",
+            path: "docs/docs/how2play/rpg/incident/readme.md",
+            children: [],
+          },
+          {
+            id: "item",
+            title: "wiki_item_title",
+            path: "docs/docs/how2play/rpg/item/readme.md",
+            children: [
+              {
+                id: "consumable",
+                title: "wiki_consumable_title",
+                path: "docs/docs/how2play/rpg/item/consumable/readme.md",
+                children: [],
+              },
+              {
+                id: "equipment",
+                title: "wiki_equipment_title",
+                path: "docs/docs/how2play/rpg/item/equipment/readme.md",
+                children: [],
+              },
+            ],
+          },
+          {
+            id: "organization",
+            title: "wiki_organization_title",
+            path: "docs/docs/how2play/rpg/organization/readme.md",
+            children: [],
+          },
+          {
+            id: "quest",
+            title: "wiki_quest_title",
+            path: "docs/docs/how2play/rpg/quest/readme.md",
+            children: [],
+          },
+        ],
+      },
+      {
+        id: "tycoon",
+        title: "wiki_tycoon_title",
+        path: "docs/docs/how2play/tycoon/readme.md",
+        children: [
+          {
+            id: "location",
+            title: "wiki_location_title",
+            path: "docs/docs/how2play/tycoon/location/readme.md",
+            children: [],
+          },
+          {
+            id: "resource",
+            title: "wiki_resource_title",
+            path: "docs/docs/how2play/tycoon/resource/readme.md",
+            children: [],
+          },
+          {
+            id: "tile",
+            title: "wiki_tile_title",
+            path: "docs/docs/how2play/tycoon/tile/readme.md",
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "mod",
+    title: "wiki_mod_title",
+    path: "docs/docs/mod/readme.md",
+    children: [],
+  },
+  {
+    id: "story",
+    title: "wiki_story_title",
+    path: "docs/docs/story/readme.md",
+    children: [
+      {
+        id: "world_setting",
+        title: "wiki_world_setting_title",
+        path: "docs/docs/story/world_setting/readme.md",
+        children: [],
+      },
+      {
+        id: "main",
+        title: "wiki_main_title",
+        path: "docs/docs/story/main/readme.md",
+        children: [],
+      },
+      {
+        id: "pivotal",
+        title: "wiki_pivotal_title",
+        path: "docs/docs/story/pivotal/readme.md",
+        children: [],
+      },
+      {
+        id: "ending",
+        title: "wiki_ending_title",
+        path: "docs/docs/story/ending/readme.md",
+        children: [],
+      },
+    ],
+  },
+]

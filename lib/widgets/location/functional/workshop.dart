@@ -19,6 +19,7 @@ import '../../character/inventory/inventory.dart';
 import '../../character/inventory/material.dart';
 import '../../character/inventory/item_grid.dart';
 import '../../ui/bordered_icon_button.dart';
+import '../../../scene/game_dialog/game_dialog_content.dart';
 
 class WorkbenchDialog extends StatefulWidget {
   const WorkbenchDialog({
@@ -127,8 +128,8 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
           onSelectedItem: (item) async {
             final isIdentified = itemData['isIdentified'] == true;
             if (!isIdentified) {
-              dialog.pushDialog('hint_unidentifiedItem');
-              await dialog.execute();
+              GameDialogContent.show(
+                  context, engine.locale('hint_unidentifiedItem'));
               return;
             }
             if (item == 'select') {

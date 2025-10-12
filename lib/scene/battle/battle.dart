@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/ui_overlay.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -12,6 +11,7 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 
+import '../../widgets/ui/close_button2.dart';
 import '../../game/ui.dart';
 import '../../game/logic/logic.dart';
 import 'character.dart';
@@ -23,6 +23,7 @@ import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../../state/states.dart';
+import '../../widgets/ui_overlay.dart';
 
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
@@ -129,7 +130,7 @@ class BattleScene extends Scene {
   final Map<String, dynamic> battleFlags = {};
 
   FutureOr<void> Function()? onBattleStart;
-  FutureOr<void> Function(bool result, int roundCount)? onBattleEnd;
+  FutureOr<dynamic> Function(bool result, int roundCount)? onBattleEnd;
 
   bool isDetailedHovertip = false;
 
@@ -648,12 +649,16 @@ class BattleScene extends Scene {
     return skipTurn;
   }
 
-  void _endScene() {
+  void _endScene() async {
+    context.read<EnemyState>().clear();
     engine.hetu.assign('enemy', null);
     engine.hetu.assign('self', null);
     engine.hetu.assign('opponent', null);
     engine.hetu.assign('battleFlags', null);
-    engine.popScene(clearCache: true);
+    final result = await onBattleEnd?.call(battleResult!, roundCount);
+    if (result != true) {
+      engine.popScene(clearCache: true);
+    }
   }
 
   Future<void> _onBattleEnd() async {
@@ -725,10 +730,8 @@ class BattleScene extends Scene {
         hero.setLife(hero.lifeMax);
       }
     }
-    hero.data['life'] = hero.life;
-    await onBattleEnd?.call(battleResult!, roundCount);
-
-    context.read<EnemyState>().clear();
+    engine.hetu
+        .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
   }
 
   Future<void> startAutoBattle() async {
@@ -791,11 +794,10 @@ class BattleScene extends Scene {
                               engine: engine,
                               margin: const EdgeInsets.all(50.0),
                               backgroundColor: GameUI.backgroundColor2,
+                              closeButton: const CloseButton2(),
                             ),
                           );
                         case BattleDropMenuItems.exit:
-                          await onBattleEnd?.call(false, roundCount);
-                          context.read<EnemyState>().clear();
                           _endScene();
                       }
                     },

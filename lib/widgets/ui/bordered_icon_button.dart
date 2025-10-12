@@ -13,8 +13,8 @@ class BorderedIconButton extends StatelessWidget {
     this.borderRadius = 0.0,
     this.borderWidth = 1.0,
     this.onPressed,
-    this.onMouseEnter,
-    this.onMouseExit,
+    this.onEnter,
+    this.onExit,
     this.isSelected = false,
     this.isEnabled = true,
   }) : super(key: GlobalKey());
@@ -29,8 +29,8 @@ class BorderedIconButton extends StatelessWidget {
   final bool isEnabled;
 
   final Function()? onPressed;
-  final Function(Rect rect)? onMouseEnter;
-  final Function()? onMouseExit;
+  final Function(Rect rect)? onEnter;
+  final Function()? onExit;
 
   @override
   Widget build(BuildContext context) {
@@ -46,16 +46,16 @@ class BorderedIconButton extends StatelessWidget {
           },
           onHover: (hovering) {
             if (hovering) {
-              if (onMouseEnter == null) return;
+              if (onEnter == null) return;
 
               final renderBox = context.findRenderObject() as RenderBox;
               final Size size = renderBox.size;
               final Offset offset = renderBox.localToGlobal(Offset.zero);
               final Rect rect =
                   Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-              onMouseEnter!.call(rect);
+              onEnter!.call(rect);
             } else {
-              onMouseExit?.call();
+              onExit?.call();
             }
           },
           child: Container(

@@ -81,8 +81,7 @@ struct Potion {
       this.rarity = 'common'
     }
     
-    final r = Random()
-    this.icon = icon ?? 'item/consumable/potion/bottle${r.nextInt(kPotionBottleCount) + 1}_color${r.nextInt(kPotionBottleColorCount) + 1}.png'
+    this.icon = icon ?? 'item/consumable/potion/bottle${random.nextInt(kPotionBottleCount) + 1}_color${random.nextInt(kPotionBottleColorCount) + 1}.png'
 
     this.name = name ?? generateConsumableName(category: this.rank > 3 ? 'alchemy': 'medicine', rarity: this.rarity)
     this.flavortext = flavortext ?? engine.locale('${this.category}_flavortext')
@@ -125,7 +124,7 @@ struct Potion {
     let affixCount = affixCountInfo.minExtra
     if (affixCountInfo.maxExtra > 0) {
       if (affixCount < affixCountInfo.maxExtra) {
-        affixCount += r.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
       }
     }
     if (affixCount > 0) {
@@ -141,7 +140,7 @@ struct Potion {
           throw('Found no support affix for potion. rank: ${this.rank}')
         }
         
-        final affix = Object.create(supportAffixes.random)
+        final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()

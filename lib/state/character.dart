@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../game/data.dart';
 import '../engine.dart';
 
-class HeroState with ChangeNotifier {
+class GameState with ChangeNotifier {
   dynamic get hero => GameData.hero;
 
   void update() {
@@ -73,6 +73,7 @@ enum MerchantType {
   none,
   location,
   character,
+  productionSite,
   depositBox,
 }
 

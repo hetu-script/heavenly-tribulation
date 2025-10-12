@@ -25,8 +25,9 @@
   "tiny": "微小",
   "medium": "适中",
   "huge": "庞大",
-  "massive": "广阔",
+  "gigantic": "广阔",
   "locationNumber": "据点数量",
+  "memberNumber": "成员数量",
   "characterNumber": "角色数量",
   "organizationNumber": "门派数量",
 

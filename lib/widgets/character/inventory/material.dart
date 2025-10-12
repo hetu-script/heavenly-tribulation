@@ -76,61 +76,65 @@ class MaterialList extends StatelessWidget {
       widgets.add(
         MouseRegion2(
           cursor: FlutterCustomMemoryImageCursor(key: 'click'),
-          onTapUp: () {
-            onSelectedItem?.call(key);
-          },
-          onMouseEnter: (rect) {
+          onEnter: (rect) {
             context.read<HoverContentState>().show(
                 '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
                 '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money')}</>' : ''}',
                 rect);
           },
-          onMouseExit: () {
+          onExit: () {
             context.read<HoverContentState>().hide();
           },
-          child: Container(
-            margin: const EdgeInsets.only(
-                left: 2.0, right: 2.0, top: 1.0, bottom: 1.0),
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(
-                  color: selectedItem == key
-                      ? GameUI.selectedColorOpaque
-                      : GameUI.foregroundColor),
-              color: selectedItem == key
-                  ? GameUI.focusedColor
-                  : Colors.transparent,
-            ),
-            child: Row(
-              children: [
-                Image(
-                  width: 20,
-                  height: 20,
-                  image: AssetImage('assets/images/item/material/$key.png'),
-                ),
-                Text(
-                  engine.locale(key),
-                  style: TextStyle(
+          child: GestureDetector(
+            onTap: () {
+              onSelectedItem?.call(key);
+            },
+            child: Container(
+              margin: const EdgeInsets.only(
+                  left: 2.0, right: 2.0, top: 1.0, bottom: 1.0),
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
                     color: selectedItem == key
                         ? GameUI.selectedColorOpaque
-                        : Colors.white,
+                        : GameUI.foregroundColor),
+                color: selectedItem == key
+                    ? GameUI.focusedColor
+                    : Colors.transparent,
+              ),
+              child: Row(
+                children: [
+                  Image(
+                    width: 20,
+                    height: 20,
+                    image: AssetImage('assets/images/item/material/$key.png'),
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  requiredAmount != null
-                      ? '$requiredAmount/$amount'.padLeft(8)
-                      : amount.toString().padLeft(8),
-                  style: TextStyle(
-                    color: requiredAmount != null
-                        ? (amount < requiredAmount ? Colors.red : Colors.white)
-                        : (selectedItem == key
-                            ? GameUI.selectedColorOpaque
-                            : Colors.white),
+                  Text(
+                    engine.locale(key),
+                    style: TextStyle(
+                      color: selectedItem == key
+                          ? GameUI.selectedColorOpaque
+                          : Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                  const Spacer(),
+                  Text(
+                    requiredAmount != null
+                        ? '$requiredAmount/$amount'.padLeft(8)
+                        : amount.toString().padLeft(8),
+                    style: TextStyle(
+                      color: requiredAmount != null
+                          ? (amount < requiredAmount
+                              ? Colors.red
+                              : Colors.white)
+                          : (selectedItem == key
+                              ? GameUI.selectedColorOpaque
+                              : Colors.white),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

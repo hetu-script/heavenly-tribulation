@@ -3,7 +3,6 @@ import 'package:heavenly_tribulation/widgets/location/edit_location_basics.dart'
 import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/tilemap.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -235,7 +234,8 @@ class EntityListPanel extends StatefulWidget {
 
   final void Function()? onUpdateCharacters;
   final void Function()? onUpdateLocations;
-  final void Function(dynamic, TileMapTerrain)? onCreatedOrganization;
+  final void Function(dynamic organization, dynamic city)?
+      onCreatedOrganization;
 
   @override
   State<EntityListPanel> createState() => _EntityListPanelState();
@@ -339,7 +339,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     for (final org in _organizations) {
       final rowData = <String>[];
       rowData.add(org['name']);
-      rowData.add(org['members'].length.toString());
+      rowData.add(org['membersData'].length.toString());
       // 多存一个隐藏的 id 信息，用于点击事件
       rowData.add(org['id']);
       _organizationsTableData.add(rowData);
@@ -846,7 +846,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             });
                         _updateOrganizations();
                         widget.onCreatedOrganization
-                            ?.call(organization, selectedTile);
+                            ?.call(organization, location);
                       },
                       child: Text(engine.locale('createOrganization')),
                     ),
@@ -902,7 +902,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           name,
                           image,
                           background,
-                          createNpc
+                          npcId
                         ) = value;
                         final location = engine.hetu.invoke(
                           'Location',
@@ -915,7 +915,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             'background': background,
                             'atTerrain': atTerrain,
                             if (category == 'site') 'atLocation': atLocation,
-                            'createNpc': createNpc,
+                            'npcId': npcId,
                           },
                         );
                         await showDialog(

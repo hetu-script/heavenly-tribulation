@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/game/common.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 
@@ -56,13 +57,12 @@ class CurrencyBar extends StatelessWidget {
     }
 
     if (priceFactor != null) {
+      final double value = priceFactor['sell'] ?? kBaseSellRate;
+      printPriceFactor('sellPriceFactor', value);
+
       if (priceFactor['base'] != null) {
         final double value = priceFactor['base'];
         printPriceFactor('basePriceFactor', value);
-      }
-      if (priceFactor['sell'] != null) {
-        final double value = priceFactor['sell'];
-        printPriceFactor('sellPriceFactor', value * 2.0);
       }
       if (priceFactor['category'] != null) {
         for (final key in priceFactor['category'].keys) {
@@ -87,12 +87,12 @@ class CurrencyBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.only(right: 5.0),
             child: MouseRegion2(
-              onMouseEnter: (rect) {
+              onEnter: (rect) {
                 context
                     .read<HoverContentState>()
                     .show(engine.locale('money_description'), rect);
               },
-              onMouseExit: () {
+              onExit: () {
                 context.read<HoverContentState>().hide();
               },
               child: Row(
@@ -117,12 +117,12 @@ class CurrencyBar extends StatelessWidget {
           Container(
             padding: const EdgeInsets.only(right: 5.0),
             child: MouseRegion2(
-              onMouseEnter: (rect) {
+              onEnter: (rect) {
                 context
                     .read<HoverContentState>()
                     .show(engine.locale('shard_description'), rect);
               },
-              onMouseExit: () {
+              onExit: () {
                 context.read<HoverContentState>().hide();
               },
               child: Row(
@@ -147,7 +147,7 @@ class CurrencyBar extends StatelessWidget {
           if (priceFactor != null)
             BorderedIconButton(
               size: const Size(20.0, 20.0),
-              onMouseEnter: (rect) {
+              onEnter: (rect) {
                 final StringBuffer content = StringBuffer();
                 if (priceFactorDescription.isNotEmpty) {
                   if (merchantType == MerchantType.location) {
@@ -156,6 +156,9 @@ class CurrencyBar extends StatelessWidget {
                   } else if (merchantType == MerchantType.character) {
                     content.writeln(
                         '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
+                  } else if (merchantType == MerchantType.productionSite) {
+                    content.writeln(
+                        '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_productionSite')}\n \n${priceFactorDescription.toString()}');
                   } else {
                     content.writeln(
                         '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
@@ -168,7 +171,7 @@ class CurrencyBar extends StatelessWidget {
                     .read<HoverContentState>()
                     .show(content.toString(), rect);
               },
-              onMouseExit: () {
+              onExit: () {
                 context.read<HoverContentState>().hide();
               },
               child: const Image(
