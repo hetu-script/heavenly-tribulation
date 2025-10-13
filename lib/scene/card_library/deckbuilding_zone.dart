@@ -14,7 +14,7 @@ import '../../game/logic/logic.dart';
 // import 'card_library.dart';
 import '../../state/hover_content.dart';
 import '../common.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 
 enum PlaceHolderState {
   newDeck,
@@ -78,24 +78,17 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   final List<dynamic> preloadCardIds;
 
-  int limitEphemeralMax = -1; // limitOngoingMax = -1;
+  int limitOngoingMax = -1; // limitEphemeralMax = -1;
 
   bool get isCardsEnough {
     if (cards.length < limit) return false;
     return true;
   }
 
-  // int get ongoingCount {
-  //   return cards.where((card) {
-  //     final cardData = (card as CustomGameCard).data;
-  //     return cardData['category'] == 'ongoing';
-  //   }).length;
-  // }
-
-  int get ephemeralCount {
+  int get ongoingCount {
     return cards.where((card) {
       final cardData = (card as CustomGameCard).data;
-      return cardData['category'] == 'ephemeral';
+      return cardData['category'] == 'ongoing';
     }).length;
   }
 
@@ -254,10 +247,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void updateDeckLimit() {
     final deckLimit = GameLogic.getDeckLimitForRank(GameData.hero['rank']);
     limit = deckLimit['limit']!;
-    limitEphemeralMax = deckLimit['ephemeralMax']!;
-    // limitOngoingMax = deckLimit['ongoingMax']!;
-    assert(limitEphemeralMax >= 0);
-    // assert(limitOngoingMax >= 0);
+    limitOngoingMax = deckLimit['ongoingMax']!;
+    // limitEphemeralMax = deckLimit['ephemeralMax']!;
+    assert(limitOngoingMax >= 0);
+    // assert(limitEphemeralMax >= 0);
   }
 
   @override
@@ -357,15 +350,12 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       return 'deckbuilding_deck_is_full';
     }
     final cardData = (c as CustomGameCard).data;
+    cardData['isIdentified'] = true;
     if (cardData['isIdentified'] != true) {
-      return 'deckbuilding_card_unidentified';
+      engine.error('deckbuilding_card_unidentified');
     }
-    // if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
-    //   return 'deckbuilding_ongoing_card_limit';
-    // }
-    if (ephemeralCount >= limitEphemeralMax &&
-        cardData['category'] == 'ephemeral') {
-      return 'deckbuilding_ephemeral_card_limit';
+    if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
+      engine.warn('deckbuilding_ongoing_card_limit');
     }
 
     CustomGameCard card = c;

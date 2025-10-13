@@ -17,8 +17,8 @@ const kTimeLimitDaysVariation2 = 45
 const kHiddenCityShardReward = 2
 
 const kBaseReward = 500
-const kBaseRewardForEscort = 500
-const kBaseRewardForDiscoverLocation = 1000
+const kBaseRewardForEscort = 1500
+const kBaseRewardForDiscoverLocation = 4500
 
 const kBudgetFactorForPurchaseMaterial = 0.8
 
@@ -46,7 +46,7 @@ struct Quest {
     final endLocation = game.locations[endSite.atLocationId]
 
     final characters = organization.membersData.values
-      .map((data) => game.characters[data.id])
+      .map((m) => game.characters[m.id])
     let receiver
     if (characters.isNotEmpty) {
       receiver = random.nextIterable((characters))
@@ -55,7 +55,8 @@ struct Quest {
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
     final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial * difficulty + 1)
     
-    final moneyRewardAmount = kBaseReward * (difficulty + 1) + Constants.materialBasePrice[material] * amount ~/ 5
+    final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
+    final moneyRewardAmount = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 4
     final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
     final endLocationDesc
@@ -113,7 +114,7 @@ struct Quest {
     final endLocation = game.locations[endSite.atLocationId]
 
     final characters = organization.membersData.values
-      .map((data) => game.characters[data.id])
+      .map((m) => game.characters[m.id])
     let receiver
     if (characters.isNotEmpty) {
       receiver = random.nextIterable(characters)
@@ -129,7 +130,8 @@ struct Quest {
       item = Cardpack(rank: difficulty)
     }
 
-    final moneyRewardAmount = kBaseReward * (difficulty + 1) + item.basePrice ~/ 5
+    final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
+    final moneyRewardAmount = kBaseReward * difficultyFactor + item.basePrice ~/ 4
     final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
     final endLocationDesc
@@ -187,13 +189,14 @@ struct Quest {
     final endLocation = game.locations[endSite.atLocationId]
 
     final characterIds = organization.membersData.values
-      .map((data) => data.id)
+      .map((m) => m.id)
     let escortee
     if (characterIds.isNotEmpty) {
       escortee = game.characters[random.nextIterable(characterIds)]
     }
 
-    final moneyRewardAmount = kBaseRewardForEscort * (difficulty + 1)
+    final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
+    final moneyRewardAmount = kBaseRewardForEscort * difficultyFactor
     final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
     final endLocationDesc
@@ -241,8 +244,7 @@ struct Quest {
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
     final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)
 
-    final moneyBudget = kBaseReward * (difficulty + 1) +
-            (Constants.materialBasePrice[material] * amount * kBudgetFactorForPurchaseMaterial).round()
+    final moneyBudget = (Constants.materialBasePrice[material] * amount).round()
 
     final interpolations = [
       amount,
@@ -311,8 +313,9 @@ struct Quest {
       itemDesc = engine.locale('cultivationRank_${difficulty}') + engine.locale('rank2') + engine.locale('cardpack')
     }
 
-    final budget = kBaseReward * (difficulty + 1) +
-          (estimatePrice(requirement.category, requirement.rank) * kEstimatePriceFactor).round()
+    final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
+    final budget = kBaseReward * difficultyFactor +
+          estimatePrice(requirement.category, requirement.rank).round()
     final shardRewardAmount = convertMoneyToShard(budget)
 
     final interpolations = [
@@ -354,9 +357,10 @@ struct Quest {
     final deviationLeft = targetLeft + (random.nextBool() ? difficulty : -difficulty)
     final deviationTop = targetTop + (random.nextBool() ? difficulty : -difficulty)
     
-    let moneyRewardAmount = kBaseRewardForDiscoverLocation * (difficulty + 1)
+    final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
+    let moneyRewardAmount = kBaseRewardForDiscoverLocation * difficultyFactor
     if (targetLocation.kind == 'island') {
-      moneyRewardAmount *= difficulty + 1
+      moneyRewardAmount *= 2
     } 
     final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
@@ -419,18 +423,22 @@ function initEscort(quest) {
   return escortType
 }
 
-function createBounty(organization, cityhall, { maxDifficulty: integer }) {
-  let bounty
+function createQuest(organization, cityhall, { isBounty = false, policy, maxDifficulty: integer }) {
+  let quest
   // 因为任务可能会因为一些原因生成失败导致返回 null，这里需要循环尝试
-  while(bounty == null) {
-    final kind = random.nextIterable(game.quests.keys)
+  while(quest == null) {
+    let questData = random.nextIterable(game.quests.values.where((q) {
+      if (isBounty && !q.isBounty) return false
+      if (policy && q.policy && q.policy != policy) return false
+      return true
+    }))
     final difficulty = random.nextInt(maxDifficulty + 1)
-    final ctor = Quest[kind]
-    assert(ctor != null, 'quest generator function not found: ${kind}')
-    bounty = ctor(organization, cityhall, difficulty)
+    final ctor = Quest[questData.id]
+    assert(ctor != null, 'quest generator function not found: ${questData.id}')
+    quest = ctor(organization, cityhall, difficulty)
   }
 
-  return bounty
+  return quest
 }
 
 /// 刷新悬赏任务，这里不检查据点类型
@@ -447,7 +455,10 @@ function replenishBounty(location) {
   final amount = kBaseBountyReplenishAmount + location.development
 
   for (var i in range(amount)) {
-    final bounty = createBounty(organization, location, maxDifficulty: location.development)
-    location.bounties.add(bounty)
+    final bountyQuest = createQuest(organization, location,
+      isBounty: true,
+      maxDifficulty: location.development,
+    )
+    location.bounties.add(bountyQuest)
   }
 }

@@ -22,7 +22,7 @@ const kEstimatePriceFactor = 0.8;
 const kUnknownItemBasePrice = 100;
 
 function calculatePrice(item) {
-  item.price = (item.rank + 1) * (item.level + 1) *
+  item.price = ((item.level + 1) * (item.rank + 1) ~/ 2 + 1) * (item.rank + 1) *
     (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
 }
 
@@ -38,7 +38,7 @@ function estimatePrice(category, rank) {
 }
 
 function convertMoneyToShard(money) {
-  final amount = money ~/ Constants.materialBasePrice['shard']
+  final amount = (money / Constants.materialBasePrice['shard']).ceil()
   return amount < 1 ? 1 : amount
 }
 

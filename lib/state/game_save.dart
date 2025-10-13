@@ -12,7 +12,7 @@ import 'package:json5/json5.dart';
 import '../engine.dart';
 import '../extensions.dart';
 import '../game/common.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
@@ -119,7 +119,7 @@ class GameSavesState with ChangeNotifier {
       engine.debug('保存游戏至：[${info.savePath}]');
       info.currentWorldId = worldId;
 
-      final gameJSONData = (GameData.game as HTStruct).toJSON();
+      final gameJSONData = (GameData.data as HTStruct).toJSON();
       final gameStringData = json5Encode(gameJSONData, space: 2);
 
       IOSink sink;

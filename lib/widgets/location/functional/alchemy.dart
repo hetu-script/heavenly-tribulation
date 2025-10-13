@@ -5,7 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
 import '../../../game/ui.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../state/view_panels.dart';
 import '../../ui/close_button2.dart';
 import '../../character/inventory/equipment_bar.dart';
@@ -47,9 +47,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
           actions: [
             CloseButton2(
               onPressed: () {
-                engine.context
-                    .read<ViewPanelState>()
-                    .toogle(ViewPanels.alchemy);
+                context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
               },
             )
           ],

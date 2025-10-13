@@ -226,10 +226,10 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
 
   /// 这里的 organization 可能是 null
   final organization =
-      GameData.game['organizations'][location['organizationId']];
+      GameData.data['organizations'][location['organizationId']];
 
   /// 这里的 atLocation 可能是 null
-  final atLocation = GameData.game['locations'][location['atLocationId']];
+  final atLocation = GameData.data['locations'][location['atLocationId']];
 
   bool isManager = GameData.hero['id'] == location['ownerId'];
   bool isMayor = GameData.hero['id'] == atLocation?['ownerId'];
@@ -284,7 +284,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               }
 
               final diplomacyData =
-                  GameData.game['diplomacies'][diplomacyDataId];
+                  GameData.data['diplomacies'][diplomacyDataId];
               assert(diplomacyData != null);
               final String type = diplomacyData['type'];
               final score = diplomacyData['score'] as int;
@@ -325,8 +325,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               return;
             }
             // 玩家本月是否已经进行过此门派的试炼
-            if (GameData.game['playerMonthly']['enrolled']
-                .contains(organization['id'])) {
+            if (GameData.checkMonthly(
+                MonthlyActivityIds.enrolled, organization['id'])) {
               dialog.pushDialog(
                 'hint_alreadyTrialedThisMonth',
                 npc: npc,
@@ -387,8 +387,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     },
                   );
                 } else {
-                  GameData.game['playerMonthly']['enrolled']
-                      .add(organization['id']);
+                  GameData.addMonthly(
+                      MonthlyActivityIds.enrolled, organization['id']);
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_fail',
                     npc: npc,
@@ -414,11 +414,9 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     'perception': 0,
                   },
                   'cultivationFavor': '',
+                  'generateDeck': false,
                 });
-                engine.hetu
-                    .invoke('characterCalculateStats', positionalArgs: [enemy]);
-                // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
-                engine.hetu.invoke('generateDeck', positionalArgs: [
+                engine.hetu.invoke('generateBattleDeck', positionalArgs: [
                   enemy
                 ], namedArgs: {
                   'cardInfoList': [
@@ -450,8 +448,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       },
                     );
                   } else {
-                    GameData.game['playerMonthly']['enrolled']
-                        .add(organization['id']);
+                    GameData.addMonthly(
+                        MonthlyActivityIds.enrolled, organization['id']);
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_fail',
                       npc: npc,
@@ -460,16 +458,12 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   }
                 });
               case 'immortality':
-                GameData.game['flags']['cultivationTrial'] = {
+                engine.hetu.invoke('resetTrial', namedArgs: {
                   'name': engine.locale('cultivation_trial'),
                   'difficulty': 0,
-                  'introCompleted': false,
-                  'buildCompleted': false,
-                  'room': 0,
-                  'roomMax': 3,
                   'organizationId': organization['id'],
                   'npcId': npc['id'],
-                };
+                });
                 engine.pushScene(
                   'cultivation_trial_1',
                   constructorId: Scenes.worldmap,
@@ -479,12 +473,10 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   },
                 );
               case 'chivalry':
-                final enemy = engine.hetu.invoke('Character', namedArgs: {
+                final enemy = engine.hetu.invoke('BattleEntity', namedArgs: {
                   'rank': GameData.hero['rank'],
+                  'name': engine.locale('trialCompetitor'),
                 });
-                engine.hetu
-                    .invoke('characterCalculateStats', positionalArgs: [enemy]);
-                engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
                 engine.context.read<EnemyState>().show(
                   enemy,
                   // prebattlePreventClose: true,
@@ -504,8 +496,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         },
                       );
                     } else {
-                      GameData.game['playerMonthly']['enrolled']
-                          .add(organization['id']);
+                      GameData.addMonthly(
+                          MonthlyActivityIds.enrolled, organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
                         npc: npc,
@@ -515,13 +507,20 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                   },
                 );
               case 'entrepreneur':
-                final List testersData =
-                    organization['membersData'].values.where((m) {
-                  return m['rank'] >= 1;
+                final Iterable membersData = organization['membersData'].values;
+                final testersData = membersData.where((m) {
+                  return m['rank'] == GameData.hero['rank'];
                 }).toList();
-                assert(testersData.isNotEmpty);
-                testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
-                final tester = testersData.first;
+                dynamic tester;
+                if (testersData.isNotEmpty) {
+                  testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
+                  tester = GameData.getCharacter(testersData.first['id']);
+                } else {
+                  tester = engine.hetu.invoke('BattleEntity', namedArgs: {
+                    'rank': GameData.hero['rank'],
+                    'name': engine.locale('trialTester'),
+                  });
+                }
                 engine.context.read<EnemyState>().show(
                   tester,
                   // prebattlePreventClose: true,
@@ -541,8 +540,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         },
                       );
                     } else {
-                      GameData.game['playerMonthly']['enrolled']
-                          .add(organization['id']);
+                      GameData.addMonthly(
+                          MonthlyActivityIds.enrolled, organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
                         npc: npc,
@@ -553,15 +552,14 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 );
               case 'wealth':
                 final int cost = kWealthTrialCost;
-                dialog.pushDialog('organization_wealth_intro',
-                    npc: npc, interpolations: [cost]);
-                await dialog.execute();
-                final weathTrialSelections = [
-                  'pay_shard',
-                  'forgetIt',
-                ];
-                dialog.pushSelection(
-                    'organization_wealth_trial', weathTrialSelections);
+                dialog.pushSelectionRaw({
+                  'id': 'organization_wealth_trial',
+                  'selections': {
+                    'pay_shard':
+                        engine.locale('pay_shard', interpolations: [cost]),
+                    'forgetIt': engine.locale('forgetIt'),
+                  }
+                });
                 await dialog.execute();
                 final selected =
                     dialog.checkSelected('organization_wealth_trial');
@@ -836,11 +834,11 @@ Future<void> _onInteractCharacter(dynamic character) async {
     'show',
   ];
   final hasGifted =
-      (GameData.game['playerMonthly']['gifted'] as List).contains(character.id);
-  final hasAttacked = (GameData.game['playerMonthly']['attacked'] as List)
-      .contains(character.id);
+      GameData.checkMonthly(MonthlyActivityIds.gifted, character.id);
+  final hasAttacked =
+      GameData.checkMonthly(MonthlyActivityIds.attacked, character.id);
   final hasStolen =
-      (GameData.game['playerMonthly']['stolen'] as List).contains(character.id);
+      GameData.checkMonthly(MonthlyActivityIds.stolen, character.id);
   if (!hasGifted) selections.add('gift');
   if (!hasAttacked) selections.add('attack');
   if (!hasStolen) selections.add('steal');
@@ -911,7 +909,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
                   GameData.hero['organizationId']) {
                 topicRejected = false;
                 final organization =
-                    GameData.game['organizations'][character['organizationId']];
+                    GameData.data['organizations'][character['organizationId']];
                 assert(organization != null,
                     'organization is null, id: ${character['organizationId']}');
                 final memberData =
@@ -921,6 +919,8 @@ Future<void> _onInteractCharacter(dynamic character) async {
                 final reportLocationId = memberData['reportLocationId'];
                 final reportLocation = GameData.getLocation(reportLocationId);
                 final superiorId = memberData['superiorId'];
+                assert(superiorId != null,
+                    'hero\'s superiorId is null, organization id: [${character['organizationId']}]');
                 final superior = GameData.getCharacter(superiorId);
                 if (superiorId == character['id']) {
                   dialog.pushDialog(
@@ -1036,9 +1036,8 @@ Future<void> _onInteractCharacter(dynamic character) async {
         final bool isCharacterRomance = engine.hetu
             .invoke('isRomance', positionalArgs: [character, GameData.hero]);
         if (isCharacterRomance) {
-          final bool hasProposed =
-              (GameData.game['playerMonthly']['proposed'] as List)
-                  .contains(character['id']);
+          final bool hasProposed = GameData.checkMonthly(
+              MonthlyActivityIds.proposed, character['id']);
           if (!hasProposed) {
             relationshipSelections.add('propose');
           }
@@ -1055,9 +1054,9 @@ Future<void> _onInteractCharacter(dynamic character) async {
       // 不允许既是师父又是徒弟
       assert(!(isCharacterShifu && isCharacterTudi));
       final bool hasConsulted =
-          GameData.game['playerMonthly']['consulted'].contains(character.id);
+          GameData.checkMonthly(MonthlyActivityIds.consulted, character.id);
       final bool hasTutored =
-          GameData.game['playerMonthly']['tutored'].contains(character.id);
+          GameData.checkMonthly(MonthlyActivityIds.tutored, character.id);
       if (isCharacterShifu) {
         if (!hasConsulted) {
           relationshipSelections.add('consult');
@@ -1073,13 +1072,13 @@ Future<void> _onInteractCharacter(dynamic character) async {
         final int characterRank = character['rank'];
         if (characterLevel > heroLevel && characterRank > heroRank) {
           final bool hasBaishi =
-              GameData.game['playerMonthly']['baishi'].contains(character.id);
+              GameData.checkMonthly(MonthlyActivityIds.baishi, character.id);
           if (!hasBaishi) {
             relationshipSelections.add('baishi');
           }
         } else if (heroLevel > characterLevel && heroRank > characterRank) {
           final bool hasShoutu =
-              GameData.game['playerMonthly']['shoutu'].contains(character.id);
+              GameData.checkMonthly(MonthlyActivityIds.shoutu, character.id);
           if (!hasShoutu) {
             relationshipSelections.add('shoutu');
           }
@@ -1090,16 +1089,16 @@ Future<void> _onInteractCharacter(dynamic character) async {
       if (GameData.hero['organizationId'] == null) {
         final bool isCharacterHead = engine.hetu
             .invoke('isOrganizationHead', positionalArgs: [character]);
-        final bool hasEnrolled = GameData.game['playerMonthly']['enrolled']
-            .contains(character['organizationId']);
+        final bool hasEnrolled = GameData.checkMonthly(
+            MonthlyActivityIds.enrolled, character['organizationId']);
         if (isCharacterHead && !hasEnrolled) {
           relationshipSelections.add('enroll');
         }
       } else {
         final bool isHeroHead = engine.hetu
             .invoke('isOrganizationHead', positionalArgs: [GameData.hero]);
-        final bool hasRecruited =
-            GameData.game['playerMonthly']['recruited'].contains(character.id);
+        final bool hasRecruited = GameData.checkMonthly(
+            MonthlyActivityIds.recruited, character['id']);
         if (isHeroHead && !hasRecruited) {
           relationshipSelections.add('recruit');
         }

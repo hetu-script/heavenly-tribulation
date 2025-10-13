@@ -6,7 +6,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../state/editor_tool.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../widgets/common.dart';
 
 const Size kTileSize = Size(32, 64);

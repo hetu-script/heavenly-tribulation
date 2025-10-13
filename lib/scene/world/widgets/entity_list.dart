@@ -26,7 +26,7 @@ import '../../../game/logic/logic.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../widgets/character/edit_rank_level.dart';
 
 const kMapObjectSourceTemplate = '''{
@@ -295,7 +295,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   }
 
   void _updateCharacters() {
-    _heroId = engine.hetu.invoke('getHeroId');
+    _heroId = GameData.hero['id'];
 
     _charactersTableData.clear();
 
@@ -362,7 +362,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   void _updateLocations() {
     _locationsTableData.clear();
-    _locations = engine.hetu.fetch('locations', namespace: 'game').values;
+    _locations = GameData.data['locations'].values;
     for (final loc in _locations) {
       if (loc['category'] != 'city') continue;
       final rowData = <String>[];
@@ -720,7 +720,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                     .then((locationId) {
                                   if (locationId != null) {
                                     final location =
-                                        GameData.game['locations'][locationId];
+                                        GameData.data['locations'][locationId];
                                     if (location == null) {
                                       GameDialogContent.show(context,
                                           '输入的据点 id [$locationId] 不存在！');

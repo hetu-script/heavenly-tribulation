@@ -20,7 +20,7 @@ import '../particles/light_point.dart';
 import '../../engine.dart';
 import '../../game/logic/logic.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../common.dart';
 import '../../game/event_ids.dart';
@@ -985,14 +985,15 @@ class CultivationScene extends Scene {
 
     camera.snapTo(center);
 
-    if (GameData.game['enableTutorial'] == true && !isEditorMode) {
-      if (GameData.game['flags']['tutorial']['cultivation'] == true) return;
-      // 修炼界面教程
-      GameData.game['flags']['tutorial']['cultivation'] = true;
+    if (GameData.data['enableTutorial'] == true && !isEditorMode) {
+      if (GameData.flags['tutorial']['cultivation'] != true) {
+        // 修炼界面教程
+        GameData.flags['tutorial']['cultivation'] = true;
 
-      dialog.pushDialog('hint_cultivation',
-          npc: GameData.game['npcs']['xitong']);
-      await dialog.execute();
+        dialog.pushDialog('hint_cultivation',
+            npc: GameData.data['npcs']['xitong']);
+        await dialog.execute();
+      }
     }
 
     await onEnterScene?.call();

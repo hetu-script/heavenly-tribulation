@@ -5,7 +5,7 @@ import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../ui/close_button2.dart';
 
 const _kCharacterVisitTableColumns = [
@@ -48,9 +48,6 @@ class CharacterVisitDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activitiesData =
-        engine.hetu.fetch('playerMonthly', namespace: 'game');
-
     final List<DataRow2> tableData = [];
 
     if (heroResidesHere) {
@@ -98,17 +95,17 @@ class CharacterVisitDialog extends StatelessWidget {
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(activitiesData['gifted'].contains(id)
+              Text(GameData.checkMonthly(MonthlyActivityIds.gifted, id)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(activitiesData['attacked'].contains(id)
+              Text(GameData.checkMonthly(MonthlyActivityIds.attacked, id)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(activitiesData['stolen'].contains(id)
+              Text(GameData.checkMonthly(MonthlyActivityIds.stolen, id)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),

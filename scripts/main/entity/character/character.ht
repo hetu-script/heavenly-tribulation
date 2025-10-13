@@ -551,26 +551,31 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   // 角色的结婚时间只保存在加入家族者的人身上，且以最后一次为准
   marrier.marriageTimestamp = game.timestamp
   
-  let homeId = householder.homeLocationId ?? marrier.homeLocationId ?? locationId
-  let home = game.locations[homeId]
-  assert(home != null, 'location not exist: ${homeId}')
-  if (householder.homeLocationId != homeId) {
-    setCharacterHome(householder, home)
+  let homeLocationId = householder.homeLocationId ?? marrier.homeLocationId
+  let homeLocation
+  if (homeLocationId != null) {
+    homeLocation = game.locations[homeLocationId]
+  } else {
+    homeLocation = random.nextIterable(game.locations.values)
   }
-  if (marrier.homeLocationId != homeId) {
-    setCharacterHome(marrier, home)
+  if (householder.homeLocationId != homeLocation.id) {
+    setCharacterHome(householder, homeLocation)
   }
+  if (marrier.homeLocationId != homeLocation.id) {
+    setCharacterHome(marrier, homeLocation)
+  }
+
   const incidentContent = engine.locale('characterMarriage', interpolations: [
     householder.name,
     marrier.name,
-    home.name,
+    homeLocation.name,
   ])
   if (incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: householder.id,
       targetId: marrier.id,
-      locationId: home.id,
+      locationId: homeLocation.id,
       orderly: 20,
     )
   } else {
@@ -875,7 +880,7 @@ function getRomances(character) {
 
 /// 返回配偶的数量
 function hasSpouse(character) {
-  return character.relationships.family.values.where((data) => data.kind == 'spouse').length
+  return character.relationships.family.values.where((d) => d.kind == 'spouse').length
 }
 
 /// 检查 character 是否是 spouse 的配偶
@@ -885,12 +890,12 @@ function isSpouse(character, spouse) {
 
 /// 返回所有配偶
 function getSpouses(character) {
-  return character.relationships.family.values.where((data) => data.kind == 'spouse')
+  return character.relationships.family.values.where((d) => d.kind == 'spouse')
 }
 
 /// 返回孩子的数量
 function hasChild(character) {
-  return character.relationships.family.values.where((data) => data.kind == 'child').length
+  return character.relationships.family.values.where((d) => d.kind == 'child').length
 }
 
 /// 检查 character 是否是 child 的父母, 注意这里包括继子和养子
@@ -900,7 +905,7 @@ function isChild(character, child) {
 
 /// 返回所有孩子
 function getChildren(character) {
-  return character.relationships.family.values.where((data) => data.kind == 'child')
+  return character.relationships.family.values.where((d) => d.kind == 'child')
 }
 
 /// 是否是同一个家族
@@ -910,7 +915,7 @@ function isFamily(character, target) {
 
 /// 返回徒弟的数量
 function hasTudi(character) {
-  return character.relationships.sect.values.where((data) => data.kind == 'tudi').length
+  return character.relationships.sect.values.where((d) => d.kind == 'tudi').length
 }
 
 /// 检查 character 是否是 tudi 的 shifu
@@ -920,7 +925,7 @@ function isTudi(character, tudi) {
 
 /// 返回所有徒弟
 function getTudis(character) {
-  return character.relationships.sect.values.where((data) => data.kind == 'tudi')
+  return character.relationships.sect.values.where((d) => d.kind == 'tudi')
 }
 
 /// 是否是同一个师承
@@ -999,8 +1004,7 @@ struct Character {
     attributes,
     mainAttribute,
     stats,
-    cardLibrary: {},
-    battleDecks: List = [],
+    generateDeck = true,
     cultivationFavor,
     cultivationStyle,
     birthTimestamp,
@@ -1036,8 +1040,7 @@ struct Character {
       attributes: attributes,
       mainAttribute: mainAttribute,
       stats: stats,
-      cardLibrary: cardLibrary,
-      battleDecks: battleDecks,
+      generateDeck: generateDeck,
       cultivationFavor: cultivationFavor,
       cultivationStyle: cultivationStyle,
     )
@@ -1092,8 +1095,8 @@ struct Character {
     // 该角色的人格纬度
     // 角色的人格是天生的，之后不会再发生改变
     // 人格决定了角色对人或者事物的看法
-    // 人格一共包含21个层面，其中最重要的是三观，决定了最基础的羁绊评价系统
-    // 其次是关于他人的六个，关于事物的六个，以及关于自己的六个层面
+    // 人格一共包含18个层面，其中最重要的是三观，决定了最基础的羁绊评价系统
+    // 其次是关于他人的5个，关于事物的5个，以及关于自己的5个层面
     // 人格数值最小 -50 最大 +50
     this.personality = {}
     for (final id in Constants.personalities) {

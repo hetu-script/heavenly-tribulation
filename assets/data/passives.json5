@@ -909,16 +909,16 @@
   },
 
   // 功能性特殊词条
-  enable_auto_work: {
-    id: "enable_auto_work",
-    description: "passive_enable_auto_work_description",
-    priority: 3995,
-  },
-  enable_auto_cultivate: {
-    id: "enable_auto_cultivate",
-    description: "passive_enable_auto_cultivate_description",
-    priority: 3994,
-  },
+  // enable_auto_work: {
+  //   id: "enable_auto_work",
+  //   description: "passive_enable_auto_work_description",
+  //   priority: 3995,
+  // },
+  // enable_auto_cultivate: {
+  //   id: "enable_auto_cultivate",
+  //   description: "passive_enable_auto_cultivate_description",
+  //   priority: 3994,
+  // },
   enable_toolbar_cultivation: {
     id: "enable_toolbar_cultivation",
     description: "passive_enable_toolbar_cultivation_description",

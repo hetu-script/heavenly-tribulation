@@ -573,13 +573,14 @@ namespace Player {
     return hero.journals[hero.activeJournalId]
   }
 
-  async function enroll(organization, { npcId, title = 'taskman', incurIncident = true }) {
+  async function enroll(organization, { npcId, titleId = 'taskman', incurIncident = true }) {
     assert(hero != null)
     addCharacterToOrganization(
       hero,
       organization,
-      title: title,
-      setHome: false,
+      titleId: titleId,
+      setHome: false, // 玩家需要手动选择家宅
+      assignSuperior: false,
       incurIncident: incurIncident,
     )
     dialog.pushDialog('hint_select_organization_home')

@@ -48,15 +48,17 @@ struct MemberData {
   constructor ({
     id,
     rank = 0,
-    title = 'taskman',
+    titleId = 'taskman',
     contribution = 0,
+    reportSiteId,
   }) {
     assert(this.rank >= 0)
 
     this.id = id
     this.rank = rank
-    this.title = title
+    this.titleId = titleId
     this.contribution = contribution
+    this.reportSiteId = reportSiteId
   }
 }
 
@@ -165,13 +167,13 @@ struct Organization {
         subjectId: head.id,
         organizationId: this.id,
         message: incidentContent,
-        orderly: 15,
+        orderly: 25,
         isGlobal: true,
       )
     } else {
       engine.debug(incidentContent)
     }
-    addCharacterToOrganization(head, this, title: 'head', incurIncident: incurIncident)
+    addCharacterToOrganization(head, this, titleId: 'head', incurIncident: incurIncident)
 
     // 和人物类似，也具有物品栏
     this.inventory = {}
@@ -225,7 +227,7 @@ function removeCharacterFromOrganization(character) {
 /// 查找某个组织中比指定职级高的成员数据列表
 /// 返回的列表已经按职级从低到高排序
 /// 输入的 rank 如果已经最高，会导致返回一个空数组
-function getOrganizationMembersDataByRank(organization, rank) {
+function getOrganizationMembersDataAboveRank(organization, rank) {
   assert(rank >= 0 && rank <= kOrganizationJobRankMax)
   let membersData = organization.membersData.values.where(
     (m) => m.rank > rank
@@ -241,27 +243,23 @@ function getOrganizationMembersDataByRank(organization, rank) {
 /// 只有角色最后一次加入的组织不是当前组织，才可以调用这个 api
 /// 这个 api 不会检查角色的境界和贡献是否达到职位要求
 function addCharacterToOrganization(character, organization, {
-    title,
+    titleId,
     setHome = true,
+    assignSuperior = true,
     incurIncident = true,
   }) {
   assert(character.organizationId != organization.id)
-  let memberData
-  if (!organization.membersData.contains(character.id)) {
-    // if (character.organizationId != null) {
-    //   assert(character.organizationId != organization.id)
-    //   removeCharacterFromOrganization(character)
-    // }
-    title ??= 'taskman'
-    assert(Constants.titleToOrganizationRank.containsKey(title))
-
-    setCharacterTitle(character, title, organization)
-  } else {
-    memberData = organization.membersData[character.id]
-    setCharacterTitle(character, memberData.title, organization)
-  }
 
   character.organizationId = organization.id
+
+  if (setHome) {
+    final cities = organization.locationIds.where( (id) =>
+      game.locations[id]?.category == 'city' )
+    final locationId = random.nextIterable(cities)
+    const location = game.locations[locationId]
+    assert(location != null, 'headquarters location not found! organization id: [${organization.id}], headquarters id: ${locationId}')
+    setCharacterHome(character, location)
+  }
 
   const incidentContent = engine.locale('characterEnlist', interpolations: [
     character.name,
@@ -272,17 +270,22 @@ function addCharacterToOrganization(character, organization, {
       subjectId: character.id,
       organizationId: organization.id,
       message: incidentContent,
-      orderly: 10,
-      isPrivate: false,
+      orderly: 5,
     )
   } else {
     engine.debug(incidentContent)
   }
 
-  if (setHome) {
-    const location = game.locations[organization.headquartersLocationId]
-    assert(location != null, 'headquarters location not found! organization id: [${organization.id}], headquarters id: ${organization.headquartersLocationId}')
-    setCharacterHome(character, location)
+  let memberData = organization.membersData[character.id]
+  titleId ??= memberData?.titleId ?? 'taskman'
+  setCharacterTitle(character, titleId, organization)
+  
+  if (titleId != 'head' && setHome && assignSuperior) {
+    assignCharacterSuperior(character, organization)
+  }
+
+  if (character == hero) {
+    game.flags.organizations[organization.id] = {}
   }
   
   return true
@@ -300,7 +303,7 @@ function assignCharacterSuperior(character, organization) {
   assert(memberData != null)
 
   // 找到比自己职级高一级的成员
-  let superiorsData = getOrganizationMembersDataByRank(organization, memberData.rank)
+  let superiorsData = getOrganizationMembersDataAboveRank(organization, memberData.rank)
   let memberAtCharacterHome
   for (final memberData in superiorsData) {
     final member = game.characters[memberData.id]
@@ -360,13 +363,13 @@ function setCharacterTitle(character, titleId, organization, { incurIncident = t
   let jobRank = Constants.titleToOrganizationRank[titleId]
   if (organization.membersData.containsKey(character.id)) {
     let memberData = organization.membersData[character.id]
-    memberData.title = titleId
+    memberData.titleId = titleId
     memberData.rank = jobRank
   } else {
     organization.membersData[character.id] = MemberData(
       id: character.id,
       rank: jobRank,
-      title: titleId,
+      titleId: titleId,
       contribution: 0,
     )
   }

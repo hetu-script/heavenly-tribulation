@@ -8,7 +8,7 @@ import '../game/ui.dart';
 import '../engine.dart';
 import 'history_list.dart';
 import '../state/hover_content.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 import '../state/selected_tile.dart';
 
 class HistoryPanel extends StatelessWidget {
@@ -65,7 +65,7 @@ class HistoryPanel extends StatelessWidget {
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
       // 这里 owner 可能是 null
-      owner = GameData.game['characters'][ownerId];
+      owner = GameData.data['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 

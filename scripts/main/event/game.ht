@@ -41,8 +41,9 @@ async function onAfterEnterLocation(location) {
             'perception': 0,
           },
           cultivationFavor: '',
+          generateDeck: false,
         )
-        generateDeck(dummy,
+        generateBattleDeck(dummy,
           cardInfoList: [
             {'affixId': 'blank_default'},
             {'affixId': 'blank_default'},

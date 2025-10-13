@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../ui/close_button2.dart';
 
 class EditNpcBasics extends StatefulWidget {
@@ -179,7 +179,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     padding: const EdgeInsets.all(10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
-                        GameData.game['npcs'].remove(widget.id);
+                        GameData.data['npcs'].remove(widget.id);
                         widget.atLocation.remove('npcId');
                         Navigator.of(context).pop(null);
                       },
@@ -193,7 +193,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     padding: const EdgeInsets.all(10.0),
                     child: fluent.FilledButton(
                       onPressed: () {
-                        dynamic npcData = GameData.game['npcs'][widget.id];
+                        dynamic npcData = GameData.data['npcs'][widget.id];
                         if (npcData != null) {
                           npcData['nameId'] = _nameIdEditingController.text;
                           npcData['name'] =

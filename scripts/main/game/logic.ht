@@ -8,6 +8,8 @@ external function maxLevelForRank(rank) -> integer
 
 external function getMinMaxExtraAffixCount(rank) -> Map
 
+external function getTribulationCountForRank(rank) -> integer
+
 external function getCardCraftMaterial(operationId, card) -> integer 
 
 external function getDeckLimitForRank(rank) -> Map

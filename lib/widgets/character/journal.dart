@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';
 import '../ui/draggable_panel.dart';

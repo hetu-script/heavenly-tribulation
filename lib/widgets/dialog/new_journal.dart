@@ -13,10 +13,12 @@ class NewJournal extends StatelessWidget {
   const NewJournal({
     super.key,
     required this.journal,
+    this.selections,
     this.completer,
   });
 
   final dynamic journal;
+  final Map<String, String>? selections;
   final Completer? completer;
 
   @override
@@ -25,7 +27,9 @@ class NewJournal extends StatelessWidget {
       type: MaterialType.transparency,
       child: Stack(
         children: [
-          ModalBarrier(color: GameUI.backgroundColor2),
+          ModalBarrier(
+            color: GameUI.backgroundColor2,
+          ),
           Align(
             alignment: Alignment.center,
             child: Container(
@@ -59,18 +63,39 @@ class NewJournal extends StatelessWidget {
                       ),
                     );
                   }),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 50.0),
-                    child: fluent.FilledButton(
-                      onPressed: () {
-                        completer?.complete();
-                        context.read<NewJournalState>().update();
-                      },
-                      child: Text(
-                        engine.locale('confirm'),
+                  if (selections != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 50.0),
+                      child: Column(
+                        children: selections!.entries.map((entry) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 5.0),
+                            child: fluent.FilledButton(
+                              onPressed: () {
+                                completer?.complete(entry.key);
+                                context.read<JournalPromptState>().update();
+                              },
+                              child: Text(
+                                engine.locale(entry.value),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: const EdgeInsets.only(top: 50.0),
+                      child: fluent.FilledButton(
+                        onPressed: () {
+                          completer?.complete();
+                          context.read<JournalPromptState>().update();
+                        },
+                        child: Text(
+                          engine.locale('confirm'),
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

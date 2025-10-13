@@ -8,10 +8,9 @@ import '../../state/character.dart';
 import '../../state/hover_content.dart';
 import '../../game/logic/logic.dart';
 
-const kStatsItems = [
+const kStats = [
   'level',
   'rank',
-  'tribulationCount',
   'divider',
   'dexterity',
   'strength',
@@ -33,6 +32,9 @@ const kStatsItems = [
   'chiResist',
   'elementalResist',
   'psychicResist',
+];
+
+const kNonBattleStats = [
   'divider',
   'lightRadius',
   'expCollectEfficiency',
@@ -70,41 +72,39 @@ class _CharacterStatsState extends State<CharacterStats> {
     final int baseValue = data[id] ?? 0;
     final int value = data['stats'][id] ?? baseValue;
 
+    String valueString;
     String description;
-    if (id == 'level') {
+    if (id == 'tribulationCount') {
+      final int baseValueMax = data['${id}Max'];
+      final int valueMax = data['stats']?['${id}Max'];
+      final maxString = valueMax > baseValueMax
+          ? '<yellow>$valueMax</>'
+          : valueMax.toString();
+      valueString = '$value/$maxString';
+      description = engine.locale('${id}_description');
+    } else if (id == 'rank') {
+      final int rank = data['rank'];
+      valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
+      description = engine.locale('${id}_description');
+    } else if (id == 'level' || id == 'karma') {
+      valueString = baseValue.toString();
       final int levelMax = GameLogic.maxLevelForRank(data['rank']);
       description =
-          '${engine.locale('levelMax')}: $levelMax\n${engine.locale('level_description')}';
+          '${engine.locale('level_description')}\n${engine.locale('levelMax')}: $levelMax';
     } else if (id.endsWith('Resist')) {
       final int baseValueMax = data['${id}Max'];
       final int valueMax = data['stats']?['${id}Max'];
 
-      final maxString =
-          (valueMax > baseValueMax ? '<yellow>$valueMax</>' : valueMax)
-              .toString();
+      final maxString = valueMax > baseValueMax
+          ? '<yellow>$valueMax</>'
+          : valueMax.toString();
 
+      valueString = '$value%';
       description =
-          '${engine.locale('${id}Max')}: $maxString\n${engine.locale('${id}_description')}';
+          '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
     } else {
+      valueString = value > baseValue ? '<yellow>$value</>' : value.toString();
       description = engine.locale('${id}_description');
-    }
-
-    String valueString;
-    if (id == 'rank') {
-      final int rank = data['rank'];
-      valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
-    } else if (id == 'level' || id == 'karma') {
-      valueString = baseValue.toString();
-    } else if (id == 'tribulationCount') {
-      final int baseValueMax = data['${id}Max'];
-      final int valueMax = data['stats']?['${id}Max'];
-      final maxString =
-          (valueMax > baseValueMax ? '<yellow>$valueMax</>' : valueMax)
-              .toString();
-      valueString = '$value/$maxString';
-    } else {
-      valueString =
-          (value > baseValue ? '<yellow>$value</>' : value).toString();
     }
 
     return Label(
@@ -136,12 +136,18 @@ class _CharacterStatsState extends State<CharacterStats> {
       items.add(const Divider());
     }
 
-    final length = widget.showNonBattleStats
-        ? kStatsItems.length
-        : kStatsItems.length - kNonBattleItemsLength;
-    for (var i = 0; i < length; ++i) {
-      final id = kStatsItems[i];
+    if (data['rank'] > 0) {
+      items.add(_buildStatsLabel('tribulationCount', data));
+    }
+
+    for (final id in kStats) {
       items.add(_buildStatsLabel(id, data));
+    }
+
+    if (widget.showNonBattleStats) {
+      for (final id in kNonBattleStats) {
+        items.add(_buildStatsLabel(id, data));
+      }
     }
 
     return ScrollConfiguration(

@@ -7,7 +7,7 @@ import 'package:samsara/ui/empty_placeholder.dart';
 
 import '../../../engine.dart';
 import '../../../game/ui.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../game/logic/logic.dart';
 import '../../../state/view_panels.dart';
 import '../../../state/hover_content.dart';
@@ -160,9 +160,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
           actions: [
             CloseButton2(
               onPressed: () {
-                engine.context
-                    .read<ViewPanelState>()
-                    .toogle(ViewPanels.workbench);
+                context.read<ViewPanelState>().toogle(ViewPanels.workbench);
               },
             )
           ],

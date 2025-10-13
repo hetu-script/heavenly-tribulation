@@ -50,10 +50,8 @@
   "passive_stamina_cost_reduce_on_hill_description": "山地地形移动体力消耗 {0}%",
   "passive_stamina_cost_reduce_on_water_description": "水面地形移动体力消耗 {0}%",
 
-  "passive_enable_auto_work_description": "允许离开工坊时打开自动工作",
-  "passive_enable_auto_cultivate_description": "允许离开识海时打开自动修炼",
-  "passive_enable_toolbar_cultivation_description": "允许在任何地方打开识海修炼界面",
-  "passive_enable_toolbar_library_description": "允许在任何地方打开战斗卡牌界面",
+  "passive_enable_toolbar_cultivation_description": "允许在任何地方打开识海",
+  "passive_enable_toolbar_library_description": "允许在任何地方打开功法图录",
   "passive_enable_cardcraft_description": "解锁战斗卡牌界面的卡牌精炼功能",
   "passive_enable_scrollcraft_description": "解锁战斗卡牌界面的符箓制作功能",
 
@@ -67,7 +65,7 @@
   "passive_no_need_staff_description": "无需装备棍就可以使用棍法",
   "passive_no_need_bow_description": "无需装备弓就可以使用弓术",
   "passive_no_need_dart_description": "无需装备暗器就可以使用暗器",
-  "passive_no_need_poison_description": "可以使用毒术",
+  "passive_no_need_poison_description": "无需装备毒囊就可以使用毒术",
   "passive_no_need_music_description": "无需装备乐器就可以使用乐曲",
 
   "passive_increase_damage_punch_description": "拳法伤害 {0}%",
@@ -95,14 +93,14 @@
   "passive_spell_penetration_description": "法术攻击穿透 {0}",
   "passive_curse_penetration_description": "咒术攻击穿透 {0}",
 
-  "passive_physical_resist_description": "物理抗性 {0}",
-  "passive_chi_resist_description": "真气抗性 {0}",
-  "passive_elemental_resist_description": "元素抗性 {0}",
-  "passive_psychic_resist_description": "精神抗性 {0}",
-  "passive_physical_resist_max_description": "物理抗性上限 {0}",
-  "passive_chi_resist_max_description": "真气抗性上限 {0}",
-  "passive_elemental_resist_max_description": "元素抗性上限 {0}",
-  "passive_psychic_resist_max_description": "精神抗性上限 {0}",
+  "passive_physical_resist_description": "物理抗性 {0}%",
+  "passive_chi_resist_description": "真气抗性 {0}%",
+  "passive_elemental_resist_description": "元素抗性 {0}%",
+  "passive_psychic_resist_description": "精神抗性 {0}%",
+  "passive_physical_resist_max_description": "物理抗性上限 {0}%",
+  "passive_chi_resist_max_description": "真气抗性上限 {0}%",
+  "passive_elemental_resist_max_description": "元素抗性上限 {0}%",
+  "passive_psychic_resist_max_description": "精神抗性上限 {0}%",
   "passive_physical_persistent_description": "物理防御保持 {0}%",
   "passive_chi_persistent_description": "真气防御保持 {0}%",
   "passive_elemental_persistent_description": "元素防御保持 {0}%",
@@ -116,8 +114,8 @@
 
   "passive_light_radius_description": "大地图视野范围 {0}",
   "passive_identifyCardsCountMonthly_description": "每月可探查对手手牌数量 {0}",
-  "passive_expCollectEfficiency_description": "灵光收集效率 {0}%",
-  "passive_tribulationCountMax_description": "劫数上限 {0}",
+  "passive_expCollectEfficiency_description": "灵光收集增加 {0}%",
+  "passive_tribulationCountMax_description": "劫数上限增加 {0}%",
 
   "passive_dexterity_description": "身法 {0}",
   "passive_spirituality_description": "灵力 {0}",
@@ -229,11 +227,5 @@
   "passive_enable_multiple_weapon_equip_description": "你可以同时装备不同的武器",
 
   "passive_heal_description": "生命 {0}",
-  "passive_overheal_description": "生命 {0}",
-
-  "passive_dungeon_rank1_description": "可以进入凝气期秘境",
-  "passive_dungeon_rank2_description": "可以进入筑基期秘境",
-  "passive_dungeon_rank3_description": "可以进入结丹期秘境",
-  "passive_dungeon_rank4_description": "可以进入成婴期秘境",
-  "passive_dungeon_rank5_description": "可以进入化神期秘境"
+  "passive_overheal_description": "生命 {0}"
 }

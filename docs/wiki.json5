@@ -28,9 +28,9 @@
                 children: [],
               },
               {
-                id: "resource",
-                title: "wiki_resource_title",
-                path: "docs/docs/how2play/rpg/battle/resource/readme.md",
+                id: "battle_resource",
+                title: "wiki_battle_resource_title",
+                path: "docs/docs/how2play/rpg/battle/battle_resource/readme.md",
                 children: [],
               },
             ],
@@ -47,15 +47,15 @@
                 children: [],
               },
               {
-                id: "equipment",
-                title: "wiki_equipment_title",
-                path: "docs/docs/how2play/rpg/character/equipment/readme.md",
-                children: [],
-              },
-              {
                 id: "inventory",
                 title: "wiki_inventory_title",
                 path: "docs/docs/how2play/rpg/character/inventory/readme.md",
+                children: [],
+              },
+              {
+                id: "skin",
+                title: "wiki_skin_title",
+                path: "docs/docs/how2play/rpg/character/skin/readme.md",
                 children: [],
               },
               {
@@ -68,12 +68,6 @@
                 id: "relationship",
                 title: "wiki_relationship_title",
                 path: "docs/docs/how2play/rpg/character/relationship/readme.md",
-                children: [],
-              },
-              {
-                id: "skin",
-                title: "wiki_skin_title",
-                path: "docs/docs/how2play/rpg/character/skin/readme.md",
                 children: [],
               },
             ],
@@ -148,9 +142,22 @@
           },
           {
             id: "quest",
-            title: "wiki_quest_title",
+            title: "wiki_bounty_quest_title",
             path: "docs/docs/how2play/rpg/quest/readme.md",
-            children: [],
+            children: [
+              {
+                id: "bounty_quest",
+                title: "wiki_bounty_quest_title",
+                path: "docs/docs/how2play/rpg/quest/bounty_quest/readme.md",
+                children: [],
+              },
+              {
+                id: "organization_quest",
+                title: "wiki_organization_quest_title",
+                path: "docs/docs/how2play/rpg/quest/organization_quest/readme.md",
+                children: [],
+              },
+            ],
           },
         ],
       },
@@ -160,21 +167,21 @@
         path: "docs/docs/how2play/tycoon/readme.md",
         children: [
           {
+            id: "terrain",
+            title: "wiki_terrain_title",
+            path: "docs/docs/how2play/tycoon/terrain/readme.md",
+            children: [],
+          },
+          {
+            id: "material",
+            title: "wiki_material_title",
+            path: "docs/docs/how2play/tycoon/material/readme.md",
+            children: [],
+          },
+          {
             id: "location",
             title: "wiki_location_title",
             path: "docs/docs/how2play/tycoon/location/readme.md",
-            children: [],
-          },
-          {
-            id: "resource",
-            title: "wiki_resource_title",
-            path: "docs/docs/how2play/tycoon/resource/readme.md",
-            children: [],
-          },
-          {
-            id: "tile",
-            title: "wiki_tile_title",
-            path: "docs/docs/how2play/tycoon/tile/readme.md",
             children: [],
           },
         ],

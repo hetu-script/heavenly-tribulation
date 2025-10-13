@@ -1,9 +1,3 @@
-// import 'game/data.ht'
-// import 'entity/character/character.ht'
-// import 'entity/item/item.ht'
-// import 'game/dialog.ht'
-// import 'world/tile/hexagonal_tile.ht'
-// import 'random.ht'
 
 const _kCraftMaterials = [
   'craftmaterial_addAffix',
@@ -16,7 +10,7 @@ const _kCraftMaterials = [
   'craftmaterial_upgradeRank5',
 ]
 
-namespace Debug {
+namespace debug {
 
   external function reloadGameData()
 
@@ -51,7 +45,7 @@ namespace Debug {
   }
 
   function testItem([character]) {
-    engine.warn('Debug.testItem ${character?.name}')
+    engine.warn('debug.testItem ${character?.name}')
     character ??= hero
 
     for (final affixId in game.battleCards.keys) {

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../game/data.dart';
+import '../game/game.dart';
 import '../engine.dart';
 
 class GameState with ChangeNotifier {

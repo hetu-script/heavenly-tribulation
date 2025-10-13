@@ -4,12 +4,12 @@ import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:samsara/console.dart';
+// import 'package:samsara/console.dart';
 import 'package:samsara/extensions.dart';
 
 import '../../game/ui.dart';
-import '../../game/logic/logic.dart';
-import '../../game/data.dart';
+// import '../../game/logic/logic.dart';
+import '../../game/game.dart';
 import '../../engine.dart';
 import 'load_game.dart';
 import 'create_sandbox_game.dart';
@@ -19,21 +19,17 @@ import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../widgets/character/details.dart';
 import '../../game/common.dart';
-import '../../widgets/ui/close_button2.dart';
+// import '../../widgets/ui/close_button2.dart';
 
 enum DebugMenuItems {
-  debugConsole,
+  // debugConsole,
   debugResetHero,
   debugItem,
-  debugJournal,
   debugMerchant,
   debugMaterialMerchant,
   debugWorkbench,
   debugAlchemy,
-  debugCompanion,
-  debugBattle,
-  debugTribulation,
-  debugImmortalityTrial,
+  debugMeeting,
 }
 
 enum MenuStates {
@@ -426,10 +422,9 @@ class _DebugButtonState extends State<DebugButton> {
             showFluentMenu(
               controller: menuController,
               items: {
-                engine.locale('console'): DebugMenuItems.debugConsole,
+                // engine.locale('console'): DebugMenuItems.debugConsole,
                 engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
                 engine.locale('debugItem'): DebugMenuItems.debugItem,
-                engine.locale('debugJournal'): DebugMenuItems.debugJournal,
                 '___1': null,
                 engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
                 engine.locale('debugMaterialMerchant'):
@@ -437,25 +432,20 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
                 engine.locale('debugAlchemy'): DebugMenuItems.debugAlchemy,
                 '___2': null,
-                engine.locale('debugCompanion'): DebugMenuItems.debugCompanion,
-                engine.locale('debugBattle'): DebugMenuItems.debugBattle,
-                engine.locale('debugTribulation'):
-                    DebugMenuItems.debugTribulation,
-                engine.locale('debugImmortalityTrial'):
-                    DebugMenuItems.debugImmortalityTrial,
+                engine.locale('debugMeeting'): DebugMenuItems.debugMeeting,
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
-                  case DebugMenuItems.debugConsole:
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => Console(
-                        engine: engine,
-                        margin: const EdgeInsets.all(50.0),
-                        backgroundColor: GameUI.backgroundColor2,
-                        closeButton: CloseButton2(),
-                      ),
-                    );
+                  // case DebugMenuItems.debugConsole:
+                  //   showDialog(
+                  //     context: context,
+                  //     builder: (BuildContext context) => Console(
+                  //       engine: engine,
+                  //       margin: const EdgeInsets.all(50.0),
+                  //       backgroundColor: GameUI.backgroundColor2,
+                  //       closeButton: CloseButton2(),
+                  //     ),
+                  //   );
                   case DebugMenuItems.debugResetHero:
                     engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
@@ -463,9 +453,7 @@ class _DebugButtonState extends State<DebugButton> {
                       restart: true,
                     );
                   case DebugMenuItems.debugItem:
-                    engine.hetu.invoke('testItem', namespace: 'Debug');
-                  case DebugMenuItems.debugJournal:
-                    engine.hetu.invoke('testJournal', namespace: 'Debug');
+                    engine.hetu.invoke('testItem', namespace: 'debug');
                   case DebugMenuItems.debugMerchant:
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {
@@ -514,81 +502,13 @@ class _DebugButtonState extends State<DebugButton> {
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);
                   case DebugMenuItems.debugAlchemy:
                     context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
-                  case DebugMenuItems.debugCompanion:
-                    final companion = engine.hetu.invoke('Character');
-                    engine.hetu.invoke(
-                      'accompany',
-                      namespace: 'Player',
-                      positionalArgs: [companion],
-                    );
-                    context.read<NpcListState>().update([companion]);
-                  case DebugMenuItems.debugBattle:
-                    final enemy =
-                        engine.hetu.invoke('BattleEntity', namedArgs: {
-                      'name': 'wooden_dummy',
-                      'isFemale': false,
-                      'level': 10,
-                      'rank': 0,
-                      'icon': 'illustration/npc/wooden_dummy_head.png',
-                      'skin': 'wooden_dummy',
-                      'attributes': {
-                        'charisma': 0,
-                        'wisdom': 0,
-                        'luck': 0,
-                        'spirituality': 0,
-                        'dexterity': 0,
-                        'strength': 120,
-                        'willpower': 0,
-                        'perception': 0,
-                      },
-                      'cultivationFavor': '',
-                    });
-                    engine.hetu.invoke('characterCalculateStats',
-                        positionalArgs: [enemy]);
-                    // engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
-                    engine.hetu.invoke('generateDeck', positionalArgs: [
-                      enemy
-                    ], namedArgs: {
-                      'cardInfoList': [
-                        {
-                          'affixId': 'blank_default',
-                        },
-                        {
-                          'affixId': 'blank_default',
-                        },
-                        {
-                          'affixId': 'blank_default',
-                        },
-                      ],
-                    });
-                    context.read<EnemyState>().show(enemy,
-                        onBattleEnd: (bool battleResult, int roundCount) {
-                      dialog.pushDialogRaw(
-                          'It took you $roundCount rounds to defeat the dummy.');
-                      dialog.execute();
-                    });
-                  case DebugMenuItems.debugTribulation:
-                    final targetRank = GameData.hero['rank'] + 1;
-                    final levelMin = GameLogic.minLevelForRank(targetRank);
-                    GameLogic.showTribulation(levelMin + 5, targetRank);
-                  case DebugMenuItems.debugImmortalityTrial:
-                    engine.clearAllCachedScene(except: Scenes.mainmenu);
-                    GameData.game['flags']['cultivationTrial'] = {
-                      'name': engine.locale('cultivation_trial'),
-                      'difficulty': 0,
-                      'introCompleted': false,
-                      'buildCompleted': false,
-                      'room': 0,
-                      'roomMax': 3,
-                    };
-                    engine.pushScene(
-                      'cultivation_trial_1',
-                      constructorId: Scenes.worldmap,
-                      arguments: {
-                        'id': 'cultivation_trial_1',
-                        'method': 'load',
-                      },
-                    );
+                  case DebugMenuItems.debugMeeting:
+                    final people = [];
+                    for (var i = 0; i < 5; ++i) {
+                      final char = engine.hetu.invoke('Character');
+                      people.add(char);
+                    }
+                    context.read<MeetingState>().update(people);
                 }
               },
             );

@@ -15,9 +15,9 @@ class ZoneView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = zoneData;
+    dynamic data = zoneData;
     if (data == null && zoneId != null) {
-      engine.hetu.invoke('getZoneById', positionalArgs: [zoneId!]);
+      data = engine.hetu.invoke('getZoneById', positionalArgs: [zoneId!]);
     }
 
     return ResponsiveView(

@@ -113,13 +113,12 @@ function setEntityWorldPosition(entity, left, top, [ worldId ]) {
 }
 
 function tryChangeStats(entity, statName, change, { overflow = false }) {
-  let data = entity.stats
-  assert(data != null && data[statName] != null)
-  let value = data[statName]
+  assert(entity.stats != null && entity.stats[statName] != null)
+  let value = entity.stats[statName]
   value += change
   let residue = 0
   if (!overflow) {
-    const max = data['${statName}Max']
+    const max = entity.stats['${statName}Max']
     if (value < 0) {
       residue = value
       value = 0
@@ -129,7 +128,7 @@ function tryChangeStats(entity, statName, change, { overflow = false }) {
       value = max
     }
   }
-  data[statName] = value
+  entity.stats[statName] = value
   return residue
 }
 

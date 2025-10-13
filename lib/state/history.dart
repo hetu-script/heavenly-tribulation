@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:samsara/extensions.dart';
 
-import '../game/data.dart';
+import '../game/game.dart';
 
 class HeroAndGlobalHistoryState with ChangeNotifier {
   List<dynamic> incidents = [];

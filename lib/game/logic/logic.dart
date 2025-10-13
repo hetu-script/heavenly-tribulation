@@ -2,21 +2,19 @@ import 'dart:math' as math;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/state/states.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 
 import '../common.dart';
-import '../../widgets/dialog/timeflow.dart';
-import '../../scene/game_dialog/selection_dialog.dart';
+import '../game.dart';
 import '../../engine.dart';
+import '../../scene/common.dart';
+import '../../state/states.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
+import '../../widgets/dialog/timeflow.dart';
 import '../../widgets/dialog/select_menu.dart';
 import '../../widgets/dialog/input_slider.dart';
-import '../../scene/common.dart';
-import '../data.dart';
 import '../../widgets/entity_listview.dart';
-
 import '../../widgets/organization/organization.dart';
 import '../../widgets/location/functional/bounty_quest.dart';
 import '../../widgets/location/location.dart';
@@ -27,6 +25,7 @@ import 'common.dart';
 
 part 'character.dart';
 part 'location.dart';
+part 'organization.dart';
 
 // 为据点分配领地时候的最大循环数
 const _kMaxCityTerritorySize = 100;
@@ -40,6 +39,8 @@ const _kLandCityTerritoryTerrainKinds = {
 };
 
 const _kHintDyingVariants = 5;
+
+const _kBasicDungeonShardCost = 1;
 
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -58,7 +59,7 @@ abstract class GameLogic {
   }
 
   static (int, String) calculateTimestamp() {
-    final int timestamp = GameData.game['timestamp'];
+    final int timestamp = GameData.data['timestamp'];
     ticksOfYear = timestamp % kTicksPerYear;
     ticksOfMonth = timestamp % kTicksPerMonth;
     ticksOfDay = timestamp % kTicksPerDay;
@@ -84,7 +85,7 @@ abstract class GameLogic {
   }
 
   static void generateCityTerritory(dynamic world) {
-    final cities = GameData.game['locations'].values.where(
+    final cities = GameData.data['locations'].values.where(
       (location) =>
           location['category'] == 'city' && location['worldId'] == world['id'],
     );
@@ -178,7 +179,7 @@ abstract class GameLogic {
       final firstCityId = firstNeighbor['cityId'];
       if (firstCityId == null) continue;
 
-      final firstCity = GameData.game['locations'][firstCityId];
+      final firstCity = GameData.data['locations'][firstCityId];
 
       if (neighbors.length == 1) {
         addTileToCityTerritory(firstCity, tile['index'],
@@ -297,6 +298,18 @@ abstract class GameLogic {
       'minGreater': minGreater,
       'maxGreater': maxGreater
     };
+  }
+
+  static int getTribulationCountForRank(int rank) {
+    if (rank <= 0) {
+      return -1;
+    } else {
+      var count = 128;
+      for (var i = 0; i < rank; ++i) {
+        count = count ~/ 2;
+      }
+      return count;
+    }
   }
 
   // // 组织中每个等级的人数上限
@@ -732,10 +745,11 @@ abstract class GameLogic {
   static Map<String, int> getDeckLimitForRank(int rank) {
     assert(rank >= 0);
     final limit = rank + 3;
-    final ephemeralMax = (rank + 1) ~/ 3;
+    final ongoingMax = (rank + 1) ~/ 3;
     return {
       'limit': limit,
-      'ephemeralMax': ephemeralMax,
+      'ongoingMax': ongoingMax,
+      // 'ephemeralMax': ephemeralMax,
     };
   }
 
@@ -816,7 +830,7 @@ abstract class GameLogic {
 
   static Future<String?> selectLocationId() async {
     final selections = <String, String>{};
-    final locations = GameData.game['locations'];
+    final locations = GameData.data['locations'];
     if (locations.isEmpty) return null;
 
     for (final element in locations.keys) {
@@ -835,7 +849,7 @@ abstract class GameLogic {
 
   static Future<String?> selectOrganizationId() async {
     final selections = <String, String>{};
-    final organizations = GameData.game['organizations'];
+    final organizations = GameData.data['organizations'];
     if (organizations.isEmpty) return null;
 
     for (final element in organizations.keys) {
@@ -877,13 +891,12 @@ abstract class GameLogic {
     final rank = GameData.hero['rank'];
     final currentRankMaxLevel = maxLevelForRank(rank);
     final currentRankMinLevel = minLevelForRank(rank);
-    final nextRankMinLevel = minLevelForRank(rank + 1);
 
     bool doTribulation = false;
-    if (level > currentRankMinLevel) {
-      if (level == 5 && rank == 0) {
-        doTribulation = true;
-      } else if (level == currentRankMaxLevel) {
+    if (GameData.flags['tribulation'] == true) {
+      doTribulation = true;
+    } else if (level > currentRankMinLevel) {
+      if (level == currentRankMaxLevel) {
         doTribulation = true;
       } else {
         final probability = math.gradualValue(level - currentRankMinLevel,
@@ -893,10 +906,11 @@ abstract class GameLogic {
           doTribulation = true;
         }
       }
+    }
 
-      if (doTribulation) {
-        showTribulation(nextRankMinLevel + 5, rank + 1);
-      }
+    GameData.flags['tribulation'] = doTribulation;
+    if (doTribulation) {
+      showTribulation(currentRankMaxLevel, rank + 1);
     }
 
     return doTribulation;
@@ -905,15 +919,23 @@ abstract class GameLogic {
   // 进入天道战斗
   static void showTribulation(int level, int rank) async {
     await GameDialogContent.show(
-        engine.context, engine.locale('help_tribulation'));
+        engine.context, engine.locale('hint_tribulation_1'));
 
-    final selected =
-        await SelectionDialog.show(engine.context, selectionsData: {
-      'selections': {
-        'do_tribulation': engine.locale('do_tribulation'),
-        'forgetIt': engine.locale('forgetIt'),
-      },
-    });
+    if (GameData.data['enableTutorial'] == true) {
+      if (GameData.flags['tutorial']['tribulation'] != true) {
+        GameData.flags['tutorial']['tribulation'] = true;
+
+        await GameDialogContent.show(
+            engine.context, engine.locale('hint_tribulation_2'));
+      }
+    }
+
+    await GameDialogContent.show(
+        engine.context, engine.locale('hint_tribulation_3'));
+
+    dialog.pushSelection('tribulation', ['do_tribulation', 'forgetIt']);
+    await dialog.execute();
+    final selected = dialog.checkSelected('tribulation');
     if (selected == 'do_tribulation') {
       final enemy = engine.hetu.invoke(
         'BattleEntity',
@@ -925,23 +947,12 @@ abstract class GameLogic {
           'rank': rank,
         },
       );
-      characterAllocateSkills(enemy, rejuvenate: true);
-      engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
 
       engine.context.read<EnemyState>().show(
         enemy,
-        // prebattlePreventClose: true,
-        // onBattleStart: () {
-        //   bool? hintedTribulation =
-        //       GameData.gameData['flags']['hintedTribulation'];
-        //   if (hintedTribulation == null || hintedTribulation == false) {
-        //     GameDialogContent.show(
-        //         engine.context, engine.locale('hint_tribulation_beforeBattle'));
-        //     GameData.gameData['flags']['hintedTribulation'] = true;
-        //   }
-        // },
         onBattleEnd: (bool result, int roundCount) {
           if (result) {
+            GameData.flags['tribulation'] = false;
             engine.hetu.invoke('levelUp', namespace: 'Player');
             final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
             promptNewRank(rank);
@@ -959,7 +970,7 @@ abstract class GameLogic {
       // );
     } else {
       GameDialogContent.show(
-          engine.context, engine.locale('hint_cancel_tribulation'));
+          engine.context, engine.locale('hint_tribulation_4'));
     }
   }
 
@@ -981,17 +992,18 @@ abstract class GameLogic {
     engine.setCursor(Cursors.normal);
     final completer = Completer();
     engine.context
-        .read<NewItemsState>()
+        .read<ItemsPromptState>()
         .update(items: items, completer: completer);
     return completer.future;
   }
 
-  static Future<void> promptJournal(dynamic journal) async {
+  static Future<void> promptJournal(dynamic journal,
+      [dynamic selections]) async {
     engine.setCursor(Cursors.normal);
     final completer = Completer();
     engine.context
-        .read<NewJournalState>()
-        .update(journal: journal, completer: completer);
+        .read<JournalPromptState>()
+        .update(journal: journal, selections: selections, completer: completer);
     return completer.future;
   }
 
@@ -999,12 +1011,12 @@ abstract class GameLogic {
     engine.setCursor(Cursors.normal);
     final completer = Completer();
     engine.context
-        .read<NewRankState>()
+        .read<RankPromptState>()
         .update(rank: rank, completer: completer);
     return completer.future;
   }
 
-  static void onUseItem(dynamic itemData) {
+  static void onUseItem(dynamic itemData) async {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
       GameDialogContent.show(
@@ -1024,21 +1036,19 @@ abstract class GameLogic {
           'enableScrollCraft': engine.scene?.id == Scenes.mainmenu,
         });
       case kItemCategoryIdentifyScroll:
-        engine.context.read<ItemSelectState>().show(
-          GameData.hero,
+        final items = await selectItem(
+          character: GameData.hero,
           title: engine.locale('selectItem'),
           filter: {'isIdentified': false},
           multiSelect: false,
-          onSelect: (Iterable<dynamic> items) {
-            if (items.isEmpty) return;
-            assert(items.length == 1);
-            final selectedItem = items.first;
-            selectedItem['isIdentified'] = true;
-            engine.play('hammer-hitting-an-anvil-25390.mp3');
-            engine.hetu.invoke('lose',
-                namespace: 'Player', positionalArgs: [itemData]);
-          },
         );
+        if (items.isNotEmpty) {
+          final selectedItem = items.first;
+          selectedItem['isIdentified'] = true;
+          engine.play('hammer-hitting-an-anvil-25390.mp3');
+          engine.hetu
+              .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
+        }
       case kItemCategoryMaterialPack:
         engine.hetu.invoke('lose',
             namespace: 'Player',
@@ -1151,8 +1161,6 @@ abstract class GameLogic {
       engine.log('game update begin: ${GameLogic.getDatetimeString()}');
     }
 
-    final int timestamp = GameData.game['timestamp'];
-
     for (var i = 0; i < tick; ++i) {
       engine.hetu.invoke('handleBabies');
 
@@ -1165,7 +1173,7 @@ abstract class GameLogic {
       // 生产类建筑每天都会刷新生产进度
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-      for (final location in GameData.game['locations'].values) {
+      for (final location in GameData.data['locations'].values) {
         // 月度事件
         if (forceUpdate || (day == 1 && time == 1)) {
           updateLocationMonthly(location);
@@ -1179,7 +1187,7 @@ abstract class GameLogic {
       }
 
       // 触发每个组织的刷新事件
-      for (final organization in GameData.game['organizations'].values) {
+      for (final organization in GameData.data['organizations'].values) {
         // 月度事件
         if (forceUpdate || (day == 1 && time == 1)) {
           updateOrganizationMonthly(organization);
@@ -1194,7 +1202,7 @@ abstract class GameLogic {
       }
 
       // 触发每个角色的刷新事件
-      for (final character in GameData.game['characters'].values) {
+      for (final character in GameData.data['characters'].values) {
         // 月度事件
         if (forceUpdate || (day == 1 && time == 1)) {
           updateCharacterMonthly(character);
@@ -1211,13 +1219,13 @@ abstract class GameLogic {
       // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
       // 野外遭遇包括NPC事件、随机副本等等
       // for (const terrain in world.terrains) {
-      //   if (game.timestamp % kTicksPerMonth == 0) {
+      //   if (data.timestamp % kTicksPerMonth == 0) {
       //     updateTerrain(terrain)
       //   }
       // }
 
       if (timeflow) {
-        engine.hetu.assign('timestamp', timestamp + 1, namespace: 'game');
+        GameData.data['timestamp'] += 1;
         engine.context.read<GameTimestampState>().update();
       }
 
@@ -1332,7 +1340,7 @@ abstract class GameLogic {
       engine.context.read<HeroPositionState>().clear();
       engine.clearAllCachedScene(
           except: Scenes.mainmenu,
-          arguments: {'reset': GameData.game['saveName'] != 'debug'});
+          arguments: {'reset': GameData.data['saveName'] != 'debug'});
       return;
     }
 
@@ -1344,7 +1352,7 @@ abstract class GameLogic {
 
     engine.setLoading(true, tip: engine.locale('tips_dying'));
 
-    await engine.popSceneTill(GameData.game['mainWorldId']);
+    await engine.popSceneTill(GameData.data['mainWorldId']);
 
     final homeLocationId = GameData.hero['homeLocationId'];
     final homeLocation = GameData.getLocation(homeLocationId);
@@ -1415,7 +1423,7 @@ abstract class GameLogic {
     bool isBasic = false,
     String dungeonId = 'dungeon_1',
     bool pushScene = true,
-  }) {
+  }) async {
     if (isBasic) {
       engine.hetu.invoke('resetDungeon', namedArgs: {
         'rank': rank ?? 0,
@@ -1431,34 +1439,33 @@ abstract class GameLogic {
         },
       );
     } else {
-      engine.context.read<ItemSelectState>().show(
-        GameData.hero,
+      final items = await GameLogic.selectItem(
+        character: GameData.hero,
         title: engine.locale('selectItem'),
         filter: rank != null
             ? {'kind': 'dungeon_ticket_rank$rank'}
             : {'category': 'dungeon_ticket'},
         multiSelect: false,
-        onSelect: (Iterable<dynamic> items) {
-          if (items.isEmpty) return;
-          assert(items.length == 1);
-          final selectedItem = items.first;
-          engine.hetu.invoke('lose',
-              namespace: 'Player', positionalArgs: [selectedItem]);
-          engine.hetu.invoke('resetDungeon', namedArgs: {
-            'rank': selectedItem['rank'],
-            'isBasic': false,
-          });
-          if (!pushScene) return;
-          engine.pushScene(
-            dungeonId,
-            constructorId: Scenes.worldmap,
-            arguments: {
-              'id': dungeonId,
-              'method': 'load',
-            },
-          );
-        },
       );
+
+      if (items.isNotEmpty) {
+        final selectedItem = items.first;
+        engine.hetu.invoke('lose',
+            namespace: 'Player', positionalArgs: [selectedItem]);
+        engine.hetu.invoke('resetDungeon', namedArgs: {
+          'rank': selectedItem['rank'],
+          'isBasic': false,
+        });
+        if (!pushScene) return;
+        engine.pushScene(
+          dungeonId,
+          constructorId: Scenes.worldmap,
+          arguments: {
+            'id': dungeonId,
+            'method': 'load',
+          },
+        );
+      }
     }
   }
 

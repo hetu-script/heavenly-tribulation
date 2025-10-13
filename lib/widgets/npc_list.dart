@@ -7,7 +7,7 @@ import 'avatar.dart';
 import '../state/npc_list.dart';
 // import '../../state/game_dialog_state.dart';
 import '../game/ui.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 import '../game/logic/logic.dart';
 
 class NpcList extends StatefulWidget {

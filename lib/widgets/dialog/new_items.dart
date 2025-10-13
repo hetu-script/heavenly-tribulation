@@ -80,7 +80,7 @@ class NewItems extends StatelessWidget {
               fluent.FilledButton(
                 onPressed: () {
                   completer?.complete();
-                  context.read<NewItemsState>().update();
+                  context.read<ItemsPromptState>().update();
                   engine.play('pickup_item-64282.mp3');
                 },
                 child: Text(

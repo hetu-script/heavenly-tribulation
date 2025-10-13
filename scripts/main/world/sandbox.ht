@@ -23,7 +23,7 @@ const _kLocationInitialDevelopmentMax = 4
 const _kOrganizationRecruitOtherLocationProbability = 0.2
 const _kOrganizationRecruitSuccessProbability = 0.4
 
-const _kSandboxInitialHeadRank = 2
+const _kSandboxInitialRankMax = 3
 
 const _kTerrainResourceBase = 5;
 const _kTerrainResourceVariation = 5;
@@ -268,11 +268,11 @@ function createSandboxWorld({
 
   engine.debug('生成生产类建筑')
   // 生成农田
-  final cities = game.locations.values.where((location) =>
+  final discoveredCities = game.locations.values.where((location) =>
     location.category == 'city' && location.isHidden == false
   ).toList()
 
-  for (final city in cities) {
+  for (final city in discoveredCities) {
     final neighbors = locationNeighbors[city.terrainIndex]
     assert(neighbors != null)
     for (final terrain in neighbors) {
@@ -464,12 +464,12 @@ function createSandboxWorld({
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.debug('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
   while (nations.length < nationNumber) {
-    let availableLocations = game.locations.values.where((data) => data.category == 'city' && data.organizationId == null).toList()
+    let availableLocations = game.locations.values.where((loc) => loc.category == 'city' && loc.organizationId == null).toList()
     assert(availableLocations.isNotEmpty)
     const location = random.nextIterable(availableLocations)
     const head = Character(
       birthTimestamp: createBirthTimestamp(min: 30, max: 60),
-      rank: _kSandboxInitialHeadRank,
+      rank: _kSandboxInitialRankMax,
     )
     head.locationId = location.id
     assert(location.worldPosition != null)
@@ -527,37 +527,31 @@ function createSandboxWorld({
     }
   }
 
+  final cities = game.locations.values.where((location) =>
+    location.category == 'city' && location.isHidden == false
+  ).toList()
+  while (game.characters.length < characterNumber) {
+    // 产生新的在野角色
+    // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+    const location = random.nextIterable(cities)
+    const character = Character(
+      locationId: location.id,
+      birthTimestamp: createBirthTimestamp(min: 12, max: 60),
+    )
+  }
+
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
   // 因为是模拟运行，每个tick接跳过一个月
   engine.debug('快速模拟一段时间的演化，生成人物、组织、国家等信息')
-  // const islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
-  let tick = 0 // 最长5年时间的演化
-  while (tick < 60 || game.characters.length < characterNumber) {
-    ++tick
-
-    // 婴儿出生
-    handleBabies()
-
-    // 产生新的在野角色
-    if (game.characters.length < characterNumber) {
-      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      const location = random.nextIterable(game.locations.values.where((loc) {
-        return loc.category == 'city'
-      }))
-      const character = Character(
-        locationId: location.id,
-        birthTimestamp: createBirthTimestamp(min: 12, max: 70),
-      )
-    }
-
+  for (var i in range(20)) {
     // 国家和组织扩张
     for (const organization of game.organizations) {
+
       final expansionRate = Constants.organizationCategoryExpansionRate[organization.category]
       final roll = random.nextDouble()
       if (roll > expansionRate) continue
 
-      engine.debug('组织 ${organization.name} 尝试扩张新领土')
       final availableCities = game.locations.values.where((location) =>
         location.category == 'city' &&
         location.organizationId == null
@@ -568,6 +562,7 @@ function createSandboxWorld({
         continue
       }
 
+      engine.debug('组织 ${organization.name} 尝试扩张新领土')
       if (availableCities.length > 1) {
         // 按照距离组织据点的远近排序
         final headquarters = game.locations[organization.headquartersLocationId]
@@ -582,51 +577,54 @@ function createSandboxWorld({
 
       final newCity = availableCities.first
       addLocationToOrganization(newCity, organization)
+    }
+  }
 
-      engine.debug('组织 ${organization.id} 尝试招募新成员')
-    
-      let location = game.locations[organization.headquartersLocationId]
-      let residingCharacters = getResidingCharacters(location)
-
-      if (residingCharacters.isEmpty) {
-        // 组织据点本身没有可用的人才（一般是因为是隐士据点）
-        if (random.nextDouble() < _kOrganizationRecruitOtherLocationProbability) {
-          for (const otherLocation of game.locations) {
-            if (location.category != 'city') continue
-            if (otherLocation.id == organization.headquartersLocationId) continue
-            residingCharacters = getResidingCharacters(otherLocation)
-            if (residingCharacters.isNotEmpty) {
-              break
-            }
+  for (var i in range(characterNumber ~/ 4)) {
+    // 从最低等级开始，尝试提升成员等级
+    // for (const rank in range(kOrganizationRankMax)) {
+    //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+    //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
+    //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
+    //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
+    //       const memberId = random.nextIterable(membersOfThisRank)
+    //       const member = game.characters[memberId]
+    //       addOrganizationTitleForCharacter(member, organization, rank + 1)
+    //       break
+    //     }
+    //   }
+    // }
+    final organization = random.nextIterable(game.organizations.values)
+    engine.debug('组织 ${organization.id} 尝试招募新成员')
+    let location = game.locations[organization.headquartersLocationId]
+    let residingCharacters = getResidingCharacters(location)
+    if (residingCharacters.isEmpty) {
+      // 组织据点本身没有可用的人才（一般是因为是隐士据点）
+      if (random.nextDouble() < _kOrganizationRecruitOtherLocationProbability) {
+        for (const otherLocation of game.locations) {
+          if (location.category != 'city') continue
+          if (otherLocation.id == organization.headquartersLocationId) continue
+          residingCharacters = getResidingCharacters(otherLocation)
+          if (residingCharacters.isNotEmpty) {
+            break
           }
         }
       }
+    }
 
-      // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
-      if (residingCharacters.isNotEmpty) {
-        if (random.nextDouble() < _kOrganizationRecruitSuccessProbability) {
-          for (let character in random.shuffle(residingCharacters)) {
-            if (character.organizationId == null) {
-              addCharacterToOrganization(character, organization)
-              break
-            }
+    // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
+    if (residingCharacters.isNotEmpty) {
+      if (random.nextDouble() < _kOrganizationRecruitSuccessProbability) {
+        for (let character in random.shuffle(residingCharacters)) {
+          if (character.organizationId == null) {
+            addCharacterToOrganization(character, organization)
+            break
           }
         }
       }
-
-      // 从最低等级开始，尝试提升成员等级
-      // for (const rank in range(kOrganizationRankMax)) {
-      //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
-      //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
-      //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
-      //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
-      //       const memberId = random.nextIterable(membersOfThisRank)
-      //       const member = game.characters[memberId]
-      //       addOrganizationTitleForCharacter(member, organization, rank + 1)
-      //       break
-      //     }
-      //   }
-      // }
+    } else {
+      // final character = Character(rank: random.nextInt(_kSandboxInitialRankMax))
+      // addCharacterToOrganization(character, organization)
     }
     
     engine.debug('通过婚姻和生育产生新的角色以及其人物关系')
@@ -636,6 +634,7 @@ function createSandboxWorld({
       if (age < _kAdultAge || age > _kPregnancyAgeMax) continue
       if (char.isPregnant) continue
       if (char.motivations.contains('dink')) continue
+
       let spouseId = getSpouses(char).first?.characterId
       if (spouseId != null) {
         const spouse = game.characters[spouseId]
@@ -658,6 +657,9 @@ function createSandboxWorld({
         }
       }
     }
+
+    // 婴儿出生
+    handleBabies()
   }
 
 

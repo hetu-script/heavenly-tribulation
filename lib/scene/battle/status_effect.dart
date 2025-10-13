@@ -7,7 +7,7 @@ import 'package:samsara/components/hovertip.dart';
 import 'package:hetu_script/utils/collection.dart';
 
 import '../../engine.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../game/ui.dart';
 import 'common.dart';
 

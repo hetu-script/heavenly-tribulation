@@ -2,18 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-class NewJournalState with ChangeNotifier {
+class JournalPromptState with ChangeNotifier {
   dynamic journal;
+  Map<String, String>? selections;
   Completer? completer;
 
-  void update({dynamic journal, Completer? completer}) {
+  void update(
+      {dynamic journal,
+      Map<String, String>? selections,
+      Completer? completer}) {
     this.journal = journal;
+    this.selections = selections;
     this.completer = completer;
     notifyListeners();
   }
 }
 
-class NewItemsState with ChangeNotifier {
+class ItemsPromptState with ChangeNotifier {
   dynamic items;
   Completer? completer;
 
@@ -28,7 +33,7 @@ class NewItemsState with ChangeNotifier {
   }
 }
 
-class NewRankState with ChangeNotifier {
+class RankPromptState with ChangeNotifier {
   int? rank;
   Completer? completer;
 

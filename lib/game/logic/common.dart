@@ -15,6 +15,6 @@ const kWuweiTrialAnswers = {
 const kCultivationTrialMinBattleRound = 4;
 
 // 财富试炼需要支付的灵石数量
-const kWealthTrialCost = 30;
+const kWealthTrialCost = 5;
 
 const kPleasureTrialMinCharisma = 70;

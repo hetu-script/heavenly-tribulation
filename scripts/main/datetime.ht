@@ -1,4 +1,3 @@
-// import 'game/data.ht'
 
 const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
 const kDaysPerMonth = 30 //每月的天数

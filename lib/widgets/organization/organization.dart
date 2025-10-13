@@ -8,7 +8,7 @@ import '../../game/ui.dart';
 // import '../../util.dart';
 import '../common.dart';
 import 'edit_organization_basic.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
@@ -60,7 +60,7 @@ class _OrganizationViewState extends State<OrganizationView> {
         .map((id) => GameData.getCharacter(id));
 
     for (final character in members) {
-      final row = GameData.getCharacterInformationRow(character);
+      final row = GameData.getMemberInformationRow(character);
       _charactersTable.add(row);
     }
 
@@ -155,10 +155,10 @@ class _OrganizationViewState extends State<OrganizationView> {
                                 }
 
                                 if (id != null && id != _organization['id']) {
-                                  GameData.game['organizations']
+                                  GameData.data['organizations']
                                       .remove(_organization['id']);
                                   _organization['id'] = id;
-                                  GameData.game['organizations'][id] =
+                                  GameData.data['organizations'][id] =
                                       _organization;
                                 }
                               },
@@ -171,7 +171,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                 ),
               ),
               GameEntityListView(
-                columns: kEntityListViewCharacterColumns,
+                columns: kEntityListViewMemberColumns,
                 tableData: _charactersTable,
                 onItemPressed: (position, dataId) {
                   showDialog(

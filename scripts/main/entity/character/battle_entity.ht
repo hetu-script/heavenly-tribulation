@@ -33,9 +33,6 @@ const kBaseLightRadius = 2
 const kBaseidentifyCardsCountMonthly = 12
 const kBaseExpCollectEfficiency = 10
 
-const kBaseTribulationCountMax = 2
-const kTribulationCountPerRank = 2
-
 const kBaseResistMax = 75
 
 /// battle entity 指一个可以参与战斗的对象。
@@ -62,8 +59,7 @@ struct BattleEntity {
     baseAttributeValue,
     mainAttribute,
     stats,
-    cardLibrary,
-    battleDecks,
+    generateDeck = true,
     cultivationFavor,
     cultivationStyle,
   }) {
@@ -160,7 +156,7 @@ struct BattleEntity {
 
     // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
     // 卡牌库是一个 map，key 是卡牌的 id，value 是卡牌数据
-    this.cardLibrary = cardLibrary ?? {}
+    this.cardLibrary = {}
     // 战斗卡组的数组，数组的值是一个结构体，包含卡组的命名（可修改）和卡组内容
     // [
     //   {
@@ -173,9 +169,9 @@ struct BattleEntity {
     //     ]
     //   }
     // ]
-    this.battleDecks = battleDecks ?? []
+    this.battleDecks = []
     // 当前使用的战斗卡组，记录的是战斗卡组数组的index
-    this.battleDeckIndex = this.battleDecks.isNotEmpty ? 0 : -1
+    this.battleDeckIndex = -1
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
@@ -210,8 +206,6 @@ struct BattleEntity {
 
     // 煞气：角色击败过的其他角色的数量，本身也是一种资源，可以被消耗
     this.karma = 0
-
-    characterCalculateStats(this, rejuvenate: true)
     
     this.mainAttribute = getMainAttribute(this)
 
@@ -220,6 +214,12 @@ struct BattleEntity {
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
+
+    characterCalculateStats(this, rejuvenate: true)
+    Game.characterAllocateSkills(this, rejuvenate: true)
+    if (generateDeck) {
+      generateBattleDeck(this)
+    }
   }
 }
 
@@ -259,7 +259,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.karmaMax = character.willpower ~/ 10
   // character.expMax = (expForLevel(character.level) * 2.5).truncate()
 
-  character.tribulationCountMax = kBaseTribulationCountMax + kTribulationCountPerRank * character.rank
+  character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = kBaseLightRadius + character.perception ~/ 10
   character.expCollectEfficiency = character.rank * character.rank * kBaseExpCollectEfficiency + (character.rank + 1) * kBaseExpCollectEfficiency
   character.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.perception ~/ 10
@@ -285,20 +285,22 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.potionPassives.chakraMax?.value
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value
 
-  character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
   character.stats.lightRadius = kBaseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
-  character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + (character.passives.expCollectEfficiency?.value ?? 0) / 100)).round()
   character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
+  character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + character.passives.expCollectEfficiency?.value / 100)).round()
+  if (character.rank > 0) {
+    character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100)).round()
+  }
 
-  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + (character.potionPassives.unarmedAttack?.value ?? 0)
-  character.stats.weaponAttack = character.passives.weaponAttack?.value + (character.potionPassives.weaponAttack?.value ?? 0)
-  character.stats.spellAttack = character.passives.spellAttack?.value + (character.potionPassives.spellAttack?.value ?? 0)
-  character.stats.curseAttack = character.passives.curseAttack?.value + (character.potionPassives.curseAttack?.value ?? 0)
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value
+  character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value
+  character.stats.spellAttack = character.passives.spellAttack?.value + character.potionPassives.spellAttack?.value
+  character.stats.curseAttack = character.passives.curseAttack?.value + character.potionPassives.curseAttack?.value
 
-  character.stats.physicalResist = character.passives.physicalResist?.value + (character.potionPassives.physicalResist?.value ?? 0)
-  character.stats.chiResist = character.passives.chiResist?.value + (character.potionPassives.chiResist?.value ?? 0)
-  character.stats.elementalResist = character.passives.elementalResist?.value + (character.potionPassives.elementalResist?.value ?? 0)
-  character.stats.psychicResist = character.passives.psychicResist?.value + (character.potionPassives.psychicResist?.value ?? 0)
+  character.stats.physicalResist = character.passives.physicalResist?.value + character.potionPassives.physicalResist?.value
+  character.stats.chiResist = character.passives.chiResist?.value + character.potionPassives.chiResist?.value
+  character.stats.elementalResist = character.passives.elementalResist?.value + character.potionPassives.elementalResist?.value
+  character.stats.psychicResist = character.passives.psychicResist?.value + character.potionPassives.psychicResist?.value
 
   character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.potionPassives.physicalResistMax?.value
   character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.potionPassives.chiResistMax?.value
@@ -453,7 +455,7 @@ function characterHasPassive(character, dataId) {
   return character.passives[dataId]
 }
 
-function generateDeck(character, { maxOutLevel = false, cardInfoList }) {
+function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
   let deck = []
   if (cardInfoList is List && cardInfoList.isNotEmpty) {
     for (final info in cardInfoList) {

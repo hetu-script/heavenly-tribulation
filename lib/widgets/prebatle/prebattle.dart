@@ -11,7 +11,7 @@ import '../ui/bordered_icon_button.dart';
 import '../avatar.dart';
 import '../../engine.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import 'battlecard.dart';
 import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
@@ -78,7 +78,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     });
 
     final int playerMonthlyIdentifiedCards =
-        GameData.game['playerMonthly']['identifiedEnemyCards'];
+        GameData.flags['playerMonthly']['identifiedEnemyCards'];
     final int playerMonthlyIdentifiedCardsCount =
         widget.hero['stats']['identifyCardsCountMonthly'];
     _availableIdentifyCount =
@@ -473,7 +473,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 engine
                                     .play('hammer-hitting-an-anvil-25390.mp3');
                                 --_availableIdentifyCount;
-                                GameData.game['playerMonthly']
+                                GameData.flags['playerMonthly']
                                     ['identifiedEnemyCards'] += 1;
                                 context.read<HoverContentState>().hide();
                                 setState(() {

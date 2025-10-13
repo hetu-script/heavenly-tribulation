@@ -11,7 +11,7 @@ import '../dialog/input_description.dart';
 import '../ui/int_editor_field.dart';
 import '../../game/common.dart';
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import 'edit_character_flags.dart';
 import '../ui/close_button2.dart';
 
@@ -165,7 +165,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
     final organizationId = _character['organizationId'];
     // 这里有可能为 null
-    final organization = GameData.game['organizations'][organizationId];
+    final organization = GameData.data['organizations'][organizationId];
     organizationName = organization != null ? organization['name'] : none;
 
     final titleId = _character['titleId'];
@@ -200,11 +200,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
     organizationFavor = engine.locale(_character['organizationFavor']);
 
     final homeId = _character['homeLocationId'];
-    final homeLocation = GameData.game['locations'][homeId];
+    final homeLocation = GameData.data['locations'][homeId];
     homeName = homeLocation != null ? homeLocation['name'] : none;
 
     final locationId = _character['locationId'];
-    final location = GameData.game['locations'][locationId];
+    final location = GameData.data['locations'][locationId];
     locationName = location != null ? location['name'] : none;
 
     final worldId = _character['worldId'];
@@ -395,8 +395,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                 Container(
                                   alignment: Alignment.centerLeft,
                                   height: 35.0,
-                                  child:
-                                      Text('${engine.locale('title')}: $title'),
+                                  child: Text(
+                                      '${engine.locale('jobTitle')}: $title'),
                                 ),
                               ],
                             ),
@@ -572,11 +572,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       if (id != null && id != _character['id']) {
                         final originId = _character['id'];
 
-                        GameData.game['characters'].remove(_character['id']);
+                        GameData.data['characters'].remove(_character['id']);
                         _character['id'] = id;
-                        GameData.game['characters'][id] = _character;
+                        GameData.data['characters'][id] = _character;
 
-                        if (GameData.game['heroId'] == originId) {
+                        if (GameData.data['heroId'] == originId) {
                           engine.hetu.invoke('setHero', positionalArgs: [id]);
                         }
                       }

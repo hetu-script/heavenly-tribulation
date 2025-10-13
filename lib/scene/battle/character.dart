@@ -8,7 +8,7 @@ import 'package:samsara/cardgame/custom_card.dart';
 // import 'package:samsara/components/task_component.dart';
 
 import '../../engine.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import 'battledeck_zone.dart';
 import '../../game/ui.dart';
 import 'status_effect.dart';

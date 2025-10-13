@@ -84,7 +84,7 @@ import 'common.ht'
 struct StatusScript {
   function speed_quick_self_turn_end(self, opponent, effect, details) {
     final existed = self.hasStatusEffect('speed_quick')
-    final threshold = self.data.stats.quickThreshold
+    final threshold = self.game.stats.quickThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('speed_quick', amount: threshold)
       self.turnFlags.extraTurn = true
@@ -93,7 +93,7 @@ struct StatusScript {
 
   function speed_slow_self_turn_start(self, opponent, effect, details) {
     final existed = self.hasStatusEffect('speed_slow')
-    final threshold = self.data.stats.slowThreshold
+    final threshold = self.game.stats.slowThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('speed_slow', amount: threshold)
       self.turnFlags.skipTurn = true
@@ -102,7 +102,7 @@ struct StatusScript {
 
   function dodge_nimble_self_turn_end(self, opponent, effect, details) {
     final existed = self.hasStatusEffect('dodge_nimble')
-    final threshold = self.data.stats.nimbleThreshold
+    final threshold = self.game.stats.nimbleThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_nimble', amount: threshold)
       self.turnFlags.immuneDamage = true
@@ -112,7 +112,7 @@ struct StatusScript {
 
   function dodge_clumsy_self_turn_end(self, opponent, effect, details) {
     final existed = self.hasStatusEffect('dodge_clumsy')
-    final threshold = self.data.stats.clumsyThreshold
+    final threshold = self.game.stats.clumsyThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_clumsy', amount: threshold)
       self.turnFlags.staggeringTurn = true
@@ -308,7 +308,7 @@ struct StatusScript {
 
   function energy_positive_spell_self_deck_end(self, opponent, effect, details) {
     final manaCount = self.hasStatusEffect('energy_positive_spell')
-    final manaMax = self.data.stats.manaMax
+    final manaMax = self.game.stats.manaMax
     if (manaCount > manaMax) {
       self.removeStatusEffect(effect.id, amount: manaCount - manaMax)
     }
@@ -329,7 +329,7 @@ struct StatusScript {
 
     self.addStatusEffect(debuff, amount: details.overflow)
 
-    if (self.data.passives.overflowed_chakra_debuff_affect_opponent) {
+    if (self.game.passives.overflowed_chakra_debuff_affect_opponent) {
       opponent.addStatusEffect(debuff, amount: details.overflow)
     }
   }

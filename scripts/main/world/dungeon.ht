@@ -1,12 +1,74 @@
+
+const _kBasicDungeonRoomMax = 5
+const _kDungeonRoomMax = 13
+
+struct DungeonFlags {
+  constructor ({
+    rank,
+    initialRoom = true,
+    isBasic = false,
+  }) {
+    rank ??= 0
+    rank = rank.clamp(0, kCultivationRankMax - 1)
+    this.rank = rank
+    this.level = 0
+    if (isBasic) {
+      this.levelMax = 0
+    } else {
+      this.levelMax = rank * 2 + 1
+    }
+    this.minEnemyLevel = minLevelForRank(rank)
+    this.isBasic = isBasic
+    this.room = initialRoom ? 0 : 1
+    this.roomMax = isBasic ? _kBasicDungeonRoomMax : _kDungeonRoomMax
+    this.buildCompleted = false
+    this.battleResult = null
+    this.selectedPortal = null
+  }
+}
+
 function resetDungeon({
   rank,
   initialRoom = true,
   isBasic = false,
 }) {
-  game.dungeon = DungeonFlags(
+  game.flags.dungeon = DungeonFlags(
     rank: rank,
     initialRoom: initialRoom,
     isBasic: isBasic,
+  )
+}
+
+struct TrialFlags {
+  constructor ({
+    name,
+    difficulty,
+    organizationId,
+    npcId,
+  }) {
+    this.name = name ?? engine.locale('cultivation_trial')
+    this.difficulty = difficulty ?? 0
+    this.organizationId = organizationId
+    this.npcId = npcId
+
+    this.introCompleted = false
+    this.buildCompleted = false
+    this.room = 0
+    this.roomMax = 3
+  }
+}
+
+function resetTrial({
+    name,
+    difficulty,
+    organizationId,
+    npcId,
+}) {
+  game.flags.trial = TrialFlags(
+    name: name,
+    difficulty: difficulty,
+    organizationId: organizationId,
+    npcId: npcId,
   )
 }
 

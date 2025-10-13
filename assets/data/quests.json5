@@ -6,17 +6,17 @@
   deliver_material: {
     id: "deliver_material",
     policy: null,
-    script: "deliver_material",
+    isBounty: true,
   },
   deliver_item: {
     id: "deliver_item",
     policy: null,
-    script: "deliver_item",
+    isBounty: true,
   },
   escort: {
     id: "escort",
     policy: null,
-    script: "escort",
+    isBounty: true,
   },
   // guard_site: {
   //   id: "guard_site",
@@ -26,17 +26,17 @@
   purchase_material: {
     id: "purchase_material",
     policy: "consolidation",
-    script: "purchase_material",
+    isBounty: true,
   },
   purchase_item: {
     id: "purchase_item",
     policy: "consolidation",
-    script: "purchase_item",
+    isBounty: true,
   },
   discover_location: {
     id: "discover_location",
     policy: "consolidation",
-    script: "discover_location",
+    isBounty: true,
   },
   // gather_information: {
   //   id: "gather_information",

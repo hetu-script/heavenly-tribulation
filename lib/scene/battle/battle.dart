@@ -19,7 +19,7 @@ import 'battledeck_zone.dart';
 import '../../engine.dart';
 import 'versus_banner.dart';
 import '../common.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../../state/states.dart';

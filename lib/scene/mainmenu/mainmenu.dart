@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../common.dart';
 import 'mainmenu_buttons.dart';
 import '../../widgets/ui_overlay.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../engine.dart';
 import '../../state/states.dart';
 
@@ -39,7 +39,7 @@ class MainMenuScene extends Scene {
       // GameData.isGameCreated = false;
       await engine.hetu.invoke(
         'generateHero',
-        namespace: 'Debug',
+        namespace: 'debug',
         namedArgs: {
           // 'level': 10,
           // 'rank': 1,

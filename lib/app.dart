@@ -14,7 +14,7 @@ import 'scene/world/world.dart';
 import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
-import 'game/data.dart';
+import 'game/game.dart';
 import 'game/ui.dart';
 import 'scene/world/location.dart';
 import 'state/states.dart';
@@ -184,6 +184,12 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'getTribulationCountForRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.getTribulationCountForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'getCardCraftMaterial',
         ({positionalArgs, namedArgs}) => GameLogic.getCardCraftMaterial(
             positionalArgs[0], positionalArgs[1]),
@@ -309,7 +315,7 @@ class _GameAppState extends State<GameApp> {
       return dialog.checkSelected(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
+    engine.hetu.interpreter.bindExternalFunction('debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
       dialog.pushDialog(engine.locale('reloadGameDataPrompt'));
@@ -318,7 +324,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::datetime', (
         {positionalArgs, namedArgs}) {
       return {
-        'timestamp': GameData.game['timestamp'],
+        'timestamp': GameData.data['timestamp'],
         'tickOfYear': GameLogic.ticksOfYear,
         'tickOfMonth': GameLogic.ticksOfMonth,
         'tickOfDay': GameLogic.ticksOfDay,
@@ -445,7 +451,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptJournal', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.promptJournal(positionalArgs.first);
+      return GameLogic.promptJournal(positionalArgs[0], positionalArgs[1]);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewRank', (

@@ -21,7 +21,7 @@ import '../../engine.dart';
 import 'common.dart';
 // import 'cardcrafting_area.dart';
 import '../../state/states.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
@@ -342,7 +342,7 @@ class CardLibraryScene extends Scene {
       detailedCount.writeln(
           '${engine.locale('deckbuilding_limit')}: ${_currentBuildingZone!.limit}');
       detailedCount.writeln(
-          '${engine.locale('deckbuilding_limit_ephemeral')}: ${_currentBuildingZone!.ephemeralCount}/${_currentBuildingZone!.limitEphemeralMax}');
+          '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
     } // detailedCount.writeln(
     //     '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
     cardCount.text = detailedCount.toString();
@@ -964,7 +964,7 @@ class CardLibraryScene extends Scene {
   }
 
   void showCardpackSelect({Iterable? selectedItems}) {
-    engine.context.read<ItemSelectState>().show(
+    context.read<ItemSelectState>().show(
           GameData.hero,
           title: engine.locale('selectCardpack'),
           filter: {'category': 'cardpack'},
@@ -1520,14 +1520,15 @@ class CardLibraryScene extends Scene {
       deckZone.updateDeckLimit();
     }
 
-    if (GameData.game['enableTutorial'] == true) {
-      if (GameData.game['flags']['tutorial']['cardLibrary'] == true) return;
-      // 功法图录教程
-      GameData.game['flags']['tutorial']['cardLibrary'] = true;
+    if (GameData.data['enableTutorial'] == true) {
+      if (GameData.flags['tutorial']['cardLibrary'] != true) {
+        // 功法图录教程
+        GameData.flags['tutorial']['cardLibrary'] = true;
 
-      dialog.pushDialog('hint_cardLibrary',
-          npc: GameData.game['npcs']['xitong']);
-      await dialog.execute();
+        dialog.pushDialog('hint_cardLibrary',
+            npc: GameData.data['npcs']['xitong']);
+        await dialog.execute();
+      }
     }
 
     await onEnterScene?.call();

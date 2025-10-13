@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import 'avatar.dart';
 import 'character/profile.dart';
@@ -27,13 +28,12 @@ import 'npc_list.dart';
 import 'character/merchant/merchant.dart';
 import 'dialog/new_items.dart';
 import 'dialog/new_journal.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
-// import 'location_panel.dart';
-import '../game/game.dart';
 import 'ui/close_button2.dart';
+import 'organization/meeting.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -119,31 +119,36 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final itemSelectSelectedItemsData =
         context.watch<ItemSelectState>().selectedItems;
 
-    final newJournal = context.watch<NewJournalState>().journal;
-    final newQuestCompleter = context.watch<NewJournalState>().completer;
-    final newItems = context.watch<NewItemsState>().items;
-    final newItemsCompleter = context.watch<NewItemsState>().completer;
-    final newRank = context.watch<NewRankState>().rank;
-    final newRankCompleter = context.watch<NewRankState>().completer;
+    final showMeeting = context.watch<MeetingState>().showMeeting;
+    final meetingPeople = context.watch<MeetingState>().people;
 
-    if (newRank != null) {
+    final journal = context.watch<JournalPromptState>().journal;
+    final selections = context.watch<JournalPromptState>().selections;
+    final journalPromptCompleter =
+        context.watch<JournalPromptState>().completer;
+    final items = context.watch<ItemsPromptState>().items;
+    final itemsPromptCompleter = context.watch<ItemsPromptState>().completer;
+    final rank = context.watch<RankPromptState>().rank;
+    final rankPromptCompleter = context.watch<RankPromptState>().completer;
+
+    if (rank != null) {
       _prompts.add('rank');
     } else {
       _prompts.remove('rank');
     }
-    if (newItems != null) {
+    if (items != null) {
       _prompts.add('item');
     } else {
       _prompts.remove('item');
     }
-    if (newJournal != null) {
+    if (journal != null) {
       _prompts.add('journal');
     } else {
       _prompts.remove('journal');
     }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
-    Game.isInteractable = visiblePanels.isEmpty;
+    GameData.isInteractable = visiblePanels.isEmpty;
     final panelPositions =
         context.watch<ViewPanelPositionState>().panelPositions;
     final List<Widget> panels = [];
@@ -563,10 +568,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
-                                engine.context.read<HoverContentState>().hide();
-                                engine.context
-                                    .read<ViewPanelState>()
-                                    .clearAll();
+                                context.read<HoverContentState>().hide();
+                                context.read<ViewPanelState>().clearAll();
                                 engine
                                     .pushScene(Scenes.cultivation, arguments: {
                                   'enableCultivate':
@@ -599,10 +602,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
-                                engine.context.read<HoverContentState>().hide();
-                                engine.context
-                                    .read<ViewPanelState>()
-                                    .clearAll();
+                                context.read<HoverContentState>().hide();
+                                context.read<ViewPanelState>().clearAll();
                                 engine.pushScene(Scenes.library, arguments: {
                                   'enableCardCraft':
                                       engine.scene?.id == Scenes.mainmenu,
@@ -633,6 +634,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                   context: context,
                                   builder: (context) => MarkdownWiki(
                                     engine: engine,
+                                    cursor: FlutterCustomMemoryImageCursor(
+                                        key: 'click'),
                                     margin: const EdgeInsets.all(50.0),
                                     backgroundColor: GameUI.backgroundColor2,
                                     treeNodes: GameData.wikiTreeNodes,
@@ -744,17 +747,27 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 onSelect: itemSelectOnSelect,
                 selectedItemsData: itemSelectSelectedItemsData,
               ),
-            GameDialogController(),
+            if (showMeeting && meetingPeople.isNotEmpty)
+              Meeting(people: meetingPeople),
             ...panels,
             if (_prompts.isNotEmpty)
               switch (_prompts.last) {
-                'rank' => NewRank(rank: newRank!, completer: newRankCompleter),
+                'rank' => NewRank(
+                    rank: rank!,
+                    completer: rankPromptCompleter,
+                  ),
                 'journal' => NewJournal(
-                    journal: newJournal!, completer: newQuestCompleter),
-                'item' =>
-                  NewItems(itemsData: newItems!, completer: newItemsCompleter),
+                    journal: journal!,
+                    selections: selections,
+                    completer: journalPromptCompleter,
+                  ),
+                'item' => NewItems(
+                    itemsData: items!,
+                    completer: itemsPromptCompleter,
+                  ),
                 _ => SizedBox.shrink(),
               },
+            GameDialogController(),
             if (content != null) HoverInfo(content),
             // CustomCursor(
             //   width: screenSize.width,

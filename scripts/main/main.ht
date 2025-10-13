@@ -16,7 +16,6 @@ export 'event/common.ht'
 export 'event/event.ht'
 export 'game/common.ht'
 export 'game/constants.ht'
-export 'game/data.ht'
 export 'game/dialog.ht'
 export 'game/game.ht'
 export 'game/logic.ht'
@@ -140,14 +139,14 @@ function addMapsData(mapsData) {
 }
 
 /// 向 game 中添加数据
-function addGameData(data, directory, name) {
-  for (let item of data) {
-    final gameData = game[directory]
-    assert(gameData != null, 'game.${directory} 不存在')
-    if (gameData.containsKey(item.id)) {
+function addGameData(gameData, directory, name) {
+  for (let item of gameData) {
+    final dir = game[directory]
+    assert(dir != null, 'game.${directory} 不存在')
+    if (dir.containsKey(item.id)) {
       engine.warn('${name}数据 id 冲突：[${item.id}]，将会被覆盖')
     }
-    gameData[item.id] = item
+    dir[item.id] = item
   }
-  engine.debug('载入预定义${name}：[${data.length}]')
+  engine.debug('载入预定义${name}：[${gameData.length}]')
 }

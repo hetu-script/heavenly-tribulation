@@ -7,6 +7,7 @@ export 'game_update.dart';
 export 'history.dart';
 export 'hover_content.dart';
 export 'item_select.dart';
+export 'meeting.dart';
 export 'new_prompt.dart';
 export 'selected_tile.dart';
 export 'ui.dart';

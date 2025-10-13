@@ -1,4 +1,10 @@
 {
+  // Journal 记录了事件、任务、剧情等
+  // 以一系列节点和选择构成的一组连续内容
+  // 悬赏任务和门派任务在运行时生成
+  // 这里记录的是一些预先设置好的指引任务或事件
+
+  // 沙盒模式新手阶段指引任务
   sandboxTutorial: {
     id: "sandboxTutorial",
     // 任务标题，这里保存的是 本地化字符串的 key
@@ -7,13 +13,17 @@
     // 当任务的 stage 推进到这些值时
     // 会将任务标记为 isFinished
     endings: [3],
-    isEphemeral: false,
-    isUnique: true,
   },
+  // 门派指引任务
   organizationInitiation: {
     id: "organizationInitiation",
     title: "journal_organizationInitiation_title",
+    endings: [2],
+  },
+  // 初次门派会议事件，玩家选择会影响到人物关系
+  organizationFirstMeeting: {
+    id: "organizationMeeting",
+    title: "journal_organizationMeeting_title",
     endings: [1],
-    isEphemeral: false,
   },
 }

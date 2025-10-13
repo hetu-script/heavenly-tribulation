@@ -24,6 +24,17 @@ const kEntityListViewCharacterColumns = [
   'rank',
 ];
 
+const kEntityListViewMemberColumns = [
+  'name',
+  'gender',
+  'age',
+  'level',
+  'rank',
+  'reportSite',
+  'jobTitle',
+  'superior',
+];
+
 const kEntityListViewLocationColumns = [
   'name',
   'worldPosition',

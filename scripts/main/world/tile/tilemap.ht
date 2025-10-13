@@ -1,6 +1,3 @@
-// import '../../game/data.ht'
-// import 'hexagonal_tile.ht'
-// import '../../name/zone.ht'
 
 const kMaxTileMapWidth = 150
 const kMaxTileMapHeight = 100

@@ -72,44 +72,47 @@ async function onAfterMove(terrain) {
   final journal = tradeQuest.first
   journal.hasEncounteredEnemy = true
 
-  encounterEnemy(terrain, battleEndCallback: async function (result, roundCount) {
-    if (result) return
+  encounterEnemy(
+    rank: journal.quest.difficulty,
+    terrainKind: terrain.kind,
+    battleEndCallback: async function (result, roundCount) {
+      if (result) return
 
-    final materialLostRate = kEncounterDefeatMaterialLostBase + kEncounterDefeatMaterialLostPerRank * journal.quest.difficulty
-    final materials = hero.materials.keys.where((materialId) =>
-      hero.materials[materialId] > 0
-    ).toList()
-    if (materials.isNotEmpty) {
-      final materialId = engine.random.nextIterable(materials)
-      final amount = hero.materials[materialId]
-      final lost = (amount * materialLostRate).ceil()
-      Player.exhaust(materialId, lost)
-      dialog.pushDialog('heroLoseMultiple', interpolations: [lost, engine.locale(materialId)])
-      await dialog.execute()
-    }
+      final materialLostRate = kEncounterDefeatMaterialLostBase + kEncounterDefeatMaterialLostPerRank * journal.quest.difficulty
+      final materials = hero.materials.keys.where((materialId) =>
+        hero.materials[materialId] > 0
+      ).toList()
+      if (materials.isNotEmpty) {
+        final materialId = engine.random.nextIterable(materials)
+        final amount = hero.materials[materialId]
+        final lost = (amount * materialLostRate).ceil()
+        Player.exhaust(materialId, lost)
+        dialog.pushDialog('heroLoseMultiple', interpolations: [lost, engine.locale(materialId)])
+        await dialog.execute()
+      }
 
-    final equipmentLostRate = kEncounterDefeatEquipmentLostBase + kEncounterDefeatEquipmentLostPerRank * journal.quest.difficulty
-    let equippedIndexes = hero.equipments.keys.where((slot) =>
-      hero.equipments[slot] != null
-    ).toList()
-    final roll = engine.random.nextDouble()
-    if (equippedIndexes.isNotEmpty && roll < equipmentLostRate) {
-      final slot = engine.random.nextIterable(equippedIndexes)
-      final itemId = hero.equipments[slot]
-      final item = hero.inventory[itemId]
-      Player.unequip(item)
-      Player.lose(item)
-      dialog.pushDialog('heroLose', interpolations: [item.name])
-      await dialog.execute()
-    }
+      final equipmentLostRate = kEncounterDefeatEquipmentLostBase + kEncounterDefeatEquipmentLostPerRank * journal.quest.difficulty
+      let equippedIndexes = hero.equipments.keys.where((slot) =>
+        hero.equipments[slot] != null
+      ).toList()
+      final roll = engine.random.nextDouble()
+      if (equippedIndexes.isNotEmpty && roll < equipmentLostRate) {
+        final slot = engine.random.nextIterable(equippedIndexes)
+        final itemId = hero.equipments[slot]
+        final item = hero.inventory[itemId]
+        Player.unequip(item)
+        Player.lose(item)
+        dialog.pushDialog('heroLose', interpolations: [item.name])
+        await dialog.execute()
+      }
 
-    if (journal.quest.kind == 'escort') {
-      Player.progressJournalById(journal.id, stage: 2)
-      final character = game.characters[journal.quest.package.characterId]
-      final escortType = journal.quest.escortType;
-      dialog.pushDialog('quest_escort_failed_${escortType}', character: character);
-      await dialog.execute()
-    }
+      if (journal.quest.kind == 'escort') {
+        Player.progressJournalById(journal.id, stage: 2)
+        final character = game.characters[journal.quest.package.characterId]
+        final escortType = journal.quest.escortType;
+        dialog.pushDialog('quest_escort_failed_${escortType}', character: character);
+        await dialog.execute()
+      }
   })
   
   return true

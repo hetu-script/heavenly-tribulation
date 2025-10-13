@@ -5,7 +5,8 @@ import 'package:samsara/components.dart';
 import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
+import '../../engine.dart';
 import '../../game/common.dart';
 import '../../widgets/character/stats.dart';
 import '../../state/hover_content.dart';
@@ -33,13 +34,13 @@ class EquipmentsBar extends GameComponent {
     );
     spriteButton.onMouseEnter = () {
       if (itemData == null) return;
-      game.context.read<HoverContentState>().show(
+      engine.context.read<HoverContentState>().show(
             itemData,
             spriteButton.toAbsoluteRect(),
           );
     };
     spriteButton.onMouseExit = () {
-      game.context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
     };
     add(spriteButton);
   }
@@ -70,14 +71,14 @@ class EquipmentsBar extends GameComponent {
         character: character,
         showNonBattleStats: false,
       );
-      game.context.read<HoverContentState>().show(
+      engine.context.read<HoverContentState>().show(
             statsView,
             statsButton.toAbsoluteRect(),
             direction: HoverContentDirection.rightTop,
           );
     };
     statsButton.onMouseExit = () {
-      game.context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
     };
     add(statsButton);
 
@@ -89,7 +90,7 @@ class EquipmentsBar extends GameComponent {
       paint: paint,
     );
     cultivationButton.onMouseEnter = () {
-      game.context.read<HoverContentState>().show(
+      engine.context.read<HoverContentState>().show(
             cultivationDescription,
             cultivationButton.toAbsoluteRect(),
             direction: HoverContentDirection.rightTop,
@@ -97,7 +98,7 @@ class EquipmentsBar extends GameComponent {
           );
     };
     cultivationButton.onMouseExit = () {
-      game.context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
     };
     add(cultivationButton);
   }

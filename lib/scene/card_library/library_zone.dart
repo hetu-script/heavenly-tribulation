@@ -8,7 +8,7 @@ import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
 // import 'package:samsara/components/hovertip.dart';
 
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../game/ui.dart';
 import '../../game/logic/logic.dart';
 import 'deckbuilding_zone.dart';

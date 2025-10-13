@@ -125,12 +125,12 @@ function _addEncampment() {
     objectId: 'merchant',
     name: engine.locale('merchant'),
     sprite: 'object/characterMan31.png',
-    rank: game.dungeon.rank,
+    rank: game.flags.dungeon.rank,
     money: 100000,
     shard: 100000,
     category: ['weapon', 'armor', 'jewelry', 'talisman', 'potion', 'cardpack'],
-    itemCount: 8 + game.dungeon.rank,
-    useShard: game.dungeon.rank > 0,
+    itemCount: 8 + game.flags.dungeon.rank,
+    useShard: game.flags.dungeon.rank > 0,
   )
 }
 
@@ -143,12 +143,12 @@ function _addRandomMerchant() {
         objectId: 'merchant',
         name: engine.locale('smith'),
         sprite: 'object/characterMan31.png',
-        rank: game.dungeon.rank,
+        rank: game.flags.dungeon.rank,
         money: 100000,
         shard: 100000,
         category: ['weapon', 'armor'],
-        itemCount: 5 + game.dungeon.rank,
-        useShard: game.dungeon.rank > 0,
+        itemCount: 5 + game.flags.dungeon.rank,
+        useShard: game.flags.dungeon.rank > 0,
       )
     }
     'enchanter': {
@@ -157,12 +157,12 @@ function _addRandomMerchant() {
         objectId: 'merchant',
         name: engine.locale('enchanter'),
         sprite: 'object/characterMan31.png',
-        rank: game.dungeon.rank,
+        rank: game.flags.dungeon.rank,
         money: 100000,
         shard: 100000,
         category: ['jewelry', 'talisman'],
-        itemCount: 5 + game.dungeon.rank,
-        useShard: game.dungeon.rank > 0,
+        itemCount: 5 + game.flags.dungeon.rank,
+        useShard: game.flags.dungeon.rank > 0,
       )
     }
     'alchemist': {
@@ -171,12 +171,12 @@ function _addRandomMerchant() {
         objectId: 'merchant',
         name: engine.locale('alchemist'),
         sprite: 'object/characterMan31.png',
-        rank: game.dungeon.rank,
+        rank: game.flags.dungeon.rank,
         money: 100000,
         shard: 100000,
         category: ['potion'],
-        itemCount: 5 + game.dungeon.rank,
-        useShard: game.dungeon.rank > 0,
+        itemCount: 5 + game.flags.dungeon.rank,
+        useShard: game.flags.dungeon.rank > 0,
       )
     }
     'bookdealer': {
@@ -185,12 +185,12 @@ function _addRandomMerchant() {
         objectId: 'merchant',
         name: engine.locale('bookdealer'),
         sprite: 'object/characterMan31.png',
-        rank: game.dungeon.rank,
+        rank: game.flags.dungeon.rank,
         money: 100000,
         shard: 100000,
         category: ['cardpack'],
-        itemCount: 5 + game.dungeon.rank,
-        useShard: game.dungeon.rank > 0,
+        itemCount: 5 + game.flags.dungeon.rank,
+        useShard: game.flags.dungeon.rank > 0,
       )
     }
   }
@@ -278,10 +278,10 @@ function _addPortalByNextRoomType(nextRoomType) {
 }
 
 function _prepareMap() {
-  engine.debug('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
-  game.dungeon.buildCompleted = true
-  game.dungeon.isElite = false
-  game.dungeon.isBoss = false
+  engine.debug('生成地牢：当前难度：${game.flags.dungeon.level} 房间编号：${game.flags.dungeon.room}')
+  game.flags.dungeon.buildCompleted = true
+  game.flags.dungeon.isElite = false
+  game.flags.dungeon.isBoss = false
   /// 清理所有的地块贴图和临时对象，还原到空地图
   world.objects = {}
   for (final tile in world.terrains) {
@@ -291,17 +291,17 @@ function _prepareMap() {
     World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
   }
 
-  let roomInfo = game.dungeon.isBasic ? _kBasicRooms : _kNormalRooms
+  let roomInfo = game.flags.dungeon.isBasic ? _kBasicRooms : _kNormalRooms
 
-  assert(game.dungeon.room <= game.dungeon.roomMax &&
-        roomInfo.contains(game.dungeon.room.toString()) &&
-        roomInfo.contains((game.dungeon.room + 1).toString()), 
-    '房间编号超出范围：${game.dungeon.room}')
+  assert(game.flags.dungeon.room <= game.flags.dungeon.roomMax &&
+        roomInfo.contains(game.flags.dungeon.room.toString()) &&
+        roomInfo.contains((game.flags.dungeon.room + 1).toString()), 
+    '房间编号超出范围：${game.flags.dungeon.room}')
 
-  final nextRoomType = roomInfo[game.dungeon.room + 1]
+  final nextRoomType = roomInfo[game.flags.dungeon.room + 1]
   /// 用随机遭遇填充地图
-  if (game.dungeon.isBasic) {
-    switch (game.dungeon.room + 1) {
+  if (game.flags.dungeon.isBasic) {
+    switch (game.flags.dungeon.room + 1) {
       1: {
         _addPortalByNextRoomType(nextRoomType)
         _addDebris()
@@ -314,20 +314,20 @@ function _prepareMap() {
           name: engine.locale('dungeonGuard'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
-          rank: game.dungeon.rank,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank,
         )
       }
       3: {
-        switch (game.dungeon.selectedPortal) {
+        switch (game.flags.dungeon.selectedPortal) {
           'portal1': {
             addEnemy(
               _kCenterTile,
               name: engine.locale('dungeonGuard'),
               objectId: 'enemy',
               useCustomLogic: true,
-              level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
-              rank: game.dungeon.rank,
+              level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.flags.dungeon.room],
+              rank: game.flags.dungeon.rank,
             )
           }
           'portal2': {
@@ -342,7 +342,7 @@ function _prepareMap() {
                 addSpiritWell(
                   _kCenterTile,
                   objectId: 'spiritWell',
-                  rank: game.dungeon.rank + 1,
+                  rank: game.flags.dungeon.rank + 1,
                 )
               }
             }
@@ -350,14 +350,14 @@ function _prepareMap() {
         }
       }
       4: {
-        game.dungeon.isElite = true
+        game.flags.dungeon.isElite = true
         addEnemy(
           _kCenterTile,
           name: engine.locale('dungeonElite'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
-          rank: game.dungeon.rank,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank,
           isElite: true,
         )
       }
@@ -367,20 +367,20 @@ function _prepareMap() {
         _addEncampment()
       }
       6: {
-        game.dungeon.isBoss = true
+        game.flags.dungeon.isBoss = true
         addEnemy(
           _kCenterTile,
           name: engine.locale('dungeonBoss'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
-          rank: game.dungeon.rank + 1,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.tutorial[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank + 1,
           isElite: true,
         )
       }
     }
   } else {
-    switch (game.dungeon.room + 1) {
+    switch (game.flags.dungeon.room + 1) {
       1: {
         _addPortalByNextRoomType(nextRoomType)
         _addDebris()
@@ -393,20 +393,20 @@ function _prepareMap() {
           name: engine.locale('dungeonGuard'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
-          rank: game.dungeon.rank,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank,
         )
       }
       3, 5, 9, 11: {
-        switch (game.dungeon.selectedPortal) {
+        switch (game.flags.dungeon.selectedPortal) {
           'portal1': {
             addEnemy(
               _kCenterTile,
               name: engine.locale('dungeonGuard'),
               objectId: 'enemy',
               useCustomLogic: true,
-              level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
-              rank: game.dungeon.rank,
+              level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.flags.dungeon.room],
+              rank: game.flags.dungeon.rank,
             )
           }
           'portal2': {
@@ -421,7 +421,7 @@ function _prepareMap() {
                 addSpiritWell(
                   _kCenterTile,
                   objectId: 'spiritWell',
-                  rank: game.dungeon.rank + 1,
+                  rank: game.flags.dungeon.rank + 1,
                 )
               }
             }
@@ -434,26 +434,26 @@ function _prepareMap() {
         _addEncampment()
       }
       8: {
-        game.dungeon.isElite = true
+        game.flags.dungeon.isElite = true
         addEnemy(
           _kCenterTile,
           name: engine.locale('dungeonElite'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
-          rank: game.dungeon.rank,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank,
           isElite: true,
         )
       }
       14: {
-        game.dungeon.isBoss = true
+        game.flags.dungeon.isBoss = true
         addEnemy(
           _kCenterTile,
           name: engine.locale('dungeonBoss'),
           objectId: 'enemy',
           useCustomLogic: true,
-          level: game.dungeon.minEnemyLevel + game.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.dungeon.room],
-          rank: game.dungeon.rank + 1,
+          level: game.flags.dungeon.minEnemyLevel + game.flags.dungeon.level + _kDungeonEnemyLevelBonus.normal[game.flags.dungeon.room],
+          rank: game.flags.dungeon.rank + 1,
           isElite: true,
         )
       }
@@ -462,51 +462,51 @@ function _prepareMap() {
 }
 
 async function onEnterMap() {
-  Game.updateDungeon(game.dungeon)
+  Game.updateDungeon(game.flags.dungeon)
   
-  if (!game.dungeon.promptedDungeonTitle) {
-    game.dungeon.promptedDungeonTitle = true
-    let rankString = engine.locale('cultivationRank_${game.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
-    let sceneId = '${rankString} - ${engine.locale('currentLevel3')} ${game.dungeon.level + 1}'
+  if (!game.flags.dungeon.promptedDungeonTitle) {
+    game.flags.dungeon.promptedDungeonTitle = true
+    let rankString = engine.locale('cultivationRank_${game.flags.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
+    let sceneId = '${rankString} - ${engine.locale('currentLevel3')} ${game.flags.dungeon.level + 1}'
     World.promptTextBanner(sceneId)
   }
 
-  if (game.dungeon.battleResult == true) {
-    game.dungeon.battleResult = null
+  if (game.flags.dungeon.battleResult == true) {
+    game.flags.dungeon.battleResult = null
     final rewards = generateReward(
-      entity: game.dungeon.battleEntity,
+      entity: game.flags.dungeon.battleEntity,
       probability: {
         exp: kRewardProbabilityExppack,
         money: kRewardProbabilityMoney,
-        shard: game.dungeon.isBoss ? 1.0 : 
-          (game.dungeon.isElite ? 0.5 : kRewardProbabilityShard),
-        equipment: game.dungeon.isBoss ? 0.8 : 
-          (game.dungeon.isElite ? 0.4 : kRewardProbabilityEquipment),
-        potion: game.dungeon.isBoss ? 0.6 : 
-          (game.dungeon.isElite ? 0.3 : kRewardProbabilityPotion),
-        cardpack: game.dungeon.isBoss ? 0.6 : 
-          (game.dungeon.isElite ? 0.3 : kRewardProbabilityCardpack),
-        scrollPaper: game.dungeon.isBoss ? 0.4 : 
-          (game.dungeon.isElite ? 0.2 : kRewardProbabilityScrollPaper),
-        craftMaterial: game.dungeon.isBoss ? 0.6 : 
-          (game.dungeon.isElite ? 0.3 : kRewardProbabilityCraftMaterial),
-        dungeonTicket: game.dungeon.isBoss ? 0.8 : 
-          (game.dungeon.isElite ? 0.4 : kRewardProbabilityDungeonTicket),
+        shard: game.flags.dungeon.isBoss ? 1.0 : 
+          (game.flags.dungeon.isElite ? 0.5 : kRewardProbabilityShard),
+        equipment: game.flags.dungeon.isBoss ? 0.8 : 
+          (game.flags.dungeon.isElite ? 0.4 : kRewardProbabilityEquipment),
+        potion: game.flags.dungeon.isBoss ? 0.6 : 
+          (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityPotion),
+        cardpack: game.flags.dungeon.isBoss ? 0.6 : 
+          (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityCardpack),
+        scrollPaper: game.flags.dungeon.isBoss ? 0.4 : 
+          (game.flags.dungeon.isElite ? 0.2 : kRewardProbabilityScrollPaper),
+        craftMaterial: game.flags.dungeon.isBoss ? 0.6 : 
+          (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityCraftMaterial),
+        dungeonTicket: game.flags.dungeon.isBoss ? 0.8 : 
+          (game.flags.dungeon.isElite ? 0.4 : kRewardProbabilityDungeonTicket),
       },
     )
     for (final item in rewards) {
       await Player.acquire(item)
     }
     Game.promptItems(rewards)
-    game.dungeon.battleEntity = null
-  } else if (game.dungeon.battleResult == false) {
-    game.dungeon.battleResult = null
+    game.flags.dungeon.battleEntity = null
+  } else if (game.flags.dungeon.battleResult == false) {
+    game.flags.dungeon.battleResult = null
     await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
-    game.dungeon = null
+    game.flags.dungeon = null
     Game.updateDungeon(null)
     Game.popScene(clearCache: true)
     return
-  } else if (!game.dungeon.buildCompleted) {
+  } else if (!game.flags.dungeon.buildCompleted) {
     dialog.pushBackground('black.png')
     dialog.pushTask(() {
       _prepareMap()
@@ -532,7 +532,7 @@ async function promptExit() {
   final selected = dialog.checkSelected('exitDungeon')
   if (selected == 'exitDungeon') {
     engine.debug('地牢已经完成，准备退出')
-    game.dungeon = null
+    game.flags.dungeon = null
     Game.updateDungeon(null)
     Game.popScene(clearCache: true)
     setCurrentWorld(game.mainWorldId)
@@ -542,37 +542,37 @@ async function promptExit() {
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     'portal1': {
-      if (game.dungeon.room < game.dungeon.roomMax) {
-        game.dungeon.selectedPortal = object.id
-        game.dungeon.buildCompleted = false
-        game.dungeon.room += 1
+      if (game.flags.dungeon.room < game.flags.dungeon.roomMax) {
+        game.flags.dungeon.selectedPortal = object.id
+        game.flags.dungeon.buildCompleted = false
+        game.flags.dungeon.room += 1
         onEnterMap()
       } else {
         promptExit()
       }
     }
     'portal2': {
-      if (game.dungeon.room < game.dungeon.roomMax) {
-        assert(game.dungeon.room < game.dungeon.roomMax)
-        game.dungeon.selectedPortal = object.id
-        game.dungeon.buildCompleted = false
-        game.dungeon.room += 1
+      if (game.flags.dungeon.room < game.flags.dungeon.roomMax) {
+        assert(game.flags.dungeon.room < game.flags.dungeon.roomMax)
+        game.flags.dungeon.selectedPortal = object.id
+        game.flags.dungeon.buildCompleted = false
+        game.flags.dungeon.room += 1
         onEnterMap()
       } else {
-        engine.debug('即将重玩当前地牢，当前境界：${game.dungeon.rank}')
-        Game.tryEnterDungeon(rank: game.dungeon.rank, pushScene: false)
+        engine.debug('即将重玩当前地牢，当前境界：${game.flags.dungeon.rank}')
+        Game.tryEnterDungeon(rank: game.flags.dungeon.rank, pushScene: false)
         onEnterMap()
       }
     }
     'portal3': {
-      if (game.dungeon.room < game.dungeon.roomMax) {
-        assert(game.dungeon.room < game.dungeon.roomMax)
-        game.dungeon.selectedPortal = object.id
-        game.dungeon.buildCompleted = false
-        game.dungeon.room += 1
+      if (game.flags.dungeon.room < game.flags.dungeon.roomMax) {
+        assert(game.flags.dungeon.room < game.flags.dungeon.roomMax)
+        game.flags.dungeon.selectedPortal = object.id
+        game.flags.dungeon.buildCompleted = false
+        game.flags.dungeon.room += 1
         onEnterMap()
       } else {
-        if (game.dungeon.level < game.dungeon.levelMax) {
+        if (game.flags.dungeon.level < game.flags.dungeon.levelMax) {
           dialog.pushDialog('hint_enterNextLevel_description')
           dialog.pushSelection(
             'enterNextDungeonLevel',
@@ -584,7 +584,7 @@ async function onInteractMapObject(object, terrain) {
           await dialog.execute()
           final selected = dialog.checkSelected('enterNextDungeonLevel')
           if (selected == 'enterNextDungeonLevel') {
-            engine.debug('将进入下一层地牢，等级：${game.dungeon.level}')
+            engine.debug('将进入下一层地牢，等级：${game.flags.dungeon.level}')
             let hasStatusSpirit = false
             for (final itemId of hero.equipments) {
               if (itemId == null) continue
@@ -600,13 +600,13 @@ async function onInteractMapObject(object, terrain) {
               dialog.pushDialog('hint_dungeonStatusReset')
               await dialog.execute()
             }
-            game.dungeon.buildCompleted = false
-            game.dungeon.room = 0
-            game.dungeon.level += 1
+            game.flags.dungeon.buildCompleted = false
+            game.flags.dungeon.room = 0
+            game.flags.dungeon.level += 1
             onEnterMap()
           }
         } else {
-          if (game.dungeon.rank < kCultivationRankMax) {
+          if (game.flags.dungeon.rank < kCultivationRankMax) {
             dialog.pushDialog('hint_enterNextDungeonRank_description')
             dialog.pushSelection(
               'enterNextDungeonRank',
@@ -618,7 +618,7 @@ async function onInteractMapObject(object, terrain) {
             await dialog.execute()
             final selected = dialog.checkSelected('enterNextDungeonRank')
             if (selected == 'enterNextDungeonRank') {
-              engine.debug('即将进入下一个境界的地牢，当前境界：${game.dungeon.rank}')
+              engine.debug('即将进入下一个境界的地牢，当前境界：${game.flags.dungeon.rank}')
               Game.tryEnterDungeon(isCommon: false, pushScene: false)
               onEnterMap()
             }
@@ -635,8 +635,8 @@ async function onInteractMapObject(object, terrain) {
         onBattleEnd: async function [onBattleEnd] (battleResult, roundCount) {
           if (battleResult) {
             engine.debug('战斗胜利，添加出口')
-            game.dungeon.battleResult = true
-            game.dungeon.battleEntity = object.battleEntity
+            game.flags.dungeon.battleResult = true
+            game.flags.dungeon.battleEntity = object.battleEntity
             let tile = getTerrainByWorldPosition(_kCenterTile.left, _kCenterTile.top)
             tile.objectId = null
             tile.isNonEnterable = false
@@ -644,13 +644,13 @@ async function onInteractMapObject(object, terrain) {
             // tile.overlaySprite = {}
             World.updateTerrainData(tile.left, tile.top)
             World.removeCharacter(object.battleEntity.id)
-            final nextRoomType = game.dungeon.isBasic ?
-              _kBasicRooms[game.dungeon.room + 1] :
-              _kNormalRooms[game.dungeon.room + 1]
+            final nextRoomType = game.flags.dungeon.isBasic ?
+              _kBasicRooms[game.flags.dungeon.room + 1] :
+              _kNormalRooms[game.flags.dungeon.room + 1]
             _addPortalByNextRoomType(nextRoomType)
           } else {
             engine.debug('战斗失败，准备退出地牢')
-            game.dungeon.battleResult = false
+            game.flags.dungeon.battleResult = false
           }
         }
       )

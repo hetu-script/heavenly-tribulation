@@ -14,7 +14,7 @@ import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../../game/event_ids.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../game/ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';

@@ -5,7 +5,7 @@ import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../game/ui.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../engine.dart';
 import '../../ui/close_button2.dart';
 

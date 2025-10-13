@@ -1,4 +1,3 @@
-// import '../game/data.ht'
 
 const kEntityTypeObject = 'object'
 
@@ -202,9 +201,6 @@ struct ObjectEnemy {
       rank: rank,
     )
     this.battleEntity = enemy
-
-    Game.characterAllocateSkills(enemy, rejuvenate: true)
-    generateDeck(enemy, maxOutLevel: isElite)
 
     setCharacterWorldPosition(enemy, tilePosition.left, tilePosition.top, worldId: world.id)
     World.setCharacterToWorldPosition(enemy, tilePosition.left, tilePosition.top, direction: 'south')

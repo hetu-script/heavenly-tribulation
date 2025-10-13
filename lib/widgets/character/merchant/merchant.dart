@@ -9,7 +9,7 @@ import '../../../game/ui.dart';
 import '../../../game/logic/logic.dart';
 import '../../../engine.dart';
 import '../inventory/inventory.dart';
-import '../../../game/data.dart';
+import '../../../game/game.dart';
 import '../../../state/character.dart';
 import '../../../scene/game_dialog/game_dialog_content.dart';
 import 'material_bar.dart';

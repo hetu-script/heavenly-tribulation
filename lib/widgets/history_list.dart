@@ -5,7 +5,7 @@ import 'package:samsara/pointer_detector.dart';
 // import '../engine.dart';
 import 'common.dart';
 import '../state/history.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 
 class HistoryList extends StatefulWidget {
   const HistoryList({

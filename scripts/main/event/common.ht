@@ -1,16 +1,14 @@
 
 
-async function encounterEnemy(terrain, { name, battleEndCallback: function }) {
+async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: function }) {
   name ??= engine.locale('enemyStranger')
 
-  final enemy = BattleEntity(name: name, rank: hero.rank)
-  Game.characterAllocateSkills(enemy, rejuvenate: true)
-  generateDeck(enemy)
+  final enemy = BattleEntity(name: name, rank: rank ?? hero.rank)
 
   dialog.pushDialog('enemy_encounter_${random.nextInt(kEnemyEncounterDialogCount) + 1}', character: enemy)
   await dialog.execute()
 
-  let background = kTerrainKindToBackground[terrain.kind] ?? 'battle/scene/plain'
+  let background = kTerrainKindToBackground[terrainKind ?? 'plain']
 
   final time = toTime(game.timestamp)
   background += time > 2 ? '_night.png' : '_day.png'

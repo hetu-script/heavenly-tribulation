@@ -8,7 +8,7 @@ import '../game/ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
 import '../state/hover_content.dart';
-import '../game/data.dart';
+import '../game/game.dart';
 
 class HoverInfo extends StatefulWidget {
   HoverInfo(this.content) : super(key: GlobalKey());

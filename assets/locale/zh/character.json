@@ -9,11 +9,12 @@
 
   "tribulationCount": "劫数",
   "tribulationCountMax": "劫数上限",
+  "tribulationCount_description": "劫数代表角色经历濒死的次数，达到劫数上限时再次濒死会导致角色<red>永久死亡</>。角色境界越高，劫数上限越低。",
+
   "karma": "煞气",
   "karma_description": "学习天道技能后可以获得利用煞气的能力。之后击败任意敌人都可以获得煞气。煞气可以在战斗之外永久保存。如果拥有煞气，在每次战斗时会自动带入所允许的数量。",
   "karmaMax": "煞气带入上限",
   "karmaMax_description": "你每次战斗时所允许带入并使用的煞气数量。",
-  "tribulationCount_description": "劫数代表角色经历濒死的次数，达到劫数上限时再次濒死会导致角色<red>永久死亡</>。每次提升境界后，劫数上限 +2。",
   "lifeMax": "生命上限",
   "lifeMax_description": "生命上限决定了你在战斗中所能承受的伤害。在战斗之外的大地图游历时，同时也是你的最大体力值。",
   "manaMax": "灵气上限",

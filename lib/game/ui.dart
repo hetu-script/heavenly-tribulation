@@ -112,8 +112,8 @@ abstract class GameUI {
   static final backgroundColor3Opaque = Color(0xFF270505);
   static final backgroundColor3 = Color(0xDD270505);
 
-  static final focusedColorOpaque = const Color.fromARGB(255, 0, 32, 64);
-  static final focusedColor = Color.fromARGB(255, 0, 32, 64).withAlpha(128);
+  static final focusColorOpaque = const Color.fromARGB(255, 0, 32, 64);
+  static final focusColor = Color.fromARGB(255, 0, 32, 64).withAlpha(128);
   static final hoverColorOpaque = Colors.lightBlue;
   static final hoverColor = Colors.lightBlue.withAlpha(128);
   static final selectedColorOpaque = Colors.yellow;
@@ -264,7 +264,7 @@ abstract class GameUI {
         backgroundColor: WidgetStateProperty<Color>.fromMap(
           <WidgetStatesConstraint, Color>{
             WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-                focusedColor,
+                focusColor,
             WidgetState.hovered: hoverColor,
             WidgetState.disabled: Colors.transparent,
             WidgetState.any: backgroundColor2,

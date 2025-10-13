@@ -100,6 +100,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   final _seedEditingController = TextEditingController();
 
   String _worldStyle = 'coast';
+  String _worldScaleLabel = 'tiny';
   int _worldScale = 1;
   int _worldWidth = 0, _worldHeight = 0;
   late int _locationNumber;
@@ -108,8 +109,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   late int _seed;
 
   bool _enableTutorial = true;
-
-  late String _worldScaleLabel;
 
   ui.Image? _image;
 
@@ -127,11 +126,21 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _imageCache.clear();
   }
 
-  Future<void> makeImage() async {
+  void applyAllConfig() {
+    _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
+    final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
+    _locationNumber = entityNumber.$1;
+    _organizationNumber = entityNumber.$2;
+    _characterNumber = entityNumber.$3;
+
+    _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
     _worldWidth = kWorldWidthByScale[_worldScale]!;
     _worldHeight = _worldWidth ~/ 2;
     _seed = crcInt(
         '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+  }
+
+  Future<void> makeImage() async {
     if (_imageCache[_seed] != null) {
       _image = _imageCache[_seed]!;
       setState(() {});
@@ -157,24 +166,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
       threshold: threshold,
       threshold2: threshold2,
     );
-    _imageCache[_seed] = image;
-
-    setState(() {
-      _image = image;
-    });
-  }
-
-  void applyConfig() {
-    final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
-    _locationNumber = entityNumber.$1;
-    _organizationNumber = entityNumber.$2;
-    _characterNumber = entityNumber.$3;
-
-    _worldScaleLabel = engine.locale(kWorldScaleLabel[_worldScale]!);
-    _worldWidth = kWorldWidthByScale[_worldScale]!;
-    _worldHeight = _worldWidth ~/ 2;
-    _seed = crcInt(
-        '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+    _image = _imageCache[_seed] = image;
+    setState(() {});
   }
 
   @override
@@ -184,8 +177,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _saveNameEditingController.text = engine.locale('unnamed');
     _seedEditingController.text = 'Hello, world!';
 
-    applyConfig();
-
+    applyAllConfig();
     makeImage();
   }
 
@@ -271,10 +263,13 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 10.0),
                                   child: fluent.FilledButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       _seedEditingController.text =
                                           random.nextInt(1 << 32).toString();
-                                      makeImage();
+                                      _seed = crcInt(
+                                          '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+                                      await makeImage();
+                                      setState(() {});
                                     },
                                     child: Text(engine.locale('random')),
                                   ),
@@ -299,9 +294,12 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                         for (final style in kWorldStyles)
                                           engine.locale(style): style
                                       },
-                                      onSelectedItem: (String item) {
+                                      onSelectedItem: (String item) async {
                                         _worldStyle = item;
-                                        makeImage();
+                                        _seed = crcInt(
+                                            '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+                                        await makeImage();
+                                        setState(() {});
                                       },
                                     ),
                                   ),
@@ -310,36 +308,31 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                             ),
                             // world size
                             Padding(
-                              padding: const EdgeInsets.only(top: 10.0),
+                              padding: const EdgeInsets.only(top: 20.0),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
                                   SizedBox(
-                                    width: 100.0,
+                                    width: 120.0,
                                     child:
                                         Text('${engine.locale('worldSize')}: '),
                                   ),
-                                  Slider(
-                                    value: _worldScale.toDouble(),
-                                    min: 1,
-                                    max: 4,
-                                    label: _worldScaleLabel,
-                                    onChanged: (double value) {
-                                      _worldScale = value.toInt();
-                                      _worldScaleLabel = engine.locale(
-                                          kWorldScaleLabel[_worldScale]!);
-                                      final entityNumber =
-                                          kEntityNumberPerWorldScale[
-                                              _worldScale]!;
-                                      _locationNumber = entityNumber.$1;
-                                      _organizationNumber = entityNumber.$2;
-                                      _characterNumber = entityNumber.$3;
-                                      makeImage();
-                                      setState(() {});
-                                    },
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                    child: Text(_worldScaleLabel),
+                                  fluent.DropDownButton(
+                                    title:
+                                        Text(engine.locale(_worldScaleLabel)),
+                                    items: buildFluentMenuItems(
+                                      items: {
+                                        for (final scaleLabel
+                                            in kWorldLabelToScale.keys)
+                                          engine.locale(scaleLabel): scaleLabel
+                                      },
+                                      onSelectedItem: (String label) async {
+                                        _worldScaleLabel = label;
+                                        applyAllConfig();
+                                        await makeImage();
+                                        setState(() {});
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -350,7 +343,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               child: Row(
                                 children: [
                                   SizedBox(
-                                    width: 100.0,
+                                    width: 120.0,
                                     child: Text(
                                         '${engine.locale('organizationNumber')}: '),
                                   ),
@@ -378,27 +371,10 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               child: Row(
                                 children: [
                                   SizedBox(
-                                    width: 100.0,
+                                    width: 120.0,
                                     child: Text(
                                         '${engine.locale('locationNumber')}: '),
                                   ),
-                                  // Slider(
-                                  //   value: _locationNumber.toDouble(),
-                                  //   min: 1,
-                                  //   max: newLocationNumberMax.toDouble(),
-                                  //   label: _locationNumber.toString(),
-                                  //   onChanged: (double value) {
-                                  //     setState(() {
-                                  //       _locationNumber = value.toInt();
-                                  //       final organizationNumberMax = math.min(
-                                  //           _locationNumber, _characterNumber);
-                                  //       if (_organizationNumber >
-                                  //           organizationNumberMax) {
-                                  //         _organizationNumber = organizationNumberMax;
-                                  //       }
-                                  //     });
-                                  //   },
-                                  // ),
                                   SizedBox(
                                     width: 40.0,
                                     child: Text(_locationNumber.toString()),
@@ -412,7 +388,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               child: Row(
                                 children: [
                                   SizedBox(
-                                    width: 100.0,
+                                    width: 120.0,
                                     child: Text(
                                         '${engine.locale('characterNumber')}: '),
                                   ),
@@ -479,7 +455,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                           context, engine.locale('hint_emptySeed'));
                       return;
                     }
-                    final worldWidthByScale = kWorldWidthByScale[_worldScale]!;
+                    applyAllConfig();
                     Navigator.of(context).pop({
                       'id': 'sandboxWorld',
                       'method': 'generate',
@@ -488,8 +464,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                           : null,
                       'seed': _seed,
                       'style': _worldStyle,
-                      'width': worldWidthByScale,
-                      'height': worldWidthByScale ~/ 2,
+                      'width': _worldWidth,
+                      'height': _worldHeight,
                       'nationNumber': _organizationNumber,
                       'locationNumber': _locationNumber,
                       'characterNumber': _characterNumber,

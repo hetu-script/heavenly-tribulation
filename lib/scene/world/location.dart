@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/character_visit.dart';
@@ -59,7 +59,6 @@ class LocationScene extends Scene {
         characterIds.remove(heroId);
         heroResidesHere = true;
       }
-      // final heroId = engine.hetu.invoke('getHeroId');
       final selectedId = await CharacterVisitDialog.show(
         context: context,
         characterIds: characterIds,
@@ -315,8 +314,7 @@ class LocationScene extends Scene {
                       switch (item) {
                         case LocationDropMenuItems.save:
                           String worldId = GameData.world['id'];
-                          String? saveName =
-                              engine.hetu.fetch('saveName', namespace: 'game');
+                          String? saveName = GameData.data['saveName'];
                           final saveInfo = await context
                               .read<GameSavesState>()
                               .saveGame(worldId, saveName);
@@ -342,8 +340,7 @@ class LocationScene extends Scene {
                             },
                           );
                           if (saveName == null) return;
-                          engine.hetu
-                              .assign('saveName', saveName, namespace: 'game');
+                          GameData.data['saveName'] = saveName;
                           String worldId = GameData.world['id'];
                           final saveInfo = await context
                               .read<GameSavesState>()

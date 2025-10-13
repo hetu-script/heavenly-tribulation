@@ -193,11 +193,11 @@ const kWorldWidthByScale = {
   4: 128, // 128 × 64 = 8192
 };
 
-const kWorldScaleLabel = {
-  1: 'tiny', // 40 × 20
-  2: 'medium', // 64 × 32
-  3: 'huge', // 90 × 45
-  4: 'gigantic', // 128 × 64
+const kWorldLabelToScale = {
+  'tiny': 1, // 40 × 20     1:
+  'medium': 2, // 64 × 322:
+  'huge': 3, // 90 × 453:
+  'gigantic': 4, // 128 × 644:
 };
 
 const kNoiseConfigByWorldStyle = {
@@ -208,10 +208,10 @@ const kNoiseConfigByWorldStyle = {
 
 /// 据点数量，门派数量和人物数量
 const kEntityNumberPerWorldScale = {
-  1: (30, 6, 80),
-  2: (80, 16, 200),
-  3: (160, 32, 450),
-  4: (320, 64, 800),
+  1: (30, 6, 60),
+  2: (60, 12, 120),
+  3: (120, 24, 240),
+  4: (240, 48, 480),
 };
 
 const kDifficultyLabels = {
@@ -728,9 +728,9 @@ final kSiteWorkableBaseStaminaCost = {
 /// 以 money 为单位，但可能会被转化为灵石
 final kSiteRentMoneyCostByDay = {
   'tradinghouse': null,
-  'daostele': 10000,
-  'exparray': 10000,
-  'library': 15000,
+  'daostele': 2000,
+  'exparray': 2000,
+  'library': 2500,
   'arena': null,
   'militarypost': null,
   'auctionhouse': null,
@@ -740,17 +740,17 @@ final kSiteRentMoneyCostByDay = {
   'timberland': 500,
   'huntingground': 1000,
   'mine': 1500,
-  'workshop': 12000,
-  'enchantshop': 13500,
-  'alchemylab': 10000,
-  'tatooshop': 13500,
-  'runelab': 18000,
-  'arraylab': 18000,
-  'illusionaltar': 18000,
-  'psychictemple': 12000,
-  'divinationaltar': 22000,
-  'theurgytemple': 28000,
-  'dungeon': 50000,
+  'workshop': 2500,
+  'enchantshop': 2500,
+  'alchemylab': 1500,
+  'tatooshop': 1500,
+  'runelab': 1250,
+  'arraylab': 2500,
+  'illusionaltar': 2500,
+  'psychictemple': 1000,
+  'divinationaltar': 1500,
+  'theurgytemple': 1500,
+  'dungeon': 5000,
 };
 
 abstract class AttackType {
@@ -862,11 +862,11 @@ const kUnknownItemBasePrice = 100;
 
 /// 物品的基础价格
 final kItemBasePriceByCategory = {
-  'cardpack': 10000,
+  'cardpack': 8500,
   'craftmaterial': 20000,
   'dungeon_ticket': 40000,
-  'scroll_paper': 500,
-  'identify_scroll': 1500,
+  'scroll_paper': 4500,
+  'identify_scroll': 2500,
   'weapon': 200,
   'shield': 100,
   'armor': 100,

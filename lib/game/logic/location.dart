@@ -5,7 +5,7 @@ Future<bool> _checkRented(dynamic location,
   final locationId = location['id'];
   if (location['organizationId'] == null ||
       location['organizationId'] == GameData.hero['organizationId'] ||
-      GameData.game['playerMonthly']['rented'].contains(locationId)) {
+      GameData.checkMonthly(MonthlyActivityIds.rented, locationId)) {
     return true;
   }
 
@@ -64,7 +64,7 @@ Future<bool> _checkRented(dynamic location,
   );
   if (success) {
     engine.play('coins-31879.mp3');
-    GameData.game['playerMonthly']['rented'].add(locationId);
+    GameData.addMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
       'hint_rentedFacility',
       name: engine.locale('servant'),
@@ -94,21 +94,6 @@ void _onInteractDungeonEntrance({
   dynamic organization,
   dynamic location,
 }) async {
-  // bool checkEntered() {
-  //   final List enteredList = GameData.game['playerMonthly']['enteredDungeons'];
-  //   final entered = enteredList.contains(location['id']);
-  //   if (entered) {
-  //     dialog.pushDialog(
-  //       'hint_dungeonAlreadyEntered',
-  //       name: engine.locale('guard'),
-  //       icon: 'illustration/npc/guard_head.png',
-  //       image: 'illustration/npc/guard.png',
-  //     );
-  //     dialog.execute();
-  //   }
-  //   return entered;
-  // }
-
   dialog.pushSelection('dungeonEntrance', [
     'about_dungeon',
     'enter_common_dungeon',
@@ -133,12 +118,46 @@ void _onInteractDungeonEntrance({
         await _checkRented(location, perAvailableDaysTillMonthEnd: false);
     if (!isRented) return;
 
-    // final alreadyEnteredThisMonth = checkEntered();
-    // if (alreadyEnteredThisMonth) return;
+    final isBasic = selected == 'enter_common_dungeon';
 
-    // GameData.game['playerMonthly']['enteredDungeons'].add(location['id']);
+    if (isBasic) {
+      dialog.pushDialog(
+        'hint_dungeon_cost',
+        name: engine.locale('guard'),
+        icon: 'illustration/npc/guard_head.png',
+        image: 'illustration/npc/guard.png',
+        interpolations: [_kBasicDungeonShardCost],
+      );
+      await dialog.execute();
+
+      dialog.pushSelectionRaw({
+        'id': 'dungeonBasicCost',
+        'selections': {
+          'pay_shard': engine
+              .locale('pay_shard', interpolations: [_kBasicDungeonShardCost]),
+          'forgetIt': engine.locale('forgetIt'),
+        }
+      });
+      await dialog.execute();
+      final selected = dialog.checkSelected('dungeonBasicCost');
+      if (selected == 'forgetIt') return;
+
+      engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+        'shard',
+        _kBasicDungeonShardCost,
+      ]);
+    } else {
+      dialog.pushDialog(
+        'hint_dungeon_cost2',
+        name: engine.locale('guard'),
+        icon: 'illustration/npc/guard_head.png',
+        image: 'illustration/npc/guard.png',
+      );
+      await dialog.execute();
+    }
+
     GameLogic.tryEnterDungeon(
-      isBasic: selected == 'enter_common_dungeon',
+      isBasic: isBasic,
       dungeonId: location['dungeonId'] ?? 'dungeon_1',
     );
   }
@@ -198,22 +217,26 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
     final memberData = organization['membersData'][GameData.hero['id']];
     assert(memberData != null,
         'Member data not found in organization [${organization['id']}], member id: ${GameData.hero['id']}');
+    final superiorId = memberData['superiorId'];
+    assert(superiorId != null);
+    final superior = GameData.getCharacter(superiorId);
 
     final reportSiteId = memberData['reportSiteId'];
     if (reportSiteId == location['id']) {
       final organizationInitiationQuest =
           GameData.hero['journals']['organizationInitiation'];
-      if (organizationInitiationQuest != null &&
-          organizationInitiationQuest['isFinished'] != true) {
-        final superiorId = memberData['superiorId'];
-        assert(superiorId != null);
-
-        final superior = GameData.getCharacter(superiorId);
+      assert(organizationInitiationQuest != null,
+          'Organization initiation quest not found in hero journals');
+      if (organizationInitiationQuest['isFinished'] != true) {
         dialog.pushDialog(
           'hint_organization_initiation2',
           character: superior,
         );
         await dialog.execute();
+        engine.hetu.invoke('characterMet', positionalArgs: [
+          GameData.hero,
+          superior,
+        ]);
 
         final itemsInfo = [
           {
@@ -236,8 +259,11 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
         engine.hetu.invoke('progressJournalById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);
       } else {
-        final playerMonthly = GameData.game['playerMonthly'];
-        if (playerMonthly['attendedMeeting'] != true && GameLogic.day <= 5) {}
+        final playerMonthly = GameData.flags['playerMonthly'];
+        if (playerMonthly['attendedMeeting'] != true && GameLogic.day <= 5) {
+          GameData.flags['playerMonthly']['attendedMeeting'] = true;
+          _monthlyMeeting(superior, location, organization);
+        }
       }
     }
   }

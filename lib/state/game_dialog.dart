@@ -3,7 +3,7 @@
 import 'dart:collection';
 import 'dart:async';
 
-import 'package:heavenly_tribulation/game/data.dart';
+import 'package:heavenly_tribulation/game/game.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/task.dart';
@@ -217,11 +217,11 @@ class GameDialog with ChangeNotifier, TaskController {
   }) {
     // 这里 character 有可能是 null
     if (npcId != null || npc != null) {
-      npc ??= GameData.game['npcs'][npcId];
+      npc ??= GameData.data['npcs'][npcId];
       character ??= npc;
     } else {
       character ??=
-          isHero ? GameData.hero : GameData.game['characters'][characterId];
+          isHero ? GameData.hero : GameData.data['characters'][characterId];
     }
     icon ??= hideIcon ? null : character?['icon'];
     image ??= hideImage ? null : character?['illustration'];

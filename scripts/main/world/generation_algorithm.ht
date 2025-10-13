@@ -7,19 +7,19 @@ const _kMinZoneSizeOfIsland = 8
 const kMapStyles = ['islands', 'coast', 'inland']
 
 /// 利用 noise 函数生成大陆和海洋的算法
-function generateContinent2(world, {seed, style}) {
+function generateContinent2(map, {seed, style}) {
   let noiseData
   let threshold
   let threshold2
   assert(style in kMapStyles)
-  final dimension = (world.width + world.height) / 2
+  final dimension = (map.width + map.height) / 2
   switch (style) {
     'islands' : {
       threshold = 0.45
       threshold2 = 0.3
       noiseData = Math.noise2d(
-        world.width,
-        world.height,
+        map.width,
+        map.height,
         seed: seed,
         noiseType: 'perlinFractal',
         frequency: 6 / dimension,
@@ -30,8 +30,8 @@ function generateContinent2(world, {seed, style}) {
       threshold = 0.55
       threshold2 = 0.33
       noiseData = Math.noise2d(
-        world.width,
-        world.height,
+        map.width,
+        map.height,
         seed: seed,
         noiseType: 'valueFractal',
         frequency: 3.5 / dimension,
@@ -42,8 +42,8 @@ function generateContinent2(world, {seed, style}) {
       threshold = 0.65
       threshold2 = 0.42
       noiseData = Math.noise2d(
-        world.width,
-        world.height,
+        map.width,
+        map.height,
         seed: seed,
         noiseType: 'cubicFractal',
         frequency: 10 / dimension,
@@ -51,32 +51,32 @@ function generateContinent2(world, {seed, style}) {
       )
     }
   }
-  world.landIndexes = []
-  world.waterIndexes = []
-  world.mountainIndexes = []
-  world.seaIndexes = []
-  world.fisheryIndexes = []
-  for (const y in range(world.height)) {
-    for (const x in range(world.width)) {
+  map.landIndexes = []
+  map.waterIndexes = []
+  map.mountainIndexes = []
+  map.seaIndexes = []
+  map.fisheryIndexes = []
+  for (const y in range(map.height)) {
+    for (const x in range(map.width)) {
       // 地图边缘留空
-      if (y == 0 || y == world.height - 1 || x == 0 || x == world.width - 1) continue
+      if (y == 0 || y == map.height - 1 || x == 0 || x == map.width - 1) continue
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
-      const index = tilePos2Index(x + 1, y + 1, world.width)
-      const tile = world.terrains[index]
+      const index = tilePos2Index(x + 1, y + 1, map.width)
+      const tile = map.terrains[index]
       if (normalize > threshold) {
         // 海洋（包括大陆架）
-        world.waterIndexes.add(index)
+        map.waterIndexes.add(index)
       } else if (normalize > threshold2) {
         // 陆地（包括森林）
         tile.spriteIndex = kSpriteLand
-        world.landIndexes.add(index)
+        map.landIndexes.add(index)
       } else {
         // 山地
         tile.spriteIndex = kSpriteLand
         tile.kind = 'mountain'
         tile.sprite = 'object/mountain.png'
-        world.mountainIndexes.add(index)
+        map.mountainIndexes.add(index)
       }
     }
   }

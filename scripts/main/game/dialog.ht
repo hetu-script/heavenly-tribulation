@@ -1,5 +1,3 @@
-// import '../entity/character/character.ht'
-// import 'data.ht'
 import '../util.ht'
 
 namespace dialog {
@@ -63,44 +61,44 @@ namespace dialog {
   external function checkSelected(selectionsValue)
 
   function pushAll(lines) {
-    for (final data in lines) {
-      if (data.localeId) {
-        pushDialog(data.localeId,
-          characterId: data.characterId,
-          character: data.character,
-          isHero: data.isHero,
-          nameId: data.nameId,
-          name: data.name,
-          icon: data.icon,
-          illustration: data.illustration,
-          hideName: data.hideName,
-          hideIcon: data.hideIcon,
-          hideImage: data.hideImage,
-          interpolations: data.interpolations,
+    for (final line in lines) {
+      if (line.localeId) {
+        pushDialog(line.localeId,
+          characterId: line.characterId,
+          character: line.character,
+          isHero: line.isHero,
+          nameId: line.nameId,
+          name: line.name,
+          icon: line.icon,
+          illustration: line.illustration,
+          hideName: line.hideName,
+          hideIcon: line.hideIcon,
+          hideImage: line.hideImage,
+          interpolations: line.interpolations,
         )
-      } else if (data.image) {
-        if (data.action == 'pop') {
-          popImage(image: data.image)
-        } else if (data.action == 'popAll') {
+      } else if (line.image) {
+        if (line.action == 'pop') {
+          popImage(image: line.image)
+        } else if (line.action == 'popAll') {
           popAllImages()
         } else {
-          pushImage(data.image, offsetX: data.offsetX, offsetY: data.offsetY)
+          pushImage(line.image, offsetX: line.offsetX, offsetY: line.offsetY)
         }
-      } else if (data.background) {
-        if (data.action == 'pop') {
-          popBackground(image: data.background, isFadeOut: data.isFadeOut)
-        } else if (data.action == 'popAll') {
+      } else if (line.background) {
+        if (line.action == 'pop') {
+          popBackground(image: line.background, isFadeOut: line.isFadeOut)
+        } else if (line.action == 'popAll') {
           popAllBackgrounds()
         } else {
-          pushBackground(data.background, isFadeIn: data.isFadeIn)
+          pushBackground(line.background, isFadeIn: line.isFadeIn)
         }
-      } else if (data.task) {
-        assert(data.task is function)
-        pushTask(data.task, flagId: data.flagId)
-      } else if (data.selection) {
-        pushSelection(data.selection)
+      } else if (line.task) {
+        assert(line.task is function)
+        pushTask(line.task, flagId: line.flagId)
+      } else if (line.selection) {
+        pushSelection(line.selection)
       } else {
-        engine.error('dialog.pushLines: unknown data type. ${data}')
+        engine.error('dialog.pushLines: unrecognized line game. ${line}')
       }
     }
   }

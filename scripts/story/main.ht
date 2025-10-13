@@ -10,7 +10,7 @@ import 'events/main.ht' as mainWorldEvents
 
 /// 这里的函数最终是绑定到游戏对象上执行
 /// 因此运行时的命名空间并不是这里的命名空间
-/// 所以可以直接使用 engine, data 等 global 上的 对象
+/// 所以可以直接使用 engine, game 等 global 上的 对象
 /// 这里的数据结构要套两层，因为
 const meta = {
   id: 'story',

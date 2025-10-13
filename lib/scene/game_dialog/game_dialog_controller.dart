@@ -180,7 +180,9 @@ class _GameDialogControllerState extends State<GameDialogController>
             color: Colors.transparent,
             child: Stack(
               children: [
-                ModalBarrier(color: GameUI.backgroundColor),
+                ModalBarrier(
+                  color: GameUI.backgroundColor,
+                ),
                 if (background != null) background,
                 if (illustrations.isNotEmpty) ...illustrations,
                 if (dialogContentData != null)

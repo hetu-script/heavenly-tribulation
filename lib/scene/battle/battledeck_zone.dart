@@ -4,7 +4,7 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
 import '../../game/ui.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import 'battle.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {

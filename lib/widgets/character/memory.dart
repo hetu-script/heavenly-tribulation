@@ -9,7 +9,7 @@ import '../../engine.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
-import '../../game/data.dart';
+import '../../game/game.dart';
 import '../../game/ui.dart';
 import '../ui/close_button2.dart';
 
@@ -77,7 +77,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
         bond['id'] = key;
         final targetCharacterData = GameData.getCharacter(bond['id']);
         assert(targetCharacterData != null);
-        final heroId = engine.hetu.invoke('getHeroId');
+        final heroId = GameData.hero['id'];
         bond['name'] = bondData['name'];
         bond['relationship'] = bondData['relationship'];
         bond['score'] = targetCharacterData['bonds'][heroId]?['score'];

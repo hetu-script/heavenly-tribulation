@@ -1,9 +1,46 @@
 {
   "wiki_root_title": "《天道奇劫》游戏资料集",
 
-  "wiki_how2play_title": "游戏教程",
+  "wiki_how2play_title": "游戏玩法",
+  "wiki_tutorial_title": "新手教程",
+  "wiki_rpg_title": "角色扮演",
+  "wiki_battle_title": "战斗系统",
+  "wiki_battle_card_title": "战斗卡牌",
+  "wiki_battle_resource_title": "战斗资源",
+  "wiki_character_title": "角色",
+  "wiki_attribute_title": "属性",
+  "wiki_inventory_title": "物品",
+  "wiki_skin_title": "皮肤",
+  "wiki_personality_title": "性格",
+  "wiki_relationship_title": "人物关系",
+  "wiki_craft_title": "打造",
+  "wiki_cultivation_title": "修炼",
+  "wiki_level_title": "修为等级",
+  "wiki_passive_skill_title": "天道技能",
+
+  "wiki_dungeon_title": "秘境",
+  "wiki_encounter_title": "奇遇",
+  "wiki_incident_title": "事件",
+
+  "wiki_item_title": "物品",
+  "wiki_consumable_title": "可食用物品",
+  "wiki_equipment_title": "装备",
+
+  "wiki_organization_title": "门派",
+  "wiki_quest_title": "任务",
+  "wiki_bounty_quest_title": "悬赏任务",
+  "wiki_organization_quest_title": "门派任务",
+
+  "wiki_tycoon_title": "经营",
+  "wiki_terrain_title": "地块",
+  "wiki_material_title": "材料",
+  "wiki_location_title": "据点和建筑",
 
   "wiki_mod_title": "模组指南",
 
-  "wiki_story_title": "故事剧情"
+  "wiki_story_title": "故事剧情",
+  "wiki_world_setting_title": "世界观设定",
+  "wiki_main_title": "主线剧情",
+  "wiki_pivotal_title": "关键支线",
+  "wiki_ending_title": "结局"
 }

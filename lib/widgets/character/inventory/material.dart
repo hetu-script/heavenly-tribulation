@@ -100,7 +100,7 @@ class MaterialList extends StatelessWidget {
                         ? GameUI.selectedColorOpaque
                         : GameUI.foregroundColor),
                 color: selectedItem == key
-                    ? GameUI.focusedColor
+                    ? GameUI.focusColor
                     : Colors.transparent,
               ),
               child: Row(

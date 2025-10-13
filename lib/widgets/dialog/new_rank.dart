@@ -66,7 +66,7 @@ class _NewRankState extends State<NewRank> {
                 child: fluent.FilledButton(
                   onPressed: () {
                     widget.completer?.complete();
-                    context.read<NewRankState>().update();
+                    context.read<RankPromptState>().update();
                     Navigator.of(context).pop();
                   },
                   child: Text(

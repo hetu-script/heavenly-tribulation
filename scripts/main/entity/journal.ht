@@ -9,8 +9,6 @@ struct Journal {
     endings: List,
     interpolations: List,
     stages: List,
-    isEphemeral,
-    isUnique,
   }) {
     assert(title != null)
     assert(endings is List && endings.isNotEmpty)
@@ -18,7 +16,7 @@ struct Journal {
     this.id = id ?? crypto.randomUID(withTime: true)
     this.title = title
     this.image = image
-    this.endings = endings ?? []
+    this.endings = endings ?? [ 0 ]
     this.interpolations = interpolations ?? []
     // 当前所处的阶段，以数字表示
     this.stage = 0
@@ -28,13 +26,8 @@ struct Journal {
     // 进程并不一定是连续的，可能有不同的路径和结尾
     // 但起点一定是 0
     this.sequence = [ 0 ]
-    // 是否为非重要的短暂任务，此类任务无论完成情况如何，都会在月初被清理
-    this.isEphemeral = isEphemeral ?? false
-    // 是否为唯一任务，唯一任务只能接受一次
-    // 如果 isUnique 为 true, 会忽略 isEphemeral, 唯一任务不会消失
-    this.isUnique = isUnique ?? false
     // 只要stage达到endings中记录的任何一个数字，就算结束
-    this.isFinished = false
+    this.isFinished = endings.contains(this.stage)
   }
 
   constructor fromQuest (quest) {

@@ -144,6 +144,11 @@
   "enterCultivation": "进入修炼",
   "enterLibrary": "进入功法图录",
 
+  "exp": "修为经验",
+  "rank2": "境",
+  "rank3": "期",
+  "rankUp!": "境界提升!",
+  "rank": "境界",
   "level": "修为等级",
   "level2": "等级",
   "level3": "层",
@@ -396,7 +401,12 @@
   "diagnose": "诊断",
   "heal": "治疗",
 
-  "headId": "掌门人物ID",
+  "jobTitle": "职位",
+  "reportSite": "汇报地",
+  "superior": "上级",
+  "superiorId": "上级 ID",
+
+  "headId": "掌门 ID",
   "headquarters": "总堂",
   "headquartersTilePosition": "总堂位置",
   "headquartersLocationId": "总堂据点",
@@ -456,11 +466,6 @@
 
   "collectableLight": "可收集的灵光",
   "availableShard": "剩余灵石",
-  "exp": "修为经验",
-  "rank": "境界",
-  "rank2": "境",
-  "rank3": "期",
-  "rankUp!": "境界提升!",
 
   "skillPoints": "天道技能点",
 
@@ -521,7 +526,7 @@
 
   "cost": "消耗",
 
-  "pay_shard": "支付灵石",
+  "pay_shard": "支付 {0} 灵石",
 
   "difficulty": "难度",
   "timeLimit": "时限",
@@ -547,6 +552,8 @@
   "gameDataQuest": "任务",
 
   "enemyStranger": "陌生修士",
+  "trialCompetitor": "入门试炼竞争者",
+  "trialTester": "入门试炼考官",
 
   "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
 
@@ -583,7 +590,6 @@
   "hint_noJournals": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
-  "hint_cancel_tribulation": "放弃天道挑战后，扣掉的修为经验不会返还。",
   "hint_cultivateMode": "点击左键切换到打坐修炼模式",
   "hint_passiveTreeMode": "点击左键切换到天道技能模式",
 
@@ -598,6 +604,9 @@
   "hint_fullHPRest": "你的生命值已满，无需再休息了。",
 
   "hint_dungeonEntrance": "这里是通往<yellow>「洞天秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以随时进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n但如果是非本门派的成员，进入秘境同样需要支付一笔费用。",
+
+  "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要花费 {0} 灵石。",
+  "hint_dungeon_cost2": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于高阶秘境，需要使用秘境石才能开启。",
 
   "hint_dungeonAlreadyEntered": "你这个月已经进入过一次这个秘境了。因此目前无法进入，你还是请回吧。",
 
@@ -646,7 +655,11 @@
 
   "hint_movement": "在大地图上时，点击<yellow>鼠标左键</>移动角色，点击并拖动<yellow>鼠标右键</>移动地图。",
 
-  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道法身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，修为经验不会返还。",
+  "hint_tribulation_1": "就在你运功凝聚灵光的时候，你突然有所顿悟。\n你似乎窥视到了一丝更高境界的天道。但与此同时，你也立刻感受到一股极为强大的气息。",
 
-  "hint_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且修为经验不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。"
+  "hint_tribulation_2": "\n此乃天道感应所化的一具幻象法身。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。但如果失败，不但修为经验不会返还，还会获得一层劫数。\n无论是失败还是放弃，你在下一次升级时必将再次触发天道劫数。",
+
+  "hint_tribulation_3": "\n你要挑战天道吗？",
+
+  "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。"
 }
