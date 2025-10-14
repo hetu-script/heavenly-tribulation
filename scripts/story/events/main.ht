@@ -22,7 +22,7 @@ async function onNewGame() {
   //   })
   //   dialog.popBackground(isFadeOut: true)
   //   await dialog.execute()
-  //   Game.updateHero()
+  //   Game.updateUI()
   // }
 }
   

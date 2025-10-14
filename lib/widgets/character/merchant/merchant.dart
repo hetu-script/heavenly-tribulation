@@ -328,7 +328,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                 _selectedHeroItemsData.remove(itemData['id']);
                               }
                             }
-                            context.read<GameState>().update();
+                            context.read<HeroState>().update();
                           },
                           child: Text(
                             engine.locale(isDepositBox ? 'deposit' : 'sell'),
@@ -579,7 +579,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                     .remove(itemData['id']);
                               }
                             }
-                            context.read<GameState>().update();
+                            context.read<HeroState>().update();
                           },
                           child: Text(
                             engine.locale(isDepositBox ? 'take' : 'buy'),

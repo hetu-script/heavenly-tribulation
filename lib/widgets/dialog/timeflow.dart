@@ -97,6 +97,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       barrierColor: GameUI.backgroundColor,
+      barrierDismissible: false,
       alignment: AlignmentDirectional.center,
       width: 300.0,
       height: 380.0,

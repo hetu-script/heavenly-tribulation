@@ -86,7 +86,9 @@ class _GameAppState extends State<GameApp> {
     });
 
     engine.registerSceneConstructor(Scenes.location, (arguments) async {
-      final location = arguments['location'];
+      final locationId = arguments['locationId'];
+      assert(locationId != null, 'LocationScene 需要传入 locationId 参数');
+      final location = GameData.getLocation(locationId);
       assert(location != null);
       return LocationScene(
         context: context,
@@ -105,12 +107,10 @@ class _GameAppState extends State<GameApp> {
         engine.debug('创建程序生成的随机世界。');
         worldData =
             engine.hetu.invoke('createSandboxWorld', namedArgs: arguments);
-        GameData.worldIds.add(worldData['id']);
       } else if (method == 'blank') {
         engine.debug('创建空白世界。');
         worldData =
             engine.hetu.invoke('createBlankWorld', namedArgs: arguments);
-        GameData.worldIds.add(worldData['id']);
       }
 
       final scene = WorldMapScene(
@@ -335,9 +335,9 @@ class _GameAppState extends State<GameApp> {
       };
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::updateHero', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateUI', (
         {positionalArgs, namedArgs}) {
-      context.read<GameState>().update();
+      context.read<HeroState>().update();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateLocation', (
@@ -345,59 +345,24 @@ class _GameAppState extends State<GameApp> {
       context.read<HeroPositionState>().updateLocation(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'Game::pushScene',
-        ({positionalArgs, namedArgs}) =>
-            context.read<SamsaraEngine>().pushScene(
-                  positionalArgs.first,
-                  constructorId: namedArgs['category'],
-                  arguments: namedArgs['arguments'] ?? const {},
-                ),
-        override: true);
-
-    engine.hetu.interpreter.bindExternalFunction(
-        'Game::switchScene',
-        ({positionalArgs, namedArgs}) =>
-            context.read<SamsaraEngine>().switchScene(
-                  positionalArgs.first,
-                  arguments: namedArgs['arguments'] ?? const {},
-                  restart: namedArgs['restart'] ?? false,
-                ),
-        override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Game::popScene', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateActiveJournals', (
         {positionalArgs, namedArgs}) {
-      context.read<SamsaraEngine>().popScene(
-            clearCache: namedArgs['clearCache'] ?? false,
-          );
+      context.read<HeroJournalUpdate>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::popSceneTill', (
-        {positionalArgs, namedArgs}) {
-      context.read<SamsaraEngine>().popSceneTill(
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::switchWorld',
+        ({positionalArgs, namedArgs}) => GameData.switchWorld(
             positionalArgs.first,
-            clearCache: namedArgs['clearCache'] ?? false,
-          );
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction(
-        'Game::pushWorld',
-        ({positionalArgs, namedArgs}) =>
-            context.read<SamsaraEngine>().pushScene(
-                  positionalArgs.first,
-                  constructorId: Scenes.worldmap,
-                  arguments: {'id': positionalArgs.first, 'method': 'load'},
-                  clearCache: namedArgs['clearCache'] ?? false,
-                ),
+            clearCache: namedArgs['clearCache'] ?? false),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateGame', (
         {positionalArgs, namedArgs}) {
       GameLogic.updateGame(
         tick: namedArgs['tick'] ?? 1,
-        timeflow: namedArgs['timeflow'] ?? true,
-        udpateWorldMap: namedArgs['updateWorldMap'] ?? true,
-        forceUpdate: namedArgs['forceUpdate'] ?? false,
+        updateUI: namedArgs['updateUI'] ?? true,
+        updateWorldMap: namedArgs['updateWorldMap'] ?? true,
       );
     }, override: true);
 
@@ -511,7 +476,7 @@ class _GameAppState extends State<GameApp> {
       engine.context.read<HoverContentState>().hide();
       engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.cultivation, arguments: {
-        'location': namedArgs['location'],
+        'locationId': namedArgs['locationId'],
         'enableCultivate': namedArgs['enableCultivate'] ?? false,
       });
     }, override: true);

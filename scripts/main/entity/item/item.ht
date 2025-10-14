@@ -667,6 +667,7 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///   {
 ///     type: 'prototype',
 ///     id: 'exp_pack',
+///     amount: 1,
 ///   },
 ///   {
 ///     type: 'equipment',
@@ -674,12 +675,14 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///     rarity: 'common',
 ///     rank: 0,
 ///     level: 0,
+///     amount: 1,
 ///   },
 ///   {
 ///     type: 'cardpack',
 ///     kind: 'punch',
 ///     genre: null,
 ///     rank: 0,
+///     amount: 1,
 ///   },
 /// ]
 function createLoot(itemsInfo: List) {

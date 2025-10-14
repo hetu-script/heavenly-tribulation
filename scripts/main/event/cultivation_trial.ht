@@ -152,7 +152,7 @@ async function onAfterMove(terrain) {
   }
   final value = game.flags.trial.difficulty + 1
   setCharacterLife(hero, hero.life - value)
-  Game.updateHero()
+  Game.updateUI()
   World.addHintText('${engine.locale('life')} -${value}', terrain.left, terrain.top, Colors.red)
   if (failed) {
     final npc = game.npcs[game.flags.trial.npcId]

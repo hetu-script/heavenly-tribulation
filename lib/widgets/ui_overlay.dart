@@ -34,6 +34,7 @@ import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
 import 'organization/meeting.dart';
+import 'journal_panel.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -82,7 +83,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     //     (GameData.game?['flags']['autoWork'] ?? false);
 
     // final hero = context.watch<HeroState>().hero;
-    final hero = context.watch<GameState>().hero;
+    final hero = context.watch<HeroState>().hero;
     final showHeroInfo = widget.enableHeroInfo &&
         hero != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
@@ -153,7 +154,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         context.watch<ViewPanelPositionState>().panelPositions;
     final List<Widget> panels = [];
     for (final panel in visiblePanels.keys) {
-      // final arguments = visiblePanels[panel];
+      final arguments = visiblePanels[panel];
       switch (panel) {
         case ViewPanels.profile:
           final position =
@@ -247,7 +248,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             ),
           );
         case ViewPanels.journal:
-          panels.add(JournalView(character: hero));
+          panels.add(JournalView(
+            character: hero,
+            selectedId: arguments?['selectedId'],
+          ));
         case ViewPanels.workbench:
           panels.add(WorkbenchDialog());
         case ViewPanels.alchemy:
@@ -701,11 +705,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   ),
                 ],
               ),
-
+            if (showHeroInfo)
+              Positioned(top: 35.0, right: 0, child: JournalPanel()),
             if (widget.action != null)
               Positioned(
-                right: 5.0,
-                top: 5.0,
+                right: 2.5,
+                top: 2.5,
                 child: Container(
                   width: GameUI.infoButtonSize.width,
                   height: GameUI.infoButtonSize.height,

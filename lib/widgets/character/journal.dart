@@ -20,13 +20,13 @@ class JournalView extends StatefulWidget {
     this.characterId,
     this.character,
     this.mode = InformationViewMode.view,
+    this.selectedId,
   }) : assert(characterId != null || character != null);
 
   final String? characterId;
-
   final dynamic character;
-
   final InformationViewMode mode;
+  final String? selectedId;
 
   @override
   State<JournalView> createState() => _JournalViewState();
@@ -46,6 +46,7 @@ class _JournalViewState extends State<JournalView> {
     super.initState();
 
     assert(widget.characterId != null || widget.character != null);
+
     if (widget.character != null) {
       _characterData = widget.character!;
     } else {
@@ -53,8 +54,9 @@ class _JournalViewState extends State<JournalView> {
     }
     _journalsData = _characterData['journals'];
 
-    if (_journalsData.isNotEmpty) {
-      _selectedJournal = _journalsData.values.last;
+    _selectedJournal = _journalsData[widget.selectedId];
+    if (_selectedJournal == null && _journalsData.values.isNotEmpty) {
+      _selectedJournal = _journalsData.values.first;
     }
   }
 
@@ -66,13 +68,16 @@ class _JournalViewState extends State<JournalView> {
     if (budget != null) {
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: RichText(
-            text: TextSpan(
-              children: buildFlutterRichText(
-                  GameData.getQuestBudgetDescription(budget)),
-              style: TextStyles.bodyMedium,
-            ),
+          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${engine.locale('budget')}:'),
+              Text(
+                GameData.getQuestBudgetDescription(budget),
+                style: TextStyle(color: Colors.yellow),
+              ),
+            ],
           ),
         ),
       );
@@ -81,39 +86,53 @@ class _JournalViewState extends State<JournalView> {
     if (reward != null) {
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: RichText(
-            text: TextSpan(
-              children: buildFlutterRichText(
-                  GameData.getQuestRewardDescription(reward)),
-              style: TextStyles.bodyMedium,
-            ),
+          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${engine.locale('reward')}:'),
+              Text(
+                GameData.getQuestRewardDescription(reward),
+                style: TextStyle(
+                  color: Colors.yellow,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
     final timeLimit = _selectedJournal['quest']?['timeLimit'];
     if (timeLimit != null) {
+      final currentTimestamp = GameData.data['timestamp'];
+      final isLate = currentTimestamp >
+          (_selectedJournal['timestamp'] +
+              _selectedJournal['quest']['timeLimit']);
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: RichText(
-            text: TextSpan(
-              children: buildFlutterRichText(
-                  GameData.getQuestTimeLimitDescription(timeLimit,
-                      isFinished: journalData['isFinished'] == true)),
-              style: TextStyles.bodyMedium,
-            ),
+          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('${engine.locale('deadline')}:'),
+              Text(
+                GameData.getQuestTimeLimitDescription(timeLimit),
+                style: TextStyle(
+                  color: isLate ? Colors.red : Colors.yellow,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
+    descriptions.add(const Divider());
 
     for (var index = sequence.length - 1; index >= 0; --index) {
       final stageIndex = sequence[index];
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
+          padding: const EdgeInsets.only(top: 10.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -234,17 +253,40 @@ class _JournalViewState extends State<JournalView> {
                                 _selectedJournal = journal;
                               });
                             },
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                '${journal['title']}${journal['isFinished'] == true ? ' (${engine.locale('finished')})' : ''}',
-                                softWrap: false,
-                                style: TextStyles.labelLarge.copyWith(
-                                  color: _selectedJournal == journal
-                                      ? Colors.yellow
-                                      : null,
+                            child: Row(
+                              children: [
+                                Text(
+                                  journal['title'],
+                                  softWrap: false,
+                                  style: TextStyles.labelLarge.copyWith(
+                                    fontWeight: _selectedJournal == journal
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: _selectedJournal == journal
+                                        ? Colors.white
+                                        : (_selectedJournal['isFinished'] ==
+                                                true
+                                            ? Colors.grey
+                                            : Colors.white),
+                                  ),
                                 ),
-                              ),
+                                const Spacer(),
+                                if (journal['isFinished'] == true)
+                                  Text(
+                                    '[${engine.locale('finished')}]',
+                                    style: TextStyles.labelLarge.copyWith(
+                                      fontWeight: _selectedJournal == journal
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: _selectedJournal == journal
+                                          ? Colors.white
+                                          : (_selectedJournal['isFinished'] ==
+                                                  true
+                                              ? Colors.grey
+                                              : Colors.white),
+                                    ),
+                                  )
+                              ],
                             ),
                           ),
                         ),
@@ -271,7 +313,7 @@ class _JournalViewState extends State<JournalView> {
                         ),
                         const Spacer(),
                         Padding(
-                          padding: const EdgeInsets.only(right: 15.0),
+                          padding: const EdgeInsets.only(right: 10.0),
                           child: _selectedJournal['isFinished'] == true
                               ? Text(
                                   engine.locale('finished'),

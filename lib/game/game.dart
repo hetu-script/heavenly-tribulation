@@ -12,12 +12,14 @@ import 'package:samsara/samsara.dart';
 // import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:animated_tree_view/animated_tree_view.dart';
+import 'package:provider/provider.dart';
 
 import 'ui.dart';
 import 'common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
 import 'logic/logic.dart';
+import '../state/states.dart';
 
 const _kSkinAnimationWidth = 288.0;
 const _kSkinAnimationHeight = 112.0;
@@ -112,13 +114,13 @@ class GameData {
   static final Map<String, String> cityKindNames = {};
   static final Map<String, String> siteKindNames = {};
 
-  static Set<String> worldIds = {};
-
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic data, flags, universe, world, history, hero;
+
+  static Iterable<String> get worldIds => universe?.keys ?? const [];
 
   static math.Random random = math.Random();
 
@@ -357,7 +359,7 @@ class GameData {
 
     final spriteSheetDataString =
         await rootBundle.loadString('assets/data/sprite_sheet.json5');
-    final spriteSheetsData = JSON5.parse(spriteSheetDataString);
+    final List spriteSheetsData = JSON5.parse(spriteSheetDataString);
     for (final spriteSheetData in spriteSheetsData) {
       final assetId = spriteSheetData['assetId'];
       assert(assetId != null);
@@ -486,8 +488,6 @@ class GameData {
     bool enableTutorial = true,
     bool isEditorMode = false,
   }) async {
-    worldIds.clear();
-
     engine.hetu.invoke('createGame', positionalArgs: [
       saveName
     ], namedArgs: {
@@ -508,12 +508,19 @@ class GameData {
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
+
+    engine.context.read<GameTimestampState>().update();
+    engine.context.read<NpcListState>().update();
+    engine.context.read<HeroPositionState>().updateTerrain();
+    engine.context.read<HeroPositionState>().updateLocation();
+    engine.context.read<HeroPositionState>().updateDungeon();
   }
 
-  static Future<void> _loadGame({
+  static Future<List<String>> _loadGame({
     required dynamic gameData,
     required dynamic universeData,
     required dynamic historyData,
+    dynamic scenesData,
     bool isEditorMode = false,
   }) async {
     engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
@@ -522,13 +529,30 @@ class GameData {
       'historyData': historyData,
     });
 
-    worldIds.clear();
-    final ids = engine.hetu.invoke('getWorldIds');
-    worldIds.addAll(ids);
-
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
+
+    List<String> sceneIds = [];
+    Map<String, String> constructorIds = {};
+    Map<String, dynamic> argumentIds = {};
+    if (scenesData != null) {
+      assert(scenesData is List);
+      for (final sceneData in scenesData) {
+        final sceneId = sceneData['sceneId'];
+        sceneIds.add(sceneId);
+        final constructorId = sceneData['constructorId'];
+        if (constructorId != null) {
+          constructorIds[sceneId] = constructorId;
+        }
+        final arguments = sceneData['arguments'];
+        if (arguments != null) {
+          argumentIds[sceneId] = arguments;
+        }
+      }
+    }
+    engine.loadSceneConstructorIds(constructorIds);
+    engine.loadSceneArguments(argumentIds);
 
     data = engine.hetu.fetch('game');
     flags = data['flags'];
@@ -536,13 +560,21 @@ class GameData {
     history = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
     random = engine.hetu.fetch('random');
+
+    engine.context.read<GameTimestampState>().update();
+    engine.context.read<NpcListState>().update();
+    engine.context.read<HeroPositionState>().updateTerrain();
+    engine.context.read<HeroPositionState>().updateLocation();
+    engine.context.read<HeroPositionState>().updateDungeon();
+
+    return sceneIds;
   }
 
   /// 从存档中读取游戏数据
   /// 在这一步中，并不会创建地图对应的场景
-  static Future<void> loadGame(String savePath,
+  /// 如果存档中包含场景数据，则会返回场景名称列表
+  static Future<List<String>> loadGame(String savePath,
       {bool isEditorMode = false}) async {
-    worldIds.clear();
     engine.debug('从 [$savePath] 载入游戏存档。');
     final gameSave = await File(savePath).open();
     final gameDataString = utf8.decoder
@@ -562,15 +594,27 @@ class GameData {
     await historySave.close();
     final historyData = json5Decode(historyDataString);
 
-    await _loadGame(
+    dynamic scenesData;
+    final isSceneSaveExist =
+        await File(savePath + kScenesSaveFilePostfix).exists();
+    if (isSceneSaveExist) {
+      final scenesSave = await File(savePath + kScenesSaveFilePostfix).open();
+      final scenesDataString = utf8.decoder
+          .convert((await scenesSave.read(await scenesSave.length())).toList());
+      await scenesSave.close();
+      scenesData = json5Decode(scenesDataString);
+    }
+
+    return await _loadGame(
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
+      scenesData: scenesData,
       isEditorMode: isEditorMode,
     );
   }
 
-  static Future<void> loadPreset(String filename,
+  static Future<List<String>> loadPreset(String filename,
       {bool isEditorMode = false}) async {
     engine.debug('从 [$filename] 载入游戏预设。');
 
@@ -586,12 +630,29 @@ class GameData {
     final historyDataString = await rootBundle.loadString(historySave);
     final historyData = json5Decode(historyDataString);
 
-    await _loadGame(
+    return await _loadGame(
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
       isEditorMode: isEditorMode,
     );
+  }
+
+  static void switchWorld(String worldId, {bool clearCache = false}) {
+    if (engine.hasSceneInSequence(worldId)) {
+      engine.popSceneTill(worldId, clearCache: clearCache);
+    } else if (engine.hasScene(worldId)) {
+      engine.switchScene(worldId);
+    } else {
+      engine.pushScene(
+        worldId,
+        constructorId: Scenes.worldmap,
+        arguments: {
+          'id': worldId,
+          'method': 'load',
+        },
+      );
+    }
   }
 
   static Future<SpriteAnimationWithTicker> createAnimationFromData(
@@ -1132,51 +1193,74 @@ class GameData {
     desc.writeln('<bold rank$difficulty t7>${engine.locale('quest_$kind')}</>');
     desc.writeln(
         '${engine.locale('difficulty')}: <rank$difficulty>${engine.locale(difficultyLable)}</>');
-    desc.writeln(
+    desc.write(
         '${engine.locale('timeLimit')}: <yellow>${timeLimit ~/ kTicksPerDay} ${engine.locale('ageDay')}</>');
 
-    return desc.toString();
-  }
-
-  static String getQuestBudgetDescription(dynamic budget,
-      {bool isFinished = false}) {
-    final desc = StringBuffer();
-    final kind = budget['kind'];
-    final amount = budget['amount'];
-    desc.writeln('${engine.locale('budget')}:');
-    desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
     return desc.toString();
   }
 
   static String getQuestRewardDescription(List reward,
       {bool isFinished = false}) {
     final desc = StringBuffer();
-    desc.writeln('${engine.locale('reward')}:');
+    // desc.writeln('${engine.locale('reward')}:');
     for (final itemInfo in reward) {
-      if (itemInfo['type'] == 'material') {
-        final kind = itemInfo['kind'];
-        final amount = itemInfo['amount'];
-        desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
+      final amount = itemInfo['amount'] ?? 1;
+      switch (itemInfo['type']) {
+        case 'material':
+          final kind = itemInfo['kind'];
+          desc.write('$amount ${engine.locale(kind)}');
+        case 'prototype':
+          final id = itemInfo['id'];
+          desc.write('$amount ${engine.locale(id)}');
+        case 'equipment':
+          final kind = itemInfo['kind'];
+          final rarity = itemInfo['rarity'];
+          desc.write('$amount ${engine.locale(rarity)}${engine.locale(kind)}');
+        case 'cardpack':
+          final rank = itemInfo['rank'] ?? 0;
+          final genre = itemInfo['genre'];
+          final kind = itemInfo['kind'];
+          final rankString =
+              engine.locale('cultivationRank_$rank') + engine.locale('rank2');
+          final genreString = genre != null ? engine.locale(genre) : '';
+          final kindString = kind != null ? engine.locale('kind_$kind') : '';
+          final name =
+              rankString + genreString + kindString + engine.locale('cardpack');
+          desc.write('$name $amount');
+        default:
+          desc.write(engine.locale('unknown_item'));
       }
     }
     return desc.toString();
   }
 
+  static String getQuestBudgetDescription(dynamic budget,
+      {bool isFinished = false}) {
+    // final desc = StringBuffer();
+    final kind = budget['kind'];
+    final amount = budget['amount'];
+    // desc.write('${engine.locale('budget')}: ');
+    // desc.writeln('<lightGreen>$amount ${engine.locale(kind)}</>');
+    // return desc.toString();
+    return '$amount ${engine.locale(kind)}';
+  }
+
   static String getQuestTimeLimitDescription(int timestamp,
       {bool isFinished = false}) {
-    final desc = StringBuffer();
-    desc.writeln('${engine.locale('deadline')}:');
-    final currentTimestamp = GameData.data['timestamp'];
+    // final desc = StringBuffer();
+    // desc.write('${engine.locale('deadline')}: ');
+    // final currentTimestamp = GameData.data['timestamp'];
     final timeString =
         engine.hetu.invoke('getDateTimeString', positionalArgs: [timestamp]);
-    String color;
-    if (currentTimestamp > timestamp && !isFinished) {
-      color = 'red';
-    } else {
-      color = 'lightGreen';
-    }
-    desc.writeln('<$color>$timeString</>');
-    return desc.toString();
+    // String color;
+    // if (currentTimestamp > timestamp && !isFinished) {
+    //   color = 'red';
+    // } else {
+    //   color = 'lightGreen';
+    // }
+    // desc.writeln('<$color>$timeString</>');
+    // return desc.toString();
+    return timeString;
   }
 
   static String getBountyDetailDescription(dynamic quest) {
@@ -1193,13 +1277,19 @@ class GameData {
     if (reward != null || budget != null) {
       desc.writeln(kSeparateLine);
     }
-    if (reward != null) {
-      final rewardDesc = getQuestRewardDescription(reward);
-      desc.writeln(rewardDesc);
-    }
     if (budget != null) {
+      desc.write('${engine.locale('budget')}: ');
       final budgetDesc = getQuestBudgetDescription(budget);
       desc.writeln(budgetDesc);
+    }
+    if (reward != null) {
+      desc.writeln('${engine.locale('reward')}: ');
+      final rewardDesc = getQuestRewardDescription(reward);
+      // final lines = rewardDesc.split('\n');
+      // for (final line in lines) {
+      //   desc.writeln('  $line');
+      // }
+      desc.write(rewardDesc);
     }
     return desc.toString();
   }

@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/ink_button.dart';
 
 import 'avatar.dart';
-import '../state/npc_list.dart';
-// import '../../state/game_dialog_state.dart';
+import '../state/game_update.dart';
 import '../game/ui.dart';
 import '../game/game.dart';
 import '../game/logic/logic.dart';

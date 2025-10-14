@@ -39,7 +39,7 @@ import '../../widgets/dialog/confirm.dart';
 import '../../game/logic/logic.dart';
 import 'components/banner.dart';
 import '../../game/common.dart';
-import '../../widgets/location_panel.dart';
+import 'widgets/location_panel.dart';
 import '../../widgets/ui/close_button2.dart';
 
 enum WorldMapPopUpMenuItems {
@@ -309,7 +309,7 @@ class WorldMapScene extends Scene {
       backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
     }
 
-    map.onAfterLoaded =
+    map.onAfterMapLoaded =
         isEditorMode ? _onAfterLoadedInEditorMode : _onAfterLoadedInGameMode;
 
     map.onMouseEnterTile = _onMouseEnterTile;
@@ -902,8 +902,6 @@ class WorldMapScene extends Scene {
       map.tileMapHeight ~/ 2,
       animated: false,
     );
-
-    engine.setLoading(false);
   }
 
   Future<void> _updateCharactersOnWorldMap() async {
@@ -912,12 +910,11 @@ class WorldMapScene extends Scene {
 
     final toBeRemoved = [];
     for (final obj in map.components.values) {
+      if (obj == map.hero) continue;
       if (!obj.isCharacter) continue;
 
       final worldPos = obj.data['worldPosition'];
-      if (obj.data['worldId'] != map.id ||
-          worldPos['left'] == null ||
-          worldPos['top'] == null) {
+      if (obj.data['worldId'] != map.id || worldPos == null) {
         toBeRemoved.add(obj.id);
       }
       // else {
@@ -1151,7 +1148,7 @@ class WorldMapScene extends Scene {
                 final isDying = engine.hetu.invoke('setLife',
                     namespace: 'Player',
                     positionalArgs: [GameData.hero['life'] - cost]);
-                context.read<GameState>().update();
+                context.read<HeroState>().update();
                 if (isDying) {
                   map.hero!.isWalkCanceled = true;
                   GameLogic.onDying();
@@ -1318,7 +1315,6 @@ class WorldMapScene extends Scene {
     final bool isNewGame = GameData.data['isNewGame'] ?? false;
     if (isNewGame) {
       // GameLogic.updateGame(timeflow: false);
-
       if (GameData.hero == null) {
         final Iterable characters = GameData.data['characters'].values;
         final Iterable filteredCharacters = characters.where((character) {
@@ -1383,10 +1379,8 @@ class WorldMapScene extends Scene {
 
     context.read<HeroInfoVisibilityState>().setVisible(
         isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : true);
-    context.read<GameTimestampState>().update();
     context.read<HeroAndGlobalHistoryState>().update();
-
-    engine.setLoading(false);
+    context.read<HeroJournalUpdate>().update();
 
     if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
@@ -1719,7 +1713,6 @@ class WorldMapScene extends Scene {
                                     ),
                                   );
                                 case WorldMapDropMenuItems.exit:
-                                  context.read<HeroPositionState>().clear();
                                   engine.clearAllCachedScene(
                                       except: Scenes.mainmenu,
                                       arguments: {
@@ -1842,7 +1835,6 @@ class WorldMapScene extends Scene {
                                             .locale('dangerOperationPrompt')),
                                   );
                                   if (result == true) {
-                                    GameData.worldIds.remove(worldId);
                                     engine.hetu.invoke('deleteWorldById',
                                         positionalArgs: [worldId]);
                                   }

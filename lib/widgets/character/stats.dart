@@ -123,7 +123,7 @@ class _CharacterStatsState extends State<CharacterStats> {
   @override
   Widget build(BuildContext context) {
     dynamic data =
-        widget.isHero ? context.watch<GameState>().hero : widget.character;
+        widget.isHero ? context.watch<HeroState>().hero : widget.character;
     assert(data != null);
 
     final List<Widget> items = [];

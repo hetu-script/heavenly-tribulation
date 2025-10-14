@@ -6,6 +6,7 @@ import '../../../engine.dart';
 import '../../../game/ui.dart';
 import '../../../state/selected_tile.dart';
 import '../../../widgets/ui/close_button2.dart';
+import '../../../game/game.dart';
 
 class TileDetailPanel extends StatefulWidget {
   const TileDetailPanel({super.key});
@@ -17,11 +18,60 @@ class TileDetailPanel extends StatefulWidget {
 class _TileDetailPanelState extends State<TileDetailPanel> {
   @override
   Widget build(BuildContext context) {
-    final currentZone = context.watch<SelectedPositionState>().currentZone;
-    final currentNation = context.watch<SelectedPositionState>().currentNation;
-    // final currentLocation = context.watch<SelectedTileState>().currentLocation;
-    final currentTerrain =
+    dynamic currentZone = context.watch<SelectedPositionState>().currentZone;
+    dynamic currentNation =
+        context.watch<SelectedPositionState>().currentNation;
+    dynamic currentTerrain =
         context.watch<SelectedPositionState>().currentTerrain;
+    dynamic currentLocation =
+        context.watch<SelectedPositionState>().currentLocation;
+
+    final positionDetails = StringBuffer();
+
+    if (currentLocation != null) {
+      dynamic owner;
+      // dynamic organization;
+      final ownerId = currentLocation['ownerId'];
+      // 这里 owner 可能是 null
+      owner = GameData.data['characters'][ownerId];
+      // final organizationId = currentLocation['organizationId'];
+      // organization = GameData.gameData['organizations'][organizationId];
+
+      String title;
+      if (currentLocation['category'] == 'city') {
+        title = engine.locale('mayor');
+      } else {
+        final kind = currentLocation['kind'];
+        if (kind == 'headquarters') {
+          title = engine.locale('head');
+        } else if (kind == 'cityhall') {
+          title = engine.locale('mayor');
+        } else if (kind == 'home') {
+          title = engine.locale('homeOwner');
+        } else {
+          title = engine.locale('manager');
+        }
+      }
+
+      positionDetails.writeln(currentLocation['name']);
+      positionDetails
+          .writeln('$title ${owner?['name'] ?? engine.locale('none')}');
+      positionDetails.writeln(
+          '${engine.locale('development')}: ${currentLocation['development']}');
+    } else {
+      if (currentZone != null) {
+        positionDetails.writeln('${currentZone!['name']}');
+      }
+      if (currentNation != null) {
+        positionDetails.writeln('${currentNation['name']}');
+      }
+      if (currentTerrain != null) {
+        positionDetails
+            .write('${engine.locale(currentTerrain.data?['kind'])} ');
+        positionDetails
+            .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
+      }
+    }
 
     String? coordinates;
     if (currentTerrain != null) {

@@ -561,16 +561,43 @@ namespace Player {
     return characterProgressJournalById(hero, journalId, stage: stage, incurIncident: incurIncident)
   }
 
-  function setActiveJournal(journal) {
+  function setActiveJournal(journal, { notifyUpdate = true }) {
     assert(hero != null)
     assert(hero.journals.containsKey(journal.id))
-    hero.activeJournalId = journal.id
+    if (!hero.activeJournalIds.contains(journal.id)) {
+      hero.activeJournalIds.add(journal.id)
+    }
+    if (notifyUpdate) {
+      Game.updateActiveJournals()
+    }
   }
 
-  function getActiveJournal() {
-    assert(hero?.activeJournalId != null)
-    assert(hero.journals.containsKey(hero.activeJournalId))
-    return hero.journals[hero.activeJournalId]
+  function toogleActiveJournal(journal, { notifyUpdate = true }) {
+    assert(hero != null)
+    assert(hero.journals.containsKey(journal.id))
+    if (hero.activeJournalIds.contains(journal.id)) {
+      hero.activeJournalIds.remove(journal.id)
+    } else {
+      hero.activeJournalIds.add(journal.id)
+    }
+    if (notifyUpdate) {
+      Game.updateActiveJournals()
+    }
+  }
+
+  function getActiveJournals() {
+    assert(hero != null)
+    final toBeRemoved = []
+    final journals = []
+    for (final id in hero.activeJournalIds) {
+      if (hero.journals[id] == null) {
+        engine.warn('active journal not found: ${id}, removing it from active list.')
+        toBeRemoved.add(id)
+      } else {
+        journals.add(hero.journals[id])
+      }
+    }
+    return journals
   }
 
   async function enroll(organization, { npcId, titleId = 'taskman', incurIncident = true }) {

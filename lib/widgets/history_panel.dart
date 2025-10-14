@@ -24,7 +24,7 @@ class HistoryPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final positionDetails = StringBuffer();
     final dateString = context.watch<GameTimestampState>().datetimeString;
-    positionDetails.write(dateString);
+    positionDetails.write('$dateString ');
 
     dynamic currentZone,
         currentNation,
@@ -46,19 +46,19 @@ class HistoryPanel extends StatelessWidget {
       final rank = currentDungeon?['rank'];
       if (rank != null) {
         positionDetails.write(
-            ' ${engine.locale('cultivationRank_$rank') + engine.locale('rank2') + engine.locale('dungeon')}');
+            '${engine.locale('cultivationRank_$rank') + engine.locale('rank2') + engine.locale('dungeon')} ');
       } else {
-        positionDetails.write(' ${currentDungeon['name']}');
+        positionDetails.write(' ${currentDungeon['name']} ');
       }
       final level = currentDungeon['level'];
       if (level != null) {
         positionDetails.write(
-            ' ${engine.locale('currentDungeonLevel')}: ${level + 1}/${currentDungeon['levelMax'] + 1}');
+            '${engine.locale('currentDungeonLevel')}: ${level + 1}/${currentDungeon['levelMax'] + 1} ');
       }
       final room = currentDungeon['room'];
       if (room != null) {
         positionDetails.write(
-            ' ${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
+            '${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1} ');
       }
     } else if (currentLocation != null) {
       dynamic owner;
@@ -85,27 +85,23 @@ class HistoryPanel extends StatelessWidget {
         }
       }
 
-      positionDetails.write(currentLocation['name']);
+      positionDetails.write('${currentLocation['name']} ');
       positionDetails
-          .write(' $title ${owner?['name'] ?? engine.locale('none')}');
+          .write('$title ${owner?['name'] ?? engine.locale('none')} ');
       positionDetails.write(
-          ' ${engine.locale('development')}: ${currentLocation['development']}');
+          '${engine.locale('development')}: ${currentLocation['development']} ');
     } else {
       if (currentZone != null) {
-        positionDetails.write(' ${currentZone!['name']}');
+        positionDetails.write(' ${currentZone!['name']} ');
       }
       if (currentNation != null) {
-        positionDetails.write(' ${currentNation['name']}');
+        positionDetails.write(' ${currentNation['name']} ');
       }
       if (currentTerrain != null) {
         positionDetails
-            .write(' ${engine.locale(currentTerrain.data?['kind'])}');
-        // if (isEditorMode) {
-        //   positionDetails.write(
-        //       '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
-        // }
+            .write('${engine.locale(currentTerrain.data?['kind'])} ');
         positionDetails
-            .write(' [${currentTerrain.left}, ${currentTerrain.top}]');
+            .write('[${currentTerrain.left}, ${currentTerrain.top}] ');
       }
     }
 

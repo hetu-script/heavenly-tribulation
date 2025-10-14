@@ -15,6 +15,7 @@ const kGameSaveFileExtension = '.tdqjgame';
 const kUniverseSaveFilePostfix = '_universe';
 const kWorldSaveFilePostfix = '_world';
 const kHistorySaveFilePostfix = '_history';
+const kScenesSaveFilePostfix = '_scenes';
 
 const kSpriteScale = 2.0;
 
@@ -46,6 +47,12 @@ const kTips = [
   'tips_sandbox_freedom',
   'tips_terrain_movement',
   'tips_reputation',
+];
+
+const kNpcIds = [
+  'servant',
+  'servant_young',
+  'guard',
 ];
 
 const kTerrainKindToNaturalResources = {
@@ -921,10 +928,6 @@ const kBaseAfterBattleHPRestoreRate = 0.25;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;
-
-const kCharacterYearlyUpdateMonth = 3;
-const kLocationYearlyUpdateMonth = 6;
-const kOrganizationYearlyUpdateMonth = 9;
 
 const kBattleCardPriceRate = 0.135;
 const kCraftScrollCostRate = 0.06;

@@ -1123,7 +1123,9 @@ struct Character {
     // 该角色当前的日志
     // 门派任务和悬赏任务同样以日志形式保存在这里
     this.journals = {}
-    this.activeJournalId = null
+    // 当前追踪的日志id列表
+    // 追踪的日志会以漂浮文字显示在屏幕右上角
+    this.activeJournalIds = []
     
     // 这些列表保存的是incident的index
     // 该角色经历过的事情
@@ -1256,6 +1258,8 @@ struct Character {
     
     // 随角色移动的孩童（Baby 对象），这里只保存id
     this.carrying = []
+
+    this.updateDay = engine.random.nextInt(30) + 1
   }
 }
 

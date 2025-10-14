@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hetu_script/utils/uid.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path;
-// import 'package:samsara/utils/json.dart';
+import 'package:hetu_script/utils/json.dart' as utils;
 import 'package:hetu_script/values.dart';
 import 'package:json5/json5.dart';
 
@@ -13,6 +13,7 @@ import '../engine.dart';
 import '../extensions.dart';
 import '../game/common.dart';
 import '../game/game.dart';
+import '../scene/common.dart';
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
@@ -132,12 +133,8 @@ class GameSavesState with ChangeNotifier {
       await sink.flush();
       await sink.close();
 
-      final timestamp =
-          saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
-
       final universeJsonData = (GameData.universe as HTStruct).toJSON();
       final universeStringData = json5Encode(universeJsonData, space: 2);
-
       final saveFile2 = File('${info.savePath}$kUniverseSaveFilePostfix');
       if (!saveFile2.existsSync()) {
         saveFile2.createSync(recursive: true);
@@ -149,7 +146,6 @@ class GameSavesState with ChangeNotifier {
 
       final historyJsonData = (GameData.history as HTStruct).toJSON();
       final historyStringData = json5Encode(historyJsonData, space: 2);
-
       final saveFile3 = File('${info.savePath}$kHistorySaveFilePostfix');
       if (!saveFile3.existsSync()) {
         saveFile3.createSync(recursive: true);
@@ -159,7 +155,32 @@ class GameSavesState with ChangeNotifier {
       await sink.flush();
       await sink.close();
 
-      info.timestamp = timestamp;
+      final sceneStack = engine.sceneStack;
+      final cachedConstructorIds = engine.cachedConstructorIds;
+      final cachedArguments = engine.cachedArguments;
+      final scenesData = <Map<String, dynamic>>[];
+      for (final sceneId in sceneStack) {
+        if (sceneId == Scenes.mainmenu) continue;
+        final constructorId = cachedConstructorIds[sceneId];
+        final arguments = utils.jsonify(cachedArguments[sceneId]);
+        scenesData.add({
+          'sceneId': sceneId,
+          'constructorId': constructorId,
+          'arguments': arguments,
+        });
+      }
+      final scenesStringData = json5Encode(scenesData, space: 2);
+      final saveFile4 = File('${info.savePath}$kScenesSaveFilePostfix');
+      if (!saveFile4.existsSync()) {
+        saveFile4.createSync(recursive: true);
+      }
+      sink = saveFile4.openWrite();
+      sink.write(scenesStringData);
+      await sink.flush();
+      await sink.close();
+
+      info.timestamp =
+          saveFile1.lastModifiedSync().toLocal().toMeaningfulString();
 
       return info;
     } catch (e) {

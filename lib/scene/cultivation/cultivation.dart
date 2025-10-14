@@ -182,9 +182,7 @@ class CultivationScene extends Scene {
   void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
-    if (arguments['character'] != null) {
-      character = arguments['character'];
-    } else if (arguments['characterId'] != null) {
+    if (arguments['characterId'] != null) {
       character = GameData.getCharacter(arguments['characterId']);
     } else {
       character = GameData.hero;
@@ -964,6 +962,8 @@ class CultivationScene extends Scene {
 
   @override
   void onMount() async {
+    super.onMount();
+
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();

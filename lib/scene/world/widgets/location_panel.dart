@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 
-import '../game/game.dart';
-import '../game/ui.dart';
-import '../engine.dart';
-import '../state/selected_tile.dart';
-import '../state/hover_content.dart';
+import '../../../game/game.dart';
+import '../../../game/ui.dart';
+import '../../../engine.dart';
+import '../../../state/selected_tile.dart';
+import '../../../state/hover_content.dart';
 
 const kSpriteIndexCategory = {
   0: 'waterZone',

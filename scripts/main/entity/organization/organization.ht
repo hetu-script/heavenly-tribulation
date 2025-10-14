@@ -174,17 +174,10 @@ struct Organization {
       engine.debug(incidentContent)
     }
     addCharacterToOrganization(head, this, titleId: 'head', incurIncident: incurIncident)
-
+    
     // 和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = {}
-
-    // 敌对名单，遇到后将会直接开始战斗
-    this.enemyLists = {
-      characterIds: [],
-      organizationIds: [],
-      // nationIds: [],
-    }
   }
 }
 

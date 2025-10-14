@@ -90,6 +90,11 @@ class NewJournal extends StatelessWidget {
                         onPressed: () {
                           completer?.complete();
                           context.read<JournalPromptState>().update();
+                          engine.hetu.invoke(
+                            'setActiveJournal',
+                            namespace: 'Player',
+                            positionalArgs: [journal],
+                          );
                         },
                         child: Text(
                           engine.locale('confirm'),

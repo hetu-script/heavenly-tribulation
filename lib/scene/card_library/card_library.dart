@@ -214,28 +214,28 @@ class CardLibraryScene extends Scene {
   }
 
   @override
-  void onStart([dynamic arguments = const {}]) {
+  void onStart([dynamic arguments]) {
     super.onStart(arguments);
 
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
 
-    enableCardCraft = arguments['enableCardCraft'] ??
+    enableCardCraft = arguments?['enableCardCraft'] ??
         (GameData.hero['passives']['enable_cardcraft'] ?? false);
-    enableScrollCraft = arguments['enableScrollCraft'] ??
+    enableScrollCraft = arguments?['enableScrollCraft'] ??
         (GameData.hero['passives']['enable_scrollcraft'] ?? false);
 
-    onEnterScene = arguments['onEnterScene'];
+    onEnterScene = arguments?['onEnterScene'];
 
-    craftType = switch (arguments['craftType']) {
+    craftType = switch (arguments?['craftType']) {
       'exp' => CraftType.exp,
       'money' => CraftType.money,
       'shard' => CraftType.shard,
       _ => CraftType.exp,
     };
 
-    Iterable? cardpacksToOpen = arguments['cardpacks'];
+    Iterable? cardpacksToOpen = arguments?['cardpacks'];
     if (cardpacksToOpen != null) {
       showCardpackSelect(selectedItems: cardpacksToOpen);
     }
@@ -1498,6 +1498,8 @@ class CardLibraryScene extends Scene {
 
   @override
   void onMount() async {
+    super.onMount();
+
     updateOrderByButtonText();
     updateFilterByButtonText();
     libraryZone.repositionToTop();

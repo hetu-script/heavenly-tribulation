@@ -728,8 +728,8 @@ function createSandboxWorld({
     }
   }
 
-  // 此时时间应为1日下午，以避免重复触发月初事件
-  Game.updateGame(forceUpdate: true)
+  // 此时时间应为6日上午，以避免重复触发月初事件
+  Game.updateGame(tick: 20, updateUI: false, updateWorldMap: false)
 
   // engine.debug('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

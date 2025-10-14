@@ -71,7 +71,9 @@ function characterCreateJournal(character, journal, {
 
   character.journals[journal.id] = journal
   if (setAsActive) {
-    character.activeJournalId = journal.id
+    if (!character.activeJournalIds.contains(journal.id)) {
+      character.activeJournalIds.add(journal.id)
+    }
   }
   
   const incidentContent = engine.locale(
@@ -144,8 +146,9 @@ function characterProgressJournalById(character, journalId, {
   if (journal.endings.contains(stage)) {
     journal.isFinished = true
     
-    if (character.activeJournalId == journal.id) {
-      character.activeJournalId = null
+    if (character.activeJournalIds.contains(journal.id)) {
+      character.activeJournalIds.remove(journal.id)
+      Game.updateActiveJournals()
     }
     let incidentContent = engine.locale(
       'characterJournalFinished',

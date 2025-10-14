@@ -106,12 +106,14 @@ void main() {
             ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
             ChangeNotifierProvider(create: (_) => SelectedPositionState()),
             ChangeNotifierProvider(create: (_) => HeroPositionState()),
+            ChangeNotifierProvider(create: (_) => GameTimestampState()),
+            ChangeNotifierProvider(create: (_) => HeroJournalUpdate()),
             ChangeNotifierProvider(create: (_) => NpcListState()),
             ChangeNotifierProvider(create: (_) => JournalPromptState()),
             ChangeNotifierProvider(create: (_) => ItemsPromptState()),
             ChangeNotifierProvider(create: (_) => RankPromptState()),
             ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
-            ChangeNotifierProvider(create: (_) => GameState()),
+            ChangeNotifierProvider(create: (_) => HeroState()),
             ChangeNotifierProvider(create: (_) => EnemyState()),
             ChangeNotifierProvider(create: (_) => MerchantState()),
             ChangeNotifierProvider(create: (_) => ItemSelectState()),
@@ -121,7 +123,6 @@ void main() {
             ChangeNotifierProvider(create: (_) => HoverContentState()),
             ChangeNotifierProvider(
                 create: (_) => HoverContentDeterminedRectState()),
-            ChangeNotifierProvider(create: (_) => GameTimestampState()),
           ],
           child: fluent.FluentTheme(
             data: GameUI.fluentTheme,

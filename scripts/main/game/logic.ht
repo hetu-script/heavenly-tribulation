@@ -371,7 +371,7 @@ async function onInteractWorldPortal(object) {
   engine.play('magic-smite-6012.mp3')
   Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top, worldId: object.worldId, direction: 'south')
   await Future.delayed(0.5)
-  World.switchWorld(object.worldId)
+  Game.loadWorld(object.worldId)
   // await dialog.execute()
 }
 
@@ -436,7 +436,7 @@ async function onInteractBed(object) {
     }
     hero.life = newLife
     engine.debug('休息恢复了 ${newLife - life} 生命值')
-    Game.updateHero()
+    Game.updateUI()
 
     await dialog.execute()
   }

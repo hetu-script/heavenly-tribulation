@@ -14,7 +14,6 @@ import '../../game/game.dart';
 import '../../game/ui.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/character_visit.dart';
-import '../../state/npc_list.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic/logic.dart';
 import '../../game/common.dart';
@@ -26,6 +25,7 @@ import '../common.dart';
 import '../../state/hover_content.dart';
 import '../../state/view_panels.dart';
 import '../../widgets/ui/close_button2.dart';
+import '../../state/game_update.dart';
 
 enum LocationDropMenuItems { save, saveAs, info, console, exit }
 
@@ -251,11 +251,21 @@ class LocationScene extends Scene {
         );
     context.read<HeroPositionState>().updateLocation(location);
 
-    onEnterScene = arguments['onEnterScene'];
+    final onEnterSceneCallback = arguments['onEnterScene'];
+    if (onEnterSceneCallback != null) {
+      if (onEnterSceneCallback is FutureOr<void> Function()) {
+        onEnterScene = onEnterSceneCallback;
+      } else {
+        engine.warn(
+            'LocationScene: onEnterScene 必须是 FutureOr<void> Function(), 当前类型: ${onEnterSceneCallback.runtimeType}');
+      }
+    }
   }
 
   @override
   void onMount() async {
+    super.onMount();
+
     await onEnterScene?.call();
 
     engine.debug('玩家进入了 ${location['name']}');
@@ -372,10 +382,11 @@ class LocationScene extends Scene {
                             ),
                           );
                         case LocationDropMenuItems.exit:
-                          context.read<SelectedPositionState>().clear();
                           engine.clearAllCachedScene(
-                              except: Scenes.mainmenu,
-                              arguments: {'reset': true});
+                            except: Scenes.mainmenu,
+                            arguments: {'reset': true},
+                            triggerOnStart: true,
+                          );
                       }
                     },
                   );

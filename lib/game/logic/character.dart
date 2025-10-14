@@ -43,7 +43,7 @@ void _heroRest() async {
     onProgress: () {
       engine.hetu
           .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
-      engine.context.read<GameState>().update();
+      engine.context.read<HeroState>().update();
       return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
     },
   );
@@ -212,7 +212,7 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
   engine.play('coins-31879.mp3');
   engine.hetu.invoke('collect',
       namespace: 'Player', positionalArgs: ['money', finalTicks * salary]);
-  engine.context.read<GameState>().update();
+  engine.context.read<HeroState>().update();
 }
 
 Future<void> _onInteractNpc(dynamic npc, dynamic location) async {

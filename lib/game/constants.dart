@@ -16,6 +16,8 @@ class Constants extends HTExternalClass {
         return kRankToRarity;
       case 'Constants.races':
         return kRaces;
+      case 'Constants.npcIds':
+        return kNpcIds;
       case 'Constants.personalities':
         return kPersonalities;
       case 'Constants.attributes':

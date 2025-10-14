@@ -275,6 +275,8 @@ struct Location {
     this.materials = {}
 
     this.npcId = npcId
+    
+    this.updateDay = engine.random.nextInt(30) + 1
 
     if (atTerrain != null) {
       engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')

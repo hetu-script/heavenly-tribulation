@@ -290,6 +290,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + character.passives.expCollectEfficiency?.value / 100)).round()
   if (character.rank > 0) {
     character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100)).round()
+  } else {
+    character.stats.tribulationCountMax = -1
   }
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value

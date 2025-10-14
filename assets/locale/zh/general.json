@@ -67,6 +67,8 @@
   "unusable": "不可用",
   "none": "无",
   "unknown": "未知",
+  "unknown_affix": "无效词条数据",
+  "unknown_item": "无效物品数据",
   "random": "随机",
   "randomize": "随机",
   "max": "最大",
@@ -533,7 +535,7 @@
   "deadline": "截止日期",
 
   "budget": "预算",
-  "reward": "酬劳",
+  "reward": "报酬",
 
   "worldMap": "大地图",
 

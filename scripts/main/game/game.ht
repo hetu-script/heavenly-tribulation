@@ -14,11 +14,16 @@ let self
 let opponent
 let battleFlags
 
-const kNpcIds = [
-  'servant',
-  'servant_young',
-  'guard',
-]
+struct OrganizationMonthly {
+  constructor {
+    // 本月新加入的成员
+    this.recruited = []
+    // 本月境界突破的成员
+    this.breakthrough = []
+    // 本月获得职位的成员
+    this.promoted = []
+  }
+}
 
 /// 玩家每个月的互动操作记录，月初会重置
 struct PlayerMonthly {
@@ -79,17 +84,19 @@ struct GameData {
 
     // 游戏内的事件标记，
     this.flags = {
-      // 游戏本身逻辑所用到的一些事件检查选项
-      // 例如每个月是否进行了某个动作之类
-      // 这里的事件标记会在每个月1日重置
-      playerMonthly: PlayerMonthly(),
       tutorial: {}, // 新手教程
-      // 试炼地牢，每次进入地牢前会重置
+      // 试炼地牢的事件标记，每次进入地牢前会重置
       trial: {},
-      // 秘境地牢，每次进入地牢前会重置
+      // 秘境地牢的事件标记，每次进入地牢前会重置
       dungeon: {},
-      // 门派事件标记，每次加入门派会重置
+      // 门派行动的事件标记，加入新门派会重置
       organizations: {},
+      // 玩家每个月是否进行了某个动作
+      // 每个月1日重置
+      playerMonthly: PlayerMonthly(),
+      // 各个门派每个月的事件标记
+      // 每个月1日重置
+      organizationMonthly: {}, 
     }
 
     this.npcs = {}
@@ -139,7 +146,7 @@ function createGame(saveName, {
   world = null
   hero = null
   
-  for (final npcId in kNpcIds) {
+  for (final npcId in Constants.npcIds) {
     Npc(
       id: npcId,
       nameId: npcId,
@@ -153,20 +160,8 @@ function resetPlayerMonthly() {
   game.flags.playerMonthly = PlayerMonthly()
 }
 
-function monthlyActionContains(actionId, targetId) {
-  return game.flags.playerMonthly[actionId].contains(targetId)
-}
-
-function getTimeData() {
-  return {
-    ticksOfYear: ticksOfYear,
-    ticksOfMonth: ticksOfMonth,
-    ticksOfDay: ticksOfDay,
-    year: year,
-    month: month,
-    day: day,
-    timeOfDay: timeOfDay,
-  }
+function resetOrganizationMonthly(organizationId) {
+  game.flags.organizationMonthly[organizationId] = OrganizationMonthly()
 }
 
 const kTimeOfDay = {
@@ -184,7 +179,9 @@ function loadGameFromJsonData({
   // isEditorMode,
 }) -> List {
   game = Object.fromJSON(gameData)
-  game.isNewGame ??= true
+  // game.isNewGame ??= true
+
+  setRandomSeed(game.seed)
 
   universe = Object.create(universeData)
   history = Object.create(historyData)
@@ -197,7 +194,9 @@ function loadGameFromJsonData({
   if (game.heroId != null) {
     assert(game.characters.containsKey(game.heroId))
     hero = game.characters[game.heroId]
-    engine.debug('当前英雄: [${hero.name}]')
+    engine.debug('设置当前玩家人物为 [${hero.name}]。')
+  } else {
+    hero = null
   }
 }
 
@@ -232,14 +231,11 @@ function removeMapComponentById(id) {
 
 function setHero(id: string) {
   assert(game.characters.containsKey(id))
+
+  game.heroId = id
   hero = game.characters[id]
   game.flags.playerMonthly = PlayerMonthly()
-
-  Player.calculateStats()
-  engine.debug('设置当前玩家人物为 [${hero.id}]。')
-  game.heroId = id
-
-  hero = game.characters[id]
+  engine.debug('设置当前玩家人物为 [${hero.name}]。')
 
   if (game.enableTutorial) {
     /// 用于新手教程的系统角色
@@ -261,7 +257,7 @@ function setHero(id: string) {
   hero.battleDecks = []
   hero.battleDeckIndex = -1
 
-  Game.updateHero()
+  Game.updateUI()
 }
 
 function randomizeHeroWorldPosition() {
@@ -332,12 +328,8 @@ function getTerrainByWorldPosition(left, top, {worldId}) {
   return world.terrains[tilePos2Index(left, top, world.width)]
 }
 
-function getWorldIds {
-  return universe.keys
-}
-
 function setCurrentWorld(id) {
-  assert(universe.containsKey(id), id)
+  assert(universe.containsKey(id), '无法切换到不存在的世界: [${id}], 当前世界列表: [${universe.keys}]')
   world = universe[id]
   game.currentWorldId = id
   engine.debug('设置当前世界为: [${id}]')
@@ -411,25 +403,18 @@ namespace Game {
 
   external function datetime()
   
-  external function updateHero()
+  external function updateUI()
 
   external function updateLocation(location)
 
-  external function pushScene(sceneId, {category, arguments})
+  external function updateActiveJournals(journals)
 
-  external function switchScene(sceneId, {arguments, restart = false})
-
-  external function popScene({clearCache: bool = false})
-
-  external function popSceneTill(sceneId, {clearCache: bool = false})
-
-  external function pushWorld(worldId, {clearCache: bool = false})
+  external function switchWorld(worldId, {clearCache: bool = false})
   
   external function updateGame({
     tick = 1,
-    timeflow = true,
-    udpateWorldMap = true,
-    forceUpdate = false,
+    updateUI = true,
+    updateWorldMap = true,
   })
 
   external function updateHistory()

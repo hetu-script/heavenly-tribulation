@@ -2,6 +2,7 @@ external abstract class Constants {
   static get worldSizeByScale;
   static get rankToRarity;
   static get races;
+  static get npcIds;
   static get worldViews;
   static get personalities;
   static get attributes;

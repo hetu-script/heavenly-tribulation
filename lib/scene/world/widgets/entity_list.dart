@@ -646,7 +646,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 );
                               case CharacterPopUpMenuItems.checkCultivation:
                                 engine.pushScene(Scenes.cultivation,
-                                    arguments: {'character': character});
+                                    arguments: {
+                                      'characterId': character['id']
+                                    });
                               case CharacterPopUpMenuItems.setRankLevel:
                                 final int rank = character['rank'];
                                 final int level = character['level'];

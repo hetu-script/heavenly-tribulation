@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../game/game.dart';
 import '../engine.dart';
 
-class GameState with ChangeNotifier {
+class HeroState with ChangeNotifier {
   dynamic get hero => GameData.hero;
 
   void update() {

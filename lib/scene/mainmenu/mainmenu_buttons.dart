@@ -146,10 +146,12 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         onPressed: () async {
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(
+                              except: Scenes.mainmenu, triggerOnStart: false);
                           engine.hetu.invoke('resetDungeon', namedArgs: {
                             'rank': GameData.hero['rank'],
                           });
@@ -159,6 +161,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             arguments: {
                               'id': 'dungeon_1',
                               'method': 'load',
+                            },
+                            onAfterLoaded: () {
+                              engine.setLoading(false);
                             },
                           );
                         },
@@ -181,11 +186,12 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (args == null) return;
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(
+                              except: Scenes.mainmenu, triggerOnStart: false);
                           await GameData.createGame(
                             args['saveName'],
                             seed: args['seed'],
@@ -196,6 +202,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             args['id'],
                             constructorId: Scenes.worldmap,
                             arguments: args,
+                            onAfterLoaded: () {
+                              engine.setLoading(false);
+                            },
                           );
                         },
                         child: Label(
@@ -213,11 +222,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         //   context
                         //       .read<HeroInfoVisibilityState>()
                         //       .setVisible(false);
-                        // // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                        //  // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                         // await Future.delayed(
                         //     const Duration(milliseconds: 250));
                         //   setMenuState(MenuStates.main);
-                        //   engine.clearAllCachedScene(except: Scenes.mainmenu);
+                        //   engine.clearAllCachedScene(except: Scenes.mainmenu, triggerOnStart: false);
 
                         //   await GameData.loadPreset('story');
                         //   engine.pushScene(
@@ -248,21 +257,62 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (info == null) return;
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
-                          await GameData.loadGame(info.savePath);
-                          engine.pushScene(
-                            info.currentWorldId,
-                            constructorId: Scenes.worldmap,
-                            arguments: {
-                              'id': info.currentWorldId,
-                              'savePath': info.savePath,
-                              'method': 'load',
-                            },
-                          );
+                          engine.clearAllCachedScene(
+                              except: Scenes.mainmenu, triggerOnStart: false);
+                          final sceneIds =
+                              await GameData.loadGame(info.savePath);
+                          if (sceneIds.isNotEmpty) {
+                            for (var i = 0; i < sceneIds.length; ++i) {
+                              final sceneId = sceneIds[i];
+                              final constructorId =
+                                  engine.cachedConstructorIds[sceneId];
+                              final arguments = engine.cachedArguments[sceneId];
+                              if (constructorId == Scenes.worldmap) {
+                                await engine.pushScene(
+                                  info.currentWorldId,
+                                  constructorId: Scenes.worldmap,
+                                  arguments: {
+                                    'id': info.currentWorldId,
+                                    'savePath': info.savePath,
+                                    'method': 'load',
+                                  },
+                                  onAfterLoaded: i == sceneIds.length - 1
+                                      ? () {
+                                          engine.setLoading(false);
+                                        }
+                                      : null,
+                                );
+                              } else {
+                                await engine.pushScene(
+                                  sceneId,
+                                  constructorId: constructorId,
+                                  arguments: arguments,
+                                  onAfterLoaded: i == sceneIds.length - 1
+                                      ? () {
+                                          engine.setLoading(false);
+                                        }
+                                      : null,
+                                );
+                              }
+                            }
+                          } else {
+                            await engine.pushScene(
+                              info.currentWorldId,
+                              constructorId: Scenes.worldmap,
+                              arguments: {
+                                'id': info.currentWorldId,
+                                'savePath': info.savePath,
+                                'method': 'load',
+                              },
+                              onAfterLoaded: () {
+                                engine.setLoading(false);
+                              },
+                            );
+                          }
                         },
                         child: Label(
                           engine.locale('load'),
@@ -301,11 +351,12 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (args == null) return;
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则会让界面卡住而不会显示载入界面
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(
+                              except: Scenes.mainmenu, triggerOnStart: false);
                           await GameData.createGame(
                             args['saveName'],
                             seed: args['seed'],
@@ -317,6 +368,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             args['id'],
                             constructorId: Scenes.worldmap,
                             arguments: args,
+                            onAfterLoaded: () {
+                              engine.setLoading(false);
+                            },
                           );
                         },
                         child: Label(
@@ -337,10 +391,12 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (info == null) return;
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(
+                              except: Scenes.mainmenu, triggerOnStart: false);
                           await GameData.loadGame(
                             info.savePath,
                             isEditorMode: true,
@@ -353,6 +409,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                               'method': 'load',
                               'savePath': info.savePath,
                               'isEditorMode': true,
+                            },
+                            onAfterLoaded: () {
+                              engine.setLoading(false);
                             },
                           );
                         },
@@ -450,10 +509,10 @@ class _DebugButtonState extends State<DebugButton> {
                     engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
-                      restart: true,
+                      triggerOnStart: true,
                     );
                   case DebugMenuItems.debugItem:
-                    engine.hetu.invoke('testItem', namespace: 'debug');
+                    engine.hetu.invoke('testItem', namespace: 'Debug');
                   case DebugMenuItems.debugMerchant:
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {

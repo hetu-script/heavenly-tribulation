@@ -173,7 +173,7 @@ void _onInteractExpArray(
   if (!isRented) return;
 
   engine.pushScene(Scenes.cultivation, arguments: {
-    'location': location,
+    'locationId': location['id'],
     'enableCultivate': true,
   });
 }
@@ -188,7 +188,7 @@ void _onInteractCardLibraryDesk({
   if (!isRented) return;
 
   engine.pushScene(Scenes.library, arguments: {
-    'location': location,
+    'locationId': location['id'],
     'enableCardCraft': true,
     'enableScrollCraft': true,
   });
@@ -259,11 +259,11 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
         engine.hetu.invoke('progressJournalById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);
       } else {
-        final playerMonthly = GameData.flags['playerMonthly'];
-        if (playerMonthly['attendedMeeting'] != true && GameLogic.day <= 5) {
-          GameData.flags['playerMonthly']['attendedMeeting'] = true;
-          _monthlyMeeting(superior, location, organization);
-        }
+        // final playerMonthly = GameData.flags['playerMonthly'];
+        // if (playerMonthly['hasAttendedMeeting'] != true && GameLogic.day <= 5) {
+        //   playerMonthly['hasAttendedMeeting'] = true;
+        // }
+        _monthlyMeeting(superior, location, organization);
       }
     }
   }

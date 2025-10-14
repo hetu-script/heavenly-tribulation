@@ -1151,22 +1151,27 @@ abstract class GameLogic {
   /// 这会影响一些连续进行的动作，例如探索或者修炼等等
   static void updateGame({
     int tick = 1,
-    bool timeflow = true,
-    bool udpateWorldMap = true,
-    bool forceUpdate = false,
+    bool updateUI = true,
+    bool updateWorldMap = true,
   }) async {
-    final int tik = DateTime.now().millisecondsSinceEpoch;
-
-    if (timeflow) {
-      engine.log('game update begin: ${GameLogic.getDatetimeString()}');
-    }
-
     for (var i = 0; i < tick; ++i) {
-      engine.hetu.invoke('handleBabies');
+      final int tik = DateTime.now().millisecondsSinceEpoch;
+      if (updateUI) {
+        engine.log('game update begin: ${GameLogic.getDatetimeString()}');
+      }
 
-      if (forceUpdate || (day == 1 && time == 1)) {
+      if (day == 1 && time == 1) {
         // 重置玩家自己的每月行动
         engine.hetu.invoke('resetPlayerMonthly');
+      }
+
+      // 触发每个角色的刷新事件
+      for (final character in GameData.data['characters'].values) {
+        if (character == GameData.hero) continue;
+        // 月度事件
+        if (time == 1 && day == character['updateDay']) {
+          updateCharacterMonthly(character);
+        }
       }
 
       // 每个建筑每月会根据其属性而消耗维持费用和获得收入
@@ -1174,45 +1179,18 @@ abstract class GameLogic {
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
       for (final location in GameData.data['locations'].values) {
-        // 月度事件
-        if (forceUpdate || (day == 1 && time == 1)) {
+        if (location['ownerId'] == GameData.hero['id']) continue;
+        // 月度事件，据点每月2日更新
+        if (time == 1 && day == location['updateDay']) {
           updateLocationMonthly(location);
-          // 年度事件
-          if (month == kLocationYearlyUpdateMonth) {
-            updateLocationYearlyStart(location);
-          } else if (month == kLocationYearlyUpdateMonth + 1) {
-            updateLocationYearlyEnd(location);
-          }
         }
       }
 
       // 触发每个组织的刷新事件
       for (final organization in GameData.data['organizations'].values) {
-        // 月度事件
-        if (forceUpdate || (day == 1 && time == 1)) {
+        // 组织每月 5 日刷新
+        if (time == 1 && day == 5) {
           updateOrganizationMonthly(organization);
-
-          // 年度事件
-          if (month == kOrganizationYearlyUpdateMonth) {
-            updateOrganizationYearlyStart(organization);
-          } else if (month == kOrganizationYearlyUpdateMonth + 1) {
-            updateOrganizationYearlyEnd(organization);
-          }
-        }
-      }
-
-      // 触发每个角色的刷新事件
-      for (final character in GameData.data['characters'].values) {
-        // 月度事件
-        if (forceUpdate || (day == 1 && time == 1)) {
-          updateCharacterMonthly(character);
-
-          // 年度事件
-          if (month == kCharacterYearlyUpdateMonth) {
-            updateCharacterYearlyStart(character);
-          } else if (month == kCharacterYearlyUpdateMonth + 1) {
-            updateCharacterYearlyEnd(character);
-          }
         }
       }
 
@@ -1224,8 +1202,8 @@ abstract class GameLogic {
       //   }
       // }
 
-      if (timeflow) {
-        GameData.data['timestamp'] += 1;
+      GameData.data['timestamp'] += 1;
+      if (updateUI) {
         engine.context.read<GameTimestampState>().update();
       }
 
@@ -1239,20 +1217,14 @@ abstract class GameLogic {
               positionalArgs: ['onUpdateItem', itemData]);
         }
       }
+
+      engine.hetu.invoke('handleBabies');
+
+      if (updateUI) {
+        engine.log(
+            'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
+      }
     }
-
-    engine.log(
-        'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
-  }
-
-  /// 据点年度更新开始
-  static void updateLocationYearlyStart(dynamic location) {
-    // engine.debug('${location['id']} 的年度更新开始');
-  }
-
-  /// 据点年度更新结束
-  static void updateLocationYearlyEnd(dynamic location) {
-    // engine.debug('${location['id']} 的年度更新结束');
   }
 
   /// 据点月度更新
@@ -1290,22 +1262,6 @@ abstract class GameLogic {
     }
   }
 
-  /// 组织年度更新开始
-  static void updateOrganizationYearlyStart(dynamic organization) {
-    // engine.debug('${organization['id']} 的年度更新开始');
-
-    // organization['isRecruiting'] = true;
-    // engine.debug('${organization['id']} 的招募活动本月开始。');
-  }
-
-  /// 组织年度更新结束
-  static void updateOrganizationYearlyEnd(dynamic organization) {
-    // engine.debug('${organization['id']} 的年度更新结束');
-
-    // organization['isRecruiting'] = false;
-    // engine.debug('${organization['id']} 的招募活动已经结束。');
-  }
-
   /// 组织月度更新
   static void updateOrganizationMonthly(dynamic organization) {
     // engine.debug('${organization['id']} 的月度更新');
@@ -1334,13 +1290,13 @@ abstract class GameLogic {
     final int tribulationCountMax =
         GameData.hero['stats']['tribulationCountMax'];
 
-    if (tribulationCount > tribulationCountMax) {
+    if (tribulationCountMax > 0 && tribulationCount > tribulationCountMax) {
       // TODO: 展示战败CG
-      engine.context.read<SelectedPositionState>().clear();
-      engine.context.read<HeroPositionState>().clear();
       engine.clearAllCachedScene(
-          except: Scenes.mainmenu,
-          arguments: {'reset': GameData.data['saveName'] != 'debug'});
+        except: Scenes.mainmenu,
+        arguments: {'reset': GameData.data['saveName'] != 'debug'},
+        triggerOnStart: true,
+      );
       return;
     }
 
@@ -1357,7 +1313,7 @@ abstract class GameLogic {
     final homeLocationId = GameData.hero['homeLocationId'];
     final homeLocation = GameData.getLocation(homeLocationId);
     final homeSiteId = GameData.hero['homeSiteId'];
-    final homeSite = GameData.getLocation(homeSiteId);
+    // final homeSite = GameData.getLocation(homeSiteId);
 
     final worldPosition = homeLocation['worldPosition'];
     engine.hetu.invoke('setTo', namespace: 'Player', positionalArgs: [
@@ -1368,13 +1324,13 @@ abstract class GameLogic {
     engine.pushScene(
       homeLocationId,
       constructorId: Scenes.location,
-      arguments: {'location': homeLocation},
+      arguments: {'locationId': homeLocationId},
     );
     engine.pushScene(
       homeSiteId,
       constructorId: Scenes.location,
       arguments: {
-        'location': homeSite,
+        'locationId': homeSiteId,
         'onEnterScene': () async {
           dialog.pushDialog(
             'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
@@ -1404,7 +1360,7 @@ abstract class GameLogic {
     engine.pushScene(
       location['id'],
       constructorId: Scenes.location,
-      arguments: {'location': location},
+      arguments: {'locationId': location['id']},
     );
   }
 

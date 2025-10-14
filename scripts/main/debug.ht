@@ -10,7 +10,7 @@ const _kCraftMaterials = [
   'craftmaterial_upgradeRank5',
 ]
 
-namespace debug {
+namespace Debug {
 
   external function reloadGameData()
 

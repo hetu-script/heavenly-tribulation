@@ -39,7 +39,7 @@ class MainMenuScene extends Scene {
       // GameData.isGameCreated = false;
       await engine.hetu.invoke(
         'generateHero',
-        namespace: 'debug',
+        namespace: 'Debug',
         namedArgs: {
           // 'level': 10,
           // 'rank': 1,
@@ -49,13 +49,9 @@ class MainMenuScene extends Scene {
       engine.hetu.invoke('rejuvenate', namespace: 'Player');
     }
     context.read<HeroInfoVisibilityState>().setVisible(true);
-    context.read<GameTimestampState>().update();
     context.read<HeroAndGlobalHistoryState>().update();
-    context.read<NpcListState>().update();
-
-    context.read<HeroPositionState>().updateTerrain();
-    context.read<HeroPositionState>().updateLocation();
-    context.read<HeroPositionState>().updateDungeon();
+    context.read<HeroJournalUpdate>().update();
+    context.read<HeroPositionState>().clear();
   }
 
   @override
