@@ -1,0 +1,52 @@
+
+const _kAttributesBaseValue = 50
+
+/// 容貌等数值计算时的最大值: 100.0
+const kAttributeValueMax = 100.0
+const kAttributeValueAverage = 50.0
+const kAttributeValueDeviation = 25.0
+
+final random = Random()
+
+const kNonBattleAttributes = [
+  'charisma',
+  'wisdom',
+  'luck',
+];
+
+/// 战斗属性决定了角色战斗流派
+const kBattleAttributes = [
+  'spirituality',
+  'dexterity',
+  'strength',
+  'willpower',
+  'perception',
+];
+
+function generateAttributes(entity, {baseValue, mainAttribute}) {
+  baseValue ??= _kAttributesBaseValue
+  let attributes = {}
+  for (final id in kNonBattleAttributes) {
+    attributes[id] = Math.gaussianNoise(
+      kAttributeValueAverage,
+      kAttributeValueDeviation,
+      min: 1,
+      max: kAttributeValueMax,
+      randomGenerator: random,
+    ).toInt()
+  }
+  for (final id in kBattleAttributes) {
+    if (id == mainAttribute) {
+      attributes[id] = random.nearInt(baseValue)
+    } else {
+      attributes[id] = random.nextInt(baseValue)
+    }
+  }
+  Object.assign(entity, attributes)
+}
+
+for (var i in range(10)) {
+  let obj = {}
+  generateAttributes(obj, baseValue: 50, mainAttribute: 'strength')
+  console.log(obj)
+}

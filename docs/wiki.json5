@@ -53,12 +53,6 @@
                 children: [],
               },
               {
-                id: "skin",
-                title: "wiki_skin_title",
-                path: "docs/docs/how2play/rpg/character/skin/readme.md",
-                children: [],
-              },
-              {
                 id: "personality",
                 title: "wiki_personality_title",
                 path: "docs/docs/how2play/rpg/character/personality/readme.md",

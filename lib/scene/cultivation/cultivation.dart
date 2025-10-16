@@ -86,7 +86,7 @@ class CultivationScene extends Scene {
 
   late CultivationMode mode;
 
-  int collectableExp = 0;
+  int collectableLight = 0;
 
   final _focusNode = FocusNode();
 
@@ -94,36 +94,37 @@ class CultivationScene extends Scene {
 
   bool isMeditating = false;
 
-  void setMeditateState(bool state) {
-    if (state) {
-      assert(mode != CultivationMode.none);
-
-      if (mode == CultivationMode.collect) {
-        final int light = location['collectableLight'] ?? 0;
-        if (light <= 0) {
-          GameDialogContent.show(
-              context, engine.locale('hint_insufficientLight'));
-          return;
-        }
-      } else if (mode == CultivationMode.exhaust) {
-        final int shard = GameData.hero['materials']['shard'] ?? 0;
-        if (shard <= 0) {
-          GameDialogContent.show(
-              context, engine.locale('hint_insufficientShard'));
-          return;
-        }
+  void setMeditateState(CultivationMode state) {
+    bool isMeditating = false;
+    if (state == CultivationMode.collect) {
+      collectableLight = location['collectableLight'] ?? 0;
+      if (collectableLight <= 0) {
+        // engine.error('location has no collectable light to collect');
+        GameDialogContent.show(
+            context, engine.locale('hint_insufficientLight'));
+        return;
       }
+      isMeditating = true;
+    } else if (state == CultivationMode.exhaust) {
+      collectableLight = GameData.hero['materials']['shard'] ?? 0;
+      if (collectableLight <= 0) {
+        // engine.error('hero has no shard to exhaust');
+        GameDialogContent.show(
+            context, engine.locale('hint_insufficientShard'));
+        return;
+      }
+      isMeditating = true;
+    } else if (state == CultivationMode.none) {
+      isMeditating = false;
     }
 
-    isMeditating = state;
-
-    levelUpButton.isEnabled = !state;
+    levelUpButton.isEnabled = !isMeditating;
 
     cultivateButton.text =
         isMeditating ? engine.locale('stop') : engine.locale('meditate');
 
     cultivator.tryLoadSprite(
-        spriteId: 'cultivation/cultivator${state ? '' : '2'}.png');
+        spriteId: 'cultivation/cultivator${isMeditating ? '' : '2'}.png');
 
     for (final trail in _lightTrails) {
       trail.isVisible = isMeditating;
@@ -203,25 +204,20 @@ class CultivationScene extends Scene {
   }
 
   void updateInformation() {
-    String collectableExpString = '';
-    final int expCollectEfficiency =
-        GameData.hero['stats']['expCollectEfficiency'];
+    String collectableLightString = '';
+    final int expGainPerLight = GameData.hero['stats']['expGainPerLight'];
     if (mode == CultivationMode.collect) {
-      assert(location != null);
-      final int collectableLight = location['collectableLight'] ?? 0;
-      collectableExp = collectableLight * expCollectEfficiency;
-      collectableExpString =
+      collectableLightString =
           '${engine.locale('collectableLight')}: <bold ${collectableLight > 0 ? 'yellow' : 'grey'}>$collectableLight</>';
     } else if (mode == CultivationMode.exhaust) {
       int shard = GameData.hero['materials']['shard'] ?? 0;
-      assert(expCollectEfficiency > 0);
-      collectableExp = shard * expCollectEfficiency;
-      collectableExpString =
+      assert(expGainPerLight > 0);
+      collectableLightString =
           '${engine.locale('availableShard')}: <bold ${shard > 0 ? 'yellow' : 'grey'}>$shard</>';
     }
 
     String expCollectEfficiencyString =
-        '${engine.locale('expCollectEfficiency')}: $expCollectEfficiency';
+        '${engine.locale('expGainPerLight')}: $expGainPerLight';
 
     // final int expMax = GameData.heroData['expMax'];
 
@@ -235,7 +231,7 @@ class CultivationScene extends Scene {
         '<bold rank$rank>${engine.locale('cultivationRank_$rank')}</>';
 
     levelDescription.text =
-        '$collectableExpString $expCollectEfficiencyString\n'
+        '$collectableLightString $expCollectEfficiencyString\n'
         '${engine.locale('cultivationLevel')}: ${character['level']} '
         '${engine.locale('cultivationRank')}: $rankString '
         '${engine.locale('skillPoints')}: $pointsString';
@@ -286,7 +282,7 @@ class CultivationScene extends Scene {
     return (isLearned, isOpen);
   }
 
-  void _addExpLightPoint(int exp) {
+  void _addExpLightPoint([int? value]) {
     Vector2 randomPosition;
     do {
       randomPosition =
@@ -296,14 +292,14 @@ class CultivationScene extends Scene {
       position: randomPosition,
       flickerRate: 8,
       condensedPosition: GameUI.condensedPosition,
-      value: exp,
+      value: value,
       priority: _kLightPriority,
     );
     _lightPoints.add(lightPoint);
     world.add(lightPoint);
   }
 
-  /// 出于性能考虑，光点数量上限 200 个
+  /// 出于性能考虑，光点数量上限 100 个
   void updateExpLightPoints({bool clearCache = false}) {
     if (clearCache) {
       for (final light in _lightPoints) {
@@ -314,35 +310,40 @@ class CultivationScene extends Scene {
 
     if (mode == CultivationMode.none) return;
 
-    if (collectableExp <= 0) return;
+    if (collectableLight <= 0) return;
 
-    final int expPerLightPoint = GameData.hero['stats']['expCollectEfficiency'];
-    assert(expPerLightPoint > 0);
+    int lightPointCount = math.min(collectableLight, _kLightDisplayMax);
+    while (_lightPoints.length < lightPointCount) {
+      _addExpLightPoint();
+    }
+
+    // final int expPerLightPoint = GameData.hero['stats']['expGainPerLight'];
+    // assert(expPerLightPoint > 0);
 
     // final int expForLevel = characterData['expForLevel'];
 
-    int expOnExistedLights = 0;
-    for (final light in _lightPoints) {
-      expOnExistedLights += light.value as int;
-    }
+    // int expOnExistedLights = 0;
+    // for (final light in _lightPoints) {
+    //   expOnExistedLights += light.value as int;
+    // }
 
-    int expToDisplay = collectableExp - expOnExistedLights;
+    // int expToDisplay = collectableExp - expOnExistedLights;
 
-    if (expToDisplay <= 0) return;
+    // if (expToDisplay <= 0) return;
 
-    int lightPointCount = collectableExp ~/ expPerLightPoint;
+    // int lightPointCount = collectableExp ~/ expPerLightPoint;
     // int expPerLightPoint = math.max(expForLevel ~/ 20, _kExpPerLightPoint);
-    if (lightPointCount > _kLightDisplayMax) {
-      // 最多只显示 100 个光点
-      lightPointCount = _kLightDisplayMax;
-      // kExpPerLightPoint = collectableExp ~/ lightPointCount;
-    }
-    while (_lightPoints.length < lightPointCount &&
-        expToDisplay >= expPerLightPoint) {
-      expToDisplay -= expPerLightPoint;
+    // if (lightPointCount > _kLightDisplayMax) {
+    //   // 最多只显示 100 个光点
+    //   lightPointCount = _kLightDisplayMax;
+    //   // kExpPerLightPoint = collectableExp ~/ lightPointCount;
+    // }
+    // while (_lightPoints.length < lightPointCount &&
+    //     expToDisplay >= expPerLightPoint) {
+    //   expToDisplay -= expPerLightPoint;
 
-      _addExpLightPoint(expPerLightPoint);
-    }
+    //   _addExpLightPoint(expPerLightPoint);
+    // }
   }
 
   void _addSkillButton({required String nodeId, required Vector2 position}) {
@@ -510,9 +511,10 @@ class CultivationScene extends Scene {
           assert(attributeId is String);
           final attributeSkillData = GameData.passives[attributeId];
           assert(attributeSkillData != null);
-          String attributeDescription = engine.locale(
-              attributeSkillData['description'],
-              interpolations: ['+${(kAttributeAnyLevel * 0.5).toInt()}']);
+          String attributeDescription = engine
+              .locale(attributeSkillData['description'], interpolations: [
+            '+${(kPassiveTreeAttributeAnyLevel * 0.5).toInt()}'
+          ]);
           skillDescription.writeln('<lightBlue>$attributeDescription</>');
         } else {
           skillDescription.writeln(passiveTreeNodeData['description']);
@@ -584,22 +586,26 @@ class CultivationScene extends Scene {
   }
 
   void _updateTimeOfDay() {
-    timeOfDaySprite.tryLoadSprite(spriteId: 'time/${GameLogic.timeOfDay}.png');
+    timeOfDaySprite.tryLoadSprite(spriteId: 'time/${GameLogic.timeString}.png');
   }
 
   void _tick() async {
+    double speedExpCollect = GameData.hero['stats']['speedExpCollect'];
+    int timeCost = kTicksPerTime ~/ speedExpCollect;
+
     void gainExp() async {
       assert(_lightPoints.isNotEmpty);
       final light = _lightPoints.first;
       await condenseOne(light);
       light.removeFromParent();
-      character['exp'] += light.value;
+      final expGainPerLight = GameData.hero['stats']['expGainPerLight'];
+      character['exp'] += expGainPerLight;
       updateInformation();
       updateExpBar();
       updateExpLightPoints();
     }
 
-    bool breakOut = false;
+    bool stop = false;
 
     if (mode == CultivationMode.collect) {
       if (location['collectableLight'] > 0) {
@@ -607,7 +613,7 @@ class CultivationScene extends Scene {
         gainExp();
       } else {
         hint(engine.locale('hint_outOfLight'), color: Colors.red);
-        breakOut = true;
+        stop = true;
       }
     } else if (mode == CultivationMode.exhaust) {
       final bool success = engine.hetu.invoke(
@@ -620,14 +626,17 @@ class CultivationScene extends Scene {
         gainExp();
       } else {
         hint(engine.locale('hint_outOfShard'), color: Colors.red);
-        breakOut = true;
+        stop = true;
       }
     }
 
-    if (breakOut) {
-      setMeditateState(false);
+    if (stop) {
+      setMeditateState(CultivationMode.none);
+      if (mode == CultivationMode.collect) {
+        mode = CultivationMode.exhaust;
+      }
     } else {
-      GameLogic.updateGame();
+      GameLogic.updateGame(ticks: timeCost);
       _updateTimeOfDay();
     }
   }
@@ -644,7 +653,7 @@ class CultivationScene extends Scene {
     });
 
     timer = Timer(
-      kAutoTimeFlowInterval / 1000,
+      kTimeFlowInterval / 1000,
       repeat: true,
       onTick: _tick,
     );
@@ -753,7 +762,7 @@ class CultivationScene extends Scene {
       if (!cultivateButton.isEnabled) return;
       if (button != kPrimaryButton) return;
       setPassiveTreeState(false);
-      setMeditateState(!isMeditating);
+      setMeditateState(isMeditating ? CultivationMode.none : mode);
     };
     cultivateButton.onMouseEnter = () {
       String hint = engine.locale('hint_cultivate');
@@ -795,7 +804,7 @@ class CultivationScene extends Scene {
       position: GameUI.siteExitCardPositon,
     );
     exit.onTap = (_, __) {
-      setMeditateState(false);
+      setMeditateState(CultivationMode.none);
       engine.popScene();
     };
     camera.viewport.add(exit);
@@ -970,10 +979,10 @@ class CultivationScene extends Scene {
 
     updateUnlockedNode();
     updatePassivesDescription();
+    setMeditateState(CultivationMode.none);
+    updateExpLightPoints(clearCache: true);
     updateInformation();
     updateExpBar();
-    updateExpLightPoints(clearCache: true);
-    setMeditateState(false);
 
     if (mode != CultivationMode.none) {
       setPassiveTreeState(false);
@@ -1003,30 +1012,44 @@ class CultivationScene extends Scene {
 
   /// 处理角色升级相关逻辑
   void tryLevelUp() {
+    int level = character['level'];
+    int rank = character['rank'];
+    int maxLevel = GameLogic.maxLevelForRank(rank);
     int expForLevel = character['expForLevel'];
     int exp = character['exp'];
 
-    if (exp >= expForLevel) {
-      // 无论渡劫是否成功，经验值都会被扣除
+    if (exp < expForLevel) return;
+
+    bool? tribulationCheckResult = GameLogic.checkTribulation();
+
+    void levelUp() {
       exp -= expForLevel;
+      engine.hetu.invoke('levelUp', namespace: 'Player');
 
-      bool tribulationCheckResult = GameLogic.checkTribulation();
+      hint(
+        '${engine.locale('cultivationLevel')} + 1',
+        positionOffsetY: 60,
+        color: Colors.yellow,
+      );
+    }
 
-      if (!tribulationCheckResult) {
-        engine.hetu.invoke('levelUp', namespace: 'Player');
-
-        hint(
-          '${engine.locale('cultivationLevel')} + 1',
-          positionOffsetY: 60,
-          color: Colors.yellow,
-        );
+    if (tribulationCheckResult == null) {
+      if (level < maxLevel) {
+        levelUp();
+      } else {
+        GameDialogContent.show(
+            engine.context, engine.locale('hint_tribulation_5'));
+      }
+    } else {
+      if (tribulationCheckResult) {
+        levelUp();
       } else {
         character['exp'] = exp;
       }
-
-      updateInformation();
-      updateExpBar();
     }
+
+    updateInformation();
+    updateExpBar();
   }
 
   Future<void> condenseOne(LightPoint light) async {

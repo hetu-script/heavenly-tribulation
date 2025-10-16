@@ -14,20 +14,39 @@ let self
 let opponent
 let battleFlags
 
+struct CharacterMonthly {
+  constructor {
+    this.updated = false
+  }
+}
+
+struct LocationMonthly {
+  constructor {
+    this.updated = false
+  }
+}
+
 struct OrganizationMonthly {
   constructor {
     // 本月新加入的成员
     this.recruited = []
-    // 本月境界突破的成员
-    this.breakthrough = []
     // 本月获得职位的成员
     this.promoted = []
+    // 本月境界突破的成员
+    this.breakthrough = []
   }
+}
+
+function addOrganizationMonthly(organizationId, activity, targetId) {
+  game.flags.organizationMonthly[organizationId] ??= {}
+  game.flags.organizationMonthly[organizationId][activity] ??= []
+  game.flags.organizationMonthly[organizationId][activity].add(targetId)
 }
 
 /// 玩家每个月的互动操作记录，月初会重置
 struct PlayerMonthly {
   constructor {
+    this.updated = false
     // 战斗相关
     // 本月鉴定敌人卡牌数量
     this.identifiedEnemyCards = 0
@@ -66,6 +85,11 @@ struct PlayerMonthly {
   }
 }
 
+function addPlayerMonthly(activity, targetId) {
+  assert(game.flags.playerMonthly[activity] is List)
+  game.flags.playerMonthly[activity].add(targetId)
+}
+
 struct GameData {
   constructor ({
     saveName,
@@ -92,10 +116,12 @@ struct GameData {
       // 门派行动的事件标记，加入新门派会重置
       organizations: {},
       // 玩家每个月是否进行了某个动作
-      // 每个月1日重置
       playerMonthly: PlayerMonthly(),
+      // 角色每个月的事件标记
+      characterMonthly: {},
+      // 据点每个月的事件标记
+      locationMonthly: {},
       // 各个门派每个月的事件标记
-      // 每个月1日重置
       organizationMonthly: {}, 
     }
 
@@ -158,6 +184,14 @@ function createGame(saveName, {
 
 function resetPlayerMonthly() {
   game.flags.playerMonthly = PlayerMonthly()
+}
+
+function resetCharacterMonthly(characterId) {
+  game.flags.characterMonthly[characterId] = CharacterMonthly()
+}
+
+function resetLocationMonthly(locationId) {
+  game.flags.locationMonthly[locationId] = LocationMonthly()
 }
 
 function resetOrganizationMonthly(organizationId) {
@@ -412,7 +446,9 @@ namespace Game {
   external function switchWorld(worldId, {clearCache: bool = false})
   
   external function updateGame({
-    tick = 1,
+    tick = Constants.ticksPerDay,
+    force = false,
+    updateEntity = true,
     updateUI = true,
     updateWorldMap = true,
   })
@@ -434,11 +470,18 @@ namespace Game {
 
   external function updateNpcs(npcs)
 
+  external function updateNpcsAtLocation(location)
+
   external function hideNpc(id)
 
   external function promptItems(items: Iterable)
 
-  external function promptJournal(journal, [selections])
+  external async function promptJournal(
+    journal, {
+    selectionsRaw,
+    selections,
+    interpolations,
+  }) -> string
 
   external function promptNewRank(rank)
 

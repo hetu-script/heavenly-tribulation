@@ -237,6 +237,8 @@ class CardLibraryScene extends Scene {
 
     Iterable? cardpacksToOpen = arguments?['cardpacks'];
     if (cardpacksToOpen != null) {
+      arguments.remove('cardpacks');
+      engine.setSceneArguments(id, arguments);
       showCardpackSelect(selectedItems: cardpacksToOpen);
     }
   }
@@ -703,11 +705,11 @@ class CardLibraryScene extends Scene {
         GameLogic.getCardCraftMaterial('craftScroll', _craftingCard!.data);
     final int expCost = expCostData['exp'] ?? 0;
 
-    final paper =
-        engine.hetu.invoke('firstItemKindInInventory', positionalArgs: [
-      GameData.hero,
-      'scroll_paper_rank${_craftingCard!.data['rank']}',
-    ]);
+    final paper = engine.hetu.invoke(
+      'firstItemKindInInventory',
+      positionalArgs: [GameData.hero, 'scroll_paper_rank'],
+      namedArgs: {'rank': _craftingCard!.data['rank']},
+    );
 
     if (GameData.hero['exp'] < expCost) {
       GameDialogContent.show(context, engine.locale('hint_notEnoughExp'));

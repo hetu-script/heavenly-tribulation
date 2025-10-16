@@ -122,8 +122,10 @@ async function onAfterEnterLocation(location) {
               await dialog.execute();
             }
             
-            final items = Player.loot(journal.quest.reward)
+            final items = await Player.loot(journal.quest.reward)
             Game.promptItems(items)
+
+            Game.updateNpcsAtLocation(location)
           }
         }
         case 'guard_site': {

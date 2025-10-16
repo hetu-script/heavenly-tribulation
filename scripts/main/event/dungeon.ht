@@ -1,5 +1,3 @@
-// import '../entity/item/item.ht'
-// import '../world/dungeon.ht'
 
 const _kBasicRooms = {
   '0': 'chest',
@@ -109,7 +107,7 @@ const _kEncounterKinds = [
 ]
 
 function _addEncampment() {
-  final collectableLight = (expForLevel(hero.level) ~/ 4) ~/ hero.stats.expCollectEfficiency
+  final collectableLight = (expForLevel(hero.level) ~/ 4) ~/ hero.stats.expGainPerLight
   addExpArray(
     _kFunction1,
     collectableLight: collectableLight,
@@ -585,21 +583,21 @@ async function onInteractMapObject(object, terrain) {
           final selected = dialog.checkSelected('enterNextDungeonLevel')
           if (selected == 'enterNextDungeonLevel') {
             engine.debug('将进入下一层地牢，等级：${game.flags.dungeon.level}')
-            let hasStatusSpirit = false
-            for (final itemId of hero.equipments) {
-              if (itemId == null) continue
-              final item = hero.inventory[itemId]
-              assert(item != null)
-              if (item.category == kItemCategoryStatusSpirit) {
-                Player.unequip(item)
-                Player.lose(item)
-                hasStatusSpirit = true
-              }
-            }
-            if (hasStatusSpirit) {
-              dialog.pushDialog('hint_dungeonStatusReset')
-              await dialog.execute()
-            }
+            // let hasStatusSpirit = false
+            // for (final itemId of hero.equipments) {
+            //   if (itemId == null) continue
+            //   final item = hero.inventory[itemId]
+            //   assert(item != null)
+            //   if (item.category == kItemCategoryStatusSpirit) {
+            //     Player.unequip(item)
+            //     Player.lose(item)
+            //     hasStatusSpirit = true
+            //   }
+            // }
+            // if (hasStatusSpirit) {
+            //   dialog.pushDialog('hint_dungeonStatusReset')
+            //   await dialog.execute()
+            // }
             game.flags.dungeon.buildCompleted = false
             game.flags.dungeon.room = 0
             game.flags.dungeon.level += 1

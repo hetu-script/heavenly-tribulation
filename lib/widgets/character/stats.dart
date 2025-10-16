@@ -7,6 +7,7 @@ import '../../engine.dart';
 import '../../state/character.dart';
 import '../../state/hover_content.dart';
 import '../../game/logic/logic.dart';
+import '../../game/common.dart';
 
 const kStats = [
   'level',
@@ -32,13 +33,26 @@ const kStats = [
   'chiResist',
   'elementalResist',
   'psychicResist',
+  'divider',
+  'quickThreshold',
+  'slowThreshold',
+  'nimbleThreshold',
+  'clumsyThreshold',
 ];
 
 const kNonBattleStats = [
-  'divider',
+  'monthlyIdentifyCardsMax',
   'lightRadius',
-  'expCollectEfficiency',
-  'identifyCardsCountMonthly',
+  'speedOnPlain',
+  'speedOnMountain',
+  'speedOnWater',
+  'staminaCostOnMountain',
+  'staminaCostOnWater',
+  'speedExpCollect',
+  'expGainPerLight',
+  'staminaCostWork',
+  'workEfficiency',
+  'craftSkillLevel',
 ];
 
 const kNonBattleItemsLength = 4;
@@ -66,34 +80,34 @@ class CharacterStats extends StatefulWidget {
 }
 
 class _CharacterStatsState extends State<CharacterStats> {
-  Widget _buildStatsLabel(String id, dynamic data) {
+  Widget _buildStatsLabel(String id, dynamic character) {
     if (id == 'divider') return const Divider();
 
-    final int baseValue = data[id] ?? 0;
-    final int value = data['stats'][id] ?? baseValue;
+    final num baseValue = character[id] ?? 0;
+    final num value = character['stats'][id] ?? baseValue;
 
     String valueString;
     String description;
     if (id == 'tribulationCount') {
-      final int baseValueMax = data['${id}Max'];
-      final int valueMax = data['stats']?['${id}Max'];
+      final int baseValueMax = character['${id}Max'];
+      final int valueMax = character['stats']?['${id}Max'];
       final maxString = valueMax > baseValueMax
           ? '<yellow>$valueMax</>'
           : valueMax.toString();
       valueString = '$value/$maxString';
       description = engine.locale('${id}_description');
-    } else if (id == 'rank') {
-      final int rank = data['rank'];
-      valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
-      description = engine.locale('${id}_description');
-    } else if (id == 'level' || id == 'karma') {
+    } else if (id == 'level') {
       valueString = baseValue.toString();
-      final int levelMax = GameLogic.maxLevelForRank(data['rank']);
+      final int levelMax = GameLogic.maxLevelForRank(character['rank']);
       description =
           '${engine.locale('level_description')}\n${engine.locale('levelMax')}: $levelMax';
+    } else if (id == 'rank') {
+      final int rank = character['rank'];
+      valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
+      description = engine.locale('${id}_description');
     } else if (id.endsWith('Resist')) {
-      final int baseValueMax = data['${id}Max'];
-      final int valueMax = data['stats']?['${id}Max'];
+      final int baseValueMax = character['${id}Max'];
+      final int valueMax = character['stats']?['${id}Max'];
 
       final maxString = valueMax > baseValueMax
           ? '<yellow>$valueMax</>'
@@ -102,6 +116,19 @@ class _CharacterStatsState extends State<CharacterStats> {
       valueString = '$value%';
       description =
           '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
+    } else if (id.endsWith('Threshold')) {
+      valueString = value < baseValue ? '<yellow>$value</>' : value.toString();
+      description = engine.locale('${id}_description');
+    } else if (id.startsWith('speed')) {
+      final baseTimeCost = kTicksPerTime ~/ baseValue;
+      final timeCost = kTicksPerTime ~/ value;
+      valueString = timeCost < baseTimeCost
+          ? '<yellow>$timeCost</>'
+          : timeCost.toString();
+      description = engine.locale('${id}_description');
+    } else if (id == 'workEfficiency' || id == 'staminaCostWork') {
+      valueString = '${(value * 100).toStringAsFixed(0)}%';
+      description = engine.locale('${id}_description');
     } else {
       valueString = value > baseValue ? '<yellow>$value</>' : value.toString();
       description = engine.locale('${id}_description');
@@ -122,9 +149,9 @@ class _CharacterStatsState extends State<CharacterStats> {
 
   @override
   Widget build(BuildContext context) {
-    dynamic data =
+    dynamic character =
         widget.isHero ? context.watch<HeroState>().hero : widget.character;
-    assert(data != null);
+    assert(character != null);
 
     final List<Widget> items = [];
     if (widget.title != null) {
@@ -136,17 +163,17 @@ class _CharacterStatsState extends State<CharacterStats> {
       items.add(const Divider());
     }
 
-    if (data['rank'] > 0) {
-      items.add(_buildStatsLabel('tribulationCount', data));
-    }
-
     for (final id in kStats) {
-      items.add(_buildStatsLabel(id, data));
+      items.add(_buildStatsLabel(id, character));
     }
 
     if (widget.showNonBattleStats) {
+      items.add(_buildStatsLabel('divider', character));
+      if (character['rank'] > 0) {
+        items.add(_buildStatsLabel('tribulationCount', character));
+      }
       for (final id in kNonBattleStats) {
-        items.add(_buildStatsLabel(id, data));
+        items.add(_buildStatsLabel(id, character));
       }
     }
 

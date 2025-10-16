@@ -1,0 +1,878 @@
+import '../../world/tile/common.ht'
+
+const _kLocationInitialStabilityMax = 50
+const kLocationDevelopmentMax = 5
+
+const kLocationKindInlandCity = 'inland'
+const kLocationKindHarborCity = 'harbor'
+const kLocationKindIslandCity = 'island'
+const kLocationKindMountainCity = 'mountain'
+
+// 住宅列表，每个城市默认建筑
+const kLocationKindResidence = 'residence'
+
+// 主角设置宅家宅后的默认场景
+const kLocationKindHome = 'home'
+// 门派总堂，每个门派在总部的默认建筑，用来管理门派
+const kLocationKindHeadquarters = 'headquarters'
+// 据点总堂，每个城市默认建筑，用来管理据点
+const kLocationKindCityhall = 'cityhall'
+// 交易所，每个城市默认建筑，用来进行材料的交易
+const kLocationKindTradingHouse = 'tradinghouse'
+// 无为：问道碑，可以打坐获取功法
+const kLocationKindDaoStele = 'daostele'
+// 长生：聚灵阵，可以打坐获取经验值
+const kLocationKindExpArray = 'exparray'
+// 修真：藏书阁
+const kLocationKindLibrary = 'library'
+// 任侠：斗技场
+const kLocationKindArena = 'arena'
+// 权霸：指挥所
+const kLocationKindMilitaryPost = 'militarypost'
+// 财富：拍卖行
+const kLocationKindAuctionHouse = 'auctionhouse'
+// 欢愉：酒楼
+const kLocationKindHotel = 'hotel'
+ 
+// 下面这些建筑是副职业，每种流派有两个
+// 炼器工坊
+const kLocationKindWorkshop = 'workshop'
+// 灌灵池
+const kLocationKindEnchantShop = 'enchantshop'
+// 丹炉
+const kLocationKindAlchemyLab = 'alchemylab'
+// 纹身工坊
+const kLocationKindTattooShop = 'tattooshop'
+// 符法所
+const kLocationKindRunelab = 'runelab'
+// 阵法所
+const kLocationKindArrayLab = 'arraylab'
+// 幻术祭坛
+const kLocationKindIllusionAltar= 'illusionaltar'
+// 通灵居
+const kLocationKindPsychicTemple = 'psychictemple'
+// 观星台
+const kLocationKindDivinationAltar = 'divinationaltar'
+// 显圣殿
+const kLocationKindTheurgyTemple = 'theurgytemple'
+
+// 下面这些属于对应材料的产地
+// 农场
+const kLocationKindFarmland = 'farmland'
+// 农场
+const kLocationKindFishery = 'fishery'
+// 林场
+const kLocationKindTimberland = 'timberland'
+// 猎场
+const kLocationKindHuntingground = 'huntingground'
+// 矿场
+const kLocationKindMine = 'mine'
+
+// 副本入口
+const kLocationDungeonEntrance = 'dungeon'
+
+// number of plain city background count
+const _kCityPlainBackgroundCount = {
+  '0': 3,
+  '1': 3,
+  '2': 3,
+  '3': 4,
+}
+
+const _kCityMountainBackgroundCount = {
+  '0': 3,
+  '1': 3,
+  '2': 3,
+  '3': 3,
+}
+
+const _kCityShoreBackgroundCount = {
+  '0': 3,
+  '1': 3,
+  '2': 3,
+  '3': 3,
+}
+
+const kBaseStoreMoneyAmount = 25000
+const kBaseStoreMaterialAmount = 100
+const kBaseItemReplenishAmount = 3
+const kBaseCollectableLightReplenishAmount = 10
+
+const kLocationKindPriority = {
+  'headquarters': 25,
+  'cityhall': 24,
+  'tradinghouse': 23,
+  'exparray': 22,
+  'library': 21,
+  'arena': 20,
+  'militarypost': 19,
+  'auctionhouse': 18,
+  'hotel': 17,
+  'workshop': 16,
+  'alchemylab': 15,
+  'arraylab': 14,
+  'illusionaltar': 13,
+  'divinationaltar': 12,
+  'psychictemple': 11,
+  'theurgytemple': 10,
+  'dungeon': 8,
+  'farmland': 1,
+  'fishery': 2,
+  'timberland': 3,
+  'huntingground': 4,
+  'mine': 5,
+}
+
+/// 据点、场景、建筑等
+/// 某些可能在地图上直接进入，某些则是其他场景的子场景
+/// [category]: 'city', 'site'
+/// [kind]: 'inland' | 'island'；'home', 'cityhall'
+/// [isAffiliate] 表示这个建筑是某种不出现在据点场景列表中的场景，比如生产建筑的交易所 或者角色的住宅等
+struct Location {
+  constructor ({
+    id,
+    category,
+    kind,
+    isAffiliate,
+    worldId,
+    atTerrain,
+    atLocation,
+    ownerId,
+    organizationId,
+    name,
+    background,
+    image,
+    isHidden = false,
+    isDiscovered = false,
+    updateWorldMap = false,
+    development,
+    npcId,
+    priority,
+  }) {
+    assert(category != null && kind != null)
+
+    this.entityType = kEntityTypeLocation
+    this.category = category
+    this.kind = kind
+    this.isAffiliate = isAffiliate ?? false
+
+    this.createdTimestamp = game.timestamp
+
+    // 这个据点的子场景，这里只保存id
+    this.sites = []
+    
+    // 据点和场所的发展度需要花费钱币、矿石和木材来升级
+    this.development = development ?? 0
+    
+    if (category == 'city') {
+      if (name) {
+        this.name = name
+      } else {
+        let conflict = false
+        do {
+          const randomName = generateLocationName(category: this.kind)
+          this.name = randomName.name
+          conflict = game.locations.values.where((element) =>
+            element.name == this.name).isNotEmpty
+        } while (conflict)
+      }
+      
+      this.id = id ?? this.name
+
+      // 定居在这个据点的角色，这里只保存id
+      this.residents = []
+      
+      this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
+      
+      this.color = random.nextBrightColorHex()
+
+      if (background != null) {
+        this.background = background
+      } else {
+        switch (kind) {
+          kLocationKindIslandCity, kLocationKindHarborCity : {
+            const index = random.nextInt(_kCityShoreBackgroundCount[this.development])
+            this.background = 'location/city/city_water_${this.development}_${index}.png'
+          }
+          kLocationKindMountainCity : {
+            const index = random.nextInt(_kCityMountainBackgroundCount[this.development])
+            this.background = 'location/city/city_mountain_${this.development}_${index}.png'
+          }
+          kLocationKindInlandCity: {
+            const index = random.nextInt(_kCityPlainBackgroundCount[this.development])
+            this.background = 'location/city/city_plain_${this.development}_${index}.png'
+          }
+        }
+      }
+    } else if (category == 'site') {
+      this.name = name ?? engine.locale(kind)
+
+      if (kind != kLocationKindHome) {
+        this.id = id ?? (this.name + crypto.randomUID(length: 6))
+      } else {
+        assert(id != null, '住宅的id不能为空')
+        this.id = id
+      }
+
+      if (atLocation != null) {
+        atLocation.sites.add(this.id)
+      }
+
+      this.image = image ?? 'location/card/${kind}.png'
+      if (background != null) {
+        this.background = background
+      } else if (Constants.locationSiteKinds.contains(kind)) {
+        this.background = 'location/site/${kind}.png'
+      }
+
+      this.priority = priority ?? kLocationKindPriority[this.kind]
+    } else {
+      throw 'Invalid location category: [${category}]'
+    }
+
+    assert(this.id != null)
+    if (game.locations.containsKey(this.id)) {
+      engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
+    }
+    game.locations[this.id] = this
+
+    this.isHidden = isHidden ?? false
+    this.isDiscovered = !isHidden
+    
+    // 建筑的拥有者
+    // 住所的owner就是这个住所的主人
+    // city的owner就是城主
+    // 功能性建筑的owner就是总管
+    // 如果同时有 ownerId 和 organizationID，意味着这个建筑为非私有
+    this.ownerId = ownerId
+    // 住所的owner就是这个住所的主人
+    if (this.kind == kLocationKindHome) {
+      assert(this.ownerId != null)
+    }
+    // 拥有建筑的门派
+    this.organizationId = organizationId
+    if (organizationId != null) {
+      final organization = game.organizations[organizationId]
+      assert(organization != null, '组织不存在，id: ${organizationId}')
+      if (!organization.locationIds.contains(this.id)) {
+        organization.locationIds.add(this.id)
+      }
+    }
+
+    // 该据点的事件触发选项
+    this.flags = {}
+
+    // 大牢中的角色
+    // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
+    // 另外两种选择是通过说服，或者贿赂离开
+    // this.jailedCharacterIds = []
+
+    // 据点的历史
+    this.experienced = []
+
+    // 和人物类似，也具有物品栏
+    this.inventory = {}
+    this.materials = {}
+
+    this.npcId = npcId
+
+    if (atTerrain != null) {
+      engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
+      
+      atTerrain.locationId = this.id
+      
+      this.worldId = worldId ?? world?.id
+      this.worldPosition = {
+        left: atTerrain.left,
+        top: atTerrain.top,
+      }
+      this.terrainIndex = atTerrain.index
+
+      if (this.category == 'city') {
+        // 这个据点周围所控制的地块
+        this.territoryIndexes = []
+        // 保存了据点领地范围外可以扩张到的地块
+        this.borderIndexes = []
+        
+        // atTerrain.kind = 'city'
+        if (!this.isHidden) {
+          atTerrain.overlaySprite = { sprite: kSpriteCity }
+          if (updateWorldMap) {
+            World.setTerrainCaption(atTerrain.left, atTerrain.top, this.name)
+            World.updateTerrainOverlaySprite(atTerrain.left, atTerrain.top)
+          }
+        }
+        
+        /// 默认添加一个总堂建筑和一个交易所
+        const cityhall = Location(
+          id: this.id + '_cityhall',
+          name: this.name + engine.locale('cityhall'),
+          category: 'site',
+          kind: kLocationKindCityhall,
+          atLocation: this,
+          organizationId: organizationId,
+          development: random.nextInt(this.development + 1),
+          npcId: 'servant',
+        )
+        
+        const tradinghouse = Location(
+          id: this.id + '_tradinghouse',
+          name: engine.locale('tradinghouse'),
+          category: 'site',
+          kind: kLocationKindTradingHouse,
+          atLocation: this,
+          organizationId: organizationId,
+          development: random.nextInt(this.development + 1),
+          npcId: 'servant',
+        )
+      }
+    } else if (atLocation != null) {
+      engine.debug('在 ${atLocation.name} 建立了 ${this.name}')
+
+      this.atLocationId = atLocation.id
+    } else {
+      engine.debug('建立了 ${this.name}')
+    }
+  }
+}
+
+// function addLocations(loca tions: List, {worldId, atTerrain, atLocation, updateWorldMap = false }) {
+//   engine.debug('载入地点数据')
+//   for (const location in locations) {
+//     if (location.nameId) {
+//       location.name = engine.locale(location.nameId)
+//     }
+//     let atWorld = worldId != null ? universe[worldId] : world
+//     let atTerrain
+//     let atLocation
+//     if (location.terrainIndex) {
+//       atTerrain = atWorld.terrains[location.terrainIndex]
+//     }
+//     if (location.atLocationId) {
+//       atLocation = atWorld.locations[location.atLocationId]
+//     }
+//     addLocation(location, worldId: worldId, atTerrain: atTerrain, atLocation: atLocation, updateWorldMap: updateWorldMap)
+//   }
+// }
+
+function removeLocation(location, { updateWorldMap = false }) {
+  engine.warn('正在移除场景 [${location.name}]！')
+  for (final siteId in location.sites) {
+    removeLocation(siteId)
+  }
+  if (location.npcId) {
+    game.npcs.remove(location.npcId)
+  }
+  if (location.organizationId) {
+    const organization = game.organizations[location.organizationId]
+    assert(organization != null, '组织不存在，id: ${location.organizationId}')
+    if (organization.locationIds.contains(location.id)) {
+      organization.locationIds.remove(location.id)
+    }
+  }
+  if (location.kind == kLocationKindHome) {
+    const owner = game.characters[location.ownerId]
+    assert(owner != null, '角色不存在，id: ${location.ownerId}')
+    owner.homeLocations.remove(location.id)
+    if (owner.homeLocationId == location.id) {
+      owner.homeLocationId = null
+    }
+    if (owner.locationId == location.id) {
+      owner.locationId = null
+    }
+  }
+  if (location.terrainIndex != null) {
+    const terrain = atWorld.terrains[location.terrainIndex]
+    delete terrain.locationId
+    delete terrain.overlaySprite
+    if (updateWorldMap) {
+      World.setTerrainCaption(terrain.left, terrain.top, null)
+      World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+    }
+  } else if (location.atLocationId != null) {
+    const atLocation = game.locations[location.atLocationId]
+    assert(atLocation != null, '场景不存在，id: ${location.atLocationId}')
+    if (atLocation.sites.contains(location.id)) {
+      atLocation.sites.remove(location.id)
+    }
+  }
+  delete game.locations[location.id]
+}
+
+function getLocationDistance(loc1, loc2) {
+  return getTileDistance(loc1.tilePosition, loc2.tilePosition)
+}
+
+// 每个城市发展度对应的居民上限
+// 居民可以用于充当据点的仆役
+function maxPopulationOfLocationDevelopment(n: integer) {
+  return  (n - 1) * (n - 1) * (n - 1) * 50 + 100
+}
+
+function maxSiteNumberOfLocationDevelopment(n: integer) {
+  return (n + 1) * n ~/ 2 + 1
+}
+
+// 每个据点，每个月会自然增加人口，直到达到上限
+// 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响
+function increaseLocationPopulationPerMonth(location) {
+
+}
+
+function setCharacterLocationId(character, locationId: string) {
+  character.locationId = locationId
+}
+
+// function getLocationById(id: string, {worldId}) {
+//   // let atWorld = worldId != null ? universe[worldId] : world
+//   return game.locations[id]
+// }
+
+function getLocations([ids]) {
+  if (ids?.isNotEmpty) {
+    return game.locations.values.where( (value) => value.id in ids )
+  } else {
+    return game.locations.values
+  }
+}
+
+function getLocationByWorldPosition(left, top, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  const tile = atWorld.terrains[tilePos2Index(left, top, atWorld.width)]
+  if (tile.locationId) {
+    return game.locations[tile.locationId]
+  }
+}
+
+async function discoverLocation(location, { updateWorldMap = false }) {
+  if (location.isDiscovered) return
+  // engine.debug('发现新据点：${location.name}')
+  location.isDiscovered = true
+  assert(universe.containsKey(location.worldId), location.worldId)
+  let atWorld = universe[location.worldId]
+  if (updateWorldMap) {
+    World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+  }
+  if (location.isHidden) {
+    engine.warn('据点 ${location.name} 被发现，刷新大地图显示。')
+    const tile = atWorld.terrains[location.terrainIndex]
+    // tile.spriteIndex = kSpriteLand
+    tile.overlaySprite = { sprite: kSpriteCity }
+    if (updateWorldMap) {
+      // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+      await World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
+    }
+  }
+}
+
+function increaseLocationDevelopment(location) {
+  if (location.development < kLocationDevelopmentMax) {
+    ++location.development
+  } else {
+    engine.warn('据点 ${location.name} 的发展度（${location.development}）已达到或超过最大值。')
+  }
+}
+
+function setLocationWorldPosition(location, left, top, {worldId}) {
+  if (left == null || top == null) {
+    location.worldPosition = null
+  } else {
+    location.worldPosition = { left, top }
+  }
+  if (worldId != null) {
+    location.worldId = worldId
+  }
+}
+
+/// 刷新交易类场景的物品
+function replenishTradingHouse(location) {
+  assert(location.kind == 'tradinghouse')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  location.materials = {}
+  location.inventory = {}
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.money =
+    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+      ~/ Constants.materialBasePrice.shard
+
+  // 根据地形，决定商店里是否有船只和靴子
+  let hasMountainNeighbor = false
+  let hasWaterNeighbor = false
+  final neighbors = getTileNeighbors(atLocation.worldPosition.left, atLocation.worldPosition.top)
+  for (final neighbor in neighbors.values) {
+    if (neighbor.kind == 'mountain') {
+      hasMountainNeighbor = true
+    } else if (kWaterTerrainKinds.contains(neighbor.kind)) {
+      hasWaterNeighbor = true
+    }
+  }
+  if (hasMountainNeighbor) {
+    let item = Equipment(kind: 'boots', rank: 0)
+    entityAcquire(location, item)
+  }
+  if (hasWaterNeighbor) {
+    let item = Equipment(kind: 'ship', rank: 0)
+    entityAcquire(location, item)
+  }
+
+  // 刷新物品
+  let amount = kBaseItemReplenishAmount + location.development
+  for (var i in range(amount)) {
+    final typeRoll = random.nextDouble()
+    let item
+    if (typeRoll < 0.5) {
+      item = Equipment(rank: 0)
+    } else if (typeRoll < 0.7) {
+      item = Potion(rank: 0)
+    } else if (typeRoll < 0.9) {
+      item = Cardpack(rank: 0)
+    } else {
+      item = createItemById('identify_scroll')
+    }
+    entityAcquire(location, item)
+  }
+
+  // 刷新材料
+  let price = {}
+  for (final materialId in Constants.nonCurrencyMaterialKinds) {
+    price[materialId] = 1.0
+  }
+
+  // 根据据点的纬度、季节和城市类型，决定材料的价格
+  // 所有的变量的范围在 -0.25 ~ +0.25 之间
+
+  // 纬度变量
+  let latitudeFactor = (0.5 - (atLocation.worldPosition.top / world.height)) / 2
+  // 纬度越高，劳工价格越高
+  price.worker += latitudeFactor
+  // 纬度越高，水资源价格越高
+  price.water += latitudeFactor
+  // 纬度越高，谷物价格越高
+  price.grain += latitudeFactor
+  // 纬度越高，生肉价格越低
+  price.meat += -latitudeFactor
+  // 纬度越高，皮革价格越低
+  price.leather += -latitudeFactor
+  // 纬度越高，药材价格越低
+  price.herb += -latitudeFactor
+  // 纬度越高，木材价格越低
+  price.timber += -latitudeFactor
+  // 纬度越高，石料价格越高
+  price.stone += latitudeFactor
+  // 纬度越高，矿物价格越高
+  price.ore += latitudeFactor
+  
+  // 季节变量
+  let seasonFactor
+  final dt = Game.datetime()
+  if (dt.month in [6,7,8]) {
+    // 夏天
+    seasonFactor = -0.25
+  } else if (dt.month in [9,10,11]) {
+    // 秋天
+    seasonFactor = -0.125
+  } else if (dt.month in [12,1,2]) {
+    // 冬天
+    seasonFactor = 0.25
+  } else if (dt.month in [3,4,5]) {
+    // 春天
+    seasonFactor = 0.125
+  }
+
+  // 夏秋劳工价格低，冬春劳工价格高
+  price.worker += seasonFactor
+  // 夏秋清水价格低，冬春清水价格高
+  price.water += seasonFactor
+  // 夏秋谷物价格低，冬春谷物价格高
+  price.grain += seasonFactor
+  // 夏秋生肉价格低，冬春生肉价格高
+  price.meat += seasonFactor
+  // 夏秋皮革价格高，冬春皮革价格低
+  price.leather += -seasonFactor
+  // 夏秋药材价格低，冬春药材价格高
+  price.herb += seasonFactor
+  // 夏秋木材价格高，冬春木材价格低
+  price.timber += -seasonFactor
+  // 夏秋石料价格高，冬春石料价格低
+  price.stone += -seasonFactor
+  // 夏秋矿物价格高，冬春矿物价格低
+  price.ore += -seasonFactor
+
+  let cityFactor
+  if (atLocation.kind == 'mountain') {
+    // 山地
+    cityFactor = 0.25
+  } else if (atLocation.kind == 'inland') {
+    // 内陆
+    cityFactor = 0.125
+  } else if (atLocation.kind == 'island') {
+    // 岛屿
+    cityFactor = -0.125
+  } else if (atLocation.kind == 'harbor') {
+    // 港口
+    cityFactor = -0.25
+  }
+
+  // 港口岛屿劳工价格低
+  price.worker += cityFactor
+  // 港口岛屿清水价格低
+  price.water += cityFactor
+  // 港口岛屿谷物价格低
+  price.grain += cityFactor
+  // 港口岛屿生肉价格低
+  price.meat += cityFactor
+  // 港口岛屿皮革价格低
+  price.leather += cityFactor
+  // 港口岛屿药材价格高
+  price.herb += -cityFactor
+  // 港口岛屿木材价格高
+  price.timber += -cityFactor
+  // 港口岛屿石料价格高
+  price.stone += -cityFactor
+  // 港口岛屿矿物价格高
+  price.ore += -cityFactor
+
+  // engine.log('latitude', atLocation.worldPosition.top, atLocation.id, 'latitude factor:', latitudeFactor)
+  // engine.log('season', dt.month, atLocation.id, 'season factor:', seasonFactor)
+  // engine.log('city', atLocation.category, atLocation.id, 'city factor:', cityFactor)
+
+  for (final key in price.keys) {
+    let v = price[key].toDouble().toFixed(2)
+    if (v < Constants.minSellRate) v = Constants.minSellRate
+    price[key] = v
+  }
+
+  location.priceFactor = { kind: price }
+
+  // 根据据点和其下属的生产场所的发展度，决定材料的刷新数量
+
+  let developmentFactor = {
+    worker: atLocation.development + 1,
+    grain: 1,
+    meat: 1,
+    water: 1,
+    leather: 1,
+    herb: 1,
+    timber: 1,
+    stone: 1,
+    ore: 1,
+  }
+  
+  final organization = game.organizations[location.organizationId]
+  if (organization != null) {
+    for (final locationId in organization.locationIds) {
+      final site = game.locations[locationId]
+      assert(site != null, 'location not found, id: ${locationId}')
+      if (site.category != 'site') continue
+      switch (site.kind) {
+        kLocationKindFarmland: {
+          developmentFactor.grain += site.development + 1
+          developmentFactor.water += site.development + 1
+        }
+        kLocationKindHuntingground: {
+          developmentFactor.leather += site.development + 1
+          developmentFactor.meat += site.development + 1
+        }
+        kLocationKindTimberland: {
+          developmentFactor.herb += site.development + 1
+          developmentFactor.timber += site.development + 1
+        }
+        kLocationKindMine: {
+          developmentFactor.stone += site.development + 1
+          developmentFactor.ore += site.development + 1
+        }
+      }
+    }
+  }
+
+  for (final materialId in Constants.nonCurrencyMaterialKinds) {
+    assert(developmentFactor.containsKey(materialId))
+    final factor = developmentFactor[materialId]
+    final amount = random.nextInt(kBaseStoreMaterialAmount * factor * factor)
+    // engine.log(location.id, materialId, 'factor:', factor, 'amount:', amount)
+    location.materials[materialId] = amount
+  }
+}
+
+const _kProductionSiteResourceGeneration = 10
+
+function replenishProductionSite(location) {
+  assert(Constants.productionSiteKinds.contains(location.kind))
+
+  location.materials = {}
+
+  location.materials.money =
+    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+  
+  let price
+
+  switch (location.kind) {
+    'farmland': {
+      price = {
+        'grain': 0.55,
+        'meat': 0.8,
+      }
+    }
+    'fishery': {
+      price = {
+        'water': 0.55,
+        'meat': 0.65,
+      }
+    }
+    'timberland': {
+      price = {
+        'herb': 0.8,
+        'timber': 0.65,
+      }
+    }
+    'huntingground': {
+      price = {
+        'leather': 0.8,
+        'meat': 0.65,
+      }
+    }
+    'mine': {
+      price = {
+        'stone': 0.65,
+        'ore': 0.8,
+      }
+    }
+  }
+
+  location.priceFactor = { kind: price }
+
+  let terrain = world.terrains[location.terrainIndex]
+  
+  for (final materialId in price.keys) {
+    final amount = terrain.resources[materialId] * (location.development + 1) * _kProductionSiteResourceGeneration
+    location.materials[materialId] = amount
+  }
+}
+
+/// 刷新会堂悬赏列表
+function replenishCityhall(location) {
+  assert(location.kind == 'cityhall')
+
+  replenishBounty(location)
+}
+
+/// 刷新聚灵阵中的可用灵气
+function replenishExpArray(location) {
+  assert(location.kind == 'exparray')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
+
+  final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
+  location.collectableLight = random.nearInt(replenishAmount) + 10
+}
+
+/// 刷新交易类场景的物品
+function replenishAuctionHouse(location) {
+  assert(location.kind == 'auctionhouse')
+  final atLocation = game.locations[location.atLocationId]
+  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  assert(atLocation.category == 'city')
+
+  location.inventory = {}
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    ~/ Constants.materialBasePrice.shard
+
+  let amount = kBaseItemReplenishAmount + location.development
+
+  for (final siteId in atLocation.sites) {
+    final site = game.locations[siteId]
+    assert(site != null, 'location not found, id: ${siteId}')
+    if (site.kind == kLocationKindWorkshop) {
+      amount += site.development + 1
+    }
+  }
+
+  for (var i in range(amount)) {
+    let item = Equipment(rank: random.nearInt(location.development))
+    entityAcquire(location, item)
+  }
+}
+
+/// 刷新藏书阁场景的物品
+function replenishLibrary(location) {
+  assert(location.kind == 'library')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
+
+  final organization = game.organizations[location.organizationId]
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+      ~/ Constants.materialBasePrice.shard;
+
+  for (var i in range(location.development + 1)) {
+    for (var j in range(kBaseItemReplenishAmount)) {
+      let item = Cardpack(
+        rank: i,
+        genre: i > 0 ? organization?.genre : null,
+      )
+      entityAcquire(location, item)
+    }
+  }
+}
+
+/// 刷新丹房场景的物品
+function replenishAlchemyLab(location) {
+  assert(location.kind == 'alchemylab')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
+
+  location.inventory = {}
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    ~/ Constants.materialBasePrice.shard
+
+  let amount = kBaseItemReplenishAmount + location.development
+
+  // TODO: 丹房销售的丹药数量和苗圃数量有关
+
+  for (var i in range(amount)) {
+    final item = Potion(rank: random.nearInt(location.development + 1))
+    entityAcquire(location, item)
+  }
+}
+
+/// 刷新符法所的物品
+function replenishRuneLab(location) {
+  assert(location.kind == 'runelab')
+  // final atLocation = game.locations[location.atLocationId]
+  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
+  // assert(atLocation.category == 'city')
+
+  location.inventory = {}
+
+  // 商店的可用货币应该与门派货币挂钩
+  location.materials.shard =
+    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    ~/ Constants.materialBasePrice.shard
+  
+  if (location.development == 0) return
+  
+  let amount = kBaseItemReplenishAmount + location.development
+  for (var i in range(1, location.development + 1)) {
+    for (var j in range(amount)) {
+      final paper = createItemById('scroll_paper', rank: i)
+      entityAcquire(location, paper)
+    }
+  }
+}

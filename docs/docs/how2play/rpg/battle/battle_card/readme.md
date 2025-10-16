@@ -98,7 +98,7 @@
 function getCardRankUpProbability(rank) {
   if (rank == 0) return 1.0;
   if (rank >= kCultivationRankMax) return 0.0;
-  return 0.7 * (1 - rank / kCultivationRankMax);
+  return 1 - rank / kCultivationRankMax;
 }
 ```
 

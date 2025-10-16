@@ -80,7 +80,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     final int playerMonthlyIdentifiedCards =
         GameData.flags['playerMonthly']['identifiedEnemyCards'];
     final int playerMonthlyIdentifiedCardsCount =
-        widget.hero['stats']['identifyCardsCountMonthly'];
+        widget.hero['stats']['monthlyIdentifyCardsMax'];
     _availableIdentifyCount =
         playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
     if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;

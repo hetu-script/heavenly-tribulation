@@ -12,14 +12,12 @@ import 'package:samsara/samsara.dart';
 // import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:animated_tree_view/animated_tree_view.dart';
-import 'package:provider/provider.dart';
 
 import 'ui.dart';
 import 'common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
 import 'logic/logic.dart';
-import '../state/states.dart';
 
 const _kSkinAnimationWidth = 288.0;
 const _kSkinAnimationHeight = 112.0;
@@ -179,7 +177,7 @@ class GameData {
     return organization;
   }
 
-  static void addMonthly(String activityId, String targetId) {
+  static void addPlayerMonthly(String activityId, String targetId) {
     final monthly = GameData.flags['playerMonthly'][activityId];
     if (monthly is List) {
       if (!monthly.contains(targetId)) {
@@ -508,12 +506,6 @@ class GameData {
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
-
-    engine.context.read<GameTimestampState>().update();
-    engine.context.read<NpcListState>().update();
-    engine.context.read<HeroPositionState>().updateTerrain();
-    engine.context.read<HeroPositionState>().updateLocation();
-    engine.context.read<HeroPositionState>().updateDungeon();
   }
 
   static Future<List<String>> _loadGame({
@@ -560,12 +552,6 @@ class GameData {
     history = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
     random = engine.hetu.fetch('random');
-
-    engine.context.read<GameTimestampState>().update();
-    engine.context.read<NpcListState>().update();
-    engine.context.read<HeroPositionState>().updateTerrain();
-    engine.context.read<HeroPositionState>().updateLocation();
-    engine.context.read<HeroPositionState>().updateDungeon();
 
     return sceneIds;
   }
@@ -833,6 +819,7 @@ class GameData {
     final description = StringBuffer();
     final title = itemData['name'];
     final rarity = itemData['rarity'];
+    final type = itemData['type'];
     final category = itemData['category'];
     final bool isIdentified = itemData['isIdentified'] == true;
     final bool isEquippable = itemData['isEquippable'] == true;
@@ -855,8 +842,10 @@ class GameData {
     }
     final rarityString =
         '<grey>${engine.locale('rarity')}: </><$rarity>${engine.locale(rarity)}</>';
-    final categoryString =
-        '<grey>, ${engine.locale('category')}: ${engine.locale(category)}</>';
+    String typeString = type is List
+        ? type.map((e) => engine.locale(e)).join(', ')
+        : engine.locale(type);
+    typeString = ' <grey>${engine.locale('type')}: $typeString</>';
     String priceString = '';
     if (isUntradable && isInventory) {
       priceString = '<grey>, </><red>${engine.locale('untradable')}</>';
@@ -866,12 +855,15 @@ class GameData {
     if (engine.config.debugMode) {
       description.writeln('<grey>[${itemData['id']}]</> - press `c` to copy');
     }
-    description.writeln('$rarityString$categoryString$priceString');
+    description.writeln('$rarityString$typeString$priceString');
 
     // description.writeln(kSeparateLine);
     final flavortext = itemData['flavortext'];
     if (flavortext != null) {
-      description.writeln('<lightGreen>$flavortext</>');
+      final split = flavortext.split('\n');
+      for (final line in split) {
+        description.writeln('<lightGreen>$line</>');
+      }
     }
 
     final chargeData = itemData['chargeData'];
@@ -1263,7 +1255,7 @@ class GameData {
     return timeString;
   }
 
-  static String getBountyDetailDescription(dynamic quest) {
+  static String getQuestDetailDescription(dynamic quest) {
     final desc = StringBuffer();
     final brief = GameData.getQuestBriefDescription(quest);
     desc.write(brief);

@@ -16,6 +16,44 @@ class Constants extends HTExternalClass {
         return kRankToRarity;
       case 'Constants.races':
         return kRaces;
+      case 'Constants.attributeValueMax':
+        return kAttributeValueMax;
+      case 'Constants.attributeValueAverage':
+        return kAttributeValueAverage;
+      case 'Constants.attributeValueDeviation':
+        return kAttributeValueDeviation;
+      case 'Constants.baseExpGainPerLight':
+        return kBaseExpGainPerLight;
+      case 'Constants.baseExpCollectSpeed':
+        return kBaseExpCollectSpeed;
+      case 'Constants.baseMoveSpeedOnPlain':
+        return kBaseMoveSpeedOnPlain;
+      case 'Constants.baseMoveSpeedOnMountain':
+        return kBaseMoveSpeedOnMountain;
+      case 'Constants.baseMoveSpeedOnWater':
+        return kBaseMoveSpeedOnWater;
+      case 'Constants.baseStaminaCostOnMountain':
+        return kBaseStaminaCostOnMountain;
+      case 'Constants.baseStaminaCostOnWater':
+        return kBaseStaminaCostOnWater;
+      case 'Constants.baseCraftSkillLevel':
+        return kBaseCraftSkillLevel;
+      case 'Constants.baseLife':
+        return kBaseLife;
+      case 'Constants.baseLifePerLevel':
+        return kBaseLifePerLevel;
+      case 'Constants.baseLightRadius':
+        return kBaseLightRadius;
+      case 'Constants.baseMonthlyIdentifyCardsMax':
+        return kBaseMonthlyIdentifyCardsMax;
+      case 'Constants.baseResistMax':
+        return kBaseResistMax;
+      case 'Constants.baseTurnActionThreshold':
+        return kBaseTurnActionThreshold;
+      case 'Constants.maxTurnActionThreshold':
+        return kMaxTurnActionThreshold;
+      case 'Constants.minTurnActionThreshold':
+        return kMinTurnActionThreshold;
       case 'Constants.npcIds':
         return kNpcIds;
       case 'Constants.personalities':
@@ -54,6 +92,8 @@ class Constants extends HTExternalClass {
         return kLocationSiteKinds;
       case 'Constants.siteKindsWorkable':
         return kSiteKindsWorkable;
+      case 'Constants.siteKindToAttribute':
+        return kSiteKindToAttribute;
       case 'Constants.siteKindsBuildable':
         return kSiteKindsBuildable;
       case 'Constants.productionSiteKinds':
@@ -70,6 +110,10 @@ class Constants extends HTExternalClass {
         return kAttackTypes;
       case 'Constants.damageTypes':
         return kDamageTypes;
+      case 'Constants.ticksPerTime':
+        return kTicksPerTime;
+      case 'Constants.timesPerDay':
+        return kTimesPerDay;
       case 'Constants.ticksPerDay':
         return kTicksPerDay;
       case 'Constants.daysPerMonth':

@@ -1,0 +1,177 @@
+
+/// 剧情日志，用于记录一段故事
+struct Journal {
+
+  constructor ({
+    id,
+    title,
+    image,
+    endings: List,
+    interpolations: List,
+    stages: List,
+  }) {
+    assert(title != null)
+
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.title = title
+    this.image = image
+    this.endings = endings ?? [ 0 ]
+    this.interpolations = interpolations ?? []
+    // 当前所处的阶段，以数字表示
+    this.stage = 0
+    // 每个阶段的描述，这里保存的是本地化之后的文本
+    this.stages = stages ?? []
+    // 日志进程，每个阶段的index对应了一段描述
+    // 进程并不一定是连续的，可能有不同的路径和结尾
+    // 但起点一定是 0
+    this.sequence = [ 0 ]
+    // 只要stage达到endings中记录的任何一个数字，就算结束
+    this.isFinished = this.endings.contains(this.stage)
+  }
+
+  constructor fromQuest (quest) {
+    this.id = quest.id ?? crypto.randomUID(withTime: true)
+    final acquiredFromSiteId = quest.acquiredFromSiteId
+    final site = game.locations[acquiredFromSiteId]
+    assert(site != null, 'quest acquiredFromSite not found, id: ${acquiredFromSiteId}')
+    final kindName = engine.locale('quest_${quest.kind}')
+    this.title = '${site.name}・${kindName}'
+    this.image = quest.image
+    // 任务固定有两个结局
+    this.endings = [ 1, 2 ]
+    this.interpolations = quest.interpolations
+    this.quest = quest
+
+    this.stage = 0
+    this.stages = []
+
+    this.stages.add(
+      engine.locale('quest_${quest.kind}_description', interpolations: this.interpolations)
+    )
+    this.stages.add(engine.locale('quest_finished'))
+    this.stages.add(engine.locale('quest_failed'))
+
+    this.sequence = [ 0 ]
+    this.isEphemeral = quest.isEphemeral
+    this.isFinished = false
+  }
+}
+
+function characterCreateJournal(character, journal, {
+  setAsActive = false,
+  incurIncident = true,
+}) {
+  if (character.journals.containsKey(journal.id)) {
+    engine.error('角色 [${character.id}] 的日志 [${journal.id}] 已经存在，不能再次创建！')
+    return
+  }
+
+  journal.timestamp = game.timestamp
+
+  character.journals[journal.id] = journal
+  if (setAsActive) {
+    if (!character.activeJournalIds.contains(journal.id)) {
+      character.activeJournalIds.add(journal.id)
+    }
+  }
+  
+  const incidentContent = engine.locale(
+    'characterCreateJournal',
+    interpolations: [ character.name, journal.title ],
+  )
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
+  return journal
+}
+
+function characterCreateJournalById(character, journalId, {
+  setAsActive = false,
+  interpolations = [],
+  incurIncident = true,
+}) {
+  final journalData = game.journals[journalId]
+  assert(journalData != null, 'journal data not found, id: ${journalId}')
+  if (journalData.isUnique && character.journals[journalId] != null) {
+    engine.error('日志 [${journalId}] 是唯一的，不能再次接受！')
+    return
+  }
+
+  final endings = journalData.endings.toList()
+  final stages = []
+  for (var i in range(endings.last + 1)) {
+    stages.add(engine.locale('journal_${journalData.id}_stage_${i}', interpolations: interpolations))
+  }
+
+  final journal = Journal(
+    id: journalId,
+    title: engine.locale(journalData.title ?? journalData.id),
+    image: journalData.image,
+    endings: endings,
+    interpolations: interpolations,
+    stages: stages,
+    isEphemeral: journalData.isEphemeral,
+  )
+
+  return characterCreateJournal(character, journal, setAsActive: setAsActive, incurIncident: incurIncident)
+}
+
+/// 推动任务进度
+/// 这里不处理任务的成功和失败
+function characterProgressJournalById(character, journalId, {
+  stage,
+  incurIncident = true,
+}) {
+  final journal = character.journals[journalId]
+  assert(journal != null)
+  if (journal.isFinished) {
+    engine.error('角色 [${character.id}] 的任务 [${journal.id}] 已经完成，不能再推进进度！')
+    return
+  }
+  assert(journal.sequence.length > 0)
+  stage ??= journal.stage + 1
+  assert(stage > journal.stage && stage < journal.stages.length)
+  assert(!journal.sequence.contains(stage))
+  
+  journal.sequence.add(stage)
+  journal.stage = stage
+
+  if (journal.endings.contains(stage)) {
+    journal.isFinished = true
+    
+    if (character.activeJournalIds.contains(journal.id)) {
+      character.activeJournalIds.remove(journal.id)
+      Game.updateActiveJournals()
+    }
+    let incidentContent = engine.locale(
+      'characterJournalFinished',
+      interpolations: [ character.name, journal.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  } else {
+    let incidentContent = engine.locale(
+      'characterJournalProgressed',
+      interpolations: [ character.name, journal.title ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    }
+  }
+  engine.debug('角色 [${character.id}] 的任务 [${journal.title}] 推进了进度：${journal.stage}')
+
+  return journal
+}

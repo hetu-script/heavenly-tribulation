@@ -1,0 +1,143 @@
+{
+  "defaultItemDescription": "未知来历的神秘物品。",
+
+  "importantItem": "重要物品",
+
+  "equipment": "装备",
+  "consumable": "消耗品",
+  "material": "材料",
+
+  "usableHint": "点击右键使用",
+  "equippableHint": "点击右键装备",
+  "unequippableHint": "点击右键取下",
+  "cursedItemHint": "禁制：装备后无法取下",
+  "cardpackHint": "点击右键使用以获取功法",
+  "currentCharges": "当前充能次数: {0}∕{1}",
+  "shardsPerCharge": "每次充能消耗: {0} 灵石",
+
+  "basePriceFactor": "全部",
+  "sellPriceFactor": "卖出",
+  "expensiveSmall": "略微昂贵",
+  "expensiveMedium": "昂贵",
+  "expensiveLarge": "非常昂贵",
+  "cheapSmall": "略微便宜",
+  "cheapMedium": "便宜",
+  "cheapLarge": "非常便宜",
+
+  "resource": "资源",
+  "package": "包",
+
+  "material_pack": "材料包",
+  "cardpack": "秘籍",
+  "ownedBattleCard": "拥有的功法",
+  "ownedCardpack": "拥有的秘籍",
+
+  "flavortext_cardpack": "打开后可以获得一张该境界和流派的功法以及两张该境界的随机功法。",
+
+  "basePrice": "基础价格",
+  "price": "价格",
+  "unitPrice": "单价",
+  "totalPrice": "总价",
+  "amount": "数量",
+  "requiredAmount": "需求数量",
+  "stackSize": "数量",
+  "damageType": "伤害类型",
+  "durability": "耐久",
+
+  "requirement": "需求",
+  "rank_requirement": "境界需求",
+  "genre_requirement": "天道技能需求",
+  "equipment_requirement": "装备需求",
+  "attribute_requirement": "属性需求",
+
+  "untradable": "不可交易",
+
+  "sword": "剑",
+  "sabre": "刀",
+  "staff": "棍",
+  "spear": "枪",
+  "bow": "弓",
+  "dart": "飞镖",
+
+  "flavortext_weapon": "在普通人和修真者中都很流行的兵器。",
+
+  "armor": "护甲",
+  "flavortext_armor": "可以在战斗中保护身体的装备。",
+  "gloves": "手套",
+  "flavortext_gloves": "可以在战斗中保护身体的装备。",
+  "helmet": "头盔",
+  "flavortext_helmet": "可以在战斗中保护身体的装备。",
+  "shield": "盾牌",
+  "flavortext_shield": "可以在战斗中保护身体的装备。",
+  "boots": "鞋子",
+  "flavortext_boots": "长途跋涉时必须的装备。",
+
+  "vehicle": "载具",
+  "ship": "船只",
+  "flavortext_ship": "长途跋涉时必须的装备。",
+  "aircraft": "飞行器",
+  "flavortext_aircraft": "长途跋涉时必须的装备。",
+
+  "amulet": "项链",
+  "ring": "指环",
+  "belt": "腰带",
+
+  "pearl": "法珠",
+
+  "talisman": "法器",
+  "flavortext_talisman": "可以让你获得一些用于行使功法的资源。",
+  "jewelry": "饰品",
+  "flavortext_jewelry": "这些首饰中似乎蕴含着天地大道的力量。",
+
+  "energy_curse": "煞气",
+  "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的咒术攻击。",
+
+  "energy_ultimate": "无极之气",
+  "energy_ultimate_description": "无极之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
+
+  "scroll_paper": "符纸",
+  "flavortext_scroll_paper": "用来制作符箓的材料。",
+
+  "dungeon_ticket": "秘境石",
+  "flavortext_dungeon_ticket": "进入高阶洞天秘境需要消耗对应品级的秘境石。",
+
+  "rare_scroll": "凝气符箓",
+  "epic_scroll": "筑基符箓",
+  "legendary_scroll": "结丹符箓",
+  "mythic_scroll": "还婴符箓",
+  "arcane_scroll": "化神符箓",
+
+  "pill": "丹药",
+  "potion": "药剂",
+  "flavortext_potion": "在下一次战斗结束后会失去所有丹药效果。",
+
+  "identify_scroll": "鉴定符",
+  "flavortext_identify_scroll": "鉴定一些属性未知的物品。",
+
+  "exp_pack": "一团灵光",
+  "flavortext_exp_pack": "灵光在获取后转化为修为经验值，可用于提升修为等级。",
+
+  "status_spirit": "精魄",
+  "flavortext_status_spirit": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。",
+
+  "equipment_affix": "析取特性",
+  "flavortext_equipment_affix": "可以通过打造将析取特性作为词条赋予物品。",
+
+  "craftmaterial_addAffix": "灵宝丹",
+  "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",
+
+  "craftmaterial_replaceAffix": "神照丹",
+  "flavortext_craftmaterial_replaceAffix": "用于物品或功法：随机替换一个额外词条。",
+
+  "craftmaterial_rerollAffix": "混元丹",
+  "flavortext_craftmaterial_rerollAffix": "用于物品或功法：重置所有词条等级。\n直接服用：重置自身灵根的数值。",
+
+  "craftmaterial_upgrade": "破镜丹",
+
+  "craftmaterial_upgrade_rank1": "凝气丹",
+  "craftmaterial_upgrade_rank2": "筑基丹",
+  "craftmaterial_upgrade_rank3": "结丹丹",
+  "craftmaterial_upgrade_rank4": "还婴丹",
+  "craftmaterial_upgrade_rank5": "化神丹",
+  "flavortext_craftmaterial_upgrade": "用于物品或功法：提升境界。\n直接服用：在升级时有概率触发天道试炼。"
+}

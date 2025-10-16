@@ -290,7 +290,7 @@ class _JournalViewState extends State<JournalView> {
                             ),
                           ),
                         ),
-                      ).reversed.toList(),
+                      ),
                     )
                   : EmptyPlaceholder(engine.locale('empty')),
             ),

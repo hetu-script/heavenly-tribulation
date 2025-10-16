@@ -13,21 +13,9 @@ part of 'logic.dart';
 // 6，发布本月门派任务，每次会有三个，玩家可以自由选择其中一个领取。
 // 7，会议结束
 Future<void> _monthlyMeeting(
-    dynamic superior, dynamic location, dynamic organization) async {
-  final bool hasAttendedAnyMeeting =
-      GameData.flags['organizations'][organization['id']] == true;
-  // if (!hasAttendedAnyMeeting) {
-  //   GameData.flags['organizations'][organization['id']]
-  //       ['hasAttendedAnyMeeting'] = true;
-  // }
-
-  dialog.pushDialog('journal_organizationInitiation_meeting_intro_1',
-      npcId: 'servant');
-  dialog.pushDialog('journal_organizationInitiation_meeting_intro_2',
-      character: superior);
-
+    dynamic superior, dynamic location, dynamic organization,
+    {bool isFirstMeeting = false}) async {
   final people = [superior];
-
   final membersAtLocationData =
       organization['membersData'].values.where((data) {
     return data['id'] != GameData.hero['id'] &&
@@ -35,11 +23,117 @@ Future<void> _monthlyMeeting(
         data['reportSiteId'] == location['id'];
   }).toList();
   membersAtLocationData.shuffle();
-
   people.addAll(membersAtLocationData.take(3));
   people.add(GameData.hero);
-  engine.context.read<MeetingState>().update(people);
 
-  if (!hasAttendedAnyMeeting) {
-  } else {}
+  dialog.pushDialog(
+    'organization_meeting_intro_1',
+    npcId: 'servant',
+    interpolations: [
+      organization['name'],
+      location['name'],
+    ],
+  );
+  dialog.pushDialog('discourse_silencee', isHero: true);
+  dialog.pushBackground('black.png', isFadeIn: true);
+  dialog.pushTask(() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    engine.context.read<MeetingState>().update(people);
+  });
+  dialog.popBackground(isFadeOut: true);
+  dialog.pushDialog('organization_meeting_intro_2', character: superior);
+  await dialog.execute();
+
+  final organizationMonthly =
+      GameData.flags['organizationMonthly'][organization['id']] ?? {};
+
+  // 新人见面环节
+  final List recruitedThisMonthIds = organizationMonthly['recruited'] ?? [];
+  bool recruitedHero = recruitedThisMonthIds.contains(GameData.hero['id']);
+  if (recruitedHero) {
+    recruitedThisMonthIds.remove(GameData.hero['id']);
+  }
+  List recruitedThisMonth = recruitedThisMonthIds
+      .where((id) {
+        final charMemberData = organization['membersData'][id];
+        return charMemberData['reportSiteId'] == location['id'];
+      })
+      .map((id) => GameData.getCharacter(id))
+      .toList();
+  recruitedThisMonth.shuffle();
+  if (recruitedHero) {
+    recruitedThisMonth = recruitedThisMonth.take(2).toList();
+    recruitedThisMonth.add(GameData.hero);
+  } else {
+    recruitedThisMonth = recruitedThisMonth.take(3).toList();
+  }
+  if (recruitedThisMonth.isNotEmpty) {
+    dialog.pushDialog('organization_meeting_new_recruit_1',
+        character: superior);
+    await dialog.execute();
+
+    for (final newRecruit in recruitedThisMonth) {
+      if (newRecruit != GameData.hero) {
+        final competitive = newRecruit['personality']['competitive'] ?? 0;
+        if (competitive > kPersonalityThreshold1) {
+          dialog.pushDialog('organization_meeting_new_recruit_option_2_reply',
+              character: newRecruit);
+        } else if (competitive < -kPersonalityThreshold1) {
+          dialog.pushDialog('organization_meeting_new_recruit_option_1_reply',
+              character: newRecruit);
+        } else {
+          dialog.pushDialog('organization_meeting_new_recruit_option_3_reply',
+              character: newRecruit);
+        }
+        await dialog.execute();
+      } else {
+        dialog.pushDialog('organization_meeting_new_recruit_2', isHero: true);
+        await dialog.execute();
+        final journal = engine.hetu.invoke('Journal', namedArgs: {
+          'id': 'organizationInitiation',
+          'title': engine.locale('organizationInitiation'),
+          'stages': [
+            engine.locale('organization_meeting_new_recruit_options'),
+          ],
+        });
+        final selected = await GameLogic.promptJournal(journal, selections: [
+          'organization_meeting_new_recruit_option_1',
+          'organization_meeting_new_recruit_option_2',
+          'organization_meeting_new_recruit_option_3',
+        ]);
+        dialog.pushDialog('${selected}_reply', isHero: true);
+        dialog.pushDialog('organization_meeting_new_recruit_3',
+            character: superior);
+        await dialog.execute();
+      }
+
+      for (final charAtLocation in people) {
+        engine.hetu.invoke('characterMet', positionalArgs: [
+          charAtLocation,
+          newRecruit,
+        ]);
+      }
+    }
+  }
+
+  // 新的门派任务
+  dialog.pushDialog('organization_meeting_ending', character: superior);
+  await dialog.execute();
+
+  final quests = engine.hetu.invoke('generateOrganizationQuests',
+      positionalArgs: [organization, location]);
+
+  final quest = await showDialog(
+    context: engine.context,
+    barrierDismissible: false,
+    builder: (context) => QuestView(
+      quests: quests,
+      showCloseButton: false,
+    ),
+  );
+
+  await GameLogic.acquireQuest(quest, location, organization);
+
+  dialog.pushDialog('organization_meeting_ending', character: superior);
+  await dialog.execute();
 }

@@ -18,12 +18,12 @@
   organizationInitiation: {
     id: "organizationInitiation",
     title: "journal_organizationInitiation_title",
-    endings: [2],
+    endings: [5],
   },
   // 初次门派会议事件，玩家选择会影响到人物关系
-  organizationFirstMeeting: {
-    id: "organizationMeeting",
-    title: "journal_organizationMeeting_title",
+  organizationFirstMeetingIntroduction: {
+    id: "organizationFirstMeetingIntroduction",
+    title: "journal_organizationFirstMeetingIntroduction_title",
     endings: [1],
   },
 }

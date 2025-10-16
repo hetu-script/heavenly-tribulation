@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:samsara/ui/mouse_region2.dart';
 
 import '../state/view_panels.dart';
 import '../state/game_update.dart';
@@ -113,7 +114,18 @@ class HistoryPanel extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(positionDetails.toString(), style: TextStyles.bodySmall),
+          MouseRegion2(
+            onEnter: (rect) {
+              context
+                  .read<HoverContentState>()
+                  .show(engine.locale('hint_datetime'), rect);
+            },
+            onExit: () {
+              context.read<HoverContentState>().hide();
+            },
+            child:
+                Text(positionDetails.toString(), style: TextStyles.bodySmall),
+          ),
           SizedBox(
             width: 480,
             child: HeroAndGlobalHistoryList(

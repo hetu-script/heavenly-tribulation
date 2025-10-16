@@ -2,17 +2,32 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../engine.dart';
+
 class JournalPromptState with ChangeNotifier {
   dynamic journal;
   Map<String, String>? selections;
-  Completer? completer;
+  Completer<String?>? completer;
 
-  void update(
-      {dynamic journal,
-      Map<String, String>? selections,
-      Completer? completer}) {
+  void update({
+    dynamic journal,
+    Map<String, String>? selectionsRaw,
+    List<dynamic>? selections,
+    List<dynamic>? interpolations,
+    Completer<String?>? completer,
+  }) {
     this.journal = journal;
-    this.selections = selections;
+    if (selectionsRaw != null) {
+      this.selections = selectionsRaw;
+    } else if (selections != null) {
+      final Map<String, String> raw = {};
+      for (final key in selections) {
+        raw[key] = engine.locale(key, interpolations: interpolations);
+      }
+      this.selections = raw;
+    } else {
+      this.selections = null;
+    }
     this.completer = completer;
     notifyListeners();
   }

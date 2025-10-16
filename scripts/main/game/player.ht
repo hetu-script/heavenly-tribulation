@@ -524,7 +524,7 @@ namespace Player {
 
   function rejuvenate() {
     assert(hero != null)
-    return characterRejuvenate(hero)
+    setCharacterLife(hero, hero.stats.lifeMax)
   }
 
   function createJournal(journal, { setAsActive = true, incurIncident = true }) {
@@ -634,8 +634,10 @@ namespace Player {
     ]
     dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
     await dialog.execute()
-
-    final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
-    Game.promptJournal(journal)
+    
+    if (!hero.journals.containsKey('organizationInitiation')) {
+      final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
+      Game.promptJournal(journal)
+    }
   }
 }

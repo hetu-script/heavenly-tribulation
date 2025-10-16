@@ -19,7 +19,7 @@ const kScenesSaveFilePostfix = '_scenes';
 
 const kSpriteScale = 2.0;
 
-const kAutoTimeFlowInterval = 500;
+const kTimeFlowInterval = 500;
 
 enum SceneStates {
   mainmenu,
@@ -302,6 +302,11 @@ const kOppositePersonalities = {
   'deepthinking': 'superficial',
 };
 
+const kPersonalityThreshold1 = 10;
+const kPersonalityThreshold2 = 20;
+const kPersonalityThreshold3 = 30;
+const kPersonalityThreshold4 = 40;
+
 const kAttributes = [
   'charisma',
   'wisdom',
@@ -373,15 +378,14 @@ const kBattleCardKinds = [
   // 'music',
 ];
 
-const kRestrictedEquipmentTypes = {
+const kRestrictedEquipmentCategories = {
   'weapon',
   'shield',
   'armor',
   'gloves',
   'helmet',
   'boots',
-  'ship',
-  'aircraft',
+  'vehicle',
 };
 
 const kRarities = {
@@ -518,30 +522,47 @@ const kLocationSiteKinds = [
 ];
 
 const kSiteKindsWorkable = [
-  'tradinghouse',
-  'daostele',
-  'exparray',
-  'library',
-  'arena',
-  'militarypost',
-  'auctionhouse',
-  'hotel',
-  'workshop',
+  // 'tradinghouse',
+  'daostele', // 悟性
+  // 'exparray',
+  'library', // 悟性
+  // 'arena',
+  // 'militarypost',
+  'auctionhouse', // 魅力
+  'hotel', // 魅力
+  'workshop', // 体魄
   // 'enchantshop',
-  'alchemylab',
+  'alchemylab', // 灵力
   // 'tatooshop',
-  'runelab',
+  'runelab', // 灵力
   // 'arraylab',
-  'illusionaltar',
+  'illusionaltar', // 念力
   // 'psychictemple',
-  'divinationaltar',
+  'divinationaltar', // 念力
   // 'theurgytemple',
-  'farmland',
-  'fishery',
-  'timberland',
-  'huntingground',
-  'mine',
+  'farmland', // 神识
+  'fishery', // 身法
+  'timberland', // 神识
+  'huntingground', // 身法
+  'mine', // 体魄
 ];
+
+const kSiteKindToAttribute = {
+  'daostele': 'wisdom',
+  'library': 'wisdom',
+  'auctionhouse': 'charisma',
+  'hotel': 'charisma',
+  'workshop': 'strength',
+  'alchemylab': 'spirituality',
+  'runelab': 'spirituality',
+  'illusionaltar': 'willpower',
+  'divinationaltar': 'willpower',
+  'farmland': 'perception',
+  'timberland': 'perception',
+  'fishery': 'dexterity',
+  'huntingground': 'dexterity',
+  'mine': 'strength',
+};
 
 const kSiteKindsBuildable = {
   'daostele',
@@ -790,12 +811,14 @@ const List<String> kDamageTypes = [
   DamageType.pure,
 ];
 
-const kTicksPerDay = 4; //每天的回合数 morning, afternoon, evening, night
+const kTicksPerTime = 24; // 每个时间段的 tick 数，tick 是游戏的最小时间单位
+const kTimesPerDay = 4; //每天的时间段数
+const kTicksPerDay = kTimesPerDay * kTicksPerTime; //每天的 tick 数 24
 const kDaysPerMonth = 30; //每月的天数
-const kTicksPerMonth = kDaysPerMonth * kTicksPerDay; //每月的回合数 120
-const kDaysPerYear = 360; //每年的月数
+const kTicksPerMonth = kDaysPerMonth * kTicksPerDay; //每月的 tick 数 720
 const kMonthsPerYear = 12; //每年的月数
-const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
+const kDaysPerYear = kDaysPerMonth * kMonthsPerYear; //每年的天数
+const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的 tick 数 8640
 
 enum ItemType {
   none,
@@ -880,8 +903,7 @@ final kItemBasePriceByCategory = {
   'gloves': 100,
   'helmet': 100,
   'boots': 200,
-  'ship': 500,
-  'aircraft': 1000,
+  'vehicle': 750,
   'jewelry': 350,
   'talisman': 500,
   'potion': 100,
@@ -908,11 +930,31 @@ const kUntradableItemKinds = {
 
 const kMaxAffixCount = 6;
 
-const kAttributeAnyLevel = 10;
-const kBaseResistMax = 75;
+const kPassiveTreeAttributeAnyLevel = 10;
 
-const kBaseMoveCostOnHill = 1.0;
-const kBaseMoveCostOnWater = 2.0;
+/// 容貌等数值计算时的最大值: 100.0
+const kAttributeValueMax = 100.0;
+const kAttributeValueAverage = 50.0;
+const kAttributeValueDeviation = 25.0;
+
+const kBaseExpGainPerLight = 10;
+const kBaseExpCollectSpeed = 1.0;
+const kBaseMoveSpeedOnPlain = 2.0;
+const kBaseMoveSpeedOnMountain = 1.0;
+const kBaseMoveSpeedOnWater = 3.0;
+const kBaseStaminaCostOnMountain = 2.0;
+const kBaseStaminaCostOnWater = 4.0;
+const kBaseCraftSkillLevel = 0;
+
+const kBaseLife = 10;
+const kBaseLifePerLevel = 5;
+const kBaseLightRadius = 2;
+
+const kBaseMonthlyIdentifyCardsMax = 12;
+const kBaseResistMax = 75;
+const kBaseTurnActionThreshold = 10;
+const kMaxTurnActionThreshold = 15;
+const kMinTurnActionThreshold = 5;
 
 const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
@@ -949,7 +991,7 @@ const kCardOperations = [
   'craftScroll',
 ];
 
-const kTimeOfDay = {
+const kTimeStrings = {
   1: 'morning',
   2: 'afternoon',
   3: 'evening',
@@ -1314,8 +1356,7 @@ const kItemEquipmentCategories = {
   'gloves',
   'helmet',
   'boots',
-  'ship',
-  // 'aircraft',
+  'vehicle',
   'jewelry',
   'talisman',
 };
@@ -1415,22 +1456,22 @@ const kEquipmentCategoryKinds = {
   ],
   'armor': [
     'armor',
+    //'robe',
   ],
   'gloves': [
     'gloves',
   ],
   'helmet': [
     'helmet',
+    // 'coronet',
   ],
   'boots': [
     'boots',
   ],
-  'ship': [
+  'vehicle': [
     'ship',
+    // 'aircraft',
   ],
-  // aircraft: [
-  //   'aircraft',
-  // ],
   // 所有首饰的 category 都是 jewelry
   'jewelry': [
     'ring',
@@ -1449,7 +1490,7 @@ final kEquipmentKinds = [
   ...kEquipmentCategoryKinds['gloves']!,
   ...kEquipmentCategoryKinds['helmet']!,
   ...kEquipmentCategoryKinds['boots']!,
-  ...kEquipmentCategoryKinds['ship']!,
+  ...kEquipmentCategoryKinds['vehicle']!,
   // ...kEquipmentCategoryKinds['aircraft']!,
   ...kEquipmentCategoryKinds['jewelry']!,
   ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman

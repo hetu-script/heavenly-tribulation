@@ -1,0 +1,626 @@
+
+// type
+// 物品的大类别，用于物品栏筛选，以及显示在物品详细信息浮窗中
+const kItemTypeEquipment = 'equipment';
+const kItemTypeConsumable = 'consumable';
+const kItemTypeMaterial = 'material';
+const kItemTypeCardpack = 'cardpack';
+
+// category
+// 物品小类别
+// weapon, armor, helmet, boots, vehicle 每种只能装备一个，amulet 和 talisman 无限制
+// weapon 和 talisman 决定了战斗中可以使用的功法卡牌类型
+// category 也用于 onUseItem 的逻辑分支判断
+
+const kItemCategoryCardpack = 'cardpack';
+const kItemCategoryIdentifyScroll = 'identify_scroll';
+const kItemCategoryScroll = 'scroll';
+const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryDungeonTicket = 'dungeon_ticket';
+const kItemCategoryExppack = 'exp_pack';
+const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryPotion = 'potion';
+const kItemCategoryCraftMaterial = 'craftmaterial';
+
+// kind
+// 物品具体类型
+// 用于生成物品名称
+
+const kEquipmentMax = 6;
+
+const kItemExtraAffixMinLevel = 6;
+
+const kEstimatePriceFactor = 0.8;
+
+const kUnknownItemBasePrice = 100;
+
+function calculatePrice(item) {
+  if (Constants.itemWithAffixCategories.contains(item.category)) {
+    item.price = ((item.rank + 1) * (item.rank + 1) ~/ 2 + 1) * (item.level + 1) *
+      (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+  } else {
+    item.price = ((item.rank + 1) * (item.rank + 1) ~/ 2 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+  }
+}
+
+function estimatePrice({category, rank, range}) {
+  assert(category != null)
+  rank ??= 0
+  
+  let price
+  if (Constants.itemWithAffixCategories.contains(category)) {
+    range ??= 'high' // 'low', 'medium', 'high'
+    final minLevel = minLevelForRank(rank)
+    final maxLevel = maxLevelForRank(rank)
+    final extraAffixCount = getMinMaxExtraAffixCount(rank)
+    final minExtra = extraAffixCount.minExtra
+    final maxExtra = extraAffixCount.maxExtra
+    let level
+    let affixCount
+    switch (range) {
+      'high': {
+        level = maxLevel
+        affixCount = maxExtra
+      }
+      'medium':{
+        level = (minLevel + maxLevel) ~/ 2
+        affixCount = (minExtra + maxExtra) ~/ 2
+      }
+      'low': {
+        level = minLevel
+        affixCount = minExtra
+      }
+      else: {
+        throw('estimatePrice range should be `low`, `medium`, or `high`: ${range}')
+      }
+    }
+    price = ((rank + 1) * (rank + 1) ~/ 2 + 1) * (level + 1) *
+      (affixCount + 1) * (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
+  } else {
+    price = ((rank + 1) * (rank + 1) ~/ 2 + 1) * (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
+  }
+
+  return price
+}
+
+function convertMoneyToShard(money) {
+  final amount = (money / Constants.materialBasePrice['shard']).ceil()
+  return amount < 1 ? 1 : amount
+}
+
+struct AbstractedAffix {
+  constructor ({
+    kind,
+    affix,
+  }) {
+    assert(kind != null, 'AbstractedAffix constructor error: kind: ${kind}')
+    assert(affix != null, 'AbstractedAffix constructor error: affix: ${affix}')
+    this.kind = kind
+    this.entityType = kEntityTypeItem
+    this.type = kItemTypeMaterial
+    this.affix = Object.create(affix)
+    
+    this.id = crypto.randomUID(withTime: true)
+    this.name = engine.locale('equipment_affix')
+    this.icon = 'item/affix.png'
+    this.category = kItemCategoryEquipmentAffix
+  }
+}
+
+// 地牢中获得的临时性buff，占据一个法宝栏位，并且无法取下
+// struct StatusSpirit {
+//   constructor({
+//     id,
+//     icon,
+//     rank,
+//   }) {
+//     assert(rank != null, 'StatusSpirit constructor error: rank: ${rank}')
+
+//     this.id = id ?? crypto.randomUID(withTime: true)
+//     this.name = generateMaterialName(category: 'spectre', rarity: 'legendary')
+//     this.entityType = kEntityTypeItem
+//     this.isIdentified = true
+//     this.isEquippable = true
+//     this.isCursed = true
+//     this.isUntradable = true
+//     this.category = kItemCategoryStatusSpirit
+//     // 这里的rank是生成此buff的地牢的境界
+//     this.rank = rank.clamp(1, kCultivationRankMax)
+//     this.rarity = Constants.rankToRarity[rank]
+//     this.icon = icon ?? 'item/status_spirit.png'
+
+//     final minLevel = minLevelForRank(rank)
+//     final maxLevel = maxLevelForRank(rank)
+//     this.level = getRandomLevel(minLevel, maxLevel)
+
+//     let mainAffix
+//     this.affixes = []
+//     this.affixUniqueIds = Set()
+
+//     final statusType = random.nextIterable(kStatusSpiritPassives)
+//     final passiveRawData = game.passives[statusType]
+//     assert(passiveRawData != null, statusType)
+//     mainAffix = Object.create(passiveRawData)
+
+//     assert(mainAffix.increment != null)
+//     if (mainAffix.increment < 1) {
+//       final minAffixLevel = (1 / mainAffix.increment).ceil()
+//       if (this.level < minAffixLevel) {
+//         this.level = minAffixLevel
+//       }
+//     }
+//     mainAffix.level = this.level
+
+//     final isAfflicted = random.nextBool()
+//     if (isAfflicted) {
+//       mainAffix.level = -mainAffix.level
+//     }
+
+//     mainAffix.value = (mainAffix.increment * mainAffix.level).round()
+
+//     this.affixes.add(mainAffix)
+//     this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+    
+//     // 在 category 赋值之后才能获取风味文本
+//     this.flavortext = engine.locale('status_spirit_flavortext')
+
+//     // 根据境界，生成额外词条
+//     final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
+//     let affixCount = affixCountInfo.maxExtra
+//     assert(affixCount > 0)
+//     for (var i in range(affixCount)) {
+//       final supportAffixes = game.passives.values.where((affix) {
+//         if (!affix.isItemAffix) return false
+//         if (this.affixUniqueIds.contains(affix.id) ||
+//           (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
+//         if (affix.kind is List && !affix.kind.contains(this.kind)) return false
+//         if (affix.rank > this.rank) return false
+//         return true
+//       })
+//       if (supportAffixes.isEmpty) {
+//         throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+//       }
+      
+//       final affix = Object.create(random.nextIterable(supportAffixes))
+//       if (affix.increment != null) {
+//         affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
+//         affix.value = (affix.increment * affix.level).round()
+//       }
+//       this.affixes.add(affix)
+//       this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
+//     }
+//   }
+// }
+
+function createItemById(id, {amount, rank, level}) {
+  // TODO: 如果id不存在，则获得一个「未知物品」
+  final prototype = game.items[id]
+  assert(prototype != null, 'could not find prototype! id: ${id}')
+  let item = Object.create(prototype)
+  // TODO: 根据稀有度和地图大小决定物品允许存在的数量
+  // if (item.isUnique) {
+  //   if (item.isCreated) {
+  //     engine.debug('唯一物品${item.id}已经被创造过一次，无法再次获得。')
+  //     return
+  //   } else {
+  //     item.isCreated = true
+  //   }
+  // }
+  // rankedItem 境界从 1 开始
+  item.entityType = kEntityTypeItem
+  item.kind ??= item.id
+  
+  if (item.isRankedItem) {
+    item.rank = rank ?? 1
+    item.rarity = Constants.rankToRarity[item.rank]
+    final rankString = '_rank${item.rank}'
+    item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : (item.id + rankString)
+    if (item.isRankedName) {
+      item.name = engine.locale(item.name + rankString)
+    } else {
+      item.name = engine.locale(item.rarity) + engine.locale(item.name)
+    }
+  } else {
+    item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : item.id
+    // item.name = generateTalismanName(kind: item.kind)
+    if (item.rarity != null) {
+      assert(kRarity.containsKey(item.rarity))
+      item.rank = kRarity[item.rarity].rank
+    } else if (item.rank != null) {
+      assert(item.rank >= 0 && item.rank <= kCultivationRankMax)
+      item.rarity = Constants.rankToRarity[item.rank]
+    } else {
+      item.rank = 0
+      item.rarity = kRarityCommon
+    }
+    item.name = engine.locale(item.name)
+  }
+
+  if (item.flavortext != null) {
+    item.flavortext = engine.locale(item.flavortext)
+  }
+  item.color ??= kRarity[item.rarity].color
+  item.level ??= level
+  item.stackSize = amount ?? 1
+  item.experienced = []
+
+  // game.items[item.id] = item
+
+  if (item.affixes is List) {
+    let affixes = item.affixes.toList()
+    item.affixes = []
+    for (final id in affixes) {
+      final affixRawData = game.passives[id]
+      assert(affixRawData != null)
+      final affix = Object.create(affixRawData)
+      if (affix.increment != null) {
+        affix.level = level ?? 1
+        affix.value = (affix.increment * affix.level).round()
+      }
+      item.affixes.add(affix)
+    }
+  }
+
+  item.isIdentified ??= true
+  
+  if (!item.isUntradable) {
+    item.price ??= calculatePrice(item)
+  }
+
+  return item
+}
+
+function entityHasItem(entity, itemId) {
+  assert(entity.inventory != null && itemId != null)
+  return entity.inventory[itemId]
+}
+
+/// 返回某个对象所拥有的该 category 的物品的数量
+function entityHasItemCategory(entity, category) {
+  assert(entity.inventory != null && category != null)
+  let amount = 0
+  for (let item of entity.inventory) {
+    if (item.category == category) {
+      ++amount
+    }
+  }
+  return amount
+}
+
+/// 返回某个对象所拥有的该 category 的物品的数量
+function entityHasItemKind(entity, kind) {
+  assert(entity.inventory != null && kind != null)
+  let amount = 0
+  for (let item of entity.inventory) {
+    if (item.kind == kind) {
+      amount += item.stackSize ?? 1
+    }
+  }
+  return amount
+}
+
+/// 在背包中查找并返回该 kind 的物品
+function firstItemKindInCategory(entity, category) {
+  assert(entity.inventory != null && category != null)
+  for (let item of entity.inventory) {
+    if (item.category == category) {
+      return item
+    }
+  }
+  return null
+}
+
+/// 在背包中查找并返回该 kind 的物品
+function firstItemKindInInventory(entity, kind, {rank}) {
+  assert(entity.inventory != null && kind != null)
+  for (let item of entity.inventory) {
+    if (rank != null && item.rank != rank) continue
+    if (item.kind == kind) {
+      return item
+    }
+  }
+  return null
+}
+
+/// 直接获得资源
+function entityCollect(entity, materialId, amount, { incurIncident = true }) {
+  // engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
+  if (amount <= 0) {
+    engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
+    return
+  }
+  assert(Constants.materialKinds.contains(materialId))
+  entity.materials[materialId] += amount
+
+  let incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
+    entity.name,
+    amount,
+    engine.locale(materialId == 'money' ? 'money2' : materialId),
+  ])
+  if (incurIncident && entity.entityType == 'character') {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
+  return
+}
+
+function entityCollectAll(entity, materials, { incurIncident = true }) {
+  for (let materialId in materials.keys) {
+    final amount = materials[materialId]
+    entityCollect(entity, materialId, amount, incurIncident: incurIncident)
+  }
+}
+
+function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
+  assert(amount > 0)
+
+  final item = createItemById(id)
+
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+  item.ownerType = entity.entityType
+  item.stackSize = amount ?? 1
+
+  let incidentContent
+  incidentContent = engine.locale('entityAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident && entity.entityType == 'character') {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
+      isPrivate: true,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
+  return item
+}
+
+/// 消费资源，返回是否成功消费了指定的数量
+function entityExhaust(entity, materialId: string, amount, { forceExhaust = false }) -> bool {
+  assert(Constants.materialKinds.contains(materialId))
+  if (amount <= 0) {
+    engine.warn('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
+    return true
+  }
+  let success = false
+  final existed = entity.materials[materialId]
+  if (existed >= amount) {
+    success = true
+    entity.materials[materialId] = existed - amount
+    engine.warn('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+  } else if (forceExhaust) {
+    entity.materials[materialId] = existed - amount
+    engine.warn('[${entity.name}] 失去了 [${materialId} × ${existed}], 而且还欠 [${amount - existed}] 个。')
+  } else {
+    engine.warn('[${entity.name}] 只有 [${existed}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
+  }
+
+  return success
+}
+
+/// 对象（人物、据点等）获得一个已经存在与世界上的物品
+function entityAcquire(entity, item, { incurIncident = true }) {
+  if (item.isUnique)
+  assert(item.entityType == kEntityTypeItem, '${item.entityType}')
+
+  if (item.stackSize < 1) {
+    item.stackSize = 1
+  }
+  let amount = item.stackSize
+  let acquiredItem
+
+  if (entity.inventory.containsKey(item.id)) {
+    acquiredItem = entity.inventory[item.id]
+    acquiredItem.stackSize += amount
+  } else {
+    acquiredItem = entity.inventory[item.id] = item
+    acquiredItem.ownerId = entity.id
+    acquiredItem.ownerType = entity.entityType
+  }
+
+  if (entity.achievements) {
+    acquiredItem.acquiredSequence = entity.achievements.acquiredItems
+    ++entity.achievements.acquiredItems
+  }
+
+  let incidentContent
+  if (amount > 1) {
+    incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
+      entity.name,
+      amount,
+      item.name,
+    ])
+  } else {
+    incidentContent = engine.locale('entityAcquire', interpolations: [
+      entity.name,
+      item.name,
+    ])
+  }
+  if (incurIncident && entity.entityType == 'character') {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: acquiredItem,
+      isPrivate: true,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+
+  return acquiredItem
+}
+
+/// 失去指定数量的某个物品，返回 bool 表示是否成功
+function entityLose(entity, item, { amount, incurIncident = true }) {
+  assert(entity.inventory.containsKey(item.id))
+  let itemAmount = item.stackSize ?? 1
+  amount ??= itemAmount
+  assert(amount > 0, 'entityLose amount <= 0')
+  if (itemAmount >= amount) {
+    itemAmount -= amount
+    if (itemAmount <= 0) {
+      delete entity.inventory[item.id]
+    } else {
+      item.stackSize = itemAmount
+    }
+    engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+    return true
+  } else {
+    engine.warn('[${entity.name}] 只有 [${item.stackSize}] 个 [${item.name}]，但需要支付 [${amount}] 个。')
+    return false
+  }
+}
+
+/// 失去指定数量的某个物品种类，返回 bool 表示是否成功
+function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
+  assert(entity.inventory != null)
+  final items = []
+  let count
+  for (let item of entity.inventory) {
+    if (item.kind == kind) {
+      items.add(item)
+      count += item.stackSize ?? 1
+      if (count >= amount) break
+    }
+  }
+  if (count >= amount) {
+    for (final item in items) {
+      if (amount <= 0) break
+      let itemAmount = item.stackSize ?? 1
+      if (itemAmount > amount) {
+        item.stackSize -= amount
+        amount = 0
+        engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+      } else {
+        amount -= itemAmount
+        delete entity.inventory[item.id]
+        engine.warn('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
+      }
+    }
+    return true
+  } else {
+    engine.warn('对象 [${entity.id}] 只有 [${count}] 个 [${kind}] 物品，但需要支付 [${amount}] 个。')
+    return false
+  }
+}
+
+function characterAcquireBattleCard(character, card, { incurIncident = true }) {
+  assert(!character.cardLibrary.containsKey(card.id))
+  assert(card.entityType == kEntityTypeBattleCard, '${card.entityType}')
+
+  character.cardLibrary[card.id] = card
+  card.acquiredSequence = character.achievements.acquiredBattleCards
+  ++character.achievements.acquiredBattleCards
+
+  let incidentContent
+  incidentContent = engine.locale('characterLearn', interpolations: [
+    character.name,
+    card.name,
+  ])
+  if (incurIncident && character.entityType == 'character') {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+      card: card,
+      isPrivate: true,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
+}
+
+/// 按配置获取宝箱内的物品
+/// 分为四种：材料，预定义物品，装备，卡包
+/// category: ['material', 'prototype', 'equipment', 'cardpack']
+/// items = [
+///   {
+///     type: 'material',
+///     kind: 'money',
+///     amount: 100,
+///   },
+///   {
+///     type: 'prototype',
+///     id: 'exp_pack',
+///     amount: 1,
+///   },
+///   {
+///     type: 'equipment',
+///     kind: 'sword',
+///     rarity: 'common',
+///     rank: 0,
+///     level: 0,
+///     amount: 1,
+///   },
+///   {
+///     type: 'cardpack',
+///     kind: 'punch',
+///     genre: null,
+///     rank: 0,
+///     amount: 1,
+///   },
+/// ]
+function createLoot(itemsInfo: List) {
+  final items = []
+  for (final itemInfo in itemsInfo) {
+    final amount = itemInfo.amount ?? 1
+    switch (itemInfo.type) {
+      'material': {
+        assert(Constants.materialKinds.contains(itemInfo.kind))
+        final pack = Materialpack(kind: itemInfo.kind, amount: amount)
+        items.add(pack)
+      }
+      'prototype': {
+        assert(game.items.contains(itemInfo.kind))
+        for (var i in range(amount)) {
+          final created = createItemById(itemInfo.id)
+          items.add(created)
+        }
+      }
+      'equipment': {
+        assert(Constants.equipmentKinds.contains(itemInfo.kind))
+        for (var i in range(amount)) {
+          final equipment = Equipment(
+            kind: itemInfo.kind,
+            rarity: itemInfo.rarity,
+            rank: itemInfo.rank,
+            level: itemInfo.level,
+          )
+          items.add(equipment)
+        }
+      }
+      'potion': {
+        for (var i in range(amount)) {
+          final potion = Potion(
+            rank: itemInfo.rank,
+          )
+          items.add(potion)
+        }
+      }
+      'cardpack': {
+        for (var i in range(amount)) {
+          final cardpack = Cardpack(
+            category: itemInfo.category,
+            kind: itemInfo.kind,
+            genre: itemInfo.genre,
+            rank: itemInfo.rank,
+            isBasic: itemInfo.isBasic,
+          )
+          items.add(cardpack)
+        }
+      }
+    }
+  }
+  return items
+}

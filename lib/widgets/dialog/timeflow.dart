@@ -11,12 +11,10 @@ import '../../engine.dart';
 import '../../state/game_update.dart';
 import '../../game/common.dart';
 
-const _kTimeFlowDivisions = 10;
-
 class TimeflowDialog extends StatefulWidget {
   static Future<int> show({
     required BuildContext context,
-    required int max,
+    required int ticks,
     bool Function()? onProgress,
   }) async {
     final result = await showDialog<int>(
@@ -25,7 +23,7 @@ class TimeflowDialog extends StatefulWidget {
       barrierDismissible: false,
       builder: (context) {
         return TimeflowDialog(
-          max: max,
+          max: ticks,
           onProgress: onProgress,
         );
       },
@@ -57,21 +55,18 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
     super.initState();
 
     _timer = Timer.periodic(
-      const Duration(
-          milliseconds: kAutoTimeFlowInterval ~/ _kTimeFlowDivisions),
-      (timer) {
-        setState(() {});
+      const Duration(milliseconds: kTimeFlowInterval ~/ kTicksPerTime),
+      (timer) async {
+        ++_progress;
+        _isFinished = _progress >= widget.max;
 
         if (_isFinished) {
           _timer!.cancel();
-          return;
         }
 
-        ++_progress;
-        _isFinished = _progress >= widget.max * _kTimeFlowDivisions;
-        if (_progress % _kTimeFlowDivisions == 0) {
-          GameLogic.updateGame();
+        final updated = await GameLogic.updateGame(ticks: 1);
 
+        if (updated) {
           final result = widget.onProgress?.call();
           if (result == true) {
             _isFinished = true;
@@ -79,6 +74,8 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             return;
           }
         }
+
+        setState(() {});
       },
     );
   }
@@ -92,40 +89,34 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
   @override
   Widget build(BuildContext context) {
     final (_, dateTimeString) = context.watch<GameTimestampState>().get();
-    final timeOfDayImageId = 'assets/images/time/${GameLogic.timeOfDay}.png';
+    final timeOfDayImageId = 'assets/images/time/${GameLogic.timeString}.png';
 
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       barrierColor: GameUI.backgroundColor,
-      barrierDismissible: false,
-      alignment: AlignmentDirectional.center,
       width: 300.0,
       height: 380.0,
-      child: Container(
-        width: 280,
-        padding: const EdgeInsets.all(5.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image(image: AssetImage(timeOfDayImageId)),
-            LinearProgressIndicator(
-              value: _progress / (widget.max * _kTimeFlowDivisions),
-            ),
-            Text(dateTimeString),
-            if (_isFinished)
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: fluent.FilledButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(_progress);
-                  },
-                  child: Text(
-                    engine.locale('close'),
-                  ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image(image: AssetImage(timeOfDayImageId)),
+          LinearProgressIndicator(
+            value: _progress / (widget.max),
+          ),
+          Text(dateTimeString),
+          if (_isFinished)
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: fluent.FilledButton(
+                onPressed: () {
+                  Navigator.of(context).pop(_progress);
+                },
+                child: Text(
+                  engine.locale('close'),
                 ),
-              )
-          ],
-        ),
+              ),
+            )
+        ],
       ),
     );
   }

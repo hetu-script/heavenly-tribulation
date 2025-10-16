@@ -16,7 +16,7 @@ import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
 import 'game/game.dart';
 import 'game/ui.dart';
-import 'scene/world/location.dart';
+import 'scene/world/location/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'game/logic/logic.dart';
@@ -267,7 +267,7 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       final func = positionalArgs[0] as HTFunction;
       dialog.pushTask(
-        () => func.call(),
+        () async => await func.call(),
         flagId: namedArgs['flagId'],
       );
     }, override: true);
@@ -331,7 +331,7 @@ class _GameAppState extends State<GameApp> {
         'year': GameLogic.year,
         'month': GameLogic.month,
         'day': GameLogic.day,
-        'timeOfDay': GameLogic.timeOfDay,
+        'timeOfDay': GameLogic.timeString,
       };
     }, override: true);
 
@@ -360,7 +360,9 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::updateGame', (
         {positionalArgs, namedArgs}) {
       GameLogic.updateGame(
-        tick: namedArgs['tick'] ?? 1,
+        ticks: namedArgs['tick'] ?? 1,
+        force: namedArgs['force'] ?? false,
+        updateEntity: namedArgs['updateEntity'] ?? true,
         updateUI: namedArgs['updateUI'] ?? true,
         updateWorldMap: namedArgs['updateWorldMap'] ?? true,
       );
@@ -404,6 +406,12 @@ class _GameAppState extends State<GameApp> {
       context.read<NpcListState>().update(positionalArgs.first);
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Game::updateNpcsAtLocation', (
+        {positionalArgs, namedArgs}) {
+      final npcs = GameData.getNpcsAtLocation(positionalArgs.first);
+      context.read<NpcListState>().update(npcs);
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Game::hideNpc', (
         {positionalArgs, namedArgs}) {
       context.read<NpcListState>().hide(positionalArgs.first);
@@ -416,7 +424,12 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptJournal', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.promptJournal(positionalArgs[0], positionalArgs[1]);
+      return GameLogic.promptJournal(
+        positionalArgs[0],
+        selectionsRaw: namedArgs['selectionsRaw'],
+        selections: namedArgs['selections'],
+        interpolations: namedArgs['interpolations'],
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewRank', (
@@ -448,7 +461,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showTimeflow', (
         {positionalArgs, namedArgs}) {
-      TimeflowDialog.show(context: context, max: positionalArgs[0]);
+      TimeflowDialog.show(context: context, ticks: positionalArgs[0]);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::selectItem', (

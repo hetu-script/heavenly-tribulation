@@ -99,7 +99,7 @@ abstract class GameUI {
   static const foregroundColorPressed = Colors.white54;
   static final foregroundDiabled = Colors.grey[500];
 
-  static final backgroundColor = Colors.black45;
+  static final backgroundColor = Colors.black54;
   static final backgroundColorOpaque = Colors.black;
 
   static final Paint backgroundPaint = Paint()

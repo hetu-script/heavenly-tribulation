@@ -1,0 +1,180 @@
+
+const kTalismanEnergyTypes = [
+  'start_battle_with_energy_positive_spell',
+  'start_deck_with_energy_positive_spell',
+  'start_turn_with_energy_positive_spell',
+  'start_battle_with_energy_positive_weapon',
+  'start_deck_with_energy_positive_weapon',
+  'start_battle_with_energy_positive_unarmed',
+  'start_battle_with_energy_positive_ultimate',
+]
+
+const kArmorResistPassives = [
+  'physicalResist',
+  'elementalResist',
+]
+
+// const kStatusSpiritPassives = [
+//   'physicalResist',
+//   'elementalResist',
+//   'chiResist',
+//   'psychicResist',
+//   'unarmedAttack',
+//   'weaponAttack',
+//   'spellAttack',
+//   'curseAttack',
+//   'lifeMax',
+//   'manaMax',
+//   'chakraMax',
+//   'karmaMax',
+// ]
+
+struct Equipment {
+  constructor ({
+    id,
+    name,
+    icon,
+    flavortext,
+    category,
+    kind,
+    rarity,
+    rank,
+    level,
+    isIdentified = true,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeItem
+    this.createdTimestamp = game.timestamp
+    this.isIdentified = isIdentified
+    this.isEquippable = true
+    this.type = 'equipment'
+
+    this.kind = kind
+    this.category = category
+    if (category == null) {
+      if (this.kind != null) {
+        final categories = [...Constants.equipmentCategoryKinds.keys]
+        this.category = categories.firstWhere((key) {
+          return Constants.equipmentCategoryKinds[key].contains(this.kind)
+        })
+      } else {
+        this.category = random.nextIterable(Constants.equipmentCategoryKinds.keys)
+        this.kind = random.nextIterable(Constants.equipmentCategoryKinds[this.category])
+      }
+    }
+    assert(Constants.equipmentCategoryKinds.containsKey(this.category))
+    if (this.kind == null) {
+      this.kind = random.nextIterable(Constants.equipmentCategoryKinds[this.category])
+    }
+    assert(Constants.equipmentKinds.contains(this.kind))
+    // kind 决定了物品名字的生成方式
+    // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
+    // talisman具体分为：buff, ongoing, consume
+    // 其他情况下 kind == type
+    this.name = name ?? generateTalismanName(kind: this.kind)
+
+    if (rarity != null) {
+      assert(kRarity.containsKey(rarity))
+      this.rarity = rarity
+      this.rank = kRarity[rarity].rank
+    } else if (rank != null) {
+      assert(rank >= 0 && rank <= kCultivationRankMax)
+      this.rank = rank
+      this.rarity = Constants.rankToRarity[rank]
+    } else {
+      this.rank = 0
+      this.rarity = kRarityCommon
+    }
+    this.icon = icon ?? 'item/equipment/${this.kind}.png'
+
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
+    level ??= getRandomLevel(minLevel, maxLevel)
+    // 这里要再判断一次，因为可能是从外部传入的 level
+    this.level = level.clamp(Math.max(1, minLevel), maxLevel)
+
+    let mainAffix
+    let passiveRawData
+    this.affixes = []
+    this.affixUniqueIds = Set()
+    // category 决定了能装备的数量
+    // weapon, armor, helmet, boots, vehicle，talisman
+    switch(this.category) {
+      'weapon', 'boots', 'vehicle': {
+        // 武器的固定词条是允许使用该类卡牌
+        passiveRawData = game.passives['equipment_${this.kind}']
+        assert(passiveRawData != null, 'kind: ${this.kind}')
+      }
+      'shield', 'armor', 'gloves', 'helmet': {
+        // 护甲的固定词条获得元素或物理抗性
+        final resistType = random.nextIterable(kArmorResistPassives)
+        passiveRawData = game.passives[resistType]
+        assert(passiveRawData != null, 'resistType: ${resistType}')
+      }
+      'jewelry': {
+        // 饰品的固定词条是获得主属性
+        final attributeType = random.nextIterable(Constants.battleAttributes)
+        passiveRawData = game.passives[attributeType]
+        assert(passiveRawData != null, 'attributeType: ${attributeType}')
+      }
+      else: {
+        // 法器的固定词条是获得资源
+        final energytype = random.nextIterable(kTalismanEnergyTypes)
+        passiveRawData = game.passives[energytype]
+        assert(passiveRawData != null, 'energytype: ${energytype}')
+      }
+    }
+    mainAffix = Object.create(passiveRawData)
+    mainAffix.level = this.level
+    if (mainAffix.increment != null) {
+      if (mainAffix.increment < 1) {
+        final minAffixLevel = (1 / mainAffix.increment).ceil()
+        if (this.level < minAffixLevel) {
+          this.level = minAffixLevel
+        }
+      }
+      mainAffix.value = (mainAffix.increment * this.level).round()
+    }
+    this.affixes.add(mainAffix)
+    // this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+    
+    // 在 category 赋值之后才能获取风味文本
+    this.flavortext = flavortext ?? engine.locale('flavortext_${this.category}')
+
+    // 根据境界，生成额外词条
+    final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
+    let affixCount = affixCountInfo.minExtra
+    if (affixCountInfo.maxExtra > 0) {
+      if (affixCount < affixCountInfo.maxExtra) {
+        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+      }
+    }
+    if (affixCount > 0) {
+      for (var i in range(affixCount)) {
+        final supportAffixes = game.passives.values.where((affix) {
+          if (!affix.isItemAffix) return false
+          if (this.affixUniqueIds.contains(affix.id) ||
+            (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
+          if (affix.kind is List && !affix.kind.contains(this.kind)) return false
+          if (affix.rank > this.rank) return false
+          return true
+        })
+        if (supportAffixes.isEmpty) {
+          throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+        }
+        
+        final affix = Object.create(random.nextIterable(supportAffixes))
+        if (affix.increment != null) {
+          affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
+          affix.value = (affix.increment * affix.level).round()
+        }
+        this.affixes.add(affix)
+        this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
+      }
+    }
+
+    calculatePrice(this)
+
+    this.experienced = []
+  }
+}

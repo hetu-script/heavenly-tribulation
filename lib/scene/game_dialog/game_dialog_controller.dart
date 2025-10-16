@@ -182,6 +182,7 @@ class _GameDialogControllerState extends State<GameDialogController>
               children: [
                 ModalBarrier(
                   color: GameUI.backgroundColor,
+                  onDismiss: () {},
                 ),
                 if (background != null) background,
                 if (illustrations.isNotEmpty) ...illustrations,

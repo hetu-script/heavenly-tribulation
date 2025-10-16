@@ -73,7 +73,7 @@ const kRewardProbabilityCraftMaterialRerollAffix = 0.25
 const kRewardProbabilityCraftMaterialUpgradeRank = 0.1
 
 const kSpiritWellProbabilitySpirit = 0.75
-const kSpiritWellProbabilityCraftMaterial = 0.4
+const kSpiritWellProbabilityCraftMaterial = 0.5
 
 /// 根据一个概率表生成战斗奖励
 /// probability: {
@@ -160,14 +160,15 @@ function generateReward({entity, probability: {}}) {
   if (rewardCraftMaterial) {
     let craftMaterialTypeRoll = random.nextDouble()
     let craftMaterial
+    final itemRank = random.nearInt(rank) + 1
     if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemById('craftmaterial_upgradeRank${random.nearInt(rank) + 1}')
+      craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
-      craftMaterial = createItemById('craftmaterial_rerollAffix')
+      craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
-      craftMaterial = createItemById('craftmaterial_replaceAffix')
+      craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
     } else {
-      craftMaterial = createItemById('craftmaterial_addAffix')
+      craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
     }
     rewards.add(craftMaterial)
   }
@@ -199,7 +200,7 @@ function getHeroAvaialbeDays() {
     return 0
   }
 
-  const staminaAvailableDays = hero.life ~/ kTicksPerDay
+  const staminaAvailableDays = hero.life ~/ Constants.ticksPerDay
   if (staminaAvailableDays < 1) {
     dialog.localeLines(['notEnoughStaminaMonologue'], isHero: true)
     return 0
@@ -464,35 +465,37 @@ async function onInteractSpiritWell(object) {
     return
   }
 
-  let hasVacancy = false
-  for (final itemId in hero.equipments.keys) {
-    if (hero.equipments[itemId] == null) {
-      hasVacancy = true
-      break
-    }
-  }
+  // let hasVacancy = false
+  // for (final itemId in hero.equipments.keys) {
+  //   if (hero.equipments[itemId] == null) {
+  //     hasVacancy = true
+  //     break
+  //   }
+  // }
 
   final items = []
   final spiritWellDropRoll = random.nextDouble()
-  if (hasVacancy && spiritWellDropRoll < kSpiritWellProbabilitySpirit) {
-    final spirit = StatusSpirit(rank: object.rank)
-    await Player.acquire(spirit)
-    Player.equip(spirit)
-    engine.play('spell-of-healing-876.mp3')
-    dialog.pushDialog('hint_dungeon_spiritWell_use')
-    await dialog.execute()
-    items.add(spirit)
-  } else if (spiritWellDropRoll < kSpiritWellProbabilityCraftMaterial) {
+  // if (hasVacancy && spiritWellDropRoll < kSpiritWellProbabilitySpirit) {
+  //   final spirit = StatusSpirit(rank: object.rank)
+  //   await Player.acquire(spirit)
+  //   Player.equip(spirit)
+  //   engine.play('spell-of-healing-876.mp3')
+  //   dialog.pushDialog('hint_dungeon_spiritWell_use')
+  //   await dialog.execute()
+  //   items.add(spirit)
+  // } else
+  if (spiritWellDropRoll < kSpiritWellProbabilityCraftMaterial) {
     let craftMaterialTypeRoll = random.nextDouble()
     let craftMaterial
+    final itemRank = random.nearInt(object.rank) + 1
     if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemById('craftmaterial_upgradeRank${random.nearInt(hero.rank)}')
+      craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
-      craftMaterial = createItemById('craftmaterial_rerollAffix')
+      craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
     } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
-      craftMaterial = createItemById('craftmaterial_replaceAffix')
+      craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
     } else {
-      craftMaterial = createItemById('craftmaterial_addAffix')
+      craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
     }
     rewards.add(craftMaterial)
   } else {

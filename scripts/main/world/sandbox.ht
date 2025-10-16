@@ -20,8 +20,7 @@ const _kChildrenMax = 3
 
 const _kLocationInitialDevelopmentMax = 4
 
-const _kOrganizationRecruitOtherLocationProbability = 0.2
-const _kOrganizationRecruitSuccessProbability = 0.4
+const _kOrganizationRecruitProbability = 0.6
 
 const _kSandboxInitialRankMax = 3
 
@@ -534,7 +533,7 @@ function createSandboxWorld({
     // 产生新的在野角色
     // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
     const location = random.nextIterable(cities)
-    const character = Character(
+    Character(
       locationId: location.id,
       birthTimestamp: createBirthTimestamp(min: 12, max: 60),
     )
@@ -544,24 +543,20 @@ function createSandboxWorld({
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
   // 因为是模拟运行，每个tick接跳过一个月
   engine.debug('快速模拟一段时间的演化，生成人物、组织、国家等信息')
-  for (var i in range(20)) {
+  for (var i in range(5)) {
     // 国家和组织扩张
     for (const organization of game.organizations) {
-
       final expansionRate = Constants.organizationCategoryExpansionRate[organization.category]
-      final roll = random.nextDouble()
+      let roll = random.nextDouble()
       if (roll > expansionRate) continue
-
       final availableCities = game.locations.values.where((location) =>
         location.category == 'city' &&
         location.organizationId == null
       ).toList()
-
       if (availableCities.isEmpty) {
         // engine.warn('组织 ${organization.id} 没有可用的据点可以扩张了。')
         continue
       }
-
       engine.debug('组织 ${organization.name} 尝试扩张新领土')
       if (availableCities.length > 1) {
         // 按照距离组织据点的远近排序
@@ -574,59 +569,25 @@ function createSandboxWorld({
           return distanceA.compareTo(distanceB)
         })
       }
-
       final newCity = availableCities.first
       addLocationToOrganization(newCity, organization)
+
+      roll = random.nextDouble()
+      if (roll > _kOrganizationRecruitProbability) continue
+      final availableCharacters = game.characters.values.where((char) =>
+        char.organizationId == null
+      )
+      if (availableCharacters.isEmpty) {
+        // engine.warn('组织 ${organization.id} 没有可用的角色可以招募了。')
+        continue
+      }
+      engine.debug('组织 ${organization.id} 尝试招募新成员')
+      final character = random.shuffle(availableCharacters).first
+      addCharacterToOrganization(character, organization)
     }
   }
-
+  
   for (var i in range(characterNumber ~/ 4)) {
-    // 从最低等级开始，尝试提升成员等级
-    // for (const rank in range(kOrganizationRankMax)) {
-    //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
-    //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
-    //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
-    //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
-    //       const memberId = random.nextIterable(membersOfThisRank)
-    //       const member = game.characters[memberId]
-    //       addOrganizationTitleForCharacter(member, organization, rank + 1)
-    //       break
-    //     }
-    //   }
-    // }
-    final organization = random.nextIterable(game.organizations.values)
-    engine.debug('组织 ${organization.id} 尝试招募新成员')
-    let location = game.locations[organization.headquartersLocationId]
-    let residingCharacters = getResidingCharacters(location)
-    if (residingCharacters.isEmpty) {
-      // 组织据点本身没有可用的人才（一般是因为是隐士据点）
-      if (random.nextDouble() < _kOrganizationRecruitOtherLocationProbability) {
-        for (const otherLocation of game.locations) {
-          if (location.category != 'city') continue
-          if (otherLocation.id == organization.headquartersLocationId) continue
-          residingCharacters = getResidingCharacters(otherLocation)
-          if (residingCharacters.isNotEmpty) {
-            break
-          }
-        }
-      }
-    }
-
-    // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
-    if (residingCharacters.isNotEmpty) {
-      if (random.nextDouble() < _kOrganizationRecruitSuccessProbability) {
-        for (let character in random.shuffle(residingCharacters)) {
-          if (character.organizationId == null) {
-            addCharacterToOrganization(character, organization)
-            break
-          }
-        }
-      }
-    } else {
-      // final character = Character(rank: random.nextInt(_kSandboxInitialRankMax))
-      // addCharacterToOrganization(character, organization)
-    }
-    
     engine.debug('通过婚姻和生育产生新的角色以及其人物关系')
     for (const char of game.characters) {
       if (!char.isFemale) continue
@@ -657,9 +618,6 @@ function createSandboxWorld({
         }
       }
     }
-
-    // 婴儿出生
-    handleBabies()
   }
 
 
@@ -728,8 +686,9 @@ function createSandboxWorld({
     }
   }
 
-  // 此时时间应为6日上午，以避免重复触发月初事件
-  Game.updateGame(tick: 20, updateUI: false, updateWorldMap: false)
+  // 此时时间应为7日上午，这是为了避免重复触发月初事件
+  Game.updateGame(tick: 0, force: true, updateEntity: true, updateUI: false, updateWorldMap: false)
+  Game.updateGame(tick: Constants.ticksPerDay * 6, updateEntity: false, updateUI: false, updateWorldMap: false)
 
   // engine.debug('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

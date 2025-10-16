@@ -39,7 +39,7 @@ void _heroRest() async {
 
   await TimeflowDialog.show(
     context: engine.context,
-    max: ticks,
+    ticks: ticks,
     onProgress: () {
       engine.hetu
           .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
@@ -81,15 +81,18 @@ Future<void> _heroProduce(dynamic location) async {
   if (selected == 'cancel') return;
 
   int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
-  int life = GameData.hero['life'];
+  final double workStaminaCostFactor =
+      GameData.hero['stats']['staminaCostWork'];
+  staminaCost = (staminaCost * workStaminaCostFactor).round();
 
-  if (life <= staminaCost) {
+  int availableLife = (GameData.hero['life'] - 1).toInt();
+  if (availableLife <= staminaCost) {
     GameDialogContent.show(
         engine.context, engine.locale('hint_notEnoughHealthToWork'));
     return;
   }
 
-  int maxAffordableTicks = life ~/ staminaCost;
+  int maxAffordableTicks = availableLife ~/ staminaCost;
   int availableTicksTillNextMonth = kTicksPerMonth - GameLogic.ticksOfMonth;
   final maxTicks = math.min(maxAffordableTicks, availableTicksTillNextMonth);
 
@@ -119,7 +122,7 @@ Future<void> _heroProduce(dynamic location) async {
 
   await TimeflowDialog.show(
     context: engine.context,
-    max: ticks,
+    ticks: ticks,
     onProgress: () {
       final roll = GameData.random.nextDouble();
       for (String key in materialData.keys) {
@@ -136,6 +139,12 @@ Future<void> _heroProduce(dynamic location) async {
       return GameData.hero['life'] <= staminaCost;
     },
   );
+
+  final double workEfficiency = GameData.hero['stats']['workEfficiency'];
+  for (final materialId in produced.keys) {
+    final int amount = produced[materialId]!;
+    produced[materialId] = (amount * workEfficiency).round();
+  }
 
   engine.play('pickup_item-64282.mp3');
   engine.hetu
@@ -190,7 +199,7 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
     case 'workTillNextMonth':
       ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
     case 'workTillHealthExhausted':
-      ticks = (GameData.hero['life'] ~/ staminaCost) - 1;
+      ticks = (GameData.hero['life'] - 1) ~/ staminaCost;
       if (ticks <= 0) {
         _notEnoughStamina(npc);
         return;
@@ -200,7 +209,7 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
 
   final finalTicks = await TimeflowDialog.show(
     context: engine.context,
-    max: ticks,
+    ticks: ticks,
     onProgress: () {
       engine.hetu.invoke('setLife',
           namespace: 'Player',
@@ -387,7 +396,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     },
                   );
                 } else {
-                  GameData.addMonthly(
+                  GameData.addPlayerMonthly(
                       MonthlyActivityIds.enrolled, organization['id']);
                   dialog.pushDialog(
                     'organization_${organizationCategory}_trial_fail',
@@ -448,7 +457,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                       },
                     );
                   } else {
-                    GameData.addMonthly(
+                    GameData.addPlayerMonthly(
                         MonthlyActivityIds.enrolled, organization['id']);
                     dialog.pushDialog(
                       'organization_${organizationCategory}_trial_fail',
@@ -496,7 +505,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         },
                       );
                     } else {
-                      GameData.addMonthly(
+                      GameData.addPlayerMonthly(
                           MonthlyActivityIds.enrolled, organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
@@ -540,7 +549,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                         },
                       );
                     } else {
-                      GameData.addMonthly(
+                      GameData.addPlayerMonthly(
                           MonthlyActivityIds.enrolled, organization['id']);
                       dialog.pushDialog(
                         'organization_${organizationCategory}_trial_fail',
@@ -734,46 +743,14 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
           await dialog.execute();
           return;
         }
-        final bountyQuest = await showDialog(
+        final quest = await showDialog(
           context: engine.context,
-          builder: (context) => BountyQuestView(
-            data: bounties,
+          builder: (context) => QuestView(
+            quests: bounties,
           ),
         );
-        if (bountyQuest != null) {
-          final budget = bountyQuest['budget'];
-          if (budget != null) {
-            final items = await engine.hetu.invoke(
-              'loot',
-              namespace: 'Player',
-              positionalArgs: [
-                [budget]
-              ],
-            );
-            GameLogic.promptItems(items);
-          }
-          final package = bountyQuest['package'];
-          if (package != null) {
-            await engine.hetu.invoke('unpack',
-                namespace: 'Player', positionalArgs: [package]);
-          }
-          final journal = engine.hetu.invoke('createJournalByQuest',
-              namespace: 'Player', positionalArgs: [bountyQuest]);
-          if (bountyQuest['kind'] == 'escort') {
-            final escortType = engine.hetu.invoke(
-              'initEscort',
-              positionalArgs: [journal['quest']],
-            );
-            dialog.pushDialog(
-              'quest_escort_greeting_$escortType',
-              characterId: package['characterId'],
-            );
-            await dialog.execute();
-            final npcs = GameData.getNpcsAtLocation(location);
-            engine.context.read<NpcListState>().update(npcs);
-          } else {
-            await GameLogic.promptJournal(journal);
-          }
+        if (quest != null) {
+          GameLogic.acquireQuest(quest, location, organization);
         }
       case 'tradeMaterial':
         engine.context.read<MerchantState>().show(
@@ -924,7 +901,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
                 final superior = GameData.getCharacter(superiorId);
                 if (superiorId == character['id']) {
                   dialog.pushDialog(
-                    'quest_organizationInitiation_topic_superior',
+                    'topic_organizationInitiation_superior',
                     character: character,
                     interpolations: [
                       organization['name'],
@@ -934,7 +911,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
                   await dialog.execute();
                 } else {
                   dialog.pushDialog(
-                    'quest_organizationInitiation_topic',
+                    'topic_organizationInitiation',
                     character: character,
                     interpolations: [
                       organization['name'],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
-import 'package:heavenly_tribulation/widgets/location/functional/alchemy.dart';
-import 'package:heavenly_tribulation/widgets/location/functional/workshop.dart';
+import 'package:heavenly_tribulation/widgets/functional/alchemy.dart';
+import 'package:heavenly_tribulation/widgets/functional/workshop.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
@@ -33,7 +33,7 @@ import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
-import 'organization/meeting.dart';
+import '../scene/world/location/meeting.dart';
 import 'journal_panel.dart';
 
 const tickName = {
@@ -299,8 +299,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.only(
                                   left: 10.0, top: 2.5, right: 5.0),
                               child: DynamicColorProgressBar(
-                                value: hero['life'],
-                                max: hero['stats']['lifeMax'],
+                                value: hero['life'].toInt(),
+                                max: hero['stats']['lifeMax'].toInt(),
                                 height: 25.0,
                                 width: 200.0,
                                 showNumber: true,

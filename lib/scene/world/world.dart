@@ -1065,6 +1065,106 @@ class WorldMapScene extends Scene {
     }
   }
 
+  Future<void> _onHeroStep(
+      TileMapTerrain terrain, TileMapTerrain? next, bool isFinished) async {
+    if (next != null) {
+      if (next.objectId != null) {
+        // 如果下一个格子有物体，且该物体 blockMove 为 true
+        // 意味着该物体会阻挡移动
+        final objectsData = engine.hetu.fetch('objects', namespace: 'world');
+        final objectData = objectsData[next.objectId];
+        if (objectData['blockMove'] == true) {
+          map.hero!.isWalkCanceled = true;
+          engine.hetu.invoke('onInteractMapObject',
+              positionalArgs: [objectData, next.data]);
+        }
+      }
+
+      if (next.priority > map.hero!.priority) {
+        map.hero!.priority = next.priority + 5;
+      }
+    }
+
+    if (map.hero?.prevRouteNode != null) {
+      /// 实际移动一格后的回调
+      map.lightUpAroundTile(
+        terrain.tilePosition,
+        size: map.hero!.data['stats']['lightRadius'],
+      );
+      final result = await engine.hetu.invoke('onWorldEvent',
+          positionalArgs: ['onAfterMove', terrain.data]);
+      map.hero!.isWalkCanceled = result ?? false;
+      // TODO: 某些情况下，让英雄返回上一格
+      // map.objectWalkToPreviousTile(map.hero!);
+
+      double staminaCost;
+      double speed;
+      int timeCost;
+      if (kTerrainKindsMountain.contains(terrain.kind)) {
+        staminaCost = GameData.hero['stats']['staminaCostOnMountain'];
+        speed = GameData.hero['stats']['speedOnMountain'];
+      } else if (kTerrainKindsWater.contains(terrain.kind)) {
+        staminaCost = GameData.hero['stats']['staminaCostOnWater'];
+        speed = GameData.hero['stats']['speedOnWater'];
+      } else {
+        staminaCost = 0.0;
+        speed = GameData.hero['stats']['speedOnPlain'];
+      }
+      timeCost = (kTicksPerTime / speed).round();
+      if (isMainWorld) {
+        GameLogic.updateGame(ticks: timeCost);
+      }
+
+      if (staminaCost > 0) {
+        final isDying = engine.hetu.invoke('setLife',
+            namespace: 'Player',
+            positionalArgs: [GameData.hero['life'] - staminaCost]);
+        context.read<HeroState>().update();
+        if (isDying) {
+          map.hero!.isWalkCanceled = true;
+          GameLogic.onDying();
+          return;
+        }
+      }
+    }
+
+    if (isFinished) {
+      final List markedTiles = map.data['markedTiles'] ?? const [];
+      if (markedTiles.contains(terrain.index)) {
+        markedTiles.remove(terrain.index);
+        final overlaySpriteData = terrain.data['overlaySprite'];
+        overlaySpriteData.remove('animation');
+        await terrain.tryLoadSprite(isOverlay: true);
+      }
+
+      engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
+        GameData.hero,
+        map.hero!.tilePosition.left,
+        map.hero!.tilePosition.top
+      ]);
+      await _updateHeroTerrain(tile: terrain, animated: true);
+      // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
+      await _updateWorldMapNpc();
+
+      if (next != null) {
+        if (next.objectId != null) {
+          GameLogic.tryInteractObject(next.objectId!, next.data);
+        }
+      } else {
+        if (map.hero!.isWalkCanceled != true) {
+          if (terrain.objectId != null) {
+            GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
+          } else if (terrain.objectId != null) {
+            GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
+          } else if (terrain.locationId != null) {
+            final location = GameData.getLocation(terrain.locationId);
+            _tryEnterLocation(location);
+          }
+        }
+      }
+    }
+  }
+
   void _heroMoveTo(TileMapTerrain terrain) async {
     if (!terrain.isLighted && map.showFogOfWar) return;
     final hero = map.hero!;
@@ -1103,98 +1203,7 @@ class WorldMapScene extends Scene {
         map.componentWalkToTilePositionByRoute(
           map.hero!,
           route,
-          onStepCallback: (terrain, next, isFinished) async {
-            if (next != null) {
-              if (next.objectId != null) {
-                // 如果下一个格子有物体，且该物体 blockMove 为 true
-                // 意味着该物体会阻挡移动
-                final objectsData =
-                    engine.hetu.fetch('objects', namespace: 'world');
-                final objectData = objectsData[next.objectId];
-                if (objectData['blockMove'] == true) {
-                  map.hero!.isWalkCanceled = true;
-                  engine.hetu.invoke('onInteractMapObject',
-                      positionalArgs: [objectData, next.data]);
-                }
-              }
-
-              if (next.priority > map.hero!.priority) {
-                map.hero!.priority = next.priority + 5;
-              }
-            }
-
-            if (map.hero?.prevRouteNode != null) {
-              /// 实际移动一格后的回调
-              map.lightUpAroundTile(
-                terrain.tilePosition,
-                size: map.hero!.data['stats']['lightRadius'],
-              );
-              final result = await engine.hetu.invoke('onWorldEvent',
-                  positionalArgs: ['onAfterMove', terrain.data]);
-              map.hero!.isWalkCanceled = result ?? false;
-              // TODO: 某些情况下，让英雄返回上一格
-              // map.objectWalkToPreviousTile(map.hero!);
-              if (isMainWorld) {
-                GameLogic.updateGame();
-              }
-
-              double cost = 0;
-              if (kTerrainKindsWater.contains(terrain.kind)) {
-                cost = GameLogic.getMoveCostOnWater();
-              } else if (kTerrainKindsMountain.contains(terrain.kind)) {
-                cost = GameLogic.getMoveCostOnHill();
-              }
-              if (cost > 0) {
-                final isDying = engine.hetu.invoke('setLife',
-                    namespace: 'Player',
-                    positionalArgs: [GameData.hero['life'] - cost]);
-                context.read<HeroState>().update();
-                if (isDying) {
-                  map.hero!.isWalkCanceled = true;
-                  GameLogic.onDying();
-                  return;
-                }
-              }
-            }
-
-            if (isFinished) {
-              final List markedTiles = map.data['markedTiles'] ?? const [];
-              if (markedTiles.contains(terrain.index)) {
-                markedTiles.remove(terrain.index);
-                final overlaySpriteData = terrain.data['overlaySprite'];
-                overlaySpriteData.remove('animation');
-                await terrain.tryLoadSprite(isOverlay: true);
-              }
-
-              engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
-                GameData.hero,
-                hero.tilePosition.left,
-                hero.tilePosition.top
-              ]);
-              await _updateHeroTerrain(tile: terrain, animated: true);
-              // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
-              await _updateWorldMapNpc();
-
-              if (next != null) {
-                if (next.objectId != null) {
-                  GameLogic.tryInteractObject(next.objectId!, next.data);
-                }
-              } else {
-                if (map.hero!.isWalkCanceled != true) {
-                  if (terrain.objectId != null) {
-                    GameLogic.tryInteractObject(
-                        terrain.objectId!, terrain.data);
-                  } else if (terrain.objectId != null) {
-                    GameLogic.tryInteractObject(
-                        terrain.objectId!, terrain.data);
-                  } else if (terrain.locationId != null) {
-                    final location = GameData.getLocation(terrain.locationId);
-                    _tryEnterLocation(location);
-                  }
-                }
-              }
-            }
-          },
+          onStepCallback: _onHeroStep,
         );
       } else {
         engine.warn(
@@ -1419,6 +1428,16 @@ class WorldMapScene extends Scene {
     if (!isLoaded || !map.isLoaded) return;
 
     _enterScene();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+    engine.context.read<GameTimestampState>().update();
+    engine.context.read<NpcListState>().update();
+    engine.context.read<HeroPositionState>().updateTerrain();
+    engine.context.read<HeroPositionState>().updateLocation();
+    engine.context.read<HeroPositionState>().updateDungeon();
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {

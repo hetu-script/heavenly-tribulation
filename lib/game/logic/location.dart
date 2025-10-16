@@ -64,7 +64,7 @@ Future<bool> _checkRented(dynamic location,
   );
   if (success) {
     engine.play('coins-31879.mp3');
-    GameData.addMonthly(MonthlyActivityIds.rented, locationId);
+    GameData.addPlayerMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
       'hint_rentedFacility',
       name: engine.locale('servant'),
@@ -227,7 +227,7 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
           GameData.hero['journals']['organizationInitiation'];
       assert(organizationInitiationQuest != null,
           'Organization initiation quest not found in hero journals');
-      if (organizationInitiationQuest['isFinished'] != true) {
+      if (organizationInitiationQuest['stage'] == 0) {
         dialog.pushDialog(
           'hint_organization_initiation2',
           character: superior,
@@ -255,15 +255,20 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
         engine.hetu.invoke('progressJournalById',
             namespace: 'Player', positionalArgs: ['organizationInitiation']);
         GameLogic.promptJournal(organizationInitiationQuest);
-
-        engine.hetu.invoke('progressJournalById',
-            namespace: 'Player', positionalArgs: ['organizationInitiation']);
       } else {
-        // final playerMonthly = GameData.flags['playerMonthly'];
-        // if (playerMonthly['hasAttendedMeeting'] != true && GameLogic.day <= 5) {
-        //   playerMonthly['hasAttendedMeeting'] = true;
-        // }
-        _monthlyMeeting(superior, location, organization);
+        final playerMonthly = GameData.flags['playerMonthly'];
+        if (playerMonthly['hasAttendedMeeting'] != true && GameLogic.day <= 5) {
+          playerMonthly['hasAttendedMeeting'] = true;
+
+          final isFirstMeeting = organizationInitiationQuest['stage'] == 1;
+          if (isFirstMeeting) {
+            engine.hetu.invoke('progressJournalById',
+                namespace: 'Player',
+                positionalArgs: ['organizationInitiation']);
+          }
+          _monthlyMeeting(superior, location, organization,
+              isFirstMeeting: isFirstMeeting);
+        }
       }
     }
   }

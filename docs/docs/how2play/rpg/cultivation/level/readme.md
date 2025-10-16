@@ -13,8 +13,8 @@
 灵光转化效率计算公式：
 
 ```dart
-const kBaseExpCollectEfficiency = 10
-final expCollectEfficiency = character.rank * character.rank * kBaseExpCollectEfficiency + (character.rank + 1) * (character.rank + 1) * kBaseExpCollectEfficiency
+const kBaseExpGainPerLight = 10
+character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
 ```
 
 | 境界 | 数值 | 等级下限 | 等级上限 | 劫数上限 | 灵光转化效率 |

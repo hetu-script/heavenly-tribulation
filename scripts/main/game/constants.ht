@@ -2,6 +2,27 @@ external abstract class Constants {
   static get worldSizeByScale;
   static get rankToRarity;
   static get races;
+
+  static get attributeValueMax;
+  static get attributeValueAverage;
+  static get attributeValueDeviation;
+  static get baseExpGainPerLight;
+  static get baseExpCollectSpeed;
+  static get baseMoveSpeedOnPlain;
+  static get baseMoveSpeedOnMountain;
+  static get baseMoveSpeedOnWater;
+  static get baseStaminaCostOnMountain;
+  static get baseStaminaCostOnWater;
+  static get baseCraftSkillLevel;
+  static get baseLife;
+  static get baseLifePerLevel;
+  static get baseLightRadius;
+  static get baseMonthlyIdentifyCardsMax;
+  static get baseResistMax;
+  static get baseTurnActionThreshold;
+  static get maxTurnActionThreshold;
+  static get minTurnActionThreshold;
+
   static get npcIds;
   static get worldViews;
   static get personalities;
@@ -22,19 +43,25 @@ external abstract class Constants {
   static get locationCityKinds;
   static get locationSiteKinds;
   static get siteKindsWorkable;
+  static get siteKindToAttribute;
   static get siteKindsBuildable;
   static get productionSiteKinds;
   static get organizationCategoryToSiteKind;
   static get organizationCategoryExpansionRate;
   static get organizationGenreToSiteKinds;
+
   static get attackTypes;
   static get damageTypes;
+  
+  static get ticksPerTime;
+  static get timesPerDay;
   static get ticksPerDay;
   static get daysPerMonth;
   static get ticksPerMonth;
   static get daysPerYear;
   static get monthsPerYear;
   static get ticksPerYear;
+
   static get baseBuyRate;
   static get baseSellRate;
   static get minSellRate;
@@ -42,6 +69,7 @@ external abstract class Constants {
   static get materialBasePrice;
   static get basePriceByCategory;
   static get itemWithAffixCategories;
+  
   static get terrainKindsCity;
   static get terrainKindsLand;
   static get terrainKindsWater;

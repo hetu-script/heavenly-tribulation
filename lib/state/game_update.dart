@@ -9,10 +9,15 @@ class GameTimestampState with ChangeNotifier {
   String datetimeString = '';
   int timestamp = 0;
 
-  void update() {
-    final (timestamp, datetimeString) = GameLogic.calculateTimestamp();
-    this.timestamp = timestamp;
-    this.datetimeString = datetimeString;
+  void update({int? timestamp, String? datetimeString}) {
+    if (timestamp != null && datetimeString != null) {
+      this.timestamp = timestamp;
+      this.datetimeString = datetimeString;
+    } else {
+      (timestamp, datetimeString) = GameLogic.calculateTimestamp();
+      this.timestamp = timestamp;
+      this.datetimeString = datetimeString;
+    }
     notifyListeners();
   }
 

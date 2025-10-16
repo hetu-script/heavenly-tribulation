@@ -120,7 +120,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
               return;
             }
             final category = itemData['category'];
-            if (kRestrictedEquipmentTypes.contains(category)) {
+            if (kRestrictedEquipmentCategories.contains(category)) {
               int equippedCount = engine.hetu.invoke('equippedCategory',
                   namespace: 'Player', positionalArgs: [category]);
 

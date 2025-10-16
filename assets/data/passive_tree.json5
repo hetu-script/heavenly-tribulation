@@ -1053,7 +1053,7 @@
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
     passives: [
       {
-        id: "enable_multiple_weapon_equip",
+        id: "weaponUnrestrictedEquip",
       },
     ],
   },

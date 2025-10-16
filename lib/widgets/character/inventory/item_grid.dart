@@ -41,10 +41,11 @@ class ItemGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? iconAssetKey = itemData?['icon'];
+    final String? icon = itemData?['icon'];
     final int stackSize = itemData?['stackSize'] ?? 1;
     final bool showStack = itemData?['showStack'] ?? false;
     // final entityType = entityData?['entityType'];
+    final int rank = itemData?['rank'] ?? 0;
 
     final isEquipped = itemData?['equippedPosition'] != null;
 
@@ -87,17 +88,18 @@ class ItemGrid extends StatelessWidget {
                     ),
                     image: DecorationImage(
                       fit: BoxFit.contain,
-                      image: const AssetImage('assets/images/item/grid.png'),
-                      opacity: 0.2,
+                      image:
+                          AssetImage('assets/images/item/grid_rank$rank.png'),
+                      opacity: 1,
                     ),
                     borderRadius: GameUI.borderRadius,
                   )
                 : null,
             child: Stack(
               children: [
-                if (iconAssetKey != null)
+                if (icon != null)
                   RRectIcon(
-                    image: AssetImage('assets/images/$iconAssetKey'),
+                    image: AssetImage('assets/images/$icon'),
                     size: size,
                     borderRadius: GameUI.borderRadius,
                     borderColor: Colors.transparent,

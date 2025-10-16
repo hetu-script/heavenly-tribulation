@@ -557,6 +557,57 @@
   "trialCompetitor": "入门试炼竞争者",
   "trialTester": "入门试炼考官",
 
+  "heroAcquire": "得到了{0}。",
+  "heroAcquireMultiple": "得到了 {0} 个{1}。",
+  "heroLose": "失去了{0}。",
+  "heroLoseMultiple": "失去了 {0} 个{1}。",
+
+  "heroDestroy": "销毁了{0}。",
+  "heroDismantle": "分解了{0}。",
+  "heroExpGained": "获得了 {0} 点修为经验。",
+  "heroStaminaRestored": "恢复了 {0} 点体力。",
+
+  "entityAcquire": "{0}得到了{1}。",
+  "entityAcquireMultiple": "{0}得到了 {1} 个{2}。",
+  "entityLose": "{0}失去了{1}。",
+  "entityLoseMultiple": "{0}失去了 {1} 个{2}。",
+
+  "characterExpGained": "{0}获得了 {1} 点修为经验。",
+  "characterStaminaRestored": "{0}恢复了 {1} 点体力。",
+  "characterEquip": "{0}装备了{1}。",
+  "characterUnequip": "{0}卸下了{1}。",
+  "characterUse": "{0}使用了{1}。",
+  "characterConsume": "{0}吃下了{1}。",
+  "characterForceToConsume": "{0}喂{1}吃下了{2}。",
+  "characterEnlist": "{0}加入了{1}。",
+  "characterJoin": "{0}加入了{1}的队伍。",
+  "characterDepart": "{0}离开了{1}的队伍。",
+  "characterCreateJournal": "{0}开启了新的日志「{1}」。",
+  "characterJournalProgressed": "{0}的日志「{1}」有新的进展。",
+  "characterJournalFinished": "{0}的日志「{1}」已结束。",
+  "characterFirstMeetNormal": "{0}认识了{1}。",
+  "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",
+  "characterFirstMeetLike": "{0}认识了{1}，对其十分喜欢。",
+  "characterSettle": "{0}在{1}安家了。",
+  "characterMarriage": "{0}和{1}在{2}结婚了。",
+  "characterConception": "{0}怀上了{1}的孩子并为其取名{2}。",
+  "characterBorn": "{0}在{1}生下了{2}。",
+  "characterBaishi": "{0}拜{1}为师了。",
+  "characterLearn": "{0}学会了{1}。",
+  "characterGive": "{0}将{1}给了{2}。",
+  "characterGiveMultiple": "{0}将 {1} 个{2}给了{3}。",
+  "characterSteal": "{0}拿走了{1}身上的{2}。",
+  "characterStealMultiple": "{0}拿走了{1}身上的 {2} 个{3}。",
+  "characterCultivationLevelUp": "{0}的修为等级提升到了{1}",
+  "characterCultivationRankUp": "{0}的境界提升到了{1}",
+  "characterDefeat": "{0}击败了{1}。",
+  "characterKill": "{0}杀死了{1}。",
+  "characterGotTitle": "{0}成为了{1}的{2}。",
+
+  "locationDeveloped": "{0}的规模扩大到了 {1}。",
+
+  "organizationBuild": "{0}在{1}创建了{2}。",
+
   "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
 
   "hint_return_home_afterDying_1": "我……这是在哪？头好痛……好像是我的房间。我是怎么回来的？",
@@ -655,6 +706,8 @@
   "hint_insufficientLight": "此地没有足够灵光，无法继续修炼。",
   "hint_insufficientShard": "你没有足够的灵石，无法继续修炼。",
 
+  "hint_datetime": "每年有 12 个月。\n每个月有 30 天。\n每天有四个阶段：上午、下午、傍晚、午夜。\n每个阶段有 24 个 tick。\ntick 是时间的最小单位。",
+
   "hint_movement": "在大地图上时，点击<yellow>鼠标左键</>移动角色，点击并拖动<yellow>鼠标右键</>移动地图。",
 
   "hint_tribulation_1": "就在你运功凝聚灵光的时候，你突然有所顿悟。\n你似乎窥视到了一丝更高境界的天道。但与此同时，你也立刻感受到一股极为强大的气息。",
@@ -663,5 +716,9 @@
 
   "hint_tribulation_3": "\n你要挑战天道吗？",
 
-  "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。"
+  "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。",
+
+  "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。除非服用对应境界的破境丹药，否则无法继续提升修为等级了。",
+
+  "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。"
 }

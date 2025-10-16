@@ -16,7 +16,7 @@ import '../../widgets/dialog/select_menu.dart';
 import '../../widgets/dialog/input_slider.dart';
 import '../../widgets/entity_listview.dart';
 import '../../widgets/organization/organization.dart';
-import '../../widgets/location/functional/bounty_quest.dart';
+import '../../widgets/functional/quest_view.dart';
 import '../../widgets/location/location.dart';
 import '../../widgets/character/profile.dart';
 import '../../widgets/common.dart';
@@ -42,27 +42,33 @@ const _kHintDyingVariants = 5;
 
 const _kBasicDungeonShardCost = 1;
 
+const _kLocationUpdateDay = 16;
+const _kOrganizationUpdateDay = 6;
+
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
 
   static int ticksOfYear = 0;
   static int ticksOfMonth = 0;
   static int ticksOfDay = 0;
+  static int ticksOfTime = 0;
   static int year = 0;
   static int month = 0;
   static int day = 0;
   static int time = 0;
-  static String timeOfDay = '';
+  static String timeString = '';
 
   static String getDatetimeString() {
-    return '$year${engine.locale('dateYear')}$month${engine.locale('dateMonth')}$day${engine.locale('dateDay')}${engine.locale(timeOfDay)}';
+    return '$year${engine.locale('dateYear')}$month${engine.locale('dateMonth')}$day${engine.locale('dateDay')}${engine.locale(timeString)}';
   }
 
+  /// 游戏内的时间
   static (int, String) calculateTimestamp() {
     final int timestamp = GameData.data['timestamp'];
     ticksOfYear = timestamp % kTicksPerYear;
     ticksOfMonth = timestamp % kTicksPerMonth;
     ticksOfDay = timestamp % kTicksPerDay;
+    ticksOfTime = timestamp % kTicksPerTime;
 
     // 当前年数
     year = (timestamp ~/ kTicksPerYear) + 1;
@@ -74,10 +80,10 @@ abstract class GameLogic {
     day = (ticksOfMonth ~/ kTicksPerDay) + 1;
 
     // 当前的时刻 1-4
-    time = ticksOfDay + 1;
+    time = (ticksOfDay ~/ kTicksPerTime) + 1;
 
     // 清晨、下午、傍晚、午夜
-    timeOfDay = kTimeOfDay[time]!;
+    timeString = kTimeStrings[time]!;
 
     final datetimeString = getDatetimeString();
 
@@ -329,6 +335,8 @@ abstract class GameLogic {
   //   return number
   // }
 
+  // TODO: 对于灵宝、神照、混元，境界仅仅影响随机数概率
+  // 对于破境，则必须使用 [当前境界 + 1] 的破境丹
   static Map<String, dynamic> getCardCraftMaterial(
       String operation, dynamic cardData) {
     assert(kCardOperations.contains(operation));
@@ -337,24 +345,25 @@ abstract class GameLogic {
         return {'exp': calculateBattleCardPrice(cardData)};
       case 'addAffix':
         return {
-          'materialId': 'craftmaterial_addAffix',
-          'count': 1,
+          'id': 'craftmaterial_addAffix',
+          'rank'
+              'count': 1,
         };
       case 'replaceAffix':
         return {
-          'materialId': 'craftmaterial_replaceAffix',
+          'id': 'craftmaterial_replaceAffix',
           'count': 1,
         };
       case 'rerollAffix':
         return {
-          'materialId': 'craftmaterial_rerollAffix',
+          'id': 'craftmaterial_rerollAffix',
           'count': 1,
         };
       case 'upgradeRank':
         final int rank = cardData['rank']!;
         if (rank < kCultivationRankMax) {
           return {
-            'materialId': 'craftmaterial_upgradeRank${rank + 1}',
+            'id': 'craftmaterial_upgrade_rank${rank + 1}',
             'count': 1,
           };
         } else {
@@ -646,7 +655,7 @@ abstract class GameLogic {
       engine.hetu.invoke(
         'characterSetPassive',
         positionalArgs: [character, selectedAttributeId],
-        namedArgs: {'level': kAttributeAnyLevel},
+        namedArgs: {'level': kPassiveTreeAttributeAnyLevel},
       );
     } else {
       unlockedNodes[nodeId] = true;
@@ -681,7 +690,7 @@ abstract class GameLogic {
       engine.hetu.invoke(
         'characterSetPassive',
         positionalArgs: [character, attributeId],
-        namedArgs: {'level': -kAttributeAnyLevel},
+        namedArgs: {'level': -kPassiveTreeAttributeAnyLevel},
       );
     } else {
       final List nodePassiveData = passiveTreeNodeData['passives'];
@@ -884,33 +893,43 @@ abstract class GameLogic {
     );
   }
 
-  /// 角色渡劫检测，返回值 true 代表将进入天道挑战
+  /// 角色渡劫检测，返回值 null 表示没有服用破境丹
+  /// true 表示渡劫成功 false 表示失败
   /// 此时将不会正常升级，但仍会扣掉经验值
-  static bool checkTribulation() {
-    final level = GameData.hero['level'];
+  static bool? checkTribulation() {
     final rank = GameData.hero['rank'];
-    final currentRankMaxLevel = maxLevelForRank(rank);
-    final currentRankMinLevel = minLevelForRank(rank);
+
+    final potionData = GameData.hero['potionPassives']['upgradeRank'];
+    if (potionData == null) return null;
+
+    final bool consumedUpgradeRankPotion = potionData['level'] == rank;
+    if (!consumedUpgradeRankPotion) return null;
+
+    final level = GameData.hero['level'];
+    final minLevel = minLevelForRank(rank);
+    final maxLevel = maxLevelForRank(rank);
 
     bool doTribulation = false;
-    if (GameData.flags['tribulation'] == true) {
-      doTribulation = true;
-    } else if (level > currentRankMinLevel) {
-      if (level == currentRankMaxLevel) {
+    // if (GameData.flags['tribulation'] == true) {
+    //   doTribulation = true;
+    // } else {
+    if (level > minLevel) {
+      if (level == maxLevel) {
         doTribulation = true;
       } else {
-        final probability = math.gradualValue(level - currentRankMinLevel,
-            currentRankMaxLevel - currentRankMinLevel);
+        final probability =
+            math.gradualValue(level - minLevel, maxLevel - minLevel);
         final r = GameData.random.nextDouble();
         if (r < probability) {
           doTribulation = true;
         }
       }
     }
+    // }
 
-    GameData.flags['tribulation'] = doTribulation;
+    // GameData.flags['tribulation'] = doTribulation;
     if (doTribulation) {
-      showTribulation(currentRankMaxLevel, rank + 1);
+      showTribulation(maxLevel, rank + 1);
     }
 
     return doTribulation;
@@ -974,20 +993,6 @@ abstract class GameLogic {
     }
   }
 
-  static double getMoveCostOnHill() {
-    double cost = kBaseMoveCostOnHill;
-    final skill = GameData.hero['passives']['stamina_cost_reduce_on_hill'];
-    cost -= cost * (skill?['value'] ?? 0) / 100;
-    return cost;
-  }
-
-  static double getMoveCostOnWater() {
-    double cost = kBaseMoveCostOnWater;
-    final skill = GameData.hero['passives']['stamina_cost_reduce_on_water'];
-    cost -= cost * (skill?['value'] ?? 0) / 100;
-    return cost;
-  }
-
   static Future<void> promptItems(List items) async {
     engine.setCursor(Cursors.normal);
     final completer = Completer();
@@ -997,13 +1002,22 @@ abstract class GameLogic {
     return completer.future;
   }
 
-  static Future<void> promptJournal(dynamic journal,
-      [dynamic selections]) async {
+  static Future<String?> promptJournal(
+    dynamic journal, {
+    Map<String, String>? selectionsRaw,
+    List<dynamic>? selections,
+    List<dynamic>? interpolations,
+    Completer? completer,
+  }) async {
     engine.setCursor(Cursors.normal);
-    final completer = Completer();
-    engine.context
-        .read<JournalPromptState>()
-        .update(journal: journal, selections: selections, completer: completer);
+    final completer = Completer<String?>();
+    engine.context.read<JournalPromptState>().update(
+          journal: journal,
+          selectionsRaw: selectionsRaw,
+          selections: selections,
+          interpolations: interpolations,
+          completer: completer,
+        );
     return completer.future;
   }
 
@@ -1067,12 +1081,38 @@ abstract class GameLogic {
       //       .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
       //   engine.play('magic-smite-6012.mp3');
       case kItemCategoryPotion:
+        engine.play('drink-sip-and-swallow-6974.mp3');
         engine.hetu.invoke(
           'consumePotion',
           namespace: 'Player',
           positionalArgs: [itemData],
         );
+      case 'craftmaterial_rerollAffix':
         engine.play('drink-sip-and-swallow-6974.mp3');
+        engine.hetu.invoke(
+          'generateAttributes',
+          positionalArgs: [GameData.hero],
+        );
+        GameDialogContent.show(
+            engine.context, engine.locale('hint_generateAttributes'));
+        engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
+          itemData
+        ], namedArgs: {
+          'amount': 1,
+        });
+        engine.hetu
+            .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
+      case 'craftmaterial_upgrade':
+        engine.play('drink-sip-and-swallow-6974.mp3');
+        engine.hetu.invoke(
+          'characterSetUpgradeRankPotionPassive',
+          positionalArgs: [GameData.hero, itemData['rank']],
+        );
+        engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
+          itemData
+        ], namedArgs: {
+          'amount': 1,
+        });
     }
   }
 
@@ -1146,90 +1186,114 @@ abstract class GameLogic {
   static Future<void> onInteractCharacter(dynamic character) =>
       _onInteractCharacter(character);
 
-  /// 更新游戏逻辑，将时间向前推进一帧（tick），可以设定连续更新的帧数
+  /// 更新游戏逻辑，将时间向前推进指定的 ticks
   /// 如果遇到了一些特殊事件可能提前终止
   /// 这会影响一些连续进行的动作，例如探索或者修炼等等
-  static void updateGame({
-    int tick = 1,
+  /// 如果时间没有推进到下一个日期，返回 false，否则返回 true
+  static Future<bool> updateGame({
+    int ticks = kTicksPerTime,
+    bool updateEntity = true,
     bool updateUI = true,
     bool updateWorldMap = true,
+    bool force = false,
   }) async {
-    for (var i = 0; i < tick; ++i) {
-      final int tik = DateTime.now().millisecondsSinceEpoch;
-      if (updateUI) {
-        engine.log('game update begin: ${GameLogic.getDatetimeString()}');
-      }
+    final before = getDatetimeString();
+    GameData.data['timestamp'] += ticks;
+    final (timestamp, after) = calculateTimestamp();
 
-      if (day == 1 && time == 1) {
+    // 如果时间没有推进到下一个日期，则不进行任何更新，除非 force 为 true
+    if (before == after && !force) return false;
+
+    final int tik = DateTime.now().millisecondsSinceEpoch;
+    if (updateUI) {
+      engine.context
+          .read<GameTimestampState>()
+          .update(timestamp: timestamp, datetimeString: after);
+      engine.log('game update begin: ${GameLogic.getDatetimeString()}');
+    }
+
+    if (updateEntity || force) {
+      // 刷新玩家事件标记
+      if ((day == 1 && time == 1) || force) {
         // 重置玩家自己的每月行动
         engine.hetu.invoke('resetPlayerMonthly');
       }
-
       // 触发每个角色的刷新事件
       for (final character in GameData.data['characters'].values) {
         if (character == GameData.hero) continue;
-        // 月度事件
-        if (time == 1 && day == character['updateDay']) {
+        // 角色事件每个角色不同，会随机分配在某一天
+        // 这是为了减缓同时更新大量角色的压力
+        if ((time == 1 && day == character['updateDay']) || force) {
           updateCharacterMonthly(character);
         }
       }
-
       // 每个建筑每月会根据其属性而消耗维持费用和获得收入
       // 生产类建筑每天都会刷新生产进度
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
       for (final location in GameData.data['locations'].values) {
-        if (location['ownerId'] == GameData.hero['id']) continue;
-        // 月度事件，据点每月2日更新
-        if (time == 1 && day == location['updateDay']) {
+        if (GameData.hero != null &&
+            location['ownerId'] == GameData.hero['id']) {
+          continue;
+        }
+        // 据点每月 16 日更新
+        if ((time == 1 && day == _kLocationUpdateDay) || force) {
           updateLocationMonthly(location);
         }
       }
-
       // 触发每个组织的刷新事件
       for (final organization in GameData.data['organizations'].values) {
-        // 组织每月 5 日刷新
-        if (time == 1 && day == 5) {
+        if (organization['headId'] == GameData.hero?['id']) continue;
+        // 组织每月 6 日刷新
+        if ((time == 1 && day == _kOrganizationUpdateDay) || force) {
           updateOrganizationMonthly(organization);
         }
       }
+    }
 
-      // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
-      // 野外遭遇包括NPC事件、随机副本等等
-      // for (const terrain in world.terrains) {
-      //   if (data.timestamp % kTicksPerMonth == 0) {
-      //     updateTerrain(terrain)
-      //   }
-      // }
+    // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
+    // 野外遭遇包括NPC事件、随机副本等等
+    // for (const terrain in world.terrains) {
+    //   if (data.timestamp % kTicksPerMonth == 0) {
+    //     updateTerrain(terrain)
+    //   }
+    // }
 
-      GameData.data['timestamp'] += 1;
-      if (updateUI) {
-        engine.context.read<GameTimestampState>().update();
-      }
-
-      if (GameData.hero != null) {
-        for (final itemId in GameData.hero['equipments'].values) {
-          if (itemId == null) continue;
-          final itemData = GameData.hero['inventory'][itemId];
-          if (itemData['isUpdatable'] != true) continue;
-          engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
-          await engine.hetu.invoke('onGameEvent',
-              positionalArgs: ['onUpdateItem', itemData]);
-        }
-      }
-
-      engine.hetu.invoke('handleBabies');
-
-      if (updateUI) {
-        engine.log(
-            'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    if (GameData.hero != null) {
+      for (final itemId in GameData.hero['equipments'].values) {
+        if (itemId == null) continue;
+        final itemData = GameData.hero['inventory'][itemId];
+        if (itemData['isUpdatable'] != true) continue;
+        engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
+        await engine.hetu
+            .invoke('onGameEvent', positionalArgs: ['onUpdateItem', itemData]);
       }
     }
+
+    engine.hetu.invoke('handleBabies');
+
+    if (updateUI) {
+      engine.log(
+          'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    }
+
+    return true;
+  }
+
+  /// 角色月度更新
+  static void updateCharacterMonthly(dynamic character) {
+    // engine.debug('${character['id']} 的月度更新');
+
+    engine.hetu
+        .invoke('resetCharacterMonthly', positionalArgs: [character['id']]);
   }
 
   /// 据点月度更新
   static void updateLocationMonthly(dynamic location) {
     // engine.debug('${location['id']} 的月度更新');
+
+    engine.hetu
+        .invoke('resetLocationMonthly', positionalArgs: [location['id']]);
 
     if (location['category'] == 'city') {
     } else if (location['category'] == 'site') {
@@ -1265,21 +1329,9 @@ abstract class GameLogic {
   /// 组织月度更新
   static void updateOrganizationMonthly(dynamic organization) {
     // engine.debug('${organization['id']} 的月度更新');
-  }
 
-  /// 角色年度更新开始
-  static void updateCharacterYearlyStart(dynamic character) {
-    // engine.debug('${character['id']} 的年度更新开始');
-  }
-
-  /// 角色年度更新结束
-  static void updateCharacterYearlyEnd(dynamic character) {
-    // engine.debug('${character['id']} 的年度更新结束');
-  }
-
-  /// 角色月度更新
-  static void updateCharacterMonthly(dynamic character) {
-    // engine.debug('${character['id']} 的月度更新');
+    engine.hetu.invoke('resetOrganizationMonthly',
+        positionalArgs: [organization['id']]);
   }
 
   /// 角色濒死，tribulationCount += 1，返回自宅
@@ -1356,7 +1408,7 @@ abstract class GameLogic {
     engine.context.read<HoverContentState>().hide();
     engine.context.read<ViewPanelState>().clearAll();
 
-    GameLogic.updateGame();
+    GameLogic.updateGame(ticks: (kTicksPerTime ~/ kBaseMoveSpeedOnPlain));
     engine.pushScene(
       location['id'],
       constructorId: Scenes.location,
@@ -1451,4 +1503,41 @@ abstract class GameLogic {
         organization: organization,
         location: location,
       );
+
+  static Future<void> acquireQuest(
+      dynamic quest, dynamic location, dynamic organization) async {
+    final budget = quest['budget'];
+    if (budget != null) {
+      final items = await engine.hetu.invoke(
+        'loot',
+        namespace: 'Player',
+        positionalArgs: [
+          [budget]
+        ],
+      );
+      GameLogic.promptItems(items);
+    }
+    final package = quest['package'];
+    if (package != null) {
+      await engine.hetu
+          .invoke('unpack', namespace: 'Player', positionalArgs: [package]);
+    }
+    final journal = engine.hetu.invoke('createJournalByQuest',
+        namespace: 'Player', positionalArgs: [quest]);
+    if (quest['kind'] == 'escort') {
+      final escortType = engine.hetu.invoke(
+        'initEscort',
+        positionalArgs: [journal['quest'], organization],
+      );
+      dialog.pushDialog(
+        'quest_escort_greeting_$escortType',
+        characterId: package['characterId'],
+      );
+      await dialog.execute();
+      final npcs = GameData.getNpcsAtLocation(location);
+      engine.context.read<NpcListState>().update(npcs);
+    } else {
+      await GameLogic.promptJournal(journal);
+    }
+  }
 }

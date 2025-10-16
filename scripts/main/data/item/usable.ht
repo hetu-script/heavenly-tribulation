@@ -1,0 +1,206 @@
+// 原料：谷物、禽肉，兽肉，鱼肉，原木，石料，矿石草药
+// 加工品：
+
+// 材料的类型
+const kMaterialMoney = 'money'
+const kMaterialShard =  'shard'
+const kMaterialWorker =  'worker'
+
+const kMaterialWater =  'water'
+const kMaterialGrain =  'grain'
+const kMaterialMeat =   'meat'
+const kMaterialHerb =  'herb'
+const kMaterialTimber = 'timber'
+const kMaterialStone = 'stone'
+const kMaterialOre =   'ore'
+
+/// 材料包类物品在获得后，可以自动转化为材料数值
+struct Materialpack {
+  constructor ({
+    // id,
+    kind,
+    amount,
+  }) {
+    assert(kind != null)
+
+    // this.id = id ?? crypto.randomUID(withTime: true)
+    this.id = 'materialpack_' + kind
+    this.entityType = kEntityTypeItem
+    this.rarity = kRarityRare
+    this.color = kRarity[this.rarity].color
+    this.name = engine.locale('${kind}_package')
+    this.icon = 'item/material/${kind}.png'
+
+    this.category = kItemCategoryMaterialPack
+    this.type = kItemTypeMaterial
+    this.kind = kind
+    this.flavortext = engine.locale('${kind}_description')
+    this.stackSize = amount ?? 1
+    this.showStack = true
+    
+    this.isIdentified = true
+    this.isUsable = true
+    
+    if (Constants.materialBasePrice.containsKey(kind)) {
+      this.price = Constants.materialBasePrice[kind] * this.stackSize
+    }
+  }
+}
+
+/// 临时性丹药效果。在下一次战斗后消失。同类效果会覆盖。
+const kPotionEphemeralKinds = [
+  'heal',
+  'excessiveHeal',
+  'vigor',
+  'mana',
+  'quick',
+  'nimble',
+  'ward',
+  'shieldPhysical',
+  'shieldChi',
+  'shieldElemental',
+  'shieldPsychic',
+  'defensePhysical',
+  'defenseChi',
+  'defenseElemental',
+  'defensePsychic',
+]
+
+/// 永久性丹药效果。同类效果会覆盖。
+/// 永久性丹药
+const kPotionPermanentKinds = [
+  'lifeMax',
+  'manaMax',
+  'chakraMax',
+  'karmaMax',
+  'dexterity',
+  'spirituality',
+  'strength',
+  'willpower',
+  'perception',
+  'unarmedAttack',
+  'weaponAttack',
+  'spellAttack',
+  'curseAttack',
+  'physicalResist',
+  'chiResist',
+  'elementalResist',
+  'psychicResist',
+  'physicalResistMax',
+  'chiResistMax',
+  'elementalResistMax',
+  'psychicResistMax',
+]
+
+const kPotionBottleCount = 2
+const kPotionBottleColorCount = 4
+
+const kPotionItemMinLevel = 5
+
+struct Potion {
+  constructor ({
+    id,
+    rank,
+    level,
+    rarity,
+    isIdentified = true,
+    icon,
+    name,
+    flavortext,
+  }) {
+    
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeItem
+    this.createdTimestamp = game.timestamp
+    this.isIdentified = isIdentified
+    this.isUsable = true
+    this.type = kItemTypeConsumable
+    this.category = kItemCategoryPotion
+
+    if (rarity != null) {
+      assert(kRarity.containsKey(rarity))
+      this.rarity = rarity
+      this.rank = kRarity[rarity].rank
+    } else if (rank != null) {
+      assert(rank >= 0 && rank <= kCultivationRankMax)
+      this.rank = rank
+      this.rarity = Constants.rankToRarity[rank]
+    } else {
+      this.rank = 0
+      this.rarity = 'common'
+    }
+    
+    this.icon = icon ?? 'item/consumable/potion/bottle${random.nextInt(kPotionBottleCount) + 1}_color${random.nextInt(kPotionBottleColorCount) + 1}.png'
+
+    this.name = name ?? generateConsumableName(category: this.rank > 3 ? 'alchemy': 'medicine', rarity: this.rarity)
+    this.flavortext = flavortext ?? engine.locale('flavortext_${this.category}')
+
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
+    level ??= getRandomLevel(minLevel, maxLevel)
+    // 这里要再判断一次，因为可能是从外部传入的 level
+    this.level = level.clamp(Math.max(1, minLevel), maxLevel)
+    if (this.level < kPotionItemMinLevel) {
+      this.level = kPotionItemMinLevel
+    }
+    
+    this.affixes = []
+    this.affixUniqueIds = Set()
+    let mainAffix
+    let passiveRawData
+    // if (this.rank < 3) {
+    //   passiveRawData = game.passives['heal']
+    // } else {
+      passiveRawData = game.passives['overheal']
+    // }
+    assert(passiveRawData != null, 'could not find passive for potion (rank: ${this.rank})')
+    mainAffix = Object.create(passiveRawData)
+    if (mainAffix.increment != null) {
+      if (mainAffix.increment < 1) {
+        final minAffixLevel = (1 / mainAffix.increment).ceil()
+        if (this.level < minAffixLevel) {
+          this.level = minAffixLevel
+        }
+      }
+      mainAffix.level = this.level
+      mainAffix.value = (mainAffix.increment * this.level).round()
+    }
+    this.affixes.add(mainAffix)
+    // affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+
+    // 根据境界，生成额外词条
+    final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
+    let affixCount = affixCountInfo.minExtra
+    if (affixCountInfo.maxExtra > 0) {
+      if (affixCount < affixCountInfo.maxExtra) {
+        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+      }
+    }
+    if (affixCount > 0) {
+      for (var i in range(affixCount)) {
+        final supportAffixes = game.passives.values.where((affix) {
+          if (!affix.isEphemeralPotionAffix && !affix.isPermanentPotionAffix) return false
+          if (this.affixUniqueIds.contains(affix.id) ||
+            (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
+          if (affix.rank > this.rank) return false
+          return true
+        })
+        if (supportAffixes.isEmpty) {
+          throw('Found no support affix for potion. rank: ${this.rank}')
+        }
+        
+        final affix = Object.create(random.nextIterable(supportAffixes))
+        if (affix.increment != null) {
+          affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
+          affix.value = (affix.increment * affix.level).round()
+        }
+        this.affixes.add(affix)
+        this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
+      }
+    }
+    
+    calculatePrice(this)
+
+    this.experienced = []
+  }
+}

@@ -1,8 +1,8 @@
 
 function getCardRankUpProbability(rank) {
-  if (rank == 0) return 1.0
-  if (rank >= kCultivationRankMax) return 0.0
-  return 0.7 * (1 - rank / kCultivationRankMax)
+  if (rank == 0) return 1.0;
+  if (rank >= kCultivationRankMax) return 0.0;
+  return 1 - rank / kCultivationRankMax;
 }
 
 /// 创建一张功法战斗卡牌
@@ -107,13 +107,13 @@ struct BattleCard {
     _updateMainAffixValue(this)
 
     final affixUniqueIds = []
-    if (mainAffix.uniqueId) {
-      if (mainAffix.uniqueId is List) {
-        affixUniqueIds.addAll(mainAffix.uniqueId)
-      } else if (mainAffix.uniqueId is string) {
-        affixUniqueIds.add(mainAffix.uniqueId)
-      }
-    }
+    // if (mainAffix.uniqueId) {
+    //   if (mainAffix.uniqueId is List) {
+    //     affixUniqueIds.addAll(mainAffix.uniqueId)
+    //   } else if (mainAffix.uniqueId is string) {
+    //     affixUniqueIds.add(mainAffix.uniqueId)
+    //   }
+    // }
 
     this.affixUniqueIds = affixUniqueIds
 
@@ -292,7 +292,7 @@ function addAffix(card) {
   }
   
   final materialCost = getCardCraftMaterial('addAffix', card)
-  final materialId = materialCost['materialId']
+  final materialId = materialCost['id']
   final cost = materialCost['count'] ?? 1
   final hasCount = entityHasItemKind(hero, materialId)
   if (hasCount < cost) {
@@ -366,7 +366,7 @@ function rerollAffix(card) {
   
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
-  card.level = minLevel + random.nextInt(maxLevel - minLevel)
+  card.level = minLevel + random.nearInt(maxLevel - minLevel)
   
   _updateMainAffixValue(card)
 
@@ -398,10 +398,10 @@ function upgradeRank(card) {
   }
   entityLoseItemKind(hero, materialId, cost)
 
-  // final successRate = getCardRankUpProbability(card.rank)
-  // if (random.nextDouble() > successRate) {
-  //   return 'deckbuilding_upgradeRank_failed_hint'
-  // }
+  final successRate = getCardRankUpProbability(card.rank)
+  if (random.nextDouble() > successRate) {
+    return 'deckbuilding_upgradeRank_failed_hint'
+  }
 
   card.rank += 1
   // card.minLevel = minLevelForRank(card.rank)
@@ -464,6 +464,7 @@ struct Cardpack {
     assert(kind == null || kBattleCardKind.contains(kind), kind)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
+    this.type = kItemTypeCardpack
     this.category = kItemCategoryCardpack;
 
     rank ??= 0
@@ -484,9 +485,9 @@ struct Cardpack {
     final genreString = genre != null ? engine.locale(genre) : ''
     final kindString = kind != null ? engine.locale('kind_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
-    this.icon = 'item/craft/cardpack_rank${this.rank}.png'
+    this.icon = 'item/craft/cardpack.png'
     
-    this.flavortext = engine.locale('cardpack_flavortext')
+    this.flavortext = engine.locale('flavortext_cardpack')
     this.rarity = Constants.rankToRarity[this.rank]
 
     // 秘籍无需鉴定

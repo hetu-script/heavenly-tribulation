@@ -28,7 +28,6 @@ dependencies:
     path: ../hetu-script/packages/hetu_script_flutter
   samsara:
     path: ../samsara-engine
-
   fluent_ui:
     path: ../fluent_ui
 
@@ -109,6 +108,7 @@ flutter:
     - assets/images/item/consumable/
     - assets/images/item/consumable/potion/
     - assets/images/item/craft/
+    - assets/images/item/equipment/
     - assets/images/item/material/
     - assets/images/location/
     - assets/images/location/card/
@@ -135,17 +135,21 @@ flutter:
 
     # - assets/locale/en/
     - assets/locale/zh/
+    - assets/locale/zh/quest/
+    - assets/locale/zh/rpg/
+    - assets/locale/zh/tycoon/
+    - assets/locale/zh/ui/
 
     - assets/mods/
     - assets/save/
 
     - scripts/main/
     - scripts/main/cardgame/
-    - scripts/main/entity/
-    - scripts/main/entity/character/
-    - scripts/main/entity/item/
-    - scripts/main/entity/location/
-    - scripts/main/entity/organization/
+    - scripts/main/data/
+    - scripts/main/data/character/
+    - scripts/main/data/item/
+    - scripts/main/data/location/
+    - scripts/main/data/organization/
     - scripts/main/event/
     - scripts/main/game/
     - scripts/main/name/
@@ -181,7 +185,6 @@ flutter:
     - docs/docs/how2play/rpg/character/inventory/
     - docs/docs/how2play/rpg/character/personality/
     - docs/docs/how2play/rpg/character/relationship/
-    - docs/docs/how2play/rpg/character/skin/
     - docs/docs/how2play/rpg/craft/
     - docs/docs/how2play/rpg/cultivation/
     - docs/docs/how2play/rpg/cultivation/level/
