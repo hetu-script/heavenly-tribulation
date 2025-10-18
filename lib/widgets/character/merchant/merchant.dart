@@ -5,7 +5,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 import '../../../game/logic/logic.dart';
 import '../../../engine.dart';
 import '../inventory/inventory.dart';

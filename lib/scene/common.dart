@@ -45,7 +45,6 @@ const kTerrainKindRoad = 'road';
 const kTerrainKindCity = 'city';
 
 const kColorModeContinent = 0;
-const kColorModeCity = 1;
 const kColorModeOrganization = 2;
 
 const kMaxHeroAge = 15;
@@ -63,6 +62,8 @@ abstract class Scenes {
   static const worldmap = 'worldmap';
   static const location = 'location';
   static const battle = 'battle';
+
+  static const tileMatchingGame = 'tile_matching_game';
 
   /// 下面的 id 仅用于事件注册
   static const editor = 'editor';

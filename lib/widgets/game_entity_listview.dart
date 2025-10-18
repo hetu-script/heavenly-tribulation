@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../engine.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 
 class GameEntityListView extends StatefulWidget {
   const GameEntityListView({

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'bordered_icon_button.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 
 class CloseButton2 extends StatelessWidget {
   const CloseButton2({

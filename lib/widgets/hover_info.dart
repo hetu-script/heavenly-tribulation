@@ -4,7 +4,7 @@ import 'package:samsara/richtext/richtext_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/values.dart';
 
-import '../game/ui.dart';
+import '../ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
 import '../state/hover_content.dart';

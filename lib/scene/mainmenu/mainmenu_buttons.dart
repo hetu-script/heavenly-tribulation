@@ -7,7 +7,7 @@ import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 // import 'package:samsara/console.dart';
 import 'package:samsara/extensions.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 // import '../../game/logic/logic.dart';
 import '../../game/game.dart';
 import '../../engine.dart';
@@ -30,6 +30,7 @@ enum DebugMenuItems {
   debugWorkbench,
   debugAlchemy,
   debugMeeting,
+  debugTileMatchingGame,
 }
 
 enum MenuStates {
@@ -81,7 +82,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
-            height: 400.0,
+            height: 360.0,
             width: 200.0,
             padding: const EdgeInsets.only(bottom: 20.0),
             child: Column(
@@ -116,7 +117,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.FilledButton(
-                        onPressed: () {},
+                        onPressed: null,
                         child: Label(
                           engine.locale('settings'),
                           width: 150.0,
@@ -492,6 +493,9 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugAlchemy'): DebugMenuItems.debugAlchemy,
                 '___2': null,
                 engine.locale('debugMeeting'): DebugMenuItems.debugMeeting,
+                '___3': null,
+                engine.locale('debugTileMatchingGame'):
+                    DebugMenuItems.debugTileMatchingGame,
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
@@ -568,6 +572,13 @@ class _DebugButtonState extends State<DebugButton> {
                       people.add(char);
                     }
                     context.read<MeetingState>().update(people);
+                  case DebugMenuItems.debugTileMatchingGame:
+                    engine.pushScene(
+                      Scenes.tileMatchingGame,
+                      arguments: {
+                        'type': kProductionSiteKinds.random,
+                      },
+                    );
                 }
               },
             );

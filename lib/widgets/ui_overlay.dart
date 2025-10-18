@@ -14,7 +14,7 @@ import 'character/profile.dart';
 import 'character/memory.dart';
 import '../engine.dart';
 import 'character/journal.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 import 'hover_info.dart';
 import 'character/details.dart';
 import 'prebatle/prebattle.dart';
@@ -50,7 +50,6 @@ class GameUIOverlay extends StatefulWidget {
     this.enableNpcs = true,
     this.enableLibrary = true,
     this.enableCultivation = true,
-    this.enableAutoExhaust = true,
     this.action,
   });
 
@@ -58,7 +57,6 @@ class GameUIOverlay extends StatefulWidget {
   final bool enableNpcs;
   final bool enableLibrary;
   final bool enableCultivation;
-  final bool enableAutoExhaust;
   final Widget? action;
 
   @override
@@ -693,11 +691,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                         ),
                       ),
                       SizedBox(
-                        height: 95,
+                        height: 80,
                         width: screenSize.width - 120,
                         child: Row(
                           children: [
-                            HistoryPanel(width: 535, height: 95),
+                            HistoryPanel(width: 535, height: 80),
                           ],
                         ),
                       ),

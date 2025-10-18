@@ -7,7 +7,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'inventory/inventory.dart';
 import '../../engine.dart';
 import '../../game/logic/logic.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../state/states.dart';
 import '../ui/close_button2.dart';
 

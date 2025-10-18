@@ -193,6 +193,70 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.1"
+  display_metrics:
+    dependency: "direct main"
+    description:
+      name: display_metrics
+      sha256: "53bf7bd95b4e606ada8c917390b278ed4856abf6123711e2436e62aefe9be46a"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.1"
+  display_metrics_android:
+    dependency: transitive
+    description:
+      name: display_metrics_android
+      sha256: c6f563302d19ed0588901ac64fbdb0b075942bae0fe26b0a4d50353f252baa21
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
+  display_metrics_ios:
+    dependency: transitive
+    description:
+      name: display_metrics_ios
+      sha256: f10580fe85b9db3b59871769857cc04d5cb74dc4aad92a07ba1f25dce8df77fb
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.0"
+  display_metrics_linux:
+    dependency: transitive
+    description:
+      name: display_metrics_linux
+      sha256: "4aeced5f8f57e3fd025ec0666fe735e233c6865e835b4dc4dce838e579181e66"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
+  display_metrics_macos:
+    dependency: transitive
+    description:
+      name: display_metrics_macos
+      sha256: "3680fbf6e822c6810d8cb6b630fef8853b945ddcc841910d99755d289506ea99"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
+  display_metrics_platform_interface:
+    dependency: transitive
+    description:
+      name: display_metrics_platform_interface
+      sha256: e38a74b20978b371a9446fc46af318b5ef264c80d2185358e59ef25a5ee7b666
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
+  display_metrics_web:
+    dependency: transitive
+    description:
+      name: display_metrics_web
+      sha256: "03d47243a140607a549b9e230ba91e9d3238df188a4926ee2cd520c041b4ffc4"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.0"
+  display_metrics_windows:
+    dependency: transitive
+    description:
+      name: display_metrics_windows
+      sha256: "755221562a4be37a4752dbe84945c08460a07134ffff1099db63f8215a41a3e2"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.0"
   dropdown_button2:
     dependency: "direct main"
     description:

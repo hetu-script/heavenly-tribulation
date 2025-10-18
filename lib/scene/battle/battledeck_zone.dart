@@ -3,7 +3,7 @@ import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import 'battle.dart';
 

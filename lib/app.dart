@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:display_metrics/display_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:hetu_script/utils/json.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:hetu_script/value/function/function.dart';
@@ -15,7 +15,7 @@ import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
 import 'game/game.dart';
-import 'game/ui.dart';
+import 'ui.dart';
 import 'scene/world/location/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
@@ -24,6 +24,7 @@ import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
 import 'game/constants.dart';
 import 'scene/loading_screen.dart';
+import 'scene/mini_game/tile_matching/tile_matching.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -33,9 +34,23 @@ class GameApp extends StatefulWidget {
 }
 
 class _GameAppState extends State<GameApp> {
-  bool _isLoading = false, _isInitted = false;
+  bool _isInitializingDisplayMetricsData = true;
 
   final _focusNode = FocusNode();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // call DisplayMetrics.ensureInitialized(context) to ensure
+    // DisplayMetricsData has been loaded
+    DisplayMetrics.ensureInitialized(context)?.then((data) {
+      if (_isInitializingDisplayMetricsData) {
+        setState(() {
+          _isInitializingDisplayMetricsData = false;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -48,7 +63,36 @@ class _GameAppState extends State<GameApp> {
   @override
   void initState() {
     super.initState();
+
+    engine.setLoading(true);
+
+    _initEngine();
+  }
+
+  Future<void> _initEngine() async {
+    // 初始化引擎
+    int tik = DateTime.now().millisecondsSinceEpoch;
+
+    engine.config = EngineConfig(
+      name: 'Heavenly Tribulation',
+      desktop: true,
+      debugMode: true,
+      musicVolume: 0.5,
+      soundEffectVolume: 0.5,
+      mods: {
+        'story': {
+          'enabled': false,
+        },
+      },
+      showFps: true,
+    );
+
+    await engine.init(context);
+
+    engine.hetu.invoke('build', positionalArgs: [context]);
+
     engine.bgm.initialize();
+
     // TODO: 读取游戏配置
 
     // 读取存档列表
@@ -124,28 +168,16 @@ class _GameAppState extends State<GameApp> {
       scene.loadZoneColors();
       return scene;
     });
-  }
 
-  Future<void> _initGame() async {
-    int tik = DateTime.now().millisecondsSinceEpoch;
-
-    engine.config = EngineConfig(
-      name: 'Heavenly Tribulation',
-      desktop: true,
-      debugMode: true,
-      musicVolume: 0.5,
-      soundEffectVolume: 0.5,
-      mods: {
-        'story': {
-          'enabled': false,
-        },
-      },
-      showFps: true,
-    );
-
-    // engine.setCursor(Cursors.normal);
-
-    await engine.init(context);
+    engine.registerSceneConstructor(Scenes.tileMatchingGame, (arguments) async {
+      return TileMatchingGameScene(
+        id: Scenes.tileMatchingGame,
+        context: context,
+        bgm: engine.bgm,
+        type: arguments['type'],
+        development: arguments['development'] ?? 0,
+      );
+    });
 
     engine.hetu.interpreter.bindExternalFunctionType(
       'onBattleEnd',
@@ -590,14 +622,14 @@ class _GameAppState extends State<GameApp> {
         }
       }
     }
-    engine.debug('脚本引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.debug('模组数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     tik = DateTime.now().millisecondsSinceEpoch;
-    await GameData.init();
-    engine.debug('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
-    engine.hetu.invoke('build', positionalArgs: [context]);
+    await GameData.init();
+
+    engine.debug('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));
@@ -613,64 +645,40 @@ class _GameAppState extends State<GameApp> {
     //   });
     // });
     // _videoController.setLooping(true);
-  }
 
-  // FutureBuilder 根据返回值是否为null来判断是否成功，因此这里无论如何需要返回一个值
-  Future<bool> _initEngine() async {
-    if (_isLoading) return false;
-    _isLoading = true;
+    // engine.setCursor(Cursors.normal);
 
-    if (!_isInitted) {
-      // 刚打开游戏，需要初始化引擎，载入数据，debug模式下还要初始化一个游戏存档用于测试
-      await _initGame();
-      _isInitted = true;
-
-      // engine.setCursor(Cursors.normal);
-
-      engine.pushScene(Scenes.mainmenu, arguments: {'reset': true});
-    } else {
-      // 游戏已经初始化完毕，此时根据当前状态读取或切换场景
-      assert(engine.isInitted);
-      assert(GameData.isInitted);
-      assert(GameUI.isInitted);
-    }
-
-    _isLoading = false;
-    return true;
+    engine.pushScene(
+      Scenes.mainmenu,
+      arguments: {'reset': true},
+      onAfterLoaded: () {
+        engine.setLoading(false);
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
-    if (GameUI.size != screenSize.toVector2()) {
-      engine.debug('画面尺寸修改为：${screenSize.width}x${screenSize.height}');
-      GameUI.resizeTo(screenSize.toVector2());
+    if (_isInitializingDisplayMetricsData) {
+      return const LoadingScreen();
     }
 
-    return FutureBuilder(
-      future: _initEngine(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-        } else if (!snapshot.hasData) {
-          return LoadingScreen();
-        } else {
-          final scene = context.watch<SamsaraEngine>().scene;
-          final isLoading = context.watch<SamsaraEngine>().isLoading;
-          return Scaffold(
-            body: Stack(
-              children: [
-                scene?.build(
-                      context,
-                      loadingBuilder: (context) => LoadingScreen(),
-                    ) ??
-                    const SizedBox.shrink(),
-                if (isLoading) LoadingScreen(),
-              ],
-            ),
-          );
-        }
-      },
+    final screenSize = MediaQuery.sizeOf(context);
+    GameUI.setSize(screenSize.toVector2());
+
+    final scene = context.watch<SamsaraEngine>().scene;
+    final isLoading = context.watch<SamsaraEngine>().isLoading;
+    return Scaffold(
+      body: Stack(
+        children: [
+          scene?.build(
+                context,
+                loadingBuilder: (context) => const LoadingScreen(),
+              ) ??
+              const LoadingScreen(),
+          if (isLoading) const LoadingScreen(),
+        ],
+      ),
     );
   }
 }

@@ -697,7 +697,7 @@
 
   "hint_visitEmptyVillage": "似乎没有任何重要人物居住在此。",
   "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
-  "hint_noAvailableQuests": "目前暂时没有任务。",
+  "hint_noAvailableQuests": "这里并不属于任何门派，因此没有任务可领。你可以去一些被门派占据的据点试试。",
 
   "hint_rentedFacility": "没问题，直到下个月前你都可以使用这里的设施了。",
 

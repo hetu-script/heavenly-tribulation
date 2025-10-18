@@ -10,30 +10,22 @@ import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:display_metrics/display_metrics.dart';
 
 import 'app.dart';
 import 'engine.dart';
 import 'state/states.dart';
-import 'game/ui.dart';
+import 'ui.dart';
 import 'widgets/ui/menu_builder.dart';
 
-const _kWindowsFrameWidth = 16.0;
-const _kWindowsFrameHeight = 39.0;
-
-class CustomWindowListener extends WindowListener {
-  @override
-  void onWindowResize() async {
-    final size = await windowManager.getSize();
-    // engine.debug('窗口大小修改为：${size.width}x${size.height}');
-    GameUI.resizeTo(size.toVector2());
-  }
-
-  // @override
-  // void onWindowFocus() async {
-  //   // engine.debug('窗口获得焦点');
-  //   engine.setCursor(Cursors.normal);
-  // }
-}
+// class CustomWindowListener extends WindowListener {
+//   @override
+//   void onWindowResize() async {
+//     final size = (await windowManager.getSize());
+//     engine.debug('画面尺寸修改为：${size.width}x${size.height}');
+//     // GameUI.setSize(size);
+//   }
+// }
 
 class NoThumbScrollBehavior extends ScrollBehavior {
   @override
@@ -68,23 +60,21 @@ void main() {
 
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
     await windowManager.ensureInitialized();
-    windowManager.addListener(CustomWindowListener());
+    // windowManager.addListener(CustomWindowListener());
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
-    const windowSize =
-        Size(1440.0 + _kWindowsFrameWidth, 900.0 + _kWindowsFrameHeight);
     await windowManager.waitUntilReadyToShow(
-        const WindowOptions(
-          title: 'Heavenly Tribulation',
-          // fullScreen: true,
-          size: windowSize,
-          maximumSize: windowSize,
-          minimumSize: windowSize,
-        ), () async {
-      await windowManager.show();
-      await windowManager.focus();
-      engine.debug('系统版本：${Platform.operatingSystemVersion}');
-    });
+      const WindowOptions(
+        title: 'Heavenly Tribulation',
+        // fullScreen: true,
+        size: windowSize,
+      ),
+      () async {
+        await windowManager.show();
+        await windowManager.focus();
+        engine.debug('系统版本：${Platform.operatingSystemVersion}');
+      },
+    );
 
     await engine.registerCursors({
       'normal': 'assets/images/cursor/sword.png',
@@ -94,78 +84,67 @@ void main() {
     });
 
     runApp(
-      MouseRegion(
-        //   opaque: false,
-        cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) => engine),
-            ChangeNotifierProvider(create: (_) => GameDialog.singleton),
-            ChangeNotifierProvider(create: (_) => GameSavesState()),
-            ChangeNotifierProvider(create: (_) => EditorToolState()),
-            ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
-            ChangeNotifierProvider(create: (_) => SelectedPositionState()),
-            ChangeNotifierProvider(create: (_) => HeroPositionState()),
-            ChangeNotifierProvider(create: (_) => GameTimestampState()),
-            ChangeNotifierProvider(create: (_) => HeroJournalUpdate()),
-            ChangeNotifierProvider(create: (_) => NpcListState()),
-            ChangeNotifierProvider(create: (_) => JournalPromptState()),
-            ChangeNotifierProvider(create: (_) => ItemsPromptState()),
-            ChangeNotifierProvider(create: (_) => RankPromptState()),
-            ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
-            ChangeNotifierProvider(create: (_) => HeroState()),
-            ChangeNotifierProvider(create: (_) => EnemyState()),
-            ChangeNotifierProvider(create: (_) => MerchantState()),
-            ChangeNotifierProvider(create: (_) => ItemSelectState()),
-            ChangeNotifierProvider(create: (_) => MeetingState()),
-            ChangeNotifierProvider(create: (_) => ViewPanelState()),
-            ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
-            ChangeNotifierProvider(create: (_) => HoverContentState()),
-            ChangeNotifierProvider(
-                create: (_) => HoverContentDeterminedRectState()),
-          ],
-          child: fluent.FluentTheme(
-            data: GameUI.fluentTheme,
-            child: MaterialApp(
-              // locale: const Locale('en', ''),
-              // localizationsDelegates: const [
-              //   fluent.FluentLocalizations.delegate
-              // ],
-              // supportedLocales: const [
-              //   Locale('en', ''), // English, no country code
-              // ],
-              scrollBehavior:
-                  NoThumbScrollBehavior().copyWith(scrollbars: false),
-              debugShowCheckedModeBanner: false,
-              theme: GameUI.darkMaterialTheme,
-              home: fluent.FlyoutTarget(
-                controller: globalFlyoutController,
-                child: GameApp(key: mainKey),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => engine),
+          ChangeNotifierProvider(create: (_) => GameDialog.singleton),
+          ChangeNotifierProvider(create: (_) => GameSavesState()),
+          ChangeNotifierProvider(create: (_) => EditorToolState()),
+          ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
+          ChangeNotifierProvider(create: (_) => SelectedPositionState()),
+          ChangeNotifierProvider(create: (_) => HeroPositionState()),
+          ChangeNotifierProvider(create: (_) => GameTimestampState()),
+          ChangeNotifierProvider(create: (_) => HeroJournalUpdate()),
+          ChangeNotifierProvider(create: (_) => NpcListState()),
+          ChangeNotifierProvider(create: (_) => JournalPromptState()),
+          ChangeNotifierProvider(create: (_) => ItemsPromptState()),
+          ChangeNotifierProvider(create: (_) => RankPromptState()),
+          ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
+          ChangeNotifierProvider(create: (_) => HeroState()),
+          ChangeNotifierProvider(create: (_) => EnemyState()),
+          ChangeNotifierProvider(create: (_) => MerchantState()),
+          ChangeNotifierProvider(create: (_) => ItemSelectState()),
+          ChangeNotifierProvider(create: (_) => MeetingState()),
+          ChangeNotifierProvider(create: (_) => ViewPanelState()),
+          ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
+          ChangeNotifierProvider(create: (_) => HoverContentState()),
+          ChangeNotifierProvider(
+              create: (_) => HoverContentDeterminedRectState()),
+        ],
+        child: fluent.FluentTheme(
+          data: GameUI.fluentTheme,
+          child: MaterialApp(
+            scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
+            debugShowCheckedModeBanner: false,
+            theme: GameUI.darkMaterialTheme,
+            home: fluent.FlyoutTarget(
+              controller: globalFlyoutController,
+              child: MouseRegion(
+                cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
+                child: DisplayMetricsWidget(
+                  child: GameApp(key: mainKey),
+                ),
               ),
-              // onNavigationNotification: (notification) {
-              //   engine.setCursor(Cursors.normal);
-              //   return notification.canHandlePop;
-              // },
-              // 控件绘制时发生错误，用一个显示错误信息的控件替代
-              builder: (context, widget) {
-                ErrorWidget.builder = (FlutterErrorDetails details) {
-                  String stack = '';
-                  if (details.stack != null) {
-                    stack = trimStackTrace(details.stack!);
-                  }
-                  final Object exception = details.exception;
-                  Widget error = ErrorWidget.withDetails(
-                      message: '$exception\n$stack',
-                      error: exception is FlutterError ? exception : null);
-                  if (widget is Scaffold || widget is Navigator) {
-                    error = Scaffold(body: Center(child: error));
-                  }
-                  return error;
-                };
-                if (widget != null) return widget;
-                throw ('error trying to create error widget!');
-              },
             ),
+            // 控件绘制时发生错误，用一个显示错误信息的控件替代
+            builder: (context, widget) {
+              ErrorWidget.builder = (FlutterErrorDetails details) {
+                String stack = '';
+                if (details.stack != null) {
+                  stack = trimStackTrace(details.stack!);
+                }
+                final Object exception = details.exception;
+                Widget error = ErrorWidget.withDetails(
+                    message: '$exception\n$stack',
+                    error: exception is FlutterError ? exception : null);
+                if (widget is Scaffold || widget is Navigator) {
+                  error = Scaffold(body: Center(child: error));
+                }
+                return error;
+              };
+              if (widget != null) return widget;
+              throw ('error trying to create error widget!');
+            },
           ),
         ),
       ),

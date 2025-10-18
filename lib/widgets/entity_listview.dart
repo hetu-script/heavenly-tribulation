@@ -9,7 +9,7 @@ import 'organization/organization.dart';
 import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/details.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 import '../game/game.dart';
 import 'ui/close_button2.dart';
 import 'common.dart';

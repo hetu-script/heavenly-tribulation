@@ -5,7 +5,7 @@ import 'package:samsara/ui/ink_button.dart';
 
 import 'avatar.dart';
 import '../state/game_update.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 import '../game/game.dart';
 import '../game/logic/logic.dart';
 

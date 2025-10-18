@@ -10,7 +10,7 @@ import '../../widgets/avatar.dart';
 // import '../../engine.dart';
 import '../../widgets/character/profile.dart';
 // import '../../event/ui.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../state/game_dialog.dart';
 
 class GameDialogContent extends StatefulWidget {

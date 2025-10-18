@@ -1,7 +1,7 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/rich_text_component.dart';
 
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 import '../../common.dart';
 
 class PromptTextBanner extends BorderComponent {

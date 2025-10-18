@@ -13,7 +13,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:animated_tree_view/animated_tree_view.dart';
 
-import 'ui.dart';
+import '../ui.dart';
 import 'common.dart';
 import '../engine.dart';
 import '../scene/common.dart';

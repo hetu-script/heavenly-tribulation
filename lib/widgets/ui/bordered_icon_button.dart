@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/paint/paint.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 
 class BorderedIconButton extends StatelessWidget {
   BorderedIconButton({

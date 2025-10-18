@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:provider/provider.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import '../../engine.dart';
 import '../../game/common.dart';

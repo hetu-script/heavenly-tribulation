@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../state/game_dialog.dart';
 import 'game_dialog_content.dart';
 import 'selection_dialog.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 
 const kIllustrationWidth = 600.0;
 const kIllustrationHeight = 900.0;

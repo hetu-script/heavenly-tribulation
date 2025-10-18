@@ -45,9 +45,12 @@ class MainMenuScene extends Scene {
           // 'rank': 1,
         },
       );
+      arguments['reset'] = false;
+      engine.setSceneArguments(id, arguments);
     } else {
       engine.hetu.invoke('rejuvenate', namespace: 'Player');
     }
+    context.read<GameTimestampState>().update();
     context.read<HeroInfoVisibilityState>().setVisible(true);
     context.read<HeroAndGlobalHistoryState>().update();
     context.read<HeroJournalUpdate>().update();

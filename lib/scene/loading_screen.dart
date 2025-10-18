@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/engine.dart';
 
 import '../engine.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({

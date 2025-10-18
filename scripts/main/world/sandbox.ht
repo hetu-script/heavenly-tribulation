@@ -535,6 +535,7 @@ function createSandboxWorld({
     const location = random.nextIterable(cities)
     Character(
       locationId: location.id,
+      rank: random.nextInt(_kSandboxInitialRankMax + 1),
       birthTimestamp: createBirthTimestamp(min: 12, max: 60),
     )
   }
@@ -571,8 +572,13 @@ function createSandboxWorld({
       }
       final newCity = availableCities.first
       addLocationToOrganization(newCity, organization)
+    }
+  }
 
-      roll = random.nextDouble()
+  for (var i in range(10)) {
+    // 国家和组织扩张
+    for (const organization of game.organizations) {
+      let roll = random.nextDouble()
       if (roll > _kOrganizationRecruitProbability) continue
       final availableCharacters = game.characters.values.where((char) =>
         char.organizationId == null
@@ -697,6 +703,7 @@ function createSandboxWorld({
     updateTerritoryBorders(tile)
   }
 
+  // clean up
   delete world.landIndexes
   delete world.waterIndexes
   delete world.mountainIndexes

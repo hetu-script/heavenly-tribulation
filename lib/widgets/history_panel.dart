@@ -5,7 +5,7 @@ import 'package:samsara/ui/mouse_region2.dart';
 
 import '../state/view_panels.dart';
 import '../state/game_update.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 import '../engine.dart';
 import 'history_list.dart';
 import '../state/hover_content.dart';

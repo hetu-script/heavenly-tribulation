@@ -5,7 +5,7 @@ import 'package:samsara/components.dart';
 import 'package:samsara/samsara.dart';
 // import 'package:provider/provider.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';

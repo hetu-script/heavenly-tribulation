@@ -3,7 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 
 import '../engine.dart';
-import '../game/ui.dart';
+import '../ui.dart';
 
 const _kCharacterBondsSubTableColumns = [
   'name',

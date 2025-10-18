@@ -6,7 +6,7 @@ import 'package:hetu_script/utils/collection.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import '../../game/logic/logic.dart';
 import '../../state/view_panels.dart';

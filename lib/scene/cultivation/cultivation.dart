@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 import '../particles/light_point.dart';
 import '../../engine.dart';
 import '../../game/logic/logic.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../common.dart';
@@ -1203,7 +1203,6 @@ class CultivationScene extends Scene {
             enableHeroInfo: !isEditorMode,
             enableNpcs: false,
             enableCultivation: false,
-            enableAutoExhaust: false,
             action: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,

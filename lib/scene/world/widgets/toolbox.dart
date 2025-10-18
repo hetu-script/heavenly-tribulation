@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../../engine.dart';
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 import '../../../state/editor_tool.dart';
 import '../../../game/game.dart';
 import '../../../widgets/common.dart';

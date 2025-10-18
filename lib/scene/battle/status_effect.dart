@@ -8,7 +8,7 @@ import 'package:hetu_script/utils/collection.dart';
 
 import '../../engine.dart';
 import '../../game/game.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import 'common.dart';
 
 class StatusEffect extends BorderComponent with HandlesGesture {

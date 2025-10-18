@@ -10,7 +10,7 @@ import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
 import '../../game/game.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../ui/close_button2.dart';
 
 class CharacterMemory extends StatefulWidget {

@@ -15,7 +15,7 @@ import '../../game/logic/logic.dart';
 import '../../game/common.dart';
 import '../../game/event_ids.dart';
 import '../../game/game.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';
 

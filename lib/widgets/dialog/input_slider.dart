@@ -5,7 +5,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../ui/close_button2.dart';
 
 class InputSliderDialog extends StatefulWidget {
@@ -18,7 +18,7 @@ class InputSliderDialog extends StatefulWidget {
     String Function(int value)? labelBuilder,
   }) {
     assert(min >= 0);
-    assert(max > min);
+    assert(max >= min);
     return showDialog<int?>(
       context: context,
       barrierColor: Colors.transparent,

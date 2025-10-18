@@ -2,9 +2,10 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-// import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+// import 'package:samsara/colors.dart';
 
-import 'common.dart';
+import 'game/common.dart';
+import 'engine.dart';
 
 export 'package:samsara/colors.dart';
 
@@ -106,11 +107,11 @@ abstract class GameUI {
     ..style = PaintingStyle.fill
     ..color = backgroundColor3;
 
-  static final backgroundColor2Opaque = Color(0xFF02020F);
   static final backgroundColor2 = Color(0xDD02020F);
+  static final backgroundColor2Opaque = Color(0xFF02020F);
 
-  static final backgroundColor3Opaque = Color(0xFF270505);
   static final backgroundColor3 = Color(0xDD270505);
+  static final backgroundColor3Opaque = Color(0xFF270505);
 
   static final focusColorOpaque = const Color.fromARGB(255, 0, 32, 64);
   static final focusColor = Color.fromARGB(255, 0, 32, 64).withAlpha(128);
@@ -130,7 +131,7 @@ abstract class GameUI {
       Offset(largeIndent, heroInfoHeight + smallIndent);
   static final profileWindowSize = Vector2(640.0, 480.0);
 
-  static late final Offset detailsWindowPosition;
+  static late Offset detailsWindowPosition;
 
   static const iconTheme = IconThemeData(
     color: foregroundColor,
@@ -327,10 +328,9 @@ abstract class GameUI {
       Rect.fromLTRB(0.06, 0.04, 0.06, 0.42);
 
   static final battleCardPreferredSize = Vector2(250, 250 * 1.382);
-
   static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
 
-  static late Vector2 worldmapBannerSize;
+  static final Vector2 worldmapBannerSize = Vector2(640.0, 160.0);
 
   // ratio = height / width
   static const cardSizeRatio = 1.382;
@@ -366,7 +366,7 @@ abstract class GameUI {
   static late Vector2 cardpackCardSize;
 
   /// 卡包中1，2，3号卡牌的位置
-  static late final List<Vector2> cardpackCardPositions;
+  static late List<Vector2> cardpackCardPositions;
 
   static late Vector2 closeCraftButtonPosition;
   static late Vector2 cardLibraryExpLabelPosition;
@@ -432,8 +432,18 @@ abstract class GameUI {
   static final skillButtonSizeMedium = Vector2(60, 60);
   static final skillButtonSizeLarge = Vector2(80, 80);
 
-  static void resizeTo(Vector2 size) {
-    if (GameUI.size == size) return;
+  static late Vector2 tileMatchingGameTileSize;
+
+  static const tileMatchingGameBoardGridWidth = 11;
+  static const tileMatchingGameBoardGridHeight = 7;
+
+  static final tileMatchingGameBoardOffset = Vector2(162.0, 131.0);
+  static final tileMatchingGameTileSrcSize = Vector2(81.0, 81.0);
+
+  static void setSize(Vector2 newSize) {
+    if (size == newSize) return;
+    size = newSize;
+    engine.debug('画面尺寸修改为：${size.x}x${size.y}');
 
     Hovertip.backgroundPaint = Paint()
       ..color = backgroundColor
@@ -443,8 +453,6 @@ abstract class GameUI {
     //   textStyle: TextStyle(fontFamily: GameUI.fontFamily),
     // );
 
-    GameUI.size = size;
-
     SpriteButton.defaultTextConfig = spriteButtonTextConfig;
 
     Hovertip.defaultContentConfig = hovertipContentConfig;
@@ -452,29 +460,32 @@ abstract class GameUI {
     FadingText.defaultTextStyle = fadingTextStyle;
 
     detailsWindowPosition = Offset(
-        size.x - profileWindowSize.x - largeIndent, profileWindowPosition.dy);
+        newSize.x - profileWindowSize.x - largeIndent,
+        profileWindowPosition.dy);
 
-    worldmapBannerSize = Vector2(640.0, 160.0);
-
-    libraryZonePosition = Vector2((120 / 1440 * size.x).roundToDouble(),
-        (180 / 810 * size.y).roundToDouble());
-    libraryZoneSize = Vector2((960 / 1440 * size.x).roundToDouble(),
-        (450 / 810 * size.y).roundToDouble());
+    libraryZonePosition = Vector2(
+        (120 / windowSize.width * newSize.x).roundToDouble(),
+        (180 / windowSize.height * newSize.y).roundToDouble());
+    libraryZoneSize = Vector2(
+        (960 / windowSize.width * newSize.x).roundToDouble(),
+        (450 / windowSize.height * newSize.y).roundToDouble());
 
     libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
-    libraryZoneBackgroundSize = Vector2((1190 / 1440 * size.x).roundToDouble(),
+    libraryZoneBackgroundSize = Vector2(
+        (1190 / windowSize.width * newSize.x).roundToDouble(),
         (libraryZoneSize.y).roundToDouble());
 
-    orderByButtonPosition = libraryZonePosition + Vector2(50, -50);
+    orderByButtonPosition = libraryZonePosition + Vector2(35, -35);
     filterByButtonPosition =
         orderByButtonPosition + Vector2(buttonSizeLong.x + largeIndent, 0);
 
     decksZoneBackgroundSize = Vector2(
-        size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
+        newSize.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
     decksZoneBackgroundPosition =
         Vector2(libraryZoneBackgroundSize.x, libraryZoneBackgroundPosition.y);
 
-    final deckbuildingCardWidth = ((130 / 1440 * size.x).roundToDouble());
+    final deckbuildingCardWidth =
+        ((130 / windowSize.width * newSize.x).roundToDouble());
     final deckbuildingCardHeight =
         (deckbuildingCardWidth * 1.351351).roundToDouble();
     deckbuildingCardSize =
@@ -511,23 +522,22 @@ abstract class GameUI {
     cardpackCardSize = libraryCardSize * 1.5;
 
     final position2 = Vector2(
-      size.x / 2 - cardpackCardSize.x / 2,
+      newSize.x / 2 - cardpackCardSize.x / 2,
       135.0,
     );
-
     final position1 = position2 - Vector2(cardpackCardSize.x + hugeIndent, 0);
-
     final position3 = position2 + Vector2(cardpackCardSize.x + hugeIndent, 0);
 
     cardpackCardPositions = [position1, position2, position3];
 
-    closeCraftButtonPosition =
-        Vector2(size.x / 2, size.y - largeIndent - buttonSizeMedium.y / 2);
+    closeCraftButtonPosition = Vector2(
+        newSize.x / 2, newSize.y - largeIndent - buttonSizeMedium.y / 2);
 
-    cardLibraryExpLabelPosition = Vector2(size.x / 2, size.y - 50);
+    cardLibraryExpLabelPosition = Vector2(newSize.x / 2, newSize.y - 50);
 
-    cardCraftingZoneSize = Vector2((270 / 1440 * size.x).roundToDouble(),
-        (270 / 810 * size.y).roundToDouble());
+    cardCraftingZoneSize = Vector2(
+        (270 / windowSize.width * newSize.x).roundToDouble(),
+        (270 / windowSize.height * newSize.y).roundToDouble());
 
     cardCraftingZoneInitialPosition =
         Vector2(decksZoneBackgroundPosition.x, -150.0);
@@ -542,15 +552,16 @@ abstract class GameUI {
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =
-        Vector2(size.x / 2 - largeIndent, battleCardSize.y + indent);
+        Vector2(newSize.x / 2 - largeIndent, battleCardSize.y + indent);
 
     battleCardFocusedSize =
         Vector2(battleCardSize.x + largeIndent, battleCardSize.y + largeIndent);
 
     p1BattleDeckZonePosition =
-        Vector2(indent / 2, size.y - battleDeckZoneSize.y - indent / 2);
+        Vector2(indent / 2, newSize.y - battleDeckZoneSize.y - indent / 2);
     p2BattleDeckZonePosition = Vector2(
-        size.x - battleDeckZoneSize.x - indent / 2, p1BattleDeckZonePosition.y);
+        newSize.x - battleDeckZoneSize.x - indent / 2,
+        p1BattleDeckZonePosition.y);
 
     // p1BattleCardFocusedPosition = Vector2(
     //     indent,
@@ -573,12 +584,12 @@ abstract class GameUI {
         -(battleCardFocusedSize.y - battleCardSize.y));
 
     p1CharacterAnimationPosition = Vector2(
-      size.x / 2 - 208,
+      newSize.x / 2 - 208,
       p1BattleDeckZonePosition.y - heroSpriteSize.y,
     );
 
     p2CharacterAnimationPosition = Vector2(
-      size.x / 2 + 208,
+      newSize.x / 2 + 208,
       p2BattleDeckZonePosition.y - heroSpriteSize.y,
     );
 
@@ -586,17 +597,17 @@ abstract class GameUI {
     versusIconSize = Vector2(160.0, 180.0);
     battleCharacterAvatarSize = Vector2(100.0, 100.0);
 
-    final siteCardWidth = (size.x - 300) / 8 - indent;
+    final siteCardWidth = (newSize.x - 300) / 8 - indent;
     final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();
 
     siteCardSize = Vector2(siteCardWidth, siteCardHeight);
 
     siteCardFocusedSize = siteCardSize * 1.2;
 
-    siteListPosition = Vector2(indent, size.y - indent - siteCardSize.y);
+    siteListPosition = Vector2(indent, newSize.y - indent - siteCardSize.y);
 
     siteExitCardPositon =
-        Vector2(size.x - indent - siteCardSize.x, siteListPosition.y + 10);
+        Vector2(newSize.x - indent - siteCardSize.x, siteListPosition.y + 10);
 
     cultivatorPosition = Vector2(center.x, center.y);
 

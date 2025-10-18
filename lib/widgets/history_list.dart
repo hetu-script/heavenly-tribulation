@@ -156,6 +156,7 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
                         incident['message'],
                         style: TextStyle(
                           color: Colors.yellow,
+                          fontSize: 14,
                         ),
                       ))
                   .toList(),

@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 // import '../../util.dart';
 import '../common.dart';
 import 'edit_organization_basic.dart';

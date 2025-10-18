@@ -12,7 +12,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/ui/close_button2.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/logic/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';

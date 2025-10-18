@@ -3,7 +3,7 @@ import 'package:samsara/ui/rrect_icon.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:samsara/ui/mouse_region2.dart';
 
-import '../game/ui.dart';
+import '../ui.dart';
 import '../game/game.dart';
 // import 'character/profile.dart';
 

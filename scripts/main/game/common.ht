@@ -4,46 +4,46 @@ const kCultivationRankMax = 5
 
 final kBattleCardKind = skillData.keys.toList()
 
-const kRarityCommon = 'common' // 凡品：生成数量没有限制
-const kRarityRare = 'rare' // 良品：每18世界大小
-const kRarityEpic = 'epic' // 极品：每36世界大小
-const kRarityLegendary = 'legendary' // 神品：每72世界大小
-const kRarityMythic = 'mythic' // 灵宝：每144世界大小
-const kRarityArcane = 'arcane' // 古宝：每288世界大小
+const kRarityCommon = 'common' // 凡品
+const kRarityRare = 'rare' // 良品
+const kRarityEpic = 'epic' // 极品
+const kRarityLegendary = 'legendary' // 神品
+const kRarityMythic = 'mythic' // 灵宝
+const kRarityArcane = 'arcane' // 古宝
 
 const kRarity = {
   /// 未分类 黑
   common: {
     rank: 0,
-    rarity: 0.55,
+    rarity: 1.0,
     name: 'common',
     color: '#B4B4B4',
   },
   /// 凡品 灰
   rare: {
     rank: 1,
-    rarity: 0.23,
+    rarity: 0.45,
     name: 'rare',
     color: '#D4FFFF',
   },
   /// 良品 蓝
   epic:{
     rank: 2,
-    rarity: 0.12,
+    rarity: 0.22,
     name: 'uncommon',
     color: '#9D9DFF',
   },
   /// 上品 紫
   legendary:{
     rank: 3,
-    rarity: 0.06,
+    rarity: 0.09,
     name: 'rare',
     color: '#693DA8',
   },
   /// 极品 金
   mythic: {
     rank: 4,
-    rarity: 0.03,
+    rarity: 0.04,
     name: 'epic',
     color: '#E7E7AC',
   },
@@ -62,18 +62,18 @@ function getRarity({ name }) {
     return kRarity[name]
   } else {
     final roll = random.nextDouble()
-    if (roll < kRarity.common.rarity) {
-      return kRarity.common
-    } else if (roll < kRarity.rare.rarity) {
-      return kRarity.rare
-    } else if (roll < kRarity.epic.rarity) {
-      return kRarity.epic
-    } else if (roll < kRarity.legendary.rarity) {
-      return kRarity.legendary
+    if (roll < kRarity.arcane.rarity) {
+      return kRarity.arcane
     } else if (roll < kRarity.mythic.rarity) {
       return kRarity.mythic
+    } else if (roll < kRarity.legendary.rarity) {
+      return kRarity.legendary
+    } else if (roll < kRarity.epic.rarity) {
+      return kRarity.epic
+    } else if (roll < kRarity.rare.rarity) {
+      return kRarity.rare
     } else {
-      return kRarity.arcane
+      return kRarity.common
     }
   }
 }

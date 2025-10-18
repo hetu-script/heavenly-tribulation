@@ -6,7 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../dropdown_menu_button.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../ui/close_button2.dart';
 
 class SelectMenuDialog extends StatefulWidget {

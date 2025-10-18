@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/popup_submenu_item.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 
 PopupMenuItem<T> buildMenuItem<T>({
   required T item,

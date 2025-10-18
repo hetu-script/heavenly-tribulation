@@ -53,6 +53,7 @@ dependencies:
   data_table_2: 2.6.0
   flutter_markdown_plus: ^1.0.5
   animated_tree_view: ^2.3.0
+  display_metrics: ^2.2.1
 
 dev_dependencies:
   flutter_test:
@@ -114,10 +115,11 @@ flutter:
     - assets/images/location/card/
     - assets/images/location/city/
     - assets/images/location/site/
+    - assets/images/mini_game/
+    - assets/images/mini_game/tile_matching/
     - assets/images/object/
     - assets/images/object/components/
     - assets/images/object/animation/
-    - assets/images/ui/
     - assets/images/particles/
     - assets/images/particles/clouds/
     - assets/images/particles/rubbles/
@@ -132,6 +134,7 @@ flutter:
     - assets/images/story/object/
     - assets/images/tilemap/
     - assets/images/time/
+    - assets/images/ui/
 
     # - assets/locale/en/
     - assets/locale/zh/

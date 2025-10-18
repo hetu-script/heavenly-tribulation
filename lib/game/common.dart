@@ -64,7 +64,7 @@ const kTerrainKindToNaturalResources = {
     'grain': 5,
     'meat': 1,
     'leather': 1,
-    'herb': 1,
+    'herb': 2,
     'timber': 2,
     'stone': 1,
     'ore': 1,
@@ -72,113 +72,113 @@ const kTerrainKindToNaturalResources = {
   },
   'mountain': {
     'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
-    'stone': 1,
-    'ore': 1,
-    'spirit': 1,
+    'grain': 3,
+    'meat': 3,
+    'leather': 3,
+    'herb': 4,
+    'timber': 4,
+    'stone': 5,
+    'ore': 3,
+    'spirit': 4,
   },
   'forest': {
     'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
+    'grain': 2,
+    'meat': 4,
+    'leather': 4,
+    'herb': 5,
+    'timber': 5,
     'stone': 1,
     'ore': 1,
-    'spirit': 1,
+    'spirit': 3,
   },
   'snow_plain': {
-    'water': 0,
-    'grain': 5,
+    'water': 3,
+    'grain': 1,
     'meat': 1,
     'leather': 1,
     'herb': 1,
-    'timber': 2,
+    'timber': 1,
     'stone': 1,
     'ore': 1,
-    'spirit': 1,
+    'spirit': 2,
   },
   'snow_mountain': {
     'water': 0,
-    'grain': 5,
+    'grain': 1,
     'meat': 1,
     'leather': 1,
-    'herb': 1,
+    'herb': 3,
     'timber': 2,
-    'stone': 1,
-    'ore': 1,
-    'spirit': 1,
+    'stone': 3,
+    'ore': 2,
+    'spirit': 5,
   },
   'snow_forest': {
     'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
+    'grain': 1,
+    'meat': 2,
+    'leather': 2,
+    'herb': 4,
+    'timber': 3,
     'stone': 1,
     'ore': 1,
-    'spirit': 1,
+    'spirit': 4,
   },
   'shore': {
     'water': 0,
-    'grain': 5,
+    'grain': 0,
     'meat': 1,
     'leather': 1,
-    'herb': 1,
-    'timber': 2,
+    'herb': 2,
+    'timber': 1,
     'stone': 1,
     'ore': 1,
     'spirit': 1,
   },
   'shelf': {
-    'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
-    'stone': 1,
-    'ore': 1,
+    'water': 4,
+    'grain': 0,
+    'meat': 2,
+    'leather': 0,
+    'herb': 0,
+    'timber': 0,
+    'stone': 0,
+    'ore': 0,
     'spirit': 1,
   },
   'lake': {
-    'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
-    'stone': 1,
-    'ore': 1,
-    'spirit': 1,
+    'water': 5,
+    'grain': 0,
+    'meat': 3,
+    'leather': 0,
+    'herb': 0,
+    'timber': 0,
+    'stone': 0,
+    'ore': 0,
+    'spirit': 3,
   },
   'sea': {
-    'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
-    'stone': 1,
-    'ore': 1,
+    'water': 5,
+    'grain': 0,
+    'meat': 4,
+    'leather': 0,
+    'herb': 0,
+    'timber': 0,
+    'stone': 0,
+    'ore': 0,
     'spirit': 1,
   },
   'river': {
-    'water': 0,
-    'grain': 5,
-    'meat': 1,
-    'leather': 1,
-    'herb': 1,
-    'timber': 2,
-    'stone': 1,
-    'ore': 1,
-    'spirit': 1,
+    'water': 3,
+    'grain': 0,
+    'meat': 2,
+    'leather': 0,
+    'herb': 0,
+    'timber': 0,
+    'stone': 0,
+    'ore': 0,
+    'spirit': 2,
   },
 };
 
@@ -406,6 +406,10 @@ const kRaritiesToRank = {
   'arcane': 5,
 };
 
+const kRarityMax = 5;
+
+final kRarityDistribution = [0.01, 0.04, 0.09, 0.22, 0.45, 1.0];
+
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
     /// 凡品
@@ -514,52 +518,25 @@ const kLocationSiteKinds = [
   'divinationaltar',
   // 'theurgytemple',
   'farmland',
-  'fishery',
   'timberland',
+  'fishery',
   'huntingground',
   'mine',
   'dungeon',
 ];
 
 const kSiteKindsWorkable = [
-  // 'tradinghouse',
-  'daostele', // 悟性
-  // 'exparray',
-  'library', // 悟性
-  // 'arena',
-  // 'militarypost',
-  'auctionhouse', // 魅力
-  'hotel', // 魅力
-  'workshop', // 体魄
-  // 'enchantshop',
-  'alchemylab', // 灵力
-  // 'tatooshop',
-  'runelab', // 灵力
-  // 'arraylab',
-  'illusionaltar', // 念力
-  // 'psychictemple',
-  'divinationaltar', // 念力
-  // 'theurgytemple',
   'farmland', // 神识
-  'fishery', // 身法
-  'timberland', // 神识
+  'timberland', // 灵力
+  'fishery', // 念力
   'huntingground', // 身法
   'mine', // 体魄
 ];
 
 const kSiteKindToAttribute = {
-  'daostele': 'wisdom',
-  'library': 'wisdom',
-  'auctionhouse': 'charisma',
-  'hotel': 'charisma',
-  'workshop': 'strength',
-  'alchemylab': 'spirituality',
-  'runelab': 'spirituality',
-  'illusionaltar': 'willpower',
-  'divinationaltar': 'willpower',
   'farmland': 'perception',
-  'timberland': 'perception',
-  'fishery': 'dexterity',
+  'timberland': 'spirituality',
+  'fishery': 'willpower',
   'huntingground': 'dexterity',
   'mine': 'strength',
 };
@@ -595,10 +572,10 @@ const kSiteKindsTradable = {
 const kProductionSiteKinds = {
   // 只会在平原地形且在城市周围出现
   'farmland',
-  // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
-  'fishery',
   // 只会在森林地形出现
   'timberland',
+  // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
+  'fishery',
   // 只会在山地或森林地形出现
   'huntingground',
   // 只会在山地地形出现
@@ -608,15 +585,15 @@ const kProductionSiteKinds = {
 const kSiteKindsToMaterialProducable = {
   'farmland': {
     'grain': 0.7,
-    'meat': 0.25,
+    'herb': 0.25,
+  },
+  'timberland': {
+    'timber': 0.65,
+    'herb': 0.3,
   },
   'fishery': {
     'meat': 0.55,
     'water': 0.4,
-  },
-  'timberland': {
-    'grain': 0.65,
-    'herb': 0.3,
   },
   'huntingground': {
     'leather': 0.6,
@@ -682,8 +659,8 @@ final kSiteWorkableMounths = {
   'auctionhouse': [9, 10, 11, 12, 1, 2, 3, 4],
   'hotel': [3, 4, 5, 6, 7, 8, 9, 10, 11],
   'farmland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'fishery': [3, 4, 5, 6, 7, 8, 9, 10, 11],
   'timberland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
+  'fishery': [3, 4, 5, 6, 7, 8, 9, 10, 11],
   'huntingground': [9, 10, 11, 12, 1, 2, 3, 4],
   'mine': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   'workshop': [10, 11, 12, 1, 2, 3, 4, 5, 6],
@@ -709,8 +686,8 @@ final kSiteWorkableBaseSalaries = {
   'auctionhouse': 28,
   'hotel': 56,
   'farmland': 14,
-  'fishery': 44,
   'timberland': 23,
+  'fishery': 44,
   'huntingground': 32,
   'mine': 64,
   'workshop': 46,
@@ -736,8 +713,8 @@ final kSiteWorkableBaseStaminaCost = {
   'auctionhouse': 2,
   'hotel': 4,
   'farmland': 2,
-  'fishery': 5,
   'timberland': 3,
+  'fishery': 5,
   'huntingground': 4,
   'mine': 7,
   'workshop': 4,
@@ -764,8 +741,8 @@ final kSiteRentMoneyCostByDay = {
   'auctionhouse': null,
   'hotel': 1000,
   'farmland': 250,
-  'fishery': 350,
   'timberland': 500,
+  'fishery': 350,
   'huntingground': 1000,
   'mine': 1500,
   'workshop': 2500,

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../widgets/avatar.dart';
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 import '../../../engine.dart';
 import '../../../state/meeting.dart';
 

@@ -6,7 +6,7 @@ import 'package:samsara/ui/integer_input_field.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../ui/close_button2.dart';
 
 class InputVector2Dialog extends StatefulWidget {

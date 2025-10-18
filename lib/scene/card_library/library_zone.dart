@@ -9,7 +9,7 @@ import 'package:samsara/gestures.dart';
 // import 'package:samsara/components/hovertip.dart';
 
 import '../../game/game.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/logic/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';

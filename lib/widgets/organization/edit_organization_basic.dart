@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../entity_listview.dart';
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../ui/close_button2.dart';
 
 class EditOrganizationBasics extends StatefulWidget {

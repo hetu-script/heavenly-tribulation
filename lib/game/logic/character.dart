@@ -27,7 +27,8 @@ void _heroRest() async {
       ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
     case 'restTillFullHealth':
       ticks =
-          (GameData.hero['stats']['lifeMax'] - GameData.hero['life']).floor();
+          (GameData.hero['stats']['lifeMax'] - GameData.hero['life']).floor() *
+              kTicksPerTime;
     case 'cancel':
       return;
   }

@@ -10,7 +10,7 @@ import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
 import '../ui/int_editor_field.dart';
 import '../../game/common.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import 'edit_character_flags.dart';
 import '../ui/close_button2.dart';

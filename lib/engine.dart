@@ -11,3 +11,5 @@ abstract class Cursors {
 final SamsaraEngine engine = SamsaraEngine();
 
 final dialog = GameDialog.singleton;
+
+const windowSize = Size(1440.0, 810.0);

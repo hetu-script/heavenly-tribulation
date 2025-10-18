@@ -11,7 +11,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
 import '../../../game/game.dart';
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 import '../../../widgets/ui_overlay.dart';
 import '../../../widgets/dialog/character_visit.dart';
 import '../../game_dialog/game_dialog_content.dart';

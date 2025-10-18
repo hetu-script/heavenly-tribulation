@@ -553,7 +553,7 @@ function replenishTradingHouse(location) {
   price.worker += latitudeFactor
   // 纬度越高，水资源价格越高
   price.water += latitudeFactor
-  // 纬度越高，谷物价格越高
+  // 纬度越高，粮食价格越高
   price.grain += latitudeFactor
   // 纬度越高，生肉价格越低
   price.meat += -latitudeFactor
@@ -589,7 +589,7 @@ function replenishTradingHouse(location) {
   price.worker += seasonFactor
   // 夏秋清水价格低，冬春清水价格高
   price.water += seasonFactor
-  // 夏秋谷物价格低，冬春谷物价格高
+  // 夏秋粮食价格低，冬春粮食价格高
   price.grain += seasonFactor
   // 夏秋生肉价格低，冬春生肉价格高
   price.meat += seasonFactor
@@ -623,7 +623,7 @@ function replenishTradingHouse(location) {
   price.worker += cityFactor
   // 港口岛屿清水价格低
   price.water += cityFactor
-  // 港口岛屿谷物价格低
+  // 港口岛屿粮食价格低
   price.grain += cityFactor
   // 港口岛屿生肉价格低
   price.meat += cityFactor
@@ -716,7 +716,7 @@ function replenishProductionSite(location) {
     'farmland': {
       price = {
         'grain': 0.55,
-        'meat': 0.8,
+        'herb': 0.8,
       }
     }
     'fishery': {

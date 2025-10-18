@@ -19,7 +19,7 @@ import '../../engine.dart';
 import 'particles/cloud.dart';
 import 'particles/rubble.dart';
 import '../common.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 // import 'animation/flying_sword.dart';
 import '../../game/game.dart';
 import '../../state/states.dart';
@@ -311,6 +311,8 @@ class WorldMapScene extends Scene {
 
     map.onAfterMapLoaded =
         isEditorMode ? _onAfterLoadedInEditorMode : _onAfterLoadedInGameMode;
+
+    map.onMouseEnterScreenEdge = _onMouseEnterScreenEdge;
 
     map.onMouseEnterTile = _onMouseEnterTile;
 
@@ -1438,6 +1440,11 @@ class WorldMapScene extends Scene {
     engine.context.read<HeroPositionState>().updateTerrain();
     engine.context.read<HeroPositionState>().updateLocation();
     engine.context.read<HeroPositionState>().updateDungeon();
+  }
+
+  // TODO: 自动移动屏幕
+  void _onMouseEnterScreenEdge(OrthogonalDirection direction) {
+    context.read<HoverContentState>().hide();
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {

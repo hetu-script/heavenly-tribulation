@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../widgets/character/profile.dart';
 // import '../../state/hoverinfo.dart';
 import 'equipments_bar.dart';

@@ -10,7 +10,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import '../ui/bordered_icon_button.dart';
 import '../avatar.dart';
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import 'battlecard.dart';
 import '../ui/menu_builder.dart';

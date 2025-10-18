@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:samsara/richtext.dart';
+// import 'package:samsara/richtext.dart';
 
-import '../../game/ui.dart';
+import '../ui.dart';
 import '../../state/game_update.dart';
 import '../../state/view_panels.dart';
 import '../../game/game.dart';

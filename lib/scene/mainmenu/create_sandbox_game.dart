@@ -10,7 +10,7 @@ import 'package:fast_noise/fast_noise.dart';
 import 'package:hetu_script/utils/crc32b.dart';
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../game/common.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
@@ -96,6 +96,8 @@ class CreateSandboxGameDialog extends StatefulWidget {
 }
 
 class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
+  static final random = math.Random();
+
   final _saveNameEditingController = TextEditingController();
   final _seedEditingController = TextEditingController();
 
@@ -111,8 +113,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   bool _enableTutorial = true;
 
   ui.Image? _image;
-
-  final random = math.Random();
 
   final Map<int, ui.Image> _imageCache = {};
 

@@ -6,7 +6,7 @@ import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/game.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';

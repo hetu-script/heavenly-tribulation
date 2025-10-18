@@ -5,7 +5,7 @@ import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
-import '../../../game/ui.dart';
+import '../../../ui.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 

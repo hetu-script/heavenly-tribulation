@@ -15,7 +15,7 @@ import 'package:samsara/utils/math.dart' as math;
 import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
-import '../../game/ui.dart';
+import '../../ui.dart';
 import '../../game/logic/logic.dart';
 import '../../engine.dart';
 import 'common.dart';
@@ -1559,7 +1559,6 @@ class CardLibraryScene extends Scene {
         GameUIOverlay(
           enableNpcs: false,
           enableLibrary: false,
-          enableAutoExhaust: false,
           action: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
