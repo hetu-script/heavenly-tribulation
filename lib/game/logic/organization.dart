@@ -16,14 +16,24 @@ Future<void> _monthlyMeeting(
     dynamic superior, dynamic location, dynamic organization,
     {bool isFirstMeeting = false}) async {
   final people = [superior];
-  final membersAtLocationData =
-      organization['membersData'].values.where((data) {
-    return data['id'] != GameData.hero['id'] &&
-        data['id'] != superior['id'] &&
-        data['reportSiteId'] == location['id'];
-  }).toList();
+  final membersAtLocationData = organization['membersData']
+      .values
+      .where((data) {
+        return data['id'] != GameData.hero['id'] &&
+            data['id'] != superior['id'] &&
+            data['reportSiteId'] == location['id'];
+      })
+      .map((data) => GameData.getCharacter(data['id']))
+      .toList();
   membersAtLocationData.shuffle();
-  people.addAll(membersAtLocationData.take(3));
+  final members = membersAtLocationData.take(3);
+  for (final member in members) {
+    engine.hetu.invoke('characterMet', positionalArgs: [
+      member,
+      GameData.hero,
+    ]);
+  }
+  people.addAll(members);
   people.add(GameData.hero);
 
   dialog.pushDialog(
@@ -34,7 +44,6 @@ Future<void> _monthlyMeeting(
       location['name'],
     ],
   );
-  dialog.pushDialog('discourse_silencee', isHero: true);
   dialog.pushBackground('black.png', isFadeIn: true);
   dialog.pushTask(() async {
     await Future.delayed(const Duration(milliseconds: 500));
@@ -106,13 +115,6 @@ Future<void> _monthlyMeeting(
             character: superior);
         await dialog.execute();
       }
-
-      for (final charAtLocation in people) {
-        engine.hetu.invoke('characterMet', positionalArgs: [
-          charAtLocation,
-          newRecruit,
-        ]);
-      }
     }
   }
 
@@ -136,4 +138,6 @@ Future<void> _monthlyMeeting(
 
   dialog.pushDialog('organization_meeting_ending', character: superior);
   await dialog.execute();
+
+  engine.context.read<MeetingState>().end();
 }

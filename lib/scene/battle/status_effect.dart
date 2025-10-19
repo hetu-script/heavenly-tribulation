@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/components/hovertip.dart';
+import 'package:samsara/components/ui/hovertip.dart';
 import 'package:hetu_script/utils/collection.dart';
 
 import '../../engine.dart';

@@ -98,10 +98,14 @@ struct BattleEntity {
     // 在所有流派中，只有修为等级最高的那个流派决定了境界
     this.rank = rank ?? 0
     // 修为等级，每次提升修为等级可以获得1点天赋点
-    this.level = level ?? 0
+    this.level = level
     final minLevel = minLevelForRank(this.rank)
     final maxLevel = maxLevelForRank(this.rank)
-    this.level = this.level.clamp(minLevel, maxLevel)
+    if (this.level == null) {
+      this.level = random.nextInt(maxLevel - minLevel + 1) + minLevel
+    } else {
+      this.level = this.level.clamp(minLevel, maxLevel)
+    }
 
     this.tribulationCount = 0
 

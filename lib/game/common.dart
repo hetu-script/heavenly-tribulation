@@ -55,6 +55,8 @@ const kNpcIds = [
   'guard',
 ];
 
+const kNpcAvatarCount = 14;
+
 const kTerrainKindToNaturalResources = {
   'void': null,
   'city': null,
@@ -508,15 +510,15 @@ const kLocationSiteKinds = [
   'auctionhouse',
   'hotel',
   'workshop',
-  // 'enchantshop',
+  'enchantshop',
   'alchemylab',
-  // 'tatooshop',
+  'tattooshop',
   'runelab',
-  // 'arraylab',
+  'arraylab',
   'illusionaltar',
-  // 'psychictemple',
+  'psychictemple',
   'divinationaltar',
-  // 'theurgytemple',
+  'theurgytemple',
   'farmland',
   'timberland',
   'fishery',
@@ -552,7 +554,7 @@ const kSiteKindsBuildable = {
   'workshop',
   // 'enchantshop',
   'alchemylab',
-  // 'tatooshop',
+  // 'tattooshop',
   'runelab',
   // 'arraylab',
   'illusionaltar',
@@ -569,40 +571,27 @@ const kSiteKindsTradable = {
   'runelab',
 };
 
+/// farmland 只会在平原地形且在城市周围出现
+/// timberland 只会在森林地形出现
+/// fishery 只会在大陆架、湖泊或者据点周围一格的水域地形出现
+/// huntingground 只会在山地或森林地形出现
+/// mine 只会在山地地形出现
 const kProductionSiteKinds = {
-  // 只会在平原地形且在城市周围出现
   'farmland',
-  // 只会在森林地形出现
   'timberland',
-  // 只会在大陆架、湖泊或者据点周围一格的水域地形出现
   'fishery',
-  // 只会在山地或森林地形出现
   'huntingground',
-  // 只会在山地地形出现
   'mine',
 };
 
-const kSiteKindsToMaterialProducable = {
-  'farmland': {
-    'grain': 0.7,
-    'herb': 0.25,
-  },
-  'timberland': {
-    'timber': 0.65,
-    'herb': 0.3,
-  },
-  'fishery': {
-    'meat': 0.55,
-    'water': 0.4,
-  },
-  'huntingground': {
-    'leather': 0.6,
-    'meat': 0.35,
-  },
-  'mine': {
-    'stone': 0.75,
-    'ore': 0.2,
-  },
+const kProductionSiteDevelopmentMax = 2;
+
+const kSiteProductionMainMaterialProduceProbability = {
+  'farmland': 0.8,
+  'fishery': 0.6,
+  'huntingground': 0.65,
+  'timberland': 0.7,
+  'mine': 0.75,
 };
 
 const kOrganizationCategoryToSiteKind = {
@@ -632,7 +621,7 @@ const kOrganizationGenreToSiteKinds = {
   ],
   'bodyforge': [
     'alchemylab',
-    // 'tatooshop',
+    // 'tattooshop',
   ],
   'spellcraft': [
     'runelab',
@@ -648,85 +637,52 @@ const kOrganizationGenreToSiteKinds = {
   ],
 };
 
-/// 非门派成员打工时的可用月份
-final kSiteWorkableMounths = {
-  'tradinghouse': [10, 11, 12, 1, 2, 3],
-  'daostele': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'exparray': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'library': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'arena': [1, 2, 3, 4, 5, 6, 7, 8, 9],
-  'militarypost': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1],
-  'auctionhouse': [9, 10, 11, 12, 1, 2, 3, 4],
-  'hotel': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'farmland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'timberland': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'fishery': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'huntingground': [9, 10, 11, 12, 1, 2, 3, 4],
-  'mine': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'workshop': [10, 11, 12, 1, 2, 3, 4, 5, 6],
-  'enchantshop': [3, 4, 5, 6, 7, 8, 9, 10, 11],
-  'alchemylab': [10, 11, 12, 1, 2, 3, 4, 5, 6],
-  'tatooshop': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'runelab': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'arraylab': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-  'illusionaltar': [10, 11, 12, 1, 2, 3, 4, 5, 6],
-  'psychictemple': [10, 11, 12, 1, 2, 3, 4, 5, 6],
-  'divinationaltar': [8, 9, 10, 11, 12, 1],
-  'theurgytemple': [9, 10, 11, 12, 1, 2],
+const kSitePriority = {
+  'home': 99,
+  'headquarters': 55,
+  'cityhall': 54,
+  'tradinghouse': 53,
+  'daostele': 47,
+  'exparray': 46,
+  'library': 45,
+  'arena': 44,
+  'militarypost': 43,
+  'auctionhouse': 42,
+  'hotel': 41,
+  'workshop': 39,
+  'enchantshop': 38,
+  'alchemylab': 37,
+  'tattooshop': 36,
+  'runelab': 35,
+  'arraylab': 34,
+  'illusionaltar': 33,
+  'psychictemple': 32,
+  'divinationaltar': 31,
+  'theurgytemple': 30,
+  'dungeon': 25,
+  'farmland': 8,
+  'fishery': 7,
+  'timberland': 6,
+  'huntingground': 5,
+  'mine': 4,
 };
 
-/// 工作时的基础工资
-final kSiteWorkableBaseSalaries = {
-  'tradinghouse': 7,
-  'daostele': 8,
-  'exparray': 12,
-  'library': 21,
-  'arena': 24,
-  'militarypost': 50,
-  'auctionhouse': 28,
-  'hotel': 56,
-  'farmland': 14,
-  'timberland': 23,
-  'fishery': 44,
-  'huntingground': 32,
-  'mine': 64,
-  'workshop': 46,
-  'enchantshop': 22,
-  'alchemylab': 20,
-  'tatooshop': 25,
-  'runelab': 27,
-  'arraylab': 48,
-  'illusionaltar': 26,
-  'psychictemple': 27,
-  'divinationaltar': 29,
-  'theurgytemple': 60,
+/// 非门派成员打工时的可用月份
+final kSiteWorkableMounths = {
+  'farmland': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1],
+  'fishery': [2, 3, 4, 5, 6, 7, 8, 9, 10],
+  'huntingground': [1, 2, 3, 9, 10, 11, 12],
+  'timberland': [4, 5, 6, 7, 8],
+  'mine': [11, 12, 1],
 };
 
 /// 工作时消耗的体力值
 final kSiteWorkableBaseStaminaCost = {
-  'tradinghouse': 1,
-  'daostele': 1,
-  'exparray': 1,
-  'library': 2,
-  'arena': 2,
-  'militarypost': 4,
-  'auctionhouse': 2,
-  'hotel': 4,
   'farmland': 2,
-  'timberland': 3,
-  'fishery': 5,
+  'fishery': 3,
   'huntingground': 4,
+  'timberland': 5,
   'mine': 7,
-  'workshop': 4,
-  'enchantshop': 2,
-  'alchemylab': 2,
-  'tatooshop': 2,
-  'runelab': 2,
-  'arraylab': 4,
-  'illusionaltar': 2,
-  'psychictemple': 2,
-  'divinationaltar': 2,
-  'theurgytemple': 4,
 };
 
 /// 非门派成员使用设施的日租金
@@ -748,7 +704,7 @@ final kSiteRentMoneyCostByDay = {
   'workshop': 2500,
   'enchantshop': 2500,
   'alchemylab': 1500,
-  'tatooshop': 1500,
+  'tattooshop': 1500,
   'runelab': 1250,
   'arraylab': 2500,
   'illusionaltar': 2500,
@@ -855,14 +811,14 @@ const kNaturalResourceKinds = [
 final kMaterialBasePrice = {
   'shard': 10000,
   'worker': 20,
-  'water': 10,
-  'grain': 20,
-  'meat': 40,
-  'herb': 40,
-  'leather': 80,
-  'timber': 80,
-  'stone': 160,
-  'ore': 320,
+  'water': 45,
+  'grain': 15,
+  'meat': 45,
+  'herb': 55,
+  'leather': 75,
+  'timber': 105,
+  'stone': 60,
+  'ore': 160,
 };
 
 const kUnknownItemBasePrice = 100;
@@ -1375,6 +1331,7 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryContributionPack = 'contribution_pack';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';

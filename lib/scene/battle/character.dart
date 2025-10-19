@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:samsara/samsara.dart';
-import 'package:samsara/components/progress_indicator.dart';
-import 'package:samsara/components/hovertip.dart';
+import 'package:samsara/components/ui/progress_indicator.dart';
+import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
 // import 'package:samsara/components/task_component.dart';
@@ -544,9 +544,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     game.addHintText(
       text,
       position: center,
-      color: color,
       textStyle: TextStyle(
         fontFamily: GameUI.fontFamily,
+        color: color,
       ),
     );
   }

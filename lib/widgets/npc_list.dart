@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/engine.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/ink_button.dart';
+import 'package:samsara/widgets/ui/ink_button.dart';
 
 import 'avatar.dart';
 import '../state/game_update.dart';
@@ -48,17 +48,15 @@ class _NpcListState extends State<NpcList> {
       return Padding(
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
-            // cursor: SystemMouseCursors.click,
-            color: GameUI.backgroundColor2,
-            name: (haveMet != null) ? character['name'] : '???',
-            size: const Size(100, 100),
-            character: character,
-            borderWidth: 1.0,
-            borderRadius: 5.0,
-            onPressed: (charId) {
-              GameLogic.onInteractCharacter(character);
-              setState(() {});
-            }),
+          // cursor: SystemMouseCursors.click,
+          color: GameUI.backgroundColor2,
+          name: (haveMet != null) ? character['name'] : '???',
+          size: const Size(100, 100),
+          characterData: character,
+          borderWidth: 1.0,
+          borderRadius: 5.0,
+          onPressed: (character) => GameLogic.onInteractCharacter(character),
+        ),
       );
     }).toList();
 

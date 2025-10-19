@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/label.dart';
 
 import '../../../widgets/avatar.dart';
 import '../../../ui.dart';
+import '../../../game/logic/logic.dart';
 import '../../../engine.dart';
 import '../../../state/meeting.dart';
 
@@ -30,36 +32,40 @@ class Meeting extends StatelessWidget {
   const Meeting({
     super.key,
     required this.people,
+    this.showExitButton = false,
   });
 
   final List people;
+  final bool showExitButton;
 
-  List<Widget> _buildAvatars(List<dynamic> people) {
-    final widgets = <Widget>[];
+  @override
+  Widget build(BuildContext context) {
+    final peopleWidgets = <Widget>[];
     for (int i = 0; i < people.length; i++) {
-      if (i >= _avatarPositions.length) break; // 超出预设位置则不显示
+      // 超出预设位置则不显示
+      if (i >= _avatarPositions.length) break;
 
       final character = people[i];
       final position = _avatarPositions[i];
 
-      widgets.add(
+      peopleWidgets.add(
         Align(
           alignment: position,
           child: Avatar(
-            character: character,
+            characterData: character,
             size: const Size(120, 120),
             showBorderImage: true,
-            nameAlignment: AvatarNameAlignment.bottom,
-            onPressed: (characterId) {},
+            nameAlignment: AvatarNameAlignment.inside,
+            borderRadius: 15.0,
+            onPressed: (character) async {
+              await GameLogic.onInteractCharacter(character);
+              context.read<MeetingState>().remove(character);
+            },
           ),
         ),
       );
     }
-    return widgets;
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Stack(
       children: [
         // 半透明黑色背景
@@ -68,22 +74,27 @@ class Meeting extends StatelessWidget {
           onDismiss: () {},
         ),
         // 头像列表
-        ..._buildAvatars(people),
+        ...peopleWidgets,
         // 退出按钮
-        Positioned(
-          bottom: 40,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: fluent.FilledButton(
-              child: Text(engine.locale('end')),
-              onPressed: () {
-                // 清空人员并隐藏
-                context.read<MeetingState>().update();
-              },
+        if (showExitButton)
+          Positioned(
+            bottom: 100,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: fluent.FilledButton(
+                child: Label(
+                  engine.locale('end'),
+                  width: 200,
+                  textStyle: TextStyles.titleSmall,
+                ),
+                onPressed: () {
+                  // 清空人员并隐藏
+                  context.read<MeetingState>().update();
+                },
+              ),
             ),
           ),
-        ),
       ],
     );
   }

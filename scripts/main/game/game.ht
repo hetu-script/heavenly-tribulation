@@ -177,7 +177,7 @@ function createGame(saveName, {
       id: npcId,
       nameId: npcId,
       icon: 'illustration/npc/${npcId}_head.png',
-      illustration: 'illustration/npc/${npcId}.png',
+      // illustration: 'illustration/npc/${npcId}.png',
     )
   }
 }

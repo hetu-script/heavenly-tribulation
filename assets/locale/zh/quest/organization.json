@@ -2,7 +2,7 @@
   "journal_organizationInitiation_title": "修真门派",
   "journal_organizationInitiation_stage_0": "初次加入{0}的你，要去{1}，找你的上级{2}报到。",
   "journal_organizationInitiation_stage_1": "你拿到了门派配发的丹药和秘籍，正式成为了{0}的一名杂役。接下来，你需要参加每个月月初 1-5 号举办的例会，获取门派任务。",
-  "journal_organizationInitiation_stage_2": "完成门派任务可以获得功勋，你需要积累功勋，并最终升职成为一名「执事」。",
+  "journal_organizationInitiation_stage_2": "你需要领取并完成门派任务，积累功勋，成为「执事」。",
 
   "topic_organizationInitiation": "原来你就是{0}新来的弟子？\n<yellow>别忘了去{1}的会堂找你的上级{2}报到</>，你应该可以领到一瓶丹药和一本秘籍。",
   "topic_organizationInitiation_superior": "原来你就是{0}新来的弟子？\n看来我是你的上级。\n<yellow>别忘了去{1}的据点会堂找我报到</>，你可以领到一瓶丹药和一本秘籍。",

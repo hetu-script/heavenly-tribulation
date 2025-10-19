@@ -108,7 +108,7 @@ class CardLibraryScene extends Scene {
 
   late final SpriteComponent background;
   late final SpriteComponent2 topBar, bottomBar, deckPilesZone;
-  late final SpriteComponent cardCraftingArea;
+  late final SpriteComponent cardCraftZoneDecoration;
 
   late final CardLibraryZone libraryZone;
   final List<DeckBuildingZone> preloadBuildingZones = [];
@@ -1124,7 +1124,7 @@ class CardLibraryScene extends Scene {
     setBattleDeckButton = SpriteButton(
       text: engine.locale('deckbuilding_set_battle_deck'),
       anchor: Anchor.topLeft,
-      position: GameUI.setBattleDeckButtonPosition,
+      position: GameUI.deckbuildingZoneButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button.png',
       priority: kDeckPilesZonePriority,
@@ -1145,13 +1145,13 @@ class CardLibraryScene extends Scene {
     createNewDeckBuildingZone();
     _updateDeckCount();
 
-    cardCraftingArea = SpriteComponent(
+    cardCraftZoneDecoration = SpriteComponent(
       sprite: await Sprite.load('cultivation/cardlibrary_cardcraft.png'),
-      size: GameUI.cardCraftingZoneSize,
-      position: GameUI.cardCraftingZoneInitialPosition,
+      size: GameUI.cardCraftZoneSize,
+      position: GameUI.cardCraftZonePosition,
       priority: kTopBarPriority + 10,
     );
-    world.add(cardCraftingArea);
+    world.add(cardCraftZoneDecoration);
 
     exit = GameData.createSiteCard(
       id: 'exit',
@@ -1352,7 +1352,7 @@ class CardLibraryScene extends Scene {
     collectButton = SpriteButton(
       text: engine.locale('deckbuilding_identify_all'),
       anchor: Anchor.center,
-      position: GameUI.closeCraftButtonPosition,
+      position: GameUI.craftZoneCloseButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
       priority: kBarrierUIPriority,
@@ -1486,7 +1486,7 @@ class CardLibraryScene extends Scene {
     closeCraftButton = SpriteButton(
       text: engine.locale('close'),
       anchor: Anchor.center,
-      position: GameUI.closeCraftButtonPosition,
+      position: GameUI.craftZoneCloseButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
       priority: kBarrierUIPriority,
@@ -1524,13 +1524,13 @@ class CardLibraryScene extends Scene {
       deckZone.updateDeckLimit();
     }
 
-    if (GameData.data['enableTutorial'] == true) {
+    if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['cardLibrary'] != true) {
         // 功法图录教程
         GameData.flags['tutorial']['cardLibrary'] = true;
 
         dialog.pushDialog('hint_cardLibrary',
-            npc: GameData.data['npcs']['xitong']);
+            npc: GameData.game['npcs']['xitong']);
         await dialog.execute();
       }
     }

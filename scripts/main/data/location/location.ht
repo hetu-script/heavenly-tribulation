@@ -93,35 +93,12 @@ const _kCityShoreBackgroundCount = {
   '3': 3,
 }
 
-const kBaseStoreMoneyAmount = 25000
-const kBaseStoreMaterialAmount = 100
-const kBaseItemReplenishAmount = 3
-const kBaseCollectableLightReplenishAmount = 10
+const _kBaseStoreMoneyAmount = 25000
+const _kBaseStoreMaterialAmount = 100
+const _kBaseItemReplenishAmount = 3
+const _kBaseCollectableLightReplenishAmount = 10
 
-const kLocationKindPriority = {
-  'headquarters': 25,
-  'cityhall': 24,
-  'tradinghouse': 23,
-  'exparray': 22,
-  'library': 21,
-  'arena': 20,
-  'militarypost': 19,
-  'auctionhouse': 18,
-  'hotel': 17,
-  'workshop': 16,
-  'alchemylab': 15,
-  'arraylab': 14,
-  'illusionaltar': 13,
-  'divinationaltar': 12,
-  'psychictemple': 11,
-  'theurgytemple': 10,
-  'dungeon': 8,
-  'farmland': 1,
-  'fishery': 2,
-  'timberland': 3,
-  'huntingground': 4,
-  'mine': 5,
-}
+const _kProductionSiteResourceGeneration = 10
 
 /// 据点、场景、建筑等
 /// 某些可能在地图上直接进入，某些则是其他场景的子场景
@@ -225,7 +202,12 @@ struct Location {
         this.background = 'location/site/${kind}.png'
       }
 
-      this.priority = priority ?? kLocationKindPriority[this.kind]
+      if (priority == null) {
+        assert(Constants.sitePriority.containsKey(this.kind), this.kind)
+        this.priority = Constants.sitePriority[this.kind]
+      } else {
+        this.priority = priority
+      }
     } else {
       throw 'Invalid location category: [${category}]'
     }
@@ -496,9 +478,9 @@ function replenishTradingHouse(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.money =
-    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+    _kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount)
   location.materials.shard =
-    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (_kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount))
       ~/ Constants.materialBasePrice.shard
 
   // 根据地形，决定商店里是否有船只和靴子
@@ -522,7 +504,7 @@ function replenishTradingHouse(location) {
   }
 
   // 刷新物品
-  let amount = kBaseItemReplenishAmount + location.development
+  let amount = _kBaseItemReplenishAmount + location.development
   for (var i in range(amount)) {
     final typeRoll = random.nextDouble()
     let item
@@ -694,13 +676,11 @@ function replenishTradingHouse(location) {
   for (final materialId in Constants.nonCurrencyMaterialKinds) {
     assert(developmentFactor.containsKey(materialId))
     final factor = developmentFactor[materialId]
-    final amount = random.nextInt(kBaseStoreMaterialAmount * factor * factor)
+    final amount = random.nextInt(_kBaseStoreMaterialAmount * factor * factor)
     // engine.log(location.id, materialId, 'factor:', factor, 'amount:', amount)
     location.materials[materialId] = amount
   }
 }
-
-const _kProductionSiteResourceGeneration = 10
 
 function replenishProductionSite(location) {
   assert(Constants.productionSiteKinds.contains(location.kind))
@@ -708,15 +688,15 @@ function replenishProductionSite(location) {
   location.materials = {}
 
   location.materials.money =
-    kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount)
+    _kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount)
   
   let price
 
   switch (location.kind) {
     'farmland': {
       price = {
-        'grain': 0.55,
-        'herb': 0.8,
+        'grain': 0.45,
+        'herb': 0.75,
       }
     }
     'fishery': {
@@ -725,22 +705,22 @@ function replenishProductionSite(location) {
         'meat': 0.65,
       }
     }
-    'timberland': {
-      price = {
-        'herb': 0.8,
-        'timber': 0.65,
-      }
-    }
     'huntingground': {
       price = {
-        'leather': 0.8,
-        'meat': 0.65,
+        'meat': 0.6,
+        'leather': 0.7,
+      }
+    }
+    'timberland': {
+      price = {
+        'herb': 0.6,
+        'timber': 0.75,
       }
     }
     'mine': {
       price = {
         'stone': 0.65,
-        'ore': 0.8,
+        'ore': 0.85,
       }
     }
   }
@@ -769,7 +749,7 @@ function replenishExpArray(location) {
   // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
   // assert(atLocation.category == 'city')
 
-  final replenishAmount = Math.pow(kBaseCollectableLightReplenishAmount, location.development + 1)
+  final replenishAmount = Math.pow(_kBaseCollectableLightReplenishAmount, location.development + 1)
   location.collectableLight = random.nearInt(replenishAmount) + 10
 }
 
@@ -784,10 +764,10 @@ function replenishAuctionHouse(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (_kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
 
-  let amount = kBaseItemReplenishAmount + location.development
+  let amount = _kBaseItemReplenishAmount + location.development
 
   for (final siteId in atLocation.sites) {
     final site = game.locations[siteId]
@@ -814,11 +794,11 @@ function replenishLibrary(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (_kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount))
       ~/ Constants.materialBasePrice.shard;
 
   for (var i in range(location.development + 1)) {
-    for (var j in range(kBaseItemReplenishAmount)) {
+    for (var j in range(_kBaseItemReplenishAmount)) {
       let item = Cardpack(
         rank: i,
         genre: i > 0 ? organization?.genre : null,
@@ -839,10 +819,10 @@ function replenishAlchemyLab(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (_kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
 
-  let amount = kBaseItemReplenishAmount + location.development
+  let amount = _kBaseItemReplenishAmount + location.development
 
   // TODO: 丹房销售的丹药数量和苗圃数量有关
 
@@ -863,12 +843,12 @@ function replenishRuneLab(location) {
 
   // 商店的可用货币应该与门派货币挂钩
   location.materials.shard =
-    (kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * kBaseStoreMoneyAmount))
+    (_kBaseStoreMoneyAmount + random.nearInt((location.development + 1) * _kBaseStoreMoneyAmount))
     ~/ Constants.materialBasePrice.shard
   
   if (location.development == 0) return
   
-  let amount = kBaseItemReplenishAmount + location.development
+  let amount = _kBaseItemReplenishAmount + location.development
   for (var i in range(1, location.development + 1)) {
     for (var j in range(amount)) {
       final paper = createItemById('scroll_paper', rank: i)

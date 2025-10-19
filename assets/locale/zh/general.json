@@ -404,7 +404,7 @@
   "heal": "治疗",
 
   "jobTitle": "职位",
-  "reportSite": "汇报地",
+  "reportSite": "驻地",
   "superior": "上级",
   "superiorId": "上级 ID",
 
@@ -424,6 +424,7 @@
   "coordination": "协同",
 
   "contribution": "功勋",
+  "contribution_note": "非门派成员减半",
 
   "levelUp": "提升修为等级",
   "dismiss": "解散",
@@ -481,6 +482,7 @@
   "enter": "进入",
   "work": "打工",
   "produce": "生产",
+  "production": "生产",
   "build": "建造",
   "rest": "休息",
   "meditate": "打坐",
@@ -598,7 +600,7 @@
   "characterGiveMultiple": "{0}将 {1} 个{2}给了{3}。",
   "characterSteal": "{0}拿走了{1}身上的{2}。",
   "characterStealMultiple": "{0}拿走了{1}身上的 {2} 个{3}。",
-  "characterCultivationLevelUp": "{0}的修为等级提升到了{1}",
+  "characterCultivationLevelUp": "{0}的修为等级提升到了 {1}",
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
   "characterDefeat": "{0}击败了{1}。",
   "characterKill": "{0}杀死了{1}。",
@@ -619,8 +621,9 @@
   "hint_emptySeed": "地图种子不能为空。",
 
   "hint_alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
-  "hint_notEnoughHealthToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
-  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你还是过一阵子再来吧。",
+  "hint_notEnoughStamina": "体力不足！",
+  "hint_notEnoughStaminaToWork": "你的体力不足，无法工作，先回家休息好再来吧。",
+  "hint_notWorkSeason": "现在是淡季，无需非本门派之人帮忙。你可以等到 {0} 月份再来。",
 
   "hint_work_description": "消耗体力和时间，工作结束后根据时长获得工资。不同场所的基本工资、体力消耗、用工季节不同。",
   "hint_produce_description": "消耗体力和时间，生产结束后根据时长获得材料。不同场所的体力消耗、获取材料的种类和概率不同。",
@@ -674,7 +677,7 @@
   "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
   "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
 
-  "hint_cultivate": "花费时间修炼，获得修为经验，提升修为等级。\n在自宅修炼，需要消耗身上所携带的<yellow>灵石</>。\n在据点总堂等处的聚灵阵修炼，需要消耗聚灵阵自身的<yellow>灵光</>。",
+  "hint_cultivate": "花费<yellow>时间</>修炼，获得经验以提升修为等级。\n在聚灵阵修炼时会先消耗阵法本身的<yellow>灵光</>。\n灵光用完后会转而消耗<yellow>灵石</>。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",

@@ -324,7 +324,7 @@ class LocationScene extends Scene {
                       switch (item) {
                         case LocationDropMenuItems.save:
                           String worldId = GameData.world['id'];
-                          String? saveName = GameData.data['saveName'];
+                          String? saveName = GameData.game['saveName'];
                           final saveInfo = await context
                               .read<GameSavesState>()
                               .saveGame(worldId, saveName);
@@ -350,7 +350,7 @@ class LocationScene extends Scene {
                             },
                           );
                           if (saveName == null) return;
-                          GameData.data['saveName'] = saveName;
+                          GameData.game['saveName'] = saveName;
                           String worldId = GameData.world['id'];
                           final saveInfo = await context
                               .read<GameSavesState>()

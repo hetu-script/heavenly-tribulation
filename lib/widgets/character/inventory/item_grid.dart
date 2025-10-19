@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
-import 'package:samsara/ui/rrect_icon.dart';
+import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
@@ -43,7 +43,7 @@ class ItemGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? icon = itemData?['icon'];
     final int stackSize = itemData?['stackSize'] ?? 1;
-    final bool showStack = itemData?['showStack'] ?? false;
+    // final bool showStack = itemData?['showStack'] ?? false;
     // final entityType = entityData?['entityType'];
     final int rank = itemData?['rank'] ?? 0;
 
@@ -106,7 +106,7 @@ class ItemGrid extends StatelessWidget {
                     borderWidth: 0.0,
                   ),
                 if (child != null) child!,
-                if (stackSize > 1 || showStack)
+                if (stackSize > 1)
                   Positioned(
                     right: 0,
                     bottom: -5,

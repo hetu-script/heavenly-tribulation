@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
-import 'package:samsara/ui/responsive_view.dart';
-import 'package:samsara/ui/label.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -195,7 +195,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 children: [
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    character: widget.hero,
+                    characterData: widget.hero,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
@@ -533,7 +533,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 children: [
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    character: widget.enemy,
+                    characterData: widget.enemy,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),

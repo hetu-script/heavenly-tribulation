@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
 import 'package:heavenly_tribulation/widgets/functional/alchemy.dart';
 import 'package:heavenly_tribulation/widgets/functional/workshop.dart';
-import 'package:samsara/ui/dynamic_color_progressbar.dart';
+import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
@@ -120,6 +120,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final showMeeting = context.watch<MeetingState>().showMeeting;
     final meetingPeople = context.watch<MeetingState>().people;
+    final showExitButton = context.watch<MeetingState>().showExitButton;
 
     final journal = context.watch<JournalPromptState>().journal;
     final selections = context.watch<JournalPromptState>().selections;
@@ -751,7 +752,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 selectedItemsData: itemSelectSelectedItemsData,
               ),
             if (showMeeting && meetingPeople.isNotEmpty)
-              Meeting(people: meetingPeople),
+              Meeting(people: meetingPeople, showExitButton: showExitButton),
             ...panels,
             if (_prompts.isNotEmpty)
               switch (_prompts.last) {

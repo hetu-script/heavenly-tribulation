@@ -1,51 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/samsara.dart';
 
 import '../state/hover_content.dart';
-
-final kGridSize = Vector2(32.0, 28.0);
-final kTileSpriteSrcSize = Vector2(32.0, 64.0);
-final kTileOffset = Vector2(0.0, 16.0);
-final kTileFogOffset = Vector2(-6.0, 0.0);
-final kWorldMapCharacterSpriteSrcSize = Vector2(32.0, 48.0);
-
-const kSpriteWater = 0;
-const kSpriteLand = 1;
-const kSpriteRiver = 2;
-const kSpriteDungeonStonePavedTile = 8;
-
-const kSpriteCity = 'object/city.png';
-const kSpriteDungeon = 'object/dungeon.png';
-const kSpriteArray = 'object/portalArray.png';
-const kSpriteSwitch = 'object/switchOff.png';
-const kSpriteSwithOn = 'object/switchOn.png';
-const kSpriteTreasureBox = 'object/treasureBox.png';
-const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
-const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
-
-const kSpriteCharacterYoungMan = 'object/characterYoungMan.png';
-const kSpriteCharacterMan = 'object/characterMan.png';
-const kSpriteCharacterOldMan = 'object/characterOldMan.png';
-const kSpriteCharacterYoungWoman = 'object/characterYoungWoman.png';
-
-const kTerrainKindVoid = 'void';
-const kTerrainKindPlain = 'plain';
-const kTerrainKindMountain = 'mountain';
-const kTerrainKindForest = 'forest';
-const kTerrainKindSnowPlain = 'snow_plain';
-const kTerrainKindSnowMountain = 'snow_mountain';
-const kTerrainKindSnowForest = 'snow_forest';
-const kTerrainKindShore = 'shore';
-const kTerrainKindShelf = 'shelf';
-const kTerrainKindLake = 'lake';
-const kTerrainKindSea = 'sea';
-const kTerrainKindRiver = 'river';
-const kTerrainKindRoad = 'road';
-const kTerrainKindCity = 'city';
-
-const kColorModeContinent = 0;
-const kColorModeOrganization = 2;
 
 const kMaxHeroAge = 15;
 
@@ -63,7 +19,7 @@ abstract class Scenes {
   static const location = 'location';
   static const battle = 'battle';
 
-  static const tileMatchingGame = 'tile_matching_game';
+  static const matchingGame = 'matching_game';
 
   /// 下面的 id 仅用于事件注册
   static const editor = 'editor';

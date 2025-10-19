@@ -38,8 +38,6 @@ class NoThumbScrollBehavior extends ScrollBehavior {
 }
 
 void main() {
-  dataTableShowLogs = false;
-
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -67,7 +65,7 @@ void main() {
       const WindowOptions(
         title: 'Heavenly Tribulation',
         // fullScreen: true,
-        size: windowSize,
+        size: defaultGameSize,
       ),
       () async {
         await windowManager.show();

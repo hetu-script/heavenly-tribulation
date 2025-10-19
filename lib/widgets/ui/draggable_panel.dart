@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/preferred_size_widget.dart';
+import 'package:samsara/widgets/ui/preferred_size_widget.dart';
 import 'package:samsara/pointer_detector.dart';
 
 import '../../ui.dart';

@@ -1,5 +1,5 @@
 import 'package:samsara/cardgame/cardgame.dart';
-import 'package:samsara/components/hovertip.dart';
+import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 

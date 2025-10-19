@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -83,7 +83,7 @@ class _LocationViewState extends State<LocationView>
 
     final ownerId = _location['ownerId'];
     // 这里的 owner 可能是 null
-    _owner = GameData.data['characters'][ownerId];
+    _owner = GameData.game['characters'][ownerId];
 
     Iterable residents = [];
 
@@ -96,7 +96,7 @@ class _LocationViewState extends State<LocationView>
         _charactersTableData.add(row);
       }
     } else {
-      _atLocation = GameData.data['locations'][_location['atLocationId']];
+      _atLocation = GameData.game['locations'][_location['atLocationId']];
     }
 
     tabs = [
@@ -188,7 +188,7 @@ class _LocationViewState extends State<LocationView>
       if (npcData == null) return;
       _location['npcId'] = npcData['id'];
     } else {
-      final npcData = GameData.data['npcs'][_location['npcId']];
+      final npcData = GameData.game['npcs'][_location['npcId']];
       assert(npcData != null);
       await showDialog(
         context: context,
@@ -221,7 +221,7 @@ class _LocationViewState extends State<LocationView>
       if (isManageMode) {
         final Set<String> existedSites = {};
         for (final siteId in _location['sites']) {
-          final siteData = GameData.data['locations'][siteId];
+          final siteData = GameData.game['locations'][siteId];
           if (siteData != null) {
             existedSites.add(siteData['kind']);
           }
@@ -418,8 +418,8 @@ class _LocationViewState extends State<LocationView>
 
                       if (id != null && id != _location['id']) {
                         final oldId = _location['id'];
-                        GameData.data['locations'].remove(oldId);
-                        GameData.data['locations'][id] = _location;
+                        GameData.game['locations'].remove(oldId);
+                        GameData.game['locations'][id] = _location;
 
                         if (_location['category'] == 'site') {
                           final atLocation =

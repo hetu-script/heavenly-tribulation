@@ -217,11 +217,11 @@ class GameDialog with ChangeNotifier, TaskController {
   }) {
     // 这里 character 有可能是 null
     if (npcId != null || npc != null) {
-      npc ??= GameData.data['npcs'][npcId];
+      npc ??= GameData.game['npcs'][npcId];
       character ??= npc;
     } else {
       character ??=
-          isHero ? GameData.hero : GameData.data['characters'][characterId];
+          isHero ? GameData.hero : GameData.game['characters'][characterId];
     }
     icon ??= hideIcon ? null : character?['icon'];
     image ??= hideImage ? null : character?['illustration'];

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
 
 import '../../engine.dart';
 import '../common.dart';

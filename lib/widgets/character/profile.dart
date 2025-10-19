@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/label.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -165,7 +165,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
     final organizationId = _character['organizationId'];
     // 这里有可能为 null
-    final organization = GameData.data['organizations'][organizationId];
+    final organization = GameData.game['organizations'][organizationId];
     organizationName = organization != null ? organization['name'] : none;
 
     final titleId = _character['titleId'];
@@ -200,11 +200,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
     organizationFavor = engine.locale(_character['organizationFavor']);
 
     final homeId = _character['homeLocationId'];
-    final homeLocation = GameData.data['locations'][homeId];
+    final homeLocation = GameData.game['locations'][homeId];
     homeName = homeLocation != null ? homeLocation['name'] : none;
 
     final locationId = _character['locationId'];
-    final location = GameData.data['locations'][locationId];
+    final location = GameData.game['locations'][locationId];
     locationName = location != null ? location['name'] : none;
 
     final worldId = _character['worldId'];
@@ -572,11 +572,11 @@ class _CharacterProfileState extends State<CharacterProfile> {
                       if (id != null && id != _character['id']) {
                         final originId = _character['id'];
 
-                        GameData.data['characters'].remove(_character['id']);
+                        GameData.game['characters'].remove(_character['id']);
                         _character['id'] = id;
-                        GameData.data['characters'][id] = _character;
+                        GameData.game['characters'][id] = _character;
 
-                        if (GameData.data['heroId'] == originId) {
+                        if (GameData.game['heroId'] == originId) {
                           engine.hetu.invoke('setHero', positionalArgs: [id]);
                         }
                       }

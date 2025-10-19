@@ -19,6 +19,7 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
+const kItemCategoryContributionPack = 'contribution_pack';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
 const kItemCategoryCraftMaterial = 'craftmaterial';
@@ -330,6 +331,7 @@ function entityCollect(entity, materialId, amount, { incurIncident = true }) {
     engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
   }
+  amount = amount.round()
   assert(Constants.materialKinds.contains(materialId))
   entity.materials[materialId] += amount
 

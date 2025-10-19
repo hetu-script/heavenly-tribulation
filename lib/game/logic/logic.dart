@@ -64,7 +64,7 @@ abstract class GameLogic {
 
   /// 游戏内的时间
   static (int, String) calculateTimestamp() {
-    final int timestamp = GameData.data['timestamp'];
+    final int timestamp = GameData.game['timestamp'];
     ticksOfYear = timestamp % kTicksPerYear;
     ticksOfMonth = timestamp % kTicksPerMonth;
     ticksOfDay = timestamp % kTicksPerDay;
@@ -91,7 +91,7 @@ abstract class GameLogic {
   }
 
   static void generateCityTerritory(dynamic world) {
-    final cities = GameData.data['locations'].values.where(
+    final cities = GameData.game['locations'].values.where(
       (location) =>
           location['category'] == 'city' && location['worldId'] == world['id'],
     );
@@ -185,7 +185,7 @@ abstract class GameLogic {
       final firstCityId = firstNeighbor['cityId'];
       if (firstCityId == null) continue;
 
-      final firstCity = GameData.data['locations'][firstCityId];
+      final firstCity = GameData.game['locations'][firstCityId];
 
       if (neighbors.length == 1) {
         addTileToCityTerritory(firstCity, tile['index'],
@@ -839,7 +839,7 @@ abstract class GameLogic {
 
   static Future<String?> selectLocationId() async {
     final selections = <String, String>{};
-    final locations = GameData.data['locations'];
+    final locations = GameData.game['locations'];
     if (locations.isEmpty) return null;
 
     for (final element in locations.keys) {
@@ -858,7 +858,7 @@ abstract class GameLogic {
 
   static Future<String?> selectOrganizationId() async {
     final selections = <String, String>{};
-    final organizations = GameData.data['organizations'];
+    final organizations = GameData.game['organizations'];
     if (organizations.isEmpty) return null;
 
     for (final element in organizations.keys) {
@@ -940,7 +940,7 @@ abstract class GameLogic {
     await GameDialogContent.show(
         engine.context, engine.locale('hint_tribulation_1'));
 
-    if (GameData.data['enableTutorial'] == true) {
+    if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['tribulation'] != true) {
         GameData.flags['tutorial']['tribulation'] = true;
 
@@ -1198,7 +1198,7 @@ abstract class GameLogic {
     bool force = false,
   }) async {
     final before = getDatetimeString();
-    GameData.data['timestamp'] += ticks;
+    GameData.game['timestamp'] += ticks;
     final (timestamp, after) = calculateTimestamp();
 
     // 如果时间没有推进到下一个日期，则不进行任何更新，除非 force 为 true
@@ -1219,7 +1219,8 @@ abstract class GameLogic {
         engine.hetu.invoke('resetPlayerMonthly');
       }
       // 触发每个角色的刷新事件
-      for (final character in GameData.data['characters'].values) {
+      final chars = GameData.game['characters'].values.toList();
+      for (final character in chars) {
         if (character == GameData.hero) continue;
         // 角色事件每个角色不同，会随机分配在某一天
         // 这是为了减缓同时更新大量角色的压力
@@ -1231,7 +1232,8 @@ abstract class GameLogic {
       // 生产类建筑每天都会刷新生产进度
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-      for (final location in GameData.data['locations'].values) {
+      final locs = GameData.game['locations'].values.toList();
+      for (final location in locs) {
         if (GameData.hero != null &&
             location['ownerId'] == GameData.hero['id']) {
           continue;
@@ -1242,7 +1244,8 @@ abstract class GameLogic {
         }
       }
       // 触发每个组织的刷新事件
-      for (final organization in GameData.data['organizations'].values) {
+      final orgs = GameData.game['organizations'].values.toList();
+      for (final organization in orgs) {
         if (organization['headId'] == GameData.hero?['id']) continue;
         // 组织每月 6 日刷新
         if ((time == 1 && day == _kOrganizationUpdateDay) || force) {
@@ -1346,7 +1349,7 @@ abstract class GameLogic {
       // TODO: 展示战败CG
       engine.clearAllCachedScene(
         except: Scenes.mainmenu,
-        arguments: {'reset': GameData.data['saveName'] != 'debug'},
+        arguments: {'reset': GameData.game['saveName'] != 'debug'},
         triggerOnStart: true,
       );
       return;
@@ -1360,7 +1363,7 @@ abstract class GameLogic {
 
     engine.setLoading(true, tip: engine.locale('tips_dying'));
 
-    await engine.popSceneTill(GameData.data['mainWorldId']);
+    await engine.popSceneTill(GameData.game['mainWorldId']);
 
     final homeLocationId = GameData.hero['homeLocationId'];
     final homeLocation = GameData.getLocation(homeLocationId);
@@ -1515,7 +1518,7 @@ abstract class GameLogic {
           [budget]
         ],
       );
-      GameLogic.promptItems(items);
+      await GameLogic.promptItems(items);
     }
     final package = quest['package'];
     if (package != null) {
@@ -1527,7 +1530,7 @@ abstract class GameLogic {
     if (quest['kind'] == 'escort') {
       final escortType = engine.hetu.invoke(
         'initEscort',
-        positionalArgs: [journal['quest'], organization],
+        positionalArgs: [journal['quest']],
       );
       dialog.pushDialog(
         'quest_escort_greeting_$escortType',

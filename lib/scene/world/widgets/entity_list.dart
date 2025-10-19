@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/location/edit_location_basics.dart';
 import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
@@ -28,6 +27,7 @@ import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
 import '../../../game/game.dart';
 import '../../../widgets/character/edit_rank_level.dart';
+import '../../../widgets/location/edit_location_basics.dart';
 
 const kMapObjectSourceTemplate = '''{
   id: 'object1',
@@ -362,7 +362,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   void _updateLocations() {
     _locationsTableData.clear();
-    _locations = GameData.data['locations'].values;
+    _locations = GameData.game['locations'].values;
     for (final loc in _locations) {
       if (loc['category'] != 'city') continue;
       final rowData = <String>[];
@@ -722,7 +722,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                     .then((locationId) {
                                   if (locationId != null) {
                                     final location =
-                                        GameData.data['locations'][locationId];
+                                        GameData.game['locations'][locationId];
                                     if (location == null) {
                                       GameDialogContent.show(context,
                                           '输入的据点 id [$locationId] 不存在！');

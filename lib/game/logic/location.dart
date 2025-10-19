@@ -217,26 +217,25 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
     final memberData = organization['membersData'][GameData.hero['id']];
     assert(memberData != null,
         'Member data not found in organization [${organization['id']}], member id: ${GameData.hero['id']}');
-    final superiorId = memberData['superiorId'];
-    assert(superiorId != null);
-    final superior = GameData.getCharacter(superiorId);
-
     final reportSiteId = memberData['reportSiteId'];
     if (reportSiteId == location['id']) {
+      final superiorId = memberData['superiorId'];
+      assert(superiorId != null);
+      final superior = GameData.getCharacter(superiorId);
       final organizationInitiationQuest =
           GameData.hero['journals']['organizationInitiation'];
       assert(organizationInitiationQuest != null,
           'Organization initiation quest not found in hero journals');
       if (organizationInitiationQuest['stage'] == 0) {
+        engine.hetu.invoke('characterMet', positionalArgs: [
+          GameData.hero,
+          superior,
+        ]);
         dialog.pushDialog(
           'hint_organization_initiation2',
           character: superior,
         );
         await dialog.execute();
-        engine.hetu.invoke('characterMet', positionalArgs: [
-          GameData.hero,
-          superior,
-        ]);
 
         final itemsInfo = [
           {

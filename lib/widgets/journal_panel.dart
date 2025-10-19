@@ -95,7 +95,7 @@ class _JournalPanelState extends State<JournalPanel> {
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       shadows: kTextShadow,
-                                      color: GameData.data['timestamp'] >
+                                      color: GameData.game['timestamp'] >
                                               (journal['timestamp'] +
                                                   journal['quest']['timeLimit'])
                                           ? Colors.red

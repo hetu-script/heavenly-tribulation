@@ -7,11 +7,11 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/components/progress_indicator.dart';
-import 'package:samsara/components/sprite_button.dart';
+import 'package:samsara/components/ui/progress_indicator.dart';
+import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/utils/math.dart';
-import 'package:samsara/components/rich_text_component.dart';
-import 'package:samsara/components/hovertip.dart';
+import 'package:samsara/components/ui/rich_text_component.dart';
+import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
@@ -994,13 +994,13 @@ class CultivationScene extends Scene {
 
     camera.snapTo(center);
 
-    if (GameData.data['enableTutorial'] == true && !isEditorMode) {
+    if (GameData.game['enableTutorial'] == true && !isEditorMode) {
       if (GameData.flags['tutorial']['cultivation'] != true) {
         // 修炼界面教程
         GameData.flags['tutorial']['cultivation'] = true;
 
         dialog.pushDialog('hint_cultivation',
-            npc: GameData.data['npcs']['xitong']);
+            npc: GameData.game['npcs']['xitong']);
         await dialog.execute();
       }
     }

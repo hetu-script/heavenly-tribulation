@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../state/view_panels.dart';
 import '../state/game_update.dart';
@@ -66,7 +66,7 @@ class HistoryPanel extends StatelessWidget {
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
       // 这里 owner 可能是 null
-      owner = GameData.data['characters'][ownerId];
+      owner = GameData.game['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 

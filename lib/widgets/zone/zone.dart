@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../engine.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 class ZoneView extends StatelessWidget {
   final String? zoneId;

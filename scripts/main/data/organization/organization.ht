@@ -48,7 +48,7 @@ struct MemberData {
   constructor ({
     id,
     rank = 0,
-    titleId = 'taskman',
+    titleId,
     contribution = 0,
     reportSiteId,
   }) {
@@ -473,11 +473,11 @@ function removeLocationFromOrganization(location, organization) {
 
 function addLocationToOrganization(location, organization, { updateWorldMap = false, incurIncident = true }) {
   if (location.organizationId != null) {
-    engine.error('城市 [${location.name}] 已经被组织 [${location.organizationId}] 占领，无法添加到组织 [${organization.id}]')
+    engine.error('[${location.name}] 已经被 [${location.organizationId}] 占领，无法添加到组织 [${organization.name}]')
     return
   }
   if (organization.locationIds.contains(location.id)) {
-    engine.error('组织 [${organization.id}] 已经拥有城市 [${location.name}]，不能再次添加！')
+    engine.error('[${organization.name}] 已经拥有 [${location.name}]，不能再次添加！')
     return
   }
 
@@ -494,6 +494,12 @@ function addLocationToOrganization(location, organization, { updateWorldMap = fa
       for (final tileIndex in location.territoryIndexes) {
         final terrain = world.terrains[tileIndex]
         terrain.nationId = organization.id
+        if (tileIndex != location.terrainIndex && terrain.locationId != null) {
+          final productionSite = game.locations[terrain.locationId]
+          assert(Constants.productionSiteKinds.contains(productionSite.kind), productionSite.kind)
+
+          addLocationToOrganization(productionSite, organization, incurIncident: incurIncident)
+        }
       }
 
       if (location.isHidden) {
@@ -517,11 +523,6 @@ function addLocationToOrganization(location, organization, { updateWorldMap = fa
       engine.debug(incidentContent)
     }
   }
-
-  // for (final tileIndex in location.territoryIndexes) {
-  //   final terrain = world.terrains[tileIndex]
-  //   updateTerritoryBorders(terrain)
-  // }
 
   // for (final tileIndex in location.borderIndexes) {
   //   final terrain = world.terrains[tileIndex]

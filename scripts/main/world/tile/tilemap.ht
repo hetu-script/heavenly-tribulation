@@ -23,8 +23,8 @@ struct TileMap {
     tileSpriteSrcWidth = 32.0,
     tileSpriteSrcHeight = 64.0,
     tileOffsetX = 0.0,
-    tileOffsetY = 16.0,
-    tileFogOffsetX = 0.0,
+    tileOffsetY = -21.0,
+    tileFogOffsetX = -6.0,
     tileFogOffsetY = 0.0,
   }) {
     assert(id != null)
@@ -46,6 +46,8 @@ struct TileMap {
     this.tileSpriteSrcHeight = tileSpriteSrcHeight
     this.tileOffsetX = tileOffsetX
     this.tileOffsetY = tileOffsetY
+    this.tileFogOffsetX = tileFogOffsetX
+    this.tileFogOffsetY = tileFogOffsetY
 
     this.terrains = []
 

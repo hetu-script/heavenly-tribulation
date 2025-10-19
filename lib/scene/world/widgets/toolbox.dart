@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/ink_button.dart';
+import 'package:samsara/widgets/ui/ink_button.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';

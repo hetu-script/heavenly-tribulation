@@ -98,14 +98,14 @@ class Constants extends HTExternalClass {
         return kSiteKindsBuildable;
       case 'Constants.productionSiteKinds':
         return kProductionSiteKinds;
-      case 'Constants.siteKindsToMaterialProducable':
-        return kSiteKindsToMaterialProducable;
       case 'Constants.organizationCategoryToSiteKind':
         return kOrganizationCategoryToSiteKind;
       case 'Constants.organizationCategoryExpansionRate':
         return kOrganizationCategoryExpansionRate;
       case 'Constants.organizationGenreToSiteKinds':
         return kOrganizationGenreToSiteKinds;
+      case 'Constants.sitePriority':
+        return kSitePriority;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constants.damageTypes':

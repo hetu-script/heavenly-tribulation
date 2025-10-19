@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/game/common.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../../ui/bordered_icon_button.dart';
 // import '../../../game/ui.dart';

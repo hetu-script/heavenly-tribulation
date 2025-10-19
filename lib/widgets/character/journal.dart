@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
 // import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
@@ -104,7 +104,7 @@ class _JournalViewState extends State<JournalView> {
     }
     final timeLimit = _selectedJournal['quest']?['timeLimit'];
     if (timeLimit != null) {
-      final currentTimestamp = GameData.data['timestamp'];
+      final currentTimestamp = GameData.game['timestamp'];
       final isLate = currentTimestamp >
           (_selectedJournal['timestamp'] +
               _selectedJournal['quest']['timeLimit']);

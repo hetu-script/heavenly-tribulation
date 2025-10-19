@@ -3844,7 +3844,7 @@
     tileSpriteSrcWidth: 32.0,
     tileSpriteSrcHeight: 64.0,
     tileOffsetX: 0.0,
-    tileOffsetY: 16.0,
+    tileOffsetY: 0.0,
     terrains: [
       {
         index: 0,

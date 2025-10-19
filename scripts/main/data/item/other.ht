@@ -1,0 +1,26 @@
+
+/// 材料包类物品在获得后，可以自动转化为材料数值
+struct Contributionpack {
+  constructor ({
+    amount,
+    organizationId,
+  }) {
+    assert(organizationId != null, 'organizationId is required for Contributionpack')
+
+    this.id = 'contribution_pack_${organizationId}'
+    this.entityType = kEntityTypeItem
+    this.rarity = kRarityRare
+    this.color = kRarity[this.rarity].color
+    this.name = engine.locale('contribution_pack')
+    this.icon = 'item/contribution.png'
+
+    this.category = kItemCategoryContributionPack
+    this.type = kItemTypeConsumable
+    this.flavortext = engine.locale('flavortext_contribution_pack')
+    this.stackSize = amount ?? 1
+    
+    this.isIdentified = true
+    this.isUsable = true
+    this.isUntradable = true
+  }
+}

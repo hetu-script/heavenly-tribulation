@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+// import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../engine.dart';
 import '../ui.dart';
@@ -43,7 +44,7 @@ class _GameEntityListViewState extends State<GameEntityListView>
     super.build(context);
 
     return MouseRegion(
-      cursor: MouseCursor.defer,
+      // cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
       onHover: (PointerHoverEvent details) => _mousePosition = details.position,
       child: DataTable2(
         scrollController: ScrollController(),

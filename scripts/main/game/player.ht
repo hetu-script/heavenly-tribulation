@@ -24,6 +24,8 @@ struct PassiveData {
 
 const kOrthogonalDirections = ['north', 'east', 'south', 'west']
 
+const _kMaxActiveJournal = 5
+
 namespace Player {
 
   function setTo(left, top, { worldId, direction } ) {
@@ -72,12 +74,30 @@ namespace Player {
   async function acquire(item, { autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
     if (autoUnpack) {
-      if (item.category == kItemCategoryExppack) {
-        gainExp(item.stackSize)
-        return
-      } else if (item.category == kItemCategoryMaterialPack) {
-        collect(item.kind, item.stackSize)
-        return
+      switch (item.category) {
+        case kItemCategoryExppack: {
+          gainExp(item.stackSize)
+          return
+        }
+        case kItemCategoryMaterialPack: {
+          collect(item.kind, item.stackSize)
+          return
+        }
+        case kItemCategoryContributionPack: {
+          final organizationId = item.organizationId
+          final organization = game.organizations[organizationId]
+          assert(organization != null, 'organization not found: ${organizationId}')
+          if (organization.membersData[hero.id] == null) {
+            organization.membersData[hero.id] = MemberData(id: hero.id)
+          }
+          final memberData = organization.membersData[hero.id]
+          if (hero.organizationId == organizationId) {
+            memberData.contribution += item.stackSize
+          } else {
+            memberData.contribution += item.stackSize ~/ 2
+          }
+          return
+        }
       }
     }
     final item = entityAcquire(hero, item, incurIncident: incurIncident)
@@ -566,6 +586,9 @@ namespace Player {
     assert(hero.journals.containsKey(journal.id))
     if (!hero.activeJournalIds.contains(journal.id)) {
       hero.activeJournalIds.add(journal.id)
+      if (hero.activeJournalIds.length > _kMaxActiveJournal) {
+        hero.activeJournalIds.removeFirst()
+      }
     }
     if (notifyUpdate) {
       Game.updateActiveJournals()
@@ -579,6 +602,9 @@ namespace Player {
       hero.activeJournalIds.remove(journal.id)
     } else {
       hero.activeJournalIds.add(journal.id)
+      if (hero.activeJournalIds.length > _kMaxActiveJournal) {
+        hero.activeJournalIds.removeFirst()
+      }
     }
     if (notifyUpdate) {
       Game.updateActiveJournals()

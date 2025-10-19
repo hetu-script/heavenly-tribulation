@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
-import 'package:samsara/components/sprite_button.dart';
+import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';

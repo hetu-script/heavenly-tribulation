@@ -6,13 +6,13 @@ const _kForestThreshold = 0.6
 const _kIslandThreshold = 0.2
 const _kMountainThreshold = 0.4
 
-const _kFarmFieldThreshold = 0.08
+const _kFarmFieldThreshold = 0.1
 const _kFisheryThreshold = 0.08
+const _kHuntingGroundThreshold = 0.03
 const _kTimberLandThreshold = 0.04
-const _kMineThreshold = 0.04
-const _kHuntingGroundThreshold = 0.02
+const _kMineThreshold = 0.02
 
-const _kDungeonOnTerritoryProbability = 0.5
+const _kDungeonOnTerritoryProbability = 0.265
 
 const _kAdultAge = 15
 const _kPregnancyAgeMax = 50
@@ -20,7 +20,7 @@ const _kChildrenMax = 3
 
 const _kLocationInitialDevelopmentMax = 4
 
-const _kOrganizationRecruitProbability = 0.6
+const _kOrganizationRecruitProbability = 0.4
 
 const _kSandboxInitialRankMax = 3
 
@@ -535,7 +535,7 @@ function createSandboxWorld({
     const location = random.nextIterable(cities)
     Character(
       locationId: location.id,
-      rank: random.nextInt(_kSandboxInitialRankMax + 1),
+      rank: random.distantInt(_kSandboxInitialRankMax + 1),
       birthTimestamp: createBirthTimestamp(min: 12, max: 60),
     )
   }
@@ -618,8 +618,8 @@ function createSandboxWorld({
           if (getCharacterAge(otherChar) < _kAdultAge) continue
           if (hasSpouse(otherChar)) continue
 
-          characterMet(char, otherChar)
           createSpouse(otherChar, char)
+          characterMet(char, otherChar)
           break
         }
       }

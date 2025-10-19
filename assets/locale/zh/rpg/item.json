@@ -112,16 +112,16 @@
   "flavortext_potion": "在下一次战斗结束后会失去所有丹药效果。",
 
   "identify_scroll": "鉴定符",
-  "flavortext_identify_scroll": "鉴定一些属性未知的物品。",
+  "flavortext_identify_scroll": "揭示一些属性未知的物品的词条。",
 
   "exp_pack": "一团灵光",
-  "flavortext_exp_pack": "灵光在获取后转化为修为经验值，可用于提升修为等级。",
+  "flavortext_exp_pack": "灵光在获取后转化为修为经验。",
 
-  "status_spirit": "精魄",
-  "flavortext_status_spirit": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。",
+  "contribution_pack": "功勋",
+  "flavortext_contribution_pack": "功勋可用于提升职位或兑换物品。\n非门派成员获得的功勋减半。",
 
-  "equipment_affix": "析取特性",
-  "flavortext_equipment_affix": "可以通过打造将析取特性作为词条赋予物品。",
+  "equipment_affix": "特性",
+  "flavortext_equipment_affix": "可以通过打造将特性作为词条赋予物品。",
 
   "craftmaterial_addAffix": "灵宝丹",
   "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",

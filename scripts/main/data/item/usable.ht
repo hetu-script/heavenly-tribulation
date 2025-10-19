@@ -31,11 +31,10 @@ struct Materialpack {
     this.icon = 'item/material/${kind}.png'
 
     this.category = kItemCategoryMaterialPack
-    this.type = kItemTypeMaterial
+    this.type = kItemTypeConsumable
     this.kind = kind
     this.flavortext = engine.locale('${kind}_description')
     this.stackSize = amount ?? 1
-    this.showStack = true
     
     this.isIdentified = true
     this.isUsable = true

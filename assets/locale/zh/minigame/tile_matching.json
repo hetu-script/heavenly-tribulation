@@ -1,0 +1,14 @@
+{
+  "tileMatching_maxRarity_prompt": "已达最大合成等级！",
+
+  "tileMathcing_sourceTile_description": "点击可以获得合成物，但会花费体力和时间。\n相同图标可以合成为更高等级的合成物。\n将指定的合成物拖动到右侧面板以获取奖励。",
+
+  "tileMatching_collectPanal_description_work": "将指定的合成物拖动到此以换取铜钱。",
+  "tileMatching_collectPanal_description_production": "将指定的合成物拖动到此以收集材料。",
+
+  "tileMatching_maxRarity_description_work": "<yellow>双击</>或拖动到右侧面板以换取铜钱",
+  "tileMatching_maxRarity_description_production": "<yellow>双击</>或拖动到右侧面板以收集材料",
+
+  "tileMatching_money_object": "<yellow>双击</>以获得铜钱。",
+  "tileMatching_shard_object": "<yellow>双击</>以获得灵石。"
+}

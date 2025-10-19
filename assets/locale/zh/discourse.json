@@ -1,21 +1,14 @@
 {
-  "discourse_silencee": "……………………",
-
   "relationshipDiscourse": "关于我们之间……",
 
   "organizationRelationshipDiscourse": "关于贵派……",
 
   "discourse_defaultUnknown": "抱歉，我并不了解你说的这个事情。",
-
   "discourse_defaultRefusal": "我这会儿有事，咱们还是改天再聊吧。",
-
   "discourse_unfavorRefusal": "我和你这种人没什么好说的，快点从我眼前消失吧。",
-
-  "discourse_favorGreeting": "原来是{0}，你好啊，有什么事情需要我的帮忙吗？",
-
-  "discourse_fameGreeting": "阁下可是{0}？",
-
+  "discourse_favorGreeting": "这不是{0}吗？这么巧在这里见到你。\n有什么事情需要我的帮忙吗？",
+  "discourse_fameGreeting": "阁下可是{0}？久闻阁下大名，今日得见，实在荣幸之至。",
   "discourse_giftAcception": "承蒙阁下厚赠，这礼物我就收下了。",
-
-  "discourse_giftRefusal": "承蒙阁下美意，在下心领了。然而无功不受禄，此物还是留给有缘之人吧。"
+  "discourse_giftRefusal": "承蒙阁下美意，在下心领了。然而无功不受禄，此物还是留给有缘之人吧。",
+  "discourse_bye": "如果没什么特别的事，那在下就先告辞了，阁下保重，咱们改日再会。"
 }

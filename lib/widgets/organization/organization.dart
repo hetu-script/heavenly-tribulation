@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
@@ -155,10 +155,10 @@ class _OrganizationViewState extends State<OrganizationView> {
                                 }
 
                                 if (id != null && id != _organization['id']) {
-                                  GameData.data['organizations']
+                                  GameData.game['organizations']
                                       .remove(_organization['id']);
                                   _organization['id'] = id;
-                                  GameData.data['organizations'][id] =
+                                  GameData.game['organizations'][id] =
                                       _organization;
                                 }
                               },

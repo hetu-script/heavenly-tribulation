@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../bonds.dart';
@@ -124,9 +124,9 @@ class _CharacterMemoryState extends State<CharacterMemory>
               CharacterBondsView(
                 bondsData: _bondsData,
                 isHero: widget.isHero,
-                onPressed: (bondData) {
+                onPressed: (bondData) async {
                   if (isEditorMode) {
-                    showDialog(
+                    final result = await showDialog(
                       context: context,
                       builder: (context) => EditCharacterBond(
                         enableTargetEdit: false,
@@ -134,14 +134,13 @@ class _CharacterMemoryState extends State<CharacterMemory>
                         score: bondData['score'],
                         haveMet: bondData['haveMet'],
                       ),
-                    ).then((value) {
-                      if (value != null) {
-                        final (_, score, haveMet) = value;
-                        bondData['score'] = score;
-                        bondData['haveMet'] = haveMet;
-                        setState(() {});
-                      }
-                    });
+                    );
+                    if (result != null) {
+                      final (_, score, haveMet) = result;
+                      bondData['score'] = score;
+                      bondData['haveMet'] = haveMet;
+                      setState(() {});
+                    }
                   } else {
                     showDialog(
                       context: context,

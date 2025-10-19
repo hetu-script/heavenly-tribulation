@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../../../game/game.dart';
 import '../../../ui.dart';
@@ -75,7 +75,7 @@ class LocationPanel extends StatelessWidget {
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
       // 这里 owner 可能是 null
-      owner = GameData.data['characters'][ownerId];
+      owner = GameData.game['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 

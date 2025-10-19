@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/popup_submenu_item.dart';
+import 'package:samsara/widgets/ui/popup_submenu_item.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';

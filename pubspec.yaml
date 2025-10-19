@@ -84,6 +84,8 @@ flutter:
     - assets/images/animation/
     - assets/images/animation/character/
     - assets/images/animation/overlay/
+    - assets/images/avatar/
+    - assets/images/avatar/npc/
     - assets/images/battle/
     - assets/images/battle/scene/
     - assets/images/battlecard/
@@ -116,7 +118,7 @@ flutter:
     - assets/images/location/city/
     - assets/images/location/site/
     - assets/images/mini_game/
-    - assets/images/mini_game/tile_matching/
+    - assets/images/mini_game/matching/
     - assets/images/object/
     - assets/images/object/components/
     - assets/images/object/animation/
@@ -138,6 +140,7 @@ flutter:
 
     # - assets/locale/en/
     - assets/locale/zh/
+    - assets/locale/zh/minigame/
     - assets/locale/zh/quest/
     - assets/locale/zh/rpg/
     - assets/locale/zh/tycoon/

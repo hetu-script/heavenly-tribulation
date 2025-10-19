@@ -1,5 +1,5 @@
 import 'package:samsara/samsara.dart';
-import 'package:samsara/components/rich_text_component.dart';
+import 'package:samsara/components/ui/rich_text_component.dart';
 
 import '../../../ui.dart';
 import '../../common.dart';
@@ -17,7 +17,7 @@ class PromptTextBanner extends BorderComponent {
     required this.text,
   }) : super(
           anchor: Anchor.center,
-          size: GameUI.worldmapBannerSize,
+          size: GameUI.promptBannerSize,
           priority: kWorldMapAnimationPriority,
         ) {
     backgroundColor = backgroundColor ?? GameUI.backgroundColor3;

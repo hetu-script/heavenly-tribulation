@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/label.dart';
+import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import 'inventory/inventory.dart';
 import '../../engine.dart';

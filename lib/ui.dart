@@ -317,10 +317,10 @@ abstract class GameUI {
   );
 
   // location site scene ui
-  static late Vector2 siteCardSize,
-      siteCardFocusedSize,
-      siteListPosition,
-      siteExitCardPositon;
+  static late Vector2 siteCardSize;
+  static late Vector2 siteCardFocusedSize;
+  static late Vector2 siteListPosition;
+  static late Vector2 siteExitCardPositon;
   static const npcListArrowHeight = 25.0;
 
   // the relative paddings of the illustration rect
@@ -330,7 +330,7 @@ abstract class GameUI {
   static final battleCardPreferredSize = Vector2(250, 250 * 1.382);
   static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
 
-  static final Vector2 worldmapBannerSize = Vector2(640.0, 160.0);
+  static final Vector2 promptBannerSize = Vector2(640.0, 160.0);
 
   // ratio = height / width
   static const cardSizeRatio = 1.382;
@@ -338,15 +338,13 @@ abstract class GameUI {
   // deckbuilding ui
   static late Vector2 libraryCardSize;
   static late Vector2 deckbuildingCardSize;
-  // static late Vector2    // deckCoverSize;
-  static late Vector2 deckbuildingZonePileOffset;
-  // static late Vector2    // deckbuildingZoneSize;
+
+  static final Vector2 deckbuildingZonePileOffset = Vector2(0, 30);
+  static late Vector2 deckbuildingZoneButtonPosition;
+
   static late Vector2 decksZoneBackgroundSize;
   static late Vector2 decksZoneBackgroundPosition;
   static late Vector2 decksZoneCloseButtonPosition;
-  static late Vector2 setBattleDeckButtonPosition;
-  // static late Vector2    // deckCoverPosition;
-  // static late Vector2    // deckPileInitialPosition;
 
   /// 卡牌库背景区域位置，指背景图的位置，大于实际的卡牌排列可用区域。
   static late Vector2 libraryZoneBackgroundPosition;
@@ -368,17 +366,13 @@ abstract class GameUI {
   /// 卡包中1，2，3号卡牌的位置
   static late List<Vector2> cardpackCardPositions;
 
-  static late Vector2 closeCraftButtonPosition;
+  static late Vector2 craftZoneCloseButtonPosition;
   static late Vector2 cardLibraryExpLabelPosition;
 
-  /// 卡牌精炼区域背景大小
-  static late Vector2 cardCraftingZoneSize;
-
-  /// 卡牌精炼区域初始位置在游戏场景外
-  static late Vector2 cardCraftingZoneInitialPosition;
-
-  /// 打开精炼功能后的卡牌精炼区域
-  static late Vector2 cardCraftingZonePosition;
+  /// 原本是卡牌精炼区域，现在仅是贴图装饰
+  static late Vector2 cardCraftZoneSize;
+  static late Vector2 cardCraftZonePosition;
+  // static late Vector2 cardCraftZonePosition2;
 
   static final Vector2 skillBookSize = Vector2(360, 360);
   static final Vector2 expBottleSize = Vector2(135, 180);
@@ -419,26 +413,44 @@ abstract class GameUI {
 
   static late Vector2 levelUpButtonPosition;
   static late Vector2 collectButtonPosition;
-  static final buttonSizeSmall = Vector2(90, 28);
-  static final buttonSizeMedium = Vector2(140, 40);
-  static final buttonSizeLarge = Vector2(240, 75);
-  static final buttonSizeSquare = Vector2(40, 40);
-  static final buttonSizeLong = Vector2(180, 40);
+  static final buttonSizeSmall = Vector2(110, 40);
+  static final buttonSizeMedium = Vector2(160, 60);
+  static final buttonSizeLarge = Vector2(240, 80);
+  static final buttonSizeSquare = Vector2(60, 60);
+  static final buttonSizeLong = Vector2(180, 60);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 
-  // // talent tree ui
+  // 天赋树 ui
   static final skillButtonSizeSmall = Vector2(40, 40);
   static final skillButtonSizeMedium = Vector2(60, 60);
   static final skillButtonSizeLarge = Vector2(80, 80);
 
-  static late Vector2 tileMatchingGameTileSize;
+  // 消除游戏 ui
+  static const matchingBoardGridWidth = 11;
+  static const matchingBoardGridHeight = 7;
 
-  static const tileMatchingGameBoardGridWidth = 11;
-  static const tileMatchingGameBoardGridHeight = 7;
+  static final matchingBoardOffset = Vector2(113.0, 135.0);
+  static final matchingTileSrcSize = Vector2(81.0, 81.0);
 
-  static final tileMatchingGameBoardOffset = Vector2(162.0, 131.0);
-  static final tileMatchingGameTileSrcSize = Vector2(81.0, 81.0);
+  static final collectPanelPosition = Vector2(1000.0, 35.0);
+  static final collectPanalSize = Vector2(420.0, 210.0);
+  static final collectPanalAvatarSize = Vector2(120.0, 120.0);
+  static final collectPanalAvatarPosition = Vector2(266, 46);
+  // static final collectPanelIconSize = Vector2(60.0, 60.0);
+  // static final collectPanelIconPositions = [
+  //   Vector2(33.0, 45.0),
+  //   Vector2(108.0, 45.0),
+  //   Vector2(183.0, 45.0),
+  //   Vector2(33.0, 105.0),
+  //   Vector2(108.0, 105.0),
+  //   Vector2(183.0, 105.0),
+  // ];
+
+  static final collectPanelIconPositions = [
+    Vector2(70.0, 70.0),
+    Vector2(155.0, 70.0),
+  ];
 
   static void setSize(Vector2 newSize) {
     if (size == newSize) return;
@@ -464,18 +476,18 @@ abstract class GameUI {
         profileWindowPosition.dy);
 
     libraryZonePosition = Vector2(
-        (120 / windowSize.width * newSize.x).roundToDouble(),
-        (180 / windowSize.height * newSize.y).roundToDouble());
+        (120 / defaultGameSize.width * newSize.x).roundToDouble(),
+        (180 / defaultGameSize.height * newSize.y).roundToDouble());
     libraryZoneSize = Vector2(
-        (960 / windowSize.width * newSize.x).roundToDouble(),
-        (450 / windowSize.height * newSize.y).roundToDouble());
+        (960 / defaultGameSize.width * newSize.x).roundToDouble(),
+        (450 / defaultGameSize.height * newSize.y).roundToDouble());
 
     libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
     libraryZoneBackgroundSize = Vector2(
-        (1190 / windowSize.width * newSize.x).roundToDouble(),
+        (1190 / defaultGameSize.width * newSize.x).roundToDouble(),
         (libraryZoneSize.y).roundToDouble());
 
-    orderByButtonPosition = libraryZonePosition + Vector2(35, -35);
+    orderByButtonPosition = libraryZonePosition + Vector2(35, -50);
     filterByButtonPosition =
         orderByButtonPosition + Vector2(buttonSizeLong.x + largeIndent, 0);
 
@@ -485,7 +497,7 @@ abstract class GameUI {
         Vector2(libraryZoneBackgroundSize.x, libraryZoneBackgroundPosition.y);
 
     final deckbuildingCardWidth =
-        ((130 / windowSize.width * newSize.x).roundToDouble());
+        ((130 / defaultGameSize.width * newSize.x).roundToDouble());
     final deckbuildingCardHeight =
         (deckbuildingCardWidth * 1.351351).roundToDouble();
     deckbuildingCardSize =
@@ -501,18 +513,15 @@ abstract class GameUI {
     // deckCoverPosition =
     //     Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
-    setBattleDeckButtonPosition = Vector2(
+    deckbuildingZoneButtonPosition = Vector2(
       decksZoneBackgroundPosition.x + smallIndent,
       decksZoneBackgroundPosition.y + decksZoneBackgroundSize.y,
     );
 
     decksZoneCloseButtonPosition = Vector2(
-      setBattleDeckButtonPosition.x,
-      setBattleDeckButtonPosition.y + buttonSizeMedium.y + indent,
+      deckbuildingZoneButtonPosition.x,
+      deckbuildingZoneButtonPosition.y + buttonSizeMedium.y + indent,
     );
-
-    // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
-    deckbuildingZonePileOffset = Vector2(0, 30);
 
     final libraryCardWidth = libraryZoneSize.x / 5 - indent;
     final libraryCardHeight = libraryCardWidth * cardSizeRatio;
@@ -530,19 +539,18 @@ abstract class GameUI {
 
     cardpackCardPositions = [position1, position2, position3];
 
-    closeCraftButtonPosition = Vector2(
+    craftZoneCloseButtonPosition = Vector2(
         newSize.x / 2, newSize.y - largeIndent - buttonSizeMedium.y / 2);
 
     cardLibraryExpLabelPosition = Vector2(newSize.x / 2, newSize.y - 50);
 
-    cardCraftingZoneSize = Vector2(
-        (270 / windowSize.width * newSize.x).roundToDouble(),
-        (270 / windowSize.height * newSize.y).roundToDouble());
+    cardCraftZoneSize = Vector2(
+        (270 / defaultGameSize.width * newSize.x).roundToDouble(),
+        (270 / defaultGameSize.height * newSize.y).roundToDouble());
 
-    cardCraftingZoneInitialPosition =
-        Vector2(decksZoneBackgroundPosition.x, -150.0);
+    cardCraftZonePosition = Vector2(decksZoneBackgroundPosition.x, -150.0);
 
-    cardCraftingZonePosition = decksZoneBackgroundPosition - Vector2(0, 100);
+    // cardCraftZonePosition2 = decksZoneBackgroundPosition - Vector2(0, 100);
 
     skillBookPosition = Vector2(-60, GameUI.size.y - 160);
     // expBottlePosition = Vector2(size.x / 2, size.y - expBottleSize.y * 0.33);

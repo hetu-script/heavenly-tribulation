@@ -30,9 +30,10 @@ const kEntityListViewMemberColumns = [
   'age',
   'level',
   'rank',
-  'reportSite',
   'jobTitle',
+  'contribution',
   'superior',
+  'reportSite',
 ];
 
 const kEntityListViewLocationColumns = [

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../ui.dart';
 import '../../engine.dart';

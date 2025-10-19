@@ -1,6 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:samsara/ui/label.dart';
+import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
@@ -30,7 +32,7 @@ enum DebugMenuItems {
   debugWorkbench,
   debugAlchemy,
   debugMeeting,
-  debugTileMatchingGame,
+  debugMatchingGame,
 }
 
 enum MenuStates {
@@ -494,8 +496,8 @@ class _DebugButtonState extends State<DebugButton> {
                 '___2': null,
                 engine.locale('debugMeeting'): DebugMenuItems.debugMeeting,
                 '___3': null,
-                engine.locale('debugTileMatchingGame'):
-                    DebugMenuItems.debugTileMatchingGame,
+                engine.locale('debugMatchingGame'):
+                    DebugMenuItems.debugMatchingGame,
               },
               onSelectedItem: (DebugMenuItems item) {
                 switch (item) {
@@ -572,11 +574,12 @@ class _DebugButtonState extends State<DebugButton> {
                       people.add(char);
                     }
                     context.read<MeetingState>().update(people);
-                  case DebugMenuItems.debugTileMatchingGame:
+                  case DebugMenuItems.debugMatchingGame:
                     engine.pushScene(
-                      Scenes.tileMatchingGame,
+                      Scenes.matchingGame,
                       arguments: {
-                        'type': kProductionSiteKinds.random,
+                        'kind': kProductionSiteKinds.random,
+                        'isProduction': math.Random().nextBool(),
                       },
                     );
                 }

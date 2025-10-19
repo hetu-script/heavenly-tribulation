@@ -120,7 +120,7 @@ class GameSavesState with ChangeNotifier {
       engine.debug('保存游戏至：[${info.savePath}]');
       info.currentWorldId = worldId;
 
-      final gameJSONData = (GameData.data as HTStruct).toJSON();
+      final gameJSONData = (GameData.game as HTStruct).toJSON();
       final gameStringData = json5Encode(gameJSONData, space: 2);
 
       IOSink sink;

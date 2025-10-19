@@ -52,15 +52,7 @@ void _heroRest() async {
   engine.hetu.invoke('onGameEvent', positionalArgs: ['onRested']);
 }
 
-void _notEnoughStamina([dynamic npc]) async {
-  dialog.pushDialog(
-    'hint_notEnoughHealthToWork',
-    npc: npc,
-  );
-  await dialog.execute();
-}
-
-Future<void> _heroProduce(dynamic location) async {
+Future<void> _heroProduce(dynamic location, [dynamic npc]) async {
   final siteKind = location['kind'];
   assert(
       kProductionSiteKinds.contains(siteKind) &&
@@ -70,92 +62,94 @@ Future<void> _heroProduce(dynamic location) async {
   final isRented = await _checkRented(location);
   if (!isRented) return;
 
-  dialog.pushSelection('produceOption', [
-    'produce5Days',
-    'produce15Days',
-    'produceTillNextMonth',
-    'produceTillEmptyHealth',
-    'cancel',
-  ]);
-  await dialog.execute();
-  final selected = dialog.checkSelected('produceOption');
-  if (selected == 'cancel') return;
-
-  int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
-  final double workStaminaCostFactor =
-      GameData.hero['stats']['staminaCostWork'];
-  staminaCost = (staminaCost * workStaminaCostFactor).round();
-
-  int availableLife = (GameData.hero['life'] - 1).toInt();
-  if (availableLife <= staminaCost) {
-    GameDialogContent.show(
-        engine.context, engine.locale('hint_notEnoughHealthToWork'));
+  if (GameData.hero['life'] <= 1) {
+    dialog.pushDialog(
+      'hint_notEnoughStaminaToWork',
+      npc: npc,
+    );
+    await dialog.execute();
     return;
   }
 
-  int maxAffordableTicks = availableLife ~/ staminaCost;
-  int availableTicksTillNextMonth = kTicksPerMonth - GameLogic.ticksOfMonth;
-  final maxTicks = math.min(maxAffordableTicks, availableTicksTillNextMonth);
-
-  int ticks = 0;
-  switch (selected) {
-    case 'produce5Days':
-      ticks = kTicksPerDay * 5;
-    case 'produce15Days':
-      ticks = kTicksPerDay * 15;
-    case 'produceTillNextMonth':
-      ticks = availableTicksTillNextMonth;
-    case 'produceTillEmptyHealth':
-      ticks = maxAffordableTicks;
-  }
-  final finalTicks = math.min(ticks, maxTicks);
-  if (finalTicks <= 0) return;
-
-  // 该建筑所能产出的资源类型及其概率
-  assert(kSiteKindsToMaterialProducable.containsKey(siteKind));
-  final materialData = kSiteKindsToMaterialProducable[siteKind]!;
-
-  // 该地块所拥有的资源类型及其丰富度
-  final terrain = GameData.getTerrain(location['terrainIndex']);
-  final resourceData = terrain['resources'];
-
-  final produced = <String, int>{};
-
-  await TimeflowDialog.show(
-    context: engine.context,
-    ticks: ticks,
-    onProgress: () {
-      final roll = GameData.random.nextDouble();
-      for (String key in materialData.keys) {
-        final double chance = materialData[key]!;
-        if (roll <= chance) {
-          final int abundance = resourceData[key] ?? 0;
-          final int amount = (abundance ~/ kTicksPerDay);
-          produced[key] = (produced[key] ?? 0) + amount;
-        }
-      }
-      engine.hetu.invoke('setLife',
-          namespace: 'Player',
-          positionalArgs: [GameData.hero['life'] - staminaCost]);
-      return GameData.hero['life'] <= staminaCost;
+  engine.pushScene(
+    Scenes.matchingGame,
+    arguments: {
+      'kind': siteKind,
+      'location': location,
+      'isProduction': true,
     },
   );
 
-  final double workEfficiency = GameData.hero['stats']['workEfficiency'];
-  for (final materialId in produced.keys) {
-    final int amount = produced[materialId]!;
-    produced[materialId] = (amount * workEfficiency).round();
-  }
+  // dialog.pushSelection('produceOption', [
+  //   'produce5Days',
+  //   'produce15Days',
+  //   'produceTillNextMonth',
+  //   'produceTillEmptyHealth',
+  //   'cancel',
+  // ]);
+  // await dialog.execute();
+  // final selected = dialog.checkSelected('produceOption');
+  // if (selected == 'cancel') return;
 
-  engine.play('pickup_item-64282.mp3');
-  engine.hetu
-      .invoke('collectAll', namespace: 'Player', positionalArgs: [produced]);
+  // int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
+  // final double workStaminaCostFactor =
+  //     GameData.hero['stats']['staminaCostWork'];
+  // staminaCost = (staminaCost * workStaminaCostFactor).round();
+
+  // int availableLife = (GameData.hero['life'] - 1).toInt();
+  // if (availableLife <= staminaCost) {
+  //   GameDialogContent.show(
+  //       engine.context, engine.locale('hint_notEnoughStaminaToWork'));
+  //   return;
+  // }
+
+  // int maxAffordableTicks = availableLife ~/ staminaCost;
+  // int availableTicksTillNextMonth = kTicksPerMonth - GameLogic.ticksOfMonth;
+  // final maxTicks = math.min(maxAffordableTicks, availableTicksTillNextMonth);
+
+  // int ticks = 0;
+  // switch (selected) {
+  //   case 'produce5Days':
+  //     ticks = kTicksPerDay * 5;
+  //   case 'produce15Days':
+  //     ticks = kTicksPerDay * 15;
+  //   case 'produceTillNextMonth':
+  //     ticks = availableTicksTillNextMonth;
+  //   case 'produceTillEmptyHealth':
+  //     ticks = maxAffordableTicks;
+  // }
+  // final finalTicks = math.min(ticks, maxTicks);
+  // if (finalTicks <= 0) return;
+
+  // await TimeflowDialog.show(
+  //   context: engine.context,
+  //   ticks: ticks,
+  //   onProgress: () {
+  //     final roll = GameData.random.nextDouble();
+  //     for (String key in materialData.keys) {
+  //       final double chance = materialData[key]!;
+  //       if (roll <= chance) {
+  //         final int abundance = resources[key] ?? 0;
+  //         final int amount = (abundance ~/ kTicksPerDay);
+  //         produced[key] = (produced[key] ?? 0) + amount;
+  //       }
+  //     }
+  //     engine.hetu.invoke('setLife',
+  //         namespace: 'Player',
+  //         positionalArgs: [GameData.hero['life'] - staminaCost]);
+  //     return GameData.hero['life'] <= staminaCost;
+  //   },
+  // );
+
+  // engine.play('pickup_item-64282.mp3');
+  // engine.hetu
+  //     .invoke('collectAll', namespace: 'Player', positionalArgs: [produced]);
 }
 
-Future<void> _heroWork(dynamic location, dynamic npc) async {
-  final kind = location['kind'];
-  if (!kSiteKindsWorkable.contains(kind)) {
-    engine.error('非可工作场所：${location['name']} ($kind)');
+Future<void> _heroWork(dynamic location, [dynamic npc]) async {
+  final siteKind = location['kind'];
+  if (!kSiteKindsWorkable.contains(siteKind)) {
+    engine.error('非可工作场所：${location['name']} ($siteKind)');
     return;
   }
 
@@ -163,11 +157,12 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
   // 门派成员则不受时间限制
   if (location['organizationId'] != null &&
       location['organizationId'] != GameData.hero['organizationId']) {
-    final months = kSiteWorkableMounths[kind] as List;
+    final months = kSiteWorkableMounths[siteKind] as List;
     if (!months.contains(GameLogic.month)) {
       dialog.pushDialog(
         'hint_notWorkSeason',
         npc: npc,
+        interpolations: [months.join(', ')],
       );
       await dialog.execute();
       return;
@@ -175,54 +170,66 @@ Future<void> _heroWork(dynamic location, dynamic npc) async {
   }
 
   if (GameData.hero['life'] <= 1) {
-    _notEnoughStamina(npc);
+    dialog.pushDialog(
+      'hint_notEnoughStaminaToWork',
+      npc: npc,
+    );
+    await dialog.execute();
     return;
   }
 
-  final int salary = kSiteWorkableBaseSalaries[kind]!;
-  final int staminaCost = kSiteWorkableBaseStaminaCost[kind]!;
-
-  dialog.pushSelection('workOption', [
-    'work10Days',
-    'work30Days',
-    'workTillNextMonth',
-    'workTillHealthExhausted',
-    'cancel',
-  ]);
-  await dialog.execute();
-  final selected = dialog.checkSelected('workOption');
-  int ticks = 0;
-  switch (selected) {
-    case 'work10Days':
-      ticks = kTicksPerDay * 10;
-    case 'work30Days':
-      ticks = kTicksPerDay * 30;
-    case 'workTillNextMonth':
-      ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
-    case 'workTillHealthExhausted':
-      ticks = (GameData.hero['life'] - 1) ~/ staminaCost;
-      if (ticks <= 0) {
-        _notEnoughStamina(npc);
-        return;
-      }
-  }
-  if (ticks <= 0) return;
-
-  final finalTicks = await TimeflowDialog.show(
-    context: engine.context,
-    ticks: ticks,
-    onProgress: () {
-      engine.hetu.invoke('setLife',
-          namespace: 'Player',
-          positionalArgs: [GameData.hero['life'] - staminaCost]);
-      return GameData.hero['life'] <= staminaCost;
+  engine.pushScene(
+    Scenes.matchingGame,
+    arguments: {
+      'kind': siteKind,
+      'location': location,
+      'isProduction': false,
     },
   );
 
-  engine.play('coins-31879.mp3');
-  engine.hetu.invoke('collect',
-      namespace: 'Player', positionalArgs: ['money', finalTicks * salary]);
-  engine.context.read<HeroState>().update();
+  // final int salary = kSiteWorkableBaseSalaries[siteKind]!;
+  // int staminaCost = kSiteWorkableBaseStaminaCost[siteKind]!;
+  // final double workStaminaCostFactor =
+  //     GameData.hero['stats']['staminaCostWork'];
+  // staminaCost = (staminaCost * workStaminaCostFactor).round();
+
+  // dialog.pushSelection('workOption', [
+  //   'work10Days',
+  //   'work30Days',
+  //   'workTillNextMonth',
+  //   'workTillHealthExhausted',
+  //   'cancel',
+  // ]);
+  // await dialog.execute();
+  // final selected = dialog.checkSelected('workOption');
+  // int ticks = 0;
+  // switch (selected) {
+  //   case 'work10Days':
+  //     ticks = kTicksPerDay * 10;
+  //   case 'work30Days':
+  //     ticks = kTicksPerDay * 30;
+  //   case 'workTillNextMonth':
+  //     ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
+  //   case 'workTillHealthExhausted':
+  //     ticks = (GameData.hero['life'] - 1) ~/ staminaCost;
+  // }
+  // assert(ticks > 0);
+
+  // final finalTicks = await TimeflowDialog.show(
+  //   context: engine.context,
+  //   ticks: ticks,
+  //   onProgress: () {
+  //     engine.hetu.invoke('setLife',
+  //         namespace: 'Player',
+  //         positionalArgs: [GameData.hero['life'] - staminaCost]);
+  //     return GameData.hero['life'] <= staminaCost;
+  //   },
+  // );
+
+  // engine.play('coins-31879.mp3');
+  // engine.hetu.invoke('collect',
+  //     namespace: 'Player', positionalArgs: ['money', finalTicks * salary]);
+  // engine.context.read<HeroState>().update();
 }
 
 Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
@@ -236,10 +243,10 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
 
   /// 这里的 organization 可能是 null
   final organization =
-      GameData.data['organizations'][location['organizationId']];
+      GameData.game['organizations'][location['organizationId']];
 
   /// 这里的 atLocation 可能是 null
-  final atLocation = GameData.data['locations'][location['atLocationId']];
+  final atLocation = GameData.game['locations'][location['atLocationId']];
 
   bool isManager = GameData.hero['id'] == location['ownerId'];
   bool isMayor = GameData.hero['id'] == atLocation?['ownerId'];
@@ -294,7 +301,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               }
 
               final diplomacyData =
-                  GameData.data['diplomacies'][diplomacyDataId];
+                  GameData.game['diplomacies'][diplomacyDataId];
               assert(diplomacyData != null);
               final String type = diplomacyData['type'];
               final score = diplomacyData['score'] as int;
@@ -731,7 +738,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
       case 'work':
         _heroWork(location, npc);
       case 'produce':
-        _heroProduce(location);
+        _heroProduce(location, npc);
       case 'bountyQuest':
         final bounties = location['bounties'] ?? const [];
         if (bounties.isEmpty) {
@@ -780,6 +787,8 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
 }
 
 Future<void> _onInteractCharacter(dynamic character) async {
+  if (character == GameData.hero) return;
+
   if (character['entityType'] != 'character') {
     assert(character['entityType'] == 'npc',
         'invalid character entity type, ${character['entityType']}');
@@ -887,7 +896,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
                   GameData.hero['organizationId']) {
                 topicRejected = false;
                 final organization =
-                    GameData.data['organizations'][character['organizationId']];
+                    GameData.game['organizations'][character['organizationId']];
                 assert(organization != null,
                     'organization is null, id: ${character['organizationId']}');
                 final memberData =
@@ -1081,14 +1090,11 @@ Future<void> _onInteractCharacter(dynamic character) async {
           relationshipSelections.add('recruit');
         }
       }
-
       relationshipSelections.add('forgetIt');
-
       dialog.pushSelection(
         'characterRelationshipInteraction',
         relationshipSelections,
       );
-
       await dialog.execute();
       final selected2 =
           dialog.checkSelected('characterRelationshipInteraction');
@@ -1120,6 +1126,9 @@ Future<void> _onInteractCharacter(dynamic character) async {
           {}
       }
   }
+
+  dialog.pushDialog(engine.locale('discourse_bye'), character: character);
+  await dialog.execute();
 
   if (interacted) {
     // 任何互动操作后，隐藏该角色不能再次互动

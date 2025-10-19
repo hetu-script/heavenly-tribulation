@@ -1326,9 +1326,8 @@ function getCharacterBirthDateString(character) {
 }
 
 function haveMet(subject, target) {
-  if (target.entityType != 'character') {
-    return true
-  }
+  if (subject == target) return true
+  if (target.entityType != 'character') return true
 
   assert(subject.entityType == 'character')
 
@@ -1336,20 +1335,22 @@ function haveMet(subject, target) {
   if (bond && bond.haveMet) {
     return bond
   } else {
+    // 这里必须传 null
     return null
   }
 }
 
 /// 计算第一印象分
-function _characterMet(subject, target) {
+function _characterMet(subject, target, { incurIncident }) {
   assert(subject != null && target != null)
+  assert(subject.entityType == 'character')
   assert(target.entityType == 'character')
   let bond = haveMet(subject, target)
+  // engine.debug('${subject.name} 和 ${target.name} 见面了, bond: ${bond}')
   if (bond != null) {
     if (bond.haveMet) {
       return bond
     } else {
-      // 虽然没见过，但如果以前就听说过的话
       bond.haveMet = true
     }
   } else {
@@ -1376,18 +1377,22 @@ function _characterMet(subject, target) {
       target.name,
     ])
   }
-  Incident(
-    message: incidentContent,
-    subjectId: subject.id, // 见面是一个单向事件
-    isPrivate: true,
-  )
-  engine.debug('${subject.name} 对 ${target.name} 的第一印象: [${bond.score}]')
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: subject.id, // 见面是一个单向事件
+      isPrivate: true,
+    )
+  } else {
+    engine.debug('${incidentContent}. (score: ${bond.score})')
+  }
   return bond
 }
 
-function characterMet(subject, target, {incident}) {
-  let bond = _characterMet(subject, target, incident: incident)
-  _characterMet(target, subject, incident: incident)
+function characterMet(subject, target, { incurIncident }) {
+  if (subject == target) return null
+  let bond = _characterMet(subject, target, incurIncident: incurIncident)
+  _characterMet(target, subject, incurIncident: incurIncident)
   return bond
 }
 

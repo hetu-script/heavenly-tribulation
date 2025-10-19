@@ -34,7 +34,10 @@ struct Quest {
   // 运送材料
   // 报酬是材料基础价值的 1/5
   // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
-  function deliver_material(organization, cityhall, difficulty) {
+  function deliver_material(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final sites = game.locations.values
       .where((loc) {
         if (loc.atLocationId != null) {
@@ -47,11 +50,23 @@ struct Quest {
     final endSite = random.nextIterable(sites)
     final endLocation = game.locations[endSite.atLocationId]
 
-    final characters = organization.membersData.values
-      .map((m) => game.characters[m.id])
     let receiver
+    let characters
+    if (organization != null) {
+      characters = organization.membersData.keys
+        .map((id) => game.characters[id])
+        .where((char) => char.rank == difficulty)
+    } else {
+      characters = game.characters.values
+        .where((char) => char.rank == difficulty && char.organizationId == null)
+    }
     if (characters.isNotEmpty) {
-      receiver = random.nextIterable((characters))
+      receiver = random.nextIterable(characters)
+    } else {
+      receiver = Character(
+        locationId: cityhall.atLocationId,
+        rank: difficulty,
+      )
     }
 
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
@@ -76,7 +91,7 @@ struct Quest {
       endSite.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'deliver_material',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -97,12 +112,24 @@ struct Quest {
       'reportSiteId': endSite.id,
       interpolations: interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward.add({
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      })
+    }
+    return quest;
   }
 
   // 运送物品
   // 报酬是物品基础价值的 1/5
   // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
-  function deliver_item(organization, cityhall, difficulty) {
+  function deliver_item(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final sites = game.locations.values
       .where((loc)  {
         if (loc.atLocationId != null) {
@@ -115,11 +142,23 @@ struct Quest {
     final endSite = random.nextIterable(sites)
     final endLocation = game.locations[endSite.atLocationId]
 
-    final characters = organization.membersData.values
-      .map((m) => game.characters[m.id])
     let receiver
+    let characters
+    if (organization != null) {
+      characters = organization.membersData.keys
+        .map((id) => game.characters[id])
+        .where((char) => char.rank == difficulty)
+    } else {
+      characters = game.characters.values
+        .where((char) => char.rank == difficulty && char.organizationId == null)
+    }
     if (characters.isNotEmpty) {
       receiver = random.nextIterable(characters)
+    } else {
+      receiver = Character(
+        locationId: cityhall.atLocationId,
+        rank: difficulty,
+      )
     }
 
     let item
@@ -153,7 +192,7 @@ struct Quest {
       endSite.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'deliver_item',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -173,11 +212,23 @@ struct Quest {
       'reportSiteId': endSite.id,
       interpolations: interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward.add({
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      })
+    }
+    return quest;
   }
 
   // 护送角色
   // 陪同某个人从一个据点的某个场景到另一个据点的某个场景
-  function escort(organization, cityhall, difficulty) {
+  function escort(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final sites = game.locations.values
       .where((loc)  {
         if (loc.atLocationId != null) {
@@ -190,11 +241,23 @@ struct Quest {
     final endSite = random.nextIterable(sites)
     final endLocation = game.locations[endSite.atLocationId]
 
-    final characterIds = organization.membersData.values
-      .map((m) => m.id)
     let escortee
-    if (characterIds.isNotEmpty) {
-      escortee = game.characters[random.nextIterable(characterIds)]
+    let characters
+    if (organization != null) {
+      characters = organization.membersData.keys
+        .map((id) => game.characters[id])
+        .where((char) => char.rank == difficulty)
+    } else {
+      characters = game.characters.values
+        .where((char) => char.rank == difficulty && char.organizationId == null)
+    }
+    if (characters.isNotEmpty) {
+      escortee = random.nextIterable(characters)
+    } else {
+      escortee = Character(
+        locationId: cityhall.atLocationId,
+        rank: difficulty,
+      )
     }
 
     final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
@@ -215,7 +278,7 @@ struct Quest {
       endSite.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'escort',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -234,11 +297,23 @@ struct Quest {
       'reportSiteId': endSite.id,
       interpolations: interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward.add({
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      })
+    }
+    return quest;
   }
 
   // 购买任务，材料，获取某种数量的指定材料
   // 报酬是剩余的预算
-  function purchase_material(organization, cityhall, difficulty) {
+  function purchase_material(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
     assert(atLocation.category == 'city')
@@ -255,7 +330,7 @@ struct Quest {
       cityhall.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'purchase_material',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -273,11 +348,23 @@ struct Quest {
       'reportSiteId': cityhall.id,
       'interpolations': interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward = [{
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      }]
+    }
+    return quest;
   }
 
   // 购买任务，获取某种指定的装备、丹药或者秘籍
   // 报酬是剩余的预算
-  function purchase_item(organization, cityhall, difficulty) {
+  function purchase_item(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
     assert(atLocation.category == 'city')
@@ -327,7 +414,7 @@ struct Quest {
       cityhall.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'purchase_item',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -341,10 +428,22 @@ struct Quest {
       'reportSiteId': cityhall.id,
       interpolations: interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward = [{
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      }]
+    }
+    return quest;
   }
 
   // 探索某个隐藏据点
-  function discover_location(organization, cityhall, difficulty) {
+  function discover_location(cityhall, {
+    difficulty = 0,
+    organization,
+  }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
     assert(atLocation.category == 'city')
@@ -372,7 +471,7 @@ struct Quest {
       targetLocation.name,
     ]
 
-    return {
+    final quest = {
       'kind': 'discover_location',
       'difficulty': difficulty,
       'timeLimit': _createTimeLimit(difficulty),
@@ -388,11 +487,20 @@ struct Quest {
       'reportSiteId': cityhall.id,
       interpolations: interpolations,
     }
+    if (organization != null) {
+      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
+      quest.reward.add({
+        type: 'contribution',
+        amount: contribution,
+        organizationId: organization.id,
+      })
+    }
+    return quest;
   }
 }
 
 
-function initEscort(quest, organization) {
+function initEscort(quest) {
   assert(quest.kind == 'escort', 'quest kind is not escort, kind: ${quest.kind}')
   final escorteeId = quest.package.characterId;
   final escortee = game.characters[escorteeId];
@@ -404,6 +512,7 @@ function initEscort(quest, organization) {
   }
 
   if (escortee.organizationId && escortee.organizationId == hero.organizationId) {
+    final organization = game.organizations[escortee.organizationId]
     final escorteeMemberData = organization.membersData[escortee.id]
     final heroMemberData = organization.membersData[hero.id]
     if (escorteeMemberData.rank > heroMemberData.rank) {
@@ -426,7 +535,12 @@ function initEscort(quest, organization) {
   return escortType
 }
 
-function createQuest(organization, cityhall, { kind, isBounty = false, policy, maxDifficulty: integer }) {
+function createQuest(cityhall, {
+  kind, organization,
+  isBounty = false,
+  policy,
+  maxDifficulty: integer,
+}) {
   let quest
   // 因为任务可能会因为一些原因生成失败导致返回 null，这里需要循环尝试
   while(quest == null) {
@@ -438,7 +552,11 @@ function createQuest(organization, cityhall, { kind, isBounty = false, policy, m
     final difficulty = random.nextInt(maxDifficulty + 1)
     final ctor = Quest[questData.id]
     assert(ctor != null, 'quest generator function not found: ${questData.id}')
-    quest = ctor(organization, cityhall, difficulty)
+    quest = ctor(
+      cityhall,
+      difficulty: difficulty,
+      organization: organization,
+    )
   }
 
   return quest
@@ -447,17 +565,14 @@ function createQuest(organization, cityhall, { kind, isBounty = false, policy, m
 /// 刷新悬赏任务，这里不检查据点类型
 function replenishBounty(location) {
   final organization = game.organizations[location.organizationId]
-  if (organization == null) {
-    engine.warn('location ${location.name} has no organization, skip replenish bounty')
-    return
-  }
   
   // 清空现有悬赏任务
   location.bounties = []
   
   final amount = kBaseBountyReplenishAmount + location.development
   for (var i in range(amount)) {
-    final bountyQuest = createQuest(organization, location,
+    final bountyQuest = createQuest(location,
+      organization: organization,
       isBounty: true,
       maxDifficulty: location.development,
     )
@@ -469,9 +584,10 @@ function generateOrganizationQuests(organization, location) {
   final quests = []
 
   for (var i in range (kOrganizationQuestCount)) {
-    final quest = createQuest(organization, location,
-      maxDifficulty: hero.rank,
+    final quest = createQuest(location,
+      organization: organization,
       policy: organization.policies[location.id],
+      maxDifficulty: hero.rank,
     )
     quests.add(quest)
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+// import 'package:flutter/foundation.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -41,6 +42,31 @@ import 'components/banner.dart';
 import '../../game/common.dart';
 import 'widgets/location_panel.dart';
 import '../../widgets/ui/close_button2.dart';
+
+final kGridSize = Vector2(32.0, 28.0);
+final kTileSpriteSrcSize = Vector2(32.0, 64.0);
+final kTileOffset = Vector2(0.0, -21.0);
+final kTileFogOffset = Vector2(-6.0, 0.0);
+final kCharacterAnimationSize = Vector2(32.0, 48.0);
+
+const kTerrainKindVoid = 'void';
+const kTerrainKindPlain = 'plain';
+const kTerrainKindMountain = 'mountain';
+const kTerrainKindForest = 'forest';
+const kTerrainKindSnowPlain = 'snow_plain';
+const kTerrainKindSnowMountain = 'snow_mountain';
+const kTerrainKindSnowForest = 'snow_forest';
+const kTerrainKindShore = 'shore';
+const kTerrainKindShelf = 'shelf';
+const kTerrainKindLake = 'lake';
+const kTerrainKindSea = 'sea';
+const kTerrainKindRiver = 'river';
+const kTerrainKindRoad = 'road';
+const kTerrainKindCity = 'city';
+
+const kColorModeContinent = 0;
+const kColorModeCity = 1;
+const kColorModeOrganization = 2;
 
 enum WorldMapPopUpMenuItems {
   moveTo,
@@ -266,9 +292,11 @@ class WorldMapScene extends Scene {
     fps.update(dt);
 
     if (!isEditorMode && isMainWorld) {
-      final r = ParticleCloud.random.nextDouble();
-      if (r < 0.01) {
-        _addCloud();
+      if (map.isLoaded) {
+        final r = ParticleCloud.random.nextDouble();
+        if (r < 0.01) {
+          _addCloud();
+        }
       }
     }
   }
@@ -309,7 +337,7 @@ class WorldMapScene extends Scene {
       backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
     }
 
-    map.onAfterMapLoaded =
+    map.onAfterLoaded =
         isEditorMode ? _onAfterLoadedInEditorMode : _onAfterLoadedInGameMode;
 
     map.onMouseEnterScreenEdge = _onMouseEnterScreenEdge;
@@ -354,12 +382,6 @@ class WorldMapScene extends Scene {
     };
 
     world.add(map);
-
-    if (!isEditorMode && isMainWorld) {
-      for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
-        _addCloud();
-      }
-    }
 
     fps = FpsComponent();
 
@@ -601,8 +623,13 @@ class WorldMapScene extends Scene {
   }
 
   void _addCloud() {
+    if (map.terrains.isEmpty) {
+      engine.error('无法在大地图 ${map.id} 上添加云朵，地形列表为空');
+      return;
+    }
     final cloud = ParticleCloud();
-    cloud.position = map.getRandomTerrainPosition();
+    final tile = map.terrains.random;
+    cloud.position = tile.position;
     world.add(cloud);
   }
 
@@ -752,8 +779,8 @@ class WorldMapScene extends Scene {
       engine.setCursor(Cursors.normal);
       context.read<EditorToolState>().clear();
       territoryMode = null;
-      final tileRenderPosition = map.selectedTerrain!.renderBottomRight;
-      final screenPosition = map.worldPosition2Screen(tileRenderPosition);
+      final tileRenderPosition = map.selectedTerrain!.topRight;
+      final screenPosition = worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
         position: screenPosition.toOffset(),
         items: {
@@ -943,8 +970,12 @@ class WorldMapScene extends Scene {
       if (left == null || top == null) {
         continue;
       }
-      final charObj = await map.loadTileMapComponentFromData(char,
-          spriteSrcSize: kWorldMapCharacterSpriteSrcSize, isCharacter: true);
+      final charObj = await map.loadTileMapComponentFromData(
+        char,
+        isCharacter: true,
+        srcSize: kCharacterAnimationSize,
+        srcOffset: kTileOffset,
+      );
       charObj.tilePosition = TilePosition(left, top);
       map.updateTileInfo(charObj);
     }
@@ -984,7 +1015,7 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _updateWorldMapCaptions() async {
-    final locations = GameData.data['locations'].values;
+    final locations = GameData.game['locations'].values;
     for (final location in locations) {
       if (location['worldId'] == GameData.world['id'] &&
           location['terrainIndex'] != null &&
@@ -1043,8 +1074,9 @@ class WorldMapScene extends Scene {
       } else {
         charComponent = await map.loadTileMapComponentFromData(
           character,
-          spriteSrcSize: kWorldMapCharacterSpriteSrcSize,
           isCharacter: true,
+          srcSize: kCharacterAnimationSize,
+          srcOffset: kTileOffset,
         );
       }
     }
@@ -1121,6 +1153,10 @@ class WorldMapScene extends Scene {
         final isDying = engine.hetu.invoke('setLife',
             namespace: 'Player',
             positionalArgs: [GameData.hero['life'] - staminaCost]);
+
+        addHintTextOnTile('${engine.locale('stamina')} -${staminaCost.round()}',
+            terrain.left, terrain.top,
+            color: Colors.red);
         context.read<HeroState>().update();
         if (isDying) {
           map.hero!.isWalkCanceled = true;
@@ -1252,6 +1288,12 @@ class WorldMapScene extends Scene {
   }
 
   void _onTapUpInGameMode(int button, Vector2 position) async {
+    // if (kDebugMode) {
+    //   final screenPosition = worldPosition2Screen(position);
+    //   print(
+    //       'tapped on map! world position: $position, screen position: $screenPosition');
+    // }
+
     if (!GameData.isInteractable) return;
 
     _focusNode.requestFocus();
@@ -1285,53 +1327,59 @@ class WorldMapScene extends Scene {
       if (map.hero?.isWalking == true) {
         map.hero!.isWalkCanceled = true;
       } else {
-        final tileRenderPosition = map.selectedTerrain!.renderBottomRight;
-        final screenPosition = map.worldPosition2Screen(tileRenderPosition);
-        showFluentMenu(
-          position: screenPosition.toOffset(),
-          items: {
-            engine.locale('moveTo'): WorldMapPopUpMenuItems.moveTo,
-            engine.locale('terrainInformation'):
-                WorldMapPopUpMenuItems.terrainInformation,
-            engine.locale('build'): {
-              engine.locale('farmland'): WorldMapPopUpMenuItems.buildFarmLand,
-              engine.locale('fishery'): WorldMapPopUpMenuItems.buildFishery,
-              engine.locale('timberland'):
-                  WorldMapPopUpMenuItems.buildTimberLand,
-              engine.locale('mine'): WorldMapPopUpMenuItems.buildMine,
-              engine.locale('huntingground'):
-                  WorldMapPopUpMenuItems.buildHuntingGround,
+        if (tilePosition == map.hero!.tilePosition) {
+          final menuPosition =
+              worldPosition2Screen(map.selectedTerrain!.topRight);
+          showFluentMenu(
+            position: menuPosition.toOffset(),
+            items: {
+              engine.locale('moveTo'): WorldMapPopUpMenuItems.moveTo,
+              engine.locale('terrainInformation'):
+                  WorldMapPopUpMenuItems.terrainInformation,
+              engine.locale('build'): {
+                engine.locale('farmland'): WorldMapPopUpMenuItems.buildFarmLand,
+                engine.locale('fishery'): WorldMapPopUpMenuItems.buildFishery,
+                engine.locale('timberland'):
+                    WorldMapPopUpMenuItems.buildTimberLand,
+                engine.locale('mine'): WorldMapPopUpMenuItems.buildMine,
+                engine.locale('huntingground'):
+                    WorldMapPopUpMenuItems.buildHuntingGround,
+              },
+              engine.locale('warMode'): WorldMapPopUpMenuItems.warMode,
             },
-            engine.locale('warMode'): WorldMapPopUpMenuItems.warMode,
-          },
-          onSelectedItem: (item) {
-            switch (item) {
-              case WorldMapPopUpMenuItems.moveTo:
-              case WorldMapPopUpMenuItems.terrainInformation:
-              case WorldMapPopUpMenuItems.buildFarmLand:
-              case WorldMapPopUpMenuItems.buildFishery:
-              case WorldMapPopUpMenuItems.buildTimberLand:
-              case WorldMapPopUpMenuItems.buildMine:
-              case WorldMapPopUpMenuItems.buildHuntingGround:
-              case WorldMapPopUpMenuItems.warMode:
-            }
-          },
-        );
+            onSelectedItem: (item) {
+              switch (item) {
+                case WorldMapPopUpMenuItems.moveTo:
+                case WorldMapPopUpMenuItems.terrainInformation:
+                case WorldMapPopUpMenuItems.buildFarmLand:
+                case WorldMapPopUpMenuItems.buildFishery:
+                case WorldMapPopUpMenuItems.buildTimberLand:
+                case WorldMapPopUpMenuItems.buildMine:
+                case WorldMapPopUpMenuItems.buildHuntingGround:
+                case WorldMapPopUpMenuItems.warMode:
+              }
+            },
+          );
+        }
       }
     }
   }
 
   Future<void> _onAfterLoadedInGameMode() async {
     _focusNode.requestFocus();
-    final bool isNewGame = GameData.data['isNewGame'] ?? false;
+    final bool isNewGame = GameData.game['isNewGame'] ?? false;
     if (isNewGame) {
       // GameLogic.updateGame(timeflow: false);
       if (GameData.hero == null) {
-        final Iterable characters = GameData.data['characters'].values;
+        final Iterable characters = GameData.game['characters'].values;
         final Iterable filteredCharacters = characters.where((character) {
           final age = engine.hetu
               .invoke('getCharacterAge', positionalArgs: [character]);
           if (age > kMaxHeroAge) {
+            return false;
+          }
+          final int rank = character['rank'];
+          if (rank > 0) {
             return false;
           }
           final organizationId = character['organizationId'];
@@ -1359,7 +1407,7 @@ class WorldMapScene extends Scene {
           ),
         );
         engine.hetu.invoke('setHero', positionalArgs: [key]);
-        if (GameData.data['enableTutorial'] == true) {
+        if (GameData.game['enableTutorial'] == true) {
           engine.hetu.invoke('randomizeHeroWorldPosition');
         }
         GameData.hero = engine.hetu.fetch('hero');
@@ -1383,7 +1431,11 @@ class WorldMapScene extends Scene {
     }
 
     assert(GameData.hero != null);
-    await map.loadHeroFromData(GameData.hero, kWorldMapCharacterSpriteSrcSize);
+    await map.loadHeroFromData(
+      GameData.hero,
+      srcSize: kCharacterAnimationSize,
+      srcOffset: kTileOffset,
+    );
     map.moveCameraToHero(animated: false);
 
     _updateWorldMapCaptions();
@@ -1392,6 +1444,12 @@ class WorldMapScene extends Scene {
         isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : true);
     context.read<HeroAndGlobalHistoryState>().update();
     context.read<HeroJournalUpdate>().update();
+
+    if (isMainWorld) {
+      for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
+        _addCloud();
+      }
+    }
 
     if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
@@ -1437,7 +1495,6 @@ class WorldMapScene extends Scene {
     super.onMount();
     engine.context.read<GameTimestampState>().update();
     engine.context.read<NpcListState>().update();
-    engine.context.read<HeroPositionState>().updateTerrain();
     engine.context.read<HeroPositionState>().updateLocation();
     engine.context.read<HeroPositionState>().updateDungeon();
   }
@@ -1449,41 +1506,41 @@ class WorldMapScene extends Scene {
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
     if (!GameData.isInteractable) return;
+
     bool clickable = false;
     if (tile != null && (tile.isLighted || !map.showFogOfWar)) {
-      String hoverContent = '';
-      if (map.data['isMain'] == true) {
-        if (tile.zoneId != null) {
-          final zone = GameData.world['zones'][tile.zoneId];
-          hoverContent += '${zone['name']}';
-        }
-        hoverContent +=
-            ' ${engine.locale(tile.kind)} ${engine.config.debugMode ? '<grey>#${tile.index}</>' : ''} [${tile.left}, ${tile.top}]';
-        if (tile.nationId != null) {
-          final organization = GameData.getOrganization(tile.nationId);
-          hoverContent += '\n${organization['name']}';
-        }
+      final hoverContent = StringBuffer();
+      if (tile.zoneId != null) {
+        final zone = GameData.world['zones'][tile.zoneId];
+        hoverContent.write('${zone['name']}');
+      }
+      hoverContent.writeln(' ${engine.locale(tile.kind)}'
+          '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
+          ' [${tile.left}, ${tile.top}]');
+      if (tile.nationId != null) {
+        final organization = GameData.getOrganization(tile.nationId);
+        hoverContent.write(organization['name']);
       }
 
       if (tile.cityId != null) {
-        if (map.data['isMain'] == true) {
-          engine.setCursor(Cursors.click);
-          final city = GameData.getLocation(tile.cityId);
-          hoverContent += ' ${city['name']}';
-        }
+        engine.setCursor(Cursors.click);
+        final city = GameData.getLocation(tile.cityId);
+        hoverContent.write(' ${city['name']}');
       }
 
       if (tile.locationId != null) {
         clickable = true;
         final location = GameData.getLocation(tile.locationId);
         if (location['category'] == 'city' && engine.config.debugMode) {
-          hoverContent +=
-              '\n<grey>${engine.locale('development')}: ${location['development']}, ${engine.locale('residents')}: ${location['residents'].length}</>';
+          hoverContent.writeln('');
+          hoverContent.writeln(
+              '<grey>${engine.locale('development')}: ${location['development']}, '
+              '${engine.locale('residents')}: ${location['residents'].length}</>');
         } else {
-          hoverContent += ' ${location['name']}';
+          hoverContent.writeln(' ${location['name']}');
           if (engine.config.debugMode) {
-            hoverContent +=
-                '\n<grey>${engine.locale('development')}: ${location['development']}</>';
+            hoverContent.writeln(
+                '<grey>${engine.locale('development')}: ${location['development']}</>');
           }
         }
       } else if (tile.objectId != null) {
@@ -1494,23 +1551,33 @@ class WorldMapScene extends Scene {
         assert(objectData != null, 'objectId: ${tile.objectId} not found!');
 
         if (engine.config.debugMode) {
-          hoverContent = '<grey>${objectData['id']}</>';
+          hoverContent.write('<grey>${objectData['id']}</>');
         }
-        final objectHoverContent = objectData?['hoverContent'];
-        if (objectHoverContent != null) {
-          hoverContent += '\n$objectHoverContent';
-        }
+        final objectHoverContent = objectData?['hoverContent'] ?? '';
+        hoverContent.writeln(objectHoverContent);
+      } else {
+        hoverContent.writeln('');
       }
 
-      if (hoverContent.isNotBlank) {
-        final screenPosition = map.worldPosition2Screen(tile.renderPosition);
+      // if (kDebugMode) {
+      //   final renderPosition = tile.position;
+      //   final screenPosition = worldPosition2Screen(renderPosition);
+      //   hoverContent.writeln(
+      //       '<grey>renderPosition: (${renderPosition.x.toStringAsFixed(1)}, ${renderPosition.y.toStringAsFixed(1)})</>');
+      //   hoverContent.writeln(
+      //       '<grey>screenPosition: (${screenPosition.x.toStringAsFixed(1)}, ${screenPosition.y.toStringAsFixed(1)})</>');
+      // }
+
+      final content = hoverContent.toString();
+      if (content.isNotBlank) {
+        final screenPosition = worldPosition2Screen(tile.position);
         context.read<HoverContentState>().show(
-              hoverContent,
+              content,
               Rect.fromLTWH(
                 screenPosition.x + map.tileOffset.x * camera.zoom,
                 screenPosition.y + map.tileOffset.y * camera.zoom,
-                tile.renderSize.x * camera.zoom,
-                tile.renderSize.y * camera.zoom,
+                tile.width * camera.zoom,
+                tile.height * camera.zoom,
               ),
               direction: HoverContentDirection.topCenter,
             );
@@ -1538,7 +1605,7 @@ class WorldMapScene extends Scene {
     final worldPosition = map.tilePosition2TileCenter(left, top);
     // final screenPosition = map.worldPosition2Screen(worldPosition);
 
-    super.addHintText(
+    addHintText(
       text,
       position: worldPosition,
       horizontalVariation: 10.0,
@@ -1673,7 +1740,7 @@ class WorldMapScene extends Scene {
                                 case WorldMapDropMenuItems.save:
                                   map.saveComponentsFrameData();
                                   String worldId = GameData.world['id'];
-                                  String? saveName = GameData.data['saveName'];
+                                  String? saveName = GameData.game['saveName'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
                                       .saveGame(worldId, saveName);
@@ -1698,7 +1765,7 @@ class WorldMapScene extends Scene {
                                     },
                                   );
                                   if (saveName == null) return;
-                                  GameData.data['saveName'] = saveName;
+                                  GameData.game['saveName'] = saveName;
                                   String worldId = GameData.world['id'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
@@ -1743,7 +1810,7 @@ class WorldMapScene extends Scene {
                                       except: Scenes.mainmenu,
                                       arguments: {
                                         'reset':
-                                            GameData.data['saveName'] != 'debug'
+                                            GameData.game['saveName'] != 'debug'
                                       });
                               }
                             },
@@ -1880,7 +1947,7 @@ class WorldMapScene extends Scene {
                                   map.loadTerrainData();
                                 case WorldEditorDropMenuItems.save:
                                   String worldId = GameData.world['id'];
-                                  String? saveName = GameData.data['saveName'];
+                                  String? saveName = GameData.game['saveName'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
                                       .saveGame(worldId, saveName);
@@ -1906,7 +1973,7 @@ class WorldMapScene extends Scene {
                                     },
                                   );
                                   if (saveName == null) return;
-                                  GameData.data['saveName'] = saveName;
+                                  GameData.game['saveName'] = saveName;
                                   String worldId = GameData.world['id'];
                                   final saveInfo = await context
                                       .read<GameSavesState>()
@@ -1980,7 +2047,7 @@ class WorldMapScene extends Scene {
                                 case WorldEditorDropMenuItems
                                       .characterCalculateStats:
                                   for (final character
-                                      in GameData.data['characters'].values) {
+                                      in GameData.game['characters'].values) {
                                     engine.hetu.invoke(
                                       'characterCalculateStats',
                                       positionalArgs: [character],

@@ -116,7 +116,7 @@ class GameData {
   static bool get isInitted => _isInitted;
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
-  static dynamic data, flags, universe, world, history, hero;
+  static dynamic game, flags, universe, world, history, hero;
 
   static Iterable<String> get worldIds => universe?.keys ?? const [];
 
@@ -131,7 +131,7 @@ class GameData {
   }
 
   static dynamic getNpc(dynamic id) {
-    final npc = GameData.data['npcs'][id];
+    final npc = GameData.game['npcs'][id];
     assert(npc != null, 'NPC not found, id: $id');
     return npc;
   }
@@ -141,7 +141,7 @@ class GameData {
 
     final locationNpc = location['npcId'];
     if (locationNpc != null) {
-      final npc = GameData.data['npcs'][locationNpc];
+      final npc = GameData.game['npcs'][locationNpc];
       npcs.add(npc);
     }
 
@@ -149,7 +149,7 @@ class GameData {
         GameData.hero['companions'].map((id) => GameData.getCharacter(id));
     npcs.addAll(companions);
 
-    final characters = GameData.data['characters'].values.where((char) {
+    final characters = GameData.game['characters'].values.where((char) {
       if (char['id'] == GameData.hero['id']) return false;
       if (char['locationId'] != location['id']) return false;
       return true;
@@ -160,19 +160,19 @@ class GameData {
   }
 
   static dynamic getCharacter(dynamic id) {
-    final character = GameData.data['characters'][id];
+    final character = GameData.game['characters'][id];
     assert(character != null, 'Character not found, id: $id');
     return character;
   }
 
   static dynamic getLocation(dynamic id) {
-    final location = GameData.data['locations'][id];
+    final location = GameData.game['locations'][id];
     assert(location != null, 'Location not found, id: $id');
     return location;
   }
 
   static dynamic getOrganization(dynamic id) {
-    final organization = GameData.data['organizations'][id];
+    final organization = GameData.game['organizations'][id];
     assert(organization != null, 'Organization not found, id: $id');
     return organization;
   }
@@ -471,7 +471,7 @@ class GameData {
     }
 
     // 将模组按照优先级重新排序
-    final mods = (data['mods'].values as Iterable).toList();
+    final mods = (game['mods'].values as Iterable).toList();
     mods.sort((mod1, mod2) {
       return (mod2['priority'] ?? 0).compareTo(mod1['priority'] ?? 0);
     });
@@ -494,8 +494,8 @@ class GameData {
       'enableTutorial': enableTutorial,
     });
 
-    data = engine.hetu.fetch('game');
-    flags = data['flags'];
+    game = engine.hetu.fetch('game');
+    flags = game['flags'];
     universe = engine.hetu.fetch('universe');
     history = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
@@ -546,8 +546,8 @@ class GameData {
     engine.loadSceneConstructorIds(constructorIds);
     engine.loadSceneArguments(argumentIds);
 
-    data = engine.hetu.fetch('game');
-    flags = data['flags'];
+    game = engine.hetu.fetch('game');
+    flags = game['flags'];
     universe = engine.hetu.fetch('universe');
     history = engine.hetu.fetch('history');
     hero = engine.hetu.fetch('hero');
@@ -1195,19 +1195,24 @@ class GameData {
       {bool isFinished = false}) {
     final desc = StringBuffer();
     // desc.writeln('${engine.locale('reward')}:');
-    for (final itemInfo in reward) {
+    for (var i = 0; i < reward.length; ++i) {
+      if (i > 0) {
+        desc.write(', ');
+      }
+      final itemInfo = reward[i];
       final amount = itemInfo['amount'] ?? 1;
       switch (itemInfo['type']) {
         case 'material':
           final kind = itemInfo['kind'];
-          desc.write('$amount ${engine.locale(kind)}');
+          desc.write('$amount × ${engine.locale(kind)}');
         case 'prototype':
           final id = itemInfo['id'];
-          desc.write('$amount ${engine.locale(id)}');
+          desc.write('$amount × ${engine.locale(id)}');
         case 'equipment':
           final kind = itemInfo['kind'];
           final rarity = itemInfo['rarity'];
-          desc.write('$amount ${engine.locale(rarity)}${engine.locale(kind)}');
+          desc.write(
+              '$amount × ${engine.locale(rarity)}${engine.locale(kind)}');
         case 'cardpack':
           final rank = itemInfo['rank'] ?? 0;
           final genre = itemInfo['genre'];
@@ -1218,7 +1223,16 @@ class GameData {
           final kindString = kind != null ? engine.locale('kind_$kind') : '';
           final name =
               rankString + genreString + kindString + engine.locale('cardpack');
-          desc.write('$name $amount');
+          desc.write('$amount × $name');
+        case 'contribution':
+          final amount = itemInfo['amount'] ?? 0;
+          final organizationId = itemInfo['organizationId'];
+          if (hero['organizationId'] != organizationId) {
+            desc.write('${amount ~/ 2} × ${engine.locale('contribution')}');
+            desc.write(' (${engine.locale('contribution_note')})');
+          } else {
+            desc.write('$amount × ${engine.locale('contribution')}');
+          }
         default:
           desc.write(engine.locale('unknown_item'));
       }
@@ -1270,18 +1284,16 @@ class GameData {
       desc.writeln(kSeparateLine);
     }
     if (budget != null) {
-      desc.write('${engine.locale('budget')}: ');
       final budgetDesc = getQuestBudgetDescription(budget);
-      desc.writeln(budgetDesc);
+      desc.writeln('<lightGreen>${engine.locale('budget')}: $budgetDesc</>');
     }
     if (reward != null) {
-      desc.writeln('${engine.locale('reward')}: ');
       final rewardDesc = getQuestRewardDescription(reward);
       // final lines = rewardDesc.split('\n');
       // for (final line in lines) {
       //   desc.writeln('  $line');
       // }
-      desc.write(rewardDesc);
+      desc.writeln('<yellow>${engine.locale('reward')}: $rewardDesc</>');
     }
     return desc.toString();
   }
@@ -1301,7 +1313,7 @@ class GameData {
         .invoke('getCharacterFameString', positionalArgs: [character]);
     row.add(fame);
     final homeLocationId = character['homeLocationId'];
-    final homeLocation = GameData.data['locations'][homeLocationId];
+    final homeLocation = GameData.game['locations'][homeLocationId];
     row.add(homeLocation?['name'] ?? engine.locale('none'));
     // 门派名字
     String organizationName = engine.locale('none');
@@ -1340,17 +1352,12 @@ class GameData {
 
     final organization = GameData.getOrganization(organizationId);
     final memberData = organization['membersData'][character['id']];
-    // 汇报地点
-    final reportSiteId = memberData['reportSiteId'];
-    if (reportSiteId == null) {
-      row.add(engine.locale('none'));
-    } else {
-      final reportSite = GameData.getLocation(reportSiteId);
-      row.add(reportSite['name']);
-    }
-    // 称号
+    // 职位
     final titleId = memberData['titleId'];
     row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
+    // 功勋
+    final contribution = memberData['contribution'] ?? 0;
+    row.add(contribution.toString());
     // 上级
     final superiorId = memberData['superiorId'];
     if (superiorId == null) {
@@ -1358,6 +1365,14 @@ class GameData {
     } else {
       final superior = GameData.getCharacter(superiorId);
       row.add(superior['name']);
+    }
+    // 汇报地点
+    final reportSiteId = memberData['reportSiteId'];
+    if (reportSiteId == null) {
+      row.add(engine.locale('none'));
+    } else {
+      final reportSite = GameData.getLocation(reportSiteId);
+      row.add(reportSite['name']);
     }
 
     // 多存一个隐藏的 id 信息，用于点击事件

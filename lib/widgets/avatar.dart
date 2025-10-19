@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/rrect_icon.dart';
+import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../ui.dart';
+import '../../engine.dart';
 import '../game/game.dart';
 // import 'character/profile.dart';
 
@@ -32,7 +33,7 @@ class Avatar extends StatelessWidget {
     this.borderColor = Colors.transparent,
     this.borderWidth,
     this.characterId,
-    this.character,
+    this.characterData,
     this.onPressed,
     this.onEnter,
     this.onExit,
@@ -51,8 +52,8 @@ class Avatar extends StatelessWidget {
   final Color borderColor;
   final double? borderWidth;
   final String? characterId;
-  final dynamic character;
-  final void Function(String? charId)? onPressed;
+  final dynamic characterData;
+  final void Function(dynamic character)? onPressed;
   final void Function(Rect)? onEnter;
   final void Function()? onExit;
 
@@ -64,17 +65,34 @@ class Avatar extends StatelessWidget {
     ImageProvider<Object>? iconImg = image;
     ImageProvider<Object>? borderImg = borderImage;
 
-    dynamic charData = character;
+    dynamic character;
 
     if (characterId != null) {
-      charData = GameData.getCharacter(characterId!);
-      displayName ??= charData['name'];
+      character = GameData.getCharacter(characterId!);
+    } else if (characterData != null) {
+      character = characterData;
     }
 
-    if (charData != null) {
-      iconImg ??= AssetImage('assets/images/${charData['icon']}');
-    } else if (showPlaceholder) {
-      iconImg ??= AssetImage('assets/images/illustration/placeholder.png');
+    if (displayName == null && character != null) {
+      if (character != GameData.hero) {
+        final haveMet = engine.hetu
+            .invoke('haveMet', positionalArgs: [GameData.hero, character]);
+        if (haveMet != null) {
+          displayName = character['name'];
+        } else {
+          displayName = '???';
+        }
+      } else {
+        displayName = engine.locale('you');
+      }
+    }
+
+    if (iconImg == null) {
+      if (character != null) {
+        iconImg = AssetImage('assets/images/${character['icon']}');
+      } else if (showPlaceholder) {
+        iconImg = AssetImage('assets/images/illustration/placeholder.png');
+      }
     }
 
     if (iconImg != null) {
@@ -116,7 +134,39 @@ class Avatar extends StatelessWidget {
       ),
     );
 
-    if (nameAlignment != AvatarNameAlignment.inside) {
+    if (nameAlignment == AvatarNameAlignment.inside) {
+      if (icon != null) {
+        widgets.add(icon);
+      }
+      if (displayName != null) {
+        final br = Radius.circular(borderRadius);
+        widgets.add(Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            width: size.width,
+            padding: const EdgeInsets.only(bottom: 5.0),
+            decoration: BoxDecoration(
+              color: Colors.white70,
+              borderRadius: BorderRadius.only(bottomLeft: br, bottomRight: br),
+              border:
+                  Border.symmetric(horizontal: BorderSide(color: Colors.grey)),
+            ),
+            child: Text(
+              displayName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: GameUI.backgroundColor2,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ));
+      }
+      if (showBorderImage) {
+        widgets.add(border!);
+      }
+    } else {
       if (displayName != null && nameAlignment == AvatarNameAlignment.top) {
         widgets.add(Container(
           alignment: Alignment.topCenter,
@@ -158,41 +208,10 @@ class Avatar extends StatelessWidget {
           child: outsideNameWidget,
         ));
       }
-    } else {
-      if (icon != null) {
-        widgets.add(icon);
-      }
-      if (displayName != null) {
-        final br = Radius.circular(borderRadius);
-        widgets.add(Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            width: size.width,
-            decoration: BoxDecoration(
-              color: Colors.white70,
-              borderRadius: BorderRadius.only(bottomLeft: br, bottomRight: br),
-              border:
-                  Border.symmetric(horizontal: BorderSide(color: Colors.grey)),
-            ),
-            child: Text(
-              displayName,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: GameUI.backgroundColor2,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ));
-      }
-      if (showBorderImage) {
-        widgets.add(border!);
-      }
     }
 
     return GestureDetector(
-      onTap: () => onPressed?.call(characterId ?? charData?['id']),
+      onTap: () => onPressed?.call(character),
       child: MouseRegion2(
         onEnter: onEnter,
         onExit: onExit,

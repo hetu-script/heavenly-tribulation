@@ -7,16 +7,19 @@
     id: "deliver_material",
     policy: null,
     isBounty: true,
+    contribution: 5,
   },
   deliver_item: {
     id: "deliver_item",
     policy: null,
     isBounty: true,
+    contribution: 7,
   },
   escort: {
     id: "escort",
     policy: null,
     isBounty: true,
+    contribution: 10,
   },
   // guard_site: {
   //   id: "guard_site",
@@ -27,16 +30,19 @@
     id: "purchase_material",
     policy: "consolidation",
     isBounty: true,
+    contribution: 8,
   },
   purchase_item: {
     id: "purchase_item",
     policy: "consolidation",
     isBounty: true,
+    contribution: 12,
   },
   discover_location: {
     id: "discover_location",
     policy: "consolidation",
     isBounty: true,
+    contribution: 25,
   },
   // gather_information: {
   //   id: "gather_information",

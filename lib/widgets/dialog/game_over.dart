@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/label.dart';
+import 'package:samsara/widgets/ui/label.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';

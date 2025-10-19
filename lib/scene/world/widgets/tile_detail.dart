@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
@@ -33,7 +33,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
       // dynamic organization;
       final ownerId = currentLocation['ownerId'];
       // 这里 owner 可能是 null
-      owner = GameData.data['characters'][ownerId];
+      owner = GameData.game['characters'][ownerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 

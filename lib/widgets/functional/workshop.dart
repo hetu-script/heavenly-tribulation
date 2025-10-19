@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';

@@ -24,7 +24,8 @@ import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
 import 'game/constants.dart';
 import 'scene/loading_screen.dart';
-import 'scene/mini_game/tile_matching/tile_matching.dart';
+import 'scene/mini_game/matching/matching.dart';
+import 'game/common.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -169,13 +170,42 @@ class _GameAppState extends State<GameApp> {
       return scene;
     });
 
-    engine.registerSceneConstructor(Scenes.tileMatchingGame, (arguments) async {
-      return TileMatchingGameScene(
-        id: Scenes.tileMatchingGame,
+    engine.registerSceneConstructor(Scenes.matchingGame, (arguments) async {
+      final String kind = arguments['kind'];
+      bool isProduction = arguments['isProduction'] ?? false;
+      // int salary = 0;
+      int staminaCost = 0;
+      final resources = {};
+
+      dynamic locationId = arguments['locationId'];
+      dynamic location = arguments['location'];
+      location ??= GameData.game['locations'][locationId];
+      if (location != null) {
+        staminaCost = kSiteWorkableBaseStaminaCost[kind]!;
+        final double workStaminaCostFactor =
+            GameData.hero['stats']['staminaCostWork'];
+        staminaCost = (staminaCost * workStaminaCostFactor).round();
+
+        // 该地块所拥有的资源类型及其丰富度
+        final terrain = GameData.getTerrain(location['terrainIndex']);
+        final res = terrain['resources'];
+        final double workEfficiency = GameData.hero['stats']['workEfficiency'];
+        for (final materialId in res.keys) {
+          resources[materialId] = (res[materialId]! * workEfficiency).round();
+        }
+        // else {
+        // salary = kSiteWorkableBaseSalaries[kind]!;
+        // }
+      }
+
+      return MatchingGame(
+        id: Scenes.matchingGame,
         context: context,
-        bgm: engine.bgm,
-        type: arguments['type'],
+        kind: kind,
         development: arguments['development'] ?? 0,
+        isProduction: isProduction,
+        staminaCost: staminaCost,
+        resources: resources,
       );
     });
 
@@ -356,7 +386,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::datetime', (
         {positionalArgs, namedArgs}) {
       return {
-        'timestamp': GameData.data['timestamp'],
+        'timestamp': GameData.game['timestamp'],
         'tickOfYear': GameLogic.ticksOfYear,
         'tickOfMonth': GameLogic.ticksOfMonth,
         'tickOfDay': GameLogic.ticksOfDay,
@@ -370,6 +400,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::updateUI', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
+      context.read<GameTimestampState>().update();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateLocation', (

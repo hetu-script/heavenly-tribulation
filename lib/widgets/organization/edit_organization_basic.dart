@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/game/common.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../entity_listview.dart';

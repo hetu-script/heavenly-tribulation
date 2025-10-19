@@ -79,19 +79,22 @@ async function onAfterEnterLocation(location) {
    !journal.isFinished && journal.quest != null
   )
   for (final journal in questJournals) {
-    if (location.id == journal.quest.reportSiteId) {
+    if (journal.quest.reportSiteId == location.id) {
       final endTime = journal.timestamp + journal.quest.timeLimit
       let isLate = game.timestamp > endTime
       switch (journal.quest.kind) {
         case 'deliver_material', 'deliver_item': {
+          final receiverId = journal.quest.receiverId
+          final receiver = game.characters[receiverId]
           final success = Player.deliver(journal.quest.package)
+          characterMet(receiver, hero)
           if (success) {
             Player.progressJournalById(journal.id)
             if (isLate) {
-              dialog.pushDialog('quest_deliver_late_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_deliver_late_success', character: receiver);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_deliver_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_deliver_success', character: receiver);
               await dialog.execute();
             }
             final items = Player.loot(journal.quest.reward)
@@ -99,10 +102,10 @@ async function onAfterEnterLocation(location) {
           } else {
             Player.progressJournalById(journal.id, stage: 2)
             if (isLate) {
-              dialog.pushDialog('quest_late_failed', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_late_failed', character: receiver);
               await dialog.execute()
             } else {
-              dialog.pushDialog('quest_unfinished', npc: game.npcs['servant'], interpolations: [journal.title]);
+              dialog.pushDialog('quest_unfinished', character: receiver, interpolations: [journal.title]);
               await dialog.execute()
             }
           }
@@ -121,11 +124,9 @@ async function onAfterEnterLocation(location) {
               dialog.pushDialog('quest_escort_success_${escortType}', characterId: escorteeId);
               await dialog.execute();
             }
-            
+            Game.updateNpcsAtLocation(location)
             final items = await Player.loot(journal.quest.reward)
             Game.promptItems(items)
-
-            Game.updateNpcsAtLocation(location)
           }
         }
         case 'guard_site': {
@@ -195,13 +196,18 @@ async function onAfterEnterLocation(location) {
           final targetLocationId = journal.quest.targetLocationId
           final targetLocation = game.locations[targetLocationId]
           if (targetLocation.isDiscovered) {
+            Player.progressJournalById(journal.id)
             if (isLate) {
               dialog.pushDialog('quest_discover_late_success', npc: game.npcs['servant']);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_discover_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_discover_success', npc: game.npcs['servant'],
+                interpolations: [targetLocation.name],
+              );
               await dialog.execute();
             }
+            final items = await Player.loot(journal.quest.reward)
+            Game.promptItems(items)
           } else {
             if (isLate) {
               Player.progressJournalById(journal.id, stage: 2)

@@ -49,6 +49,7 @@ external abstract class Constants {
   static get organizationCategoryToSiteKind;
   static get organizationCategoryExpansionRate;
   static get organizationGenreToSiteKinds;
+  static get sitePriority;
 
   static get attackTypes;
   static get damageTypes;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
-import 'package:samsara/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../../ui.dart';
