@@ -10,21 +10,26 @@ const kOrganizationEnemyContributionThreshold = -100
 
 const _kNeighborIndex = [1, 2, 3, 4, 5, 6]
 
+const _kOrderlyPerJobRank = 7
+const _kMinJobRankForGlobalIncident = 3
+
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
-/// score 和 type 都反映了外交关系，type 代表了关系的大致方向
+/// score 和 type 都反映了外交关系
+/// type 代表了关系的大方向，有三种取值： 'neutral' || 'ally' || 'enemy',
 /// score 代表了关系的具体数值，score 可以正负变化
-/// 修改 type 为 enemy，意味着宣战，ally 则意味着结盟
 /// 盟友门派的成员可以共享各自领地上的设施
 /// 宣战门派的成员则无法进入对方领地
-/// 需要满足一定的 score 条件才能宣战和结盟，否则无法执行修改 type 的操作
+/// 需要满足一定的 score 条件才能宣战和结盟
+/// 修改 type 为 enemy，意味着宣战，ally 则意味着结盟
+/// 但无论 score 如何变化，并不会自动变成 enemy 或 ally
 /// 要提升 score，可以通过向其他门派赠送礼物、完成对方的帮助请求等方式
 /// 要降低 score，可以通过
 struct Diplomacy {
   constructor ({
     organization1Id,
     organization2Id,
-    type = 'neutral', // neutral | ally | enemy,
+    type = 'neutral',
     score = 0,
     timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久
   }) {
@@ -34,7 +39,7 @@ struct Diplomacy {
     this.organization1Id = organization1Id
     this.organization2Id = organization2Id
     this.timestamp = game.timestamp
-    this.type = type
+    this.type = type;
     this.score = score
     this.timespanByMonth = timespanByMonth
     
@@ -52,8 +57,6 @@ struct MemberData {
     contribution = 0,
     reportSiteId,
   }) {
-    assert(this.rank >= 0)
-
     this.id = id
     this.rank = rank
     this.titleId = titleId
@@ -98,7 +101,10 @@ struct Organization {
 
     this.createdTimestamp = game.timestamp
     // 该组织的事件触发选项
-    this.flags = {}
+    this.flags = {
+      monthly: {},
+    }
+
     // 该组织解锁的科技
     // this.techs = {}
 
@@ -143,7 +149,6 @@ struct Organization {
 
     // 门派政策
     // key 是 据点 id，值是 政策 id
-    // 门派本身的政策保存在 headquartersLocationId 对应的 value 中
     this.policies = {}
     
     // 门派外交信息
@@ -188,7 +193,8 @@ struct Organization {
 
 // TODO: 添加incident
 function stationOrganization(organization, location, { incurIncident: bool }) {
-  
+  assert(location.organizationId == null, 'location already belongs to: ${location.organizationId}, cannot station organization here!')
+
   addLocationToOrganization(location, organization, incurIncident: incurIncident)
   
   organization.headquartersLocationId = location.id
@@ -212,14 +218,6 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     const character = game.characters[id]
     setCharacterHome(character, location)
   }
-}
-
-function removeCharacterFromOrganization(character) {
-  if (character.organizationId == null) return
-
-  const organization = game.organizations[character.organizationId]
-  organization.membersData.remove(character.id)
-  character.organizationId = null
 }
 
 /// 查找某个组织中比指定职级高的成员数据列表
@@ -246,11 +244,11 @@ function addCharacterToOrganization(character, organization, {
     assignSuperior = true,
     incurIncident = true,
   }) {
-  assert(character.organizationId != organization.id)
+  assert(character.organizationId != organization.id, 'character already belongs to organization: ${organization.id}, cannot join again!')
 
   character.organizationId = organization.id
   
-  addOrganizationMonthly(organization.id, 'recruited', character.id)
+  addOrganizationMonthly(organization, 'recruited', character.id)
 
   if (setHome) {
     final cities = organization.locationIds.where( (id) =>
@@ -270,7 +268,7 @@ function addCharacterToOrganization(character, organization, {
       subjectId: character.id,
       organizationId: organization.id,
       message: incidentContent,
-      orderly: 5,
+      orderly: 10,
     )
   } else {
     engine.debug(incidentContent)
@@ -278,13 +276,40 @@ function addCharacterToOrganization(character, organization, {
 
   let memberData = organization.membersData[character.id]
   titleId ??= memberData?.titleId ?? 'taskman'
-  setCharacterTitle(character, titleId, organization)
+  setCharacterTitle(character, titleId, organization: organization)
   
   if (titleId != 'head' && setHome && assignSuperior) {
     assignCharacterSuperior(character, organization)
   }
   
   return true
+}
+
+function removeCharacterFromOrganization(character, { incurIncident = true }) {
+  assert(character.organizationId != null,
+    'character does not belong to any organization, cannot remove!')
+
+  const title = engine.locale(character.titleId)
+
+  character.titleId = null
+  character.organizationId = null
+
+  const organization = game.organizations[character.organizationId]
+  const incidentContent = engine.locale('characterLeave', interpolations: [
+    character.name,
+    organization.name,
+    title,
+  ])
+  if (incurIncident) {
+    Incident(
+      subjectId: character.id,
+      organizationId: organization.id,
+      message: incidentContent,
+      orderly: -20,
+    )
+  } else {
+    engine.debug(incidentContent)
+  }
 }
 
 /// 为角色分配合适的上级，注意上下级关系并非师徒关系
@@ -294,7 +319,8 @@ function addCharacterToOrganization(character, organization, {
 /// 对于 rank 大于等于 3 (堂主) 的成员，报告位置在门派总堂所在据点的门派场景
 function assignCharacterSuperior(character, organization) {
   assert(character.organizationId == organization.id)
-  assert(organization.membersData.containsKey(character.id))
+  assert(organization.membersData.containsKey(character.id), 
+    'character [${character.name}] is not a member of organization: ${organization.name}, cannot assign superior!')
   const memberData = organization.membersData[character.id]
   assert(memberData != null)
 
@@ -344,50 +370,70 @@ function assignCharacterSuperior(character, organization) {
     }
   }
 
-  engine.debug('角色 [${character.id}] 在 [${organization.id}] 中的上级被分配为 [${memberData.superiorId}]')
+  engine.debug('角色 [${character.id}] 在 [${organization.id}] 中的上级是 [${memberData.superiorId}]')
 
   return memberData.superiorId
 }
 
-function setCharacterTitle(character, titleId, organization, { incurIncident = true }) {
+function setCharacterTitle(character, titleId, { organization, incurIncident = true }) {
   if (!character.titles.contains(titleId)) {
     character.titles.add(titleId)
   }
   character.titleId = titleId
 
-  let jobRank = Constants.titleToOrganizationRank[titleId]
-  if (organization.membersData.containsKey(character.id)) {
-    let memberData = organization.membersData[character.id]
-    if (memberData.titleId != titleId && memberData.rank < jobRank) {
-      addOrganizationMonthly(organization.id, 'promoted', character.id)
+  if (organization != null) {
+    let jobRank = Constants.titleToOrganizationRank[titleId]
+    if (organization.membersData.containsKey(character.id)) {
+      let memberData = organization.membersData[character.id]
+      assert(memberData.title != titleId, 'character already has title: ${titleId} in organization: ${organization.id}, cannot set again!')
+      if (memberData.rank < jobRank) {
+        addOrganizationMonthly(organization, 'promoted', character.id)
+      }
+      if (character.titles.contains(memberData.titleId)) {
+        character.titles.remove(memberData.titleId)
+      }
+      memberData.titleId = titleId
+      memberData.rank = jobRank
+    } else {
+      organization.membersData[character.id] = MemberData(
+        id: character.id,
+        rank: jobRank,
+        titleId: titleId,
+        contribution: 0,
+      )
     }
-    memberData.titleId = titleId
-    memberData.rank = jobRank
+    
+    const incidentContent = engine.locale('characterAcquireOrganizationTitle', interpolations: [
+      character.name,
+      organization.name,
+      engine.locale(titleId),
+    ])
+    if (incurIncident) {
+      Incident(
+        subjectId: character.id,
+        organizationId: organization.id,
+        locationId: organization.headquartersLocationId,
+        message: incidentContent,
+        orderly: jobRank * _kOrderlyPerJobRank,
+        isGlobal: jobRank > _kMinJobRankForGlobalIncident,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
   } else {
-    organization.membersData[character.id] = MemberData(
-      id: character.id,
-      rank: jobRank,
-      titleId: titleId,
-      contribution: 0,
-    )
-  }
-  
-  const incidentContent = engine.locale('characterGotTitle', interpolations: [
-    character.name,
-    organization.name,
-    engine.locale(titleId),
-  ])
-  if (incurIncident) {
-    Incident(
-      subjectId: character.id,
-      organizationId: organization.id,
-      locationId: organization.headquartersLocationId,
-      message: incidentContent,
-      orderly: 15,
-      isGlobal: jobRank > 3,
-    )
-  } else {
-    engine.debug(incidentContent)
+    const incidentContent = engine.locale('characterAcquireTitle', interpolations: [
+      character.name,
+      engine.locale(titleId),
+    ])
+    if (incurIncident) {
+      // TODO: 非门派称号拥有各自不同的三观值
+      Incident(
+        subjectId: character.id,
+        locationId: character.locationId,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
   }
 }
 

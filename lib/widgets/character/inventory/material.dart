@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../../ui.dart';
-import '../../../game/logic/logic.dart';
+import '../../../logic/logic.dart';
 import '../../../engine.dart';
 import '../../../state/hover_content.dart';
-import '../../../game/common.dart';
+import '../../../data/common.dart';
 
 enum MaterialListType {
   inventory,
@@ -75,11 +74,11 @@ class MaterialList extends StatelessWidget {
 
       widgets.add(
         MouseRegion2(
-          cursor: FlutterCustomMemoryImageCursor(key: 'click'),
+          cursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onEnter: (rect) {
             context.read<HoverContentState>().show(
                 '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
-                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money')}</>' : ''}',
+                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money2')}</>' : ''}',
                 rect);
           },
           onExit: () {
@@ -97,7 +96,7 @@ class MaterialList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
                     color: selectedItem == key
-                        ? GameUI.selectedColorOpaque
+                        ? GameUI.selectedColor
                         : GameUI.foregroundColor),
                 color: selectedItem == key
                     ? GameUI.focusColor
@@ -114,7 +113,7 @@ class MaterialList extends StatelessWidget {
                     engine.locale(key),
                     style: TextStyle(
                       color: selectedItem == key
-                          ? GameUI.selectedColorOpaque
+                          ? GameUI.selectedColor
                           : Colors.white,
                     ),
                   ),
@@ -129,7 +128,7 @@ class MaterialList extends StatelessWidget {
                               ? Colors.red
                               : Colors.white)
                           : (selectedItem == key
-                              ? GameUI.selectedColorOpaque
+                              ? GameUI.selectedColor
                               : Colors.white),
                     ),
                   ),

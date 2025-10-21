@@ -18,16 +18,15 @@ import 'package:provider/provider.dart';
 
 import '../particles/light_point.dart';
 import '../../engine.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../common.dart';
-import '../../game/event_ids.dart';
 import '../particles/light_trail.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../state/states.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -86,29 +85,83 @@ class CultivationScene extends Scene {
 
   late CultivationMode mode;
 
-  int collectableLight = 0;
+  set collectableLight(int value) {
+    switch (mode) {
+      case CultivationMode.collect:
+        location['collectableLight'] = value;
+      case CultivationMode.exhaust:
+        GameData.hero['materials']['shard'] = value;
+      case CultivationMode.none:
+        return;
+    }
+  }
+
+  int get collectableLight {
+    switch (mode) {
+      case CultivationMode.collect:
+        return location['collectableLight'];
+      case CultivationMode.exhaust:
+        return GameData.hero['materials']['shard'];
+      case CultivationMode.none:
+        return 0;
+    }
+  }
+
+  void checkAvailableMode() {
+    if (mode == CultivationMode.collect) {
+      if (collectableLight <= 0) {
+        hint(
+          engine.locale('hint_outOfLight'),
+          color: GameColors.lightRed,
+        );
+        mode = CultivationMode.exhaust;
+        if (collectableLight <= 0) {
+          hint(
+            engine.locale('hint_outOfShard'),
+            color: GameColors.copperRed,
+          );
+          mode = CultivationMode.none;
+        }
+      }
+    } else if (mode == CultivationMode.exhaust) {
+      if (collectableLight <= 0) {
+        hint(
+          engine.locale('hint_outOfShard'),
+          color: GameColors.copperRed,
+        );
+        mode = CultivationMode.none;
+      }
+    }
+    cultivateButton.isEnabled = mode != CultivationMode.none;
+  }
 
   final _focusNode = FocusNode();
 
   late final Timer timer;
 
+  set cursorState(MouseCursorState cursorState) {
+    switch (cursorState) {
+      case MouseCursorState.normal:
+        mouseCursor = GameUI.cursor.resolve({});
+      case MouseCursorState.click:
+        mouseCursor = GameUI.cursor.resolve({WidgetState.hovered});
+      case MouseCursorState.drag:
+        mouseCursor = GameUI.cursor.resolve({WidgetState.dragged});
+    }
+  }
+
   bool isMeditating = false;
 
   void setMeditateState(CultivationMode state) {
-    bool isMeditating = false;
     if (state == CultivationMode.collect) {
-      collectableLight = location['collectableLight'] ?? 0;
       if (collectableLight <= 0) {
-        // engine.error('location has no collectable light to collect');
         GameDialogContent.show(
             context, engine.locale('hint_insufficientLight'));
         return;
       }
       isMeditating = true;
     } else if (state == CultivationMode.exhaust) {
-      collectableLight = GameData.hero['materials']['shard'] ?? 0;
       if (collectableLight <= 0) {
-        // engine.error('hero has no shard to exhaust');
         GameDialogContent.show(
             context, engine.locale('hint_insufficientShard'));
         return;
@@ -179,30 +232,6 @@ class CultivationScene extends Scene {
     }
   }
 
-  @override
-  void onStart([dynamic arguments = const {}]) {
-    super.onStart(arguments);
-
-    if (arguments['characterId'] != null) {
-      character = GameData.getCharacter(arguments['characterId']);
-    } else {
-      character = GameData.hero;
-    }
-
-    if (arguments['location'] != null) {
-      mode = CultivationMode.collect;
-      location = arguments['location'];
-    } else {
-      if (arguments['enableCultivate'] == true) {
-        mode = CultivationMode.exhaust;
-      } else {
-        mode = CultivationMode.none;
-      }
-    }
-
-    onEnterScene = arguments['onEnterScene'];
-  }
-
   void updateInformation() {
     String collectableLightString = '';
     final int expGainPerLight = GameData.hero['stats']['expGainPerLight'];
@@ -244,7 +273,6 @@ class CultivationScene extends Scene {
 
   void hint(
     String text, {
-    double positionOffsetY = 0.0,
     double duration = 2,
     Color? color,
   }) {
@@ -252,6 +280,7 @@ class CultivationScene extends Scene {
       text,
       target: cultivator,
       duration: duration,
+      offsetY: 60.0,
       textStyle: TextStyle(
         fontSize: 20,
         fontFamily: GameUI.fontFamily,
@@ -309,7 +338,6 @@ class CultivationScene extends Scene {
     }
 
     if (mode == CultivationMode.none) return;
-
     if (collectableLight <= 0) return;
 
     int lightPointCount = math.min(collectableLight, _kLightDisplayMax);
@@ -590,54 +618,34 @@ class CultivationScene extends Scene {
   }
 
   void _tick() async {
-    double speedExpCollect = GameData.hero['stats']['speedExpCollect'];
-    int timeCost = kTicksPerTime ~/ speedExpCollect;
+    if (collectableLight > 0) {
+      collectableLight -= 1;
+      schedule(() async {
+        double speedExpCollect = GameData.hero['stats']['speedExpCollect'];
+        int timeCost = kTicksPerTime ~/ speedExpCollect;
 
-    void gainExp() async {
-      assert(_lightPoints.isNotEmpty);
-      final light = _lightPoints.first;
-      await condenseOne(light);
-      light.removeFromParent();
-      final expGainPerLight = GameData.hero['stats']['expGainPerLight'];
-      character['exp'] += expGainPerLight;
-      updateInformation();
-      updateExpBar();
-      updateExpLightPoints();
-    }
+        final light = _lightPoints.first;
+        await condenseOne(light);
+        light.removeFromParent();
+        final expGainPerLight = GameData.hero['stats']['expGainPerLight'];
+        character['exp'] += expGainPerLight;
+        hint(
+          '${engine.locale('exp')} +$expGainPerLight',
+          color: Colors.lightBlue,
+        );
+        updateInformation();
+        updateExpBar();
 
-    bool stop = false;
+        if (collectableLight > _lightPoints.length) {
+          _addExpLightPoint();
+        }
 
-    if (mode == CultivationMode.collect) {
-      if (location['collectableLight'] > 0) {
-        location['collectableLight'] -= 1;
-        gainExp();
-      } else {
-        hint(engine.locale('hint_outOfLight'), color: Colors.red);
-        stop = true;
-      }
-    } else if (mode == CultivationMode.exhaust) {
-      final bool success = engine.hetu.invoke(
-        'exhaust',
-        namespace: 'Player',
-        positionalArgs: ['shard'],
-        namedArgs: {'amount': 1},
-      );
-      if (success) {
-        gainExp();
-      } else {
-        hint(engine.locale('hint_outOfShard'), color: Colors.red);
-        stop = true;
-      }
-    }
-
-    if (stop) {
-      setMeditateState(CultivationMode.none);
-      if (mode == CultivationMode.collect) {
-        mode = CultivationMode.exhaust;
-      }
+        GameLogic.updateGame(ticks: timeCost);
+        _updateTimeOfDay();
+      });
     } else {
-      GameLogic.updateGame(ticks: timeCost);
-      _updateTimeOfDay();
+      setMeditateState(CultivationMode.none);
+      checkAvailableMode();
     }
   }
 
@@ -761,8 +769,8 @@ class CultivationScene extends Scene {
     cultivateButton.onTapUp = (button, position) async {
       if (!cultivateButton.isEnabled) return;
       if (button != kPrimaryButton) return;
-      setPassiveTreeState(false);
       setMeditateState(isMeditating ? CultivationMode.none : mode);
+      setPassiveTreeState(false);
     };
     cultivateButton.onMouseEnter = () {
       String hint = engine.locale('hint_cultivate');
@@ -970,12 +978,40 @@ class CultivationScene extends Scene {
   }
 
   @override
+  void onStart([dynamic arguments = const {}]) {
+    super.onStart(arguments);
+
+    context.read<EnemyState>().setPrebattleVisible(false);
+    context.read<ViewPanelState>().clearAll();
+    context.read<HoverContentState>().hide();
+
+    if (arguments['characterId'] != null) {
+      character = GameData.getCharacter(arguments['characterId']);
+    } else {
+      character = GameData.hero;
+    }
+
+    if (arguments['location'] != null) {
+      mode = CultivationMode.collect;
+      location = arguments['location'];
+    } else {
+      if (arguments['enableCultivate'] == true) {
+        mode = CultivationMode.exhaust;
+      } else {
+        mode = CultivationMode.none;
+      }
+    }
+
+    onEnterScene = arguments['onEnterScene'];
+  }
+
+  @override
   void onMount() async {
     super.onMount();
 
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
+    camera.snapTo(center);
+
+    checkAvailableMode();
 
     updateUnlockedNode();
     updatePassivesDescription();
@@ -984,15 +1020,7 @@ class CultivationScene extends Scene {
     updateInformation();
     updateExpBar();
 
-    if (mode != CultivationMode.none) {
-      setPassiveTreeState(false);
-      cultivateButton.isEnabled = true;
-    } else {
-      setPassiveTreeState(true);
-      cultivateButton.isEnabled = false;
-    }
-
-    camera.snapTo(center);
+    setPassiveTreeState(mode == CultivationMode.none);
 
     if (GameData.game['enableTutorial'] == true && !isEditorMode) {
       if (GameData.flags['tutorial']['cultivation'] != true) {
@@ -1028,7 +1056,6 @@ class CultivationScene extends Scene {
 
       hint(
         '${engine.locale('cultivationLevel')} + 1',
-        positionOffsetY: 60,
         color: Colors.yellow,
       );
     }
@@ -1094,7 +1121,7 @@ class CultivationScene extends Scene {
     super.onTapDown(pointer, button, details);
 
     if (button == kSecondaryButton) {
-      engine.setCursor(Cursors.drag);
+      cursorState = MouseCursorState.drag;
     }
   }
 
@@ -1103,7 +1130,7 @@ class CultivationScene extends Scene {
     super.onTapUp(pointer, button, details);
 
     if (button == kSecondaryButton) {
-      engine.setCursor(Cursors.normal);
+      cursorState = MouseCursorState.normal;
     }
   }
 
@@ -1154,23 +1181,23 @@ class CultivationScene extends Scene {
     }
   }
 
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
 
-    if (engine.config.debugMode || engine.config.showFps) {
-      drawScreenText(
-        canvas,
-        'FPS: ${fps.fps.toStringAsFixed(0)}',
-        config: ScreenTextConfig(
-          textStyle: const TextStyle(fontSize: 20),
-          size: GameUI.size,
-          anchor: Anchor.topCenter,
-          padding: const EdgeInsets.only(top: 40),
-        ),
-      );
-    }
-  }
+  //   // if (engine.config.debugMode || engine.config.showFps) {
+  //   //   drawScreenText(
+  //   //     canvas,
+  //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
+  //   //     config: ScreenTextConfig(
+  //   //       textStyle: const TextStyle(fontSize: 20),
+  //   //       size: GameUI.size,
+  //   //       anchor: Anchor.topCenter,
+  //   //       padding: const EdgeInsets.only(top: 40),
+  //   //     ),
+  //   //   );
+  //   // }
+  // }
 
   @override
   Widget build(
@@ -1201,26 +1228,28 @@ class CultivationScene extends Scene {
           ),
           GameUIOverlay(
             enableHeroInfo: !isEditorMode,
-            enableNpcs: false,
+            showNpcs: false,
             enableCultivation: false,
-            action: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: GameUI.foregroundColor),
+            actions: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(color: GameUI.foregroundColor),
+                ),
+                child: IconButton(
+                  padding: const EdgeInsets.all(0),
+                  onPressed: () {
+                    GameDialogContent.show(
+                      context,
+                      engine.locale('hint_cultivation'),
+                      style: TextStyle(color: Colors.yellow),
+                    );
+                  },
+                  icon: Icon(Icons.question_mark),
+                ),
               ),
-              child: IconButton(
-                padding: const EdgeInsets.all(0),
-                onPressed: () {
-                  GameDialogContent.show(
-                    context,
-                    engine.locale('hint_cultivation'),
-                    style: TextStyle(color: Colors.yellow),
-                  );
-                },
-                icon: Icon(Icons.question_mark),
-              ),
-            ),
+            ],
           ),
         ],
       ),

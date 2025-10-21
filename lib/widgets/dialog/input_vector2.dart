@@ -20,7 +20,6 @@ class InputVector2Dialog extends StatefulWidget {
   }) {
     return showDialog<(int, int)>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return InputVector2Dialog(
           defaultX: defaultX,
@@ -73,7 +72,7 @@ class _InputVector2DialogState extends State<InputVector2Dialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: 240.0,
       height: 210.0,
       alignment: AlignmentDirectional.center,

@@ -6,7 +6,7 @@ import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import 'inventory/inventory.dart';
 import '../../engine.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import '../../ui.dart';
 import '../../state/states.dart';
 import '../ui/close_button2.dart';
@@ -54,7 +54,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 450.0,
       height: 500.0,

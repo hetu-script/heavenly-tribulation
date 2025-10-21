@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import '../../engine.dart';
 import '../../state/character.dart';
 import '../../state/hover_content.dart';
-import '../../game/logic/logic.dart';
-import '../../game/common.dart';
+import '../../logic/logic.dart';
+import '../../data/common.dart';
 
 const kStats = [
   'level',

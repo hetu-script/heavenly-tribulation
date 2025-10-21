@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
-import '../../../game/game.dart';
+import '../../../data/game.dart';
 import '../../../ui.dart';
 import '../../../engine.dart';
 import '../../../state/selected_tile.dart';
@@ -128,7 +128,7 @@ class LocationPanel extends StatelessWidget {
             child: Material(
               type: MaterialType.transparency,
               child: Container(
-                color: GameUI.backgroundColor2,
+                color: GameUI.backgroundColor,
                 width: width,
                 height: height,
                 padding: const EdgeInsets.only(left: 5.0, top: 5.0),

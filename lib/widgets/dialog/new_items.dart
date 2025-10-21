@@ -25,7 +25,6 @@ class NewItems extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor,
-      barrierColor: GameUI.backgroundColor2,
       width: 400.0,
       height: 300.0,
       alignment: Alignment.center,

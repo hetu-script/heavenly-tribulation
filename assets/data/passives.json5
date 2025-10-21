@@ -1007,10 +1007,12 @@
     increment: 2,
     priority: 3499,
   },
-  upgradeRank: {
-    id: "upgradeRank",
-    description: "passive_upgradeRank_description",
-    priority: 3498,
+  tribulationCountReduce: {
+    id: "tribulationCountReduce",
+    description: "passive_tribulationCountReduce_description",
+    rank: 2,
+    increment: -0.1,
+    priority: 3497,
   },
 
   // 地牢玩法中的debuff

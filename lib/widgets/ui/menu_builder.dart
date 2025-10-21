@@ -60,6 +60,7 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
       return fluent.MenuFlyoutSeparator();
     } else if (value is Map<String, T>) {
       return fluent.MenuFlyoutSubItem(
+        cursor: GameUI.cursor,
         text: Text(text),
         items: (context) {
           return value.entries
@@ -74,6 +75,7 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
       );
     } else if (value is T) {
       return fluent.MenuFlyoutItem(
+        cursor: GameUI.cursor,
         text: Text(text),
         onPressed: () {
           onSelectedItem?.call(items[text] as T);
@@ -81,6 +83,7 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
       );
     } else {
       return fluent.MenuFlyoutItem(
+        cursor: GameUI.cursor,
         text: Text('invalid menu item: {$text : $value}'),
         onPressed: () {},
       );
@@ -97,6 +100,7 @@ fluent.MenuFlyoutItem buildFluentMenuItem<T>({
   bool enabled = true,
 }) {
   return fluent.MenuFlyoutItem(
+    cursor: GameUI.cursor,
     text: Text(
       text,
       style: !enabled ? TextStyle(color: GameUI.foregroundDiabled) : null,
@@ -115,6 +119,7 @@ fluent.MenuFlyoutSubItem buildFluentSubMenuItem<T>({
   Widget? leading,
 }) {
   return fluent.MenuFlyoutSubItem(
+    cursor: GameUI.cursor,
     text: Text(text),
     leading: leading,
     items: (context) {
@@ -142,6 +147,7 @@ void showFluentMenu<T>({
 }) {
   final ctrl = controller ?? globalFlyoutController;
   ctrl.showFlyout(
+    cursor: GameUI.cursor,
     autoModeConfiguration: fluent.FlyoutAutoConfiguration(
       preferredMode: placementMode,
     ),
@@ -151,6 +157,7 @@ void showFluentMenu<T>({
     position: position,
     builder: (context) {
       return fluent.MenuFlyout(
+        cursor: GameUI.cursor,
         items: buildFluentMenuItems<T>(
           items: items,
           onSelectedItem: (item) {

@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../ui/close_button2.dart';
 
 class EditNpcBasics extends StatefulWidget {
@@ -63,7 +63,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 600.0,
       height: 480.0,

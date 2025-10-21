@@ -12,46 +12,46 @@ const kNestedTabBarHeight = 178.0;
 
 const double kToolbarTabBarHeight = 30.0;
 
-const kEntityListViewCharacterColumns = [
-  'name',
-  'gender',
-  'age',
-  'fame',
-  'home',
-  'organization',
-  'title',
-  'level',
-  'rank',
-];
+const kEntityTableCharacterColumns = {
+  'name': 100.0,
+  'gender': 50.0,
+  'age': 50.0,
+  'level2': 50.0,
+  'rank': 80.0,
+  'fame': 50.0,
+  'home': 100.0,
+  'organization': 100.0,
+  'title': 80.0,
+};
 
-const kEntityListViewMemberColumns = [
-  'name',
-  'gender',
-  'age',
-  'level',
-  'rank',
-  'jobTitle',
-  'contribution',
-  'superior',
-  'reportSite',
-];
+const kEntityTableMemberColumns = {
+  'name': 100.0,
+  'gender': 50.0,
+  'age': 50.0,
+  'level': 50.0,
+  'rank': 80.0,
+  'jobTitle': 80.0,
+  'contribution': 60.0,
+  'superior': 100.0,
+  'reportSite': 100.0,
+};
 
-const kEntityListViewLocationColumns = [
-  'name',
-  'worldPosition',
-  'category',
-  'development',
-  'residents',
-  'organization',
-];
+const kEntityTableLocationColumns = {
+  'name': 100.0,
+  'worldPosition': 120.0,
+  'category': 80.0,
+  'development': 50.0,
+  'residents': 60.0,
+  'organization': 100.0,
+};
 
-const kEntityListViewOrganizationColumns = [
-  'name',
-  'head',
-  'category',
-  'genre',
-  'headquarters',
-  'locationNumber',
-  'memberNumber',
-  'recruitMonth',
-];
+const kEntityTableOrganizationColumns = {
+  'name': 100.0,
+  'head': 100.0,
+  'category': 80.0,
+  'genre': 80.0,
+  'headquarters': 100.0,
+  'cityNumber': 60.0,
+  'memberNumber': 60.0,
+  'recruitMonth': 50.0,
+};

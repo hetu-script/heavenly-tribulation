@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-// import 'package:samsara/richtext.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../ui.dart';
-import '../../state/game_update.dart';
-import '../../state/view_panels.dart';
-import '../../game/game.dart';
+import '../data/game.dart';
 import '../../engine.dart';
+import '../state/states.dart';
 
 /// 右上角悬浮文字面板
 class JournalPanel extends StatefulWidget {
@@ -18,7 +16,7 @@ class JournalPanel extends StatefulWidget {
 }
 
 class _JournalPanelState extends State<JournalPanel> {
-  String? selectedId;
+  String? hoveringId;
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +34,18 @@ class _JournalPanelState extends State<JournalPanel> {
                     context.read<ViewPanelState>().toogle(ViewPanels.journal,
                         arguments: {'selectedId': journal['id']});
                   },
-                  child: MouseRegion(
-                    cursor: FlutterCustomMemoryImageCursor(key: 'click'),
-                    onEnter: (_) {
+                  child: MouseRegion2(
+                    cursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                    hitTestBehavior: HitTestBehavior.opaque,
+                    onEnter: (rect) {
+                      context.read<HoverContentState>().hide();
                       setState(() {
-                        selectedId = journal['id'];
+                        hoveringId = journal['id'];
                       });
                     },
-                    onExit: (_) {
+                    onExit: () {
                       setState(() {
-                        selectedId = null;
+                        hoveringId = null;
                       });
                     },
                     child: Container(
@@ -53,7 +53,7 @@ class _JournalPanelState extends State<JournalPanel> {
                       margin: const EdgeInsets.all(8.0),
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: selectedId == journal['id']
+                        color: hoveringId == journal['id']
                             ? Colors.black.withAlpha(50)
                             : Colors.transparent,
                       ),

@@ -10,8 +10,6 @@ namespace Debug {
 
   external function reloadGameData()
 
-  external function reloadModules()
-
   async function generateHero({rank = 0, level = 0}) {
     final hero = Character(
       id: 'hero',

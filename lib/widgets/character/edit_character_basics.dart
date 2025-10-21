@@ -6,7 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 
@@ -83,7 +83,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 600.0,
       height: 480.0,

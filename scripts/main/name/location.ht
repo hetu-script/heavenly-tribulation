@@ -1,16 +1,16 @@
 import 'place/place.json5' as placeNames
 import 'place/postfix.json5' as placePostfix
-import 'place/location.json5' as locationNames
+import 'place/city.json5' as cityNames
 import 'common/strange.json5' as strangeNames
 import 'character/family.json5' as familyNames
 import 'common.ht'
 import '../random.ht'
 
-function generateLocationName({category: string}) {
+function generateCityName({category: string}) {
   let name = ''
-  category ??= random.nextIterable(locationNames.keys)
-  assert(locationNames.keys.contains(category), category)
-  const kind = random.nextIterable(locationNames[category])
+  category ??= random.nextIterable(cityNames.keys)
+  assert(cityNames.keys.contains(category), category)
+  const kind = random.nextIterable(cityNames[category])
   const r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)

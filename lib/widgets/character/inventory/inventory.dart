@@ -5,9 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../../../state/hover_content.dart';
 import 'item_grid.dart';
-import '../../../game/logic/logic.dart';
+import '../../../logic/logic.dart';
 
-export '../../../game/common.dart' show ItemType;
+export '../../../data/common.dart' show ItemType;
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatelessWidget {

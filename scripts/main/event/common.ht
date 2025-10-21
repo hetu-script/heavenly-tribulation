@@ -5,7 +5,7 @@ async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: func
 
   final enemy = BattleEntity(name: name, rank: rank ?? hero.rank)
 
-  dialog.pushDialog('enemy_encounter_${random.nextInt(kEnemyEncounterDialogCount) + 1}', character: enemy)
+  dialog.pushDialog('enemy_encounter_${engine.random.nextInt(kEnemyEncounterDialogCount) + 1}', character: enemy)
   await dialog.execute()
 
   let background = kTerrainKindToBackground[terrainKind ?? 'plain']

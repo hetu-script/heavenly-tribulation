@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../common.dart';
 import 'mainmenu_buttons.dart';
 import '../../widgets/ui_overlay.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../engine.dart';
 import '../../state/states.dart';
 
@@ -29,7 +29,7 @@ class MainMenuScene extends Scene {
   void onStart([dynamic arguments = const {}]) async {
     super.onStart(arguments);
 
-    if (arguments['reset'] == true) {
+    if (arguments['reset'] == true || GameData.game['saveName'] != 'debug') {
       // 创建一个空游戏存档并初始化一些数据，这主要是为了在主菜单快速测试和debug相关功能，并不会保存
       // 真正开始游戏后还会再执行一遍，
       await GameData.createGame(
@@ -73,7 +73,10 @@ class MainMenuScene extends Scene {
           initialActiveOverlays: initialActiveOverlays,
         ),
         MainMenuButtons(),
-        GameUIOverlay(action: DebugButton()),
+        GameUIOverlay(
+          showActiveJournal: false,
+          actions: [DebugButton()],
+        ),
       ],
     );
   }

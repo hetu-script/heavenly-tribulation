@@ -11,15 +11,14 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 
-import '../../widgets/ui/close_button2.dart';
 import '../../ui.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
 import '../../engine.dart';
 import 'versus_banner.dart';
 import '../common.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../../state/states.dart';
@@ -250,8 +249,6 @@ class BattleScene extends Scene {
   @override
   void onStart([dynamic arguments = const {}]) {
     super.onStart();
-
-    engine.setCursor(Cursors.normal);
 
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
@@ -655,7 +652,7 @@ class BattleScene extends Scene {
     engine.hetu.assign('self', null);
     engine.hetu.assign('opponent', null);
     engine.hetu.assign('battleFlags', null);
-    final result = await onBattleEnd?.call(battleResult!, roundCount);
+    final result = await onBattleEnd?.call(battleResult ?? false, roundCount);
     if (result != true) {
       engine.popScene(clearCache: true);
     }
@@ -782,26 +779,20 @@ class BattleScene extends Scene {
           ),
           GameUIOverlay(
             enableHeroInfo: false,
-            enableNpcs: false,
-            action: engine.config.debugMode
-                ? BattleDropMenu(
-                    onSelected: (item) async {
-                      switch (item) {
-                        case BattleDropMenuItems.console:
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) => Console(
-                              engine: engine,
-                              margin: const EdgeInsets.all(50.0),
-                              backgroundColor: GameUI.backgroundColor2,
-                              closeButton: const CloseButton2(),
-                            ),
-                          );
-                        case BattleDropMenuItems.exit:
-                          _endScene();
-                      }
-                    },
-                  )
+            showNpcs: false,
+            actions: engine.config.debugMode
+                ? [
+                    BattleDropMenu(
+                      onSelected: (item) async {
+                        switch (item) {
+                          case BattleDropMenuItems.console:
+                            GameUI.showConsole(context);
+                          case BattleDropMenuItems.exit:
+                            _endScene();
+                        }
+                      },
+                    )
+                  ]
                 : null,
           ),
         ],
@@ -816,21 +807,21 @@ class BattleScene extends Scene {
     fps.update(dt);
   }
 
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
 
-    if (engine.config.debugMode || engine.config.showFps) {
-      drawScreenText(
-        canvas,
-        'FPS: ${fps.fps.toStringAsFixed(0)}',
-        config: ScreenTextConfig(
-          textStyle: const TextStyle(fontSize: 20),
-          size: GameUI.size,
-          anchor: Anchor.topCenter,
-          padding: const EdgeInsets.only(top: 40),
-        ),
-      );
-    }
-  }
+  //   // if (engine.config.debugMode || engine.config.showFps) {
+  //   //   drawScreenText(
+  //   //     canvas,
+  //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
+  //   //     config: ScreenTextConfig(
+  //   //       textStyle: const TextStyle(fontSize: 20),
+  //   //       size: GameUI.size,
+  //   //       anchor: Anchor.topCenter,
+  //   //       padding: const EdgeInsets.only(top: 40),
+  //   //     ),
+  //   //   );
+  //   // }
+  // }
 }

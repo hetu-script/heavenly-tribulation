@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
-import '../game/common.dart';
+import '../data/common.dart';
 
-export '../game/common.dart' show ItemType;
+export '../data/common.dart' show ItemType;
 
 const kHoverInfoMaxWidth = 400.0;
 
@@ -78,10 +78,15 @@ class HoverContentState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void hide() {
+  void hide() async {
     if (content != null) {
+      // 这里延迟一会儿
+      // 因为 HoverInfo 窗口本身可能需要一小段时间才会渲染出来
+      // 如果立刻清空有可能窗口本身之后重新显示导致清空不成功
+      // Future.delayed(const Duration(milliseconds: 10), () {
       content = null;
       notifyListeners();
+      // });
     }
   }
 

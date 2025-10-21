@@ -33,7 +33,7 @@ final _kMaterialToIconScpriteIndexs = {
 
 class CollectPanel extends GameComponent with HandlesGesture {
   final List<Sprite> iconSprites = [];
-  final Map<int, int> collects = {};
+  final Map<int, int> collection = {};
   final Map<int, int> requirements = {};
   final Map<int, bool> checked = {};
 
@@ -50,6 +50,9 @@ class CollectPanel extends GameComponent with HandlesGesture {
 
   MatchingGame get matchingGame => game as MatchingGame;
 
+  bool _isFull = false;
+  bool get isFull => _isFull;
+
   CollectPanel({
     super.position,
     required this.isMain,
@@ -60,8 +63,14 @@ class CollectPanel extends GameComponent with HandlesGesture {
           priority: _kCollectPanelPriority,
         );
 
-  void checkCollects() {
-    if (isMain) return;
+  bool collect(int objectIndex) {
+    if (isMain) return false;
+    if (isFull) return false;
+
+    collection[objectIndex] = collection[objectIndex]! + 1;
+
+    _isFull = true;
+    return true;
   }
 
   @override
@@ -108,7 +117,7 @@ class CollectPanel extends GameComponent with HandlesGesture {
     for (final material in materials) {
       final objectIndex =
           _kMaterialToIconScpriteIndexs[material]![matchingGame.maxRarity];
-      collects[objectIndex] = 0;
+      collection[objectIndex] = 0;
       requirements[objectIndex] = 0;
       final sprite = matchingGame.iconSpriteSheet.getSpriteById(objectIndex);
       iconSprites.add(sprite);

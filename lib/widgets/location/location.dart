@@ -4,13 +4,13 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import 'site_card.dart';
 import 'edit_location_basics.dart';
 import 'edit_npc_basics.dart';
 import '../common.dart';
-import '../../game/common.dart';
-import '../game_entity_listview.dart';
+import '../../data/common.dart';
+import '../entity_table.dart';
 import '../character/profile.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
@@ -240,7 +240,7 @@ class _LocationViewState extends State<LocationView>
       child: Column(
         children: [
           Container(
-            width: 800.0,
+            width: 1000.0,
             height: isCity ? 440.0 : 488.0,
             alignment: Alignment.topLeft,
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -352,7 +352,7 @@ class _LocationViewState extends State<LocationView>
                       ),
                     const Spacer(),
                     Container(
-                      width: 770,
+                      width: 970,
                       height: 140,
                       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                       decoration: BoxDecoration(
@@ -550,9 +550,10 @@ class _LocationViewState extends State<LocationView>
     );
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      cursor: GameUI.cursor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      width: 800.0,
+      width: 1000.0,
       height: 600.0,
       // height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
       child: isCity
@@ -570,8 +571,8 @@ class _LocationViewState extends State<LocationView>
                 controller: _tabController,
                 children: [
                   mainPanel,
-                  GameEntityListView(
-                    columns: kEntityListViewCharacterColumns,
+                  EntityTable(
+                    columns: kEntityTableCharacterColumns,
                     tableData: _charactersTableData,
                     onItemPressed: (position, dataId) {
                       showDialog(

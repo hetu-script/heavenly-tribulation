@@ -9,7 +9,7 @@ import '../../engine.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../ui.dart';
 import '../ui/close_button2.dart';
 
@@ -165,24 +165,22 @@ class _CharacterMemoryState extends State<CharacterMemory>
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: fluent.FilledButton(
-                    onPressed: () {
-                      showDialog(
+                    onPressed: () async {
+                      final result = await showDialog(
                         context: context,
                         builder: (context) => const EditCharacterBond(),
-                      ).then((value) {
-                        if (value != null) {
-                          final (targetId, score, haveMet) = value;
-                          final target = GameData.getCharacter(targetId);
-                          assert(target != null);
-                          engine.hetu.invoke('Bond', namedArgs: {
-                            'character': _character,
-                            'target': target,
-                            'score': score,
-                            'haveMet': haveMet,
-                          });
-                          setState(() {});
-                        }
+                      );
+                      if (result == null) return;
+                      final (targetId, score, haveMet) = result;
+                      final target = GameData.getCharacter(targetId);
+                      assert(target != null);
+                      engine.hetu.invoke('Bond', namedArgs: {
+                        'character': _character,
+                        'target': target,
+                        'score': score,
+                        'haveMet': haveMet,
                       });
+                      setState(() {});
                     },
                     child: Text(engine.locale('addBond')),
                   ),
@@ -220,7 +218,7 @@ class CharacterMemoryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       alignment: AlignmentDirectional.center,
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: GameUI.profileWindowSize.x,
       height: GameUI.profileWindowSize.y +
           ((mode == InformationViewMode.edit) ? 50 : 0),

@@ -338,16 +338,17 @@ function entityCollect(entity, materialId, amount, { incurIncident = true }) {
   let incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
     entity.name,
     amount,
-    engine.locale(materialId == 'money' ? 'money2' : materialId),
+    engine.locale(materialId),
   ])
-  if (incurIncident && entity.entityType == 'character') {
-    Incident(
-      message: incidentContent,
-      subjectId: entity.id,
-      isPrivate: true,
-    )
-  } else {
-    engine.debug(incidentContent)
+  if (entity.entityType == 'character') {
+    if (incurIncident)  {
+      Incident(
+        message: incidentContent,
+        subjectId: entity.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
   }
 
   return
@@ -375,15 +376,16 @@ function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (incurIncident && entity.entityType == 'character') {
-    Incident(
-      message: incidentContent,
-      subjectId: entity.id,
-      item: item,
-      isPrivate: true,
-    )
-  } else {
-    engine.debug(incidentContent)
+  if (entity.entityType == 'character') {
+    if (incurIncident)  {
+      Incident(
+        message: incidentContent,
+        subjectId: entity.id,
+        item: item,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
   }
 
   return item
@@ -450,15 +452,16 @@ function entityAcquire(entity, item, { incurIncident = true }) {
       item.name,
     ])
   }
-  if (incurIncident && entity.entityType == 'character') {
-    Incident(
-      message: incidentContent,
-      subjectId: entity.id,
-      item: acquiredItem,
-      isPrivate: true,
-    )
-  } else {
-    engine.debug(incidentContent)
+  if (entity.entityType == 'character') {
+    if (incurIncident)  {
+      Incident(
+        message: incidentContent,
+        subjectId: entity.id,
+        item: acquiredItem,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
   }
 
   return acquiredItem
@@ -519,6 +522,7 @@ function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
 }
 
 function characterAcquireBattleCard(character, card, { incurIncident = true }) {
+  assert(character.entityType == kEntityTypeCharacter || character.entityType == kEntityTypeBattleEntity, '${character.entityType}')
   assert(!character.cardLibrary.containsKey(card.id))
   assert(card.entityType == kEntityTypeBattleCard, '${card.entityType}')
 
@@ -531,12 +535,10 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
     character.name,
     card.name,
   ])
-  if (incurIncident && character.entityType == 'character') {
+  if (incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
-      card: card,
-      isPrivate: true,
     )
   } else {
     engine.debug(incidentContent)
@@ -621,6 +623,14 @@ function createLoot(itemsInfo: List) {
           )
           items.add(cardpack)
         }
+      }
+      'contribution': {
+        final pack = Contributionpack(
+          organizationId: itemInfo.organizationId,
+          locationId: itemInfo.locationId,
+          amount: amount,
+        )
+        items.add(pack)
       }
     }
   }

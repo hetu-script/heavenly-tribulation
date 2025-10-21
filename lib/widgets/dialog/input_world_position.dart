@@ -8,7 +8,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../ui/close_button2.dart';
 import '../ui/menu_builder.dart';
 
@@ -25,7 +25,6 @@ class InputWorldPositionDialog extends StatefulWidget {
   }) {
     return showDialog<(int, int, String?)>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return InputWorldPositionDialog(
           defaultX: defaultX,
@@ -91,7 +90,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: 360.0,
       height: 280.0,
       alignment: AlignmentDirectional.center,

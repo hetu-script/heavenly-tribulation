@@ -10,7 +10,11 @@ async function onRested() {
   }
 }
 
-async function onAfterEnterLocation(location) {
+/// 进入据点场景
+/// 这个接口的逻辑较复杂，为了避免 bug 并不会一次就触发所有的事件
+/// 每次触发某个事件后，就会返回 true，这样就会跳过后续其他逻辑的判断
+async function onAfterEnterLocation(location) -> bool {
+  // 游戏教程的提示
   if (game.enableTutorial) {
     if (location.id == hero.homeLocationId) {
       if (!game.flags.tutorial.homeLocation) {
@@ -19,6 +23,7 @@ async function onAfterEnterLocation(location) {
         
         dialog.pushDialog('tutorial_homeLocation_line_1', npc: game.npcs['xitong'])
         await dialog.execute()
+        return true
       } else if (!game.flags.tutorial.dummyPractice && game.flags.tutorial.rested) {
         dialog.pushDialog('tutorial_homeLocation_line_3', npc: game.npcs['xitong'])
         await dialog.execute()
@@ -63,6 +68,7 @@ async function onAfterEnterLocation(location) {
             await dialog.execute()
           }
         )
+        return true
       }
     } else if (location.id == hero.homeSiteId) {
       if (!game.flags.tutorial.homeSite) {
@@ -71,6 +77,61 @@ async function onAfterEnterLocation(location) {
         
         dialog.pushDialog('tutorial_homeLocation_line_2', npc: game.npcs['xitong'])
         await dialog.execute()
+        return true
+      }
+    }
+  }
+
+  // 处理角色初入门派的报告，以及门派每月例会
+  if (hero.organizationId != null) {
+    final organization = game.organizations[hero.organizationId];
+    final memberData = organization.membersData[hero.id];
+    assert(memberData != null,
+        'Member data not found in organization [${organization.id}], member id: ${hero.id}');
+    final reportSiteId = memberData.reportSiteId;
+    if (reportSiteId == location.id) {
+      final superior = game.characters[memberData.superiorId];
+      assert(superior != null,
+          'character not found, id: ${memberData.superiorId}');
+      final initiationQuest = hero.journals.organizationInitiation;
+      if (initiationQuest?.stage == 0) {
+        characterMet(hero, superior)
+        dialog.pushDialog(
+          'hint_organization_initiation2',
+          character: superior,
+        );
+        await dialog.execute();
+
+        final itemsInfo = [
+          {
+            'type': 'potion',
+            'rank': hero.rank,
+          },
+          {
+            'type': 'cardpack',
+            'genre': organization['genre'],
+            'rank': hero.rank,
+          },
+        ];
+        final items = await Player.loot(itemsInfo);
+        await Game.promptItems(items);
+        Player.progressJournalById('organizationInitiation');
+        await Game.promptJournal(initiationQuest);
+        return true;
+      } else {
+        final monthly = game.flags.monthly;
+        final day = toDay(game.timestamp)
+        if (monthly.attendedMeeting != true && day < 5) {
+          monthly.attendedMeeting = true;
+
+          final isFirstMeeting = initiationQuest.stage == 1;
+          if (isFirstMeeting) {
+            Player.progressJournalById('organizationInitiation');
+          }
+          Game.showMeeting(superior, location, organization,
+              isFirstMeeting: isFirstMeeting);
+          return true;
+        }
       }
     }
   }
@@ -97,8 +158,8 @@ async function onAfterEnterLocation(location) {
               dialog.pushDialog('quest_deliver_success', character: receiver);
               await dialog.execute();
             }
-            final items = Player.loot(journal.quest.reward)
-            Game.prompt(items)
+            final items = await Player.loot(journal.quest.reward)
+            Game.promptItems(items)
           } else {
             Player.progressJournalById(journal.id, stage: 2)
             if (isLate) {
@@ -109,6 +170,7 @@ async function onAfterEnterLocation(location) {
               await dialog.execute()
             }
           }
+          return true
         }
         case 'escort': {
           final success = Player.deliver(journal.quest.package)
@@ -116,7 +178,6 @@ async function onAfterEnterLocation(location) {
             Player.progressJournalById(journal.id)
             final escortType = journal.quest.escortType;
             final escorteeId = journal.quest.package.characterId;
-            
             if (isLate) {
               dialog.pushDialog('quest_escort_late_success_${escortType}', characterId: escorteeId);
               await dialog.execute();
@@ -128,9 +189,10 @@ async function onAfterEnterLocation(location) {
             final items = await Player.loot(journal.quest.reward)
             Game.promptItems(items)
           }
+          return true
         }
         case 'guard_site': {
-          
+          return true
         }
         case 'purchase_material': {
           final success = Player.deliver(journal.quest.requirement)
@@ -143,7 +205,8 @@ async function onAfterEnterLocation(location) {
               dialog.pushDialog('quest_purchase_success', npc: game.npcs['servant']);
               await dialog.execute();
             }
-            await Game.promptJournal(journal)
+            final items = await Player.loot(journal.quest.reward)
+            Game.promptItems(items)
           } else {
             if (isLate) {
               Player.exhaust(journal.quest.budget.kind, journal.quest.budget.amount, forceExhaust: true)
@@ -155,6 +218,7 @@ async function onAfterEnterLocation(location) {
               await dialog.execute();
             }
           }
+          return true
         }
         case 'purchase_item': {
           if (isLate) {
@@ -180,6 +244,8 @@ async function onAfterEnterLocation(location) {
               dialog.pushDialog('quest_purchase_success', npc: game.npcs['servant']);
               await dialog.execute();
             }
+            final items = await Player.loot(journal.quest.reward)
+            Game.promptItems(items)
           } else {
             if (isLate) {
               Player.exhaust(journal.quest.budget.kind, journal.quest.budget.amount, forceExhaust: true)
@@ -191,6 +257,7 @@ async function onAfterEnterLocation(location) {
               await dialog.execute();
             }
           }
+          return true
         }
         case 'discover_location': {
           final targetLocationId = journal.quest.targetLocationId
@@ -218,6 +285,7 @@ async function onAfterEnterLocation(location) {
               await dialog.execute();
             }
           }
+          return true
         }
       }
     }

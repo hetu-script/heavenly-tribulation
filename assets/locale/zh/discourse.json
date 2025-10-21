@@ -1,7 +1,5 @@
 {
-  "relationshipDiscourse": "关于我们之间……",
-
-  "organizationRelationshipDiscourse": "关于贵派……",
+  "relationshipDiscourse": "我想要……",
 
   "discourse_defaultUnknown": "抱歉，我并不了解你说的这个事情。",
   "discourse_defaultRefusal": "我这会儿有事，咱们还是改天再聊吧。",

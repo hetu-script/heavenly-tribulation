@@ -16,16 +16,16 @@ import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../ui.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import '../../engine.dart';
 import 'common.dart';
 // import 'cardcrafting_area.dart';
 import '../../state/states.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 import '../particles/light_point.dart';
 import '../../widgets/dialog/input_string.dart';
 
@@ -393,7 +393,6 @@ class CardLibraryScene extends Scene {
     if (warning) {
       final value = await showDialog<bool>(
         context: context,
-        barrierDismissible: true,
         builder: (context) =>
             ConfirmDialog(description: engine.locale('dangerOperationPrompt')),
       );
@@ -608,7 +607,7 @@ class CardLibraryScene extends Scene {
           buffer.writeln(
               '\n \n<yellow>${engine.locale('deckbuilding_exp_gain')}: ${craftMaterial['exp']}</>');
         } else {
-          final String materialId = craftMaterial['materialId']!;
+          final String materialId = craftMaterial['id']!;
           final int count = craftMaterial['count'] ?? 1;
 
           final hasMaterial = engine.hetu.invoke('entityHasItemKind',
@@ -1557,29 +1556,31 @@ class CardLibraryScene extends Scene {
           initialActiveOverlays: initialActiveOverlays,
         ),
         GameUIOverlay(
-          enableNpcs: false,
+          showNpcs: false,
           enableLibrary: false,
-          action: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: GameUI.foregroundColor),
-            ),
-            child: IconButton(
-              padding: const EdgeInsets.all(0),
-              onPressed: () {
-                GameDialogContent.show(
-                  context,
-                  engine.locale('hint_cardLibrary'),
-                  style: TextStyle(color: Colors.yellow),
-                );
-              },
-              icon: Icon(
-                Icons.question_mark,
-                size: 20.0,
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: GameUI.foregroundColor),
+              ),
+              child: IconButton(
+                padding: const EdgeInsets.all(0),
+                onPressed: () {
+                  GameDialogContent.show(
+                    context,
+                    engine.locale('hint_cardLibrary'),
+                    style: TextStyle(color: Colors.yellow),
+                  );
+                },
+                icon: Icon(
+                  Icons.question_mark,
+                  size: 20.0,
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );

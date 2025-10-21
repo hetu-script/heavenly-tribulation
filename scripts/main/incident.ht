@@ -4,11 +4,10 @@ struct Incident {
   constructor ({
     message: string,
     isGlobal: bool = false, // 为真则全世界的人都知道
-    isPrivate: bool = false, // 为真则不通知当前据点或地块上的所有人
     timestamp,
     subjectId,
     targetId,
-    item, // 直接传输物品数据，而不是id
+    item, // 只有物品数据是直接传输，而不是传 id
     organizationId,
     locationId: string,
     terrainIndex: integer,
@@ -19,7 +18,6 @@ struct Incident {
     // assert(subjectId != null)
     this.message = message
     this.isGlobal = isGlobal
-    this.isPrivate = isPrivate
     this.timestamp = timestamp ?? game.timestamp
     this.subjectId = subjectId
     if (targetId) this.targetId = targetId
@@ -35,16 +33,17 @@ struct Incident {
     this.id = crypto.randomUUID()
     history[this.id] = this
     
+    let subject
     if (subjectId != null) {
-      const subject = game.characters[subjectId]
-      assert(subject != null)
+      subject = game.characters[subjectId]
+      assert(subject != null, '无法找到事件的主体角色，id 为：${subjectId}')
       entityExperienceIncident(subject, this)
     }
 
     if (targetId) {
-      const targetChar = game.characters[targetId]
-      assert(targetChar != null)
-      entityExperienceIncident(targetChar, this)
+      const target = game.characters[targetId]
+      assert(target != null, '无法找到事件的目标角色，id 为：${targetId}')
+      entityExperienceIncident(target, this)
     }
 
     if (item) {
@@ -54,18 +53,21 @@ struct Incident {
     let organization
     if (organizationId) {
       organization = game.organizations[organizationId]
+      assert(organization != null, '无法找到事件所属的组织，id 为：${organizationId}')
       entityExperienceIncident(organization, this)
     }
 
     let location
     if (locationId) {
       location = game.locations[locationId]
+      assert(location != null, '无法找到事件所属的地点，id 为：${locationId}')
       entityExperienceIncident(location, this)
     }
     
     let terrain
     if (terrainIndex) {
       terrain = world.terrains[terrainIndex]
+      assert(terrain != null, '无法找到事件所属的地块，index 为：${terrainIndex}')
       entityExperienceIncident(terrain, this)
     }
 
@@ -74,14 +76,13 @@ struct Incident {
         if (char.id == subjectId || char.id == targetId) continue
         characterKnowIncident(char, this)
       }
-    } else if (!isPrivate) {
+    } else {
       if (organization) {
-        if (!isPrivate) {
-          for (const id in organization.membersData.keys) {
-            if (id == subjectId || id == targetId) continue
-            const character = game.characters[id]
-            characterKnowIncident(character, this, witnessed: true)
-          }
+        for (const id in organization.membersData.keys) {
+          if (id == subjectId || id == targetId) continue
+          const member = game.characters[id]
+          assert(member != null, '无法找到组织成员，id 为：${id}')
+          characterKnowIncident(member, this, witnessed: true)
         }
       }
       if (location) {
@@ -99,8 +100,10 @@ struct Incident {
     }
   
     Game.updateHistory()
-
-    engine.debug(message)
+    
+    if (subject || organization) {
+      engine.debug(message)
+    }
   }
 }
 
@@ -129,7 +132,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
     return
   }
 
-  engine.debug('${character.name} 知道了事件 \'${incident.message}\'')
+  // engine.debug('${character.name} 知道了事件 「${incident.message}」')
   character.known.add(incident.id)
 
   if (incident.subjectId != null) {
@@ -172,17 +175,17 @@ function entityExperienceIncident(entity, incident) {
     let idealChange = entity.personality.idealistic * incident.idealistic / 100
     if (idealChange != 0) {
       entity.personality.idealistic += idealChange
-      engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}]。')
+      // engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}] 到 [${entity.personality.idealistic}]。')
     }
     let orderChange = entity.personality.orderly * incident.orderly / 100
     if (orderChange != 0) {
       entity.personality.orderly += orderChange
-      engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}]。')
+      // engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}] 到 [${entity.personality.orderly}]。')
     }
     let goodChange = entity.personality.goodwill * incident.goodwill / 100
     if (goodChange != 0) {
       entity.personality.goodwill += goodChange
-      engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}]。')
+      // engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}] 到 [${entity.personality.goodwill}]。')
     }
   } else if (entity.id == incident.targetId) {
     const subject = game.characters[incident.subjectId]
@@ -195,7 +198,7 @@ function entityExperienceIncident(entity, incident) {
     if (score != 0) {
       let bond = entity.bonds[incident.subjectId]
       bond.score += score
-      engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${bond.score}]')
+      // engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${bond.score}]')
     }
   }
 }

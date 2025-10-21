@@ -5,6 +5,11 @@
   "theHeavenlyWay": "天道",
   "heavenlyTribulation": "天劫",
 
+  "localization": "本地化文本",
+  "code": "代码",
+  "module": "模组",
+  "script": "脚本",
+
   "debug": "DEBUG信息",
   "console": "控制台",
   "confirm": "确定",
@@ -41,9 +46,6 @@
   "priceFactor_description_location": "商店物价和季节、纬度和城市类型有关。",
   "priceFactor_description_character": "角色物价和人物关系以及亲密度有关。",
   "priceFactor_description_productionSite": "生产建筑的物价和地块的自然资源有关。",
-
-  "characterCalculateStats": "计算人物属性",
-  "characterCalculateStatsPrompt": "已重新计算所有人物属性。",
 
   "openAll": "全部打开",
   "selectAll": "选择全部",
@@ -102,7 +104,6 @@
   "start": "开始",
   "restart": "重新开始",
   "nextTurn": "下一回合",
-  "load": "载入",
   "add": "添加",
   "retry": "重试",
   "end": "结束",
@@ -137,6 +138,32 @@
   "selectOrganization": "选择门派",
   "selectItem": "选择物品",
   "selectCardpack": "选择秘籍",
+
+  "debugMode": "开发者模式",
+  "tutorial": "教程",
+  "goBack": "返回",
+  "settings": "游戏设置",
+  "timestamp": "日期",
+  "new": "新建",
+  "save": "保存",
+  "fileName": "文件名称",
+  "saveName": "存档名称",
+  "mapSize": "地图大小",
+  "saveSuccessed": "保存成功！",
+  "saveAs": "另存为",
+  "regenerateZone": "重新生成地域",
+  "updateCharacterStats": "更新人物属性",
+  "hint_updateCharacterStats": "已重新计算所有人物属性。",
+  "saveMapAs": "地图另存为",
+  "load": "载入",
+  "reload": "重新载入",
+
+  "checkJournal": "查看日志",
+
+  "tiny": "微小",
+  "medium": "适中",
+  "huge": "庞大",
+  "gigantic": "广阔",
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
@@ -327,6 +354,9 @@
 
   "continent": "大陆",
   "island": "岛屿",
+  "coast": "滨海",
+  "harbor": "港口",
+  "inland": "内陆",
 
   "sea": "海洋",
   "lake": "湖泊",
@@ -342,9 +372,6 @@
   "snow_plain": "雪原",
   "snow_mountain": "雪山",
   "snow_forest": "雪林",
-
-  "farmfield": "农田",
-  "harbor": "港口",
 
   "arcana": "洞天",
   "mirage": "福地",
@@ -363,9 +390,9 @@
   "doNothing": "什么都不做",
 
   "information": "情报",
-  "cityInformation": "据点情报",
-  "siteInformation": "场所情报",
   "organizationInformation": "门派情报",
+  "cityInformation": "据点情报",
+  "siteInformation": "建筑情报",
   "characterInformation": "人物情报",
   "status": "属性",
   "stats": "属性",
@@ -559,10 +586,10 @@
   "trialCompetitor": "入门试炼竞争者",
   "trialTester": "入门试炼考官",
 
-  "heroAcquire": "得到了{0}。",
-  "heroAcquireMultiple": "得到了 {0} 个{1}。",
-  "heroLose": "失去了{0}。",
-  "heroLoseMultiple": "失去了 {0} 个{1}。",
+  "yourTitleHere": "你在此处的职位",
+  "yourContributionHere": "关于我在此处的功勋...",
+
+  "hint_yourContributionHere": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂任务、捐献资源等方式提升您在本地功勋。",
 
   "heroDestroy": "销毁了{0}。",
   "heroDismantle": "分解了{0}。",
@@ -582,6 +609,7 @@
   "characterConsume": "{0}吃下了{1}。",
   "characterForceToConsume": "{0}喂{1}吃下了{2}。",
   "characterEnlist": "{0}加入了{1}。",
+  "characterLeave": "{0}离开了{1}，不再担任{2}。",
   "characterJoin": "{0}加入了{1}的队伍。",
   "characterDepart": "{0}离开了{1}的队伍。",
   "characterCreateJournal": "{0}开启了新的日志「{1}」。",
@@ -604,13 +632,16 @@
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
   "characterDefeat": "{0}击败了{1}。",
   "characterKill": "{0}杀死了{1}。",
-  "characterGotTitle": "{0}成为了{1}的{2}。",
+  "characterAcquireOrganizationTitle": "{0}成为了{1}的{2}。",
+  "characterAcquireTitle": "{0}成为了{1}。",
+  "characterMakeContribution": "{0}在{1}的功勋增加了 {2}。",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
-
   "organizationBuild": "{0}在{1}创建了{2}。",
 
   "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
+  "hint_lose": "失去了{0}。",
+  "hint_loseMultiple": "失去了 {0} 个{1}。",
 
   "hint_return_home_afterDying_1": "我……这是在哪？头好痛……好像是我的房间。我是怎么回来的？",
   "hint_return_home_afterDying_2": "刚才发生了什么？我只记得眼前一黑，就什么都不知道了。还好捡回了一条命。",
@@ -700,7 +731,7 @@
 
   "hint_visitEmptyVillage": "似乎没有任何重要人物居住在此。",
   "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
-  "hint_noAvailableQuests": "这里并不属于任何门派，因此没有任务可领。你可以去一些被门派占据的据点试试。",
+  "hint_noAvailableQuests": "目前暂时没有悬赏发布，你可以去别的城镇问问。",
 
   "hint_rentedFacility": "没问题，直到下个月前你都可以使用这里的设施了。",
 

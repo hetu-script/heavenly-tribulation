@@ -5,9 +5,9 @@ import 'package:samsara/components.dart';
 import 'package:provider/provider.dart';
 
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../engine.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 import '../../widgets/character/stats.dart';
 import '../../state/hover_content.dart';
 
@@ -29,7 +29,7 @@ class EquipmentsBar extends GameComponent {
       position: Vector2(index * (kItemGridSize + 2.0), 0),
       size: Vector2(kItemGridSize, kItemGridSize),
       spriteId: itemData?['icon'],
-      borderSpriteId: 'item/grid.png',
+      borderSpriteId: 'item/grid_rank${itemData?['rank'] ?? 0}.png',
       paint: paint,
     );
     spriteButton.onMouseEnter = () {

@@ -25,14 +25,13 @@ class NewJournal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
-      barrierColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       width: 500.0,
       padding: const EdgeInsets.all(10.0),
       child: ListView(
         shrinkWrap: true,
         children: [
-          Label('${engine.locale('journalUpdate')}: ${journal['title']}'),
+          Label(journal['title']),
           if (journal['image'] != null)
             Padding(
               padding: const EdgeInsets.only(top: 10.0),

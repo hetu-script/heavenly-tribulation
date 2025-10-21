@@ -26,4 +26,10 @@
     title: "journal_organizationFirstMeetingIntroduction_title",
     endings: [1],
   },
+  // 招募城市成功，但角色并非掌门，需要汇报
+  organizationRecruitCityReportToLeader: {
+    id: "organizationRecruitCityReportToLeader",
+    title: "journal_organizationRecruitCityReportToLeader_title",
+    endings: [1],
+  },
 }

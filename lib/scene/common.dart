@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../state/hover_content.dart';
 
-const kMaxHeroAge = 15;
+const kMaxHeroAge = 17;
 
 const kWorldMapAnimationPriority = 15000;
 
@@ -11,7 +11,13 @@ const kSiteCardPriority = 500;
 
 const kMouseCursorEffectPriority = 99999999;
 
-abstract class Scenes {
+enum MouseCursorState {
+  normal,
+  click,
+  drag,
+}
+
+final class Scenes {
   static const mainmenu = 'mainmenu';
   static const library = 'library';
   static const cultivation = 'cultivation';

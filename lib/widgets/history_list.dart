@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/pointer_detector.dart';
 
-// import '../engine.dart';
+import '../ui.dart';
 import 'common.dart';
 import '../state/game_update.dart';
-import '../game/game.dart';
+import '../data/game.dart';
 
 class HistoryList extends StatefulWidget {
   const HistoryList({
@@ -126,7 +126,7 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
     jumpToBottom();
 
     return MouseRegion(
-      cursor: widget.cursor,
+      cursor: GameUI.cursor.resolve({WidgetState.hovered}),
       onEnter: (event) {
         if (widget.onMouseEnter == null) return;
 

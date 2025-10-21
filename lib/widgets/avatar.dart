@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/rrect_icon.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../ui.dart';
 import '../../engine.dart';
-import '../game/game.dart';
+import '../data/game.dart';
 // import 'character/profile.dart';
 
 enum AvatarNameAlignment {
@@ -155,7 +154,7 @@ class Avatar extends StatelessWidget {
               displayName,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: GameUI.backgroundColor2,
+                color: GameUI.backgroundColor,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -215,7 +214,7 @@ class Avatar extends StatelessWidget {
       child: MouseRegion2(
         onEnter: onEnter,
         onExit: onExit,
-        cursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
+        cursor: cursor ?? GameUI.cursor.resolve({WidgetState.hovered}),
         child: Container(
           margin: margin,
           width: size.width,

@@ -2,10 +2,12 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 // import 'package:samsara/colors.dart';
 
-import 'game/common.dart';
+import 'data/common.dart';
 import 'engine.dart';
+import 'widgets/ui/close_button2.dart';
 
 export 'package:samsara/colors.dart';
 
@@ -38,7 +40,7 @@ const List<Shadow> kTextShadow = [
   ),
 ];
 
-abstract class TextStyles {
+final class TextStyles {
   static const displayLarge =
       TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0);
   static const displayMedium =
@@ -71,13 +73,58 @@ abstract class TextStyles {
       TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0);
 }
 
-abstract class GameUI {
+final class FluentButtonStyles {
+  static final selected = fluent.ButtonStyle(
+    backgroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
+            GameUI.focusColor,
+        WidgetState.hovered: GameUI.hoverColor,
+        WidgetState.disabled: Colors.transparent,
+        WidgetState.any: GameUI.selectedColor,
+      },
+    ),
+    foregroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+  );
+}
+
+final class Cursors {
+  static const normal = 'normal';
+  static const click = 'click';
+  static const drag = 'drag';
+  static const press = 'press';
+}
+
+class _GameCursor extends WidgetStateMouseCursor {
+  /// Returns a [MouseCursor] that's to be used when a component is in the
+  /// specified state.
+  @override
+  MouseCursor resolve(Set<WidgetState> states) {
+    if (states.contains(WidgetState.hovered)) {
+      return FlutterCustomMemoryImageCursor(key: Cursors.click);
+    } else if (states.contains(WidgetState.pressed)) {
+      return FlutterCustomMemoryImageCursor(key: Cursors.press);
+    } else if (states.contains(WidgetState.dragged)) {
+      return FlutterCustomMemoryImageCursor(key: Cursors.drag);
+    } else {
+      return FlutterCustomMemoryImageCursor(key: Cursors.normal);
+    }
+  }
+
+  @override
+  // TODO: implement debugDescription
+  String get debugDescription => throw UnimplementedError();
+}
+
+final class GameUI {
   static Vector2 size = Vector2.zero();
 
   static Vector2 get center => size / 2;
 
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
+
+  static final cursor = _GameCursor();
 
   static const hugeIndent = 80.0;
   static const largeIndent = 40.0;
@@ -96,34 +143,28 @@ abstract class GameUI {
 
   static const borderColor = Colors.white38;
 
+  // static const foregroundColor = GameColors.darkSlateGrey;
+  // static const foregroundColorPressed = Colors.black;
+  // static final foregroundDiabled = GameColors.lightSlateGrey;
   static const foregroundColor = Colors.white;
-  static const foregroundColorPressed = Colors.white54;
-  static final foregroundDiabled = Colors.grey[500];
+  static final foregroundDiabled = Colors.grey;
 
-  static final backgroundColor = Colors.black54;
-  static final backgroundColorOpaque = Colors.black;
+  static final barrierColor = Colors.black54;
 
   static final Paint backgroundPaint = Paint()
     ..style = PaintingStyle.fill
-    ..color = backgroundColor3;
+    ..color = backgroundColor2;
 
-  static final backgroundColor2 = Color(0xDD02020F);
-  static final backgroundColor2Opaque = Color(0xFF02020F);
+  // static final backgroundColor2 = GameColors.lightSkyBlue.withAlpha(160);
+  // static final backgroundColor2Opaque = GameColors.lightSkyBlue;
+  static final backgroundColor = Color(0xDD02020F);
 
-  static final backgroundColor3 = Color(0xDD270505);
-  static final backgroundColor3Opaque = Color(0xFF270505);
+  static final backgroundColor2 = Color(0xDD270505);
 
-  static final focusColorOpaque = const Color.fromARGB(255, 0, 32, 64);
-  static final focusColor = Color.fromARGB(255, 0, 32, 64).withAlpha(128);
-  static final hoverColorOpaque = Colors.lightBlue;
-  static final hoverColor = Colors.lightBlue.withAlpha(128);
-  static final selectedColorOpaque = Colors.yellow;
-  static final selectedColor = Colors.yellow.withAlpha(128);
-  static final outlineColorOpaque = Colors.white;
+  static final focusColor = Colors.deepPurple;
+  static final hoverColor = Colors.lightBlue;
+  static final selectedColor = Colors.lightBlue;
   static final outlineColor = Colors.white54;
-
-  /// 对话框遮罩背景颜色
-  static final barrierColor = Colors.black87;
 
   static final borderRadius = BorderRadius.circular(5.0);
 
@@ -168,14 +209,7 @@ abstract class GameUI {
     iconTheme: iconTheme,
     dividerColor: foregroundColor,
     colorScheme: ColorScheme.dark(
-      surface: backgroundColor2,
-    ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: barrierColor,
-    ),
-    dataTableTheme: DataTableThemeData(
-      headingCellCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
-      dataRowCursor: WidgetStatePropertyAll<MouseCursor>(MouseCursor.defer),
+      surface: backgroundColor,
     ),
     appBarTheme: AppBarTheme(
       centerTitle: true,
@@ -225,7 +259,7 @@ abstract class GameUI {
       textStyle: textTheme.bodyMedium,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: backgroundColor2,
+      color: backgroundColor,
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: foregroundColor),
         borderRadius: borderRadius,
@@ -268,7 +302,7 @@ abstract class GameUI {
                 focusColor,
             WidgetState.hovered: hoverColor,
             WidgetState.disabled: Colors.transparent,
-            WidgetState.any: backgroundColor2,
+            WidgetState.any: backgroundColor,
           },
         ),
         shape: WidgetStatePropertyAll<ShapeBorder>(
@@ -458,7 +492,7 @@ abstract class GameUI {
     engine.debug('画面尺寸修改为：${size.x}x${size.y}');
 
     Hovertip.backgroundPaint = Paint()
-      ..color = backgroundColor
+      ..color = barrierColor
       ..style = PaintingStyle.fill;
 
     // Hovertip.defaultContentConfig = Hovertip.defaultContentConfig.copyWith(
@@ -632,6 +666,21 @@ abstract class GameUI {
         center.x - buttonSizeMedium.x / 2 - indent, levelUpButtonPosition.y);
 
     _isInitted = true;
+  }
+
+  static void showConsole(BuildContext context) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Console(
+          engine: engine,
+          cursor: GameUI.cursor,
+          margin: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 50.0),
+          backgroundColor: GameUI.backgroundColor,
+          closeButton: CloseButton2(),
+        );
+      },
+    );
   }
 }
 

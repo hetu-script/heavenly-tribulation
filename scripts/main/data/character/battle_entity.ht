@@ -365,6 +365,9 @@ function getCharacterStats(character) {
   return stats
 }
 
+/// 返回一个包含可移动的tile kind的列表
+/// 如果不为null且非空，则英雄可以开始尝试向这个格子移动，但中途有可能停下
+/// 否则不会进入移动路径计算
 function getCharacterMovableTerrainKinds(character) {
   let aircraft = characterEquippedCategory(character, 'aircraft')
   if (aircraft) {
@@ -487,7 +490,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
     }
   }
   for (final card in deck) {
-    characterAcquireBattleCard(character, card)
+    characterAcquireBattleCard(character, card, incurIncident: false)
   }
   character.battleDecks.add({
     title: 'battleDeck',
@@ -663,11 +666,14 @@ function characterConsumePotion(entity, item) {
   engine.debug('角色 [${entity.name}] 服用了 [${item.name}]')
 
   final mainAffix = item.affixes.first
-  // if (mainAffix.id == 'heal') {
-  //   characterRestoreLife(entity, mainAffix.value)
-  // } else if (mainAffix.id == 'overheal') {
-    setCharacterLife(entity, Math.min(entity.life, entity.stats.lifeMax) + mainAffix.value)
-  // }
+  switch (mainAffix.id) {
+    case 'overheal': {
+      setCharacterLife(entity, Math.min(entity.life, entity.stats.lifeMax) + mainAffix.value)
+    }
+    else: {
+      characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)
+    }
+  }
 
   for (final passiveData in item.affixes.skip(1)) {
     characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)

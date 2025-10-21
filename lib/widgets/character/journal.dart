@@ -7,7 +7,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';
 import '../ui/draggable_panel.dart';
@@ -248,6 +248,9 @@ class _JournalViewState extends State<JournalView> {
                       children: List<Widget>.from(
                         _journalsData.values.map(
                           (journal) => fluent.Button(
+                            style: _selectedJournal == journal
+                                ? FluentButtonStyles.selected
+                                : null,
                             onPressed: () {
                               setState(() {
                                 _selectedJournal = journal;
@@ -264,8 +267,7 @@ class _JournalViewState extends State<JournalView> {
                                         : FontWeight.normal,
                                     color: _selectedJournal == journal
                                         ? Colors.white
-                                        : (_selectedJournal['isFinished'] ==
-                                                true
+                                        : (journal['isFinished'] == true
                                             ? Colors.grey
                                             : Colors.white),
                                   ),
@@ -280,8 +282,7 @@ class _JournalViewState extends State<JournalView> {
                                           : FontWeight.normal,
                                       color: _selectedJournal == journal
                                           ? Colors.white
-                                          : (_selectedJournal['isFinished'] ==
-                                                  true
+                                          : (journal['isFinished'] == true
                                               ? Colors.grey
                                               : Colors.white),
                                     ),

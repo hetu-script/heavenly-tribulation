@@ -8,7 +8,7 @@ import '../ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
 import '../state/hover_content.dart';
-import '../game/game.dart';
+import '../data/game.dart';
 
 class HoverInfo extends StatefulWidget {
   HoverInfo(this.content) : super(key: GlobalKey());
@@ -106,6 +106,11 @@ class _HoverInfoState extends State<HoverInfo> {
 
   @override
   Widget build(BuildContext context) {
+    final hoverContent = context.read<HoverContentState>().content;
+    if (hoverContent == null) {
+      return const SizedBox.shrink();
+    }
+
     final screenSize = MediaQuery.sizeOf(context);
 
     final isDetailed = context.watch<HoverContentState>().isDetailed;
@@ -205,7 +210,7 @@ class _HoverInfoState extends State<HoverInfo> {
             }
           },
           child: Container(
-            color: GameUI.backgroundColorOpaque.withAlpha(200),
+            color: GameUI.backgroundColor2,
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             constraints: BoxConstraints(maxWidth: widget.content.maxWidth),

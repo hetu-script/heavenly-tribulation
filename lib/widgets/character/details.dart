@@ -11,10 +11,9 @@ import '../ui/menu_builder.dart';
 import '../dialog/confirm.dart';
 // import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
-import '../../game/logic/logic.dart';
-import '../../game/common.dart';
-import '../../game/event_ids.dart';
-import '../../game/game.dart';
+import '../../logic/logic.dart';
+import '../../data/common.dart';
+import '../../data/game.dart';
 import '../../ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';
@@ -241,7 +240,7 @@ class CharacterDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       alignment: AlignmentDirectional.center,
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: GameUI.profileWindowSize.x,
       height: GameUI.profileWindowSize.y,
       child: Scaffold(

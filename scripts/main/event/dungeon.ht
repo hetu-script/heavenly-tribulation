@@ -6,7 +6,7 @@ const _kBasicRooms = {
   '3': 'elite',
   '4': 'encampment',
   '5': 'boss',
-  '14': 'exit',
+  '6': 'exit',
 }
 
 const _kNormalRooms = {
@@ -114,8 +114,6 @@ function _addEncampment() {
   )
   addCardLibraryStele(
     _kFunction2,
-    enableCardCraft: true,
-    enableScrollCraft: true,
   )
   addRestBed(_kFunction3)
   addMerchant(
@@ -502,7 +500,7 @@ async function onEnterMap() {
     await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
     game.flags.dungeon = null
     Game.updateDungeon(null)
-    Game.popScene(clearCache: true)
+    Game.onDying()
     return
   } else if (!game.flags.dungeon.buildCompleted) {
     dialog.pushBackground('black.png')

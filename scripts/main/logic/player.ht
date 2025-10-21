@@ -1,0 +1,712 @@
+const kQuickThreshold = 10
+const kSlowThreshold = 10
+const kNimbleThreshold = 10
+const kClumsyThreshold = 10
+
+struct PassiveData {
+  constructor ({
+    id,
+    priority,
+    level,
+    value,
+    increment,
+    description,
+  }) {
+    assert(id != null && description != null)
+    this.id = id
+    this.priority = priority ?? 0
+    this.level = level ?? 0
+    this.value = value
+    this.increment = increment
+    this.description = description
+  }
+}
+
+const _kMaxActiveJournal = 5
+
+namespace Player {
+
+  function setTo(left, top, { worldId, direction } ) {
+    assert(hero != null)
+    engine.debug('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
+    setCharacterWorldPosition(hero, left, top, worldId: worldId)
+    if (direction != null) {
+      assert(kOrthogonalDirections.contains(direction))
+    }
+    World.setCharacterToWorldPosition(hero, left, top, direction: direction)
+    World.moveCameraToTilePosition(left, top, animated: false)
+    World.lightUpAroundTile(left, top, hero.stats.lightRadius)
+  }
+  
+  function setHomeLocation(location, {incurIncident = true}) {
+    assert(hero != null)
+    setCharacterHome(hero, location, incurIncident: incurIncident)
+  }
+
+  function met(character) {
+    assert(hero != null)
+    return characterMet(hero, character)
+  }
+
+  async function collect(materialId, amount, { incurIncident = true }) {
+    assert(hero != null)
+    entityCollect(hero, materialId, amount, incurIncident: incurIncident)
+    
+    await onGameEvent('onCollect', materialId, amount)
+  }
+
+  async function collectAll(materials, { incurIncident = true }) {
+    assert(hero != null)
+    for (let materialId in materials.keys) {
+      final amount = materials[materialId]
+      await collect(materialId, amount, incurIncident: incurIncident)
+    }
+  }
+
+  function exhaust(materialId, amount) -> bool {
+    assert(hero != null)
+    return entityExhaust(hero, materialId, amount)
+  }
+
+  async function collectContributionFromItem(item, { incurIncident = true }) {
+    
+    let contribution = item.stackSize ?? 1
+    let contributionTarget
+    
+    if (item.organizationId) {
+      // 如果是门派领地的任务
+      final organization = game.organizations[item.organizationId];
+      assert(organization != null,
+          'Organization not found for id: ${item.organizationId}');
+      final memberData = organization.membersData[hero.id];
+      if (hero.organizationId == item.organizationId) {
+        // 如果主角是该门派成员
+        assert(memberData != null,
+            'Member data not found in organization [${organization.id}], member id: ${hero.id}');
+        memberData.contribution += contribution;
+      } else {
+        contribution = contribution ~/ 2
+        // 非门派成员功勋减半
+        if (memberData != null) {
+          memberData.contribution += contribution;
+        } else {
+          organization.membersData[hero.id] = MemberData(
+            id: hero.id,
+            rank: -1,
+            contribution: contribution,
+          )
+        }
+      }
+      contributionTarget = organization.name;
+    } else {
+      assert(item.locationId != null,
+          'Either organizationId or locationId must be set for contribution pack: ${item.id}');
+      final location = game.locations[item.locationId];
+      assert(location != null,
+          'Location not found for id: ${item.locationId}');
+      contributionTarget = location.name;
+      // 非门派领地任务，同样可以获得功勋，但直接保存在据点数据中
+      location.contributions[hero.id] += contribution;
+    }
+    
+    let incidentContent = engine.locale('characterMakeContribution',
+      interpolations: [
+        hero.name,
+        contributionTarget,
+        contribution,
+      ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        organizationId: item.organizationId,
+        locationId: item.locationId,
+        orderly: contribution,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+  }
+
+  /// 直接获取一个已经被创造出来的物品
+  async function acquire(item, { autoUnpack = true, incurIncident = true }) {
+    assert(hero != null)
+    if (autoUnpack) {
+      switch (item.category) {
+        case kItemCategoryExppack: {
+          gainExp(item.stackSize)
+          return
+        }
+        case kItemCategoryMaterialPack: {
+          collect(item.kind, item.stackSize)
+          return
+        }
+        case kItemCategoryContributionPack: {
+          collectContributionFromItem(item, incurIncident: incurIncident)
+          return
+        }
+      }
+    }
+
+    final item = entityAcquire(hero, item, incurIncident: incurIncident)
+    await onGameEvent('onAcquire', item)
+    return item
+  }
+
+  async function acquireAll(items, { autoUnpack = true, incurIncident = true }) {
+    assert(hero != null)
+    for (final item in items) {
+      await acquire(item, autoUnpack: autoUnpack, incurIncident: incurIncident)
+    }
+  }
+
+  /// 从物品库中复制并获取一个物品
+  async function acquireById(id, { amount = 1, incurIncident = true }) {
+    assert(hero != null)
+    assert(amount > 0)
+    final item = entityAcquireById(hero, id, amount: amount, incurIncident: incurIncident)
+    await onGameEvent('onAcquire', item)
+    return item
+  }
+
+  function lose(item, { amount, incurIncident = true }) {
+    assert(hero != null)
+    entityLose(hero, item, amount: amount, incurIncident: incurIncident)
+  }
+
+  function acquireCard(card, { incurIncident = true }) {
+    assert(hero != null)
+    characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
+  }
+  
+  /// 分解卡牌，返回获得的灵气数量
+  function dismantleCard(card, { incurIncident = true }) {
+    assert(hero != null)
+    assert(hero.cardLibrary.containsKey(card.id))
+
+    final price = getCardCraftMaterial('dismantle', card)['exp'] ?? 0
+
+    hero.exp += price
+    hero.cardLibrary.remove(card.id)
+
+    for (final deck in hero.battleDecks) {
+      if (deck.cards.contains(card.id)) {
+        deck.cards.remove(card.id)
+      }
+    }
+    
+    let incidentContent = engine.locale('entityLose', interpolations: [
+      hero.name,
+      card.name,
+    ])
+    engine.debug(incidentContent)
+
+    return price
+  }
+
+  // 使用食物或者丹药
+  // 返回值代表是否使用成功
+  // 此函数允许对一个不在物品栏中的物品调用
+  // function consume(item, { forcerCharacter }) {
+  //   if (!item.isConsumable) {
+  //     engine.warn('${item.id} 无法食用。')
+  //     return false
+  //   }
+
+  //   if (hero.inventory.containsKey(item.id)) {
+  //     if (item.rarity == kCommon) {
+  //       if (item.stackSize > 1) {
+  //         --item.stackSize
+  //       } else {
+  //         delete hero.inventory[item.id]
+  //       }
+  //     } else {
+  //       delete hero.inventory[item.id]
+  //     }
+  //   }
+
+  //   // if (item.stats.effects) {
+  //   //   for (const effect of item.stats.effects) {
+  //   //     // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
+  //   //     if (effect.category == kEffectCategoryConsume) {
+  //   //       const effectHandler = getEffectHandlerById(effect.id)
+  //   //       if (effectHandler is function) effectHandler(effect, character)
+  //   //     }
+  //   //   }
+  //   // }
+
+  //   let incidentContent
+  //   switch (item.kind) {
+  //     kEntityConsumableKindMedicine : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterTakeMedicineForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterTakeMedicine', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     kEntityConsumableKindBeverage : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterDrinkBeverageForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterDrinkBeverage', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     else : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterEatForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterEat', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //   }
+
+  //   let subjectIds
+  //   let objectIds
+  //   if (forcerCharacter && forcerCharacter.isMain) {
+  //     subjectIds = [forcerCharacter.id]
+  //     if (character.isMain) {
+  //       objectIds = [character.id]
+  //     }
+  //   } else if (character.isMain) {
+  //     subjectIds = [character.id]
+  //   }
+
+  //   Incident(
+  //     message: incidentContent,
+  //     subjectIds: subjectIds,
+  //     objectIds: objectIds,
+  //   )
+    
+  //   return true
+  // }
+
+  // 法宝和技能都可以装备，只要类型符合
+  // 返回值代表是否装备成功
+  // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+  // 但并不会检查是否已经在别人的物品栏里了
+  // 装备并非直接将物品数据保存在人物数据中，而是只保存物品id
+  function equip(item, { index }) -> bool {
+    assert(hero != null)
+
+    return characterEquip(hero, item, index: index)
+  }
+
+  /// 检查是否装备了某种 category 的物品，返回装备的数量
+  function equippedCategory(category) {
+    assert(hero != null)
+    
+    return characterEquippedCategory(hero, category)
+  }
+  
+  function firstEquippedCategory(category) {
+    assert(hero != null)
+    
+    return characterfirstEquippedCategory(hero, category)
+  }
+
+  function equippedKind(kind) {
+    assert(hero != null)
+    
+    return characterEquippedKind(hero, kind)
+  }
+
+  function firstEquippedKind(kind) {
+    assert(hero != null)
+    
+    return characterFirstEquippedKind(hero, kind)
+  }
+
+  function unequip(item) {
+    assert(hero != null)
+    characterUnequip(hero, item)
+  }
+
+  function consumePotion(potion) {
+    assert(hero != null)
+    assert(potion.category == kItemCategoryPotion)
+    characterConsumePotion(hero, potion)
+  }
+  
+  /// 用于从一个宝箱中根据物品信息创造物品并获取
+  async function loot(itemsInfo: List) {
+    final items = createLoot(itemsInfo)
+    for (final item in items) {
+      await acquire(item)
+    }
+    return items
+  }
+
+  async function unpack(package) {
+    switch (package['type']) {
+      case 'material': {
+        await Player.collect(package.material, package.amount)
+      }
+      case 'item': {
+        await Player.acquire(package.item)
+      }
+      case 'character': {
+        final character = game.characters[package['characterId']]
+        assert(character != null, 'character not found: ${package["characterId"]}')
+        Player.accompany(character)
+      }
+    }
+  }
+
+  async function unpackAll(packages: List) {
+    for (final package in packages) {
+      await unpack(package)
+    }
+  }
+
+  function deliver(package, { forceExhaust = false }) {
+    let hasPackage = false
+    switch (package['type']) {
+      case 'material': {
+        if (hero.materials[package.material] >= package.amount) {
+          hasPackage = true
+          Player.exhaust(package.material, package.amount)
+        }
+      }
+      case 'item': {
+        final inventoryItem = hero.inventory[package.item.id]
+        if (inventoryItem != null &&
+            inventoryItem.stackSize >= package.item.stackSize) {
+          hasPackage = true
+          Player.lose(inventoryItem)
+        }
+      }
+      case 'character': {
+        final characterId = package['characterId']
+        if (hero.companions.contains(characterId)) {
+          hasPackage = true
+          final character = game.characters[characterId]
+          assert(character != null, 'character not found: ${characterId}')
+          Player.dismiss(character)
+        }
+      }
+    }
+    return hasPackage
+  }
+
+  function deliverAll(packages: List) {
+    for (final package in packages) {
+      deliver(package)
+    }
+  }
+
+  /// 用于从另一个角色身上批量拿取
+  async function lootEntity(entity, { incurIncident = true }) {
+    assert(hero != null)
+
+    for (const item of entity.inventory) {
+      await acquire(item, incurIncident: incurIncident)
+    }
+
+    for (const materialId in entity.materials.keys) {
+      const amount = entity.materials[materialId]
+      await collect(materialId, amount, incurIncident: incurIncident)
+    }
+
+    // 清空
+    entity.inventory = {}
+    entity.materials = {}
+  }
+
+  // 设定人物的随从，返回值是否成功
+  // 随从并非直接将人物数据放在人物上，而是用下面的数据结构
+  // {
+  //   id,
+  //   entityType,
+  //   coordination,
+  // }
+  function accompany(companion, { incurIncident = true }) {
+    assert(hero != null)
+    if (hero.companions.contains(companion.id)) {
+      engine.warn('${companion.name} 已经是随从了，无法再次添加。')
+      return
+    }
+    hero.companions.add(companion.id)
+    
+    const incidentContent = engine.locale('characterJoin', interpolations: [
+      companion.name,
+      hero.name,
+    ])
+    // if (incurIncident) {
+    //   Incident(
+    //     message: incidentContent,
+    //     subjectId: companion.id,
+    //     targetId: hero.id,
+    //   )
+    // } else {
+    engine.debug(incidentContent)
+    // }
+  }
+
+  function dismiss(companion, { incurIncident = true }) {
+    assert(hero != null)
+    if (!hero.companions.contains(companion.id)) {
+      engine.warn('${companion.name} 不是随从，无法解散。')
+      return
+    }
+
+    hero.companions.remove(companion.id)
+    
+    const incidentContent = engine.locale('characterDepart', interpolations: [
+      companion.name,
+      hero.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: companion.id,
+        targetId: hero.id,
+      )
+    }
+    engine.debug(incidentContent)
+  }
+
+  function levelUp({ incurIncident = true }) {
+    assert(hero != null)
+    final levelMax = maxLevelForRank(hero.rank)
+    if (hero.level >= levelMax) {
+      engine.warn('角色已达到境界允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
+      return
+    }
+
+    let expRequirement = expForLevel(hero.level)
+    if (hero.exp < expRequirement) {
+      engine.warn('没有足够的经验值用来提升等级！当前经验值：[${hero.exp}], 需要的经验值：[${expRequirement}]')
+      return
+    }
+
+    hero.exp -= expRequirement
+    ++hero.level
+    hero.expForLevel = expForLevel(hero.level)
+    hero.skillPoints += 1
+
+    const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
+      hero.name,
+      hero.level,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+
+    return hero.level
+  }
+
+  function rankUp({ incurIncident = true }) {
+    assert(hero != null)
+
+    if (hero.rank >= kCultivationRankMax ) {
+      engine.error('角色已达到游戏允许的最高境界，无法再提升！当前境界: [${hero.rank}]')
+      return
+    }
+
+    ++hero.rank
+
+    const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
+      hero.name,
+      getCultivationRankName(hero),
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+
+    return hero.rank
+  }
+
+  function gainExp(value: integer) {
+    assert(hero != null)
+    assert(value > 0)
+
+    characterGainExp(hero, value)
+
+    // World.addHintText(
+    //   '${engine.locale('exp')} + ${value}',
+    //   hero.worldPosition.left,
+    //   hero.worldPosition.top,
+    //   Colors.blue,
+    // )
+  }
+
+  function gainPassive(dataId, {level = 1}) {
+    assert(hero != null)
+    characterSetPassive(hero, dataId, level: level)
+  }
+
+  function refundPassive(dataId, {level = 1}) {
+    assert(hero != null)
+    characterSetPassive(hero, dataId, level: -level)
+  }
+
+  function hasPassive(dataId) {
+    assert(hero != null)
+    return hero.passives[dataId]
+  }
+
+  function calculateStats({rejuvenate = false}) {
+    assert(hero != null)
+    characterCalculateStats(hero, rejuvenate: rejuvenate)
+  }
+
+  function setLife(amount) {
+    assert(hero != null)
+    return setCharacterLife(hero, amount)
+  }
+
+  function restoreLife(count) {
+    assert(hero != null)
+    return characterRestoreLife(hero, count)
+  }
+
+  function rejuvenate() {
+    assert(hero != null)
+    setCharacterLife(hero, hero.stats.lifeMax)
+  }
+
+  function createJournal(journal, { setAsActive = true, incurIncident = true }) {
+    assert(hero != null)
+    return characterCreateJournal(hero, journal, setAsActive: setAsActive, incurIncident: incurIncident)
+  }
+
+  function createJournalById(journalId, {
+    setAsActive = true,
+    interpolations,
+    incurIncident = true,
+  }) {
+    assert(hero != null)
+    return characterCreateJournalById(
+      hero, journalId,
+      setAsActive: setAsActive,
+      interpolations: interpolations,
+      incurIncident: incurIncident,
+    )
+  }
+
+  /// 注意这个函数不处理任务本身的预算
+  /// 需要另行调用 loot([journal.quest.budget]) 来处理
+  function createJournalByQuest(quest, { setAsActive = true, incurIncident = true }) {
+    assert(hero != null)
+    final journal = Journal.fromQuest(quest)
+    return createJournal(journal, setAsActive: setAsActive, incurIncident: incurIncident)
+  }
+
+  /// 推动任务进度
+  /// 这里不处理任务的成功和失败
+  function progressJournalById(journalId, { stage,  incurIncident = true }) {
+    assert(hero != null)
+    return characterProgressJournalById(hero, journalId, stage: stage, incurIncident: incurIncident)
+  }
+
+  function setActiveJournal(journal, { notifyUpdate = true }) {
+    assert(hero != null)
+    assert(hero.journals.containsKey(journal.id))
+    if (!hero.activeJournalIds.contains(journal.id)) {
+      hero.activeJournalIds.add(journal.id)
+      if (hero.activeJournalIds.length > _kMaxActiveJournal) {
+        hero.activeJournalIds.removeFirst()
+      }
+    }
+    if (notifyUpdate) {
+      Game.updateActiveJournals()
+    }
+  }
+
+  function toogleActiveJournal(journal, { notifyUpdate = true }) {
+    assert(hero != null)
+    assert(hero.journals.containsKey(journal.id))
+    if (hero.activeJournalIds.contains(journal.id)) {
+      hero.activeJournalIds.remove(journal.id)
+    } else {
+      hero.activeJournalIds.add(journal.id)
+      if (hero.activeJournalIds.length > _kMaxActiveJournal) {
+        hero.activeJournalIds.removeFirst()
+      }
+    }
+    if (notifyUpdate) {
+      Game.updateActiveJournals()
+    }
+  }
+
+  function getActiveJournals() {
+    assert(hero != null)
+    final toBeRemoved = []
+    final journals = []
+    for (final id in hero.activeJournalIds) {
+      if (hero.journals[id] == null) {
+        engine.warn('active journal not found: ${id}, removing it from active list.')
+        toBeRemoved.add(id)
+      } else {
+        journals.add(hero.journals[id])
+      }
+    }
+    return journals
+  }
+
+  async function enroll(organization, { npcId, titleId = 'taskman', incurIncident = true }) {
+    assert(hero != null)
+    addCharacterToOrganization(
+      hero,
+      organization,
+      titleId: titleId,
+      setHome: false, // 玩家需要手动选择家宅
+      assignSuperior: false,
+      incurIncident: incurIncident,
+    )
+    dialog.pushDialog('hint_select_organization_home')
+    await dialog.execute()
+    final locationIds = organization.locationIds
+    assert(locationIds.isNotEmpty, 'organization has no locationIds: ${organization.id}')
+    // 玩家需要手动选择一个据点作为家宅所在地
+    final homeId = await Game.selectLocation(locationIds)
+    const home = game.locations[homeId]
+    setCharacterHome(hero, home)
+    
+    final cityhall = home.sites.map((id) => game.locations[id]).firstWhere((site) => site.kind == 'cityhall')
+    assert(cityhall != null, 'could not find cityhall in location: [${home.name}]')
+
+    final superiorId = assignCharacterSuperior(hero, organization)
+    assert(superiorId != null, 'no superior for hero found in organization: ${organization.id}')
+    final superior = game.characters[superiorId]
+    assert(superior != null, 'character is null for id: ${superiorId}')
+
+    final interpolations = [
+      organization.name,
+      cityhall.name,
+      superior.name,
+    ]
+    dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
+    await dialog.execute()
+    
+    if (!hero.journals.containsKey('organizationInitiation')) {
+      final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
+      Game.promptJournal(journal)
+    }
+  }
+}

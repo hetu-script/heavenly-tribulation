@@ -6,8 +6,8 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/logic/logic.dart';
-import '../../game/common.dart';
+import '../../logic/logic.dart';
+import '../../data/common.dart';
 import '../ui/close_button2.dart';
 
 class EditRankLevelSliderDialog extends StatefulWidget {
@@ -18,7 +18,6 @@ class EditRankLevelSliderDialog extends StatefulWidget {
   }) {
     return showDialog<(int, int)?>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return EditRankLevelSliderDialog(
           level: level,
@@ -67,7 +66,7 @@ class _EditRankLevelSliderDialogState extends State<EditRankLevelSliderDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 400,

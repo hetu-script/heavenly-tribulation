@@ -20,7 +20,7 @@ class PromptTextBanner extends BorderComponent {
           size: GameUI.promptBannerSize,
           priority: kWorldMapAnimationPriority,
         ) {
-    backgroundColor = backgroundColor ?? GameUI.backgroundColor3;
+    backgroundColor = backgroundColor ?? GameUI.backgroundColor2;
     paint = Paint()
       ..color = backgroundColor
       ..style = PaintingStyle.fill;

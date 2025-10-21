@@ -461,7 +461,7 @@ struct Cardpack {
   }) {
     assert(genre == null || genre == 'none' || Constants.cultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
-    assert(kind == null || kBattleCardKind.contains(kind), kind)
+    assert(kind == null || kBattleCardKinds.contains(kind), kind)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
     this.type = kItemTypeCardpack

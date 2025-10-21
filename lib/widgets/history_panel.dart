@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../state/view_panels.dart';
@@ -9,7 +8,7 @@ import '../ui.dart';
 import '../engine.dart';
 import 'history_list.dart';
 import '../state/hover_content.dart';
-import '../game/game.dart';
+import '../data/game.dart';
 import '../state/selected_tile.dart';
 
 class HistoryPanel extends StatelessWidget {
@@ -109,7 +108,7 @@ class HistoryPanel extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      color: GameUI.backgroundColor2,
+      color: GameUI.backgroundColor,
       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +129,7 @@ class HistoryPanel extends StatelessWidget {
             width: 480,
             child: HeroAndGlobalHistoryList(
               limit: 3,
-              cursor: FlutterCustomMemoryImageCursor(key: 'click'),
+              cursor: GameUI.cursor.resolve({WidgetState.hovered}),
               onTapUp: () {
                 context.read<ViewPanelState>().toogle(ViewPanels.memory);
               },

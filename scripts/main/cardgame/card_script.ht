@@ -265,7 +265,7 @@ struct CardScriptExtra {
   }
 
   async function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
-    final amount = self.game.stats[affix.attributeId] * 0.01
+    final amount = self.data.stats[affix.attributeId] * 0.01
     self.turnFlags.damage.percentageChange1 += amount
   }
 }

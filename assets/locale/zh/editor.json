@@ -17,6 +17,7 @@
   "generatedZone": "生成了 {0} 个地域。",
 
   "objectIdNonExist": "对象 [{0}] 不存在！",
+  "cannotDeleteCurrentWorld": "不能删除当前打开的地图！",
 
   "isDiscovered": "是否已被发现",
   "isMainWorld": "是否是主世界",

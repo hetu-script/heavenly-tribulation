@@ -156,13 +156,13 @@
       sprite: "object/city.png",
     },
   },
-  farmfield: {
-    id: "farmfield",
-    name: "farmfield",
-    icon: "assets/images/object/farmfield.png",
+  farmland: {
+    id: "farmland",
+    name: "farmland",
+    icon: "assets/images/object/farmland.png",
     type: "overlaySprite",
     overlaySprite: {
-      sprite: "object/farmfield.png",
+      sprite: "object/farmland.png",
     },
   },
   timberland: {

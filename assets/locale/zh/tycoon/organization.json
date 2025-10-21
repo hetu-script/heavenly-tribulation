@@ -11,6 +11,33 @@
   "chancellor": "内务长老",
   "guestChancellor": "客卿长老",
 
+  "createOrganization2": "开宗立派",
+  "recruitCity": "招募据点",
+
+  "hint_createOrganization_intro": "阁下有此雄心，实乃一方豪杰。\n然开宗立派并非易事，需有服众之能，立派之本。\n若要在此地立下基业，需满足几项条件。\n其一，阁下需有足够的实力，<yellow>至少达到{0}境界</>方能服众。</>\n其二，立派需有根基，须拥有<yellow> {1} × 铜钱，{2} × 灵石</>作为立派之本金。\n其三，开宗立派者<yellow>如之前身属其他门派，必须先退出</>。\n若能满足以上条件，城中百姓散修自当鼎力相助。阁下可在此创立万世基业。",
+
+  "hint_createOrganization_hasOrganization": "阁下目前仍归属于{0}，岂能另立门户？若要自立宗派，需先做个了断才是。",
+
+  "hint_createOrganization_rankTooLow": "阁下目前的境界为{0}，而开宗立派至少需要达到{1}境界。\n阁下虽有壮志，但江湖险恶，若无服众之力，立派之后恐难以为继。\n还请阁下自去修行磨砺，待境界更进一步再来不迟。",
+
+  "hint_createOrganization_notEnoughMoneyOrShard": "创建门派需要 {0} × 铜钱和 {1} × 灵石。\n阁下目前似乎缺少启动之资。还请先行筹措，以固门派根基。",
+
+  "hint_createOrganization_success_1": "看阁下气宇轩昂，神光内敛，想必创派一事如今已是万事俱备。\n很好，现在请为你的门派命名吧。",
+
+  "hint_createOrganization_success_2": "嗯，原来我们是<yellow>{0}</>...好名字，气势不凡！\n那么，我们{0}的宗旨为何？是追求无为清净，还是修真问道，亦或是富甲一方？",
+
+  "hint_createOrganization_success_3": "<yellow>{0}</>之路啊...阁下果然是志向远大之辈！\n从今日起，{1}便是江湖上一股不可忽视的力量。\n那么，我们{1}的功法流派又是何种？是以御剑为主，还是以悟道为重？",
+
+  "hint_createOrganization_success_4": "好地，我们{1}将以<yellow>{0}</>为主要的功法流派。\n阁下果然独具慧眼，必能引领我派弟子走上一条与众不同的修行之路！\n从今日起，{1}正式成立！\n愿我{1}仙福永享，武运昌隆！",
+
+  "hint_recruitCity_intro": "阁下欲招募此城加入贵门派？\n此事非同小可，需满足几项条件。\n其一，阁下需确保贵门派此时<yellow>并未和任何其他门派交战</>，否则我等小民惊惧之下，难以从命。\n其二，阁下需争取本地支持，在本地至少拥有 <yellow>{0} 功勋</>。这可以通过<cyan>完成据点会堂中的悬赏任务来积累</>。\n其三，阁下需准备足够抚慰金以安定民心。这需要：<yellow>{1} × 铜钱，{2} × 灵石</>。\n只要阁下能妥善处理以上事项，城中百姓散修自然情愿归顺。此地便是贵门派的新据点。",
+
+  "hint_recruitCity_atWar": "阁下所属门派目前与其他门派正处于交战状态，无法招募新的据点。\n待战事平息后，再来此处商议此事吧。",
+  "hint_recruitCity_notEnoughContribution": "阁下目前在此地的功勋为 {0}，而招募此城至少需要 {1} 功勋。\n阁下可前往据点会堂，领取悬赏任务以积累功勋。",
+  "hint_recruitCity_notEnoughMoneyOrShard": "招募此城至少需要 {0} 铜钱和 {1} 灵石。\n阁下目前身上好像并不足以支付，可前往城中商铺出售物品以筹集资金。",
+  "hint_recruitCity_success": "阁下果然言而有信，之前所承诺的条件皆已备妥。\n我等城中上下，感佩于阁下的威望与诚意。从今日起，{0}便归于{1}麾下。\n愿我{1}仙福永享，武运昌隆！",
+  "hint_recruiteCity_success2": "我等愿尊阁下为城主，听凭号令。\n只需<yellow>将我等已经归顺的消息告知贵派掌门</>，相信城主之职，非君莫属。",
+
   "hint_organization_diplomacy_already_ally": "我们已经是盟友了。",
   "hint_alreadyTrialedThisMonth": "本月你已经尝试过这个门派的招募试炼了，需要等到明年的这个月才可以再次尝试。",
   "hint_notRecruitMonth": "本门招募月份是每年的 {0} 月，你想要加入我们的话，可以到时再来尝试。",
@@ -30,7 +57,12 @@
 
   "enroll": "加入宗门",
   "resign": "退出宗门",
-  "resign_confirm": "我意已决，退出宗门。",
+
+  "resign_confirm": "我去意已决，切勿再说。",
+
+  "organization_resign_1": "你要离开？这太突然了。\n你在本派期间也立下不少功劳，如今却因为什么要走？",
+
+  "organization_resign_confirm_1": "人各有志，强留无益。既然你心意已决，本派也不会再挽留。",
 
   "hint_organization_resign": "你已成功退出了{0}。\n你将失去使用宗门领地上设施的权限，并且无法再领取宗门任务。",
 
@@ -105,7 +137,7 @@
   "organization_wuwei_trial_question_8_option_3_comment": "我执，是一切烦恼的根源。\n你越是想抓住它，它便越是像一座山，压得你喘不过气。",
 
   "organization_wuwei_trial_intro": "寻路而来的人很多，但他们要找的，往往不是路，而是一个「答案」。\n你呢，你的「答案」是什么？",
-  "organization_wuwei_trial_pass": "今日起，你便可在此住下。\n观云，听雨，扫雪……或许有一天，你会忘记自己是来修行的。",
+  "organization_wuwei_trial_pass": "今日起，此地对你敞开。任凭你观云，听雨，问道……\n或许有一天，你会在这里找到修行的真正目的。",
   "organization_wuwei_trial_fail": "缘分未到，不必强求。\n你所求之道，或许不在山中，而在山下的红尘里。\n去吧，你的路在别处。",
 
   "organization_cultivation_trial_intro": "门派有门，大道无门。\n你或许终生不得其门而入。\n但你若能心怀大道，大道也会为你而开。",

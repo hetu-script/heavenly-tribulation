@@ -3,13 +3,15 @@ import 'generation_algorithm.ht'
 import 'zone.ht'
 
 const _kForestThreshold = 0.6
-const _kIslandThreshold = 0.2
-const _kMountainThreshold = 0.4
 
-const _kFarmFieldThreshold = 0.1
-const _kFisheryThreshold = 0.08
-const _kHuntingGroundThreshold = 0.03
-const _kTimberLandThreshold = 0.04
+const _kMirageThreshold = 0.15
+const _kArcanaThreshold = 0.3
+
+const _kFarmLandThreshold = 0.1
+const _kFisheryThreshold = 0.03
+
+const _kTimberLandThreshold = 0.075
+const _kHuntingGroundThreshold = 0.04
 const _kMineThreshold = 0.02
 
 const _kDungeonOnTerritoryProbability = 0.265
@@ -68,8 +70,8 @@ function createSandboxWorld({
   assert(characterNumber != null)
   assert(locationNumber > nationNumber)
 
-  engine.debug('开始生成世界，随机种子：${seed}, 地图大小：[${width}, ${height}]，地图风格：${style}，国家数量：${nationNumber}，据点数量：${locationNumber}，角色数量：${characterNumber}, 门派数量：${nationNumber}')
-
+  engine.info('--------开始生成世界--------')
+  engine.info('随机种子：${seed}, 地图大小：[${width}, ${height}]，地图风格：${style}，国家数量：${nationNumber}，据点数量：${locationNumber}，角色数量：${characterNumber}, 门派数量：${nationNumber}')
 
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
@@ -85,7 +87,7 @@ function createSandboxWorld({
   
   addWorld(newWorld)
 
-  engine.debug('生成地块')
+  engine.info('--------生成地块--------')
   for (const y in range(height)) {
     for (const x in range(width)) {
       let spriteIndex
@@ -103,14 +105,9 @@ function createSandboxWorld({
       )
     }
   }
-
-  // 没有区域，也是一个区域
-  // const voidZone = Zone(category: kZoneEmpty)
-
-  // 生成地域
-  engine.debug('生成大陆')
   generateContinent2(newWorld, seed: game.seed, style: style)
-  engine.debug('生成地域')
+
+  engine.info('--------划分大陆和海洋--------')
   generateZone(newWorld)
   
   const plainIndexes = Set()
@@ -119,8 +116,8 @@ function createSandboxWorld({
   // 地形装饰贴图
   // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为森林
   // 这些修改不影响该地块的 kind
+  engine.info('--------填充装饰地形：大陆架、森林--------')
   const lands = world.landIndexes.map((index) => world.terrains[index])
-  engine.debug('填充地形装饰贴图：大陆架、森林')
   for (const tile in lands) {
     let isShore = false
     const neighbors = getTileNeighbors(tile.left, tile.top)
@@ -149,9 +146,11 @@ function createSandboxWorld({
 
   // zone 的名字和其大小有关
   // 命名区域后，才会得到海洋地块，因为某些水体会被命名为湖泊和河流
+  engine.info('--------命名海洋和大陆--------')
   nameZones(newWorld)
 
   // 生成大陆架，在这一步会将大陆架从 seaIndexes 中剔除
+  engine.info('--------生成大陆架--------')
   const waters = world.waterIndexes.map((index) => world.terrains[index])
   for (const tile in waters) {
     let isShelf = false
@@ -172,7 +171,7 @@ function createSandboxWorld({
 
   // 生成据点
   // 有四种：城市、港口、山地（洞天）和岛屿（福地），后两者为隐藏据点
-  engine.debug('生成大陆上的据点')
+  engine.info('--------生成城市--------')
   final locations = []
   final locationNeighbors = {}
   const fisheryKinds = ['lake', 'shelf', 'sea']
@@ -183,7 +182,7 @@ function createSandboxWorld({
     let terrain
     let location
     let generated = false
-    if (typeroll < _kIslandThreshold) {
+    if (typeroll < _kMirageThreshold) {
       let availableWater = seas.where((tile) => tile.locationId == null)
       if (availableWater.isNotEmpty) {
         generated = true
@@ -198,7 +197,7 @@ function createSandboxWorld({
           development: random.nextInt(_kLocationInitialDevelopmentMax),
         )
       }
-    } else if (typeroll < _kMountainThreshold) {
+    } else if (typeroll < _kArcanaThreshold) {
       let availableMountain = mountains.where((tile) => tile.locationId == null)
       if (availableMountain.isNotEmpty) {
         generated = true
@@ -244,14 +243,13 @@ function createSandboxWorld({
     }
     locationNeighbors[location.terrainIndex] = neighbors.values
   }
-
   // 渔猎区域之前可能会重复添加，在这里去重
   world.fisheryIndexes = world.fisheryIndexes.toSet().toList()
 
-  engine.debug('生成城市领地范围')
+  engine.info('--------计算城市领地范围--------')
   generateCityTerritory(world)
   
-  engine.debug('生成自然资源')
+  engine.info('--------生成自然资源--------')
   for (final terrain in world.terrains) {
     if (terrain.kind in _kTerrainKindsWithNoResources) continue
     final resourceMultiplierData = Constants.terrainKindToNaturalResources[terrain.kind]
@@ -265,34 +263,38 @@ function createSandboxWorld({
     terrain.resources = resources
   }
 
-  engine.debug('生成生产类建筑')
-  // 生成农田
+  engine.info('--------生成生产类建筑：农场、林场、渔场、猎场、矿场--------')
   final discoveredCities = game.locations.values.where((location) =>
     location.category == 'city' && location.isHidden == false
   ).toList()
 
+  function addProductionSite(kind, terrain) {
+    assert(Constants.productionSiteKinds.contains(kind))
+    terrain.overlaySprite = {
+      sprite: 'object/${kind}.png',
+    }
+    const location = Location(
+      category: 'site',
+      kind: kind,
+      atTerrain: terrain,
+      updateWorldMap: false,
+      npcId: 'servant',
+      // 随机生成的场所，初始发展度是0-3之间随机。
+      development: random.nextInt(_kLocationInitialDevelopmentMax),
+    )
+    terrain.locationId = location.id
+  }
+
+  // 生成农田
   for (final city in discoveredCities) {
     final neighbors = locationNeighbors[city.terrainIndex]
     assert(neighbors != null)
     for (final terrain in neighbors) {
       if (terrain.locationId != null) continue
-      if (terrain.kind != 'plain') continue
+      if (terrain.kind != 'plain' && terrain.kind != 'forest') continue
       final r = random.nextDouble()
-      if (r < _kFarmFieldThreshold) {
-        terrain.overlaySprite = {
-          sprite: 'object/farmfield.png',
-        }
-        
-        const location = Location(
-          category: 'site',
-          kind: 'farmland',
-          atTerrain: terrain,
-          updateWorldMap: false,
-          npcId: 'servant',
-          // 随机生成的场所，初始发展度是0-3之间随机。
-          development: random.nextInt(_kLocationInitialDevelopmentMax),
-        )
-        terrain.locationId = location.id
+      if (r < _kFarmLandThreshold) {
+        addProductionSite('farmland', terrain)
       }
     }
   }
@@ -303,20 +305,7 @@ function createSandboxWorld({
     if (terrain.locationId != null) continue
     final r = random.nextDouble()
     if (r < _kFisheryThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/fishery.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'fishery',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        npcId: 'servant',
-        // 随机生成的场所，初始发展度是0-3之间随机。
-        development: random.nextInt(_kLocationInitialDevelopmentMax),
-      )
-      terrain.locationId = location.id
+      addProductionSite('fishery', terrain)
     }
   }
 
@@ -325,74 +314,24 @@ function createSandboxWorld({
     const terrain = world.terrains[index]
     if (terrain.locationId != null) continue
     final r = random.nextDouble()
-    if (r < _kHuntingGroundThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/huntingground.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'huntingground',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        npcId: 'servant',
-        // 随机生成的场所，初始发展度是0-3之间随机。
-        development: random.nextInt(_kLocationInitialDevelopmentMax),
-      )
-      terrain.locationId = location.id
-    } else if (r < _kMineThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/mine.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'mine',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        npcId: 'servant',
-        // 随机生成的场所，初始发展度是0-3之间随机。
-        development: random.nextInt(_kLocationInitialDevelopmentMax),
-      )
-      terrain.locationId = location.id
+    if (r < _kMineThreshold) {
+      addProductionSite('mine', terrain)
+    } else if (r < _kHuntingGroundThreshold) {
+      addProductionSite('huntingground', terrain)
     }
   }
 
-  // 生成猎场和伐木场
+  // 生成林场、矿场、猎场
   for (final index in forestIndexes) {
     const terrain = world.terrains[index]
     if (terrain.locationId != null) continue
     final r = random.nextDouble()
-    if (r < _kHuntingGroundThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/huntingground.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'huntingground',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        npcId: 'servant',
-        // 随机生成的场所，初始发展度是0-3之间随机。
-        development: random.nextInt(_kLocationInitialDevelopmentMax),
-      )
-      terrain.locationId = location.id
+    if (r < _kMineThreshold) {
+      addProductionSite('mine', terrain)
+    } else if (r < _kHuntingGroundThreshold) {
+      addProductionSite('huntingground', terrain)
     } else if (r < _kTimberLandThreshold) {
-      terrain.overlaySprite = {
-        sprite: 'object/timberland.png',
-      }
-      
-      const location = Location(
-        category: 'site',
-        kind: 'timberland',
-        atTerrain: terrain,
-        updateWorldMap: false,
-        npcId: 'servant',
-        // 随机生成的场所，初始发展度是0-3之间随机。
-        development: random.nextInt(_kLocationInitialDevelopmentMax),
-      )
-      terrain.locationId = location.id
+      addProductionSite('timberland', terrain)
     }
   }
 
@@ -461,7 +400,7 @@ function createSandboxWorld({
 
   const nations = []
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
-  engine.debug('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
+  engine.info('--------随机挑选几个城市作为都城，并生成国家--------')
   while (nations.length < nationNumber) {
     let availableLocations = game.locations.values.where((loc) => loc.category == 'city' && loc.organizationId == null).toList()
     assert(availableLocations.isNotEmpty)
@@ -526,11 +465,11 @@ function createSandboxWorld({
     }
   }
 
+  engine.info('--------生成初始角色--------')
   final cities = game.locations.values.where((location) =>
     location.category == 'city' && location.isHidden == false
   ).toList()
   while (game.characters.length < characterNumber) {
-    // 产生新的在野角色
     // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
     const location = random.nextIterable(cities)
     Character(
@@ -543,7 +482,7 @@ function createSandboxWorld({
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
   // 因为是模拟运行，每个tick接跳过一个月
-  engine.debug('快速模拟一段时间的演化，生成人物、组织、国家等信息')
+  engine.info('--------扩张门派的成员和领地--------')
   for (var i in range(5)) {
     // 国家和组织扩张
     for (const organization of game.organizations) {
@@ -558,7 +497,7 @@ function createSandboxWorld({
         // engine.warn('组织 ${organization.id} 没有可用的据点可以扩张了。')
         continue
       }
-      engine.debug('组织 ${organization.name} 尝试扩张新领土')
+      // engine.debug('组织 ${organization.name} 尝试扩张新领土')
       if (availableCities.length > 1) {
         // 按照距离组织据点的远近排序
         final headquarters = game.locations[organization.headquartersLocationId]
@@ -574,9 +513,7 @@ function createSandboxWorld({
       addLocationToOrganization(newCity, organization)
     }
   }
-
   for (var i in range(10)) {
-    // 国家和组织扩张
     for (const organization of game.organizations) {
       let roll = random.nextDouble()
       if (roll > _kOrganizationRecruitProbability) continue
@@ -587,14 +524,14 @@ function createSandboxWorld({
         // engine.warn('组织 ${organization.id} 没有可用的角色可以招募了。')
         continue
       }
-      engine.debug('组织 ${organization.id} 尝试招募新成员')
+      // engine.debug('组织 ${organization.id} 尝试招募新成员')
       final character = random.shuffle(availableCharacters).first
       addCharacterToOrganization(character, organization)
     }
   }
   
+  engine.info('--------处理婚姻和生育--------')
   for (var i in range(characterNumber ~/ 4)) {
-    engine.debug('通过婚姻和生育产生新的角色以及其人物关系')
     for (const char of game.characters) {
       if (!char.isFemale) continue
       const age = getCharacterAge(char)
@@ -626,9 +563,8 @@ function createSandboxWorld({
     }
   }
 
-
   // 生成地牢
-  engine.debug('在各个据点的领地上添加秘境')
+  engine.info('--------添加秘境--------')
   for (final city in cities) {
     final r = random.nextDouble()
     if (r > _kDungeonOnTerritoryProbability) continue
@@ -652,7 +588,7 @@ function createSandboxWorld({
     dungeionTile.locationId = location.id
   }
 
-  engine.debug('为角色添加次要动机')
+  engine.info('--------为角色添加次要动机--------')
   for (const char of game.characters) {
     const age = getCharacterAge(char)
     if (char.motivations.isNotEmpty) continue
@@ -692,11 +628,10 @@ function createSandboxWorld({
     }
   }
 
-  // 此时时间应为7日上午，这是为了避免重复触发月初事件
-  Game.updateGame(tick: 0, force: true, updateEntity: true, updateUI: false, updateWorldMap: false)
-  Game.updateGame(tick: Constants.ticksPerDay * 6, updateEntity: false, updateUI: false, updateWorldMap: false)
+  engine.info('--------世界生成完毕，清理临时数据--------')
 
-  // engine.debug('世界生成完毕。重置随机数生成器。')
+  Game.updateGame(tick: 0, force: true, updateEntity: true, updateUI: false, updateWorldMap: false)
+  
   // setRandomSeed()
 
   for (final tile in world.terrains) {

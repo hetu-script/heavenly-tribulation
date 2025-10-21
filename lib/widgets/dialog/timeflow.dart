@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 
 class TimeflowDialog extends StatefulWidget {
   static Future<int> show({
@@ -19,8 +19,6 @@ class TimeflowDialog extends StatefulWidget {
   }) async {
     final result = await showDialog<int>(
       context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return TimeflowDialog(
           max: ticks,
@@ -92,8 +90,8 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
     final timeOfDayImageId = 'assets/images/time/${GameLogic.timeString}.png';
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
-      barrierColor: GameUI.backgroundColor,
+      cursor: GameUI.cursor,
+      backgroundColor: GameUI.backgroundColor,
       width: 300.0,
       height: 380.0,
       child: Column(

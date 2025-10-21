@@ -64,7 +64,7 @@ async function onAfterMove(terrain) {
 
   if (tradeQuest.isEmpty) return
 
-  final roll = engine.random.nextDouble()
+  final roll = random.nextDouble()
   let rate = Constants.terrainKindToEnemyEncounterRate[terrain.kind] ?? kEnemyEncounterRateBase
   let er = rate * (1 - hero.rank * kEnemyEncounterRateRankFactor)
   if (roll > er) return
@@ -83,11 +83,11 @@ async function onAfterMove(terrain) {
         hero.materials[materialId] > 0
       ).toList()
       if (materials.isNotEmpty) {
-        final materialId = engine.random.nextIterable(materials)
+        final materialId = random.nextIterable(materials)
         final amount = hero.materials[materialId]
         final lost = (amount * materialLostRate).ceil()
         Player.exhaust(materialId, lost)
-        dialog.pushDialog('heroLoseMultiple', interpolations: [lost, engine.locale(materialId)])
+        dialog.pushDialog('hint_loseMultiple', interpolations: [lost, engine.locale(materialId)])
         await dialog.execute()
       }
 
@@ -95,14 +95,14 @@ async function onAfterMove(terrain) {
       let equippedIndexes = hero.equipments.keys.where((slot) =>
         hero.equipments[slot] != null
       ).toList()
-      final roll = engine.random.nextDouble()
+      final roll = random.nextDouble()
       if (equippedIndexes.isNotEmpty && roll < equipmentLostRate) {
-        final slot = engine.random.nextIterable(equippedIndexes)
+        final slot = random.nextIterable(equippedIndexes)
         final itemId = hero.equipments[slot]
         final item = hero.inventory[itemId]
         Player.unequip(item)
         Player.lose(item)
-        dialog.pushDialog('heroLose', interpolations: [item.name])
+        dialog.pushDialog('hint_lose', interpolations: [item.name])
         await dialog.execute()
       }
 

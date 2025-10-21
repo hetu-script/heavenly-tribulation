@@ -13,12 +13,17 @@ class SelectMenuDialog extends StatefulWidget {
   static Future<String?> show({
     required BuildContext context,
     required Map<String, String> selections,
+    String? title,
+    bool barrierDismissible = true,
   }) {
     return showDialog<String?>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
-        return SelectMenuDialog(selections: selections);
+        return SelectMenuDialog(
+          selections: selections,
+          title: title,
+          barrierDismissible: barrierDismissible,
+        );
       },
     );
   }
@@ -27,11 +32,15 @@ class SelectMenuDialog extends StatefulWidget {
     super.key,
     required this.selections,
     this.selectedValue,
+    this.title,
+    this.barrierDismissible = true,
   })  : assert(selections.isNotEmpty),
         assert(selectedValue == null || selections.containsKey(selectedValue));
 
   final Map<String, String> selections;
   final String? selectedValue;
+  final String? title;
+  final bool barrierDismissible;
 
   @override
   State<SelectMenuDialog> createState() => _SelectMenuDialogState();
@@ -50,15 +59,16 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
+      barrierDismissible: widget.barrierDismissible,
       child: SizedBox(
         width: 320,
         height: 200,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(engine.locale('selectOne')),
+            title: Text(widget.title ?? engine.locale('select')),
             actions: const [CloseButton2()],
           ),
           body: Container(

@@ -18,7 +18,6 @@ class InputStringDialog extends StatefulWidget {
   }) {
     return showDialog<String?>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return InputStringDialog(
           title: title,
@@ -61,7 +60,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 240,

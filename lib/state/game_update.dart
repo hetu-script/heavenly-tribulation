@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
-import '../game/logic/logic.dart';
-import '../game/game.dart';
+import '../logic/logic.dart';
+import '../data/game.dart';
 import '../engine.dart';
 import 'package:samsara/extensions.dart';
 
@@ -27,11 +27,13 @@ class GameTimestampState with ChangeNotifier {
 }
 
 class HeroJournalUpdate with ChangeNotifier {
-  Iterable activeJournals = [];
+  List<dynamic> activeJournals = [];
 
   void update([List? journals]) {
-    journals ??= engine.hetu.invoke('getActiveJournals', namespace: 'Player');
-    activeJournals = journals!;
+    if (journals == null && GameData.hero != null) {
+      journals = engine.hetu.invoke('getActiveJournals', namespace: 'Player');
+    }
+    activeJournals = journals ?? const [];
     notifyListeners();
   }
 }

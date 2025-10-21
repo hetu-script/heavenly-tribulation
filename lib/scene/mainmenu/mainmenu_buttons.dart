@@ -5,26 +5,25 @@ import 'package:window_manager/window_manager.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 // import 'package:samsara/console.dart';
 import 'package:samsara/extensions.dart';
 
 import '../../ui.dart';
 // import '../../game/logic/logic.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../engine.dart';
-import 'load_game.dart';
+import '../../widgets/load_game.dart';
 import 'create_sandbox_game.dart';
-import 'create_blank_map.dart';
+import '../world/widgets/create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../widgets/character/details.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 // import '../../widgets/ui/close_button2.dart';
 
 enum DebugMenuItems {
-  // debugConsole,
+  debugConsole,
   debugResetHero,
   debugItem,
   debugMerchant,
@@ -147,13 +146,13 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.FilledButton(
                         onPressed: () async {
+                          setMenuState(MenuStates.main);
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
-                          setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(
+                          await engine.clearAllCachedScene(
                               except: Scenes.mainmenu, triggerOnStart: false);
                           engine.hetu.invoke('resetDungeon', namedArgs: {
                             'rank': GameData.hero['rank'],
@@ -187,27 +186,20 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                                 const CreateSandboxGameDialog(),
                           );
                           if (args == null) return;
+                          setMenuState(MenuStates.main);
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
-                          setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(
+                          await engine.clearAllCachedScene(
                               except: Scenes.mainmenu, triggerOnStart: false);
                           await GameData.createGame(
                             args['saveName'],
+                            arguments: args,
                             seed: args['seed'],
                             mainWorldId: args['id'],
                             enableTutorial: args['enableTutorial'],
-                          );
-                          engine.pushScene(
-                            args['id'],
-                            constructorId: Scenes.worldmap,
-                            arguments: args,
-                            onAfterLoaded: () {
-                              engine.setLoading(false);
-                            },
                           );
                         },
                         child: Label(
@@ -258,64 +250,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
-                          engine.setLoading(true,
-                              tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
-                          await Future.delayed(
-                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(
-                              except: Scenes.mainmenu, triggerOnStart: false);
-                          final sceneIds =
-                              await GameData.loadGame(info.savePath);
-                          if (sceneIds.isNotEmpty) {
-                            for (var i = 0; i < sceneIds.length; ++i) {
-                              final sceneId = sceneIds[i];
-                              final constructorId =
-                                  engine.cachedConstructorIds[sceneId];
-                              final arguments = engine.cachedArguments[sceneId];
-                              if (constructorId == Scenes.worldmap) {
-                                await engine.pushScene(
-                                  info.currentWorldId,
-                                  constructorId: Scenes.worldmap,
-                                  arguments: {
-                                    'id': info.currentWorldId,
-                                    'savePath': info.savePath,
-                                    'method': 'load',
-                                  },
-                                  onAfterLoaded: i == sceneIds.length - 1
-                                      ? () {
-                                          engine.setLoading(false);
-                                        }
-                                      : null,
-                                );
-                              } else {
-                                await engine.pushScene(
-                                  sceneId,
-                                  constructorId: constructorId,
-                                  arguments: arguments,
-                                  onAfterLoaded: i == sceneIds.length - 1
-                                      ? () {
-                                          engine.setLoading(false);
-                                        }
-                                      : null,
-                                );
-                              }
-                            }
-                          } else {
-                            await engine.pushScene(
-                              info.currentWorldId,
-                              constructorId: Scenes.worldmap,
-                              arguments: {
-                                'id': info.currentWorldId,
-                                'savePath': info.savePath,
-                                'method': 'load',
-                              },
-                              onAfterLoaded: () {
-                                engine.setLoading(false);
-                              },
-                            );
-                          }
+                          GameData.loadGame(info);
                         },
                         child: Label(
                           engine.locale('load'),
@@ -346,34 +282,24 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         onPressed: () async {
                           final args = await showDialog(
                             context: context,
-                            builder: (context) => const CreateBlankMapDialog(
-                              isCreatingNewGame: true,
-                              isEditorMode: true,
-                            ),
+                            builder: (context) =>
+                                const CreateBlankMapDialog(isNewGame: true),
                           );
                           if (args == null) return;
+                          setMenuState(MenuStates.main);
+                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           engine.setLoading(true,
                               tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
                           await Future.delayed(
                               const Duration(milliseconds: 250));
-                          setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(
+                          await engine.clearAllCachedScene(
                               except: Scenes.mainmenu, triggerOnStart: false);
                           await GameData.createGame(
                             args['saveName'],
-                            seed: args['seed'],
-                            mainWorldId:
-                                args['isMain'] == true ? args['id'] : null,
-                            isEditorMode: true,
-                          );
-                          engine.pushScene(
-                            args['id'],
-                            constructorId: Scenes.worldmap,
                             arguments: args,
-                            onAfterLoaded: () {
-                              engine.setLoading(false);
-                            },
+                            seed: args['seed'],
+                            mainWorldId: args['id'],
+                            isEditorMode: true,
                           );
                         },
                         child: Label(
@@ -392,31 +318,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
-                          engine.setLoading(true,
-                              tip: engine.locale(kTips.random));
-                          // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
-                          await Future.delayed(
-                              const Duration(milliseconds: 250));
                           setMenuState(MenuStates.main);
-                          engine.clearAllCachedScene(
-                              except: Scenes.mainmenu, triggerOnStart: false);
-                          await GameData.loadGame(
-                            info.savePath,
-                            isEditorMode: true,
-                          );
-                          engine.pushScene(
-                            info.currentWorldId,
-                            constructorId: Scenes.worldmap,
-                            arguments: {
-                              'id': info.currentWorldId,
-                              'method': 'load',
-                              'savePath': info.savePath,
-                              'isEditorMode': true,
-                            },
-                            onAfterLoaded: () {
-                              engine.setLoading(false);
-                            },
-                          );
+                          GameData.loadGame(info, isEditorMode: true);
                         },
                         child: Label(
                           engine.locale('load'),
@@ -474,11 +377,13 @@ class _DebugButtonState extends State<DebugButton> {
         borderRadius: BorderRadius.circular(5.0),
         border: Border.all(color: GameUI.foregroundColor),
       ),
+      width: GameUI.infoButtonSize.width,
+      height: GameUI.infoButtonSize.height,
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(
           icon: const Icon(Icons.menu_open, size: 20.0),
-          mouseCursor: FlutterCustomMemoryImageCursor(key: 'click'),
+          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           padding: const EdgeInsets.all(0),
           onPressed: () {
             showFluentMenu(
@@ -499,20 +404,12 @@ class _DebugButtonState extends State<DebugButton> {
                 engine.locale('debugMatchingGame'):
                     DebugMenuItems.debugMatchingGame,
               },
-              onSelectedItem: (DebugMenuItems item) {
+              onSelectedItem: (DebugMenuItems item) async {
                 switch (item) {
-                  // case DebugMenuItems.debugConsole:
-                  //   showDialog(
-                  //     context: context,
-                  //     builder: (BuildContext context) => Console(
-                  //       engine: engine,
-                  //       margin: const EdgeInsets.all(50.0),
-                  //       backgroundColor: GameUI.backgroundColor2,
-                  //       closeButton: CloseButton2(),
-                  //     ),
-                  //   );
+                  case DebugMenuItems.debugConsole:
+                    GameUI.showConsole(context);
                   case DebugMenuItems.debugResetHero:
-                    engine.clearAllCachedScene(
+                    await engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
                       triggerOnStart: true,

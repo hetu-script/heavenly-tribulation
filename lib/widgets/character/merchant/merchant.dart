@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../ui.dart';
-import '../../../game/logic/logic.dart';
+import '../../../logic/logic.dart';
 import '../../../engine.dart';
 import '../inventory/inventory.dart';
-import '../../../game/game.dart';
+import '../../../data/game.dart';
 import '../../../state/character.dart';
 import '../../../scene/game_dialog/game_dialog_content.dart';
 import 'material_bar.dart';
@@ -81,8 +81,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
-      barrierColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       width: 720.0,
       height: 500.0,
       child: Scaffold(

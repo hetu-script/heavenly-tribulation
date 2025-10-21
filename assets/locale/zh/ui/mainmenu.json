@@ -1,11 +1,7 @@
 {
-  "exitToDesktop": "退出",
-  "goBack": "返回",
-
-  "settings": "游戏设置",
+  "exitToDesktop": "返回桌面",
 
   "startGame": "开始游戏",
-  "tutorial": "教学模式",
   "storyMode": "剧情模式",
   "sandboxMode": "沙盒模式",
   "endlessMode": "无尽模式",
@@ -14,19 +10,12 @@
   "createMap": "创建新地图",
   "characterEditor": "人物编辑器",
 
-  "debugMode": "开发者模式",
+  "randomSeed": "随机种子",
 
-  "randomSeed": "随机数种子",
   "worldStyle": "地图风格",
-  "islands": "群岛",
-  "coast": "滨海",
-  "inland": "内陆",
   "worldSize": "地图大小",
-  "tiny": "微小",
-  "medium": "适中",
-  "huge": "庞大",
-  "gigantic": "广阔",
-  "locationNumber": "据点数量",
+
+  "cityNumber": "城市数量",
   "memberNumber": "成员数量",
   "characterNumber": "角色数量",
   "organizationNumber": "门派数量",
@@ -35,22 +24,7 @@
   "loadMap": "载入地图",
   "unnamedMap": "未命名地图",
 
-  "new": "新建",
-  "save": "保存",
-  "fileName": "文件名",
-  "saveName": "存档",
-  "mapSize": "地图大小",
-  "timestamp": "日期",
-  "saveAs": "另存为",
-  "saveMapAs": "地图另存为",
-  "reload": "重新载入",
-  "saveSuccessed": "保存成功！",
   "directoryNotEmpty": "保存失败：目录不是空的。",
-
-  "localization": "本地化文本",
-  "code": "代码",
-  "module": "模组",
-  "script": "脚本",
 
   "characterEditingMustEnterId": "必须填写角色ID！",
   "characterEditingMustEnterName": "必须填写角色姓名！"

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../../ui.dart';
 
@@ -54,7 +53,7 @@ class ItemGrid extends StatelessWidget {
       child: MouseRegion(
         cursor: itemData == null
             ? MouseCursor.defer
-            : FlutterCustomMemoryImageCursor(key: 'click'),
+            : GameUI.cursor.resolve({WidgetState.hovered}),
         onEnter: (event) {
           if (itemData == null) {
             return;

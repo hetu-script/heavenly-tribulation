@@ -1,8 +1,8 @@
 {
   "journal_organizationInitiation_title": "修真门派",
-  "journal_organizationInitiation_stage_0": "初次加入{0}的你，要去{1}，找你的上级{2}报到。",
-  "journal_organizationInitiation_stage_1": "你拿到了门派配发的丹药和秘籍，正式成为了{0}的一名杂役。接下来，你需要参加每个月月初 1-5 号举办的例会，获取门派任务。",
-  "journal_organizationInitiation_stage_2": "你需要领取并完成门派任务，积累功勋，成为「执事」。",
+  "journal_organizationInitiation_stage_0": "去{1}找上级{2}报到，领取{0}配发的丹药和秘籍。",
+  "journal_organizationInitiation_stage_1": "参加每个月月初 1-5 号举办的例会，获取门派任务。",
+  "journal_organizationInitiation_stage_2": "积累功勋，成为门派「执事」。",
 
   "topic_organizationInitiation": "原来你就是{0}新来的弟子？\n<yellow>别忘了去{1}的会堂找你的上级{2}报到</>，你应该可以领到一瓶丹药和一本秘籍。",
   "topic_organizationInitiation_superior": "原来你就是{0}新来的弟子？\n看来我是你的上级。\n<yellow>别忘了去{1}的据点会堂找我报到</>，你可以领到一瓶丹药和一本秘籍。",
@@ -18,6 +18,9 @@
   "organization_meeting_new_recruit_3": "新血注入，门派自当更兴旺。还望大家融洽共处，互相帮助，早日同登大道。",
 
   "organizationInitiation": "初入门派",
+
+  "journal_organizationFirstMeetingIntroduction_title": "自我介绍",
+
   "organization_meeting_new_recruit_options": "在门派的例会上，你作为新弟子，需要向大家做一个简单的自我介绍。你会选择哪种方式？",
 
   "organization_meeting_new_recruit_option_1": "谦和有礼",
@@ -29,5 +32,8 @@
 
   "organization_meeting_quests": "接下来，开始本月的任务分配，诸位可自行认领。有志者切莫推诿。",
 
-  "organization_meeting_ending": "例会到此结束，各位可自行解散。还请牢记天道酬勤，修持不可懈怠。"
+  "organization_meeting_ending": "例会到此结束，各位可自行解散。还请牢记天道酬勤，修持不可懈怠。",
+
+  "journal_organizationRecruitCityReportToLeader_stage0": "你成功将{0}招募至{1}麾下，你需要尽快<yellow>向掌门汇报此事</>。",
+  "journal_organizationRecruitCityReportToLeader_stage1": "你已经成功汇报。"
 }

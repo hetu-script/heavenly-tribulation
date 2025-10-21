@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/game/common.dart';
+import 'package:heavenly_tribulation/data/common.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../entity_listview.dart';
+import '../information.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import '../ui/close_button2.dart';
@@ -74,7 +74,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 500.0,
       height: 400.0,
@@ -215,10 +215,9 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                         onPressed: () async {
                           final key = await showDialog<String>(
                             context: context,
-                            barrierDismissible: false,
-                            builder: (context) => EntityListView(
-                              showCloseButton: false,
-                              mode: EntityListViewMode.selectCharacter,
+                            builder: (context) => InformationView(
+                              showCloseButton: true,
+                              mode: InformationMode.selectCharacter,
                             ),
                           );
                           _headIdEditingController.text = key ?? '';

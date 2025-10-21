@@ -8,12 +8,14 @@ import 'package:samsara/extensions.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:fast_noise/fast_noise.dart';
 import 'package:hetu_script/utils/crc32b.dart';
+import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
 import '../../widgets/ui/menu_builder.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
+import '../../widgets/ui/close_button2.dart';
 
 int _floatToInt8(double x) {
   // return (x * 255.0).round() & 0xff;
@@ -116,6 +118,9 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
 
   final Map<int, ui.Image> _imageCache = {};
 
+  bool get needConfirmed => _seedToBeConfirmed != null;
+  String? _seedToBeConfirmed;
+
   @override
   void dispose() {
     super.dispose();
@@ -175,7 +180,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     super.initState();
 
     _saveNameEditingController.text = engine.locale('unnamed');
-    _seedEditingController.text = 'Hello, world!';
+    _seedEditingController.text = 'Hello, World!';
 
     applyAllConfig();
     makeImage();
@@ -183,307 +188,315 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // final layout =
-
-    return Scaffold(
-      backgroundColor: GameUI.backgroundColor2,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(engine.locale('sandboxMode')),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return ResponsiveView(
+      backgroundColor: GameUI.backgroundColor,
+      cursor: GameUI.cursor,
+      width: 1000.0,
+      height: 600.0,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(engine.locale('sandboxMode')),
+          actions: [
+            CloseButton2(
+              onPressed: () {
+                Navigator.of(context).maybePop();
+              },
+            )
+          ],
+        ),
+        body: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 600.0,
+                  height: 420.0,
+                  padding: const EdgeInsets.only(left: 20.0),
+                  child: SingleChildScrollView(
+                    child: ListView(
+                      shrinkWrap: true,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  width: 120.0,
-                                  child: Text('${engine.locale('fileName')}: '),
-                                ),
-                                SizedBox(
-                                  width: 150.0,
-                                  height: 40.0,
-                                  child: TextField(
-                                    controller: _saveNameEditingController,
-                                  ),
-                                ),
-                              ],
+                            SizedBox(
+                              width: 120.0,
+                              child: Text('${engine.locale('saveName')}: '),
                             ),
-                            // 是否开启引导
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child: Text(
-                                        '${engine.locale('enableTutorial')}: '),
-                                  ),
-                                  fluent.Checkbox(
-                                    content:
-                                        Text(engine.locale('enableTutorial')),
-                                    checked: _enableTutorial,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        _enableTutorial = value ?? false;
-                                      });
-                                    },
-                                  ),
-                                ],
+                            SizedBox(
+                              width: 150.0,
+                              height: 40.0,
+                              child: TextField(
+                                controller: _saveNameEditingController,
                               ),
                             ),
-                            // 随机数种子
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  width: 120.0,
-                                  child:
-                                      Text('${engine.locale('randomSeed')}: '),
+                          ],
+                        ),
+                        // 是否开启引导
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 120.0,
+                                child: Text(
+                                    '${engine.locale('enableTutorial')}: '),
+                              ),
+                              fluent.Checkbox(
+                                content: Text(engine.locale('enableTutorial')),
+                                checked: _enableTutorial,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    _enableTutorial = value ?? false;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        // 随机数种子
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 120.0,
+                                child: Text('${engine.locale('randomSeed')}: '),
+                              ),
+                              SizedBox(
+                                width: 150.0,
+                                height: 40.0,
+                                child: TextField(
+                                  controller: _seedEditingController,
+                                  onChanged: (value) {
+                                    final trimed = value.trim();
+                                    if (trimed.isNotBlank) {
+                                      _seedToBeConfirmed = trimed;
+                                      setState(() {});
+                                    }
+                                  },
                                 ),
-                                SizedBox(
-                                  width: 150.0,
-                                  child: TextField(
-                                    controller: _seedEditingController,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 10.0),
-                                  child: fluent.FilledButton(
-                                    onPressed: () async {
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: fluent.FilledButton(
+                                  onPressed: () async {
+                                    if (needConfirmed) {
+                                      _seedEditingController.text =
+                                          _seedToBeConfirmed!;
+                                      _seed = crcInt(
+                                          '$_seedToBeConfirmed$_worldStyle$_worldWidth$_worldHeight');
+                                      _seedToBeConfirmed = null;
+                                      await makeImage();
+                                    } else {
                                       _seedEditingController.text =
                                           random.nextInt(1 << 32).toString();
                                       _seed = crcInt(
                                           '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
                                       await makeImage();
-                                      setState(() {});
-                                    },
-                                    child: Text(engine.locale('random')),
-                                  ),
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Text(engine.locale(
+                                      needConfirmed ? 'confirm' : 'random')),
                                 ),
-                              ],
-                            ),
-                            // 地图风格
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child: Text(
-                                        '${engine.locale('worldStyle')}: '),
-                                  ),
-                                  fluent.DropDownButton(
-                                    title: Text(engine.locale(_worldStyle)),
-                                    items: buildFluentMenuItems(
-                                      items: {
-                                        for (final style in kWorldStyles)
-                                          engine.locale(style): style
-                                      },
-                                      onSelectedItem: (String item) async {
-                                        _worldStyle = item;
-                                        _seed = crcInt(
-                                            '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
-                                        await makeImage();
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                ],
                               ),
-                            ),
-                            // world size
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child:
-                                        Text('${engine.locale('worldSize')}: '),
-                                  ),
-                                  fluent.DropDownButton(
-                                    title:
-                                        Text(engine.locale(_worldScaleLabel)),
-                                    items: buildFluentMenuItems(
-                                      items: {
-                                        for (final scaleLabel
-                                            in kWorldLabelToScale.keys)
-                                          engine.locale(scaleLabel): scaleLabel
-                                      },
-                                      onSelectedItem: (String label) async {
-                                        _worldScaleLabel = label;
-                                        applyAllConfig();
-                                        await makeImage();
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // nation number
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child: Text(
-                                        '${engine.locale('organizationNumber')}: '),
-                                  ),
-                                  // Slider(
-                                  //   value: _organizationNumber.toDouble(),
-                                  //   min: 1,
-                                  //   max: organizationNumberMax.toDouble(),
-                                  //   label: _organizationNumber.toString(),
-                                  //   onChanged: (double value) {
-                                  //     setState(() {
-                                  //       _organizationNumber = value.toInt();
-                                  //     });
-                                  //   },
-                                  // ),
-                                  SizedBox(
-                                    width: 40.0,
-                                    child: Text(_organizationNumber.toString()),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // location number
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child: Text(
-                                        '${engine.locale('locationNumber')}: '),
-                                  ),
-                                  SizedBox(
-                                    width: 40.0,
-                                    child: Text(_locationNumber.toString()),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // character number
-                            Padding(
-                              padding: const EdgeInsets.only(top: 20.0),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 120.0,
-                                    child: Text(
-                                        '${engine.locale('characterNumber')}: '),
-                                  ),
-                                  // Slider(
-                                  //   value: _characterNumber.toDouble(),
-                                  //   min: 1,
-                                  //   max: 800,
-                                  //   label: _characterNumber.toString(),
-                                  //   onChanged: (double value) {
-                                  //     setState(() {
-                                  //       _characterNumber = value.toInt();
-                                  //       final organizationNumberMax = math.min(
-                                  //           _locationNumber, _characterNumber);
-                                  //       if (_organizationNumber >
-                                  //           organizationNumberMax) {
-                                  //         _organizationNumber = organizationNumberMax;
-                                  //       }
-                                  //     });
-                                  //   },
-                                  // ),
-                                  SizedBox(
-                                    width: 40.0,
-                                    child: Text(_characterNumber.toString()),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: RawImage(
-                            width: _worldWidth.toDouble() * 6,
-                            height: _worldHeight.toDouble() * 6,
-                            fit: BoxFit.fill,
-                            image: _image,
+                        // 地图风格
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 120.0,
+                                child: Text('${engine.locale('worldStyle')}: '),
+                              ),
+                              fluent.DropDownButton(
+                                title: Text(engine.locale(_worldStyle)),
+                                items: buildFluentMenuItems(
+                                  items: {
+                                    for (final style in kWorldStyles)
+                                      engine.locale(style): style
+                                  },
+                                  onSelectedItem: (String item) async {
+                                    _worldStyle = item;
+                                    _seed = crcInt(
+                                        '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+                                    await makeImage();
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // world size
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: 120.0,
+                                child: Text('${engine.locale('worldSize')}: '),
+                              ),
+                              fluent.DropDownButton(
+                                title: Text(engine.locale(_worldScaleLabel)),
+                                items: buildFluentMenuItems(
+                                  items: {
+                                    for (final scaleLabel
+                                        in kWorldLabelToScale.keys)
+                                      engine.locale(scaleLabel): scaleLabel
+                                  },
+                                  onSelectedItem: (String label) async {
+                                    _worldScaleLabel = label;
+                                    applyAllConfig();
+                                    await makeImage();
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+                Container(
+                  width: 320.0,
+                  height: 320.0,
+                  padding: const EdgeInsets.only(top: 20.0, right: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: RawImage(
+                          fit: BoxFit.fill,
+                          image: _image,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 5.0, right: 5.0),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child: Text(
+                                  '${engine.locale('organizationNumber')}: '),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(
+                                '$_organizationNumber',
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 5.0, right: 5.0),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child: Text('${engine.locale('cityNumber')}: '),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(
+                                '$_locationNumber',
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 20.0, left: 5.0, right: 5.0),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 120.0,
+                              child:
+                                  Text('${engine.locale('characterNumber')}: '),
+                            ),
+                            const Spacer(),
+                            SizedBox(
+                              width: 40.0,
+                              child: Text(
+                                '~$_characterNumber',
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: fluent.FilledButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(engine.locale('cancel')),
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(engine.locale('cancel')),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: fluent.FilledButton(
-                  onPressed: () async {
-                    if (_seedEditingController.text.isBlank) {
-                      GameDialogContent.show(
-                          context, engine.locale('hint_emptySeed'));
-                      return;
-                    }
-                    applyAllConfig();
-                    Navigator.of(context).pop({
-                      'id': 'sandboxWorld',
-                      'method': 'generate',
-                      'saveName': _saveNameEditingController.text.isNotBlank
-                          ? _saveNameEditingController.text
-                          : null,
-                      'seed': _seed,
-                      'style': _worldStyle,
-                      'width': _worldWidth,
-                      'height': _worldHeight,
-                      'nationNumber': _organizationNumber,
-                      'locationNumber': _locationNumber,
-                      'characterNumber': _characterNumber,
-                      'enableTutorial': _enableTutorial,
-                    });
-                  },
-                  child: Text(engine.locale('continue')),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: fluent.FilledButton(
+                    onPressed: () async {
+                      if (_seedEditingController.text.isBlank) {
+                        GameDialogContent.show(
+                            context, engine.locale('hint_emptySeed'));
+                        return;
+                      }
+                      applyAllConfig();
+                      Navigator.of(context).pop({
+                        'id': 'sandboxWorld',
+                        'method': 'generate',
+                        'saveName': _saveNameEditingController.text.isNotBlank
+                            ? _saveNameEditingController.text
+                            : null,
+                        'seed': _seed,
+                        'style': _worldStyle,
+                        'width': _worldWidth,
+                        'height': _worldHeight,
+                        'nationNumber': _organizationNumber,
+                        'locationNumber': _locationNumber,
+                        'characterNumber': _characterNumber,
+                        'enableTutorial': _enableTutorial,
+                      });
+                    },
+                    child: Text(engine.locale('continue')),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
-
-    // return ResponsiveView(
-    //   alignment: AlignmentDirectional.center,
-    //   child: layout,
-    // );
   }
 }

@@ -5,7 +5,7 @@ import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../ui/close_button2.dart';
 
 const _kCharacterVisitTableColumns = [
@@ -133,7 +133,7 @@ class CharacterVisitDialog extends StatelessWidget {
     }));
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       margin: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
       child: Scaffold(

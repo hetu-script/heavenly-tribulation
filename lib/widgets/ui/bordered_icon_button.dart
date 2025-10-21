@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/paint/paint.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import '../../ui.dart';
 
@@ -39,7 +38,7 @@ class BorderedIconButton extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
-          mouseCursor: cursor ?? FlutterCustomMemoryImageCursor(key: 'click'),
+          mouseCursor: cursor ?? GameUI.cursor.resolve({WidgetState.hovered}),
           onTapUp: (details) {
             if (!isEnabled) return;
             onPressed?.call();
@@ -63,12 +62,12 @@ class BorderedIconButton extends StatelessWidget {
             height: size.height,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? GameUI.focusColorOpaque : Colors.transparent,
+              color: isSelected ? GameUI.focusColor : Colors.transparent,
               borderRadius: BorderRadius.circular(borderRadius),
               border: borderWidth > 0
                   ? Border.all(
                       color: isSelected
-                          ? GameUI.selectedColorOpaque
+                          ? GameUI.selectedColor
                           : GameUI.outlineColor,
                       width: borderWidth,
                     )

@@ -6,8 +6,8 @@ import 'package:samsara/widgets/ui/ink_button.dart';
 import 'avatar.dart';
 import '../state/game_update.dart';
 import '../ui.dart';
-import '../game/game.dart';
-import '../game/logic/logic.dart';
+import '../data/game.dart';
+import '../logic/logic.dart';
 
 class NpcList extends StatefulWidget {
   const NpcList({super.key});
@@ -49,7 +49,7 @@ class _NpcListState extends State<NpcList> {
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
           // cursor: SystemMouseCursors.click,
-          color: GameUI.backgroundColor2,
+          color: GameUI.backgroundColor,
           name: (haveMet != null) ? character['name'] : '???',
           size: const Size(100, 100),
           characterData: character,

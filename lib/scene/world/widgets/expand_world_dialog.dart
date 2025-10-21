@@ -56,7 +56,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: 250.0,
       height: 200.0,
       alignment: AlignmentDirectional.center,

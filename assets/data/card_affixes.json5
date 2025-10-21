@@ -59,10 +59,10 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
-        base: 10,
+        base: 15,
         increment: 1,
       },
     ],
@@ -188,7 +188,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
         base: 5,
@@ -210,7 +210,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
         base: 5,
@@ -232,7 +232,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
         base: 5,
@@ -254,7 +254,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
         base: 5,
@@ -401,11 +401,11 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
-        base: 5,
-        increment: 0.3,
+        base: 12,
+        increment: 1,
       },
     ],
   },
@@ -420,11 +420,11 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
-        base: 5,
-        increment: 0.3,
+        base: 12,
+        increment: 1,
       },
     ],
   },
@@ -439,11 +439,11 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
-        base: 5,
-        increment: 0.3,
+        base: 12,
+        increment: 1,
       },
     ],
   },
@@ -458,11 +458,11 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
       {
-        base: 5,
-        increment: 0.3,
+        base: 12,
+        increment: 1,
       },
     ],
   },

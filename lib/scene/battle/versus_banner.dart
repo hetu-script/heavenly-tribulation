@@ -30,7 +30,6 @@ class VersusBanner extends GameComponent {
   void showCharacterInfo(dynamic data) {
     showDialog(
       context: game.context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return CharacterProfileView(character: data);
       },

@@ -9,9 +9,9 @@ import '../common.dart';
 import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
 import '../ui/int_editor_field.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import 'edit_character_flags.dart';
 import '../ui/close_button2.dart';
 
@@ -679,7 +679,7 @@ class CharacterProfileView extends StatelessWidget {
       }
     }
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 800.0,
       height: h,

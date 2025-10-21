@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/game/common.dart';
+import 'package:heavenly_tribulation/data/common.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 

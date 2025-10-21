@@ -3,7 +3,7 @@
 import 'dart:collection';
 import 'dart:async';
 
-import 'package:heavenly_tribulation/game/game.dart';
+import 'package:heavenly_tribulation/data/game.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/task.dart';

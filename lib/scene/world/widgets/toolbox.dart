@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/ink_button.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
 import '../../../state/editor_tool.dart';
-import '../../../game/game.dart';
+import '../../../data/game.dart';
 import '../../../widgets/common.dart';
 
 const Size kTileSize = Size(32, 64);
@@ -70,11 +69,10 @@ class _ToolboxState extends State<Toolbox> {
   Widget build(BuildContext context) {
     final item = context.watch<EditorToolState>().selectedId;
 
-    return ResponsiveView(
-      alignment: Alignment.bottomCenter,
-      backgroundColor: GameUI.backgroundColor2,
+    return Container(
       width: 640,
       height: 200,
+      color: GameUI.backgroundColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -128,7 +126,7 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'river',
+                                    'lake',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
@@ -158,7 +156,7 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'farmfield',
+                                    'farmland',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
@@ -235,7 +233,7 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'lever',
+                                    'switch',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(

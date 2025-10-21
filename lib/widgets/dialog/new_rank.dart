@@ -10,7 +10,7 @@ import '../../ui.dart';
 import '../../engine.dart';
 import '../ui/bordered_icon_button.dart';
 import '../../state/hover_content.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 
 class NewRank extends StatefulWidget {
   const NewRank({
@@ -32,7 +32,7 @@ class _NewRankState extends State<NewRank> {
     final screenSize = MediaQuery.sizeOf(context);
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       width: screenSize.width,
       height: screenSize.height,
       child: Align(

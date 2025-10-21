@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../game/game.dart';
+import '../data/game.dart';
 import '../engine.dart';
 
 class HeroState with ChangeNotifier {

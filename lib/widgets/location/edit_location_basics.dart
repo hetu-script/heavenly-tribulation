@@ -7,7 +7,7 @@ import '../../engine.dart';
 import '../../ui.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
-import '../../game/common.dart';
+import '../../data/common.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
@@ -129,7 +129,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     return ResponsiveView(
       width: 600.0,
       height: 500.0,
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

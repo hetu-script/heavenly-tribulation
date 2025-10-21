@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/game/common.dart';
+import 'package:heavenly_tribulation/data/common.dart';
 import 'package:heavenly_tribulation/state/states.dart';
 import 'package:hetu_script/utils/math.dart';
 import 'package:samsara/components/sprite_component2.dart';
@@ -18,8 +18,8 @@ import 'package:provider/provider.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
-import '../../../game/game.dart';
-import '../../../game/logic/logic.dart';
+import '../../../data/game.dart';
+import '../../../logic/logic.dart';
 import '../../../widgets/ui_overlay.dart';
 import 'collect_panel.dart';
 
@@ -305,7 +305,7 @@ class MatchingGame extends Scene {
     }
   }
 
-  void _onObjectDoubleTap(TileObject object) {
+  void _collectObject(TileObject object, {CollectPanel? panel}) {
     final objectIndex = object.value!.$1;
     final grid = _grids[object.value!.$2];
     final rarity = objectIndex % kRarityCount;
@@ -328,7 +328,7 @@ class MatchingGame extends Scene {
           positionalArgs: ['money', amount],
         );
         engine.play('coins-31879.mp3');
-        hintTile('${engine.locale('money2')} +$amount',
+        hintTile('${engine.locale('money')} +$amount',
             tilePosition: grid.tilePosition, color: Colors.yellow);
         context.read<HeroState>().update();
       } else {
@@ -342,53 +342,65 @@ class MatchingGame extends Scene {
         hintTile('${engine.locale('shard')} +$amount',
             tilePosition: grid.tilePosition, color: Colors.yellow);
       }
-
-      return;
-    } else if (rarity < kProductionBaseMaxRarity) {
       return;
     }
 
-    bool collected = false;
+    if (rarity < kProductionBaseMaxRarity) {
+      return;
+    }
 
-    for (final panel in collectPanels.skip(1)) {
-      if (panel.collects.containsKey(objectIndex)) {
-        panel.collects[objectIndex] = panel.collects[objectIndex]! + 1;
-        panel.checkCollects();
-        collected = true;
-        removeObject();
-        break;
+    void collectMain() {
+      removeObject();
+      int baseAmount = resources[materialId] ?? 0;
+      baseAmount *= rarity - kProductionBaseMaxRarity + 1;
+      final amount = _kProductionBaseAmount + random.nearInt(baseAmount);
+      engine.log('produced $materialId x $amount, at $kind');
+      if (isProduction) {
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: [materialId, amount],
+        );
+        engine.play('pickup_item-64282.mp3');
+        hintTile('${engine.locale(materialId)} +$amount',
+            tilePosition: grid.tilePosition, color: Colors.lightGreen);
+      } else {
+        final price = kMaterialBasePrice[materialId]!;
+        final totalPrice = (price * amount * _kWorkSalaryFactor).round();
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: ['money', totalPrice],
+        );
+        engine.play('coins-31879.mp3');
+        hintTile('${engine.locale('money')} +$totalPrice',
+            tilePosition: grid.tilePosition, color: Colors.yellow);
+        context.read<HeroState>().update();
       }
     }
-    if (!collected && collectPanels.isNotEmpty) {
-      final mainPanel = collectPanels.first;
-      if (mainPanel.collects.containsKey(objectIndex)) {
-        removeObject();
-        int baseAmount = resources[materialId] ?? 0;
-        baseAmount *= rarity - kProductionBaseMaxRarity + 1;
-        final amount = _kProductionBaseAmount + random.nearInt(baseAmount);
-        engine.log('produced $materialId x $amount, at $kind');
-        if (isProduction) {
-          engine.hetu.invoke(
-            'collect',
-            namespace: 'Player',
-            positionalArgs: [materialId, amount],
-          );
-          engine.play('pickup_item-64282.mp3');
-          hintTile('${engine.locale(materialId)} +$amount',
-              tilePosition: grid.tilePosition, color: Colors.lightGreen);
-        } else {
-          final price = kMaterialBasePrice[materialId]!;
-          final totalPrice = (price * amount * _kWorkSalaryFactor).round();
-          engine.hetu.invoke(
-            'collect',
-            namespace: 'Player',
-            positionalArgs: ['money', totalPrice],
-          );
-          engine.play('coins-31879.mp3');
-          hintTile('${engine.locale('money2')} +$totalPrice',
-              tilePosition: grid.tilePosition, color: Colors.yellow);
-          context.read<HeroState>().update();
+
+    if (panel != null) {
+      if (panel.isMain) {
+        if (panel.collection.containsKey(objectIndex)) {
+          collectMain();
         }
+      } else {
+        panel.collect(objectIndex);
+      }
+    } else {
+      bool collected = false;
+      for (final panel in collectPanels.skip(1)) {
+        if (panel.collection.containsKey(objectIndex)) {
+          collected = panel.collect(objectIndex);
+          if (collected) {
+            removeObject();
+            break;
+          }
+        }
+      }
+      if (!collected &&
+          collectPanels.first.collection.containsKey(objectIndex)) {
+        collectMain();
       }
     }
   }
@@ -503,7 +515,7 @@ class MatchingGame extends Scene {
       Hovertip.hide();
     };
     object.onDoubleTap = (buttons, position) {
-      _onObjectDoubleTap(object);
+      _collectObject(object);
     };
 
     if (!grid.isHidden) {
@@ -612,6 +624,10 @@ class MatchingGame extends Scene {
       isMain: isMain,
       avatarId: 'avatar/npc/${random.nextInt(kNpcAvatarCount)}.png',
     );
+    panel.onDragIn = (buttons, position, object) {
+      if (object is! TileObject) return;
+      _collectObject(object, panel: panel);
+    };
     collectPanels.add(panel);
     world.add(panel);
   }
@@ -673,23 +689,23 @@ class MatchingGame extends Scene {
     );
   }
 
-  @override
-  void render(Canvas canvas) {
-    super.render(canvas);
+  // @override
+  // void render(Canvas canvas) {
+  //   super.render(canvas);
 
-    if (engine.config.debugMode || engine.config.showFps) {
-      drawScreenText(
-        canvas,
-        'FPS: ${fps.fps.toStringAsFixed(0)}',
-        config: ScreenTextConfig(
-          textStyle: const TextStyle(fontSize: 20),
-          size: size,
-          anchor: Anchor.topCenter,
-          padding: const EdgeInsets.only(top: 40),
-        ),
-      );
-    }
-  }
+  //   if (engine.config.debugMode || engine.config.showFps) {
+  //     drawScreenText(
+  //       canvas,
+  //       'FPS: ${fps.fps.toStringAsFixed(0)}',
+  //       config: ScreenTextConfig(
+  //         textStyle: const TextStyle(fontSize: 20),
+  //         size: size,
+  //         anchor: Anchor.topCenter,
+  //         padding: const EdgeInsets.only(top: 40),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(
@@ -707,26 +723,30 @@ class MatchingGame extends Scene {
           initialActiveOverlays: initialActiveOverlays,
         ),
         GameUIOverlay(
-          enableNpcs: false,
+          enableLibrary: false,
           enableCultivation: false,
-          action: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: GameUI.foregroundColor),
+          showNpcs: false,
+          showActiveJournal: false,
+          actions: [
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: GameUI.foregroundColor),
+              ),
+              child: IconButton(
+                padding: const EdgeInsets.all(0),
+                onPressed: () {
+                  // GameDialogContent.show(
+                  //   context,
+                  //   engine.locale('hint_cultivation'),
+                  //   style: TextStyle(color: Colors.yellow),
+                  // );
+                },
+                icon: Icon(Icons.question_mark),
+              ),
             ),
-            child: IconButton(
-              padding: const EdgeInsets.all(0),
-              onPressed: () {
-                // GameDialogContent.show(
-                //   context,
-                //   engine.locale('hint_cultivation'),
-                //   style: TextStyle(color: Colors.yellow),
-                // );
-              },
-              icon: Icon(Icons.question_mark),
-            ),
-          ),
+          ],
         ),
       ],
     );

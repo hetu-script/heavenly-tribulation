@@ -8,9 +8,9 @@ import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
 // import 'package:samsara/components/hovertip.dart';
 
-import '../../game/game.dart';
+import '../../data/game.dart';
 import '../../ui.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';
@@ -353,7 +353,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     // card.onTapDown = (int button, Vector2 position) {
     //   if (button == kPrimaryButton) {
-    //     engine.setCursor(Cursors.drag);
     //     if (!card.isEnabled) return;
     //     if (buildingZone != null) {
     //       if (buildingZone!.isFull) return;
@@ -365,7 +364,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     card.onTapUp = (int button, __) async {
       if (button == kPrimaryButton) {
         if (!card.isEnabled) return;
-        engine.setCursor(Cursors.normal);
         if (buildingZone != null) {
           String? result = buildingZone!.tryAddCard(card, clone: true);
           if (result != null) {
@@ -387,7 +385,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // card.onDragUpdate = (int button, Vector2 position, Vector2 delta) =>
     //     (game as CardLibraryScene).draggingCard?.position += delta;
     // card.onDragEnd = (_, __) {
-    //   engine.setCursor(Cursors.normal);
     //   (game as CardLibraryScene).cardDragRelease();
     // };
 

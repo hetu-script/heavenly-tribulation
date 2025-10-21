@@ -31,6 +31,51 @@ function _createTimeLimit(difficulty) {
 }
 
 struct Quest {
+  construct ({
+    kind,
+    difficulty,
+    timeLimit,
+    acquiredFromSiteId,
+    receiverId,
+    package,
+    requirement,
+    targetLocationId,
+    budget,
+    reward: List,
+    reportSiteId,
+    interpolations: List,
+    contribution,
+    organizationId,
+  }) {
+    this.kind = kind;
+    assert(game.quests.containsKey(this.kind), 'invalid quest kind: ${this.kind}');
+    this.difficulty = difficulty ?? 0;
+    this.timeLimit = timeLimit;
+    assert(timeLimit != null, 'Quest constructor: timeLimit must not be null');
+    this.acquiredFromSiteId = acquiredFromSiteId;
+    assert(acquiredFromSiteId != null, 'Quest constructor: acquiredFromSiteId must not be null');
+    this.receiverId = receiverId;
+    this.package = package;
+    this.requirement = requirement;
+    this.targetLocationId = targetLocationId;
+    this.budget = budget;
+    this.reward = reward ?? [];
+    assert(contribution != null, 'Quest constructor: contribution must not be null');
+    this.reward.add({
+      type: 'contribution',
+      amount: contribution,
+      organizationId: organizationId,
+      locationId: acquiredFromSiteId,
+    })
+    this.contribution = contribution;
+    this.organizationId = organizationId;
+    this.reportSiteId = reportSiteId;
+    assert(reportSiteId != null, 'Quest constructor: reportSiteId must not be null');
+    this.interpolations = interpolations;
+  }
+}
+
+namespace Quests {
   // 运送材料
   // 报酬是材料基础价值的 1/5
   // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
@@ -90,36 +135,32 @@ struct Quest {
       endLocationDesc,
       endSite.name,
     ]
+    
+    final contribution = game.quests.deliver_material.contribution * (difficulty + 1)
 
-    final quest = {
-      'kind': 'deliver_material',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'receiverId': receiver?.id,
-      'package': {
-        'type': 'material',
-        'material': material,
-        'amount': amount,
+    final quest = Quest(
+      kind: 'deliver_material',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      receiverId: receiver?.id,
+      package: {
+        type: 'material',
+        material: material,
+        amount: amount,
       },
-      'reward': [
+      reward: [
         {
           type: 'material',
           kind: difficulty == 0 ? 'money' : 'shard',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-        }
+        },
       ],
-      'reportSiteId': endSite.id,
+      reportSiteId: endSite.id,
       interpolations: interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward.add({
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      })
-    }
+      contribution: contribution,
+      organizationId: organization?.id,
+    )
     return quest;
   }
 
@@ -192,34 +233,30 @@ struct Quest {
       endSite.name,
     ]
 
-    final quest = {
-      'kind': 'deliver_item',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'receiverId': receiver?.id,
-      'package': {
+    final contribution = game.quests.deliver_item.contribution * (difficulty + 1)
+
+    final quest = Quest(
+      kind: 'deliver_item',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      receiverId: receiver?.id,
+      package: {
         'type': 'item',
         'item': item,
       },
-      'reward': [
+      reward: [
         {
           type: 'material',
           kind: difficulty == 0 ? 'money' : 'shard',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-        }
+        },
       ],
-      'reportSiteId': endSite.id,
+      reportSiteId: endSite.id,
       interpolations: interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward.add({
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      })
-    }
+      contribution: contribution,
+      organizationId: organization?.id,
+    )
     return quest;
   }
 
@@ -278,33 +315,29 @@ struct Quest {
       endSite.name,
     ]
 
-    final quest = {
-      'kind': 'escort',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'package': {
+    final contribution = game.quests.escort.contribution * (difficulty + 1)
+
+    final quest = Quest(
+      kind: 'escort',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      package: {
         'type': 'character',
         'characterId': escortee.id,
       },
-      'reward': [
+      reward: [
         {
           type: 'material',
           kind: difficulty == 0 ? 'money' : 'shard',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-        }
+        },
       ],
-      'reportSiteId': endSite.id,
+      reportSiteId: endSite.id,
       interpolations: interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward.add({
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      })
-    }
+      contribution: contribution,
+      organizationId: organization?.id,
+    )
     return quest;
   }
 
@@ -330,32 +363,28 @@ struct Quest {
       cityhall.name,
     ]
 
-    final quest = {
-      'kind': 'purchase_material',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'requirement': {
+    final contribution = game.quests.purchase_material.contribution * (difficulty + 1)
+
+    final quest = Quest(
+      kind: 'purchase_material',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      requirement: {
         type: 'material',
         material: material,
         amount: amount,
       },
-      'budget': {
+      budget: {
         type: 'material',
         kind: 'money',
         amount: moneyBudget,
       },
-      'reportSiteId': cityhall.id,
-      'interpolations': interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward = [{
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      }]
-    }
+      reportSiteId: cityhall.id,
+      interpolations: interpolations,
+      contribution: contribution,
+      organizationId: organization?.id,
+    )
     return quest;
   }
 
@@ -414,28 +443,24 @@ struct Quest {
       cityhall.name,
     ]
 
-    final quest = {
-      'kind': 'purchase_item',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'requirement': requirement,
-      'budget': {
+    final contribution = game.quests.purchase_item.contribution * (difficulty + 1)
+
+    final quest = Quest(
+      kind: 'purchase_item',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      requirement: requirement,
+      budget: {
         type: 'material',
         kind: difficulty == 0 ? 'money' : 'shard',
         amount: difficulty == 0 ? budget : shardRewardAmount,
       },
-      'reportSiteId': cityhall.id,
+      reportSiteId: cityhall.id,
       interpolations: interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward = [{
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      }]
-    }
+      contribution: contribution,
+      organizationId: organization?.id,
+    )
     return quest;
   }
 
@@ -471,34 +496,29 @@ struct Quest {
       targetLocation.name,
     ]
 
-    final quest = {
-      'kind': 'discover_location',
-      'difficulty': difficulty,
-      'timeLimit': _createTimeLimit(difficulty),
-      'acquiredFromSiteId': cityhall.id,
-      'targetLocationId': targetLocation.id,
-      'reward': [
+    final contribution = game.quests.discover_location.contribution * (difficulty + 1)
+
+    final quest = Quest(
+      kind: 'discover_location',
+      difficulty: difficulty,
+      timeLimit: _createTimeLimit(difficulty),
+      acquiredFromSiteId: cityhall.id,
+      targetLocationId: targetLocation.id,
+      reward: [
         {
           type: 'material',
           kind: difficulty == 0 ? 'money' : 'shard',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
-        }
+        },
       ],
-      'reportSiteId': cityhall.id,
+      reportSiteId: cityhall.id,
       interpolations: interpolations,
-    }
-    if (organization != null) {
-      final contribution = game.quests[quest.kind].contribution * (difficulty + 1)
-      quest.reward.add({
-        type: 'contribution',
-        amount: contribution,
-        organizationId: organization.id,
-      })
-    }
+      contribution: contribution,
+      organizationId: organization?.id,
+    );
     return quest;
   }
 }
-
 
 function initEscort(quest) {
   assert(quest.kind == 'escort', 'quest kind is not escort, kind: ${quest.kind}')
@@ -550,7 +570,7 @@ function createQuest(cityhall, {
       return true
     }))
     final difficulty = random.nextInt(maxDifficulty + 1)
-    final ctor = Quest[questData.id]
+    final ctor = Quests[questData.id]
     assert(ctor != null, 'quest generator function not found: ${questData.id}')
     quest = ctor(
       cityhall,
@@ -564,6 +584,7 @@ function createQuest(cityhall, {
 
 /// 刷新悬赏任务，这里不检查据点类型
 function replenishBounty(location) {
+  // 此处的 organization 可能为 null
   final organization = game.organizations[location.organizationId]
   
   // 清空现有悬赏任务

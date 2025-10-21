@@ -327,8 +327,6 @@ struct ObjectCardLibrary {
     hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
-    enableCardCraft = false,
-    enableScrollCraft = false,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? engine.locale('enterLibrary')
@@ -337,8 +335,6 @@ struct ObjectCardLibrary {
     this.category = kObjectCategoryCardLibrary
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
-    this.enableCardCraft = enableCardCraft
-    this.enableScrollCraft = enableScrollCraft
 
     world.objects[this.id] = this
   }

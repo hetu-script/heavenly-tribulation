@@ -4,7 +4,7 @@ import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../entity_listview.dart';
+import '../information.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import '../ui/close_button2.dart';
@@ -53,7 +53,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 350.0,
       height: 400.0,
@@ -99,10 +99,9 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                               ? () async {
                                   final key = await showDialog<String>(
                                     context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) => EntityListView(
-                                      showCloseButton: false,
-                                      mode: EntityListViewMode.selectCharacter,
+                                    builder: (context) => InformationView(
+                                      showCloseButton: true,
+                                      mode: InformationMode.selectCharacter,
                                     ),
                                   );
                                   _targetCharacterIdEditingController.text =

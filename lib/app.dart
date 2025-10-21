@@ -14,18 +14,18 @@ import 'scene/world/world.dart';
 import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
-import 'game/game.dart';
+import 'data/game.dart';
 import 'ui.dart';
-import 'scene/world/location/location.dart';
+import 'scene/location/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
-import 'game/logic/logic.dart';
+import 'logic/logic.dart';
 import 'scene/common.dart';
 import 'widgets/dialog/timeflow.dart';
-import 'game/constants.dart';
+import 'data/constants.dart';
 import 'scene/loading_screen.dart';
 import 'scene/mini_game/matching/matching.dart';
-import 'game/common.dart';
+import 'data/common.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -65,12 +65,11 @@ class _GameAppState extends State<GameApp> {
   void initState() {
     super.initState();
 
-    engine.setLoading(true);
-
     _initEngine();
   }
 
   Future<void> _initEngine() async {
+    engine.setLoading(true);
     // 初始化引擎
     int tik = DateTime.now().millisecondsSinceEpoch;
 
@@ -85,7 +84,7 @@ class _GameAppState extends State<GameApp> {
           'enabled': false,
         },
       },
-      showFps: true,
+      showFps: false,
     );
 
     await engine.init(context);
@@ -165,8 +164,6 @@ class _GameAppState extends State<GameApp> {
         // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         isEditorMode: isEditorMode,
       );
-
-      scene.loadZoneColors();
       return scene;
     });
 
@@ -240,6 +237,12 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'fameForRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.fameForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'getMinMaxExtraAffixCount',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getMinMaxExtraAffixCount(positionalArgs.first),
@@ -282,7 +285,6 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('dialog::execute', (
         {positionalArgs, namedArgs}) {
-      engine.setCursor(Cursors.normal);
       return dialog.execute();
     }, override: true);
 
@@ -377,7 +379,7 @@ class _GameAppState extends State<GameApp> {
       return dialog.checkSelected(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('debug::reloadGameData', (
+    engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
       dialog.pushDialog(engine.locale('reloadGameDataPrompt'));
@@ -418,6 +420,12 @@ class _GameAppState extends State<GameApp> {
         ({positionalArgs, namedArgs}) => GameData.switchWorld(
             positionalArgs.first,
             clearCache: namedArgs['clearCache'] ?? false),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::popScene',
+        ({positionalArgs, namedArgs}) =>
+            engine.popScene(clearCache: namedArgs['clearCache'] ?? false),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateGame', (
@@ -539,7 +547,6 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
-      engine.context.read<HoverContentState>().hide();
       engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.library, arguments: {
         'enableCardCraft': namedArgs['enableCardCraft'] ?? false,
@@ -549,10 +556,9 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
         {positionalArgs, namedArgs}) {
-      engine.context.read<HoverContentState>().hide();
       engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.cultivation, arguments: {
-        'locationId': namedArgs['locationId'],
+        'location': namedArgs['location'],
         'enableCultivate': namedArgs['enableCultivate'] ?? false,
       });
     }, override: true);
@@ -610,6 +616,16 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::showAlchemy', (
         {positionalArgs, namedArgs}) {
       engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::showMeeting', (
+        {positionalArgs, namedArgs}) {
+      GameLogic.showMeeting(
+        positionalArgs[0],
+        positionalArgs[1],
+        positionalArgs[2],
+        isFirstMeeting: namedArgs['isFirstMeeting'] ?? false,
+      );
     }, override: true);
 
     engine.debug('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
@@ -676,8 +692,6 @@ class _GameAppState extends State<GameApp> {
     //   });
     // });
     // _videoController.setLooping(true);
-
-    // engine.setCursor(Cursors.normal);
 
     engine.pushScene(
       Scenes.mainmenu,

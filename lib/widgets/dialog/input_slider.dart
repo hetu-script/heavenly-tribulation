@@ -21,7 +21,6 @@ class InputSliderDialog extends StatefulWidget {
     assert(max >= min);
     return showDialog<int?>(
       context: context,
-      barrierColor: Colors.transparent,
       builder: (context) {
         return InputSliderDialog(
           min: min,
@@ -72,7 +71,7 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 250,

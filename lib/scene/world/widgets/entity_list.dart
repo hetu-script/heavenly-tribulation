@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
 import '../../../ui.dart';
-import '../../../widgets/game_entity_listview.dart';
+import '../../../widgets/entity_table.dart';
 import '../../../widgets/character/memory.dart';
 import '../../../widgets/location/location.dart';
 import '../../../widgets/organization/organization.dart';
@@ -21,11 +20,11 @@ import '../../../widgets/dialog/confirm.dart';
 import '../../../widgets/organization/edit_organization_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
 import '../../../state/selected_tile.dart';
-import '../../../game/logic/logic.dart';
+import '../../../logic/logic.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
-import '../../../game/game.dart';
+import '../../../data/game.dart';
 import '../../../widgets/character/edit_rank_level.dart';
 import '../../../widgets/location/edit_location_basics.dart';
 
@@ -196,30 +195,30 @@ enum ObjectPopUpMenuItems {
   delete,
 }
 
-const _kCharacterColumns = [
-  'name',
-  'age',
-];
+const _kCharacterColumns = {
+  'name': 100.0,
+  'age': 100.0,
+};
 
-const _kLocationColumns = [
-  'name',
-  'development',
-];
+const _kLocationColumns = {
+  'name': 100.0,
+  'development': 100.0,
+};
 
-const _kOrganizationColumns = [
-  'name',
-  'population',
-];
+const _kOrganizationColumns = {
+  'name': 100.0,
+  'population': 100.0,
+};
 
-const _kZoneColumns = [
-  'name',
-  'size',
-];
+const _kZoneColumns = {
+  'name': 100.0,
+  'size': 100.0,
+};
 
-const _kObjectColumns = [
-  'id',
-  'type',
-];
+const _kObjectColumns = {
+  'id': 100.0,
+  'type': 100.0,
+};
 
 class EntityListPanel extends StatefulWidget {
   const EntityListPanel({
@@ -295,7 +294,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   }
 
   void _updateCharacters() {
-    _heroId = GameData.hero['id'];
+    _heroId = GameData.hero?['id'];
 
     _charactersTableData.clear();
 
@@ -476,11 +475,10 @@ class _EntityListPanelState extends State<EntityListPanel>
       _updateObjects();
     }
 
-    return ResponsiveView(
-      alignment: Alignment.centerLeft,
-      backgroundColor: GameUI.backgroundColor2,
+    return Container(
       width: widget.size.width,
       height: widget.size.height,
+      color: GameUI.backgroundColor,
       child: DefaultTabController(
         length: tabs.length,
         child: Scaffold(
@@ -569,7 +567,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   // ),
                   SizedBox(
                     height: widget.size.height - 175,
-                    child: GameEntityListView(
+                    child: EntityTable(
                       columns: _kCharacterColumns,
                       tableData: _charactersTableData,
                       onItemPressed: (position, dataId) {
@@ -855,7 +853,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   ),
                   SizedBox(
                     height: widget.size.height - 175,
-                    child: GameEntityListView(
+                    child: EntityTable(
                         columns: _kOrganizationColumns,
                         tableData: _organizationsTableData,
                         onItemPressed: (position, dataId) {
@@ -936,7 +934,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   ),
                   SizedBox(
                     height: widget.size.height - 175,
-                    child: GameEntityListView(
+                    child: EntityTable(
                       columns: _kLocationColumns,
                       tableData: _locationsTableData,
                       onItemPressed: (position, dataId) {
@@ -1085,7 +1083,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   ),
                   SizedBox(
                     height: widget.size.height - 175,
-                    child: GameEntityListView(
+                    child: EntityTable(
                       columns: _kObjectColumns,
                       tableData: _mapObjectsTableData,
                       onItemPressed: (position, dataId) {
@@ -1160,7 +1158,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   // ),
                   SizedBox(
                     height: widget.size.height - 175,
-                    child: GameEntityListView(
+                    child: EntityTable(
                       columns: _kZoneColumns,
                       tableData: _zonesTableData,
                       onItemPressed: (position, dataId) {

@@ -99,6 +99,9 @@ async function onUpdateItem(item)
 /// ----------据点场景----------
 async function onBeforeEnterLocation(location)
 /// 进入据点场景
+/// 如果返回 true，会跳过游戏内置的交互逻辑
+/// 因为这个事件的逻辑较复杂，所以并不会一次就触发所有的事件
+/// 每次触发后，就会返回 true，停止后续其他逻辑的判断
 async function onAfterEnterLocation(location)
 async function onBeforeExitLocation(location)
 /// 在场景中点击某个非预定义的子场景时触发

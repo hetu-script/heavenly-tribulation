@@ -6,7 +6,7 @@ import '../../../engine.dart';
 import '../../../ui.dart';
 import '../../../state/selected_tile.dart';
 import '../../../widgets/ui/close_button2.dart';
-import '../../../game/game.dart';
+import '../../../data/game.dart';
 
 class TileDetailPanel extends StatefulWidget {
   const TileDetailPanel({super.key});
@@ -80,7 +80,8 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
 
     return ResponsiveView(
       alignment: Alignment.center,
-      backgroundColor: GameUI.backgroundColor2,
+      barrierColor: null,
+      backgroundColor: GameUI.backgroundColor,
       width: 400,
       height: 400,
       child: Scaffold(

@@ -82,23 +82,31 @@
   "passive_increase_damage_sigil_description": "印法伤害 {0}%",
   "passive_increase_damage_power_word_description": "真言术伤害 {0}%",
 
+  "passive_all_attack_description": "所有攻击 {0}",
   "passive_unarmed_attack_description": "徒手攻击 {0}",
   "passive_weapon_attack_description": "武器攻击 {0}",
   "passive_spell_attack_description": "法术攻击 {0}",
   "passive_curse_attack_description": "咒术攻击 {0}",
+
+  "passive_all_penetration_description": "所有攻击穿透 {0}",
   "passive_unarmed_penetration_description": "徒手攻击穿透 {0}",
   "passive_weapon_penetration_description": "武器攻击穿透 {0}",
   "passive_spell_penetration_description": "法术攻击穿透 {0}",
   "passive_curse_penetration_description": "咒术攻击穿透 {0}",
 
+  "passive_all_resist_description": "所有抗性 {0}%",
   "passive_physical_resist_description": "物理抗性 {0}%",
   "passive_chi_resist_description": "真气抗性 {0}%",
   "passive_elemental_resist_description": "元素抗性 {0}%",
   "passive_psychic_resist_description": "精神抗性 {0}%",
+
+  "passive_all_resist_max_description": "所有抗性上限 {0}%",
   "passive_physical_resist_max_description": "物理抗性上限 {0}%",
   "passive_chi_resist_max_description": "真气抗性上限 {0}%",
   "passive_elemental_resist_max_description": "元素抗性上限 {0}%",
   "passive_psychic_resist_max_description": "精神抗性上限 {0}%",
+
+  "passive_all_persistent_description": "所有防御保持 {0}%",
   "passive_physical_persistent_description": "物理防御保持 {0}%",
   "passive_chi_persistent_description": "真气防御保持 {0}%",
   "passive_elemental_persistent_description": "元素防御保持 {0}%",
@@ -228,14 +236,16 @@
   "passive_overflowed_mana_convert_to_vigor_description": "溢出的灵气转化为元气",
   "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
   "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气",
-  "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术伤害减少30%，并转为纯粹伤害",
-  "passive_curse_deal_pure_damage_description": "咒术伤害减少30%，并转为纯粹伤害",
+  "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术卡牌伤害减少30%，并转为纯粹伤害",
+  "passive_curse_deal_pure_damage_description": "咒术攻击减少30%，并转为纯粹伤害",
   "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时仍可发挥效果，但会消耗生命",
 
-  "passive_overheal_description": "生命 {0} (可超过上限)",
   "passive_upgradeRank_1_description": "提升修为时有概率触发凝气境天道试炼",
   "passive_upgradeRank_2_description": "提升修为时有概率触发筑基境天道试炼",
   "passive_upgradeRank_3_description": "提升修为时有概率触发结丹境天道试炼",
   "passive_upgradeRank_4_description": "提升修为时有概率触发元婴境天道试炼",
-  "passive_upgradeRank_5_description": "提升修为时有概率触发化神境天道试炼"
+  "passive_upgradeRank_5_description": "提升修为时有概率触发化神境天道试炼",
+
+  "passive_overheal_description": "生命 {0} (可超过上限)",
+  "passive_tribulationCountReduce_description": "劫数 {0} (可变成负数)"
 }

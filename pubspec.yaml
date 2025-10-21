@@ -5,8 +5,8 @@ publish_to: "none"
 version: 0.1.0-demo
 
 environment:
-  sdk: ^3.0.0
-  flutter: ^3.0.0
+  sdk: ^3.6.0
+  flutter: ^3.27.0
 
 dependencies:
   flutter:
@@ -30,9 +30,8 @@ dependencies:
     path: ../samsara-engine
   fluent_ui:
     path: ../fluent_ui
-
-  # fluent_ui:
-  #   path: ../fluent_ui
+  data_table_2:
+    path: ../data_table_2
 
   quiver: ^3.0.1+1
   change_case: ^2.0.1
@@ -49,8 +48,6 @@ dependencies:
   provider: ^6.1.2
   dropdown_button2: ^2.3.9
   flutter_custom_cursor: ^0.0.4
-
-  data_table_2: 2.6.0
   flutter_markdown_plus: ^1.0.5
   animated_tree_view: ^2.3.0
   display_metrics: ^2.2.1
@@ -157,7 +154,7 @@ flutter:
     - scripts/main/data/location/
     - scripts/main/data/organization/
     - scripts/main/event/
-    - scripts/main/game/
+    - scripts/main/logic/
     - scripts/main/name/
     - scripts/main/name/book/
     - scripts/main/name/character/
@@ -187,8 +184,6 @@ flutter:
     - docs/docs/how2play/rpg/battle/battle_card/
     - docs/docs/how2play/rpg/battle/battle_resource/
     - docs/docs/how2play/rpg/character/
-    - docs/docs/how2play/rpg/character/attribute/
-    - docs/docs/how2play/rpg/character/inventory/
     - docs/docs/how2play/rpg/character/personality/
     - docs/docs/how2play/rpg/character/relationship/
     - docs/docs/how2play/rpg/craft/

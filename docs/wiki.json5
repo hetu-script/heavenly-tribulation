@@ -41,18 +41,6 @@
             path: "docs/docs/how2play/rpg/character/readme.md",
             children: [
               {
-                id: "attribute",
-                title: "wiki_attribute_title",
-                path: "docs/docs/how2play/rpg/character/attribute/readme.md",
-                children: [],
-              },
-              {
-                id: "inventory",
-                title: "wiki_inventory_title",
-                path: "docs/docs/how2play/rpg/character/inventory/readme.md",
-                children: [],
-              },
-              {
                 id: "personality",
                 title: "wiki_personality_title",
                 path: "docs/docs/how2play/rpg/character/personality/readme.md",

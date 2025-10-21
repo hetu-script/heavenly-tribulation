@@ -5,10 +5,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:data_table_2/data_table_2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:display_metrics/display_metrics.dart';
 
@@ -118,7 +116,7 @@ void main() {
             home: fluent.FlyoutTarget(
               controller: globalFlyoutController,
               child: MouseRegion(
-                cursor: FlutterCustomMemoryImageCursor(key: 'normal'),
+                cursor: GameUI.cursor,
                 child: DisplayMetricsWidget(
                   child: GameApp(key: mainKey),
                 ),

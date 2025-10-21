@@ -1,15 +1,9 @@
 export 'battle_entity.ht'
 
+const kFameRankMax = 5
+
 // 进行某些互动的时候的判定阈值
 const kCharacterImpressionCheck = 10
-
-const kFame2Threshold = 6
-const kFame3Threshold = 14
-const kFame4Threshold = 24
-const kFame5Threshold = 36
-const kFame6Threshold = 50
-const kFame7Threshold = 70
-const kFame8Threshold = 95
 
 const kSameRaceScore = 5.0
 const kSameOrganizationScore = 5.0
@@ -192,23 +186,12 @@ function createLifespan(cultivationRank) {
 
 function getCharacterFameRank(character) {
   let fame = character.fame
-  if (fame < kFame2Threshold) {
-    return 1
-  } else if (fame < kFame3Threshold) {
-    return 2
-  } else if (fame < kFame4Threshold) {
-    return 3
-  } else if (fame < kFame5Threshold) {
-    return 4
-  } else if (fame < kFame6Threshold) {
-    return 5
-  } else if (fame < kFame7Threshold) {
-    return 6
-  } else if (fame < kFame8Threshold) {
-    return 7
-  } else {
-    return 8
+  for (var i in range(kFameRankMax + 1)) {
+    if (fame < fameForRank(i + 1)) {
+      return i
+    }
   }
+  return kFameRankMax
 }
 
 function getCharacterFameString(character) {
@@ -217,23 +200,12 @@ function getCharacterFameString(character) {
 
 function getCharacterInfamyRank(character) {
   let infamy = character.infamy
-  if (infamy < kFame2Threshold) {
-    return 1
-  } else if (infamy < kFame3Threshold) {
-    return 2
-  } else if (infamy < kFame4Threshold) {
-    return 3
-  } else if (infamy < kFame5Threshold) {
-    return 4
-  } else if (infamy < kFame6Threshold) {
-    return 5
-  } else if (infamy < kFame7Threshold) {
-    return 6
-  } else if (infamy < kFame8Threshold) {
-    return 7
-  } else {
-    return 8
+  for (var i in range(kFameRankMax + 1)) {
+    if (infamy < fameForRank(i + 1)) {
+      return i
+    }
   }
+  return kFameRankMax
 }
 
 function getCharacterInfamyString(character) {
@@ -292,8 +264,8 @@ function _calculateCharacterFirstImpression(subject, target) {
   if (subject.homeLocationId == target.homeLocationId) {
     score += kSameHomeLocationScore
   }
-
-  return score
+  
+  return score.toFixed(2)
 }
 
 const kSameMotivationScore = 5.0
@@ -576,7 +548,8 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
       subjectId: householder.id,
       targetId: marrier.id,
       locationId: homeLocation.id,
-      orderly: 20,
+      orderly: 10,
+      idealistic: 10,
     )
   } else {
     engine.debug(incidentContent)
@@ -840,7 +813,7 @@ struct Baby {
         message: incidentContent,
         subjectId: father.id,
         targetId: mother.id,
-        orderly: 20,
+        idealistic: -20,
       )
     } else {
       engine.debug(incidentContent)
@@ -1078,6 +1051,7 @@ struct Character {
 
     // 该人物的事件触发选项
     this.flags = {
+      monthly: {},
     }
 
     // 该角色的称号，只保存 id
@@ -1223,7 +1197,6 @@ struct Character {
           subjectId: mother.id,
           targetId: this.id,
           locationId: locationId,
-          isPrivate: false,
           orderly: 10,
           idealistic: -10,
         )
@@ -1381,10 +1354,9 @@ function _characterMet(subject, target, { incurIncident }) {
     Incident(
       message: incidentContent,
       subjectId: subject.id, // 见面是一个单向事件
-      isPrivate: true,
     )
   } else {
-    engine.debug('${incidentContent}. (score: ${bond.score})')
+    engine.debug('${incidentContent}[${bond.score}]')
   }
   return bond
 }
@@ -1601,7 +1573,8 @@ function updateBondScore(subject, target, score) {
     bond = Bond(character: subject, target: target)
   }
   bond.score += score
-  engine.debug('${subject.name} 对 ${target.name} 的好感度改变了: [${bond.score}]')
+  bond.score = bond.score.toDouble().toFixed(2)
+  // engine.debug('${subject.name} 对 ${target.name} 的好感度改变了: [${bond.score}]')
 }
 
 function getBondScore(subject, target) {
@@ -1643,7 +1616,6 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
     Incident(
       message: incidentContent,
       subjectId: character.id,
-      isPrivate: true,
     )
   }
   engine.debug(incidentContent)
@@ -1677,7 +1649,6 @@ function characterRankUp(character, {rank, incurIncident = true }) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
-      isPrivate: true,
     )
   }
   engine.debug(incidentContent)
@@ -1695,6 +1666,5 @@ function characterGainExp(character, value) {
   Incident(
     message: incidentContent,
     subjectId: hero.id,
-    isPrivate: true,
   )
 }

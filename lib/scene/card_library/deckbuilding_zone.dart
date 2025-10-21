@@ -10,11 +10,11 @@ import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
 // import '../game_dialog/game_dialog_content.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 // import 'card_library.dart';
 import '../../state/hover_content.dart';
 import '../common.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 
 enum PlaceHolderState {
   newDeck,

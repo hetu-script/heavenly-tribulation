@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
-import 'package:heavenly_tribulation/widgets/functional/alchemy.dart';
-import 'package:heavenly_tribulation/widgets/functional/workshop.dart';
+import 'package:heavenly_tribulation/widgets/view/alchemy.dart';
+import 'package:heavenly_tribulation/widgets/view/workshop.dart';
 import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
-import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 
 import 'avatar.dart';
 import 'character/profile.dart';
@@ -28,12 +26,12 @@ import 'npc_list.dart';
 import 'character/merchant/merchant.dart';
 import 'dialog/new_items.dart';
 import 'dialog/new_journal.dart';
-import '../game/game.dart';
+import '../data/game.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
-import '../scene/world/location/meeting.dart';
+import '../scene/organization/meeting.dart';
 import 'journal_panel.dart';
 
 const tickName = {
@@ -47,17 +45,19 @@ class GameUIOverlay extends StatefulWidget {
   const GameUIOverlay({
     super.key,
     this.enableHeroInfo = true,
-    this.enableNpcs = true,
     this.enableLibrary = true,
     this.enableCultivation = true,
-    this.action,
+    this.showNpcs = false,
+    this.showActiveJournal = false,
+    this.actions,
   });
 
   final bool enableHeroInfo;
-  final bool enableNpcs;
+  final bool showNpcs;
   final bool enableLibrary;
   final bool enableCultivation;
-  final Widget? action;
+  final bool showActiveJournal;
+  final List<Widget>? actions;
 
   @override
   State<GameUIOverlay> createState() => _GameUIOverlayState();
@@ -89,7 +89,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final money = (hero?['materials']['money'] ?? 0).toString();
     final shard = (hero?['materials']['shard'] ?? 0).toString();
 
-    final content = context.watch<HoverContentState>().content;
+    final hoverContent = context.watch<HoverContentState>().content;
 
     final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
@@ -289,7 +289,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        color: GameUI.backgroundColor2,
+                        color: GameUI.backgroundColor,
                         height: 35,
                         width: screenSize.width - 120,
                         child: Row(
@@ -637,10 +637,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                   context: context,
                                   builder: (context) => MarkdownWiki(
                                     engine: engine,
-                                    cursor: FlutterCustomMemoryImageCursor(
-                                        key: 'click'),
+                                    cursor: GameUI.cursor,
                                     margin: const EdgeInsets.all(50.0),
-                                    backgroundColor: GameUI.backgroundColor2,
+                                    backgroundColor: GameUI.backgroundColor,
                                     treeNodes: GameData.wikiTreeNodes,
                                     closeButton: CloseButton2(),
                                   ),
@@ -665,15 +664,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               borderRadius: 5.0,
                               onPressed: () {
                                 context.read<HoverContentState>().hide();
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => Console(
-                                    engine: engine,
-                                    margin: const EdgeInsets.all(50.0),
-                                    backgroundColor: GameUI.backgroundColor2,
-                                    closeButton: CloseButton2(),
-                                  ),
-                                );
+                                GameUI.showConsole(context);
                               },
                               onEnter: (rect) {
                                 context
@@ -704,20 +695,17 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   ),
                 ],
               ),
-            if (showHeroInfo)
-              Positioned(top: 35.0, right: 0, child: JournalPanel()),
-            if (widget.action != null)
+            if (showHeroInfo && widget.showActiveJournal)
+              Positioned(top: 30.0, right: 0, child: JournalPanel()),
+            if (widget.actions != null)
               Positioned(
                 right: 2.5,
                 top: 2.5,
-                child: Container(
-                  width: GameUI.infoButtonSize.width,
-                  height: GameUI.infoButtonSize.height,
-                  margin: const EdgeInsets.all(2),
-                  child: widget.action!,
+                child: Row(
+                  children: widget.actions!,
                 ),
               ),
-            if (widget.enableNpcs)
+            if (widget.showNpcs)
               const Positioned(
                 left: 10,
                 top: 105,
@@ -772,11 +760,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 _ => SizedBox.shrink(),
               },
             GameDialogController(),
-            if (content != null) HoverInfo(content),
-            // CustomCursor(
-            //   width: screenSize.width,
-            //   height: screenSize.height,
-            // ),
+            if (hoverContent != null) HoverInfo(hoverContent),
           ],
         ),
       ),

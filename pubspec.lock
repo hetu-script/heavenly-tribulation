@@ -180,11 +180,10 @@ packages:
   data_table_2:
     dependency: "direct main"
     description:
-      name: data_table_2
-      sha256: b8dd157e4efe5f2beef092c9952a254b2192cf76a26ad1c6aa8b06c8b9d665da
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.6.0"
+      path: "../data_table_2"
+      relative: true
+    source: path
+    version: "2.7.0"
   diffutil_dart:
     dependency: transitive
     description:

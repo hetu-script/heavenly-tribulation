@@ -36,7 +36,7 @@ class GameDialogContent extends StatefulWidget {
     assert(resolved['id'] == null);
     return showDialog<dynamic>(
       context: context,
-      barrierColor: GameUI.backgroundColor,
+      barrierColor: GameUI.barrierColor,
       builder: (BuildContext context) {
         return GameDialogContent(
           data: resolved,
@@ -133,7 +133,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
                     height: 190,
                     padding: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
-                      color: GameUI.backgroundColor2,
+                      color: GameUI.backgroundColor,
                       // borderRadius: GameUI.borderRadius,
                       // border: Border.all(color: GameUI.foregroundColor),
                     ),

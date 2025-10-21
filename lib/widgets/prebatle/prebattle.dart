@@ -11,17 +11,17 @@ import '../ui/bordered_icon_button.dart';
 import '../avatar.dart';
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../game/game.dart';
+import '../../data/game.dart';
 import 'battlecard.dart';
 import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../../scene/common.dart';
-import '../../game/logic/logic.dart';
+import '../../logic/logic.dart';
 import '../../state/states.dart';
 import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
-import '../../game/event_ids.dart';
 import '../ui/close_button2.dart';
+import '../../data/common.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
@@ -77,12 +77,11 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
       setState(() {});
     });
 
-    final int playerMonthlyIdentifiedCards =
-        GameData.flags['playerMonthly']['identifiedEnemyCards'];
-    final int playerMonthlyIdentifiedCardsCount =
+    final int monthlyIdentifiedCards =
+        GameData.flags['monthly']['identifiedEnemyCards'];
+    final int monthlyIdentifyCardsMax =
         widget.hero['stats']['monthlyIdentifyCardsMax'];
-    _availableIdentifyCount =
-        playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
+    _availableIdentifyCount = monthlyIdentifyCardsMax - monthlyIdentifiedCards;
     if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;
 
     _heroDecks = widget.hero['battleDecks'];
@@ -166,7 +165,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     // final buttonKey = GlobalKey();
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor2,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 1080.0,
       height: 640.0,
@@ -473,7 +472,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 engine
                                     .play('hammer-hitting-an-anvil-25390.mp3');
                                 --_availableIdentifyCount;
-                                GameData.flags['playerMonthly']
+                                GameData.flags['monthly']
                                     ['identifiedEnemyCards'] += 1;
                                 context.read<HoverContentState>().hide();
                                 setState(() {

@@ -42,7 +42,7 @@ class DraggablePanel extends StatelessWidget {
         type: MaterialType.transparency,
         child: Container(
           decoration: BoxDecoration(
-            color: GameUI.backgroundColor2,
+            color: GameUI.backgroundColor,
             // borderRadius: GameUI.borderRadius,
             // border: Border.all(color: Theme.of(context).colorScheme.onSurface),
           ),

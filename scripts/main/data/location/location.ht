@@ -147,7 +147,7 @@ struct Location {
       } else {
         let conflict = false
         do {
-          const randomName = generateLocationName(category: this.kind)
+          const randomName = generateCityName(category: this.kind)
           this.name = randomName.name
           conflict = game.locations.values.where((element) =>
             element.name == this.name).isNotEmpty
@@ -221,6 +221,8 @@ struct Location {
     this.isHidden = isHidden ?? false
     this.isDiscovered = !isHidden
     
+    // 该据点的NPC，会显示在左侧列表中
+    this.npcId = npcId
     // 建筑的拥有者
     // 住所的owner就是这个住所的主人
     // city的owner就是城主
@@ -242,7 +244,9 @@ struct Location {
     }
 
     // 该据点的事件触发选项
-    this.flags = {}
+    this.flags = {
+      monthly: {},
+    }
 
     // 大牢中的角色
     // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
@@ -256,7 +260,9 @@ struct Location {
     this.inventory = {}
     this.materials = {}
 
-    this.npcId = npcId
+    // 当此据点未被任何门派控制时
+    // 角色在此据点的功勋
+    this.contributions = {}
 
     if (atTerrain != null) {
       engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')

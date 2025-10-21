@@ -256,8 +256,6 @@ function addExpArray(tilePosition, {
 function addCardLibraryStele(tilePosition, {
   objectId = 'cardlibrary',
   hoverContent,
-  enableCardCraft = false,
-  enableScrollCraft = false,
 }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
@@ -270,8 +268,6 @@ function addCardLibraryStele(tilePosition, {
   final object = ObjectCardLibrary(
     id: objectId,
     hoverContent: hoverContent,
-    enableCardCraft: enableCardCraft,
-    enableScrollCraft: enableScrollCraft,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)

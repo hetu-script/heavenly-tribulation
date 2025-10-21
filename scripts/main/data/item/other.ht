@@ -3,9 +3,10 @@
 struct Contributionpack {
   constructor ({
     amount,
+    locationId,
     organizationId,
   }) {
-    assert(organizationId != null, 'organizationId is required for Contributionpack')
+    assert(locationId != null, 'must have locationId for contribution pack!')
 
     this.id = 'contribution_pack_${organizationId}'
     this.entityType = kEntityTypeItem
@@ -14,9 +15,18 @@ struct Contributionpack {
     this.name = engine.locale('contribution_pack')
     this.icon = 'item/contribution.png'
 
+    this.locationId = locationId
+    this.organizationId = organizationId
+
+    final location = game.locations[locationId]
+    final organization = game.organizations[organizationId]
+    
+    this.flavortext = (organization?.name ?? location.name) +
+      engine.locale('contribution') + '\n' +
+      engine.locale('flavortext_contribution_pack')
+
     this.category = kItemCategoryContributionPack
     this.type = kItemTypeConsumable
-    this.flavortext = engine.locale('flavortext_contribution_pack')
     this.stackSize = amount ?? 1
     
     this.isIdentified = true
