@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../bonds.dart';
+import 'bonds.dart';
 import 'history.dart';
 
 import '../../engine.dart';
@@ -164,7 +164,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
               if (_tabController.index == 0)
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       final result = await showDialog(
                         context: context,
@@ -188,7 +188,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop(_character['id']);
                   },

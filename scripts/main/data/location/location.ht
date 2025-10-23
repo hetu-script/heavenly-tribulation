@@ -304,7 +304,7 @@ struct Location {
           atLocation: this,
           organizationId: organizationId,
           development: random.nextInt(this.development + 1),
-          npcId: 'servant',
+          npcId: Constants.siteKindToNpcId[kLocationKindCityhall]
         )
         
         const tradinghouse = Location(
@@ -315,7 +315,7 @@ struct Location {
           atLocation: this,
           organizationId: organizationId,
           development: random.nextInt(this.development + 1),
-          npcId: 'servant',
+          npcId: Constants.siteKindToNpcId[kLocationKindTradingHouse]
         )
       }
     } else if (atLocation != null) {
@@ -325,6 +325,8 @@ struct Location {
     } else {
       engine.info('建立了${this.name}')
     }
+    
+    this.updateDay = random.nextInt(30) + 1
   }
 }
 
@@ -707,6 +709,14 @@ function replenishMaterial(location) {
 
 /// 刷新交易类场景的物品
 function replenishItem(location) {
+  if (location?.entityType != kEntityTypeLocation) {
+    engine.warn('replenishItem 只能对 location 对象使用')
+    return
+  }
+  if (!Constants.siteKindsTradable.contains(location.kind)) {
+    engine.warn('场所 ${location.name} 不支持物品交易刷新')
+    return
+  }
   location.inventory = {}
   let amount = _kBaseItemReplenishAmount + location.development
   final atLocation = game.locations[location.atLocationId]
@@ -764,12 +774,11 @@ function replenishItem(location) {
     }
     'library': {
       final organization = game.organizations[location.organizationId]
-      assert(organization != null, '门派不存在，id: ${location.organizationId}')
       for (var i in range(location.development + 1)) {
         for (var j in range(_kBaseItemReplenishAmount)) {
           let item = Cardpack(
             rank: i,
-            genre: i > 0 ? organization?.genre : null,
+            genre: i > 0 ? (organization?.genre ?? random.nextIterable(Constants.cultivationGenres)) : null,
           )
           entityAcquire(location, item)
         }
@@ -799,7 +808,7 @@ function replenishItem(location) {
         }
       }
     }
-    case 'runelab': {
+    'runelab': {
       for (var i in range(amount)) {
         final item = createItemById('identify_scroll')
         entityAcquire(location, item)
@@ -810,9 +819,6 @@ function replenishItem(location) {
           entityAcquire(location, paper)
         }
       }
-    }
-    default: {
-      engine.warn('场所 ${location.name} 不支持物品交易刷新')
     }
   }
 }

@@ -84,22 +84,11 @@ class MerchantState with ChangeNotifier {
   bool showMerchant = false;
   bool materialMode = false;
   bool useShard = false;
-  dynamic data;
+  dynamic merchantData;
   dynamic priceFactor;
   dynamic filter;
   MerchantType merchantType = MerchantType.none;
-
-  (bool, bool, bool, dynamic, dynamic, dynamic, MerchantType) get() {
-    return (
-      showMerchant,
-      materialMode,
-      useShard,
-      data,
-      priceFactor,
-      filter,
-      merchantType,
-    );
-  }
+  bool allowManualReplenish = false;
 
   void show(
     dynamic data, {
@@ -108,13 +97,15 @@ class MerchantState with ChangeNotifier {
     dynamic priceFactor,
     dynamic filter,
     MerchantType merchantType = MerchantType.none,
+    bool allowManualReplenish = false,
   }) {
     this.materialMode = materialMode;
     this.useShard = useShard;
-    this.data = data;
+    this.merchantData = data;
     this.priceFactor = priceFactor;
     this.filter = filter;
     this.merchantType = merchantType;
+    this.allowManualReplenish = allowManualReplenish;
     showMerchant = true;
     notifyListeners();
   }
@@ -122,10 +113,11 @@ class MerchantState with ChangeNotifier {
   void close() {
     materialMode = false;
     useShard = false;
-    data = null;
+    merchantData = null;
     priceFactor = null;
     filter = null;
-    merchantType = MerchantType.location;
+    merchantType = MerchantType.none;
+    allowManualReplenish = false;
     showMerchant = false;
     notifyListeners();
   }

@@ -123,7 +123,7 @@ class _OrganizationViewState extends State<OrganizationView> {
               padding: const EdgeInsets.only(top: 10.0),
               child: Row(
                 children: [
-                  fluent.FilledButton(
+                  fluent.Button(
                     onPressed: () async {
                       final value = await showDialog(
                         context: context,

@@ -69,7 +69,7 @@ class NewJournal extends StatelessWidget {
                     (entry) {
                       return Container(
                         padding: const EdgeInsets.all(10.0),
-                        child: fluent.FilledButton(
+                        child: fluent.Button(
                           onPressed: () {
                             completer?.complete(entry.key);
                             context.read<JournalPromptState>().update();
@@ -87,7 +87,7 @@ class NewJournal extends StatelessWidget {
               Padding(
                 padding:
                     const EdgeInsets.only(top: 10.0, left: 50.0, right: 50.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     completer?.complete(null);
                     context.read<JournalPromptState>().update();

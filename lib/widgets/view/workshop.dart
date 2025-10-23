@@ -263,7 +263,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                 ),
                               ),
                               const Spacer(),
-                              fluent.FilledButton(
+                              fluent.Button(
                                 onPressed: () {},
                                 child: Text(engine.locale('craft_item')),
                               ),
@@ -372,7 +372,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                         );
                                       }).toList()),
                               const Spacer(),
-                              fluent.FilledButton(
+                              fluent.Button(
                                 onPressed: () {},
                                 child: Text(engine.locale('execute')),
                               )

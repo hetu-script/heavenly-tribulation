@@ -109,7 +109,7 @@ class Inventory extends StatelessWidget {
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SizedBox(
-            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine,
+            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine + 5.0,
             height: height,
             child: ListView(
               shrinkWrap: true,

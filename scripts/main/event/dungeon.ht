@@ -124,10 +124,10 @@ const _kMerchantKinds = [
   'smith',
   'enchanter',
   'pharmacist',
-  'bookdealer',
+  'bookDealer',
   'alchemist',
-  'runemaster',
-  'mysterious',
+  'runeMaster',
+  'mysteriousMerchant',
 ]
 
 const _kEncounterKinds = [
@@ -156,7 +156,7 @@ function _addGeneralMerchant(tilePosition) {
     rank: game.flags.dungeon.rank,
     money: 500000,
     shard: 5000,
-    category: [
+    itemCategories: [
       'weapon',
       'armor',
       'jewelry',
@@ -187,7 +187,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: ['weapon', 'armor'],
+        itemCategories: ['weapon', 'armor'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -201,7 +201,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: ['jewelry', 'talisman'],
+        itemCategories: ['jewelry', 'talisman'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -215,35 +215,35 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: ['potion'],
+        itemCategories: ['potion'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
     }
-    'bookdealer': {
+    'bookDealer': {
       addMerchant(
         _kCenterTile,
         objectId: 'merchant_bookdealer',
-        name: engine.locale('bookdealer'),
+        name: engine.locale('bookDealer'),
         sprite: 'object/characterMan31.png',
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: ['cardpack'],
+        itemCategories: ['cardpack'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
     }
-    'runemaster': {
+    'runeMaster': {
       addMerchant(
         _kCenterTile,
         objectId: 'merchant_runemaster',
-        name: engine.locale('runemaster'),
+        name: engine.locale('runeMaster'),
         sprite: 'object/characterMan31.png',
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: ['scroll_paper', 'identify_scroll'],
+        itemCategories: ['scroll_paper', 'identify_scroll'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -257,7 +257,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: [
+        itemCategories: [
           'craftmaterial_addAffix',
           'craftmaterial_replaceAffix',
           'craftmaterial_rerollAffix',
@@ -267,16 +267,16 @@ function _addRandomMerchant() {
         useShard: game.flags.dungeon.rank > 0,
       )
     }
-    'mysterious': {
+    'mysteriousMerchant': {
       addMerchant(
         _kFunction4,
         objectId: 'merchant_mysterious',
-        name: engine.locale('merchant'),
+        name: engine.locale('mysteriousMerchant'),
         sprite: 'object/characterMan31.png',
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        category: [
+        itemCategories: [
           'weapon',
           'armor',
           'jewelry',
@@ -285,6 +285,10 @@ function _addRandomMerchant() {
         ],
         itemCount: 8 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
+        isMysterious: true,
+        priceFactor: {
+          'estimatePriceRange': 'cheap',
+        },
       )
     }
   }

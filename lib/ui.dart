@@ -75,7 +75,58 @@ final class TextStyles {
 }
 
 final class FluentButtonStyles {
-  static final selected = fluent.ButtonStyle(
+  static final column = fluent.ButtonStyle(
+    backgroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
+            Colors.white24,
+        WidgetState.hovered: Colors.white54,
+        WidgetState.disabled: Colors.transparent,
+        WidgetState.any: Colors.transparent,
+      },
+    ),
+    foregroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.disabled: GameUI.foregroundDisabled,
+        WidgetState.any: GameUI.foregroundColor,
+      },
+    ),
+    shape: WidgetStatePropertyAll<ShapeBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide.none,
+      ),
+    ),
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+    ),
+    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodyMedium),
+  );
+
+  static final outlined = fluent.ButtonStyle(
+    backgroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
+            GameUI.focusColor,
+        WidgetState.hovered: GameUI.hoverColor,
+        WidgetState.disabled: Colors.transparent,
+        WidgetState.any: GameUI.backgroundColor,
+      },
+    ),
+    foregroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.disabled: GameUI.foregroundDisabled,
+        WidgetState.any: GameUI.foregroundColor,
+      },
+    ),
+    shape: WidgetStatePropertyAll<ShapeBorder>(GameUI.roundedRectangleBorder),
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+    ),
+    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodyMedium),
+  );
+
+  static final selected = outlined.copyWith(
     backgroundColor: WidgetStateProperty<Color>.fromMap(
       <WidgetStatesConstraint, Color>{
         WidgetState.pressed | WidgetState.focused | WidgetState.selected:
@@ -86,6 +137,12 @@ final class FluentButtonStyles {
       },
     ),
     foregroundColor: WidgetStatePropertyAll<Color>(Colors.white),
+  );
+
+  static final slim = outlined.copyWith(
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.zero,
+    ),
   );
 }
 
@@ -147,7 +204,8 @@ final class GameUI {
   // static const foregroundColorPressed = Colors.black;
   // static final foregroundDiabled = GameColors.lightSlateGrey;
   static const foregroundColor = Colors.white;
-  static final foregroundDiabled = Colors.grey;
+  static final foregroundPressed = Colors.white70;
+  static final foregroundDisabled = Colors.white38;
 
   static final barrierColor = Colors.black54;
 
@@ -155,32 +213,27 @@ final class GameUI {
   static const backgroundColorOpaque = Color(0xff1b1613);
   static const backgroundColor2 = Color(0xcc270505);
   static const backgroundColor2Opaque = Color(0xff270505);
+  static const backgroundDisabled = Color(0xcc607D8B);
 
   static final Paint background2Paint = Paint()
     ..style = PaintingStyle.fill
     ..color = backgroundColor2;
 
-  static const focusColor = Colors.deepPurple;
-  static const hoverColor = Colors.lightBlue;
-  static const selectedColor = Color(0xcc03a9f4);
-  static const outlineColor = Colors.white54;
+  static const primaryColor = Colors.lightBlue;
+  static const focusColor = Colors.lightBlueAccent;
+  static const hoverColor = primaryColor;
+  static const selectedColor = Colors.lightBlue;
   static const highlightColor = Colors.yellow;
 
   static const borderColor = Color(0xaa607d8B);
   static const borderColor2 = Color(0xaacc5500);
   static const borderRadius = BorderRadius.all(Radius.circular(5.0));
   static const roundedRectangleBorder = RoundedRectangleBorder(
-    side: BorderSide(
-      color: borderColor,
-      width: 2,
-    ),
+    side: BorderSide(color: borderColor, width: 2),
     borderRadius: GameUI.borderRadius,
   );
   static const boxBorder = Border.fromBorderSide(
-    BorderSide(
-      color: borderColor,
-      width: 2,
-    ),
+    BorderSide(color: borderColor, width: 2),
   );
 
   static const boxDecoration = BoxDecoration(
@@ -194,9 +247,7 @@ final class GameUI {
 
   static late Offset detailsWindowPosition;
 
-  static const iconTheme = IconThemeData(
-    color: foregroundColor,
-  );
+  static const iconTheme = IconThemeData(color: foregroundColor);
 
   static const textTheme = TextTheme(
     displayLarge: TextStyles.displayLarge,
@@ -217,15 +268,19 @@ final class GameUI {
   );
 
   static final darkMaterialTheme = ThemeData(
-    splashFactory: NoSplash.splashFactory,
     brightness: Brightness.dark,
     textTheme: textTheme,
     fontFamily: GameUI.fontFamily,
     scaffoldBackgroundColor: Colors.transparent,
     iconTheme: iconTheme,
+    splashFactory: NoSplash.splashFactory,
     dividerColor: foregroundColor,
     colorScheme: ColorScheme.dark(
       surface: backgroundColor,
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0.5,
+      shape: roundedRectangleBorder,
     ),
     appBarTheme: AppBarTheme(
       centerTitle: true,
@@ -233,108 +288,68 @@ final class GameUI {
       toolbarHeight: 36,
       iconTheme: iconTheme,
       actionsIconTheme: iconTheme,
-      titleTextStyle: TextStyles.titleSmall,
-    ),
-    cardTheme: CardThemeData(
-      elevation: 0.5,
-      shape: roundedRectangleBorder,
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        foregroundColor: foregroundColor,
-        shape: roundedRectangleBorder,
-        padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        textStyle: TextStyles.bodyMedium,
-        foregroundColor: foregroundColor,
-        shape: roundedRectangleBorder,
-        padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-      ),
-    ),
-    segmentedButtonTheme: SegmentedButtonThemeData(
-      style: SegmentedButton.styleFrom(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(5.0),
-            topRight: Radius.circular(5.0),
-          ),
-        ),
-      ),
-    ),
-    dropdownMenuTheme: DropdownMenuThemeData(
-      textStyle: TextStyles.bodyMedium,
-    ),
-    popupMenuTheme: const PopupMenuThemeData(
-      color: backgroundColor,
-      shape: roundedRectangleBorder,
-      labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(
-          fontFamily: GameUI.fontFamily,
-          fontSize: 15.0,
-        ),
-      ),
-    ),
-    sliderTheme: SliderThemeData(
-      activeTrackColor: borderColor,
-      activeTickMarkColor: borderColor,
-      thumbColor: borderColor,
-      valueIndicatorTextStyle: TextStyles.bodyMedium,
-      showValueIndicator: ShowValueIndicator.never,
+      titleTextStyle: TextStyles.bodyMedium,
     ),
     tabBarTheme: TabBarThemeData(
       labelStyle: TextStyles.bodyMedium,
       unselectedLabelStyle: TextStyles.bodyMedium,
+      mouseCursor: cursor,
+    ),
+    dataTableTheme: DataTableThemeData(
+      headingCellCursor: cursor,
+      dataRowCursor: cursor,
+      headingTextStyle: TextStyles.bodyMedium,
+      dataTextStyle: TextStyle(
+        fontFamily: GameUI.fontFamily,
+        fontSize: 14.0,
+        color: GameUI.foregroundColor,
+      ),
+      headingRowHeight: 40.0,
     ),
   );
 
   static final fluentTheme = fluent.FluentThemeData(
     acrylicBackgroundColor: backgroundColor,
-    accentColor: fluent.Colors.teal,
+    accentColor: fluent.Colors.blue,
     brightness: Brightness.dark,
     fontFamily: GameUI.fontFamily,
     tooltipTheme: fluent.TooltipThemeData(
       textStyle: TextStyles.labelSmall,
     ),
     buttonTheme: fluent.ButtonThemeData(
-      defaultButtonStyle: fluent.ButtonStyle(
-        shape: WidgetStatePropertyAll<ShapeBorder>(
-          roundedRectangleBorder,
+      defaultButtonStyle: FluentButtonStyles.outlined,
+      filledButtonStyle: FluentButtonStyles.outlined,
+      outlinedButtonStyle: FluentButtonStyles.outlined,
+      iconButtonStyle: FluentButtonStyles.outlined,
+    ),
+    checkboxTheme: fluent.CheckboxThemeData(
+      checkedDecoration: WidgetStatePropertyAll<Decoration>(
+        BoxDecoration(
+          border: Border.all(color: borderColor, width: 2),
+          color: primaryColor,
+          borderRadius: borderRadius,
         ),
       ),
-      filledButtonStyle: fluent.ButtonStyle(
-        backgroundColor: WidgetStateProperty<Color>.fromMap(
-          <WidgetStatesConstraint, Color>{
-            WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-                focusColor,
-            WidgetState.hovered: hoverColor,
-            WidgetState.disabled: Colors.blueGrey.withAlpha(80),
-            WidgetState.any: backgroundColor,
-          },
-        ),
-        foregroundColor: WidgetStateProperty<Color>.fromMap(
-          <WidgetStatesConstraint, Color>{
-            WidgetState.disabled: Colors.grey.withAlpha(80),
-            WidgetState.any: foregroundColor,
-          },
-        ),
-        shape: WidgetStatePropertyAll<ShapeBorder>(
-          roundedRectangleBorder,
-        ),
-        padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-          EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-        ),
-        textStyle: WidgetStateProperty<TextStyle>.fromMap(
-          <WidgetStatesConstraint, TextStyle>{
-            WidgetState.disabled: TextStyles.bodyMedium
-                .copyWith(color: Colors.grey.withAlpha(80)),
-            WidgetState.any:
-                TextStyles.bodyMedium.copyWith(color: foregroundColor),
-          },
+      checkedIconColor: WidgetStatePropertyAll(
+        foregroundColor,
+      ),
+      uncheckedDecoration: WidgetStatePropertyAll<Decoration>(
+        BoxDecoration(
+          border: Border.all(color: borderColor, width: 2),
+          borderRadius: borderRadius,
         ),
       ),
+    ),
+    toggleSwitchTheme: fluent.ToggleSwitchThemeData(
+      checkedDecoration: WidgetStatePropertyAll<Decoration>(
+        BoxDecoration(
+          color: primaryColor,
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+      ),
+    ),
+    sliderTheme: fluent.SliderThemeData(
+      thumbColor: WidgetStatePropertyAll<Color>(primaryColor),
     ),
   );
 
@@ -361,7 +376,7 @@ final class GameUI {
     outlined: true,
     padding: EdgeInsets.only(top: 10),
     anchor: Anchor.topCenter,
-    textStyle: TextStyles.titleSmall,
+    textStyle: TextStyles.bodyMedium,
   );
 
   // location site scene ui
@@ -697,6 +712,10 @@ final class GameUI {
                 const EdgeInsets.symmetric(horizontal: 100.0, vertical: 50.0),
             backgroundColor: GameUI.backgroundColor,
             closeButton: CloseButton2(),
+            label: engine.locale('hint_console'),
+            labelStyle: TextStyles.bodySmall.copyWith(
+              color: Colors.grey,
+            ),
           ),
         );
       },

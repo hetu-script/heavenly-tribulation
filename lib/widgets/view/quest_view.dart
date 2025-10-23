@@ -56,7 +56,7 @@ class QuestDetail extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 5.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
@@ -65,7 +65,7 @@ class QuestDetail extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(left: 5.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },

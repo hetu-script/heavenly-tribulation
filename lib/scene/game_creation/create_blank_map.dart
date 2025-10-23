@@ -5,7 +5,6 @@ import 'package:hetu_script/utils/crc32b.dart';
 import 'package:samsara/samsara.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../../widgets/ui/responsive_view.dart';
 
 class CreateBlankMapDialog extends StatefulWidget {
@@ -86,7 +85,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                   SizedBox(
                                     width: 150.0,
                                     height: 50.0,
-                                    child: TextField(
+                                    child: fluent.TextBox(
                                       controller: _filaNameEditingController,
                                     ),
                                   ),
@@ -105,7 +104,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                 SizedBox(
                                   width: 150.0,
                                   height: 50.0,
-                                  child: TextField(
+                                  child: fluent.TextBox(
                                     controller: _idEditingController,
                                   ),
                                 ),
@@ -128,9 +127,8 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                     height: 30,
                                     child: FittedBox(
                                       fit: BoxFit.fill,
-                                      child: Switch(
-                                        value: _isMainWorld,
-                                        activeColor: Colors.white,
+                                      child: fluent.ToggleSwitch(
+                                        checked: _isMainWorld,
                                         onChanged: (bool value) {
                                           setState(() {
                                             _isMainWorld = value;
@@ -158,10 +156,8 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                     height: 30,
                                     child: FittedBox(
                                       fit: BoxFit.fill,
-                                      child: Switch(
-                                        mouseCursor: GameUI.cursor,
-                                        value: _useCustomLogic,
-                                        activeColor: Colors.white,
+                                      child: fluent.ToggleSwitch(
+                                        checked: _useCustomLogic,
                                         onChanged: (bool value) {
                                           setState(() {
                                             _useCustomLogic = value;
@@ -185,7 +181,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                 SizedBox(
                                   width: 50.0,
                                   height: 50.0,
-                                  child: TextField(
+                                  child: fluent.TextBox(
                                     textAlign: TextAlign.center,
                                     keyboardType: TextInputType.number,
                                     inputFormatters: <TextInputFormatter>[
@@ -198,7 +194,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                 SizedBox(
                                   width: 50.0,
                                   height: 50.0,
-                                  child: TextField(
+                                  child: fluent.TextBox(
                                     textAlign: TextAlign.center,
                                     keyboardType: TextInputType.number,
                                     inputFormatters: <TextInputFormatter>[
@@ -222,7 +218,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -231,7 +227,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       if (_idEditingController.text.isBlank) {
                         dialog.pushDialog('hint_mustEnterId');

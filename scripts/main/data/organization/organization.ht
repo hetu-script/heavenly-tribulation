@@ -208,7 +208,7 @@ function stationOrganization(organization, location, { incurIncident: bool }) {
     image: 'location/card/${organization.genre}.png'
     background: 'location/site/${organization.genre}.png'
     organizationId: organization.id,
-    npcId: 'servant',
+    npcId: Constants.siteKindToNpcId[kLocationKindHeadquarters]
   )
 
   organization.headquartersSiteId = headquarters.id

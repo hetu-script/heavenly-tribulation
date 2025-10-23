@@ -103,7 +103,7 @@ fluent.MenuFlyoutItem buildFluentMenuItem<T>({
     cursor: GameUI.cursor,
     text: Text(
       text,
-      style: !enabled ? TextStyle(color: GameUI.foregroundDiabled) : null,
+      style: !enabled ? TextStyle(color: GameUI.foregroundDisabled) : null,
     ),
     leading: leading,
     trailing: trailing,

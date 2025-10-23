@@ -30,7 +30,7 @@ class GameOver extends StatelessWidget {
                 ),
             Padding(
               padding: const EdgeInsets.all(25.0),
-              child: fluent.FilledButton(
+              child: fluent.Button(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

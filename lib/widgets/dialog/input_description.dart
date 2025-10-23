@@ -84,18 +84,18 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
                 margin: const EdgeInsets.all(15.0),
                 decoration: GameUI.boxDecoration,
                 child: SingleChildScrollView(
-                  child: TextField(
+                  child: fluent.TextBox(
                     autofocus: true,
                     controller: _textEditingController,
                     maxLines: null,
                     minLines: 9,
-                    decoration: const InputDecoration(border: InputBorder.none),
+                    // decoration: const InputDecoration(border: InputBorder.none),
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     String result = _textEditingController.text.trim();
                     Navigator.of(context).pop(result.nonEmptyValue);

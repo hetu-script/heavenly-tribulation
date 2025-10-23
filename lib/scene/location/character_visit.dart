@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
-import '../ui/close_button2.dart';
-import '../ui/responsive_view.dart';
+import '../../widgets/ui/close_button2.dart';
+import '../../widgets/ui/responsive_view.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
@@ -141,13 +142,14 @@ class CharacterVisitDialog extends StatelessWidget {
           actions: const [CloseButton2()],
         ),
         body: DataTable2(
+          cursor: GameUI.cursor,
           minWidth: 760,
           scrollController: ScrollController(),
           empty: EmptyPlaceholder(engine.locale('empty')),
           columns: _kCharacterVisitTableColumns
               .map((title) => DataColumn2(
-                    size: ColumnSize.L,
-                    label: TextButton(
+                    label: fluent.Button(
+                      style: FluentButtonStyles.column,
                       onPressed: () {},
                       child: Text(
                         engine.locale(title),

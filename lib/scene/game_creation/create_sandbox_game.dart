@@ -10,7 +10,6 @@ import 'package:fast_noise/fast_noise.dart';
 import 'package:hetu_script/utils/crc32b.dart';
 
 import '../../engine.dart';
-import '../../widgets/ui/menu_builder.dart';
 import '../../data/common.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/ui/close_button2.dart';
@@ -217,7 +216,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                       shrinkWrap: true,
                       children: [
                         Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             SizedBox(
                               width: 120.0,
@@ -226,7 +224,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                             SizedBox(
                               width: 150.0,
                               height: 40.0,
-                              child: TextField(
+                              child: fluent.TextBox(
                                 controller: _saveNameEditingController,
                               ),
                             ),
@@ -239,11 +237,11 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                             children: [
                               SizedBox(
                                 width: 120.0,
-                                child: Text(
-                                    '${engine.locale('enableTutorial')}: '),
+                                child: Text('${engine.locale('tutorial')}: '),
                               ),
                               fluent.Checkbox(
-                                content: Text(engine.locale('enableTutorial')),
+                                content: Text(engine.locale(
+                                    _enableTutorial ? 'enabled' : 'disabled')),
                                 checked: _enableTutorial,
                                 onChanged: (bool? value) {
                                   setState(() {
@@ -256,9 +254,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                         ),
                         // 随机数种子
                         Padding(
-                          padding: const EdgeInsets.only(top: 5.0),
+                          padding: const EdgeInsets.only(top: 20.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               SizedBox(
                                 width: 120.0,
@@ -267,7 +264,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               SizedBox(
                                 width: 150.0,
                                 height: 40.0,
-                                child: TextField(
+                                child: fluent.TextBox(
                                   controller: _seedEditingController,
                                   onChanged: (value) {
                                     final trimed = value.trim();
@@ -279,8 +276,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: fluent.FilledButton(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: fluent.Button(
                                   onPressed: () async {
                                     if (needConfirmed) {
                                       _seedEditingController.text =
@@ -298,8 +295,10 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                     }
                                     setState(() {});
                                   },
-                                  child: Text(engine.locale(
-                                      needConfirmed ? 'confirm' : 'random')),
+                                  child: Text(
+                                    engine.locale(
+                                        needConfirmed ? 'confirm' : 'random'),
+                                  ),
                                 ),
                               ),
                             ],
@@ -309,27 +308,27 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               SizedBox(
                                 width: 120.0,
                                 child: Text('${engine.locale('worldStyle')}: '),
                               ),
-                              fluent.DropDownButton(
-                                title: Text(engine.locale(_worldStyle)),
-                                items: buildFluentMenuItems(
-                                  items: {
-                                    for (final style in kWorldStyles)
-                                      engine.locale(style): style
-                                  },
-                                  onSelectedItem: (String item) async {
-                                    _worldStyle = item;
-                                    _seed = crcInt(
-                                        '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
-                                    await makeImage();
-                                    setState(() {});
-                                  },
-                                ),
+                              fluent.ComboBox<String>(
+                                value: _worldStyle,
+                                items: kWorldStyles.map((e) {
+                                  return fluent.ComboBoxItem(
+                                    value: e,
+                                    child: Text(engine.locale(e)),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  if (value == null) return;
+                                  _worldStyle = value;
+                                  _seed = crcInt(
+                                      '${_seedEditingController.text}$_worldStyle$_worldWidth$_worldHeight');
+                                  await makeImage();
+                                  setState(() {});
+                                },
                               ),
                             ],
                           ),
@@ -338,27 +337,26 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               SizedBox(
                                 width: 120.0,
                                 child: Text('${engine.locale('worldSize')}: '),
                               ),
-                              fluent.DropDownButton(
-                                title: Text(engine.locale(_worldScaleLabel)),
-                                items: buildFluentMenuItems(
-                                  items: {
-                                    for (final scaleLabel
-                                        in kWorldLabelToScale.keys)
-                                      engine.locale(scaleLabel): scaleLabel
-                                  },
-                                  onSelectedItem: (String label) async {
-                                    _worldScaleLabel = label;
-                                    applyAllConfig();
-                                    await makeImage();
-                                    setState(() {});
-                                  },
-                                ),
+                              fluent.ComboBox<String>(
+                                value: _worldScaleLabel,
+                                items: kWorldLabelToScale.keys.map((e) {
+                                  return fluent.ComboBoxItem(
+                                    value: e,
+                                    child: Text(engine.locale(e)),
+                                  );
+                                }).toList(),
+                                onChanged: (value) async {
+                                  if (value == null) return;
+                                  _worldScaleLabel = value;
+                                  applyAllConfig();
+                                  await makeImage();
+                                  setState(() {});
+                                },
                               ),
                             ],
                           ),
@@ -453,7 +451,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -462,7 +460,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       if (_seedEditingController.text.isBlank) {
                         GameDialogContent.show(

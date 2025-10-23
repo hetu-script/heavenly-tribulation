@@ -102,7 +102,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                   ),
                   SizedBox(
                     width: 180.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _nameIdEditingController,
                     ),
                   ),
@@ -118,7 +118,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _iconEditingController,
                     ),
                   ),
@@ -134,7 +134,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _illustrationEditingController,
                     ),
                   ),
@@ -174,7 +174,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         GameData.game['npcs'].remove(widget.id);
                         widget.atLocation.remove('npcId');
@@ -188,7 +188,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                   const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         dynamic npcData = GameData.game['npcs'][widget.id];
                         if (npcData != null) {

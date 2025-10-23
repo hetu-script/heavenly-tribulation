@@ -287,7 +287,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                               const EdgeInsets.only(top: 10.0, bottom: 10.0),
                           child: fluent.FlyoutTarget(
                             controller: menuController,
-                            child: fluent.FilledButton(
+                            child: fluent.Button(
                               onPressed: () {
                                 showFluentMenu(
                                     controller: menuController,
@@ -354,7 +354,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                     padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
                     child: SizedBox(
                       height: 50.0,
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           if (_warning != null && !widget.ignoreRequirement) {
                             GameDialogContent.show(context, _warning!);
@@ -423,7 +423,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         const Spacer(),
                         // Padding(
                         //   padding: EdgeInsets.only(right: 15.0),
-                        //   child: fluent.FilledButton(
+                        //   child: fluent.Button(
                         //     key: _identifyStatsButtonKey,
                         //     onPressed: () {},
                         //     onHover: (entered) {
@@ -443,7 +443,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         // ),
                         Padding(
                           padding: EdgeInsets.only(right: 5.0),
-                          child: fluent.FilledButton(
+                          child: fluent.Button(
                             key: _identifyDeckButtonKey,
                             onPressed: () {
                               if (_availableIdentifyCount > 0) {

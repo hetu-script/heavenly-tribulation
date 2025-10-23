@@ -1068,13 +1068,23 @@ class GameData {
       }
     } else {
       final useShard = priceFactor['useShard'] == true;
-      final price = GameLogic.calculateItemPrice(
-        itemData,
-        priceFactor: priceFactor,
-        isSell: isSell,
-      );
-      description.writeln(
-          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money2')}</>');
+      final estimatePriceRange = priceFactor['estimatePriceRange'];
+      if (estimatePriceRange == null) {
+        final price = GameLogic.calculateItemPrice(
+          itemData,
+          priceFactor: priceFactor,
+          isSell: isSell,
+        );
+        description.writeln('<yellow>${engine.locale('price')}: $price '
+            '${engine.locale(useShard ? 'shard' : 'money2')}</>');
+      } else {
+        assert(itemData['isIdentified'] == false);
+        final estimatePrice = GameLogic.estimateItemPrice(
+            itemData['category'], itemData['rank'],
+            range: estimatePriceRange);
+        description.writeln('<yellow>${engine.locale('estimatePrice')}: '
+            '$estimatePrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
+      }
       if (engine.config.debugMode) {
         description.writeln('<grey>basePrice: ${itemData['price']}</>');
       }

@@ -15,7 +15,6 @@ class ItemSelectDialog extends StatefulWidget {
     super.key,
     required this.character,
     this.title,
-    this.height = 360.0,
     this.type = ItemType.none,
     this.filter,
     this.multiSelect = false,
@@ -25,7 +24,6 @@ class ItemSelectDialog extends StatefulWidget {
 
   final String? title;
   final dynamic character;
-  final double height;
   final ItemType type;
   final dynamic filter;
   final bool multiSelect;
@@ -53,8 +51,8 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      width: 450.0,
-      height: 500.0,
+      width: 380.0,
+      height: 480.0,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -69,14 +67,18 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
           ],
         ),
         body: SizedBox(
-          width: 450.0,
-          height: 500.0,
+          width: 380.0,
+          height: 480.0,
           child: Column(
             children: [
+              SizedBox(
+                height: 10,
+              ),
               Inventory(
                 itemType: ItemType.player,
                 character: widget.character,
-                height: widget.height,
+                height: 364.0,
+                gridsPerLine: 6,
                 filter: widget.filter,
                 onItemTapped: (data, offset) {
                   final itemId = data['id'];
@@ -97,8 +99,8 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: fluent.FilledButton(
+                    padding: const EdgeInsets.only(left: 35.0, bottom: 15.0),
+                    child: fluent.Button(
                       onPressed: () {
                         context.read<ItemSelectState>().close();
                         widget.onSelect?.call([]);
@@ -110,32 +112,29 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                     ),
                   ),
                   if (widget.multiSelect)
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: fluent.FilledButton(
-                        onPressed: () {
-                          _selectedItemsData.clear();
-                          final filteredItems = GameLogic.getFilteredItems(
-                            widget.character,
-                            type: widget.type,
-                            filter: widget.filter,
-                          );
-                          for (final item in filteredItems) {
-                            _selectedItemsData[item['id']] = item;
-                          }
-                          setState(() {});
-                        },
-                        child: Label(
-                          engine.locale('selectAll'),
-                          textAlign: TextAlign.center,
-                        ),
+                    fluent.Button(
+                      onPressed: () {
+                        _selectedItemsData.clear();
+                        final filteredItems = GameLogic.getFilteredItems(
+                          widget.character,
+                          type: widget.type,
+                          filter: widget.filter,
+                        );
+                        for (final item in filteredItems) {
+                          _selectedItemsData[item['id']] = item;
+                        }
+                        setState(() {});
+                      },
+                      child: Label(
+                        engine.locale('selectAll'),
+                        textAlign: TextAlign.center,
                       ),
                     )
                   else
                     const Spacer(),
                   Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: fluent.FilledButton(
+                    padding: const EdgeInsets.only(right: 35.0, bottom: 15.0),
+                    child: fluent.Button(
                       onPressed: () {
                         context.read<ItemSelectState>().close();
                         widget.onSelect?.call(_selectedItemsData.values);

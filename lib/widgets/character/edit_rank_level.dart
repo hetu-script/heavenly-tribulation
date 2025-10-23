@@ -85,7 +85,7 @@ class _EditRankLevelSliderDialogState extends State<EditRankLevelSliderDialog> {
                       width: 120.0,
                       child: Text(engine.locale('cultivationLevel')),
                     ),
-                    Slider(
+                    fluent.Slider(
                       value: _level.toDouble(),
                       min: _minLevel.toDouble(),
                       max: _maxLevel.toDouble(),
@@ -109,7 +109,7 @@ class _EditRankLevelSliderDialogState extends State<EditRankLevelSliderDialog> {
                       width: 120.0,
                       child: Text(engine.locale('cultivationRank')),
                     ),
-                    Slider(
+                    fluent.Slider(
                       value: _rank.toDouble(),
                       min: 0.0,
                       max: kCultivationRankMax.toDouble(),
@@ -128,7 +128,7 @@ class _EditRankLevelSliderDialogState extends State<EditRankLevelSliderDialog> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop((_rank, _level));
                   },

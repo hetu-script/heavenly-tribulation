@@ -340,7 +340,7 @@ class _LocationViewState extends State<LocationView>
                               width: 120.0,
                               child: Text('NPC:'),
                             ),
-                            fluent.FilledButton(
+                            fluent.Button(
                               onPressed: () {
                                 setNpc();
                               },
@@ -377,7 +377,7 @@ class _LocationViewState extends State<LocationView>
               children: [
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       final value = await showDialog(
                         context: context,
@@ -451,7 +451,7 @@ class _LocationViewState extends State<LocationView>
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       final value = await showDialog(
                         context: context,
@@ -504,7 +504,7 @@ class _LocationViewState extends State<LocationView>
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       _saveData();
                       Navigator.of(context).pop(true);
@@ -521,7 +521,7 @@ class _LocationViewState extends State<LocationView>
                   padding: const EdgeInsets.only(left: 10.0),
                   child: fluent.FlyoutTarget(
                     controller: _siteMenuController,
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () async {
                         showFluentMenu(
                           controller: _siteMenuController,

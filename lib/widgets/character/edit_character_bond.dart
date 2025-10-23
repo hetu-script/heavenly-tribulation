@@ -86,12 +86,12 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                           padding: const EdgeInsets.only(right: 20.0),
                           width: 120.0,
                           height: 40.0,
-                          child: TextField(
+                          child: fluent.TextBox(
                             enabled: widget.enableTargetEdit,
                             controller: _targetCharacterIdEditingController,
                           ),
                         ),
-                        fluent.FilledButton(
+                        fluent.Button(
                           onPressed: widget.enableTargetEdit
                               ? () async {
                                   final key = await showDialog<String>(
@@ -122,7 +122,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                         SizedBox(
                           width: 100.0,
                           height: 40.0,
-                          child: TextField(
+                          child: fluent.TextBox(
                             textAlign: TextAlign.center,
                             controller: _scoreEditingController,
                             inputFormatters: [
@@ -165,7 +165,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     String? id =
                         _targetCharacterIdEditingController.text.nonEmptyValue;

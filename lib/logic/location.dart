@@ -11,9 +11,7 @@ Future<bool> _checkRented(dynamic location,
 
   dialog.pushDialog(
     'hint_organizationFacilityNotMember',
-    name: engine.locale('servant'),
-    icon: 'illustration/npc/servant_head.png',
-    image: 'illustration/npc/servant.png',
+    npcId: location['npcId'],
   );
   await dialog.execute();
 
@@ -67,18 +65,14 @@ Future<bool> _checkRented(dynamic location,
     GameData.addHeroMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
       'hint_rentedFacility',
-      name: engine.locale('servant'),
-      icon: 'illustration/npc/servant_head.png',
-      image: 'illustration/npc/servant.png',
+      npcId: location['npcId'],
     );
     await dialog.execute();
     return true;
   } else {
     dialog.pushDialog(
       'hint_notEnough',
-      name: engine.locale('servant'),
-      icon: 'illustration/npc/servant_head.png',
-      image: 'illustration/npc/servant.png',
+      npcId: location['npcId'],
       interpolations: [materialName],
     );
     await dialog.execute();
@@ -107,7 +101,7 @@ void _onInteractDungeonEntrance({
   if (selected == 'about_dungeon') {
     dialog.pushDialog(
       'hint_dungeonEntrance',
-      npcId: 'guard',
+      npcId: location['npcId'],
     );
     await dialog.execute();
   } else {
@@ -123,7 +117,7 @@ void _onInteractDungeonEntrance({
 
       dialog.pushDialog(
         'hint_dungeon_cost',
-        npcId: 'guard',
+        npcId: location['npcId'],
         interpolations: [cost],
       );
       await dialog.execute();
@@ -146,7 +140,7 @@ void _onInteractDungeonEntrance({
     } else {
       dialog.pushDialog(
         'hint_dungeon_cost2',
-        npcId: 'guard',
+        npcId: location['npcId'],
       );
       await dialog.execute();
     }

@@ -108,13 +108,13 @@ class _InputNameDialogState extends State<InputNameDialog> {
                     height: 80,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10.0, vertical: 20.0),
-                    child: TextField(
+                    child: fluent.TextBox(
                       inputFormatters: [FilteringTextInputFormatter.deny(' ')],
                       autofocus: true,
                       controller: _textEditingController,
                     ),
                   ),
-                  fluent.FilledButton(
+                  fluent.Button(
                     onPressed: () {
                       _textEditingController.text = generate();
                       setState(() {});
@@ -127,7 +127,7 @@ class _InputNameDialogState extends State<InputNameDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     final result = _textEditingController.text.nonEmptyValue;
                     Navigator.of(context).pop(result);

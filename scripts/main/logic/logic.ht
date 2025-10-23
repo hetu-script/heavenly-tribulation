@@ -16,7 +16,9 @@ external function getCardCraftMaterial(operationId, card) -> integer
 
 external function getDeckLimitForRank(rank) -> Map
 
-external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
+// external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
+
+external function estimateItemPrice(category, rank, {range = 'normal'}) -> integer
 
 external function generateCityTerritory(world)
 
@@ -223,7 +225,7 @@ async function selectHeroAttribute() {
 /// 但一般不要 await 这个函数，因为有可能卡在打开物品展示对话框的地方
 /// 直到关闭对话框才会返回并继续执行
 async function onInteractMapObject(object, terrain) {
-  engine.info('正在和 Object [${object.id}] 互动。')
+  engine.info('正在和 Object [${object.id}] (${object.category}) 互动。')
   if (object.useCustomLogic) {
     engine.info('Object [${object.id}] 使用自定义交互逻辑')
     await onWorldEvent('onInteractMapObject', object, terrain)
@@ -267,7 +269,13 @@ async function onInteractMapObject(object, terrain) {
       Game.showLibrary(enableCardCraft: true, enableScrollCraft: true)
     }
     kObjectCategoryMerchant: {
-      Game.showMerchant(object.merchant, useShard: object.useShard)
+      Game.showMerchant(
+        object.merchant,
+        materialMode: object.materialMode,
+        useShard: object.useShard,
+        priceFactor: object.priceFactor,
+        filter: object.filter,
+      )
     }
     kObjectCategorySpiritWell: {
       onInteractSpiritWell(object)
@@ -421,7 +429,7 @@ async function onInteractSpiritWell(object) {
     } else {
       craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
     }
-    rewards.add(craftMaterial)
+    items.add(craftMaterial)
   } else {
     final shard = random.nextInt(hero.level + 1) + 1
     final shardPack = Materialpack(kind: 'shard', amount: shard)

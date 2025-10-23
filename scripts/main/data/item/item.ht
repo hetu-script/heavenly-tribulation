@@ -48,9 +48,9 @@ const kRankedPrototypeItems = [
 
 const kEquipmentMax = 6;
 
-const kItemExtraAffixMinLevel = 6;
-
 const kEstimatePriceFactor = 0.8;
+
+const kItemExtraAffixMinLevel = minLevelForRank(1);
 
 const kUnknownItemBasePrice = 100;
 
@@ -63,48 +63,8 @@ function calculatePrice(item) {
   }
 }
 
-function estimatePrice({category, rank, range}) {
-  assert(category != null)
-  rank ??= 0
-  
-  let price
-  if (Constants.itemWithAffixCategories.contains(category)) {
-    range ??= 'high' // 'low', 'medium', 'high'
-    final minLevel = minLevelForRank(rank)
-    final maxLevel = maxLevelForRank(rank)
-    final extraAffixCount = getMinMaxExtraAffixCount(rank)
-    final minExtra = extraAffixCount.minExtra
-    final maxExtra = extraAffixCount.maxExtra
-    let level
-    let affixCount
-    switch (range) {
-      'high': {
-        level = maxLevel
-        affixCount = maxExtra
-      }
-      'medium':{
-        level = (minLevel + maxLevel) ~/ 2
-        affixCount = (minExtra + maxExtra) ~/ 2
-      }
-      'low': {
-        level = minLevel
-        affixCount = minExtra
-      }
-      else: {
-        throw('estimatePrice range should be `low`, `medium`, or `high`: ${range}')
-      }
-    }
-    price = ((rank + 1) * (rank + 1) ~/ 2 + 1) * (level + 1) *
-      (affixCount + 1) * (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
-  } else {
-    price = ((rank + 1) * (rank + 1) ~/ 2 + 1) * (Constants.basePriceByCategory[category] ?? kUnknownItemBasePrice)
-  }
-
-  return price
-}
-
 function convertMoneyToShard(money) {
-  final amount = (money / Constants.materialBasePrice['shard']).ceil()
+  final amount = (money / Constants.materialBasePrice['shard']).round()
   return amount < 1 ? 1 : amount
 }
 
@@ -126,91 +86,6 @@ struct AbstractedAffix {
     this.category = kItemCategoryEquipmentAffix
   }
 }
-
-// 地牢中获得的临时性buff，占据一个法宝栏位，并且无法取下
-// struct StatusSpirit {
-//   constructor({
-//     id,
-//     icon,
-//     rank,
-//   }) {
-//     assert(rank != null, 'StatusSpirit constructor error: rank: ${rank}')
-
-//     this.id = id ?? crypto.randomUID(withTime: true)
-//     this.name = generateMaterialName(category: 'spectre', rarity: 'legendary')
-//     this.entityType = kEntityTypeItem
-//     this.isIdentified = true
-//     this.isEquippable = true
-//     this.isCursed = true
-//     this.isUntradable = true
-//     this.category = kItemCategoryStatusSpirit
-//     // 这里的rank是生成此buff的地牢的境界
-//     this.rank = rank.clamp(1, kCultivationRankMax)
-//     this.rarity = Constants.rankToRarity[rank]
-//     this.icon = icon ?? 'item/status_spirit.png'
-
-//     final minLevel = minLevelForRank(rank)
-//     final maxLevel = maxLevelForRank(rank)
-//     this.level = getRandomLevel(minLevel, maxLevel)
-
-//     let mainAffix
-//     this.affixes = []
-//     this.affixUniqueIds = Set()
-
-//     final statusType = random.nextIterable(kStatusSpiritPassives)
-//     final passiveRawData = game.passives[statusType]
-//     assert(passiveRawData != null, statusType)
-//     mainAffix = Object.create(passiveRawData)
-
-//     assert(mainAffix.increment != null)
-//     if (mainAffix.increment < 1) {
-//       final minAffixLevel = (1 / mainAffix.increment).ceil()
-//       if (this.level < minAffixLevel) {
-//         this.level = minAffixLevel
-//       }
-//     }
-//     mainAffix.level = this.level
-
-//     final isAfflicted = random.nextBool()
-//     if (isAfflicted) {
-//       mainAffix.level = -mainAffix.level
-//     }
-
-//     mainAffix.value = (mainAffix.increment * mainAffix.level).round()
-
-//     this.affixes.add(mainAffix)
-//     this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
-    
-//     // 在 category 赋值之后才能获取风味文本
-//     this.flavortext = engine.locale('status_spirit_flavortext')
-
-//     // 根据境界，生成额外词条
-//     final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
-//     let affixCount = affixCountInfo.maxExtra
-//     assert(affixCount > 0)
-//     for (var i in range(affixCount)) {
-//       final supportAffixes = game.passives.values.where((affix) {
-//         if (!affix.isItemAffix) return false
-//         if (this.affixUniqueIds.contains(affix.id) ||
-//           (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
-//         if (affix.kind is List && !affix.kind.contains(this.kind)) return false
-//         if (affix.rank > this.rank) return false
-//         return true
-//       })
-//       if (supportAffixes.isEmpty) {
-//         throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
-//       }
-      
-//       final affix = Object.create(random.nextIterable(supportAffixes))
-//       if (affix.increment != null) {
-//         affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
-//         affix.value = (affix.increment * affix.level).round()
-//       }
-//       this.affixes.add(affix)
-//       this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
-//     }
-//   }
-// }
 
 function createItemById(id, {amount, rank, level}) {
   // TODO: 如果id不存在，则获得一个「未知物品」

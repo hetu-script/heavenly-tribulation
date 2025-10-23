@@ -70,7 +70,7 @@ class _SelectionDialogState extends State<SelectionDialog> {
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     width: 300,
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         context.read<HoverContentState>().hide();
                         if (widget.data['taskId'] == null) {

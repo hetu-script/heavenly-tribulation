@@ -314,9 +314,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                                           left: 10.0),
                                                   child: FittedBox(
                                                     fit: BoxFit.fill,
-                                                    child: Switch(
-                                                      value: isFemale,
-                                                      activeColor: Colors.white,
+                                                    child: fluent.ToggleSwitch(
+                                                      checked: isFemale,
                                                       onChanged: (bool value) {
                                                         setState(() {
                                                           isFemale = value;
@@ -521,7 +520,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
               if (widget.mode == InformationViewMode.edit) ...[
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       setState(() {
                         _character = engine.hetu.invoke('Character');
@@ -533,7 +532,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       final value = await showDialog(
                         context: context,
@@ -588,7 +587,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       showDialog(
                           context: context,
@@ -606,7 +605,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () async {
                       final value = await showDialog<Map<String, bool>>(
                         context: context,
@@ -627,7 +626,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
               if (widget.mode != InformationViewMode.view)
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       switch (widget.mode) {
                         case InformationViewMode.select:

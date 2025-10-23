@@ -56,7 +56,7 @@ class _NewRankState extends State<NewRank> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
-            child: fluent.FilledButton(
+            child: fluent.Button(
               onPressed: () {
                 widget.completer?.complete();
                 context.read<RankPromptState>().update();

@@ -51,7 +51,7 @@ class ConfirmDialog extends StatelessWidget {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(25.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         Navigator.of(context).pop(false);
                       },
@@ -62,7 +62,7 @@ class ConfirmDialog extends StatelessWidget {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(25.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },

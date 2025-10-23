@@ -434,7 +434,7 @@ namespace Quests {
     // final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
     final budget = 
           // kBaseReward * difficultyFactor +
-          estimatePrice(category: requirement.category, rank: requirement.rank, range: 'high')
+          estimateItemPrice(requirement.category, requirement.rank, 'expensive')
     final shardRewardAmount = convertMoneyToShard(budget)
 
     final interpolations = [
@@ -481,8 +481,9 @@ namespace Quests {
     final targetLeft = targetLocation.worldPosition.left
     final targetTop = targetLocation.worldPosition.top
 
-    final deviationLeft = targetLeft + (random.nextBool() ? difficulty : -difficulty)
-    final deviationTop = targetTop + (random.nextBool() ? difficulty : -difficulty)
+    final deviation = difficulty + 1
+    final deviationLeft = targetLeft + (random.nextBool() ? deviation : -deviation)
+    final deviationTop = targetTop + (random.nextBool() ? deviation : -deviation)
     
     final difficultyFactor = (difficulty + 1) * (difficulty + 1) ~/ 2 + 1
     let moneyRewardAmount = kBaseRewardForDiscoverLocation * difficultyFactor

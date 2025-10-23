@@ -496,7 +496,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () async {
                         final value = await showDialog(
                           context: context,
@@ -543,7 +543,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   ),
                   // Padding(
                   //   padding: const EdgeInsets.only(top: 5.0),
-                  //   child: fluent.FilledButton(
+                  //   child: fluent.Button(
                   //     onPressed: () async {
                   //       final result = await showDialog(
                   //           context: context,
@@ -789,7 +789,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () async {
                         final selectedTile = context
                             .read<SelectedPositionState>()
@@ -868,7 +868,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0, right: 10.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () async {
                         final selectedTile = context
                             .read<SelectedPositionState>()
@@ -1027,7 +1027,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0),
                     child: fluent.FlyoutTarget(
                       controller: _createObjectFlyoutController,
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           showFluentMenu(
                             controller: _createObjectFlyoutController,
@@ -1129,7 +1129,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   //   children: [
                   //     Padding(
                   //       padding: const EdgeInsets.only(top: 5.0, right: 5.0),
-                  //       child: fluent.FilledButton(
+                  //       child: fluent.Button(
                   //         onPressed: () {
                   //           final count = engine.hetu.invoke('generateZone',
                   //               positionalArgs: [worldData]);
@@ -1149,7 +1149,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                   //     ),
                   //     Padding(
                   //       padding: const EdgeInsets.only(top: 5.0),
-                  //       child: fluent.FilledButton(
+                  //       child: fluent.Button(
                   //         onPressed: () {},
                   //         child: Text(engine.locale('createZone')),
                   //       ),

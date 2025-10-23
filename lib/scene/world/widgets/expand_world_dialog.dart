@@ -96,7 +96,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     final x = int.tryParse(_posXController.text);
                     final y = int.tryParse(_posYController.text);

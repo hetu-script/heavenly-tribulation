@@ -144,16 +144,16 @@
   "status_shield_psychic_description": "当你受到精神伤害时，免疫所有伤害，消耗 1 层加护。",
 
   "status_ward": "辟邪",
-  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。回合结束时，移除 1 层辟邪。负面效果包括：攻击削弱、弱点、缓慢、迟钝、易伤、阴气、伤势。",
+  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。回合结束时，移除 1 层辟邪。负面效果包括：缓慢、迟钝、内伤、外伤、中毒、幻觉、以及所有种类的易伤。",
 
   "status_injury": "伤势",
   "status_injury_description": "伤势包括：流血、内伤、中毒、幻觉。",
   "status_injury_external": "流血",
-  "status_injury_external_description": "每 1 层流血使你在使用攻击牌时失去 1 点生命。每次恢复生命时，减少 1 层流血。",
+  "status_injury_external_description": "每 1 层流血使你在使用攻击牌时失去 5 点生命。每次恢复生命时，减少 1 层流血。",
   "status_injury_internal": "内伤",
-  "status_injury_internal_description": "每 1 层内伤使你在使用加持牌时失去 1 点生命。每次获得阳气时，减少 1 层内伤。",
+  "status_injury_internal_description": "每 1 层内伤使你在使用加持牌时失去 5 点生命。每次获得阳气时，减少 1 层内伤。",
   "status_injury_poison": "中毒",
-  "status_injury_poison_description": "每 1 层中毒使你在回合开始时失去 1 点生命。",
+  "status_injury_poison_description": "每 1 层中毒使你在回合开始时失去 5 点生命。",
   "status_injury_hallucination": "幻觉",
   "status_injury_hallucination_description": "每 1 层幻觉在你在回合开始时转化为 1 点缓慢或 1 点迟钝。",
 

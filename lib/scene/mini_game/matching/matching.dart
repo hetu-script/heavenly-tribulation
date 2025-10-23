@@ -625,7 +625,7 @@ class MatchingGame extends Scene with HasCursorState {
               collectPanels.length *
                   (GameUI.collectPanalSize.y + GameUI.smallIndent)),
       isMain: isMain,
-      avatarId: 'avatar/npc/${random.nextInt(kNpcAvatarCount)}.png',
+      avatarId: 'avatar/npc/${kSiteKindToNpcId[kind]}.png',
     );
     panel.onDragIn = (buttons, position, object) {
       if (object is! TileObject) return;

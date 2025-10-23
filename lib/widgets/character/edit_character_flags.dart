@@ -79,7 +79,7 @@ class _EditCharacterFlagsState extends State<EditCharacterFlags> {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                  child: fluent.FilledButton(
+                  child: fluent.Button(
                     onPressed: () {
                       Navigator.of(context).pop(flags);
                     },

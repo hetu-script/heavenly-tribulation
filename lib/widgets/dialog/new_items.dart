@@ -73,7 +73,7 @@ class NewItems extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              fluent.FilledButton(
+              fluent.Button(
                 onPressed: () {
                   completer?.complete();
                   context.read<ItemsPromptState>().update();

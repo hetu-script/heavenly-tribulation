@@ -223,6 +223,7 @@ class WorldMapScene extends Scene with HasCursorState {
     TileMapTerrain? tile,
     bool moveCameraToHero = true,
     bool animated = false,
+    bool notify = true,
   }) async {
     if (map.hero == null) return;
 
@@ -256,6 +257,7 @@ class WorldMapScene extends Scene with HasCursorState {
           currentZoneData: heroAtZone,
           currentNationData: heroAtNation,
           currentTerrainData: terrain,
+          notify: notify,
         );
     // context.read<HeroPositionState>().updateLocation(heroAtLocation);
 
@@ -1160,7 +1162,7 @@ class WorldMapScene extends Scene with HasCursorState {
         map.hero!.tilePosition.left,
         map.hero!.tilePosition.top
       ]);
-      await _updateHeroTerrain(tile: terrain, animated: true);
+      await _updateHeroTerrain(tile: terrain, animated: true, notify: false);
       // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
       await _updateWorldMapNpc();
 

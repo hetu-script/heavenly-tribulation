@@ -85,7 +85,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
                 height: 80,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 10.0, vertical: 20.0),
-                child: TextField(
+                child: fluent.TextBox(
                   inputFormatters: [FilteringTextInputFormatter.deny(' ')],
                   autofocus: true,
                   controller: _textEditingController,
@@ -93,7 +93,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     final result = _textEditingController.text.nonEmptyValue;
                     Navigator.of(context).pop(result);

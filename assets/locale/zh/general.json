@@ -20,6 +20,8 @@
   "forgetIt": "还是算了",
   "yes": "是",
   "no": "否",
+  "enabled": "启用",
+  "disabled": "禁用",
   "and": "和",
   "accept": "接受",
   "close": "关闭",
@@ -141,7 +143,7 @@
   "selectCardpack": "选择秘籍",
 
   "debugMode": "开发者模式",
-  "tutorial": "教程",
+  "tutorial": "引导教程",
   "goBack": "返回",
   "settings": "游戏设置",
   "timestamp": "日期",
@@ -152,10 +154,6 @@
   "mapSize": "地图大小",
   "saveSuccessed": "保存成功！",
   "saveAs": "另存为",
-  "regenerateZone": "重新生成地域",
-  "updateCharacterStats": "更新人物属性",
-  "hint_updateCharacterStats": "已重新计算所有人物属性。",
-  "saveMapAs": "地图另存为",
   "load": "载入",
   "reload": "重新载入",
 
@@ -199,6 +197,8 @@
   "sell": "出售",
   "quantity": "数量",
   "cooldown": "冷却时间",
+  "update": "更新",
+  "refresh": "刷新",
 
   "leaveMaze": "离开场景",
   "backToPreviousLevel": "返回上个地图",
@@ -498,8 +498,6 @@
   "functionDisabled": "功能当前不可用",
   "functionOnlyAvailableInLibrary": "此功能只能在藏书阁或玄机碑处使用",
 
-  "enableTutorial": "启用教程",
-
   "collectableLight": "可收集的灵光",
   "availableShard": "剩余灵石",
 
@@ -517,8 +515,10 @@
   "produce": "生产",
   "production": "生产",
   "build": "建造",
-  "rest": "休息",
   "meditate": "打坐",
+  "rest": "休息",
+
+  "guestRoom": "客房",
 
   "restIndefinitely": "无限期休息",
   "rest5Days": "休息 5 天",
@@ -597,6 +597,8 @@
   "yourContributionHere": "关于我在此处的功勋...",
   "moveHere": "搬家到此处",
 
+  "estimatePrice": "估价",
+
   "heroDestroy": "销毁了{0}。",
   "heroDismantle": "分解了{0}。",
   "heroExpGained": "获得了 {0} 点修为经验。",
@@ -645,9 +647,7 @@
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
   "organizationBuild": "{0}在{1}创建了{2}。",
 
-  "replenishLocation": "关于你们的货...",
-
-  "hint_replenishLocation": "我们的进货日期是每个月 {0} 日，你是想要帮我们提前进货吗？这会刷新商店中现有的货物。共需花费<yellow> {1} 铜钱</>。",
+  "hint_console": " [Ctrl+回车] 提交。[Ctrl+上/下] 浏览输入历史。",
 
   "hint_yourContributionHere": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂任务、捐献资源等方式提升您在本地功勋。",
   "hint_moveHere": "搬家到此处需要花费<yellow> {0} 铜钱</>。确定要搬家吗？",
@@ -703,23 +703,20 @@
   "hint_usedObject": "这件物品上附着的灵光已经消失，无法再次使用了。",
   "hint_fullHPRest": "你的生命值已满，无需再休息了。",
 
-  "hint_dungeonEntrance": "这里是通往<yellow>「洞天秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以随时进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n但如果是非本门派的成员，进入秘境同样需要支付一笔费用。",
+  "hint_dungeonEntrance": "这里是通往<yellow>「秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以随时进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n但如果是非本门派的成员，进入秘境同样需要支付一笔费用。",
 
   "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要<yellow> {0} 灵石</>。",
   "hint_dungeon_cost2": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于高阶秘境，需要使用<yellow>秘境石</>才能开启。",
 
   "hint_dungeonAlreadyEntered": "你这个月已经进入过一次这个秘境了。因此目前无法进入，你还是请回吧。",
 
-  "hint_dungeonStatusReset": "就在你打算踏入下一层洞天之时，你忽然发觉之获得的精魄之力已经不知什么时候离开了你。你身上一阵轻松。",
-  "hint_exitDungeon_description": "确定要离开洞天吗？离开后将会重置探索进度。",
-  "hint_enterNextLevel_description": "确定要进入下一层吗？所有敌人的强度都将提升。",
-  "hint_enterNextDungeonRank_description": "确定要进入下一层吗？你已完成此境界的所有层数，继续挑战将会提升洞天的境界。所有敌人的境界都将提升。",
+  "hint_exitDungeon_description": "确定要离开秘境吗？离开后将会重置探索进度。",
+  "hint_enterNextLevel_description": "确定要进入下一层秘境吗？所有敌人的强度都将提升。",
+  "hint_enterNextDungeonRank_description": "确定要进入下一层吗？你已完成此境界的所有层数，继续挑战的话，所有敌人的境界都将提升。",
   "hint_dungeon_failed": "挑战失败",
 
   "hint_dungeon_spiritWell_description": "这是一个长满了青苔的古井。井里面似乎有什么东西，此刻正在向外散发出星星点点的淡蓝色光芒。",
-  "hint_dungeon_spiritWell_fullEquipments": "你试图靠近古井，但你感受到一股巨大的排斥之力将你推了开来。你有种古怪的感觉，你现在身上没有多余的空间来接受它的馈赠。",
-  "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
-  "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
+  "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。之前你在井中感受到的那丝灵气此刻已经无影无踪。",
 
   "hint_cultivate": "花费<yellow>时间</>修炼，获得经验以提升修为等级。\n在聚灵阵修炼时会先消耗阵法本身的<yellow>灵光</>。\n灵光用完后会转而消耗<yellow>灵石</>。",
 
@@ -755,7 +752,7 @@
 
   "hint_datetime": "每年有 12 个月。\n每个月有 30 天。\n每天有四个阶段：上午、下午、傍晚、午夜。\n每个阶段有 24 个 tick。\n时间的最小单位是 tick 。",
 
-  "hint_movement": "在大地图上时，点击<yellow>鼠标左键</>移动角色，点击并拖动<yellow>鼠标右键</>移动地图。",
+  "hint_movement": "操作指引：点击<yellow>鼠标左键</>移动角色，使用<yellow>[W,S,A,D]</>键或者点击并拖动<yellow>鼠标右键</>移动地图。",
 
   "hint_tribulation_1": "就在你运功凝聚灵光的时候，你突然有所顿悟。\n你似乎窥视到了一丝更高境界的天道。但与此同时，你也立刻感受到一股极为强大的气息。",
 
@@ -767,5 +764,18 @@
 
   "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。除非服用对应境界的破境丹药，否则无法继续提升修为等级了。",
 
-  "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。"
+  "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。",
+
+  "hint_replenishLocation": "自动刷新日期: 每月 {0} 日\n手动刷新花费: <yellow> {1} 文</>",
+
+  "hint_notYourHomeToRest": "您并非本门派的修士，不能在这里休息。",
+
+  "hint_restAtHotel": "您要在我们这歇息吗？我们这有上好的客房，还有洗浴和酒菜，保管让你舒舒服服的休息一番。",
+
+  "hotelRoom_stable": "马厩",
+  "hotelRoom_normal": "普通客房",
+  "hotelRoom_vip": "豪华客房",
+  "hotelRoom_description": "每 tick 花费: <yellow>{0} 铜钱</>\n每 tick 回复: <yellow>{1} 点体力</>",
+
+  "hotelRoom_selected": "好的，这就给你安排房间。\n您打算住多久？"
 }

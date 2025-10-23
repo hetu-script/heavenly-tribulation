@@ -43,7 +43,10 @@ class _EntityTableState extends State<EntityTable>
     super.build(context);
 
     return MouseRegion(
-      onHover: (PointerHoverEvent details) => _mousePosition = details.position,
+      cursor: GameUI.cursor,
+      onHover: (PointerHoverEvent details) {
+        _mousePosition = details.position;
+      },
       child: DataTable2(
         cursor: GameUI.cursor,
         scrollController: ScrollController(),
@@ -52,6 +55,7 @@ class _EntityTableState extends State<EntityTable>
           return DataColumn2(
             minWidth: entry.value,
             label: fluent.Button(
+              style: FluentButtonStyles.column,
               onPressed: () => widget.onColumnPressed?.call(entry.key),
               child: Text(
                 engine.locale(entry.key),
@@ -67,17 +71,22 @@ class _EntityTableState extends State<EntityTable>
                 cells: line
                     .take(widget.columns.length)
                     .map(
-                      (field) => DataCell(Text(
-                        field,
-                        softWrap: false,
-                        overflow: TextOverflow.visible,
-                      )),
+                      (field) => DataCell(
+                        Text(
+                          field,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                        ),
+                      ),
                     )
                     .toList(),
-                onTap: () =>
-                    widget.onItemPressed?.call(_mousePosition, line.last),
-                onSecondaryTap: () => widget.onItemSecondaryPressed
-                    ?.call(_mousePosition, line.last),
+                onTap: () {
+                  widget.onItemPressed?.call(_mousePosition, line.last);
+                },
+                onSecondaryTap: () {
+                  widget.onItemSecondaryPressed
+                      ?.call(_mousePosition, line.last);
+                },
               ),
             )
             .toList(),

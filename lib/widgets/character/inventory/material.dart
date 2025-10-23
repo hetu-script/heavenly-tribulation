@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../ui.dart';
 import '../../../logic/logic.dart';
@@ -84,53 +85,38 @@ class MaterialList extends StatelessWidget {
           onExit: () {
             context.read<HoverContentState>().hide();
           },
-          child: GestureDetector(
-            onTap: () {
+          child: fluent.Button(
+            style: selectedItem == key
+                ? FluentButtonStyles.selected
+                : FluentButtonStyles.outlined,
+            onPressed: () {
               onSelectedItem?.call(key);
             },
-            child: Container(
-              margin: const EdgeInsets.only(
-                left: 2.0,
-                right: 2.0,
-                top: 1.0,
-                bottom: 1.0,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5.0),
-              decoration: BoxDecoration(
-                borderRadius: GameUI.borderRadius,
-                border: GameUI.boxBorder,
-                color: selectedItem == key
-                    ? GameUI.selectedColor
-                    : Colors.transparent,
-              ),
-              child: Row(
-                children: [
-                  Image(
-                    width: 20,
-                    height: 20,
-                    image: AssetImage('assets/images/item/material/$key.png'),
+            child: Row(
+              children: [
+                Image(
+                  width: 20,
+                  height: 20,
+                  image: AssetImage('assets/images/item/material/$key.png'),
+                ),
+                Text(
+                  engine.locale(key),
+                  style: TextStyle(
+                    color: Colors.white,
                   ),
-                  Text(
-                    engine.locale(key),
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+                ),
+                const Spacer(),
+                Text(
+                  requiredAmount != null
+                      ? '$requiredAmount/$amount'.padLeft(8)
+                      : amount.toString().padLeft(8),
+                  style: TextStyle(
+                    color: requiredAmount != null
+                        ? (amount < requiredAmount ? Colors.red : Colors.white)
+                        : Colors.white,
                   ),
-                  const Spacer(),
-                  Text(
-                    requiredAmount != null
-                        ? '$requiredAmount/$amount'.padLeft(8)
-                        : amount.toString().padLeft(8),
-                    style: TextStyle(
-                      color: requiredAmount != null
-                          ? (amount < requiredAmount
-                              ? Colors.red
-                              : Colors.white)
-                          : Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -148,7 +134,9 @@ class MaterialList extends StatelessWidget {
           child: Container(
             height: height,
             width: width,
-            decoration: GameUI.boxDecoration,
+            decoration: GameUI.boxDecoration.copyWith(
+              color: GameUI.backgroundColor,
+            ),
             child: widgets.isEmpty
                 ? EmptyPlaceholder(engine.locale('empty'))
                 : Column(children: widgets),

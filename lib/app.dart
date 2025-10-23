@@ -268,11 +268,17 @@ class _GameAppState extends State<GameApp> {
             GameLogic.getDeckLimitForRank(positionalArgs.first),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('calculateItemPrice', (
+    // engine.hetu.interpreter.bindExternalFunction('calculateItemPrice', (
+    //     {positionalArgs, namedArgs}) {
+    //   return GameLogic.calculateItemPrice(positionalArgs.first,
+    //       priceFactor: namedArgs['priceFactor'],
+    //       isSell: namedArgs['isSell'] ?? true);
+    // }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('estimateItemPrice', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.calculateItemPrice(positionalArgs.first,
-          priceFactor: namedArgs['priceFactor'],
-          isSell: namedArgs['isSell'] ?? true);
+      return GameLogic.estimateItemPrice(positionalArgs[0], positionalArgs[1],
+          range: namedArgs['range']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('generateCityTerritory', (

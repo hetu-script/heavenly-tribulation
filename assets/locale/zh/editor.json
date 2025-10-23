@@ -120,5 +120,10 @@
   "python": "怪蟒",
 
   "meteorCrater": "陨石坑",
-  "deadBody": "尸体残骸"
+  "deadBody": "尸体残骸",
+
+  "regenerateZone": "重新生成地域",
+  "updateCharacterStats": "更新人物属性",
+  "saveMapAs": "地图另存为",
+  "hint_updateCharacterStats": "已重新计算所有人物属性。"
 }

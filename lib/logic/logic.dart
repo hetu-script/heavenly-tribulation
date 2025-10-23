@@ -22,8 +22,6 @@ import '../widgets/character/profile.dart';
 import '../widgets/common.dart';
 import '../widgets/dialog/input_name.dart';
 
-import 'common.dart';
-
 part 'character.dart';
 part 'location.dart';
 part 'organization.dart';
@@ -44,9 +42,6 @@ const _kHintDyingVariants = 5;
 const _kBasicDungeonShardCost = 1;
 
 const _kOrganizationUpdateDay = 6;
-
-const _kLocationUpdateDay = 16;
-const _kLocationManualReplenishCostBase = 2000;
 
 final class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -535,25 +530,71 @@ final class GameLogic {
   static int calculateMaterialPrice(String materialId,
       {dynamic priceFactor, bool isSell = true}) {
     assert(kMaterialBasePrice.containsKey(materialId));
-    final price = kMaterialBasePrice[materialId] as int;
+    double price = (kMaterialBasePrice[materialId]!).toDouble();
 
     if (priceFactor == null) {
-      return price;
+      return price.round();
     } else {
       final double base = priceFactor['base'] ?? kBaseBuyRate; // 基础值：1.0
       final double sell = priceFactor['sell'] ?? kBaseSellRate; // 基础值：0.5
 
       final double kind = priceFactor['kind']?[materialId] ?? 1.0;
 
-      double finalPrice = price * base * kind * (isSell ? sell : 1.0);
+      price = price * base * kind * (isSell ? sell : 1.0);
 
       if (priceFactor['useShard'] == true) {
         final shardToMoneyRate = kMaterialBasePrice['shard'] as int;
-        finalPrice /= shardToMoneyRate;
+        price /= shardToMoneyRate;
       }
 
-      return finalPrice.ceil();
+      return price.round();
     }
+  }
+
+  static int estimateItemPrice(
+    String category,
+    int rank, {
+    String range = 'normal',
+    bool useShard = false,
+  }) {
+    assert(kEstimatePriceRange.contains(range));
+    double price;
+    if (kItemWithAffixCategories.contains(category)) {
+      final minLevel = minLevelForRank(rank);
+      final maxLevel = maxLevelForRank(rank);
+      final extraAffixCount = getMinMaxExtraAffixCount(rank);
+      final int minExtra = extraAffixCount['minExtra']!;
+      final int maxExtra = extraAffixCount['maxExtra']!;
+      int level;
+      int affixCount;
+      switch (range) {
+        case 'cheap':
+          level = minLevel;
+          affixCount = minExtra;
+        case 'normal':
+          level = (minLevel + maxLevel) ~/ 2;
+          affixCount = (minExtra + maxExtra) ~/ 2;
+        case 'expensive':
+          level = maxLevel;
+          affixCount = maxExtra;
+        default:
+          throw ('estimatePrice range should be `cheap`, `normal`, or `expensive`: $range');
+      }
+      price = ((rank + 1) * (rank + 1) / 2 + 1) *
+          (level + 1) *
+          (affixCount + 1) *
+          (kBasePriceByCategory[category] ?? kUnknownItemBasePrice);
+    } else {
+      price = ((rank + 1) * (rank + 1) / 2 + 1) *
+          (kBasePriceByCategory[category] ?? kUnknownItemBasePrice);
+    }
+
+    if (useShard) {
+      final shardToMoneyRate = kMaterialBasePrice['shard'] as int;
+      price /= shardToMoneyRate;
+    }
+
+    return price.round();
   }
 
   static List<dynamic> getFilteredItems(
@@ -1193,8 +1234,7 @@ final class GameLogic {
 
   static void heroRest(dynamic location) => _heroRest(location);
 
-  static Future<void> heroWork(dynamic location, dynamic npc) =>
-      _heroWork(location, npc);
+  static Future<void> heroWork(dynamic location) => _heroWork(location);
 
   static void onInteractDepositBox(dynamic home) {
     engine.context.read<MerchantState>().show(
@@ -1203,8 +1243,8 @@ final class GameLogic {
         );
   }
 
-  static Future<void> onInteractNpc(dynamic npc, dynamic location) =>
-      _onInteractNpc(npc, location);
+  static Future<void> onInteractNpc(dynamic location) =>
+      _onInteractNpc(location);
 
   static Future<void> onInteractCharacter(dynamic character) =>
       _onInteractCharacter(character);
@@ -1263,7 +1303,7 @@ final class GameLogic {
           continue;
         }
         // 据点每月 16 日更新
-        if ((time == 1 && day == _kLocationUpdateDay) || force) {
+        if ((time == 1 && day == location['updateDay']) || force) {
           updateLocationMonthly(location);
         }
       }

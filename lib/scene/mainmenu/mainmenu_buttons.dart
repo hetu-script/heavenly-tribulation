@@ -10,9 +10,9 @@ import 'package:samsara/extensions.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../engine.dart';
-import '../game/load_game.dart';
-import '../game/create_sandbox_game.dart';
-import '../game/create_blank_map.dart';
+import '../game_creation/load_game.dart';
+import '../game_creation/create_sandbox_game.dart';
+import '../game_creation/create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
@@ -87,7 +87,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                 MenuStates.main => [
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           setMenuState(MenuStates.game);
                         },
@@ -100,7 +100,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           setMenuState(MenuStates.editor);
                         },
@@ -113,7 +113,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: null,
                         child: Label(
                           engine.locale('settings'),
@@ -125,7 +125,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           windowManager.close();
                         },
@@ -140,7 +140,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                 MenuStates.game => [
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () async {
                           setMenuState(MenuStates.main);
                           // 这里必须延迟一会儿，否则界面会卡住而无法及时显示载入界面
@@ -174,7 +174,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () async {
                           final args = await showDialog(
                             context: context,
@@ -207,7 +207,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: null,
                         // () async {
                         //   context
@@ -239,7 +239,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () async {
                           final SaveInfo? info = await showDialog<SaveInfo?>(
                             context: context,
@@ -259,7 +259,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           setMenuState(MenuStates.main);
                         },
@@ -274,7 +274,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                 MenuStates.editor => [
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () async {
                           final args = await showDialog(
                             context: context,
@@ -307,7 +307,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () async {
                           final SaveInfo? info = await showDialog<SaveInfo?>(
                             context: context,
@@ -327,7 +327,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
-                      child: fluent.FilledButton(
+                      child: fluent.Button(
                         onPressed: () {
                           setMenuState(MenuStates.main);
                         },
@@ -411,15 +411,15 @@ class _DebugButtonState extends State<DebugButton> {
                       namespace: 'Player',
                       positionalArgs: [
                         'money',
-                        1000000,
+                        5000000,
                       ],
                     );
                     engine.hetu.invoke(
                       'collect',
                       namespace: 'Player',
                       positionalArgs: [
-                        'money',
-                        1000000,
+                        'shard',
+                        5000,
                       ],
                     );
                   case DebugMenuItems.debugItem:
@@ -446,6 +446,7 @@ class _DebugButtonState extends State<DebugButton> {
                             // 'base': 1.2,
                           },
                           merchantType: MerchantType.character,
+                          allowManualReplenish: true,
                         );
                   case DebugMenuItems.debugWorkbench:
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);

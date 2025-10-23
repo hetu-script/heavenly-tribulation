@@ -118,14 +118,8 @@ function init({
   addGameData(questsData, 'quests', engine.locale('gameDataQuest'))
 
   for (final npcId in Constants.npcIds) {
-    Npc(
-      id: npcId,
-      nameId: npcId,
-      icon: 'illustration/npc/${npcId}_head.png',
-      // illustration: 'illustration/npc/${npcId}.png',
-    )
+    addNpc(npcId)
   }
-  
   engine.info('载入 NPC: [${Constants.npcIds.length}]')
 }
 
@@ -161,4 +155,15 @@ function addGameData(gameData, directory, name) {
     dir[item.id] = item
   }
   engine.info('载入预定义${name}: [${gameData.length}]')
+}
+
+function addNpc(npcId, {
+  nameId,
+  icon,
+}) {
+  Npc(
+    id: npcId,
+    nameId: nameId ?? npcId,
+    icon: icon ?? 'illustration/avatar/npc/${npcId}.png',
+  )
 }

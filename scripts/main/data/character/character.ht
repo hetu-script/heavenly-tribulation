@@ -935,27 +935,6 @@ function getMainAttribute(character) {
   return maxAttr
 }
 
-// struct LocationObject {
-//   constructor ({
-//     id,
-//     icon,
-//     locationId,
-//     name,
-//   }) {
-//     assert(id != null)
-//     assert(icon != null)
-//     assert(locationId != null)
-//     this.entityType = kEntityTypeLocationObject
-//     this.id = id
-//     this.icon = icon
-//     this.locationId = locationId
-    
-//     this.name = name ?? engine.locale(id)
-    
-//     game.characters[this.id] = this
-//   }
-// }
-
 struct Character {
   constructor ({
     id,
@@ -1232,51 +1211,9 @@ struct Character {
     // 随角色移动的孩童（Baby 对象），这里只保存id
     this.carrying = []
 
-    this.updateDay = engine.random.nextInt(30) + 1
+    this.updateDay = random.nextInt(30) + 1
   }
 }
-
-// 必须已经是门派成员，才可以设定职责
-// function setCharacterJob(character, organization, {jobRank, titleId, incurIncident = true }) {
-//   assert(jobRank != null && titleId != null)
-//   assert(organization.membersData.keys.contains(character.id))
-//   assert(character.organizationId == organization.id)
-//   assert(jobRank >= 0 && jobRank <= organization.jobRankMax)
-//   const membersOfRank = getOrganizationMemberIdsOfRank(organization, jobRank)
-//   assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
-//   const titleId = '${organization.category}_titleRank${jobRank}'
-//   if (character.titles.contains(titleId)) {
-//     engine.warn('角色 ${character.name} 已经拥有组织头衔 ${titleId}。')
-//   } else {
-//     character.titles.add(titleId)
-//   }
-//   character.titleId = titleId
-//   character.jobRank[organization.id] = jobRank
-//   if (jobRank == organization.jobRankMax) {
-//     if (organization.headId != null && organization.headId != character.id) {
-//       const oldHead = game.characters[organization.headId]
-//       oldHead.jobRank[organization.id] = jobRank - 1
-//       engine.warn('组织 ${organization.name} 的领袖 ${oldHead.name} 已经被 ${character.name} 取代。')
-//     }
-//     organization.headId = character.id
-//   }
-//   const incidentContent = engine.locale('characterGainJob', interpolations: [
-//     character.name,
-//     organization.name,
-//     engine.locale(titleId),
-//   ])
-//   if (incurIncident) {
-//     Incident(
-//       subjectId: character.id,
-//       organizationId: organization.id,
-//       message: incidentContent,
-//       orderly: 15,
-//       isGlobal: true,
-//     )
-//   } else {
-//     engine.debug(incidentContent)
-//   }
-// }
 
 function getCharacterAge(character) {
   return (game.timestamp - character.birthTimestamp) ~/ Constants.ticksPerYear

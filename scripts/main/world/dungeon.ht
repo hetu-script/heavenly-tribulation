@@ -174,9 +174,13 @@ function addMerchant(tilePosition, {
     rank,
     money = 100000,
     shard = 100000,
-    category,
+    itemCategories,
     itemCount = 5,
     useShard = false,
+    isMysterious = false,
+    materialMode = false,
+    priceFactor,
+    filter,
   }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
@@ -191,14 +195,18 @@ function addMerchant(tilePosition, {
     rank: rank,
     money: money,
     shard: shard,
-    category: category,
+    itemCategories: itemCategories,
     itemCount: itemCount,
     useShard: useShard,
+    isMysterious: isMysterious,
+    materialMode: materialMode,
+    priceFactor: priceFactor,
+    filter: filter,
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 
-  engine.info('添加商人 [${objectId}] (category: ${category.join(', ')}, rank: ${rank})')
+  engine.info('添加商人 [${object.id}] (itemCategories: ${itemCategories.join(', ')}, rank: ${rank})')
 }
 
 function addEnemy(tilePosition, {

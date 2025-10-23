@@ -77,7 +77,7 @@ async function onRested()
 /// 如果返回 true，会跳过游戏内置的交互逻辑
 async function onDying() -> bool
 /// ----------角色互动----------
-async function onInteractNpc(npc, location)
+async function onInteractNpc(location)
 /// 如果返回 true，会跳过游戏内置的交互逻辑
 async function onBeforeInteractCharacter(character) -> bool
 /// 如果返回 true，会跳过游戏内置的交互逻辑

@@ -58,8 +58,7 @@
     icon: "icon/status/permanent/weaken_unarmed.png",
     attackType: "unarmed",
     script: "weaken",
-    isPermanent: true,
-    isNegative: true,
+    isPermanent: true,\
     callbacks: ["self_doing_damage"],
   },
   weaken_weapon: {
@@ -70,7 +69,6 @@
     attackType: "weapon",
     script: "weaken",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_doing_damage"],
   },
   weaken_spell: {
@@ -81,7 +79,6 @@
     attackType: "spell",
     script: "weaken",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_doing_damage"],
   },
   weaken_curse: {
@@ -92,7 +89,6 @@
     attackType: "curse",
     script: "weaken",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_doing_damage"],
   },
 
@@ -341,7 +337,6 @@
     damageType: "physical",
     script: "weakness",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_taking_damage"],
   },
   weakness_chi: {
@@ -352,7 +347,6 @@
     damageType: "chi",
     script: "weakness",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_taking_damage"],
   },
   weakness_elemental: {
@@ -363,7 +357,6 @@
     damageType: "elemental",
     script: "weakness",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_taking_damage"],
   },
   weakness_psychic: {
@@ -374,7 +367,6 @@
     damageType: "psychic",
     script: "weakness",
     isPermanent: true,
-    isNegative: true,
     callbacks: ["self_taking_damage"],
   },
 
@@ -436,7 +428,7 @@
     description: "status_speed_slow_description",
     icon: "icon/status/speed_slow.png",
     script: "speed_slow",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_turn_start"],
   },
   // 闪避
@@ -455,7 +447,7 @@
     description: "status_dodge_clumsy_description",
     icon: "icon/status/dodge_clumsy.png",
     script: "dodge_clumsy",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_turn_end"],
   },
   // 免伤，本回合受到的所有伤害减免75%
@@ -528,7 +520,7 @@
     icon: "icon/status/vulnerable_physical.png",
     damageType: "physical",
     script: "vulnerable",
-    isNegative: true,
+    isDebuff: true,
     priority: 1505,
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
@@ -539,7 +531,7 @@
     icon: "icon/status/vulnerable_chi.png",
     damageType: "chi",
     script: "vulnerable",
-    isNegative: true,
+    isDebuff: true,
     priority: 1504,
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
@@ -550,7 +542,7 @@
     icon: "icon/status/vulnerable_elemental.png",
     damageType: "elemental",
     script: "vulnerable",
-    isNegative: true,
+    isDebuff: true,
     priority: 1503,
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
@@ -561,7 +553,7 @@
     icon: "icon/status/vulnerable_psychic.png",
     damageType: "psychic",
     script: "vulnerable",
-    isNegative: true,
+    isDebuff: true,
     priority: 1502,
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
@@ -623,7 +615,7 @@
     description: "status_injury_external_description",
     icon: "icon/status/injury_when_attack.png",
     script: "injury_external",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_attacking", "self_heal"],
   },
   injury_internal: {
@@ -632,7 +624,7 @@
     description: "status_injury_internal_description",
     icon: "icon/status/injury_when_buff.png",
     script: "injury_internal",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_buffing", "self_gain_energy_positive"],
   },
   injury_poison: {
@@ -641,7 +633,7 @@
     description: "status_status_injury_poison_description",
     icon: "icon/status/injury_when_turn_start.png",
     script: "injury_poison",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_turn_start"],
   },
   injury_hallucination: {
@@ -650,7 +642,7 @@
     description: "status_injury_hallucination_description",
     icon: "icon/status/slow_and_clumsy_when_turn_start.png",
     script: "injury_hallucination",
-    isNegative: true,
+    isDebuff: true,
     callbacks: ["self_turn_start"],
   },
 
@@ -760,7 +752,6 @@
     icon: "icon/status/energy_positive_ultimate.png",
     script: "energy_positive_ultimate",
     isResource: true,
-    isNegative: true,
     attackType: "curse",
     callbacks: ["self_doing_damage"],
   },
@@ -773,7 +764,6 @@
     icon: "icon/status/energy_negative_life.png",
     script: "energy_negative_life",
     isResource: true,
-    isNegative: true,
     callbacks: ["self_turn_start"],
   },
   // 戾气：攻击后自身受到伤害
@@ -784,7 +774,6 @@
     icon: "icon/status/energy_negative_leech.png",
     script: "energy_negative_leech",
     isResource: true,
-    isNegative: true,
     callbacks: ["self_turn_end"],
   },
   // 衰气：可能会跳过回合
@@ -795,7 +784,6 @@
     icon: "icon/status/energy_negative_pure.png",
     script: "energy_negative_pure",
     isResource: true,
-    isNegative: true,
     callbacks: ["self_turn_start"],
   },
 
@@ -807,7 +795,6 @@
     icon: "icon/status/energy_negative_spell.png",
     script: "energy_negative_spell",
     isResource: true,
-    isNegative: true,
     attackType: "spell",
     callbacks: ["self_doing_damage"],
   },
@@ -819,7 +806,6 @@
     icon: "icon/status/energy_negative_weapon.png",
     script: "energy_negative_weapon",
     isResource: true,
-    isNegative: true,
     attackType: "weapon",
     callbacks: ["self_doing_damage"],
   },
@@ -831,7 +817,6 @@
     icon: "icon/status/energy_negative_unarmed.png",
     script: "energy_negative_unarmed",
     isResource: true,
-    isNegative: true,
     attackType: "unarmed",
     callbacks: ["self_doing_damage"],
   },
@@ -843,7 +828,6 @@
     icon: "icon/status/energy_negative_curse.png",
     script: "energy_negative_curse",
     isResource: true,
-    isNegative: true,
     attackType: "curse",
     callbacks: ["self_doing_damage"],
   },
@@ -854,7 +838,6 @@
     icon: "icon/status/energy_negative_ultimate.png",
     script: "energy_negative_ultimate",
     isResource: true,
-    isNegative: true,
     attackType: "curse",
     callbacks: ["self_doing_damage"],
   },

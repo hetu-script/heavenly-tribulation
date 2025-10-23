@@ -106,7 +106,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   ),
                   SizedBox(
                     width: 180.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _idEditingController,
                       inputFormatters: [FilteringTextInputFormatter.deny(' ')],
                     ),
@@ -122,7 +122,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   ),
                   SizedBox(
                     width: 180.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _surNameEditingController,
                     ),
                   ),
@@ -137,7 +137,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   ),
                   SizedBox(
                     width: 180.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _shortNameEditingController,
                     ),
                   ),
@@ -156,9 +156,8 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                       padding: const EdgeInsets.only(right: 10.0),
                       child: FittedBox(
                         fit: BoxFit.fill,
-                        child: Switch(
-                          value: _isFemale,
-                          activeColor: Colors.white,
+                        child: fluent.ToggleSwitch(
+                          checked: _isFemale,
                           onChanged: (bool value) {
                             setState(() {
                               _isFemale = value;
@@ -203,7 +202,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _iconEditingController,
                     ),
                   ),
@@ -219,7 +218,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _illustrationEditingController,
                     ),
                   ),
@@ -235,7 +234,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _skinEditingController,
                     ),
                   ),
@@ -247,7 +246,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(10.0),
-                    child: fluent.FilledButton(
+                    child: fluent.Button(
                       onPressed: () {
                         String? id = _idEditingController.text.nonEmptyValue;
                         String? surName =

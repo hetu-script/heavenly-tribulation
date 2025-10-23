@@ -93,7 +93,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       vertical: 5),
-                                              child: fluent.FilledButton(
+                                              child: fluent.Button(
                                                 onPressed: () {
                                                   Navigator.of(context)
                                                       .pop(info);
@@ -106,7 +106,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       vertical: 5),
-                                              child: fluent.FilledButton(
+                                              child: fluent.Button(
                                                 onPressed: () {
                                                   if (deleteButtonDisabled) {
                                                     return;
@@ -140,6 +140,8 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                                     saves.removeWhere(
                                                         (id, save) =>
                                                             save == info);
+                                                    deleteButtonDisabled =
+                                                        false;
                                                     if (saves.isEmpty) {
                                                       Navigator.of(context)
                                                           .pop();
@@ -167,7 +169,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
-              child: fluent.FilledButton(
+              child: fluent.Button(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

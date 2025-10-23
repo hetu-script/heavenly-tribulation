@@ -68,6 +68,10 @@ class Constants extends HTExternalClass {
         return kAttributeToGenre;
       case 'Constants.genreToAttribute':
         return kGenreToAttribute;
+      case 'Constants.attackTypes':
+        return kAttackTypes;
+      case 'Constants.damageTypes':
+        return kDamageTypes;
       case 'Constants.organizationCategories':
         return kOrganizationCategories;
       case 'Constants.cultivationGenres':
@@ -88,12 +92,16 @@ class Constants extends HTExternalClass {
         return kLocationCityKinds;
       case 'Constants.locationSiteKinds':
         return kLocationSiteKinds;
+      case 'Constants.siteKindToNpcId':
+        return kSiteKindToNpcId;
       case 'Constants.siteKindsWorkable':
         return kSiteKindsWorkable;
       case 'Constants.siteKindToAttribute':
         return kSiteKindToAttribute;
       case 'Constants.siteKindsBuildable':
         return kSiteKindsBuildable;
+      case 'Constants.siteKindsTradable':
+        return kSiteKindsTradable;
       case 'Constants.productionSiteKinds':
         return kProductionSiteKinds;
       case 'Constants.organizationCategoryToSiteKind':
@@ -104,10 +112,6 @@ class Constants extends HTExternalClass {
         return kOrganizationGenreToSiteKinds;
       case 'Constants.sitePriority':
         return kSitePriority;
-      case 'Constants.attackTypes':
-        return kAttackTypes;
-      case 'Constants.damageTypes':
-        return kDamageTypes;
       case 'Constants.ticksPerTime':
         return kTicksPerTime;
       case 'Constants.timesPerDay':
@@ -135,7 +139,7 @@ class Constants extends HTExternalClass {
       case 'Constants.materialBasePrice':
         return kMaterialBasePrice;
       case 'Constants.basePriceByCategory':
-        return kItemBasePriceByCategory;
+        return kBasePriceByCategory;
       case 'Constants.itemWithAffixCategories':
         return kItemWithAffixCategories;
       case 'Constants.terrainKindsLand':

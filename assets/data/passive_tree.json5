@@ -493,7 +493,13 @@
   track_6_15: {
     size: "medium",
     connectedNodes: ["track_8_15"],
-    isAttribute: true,
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    passives: [
+      {
+        id: "gained_debuff_affect_opponent",
+      },
+    ],
   },
 
   // 悟道+炼魂：生命·元气副轴·左(元素防)

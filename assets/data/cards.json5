@@ -1248,7 +1248,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    tags: ["exhaustResource", "status_defense"],
+    tags: ["status_defense"],
     valueData: [
       {
         base: 9,

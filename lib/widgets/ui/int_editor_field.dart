@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 class IntTextInputFormatter extends TextInputFormatter {
   final int maxLength;
@@ -68,7 +69,7 @@ class IntEditField extends StatelessWidget {
       alignment: Alignment.topCenter,
       width: width,
       height: height,
-      child: TextField(
+      child: fluent.TextBox(
         inputFormatters: [
           FilteringTextInputFormatter.singleLineFormatter,
           IntTextInputFormatter(

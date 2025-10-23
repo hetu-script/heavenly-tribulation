@@ -16,7 +16,7 @@ import 'common.dart';
 
 const kDamagePercentageMin = -0.75;
 
-const kResourceMax = {
+const kResourceMaxId = {
   'energy_positive_spell': 'manaMax',
   'energy_positive_weapon': 'chakraMax',
 };
@@ -370,7 +370,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     if (amount != null && removeAmount < amount && exhaust != null) {
-      // 目前只有攻击类卡牌，并且是在消耗阳气时，才会触发枯竭
+      // 只有消耗阳气时，才会触发枯竭
       assert(id.startsWith('energy_positive'));
       assert(kNegativeResourceNames.contains(exhaust));
       // 触发资源枯竭时的情况
@@ -407,56 +407,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final effectData = GameData.statusEffects[id];
     final buffDetails = {};
 
-    if (effectData['isNegative'] == true) {
-      // 触发自己获得负面效果时的效果
-      handleStatusEffectCallback('self_gaining_debuff', buffDetails);
-      // 触发对方获得负面效果时的效果
-      opponent!
-          .handleStatusEffectCallback('opponent_gaining_debuff', buffDetails);
-
-      if (buffDetails['cancelDebuff'] == true) {
-        addHintText(engine.locale('immuneDebuff'));
-        return;
-      }
-    }
-
-    int checkOverflow(int target) {
-      final max = kResourceMax[id];
-      if (max != null) {
-        final int maxValue = data['stats'][max];
-        if (target > maxValue) {
-          buffDetails['overflow'] = target - maxValue;
-          // 触发对方资源溢出时的效果
-          opponent!.handleStatusEffectCallback(
-              'opponent_overflowed_energy', buffDetails);
-          // 触发资源溢出时的效果
-          final result =
-              handleStatusEffectCallback('self_overflowed_energy', buffDetails);
-          if (result == null || result == false) {
-            target = maxValue;
-            addHintText(
-              engine.locale('resourceOverflowed',
-                  interpolations: [engine.locale('status_$id')]),
-              color: Colors.blue,
-            );
-          } else {
-            target -= maxValue;
-          }
-        }
-      }
-
-      return target;
-    }
-
-    int finalAmount = amount;
+    bool isNewlyAdded = false;
     StatusEffect effect;
     if (_statusEffects.containsKey(id)) {
       effect = _statusEffects[id]!;
       if (effect.isUnique) return;
 
-      final originalAmount = effect.amount;
-      effect.amount = checkOverflow(originalAmount + amount);
-      finalAmount = effect.amount - originalAmount;
+      effect.amount += amount;
     } else {
       if (kOppositeStatus.containsKey(id)) {
         final oppositeId = kOppositeStatus[id]!;
@@ -469,44 +426,78 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
       if (amount <= 0) return;
 
+      isNewlyAdded = true;
       effect = StatusEffect(
         id: id,
         amount: amount,
         anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       );
 
-      finalAmount = checkOverflow(amount);
-      if (finalAmount <= 0) return;
-
-      effect.amount = finalAmount;
+      effect.amount = amount;
       _statusEffects[id] = effect;
+    }
 
-      if (!effect.isHidden) {
-        game.world.add(effect);
+    final maxId = kResourceMaxId[id];
+    if (maxId != null) {
+      // 检查资源是否溢出
+      final int maxValue = data['stats'][maxId];
+      if (effect.amount > maxValue) {
+        dynamic result;
+        if (handleCallback) {
+          buffDetails['overflow'] = effect.amount - maxValue;
+          // 触发对方资源溢出时的效果
+          opponent!.handleStatusEffectCallback(
+              'opponent_overflowed_energy', buffDetails);
+          // 触发资源溢出时的效果，返回 true 表示保留溢出的值
+          result =
+              handleStatusEffectCallback('self_overflowed_energy', buffDetails);
+        }
 
-        if (effect.isResource) {
+        if (!engine.hetu.interpreter.truthy(result)) {
+          effect.amount = maxValue;
           addHintText(
-            '${engine.locale('status_$id')} +$finalAmount',
-            color: getResourceColor(id),
+            engine.locale('resourceOverflowed',
+                interpolations: [engine.locale('status_$id')]),
+            color: Colors.blue,
           );
-          reArrangeResourceEffects();
-        } else if (effect.isPermanent) {
-          reArrangePermanentEffects();
-        } else {
-          reArrangeNonResourceEffects();
         }
       }
     }
 
-    if (finalAmount > 0) {
-      if (effectData['isPermanent'] != true && handleCallback) {
-        if (id.startsWith('energy_positive')) {
-          // 触发自己获得阳气后的效果
-          handleStatusEffectCallback('self_gained_energy_positive');
-          // 触发对方获得阳气后的效果
-          opponent!
-              .handleStatusEffectCallback('opponent_gained_energy_positive');
-        }
+    if (effect.amount <= 0) {
+      _statusEffects.remove(effect.id);
+      return;
+    }
+
+    if (isNewlyAdded && !effect.isHidden) {
+      game.world.add(effect);
+
+      if (effect.isResource) {
+        addHintText(
+          '${engine.locale('status_$id')} +$amount',
+          color: getResourceColor(id),
+        );
+        reArrangeResourceEffects();
+      } else if (effect.isPermanent) {
+        reArrangePermanentEffects();
+      } else {
+        reArrangeNonResourceEffects();
+      }
+    }
+
+    if (handleCallback) {
+      if (id.startsWith('energy_positive')) {
+        // 触发对方获得阳气后的效果
+        opponent!.handleStatusEffectCallback('opponent_gained_energy_positive');
+        // 触发自己获得阳气后的效果
+        handleStatusEffectCallback('self_gained_energy_positive');
+      }
+
+      if (effectData['isDebuff'] == true) {
+        // 触发对方获得永久负面状态后的效果
+        opponent!.handleStatusEffectCallback('opponent_gained_debuff');
+        // 触发自己获得永久负面状态后的效果
+        handleStatusEffectCallback('self_gained_debuff');
       }
     }
   }
@@ -598,10 +589,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (hp > life) {
       if (isHeal) {
-        // 触发自己恢复生命时的效果
-        handleStatusEffectCallback('self_heal');
         // 触发对方恢复生命时的效果
         opponent!.handleStatusEffectCallback('opponent_heal');
+        // 触发自己恢复生命时的效果
+        handleStatusEffectCallback('self_heal');
       }
 
       addHintText(
@@ -668,18 +659,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
     // 否则的话意味着是某些状态效果或者额外词条造成的伤害
-    // if (damageDetails['isMain'] == true) {
-    // 触发对方造成伤害时的效果，可能会改变伤害值
-    handleStatusEffectCallback('opponent_doing_damage', damageDetails);
+
     // 触发自己造成伤害时的效果，可能会改变伤害值
     opponent!.handleStatusEffectCallback('self_doing_damage', damageDetails);
-    // }
+    // 触发对方造成伤害时的效果，可能会改变伤害值
+    handleStatusEffectCallback('opponent_doing_damage', damageDetails);
 
-    // 触发自己受到伤害时的效果
-    handleStatusEffectCallback('self_taking_damage', damageDetails);
     // 触发对方受到伤害时的效果
     opponent!
         .handleStatusEffectCallback('oponent_taking_damage', damageDetails);
+    // 触发自己受到伤害时的效果
+    handleStatusEffectCallback('self_taking_damage', damageDetails);
 
     if (damageDetails['cancelDamage'] == true) {
       opponent!.addHintText(engine.locale('missedHit'));
@@ -729,18 +719,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       // isMain 为 true 表示伤害来源来自主词条的攻击
       // 否则的话意味着是某些状态效果或者额外词条造成的伤害
-      // if (damageDetails['isNeutral'] != true) {
-      // 触发对方造成伤害后的效果
-      handleStatusEffectCallback('opponent_done_damage', damageDetails);
+
       // 触发自己造成伤害后的效果
       opponent!.handleStatusEffectCallback('self_done_damage', damageDetails);
+      // 触发对方造成伤害后的效果
+      handleStatusEffectCallback('opponent_done_damage', damageDetails);
 
-      // 触发自己受到伤害后的效果
-      handleStatusEffectCallback('self_taken_damage', damageDetails);
       // 触发对方受到伤害后的效果
       opponent!
           .handleStatusEffectCallback('opponent_taken_damage', damageDetails);
-      // }
+      // 触发自己受到伤害后的效果
+      handleStatusEffectCallback('self_taken_damage', damageDetails);
 
       opponent!.turnFlags['damage']['total'] += finalDamage;
     }
@@ -824,34 +813,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     turnFlags['genre'] = genre;
     turnFlags['kind'] = kind;
 
-    handleStatusEffectCallback('self_use_card_category_$category');
-    handleStatusEffectCallback('self_use_card_genre_$genre');
-    handleStatusEffectCallback('self_use_card_kind_$kind');
-    // final tags = mainAffix['tags'];
-    // assert(tags is List);
-    // for (final tag in tags) {
-    //   handleEffectCallback('self_use_card_tag_$tag');
-    // }
-
-    switch (mainAffix['category']) {
-      case 'attack':
-        turnFlags['attackType'] = mainAffix['attackType'];
-        turnFlags['damageType'] = mainAffix['damageType'];
-        // 触发自己发动攻击时的效果
-        handleStatusEffectCallback('self_attacking');
-        // 触发对方被发动攻击时的效果
-        opponent!.handleStatusEffectCallback('opponent_attacking');
-      case 'buff':
-        // 触发自己发动加持时的效果
-        handleStatusEffectCallback('self_buffing');
-        // 触发对方发动加持时的效果
-        opponent!.handleStatusEffectCallback('opponent_buffing');
-      case 'ongoing':
-        // 触发自己发动持续牌时的效果
-        handleStatusEffectCallback('self_ongoing');
-        // 触发对方发动持续牌时的效果
-        opponent!.handleStatusEffectCallback('opponent_ongoing');
+    if (category == 'attack') {
+      turnFlags['attackType'] = mainAffix['attackType'];
+      turnFlags['damageType'] = mainAffix['damageType'];
     }
+
+    opponent!
+        .handleStatusEffectCallback('opponent_use_card_category_$category');
+    handleStatusEffectCallback('self_use_card_category_$category');
+    opponent!.handleStatusEffectCallback('opponent_use_card_genre_$genre');
+    handleStatusEffectCallback('self_use_card_genre_$genre');
+    opponent!.handleStatusEffectCallback('opponent_use_card_kind_$kind');
+    handleStatusEffectCallback('self_use_card_kind_$kind');
 
     // 先处理优先级高于主词条的额外词条
     // 其中可能包含一些当前回合就立即起作用的buff

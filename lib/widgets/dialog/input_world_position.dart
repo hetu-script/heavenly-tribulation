@@ -126,7 +126,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
                             horizontal: 10.0, vertical: 20.0),
                         child: fluent.FlyoutTarget(
                           controller: _menuController,
-                          child: fluent.FilledButton(
+                          child: fluent.Button(
                             onPressed: () {
                               showFluentMenu(
                                 controller: _menuController,
@@ -188,7 +188,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     final worldId = _worldId.nonEmptyValue;
                     final x = int.tryParse(_posXController.text);

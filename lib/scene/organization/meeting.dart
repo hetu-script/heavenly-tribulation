@@ -82,7 +82,7 @@ class Meeting extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: fluent.FilledButton(
+              child: fluent.Button(
                 child: Label(
                   engine.locale('leave'),
                   width: 200,

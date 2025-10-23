@@ -15,12 +15,6 @@ import 'common.ht'
 /// 对方/自己卡组第一张牌时 opponent/self_deck_start
 /// 对方/自己卡组最后一张时 opponent/self_deck_end
 
-/// 对方/自己发动攻击时 opponent/self_attacking
-/// 对方/自己发动攻击后 opponent/self_attacked
-
-/// 对方/自己使用加持时 opponent/self_buffing
-/// 对方/自己使用持续牌时 opponent/self_ongoing
-
 /// 对方/自己使用消耗牌后 opponent/self_consumed
 
 /// // 对方/自己恢复生命时 opponent/self_heal
@@ -42,44 +36,48 @@ import 'common.ht'
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
 /// // 对方/自己获得伤势后 opponent/self_gained_injury
 
+/// 对方/自己使用攻击牌时 opponent/self_use_card_category_attack
+/// 对方/自己使用加持牌时 opponent/self_use_card_category_buff
+/// 对方/自己使用持续牌时 opponent/self_use_card_category_ongoing
+
 /// 对方/自己使用拳法时 opponent/self_use_card_kind_punch
-/// 对方/自己使用腿法时 opponent/self
-/// 对方/自己使用剑法时 opponent/self
-/// 对方/自己使用刀法时 opponent/self
-/// 对方/自己使用枪法时 opponent/self
-/// 对方/自己使用棍法时 opponent/self
-/// 对方/自己使用弓术时 opponent/self
-/// 对方/自己使用御剑术时 opponent/self
-/// 对方/自己使用擒拿时 opponent/self
-/// 对方/自己使用点穴时 opponent/self
-/// 对方/自己使用御火术时 opponent/self
-/// 对方/自己使用御风术时 opponent/self
-/// 对方/自己使用雷法时 opponent/self
-/// 对方/自己使用咒术时 opponent/self
-/// 对方/自己使用暗器时 opponent/self
-/// 对方/自己使用暗器时 opponent/self
-/// 对方/自己使用暗器时 opponent/self
+/// 对方/自己使用腿法时 opponent/self_use_card_kind_
+/// 对方/自己使用剑法时 opponent/self_use_card_kind_
+/// 对方/自己使用刀法时 opponent/self_use_card_kind_
+/// 对方/自己使用枪法时 opponent/self_use_card_kind_
+/// 对方/自己使用棍法时 opponent/self_use_card_kind_
+/// 对方/自己使用弓术时 opponent/self_use_card_kind_
+/// 对方/自己使用御剑术时 opponent/self_use_card_kind_
+/// 对方/自己使用擒拿时 opponent/self_use_card_kind_
+/// 对方/自己使用点穴时 opponent/self_use_card_kind_
+/// 对方/自己使用御火术时 opponent/self_use_card_kind_
+/// 对方/自己使用御风术时 opponent/self_use_card_kind_
+/// 对方/自己使用雷法时 opponent/self_use_card_kind_
+/// 对方/自己使用咒术时 opponent/self_use_card_kind_
+/// 对方/自己使用暗器时 opponent/self_use_card_kind_
+/// 对方/自己使用暗器时 opponent/self_use_card_kind_
+/// 对方/自己使用暗器时 opponent/self_use_card_kind_
 
-/// 对方/自己使用身法时 opponent/self
-/// 对方/自己使用心法时 opponent/self
-/// 对方/自己使用御水术时 opponent/self
-/// 对方/自己使用土遁术时 opponent/self
-/// 对方/自己使用木遁术时 opponent/self
-/// 对方/自己使用经藏时 opponent/self
+/// 对方/自己使用身法时 opponent/self_use_card_kind_
+/// 对方/自己使用心法时 opponent/self_use_card_kind_
+/// 对方/自己使用御水术时 opponent/self_use_card_kind_
+/// 对方/自己使用土遁术时 opponent/self_use_card_kind_
+/// 对方/自己使用木遁术时 opponent/self_use_card_kind_
+/// 对方/自己使用经藏时 opponent/self_use_card_kind_
 
-/// 对方/自己使用乐曲时 opponent/self
-/// 对方/自己使用幻术时 opponent/self
-/// 对方/自己使用阵法时 opponent/self
-/// 对方/自己使用丹药时 opponent/self
-/// 对方/自己使用符箓时 opponent/self
+/// 对方/自己使用乐曲时 opponent/self_use_card_kind_
+/// 对方/自己使用幻术时 opponent/self_use_card_kind_
+/// 对方/自己使用阵法时 opponent/self_use_card_kind_
+/// 对方/自己使用丹药时 opponent/self_use_card_kind_
+/// 对方/自己使用符箓时 opponent/self_use_card_kind_
 
 /// 对方/自己使用御剑时 opponent/self_use_card_genre_swordcraft
-/// 对方/自己使用悟道时 opponent/self
-/// 对方/自己使用锻体时 opponent/self
-/// 对方/自己使用化神时 opponent/self
-/// 对方/自己使用炼魂时 opponent/self
+/// 对方/自己使用悟道时 opponent/self_use_card_genre_spellcraft
+/// 对方/自己使用锻体时 opponent/self_use_card_genre_bodyforge
+/// 对方/自己使用化神时 opponent/self_use_card_genre_avatar
+/// 对方/自己使用炼魂时 opponent/self_use_card_genre_vitality
 
-/// 对方/自己再次行动时 opponent/self
+/// 对方/自己再次行动时 opponent/self_extra_turn
 
 struct StatusScript {
   function speed_quick_self_turn_end(self, opponent, effect, details) {
@@ -231,7 +229,7 @@ struct StatusScript {
   }
 
   function injury_external_self_attacking(self, opponent, effect, details) {
-    self.changeLife(-effect.amount)
+    self.changeLife(-effect.amount * 5)
   }
 
   function injury_external_self_heal(self, opponent, effect, details) {
@@ -239,7 +237,7 @@ struct StatusScript {
   }
 
   function injury_internal_self_buffing(self, opponent, effect, details) {
-    self.changeLife(-effect.amount)
+    self.changeLife(-effect.amount * 5)
   }
 
   function injury_internal_self_gain_energy_positive(self, opponent, effect, details) {
@@ -247,7 +245,7 @@ struct StatusScript {
   }
 
   function injury_poison_self_turn_start(self, opponent, effect, details) {
-    self.changeLife(-effect.amount)
+    self.changeLife(-effect.amount * 5)
   }
 
   function injury_hallucination_self_turn_start(self, opponent, effect, details) {

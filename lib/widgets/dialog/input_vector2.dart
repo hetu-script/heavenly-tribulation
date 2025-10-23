@@ -122,7 +122,7 @@ class _InputVector2DialogState extends State<InputVector2Dialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     final x = int.tryParse(_posXController.text);
                     final y = int.tryParse(_posYController.text);

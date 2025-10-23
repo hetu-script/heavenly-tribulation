@@ -148,7 +148,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
                   child: Row(
                     children: [
                       const Spacer(),
-                      fluent.FilledButton(
+                      fluent.Button(
                         onPressed: () {
                           if (_isFinished) {
                             Navigator.of(context).pop(_progress);

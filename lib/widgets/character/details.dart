@@ -205,12 +205,12 @@ class _CharacterDetailsState extends State<CharacterDetails> {
               children: [
                 // Padding(
                 //   padding: const EdgeInsets.only(right: 10.0),
-                //   child: fluent.FilledButton(
+                //   child: fluent.Button(
                 //     onPressed: () {},
                 //     child: Text(engine.locale('identify')),
                 //   ),
                 // ),
-                fluent.FilledButton(
+                fluent.Button(
                   onPressed: () {},
                   child: Text(engine.locale('orderBy')),
                 ),

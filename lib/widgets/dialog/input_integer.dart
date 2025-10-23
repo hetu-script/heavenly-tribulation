@@ -89,7 +89,7 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop(
                       int.tryParse(_textEditingController.text) ?? 0,

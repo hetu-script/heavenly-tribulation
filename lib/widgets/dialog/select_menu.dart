@@ -92,7 +92,7 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop(_selectedValue);
                   },

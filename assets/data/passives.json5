@@ -792,12 +792,12 @@
   overflowed_mana_convert_to_vigor: {
     id: "overflowed_mana_convert_to_vigor",
     description: "passive_overflowed_mana_convert_to_vigor_description",
-    priority: 3897,
+    priority: 3898,
   },
   overflowed_chakra_debuff_affect_opponent: {
     id: "overflowed_chakra_debuff_affect_opponent",
     description: "passive_overflowed_chakra_debuff_affect_opponent_description",
-    priority: 3896,
+    priority: 3897,
   },
 
   mana_is_also_chakra: {
@@ -806,20 +806,27 @@
     priority: 3889,
   },
 
+  exhaust_life_for_insufficient_rage: {
+    id: "exhaust_life_for_insufficient_rage",
+    description: "passive_exhaust_life_for_insufficient_rage_description",
+    priority: 3879,
+  },
+
   dart_and_poison_deal_pure_damage: {
     id: "dart_and_poison_deal_pure_damage",
     description: "passive_dart_and_poison_deal_pure_damage_description",
-    priority: 3879,
+    priority: 3869,
   },
   curse_deal_pure_damage: {
     id: "curse_deal_pure_damage",
     description: "passive_curse_deal_pure_damage_description",
-    priority: 3878,
+    priority: 3868,
   },
-  exhaust_life_for_insufficient_rage: {
-    id: "exhaust_life_for_insufficient_rage",
-    description: "passive_exhaust_life_for_insufficient_rage_description",
-    priority: 3870,
+
+  gained_debuff_affect_opponent: {
+    id: "gained_debuff_affect_opponent",
+    description: "passive_gained_debuff_affect_opponent_description",
+    priority: 3859,
   },
 
   /// 装备数量相关

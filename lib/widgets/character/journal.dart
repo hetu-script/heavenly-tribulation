@@ -211,34 +211,13 @@ class _JournalViewState extends State<JournalView> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SegmentedButton<QuestViewMode>(
-            //   segments: <ButtonSegment<QuestViewMode>>[
-            //     ButtonSegment<QuestViewMode>(
-            //         value: QuestViewMode.all,
-            //         label: Text(engine.locale('all')),
-            //         icon: const Icon(Icons.list)),
-            //     ButtonSegment<QuestViewMode>(
-            //         value: QuestViewMode.ongoing,
-            //         label: Text(engine.locale('current')),
-            //         icon: const Icon(Icons.access_time)),
-            //     ButtonSegment<QuestViewMode>(
-            //         value: QuestViewMode.finished,
-            //         label: Text(engine.locale('finished')),
-            //         icon: const Icon(Icons.check_circle)),
-            //   ],
-            //   selected: {_selectedMode},
-            //   onSelectionChanged: (Set<QuestViewMode> newSelection) {
-            //     setState(() {
-            //       _selectedMode = newSelection.first;
-            //     });
-            //   },
-            // ),
             Container(
               width: 240.0,
               height: 400.0,
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-              padding: const EdgeInsets.all(5.0),
-              decoration: GameUI.boxDecoration,
+              decoration: GameUI.boxDecoration.copyWith(
+                color: GameUI.backgroundColor,
+              ),
               child: _journalsData.values.isNotEmpty
                   ? ListView(
                       children: List<Widget>.from(
@@ -246,7 +225,7 @@ class _JournalViewState extends State<JournalView> {
                           (journal) => fluent.Button(
                             style: _selectedJournal == journal
                                 ? FluentButtonStyles.selected
-                                : null,
+                                : FluentButtonStyles.outlined,
                             onPressed: () {
                               setState(() {
                                 _selectedJournal = journal;

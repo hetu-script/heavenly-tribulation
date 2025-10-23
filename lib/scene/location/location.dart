@@ -13,7 +13,7 @@ import '../../engine.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
 import '../../widgets/ui_overlay.dart';
-import '../../widgets/dialog/character_visit.dart';
+import 'character_visit.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
@@ -132,7 +132,8 @@ class LocationScene extends Scene {
         world.add(siteCard);
       case 'hotel':
         final restCard = GameData.createSiteCard(
-            spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+            spriteId: 'location/card/bed.png',
+            title: engine.locale('guestRoom'));
         restCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };
@@ -140,7 +141,8 @@ class LocationScene extends Scene {
         world.add(restCard);
       case 'cityhall':
         final restCard = GameData.createSiteCard(
-            spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+            spriteId: 'location/card/bed.png',
+            title: engine.locale('guestRoom'));
         restCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };

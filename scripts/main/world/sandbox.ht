@@ -278,9 +278,9 @@ function createSandboxWorld({
       kind: kind,
       atTerrain: terrain,
       updateWorldMap: false,
-      npcId: 'servant',
       // 随机生成的场所，初始发展度是0-3之间随机。
       development: random.nextInt(_kLocationInitialDevelopmentMax),
+      npcId: Constants.siteKindToNpcId[kind],
     )
     terrain.locationId = location.id
   }
@@ -433,7 +433,7 @@ function createSandboxWorld({
       atLocation: location,
       organizationId: organization.id,
       development: random.nextInt(location.development + 1),
-      npcId: 'servant',
+      npcId: Constants.siteKindToNpcId[organizationCategoryKind],
     )
     
     final organizationGenreKinds = Constants.organizationGenreToSiteKinds[organization.genre]
@@ -447,7 +447,7 @@ function createSandboxWorld({
       atLocation: location,
       organizationId: organization.id,
       development: random.nextInt(location.development + 1),
-      npcId: 'servant',
+      npcId: Constants.siteKindToNpcId[secondaryClassSiteKind],
     )
   }
 
@@ -471,7 +471,7 @@ function createSandboxWorld({
         atLocation: city,
         organizationId: organizationId,
         development: random.nextInt(city.development + 1),
-        npcId: 'servant',
+        npcId: Constants.siteKindToNpcId[kind],
       )
     }
   }
@@ -580,7 +580,9 @@ function createSandboxWorld({
     final r = random.nextDouble()
     if (r > _kDungeonOnTerritoryProbability) continue
 
-    let availableTiles = city.territoryIndexes.map((index) => world.terrains[index]).where((tile) => !tile.isWater && tile.locationId == null)
+    let availableTiles = city.territoryIndexes
+      .map((index) => world.terrains[index])
+      .where((tile) => !tile.isWater && tile.locationId == null)
     if (availableTiles.isEmpty) continue
 
     final dungeionTile = random.nextIterable(availableTiles)
@@ -594,6 +596,7 @@ function createSandboxWorld({
       atTerrain: dungeionTile,
       updateWorldMap: false,
       organizationId: city.organizationId,
+      npcId: Constants.siteKindToNpcId['dungeon'],
     )
     location.dungeonId = 'dungeon_1'
     dungeionTile.locationId = location.id

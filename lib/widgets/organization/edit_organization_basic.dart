@@ -115,7 +115,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                       SizedBox(
                         width: 180.0,
                         height: 40.0,
-                        child: TextField(
+                        child: fluent.TextBox(
                           controller: _idEditingController,
                         ),
                       ),
@@ -134,7 +134,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                         padding: const EdgeInsets.only(right: 20.0),
                         width: 180.0,
                         height: 40.0,
-                        child: TextField(
+                        child: fluent.TextBox(
                           controller: _nameEditingController,
                         ),
                       ),
@@ -204,11 +204,11 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                         padding: const EdgeInsets.only(right: 20.0),
                         width: 180.0,
                         height: 40.0,
-                        child: TextField(
+                        child: fluent.TextBox(
                           controller: _headIdEditingController,
                         ),
                       ),
-                      fluent.FilledButton(
+                      fluent.Button(
                         onPressed: () async {
                           final key = await showDialog<String>(
                             context: context,
@@ -227,7 +227,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     String? id = _idEditingController.text.nonEmptyValue;
                     String? name = _nameEditingController.text.nonEmptyValue;

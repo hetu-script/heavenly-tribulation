@@ -232,13 +232,18 @@
   "passive_start_turn_with_opponent_energy_negative_curse_description": "回合开始时对手 {0} 无心之气",
   "passive_start_turn_with_opponent_energy_negative_ultimate_description": "回合开始时对手 {0} 虚空之气",
 
-  "passive_overflowed_mana_deal_elemental_damage_description": "每次溢出灵气时，对手受到元素伤害，自身境界越高，伤害越高。",
+  "passive_overflowed_mana_deal_elemental_damage_description": "每次溢出灵气时，对手受到元素伤害",
   "passive_overflowed_mana_convert_to_vigor_description": "溢出的灵气转化为元气",
   "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
+
   "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气",
+
+  "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时不会获得阴气，而是改为消耗生命",
+
   "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术卡牌伤害减少30%，并转为纯粹伤害",
   "passive_curse_deal_pure_damage_description": "咒术攻击减少30%，并转为纯粹伤害",
-  "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时仍可发挥效果，但会消耗生命",
+
+  "passive_gained_debuff_affect_opponent_description": "每当你获得负面效果时，对手获得同样的负面效果",
 
   "passive_upgradeRank_1_description": "提升修为时有概率触发凝气境天道试炼",
   "passive_upgradeRank_2_description": "提升修为时有概率触发筑基境天道试炼",

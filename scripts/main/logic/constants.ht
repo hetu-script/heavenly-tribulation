@@ -24,14 +24,15 @@ external abstract class Constants {
   static get minTurnActionThreshold;
 
   static get npcIds;
-  static get worldViews;
   static get personalities;
   static get attributes;
   static get nonBattleAttributes;
   static get battleAttributes;
   static get attributeToGenre;
   static get genreToAttribute;
-  static get battleCardKinds;
+  static get attackTypes;
+  static get damageTypes;
+
   static get organizationCategories;
   static get cultivationGenres;
   static get cardpackGenres;
@@ -42,17 +43,16 @@ external abstract class Constants {
   static get cultivationStyles;
   static get locationCityKinds;
   static get locationSiteKinds;
+  static get siteKindToNpcId;
   static get siteKindsWorkable;
   static get siteKindToAttribute;
   static get siteKindsBuildable;
+  static get siteKindsTradable;
   static get productionSiteKinds;
   static get organizationCategoryToSiteKind;
   static get organizationCategoryExpansionRate;
   static get organizationGenreToSiteKinds;
   static get sitePriority;
-
-  static get attackTypes;
-  static get damageTypes;
   
   static get ticksPerTime;
   static get timesPerDay;
@@ -71,13 +71,11 @@ external abstract class Constants {
   static get basePriceByCategory;
   static get itemWithAffixCategories;
   
-  static get terrainKindsCity;
   static get terrainKindsLand;
   static get terrainKindsWater;
   static get terrainKindsMountain;
   static get terrainKindsAll;
   static get titleToOrganizationRank;
-  static get rankToOrganizationTitle;
   static get equipmentCategoryKinds;
   static get equipmentKinds;
   static get terrainKindToEnemyEncounterRate;

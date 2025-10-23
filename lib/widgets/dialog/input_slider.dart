@@ -94,7 +94,7 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
-                child: Slider(
+                child: fluent.Slider(
                   value: _current.toDouble(),
                   min: widget.min.toDouble(),
                   max: widget.max.toDouble(),
@@ -115,7 +115,7 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop(_current);
                   },

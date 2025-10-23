@@ -148,7 +148,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _idEditingController,
                     ),
                   ),
@@ -212,7 +212,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   SizedBox(
                     width: 200.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _nameEditingController,
                     ),
                   ),
@@ -228,7 +228,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _imageEditingController,
                     ),
                   ),
@@ -244,7 +244,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _backgroundEditingController,
                     ),
                   ),
@@ -260,7 +260,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                   SizedBox(
                     width: 450.0,
                     height: 40.0,
-                    child: TextField(
+                    child: fluent.TextBox(
                       controller: _npcIdEditingController,
                     ),
                   ),
@@ -269,7 +269,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: fluent.FilledButton(
+                child: fluent.Button(
                   onPressed: () {
                     String? id = _idEditingController.text.nonEmptyValue;
                     String? name = _nameEditingController.text.nonEmptyValue;

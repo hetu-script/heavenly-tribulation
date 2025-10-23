@@ -1,6 +1,4 @@
 
-const kEntityTypeObject = 'object'
-
 const kObjectCategoryPortal = 'portal'
 const kObjectCategoryWorldPortal = 'worldPortal'
 const kObjectCategoryDungeonEntrance = 'dungeonEntrance'
@@ -50,7 +48,12 @@ struct ObjectWorldPortal {
     worldPositionLeft,
     worldPositionTop,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryWorldPortal}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('worldPortal')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -78,7 +81,12 @@ struct ObjectPortal {
     targetLeft,
     targetTop,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryPortal}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('portal')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -103,7 +111,12 @@ struct ObjectSwitch {
     isDiscovered = true,
     useCustomLogic = false,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategorySwitch}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('switch')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -124,13 +137,21 @@ struct ObjectMerchant {
     rank,
     money = 100000,
     shard = 100000,
-    category,
+    itemCategories,
     itemCount = 5,
     useShard = false,
+    isMysterious = false,
+    materialMode = false,
+    priceFactor,
+    filter,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryMerchant}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('merchant')
-    
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
     this.category = kObjectCategoryMerchant
@@ -151,21 +172,21 @@ struct ObjectMerchant {
       entityCollect(this.merchant, 'shard', shard)
     }
 
-    if (category is! List) {
-      category = [category]
+    if (itemCategories is! List) {
+      itemCategories = [itemCategories]
     }
 
     for (var i in range(itemCount)) {
-      final c = random.nextIterable(category)
+      final c = random.nextIterable(itemCategories)
       if(Constants.equipmentCategoryKinds.containsKey(c)) {
         final k = random.nextIterable(Constants.equipmentCategoryKinds[c])
-        final item = Equipment(kind: k, rank: rank)
+        final item = Equipment(kind: k, rank: rank, isIdentified: !isMysterious)
         entityAcquire(this.merchant, item)
       } else if (c == kItemCategoryCardpack) {
         final item = Cardpack(rank: rank)
         entityAcquire(this.merchant, item)
       } else if (c == kItemCategoryPotion) {
-        final item = Potion(rank: rank)
+        final item = Potion(rank: rank, isIdentified: !isMysterious)
         entityAcquire(this.merchant, item)
       } else if (kNormalPrototypeItems.contains(c)) {
         final item = createItemById(c)
@@ -196,9 +217,13 @@ struct ObjectEnemy {
     isElite = false,
     tilePosition,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryEnemy}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('dungeonGuard')
-    
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
     this.category = kObjectCategoryEnemy
@@ -227,6 +252,12 @@ struct ObjectBed {
     hoverContent,
     useCustomLogic = false,
   }) {
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryBed}_${crypto.randomUID(withTime: true)}'
+    }
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? engine.locale('bed')
     this.hoverContent = hoverContent ?? this.name
@@ -274,7 +305,12 @@ struct ObjectTreasureBox {
     useCustomLogic = false,
     items: List,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryTreasureBox}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('treasureBox')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -296,7 +332,12 @@ struct ObjectSpiritWell {
     useCustomLogic = false,
     rank,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategorySpiritWell}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('oldWell')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -318,7 +359,12 @@ struct ObjectExpArray {
     useCustomLogic = false,
     collectableLight,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryExpArray}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('enterCultivation')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -339,7 +385,12 @@ struct ObjectCardLibrary {
     isDiscovered = true,
     useCustomLogic = false,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryCardLibrary}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('enterLibrary')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
@@ -359,7 +410,12 @@ struct ObjectAlchemyFurnace {
     isDiscovered = true,
     useCustomLogic = false,
   }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
+    if (useCustomLogic) {
+      assert(id != null)
+      this.id = id
+    } else {
+      this.id = '${kObjectCategoryAlchemyFurnace}_${crypto.randomUID(withTime: true)}'
+    }
     this.name = name ?? engine.locale('furnace')
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject

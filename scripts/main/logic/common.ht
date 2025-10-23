@@ -91,7 +91,7 @@ function getRarity({ name }) {
 const kEntityTypeBattleEntity = 'battle_entity'
 const kEntityTypeCharacter = 'character' //game.characters
 const kEntityTypeNpc = 'npc'  //game.npcs
-const kEntityTypeLocationObject = 'object' //game.characters
+const kEntityTypeObject = 'object' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
 const kEntityTypeOrganization = 'organization' //game.organizations

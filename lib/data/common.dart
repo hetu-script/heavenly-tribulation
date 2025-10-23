@@ -53,14 +53,6 @@ const kTips = [
   'tips_reputation',
 ];
 
-const kNpcIds = [
-  'servant',
-  'servant_young',
-  'guard',
-];
-
-const kNpcAvatarCount = 14;
-
 const kTerrainKindToNaturalResources = {
   'void': null,
   'city': null,
@@ -505,10 +497,39 @@ const kLocationSiteKinds = [
   'dungeon',
 ];
 
+const kSiteKindToNpcId = {
+  'headquarters': 'executiveAssistant',
+  'cityhall': 'assistant',
+  'tradinghouse': 'trader',
+  'daostele': 'steleKeeper',
+  'exparray': 'expCollector',
+  'library': 'librarian',
+  'arena': 'martialArtist',
+  'militarypost': 'militaryAdvisor',
+  'auctionhouse': 'auctionist',
+  'hotel': 'hotelManager',
+  'workshop': 'smith',
+  'enchantshop': 'enchanter',
+  'alchemylab': 'alchemist',
+  'tattooshop': 'tattooArtist',
+  'runelab': 'runeMaster',
+  'arraylab': 'arrayMaster',
+  'illusionaltar': 'illusionist',
+  'psychictemple': 'psychist',
+  'divinationaltar': 'diviner',
+  'theurgytemple': 'theurgist',
+  'farmland': 'farmer',
+  'fishery': 'fisher',
+  'timberland': 'lumberjack',
+  'huntingground': 'hunter',
+  'mine': 'miner',
+  'dungeon': 'dungeonKeeper',
+};
+
 const kSiteKindsWorkable = [
   'farmland', // 神识
-  'timberland', // 灵力
   'fishery', // 念力
+  'timberland', // 灵力
   'huntingground', // 身法
   'mine', // 体魄
 ];
@@ -802,7 +823,7 @@ final kMaterialBasePrice = {
 const kUnknownItemBasePrice = 100;
 
 /// 物品的基础价格
-final kItemBasePriceByCategory = {
+final kBasePriceByCategory = {
   'craftmaterial_addAffix': 3500,
   'craftmaterial_replaceAffix': 7500,
   'craftmaterial_rerollAffix': 10000,
@@ -1429,3 +1450,63 @@ const kTerrainKindToEnemyEncounterRate = {
   'lake': 0.06,
   'river': 0.04,
 };
+
+final kNpcIds = [
+  ...kSiteKindToNpcId.values,
+];
+
+const kLocationManualReplenishCostBase = 4500;
+
+const kEstimatePriceFactor = 0.8;
+const kEstimatePriceRange = {
+  'cheap',
+  'normal',
+  'expensive',
+};
+
+const kWuweiTrialQuestionCount = 8;
+const kWuweiTrialOptionsCount = 3;
+const kWuweiTrialAnswers = {
+  1: 2,
+  2: 1,
+  3: 3,
+  4: 2,
+  5: 3,
+  6: 1,
+  7: 3,
+  8: 1,
+};
+
+// 修真试炼最少需要的战斗回合数
+const kCultivationTrialMinBattleRound = 4;
+
+// 财富试炼需要支付的灵石数量
+const kWealthTrialCost = 5;
+
+const kPleasureTrialMinCharisma = 70;
+
+const kRecruitCityRequirementContribution = 50;
+const kRecruitCityRequirementMoney = 50_0000;
+const kRecruitCityRequirementShard = 50;
+
+const kCreateOrganizationRequirementRank = 2;
+const kCreateOrganizationRequirementMoney = 500_0000;
+const kCreateOrganizationRequirementShard = 500;
+
+const kJobRankToContributionRequirements = {
+  0: 0,
+  1: 90,
+  2: 300,
+  3: 1000,
+  4: 3200,
+  5: 10000,
+};
+
+const kMoveHomeCostBase = 2000;
+
+const kHomeLifeRestorePerTime = 2;
+const kHotelNormalLifeRestorePerTime = 5;
+const kHotelVipLifeRestorePerTime = 15;
+const kHotelStableCostPerDay = 500;
+const kHotelNormalCostPerDay = 1500;
+const kHotelVipCostPerDay = 5000;

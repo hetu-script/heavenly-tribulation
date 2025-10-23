@@ -50,6 +50,7 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
   flutter_markdown_plus: ^1.0.5
   display_metrics: ^2.2.1
+  icons_launcher: ^3.0.3
 
 dev_dependencies:
   flutter_test:
@@ -80,8 +81,6 @@ flutter:
     - assets/images/animation/
     - assets/images/animation/character/
     - assets/images/animation/overlay/
-    - assets/images/avatar/
-    - assets/images/avatar/npc/
     - assets/images/battle/
     - assets/images/battle/scene/
     - assets/images/battlecard/
@@ -96,6 +95,8 @@ flutter:
     - assets/images/icon/status/permanent/
     - assets/images/illustration/
     - assets/images/illustration/
+    - assets/images/illustration/avatar/
+    - assets/images/illustration/avatar/npc/
     - assets/images/illustration/male/
     - assets/images/illustration/female/
     - assets/images/illustration/main/
