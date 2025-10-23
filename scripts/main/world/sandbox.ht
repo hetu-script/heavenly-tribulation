@@ -69,7 +69,7 @@ function createSandboxWorld({
   assert(locationNumber != null)
   assert(characterNumber != null)
   assert(locationNumber > nationNumber)
-
+  
   engine.info('--------开始生成世界--------')
   engine.info('随机种子：${seed}, 地图大小：[${width}, ${height}]，地图风格：${style}，国家数量：${nationNumber}，据点数量：${locationNumber}，角色数量：${characterNumber}, 门派数量：${nationNumber}')
 
@@ -87,7 +87,7 @@ function createSandboxWorld({
   
   addWorld(newWorld)
 
-  engine.info('--------生成地块--------')
+  engine.info('生成地块')
   for (const y in range(height)) {
     for (const x in range(width)) {
       let spriteIndex
@@ -107,7 +107,7 @@ function createSandboxWorld({
   }
   generateContinent2(newWorld, seed: game.seed, style: style)
 
-  engine.info('--------划分大陆和海洋--------')
+  engine.info('划分大陆和海洋')
   generateZone(newWorld)
   
   const plainIndexes = Set()
@@ -116,7 +116,7 @@ function createSandboxWorld({
   // 地形装饰贴图
   // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为森林
   // 这些修改不影响该地块的 kind
-  engine.info('--------填充装饰地形：大陆架、森林--------')
+  engine.info('填充装饰地形：大陆架、森林')
   const lands = world.landIndexes.map((index) => world.terrains[index])
   for (const tile in lands) {
     let isShore = false
@@ -146,11 +146,11 @@ function createSandboxWorld({
 
   // zone 的名字和其大小有关
   // 命名区域后，才会得到海洋地块，因为某些水体会被命名为湖泊和河流
-  engine.info('--------命名海洋和大陆--------')
+  engine.info('命名海洋和大陆')
   nameZones(newWorld)
 
   // 生成大陆架，在这一步会将大陆架从 seaIndexes 中剔除
-  engine.info('--------生成大陆架--------')
+  engine.info('生成大陆架')
   const waters = world.waterIndexes.map((index) => world.terrains[index])
   for (const tile in waters) {
     let isShelf = false
@@ -171,7 +171,7 @@ function createSandboxWorld({
 
   // 生成据点
   // 有四种：城市、港口、山地（洞天）和岛屿（福地），后两者为隐藏据点
-  engine.info('--------生成城市--------')
+  engine.info('生成城市')
   final locations = []
   final locationNeighbors = {}
   const fisheryKinds = ['lake', 'shelf', 'sea']
@@ -246,10 +246,10 @@ function createSandboxWorld({
   // 渔猎区域之前可能会重复添加，在这里去重
   world.fisheryIndexes = world.fisheryIndexes.toSet().toList()
 
-  engine.info('--------计算城市领地范围--------')
+  engine.info('计算城市领地范围')
   generateCityTerritory(world)
   
-  engine.info('--------生成自然资源--------')
+  engine.info('生成自然资源')
   for (final terrain in world.terrains) {
     if (terrain.kind in _kTerrainKindsWithNoResources) continue
     final resourceMultiplierData = Constants.terrainKindToNaturalResources[terrain.kind]
@@ -263,7 +263,7 @@ function createSandboxWorld({
     terrain.resources = resources
   }
 
-  engine.info('--------生成生产类建筑：农场、林场、渔场、猎场、矿场--------')
+  engine.info('生成生产类建筑：农场、林场、渔场、猎场、矿场')
   final discoveredCities = game.locations.values.where((location) =>
     location.category == 'city' && location.isHidden == false
   ).toList()
@@ -400,7 +400,8 @@ function createSandboxWorld({
 
   const nations = []
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
-  engine.info('--------随机挑选几个城市作为都城，并生成国家--------')
+  engine.info('随机挑选几个城市作为都城，并生成国家')
+  let capitals = Set()
   while (nations.length < nationNumber) {
     let availableLocations = game.locations.values.where((loc) => loc.category == 'city' && loc.organizationId == null).toList()
     assert(availableLocations.isNotEmpty)
@@ -417,13 +418,15 @@ function createSandboxWorld({
       headId: head.id,
     )
     nations.add(organization)
+
+    capitals.add(location)
     location.development += 1
 
     final siteKinds = Constants.siteKindsBuildable.toList()
     final organizationCategoryKind = Constants.organizationCategoryToSiteKind[organization.category]
     siteKinds.remove(organizationCategoryKind)
     Location(
-      id: organization.id + '_${organizationCategoryKind}',
+      id: location.name + '_${engine.locale(organizationCategoryKind)}',
       name: engine.locale(organizationCategoryKind),
       category: 'site',
       kind: organizationCategoryKind,
@@ -437,7 +440,7 @@ function createSandboxWorld({
     final secondaryClassSiteKind = random.nextIterable(organizationGenreKinds)
     siteKinds.remove(secondaryClassSiteKind)
     Location(
-      id: organization.id + '_${secondaryClassSiteKind}',
+      id: location.name + '_${engine.locale(secondaryClassSiteKind)}',
       name: engine.locale(secondaryClassSiteKind),
       category: 'site',
       kind: secondaryClassSiteKind,
@@ -446,26 +449,34 @@ function createSandboxWorld({
       development: random.nextInt(location.development + 1),
       npcId: 'servant',
     )
+  }
 
-    if (location.development >= 2) {
-      for (var i in range(2, location.development + 1)) {
-        final kind = random.nextIterable(siteKinds)
-        siteKinds.remove(kind)
-        Location(
-          id: organization.id + '_${kind}',
-          name: engine.locale(kind),
-          category: 'site',
-          kind: kind,
-          atLocation: location,
-          organizationId: organization.id,
-          development: random.nextInt(location.development + 1),
-          npcId: 'servant',
-        )
-      }
+  let nonCapitalCities = game.locations.values
+    .where((loc) => 
+      loc.category == 'city'
+      && !capitals.contains(loc)
+    )
+    .toList()
+  for (final city in nonCapitalCities) {
+    final organizationId = city.organizationId
+    final siteKinds = Constants.siteKindsBuildable.toList()
+    for (var i in range(city.development)) {
+      final kind = random.nextIterable(siteKinds)
+      siteKinds.remove(kind)
+      Location(
+        id: city.name + '_${engine.locale(kind)}',
+        name: engine.locale(kind),
+        category: 'site',
+        kind: kind,
+        atLocation: city,
+        organizationId: organizationId,
+        development: random.nextInt(city.development + 1),
+        npcId: 'servant',
+      )
     }
   }
 
-  engine.info('--------生成初始角色--------')
+  engine.info('生成初始角色')
   final cities = game.locations.values.where((location) =>
     location.category == 'city' && location.isHidden == false
   ).toList()
@@ -482,7 +493,7 @@ function createSandboxWorld({
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
   // 因为是模拟运行，每个tick接跳过一个月
-  engine.info('--------扩张门派的成员和领地--------')
+  engine.info('扩张门派的成员和领地')
   for (var i in range(5)) {
     // 国家和组织扩张
     for (const organization of game.organizations) {
@@ -530,7 +541,7 @@ function createSandboxWorld({
     }
   }
   
-  engine.info('--------处理婚姻和生育--------')
+  engine.info('处理婚姻和生育')
   for (var i in range(characterNumber ~/ 4)) {
     for (const char of game.characters) {
       if (!char.isFemale) continue
@@ -564,7 +575,7 @@ function createSandboxWorld({
   }
 
   // 生成地牢
-  engine.info('--------添加秘境--------')
+  engine.info('添加秘境')
   for (final city in cities) {
     final r = random.nextDouble()
     if (r > _kDungeonOnTerritoryProbability) continue
@@ -588,7 +599,7 @@ function createSandboxWorld({
     dungeionTile.locationId = location.id
   }
 
-  engine.info('--------为角色添加次要动机--------')
+  engine.info('为角色添加次要动机')
   for (const char of game.characters) {
     const age = getCharacterAge(char)
     if (char.motivations.isNotEmpty) continue

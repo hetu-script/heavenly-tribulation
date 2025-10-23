@@ -13,9 +13,10 @@
   "smith": "铁匠",
   "enchanter": "附魔师",
   "scrollCrafter": "制符师",
+  "pharmacist": "药师",
   "alchemist": "丹师",
   "bookdealer": "书商",
-  "arrayMaster": "阵法师",
+  "runemaster": "符文师",
 
   "dungeonGuard": "洞天守卫士兵",
   "dungeonElite": "洞天守卫精英",

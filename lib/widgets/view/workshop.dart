@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart';
@@ -20,6 +19,7 @@ import '../character/inventory/material.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/bordered_icon_button.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
+import '../ui/responsive_view.dart';
 
 class WorkbenchDialog extends StatefulWidget {
   const WorkbenchDialog({
@@ -149,8 +149,6 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 800.0,
       height: 500.0,
       child: Scaffold(

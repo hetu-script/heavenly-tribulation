@@ -58,6 +58,7 @@ async function onAfterEnterLocation(location) -> bool {
 
         Game.showPrebattle(
           dummy,
+          loseOnEscape: false,
           onBattleEnd: async function [onBattleEnd] (battleResult, roundCount) {
             if (!battleResult) return
 

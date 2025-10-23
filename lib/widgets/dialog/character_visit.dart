@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
@@ -133,8 +133,6 @@ class CharacterVisitDialog extends StatelessWidget {
     }));
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       margin: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
       child: Scaffold(
         appBar: AppBar(

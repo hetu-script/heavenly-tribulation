@@ -90,16 +90,17 @@ class MaterialList extends StatelessWidget {
             },
             child: Container(
               margin: const EdgeInsets.only(
-                  left: 2.0, right: 2.0, top: 1.0, bottom: 1.0),
+                left: 2.0,
+                right: 2.0,
+                top: 1.0,
+                bottom: 1.0,
+              ),
               padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 5.0),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(
-                    color: selectedItem == key
-                        ? GameUI.selectedColor
-                        : GameUI.foregroundColor),
+                borderRadius: GameUI.borderRadius,
+                border: GameUI.boxBorder,
                 color: selectedItem == key
-                    ? GameUI.focusColor
+                    ? GameUI.selectedColor
                     : Colors.transparent,
               ),
               child: Row(
@@ -112,9 +113,7 @@ class MaterialList extends StatelessWidget {
                   Text(
                     engine.locale(key),
                     style: TextStyle(
-                      color: selectedItem == key
-                          ? GameUI.selectedColor
-                          : Colors.white,
+                      color: Colors.white,
                     ),
                   ),
                   const Spacer(),
@@ -127,9 +126,7 @@ class MaterialList extends StatelessWidget {
                           ? (amount < requiredAmount
                               ? Colors.red
                               : Colors.white)
-                          : (selectedItem == key
-                              ? GameUI.selectedColor
-                              : Colors.white),
+                          : Colors.white,
                     ),
                   ),
                 ],
@@ -151,10 +148,7 @@ class MaterialList extends StatelessWidget {
           child: Container(
             height: height,
             width: width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5.0),
-              border: Border.all(color: GameUI.foregroundColor),
-            ),
+            decoration: GameUI.boxDecoration,
             child: widgets.isEmpty
                 ? EmptyPlaceholder(engine.locale('empty'))
                 : Column(children: widgets),

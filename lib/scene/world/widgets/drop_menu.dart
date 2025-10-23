@@ -8,11 +8,11 @@ import '../../../ui.dart';
 import '../../../engine.dart';
 import '../../../data/game.dart';
 import '../../game_dialog/game_dialog_content.dart';
-import '../../../widgets/load_game.dart';
+import '../../game/load_game.dart';
 import '../../../widgets/information.dart';
 import '../../../widgets/dialog/input_string.dart';
 import '../../common.dart';
-import 'create_blank_map.dart';
+import '../../game/create_blank_map.dart';
 import '../../../logic/logic.dart';
 import '../../../widgets/dialog/confirm.dart';
 import 'expand_world_dialog.dart';
@@ -43,11 +43,7 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(color: GameUI.foregroundColor),
-      ),
+      decoration: GameUI.boxDecoration,
       margin: const EdgeInsets.only(left: 5.0),
       width: GameUI.infoButtonSize.width,
       height: GameUI.infoButtonSize.height,
@@ -141,11 +137,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(color: GameUI.foregroundColor),
-      ),
+      decoration: GameUI.boxDecoration,
       margin: const EdgeInsets.only(left: 5.0),
       width: GameUI.infoButtonSize.width,
       height: GameUI.infoButtonSize.height,

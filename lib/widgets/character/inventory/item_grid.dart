@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:samsara/widgets/ui/rrect_icon.dart';
-import 'package:samsara/pointer_detector.dart';
+import 'package:samsara/widgets/pointer_detector.dart';
 
 import '../../../ui.dart';
 
@@ -79,11 +79,10 @@ class ItemGrid extends StatelessWidget {
             margin: margin,
             decoration: hasBorder
                 ? BoxDecoration(
-                    // color: GameUI.backgroundColor,
+                    borderRadius: GameUI.borderRadius,
                     border: Border.all(
-                      color: isSelected
-                          ? Colors.yellow
-                          : GameUI.foregroundColor.withAlpha(64),
+                      width: 2.0,
+                      color: isSelected ? Colors.yellow : Colors.transparent,
                     ),
                     image: DecorationImage(
                       fit: BoxFit.contain,
@@ -91,7 +90,6 @@ class ItemGrid extends StatelessWidget {
                           AssetImage('assets/images/item/grid_rank$rank.png'),
                       opacity: 1,
                     ),
-                    borderRadius: GameUI.borderRadius,
                   )
                 : null,
             child: Stack(

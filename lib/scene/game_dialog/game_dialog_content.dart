@@ -5,11 +5,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/richtext.dart';
 import 'package:provider/provider.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../widgets/avatar.dart';
-// import '../../engine.dart';
+import '../../widgets/ui/avatar.dart';
 import '../../widgets/character/profile.dart';
-// import '../../event/ui.dart';
 import '../../ui.dart';
 import '../../state/game_dialog.dart';
 
@@ -36,7 +35,7 @@ class GameDialogContent extends StatefulWidget {
     assert(resolved['id'] == null);
     return showDialog<dynamic>(
       context: context,
-      barrierColor: GameUI.barrierColor,
+      barrierColor: Colors.transparent,
       builder: (BuildContext context) {
         return GameDialogContent(
           data: resolved,
@@ -131,59 +130,68 @@ class _GameDialogContentState extends State<GameDialogContent> {
                   return Container(
                     width: 880,
                     height: 190,
-                    padding: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
-                      color: GameUI.backgroundColor,
-                      // borderRadius: GameUI.borderRadius,
-                      // border: Border.all(color: GameUI.foregroundColor),
+                      borderRadius: GameUI.borderRadius,
+                      border: GameUI.boxBorder,
                     ),
-                    child: Row(
+                    child: Stack(
                       children: [
-                        Avatar(
-                          margin: const EdgeInsets.only(left: 20.0),
-                          // cursor: SystemMouseCursors.click,
-                          // name: name,
-                          // nameAlignment: AvatarNameAlignment.top,
-                          image: currentAvatar != null
-                              ? AssetImage('assets/images/$currentAvatar')
-                              : null,
-                          size: const Size(140.0, 140.0),
-                          // characterData: characterData,
-                          onPressed: (id) {
-                            if (id != null) {
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    CharacterProfileView(characterId: id),
-                              );
-                            }
-                          },
-                        ),
-                        Container(
-                          width: 640,
-                          height: 190,
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10.0),
-                                child: Label(
-                                  name ?? '',
-                                  textStyle: TextStyle(fontSize: 20),
-                                  textAlign: TextAlign.left,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 5.0),
-                                child: RichText(
-                                  text: snapshot.data ?? const TextSpan(),
-                                ),
-                              ),
-                            ],
+                        Positioned.fill(
+                          child: fluent.Acrylic(
+                            luminosityAlpha: 0.4,
+                            blurAmount: 5.0,
                           ),
+                        ),
+                        Row(
+                          children: [
+                            Avatar(
+                              margin: const EdgeInsets.only(left: 20.0),
+                              // cursor: SystemMouseCursors.click,
+                              // name: name,
+                              // nameAlignment: AvatarNameAlignment.top,
+                              image: currentAvatar != null
+                                  ? AssetImage('assets/images/$currentAvatar')
+                                  : null,
+                              size: const Size(140.0, 140.0),
+                              // characterData: characterData,
+                              onPressed: (id) {
+                                if (id != null) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) =>
+                                        CharacterProfileView(characterId: id),
+                                  );
+                                }
+                              },
+                            ),
+                            Container(
+                              width: 640,
+                              height: 190,
+                              padding:
+                                  const EdgeInsets.only(left: 20.0, top: 10.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10.0),
+                                    child: Label(
+                                      name ?? '',
+                                      textStyle: TextStyle(fontSize: 20),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 5.0),
+                                    child: RichText(
+                                      text: snapshot.data ?? const TextSpan(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),

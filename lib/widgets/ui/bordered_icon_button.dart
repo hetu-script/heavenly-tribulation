@@ -62,16 +62,9 @@ class BorderedIconButton extends StatelessWidget {
             height: size.height,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: isSelected ? GameUI.focusColor : Colors.transparent,
+              color: isSelected ? GameUI.selectedColor : Colors.transparent,
               borderRadius: BorderRadius.circular(borderRadius),
-              border: borderWidth > 0
-                  ? Border.all(
-                      color: isSelected
-                          ? GameUI.selectedColor
-                          : GameUI.outlineColor,
-                      width: borderWidth,
-                    )
-                  : null,
+              border: borderWidth > 0 ? GameUI.boxBorder : null,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(borderRadius),

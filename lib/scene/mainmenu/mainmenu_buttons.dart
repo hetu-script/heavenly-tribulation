@@ -5,29 +5,25 @@ import 'package:window_manager/window_manager.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-// import 'package:samsara/console.dart';
 import 'package:samsara/extensions.dart';
 
 import '../../ui.dart';
-// import '../../game/logic/logic.dart';
 import '../../data/game.dart';
 import '../../engine.dart';
-import '../../widgets/load_game.dart';
-import 'create_sandbox_game.dart';
-import '../world/widgets/create_blank_map.dart';
+import '../game/load_game.dart';
+import '../game/create_sandbox_game.dart';
+import '../game/create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
-import '../../widgets/character/details.dart';
 import '../../data/common.dart';
-// import '../../widgets/ui/close_button2.dart';
 
 enum DebugMenuItems {
   debugConsole,
   debugResetHero,
+  debugMoney,
   debugItem,
   debugMerchant,
-  debugMaterialMerchant,
   debugWorkbench,
   debugAlchemy,
   debugMeeting,
@@ -372,11 +368,7 @@ class _DebugButtonState extends State<DebugButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(color: GameUI.foregroundColor),
-      ),
+      decoration: GameUI.boxDecoration,
       width: GameUI.infoButtonSize.width,
       height: GameUI.infoButtonSize.height,
       child: fluent.FlyoutTarget(
@@ -389,13 +381,12 @@ class _DebugButtonState extends State<DebugButton> {
             showFluentMenu(
               controller: menuController,
               items: {
-                // engine.locale('console'): DebugMenuItems.debugConsole,
+                engine.locale('console'): DebugMenuItems.debugConsole,
                 engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
+                engine.locale('debugMoney'): DebugMenuItems.debugMoney,
                 engine.locale('debugItem'): DebugMenuItems.debugItem,
                 '___1': null,
                 engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
-                engine.locale('debugMaterialMerchant'):
-                    DebugMenuItems.debugMaterialMerchant,
                 engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
                 engine.locale('debugAlchemy'): DebugMenuItems.debugAlchemy,
                 '___2': null,
@@ -413,6 +404,23 @@ class _DebugButtonState extends State<DebugButton> {
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
                       triggerOnStart: true,
+                    );
+                  case DebugMenuItems.debugMoney:
+                    engine.hetu.invoke(
+                      'collect',
+                      namespace: 'Player',
+                      positionalArgs: [
+                        'money',
+                        1000000,
+                      ],
+                    );
+                    engine.hetu.invoke(
+                      'collect',
+                      namespace: 'Player',
+                      positionalArgs: [
+                        'money',
+                        1000000,
+                      ],
                     );
                   case DebugMenuItems.debugItem:
                     engine.hetu.invoke('testItem', namespace: 'Debug');
@@ -435,31 +443,10 @@ class _DebugButtonState extends State<DebugButton> {
                           merchant,
                           useShard: true,
                           priceFactor: <String, dynamic>{
-                            'base': 1.2,
+                            // 'base': 1.2,
                           },
                           merchantType: MerchantType.character,
                         );
-                  case DebugMenuItems.debugMaterialMerchant:
-                    final merchant =
-                        engine.hetu.invoke('BattleEntity', namedArgs: {
-                      'rank': 2,
-                      'level': 10,
-                    });
-                    engine.hetu.invoke('entityCollect',
-                        positionalArgs: [merchant, 'money', 50000]);
-                    engine.hetu.invoke('entityCollect',
-                        positionalArgs: [merchant, 'shard', 500]);
-                    for (final materialId in kOtherMaterials) {
-                      engine.hetu.invoke('entityCollect',
-                          positionalArgs: [merchant, materialId, 500]);
-                    }
-                    context.read<MerchantState>().show(
-                      merchant,
-                      materialMode: true,
-                      priceFactor: <String, dynamic>{
-                        'base': 1.2,
-                      },
-                    );
                   case DebugMenuItems.debugWorkbench:
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);
                   case DebugMenuItems.debugAlchemy:

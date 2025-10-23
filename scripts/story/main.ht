@@ -24,7 +24,7 @@ const meta = {
 
 // 每次启动游戏都会执行
 function main() {
-  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 载入...')
+  engine.info('游戏脚本模块 [${meta.id}(ver-${meta.version})] 载入...')
 
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
@@ -53,7 +53,7 @@ function main() {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
-  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
+  engine.info('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
   addModMetaData(meta)
   addItemsData(items)

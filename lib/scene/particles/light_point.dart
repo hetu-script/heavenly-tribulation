@@ -29,7 +29,10 @@ class LightPoint extends BorderComponent with HandlesGesture {
 
   dynamic value;
 
+  String assetId;
+
   LightPoint({
+    required this.assetId,
     super.isVisible,
     super.position,
     super.opacity,
@@ -63,7 +66,7 @@ class LightPoint extends BorderComponent with HandlesGesture {
 
   @override
   void onLoad() async {
-    sprite = Sprite(await Flame.images.load('light_point.png'));
+    sprite = Sprite(await Flame.images.load(assetId));
     if (preferredSize.isZero()) {
       size = preferredSize = sprite.srcSize;
     }

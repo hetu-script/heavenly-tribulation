@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class EditRankLevelSliderDialog extends StatefulWidget {
   static Future<(int, int)?> show({
@@ -66,83 +65,79 @@ class _EditRankLevelSliderDialogState extends State<EditRankLevelSliderDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
-      child: SizedBox(
-        width: 400,
-        height: 250,
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Text(engine.locale('setRankLevel')),
-            actions: const [CloseButton2()],
-          ),
-          body: Container(
-            alignment: AlignmentDirectional.center,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 120.0,
-                        child: Text(engine.locale('cultivationLevel')),
-                      ),
-                      Slider(
-                        value: _level.toDouble(),
-                        min: _minLevel.toDouble(),
-                        max: _maxLevel.toDouble(),
-                        onChanged: (double value) {
-                          setState(() {
-                            setLevel(level: value.toInt());
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        child: Text(_level.toString()),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0, left: 20.0),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 120.0,
-                        child: Text(engine.locale('cultivationRank')),
-                      ),
-                      Slider(
-                        value: _rank.toDouble(),
-                        min: 0.0,
-                        max: kCultivationRankMax.toDouble(),
-                        onChanged: (double value) {
-                          setState(() {
-                            setLevel(rank: value.toInt());
-                          });
-                        },
-                      ),
-                      SizedBox(
-                        child: Text(engine.locale('cultivationRank_$_rank')),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: fluent.FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).pop((_rank, _level));
-                    },
-                    child: Text(
-                      engine.locale('confirm'),
+      width: 400,
+      height: 250,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(engine.locale('setRankLevel')),
+          actions: const [CloseButton2()],
+        ),
+        body: Container(
+          alignment: AlignmentDirectional.center,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 120.0,
+                      child: Text(engine.locale('cultivationLevel')),
                     ),
+                    Slider(
+                      value: _level.toDouble(),
+                      min: _minLevel.toDouble(),
+                      max: _maxLevel.toDouble(),
+                      onChanged: (double value) {
+                        setState(() {
+                          setLevel(level: value.toInt());
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      child: Text(_level.toString()),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, left: 20.0),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 120.0,
+                      child: Text(engine.locale('cultivationRank')),
+                    ),
+                    Slider(
+                      value: _rank.toDouble(),
+                      min: 0.0,
+                      max: kCultivationRankMax.toDouble(),
+                      onChanged: (double value) {
+                        setState(() {
+                          setLevel(rank: value.toInt());
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      child: Text(engine.locale('cultivationRank_$_rank')),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: fluent.FilledButton(
+                  onPressed: () {
+                    Navigator.of(context).pop((_rank, _level));
+                  },
+                  child: Text(
+                    engine.locale('confirm'),
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         ),
       ),

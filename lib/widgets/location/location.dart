@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -14,6 +13,7 @@ import '../entity_table.dart';
 import '../character/profile.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 enum NpcOperation {
   create,
@@ -355,13 +355,7 @@ class _LocationViewState extends State<LocationView>
                       width: 970,
                       height: 140,
                       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: GameUI.outlineColor,
-                          width: 0.5,
-                        ),
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
+                      decoration: GameUI.boxDecoration,
                       child: ListView(
                         scrollDirection: Axis.horizontal,
                         children: [
@@ -550,9 +544,6 @@ class _LocationViewState extends State<LocationView>
     );
 
     return ResponsiveView(
-      cursor: GameUI.cursor,
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 1000.0,
       height: 600.0,
       // height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,

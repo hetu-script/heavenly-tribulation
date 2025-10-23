@@ -647,7 +647,7 @@ const kSitePriority = {
 
 /// 非门派成员打工时的可用月份
 final kSiteWorkableMounths = {
-  'farmland': [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1],
+  'farmland': [1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   'fishery': [2, 3, 4, 5, 6, 7, 8, 9, 10],
   'huntingground': [1, 2, 3, 9, 10, 11, 12],
   'timberland': [4, 5, 6, 7, 8],
@@ -674,11 +674,11 @@ final kSiteRentMoneyCostByDay = {
   'militarypost': null,
   'auctionhouse': null,
   'hotel': 1000,
-  'farmland': 250,
-  'timberland': 500,
-  'fishery': 350,
-  'huntingground': 1000,
-  'mine': 1500,
+  'farmland': 150,
+  'timberland': 350,
+  'fishery': 200,
+  'huntingground': 550,
+  'mine': 850,
   'workshop': 2500,
   'enchantshop': 2500,
   'alchemylab': 1500,
@@ -803,11 +803,14 @@ const kUnknownItemBasePrice = 100;
 
 /// 物品的基础价格
 final kItemBasePriceByCategory = {
-  'cardpack': 8500,
-  'craftmaterial': 20000,
-  'dungeon_ticket': 40000,
-  'scroll_paper': 4500,
-  'identify_scroll': 2500,
+  'craftmaterial_addAffix': 3500,
+  'craftmaterial_replaceAffix': 7500,
+  'craftmaterial_rerollAffix': 10000,
+  'craftmaterial_upgrade': 35000,
+  'dungeon_ticket': 20000,
+  'cardpack': 7000,
+  'scroll_paper': 3500,
+  'identify_scroll': 750,
   'weapon': 200,
   'shield': 100,
   'armor': 100,
@@ -827,8 +830,7 @@ const kItemWithAffixCategories = [
   'gloves',
   'helmet',
   'boots',
-  'ship',
-  'aircraft',
+  'vehicle',
   'jewelry',
   'talisman',
   'potion',
@@ -848,7 +850,7 @@ const kAttributeValueMax = 100.0;
 const kAttributeValueAverage = 50.0;
 const kAttributeValueDeviation = 25.0;
 
-const kBaseExpGainPerLight = 10;
+const kBaseExpGainPerLight = 40;
 const kBaseExpCollectSpeed = 1.0;
 const kBaseMoveSpeedOnPlain = 2.0;
 const kBaseMoveSpeedOnMountain = 1.0;
@@ -1304,7 +1306,6 @@ const kItemModificationOperations = {
 
 const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
-const kItemCategoryScroll = 'scroll';
 const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
@@ -1312,7 +1313,6 @@ const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
 const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryPotion = 'potion';
-const kItemCategoryCraftMaterial = 'craftmaterial';
 
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位

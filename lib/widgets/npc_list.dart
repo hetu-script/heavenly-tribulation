@@ -3,7 +3,7 @@ import 'package:heavenly_tribulation/engine.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/ink_button.dart';
 
-import 'avatar.dart';
+import 'ui/avatar.dart';
 import '../state/game_update.dart';
 import '../ui.dart';
 import '../data/game.dart';

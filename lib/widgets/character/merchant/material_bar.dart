@@ -53,6 +53,9 @@ class CurrencyBar extends StatelessWidget {
           priceFactorDescription.writeln(
               '${engine.locale(key)}: <color=#22FF22>${engine.locale('cheapLarge')} ${engine.config.debugMode ? '×$value' : ''}</>');
         }
+      } else {
+        priceFactorDescription.writeln(
+            '${engine.locale(key)}: ${engine.locale('normal')} ${engine.config.debugMode ? '×$value' : ''}');
       }
     }
 

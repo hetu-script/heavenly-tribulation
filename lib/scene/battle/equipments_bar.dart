@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/components.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/samsara.dart';
+import 'package:samsara/components/ui/sprite_button.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
@@ -49,7 +50,8 @@ class EquipmentsBar extends GameComponent {
   FutureOr<void> onLoad() {
     super.onLoad();
 
-    cultivationDescription = GameData.getPassivesDescription(character);
+    cultivationDescription =
+        GameData.getPassivesDescription(character: character);
 
     final equipments = character['equipments'];
 

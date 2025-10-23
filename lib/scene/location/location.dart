@@ -84,7 +84,7 @@ class LocationScene extends Scene {
           final restCard = GameData.createSiteCard(
               spriteId: 'location/card/bed.png', title: engine.locale('rest'));
           restCard.onTap = (button, position) {
-            GameLogic.heroRest();
+            GameLogic.heroRest(location);
           };
           siteList.cards.add(restCard);
           world.add(restCard);
@@ -130,6 +130,22 @@ class LocationScene extends Scene {
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);
+      case 'hotel':
+        final restCard = GameData.createSiteCard(
+            spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+        restCard.onTap = (button, position) {
+          GameLogic.heroRest(location);
+        };
+        siteList.cards.add(restCard);
+        world.add(restCard);
+      case 'cityhall':
+        final restCard = GameData.createSiteCard(
+            spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+        restCard.onTap = (button, position) {
+          GameLogic.heroRest(location);
+        };
+        siteList.cards.add(restCard);
+        world.add(restCard);
       default:
         for (final siteId in location['sites']) {
           final siteData = GameData.getLocation(siteId);
@@ -262,7 +278,7 @@ class LocationScene extends Scene {
 
     await onEnterScene?.call();
 
-    engine.debug('玩家进入了 ${location['name']}');
+    engine.info('玩家进入了 ${location['name']}');
     await GameLogic.onAfterEnterLocation(location);
   }
 

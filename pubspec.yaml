@@ -49,7 +49,6 @@ dependencies:
   dropdown_button2: ^2.3.9
   flutter_custom_cursor: ^0.0.4
   flutter_markdown_plus: ^1.0.5
-  animated_tree_view: ^2.3.0
   display_metrics: ^2.2.1
 
 dev_dependencies:

@@ -236,5 +236,5 @@ function correctTerrainIndexAndPosition() {
     let tilePosition = index2TilePosition(i, world.width)
     Object.assign(terrain, Tile(tilePosition.left, tilePosition.top, index: i))
   }
-  engine.debug('corrected terrain indexes and tile position!')
+  engine.info('已修正地形索引和瓷砖位置！')
 }

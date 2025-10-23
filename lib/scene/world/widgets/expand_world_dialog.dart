@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-// import 'package:samsara/widgets/ui/ink_button.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:samsara/widgets/ui/integer_input_field.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../engine.dart';
-import '../../../ui.dart';
 import '../../../widgets/ui/close_button2.dart';
+import '../../../widgets/ui/responsive_view.dart';
 
 const kDirections = {
   'topLeft',
@@ -56,10 +54,8 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
       width: 250.0,
       height: 200.0,
-      alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -98,140 +94,6 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
                   ),
                 ],
               ),
-              // Container(
-              //   width: 89,
-              //   height: 89,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(5.0),
-              //   ),
-              //   child: Wrap(
-              //     children: [
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'topLeft',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'topLeft';
-              //             });
-              //           },
-              //           child: const Icon(Icons.north_west),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isSelected: direction == 'topCenter',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'topCenter';
-              //             });
-              //           },
-              //           child: const Icon(Icons.north),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'topRight',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'topRight';
-              //             });
-              //           },
-              //           child: const Icon(Icons.north_east),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'centerLeft',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'centerLeft';
-              //             });
-              //           },
-              //           child: const Icon(Icons.west),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isSelected: direction == 'center',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'center';
-              //             });
-              //           },
-              //           child: const Icon(Icons.radio_button_unchecked),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'centerRight',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'centerRight';
-              //             });
-              //           },
-              //           child: const Icon(Icons.east),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'bottomLeft',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'bottomLeft';
-              //             });
-              //           },
-              //           child: const Icon(Icons.south_west),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isEnabled: false,
-              //           isSelected: direction == 'bottomCenter',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'bottomCenter';
-              //             });
-              //           },
-              //           child: const Icon(Icons.south),
-              //         ),
-              //       ),
-              //       Padding(
-              //         padding: const EdgeInsets.all(2.0),
-              //         child: InkButton(
-              //           isSelected: direction == 'bottomRight',
-              //           size: const Size(25, 25),
-              //           onPressed: () {
-              //             setState(() {
-              //               direction = 'bottomRight';
-              //             });
-              //           },
-              //           child: const Icon(Icons.south_east),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: fluent.FilledButton(

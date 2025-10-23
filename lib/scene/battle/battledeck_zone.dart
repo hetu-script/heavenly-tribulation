@@ -1,7 +1,7 @@
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/gestures.dart';
-import 'package:samsara/paint/paint.dart';
+import 'package:samsara/samsara.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';

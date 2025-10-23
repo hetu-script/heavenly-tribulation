@@ -27,6 +27,7 @@ import '../particles/light_trail.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
+import '../cursor_state.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -66,7 +67,7 @@ enum CultivationMode {
   none,
 }
 
-class CultivationScene extends Scene {
+class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
     required super.context,
     this.isEditorMode = false,
@@ -99,9 +100,9 @@ class CultivationScene extends Scene {
   int get collectableLight {
     switch (mode) {
       case CultivationMode.collect:
-        return location['collectableLight'];
+        return location['collectableLight'] ?? 0;
       case CultivationMode.exhaust:
-        return GameData.hero['materials']['shard'];
+        return GameData.hero['materials']['shard'] ?? 0;
       case CultivationMode.none:
         return 0;
     }
@@ -138,17 +139,6 @@ class CultivationScene extends Scene {
   final _focusNode = FocusNode();
 
   late final Timer timer;
-
-  set cursorState(MouseCursorState cursorState) {
-    switch (cursorState) {
-      case MouseCursorState.normal:
-        mouseCursor = GameUI.cursor.resolve({});
-      case MouseCursorState.click:
-        mouseCursor = GameUI.cursor.resolve({WidgetState.hovered});
-      case MouseCursorState.drag:
-        mouseCursor = GameUI.cursor.resolve({WidgetState.dragged});
-    }
-  }
 
   bool isMeditating = false;
 
@@ -318,6 +308,9 @@ class CultivationScene extends Scene {
           generateRandomPointOnCircle(cultivator.center, 640, exponent: 0.2);
     } while (cultivator.containsPoint(randomPosition));
     final lightPoint = LightPoint(
+      assetId: mode == CultivationMode.collect
+          ? 'light_point2.png'
+          : 'light_point.png',
       position: randomPosition,
       flickerRate: 8,
       condensedPosition: GameUI.condensedPosition,
@@ -608,7 +601,8 @@ class CultivationScene extends Scene {
   }
 
   void updatePassivesDescription() {
-    _cultivatorDescription = GameData.getPassivesDescription(character);
+    _cultivatorDescription =
+        GameData.getPassivesDescription(character: character);
 
     engine.hetu.invoke('calculateStats', namespace: 'Player');
   }
@@ -698,7 +692,9 @@ class CultivationScene extends Scene {
     cultivator.onTapUp = (button, position) async {
       if (isEditorMode) return;
       if (isMeditating) return;
-      setPassiveTreeState(!_showPassiveTree);
+      if (button == kPrimaryButton) {
+        setPassiveTreeState(!_showPassiveTree);
+      }
     };
     cultivator.onMouseEnter = () {
       String description;
@@ -769,8 +765,10 @@ class CultivationScene extends Scene {
     cultivateButton.onTapUp = (button, position) async {
       if (!cultivateButton.isEnabled) return;
       if (button != kPrimaryButton) return;
-      setMeditateState(isMeditating ? CultivationMode.none : mode);
-      setPassiveTreeState(false);
+      if (button == kPrimaryButton) {
+        setMeditateState(isMeditating ? CultivationMode.none : mode);
+        setPassiveTreeState(false);
+      }
     };
     cultivateButton.onMouseEnter = () {
       String hint = engine.locale('hint_cultivate');
@@ -797,11 +795,9 @@ class CultivationScene extends Scene {
     );
     levelUpButton.onTapUp = (button, position) async {
       if (!levelUpButton.isEnabled) return;
-      if (button != kPrimaryButton) return;
-      tryLevelUp();
-      // levelUpButton.enableGesture = false;
-      // await condenseAll();
-      // levelUpButton.enableGesture = true;
+      if (button == kPrimaryButton) {
+        tryLevelUp();
+      }
     };
     camera.viewport.add(levelUpButton);
 
@@ -1011,6 +1007,9 @@ class CultivationScene extends Scene {
 
     camera.snapTo(center);
 
+    cursorState = MouseCursorState.normal;
+    Hovertip.hideAll();
+
     checkAvailableMode();
 
     updateUnlockedNode();
@@ -1122,6 +1121,7 @@ class CultivationScene extends Scene {
 
     if (button == kSecondaryButton) {
       cursorState = MouseCursorState.drag;
+      Hovertip.hideAll();
     }
   }
 
@@ -1149,7 +1149,7 @@ class CultivationScene extends Scene {
 
     _focusNode.requestFocus();
 
-    engine.setCursor(Cursors.normal);
+    cursorState = MouseCursorState.normal;
   }
 
   @override
@@ -1211,7 +1211,7 @@ class CultivationScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.debug('keydown: ${event.logicalKey.debugName}');
+          engine.warn('keydown: ${event.logicalKey.debugName}');
           if (event.logicalKey == LogicalKeyboardKey.space) {
             camera.zoom = 1.0;
             camera.snapTo(center);
@@ -1232,18 +1232,15 @@ class CultivationScene extends Scene {
             enableCultivation: false,
             actions: [
               Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(5.0),
-                  border: Border.all(color: GameUI.foregroundColor),
-                ),
+                decoration: GameUI.boxDecoration,
+                width: GameUI.infoButtonSize.width,
+                height: GameUI.infoButtonSize.height,
                 child: IconButton(
                   padding: const EdgeInsets.all(0),
                   onPressed: () {
                     GameDialogContent.show(
                       context,
                       engine.locale('hint_cultivation'),
-                      style: TextStyle(color: Colors.yellow),
                     );
                   },
                   icon: Icon(Icons.question_mark),

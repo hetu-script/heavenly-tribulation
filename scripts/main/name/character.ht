@@ -2,7 +2,6 @@ import 'character/family.json5' as surNames
 import 'character/female.json5' as femaleNames
 import 'character/male.json5' as maleNames
 import 'character/middle.json5' as middleNames
-import '../random.ht'
 
 function generateCharacterName({isFemale, surName, middleName}) {
   surName ??= random.nextIterable(surNames)

@@ -13,7 +13,8 @@
 灵光转化效率计算公式：
 
 ```dart
-const kBaseExpGainPerLight = 10
+const kBaseExpGainPerLight = 40
+character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * kBaseExpGainPerLight
 character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
 ```
 

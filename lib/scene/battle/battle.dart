@@ -10,6 +10,7 @@ import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/components/ui/hovertip.dart';
 
 import '../../ui.dart';
 import '../../logic/logic.dart';
@@ -253,6 +254,14 @@ class BattleScene extends Scene {
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+
+    // cursorState = MouseCursorState.normal;
+    Hovertip.hideAll();
   }
 
   @override
@@ -647,6 +656,8 @@ class BattleScene extends Scene {
   }
 
   void _endScene() async {
+    engine.hetu
+        .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
     context.read<EnemyState>().clear();
     engine.hetu.assign('enemy', null);
     engine.hetu.assign('self', null);
@@ -675,8 +686,8 @@ class BattleScene extends Scene {
 
     final heroName = '${hero.data['name']}(hero)';
     final enemyName = '${enemy.data['name']}(enemy)';
-    engine.debug(
-        'Battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
+    engine.info(
+        '$heroName和$enemyName结束了战斗。${battleResult! ? heroName : enemyName}获胜！');
 
     battleEnded = true;
 
@@ -717,7 +728,7 @@ class BattleScene extends Scene {
     final int life = hero.life;
     if (battleResult == true) {
       final replenish = (hero.lifeMax * hpRestoreRate).round();
-      engine.debug('战斗结果：[$battleResult], 角色生命恢复：$replenish');
+      engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
       final int newLife = life + replenish;
       hero.setLife(newLife);
     } else {
@@ -727,8 +738,6 @@ class BattleScene extends Scene {
         hero.setLife(hero.lifeMax);
       }
     }
-    engine.hetu
-        .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
   }
 
   Future<void> startAutoBattle() async {
@@ -761,7 +770,7 @@ class BattleScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.debug('keydown: ${event.logicalKey.debugName}');
+          engine.warn('keydown: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.controlLeft:
             case LogicalKeyboardKey.controlRight:

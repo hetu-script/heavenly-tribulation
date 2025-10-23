@@ -19,8 +19,6 @@ struct Npc {
 
     if (game.npcs.containsKey(this.id)) {
       engine.warn('NPC 已存在，id: ${this.id}，将会被覆盖')
-    } else {
-      engine.debug('创建 NPC: ${this.name}')
     }
     
     game.npcs[this.id] = this

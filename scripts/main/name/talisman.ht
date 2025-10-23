@@ -1,7 +1,5 @@
 import 'talisman/talisman.json5' as talismanNames
 import 'talisman/postfix.json5' as talismanPostfix
-import 'common.ht'
-import '../random.ht'
 
 function generateTalismanName({kind, isRare = false}) {
   kind ??= random.nextIterable(talismanNames.keys)

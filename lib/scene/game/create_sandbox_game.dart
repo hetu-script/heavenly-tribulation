@@ -8,14 +8,13 @@ import 'package:samsara/extensions.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:fast_noise/fast_noise.dart';
 import 'package:hetu_script/utils/crc32b.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../data/common.dart';
-import '../../scene/game_dialog/game_dialog_content.dart';
+import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/ui/close_button2.dart';
+import '../../widgets/ui/responsive_view.dart';
 
 int _floatToInt8(double x) {
   // return (x * 255.0).round() & 0xff;
@@ -189,8 +188,6 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      cursor: GameUI.cursor,
       width: 1000.0,
       height: 600.0,
       child: Scaffold(

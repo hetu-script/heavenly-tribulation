@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../ui/bordered_icon_button.dart';
-import '../avatar.dart';
+import '../ui/avatar.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
@@ -22,6 +21,7 @@ import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../ui/close_button2.dart';
 import '../../data/common.dart';
+import '../ui/responsive_view.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
@@ -29,7 +29,7 @@ class PreBattleDialog extends StatefulWidget {
     super.key,
     required this.hero,
     required this.enemy,
-    // this.prebattlePreventClose = false,
+    this.loseOnEscape = false,
     this.onBattleStart,
     this.onBattleEnd,
     this.ignoreRequirement = false,
@@ -37,11 +37,8 @@ class PreBattleDialog extends StatefulWidget {
   });
 
   final dynamic hero, enemy;
-
   final String? background;
-
-  // final bool prebattlePreventClose;
-
+  final bool loseOnEscape;
   final void Function()? onBattleStart;
   final FutureOr<void> Function(bool, int)? onBattleEnd;
   final bool ignoreRequirement;
@@ -165,8 +162,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     // final buttonKey = GlobalKey();
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 1080.0,
       height: 640.0,
       child: Scaffold(
@@ -180,7 +175,9 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
             CloseButton2(
               onPressed: () async {
                 context.read<EnemyState>().clear();
-                widget.onBattleEnd?.call(false, 0);
+                if (widget.loseOnEscape) {
+                  widget.onBattleEnd?.call(false, 0);
+                }
               },
             )
           ],
@@ -326,10 +323,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                   ),
                   Container(
                     margin: const EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 2.0),
-                      borderRadius: GameUI.borderRadius,
-                    ),
+                    decoration: GameUI.boxDecoration,
                     height: 435.0,
                     width: 270.0,
                     child: _heroDeck.isNotEmpty
@@ -512,10 +506,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                   ),
                   Container(
                     margin: const EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 2.0),
-                      borderRadius: GameUI.borderRadius,
-                    ),
+                    decoration: GameUI.boxDecoration,
                     height: 435.0,
                     width: 270.0,
                     child: _enemyDeck.isNotEmpty

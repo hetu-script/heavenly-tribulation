@@ -317,11 +317,11 @@ struct StatusScript {
   function energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange += effect.amount
+    details.baseChange += effect.amount * 5
   }
 
   function energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
-    details.baseChange += effect.amount
+    details.baseChange += effect.amount * 5
   }
 
   function energy_positive_weapon_self_overflowed_energy(self, opponent, effect, details) {
@@ -337,19 +337,19 @@ struct StatusScript {
   function energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange += effect.amount
+    details.baseChange += effect.amount * 5
   }
 
   function energy_positive_unarmed_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange += effect.amount
+    details.baseChange += effect.amount * 5
   }
 
   function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange += effect.amount
+    details.baseChange += effect.amount * 5
   }
 
   function energy_negative_life_self_turn_start(self, opponent, effect, details) {
@@ -378,27 +378,31 @@ struct StatusScript {
     }
   }
 
+  function energy_negative_ultimate_self_doing_damage(self, opponent, effect, details) {
+    details.baseChange -= effect.amount * 5
+  }
+
   function energy_negative_spell_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange -= effect.amount
+    details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_weapon_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange -= effect.amount
+    details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_unarmed_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange -= effect.amount
+    details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
     if (details.attackType != effect.attackType) return
 
-    details.baseChange -= effect.amount
+    details.baseChange -= effect.amount * 5
   }
 }

@@ -135,7 +135,7 @@ struct CardScriptMain {
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('energy_positive_life', amount: affix.value[0])
   }
-  /// 消耗资源恢复生命
+  /// 消耗资源恢复生命，可以超过上限
   async function heal_exhaust(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
     await characterAnimate(self, affix.animation)

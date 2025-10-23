@@ -11,12 +11,6 @@ const kSiteCardPriority = 500;
 
 const kMouseCursorEffectPriority = 99999999;
 
-enum MouseCursorState {
-  normal,
-  click,
-  drag,
-}
-
 final class Scenes {
   static const mainmenu = 'mainmenu';
   static const library = 'library';

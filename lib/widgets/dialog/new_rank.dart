@@ -2,15 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/state/new_prompt.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 
-import '../../ui.dart';
 import '../../engine.dart';
 import '../ui/bordered_icon_button.dart';
 import '../../state/hover_content.dart';
 import '../../data/common.dart';
+import '../ui/responsive_view.dart';
 
 class NewRank extends StatefulWidget {
   const NewRank({
@@ -29,54 +28,46 @@ class NewRank extends StatefulWidget {
 class _NewRankState extends State<NewRank> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
-
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      width: screenSize.width,
-      height: screenSize.height,
-      child: Align(
-        alignment: Alignment.center,
-        child: SizedBox(
-          width: 800.0,
-          height: 450.0,
-          child: Column(
-            children: [
-              Image(image: AssetImage('assets/images/rank_up.png')),
-              BorderedIconButton(
-                borderWidth: 0.0,
-                size: Size(125.0, 125),
-                child: Image(
-                  image: AssetImage(
-                      'assets/images/cultivation/cultivation${widget.rank}.png'),
-                ),
-                onEnter: (rect) {
-                  context.read<HoverContentState>().show(
-                        engine.locale('cultivationRank_${widget.rank}'),
-                        rect,
-                        direction: HoverContentDirection.topCenter,
-                      );
-                },
-                onExit: () {
-                  context.read<HoverContentState>().hide();
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: fluent.FilledButton(
-                  onPressed: () {
-                    widget.completer?.complete();
-                    context.read<RankPromptState>().update();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    engine.locale('ok'),
-                  ),
-                ),
-              ),
-            ],
+      barrierColor: null,
+      borderWidth: 0.0,
+      width: 800.0,
+      height: 450.0,
+      child: Column(
+        children: [
+          Image(image: AssetImage('assets/images/rank_up.png')),
+          BorderedIconButton(
+            borderWidth: 0.0,
+            size: Size(125.0, 125),
+            child: Image(
+              image: AssetImage(
+                  'assets/images/cultivation/cultivation${widget.rank}.png'),
+            ),
+            onEnter: (rect) {
+              context.read<HoverContentState>().show(
+                    engine.locale('cultivationRank_${widget.rank}'),
+                    rect,
+                    direction: HoverContentDirection.topCenter,
+                  );
+            },
+            onExit: () {
+              context.read<HoverContentState>().hide();
+            },
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: fluent.FilledButton(
+              onPressed: () {
+                widget.completer?.complete();
+                context.read<RankPromptState>().update();
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                engine.locale('ok'),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/label.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../avatar.dart';
+import '../ui/avatar.dart';
 import '../common.dart';
 import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
 import '../ui/int_editor_field.dart';
 import '../../data/common.dart';
-import '../../ui.dart';
 import '../../data/game.dart';
 import 'edit_character_flags.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
@@ -679,8 +678,6 @@ class CharacterProfileView extends StatelessWidget {
       }
     }
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 800.0,
       height: h,
       child: Scaffold(

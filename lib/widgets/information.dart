@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import 'character/memory.dart';
 import '../engine.dart';
@@ -9,10 +8,10 @@ import 'organization/organization.dart';
 import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/details.dart';
-import '../ui.dart';
 import '../data/game.dart';
 import 'ui/close_button2.dart';
 import 'common.dart';
+import '../widgets/ui/responsive_view.dart';
 
 enum InformationMode {
   all,
@@ -290,7 +289,6 @@ class _InformationViewState extends State<InformationView>
     );
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.bottomCenter,
       child: widget.mode == InformationMode.all
           ? DefaultTabController(

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/preferred_size_widget.dart';
-import 'package:samsara/pointer_detector.dart';
+import 'package:samsara/widgets/pointer_detector.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
 import 'close_button2.dart';
+// import 'acrylic.dart';
 
 class DraggablePanel extends StatelessWidget {
   final Offset position;
@@ -41,43 +43,49 @@ class DraggablePanel extends StatelessWidget {
       child: Material(
         type: MaterialType.transparency,
         child: Container(
-          decoration: BoxDecoration(
-            color: GameUI.backgroundColor,
-            // borderRadius: GameUI.borderRadius,
-            // border: Border.all(color: Theme.of(context).colorScheme.onSurface),
-          ),
+          decoration: GameUI.boxDecoration,
           width: width,
           height: height,
-          child: Scaffold(
-            appBar: CustomPreferredSizeWidget(
-              preferredSize: Size.fromHeight(titleHeight),
-              bottom: titleBottomBar,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PointerDetector(
-                      onTapDown: (pointer, button, details) {
-                        onTapDown?.call(details.globalPosition - position);
-                      },
-                      onDragUpdate: (pointer, button, details) {
-                        onDragUpdate?.call(details);
-                      },
-                      child: Text(
-                        title ?? '',
-                        textAlign: TextAlign.center,
-                        style: GameUI.captionStyle,
-                      ),
-                    ),
-                  ),
-                  CloseButton2(
-                    onPressed: () {
-                      onClose?.call();
-                    },
-                  ),
-                ],
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: fluent.Acrylic(
+                  luminosityAlpha: 0.4,
+                  blurAmount: 5.0,
+                ),
               ),
-            ),
-            body: child,
+              Scaffold(
+                appBar: CustomPreferredSizeWidget(
+                  preferredSize: Size.fromHeight(titleHeight),
+                  bottom: titleBottomBar,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: PointerDetector(
+                          onTapDown: (pointer, button, details) {
+                            onTapDown?.call(details.globalPosition - position);
+                          },
+                          onDragUpdate: (pointer, button, details) {
+                            onDragUpdate?.call(details);
+                          },
+                          child: Text(
+                            title ?? '',
+                            textAlign: TextAlign.center,
+                            style: TextStyles.titleSmall,
+                          ),
+                        ),
+                      ),
+                      CloseButton2(
+                        onPressed: () {
+                          onClose?.call();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                body: child,
+              ),
+            ],
           ),
         ),
       ),

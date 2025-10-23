@@ -30,6 +30,7 @@ class EnemyState with ChangeNotifier {
   void Function()? onBattleStart;
   FutureOr<void> Function(bool, int)? onBattleEnd;
   String? background;
+  bool loseOnEscape = false;
 
   void show(
     dynamic data, {
@@ -37,14 +38,15 @@ class EnemyState with ChangeNotifier {
     void Function()? onBattleStart,
     FutureOr<void> Function(bool, int)? onBattleEnd,
     String? background,
+    bool loseOnEscape = false,
   }) {
     assert(data != null);
     showPrebattle = true;
-    // prebattlePreventClose = prebattlePreventClose;
     this.data = data;
     this.onBattleStart = onBattleStart;
     this.onBattleEnd = onBattleEnd;
     this.background = background;
+    this.loseOnEscape = loseOnEscape;
     notifyListeners();
   }
 
@@ -61,10 +63,11 @@ class EnemyState with ChangeNotifier {
 
   void clear() {
     showPrebattle = false;
-    // prebattlePreventClose = false;
     data = null;
     onBattleStart = null;
     onBattleEnd = null;
+    background = null;
+    loseOnEscape = false;
     notifyListeners();
   }
 }

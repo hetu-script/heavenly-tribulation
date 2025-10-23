@@ -107,9 +107,7 @@ void _onInteractDungeonEntrance({
   if (selected == 'about_dungeon') {
     dialog.pushDialog(
       'hint_dungeonEntrance',
-      name: engine.locale('guard'),
-      icon: 'illustration/npc/guard_head.png',
-      image: 'illustration/npc/guard.png',
+      npcId: 'guard',
     );
     await dialog.execute();
   } else {
@@ -125,10 +123,8 @@ void _onInteractDungeonEntrance({
 
       dialog.pushDialog(
         'hint_dungeon_cost',
-        name: engine.locale('guard'),
-        icon: 'illustration/npc/guard_head.png',
-        image: 'illustration/npc/guard.png',
-        interpolations: [],
+        npcId: 'guard',
+        interpolations: [cost],
       );
       await dialog.execute();
 
@@ -150,9 +146,7 @@ void _onInteractDungeonEntrance({
     } else {
       dialog.pushDialog(
         'hint_dungeon_cost2',
-        name: engine.locale('guard'),
-        icon: 'illustration/npc/guard_head.png',
-        image: 'illustration/npc/guard.png',
+        npcId: 'guard',
       );
       await dialog.execute();
     }
@@ -174,7 +168,7 @@ void _onInteractExpArray(
   if (!isRented) return;
 
   engine.pushScene(Scenes.cultivation, arguments: {
-    'locationId': location['id'],
+    'location': location,
     'enableCultivate': true,
   });
 }

@@ -238,11 +238,7 @@ class _JournalViewState extends State<JournalView> {
               height: 400.0,
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
               padding: const EdgeInsets.all(5.0),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: GameUI.foregroundColor,
-                ),
-              ),
+              decoration: GameUI.boxDecoration,
               child: _journalsData.values.isNotEmpty
                   ? ListView(
                       children: List<Widget>.from(
@@ -262,9 +258,6 @@ class _JournalViewState extends State<JournalView> {
                                   journal['title'],
                                   softWrap: false,
                                   style: TextStyles.labelLarge.copyWith(
-                                    fontWeight: _selectedJournal == journal
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
                                     color: _selectedJournal == journal
                                         ? Colors.white
                                         : (journal['isFinished'] == true
@@ -277,9 +270,6 @@ class _JournalViewState extends State<JournalView> {
                                   Text(
                                     '[${engine.locale('finished')}]',
                                     style: TextStyles.labelLarge.copyWith(
-                                      fontWeight: _selectedJournal == journal
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
                                       color: _selectedJournal == journal
                                           ? Colors.white
                                           : (journal['isFinished'] == true

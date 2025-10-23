@@ -28,7 +28,7 @@ namespace Player {
 
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
-    engine.debug('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
+    engine.info('角色移动至 [${left}, ${top}], [${worldId ?? world.id}] 朝向 [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (direction != null) {
       assert(kOrthogonalDirections.contains(direction))
@@ -129,7 +129,7 @@ namespace Player {
   }
 
   /// 直接获取一个已经被创造出来的物品
-  async function acquire(item, { autoUnpack = true, incurIncident = true }) {
+  async function acquire(item, { amount, autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
     if (autoUnpack) {
       switch (item.category) {
@@ -148,7 +148,7 @@ namespace Player {
       }
     }
 
-    final item = entityAcquire(hero, item, incurIncident: incurIncident)
+    final item = entityAcquire(hero, item, amount: amount, incurIncident: incurIncident)
     await onGameEvent('onAcquire', item)
     return item
   }
@@ -575,9 +575,9 @@ namespace Player {
     characterCalculateStats(hero, rejuvenate: rejuvenate)
   }
 
-  function setLife(amount) {
+  function setLife(amount, { overflow = false }) {
     assert(hero != null)
-    return setCharacterLife(hero, amount)
+    return setCharacterLife(hero, amount, overflow: overflow)
   }
 
   function restoreLife(count) {

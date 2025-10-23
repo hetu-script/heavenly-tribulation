@@ -89,12 +89,11 @@ class GameSavesState with ChangeNotifier {
       final savePath = path.join(directory.path, engine.name, 'save',
           '$saveName$kGameSaveFileExtension$kWorldSaveFilePostfix');
 
-      IOSink sink;
       final saveFile = File(savePath);
       if (!saveFile.existsSync()) {
         saveFile.createSync(recursive: true);
       }
-      sink = saveFile.openWrite();
+      final sink = saveFile.openWrite();
       sink.write(worldStringData);
       await sink.flush();
       await sink.close();
@@ -117,7 +116,7 @@ class GameSavesState with ChangeNotifier {
         info = await createSaveInfo(worldId, saveName);
         saves[info.saveName] = info;
       }
-      engine.debug('保存游戏至：[${info.savePath}]');
+      engine.warn('保存游戏至：[${info.savePath}]');
       info.currentWorldId = worldId;
 
       final gameJSONData = (GameData.game as HTStruct).toJSON();

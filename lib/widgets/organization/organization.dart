@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
@@ -12,6 +11,7 @@ import '../../data/game.dart';
 import '../entity_table.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
@@ -165,8 +165,6 @@ class _OrganizationViewState extends State<OrganizationView> {
     );
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 1000.0,
       height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
       child: DefaultTabController(

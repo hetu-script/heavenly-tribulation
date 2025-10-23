@@ -36,14 +36,20 @@ struct Incident {
     let subject
     if (subjectId != null) {
       subject = game.characters[subjectId]
-      assert(subject != null, '无法找到事件的主体角色，id 为：${subjectId}')
-      entityExperienceIncident(subject, this)
+      if(subject != null) {
+        entityExperienceIncident(subject, this)
+      } else {
+        engine.error('无法找到事件的主体角色，id 为：${subjectId}')
+      }
     }
 
     if (targetId) {
       const target = game.characters[targetId]
-      assert(target != null, '无法找到事件的目标角色，id 为：${targetId}')
-      entityExperienceIncident(target, this)
+      if(target != null) {
+        entityExperienceIncident(target, this)
+      } else {
+        engine.error('无法找到事件的目标角色，id 为：${targetId}')
+      }
     }
 
     if (item) {
@@ -132,7 +138,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
     return
   }
 
-  // engine.debug('${character.name} 知道了事件 「${incident.message}」')
+  // engine.debug('${character.name} 知道了 「${incident.message}」')
   character.known.add(incident.id)
 
   if (incident.subjectId != null) {

@@ -11,7 +11,6 @@ import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
-import 'package:animated_tree_view/animated_tree_view.dart';
 import 'package:samsara/tilemap/tilemap.dart';
 
 import '../ui.dart';
@@ -93,7 +92,7 @@ class GameData {
   static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
 
   static final List<dynamic> wikiData = [];
-  static late final TreeNode<WikiPageData> wikiTreeNodes;
+  static late final WikiTreeNode wikiTreeNodes;
 
   static final Map<String, dynamic> tiles = {};
   static final Map<String, dynamic> mapComponents = {};
@@ -449,7 +448,7 @@ class GameData {
 
   /// 将dart侧从json5载入的游戏数据保存到游戏存档中
   static void initGameData() {
-    engine.debug('初始化当前载入的模组...');
+    engine.info('初始化当前载入的模组...');
 
     engine.hetu.invoke(
       'init',
@@ -489,6 +488,8 @@ class GameData {
     bool enableTutorial = true,
     bool isEditorMode = false,
   }) async {
+    engine.clearLogs();
+
     engine.hetu.invoke('createGame', positionalArgs: [
       saveName
     ], namedArgs: {
@@ -529,6 +530,8 @@ class GameData {
     dynamic scenesData,
     bool isEditorMode = false,
   }) async {
+    engine.clearLogs();
+
     engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
       'gameData': gameData,
       'universeData': universeData,
@@ -572,7 +575,7 @@ class GameData {
 
   static void loadZoneColors(TileMap map) {
     final colors = engine.hetu.invoke('getCurrentWorldZoneColors');
-    engine.debug('刷新地图 ${map.id} 上色信息');
+    engine.info('刷新地图 ${map.id} 上色信息');
     engine.loadTileMapZoneColors(map, colors);
   }
 
@@ -587,7 +590,7 @@ class GameData {
     await engine.clearAllCachedScene(
         except: Scenes.mainmenu, triggerOnStart: false);
 
-    engine.debug('从 [${info.savePath}] 载入游戏存档。');
+    engine.info('从 [${info.savePath}] 载入游戏存档。');
     final gameSave = await File(info.savePath).open();
     final gameDataString = utf8.decoder
         .convert((await gameSave.read(await gameSave.length())).toList());
@@ -636,11 +639,10 @@ class GameData {
         final arguments = engine.cachedArguments[sceneId];
         if (constructorId == Scenes.worldmap) {
           await engine.pushScene(
-            info.currentWorldId,
-            constructorId: Scenes.worldmap,
+            sceneId,
+            constructorId: constructorId,
             arguments: {
-              'id': info.currentWorldId,
-              'savePath': info.savePath,
+              'id': sceneId,
               'method': 'load',
             },
             onAfterLoaded: i == sceneIds.length - 1
@@ -684,7 +686,7 @@ class GameData {
 
   static Future<List<String>> loadPreset(String filename,
       {bool isEditorMode = false}) async {
-    engine.debug('从 [$filename] 载入游戏预设。');
+    engine.info('从 [$filename] 载入游戏预设。');
 
     final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
     final gameDataString = await rootBundle.loadString(gameSave);
@@ -870,24 +872,30 @@ class GameData {
     return builder.toString();
   }
 
-  static String getPassivesDescription([dynamic character]) {
+  static String getPassivesDescription({
+    dynamic character,
+    String? title,
+  }) {
     character ??= GameData.hero;
-    final builder = StringBuffer();
+    final desc = StringBuffer();
+    if (title != null) {
+      desc.writeln('$title\n ');
+    }
 
     final passivesDescription = _getPassivesDescription(character['passives']);
     final potionPassivesDescription =
         _getPassivesDescription(character['potionPassives']);
 
-    builder.writeln(
+    desc.writeln(
         '${engine.locale('passivetree_passives_description_title')}\n ');
-    builder.writeln(passivesDescription);
-    builder.writeln(' ');
+    desc.writeln(passivesDescription);
+    desc.writeln(' ');
 
-    builder.writeln(
+    desc.writeln(
         '${engine.locale('passivetree_potion_passives_description_title')}\n ');
-    builder.writeln(potionPassivesDescription);
+    desc.writeln(potionPassivesDescription);
 
-    return builder.toString();
+    return desc.toString();
   }
 
   static String getItemDescription(

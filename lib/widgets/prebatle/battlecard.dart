@@ -46,15 +46,7 @@ class BattleCard extends StatelessWidget {
       child: Card(
         shadowColor: Colors.black26,
         child: Ink(
-          decoration: BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Colors.white,
-                width: 1.0,
-              ),
-            ),
-            borderRadius: GameUI.borderRadius,
-          ),
+          decoration: GameUI.boxDecoration,
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(

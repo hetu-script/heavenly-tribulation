@@ -72,8 +72,20 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   int get life => _life;
 
   /// 将生命设为指定值，如果animated为true，则会有动画效果
-  void setLife(int value, {bool animated = true}) {
-    _life = value.clamp(0, _lifeMax);
+  void setLife(
+    int value, {
+    bool animated = true,
+    bool overflow = false,
+  }) {
+    if (!overflow) {
+      _life = value.clamp(0, _lifeMax);
+    } else {
+      if (value < 0) {
+        _life = 0;
+      } else {
+        _life = value;
+      }
+    }
     _hpBar.setValue(_life, animated: animated);
   }
 
@@ -366,7 +378,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
 
-      final rest = (amount - removeAmount) * 3;
+      final rest = (amount - removeAmount);
       final oppositeId = 'energy_negative_$exhaust';
       // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
       addStatusEffect(oppositeId, amount: rest, handleCallback: false);
@@ -505,7 +517,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     details ??= {};
 
     final funcId = '${effect.script}_$callbackId';
-    engine.debug('invoke effect callback: [$funcId]');
+    engine.info('invoke effect callback: [$funcId]');
     dynamic result = engine.hetu.invoke(
       funcId,
       namespace: 'StatusScript',

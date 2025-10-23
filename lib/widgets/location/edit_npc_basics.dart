@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../../data/game.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class EditNpcBasics extends StatefulWidget {
   /// 返回以下值
@@ -63,8 +62,6 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 600.0,
       height: 480.0,
       child: Scaffold(

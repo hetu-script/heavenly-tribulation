@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/label.dart';
 
-import '../../widgets/avatar.dart';
+import '../../widgets/ui/avatar.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
 import '../../engine.dart';

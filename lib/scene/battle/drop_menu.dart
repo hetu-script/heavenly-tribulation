@@ -28,11 +28,7 @@ class BattleDropMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
-        border: Border.all(color: GameUI.foregroundColor),
-      ),
+      decoration: GameUI.boxDecoration,
       child: PopupMenuButton<BattleDropMenuItems>(
         padding: const EdgeInsets.all(0),
         offset: const Offset(0, 45),

@@ -12,17 +12,35 @@ const kItemTypeCardpack = 'cardpack';
 // weapon 和 talisman 决定了战斗中可以使用的功法卡牌类型
 // category 也用于 onUseItem 的逻辑分支判断
 
-const kItemCategoryCardpack = 'cardpack';
-const kItemCategoryIdentifyScroll = 'identify_scroll';
-const kItemCategoryScroll = 'scroll';
-const kItemCategoryScrollPaper = 'scroll_paper';
-const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
-const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryPotion = 'potion';
-const kItemCategoryCraftMaterial = 'craftmaterial';
+
+const kItemCategoryEquipmentAffix = 'equipment_affix';
+
+const kItemCategoryIdentifyScroll = 'identify_scroll';
+
+const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryDungeonTicket = 'dungeon_ticket';
+const kItemCategoryCraftmaterialAddAffix = 'craftmaterial_addAffix';
+const kItemCategoryCraftmaterialReplaceAffix = 'craftmaterial_replaceAffix';
+const kItemCategoryCraftmaterialRerollAffix = 'craftmaterial_rerollAffix';
+const kItemCategoryCraftmaterialUpgrade = 'craftmaterial_upgrade';
+
+const kNormalPrototypeItems = [
+  kItemCategoryIdentifyScroll,
+];
+
+const kRankedPrototypeItems = [
+  kItemCategoryScrollPaper,
+  kItemCategoryDungeonTicket,
+  kItemCategoryCraftmaterialAddAffix,
+  kItemCategoryCraftmaterialReplaceAffix,
+  kItemCategoryCraftmaterialRerollAffix,
+  kItemCategoryCraftmaterialUpgrade,
+];
 
 // kind
 // 物品具体类型
@@ -213,14 +231,15 @@ function createItemById(id, {amount, rank, level}) {
   item.kind ??= item.id
   
   if (item.isRankedItem) {
-    item.rank = rank ?? 1
+    item.rank = (rank ?? 1).clamp(1, kCultivationRankMax)
     item.rarity = Constants.rankToRarity[item.rank]
     final rankString = '_rank${item.rank}'
     item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : (item.id + rankString)
     if (item.isRankedName) {
       item.name = engine.locale(item.name + rankString)
     } else {
-      item.name = engine.locale(item.rarity) + engine.locale(item.name)
+      item.name = engine.locale('cultivationRank_${item.rank}') +
+        engine.locale('rank2') + engine.locale(item.name)
     }
   } else {
     item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : item.id
@@ -229,7 +248,7 @@ function createItemById(id, {amount, rank, level}) {
       assert(kRarity.containsKey(item.rarity))
       item.rank = kRarity[item.rarity].rank
     } else if (item.rank != null) {
-      assert(item.rank >= 0 && item.rank <= kCultivationRankMax)
+      item.rank = item.rank.clamp(0, kCultivationRankMax)
       item.rarity = Constants.rankToRarity[item.rank]
     } else {
       item.rank = 0
@@ -415,23 +434,24 @@ function entityExhaust(entity, materialId: string, amount, { forceExhaust = fals
 }
 
 /// 对象（人物、据点等）获得一个已经存在与世界上的物品
-function entityAcquire(entity, item, { incurIncident = true }) {
+function entityAcquire(entity, item, { amount, incurIncident = true }) {
   if (item.isUnique)
   assert(item.entityType == kEntityTypeItem, '${item.entityType}')
 
   if (item.stackSize < 1) {
     item.stackSize = 1
   }
-  let amount = item.stackSize
+  let acquireAmount = amount ?? item.stackSize
+  
   let acquiredItem
-
   if (entity.inventory.containsKey(item.id)) {
     acquiredItem = entity.inventory[item.id]
     acquiredItem.stackSize += amount
   } else {
-    acquiredItem = entity.inventory[item.id] = item
+    entity.inventory[item.id] = acquiredItem = Object.create(item)
     acquiredItem.ownerId = entity.id
     acquiredItem.ownerType = entity.entityType
+    acquiredItem.stackSize = acquireAmount
   }
 
   if (entity.achievements) {

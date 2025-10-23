@@ -102,7 +102,7 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void popBackground({String? imageId, isFadeOut = false}) {
-    assert(isOpened == true);
+    // assert(isOpened == true);
     final taskId = 'pop_background_${randomUID(withTime: true)}';
     schedule(
       () {
@@ -129,7 +129,7 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void popAllBackgrounds() {
-    assert(isOpened == true);
+    // assert(isOpened == true);
     final taskId = 'pop_all_backgrounds_${randomUID(withTime: true)}';
     schedule(
       () {
@@ -166,7 +166,7 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void popImage({String? imageId}) {
-    assert(isOpened == true);
+    // assert(isOpened == true);
     final taskId = 'pop_image_${randomUID(withTime: true)}';
     schedule(
       () {
@@ -185,7 +185,7 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void popAllImages() {
-    assert(isOpened == true);
+    // assert(isOpened == true);
     final taskId = 'pop_all_images_${randomUID(withTime: true)}';
     schedule(
       () {
@@ -333,8 +333,8 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void finishDialog(String id) {
-    assert(isOpened == true);
-    assert(contents.containsKey(id));
+    // assert(isOpened == true);
+    // assert(contents.containsKey(id));
     contents.remove(id);
     finishTask(id);
     notifyListeners();
@@ -423,7 +423,7 @@ class GameDialog with ChangeNotifier, TaskController {
   }
 
   void finishSelection(String taskId, String dataId, {dynamic value}) {
-    assert(isOpened == true);
+    // assert(isOpened == true);
     storedValues[dataId] = value ?? true;
     selectionsData = null;
     assert(hasTask(taskId));

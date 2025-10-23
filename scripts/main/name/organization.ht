@@ -1,5 +1,4 @@
 import 'organization/organization.json5' as orgNames
-// import 'common.ht'
 import 'common/common.json5' as commonNamesData
 
 const kNonBattleOrganizationNames = [

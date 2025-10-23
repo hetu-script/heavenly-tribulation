@@ -83,7 +83,7 @@ function generateContinent2(map, {seed, style}) {
 }
 
 function nameZones(world) {
-  engine.debug('为地域命名')
+  engine.info('为地域命名')
   if (world.zones.isEmpty) return
 
   for (const zone of world.zones) {

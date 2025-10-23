@@ -55,7 +55,7 @@ const meta = {
 
 /// Run every time game starts
 function main() {
-  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 绑定事件处理函数...')
+  engine.info('游戏脚本模块 [${meta.id}(ver-${meta.version})] 绑定事件处理函数...')
 
   addEventHandlers(
     moduleId: meta.id,
@@ -93,7 +93,7 @@ function init({
   journalsData,
   questsData,
 }) {
-  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
+  engine.info('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
   // 重新载入模组数据
   game.mods = {}
@@ -116,6 +116,17 @@ function init({
   addGameData(passivesData, 'passives', engine.locale('gameDataPassive'))
   addGameData(journalsData, 'journals', engine.locale('gameDataJournal'))
   addGameData(questsData, 'quests', engine.locale('gameDataQuest'))
+
+  for (final npcId in Constants.npcIds) {
+    Npc(
+      id: npcId,
+      nameId: npcId,
+      icon: 'illustration/npc/${npcId}_head.png',
+      // illustration: 'illustration/npc/${npcId}.png',
+    )
+  }
+  
+  engine.info('载入 NPC: [${Constants.npcIds.length}]')
 }
 
 function addModMetaData(mod) {
@@ -124,19 +135,19 @@ function addModMetaData(mod) {
   // game.mods[mod.id] ??= {}
   // Object.assign(game.mods[mod.id], mod)
   game.mods[mod.id] = mod
-  engine.debug('载入模组元信息 [${mod.id}(ver-${mod.version})]')
+  engine.info('载入模组元信息 [${mod.id}(ver-${mod.version})]')
 }
 
 /// 向 universe 中添加数据
 function addMapsData(mapsData) {
   for (final map of mapsData) {
     if (universe.containsKey(map.id)) {
-      engine.warn('地图数据 id 冲突：[${map.id}]，将会被覆盖')
+      engine.warn('地图数据 id 冲突: [${map.id}]，将会被覆盖')
     }
     universe[map.id] = Object.create(map)
     // history[map.id] = []
   }
-  engine.debug('载入预定义地图：[${mapsData.length}]')
+  engine.info('载入预定义地图: [${mapsData.length}]')
 }
 
 /// 向 game 中添加数据
@@ -145,9 +156,9 @@ function addGameData(gameData, directory, name) {
     final dir = game[directory]
     assert(dir != null, 'game.${directory} 不存在')
     if (dir.containsKey(item.id)) {
-      engine.warn('${name}数据 id 冲突：[${item.id}]，将会被覆盖')
+      engine.warn('${name}数据 id 冲突: [${item.id}]，将会被覆盖')
     }
     dir[item.id] = item
   }
-  engine.debug('载入预定义${name}：[${gameData.length}]')
+  engine.info('载入预定义${name}: [${gameData.length}]')
 }

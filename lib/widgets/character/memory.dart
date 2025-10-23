@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../bonds.dart';
@@ -12,6 +11,7 @@ import 'profile.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class CharacterMemory extends StatefulWidget {
   const CharacterMemory({
@@ -217,8 +217,6 @@ class CharacterMemoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      alignment: AlignmentDirectional.center,
-      backgroundColor: GameUI.backgroundColor,
       width: GameUI.profileWindowSize.x,
       height: GameUI.profileWindowSize.y +
           ((mode == InformationViewMode.edit) ? 50 : 0),

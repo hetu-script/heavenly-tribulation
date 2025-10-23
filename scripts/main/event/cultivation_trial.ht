@@ -23,6 +23,14 @@ const _kPortal3Tile = {
   left: 12,
   top: 6,
 }
+const _kPortal4Tile = {
+  left: 6,
+  top: 5,
+}
+const _kPortal5Tile = {
+  left: 10,
+  top: 5,
+}
 const _kFunction1 = {
   left: 6,
   top: 6,
@@ -47,22 +55,16 @@ const _kFunction4 = {
 /// 3, 包含一个炼丹炉
 /// 4, 包含一个出口，必须先打开开关才能从出口离开
 function _prepareMap() {
-  game.flags.trial.buildCompleted = true
-  /// 清理所有的地块贴图和临时对象，还原到空地图
-  world.objects = {}
-  for (final tile in world.terrains) {
-    tile.isNonEnterable = false
-    tile.overlaySprite = {}
-    tile.objectId = null
-    World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
-  }
+  game.flags.dungeon.buildCompleted = true
+  
+  resetMapTerrains()
 
   /// 根据房间填充地图
-  switch (game.flags.trial.room + 1) {
+  switch (game.flags.dungeon.room + 1) {
     1: {
-      let roomSequence = game.flags.trial.roomSequence
+      let roomSequence = game.flags.dungeon.roomSequence
       if (roomSequence == null) {
-        roomSequence = game.flags.trial.roomSequence = [1, 2, 3]
+        roomSequence = game.flags.dungeon.roomSequence = [1, 2, 3]
         roomSequence.shuffle()
       }
       addPortal(
@@ -103,7 +105,7 @@ function _prepareMap() {
         _kCenterTile,
         objectId: 'switch1',
         useCustomLogic: true,
-        isOn: game.flags.trial.switchOn == true,
+        isOn: game.flags.dungeon.switchOn == true,
       )
     }
     4: {
@@ -120,15 +122,14 @@ function _prepareMap() {
 }
 
 async function onEnterMap() {
-  Game.updateDungeon(game.flags.trial)
+  Game.updateDungeon(game.flags.dungeon)
 
-  if (!game.flags.trial.promptedDungeonTitle) {
-    game.flags.trial.promptedDungeonTitle = true
+  if (!game.flags.dungeon.promptedDungeonTitle) {
+    game.flags.dungeon.promptedDungeonTitle = true
     World.promptTextBanner(engine.locale('cultivation_trial'))
   }
 
-  if (!game.flags.trial.buildCompleted) {
-    game.flags.trial.buildCompleted = true
+  if (!game.flags.dungeon.buildCompleted) {
     dialog.pushBackground('black.png')
     dialog.pushTask(() {
       _prepareMap()
@@ -137,8 +138,8 @@ async function onEnterMap() {
       Game.showHeroInfo()
     })
     dialog.popBackground(isFadeOut: true)
-    if (!game.flags.trial.introCompleted) {
-      game.flags.trial.introCompleted = true
+    if (!game.flags.dungeon.introCompleted) {
+      game.flags.dungeon.introCompleted = true
       dialog.pushDialog('cultivation_trial_intro_1')
     }
     await dialog.execute()
@@ -150,12 +151,12 @@ async function onAfterMove(terrain) {
   if (hero.life <= 1) {
     failed = true
   }
-  final value = game.flags.trial.difficulty + 1
+  final value = game.flags.dungeon.difficulty + 1
   setCharacterLife(hero, hero.life - value)
   Game.updateUI()
   World.addHintText('${engine.locale('life')} -${value}', terrain.left, terrain.top, Colors.red)
   if (failed) {
-    final npc = game.npcs[game.flags.trial.npcId]
+    final npc = game.npcs[game.flags.dungeon.npcId]
     dialog.pushDialog(
       'organization_immortality_trial_fail',
       npc: npc,
@@ -168,43 +169,43 @@ async function onAfterMove(terrain) {
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     'portalReturn': {
-      game.flags.trial.buildCompleted = false
-      game.flags.trial.room = 0
+      game.flags.dungeon.buildCompleted = false
+      game.flags.dungeon.room = 0
       onEnterMap()
     }
     'portal1': {
-      game.flags.trial.buildCompleted = false
-      game.flags.trial.room = 1
+      game.flags.dungeon.buildCompleted = false
+      game.flags.dungeon.room = 1
       onEnterMap()
     }
     'portal2': {
-      game.flags.trial.buildCompleted = false
-      game.flags.trial.room = 2
+      game.flags.dungeon.buildCompleted = false
+      game.flags.dungeon.room = 2
       onEnterMap()
     }
     'portal3': {
-      game.flags.trial.buildCompleted = false
-      game.flags.trial.room = 3
+      game.flags.dungeon.buildCompleted = false
+      game.flags.dungeon.room = 3
       onEnterMap()
     }
     'portalExit': {
-      if (game.flags.trial.switchOn == true) {
+      if (game.flags.dungeon.switchOn == true) {
         Game.updateDungeon(null)
         Game.popScene(clearCache: true)
         await Future.delayed(0.25)
-        final npc = game.npcs[game.flags.trial.npcId]
+        final npc = game.npcs[game.flags.dungeon.npcId]
         dialog.pushDialog(
           'organization_immortality_trial_pass',
           npc: npc,
         )
         await dialog.execute()
-        final organizationId = game.flags.trial.organizationId
+        final organizationId = game.flags.dungeon.organizationId
         if (organizationId != null) {
           final organization = game.organizations[organizationId]
-          await Player.enroll(organization, npcId: game.flags.trial.npcId);
+          await Player.enroll(organization, npcId: game.flags.dungeon.npcId);
         }
         setCurrentWorld(game.mainWorldId)
-        game.flags.trial = null
+        game.flags.dungeon = null
       } else {
         dialog.pushDialog('cultivation_trial_exit_hint')
         await dialog.execute()
@@ -213,7 +214,7 @@ async function onInteractMapObject(object, terrain) {
     'switch1': {
       if (!object.isOn) {
         onInteractSwitch(object, terrain)
-        game.flags.trial.switchOn = true
+        game.flags.dungeon.switchOn = true
       } else {
         dialog.pushDialog('switch_already_on')
         await dialog.execute()

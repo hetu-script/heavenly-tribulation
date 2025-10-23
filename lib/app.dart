@@ -21,7 +21,7 @@ import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'logic/logic.dart';
 import 'scene/common.dart';
-import 'widgets/dialog/timeflow.dart';
+import 'widgets/timeflow.dart';
 import 'data/constants.dart';
 import 'scene/loading_screen.dart';
 import 'scene/mini_game/matching/matching.dart';
@@ -72,6 +72,8 @@ class _GameAppState extends State<GameApp> {
     engine.setLoading(true);
     // 初始化引擎
     int tik = DateTime.now().millisecondsSinceEpoch;
+
+    GameUI.init();
 
     engine.config = EngineConfig(
       name: 'Heavenly Tribulation',
@@ -148,11 +150,11 @@ class _GameAppState extends State<GameApp> {
         worldData = engine.hetu
             .invoke('setCurrentWorld', positionalArgs: [arguments['id']]);
       } else if (method == 'generate') {
-        engine.debug('创建程序生成的随机世界。');
+        engine.info('创建程序生成的随机世界。');
         worldData =
             engine.hetu.invoke('createSandboxWorld', namedArgs: arguments);
       } else if (method == 'blank') {
-        engine.debug('创建空白世界。');
+        engine.info('创建空白世界。');
         worldData =
             engine.hetu.invoke('createBlankWorld', namedArgs: arguments);
       }
@@ -572,6 +574,7 @@ class _GameAppState extends State<GameApp> {
             onBattleStart: namedArgs['onBattleStart'],
             onBattleEnd: namedArgs['onBattleEnd'],
             background: namedArgs['background'],
+            loseOnEscape: namedArgs['loseOnEscape'] ?? false,
           );
     }, override: true);
 
@@ -628,7 +631,7 @@ class _GameAppState extends State<GameApp> {
       );
     }, override: true);
 
-    engine.debug('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     tik = DateTime.now().millisecondsSinceEpoch;
     final mainConfig = {'locale': engine.languageId};
@@ -669,14 +672,14 @@ class _GameAppState extends State<GameApp> {
         }
       }
     }
-    engine.debug('模组数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('模组数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     tik = DateTime.now().millisecondsSinceEpoch;
 
     await GameData.init();
 
-    engine.debug('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));

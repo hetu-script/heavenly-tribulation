@@ -3,10 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/crc32b.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
-import '../../../engine.dart';
-import '../../../ui.dart';
+import '../../engine.dart';
+import '../../ui.dart';
+import '../../widgets/ui/responsive_view.dart';
 
 class CreateBlankMapDialog extends StatefulWidget {
   const CreateBlankMapDialog({
@@ -53,7 +53,6 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      cursor: GameUI.cursor,
       width: 1000.0,
       height: 600.0,
       child: Scaffold(

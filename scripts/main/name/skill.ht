@@ -2,8 +2,6 @@ import 'skill/skill.json5' as skillNames
 import 'skill/extra.json5' as skillExtra
 import 'skill/numfix.json5' as skillNumfix
 import 'character/family.json5' as familyNames
-import 'common.ht'
-import '../random.ht'
 
 const _kMartialArtsKinds = [
   'punch',

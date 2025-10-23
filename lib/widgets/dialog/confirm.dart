@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../ui/responsive_view.dart';
 
 class ConfirmDialog extends StatelessWidget {
   static Future<bool?> show({
@@ -30,55 +29,51 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
-      child: SizedBox(
-        width: 300,
-        height: 240,
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Text(engine.locale('confirmOperation')),
-          ),
-          body: Container(
-            alignment: AlignmentDirectional.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child:
-                      Text(description, style: const TextStyle(fontSize: 20.0)),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: fluent.FilledButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(false);
-                        },
-                        child: Text(
-                          engine.locale('cancel'),
-                        ),
+      width: 300,
+      height: 240,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(engine.locale('confirmOperation')),
+        ),
+        body: Container(
+          alignment: AlignmentDirectional.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(25.0),
+                child:
+                    Text(description, style: const TextStyle(fontSize: 20.0)),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: fluent.FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: Text(
+                        engine.locale('cancel'),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(25.0),
-                      child: fluent.FilledButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(true);
-                        },
-                        child: Text(
-                          engine.locale('confirm'),
-                        ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: fluent.FilledButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text(
+                        engine.locale('confirm'),
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

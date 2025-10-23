@@ -1,7 +1,6 @@
 import 'package:flame/effects.dart';
-import 'package:samsara/components/game_component.dart';
-import 'package:samsara/animation/sprite_animation.dart';
 import 'package:hetu_script/utils/math.dart' as math;
+import 'package:samsara/samsara.dart';
 
 import '../../common.dart';
 

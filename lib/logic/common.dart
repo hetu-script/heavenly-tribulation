@@ -35,3 +35,7 @@ const kJobRankToContributionRequirements = {
   4: 3200,
   5: 10000,
 };
+
+const kMoveHomeCostBase = 2000;
+
+const kHomeRestLifeRestorePerTick = 5;

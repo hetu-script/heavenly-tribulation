@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../../data/game.dart';
 import '../../state/view_panels.dart';
 import '../ui/close_button2.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../character/inventory/inventory.dart';
+import '../ui/responsive_view.dart';
 
 class AlchemyDialog extends StatefulWidget {
   const AlchemyDialog({
@@ -36,8 +35,6 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 800.0,
       height: 500.0,
       child: Scaffold(

@@ -15,6 +15,7 @@ async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: func
   
   Game.showPrebattle(enemy,
     background: background,
+    loseOnEscape: true,
     onBattleEnd: async function [onBattleEnd] (result, roundCount) {
       await battleEndCallback?.call(result, roundCount)
 

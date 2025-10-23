@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../information.dart';
 import '../../engine.dart';
-import '../../ui.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class EditCharacterBond extends StatefulWidget {
   const EditCharacterBond({
@@ -53,8 +52,6 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 350.0,
       height: 400.0,
       child: Scaffold(

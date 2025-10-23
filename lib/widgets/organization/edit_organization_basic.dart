@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/data/common.dart';
-import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../information.dart';
 import '../../engine.dart';
-import '../../ui.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
+import '../../data/common.dart';
+import '../ui/menu_builder.dart';
 
 class EditOrganizationBasics extends StatefulWidget {
   const EditOrganizationBasics({
@@ -74,8 +73,6 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 500.0,
       height: 400.0,
       child: Scaffold(

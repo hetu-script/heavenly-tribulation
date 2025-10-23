@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -7,6 +6,7 @@ import '../../ui.dart';
 import '../../data/game.dart';
 import '../../engine.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class QuestDetail extends StatelessWidget {
   const QuestDetail({
@@ -19,9 +19,6 @@ class QuestDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      cursor: GameUI.cursor,
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 380.0,
       height: 360.0,
       barrierDismissible: true,
@@ -103,9 +100,6 @@ class _QuestViewState extends State<QuestView> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      cursor: GameUI.cursor,
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 800.0,
       height: 500.0,
       child: Scaffold(

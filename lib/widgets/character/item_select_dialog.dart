@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:samsara/widgets/ui/responsive_view.dart';
 
 import 'inventory/inventory.dart';
 import '../../engine.dart';
 import '../../logic/logic.dart';
-import '../../ui.dart';
 import '../../state/states.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class ItemSelectDialog extends StatefulWidget {
   const ItemSelectDialog({
@@ -54,8 +53,6 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
-      alignment: AlignmentDirectional.center,
       width: 450.0,
       height: 500.0,
       child: Scaffold(

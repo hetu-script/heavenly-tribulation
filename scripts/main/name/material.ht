@@ -1,7 +1,5 @@
 import 'common.ht'
 import 'material/material.json5' as materialNames
-import '../game/common.ht'
-import '../random.ht'
 
 function generateMaterialName({category, rarity}) {
   assert(materialNames.keys.contains(category), category)

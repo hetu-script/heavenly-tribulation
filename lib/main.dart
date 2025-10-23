@@ -55,22 +55,18 @@ void main() {
     };
 
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
+    WindowOptions windowOptions = WindowOptions(
+      title: 'Heavenly Tribulation',
+      size: defaultGameSize,
+    );
     await windowManager.ensureInitialized();
     // windowManager.addListener(CustomWindowListener());
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
-    await windowManager.waitUntilReadyToShow(
-      const WindowOptions(
-        title: 'Heavenly Tribulation',
-        // fullScreen: true,
-        size: defaultGameSize,
-      ),
-      () async {
-        await windowManager.show();
-        await windowManager.focus();
-        engine.debug('系统版本：${Platform.operatingSystemVersion}');
-      },
-    );
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
 
     await engine.registerCursors({
       'normal': 'assets/images/cursor/sword.png',

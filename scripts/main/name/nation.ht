@@ -1,6 +1,5 @@
 import 'common.ht'
 import 'common/strange.json5' as strangeNames
-import '../random.ht'
 import 'place/place.json5' as place
 import 'place/prefix.json5' as placePrefix
 

@@ -2,14 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../ui.dart';
 import '../../engine.dart';
 import '../../state/hover_content.dart';
 import '../../state/new_prompt.dart';
 import '../character/inventory/item_grid.dart';
+import '../ui/responsive_view.dart';
+
+const _kItemCountMax = 18;
 
 class NewItems extends StatelessWidget {
   const NewItems({
@@ -23,11 +24,25 @@ class NewItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> itemWidgets = [];
+    for (var i = 0; i < _kItemCountMax; ++i) {
+      final grid = ItemGrid(
+        itemData: i < itemsData.length ? itemsData.elementAt(i) : null,
+        margin: const EdgeInsets.all(2.5),
+        onMouseEnter: (itemData, rect) {
+          context.read<HoverContentState>().show(itemData, rect);
+        },
+        onMouseExit: () {
+          context.read<HoverContentState>().hide();
+        },
+      );
+      itemWidgets.add(grid);
+    }
+
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      barrierColor: null,
       width: 400.0,
       height: 300.0,
-      alignment: Alignment.center,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -42,8 +57,7 @@ class NewItems extends StatelessWidget {
               ScrollConfiguration(
                 behavior: MaterialScrollBehavior(),
                 child: SingleChildScrollView(
-                  child: Container(
-                    color: Colors.black,
+                  child: SizedBox(
                     width: 320.0,
                     height: 160.0,
                     child: ListView(
@@ -51,24 +65,7 @@ class NewItems extends StatelessWidget {
                       children: [
                         Wrap(
                           alignment: WrapAlignment.start,
-                          children: List<Widget>.from(
-                            itemsData
-                                .map(
-                                  (data) => ItemGrid(
-                                    itemData: data,
-                                    margin: const EdgeInsets.all(2.5),
-                                    onMouseEnter: (itemData, rect) {
-                                      context
-                                          .read<HoverContentState>()
-                                          .show(itemData, rect);
-                                    },
-                                    onMouseExit: () {
-                                      context.read<HoverContentState>().hide();
-                                    },
-                                  ),
-                                )
-                                .toList(),
-                          ),
+                          children: itemWidgets,
                         )
                       ],
                     ),

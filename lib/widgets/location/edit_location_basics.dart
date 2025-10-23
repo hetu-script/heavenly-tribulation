@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:samsara/extensions.dart' show StringEx;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 import '../../data/common.dart';
+import '../ui/responsive_view.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
@@ -129,7 +128,6 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     return ResponsiveView(
       width: 600.0,
       height: 500.0,
-      backgroundColor: GameUI.backgroundColor,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

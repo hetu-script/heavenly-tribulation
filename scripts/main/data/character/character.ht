@@ -409,7 +409,7 @@ function createRomance(subject, target) {
 
   updateBondScore(subject, target, score)
 
-  engine.debug('${subject.name} 和 ${target.name} 现在是浪漫关系，亲密度提高 [${score}]')
+  engine.info('${subject.name}和${target.name}现在是浪漫关系，亲密度提高 [${score}]')
 }
 
 /// 创建 **单方面** 的朋友关系，意味着[subject]认为[target]是自己的朋友
@@ -485,7 +485,7 @@ function _addSpouseRelationship(subject, target) {
   let score = kRelationshipScore.family.spouse
   updateBondScore(subject, target, score)
   
-  engine.debug('${target.name} 现在是 ${subject.name} 的 配偶，${subject.name} 对 ${target.name} 的好感度提高 [${score}]')
+  engine.info('${target.name} 现在是 ${subject.name} 的 配偶，${subject.name} 对 ${target.name} 的好感度提高 [${score}]')
 }
 
 /// 创建双方面的夫妻关系
@@ -1356,7 +1356,7 @@ function _characterMet(subject, target, { incurIncident }) {
       subjectId: subject.id, // 见面是一个单向事件
     )
   } else {
-    engine.debug('${incidentContent}[${bond.score}]')
+    engine.debug(incidentContent)
   }
   return bond
 }

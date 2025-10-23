@@ -170,8 +170,8 @@ function characterProgressJournalById(character, journalId, {
         subjectId: character.id,
       )
     }
+    engine.debug(incidentContent)
   }
-  engine.debug('角色 [${character.id}] 的任务 [${journal.title}] 推进了进度：${journal.stage}')
 
   return journal
 }

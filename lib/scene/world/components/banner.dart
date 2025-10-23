@@ -21,9 +21,7 @@ class PromptTextBanner extends BorderComponent {
           priority: kWorldMapAnimationPriority,
         ) {
     backgroundColor = backgroundColor ?? GameUI.backgroundColor2;
-    paint = Paint()
-      ..color = backgroundColor
-      ..style = PaintingStyle.fill;
+    paint = GameUI.background2Paint;
   }
 
   @override

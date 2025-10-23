@@ -3,8 +3,6 @@ import 'common/spirit.json5' as spiritPrefix
 import 'consumable/consumable.json5' as consumableNames
 import 'consumable/medicine.json5' as medicineNames
 import 'consumable/beverage.json5' as beverageNames
-import '../random.ht'
-import '../game/common.ht'
 
 const commonConsumableNames = [
   ...commonNamesData.dao,

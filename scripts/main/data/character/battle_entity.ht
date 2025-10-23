@@ -243,7 +243,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
   character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception ~/ 10
-  character.expGainPerLight = character.rank * character.rank * Constants.baseExpGainPerLight + (character.rank + 1) * Constants.baseExpGainPerLight
+  character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * Constants.baseExpGainPerLight
   character.speedExpCollect = Constants.baseExpCollectSpeed
   character.speedOnPlain = Constants.baseMoveSpeedOnPlain
   character.speedOnMountain = Constants.baseMoveSpeedOnMountain
@@ -338,15 +338,16 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
 /// 设定生命值，最终值一定大于 0
 /// 若尝试将生命设为小于 0 则会触发劫难 并返回 true
-function setCharacterLife(character, life) {
+function setCharacterLife(character, life, { overflow = false }) {
   let isDying = false
   if (life <= 0) {
     engine.warn('角色 ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1.0
     isDying = true
     character.tribulationCount += 1
+  } else if (!overflow && life > character.stats.lifeMax) {
+    life = character.stats.lifeMax
   }
-
   character.life = life.toDouble()
 
   return isDying
@@ -356,7 +357,7 @@ function setCharacterLife(character, life) {
 function characterRestoreLife(character, amount) {
   assert(amount > 0)
   let before = character.life
-  setCharacterLife(character, character.life + amount)
+  setCharacterLife(character, character.life + amount, overflow: false)
   return character.life - before
 }
 
@@ -499,7 +500,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
   })
   character.battleDeckIndex = character.battleDecks.length - 1
   
-  engine.debug('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
+  engine.info('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
 }
 
 function characterEquip(entity, item, { index }) {
@@ -543,7 +544,7 @@ function characterEquip(entity, item, { index }) {
   // }
 
   if (equipped) {
-    engine.debug('角色 [${entity.name}] 装备了 [${item.name}]')
+    engine.debug('${entity.name}装备了${item.name}')
 
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
@@ -572,7 +573,7 @@ function characterUnequip(entity, item) {
     characterCalculateStats(entity, rejuvenate: false)
   }
   
-  engine.debug('角色 [${entity.name}] 取下了 [${item.name}]')
+  engine.debug('${entity.name}取下了${item.name}')
 }
 
 function characterEquippedCategory(entity, category) {
@@ -663,12 +664,12 @@ function characterSetUpgradeRankPotionPassive(character, rank) {
 function characterConsumePotion(entity, item) {
   assert(item.category == kItemCategoryPotion)
 
-  engine.debug('角色 [${entity.name}] 服用了 [${item.name}]')
+  engine.debug('${entity.name}服用了${item.name}')
 
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {
     case 'overheal': {
-      setCharacterLife(entity, Math.min(entity.life, entity.stats.lifeMax) + mainAffix.value)
+      setCharacterLife(entity, entity.life + mainAffix.value, overflow: true)
     }
     else: {
       characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)

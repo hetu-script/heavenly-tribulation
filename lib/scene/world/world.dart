@@ -33,6 +33,7 @@ import 'components/banner.dart';
 import '../../data/common.dart';
 import 'widgets/location_panel.dart';
 import 'widgets/drop_menu.dart';
+import '../cursor_state.dart';
 
 final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
@@ -115,7 +116,7 @@ const kMaxCloudsCount = 16;
 
 const _kInitialCharacterSelectionCount = 5;
 
-class WorldMapScene extends Scene {
+class WorldMapScene extends Scene with HasCursorState {
   WorldMapScene({
     required super.context,
     required this.worldData,
@@ -132,7 +133,7 @@ class WorldMapScene extends Scene {
           tileMapWidth: worldData['width'],
           tileMapHeight: worldData['height'],
           data: worldData,
-          captionStyle: GameUI.captionStyle,
+          captionStyle: TextStyles.labelLarge,
           tileShape: TileShape.hexagonalVertical,
           gridSize: kGridSize,
           tileSpriteSrcSize: kTileSpriteSrcSize,
@@ -158,17 +159,6 @@ class WorldMapScene extends Scene {
 
   final String? backgroundSpriteId;
 
-  set cursorState(MouseCursorState cursorState) {
-    switch (cursorState) {
-      case MouseCursorState.normal:
-        mouseCursor = GameUI.cursor.resolve({});
-      case MouseCursorState.click:
-        mouseCursor = GameUI.cursor.resolve({WidgetState.hovered});
-      case MouseCursorState.drag:
-        mouseCursor = GameUI.cursor.resolve({WidgetState.dragged});
-    }
-  }
-
   final TileMap map;
 
   final dynamic worldData;
@@ -188,45 +178,46 @@ class WorldMapScene extends Scene {
     _playerFreezed = map.autoUpdateComponent = value;
   }
 
-  // TileMapTerrain? _selectedTerrain;
-  // dynamic _selectedZone;
-  // dynamic _selectedNation;
-  // dynamic _selectedLocation;
+  void _setSelectedTerrain(TileMapTerrain? terrain) {
+    if (terrain == null) {
+      context.read<SelectedPositionState>().clear();
+      return;
+    }
 
-  // void _setSelectedTerrain(TileMapTerrain? terrain) {
-  //   _selectedTerrain = terrain;
-  //   if (_selectedTerrain == null) return;
+    dynamic selectedZone;
+    dynamic selectedNation;
+    dynamic selectedLocation;
 
-  //   final zoneId = selectedTerrain.zoneId;
-  //   if (zoneId != null) {
-  //     _selectedZone =
-  //         engine.hetu.invoke('getZoneById', positionalArgs: [zoneId]);
-  //   } else {
-  //     _selectedZone = null;
-  //   }
+    final zoneId = terrain.zoneId;
+    if (zoneId != null) {
+      selectedZone =
+          engine.hetu.invoke('getZoneById', positionalArgs: [zoneId]);
+    } else {
+      selectedZone = null;
+    }
 
-  //   final nationId = selectedTerrain.nationId;
-  //   if (nationId != null) {
-  //     _selectedNation =
-  //         engine.hetu.invoke('getOrganizationById', positionalArgs: [nationId]);
-  //   } else {
-  //     _selectedNation = null;
-  //   }
+    final nationId = terrain.nationId;
+    if (nationId != null) {
+      selectedNation =
+          engine.hetu.invoke('getOrganizationById', positionalArgs: [nationId]);
+    } else {
+      selectedNation = null;
+    }
 
-  //   final String? locationId = selectedTerrain.locationId;
-  //   if (locationId != null) {
-  //     _selectedLocation = GameData.getLocation(locationId);
-  //   } else {
-  //     _selectedLocation = null;
-  //   }
+    final String? locationId = terrain.locationId;
+    if (locationId != null) {
+      selectedLocation = GameData.getLocation(locationId);
+    } else {
+      selectedLocation = null;
+    }
 
-  //   context.read<SelectedPositionState>().update(
-  //         currentZoneData: _selectedZone,
-  //         currentNationData: _selectedNation,
-  //         currentLocationData: _selectedLocation,
-  //         currentTerrainObject: _selectedTerrain,
-  //       );
-  // }
+    context.read<SelectedPositionState>().update(
+          currentZoneData: selectedZone,
+          currentNationData: selectedNation,
+          currentLocationData: selectedLocation,
+          currentTerrainObject: terrain,
+        );
+  }
 
   Future<void> _updateHeroTerrain({
     TileMapTerrain? tile,
@@ -669,7 +660,8 @@ class WorldMapScene extends Scene {
     _focusNode.requestFocus();
     if (button == kPrimaryButton) {
       final tilePosition = map.worldPosition2Tile(position);
-      final terrain = map.getTerrain(tilePosition.left, tilePosition.top);
+      final terrain = map.trySelectTile(tilePosition.left, tilePosition.top);
+      _setSelectedTerrain(terrain);
       if (terrain != null) {
         final toolId = context.read<EditorToolState>().selectedId;
         if (toolId != null) {
@@ -1247,7 +1239,7 @@ class WorldMapScene extends Scene {
     int? fromY,
     int? toX,
     int? toY,
-    List terrainKinds = kTerrainKindsLand,
+    List? terrainKinds,
   }) async {
     assert(fromTile != null || (fromX != null && fromY != null));
     assert(toTile != null || (toX != null && toY != null));
@@ -1256,10 +1248,10 @@ class WorldMapScene extends Scene {
     List<int>? calculatedRoute = map.calculateRoute(
       fromTile!,
       toTile!,
-      terrainKinds: terrainKinds,
+      terrainKinds: terrainKinds ?? kTerrainKindsLand,
     );
     // 如果陆地路线不可达，则尝试计算山地或者水路移动的路线
-    if (calculatedRoute == null) {
+    if (calculatedRoute == null && terrainKinds == null) {
       final List movableTerrainKinds = engine.hetu.invoke(
         'getCharacterMovableTerrainKinds',
         positionalArgs: [GameData.hero],
@@ -1287,18 +1279,19 @@ class WorldMapScene extends Scene {
 
   void _onTapDownInGameMode(int button, Vector2 position) {
     if (!GameData.isInteractable) return;
+    context.read<HoverContentState>().hide();
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
-    map.trySelectTile(tilePosition.left, tilePosition.top);
     if (button == kPrimaryButton) {
-      // if (cursorState == MouseCursorState.click) {
-      //   cursorState = MouseCursorState.press;
-      // }
-    } else if (button == kSecondaryButton) {
-      // if (map.hero?.isWalking == true) {
-      //   map.hero!.isWalkCanceled = true;
-      // }
+      map.trySelectTile(tilePosition.left, tilePosition.top);
+      //   // if (cursorState == MouseCursorState.click) {
+      //   //   cursorState = MouseCursorState.press;
     }
+    // } else if (button == kSecondaryButton) {
+    //   // if (map.hero?.isWalking == true) {
+    //   //   map.hero!.isWalkCanceled = true;
+    //   // }
+    // }
   }
 
   void _onTapUpInGameMode(int button, Vector2 position) async {
@@ -1665,7 +1658,7 @@ class WorldMapScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.debug('KeyDownEvent: ${event.logicalKey.debugName}');
+          engine.warn('keydown: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.space:
               camera.zoom = 2.0;
@@ -1693,7 +1686,7 @@ class WorldMapScene extends Scene {
               camera.moveBy(Vector2(10, 0));
           }
         } else if (event is KeyRepeatEvent) {
-          engine.debug('KeyRepeatEvent: ${event.logicalKey.debugName}');
+          engine.warn('key repeat: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.keyW:
               camera.moveBy(Vector2(0, -10));

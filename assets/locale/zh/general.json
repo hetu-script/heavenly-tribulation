@@ -28,6 +28,7 @@
   "closed": "关闭",
   "bye": "再见",
   "empty": "空",
+  "noSavesFound": "还没有存档",
   "void": "虚无",
   "null": "无",
   "loading": "载入中...",
@@ -353,6 +354,7 @@
   "waterZone": "水域",
 
   "continent": "大陆",
+  "islands": "群岛",
   "island": "岛屿",
   "coast": "滨海",
   "harbor": "港口",
@@ -396,17 +398,21 @@
   "characterInformation": "人物情报",
   "status": "属性",
   "stats": "属性",
-  "stats_and_inventory": "属性和装备",
+  "statsAndInventory": "属性和装备",
+  "meditateAndTalentTree": "修炼与技能",
   "bonds": "羁绊",
   "history": "历史",
   "experienced": "经历",
   "known": "见闻",
   "journal": "日志",
+  "ongoingJournals": "正在进行的日志",
   "quest": "任务",
   "bountyQuest": "悬赏任务",
   "cultivate": "修炼",
   "skillTree": "天道技能",
   "cardlibrary": "功法图录",
+  "cardCount": "功法数量",
+  "deckCount": "卡组数量",
 
   "cardlibrary_description": "只有在藏书阁或玄机碑处打开功法图录时，你才可以进行卡牌精炼。花费材料升级卡牌、修改卡牌词条属性，或者制作符箓版本的卡牌。",
 
@@ -514,11 +520,11 @@
   "rest": "休息",
   "meditate": "打坐",
 
-  "restTillTommorow": "休息到明天早上",
-  "rest1Days": "休息 1 天",
-  "rest10Days": "休息 10 天",
+  "restIndefinitely": "无限期休息",
+  "rest5Days": "休息 5 天",
+  "rest15Days": "休息 15 天",
   "rest30Days": "休息 30 天",
-  "restTillNextMonth": "休息到下个月 1 日",
+  "restTillNextMonth": "休息到下个月",
   "restTillFullHealth": "休息到体力全满",
 
   "produce5Days": "生产 5 天",
@@ -557,6 +563,7 @@
 
   "cost": "消耗",
 
+  "pay_money": "支付 {0} 铜钱",
   "pay_shard": "支付 {0} 灵石",
 
   "difficulty": "难度",
@@ -588,8 +595,7 @@
 
   "yourTitleHere": "你在此处的职位",
   "yourContributionHere": "关于我在此处的功勋...",
-
-  "hint_yourContributionHere": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂任务、捐献资源等方式提升您在本地功勋。",
+  "moveHere": "搬家到此处",
 
   "heroDestroy": "销毁了{0}。",
   "heroDismantle": "分解了{0}。",
@@ -639,6 +645,13 @@
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
   "organizationBuild": "{0}在{1}创建了{2}。",
 
+  "replenishLocation": "关于你们的货...",
+
+  "hint_replenishLocation": "我们的进货日期是每个月 {0} 日，你是想要帮我们提前进货吗？这会刷新商店中现有的货物。共需花费<yellow> {1} 铜钱</>。",
+
+  "hint_yourContributionHere": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂任务、捐献资源等方式提升您在本地功勋。",
+  "hint_moveHere": "搬家到此处需要花费<yellow> {0} 铜钱</>。确定要搬家吗？",
+
   "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
   "hint_lose": "失去了{0}。",
   "hint_loseMultiple": "失去了 {0} 个{1}。",
@@ -666,14 +679,14 @@
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
   "hint_itemFullyCharged": "这件物品已经充能完毕了。",
 
-  "hint_notEnoughMoney": "你没有足够的钱。",
-  "hint_notEnoughShard": "你没有足够的灵石。",
+  "hint_notEnough_money": "你没有足够的钱。",
+  "hint_notEnough_shard": "你没有足够的灵石。",
   "hint_notEnoughExp": "你没有足够的修为经验。",
   "hint_notEnoughMaterial": "你没有足够的材料",
   "hint_notEnough": "你没有足够的{0}。",
 
-  "hint_merchantNotEnoughMoney": "对方身上没有足够的钱。",
-  "hint_merchantNotEnoughShard": "对方身上没有足够的灵石。",
+  "hint_merchantNotEnough_money": "对方身上没有足够的钱。",
+  "hint_merchantNotEnough_shard": "对方身上没有足够的灵石。",
   "hint_noJournals": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
@@ -692,8 +705,8 @@
 
   "hint_dungeonEntrance": "这里是通往<yellow>「洞天秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以随时进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n但如果是非本门派的成员，进入秘境同样需要支付一笔费用。",
 
-  "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要花费 {0} 灵石。",
-  "hint_dungeon_cost2": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于高阶秘境，需要使用秘境石才能开启。",
+  "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要<yellow> {0} 灵石</>。",
+  "hint_dungeon_cost2": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于高阶秘境，需要使用<yellow>秘境石</>才能开启。",
 
   "hint_dungeonAlreadyEntered": "你这个月已经进入过一次这个秘境了。因此目前无法进入，你还是请回吧。",
 
@@ -740,7 +753,7 @@
   "hint_insufficientLight": "此地没有足够灵光，无法继续修炼。",
   "hint_insufficientShard": "你没有足够的灵石，无法继续修炼。",
 
-  "hint_datetime": "每年有 12 个月。\n每个月有 30 天。\n每天有四个阶段：上午、下午、傍晚、午夜。\n每个阶段有 24 个 tick。\ntick 是时间的最小单位。",
+  "hint_datetime": "每年有 12 个月。\n每个月有 30 天。\n每天有四个阶段：上午、下午、傍晚、午夜。\n每个阶段有 24 个 tick。\n时间的最小单位是 tick 。",
 
   "hint_movement": "在大地图上时，点击<yellow>鼠标左键</>移动角色，点击并拖动<yellow>鼠标右键</>移动地图。",
 

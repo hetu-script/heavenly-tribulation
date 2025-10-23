@@ -11,7 +11,7 @@ import '../engine.dart';
 import '../scene/common.dart';
 import '../state/states.dart';
 import '../scene/game_dialog/game_dialog_content.dart';
-import '../widgets/dialog/timeflow.dart';
+import '../widgets/timeflow.dart';
 import '../widgets/dialog/select_menu.dart';
 import '../widgets/dialog/input_slider.dart';
 import '../widgets/information.dart';
@@ -43,8 +43,10 @@ const _kHintDyingVariants = 5;
 
 const _kBasicDungeonShardCost = 1;
 
-const _kLocationUpdateDay = 16;
 const _kOrganizationUpdateDay = 6;
+
+const _kLocationUpdateDay = 16;
+const _kLocationManualReplenishCostBase = 2000;
 
 final class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -206,7 +208,7 @@ final class GameLogic {
       }
     }
 
-    engine.debug('生成了 ${cities.length} 个据点的领地范围。');
+    engine.info('生成了 ${cities.length} 个据点的领地范围。');
   }
 
   static int generateZone(dynamic world) {
@@ -258,7 +260,7 @@ final class GameLogic {
       );
     }
 
-    engine.debug('生成了 $count 个地域。');
+    engine.info('生成了 $count 个地域。');
     return count;
   }
 
@@ -747,7 +749,7 @@ final class GameLogic {
       'rejuvenate': rejuvenate,
     });
 
-    engine.debug(
+    engine.info(
         '${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
   }
 
@@ -992,6 +994,7 @@ final class GameLogic {
 
       engine.context.read<EnemyState>().show(
         enemy,
+        loseOnEscape: true,
         onBattleEnd: (bool result, int roundCount) {
           if (result) {
             GameData.flags['tribulation'] = false;
@@ -1184,11 +1187,11 @@ final class GameLogic {
       positionalArgs: ['shard', value],
     );
 
-    engine.debug('物品 ${itemData['name']} 增加了 $charge 充能次数');
+    engine.info('物品 ${itemData['name']} 增加了 $charge 充能次数');
     engine.play('electric-sparks-68814.mp3');
   }
 
-  static void heroRest() => _heroRest();
+  static void heroRest(dynamic location) => _heroRest(location);
 
   static Future<void> heroWork(dynamic location, dynamic npc) =>
       _heroWork(location, npc);
@@ -1216,6 +1219,7 @@ final class GameLogic {
     bool updateUI = true,
     bool updateWorldMap = true,
     bool force = false,
+    bool showPerformance = false,
   }) async {
     final before = getDatetimeString();
     GameData.game['timestamp'] += ticks;
@@ -1229,8 +1233,8 @@ final class GameLogic {
       engine.context
           .read<GameTimestampState>()
           .update(timestamp: timestamp, datetimeString: after);
-      engine.log('game update begin: ${GameLogic.getDatetimeString()}');
     }
+    engine.debug(GameLogic.getDatetimeString());
 
     if (updateEntity || force) {
       // 刷新玩家事件标记
@@ -1287,7 +1291,7 @@ final class GameLogic {
         if (itemId == null) continue;
         final itemData = GameData.hero['inventory'][itemId];
         if (itemData['isUpdatable'] != true) continue;
-        engine.debug('触发装备物品 ${itemData['name']} 刷新事件');
+        engine.info('触发装备物品 ${itemData['name']} 刷新事件');
         await engine.hetu
             .invoke('onGameEvent', positionalArgs: ['onUpdateItem', itemData]);
       }
@@ -1295,8 +1299,8 @@ final class GameLogic {
 
     engine.hetu.invoke('handleBabies');
 
-    if (updateUI) {
-      engine.log(
+    if (showPerformance) {
+      engine.info(
           'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
     }
 
@@ -1320,29 +1324,24 @@ final class GameLogic {
     } else if (location['category'] == 'site') {
       // 交易类场景每个月刷新物品
       switch (location['kind']) {
-        case 'cityhall':
-          engine.hetu.invoke('replenishCityhall', positionalArgs: [location]);
         case 'tradinghouse':
-          engine.hetu
-              .invoke('replenishTradingHouse', positionalArgs: [location]);
-        case 'exparray':
-          engine.hetu.invoke('replenishExpArray', positionalArgs: [location]);
-        case 'library':
-          engine.hetu.invoke('replenishLibrary', positionalArgs: [location]);
-        case 'auctionhouse':
-          engine.hetu
-              .invoke('replenishAuctionHouse', positionalArgs: [location]);
-        case 'alchemylab':
-          engine.hetu.invoke('replenishAlchemyLab', positionalArgs: [location]);
-        case 'runelab':
-          engine.hetu.invoke('replenishRuneLab', positionalArgs: [location]);
+          engine.hetu.invoke('replenishMoney', positionalArgs: [location]);
+          engine.hetu.invoke('replenishMaterial', positionalArgs: [location]);
+          engine.hetu.invoke('replenishItem', positionalArgs: [location]);
+        case 'library' || 'auctionhouse' || 'alchemylab' || 'runelab':
+          engine.hetu.invoke('replenishMoney', positionalArgs: [location]);
+          engine.hetu.invoke('replenishItem', positionalArgs: [location]);
         case 'farmland' ||
               'fishery' ||
               'timberland' ||
               'huntingground' ||
               'mine':
-          engine.hetu
-              .invoke('replenishProductionSite', positionalArgs: [location]);
+          engine.hetu.invoke('replenishMoney', positionalArgs: [location]);
+          engine.hetu.invoke('replenishMaterial', positionalArgs: [location]);
+        case 'cityhall':
+          engine.hetu.invoke('replenishCityhall', positionalArgs: [location]);
+        case 'exparray':
+          engine.hetu.invoke('replenishExpArray', positionalArgs: [location]);
       }
     }
   }
@@ -1383,44 +1382,45 @@ final class GameLogic {
     await engine.popSceneTill(GameData.game['mainWorldId'] ?? Scenes.mainmenu);
 
     final homeLocationId = GameData.hero['homeLocationId'];
-    if (homeLocationId == null) return;
+    if (homeLocationId != null) {
+      final homeLocation = GameData.getLocation(homeLocationId);
+      final homeSiteId = GameData.hero['homeSiteId'];
 
-    final homeLocation = GameData.getLocation(homeLocationId);
-    final homeSiteId = GameData.hero['homeSiteId'];
+      final worldPosition = homeLocation['worldPosition'];
+      engine.hetu.invoke('setTo', namespace: 'Player', positionalArgs: [
+        worldPosition['left'],
+        worldPosition['top'],
+      ]);
 
-    final worldPosition = homeLocation['worldPosition'];
-    engine.hetu.invoke('setTo', namespace: 'Player', positionalArgs: [
-      worldPosition['left'],
-      worldPosition['top'],
-    ]);
-
-    engine.pushScene(
-      homeLocationId,
-      constructorId: Scenes.location,
-      arguments: {'locationId': homeLocationId},
-    );
-    engine.pushScene(
-      homeSiteId,
-      constructorId: Scenes.location,
-      arguments: {
-        'locationId': homeSiteId,
-        'onEnterScene': () async {
-          dialog.pushDialog(
-            'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
-            isHero: true,
-          );
-          await dialog.execute();
-        }
-      },
-    );
+      await engine.pushScene(
+        homeLocationId,
+        constructorId: Scenes.location,
+        arguments: {'locationId': homeLocationId},
+      );
+      await engine.pushScene(
+        homeSiteId,
+        constructorId: Scenes.location,
+        arguments: {
+          'locationId': homeSiteId,
+          'onEnterScene': () async {
+            dialog.pushDialog(
+              'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
+              isHero: true,
+            );
+            await dialog.execute();
+          }
+        },
+      );
+    }
 
     await Future.delayed(const Duration(milliseconds: 500));
+
     engine.setLoading(false);
   }
 
   /// 异步函数，在显示场景窗口之前执行
   static Future<dynamic> tryEnterLocation(dynamic location) async {
-    engine.debug('正在尝试进入据点 [${location['name']}]');
+    engine.info('尝试进入据点 [${location['name']}]');
     // [result] 值是 true 意味着不会进入场景
     final result = await engine.hetu.invoke('onGameEvent',
         positionalArgs: ['onBeforeEnterLocation', location]);
@@ -1428,7 +1428,7 @@ final class GameLogic {
 
     engine.context.read<ViewPanelState>().clearAll();
 
-    GameLogic.updateGame(ticks: (kTicksPerTime ~/ kBaseMoveSpeedOnPlain));
+    await GameLogic.updateGame(ticks: (kTicksPerTime ~/ kBaseMoveSpeedOnPlain));
     engine.pushScene(
       location['id'],
       constructorId: Scenes.location,
@@ -1454,7 +1454,7 @@ final class GameLogic {
   }) async {
     if (isBasic) {
       engine.hetu.invoke('resetDungeon', namedArgs: {
-        'rank': rank ?? 0,
+        'rank': rank,
         'isBasic': true,
       });
       if (!pushScene) return;
@@ -1470,9 +1470,10 @@ final class GameLogic {
       final items = await GameLogic.selectItem(
         character: GameData.hero,
         title: engine.locale('selectItem'),
-        filter: rank != null
-            ? {'kind': 'dungeon_ticket_rank$rank'}
-            : {'category': 'dungeon_ticket'},
+        filter: {
+          'category': 'dungeon_ticket',
+          'rank': rank,
+        },
         multiSelect: false,
       );
       if (items.isNotEmpty) {

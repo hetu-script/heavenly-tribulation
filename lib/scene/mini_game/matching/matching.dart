@@ -3,8 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/data/common.dart';
-import 'package:heavenly_tribulation/state/states.dart';
 import 'package:hetu_script/utils/math.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/samsara.dart';
@@ -22,6 +20,9 @@ import '../../../data/game.dart';
 import '../../../logic/logic.dart';
 import '../../../widgets/ui_overlay.dart';
 import 'collect_panel.dart';
+import '../../../data/common.dart';
+import '../../cursor_state.dart';
+import '../../../state/states.dart';
 
 const _kTileCoverPriority = 500;
 const _kDraggingPriority = 1000;
@@ -110,7 +111,7 @@ class _Grid extends GameComponent {
   }
 }
 
-class MatchingGame extends Scene {
+class MatchingGame extends Scene with HasCursorState {
   static final random = math.Random();
 
   late FpsComponent fps;
@@ -354,7 +355,7 @@ class MatchingGame extends Scene {
       int baseAmount = resources[materialId] ?? 0;
       baseAmount *= rarity - kProductionBaseMaxRarity + 1;
       final amount = _kProductionBaseAmount + random.nearInt(baseAmount);
-      engine.log('produced $materialId x $amount, at $kind');
+      engine.info('在$kind生产了$amount $materialId');
       if (isProduction) {
         engine.hetu.invoke(
           'collect',
@@ -474,6 +475,7 @@ class MatchingGame extends Scene {
       object.position += delta;
     };
     object.onMouseEnter = () {
+      cursorState = MouseCursorState.click;
       final objectIndex = object.value!.$1;
       if (objectIndex >=
           (_kMatchingGameMoneyObjectSpriteRow.$2 * kRarityCount)) {
@@ -512,6 +514,7 @@ class MatchingGame extends Scene {
       }
     };
     object.onMouseExit = () {
+      cursorState = MouseCursorState.normal;
       Hovertip.hide();
     };
     object.onDoubleTap = (buttons, position) {
@@ -636,6 +639,8 @@ class MatchingGame extends Scene {
   void onMount() {
     super.onMount();
 
+    Hovertip.hideAll();
+
     openTiles([
       (5, 3),
       (5, 2),
@@ -729,11 +734,7 @@ class MatchingGame extends Scene {
           showActiveJournal: false,
           actions: [
             Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: GameUI.foregroundColor),
-              ),
+              decoration: GameUI.boxDecoration,
               child: IconButton(
                 padding: const EdgeInsets.all(0),
                 onPressed: () {

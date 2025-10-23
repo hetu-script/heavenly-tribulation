@@ -70,6 +70,7 @@ struct ObjectWorldPortal {
 struct ObjectPortal {
   constructor ({
     id,
+    kind,
     name,
     hoverContent,
     isDiscovered = true,
@@ -82,6 +83,7 @@ struct ObjectPortal {
     this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
     this.category = kObjectCategoryPortal
+    this.kind = kind
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.targetTilePosition = {
@@ -165,7 +167,16 @@ struct ObjectMerchant {
       } else if (c == kItemCategoryPotion) {
         final item = Potion(rank: rank)
         entityAcquire(this.merchant, item)
-      } else {
+      } else if (kNormalPrototypeItems.contains(c)) {
+        final item = createItemById(c)
+        entityAcquire(this.merchant, item)
+      } else if (kRankedPrototypeItems.contains(c)) {
+        if (rank < 1) continue
+        final item = createItemById(c, rank: rank)
+        entityAcquire(this.merchant, item)
+      }
+      
+      else {
         engine.warn('未知的商人商品类别：${c}')
       }
     }

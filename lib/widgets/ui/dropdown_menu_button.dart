@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '../ui.dart';
+import '../../ui.dart';
 
 enum DropdownMenuButtonStyle {
   normal,
@@ -36,10 +36,7 @@ class DropdownMenuButton<T> extends StatelessWidget {
       hint: hint,
       menuItemStyleData: const MenuItemStyleData(height: 35.0),
       dropdownStyleData: DropdownStyleData(
-        decoration: BoxDecoration(
-          border: Border.all(color: GameUI.foregroundColor),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
+        decoration: GameUI.boxDecoration,
       ),
       isExpanded: true,
       value: selected,

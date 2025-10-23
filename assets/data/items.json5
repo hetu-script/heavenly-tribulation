@@ -19,13 +19,14 @@
     id: "exp_pack",
     name: "exp_pack",
     flavortext: "flavortext_exp_pack",
-    type: "material",
+    type: "consumable",
     category: "exp_pack",
     rarity: "rare",
     icon: "item/exp_pack.png",
     isIdentified: true,
     isUntradable: true,
   },
+
   identify_scroll: {
     id: "identify_scroll",
     name: "identify_scroll",
@@ -49,6 +50,7 @@
     isRankedItem: true,
     isIdentified: true,
   },
+
   dungeon_ticket: {
     id: "dungeon_ticket",
     name: "dungeon_ticket",
@@ -61,6 +63,7 @@
     isIdentified: true,
     isUnstackable: true,
   },
+
   craftmaterial_addAffix: {
     id: "craftmaterial_addAffix",
     name: "craftmaterial_addAffix",

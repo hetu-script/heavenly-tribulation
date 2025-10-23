@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
@@ -9,7 +7,6 @@ import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';
 import '../ui/menu_builder.dart';
 import '../dialog/confirm.dart';
-// import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
@@ -17,6 +14,7 @@ import '../../data/game.dart';
 import '../../ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 const Set<String> kMaterials = {
   'money',
@@ -94,7 +92,6 @@ class _CharacterDetailsState extends State<CharacterDetails> {
           engine.locale('use'): ItemPopUpMenuItems.use,
         if (itemData['chargeData'] != null)
           engine.locale('charge'): ItemPopUpMenuItems.charge,
-        '___': null,
         if (itemData['isUndroppable'] != true)
           engine.locale('discard'): ItemPopUpMenuItems.discard,
       },
@@ -239,8 +236,6 @@ class CharacterDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      alignment: AlignmentDirectional.center,
-      backgroundColor: GameUI.backgroundColor,
       width: GameUI.profileWindowSize.x,
       height: GameUI.profileWindowSize.y,
       child: Scaffold(

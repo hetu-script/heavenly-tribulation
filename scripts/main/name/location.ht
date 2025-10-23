@@ -3,8 +3,6 @@ import 'place/postfix.json5' as placePostfix
 import 'place/city.json5' as cityNames
 import 'common/strange.json5' as strangeNames
 import 'character/family.json5' as familyNames
-import 'common.ht'
-import '../random.ht'
 
 function generateCityName({category: string}) {
   let name = ''

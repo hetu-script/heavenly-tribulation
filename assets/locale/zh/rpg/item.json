@@ -124,7 +124,7 @@
   "flavortext_equipment_affix": "可以通过打造将特性作为词条赋予物品。",
 
   "craftmaterial_addAffix": "灵宝丹",
-  "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条，境界每高一级，额外词条上限 +1。",
+  "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条。\n境界每高一级，额外词条上限 +1。",
 
   "craftmaterial_replaceAffix": "神照丹",
   "flavortext_craftmaterial_replaceAffix": "用于物品或功法：随机替换一个额外词条。",

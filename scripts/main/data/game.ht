@@ -129,12 +129,6 @@ struct GameData {
       organizations: {},
       // 玩家每个月是否进行了某个动作
       monthly: HeroMonthly(),
-      // 角色每个月的事件标记
-      characterMonthly: {},
-      // 据点每个月的事件标记
-      locationMonthly: {},
-      // 各个门派每个月的事件标记
-      organizationMonthly: {}, 
     }
 
     this.npcs = {}
@@ -173,7 +167,7 @@ function createGame(saveName, {
   mainWorldId: string,
   enableTutorial = true
 }) {
-  engine.debug('准备开始新游戏')
+  engine.info('创建新游戏')
   game = GameData(
     saveName: saveName,
     mainWorldId: mainWorldId,
@@ -184,15 +178,6 @@ function createGame(saveName, {
   history = {}
   world = null
   hero = null
-  
-  for (final npcId in Constants.npcIds) {
-    Npc(
-      id: npcId,
-      nameId: npcId,
-      icon: 'illustration/npc/${npcId}_head.png',
-      // illustration: 'illustration/npc/${npcId}.png',
-    )
-  }
 }
 
 function resetHeroMonthly() {
@@ -236,12 +221,12 @@ function loadGameFromJsonData({
 
   assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
   
-  engine.debug('当前世界: [${world.id}]')
+  engine.info('当前世界: [${world.id}]')
 
   if (game.heroId != null) {
     assert(game.characters.containsKey(game.heroId))
     hero = game.characters[game.heroId]
-    engine.debug('设置当前玩家人物为 [${hero.name}]。')
+    engine.info('设置当前玩家人物为 [${hero.name}]。')
   } else {
     hero = null
   }
@@ -260,19 +245,19 @@ function getMapComponents() {
 function createMapComponent(componentData, left, top) {
   assert(componentData.entityType == null)
   final component = Object.fromJSON(componentData)
-  engine.debug('添加显示组件：[${component.id}]')
+  engine.info('添加显示组件：[${component.id}]')
   component.worldPosition = { left, top }
   world.components.add(component)
   return component
 }
 
 function removeMapComponentByPosition(left, top) {
-  engine.debug('移除显示组件，位于: [${left}, ${top}]')
+  engine.info('移除显示组件，位于: [${left}, ${top}]')
   world.components.removeWhere((c) => c.worldPosition.left == left && c.worldPosition.top == top)
 }
 
 function removeMapComponentById(id) {
-  engine.debug('移除显示组件，id: [${id}]')
+  engine.info('移除显示组件，id: [${id}]')
   world.components.removeWhere((c) => c.id == id)
 }
 
@@ -282,7 +267,7 @@ function setHero(id: string) {
   game.heroId = id
   hero = game.characters[id]
   game.flags.monthly = HeroMonthly()
-  engine.debug('设置当前玩家人物为 [${hero.name}]。')
+  engine.info('设置当前玩家人物为 [${hero.name}]。')
 
   if (game.enableTutorial) {
     /// 用于新手教程的系统角色
@@ -379,7 +364,7 @@ function setCurrentWorld(id) {
   assert(universe.containsKey(id), '无法切换到不存在的世界: [${id}], 当前世界列表: [${universe.keys}]')
   world = universe[id]
   game.currentWorldId = id
-  engine.debug('设置当前世界为: [${id}]')
+  engine.info('设置当前世界为: [${id}]')
 
   return world
 }
@@ -522,10 +507,10 @@ namespace Game {
   external function showCultivation({location, enableCultivate: bool = false})
 
   external function showPrebattle(enemyData, {
-    // prebattlePreventClose: bool = false,
     onBattleStart,
     onBattleEnd,
     background,
+    loseOnEscape: bool = false,
   })
 
   external function showBattle({

@@ -39,7 +39,7 @@ function resetDungeon({
   )
 }
 
-struct TrialFlags {
+struct TrialDungeonFlags {
   constructor ({
     name,
     difficulty,
@@ -64,12 +64,23 @@ function resetTrial({
     organizationId,
     npcId,
 }) {
-  game.flags.trial = TrialFlags(
+  game.flags.dungeon = TrialDungeonFlags(
     name: name,
     difficulty: difficulty,
     organizationId: organizationId,
     npcId: npcId,
   )
+}
+
+/// 清理地牢中所有临时地块贴图和临时对象，还原到空地图
+function resetMapTerrains() {
+  world.objects = {}
+  for (final tile in world.terrains) {
+    tile.isNonEnterable = false
+    tile.overlaySprite = {}
+    tile.objectId = null
+    World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
+  }
 }
 
 function addOverlaySprite(tilePosition, overlaySprite) {
@@ -101,6 +112,7 @@ function addSwitch(tilePosition, {
 
 function addPortal(tilePosition, {
     objectId,
+    kind,
     targetTilePosition,
     useCustomLogic,
     hoverContent,
@@ -114,6 +126,7 @@ function addPortal(tilePosition, {
   }
   final object = ObjectPortal(
     id: objectId,
+    kind: kind,
     useCustomLogic: useCustomLogic ?? false,
     targetLeft: targetTilePosition?.left,
     targetTop: targetTilePosition?.top,
@@ -185,7 +198,7 @@ function addMerchant(tilePosition, {
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 
-  engine.debug('添加商人：${objectId} (category: ${category})')
+  engine.info('添加商人 [${objectId}] (category: ${category.join(', ')}, rank: ${rank})')
 }
 
 function addEnemy(tilePosition, {
@@ -214,7 +227,7 @@ function addEnemy(tilePosition, {
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 
-  engine.debug('添加敌人：${objectId} (rank: ${rank}, level: ${level})')
+  engine.info('添加敌人 [${objectId}] (rank: ${rank}, level: ${level})')
 }
 
 function addRestBed(tilePosition, {

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
-import '../ui.dart';
-import '../../engine.dart';
-import '../data/game.dart';
+import '../../ui.dart';
+import '../../../engine.dart';
+import '../../data/game.dart';
 // import 'character/profile.dart';
 
 enum AvatarNameAlignment {
@@ -147,8 +147,8 @@ class Avatar extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white70,
               borderRadius: BorderRadius.only(bottomLeft: br, bottomRight: br),
-              border:
-                  Border.symmetric(horizontal: BorderSide(color: Colors.grey)),
+              border: Border.symmetric(
+                  horizontal: BorderSide(color: GameUI.borderColor)),
             ),
             child: Text(
               displayName,

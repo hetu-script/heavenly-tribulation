@@ -22,44 +22,7 @@ external function generateCityTerritory(world)
 
 external function generateZone(world)
 
-const kSearchSuccessProbability = 0.25
-
-// 打猎会增加遇到野兽的概率200%
-// 这个概率将会和地点本身的野兽概率相乘
-const kHuntBeastProbability = 2.0
-
-// 山峰上可能遇到强盗和野兽，但产出也较高
-const kMountainBeastProbability = 0.15
-const kMountainFruitProbability = 0.4
-const kMountainWoodProbability = 0.3
-const kMountainOreProbability = 0.15
-const kMountainShardProbability = 0.07
-const kMountainHerbProbability = 0.2
-
-// 森林中可能遇到强盗和野兽，但产出也较高
-const kForestBeastProbability = 0.07
-const kForestFruitProbability = 0.8
-const kForestWoodProbability = 0.6
-const kForestOreProbability = 0.04
-const kForestShardProbability = 0.02
-const kForestHerbProbability = 0.4
-
-// 平原上几乎不会遇到强盗和野兽，但产出也较低
-const kPlainBeastProbability = 0.02
-const kPlainFruitProbability = 0.3
-const kPlainWoodProbability = 0.1
-const kPlainOreProbability = 0.01
-const kPlainShardProbability = 0.001
-const kPlainHerbProbability = 0.1
-
-// 湖泊上没有风暴，但产出也较低
-const kLakeFishProbability = 0.25
-
-// 海洋上可能会遇到暴风雨，但产出也较高
-const kSeaStormProbability = 0.3
-const kSeaFishProbability = 0.45
-
-const kMoneyRewardRate = 0.4
+const _kMoneyRewardRate = 0.4
 const kRewardProbabilityExppack = 1.0
 const kRewardProbabilityMoney = 1.0
 const kRewardProbabilityShard = 0.4
@@ -67,15 +30,15 @@ const kRewardProbabilityEquipment = 0.3
 const kRewardProbabilityPotion = 0.2
 const kRewardProbabilityCardpack = 0.2
 const kRewardProbabilityScrollPaper = 0.1
-const kRewardProbabilityDungeonTicket = 0.02
-const kRewardProbabilityDungeonTicketNextLevel = 0.4
 const kRewardProbabilityCraftMaterial = 0.1
-const kRewardProbabilityCraftMaterialReplaceAffix = 0.4
-const kRewardProbabilityCraftMaterialRerollAffix = 0.25
-const kRewardProbabilityCraftMaterialUpgradeRank = 0.1
+const kRewardProbabilityDungeonTicket = 0.02
+const _kRewardProbabilityDungeonTicketNextLevel = 0.4
 
-const kSpiritWellProbabilitySpirit = 0.75
-const kSpiritWellProbabilityCraftMaterial = 0.5
+const _kRewardProbabilityCraftMaterialReplaceAffix = 0.4
+const _kRewardProbabilityCraftMaterialRerollAffix = 0.25
+const _kRewardProbabilityCraftMaterialUpgradeRank = 0.1
+
+const _kSpiritWellProbabilityCraftMaterial = 0.5
 
 /// 根据一个概率表生成战斗奖励
 /// probability: {
@@ -95,44 +58,42 @@ function generateReward({entity, probability: {}}) {
   let rank = entity?.rank ?? hero.rank
 
   let rewardExp
-  if (entity == null || (hero.rank - entity.rank) > 2) {
+  if (entity == null || (hero.rank - rank) > 2) {
     rewardExp = false
   } else {
     rewardExp = random.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
   }
-  
   let rewardMoney
   let rewardShard
-  if (entity?.rank <= 0) {
+  if (rank <= 0) {
     rewardShard = false
     rewardMoney = random.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
   } else {
     rewardMoney = false
     rewardShard = random.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
   }
-  final rewardEquipment = random.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
-  final rewardCardpack = random.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
-  final rewardPotion = random.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
-  let rewardScrollPaper
-  let rewardCraftMaterial
+  let rewardEquipment = random.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
+  let rewardCardpack = random.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
+  let rewardPotion = random.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
+  let rewardCraftMaterial = random.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
   let rewardDungeonTicket
+  let rewardScrollPaper
   if (rank > 0) {
     rewardScrollPaper = random.nextDouble() < (probability?.scrollPaper ?? kRewardProbabilityScrollPaper)
-    rewardCraftMaterial = random.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
     rewardDungeonTicket = random.nextDouble() < (probability?.dungeonTicket ?? kRewardProbabilityDungeonTicket)
   }
 
   final rewards = []
   final refQuantity = expForLevel(entity?.level ?? 0)
   if (rewardExp) {
-    final rankRate = (entity?.rank + 1) / (hero.rank + 1);
+    final rankRate = (rank + 1) / (hero.rank + 1);
     // final levelRatio = (entity?.level + 1) / (hero.level + 1);
     final exp = (rankRate * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 1)) * 4.5) + 40
     final expPack = createItemById('exp_pack', amount: exp.round())
     rewards.add(expPack)
   }
   if (rewardMoney) {
-    final money = random.nextInt(refQuantity * kMoneyRewardRate) + 50
+    final money = random.nextInt(refQuantity * _kMoneyRewardRate) + 50
     final moneyPack = Materialpack(kind: 'money', amount: money)
     rewards.add(moneyPack)
   }
@@ -142,11 +103,11 @@ function generateReward({entity, probability: {}}) {
     rewards.add(shardPack)
   }
   if (rewardEquipment) {
-    final equipment = Equipment(rank: rank)
+    final equipment = Equipment(rank: rank, isIdentified: rank < 1)
     rewards.add(equipment)
   }
   if (rewardCardpack) {
-    let genre = Constants.attributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
+    let genre = entity?.cultivationFavor
     final cardpack = Cardpack(rank: rank, genre: genre)
     rewards.add(cardpack)
   }
@@ -154,35 +115,35 @@ function generateReward({entity, probability: {}}) {
     final potion = Potion(rank: rank)
     rewards.add(potion)
   }
-  if (rewardScrollPaper) {
-    assert(rank > 0)
-    final scrollPaper = createItemById('scroll_paper_rank${rank}')
-    rewards.add(scrollPaper)
-  }
   if (rewardCraftMaterial) {
     let craftMaterialTypeRoll = random.nextDouble()
     let craftMaterial
     final itemRank = random.nearInt(rank) + 1
-    if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
+    if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
       craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
+    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
       craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
+    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
       craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
     } else {
       craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
     }
     rewards.add(craftMaterial)
   }
+  if (rewardScrollPaper) {
+    assert(rank > 0)
+    final scrollPaper = createItemById('scroll_paper', rank: rank)
+    rewards.add(scrollPaper)
+  }
   if (rewardDungeonTicket) {
     assert(rank > 0)
     let ticketRank = rank
     if (ticketRank < kCultivationRankMax) {
-      if (random.nextDouble() < (probability?.dungeonTicketNextLevel ?? kRewardProbabilityDungeonTicketNextLevel)) {
+      if (random.nextDouble() < (probability?.dungeonTicketNextLevel ?? _kRewardProbabilityDungeonTicketNextLevel)) {
         ticketRank += 1
       }
     }
-    final dungeonTicket = createItemById('dungeon_ticket_rank${ticketRank}')
+    final dungeonTicket = createItemById('dungeon_ticket', rank: ticketRank)
     rewards.add(dungeonTicket)
   }
 
@@ -262,9 +223,9 @@ async function selectHeroAttribute() {
 /// 但一般不要 await 这个函数，因为有可能卡在打开物品展示对话框的地方
 /// 直到关闭对话框才会返回并继续执行
 async function onInteractMapObject(object, terrain) {
-  engine.debug('正在和 Object [${object.id}] 互动。')
+  engine.info('正在和 Object [${object.id}] 互动。')
   if (object.useCustomLogic) {
-    engine.debug('Object [${object.id}] 使用自定义交互逻辑')
+    engine.info('Object [${object.id}] 使用自定义交互逻辑')
     await onWorldEvent('onInteractMapObject', object, terrain)
     return
   }
@@ -414,7 +375,7 @@ async function onInteractBed(object) {
       newLife = hero.stats.lifeMax
     }
     hero.life = newLife
-    engine.debug('休息恢复了 ${newLife - life} 生命值')
+    engine.info('休息恢复了 ${newLife - life} 生命值')
     Game.updateUI()
 
     await dialog.execute()
@@ -447,15 +408,15 @@ async function onInteractSpiritWell(object) {
   //   await dialog.execute()
   //   items.add(spirit)
   // } else
-  if (spiritWellDropRoll < kSpiritWellProbabilityCraftMaterial) {
+  if (spiritWellDropRoll < _kSpiritWellProbabilityCraftMaterial) {
     let craftMaterialTypeRoll = random.nextDouble()
     let craftMaterial
     final itemRank = random.nearInt(object.rank) + 1
-    if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialUpgradeRank) {
+    if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
       craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialRerollAffix) {
+    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
       craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-    } else if (craftMaterialTypeRoll < kRewardProbabilityCraftMaterialReplaceAffix) {
+    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
       craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
     } else {
       craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
@@ -472,21 +433,11 @@ async function onInteractSpiritWell(object) {
   object.isUsed = true
 }
 
-const _kMinSizeforFishTile = 16
 const _kMinSizeforStormTile = 80
 const _kMinSizeforSpiritTile = 120
 
-function setFishTile(terrain) {
-  engine.debug('鱼群正在在 [${terrain.left},${terrain.top}] 周围活跃。')
-  terrain.flags.isFishGathering = true
-  terrain.overlaySprite ??= {}
-  Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/fishZone.png'}})
-  World.updateTerrainOverlaySprite(terrain.left, terrain.top)
-  world.fishTileIndexes.add(terrain.index)
-}
-
 function setStormTile(terrain) {
-  engine.debug('暴风雨正在 [${terrain.left},${terrain.top}] 周围活跃。')
+  engine.info('风暴正在 [${terrain.left},${terrain.top}] 活跃。')
   terrain.flags.isInStorm = true
   terrain.overlaySprite ??= {}
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/stormZone.png'}})
@@ -494,14 +445,14 @@ function setStormTile(terrain) {
   world.stormTileIndexes.add(terrain.index)
 }
 
-// function setSpiritTile(terrain) {
-  // engine.debug('天地灵气正在 [${terrain.left},${terrain.top}] 喷涌。')
-  // terrain.flags.isSpiritSurging = true
-  // terrain.overlaySprite ??= {}
-  // Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
-  // World.updateTerrainOverlaySprite(terrain.left, terrain.top)
-  // game.spiritTileIndexes.add(terrain.index)
-// }
+function setSpiritTile(terrain) {
+  engine.info('灵气正在 [${terrain.left},${terrain.top}] 喷涌。')
+  terrain.flags.isSpiritSurging = true
+  terrain.overlaySprite ??= {}
+  Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
+  World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  game.spiritTileIndexes.add(terrain.index)
+}
 
 // 每个tick检查一次当前是否有婴儿出生
 function handleBabies {

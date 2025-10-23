@@ -33,14 +33,15 @@ const kStats = [
   'chiResist',
   'elementalResist',
   'psychicResist',
+];
+
+const kMoreStats = [
   'divider',
   'quickThreshold',
   'slowThreshold',
   'nimbleThreshold',
   'clumsyThreshold',
-];
-
-const kNonBattleStats = [
+  'divider',
   'monthlyIdentifyCardsMax',
   'lightRadius',
   'speedOnPlain',
@@ -163,16 +164,15 @@ class _CharacterStatsState extends State<CharacterStats> {
       items.add(const Divider());
     }
 
+    if (character['rank'] > 0) {
+      items.add(_buildStatsLabel('tribulationCount', character));
+    }
     for (final id in kStats) {
       items.add(_buildStatsLabel(id, character));
     }
 
     if (widget.showNonBattleStats) {
-      items.add(_buildStatsLabel('divider', character));
-      if (character['rank'] > 0) {
-        items.add(_buildStatsLabel('tribulationCount', character));
-      }
-      for (final id in kNonBattleStats) {
+      for (final id in kMoreStats) {
         items.add(_buildStatsLabel(id, character));
       }
     }

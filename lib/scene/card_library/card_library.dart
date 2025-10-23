@@ -169,6 +169,7 @@ class CardLibraryScene extends Scene {
     }
     while (_lightPoints.length < lightCount) {
       final lightPoint = LightPoint(
+        assetId: 'light_point.png',
         position: _lightPointsPositions.random.position,
         priority: kExpLightPriority,
         preferredSize: Vector2(20, 20),
@@ -1501,6 +1502,8 @@ class CardLibraryScene extends Scene {
   void onMount() async {
     super.onMount();
 
+    Hovertip.hideAll();
+
     updateOrderByButtonText();
     updateFilterByButtonText();
     libraryZone.repositionToTop();
@@ -1560,11 +1563,9 @@ class CardLibraryScene extends Scene {
           enableLibrary: false,
           actions: [
             Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(color: GameUI.foregroundColor),
-              ),
+              decoration: GameUI.boxDecoration,
+              width: GameUI.infoButtonSize.width,
+              height: GameUI.infoButtonSize.height,
               child: IconButton(
                 padding: const EdgeInsets.all(0),
                 onPressed: () {

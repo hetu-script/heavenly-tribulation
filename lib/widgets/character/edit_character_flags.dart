@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/responsive_view.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../ui/close_button2.dart';
+import '../ui/responsive_view.dart';
 
 class EditCharacterFlags extends StatefulWidget {
   const EditCharacterFlags({
@@ -35,8 +34,6 @@ class _EditCharacterFlagsState extends State<EditCharacterFlags> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      alignment: Alignment.center,
-      backgroundColor: GameUI.backgroundColor,
       width: 400,
       height: 400,
       child: Scaffold(

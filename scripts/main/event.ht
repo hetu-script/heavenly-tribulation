@@ -25,10 +25,10 @@ function addEventHandlers({worldId, moduleId, namespace}) {
     game.mods[moduleId].$handler = {}
   }
   if (worldId != null) {
-    engine.debug('为模组 [${moduleId}] 添加 [世界(${worldId})] 事件处理...')
+    engine.info('为模组 [${moduleId}] 添加 [世界(${worldId})] 事件处理...')
     game.mods[moduleId].$handler[worldId] = namespace
   } else {
-    engine.debug('为模组 [${moduleId}] 添加 [通用] 事件处理...')
+    engine.info('为模组 [${moduleId}] 添加 [通用] 事件处理...')
     game.mods[moduleId].$handler['events'] = namespace
   }
 }
@@ -51,7 +51,7 @@ async function onWorldEvent(eventId: string, ...args) {
       let callback = handler[world.id][eventId]
       // callback 可能是 null
       if(callback is function) {
-        engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
+        engine.info('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
         // 因为脚本函数本身定义在一个单独的脚本命名空间，并不能直接访问核心模组的global空间
         // 这里通过apply方法在运行时临时改变其命名空间，让其可以直接访问`game`等对象
         // final eventResult = await callback.apply(module, ...args)
@@ -75,7 +75,7 @@ async function onGameEvent(eventId: string, ...args) {
     if (gameEvents != null) {
       let callback = gameEvents[eventId]
       if(callback is function) {
-        engine.debug('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
+        engine.info('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
         // final eventResult = await callback.apply(module, ...args)
         final eventResult = await callback(...args)
         if (eventResult != null) {

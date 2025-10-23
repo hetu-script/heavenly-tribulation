@@ -370,7 +370,7 @@ function assignCharacterSuperior(character, organization) {
     }
   }
 
-  engine.debug('角色 [${character.id}] 在 [${organization.id}] 中的上级是 [${memberData.superiorId}]')
+  engine.info('${character.id}在${organization.id}的上级是${memberData.superiorId}')
 
   return memberData.superiorId
 }
@@ -687,5 +687,5 @@ function createDiplomacy(organization1, organization2, {
   organization1.diplomacies[organization2.id] = diplomacyData.id
   organization2.diplomacies[organization1.id] = diplomacyData.id
 
-  engine.debug('${organization1.id} 和 ${organization2.id} 建立了外交关系，初始好感度为 ${score}，关系类型为 ${type}')
+  engine.info('${organization1.id}和${organization2.id}建立了外交关系，初始好感度为 ${score}，关系类型为 ${type}')
 }

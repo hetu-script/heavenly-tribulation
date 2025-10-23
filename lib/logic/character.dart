@@ -1,10 +1,20 @@
 part of 'logic.dart';
 
-void _heroRest() async {
+void _heroRest(dynamic location) async {
+  final siteKind = location['kind'];
+  if (location['id'] != GameData.hero['homeSiteId']) {
+    if (siteKind == 'cityhall') {
+    } else if (siteKind == 'hotel') {
+    } else {
+      engine.error('非可休息场所：[${location['name']}] ($siteKind)');
+      return;
+    }
+  }
+
   dialog.pushSelection('restOption', [
-    'restTillTommorow',
-    'rest1Days',
-    'rest10Days',
+    'restIndefinitely',
+    'rest5Days',
+    'rest15Days',
     'rest30Days',
     'restTillNextMonth',
     'restTillFullHealth',
@@ -13,39 +23,46 @@ void _heroRest() async {
   await dialog.execute();
   final selected = dialog.checkSelected('restOption');
 
-  int ticks = 0;
+  bool stopAtFullHealth = false;
+  int? ticks;
   switch (selected) {
-    case 'restTillTommorow':
-      ticks = kTicksPerDay - GameLogic.ticksOfDay;
-    case 'rest1Days':
-      ticks = kTicksPerDay;
-    case 'rest10Days':
-      ticks = kTicksPerDay * 10;
+    case 'cancel':
+      return;
+    case 'rest5Days':
+      ticks = kTicksPerDay * 5;
+    case 'rest15Days':
+      ticks = kTicksPerDay * 15;
     case 'rest30Days':
       ticks = kTicksPerDay * 30;
     case 'restTillNextMonth':
       ticks = kTicksPerMonth - GameLogic.ticksOfMonth;
     case 'restTillFullHealth':
-      ticks =
-          (GameData.hero['stats']['lifeMax'] - GameData.hero['life']).floor() *
+      final t =
+          ((GameData.hero['stats']['lifeMax'] - GameData.hero['life'].round()) /
+                      kHomeRestLifeRestorePerTick)
+                  .ceil() *
               kTicksPerTime;
-    case 'cancel':
-      return;
-  }
-  if (ticks <= 0) {
-    GameDialogContent.show(
-        engine.context, engine.locale('hint_alreadyFullHealthNoNeedRest'));
-    return;
+      if (t <= 0) {
+        GameDialogContent.show(
+            engine.context, engine.locale('hint_alreadyFullHealthNoNeedRest'));
+        return;
+      }
+      stopAtFullHealth = true;
+      ticks = t;
   }
 
   await TimeflowDialog.show(
     context: engine.context,
     ticks: ticks,
     onProgress: () {
-      engine.hetu
-          .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
+      engine.hetu.invoke('restoreLife',
+          namespace: 'Player', positionalArgs: [kHomeRestLifeRestorePerTick]);
       engine.context.read<HeroState>().update();
-      return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
+      if (stopAtFullHealth) {
+        return GameData.hero['life'] >= GameData.hero['stats']['lifeMax'];
+      } else {
+        return false;
+      }
     },
   );
 
@@ -233,9 +250,9 @@ Future<void> _heroWork(dynamic location, [dynamic npc]) async {
 }
 
 Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
-  engine.debug('正在和 NPC [${npc['name']}] 互动。');
+  engine.info('正在和 NPC [${npc['name']}] 互动。');
   if (npc['useCustomLogic'] == true) {
-    engine.debug('NPC [${npc.id}] 使用自定义逻辑。');
+    engine.info('NPC [${npc.id}] 使用自定义逻辑。');
     engine.hetu.invoke('onGameEvent',
         positionalArgs: ['onInteractNpc', npc, location]);
     return;
@@ -451,32 +468,35 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                     },
                   ],
                 });
-                engine.context.read<EnemyState>().show(enemy,
-                    onBattleEnd: (bool battleResult, int roundCount) async {
-                  if (roundCount <= kCultivationTrialMinBattleRound) {
-                    dialog.pushDialog(
-                      'organization_${organizationCategory}_trial_pass',
-                      npc: npc,
-                    );
-                    await dialog.execute();
-                    await engine.hetu.invoke(
-                      'enroll',
-                      namespace: 'Player',
-                      positionalArgs: [organization],
-                      namedArgs: {
-                        'npcId': npc['id'],
-                      },
-                    );
-                  } else {
-                    GameData.addHeroMonthly(
-                        MonthlyActivityIds.enrolled, organization['id']);
-                    dialog.pushDialog(
-                      'organization_${organizationCategory}_trial_fail',
-                      npc: npc,
-                    );
-                    await dialog.execute();
-                  }
-                });
+                engine.context.read<EnemyState>().show(
+                  enemy,
+                  loseOnEscape: true,
+                  onBattleEnd: (bool battleResult, int roundCount) async {
+                    if (roundCount <= kCultivationTrialMinBattleRound) {
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_pass',
+                        npc: npc,
+                      );
+                      await dialog.execute();
+                      await engine.hetu.invoke(
+                        'enroll',
+                        namespace: 'Player',
+                        positionalArgs: [organization],
+                        namedArgs: {
+                          'npcId': npc['id'],
+                        },
+                      );
+                    } else {
+                      GameData.addHeroMonthly(
+                          MonthlyActivityIds.enrolled, organization['id']);
+                      dialog.pushDialog(
+                        'organization_${organizationCategory}_trial_fail',
+                        npc: npc,
+                      );
+                      await dialog.execute();
+                    }
+                  },
+                );
               case 'immortality':
                 engine.hetu.invoke('resetTrial', namedArgs: {
                   'name': engine.locale('cultivation_trial'),
@@ -499,7 +519,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 });
                 engine.context.read<EnemyState>().show(
                   enemy,
-                  // prebattlePreventClose: true,
+                  loseOnEscape: true,
                   onBattleEnd: (bool battleResult, int roundCount) async {
                     if (battleResult) {
                       dialog.pushDialog(
@@ -543,7 +563,7 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
                 }
                 engine.context.read<EnemyState>().show(
                   tester,
-                  // prebattlePreventClose: true,
+                  loseOnEscape: true,
                   onBattleEnd: (bool battleResult, int roundCount) async {
                     if (battleResult) {
                       dialog.pushDialog(
@@ -681,6 +701,10 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         }
         siteOptions.add('yourContributionHere');
       }
+      if (organization['id'] == GameData.hero['organizationId'] &&
+          GameData.hero['homeLocationId'] != atLocation['id']) {
+        siteOptions.add('moveHere');
+      }
     } else {
       siteOptions.add('siteInformation');
     }
@@ -691,16 +715,6 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         'description': 'hint_work_description',
       });
     }
-    if (kProductionSiteKinds.contains(siteKind) &&
-        kSiteWorkableBaseStaminaCost.containsKey(siteKind)) {
-      siteOptions.add({
-        'text': 'produce',
-        'description': 'hint_produce_description',
-      });
-    }
-    if (kSiteKindsTradable.contains(siteKind)) {
-      siteOptions.add('trade');
-    }
     if (siteKind == 'cityhall') {
       siteOptions.add('bountyQuest');
     } else if (siteKind == 'tradinghouse' ||
@@ -710,6 +724,17 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
       siteOptions.add('workbench');
     } else if (siteKind == 'alchemylab') {
       siteOptions.add('alchemy_furnace');
+    }
+    if (kSiteKindsTradable.contains(siteKind)) {
+      siteOptions.add('trade');
+      siteOptions.add('replenishLocation');
+    }
+    if (kProductionSiteKinds.contains(siteKind) &&
+        kSiteWorkableBaseStaminaCost.containsKey(siteKind)) {
+      siteOptions.add({
+        'text': 'produce',
+        'description': 'hint_produce_description',
+      });
     }
     siteOptions.add('cancel');
 
@@ -910,6 +935,31 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
         dialog.pushDialog('hint_yourContributionHere',
             npc: npc, interpolations: [contribution]);
         await dialog.execute();
+      case 'moveHere':
+        final cost = kMoveHomeCostBase * (location['development'] + 1);
+        dialog.pushDialog('hint_moveHere', npc: npc, interpolations: [cost]);
+        await dialog.execute();
+        dialog.pushSelectionRaw({
+          'id': 'moveHome_confirm',
+          'selections': {
+            'pay_money': engine.locale('pay_money', interpolations: [cost]),
+            'forgetIt': engine.locale('forgetIt'),
+          }
+        });
+        final selected = dialog.checkSelected('moveHome_confirm');
+        if (selected != 'pay_money') return;
+        final hasMoney = GameData.hero['materials']['money'];
+        if (hasMoney < cost) {
+          dialog.pushDialog('hint_notEnough_money', npc: npc);
+          await dialog.execute();
+          return;
+        }
+        engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+          'money',
+          cost,
+        ]);
+        engine.hetu.invoke('setHomeLocation',
+            namespace: 'Player', positionalArgs: [location]);
       case 'organizationInformation':
         showDialog(
           context: engine.context,
@@ -985,6 +1035,40 @@ Future<void> _onInteractNpc(dynamic npc, dynamic location) async {
               priceFactor: location['priceFactor'],
               merchantType: MerchantType.location,
             );
+      case 'replenishLocation':
+        final cost =
+            _kLocationManualReplenishCostBase * (location['development'] + 1);
+        dialog.pushDialog(
+          'hint_replenishLocation',
+          name: npc['name'],
+          icon: npc['icon'],
+          image: npc['illustration'],
+          interpolations: [
+            _kLocationUpdateDay,
+            cost,
+          ],
+        );
+        dialog.pushSelectionRaw({
+          'id': 'replenishLocation_confirm',
+          'selections': {
+            'pay_money': engine.locale('pay_money', interpolations: [cost]),
+            'forgetIt': engine.locale('forgetIt'),
+          }
+        });
+        await dialog.execute();
+        final selected = dialog.checkSelected('replenishLocation_confirm');
+        if (selected != 'pay_money') return;
+        final hasMoney = GameData.hero['materials']['money'];
+        if (hasMoney < cost) {
+          dialog.pushDialog('hint_notEnough_money', npc: npc);
+          await dialog.execute();
+          return;
+        }
+        engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+          'money',
+          cost,
+        ]);
+        engine.hetu.invoke('replenishItem', positionalArgs: [location]);
       case 'workbench':
         engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
       case 'alchemy_furnace':
@@ -1004,7 +1088,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
     return;
   }
 
-  engine.debug('正在和角色 [${character['name']}] 互动。');
+  engine.info('正在和角色 [${character['name']}] 互动。');
 
   final result = await engine.hetu.invoke('onGameEvent',
       positionalArgs: ['onBeforeInteractCharacter', character]);
@@ -1160,7 +1244,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
           character: GameData.hero, multiSelect: false);
       final item = items.firstOrNull;
       if (item != null) {
-        engine.debug('正在向 ${character['name']} 出示 ${item['name']}');
+        engine.info('正在向 ${character['name']} 出示 ${item['name']}');
         engine.hetu
             .invoke('onGameEvent', positionalArgs: ['onShow', character, item]);
       }
@@ -1170,7 +1254,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
           character: GameData.hero, multiSelect: false);
       final item = items.first;
       if (item != null) {
-        engine.debug('正在向 ${character.name} 赠送 ${item.name}');
+        engine.info('正在向 ${character.name} 赠送 ${item.name}');
         final result = await engine.hetu
             .invoke('onGameEvent', positionalArgs: ['onGift', character, item]);
         if (result) {

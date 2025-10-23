@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
-import 'package:heavenly_tribulation/widgets/view/alchemy.dart';
-import 'package:heavenly_tribulation/widgets/view/workshop.dart';
 import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/markdown_wiki.dart';
 
-import 'avatar.dart';
+import 'ui/avatar.dart';
 import 'character/profile.dart';
 import 'character/memory.dart';
 import '../engine.dart';
@@ -28,11 +25,15 @@ import 'dialog/new_items.dart';
 import 'dialog/new_journal.dart';
 import '../data/game.dart';
 import 'character/inventory/equipment_bar.dart';
-import 'character/stats.dart';
 import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
 import '../scene/organization/meeting.dart';
 import 'journal_panel.dart';
+import 'dialog/new_rank.dart';
+import 'view/alchemy.dart';
+import 'view/workshop.dart';
+import 'ui/responsive_view.dart';
+import '../logic/logic.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -94,8 +95,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
     final battleBackground = context.watch<EnemyState>().background;
-    // final prebattlePreventClose =
-    //     context.watch<EnemyState>().prebattlePreventClose;
+    final loseOnEscape = context.watch<EnemyState>().loseOnEscape;
     final onBattleStart = context.watch<EnemyState>().onBattleStart;
     final onBattleEnd = context.watch<EnemyState>().onBattleEnd;
 
@@ -193,7 +193,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               panelPositions[panel] ?? GameUI.detailsWindowPosition;
           panels.add(
             DraggablePanel(
-              title: engine.locale('stats_and_inventory'),
+              title: engine.locale('statsAndInventory'),
               position: position,
               width: GameUI.profileWindowSize.x,
               height: GameUI.profileWindowSize.y,
@@ -359,16 +359,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       ),
                                     ),
                                     Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color:
-                                              //  autoWork
-                                              //     ? GameUI.foregroundColor
-                                              //     :
-                                              Colors.transparent,
-                                          width: 1.0,
-                                        ),
-                                      ),
+                                      decoration: GameUI.boxDecoration,
                                       child: Image(
                                           width: 20,
                                           height: 20,
@@ -523,9 +514,16 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .toogle(ViewPanels.journal);
                               },
                               onEnter: (rect) {
-                                context
-                                    .read<HoverContentState>()
-                                    .show(engine.locale('journal'), rect);
+                                final ongoingJournals = GameData
+                                    .hero['journals'].values
+                                    .where((journal) {
+                                  return !journal['isFinished'];
+                                }).length;
+                                context.read<HoverContentState>().show(
+                                      '${engine.locale('journal')}\n${engine.locale('ongoingJournals')}: $ongoingJournals',
+                                      rect,
+                                      textAlign: TextAlign.left,
+                                    );
                               },
                               onExit: () {
                                 context.read<HoverContentState>().hide();
@@ -545,16 +543,18 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .toogle(ViewPanels.details);
                               },
                               onEnter: (rect) {
-                                final Widget statsView = CharacterStats(
-                                  title: engine.locale('stats'),
-                                  character: hero,
-                                  showNonBattleStats: false,
-                                );
+                                final level = GameData.hero['level'];
+                                final levelString =
+                                    '${engine.locale('level')}: $level';
+                                final rank = GameData.hero['rank'];
+                                final rankString =
+                                    '${engine.locale('rank')}: ${engine.locale('cultivationRank_$rank')}';
+                                final statsDesc =
+                                    '${engine.locale('statsAndInventory')}\n$levelString\n$rankString';
                                 context.read<HoverContentState>().show(
-                                      statsView,
+                                      statsDesc,
                                       rect,
-                                      direction:
-                                          HoverContentDirection.bottomLeft,
+                                      textAlign: TextAlign.left,
                                     );
                               },
                               onExit: () {
@@ -571,7 +571,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
-                                context.read<HoverContentState>().hide();
                                 context.read<ViewPanelState>().clearAll();
                                 engine
                                     .pushScene(Scenes.cultivation, arguments: {
@@ -580,11 +579,17 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 });
                               },
                               onEnter: (rect) {
-                                final cultivationDescription =
-                                    GameData.getPassivesDescription(hero);
-
+                                final exp = GameData.hero['exp'];
+                                final expForNextLevel = GameLogic.expForLevel(
+                                    GameData.hero['level']);
+                                final desc =
+                                    '${engine.locale('meditateAndTalentTree')}\n'
+                                    '${engine.locale('exp')}: $exp/$expForNextLevel';
+                                // final cultivationDescription =
+                                //     GameData.getPassivesDescription(
+                                //         title: title);
                                 context.read<HoverContentState>().show(
-                                      cultivationDescription,
+                                      desc,
                                       rect,
                                       direction:
                                           HoverContentDirection.bottomLeft,
@@ -615,9 +620,17 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 });
                               },
                               onEnter: (rect) {
-                                context
-                                    .read<HoverContentState>()
-                                    .show(engine.locale('cardlibrary'), rect);
+                                final cardCount =
+                                    GameData.hero['cardLibrary'].length;
+                                final deckCount =
+                                    GameData.hero['battleDecks'].length;
+                                context.read<HoverContentState>().show(
+                                      '${engine.locale('cardlibrary')}\n'
+                                      '${engine.locale('cardCount')}: $cardCount\n'
+                                      '${engine.locale('deckCount')}: $deckCount',
+                                      rect,
+                                      textAlign: TextAlign.left,
+                                    );
                               },
                               onExit: () {
                                 context.read<HoverContentState>().hide();
@@ -635,13 +648,13 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 context.read<HoverContentState>().hide();
                                 showDialog(
                                   context: context,
-                                  builder: (context) => MarkdownWiki(
-                                    engine: engine,
-                                    cursor: GameUI.cursor,
+                                  builder: (context) => ResponsiveView(
                                     margin: const EdgeInsets.all(50.0),
-                                    backgroundColor: GameUI.backgroundColor,
-                                    treeNodes: GameData.wikiTreeNodes,
-                                    closeButton: CloseButton2(),
+                                    child: MarkdownWiki(
+                                      engine: engine,
+                                      treeNodes: GameData.wikiTreeNodes,
+                                      closeButton: CloseButton2(),
+                                    ),
                                   ),
                                 );
                               },
@@ -716,7 +729,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 hero: hero,
                 enemy: enemyData,
                 background: battleBackground,
-                // prebattlePreventClose: prebattlePreventClose,
+                loseOnEscape: loseOnEscape,
                 ignoreRequirement: engine.scene?.id == Scenes.mainmenu,
                 onBattleStart: onBattleStart,
                 onBattleEnd: onBattleEnd,
