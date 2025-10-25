@@ -3,10 +3,8 @@ import '../achievements.ht'
 
 const _kAttributesBaseValue = 50
 
-// number of the male avatar images
-const _kMaleAvatarCount = 37
-// number of the female avatar images
-const _kFemaleAvatarCount = 75
+// number of the avatar images
+const _kAvatarCount = 41
 
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
@@ -41,17 +39,6 @@ struct BattleEntity {
   }) {
     this.entityType = kEntityTypeBattleEntity
     this.isFemale = isFemale ?? random.nextBool()
-    if (this.isFemale) {
-      const index = random.nextInt(_kFemaleAvatarCount)
-      this.icon = icon ?? 'illustration/female/${index}.jpg'
-      this.illustration = illustration
-    } else {
-      const index = random.nextInt(_kMaleAvatarCount)
-      this.icon = icon ?? 'illustration/male/${index}.jpg'
-      this.illustration = illustration
-    }
-    this.usedNames = []
-
     if (race != null) {
       assert(Constants.races.contains(race))
       this.race = race
@@ -59,12 +46,19 @@ struct BattleEntity {
       this.race = random.nextIterable(Constants.races)
     }
 
-    let sex = this.isFemale ? 'female' : 'male'
+    const sex = this.isFemale ? 'female' : 'male'
+    this.illustration = illustration
+    if (icon == null) {
+      const avatarIndex = random.nextInt(_kAvatarCount)
+      this.icon = 'illustration/avatar/${this.race}/${sex}/${avatarIndex}.png'
+    } else {
+      this.icon = icon
+    }
+    // this.usedNames = []
     this.skin = skin ?? '${sex}_${this.race}_costume${random.nextInt(_kCostumeCount) + 1}_color${random.nextInt(_kCostumeColorCount) + 1}'
 
     if (name == null && generateName) {
       let randomName
-
       let conflict = false
       do {
         randomName = generateCharacterName(
@@ -72,10 +66,8 @@ struct BattleEntity {
           surName: surName,
           middleName: generationName,
         )
-        conflict = game.characters.values.where((element) =>
-          element.name == randomName.name).isNotEmpty
+        conflict = game.characters[randomName.fullName] != null
       } while (conflict)
-
       this.name = randomName.fullName
       this.surName = randomName.surName
       this.generationName = randomName.middleName

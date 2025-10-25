@@ -270,7 +270,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Avatar(
-                    borderRadius: 0.0,
                     size: const Size(120, 120),
                     image: AssetImage('assets/images/${hero['icon']}'),
                     onPressed: (_) {

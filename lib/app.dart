@@ -439,7 +439,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::updateGame', (
         {positionalArgs, namedArgs}) {
       GameLogic.updateGame(
-        ticks: namedArgs['tick'] ?? 1,
+        ticks: namedArgs['tick'] ?? kTicksPerTime,
         force: namedArgs['force'] ?? false,
         updateEntity: namedArgs['updateEntity'] ?? true,
         updateUI: namedArgs['updateUI'] ?? true,

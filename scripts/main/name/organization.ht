@@ -22,5 +22,6 @@ function generateOrganizationName(
   // }
   // let kind = random.nextIterable(orgNames[category])
   // return { name: name + kind, category }
-  return { name: name + kind }
+  name += kind
+  return name
 }

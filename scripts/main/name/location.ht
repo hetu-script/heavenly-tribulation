@@ -26,5 +26,6 @@ function generateCityName({category: string}) {
     }
     name = random.nextIterable(placeNames) + postfix
   }
-  return { name: name + kind, category }
+  name += kind
+  return name
 }

@@ -97,12 +97,17 @@ flutter:
     - assets/images/illustration/
     - assets/images/illustration/avatar/
     - assets/images/illustration/avatar/npc/
-    - assets/images/illustration/male/
-    - assets/images/illustration/female/
+    - assets/images/illustration/avatar/fanzu/
+    - assets/images/illustration/avatar/fanzu/female/
+    - assets/images/illustration/avatar/fanzu/male/
+    - assets/images/illustration/avatar/xianzu/
+    - assets/images/illustration/avatar/xianzu/female/
+    - assets/images/illustration/avatar/xianzu/male/
+    - assets/images/illustration/avatar/yaozu/
+    - assets/images/illustration/avatar/yaozu/female/
+    - assets/images/illustration/avatar/yaozu/male/
     - assets/images/illustration/main/
     - assets/images/illustration/npc/
-    - assets/images/illustration/old/
-    - assets/images/illustration/young/
     - assets/images/illustration/
     - assets/images/item/
     - assets/images/item/consumable/

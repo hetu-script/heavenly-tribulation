@@ -435,7 +435,6 @@ final class GameUI {
   /// 原本是卡牌精炼区域，现在仅是贴图装饰
   static late Vector2 cardCraftZoneSize;
   static late Vector2 cardCraftZonePosition;
-  // static late Vector2 cardCraftZonePosition2;
 
   static final Vector2 skillBookSize = Vector2(360, 360);
   static final Vector2 expBottleSize = Vector2(135, 180);

@@ -26,11 +26,11 @@ class Avatar extends StatelessWidget {
     this.borderImage,
     this.showPlaceholder = false,
     this.showBorderImage = false,
-    this.color = Colors.transparent,
+    this.color = GameUI.foregroundColor,
     this.size = const Size(100.0, 100.0),
-    this.borderRadius = 0.0,
-    this.borderColor = Colors.transparent,
-    this.borderWidth,
+    this.borderRadius = GameUI.borderRadius,
+    this.borderColor = GameUI.borderColor,
+    this.borderWidth = 2.0,
     this.characterId,
     this.characterData,
     this.onPressed,
@@ -47,9 +47,9 @@ class Avatar extends StatelessWidget {
   final bool showBorderImage;
   final Color color;
   final Size size;
-  final double borderRadius;
+  final BorderRadius borderRadius;
   final Color borderColor;
-  final double? borderWidth;
+  final double borderWidth;
   final String? characterId;
   final dynamic characterData;
   final void Function(dynamic character)? onPressed;
@@ -102,9 +102,9 @@ class Avatar extends StatelessWidget {
             (displayName != null && nameAlignment != AvatarNameAlignment.inside)
                 ? Size(size.width - kNameHeight, size.height - kNameHeight)
                 : size,
-        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-        // borderColor: borderColor,
-        borderWidth: borderWidth ?? 0.0,
+        borderRadius: borderRadius,
+        borderColor: borderColor,
+        borderWidth: borderWidth,
       );
     }
 
@@ -117,9 +117,9 @@ class Avatar extends StatelessWidget {
             (displayName != null && nameAlignment != AvatarNameAlignment.inside)
                 ? Size(size.width - kNameHeight, size.height - kNameHeight)
                 : size,
-        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+        borderRadius: borderRadius,
         borderColor: borderColor,
-        borderWidth: borderWidth ?? 0.0,
+        borderWidth: borderWidth,
       );
     }
 
@@ -138,7 +138,7 @@ class Avatar extends StatelessWidget {
         widgets.add(icon);
       }
       if (displayName != null) {
-        final br = Radius.circular(borderRadius);
+        final br = Radius.circular(5.0);
         widgets.add(Align(
           alignment: Alignment.bottomCenter,
           child: Container(

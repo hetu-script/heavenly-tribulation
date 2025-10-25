@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/gestures.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:hetu_script/utils/uid.dart';
@@ -678,6 +679,8 @@ class CardLibraryScene extends Scene {
   }
 
   void onEndCraft() async {
+    Hovertip.hideAll();
+
     skillBook.enableGesture = true;
     expBottle.enableGesture = true;
     expLabel.isVisible = false;
@@ -1422,7 +1425,8 @@ class CardLibraryScene extends Scene {
         GameUI.size.x / 2,
         GameUI.cardpackCardPositions[1].y +
             GameUI.cardpackCardSize.y +
-            GameUI.hugeIndent * 2,
+            GameUI.hugeIndent +
+            GameUI.indent,
       ),
       spriteId: 'cultivation/scroll.png',
       hoverSpriteId: 'cultivation/scroll_hover.png',

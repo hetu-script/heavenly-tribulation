@@ -446,7 +446,7 @@ namespace Game {
   external function popScene({clearCache: bool = false})
   
   external function updateGame({
-    tick = Constants.ticksPerDay,
+    tick = Constants.ticksPerTime,
     force = false,
     updateEntity = true,
     updateUI = true,

@@ -112,22 +112,25 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                     ),
                   ),
                   if (widget.multiSelect)
-                    fluent.Button(
-                      onPressed: () {
-                        _selectedItemsData.clear();
-                        final filteredItems = GameLogic.getFilteredItems(
-                          widget.character,
-                          type: widget.type,
-                          filter: widget.filter,
-                        );
-                        for (final item in filteredItems) {
-                          _selectedItemsData[item['id']] = item;
-                        }
-                        setState(() {});
-                      },
-                      child: Label(
-                        engine.locale('selectAll'),
-                        textAlign: TextAlign.center,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 15.0),
+                      child: fluent.Button(
+                        onPressed: () {
+                          _selectedItemsData.clear();
+                          final filteredItems = GameLogic.getFilteredItems(
+                            widget.character,
+                            type: widget.type,
+                            filter: widget.filter,
+                          );
+                          for (final item in filteredItems) {
+                            _selectedItemsData[item['id']] = item;
+                          }
+                          setState(() {});
+                        },
+                        child: Label(
+                          engine.locale('selectAll'),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     )
                   else

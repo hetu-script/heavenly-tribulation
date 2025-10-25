@@ -53,8 +53,6 @@ class _NpcListState extends State<NpcList> {
           name: (haveMet != null) ? character['name'] : '???',
           size: const Size(100, 100),
           characterData: character,
-          borderWidth: 1.0,
-          borderRadius: 5.0,
           onPressed: (character) => GameLogic.onInteractCharacter(character),
         ),
       );

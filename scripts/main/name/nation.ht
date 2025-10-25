@@ -19,5 +19,6 @@ function generateNationName(number: integer) {
     }
     name = prefix + random.nextIterable(place)
   }
-  return { name: name + _kNationNamePostfix }
+  name += _kNationNamePostfix
+  return name
 }

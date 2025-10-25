@@ -91,7 +91,7 @@ class MerchantState with ChangeNotifier {
   bool allowManualReplenish = false;
 
   void show(
-    dynamic data, {
+    dynamic merchantData, {
     bool materialMode = false,
     bool useShard = false,
     dynamic priceFactor,
@@ -101,7 +101,7 @@ class MerchantState with ChangeNotifier {
   }) {
     this.materialMode = materialMode;
     this.useShard = useShard;
-    this.merchantData = data;
+    this.merchantData = merchantData;
     this.priceFactor = priceFactor;
     this.filter = filter;
     this.merchantType = merchantType;

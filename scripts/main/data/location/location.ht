@@ -149,13 +149,13 @@ struct Location {
       if (name) {
         this.name = name
       } else {
+        let randomName
         let conflict = false
         do {
-          const randomName = generateCityName(category: this.kind)
-          this.name = randomName.name
-          conflict = game.locations.values.where((element) =>
-            element.name == this.name).isNotEmpty
+          randomName = generateCityName(category: this.kind)
+          conflict = game.locations[randomName] != null
         } while (conflict)
+        this.name = randomName
       }
       
       this.id = id ?? this.name

@@ -597,6 +597,7 @@ async function promptExit() {
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     case 'portal1', 'portal2', 'portal3': {
+      await Game.updateGame(updateWorldMap: false)
       if (game.flags.dungeon.room < game.flags.dungeon.roomMax) {
         game.flags.dungeon.selectedPortalKind = object.kind
         game.flags.dungeon.buildCompleted = false

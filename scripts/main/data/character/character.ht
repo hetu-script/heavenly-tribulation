@@ -790,19 +790,18 @@ struct Baby {
           surName: this.surName,
           middleName: generationName,
         )
-        conflict = game.characters.values.where((element) =>
-          element.name == randomName.name).isNotEmpty
+        conflict = game.characters[randomName.fullName] != null
       } while (conflict)
+      this.name = randomName.fullName
+      this.surName = randomName.surName
+      this.generationName = randomName.middleName
       this.shortName = randomName.shortName
     }
-    this.name = this.surName + this.shortName
     this.id = id ?? this.name
-
     if (game.babies.containsKey(this.id)) {
       engine.warn('已经存在 id 为 ${this.id} 的婴儿。旧数据将会被覆盖。')
     }
     game.babies[this.id] = this
-    
     const incidentContent = engine.locale('characterConception', interpolations: [
       mother.name,
       father.name,

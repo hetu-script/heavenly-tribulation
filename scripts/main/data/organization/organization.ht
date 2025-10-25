@@ -124,12 +124,13 @@ struct Organization {
     if (name) {
       this.name = name
     } else {
+      let randomName
       let conflict = false
       do {
-        this.name = generateOrganizationName(category: this.category).name
-        conflict = game.organizations.values.where((element) =>
-          element.name == this.name).isNotEmpty
+        randomName = generateOrganizationName(category: this.category)
+        conflict = game.organizations[randomName] != null
       } while (conflict)
+      this.name = randomName
     }
     // this.id = '${this.entityType}.${this.index}.${this.id}'
     this.id = id ?? this.name

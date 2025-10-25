@@ -58,7 +58,7 @@
     icon: "icon/status/permanent/weaken_unarmed.png",
     attackType: "unarmed",
     script: "weaken",
-    isPermanent: true,\
+    isPermanent: true,
     callbacks: ["self_doing_damage"],
   },
   weaken_weapon: {

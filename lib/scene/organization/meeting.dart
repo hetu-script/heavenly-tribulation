@@ -56,7 +56,7 @@ class Meeting extends StatelessWidget {
             size: const Size(120, 120),
             showBorderImage: true,
             nameAlignment: AvatarNameAlignment.inside,
-            borderRadius: 15.0,
+            borderRadius: BorderRadius.all(Radius.circular(15.0)),
             onPressed: (character) async {
               await GameLogic.onInteractCharacter(character);
               context.read<MeetingState>().remove(character);
