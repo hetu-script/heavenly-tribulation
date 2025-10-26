@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/character/memory_and_bond.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
@@ -13,6 +14,8 @@ import '../../data/game.dart';
 import 'edit_character_flags.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
+import '../../ui.dart';
+import '../history_list.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
@@ -22,8 +25,6 @@ class CharacterProfile extends StatefulWidget {
     this.mode = InformationViewMode.view,
     this.height = 400.0,
     this.showIntimacy = true,
-    this.showPosition = true,
-    this.showRelationships = true,
     this.showPersonality = true,
   });
 
@@ -31,7 +32,7 @@ class CharacterProfile extends StatefulWidget {
   final dynamic character;
   final InformationViewMode mode;
   final double height;
-  final bool showIntimacy, showPosition, showRelationships, showPersonality;
+  final bool showIntimacy, showPersonality;
 
   @override
   State<CharacterProfile> createState() => _CharacterProfileState();
@@ -55,7 +56,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
   final Map<String, Widget> attributeWidgets = {};
 
   late String homeName;
-  late String worldName, worldPosition, locationName;
+  late String worldPosition, locationName;
   late String cultivationFavor, organizationFavor;
 
   late int rank, level;
@@ -206,8 +207,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final location = GameData.game['locations'][locationId];
     locationName = location != null ? location['name'] : none;
 
-    final worldId = _character['worldId'];
-    worldName = worldId != null ? GameData.universe[worldId]['name'] : none;
+    // final worldId = _character['worldId'];
+    // worldName = worldId != null ? GameData.universe[worldId]['name'] : none;
 
     final worldPositionX = _character['worldPosition']?['left'];
     final worldPositionY = _character['worldPosition']?['top'];
@@ -256,7 +257,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
           height: widget.height,
           child: SingleChildScrollView(
             child: ListView(
@@ -275,9 +276,24 @@ class _CharacterProfileState extends State<CharacterProfile> {
                             AssetImage('assets/images/${_character['icon']}'),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5.0),
-                      child: Text(_character['description']),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 10.0),
+                        height: 150.0,
+                        decoration: GameUI.boxDecoration,
+                        child: HistoryList(
+                          limit: 6,
+                          historyData: _character['experienced'],
+                          onTapUp: () {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return CharacterMemoryAndBondView(
+                                      character: _character);
+                                });
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -441,7 +457,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                               widget.showIntimacy)
                             Container(
                               padding: const EdgeInsets.only(top: 7.0),
-                              width: 160.0,
+                              width: 150.0,
                               child: Column(
                                 children: [
                                   Container(
@@ -469,7 +485,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                     alignment: Alignment.centerLeft,
                                     height: 35.0,
                                     child: Text(
-                                        '${engine.locale('world')}: $worldName$worldPosition'),
+                                        '${engine.locale('worldPosition')}: $worldPosition'),
                                   ),
                                   Container(
                                     alignment: Alignment.centerLeft,
@@ -655,8 +671,6 @@ class CharacterProfileView extends StatelessWidget {
     this.mode = InformationViewMode.view,
     this.height,
     this.showIntimacy = false,
-    this.showPosition = false,
-    this.showRelationships = false,
     this.showPersonality = false,
   });
 
@@ -664,7 +678,7 @@ class CharacterProfileView extends StatelessWidget {
   final dynamic character;
   final InformationViewMode mode;
   final double? height;
-  final bool showIntimacy, showPosition, showRelationships, showPersonality;
+  final bool showIntimacy, showPersonality;
 
   @override
   Widget build(BuildContext context) {
@@ -677,7 +691,7 @@ class CharacterProfileView extends StatelessWidget {
       }
     }
     return ResponsiveView(
-      width: 800.0,
+      width: 640.0,
       height: h,
       child: Scaffold(
         appBar: AppBar(
@@ -693,8 +707,6 @@ class CharacterProfileView extends StatelessWidget {
               mode: mode,
               height: h - 100.0,
               showIntimacy: showIntimacy,
-              showPosition: showPosition,
-              showRelationships: showRelationships,
               showPersonality: showPersonality,
             ),
           ],

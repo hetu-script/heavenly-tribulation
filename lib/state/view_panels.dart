@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 enum ViewPanels {
   profile,
-  memory,
+  memoryAndBond,
   journal,
-  details,
+  statsAndItem,
   workbench,
   alchemy,
 }

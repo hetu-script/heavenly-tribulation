@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'character/memory.dart';
+import 'character/memory_and_bond.dart';
 import '../engine.dart';
 import 'entity_table.dart';
 import 'location/location.dart';
 import 'organization/organization.dart';
 import 'ui/menu_builder.dart';
 import 'character/profile.dart';
-import 'character/details.dart';
+import 'character/stats_and_item.dart';
 import '../data/game.dart';
 import 'ui/close_button2.dart';
 import 'common.dart';
@@ -26,8 +26,8 @@ enum InformationMode {
 enum _CharacterPopUpMenuItems {
   selectCharacter,
   checkProfile,
-  checkStatsAndEquipments,
-  checkMemory,
+  checkStatsAndItem,
+  checkMemoryAndBond,
 }
 
 enum _LocationPopUpMenuItems {
@@ -43,7 +43,12 @@ enum _OrganizationPopUpMenuItems {
 class InformationView extends StatefulWidget {
   const InformationView({
     super.key,
+    this.title,
+    this.width,
+    this.height,
+    this.barrierDismissible = true,
     this.showCloseButton = true,
+    this.confirmationOnSelect = false,
     this.mode = InformationMode.all,
     this.characterIds,
     this.characters,
@@ -53,16 +58,17 @@ class InformationView extends StatefulWidget {
     this.organizations,
   });
 
+  final String? title;
+  final double? width;
+  final double? height;
+  final bool barrierDismissible;
   final bool showCloseButton;
-
+  final bool confirmationOnSelect;
   final InformationMode mode;
-
   final Iterable? characterIds;
   final Iterable? characters;
-
   final Iterable? locationIds;
   final Iterable? locations;
-
   final Iterable? organizationIds;
   final Iterable? organizations;
 
@@ -139,20 +145,25 @@ class _InformationViewState extends State<InformationView>
     final characterListView = EntityTable(
       columns: kEntityTableCharacterColumns,
       tableData: _charactersTable,
-      onItemPressed: (position, dataId) {
-        if (widget.mode == InformationMode.selectCharacter) {
+      onItemPressed: (position, dataId) async {
+        if (widget.mode == InformationMode.selectCharacter &&
+            !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          showDialog(
+          final charId = await showDialog(
             context: context,
             builder: (context) => CharacterProfileView(
               characterId: dataId,
-              showIntimacy: true,
-              showPosition: true,
-              showPersonality: true,
-              showRelationships: true,
+              showIntimacy: false,
+              showPersonality: false,
+              mode: widget.mode == InformationMode.selectCharacter
+                  ? InformationViewMode.select
+                  : InformationViewMode.view,
             ),
           );
+          if (charId != null) {
+            Navigator.of(context).pop(charId);
+          }
         }
       },
       onItemSecondaryPressed: (position, dataId) {
@@ -166,40 +177,41 @@ class _InformationViewState extends State<InformationView>
             },
             engine.locale('checkInformation'):
                 _CharacterPopUpMenuItems.checkProfile,
-            engine.locale('checkStatsAndEquipments'):
-                _CharacterPopUpMenuItems.checkStatsAndEquipments,
-            engine.locale('checkMemory'): _CharacterPopUpMenuItems.checkMemory,
+            engine.locale('checkStatsAndItem'):
+                _CharacterPopUpMenuItems.checkStatsAndItem,
+            engine.locale('checkMemoryAndBond'):
+                _CharacterPopUpMenuItems.checkMemoryAndBond,
           },
           onSelectedItem: (_CharacterPopUpMenuItems item) async {
             switch (item) {
               case _CharacterPopUpMenuItems.selectCharacter:
                 Navigator.of(context).pop(dataId);
               case _CharacterPopUpMenuItems.checkProfile:
-                final result = await showDialog(
+                final charId = await showDialog(
                   context: context,
                   builder: (context) => CharacterProfileView(
                     characterId: dataId,
-                    mode: InformationViewMode.select,
-                    showIntimacy: true,
+                    showIntimacy: false,
                     showPersonality: false,
-                    showPosition: true,
-                    showRelationships: true,
+                    mode: widget.mode == InformationMode.selectCharacter
+                        ? InformationViewMode.select
+                        : InformationViewMode.view,
                   ),
                 );
-                if (result == dataId) {
-                  Navigator.of(context).pop(dataId);
+                if (charId != null) {
+                  Navigator.of(context).pop(charId);
                 }
-              case _CharacterPopUpMenuItems.checkStatsAndEquipments:
+              case _CharacterPopUpMenuItems.checkStatsAndItem:
                 showDialog(
                   context: context,
                   builder: (context) =>
-                      CharacterDetailsView(characterId: dataId),
+                      CharacterStatsAndItemView(characterId: dataId),
                 );
-              case _CharacterPopUpMenuItems.checkMemory:
+              case _CharacterPopUpMenuItems.checkMemoryAndBond:
                 showDialog(
                   context: context,
                   builder: (context) =>
-                      CharacterMemoryView(characterId: dataId),
+                      CharacterMemoryAndBondView(characterId: dataId),
                 );
             }
           },
@@ -210,14 +222,23 @@ class _InformationViewState extends State<InformationView>
     final locationListView = EntityTable(
       columns: kEntityTableLocationColumns,
       tableData: _locationsTable,
-      onItemPressed: (position, dataId) {
-        if (widget.mode == InformationMode.selectLocation) {
+      onItemPressed: (position, dataId) async {
+        if (widget.mode == InformationMode.selectLocation &&
+            !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          showDialog(
+          final locId = await showDialog(
             context: context,
-            builder: (context) => LocationView(locationId: dataId),
+            builder: (context) => LocationView(
+              locationId: dataId,
+              mode: widget.mode == InformationMode.selectLocation
+                  ? InformationViewMode.select
+                  : InformationViewMode.view,
+            ),
           );
+          if (locId != null) {
+            Navigator.of(context).pop(locId);
+          }
         }
       },
       onItemSecondaryPressed: (position, dataId) {
@@ -232,15 +253,23 @@ class _InformationViewState extends State<InformationView>
             engine.locale('checkInformation'):
                 _LocationPopUpMenuItems.checkInformation,
           },
-          onSelectedItem: (_LocationPopUpMenuItems item) {
+          onSelectedItem: (_LocationPopUpMenuItems item) async {
             switch (item) {
               case _LocationPopUpMenuItems.selectLocation:
                 Navigator.of(context).pop(dataId);
               case _LocationPopUpMenuItems.checkInformation:
-                showDialog(
+                final locId = await showDialog(
                   context: context,
-                  builder: (context) => LocationView(locationId: dataId),
+                  builder: (context) => LocationView(
+                    locationId: dataId,
+                    mode: widget.mode == InformationMode.selectLocation
+                        ? InformationViewMode.select
+                        : InformationViewMode.view,
+                  ),
                 );
+                if (locId != null) {
+                  Navigator.of(context).pop(locId);
+                }
             }
           },
         );
@@ -250,14 +279,23 @@ class _InformationViewState extends State<InformationView>
     final organizationListView = EntityTable(
       columns: kEntityTableOrganizationColumns,
       tableData: _organizationsTable,
-      onItemPressed: (position, dataId) {
-        if (widget.mode == InformationMode.selectLocation) {
+      onItemPressed: (position, dataId) async {
+        if (widget.mode == InformationMode.selectLocation &&
+            !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          showDialog(
+          final orgId = await showDialog(
             context: context,
-            builder: (context) => OrganizationView(organizationId: dataId),
+            builder: (context) => OrganizationView(
+              organizationId: dataId,
+              mode: widget.mode == InformationMode.selectOrganization
+                  ? InformationViewMode.select
+                  : InformationViewMode.view,
+            ),
           );
+          if (orgId != null) {
+            Navigator.of(context).pop(orgId);
+          }
         }
       },
       onItemSecondaryPressed: (position, dataId) {
@@ -272,16 +310,23 @@ class _InformationViewState extends State<InformationView>
             engine.locale('checkInformation'):
                 _OrganizationPopUpMenuItems.checkInformation,
           },
-          onSelectedItem: (_OrganizationPopUpMenuItems item) {
+          onSelectedItem: (_OrganizationPopUpMenuItems item) async {
             switch (item) {
               case _OrganizationPopUpMenuItems.selectOrganization:
                 Navigator.of(context).pop(dataId);
               case _OrganizationPopUpMenuItems.checkInformation:
-                showDialog(
+                final orgId = await showDialog(
                   context: context,
-                  builder: (context) =>
-                      OrganizationView(organizationId: dataId),
+                  builder: (context) => OrganizationView(
+                    organizationId: dataId,
+                    mode: widget.mode == InformationMode.selectOrganization
+                        ? InformationViewMode.select
+                        : InformationViewMode.view,
+                  ),
                 );
+                if (orgId != null) {
+                  Navigator.of(context).pop(orgId);
+                }
             }
           },
         );
@@ -289,14 +334,16 @@ class _InformationViewState extends State<InformationView>
     );
 
     return ResponsiveView(
-      alignment: AlignmentDirectional.bottomCenter,
+      width: widget.width,
+      height: widget.height,
+      barrierDismissible: widget.barrierDismissible,
       child: widget.mode == InformationMode.all
           ? DefaultTabController(
               length: tabs.length,
               child: Scaffold(
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  title: Text(engine.locale('info')),
+                  title: Text(widget.title ?? engine.locale('info')),
                   actions: [
                     if (widget.showCloseButton) CloseButton2(),
                   ],
@@ -311,18 +358,27 @@ class _InformationViewState extends State<InformationView>
                 ),
               ),
             )
-          : switch (widget.mode) {
-              InformationMode.character ||
-              InformationMode.selectCharacter =>
-                characterListView,
-              InformationMode.location ||
-              InformationMode.selectLocation =>
-                locationListView,
-              InformationMode.organization ||
-              InformationMode.selectOrganization =>
-                organizationListView,
-              _ => const SizedBox.shrink(),
-            },
+          : Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                title: Text(widget.title ?? engine.locale('info')),
+                actions: [
+                  if (widget.showCloseButton) CloseButton2(),
+                ],
+              ),
+              body: switch (widget.mode) {
+                InformationMode.character ||
+                InformationMode.selectCharacter =>
+                  characterListView,
+                InformationMode.location ||
+                InformationMode.selectLocation =>
+                  locationListView,
+                InformationMode.organization ||
+                InformationMode.selectOrganization =>
+                  organizationListView,
+                _ => const SizedBox.shrink(),
+              },
+            ),
     );
   }
 }

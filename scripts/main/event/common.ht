@@ -20,7 +20,7 @@ async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: func
       await battleEndCallback?.call(result, roundCount)
 
       if (result) {
-        final rewards = generateReward(entity: enemy)
+        final rewards = createReward(entity: enemy)
         for (final item in rewards) {
           await Player.acquire(item)
         }

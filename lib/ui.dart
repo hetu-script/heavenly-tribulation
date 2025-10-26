@@ -121,7 +121,7 @@ final class FluentButtonStyles {
     ),
     shape: WidgetStatePropertyAll<ShapeBorder>(GameUI.roundedRectangleBorder),
     padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-      EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     ),
     textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodyMedium),
   );
@@ -142,6 +142,15 @@ final class FluentButtonStyles {
   static final slim = outlined.copyWith(
     padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
       EdgeInsets.zero,
+    ),
+  );
+
+  static final small = outlined.copyWith(
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    ),
+    textStyle: WidgetStatePropertyAll<TextStyle>(
+      TextStyles.bodySmall,
     ),
   );
 }
@@ -267,6 +276,9 @@ final class GameUI {
     labelSmall: TextStyles.labelSmall,
   );
 
+  static const toolbarHeight = 44.0;
+  static const tabbarHeight = 40.0;
+
   static final darkMaterialTheme = ThemeData(
     brightness: Brightness.dark,
     textTheme: textTheme,
@@ -285,7 +297,7 @@ final class GameUI {
     appBarTheme: AppBarTheme(
       centerTitle: true,
       backgroundColor: Colors.transparent,
-      toolbarHeight: 36,
+      toolbarHeight: toolbarHeight,
       iconTheme: iconTheme,
       actionsIconTheme: iconTheme,
       titleTextStyle: TextStyles.bodyMedium,
@@ -453,7 +465,7 @@ final class GameUI {
   static late Vector2 versusIconSize;
   static late Vector2 battleCharacterAvatarSize;
   static final Vector2 equipmentsBarSize =
-      Vector2(32 * (kEquipmentMax + 2), 30);
+      Vector2(32 * (kEquipmentMax + 3), 30);
 
   static late Vector2 battleCardFocusedOffset;
 

@@ -1417,7 +1417,12 @@ class WorldMapScene extends Scene with HasCursorState {
           context: context,
           barrierDismissible: false,
           builder: (context) => InformationView(
+            width: 1000.0,
+            height: 450.0,
+            title: engine.locale('selectHero'),
+            barrierDismissible: false,
             showCloseButton: false,
+            confirmationOnSelect: true,
             mode: InformationMode.selectCharacter,
             characters: availableCharacters,
           ),
@@ -1435,15 +1440,6 @@ class WorldMapScene extends Scene with HasCursorState {
           'updateWorldMap': true,
         });
       }
-    } else {
-      // if (GameData.hero['worldId'] == map.id) {
-      //   _characterSetToWorldPosition(
-      //     GameData.hero,
-      //     GameData.hero['worldPosition']['left'],
-      //     GameData.hero['worldPosition']['top'],
-      //     direction: 'south',
-      //   );
-      // }
     }
 
     assert(GameData.hero != null);
@@ -1459,6 +1455,7 @@ class WorldMapScene extends Scene with HasCursorState {
     context.read<HeroInfoVisibilityState>().setVisible(
         isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : true);
     context.read<HeroAndGlobalHistoryState>().update();
+    context.read<GameTimestampState>().update();
     context.read<HeroJournalUpdate>().update();
 
     if (isMainWorld) {
@@ -1493,6 +1490,9 @@ class WorldMapScene extends Scene with HasCursorState {
   FutureOr<void> onStart([dynamic arguments = const {}]) async {
     super.onStart(arguments);
 
+    context.read<HoverContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+
     GameData.isInteractable = true;
 
     GameData.world = worldData;
@@ -1510,9 +1510,10 @@ class WorldMapScene extends Scene with HasCursorState {
     cursorState = MouseCursorState.normal;
     context.read<GameTimestampState>().update();
     context.read<NpcListState>().update();
-    context.read<HeroJournalUpdate>().update();
     context.read<HeroPositionState>().updateLocation();
     context.read<HeroPositionState>().updateDungeon();
+    context.read<HeroJournalUpdate>().update();
+    context.read<GameTimestampState>().update();
   }
 
   // TODO: 自动移动屏幕

@@ -13,31 +13,25 @@ import '../../ui.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 
-class CharacterMemory extends StatefulWidget {
-  const CharacterMemory({
+class CharacterMemoryAndBond extends StatefulWidget {
+  const CharacterMemoryAndBond({
     super.key,
     this.characterId,
     this.character,
     this.tabIndex = 0,
     this.mode = InformationViewMode.view,
-    this.isHero = false,
   });
 
   final String? characterId;
-
   final dynamic character;
-
   final int tabIndex;
-
   final InformationViewMode mode;
 
-  final bool isHero;
-
   @override
-  State<CharacterMemory> createState() => _CharacterMemoryState();
+  State<CharacterMemoryAndBond> createState() => _CharacterMemoryAndBondState();
 }
 
-class _CharacterMemoryState extends State<CharacterMemory>
+class _CharacterMemoryAndBondState extends State<CharacterMemoryAndBond>
     with SingleTickerProviderStateMixin {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
@@ -47,12 +41,8 @@ class _CharacterMemoryState extends State<CharacterMemory>
   ];
 
   late TabController _tabController;
-
-  // String _title = engine.locale('information'];
-
   late final dynamic _character;
-
-  dynamic _bondsData;
+  dynamic _bondsDataRaw;
 
   @override
   void initState() {
@@ -66,25 +56,7 @@ class _CharacterMemoryState extends State<CharacterMemory>
     }
     assert(_character != null);
 
-    _bondsData = _character['bonds'];
-
-    if (widget.isHero) {
-      final data = {};
-      for (final key in _bondsData.keys) {
-        final bond = {};
-        final bondData = _bondsData[key];
-        assert(bondData['id'] == key);
-        bond['id'] = key;
-        final targetCharacterData = GameData.getCharacter(bond['id']);
-        assert(targetCharacterData != null);
-        final heroId = GameData.hero['id'];
-        bond['name'] = bondData['name'];
-        bond['relationship'] = bondData['relationship'];
-        bond['score'] = targetCharacterData['bonds'][heroId]?['score'];
-        data[key] = bond;
-      }
-      _bondsData = data;
-    }
+    _bondsDataRaw = _character['bonds'];
 
     _tabController = TabController(vsync: this, length: tabs.length);
     // _tabController.addListener(() {
@@ -109,6 +81,29 @@ class _CharacterMemoryState extends State<CharacterMemory>
 
   @override
   Widget build(BuildContext context) {
+    dynamic bondsData = {};
+    if (_character == GameData.hero) {
+      // 这里是为了反查出对方对玩家控制角色的好感度
+      for (final key in _bondsDataRaw.keys) {
+        final bond = {};
+        final bondData = _bondsDataRaw[key];
+        assert(bondData['id'] == key);
+        bond['id'] = key;
+        final targetCharacterData = GameData.getCharacter(bond['id']);
+        assert(targetCharacterData != null);
+        bond['name'] = bondData['name'];
+        bond['relationships'] = bondData['relationships'];
+        bond['score'] =
+            targetCharacterData['bonds'][_character['id']]?['score'] ?? 0;
+        bondsData[key] = bond;
+      }
+    } else {
+      bondsData = _bondsDataRaw;
+    }
+
+    final preferredHeight =
+        GameUI.profileWindowSize.y - GameUI.toolbarHeight * 2 - 10;
+
     return Column(
       children: [
         TabBar(
@@ -116,14 +111,14 @@ class _CharacterMemoryState extends State<CharacterMemory>
           tabs: tabs,
         ),
         SizedBox(
-          height: GameUI.profileWindowSize.y - 140,
+          height: isEditorMode ? preferredHeight - 50 : preferredHeight,
           child: TabBarView(
             controller: _tabController,
             children: [
               HistoryView(character: _character),
               CharacterBondsView(
-                bondsData: _bondsData,
-                isHero: widget.isHero,
+                bondsData: bondsData,
+                isHero: _character == GameData.hero,
                 onPressed: (bondData) async {
                   if (isEditorMode) {
                     final result = await showDialog(
@@ -147,8 +142,6 @@ class _CharacterMemoryState extends State<CharacterMemory>
                       builder: (context) => CharacterProfileView(
                         characterId: bondData['id'],
                         showIntimacy: false,
-                        showPosition: false,
-                        showRelationships: false,
                         showPersonality: false,
                       ),
                     );
@@ -202,8 +195,8 @@ class _CharacterMemoryState extends State<CharacterMemory>
   }
 }
 
-class CharacterMemoryView extends StatelessWidget {
-  const CharacterMemoryView({
+class CharacterMemoryAndBondView extends StatelessWidget {
+  const CharacterMemoryAndBondView({
     super.key,
     this.characterId,
     this.character,
@@ -223,10 +216,10 @@ class CharacterMemoryView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(engine.locale('memory')),
+          title: Text(engine.locale('memoryAndBond')),
           actions: [CloseButton2()],
         ),
-        body: CharacterMemory(
+        body: CharacterMemoryAndBond(
           characterId: characterId,
           character: character,
           mode: mode,

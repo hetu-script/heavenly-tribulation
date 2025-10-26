@@ -43,6 +43,7 @@ const kEntityTableLocationColumns = {
   'development': 50.0,
   'residents': 60.0,
   'organization': 100.0,
+  'manager': 100.0,
 };
 
 const kEntityTableOrganizationColumns = {

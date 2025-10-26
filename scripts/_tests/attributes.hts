@@ -2,9 +2,9 @@
 const _kAttributesBaseValue = 50
 
 /// 容貌等数值计算时的最大值: 100.0
-const kAttributeValueMax = 100.0
-const kAttributeValueAverage = 50.0
-const kAttributeValueDeviation = 25.0
+const kAttributeValueMax = 100.0;
+const kNonBattleAttributeValueAverage = 50.0;
+const kNonBattleAttributeValueDeviation = 25.0;
 
 final random = Random()
 
@@ -23,7 +23,11 @@ const kBattleAttributes = [
   'perception',
 ];
 
-function generateAttributes(entity, {baseValue, mainAttribute}) {
+function generateAttributes(entity, {
+  baseValue,
+  mainNonBattleAttribute,
+  mainBattleAttribute,
+}) {
   baseValue ??= _kAttributesBaseValue
   let attributes = {}
   for (final id in kNonBattleAttributes) {

@@ -62,7 +62,7 @@ Future<bool> _checkRented(dynamic location,
   );
   if (success) {
     engine.play('coins-31879.mp3');
-    GameData.addHeroMonthly(MonthlyActivityIds.rented, locationId);
+    GameData.addMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
       'hint_rentedFacility',
       npcId: location['npcId'],
@@ -190,10 +190,10 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
     return;
   }
 
-  final ownerId = location['ownerId'];
+  final managerId = location['managerId'];
   if (location['kind'] == 'home') {
-    if (ownerId != GameData.hero['id']) {
-      final owner = GameData.getCharacter(ownerId);
+    if (managerId != GameData.hero['id']) {
+      final owner = GameData.getCharacter(managerId);
       if (owner['locationId'] != location['id']) {
         await GameDialogContent.show(
             engine.context,

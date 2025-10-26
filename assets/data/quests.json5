@@ -2,24 +2,29 @@
   // 任务数据
   // 这里的数据包含了任务和政策的对应关系
   // 政策分为：发展 growth , 巩固 consolidation 和 expansion 三种。每种政策对应于不同的任务种类。发展可以接取任意任务，巩固只能接取防御任务，扩张只能接取攻击任务。如果任务本身 policy 为 null, 则可以被任何政策接取。
+  // 任务本身有难度等级，任务的完成时间会根据难度等级进行调整。
+  // 任务本身有rank，只有达到某个职级之后，才能接到对应职级rank的任务
 
   deliver_material: {
     id: "deliver_material",
     policy: null,
     isBounty: true,
-    contribution: 5,
+    contribution: 8,
+    rank: 0,
   },
   deliver_item: {
     id: "deliver_item",
     policy: null,
     isBounty: true,
-    contribution: 7,
+    contribution: 8,
+    rank: 0,
   },
   escort: {
     id: "escort",
     policy: null,
     isBounty: true,
-    contribution: 10,
+    contribution: 8,
+    rank: 0,
   },
   // guard_site: {
   //   id: "guard_site",
@@ -31,18 +36,21 @@
     policy: "consolidation",
     isBounty: true,
     contribution: 8,
+    rank: 0,
   },
   purchase_item: {
     id: "purchase_item",
     policy: "consolidation",
     isBounty: true,
-    contribution: 12,
+    contribution: 15,
+    rank: 0,
   },
   discover_location: {
     id: "discover_location",
     policy: "consolidation",
     isBounty: true,
-    contribution: 25,
+    contribution: 15,
+    rank: 0,
   },
   // gather_information: {
   //   id: "gather_information",

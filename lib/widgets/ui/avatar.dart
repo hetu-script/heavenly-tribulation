@@ -28,7 +28,7 @@ class Avatar extends StatelessWidget {
     this.showBorderImage = false,
     this.color = GameUI.foregroundColor,
     this.size = const Size(100.0, 100.0),
-    this.borderRadius = GameUI.borderRadius,
+    this.radius = const Radius.circular(15.0),
     this.borderColor = GameUI.borderColor,
     this.borderWidth = 2.0,
     this.characterId,
@@ -47,7 +47,7 @@ class Avatar extends StatelessWidget {
   final bool showBorderImage;
   final Color color;
   final Size size;
-  final BorderRadius borderRadius;
+  final Radius radius;
   final Color borderColor;
   final double borderWidth;
   final String? characterId;
@@ -102,7 +102,7 @@ class Avatar extends StatelessWidget {
             (displayName != null && nameAlignment != AvatarNameAlignment.inside)
                 ? Size(size.width - kNameHeight, size.height - kNameHeight)
                 : size,
-        borderRadius: borderRadius,
+        borderRadius: BorderRadius.all(radius),
         borderColor: borderColor,
         borderWidth: borderWidth,
       );
@@ -117,7 +117,7 @@ class Avatar extends StatelessWidget {
             (displayName != null && nameAlignment != AvatarNameAlignment.inside)
                 ? Size(size.width - kNameHeight, size.height - kNameHeight)
                 : size,
-        borderRadius: borderRadius,
+        borderRadius: BorderRadius.all(radius),
         borderColor: borderColor,
         borderWidth: borderWidth,
       );
@@ -138,15 +138,14 @@ class Avatar extends StatelessWidget {
         widgets.add(icon);
       }
       if (displayName != null) {
-        final br = Radius.circular(5.0);
         widgets.add(Align(
           alignment: Alignment.bottomCenter,
           child: Container(
             width: size.width,
-            padding: const EdgeInsets.only(bottom: 5.0),
             decoration: BoxDecoration(
               color: Colors.white70,
-              borderRadius: BorderRadius.only(bottomLeft: br, bottomRight: br),
+              borderRadius:
+                  BorderRadius.only(bottomLeft: radius, bottomRight: radius),
               border: Border.symmetric(
                   horizontal: BorderSide(color: GameUI.borderColor)),
             ),
@@ -155,7 +154,7 @@ class Avatar extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: GameUI.backgroundColor,
-                fontSize: 16,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),

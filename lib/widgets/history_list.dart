@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/widgets/pointer_detector.dart';
+import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../ui.dart';
 import 'common.dart';
@@ -10,10 +10,18 @@ import '../data/game.dart';
 class HistoryList extends StatefulWidget {
   const HistoryList({
     super.key,
+    this.limit,
     required this.historyData,
+    this.onTapUp,
+    this.onMouseEnter,
+    this.onMouseExit,
   });
 
+  final int? limit;
   final Iterable<dynamic> historyData;
+  final void Function()? onTapUp;
+  final void Function(Rect rect)? onMouseEnter;
+  final void Function()? onMouseExit;
 
   @override
   State<HistoryList> createState() => _HistoryListState();
@@ -45,24 +53,44 @@ class _HistoryListState extends State<HistoryList> {
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
-    for (final id in widget.historyData) {
+    for (var i = 0; i < widget.historyData.length; ++i) {
+      final id = widget.historyData.elementAt(i);
       final incident = GameData.history[id];
       assert(incident != null, 'Timeline incident not found: $id');
       widgets.add(Text(incident['message']));
+      if (widget.limit != null && i >= widget.limit! - 1) {
+        break;
+      }
     }
 
     jumpToBottom();
 
-    return Container(
-      padding: const EdgeInsets.all(10),
-      height: MediaQuery.sizeOf(context).height - kTabBarHeight,
-      child: ScrollConfiguration(
-        behavior: MaterialScrollBehavior(),
-        child: SingleChildScrollView(
-          controller: _historyScrollController,
-          child: ListView(
-            shrinkWrap: true,
-            children: widgets,
+    return MouseRegion2(
+      cursor: widget.onTapUp != null
+          ? GameUI.cursor.resolve({WidgetState.hovered})
+          : GameUI.cursor.resolve({}),
+      onEnter: (rect) {
+        widget.onMouseEnter?.call(rect);
+      },
+      onExit: () {
+        widget.onMouseExit?.call();
+      },
+      child: GestureDetector(
+        onTapUp: (details) {
+          widget.onTapUp?.call();
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          height: MediaQuery.sizeOf(context).height - kTabBarHeight,
+          child: ScrollConfiguration(
+            behavior: MaterialScrollBehavior(),
+            child: SingleChildScrollView(
+              controller: _historyScrollController,
+              child: ListView(
+                shrinkWrap: true,
+                children: widgets,
+              ),
+            ),
           ),
         ),
       ),
@@ -76,15 +104,12 @@ class HeroAndGlobalHistoryList extends StatefulWidget {
     this.onMouseEnter,
     this.onMouseExit,
     this.limit = 5,
-    this.cursor = MouseCursor.defer,
   }) : super(key: GlobalKey());
 
   final void Function()? onTapUp;
   final void Function(Rect rect)? onMouseEnter;
   final void Function()? onMouseExit;
   final int limit;
-
-  final MouseCursor cursor;
 
   @override
   State<HeroAndGlobalHistoryList> createState() =>
@@ -125,24 +150,16 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
 
     jumpToBottom();
 
-    return MouseRegion(
+    return MouseRegion2(
       cursor: GameUI.cursor.resolve({WidgetState.hovered}),
-      onEnter: (event) {
-        if (widget.onMouseEnter == null) return;
-
-        final renderBox = context.findRenderObject() as RenderBox;
-        final Size size = renderBox.size;
-        final Offset offset = renderBox.localToGlobal(Offset.zero);
-        final Rect rect =
-            Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-        widget.onMouseEnter!.call(rect);
+      onEnter: (rect) {
+        widget.onMouseEnter?.call(rect);
       },
-      onExit: (event) {
+      onExit: () {
         widget.onMouseExit?.call();
       },
-      child: PointerDetector(
-        // cursor: SystemMouseCursors.click,
-        onTapUp: (_, __, ___) {
+      child: GestureDetector(
+        onTapUp: (details) {
           widget.onTapUp?.call();
         },
         child: ScrollConfiguration(

@@ -118,7 +118,6 @@ struct Location {
     worldId,
     atTerrain,
     atLocation,
-    ownerId,
     organizationId,
     name,
     background,
@@ -127,6 +126,7 @@ struct Location {
     isDiscovered = false,
     updateWorldMap = false,
     development,
+    managerId,
     npcId,
     priority,
   }) {
@@ -163,7 +163,7 @@ struct Location {
       // 定居在这个据点的角色，这里只保存id
       this.residents = []
       
-      this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
+      // this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
       this.color = random.nextBrightColorHex()
 
@@ -225,17 +225,17 @@ struct Location {
     this.isHidden = isHidden ?? false
     this.isDiscovered = !isHidden
     
+    // 建筑的拥有者
+    // 住所的 manager 就是这个住所的主人
+    // city 的 manager 就是城主
+    // 功能性建筑的owner就是总管
+    // 如果同时有 managerId 和 organizationID，意味着这个建筑为非私有
+    // 住所的 manager 就是这个住所的主人
+    this.managerId = managerId
     // 该据点的NPC，会显示在左侧列表中
     this.npcId = npcId
-    // 建筑的拥有者
-    // 住所的owner就是这个住所的主人
-    // city的owner就是城主
-    // 功能性建筑的owner就是总管
-    // 如果同时有 ownerId 和 organizationID，意味着这个建筑为非私有
-    this.ownerId = ownerId
-    // 住所的owner就是这个住所的主人
     if (this.kind == kLocationKindHome) {
-      assert(this.ownerId != null)
+      assert(this.managerId != null)
     }
     // 拥有建筑的门派
     this.organizationId = organizationId
@@ -264,8 +264,9 @@ struct Location {
     this.inventory = {}
     this.materials = {}
 
-    // 当此据点未被任何门派控制时
-    // 角色在此据点的功勋
+    // 当此据点未被任何门派控制时=
+    // 据点自身记录角色在此据点的功勋
+    // key: characterId, value: contribution amount
     this.contributions = {}
 
     if (atTerrain != null) {
@@ -326,7 +327,11 @@ struct Location {
       engine.info('建立了${this.name}')
     }
     
-    this.updateDay = random.nextInt(30) + 1
+    if (this.kind == kLocationKindCityhall) {
+      this.updateDay = 6
+    } else {
+      this.updateDay = random.nextInt(30) + 1
+    }
   }
 }
 
@@ -365,8 +370,8 @@ function removeLocation(location, { updateWorldMap = false }) {
     }
   }
   if (location.kind == kLocationKindHome) {
-    const owner = game.characters[location.ownerId]
-    assert(owner != null, '角色不存在，id: ${location.ownerId}')
+    const owner = game.characters[location.managerId]
+    assert(owner != null, '角色不存在，id: ${location.managerId}')
     owner.homeLocations.remove(location.id)
     if (owner.homeLocationId == location.id) {
       owner.homeLocationId = null
@@ -400,13 +405,13 @@ function getLocationDistance(loc1, loc2) {
 
 // 每个城市发展度对应的居民上限
 // 居民可以用于充当据点的仆役
-function maxPopulationOfLocationDevelopment(n: integer) {
-  return  (n - 1) * (n - 1) * (n - 1) * 50 + 100
-}
+// function maxPopulationOfLocationDevelopment(n: integer) {
+//   return  (n - 1) * (n - 1) * (n - 1) * 50 + 100
+// }
 
-function maxSiteNumberOfLocationDevelopment(n: integer) {
-  return (n + 1) * n ~/ 2 + 1
-}
+// function maxSiteNumberOfCityDevelopment(n: integer) {
+//   return n * n + 1
+// }
 
 // 每个据点，每个月会自然增加人口，直到达到上限
 // 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响

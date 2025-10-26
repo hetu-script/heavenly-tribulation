@@ -1,5 +1,5 @@
 
-/// 剧情日志，用于记录一段故事
+/// 事项，用于记录一段故事
 struct Journal {
 
   constructor ({
@@ -21,7 +21,7 @@ struct Journal {
     this.stage = 0
     // 每个阶段的描述，这里保存的是本地化之后的文本
     this.stages = stages ?? []
-    // 日志进程，每个阶段的index对应了一段描述
+    // 事项进程，每个阶段的index对应了一段描述
     // 进程并不一定是连续的，可能有不同的路径和结尾
     // 但起点一定是 0
     this.sequence = [ 0 ]
@@ -62,7 +62,7 @@ function characterCreateJournal(character, journal, {
   incurIncident = true,
 }) {
   if (character.journals.containsKey(journal.id)) {
-    engine.error('角色 [${character.id}] 的日志 [${journal.id}] 已经存在，不能再次创建！')
+    engine.error('角色 [${character.id}] 的事项 [${journal.id}] 已经存在，不能再次创建！')
     return
   }
 
@@ -85,7 +85,7 @@ function characterCreateJournal(character, journal, {
       subjectId: character.id,
     )
   } else {
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
   }
 
   return journal
@@ -99,7 +99,7 @@ function characterCreateJournalById(character, journalId, {
   final journalData = game.journals[journalId]
   assert(journalData != null, 'journal data not found, id: ${journalId}')
   if (journalData.isUnique && character.journals[journalId] != null) {
-    engine.error('日志 [${journalId}] 是唯一的，不能再次接受！')
+    engine.error('事项 [${journalId}] 是唯一的，不能再次接受！')
     return
   }
 
@@ -170,7 +170,7 @@ function characterProgressJournalById(character, journalId, {
         subjectId: character.id,
       )
     }
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
   }
 
   return journal

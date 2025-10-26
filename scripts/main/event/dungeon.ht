@@ -528,33 +528,51 @@ async function onEnterMap() {
   }
 
   if (game.flags.dungeon.battleResult == true) {
-    final rewards = generateReward(
+    final reward = createReward(
       entity: game.flags.dungeon.battleEntity,
-      probability: {
-        exp: kRewardProbabilityExppack,
-        money: kRewardProbabilityMoney,
-        shard: game.flags.dungeon.isBoss ? 1.0 : 
+      details: {
+        exp: {
+          probability: kRewardProbabilityExppack,
+        },
+        money: {
+          probability: kRewardProbabilityMoney,
+        },
+        shard: {
+          probability: game.flags.dungeon.isBoss ? 1.0 : 
           (game.flags.dungeon.isElite ? 0.6 : kRewardProbabilityShard),
-        equipment: game.flags.dungeon.isBoss ? 0.8 : 
+        },
+        equipment: {
+          probability: game.flags.dungeon.isBoss ? 0.8 : 
           (game.flags.dungeon.isElite ? 0.5 : kRewardProbabilityEquipment),
-        potion: game.flags.dungeon.isBoss ? 0.6 : 
+        },
+        potion: {
+          probability: game.flags.dungeon.isBoss ? 0.6 : 
           (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityPotion),
-        cardpack: game.flags.dungeon.isBoss ? 0.6 : 
+        },
+        cardpack: {
+          probability: game.flags.dungeon.isBoss ? 0.6 : 
           (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityCardpack),
-        scrollPaper: game.flags.dungeon.isBoss ? 0.45 : 
+        },
+        scrollPaper: {
+          probability: game.flags.dungeon.isBoss ? 0.45 : 
           (game.flags.dungeon.isElite ? 0.25 : kRewardProbabilityScrollPaper),
-        craftMaterial: game.flags.dungeon.isBoss ? 0.65 : 
+        },
+        craftMaterial: {
+          probability: game.flags.dungeon.isBoss ? 0.65 : 
           (game.flags.dungeon.isElite ? 0.35 : kRewardProbabilityCraftMaterial),
-        dungeonTicket: game.flags.dungeon.isBoss ? 0.95 : 
+        },
+        dungeonTicket: {
+          probability: game.flags.dungeon.isBoss ? 0.95 : 
           (game.flags.dungeon.isElite ? 0.65 : kRewardProbabilityDungeonTicket),
+        },
       },
     )
-    for (final item in rewards) {
+    for (final item in reward) {
       await Player.acquire(item)
     }
     game.flags.dungeon.battleResult = null
     game.flags.dungeon.battleEntity = null
-    Game.promptItems(rewards)
+    Game.promptItems(reward)
   } else if (game.flags.dungeon.battleResult == false) {
     await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
     Game.updateDungeon(null)

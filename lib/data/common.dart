@@ -34,7 +34,7 @@ enum SceneStates {
   cardLibrary,
 }
 
-const kTips = [
+const kTips = {
   'tips_rank',
   'tips_level',
   'tips_rarity',
@@ -51,7 +51,7 @@ const kTips = [
   'tips_sandbox_freedom',
   'tips_terrain_movement',
   'tips_reputation',
-];
+};
 
 const kTerrainKindToNaturalResources = {
   'void': null,
@@ -237,39 +237,36 @@ const kRankToRarity = {
   5: 'arcane',
 };
 
-const kRaces = [
+const kRaces = {
   'fanzu',
   'yaozu',
   'xianzu',
-];
+};
 
-const kWorldViews = [
+const kWorldViews = {
   // 三观
   'idealistic', // 理想, 现实
   'orderly', // 守序, 混乱
   'goodwill', // 善良, 邪恶
-];
+};
 
-const kPersonalitiesWithoutWorldViews = [
+const kPersonalitiesWithoutWorldViews = {
   // 对他人
-  'extrovert', // 外向, 内省
-  'frank', // 直率, 圆滑
   'empathetic', // 仁慈, 冷酷
   'generous', // 慷慨, 自私
   'competitive', // 好胜, 随和
+  'frank', // 直率, 圆滑
   // 对自己
+  'extrovert', // 外向, 内省
   'organizing', // 自律, 不羁
   'confident', // 自负, 谦逊
-  'humorous', // 幽默, 庄重
   'frugal', // 节俭, 奢靡
-  'satisfied', // 知足, 贪婪
   // 对事物
   'reasoning', // 理智, 感性
-  'initiative', // 主动, 被动
   'optimistic', // 乐观, 愤世
   'curious', // 好奇, 冷漠
-  'prudent', // 谨慎, 冲动
-];
+  'satisfied', // 知足, 贪婪
+};
 
 const kPersonalities = {
   ...kWorldViews,
@@ -277,27 +274,25 @@ const kPersonalities = {
 };
 
 const kOppositePersonalities = {
+  // 三观
   'idealistic': 'realistic',
   'orderly': 'chaotic',
   'goodwill': 'evilminded',
-  'extrovert': 'introvert',
-  'frank': 'tactful',
-  'merciful': 'merciless',
-  'helping': 'selfish',
-  'empathetic': 'jealous',
+  // 对他人
+  'empathetic': 'merciless',
+  'generous': 'stingy',
   'competitive': 'easygoing',
+  'frank': 'tactful',
+  // 对自己
+  'extrovert': 'introvert',
   'organizing': 'relaxing',
   'confident': 'modest',
-  'humorous': 'solemn',
   'frugal': 'lavish',
-  'generous': 'stingy',
-  'satisfied': 'greedy',
-  'reasoning': 'feeling',
-  'initiative': 'reactive',
+  // 对事物
+  'reasoning': 'impulsive',
   'optimistic': 'cynical',
   'curious': 'indifferent',
-  'prudent': 'adventurous',
-  'deepthinking': 'superficial',
+  'satisfied': 'greedy',
 };
 
 const kPersonalityThreshold1 = 10;
@@ -305,7 +300,7 @@ const kPersonalityThreshold2 = 20;
 const kPersonalityThreshold3 = 30;
 const kPersonalityThreshold4 = 40;
 
-const kAttributes = [
+const kAttributes = {
   'charisma',
   'wisdom',
   'luck',
@@ -314,7 +309,7 @@ const kAttributes = [
   'strength',
   'willpower',
   'perception',
-];
+};
 
 const kNonBattleAttributes = [
   'charisma',
@@ -347,8 +342,10 @@ const kGenreToAttribute = {
   'avatar': 'perception',
 };
 
-const kEquipmentMax = 6;
 const kCultivationRankMax = 5;
+const kEquipmentMax = 5;
+const kFameRankMax = 5;
+const kJobRankMax = 5;
 
 const kRestrictedEquipmentCategories = {
   'weapon',
@@ -433,7 +430,7 @@ Color getColorFromRank(int rank) {
 }
 
 /// 组织的类型即动机，代表了不同的发展方向
-const kOrganizationCategories = [
+const kOrganizationCategories = {
   'wuwei', // 无为：清净，隐居，不问世事
   'cultivation', // 修真：功法，战斗
   'immortality', // 长生：宗教，等级，境界
@@ -441,33 +438,33 @@ const kOrganizationCategories = [
   'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
   'wealth', // 财富：经营商号，积累钱币和灵石
   'pleasure', // 欢愉：享乐，赌博，情色
-];
+};
 
-const kCultivationGenres = [
+const kCultivationGenres = {
   'swordcraft',
   'spellcraft',
   'bodyforge',
   'avatar',
   'vitality',
-];
+};
 
-const kCardpackGenres = [
+const kCardpackGenres = {
   'none',
   'swordcraft',
   'spellcraft',
   'bodyforge',
   'avatar',
   'vitality',
-];
+};
 
-const kLocationCityKinds = [
+const kLocationCityKinds = {
   'inland',
   'harbor',
   'island',
   'mountain',
-];
+};
 
-const kLocationSiteKinds = [
+const kLocationSiteKinds = {
   'home',
   'headquarters',
   'cityhall',
@@ -495,7 +492,7 @@ const kLocationSiteKinds = [
   'huntingground',
   'mine',
   'dungeon',
-];
+};
 
 const kSiteKindToNpcId = {
   'headquarters': 'executiveAssistant',
@@ -526,13 +523,13 @@ const kSiteKindToNpcId = {
   'dungeon': 'dungeonKeeper',
 };
 
-const kSiteKindsWorkable = [
+const kSiteKindsWorkable = {
   'farmland', // 神识
   'fishery', // 念力
   'timberland', // 灵力
   'huntingground', // 身法
   'mine', // 体魄
-];
+};
 
 const kSiteKindToAttribute = {
   'farmland': 'perception',
@@ -540,6 +537,32 @@ const kSiteKindToAttribute = {
   'fishery': 'willpower',
   'huntingground': 'dexterity',
   'mine': 'strength',
+};
+
+const kSiteKindsManagable = {
+  'tradinghouse',
+  'daostele',
+  'exparray',
+  'library',
+  'arena',
+  'militarypost',
+  'auctionhouse',
+  'hotel',
+  'workshop',
+  'enchantshop',
+  'alchemylab',
+  'tattooshop',
+  'runelab',
+  'arraylab',
+  'illusionaltar',
+  'psychictemple',
+  'divinationaltar',
+  'theurgytemple',
+  'farmland',
+  'timberland',
+  'fishery',
+  'huntingground',
+  'mine',
 };
 
 const kSiteKindsBuildable = {
@@ -866,10 +889,21 @@ const kMaxAffixCount = 6;
 
 const kPassiveTreeAttributeAnyLevel = 10;
 
-/// 容貌等数值计算时的最大值: 100.0
-const kAttributeValueMax = 100.0;
-const kAttributeValueAverage = 50.0;
-const kAttributeValueDeviation = 25.0;
+/// 不同种族的属性偏向
+const kRaceMainAttributes = {
+  'fanzu': {
+    'wisdom',
+    'dexterity',
+  },
+  'yaozu': {
+    'strength',
+    'luck',
+  },
+  'xianzu': {
+    'spirituality',
+    'charisma',
+  },
+};
 
 const kBaseExpGainPerLight = 40;
 const kBaseExpCollectSpeed = 1.0;
@@ -1337,7 +1371,7 @@ const kItemCategoryPotion = 'potion';
 
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位
-const kTitleToOrganizationRank = {
+const kTitleToJobRank = {
   'taskman': 0,
   'executor': 1,
   'manager': 2,
@@ -1345,23 +1379,23 @@ const kTitleToOrganizationRank = {
   'governor': 4,
   'head': 5,
   'guard': 2,
-  'minister': 3,
+  'envoy': 3,
   'chancellor': 4,
   "guestChancellor": 4,
 };
 
-/// 职位对应的贡献度需求
-const kTitleToContribution = {
-  'taskman': 0,
-  'executor': 90,
-  'manager': 300,
-  'mayor': 800,
-  'governor': 1200,
-  'head': 5000,
-  'guard': 300,
-  'minister': 800,
-  'chancellor': 1200,
-  "guestChancellor": 1200,
+const kCultivationRankToTitle = {
+  0: 'taskman',
+  1: 'executor',
+  2: 'manager',
+  3: 'mayor',
+  4: 'governor',
+};
+
+const kTitleToAlternativeTitle = {
+  'manager': 'guard',
+  'mayor': 'envoy',
+  'governor': 'chancellor',
 };
 
 const kDiplomacyScoreAllyThreshold = 50;
@@ -1493,15 +1527,6 @@ const kCreateOrganizationRequirementRank = 2;
 const kCreateOrganizationRequirementMoney = 500_0000;
 const kCreateOrganizationRequirementShard = 500;
 
-const kJobRankToContributionRequirements = {
-  0: 0,
-  1: 90,
-  2: 300,
-  3: 1000,
-  4: 3200,
-  5: 10000,
-};
-
 const kMoveHomeCostBase = 2000;
 
 const kHomeLifeRestorePerTime = 2;
@@ -1510,3 +1535,5 @@ const kHotelVipLifeRestorePerTime = 15;
 const kHotelStableCostPerDay = 500;
 const kHotelNormalCostPerDay = 1500;
 const kHotelVipCostPerDay = 5000;
+
+const kItemPriceToContributionRate = 0.001;

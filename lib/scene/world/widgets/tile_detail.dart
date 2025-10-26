@@ -28,11 +28,11 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
     final positionDetails = StringBuffer();
 
     if (currentLocation != null) {
-      dynamic owner;
+      dynamic manager;
       // dynamic organization;
-      final ownerId = currentLocation['ownerId'];
+      final managerId = currentLocation['managerId'];
       // 这里 owner 可能是 null
-      owner = GameData.game['characters'][ownerId];
+      manager = GameData.game['characters'][managerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 
@@ -54,7 +54,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
 
       positionDetails.writeln(currentLocation['name']);
       positionDetails
-          .writeln('$title ${owner?['name'] ?? engine.locale('none')}');
+          .writeln('$title ${manager?['name'] ?? engine.locale('none')}');
       positionDetails.writeln(
           '${engine.locale('development')}: ${currentLocation['development']}');
     } else {

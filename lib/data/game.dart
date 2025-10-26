@@ -178,23 +178,35 @@ class GameData {
     return organization;
   }
 
-  static void addHeroMonthly(String activityId, String targetId) {
-    final monthly = GameData.flags['monthly'][activityId];
+  static void addMonthly(
+    String activityId,
+    String targetId, {
+    dynamic data,
+  }) {
+    data ??= GameData.game;
+    final monthly = data['flags']['monthly'][activityId];
     if (monthly is List) {
       if (!monthly.contains(targetId)) {
         monthly.add(targetId);
+      } else {
+        engine.warn('activity [$activityId] record already exist.');
       }
     } else {
-      engine.warn('Monthly activity [$activityId] does not exist.');
+      engine.warn('monthly activity [$activityId] does not exist.');
     }
   }
 
-  static bool checkMonthly(String activityId, String targetId) {
-    final monthly = GameData.flags['monthly'][activityId];
+  static bool checkMonthly(
+    String activityId,
+    String targetId, {
+    dynamic data,
+  }) {
+    data ??= GameData.game;
+    final monthly = data['flags']['monthly'][activityId];
     if (monthly is List) {
       return monthly.contains(targetId);
     } else {
-      engine.warn('Monthly activity [$activityId] does not exist.');
+      engine.warn('monthly activity [$activityId] does not exist.');
       return false;
     }
   }
@@ -1350,21 +1362,10 @@ class GameData {
     return '$amount ${engine.locale(kind)}';
   }
 
-  static String getQuestTimeLimitDescription(int timestamp,
-      {bool isFinished = false}) {
-    // final desc = StringBuffer();
-    // desc.write('${engine.locale('deadline')}: ');
-    // final currentTimestamp = GameData.data['timestamp'];
+  static String getQuestTimeLimitDescription(dynamic journal) {
+    final startDate = journal['timestamp'] + journal['quest']?['timeLimit'];
     final timeString =
-        engine.hetu.invoke('getDateTimeString', positionalArgs: [timestamp]);
-    // String color;
-    // if (currentTimestamp > timestamp && !isFinished) {
-    //   color = 'red';
-    // } else {
-    //   color = 'lightGreen';
-    // }
-    // desc.writeln('<$color>$timeString</>');
-    // return desc.toString();
+        engine.hetu.invoke('getDateTimeString', positionalArgs: [startDate]);
     return timeString;
   }
 
@@ -1468,12 +1469,12 @@ class GameData {
       row.add(superior['name']);
     }
     // 汇报地点
-    final reportSiteId = memberData['reportSiteId'];
-    if (reportSiteId == null) {
+    final reportLocationId = memberData['reportLocationId'];
+    if (reportLocationId == null) {
       row.add(engine.locale('none'));
     } else {
-      final reportSite = GameData.getLocation(reportSiteId);
-      row.add(reportSite['name']);
+      final reportLocation = GameData.getLocation(reportLocationId);
+      row.add(reportLocation['name']);
     }
 
     // 多存一个隐藏的 id 信息，用于点击事件
@@ -1502,6 +1503,14 @@ class GameData {
       organizationName = organization['name'];
     }
     row.add(organizationName);
+    // 管理者
+    String? managerId = location['managerId'];
+    if (managerId != null) {
+      final manager = GameData.getCharacter(managerId);
+      row.add(manager['name']);
+    } else {
+      row.add(engine.locale('none'));
+    }
     // 多存一个隐藏的 id 信息，用于点击事件
     row.add(location['id']);
     return row;

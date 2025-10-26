@@ -229,7 +229,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onPressed: () {
                             context
                                 .read<ViewPanelState>()
-                                .toogle(ViewPanels.details);
+                                .toogle(ViewPanels.statsAndItem);
                           },
                           onEnter: (rect) {
                             context

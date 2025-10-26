@@ -126,20 +126,7 @@
             id: "quest",
             title: "wiki_bounty_quest_title",
             path: "docs/docs/how2play/rpg/quest/readme.md",
-            children: [
-              {
-                id: "bounty_quest",
-                title: "wiki_bounty_quest_title",
-                path: "docs/docs/how2play/rpg/quest/bounty_quest/readme.md",
-                children: [],
-              },
-              {
-                id: "organization_quest",
-                title: "wiki_organization_quest_title",
-                path: "docs/docs/how2play/rpg/quest/organization_quest/readme.md",
-                children: [],
-              },
-            ],
+            children: [],
           },
         ],
       },

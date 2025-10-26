@@ -8,6 +8,7 @@ import '../../data/common.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
+import '../../ui.dart';
 
 class EditCharacterBasics extends StatefulWidget {
   /// 返回以下值
@@ -177,6 +178,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                       child: Text('${engine.locale('race')}: '),
                     ),
                     fluent.DropDownButton(
+                      style: FluentButtonStyles.small,
                       title: Text(engine.locale(_race)),
                       items: buildFluentMenuItems(
                         items: {

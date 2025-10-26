@@ -245,6 +245,24 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'expForLevel',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.expForLevel(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'contributionForJobRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.contributionForJobRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'buildingCountForDevelopment',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.buildingCountForDevelopment(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'getMinMaxExtraAffixCount',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getMinMaxExtraAffixCount(positionalArgs.first),
@@ -630,11 +648,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::showMeeting', (
         {positionalArgs, namedArgs}) {
       GameLogic.showMeeting(
-        positionalArgs[0],
-        positionalArgs[1],
-        positionalArgs[2],
-        isFirstMeeting: namedArgs['isFirstMeeting'] ?? false,
-      );
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
     }, override: true);
 
     engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');

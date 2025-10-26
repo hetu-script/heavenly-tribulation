@@ -71,11 +71,11 @@ class LocationPanel extends StatelessWidget {
             '${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
       }
     } else if (currentLocation != null) {
-      dynamic owner;
+      dynamic manager;
       // dynamic organization;
-      final ownerId = currentLocation['ownerId'];
+      final managerId = currentLocation['managerId'];
       // 这里 owner 可能是 null
-      owner = GameData.game['characters'][ownerId];
+      manager = GameData.game['characters'][managerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 
@@ -97,7 +97,7 @@ class LocationPanel extends StatelessWidget {
 
       positionDetails.writeln(currentLocation['name']);
       positionDetails
-          .writeln('$title ${owner?['name'] ?? engine.locale('none')}');
+          .writeln('$title ${manager?['name'] ?? engine.locale('none')}');
       positionDetails.writeln(
           '${engine.locale('development')}: ${currentLocation['development']}');
     } else {

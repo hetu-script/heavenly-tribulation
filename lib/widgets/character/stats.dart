@@ -4,7 +4,6 @@ import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 
 import '../../engine.dart';
-import '../../state/character.dart';
 import '../../state/hover_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
@@ -63,15 +62,13 @@ class CharacterStats extends StatefulWidget {
     super.key,
     this.title,
     this.character,
-    this.isHero = false,
     this.showNonBattleStats = true,
     this.width = 220.0,
     this.height,
-  }) : assert(character != null || isHero);
+  });
 
   final String? title;
   final dynamic character;
-  final bool isHero;
   final bool showNonBattleStats;
   final double width;
   final double? height;
@@ -150,10 +147,6 @@ class _CharacterStatsState extends State<CharacterStats> {
 
   @override
   Widget build(BuildContext context) {
-    dynamic character =
-        widget.isHero ? context.watch<HeroState>().hero : widget.character;
-    assert(character != null);
-
     final List<Widget> items = [];
     if (widget.title != null) {
       items.add(Label(
@@ -164,16 +157,16 @@ class _CharacterStatsState extends State<CharacterStats> {
       items.add(const Divider());
     }
 
-    if (character['rank'] > 0) {
-      items.add(_buildStatsLabel('tribulationCount', character));
+    if (widget.character['rank'] > 0) {
+      items.add(_buildStatsLabel('tribulationCount', widget.character));
     }
     for (final id in kStats) {
-      items.add(_buildStatsLabel(id, character));
+      items.add(_buildStatsLabel(id, widget.character));
     }
 
     if (widget.showNonBattleStats) {
       for (final id in kMoreStats) {
-        items.add(_buildStatsLabel(id, character));
+        items.add(_buildStatsLabel(id, widget.character));
       }
     }
 

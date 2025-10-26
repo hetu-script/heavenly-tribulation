@@ -9,7 +9,7 @@ import '../inventory/inventory.dart';
 import '../../../data/game.dart';
 import '../../../state/character.dart';
 import '../../../scene/game_dialog/game_dialog_content.dart';
-import 'material_bar.dart';
+import 'currency_bar.dart';
 import '../inventory/material.dart';
 import '../../dialog/input_slider.dart';
 import '../../ui/close_button2.dart';
@@ -235,7 +235,14 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           setState(() {});
                         },
                       ),
-                    if (!isDepositBox) CurrencyBar(entity: GameData.hero),
+                    if (!isDepositBox)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 55.0),
+                        child: CurrencyBar(
+                          entity: GameData.hero,
+                          showMaterialName: false,
+                        ),
+                      ),
                     Row(
                       children: [
                         Padding(
@@ -569,7 +576,14 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           setState(() {});
                         },
                       ),
-                    if (!isDepositBox) CurrencyBar(entity: widget.merchantData),
+                    if (!isDepositBox)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25.0),
+                        child: CurrencyBar(
+                          entity: widget.merchantData,
+                          showMaterialName: false,
+                        ),
+                      ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

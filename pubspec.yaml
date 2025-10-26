@@ -204,8 +204,6 @@ flutter:
     - docs/docs/how2play/rpg/item/equipment/
     - docs/docs/how2play/rpg/organization/
     - docs/docs/how2play/rpg/quest/
-    - docs/docs/how2play/rpg/quest/bounty_quest/
-    - docs/docs/how2play/rpg/quest/organization_quest/
 
     - docs/docs/how2play/tutorial/
     - docs/docs/how2play/tycoon/

@@ -65,7 +65,6 @@
   "continued": "进行中",
   "finished": "已完成",
   "current": "当前",
-  "journalFinished": "日志完成",
   "successed": "成功",
   "failed": "失败",
   "any": "任意",
@@ -157,7 +156,7 @@
   "load": "载入",
   "reload": "重新载入",
 
-  "checkJournal": "查看日志",
+  "checkJournal": "查看事项",
 
   "tiny": "微小",
   "medium": "适中",
@@ -398,14 +397,16 @@
   "characterInformation": "人物情报",
   "status": "属性",
   "stats": "属性",
-  "statsAndInventory": "属性和装备",
+  "statsAndItem": "属性和物品",
+  "memory": "记忆",
+  "memoryAndBond": "记忆与羁绊",
   "meditateAndTalentTree": "修炼与技能",
   "bonds": "羁绊",
   "history": "历史",
   "experienced": "经历",
   "known": "见闻",
-  "journal": "日志",
-  "ongoingJournals": "正在进行的日志",
+  "journal": "事项",
+  "ongoingJournals": "正在进行的事项",
   "quest": "任务",
   "bountyQuest": "悬赏任务",
   "cultivate": "修炼",
@@ -437,6 +438,7 @@
   "heal": "治疗",
 
   "jobTitle": "职位",
+  "managingSite": "辖地",
   "reportSite": "驻地",
   "superior": "上级",
   "superiorId": "上级 ID",
@@ -520,12 +522,12 @@
 
   "guestRoom": "客房",
 
-  "restIndefinitely": "无限期休息",
+  "rest1Days": "休息 1 天",
   "rest5Days": "休息 5 天",
   "rest15Days": "休息 15 天",
-  "rest30Days": "休息 30 天",
   "restTillNextMonth": "休息到下个月",
   "restTillFullHealth": "休息到体力全满",
+  "restIndefinitely": "无限期休息",
 
   "produce5Days": "生产 5 天",
   "produce15Days": "生产 15 天",
@@ -538,8 +540,8 @@
   "sectName": "宗",
 
   "newItems": "获得物品",
-  "newJournal": "新增日志",
-  "journalUpdate": "日志更新",
+  "newJournal": "新增事项",
+  "journalUpdate": "事项更新",
 
   "rentFacility": "租用此设施",
 
@@ -586,18 +588,25 @@
   "gameDataItem": "物品",
   "gameDataCraftable": "打造",
   "gameDataPassive": "天道技能",
-  "gameDataJournal": "日志",
+  "gameDataJournal": "事项",
   "gameDataQuest": "任务",
 
   "enemyStranger": "陌生修士",
   "trialCompetitor": "入门试炼竞争者",
   "trialTester": "入门试炼考官",
 
+  "donate": "捐献",
+  "checkContribution": "查看我的功勋",
+
   "yourTitleHere": "你在此处的职位",
-  "yourContributionHere": "关于我在此处的功勋...",
   "moveHere": "搬家到此处",
 
   "estimatePrice": "估价",
+
+  "hotelRoom_stable": "马厩",
+  "hotelRoom_normal": "普通客房",
+  "hotelRoom_vip": "豪华客房",
+  "hotelRoom_description": "每 tick 花费: <yellow>{0} 铜钱</>\n每 tick 回复: <yellow>{1} 点体力</>",
 
   "heroDestroy": "销毁了{0}。",
   "heroDismantle": "分解了{0}。",
@@ -620,9 +629,9 @@
   "characterLeave": "{0}离开了{1}，不再担任{2}。",
   "characterJoin": "{0}加入了{1}的队伍。",
   "characterDepart": "{0}离开了{1}的队伍。",
-  "characterCreateJournal": "{0}开启了新的日志「{1}」。",
-  "characterJournalProgressed": "{0}的日志「{1}」有新的进展。",
-  "characterJournalFinished": "{0}的日志「{1}」已结束。",
+  "characterCreateJournal": "{0}开启了新的事项「{1}」。",
+  "characterJournalProgressed": "{0}的事项「{1}」有新的进展。",
+  "characterJournalFinished": "{0}的事项「{1}」已结束。",
   "characterFirstMeetNormal": "{0}认识了{1}。",
   "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",
   "characterFirstMeetLike": "{0}认识了{1}，对其十分喜欢。",
@@ -641,11 +650,12 @@
   "characterDefeat": "{0}击败了{1}。",
   "characterKill": "{0}杀死了{1}。",
   "characterAcquireOrganizationTitle": "{0}成为了{1}的{2}。",
+  "characterAcquireOrganizationTitleWithManagingSite": "{0}成为了{1}的{2}，并管理着{3}。",
   "characterAcquireTitle": "{0}成为了{1}。",
   "characterMakeContribution": "{0}在{1}的功勋增加了 {2}。",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
-  "organizationBuild": "{0}在{1}创建了{2}。",
+  "organizationBuild": "{0}在{1}建立了{2}。",
 
   "hint_console": " [Ctrl+回车] 提交。[Ctrl+上/下] 浏览输入历史。",
 
@@ -772,10 +782,17 @@
 
   "hint_restAtHotel": "您要在我们这歇息吗？我们这有上好的客房，还有洗浴和酒菜，保管让你舒舒服服的休息一番。",
 
-  "hotelRoom_stable": "马厩",
-  "hotelRoom_normal": "普通客房",
-  "hotelRoom_vip": "豪华客房",
-  "hotelRoom_description": "每 tick 花费: <yellow>{0} 铜钱</>\n每 tick 回复: <yellow>{1} 点体力</>",
+  "hint_hotelRoom_selected": "好的，这就给你安排房间。\n您打算住多久？",
 
-  "hotelRoom_selected": "好的，这就给你安排房间。\n您打算住多久？"
+  "hint_donation": "你每月仅可捐献一次，若是价值不够无法获得功勋的话，物品也不会退还，还望慎重。",
+
+  "hint_organization_donation": "哦？你竟有此心，甚好。宗门的发展，离不开各位弟子的贡献。",
+
+  "hint_location_donation": "哦？阁下打算给我们捐献？太好了，我们城镇的发展有希望了。这可以直接算作你在此城中的功勋。",
+
+  "hint_donation_item_value_low": "此物灵光甚微。你的心意我们领了，但此次捐献无法算作你的功勋。",
+
+  "hint_donation_item_value_high": "不错，此物颇为不凡。你这次算是大功一件。此物折算为功勋 {0} 点，已记入你的名下。",
+
+  "hint_already_donated": "你本月已经捐献过一次了。修行之道，贵在持之以恒，而非一蹴而就。\n想要再次捐献的话，等到下个月 {0} 日之后再来吧。"
 }

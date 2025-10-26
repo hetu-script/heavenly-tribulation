@@ -6,12 +6,12 @@ import 'package:samsara/markdown_wiki.dart';
 
 import 'ui/avatar.dart';
 import 'character/profile.dart';
-import 'character/memory.dart';
+import 'character/memory_and_bond.dart';
 import '../engine.dart';
 import 'character/journal.dart';
 import '../ui.dart';
 import 'hover_info.dart';
-import 'character/details.dart';
+import 'character/stats_and_item.dart';
 import 'prebatle/prebattle.dart';
 import '../state/states.dart';
 import '../scene/common.dart';
@@ -34,6 +34,9 @@ import 'view/alchemy.dart';
 import 'view/workshop.dart';
 import 'ui/responsive_view.dart';
 import '../logic/logic.dart';
+import 'character/merchant/currency_bar.dart';
+
+String? markdownWikiPath;
 
 const tickName = {
   1: 'morning.jpg',
@@ -87,8 +90,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         hero != null &&
         context.watch<HeroInfoVisibilityState>().isVisible;
 
-    final money = (hero?['materials']['money'] ?? 0).toString();
-    final shard = (hero?['materials']['shard'] ?? 0).toString();
+    // final money = (hero?['materials']['money'] ?? 0).toString();
+    // final shard = (hero?['materials']['shard'] ?? 0).toString();
 
     final hoverContent = context.watch<HoverContentState>().content;
 
@@ -182,45 +185,46 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 height: 340.0,
                 character: hero,
                 showIntimacy: false,
-                showRelationships: false,
-                showPosition: false,
                 showPersonality: false,
               ),
             ),
           );
-        case ViewPanels.details:
+        case ViewPanels.statsAndItem:
           final position =
               panelPositions[panel] ?? GameUI.detailsWindowPosition;
           panels.add(
             DraggablePanel(
-              title: engine.locale('statsAndInventory'),
+              title: engine.locale('statsAndItem'),
               position: position,
               width: GameUI.profileWindowSize.x,
               height: GameUI.profileWindowSize.y,
               onTapDown: (offset) {
-                context.read<ViewPanelState>().setUpFront(ViewPanels.details);
+                context
+                    .read<ViewPanelState>()
+                    .setUpFront(ViewPanels.statsAndItem);
                 context
                     .read<ViewPanelPositionState>()
-                    .set(ViewPanels.details, position);
+                    .set(ViewPanels.statsAndItem, position);
               },
               onDragUpdate: (details) {
                 context
                     .read<ViewPanelPositionState>()
-                    .update(ViewPanels.details, details.delta);
+                    .update(ViewPanels.statsAndItem, details.delta);
               },
               onClose: () {
-                context.read<ViewPanelState>().hide(ViewPanels.details);
+                context.read<ViewPanelState>().hide(ViewPanels.statsAndItem);
               },
               child: Padding(
                 padding: const EdgeInsets.only(left: 10.0, right: 5.0),
-                child: CharacterDetails(character: hero),
+                child: CharacterStatsAndItem(character: hero),
               ),
             ),
           );
-        case ViewPanels.memory:
-          final position =
-              context.watch<ViewPanelPositionState>().get(ViewPanels.memory) ??
-                  GameUI.profileWindowPosition;
+        case ViewPanels.memoryAndBond:
+          final position = context
+                  .watch<ViewPanelPositionState>()
+                  .get(ViewPanels.memoryAndBond) ??
+              GameUI.profileWindowPosition;
           panels.add(
             DraggablePanel(
               title: engine.locale('memory'),
@@ -229,21 +233,23 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               height: GameUI.profileWindowSize.y,
               // titleHeight: 100,
               onTapDown: (offset) {
-                context.read<ViewPanelState>().setUpFront(ViewPanels.memory);
+                context
+                    .read<ViewPanelState>()
+                    .setUpFront(ViewPanels.memoryAndBond);
                 context
                     .read<ViewPanelPositionState>()
-                    .set(ViewPanels.memory, position);
+                    .set(ViewPanels.memoryAndBond, position);
               },
               onDragUpdate: (details) {
                 context.read<ViewPanelPositionState>().update(
-                      ViewPanels.memory,
+                      ViewPanels.memoryAndBond,
                       details.delta,
                     );
               },
               onClose: () {
-                context.read<ViewPanelState>().hide(ViewPanels.memory);
+                context.read<ViewPanelState>().hide(ViewPanels.memoryAndBond);
               },
-              child: CharacterMemory(character: hero, isHero: true),
+              child: CharacterMemoryAndBond(character: hero),
             ),
           );
         case ViewPanels.journal:
@@ -272,6 +278,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   Avatar(
                     size: const Size(120, 120),
                     image: AssetImage('assets/images/${hero['icon']}'),
+                    radius: Radius.zero,
+                    borderWidth: 0.0,
                     onPressed: (_) {
                       context.read<ViewPanelState>().toogle(ViewPanels.profile);
                     },
@@ -320,113 +328,114 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 // },
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.only(right: 5.0),
-                              child: MouseRegion2(
-                                // cursor: SystemMouseCursors.click,
-                                // onTapUp: () {
-                                //   context.read<HoverContentState>().hide();
-                                //   if (widget.enableAutoExhaust) {
-                                //     GameData.game?['flags']['autoWork'] =
-                                //         !autoWork;
-                                //     setState(() {});
-                                //   }
-                                // },
-                                onEnter: (rect) {
-                                  String description =
-                                      engine.locale('money_description');
-                                  // if (widget.enableAutoExhaust) {
-                                  //   description +=
-                                  //       '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  // }
-                                  context
-                                      .read<HoverContentState>()
-                                      .show(description, rect);
-                                },
-                                onExit: () {
-                                  context.read<HoverContentState>().hide();
-                                },
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 120.0,
-                                      padding:
-                                          const EdgeInsets.only(right: 5.0),
-                                      child: Text(
-                                        money,
-                                        textAlign: TextAlign.end,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: GameUI.boxDecoration,
-                                      child: Image(
-                                          width: 20,
-                                          height: 20,
-                                          image: AssetImage(
-                                              'assets/images/item/material/money.png')),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.only(right: 5.0),
-                              child: MouseRegion2(
-                                // cursor: SystemMouseCursors.click,
-                                // onTapUp: () {
-                                //   context.read<HoverContentState>().hide();
-                                //   if (widget.enableAutoExhaust) {
-                                //     GameData.game?['flags']['autoCultivate'] =
-                                //         !autoCultivate;
-                                //     setState(() {});
-                                //   }
-                                // },
-                                onEnter: (rect) {
-                                  String description =
-                                      engine.locale('shard_description');
-                                  // if (widget.enableAutoExhaust) {
-                                  //   description +=
-                                  //       '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
-                                  // }
-                                  context
-                                      .read<HoverContentState>()
-                                      .show(description, rect);
-                                },
-                                onExit: () {
-                                  context.read<HoverContentState>().hide();
-                                },
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 120.0,
-                                      padding:
-                                          const EdgeInsets.only(right: 5.0),
-                                      child: Text(
-                                        shard,
-                                        textAlign: TextAlign.end,
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color:
-                                              //  autoCultivate
-                                              //     ? GameUI.foregroundColor
-                                              //     :
-                                              Colors.transparent,
-                                          width: 1.0,
-                                        ),
-                                      ),
-                                      child: Image(
-                                          width: 20,
-                                          height: 20,
-                                          image: AssetImage(
-                                              'assets/images/item/material/shard.png')),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            CurrencyBar(entity: hero),
+                            // Container(
+                            //   padding: const EdgeInsets.only(right: 5.0),
+                            //   child: MouseRegion2(
+                            //     // cursor: SystemMouseCursors.click,
+                            //     // onTapUp: () {
+                            //     //   context.read<HoverContentState>().hide();
+                            //     //   if (widget.enableAutoExhaust) {
+                            //     //     GameData.game?['flags']['autoWork'] =
+                            //     //         !autoWork;
+                            //     //     setState(() {});
+                            //     //   }
+                            //     // },
+                            //     onEnter: (rect) {
+                            //       String description =
+                            //           engine.locale('money_description');
+                            //       // if (widget.enableAutoExhaust) {
+                            //       //   description +=
+                            //       //       '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
+                            //       // }
+                            //       context
+                            //           .read<HoverContentState>()
+                            //           .show(description, rect);
+                            //     },
+                            //     onExit: () {
+                            //       context.read<HoverContentState>().hide();
+                            //     },
+                            //     child: Row(
+                            //       children: [
+                            //         Container(
+                            //           width: 120.0,
+                            //           padding:
+                            //               const EdgeInsets.only(right: 5.0),
+                            //           child: Text(
+                            //             money,
+                            //             textAlign: TextAlign.end,
+                            //           ),
+                            //         ),
+                            //         Container(
+                            //           decoration: GameUI.boxDecoration,
+                            //           child: Image(
+                            //               width: 20,
+                            //               height: 20,
+                            //               image: AssetImage(
+                            //                   'assets/images/item/material/money.png')),
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
+                            // Container(
+                            //   padding: const EdgeInsets.only(right: 5.0),
+                            //   child: MouseRegion2(
+                            //     // cursor: SystemMouseCursors.click,
+                            //     // onTapUp: () {
+                            //     //   context.read<HoverContentState>().hide();
+                            //     //   if (widget.enableAutoExhaust) {
+                            //     //     GameData.game?['flags']['autoCultivate'] =
+                            //     //         !autoCultivate;
+                            //     //     setState(() {});
+                            //     //   }
+                            //     // },
+                            //     onEnter: (rect) {
+                            //       String description =
+                            //           engine.locale('shard_description');
+                            //       // if (widget.enableAutoExhaust) {
+                            //       //   description +=
+                            //       //       '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
+                            //       // }
+                            //       context
+                            //           .read<HoverContentState>()
+                            //           .show(description, rect);
+                            //     },
+                            //     onExit: () {
+                            //       context.read<HoverContentState>().hide();
+                            //     },
+                            //     child: Row(
+                            //       children: [
+                            //         Container(
+                            //           width: 120.0,
+                            //           padding:
+                            //               const EdgeInsets.only(right: 5.0),
+                            //           child: Text(
+                            //             shard,
+                            //             textAlign: TextAlign.end,
+                            //           ),
+                            //         ),
+                            //         Container(
+                            //           decoration: BoxDecoration(
+                            //             border: Border.all(
+                            //               color:
+                            //                   //  autoCultivate
+                            //                   //     ? GameUI.foregroundColor
+                            //                   //     :
+                            //                   Colors.transparent,
+                            //               width: 1.0,
+                            //             ),
+                            //           ),
+                            //           child: Image(
+                            //               width: 20,
+                            //               height: 20,
+                            //               image: AssetImage(
+                            //                   'assets/images/item/material/shard.png')),
+                            //         ),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
                             Container(
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
@@ -539,7 +548,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               onPressed: () {
                                 context
                                     .read<ViewPanelState>()
-                                    .toogle(ViewPanels.details);
+                                    .toogle(ViewPanels.statsAndItem);
                               },
                               onEnter: (rect) {
                                 final level = GameData.hero['level'];
@@ -549,7 +558,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 final rankString =
                                     '${engine.locale('rank')}: ${engine.locale('cultivationRank_$rank')}';
                                 final statsDesc =
-                                    '${engine.locale('statsAndInventory')}\n$levelString\n$rankString';
+                                    '${engine.locale('statsAndItem')}\n$levelString\n$rankString';
                                 context.read<HoverContentState>().show(
                                       statsDesc,
                                       rect,
@@ -650,9 +659,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                   builder: (context) => ResponsiveView(
                                     margin: const EdgeInsets.all(50.0),
                                     child: MarkdownWiki(
+                                      cursor: GameUI.cursor,
                                       engine: engine,
                                       treeNodes: GameData.wikiTreeNodes,
                                       closeButton: CloseButton2(),
+                                      path: markdownWikiPath,
+                                      onPageChanged: (path) {
+                                        markdownWikiPath = path;
+                                      },
                                     ),
                                   ),
                                 );
@@ -694,15 +708,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: 80,
-                        width: screenSize.width - 120,
-                        child: Row(
-                          children: [
-                            HistoryPanel(width: 535, height: 80),
-                          ],
-                        ),
-                      ),
+                      HistoryPanel(width: 400, height: 80),
                     ],
                   ),
                 ],

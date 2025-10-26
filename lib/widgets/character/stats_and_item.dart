@@ -50,8 +50,8 @@ enum ItemPopUpMenuItems {
   discard,
 }
 
-class CharacterDetails extends StatefulWidget {
-  const CharacterDetails({
+class CharacterStatsAndItem extends StatefulWidget {
+  const CharacterStatsAndItem({
     super.key,
     this.characterId,
     this.character,
@@ -63,10 +63,10 @@ class CharacterDetails extends StatefulWidget {
   final InformationViewMode mode;
 
   @override
-  State<CharacterDetails> createState() => _CharacterDetailsState();
+  State<CharacterStatsAndItem> createState() => _CharacterStatsAndItemState();
 }
 
-class _CharacterDetailsState extends State<CharacterDetails> {
+class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
   late final dynamic _characterData;
 
   @override
@@ -187,7 +187,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
                 style: EquipmentBarStyle.vertical,
               ),
               CharacterStats(
-                isHero: true,
+                character: _characterData,
                 height: 312,
               ),
               Inventory(
@@ -223,8 +223,8 @@ class _CharacterDetailsState extends State<CharacterDetails> {
   }
 }
 
-class CharacterDetailsView extends StatelessWidget {
-  const CharacterDetailsView({
+class CharacterStatsAndItemView extends StatelessWidget {
+  const CharacterStatsAndItemView({
     super.key,
     this.characterId,
     this.character,
@@ -244,7 +244,7 @@ class CharacterDetailsView extends StatelessWidget {
           title: Text(engine.locale('information')),
           actions: [CloseButton2()],
         ),
-        body: CharacterDetails(
+        body: CharacterStatsAndItem(
           characterId: characterId,
           character: character,
         ),

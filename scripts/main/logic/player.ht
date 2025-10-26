@@ -68,64 +68,9 @@ namespace Player {
     return entityExhaust(hero, materialId, amount)
   }
 
-  async function collectContributionFromItem(item, { incurIncident = true }) {
-    
-    let contribution = item.stackSize ?? 1
-    let contributionTarget
-    
-    if (item.organizationId) {
-      // 如果是门派领地的任务
-      final organization = game.organizations[item.organizationId];
-      assert(organization != null,
-          'Organization not found for id: ${item.organizationId}');
-      final memberData = organization.membersData[hero.id];
-      if (hero.organizationId == item.organizationId) {
-        // 如果主角是该门派成员
-        assert(memberData != null,
-            'Member data not found in organization [${organization.id}], member id: ${hero.id}');
-        memberData.contribution += contribution;
-      } else {
-        contribution = contribution ~/ 2
-        // 非门派成员功勋减半
-        if (memberData != null) {
-          memberData.contribution += contribution;
-        } else {
-          organization.membersData[hero.id] = MemberData(
-            id: hero.id,
-            rank: -1,
-            contribution: contribution,
-          )
-        }
-      }
-      contributionTarget = organization.name;
-    } else {
-      assert(item.locationId != null,
-          'Either organizationId or locationId must be set for contribution pack: ${item.id}');
-      final location = game.locations[item.locationId];
-      assert(location != null,
-          'Location not found for id: ${item.locationId}');
-      contributionTarget = location.name;
-      // 非门派领地任务，同样可以获得功勋，但直接保存在据点数据中
-      location.contributions[hero.id] += contribution;
-    }
-    
-    let incidentContent = engine.locale('characterMakeContribution',
-      interpolations: [
-        hero.name,
-        contributionTarget,
-        contribution,
-      ])
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-        organizationId: item.organizationId,
-        locationId: item.locationId,
-        orderly: contribution,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+  async function makeContribution(data, { incurIncident = true }) {
+    assert(hero != null)
+    return characterMakeContribution(hero, data, incurIncident: incurIncident)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -142,7 +87,7 @@ namespace Player {
           return
         }
         case kItemCategoryContributionPack: {
-          collectContributionFromItem(item, incurIncident: incurIncident)
+          makeContribution(item, incurIncident: incurIncident)
           return
         }
       }
@@ -199,7 +144,7 @@ namespace Player {
       hero.name,
       card.name,
     ])
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
 
     return price
   }
@@ -453,7 +398,7 @@ namespace Player {
     //     targetId: hero.id,
     //   )
     // } else {
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
     // }
   }
 
@@ -477,7 +422,7 @@ namespace Player {
         targetId: hero.id,
       )
     }
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
   }
 
   function levelUp({ incurIncident = true }) {
@@ -509,7 +454,7 @@ namespace Player {
         subjectId: hero.id,
       )
     } else {
-      engine.debug(incidentContent)
+      engine.info(incidentContent)
     }
 
     return hero.level
@@ -535,7 +480,7 @@ namespace Player {
         subjectId: hero.id,
       )
     } else {
-      engine.debug(incidentContent)
+      engine.info(incidentContent)
     }
 
     return hero.rank

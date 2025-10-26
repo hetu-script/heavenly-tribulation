@@ -1,13 +1,19 @@
 
 import '../achievements.ht'
 
-const _kAttributesBaseValue = 50
-
 // number of the avatar images
 const _kAvatarCount = 41
 
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
+
+/// 容貌等数值计算时的最大值: 100.0
+const kAttributeValueMax = 100.0;
+const kNonBattleAttributeValueAverage = 50.0;
+const kNonBattleAttributeValueMajor = 75.0;
+const kNonBattleAttributeValueDeviation = 25.0;
+const kBattleAttributesValueBase = 25
+const kBattleAttributesValueMajor = 50
 
 /// battle entity 指一个可以参与战斗的对象。
 /// 此对象拥有一个牌库和一个卡组。
@@ -20,18 +26,15 @@ struct BattleEntity {
     icon,
     illustration,
     skin,
+    name,
+    shortName,
     surName,
     generationName,
-    shortName,
-    familyName,
-    name,
     generateName = true,
     description,
     level,
     rank,
     attributes,
-    baseAttributeValue = _kAttributesBaseValue,
-    mainAttribute,
     stats,
     generateDeck = true,
     cultivationFavor,
@@ -148,7 +151,7 @@ struct BattleEntity {
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
     if (attributes == null) {
-      generateAttributes(this, baseValue: baseAttributeValue, mainAttribute: mainAttribute)
+      generateAttributes(this)
     } else {
       for (final id in Constants.attributes) {
         this[id] = attributes[id] ?? 0
@@ -182,6 +185,7 @@ struct BattleEntity {
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     this.cultivationFavor = cultivationFavor ?? Constants.attributeToGenre[this.mainAttribute]
+    // 加点路线
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
@@ -196,26 +200,42 @@ struct BattleEntity {
   }
 }
 
-function generateAttributes(entity, {baseValue, mainAttribute}) {
-  baseValue ??= _kAttributesBaseValue
+function generateAttributes(entity) {
+  let mainAttributes = Constants.raceMainAttributes[entity.race]
+  assert(mainAttributes != null, 'raceMainAttributes not found, ${entity.race}');
+
   let attributes = {}
   for (final id in Constants.nonBattleAttributes) {
     attributes[id] = Math.gaussianNoise(
-      Constants.attributeValueAverage,
-      Constants.attributeValueDeviation,
+      mainAttributes.contains[id] ? kNonBattleAttributeValueMajor : kNonBattleAttributeValueAverage,
+      kNonBattleAttributeValueDeviation,
       min: 1,
-      max: Constants.attributeValueMax,
+      max: kAttributeValueMax,
       randomGenerator: random,
-    ).toInt()
+    ).round()
   }
   for (final id in Constants.battleAttributes) {
-    if (id == mainAttribute) {
-      attributes[id] = random.nearInt(baseValue)
+    if (mainAttributes.contains[id]) {
+      attributes[id] = random.nearInt(kBattleAttributesValueMajor)
     } else {
-      attributes[id] = random.nextInt(baseValue)
+      attributes[id] = random.distantInt(kBattleAttributesValueBase)
     }
   }
   Object.assign(entity, attributes)
+}
+
+function getMainAttribute(character) {
+  let maxAttr = Constants.battleAttributes.first
+  let maxValue = character[maxAttr]
+
+  for (final attr in Constants.battleAttributes) {
+    if (character[attr] > maxValue) {
+      maxAttr = attr
+      maxValue = character[attr]
+    }
+  }
+
+  return maxAttr
 }
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
@@ -496,7 +516,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
 }
 
 function characterEquip(entity, item, { index }) {
-  assert(index == null || (index >= 0 && index < kEquipmentMax))
+  assert(index == null || (index >= 0 && index <= kEquipmentMax))
 
   if (!item.isEquippable) {
     engine.warn('${item.name} 无法装备。')
@@ -510,7 +530,7 @@ function characterEquip(entity, item, { index }) {
   let equipped = false
   // 如果有空位就装备在空位上
   if (index == null) {
-    for (const i in range(kEquipmentMax)) {
+    for (const i in range(kEquipmentMax + 1)) {
       if (entity.equipments[i] == null) {
         entity.equipments[i] = item.id
         item.equippedPosition = i
@@ -536,7 +556,7 @@ function characterEquip(entity, item, { index }) {
   // }
 
   if (equipped) {
-    engine.debug('${entity.name}装备了${item.name}')
+    engine.info('${entity.name}装备了${item.name}')
 
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
@@ -565,7 +585,7 @@ function characterUnequip(entity, item) {
     characterCalculateStats(entity, rejuvenate: false)
   }
   
-  engine.debug('${entity.name}取下了${item.name}')
+  engine.info('${entity.name}取下了${item.name}')
 }
 
 function characterEquippedCategory(entity, category) {
@@ -656,7 +676,7 @@ function characterSetUpgradeRankPotionPassive(character, rank) {
 function characterConsumePotion(entity, item) {
   assert(item.category == kItemCategoryPotion)
 
-  engine.debug('${entity.name}服用了${item.name}')
+  engine.info('${entity.name}服用了${item.name}')
 
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {

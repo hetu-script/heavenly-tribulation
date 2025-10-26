@@ -12,7 +12,7 @@
     // endings 数组代表了任务结束节点
     // 当任务的 stage 推进到这些值时
     // 会将任务标记为 isFinished
-    endings: [3],
+    endings: [9],
   },
   // 门派指引任务
   organizationInitiation: {
@@ -20,11 +20,12 @@
     title: "journal_organizationInitiation_title",
     endings: [5],
   },
+  // 此为一次性显示，不会出现在事项记录中
   // 初次门派会议事件，玩家选择会影响到人物关系
   organizationFirstMeetingIntroduction: {
     id: "organizationFirstMeetingIntroduction",
     title: "journal_organizationFirstMeetingIntroduction_title",
-    endings: [1],
+    endings: [0],
   },
   // 招募城市成功，但角色并非掌门，需要汇报
   organizationRecruitCityReportToLeader: {

@@ -8,6 +8,7 @@ import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import '../../data/common.dart';
 import '../ui/menu_builder.dart';
+import '../../ui.dart';
 
 class EditOrganizationBasics extends StatefulWidget {
   const EditOrganizationBasics({
@@ -149,6 +150,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           child: Text('${engine.locale('category')}: '),
                         ),
                         fluent.DropDownButton(
+                          style: FluentButtonStyles.small,
                           title: Text(engine.locale(selectedCategory)),
                           items: buildFluentMenuItems(
                             items: {
@@ -174,6 +176,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           child: Text('${engine.locale('genre')}: '),
                         ),
                         fluent.DropDownButton(
+                          style: FluentButtonStyles.small,
                           title: Text(engine.locale(selectedGenre)),
                           items: buildFluentMenuItems(
                             items: {

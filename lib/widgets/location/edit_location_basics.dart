@@ -7,6 +7,7 @@ import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 import '../../data/common.dart';
 import '../ui/responsive_view.dart';
+import '../../ui.dart';
 
 class EditLocationBasics extends StatefulWidget {
   /// 返回六个值的元组：
@@ -163,6 +164,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                       child: Text('${engine.locale('category')}:'),
                     ),
                     fluent.DropDownButton(
+                      style: FluentButtonStyles.small,
                       disabled: !widget.allowEditCategory,
                       title: Text(engine.locale(_selectedCategory)),
                       items: buildFluentMenuItems(
@@ -187,6 +189,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
                       child: Text('${engine.locale('kind')}:'),
                     ),
                     fluent.DropDownButton(
+                      style: FluentButtonStyles.small,
                       disabled: !widget.allowEditKind,
                       title: Text(engine.locale(_selectedKind)),
                       items: buildFluentMenuItems(

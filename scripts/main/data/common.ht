@@ -1,6 +1,9 @@
 import '../name/skill/skill.json5' as skillData
 
-const kCultivationRankMax = 5
+const kCultivationRankMax = 5;
+const kEquipmentMax = 5;
+const kFameRankMax = 5;
+const kJobRankMax = 5;
 
 final kBattleCardKinds = skillData.keys.toList()
 

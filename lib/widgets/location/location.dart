@@ -81,9 +81,9 @@ class _LocationViewState extends State<LocationView>
     assert(_location != null);
     isCity = _location['category'] == 'city';
 
-    final ownerId = _location['ownerId'];
+    final managerId = _location['managerId'];
     // 这里的 owner 可能是 null
-    _owner = GameData.game['characters'][ownerId];
+    _owner = GameData.game['characters'][managerId];
 
     Iterable residents = [];
 
@@ -179,7 +179,6 @@ class _LocationViewState extends State<LocationView>
           return EditNpcBasics(
             atLocation: _location,
             id: _location['id'] + '_npc',
-            nameId: 'servant',
             icon: 'illustration/npc/servant_head.png',
             illustration: 'illustration/npc/servant.png',
           );

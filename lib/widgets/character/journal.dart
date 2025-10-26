@@ -104,10 +104,10 @@ class _JournalViewState extends State<JournalView> {
     }
     final timeLimit = _selectedJournal['quest']?['timeLimit'];
     if (timeLimit != null) {
+      final startDate = _selectedJournal['timestamp'] +
+          _selectedJournal['quest']['timeLimit'];
       final currentTimestamp = GameData.game['timestamp'];
-      final isLate = currentTimestamp >
-          (_selectedJournal['timestamp'] +
-              _selectedJournal['quest']['timeLimit']);
+      final isLate = currentTimestamp > startDate;
       descriptions.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
@@ -116,7 +116,7 @@ class _JournalViewState extends State<JournalView> {
             children: [
               Text('${engine.locale('deadline')}:'),
               Text(
-                GameData.getQuestTimeLimitDescription(timeLimit),
+                GameData.getQuestTimeLimitDescription(_selectedJournal),
                 style: TextStyle(
                   color: isLate ? Colors.red : Colors.yellow,
                 ),

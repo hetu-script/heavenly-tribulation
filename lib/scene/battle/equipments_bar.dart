@@ -55,14 +55,14 @@ class EquipmentsBar extends GameComponent {
 
     final equipments = character['equipments'];
 
-    for (var i = 0; i < kEquipmentMax; ++i) {
+    for (var i = 0; i <= kEquipmentMax; ++i) {
       final itemId = equipments[i.toString()];
       final itemData = character['inventory'][itemId];
       _addItemGrid(i, itemData);
     }
 
     final statsButton = SpriteButton(
-      position: Vector2(kEquipmentMax * (kItemGridSize + 2.0), 0),
+      position: Vector2((kEquipmentMax + 1) * (kItemGridSize + 2.0), 0),
       size: Vector2(kItemGridSize, kItemGridSize),
       spriteId: 'icon/cultivate.png',
       borderSpriteId: 'item/grid.png',
@@ -85,7 +85,7 @@ class EquipmentsBar extends GameComponent {
     add(statsButton);
 
     final cultivationButton = SpriteButton(
-      position: Vector2((kEquipmentMax + 1) * (kItemGridSize + 2.0), 0),
+      position: Vector2((kEquipmentMax + 2) * (kItemGridSize + 2.0), 0),
       size: Vector2(kItemGridSize, kItemGridSize),
       spriteId: 'icon/stats.png',
       borderSpriteId: 'item/grid.png',

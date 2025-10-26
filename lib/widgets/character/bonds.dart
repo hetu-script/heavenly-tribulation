@@ -5,16 +5,18 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import '../../ui.dart';
+import '../../data/game.dart';
 
 const _kCharacterBondsSubTableColumns = {
-  'name': 100.0,
-  'relationshipOfTarget': 100.0,
-  'favorScoreToTarget': 100.0,
+  'name': 80.0,
+  'relationshipOfTarget': 180.0,
+  'favorScoreToTarget': 60.0,
 };
+
 const _kHeroBondsSubTableColumns = {
-  'name': 100.0,
-  'relationshipOfTarget': 100.0,
-  'favorScore': 100.0,
+  'name': 80.0,
+  'relationshipOfTarget': 180.0,
+  'favorScoreToHero': 60.0,
 };
 
 class CharacterBondsView extends StatelessWidget {
@@ -32,6 +34,15 @@ class CharacterBondsView extends StatelessWidget {
 
   final void Function(dynamic bondData)? onPressed;
   final void Function(dynamic bondData)? onSecondaryPressed;
+
+  // String buildRelationshipText(dynamic bondData) {
+  //   final targetId = bondData['id'];
+  //   final target = GameData.getCharacter(targetId);
+  //   final items = <String>[];
+  //   for (final data in relationships) {
+  //     items.add(engine.locale(e));
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +75,13 @@ class CharacterBondsView extends StatelessWidget {
                   Text(bondData['name']),
                 ),
                 DataCell(
-                  Text(engine.locale(bondData['relationship'])),
+                  Text(
+                    (bondData['relationships'] as Iterable).isEmpty
+                        ? engine.locale('none')
+                        : (bondData['relationships'] as Iterable)
+                            .map((e) => engine.locale(e))
+                            .join(','),
+                  ),
                 ),
                 DataCell(
                   Text(bondData['score']?.toInt().toString() ??

@@ -322,7 +322,7 @@ class MatchingGame extends Scene with HasCursorState {
     if (materialId == 'money' || materialId == 'shard') {
       removeObject();
       if (materialId == 'money') {
-        final amount = (rarity + 1) * (rarity + 1) * _kMoneyObjectRarityToCount;
+        final amount = (rarity * rarity + 1) * _kMoneyObjectRarityToCount;
         engine.hetu.invoke(
           'collect',
           namespace: 'Player',

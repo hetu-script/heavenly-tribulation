@@ -108,7 +108,7 @@ struct Incident {
     Game.updateHistory()
     
     if (subject || organization) {
-      engine.debug(message)
+      engine.info(message)
     }
   }
 }
@@ -117,10 +117,10 @@ function getIncidentByIndex(index: integer) {
   return history[index]
 }
 
-function calculateCharacterScoreOfIncident(character, incident) {
+function characterCalculateScoreOfIncident(character, incident) {
   return (character.personality.idealistic * incident.idealistic +
                  character.personality.orderly * incident.orderly +
-                 character.personality.goodwill  * incident.goodwill) ~/ 100
+                 character.personality.goodwill  * incident.goodwill) / 10
 }
 
 /// 角色听说某个之前其他角色经历的事件
@@ -142,13 +142,13 @@ function characterKnowIncident(character, incident, { witnessed }) {
   character.known.add(incident.id)
 
   if (incident.subjectId != null) {
-    let score = calculateCharacterScoreOfIncident(character, incident)
+    let score = characterCalculateScoreOfIncident(character, incident)
     if (witnessed) {
       // 亲身经历者会放大原本的评价
       score = (score * 1.5).toInt()
     }
     const subject = game.characters[incident.subjectId]
-    updateBondScore(character, subject, score)
+    updateBond(character, subject, score: score)
   }
   
   // if (!character.bonds.containsKey(id)) {
@@ -178,21 +178,21 @@ function entityExperienceIncident(entity, incident) {
 
   // 只有人物会有世界观和评价的计算
   if (entity.id == incident.subjectId) {
-    let idealChange = entity.personality.idealistic * incident.idealistic / 100
-    if (idealChange != 0) {
-      entity.personality.idealistic += idealChange
-      // engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}] 到 [${entity.personality.idealistic}]。')
-    }
-    let orderChange = entity.personality.orderly * incident.orderly / 100
-    if (orderChange != 0) {
-      entity.personality.orderly += orderChange
-      // engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}] 到 [${entity.personality.orderly}]。')
-    }
-    let goodChange = entity.personality.goodwill * incident.goodwill / 100
-    if (goodChange != 0) {
-      entity.personality.goodwill += goodChange
-      // engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}] 到 [${entity.personality.goodwill}]。')
-    }
+    // let idealChange = entity.personality.idealistic * incident.idealistic / 100
+    // if (idealChange != 0) {
+    //   entity.personality.idealistic += idealChange
+    //   // engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}] 到 [${entity.personality.idealistic}]。')
+    // }
+    // let orderChange = entity.personality.orderly * incident.orderly / 100
+    // if (orderChange != 0) {
+    //   entity.personality.orderly += orderChange
+    //   // engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}] 到 [${entity.personality.orderly}]。')
+    // }
+    // let goodChange = entity.personality.goodwill * incident.goodwill / 100
+    // if (goodChange != 0) {
+    //   entity.personality.goodwill += goodChange
+    //   // engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}] 到 [${entity.personality.goodwill}]。')
+    // }
   } else if (entity.id == incident.targetId) {
     const subject = game.characters[incident.subjectId]
     if (!entity.bonds.contains(subject.id)) {
@@ -200,7 +200,7 @@ function entityExperienceIncident(entity, incident) {
       characterMet(entity, subject)
     }
     // 作为事情的受事方会放大评价
-    const score = (calculateCharacterScoreOfIncident(entity, incident) * 1.5).toInt()
+    const score = (characterCalculateScoreOfIncident(entity, incident) * 1.5).toInt()
     if (score != 0) {
       let bond = entity.bonds[incident.subjectId]
       bond.score += score

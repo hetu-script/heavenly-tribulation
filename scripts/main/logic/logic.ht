@@ -1,12 +1,17 @@
 import '../world/tile/common.ht'
 
-external function expForLevel(level: integer) -> integer
 
 external function minLevelForRank(rank) -> integer
 
 external function maxLevelForRank(rank) -> integer
 
 external function fameForRank(rank) -> integer
+
+external function expForLevel(level: integer) -> integer
+
+external function contributionForJobRank(jobRank) -> integer
+
+external function buildingCountForDevelopment(development) -> integer
 
 external function getMinMaxExtraAffixCount(rank) -> Map
 
@@ -36,14 +41,15 @@ const kRewardProbabilityCraftMaterial = 0.1
 const kRewardProbabilityDungeonTicket = 0.02
 const _kRewardProbabilityDungeonTicketNextLevel = 0.4
 
-const _kRewardProbabilityCraftMaterialReplaceAffix = 0.4
+const _kRewardProbabilityCraftMaterialReplaceAffix = 0.45
 const _kRewardProbabilityCraftMaterialRerollAffix = 0.25
 const _kRewardProbabilityCraftMaterialUpgradeRank = 0.1
 
 const _kSpiritWellProbabilityCraftMaterial = 0.5
 
 /// 根据一个概率表生成战斗奖励
-/// probability: {
+/// entity: 游戏对象，通常是敌人
+/// details: {
 ///  exp: 0.8,
 ///  money: 0.7,
 ///  shard: 0.5,
@@ -56,97 +62,130 @@ const _kSpiritWellProbabilityCraftMaterial = 0.5
 ///  // 只有当生成了 dungeonTicket 时才会生效
 ///  dungeonTicketNextLevel: 0.4,
 /// }
-function generateReward({entity, probability: {}}) {
-  let rank = entity?.rank ?? hero.rank
-
+function createReward({entity, details: {}}) {
   let rewardExp
-  if (entity == null || (hero.rank - rank) > 2) {
-    rewardExp = false
+  if (entity == null || (hero.rank - entity.rank) > 2) {
+    rewardExp = 0
   } else {
-    rewardExp = random.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
+    rewardExp = random.nextDouble() < (details?.exp.probability ?? kRewardProbabilityExppack)
   }
+
+  entity ??= hero
   let rewardMoney
   let rewardShard
-  if (rank <= 0) {
+  if (entity.rank <= 0) {
     rewardShard = false
-    rewardMoney = random.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
+    rewardMoney = random.nextDouble() < (details?.money.probability ?? kRewardProbabilityMoney)
   } else {
     rewardMoney = false
-    rewardShard = random.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
+    rewardShard = random.nextDouble() < (details?.shard.probability ?? kRewardProbabilityShard)
   }
-  let rewardEquipment = random.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
-  let rewardCardpack = random.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
-  let rewardPotion = random.nextDouble() < (probability?.potion ?? kRewardProbabilityPotion)
-  let rewardCraftMaterial = random.nextDouble() < (probability?.craftMaterial ?? kRewardProbabilityCraftMaterial)
+  let rewardEquipment = random.nextDouble() <
+          (details?.equipment.probability ?? kRewardProbabilityEquipment)
+  let rewardCardpack = random.nextDouble() <
+          (details?.cardpack.probability ?? kRewardProbabilityCardpack)
+  let rewardPotion = random.nextDouble() <
+          (details?.potion.probability ?? kRewardProbabilityPotion)
+  let rewardCraftMaterial = random.nextDouble() <
+          (details?.craftMaterial.probability ?? kRewardProbabilityCraftMaterial)
   let rewardDungeonTicket
   let rewardScrollPaper
-  if (rank > 0) {
-    rewardScrollPaper = random.nextDouble() < (probability?.scrollPaper ?? kRewardProbabilityScrollPaper)
-    rewardDungeonTicket = random.nextDouble() < (probability?.dungeonTicket ?? kRewardProbabilityDungeonTicket)
+  if (entity.rank > 0) {
+    rewardScrollPaper = random.nextDouble() <
+          (details?.scrollPaper.probability ?? kRewardProbabilityScrollPaper)
+    rewardDungeonTicket = random.nextDouble() <
+          (details?.dungeonTicket.probability ?? kRewardProbabilityDungeonTicket)
   }
 
   final rewards = []
-  final refQuantity = expForLevel(entity?.level ?? 0)
+  final refQuantity = expForLevel(entity.level ?? 0)
   if (rewardExp) {
-    final rankRate = (rank + 1) / (hero.rank + 1);
-    // final levelRatio = (entity?.level + 1) / (hero.level + 1);
-    final exp = (rankRate * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 1)) * 4.5) + 40
-    final expPack = createItemById('exp_pack', amount: exp.round())
+    let amount = details?.exp.amount
+    if (amount == null) {
+      final rankRate = (entity.rank + 1) / (hero.rank + 1);
+      amount = ((rankRate * expForLevel(hero.level)) /
+              (Math.sqrt(hero.level + 1) * 4.5) + 40).round()
+    }
+    final expPack = createItemById('exp_pack', amount: amount)
     rewards.add(expPack)
   }
   if (rewardMoney) {
-    final money = random.nextInt(refQuantity * _kMoneyRewardRate) + 50
-    final moneyPack = Materialpack(kind: 'money', amount: money)
+    let amount = details?.money.amount
+    if (amount == null) {
+      amount = random.nextInt(refQuantity * _kMoneyRewardRate) + 50
+    }
+    final moneyPack = Materialpack(kind: 'money', amount: amount)
     rewards.add(moneyPack)
   }
   if (rewardShard) {
-    final shard = random.nextInt((entity?.level ?? hero.level) + 1) + 1
-    final shardPack = Materialpack(kind: 'shard', amount: shard)
+    let amount = details?.shard.amount
+    if (amount == null) {
+      amount = random.nextInt((entity.level) + 1) + 1
+    }
+    final shardPack = Materialpack(kind: 'shard', amount: amount)
     rewards.add(shardPack)
   }
   if (rewardEquipment) {
-    final equipment = Equipment(rank: rank, isIdentified: rank < 1)
-    rewards.add(equipment)
+    let amount = details?.equipment.amount ?? 1
+    for (var i in range(amount)) {
+      final equipment = Equipment(rank: entity.rank, isIdentified: entity.rank < 1)
+      rewards.add(equipment)
+    }
   }
   if (rewardCardpack) {
-    let genre = entity?.cultivationFavor
-    final cardpack = Cardpack(rank: rank, genre: genre)
-    rewards.add(cardpack)
+    let amount = details?.cardpack.amount ?? 1
+    for (var i in range(amount)) {
+      final cardpack = Cardpack(rank: entity.rank, genre: entity.cultivationFavor)
+      rewards.add(cardpack)
+    }
   }
   if (rewardPotion) {
-    final potion = Potion(rank: rank)
-    rewards.add(potion)
+    let amount = details?.potion.amount ?? 1
+    for (var i in range(amount)) {
+      final potion = Potion(rank: entity.rank)
+      rewards.add(potion)
+    }
   }
   if (rewardCraftMaterial) {
-    let craftMaterialTypeRoll = random.nextDouble()
-    let craftMaterial
-    final itemRank = random.nearInt(rank) + 1
-    if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
-      craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
-      craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
-    } else {
-      craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+    let amount = details?.craftMaterial.amount ?? 1
+    for (var i in range(amount)) {
+      let craftMaterialTypeRoll = random.nextDouble()
+      let craftMaterial
+      final itemRank = random.nearInt(entity.rank) + 1
+      if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
+        craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
+        craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
+        craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
+      } else {
+        craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+      }
+      rewards.add(craftMaterial)
     }
-    rewards.add(craftMaterial)
   }
-  if (rewardScrollPaper) {
-    assert(rank > 0)
-    final scrollPaper = createItemById('scroll_paper', rank: rank)
-    rewards.add(scrollPaper)
-  }
-  if (rewardDungeonTicket) {
-    assert(rank > 0)
-    let ticketRank = rank
-    if (ticketRank < kCultivationRankMax) {
-      if (random.nextDouble() < (probability?.dungeonTicketNextLevel ?? _kRewardProbabilityDungeonTicketNextLevel)) {
-        ticketRank += 1
+  if (entity.rank > 0) {
+    if (rewardScrollPaper) {
+      let amount = details?.scrollPaper.amount ?? 1
+      for (var i in range(amount)) {
+        final scrollPaper = createItemById('scroll_paper', rank: entity.rank)
+        rewards.add(scrollPaper)
       }
     }
-    final dungeonTicket = createItemById('dungeon_ticket', rank: ticketRank)
-    rewards.add(dungeonTicket)
+    if (rewardDungeonTicket) {
+      let amount = details?.dungeonTicket.amount ?? 1
+      for (var i in range(amount)) {
+        let ticketRank = entity.rank
+        if (ticketRank < kCultivationRankMax) {
+          if (random.nextDouble() <
+            (details?.dungeonTicketNextLevel ?? _kRewardProbabilityDungeonTicketNextLevel)) {
+            ticketRank += 1
+          }
+        }
+        final dungeonTicket = createItemById('dungeon_ticket', rank: ticketRank)
+        rewards.add(dungeonTicket)
+      }
+    }
   }
 
   if (rewards.isEmpty) {
@@ -172,31 +211,6 @@ function getHeroAvaialbeDays() {
   }
 
   const availableDays = Math.min(maxAvailableDays, staminaAvailableDays)
-}
-
-const kCondenseSpiritSuccessProbability = 0.25
-
-const maxSpiritSurgingGain = {
-  '1': {
-    probability: 0.05,
-    max: 2,
-  },
-  '2': {
-    probability: 0.09,
-    max: 5,
-  },
-  '3': {
-    probability: 0.17,
-    max: 9,
-  },
-  '4': {
-    probability: 0.32,
-    max: 15,
-  },
-  '5': {
-    probability: 0.6,
-    max: 23,
-  },
 }
 
 async function selectHeroAttribute() {
@@ -417,19 +431,21 @@ async function onInteractSpiritWell(object) {
   //   items.add(spirit)
   // } else
   if (spiritWellDropRoll < _kSpiritWellProbabilityCraftMaterial) {
-    let craftMaterialTypeRoll = random.nextDouble()
-    let craftMaterial
-    final itemRank = random.nearInt(object.rank) + 1
-    if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
-      craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
-      craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-    } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
-      craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
-    } else {
-      craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+    for (var i in range(3)) {
+      let craftMaterialTypeRoll = random.nextDouble()
+      let craftMaterial
+      final itemRank = random.nearInt(object.rank) + 1
+      if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
+        craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
+        craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
+        craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
+      } else {
+        craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+      }
+      items.add(craftMaterial)
     }
-    items.add(craftMaterial)
   } else {
     final shard = random.nextInt(hero.level + 1) + 1
     final shardPack = Materialpack(kind: 'shard', amount: shard)
@@ -499,7 +515,7 @@ function handleBabies {
 }
 
 /// 动态计算角色声名：对此人的评价大于等于零的人数(n)除以世界总人口(p)。
-function calculateCharacterFame(character) {
+function calculateFame(character) {
   let n = 0
   for (final otherChar of game.characters) {
     if (otherChar.id == character.id) {
@@ -514,7 +530,7 @@ function calculateCharacterFame(character) {
 }
 
 /// 动态计算角色恶名：对此人的评价小于零的人数(n)除以世界总人口(p)。
-function calculateCharacterInfamy(character) {
+function calculateInfamy(character) {
   let n = 0
   for (final otherChar of game.characters) {
     if (otherChar.id == character.id) {

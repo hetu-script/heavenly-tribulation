@@ -87,7 +87,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
       if (_selectedCraftItemRequirements[materialId] != null) {
         final baseValue = _selectedCraftItemRequirements[materialId];
         _selectedCraftItemRequirements[materialId] =
-            baseValue * (rank + 1) * (rank + 1);
+            baseValue * (rank * rank + 1);
       }
     }
     final extraAffixConfig = GameLogic.getMinMaxExtraAffixCount(rank);
@@ -185,7 +185,10 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                         fluent.CloseButtonVisibilityMode.never,
                     tabs: [
                       fluent.Tab(
-                        text: Text(engine.locale('craft_item')),
+                        text: Text(
+                          engine.locale('craft_item'),
+                          style: TextStyles.bodyMedium,
+                        ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: Column(
@@ -195,9 +198,9 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
                                   SizedBox(
-                                    width: 125.0,
-                                    height: 30.0,
+                                    width: 140.0,
                                     child: fluent.DropDownButton(
+                                      style: FluentButtonStyles.small,
                                       title: Text(
                                         '${engine.locale('kind')}: ${engine.locale(_selectedCraftKind)}',
                                         textAlign: TextAlign.end,
@@ -216,9 +219,9 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                     ),
                                   ),
                                   SizedBox(
-                                    width: 125.0,
-                                    height: 30.0,
+                                    width: 140.0,
                                     child: fluent.DropDownButton(
+                                      style: FluentButtonStyles.small,
                                       title: Text(
                                         '${engine.locale('rarity')}: ${engine.locale(_selectedCraftRarity)}',
                                         textAlign: TextAlign.end,
@@ -245,17 +248,17 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                     engine.locale('material_requirements')),
                               ),
                               MaterialList(
-                                height: 128.0,
+                                height: 121.0,
                                 requirements: _selectedCraftItemRequirements,
                                 entity: GameData.hero,
                               ),
                               if (_extraAffixCount > 0)
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 10.0),
+                                  padding: const EdgeInsets.only(top: 5.0),
                                   child: Text(engine.locale('extra_material')),
                                 ),
                               Padding(
-                                padding: const EdgeInsets.only(top: 10.0),
+                                padding: const EdgeInsets.only(top: 5.0),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: _affixWidgets.sublist(
@@ -272,7 +275,10 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                         ),
                       ),
                       fluent.Tab(
-                        text: Text(engine.locale('modify_item')),
+                        text: Text(
+                          engine.locale('modify_item'),
+                          style: TextStyles.bodyMedium,
+                        ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: Column(
@@ -303,9 +309,9 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                 ),
                               ),
                               SizedBox(
-                                width: 125.0,
-                                height: 30.0,
+                                width: 140.0,
                                 child: fluent.DropDownButton(
+                                  style: FluentButtonStyles.small,
                                   title: Text(
                                     engine.locale(
                                         'modify_item_$_selectedModifyKind'),
@@ -327,8 +333,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                               Container(
                                 width: 400.0,
                                 height: 65.0,
-                                padding: const EdgeInsets.only(
-                                    top: 10.0, bottom: 10.0),
+                                padding: const EdgeInsets.only(top: 10.0),
                                 child: Text(
                                   engine.locale(
                                       'modify_item_${_selectedModifyKind}_description'),

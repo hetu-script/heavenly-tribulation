@@ -14,6 +14,50 @@ let self
 let opponent
 let battleFlags
 
+/// 玩家每个月的互动操作记录，月初会重置
+struct HeroMonthly {
+  constructor {
+    this.updated = false
+    // 本月鉴定敌人卡牌数量
+    this.identifiedEnemyCards = 0
+    // 本月是否已经参加过门派会议
+    this.attendedMeeting = false
+
+    // 这里保存了玩家在某地交易过的资源种类和数量
+    // 对资源进行买卖会影响价格
+    // 买入为正数，卖出为负数
+    this.tradedMaterials = {}
+
+    // 玩家捐献过的门派和据点，只保存id
+    this.donated = []
+
+    // 对其他角色操作
+    this.gifted = []
+    this.asked = []
+    this.attacked = []
+    this.stolen = []
+
+    // 婚姻关系
+    this.proposed = []
+
+    // 拜师和收徒的尝试
+    this.baishi = []
+    this.shoutu = []
+
+    // 师徒关系的传授功法
+    this.consulted = []
+    this.tutored = []
+
+    // 组织的加入和招募
+    this.enrolled = []
+    this.recruited = []
+
+    // 对某个建筑操作
+    // 租用过的场地，在月底之前可以进行生产或使用
+    this.rented = []
+  }
+}
+
 struct CharacterMonthly {
   constructor {
 
@@ -34,7 +78,15 @@ struct OrganizationMonthly {
     this.promoted = []
     // 本月境界突破的成员
     this.breakthrough = []
+    // key: characterId, value: contribution amount
+    this.contributions = {}
   }
+}
+
+function addHeroMonthly(activity, targetId) {
+  game.flags.monthly ??= HeroMonthly()
+  game.flags.monthly[activity] ??= []
+  game.flags.monthly[activity].add(targetId)
 }
 
 function addCharacterMonthly(character, activity, targetId) {
@@ -55,51 +107,20 @@ function addOrganizationMonthly(organization, activity, targetId) {
   organization.flags.monthly[activity].add(targetId)
 }
 
-/// 玩家每个月的互动操作记录，月初会重置
-struct HeroMonthly {
-  constructor {
-    this.updated = false
-    // 战斗相关
-    // 本月鉴定敌人卡牌数量
-    this.identifiedEnemyCards = 0
-    // 本月是否已经参加过门派会议
-    this.attendedMeeting = false
-
-    // 对其他角色操作
-    this.gifted = []
-    this.attacked = []
-    this.stolen = []
-
-    // 婚姻关系的嫁娶和离婚
-    this.proposed = []
-
-    // 拜师和收徒的尝试
-    this.baishi = []
-    this.shoutu = []
-
-    // 师徒关系的传授功法
-    this.consulted = []
-    this.tutored = []
-
-    // 组织的加入
-    this.enrolled = []
-
-    // 门派成员的招募
-    this.recruited = []
-
-    // 对某个建筑操作
-    // 租用过的场地，在月底之前可以进行生产或使用
-    this.rented = []
-
-    // 对资源进行买卖会影响价格
-    // 这里保存的除了进行过买卖的地点，还会保存交易的总数量，每次交易都会累加
-    this.tradedMaterials = {}
-  }
+function resetHeroMonthly() {
+  game.flags.monthly = HeroMonthly()
 }
 
-function addHeroMonthly(activity, targetId) {
-  assert(game.flags.monthly[activity] is List)
-  game.flags.monthly[activity].add(targetId)
+function resetCharacterMonthly(character) {
+  character.flags.monthly = CharacterMonthly()
+}
+
+function resetLocationMonthly(location) {
+  location.flags.monthly = LocationMonthly()
+}
+
+function resetOrganizationMonthly(organization) {
+  organization.flags.monthly = OrganizationMonthly()
 }
 
 struct GameData {
@@ -147,9 +168,11 @@ struct GameData {
     // key 是师徒传承的 id，值是一个结构体数组
     // 值的 key 是人物的 id，值是 SectMember 数据，含角色的 generation 和 peer
     this.sects = {}
+
     // 门派之间的外交关系
     // key 是外交关系的 id，值是 Diplomacy 数据
     // 在门派自己的数据中保存的则是对方门派和外交关系 id 的对应关系表
+    // 可能存在多个门派组成的联盟之类，这样大家共享一个联盟 ID
     this.diplomacies = {}
     
     // 本次游戏加载的 module，这里是元数据和事件函数绑定的空间
@@ -178,22 +201,6 @@ function createGame(saveName, {
   history = {}
   world = null
   hero = null
-}
-
-function resetHeroMonthly() {
-  game.flags.monthly = HeroMonthly()
-}
-
-function resetCharacterMonthly(character) {
-  character.flags.monthly = CharacterMonthly()
-}
-
-function resetLocationMonthly(location) {
-  location.flags.monthly = LocationMonthly()
-}
-
-function resetOrganizationMonthly(organization) {
-  organization.flags.monthly = OrganizationMonthly()
 }
 
 const kTimeOfDay = {
@@ -534,10 +541,5 @@ namespace Game {
 
   external function showAlchemy()
 
-  external function showMeeting(
-    superior,
-    location,
-    organization, {
-    isFirstMeeting = false,
-  })
+  external function showMeeting(organization, location, superior)
 }

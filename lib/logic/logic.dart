@@ -41,7 +41,11 @@ const _kHintDyingVariants = 5;
 
 const _kBasicDungeonShardCost = 1;
 
+const _kGameFlagsUpdateDay = 1;
 const _kOrganizationUpdateDay = 6;
+
+// 获得门派奖赏的每月最低贡献值
+const _kOrganizationExpectedMonthlyContribution = 15;
 
 final class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -259,22 +263,44 @@ final class GameLogic {
     return count;
   }
 
+  /// 计算某个境界的最低等级
   static int minLevelForRank(int rank) {
     assert(rank >= 0);
     return rank == 0 ? 0 : (rank * 10 - 5);
   }
 
+  /// 计算某个境界的最高等级
   static int maxLevelForRank(int rank) {
     assert(rank >= 0);
     return (rank + 2) * 10 - 5;
   }
 
+  /// 计算达到某个声望等级所需的声望
   static int fameForRank(int rank) {
     return rank * (rank + 1) * 10;
   }
 
+  /// 计算升级到某个等级所需的总经验值
   static int expForLevel(int level) {
     return ((level * level) * 10 + level * 100 + 40) ~/ 3 * 2;
+  }
+
+  /// 计算某个职位等级所需的功勋值
+  static int contributionForJobRank(int jobRank) {
+    assert(jobRank >= 0 && jobRank <= kJobRankMax);
+    int n;
+    if (jobRank == 0) {
+      n = 0;
+    } else {
+      n = math.pow(3, jobRank) * 100 ~/ 3 + jobRank * jobRank * 100;
+    }
+    return n;
+  }
+
+  /// 计算某个据点发展度对应的可修建建筑数量
+  /// 据点本身自带的会堂、交易所和总部，同样包含在这个数量中
+  static int buildingCountForDevelopment(int development) {
+    return development * 2 + 4;
   }
 
   /// 获取额外词条数量，卡牌和装备共用一个算法
@@ -319,23 +345,6 @@ final class GameLogic {
       return count;
     }
   }
-
-  // // 组织中每个等级的人数上限
-  // // 数字越大，等级越高，[jobRankMax]是掌门，人数只有1
-  // function maxMemberOfJobRank(n: integer, jobRankMax) {
-  //   assert(n >= 0 && n <= jobRankMax)
-  //   return ((jobRankMax - n) + 1) * ((jobRankMax - n) + 1)
-  // }
-
-  // // 组织可以拥有的人数上限取决于组织发展度
-  // // 发展度 0，掌门 1 人，rank 1：4 人
-  // function maxMemberOfDevelopment(n: integer) {
-  //   let number = 0
-  //   for (const i in range(n + 2)) {
-  //     number += (i + 1) * (i + 1)
-  //   }
-  //   return number
-  // }
 
   // TODO: 对于灵宝、神照、混元，境界仅仅影响随机数概率
   // 对于破境，则必须使用 [当前境界 + 1] 的破境丹
@@ -558,7 +567,7 @@ final class GameLogic {
     bool useShard = false,
   }) {
     assert(kEstimatePriceRange.contains(range));
-    double price;
+    int price;
     if (kItemWithAffixCategories.contains(category)) {
       final minLevel = minLevelForRank(rank);
       final maxLevel = maxLevelForRank(rank);
@@ -580,21 +589,21 @@ final class GameLogic {
         default:
           throw ('estimatePrice range should be `cheap`, `normal`, or `expensive`: $range');
       }
-      price = ((rank + 1) * (rank + 1) / 2 + 1) *
+      price = (rank * rank + 1) *
           (level + 1) *
           (affixCount + 1) *
           (kBasePriceByCategory[category] ?? kUnknownItemBasePrice);
     } else {
-      price = ((rank + 1) * (rank + 1) / 2 + 1) *
+      price = (rank * rank + 1) *
           (kBasePriceByCategory[category] ?? kUnknownItemBasePrice);
     }
 
     if (useShard) {
       final shardToMoneyRate = kMaterialBasePrice['shard'] as int;
-      price /= shardToMoneyRate;
+      price = price ~/ shardToMoneyRate;
     }
 
-    return price.round();
+    return price;
   }
 
   static List<dynamic> getFilteredItems(
@@ -696,6 +705,7 @@ final class GameLogic {
     } else {
       assert(kBattleAttributes.contains(selectedAttributeId));
     }
+    assert(selectedAttributeId != null);
 
     if (isAttribute) {
       // 属性点类的node，记录的是选择的具体属性的名字
@@ -712,9 +722,7 @@ final class GameLogic {
         engine.hetu.invoke(
           'characterSetPassive',
           positionalArgs: [character, data['id']],
-          namedArgs: {
-            'level': data['level'] ?? 1,
-          },
+          namedArgs: {'level': data['level'] ?? 1},
         );
       }
     }
@@ -1277,11 +1285,12 @@ final class GameLogic {
     engine.debug(GameLogic.getDatetimeString());
 
     if (updateEntity || force) {
-      // 刷新玩家事件标记
-      if ((day == 1 && time == 1) || force) {
+      // 每个月 1 日刷新玩家事件标记
+      if ((day == _kGameFlagsUpdateDay && time == 1) || force) {
         // 重置玩家自己的每月行动
         engine.hetu.invoke('resetHeroMonthly');
       }
+
       // 触发每个角色的刷新事件
       final chars = GameData.game['characters'].values.toList();
       for (final character in chars) {
@@ -1299,7 +1308,7 @@ final class GameLogic {
       final locs = GameData.game['locations'].values.toList();
       for (final location in locs) {
         if (GameData.hero != null &&
-            location['ownerId'] == GameData.hero['id']) {
+            location['managerId'] == GameData.hero['id']) {
           continue;
         }
         // 据点每月 16 日更新
@@ -1602,15 +1611,6 @@ final class GameLogic {
   }
 
   static Future<void> showMeeting(
-    dynamic superior,
-    dynamic location,
-    dynamic organization, {
-    bool isFirstMeeting = false,
-  }) =>
-      _showMeeting(
-        superior,
-        location,
-        organization,
-        isFirstMeeting: isFirstMeeting,
-      );
+          dynamic organization, dynamic location, dynamic superior) =>
+      _showMeeting(organization, location, superior);
 }

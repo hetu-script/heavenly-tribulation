@@ -4,44 +4,45 @@ part of 'logic.dart';
 // 对于总管或以下的职位，需要前往自己所属的据点的会堂场景。
 // 对于堂主或以上的职位，需要前往门派总堂所在据点的门派场景。
 // 门派每月例会分为 7 个部分：
-// 1，重大事件通报，新的联盟和敌对关系、新门派建立。
-// 2，特殊仪式或庆典：新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
-// 3，总结上个月任务完成情况，进行物品赏赐，以及功勋加减。
-// 4，据点总管宣布一些重要决定，如内政策略，赏赐成员，驱逐功勋过低的成员，门派迁移。
+// 1，事件通报：新的联盟和敌对关系、新门派建立。
+// 2，仪式庆典：新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
+// 3，上月总结：任务完成情况，进行物品赏赐，以及功勋加减。
+// 4，内政沟通：如内政策略，赏赐成员，驱逐功勋过低的成员，门派迁移。
 //    这些决定成员可以发表自己的意见。总管以上成员可以投票。
-// 5，玩家可以提出个人请求，要求晋升，以及获得修炼资源等。
-// 6，发布本月门派任务，每次会有三个，玩家可以自由选择其中一个领取。
+// 5，个人请求：要求晋升，以及获得修炼资源等。
+// 6，门派任务：每次会有三个，玩家可以自由选择其中一个领取。
 // 7，会议结束
+// 门派会议上只处理玩家角色自己的相关数值变化
+// NPC 角色的数值变化另外由 updateOrganizationMonthly 处理。
 Future<void> _showMeeting(
-  dynamic superior,
-  dynamic location,
-  dynamic organization, {
-  bool isFirstMeeting = false,
-}) async {
+    dynamic organization, dynamic location, dynamic superior) async {
+  // final heroMemberData = organization['membersData'][GameData.hero['id']];
+  // final heroJobRank = heroMemberData['rank'];
+
   final people = [superior];
   final membersAtLocationData = organization['membersData']
       .values
       .where((data) {
         return data['id'] != GameData.hero['id'] &&
             data['id'] != superior['id'] &&
-            data['reportSiteId'] == location['id'];
+            data['superiorId'] == superior['id'];
       })
       .map((data) => GameData.getCharacter(data['id']))
       .toList();
   membersAtLocationData.shuffle();
-  final members = membersAtLocationData.take(3);
-  for (final member in members) {
+  final otherMembers = membersAtLocationData.take(3);
+  for (final member in otherMembers) {
     engine.hetu.invoke('characterMet', positionalArgs: [
       member,
       GameData.hero,
     ]);
   }
-  people.addAll(members);
+  people.addAll(otherMembers);
   people.add(GameData.hero);
 
   dialog.pushDialog(
     'organization_meeting_intro_1',
-    npcId: 'servant',
+    npcId: location['npcId'],
     interpolations: [
       organization['name'],
       location['name'],
@@ -58,7 +59,7 @@ Future<void> _showMeeting(
 
   final organizationMonthly = organization['monthly'] ?? {};
 
-  // 新人见面环节
+  // 仪式庆典：新成员加入
   final List recruitedThisMonthIds = organizationMonthly['recruited'] ?? [];
   bool recruitedHero = recruitedThisMonthIds.contains(GameData.hero['id']);
   if (recruitedHero) {
@@ -118,6 +119,71 @@ Future<void> _showMeeting(
             character: superior);
         await dialog.execute();
       }
+    }
+  }
+
+  // 上月总结
+  final initiationQuest = GameData.hero['journals']['organizationInitiation'];
+
+  if (initiationQuest['stage'] == 1) {
+    // 玩家第一次参加门派会议，跳过总结环节
+    engine.hetu.invoke('progressJournalById',
+        namespace: 'Player', positionalArgs: ['organizationInitiation']);
+  } else {
+    // 并非第一次参加的话，才会有上月总结环节
+    final contributionsLastMonth =
+        organization['flags']['monthly']['contributions'];
+    dialog.pushDialog('organization_meeting_monthlySummary',
+        character: superior);
+    await dialog.execute();
+
+    final heroContributionLastMonth =
+        contributionsLastMonth[GameData.hero['id']] ?? 0;
+
+    if (heroContributionLastMonth >=
+        _kOrganizationExpectedMonthlyContribution) {
+      dialog.pushDialog(
+        'organization_meeting_monthlySummary_contribution_bonus',
+        character: superior,
+        interpolations: [GameData.hero['name']],
+      );
+      await dialog.execute();
+
+      final reward = engine.hetu.invoke('createReward', namedArgs: {
+        'details': {
+          'craftMaterial': {
+            'probability': 1.0,
+            'amount': 3,
+          }
+        },
+      });
+      await engine.hetu
+          .invoke('acquireAll', namespace: 'Player', positionalArgs: [
+        reward,
+      ]);
+      await GameLogic.promptItems(reward);
+    } else {
+      dialog.pushDialog(
+        'organization_meeting_monthlySummary_contribution_normal',
+        character: superior,
+        interpolations: [GameData.hero['name']],
+      );
+      await dialog.execute();
+    }
+
+    final newTitleId = engine.hetu.invoke('checkCharacterTitle',
+        positionalArgs: [GameData.hero], namedArgs: {'setAsManager': true});
+    if (newTitleId != null) {
+      dialog.pushDialog('organization_meeting_monthlySummary_promotion',
+          character: superior,
+          interpolations: [
+            GameData.hero['name'],
+            engine.locale(newTitleId),
+          ]);
+      await dialog.execute();
+      engine.hetu.invoke('setCharacterTitle',
+          positionalArgs: [GameData.hero, newTitleId],
+          namedArgs: {'organization': organization});
     }
   }
 

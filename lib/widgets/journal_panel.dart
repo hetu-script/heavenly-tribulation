@@ -91,7 +91,7 @@ class _JournalPanelState extends State<JournalPanel> {
                                   ),
                                   Text(
                                     GameData.getQuestTimeLimitDescription(
-                                        journal['quest']?['timeLimit']),
+                                        journal),
                                     style: TextStyle(
                                       fontSize: 16.0,
                                       shadows: kTextShadow,

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/gestures.dart';
 import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:hetu_script/utils/uid.dart';

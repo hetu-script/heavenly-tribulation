@@ -3,6 +3,7 @@ import 'package:hetu_script/binding.dart';
 
 import 'common.dart';
 
+/// 脚本从这个类中获取常量值
 class Constants extends HTExternalClass {
   Constants() : super('Constants');
 
@@ -16,12 +17,8 @@ class Constants extends HTExternalClass {
         return kRankToRarity;
       case 'Constants.races':
         return kRaces;
-      case 'Constants.attributeValueMax':
-        return kAttributeValueMax;
-      case 'Constants.attributeValueAverage':
-        return kAttributeValueAverage;
-      case 'Constants.attributeValueDeviation':
-        return kAttributeValueDeviation;
+      case 'Constants.raceMainAttributes':
+        return kRaceMainAttributes;
       case 'Constants.baseExpGainPerLight':
         return kBaseExpGainPerLight;
       case 'Constants.baseExpCollectSpeed':
@@ -98,6 +95,8 @@ class Constants extends HTExternalClass {
         return kSiteKindsWorkable;
       case 'Constants.siteKindToAttribute':
         return kSiteKindToAttribute;
+      case 'Constants.siteKindsManagable':
+        return kSiteKindsManagable;
       case 'Constants.siteKindsBuildable':
         return kSiteKindsBuildable;
       case 'Constants.siteKindsTradable':
@@ -150,8 +149,12 @@ class Constants extends HTExternalClass {
         return kTerrainKindsMountain;
       case 'Constants.terrainKindsAll':
         return kTerrainKindsAll;
-      case 'Constants.titleToOrganizationRank':
-        return kTitleToOrganizationRank;
+      case 'Constants.titleToJobRank':
+        return kTitleToJobRank;
+      case 'Constants.cultivationRankToTitle':
+        return kCultivationRankToTitle;
+      case 'Constants.titleToAlternativeTitle':
+        return kTitleToAlternativeTitle;
       case 'Constants.equipmentCategoryKinds':
         return kEquipmentCategoryKinds;
       case 'Constants.equipmentKinds':

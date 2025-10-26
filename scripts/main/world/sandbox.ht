@@ -30,6 +30,8 @@ const _kTerrainResourceBase = 5;
 const _kTerrainResourceVariation = 5;
 const _kTerrainKindsWithNoResources = ['void', 'city', 'road']
 
+const _kCityHasExtraBuildingProbability = 0.4
+
 /// 生成世界地图的算法
 /// 生成的世界 ID 固定为 `sandboxWorld`
 ///
@@ -264,8 +266,8 @@ function createSandboxWorld({
   }
 
   engine.info('生成生产类建筑：农场、林场、渔场、猎场、矿场')
-  final discoveredCities = game.locations.values.where((location) =>
-    location.category == 'city' && location.isHidden == false
+  final discoveredCities = game.locations.values.where((loc) =>
+    loc.category == 'city' && loc.isHidden == false
   ).toList()
 
   function addProductionSite(kind, terrain) {
@@ -403,36 +405,39 @@ function createSandboxWorld({
   engine.info('随机挑选几个城市作为都城，并生成国家')
   let capitals = Set()
   while (nations.length < nationNumber) {
-    let availableLocations = game.locations.values.where((loc) => loc.category == 'city' && loc.organizationId == null).toList()
-    assert(availableLocations.isNotEmpty)
-    const location = random.nextIterable(availableLocations)
+    let availableCities = game.locations.values
+      .where((loc) => loc.category == 'city' && loc.organizationId == null)
+      .toList()
+    assert(availableCities.isNotEmpty)
+    const city = random.nextIterable(availableCities)
     const head = Character(
       birthTimestamp: createBirthTimestamp(min: 30, max: 60),
       rank: _kSandboxInitialRankMax,
     )
-    head.locationId = location.id
-    assert(location.worldPosition != null)
-    head.worldPosition = Object.create(location.worldPosition)
+    head.locationId = city.id
+    assert(city.worldPosition != null)
+    head.worldPosition = Object.create(city.worldPosition)
     const organization = Organization(
-      headquartersLocation: location,
+      headquartersLocation: city,
       headId: head.id,
     )
     nations.add(organization)
 
-    capitals.add(location)
-    location.development += 1
+    capitals.add(city)
+    city.development += 1
 
     final siteKinds = Constants.siteKindsBuildable.toList()
+
     final organizationCategoryKind = Constants.organizationCategoryToSiteKind[organization.category]
     siteKinds.remove(organizationCategoryKind)
     Location(
-      id: location.name + '_${engine.locale(organizationCategoryKind)}',
+      id: city.name + '_${engine.locale(organizationCategoryKind)}',
       name: engine.locale(organizationCategoryKind),
       category: 'site',
       kind: organizationCategoryKind,
-      atLocation: location,
+      atLocation: city,
       organizationId: organization.id,
-      development: random.nextInt(location.development + 1),
+      development: random.nextInt(city.development + 1),
       npcId: Constants.siteKindToNpcId[organizationCategoryKind],
     )
     
@@ -440,15 +445,37 @@ function createSandboxWorld({
     final secondaryClassSiteKind = random.nextIterable(organizationGenreKinds)
     siteKinds.remove(secondaryClassSiteKind)
     Location(
-      id: location.name + '_${engine.locale(secondaryClassSiteKind)}',
+      id: city.name + '_${engine.locale(secondaryClassSiteKind)}',
       name: engine.locale(secondaryClassSiteKind),
       category: 'site',
       kind: secondaryClassSiteKind,
-      atLocation: location,
+      atLocation: city,
       organizationId: organization.id,
-      development: random.nextInt(location.development + 1),
+      development: random.nextInt(city.development + 1),
       npcId: Constants.siteKindToNpcId[secondaryClassSiteKind],
     )
+
+    final buildingCount = buildingCountForDevelopment(city.development)
+    if (city.sites.length < buildingCount) {
+      final remainingBuildingSlots = buildingCount - city.sites.length
+      for (var i in range(remainingBuildingSlots)) {
+        final roll = random.nextDouble()
+        if (roll > _kCityHasExtraBuildingProbability) continue
+
+        final kind = random.nextIterable(siteKinds)
+        siteKinds.remove(kind)
+        Location(
+          id: city.name + '_${engine.locale(kind)}',
+          name: engine.locale(kind),
+          category: 'site',
+          kind: kind,
+          atLocation: city,
+          organizationId: organization.id,
+          development: random.nextInt(city.development + 1),
+          npcId: Constants.siteKindToNpcId[kind],
+        )
+      }
+    }
   }
 
   let nonCapitalCities = game.locations.values
@@ -458,33 +485,39 @@ function createSandboxWorld({
     )
     .toList()
   for (final city in nonCapitalCities) {
-    final organizationId = city.organizationId
     final siteKinds = Constants.siteKindsBuildable.toList()
-    for (var i in range(city.development)) {
-      final kind = random.nextIterable(siteKinds)
-      siteKinds.remove(kind)
-      Location(
-        id: city.name + '_${engine.locale(kind)}',
-        name: engine.locale(kind),
-        category: 'site',
-        kind: kind,
-        atLocation: city,
-        organizationId: organizationId,
-        development: random.nextInt(city.development + 1),
-        npcId: Constants.siteKindToNpcId[kind],
-      )
+    final buildingCount = buildingCountForDevelopment(city.development)
+    if (city.sites.length < buildingCount) {
+      final remainingBuildingSlots = buildingCount - city.sites.length
+      for (var i in range(remainingBuildingSlots)) {
+        final roll = random.nextDouble()
+        if (roll > _kCityHasExtraBuildingProbability) continue
+        
+        final kind = random.nextIterable(siteKinds)
+        siteKinds.remove(kind)
+        Location(
+          id: city.name + '_${engine.locale(kind)}',
+          name: engine.locale(kind),
+          category: 'site',
+          kind: kind,
+          atLocation: city,
+          organizationId: city.organizationId,
+          development: random.nextInt(city.development + 1),
+          npcId: Constants.siteKindToNpcId[kind],
+        )
+      }
     }
   }
 
   engine.info('生成初始角色')
-  final cities = game.locations.values.where((location) =>
-    location.category == 'city' && location.isHidden == false
+  final cities = game.locations.values.where((loc) =>
+    loc.category == 'city' && loc.isHidden == false
   ).toList()
   while (game.characters.length < characterNumber) {
     // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-    const location = random.nextIterable(cities)
+    const city = random.nextIterable(cities)
     Character(
-      locationId: location.id,
+      locationId: city.id,
       rank: random.distantInt(_kSandboxInitialRankMax + 1),
       birthTimestamp: createBirthTimestamp(min: 12, max: 60),
     )

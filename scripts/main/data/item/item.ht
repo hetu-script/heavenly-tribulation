@@ -42,12 +42,6 @@ const kRankedPrototypeItems = [
   kItemCategoryCraftmaterialUpgrade,
 ];
 
-// kind
-// 物品具体类型
-// 用于生成物品名称
-
-const kEquipmentMax = 6;
-
 const kEstimatePriceFactor = 0.8;
 
 const kItemExtraAffixMinLevel = minLevelForRank(1);
@@ -56,10 +50,10 @@ const kUnknownItemBasePrice = 100;
 
 function calculatePrice(item) {
   if (Constants.itemWithAffixCategories.contains(item.category)) {
-    item.price = ((item.rank + 1) * (item.rank + 1) ~/ 2 + 1) * (item.level + 1) *
+    item.price = (item.rank * item.rank + 1) * (item.level + 1) *
       (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
   } else {
-    item.price = ((item.rank + 1) * (item.rank + 1) ~/ 2 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+    item.price = (item.rank * item.rank + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
   }
 }
 
@@ -241,7 +235,7 @@ function entityCollect(entity, materialId, amount, { incurIncident = true }) {
         subjectId: entity.id,
       )
     } else {
-      engine.debug(incidentContent)
+      engine.info(incidentContent)
     }
   }
 
@@ -278,7 +272,7 @@ function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
         item: item,
       )
     } else {
-      engine.debug(incidentContent)
+      engine.info(incidentContent)
     }
   }
 
@@ -355,7 +349,7 @@ function entityAcquire(entity, item, { amount, incurIncident = true }) {
         item: acquiredItem,
       )
     } else {
-      engine.debug(incidentContent)
+      engine.info(incidentContent)
     }
   }
 
@@ -436,7 +430,7 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
       subjectId: character.id,
     )
   } else {
-    engine.debug(incidentContent)
+    engine.info(incidentContent)
   }
 }
 

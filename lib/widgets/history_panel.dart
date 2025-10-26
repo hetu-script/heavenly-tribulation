@@ -61,11 +61,11 @@ class HistoryPanel extends StatelessWidget {
             ' ${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
       }
     } else if (currentLocation != null) {
-      dynamic owner;
+      dynamic manager;
       // dynamic organization;
-      final ownerId = currentLocation['ownerId'];
+      final managerId = currentLocation['managerId'];
       // 这里 owner 可能是 null
-      owner = GameData.game['characters'][ownerId];
+      manager = GameData.game['characters'][managerId];
       // final organizationId = currentLocation['organizationId'];
       // organization = GameData.gameData['organizations'][organizationId];
 
@@ -87,7 +87,7 @@ class HistoryPanel extends StatelessWidget {
 
       positionDetails.write(' ${currentLocation['name']}');
       positionDetails
-          .write(' $title ${owner?['name'] ?? engine.locale('none')}');
+          .write(' $title ${manager?['name'] ?? engine.locale('none')}');
       positionDetails.write(
           ' ${engine.locale('development')}: ${currentLocation['development']}');
     } else {
@@ -137,9 +137,8 @@ class HistoryPanel extends StatelessWidget {
             width: 480,
             child: HeroAndGlobalHistoryList(
               limit: 3,
-              cursor: GameUI.cursor.resolve({WidgetState.hovered}),
               onTapUp: () {
-                context.read<ViewPanelState>().toogle(ViewPanels.memory);
+                context.read<ViewPanelState>().toogle(ViewPanels.memoryAndBond);
               },
               onMouseEnter: (rect) {
                 context

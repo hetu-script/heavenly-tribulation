@@ -7,11 +7,11 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import '../../../engine.dart';
 import '../../../ui.dart';
 import '../../../widgets/entity_table.dart';
-import '../../../widgets/character/memory.dart';
+import '../../../widgets/character/memory_and_bond.dart';
 import '../../../widgets/location/location.dart';
 import '../../../widgets/organization/organization.dart';
 import '../../../widgets/ui/menu_builder.dart';
-import '../../../widgets/character/details.dart';
+import '../../../widgets/character/stats_and_item.dart';
 import '../../../widgets/character/profile.dart';
 import '../../../widgets/dialog/input_world_position.dart';
 import '../../../widgets/common.dart';
@@ -160,8 +160,8 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
 
 enum CharacterPopUpMenuItems {
   checkProfile,
-  checkStatsAndEquipments,
-  checkMemory,
+  checkStatsAndItem,
+  checkMemoryAndBond,
   checkCultivation,
   setRankLevel,
   allocatePassives,
@@ -579,10 +579,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                           items: {
                             engine.locale('checkProfile'):
                                 CharacterPopUpMenuItems.checkProfile,
-                            engine.locale('checkStatsAndEquipments'):
-                                CharacterPopUpMenuItems.checkStatsAndEquipments,
-                            engine.locale('checkMemory'):
-                                CharacterPopUpMenuItems.checkMemory,
+                            engine.locale('checkStatsAndItem'):
+                                CharacterPopUpMenuItems.checkStatsAndItem,
+                            engine.locale('checkMemoryAndBond'):
+                                CharacterPopUpMenuItems.checkMemoryAndBond,
                             engine.locale('checkCultivation'):
                                 CharacterPopUpMenuItems.checkCultivation,
                             '___1': null,
@@ -627,17 +627,18 @@ class _EntityListPanelState extends State<EntityListPanel>
                               //       characterData[key] = value[key];
                               //     }
                               //   }
-                              case CharacterPopUpMenuItems
-                                    .checkStatsAndEquipments:
+                              case CharacterPopUpMenuItems.checkStatsAndItem:
                                 showDialog(
                                   context: context,
-                                  builder: (context) => CharacterDetailsView(
-                                      character: character),
+                                  builder: (context) =>
+                                      CharacterStatsAndItemView(
+                                          character: character),
                                 );
-                              case CharacterPopUpMenuItems.checkMemory:
+                              case CharacterPopUpMenuItems.checkMemoryAndBond:
                                 showDialog(
                                   context: context,
-                                  builder: (context) => CharacterMemoryView(
+                                  builder: (context) =>
+                                      CharacterMemoryAndBondView(
                                     characterId: characterId,
                                     mode: InformationViewMode.edit,
                                   ),

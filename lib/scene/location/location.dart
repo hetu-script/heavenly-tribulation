@@ -80,7 +80,7 @@ class LocationScene extends Scene {
     // 一些纯功能性的场景内互动对象，不在数据中，而是硬编码
     switch (location['kind']) {
       case 'home':
-        if (location['ownerId'] == GameData.hero['id']) {
+        if (location['managerId'] == GameData.hero['id']) {
           final restCard = GameData.createSiteCard(
               spriteId: 'location/card/bed.png', title: engine.locale('rest'));
           restCard.onTap = (button, position) {
@@ -249,19 +249,10 @@ class LocationScene extends Scene {
   void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
-    engine.hetu.assign('location', location);
-
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
-    final npcs = GameData.getNpcsAtLocation(location);
-    context.read<NpcListState>().update(npcs);
-    context.read<HeroPositionState>().updateTerrain(
-          currentZoneData: null,
-          currentNationData: null,
-          currentTerrainData: null,
-        );
-    context.read<HeroPositionState>().updateLocation(location);
-    context.read<HeroJournalUpdate>().update();
+
+    engine.hetu.assign('location', location);
 
     final onEnterSceneCallback = arguments['onEnterScene'];
     if (onEnterSceneCallback != null) {
@@ -282,6 +273,18 @@ class LocationScene extends Scene {
 
     engine.info('玩家进入了 ${location['name']}');
     await GameLogic.onAfterEnterLocation(location);
+
+    final npcs = GameData.getNpcsAtLocation(location);
+    context.read<NpcListState>().update(npcs);
+    context.read<HeroPositionState>().updateTerrain(
+          currentZoneData: null,
+          currentNationData: null,
+          currentTerrainData: null,
+        );
+    context.read<HeroPositionState>().updateLocation(location);
+    context.read<HeroPositionState>().updateDungeon();
+    context.read<HeroJournalUpdate>().update();
+    context.read<GameTimestampState>().update();
   }
 
   @override

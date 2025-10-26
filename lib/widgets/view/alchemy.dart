@@ -9,6 +9,7 @@ import '../ui/close_button2.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../character/inventory/inventory.dart';
 import '../ui/responsive_view.dart';
+import '../../ui.dart';
 
 class AlchemyDialog extends StatefulWidget {
   const AlchemyDialog({
@@ -71,7 +72,10 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                         fluent.CloseButtonVisibilityMode.never,
                     tabs: [
                       fluent.Tab(
-                        text: Text(engine.locale('craft_potion')),
+                        text: Text(
+                          engine.locale('craft_potion'),
+                          style: TextStyles.bodyMedium,
+                        ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: Column(
@@ -86,7 +90,10 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                         ),
                       ),
                       fluent.Tab(
-                        text: Text(engine.locale('craft_battle_potion')),
+                        text: Text(
+                          engine.locale('craft_battle_potion'),
+                          style: TextStyles.bodyMedium,
+                        ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: Column(

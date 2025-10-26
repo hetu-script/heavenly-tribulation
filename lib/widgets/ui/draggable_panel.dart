@@ -24,7 +24,7 @@ class DraggablePanel extends StatelessWidget {
   const DraggablePanel({
     super.key,
     required this.position,
-    this.titleHeight = kToolbarHeight,
+    this.titleHeight = GameUI.toolbarHeight,
     this.width,
     this.height,
     this.title,

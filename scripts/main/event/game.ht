@@ -125,12 +125,7 @@ async function onAfterEnterLocation(location) -> bool {
         if (monthly.attendedMeeting != true && day < 5) {
           monthly.attendedMeeting = true;
 
-          final isFirstMeeting = initiationQuest.stage == 1;
-          if (isFirstMeeting) {
-            Player.progressJournalById('organizationInitiation');
-          }
-          Game.showMeeting(superior, location, organization,
-              isFirstMeeting: isFirstMeeting);
+          Game.showMeeting(organization, location, superior);
           return true;
         }
       }
@@ -200,10 +195,10 @@ async function onAfterEnterLocation(location) -> bool {
           if (success) {
             Player.progressJournalById(journal.id)
             if (isLate) {
-              dialog.pushDialog('quest_purchase_late_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_late_success', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_purchase_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_success', npcId: location.npcId);
               await dialog.execute();
             }
             final items = await Player.loot(journal.quest.reward)
@@ -212,10 +207,10 @@ async function onAfterEnterLocation(location) -> bool {
             if (isLate) {
               Player.exhaust(journal.quest.budget.kind, journal.quest.budget.amount, forceExhaust: true)
               Player.progressJournalById(journal.id, stage: 2)
-              dialog.pushDialog('quest_purchase_late_failed', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_late_failed', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_unfinished', npc: game.npcs['servant'], interpolations: [journal.title]);
+              dialog.pushDialog('quest_unfinished', npcId: location.npcId, interpolations: [journal.title]);
               await dialog.execute();
             }
           }
@@ -223,10 +218,10 @@ async function onAfterEnterLocation(location) -> bool {
         }
         case 'purchase_item': {
           if (isLate) {
-            dialog.pushDialog('quest_purchase_late_greeting', npc: game.npcs['servant']);
+            dialog.pushDialog('quest_purchase_late_greeting', npcId: location.npcId);
             await dialog.execute();
           } else {
-            dialog.pushDialog('quest_purchase_greeting', npc: game.npcs['servant']);
+            dialog.pushDialog('quest_purchase_greeting', npcId: location.npcId);
             await dialog.execute();
           }
           final selectedItems = await Game.selectItem(
@@ -239,10 +234,10 @@ async function onAfterEnterLocation(location) -> bool {
             final item = selectedItems.first
             Player.lose(item)
             if (isLate) {
-              dialog.pushDialog('quest_purchase_late_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_late_success', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_purchase_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_success', npcId: location.npcId);
               await dialog.execute();
             }
             final items = await Player.loot(journal.quest.reward)
@@ -251,10 +246,10 @@ async function onAfterEnterLocation(location) -> bool {
             if (isLate) {
               Player.exhaust(journal.quest.budget.kind, journal.quest.budget.amount, forceExhaust: true)
               Player.progressJournalById(journal.id, stage: 2)
-              dialog.pushDialog('quest_purchase_late_failed', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_purchase_late_failed', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_unfinished', npc: game.npcs['servant'], interpolations: [journal.title]);
+              dialog.pushDialog('quest_unfinished', npcId: location.npcId, interpolations: [journal.title]);
               await dialog.execute();
             }
           }
@@ -266,10 +261,10 @@ async function onAfterEnterLocation(location) -> bool {
           if (targetLocation.isDiscovered) {
             Player.progressJournalById(journal.id)
             if (isLate) {
-              dialog.pushDialog('quest_discover_late_success', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_discover_late_success', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_discover_success', npc: game.npcs['servant'],
+              dialog.pushDialog('quest_discover_success', npcId: location.npcId,
                 interpolations: [targetLocation.name],
               );
               await dialog.execute();
@@ -279,10 +274,10 @@ async function onAfterEnterLocation(location) -> bool {
           } else {
             if (isLate) {
               Player.progressJournalById(journal.id, stage: 2)
-              dialog.pushDialog('quest_discover_late_failed', npc: game.npcs['servant']);
+              dialog.pushDialog('quest_discover_late_failed', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_unfinished', npc: game.npcs['servant'], interpolations: [journal.title]);
+              dialog.pushDialog('quest_unfinished', npcId: location.npcId, interpolations: [journal.title]);
               await dialog.execute();
             }
           }
