@@ -126,7 +126,7 @@ async function onBeforeMove(terrain) -> bool
 /// 开始移动之后触发，如果返回值为 true，则会停止移动
 async function onAfterMove(terrain) -> bool
 /// 在大地图上从外部进入某个门派的领地之后触发
-async function onEnterTerritory(terrain, organization)
+async function onEnterTerritory(terrain, sect)
 /// 在地牢中点击某个地图上的可互动物体时触发
 async function onInteractMapObject(object, terrain)
 ```

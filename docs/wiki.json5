@@ -117,9 +117,9 @@
             ],
           },
           {
-            id: "organization",
-            title: "wiki_organization_title",
-            path: "docs/docs/how2play/rpg/organization/readme.md",
+            id: "sect",
+            title: "wiki_sect_title",
+            path: "docs/docs/how2play/rpg/sect/readme.md",
             children: [],
           },
           {
@@ -148,9 +148,15 @@
             children: [],
           },
           {
-            id: "location",
-            title: "wiki_location_title",
-            path: "docs/docs/how2play/tycoon/location/readme.md",
+            id: "city",
+            title: "wiki_city_title",
+            path: "docs/docs/how2play/tycoon/city/readme.md",
+            children: [],
+          },
+          {
+            id: "site",
+            title: "wiki_site_title",
+            path: "docs/docs/how2play/tycoon/site/readme.md",
             children: [],
           },
         ],

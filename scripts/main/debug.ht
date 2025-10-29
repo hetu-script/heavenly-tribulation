@@ -6,7 +6,7 @@ const _kCraftMaterials = [
   'craftmaterial_upgrade',
 ]
 
-namespace Debug {
+namespace debug {
 
   external function reloadGameData()
 
@@ -36,6 +36,22 @@ namespace Debug {
       isBasic: true,
     )
     await Player.acquire(pack2)
+  }
+
+  function testMoney() {
+    hero.materials = {
+      money: 5000000,
+      shard: 50000,
+      worker: 5000,
+      water: 5000,
+      grain: 5000,
+      meat: 5000,
+      leather: 5000,
+      herb: 5000,
+      timber: 5000,
+      stone: 5000,
+      ore: 5000,
+    }
   }
 
   function testItem([character]) {
@@ -110,34 +126,20 @@ namespace Debug {
       }
     }
 
-    // for (var i in range(3)) {
-    //   final spirit = StatusSpirit(rank: hero.rank + 1)
-    //   entityAcquire(character, spirit)
-    //   items.add(spirit)
-    // }
-
     if (character == hero) {
       Game.promptItems(items)
     }
   }
 
-  function testJournal() {
-    final journal = hero.journals.organizationInitiation
-    if (!journal) {
-      journal = Player.createJournalById('organizationInitiation')
-    }
-    Game.promptJournal(journal)
-  }
-
-  function updateAllCaptions() {
-    for (const tile in world.terrains) {
-      if (tile.locationId) {
-        assert(game.locations.containsKey(tile.locationId))
-        const location = game.locations[tile.locationId]
-        World.setTerrainCaption(tile.left, tile.top, location.name)
-      } else if (tile.objectId) {
-        World.setTerrainCaption(tile.left, tile.top, tile.objectId)
-      }
-    }
-  }
+  // function updateAllCaptions() {
+  //   for (const tile in world.terrains) {
+  //     if (tile.locationId) {
+  //       assert(game.locations.containsKey(tile.locationId))
+  //       const location = game.locations[tile.locationId]
+  //       World.setTerrainCaption(tile.left, tile.top, location.name)
+  //     } else if (tile.objectId) {
+  //       World.setTerrainCaption(tile.left, tile.top, tile.objectId)
+  //     }
+  //   }
+  // }
 }

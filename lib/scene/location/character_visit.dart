@@ -16,7 +16,6 @@ const _kCharacterVisitTableColumns = [
   'attack',
   'steal',
   'friendRelationship',
-  'romanceRelationship',
   'familyRelationship',
   'sectRelationship',
 ];
@@ -65,7 +64,6 @@ class CharacterVisitDialog extends StatelessWidget {
             const DataCell(Text('—')),
             const DataCell(Text('—')),
             const DataCell(Text('—')),
-            const DataCell(Text('—')),
           ]));
     }
 
@@ -73,14 +71,11 @@ class CharacterVisitDialog extends StatelessWidget {
       final character = GameData.getCharacter(id);
       final haveMet = engine.hetu
           .invoke('haveMet', positionalArgs: [GameData.hero, character]);
-      final isFriend = engine.hetu
-          .invoke('isFriend', positionalArgs: [GameData.hero, character]);
-      final isRomance = engine.hetu
-          .invoke('isRomance', positionalArgs: [GameData.hero, character]);
-      final isFamily = engine.hetu
-          .invoke('isFamily', positionalArgs: [GameData.hero, character]);
-      final isSect = engine.hetu
-          .invoke('isSect', positionalArgs: [GameData.hero, character]);
+      final isFriend = GameData.hero['friendIds'].contains(character['id']);
+      final isSameFamily = GameData.hero['familyId'] != null &&
+          GameData.hero['familyId'] == character['familyId'];
+      final isSameSect = GameData.hero['sectId'] != null &&
+          GameData.hero['sectId'] == character['sectId'];
 
       return DataRow2(
           onTap: () {
@@ -116,17 +111,12 @@ class CharacterVisitDialog extends StatelessWidget {
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(isRomance
+              Text(isSameFamily
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(isFamily
-                  ? engine.locale('checked')
-                  : engine.locale('unchecked')),
-            ),
-            DataCell(
-              Text(isSect
+              Text(isSameSect
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),

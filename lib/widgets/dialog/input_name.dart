@@ -13,7 +13,7 @@ import '../../ui.dart';
 enum InputNameMode {
   character,
   city,
-  organization,
+  sect,
 }
 
 class InputNameDialog extends StatefulWidget {
@@ -71,8 +71,8 @@ class _InputNameDialogState extends State<InputNameDialog> {
         return engine.hetu.invoke('generateCharacterName');
       case InputNameMode.city:
         return engine.hetu.invoke('generateCityName');
-      case InputNameMode.organization:
-        return engine.hetu.invoke('generateOrganizationName');
+      case InputNameMode.sect:
+        return engine.hetu.invoke('generateSectName');
     }
   }
 

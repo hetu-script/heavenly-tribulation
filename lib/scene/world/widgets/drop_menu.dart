@@ -50,9 +50,9 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(
-          icon: const Icon(Icons.dashboard, size: 20.0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          icon: const Icon(Icons.dashboard),
           padding: const EdgeInsets.all(0),
+          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu<ViewModeMenuItems>(
               controller: menuController,
@@ -60,7 +60,7 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
                 engine.locale('none'): ViewModeMenuItems.none,
                 engine.locale('continent'): ViewModeMenuItems.zone,
                 engine.locale('city'): ViewModeMenuItems.city,
-                engine.locale('organization'): ViewModeMenuItems.nation,
+                engine.locale('sect'): ViewModeMenuItems.nation,
               },
               onSelectedItem: (ViewModeMenuItems item) async {
                 switch (item) {
@@ -144,9 +144,9 @@ class _DropMenuButtonState extends State<DropMenuButton> {
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(
-          icon: const Icon(Icons.menu_open, size: 20.0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          icon: const Icon(Icons.menu_open),
           padding: const EdgeInsets.all(0),
+          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu<DropMenuItems>(
               controller: menuController,

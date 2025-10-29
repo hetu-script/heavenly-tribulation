@@ -138,7 +138,7 @@ class _JournalViewState extends State<JournalView> {
             children: [
               Text(
                 '· ',
-                style: TextStyles.bodyMedium,
+                style: TextStyles.bodySmall,
               ),
               SizedBox(
                 width: 330.0,
@@ -148,8 +148,8 @@ class _JournalViewState extends State<JournalView> {
                       _selectedJournal['stages'][stageIndex],
                       style: (index == sequence.length - 1 &&
                               journalData['isFinished'] != true)
-                          ? TextStyles.bodyMedium
-                          : TextStyles.bodyMedium.copyWith(
+                          ? TextStyles.bodySmall
+                          : TextStyles.bodySmall.copyWith(
                               color: Colors.grey,
                             ),
                     ),

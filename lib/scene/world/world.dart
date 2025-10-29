@@ -77,7 +77,7 @@ enum WorldEditorDropMenuItems {
   viewNone,
   viewContinents,
   viewCities,
-  viewOrganizations,
+  viewSects,
   generateZone,
   reloadGameData,
   characterCalculateStats,
@@ -199,7 +199,7 @@ class WorldMapScene extends Scene with HasCursorState {
     final nationId = terrain.nationId;
     if (nationId != null) {
       selectedNation =
-          engine.hetu.invoke('getOrganizationById', positionalArgs: [nationId]);
+          engine.hetu.invoke('getSectById', positionalArgs: [nationId]);
     } else {
       selectedNation = null;
     }
@@ -219,7 +219,7 @@ class WorldMapScene extends Scene with HasCursorState {
         );
   }
 
-  Future<void> _updateHeroTerrain({
+  Future<void> _updateHeroAtTerrain({
     TileMapTerrain? tile,
     bool moveCameraToHero = true,
     bool animated = false,
@@ -232,7 +232,6 @@ class WorldMapScene extends Scene with HasCursorState {
 
     dynamic heroAtZone;
     dynamic heroAtNation;
-    // dynamic heroAtLocation;
 
     final zoneId = terrain.zoneId;
     if (zoneId != null) {
@@ -243,23 +242,16 @@ class WorldMapScene extends Scene with HasCursorState {
     final nationId = terrain.nationId;
     if (nationId != null) {
       heroAtNation =
-          engine.hetu.invoke('getOrganizationById', positionalArgs: [nationId]);
+          engine.hetu.invoke('getSectById', positionalArgs: [nationId]);
     } else {
       heroAtNation = null;
     }
-    // final String? locationId = terrain.locationId;
-    // if (locationId != null) {
-    //   heroAtLocation = GameData.getLocation(locationId);
-    // } else {
-    //   heroAtLocation = null;
-    // }
     context.read<HeroPositionState>().updateTerrain(
           currentZoneData: heroAtZone,
           currentNationData: heroAtNation,
           currentTerrainData: terrain,
           notify: notify,
         );
-    // context.read<HeroPositionState>().updateLocation(heroAtLocation);
 
     if (moveCameraToHero) {
       await map.moveCameraToHero(animated: animated);
@@ -619,18 +611,17 @@ class WorldMapScene extends Scene with HasCursorState {
   //   map.add(swordAnim);
   // }
 
-  void addCityToOrganization(dynamic city, dynamic organization) {
-    final currentOrganizationId = city['organizationId'];
-    if (currentOrganizationId == organization['id']) return;
-    if (currentOrganizationId != null) {
-      final currentOrganization =
-          GameData.getOrganization(currentOrganizationId);
-      removeCityFromOrganization(city, currentOrganization);
+  void addCityToSect(dynamic city, dynamic sect) {
+    final currentSectId = city['sectId'];
+    if (currentSectId == sect['id']) return;
+    if (currentSectId != null) {
+      final currentSect = GameData.getSect(currentSectId);
+      removeCityFromSect(city, currentSect);
     }
 
-    engine.hetu.invoke('addLocationToOrganization', positionalArgs: [
+    engine.hetu.invoke('addLocationToSect', positionalArgs: [
       city,
-      organization,
+      sect,
     ], namedArgs: {
       'incurIncident': false,
     });
@@ -638,14 +629,14 @@ class WorldMapScene extends Scene with HasCursorState {
     final terrainIndexes = city['territoryIndexes'];
     for (final index in terrainIndexes) {
       map.zoneColors[kColorModeNation][index] =
-          HexColor.fromString(organization['color']);
+          HexColor.fromString(sect['color']);
     }
   }
 
-  void removeCityFromOrganization(dynamic city, dynamic organization) {
-    engine.hetu.invoke('removeLocationFromOrganization', positionalArgs: [
+  void removeCityFromSect(dynamic city, dynamic sect) {
+    engine.hetu.invoke('removeLocationFromSect', positionalArgs: [
       city,
-      organization,
+      sect,
     ], namedArgs: {
       'incurIncident': false,
     });
@@ -672,7 +663,7 @@ class WorldMapScene extends Scene with HasCursorState {
           if (terrain.locationId != null) {
             final location = GameData.getLocation(terrain.locationId);
             if (location['category'] == 'city') {
-              addCityToOrganization(terrain, territoryMode);
+              addCityToSect(terrain, territoryMode);
             }
           }
         }
@@ -807,10 +798,10 @@ class WorldMapScene extends Scene with HasCursorState {
                   builder: (context) => const TileDetailPanel());
             // case TerrainPopUpMenuItems.createLocation:
             case TerrainPopUpMenuItems.setTerritory:
-              final organizationId = await GameLogic.selectOrganizationId();
-              if (organizationId == null) return;
-              final organization = GameData.getOrganization(organizationId);
-              territoryMode = organization;
+              final sectId = await GameLogic.selectSectId();
+              if (sectId == null) return;
+              final sect = GameData.getSect(sectId);
+              territoryMode = sect;
               cursorState = MouseCursorState.click;
             case TerrainPopUpMenuItems.clearTerritory:
               if (selectedTerrain.locationId != null) {
@@ -818,9 +809,8 @@ class WorldMapScene extends Scene with HasCursorState {
                     GameData.getLocation(selectedTerrain.locationId);
                 if (location['category'] == 'city' &&
                     selectedTerrain.nationId != null) {
-                  final organization =
-                      GameData.getOrganization(selectedTerrain.nationId);
-                  removeCityFromOrganization(location, organization);
+                  final sect = GameData.getSect(selectedTerrain.nationId);
+                  removeCityFromSect(location, sect);
                 }
               }
             case TerrainPopUpMenuItems.bindLocation:
@@ -1075,7 +1065,7 @@ class WorldMapScene extends Scene with HasCursorState {
     charComponent.setDirection(dir, jumpToEnd: true);
     map.updateTileInfo(charComponent);
     if (character == map.hero?.data) {
-      _updateHeroTerrain();
+      _updateHeroAtTerrain();
     }
   }
 
@@ -1162,7 +1152,7 @@ class WorldMapScene extends Scene with HasCursorState {
         map.hero!.tilePosition.left,
         map.hero!.tilePosition.top
       ]);
-      await _updateHeroTerrain(tile: terrain, animated: true, notify: false);
+      await _updateHeroAtTerrain(tile: terrain, animated: true, notify: false);
       // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
       await _updateWorldMapNpc();
 
@@ -1375,29 +1365,34 @@ class WorldMapScene extends Scene with HasCursorState {
       // GameLogic.updateGame(timeflow: false);
       if (GameData.hero == null) {
         final Iterable characters = GameData.game['characters'].values;
-        final List availableCharacters = characters.where((character) {
-          final age = engine.hetu
-              .invoke('getCharacterAge', positionalArgs: [character]);
-          if (age > kMaxHeroAge) {
-            return false;
-          }
-          final int rank = character['rank'];
-          if (rank > 0) {
-            return false;
-          }
-          final organizationId = character['organizationId'];
-          if (organizationId != null) {
-            return false;
-          }
-          final homeLocationId = character['homeLocationId'];
-          assert(homeLocationId != null,
-              'Character ${character['id']} has no homeLocationId!');
-          final homeLocation = GameData.getLocation(homeLocationId);
-          if (homeLocation['isHidden']) {
-            return false;
-          }
-          return true;
-        }).toList();
+        List availableCharacters;
+        if (engine.config.debugMode) {
+          availableCharacters = GameData.game['characters'].values.toList();
+        } else {
+          availableCharacters = characters.where((character) {
+            final age = engine.hetu
+                .invoke('getCharacterAge', positionalArgs: [character]);
+            if (age > kMaxHeroAge) {
+              return false;
+            }
+            final int rank = character['rank'];
+            if (rank > 0) {
+              return false;
+            }
+            final sectId = character['sectId'];
+            if (sectId != null) {
+              return false;
+            }
+            final homeLocationId = character['homeLocationId'];
+            assert(homeLocationId != null,
+                'Character ${character['id']} has no homeLocationId!');
+            final homeLocation = GameData.getLocation(homeLocationId);
+            if (homeLocation['isHidden']) {
+              return false;
+            }
+            return true;
+          }).toList();
+        }
         if (availableCharacters.length < _kInitialCharacterSelectionCount) {
           for (var i = availableCharacters.length;
               i < _kInitialCharacterSelectionCount;
@@ -1477,7 +1472,7 @@ class WorldMapScene extends Scene with HasCursorState {
     await _updateWorldMapNpc();
 
     if (updateHeroTerrain) {
-      await _updateHeroTerrain();
+      await _updateHeroAtTerrain();
 
       if (map.data['useCustomLogic'] != true) {
         map.lightUpAroundTile(map.hero!.tilePosition,
@@ -1535,8 +1530,8 @@ class WorldMapScene extends Scene with HasCursorState {
           '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
           ' [${tile.left}, ${tile.top}]');
       if (tile.nationId != null) {
-        final organization = GameData.getOrganization(tile.nationId);
-        hoverContent.write(organization['name']);
+        final sect = GameData.getSect(tile.nationId);
+        hoverContent.write(sect['name']);
       }
 
       if (tile.cityId != null) {
@@ -1737,11 +1732,11 @@ class WorldMapScene extends Scene with HasCursorState {
               size: Size(390, GameUI.size.y),
               onUpdateCharacters: _updateCharactersOnWorldMap,
               onUpdateLocations: _updateWorldMapCaptions,
-              onCreatedOrganization: (organization, location) {
+              onCreatedSect: (sect, location) {
                 final territoryIndexes = location['territoryIndexes'];
                 for (final index in territoryIndexes) {
                   map.zoneColors[kColorModeNation][index] =
-                      HexColor.fromString(organization['color']);
+                      HexColor.fromString(sect['color']);
                 }
               },
             ),

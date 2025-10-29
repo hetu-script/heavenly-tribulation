@@ -366,7 +366,7 @@ class MatchingGame extends Scene with HasCursorState {
         hintTile('${engine.locale(materialId)} +$amount',
             tilePosition: grid.tilePosition, color: Colors.lightGreen);
       } else {
-        final price = kMaterialBasePrice[materialId]!;
+        final price = kMaterialPrice[materialId]!;
         final totalPrice = (price * amount * _kWorkSalaryFactor).round();
         engine.hetu.invoke(
           'collect',
@@ -736,7 +736,9 @@ class MatchingGame extends Scene with HasCursorState {
             Container(
               decoration: GameUI.boxDecoration,
               child: IconButton(
+                icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),
+                mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                 onPressed: () {
                   // GameDialogContent.show(
                   //   context,
@@ -744,7 +746,6 @@ class MatchingGame extends Scene with HasCursorState {
                   //   style: TextStyle(color: Colors.yellow),
                   // );
                 },
-                icon: Icon(Icons.question_mark),
               ),
             ),
           ],

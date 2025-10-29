@@ -1,15 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/engine.dart';
 
 import '../logic/logic.dart';
 import '../engine.dart';
-// import '../state/game_update.dart';
 import '../data/common.dart';
 import 'ui/responsive_view.dart';
+import '../ui.dart';
 
 class TimeflowDialog extends StatefulWidget {
   static Future<int> show({
@@ -109,6 +108,8 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
     return ResponsiveView(
       width: 900.0,
       height: 360.0,
+      barrierDismissible: false,
+      barrierColor: GameUI.barrierColor,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -117,8 +118,8 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
               behavior: MaterialScrollBehavior(),
               child: SingleChildScrollView(
                 controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                child: Container(
+                  margin: const EdgeInsets.all(20.0),
                   child: ListView(
                     shrinkWrap: true,
                     children: logs.map((log) {
@@ -140,9 +141,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
                   fit: BoxFit.contain,
                 ),
                 if (widget.max != null)
-                  LinearProgressIndicator(
-                    value: _progress / widget.max!,
-                  ),
+                  LinearProgressIndicator(value: _progress / widget.max!),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                   child: Row(

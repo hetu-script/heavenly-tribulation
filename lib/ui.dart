@@ -80,7 +80,7 @@ final class FluentButtonStyles {
       <WidgetStatesConstraint, Color>{
         WidgetState.pressed | WidgetState.focused | WidgetState.selected:
             Colors.white24,
-        WidgetState.hovered: Colors.white54,
+        WidgetState.hovered: Colors.white12,
         WidgetState.disabled: Colors.transparent,
         WidgetState.any: Colors.transparent,
       },
@@ -100,14 +100,13 @@ final class FluentButtonStyles {
     padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
       EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
     ),
-    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodyMedium),
+    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodySmall),
   );
 
   static final outlined = fluent.ButtonStyle(
     backgroundColor: WidgetStateProperty<Color>.fromMap(
       <WidgetStatesConstraint, Color>{
-        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-            GameUI.focusColor,
+        WidgetState.pressed | WidgetState.focused: GameUI.focusColor,
         WidgetState.hovered: GameUI.hoverColor,
         WidgetState.disabled: Colors.transparent,
         WidgetState.any: GameUI.backgroundColor,
@@ -123,14 +122,13 @@ final class FluentButtonStyles {
     padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
       EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
     ),
-    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodyMedium),
+    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodySmall),
   );
 
   static final selected = outlined.copyWith(
     backgroundColor: WidgetStateProperty<Color>.fromMap(
       <WidgetStatesConstraint, Color>{
-        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-            GameUI.focusColor,
+        WidgetState.pressed | WidgetState.focused: GameUI.focusColor,
         WidgetState.hovered: GameUI.hoverColor,
         WidgetState.disabled: Colors.transparent,
         WidgetState.any: GameUI.selectedColor,
@@ -152,6 +150,37 @@ final class FluentButtonStyles {
     textStyle: WidgetStatePropertyAll<TextStyle>(
       TextStyles.bodySmall,
     ),
+  );
+
+  static final tabVL = outlined.copyWith(
+    backgroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.pressed | WidgetState.focused:
+            GameUI.focusColor.withAlpha(60),
+        WidgetState.hovered: GameUI.hoverColor.withAlpha(60),
+        WidgetState.disabled: Colors.transparent,
+        WidgetState.any: Colors.transparent,
+      },
+    ),
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    ),
+    textStyle: WidgetStatePropertyAll<TextStyle>(
+      TextStyles.bodySmall,
+    ),
+    shape: WidgetStatePropertyAll<ShapeBorder>(
+      RoundedRectangleBorder(
+        side: BorderSide(color: GameUI.borderColor, width: 2),
+        borderRadius: BorderRadius.only(
+          topLeft: GameUI.radius,
+          bottomLeft: GameUI.radius,
+        ),
+      ),
+    ),
+  );
+
+  static final tabVLSelected = tabVL.copyWith(
+    foregroundColor: WidgetStatePropertyAll<Color>(GameUI.selectedColor),
   );
 }
 
@@ -236,6 +265,7 @@ final class GameUI {
 
   static const borderColor = Color(0xaa607d8B);
   static const borderColor2 = Color(0xaacc5500);
+  static const radius = Radius.circular(5.0);
   static const borderRadius = BorderRadius.all(Radius.circular(5.0));
   static const roundedRectangleBorder = RoundedRectangleBorder(
     side: BorderSide(color: borderColor, width: 2),
@@ -300,23 +330,27 @@ final class GameUI {
       toolbarHeight: toolbarHeight,
       iconTheme: iconTheme,
       actionsIconTheme: iconTheme,
-      titleTextStyle: TextStyles.bodyMedium,
+      titleTextStyle: TextStyles.bodySmall,
     ),
     tabBarTheme: TabBarThemeData(
-      labelStyle: TextStyles.bodyMedium,
-      unselectedLabelStyle: TextStyles.bodyMedium,
+      labelStyle: TextStyles.bodySmall,
+      unselectedLabelStyle: TextStyles.bodySmall,
       mouseCursor: cursor,
     ),
     dataTableTheme: DataTableThemeData(
       headingCellCursor: cursor,
       dataRowCursor: cursor,
-      headingTextStyle: TextStyles.bodyMedium,
+      headingTextStyle: TextStyles.bodySmall,
       dataTextStyle: TextStyle(
         fontFamily: GameUI.fontFamily,
         fontSize: 14.0,
         color: GameUI.foregroundColor,
       ),
       headingRowHeight: 40.0,
+    ),
+    navigationRailTheme: NavigationRailThemeData(
+      indicatorShape: roundedRectangleBorder,
+      indicatorColor: selectedColor,
     ),
   );
 
@@ -367,7 +401,7 @@ final class GameUI {
 
   static final spriteButtonTextConfig = ScreenTextConfig(
     anchor: Anchor.center,
-    textStyle: TextStyles.bodyMedium,
+    textStyle: TextStyles.bodySmall,
     outlined: true,
   );
 
@@ -375,7 +409,7 @@ final class GameUI {
     anchor: Anchor.topLeft,
     padding: EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
     overflow: ScreenTextOverflow.wordwrap,
-    textStyle: TextStyles.bodyMedium,
+    textStyle: TextStyles.bodySmall,
   );
 
   static const fadingTextStyle = TextStyle(
@@ -388,7 +422,7 @@ final class GameUI {
     outlined: true,
     padding: EdgeInsets.only(top: 10),
     anchor: Anchor.topCenter,
-    textStyle: TextStyles.bodyMedium,
+    textStyle: TextStyles.bodySmall,
   );
 
   // location site scene ui

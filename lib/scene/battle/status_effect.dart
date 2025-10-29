@@ -1,10 +1,9 @@
-// import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/hovertip.dart';
-import 'package:hetu_script/utils/collection.dart';
+import 'package:hetu_script/utils/collection.dart' as utils;
 
 import '../../engine.dart';
 import '../../data/game.dart';
@@ -74,7 +73,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
         ) {
     assert(amount >= 1);
     assert(GameData.statusEffects.containsKey(id));
-    data = deepCopy(GameData.statusEffects[id]);
+    data = utils.deepCopy(GameData.statusEffects[id]);
     assert(data != null);
     data['amount'] = amount;
 

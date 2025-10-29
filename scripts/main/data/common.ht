@@ -1,5 +1,32 @@
 import '../name/skill/skill.json5' as skillData
 
+const kSpriteWater = 0;
+const kSpriteLand = 1;
+const kSpriteRiver = 2;
+const kSpriteDungeonStonePavedTile = 8;
+
+const kSpriteCity = 'object/city.png';
+const kSpriteDungeon = 'object/dungeon.png';
+
+const kSpriteArray = 'object/portalArray.png';
+const kSpriteSwitch = 'object/switchOff.png';
+const kSpriteSwitchOn = 'object/switchOn.png';
+const kSpriteTreasureBox = 'object/treasureBox.png';
+const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
+const kSpriteGlowingTile = 'object/glowingTile.png';
+
+const kTerrainKindVoid = 'void';
+const kTerrainKindPlain = 'plain';
+const kTerrainKindMountain = 'mountain';
+const kTerrainKindForest = 'forest';
+const kTerrainKindShore = 'shore';
+const kTerrainKindShelf = 'shelf';
+const kTerrainKindLake = 'lake';
+const kTerrainKindSea = 'sea';
+const kTerrainKindRiver = 'river';
+const kTerrainKindRoad = 'road';
+const kTerrainKindCity = 'city';
+
 const kCultivationRankMax = 5;
 const kEquipmentMax = 5;
 const kFameRankMax = 5;
@@ -36,14 +63,14 @@ const kRarity = {
     rank: 2,
     rarity: 0.22,
     name: 'uncommon',
-    color: '#9D9DFF',
+    color: '#ACACFF',
   },
   /// 上品 紫
   legendary:{
     rank: 3,
     rarity: 0.09,
     name: 'rare',
-    color: '#693DA8',
+    color: '#8D66C4',
   },
   /// 极品 金
   mythic: {
@@ -97,7 +124,7 @@ const kEntityTypeNpc = 'npc'  //game.npcs
 const kEntityTypeObject = 'object' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
-const kEntityTypeOrganization = 'organization' //game.organizations
+const kEntityTypeSect = 'sect' //game.sects
 const kEntityTypeLocation = 'location' // game.locations
 const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
@@ -165,3 +192,11 @@ const kEncounterDefeatMaterialLostPerRank = 0.1
 // 遭遇战失败后，装备丢失的概率
 const kEncounterDefeatEquipmentLostBase = 0.1
 const kEncounterDefeatEquipmentLostPerRank = 0.1
+
+const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
+
+const kDiplomacyDefaultScore = 0
+const kSectJobRankMax = 5
+
+/// 贡献值低于 -100 ，此人将会被门派视为敌人
+const kSectEnemyContributionThreshold = -100

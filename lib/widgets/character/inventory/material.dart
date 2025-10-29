@@ -13,7 +13,7 @@ import '../../../data/common.dart';
 enum MaterialListType {
   inventory,
   sell,
-  craft,
+  storage,
 }
 
 class MaterialList extends StatelessWidget {
@@ -25,6 +25,7 @@ class MaterialList extends StatelessWidget {
     this.requirements,
     this.priceFactor,
     this.filter,
+    this.showZeroAmount = false,
     this.materialListType = MaterialListType.inventory,
     this.selectedItem,
     this.onSelectedItem,
@@ -36,6 +37,7 @@ class MaterialList extends StatelessWidget {
   final dynamic requirements;
   final dynamic priceFactor;
   final List? filter;
+  final bool showZeroAmount;
   final MaterialListType materialListType;
   final String? selectedItem;
   final void Function(String)? onSelectedItem;
@@ -46,8 +48,12 @@ class MaterialList extends StatelessWidget {
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
+    final data = (materialListType == MaterialListType.storage)
+        ? entity['storage']
+        : entity['materials'];
+
     for (final key in kMaterialKinds) {
-      if (materialListType != MaterialListType.craft && key == 'money') {
+      if (materialListType != MaterialListType.storage && key == 'money') {
         continue;
       }
       int amount = 0;
@@ -55,12 +61,12 @@ class MaterialList extends StatelessWidget {
       if (filter != null && filter!.isNotEmpty) {
         if (!filter!.contains(key)) continue;
       } else {
-        amount = entity?['materials']?[key] ?? 0;
+        amount = data[key] ?? 0;
         if (requirements != null) {
           requiredAmount = requirements[key] ?? 0;
-          if (requiredAmount! <= 0) continue;
+          if (requiredAmount! <= 0 && !showZeroAmount) continue;
         } else {
-          if (amount <= 0) continue;
+          if (amount <= 0 && !showZeroAmount) continue;
         }
       }
 
@@ -110,7 +116,7 @@ class MaterialList extends StatelessWidget {
                   requiredAmount != null
                       ? '$requiredAmount/$amount'.padLeft(8)
                       : amount.toString().padLeft(8),
-                  style: TextStyle(
+                  style: TextStyles.bodySmall.copyWith(
                     color: requiredAmount != null
                         ? (amount < requiredAmount ? Colors.red : Colors.white)
                         : Colors.white,

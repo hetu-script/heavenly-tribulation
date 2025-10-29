@@ -84,21 +84,21 @@ async function onAfterEnterLocation(location) -> bool {
   }
 
   // 处理角色初入门派的报告，以及门派每月例会
-  if (hero.organizationId != null) {
-    final organization = game.organizations[hero.organizationId];
-    final memberData = organization.membersData[hero.id];
+  if (hero.sectId != null) {
+    final sect = game.sects[hero.sectId];
+    final memberData = sect.membersData[hero.id];
     assert(memberData != null,
-        'Member data not found in organization [${organization.id}], member id: ${hero.id}');
+        'Member data not found in sect [${sect.id}], member id: ${hero.id}');
     final reportSiteId = memberData.reportSiteId;
     if (reportSiteId == location.id) {
       final superior = game.characters[memberData.superiorId];
       assert(superior != null,
           'character not found, id: ${memberData.superiorId}');
-      final initiationQuest = hero.journals.organizationInitiation;
+      final initiationQuest = hero.journals.sectInitiation;
       if (initiationQuest?.stage == 0) {
         characterMet(hero, superior)
         dialog.pushDialog(
-          'hint_organization_initiation2',
+          'hint_sect_initiation2',
           character: superior,
         );
         await dialog.execute();
@@ -110,13 +110,13 @@ async function onAfterEnterLocation(location) -> bool {
           },
           {
             'type': 'cardpack',
-            'genre': organization['genre'],
+            'genre': sect['genre'],
             'rank': hero.rank,
           },
         ];
         final items = await Player.loot(itemsInfo);
         await Game.promptItems(items);
-        Player.progressJournalById('organizationInitiation');
+        Player.progressJournalById('sectInitiation');
         await Game.promptJournal(initiationQuest);
         return true;
       } else {
@@ -125,7 +125,7 @@ async function onAfterEnterLocation(location) -> bool {
         if (monthly.attendedMeeting != true && day < 5) {
           monthly.attendedMeeting = true;
 
-          Game.showMeeting(organization, location, superior);
+          Game.showMeeting(sect, location, superior);
           return true;
         }
       }

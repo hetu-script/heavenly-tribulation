@@ -9,6 +9,7 @@
   "code": "代码",
   "module": "模组",
   "script": "脚本",
+  "wiki": "资料库",
 
   "debug": "DEBUG信息",
   "console": "控制台",
@@ -20,8 +21,8 @@
   "forgetIt": "还是算了",
   "yes": "是",
   "no": "否",
-  "enabled": "启用",
-  "disabled": "禁用",
+  "enabled": "已启用",
+  "disabled": "已禁用",
   "and": "和",
   "accept": "接受",
   "close": "关闭",
@@ -37,7 +38,7 @@
   "menu": "菜单",
   "untitled": "未命名",
   "execute": "执行",
-  "wiki": "资料库",
+  "progress": "进度",
 
   "noUsableItems": "无可用项目",
 
@@ -46,7 +47,7 @@
   "reloadGameDataPrompt": "已重置所有游戏数据和脚本模块。",
 
   "priceFactor": "物价系数",
-  "priceFactor_description_location": "商店物价和季节、纬度和城市类型有关。",
+  "priceFactor_description_location": "交易所的材料物价和季节、纬度和城市类型有关。",
   "priceFactor_description_character": "角色物价和人物关系以及亲密度有关。",
   "priceFactor_description_productionSite": "生产建筑的物价和地块的自然资源有关。",
 
@@ -58,7 +59,7 @@
   "id": "ID",
   "characterId": "角色ID",
   "locationId": "场景ID",
-  "organizationId": "门派ID",
+  "sectId": "门派ID",
   "itemId": "物品ID",
   "worldId": "世界ID",
   "all": "所有",
@@ -86,6 +87,9 @@
 
   "sort": "排序",
   "acquiredTime": "获得时间",
+
+  "pause": "暂停",
+  "paused": "已暂停",
 
   "ascending": "升序",
   "descending": "降序",
@@ -137,7 +141,7 @@
   "selectHero": "选择你要扮演的人物",
   "selectCharacter": "选择人物",
   "selectLocation": "选择场景",
-  "selectOrganization": "选择门派",
+  "selectSect": "选择门派",
   "selectItem": "选择物品",
   "selectCardpack": "选择秘籍",
 
@@ -221,7 +225,7 @@
 
   "journalTopic": "重要话题",
   "characterTopic": "人物话题",
-  "organizationTopic": "门派话题",
+  "sectTopic": "门派话题",
   "locationTopic": "场景话题",
   "itemTopic": "物品话题",
 
@@ -236,7 +240,16 @@
 
   "depositBox": "箱子",
   "deposit": "存入",
+  "depositAll": "全部存入",
   "take": "取出",
+  "takeAll": "全部取出",
+
+  "depositMaterials": "存入物资",
+  "depositMaterialsDevelopmentCost": "存入扩建所需费用",
+  "depositMaterials30Days": "存入 1 个月维护费用",
+  "depositMaterials90Days": "存入 3 个月维护费用",
+  "depositMaterials180Days": "存入 6 个月维护费用",
+  "depositMaterials360Days": "存入 1 年维护费用",
 
   "gift": "赠礼",
   "attack": "攻击",
@@ -284,7 +297,9 @@
   "purgatory": "炼狱",
 
   "zone": "地域",
-  "organization": "门派",
+  "family": "家族",
+  "sect": "门派",
+  "ownedBySect": "所属门派",
   "location": "场景",
   "atLocation": "所处场景",
   "atCity": "所属据点",
@@ -391,11 +406,11 @@
   "doNothing": "什么都不做",
 
   "information": "情报",
-  "organizationInformation": "门派情报",
+  "sectInformation": "门派情报",
   "cityInformation": "据点情报",
   "siteInformation": "建筑情报",
   "characterInformation": "人物情报",
-  "status": "属性",
+  "status": "状态",
   "stats": "属性",
   "statsAndItem": "属性和物品",
   "memory": "记忆",
@@ -453,8 +468,11 @@
 
   "residents": "居民",
   "residentsCount": "居民数量",
-  "development": "发展度",
+  "development": "规模",
   "recruitMonth": "招募月份",
+
+  "citySites": "据点建筑",
+  "worldMapSites": "地图建筑",
 
   "coordination": "协同",
 
@@ -516,7 +534,32 @@
   "work": "打工",
   "produce": "生产",
   "production": "生产",
+  "upgradeSect": "扩建门派",
+  "upgradeCity": "扩建据点",
+  "upgradeSite": "扩建场景",
+  "upgrading": "建设中...",
+  "cancelUpgrade": "取消扩建",
   "build": "建造",
+  "buildSite": "建造场景",
+  "dispatchMaterials": "派遣物资",
+
+  "days": "天数",
+
+  "storage": "仓库",
+  "storage_description": "仓库中的物资仅能用于建造和运营。",
+
+  "maintainanceCostPerDay": "维护费用(每日)",
+  "maintainanceCost_description": "建筑每日自动从仓库中扣减维护或扩建所需物资。若没有足够的物资，将不能手动刷新商店和使用工作台，扩建进度也将停滞。",
+
+  "developmentCost_description": "扩建可以提升「规模」。扩建需要花费时间，并且额外增加每日维护费用。扩建期间不影响正常运营。但如果当前仓库中没有足够的物资，将会暂停扩建和运营。",
+  "developmentDays": "扩建所需天数",
+  "maintainanceCostIncreasedToDuringDevelopment": "扩建期期间维护费用总计",
+
+  "updateStatusNormal": "运转正常",
+  "updateStatusPaused": "运转停滞",
+  "updateStatusDeveloping": "建设中...",
+  "updateStatusDevelopingPaused": "建设停滞",
+
   "meditate": "打坐",
   "rest": "休息",
 
@@ -603,15 +646,142 @@
 
   "estimatePrice": "估价",
 
+  "file": "文件",
+  "create": "创建",
+  "check": "查看",
+  "delete": "删除",
+  "edit": "编辑",
+  "setAsFirstWorld": "设为初始地图",
+  "addWorld": "添加新地图",
+  "addSite": "添加子场景",
+  "editSite": "编辑子场景",
+  "switchWorld": "切换地图",
+  "deleteWorld": "删除地图",
+  "expandWorld": "扩大地图",
+
+  "spriteIndex": "地形基座",
+
+  "generatedZone": "生成了 {0} 个地域。",
+
+  "objectIdNonExist": "对象 [{0}] 不存在！",
+  "cannotDeleteCurrentWorld": "不能删除当前打开的地图！",
+
+  "isDiscovered": "已被发现",
+  "isMainWorld": "主世界",
+
+  "checkInformation": "查看信息",
+  "editIdAndImage": "编辑信息",
+  "editDescription": "小传",
+  "editFlags": "事件标记",
+
+  "addBond": "添加羁绊",
+
+  "gameEntity": "游戏对象",
+  "createCharacter": "创建人物",
+  "setNpc": "设置NPC",
+  "createLocationObject": "创建场景对象",
+  "createLocation": "创建场景",
+  "createSect": "创建门派",
+  "createZone": "创建区域",
+  "createObject": "创建对象",
+  "setTerritory": "设置领土",
+  "clearTerritory": "清除领土",
+  "bindLocation": "绑定场景",
+  "bindObject": "绑定对象",
+  "clearObject": "清除对象",
+  "clearDecoration": "清除装饰",
+
+  "hint_mustEnterId": "必须输入一个 ID！",
+  "hint_selectTilePrompt": "需要先选择一个地块才能进行此操作。",
+  "hint_selectCityPrompt": "需要先选择一个城市才能进行此操作。",
+  "hint_selectedTileOccupied": "该地块已经是门派领地了，不能在此创建新的门派。",
+
+  "inputObjectSource": "输入脚本对象 (JSON5)",
+
+  "setAsHero": "设置为主角",
+  "setWorldId": "设置所在地图",
+  "setWorldPosition": "设置所在地图位置",
+  "clearWorldPosition": "清除地图位置信息",
+  "clearLocation": "清除场景",
+  "setLocation": "设置场景",
+  "clearHome": "清除住所",
+  "setHome": "设置住所",
+  "checkProfile": "查看详情",
+  "checkEventFlags": "查看自定义事件标记",
+  "checkStatsAndItem": "查看属性和物品",
+  "checkMemoryAndBond": "查看记忆与羁绊",
+  "checkCultivation": "查看天赋树",
+  "setRankLevel": "设置境界和修为等级",
+  "allocatePassives": "自动分配天赋技能",
+
+  "terrainDetail": "地块信息",
+  "setTerrainKind": "设置地块类型",
+  "clearTerrainSprite": "清除地块贴图",
+  "clearTerrainAnimation": "清除地块动画",
+  "clearTerrainOverlaySprite": "清除地块附加贴图",
+  "clearTerrainOverlayAnimation": "清除地块附加动画",
+  "setInteractable": "设置可否进入",
+  "isNotEnterable": "不可进入",
+  "isEnterable": "可以进入",
+
+  "useCustomLogic": "使用自定义事件处理函数",
+
+  "terrainTiles": "地形区块",
+  "decorationTiles": "地面贴图",
+  "tileMapDecoration": "地面装饰",
+  "objectTiles": "物体和NPC",
+
+  "custom": "自定义",
+  "preset": "预设",
+  "portal": "传送门",
+  "worldPortal": "地图传送门",
+  "glowingTile": "发光地板",
+  "switch": "机关",
+  "lever": "拉杆",
+  "pressurePlate": "压力机关",
+  "treasureBox": "宝箱",
+  "woodenTreasureBox": "木质宝箱",
+  "coffin": "棺材",
+  "statue": "雕像",
+  "stoneStairs": "石阶",
+  "stoneDebris": "乱石废墟",
+  "stoneStele": "发光石碑",
+  "furnace": "丹炉",
+  "stain": "污渍",
+  "bloodStain": "血迹",
+  "oldWell": "古井",
+  "meditationCushion": "蒲团",
+
+  "dungeonStoneGate": "石门",
+  "dungeonStonePavedTile": "石砖",
+
+  "characterBoy": "少年男",
+  "characterYoungMan": "青年男",
+  "characterMan": "中年男",
+  "characterOldMan": "老年男",
+  "characterGirl": "少年女",
+  "characterYoungWoman": "青年女",
+  "characterWoman": "中年女",
+  "characterOldWoman": "老年女",
+
+  "python": "怪蟒",
+
+  "meteorCrater": "陨石坑",
+  "deadBody": "尸体残骸",
+
+  "regenerateZone": "重新生成地域",
+  "updateCharacterStats": "更新人物属性",
+  "saveMapAs": "地图另存为",
+
   "hotelRoom_stable": "马厩",
   "hotelRoom_normal": "普通客房",
   "hotelRoom_vip": "豪华客房",
-  "hotelRoom_description": "每 tick 花费: <yellow>{0} 铜钱</>\n每 tick 回复: <yellow>{1} 点体力</>",
+  "hotelRoom_description": "每天花费: <yellow>{0} 铜钱</>\n每天回复: <yellow>{1} 点体力</>",
 
-  "heroDestroy": "销毁了{0}。",
-  "heroDismantle": "分解了{0}。",
-  "heroExpGained": "获得了 {0} 点修为经验。",
-  "heroStaminaRestored": "恢复了 {0} 点体力。",
+  "hint_destroy": "销毁了{0}。",
+  "hint_dismantle": "分解了{0}。",
+  "hint_expGained": "获得了 {0} 点修为经验。",
+  "hint_staminaRestored": "恢复了 {0} 点体力。",
 
   "entityAcquire": "{0}得到了{1}。",
   "entityAcquireMultiple": "{0}得到了 {1} 个{2}。",
@@ -638,7 +808,7 @@
   "characterSettle": "{0}在{1}安家了。",
   "characterMarriage": "{0}和{1}在{2}结婚了。",
   "characterConception": "{0}怀上了{1}的孩子并为其取名{2}。",
-  "characterBorn": "{0}在{1}生下了{2}。",
+  "characterBorn": "{0}生下了{1}。",
   "characterBaishi": "{0}拜{1}为师了。",
   "characterLearn": "{0}学会了{1}。",
   "characterGive": "{0}将{1}给了{2}。",
@@ -649,13 +819,13 @@
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
   "characterDefeat": "{0}击败了{1}。",
   "characterKill": "{0}杀死了{1}。",
-  "characterAcquireOrganizationTitle": "{0}成为了{1}的{2}。",
-  "characterAcquireOrganizationTitleWithManagingSite": "{0}成为了{1}的{2}，并管理着{3}。",
+  "characterAcquireSectTitle": "{0}成为了{1}的{2}。",
+  "characterAcquireSectTitleWithManagingSite": "{0}成为了{1}的{2}，并管理着{3}。",
   "characterAcquireTitle": "{0}成为了{1}。",
   "characterMakeContribution": "{0}在{1}的功勋增加了 {2}。",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
-  "organizationBuild": "{0}在{1}建立了{2}。",
+  "sectBuild": "{0}在{1}建立了{2}。",
 
   "hint_console": " [Ctrl+回车] 提交。[Ctrl+上/下] 浏览输入历史。",
 
@@ -694,6 +864,7 @@
   "hint_notEnoughExp": "你没有足够的修为经验。",
   "hint_notEnoughMaterial": "你没有足够的材料",
   "hint_notEnough": "你没有足够的{0}。",
+  "hint_storageNotEnough": "仓库中没有足够的{0}！请先存入扩建所需全部物资再进行此操作。",
 
   "hint_merchantNotEnough_money": "对方身上没有足够的钱。",
   "hint_merchantNotEnough_shard": "对方身上没有足够的灵石。",
@@ -706,7 +877,7 @@
   "hint_expArray": "这是一座聚灵阵，在这里你可以通过打坐，花费灵石和时间来获取灵光。",
   "hint_cardLibraryStele": "这是一座玄机碑，在这里你可以花费灵光进行卡牌词条的精炼，从而提升或修改卡牌属性。",
 
-  "hint_organizationFacilityNotMember": "您并非本门派的修士，要想使用这里的设施，需要支付一定的费用才行。",
+  "hint_sectFacilityNotMember": "您并非本门派的修士，要想使用这里的设施，需要支付一定的费用才行。",
 
   "hint_scrollCrafter": "你身上有用不了的秘籍功法的话，可以在我这里将其转化为没有境界和装备需求的符箓。怎么样，是不是很划算？",
 
@@ -765,18 +936,14 @@
   "hint_movement": "操作指引：点击<yellow>鼠标左键</>移动角色，使用<yellow>[W,S,A,D]</>键或者点击并拖动<yellow>鼠标右键</>移动地图。",
 
   "hint_tribulation_1": "就在你运功凝聚灵光的时候，你突然有所顿悟。\n你似乎窥视到了一丝更高境界的天道。但与此同时，你也立刻感受到一股极为强大的气息。",
-
   "hint_tribulation_2": "\n此乃天道感应所化的一具幻象法身。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。但如果失败，不但修为经验不会返还，还会获得一层劫数。\n无论是失败还是放弃，你在下一次升级时必将再次触发天道劫数。",
-
   "hint_tribulation_3": "\n你要挑战天道吗？",
-
   "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。",
-
   "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。除非服用对应境界的破境丹药，否则无法继续提升修为等级了。",
 
   "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。",
 
-  "hint_replenishLocation": "自动刷新日期: 每月 {0} 日\n手动刷新花费: <yellow> {1} 文</>",
+  "hint_replenishLocation": "商店重置日期: 每月 {0} 日\n本月手动刷新次数：{1}\n本次手动刷新花费: {2} 文",
 
   "hint_notYourHomeToRest": "您并非本门派的修士，不能在这里休息。",
 
@@ -786,7 +953,7 @@
 
   "hint_donation": "你每月仅可捐献一次，若是价值不够无法获得功勋的话，物品也不会退还，还望慎重。",
 
-  "hint_organization_donation": "哦？你竟有此心，甚好。宗门的发展，离不开各位弟子的贡献。",
+  "hint_sect_donation": "哦？你竟有此心，甚好。宗门的发展，离不开各位弟子的贡献。",
 
   "hint_location_donation": "哦？阁下打算给我们捐献？太好了，我们城镇的发展有希望了。这可以直接算作你在此城中的功勋。",
 
@@ -794,5 +961,13 @@
 
   "hint_donation_item_value_high": "不错，此物颇为不凡。你这次算是大功一件。此物折算为功勋 {0} 点，已记入你的名下。",
 
-  "hint_already_donated": "你本月已经捐献过一次了。修行之道，贵在持之以恒，而非一蹴而就。\n想要再次捐献的话，等到下个月 {0} 日之后再来吧。"
+  "hint_already_donated": "你本月已经捐献过一次了。修行之道，贵在持之以恒，而非一蹴而就。\n想要再次捐献的话，等到下个月 {0} 日之后再来吧。",
+
+  "hint_updateCharacterStats": "已重新计算所有人物属性。",
+
+  "hint_developmentStarted": "扩建工程将会<yellow>持续 {0} 天</>，在此期间每日维护费用将<cyan>额外增加</>。\n在此期间建筑的正常功能<cyan>不受影响</>。但如果仓库中没有足够的物资，建筑本身的运营和扩建工程都将会<yellow>暂停</>。",
+
+  "hint_developmentCompleted": "{0}的扩建工程已经完成！规模增加到了 {1}。",
+
+  "hint_cancelDevelopment": "确定要取消扩建工程吗？取消后已消耗的物资将不会返还，且扩建进度将会全部丢失。"
 }

@@ -4,11 +4,11 @@ struct Contributionpack {
   constructor ({
     amount,
     locationId,
-    organizationId,
+    sectId,
   }) {
     assert(locationId != null, 'must have locationId for contribution pack!')
 
-    this.id = 'contribution_pack_${organizationId}'
+    this.id = 'contribution_pack_${sectId}'
     this.entityType = kEntityTypeItem
     this.rarity = kRarityRare
     this.color = kRarity[this.rarity].color
@@ -16,12 +16,12 @@ struct Contributionpack {
     this.icon = 'item/contribution.png'
 
     this.locationId = locationId
-    this.organizationId = organizationId
+    this.sectId = sectId
 
     final location = game.locations[locationId]
-    final organization = game.organizations[organizationId]
+    final sect = game.sects[sectId]
     
-    this.flavortext = (organization?.name ?? location.name) +
+    this.flavortext = (sect?.name ?? location.name) +
       engine.locale('contribution') + '\n' +
       engine.locale('flavortext_contribution_pack')
 

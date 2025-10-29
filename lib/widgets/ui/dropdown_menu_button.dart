@@ -32,7 +32,7 @@ class DropdownMenuButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final button = DropdownButton2<T>(
-      style: GameUI.textTheme.bodyMedium,
+      style: GameUI.textTheme.bodySmall,
       hint: hint,
       menuItemStyleData: const MenuItemStyleData(height: 35.0),
       dropdownStyleData: DropdownStyleData(

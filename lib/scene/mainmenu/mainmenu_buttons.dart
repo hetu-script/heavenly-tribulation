@@ -374,9 +374,9 @@ class _DebugButtonState extends State<DebugButton> {
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(
-          icon: const Icon(Icons.menu_open, size: 20.0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          icon: Icon(Icons.menu_open),
           padding: const EdgeInsets.all(0),
+          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu(
               controller: menuController,
@@ -423,7 +423,7 @@ class _DebugButtonState extends State<DebugButton> {
                       ],
                     );
                   case DebugMenuItems.debugItem:
-                    engine.hetu.invoke('testItem', namespace: 'Debug');
+                    engine.hetu.invoke('testItem', namespace: 'debug');
                   case DebugMenuItems.debugMerchant:
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {
@@ -438,7 +438,7 @@ class _DebugButtonState extends State<DebugButton> {
                     engine.hetu.invoke('entityCollect',
                         positionalArgs: [merchant, 'shard', 500]);
                     engine.hetu.invoke('testItem',
-                        namespace: 'Debug', positionalArgs: [merchant]);
+                        namespace: 'debug', positionalArgs: [merchant]);
                     context.read<MerchantState>().show(
                           merchant,
                           useShard: true,

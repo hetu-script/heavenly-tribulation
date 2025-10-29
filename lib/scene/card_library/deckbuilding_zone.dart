@@ -13,8 +13,8 @@ import 'common.dart';
 import '../../logic/logic.dart';
 // import 'card_library.dart';
 import '../../state/hover_content.dart';
-import '../common.dart';
 import '../../data/game.dart';
+import '../../widgets/common.dart';
 
 enum PlaceHolderState {
   newDeck,

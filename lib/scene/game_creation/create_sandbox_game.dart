@@ -83,7 +83,7 @@ Future<ui.Image> _makeImage({
 ///   'seedString': 'hello world!',
 ///   'style': _worldStyle, // 'islands', 'coast', 'inland'
 ///   'worldScale': _worldScale, // 1-4 integer
-///   'nationNumber': _organizationNumber, // integer
+///   'nationNumber': _sectNumber, // integer
 ///   'locationNumber': _locationNumber, // integer
 ///   'characterNumber': _characterNumber,
 /// }
@@ -106,7 +106,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   int _worldScale = 1;
   int _worldWidth = 0, _worldHeight = 0;
   late int _locationNumber;
-  late int _organizationNumber;
+  late int _sectNumber;
   late int _characterNumber;
   late int _seed;
 
@@ -133,7 +133,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
     final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
     _locationNumber = entityNumber.$1;
-    _organizationNumber = entityNumber.$2;
+    _sectNumber = entityNumber.$2;
     _characterNumber = entityNumber.$3;
 
     _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
@@ -385,14 +385,13 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                           children: [
                             SizedBox(
                               width: 120.0,
-                              child: Text(
-                                  '${engine.locale('organizationNumber')}: '),
+                              child: Text('${engine.locale('sectNumber')}: '),
                             ),
                             const Spacer(),
                             SizedBox(
                               width: 40.0,
                               child: Text(
-                                '$_organizationNumber',
+                                '$_sectNumber',
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -478,7 +477,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                         'style': _worldStyle,
                         'width': _worldWidth,
                         'height': _worldHeight,
-                        'nationNumber': _organizationNumber,
+                        'nationNumber': _sectNumber,
                         'locationNumber': _locationNumber,
                         'characterNumber': _characterNumber,
                         'enableTutorial': _enableTutorial,

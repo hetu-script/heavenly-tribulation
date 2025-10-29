@@ -180,7 +180,7 @@ class _GameAppState extends State<GameApp> {
       dynamic location = arguments['location'];
       location ??= GameData.game['locations'][locationId];
       if (location != null) {
-        staminaCost = kSiteWorkableBaseStaminaCost[kind]!;
+        staminaCost = kSiteWorkableStaminaCost[kind]!;
         final double workStaminaCostFactor =
             GameData.hero['stats']['staminaCostWork'];
         staminaCost = (staminaCost * workStaminaCostFactor).round();
@@ -221,9 +221,9 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalClass(Constants());
 
     engine.hetu.interpreter.bindExternalFunction(
-        'expForLevel',
+        'getLifeSpanForRank',
         ({positionalArgs, namedArgs}) =>
-            GameLogic.expForLevel(positionalArgs.first),
+            GameLogic.getLifeSpanForRank(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -257,9 +257,15 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'buildingCountForDevelopment',
+        'maxSiteCountForCity',
         ({positionalArgs, namedArgs}) =>
-            GameLogic.buildingCountForDevelopment(positionalArgs.first),
+            GameLogic.maxSiteCountForCity(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'maxCityCountForSectDevelopment',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.maxCityCountForSectDevelopment(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -285,13 +291,6 @@ class _GameAppState extends State<GameApp> {
         ({positionalArgs, namedArgs}) =>
             GameLogic.getDeckLimitForRank(positionalArgs.first),
         override: true);
-
-    // engine.hetu.interpreter.bindExternalFunction('calculateItemPrice', (
-    //     {positionalArgs, namedArgs}) {
-    //   return GameLogic.calculateItemPrice(positionalArgs.first,
-    //       priceFactor: namedArgs['priceFactor'],
-    //       isSell: namedArgs['isSell'] ?? true);
-    // }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('estimateItemPrice', (
         {positionalArgs, namedArgs}) {
@@ -405,7 +404,7 @@ class _GameAppState extends State<GameApp> {
       return dialog.checkSelected(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
+    engine.hetu.interpreter.bindExternalFunction('debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
       dialog.pushDialog(engine.locale('reloadGameDataPrompt'));
@@ -413,6 +412,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::datetime', (
         {positionalArgs, namedArgs}) {
+      GameLogic.calculateTimestamp();
       return {
         'timestamp': GameData.game['timestamp'],
         'tickOfYear': GameLogic.ticksOfYear,
@@ -431,7 +431,7 @@ class _GameAppState extends State<GameApp> {
       context.read<GameTimestampState>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::updateLocation', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateHeroAtLocation', (
         {positionalArgs, namedArgs}) {
       context.read<HeroPositionState>().updateLocation(positionalArgs.first);
     }, override: true);
@@ -544,9 +544,9 @@ class _GameAppState extends State<GameApp> {
       return GameLogic.selectLocation(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::selectOrganization', (
+    engine.hetu.interpreter.bindExternalFunction('Game::selectSect', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.selectOrganization(positionalArgs.first);
+      return GameLogic.selectSect(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (

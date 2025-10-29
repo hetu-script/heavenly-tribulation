@@ -158,7 +158,7 @@ async function onAfterMove(terrain) {
   if (failed) {
     final npc = game.npcs[game.flags.dungeon.npcId]
     dialog.pushDialog(
-      'organization_immortality_trial_fail',
+      'sect_immortality_trial_fail',
       npc: npc,
     )
     await dialog.execute()
@@ -195,14 +195,14 @@ async function onInteractMapObject(object, terrain) {
         await Future.delayed(0.25)
         final npc = game.npcs[game.flags.dungeon.npcId]
         dialog.pushDialog(
-          'organization_immortality_trial_pass',
+          'sect_immortality_trial_pass',
           npc: npc,
         )
         await dialog.execute()
-        final organizationId = game.flags.dungeon.organizationId
-        if (organizationId != null) {
-          final organization = game.organizations[organizationId]
-          await Player.enroll(organization, npcId: game.flags.dungeon.npcId);
+        final sectId = game.flags.dungeon.sectId
+        if (sectId != null) {
+          final sect = game.sects[sectId]
+          await Player.enroll(sect, npcId: game.flags.dungeon.npcId);
         }
         setCurrentWorld(game.mainWorldId)
         game.flags.dungeon = null

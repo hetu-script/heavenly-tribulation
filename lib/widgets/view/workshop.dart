@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:hetu_script/utils/collection.dart';
+import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 
 import '../../engine.dart';
@@ -81,7 +81,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
 
   void _updateSelectedCraftItemRequirements() {
     _selectedCraftItemRequirements =
-        deepCopy(GameData.craftables[_selectedCraftKind]);
+        utils.deepCopy(GameData.craftables[_selectedCraftKind]);
     final rank = kRaritiesToRank[_selectedCraftRarity] as int;
     for (final materialId in kMaterialKinds) {
       if (_selectedCraftItemRequirements[materialId] != null) {
@@ -146,22 +146,21 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
     }
   }
 
+  void close() {
+    engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 800.0,
       height: 500.0,
+      onBarrierDismissed: close,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale('workshop')),
-          actions: [
-            CloseButton2(
-              onPressed: () {
-                context.read<ViewPanelState>().toogle(ViewPanels.workbench);
-              },
-            )
-          ],
+          actions: [CloseButton2(onPressed: close)],
         ),
         body: Container(
           width: 800.0,
@@ -187,7 +186,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                       fluent.Tab(
                         text: Text(
                           engine.locale('craft_item'),
-                          style: TextStyles.bodyMedium,
+                          style: TextStyles.bodySmall,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -200,6 +199,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                   SizedBox(
                                     width: 140.0,
                                     child: fluent.DropDownButton(
+                                      cursor: GameUI.cursor,
                                       style: FluentButtonStyles.small,
                                       title: Text(
                                         '${engine.locale('kind')}: ${engine.locale(_selectedCraftKind)}',
@@ -221,6 +221,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                   SizedBox(
                                     width: 140.0,
                                     child: fluent.DropDownButton(
+                                      cursor: GameUI.cursor,
                                       style: FluentButtonStyles.small,
                                       title: Text(
                                         '${engine.locale('rarity')}: ${engine.locale(_selectedCraftRarity)}',
@@ -277,7 +278,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                       fluent.Tab(
                         text: Text(
                           engine.locale('modify_item'),
-                          style: TextStyles.bodyMedium,
+                          style: TextStyles.bodySmall,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -311,6 +312,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                               SizedBox(
                                 width: 140.0,
                                 child: fluent.DropDownButton(
+                                  cursor: GameUI.cursor,
                                   style: FluentButtonStyles.small,
                                   title: Text(
                                     engine.locale(

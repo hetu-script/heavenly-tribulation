@@ -26,15 +26,16 @@
   "wiki_consumable_title": "可食用物品",
   "wiki_equipment_title": "装备",
 
-  "wiki_organization_title": "门派",
+  "wiki_sect_title": "门派",
   "wiki_quest_title": "任务",
   "wiki_bounty_quest_title": "悬赏任务",
-  "wiki_organization_quest_title": "门派任务",
+  "wiki_sect_quest_title": "门派任务",
 
   "wiki_tycoon_title": "经营",
   "wiki_terrain_title": "地块",
   "wiki_material_title": "材料",
-  "wiki_location_title": "据点和建筑",
+  "wiki_city_title": "据点",
+  "wiki_site_title": "建筑",
 
   "wiki_mod_title": "模组指南",
 

@@ -31,7 +31,7 @@ external abstract class Constants {
   static get attackTypes;
   static get damageTypes;
 
-  static get organizationCategories;
+  static get sectCategories;
   static get cultivationGenres;
   static get cardpackGenres;
   static get materialKinds;
@@ -48,9 +48,9 @@ external abstract class Constants {
   static get siteKindsBuildable;
   static get siteKindsTradable;
   static get productionSiteKinds;
-  static get organizationCategoryToSiteKind;
-  static get organizationCategoryExpansionRate;
-  static get organizationGenreToSiteKinds;
+  static get sectCategoryToSiteKind;
+  static get sectCategoryExpansionRate;
+  static get sectGenreToSiteKinds;
   static get sitePriority;
   
   static get ticksPerTime;

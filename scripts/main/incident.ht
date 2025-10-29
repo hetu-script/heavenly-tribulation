@@ -8,7 +8,7 @@ struct Incident {
     subjectId,
     targetId,
     item, // 只有物品数据是直接传输，而不是传 id
-    organizationId,
+    sectId,
     locationId: string,
     terrainIndex: integer,
     idealistic = 0,
@@ -23,7 +23,7 @@ struct Incident {
     if (targetId) this.targetId = targetId
     // if (withItem) this.withItemId = withItem.id
     if (item) this.itemId = item.id
-    if (organizationId) this.organizationId = organizationId
+    if (sectId) this.sectId = sectId
     if (locationId) this.locationId = locationId
     if (terrainIndex) this.terrainIndex = terrainIndex
     this.idealistic = idealistic
@@ -56,11 +56,11 @@ struct Incident {
       entityExperienceIncident(item, this)
     }
 
-    let organization
-    if (organizationId) {
-      organization = game.organizations[organizationId]
-      assert(organization != null, '无法找到事件所属的组织，id 为：${organizationId}')
-      entityExperienceIncident(organization, this)
+    let sect
+    if (sectId) {
+      sect = game.sects[sectId]
+      assert(sect != null, '无法找到事件所属的组织，id 为：${sectId}')
+      entityExperienceIncident(sect, this)
     }
 
     let location
@@ -83,8 +83,8 @@ struct Incident {
         characterKnowIncident(char, this)
       }
     } else {
-      if (organization) {
-        for (const id in organization.membersData.keys) {
+      if (sect) {
+        for (const id in sect.membersData.keys) {
           if (id == subjectId || id == targetId) continue
           const member = game.characters[id]
           assert(member != null, '无法找到组织成员，id 为：${id}')
@@ -107,7 +107,7 @@ struct Incident {
   
     Game.updateHistory()
     
-    if (subject || organization) {
+    if (subject || sect) {
       engine.info(message)
     }
   }

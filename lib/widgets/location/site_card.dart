@@ -5,16 +5,16 @@ import '../../ui.dart';
 class SiteCard extends StatelessWidget {
   const SiteCard({
     super.key,
-    required this.siteData,
+    required this.site,
     this.imagePath,
     this.onTap,
     this.onSecondaryTap,
   });
 
-  final dynamic siteData;
+  final dynamic site;
   final String? imagePath;
-  final void Function(String siteId)? onTap;
-  final void Function(String siteId, TapUpDetails details)? onSecondaryTap;
+  final void Function(dynamic site)? onTap;
+  final void Function(dynamic site, TapUpDetails details)? onSecondaryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +39,16 @@ class SiteCard extends StatelessWidget {
             child: InkWell(
               mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
               borderRadius: GameUI.borderRadius,
-              onTap: () => onTap?.call(siteData['id']),
+              onTap: () => onTap?.call(site),
               onSecondaryTapUp: (details) =>
-                  onSecondaryTap?.call(siteData['id'], details),
+                  onSecondaryTap?.call(site, details),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(5.0),
                 color: Theme.of(context).primaryColor.withAlpha(128),
                 child: Text(
-                  siteData['name'],
+                  site['name'],
+                  textAlign: TextAlign.center,
+                  style: TextStyles.bodySmall,
                 ),
               ),
             ),

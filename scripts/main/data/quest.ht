@@ -16,13 +16,13 @@ const kTimeLimitDaysVariation2 = 45
 
 const kHiddenCityShardReward = 2
 
-const kBaseReward = 500
-const kBaseRewardForEscort = 1500
-const kBaseRewardForDiscoverLocation = 4500
+const kBaseReward = 50
+const kBaseRewardForEscort = 150
+const kBaseRewardForDiscoverLocation = 450
 
 const kBudgetFactorForPurchaseMaterial = 0.8
 
-const kOrganizationQuestCount = 3
+const kSectQuestCount = 3
 
 function _createTimeLimit(difficulty) {
   return (kTimeLimitDaysBase
@@ -45,7 +45,7 @@ struct Quest {
     reportSiteId,
     interpolations: List,
     contribution,
-    organizationId,
+    sectId,
   }) {
     this.kind = kind;
     assert(game.quests.containsKey(this.kind), 'invalid quest kind: ${this.kind}');
@@ -68,11 +68,11 @@ struct Quest {
     
     this.reward.add({
       type: 'contribution',
-      amount: this.contribution,
-      organizationId: organizationId,
+      amount: contribution,
+      sectId: sectId,
       locationId: acquiredFromSiteId,
     })
-    this.organizationId = organizationId;
+    this.sectId = sectId;
     this.reportSiteId = reportSiteId;
     assert(reportSiteId != null, 'Quest constructor: reportSiteId must not be null');
     this.interpolations = interpolations;
@@ -86,7 +86,7 @@ namespace Quests {
   // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
   function deliver_material(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final sites = game.locations.values
       .where((loc) {
@@ -102,13 +102,13 @@ namespace Quests {
 
     let receiver
     let characters
-    if (organization != null) {
-      characters = organization.membersData.keys
+    if (sect != null) {
+      characters = sect.membersData.keys
         .map((id) => game.characters[id])
         .where((char) => char.rank == difficulty)
     } else {
       characters = game.characters.values
-        .where((char) => char.rank == difficulty && char.organizationId == null)
+        .where((char) => char.rank == difficulty && char.sectId == null)
     }
     if (characters.isNotEmpty) {
       receiver = random.nextIterable(characters)
@@ -161,7 +161,7 @@ namespace Quests {
       ],
       reportSiteId: endSite.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     )
     return quest;
   }
@@ -171,7 +171,7 @@ namespace Quests {
   // 运送时可能遇到其他修士抢劫，几率与材料数量和价值成正比
   function deliver_item(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final sites = game.locations.values
       .where((loc)  {
@@ -187,13 +187,13 @@ namespace Quests {
 
     let receiver
     let characters
-    if (organization != null) {
-      characters = organization.membersData.keys
+    if (sect != null) {
+      characters = sect.membersData.keys
         .map((id) => game.characters[id])
         .where((char) => char.rank == difficulty)
     } else {
       characters = game.characters.values
-        .where((char) => char.rank == difficulty && char.organizationId == null)
+        .where((char) => char.rank == difficulty && char.sectId == null)
     }
     if (characters.isNotEmpty) {
       receiver = random.nextIterable(characters)
@@ -254,7 +254,7 @@ namespace Quests {
       ],
       reportSiteId: endSite.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     )
     return quest;
   }
@@ -263,7 +263,7 @@ namespace Quests {
   // 陪同某个人从一个据点的某个场景到另一个据点的某个场景
   function escort(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final sites = game.locations.values
       .where((loc)  {
@@ -279,13 +279,13 @@ namespace Quests {
 
     let escortee
     let characters
-    if (organization != null) {
-      characters = organization.membersData.keys
+    if (sect != null) {
+      characters = sect.membersData.keys
         .map((id) => game.characters[id])
         .where((char) => char.rank == difficulty)
     } else {
       characters = game.characters.values
-        .where((char) => char.rank == difficulty && char.organizationId == null)
+        .where((char) => char.rank == difficulty && char.sectId == null)
     }
     if (characters.isNotEmpty) {
       escortee = random.nextIterable(characters)
@@ -332,7 +332,7 @@ namespace Quests {
       ],
       reportSiteId: endSite.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     )
     return quest;
   }
@@ -341,7 +341,7 @@ namespace Quests {
   // 报酬是剩余的预算
   function purchase_material(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
@@ -376,7 +376,7 @@ namespace Quests {
       },
       reportSiteId: cityhall.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     )
     return quest;
   }
@@ -385,7 +385,7 @@ namespace Quests {
   // 报酬是剩余的预算
   function purchase_item(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
@@ -449,7 +449,7 @@ namespace Quests {
       },
       reportSiteId: cityhall.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     )
     return quest;
   }
@@ -457,7 +457,7 @@ namespace Quests {
   // 探索某个隐藏据点
   function discover_location(cityhall, {
     difficulty = 0,
-    organization,
+    sect,
   }) {
     final atLocation = game.locations[cityhall.atLocationId]
     assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
@@ -502,7 +502,7 @@ namespace Quests {
       ],
       reportSiteId: cityhall.id,
       interpolations: interpolations,
-      organizationId: organization?.id,
+      sectId: sect?.id,
     );
     return quest;
   }
@@ -519,13 +519,12 @@ function initEscort(quest) {
     escortType = 'acquintance'
   }
 
-  if (escortee.organizationId && escortee.organizationId == hero.organizationId) {
-    final organization = game.organizations[escortee.organizationId]
-    final escorteeMemberData = organization.membersData[escortee.id]
-    final heroMemberData = organization.membersData[hero.id]
-    if (escorteeMemberData.rank > heroMemberData.rank) {
+  if (escortee.sectId && escortee.sectId == hero.sectId) {
+    final sect = game.sects[escortee.sectId]
+    final escortee = game.characters[escorteeId];
+    if (escortee.sectJobRank > hero.sectJobRank) {
       escortType = 'superior'
-    } else if (escorteeMemberData.rank < heroMemberData.rank) {
+    } else if (escortee.sectJobRank < hero.sectJobRank) {
       escortType = 'respectful'
     }
   } else {
@@ -544,7 +543,7 @@ function initEscort(quest) {
 }
 
 function createQuest(cityhall, {
-  kind, organization,
+  kind, sect,
   isBounty = false,
   policy,
   maxDifficulty: integer,
@@ -564,7 +563,7 @@ function createQuest(cityhall, {
     quest = ctor(
       cityhall,
       difficulty: difficulty,
-      organization: organization,
+      sect: sect,
     )
   }
 
@@ -573,8 +572,8 @@ function createQuest(cityhall, {
 
 /// 刷新悬赏任务，这里不检查据点类型
 function replenishBounty(location) {
-  // 此处的 organization 可能为 null
-  final organization = game.organizations[location.organizationId]
+  // 此处的 sect 可能为 null
+  final sect = game.sects[location.sectId]
   
   // 清空现有悬赏任务
   location.bounties = []
@@ -582,7 +581,7 @@ function replenishBounty(location) {
   final amount = kBaseBountyReplenishAmount + location.development
   for (var i in range(amount)) {
     final bountyQuest = createQuest(location,
-      organization: organization,
+      sect: sect,
       isBounty: true,
       maxDifficulty: location.development,
     )
@@ -590,13 +589,13 @@ function replenishBounty(location) {
   }
 }
 
-function generateOrganizationQuests(organization, location) {
+function generateSectQuests(sect, location) {
   final quests = []
 
-  for (var i in range (kOrganizationQuestCount)) {
+  for (var i in range (kSectQuestCount)) {
     final quest = createQuest(location,
-      organization: organization,
-      policy: organization.policies[location.id],
+      sect: sect,
+      policy: sect.policies[location.id],
       maxDifficulty: hero.rank,
     )
     quests.add(quest)

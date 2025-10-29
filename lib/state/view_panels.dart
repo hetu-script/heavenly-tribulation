@@ -5,6 +5,9 @@ enum ViewPanels {
   memoryAndBond,
   journal,
   statsAndItem,
+  sectInformation,
+  cityInformation,
+  siteInformation,
   workbench,
   alchemy,
 }

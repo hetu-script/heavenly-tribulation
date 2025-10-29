@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:hetu_script/utils/collection.dart';
+import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
@@ -108,7 +108,7 @@ class GameData {
   static final Map<String, dynamic> maps = {};
 
   static final Map<String, (String, String)> attributeNames = {};
-  static final Map<String, String> organizationCategoryNames = {};
+  static final Map<String, String> sectCategoryNames = {};
   static final Map<String, String> cultivationGenreNames = {};
   static final Map<String, String> cityKindNames = {};
   static final Map<String, String> siteKindNames = {};
@@ -172,10 +172,10 @@ class GameData {
     return location;
   }
 
-  static dynamic getOrganization(dynamic id) {
-    final organization = GameData.game['organizations'][id];
-    assert(organization != null, 'Organization not found, id: $id');
-    return organization;
+  static dynamic getSect(dynamic id) {
+    final sect = GameData.game['sects'][id];
+    assert(sect != null, 'sect not found, id: $id');
+    return sect;
   }
 
   static void addMonthly(
@@ -292,7 +292,7 @@ class GameData {
 
           for (final genre in kCultivationGenres) {
             // 每一个皮肤对于每个流派而言有不同的站姿和启动和返回动作
-            final Map skinAnimData = deepCopy(templateData);
+            final Map skinAnimData = utils.deepCopy(templateData);
             skinAnimData.remove('skins');
 
             skinAnimData['stand'] = skinAnimData['${genre}_stand'];
@@ -784,7 +784,11 @@ class GameData {
     }
   }
 
-  static CustomGameCard getSiteCard(dynamic siteData) {
+  static CustomGameCard getSiteCard(
+    dynamic siteData, {
+    void Function()? onPreviewed,
+    void Function()? onUnpreviewed,
+  }) {
     final id = siteData['id'];
     final card = CustomGameCard(
       id: id,
@@ -806,6 +810,8 @@ class GameData {
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: siteData['image'],
+      onPreviewed: onPreviewed,
+      onUnpreviewed: onUnpreviewed,
     );
     card.index = siteData['priority'] ?? 0;
     return card;
@@ -817,6 +823,8 @@ class GameData {
     required String title,
     Vector2? position,
     int index = 0,
+    void Function()? onPreviewed,
+    void Function()? onUnpreviewed,
   }) {
     final card = CustomGameCard(
       id: id ?? spriteId,
@@ -839,6 +847,8 @@ class GameData {
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: spriteId,
+      onPreviewed: onPreviewed,
+      onUnpreviewed: onUnpreviewed,
     );
     card.index = index;
     return card;
@@ -1239,7 +1249,7 @@ class GameData {
     assert(_isInitted, 'Game data is not loaded yet!');
     assert(GameUI.isInitted, 'Game UI is not initted yet!');
 
-    final cardData = deepCopyData ? deepCopy(data) : data;
+    final cardData = deepCopyData ? utils.deepCopy(data) : data;
 
     final String id = cardData['id'];
     final String image = cardData['image'];
@@ -1336,9 +1346,8 @@ class GameData {
           desc.write('$amount $name');
         case 'contribution':
           final amount = itemInfo['amount'] ?? 0;
-          final organizationId = itemInfo['organizationId'];
-          if (organizationId != null &&
-              hero['organizationId'] != organizationId) {
+          final sectId = itemInfo['sectId'];
+          if (sectId != null && hero['sectId'] != sectId) {
             desc.write('${amount ~/ 2} ${engine.locale('contribution')}');
             desc.write(' (${engine.locale('contribution_note')})');
           } else {
@@ -1419,13 +1428,13 @@ class GameData {
     final homeLocation = GameData.game['locations'][homeLocationId];
     row.add(homeLocation?['name'] ?? engine.locale('none'));
     // 门派名字
-    String organizationName = engine.locale('none');
-    final organizationId = character['organizationId'];
-    if (organizationId != null) {
-      final organization = GameData.getOrganization(organizationId);
-      organizationName = organization['name'];
+    String sectName = engine.locale('none');
+    final sectId = character['sectId'];
+    if (sectId != null) {
+      final sect = GameData.getSect(sectId);
+      sectName = sect['name'];
     }
-    row.add(organizationName);
+    row.add(sectName);
     // 称号
     final titleId = character['titleId'];
     row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
@@ -1435,9 +1444,8 @@ class GameData {
   }
 
   static List<String> getMemberInformationRow(dynamic character) {
-    final organizationId = character['organizationId'];
-    assert(organizationId != null,
-        'Character has no organization: ${character['name']}');
+    final sectId = character['sectId'];
+    assert(sectId != null, 'Character has no sect: ${character['name']}');
 
     final row = <String>[];
     row.add(character['name']);
@@ -1452,8 +1460,8 @@ class GameData {
     row.add('${character['level']}');
     row.add(engine.locale('cultivationRank_${character['rank']}'));
 
-    final organization = GameData.getOrganization(organizationId);
-    final memberData = organization['membersData'][character['id']];
+    final sect = GameData.getSect(sectId);
+    final memberData = sect['membersData'][character['id']];
     // 职位
     final titleId = memberData['titleId'];
     row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
@@ -1491,18 +1499,18 @@ class GameData {
     row.add('[${worldPosition['left']}, ${worldPosition['top']}]');
     // 类型
     row.add(engine.locale(location['kind']));
-    // 发展度
+    // 规模
     row.add(location['development'].toString());
     // 居民
     row.add(location['residents'].length.toString());
     // 门派名字
-    String organizationName = engine.locale('none');
-    final organizationId = location['organizationId'];
-    if (organizationId != null) {
-      final organization = GameData.getOrganization(organizationId);
-      organizationName = organization['name'];
+    String sectName = engine.locale('none');
+    final sectId = location['sectId'];
+    if (sectId != null) {
+      final sect = GameData.getSect(sectId);
+      sectName = sect['name'];
     }
-    row.add(organizationName);
+    row.add(sectName);
     // 管理者
     String? managerId = location['managerId'];
     if (managerId != null) {
@@ -1516,23 +1524,22 @@ class GameData {
     return row;
   }
 
-  static List<String> getOrganizationInformationRow(dynamic organization) {
+  static List<String> getSectInformationRow(dynamic sect) {
     final row = <String>[];
-    row.add(organization['name']);
+    row.add(sect['name']);
     // 掌门
-    final headId = organization['headId'];
+    final headId = sect['headId'];
     final head = GameData.getCharacter(headId);
     row.add(head['name']);
     // 类型
-    row.add(engine.locale(organization['category']));
+    row.add(engine.locale(sect['category']));
     // 流派
-    row.add(engine.locale(organization['genre']));
+    row.add(engine.locale(sect['genre']));
     // 总堂
-    final headquarters =
-        GameData.getLocation(organization['headquartersLocationId']);
+    final headquarters = GameData.getLocation(sect['headquartersLocationId']);
     row.add(headquarters['name']);
     // 据点数量
-    final locationIds = organization['locationIds'] as List;
+    final locationIds = sect['locationIds'] as List;
     row.add(locationIds
         .where((id) {
           final location = GameData.getLocation(id);
@@ -1541,10 +1548,80 @@ class GameData {
         .length
         .toString());
     // 成员数量
-    row.add(organization['membersData'].length.toString());
-    row.add('${organization['recruitMonth']}${engine.locale('dateMonth')}');
+    row.add(sect['membersData'].length.toString());
+    row.add('${sect['recruitMonth']}${engine.locale('dateMonth')}');
     // 多存一个隐藏的 id 信息，用于点击事件
-    row.add(organization['id']);
+    row.add(sect['id']);
     return row;
+  }
+
+  /// return: (isPaused, isDeveloping, progress, max, statusString, costDescription)
+  static (bool, int, int, String, String) getLocationDevelopmentStatus(
+      dynamic location) {
+    final status = location['updateStatus'] ?? {};
+
+    final bool isPaused = status['isPaused'] == true;
+    final bool isDeveloping = status['isDeveloping'] == true;
+    final int progress = status['progress'] ?? 0;
+    final int max = status['max'] ?? 0;
+
+    String statusString = '';
+    if (isDeveloping) {
+      if (isPaused) {
+        statusString =
+            '<bold red>${engine.locale('updateStatusDevelopingPaused')}</>';
+      } else {
+        statusString =
+            '<bold yellow>${engine.locale('updateStatusDeveloping')}</>';
+      }
+    } else {
+      if (isPaused) {
+        statusString = '<bold red>${engine.locale('updateStatusPaused')}</>';
+      } else {
+        statusString =
+            '<bold lightGreen>${engine.locale('updateStatusNormal')}</>';
+      }
+    }
+
+    String costDescription = '';
+    final cost = status['cost'];
+    if (cost != null) {
+      StringBuffer desc = StringBuffer();
+      desc.writeln(
+          '<grey>${engine.locale('maintainanceCost_description')}</>\n ');
+      desc.writeln('${engine.locale('maintainanceCostPerDay')}:');
+      for (final materialId in cost.keys) {
+        final amount = cost[materialId];
+        if (amount == null) continue;
+        if (isDeveloping) {
+          desc.writeln('<yellow>${engine.locale(materialId)}: $amount</>');
+        } else {
+          desc.writeln('${engine.locale(materialId)}: $amount');
+        }
+      }
+      costDescription = desc.toString();
+    } else {
+      costDescription =
+          '${engine.locale('maintainanceCostPerDay')}:\n \n${engine.locale('none')}';
+    }
+
+    return (isDeveloping, progress, max, statusString, costDescription);
+  }
+
+  static String getLocationDevelopmentCostDescription(
+      Map<String, int> developmentCost) {
+    StringBuffer desc = StringBuffer();
+    desc.writeln('<grey>${engine.locale('developmentCost_description')}</>\n ');
+    final int days = developmentCost['days']!;
+    desc.writeln('${engine.locale('developmentDays')}: $days\n ');
+    desc.writeln(
+        '${engine.locale('maintainanceCostIncreasedToDuringDevelopment')}:');
+    for (final materialId in developmentCost.keys) {
+      if (materialId == 'days') continue;
+      final amount = developmentCost[materialId];
+      if (amount == null) continue;
+      desc.writeln('${engine.locale(materialId)}: $amount');
+    }
+    return desc.toString();
   }
 }

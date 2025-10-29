@@ -1,5 +1,6 @@
 import 'package:samsara/extensions.dart';
 import 'package:fast_noise/fast_noise.dart';
+import 'package:samsara/colors.dart';
 
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
@@ -21,9 +22,14 @@ const kSpriteScale = 2.0;
 
 const kTimeFlowInterval = 500;
 
-final class GameEvents {
-  static const heroPassivesUpdated = 'hero_passives_updated';
-}
+const kTicksPerTime = 24; // 每个时辰的 tick 数，tick 是游戏的最小时间单位
+const kTimesPerDay = 4; // 每天的时辰数
+const kTicksPerDay = kTimesPerDay * kTicksPerTime; // 每天的 tick 数 96
+const kDaysPerMonth = 30; // 每月的天数
+const kTicksPerMonth = kDaysPerMonth * kTicksPerDay; // 每月的 tick 数 2880
+const kMonthsPerYear = 12; // 每年的月数
+const kDaysPerYear = kDaysPerMonth * kMonthsPerYear; // 每年的天数
+const kTicksPerYear = kDaysPerYear * kTicksPerDay; // 每年的 tick 数 34560
 
 enum SceneStates {
   mainmenu,
@@ -39,8 +45,8 @@ const kTips = {
   'tips_level',
   'tips_rarity',
   'tips_bounty_quest',
-  'tips_organization_quest',
-  'tips_organization_policy',
+  'tips_sect_quest',
+  'tips_sect_policy',
   'tips_master_apprentice',
   'tips_work_and_produce',
   'tips_identify_item',
@@ -61,121 +67,121 @@ const kTerrainKindToNaturalResources = {
     'water': 0,
     'grain': 5,
     'meat': 1,
+    'ore': 1,
     'leather': 1,
     'herb': 2,
     'timber': 2,
     'stone': 1,
-    'ore': 1,
     'spirit': 1,
   },
   'mountain': {
     'water': 0,
     'grain': 3,
     'meat': 3,
+    'ore': 3,
     'leather': 3,
     'herb': 4,
     'timber': 4,
     'stone': 5,
-    'ore': 3,
     'spirit': 4,
   },
   'forest': {
     'water': 0,
     'grain': 2,
     'meat': 4,
+    'ore': 1,
     'leather': 4,
     'herb': 5,
     'timber': 5,
     'stone': 1,
-    'ore': 1,
     'spirit': 3,
   },
   'snow_plain': {
     'water': 3,
     'grain': 1,
     'meat': 1,
+    'ore': 1,
     'leather': 1,
     'herb': 1,
     'timber': 1,
     'stone': 1,
-    'ore': 1,
     'spirit': 2,
   },
   'snow_mountain': {
     'water': 0,
     'grain': 1,
     'meat': 1,
+    'ore': 2,
     'leather': 1,
     'herb': 3,
     'timber': 2,
     'stone': 3,
-    'ore': 2,
     'spirit': 5,
   },
   'snow_forest': {
     'water': 0,
     'grain': 1,
     'meat': 2,
+    'ore': 1,
     'leather': 2,
     'herb': 4,
     'timber': 3,
     'stone': 1,
-    'ore': 1,
     'spirit': 4,
   },
   'shore': {
     'water': 0,
     'grain': 0,
     'meat': 1,
+    'ore': 1,
     'leather': 1,
     'herb': 2,
     'timber': 1,
     'stone': 1,
-    'ore': 1,
     'spirit': 1,
   },
   'shelf': {
     'water': 4,
     'grain': 0,
     'meat': 2,
+    'ore': 0,
     'leather': 0,
     'herb': 0,
     'timber': 0,
     'stone': 0,
-    'ore': 0,
     'spirit': 1,
   },
   'lake': {
     'water': 5,
     'grain': 0,
     'meat': 3,
+    'ore': 0,
     'leather': 0,
     'herb': 0,
     'timber': 0,
     'stone': 0,
-    'ore': 0,
     'spirit': 3,
   },
   'sea': {
     'water': 5,
     'grain': 0,
     'meat': 4,
+    'ore': 0,
     'leather': 0,
     'herb': 0,
     'timber': 0,
     'stone': 0,
-    'ore': 0,
     'spirit': 1,
   },
   'river': {
     'water': 3,
     'grain': 0,
     'meat': 2,
+    'ore': 0,
     'leather': 0,
     'herb': 0,
     'timber': 0,
     'stone': 0,
-    'ore': 0,
     'spirit': 2,
   },
 };
@@ -382,55 +388,55 @@ final kRarityDistribution = [0.01, 0.04, 0.09, 0.22, 0.45, 1.0];
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
     /// 凡品
-    'common' => HexColor.fromString('#B4B4B4'),
+    'common' => RankedColors.common,
 
     /// 良品
-    'rare' => HexColor.fromString('#D4FFFF'),
+    'rare' => RankedColors.rare,
 
     /// 上品
-    'epic' => HexColor.fromString('#9D9DFF'),
+    'epic' => RankedColors.epic,
 
     /// 极品
-    'legendary' => HexColor.fromString('#693DA8'),
+    'legendary' => RankedColors.legendary,
 
     /// 绝品
-    'mythic' => HexColor.fromString('#E7E7AC'),
+    'mythic' => RankedColors.mythic,
 
     /// 神品
-    'arcane' => HexColor.fromString('#C65043'),
+    'arcane' => RankedColors.arcane,
 
     /// 其他
-    _ => HexColor.fromString('#B4B4B4'),
+    _ => RankedColors.common,
   };
 }
 
 Color getColorFromRank(int rank) {
   return switch (rank) {
     /// 无境界 根据背景，一般是黑或白
-    0 => HexColor.fromString('#B4B4B4'),
+    0 => RankedColors.common,
 
     /// 凝气 灰
-    1 => HexColor.fromString('#D4FFFF'),
+    1 => RankedColors.rare,
 
     /// 筑基 蓝
-    2 => HexColor.fromString('#9D9DFF'),
+    2 => RankedColors.epic,
 
     /// 结丹 紫
-    3 => HexColor.fromString('#693DA8'),
+    3 => RankedColors.legendary,
 
     /// 还婴 金
-    4 => HexColor.fromString('#E7E7AC'),
+    4 => RankedColors.mythic,
 
     /// 化神 红
-    5 => HexColor.fromString('#C65043'),
+    5 => RankedColors.arcane,
 
     /// 其他
-    _ => HexColor.fromString('#B4B4B4'),
+    _ => RankedColors.common,
   };
 }
 
 /// 组织的类型即动机，代表了不同的发展方向
-const kOrganizationCategories = {
+const kSectCategories = {
   'wuwei', // 无为：清净，隐居，不问世事
   'cultivation', // 修真：功法，战斗
   'immortality', // 长生：宗教，等级，境界
@@ -463,6 +469,11 @@ const kLocationCityKinds = {
   'island',
   'mountain',
 };
+
+// 门派总堂，每个门派在总部的默认建筑，用来管理门派
+const kLocationKindHeadquarters = 'headquarters';
+// 据点总堂，每个城市默认建筑，用来管理据点
+const kLocationKindCityhall = 'cityhall';
 
 const kLocationSiteKinds = {
   'home',
@@ -539,30 +550,363 @@ const kSiteKindToAttribute = {
   'mine': 'strength',
 };
 
+const kSiteDevelopmentDaysBase = 5;
+const kCityDevelopmentDaysBase = 10;
+const kSectDevelopmentDaysBase = 20;
+
+/// 所有的据点和建筑升级，每天所要消耗的基础资源
+/// 实际消耗主要取决于开发所需要的总时间
+
 const kSiteKindsManagable = {
-  'tradinghouse',
-  'daostele',
-  'exparray',
-  'library',
-  'arena',
-  'militarypost',
-  'auctionhouse',
-  'hotel',
-  'workshop',
-  'enchantshop',
-  'alchemylab',
-  'tattooshop',
-  'runelab',
-  'arraylab',
-  'illusionaltar',
-  'psychictemple',
-  'divinationaltar',
-  'theurgytemple',
-  'farmland',
-  'timberland',
-  'fishery',
-  'huntingground',
-  'mine',
+  'home': {
+    'developmentCost': {
+      'money': 50,
+      'worker': 2,
+      'water': 1,
+      'timber': 2,
+      'stone': 1,
+    },
+  },
+  'headquarters': {
+    'developmentCost': {
+      'money': 1000,
+      'worker': 25,
+      'timber': 8,
+      'stone': 8,
+    },
+  },
+  'cityhall': {
+    'developmentCost': {
+      'money': 500,
+      'worker': 10,
+      'water': 1,
+      'ore': 1,
+      'leather': 1,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+  },
+  'tradinghouse': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'timber': 2,
+      'stone': 2,
+    },
+    'maintainanceCost': {
+      'money': 100,
+      'worker': 2,
+    },
+  },
+  'daostele': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'timber': 1,
+      'stone': 4,
+      'ore': 2,
+      'herb': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 5,
+    },
+  },
+  'exparray': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 2,
+      'ore': 1,
+      'herb': 1,
+      'timber': 2,
+      'stone': 2,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 5,
+    },
+  },
+  'library': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'leather': 1,
+      'herb': 1,
+      'timber': 5,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 5,
+    },
+  },
+  'arena': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'ore': 1,
+      'herb': 1,
+      'timber': 2,
+      'stone': 4,
+    },
+    'maintainanceCost': {
+      'money': 200,
+      'worker': 2,
+    },
+  },
+  'militarypost': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'ore': 2,
+      'leather': 2,
+      'timber': 2,
+      'stone': 2,
+    },
+    'maintainanceCost': {
+      'money': 500,
+      'worker': 2,
+    },
+  },
+  'auctionhouse': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'leather': 3,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 5,
+    },
+  },
+  'hotel': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 1,
+      'leather': 1,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'money': 500,
+      'worker': 3,
+    },
+  },
+  'workshop': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'timber': 3,
+      'stone': 5,
+    },
+    'maintainanceCost': {
+      'money': 500,
+      'worker': 3,
+    },
+  },
+  'enchantshop': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'timber': 5,
+      'stone': 3,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'alchemylab': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 1,
+      'leather': 1,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'tattooshop': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 1,
+      'leather': 1,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'runelab': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 1,
+      'leather': 1,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'arraylab': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 2,
+      'timber': 3,
+      'stone': 2,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'illusionaltar': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 2,
+      'herb': 1,
+      'timber': 3,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'psychictemple': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 1,
+      'ore': 2,
+      'herb': 2,
+      'timber': 2,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'divinationaltar': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'ore': 2,
+      'herb': 1,
+      'timber': 2,
+      'stone': 3,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'theurgytemple': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'ore': 2,
+      'herb': 2,
+      'timber': 2,
+      'stone': 2,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 3,
+    },
+  },
+  'farmland': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 2,
+      'herb': 1,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'money': 50,
+      'worker': 1,
+    },
+  },
+  'timberland': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 2,
+      'timber': 1,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'money': 50,
+      'worker': 1,
+    },
+  },
+  'fishery': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'water': 2,
+      'timber': 2,
+    },
+    'maintainanceCost': {
+      'money': 50,
+      'worker': 1,
+    },
+  },
+  'huntingground': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'herb': 1,
+      'timber': 2,
+      'stone': 1,
+    },
+    'maintainanceCost': {
+      'money': 50,
+      'worker': 1,
+    },
+  },
+  'mine': {
+    'developmentCost': {
+      'money': 200,
+      'worker': 5,
+      'timber': 1,
+      'stone': 3,
+    },
+    'maintainanceCost': {
+      'money': 50,
+      'worker': 1,
+    },
+  },
 };
 
 const kSiteKindsBuildable = {
@@ -616,7 +960,7 @@ const kSiteProductionMainMaterialProduceProbability = {
   'mine': 0.75,
 };
 
-const kOrganizationCategoryToSiteKind = {
+const kSectCategoryToSiteKind = {
   'wuwei': 'daostele',
   'cultivation': 'library',
   'immortality': 'exparray',
@@ -626,7 +970,7 @@ const kOrganizationCategoryToSiteKind = {
   'pleasure': 'hotel',
 };
 
-const kOrganizationCategoryExpansionRate = {
+const kSectCategoryExpansionRate = {
   'wuwei': 0.2,
   'cultivation': 0.5,
   'immortality': 0.3,
@@ -636,7 +980,7 @@ const kOrganizationCategoryExpansionRate = {
   'pleasure': 0.4,
 };
 
-const kOrganizationGenreToSiteKinds = {
+const kSectGenreToSiteKinds = {
   'swordcraft': [
     'workshop',
     // 'enchantshop',
@@ -699,7 +1043,7 @@ final kSiteWorkableMounths = {
 };
 
 /// 工作时消耗的体力值
-final kSiteWorkableBaseStaminaCost = {
+final kSiteWorkableStaminaCost = {
   'farmland': 1,
   'fishery': 2,
   'huntingground': 3,
@@ -766,25 +1110,8 @@ const List<String> kDamageTypes = [
   DamageType.pure,
 ];
 
-const kTicksPerTime = 24; // 每个时间段的 tick 数，tick 是游戏的最小时间单位
-const kTimesPerDay = 4; //每天的时间段数
-const kTicksPerDay = kTimesPerDay * kTicksPerTime; //每天的 tick 数 24
-const kDaysPerMonth = 30; //每月的天数
-const kTicksPerMonth = kDaysPerMonth * kTicksPerDay; //每月的 tick 数 720
-const kMonthsPerYear = 12; //每年的月数
-const kDaysPerYear = kDaysPerMonth * kMonthsPerYear; //每年的天数
-const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的 tick 数 8640
-
-enum ItemType {
-  none,
-  player,
-  npc,
-  customer,
-  merchant,
-}
-
-const kBaseBuyRate = 1.0;
-const kBaseSellRate = 0.75;
+const kBuyRateBase = 1.0;
+const kSellRateBase = 0.75;
 
 const kMinSellRate = 0.1;
 const kMinBuyRate = 0.1;
@@ -792,6 +1119,10 @@ const kMinBuyRate = 0.1;
 const kPriceFavorRate = 0.1;
 const kPriceFavorIncrement = 0.05;
 
+/// money 和 shard 是在任何地方随时可以交换的货币
+/// worker 是建造和维护必须的一种特殊资源，可以理解为劳动合同
+/// water grain meat ore leather 是消耗性资源，建筑每天会固定消耗
+/// timber 和 stone 主要用于建造和升级建筑
 const kMaterialKinds = [
   'money',
   'shard',
@@ -799,11 +1130,11 @@ const kMaterialKinds = [
   'water',
   'grain',
   'meat',
+  'ore',
   'leather',
   'herb',
   'timber',
   'stone',
-  'ore',
 ];
 
 const kNonCurrencyMaterialKinds = [
@@ -811,60 +1142,60 @@ const kNonCurrencyMaterialKinds = [
   'water',
   'grain',
   'meat',
+  'ore',
   'leather',
   'herb',
   'timber',
   'stone',
-  'ore',
 ];
 
 const kNaturalResourceKinds = [
   'water',
   'grain',
   'meat',
+  'ore',
   'leather',
   'herb',
   'timber',
   'stone',
-  'ore',
   'spirit',
 ];
 
-final kMaterialBasePrice = {
-  'shard': 10000,
-  'worker': 20,
-  'water': 45,
-  'grain': 15,
-  'meat': 45,
-  'herb': 55,
-  'leather': 75,
-  'timber': 105,
-  'stone': 60,
-  'ore': 160,
+final kMaterialPrice = {
+  'shard': 1000,
+  'worker': 2,
+  'water': 5,
+  'grain': 2,
+  'meat': 5,
+  'ore': 16,
+  'herb': 6,
+  'leather': 8,
+  'timber': 10,
+  'stone': 6,
 };
 
-const kUnknownItemBasePrice = 100;
+const kUnknownItemPrice = 10;
 
 /// 物品的基础价格
-final kBasePriceByCategory = {
-  'craftmaterial_addAffix': 3500,
-  'craftmaterial_replaceAffix': 7500,
-  'craftmaterial_rerollAffix': 10000,
-  'craftmaterial_upgrade': 35000,
-  'dungeon_ticket': 20000,
-  'cardpack': 7000,
-  'scroll_paper': 3500,
-  'identify_scroll': 750,
-  'weapon': 200,
-  'shield': 100,
-  'armor': 100,
-  'gloves': 100,
-  'helmet': 100,
-  'boots': 200,
-  'vehicle': 750,
-  'jewelry': 350,
-  'talisman': 500,
-  'potion': 100,
+final kItemPriceByCategory = {
+  'craftmaterial_addAffix': 350,
+  'craftmaterial_replaceAffix': 750,
+  'craftmaterial_rerollAffix': 1000,
+  'craftmaterial_upgrade': 3500,
+  'dungeon_ticket': 2000,
+  'cardpack': 700,
+  'scroll_paper': 350,
+  'identify_scroll': 75,
+  'weapon': 20,
+  'shield': 10,
+  'armor': 10,
+  'gloves': 10,
+  'helmet': 10,
+  'boots': 20,
+  'vehicle': 75,
+  'jewelry': 35,
+  'talisman': 50,
+  'potion': 10,
 };
 
 const kItemWithAffixCategories = [
@@ -924,6 +1255,8 @@ const kBaseTurnActionThreshold = 10;
 const kMaxTurnActionThreshold = 15;
 const kMinTurnActionThreshold = 5;
 
+const kLocationKindHome = 'home';
+
 const kTerrainKindsLand = ['plain', 'shore', 'forest', 'city'];
 const kTerrainKindsWater = ['sea', 'river', 'lake', 'shelf'];
 const kTerrainKindsMountain = ['mountain'];
@@ -934,7 +1267,7 @@ const kTerrainKindsAll = [
 ];
 
 /// 战斗结束后生命恢复比例计算时，
-const kBaseAfterBattleHPRestoreRate = 0.25;
+const kLifeRestoreRateAfterBattle = 0.25;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;
@@ -1489,7 +1822,7 @@ final kNpcIds = [
   ...kSiteKindToNpcId.values,
 ];
 
-const kLocationManualReplenishCostBase = 4500;
+const kLocationManualReplenishCostBase = 50;
 
 const kEstimatePriceFactor = 0.8;
 const kEstimatePriceRange = {
@@ -1520,20 +1853,22 @@ const kWealthTrialCost = 5;
 const kPleasureTrialMinCharisma = 70;
 
 const kRecruitCityRequirementContribution = 50;
-const kRecruitCityRequirementMoney = 50_0000;
+const kRecruitCityRequirementMoney = 50_000;
 const kRecruitCityRequirementShard = 50;
 
-const kCreateOrganizationRequirementRank = 2;
-const kCreateOrganizationRequirementMoney = 500_0000;
-const kCreateOrganizationRequirementShard = 500;
+const kCreateSectRequirementRank = 2;
+const kCreateSectRequirementMoney = 500_000;
+const kCreateSectRequirementShard = 500;
 
-const kMoveHomeCostBase = 2000;
+const kHomeRelocationCost = 200;
 
 const kHomeLifeRestorePerTime = 2;
+
+const kHotelStableCostPerTime = 50;
+const kHotelNormalCostPerTime = 150;
+const kHotelVipCostPerTime = 500;
+
 const kHotelNormalLifeRestorePerTime = 5;
 const kHotelVipLifeRestorePerTime = 15;
-const kHotelStableCostPerDay = 500;
-const kHotelNormalCostPerDay = 1500;
-const kHotelVipCostPerDay = 5000;
 
 const kItemPriceToContributionRate = 0.001;

@@ -69,8 +69,8 @@ class Constants extends HTExternalClass {
         return kAttackTypes;
       case 'Constants.damageTypes':
         return kDamageTypes;
-      case 'Constants.organizationCategories':
-        return kOrganizationCategories;
+      case 'Constants.sectCategories':
+        return kSectCategories;
       case 'Constants.cultivationGenres':
         return kCultivationGenres;
       case 'Constants.cardpackGenres':
@@ -103,12 +103,12 @@ class Constants extends HTExternalClass {
         return kSiteKindsTradable;
       case 'Constants.productionSiteKinds':
         return kProductionSiteKinds;
-      case 'Constants.organizationCategoryToSiteKind':
-        return kOrganizationCategoryToSiteKind;
-      case 'Constants.organizationCategoryExpansionRate':
-        return kOrganizationCategoryExpansionRate;
-      case 'Constants.organizationGenreToSiteKinds':
-        return kOrganizationGenreToSiteKinds;
+      case 'Constants.sectCategoryToSiteKind':
+        return kSectCategoryToSiteKind;
+      case 'Constants.sectCategoryExpansionRate':
+        return kSectCategoryExpansionRate;
+      case 'Constants.sectGenreToSiteKinds':
+        return kSectGenreToSiteKinds;
       case 'Constants.sitePriority':
         return kSitePriority;
       case 'Constants.ticksPerTime':
@@ -128,17 +128,17 @@ class Constants extends HTExternalClass {
       case 'Constants.ticksPerYear':
         return kTicksPerYear;
       case 'Constants.baseBuyRate':
-        return kBaseBuyRate;
+        return kBuyRateBase;
       case 'Constants.baseSellRate':
-        return kBaseSellRate;
+        return kSellRateBase;
       case 'Constants.minSellRate':
         return kMinSellRate;
       case 'Constants.minBuyRate':
         return kMinBuyRate;
       case 'Constants.materialBasePrice':
-        return kMaterialBasePrice;
+        return kMaterialPrice;
       case 'Constants.basePriceByCategory':
-        return kBasePriceByCategory;
+        return kItemPriceByCategory;
       case 'Constants.itemWithAffixCategories':
         return kItemWithAffixCategories;
       case 'Constants.terrainKindsLand':

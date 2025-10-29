@@ -143,7 +143,7 @@ flutter:
     # - assets/locale/en/
     - assets/locale/zh/
     - assets/locale/zh/minigame/
-    - assets/locale/zh/quest/
+    - assets/locale/zh/journal/
     - assets/locale/zh/rpg/
     - assets/locale/zh/tycoon/
     - assets/locale/zh/ui/
@@ -152,14 +152,14 @@ flutter:
     - assets/save/
 
     - scripts/main/
+    - scripts/main/binding/
     - scripts/main/cardgame/
     - scripts/main/data/
     - scripts/main/data/character/
     - scripts/main/data/item/
     - scripts/main/data/location/
-    - scripts/main/data/organization/
+    - scripts/main/data/sect/
     - scripts/main/event/
-    - scripts/main/logic/
     - scripts/main/name/
     - scripts/main/name/book/
     - scripts/main/name/character/
@@ -202,14 +202,15 @@ flutter:
     - docs/docs/how2play/rpg/item/
     - docs/docs/how2play/rpg/item/consumable/
     - docs/docs/how2play/rpg/item/equipment/
-    - docs/docs/how2play/rpg/organization/
+    - docs/docs/how2play/rpg/sect/
     - docs/docs/how2play/rpg/quest/
 
     - docs/docs/how2play/tutorial/
     - docs/docs/how2play/tycoon/
     - docs/docs/how2play/tycoon/terrain/
     - docs/docs/how2play/tycoon/material/
-    - docs/docs/how2play/tycoon/location/
+    - docs/docs/how2play/tycoon/city/
+    - docs/docs/how2play/tycoon/site/
 
     - docs/docs/story/
     - docs/docs/story/main/

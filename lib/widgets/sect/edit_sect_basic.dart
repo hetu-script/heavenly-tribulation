@@ -10,8 +10,8 @@ import '../../data/common.dart';
 import '../ui/menu_builder.dart';
 import '../../ui.dart';
 
-class EditOrganizationBasics extends StatefulWidget {
-  const EditOrganizationBasics({
+class EditSectBasics extends StatefulWidget {
+  const EditSectBasics({
     super.key,
     this.id,
     this.name,
@@ -29,10 +29,10 @@ class EditOrganizationBasics extends StatefulWidget {
   final dynamic headquartersData;
 
   @override
-  State<EditOrganizationBasics> createState() => _EditOrganizationBasicsState();
+  State<EditSectBasics> createState() => _EditSectBasicsState();
 }
 
-class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
+class _EditSectBasicsState extends State<EditSectBasics> {
   final _idEditingController = TextEditingController();
   final _nameEditingController = TextEditingController();
   final _headIdEditingController = TextEditingController();
@@ -41,7 +41,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
 
   void randomName() {
     _nameEditingController.text =
-        engine.hetu.invoke('generateOrganizationName')['name'];
+        engine.hetu.invoke('generateSectName')['name'];
   }
 
   @override
@@ -65,7 +65,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
 
     _idEditingController.text = widget.id ?? _nameEditingController.text;
 
-    selectedCategory = widget.category ?? kOrganizationCategories.random;
+    selectedCategory = widget.category ?? kSectCategories.random;
     selectedGenre = widget.genre ?? kCultivationGenres.random;
 
     _headIdEditingController.text = widget.headId ?? '';
@@ -150,11 +150,12 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           child: Text('${engine.locale('category')}: '),
                         ),
                         fluent.DropDownButton(
+                          cursor: GameUI.cursor,
                           style: FluentButtonStyles.small,
                           title: Text(engine.locale(selectedCategory)),
                           items: buildFluentMenuItems(
                             items: {
-                              for (final key in kOrganizationCategories)
+                              for (final key in kSectCategories)
                                 engine.locale(key): key,
                             },
                             onSelectedItem: (String value) {
@@ -176,6 +177,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                           child: Text('${engine.locale('genre')}: '),
                         ),
                         fluent.DropDownButton(
+                          cursor: GameUI.cursor,
                           style: FluentButtonStyles.small,
                           title: Text(engine.locale(selectedGenre)),
                           items: buildFluentMenuItems(

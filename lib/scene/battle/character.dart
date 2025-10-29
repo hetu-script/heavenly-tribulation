@@ -11,6 +11,7 @@ import '../../engine.dart';
 import '../../data/game.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
+import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
 
@@ -453,7 +454,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
               handleStatusEffectCallback('self_overflowed_energy', buffDetails);
         }
 
-        if (!engine.hetu.interpreter.truthy(result)) {
+        if (!GameLogic.truthy(result)) {
           effect.amount = maxValue;
           addHintText(
             engine.locale('resourceOverflowed',

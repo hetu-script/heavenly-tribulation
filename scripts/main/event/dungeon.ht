@@ -532,37 +532,37 @@ async function onEnterMap() {
       entity: game.flags.dungeon.battleEntity,
       details: {
         exp: {
-          probability: kRewardProbabilityExppack,
+          chance: kRewardProbabilityExppack,
         },
         money: {
-          probability: kRewardProbabilityMoney,
+          chance: kRewardProbabilityMoney,
         },
         shard: {
-          probability: game.flags.dungeon.isBoss ? 1.0 : 
+          chance: game.flags.dungeon.isBoss ? 1.0 : 
           (game.flags.dungeon.isElite ? 0.6 : kRewardProbabilityShard),
         },
         equipment: {
-          probability: game.flags.dungeon.isBoss ? 0.8 : 
+          chance: game.flags.dungeon.isBoss ? 0.8 : 
           (game.flags.dungeon.isElite ? 0.5 : kRewardProbabilityEquipment),
         },
         potion: {
-          probability: game.flags.dungeon.isBoss ? 0.6 : 
+          chance: game.flags.dungeon.isBoss ? 0.6 : 
           (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityPotion),
         },
         cardpack: {
-          probability: game.flags.dungeon.isBoss ? 0.6 : 
+          chance: game.flags.dungeon.isBoss ? 0.6 : 
           (game.flags.dungeon.isElite ? 0.3 : kRewardProbabilityCardpack),
         },
         scrollPaper: {
-          probability: game.flags.dungeon.isBoss ? 0.45 : 
+          chance: game.flags.dungeon.isBoss ? 0.45 : 
           (game.flags.dungeon.isElite ? 0.25 : kRewardProbabilityScrollPaper),
         },
         craftMaterial: {
-          probability: game.flags.dungeon.isBoss ? 0.65 : 
+          chance: game.flags.dungeon.isBoss ? 0.65 : 
           (game.flags.dungeon.isElite ? 0.35 : kRewardProbabilityCraftMaterial),
         },
         dungeonTicket: {
-          probability: game.flags.dungeon.isBoss ? 0.95 : 
+          chance: game.flags.dungeon.isBoss ? 0.95 : 
           (game.flags.dungeon.isElite ? 0.65 : kRewardProbabilityDungeonTicket),
         },
       },

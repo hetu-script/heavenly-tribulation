@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+// import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import 'stats.dart';
@@ -15,32 +15,7 @@ import '../../ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
-
-const Set<String> kMaterials = {
-  'money',
-  'shard',
-  'worker',
-  'grain',
-  'meat',
-  'water',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-};
-
-const Set<String> kOtherMaterials = {
-  'worker',
-  'grain',
-  'meat',
-  'water',
-  'leather',
-  'herb',
-  'timber',
-  'stone',
-  'ore',
-};
+import '../../scene/common.dart';
 
 enum ItemPopUpMenuItems {
   unequip,
@@ -191,6 +166,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
                 height: 312,
               ),
               Inventory(
+                height: (kDefaultItemGridSize.height + 4.0) * 7,
                 character: _characterData,
                 itemType: ItemType.player,
                 gridsPerLine: 6,
@@ -198,25 +174,18 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
               ),
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0, right: 30.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // Padding(
-                //   padding: const EdgeInsets.only(right: 10.0),
-                //   child: fluent.Button(
-                //     onPressed: () {},
-                //     child: Text(engine.locale('identify')),
-                //   ),
-                // ),
-                fluent.Button(
-                  onPressed: () {},
-                  child: Text(engine.locale('orderBy')),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 10.0, right: 30.0),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.end,
+          //     children: [
+          //       fluent.Button(
+          //         onPressed: () {},
+          //         child: Text(engine.locale('orderBy')),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

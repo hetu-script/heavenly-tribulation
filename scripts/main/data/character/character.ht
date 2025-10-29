@@ -4,7 +4,7 @@ export 'battle_entity.ht'
 const kCharacterImpressionCheck = 10
 
 const kSameRaceScore = 5.0
-const kSameOrganizationScore = 5.0
+const kSameSectScore = 5.0
 const kGenerationScore = 5.0
 const kPeerScore = 2.0
 const kSameHomeLocationScore = 5.0
@@ -12,15 +12,6 @@ const kSameHomeLocationScore = 5.0
 const _kPregnancyTime = Constants.ticksPerMonth * 9
 const _kPregnancyTimeVariable = Constants.ticksPerMonth * 2
 const kChildTime = Constants.ticksPerYear * 12
-
-const kParentCloseness = 45
-const kSpouseCloseness = 40
-const kSiblingCloseness = 30
-const kGrandParentCloseness = 25
-const kfarkinCloseness = 25
-const kConcubineCloseness = 20
-
-const kBaseRomanceScore = 5.0
 
 const _kCharacterRandomAgeMin = 12
 const _kCharacterRandomAgeMax = 29
@@ -89,19 +80,24 @@ const kRelationshipCategories = [
 
 /// 所有的关系类型名称
 /// 及其对应的亲密值
+/// TODO: 离婚或者退出家族、门派后如何处理？
 const kRelationshipScore = {
   family: {
-    // 婚姻关系
+    // 直接关系
     'spouse': 40, // 丈夫妻子
 
     // 血缘关系
     'parent': 45, // 父母
     'child': 45, // 子女
+    'siblings': 35, // 兄弟姐妹
+    
+    // 前任
+    'exspouse': 25,
+
+    // 隔代
     'grandParent': 40, // 祖父母
     'grandChild': 40, // 孙辈
-    'brothers': 35, // 兄弟
-    'sisters': 35, // 姐妹
-
+    
     // 没有特别称呼的关系
     'farfamily': 30, // 亲族，有血缘关系的亲属
     'farkin': 25, // 同族，同一个家族但没有血缘关系
@@ -109,8 +105,7 @@ const kRelationshipScore = {
     // 再婚关系
     'stepParent': 30, // 继父母
     'stepChild': 30, // 继子女
-    'stepBrothers': 30, // 继兄弟
-    'stepSisters': 30, // 继姐妹
+    'stepSiblings': 30, // 继兄弟姐妹
 
     // 收养关系
     'fosterChild': 40, // 养子女
@@ -121,49 +116,18 @@ const kRelationshipScore = {
   },
   sect: {
     'shifu': 45, // 师父
-    'grandShifu': 40, // 师父的师父
-    'daolv': 40, // 道侣
-    'tudi': 30, // 徒弟
-    'grandTudi': 25, // 徒孙
-    'tongmen': 20, // 同一个门派的其他人
-    'luding': 15, // 炉鼎
-  }
-}
+    'tudi': 40, // 徒弟
+    'tongmen': 20, // 同门 (同一个师父)
+    
+    // 前任
+    'exshifu': 25,
+    'extudi': 25,
 
-const kChildRelationships = [
-  'child',
-  'stepChild',
-  'fosterChild',
-]
+    'shizu': 30, // 师祖
+    'tusun': 25, // 徒孙
 
-const kLifespan = {
-  '0': {
-    min: 62,
-    max: 87,
-  },
-  '1': {
-    min: 75,
-    max: 125,
-  },
-  '2': {
-    min: 100, // 前一等级的中心点
-    max: 200, // min + 前一等级跨度的两倍
-  },
-  '3': {
-    min: 150,
-    max: 350,
-  },
-  '4': {
-    min: 250,
-    max: 650,
-  },
-  '5': {
-    min: 450,
-    max: 1250,
-  },
-  '6': {
-    min: 850,
-    max: 2450,
+    'qianbei': 10, // 前辈
+    'wanbei': 10, // 晚辈
   }
 }
 
@@ -177,7 +141,7 @@ function createBirthTimestamp({min = _kCharacterRandomAgeMin, max = _kCharacterR
 /// 生成寿命
 /// 每次提升境界时寿命会重新计算
 function createLifespan(cultivationRank) {
-  let { min, max } = kLifespan[cultivationRank]
+  let { min, max } = getLifeSpanForRank(cultivationRank)
   let minTick = min * Constants.ticksPerYear
   let maxTick = max * Constants.ticksPerYear
   let randomSpan = minTick + random.nextInt(maxTick)
@@ -239,26 +203,20 @@ function _calculateFirstImpression(subject, target) {
   if (subject.race == target.race) {
     score += kSameRaceScore
   }
-  /// 是否属于同一门派
-  if (subject.organizationId && subject.organizationId == target.organizationId) {
-    score += kSameOrganizationScore
-    final organization = game.organizations[subject.organizationId]
-    assert(organization != null, 'organization not exist: ${subject.organizationId}')
-    final subjectJob = organization.membersData[subject.id]
-    final targetJob = organization.membersData[target.id]
-    if (targetJob.rank > subjectJob.rank) {
-      score += kGenerationScore
-    } else if (targetJob.peer > subjectJob.peer) {
-      score += kPeerScore
-    }
-    // if (subjectJob > targetJob) {
-    //   score += organization.characterId[target.id] * 2
+  /// 是否当前属于同一门派
+  if (subject.sectId && subject.sectId == target.sectId) {
+    score += kSameSectScore
+    // final sect = game.sects[subject.sectId]
+    // assert(sect != null, 'sect not exist: ${subject.sectId}')
+    // if (target.jobRank > subject.jobRank) {
+    //   score += kGenerationScore
+    // } else if (targetJob.peer > subjectJob.peer) {
+    //   score += kPeerScore
     // }
   }
   /// 是否有亲戚关系
-  let family = subject.relationships.family[target.id]
-  if (family != null) {
-    score += family.closeness / 10
+  if (subject.familyId && subject.familyId == target.familyId) {
+    score += kSameFamilyScore
   }
   /// 是否当前住在同一个据点，这里不考虑还拥有其他住所的情况
   if (subject.homeLocationId == target.homeLocationId) {
@@ -290,23 +248,8 @@ function _calculateFirstRomance(subject, target) {
   return score
 }
 
-/// 关系网中的个体的地位数据，家庭，师承和组织职位都使用这个数据
-/// [generation] 辈分决定了地位，数字越大，地位越低
-/// [peer] 同辈中的地位，数字越大，地位越低
-struct MemberRankData {
-  constructor ({
-    characterId,
-    rank,
-    peer,
-  }) {
-    this.characterId = characterId
-    this.rank = rank
-    this.peer = peer
-  }
-}
-
-/// 羁绊：人物对其他事物（角色，组织，物品，据点等）的主观印象和评价
-/// 人物对其他人物的羁绊不一定是双向的，可能只有单方面的数据
+/// 羁绊：保存了对其他角色的主观印象和评价
+/// 羁绊不一定是双向的，可能只有单方面的数据
 struct Bond {
   constructor ({
     character,
@@ -319,11 +262,13 @@ struct Bond {
 
     this.id = target.id
     this.name = target.name
-    // 好感度评价
+    // 自己对对象的好感度评价
     this.score = score
-    // 是否见过此对象
+    // 自己是否见过此对象
     this.haveMet = haveMet
-    // 关系类型，注意可以同时存在多种关系
+    // 注意这里是反过来的：
+    // 记录了对象和自己的关系
+    // 注意可以同时存在多种关系
     // 这里只保存关系的 kind
     this.relationships = []
 
@@ -331,431 +276,145 @@ struct Bond {
   }
 }
 
-/// 关系：人和人之间的客观纽带，包括亲情，宗门，爱情，友情(仇恨)，雇佣等等
-/// 分为：亲族、宗门、支配
-/// | 类型  | score >= 0  | score >= 40         | score >= 80     |
-/// | ----- | ----------- | ------------------- | --------------- |
-/// | 亲族  | 远亲        | 血亲/结拜/收养/过继 | 夫妻/父母/儿女  |
-/// | 宗门  | 同门        | 同宗                | 师承            |
-/// | 支配  | 仆役/姬妾   | 高级仆役/侧室       | 主要仆役/正室   |
-/// [category]: 'family', 'sect', 'romance', 'friendship'
-/// [kind]: 'parent', 'spouse'
-/// [addressName]: 称谓，称谓和关系本身的名字不同，比如对外将自己的wife称作妻子，但面对妻子时称呼对方娘子
-/// 配偶、亲情和师徒关系会有[kind]，用来描述具体的关系，其他的关系则只有[category]
-/// 两个人可能同时存在多种不同[category]关系，比如同时是师徒，又是爱人
-/// 新创建关系时，会在双方的数据中同时创建对应的关系数据
-/// 同时也会检索其他的关系图，将所有对应的关系数据添加到和这两个角色有关系的其他角色身上
-/// 创建新关系数据时，如果不存在羁绊[Bond]，会自动添加羁绊数据
-/// 创建关系时本身只有一个初始的亲近程度，0-50 ，数字越大，越亲近，典型值：45代表师父，儿女，40代表夫妻等等。
-/// 但角色之间真正的好感度由羁绊[Bond]维护
-/// 对于亲族、宗门和支配，在创建关系并使用初始亲密更新好感度后，便不会再变化
-/// 但对于爱情、友情和仇恨关系，随着羁绊中的好感度变化，会改变关系的类型。
-/// 在爱情、友情和仇恨关系的第一阶段，并不会出现在Bond.relationships中
-struct Relationship {
+/// 家族或门派成员的地位数据
+/// 包含了职级、头衔和贡献值
+/// 贡献值可能是负的
+struct MemberData {
   constructor ({
-    characterId,
-    category, 
-    kind,
-    addressName,
+    id,
+    rank = 0,
+    peer,
+    generation,
+    isAbsent = false,
   }) {
-    assert(characterId != null)
-    assert(category != null)
-    assert(kRelationshipCategories.contains(category))
-
-    this.characterId = characterId
-    this.category = category
-    this.kind = kind
-
-    // 某些关系，例如亲戚关系和宗门关系有专门的称呼
-    if (addressName) {
-      this.addressName = engine.locale(addressName)
-    }
+    this.id = id
+    this.rank = rank
+    this.peer = peer
+    this.generation = generation
+    this.isAbsent = isAbsent
   }
 }
 
-/// 创建 **单方面** 的浪漫关系，意味着[subject]爱上了[target]
-/// 这里仅涉及浪漫关系，夫妻关系会单独保存
-/// 浪漫关系是单向的，不影响双方已经存在的其他关系
-/// 注意：玩家角色并不能主动发起浪漫关系
-/// 只能有概率的被动触发 NPC 爱上自己的事件
-/// 只有对方爱上自己的情况下，才可以创建婚姻关系
-/// TODO: 当亲密度在0以下，并再次降低时，关系会自动解除
-function createRomance(subject, target) {
-  if (subject.relationships['romance'].containsKey(target.id)) {
-    engine.error('${subject.name} 和 ${target.name} 已经有浪漫关系，不能重复创建！')
-    return
-  }
-
-  let score = _calculateFirstRomance(subject, target)
-  
-  // 亲戚关系会导致亲密度降低
-  let kindRelationship = subject.relationships.family[target.id]
-  if (kindRelationship) {
-    score -= kindRelationship.closeness / 2
-    if (score < 0) {
-      engine.warn('因为亲戚关系的存在，${subject.name} 和 ${target.name} 的初始浪漫关系亲密度过低，将会被忽略！')
-      return
-    }
-  }
-
-  subject.relationships.romance[target.id] = Relationship(
-    characterId: target.id,
-    category: 'romance',
-  )
-
-  updateBond(subject, target, score: score, relationship: 'romance')
-
-  // engine.info('${subject.name}和${target.name}现在是浪漫关系，亲密度提高 [${score}]')
-}
-
-/// 创建 **单方面** 的朋友关系，意味着[subject]认为[target]是自己的朋友
-/// 朋友关系是单向的，不影响双方已经存在的其他关系
-/// 注意：玩家角色并不能主动发起朋友关系
-/// 只能有概率的被动触发 NPC 认可自己为朋友的事件
-/// TODO: 当亲密度在0以下，并再次降低时，关系会自动解除
-function createFriendship(subject, target, [score = 0]) {
-  if (subject.relationships['friendship'].containsKey(target.id)) {
-    engine.error('${subject.name} 和 ${target.name} 已经有朋友关系，不能重复创建！')
-    return
-  }
-
-  assert(score > 0 || score < 0, '朋友关系的初始亲密度必须是非零值！')
-
-  subject.relationships.friendship[target.id] = Relationship(
-    characterId: target.id,
-    category: 'friendship',
-  )
-  
-  updateBond(subject, target, score: score, relationship: score > 0 ? 'friend' : 'enemy')
-
-  // engine.info('${subject.name} 和 ${target.name} 现在是朋友关系，亲密度提高 [${score}]')
-}
-
-function _addSpouseRelationship(subject, target) {
-  final addressName = engine.locale('address_${target.isFemale ? 'wife' : 'husband'}')
-  subject.relationships.family[target.id] = Relationship(
-    characterId: target.id,
-    category: 'family',
-    kind: 'spouse',
-    addressName: addressName,
-  )
-
-  for (final relationship of subject.relationships.family) {
-    if (relationship.characterId == target.id) {
-      continue
-    }
-    final character = game.characters[relationship.characterId]
-    character.relationships.family[target.id] = Relationship(
-      characterId: target.id,
-      category: 'family',
-      kind: 'farkin',
-    )
-    updateBond(character, target, score: kRelationshipScore.family.farkin, relationship: 'farkin')
-    target.relationships.family[character.id] = Relationship(
-      characterId: character.id,
-      category: 'family',
-      kind: 'farkin',
-    )
-    updateBond(target, character, score: kRelationshipScore.family.farkin, relationship: 'farkin')
-  }
-
-  for (final relationship of target.relationships.family) {
-    if (relationship.characterId == subject.id) {
-      continue
-    }
-    final character = game.characters[relationship.characterId]
-    character.relationships.family[subject.id] = Relationship(
-      characterId: subject.id,
-      category: 'family',
-      kind: 'farkin',
-    )
-    updateBond(character, subject, score: kRelationshipScore.family.farkin, relationship: 'farkin')
-    subject.relationships.family[character.id] = Relationship(
-      characterId: character.id,
-      category: 'family',
-      kind: 'farkin',
-    )
-    updateBond(subject, character, score: kRelationshipScore.family.farkin, relationship: 'farkin')
-  }
-  
-  let score = kRelationshipScore.family.spouse
-  updateBond(subject, target, score: score, relationship: 'spouse')
-  
-  // engine.info('${target.name} 现在是 ${subject.name} 的 配偶，${subject.name} 对 ${target.name} 的好感度提高 [${score}]')
-}
-
-/// 创建双方面的夫妻关系
-/// 这里仅涉及夫妻关系，浪漫关系会单独保存
-/// 创建夫妻关系时，会连带更新双方已有的家族关系中的其他人的关系图
-/// 注意：同性可以恋爱(创建浪漫关系)，但不能结婚
-/// householder代表拥有家族之人，marrier代表嫁入家族之人
-/// 如果是入赘，则householder一方不是丈夫，而是女方
-function createSpouse(householder, marrier, {locationId, incurIncident = true}) {
-  assert(householder.isFemale != marrier.isFemale)
-
-  final relationship = householder.relationships.family[marrier.id]
-  if (relationship != null && relationship.kind == 'spouse') {
-    engine.warn('${householder.name} 和 ${marrier.name} 已经有婚姻关系！本次操作将会被忽略！')
-    return
-  }
-
-  // 如果此时尚未建立家族，会创建新的家族数据
-  let familyMemberData = tryGetFamilyMemberData(householder)
-  assert(householder.familyName != null)
-  assert(!game.families[householder.familyName].containsKey(marrier.id))
-  // 家族辈分会更新为最后一任配偶的辈分数字
-  game.families[householder.familyName][marrier.id] = MemberRankData(
-    characterId: marrier.id,
-    rank: familyMemberData.rank,
-    peer: 0,
-  )
-  _addSpouseRelationship(householder, marrier)
-  _addSpouseRelationship(marrier, householder)
-
-  // 一个人当前所属的家族只会有一个，以最后结婚的家主为准
-  assert(householder.familyName != null)
-  marrier.familyName = householder.familyName
-
-  // 角色的结婚时间只保存在加入家族者的人身上，且以最后一次为准
-  marrier.marriageTimestamp = game.timestamp
-  
-  let homeLocationId = householder.homeLocationId ?? marrier.homeLocationId
-  let homeLocation
-  if (homeLocationId != null) {
-    homeLocation = game.locations[homeLocationId]
-  } else {
-    homeLocation = random.nextIterable(game.locations.values)
-  }
-  if (householder.homeLocationId != homeLocation.id) {
-    setCharacterHome(householder, homeLocation)
-  }
-  if (marrier.homeLocationId != homeLocation.id) {
-    setCharacterHome(marrier, homeLocation)
-  }
-
-  const incidentContent = engine.locale('characterMarriage', interpolations: [
-    householder.name,
-    marrier.name,
-    homeLocation.name,
-  ])
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: householder.id,
-      targetId: marrier.id,
-      locationId: homeLocation.id,
-      orderly: 1,
-      idealistic: 1,
-    )
-  } else {
-    engine.info(incidentContent)
-  }
-}
-
-function divorceSpouse(householder, marrier) {
-  throw 'divorceSpouse not implement yet'
-}
-
-/// 角色建立师徒关系
-/// 注意，拜某个角色为师，和加入某个门派是两个不同的行为。这里并不处理门派的相关数据
-/// 后者需要另外调用 addCharacterToOrganization api来创建
-function createShitu(shifu, tudi, {incurIncident = true}) {
-  
-  final relationship = shifu.relationships.sect[tudi.id]
-  if (relationship != null && relationship.kind == 'tudi') {
-    engine.error('${shifu.name} 和 ${tudi.name} 已经有师徒关系，不能重复创建！')
-    return
-  }
-  
-  _addShituRelationship(shifu, tudi)
-
-  // 徒弟所属的宗门是师父的当前宗门
-  assert(shifu.sectName != null)
-  tudi.sectName = shifu.sectName
-
-  // 角色的拜师时间只保存在徒弟身上，且以最后一次为准
-  // tudi.baishiTimestamp = game.timestamp
-  
-  const incidentContent = engine.locale('characterBaishi', interpolations: [
-    shifu.name,
-    tudi.name,
-  ])
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: shifu.id,
-      targetId: tudi.id,
-      orderly: 2,
-    )
-  } else {
-    engine.info(incidentContent)
-  }
-}
-
-function removeShituRelationship(shifu, tudi) {
-  throw 'removeShituRelationship not implement yet'
-}
-
-/// 获取家族内部id，如果不存在会创建新的家族数据
-/// TODO: 单独保存一个relationship图，值是一个包含角色ID，父母和子女的结构体
-function tryGetFamilyMemberData(character) {
-  let familyMemberData
-  if (character.familyName == null) {
+/// 获取或创建新的家族数据
+function getFamily(character) {
+  if (character.familyId == null) {
     final familyName = (character.surName ?? character.name) + engine.locale('familyName')
-    character.familyName = familyName + '_${crypto.randomUID()}'
-    assert(!game.families.containsKey(character.familyName))
-    game.families[character.familyName] = {
-      id: character.familyName,
+    character.familyId = familyName + '_${crypto.randomUID(withTime: true)}'
+    assert(!game.families.containsKey(character.familyId))
+    family = game.families[character.familyId] = {
+      id: character.familyId,
       name: familyName,
-      members: {},
+      membersData: {},
     }
-    game.families[character.familyName].members[character.id] = familyMemberData = MemberRankData(
-      characterId: character.id,
-      // 辈分决定了地位，数字越大，地位越低
-      rank: 0,
-      // 同辈中的地位，数字越大，地位越低
-      peer: 0,
-    )
+    family.membersData[character.id] = MemberData
   } else {
-    final family = game.families[character.familyName]
-    assert(family != null, 'family not exist: ${character.familyName}')
-    familyMemberData = family.members[character.id]
+    family = game.families[character.familyId]
+    assert(family != null, 'family not exist: ${character.familyId}')
   }
-  assert(familyMemberData != null)
-  return familyMemberData
+  return family
 }
 
-/// 获取师徒传承的内部id，如果不存在会创建新的师徒传承数据
-/// TODO: 单独保存一个relationship图，值是一个包含角色ID，师父和徒弟的结构体
-function tryGetSectMemberData(character) {
-  let sectMemberData
-  if (character.sectName == null) {
-    final sectName = (character.surName ?? character.name) + engine.locale('sectName')
-    character.sectName = sectName + '_${crypto.randomUID()}'
-    assert(!game.sects.containsKey(character.sectName))
-    game.sects[character.sectName] = {
-      id: character.sectName,
-      name: sectName,
-      members: {},
-    }
-    game.sects[character.sectName].members[character.id] = sectMemberData = MemberRankData(
-      characterId: character.id,
-      // 辈分决定了地位，数字越大，地位越低
-      rank: 0,
-      // 同辈中的地位，数字越大，地位越低
-      peer: 0,
-    )
-  } else {
-    sectMemberData = game.sects[character.sectName]
-  }
-  assert(sectMemberData != null)
-  return sectMemberData
+function createSpouseRelationships(husband, wife) {
+  husband.familyRelationships.spouseIds.add(wife.id)
+  wife.familyRelationships.spouseIds.add(husband.id)
+  wife.familyIds.addAll(husband.familyIds)
+  wife.familyId = husband.familyId
+  characterMet(husband, wife)
+
+  updateBond(husband, wife, score: kRelationshipScore.family.spouse, relationship: {
+    kind: 'spouse',
+    operation: 'add',
+  })
+  updateBond(wife, husband, score: kRelationshipScore.family.spouse, relationship: {
+    kind: 'spouse',
+    operation: 'add',
+  })
 }
 
-function _addChildRelationship(parent, child) {
-  for (final relationship of parent.relationships.family) {
-    if (relationship.characterId == child.id) {
-      continue
-    }
-    final character = game.characters[relationship.characterId]
-    assert(character != null)
-    if (relationship.kind == 'spouse') {
-      character.relationships.family[child.id] = Relationship(
-        characterId: child.id,
-        category: 'family',
-        kind: 'child',
-      )
-      updateBond(character, child, score: kRelationshipScore.family.child, relationship: 'child')
-      child.relationships.family[character.id] = Relationship(
-        characterId: character.id,
-        category: 'family',
-        kind: 'parent',
-      )
-      updateBond(child, character, score: kRelationshipScore.family.parent, relationship: 'parent')
-    } else if (relationship.kind == 'parent') {
-      character.relationships.family[child.id] = Relationship(
-        characterId: child.id,
-        category: 'family',
-        kind: kind1,
-      )
-      updateBond(character, child, score: kRelationshipScore.family.grandChild, relationship: 'grandChild')
-      child.relationships.family[character.id] = Relationship(
-        characterId: character.id,
-        category: 'family',
-        kind: 'grandParent',
-      )
-      updateBond(child, character, score: kRelationshipScore.family.grandParent, relationship: 'grandParent')
-    } else {
-      character.relationships.family[child.id] = Relationship(
-        characterId: child.id,
-        category: 'family',
-        kind: 'farfamily',
-      )
-      updateBond(character, child, score: kRelationshipScore.family.farfamily, relationship: 'farfamily')
-      child.relationships.family[character.id] = Relationship(
-        characterId: character.id,
-        category: 'family',
-        kind: 'farfamily',
-      )
-      updateBond(child, character, score: kRelationshipScore.family.farfamily, relationship: 'farfamily')
-    }
-  }
+function createChildRelationships(father, mother, child) {
+  // 孩子所属的家族是父亲的当前家族
+  // 如果此时尚未建立家族，会创建新的家族数据
+  final family = getFamily(father)
+  assert(!family.membersData.containsKey(child.id))
+  family.membersData[child.id] = MemberData(
+    id: child.id,
+    // 辈分是父母的辈分数字 + 1
+    generation: mother.familyGeneration + 1,
+    // 同辈序号是父亲当前孩子的数量
+    peer: father.childIds.length,
+  )
+  child.familyId = father.familyId
 
-  parent.relationships.family[child.id] = Relationship(
-    characterId: child.id,
-    category: 'family',
+  child.familyRelationships.fatherId = father.id
+  child.familyRelationships.motherId = mother.id
+  child.familyRelationships.siblingIds = [
+    ...father.familyRelationships.childIds,
+    ...mother.familyRelationships.childIds,
+  ].toSet().toList()
+
+  father.familyRelationships.childIds.add(child.id)
+  mother.familyRelationships.childIds.add(child.id)
+  
+  updateBond(child, father, score: kRelationshipScore.family.parent, relationship: {
+    kind: 'parent',
+    operation: 'add',
+  })
+  updateBond(child, mother, score: kRelationshipScore.family.parent, relationship: {
+    kind: 'parent',
+    operation: 'add',
+  })
+  updateBond(father, child, score: kRelationshipScore.family.child, relationship: {
     kind: 'child',
-  )
+    operation: 'add',
+  })
+  updateBond(mother, child, score: kRelationshipScore.family.child, relationship: {
+    kind: 'child',
+    operation: 'add',
+  })
 
-  updateBond(parent, child, score: kRelationshipScore.family.child, relationship: 'child')
+  for (final siblingId in child.familyRelationships.siblingIds) {
+    final sibling = game.characters[siblingId]
+    sibling.familyRelationships.siblingIds.add(child.id)
+    updateBond(child, sibling, score: kRelationshipScore.family.siblings, relationship: {
+      kind: 'siblings',
+      operation: 'add',
+    })
+    updateBond(sibling, child, score: kRelationshipScore.family.siblings, relationship: {
+      kind: 'siblings',
+      operation: 'add',
+    })
+  }
 }
 
-function _addShituRelationship(shifu, tudi) {
-  // 一个人在其所有的师父的师徒关系中都有自己的辈分
-  // 如果此时尚未建立师徒传承数据，会创建新的数据
-  let sectMemberData = tryGetSectMemberData(shifu)
-  assert(!game.sects[shifu.sectName].containsKey(tudi.id))
-  let peerNumber = game.sects[shifu.sectName].values.where((member) =>
-    member.rank == sectMemberData.rank + 1).length
-  // 辈分是师父的辈分数字 + 1
-  game.sects[shifu.sectName][tudi.id] = MemberRankData(
-    characterId: tudi.id,
-    rank: sectMemberData.rank + 1,
-    peer: peerNumber,
-  )
+function createShituRelationships(shifu, tudi) {
+  assert(tudi.sectId == shifu.sectId, '师徒必须属于同一个门派!')
+  assert(tudi.shituRelationships.shifuIds.contains(shifu.id) == false, '已经存在师徒关系，不能再次拜师!')
 
-  shifu.relationships.sect[tudi.id] = Relationship(
-    characterId: tudi.id,
-    category: 'sect',
+  tudi.shituRelationships.shifuIds.add(shifu.id)
+  tudi.shituRelationships.tongmenIds = shifu.shituRelationships.tudiIds.toList()
+
+  shifu.shituRelationships.tudiIds.add(tudi.id)
+  
+  updateBond(shifu, tudi, score: kRelationshipScore.sect.tudi, relationship: {
     kind: 'tudi',
-  )
-
-  tudi.relationships.sect[shifu.id] = Relationship(
-    characterId: shifu.id,
-    category: 'sect',
+    operation: 'add',
+  })
+  updateBond(tudi, shifu, score: kRelationshipScore.sect.shifu, relationship: {
     kind: 'shifu',
-  )
-
-  for (final relationship of shifu.relationships.sect) {
-    final character = game.characters[relationship.characterId]
-    let kind1 = relationship.kind == 'shifu' ? 'grandTudi' : 'tongmen'
-    character.relationships.sect[tudi.id] = Relationship(
-      characterId: tudi.id,
-      category: 'sect',
-      kind: kind1,
-    )
-    updateBond(character, tudi, score: kRelationshipScore.sect[kind1], relationship: kind1)
-    let kind2 = relationship.kind == 'shifu' ? 'grandTudi' : 'tongmen'
-    tudi.relationships.sect[character.id] = Relationship(
-      characterId: character.id,
-      category: 'sect',
-      kind: kind2,
-    )
-    updateBond(tudi, character, score: kRelationshipScore.sect[kind2], relationship: kind2)
+    operation: 'add',
+  })
+  for (final siblingId in tudi.shituRelationships.tongmenIds) {
+    final sibling = game.characters[siblingId]
+    sibling.shituRelationships.tongmenIds.add(tudi.id)
+    updateBond(tudi, sibling, score: kRelationshipScore.sect.tongmen, relationship: {
+      kind: 'tongmen',
+      operation: 'add',
+    })
+    updateBond(sibling, tudi, score: kRelationshipScore.sect.tongmen, relationship: {
+      kind: 'tongmen',
+      operation: 'add',
+    })
   }
-
-  updateBond(shifu, tudi, score: kRelationshipScore.sect.tudi, relationship: 'tudi')
-  updateBond(tudi, shifu, score: kRelationshipScore.sect.shifu, relationship: 'shifu')
 }
 
 /// 创建一个婴儿
@@ -830,106 +489,6 @@ struct Baby {
   }
 }
 
-/// 返回朋友的数量
-function hasFriend(character) {
-  return character.relationships.friendship.length
-}
-
-/// 检查 character 是否是 target 的朋友
-function isFriend(character, target) {
-  return character.relationships.friendship.containsKey(target.id)
-}
-
-/// 返回所有朋友
-function getFriends(character) {
-  return character.relationships.friendship.values
-}
-
-/// 返回恋爱对象的数量
-function hasRomance(character) {
-  return character.relationships.romance.length
-}
-
-/// 检查 character 是否是 target 的恋爱对象
-function isRomance(character, target) {
-  return character.relationships.romance.containsKey(target.id)
-}
-
-/// 返回所有恋爱对象
-function getRomances(character) {
-  return character.relationships.romance.values
-}
-
-/// 返回配偶的数量
-function hasSpouse(character) {
-  return character.relationships.family.values.where((d) => d.kind == 'spouse').length
-}
-
-/// 检查 character 是否是 spouse 的配偶
-function isSpouse(character, spouse) {
-  return character.relationships.family[spouse.id]?.kind == 'spouse'
-}
-
-/// 返回所有配偶
-function getSpouses(character) {
-  return character.relationships.family.values.where((d) => d.kind == 'spouse')
-}
-
-/// 返回孩子的数量
-function hasChild(character) {
-  return character.relationships.family.values.where((d) => d.kind == 'child').length
-}
-
-/// 检查 character 是否是 child 的父母, 注意这里包括继子和养子
-function isChild(character, child) {
-  return character.relationships.family[child.id]?.kind in kChildRelationships
-}
-
-/// 返回所有孩子
-function getChildren(character) {
-  return character.relationships.family.values.where((d) => d.kind == 'child')
-}
-
-/// 是否是同一个家族
-function isFamily(character, target) {
-  return character.relationships.family.containsKey(target.id)
-}
-
-/// 返回徒弟的数量
-function hasTudi(character) {
-  return character.relationships.sect.values.where((d) => d.kind == 'tudi').length
-}
-
-/// 检查 character 是否是 tudi 的 shifu
-function isTudi(character, tudi) {
-  return character.relationships.sect[tudi.id]?.kind == 'tudi'
-}
-
-/// 返回所有徒弟
-function getTudis(character) {
-  return character.relationships.sect.values.where((d) => d.kind == 'tudi')
-}
-
-/// 是否是同一个师承
-function isSect(character, target) {
-  return character.relationships.sect.containsKey(target.id)
-}
-
-function isOrganizationHead(character) {
-  if (character.organizationId != null) {
-    final organization = game.organizations[character.organizationId]
-    assert(organization != null, 'organization not found: ${character.organizationId}')
-    if (organization.headId == character.id) {
-      return true
-    }
-  }
-  return false
-}
-
-const basicLibrary = [
-  'attack_normal',
-]
-
 struct Character {
   constructor ({
     id,
@@ -961,8 +520,6 @@ struct Character {
     isNewBorn = false,
     fatherId,
     motherId,
-    relationships,
-    bonds,
   }) {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
@@ -1030,9 +587,10 @@ struct Character {
     // }
     // this.titleId = titleId
 
-    // this.fame = 0
-    // // // 恶名，对此人差评的人的数量
-    // this.infamy = 0
+    // 声望，对此人好评的人的数量
+    this.fame = 0
+    // 恶名，对此人差评的人的数量
+    this.infamy = 0
 
     // 该角色的人格纬度
     // 角色的人格是天生的，之后不会再发生改变
@@ -1078,38 +636,48 @@ struct Character {
     // 该角色和角色的交互历史
     // key是角色id，value是一个bond data
     // bond数据结构
-    this.bonds = bonds ?? {}
+    this.bonds = {}
 
     // 角色的爱情、仇敌、朋友关系，直接保存的对方的角色id
+    this.friendIds = []
     this.romanceIds = []
     this.enemyIds = []
-    this.friendIds = []
 
-    // 角色所属的家族和宗门，保存的是家族数据和宗门数据的id
-    // 具体的宗门和家族保存在 game.sects 和 game.families 中
+    // 角色目前和曾加入过的家族，保存的是家族数据的 id
+    // 家族的具体数据保存在 game.families 中
     this.familyIds = []
-    this.sectIds = []
-    
-    // 关系数据，每种具体类型下以对方角色的id为key，value是一个relationship data
-    // this.relationships = relationships ?? {
-    //   family: [],
-    //   sect: [],
-    //   romance: [],
-    //   friendship: [],
-    // }
-    
-    assert(this.relationships.family != null)
-    assert(this.relationships.sect != null)
-    assert(this.relationships.romance != null)
-    assert(this.relationships.friendship != null)
+    // 妻子结婚后会加入丈夫的家族，但仍保留原本的家族的关系和familyId
+    // 当前的family
+    // this.familyId = null
+    // 和角色有亲属关系的其他角色的 id
+    this.familyRelationships = {
+      fatherId: null,
+      motherId: null,
+      childIds: [],
+      siblingIds: [],
+      spouseIds: [],
+    }
 
-    this.organizationFavor = this.motivations.first
+    // 角色目前和曾加入过的门派，保存的是门派数据的 id
+    this.sectIds = []
+    // 角色的门派倾向，决定了角色更愿意于加入哪种类型的门派
+    this.sectFavor = this.motivations.first
+    // 当前的门派
+    // this.sectId = null
+    // 和角色有师徒关系的其他角色的 id
+    this.shituRelationships = {
+      shifuIds: [],
+      tudiIds: [],
+      tongmenIds: [],
+    }
+
+    // this.titleId = null
     
     /// 每个角色的家是一个单例对象。
     /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
     /// 此处创建的家宅场景此时尚未绑定到任何据点
     final home = Location(
-      id: '${kLocationKindHome}_${this.id}',
+      id: '${this.id})_${kLocationKindHome}',
       category: 'site',
       kind: kLocationKindHome,
       name: engine.locale('characterHomeSite', interpolations: [this.name]),
@@ -1118,70 +686,45 @@ struct Character {
     )
     this.homeSiteId = home.id
     // 所有该角色拥有住所的据点的 id 列表
-    this.homeLocations = []
+    this.homeLocationIds = []
+    // this.homeLocationId = null // 主要住所 id
+
+    if (isNewBorn) {
+      assert(father != null)
+      assert(mother != null)
+      assert(birthTimestamp != null, '新生儿必须指定出生时间!')
+      final father = game.characters[fatherId]
+      final mother = game.characters[motherId]
+      this.birthTimestamp = birthTimestamp
+      createChildRelationships(father, mother, this)
+      // 出生事件会修改自身，需要放在最后处理
+      const incidentContent = engine.locale('characterBorn',
+        interpolations: [
+          mother.name,
+          this.name,
+        ])
+      Incident(
+        message: incidentContent,
+        subjectId: mother.id,
+        targetId: this.id,
+        locationId: locationId,
+        orderly: 1,
+        idealistic: -1,
+      )
+      characterMet(mother, this, firstImpression: false)
+      characterMet(father, this, firstImpression: false)
+      if (locationId != null) {
+        this.birthLocationId = locationId
+      }
+    }
     
     if (locationId) {
       const location = game.locations[locationId]
-
       this.worldPosition = {
         left: location.worldPosition?.left,
         top: location.worldPosition?.top,
       }
-
-      if (isNewBorn) {
-        assert(birthTimestamp != null, '新生儿必须指定出生时间')
-        this.birthTimestamp = birthTimestamp
-        final father = game.characters[fatherId]
-        assert(father != null)
-        // 如果此时尚未建立家族，会创建新的家族数据
-        let familyMemberData = tryGetFamilyMemberData(father)
-        assert(father.familyName != null)
-        assert(!game.families[father.familyName].containsKey(this.id))
-        let peerNumber = game.families[father.familyName].values.where((member) =>
-          member.rank == familyMemberData.rank + 1).length
-        // 辈分是父母的辈分数字 + 1
-        game.families[father.familyName][this.id] = MemberRankData(
-          characterId: this.id,
-          rank: familyMemberData.rank + 1,
-          peer: peerNumber,
-        )
-        _addChildRelationship(father, this)
-        // _addChildRelationship(mother, this)
-
-        // 孩子所属的家族是父亲的当前家族
-        assert(father.familyName != null)
-        this.familyName = father.familyName
-
-        final mother = game.characters[motherId]
-        assert(mother != null)
-        this.birthLocationId = locationId
-        // 出生事件会修改自身，需要放在最后处理
-        const incidentContent = engine.locale('characterBorn',
-          interpolations: [
-            mother.name,
-            location.name,
-            this.name,
-          ])
-        Incident(
-          message: incidentContent,
-          subjectId: mother.id,
-          targetId: this.id,
-          locationId: locationId,
-          orderly: 1,
-          idealistic: -1,
-        )
-        characterMet(mother, this)
-        this.locationId = this.homeSiteId = mother.homeSiteId
-        this.homeLocationId = mother.homeLocationId
-        final homeLocation = game.locations[this.homeLocationId]
-        this.worldPosition = {
-          left: homeLocation.worldPosition.left,
-          top: homeLocation.worldPosition.top,
-        }
-      } else {
-        // 设置居住地会触发事件从而修改自身，需要放在最后处理
-        setCharacterHome(this, location)
-      }
+      setCharacterHome(this, location)
     } else {
       if (worldPositionX != null && worldPositionY != null) {
         this.worldPosition = {
@@ -1202,6 +745,8 @@ struct Character {
     // 随角色移动的孩童（Baby 对象），这里只保存id
     this.carrying = []
 
+    // 角色的逻辑更新日
+    // 为了避免游戏卡顿随机分布在每个月的1-30号之间
     this.updateDay = random.nextInt(30) + 1
   }
 }
@@ -1242,7 +787,7 @@ function haveMet(subject, target) {
 }
 
 /// 计算第一印象分
-function _characterMet(subject, target, { incurIncident }) {
+function _characterMet(subject, target, { firstImpression = true, incurIncident }) {
   assert(subject != null && target != null)
   assert(subject.entityType == 'character')
   assert(target.entityType == 'character')
@@ -1257,7 +802,12 @@ function _characterMet(subject, target, { incurIncident }) {
     bond = Bond(character: subject, target: target, haveMet: true)
   }
 
-  final score = _calculateFirstImpression(subject, target)
+  let score
+  if (firstImpression) {
+    score = _calculateFirstImpression(subject, target)
+  } else {
+    score = _calculateCharismaScore(subject.charismaFavor, target.stats.charisma)
+  }
   updateBond(subject, target, score: score)
   
   let incidentContent
@@ -1288,10 +838,10 @@ function _characterMet(subject, target, { incurIncident }) {
   return bond
 }
 
-function characterMet(subject, target, { incurIncident }) {
+function characterMet(subject, target, { firstImpression = true, incurIncident }) {
   if (subject == target) return null
-  let bond = _characterMet(subject, target, incurIncident: incurIncident)
-  _characterMet(target, subject, incurIncident: incurIncident)
+  let bond = _characterMet(subject, target, firstImpression: firstImpression, incurIncident: incurIncident)
+  _characterMet(target, subject, firstImpression: firstImpression, incurIncident: incurIncident)
   return bond
 }
 
@@ -1308,18 +858,11 @@ function getCharacterHomeSite(character, {worldId}) {
 
 function clearCharacterHomeLocations(character, {worldId}) {
   // let atWorld = worldId != null ? universe[worldId] : world
-  for (final locId in character.homeLocations) {
+  for (final locId in character.homeLocationIds) {
     final location = game.locations[locId]
-    removeCharacterHomeLocation(character, location)
+    location.residents.remove(character.id)
   }
-  character.homeLocations.clear()
-}
-
-function removeCharacterHomeLocation(character, location) {
-  final result = location.residents.remove(character.id)
-  if (result) {
-    engine.warn('已移除角色 ${character.name} 在 ${location.name} 的住宅')
-  }
+  character.homeLocationIds.clear()
 }
 
 function getCharacterHomeLocation(character) {
@@ -1331,29 +874,23 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
     engine.warn('角色 ${character.name} 已经定居在 ${location.name} 了！')
     return
   }
-  let homeSiteId = '${kLocationKindHome}_${character.id}'
-  let home = game.locations[homeSiteId]
-  assert(home != null, 'home site is null, homeSiteId: ${homeSiteId}')
-  final oldLocation = game.locations[home.atLocationId]
+  assert(!location.residents.contains(character.id), 'location already has resident: ${character.id}')
+  final oldLocation = game.locations[character.homeLocationId]
   if (oldLocation != null) {
     oldLocation.residents.remove(character.id)
   }
-  if (!character.homeLocations.contains(location.id)) {
-    assert(!location.residents.contains(character.id))
-    location.residents.add(character.id)
-    character.homeLocations.add(location.id)
+  if (!character.homeLocationIds.contains(location.id)) {
+    character.homeLocationIds.add(location.id)
   }
+  location.residents.add(character.id)
   character.homeLocationId = location.id
   if (moveToHome) {
+    let homeSiteId = '${character.id}_${kLocationKindHome}'
     character.locationId = homeSiteId
     character.worldPosition = {
       left: location.worldPosition.left,
       top: location.worldPosition.top,
     }
-  }
-  character.worldPosition = {
-    left: location.worldPosition.left,
-    top: location.worldPosition.top,
   }
   let incidentContent
   incidentContent = engine.locale('characterSettle', interpolations: [
@@ -1369,7 +906,7 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
     engine.info(incidentContent)
   }
   
-  return home
+  return
 }
 
 function getCharacterWorldPosition(character) {
@@ -1440,7 +977,7 @@ function getCharactersAtLocation(location) {
 function getResidingCharacters(location) {
   // let atWorld = universe[location.worldId]
   location.residents.map((id) {
-    final homeSiteId = '${kLocationKindHome}_${id}'
+    final homeSiteId = '${id}_${kLocationKindHome}'
     final homeSite = game.locations[homeSiteId]
     assert(homeSite != null, 'home is null, id: ${homeSiteId}')
     final character = game.characters[homeSite.managerId]
@@ -1495,7 +1032,7 @@ function removeCharacterById(id: string) {
 /// 更新羁绊数据，如果之前不存在羁绊会创建新的羁绊数据
 function updateBond(subject, target, {
   score,
-  // relationship,
+  relationship: {},
 }) {
   assert(score != null, 'score cannot be null when updating bond!')
   let bond = subject.bonds[target.id]
@@ -1515,12 +1052,19 @@ function updateBond(subject, target, {
   //     bond.relationships.add('friend')
   //   }
   // }
-  // if (relationship != null) {
-  //   if (!bond.relationships.contains(relationship)) {
-  //     bond.relationships.add(relationship)
-  //   }
-  // }
-  engine.warn('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动：${score}, 关系变动: ${relationship ?? '无'}')
+  if (relationship != null) {
+    if (relationship.operation == 'add') {
+      if (!bond.relationships.contains(relationship.kind)) {
+        engine.warn('${subject.name} 现在是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+        bond.relationships.add(relationship.kind)
+      }
+    } else if (relationship.operation == 'remove') {
+      bond.relationships.remove(relationship.kind)
+      engine.warn('${subject.name} 不再是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+      return
+    }
+  }
+  engine.warn('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动：${score}')
 }
 
 function getBondScore(subject, target) {
@@ -1623,35 +1167,37 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
   }
 
   let contributionTarget
-  if (data.organizationId) {
+  if (data.sectId) {
     // 如果是门派领地的任务
-    const organization = game.organizations[data.organizationId]
-    assert(organization != null,
-      'organization not found in contribution pack: ${data.organizationId}')
-    const memberData = organization.membersData[character.id]
+    const sect = game.sects[data.sectId]
+    assert(sect != null,
+      'sect not found in contribution pack: ${data.sectId}')
+    const memberData = sect.membersData[character.id]
     assert(memberData != null,
-      'member data not found for character id: ${character.id} in organization: ${organization.id}')
-    if (character.organizationId == data.organizationId) {
+      'member data not found for character id: ${character.id} in sect: ${sect.id}')
+    if (character.sectId == data.sectId) {
       // 如果主角是该门派成员
       assert(memberData != null,
-          'Member data not found in organization [${organization.id}], member id: ${character.id}');
+          'Member data not found in sect [${sect.id}], member id: ${character.id}');
       memberData.contribution += contribution;
       // 记录门派成员当月贡献
-      organization.flags.monthly.contributions[character.id] += contribution;
+      sect.flags.monthly.contributions[character.id] += contribution;
     } else {
       contribution = contribution ~/ 2
       // 非门派成员功勋减半
       if (memberData == null) {
-        organization.membersData[character.id] = MemberData(
+        memberData = MemberData(
           id: character.id,
           rank: -1,
-          contribution: contribution,
+          isAbsent: true,
         )
+        memberData.contribution = contribution;
+        sect.membersData[character.id] = memberData;
       } else {
         memberData.contribution += contribution;
       }
     }
-    contributionTarget = organization.name;
+    contributionTarget = sect.name;
   } else {
     // 非门派领地任务，同样可以获得功勋，但直接保存在据点数据中
     const location = game.locations[data.locationId]
@@ -1671,7 +1217,7 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
-      organizationId: data.organizationId,
+      sectId: data.sectId,
       locationId: data.locationId,
       orderly: contribution,
     )

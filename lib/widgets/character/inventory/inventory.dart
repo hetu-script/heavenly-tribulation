@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../state/hover_content.dart';
-import 'item_grid.dart';
 import '../../../logic/logic.dart';
+import '../../common.dart';
+import 'item_grid.dart';
 
-export '../../../data/common.dart' show ItemType;
+export '../../common.dart' show ItemType;
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatelessWidget {
@@ -109,7 +110,7 @@ class Inventory extends StatelessWidget {
         child: SingleChildScrollView(
           controller: _scrollController,
           child: SizedBox(
-            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine + 5.0,
+            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine + 20.0,
             height: height,
             child: ListView(
               shrinkWrap: true,

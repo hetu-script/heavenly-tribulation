@@ -424,7 +424,7 @@ class GameDialog with ChangeNotifier, TaskController {
 
   void finishSelection(String taskId, String dataId, {dynamic value}) {
     // assert(isOpened == true);
-    storedValues[dataId] = value ?? true;
+    storedValues[dataId] = value;
     selectionsData = null;
     assert(hasTask(taskId));
     completeTask(taskId);
@@ -452,11 +452,7 @@ class GameDialog with ChangeNotifier, TaskController {
       }
       return satisfied;
     } else if (data is String) {
-      if (storedValues[data] == null) {
-        engine.warn('game dialog: checked selected data non exists: $data');
-      } else {
-        return storedValues[data];
-      }
+      return storedValues[data];
     } else {
       engine.warn('game dialog: invalid selected value data: $data');
       return null;

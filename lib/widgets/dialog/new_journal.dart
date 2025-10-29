@@ -51,8 +51,8 @@ class NewJournal extends StatelessWidget {
                   journal['stages'][index],
                   textAlign: TextAlign.left,
                   textStyle: journal['stage'] > index
-                      ? TextStyles.bodyMedium.copyWith(color: Colors.grey)
-                      : TextStyles.bodyMedium.copyWith(color: Colors.yellow),
+                      ? TextStyles.bodySmall.copyWith(color: Colors.grey)
+                      : TextStyles.bodySmall.copyWith(color: Colors.yellow),
                 ),
               );
             }),

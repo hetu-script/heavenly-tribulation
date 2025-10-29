@@ -1,0 +1,106 @@
+
+namespace Game {
+
+  external function datetime()
+  
+  external function updateUI()
+
+  external function updateHeroAtLocation(location)
+
+  external function updateActiveJournals(journals)
+
+  external function switchWorld(worldId, {clearCache: bool = false})
+
+  external function popScene({clearCache: bool = false})
+  
+  external function updateGame({
+    tick = Constants.ticksPerTime,
+    force = false,
+    updateEntity = true,
+    updateUI = true,
+    updateWorldMap = true,
+  })
+
+  external function updateHistory()
+
+  external function updateDungeon(dungeon)
+
+  external function tryEnterDungeon({
+    rank,
+    isCommon = true,
+    dungeonId = 'dungeon_1',
+    pushScene = true,
+  })
+
+  external function onDying()
+
+  external function characterAllocateSkills(character, {rejuvenate = false} )
+
+  external function updateNpcs(npcs)
+
+  external function updateNpcsAtLocation(location)
+
+  external function hideNpc(id)
+
+  external function promptItems(items: Iterable)
+
+  external async function promptJournal(
+    journal, {
+    selectionsRaw,
+    selections,
+    interpolations,
+  }) -> string
+
+  external function promptNewRank(rank)
+
+  external async function selectCharacter([ids])
+
+  external async function selectLocation([ids])
+
+  external async function selectSect([ids])
+
+  external function selectItem({
+    character,
+    title,
+    filter,
+    multiSelect: bool = false,
+  }) -> Iterable
+
+  external function showHeroInfo([value: bool = true])
+
+  external function showTimeflow(max)
+  
+  external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
+  
+  external function showCultivation({location, enableCultivate: bool = false})
+
+  external function showPrebattle(enemyData, {
+    onBattleStart,
+    onBattleEnd,
+    background,
+    loseOnEscape: bool = false,
+  })
+
+  external function showBattle({
+    hero,
+    enemy,
+    isSneakAttack: bool = false,
+    // isAutoBattle: bool = false,
+    onBattleStart,
+    onBattleEnd,
+  })
+
+  external function showMerchant(merchantData, {
+    depositMode = false,
+    materialMode = false,
+    useShard = false,
+    priceFactor,
+    filter,
+  })
+
+  external function showWorkbench()
+
+  external function showAlchemy()
+
+  external function showMeeting(sect, location, superior)
+}

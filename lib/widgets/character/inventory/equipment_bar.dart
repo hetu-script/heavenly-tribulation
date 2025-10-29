@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'item_grid.dart';
 import '../../../state/hover_content.dart';
+import 'item_grid.dart';
+import '../../common.dart';
 
 enum EquipmentBarStyle {
   vertical,

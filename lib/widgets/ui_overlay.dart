@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/data/common.dart';
 import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
@@ -27,7 +28,7 @@ import '../data/game.dart';
 import 'character/inventory/equipment_bar.dart';
 import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
-import '../scene/organization/meeting.dart';
+import '../scene/sect/meeting.dart';
 import 'journal_panel.dart';
 import 'dialog/new_rank.dart';
 import 'view/alchemy.dart';
@@ -35,6 +36,10 @@ import 'view/workshop.dart';
 import 'ui/responsive_view.dart';
 import '../logic/logic.dart';
 import 'character/merchant/currency_bar.dart';
+import 'sect/sect.dart';
+import 'location/city.dart';
+import 'location/site.dart';
+import 'common.dart';
 
 String? markdownWikiPath;
 
@@ -257,6 +262,27 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             character: hero,
             selectedId: arguments?['selectedId'],
           ));
+        case ViewPanels.sectInformation:
+          panels.add(SectView(
+            sect: arguments?['sect'],
+            mode: arguments?['isAdmin'] == true
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ));
+        case ViewPanels.cityInformation:
+          panels.add(CityView(
+            city: arguments?['city'],
+            mode: arguments?['isAdmin'] == true
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ));
+        case ViewPanels.siteInformation:
+          panels.add(SiteView(
+            site: arguments?['site'],
+            mode: arguments?['isAdmin'] == true
+                ? InformationViewMode.manage
+                : InformationViewMode.view,
+          ));
         case ViewPanels.workbench:
           panels.add(WorkbenchDialog());
         case ViewPanels.alchemy:
@@ -280,6 +306,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                     image: AssetImage('assets/images/${hero['icon']}'),
                     radius: Radius.zero,
                     borderWidth: 0.0,
+                    showBorderImage: true,
                     onPressed: (_) {
                       context.read<ViewPanelState>().toogle(ViewPanels.profile);
                     },
@@ -329,113 +356,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             CurrencyBar(entity: hero),
-                            // Container(
-                            //   padding: const EdgeInsets.only(right: 5.0),
-                            //   child: MouseRegion2(
-                            //     // cursor: SystemMouseCursors.click,
-                            //     // onTapUp: () {
-                            //     //   context.read<HoverContentState>().hide();
-                            //     //   if (widget.enableAutoExhaust) {
-                            //     //     GameData.game?['flags']['autoWork'] =
-                            //     //         !autoWork;
-                            //     //     setState(() {});
-                            //     //   }
-                            //     // },
-                            //     onEnter: (rect) {
-                            //       String description =
-                            //           engine.locale('money_description');
-                            //       // if (widget.enableAutoExhaust) {
-                            //       //   description +=
-                            //       //       '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
-                            //       // }
-                            //       context
-                            //           .read<HoverContentState>()
-                            //           .show(description, rect);
-                            //     },
-                            //     onExit: () {
-                            //       context.read<HoverContentState>().hide();
-                            //     },
-                            //     child: Row(
-                            //       children: [
-                            //         Container(
-                            //           width: 120.0,
-                            //           padding:
-                            //               const EdgeInsets.only(right: 5.0),
-                            //           child: Text(
-                            //             money,
-                            //             textAlign: TextAlign.end,
-                            //           ),
-                            //         ),
-                            //         Container(
-                            //           decoration: GameUI.boxDecoration,
-                            //           child: Image(
-                            //               width: 20,
-                            //               height: 20,
-                            //               image: AssetImage(
-                            //                   'assets/images/item/material/money.png')),
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
-                            // Container(
-                            //   padding: const EdgeInsets.only(right: 5.0),
-                            //   child: MouseRegion2(
-                            //     // cursor: SystemMouseCursors.click,
-                            //     // onTapUp: () {
-                            //     //   context.read<HoverContentState>().hide();
-                            //     //   if (widget.enableAutoExhaust) {
-                            //     //     GameData.game?['flags']['autoCultivate'] =
-                            //     //         !autoCultivate;
-                            //     //     setState(() {});
-                            //     //   }
-                            //     // },
-                            //     onEnter: (rect) {
-                            //       String description =
-                            //           engine.locale('shard_description');
-                            //       // if (widget.enableAutoExhaust) {
-                            //       //   description +=
-                            //       //       '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
-                            //       // }
-                            //       context
-                            //           .read<HoverContentState>()
-                            //           .show(description, rect);
-                            //     },
-                            //     onExit: () {
-                            //       context.read<HoverContentState>().hide();
-                            //     },
-                            //     child: Row(
-                            //       children: [
-                            //         Container(
-                            //           width: 120.0,
-                            //           padding:
-                            //               const EdgeInsets.only(right: 5.0),
-                            //           child: Text(
-                            //             shard,
-                            //             textAlign: TextAlign.end,
-                            //           ),
-                            //         ),
-                            //         Container(
-                            //           decoration: BoxDecoration(
-                            //             border: Border.all(
-                            //               color:
-                            //                   //  autoCultivate
-                            //                   //     ? GameUI.foregroundColor
-                            //                   //     :
-                            //                   Colors.transparent,
-                            //               width: 1.0,
-                            //             ),
-                            //           ),
-                            //           child: Image(
-                            //               width: 20,
-                            //               height: 20,
-                            //               image: AssetImage(
-                            //                   'assets/images/item/material/shard.png')),
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
                             Container(
                               padding: const EdgeInsets.only(right: 5.0),
                               child: MouseRegion2(
@@ -445,7 +365,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     width: 200,
                                     height: 220,
                                     child: Column(
-                                      children: kOtherMaterials
+                                      children: kNonCurrencyMaterialKinds
                                           .map(
                                             (id) => Row(
                                               children: [

@@ -94,7 +94,7 @@
   "clumsyThreshold_description": "回合结束时，消耗阈值数量的迟钝，使你在下个对手回合受到的所有伤害增加 75%。\n行动阈值最大 15， 最小 5",
 
   "favorScoreToThisCharacter": "与自己的好感度",
-  "relationshipOfTarget": "与角色羁绊",
+  "relationshipOfTarget": "与角色关系",
   "favorScoreToTarget": "对其好感度",
   "favorScoreToHero": "好感度",
 
@@ -129,7 +129,7 @@
 
   "charismaFavor": "魅力偏好",
   "cultivationFavor": "修炼偏好",
-  "organizationFavor": "门派偏好",
+  "sectFavor": "门派偏好",
 
   "stamina": "体力",
 
@@ -161,9 +161,48 @@
   "spouse": "配偶",
   "parent": "父母",
   "child": "子女",
+  "sibling": "兄弟姐妹",
+
+  "exspouse": "前任",
+
   "grandParent": "祖父母",
   "grandChild": "孙子孙女",
-  "sibling": "兄弟姐妹",
+
+  "farfamily": "远亲",
+  "farkin": "同族",
+
+  "stepParent": "继父母",
+  "stepChild": "继子女",
+  "stepSibling": "继兄弟姐妹",
+
+  "fosterChild": "养子女",
+  "fosterParent": "养父母",
+
+  "swornSibling": "义兄弟姐妹",
+
+  "shifu": "师父",
+  "tudi": "徒弟",
+  "tongmen": "同门",
+
+  "shixiong": "师兄",
+  "shijie": "师姐",
+  "shidi": "师弟",
+  "shimei": "师妹",
+  "shishu": "师叔",
+  "shigu": "师姑",
+
+  "exshifu": "前任师父",
+  "extudi": "前任徒弟",
+
+  "shizu": "师祖",
+  "tusun": "徒孙",
+  "qianbei": "前辈",
+  "wanbei": "晚辈",
+
+  "master": "主人",
+  "slave": "奴隶",
+  "servant": "仆役",
+  "concubine": "姬妾",
 
   "address_father": "爹",
   "address_mother": "娘",
@@ -216,12 +255,6 @@
   "address_shigu": "师姑",
   "address_luding": "炉鼎",
 
-  "master": "主人",
-  "servant": "仆役",
-  "concubine": "姬妾",
-
-  "servant_young": "道童",
-
   "personality": "人格",
 
   "orderly": "守序",
@@ -261,17 +294,18 @@
   "motivation": "动机",
 
   "family": "亲族",
-  "sect": "师承",
+  "shicheng": "师承",
   "romance": "爱情",
   "friendship": "友谊",
 
   "friend": "朋友",
   "enemy": "仇敌",
 
-  "familyRelationship": "亲族关系",
-  "sectRelationship": "师承关系",
-  "romanceRelationship": "爱情关系",
-  "friendRelationship": "朋友关系",
+  "familyRelationship": "亲族",
+  "sectRelationship": "同门",
+  "friendRelationship": "朋友",
+
+  "romanceRelationship": "爱情",
 
   "enthusiastic": "武痴",
   "conqueror": "征服者",

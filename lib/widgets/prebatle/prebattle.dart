@@ -20,7 +20,6 @@ import '../../state/states.dart';
 import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../ui/close_button2.dart';
-import '../../data/common.dart';
 import '../ui/responsive_view.dart';
 
 class PreBattleDialog extends StatefulWidget {

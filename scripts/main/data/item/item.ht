@@ -213,15 +213,19 @@ function firstItemKindInInventory(entity, kind, {rank}) {
 }
 
 /// 直接获得资源
-function entityCollect(entity, materialId, amount, { incurIncident = true }) {
-  // engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
+function entityCollect(entity, materialId, amount, { onStorage = false, incurIncident = true }) {
+  engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
   if (amount <= 0) {
     engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
   }
   amount = amount.round()
   assert(Constants.materialKinds.contains(materialId))
-  entity.materials[materialId] += amount
+  if (onStorage) {
+    entity.storage[materialId] += amount
+  } else {
+    entity.materials[materialId] += amount
+  }
 
   let incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
     entity.name,
@@ -242,64 +246,43 @@ function entityCollect(entity, materialId, amount, { incurIncident = true }) {
   return
 }
 
-function entityCollectAll(entity, materials, { incurIncident = true }) {
+function entityCollectAll(entity, materials, { onStorage = false, incurIncident = true}) {
   for (let materialId in materials.keys) {
     final amount = materials[materialId]
-    entityCollect(entity, materialId, amount, incurIncident: incurIncident)
+    entityCollect(entity, materialId, amount, onStorage: onStorage, incurIncident: incurIncident)
   }
-}
-
-function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
-  assert(amount > 0)
-
-  final item = createItemById(id)
-
-  entity.inventory[item.id] = item
-  item.ownerId = entity.id
-  item.ownerType = entity.entityType
-  item.stackSize = amount ?? 1
-
-  let incidentContent
-  incidentContent = engine.locale('entityAcquire', interpolations: [
-    entity.name,
-    item.name,
-  ])
-  if (entity.entityType == 'character') {
-    if (incurIncident)  {
-      Incident(
-        message: incidentContent,
-        subjectId: entity.id,
-        item: item,
-      )
-    } else {
-      engine.info(incidentContent)
-    }
-  }
-
-  return item
 }
 
 /// 消费资源，返回是否成功消费了指定的数量
-function entityExhaust(entity, materialId: string, amount, { forceExhaust = false }) -> bool {
+function entityExhaust(
+  entity,
+  materialId: string,
+  amount: integer, {
+  forceExhaust = false,
+  onStorage = false,
+}) -> bool {
   assert(Constants.materialKinds.contains(materialId))
   if (amount <= 0) {
     engine.warn('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
-    return true
+    return 0
   }
-  let success = false
-  final existed = entity.materials[materialId]
+  final data = onStorage ? entity.storage : entity.materials
+
+  let exhausted = 0
+  final existed = data[materialId]
   if (existed >= amount) {
-    success = true
-    entity.materials[materialId] = existed - amount
-    engine.warn('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+    exhausted = amount
+    data[materialId] = existed - amount
+    // engine.warn('[${entity.name}] 失去了 [${materialId} × ${amount}]')
   } else if (forceExhaust) {
-    entity.materials[materialId] = existed - amount
-    engine.warn('[${entity.name}] 失去了 [${materialId} × ${existed}], 而且还欠 [${amount - existed}] 个。')
+    exhausted = existed
+    data[materialId] = 0
+    engine.warn('[${entity.name}] 失去了 [${materialId} × ${existed}], 但还欠 [${amount - existed}] 个。')
   } else {
-    engine.warn('[${entity.name}] 只有 [${existed}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
+    engine.warn('[${entity.name}] 只有 [${existed ?? 0}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
   }
 
-  return success
+  return exhausted
 }
 
 /// 对象（人物、据点等）获得一个已经存在与世界上的物品
@@ -307,10 +290,9 @@ function entityAcquire(entity, item, { amount, incurIncident = true }) {
   if (item.isUnique)
   assert(item.entityType == kEntityTypeItem, '${item.entityType}')
 
-  if (item.stackSize < 1) {
-    item.stackSize = 1
-  }
+  item.stackSize ??= 1
   let acquireAmount = amount ?? item.stackSize
+  assert(acquireAmount > 0, 'entityAcquire amount <= 0, stackSize: ${item.stackSize}, amount: ${amount}')
   
   let acquiredItem
   if (entity.inventory.containsKey(item.id)) {
@@ -356,8 +338,44 @@ function entityAcquire(entity, item, { amount, incurIncident = true }) {
   return acquiredItem
 }
 
+function entityAcquireAll(entity, items, { incurIncident = true }) {
+  for (final item in items) {
+    entityAcquire(entity, item, incurIncident: incurIncident)
+  }
+}
+
+function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
+  assert(amount > 0)
+
+  final item = createItemById(id)
+
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+  item.ownerType = entity.entityType
+  item.stackSize = amount ?? 1
+
+  let incidentContent
+  incidentContent = engine.locale('entityAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (entity.entityType == 'character') {
+    if (incurIncident)  {
+      Incident(
+        message: incidentContent,
+        subjectId: entity.id,
+        item: item,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  return item
+}
+
 /// 失去指定数量的某个物品，返回 bool 表示是否成功
-function entityLose(entity, item, { amount, incurIncident = true }) {
+function entityLose(entity, item, { amount }) {
   assert(entity.inventory.containsKey(item.id))
   let itemAmount = item.stackSize ?? 1
   amount ??= itemAmount
@@ -369,7 +387,7 @@ function entityLose(entity, item, { amount, incurIncident = true }) {
     } else {
       item.stackSize = itemAmount
     }
-    engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+    // engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
     return true
   } else {
     engine.warn('[${entity.name}] 只有 [${item.stackSize}] 个 [${item.name}]，但需要支付 [${amount}] 个。')
@@ -378,7 +396,7 @@ function entityLose(entity, item, { amount, incurIncident = true }) {
 }
 
 /// 失去指定数量的某个物品种类，返回 bool 表示是否成功
-function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
+function entityLoseItemKind(entity, kind, amount) {
   assert(entity.inventory != null)
   final items = []
   let count
@@ -396,11 +414,11 @@ function entityLoseItemKind(entity, kind, amount, { incurIncident = true }) {
       if (itemAmount > amount) {
         item.stackSize -= amount
         amount = 0
-        engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+        // engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
       } else {
         amount -= itemAmount
         delete entity.inventory[item.id]
-        engine.warn('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
+        // engine.warn('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
       }
     }
     return true
@@ -515,7 +533,7 @@ function createLoot(itemsInfo: List) {
       }
       'contribution': {
         final pack = Contributionpack(
-          organizationId: itemInfo.organizationId,
+          sectId: itemInfo.sectId,
           locationId: itemInfo.locationId,
           amount: amount,
         )

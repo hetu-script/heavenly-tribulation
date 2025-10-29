@@ -65,12 +65,16 @@ namespace Player {
 
   function exhaust(materialId, amount) -> bool {
     assert(hero != null)
-    return entityExhaust(hero, materialId, amount)
+    final result = entityExhaust(hero, materialId, amount)
+    if (result > 0) {
+      engine.warn('[${hero.name}] 失去了 [${materialId} × ${result}]')
+    }
+    return result
   }
 
   async function makeContribution(data, { incurIncident = true }) {
     assert(hero != null)
-    return characterMakeContribution(hero, data, incurIncident: incurIncident)
+    characterMakeContribution(hero, data, incurIncident: incurIncident)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -117,6 +121,7 @@ namespace Player {
   function lose(item, { amount, incurIncident = true }) {
     assert(hero != null)
     entityLose(hero, item, amount: amount, incurIncident: incurIncident)
+    engine.warn('[${hero.name}] 失去了 [${item.name} × ${amount ?? item.stackSize ?? 1}]')
   }
 
   function acquireCard(card, { incurIncident = true }) {
@@ -614,43 +619,43 @@ namespace Player {
     return journals
   }
 
-  async function enroll(organization, { npcId, titleId = 'taskman', incurIncident = true }) {
+  async function enroll(sect, { npcId, titleId = 'taskman', incurIncident = true }) {
     assert(hero != null)
-    addCharacterToOrganization(
+    addCharacterToSect(
       hero,
-      organization,
+      sect,
       titleId: titleId,
       setHome: false, // 玩家需要手动选择家宅
       assignSuperior: false,
       incurIncident: incurIncident,
     )
-    dialog.pushDialog('hint_select_organization_home')
+    dialog.pushDialog('hint_select_sect_home')
     await dialog.execute()
-    final locationIds = organization.locationIds
-    assert(locationIds.isNotEmpty, 'organization has no locationIds: ${organization.id}')
+    final locationIds = sect.locationIds
+    assert(locationIds.isNotEmpty, 'sect has no locationIds: ${sect.id}')
     // 玩家需要手动选择一个据点作为家宅所在地
     final homeId = await Game.selectLocation(locationIds)
     const home = game.locations[homeId]
     setCharacterHome(hero, home)
     
-    final cityhall = home.sites.map((id) => game.locations[id]).firstWhere((site) => site.kind == 'cityhall')
+    final cityhall = home.siteIds.map((id) => game.locations[id]).firstWhere((site) => site.kind == 'cityhall')
     assert(cityhall != null, 'could not find cityhall in location: [${home.name}]')
 
-    final superiorId = assignCharacterSuperior(hero, organization)
-    assert(superiorId != null, 'no superior for hero found in organization: ${organization.id}')
+    final superiorId = assignCharacterSuperior(hero, sect)
+    assert(superiorId != null, 'no superior for hero found in sect: ${sect.id}')
     final superior = game.characters[superiorId]
     assert(superior != null, 'character is null for id: ${superiorId}')
 
     final interpolations = [
-      organization.name,
+      sect.name,
       cityhall.name,
       superior.name,
     ]
-    dialog.pushDialog('hint_organization_initiation', interpolations: interpolations)
+    dialog.pushDialog('hint_sect_initiation', interpolations: interpolations)
     await dialog.execute()
     
-    if (!hero.journals.containsKey('organizationInitiation')) {
-      final journal = Player.createJournalById('organizationInitiation', interpolations: interpolations)
+    if (!hero.journals.containsKey('sectInitiation')) {
+      final journal = Player.createJournalById('sectInitiation', interpolations: interpolations)
       Game.promptJournal(journal)
     }
   }

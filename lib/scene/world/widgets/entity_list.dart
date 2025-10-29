@@ -8,8 +8,8 @@ import '../../../engine.dart';
 import '../../../ui.dart';
 import '../../../widgets/entity_table.dart';
 import '../../../widgets/character/memory_and_bond.dart';
-import '../../../widgets/location/location.dart';
-import '../../../widgets/organization/organization.dart';
+import '../../../widgets/location/city.dart';
+import '../../../widgets/sect/sect.dart';
 import '../../../widgets/ui/menu_builder.dart';
 import '../../../widgets/character/stats_and_item.dart';
 import '../../../widgets/character/profile.dart';
@@ -17,7 +17,7 @@ import '../../../widgets/dialog/input_world_position.dart';
 import '../../../widgets/common.dart';
 import '../../../widgets/dialog/input_string.dart';
 import '../../../widgets/dialog/confirm.dart';
-import '../../../widgets/organization/edit_organization_basic.dart';
+import '../../../widgets/sect/edit_sect_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
 import '../../../state/selected_tile.dart';
 import '../../../logic/logic.dart';
@@ -205,7 +205,7 @@ const _kLocationColumns = {
   'development': 100.0,
 };
 
-const _kOrganizationColumns = {
+const _kSectColumns = {
   'name': 100.0,
   'population': 100.0,
 };
@@ -226,15 +226,14 @@ class EntityListPanel extends StatefulWidget {
     required this.size,
     this.onUpdateCharacters,
     this.onUpdateLocations,
-    this.onCreatedOrganization,
+    this.onCreatedSect,
   });
 
   final Size size;
 
   final void Function()? onUpdateCharacters;
   final void Function()? onUpdateLocations;
-  final void Function(dynamic organization, dynamic city)?
-      onCreatedOrganization;
+  final void Function(dynamic sect, dynamic city)? onCreatedSect;
 
   @override
   State<EntityListPanel> createState() => _EntityListPanelState();
@@ -249,7 +248,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   static List<Widget> tabs = [
     Tab(text: engine.locale('character')),
-    Tab(text: engine.locale('organization')),
+    Tab(text: engine.locale('sect')),
     Tab(text: engine.locale('location')),
     Tab(text: engine.locale('mapObject')),
     Tab(text: engine.locale('zone')),
@@ -259,15 +258,11 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   late String? _heroId;
   // late int _worldWidth, _worldHeight;
-  late Iterable<dynamic> _characters,
-      _locations,
-      _organizations,
-      _zones,
-      _mapObjects;
+  late Iterable<dynamic> _characters, _locations, _sects, _zones, _mapObjects;
 
   final List<List<String>> _charactersTableData = [],
       _locationsTableData = [],
-      _organizationsTableData = [],
+      _sectsTableData = [],
       _zonesTableData = [],
       _mapObjectsTableData = [];
 
@@ -280,7 +275,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     // _worldHeight = worldSizeData['height'];
 
     _updateCharacters();
-    _updateOrganizations();
+    _updateSects();
     _updateLocations();
     _updateZones();
     _updateObjects();
@@ -332,31 +327,31 @@ class _EntityListPanelState extends State<EntityListPanel>
     }
   }
 
-  void _updateOrganizations() {
-    _organizationsTableData.clear();
-    _organizations = engine.hetu.invoke('getOrganizations');
-    for (final org in _organizations) {
+  void _updateSects() {
+    _sectsTableData.clear();
+    _sects = engine.hetu.invoke('getSects');
+    for (final org in _sects) {
       final rowData = <String>[];
       rowData.add(org['name']);
       rowData.add(org['membersData'].length.toString());
       // 多存一个隐藏的 id 信息，用于点击事件
       rowData.add(org['id']);
-      _organizationsTableData.add(rowData);
+      _sectsTableData.add(rowData);
     }
     setState(() {});
   }
 
-  void _editOrganization(String dataId) async {
+  void _editSect(String dataId) async {
     final value = await showDialog(
       context: context,
-      builder: (context) => OrganizationView(
-        organizationId: dataId,
+      builder: (context) => SectView(
+        sectId: dataId,
         mode: InformationViewMode.edit,
       ),
     );
     if (value == true) return;
 
-    _updateOrganizations();
+    _updateSects();
   }
 
   void _updateLocations() {
@@ -377,8 +372,8 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editLocation(String dataId) async {
     final value = await showDialog(
       context: context,
-      builder: (context) => LocationView(
-        locationId: dataId,
+      builder: (context) => CityView(
+        cityId: dataId,
         mode: InformationViewMode.edit,
       ),
     );
@@ -820,14 +815,14 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final value = await showDialog(
                             context: context,
                             builder: (context) {
-                              return EditOrganizationBasics(
+                              return EditSectBasics(
                                 headquartersData: location,
                               );
                             });
                         if (value == null) return;
                         final (id, name, category, genre, headId) = value;
-                        final organization = engine.hetu.invoke(
-                          'Organization',
+                        final sect = engine.hetu.invoke(
+                          'Sect',
                           namedArgs: {
                             'id': id,
                             'name': name,
@@ -840,25 +835,24 @@ class _EntityListPanelState extends State<EntityListPanel>
                         await showDialog(
                             context: context,
                             builder: (context) {
-                              return OrganizationView(
+                              return SectView(
                                 mode: InformationViewMode.edit,
-                                organization: organization,
+                                sect: sect,
                               );
                             });
-                        _updateOrganizations();
-                        widget.onCreatedOrganization
-                            ?.call(organization, location);
+                        _updateSects();
+                        widget.onCreatedSect?.call(sect, location);
                       },
-                      child: Text(engine.locale('createOrganization')),
+                      child: Text(engine.locale('createSect')),
                     ),
                   ),
                   SizedBox(
                     height: widget.size.height - 175,
                     child: EntityTable(
-                        columns: _kOrganizationColumns,
-                        tableData: _organizationsTableData,
+                        columns: _kSectColumns,
+                        tableData: _sectsTableData,
                         onItemPressed: (position, dataId) {
-                          _editOrganization(dataId);
+                          _editSect(dataId);
                         },
                         onItemSecondaryPressed: (position, dataId) {}),
                   ),
@@ -922,8 +916,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                         await showDialog(
                             context: context,
                             builder: (context) {
-                              return LocationView(
-                                location: location,
+                              return CityView(
+                                city: location,
                                 mode: InformationViewMode.edit,
                               );
                             });

@@ -5,7 +5,7 @@
 
   "equipment": "装备",
   "consumable": "消耗品",
-  "material": "材料",
+  "material": "物资",
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
@@ -27,7 +27,7 @@
   "resource": "资源",
   "package": "包",
 
-  "material_pack": "材料包",
+  "material_pack": "物资包",
   "cardpack": "秘籍",
   "ownedBattleCard": "拥有的功法",
   "ownedCardpack": "拥有的秘籍",

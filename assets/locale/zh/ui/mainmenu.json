@@ -18,7 +18,7 @@
   "cityNumber": "城市数量",
   "memberNumber": "成员数量",
   "characterNumber": "角色数量",
-  "organizationNumber": "门派数量",
+  "sectNumber": "门派数量",
 
   "newMap": "创建新地图",
   "loadMap": "载入地图",

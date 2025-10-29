@@ -367,6 +367,28 @@ class CultivationScene extends Scene with HasCursorState {
     // }
   }
 
+  Future<String?> _selectHeroAttribute() async {
+    final selections = {};
+    for (final key in kBattleAttributes) {
+      final attrName = engine.locale(key);
+      final attrDescription = engine.locale('${key}_description');
+      selections[key] = {
+        'text': attrName,
+        'description':
+            '$attrDescription\n${engine.locale('current')}$attrName: ${GameData.hero['stats'][key]}',
+      };
+    }
+    selections['cancel'] = engine.locale('cancel');
+
+    dialog.pushSelectionRaw({
+      'id': 'selectedAttribute',
+      'selections': selections,
+    });
+    await dialog.execute();
+    final selected = dialog.checkSelected('selectedAttribute');
+    return selected;
+  }
+
   void _addSkillButton({required String nodeId, required Vector2 position}) {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
 
@@ -463,8 +485,7 @@ class CultivationScene extends Scene with HasCursorState {
 
           if (isAttribute) {
             // 如果是属性节点，需要特殊处理
-            final selectedAttributeId =
-                await engine.hetu.invoke('selectHeroAttribute');
+            final selectedAttributeId = await _selectHeroAttribute();
 
             if (selectedAttributeId == null ||
                 selectedAttributeId == 'cancel') {
@@ -1236,14 +1257,15 @@ class CultivationScene extends Scene with HasCursorState {
                 width: GameUI.infoButtonSize.width,
                 height: GameUI.infoButtonSize.height,
                 child: IconButton(
+                  icon: Icon(Icons.question_mark),
                   padding: const EdgeInsets.all(0),
+                  mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                   onPressed: () {
                     GameDialogContent.show(
                       context,
                       engine.locale('hint_cultivation'),
                     );
                   },
-                  icon: Icon(Icons.question_mark),
                 ),
               ),
             ],

@@ -43,12 +43,12 @@ struct TrialDungeonFlags {
   constructor ({
     name,
     difficulty,
-    organizationId,
+    sectId,
     npcId,
   }) {
     this.name = name ?? engine.locale('cultivation_trial')
     this.difficulty = difficulty ?? 0
-    this.organizationId = organizationId
+    this.sectId = sectId
     this.npcId = npcId
 
     this.introCompleted = false
@@ -61,13 +61,13 @@ struct TrialDungeonFlags {
 function resetTrial({
     name,
     difficulty,
-    organizationId,
+    sectId,
     npcId,
 }) {
   game.flags.dungeon = TrialDungeonFlags(
     name: name,
     difficulty: difficulty,
-    organizationId: organizationId,
+    sectId: sectId,
     npcId: npcId,
   )
 }
@@ -172,8 +172,8 @@ function addMerchant(tilePosition, {
     hoverContent,
     useCustomLogic = false,
     rank,
-    money = 100000,
-    shard = 100000,
+    money = 1000000,
+    shard = 1000,
     itemCategories,
     itemCount = 5,
     useShard = false,

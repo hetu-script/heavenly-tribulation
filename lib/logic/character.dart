@@ -1,5 +1,73 @@
 part of 'logic.dart';
 
+void _updateCharacterMonthly(dynamic character) {
+  // engine.debug('${character['id']} 的月度更新');
+
+  engine.hetu.invoke('resetCharacterMonthly', positionalArgs: [character]);
+}
+
+Future<void> _onDying() async {
+  await GameDialogContent.show(engine.context, engine.locale('hint_dying'));
+
+  final int tribulationCount = GameData.hero['tribulationCount'];
+  final int tribulationCountMax = GameData.hero['stats']['tribulationCountMax'];
+
+  if (tribulationCountMax > 0 && tribulationCount > tribulationCountMax) {
+    // TODO: 展示战败CG
+    await engine.clearAllCachedScene(
+      except: Scenes.mainmenu,
+      triggerOnStart: true,
+    );
+    return;
+  }
+
+  final result =
+      await engine.hetu.invoke('onGameEvent', positionalArgs: ['onDying']);
+  if (result == true) {
+    return;
+  }
+
+  engine.setLoading(true, tip: engine.locale('tips_dying'));
+
+  await engine.popSceneTill(GameData.game['mainWorldId'] ?? Scenes.mainmenu);
+
+  final homeLocationId = GameData.hero['homeLocationId'];
+  if (homeLocationId != null) {
+    final homeLocation = GameData.getLocation(homeLocationId);
+    final homeSiteId = GameData.hero['homeSiteId'];
+
+    final worldPosition = homeLocation['worldPosition'];
+    engine.hetu.invoke('setTo', namespace: 'Player', positionalArgs: [
+      worldPosition['left'],
+      worldPosition['top'],
+    ]);
+
+    await engine.pushScene(
+      homeLocationId,
+      constructorId: Scenes.location,
+      arguments: {'locationId': homeLocationId},
+    );
+    await engine.pushScene(
+      homeSiteId,
+      constructorId: Scenes.location,
+      arguments: {
+        'locationId': homeSiteId,
+        'onEnterScene': () async {
+          dialog.pushDialog(
+            'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
+            isHero: true,
+          );
+          await dialog.execute();
+        }
+      },
+    );
+  }
+
+  await Future.delayed(const Duration(milliseconds: 500));
+
+  engine.setLoading(false);
+}
+
 void _heroRest(dynamic location) async {
   final siteKind = location['kind'];
 
@@ -8,7 +76,7 @@ void _heroRest(dynamic location) async {
   int restCostPerTime = 0;
   if (location['id'] != GameData.hero['homeSiteId']) {
     if (siteKind == 'cityhall') {
-      if (location['organizationId'] != GameData.hero['organizationId']) {
+      if (location['sectId'] != GameData.hero['sectId']) {
         dialog.pushDialog(
           'hint_notYourHomeToRest',
           npcId: location['npcId'],
@@ -26,24 +94,26 @@ void _heroRest(dynamic location) async {
               'text': engine.locale('hotelRoom_vip'),
               'description':
                   engine.locale('hotelRoom_description', interpolations: [
-                kHotelVipCostPerDay * developmentFactor,
-                kHotelVipLifeRestorePerTime * developmentFactor,
+                kHotelVipCostPerTime * kTimesPerDay * developmentFactor,
+                kHotelVipLifeRestorePerTime * kTimesPerDay * developmentFactor,
               ]),
             },
             'hotelRoom_normal': {
               'text': engine.locale('hotelRoom_normal'),
               'description':
                   engine.locale('hotelRoom_description', interpolations: [
-                kHotelNormalCostPerDay * developmentFactor,
-                kHotelNormalLifeRestorePerTime * developmentFactor,
+                kHotelNormalCostPerTime * kTimesPerDay * developmentFactor,
+                kHotelNormalLifeRestorePerTime *
+                    kTimesPerDay *
+                    developmentFactor,
               ]),
             },
             'hotelRoom_stable': {
               'text': engine.locale('hotelRoom_stable'),
               'description':
                   engine.locale('hotelRoom_description', interpolations: [
-                kHotelStableCostPerDay,
-                kHomeLifeRestorePerTime,
+                kHotelStableCostPerTime * kTimesPerDay,
+                kHomeLifeRestorePerTime * kTimesPerDay,
               ]),
             },
             'forgetIt': engine.locale('forgetIt'),
@@ -54,14 +124,14 @@ void _heroRest(dynamic location) async {
       final selected = dialog.checkSelected('hotel_selection');
       switch (selected) {
         case 'hotelRoom_vip':
-          restCostPerTime = kHotelVipCostPerDay * developmentFactor;
+          restCostPerTime = kHotelVipCostPerTime * developmentFactor;
           lifeRestorePerTime = kHotelVipLifeRestorePerTime * developmentFactor;
         case 'hotelRoom_normal':
-          restCostPerTime = kHotelNormalCostPerDay * developmentFactor;
+          restCostPerTime = kHotelNormalCostPerTime * developmentFactor;
           lifeRestorePerTime =
               kHotelNormalLifeRestorePerTime * developmentFactor;
         case 'hotelRoom_stable':
-          restCostPerTime = kHotelStableCostPerDay;
+          restCostPerTime = kHotelStableCostPerTime;
           lifeRestorePerTime = kHomeLifeRestorePerTime;
         case 'forgetIt':
           return;
@@ -88,8 +158,6 @@ void _heroRest(dynamic location) async {
   bool stopAtFullHealth = false;
   int? ticks;
   switch (selected) {
-    case 'cancel':
-      return;
     case 'rest1Days':
       ticks = kTicksPerDay;
     case 'rest5Days':
@@ -111,6 +179,10 @@ void _heroRest(dynamic location) async {
       }
       stopAtFullHealth = true;
       ticks = t;
+    case 'restIndefinitely':
+      ticks = null;
+    default:
+      return;
   }
 
   await TimeflowDialog.show(
@@ -147,7 +219,7 @@ Future<void> _heroProduce(dynamic location) async {
   final siteKind = location['kind'];
   assert(
       kProductionSiteKinds.contains(siteKind) &&
-          kSiteWorkableBaseStaminaCost.containsKey(siteKind),
+          kSiteWorkableStaminaCost.containsKey(siteKind),
       '非可生产场所：${location['name']} ($siteKind)');
 
   final isRented = await _checkRented(location);
@@ -181,8 +253,8 @@ Future<void> _heroWork(dynamic location) async {
 
   // 非门派成员，只能在一年中的指定时间打工
   // 门派成员则不受时间限制
-  if (location['organizationId'] != null &&
-      location['organizationId'] != GameData.hero['organizationId']) {
+  if (location['sectId'] != null &&
+      location['sectId'] != GameData.hero['sectId']) {
     final months = kSiteWorkableMounths[siteKind] as List;
     if (!months.contains(GameLogic.month)) {
       dialog.pushDialog(
@@ -225,9 +297,8 @@ Future<void> _onInteractNpc(dynamic location) async {
     return;
   }
 
-  /// 这里的 organization 可能是 null
-  final organization =
-      GameData.game['organizations'][location['organizationId']];
+  /// 这里的 sect 可能是 null
+  final sect = GameData.game['sects'][location['sectId']];
 
   /// 这里的 atLocation 可能是 null
   final atLocation = GameData.game['locations'][location['atLocationId']];
@@ -237,29 +308,28 @@ Future<void> _onInteractNpc(dynamic location) async {
 
   bool isManager = heroId == location['managerId'];
   bool isMayor = heroId == atLocation?['managerId'];
-  bool isHead = heroId == organization?['headId'];
+  bool isHead = heroId == sect?['headId'];
 
-  bool hasAuthority = isManager || isMayor || isHead;
+  bool isAdmin = isManager || isMayor || isHead;
 
   final siteKind = location['kind'];
   if (siteKind == 'headquarters') {
-    final siteOptions = ['organizationInformation'];
-    final heroOrganizationId = GameData.hero['organizationId'];
-    if (heroOrganizationId == null) {
+    final siteOptions = ['sectInformation'];
+    final heroSectId = GameData.hero['sectId'];
+    if (heroSectId == null) {
       siteOptions.add('enroll');
     } else {
-      if (heroOrganizationId == organization['id']) {
+      if (heroSectId == sect['id']) {
         siteOptions.add('resign');
       } else {
         final heroTitleId = GameData.hero['titleId'];
         if (heroTitleId == 'head' || heroTitleId == 'envoy') {
-          final heroOrganization = GameData.getOrganization(heroOrganizationId);
-          final diplomacyDataId = organization['diplomacies']
-              [heroOrganizationId][heroOrganizationId];
+          final heroSect = GameData.getSect(heroSectId);
+          final diplomacyDataId = sect['diplomacies'][heroSectId][heroSectId];
           if (diplomacyDataId == null) {
             engine.hetu.invoke(
               'createDiplomacy',
-              positionalArgs: [heroOrganization, organization],
+              positionalArgs: [heroSect, sect],
               namedArgs: {
                 'type': 'neutral',
                 'score': kDiplomacyDefaultScore,
@@ -293,19 +363,17 @@ Future<void> _onInteractNpc(dynamic location) async {
     await dialog.execute();
     final selected = dialog.checkSelected(siteKind);
     switch (selected) {
-      case 'organizationInformation':
-        showDialog(
-          context: engine.context,
-          builder: (context) => OrganizationView(
-            organization: organization,
-            mode: hasAuthority
-                ? InformationViewMode.manage
-                : InformationViewMode.view,
-          ),
+      case 'sectInformation':
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.sectInformation,
+          arguments: {
+            'sect': sect,
+            'isAdmin': isAdmin,
+          },
         );
       case 'enroll':
         // 检查门派招募月份
-        final recruitMonth = organization['recruitMonth'];
+        final recruitMonth = sect['recruitMonth'];
         if (recruitMonth != GameLogic.month) {
           dialog.pushDialog(
             'hint_notRecruitMonth',
@@ -316,22 +384,21 @@ Future<void> _onInteractNpc(dynamic location) async {
           return;
         }
         // 玩家本月是否已经进行过此门派的试炼
-        if (GameData.checkMonthly(
-            MonthlyActivityIds.enrolled, organization['id'])) {
+        if (GameData.checkMonthly(MonthlyActivityIds.enrolled, sect['id'])) {
           dialog.pushDialog(
             'hint_alreadyTrialedThisMonth',
             npc: npc,
           );
           return;
         }
-        final organizationCategory = organization['category'];
-        assert(kOrganizationCategories.contains(organizationCategory));
+        final sectCategory = sect['category'];
+        assert(kSectCategories.contains(sectCategory));
         dialog.pushDialog(
-          'organization_${organizationCategory}_trial_intro',
+          'sect_${sectCategory}_trial_intro',
           npc: npc,
         );
         await dialog.execute();
-        switch (organizationCategory) {
+        switch (sectCategory) {
           case 'wuwei':
             bool passed = true;
             final questions =
@@ -339,7 +406,7 @@ Future<void> _onInteractNpc(dynamic location) async {
             questions.shuffle();
             final selectedQuestions = questions.skip(5);
             for (final q in selectedQuestions) {
-              final qString = 'organization_wuwei_trial_question_$q';
+              final qString = 'sect_wuwei_trial_question_$q';
               dialog.pushDialog(
                 qString,
                 npc: npc,
@@ -365,23 +432,22 @@ Future<void> _onInteractNpc(dynamic location) async {
             }
             if (passed) {
               dialog.pushDialog(
-                'organization_${organizationCategory}_trial_pass',
+                'sect_${sectCategory}_trial_pass',
                 npc: npc,
               );
               await dialog.execute();
               await engine.hetu.invoke(
                 'enroll',
                 namespace: 'Player',
-                positionalArgs: [organization],
+                positionalArgs: [sect],
                 namedArgs: {
                   'npcId': npc['id'],
                 },
               );
             } else {
-              GameData.addMonthly(
-                  MonthlyActivityIds.enrolled, organization['id']);
+              GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
               dialog.pushDialog(
-                'organization_${organizationCategory}_trial_fail',
+                'sect_${sectCategory}_trial_fail',
                 npc: npc,
               );
               await dialog.execute();
@@ -428,23 +494,22 @@ Future<void> _onInteractNpc(dynamic location) async {
               onBattleEnd: (bool battleResult, int roundCount) async {
                 if (roundCount <= kCultivationTrialMinBattleRound) {
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_pass',
+                    'sect_${sectCategory}_trial_pass',
                     npc: npc,
                   );
                   await dialog.execute();
                   await engine.hetu.invoke(
                     'enroll',
                     namespace: 'Player',
-                    positionalArgs: [organization],
+                    positionalArgs: [sect],
                     namedArgs: {
                       'npcId': npc['id'],
                     },
                   );
                 } else {
-                  GameData.addMonthly(
-                      MonthlyActivityIds.enrolled, organization['id']);
+                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_fail',
+                    'sect_${sectCategory}_trial_fail',
                     npc: npc,
                   );
                   await dialog.execute();
@@ -455,7 +520,7 @@ Future<void> _onInteractNpc(dynamic location) async {
             engine.hetu.invoke('resetTrial', namedArgs: {
               'name': engine.locale('cultivation_trial'),
               'difficulty': 0,
-              'organizationId': organization['id'],
+              'sectId': sect['id'],
               'npcId': npc['id'],
             });
             engine.pushScene(
@@ -477,23 +542,22 @@ Future<void> _onInteractNpc(dynamic location) async {
               onBattleEnd: (bool battleResult, int roundCount) async {
                 if (battleResult) {
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_pass',
+                    'sect_${sectCategory}_trial_pass',
                     npc: npc,
                   );
                   await dialog.execute();
                   await engine.hetu.invoke(
                     'enroll',
                     namespace: 'Player',
-                    positionalArgs: [organization],
+                    positionalArgs: [sect],
                     namedArgs: {
                       'npcId': npc['id'],
                     },
                   );
                 } else {
-                  GameData.addMonthly(
-                      MonthlyActivityIds.enrolled, organization['id']);
+                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_fail',
+                    'sect_${sectCategory}_trial_fail',
                     npc: npc,
                   );
                   await dialog.execute();
@@ -501,7 +565,7 @@ Future<void> _onInteractNpc(dynamic location) async {
               },
             );
           case 'entrepreneur':
-            final Iterable membersData = organization['membersData'].values;
+            final Iterable membersData = sect['membersData'].values;
             final testersData = membersData.where((m) {
               return m['rank'] == GameData.hero['rank'];
             }).toList();
@@ -521,23 +585,22 @@ Future<void> _onInteractNpc(dynamic location) async {
               onBattleEnd: (bool battleResult, int roundCount) async {
                 if (battleResult) {
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_pass',
+                    'sect_${sectCategory}_trial_pass',
                     npc: npc,
                   );
                   await dialog.execute();
                   await engine.hetu.invoke(
                     'enroll',
                     namespace: 'Player',
-                    positionalArgs: [organization],
+                    positionalArgs: [sect],
                     namedArgs: {
                       'npcId': npc['id'],
                     },
                   );
                 } else {
-                  GameData.addMonthly(
-                      MonthlyActivityIds.enrolled, organization['id']);
+                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
                   dialog.pushDialog(
-                    'organization_${organizationCategory}_trial_fail',
+                    'sect_${sectCategory}_trial_fail',
                     npc: npc,
                   );
                   await dialog.execute();
@@ -547,14 +610,14 @@ Future<void> _onInteractNpc(dynamic location) async {
           case 'wealth':
             final int cost = kWealthTrialCost;
             dialog.pushSelectionRaw({
-              'id': 'organization_wealth_trial',
+              'id': 'sect_wealth_trial',
               'selections': {
                 'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
                 'forgetIt': engine.locale('forgetIt'),
               }
             });
             await dialog.execute();
-            final selected = dialog.checkSelected('organization_wealth_trial');
+            final selected = dialog.checkSelected('sect_wealth_trial');
             if (selected == 'pay_shard') {
               final int shard = GameData.hero['materials']['shard'] ?? 0;
               if (shard >= cost) {
@@ -564,14 +627,14 @@ Future<void> _onInteractNpc(dynamic location) async {
                   positionalArgs: ['shard', cost],
                 );
                 dialog.pushDialog(
-                  'organization_${organizationCategory}_trial_pass',
+                  'sect_${sectCategory}_trial_pass',
                   npc: npc,
                 );
                 await dialog.execute();
                 await engine.hetu.invoke(
                   'enroll',
                   namespace: 'Player',
-                  positionalArgs: [organization],
+                  positionalArgs: [sect],
                   namedArgs: {
                     'npcId': npc['id'],
                   },
@@ -579,7 +642,7 @@ Future<void> _onInteractNpc(dynamic location) async {
               } else {
                 dialog.pushDialog(engine.locale('hint_notEnoughShard'));
                 dialog.pushDialog(
-                  'organization_${organizationCategory}_trial_fail',
+                  'sect_${sectCategory}_trial_fail',
                   npc: npc,
                 );
                 await dialog.execute();
@@ -589,31 +652,31 @@ Future<void> _onInteractNpc(dynamic location) async {
             final heroCharisma = GameData.hero['stats']['charisma'];
             if (heroCharisma >= kPleasureTrialMinCharisma) {
               dialog.pushDialog(
-                'organization_${organizationCategory}_trial_pass',
+                'sect_${sectCategory}_trial_pass',
                 npc: npc,
               );
               await dialog.execute();
               await engine.hetu.invoke(
                 'enroll',
                 namespace: 'Player',
-                positionalArgs: [organization],
+                positionalArgs: [sect],
                 namedArgs: {
                   'npcId': npc['id'],
                 },
               );
             } else {
               dialog.pushDialog(
-                'organization_${organizationCategory}_trial_fail',
+                'sect_${sectCategory}_trial_fail',
                 npc: npc,
               );
               await dialog.execute();
             }
         }
       case 'resign':
-        final memberData = organization['membersData'][heroId];
+        final memberData = sect['membersData'][heroId];
         final jobRank = memberData['rank'] ?? 0;
         if (jobRank >= 3) {
-          dialog.pushDialog('organization_resign_1', npc: npc);
+          dialog.pushDialog('sect_resign_1', npc: npc);
           await dialog.execute();
           final resignSelections = [
             'resign_confirm',
@@ -623,19 +686,17 @@ Future<void> _onInteractNpc(dynamic location) async {
           final selected = dialog.checkSelected('resign_selections');
           if (selected != 'resign_confirm') return;
         }
-        dialog.pushDialog('organization_resign_confirm',
-            interpolations: [organization['name']]);
+        dialog
+            .pushDialog('sect_resign_confirm', interpolations: [sect['name']]);
         await dialog.execute();
         engine.hetu.invoke(
-          'removeCharacterFromOrganization',
-          positionalArgs: [GameData.hero],
+          'removeCharacterFromSect',
+          positionalArgs: [GameData.hero, sect],
         );
-        dialog.pushDialog('hint_organization_resign',
-            interpolations: [organization['name']]);
+        dialog.pushDialog('hint_sect_resign', interpolations: [sect['name']]);
         await dialog.execute();
       case 'donate':
-        final alreadyDonated =
-            GameData.checkMonthly('donated', organization['id']);
+        final alreadyDonated = GameData.checkMonthly('donated', sect['id']);
         if (alreadyDonated) {
           dialog.pushDialog('hint_already_donated',
               npc: npc, interpolations: [_kGameFlagsUpdateDay]);
@@ -643,7 +704,7 @@ Future<void> _onInteractNpc(dynamic location) async {
           return;
         }
         dialog.pushDialog([
-          'hint_organization_donation',
+          'hint_sect_donation',
           'hint_donation',
         ], npc: npc);
         await dialog.execute();
@@ -662,7 +723,7 @@ Future<void> _onInteractNpc(dynamic location) async {
           await dialog.execute();
           final contributionData = {
             'stackSize': contribution,
-            'organizationId': organization['id'],
+            'sectId': sect['id'],
           };
           engine.hetu.invoke('characterMakeContribution',
               positionalArgs: [GameData.hero, contributionData]);
@@ -678,16 +739,16 @@ Future<void> _onInteractNpc(dynamic location) async {
     final siteOptions = <dynamic>[];
     siteOptions.add('cityInformation');
     siteOptions.add('bountyQuest');
-    if (organization == null) {
-      if (GameData.hero['organizationId'] == null) {
-        siteOptions.add('createOrganization2');
+    if (sect == null) {
+      if (GameData.hero['sectId'] == null) {
+        siteOptions.add('createSect2');
       } else {
         siteOptions.add('recruitCity');
       }
       siteOptions.add('donate');
       siteOptions.add('checkContribution');
     }
-    if (organization['id'] == GameData.hero['organizationId'] &&
+    if (sect['id'] == GameData.hero['sectId'] &&
         GameData.hero['homeLocationId'] != atLocation['id']) {
       siteOptions.add('moveHere');
     }
@@ -700,14 +761,12 @@ Future<void> _onInteractNpc(dynamic location) async {
       case 'cityInformation':
         assert(atLocation != null,
             '试图查看 cityInformation 但 atLocation 为空, id: ${location['atLocationId']}');
-        showDialog(
-          context: engine.context,
-          builder: (context) => LocationView(
-            location: atLocation,
-            mode: hasAuthority
-                ? InformationViewMode.manage
-                : InformationViewMode.view,
-          ),
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.cityInformation,
+          arguments: {
+            'city': atLocation,
+            'isAdmin': isAdmin,
+          },
         );
       case 'bountyQuest':
         final bounties = location['bounties'] ?? const [];
@@ -728,31 +787,29 @@ Future<void> _onInteractNpc(dynamic location) async {
           ),
         );
         if (quest != null) {
-          GameLogic.acquireQuest(quest, location, organization);
+          GameLogic.heroAcquireQuest(quest, location, sect);
         }
-      case 'createOrganization2':
+      case 'createSect2':
         final rankString =
-            '<rank$kCreateOrganizationRequirementRank>${engine.locale('cultivationRank_$kCreateOrganizationRequirementRank')}</>';
-        dialog.pushDialog('hint_createOrganization_intro',
-            npc: npc,
-            interpolations: [
-              rankString,
-              kCreateOrganizationRequirementMoney,
-              kCreateOrganizationRequirementShard,
-            ]);
+            '<rank$kCreateSectRequirementRank>${engine.locale('cultivationRank_$kCreateSectRequirementRank')}</>';
+        dialog.pushDialog('hint_createSect_intro', npc: npc, interpolations: [
+          rankString,
+          kCreateSectRequirementMoney,
+          kCreateSectRequirementShard,
+        ]);
         await dialog.execute();
-        final orgOrgId = GameData.hero['organizationId'];
+        final orgOrgId = GameData.hero['sectId'];
         if (orgOrgId != null) {
-          final oldOrg = GameData.getOrganization(orgOrgId);
-          dialog.pushDialog('hint_createOrganization_intro',
+          final oldOrg = GameData.getSect(orgOrgId);
+          dialog.pushDialog('hint_createSect_intro',
               npc: npc, interpolations: [oldOrg['name']]);
           await dialog.execute();
           return;
         }
-        if (heroRank < kCreateOrganizationRequirementRank) {
+        if (heroRank < kCreateSectRequirementRank) {
           final heroRankString =
               '<rank$heroRank>${engine.locale('cultivationRank_$heroRank')}</>';
-          dialog.pushDialog('hint_createOrganization_rankTooLow',
+          dialog.pushDialog('hint_createSect_rankTooLow',
               npc: npc,
               interpolations: [
                 heroRankString,
@@ -763,75 +820,73 @@ Future<void> _onInteractNpc(dynamic location) async {
         }
         final hasMoney = GameData.hero['materials']['money'];
         final hasShard = GameData.hero['materials']['shard'];
-        if (hasMoney < kCreateOrganizationRequirementMoney ||
-            hasShard < kCreateOrganizationRequirementShard) {
-          dialog.pushDialog('hint_createOrganization_notEnoughMoneyOrShard',
+        if (hasMoney < kCreateSectRequirementMoney ||
+            hasShard < kCreateSectRequirementShard) {
+          dialog.pushDialog('hint_createSect_notEnoughMoneyOrShard',
               npc: npc,
               interpolations: [
-                kCreateOrganizationRequirementMoney,
-                kCreateOrganizationRequirementShard,
+                kCreateSectRequirementMoney,
+                kCreateSectRequirementShard,
               ]);
           await dialog.execute();
           return;
         }
         engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
           'money',
-          kCreateOrganizationRequirementMoney,
+          kCreateSectRequirementMoney,
         ]);
         engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
           'shard',
-          kCreateOrganizationRequirementShard,
+          kCreateSectRequirementShard,
         ]);
         String? name;
         while (name == null) {
-          dialog.pushDialog('hint_createOrganization_success_1', npc: npc);
+          dialog.pushDialog('hint_createSect_success_1', npc: npc);
           await dialog.execute();
           name = await showDialog(
             context: engine.context,
             builder: (context) => InputNameDialog(
-              mode: InputNameMode.organization,
+              mode: InputNameMode.sect,
             ),
           );
         }
         String? category;
         while (category == null) {
-          dialog.pushDialog('hint_createOrganization_success_2',
+          dialog.pushDialog('hint_createSect_success_2',
               npc: npc, interpolations: [name]);
           await dialog.execute();
-          category = await GameLogic.selectFrom(kOrganizationCategories);
+          category = await GameLogic.selectFrom(kSectCategories);
         }
         String? genre;
         while (genre == null) {
-          dialog.pushDialog('hint_createOrganization_success_3',
+          dialog.pushDialog('hint_createSect_success_3',
               npc: npc, interpolations: [category, name]);
           await dialog.execute();
           genre = await GameLogic.selectFrom(kCultivationGenres);
         }
-        dialog.pushDialog('hint_createOrganization_success_4',
+        dialog.pushDialog('hint_createSect_success_4',
             npc: npc, interpolations: [genre, name]);
         await dialog.execute();
         engine.hetu.invoke(
-          'Organization',
+          'Sect',
           namedArgs: {
             'name': name,
             'category': category,
             'genre': genre,
             'headId': GameData.hero['id'],
-            'headquartersLocation': atLocation,
+            'headquarters': atLocation,
           },
         );
       case 'recruitCity':
         final int development = location['development'];
         final developmentFactor = (development * 2 + 1);
-        dialog.pushDialog('hint_createOrganization_intro',
-            npc: npc,
-            interpolations: [
-              kRecruitCityRequirementContribution,
-              kRecruitCityRequirementMoney,
-              kRecruitCityRequirementShard,
-            ]);
+        dialog.pushDialog('hint_createSect_intro', npc: npc, interpolations: [
+          kRecruitCityRequirementContribution,
+          kRecruitCityRequirementMoney,
+          kRecruitCityRequirementShard,
+        ]);
         await dialog.execute();
-        final diplomacies = organization['diplomacies'];
+        final diplomacies = sect['diplomacies'];
         bool hasEnemy = false;
         for (final diplomacy in diplomacies.values) {
           if (diplomacy['type'] == 'enemy') {
@@ -881,7 +936,7 @@ Future<void> _onInteractNpc(dynamic location) async {
         dialog
             .pushDialog('hint_recruitCity_success', npc: npc, interpolations: [
           atLocation['name'],
-          organization['name'],
+          sect['name'],
         ]);
         await dialog.execute();
         engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
@@ -893,23 +948,23 @@ Future<void> _onInteractNpc(dynamic location) async {
           requirementShard,
         ]);
         engine.hetu.invoke(
-          'addLocationToOrganization',
-          positionalArgs: [atLocation, organization],
+          'addLocationToSect',
+          positionalArgs: [atLocation, sect],
         );
         engine.play('success-resolution-99782.mp3');
-        if (heroId == organization['headId']) {
+        if (heroId == sect['headId']) {
           atLocation['managerId'] = heroId;
         } else {
           engine.hetu.invoke(
             'createJournalById',
             namespace: 'Player',
             positionalArgs: [
-              'organizationRecruitReport',
+              'sectRecruitReport',
             ],
             namedArgs: {
               'interpolations': [
                 atLocation['name'],
-                organization['name'],
+                sect['name'],
               ],
             },
           );
@@ -954,7 +1009,7 @@ Future<void> _onInteractNpc(dynamic location) async {
             npc: npc, interpolations: [contribution]);
         await dialog.execute();
       case 'moveHere':
-        final cost = kMoveHomeCostBase * (location['development'] + 1);
+        final cost = kHomeRelocationCost * (location['development'] + 1);
         dialog.pushDialog('hint_moveHere', npc: npc, interpolations: [cost]);
         await dialog.execute();
         dialog.pushSelectionRaw({
@@ -990,7 +1045,7 @@ Future<void> _onInteractNpc(dynamic location) async {
       });
     }
     if (kProductionSiteKinds.contains(siteKind) &&
-        kSiteWorkableBaseStaminaCost.containsKey(siteKind)) {
+        kSiteWorkableStaminaCost.containsKey(siteKind)) {
       siteOptions.add({
         'text': 'produce',
         'description': 'hint_produce_description',
@@ -1013,14 +1068,12 @@ Future<void> _onInteractNpc(dynamic location) async {
     final selected = dialog.checkSelected(siteKind);
     switch (selected) {
       case 'siteInformation':
-        showDialog(
-          context: engine.context,
-          builder: (context) => LocationView(
-            location: location,
-            mode: hasAuthority
-                ? InformationViewMode.manage
-                : InformationViewMode.view,
-          ),
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.siteInformation,
+          arguments: {
+            'site': location,
+            'isAdmin': isAdmin,
+          },
         );
       case 'work':
         _heroWork(location);
@@ -1119,7 +1172,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
       final topicSelections = [
         'journalTopic',
         'characterTopic',
-        'organizationTopic',
+        'sectTopic',
         'locationTopic',
         'itemTopic',
         'cancel',
@@ -1159,40 +1212,37 @@ Future<void> _onInteractCharacter(dynamic character) async {
           if (result == true) return;
           bool topicRejected = true;
           switch (selectedJournalId) {
-            case 'organizationInitiation':
-              if (character['organizationId'] ==
-                  GameData.hero['organizationId']) {
+            case 'sectInitiation':
+              if (character['sectId'] == GameData.hero['sectId']) {
                 topicRejected = false;
-                final organization =
-                    GameData.game['organizations'][character['organizationId']];
-                assert(organization != null,
-                    'organization is null, id: ${character['organizationId']}');
-                final memberData =
-                    organization['membersData'][GameData.hero['id']];
+                final sect = GameData.game['sects'][character['sectId']];
+                assert(
+                    sect != null, 'sect is null, id: ${character['sectId']}');
+                final memberData = sect['membersData'][GameData.hero['id']];
                 assert(memberData != null,
-                    'memberData is null, organization id: [${character['organizationId']}], character id: ${GameData.hero['id']}');
+                    'memberData is null, sect id: [${character['sectId']}], character id: ${GameData.hero['id']}');
                 final reportSiteId = memberData['reportSiteId'];
                 final reportSite = GameData.getLocation(reportSiteId);
                 final superiorId = memberData['superiorId'];
                 assert(superiorId != null,
-                    'hero\'s superiorId is null, organization id: [${character['organizationId']}]');
+                    'hero\'s superiorId is null, sect id: [${character['sectId']}]');
                 final superior = GameData.getCharacter(superiorId);
                 if (superiorId == character['id']) {
                   dialog.pushDialog(
-                    'topic_organizationInitiation_superior',
+                    'topic_sectInitiation_superior',
                     character: character,
                     interpolations: [
-                      organization['name'],
+                      sect['name'],
                       reportSite['name'],
                     ],
                   );
                   await dialog.execute();
                 } else {
                   dialog.pushDialog(
-                    'topic_organizationInitiation',
+                    'topic_sectInitiation',
                     character: character,
                     interpolations: [
-                      organization['name'],
+                      sect['name'],
                       reportSite['name'],
                       superior['name'],
                     ],
@@ -1207,7 +1257,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
           }
         case 'characterTopic':
           {}
-        case 'organizationTopic':
+        case 'sectTopic':
           {}
         case 'locationTopic':
           {}
@@ -1251,14 +1301,14 @@ Future<void> _onInteractCharacter(dynamic character) async {
       // 根据好感度决定折扣
       // 根据角色技能决定不同物品的折扣
       // 根据角色境界决定使用铜钱还是灵石交易
-      double baseRate = kBaseBuyRate;
+      double baseRate = kBuyRateBase;
       final sellRateModifier =
           (bond['score'] * kPriceFavorRate) * kPriceFavorIncrement;
       baseRate -= sellRateModifier;
       if (baseRate < kMinBuyRate) {
         baseRate = kMinBuyRate;
       }
-      double sellRate = kBaseSellRate;
+      double sellRate = kSellRateBase;
       sellRate += sellRateModifier;
       if (sellRate < kMinSellRate) {
         sellRate = kMinSellRate;
@@ -1279,16 +1329,18 @@ Future<void> _onInteractCharacter(dynamic character) async {
       interacted = true;
       {}
     case 'relationshipDiscourse':
+      final familyRelationships = GameData.hero['familyRelationships'];
+      final shituRelationships = GameData.hero['shituRelationships'];
       final relationshipSelections = [];
 
       /// 玩家角色并不能主动发起浪漫关系
       /// 只能有概率的被动触发 NPC 爱上自己的事件
       /// 只有对方爱上自己的情况下，才可以创建婚姻关系
-      final bool isCharacterSpouse = engine.hetu
-          .invoke('isSpouse', positionalArgs: [character, GameData.hero]);
+      final bool isCharacterSpouse =
+          familyRelationships['spouseIds'].contains(character['id']);
       if (!isCharacterSpouse) {
-        final bool isCharacterRomance = engine.hetu
-            .invoke('isRomance', positionalArgs: [character, GameData.hero]);
+        final bool isCharacterRomance =
+            GameData.hero['romanceIds'].contains(character['id']);
         if (isCharacterRomance) {
           final bool hasProposed = GameData.checkMonthly(
               MonthlyActivityIds.proposed, character['id']);
@@ -1301,10 +1353,10 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
 
       // 师徒关系的传授功法
-      final bool isCharacterShifu = engine.hetu
-          .invoke('isTudi', positionalArgs: [character, GameData.hero]);
-      final bool isCharacterTudi = engine.hetu
-          .invoke('isTudi', positionalArgs: [GameData.hero, character]);
+      final bool isCharacterShifu =
+          shituRelationships['shifuIds'].contains(character['id']);
+      final bool isCharacterTudi =
+          shituRelationships['tudiIds'].contains(character['id']);
       // 不允许既是师父又是徒弟
       assert(!(isCharacterShifu && isCharacterTudi));
       final bool hasConsulted =
@@ -1340,17 +1392,18 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
 
       // 组织的加入，招募和开除
-      if (GameData.hero['organizationId'] == null) {
-        final bool isCharacterHead = engine.hetu
-            .invoke('isOrganizationHead', positionalArgs: [character]);
+      if (GameData.hero['sectId'] == null) {
+        final bool isCharacterHead = GameData.hero['sectId'] != null &&
+            GameData.game['sects'][GameData.hero['sectId']]['headId'] ==
+                character['id'];
         final bool hasEnrolled = GameData.checkMonthly(
-            MonthlyActivityIds.enrolled, character['organizationId']);
+            MonthlyActivityIds.enrolled, character['sectId']);
         if (isCharacterHead && !hasEnrolled) {
           relationshipSelections.add('enroll');
         }
       } else {
-        final bool isHeroHead = engine.hetu
-            .invoke('isOrganizationHead', positionalArgs: [GameData.hero]);
+        final bool isHeroHead =
+            engine.hetu.invoke('isSectHead', positionalArgs: [GameData.hero]);
         final bool hasRecruited = GameData.checkMonthly(
             MonthlyActivityIds.recruited, character['id']);
         if (isHeroHead && !hasRecruited) {

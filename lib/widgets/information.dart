@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'character/memory_and_bond.dart';
 import '../engine.dart';
 import 'entity_table.dart';
-import 'location/location.dart';
-import 'organization/organization.dart';
+import 'location/city.dart';
+import 'sect/sect.dart';
 import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/stats_and_item.dart';
@@ -17,10 +17,10 @@ enum InformationMode {
   all,
   character,
   location,
-  organization,
+  sect,
   selectCharacter,
   selectLocation,
-  selectOrganization,
+  selectSect,
 }
 
 enum _CharacterPopUpMenuItems {
@@ -35,8 +35,8 @@ enum _LocationPopUpMenuItems {
   checkInformation,
 }
 
-enum _OrganizationPopUpMenuItems {
-  selectOrganization,
+enum _SectPopUpMenuItems {
+  selectSect,
   checkInformation,
 }
 
@@ -54,8 +54,8 @@ class InformationView extends StatefulWidget {
     this.characters,
     this.locationIds,
     this.locations,
-    this.organizationIds,
-    this.organizations,
+    this.sectIds,
+    this.sects,
   });
 
   final String? title;
@@ -69,8 +69,8 @@ class InformationView extends StatefulWidget {
   final Iterable? characters;
   final Iterable? locationIds;
   final Iterable? locations;
-  final Iterable? organizationIds;
-  final Iterable? organizations;
+  final Iterable? sectIds;
+  final Iterable? sects;
 
   @override
   State<InformationView> createState() => _InformationViewState();
@@ -83,10 +83,10 @@ class _InformationViewState extends State<InformationView>
   @override
   bool get wantKeepAlive => true;
 
-  late final Iterable _locations, _organizations, _characters;
+  late final Iterable _locations, _sects, _characters;
 
   final List<List<String>> _locationsTable = [],
-      _organizationsTable = [],
+      _sectsTable = [],
       _charactersTable = [];
 
   @override
@@ -118,23 +118,20 @@ class _InformationViewState extends State<InformationView>
       _locationsTable.add(row);
     }
 
-    if (widget.organizations != null) {
-      _organizations = widget.organizations!;
+    if (widget.sects != null) {
+      _sects = widget.sects!;
     } else {
-      _organizations = engine.hetu
-          .invoke('getOrganizations', positionalArgs: [widget.organizationIds]);
+      _sects = engine.hetu.invoke('getSects', positionalArgs: [widget.sectIds]);
     }
-    for (final organization in _organizations) {
-      final row = GameData.getOrganizationInformationRow(organization);
-      _organizationsTable.add(row);
+    for (final sect in _sects) {
+      final row = GameData.getSectInformationRow(sect);
+      _sectsTable.add(row);
     }
 
     tabs = [
       Tab(text: '${engine.locale('character')}(${_charactersTable.length})'),
       Tab(text: '${engine.locale('city')}(${_locationsTable.length})'),
-      Tab(
-          text:
-              '${engine.locale('organization')}(${_organizationsTable.length})'),
+      Tab(text: '${engine.locale('sect')}(${_sectsTable.length})'),
     ];
   }
 
@@ -150,7 +147,7 @@ class _InformationViewState extends State<InformationView>
             !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          final charId = await showDialog(
+          final bool? selected = await showDialog(
             context: context,
             builder: (context) => CharacterProfileView(
               characterId: dataId,
@@ -161,8 +158,8 @@ class _InformationViewState extends State<InformationView>
                   : InformationViewMode.view,
             ),
           );
-          if (charId != null) {
-            Navigator.of(context).pop(charId);
+          if (selected == true) {
+            Navigator.of(context).pop(dataId);
           }
         }
       },
@@ -187,7 +184,7 @@ class _InformationViewState extends State<InformationView>
               case _CharacterPopUpMenuItems.selectCharacter:
                 Navigator.of(context).pop(dataId);
               case _CharacterPopUpMenuItems.checkProfile:
-                final charId = await showDialog(
+                final bool? selected = await showDialog(
                   context: context,
                   builder: (context) => CharacterProfileView(
                     characterId: dataId,
@@ -198,8 +195,8 @@ class _InformationViewState extends State<InformationView>
                         : InformationViewMode.view,
                   ),
                 );
-                if (charId != null) {
-                  Navigator.of(context).pop(charId);
+                if (selected == true) {
+                  Navigator.of(context).pop(dataId);
                 }
               case _CharacterPopUpMenuItems.checkStatsAndItem:
                 showDialog(
@@ -227,17 +224,17 @@ class _InformationViewState extends State<InformationView>
             !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          final locId = await showDialog(
+          final bool? selected = await showDialog(
             context: context,
-            builder: (context) => LocationView(
-              locationId: dataId,
+            builder: (context) => CityView(
+              cityId: dataId,
               mode: widget.mode == InformationMode.selectLocation
                   ? InformationViewMode.select
                   : InformationViewMode.view,
             ),
           );
-          if (locId != null) {
-            Navigator.of(context).pop(locId);
+          if (selected == true) {
+            Navigator.of(context).pop(dataId);
           }
         }
       },
@@ -258,17 +255,17 @@ class _InformationViewState extends State<InformationView>
               case _LocationPopUpMenuItems.selectLocation:
                 Navigator.of(context).pop(dataId);
               case _LocationPopUpMenuItems.checkInformation:
-                final locId = await showDialog(
+                final bool? selected = await showDialog(
                   context: context,
-                  builder: (context) => LocationView(
-                    locationId: dataId,
+                  builder: (context) => CityView(
+                    cityId: dataId,
                     mode: widget.mode == InformationMode.selectLocation
                         ? InformationViewMode.select
                         : InformationViewMode.view,
                   ),
                 );
-                if (locId != null) {
-                  Navigator.of(context).pop(locId);
+                if (selected == true) {
+                  Navigator.of(context).pop(dataId);
                 }
             }
           },
@@ -276,25 +273,25 @@ class _InformationViewState extends State<InformationView>
       },
     );
 
-    final organizationListView = EntityTable(
-      columns: kEntityTableOrganizationColumns,
-      tableData: _organizationsTable,
+    final sectListView = EntityTable(
+      columns: kEntityTableSectColumns,
+      tableData: _sectsTable,
       onItemPressed: (position, dataId) async {
         if (widget.mode == InformationMode.selectLocation &&
             !widget.confirmationOnSelect) {
           Navigator.of(context).pop(dataId);
         } else {
-          final orgId = await showDialog(
+          final bool? selected = await showDialog(
             context: context,
-            builder: (context) => OrganizationView(
-              organizationId: dataId,
-              mode: widget.mode == InformationMode.selectOrganization
+            builder: (context) => SectView(
+              sectId: dataId,
+              mode: widget.mode == InformationMode.selectSect
                   ? InformationViewMode.select
                   : InformationViewMode.view,
             ),
           );
-          if (orgId != null) {
-            Navigator.of(context).pop(orgId);
+          if (selected == true) {
+            Navigator.of(context).pop(dataId);
           }
         }
       },
@@ -302,30 +299,29 @@ class _InformationViewState extends State<InformationView>
         showFluentMenu(
           position: position,
           items: {
-            if (widget.mode == InformationMode.selectOrganization) ...{
-              engine.locale('selectOrganization'):
-                  _OrganizationPopUpMenuItems.selectOrganization,
+            if (widget.mode == InformationMode.selectSect) ...{
+              engine.locale('selectSect'): _SectPopUpMenuItems.selectSect,
               '___': null,
             },
             engine.locale('checkInformation'):
-                _OrganizationPopUpMenuItems.checkInformation,
+                _SectPopUpMenuItems.checkInformation,
           },
-          onSelectedItem: (_OrganizationPopUpMenuItems item) async {
+          onSelectedItem: (_SectPopUpMenuItems item) async {
             switch (item) {
-              case _OrganizationPopUpMenuItems.selectOrganization:
+              case _SectPopUpMenuItems.selectSect:
                 Navigator.of(context).pop(dataId);
-              case _OrganizationPopUpMenuItems.checkInformation:
-                final orgId = await showDialog(
+              case _SectPopUpMenuItems.checkInformation:
+                final bool? selected = await showDialog(
                   context: context,
-                  builder: (context) => OrganizationView(
-                    organizationId: dataId,
-                    mode: widget.mode == InformationMode.selectOrganization
+                  builder: (context) => SectView(
+                    sectId: dataId,
+                    mode: widget.mode == InformationMode.selectSect
                         ? InformationViewMode.select
                         : InformationViewMode.view,
                   ),
                 );
-                if (orgId != null) {
-                  Navigator.of(context).pop(orgId);
+                if (selected == true) {
+                  Navigator.of(context).pop(dataId);
                 }
             }
           },
@@ -353,7 +349,7 @@ class _InformationViewState extends State<InformationView>
                   children: [
                     characterListView,
                     locationListView,
-                    organizationListView,
+                    sectListView,
                   ],
                 ),
               ),
@@ -373,9 +369,9 @@ class _InformationViewState extends State<InformationView>
                 InformationMode.location ||
                 InformationMode.selectLocation =>
                   locationListView,
-                InformationMode.organization ||
-                InformationMode.selectOrganization =>
-                  organizationListView,
+                InformationMode.sect ||
+                InformationMode.selectSect =>
+                  sectListView,
                 _ => const SizedBox.shrink(),
               },
             ),

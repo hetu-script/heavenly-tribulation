@@ -49,7 +49,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
   late String race;
   late String birthday, restLifespan;
-  late String organizationName, title;
+  late String sectName, title;
 
   late int fame, infamy;
   final Map<String, TextEditingController> attributeControllers = {};
@@ -57,7 +57,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
   late String homeName;
   late String worldPosition, locationName;
-  late String cultivationFavor, organizationFavor;
+  late String cultivationFavor, sectFavor;
 
   late int rank, level;
   late List motivationIds;
@@ -163,10 +163,10 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final raceId = _character['race'];
     race = engine.locale(raceId);
 
-    final organizationId = _character['organizationId'];
+    final sectId = _character['sectId'];
     // 这里有可能为 null
-    final organization = GameData.game['organizations'][organizationId];
-    organizationName = organization != null ? organization['name'] : none;
+    final sect = GameData.game['sects'][sectId];
+    sectName = sect != null ? sect['name'] : none;
 
     final titleId = _character['titleId'];
     title = titleId != null ? engine.locale(titleId) : none;
@@ -174,30 +174,13 @@ class _CharacterProfileState extends State<CharacterProfile> {
     fame = _character['fame'];
     infamy = _character['infamy'];
 
-    // final father =
-    //     getNameFromId(_characterData['relationships']['fatherId'], 'none');
-    // final mother =
-    //     getNameFromId(_characterData['relationships']['motherId'], 'none');
-    // final spouse =
-    //     getNameFromId(_characterData['relationships']['spouseId'], 'none');
-    // final siblings =
-    //     getNamesFromIds(_characterData['relationships']['siblingIds'], 'none')
-    //         .map((e) => Label(e));
-    // final childs =
-    //     getNamesFromIds(_characterData['relationships']['childrenIds'], 'none')
-    //         .map((e) => Label(e));
-    // final masterId = engine.hetu
-    //     .invoke('getCharacterMasterId', positionalArgs: [_characterData]);
-    // final masterName = getNameFromId(masterId, 'none');
-
     birthday = engine.hetu
         .invoke('getCharacterBirthDayString', positionalArgs: [_character]);
-    // final birthLocationId = getNameFromId(_characterData['birthLocationId']);
     restLifespan = engine.hetu
         .invoke('getCharacterRestLifespanString', positionalArgs: [_character]);
 
     cultivationFavor = engine.locale(_character['cultivationFavor']);
-    organizationFavor = engine.locale(_character['organizationFavor']);
+    sectFavor = engine.locale(_character['sectFavor']);
 
     final homeId = _character['homeLocationId'];
     final homeLocation = GameData.game['locations'][homeId];
@@ -206,9 +189,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final locationId = _character['locationId'];
     final location = GameData.game['locations'][locationId];
     locationName = location != null ? location['name'] : none;
-
-    // final worldId = _character['worldId'];
-    // worldName = worldId != null ? GameData.universe[worldId]['name'] : none;
 
     final worldPositionX = _character['worldPosition']?['left'];
     final worldPositionY = _character['worldPosition']?['top'];
@@ -404,7 +384,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                   alignment: Alignment.centerLeft,
                                   height: 35.0,
                                   child: Text(
-                                      '${engine.locale('organization')}: $organizationName'),
+                                      '${engine.locale('sect')}: $sectName'),
                                 ),
                                 Container(
                                   alignment: Alignment.centerLeft,
@@ -478,7 +458,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                                     alignment: Alignment.centerLeft,
                                     height: 35.0,
                                     child: Text(
-                                      '${engine.locale('organizationFavor')}: $organizationFavor',
+                                      '${engine.locale('sectFavor')}: $sectFavor',
                                     ),
                                   ),
                                   Container(
@@ -644,14 +624,10 @@ class _CharacterProfileState extends State<CharacterProfile> {
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
                   child: fluent.Button(
                     onPressed: () {
-                      switch (widget.mode) {
-                        case InformationViewMode.select:
-                          Navigator.of(context).pop(_character['id']);
-                        case InformationViewMode.edit:
-                          _saveData();
-                          Navigator.of(context).pop(true);
-                        default:
+                      if (widget.mode == InformationViewMode.edit) {
+                        _saveData();
                       }
+                      Navigator.of(context).pop(true);
                     },
                     child: Text(engine.locale('confirm')),
                   ),

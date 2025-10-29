@@ -39,7 +39,7 @@ class MainMenuScene extends Scene {
       // GameData.isGameCreated = false;
       await engine.hetu.invoke(
         'generateHero',
-        namespace: 'Debug',
+        namespace: 'debug',
         namedArgs: {
           // 'level': 10,
           // 'rank': 1,

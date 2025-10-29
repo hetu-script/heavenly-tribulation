@@ -15,7 +15,7 @@
   "library": "藏书阁",
   "exparray": "聚灵阵",
   "arena": "斗技场",
-  "militarypost": "指挥所",
+  "militarypost": "哨所",
   "auctionhouse": "拍卖行",
   "hotel": "酒楼",
 
@@ -50,6 +50,6 @@
 
   "tribute": "进贡",
   "appeal": "申请",
-  "applyOrganization": "创立组织",
+  "applySect": "创立组织",
   "applySite": "建立场所"
 }

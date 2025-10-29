@@ -17,6 +17,7 @@ import '../../ui/responsive_view.dart';
 import '../../../data/common.dart';
 import '../../../state/hover_content.dart';
 import '../../../ui.dart';
+import '../../common.dart';
 
 class MerchantDialog extends StatefulWidget {
   const MerchantDialog({
@@ -67,17 +68,18 @@ class _MerchantDialogState extends State<MerchantDialog> {
   final Map<String, dynamic> _selectedHeroItemsData = {},
       _selectedMerchantItemsData = {};
 
+  bool get isDepositBox => widget.merchantType == MerchantType.depositBox;
+
   String? _selectedHeroMaterialId, _selectedMerchantMaterialId;
 
   dynamic priceFactor;
-
-  bool get isDepositBox => widget.merchantType == MerchantType.depositBox;
-
   String? priceFactorDescription;
 
+  int development = 0;
   bool enableReplenish = false;
-
+  int replenishCount = 0;
   int updateDay = 0;
+  int replenishCostBase = 0;
   int replenishCost = 0;
 
   @override
@@ -87,9 +89,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
     priceFactor = widget.priceFactor ?? {};
     priceFactor['useShard'] = widget.useShard;
 
+    development = widget.merchantData?['development'] as int? ?? 0;
+
     enableReplenish = widget.allowManualReplenish;
     if (widget.merchantData?['entityType'] != 'location') {
-      engine.warn('replenishItem 只能对 location 对象使用');
+      engine.warn('replenishTradingItem 只能对 location 对象使用');
       enableReplenish = false;
     }
     if (!kSiteKindsTradable.contains(widget.merchantData?['kind'])) {
@@ -98,11 +102,22 @@ class _MerchantDialogState extends State<MerchantDialog> {
     }
     if (enableReplenish) {
       updateDay = widget.merchantData?['updateDay'] ?? engine.locale('unkown');
-      replenishCost = kLocationManualReplenishCostBase *
-          (((widget.merchantData?['development'] as int?) ?? 0) + 1);
+      int? c = widget.merchantData['flags']['monthly']['replenishCount'];
+      c ??= widget.merchantData['flags']['monthly']['replenishCount'] = 0;
+      replenishCount = c;
+      replenishCostBase =
+          kLocationManualReplenishCostBase * (development * development + 1);
+      replenishCost =
+          (replenishCostBase * (1.5 * (replenishCount + 1))).round();
     }
 
     buildPriceFactor();
+  }
+
+  void updateReplenishCount() {
+    replenishCount = widget.merchantData['flags']['monthly']['replenishCount'] =
+        replenishCount + 1;
+    replenishCost = (replenishCostBase * (1.5 * replenishCount)).round();
   }
 
   void buildPriceFactor() {
@@ -138,748 +153,700 @@ class _MerchantDialogState extends State<MerchantDialog> {
       }
     }
 
-    final double value = priceFactor['sell'] ?? kBaseSellRate;
+    final double value = priceFactor['sell'] ?? kSellRateBase;
     printPriceFactor('sellPriceFactor', value);
 
     if (priceFactor['base'] != null) {
       final double value = priceFactor['base'];
       printPriceFactor('basePriceFactor', value);
     }
-    if (priceFactor['category'] != null) {
-      for (final key in priceFactor['category'].keys) {
-        final double value = priceFactor['category'][key];
-        printPriceFactor(key, value);
+
+    if (widget.materialMode) {
+      if (priceFactor['category'] != null) {
+        for (final key in priceFactor['category'].keys) {
+          final double value = priceFactor['category'][key];
+          printPriceFactor(key, value);
+        }
       }
-    }
-    if (priceFactor['kind'] != null) {
-      for (final key in priceFactor['kind'].keys) {
-        final double value = priceFactor['kind'][key];
-        printPriceFactor(key, value);
+      if (priceFactor['kind'] != null) {
+        for (final key in priceFactor['kind'].keys) {
+          final double value = priceFactor['kind'][key];
+          printPriceFactor(key, value);
+        }
       }
     }
 
     priceFactorDescription = desc.toString().trim();
   }
 
+  void _onSell() async {
+    int merchantMoney = widget.merchantData['materials']['money'] ?? 0;
+    int merchantShard = widget.merchantData['materials']['shard'] ?? 0;
+    if (widget.materialMode) {
+      if (_selectedHeroMaterialId == null) return;
+      final int max = GameData.hero['materials'][_selectedHeroMaterialId];
+      final int unitPrice = GameLogic.calculateMaterialPrice(
+        _selectedHeroMaterialId!,
+        priceFactor: priceFactor,
+        isSell: true,
+      );
+      final amount = await InputSliderDialog.show(
+        context: context,
+        min: 1,
+        max: max,
+        value: max,
+        labelBuilder: (value) {
+          String label = '${engine.locale('amount')}: $value';
+          if (!isDepositBox) {
+            label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+          }
+          return label;
+        },
+      );
+      if (amount == null) return;
+
+      if (!isDepositBox) {
+        final totalPrice = unitPrice * amount;
+
+        String currency = widget.useShard ? 'shard' : 'money';
+        int merchantHave = widget.useShard ? merchantShard : merchantMoney;
+        if (merchantHave < totalPrice) {
+          GameDialogContent.show(
+              context, engine.locale('hint_merchantNotEnough_$currency'));
+          return;
+        }
+        engine.hetu.invoke(
+          'entityExhaust',
+          positionalArgs: [
+            widget.merchantData,
+            currency,
+            totalPrice,
+          ],
+        );
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: [currency, totalPrice],
+        );
+      }
+
+      engine.hetu.invoke(
+        'exhaust',
+        namespace: 'Player',
+        positionalArgs: [
+          _selectedHeroMaterialId,
+          amount,
+        ],
+      );
+      engine.hetu.invoke('entityCollect', positionalArgs: [
+        widget.merchantData,
+        _selectedHeroMaterialId,
+        amount,
+      ]);
+      if (amount == max) {
+        _selectedHeroMaterialId = null;
+      }
+      engine.play('pickup_item-64282.mp3');
+    } else {
+      if (_selectedHeroItemsData.isEmpty) return;
+      final itemsData = _selectedHeroItemsData.values;
+      if (isDepositBox) {
+        if (itemsData.length > 1) {
+          for (final itemData in itemsData) {
+            engine.hetu.invoke(
+              'lose',
+              namespace: 'Player',
+              positionalArgs: [itemData],
+            );
+            engine.hetu.invoke(
+              'entityAcquire',
+              positionalArgs: [
+                widget.merchantData,
+                itemData,
+              ],
+            );
+          }
+          _selectedHeroItemsData.clear();
+        } else {
+          final itemData = itemsData.first;
+          int amount = itemData['stackSize'] ?? 1;
+          if (amount > 1) {
+            final choosedAmount = await InputSliderDialog.show(
+              context: context,
+              min: 1,
+              max: amount,
+              value: amount,
+              labelBuilder: (value) {
+                String label = '${engine.locale('amount')}: $value';
+                return label;
+              },
+            );
+            if (choosedAmount == null) return;
+            amount = choosedAmount;
+          }
+          engine.hetu.invoke(
+            'lose',
+            namespace: 'Player',
+            positionalArgs: [itemData],
+            namedArgs: {
+              'amount': amount,
+            },
+          );
+          engine.hetu.invoke(
+            'entityAcquire',
+            positionalArgs: [
+              widget.merchantData,
+              itemData,
+            ],
+            namedArgs: {
+              'amount': amount,
+            },
+          );
+          _selectedHeroItemsData.remove(itemData['id']);
+        }
+        engine.play('pickup_item-64282.mp3');
+      } else {
+        assert(_selectedHeroItemsData.length <= 1);
+        final itemData = _selectedHeroItemsData.values.first;
+        int amount = itemData['stackSize'] ?? 1;
+        int unitPrice = GameLogic.calculateItemPrice(
+          itemData,
+          priceFactor: priceFactor,
+          useShard: widget.useShard,
+          isSell: true,
+        );
+        if (amount > 1) {
+          final choosedAmount = await InputSliderDialog.show(
+            context: context,
+            min: 1,
+            max: amount,
+            value: amount,
+            labelBuilder: (value) {
+              String label = '${engine.locale('amount')}: $value';
+              label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+              return label;
+            },
+          );
+          if (choosedAmount == null) return;
+          amount = choosedAmount;
+        }
+        int totalPrice = unitPrice * amount;
+
+        String currency = widget.useShard ? 'shard' : 'money';
+        int merchantHave = widget.useShard ? merchantShard : merchantMoney;
+        if (merchantHave < totalPrice) {
+          GameDialogContent.show(
+              context, engine.locale('hint_merchantNotEnough_$currency'));
+          return;
+        }
+        engine.hetu.invoke(
+          'entityExhaust',
+          positionalArgs: [
+            widget.merchantData,
+            currency,
+            totalPrice,
+          ],
+        );
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: [currency, totalPrice],
+        );
+        engine.play('coins-31879.mp3');
+        engine.hetu.invoke(
+          'lose',
+          namespace: 'Player',
+          positionalArgs: [itemData],
+          namedArgs: {
+            'amount': amount,
+          },
+        );
+        engine.hetu.invoke(
+          'entityAcquire',
+          positionalArgs: [
+            widget.merchantData,
+            itemData,
+          ],
+          namedArgs: {
+            'amount': amount,
+          },
+        );
+        _selectedHeroItemsData.remove(itemData['id']);
+        engine.play('pickup_item-64282.mp3');
+      }
+    }
+    context.read<HeroState>().update();
+  }
+
+  void _onBuy() async {
+    int heroShard = GameData.hero['materials']['shard'] ?? 0;
+    int heroMoney = GameData.hero['materials']['money'] ?? 0;
+    if (widget.materialMode) {
+      if (_selectedMerchantMaterialId == null) return;
+      final int merchantHave =
+          widget.merchantData['materials'][_selectedMerchantMaterialId];
+      final int unitPrice = GameLogic.calculateMaterialPrice(
+        _selectedMerchantMaterialId!,
+        priceFactor: priceFactor,
+        isSell: false,
+      );
+      final amount = await InputSliderDialog.show(
+        context: context,
+        min: 1,
+        max: merchantHave,
+        value: merchantHave,
+        labelBuilder: (value) {
+          String label = '${engine.locale('amount')}: $value';
+          if (!isDepositBox) {
+            label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+          }
+          return label;
+        },
+      );
+      if (amount == null) return;
+
+      if (!isDepositBox) {
+        final totalPrice = unitPrice * amount;
+
+        String currency = widget.useShard ? 'shard' : 'money';
+        int heroHave = widget.useShard ? heroShard : heroMoney;
+
+        if (heroHave < totalPrice) {
+          GameDialogContent.show(
+              context, engine.locale('hint_notEnough_$currency'));
+          return;
+        }
+        engine.hetu.invoke(
+          'exhaust',
+          namespace: 'Player',
+          positionalArgs: [currency, totalPrice],
+        );
+        engine.hetu.invoke(
+          'entityCollect',
+          positionalArgs: [
+            widget.merchantData,
+            currency,
+            totalPrice,
+          ],
+        );
+      }
+
+      engine.hetu.invoke(
+        'collect',
+        namespace: 'Player',
+        positionalArgs: [_selectedMerchantMaterialId, amount],
+      );
+      engine.hetu.invoke(
+        'entityExhaust',
+        positionalArgs: [
+          widget.merchantData,
+          _selectedMerchantMaterialId,
+          amount,
+        ],
+      );
+      if (amount == merchantHave) {
+        _selectedMerchantMaterialId = null;
+      }
+      engine.play('pickup_item-64282.mp3');
+    } else {
+      if (_selectedMerchantItemsData.isEmpty) return;
+      final itemsData = _selectedMerchantItemsData.values;
+      if (isDepositBox) {
+        if (itemsData.length > 1) {
+          for (final itemData in itemsData) {
+            engine.hetu.invoke(
+              'entityLose',
+              positionalArgs: [
+                widget.merchantData,
+                itemData,
+              ],
+            );
+            await engine.hetu.invoke(
+              'acquire',
+              namespace: 'Player',
+              positionalArgs: [
+                itemData,
+              ],
+            );
+          }
+          _selectedMerchantItemsData.clear();
+        } else {
+          final itemData = itemsData.first;
+          int amount = itemData['stackSize'] ?? 1;
+          if (amount > 1) {
+            final choosedAmount = await InputSliderDialog.show(
+              context: context,
+              min: 1,
+              max: amount,
+              value: amount,
+              labelBuilder: (value) {
+                String label = '${engine.locale('amount')}: $value';
+                return label;
+              },
+            );
+            if (choosedAmount == null) return;
+            amount = choosedAmount;
+          }
+          engine.hetu.invoke(
+            'entityLose',
+            positionalArgs: [
+              widget.merchantData,
+              itemData,
+            ],
+          );
+          await engine.hetu.invoke(
+            'acquire',
+            namespace: 'Player',
+            positionalArgs: [
+              itemData,
+            ],
+          );
+          _selectedMerchantItemsData.remove(itemData['id']);
+        }
+        engine.play('pickup_item-64282.mp3');
+      } else {
+        assert(_selectedMerchantItemsData.length <= 1);
+        final itemData = _selectedMerchantItemsData.values.first;
+        int amount = itemData['stackSize'] ?? 1;
+        int unitPrice = GameLogic.calculateItemPrice(
+          itemData,
+          priceFactor: priceFactor,
+          useShard: widget.useShard,
+          isSell: false,
+        );
+        if (amount > 1) {
+          final choosedAmount = await InputSliderDialog.show(
+            context: context,
+            min: 1,
+            max: amount,
+            value: amount,
+            labelBuilder: (value) {
+              String label = '${engine.locale('amount')}: $value';
+              label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+              return label;
+            },
+          );
+          if (choosedAmount == null) return;
+          amount = choosedAmount;
+        }
+        int totalPrice = unitPrice * amount;
+
+        String currency = widget.useShard ? 'shard' : 'money';
+        int heroHave = widget.useShard ? heroShard : heroMoney;
+
+        if (heroHave < totalPrice) {
+          GameDialogContent.show(
+              context, engine.locale('hint_notEnough_$currency'));
+          return;
+        }
+        engine.hetu.invoke(
+          'exhaust',
+          namespace: 'Player',
+          positionalArgs: [currency, totalPrice],
+        );
+        engine.hetu.invoke(
+          'entityCollect',
+          positionalArgs: [
+            widget.merchantData,
+            currency,
+            totalPrice,
+          ],
+        );
+
+        engine.hetu.invoke(
+          'entityLose',
+          positionalArgs: [
+            widget.merchantData,
+            itemData,
+          ],
+          namedArgs: {
+            'amount': amount,
+          },
+        );
+        await engine.hetu.invoke(
+          'acquire',
+          namespace: 'Player',
+          positionalArgs: [
+            itemData,
+          ],
+          namedArgs: {
+            'amount': amount,
+          },
+        );
+        _selectedMerchantItemsData.remove(itemData['id']);
+        engine.play('pickup_item-64282.mp3');
+      }
+    }
+    context.read<HeroState>().update();
+  }
+
+  void close() {
+    context.read<MerchantState>().close();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      barrierColor: null,
-      width: 800.0,
-      height: 600.0,
+      width: 700.0,
+      height: 590.0,
+      onBarrierDismissed: close,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale(isDepositBox ? 'exchange' : 'trade')),
-          actions: [
-            CloseButton2(
-              onPressed: () {
-                context.read<MerchantState>().close();
-              },
-            )
-          ],
+          actions: [CloseButton2(onPressed: close)],
         ),
-        body: Container(
-          padding: const EdgeInsets.only(left: 10.0, right: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 360.0,
-                child: Column(
-                  children: [
-                    Text(GameData.hero['name']),
-                    SizedBox(
-                      height: 30.0,
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 320.0,
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: Column(
+                children: [
+                  Text(GameData.hero['name']),
+                  SizedBox(height: 30.0),
+                  if (widget.materialMode)
+                    MaterialList(
+                      entity: GameData.hero,
+                      height: 395.0,
+                      priceFactor: priceFactor,
+                      materialListType: isDepositBox
+                          ? MaterialListType.inventory
+                          : MaterialListType.sell,
+                      selectedItem: _selectedHeroMaterialId,
+                      onSelectedItem: (item) {
+                        setState(() {
+                          _selectedHeroMaterialId = item;
+                        });
+                      },
+                    )
+                  else
+                    Inventory(
+                      height: 364.0,
+                      character: GameData.hero,
+                      itemType:
+                          isDepositBox ? ItemType.none : ItemType.customer,
+                      priceFactor: priceFactor,
+                      selectedItemId: _selectedHeroItemsData.keys,
+                      onItemTapped: (itemData, screenPosition) {
+                        if (isDepositBox) {
+                          if (_selectedHeroItemsData
+                              .containsKey(itemData['id'])) {
+                            _selectedHeroItemsData.remove(itemData['id']);
+                          } else {
+                            _selectedHeroItemsData[itemData['id']] = itemData;
+                          }
+                        } else {
+                          if (_selectedHeroItemsData
+                              .containsKey(itemData['id'])) {
+                            _selectedHeroItemsData.remove(itemData['id']);
+                          } else {
+                            _selectedHeroItemsData.clear();
+                            _selectedHeroItemsData[itemData['id']] = itemData;
+                          }
+                        }
+                        setState(() {});
+                      },
                     ),
-                    if (widget.materialMode)
-                      MaterialList(
+                  if (!isDepositBox)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0, top: 5.0),
+                      child: CurrencyBar(
                         entity: GameData.hero,
-                        height: 395.0,
-                        priceFactor: priceFactor,
-                        materialListType: isDepositBox
-                            ? MaterialListType.inventory
-                            : MaterialListType.sell,
-                        selectedItem: _selectedHeroMaterialId,
-                        onSelectedItem: (item) {
-                          setState(() {
-                            _selectedHeroMaterialId = item;
-                          });
-                        },
-                      )
-                    else
-                      Inventory(
-                        height: 364.0,
-                        character: GameData.hero,
-                        itemType:
-                            isDepositBox ? ItemType.none : ItemType.customer,
-                        priceFactor: priceFactor,
-                        selectedItemId: _selectedHeroItemsData.keys,
-                        onItemTapped: (itemData, screenPosition) {
-                          if (isDepositBox) {
-                            if (_selectedHeroItemsData
-                                .containsKey(itemData['id'])) {
-                              _selectedHeroItemsData.remove(itemData['id']);
-                            } else {
-                              _selectedHeroItemsData[itemData['id']] = itemData;
-                            }
-                          } else {
-                            if (_selectedHeroItemsData
-                                .containsKey(itemData['id'])) {
-                              _selectedHeroItemsData.remove(itemData['id']);
-                            } else {
-                              _selectedHeroItemsData.clear();
-                              _selectedHeroItemsData[itemData['id']] = itemData;
-                            }
-                          }
-                          setState(() {});
-                        },
+                        showMaterialName: false,
                       ),
-                    if (!isDepositBox)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 55.0),
-                        child: CurrencyBar(
-                          entity: GameData.hero,
-                          showMaterialName: false,
-                        ),
-                      ),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 50.0, top: 10.0),
-                          child: fluent.Button(
-                            onPressed: () async {
-                              int merchantMoney =
-                                  widget.merchantData['materials']['money'] ??
-                                      0;
-                              int merchantShard =
-                                  widget.merchantData['materials']['shard'] ??
-                                      0;
-                              if (widget.materialMode) {
-                                if (_selectedHeroMaterialId == null) return;
-                                final int max = GameData.hero['materials']
-                                    [_selectedHeroMaterialId];
-                                final int unitPrice =
-                                    GameLogic.calculateMaterialPrice(
-                                  _selectedHeroMaterialId!,
-                                  priceFactor: priceFactor,
-                                  isSell: true,
-                                );
-                                final amount = await InputSliderDialog.show(
-                                  context: context,
-                                  min: 1,
-                                  max: max,
-                                  value: max,
-                                  labelBuilder: (value) {
-                                    String label =
-                                        '${engine.locale('amount')}: $value';
-                                    if (!isDepositBox) {
-                                      label +=
-                                          '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-                                    }
-                                    return label;
-                                  },
-                                );
-                                if (amount == null) return;
-
-                                if (!isDepositBox) {
-                                  final totalPrice = unitPrice * amount;
-
-                                  String currency =
-                                      widget.useShard ? 'shard' : 'money';
-                                  int merchantHave = widget.useShard
-                                      ? merchantShard
-                                      : merchantMoney;
-                                  if (merchantHave < totalPrice) {
-                                    GameDialogContent.show(
-                                        context,
-                                        engine.locale(
-                                            'hint_merchantNotEnough_$currency'));
-                                    return;
-                                  }
-                                  engine.hetu.invoke(
-                                    'entityExhaust',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      currency,
-                                      totalPrice,
-                                    ],
-                                  );
-                                  engine.hetu.invoke(
-                                    'collect',
-                                    namespace: 'Player',
-                                    positionalArgs: [currency, totalPrice],
-                                  );
-                                }
-
-                                engine.hetu.invoke(
-                                  'exhaust',
-                                  namespace: 'Player',
-                                  positionalArgs: [
-                                    _selectedHeroMaterialId,
-                                    amount,
-                                  ],
-                                );
-                                engine.hetu
-                                    .invoke('entityCollect', positionalArgs: [
-                                  widget.merchantData,
-                                  _selectedHeroMaterialId,
-                                  amount,
-                                ]);
-                                if (amount == max) {
-                                  _selectedHeroMaterialId = null;
-                                }
-                                engine.play('pickup_item-64282.mp3');
-                              } else {
-                                if (_selectedHeroItemsData.isEmpty) return;
-                                final itemsData = _selectedHeroItemsData.values;
-                                if (isDepositBox) {
-                                  if (itemsData.length > 1) {
-                                    for (final itemData in itemsData) {
-                                      engine.hetu.invoke(
-                                        'lose',
-                                        namespace: 'Player',
-                                        positionalArgs: [itemData],
-                                      );
-                                      engine.hetu.invoke(
-                                        'entityAcquire',
-                                        positionalArgs: [
-                                          widget.merchantData,
-                                          itemData,
-                                        ],
-                                      );
-                                    }
-                                    _selectedHeroItemsData.clear();
-                                  } else {
-                                    final itemData = itemsData.first;
-                                    int amount = itemData['stackSize'] ?? 1;
-                                    if (amount > 1) {
-                                      final choosedAmount =
-                                          await InputSliderDialog.show(
-                                        context: context,
-                                        min: 1,
-                                        max: amount,
-                                        value: amount,
-                                        labelBuilder: (value) {
-                                          String label =
-                                              '${engine.locale('amount')}: $value';
-                                          return label;
-                                        },
-                                      );
-                                      if (choosedAmount == null) return;
-                                      amount = choosedAmount;
-                                    }
-                                    engine.hetu.invoke(
-                                      'lose',
-                                      namespace: 'Player',
-                                      positionalArgs: [itemData],
-                                      namedArgs: {
-                                        'amount': amount,
-                                      },
-                                    );
-                                    engine.hetu.invoke(
-                                      'entityAcquire',
-                                      positionalArgs: [
-                                        widget.merchantData,
-                                        itemData,
-                                      ],
-                                      namedArgs: {
-                                        'amount': amount,
-                                      },
-                                    );
-                                    _selectedHeroItemsData
-                                        .remove(itemData['id']);
-                                  }
-                                  engine.play('pickup_item-64282.mp3');
-                                } else {
-                                  assert(_selectedHeroItemsData.length <= 1);
-                                  final itemData =
-                                      _selectedHeroItemsData.values.first;
-                                  int amount = itemData['stackSize'] ?? 1;
-                                  int unitPrice = GameLogic.calculateItemPrice(
-                                    itemData,
-                                    priceFactor: priceFactor,
-                                    useShard: widget.useShard,
-                                    isSell: true,
-                                  );
-                                  if (amount > 1) {
-                                    final choosedAmount =
-                                        await InputSliderDialog.show(
-                                      context: context,
-                                      min: 1,
-                                      max: amount,
-                                      value: amount,
-                                      labelBuilder: (value) {
-                                        String label =
-                                            '${engine.locale('amount')}: $value';
-                                        label +=
-                                            '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-                                        return label;
-                                      },
-                                    );
-                                    if (choosedAmount == null) return;
-                                    amount = choosedAmount;
-                                  }
-                                  int totalPrice = unitPrice * amount;
-
-                                  String currency =
-                                      widget.useShard ? 'shard' : 'money';
-                                  int merchantHave = widget.useShard
-                                      ? merchantShard
-                                      : merchantMoney;
-                                  if (merchantHave < totalPrice) {
-                                    GameDialogContent.show(
-                                        context,
-                                        engine.locale(
-                                            'hint_merchantNotEnough_$currency'));
-                                    return;
-                                  }
-                                  engine.hetu.invoke(
-                                    'entityExhaust',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      currency,
-                                      totalPrice,
-                                    ],
-                                  );
-                                  engine.hetu.invoke(
-                                    'collect',
-                                    namespace: 'Player',
-                                    positionalArgs: [currency, totalPrice],
-                                  );
-                                  engine.play('coins-31879.mp3');
-                                  engine.hetu.invoke(
-                                    'lose',
-                                    namespace: 'Player',
-                                    positionalArgs: [itemData],
-                                    namedArgs: {
-                                      'amount': amount,
-                                    },
-                                  );
-                                  engine.hetu.invoke(
-                                    'entityAcquire',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      itemData,
-                                    ],
-                                    namedArgs: {
-                                      'amount': amount,
-                                    },
-                                  );
-                                  _selectedHeroItemsData.remove(itemData['id']);
-                                  engine.play('pickup_item-64282.mp3');
-                                }
-                              }
-                              context.read<HeroState>().update();
-                            },
-                            child: Text(
-                              engine.locale(isDepositBox ? 'deposit' : 'sell'),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 300.0,
-                child: Column(
-                  children: [
-                    Text(widget.merchantData['name']),
-                    SizedBox(
-                      height: 30.0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Image(
-                            width: 24.0,
-                            height: 24.0,
-                            image: AssetImage('assets/images/icon/quest.png'),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0, top: 10.0),
+                        child: fluent.Button(
+                          onPressed: _onSell,
+                          child: Text(
+                            engine.locale(isDepositBox ? 'deposit' : 'sell'),
                           ),
-                          Label(
-                            engine.locale('priceFactor'),
-                            onMouseEnter: (rect) {
-                              final StringBuffer content = StringBuffer();
-                              if (priceFactorDescription != null) {
-                                if (widget.merchantType ==
-                                    MerchantType.location) {
-                                  content.writeln(
-                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_location')}\n \n${priceFactorDescription.toString()}');
-                                } else if (widget.merchantType ==
-                                    MerchantType.character) {
-                                  content.writeln(
-                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
-                                } else if (widget.merchantType ==
-                                    MerchantType.productionSite) {
-                                  content.writeln(
-                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_productionSite')}\n \n${priceFactorDescription.toString()}');
-                                } else {
-                                  content.writeln(
-                                      '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
-                                }
-                              } else {
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 320.0,
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+              child: Column(
+                children: [
+                  Text(widget.merchantData['name']),
+                  SizedBox(
+                    height: 30.0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Image(
+                          width: 24.0,
+                          height: 24.0,
+                          image: AssetImage('assets/images/icon/quest.png'),
+                        ),
+                        Label(
+                          engine.locale('priceFactor'),
+                          onMouseEnter: (rect) {
+                            final StringBuffer content = StringBuffer();
+                            if (priceFactorDescription != null) {
+                              if (widget.merchantType ==
+                                      MerchantType.location &&
+                                  widget.materialMode) {
                                 content.writeln(
-                                    '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
-                              }
-                              context.read<HoverContentState>().show(
-                                    content.toString(),
-                                    rect,
-                                  );
-                            },
-                            onMouseExit: () {
-                              context.read<HoverContentState>().hide();
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (widget.materialMode)
-                      MaterialList(
-                        entity: widget.merchantData,
-                        height: 395.0,
-                        priceFactor: priceFactor,
-                        selectedItem: _selectedMerchantMaterialId,
-                        onSelectedItem: (item) {
-                          setState(() {
-                            _selectedMerchantMaterialId = item;
-                          });
-                        },
-                      )
-                    else
-                      Inventory(
-                        height: 364.0,
-                        character: widget.merchantData,
-                        itemType:
-                            isDepositBox ? ItemType.none : ItemType.merchant,
-                        priceFactor: priceFactor,
-                        selectedItemId: _selectedMerchantItemsData.keys,
-                        onItemTapped: (itemData, screenPosition) {
-                          if (isDepositBox) {
-                            if (_selectedMerchantItemsData
-                                .containsKey(itemData['id'])) {
-                              _selectedMerchantItemsData.remove(itemData['id']);
-                            } else {
-                              _selectedMerchantItemsData[itemData['id']] =
-                                  itemData;
-                            }
-                          } else {
-                            if (_selectedMerchantItemsData
-                                .containsKey(itemData['id'])) {
-                              _selectedMerchantItemsData.remove(itemData['id']);
-                            } else {
-                              _selectedMerchantItemsData.clear();
-                              _selectedMerchantItemsData[itemData['id']] =
-                                  itemData;
-                            }
-                          }
-                          setState(() {});
-                        },
-                      ),
-                    if (!isDepositBox)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 25.0),
-                        child: CurrencyBar(
-                          entity: widget.merchantData,
-                          showMaterialName: false,
-                        ),
-                      ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (widget.allowManualReplenish)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20.0, top: 10.0, bottom: 10.0),
-                            child: fluent.Button(
-                              style: FluentButtonStyles.slim,
-                              onPressed: () async {
-                                if (!enableReplenish) return;
-
-                                final hasMoney =
-                                    GameData.hero['materials']['money'];
-                                if (hasMoney < replenishCost) {
-                                  dialog.pushDialog('hint_notEnough_money');
-                                  await dialog.execute();
-                                  return;
-                                }
-                                engine.hetu.invoke('exhaust',
-                                    namespace: 'Player',
-                                    positionalArgs: [
-                                      'money',
-                                      replenishCost,
-                                    ]);
-                                engine.hetu.invoke('replenishItem',
-                                    positionalArgs: [widget.merchantData]);
-                                setState(() {});
-                              },
-                              child: Label(
-                                engine.locale('refresh'),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 24.0, vertical: 8.0),
-                                onMouseEnter: (rect) {
-                                  context.read<HoverContentState>().show(
-                                        engine.locale('hint_replenishLocation',
-                                            interpolations: [
-                                              updateDay,
-                                              replenishCost,
-                                            ]),
-                                        rect,
-                                        direction:
-                                            HoverContentDirection.topCenter,
-                                      );
-                                },
-                                onMouseExit: () {
-                                  context.read<HoverContentState>().hide();
-                                },
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 10.0, bottom: 10.0, right: 20.0),
-                          child: fluent.Button(
-                            onPressed: () async {
-                              int heroShard =
-                                  GameData.hero['materials']['shard'] ?? 0;
-                              int heroMoney =
-                                  GameData.hero['materials']['money'] ?? 0;
-                              if (widget.materialMode) {
-                                if (_selectedMerchantMaterialId == null) return;
-                                final int merchantHave =
-                                    widget.merchantData['materials']
-                                        [_selectedMerchantMaterialId];
-                                final int unitPrice =
-                                    GameLogic.calculateMaterialPrice(
-                                  _selectedMerchantMaterialId!,
-                                  priceFactor: priceFactor,
-                                  isSell: false,
-                                );
-                                final amount = await InputSliderDialog.show(
-                                  context: context,
-                                  min: 1,
-                                  max: merchantHave,
-                                  value: merchantHave,
-                                  labelBuilder: (value) {
-                                    String label =
-                                        '${engine.locale('amount')}: $value';
-                                    if (!isDepositBox) {
-                                      label +=
-                                          '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-                                    }
-                                    return label;
-                                  },
-                                );
-                                if (amount == null) return;
-
-                                if (!isDepositBox) {
-                                  final totalPrice = unitPrice * amount;
-
-                                  String currency =
-                                      widget.useShard ? 'shard' : 'money';
-                                  int heroHave =
-                                      widget.useShard ? heroShard : heroMoney;
-
-                                  if (heroHave < totalPrice) {
-                                    GameDialogContent.show(
-                                        context,
-                                        engine.locale(
-                                            'hint_notEnough_$currency'));
-                                    return;
-                                  }
-                                  engine.hetu.invoke(
-                                    'exhaust',
-                                    namespace: 'Player',
-                                    positionalArgs: [currency, totalPrice],
-                                  );
-                                  engine.hetu.invoke(
-                                    'entityCollect',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      currency,
-                                      totalPrice,
-                                    ],
-                                  );
-                                }
-
-                                engine.hetu.invoke(
-                                  'collect',
-                                  namespace: 'Player',
-                                  positionalArgs: [
-                                    _selectedMerchantMaterialId,
-                                    amount
-                                  ],
-                                );
-                                engine.hetu.invoke(
-                                  'entityExhaust',
-                                  positionalArgs: [
-                                    widget.merchantData,
-                                    _selectedMerchantMaterialId,
-                                    amount,
-                                  ],
-                                );
-                                if (amount == merchantHave) {
-                                  _selectedMerchantMaterialId = null;
-                                }
-                                engine.play('pickup_item-64282.mp3');
+                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_location')}\n \n${priceFactorDescription.toString()}');
+                              } else if (widget.merchantType ==
+                                  MerchantType.character) {
+                                content.writeln(
+                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
+                              } else if (widget.merchantType ==
+                                  MerchantType.productionSite) {
+                                content.writeln(
+                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_productionSite')}\n \n${priceFactorDescription.toString()}');
                               } else {
-                                if (_selectedMerchantItemsData.isEmpty) return;
-                                final itemsData =
-                                    _selectedMerchantItemsData.values;
-                                if (isDepositBox) {
-                                  if (itemsData.length > 1) {
-                                    for (final itemData in itemsData) {
-                                      engine.hetu.invoke(
-                                        'entityLose',
-                                        positionalArgs: [
-                                          widget.merchantData,
-                                          itemData,
-                                        ],
-                                      );
-                                      await engine.hetu.invoke(
-                                        'acquire',
-                                        namespace: 'Player',
-                                        positionalArgs: [
-                                          itemData,
-                                        ],
-                                      );
-                                    }
-                                    _selectedMerchantItemsData.clear();
-                                  } else {
-                                    final itemData = itemsData.first;
-                                    int amount = itemData['stackSize'] ?? 1;
-                                    if (amount > 1) {
-                                      final choosedAmount =
-                                          await InputSliderDialog.show(
-                                        context: context,
-                                        min: 1,
-                                        max: amount,
-                                        value: amount,
-                                        labelBuilder: (value) {
-                                          String label =
-                                              '${engine.locale('amount')}: $value';
-                                          return label;
-                                        },
-                                      );
-                                      if (choosedAmount == null) return;
-                                      amount = choosedAmount;
-                                    }
-                                    engine.hetu.invoke(
-                                      'entityLose',
-                                      positionalArgs: [
-                                        widget.merchantData,
-                                        itemData,
-                                      ],
-                                    );
-                                    await engine.hetu.invoke(
-                                      'acquire',
-                                      namespace: 'Player',
-                                      positionalArgs: [
-                                        itemData,
-                                      ],
-                                    );
-                                    _selectedMerchantItemsData
-                                        .remove(itemData['id']);
-                                  }
-                                  engine.play('pickup_item-64282.mp3');
-                                } else {
-                                  assert(
-                                      _selectedMerchantItemsData.length <= 1);
-                                  final itemData =
-                                      _selectedMerchantItemsData.values.first;
-                                  int amount = itemData['stackSize'] ?? 1;
-                                  int unitPrice = GameLogic.calculateItemPrice(
-                                    itemData,
-                                    priceFactor: priceFactor,
-                                    useShard: widget.useShard,
-                                    isSell: false,
-                                  );
-                                  if (amount > 1) {
-                                    final choosedAmount =
-                                        await InputSliderDialog.show(
-                                      context: context,
-                                      min: 1,
-                                      max: amount,
-                                      value: amount,
-                                      labelBuilder: (value) {
-                                        String label =
-                                            '${engine.locale('amount')}: $value';
-                                        label +=
-                                            '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-                                        return label;
-                                      },
-                                    );
-                                    if (choosedAmount == null) return;
-                                    amount = choosedAmount;
-                                  }
-                                  int totalPrice = unitPrice * amount;
-
-                                  String currency =
-                                      widget.useShard ? 'shard' : 'money';
-                                  int heroHave =
-                                      widget.useShard ? heroShard : heroMoney;
-
-                                  if (heroHave < totalPrice) {
-                                    GameDialogContent.show(
-                                        context,
-                                        engine.locale(
-                                            'hint_notEnough_$currency'));
-                                    return;
-                                  }
-                                  engine.hetu.invoke(
-                                    'exhaust',
-                                    namespace: 'Player',
-                                    positionalArgs: [currency, totalPrice],
-                                  );
-                                  engine.hetu.invoke(
-                                    'entityCollect',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      currency,
-                                      totalPrice,
-                                    ],
-                                  );
-
-                                  engine.hetu.invoke(
-                                    'entityLose',
-                                    positionalArgs: [
-                                      widget.merchantData,
-                                      itemData,
-                                    ],
-                                    namedArgs: {
-                                      'amount': amount,
-                                    },
-                                  );
-                                  await engine.hetu.invoke(
-                                    'acquire',
-                                    namespace: 'Player',
-                                    positionalArgs: [
-                                      itemData,
-                                    ],
-                                    namedArgs: {
-                                      'amount': amount,
-                                    },
-                                  );
-                                  _selectedMerchantItemsData
-                                      .remove(itemData['id']);
-                                  engine.play('pickup_item-64282.mp3');
-                                }
+                                content.write(
+                                    '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
                               }
-                              context.read<HeroState>().update();
-                            },
-                            child: Text(
-                              engine.locale(isDepositBox ? 'take' : 'buy'),
-                            ),
-                          ),
+                            } else {
+                              content.writeln(
+                                  '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
+                            }
+                            context.read<HoverContentState>().show(
+                                  content.toString(),
+                                  rect,
+                                );
+                          },
+                          onMouseExit: () {
+                            context.read<HoverContentState>().hide();
+                          },
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  if (widget.materialMode)
+                    MaterialList(
+                      entity: widget.merchantData,
+                      height: 395.0,
+                      priceFactor: priceFactor,
+                      selectedItem: _selectedMerchantMaterialId,
+                      onSelectedItem: (item) {
+                        setState(() {
+                          _selectedMerchantMaterialId = item;
+                        });
+                      },
+                    )
+                  else
+                    Inventory(
+                      height: 364.0,
+                      character: widget.merchantData,
+                      itemType:
+                          isDepositBox ? ItemType.none : ItemType.merchant,
+                      priceFactor: priceFactor,
+                      selectedItemId: _selectedMerchantItemsData.keys,
+                      onItemTapped: (itemData, screenPosition) {
+                        if (isDepositBox) {
+                          if (_selectedMerchantItemsData
+                              .containsKey(itemData['id'])) {
+                            _selectedMerchantItemsData.remove(itemData['id']);
+                          } else {
+                            _selectedMerchantItemsData[itemData['id']] =
+                                itemData;
+                          }
+                        } else {
+                          if (_selectedMerchantItemsData
+                              .containsKey(itemData['id'])) {
+                            _selectedMerchantItemsData.remove(itemData['id']);
+                          } else {
+                            _selectedMerchantItemsData.clear();
+                            _selectedMerchantItemsData[itemData['id']] =
+                                itemData;
+                          }
+                        }
+                        setState(() {});
+                      },
+                    ),
+                  if (!isDepositBox)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0),
+                      child: CurrencyBar(
+                        entity: widget.merchantData,
+                        showMaterialName: false,
+                      ),
+                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (widget.allowManualReplenish)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 15.0, top: 10.0),
+                          child: fluent.Button(
+                            style: FluentButtonStyles.slim,
+                            onPressed: () async {
+                              if (!enableReplenish) return;
+
+                              final hasMoney =
+                                  GameData.hero['materials']['money'] ?? 0;
+                              if (hasMoney < replenishCost) {
+                                dialog.pushDialog('hint_notEnough_money');
+                                await dialog.execute();
+                                return;
+                              }
+                              context.read<HoverContentState>().hide();
+                              engine.hetu.invoke('exhaust',
+                                  namespace: 'Player',
+                                  positionalArgs: [
+                                    'money',
+                                    replenishCost,
+                                  ]);
+                              engine.hetu.invoke('replenishTradingItem',
+                                  positionalArgs: [widget.merchantData]);
+                              updateReplenishCount();
+                              engine.play('pickup_item-64282.mp3');
+                              setState(() {});
+                            },
+                            child: Label(
+                              engine.locale('refresh'),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8.0),
+                              onMouseEnter: (rect) {
+                                context.read<HoverContentState>().show(
+                                      engine.locale('hint_replenishLocation',
+                                          interpolations: [
+                                            updateDay,
+                                            replenishCount,
+                                            replenishCost,
+                                          ]),
+                                      rect,
+                                      direction:
+                                          HoverContentDirection.topCenter,
+                                    );
+                              },
+                              onMouseExit: () {
+                                context.read<HoverContentState>().hide();
+                              },
+                            ),
+                          ),
+                        ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0, right: 15.0),
+                        child: fluent.Button(
+                          onPressed: _onBuy,
+                          child: Text(
+                            engine.locale(isDepositBox ? 'take' : 'buy'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

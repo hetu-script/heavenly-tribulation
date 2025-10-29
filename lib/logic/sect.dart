@@ -1,5 +1,12 @@
 part of 'logic.dart';
 
+/// 组织月度更新
+void _updateSectMonthly(dynamic sect) {
+  // engine.debug('${sect['id']} 的月度更新');
+
+  engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
+}
+
 // 每个月 5 日前，门派成员需要前往指定场景开会。
 // 对于总管或以下的职位，需要前往自己所属的据点的会堂场景。
 // 对于堂主或以上的职位，需要前往门派总堂所在据点的门派场景。
@@ -13,14 +20,14 @@ part of 'logic.dart';
 // 6，门派任务：每次会有三个，玩家可以自由选择其中一个领取。
 // 7，会议结束
 // 门派会议上只处理玩家角色自己的相关数值变化
-// NPC 角色的数值变化另外由 updateOrganizationMonthly 处理。
+// NPC 角色的数值变化另外由 updateSectMonthly 处理。
 Future<void> _showMeeting(
-    dynamic organization, dynamic location, dynamic superior) async {
-  // final heroMemberData = organization['membersData'][GameData.hero['id']];
-  // final heroJobRank = heroMemberData['rank'];
+    dynamic sect, dynamic location, dynamic superior) async {
+  final heroMemberData = sect['membersData'][GameData.hero['id']];
+  final heroJobRank = heroMemberData['rank'];
 
   final people = [superior];
-  final membersAtLocationData = organization['membersData']
+  final membersAtLocationData = sect['membersData']
       .values
       .where((data) {
         return data['id'] != GameData.hero['id'] &&
@@ -41,10 +48,10 @@ Future<void> _showMeeting(
   people.add(GameData.hero);
 
   dialog.pushDialog(
-    'organization_meeting_intro_1',
+    'sect_meeting_intro_1',
     npcId: location['npcId'],
     interpolations: [
-      organization['name'],
+      sect['name'],
       location['name'],
     ],
   );
@@ -54,20 +61,20 @@ Future<void> _showMeeting(
     engine.context.read<MeetingState>().update(people);
   });
   dialog.popBackground(isFadeOut: true);
-  dialog.pushDialog('organization_meeting_intro_2', character: superior);
+  dialog.pushDialog('sect_meeting_intro_2', character: superior);
   await dialog.execute();
 
-  final organizationMonthly = organization['monthly'] ?? {};
+  final sectMonthly = sect['monthly'] ?? {};
 
   // 仪式庆典：新成员加入
-  final List recruitedThisMonthIds = organizationMonthly['recruited'] ?? [];
+  final List recruitedThisMonthIds = sectMonthly['recruited'] ?? [];
   bool recruitedHero = recruitedThisMonthIds.contains(GameData.hero['id']);
   if (recruitedHero) {
     recruitedThisMonthIds.remove(GameData.hero['id']);
   }
   List recruitedThisMonth = recruitedThisMonthIds
       .where((id) {
-        final charMemberData = organization['membersData'][id];
+        final charMemberData = sect['membersData'][id];
         return charMemberData['reportSiteId'] == location['id'];
       })
       .map((id) => GameData.getCharacter(id))
@@ -80,70 +87,64 @@ Future<void> _showMeeting(
     recruitedThisMonth = recruitedThisMonth.take(3).toList();
   }
   if (recruitedThisMonth.isNotEmpty) {
-    dialog.pushDialog('organization_meeting_new_recruit_1',
-        character: superior);
+    dialog.pushDialog('sect_meeting_new_recruit_1', character: superior);
     await dialog.execute();
 
     for (final newRecruit in recruitedThisMonth) {
       if (newRecruit != GameData.hero) {
         final competitive = newRecruit['personality']['competitive'] ?? 0;
         if (competitive > kPersonalityThreshold1) {
-          dialog.pushDialog('organization_meeting_new_recruit_option_2_reply',
+          dialog.pushDialog('sect_meeting_new_recruit_option_2_reply',
               character: newRecruit);
         } else if (competitive < -kPersonalityThreshold1) {
-          dialog.pushDialog('organization_meeting_new_recruit_option_1_reply',
+          dialog.pushDialog('sect_meeting_new_recruit_option_1_reply',
               character: newRecruit);
         } else {
-          dialog.pushDialog('organization_meeting_new_recruit_option_3_reply',
+          dialog.pushDialog('sect_meeting_new_recruit_option_3_reply',
               character: newRecruit);
         }
         await dialog.execute();
       } else {
-        dialog.pushDialog('organization_meeting_new_recruit_2', isHero: true);
+        dialog.pushDialog('sect_meeting_new_recruit_2', isHero: true);
         await dialog.execute();
         final journal = engine.hetu.invoke('Journal', namedArgs: {
-          'id': 'organizationFirstMeetingIntroduction',
-          'title': engine
-              .locale('journal_organizationFirstMeetingIntroduction_title'),
+          'id': 'sectFirstMeetingIntroduction',
+          'title': engine.locale('journal_sectFirstMeetingIntroduction_title'),
           'stages': [
-            engine.locale('organization_meeting_new_recruit_options'),
+            engine.locale('sect_meeting_new_recruit_options'),
           ],
         });
         final selected = await GameLogic.promptJournal(journal, selections: [
-          'organization_meeting_new_recruit_option_1',
-          'organization_meeting_new_recruit_option_2',
-          'organization_meeting_new_recruit_option_3',
+          'sect_meeting_new_recruit_option_1',
+          'sect_meeting_new_recruit_option_2',
+          'sect_meeting_new_recruit_option_3',
         ]);
         dialog.pushDialog('${selected}_reply', isHero: true);
-        dialog.pushDialog('organization_meeting_new_recruit_3',
-            character: superior);
+        dialog.pushDialog('sect_meeting_new_recruit_3', character: superior);
         await dialog.execute();
       }
     }
   }
 
   // 上月总结
-  final initiationQuest = GameData.hero['journals']['organizationInitiation'];
+  final initiationQuest = GameData.hero['journals']['sectInitiation'];
 
   if (initiationQuest['stage'] == 1) {
     // 玩家第一次参加门派会议，跳过总结环节
     engine.hetu.invoke('progressJournalById',
-        namespace: 'Player', positionalArgs: ['organizationInitiation']);
+        namespace: 'Player', positionalArgs: ['sectInitiation']);
   } else {
     // 并非第一次参加的话，才会有上月总结环节
-    final contributionsLastMonth =
-        organization['flags']['monthly']['contributions'];
-    dialog.pushDialog('organization_meeting_monthlySummary',
-        character: superior);
+    final contributionsLastMonth = sect['flags']['monthly']['contributions'];
+    dialog.pushDialog('sect_meeting_monthlySummary', character: superior);
     await dialog.execute();
 
     final heroContributionLastMonth =
         contributionsLastMonth[GameData.hero['id']] ?? 0;
 
-    if (heroContributionLastMonth >=
-        _kOrganizationExpectedMonthlyContribution) {
+    if (heroContributionLastMonth >= _kSectExpectedMonthlyContribution) {
       dialog.pushDialog(
-        'organization_meeting_monthlySummary_contribution_bonus',
+        'sect_meeting_monthlySummary_contribution_bonus',
         character: superior,
         interpolations: [GameData.hero['name']],
       );
@@ -152,9 +153,8 @@ Future<void> _showMeeting(
       final reward = engine.hetu.invoke('createReward', namedArgs: {
         'details': {
           'craftMaterial': {
-            'probability': 1.0,
-            'amount': 3,
-          }
+            'amount': heroJobRank * (heroJobRank + 1) + 1,
+          },
         },
       });
       await engine.hetu
@@ -164,7 +164,7 @@ Future<void> _showMeeting(
       await GameLogic.promptItems(reward);
     } else {
       dialog.pushDialog(
-        'organization_meeting_monthlySummary_contribution_normal',
+        'sect_meeting_monthlySummary_contribution_normal',
         character: superior,
         interpolations: [GameData.hero['name']],
       );
@@ -174,7 +174,7 @@ Future<void> _showMeeting(
     final newTitleId = engine.hetu.invoke('checkCharacterTitle',
         positionalArgs: [GameData.hero], namedArgs: {'setAsManager': true});
     if (newTitleId != null) {
-      dialog.pushDialog('organization_meeting_monthlySummary_promotion',
+      dialog.pushDialog('sect_meeting_monthlySummary_promotion',
           character: superior,
           interpolations: [
             GameData.hero['name'],
@@ -183,16 +183,16 @@ Future<void> _showMeeting(
       await dialog.execute();
       engine.hetu.invoke('setCharacterTitle',
           positionalArgs: [GameData.hero, newTitleId],
-          namedArgs: {'organization': organization});
+          namedArgs: {'sect': sect});
     }
   }
 
   // 新的门派任务
-  dialog.pushDialog('organization_meeting_quests', character: superior);
+  dialog.pushDialog('sect_meeting_quests', character: superior);
   await dialog.execute();
 
-  final quests = engine.hetu.invoke('generateOrganizationQuests',
-      positionalArgs: [organization, location]);
+  final quests = engine.hetu
+      .invoke('generateSectQuests', positionalArgs: [sect, location]);
 
   final quest = await showDialog(
     context: engine.context,
@@ -203,9 +203,9 @@ Future<void> _showMeeting(
     ),
   );
 
-  await GameLogic.acquireQuest(quest, location, organization);
+  await GameLogic.heroAcquireQuest(quest, location, sect);
 
-  dialog.pushDialog('organization_meeting_ending', character: superior);
+  dialog.pushDialog('sect_meeting_ending', character: superior);
   await dialog.execute();
 
   engine.context.read<MeetingState>().end();

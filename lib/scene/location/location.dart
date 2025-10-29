@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/state/selected_tile.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
@@ -9,20 +8,19 @@ import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
+import '../../ui.dart';
 import '../../engine.dart';
 import '../../data/game.dart';
-import '../../ui.dart';
 import '../../widgets/ui_overlay.dart';
-import 'character_visit.dart';
-import '../game_dialog/game_dialog_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
-import '../../state/hover_content.dart';
-import '../../state/view_panels.dart';
-import '../../state/game_update.dart';
+import '../../state/states.dart';
 import '../world/widgets/drop_menu.dart';
+import '../cursor_state.dart';
+import '../game_dialog/game_dialog_content.dart';
+import 'character_visit.dart';
 
-class LocationScene extends Scene {
+class LocationScene extends Scene with HasCursorState {
   LocationScene({
     required this.location,
     required super.context,
@@ -36,7 +34,7 @@ class LocationScene extends Scene {
   late final SpriteComponent _backgroundComponent;
 
   final dynamic location;
-  dynamic organization;
+  dynamic sect;
 
   late final PiledZone siteList;
 
@@ -59,7 +57,7 @@ class LocationScene extends Scene {
       );
       // 这里不知为何flutter明明Pop的是Null，传过来却变成了bool，只好用类型判断是否选择了角色
       if (selectedId is String) {
-        final homeSiteId = 'home_$selectedId';
+        final homeSiteId = '${selectedId}_$kLocationKindHome';
         final homeSiteData = GameData.getLocation(homeSiteId);
         GameLogic.tryEnterLocation(homeSiteData);
       }
@@ -69,6 +67,14 @@ class LocationScene extends Scene {
         'isHero': true,
       });
     }
+  }
+
+  void _onPreviewSiteCard() {
+    cursorState = MouseCursorState.click;
+  }
+
+  void _onUnpreviewSiteCard() {
+    cursorState = MouseCursorState.normal;
   }
 
   void _loadSites() {
@@ -82,7 +88,11 @@ class LocationScene extends Scene {
       case 'home':
         if (location['managerId'] == GameData.hero['id']) {
           final restCard = GameData.createSiteCard(
-              spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+            spriteId: 'location/card/bed.png',
+            title: engine.locale('rest'),
+            onPreviewed: _onPreviewSiteCard,
+            onUnpreviewed: _onUnpreviewSiteCard,
+          );
           restCard.onTap = (button, position) {
             GameLogic.heroRest(location);
           };
@@ -90,21 +100,27 @@ class LocationScene extends Scene {
           world.add(restCard);
 
           final depositCard = GameData.createSiteCard(
-              spriteId: 'location/card/depositBox.png',
-              title: engine.locale('depositBox'));
+            spriteId: 'location/card/depositBox.png',
+            title: engine.locale('depositBox'),
+            onPreviewed: _onPreviewSiteCard,
+            onUnpreviewed: _onUnpreviewSiteCard,
+          );
           depositCard.onTap = (button, position) {
-            GameLogic.onInteractDepositBox(location);
+            GameLogic.openDepositBox(location);
           };
           siteList.cards.add(depositCard);
           world.add(depositCard);
         }
       case 'exparray':
         final siteCard = GameData.createSiteCard(
-            spriteId: 'location/card/exparray.png',
-            title: engine.locale('meditate'));
+          spriteId: 'location/card/exparray.png',
+          title: engine.locale('meditate'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
         siteCard.onTap = (button, position) {
           GameLogic.onInteractExpArray(
-            organization,
+            sect,
             location: location,
           );
         };
@@ -112,28 +128,35 @@ class LocationScene extends Scene {
         world.add(siteCard);
       case 'library':
         final siteCard = GameData.createSiteCard(
-            spriteId: 'location/card/carddesk.png',
-            title: engine.locale('cardlibrary'));
+          spriteId: 'location/card/carddesk.png',
+          title: engine.locale('cardlibrary'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractCardLibraryDesk(
-              organization: organization, location: location);
+          GameLogic.onInteractCardLibraryDesk(sect: sect, location: location);
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);
       case 'dungeon':
         final siteCard = GameData.createSiteCard(
-            spriteId: 'location/card/dungeon.png',
-            title: engine.locale('dungeon'));
+          spriteId: 'location/card/dungeon.png',
+          title: engine.locale('dungeon'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractDungeonEntrance(
-              organization: organization, location: location);
+          GameLogic.onInteractDungeonEntrance(sect: sect, location: location);
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);
       case 'hotel':
         final restCard = GameData.createSiteCard(
-            spriteId: 'location/card/bed.png',
-            title: engine.locale('guestRoom'));
+          spriteId: 'location/card/bed.png',
+          title: engine.locale('guestRoom'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
         restCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };
@@ -141,17 +164,24 @@ class LocationScene extends Scene {
         world.add(restCard);
       case 'cityhall':
         final restCard = GameData.createSiteCard(
-            spriteId: 'location/card/bed.png',
-            title: engine.locale('guestRoom'));
+          spriteId: 'location/card/bed.png',
+          title: engine.locale('guestRoom'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
         restCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };
         siteList.cards.add(restCard);
         world.add(restCard);
       default:
-        for (final siteId in location['sites']) {
+        for (final siteId in location['siteIds']) {
           final siteData = GameData.getLocation(siteId);
-          final siteCard = GameData.getSiteCard(siteData);
+          final siteCard = GameData.getSiteCard(
+            siteData,
+            onPreviewed: _onPreviewSiteCard,
+            onUnpreviewed: _onUnpreviewSiteCard,
+          );
           siteCard.onTap = (button, position) {
             if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
               GameLogic.tryEnterLocation(siteCard.data);
@@ -170,8 +200,11 @@ class LocationScene extends Scene {
 
     if (location['category'] == 'city') {
       final siteCardResidence = GameData.createSiteCard(
-          spriteId: 'location/card/residence.png',
-          title: engine.locale('residence'));
+        spriteId: 'location/card/residence.png',
+        title: engine.locale('residence'),
+        onPreviewed: _onPreviewSiteCard,
+        onUnpreviewed: _onUnpreviewSiteCard,
+      );
       siteCardResidence.onTap = (button, position) {
         openResidenceList();
       };
@@ -186,9 +219,9 @@ class LocationScene extends Scene {
   void onLoad() async {
     super.onLoad();
 
-    final organizationId = location['organizationId'];
-    if (organizationId != null) {
-      organization = GameData.getOrganization(organizationId);
+    final sectId = location['sectId'];
+    if (sectId != null) {
+      sect = GameData.getSect(sectId);
     }
 
     _backgroundComponent = SpriteComponent(
@@ -212,6 +245,8 @@ class LocationScene extends Scene {
       spriteId: 'location/card/exit.png',
       title: engine.locale('exit'),
       position: GameUI.siteExitCardPositon,
+      onPreviewed: _onPreviewSiteCard,
+      onUnpreviewed: _onUnpreviewSiteCard,
     );
     exit.onTap = (_, __) async {
       final result = await engine.hetu.invoke('onWorldEvent',

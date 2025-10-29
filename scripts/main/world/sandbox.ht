@@ -1,4 +1,3 @@
-import 'tile/common.ht'
 import 'generation_algorithm.ht'
 import 'zone.ht'
 
@@ -22,7 +21,7 @@ const _kChildrenMax = 3
 
 const _kLocationInitialDevelopmentMax = 4
 
-const _kOrganizationRecruitProbability = 0.4
+const _kSectRecruitProbability = 0.4
 
 const _kSandboxInitialRankMax = 3
 
@@ -195,8 +194,9 @@ function createSandboxWorld({
           atTerrain: terrain,
           updateWorldMap: false,
           isHidden: true,
-          // 随机生成的据点，初始发展度是0-3之间随机。
+          // 随机生成的据点，初始规模是0-3之间随机。
           development: random.nextInt(_kLocationInitialDevelopmentMax),
+          tradinghouseDevelopment: random.nextInt(_kLocationInitialDevelopmentMax),
         )
       }
     } else if (typeroll < _kArcanaThreshold) {
@@ -210,8 +210,9 @@ function createSandboxWorld({
           atTerrain: terrain,
           updateWorldMap: false,
           isHidden: true,
-          // 随机生成的据点，初始发展度是0-3之间随机。
+          // 随机生成的据点，初始规模是0-3之间随机。
           development: random.nextInt(_kLocationInitialDevelopmentMax),
+          tradinghouseDevelopment: random.nextInt(_kLocationInitialDevelopmentMax),
         )
       }
     }
@@ -229,8 +230,9 @@ function createSandboxWorld({
         atTerrain: terrain,
         updateWorldMap: false,
         isHidden: false,
-        // 随机生成的据点，初始发展度是0-3之间随机。
+        // 随机生成的据点，初始规模是0-3之间随机。
         development: random.nextInt(_kLocationInitialDevelopmentMax),
+        tradinghouseDevelopment: random.nextInt(_kLocationInitialDevelopmentMax),
       )
     }
 
@@ -280,7 +282,7 @@ function createSandboxWorld({
       kind: kind,
       atTerrain: terrain,
       updateWorldMap: false,
-      // 随机生成的场所，初始发展度是0-3之间随机。
+      // 随机生成的场所，初始规模是0-3之间随机。
       development: random.nextInt(_kLocationInitialDevelopmentMax),
       npcId: Constants.siteKindToNpcId[kind],
     )
@@ -406,10 +408,11 @@ function createSandboxWorld({
   let capitals = Set()
   while (nations.length < nationNumber) {
     let availableCities = game.locations.values
-      .where((loc) => loc.category == 'city' && loc.organizationId == null)
+      .where((loc) => loc.category == 'city' && loc.sectId == null)
       .toList()
+    availableCities.sort((a, b) => b.development.compareTo(a.development))
     assert(availableCities.isNotEmpty)
-    const city = random.nextIterable(availableCities)
+    const city = availableCities.first
     const head = Character(
       birthTimestamp: createBirthTimestamp(min: 30, max: 60),
       rank: _kSandboxInitialRankMax,
@@ -417,32 +420,31 @@ function createSandboxWorld({
     head.locationId = city.id
     assert(city.worldPosition != null)
     head.worldPosition = Object.create(city.worldPosition)
-    const organization = Organization(
-      headquartersLocation: city,
+    const sect = Sect(
+      headquarters: city,
       headId: head.id,
     )
-    nations.add(organization)
+    nations.add(sect)
 
     capitals.add(city)
-    city.development += 1
 
     final siteKinds = Constants.siteKindsBuildable.toList()
 
-    final organizationCategoryKind = Constants.organizationCategoryToSiteKind[organization.category]
-    siteKinds.remove(organizationCategoryKind)
+    final sectCategoryKind = Constants.sectCategoryToSiteKind[sect.category]
+    siteKinds.remove(sectCategoryKind)
     Location(
-      id: city.name + '_${engine.locale(organizationCategoryKind)}',
-      name: engine.locale(organizationCategoryKind),
+      id: city.name + '_${engine.locale(sectCategoryKind)}',
+      name: engine.locale(sectCategoryKind),
       category: 'site',
-      kind: organizationCategoryKind,
+      kind: sectCategoryKind,
       atLocation: city,
-      organizationId: organization.id,
+      sectId: sect.id,
       development: random.nextInt(city.development + 1),
-      npcId: Constants.siteKindToNpcId[organizationCategoryKind],
+      npcId: Constants.siteKindToNpcId[sectCategoryKind],
     )
     
-    final organizationGenreKinds = Constants.organizationGenreToSiteKinds[organization.genre]
-    final secondaryClassSiteKind = random.nextIterable(organizationGenreKinds)
+    final sectGenreKinds = Constants.sectGenreToSiteKinds[sect.genre]
+    final secondaryClassSiteKind = random.nextIterable(sectGenreKinds)
     siteKinds.remove(secondaryClassSiteKind)
     Location(
       id: city.name + '_${engine.locale(secondaryClassSiteKind)}',
@@ -450,30 +452,29 @@ function createSandboxWorld({
       category: 'site',
       kind: secondaryClassSiteKind,
       atLocation: city,
-      organizationId: organization.id,
+      sectId: sect.id,
       development: random.nextInt(city.development + 1),
       npcId: Constants.siteKindToNpcId[secondaryClassSiteKind],
     )
 
-    final buildingCount = buildingCountForDevelopment(city.development)
-    if (city.sites.length < buildingCount) {
-      final remainingBuildingSlots = buildingCount - city.sites.length
-      for (var i in range(remainingBuildingSlots)) {
+    if (city.siteIds.length < city.maxSiteCount) {
+      for (var i in range(city.siteIds.length, city.maxSiteCount)) {
         final roll = random.nextDouble()
         if (roll > _kCityHasExtraBuildingProbability) continue
 
         final kind = random.nextIterable(siteKinds)
-        siteKinds.remove(kind)
         Location(
           id: city.name + '_${engine.locale(kind)}',
           name: engine.locale(kind),
           category: 'site',
           kind: kind,
           atLocation: city,
-          organizationId: organization.id,
+          sectId: sect.id,
           development: random.nextInt(city.development + 1),
           npcId: Constants.siteKindToNpcId[kind],
         )
+        siteKinds.remove(kind)
+        if (siteKinds.isEmpty) break
       }
     }
   }
@@ -486,25 +487,25 @@ function createSandboxWorld({
     .toList()
   for (final city in nonCapitalCities) {
     final siteKinds = Constants.siteKindsBuildable.toList()
-    final buildingCount = buildingCountForDevelopment(city.development)
-    if (city.sites.length < buildingCount) {
-      final remainingBuildingSlots = buildingCount - city.sites.length
-      for (var i in range(remainingBuildingSlots)) {
+    // 这里 + 2 是因为非首都据点默认会拥有会堂和交易所两个建筑
+    if (city.siteIds.length < city.maxSiteCount) {
+      for (var i in range(city.siteIds.length, city.maxSiteCount)) {
         final roll = random.nextDouble()
         if (roll > _kCityHasExtraBuildingProbability) continue
         
         final kind = random.nextIterable(siteKinds)
-        siteKinds.remove(kind)
         Location(
           id: city.name + '_${engine.locale(kind)}',
           name: engine.locale(kind),
           category: 'site',
           kind: kind,
           atLocation: city,
-          organizationId: city.organizationId,
+          sectId: city.sectId,
           development: random.nextInt(city.development + 1),
           npcId: Constants.siteKindToNpcId[kind],
         )
+        siteKinds.remove(kind)
+        if (siteKinds.isEmpty) break
       }
     }
   }
@@ -529,22 +530,27 @@ function createSandboxWorld({
   engine.info('扩张门派的成员和领地')
   for (var i in range(5)) {
     // 国家和组织扩张
-    for (const organization of game.organizations) {
-      final expansionRate = Constants.organizationCategoryExpansionRate[organization.category]
+    for (const sect of game.sects) {
+      final occupiedCities = sect.locationIds.map((id) => game.locations[id])
+        .where((loc) => loc.category == 'city')
+        .toList()
+      if (occupiedCities.length >= sect.maxCityCount) continue
+
+      final expansionRate = Constants.sectCategoryExpansionRate[sect.category]
       let roll = random.nextDouble()
       if (roll > expansionRate) continue
       final availableCities = game.locations.values.where((location) =>
         location.category == 'city' &&
-        location.organizationId == null
+        location.sectId == null
       ).toList()
       if (availableCities.isEmpty) {
-        // engine.warn('组织 ${organization.id} 没有可用的据点可以扩张了。')
+        // engine.warn('组织 ${sect.id} 没有可用的据点可以扩张了。')
         continue
       }
-      // engine.debug('组织 ${organization.name} 尝试扩张新领土')
+      // engine.debug('组织 ${sect.name} 尝试扩张新领土')
       if (availableCities.length > 1) {
         // 按照距离组织据点的远近排序
-        final headquarters = game.locations[organization.headquartersLocationId]
+        final headquarters = game.locations[sect.headquartersLocationId]
         final headquartersTile = world.terrains[headquarters.terrainIndex]
 
         availableCities.sort((a, b) {
@@ -554,23 +560,23 @@ function createSandboxWorld({
         })
       }
       final newCity = availableCities.first
-      addLocationToOrganization(newCity, organization)
+      addLocationToSect(newCity, sect)
     }
   }
   for (var i in range(10)) {
-    for (const organization of game.organizations) {
+    for (const sect of game.sects) {
       let roll = random.nextDouble()
-      if (roll > _kOrganizationRecruitProbability) continue
+      if (roll > _kSectRecruitProbability) continue
       final availableCharacters = game.characters.values.where((char) =>
-        char.organizationId == null
+        char.sectId == null
       )
       if (availableCharacters.isEmpty) {
-        // engine.warn('组织 ${organization.id} 没有可用的角色可以招募了。')
+        // engine.warn('组织 ${sect.id} 没有可用的角色可以招募了。')
         continue
       }
-      // engine.debug('组织 ${organization.id} 尝试招募新成员')
+      // engine.debug('组织 ${sect.id} 尝试招募新成员')
       final character = random.shuffle(availableCharacters).first
-      addCharacterToOrganization(character, organization)
+      addCharacterToSect(character, sect)
     }
   }
   
@@ -583,11 +589,11 @@ function createSandboxWorld({
       if (char.isPregnant) continue
       if (char.motivations.contains('dink')) continue
 
-      let spouseId = getSpouses(char).first?.characterId
+      let spouseId = char.familyRelationships.spouseIds.last
       if (spouseId != null) {
         const spouse = game.characters[spouseId]
         if (spouse.motivations.contains('dink')) continue
-        final childrenCount = hasChild(char)
+        final childrenCount = char.familyRelationships.childIds.length
         if (childrenCount >= _kChildrenMax) continue
         Baby(father: spouse, mother: char)
       } else {
@@ -597,10 +603,9 @@ function createSandboxWorld({
           if (char.id == otherChar.id) continue
           if (otherChar.isFemale) continue
           if (getCharacterAge(otherChar) < _kAdultAge) continue
-          if (hasSpouse(otherChar)) continue
+          if (otherChar.familyRelationships.spouseIds.isNotEmpty) continue
 
-          createSpouse(otherChar, char)
-          characterMet(char, otherChar)
+          createSpouseRelationships(char, otherChar)
           break
         }
       }
@@ -628,52 +633,43 @@ function createSandboxWorld({
       kind: 'dungeon',
       atTerrain: dungeionTile,
       updateWorldMap: false,
-      organizationId: city.organizationId,
+      sectId: city.sectId,
       npcId: Constants.siteKindToNpcId['dungeon'],
     )
     location.dungeonId = 'dungeon_1'
     dungeionTile.locationId = location.id
   }
 
-  engine.info('为角色添加次要动机')
-  for (const char of game.characters) {
-    const age = getCharacterAge(char)
-    if (char.motivations.isNotEmpty) continue
+  // engine.info('为角色添加次要动机')
+  // for (const char of game.characters) {
+  //   const age = getCharacterAge(char)
+  //   if (char.motivations.isNotEmpty) continue
     
-    if (char.relationships.sect.isEmpty) {
-      if (!char.motivations.contains('shifu')) {
-        char.motivations.add('shifu')
-        continue
-      }
-    }
-    
-    if (char.relationships.friendship.isEmpty) {
-      if (!char.motivations.contains('friendship')) {
-        char.motivations.add('friendship')
-        continue
-      }
-    }
-    
-    if (char.relationships.romance.isEmpty) {
-      if (!char.motivations.contains('romance')) {
-        char.motivations.add('romance')
-        continue
-      }
-    }
-    
-    if (!hasSpouse(char)) {
-      if (age >= _kAdultAge && !char.motivations.contains('spouse')) {
-        char.motivations.add('spouse')
-        continue
-      }
-    }
-    
-    if (!hasChild(char)) {
-      if (age >= _kAdultAge && !char.motivations.contains('child')) {
-        char.motivations.add('child')
-      }
-    }
-  }
+  //   if (char.shituRelationships.shifuIds.isEmpty) {
+  //     if (!char.motivations.contains('shifu')) {
+  //       char.motivations.add('shifu')
+  //       continue
+  //     }
+  //   }
+  //   if (char.familyRelationships.spouseIds.isEmpty) {
+  //     if (age >= _kAdultAge && !char.motivations.contains('spouse')) {
+  //       char.motivations.add('spouse')
+  //       continue
+  //     }
+  //   }
+  //   if (char.romanceIds.isEmpty) {
+  //     if (!char.motivations.contains('romance')) {
+  //       char.motivations.add('romance')
+  //       continue
+  //     }
+  //   }
+  //   if (char.friendIds.isEmpty) {
+  //     if (!char.motivations.contains('friendship')) {
+  //       char.motivations.add('friendship')
+  //       continue
+  //     }
+  //   }
+  // }
 
   engine.info('--------世界生成完毕，清理临时数据--------')
 

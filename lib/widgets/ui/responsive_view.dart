@@ -17,6 +17,7 @@ class ResponsiveView extends StatelessWidget {
     this.backgroundColor = Colors.transparent,
     this.barrierColor = Colors.transparent,
     this.barrierDismissible = true,
+    this.onBarrierDismissed,
     this.cursor = GameUI.cursor,
     this.child,
     this.children = const [],
@@ -32,6 +33,7 @@ class ResponsiveView extends StatelessWidget {
   final Color? backgroundColor;
   final Color? barrierColor;
   final bool barrierDismissible;
+  final void Function()? onBarrierDismissed;
   final MouseCursor cursor;
   final Widget? child;
   final List<Widget> children;
@@ -49,7 +51,11 @@ class ResponsiveView extends StatelessWidget {
                 color: barrierColor,
                 onDismiss: () {
                   if (barrierDismissible) {
-                    Navigator.of(context).maybePop();
+                    if (onBarrierDismissed != null) {
+                      onBarrierDismissed!();
+                    } else {
+                      Navigator.of(context).maybePop();
+                    }
                   }
                 },
               ),

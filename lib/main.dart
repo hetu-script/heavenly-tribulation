@@ -50,7 +50,7 @@ void main() {
     // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
     FlutterError.onError = (details) {
       engine.error(details.toString());
-      FlutterError.presentError(details);
+      // FlutterError.presentError(details);
       alertFlutterError(details);
     };
 
@@ -119,24 +119,24 @@ void main() {
               ),
             ),
             // 控件绘制时发生错误，用一个显示错误信息的控件替代
-            builder: (context, widget) {
-              ErrorWidget.builder = (FlutterErrorDetails details) {
-                String stack = '';
-                if (details.stack != null) {
-                  stack = trimStackTrace(details.stack!);
-                }
-                final Object exception = details.exception;
-                Widget error = ErrorWidget.withDetails(
-                    message: '$exception\n$stack',
-                    error: exception is FlutterError ? exception : null);
-                if (widget is Scaffold || widget is Navigator) {
-                  error = Scaffold(body: Center(child: error));
-                }
-                return error;
-              };
-              if (widget != null) return widget;
-              throw ('error trying to create error widget!');
-            },
+            // builder: (context, widget) {
+            //   ErrorWidget.builder = (FlutterErrorDetails details) {
+            //     String stack = '';
+            //     if (details.stack != null) {
+            //       stack = trimStackTrace(details.stack!);
+            //     }
+            //     final Object exception = details.exception;
+            //     Widget error = ErrorWidget.withDetails(
+            //         message: '$exception\n$stack',
+            //         error: exception is FlutterError ? exception : null);
+            //     if (widget is Scaffold || widget is Navigator) {
+            //       error = Scaffold(body: Center(child: error));
+            //     }
+            //     return error;
+            //   };
+            //   if (widget != null) return widget;
+            //   throw ('error trying to create error widget!');
+            // },
           ),
         ),
       ),

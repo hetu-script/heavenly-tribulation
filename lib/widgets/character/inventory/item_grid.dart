@@ -1,12 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:samsara/widgets/pointer_detector.dart';
 
 import '../../../ui.dart';
-
-const kDefaultItemGridSize = Size(48.0, 48.0);
+import '../../common.dart';
 
 class ItemGrid extends StatelessWidget {
   const ItemGrid({
@@ -120,7 +118,7 @@ class ItemGrid extends StatelessWidget {
                     left: 0,
                     bottom: 0,
                     child: Padding(
-                      padding: const EdgeInsets.all(2.5),
+                      padding: const EdgeInsets.all(2),
                       child: Image(
                         width: size.width / 3,
                         height: size.height / 3,

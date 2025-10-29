@@ -32,8 +32,8 @@ struct HeroMonthly {
     this.donated = []
 
     // 对其他角色操作
-    this.gifted = []
     this.asked = []
+    this.gifted = []
     this.attacked = []
     this.stolen = []
 
@@ -70,7 +70,7 @@ struct LocationMonthly {
   }
 }
 
-struct OrganizationMonthly {
+struct SectMonthly {
   constructor {
     // 本月新加入的成员
     this.recruited = []
@@ -101,10 +101,10 @@ function addLocationMonthly(location, activity, targetId) {
   location.flags.monthly[activity].add(targetId)
 }
 
-function addOrganizationMonthly(organization, activity, targetId) {
-  organization.flags.monthly ??= OrganizationMonthly()
-  organization.flags.monthly[activity] ??= []
-  organization.flags.monthly[activity].add(targetId)
+function addSectMonthly(sect, activity, targetId) {
+  sect.flags.monthly ??= SectMonthly()
+  sect.flags.monthly[activity] ??= []
+  sect.flags.monthly[activity].add(targetId)
 }
 
 function resetHeroMonthly() {
@@ -119,8 +119,8 @@ function resetLocationMonthly(location) {
   location.flags.monthly = LocationMonthly()
 }
 
-function resetOrganizationMonthly(organization) {
-  organization.flags.monthly = OrganizationMonthly()
+function resetSectMonthly(sect) {
+  sect.flags.monthly = SectMonthly()
 }
 
 struct GameData {
@@ -147,7 +147,7 @@ struct GameData {
       // 秘境地牢的事件标记，每次进入地牢前会重置
       dungeon: {},
       // 门派行动的事件标记，加入新门派会重置
-      organizations: {},
+      sects: {},
       // 玩家每个月是否进行了某个动作
       monthly: HeroMonthly(),
     }
@@ -156,23 +156,22 @@ struct GameData {
     this.deceased = {}
     this.babies = {}
     this.characters = {}
-    this.organizations = {}
+
     // 地图上的城市、场景
     this.locations = {}
 
-    // 家族信息
-    // key 是家族的 id，值是一个结构体数组
-    // 值的key是人物的 id，值是 MemberRankData 数据，含角色的 generation 和 peer
+    // 家族信息，家族类似于门派
+    // 也有自己的家族名字，成员数据表等等
+    // 但没有自己的据点，要想拥有据点必须是一个门派
     this.families = {}
-    // 师徒传承信息
-    // key 是师徒传承的 id，值是一个结构体数组
-    // 值的 key 是人物的 id，值是 SectMember 数据，含角色的 generation 和 peer
+    
     this.sects = {}
 
     // 门派之间的外交关系
     // key 是外交关系的 id，值是 Diplomacy 数据
     // 在门派自己的数据中保存的则是对方门派和外交关系 id 的对应关系表
     // 可能存在多个门派组成的联盟之类，这样大家共享一个联盟 ID
+    // 敌对势力同样会创建一个外交关系数据
     this.diplomacies = {}
     
     // 本次游戏加载的 module，这里是元数据和事件函数绑定的空间
@@ -341,9 +340,9 @@ function getHeroHomeSite({worldId}) {
   }
 }
 
-function getHeroOrganization {
-  if (hero.organizationId) {
-    return game.organizations[hero.organizationId]
+function getHeroSect {
+  if (hero.sectId) {
+    return game.sects[hero.sectId]
   } else {
     return null
   }
@@ -436,110 +435,4 @@ function getNameFromId(id, [orElse = 'null']) {
 async function onNewGame() {
   game.isNewGame = false
   await onWorldEvent('onNewGame')
-}
-
-namespace Game {
-
-  external function datetime()
-  
-  external function updateUI()
-
-  external function updateLocation(location)
-
-  external function updateActiveJournals(journals)
-
-  external function switchWorld(worldId, {clearCache: bool = false})
-
-  external function popScene({clearCache: bool = false})
-  
-  external function updateGame({
-    tick = Constants.ticksPerTime,
-    force = false,
-    updateEntity = true,
-    updateUI = true,
-    updateWorldMap = true,
-  })
-
-  external function updateHistory()
-
-  external function updateDungeon(dungeon)
-
-  external function tryEnterDungeon({
-    rank,
-    isCommon = true,
-    dungeonId = 'dungeon_1',
-    pushScene = true,
-  })
-
-  external function onDying()
-
-  external function characterAllocateSkills(character, {rejuvenate = false} )
-
-  external function updateNpcs(npcs)
-
-  external function updateNpcsAtLocation(location)
-
-  external function hideNpc(id)
-
-  external function promptItems(items: Iterable)
-
-  external async function promptJournal(
-    journal, {
-    selectionsRaw,
-    selections,
-    interpolations,
-  }) -> string
-
-  external function promptNewRank(rank)
-
-  external async function selectCharacter([ids])
-
-  external async function selectLocation([ids])
-
-  external async function selectOrganization([ids])
-
-  external function selectItem({
-    character,
-    title,
-    filter,
-    multiSelect: bool = false,
-  }) -> Iterable
-
-  external function showHeroInfo([value: bool = true])
-
-  external function showTimeflow(max)
-  
-  external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
-  
-  external function showCultivation({location, enableCultivate: bool = false})
-
-  external function showPrebattle(enemyData, {
-    onBattleStart,
-    onBattleEnd,
-    background,
-    loseOnEscape: bool = false,
-  })
-
-  external function showBattle({
-    hero,
-    enemy,
-    isSneakAttack: bool = false,
-    // isAutoBattle: bool = false,
-    onBattleStart,
-    onBattleEnd,
-  })
-
-  external function showMerchant(merchantData, {
-    depositMode = false,
-    materialMode = false,
-    useShard = false,
-    priceFactor,
-    filter,
-  })
-
-  external function showWorkbench()
-
-  external function showAlchemy()
-
-  external function showMeeting(organization, location, superior)
 }

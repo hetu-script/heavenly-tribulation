@@ -1,0 +1,45 @@
+{
+  "journal_sectInitiation_title": "修真门派",
+  "journal_sectInitiation_stage_0": "去{1}找上级{2}报到，领取{0}配发的丹药和秘籍。",
+  "journal_sectInitiation_stage_1": "参加每个月月初 1-5 号举办的例会，获取门派任务。",
+  "journal_sectInitiation_stage_2": "提升门派职位到「执事」。",
+
+  "topic_sectInitiation": "原来你就是{0}新来的弟子？\n<yellow>别忘了去{1}找你的上级{2}报到</>，你应该可以领到一瓶丹药和一本秘籍。",
+  "topic_sectInitiation_superior": "原来你就是{0}新来的弟子？\n看来我是你的上级。\n<yellow>别忘了去{1}找我报到</>，你可以领到一瓶丹药和一本秘籍。",
+
+  "sect_meeting_intro_1": "这位道友，你是来参加{0}{1}的例会的吧。您的席位在那边，请速速入座。",
+
+  "sect_meeting_intro_2": "诸位肃静。时辰已到，本月例会，现在开始。",
+
+  "sect_meeting_new_recruit_1": "本月有新人加入我们，让我们欢迎几位道友。",
+
+  "sect_meeting_new_recruit_2": "（第一次看到如此多的人看着自己，还是有些微的紧张。）\n（我此刻应该怎么做？）",
+
+  "sect_meeting_new_recruit_3": "新血注入，门派自当更兴旺。还望大家融洽共处，互相帮助，早日同登大道。",
+
+  "sectInitiation": "初入门派",
+
+  "journal_sectFirstMeetingIntroduction_title": "自我介绍",
+
+  "sect_meeting_new_recruit_options": "在门派的例会上，你作为新弟子，需要向大家做一个简单的自我介绍。你会选择哪种方式？",
+
+  "sect_meeting_new_recruit_option_1": "谦和有礼",
+  "sect_meeting_new_recruit_option_1_reply": "诸位师兄师姐安好。在下初来乍到，修为浅薄，还望各位多多提点。",
+  "sect_meeting_new_recruit_option_2": "锋芒毕露",
+  "sect_meeting_new_recruit_option_2_reply": "我来此是为了寻求变强的力量。希望有朝一日，能攀上大道的巅峰。",
+  "sect_meeting_new_recruit_option_3": "保持沉默",
+  "sect_meeting_new_recruit_option_3_reply": "（没有说话，只是微微向大家点了点头。）",
+
+  "sect_meeting_monthlySummary": "接下来，进入上月总结环节。",
+  "sect_meeting_monthlySummary_contribution": "{0}积累的功勋为 <yellow>{2}</>。",
+  "sect_meeting_monthlySummary_contribution_normal": "{0}，鉴于你的表现，本月你未能获得奖励。天道酬勤，还望你再接再厉，争取下一次能够获得门派的奖赏。",
+  "sect_meeting_monthlySummary_contribution_bonus": "{0}，你上月表现卓越，积累了不少功劳。你的付出，门派上下皆看在眼里。此乃嘉奖，望你日后能为门派做出更大贡献。",
+  "sect_meeting_monthlySummary_promotion": "{0}，念你功勋卓著，修为亦有所成。自今日起，擢升你为门派「{1}」，望你恪尽职守，不负所托！",
+
+  "sect_meeting_quests": "接下来，开始本月的任务分配，诸位可自行认领。有志者切莫推诿。",
+
+  "sect_meeting_ending": "例会到此结束，各位可自行解散。还请牢记天道酬勤，修持不可懈怠。",
+
+  "journal_sectRecruitReport_stage0": "你成功将{0}招募至{1}麾下，你需要<yellow>向掌门汇报此事</>。",
+  "journal_sectRecruitReport_stage1": "你已经成功汇报。"
+}

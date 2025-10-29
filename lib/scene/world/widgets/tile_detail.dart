@@ -29,12 +29,12 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
 
     if (currentLocation != null) {
       dynamic manager;
-      // dynamic organization;
+      // dynamic sect;
       final managerId = currentLocation['managerId'];
-      // 这里 owner 可能是 null
+      // 这里 manager 可能是 null
       manager = GameData.game['characters'][managerId];
-      // final organizationId = currentLocation['organizationId'];
-      // organization = GameData.gameData['organizations'][organizationId];
+      // final sectId = currentLocation['sectId'];
+      // sect = GameData.gameData['sects'][sectId];
 
       String title;
       if (currentLocation['category'] == 'city') {
@@ -100,8 +100,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
               if (currentZone != null)
                 Text('${engine.locale('zone')}: ${currentZone['name']}'),
               if (currentNation != null)
-                Text(
-                    '${engine.locale('organization')}: ${currentNation['name']}'),
+                Text('${engine.locale('sect')}: ${currentNation['name']}'),
               // if (currentLocation != null)
               //   Text(
               //       '${engine.locale('location')}: ${currentLocation['name']}'),

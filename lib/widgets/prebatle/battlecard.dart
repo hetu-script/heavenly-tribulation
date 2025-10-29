@@ -5,7 +5,7 @@ import '../../ui.dart';
 import '../../engine.dart';
 import '../../state/hover_content.dart';
 import '../../logic/logic.dart';
-import '../../scene/common.dart';
+import '../../widgets/common.dart';
 
 class BattleCard extends StatelessWidget {
   BattleCard({

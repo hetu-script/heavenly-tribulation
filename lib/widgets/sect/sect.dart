@@ -1,70 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:provider/provider.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
-// import '../../util.dart';
 import '../common.dart';
-import 'edit_organization_basic.dart';
+import 'edit_sect_basic.dart';
 import '../../data/game.dart';
 import '../entity_table.dart';
 import '../character/profile.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
+import '../../state/view_panels.dart';
 
-class OrganizationView extends StatefulWidget {
-  final String? organizationId;
-  final HTStruct? organization;
+class SectView extends StatefulWidget {
+  final String? sectId;
+  final HTStruct? sect;
   final InformationViewMode mode;
 
-  const OrganizationView({
+  const SectView({
     super.key,
-    this.organizationId,
-    this.organization,
+    this.sectId,
+    this.sect,
     this.mode = InformationViewMode.view,
   });
 
   @override
-  State<OrganizationView> createState() => _OrganizationViewState();
+  State<SectView> createState() => _SectViewState();
 }
 
-class _OrganizationViewState extends State<OrganizationView> {
+class _SectViewState extends State<SectView> {
   static late List<Tab> tabs;
-  late final HTStruct _organization;
+  late final HTStruct _sect;
 
   final List<List<String>> _charactersTable = [], _locationsTable = [];
 
   late final dynamic _headquartersLocation, _head;
 
+  late final Iterable<dynamic> members;
+
   @override
   void initState() {
     super.initState();
 
-    assert(widget.organizationId != null || widget.organization != null,
-        'OrganizationView must have either organizationId or organization data.');
-    if (widget.organization != null) {
-      _organization = widget.organization!;
-    } else if (widget.organizationId != null) {
-      _organization = GameData.getOrganization(widget.organizationId);
+    assert(widget.sectId != null || widget.sect != null,
+        'SectView must have either sectId or sect data.');
+    if (widget.sect != null) {
+      _sect = widget.sect!;
+    } else if (widget.sectId != null) {
+      _sect = GameData.getSect(widget.sectId);
     }
 
-    final headquartersLocationId = _organization['headquartersLocationId'];
+    final headquartersLocationId = _sect['headquartersLocationId'];
     _headquartersLocation = GameData.getLocation(headquartersLocationId);
 
-    final headId = _organization['headId'];
+    final headId = _sect['headId'];
     _head = GameData.getCharacter(headId);
 
-    final Iterable members = (_organization['membersData'].values as Iterable)
-        .map((member) => member['id'])
-        .map((id) => GameData.getCharacter(id));
+    members = (_sect['membersData'].values as Iterable)
+        .where((memberData) => memberData['isAbsent'] == false)
+        .map((memberData) => GameData.getCharacter(memberData['id']));
 
     for (final character in members) {
       final row = GameData.getMemberInformationRow(character);
       _charactersTable.add(row);
     }
 
-    final Iterable locations = (_organization['locationIds'] as Iterable)
+    final Iterable locations = (_sect['locationIds'] as Iterable)
         .map((id) => GameData.getLocation(id));
 
     for (final location in locations) {
@@ -80,9 +83,19 @@ class _OrganizationViewState extends State<OrganizationView> {
     ];
   }
 
+  void _saveData() {}
+
+  void close() {
+    if (widget.mode == InformationViewMode.edit) {
+      Navigator.of(context).pop();
+    } else {
+      engine.context.read<ViewPanelState>().toogle(ViewPanels.sectInformation);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final headTitle = _organizationData['rankTitles'][6];
+    // final headTitle = _sectData['rankTitles'][6];
 
     final mainPanel = Container(
       padding: const EdgeInsets.all(20.0),
@@ -98,23 +111,23 @@ class _OrganizationViewState extends State<OrganizationView> {
             style: TextStyles.bodyLarge,
           ),
           Text(
-            '${engine.locale('genre')}: ${engine.locale(_organization['genre'])}',
+            '${engine.locale('genre')}: ${engine.locale(_sect['genre'])}',
             style: TextStyles.bodyLarge,
           ),
           Text(
-            '${engine.locale('ideology')}: ${engine.locale(_organization['category'])}',
+            '${engine.locale('ideology')}: ${engine.locale(_sect['category'])}',
             style: TextStyles.bodyLarge,
           ),
           Text(
-            '${engine.locale('cityNumber')}: ${_organization['locationIds'].length}',
+            '${engine.locale('cityNumber')}: ${_sect['locationIds'].length}',
             style: TextStyles.bodyLarge,
           ),
           Text(
-            '${engine.locale('memberNumber')}: ${_organization['membersData'].length}',
+            '${engine.locale('memberNumber')}: ${members.length}',
             style: TextStyles.bodyLarge,
           ),
           Text(
-            '${engine.locale('recruitMonth')}: ${_organization['recruitMonth']}${engine.locale('dateMonth')}',
+            '${engine.locale('recruitMonth')}: ${_sect['recruitMonth']}${engine.locale('dateMonth')}',
             style: TextStyles.bodyLarge,
           ),
           const Spacer(),
@@ -127,35 +140,47 @@ class _OrganizationViewState extends State<OrganizationView> {
                     onPressed: () async {
                       final value = await showDialog(
                         context: context,
-                        builder: (context) => EditOrganizationBasics(
-                          id: _organization['id'],
-                          name: _organization['name'],
-                          category: _organization['category'],
-                          genre: _organization['genre'],
-                          headId: _organization['headId'],
+                        builder: (context) => EditSectBasics(
+                          id: _sect['id'],
+                          name: _sect['name'],
+                          category: _sect['category'],
+                          genre: _sect['genre'],
+                          headId: _sect['headId'],
                           headquartersData: GameData.getLocation(
-                              _organization['headquartersLocationId']),
+                              _sect['headquartersLocationId']),
                         ),
                       );
                       if (value == null) return;
 
                       final (id, name, category, genre, headId) = value;
-                      _organization['name'] = name;
-                      _organization['category'] = category;
-                      _organization['genre'] = genre;
+                      _sect['name'] = name;
+                      _sect['category'] = category;
+                      _sect['genre'] = genre;
 
-                      if (headId != null && headId != _organization['headId']) {
-                        _organization['headId'] = headId;
+                      if (headId != null && headId != _sect['headId']) {
+                        _sect['headId'] = headId;
                       }
 
-                      if (id != null && id != _organization['id']) {
-                        GameData.game['organizations']
-                            .remove(_organization['id']);
-                        _organization['id'] = id;
-                        GameData.game['organizations'][id] = _organization;
+                      if (id != null && id != _sect['id']) {
+                        GameData.game['sects'].remove(_sect['id']);
+                        _sect['id'] = id;
+                        GameData.game['sects'][id] = _sect;
                       }
                     },
                     child: Text(engine.locale('editIdAndImage')),
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, right: 10.0),
+                    child: fluent.Button(
+                      onPressed: () {
+                        if (widget.mode == InformationViewMode.edit) {
+                          _saveData();
+                        }
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text(engine.locale('confirm')),
+                    ),
                   ),
                 ],
               ),
@@ -167,16 +192,17 @@ class _OrganizationViewState extends State<OrganizationView> {
     return ResponsiveView(
       width: 1000.0,
       height: widget.mode != InformationViewMode.view ? 650.0 : 600.0,
+      onBarrierDismissed: close,
       child: DefaultTabController(
         length: tabs.length,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(_organization['name']),
-            actions: const [CloseButton2()],
-            bottom: TabBar(
-              tabs: tabs,
-            ),
+            title: Text(_sect['name']),
+            actions: [
+              CloseButton2(onPressed: close),
+            ],
+            bottom: TabBar(tabs: tabs),
           ),
           body: TabBarView(
             children: [

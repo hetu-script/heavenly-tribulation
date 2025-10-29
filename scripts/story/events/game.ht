@@ -203,7 +203,7 @@ async function onAfterEnterLocation(location) {
         dialog.pushDialog('chapter1_intro_nan_wuzhen_line7', isHero: true)
         dialog.pushDialog('chapter1_intro_nan_wuzhen_line8', character: wuzhen)
         await dialog.execute()
-        addCharacterToOrganization(hero, game.organizations.baihepai)
+        addCharacterToSect(hero, game.sects.baihepai)
         return true
       }
     }

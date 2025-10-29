@@ -40,19 +40,22 @@ class GameDialogContent extends StatefulWidget {
         return GameDialogContent(
           data: resolved,
           style: style,
+          withBarrier: true,
         );
       },
     );
   }
 
-  final dynamic data;
-  final TextStyle? style;
-
   const GameDialogContent({
     super.key,
     required this.data,
     this.style,
+    this.withBarrier = true,
   }) : assert(data != null);
+
+  final dynamic data;
+  final TextStyle? style;
+  final bool withBarrier;
 
   @override
   State<GameDialogContent> createState() => _GameDialogContentState();
@@ -107,99 +110,110 @@ class _GameDialogContentState extends State<GameDialogContent> {
     timer?.cancel();
   }
 
+  void onTap() {
+    if (lineFinished) {
+      nextSay();
+    } else {
+      finishLine();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (lineFinished) {
-          nextSay();
-        } else {
-          finishLine();
-        }
-      },
-      child: Material(
-        color: Colors.transparent,
-        child: Stack(
-          alignment: AlignmentDirectional.bottomCenter,
-          children: [
-            Positioned(
-              bottom: 20.0,
-              child: StreamBuilder(
-                stream: textShowController.stream,
-                builder: (context, AsyncSnapshot<TextSpan> snapshot) {
-                  return Container(
-                    width: 880,
-                    height: 190,
-                    decoration: BoxDecoration(
-                      borderRadius: GameUI.borderRadius,
-                      border: GameUI.boxBorder,
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: fluent.Acrylic(
-                            luminosityAlpha: 0.4,
-                            blurAmount: 5.0,
+    return MouseRegion(
+      cursor: GameUI.cursor,
+      hitTestBehavior: HitTestBehavior.translucent,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Material(
+          color: Colors.transparent,
+          child: Stack(
+            alignment: AlignmentDirectional.bottomCenter,
+            children: [
+              if (widget.withBarrier)
+                ModalBarrier(
+                  color: GameUI.barrierColor,
+                  onDismiss: onTap,
+                ),
+              Positioned(
+                bottom: 20.0,
+                child: StreamBuilder(
+                  stream: textShowController.stream,
+                  builder: (context, AsyncSnapshot<TextSpan> snapshot) {
+                    return Container(
+                      width: 880,
+                      height: 190,
+                      decoration: BoxDecoration(
+                        borderRadius: GameUI.borderRadius,
+                        border: GameUI.boxBorder,
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: fluent.Acrylic(
+                              luminosityAlpha: 0.4,
+                              blurAmount: 5.0,
+                            ),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            Avatar(
-                              margin: const EdgeInsets.only(left: 20.0),
-                              // cursor: SystemMouseCursors.click,
-                              // name: name,
-                              // nameAlignment: AvatarNameAlignment.top,
-                              image: currentAvatar != null
-                                  ? AssetImage('assets/images/$currentAvatar')
-                                  : null,
-                              size: const Size(140.0, 140.0),
-                              // characterData: characterData,
-                              onPressed: (id) {
-                                if (id != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        CharacterProfileView(characterId: id),
-                                  );
-                                }
-                              },
-                            ),
-                            Container(
-                              width: 640,
-                              height: 190,
-                              padding:
-                                  const EdgeInsets.only(left: 20.0, top: 10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0),
-                                    child: Label(
-                                      name ?? '',
-                                      textStyle: TextStyle(fontSize: 20),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 5.0),
-                                    child: RichText(
-                                      text: snapshot.data ?? const TextSpan(),
-                                    ),
-                                  ),
-                                ],
+                          Row(
+                            children: [
+                              Avatar(
+                                margin: const EdgeInsets.only(left: 20.0),
+                                // cursor: SystemMouseCursors.click,
+                                // name: name,
+                                // nameAlignment: AvatarNameAlignment.top,
+                                image: currentAvatar != null
+                                    ? AssetImage('assets/images/$currentAvatar')
+                                    : null,
+                                size: const Size(140.0, 140.0),
+                                // characterData: characterData,
+                                onPressed: (id) {
+                                  if (id != null) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          CharacterProfileView(characterId: id),
+                                    );
+                                  }
+                                },
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                              Container(
+                                width: 640,
+                                height: 190,
+                                padding: const EdgeInsets.only(
+                                    left: 20.0, top: 10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0),
+                                      child: Label(
+                                        name ?? '',
+                                        textStyle: TextStyle(fontSize: 20),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 5.0),
+                                      child: RichText(
+                                        text: snapshot.data ?? const TextSpan(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

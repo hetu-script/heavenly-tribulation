@@ -1,5 +1,4 @@
-import '../world/tile/common.ht'
-
+external function getLifeSpanForRank(rank) -> integer
 
 external function minLevelForRank(rank) -> integer
 
@@ -11,7 +10,9 @@ external function expForLevel(level: integer) -> integer
 
 external function contributionForJobRank(jobRank) -> integer
 
-external function buildingCountForDevelopment(development) -> integer
+external function maxSiteCountForCity(city) -> integer
+
+external function maxCityCountForSectDevelopment(development) -> integer
 
 external function getMinMaxExtraAffixCount(rank) -> Map
 
@@ -37,9 +38,9 @@ const kRewardProbabilityEquipment = 0.3
 const kRewardProbabilityPotion = 0.2
 const kRewardProbabilityCardpack = 0.2
 const kRewardProbabilityScrollPaper = 0.1
-const kRewardProbabilityCraftMaterial = 0.1
-const kRewardProbabilityDungeonTicket = 0.02
-const _kRewardProbabilityDungeonTicketNextLevel = 0.4
+const kRewardProbabilityCraftMaterial = 0.02
+const kRewardProbabilityDungeonTicket = 0.01
+const _kRewardProbabilityDungeonTicketNextLevel = 0.5
 
 const _kRewardProbabilityCraftMaterialReplaceAffix = 0.45
 const _kRewardProbabilityCraftMaterialRerollAffix = 0.25
@@ -50,24 +51,55 @@ const _kSpiritWellProbabilityCraftMaterial = 0.5
 /// 根据一个概率表生成战斗奖励
 /// entity: 游戏对象，通常是敌人
 /// details: {
-///  exp: 0.8,
-///  money: 0.7,
-///  shard: 0.5,
-///  equipment: 0.3,
-///  cardpack: 0.2,
-///  potion: 0.2,
-///  scrollPaper: 0.1,
-///  craftMaterial: 0.1,
-///  dungeonTicket: 0.02, 
-///  // 只有当生成了 dungeonTicket 时才会生效
-///  dungeonTicketNextLevel: 0.4,
+///   exp: {
+///     chance: 0.8,
+///     amount: 200,
+///   },
+///   money: {
+///     chance: 0.7,
+///     amount: 100,
+///   },
+///   shard: {
+///     chance: 0.5,
+///     amount: 10,
+///   },
+///   equipment: {
+///     chance: 0.3,
+///     amount: 1,
+///   },
+///   cardpack: {
+///     chance: 0.2,
+///     amount: 1,
+///   },
+///   potion: {
+///     chance: 0.2,
+///     amount: 1,
+///   },
+///   scrollPaper: {
+///     chance: 0.1,
+///     amount: 1,
+///   },
+///   craftMaterial: {
+///     chance: 0.1,
+///     amount: 1,
+///   },
+///   dungeonTicket: {
+///     chance: 0.02,
+///     amount: 1,
+///   },
+///   // 只有当生成了 dungeonTicket 时才会生效
+///   dungeonTicketNextLevel: {
+///     chance: 0.4,
+///     nextLevel: 0.4,
+///     amount: 1,
+///   }
 /// }
 function createReward({entity, details: {}}) {
   let rewardExp
   if (entity == null || (hero.rank - entity.rank) > 2) {
     rewardExp = 0
   } else {
-    rewardExp = random.nextDouble() < (details?.exp.probability ?? kRewardProbabilityExppack)
+    rewardExp = random.nextDouble() < (details?.exp.chance ?? kRewardProbabilityExppack)
   }
 
   entity ??= hero
@@ -75,26 +107,26 @@ function createReward({entity, details: {}}) {
   let rewardShard
   if (entity.rank <= 0) {
     rewardShard = false
-    rewardMoney = random.nextDouble() < (details?.money.probability ?? kRewardProbabilityMoney)
+    rewardMoney = random.nextDouble() < (details?.money.chance ?? kRewardProbabilityMoney)
   } else {
     rewardMoney = false
-    rewardShard = random.nextDouble() < (details?.shard.probability ?? kRewardProbabilityShard)
+    rewardShard = random.nextDouble() < (details?.shard.chance ?? kRewardProbabilityShard)
   }
   let rewardEquipment = random.nextDouble() <
-          (details?.equipment.probability ?? kRewardProbabilityEquipment)
+          (details?.equipment.chance ?? kRewardProbabilityEquipment)
   let rewardCardpack = random.nextDouble() <
-          (details?.cardpack.probability ?? kRewardProbabilityCardpack)
+          (details?.cardpack.chance ?? kRewardProbabilityCardpack)
   let rewardPotion = random.nextDouble() <
-          (details?.potion.probability ?? kRewardProbabilityPotion)
+          (details?.potion.chance ?? kRewardProbabilityPotion)
   let rewardCraftMaterial = random.nextDouble() <
-          (details?.craftMaterial.probability ?? kRewardProbabilityCraftMaterial)
+          (details?.craftMaterial.chance ?? kRewardProbabilityCraftMaterial)
   let rewardDungeonTicket
   let rewardScrollPaper
   if (entity.rank > 0) {
     rewardScrollPaper = random.nextDouble() <
-          (details?.scrollPaper.probability ?? kRewardProbabilityScrollPaper)
+          (details?.scrollPaper.chance ?? kRewardProbabilityScrollPaper)
     rewardDungeonTicket = random.nextDouble() <
-          (details?.dungeonTicket.probability ?? kRewardProbabilityDungeonTicket)
+          (details?.dungeonTicket.chance ?? kRewardProbabilityDungeonTicket)
   }
 
   final rewards = []
@@ -178,7 +210,7 @@ function createReward({entity, details: {}}) {
         let ticketRank = entity.rank
         if (ticketRank < kCultivationRankMax) {
           if (random.nextDouble() <
-            (details?.dungeonTicketNextLevel ?? _kRewardProbabilityDungeonTicketNextLevel)) {
+            (details?.dungeonTicket.nextLevel ?? _kRewardProbabilityDungeonTicketNextLevel)) {
             ticketRank += 1
           }
         }
@@ -211,28 +243,6 @@ function getHeroAvaialbeDays() {
   }
 
   const availableDays = Math.min(maxAvailableDays, staminaAvailableDays)
-}
-
-async function selectHeroAttribute() {
-  final selections = {};
-  for (final key in Constants.battleAttributes) {
-    final attrName = engine.locale(key)
-    final attrDescription = engine.locale('${key}_description')
-    selections[key] = {
-      'text': attrName,
-      'description':
-          '${attrDescription}\n${engine.locale('current')}${attrName}: ${hero.stats[key]}',
-    }
-  }
-  selections['cancel'] = engine.locale('cancel')
-
-  dialog.pushSelectionRaw({
-    id: 'selectedAttribute',
-    selections: selections,
-  })
-  await dialog.execute()
-  final selected = dialog.checkSelected('selectedAttribute')
-  return selected
 }
 
 /// 这个函数时异步的
@@ -480,7 +490,7 @@ function setSpiritTile(terrain) {
 
 // 每个tick检查一次当前是否有婴儿出生
 function handleBabies {
-  const pendingRemovedIds = Set()
+  const toBeRemoved = Set()
   for (const baby of game.babies) {
     final babyTime = game.timestamp - baby.conceptionTimestamp
     if (babyTime < baby.pregnancyTime) continue
@@ -503,13 +513,11 @@ function handleBabies {
         isNewBorn: true,
         motherId: baby.motherId,
         fatherId: baby.fatherId,
-        relationships: baby.relationships,
-        bonds: baby.bonds,
       )
-      pendingRemovedIds.add(baby.id)
+      toBeRemoved.add(baby.id)
     }
   }
-  for (const id in pendingRemovedIds) {
+  for (const id in toBeRemoved) {
     delete game.babies[id]
   }
 }

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../state/game_dialog.dart';
 import 'game_dialog_content.dart';
 import 'selection_dialog.dart';
-import '../../ui.dart';
+// import '../../ui.dart';
 
 const kIllustrationWidth = 600.0;
 const kIllustrationHeight = 900.0;
@@ -180,10 +180,10 @@ class _GameDialogControllerState extends State<GameDialogController>
             color: Colors.transparent,
             child: Stack(
               children: [
-                ModalBarrier(
-                  color: GameUI.barrierColor,
-                  onDismiss: () {},
-                ),
+                // ModalBarrier(
+                //   color: GameUI.barrierColor,
+                //   onDismiss: () {},
+                // ),
                 if (background != null) background,
                 if (illustrations.isNotEmpty) ...illustrations,
                 if (dialogContentData != null)

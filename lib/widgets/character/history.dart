@@ -28,9 +28,7 @@ class HistoryView extends StatelessWidget {
         children: [
           PreferredSize(
             preferredSize: const Size.fromHeight(kNestedTabBarHeight),
-            child: TabBar(
-              tabs: tabs,
-            ),
+            child: TabBar.secondary(tabs: tabs),
           ),
           Expanded(
             child: character != null

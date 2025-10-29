@@ -33,22 +33,21 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
     } else if (_tabIndex == 1) {}
   }
 
+  void close() {
+    engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 800.0,
       height: 500.0,
+      onBarrierDismissed: close,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale('workshop')),
-          actions: [
-            CloseButton2(
-              onPressed: () {
-                context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
-              },
-            )
-          ],
+          actions: [CloseButton2(onPressed: close)],
         ),
         body: Container(
           width: 800.0,
@@ -74,7 +73,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                       fluent.Tab(
                         text: Text(
                           engine.locale('craft_potion'),
-                          style: TextStyles.bodyMedium,
+                          style: TextStyles.bodySmall,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -92,7 +91,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                       fluent.Tab(
                         text: Text(
                           engine.locale('craft_battle_potion'),
-                          style: TextStyles.bodyMedium,
+                          style: TextStyles.bodySmall,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),

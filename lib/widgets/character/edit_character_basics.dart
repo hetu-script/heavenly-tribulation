@@ -178,6 +178,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
                       child: Text('${engine.locale('race')}: '),
                     ),
                     fluent.DropDownButton(
+                      cursor: GameUI.cursor,
                       style: FluentButtonStyles.small,
                       title: Text(engine.locale(_race)),
                       items: buildFluentMenuItems(

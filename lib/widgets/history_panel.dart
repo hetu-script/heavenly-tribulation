@@ -62,12 +62,12 @@ class HistoryPanel extends StatelessWidget {
       }
     } else if (currentLocation != null) {
       dynamic manager;
-      // dynamic organization;
+      // dynamic sect;
       final managerId = currentLocation['managerId'];
-      // 这里 owner 可能是 null
+      // 这里 manager 可能是 null
       manager = GameData.game['characters'][managerId];
-      // final organizationId = currentLocation['organizationId'];
-      // organization = GameData.gameData['organizations'][organizationId];
+      // final sectId = currentLocation['sectId'];
+      // sect = GameData.gameData['sects'][sectId];
 
       String title;
       if (currentLocation['category'] == 'city') {

@@ -19,7 +19,6 @@ import '../../ui.dart';
 import '../../logic/logic.dart';
 import '../../engine.dart';
 import 'common.dart';
-// import 'cardcrafting_area.dart';
 import '../../state/states.dart';
 import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
@@ -28,6 +27,7 @@ import '../common.dart';
 import '../../data/common.dart';
 import '../particles/light_point.dart';
 import '../../widgets/dialog/input_string.dart';
+import '../../widgets/common.dart';
 
 const kBasicCardKinds = {
   'punch',
@@ -1570,7 +1570,9 @@ class CardLibraryScene extends Scene {
               width: GameUI.infoButtonSize.width,
               height: GameUI.infoButtonSize.height,
               child: IconButton(
+                icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),
+                mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                 onPressed: () {
                   GameDialogContent.show(
                     context,
@@ -1578,10 +1580,6 @@ class CardLibraryScene extends Scene {
                     style: TextStyle(color: Colors.yellow),
                   );
                 },
-                icon: Icon(
-                  Icons.question_mark,
-                  size: 20.0,
-                ),
               ),
             ),
           ],
