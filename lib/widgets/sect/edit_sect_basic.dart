@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../information.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import '../../data/common.dart';
@@ -102,7 +102,7 @@ class _EditSectBasicsState extends State<EditSectBasics> {
                       ),
                       Text(
                         '${widget.headquartersData['name']}'
-                        '(${widget.headquartersData['worldPosition']['left']}, ${widget.headquartersData['worldPosition']['top']})',
+                        '(${widget.headquartersData['worldPosition']['left']},${widget.headquartersData['worldPosition']['top']})',
                       ),
                     ],
                   ),

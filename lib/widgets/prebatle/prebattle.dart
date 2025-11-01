@@ -8,7 +8,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../ui/bordered_icon_button.dart';
 import '../ui/avatar.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import 'battlecard.dart';

@@ -14,7 +14,7 @@ import 'package:samsara/tilemap/tile_info.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:provider/provider.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../ui.dart';
 import '../../../data/game.dart';
 import '../../../logic/logic.dart';
@@ -625,7 +625,7 @@ class MatchingGame extends Scene with HasCursorState {
               collectPanels.length *
                   (GameUI.collectPanalSize.y + GameUI.smallIndent)),
       isMain: isMain,
-      avatarId: 'avatar/npc/${kSiteKindToNpcId[kind]}.png',
+      avatarId: 'illustration/avatar/npc/${kSiteKindToNpcId[kind]}.png',
     );
     panel.onDragIn = (buttons, position, object) {
       if (object is! TileObject) return;
@@ -731,7 +731,7 @@ class MatchingGame extends Scene with HasCursorState {
           enableLibrary: false,
           enableCultivation: false,
           showNpcs: false,
-          showActiveJournal: false,
+          showJournal: false,
           actions: [
             Container(
               decoration: GameUI.boxDecoration,

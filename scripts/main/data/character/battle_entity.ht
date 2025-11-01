@@ -7,6 +7,9 @@ const _kAvatarCount = 41
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
 
+const _kInitialMoneyPerLevel = 500
+const _kInitialShardPerRank = 5
+
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0;
 const kNonBattleAttributeValueAverage = 50.0;
@@ -14,6 +17,36 @@ const kNonBattleAttributeValueMajor = 75.0;
 const kNonBattleAttributeValueDeviation = 25.0;
 const kBattleAttributesValueBase = 25
 const kBattleAttributesValueMajor = 50
+
+const kBattleCardBasicAttacks = [
+  'punch',
+  'kick',
+];
+
+const kBattleCardBasicBuffs = [
+  'punch',
+  'kick',
+  'xinfa',
+  'shenfa',
+  'qinggong',
+];
+
+const kBattleCardWeaponKinds = [
+  'sabre',
+  'sword',
+  'spear',
+  'staff',
+  'bow',
+  'dart',
+];
+
+const kBattleCardGenreWeaponKinds = {
+  'bodyforge': ['sabre'],
+  'swordcraft': ['sword'],
+  'spellcraft': [],
+  'vitality': ['bow', 'dart'],
+  'avatar': ['staff', 'spear'],
+};
 
 /// battle entity 指一个可以参与战斗的对象。
 /// 此对象拥有一个牌库和一个卡组。
@@ -36,6 +69,7 @@ struct BattleEntity {
     rank,
     attributes,
     stats,
+    allocateSkills = true,
     generateDeck = true,
     cultivationFavor,
     cultivationStyle,
@@ -107,7 +141,10 @@ struct BattleEntity {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
     // 金钱也是一种材料，其他材料包括可以用来建筑的木材、石料等
-    this.materials = {}
+    this.materials = {
+      money: _kInitialMoneyPerLevel * (this.level + 1),
+      shard: _kInitialShardPerRank * (this.rank),
+    }
 
     // 身上携带的普通物品，每一个都是单独生成，无法堆叠
     this.inventory = {}
@@ -189,10 +226,11 @@ struct BattleEntity {
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
-
-    Game.characterAllocateSkills(this, rejuvenate: true)
-
-    characterCalculateStats(this, rejuvenate: true)
+    if (allocateSkills) {
+      Game.characterAllocateSkills(this, rejuvenate: true)
+    } else {
+      characterCalculateStats(this, rejuvenate: true)
+    }
     
     if (generateDeck) {
       generateBattleDeck(this)
@@ -246,7 +284,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   }
 
   final baseLife = Constants.baseLife + character.level * Constants.baseLifePerLevel
-  character.lifeMax = baseLife + character.strength ~/ 2
+  character.lifeMax = baseLife + character.strength
   character.manaMax = character.spirituality ~/ 10
   character.chakraMax = character.dexterity ~/ 10
   character.karmaMax = character.willpower ~/ 10
@@ -287,7 +325,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.perception = character.perception + character.passives.perception?.value + character.potionPassives.perception?.value
   character.stats.willpower = character.willpower + character.passives.willpower?.value + character.potionPassives.willpower?.value
 
-  character.stats.lifeMax = baseLife + character.stats.strength ~/ 2 + character.passives.lifeMax?.value + character.potionPassives.lifeMax?.value
+  character.stats.lifeMax = baseLife + character.stats.strength + character.passives.lifeMax?.value + character.potionPassives.lifeMax?.value
   character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.potionPassives.manaMax?.value
   character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.potionPassives.chakraMax?.value
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value
@@ -489,18 +527,48 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
     }
   } else {
     final deckLimit = getDeckLimitForRank(character.rank)
+    let weaponKind = random.nextIterable(kBattleCardGenreWeaponKinds[character.cultivationFavor])
+    let weaponKind2 = random.nextIterable(kBattleCardWeaponKinds)
+    let buffs = []
+    let attacks = []
     for (var i in range(deckLimit.limit)) {
-      let isBuff = false
-      if (i == 0 || i == deckLimit.limit) {      
-        isBuff = random.nextBool()
+      let genre = character.rank > 0 ? character.cultivationFavor : null
+      final isBuff = random.nextDouble() < 0.35
+      let kind
+      final kindRoll = random.nextDouble()
+      if (kindRoll < 0.35) {
+        if (weaponKind != null) {
+          kind = weaponKind
+        } else {
+          kind = weaponKind2
+          genre = 'none'
+        }
+      } else {
+        if (character.rank == 0) {
+          if (isBuff) {
+            kind = random.nextIterable(kBattleCardBasicBuffs)
+          } else {
+            kind = random.nextIterable(kBattleCardBasicAttacks)
+          }
+        } else {
+          if (isBuff) {
+            kind = random.nextIterable(Constants.battleCardGenreBuffs[genre])
+          } else {
+            kind = random.nextIterable(Constants.battleCardGenreAttacks[genre])
+          }
+        }
       }
       final card = BattleCard(
         category: isBuff ? 'buff' : 'attack',
+        genre: genre,
+        kind: kind,
         rank: character.rank,
         isIdentified: false,
       )
       deck.add(card)
     }
+    final equipment = Equipment(kind: weaponKind, rank: character.rank)
+    characterEquip(character, equipment)
   }
   for (final card in deck) {
     characterAcquireBattleCard(character, card, incurIncident: false)
@@ -516,7 +584,13 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
 }
 
 function characterEquip(entity, item, { index }) {
+  assert(entity.entityType == kEntityTypeBattleEntity || entity.entityType == kEntityTypeCharacter, entity.entityType)
   assert(index == null || (index >= 0 && index <= kEquipmentMax))
+
+  if (entity.inventory[item.id] == null) {
+    // engine.warn('${item.name} 不在${entity.name}的物品栏中，无法装备。')
+    item = entityAcquire(entity, item)
+  }
 
   if (!item.isEquippable) {
     engine.warn('${item.name} 无法装备。')
@@ -556,8 +630,6 @@ function characterEquip(entity, item, { index }) {
   // }
 
   if (equipped) {
-    engine.info('${entity.name}装备了${item.name}')
-
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
         characterSetPassive(entity, passiveData.id, level: passiveData.level)
@@ -566,7 +638,10 @@ function characterEquip(entity, item, { index }) {
       characterCalculateStats(entity, rejuvenate: false)
     }
 
-    onGameEvent('onEquip', item)
+    if (entity == hero) {
+      engine.info('${entity.name}装备了${item.name}')
+      onGameEvent('onEquip', item)
+    }
   }
 
   return equipped

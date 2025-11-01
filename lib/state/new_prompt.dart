@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../engine.dart';
+import '../global.dart';
 
 class JournalPromptState with ChangeNotifier {
   dynamic journal;

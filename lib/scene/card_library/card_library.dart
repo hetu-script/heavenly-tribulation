@@ -17,7 +17,7 @@ import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import 'common.dart';
 import '../../state/states.dart';
 import '../../data/game.dart';
@@ -29,13 +29,15 @@ import '../particles/light_point.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/common.dart';
 
-const kBasicCardKinds = {
+const kMaxLightPointCount = 20;
+
+const _kBattleCardBasicBuffs = [
   'punch',
   'kick',
-  // 'xinfa',
-};
-
-const kMaxLightPointCount = 20;
+  'xinfa',
+  'shenfa',
+  'qinggong',
+];
 
 enum CraftType {
   exp,
@@ -815,7 +817,9 @@ class CardLibraryScene extends Scene {
       final rank = isMainCard ? filter['rank'] : (basic ? 0 : null);
       final kind = isMainCard
           ? filter['kind']
-          : (basic ? GameData.random.nextIterable(kBasicCardKinds) : null);
+          : (basic
+              ? GameData.random.nextIterable(_kBattleCardBasicBuffs)
+              : null);
       final maxRank = filter['rank'];
       final cardData = engine.hetu.invoke(
         'BattleCard',

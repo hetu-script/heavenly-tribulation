@@ -32,9 +32,12 @@ struct Incident {
 
     this.id = crypto.randomUUID()
     history[this.id] = this
+
+    let chars = Set()
     
     let subject
-    if (subjectId != null) {
+    if (subjectId) {
+      chars.add(subjectId)
       subject = game.characters[subjectId]
       if(subject != null) {
         entityExperienceIncident(subject, this)
@@ -44,11 +47,16 @@ struct Incident {
     }
 
     if (targetId) {
-      const target = game.characters[targetId]
-      if(target != null) {
-        entityExperienceIncident(target, this)
+      if (targetId == subjectId) {
+        engine.error('事件的主体和目标不能是同一个角色，id 为：${targetId}')
       } else {
-        engine.error('无法找到事件的目标角色，id 为：${targetId}')
+        chars.add(targetId)
+        const target = game.characters[targetId]
+        if(target != null) {
+          entityExperienceIncident(target, this)
+        } else {
+          engine.error('无法找到事件的目标角色，id 为：${targetId}')
+        }
       }
     }
 
@@ -79,13 +87,15 @@ struct Incident {
 
     if (isGlobal) {
       for (const char of game.characters) {
-        if (char.id == subjectId || char.id == targetId) continue
+        if (chars.contains(char.id)) continue
+        chars.add(char.id)
         characterKnowIncident(char, this)
       }
     } else {
       if (sect) {
         for (const id in sect.membersData.keys) {
-          if (id == subjectId || id == targetId) continue
+          if (chars.contains(id)) continue
+          chars.add(id)
           const member = game.characters[id]
           assert(member != null, '无法找到组织成员，id 为：${id}')
           characterKnowIncident(member, this, witnessed: true)
@@ -93,22 +103,26 @@ struct Incident {
       }
       if (location) {
         for (const char in getCharactersAtLocation(location)) {
-          if (char.id == subjectId || char.id == targetId) continue
+          if (chars.contains(char.id)) continue
+          chars.add(char.id)
           characterKnowIncident(char, this)
         }
       }
       if (terrain) {
         for (const char in getCharactersAtWorldMapPosition(terrain.left, terrain.top)) {
-          if (char.id == subjectId || char.id == targetId) continue
+          if (chars.contains(char.id)) continue
+          chars.add(char.id)
           characterKnowIncident(char, this)
         }
       }
     }
   
     Game.updateHistory()
-    
-    if (subject || sect) {
-      engine.info(message)
+
+    if (chars.contains(hero?.id) || isGlobal) {
+      engine.debug(this.message)
+    } else if (sect) {
+      engine.info(this.message)
     }
   }
 }

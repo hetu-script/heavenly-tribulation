@@ -40,8 +40,7 @@ class ItemGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? icon = itemData?['icon'];
     final int stackSize = itemData?['stackSize'] ?? 1;
-    // final bool showStack = itemData?['showStack'] ?? false;
-    // final entityType = entityData?['entityType'];
+    final bool showStack = itemData?['showStack'] ?? false;
     final int rank = itemData?['rank'] ?? 0;
 
     final isEquipped = itemData?['equippedPosition'] != null;
@@ -101,7 +100,7 @@ class ItemGrid extends StatelessWidget {
                     borderWidth: 0.0,
                   ),
                 if (child != null) child!,
-                if (stackSize > 1)
+                if (showStack || stackSize > 1)
                   Positioned(
                     right: 0,
                     bottom: -5,

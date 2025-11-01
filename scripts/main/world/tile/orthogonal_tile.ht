@@ -44,7 +44,7 @@ function getDirection(start: {}, end: {}) {
 // manhattan 距离算法
 function getTileDistance(start, end) {
   const result = (end.left - start.left).abs() + (end.top - start.top).abs()
-  // print('getTileDistance: ${start}, ${end}, result: ${result}')
+  // print('getTileDistance: ${start},${end}, result: ${result}')
   return result
 }
 

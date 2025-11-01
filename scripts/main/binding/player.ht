@@ -28,7 +28,7 @@ namespace Player {
 
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
-    engine.info('角色移动至 [${left}, ${top}], [${worldId ?? world.id}] 朝向 [${direction}]')
+    engine.info('角色移动至 [${left},${top}], [${worldId ?? world.id}] 朝向 [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (direction != null) {
       assert(kOrthogonalDirections.contains(direction))
@@ -38,9 +38,9 @@ namespace Player {
     World.lightUpAroundTile(left, top, hero.stats.lightRadius)
   }
   
-  function setHomeLocation(location, {incurIncident = true}) {
+  function setHome(location, {incurIncident = true}) {
     assert(hero != null)
-    setCharacterHome(hero, location, incurIncident: incurIncident)
+    setCharacterHome(hero, location, moveToHome: false, incurIncident: incurIncident)
   }
 
   function met(character) {
@@ -72,7 +72,7 @@ namespace Player {
     return result
   }
 
-  async function makeContribution(data, { incurIncident = true }) {
+  function makeContribution(data, { incurIncident = true }) {
     assert(hero != null)
     characterMakeContribution(hero, data, incurIncident: incurIncident)
   }
@@ -619,43 +619,128 @@ namespace Player {
     return journals
   }
 
-  async function enroll(sect, { npcId, titleId = 'taskman', incurIncident = true }) {
+  async function enroll(sect, { npcId, titleId, incurIncident = true }) {
     assert(hero != null)
-    addCharacterToSect(
+    final oldHome = hero.homeLocationId
+    final titleId = addCharacterToSect(
       hero,
       sect,
       titleId: titleId,
-      setHome: false, // 玩家需要手动选择家宅
+      // 玩家需要手动选择家宅
+      assignManagingSite: false,
+      moveToManagingSite: false,
       assignSuperior: false,
       incurIncident: incurIncident,
     )
-    dialog.pushDialog('hint_select_sect_home')
-    await dialog.execute()
-    final locationIds = sect.locationIds
-    assert(locationIds.isNotEmpty, 'sect has no locationIds: ${sect.id}')
-    // 玩家需要手动选择一个据点作为家宅所在地
-    final homeId = await Game.selectLocation(locationIds)
-    const home = game.locations[homeId]
-    setCharacterHome(hero, home)
-    
-    final cityhall = home.siteIds.map((id) => game.locations[id]).firstWhere((site) => site.kind == 'cityhall')
-    assert(cityhall != null, 'could not find cityhall in location: [${home.name}]')
+    final title = engine.locale(titleId)
+    if (titleId == 'taskman') {
+      dialog.pushDialog('sect_title_taskman', npcId: npcId,
+        interpolations: [hero.name, title]
+      );
+      await dialog.execute();
+    } else {
+      dialog.pushDialog('sect_title_promotion', npcId: npcId,
+        interpolations: [hero.name, title]);
+      await dialog.execute();
+    }
+
+    switch (titleId) {
+      case 'manager': {
+        dialog.pushDialog('sect_promotion_manager',
+            npcId: npcId);
+        await dialog.execute();
+        final sites = sect.locationIds
+            .map((id) => game.locations[id])
+            .where(
+              (loc) =>
+                  loc.category == 'site' &&
+                  Constants.siteKindsManagable.containsKey(loc.kind) &&
+                  loc.kind != kLocationKindHeadquarters &&
+                  loc.kind != kLocationKindCityhall &&
+                  loc.managerId == null,
+            );
+        assert(sites.isNotEmpty);
+        final managingSiteId = await Game.selectSite(datas: sites);
+        final managingSite = game.locations[managingSiteId];
+        managingSite.managerId = hero.id;
+        hero.managingLocationIds.add(managingSite.id)
+        final atCityId = managingSite.atCityId;
+        final atCity = game.locations[atCityId];
+        setCharacterHome(hero, atCity);
+      }
+      case 'mayor': {
+        dialog.pushDialog('sect_promotion_mayor',
+            character: superior);
+        await dialog.execute();
+        final cities = (sect['locationIds'] as Iterable)
+            .map((id) => GameData.getLocation(id))
+            .where((loc) =>
+                loc['category'] == 'city' && loc['managerId'] == null);
+        assert(cities.isNotEmpty);
+        final managingCityId = await GameLogic.selectLocation(datas: cities);
+        final managingCity = GameData.getLocation(managingCityId);
+        managingCity['managerId'] = hero.id;
+        hero.managingLocationIds.add(managingSite.id)
+        setCharacterHome(hero, managingCity);
+      }
+      case 'governor': {
+        dialog.pushDialog('sect_promotion_governor',
+            character: superior);
+        await dialog.execute();
+        final cities = (sect['locationIds'] as Iterable)
+            .map((id) => GameData.getLocation(id))
+            .where((loc) =>
+                loc['category'] == 'city' && loc['managerId'] == null);
+        assert(cities.isNotEmpty);
+        final managingCityId = await GameLogic.selectLocation(datas: cities);
+        final managingCity = GameData.getLocation(managingCityId);
+        managingCity['managerId'] = hero.id;
+        hero.managingLocationIds.add(managingSite.id)
+        setCharacterHome(hero, managingCity);
+      }
+      else: {
+        // 选择一个城市作为家宅所在地
+        dialog.pushDialog('hint_select_sect_home')
+        await dialog.execute()
+        final cities = sect.locationIds.map((id) => game.locations[id])
+          .where((location) => location.category == 'city')
+        final homeId = await Game.selectLocation(datas: cities)
+        const home = game.locations[homeId]
+        setCharacterHome(hero, home)
+      }
+    }
+
+    if (hero.homeLocationId != oldHome) {
+      final home = game.locations[hero.homeLocationId]
+      dialog.pushDialog('hint_relocatedHome', interpolations: [ home.name ])
+      await dialog.execute()
+    }
 
     final superiorId = assignCharacterSuperior(hero, sect)
     assert(superiorId != null, 'no superior for hero found in sect: ${sect.id}')
     final superior = game.characters[superiorId]
     assert(superior != null, 'character is null for id: ${superiorId}')
 
-    final interpolations = [
+    final memberData = sect.membersData[hero.id]
+    final reportSiteId = memberData.reportSiteId
+    final reportSite = game.locations[reportSiteId]
+
+    dialog.pushDialog('hint_sect_initiation', interpolations: [
       sect.name,
-      cityhall.name,
+      title,
+      reportSite.name,
       superior.name,
-    ]
-    dialog.pushDialog('hint_sect_initiation', interpolations: interpolations)
+    ])
     await dialog.execute()
     
     if (!hero.journals.containsKey('sectInitiation')) {
-      final journal = Player.createJournalById('sectInitiation', interpolations: interpolations)
+      final journal = Player.createJournalById('sectInitiation',
+        interpolations: [
+          reportSite.name,
+          superior.name,
+          sect.name,
+        ]
+      )
       Game.promptJournal(journal)
     }
   }

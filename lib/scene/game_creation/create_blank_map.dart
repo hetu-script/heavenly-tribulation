@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/crc32b.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../widgets/ui/responsive_view.dart';
 
 class CreateBlankMapDialog extends StatefulWidget {

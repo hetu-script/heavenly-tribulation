@@ -4,7 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../engine.dart';
+import '../global.dart';
 import '../ui.dart';
 
 class EntityTable extends StatefulWidget {
@@ -55,7 +55,7 @@ class _EntityTableState extends State<EntityTable>
           return DataColumn2(
             minWidth: entry.value,
             label: fluent.Button(
-              style: FluentButtonStyles.column,
+              style: FluentButtonStyles.flat,
               onPressed: () => widget.onColumnPressed?.call(entry.key),
               child: Text(
                 engine.locale(entry.key),

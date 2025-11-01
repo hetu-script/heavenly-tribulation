@@ -10,7 +10,7 @@ external function expForLevel(level: integer) -> integer
 
 external function contributionForJobRank(jobRank) -> integer
 
-external function maxSiteCountForCity(city) -> integer
+external function calculateMaxSiteCountForCity(city) -> integer
 
 external function maxCityCountForSectDevelopment(development) -> integer
 
@@ -94,7 +94,7 @@ const _kSpiritWellProbabilityCraftMaterial = 0.5
 ///     amount: 1,
 ///   }
 /// }
-function createReward({entity, details: {}}) {
+function createReward({entity, genre, isIdentified = true, details: {}}) {
   let rewardExp
   if (entity == null || (hero.rank - entity.rank) > 2) {
     rewardExp = 0
@@ -160,14 +160,14 @@ function createReward({entity, details: {}}) {
   if (rewardEquipment) {
     let amount = details?.equipment.amount ?? 1
     for (var i in range(amount)) {
-      final equipment = Equipment(rank: entity.rank, isIdentified: entity.rank < 1)
+      final equipment = Equipment(rank: entity.rank, isIdentified: isIdentified)
       rewards.add(equipment)
     }
   }
   if (rewardCardpack) {
     let amount = details?.cardpack.amount ?? 1
     for (var i in range(amount)) {
-      final cardpack = Cardpack(rank: entity.rank, genre: entity.cultivationFavor)
+      final cardpack = Cardpack(rank: entity.rank, genre: genre ?? entity.cultivationFavor)
       rewards.add(cardpack)
     }
   }
@@ -461,9 +461,8 @@ async function onInteractSpiritWell(object) {
     final shardPack = Materialpack(kind: 'shard', amount: shard)
     items.add(shardPack)
   }
-
+  await Player.acquireAll(items)
   Game.promptItems(items)
-  
   object.isUsed = true
 }
 

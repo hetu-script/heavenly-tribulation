@@ -9,7 +9,7 @@ import 'package:hetu_script/utils/json.dart' as utils;
 import 'package:hetu_script/values.dart';
 import 'package:json5/json5.dart';
 
-import '../engine.dart';
+import '../global.dart';
 import '../extensions.dart';
 import '../data/common.dart';
 import '../data/game.dart';

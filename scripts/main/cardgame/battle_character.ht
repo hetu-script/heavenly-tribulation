@@ -39,7 +39,7 @@ external class BattleCharacter {
 
   function hasStatusEffect(effectId: string) -> int
 
-  function removeStatusEffect(effectId: string, {amount: integer, percentage: float, exhaust: string}) -> integer
+  function removeStatusEffect(effectId: string, {amount: integer, percentage: float}) -> integer
 
   function addStatusEffect(effectId: string, {amount: integer})
 }

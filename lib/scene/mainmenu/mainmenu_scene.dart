@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:provider/provider.dart';
 
 import '../common.dart';
-import 'mainmenu_buttons.dart';
+import 'mainmenu_widgets.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../data/game.dart';
-import '../../engine.dart';
-import '../../state/states.dart';
+import '../../global.dart';
 
 class MainMenuScene extends Scene {
   MainMenuScene({
@@ -50,11 +48,7 @@ class MainMenuScene extends Scene {
     } else {
       engine.hetu.invoke('rejuvenate', namespace: 'Player');
     }
-    context.read<GameTimestampState>().update();
-    context.read<HeroInfoVisibilityState>().setVisible(true);
-    context.read<HeroAndGlobalHistoryState>().update();
-    context.read<HeroJournalUpdate>().update();
-    context.read<HeroPositionState>().clear();
+    gameState.reset();
   }
 
   @override
@@ -72,10 +66,12 @@ class MainMenuScene extends Scene {
           overlayBuilderMap: overlayBuilderMap,
           initialActiveOverlays: initialActiveOverlays,
         ),
-        MainMenuButtons(),
+        MainMenuWidgets(),
         GameUIOverlay(
-          showActiveJournal: false,
-          actions: [DebugButton()],
+          showJournal: false,
+          actions: [
+            DebugButton(),
+          ],
         ),
       ],
     );

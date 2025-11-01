@@ -218,7 +218,7 @@ function _calculateFirstImpression(subject, target) {
   if (subject.familyId && subject.familyId == target.familyId) {
     score += kSameFamilyScore
   }
-  /// 是否当前住在同一个据点，这里不考虑还拥有其他住所的情况
+  /// 是否当前住在同一个城市，这里不考虑还拥有其他住所的情况
   if (subject.homeLocationId == target.homeLocationId) {
     score += kSameHomeLocationScore
   }
@@ -507,6 +507,7 @@ struct Character {
     rank,
     attributes,
     stats,
+    allocateSkills = true,
     generateDeck = true,
     cultivationFavor,
     cultivationStyle,
@@ -539,6 +540,7 @@ struct Character {
       rank: rank,
       attributes: attributes,
       stats: stats,
+      allocateSkills: allocateSkills,
       generateDeck: generateDeck,
       cultivationFavor: cultivationFavor,
       cultivationStyle: cultivationStyle,
@@ -675,7 +677,7 @@ struct Character {
     
     /// 每个角色的家是一个单例对象。
     /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
-    /// 此处创建的家宅场景此时尚未绑定到任何据点
+    /// 此处创建的家宅场景此时尚未绑定到任何城市
     final home = Location(
       id: '${this.id})_${kLocationKindHome}',
       category: 'site',
@@ -685,7 +687,7 @@ struct Character {
       isAffiliate: true,
     )
     this.homeSiteId = home.id
-    // 所有该角色拥有住所的据点的 id 列表
+    // 所有该角色拥有住所的城市的 id 列表
     this.homeLocationIds = []
     // this.homeLocationId = null // 主要住所 id
 
@@ -744,6 +746,9 @@ struct Character {
     
     // 随角色移动的孩童（Baby 对象），这里只保存id
     this.carrying = []
+
+    // 角色管辖的场景 ID 列表
+    this.managingLocationIds = []
 
     // 角色的逻辑更新日
     // 为了避免游戏卡顿随机分布在每个月的1-30号之间
@@ -1000,29 +1005,6 @@ function getResidingCharacters(location) {
 //   return game.characters.values.where( (char) => (char.id != game.heroId))
 // }
 
-function getNpcsOnWorldMap([ worldId ]) {
-  worldId ??= world?.id
-  return game.characters.values.where((char) {
-    if (char.id == game.heroId) return false
-    if (char.worldId != worldId) return false
-    if (char.worldPosition == null) return false
-    if (char.locationId != null) return false
-    return true
-  })
-}
-
-function getNpcsAtWorldMapPosition(left, top, [ worldId ]) {
-  worldId ??= world?.id
-  return game.characters.values.where((char) {
-    if (char.id == game.heroId) return false
-    if (char.worldId != worldId) return false
-    if (char.worldPosition == null) return false
-    if (char.worldPosition.left != left || char.worldPosition.top != top) return false
-    if (char.locationId != null) return false
-    return true
-  })
-}
-
 function removeCharacterById(id: string) {
   engine.warn('正在移除ID为 [${id}] 的角色。')
   // TODO: 角色相关的信息，例如门派首领，拥有的建筑等等需要一并清除才行
@@ -1064,7 +1046,7 @@ function updateBond(subject, target, {
       return
     }
   }
-  engine.warn('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动：${score}')
+  engine.info('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动：${score}')
 }
 
 function getBondScore(subject, target) {
@@ -1160,7 +1142,7 @@ function characterGainExp(character, value) {
 }
 
 function characterMakeContribution(character, data, { incurIncident = true }) {
-  let contribution = data.stackSize ?? 0
+  let contribution = data.stackSize ?? data.amount ?? 0
   if (contribution <= 0) {
     engine.warn('contribution amount is less than or equal to 0, cannot collect!')
     return false
@@ -1199,7 +1181,7 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
     }
     contributionTarget = sect.name;
   } else {
-    // 非门派领地任务，同样可以获得功勋，但直接保存在据点数据中
+    // 非门派领地任务，同样可以获得功勋，但直接保存在城市数据中
     const location = game.locations[data.locationId]
     assert(location != null,
       'location not found in contribution pack: ${data.locationId}')
@@ -1219,11 +1201,13 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
       subjectId: character.id,
       sectId: data.sectId,
       locationId: data.locationId,
-      orderly: contribution,
+      orderly: data.orderly,
+      idealistic: data.idealistic,
+      goodwill: data.goodwill,
     )
   } else {
     engine.info(incidentContent)
   }
   
-  return;
+  return true;
 }

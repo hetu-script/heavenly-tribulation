@@ -7,7 +7,7 @@ import 'package:samsara/components/ui/sprite_button.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/common.dart';
 import '../../widgets/character/stats.dart';
 import '../../state/hover_content.dart';

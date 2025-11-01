@@ -11,7 +11,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:display_metrics/display_metrics.dart';
 
 import 'app.dart';
-import 'engine.dart';
+import 'global.dart';
 import 'state/states.dart';
 import 'ui.dart';
 import 'widgets/ui/menu_builder.dart';
@@ -79,19 +79,14 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => engine),
-          ChangeNotifierProvider(create: (_) => GameDialog.singleton),
+          ChangeNotifierProvider(create: (_) => dialog),
+          ChangeNotifierProvider(create: (_) => gameState),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
-          ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
-          ChangeNotifierProvider(create: (_) => SelectedPositionState()),
-          ChangeNotifierProvider(create: (_) => HeroPositionState()),
-          ChangeNotifierProvider(create: (_) => GameTimestampState()),
-          ChangeNotifierProvider(create: (_) => HeroJournalUpdate()),
-          ChangeNotifierProvider(create: (_) => NpcListState()),
+          ChangeNotifierProvider(create: (_) => WorldMapSelectedTileState()),
           ChangeNotifierProvider(create: (_) => JournalPromptState()),
           ChangeNotifierProvider(create: (_) => ItemsPromptState()),
           ChangeNotifierProvider(create: (_) => RankPromptState()),
-          ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => MerchantState()),

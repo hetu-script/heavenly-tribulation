@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../information.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 

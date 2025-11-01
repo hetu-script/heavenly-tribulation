@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../state/selected_tile.dart';
 import '../../../widgets/ui/close_button2.dart';
 import '../../../data/game.dart';
@@ -17,13 +17,14 @@ class TileDetailPanel extends StatefulWidget {
 class _TileDetailPanelState extends State<TileDetailPanel> {
   @override
   Widget build(BuildContext context) {
-    dynamic currentZone = context.watch<SelectedPositionState>().currentZone;
+    dynamic currentZone =
+        context.watch<WorldMapSelectedTileState>().currentZone;
     dynamic currentNation =
-        context.watch<SelectedPositionState>().currentNation;
+        context.watch<WorldMapSelectedTileState>().currentNation;
     dynamic currentTerrain =
-        context.watch<SelectedPositionState>().currentTerrain;
+        context.watch<WorldMapSelectedTileState>().currentTerrain;
     dynamic currentLocation =
-        context.watch<SelectedPositionState>().currentLocation;
+        context.watch<WorldMapSelectedTileState>().currentLocation;
 
     final positionDetails = StringBuffer();
 
@@ -68,13 +69,13 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
         positionDetails
             .write('${engine.locale(currentTerrain.data?['kind'])} ');
         positionDetails
-            .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
+            .writeln('[${currentTerrain.left},${currentTerrain.top}]');
       }
     }
 
     String? coordinates;
     if (currentTerrain != null) {
-      coordinates = '${currentTerrain.left}, ${currentTerrain.top}';
+      coordinates = '${currentTerrain.left},${currentTerrain.top}';
     }
 
     return ResponsiveView(

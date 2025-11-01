@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
 import '../ui/close_button2.dart';

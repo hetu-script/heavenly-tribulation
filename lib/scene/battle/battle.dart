@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -11,22 +12,27 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/components/ui/hovertip.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
 import '../../logic/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import 'versus_banner.dart';
 import '../common.dart';
 import '../../data/game.dart';
 import 'common.dart';
-import 'drop_menu.dart';
 import '../../state/states.dart';
 import '../../widgets/ui_overlay.dart';
 
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
+
+enum BattleMenuItems {
+  console,
+  exit,
+}
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermanentEffects = {
@@ -93,6 +99,8 @@ enum StatusCircumstances {
 }
 
 class BattleScene extends Scene {
+  final menuController = fluent.FlyoutController();
+
   final _focusNode = FocusNode();
 
   late FpsComponent fps;
@@ -674,9 +682,9 @@ class BattleScene extends Scene {
       camera.viewport.add(_victoryPrompt);
       enemy.setState(kDefeatState);
 
-      // 如果开启了煞气天赋，战胜对手后增加 1 点煞气
+      // 如果开启了煞气天赋，战胜对手后增加 5 点煞气
       if (heroData['passives']['enable_karma'] != null) {
-        heroData['karma'] += 1;
+        heroData['karma'] += 5;
       }
     } else {
       battleResult = false;
@@ -787,22 +795,41 @@ class BattleScene extends Scene {
             initialActiveOverlays: initialActiveOverlays,
           ),
           GameUIOverlay(
-            enableHeroInfo: false,
+            showHero: false,
             showNpcs: false,
-            actions: engine.config.debugMode
-                ? [
-                    BattleDropMenu(
-                      onSelected: (item) async {
-                        switch (item) {
-                          case BattleDropMenuItems.console:
-                            GameUI.showConsole(context);
-                          case BattleDropMenuItems.exit:
-                            _endScene();
-                        }
+            actions: [
+              if (engine.config.debugMode)
+                Container(
+                  decoration: GameUI.boxDecoration,
+                  width: GameUI.infoButtonSize.width,
+                  height: GameUI.infoButtonSize.height,
+                  child: fluent.FlyoutTarget(
+                    controller: menuController,
+                    child: IconButton(
+                      icon: Icon(Icons.menu_open),
+                      padding: const EdgeInsets.all(0),
+                      mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                      onPressed: () {
+                        showFluentMenu(
+                          controller: menuController,
+                          items: {
+                            engine.locale('console'): BattleMenuItems.console,
+                            engine.locale('exit'): BattleMenuItems.exit,
+                          },
+                          onSelectedItem: (item) {
+                            switch (item) {
+                              case BattleMenuItems.console:
+                                GameUI.showConsole(context);
+                              case BattleMenuItems.exit:
+                                _endScene();
+                            }
+                          },
+                        );
                       },
-                    )
-                  ]
-                : null,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

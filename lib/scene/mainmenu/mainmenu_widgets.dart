@@ -9,7 +9,7 @@ import 'package:samsara/extensions.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../game_creation/load_game.dart';
 import '../game_creation/create_sandbox_game.dart';
 import '../game_creation/create_blank_map.dart';
@@ -18,34 +18,22 @@ import '../common.dart';
 import '../../widgets/ui/menu_builder.dart';
 import '../../data/common.dart';
 
-enum DebugMenuItems {
-  debugConsole,
-  debugResetHero,
-  debugMoney,
-  debugItem,
-  debugMerchant,
-  debugWorkbench,
-  debugAlchemy,
-  debugMeeting,
-  debugMatchingGame,
-}
-
 enum MenuStates {
   main,
   editor,
   game,
 }
 
-class MainMenuButtons extends StatefulWidget {
-  const MainMenuButtons({
+class MainMenuWidgets extends StatefulWidget {
+  const MainMenuWidgets({
     super.key,
   });
 
   @override
-  State<MainMenuButtons> createState() => _MainMenuButtonsState();
+  State<MainMenuWidgets> createState() => _MainMenuWidgetsState();
 }
 
-class _MainMenuButtonsState extends State<MainMenuButtons> {
+class _MainMenuWidgetsState extends State<MainMenuWidgets> {
   // dynamic _heroData;
 
   MenuStates _state = MenuStates.main;
@@ -381,31 +369,30 @@ class _DebugButtonState extends State<DebugButton> {
             showFluentMenu(
               controller: menuController,
               items: {
-                engine.locale('console'): DebugMenuItems.debugConsole,
-                engine.locale('debugResetHero'): DebugMenuItems.debugResetHero,
-                engine.locale('debugMoney'): DebugMenuItems.debugMoney,
-                engine.locale('debugItem'): DebugMenuItems.debugItem,
+                engine.locale('console'): 'debugConsole',
+                engine.locale('debugResetHero'): 'debugResetHero',
+                engine.locale('debugMoney'): 'debugMoney',
+                engine.locale('debugItem'): 'debugItem',
                 '___1': null,
-                engine.locale('debugMerchant'): DebugMenuItems.debugMerchant,
-                engine.locale('debugWorkbench'): DebugMenuItems.debugWorkbench,
-                engine.locale('debugAlchemy'): DebugMenuItems.debugAlchemy,
+                engine.locale('debugMerchant'): 'debugMerchant',
+                engine.locale('debugWorkbench'): 'debugWorkbench',
+                engine.locale('debugAlchemy'): 'debugAlchemy',
                 '___2': null,
-                engine.locale('debugMeeting'): DebugMenuItems.debugMeeting,
+                engine.locale('debugMeeting'): 'debugMeeting',
                 '___3': null,
-                engine.locale('debugMatchingGame'):
-                    DebugMenuItems.debugMatchingGame,
+                engine.locale('debugMatchingGame'): 'debugMatchingGame',
               },
-              onSelectedItem: (DebugMenuItems item) async {
+              onSelectedItem: (String item) async {
                 switch (item) {
-                  case DebugMenuItems.debugConsole:
+                  case 'debugConsole':
                     GameUI.showConsole(context);
-                  case DebugMenuItems.debugResetHero:
+                  case 'debugResetHero':
                     await engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
                       triggerOnStart: true,
                     );
-                  case DebugMenuItems.debugMoney:
+                  case 'debugMoney':
                     engine.hetu.invoke(
                       'collect',
                       namespace: 'Player',
@@ -422,9 +409,9 @@ class _DebugButtonState extends State<DebugButton> {
                         5000,
                       ],
                     );
-                  case DebugMenuItems.debugItem:
+                  case 'debugItem':
                     engine.hetu.invoke('testItem', namespace: 'debug');
-                  case DebugMenuItems.debugMerchant:
+                  case 'debugMerchant':
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {
                       'rank': 2,
@@ -448,18 +435,18 @@ class _DebugButtonState extends State<DebugButton> {
                           merchantType: MerchantType.character,
                           allowManualReplenish: true,
                         );
-                  case DebugMenuItems.debugWorkbench:
+                  case 'debugWorkbench':
                     context.read<ViewPanelState>().toogle(ViewPanels.workbench);
-                  case DebugMenuItems.debugAlchemy:
+                  case 'debugAlchemy':
                     context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
-                  case DebugMenuItems.debugMeeting:
+                  case 'debugMeeting':
                     final people = [];
                     for (var i = 0; i < 5; ++i) {
                       final char = engine.hetu.invoke('Character');
                       people.add(char);
                     }
                     context.read<MeetingState>().update(people);
-                  case DebugMenuItems.debugMatchingGame:
+                  case 'debugMatchingGame':
                     engine.pushScene(
                       Scenes.matchingGame,
                       arguments: {

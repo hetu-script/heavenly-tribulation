@@ -19,29 +19,24 @@ namespace debug {
     )
 
     setHero('hero')
-
-    final randomEquipmentKind = Constants.equipmentCategoryKinds['weapon'].random
-    final item = Equipment(kind: randomEquipmentKind, rank: hero.rank)
-    await Player.acquire(item)
-
     final pack = Cardpack(
-      kind: randomEquipmentKind,
       rank: hero.rank,
-      isBasic: true,
+      genre: hero.rank == 0 ? null : hero.cultivationFavor,
+      isBasic: hero.rank == 0,
     )
     await Player.acquire(pack)
-    
     final pack2 = Cardpack(
       rank: hero.rank,
-      isBasic: true,
+      genre: hero.rank == 0 ? null : hero.cultivationFavor,
+      isBasic: hero.rank == 0,
     )
     await Player.acquire(pack2)
   }
 
-  function testMoney() {
+  function cheat() {
     hero.materials = {
       money: 5000000,
-      shard: 50000,
+      shard: 5000,
       worker: 5000,
       water: 5000,
       grain: 5000,
@@ -52,6 +47,15 @@ namespace debug {
       stone: 5000,
       ore: 5000,
     }
+  }
+
+  function cheatContribution({ locationId }) {
+    final contributionData = {
+      sectId: hero.sectId,
+      locationId: locationId,
+      amount: 5000,
+    }
+    .makeContribution(contributionData)
   }
 
   function testItem([character]) {

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -15,7 +16,7 @@ import 'package:samsara/tilemap/tilemap.dart';
 
 import '../ui.dart';
 import 'common.dart';
-import '../engine.dart';
+import '../global.dart';
 import '../scene/common.dart';
 import '../logic/logic.dart';
 import '../state/game_save.dart';
@@ -86,7 +87,7 @@ final class GameSound {
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
-class GameData {
+final class GameData with ChangeNotifier {
   static final Map<String, dynamic> animations = {};
   static final Map<String, SpriteSheet> spriteSheets = {};
   static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
@@ -123,8 +124,6 @@ class GameData {
 
   static math.Random random = math.Random();
 
-  static bool isInteractable = false;
-
   static dynamic getTerrain(int index) {
     final terrain = GameData.world['terrains'][index];
     assert(terrain != null, 'Terrain not found, id: $index');
@@ -156,6 +155,45 @@ class GameData {
       return true;
     });
     npcs.addAll(characters);
+
+    return npcs;
+  }
+
+  static List getNpcsAtHeroWorldMapPosition() {
+    return getNpcsAtWorldMapPosition(
+        hero['worldPosition']['left'], hero['worldPosition']['top'],
+        worldId: hero['worldId']);
+  }
+
+  static List getNpcsAtWorldMapPosition(int left, int top, {String? worldId}) {
+    worldId ??= world['id'];
+    // dynamic atWorld = universe[worldId];
+
+    List npcs = (game['characters'].values as Iterable).where((char) {
+      if (char['id'] == hero['id']) return false;
+      if (char['worldId'] != worldId) return false;
+      if (char['locationId'] != null) return false;
+      if (char['worldPosition']?['left'] != left ||
+          char['worldPosition']?['top'] != top) {
+        return false;
+      }
+      return true;
+    }).toList();
+    return npcs;
+  }
+
+  static List getNpcsOnWorldMap({String? worldId}) {
+    worldId ??= world['id'];
+    List npcs = game.characters.values.where((char) {
+      if (char['id'] == hero['id']) return false;
+      if (char['worldId'] != worldId) return false;
+      if (char['locationId'] != null) return false;
+      if (char['worldPosition']?['left'] != null ||
+          char['worldPosition']?['top'] != null) {
+        return true;
+      }
+      return false;
+    });
 
     return npcs;
   }
@@ -929,7 +967,11 @@ class GameData {
     bool showDetailedHint = true,
   }) {
     final description = StringBuffer();
-    final title = itemData['name'];
+    String title = itemData['name'];
+    final stackSize = itemData['stackSize'] ?? 1;
+    if (stackSize > 1) {
+      title = '$title × $stackSize';
+    }
     final rarity = itemData['rarity'];
     final type = itemData['type'];
     final category = itemData['category'];
@@ -1101,11 +1143,11 @@ class GameData {
             '${engine.locale(useShard ? 'shard' : 'money2')}</>');
       } else {
         assert(itemData['isIdentified'] == false);
-        final estimatePrice = GameLogic.estimateItemPrice(
+        final estimatedPrice = GameLogic.estimateItemPrice(
             itemData['category'], itemData['rank'],
             range: estimatePriceRange);
-        description.writeln('<yellow>${engine.locale('estimatePrice')}: '
-            '$estimatePrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
+        description.writeln('<yellow>${engine.locale('estimatedPrice')}: '
+            '$estimatedPrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
       }
       if (engine.config.debugMode) {
         description.writeln('<grey>basePrice: ${itemData['price']}</>');
@@ -1460,12 +1502,12 @@ class GameData {
     row.add('${character['level']}');
     row.add(engine.locale('cultivationRank_${character['rank']}'));
 
-    final sect = GameData.getSect(sectId);
-    final memberData = sect['membersData'][character['id']];
     // 职位
-    final titleId = memberData['titleId'];
+    final titleId = character['titleId'];
     row.add(titleId != null ? engine.locale(titleId) : engine.locale('none'));
     // 功勋
+    final sect = GameData.getSect(sectId);
+    final memberData = sect['membersData'][character['id']];
     final contribution = memberData['contribution'] ?? 0;
     row.add(contribution.toString());
     // 上级
@@ -1477,11 +1519,11 @@ class GameData {
       row.add(superior['name']);
     }
     // 汇报地点
-    final reportLocationId = memberData['reportLocationId'];
-    if (reportLocationId == null) {
+    final reportCityId = memberData['reportCityId'];
+    if (reportCityId == null) {
       row.add(engine.locale('none'));
     } else {
-      final reportLocation = GameData.getLocation(reportLocationId);
+      final reportLocation = GameData.getLocation(reportCityId);
       row.add(reportLocation['name']);
     }
 
@@ -1496,13 +1538,53 @@ class GameData {
     final row = <String>[];
     row.add(location['name']);
     final worldPosition = location['worldPosition'];
-    row.add('[${worldPosition['left']}, ${worldPosition['top']}]');
+    row.add('[${worldPosition['left']},${worldPosition['top']}]');
     // 类型
     row.add(engine.locale(location['kind']));
     // 规模
     row.add(location['development'].toString());
     // 居民
     row.add(location['residents'].length.toString());
+    // 门派名字
+    String sectName = engine.locale('none');
+    final sectId = location['sectId'];
+    if (sectId != null) {
+      final sect = GameData.getSect(sectId);
+      sectName = sect['name'];
+    }
+    row.add(sectName);
+    // 管理者
+    String? managerId = location['managerId'];
+    if (managerId != null) {
+      final manager = GameData.getCharacter(managerId);
+      row.add(manager['name']);
+    } else {
+      row.add(engine.locale('none'));
+    }
+    // 多存一个隐藏的 id 信息，用于点击事件
+    row.add(location['id']);
+    return row;
+  }
+
+  static List<String> getSiteInformationRow(dynamic location) {
+    assert(location['category'] == 'site');
+
+    final row = <String>[];
+    row.add(location['name']);
+    if (location['worldPosition'] != null) {
+      final worldPosition = location['worldPosition'];
+      row.add('[${worldPosition['left']},${worldPosition['top']}]');
+    } else {
+      final atCityId = location['atCityId'];
+      assert(atCityId != null,
+          'Site location has no worldPosition or atCityId: ${location['name']}');
+      final atCity = GameData.getLocation(atCityId);
+      row.add(atCity['name']);
+    }
+    // 类型
+    row.add(engine.locale(location['kind']));
+    // 规模
+    row.add(location['development'].toString());
     // 门派名字
     String sectName = engine.locale('none');
     final sectId = location['sectId'];
@@ -1538,7 +1620,7 @@ class GameData {
     // 总堂
     final headquarters = GameData.getLocation(sect['headquartersLocationId']);
     row.add(headquarters['name']);
-    // 据点数量
+    // 城市数量
     final locationIds = sect['locationIds'] as List;
     row.add(locationIds
         .where((id) {

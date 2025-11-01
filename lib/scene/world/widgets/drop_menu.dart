@@ -5,7 +5,7 @@ import 'package:samsara/tilemap/tilemap.dart';
 
 import '../../../widgets/ui/menu_builder.dart';
 import '../../../ui.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../data/game.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../game_creation/load_game.dart';
@@ -206,7 +206,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                   case DropMenuItems.console:
                     GameUI.showConsole(context);
                   case DropMenuItems.exit:
-                    context.read<SelectedPositionState>().clear();
+                    context.read<WorldMapSelectedTileState>().clear();
                     context.read<EditorToolState>().clear();
                     await engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
@@ -223,7 +223,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                     engine.pushScene(args['id'],
                         constructorId: Scenes.worldmap, arguments: args);
                   case DropMenuItems.switchWorld:
-                    final worldId = await GameLogic.selectWorld();
+                    final worldId = await GameLogic.selectWorldId();
                     if (worldId == null) return;
                     if (worldId == GameData.world['id']) return;
                     engine.hetu
@@ -243,7 +243,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                       );
                     }
                   case DropMenuItems.deleteWorld:
-                    final worldId = await GameLogic.selectWorld();
+                    final worldId = await GameLogic.selectWorldId();
                     if (worldId == null) return;
                     if (worldId == GameData.world['id']) {
                       GameDialogContent.show(

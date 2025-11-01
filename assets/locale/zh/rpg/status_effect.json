@@ -188,7 +188,7 @@
   "status_energy_negative_leech": "戾气",
   "status_energy_negative_leech_description": "回合结束时，若造成了伤害，消耗 1 层戾气，失去伤害值 10% 的生命",
   "status_energy_negative_pure": "衰气",
-  "status_energy_negative_pure_description": "回合开始时，有 10% 消耗 1 层衰气并跳过此回合。",
+  "status_energy_negative_pure_description": "回合开始时，有 10% 几率消耗 1 层衰气并跳过此回合。",
   "status_energy_negative_spell": "逆灵之气",
   "status_energy_negative_spell_description": "每层使你的法术攻击伤害 -5。",
   "status_energy_negative_weapon": "止戈之气",

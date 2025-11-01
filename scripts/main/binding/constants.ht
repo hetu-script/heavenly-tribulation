@@ -74,6 +74,10 @@ external abstract class Constants {
   static get terrainKindsWater;
   static get terrainKindsMountain;
   static get terrainKindsAll;
+
+  static get battleCardGenreAttacks;
+  static get battleCardGenreBuffs;
+
   static get titleToJobRank;
   static get cultivationRankToTitle;
   static get titleToAlternativeTitle;

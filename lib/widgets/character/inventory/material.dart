@@ -6,7 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../ui.dart';
 import '../../../logic/logic.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../state/hover_content.dart';
 import '../../../data/common.dart';
 

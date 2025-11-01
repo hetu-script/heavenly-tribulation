@@ -6,7 +6,7 @@ import 'package:samsara/widgets/ui/label.dart';
 import '../../widgets/ui/avatar.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../state/meeting.dart';
 
 // 预设的头像位置

@@ -57,9 +57,9 @@
   "willpower": "念力",
   "willpower_description": "炼魂流派主属性。每 10 点念力：可带入战斗的煞气数量 +1",
   "perception": "神识",
-  "perception_description": "法身流派主属性。每 5 点神识：大地图视野范围 +1。每 2 点神识：每个月可探查对手手牌 + 1",
+  "perception_description": "法身流派主属性。每 1 点神识：每个月可探查对手手牌 + 1",
   "strength": "体魄",
-  "strength_description": "锻体流派主属性。每 2 点体魄：体力、生命上限 +1",
+  "strength_description": "锻体流派主属性。每 1 点体魄：生命上限 +1",
 
   "unarmedAttack": "徒手攻击",
   "unarmedAttack_description": "增加你的徒手攻击伤害。",
@@ -302,7 +302,7 @@
   "enemy": "仇敌",
 
   "familyRelationship": "亲族",
-  "sectRelationship": "同门",
+  "sectRelationship": "门派",
   "friendRelationship": "朋友",
 
   "romanceRelationship": "爱情",

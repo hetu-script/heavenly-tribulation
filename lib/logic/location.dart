@@ -39,18 +39,18 @@ void _updateLocationDaily(dynamic location) {
       final development = location['development'];
 
       if (location['kind'] == 'headquarters') {
-        // 门派总部扩建完成，提升门派最大据点数量
+        // 门派总部扩建完成，提升门派最大城市数量
         final sect = GameData.getSect(location['sectId']);
         sect['development'] = development;
         final maxCityCount =
             GameLogic.maxCityCountForSectDevelopment(development);
         sect['maxCityCount'] = maxCityCount;
         engine.warn(
-            '门派 ${sect['name']} 的规模扩大到了 [$development] 最大据点数量提升到了 [$maxCityCount]');
+            '门派 ${sect['name']} 的规模扩大到了 [$development] 最大城市数量提升到了 [$maxCityCount]');
       } else if (location['category'] == 'city') {
         // 城市扩建完成，提升最大建筑数量
-        final maxSiteCount = GameLogic.maxSiteCountForCity(location);
-        final city = GameData.getLocation(location['atLocationId']);
+        final maxSiteCount = GameLogic.calculateMaxSiteCountForCity(location);
+        final city = GameData.getLocation(location['atCityId']);
         city['development'] = development;
         city['maxSiteCount'] = maxSiteCount;
         engine.warn(
@@ -62,9 +62,13 @@ void _updateLocationDaily(dynamic location) {
   }
 }
 
-/// 据点月度更新
-void _updateLocationMonthly(dynamic location) {
+/// 城市月度更新
+void _updateLocationMonthly(dynamic location, {bool force = false}) {
   engine.hetu.invoke('resetLocationMonthly', positionalArgs: [location]);
+  if (force) {
+    location['flags']['monthly']['updated'] = true;
+  }
+
   final kind = location['kind'];
 
   if (location['category'] == 'city') {
@@ -98,7 +102,7 @@ void _updateLocationMonthly(dynamic location) {
 
 /// 异步函数，在显示场景窗口之前执行
 Future<dynamic> _tryEnterLocation(dynamic location) async {
-  engine.info('尝试进入据点 [${location['name']}]');
+  engine.info('尝试进入城市 [${location['name']}]');
   // [result] 值是 true 意味着不会进入场景
   final result = await engine.hetu.invoke('onGameEvent',
       positionalArgs: ['onBeforeEnterLocation', location]);
@@ -253,68 +257,60 @@ void _onInteractDungeonEntrance({
   dynamic sect,
   dynamic location,
 }) async {
-  dialog.pushSelection('dungeonEntrance', [
-    'about_dungeon',
+  // sect 可能为 null，此时该城市没有被门派占领
+  final isRented =
+      await _checkRented(location, perAvailableDaysTillMonthEnd: false);
+  if (!isRented) return;
+
+  final dungeonOptions = [
     'enter_common_dungeon',
-    'enter_advanced_dungeon',
-    'cancel',
-  ]);
+  ];
+  if (location['development'] > 0) {
+    dungeonOptions.add('enter_advanced_dungeon');
+  }
+  dungeonOptions.add('forgetIt');
+  dialog.pushSelection('dungeonEntrance', dungeonOptions);
   await dialog.execute();
   final selected = dialog.checkSelected('dungeonEntrance');
-  if (selected == 'cancel') return;
+  if (selected == null || selected == 'forgetIt') return;
 
-  if (selected == 'about_dungeon') {
+  if (selected == 'enter_common_dungeon') {
+    final cost = _kBasicDungeonShardCost;
+
     dialog.pushDialog(
-      'hint_dungeonEntrance',
+      'hint_dungeon_cost',
+      npcId: location['npcId'],
+      interpolations: [cost],
+    );
+    await dialog.execute();
+
+    dialog.pushSelectionRaw({
+      'id': 'dungeonBasicCost',
+      'selections': {
+        'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
+        'forgetIt': engine.locale('forgetIt'),
+      }
+    });
+    await dialog.execute();
+    final selected = dialog.checkSelected('dungeonBasicCost');
+    if (selected == null || selected == 'forgetIt') return;
+
+    engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+      'shard',
+      cost,
+    ]);
+  } else if (selected == 'enter_advanced_dungeon') {
+    dialog.pushDialog(
+      'hint_dungeon_cost2',
       npcId: location['npcId'],
     );
     await dialog.execute();
-  } else {
-    // sect 可能为 null，此时该据点没有被门派占领
-    final isRented =
-        await _checkRented(location, perAvailableDaysTillMonthEnd: false);
-    if (!isRented) return;
-
-    final isBasic = selected == 'enter_common_dungeon';
-
-    if (isBasic) {
-      final cost = _kBasicDungeonShardCost * (GameData.hero['rank'] + 1);
-
-      dialog.pushDialog(
-        'hint_dungeon_cost',
-        npcId: location['npcId'],
-        interpolations: [cost],
-      );
-      await dialog.execute();
-
-      dialog.pushSelectionRaw({
-        'id': 'dungeonBasicCost',
-        'selections': {
-          'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
-          'forgetIt': engine.locale('forgetIt'),
-        }
-      });
-      await dialog.execute();
-      final selected = dialog.checkSelected('dungeonBasicCost');
-      if (selected == 'forgetIt') return;
-
-      engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
-        'shard',
-        cost,
-      ]);
-    } else {
-      dialog.pushDialog(
-        'hint_dungeon_cost2',
-        npcId: location['npcId'],
-      );
-      await dialog.execute();
-    }
-
-    GameLogic.tryEnterDungeon(
-      isBasic: isBasic,
-      dungeonId: location['dungeonId'] ?? 'dungeon_1',
-    );
   }
+
+  GameLogic.tryEnterDungeon(
+    isBasic: selected == 'enter_common_dungeon',
+    dungeonId: location['dungeonId'] ?? 'dungeon_1',
+  );
 }
 
 /// 和门派总堂的聚灵阵交互

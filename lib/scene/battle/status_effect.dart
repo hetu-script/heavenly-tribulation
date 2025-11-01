@@ -5,7 +5,7 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:hetu_script/utils/collection.dart' as utils;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
 import 'common.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/extensions.dart' show StringEx;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 import '../../data/common.dart';
@@ -20,7 +20,7 @@ class EditLocationBasics extends StatefulWidget {
     this.name,
     this.image,
     this.background,
-    this.atLocation,
+    this.atCity,
     this.allowEditCategory = true,
     this.allowEditKind = true,
     this.showNpcIdField = false,
@@ -33,7 +33,7 @@ class EditLocationBasics extends StatefulWidget {
   final String? name;
   final String? image;
   final String? background;
-  final dynamic atLocation;
+  final dynamic atCity;
   final bool allowEditCategory, allowEditKind;
   final bool showNpcIdField;
   final String? npcId;
@@ -110,8 +110,8 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     _selectedKind = kind ?? _kinds.keys.first;
 
     if (kLocationSiteKinds.contains(_selectedKind)) {
-      assert(widget.atLocation != null);
-      _idEditingController.text = '${widget.atLocation['id']}_$_selectedKind';
+      assert(widget.atCity != null);
+      _idEditingController.text = '${widget.atCity['id']}_$_selectedKind';
       _nameEditingController.text = engine.locale(_selectedKind);
 
       if (_selectedCategory == 'city') {

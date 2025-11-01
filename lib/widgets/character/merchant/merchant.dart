@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/label.dart';
 
 import '../../../logic/logic.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../inventory/inventory.dart';
 import '../../../data/game.dart';
 import '../../../state/character.dart';
@@ -17,7 +17,6 @@ import '../../ui/responsive_view.dart';
 import '../../../data/common.dart';
 import '../../../state/hover_content.dart';
 import '../../../ui.dart';
-import '../../common.dart';
 
 class MerchantDialog extends StatefulWidget {
   const MerchantDialog({
@@ -589,7 +588,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
     return ResponsiveView(
       width: 700.0,
       height: 590.0,
-      onBarrierDismissed: close,
+      barrierDismissible: false,
+      // onBarrierDismissed: close,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -679,54 +679,57 @@ class _MerchantDialogState extends State<MerchantDialog> {
               child: Column(
                 children: [
                   Text(widget.merchantData['name']),
-                  SizedBox(
-                    height: 30.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Image(
-                          width: 24.0,
-                          height: 24.0,
-                          image: AssetImage('assets/images/icon/quest.png'),
-                        ),
-                        Label(
-                          engine.locale('priceFactor'),
-                          onMouseEnter: (rect) {
-                            final StringBuffer content = StringBuffer();
-                            if (priceFactorDescription != null) {
-                              if (widget.merchantType ==
-                                      MerchantType.location &&
-                                  widget.materialMode) {
-                                content.writeln(
-                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_location')}\n \n${priceFactorDescription.toString()}');
-                              } else if (widget.merchantType ==
-                                  MerchantType.character) {
-                                content.writeln(
-                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
-                              } else if (widget.merchantType ==
-                                  MerchantType.productionSite) {
-                                content.writeln(
-                                    '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_productionSite')}\n \n${priceFactorDescription.toString()}');
+                  if (!isDepositBox)
+                    SizedBox(
+                      height: 30.0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Image(
+                            width: 24.0,
+                            height: 24.0,
+                            image: AssetImage('assets/images/icon/quest.png'),
+                          ),
+                          Label(
+                            engine.locale('priceFactor'),
+                            onMouseEnter: (rect) {
+                              final StringBuffer content = StringBuffer();
+                              if (priceFactorDescription != null) {
+                                if (widget.merchantType ==
+                                        MerchantType.location &&
+                                    widget.materialMode) {
+                                  content.writeln(
+                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_location')}\n \n${priceFactorDescription.toString()}');
+                                } else if (widget.merchantType ==
+                                    MerchantType.character) {
+                                  content.writeln(
+                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_character')}\n \n${priceFactorDescription.toString()}');
+                                } else if (widget.merchantType ==
+                                    MerchantType.productionSite) {
+                                  content.writeln(
+                                      '${engine.locale('priceFactor')}\n${engine.locale('priceFactor_description_productionSite')}\n \n${priceFactorDescription.toString()}');
+                                } else {
+                                  content.write(
+                                      '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
+                                }
                               } else {
-                                content.write(
-                                    '${engine.locale('priceFactor')}\n \n${priceFactorDescription.toString()}');
+                                content.writeln(
+                                    '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
                               }
-                            } else {
-                              content.writeln(
-                                  '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
-                            }
-                            context.read<HoverContentState>().show(
-                                  content.toString(),
-                                  rect,
-                                );
-                          },
-                          onMouseExit: () {
-                            context.read<HoverContentState>().hide();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                              context.read<HoverContentState>().show(
+                                    content.toString(),
+                                    rect,
+                                  );
+                            },
+                            onMouseExit: () {
+                              context.read<HoverContentState>().hide();
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    SizedBox(height: 30.0),
                   if (widget.materialMode)
                     MaterialList(
                       entity: widget.merchantData,
@@ -787,7 +790,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             style: FluentButtonStyles.slim,
                             onPressed: () async {
                               if (!enableReplenish) return;
-
+                              await GameLogic.updateGame();
                               final hasMoney =
                                   GameData.hero['materials']['money'] ?? 0;
                               if (hasMoney < replenishCost) {

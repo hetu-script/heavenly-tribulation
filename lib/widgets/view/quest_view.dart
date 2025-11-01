@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
 import '../../data/game.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 
@@ -102,6 +102,7 @@ class _QuestViewState extends State<QuestView> {
     return ResponsiveView(
       width: 800.0,
       height: 500.0,
+      barrierDismissible: widget.showCloseButton,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

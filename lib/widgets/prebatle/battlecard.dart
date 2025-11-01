@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/label.dart';
 
 import '../../ui.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../state/hover_content.dart';
 import '../../logic/logic.dart';
 import '../../widgets/common.dart';

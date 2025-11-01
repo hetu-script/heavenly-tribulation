@@ -122,7 +122,7 @@ struct Sect {
     }
     game.sects[this.id] = this
     
-    // 本门派统治的据点 id 列表
+    // 本门派统治的城市 id 列表
     this.locationIds = []
     // 曾经加入过的成员的职级等数据，key 是 角色的 id，value 是角色的 MemberData
     // memberData.isAbsent = true 表示该成员目前不在门派中
@@ -132,7 +132,7 @@ struct Sect {
     this.experienced = []
 
     // 门派政策
-    // key 是 据点 id，值是 政策 id
+    // key 是 城市 id，值是 政策 id
     this.policies = {}
     
     // 门派牵涉到的外交关系数据 id 列表
@@ -174,37 +174,37 @@ struct Sect {
 }
 
 // TODO: 添加incident
-function stationSect(sect, location, { incurIncident: bool }) {
+function stationSect(sect, city, { incurIncident: bool }) {
   // TODO: 允许迁都
   assert(sect.headquartersLocationId == null,
     'sect already has headquarters location, cannot station again!')
-  assert(location.sectId == null || location.sectId == sect.id,
+  assert(city.sectId == null || city.sectId == sect.id,
     'headquarters location must be unowned or owned by the sect itself!')
-  assert(location.category == 'city',
+  assert(city.category == 'city',
     'headquarters location must be a city!')
-  if (location.sectId == null) {
-    addLocationToSect(location, sect, incurIncident: incurIncident)
+  if (city.sectId == null) {
+    addLocationToSect(city, sect, incurIncident: incurIncident)
   }
   const headquarters = Location(
     id: sect.id + '_headquarters',
     name: sect.name,
     category: 'site',
     kind: kLocationKindHeadquarters,
-    atLocation: location,
+    atCity: city,
     image: 'location/card/${sect.genre}.png'
     background: 'location/site/${sect.genre}.png'
     sectId: sect.id,
     npcId: Constants.siteKindToNpcId[kLocationKindHeadquarters]
     managerId: sect.headId,
-    development: location.development,
+    development: city.development,
   )
   sect.headquartersSiteId = headquarters.id
-  sect.headquartersLocationId = location.id
-  // TODO: 如果是迁都，需要检查原据点的规模是否大于新据点的规模
-  sect.development = location.development
+  sect.headquartersLocationId = city.id
+  // TODO: 如果是迁都，需要检查原城市的规模是否大于新城市的规模
+  sect.development = city.development
   sect.maxCityCount = maxCityCountForSectDevelopment(sect.development)
-  location.isCapitalCity = true
-  location.maxSiteCount = maxSiteCountForCity(location)
+  city.isCapitalCity = true
+  city.maxSiteCount = calculateMaxSiteCountForCity(city)
 }
 
 /// 查找某个组织中比指定职级高的成员数据列表
@@ -232,7 +232,9 @@ function getHigherRankMembersOfSect(sect, rank) {
 /// 这个 api 不会检查角色的境界和贡献是否达到职位要求
 function addCharacterToSect(character, sect, {
     titleId,
-    setHome = true,
+    assignManagingSite = true,
+    moveToManagingSite = true,
+    moveHome = true,
     assignSuperior = true,
     incurIncident = true,
   }) {
@@ -243,23 +245,17 @@ function addCharacterToSect(character, sect, {
   if (memberData == null) {
     sect.membersData[character.id] = memberData = MemberData(
       id: character.id,
-      rank: 0,
       peer: sect.membersData.length,
     )
-  } else {
-    memberData.peer = sect.membersData.length
+  }
+  if (titleId != null) {
+    assert(Constants.titleToJobRank.containsKey(titleId),
+      'unknown sect title: ${titleId}')
+    memberData.titleId = titleId
+    memberData.rank = Constants.titleToJobRank[titleId]
   }
   
   addSectMonthly(sect, 'recruited', character.id)
-
-  if (setHome) {
-    final cities = sect.locationIds.where( (id) =>
-      game.locations[id]?.category == 'city' )
-    final locationId = random.nextIterable(cities)
-    const location = game.locations[locationId]
-    assert(location != null, 'headquarters location not found! sect id: [${sect.id}], headquarters id: ${locationId}')
-    setCharacterHome(character, location)
-  }
 
   const incidentContent = engine.locale('characterEnlist', interpolations: [
     character.name,
@@ -276,16 +272,26 @@ function addCharacterToSect(character, sect, {
     engine.info(incidentContent)
   }
 
-  if (titleId == null) {
-    titleId = checkCharacterTitle(character, setAsManger: true)
+  titleId = checkCharacterTitle(character, setAsManger: true)
+  if (titleId != null && titleId != memberData.titleId) {
+    memberData.titleId = titleId
+    memberData.rank = Constants.titleToJobRank[titleId]
   }
-  setCharacterTitle(character, titleId, sect: sect)
+  setCharacterTitle(
+    character,
+    titleId,
+    sect: sect,
+    assignManagingSite: assignManagingSite,
+    moveToManagingSite: moveToManagingSite,
+    moveHome: moveHome,
+    incurIncident: incurIncident,
+  )
   
-  if (titleId != 'head' && setHome && assignSuperior) {
+  if (titleId != 'head' && assignSuperior) {
     assignCharacterSuperior(character, sect)
   }
   
-  return true
+  return titleId
 }
 
 function removeCharacterFromSect(character, { incurIncident = true }) {
@@ -300,6 +306,12 @@ function removeCharacterFromSect(character, { incurIncident = true }) {
   character.titleId = null
   character.sectIds.add(character.sectId)
   character.sectId = null
+
+  for (final locationId in character.managingLocationIds) {
+    final location = game.locations[locationId]
+    location.managerId = null
+  }
+  character.managingLocationIds.clear()
   
   const incidentContent = engine.locale('characterLeave', interpolations: [
     character.name,
@@ -322,13 +334,15 @@ function removeCharacterFromSect(character, { incurIncident = true }) {
 /// 为角色分配合适的上级，注意上下级关系并非师徒关系
 /// 因为上级涉及到角色家宅位置，所以和 addCharacterToSect api 分开
 /// 这里也会同时保存向上级报告时的位置
-/// 对于 rank 小于 3 (总管或以下) 的成员，报告位置在角色所在据点的会堂场景
-/// 对于 rank 大于等于 3 (堂主) 的成员，报告位置在门派总堂所在据点的门派场景
+/// 对于 rank 小于 3 (总管或以下) 的成员，报告位置在角色所在城市的会堂场景
+/// 对于 rank 大于等于 3 (堂主) 的成员，报告位置在门派总堂所在城市的门派场景
 function assignCharacterSuperior(character, sect) {
   assert(character.sectId == sect.id)
   const memberData = sect.membersData[character.id]
   assert(memberData != null && memberData.isAbsent == false,
     'character is not a member of sect: ${sect.name}, cannot assign superior!')
+  // 分配前会清空原有的上级
+  memberData.superiorId = null
 
   // 找到比自己职级高一级的成员
   let superiorsData = getHigherRankMembersOfSect(sect, memberData.rank)
@@ -346,35 +360,33 @@ function assignCharacterSuperior(character, sect) {
     'no superior found for character: ${character.name} in sect, this should not happen because at least the head would be chosen. sect name: ${sect.name}!')
 
   if (memberAtCharacterHome == null) {
-    // 没有找到在同一据点的上级，就近分配
+    // 没有找到在同一城市的上级，就近分配
     memberData.superiorId = superiorsData.first.id
   } else {
     memberData.superiorId = memberAtCharacterHome.id
   }
   
-  if (memberData.superiorId != null) {
-    if (memberData.rank < 3) {
-      // 总管或以下，报告位置在角色所在据点的会堂场景
-      const location = game.locations[character.homeLocationId]
-      assert(location != null, 'location not found for id: ${character.homeLocationId}')
-      let cityhallSiteId
-      for (let siteId in location.siteIds) {
-        const site = game.locations[siteId]
-        if (site.kind == kLocationKindCityhall) {
-          cityhallSiteId = site.id
-          break
-        }
+  if (memberData.rank < 3) {
+    // 总管或以下，报告位置在角色所在城市的会堂场景
+    const location = game.locations[character.homeLocationId]
+    assert(location != null, 'location not found for id: ${character.homeLocationId}')
+    let cityhallSiteId
+    for (let siteId in location.siteIds) {
+      const site = game.locations[siteId]
+      if (site.kind == kLocationKindCityhall) {
+        cityhallSiteId = site.id
+        break
       }
-      assert(cityhallSiteId != null, 'cityhall site not found for location id: ${location.id}')
-      memberData.reportSiteId = cityhallSiteId
-      memberData.reportLocationId = location.id
-    } else {
-      // 堂主，报告位置在门派总堂所在据点的门派场景
-      const headquarters = game.locations[sect.headquartersLocationId]
-      assert(headquarters != null, 'headquarters not found! sect id: [${sect.id}], headquarters id: ${sect.headquartersLocationId}')
-      memberData.reportSiteId = headquarters.id
-      memberData.reportLocationId = sect.headquartersLocationId
     }
+    assert(cityhallSiteId != null, 'cityhall site not found for location id: ${location.id}')
+    memberData.reportSiteId = cityhallSiteId
+    memberData.reportCityId = location.id
+  } else {
+    // 堂主，报告位置在门派总堂所在城市的门派场景
+    const headquarters = game.locations[sect.headquartersLocationId]
+    assert(headquarters != null, 'headquarters not found! sect id: [${sect.id}], headquarters id: ${sect.headquartersLocationId}')
+    memberData.reportSiteId = headquarters.id
+    memberData.reportCityId = sect.headquartersLocationId
   }
 
   engine.info('${character.id}在${sect.id}的上级是${memberData.superiorId}')
@@ -395,11 +407,16 @@ function checkCharacterTitle(character, { setAsManger = false}) {
 
   let titleId
   let managingSite
-
-  let prevRank = character.rank - 1
-  if (prevRank < 0) prevRank = 0
-  titleId = memberData?.titleId ?? Constants.cultivationRankToTitle[prevRank]
-  const currentJobRank = memberData?.rank ?? prevRank
+  let currentJobRank
+  if (memberData.titleId != null) {
+    titleId = memberData.titleId
+    currentJobRank = memberData.rank ?? 0
+  } else {
+    let prevRank = character.rank - 1
+    if (prevRank < 0) prevRank = 0
+    titleId = Constants.cultivationRankToTitle[prevRank]
+    currentJobRank = prevRank
+  }
   if (currentJobRank >= kJobRankMax - 1) {
     // 门派掌门的职位不会通过晋升而得到，因此这里 rank 4 已经是最高了
     engine.warn('${character.name} 已经是最大职级，没有下一级职位了！')
@@ -426,18 +443,26 @@ function checkCharacterTitle(character, { setAsManger = false}) {
 /// 此函数不会检查职位本身的功勋需求和境界需求
 /// 如果设置的职位高于杂役，还会直接赋予职位对应的功勋，以及为其分配适合的辖地
 /// 如果没有辖地可供分配，会将职位改为同级别的替代职位
-function setCharacterTitle(character, titleId, { sect, incurIncident = true }) {
+function setCharacterTitle(
+  character,
+  titleId, {
+  sect,
+  assignManagingSite = true,
+  moveToManagingSite = true,
+  moveHome = true,
+  incurIncident = true,
+}) {
+  character.titleId = titleId
+
   if (sect != null) {
     let memberData = sect.membersData[character.id]
     assert(memberData != null,
-      'character [${character.name}] is not a member of sect: ${sect.name}!')
-    assert(memberData.title != titleId,
-        'character already has title: ${titleId} in sect: ${sect.id}, cannot set again!')
+        'character [${character.name}] is not a member of sect: ${sect.name}!')
     assert(Constants.titleToJobRank.containsKey(titleId),
         'unknown sect title: ${titleId}')
-    // if (character.titleIds.contains(memberData.titleId)) {
-    //   character.titleIds.remove(memberData.titleId)
-    // }
+    if (memberData.title == titleId) {
+      engine.error('character already has title: ${titleId} in sect: ${sect.id}, cannot set again!')
+    }
 
     let managingSite
     switch (titleId) {
@@ -453,12 +478,62 @@ function setCharacterTitle(character, titleId, { sect, incurIncident = true }) {
           )
         if (sites.isEmpty) {
           titleId = kTitleToAlternativeTitle[titleId]
+          if (memberData.title == titleId) {
+            engine.error('character already has title: ${titleId} in sect: ${sect.id}, cannot set again!')
+          }
         } else {
-          managingSite = random.nextIterable(sites)
-          managingSite.managerId = character.id
+          if (assignManagingSite) {
+            managingSite = random.nextIterable(sites)
+            managingSite.managerId = character.id
+            if (!character.managingLocationIds.contains(managingSite.id) == false) {
+              character.managingLocationIds.add(managingSite.id)
+            }
+            if (moveToManagingSite) {
+              character.locationId = managingSite.id
+            }
+            if (moveHome) {
+              final atCityId = managingSite.atCityId
+              final atCity = game.locations[atCityId]
+              assert(atCity != null, 'atCity not found for location: ${managingSite.id}')
+              setCharacterHome(character, atCity, moveToHome: !moveToManagingSite)
+            }
+          }
         }
       }
-      case 'mayor', 'governor': {
+      case 'mayor': {
+        final cities = sect.locationIds
+          .map((id) => game.locations[id])
+          .where((loc) =>
+            loc.category == 'city' &&
+            loc.managerId == null
+          )
+        if (cities.isEmpty) {
+          titleId = kTitleToAlternativeTitle[titleId]
+          if (memberData.title == titleId) {
+            engine.error('character already has title: ${titleId} in sect: ${sect.id}, cannot set again!')
+          }
+        } else {
+          if (assignManagingSite) {
+            managingCity = random.nextIterable(cities)
+            managingCity.managerId = character.id
+            character.managingLocationIds.clear()
+            character.managingLocationIds.add(managingSite.id)
+            if (moveToManagingSite) {
+              for (final siteId in managingCity.siteIds) {
+                final site = game.locations[siteId]
+                if (site.kind == kLocationKindCityhall) {
+                  character.locationId = site.id
+                  break
+                }
+              }
+            }
+            if (moveHome) {
+              setCharacterHome(character, managingCity, moveToHome: !moveToManagingSite)
+            }
+          }
+        }
+      }
+      case 'governor': {
         final cities = sect.locationIds
           .map((id) => game.locations[id])
           .where((loc) =>
@@ -468,8 +543,54 @@ function setCharacterTitle(character, titleId, { sect, incurIncident = true }) {
         if (cities.isEmpty) {
           titleId = kTitleToAlternativeTitle[titleId]
         } else {
-          managingSite = random.nextIterable(sites)
-          managingSite.managerId = character.id
+          if (assignManagingSite) {
+            managingCity = random.nextIterable(cities)
+            managingCity.managerId = character.id
+            if (!character.managingLocationIds.contains(managingSite.id) == false) {
+              character.managingLocationIds.add(managingSite.id)
+            }
+            if (moveToManagingSite) {
+              for (final siteId in managingCity.siteIds) {
+                final site = game.locations[siteId]
+                if (site.kind == kLocationKindCityhall) {
+                  character.locationId = site.id
+                  break
+                }
+              }
+            }
+            if (moveHome) {
+              setCharacterHome(character, managingCity, moveToHome: !moveToManagingSite)
+            }
+          }
+        }
+      }
+      case 'head': {
+        if (moveToManagingSite) {
+          engine.warn('trying to set head locationId')
+          final headquarters = game.locations[sect.headquartersLocationId]
+          for (final siteId in headquarters.siteIds) {
+            final site = game.locations[siteId]
+            if (site.kind == kLocationKindHeadquarters) {
+              engine.warn('set head locationId')
+              character.locationId = site.id
+              break
+            }
+          }
+          if (moveHome) {
+            setCharacterHome(character, headquarters, moveToHome: !moveToManagingSite)
+          }
+        }
+      }
+      else : {
+        // 执事或以下，移动到随机城市
+        if (moveHome) {
+          final cities = sect.locationIds.map((id) => game.locations[id])
+            .where((loc) => loc.category == 'city')
+          const city = random.nextIterable(cities)
+          if (moveToManagingSite) {
+            character.locationId = city.id
+          }
+          setCharacterHome(character, city, moveToHome: !moveToManagingSite)
         }
       }
     }
@@ -527,11 +648,6 @@ function setCharacterTitle(character, titleId, { sect, incurIncident = true }) {
       engine.info(incidentContent)
     }
   }
-
-  // if (!character.titleIds.contains(titleId)) {
-  //   character.titleIds.add(titleId)
-  // }
-  character.titleId = titleId
 }
 
 function addSects(orgs: List) {
@@ -606,13 +722,13 @@ function removeLocationFromSect(location, sect) {
   return
 }
 
-function addLocationToSect(location, sect, { updateWorldMap = false, incurIncident = true }) {
-  if (location.sectId != null) {
-    engine.error('[${location.name}] 已经被 [${location.sectId}] 占领，无法添加到组织 [${sect.name}]')
+function addLocationToSect(location, sect, { incurIncident = true }) {
+  if (location.sectId == sect.id || sect.locationIds.contains(location.id)) {
+    engine.warn('[${sect.name}] 已经拥有 [${location.name}]，不能再次添加！')
     return
   }
-  if (sect.locationIds.contains(location.id)) {
-    engine.error('[${sect.name}] 已经拥有 [${location.name}]，不能再次添加！')
+  if (location.sectId != null) {
+    engine.error('[${location.name}] 已经被 [${location.sectId}] 占领，无法添加到组织 [${sect.name}]')
     return
   }
 
@@ -633,16 +749,9 @@ function addLocationToSect(location, sect, { updateWorldMap = false, incurIncide
       final terrain = world.terrains[tileIndex]
       terrain.nationId = sect.id
       if (tileIndex != location.terrainIndex && terrain.locationId != null) {
-        final productionSite = game.locations[terrain.locationId]
-        assert(Constants.productionSiteKinds.contains(productionSite.kind), productionSite.kind)
-
-        addLocationToSect(productionSite, sect, incurIncident: incurIncident)
-      }
-    }
-
-    if (location.isHidden) {
-      if (sect.id == hero?.sectId) {
-        discoverLocation(location, updateWorldMap: updateWorldMap)
+        final worldMapSite = game.locations[terrain.locationId]
+        if (worldMapSite.sectId == sect.id) continue
+        addLocationToSect(worldMapSite, sect, incurIncident: incurIncident)
       }
     }
   }

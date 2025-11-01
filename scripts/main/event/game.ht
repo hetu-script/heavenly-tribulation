@@ -10,7 +10,7 @@ async function onRested() {
   }
 }
 
-/// 进入据点场景
+/// 进入城市场景
 /// 这个接口的逻辑较复杂，为了避免 bug 并不会一次就触发所有的事件
 /// 每次触发某个事件后，就会返回 true，这样就会跳过后续其他逻辑的判断
 async function onAfterEnterLocation(location) -> bool {
@@ -120,18 +120,21 @@ async function onAfterEnterLocation(location) -> bool {
         await Game.promptJournal(initiationQuest);
         return true;
       } else {
-        final monthly = game.flags.monthly;
-        final day = toDay(game.timestamp)
-        if (monthly.attendedMeeting != true && day < 5) {
-          monthly.attendedMeeting = true;
+        if (hero.id != sect.headId) {
+          final monthly = game.flags.monthly;
+          final day = toDay(game.timestamp)
+          if (monthly.attendedMeeting != true && day < 5) {
+            monthly.attendedMeeting = true;
 
-          Game.showMeeting(sect, location, superior);
-          return true;
+            Game.showMeeting(sect, location, superior);
+            return true;
+          }
         }
       }
     }
   }
 
+  // 处理任务上交
   final questJournals = hero.journals.values.where((journal) =>
    !journal.isFinished && journal.quest != null
   )

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import 'site_card.dart';
@@ -92,14 +92,14 @@ class _CityViewState extends State<CityView>
     super.initState();
 
     assert(widget.city != null || widget.cityId != null,
-        'LocationView must have either sectId or sect data.');
+        'CityView must have either cityId or city data.');
     if (widget.city != null) {
       _city = widget.city!;
     } else if (widget.cityId != null) {
       _city = GameData.getLocation(widget.cityId);
     }
     assert(_city != null && _city['category'] == 'city',
-        'LocationView cityId must refer to a city location.');
+        'CityView cityId must refer to a city location.');
 
     final managerId = _city['managerId'];
     // 这里的 manager 可能是 null
@@ -257,7 +257,8 @@ class _CityViewState extends State<CityView>
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit) {
+    if (widget.mode == InformationViewMode.edit ||
+        widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
       engine.context.read<ViewPanelState>().toogle(ViewPanels.cityInformation);
@@ -372,7 +373,7 @@ class _CityViewState extends State<CityView>
                             child: Text('${engine.locale('worldPosition')}:'),
                           ),
                           Text(
-                              '${_city['worldPosition']['left']}, ${_city['worldPosition']['top']}'),
+                              '${_city['worldPosition']['left']},${_city['worldPosition']['top']}'),
                         ],
                       ),
                       Row(
@@ -632,21 +633,22 @@ class _CityViewState extends State<CityView>
                             },
                           ),
                           const Spacer(),
-                          fluent.Button(
-                            onPressed: () async {
-                              await engine.hetu.invoke('collectAll',
-                                  namespace: 'Player',
-                                  positionalArgs: [
-                                    _cityhall['storage'],
-                                  ]);
-                              _cityhall['storage'].clear();
-                              setState(() {});
-                            },
-                            child: Text(
-                              engine.locale('takeAll'),
-                              style: TextStyles.bodySmall,
+                          if (isManageMode)
+                            fluent.Button(
+                              onPressed: () async {
+                                await engine.hetu.invoke('collectAll',
+                                    namespace: 'Player',
+                                    positionalArgs: [
+                                      _cityhall['storage'],
+                                    ]);
+                                _cityhall['storage'].clear();
+                                setState(() {});
+                              },
+                              child: Text(
+                                engine.locale('takeAll'),
+                                style: TextStyles.bodySmall,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -677,7 +679,7 @@ class _CityViewState extends State<CityView>
                           name: _city['name'],
                           image: _city['image'],
                           background: _city['background'],
-                          atLocation: _atLocation,
+                          atCity: _atLocation,
                           allowEditCategory: false,
                           showNpcIdField: false,
                         ),
@@ -704,10 +706,10 @@ class _CityViewState extends State<CityView>
                         GameData.game['locations'][id] = _city;
 
                         if (_city['category'] == 'site') {
-                          final atLocation =
-                              GameData.getLocation(_city['atLocationId']);
-                          atLocation['siteIds'].remove(oldId);
-                          atLocation['siteIds'].add(id);
+                          final atCity =
+                              GameData.getLocation(_city['atCityId']);
+                          atCity['siteIds'].remove(oldId);
+                          atCity['siteIds'].add(id);
                         }
 
                         _city['id'] = id;
@@ -726,7 +728,7 @@ class _CityViewState extends State<CityView>
                         builder: (context) {
                           return EditLocationBasics(
                             category: 'site',
-                            atLocation: _city,
+                            atCity: _city,
                             allowEditCategory: false,
                             allowEditKind: true,
                           );
@@ -751,7 +753,7 @@ class _CityViewState extends State<CityView>
                           'name': name,
                           'image': image,
                           'background': background,
-                          'atLocation': _city,
+                          'atCity': _city,
                           'npcId': npcId,
                           'sectId': _city['sectId'],
                         },

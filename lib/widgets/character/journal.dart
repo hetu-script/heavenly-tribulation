@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../common.dart';
@@ -56,7 +56,7 @@ class _JournalViewState extends State<JournalView> {
 
     _selectedJournal = _journalsData[widget.selectedId];
     if (_selectedJournal == null && _journalsData.values.isNotEmpty) {
-      _selectedJournal = _journalsData.values.first;
+      _selectedJournal = _journalsData.values.last;
     }
   }
 
@@ -162,12 +162,12 @@ class _JournalViewState extends State<JournalView> {
       );
     }
 
-    return ScrollConfiguration(
-      behavior: MaterialScrollBehavior(),
-      child: Container(
-        width: 360.0,
-        height: 360.0,
-        padding: const EdgeInsets.only(top: 10.0),
+    return Container(
+      width: 360.0,
+      height: 360.0,
+      padding: const EdgeInsets.only(top: 10.0),
+      child: ScrollConfiguration(
+        behavior: MaterialScrollBehavior(),
         child: SingleChildScrollView(
           child: ListView(
             shrinkWrap: true,
@@ -178,11 +178,68 @@ class _JournalViewState extends State<JournalView> {
     );
   }
 
+  Widget _buildJournalItem(dynamic journal) {
+    return fluent.Button(
+      style: _selectedJournal == journal
+          ? FluentButtonStyles.selected
+          : FluentButtonStyles.outlined,
+      onPressed: () {
+        setState(() {
+          _selectedJournal = journal;
+        });
+      },
+      child: Row(
+        children: [
+          Text(
+            journal['title'],
+            softWrap: false,
+            style: TextStyles.labelLarge.copyWith(
+              color: _selectedJournal == journal
+                  ? Colors.white
+                  : (journal['isFinished'] == true
+                      ? Colors.grey
+                      : Colors.white),
+            ),
+          ),
+          const Spacer(),
+          if (journal['isFinished'] == true)
+            Text(
+              '[${engine.locale('finished')}]',
+              style: TextStyles.labelLarge.copyWith(
+                color: _selectedJournal == journal
+                    ? Colors.white
+                    : (journal['isFinished'] == true
+                        ? Colors.grey
+                        : Colors.white),
+              ),
+            )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final position =
         context.watch<ViewPanelPositionState>().get(ViewPanels.journal) ??
             GameUI.detailsWindowPosition;
+
+    Widget journals;
+    if (_journalsData.values.isNotEmpty) {
+      final finishedJournals = (_journalsData.values as Iterable)
+          .where((j) => j['isFinished'] == true);
+      final ongoingJournals = (_journalsData.values as Iterable)
+          .where((j) => !finishedJournals.contains(j));
+
+      journals = ListView(
+        children: List<Widget>.from([
+          ...ongoingJournals.map(_buildJournalItem),
+          ...finishedJournals.map(_buildJournalItem),
+        ]),
+      );
+    } else {
+      journals = EmptyPlaceholder(engine.locale('empty'));
+    }
 
     return DraggablePanel(
       title: engine.locale('journal'),
@@ -218,51 +275,7 @@ class _JournalViewState extends State<JournalView> {
               decoration: GameUI.boxDecoration.copyWith(
                 color: GameUI.backgroundColor,
               ),
-              child: _journalsData.values.isNotEmpty
-                  ? ListView(
-                      children: List<Widget>.from(
-                        _journalsData.values.map(
-                          (journal) => fluent.Button(
-                            style: _selectedJournal == journal
-                                ? FluentButtonStyles.selected
-                                : FluentButtonStyles.outlined,
-                            onPressed: () {
-                              setState(() {
-                                _selectedJournal = journal;
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  journal['title'],
-                                  softWrap: false,
-                                  style: TextStyles.labelLarge.copyWith(
-                                    color: _selectedJournal == journal
-                                        ? Colors.white
-                                        : (journal['isFinished'] == true
-                                            ? Colors.grey
-                                            : Colors.white),
-                                  ),
-                                ),
-                                const Spacer(),
-                                if (journal['isFinished'] == true)
-                                  Text(
-                                    '[${engine.locale('finished')}]',
-                                    style: TextStyles.labelLarge.copyWith(
-                                      color: _selectedJournal == journal
-                                          ? Colors.white
-                                          : (journal['isFinished'] == true
-                                              ? Colors.grey
-                                              : Colors.white),
-                                    ),
-                                  )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : EmptyPlaceholder(engine.locale('empty')),
+              child: journals,
             ),
             if (_selectedJournal != null)
               Container(

@@ -140,7 +140,9 @@
   "selectOne": "选择一个",
   "selectHero": "选择你要扮演的人物",
   "selectCharacter": "选择人物",
-  "selectLocation": "选择场景",
+  "selectLocation": "选择地点",
+  "selectCity": "选择据点",
+  "selectSite": "选择建筑",
   "selectSect": "选择门派",
   "selectItem": "选择物品",
   "selectCardpack": "选择秘籍",
@@ -202,6 +204,7 @@
   "cooldown": "冷却时间",
   "update": "更新",
   "refresh": "刷新",
+  "titleScreen": "标题画面",
 
   "leaveMaze": "离开场景",
   "backToPreviousLevel": "返回上个地图",
@@ -301,14 +304,16 @@
   "sect": "门派",
   "ownedBySect": "所属门派",
   "location": "场景",
+  "position": "位置",
   "atLocation": "所处场景",
-  "atCity": "所属据点",
-  "city": "据点",
+  "atCity": "所属城市",
+  "city": "城市",
   "site": "建筑",
-  "locations": "据点",
+  "locations": "场景",
   "terrain": "地块",
   "coordinates": "坐标",
   "size": "大小",
+  "standby": "待机",
 
   "skill": "技能",
   "dialog": "对话",
@@ -453,8 +458,8 @@
   "heal": "治疗",
 
   "jobTitle": "职位",
-  "managingSite": "辖地",
-  "reportSite": "驻地",
+  "managingLocations": "辖地",
+  "reportCity": "驻地",
   "superior": "上级",
   "superiorId": "上级 ID",
 
@@ -639,12 +644,13 @@
   "trialTester": "入门试炼考官",
 
   "donate": "捐献",
-  "checkContribution": "查看我的功勋",
+  "checkSectContribution": "查看门派功勋",
+  "checkCityContribution": "查看据点功勋",
 
   "yourTitleHere": "你在此处的职位",
   "moveHere": "搬家到此处",
 
-  "estimatePrice": "估价",
+  "estimatedPrice": "估价",
 
   "file": "文件",
   "create": "创建",
@@ -829,7 +835,8 @@
 
   "hint_console": " [Ctrl+回车] 提交。[Ctrl+上/下] 浏览输入历史。",
 
-  "hint_yourContributionHere": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂任务、捐献资源等方式提升您在本地功勋。",
+  "hint_checkSectContribution": "您在本门派的功勋是 <yellow>{0}</>。\n您可以通过完成每月门派任务、据点会堂悬赏任务，以及捐献资源等方式提升您在门派中的功勋。",
+  "hint_checkCityContribution": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂悬赏任务、以及捐献资源等方式提升您在本地功勋。",
   "hint_moveHere": "搬家到此处需要花费<yellow> {0} 铜钱</>。确定要搬家吗？",
 
   "hint_dying": "你感到一阵眩晕，随之眼前一黑，失去了意识……",
@@ -969,5 +976,7 @@
 
   "hint_developmentCompleted": "{0}的扩建工程已经完成！规模增加到了 {1}。",
 
-  "hint_cancelDevelopment": "确定要取消扩建工程吗？取消后已消耗的物资将不会返还，且扩建进度将会全部丢失。"
+  "hint_cancelDevelopment": "确定要取消扩建工程吗？取消后已消耗的物资将不会返还，且扩建进度将会全部丢失。",
+
+  "hint_relocatedHome": "你的家宅现在搬到了<yellow>{0}</>。"
 }

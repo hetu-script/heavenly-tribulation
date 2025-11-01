@@ -62,15 +62,24 @@ const kEntityTableMemberColumns = {
   'jobTitle': 80.0,
   'contribution': 60.0,
   'superior': 100.0,
-  'reportSite': 100.0,
+  'reportCity': 100.0,
 };
 
 const kEntityTableLocationColumns = {
   'name': 100.0,
-  'worldPosition': 120.0,
-  'category': 80.0,
+  'position': 120.0,
+  'kind': 80.0,
   'development': 50.0,
   'residents': 60.0,
+  'sect': 100.0,
+  'manager': 100.0,
+};
+
+const kEntityTableSiteColumns = {
+  'name': 100.0,
+  'position': 100.0,
+  'kind': 80.0,
+  'development': 50.0,
   'sect': 100.0,
   'manager': 100.0,
 };

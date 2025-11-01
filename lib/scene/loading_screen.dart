@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/engine.dart';
 
-import '../engine.dart';
+import '../global.dart';
 import '../ui.dart';
 
 class LoadingScreen extends StatefulWidget {

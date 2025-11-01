@@ -3,7 +3,7 @@ import 'package:samsara/widgets/ui/label.dart';
 // import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../state/hover_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';

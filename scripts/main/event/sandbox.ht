@@ -3,24 +3,18 @@ async function onNewGame() {
   final homeSite = game.locations[hero.homeSiteId]
   final xitong = game.npcs['xitong']
 
-  final randomEquipment = random.nextIterable(Constants.equipmentCategoryKinds['weapon'])
   final itemsInfo = [
     {
-      'type': 'equipment',
-      'kind': randomEquipment,
-      'rank': hero.rank,
+      type: 'cardpack',
+      rank: hero.rank,
+      genre: hero.rank == 0 ? null : hero.cultivationFavor,
+      isBasic: hero.rank == 0,
     },
     {
-      'type': 'cardpack',
-      'category': 'attack',
-      'kind': randomEquipment,
-      'rank': hero.rank,
-      'isBasic': true,
-    },
-    {
-      'type': 'cardpack',
-      'kind': randomEquipment,
-      'rank': hero.rank,
+      type: 'cardpack',
+      rank: hero.rank,
+      genre: hero.rank == 0 ? null : hero.cultivationFavor,
+      isBasic: hero.rank == 0,
     },
   ]
   final items = createLoot(itemsInfo)
@@ -112,6 +106,7 @@ async function onAfterMove(terrain) {
         final escortType = journal.quest.escortType;
         dialog.pushDialog('quest_escort_failed_${escortType}', character: character);
         await dialog.execute()
+        Player.dismiss(character)
       }
   })
   

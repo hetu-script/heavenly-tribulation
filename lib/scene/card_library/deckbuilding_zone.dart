@@ -6,7 +6,7 @@ import 'package:samsara/samsara.dart';
 // import 'package:provider/provider.dart';
 
 import '../../ui.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import 'library_zone.dart';
 import 'common.dart';
 // import '../game_dialog/game_dialog_content.dart';

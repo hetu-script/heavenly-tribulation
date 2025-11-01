@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../data/game.dart';
-import '../engine.dart';
+import '../global.dart';
 
 class HeroState with ChangeNotifier {
   dynamic get hero => GameData.hero;

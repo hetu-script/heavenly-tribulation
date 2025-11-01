@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/label.dart';
 
 import '../ui.dart';
 import '../data/game.dart';
-import '../../engine.dart';
+import '../global.dart';
 import '../state/states.dart';
 
 /// 右上角悬浮文字面板
@@ -20,7 +21,7 @@ class _JournalPanelState extends State<JournalPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final activeJournals = context.watch<HeroJournalUpdate>().activeJournals;
+    final activeJournals = context.watch<GameState>().activeJournals;
 
     return (activeJournals.isEmpty)
         ? SizedBox.shrink()
@@ -69,9 +70,10 @@ class _JournalPanelState extends State<JournalPanel> {
                             ),
                           ),
                           const Divider(),
-                          Text(
+                          Label(
                             journal['stages'][journal['stage']],
-                            style: const TextStyle(
+                            textAlign: TextAlign.left,
+                            textStyle: const TextStyle(
                               fontSize: 16.0,
                               shadows: kTextShadow,
                             ),

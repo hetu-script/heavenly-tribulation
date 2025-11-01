@@ -100,7 +100,7 @@ function getTileDistance(start, end) {
   } else {
     result = Math.max(dx.abs(), dy.abs())
   }
-  // print('getTileDistance: ${start}, ${end}, result: ${result}')
+  // print('getTileDistance: ${start},${end}, result: ${result}')
   return result
 }
 

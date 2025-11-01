@@ -28,7 +28,7 @@ struct HeroMonthly {
     // 买入为正数，卖出为负数
     this.tradedMaterials = {}
 
-    // 玩家捐献过的门派和据点，只保存id
+    // 玩家捐献过的门派和城市，只保存id
     this.donated = []
 
     // 对其他角色操作
@@ -162,7 +162,7 @@ struct GameData {
 
     // 家族信息，家族类似于门派
     // 也有自己的家族名字，成员数据表等等
-    // 但没有自己的据点，要想拥有据点必须是一个门派
+    // 但没有自己的城市，要想拥有城市必须是一个门派
     this.families = {}
     
     this.sects = {}
@@ -258,7 +258,7 @@ function createMapComponent(componentData, left, top) {
 }
 
 function removeMapComponentByPosition(left, top) {
-  engine.info('移除显示组件，位于: [${left}, ${top}]')
+  engine.info('移除显示组件，位于: [${left},${top}]')
   world.components.removeWhere((c) => c.worldPosition.left == left && c.worldPosition.top == top)
 }
 
@@ -290,10 +290,9 @@ function setHero(id: string) {
     home.npcId = 'xitong'
   }
 
-  // 重置主角的战斗卡牌数据
-  hero.cardLibrary = {}
-  hero.battleDecks = []
-  hero.battleDeckIndex = -1
+  for (final card in hero.cardLibrary.values) {
+    card.isIdentified = true
+  }
 
   Game.updateUI()
 }

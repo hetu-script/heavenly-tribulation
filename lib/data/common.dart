@@ -217,7 +217,7 @@ const kNoiseConfigByWorldStyle = {
   'inland': (0.65, 0.42, 10, NoiseType.cubicFractal, 3),
 };
 
-/// 据点数量，门派数量和人物数量
+/// 城市数量，门派数量和人物数量
 const kEntityNumberPerWorldScale = {
   1: (24, 6, 60),
   2: (48, 12, 120),
@@ -310,6 +310,15 @@ const kAttributes = {
   'charisma',
   'wisdom',
   'luck',
+  'spirituality',
+  'dexterity',
+  'strength',
+  'willpower',
+  'perception',
+};
+
+const kVisibleAttributes = {
+  'charisma',
   'spirituality',
   'dexterity',
   'strength',
@@ -472,7 +481,7 @@ const kLocationCityKinds = {
 
 // 门派总堂，每个门派在总部的默认建筑，用来管理门派
 const kLocationKindHeadquarters = 'headquarters';
-// 据点总堂，每个城市默认建筑，用来管理据点
+// 城市总堂，每个城市默认建筑，用来管理城市
 const kLocationKindCityhall = 'cityhall';
 
 const kLocationSiteKinds = {
@@ -554,7 +563,7 @@ const kSiteDevelopmentDaysBase = 5;
 const kCityDevelopmentDaysBase = 10;
 const kSectDevelopmentDaysBase = 20;
 
-/// 所有的据点和建筑升级，每天所要消耗的基础资源
+/// 所有的城市和建筑升级，每天所要消耗的基础资源
 /// 实际消耗主要取决于开发所需要的总时间
 
 const kSiteKindsManagable = {
@@ -907,6 +916,19 @@ const kSiteKindsManagable = {
       'worker': 1,
     },
   },
+  'dungeon': {
+    'developmentCost': {
+      'money': 500,
+      'worker': 10,
+      'ore': 6,
+      'timber': 4,
+      'stone': 6,
+    },
+    'maintainanceCost': {
+      'shard': 1,
+      'worker': 5,
+    },
+  },
 };
 
 const kSiteKindsBuildable = {
@@ -939,7 +961,7 @@ const kSiteKindsTradable = {
 
 /// farmland 只会在平原地形且在城市周围出现
 /// timberland 只会在森林地形出现
-/// fishery 只会在大陆架、湖泊或者据点周围一格的水域地形出现
+/// fishery 只会在大陆架、湖泊或者城市周围一格的水域地形出现
 /// huntingground 只会在山地或森林地形出现
 /// mine 只会在山地地形出现
 const kProductionSiteKinds = {
@@ -1648,6 +1670,108 @@ const kCultivationStylePaths = {
       'track_6_25', // ---
     ],
   },
+};
+
+const kBattleCardGenreAttacks = {
+  // 怒气
+  'bodyforge': {
+    'punch',
+    'kick',
+    'qinna',
+  },
+  // 灵气、剑气
+  'swordcraft': {
+    'punch',
+    'flying_sword',
+    'dianxue',
+  },
+  // 灵气
+  'spellcraft': {
+    'punch',
+    'airbend',
+    'firebend',
+    'lightning_control',
+    // 'waterbend',
+  },
+  // 煞气
+  'vitality': {
+    'punch',
+    'power_word',
+  },
+  // 煞气、怒气
+  'avatar': {
+    'kick',
+    'sigil',
+  },
+};
+
+const kBattleCardGenreBuffs = {
+  // 怒气
+  'bodyforge': {
+    'xinfa',
+    'punch',
+    'kick',
+    'shenfa',
+    'qinggong',
+  },
+  // 灵气、剑气
+  'swordcraft': {
+    'xinfa',
+    'kick',
+    'flying_sword',
+    'shenfa',
+    'qinggong',
+  },
+  // 灵气
+  'spellcraft': {
+    'xinfa',
+    'punch',
+    'airbend',
+    'plant_control',
+    // 'waterbend',
+  },
+  // 煞气
+  'vitality': {
+    'xinfa',
+    'punch',
+    'power_word',
+    // 'music',
+  },
+  // 煞气、怒气
+  'avatar': {
+    'xinfa',
+    'kick',
+    'scripture',
+  },
+};
+
+const kBattleCardKinds = {
+  'punch',
+  'kick',
+  'qinna',
+  'dianxue',
+  'sabre',
+  'spear',
+  'sword',
+  'staff',
+  'bow',
+  'dart',
+  'flying_sword',
+  'shenfa',
+  'qinggong',
+  'xinfa',
+  'airbend',
+  'firebend',
+  // 'waterbend',
+  'lightning_control',
+  'earthbend',
+  'plant_control',
+  'sigil',
+  'power_word',
+  'scripture',
+  // 'music',
+  // 'array',
+  // 'illusion',
 };
 
 const kItemEquipmentCategories = {

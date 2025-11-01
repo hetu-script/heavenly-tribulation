@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/widgets/ui/label.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import 'edit_location_basics.dart';
@@ -64,7 +64,7 @@ class _SiteViewState extends State<SiteView>
     super.initState();
 
     assert(widget.site != null || widget.siteId != null,
-        'LocationView must have either sectId or sect data.');
+        'SiteView must have either siteId or site data.');
     if (widget.site != null) {
       _site = widget.site!;
     } else if (widget.siteId != null) {
@@ -77,7 +77,7 @@ class _SiteViewState extends State<SiteView>
     // 这里的 manager 可能是 null
     _manager = GameData.game['characters'][managerId];
 
-    _atLocation = GameData.game['locations'][_site['atLocationId']];
+    _atLocation = GameData.game['locations'][_site['atCityId']];
 
     _updateDevelopmentStatus();
   }
@@ -116,7 +116,8 @@ class _SiteViewState extends State<SiteView>
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit) {
+    if (widget.mode == InformationViewMode.edit ||
+        widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
       engine.context.read<ViewPanelState>().toogle(ViewPanels.siteInformation);
@@ -125,6 +126,13 @@ class _SiteViewState extends State<SiteView>
 
   @override
   Widget build(BuildContext context) {
+    String sectName = engine.locale('none');
+    final sectId = _site['sectId'];
+    if (sectId != null) {
+      final sectData = GameData.getSect(sectId);
+      sectName = sectData['name'];
+    }
+
     final mainPanel = Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
@@ -141,6 +149,17 @@ class _SiteViewState extends State<SiteView>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 120.0,
+                          height: 30.0,
+                          child: Text('${engine.locale('ownedBySect')}:'),
+                        ),
+                        Text(sectName),
+                      ],
+                    ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -355,22 +374,23 @@ class _SiteViewState extends State<SiteView>
                             },
                           ),
                           const Spacer(),
-                          fluent.Button(
-                            onPressed: () async {
-                              await engine.hetu.invoke('collectAll',
-                                  namespace: 'Player',
-                                  positionalArgs: [
-                                    GameData.hero,
-                                    _site['storage'],
-                                  ]);
-                              _site['storage'].clear();
-                              setState(() {});
-                            },
-                            child: Text(
-                              engine.locale('takeAll'),
-                              style: TextStyles.bodySmall,
+                          if (isManageMode)
+                            fluent.Button(
+                              onPressed: () async {
+                                await engine.hetu.invoke('collectAll',
+                                    namespace: 'Player',
+                                    positionalArgs: [
+                                      GameData.hero,
+                                      _site['storage'],
+                                    ]);
+                                _site['storage'].clear();
+                                setState(() {});
+                              },
+                              child: Text(
+                                engine.locale('takeAll'),
+                                style: TextStyles.bodySmall,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -402,7 +422,7 @@ class _SiteViewState extends State<SiteView>
                           name: _site['name'],
                           image: _site['image'],
                           background: _site['background'],
-                          atLocation: _atLocation,
+                          atCity: _atLocation,
                           npcId: _site['npcId'],
                           allowEditCategory: false,
                         ),
@@ -430,10 +450,10 @@ class _SiteViewState extends State<SiteView>
                         GameData.game['locations'][id] = _site;
 
                         if (_site['category'] == 'site') {
-                          final atLocation =
-                              GameData.getLocation(_site['atLocationId']);
-                          atLocation['siteIds'].remove(oldId);
-                          atLocation['siteIds'].add(id);
+                          final atCity =
+                              GameData.getLocation(_site['atCityId']);
+                          atCity['siteIds'].remove(oldId);
+                          atCity['siteIds'].add(id);
                         }
                         _site['id'] = id;
                       }

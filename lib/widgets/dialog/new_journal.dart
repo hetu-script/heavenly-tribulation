@@ -6,7 +6,7 @@ import 'package:samsara/richtext.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../state/new_prompt.dart';
 import '../ui/responsive_view.dart';
 
@@ -49,7 +49,7 @@ class NewJournal extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Label(
                   journal['stages'][index],
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                   textStyle: journal['stage'] > index
                       ? TextStyles.bodySmall.copyWith(color: Colors.grey)
                       : TextStyles.bodySmall.copyWith(color: Colors.yellow),

@@ -4,7 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'bonds.dart';
 import 'history.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';

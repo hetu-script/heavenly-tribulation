@@ -6,7 +6,7 @@ import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../state/game_save.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/common.dart';
 import '../../ui.dart';
 import '../../widgets/ui/responsive_view.dart';

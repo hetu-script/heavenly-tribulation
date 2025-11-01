@@ -17,7 +17,7 @@ import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
 
 import '../particles/light_point.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
@@ -1248,7 +1248,7 @@ class CultivationScene extends Scene with HasCursorState {
             initialActiveOverlays: initialActiveOverlays,
           ),
           GameUIOverlay(
-            enableHeroInfo: !isEditorMode,
+            showHero: !isEditorMode,
             showNpcs: false,
             enableCultivation: false,
             actions: [

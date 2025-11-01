@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 import '../../state/view_panels.dart';
 import '../ui/close_button2.dart';

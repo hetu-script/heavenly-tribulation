@@ -3,7 +3,7 @@ import 'package:samsara/widgets/ui/rrect_icon.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../../ui.dart';
-import '../../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 // import 'character/profile.dart';
 
@@ -26,9 +26,9 @@ class Avatar extends StatelessWidget {
     this.borderImage,
     this.showPlaceholder = false,
     this.showBorderImage = false,
-    this.color = GameUI.foregroundColor,
+    this.color = GameUI.backgroundColor,
     this.size = const Size(100.0, 100.0),
-    this.radius = const Radius.circular(15.0),
+    this.radius = const Radius.circular(10.0),
     this.borderColor = GameUI.borderColor,
     this.borderWidth = 2.0,
     this.characterId,

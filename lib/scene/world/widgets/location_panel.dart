@@ -4,7 +4,7 @@ import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../../../data/game.dart';
 import '../../../ui.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../state/selected_tile.dart';
 import '../../../state/hover_content.dart';
 
@@ -33,16 +33,18 @@ class LocationPanel extends StatelessWidget {
         currentLocation,
         currentDungeon;
     if (isEditorMode) {
-      currentZone = context.watch<SelectedPositionState>().currentZone;
-      currentNation = context.watch<SelectedPositionState>().currentNation;
-      currentTerrain = context.watch<SelectedPositionState>().currentTerrain;
-      currentLocation = context.watch<SelectedPositionState>().currentLocation;
+      currentZone = context.watch<WorldMapSelectedTileState>().currentZone;
+      currentNation = context.watch<WorldMapSelectedTileState>().currentNation;
+      currentTerrain =
+          context.watch<WorldMapSelectedTileState>().currentTerrain;
+      currentLocation =
+          context.watch<WorldMapSelectedTileState>().currentLocation;
     } else {
-      currentZone = context.watch<HeroPositionState>().currentZone;
-      currentNation = context.watch<HeroPositionState>().currentNation;
-      currentTerrain = context.watch<HeroPositionState>().currentTerrain;
-      currentLocation = context.watch<HeroPositionState>().currentLocation;
-      currentDungeon = context.watch<HeroPositionState>().currentDungeon;
+      currentZone = gameState.currentZone;
+      currentNation = gameState.currentNation;
+      currentTerrain = gameState.currentTerrain;
+      currentLocation = gameState.currentLocation;
+      currentDungeon = gameState.currentDungeon;
     }
 
     final positionDetails = StringBuffer();
@@ -71,35 +73,40 @@ class LocationPanel extends StatelessWidget {
             '${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
       }
     } else if (currentLocation != null) {
-      dynamic manager;
-      // dynamic sect;
-      final managerId = currentLocation['managerId'];
-      // 这里 manager 可能是 null
-      manager = GameData.game['characters'][managerId];
-      // final sectId = currentLocation['sectId'];
-      // sect = GameData.gameData['sects'][sectId];
-
+      String managerId = currentLocation['managerId'];
+      dynamic manager = GameData.game['characters'][managerId];
       String title;
+      int development = currentLocation['development'];
       if (currentLocation['category'] == 'city') {
         title = engine.locale('mayor');
       } else {
         final kind = currentLocation['kind'];
         if (kind == 'headquarters') {
           title = engine.locale('head');
+          final sectId = currentLocation['sectId'];
+          final sect = GameData.getSect(sectId);
+          managerId = sect['headId'];
+          manager = GameData.game['characters'][managerId];
         } else if (kind == 'cityhall') {
           title = engine.locale('mayor');
-        } else if (kind == 'home') {
-          title = engine.locale('homeOwner');
+          final atCityId = currentLocation['atCityId'];
+          final atCity = GameData.getLocation(atCityId);
+          managerId = atCity['managerId'];
+          manager = GameData.getCharacter(managerId);
+          development = atCity['development'];
         } else {
-          title = engine.locale('manager');
+          if (kind == 'home') {
+            title = engine.locale('homeOwner');
+          } else {
+            title = engine.locale('manager');
+          }
         }
       }
 
       positionDetails.writeln(currentLocation['name']);
       positionDetails
           .writeln('$title ${manager?['name'] ?? engine.locale('none')}');
-      positionDetails.writeln(
-          '${engine.locale('development')}: ${currentLocation['development']}');
+      positionDetails.writeln('${engine.locale('development')}: $development');
     } else {
       if (currentZone != null) {
         positionDetails.writeln('${currentZone!['name']}');
@@ -115,7 +122,7 @@ class LocationPanel extends StatelessWidget {
               '${engine.locale('spriteIndex')}: ${engine.locale(kSpriteIndexCategory[currentTerrain.data?['spriteIndex']])} ');
         }
         positionDetails
-            .writeln('[${currentTerrain.left}, ${currentTerrain.top}]');
+            .writeln('[${currentTerrain.left},${currentTerrain.top}]');
       }
     }
 

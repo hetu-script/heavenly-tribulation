@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../common.dart';
 import 'edit_sect_basic.dart';
@@ -86,7 +86,8 @@ class _SectViewState extends State<SectView> {
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit) {
+    if (widget.mode == InformationViewMode.edit ||
+        widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
       engine.context.read<ViewPanelState>().toogle(ViewPanels.sectInformation);

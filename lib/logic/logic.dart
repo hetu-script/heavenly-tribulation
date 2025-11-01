@@ -8,7 +8,7 @@ import 'package:hetu_script/utils/collection.dart' as utils;
 
 import '../data/common.dart';
 import '../data/game.dart';
-import '../engine.dart';
+import '../global.dart';
 import '../scene/common.dart';
 import '../state/states.dart';
 import '../scene/game_dialog/game_dialog_content.dart';
@@ -24,7 +24,7 @@ part 'character.dart';
 part 'location.dart';
 part 'sect.dart';
 
-// 为据点分配领地时候的最大循环数
+// 为城市分配领地时候的最大循环数
 const _kMaxCityTerritorySize = 100;
 
 const _kLandCityTerritoryTerrainKinds = {
@@ -43,7 +43,7 @@ const _kGameFlagsUpdateDay = 1;
 const _kSectUpdateDay = 6;
 
 // 获得门派奖赏的每月最低贡献值
-const _kSectExpectedMonthlyContribution = 15;
+const _kSectExpectedMonthlyContribution = 16;
 
 final class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -86,7 +86,7 @@ final class GameLogic {
           location['category'] == 'city' && location['worldId'] == world['id'],
     );
 
-    // 给据点添加一个控制的地块作为领地
+    // 给城市添加一个控制的地块作为领地
     // 只能添加边界地块
     void addTileToCityTerritory(dynamic city, int tileIndex, Set terrainKinds) {
       assert(terrainKinds.isNotEmpty);
@@ -134,7 +134,7 @@ final class GameLogic {
         final List borderIndexes = city['borderIndexes'];
         if (borderIndexes.isEmpty) {
           if (territoryIndexes.isEmpty) {
-            // 据点没有任何领地，以据点本身的地块开始
+            // 城市没有任何领地，以城市本身的地块开始
             addTileToCityTerritory(city, cityIndex, terrainKinds);
           }
         } else {
@@ -160,7 +160,7 @@ final class GameLogic {
       }
     }
 
-    // 检查被完全围起来的地块，将其划归给邻近的据点
+    // 检查被完全围起来的地块，将其划归给邻近的城市
     final unoccupiedTiles = world['terrains'].where(
       (tile) => tile['cityId'] == null,
     );
@@ -195,7 +195,7 @@ final class GameLogic {
       }
     }
 
-    engine.info('生成了 ${cities.length} 个据点的领地范围。');
+    engine.info('生成了 ${cities.length} 个城市的领地范围。');
   }
 
   static int generateZone(dynamic world) {
@@ -287,9 +287,9 @@ final class GameLogic {
     return n;
   }
 
-  /// 计算某个据点规模对应的可修建建筑数量
-  /// 据点本身自带的会堂、交易所和总部，不包含在这个数量中，需要另外加上
-  static int maxSiteCountForCity(dynamic city) {
+  /// 计算某个城市规模对应的可修建建筑数量
+  /// 城市本身自带的会堂、交易所和总部，不包含在这个数量中，需要另外加上
+  static int calculateMaxSiteCountForCity(dynamic city) {
     final int development = city['development'];
     final bool isCapitalCity = city['isCapitalCity'] == true;
     return isCapitalCity ? development * 2 + 4 : development * 2 + 3;
@@ -439,13 +439,32 @@ final class GameLogic {
         }
       }
     }
-    final String? equipmentRequirement = entityData['equipment'];
+    final equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
-      if (GameData.hero['passives']['equipment_$equipmentRequirement'] ==
-          null) {
-        requirementsMet = false;
-        description.writeln(
-            '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
+      if (equipmentRequirement is List) {
+        bool hasAnyEquipment = false;
+        for (final req in equipmentRequirement) {
+          assert(req is String,
+              'Invalid equipment requirement on card data: [$req]');
+          if (GameData.hero['passives']['equipment_$req'] != null) {
+            hasAnyEquipment = true;
+            break;
+          }
+        }
+        if (!hasAnyEquipment) {
+          requirementsMet = false;
+          description.writeln(
+              '<red>${engine.locale('equipment_requirement')}: ${equipmentRequirement.map((r) => engine.locale(r)).join(',')}</>');
+        }
+      } else {
+        assert(equipmentRequirement is String,
+            'Invalid equipment requirement on card data: [$equipmentRequirement]');
+        if (GameData.hero['passives']['equipment_$equipmentRequirement'] ==
+            null) {
+          requirementsMet = false;
+          description.writeln(
+              '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
+        }
       }
     }
     final attributeRequirement = entityData['requirement'];
@@ -592,7 +611,7 @@ final class GameLogic {
           level = maxLevel;
           affixCount = maxExtra;
         default:
-          throw ('estimatePrice range should be `cheap`, `normal`, or `expensive`: $range');
+          throw ('estimatedPrice range should be `cheap`, `normal`, or `expensive`: $range');
       }
       price = (rank * rank + 1) *
           (level + 1) *
@@ -619,6 +638,9 @@ final class GameLogic {
   }) {
     final inventoryData = character['inventory'];
 
+    final int? minRank = filter?['minRank'];
+    final int? maxRank = filter?['maxRank'];
+    final int? rank = filter?['rank'];
     final String? category = filter?['category'];
     final String? kind = filter?['kind'];
     final String? id = filter?['id'];
@@ -629,31 +651,35 @@ final class GameLogic {
       if (itemData['equippedPosition'] != null) {
         continue;
       }
-      if (category != null && category != itemData['category']) {
+      if (rank != null && itemData['rank'] != rank) {
         continue;
       }
-      if (kind != null && kind != itemData['kind']) {
+      if (minRank != null && itemData['rank'] < minRank) {
         continue;
       }
-      if (id != null && id != itemData['id']) {
+      if (maxRank != null && itemData['rank'] > maxRank) {
+        continue;
+      }
+      if (category != null && itemData['category'] != category) {
+        continue;
+      }
+      if (kind != null && itemData['kind'] != kind) {
+        continue;
+      }
+      if (id != null && itemData['id'] != id) {
         continue;
       }
       if (isIdentified != null && isIdentified != itemData['isIdentified']) {
         continue;
       }
       if (type == ItemType.customer) {
+        if (kUntradableItemKinds.contains(itemData['kind'])) continue;
         if (itemData['isUntradable'] == true) continue;
-        if (kUntradableItemKinds.contains(itemData['kind'])) {
-          continue;
-        }
       }
       if (type == ItemType.merchant) {
-        if (kUntradableItemKinds.contains(itemData['kind'])) {
-          continue;
-        }
-        if (filterShard && itemData['kind'] == 'shard') {
-          continue;
-        }
+        if (kUntradableItemKinds.contains(itemData['kind'])) continue;
+        if (itemData['isUntradable'] == true) continue;
+        if (filterShard && itemData['kind'] == 'shard') continue;
       }
 
       filteredItems.add(itemData);
@@ -767,7 +793,7 @@ final class GameLogic {
   }
 
   static void characterAllocateSkills(dynamic character,
-      {bool rejuvenate = false}) {
+      {bool rejuvenate = true}) {
     final genre = character['cultivationFavor'];
     final style = character['cultivationStyle'];
     final int rank = character['rank'];
@@ -775,7 +801,7 @@ final class GameLogic {
 
     final List<String>? rankPath = kCultivationRankPaths[genre];
     final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
-    assert(rankPath != null, 'genre: genre');
+    assert(rankPath != null, 'genre: $genre');
     assert(stylePath != null, 'genre: $genre, style: $style');
 
     int count = 0;
@@ -852,7 +878,7 @@ final class GameLogic {
     return rate;
   }
 
-  static Future<String?> selectWorld() async {
+  static Future<String?> selectWorldId() async {
     return showDialog(
       context: engine.context,
       builder: (context) => SelectMenuDialog(
@@ -862,35 +888,70 @@ final class GameLogic {
     );
   }
 
-  static Future<String?> selectCharacter([List? ids]) async {
+  static Future<String?> selectCharacter({
+    Iterable? ids,
+    Iterable? datas,
+    bool confirmationOnSelect = true,
+  }) async {
     return showDialog(
       context: engine.context,
       builder: (context) => InformationView(
         showCloseButton: false,
         mode: InformationMode.selectCharacter,
-        characters: ids,
+        confirmationOnSelect: confirmationOnSelect,
+        characterIds: ids,
+        characters: datas,
       ),
     );
   }
 
-  static Future<String?> selectLocation([List? ids]) async {
+  static Future<String?> selectLocation({
+    Iterable? ids,
+    Iterable? datas,
+    bool confirmationOnSelect = true,
+  }) async {
     return showDialog(
       context: engine.context,
       builder: (context) => InformationView(
         showCloseButton: false,
-        mode: InformationMode.selectLocation,
+        mode: InformationMode.selectCity,
+        confirmationOnSelect: confirmationOnSelect,
         locationIds: ids,
+        locations: datas,
       ),
     );
   }
 
-  static Future<String?> selectSect([List? ids]) async {
+  static Future<String?> selectSite({
+    Iterable? ids,
+    Iterable? datas,
+    bool confirmationOnSelect = true,
+  }) async {
+    return showDialog(
+      context: engine.context,
+      builder: (context) => InformationView(
+        showCloseButton: false,
+        mode: InformationMode.selectSite,
+        confirmationOnSelect: confirmationOnSelect,
+        locationIds: ids,
+        locations: datas,
+      ),
+    );
+  }
+
+  static Future<String?> selectSect({
+    Iterable? ids,
+    Iterable? datas,
+    bool confirmationOnSelect = true,
+  }) async {
     return showDialog(
       context: engine.context,
       builder: (context) => InformationView(
         showCloseButton: false,
         mode: InformationMode.selectSect,
+        confirmationOnSelect: confirmationOnSelect,
         sectIds: ids,
+        sects: datas,
       ),
     );
   }
@@ -1270,7 +1331,7 @@ final class GameLogic {
       );
       await dialog.execute();
       final npcs = GameData.getNpcsAtLocation(location);
-      engine.context.read<NpcListState>().update(npcs);
+      gameState.updateNpcs(npcs);
     } else {
       await GameLogic.promptJournal(journal);
     }
@@ -1309,9 +1370,7 @@ final class GameLogic {
 
     final int tik = DateTime.now().millisecondsSinceEpoch;
     if (updateUI) {
-      engine.context
-          .read<GameTimestampState>()
-          .update(timestamp: timestamp, datetimeString: after);
+      gameState.updateDatetime(timestamp: timestamp, datetimeString: after);
     }
     if (time == 1) {
       engine.debug(
@@ -1332,7 +1391,9 @@ final class GameLogic {
         // 角色事件每个角色不同，会随机分配在某一天
         // 这是为了减缓同时更新大量角色的压力
         if ((time == 1 && day == character['updateDay']) || force) {
-          _updateCharacterMonthly(character);
+          if (character['flags']['updated'] != true || force) {
+            _updateCharacterMonthly(character);
+          }
         }
       }
       // 每个建筑每月会根据其属性而消耗维持费用和获得收入
@@ -1347,7 +1408,9 @@ final class GameLogic {
         }
         // 场景每月重置
         if ((time == 1 && day == location['updateDay']) || force) {
-          _updateLocationMonthly(location);
+          if (location['flags']['monthly']['updated'] != true || force) {
+            _updateLocationMonthly(location);
+          }
         }
         // 场景每日维护
         if ((time == 1) || force) {
@@ -1360,7 +1423,9 @@ final class GameLogic {
         if (sect['headId'] == GameData.hero?['id']) continue;
         // 组织每月 6 日刷新
         if ((time == 1 && day == _kSectUpdateDay) || force) {
-          _updateSectMonthly(sect);
+          if (sect['flags']['monthly']['updated'] != true || force) {
+            _updateSectMonthly(sect);
+          }
         }
       }
     }

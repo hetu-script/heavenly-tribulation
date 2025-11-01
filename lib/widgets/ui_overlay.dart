@@ -8,7 +8,7 @@ import 'package:samsara/markdown_wiki.dart';
 import 'ui/avatar.dart';
 import 'character/profile.dart';
 import 'character/memory_and_bond.dart';
-import '../engine.dart';
+import '../global.dart';
 import 'character/journal.dart';
 import '../ui.dart';
 import 'hover_info.dart';
@@ -53,19 +53,19 @@ const tickName = {
 class GameUIOverlay extends StatefulWidget {
   const GameUIOverlay({
     super.key,
-    this.enableHeroInfo = true,
     this.enableLibrary = true,
     this.enableCultivation = true,
+    this.showHero = true,
     this.showNpcs = false,
-    this.showActiveJournal = false,
+    this.showJournal = false,
     this.actions,
   });
 
-  final bool enableHeroInfo;
-  final bool showNpcs;
   final bool enableLibrary;
   final bool enableCultivation;
-  final bool showActiveJournal;
+  final bool showHero;
+  final bool showNpcs;
+  final bool showJournal;
   final List<Widget>? actions;
 
   @override
@@ -82,6 +82,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final isUIVisible = context.watch<GameState>().isUIVisible;
+    if (!isUIVisible) {
+      return SizedBox.shrink();
+    }
+
     final screenSize = MediaQuery.sizeOf(context);
 
     // final bool autoCultivate = widget.enableAutoExhaust &&
@@ -91,9 +96,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     // final hero = context.watch<HeroState>().hero;
     final hero = context.watch<HeroState>().hero;
-    final showHeroInfo = widget.enableHeroInfo &&
-        hero != null &&
-        context.watch<HeroInfoVisibilityState>().isVisible;
+    final showHero = widget.showHero && hero != null;
 
     // final money = (hero?['materials']['money'] ?? 0).toString();
     // final shard = (hero?['materials']['shard'] ?? 0).toString();
@@ -156,7 +159,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
-    GameData.isInteractable = visiblePanels.isEmpty;
+    gameState.isInteractable = visiblePanels.isEmpty;
+
     final panelPositions =
         context.watch<ViewPanelPositionState>().panelPositions;
     final List<Widget> panels = [];
@@ -297,7 +301,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         height: screenSize.height,
         child: Stack(
           children: [
-            if (showHeroInfo)
+            if (showHero)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -628,12 +632,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                           ],
                         ),
                       ),
-                      HistoryPanel(width: 400, height: 80),
+                      HistoryPanel(width: 550, height: 80),
                     ],
                   ),
                 ],
               ),
-            if (showHeroInfo && widget.showActiveJournal)
+            if (showHero && widget.showJournal)
               Positioned(top: 30.0, right: 0, child: JournalPanel()),
             if (widget.actions != null)
               Positioned(
@@ -645,8 +649,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               ),
             if (widget.showNpcs)
               const Positioned(
-                left: 10,
-                top: 105,
+                left: 5,
+                top: 100,
                 child: NpcList(),
               ),
             if (enemyData != null && showPrebattle)

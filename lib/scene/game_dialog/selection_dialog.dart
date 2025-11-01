@@ -5,7 +5,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
 import '../../state/game_dialog.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../state/hover_content.dart';
 
 class SelectionDialog extends StatefulWidget {

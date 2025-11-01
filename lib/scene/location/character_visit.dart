@@ -3,7 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../widgets/ui/close_button2.dart';
@@ -139,7 +139,7 @@ class CharacterVisitDialog extends StatelessWidget {
           columns: _kCharacterVisitTableColumns
               .map((title) => DataColumn2(
                     label: fluent.Button(
-                      style: FluentButtonStyles.column,
+                      style: FluentButtonStyles.flat,
                       onPressed: () {},
                       child: Text(
                         engine.locale(title),

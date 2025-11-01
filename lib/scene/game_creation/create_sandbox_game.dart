@@ -9,7 +9,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:fast_noise/fast_noise.dart';
 import 'package:hetu_script/utils/crc32b.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/common.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/ui/close_button2.dart';

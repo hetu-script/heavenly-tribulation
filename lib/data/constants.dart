@@ -149,6 +149,12 @@ class Constants extends HTExternalClass {
         return kTerrainKindsMountain;
       case 'Constants.terrainKindsAll':
         return kTerrainKindsAll;
+      case 'Constants.battleCardGenreAttacks':
+        return kBattleCardGenreAttacks;
+      case 'Constants.battleCardGenreBuffs':
+        return kBattleCardGenreBuffs;
+      case 'Constants.battleCardKinds':
+        return kBattleCardKinds;
       case 'Constants.titleToJobRank':
         return kTitleToJobRank;
       case 'Constants.cultivationRankToTitle':

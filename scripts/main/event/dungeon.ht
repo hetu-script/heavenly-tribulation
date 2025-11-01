@@ -296,7 +296,7 @@ function _addRandomMerchant() {
 
 function _addPortalByKind(id, kind, tilePosition) {
   let hoverContent
-  engine.info('添加传送门，类别：${kind} 位置：(${tilePosition.left}, ${tilePosition.top})')
+  engine.info('添加传送门，类别：${kind} 位置：(${tilePosition.left},${tilePosition.top})')
   hoverContent = engine.locale('dungeon_${kind}_description')
   addPortal(
     tilePosition,
@@ -454,8 +454,8 @@ function _prepareMap() {
         )
       }
       3, 5, 9, 11: {
-        switch (game.flags.dungeon.selectedPortal) {
-          'portal1': {
+        switch (game.flags.dungeon.selectedPortalKind) {
+          'enemy': {
             addEnemy(
               _kCenterTile,
               name: engine.locale('dungeonGuard'),
@@ -465,11 +465,11 @@ function _prepareMap() {
               rank: game.flags.dungeon.rank,
             )
           }
-          'portal2': {
+          'merchant': {
             _addPortalByNextRoomType(nextRoomType)
             _addRandomMerchant()
           }
-          'portal3': {
+          'encounter': {
             _addPortalByNextRoomType(nextRoomType)
             final encounterKind = random.nextIterable(_kEncounterKinds)
             switch (encounterKind) {
@@ -530,6 +530,7 @@ async function onEnterMap() {
   if (game.flags.dungeon.battleResult == true) {
     final reward = createReward(
       entity: game.flags.dungeon.battleEntity,
+      isIdentified: game.flags.dungeon.rank < 1,
       details: {
         exp: {
           chance: kRewardProbabilityExppack,
@@ -580,12 +581,13 @@ async function onEnterMap() {
     game.flags.dungeon.battleResult = null
     game.flags.dungeon.battleEntity = null
   } else if (!game.flags.dungeon.buildCompleted) {
+    Game.setUIVisible(false)
     dialog.pushBackground('black.png')
     dialog.pushTask(() {
       _prepareMap()
       World.lightUpAllTiles()
       Player.setTo(_kStartTile.left, _kStartTile.top, worldId: world.id, direction: 'north')
-      Game.showHeroInfo()
+      Game.setUIVisible(true)
     })
     dialog.popBackground(isFadeOut: true)
     await dialog.execute()

@@ -16,7 +16,7 @@ async function onNewGame() {
   // if (hero.journals.mysticGirl.stage == 3) {
   //   dialog.pushBackground('black.png')
   //   dialog.pushTask(() {
-  //     Game.showHeroInfo()
+  //   Game.setUIVisible(true)
   //     Player.setTo(74, 16, worldId: 'heavenly_prison', direction: 'south')
   //     hero.life = 1
   //   })

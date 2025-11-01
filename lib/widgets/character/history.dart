@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../common.dart';
 import '../history_list.dart';
 

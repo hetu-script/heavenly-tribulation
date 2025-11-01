@@ -812,9 +812,9 @@
     priority: 3879,
   },
 
-  dart_and_poison_deal_pure_damage: {
-    id: "dart_and_poison_deal_pure_damage",
-    description: "passive_dart_and_poison_deal_pure_damage_description",
+  dart_and_bow_attack_deal_pure_damage: {
+    id: "dart_and_bow_attack_deal_pure_damage",
+    description: "passive_dart_and_bow_attack_deal_pure_damage_description",
     priority: 3869,
   },
   curse_deal_pure_damage: {

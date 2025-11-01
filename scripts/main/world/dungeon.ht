@@ -81,6 +81,8 @@ function resetMapTerrains() {
     tile.objectId = null
     World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
   }
+
+  World.clearMapComponents()
 }
 
 function addOverlaySprite(tilePosition, overlaySprite) {

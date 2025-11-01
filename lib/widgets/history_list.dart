@@ -4,8 +4,8 @@ import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../ui.dart';
 import 'common.dart';
-import '../state/game_update.dart';
 import '../data/game.dart';
+import '../state/game_state.dart';
 
 class HistoryList extends StatefulWidget {
   const HistoryList({
@@ -140,7 +140,7 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
 
   @override
   Widget build(BuildContext context) {
-    final incidents = context.watch<HeroAndGlobalHistoryState>().incidents;
+    final incidents = context.watch<GameState>().incidents;
     Iterable slice;
     if (incidents.length > widget.limit) {
       slice = incidents.skip(incidents.length - widget.limit);

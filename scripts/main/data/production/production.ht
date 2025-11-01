@@ -3,7 +3,7 @@
 /// 当progress达到100时，任务完成
 struct TaskLine {
   constructor ({
-    atLocation,
+    atCity,
     itemId,
     target,
     amount,

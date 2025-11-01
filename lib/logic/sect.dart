@@ -1,15 +1,20 @@
 part of 'logic.dart';
 
+const _kManagingTitles = {'manager', 'mayor', 'governor'};
+
 /// 组织月度更新
-void _updateSectMonthly(dynamic sect) {
+void _updateSectMonthly(dynamic sect, {bool force = false}) {
   // engine.debug('${sect['id']} 的月度更新');
 
   engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
+  if (force) {
+    sect['flags']['monthly']['updated'] = true;
+  }
 }
 
 // 每个月 5 日前，门派成员需要前往指定场景开会。
-// 对于总管或以下的职位，需要前往自己所属的据点的会堂场景。
-// 对于堂主或以上的职位，需要前往门派总堂所在据点的门派场景。
+// 对于总管或以下的职位，需要前往自己所属的城市的会堂场景。
+// 对于堂主或以上的职位，需要前往门派总堂所在城市的门派场景。
 // 门派每月例会分为 7 个部分：
 // 1，事件通报：新的联盟和敌对关系、新门派建立。
 // 2，仪式庆典：新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
@@ -23,14 +28,19 @@ void _updateSectMonthly(dynamic sect) {
 // NPC 角色的数值变化另外由 updateSectMonthly 处理。
 Future<void> _showMeeting(
     dynamic sect, dynamic location, dynamic superior) async {
-  final heroMemberData = sect['membersData'][GameData.hero['id']];
+  final heroId = GameData.hero['id'];
+  final heroMemberData = sect['membersData'][heroId];
   final heroJobRank = heroMemberData['rank'];
 
+  engine.hetu.invoke('characterMet', positionalArgs: [
+    superior,
+    GameData.hero,
+  ]);
   final people = [superior];
   final membersAtLocationData = sect['membersData']
       .values
       .where((data) {
-        return data['id'] != GameData.hero['id'] &&
+        return data['id'] != heroId &&
             data['id'] != superior['id'] &&
             data['superiorId'] == superior['id'];
       })
@@ -68,9 +78,9 @@ Future<void> _showMeeting(
 
   // 仪式庆典：新成员加入
   final List recruitedThisMonthIds = sectMonthly['recruited'] ?? [];
-  bool recruitedHero = recruitedThisMonthIds.contains(GameData.hero['id']);
+  bool recruitedHero = recruitedThisMonthIds.contains(heroId);
   if (recruitedHero) {
-    recruitedThisMonthIds.remove(GameData.hero['id']);
+    recruitedThisMonthIds.remove(heroId);
   }
   List recruitedThisMonth = recruitedThisMonthIds
       .where((id) {
@@ -129,7 +139,7 @@ Future<void> _showMeeting(
   // 上月总结
   final initiationQuest = GameData.hero['journals']['sectInitiation'];
 
-  if (initiationQuest['stage'] == 1) {
+  if (initiationQuest?['stage'] == 1) {
     // 玩家第一次参加门派会议，跳过总结环节
     engine.hetu.invoke('progressJournalById',
         namespace: 'Player', positionalArgs: ['sectInitiation']);
@@ -139,8 +149,7 @@ Future<void> _showMeeting(
     dialog.pushDialog('sect_meeting_monthlySummary', character: superior);
     await dialog.execute();
 
-    final heroContributionLastMonth =
-        contributionsLastMonth[GameData.hero['id']] ?? 0;
+    final heroContributionLastMonth = contributionsLastMonth[heroId] ?? 0;
 
     if (heroContributionLastMonth >= _kSectExpectedMonthlyContribution) {
       dialog.pushDialog(
@@ -151,6 +160,7 @@ Future<void> _showMeeting(
       await dialog.execute();
 
       final reward = engine.hetu.invoke('createReward', namedArgs: {
+        'genre': sect['genre'],
         'details': {
           'craftMaterial': {
             'amount': heroJobRank * (heroJobRank + 1) + 1,
@@ -169,21 +179,6 @@ Future<void> _showMeeting(
         interpolations: [GameData.hero['name']],
       );
       await dialog.execute();
-    }
-
-    final newTitleId = engine.hetu.invoke('checkCharacterTitle',
-        positionalArgs: [GameData.hero], namedArgs: {'setAsManager': true});
-    if (newTitleId != null) {
-      dialog.pushDialog('sect_meeting_monthlySummary_promotion',
-          character: superior,
-          interpolations: [
-            GameData.hero['name'],
-            engine.locale(newTitleId),
-          ]);
-      await dialog.execute();
-      engine.hetu.invoke('setCharacterTitle',
-          positionalArgs: [GameData.hero, newTitleId],
-          namedArgs: {'sect': sect});
     }
   }
 
@@ -205,8 +200,95 @@ Future<void> _showMeeting(
 
   await GameLogic.heroAcquireQuest(quest, location, sect);
 
+  final newTitleId = engine.hetu.invoke('checkCharacterTitle',
+      positionalArgs: [GameData.hero], namedArgs: {'setAsManager': true});
+  if (newTitleId != null) {
+    dialog.pushDialog('sect_meeting_monthlySummary_promotion',
+        character: superior,
+        interpolations: [
+          GameData.hero['name'],
+          engine.locale(newTitleId),
+        ]);
+    await dialog.execute();
+    engine.hetu.invoke(
+      'setCharacterTitle',
+      positionalArgs: [GameData.hero, newTitleId],
+      namedArgs: {
+        'sect': sect,
+        'autoManagningSite': false,
+      },
+    );
+    if (_kManagingTitles.contains(newTitleId)) {
+      switch (newTitleId) {
+        case 'manager':
+          dialog.pushDialog('sect_promotion_manager', character: superior);
+          await dialog.execute();
+          final sites = (sect['locationIds'] as Iterable)
+              .map((id) => GameData.getLocation(id))
+              .where(
+                (loc) =>
+                    loc['category'] == 'site' &&
+                    kSiteKindsManagable.containsKey(loc['kind']) &&
+                    loc['kind'] != kLocationKindHeadquarters &&
+                    loc['kind'] != kLocationKindCityhall &&
+                    loc['managerId'] == null,
+              );
+          assert(sites.isNotEmpty);
+          final managingSiteId = await GameLogic.selectLocation(datas: sites);
+          final managingSite = GameData.getLocation(managingSiteId);
+          managingSite['managerId'] = heroId;
+          if (!GameData.hero['managingLocationIds']
+              .contains(managingSite['id'])) {
+            GameData.hero['managingLocationIds'].add(managingSite['id']);
+          }
+        case 'mayor':
+          dialog.pushDialog('sect_promotion_mayor', character: superior);
+          await dialog.execute();
+          final cities = (sect['locationIds'] as Iterable)
+              .map((id) => GameData.getLocation(id))
+              .where((loc) =>
+                  loc['category'] == 'city' && loc['managerId'] == null);
+          assert(cities.isNotEmpty);
+          final managingCityId = await GameLogic.selectLocation(datas: cities);
+          final managingCity = GameData.getLocation(managingCityId);
+          managingCity['managerId'] = heroId;
+          GameData.hero['managingLocationIds'].clear();
+          GameData.hero['managingLocationIds'].add(managingCity['id']);
+          engine.hetu.invoke('setCharacterHome',
+              positionalArgs: [GameData.hero, managingCity]);
+        case 'governor':
+          dialog.pushDialog('sect_promotion_governor', character: superior);
+          await dialog.execute();
+          final cities = (sect['locationIds'] as Iterable)
+              .map((id) => GameData.getLocation(id))
+              .where((loc) =>
+                  loc['category'] == 'city' && loc['managerId'] == null);
+          assert(cities.isNotEmpty);
+          final managingCityId = await GameLogic.selectLocation(datas: cities);
+          final managingCity = GameData.getLocation(managingCityId);
+          managingCity['managerId'] = heroId;
+          if (!GameData.hero['managingLocationIds']
+              .contains(managingCity['id'])) {
+            GameData.hero['managingLocationIds'].add(managingCity['id']);
+          }
+      }
+      final newSuperiorId =
+          engine.hetu.invoke('assignCharacterSuperior', positionalArgs: [
+        GameData.hero,
+        sect,
+      ]);
+      if (newSuperiorId != superior['id']) {
+        final newSuperior = GameData.getCharacter(newSuperiorId);
+        dialog.pushDialog('sect_meeting_monthlySummary_newSuperior',
+            character: newSuperior, interpolations: [newSuperior['name']]);
+      }
+    }
+  }
+
   dialog.pushDialog('sect_meeting_ending', character: superior);
   await dialog.execute();
 
   engine.context.read<MeetingState>().end();
+
+  _updateSectMonthly(sect, force: true);
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/engine.dart';
+import 'package:heavenly_tribulation/global.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/ink_button.dart';
 
 import 'ui/avatar.dart';
-import '../state/game_update.dart';
 import '../ui.dart';
 import '../data/game.dart';
 import '../logic/logic.dart';
+import '../state/game_state.dart';
 
 class NpcList extends StatefulWidget {
   const NpcList({super.key});
@@ -42,7 +42,7 @@ class _NpcListState extends State<NpcList> {
       return SizedBox.shrink();
     }
 
-    final characters = (context.watch<NpcListState>().npcs).map((character) {
+    final characters = (context.watch<GameState>().npcs).map((character) {
       final haveMet = engine.hetu
           .invoke('haveMet', positionalArgs: [GameData.hero, character]);
       return Padding(

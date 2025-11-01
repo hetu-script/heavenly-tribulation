@@ -64,6 +64,8 @@ namespace World {
 
   external async function setMapComponentVisible(id, visible: bool)
 
+  external function clearMapComponents()
+
   function markTile(left, top) {
     final terrain = getTerrainByWorldPosition(left, top)
     if (world.markedTiles == null) {

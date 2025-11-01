@@ -34,9 +34,7 @@ namespace Game {
 
   external function onDying()
 
-  external function characterAllocateSkills(character, {rejuvenate = false} )
-
-  external function updateNpcs(npcs)
+  external function characterAllocateSkills(character, {rejuvenate = true} )
 
   external function updateNpcsAtLocation(location)
 
@@ -53,11 +51,13 @@ namespace Game {
 
   external function promptNewRank(rank)
 
-  external async function selectCharacter([ids])
+  external async function selectCharacter({ ids, datas })
 
-  external async function selectLocation([ids])
+  external async function selectLocation({ ids, datas })
 
-  external async function selectSect([ids])
+  external async function selectSite({ ids, datas })
+
+  external async function selectSect({ ids, datas })
 
   external function selectItem({
     character,
@@ -66,7 +66,9 @@ namespace Game {
     multiSelect: bool = false,
   }) -> Iterable
 
-  external function showHeroInfo([value: bool = true])
+  external function setUIVisible([value: bool = true])
+
+  external function setInteractable([value: bool = true])
 
   external function showTimeflow(max)
   

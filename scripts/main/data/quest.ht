@@ -12,7 +12,7 @@ const kBaseBountyReplenishAmount = 1
 const kBaseAmountForDeliveryMaterial = 100
 const kTimeLimitDaysBase = 5
 const kTimeLimitDaysVariation1 = 10
-const kTimeLimitDaysVariation2 = 45
+const kTimeLimitDaysVariation2 = 25
 
 const kHiddenCityShardReward = 2
 
@@ -46,6 +46,10 @@ struct Quest {
     interpolations: List,
     contribution,
     sectId,
+    // 该任务的世界观参数
+    orderly,
+    idealistic,
+    goodwill,
   }) {
     this.kind = kind;
     assert(game.quests.containsKey(this.kind), 'invalid quest kind: ${this.kind}');
@@ -63,14 +67,18 @@ struct Quest {
     
     this.rank = game.quests[this.kind].rank
     // final rankFactor = this.rank * this.rank + 1
-    final difficultyFactor = this.difficulty * this.difficulty + 1
-    final contribution = game.quests[this.kind].contribution * difficultyFactor
+    final difficultyFactor = this.difficulty * this.difficulty / 2 + 1
+    final contribution = (game.quests[this.kind].contribution * difficultyFactor).round()
     
     this.reward.add({
       type: 'contribution',
       amount: contribution,
       sectId: sectId,
       locationId: acquiredFromSiteId,
+      // 该任务的世界观参数
+      orderly: orderly,
+      idealistic: idealistic,
+      goodwill: goodwill,
     })
     this.sectId = sectId;
     this.reportSiteId = reportSiteId;
@@ -90,15 +98,15 @@ namespace Quests {
   }) {
     final sites = game.locations.values
       .where((loc) {
-        if (loc.atLocationId != null) {
-          final atLocation = game.locations[loc.atLocationId]
-          if (!atLocation.isDiscovered) return false
+        if (loc.atCityId != null) {
+          final atCity = game.locations[loc.atCityId]
+          if (!atCity.isDiscovered) return false
         }
-        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+        return loc.category == 'site' && loc.atCityId != cityhall.atCityId && !loc.isAffiliate
       })
     if (sites.isEmpty) return
     final endSite = random.nextIterable(sites)
-    final endLocation = game.locations[endSite.atLocationId]
+    final endLocation = game.locations[endSite.atCityId]
 
     let receiver
     let characters
@@ -114,13 +122,13 @@ namespace Quests {
       receiver = random.nextIterable(characters)
     } else {
       receiver = Character(
-        locationId: cityhall.atLocationId,
+        locationId: cityhall.atCityId,
         rank: difficulty,
       )
     }
 
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
-    final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial * difficulty + 1)
+    final amount = kBaseAmountForDeliveryMaterial * (difficulty + 1)
     
     final difficultyFactor = difficulty * difficulty + 1
     final moneyRewardAmount = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 4
@@ -128,10 +136,13 @@ namespace Quests {
 
     final endLocationDesc
     if (endLocation != null) {
-      endLocationDesc = endLocation.name
+      endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
-      assert(endSite.worldPosition != null)
-      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
+      if (endSite.worldPosition != null) {
+        endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left},${endSite.worldPosition.top}]';
+      } else {
+        endLocationDesc = endSite.name
+      }
     }
 
     final interpolations = [
@@ -175,15 +186,15 @@ namespace Quests {
   }) {
     final sites = game.locations.values
       .where((loc)  {
-        if (loc.atLocationId != null) {
-          final atLocation = game.locations[loc.atLocationId]
-          if (!atLocation.isDiscovered) return false
+        if (loc.atCityId != null) {
+          final atCity = game.locations[loc.atCityId]
+          if (!atCity.isDiscovered) return false
         }
-        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+        return loc.category == 'site' && loc.atCityId != cityhall.atCityId && !loc.isAffiliate
       })
     if (sites.isEmpty) return
     final endSite = random.nextIterable(sites)
-    final endLocation = game.locations[endSite.atLocationId]
+    final endLocation = game.locations[endSite.atCityId]
 
     let receiver
     let characters
@@ -199,7 +210,7 @@ namespace Quests {
       receiver = random.nextIterable(characters)
     } else {
       receiver = Character(
-        locationId: cityhall.atLocationId,
+        locationId: cityhall.atCityId,
         rank: difficulty,
       )
     }
@@ -220,13 +231,13 @@ namespace Quests {
 
     final endLocationDesc
     if (endLocation != null) {
-      endLocationDesc = endLocation.name
+      endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
-      if (endSite.worldPosition == null) {
-        engine.warn('endSite worldPosition is null, id: ${endSite.id}, name: ${endSite.name}, kind: ${endSite.kind}')
+      if (endSite.worldPosition != null) {
+        endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left},${endSite.worldPosition.top}]';
+      } else {
+        endLocationDesc = endSite.name
       }
-      assert(endSite.worldPosition != null)
-      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
     }
 
     final interpolations = [
@@ -260,22 +271,22 @@ namespace Quests {
   }
 
   // 护送角色
-  // 陪同某个人从一个据点的某个场景到另一个据点的某个场景
+  // 陪同某个人从一个城市的某个场景到另一个城市的某个场景
   function escort(cityhall, {
     difficulty = 0,
     sect,
   }) {
     final sites = game.locations.values
       .where((loc)  {
-        if (loc.atLocationId != null) {
-          final atLocation = game.locations[loc.atLocationId]
-          if (!atLocation.isDiscovered) return false
+        if (loc.atCityId != null) {
+          final atCity = game.locations[loc.atCityId]
+          if (!atCity.isDiscovered) return false
         }
-        return loc.category == 'site' && loc.atLocationId != cityhall.atLocationId && !loc.isAffiliate
+        return loc.category == 'site' && loc.atCityId != cityhall.atCityId && !loc.isAffiliate
       })
     if (sites.isEmpty) return
     final endSite = random.nextIterable(sites)
-    final endLocation = game.locations[endSite.atLocationId]
+    final endLocation = game.locations[endSite.atCityId]
 
     let escortee
     let characters
@@ -291,7 +302,7 @@ namespace Quests {
       escortee = random.nextIterable(characters)
     } else {
       escortee = Character(
-        locationId: cityhall.atLocationId,
+        locationId: cityhall.atCityId,
         rank: difficulty,
       )
     }
@@ -302,10 +313,13 @@ namespace Quests {
 
     final endLocationDesc
     if (endLocation != null) {
-      endLocationDesc = endLocation.name
+      endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
-      assert(endSite.worldPosition != null)
-      endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left}, ${endSite.worldPosition.top}]';
+      if (endSite.worldPosition != null) {
+        endLocationDesc = '${engine.locale('worldMap')}[${endSite.worldPosition.left},${endSite.worldPosition.top}]';
+      } else {
+        endLocationDesc = endSite.name
+      }
     }
     
     final interpolations = [
@@ -343,10 +357,6 @@ namespace Quests {
     difficulty = 0,
     sect,
   }) {
-    final atLocation = game.locations[cityhall.atLocationId]
-    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-    assert(atLocation.category == 'city')
-
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
     final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)
 
@@ -355,7 +365,6 @@ namespace Quests {
     final interpolations = [
       amount,
       engine.locale(material),
-      atLocation.name,
       cityhall.name,
     ]
 
@@ -387,10 +396,6 @@ namespace Quests {
     difficulty = 0,
     sect,
   }) {
-    final atLocation = game.locations[cityhall.atLocationId]
-    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-    assert(atLocation.category == 'city')
-
     let requirement
     let itemDesc
     final rarity = Constants.rankToRarity[difficulty]
@@ -425,14 +430,15 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    final budget = 
-          // kBaseReward * difficultyFactor +
+    let budget = 
           estimateItemPrice(requirement.category, requirement.rank, 'expensive')
+    if (!Constants.itemWithAffixCategories.contains(requirement.category)) {
+      budget += kBaseReward * difficultyFactor + budget ~/ 4;
+    }
     final shardRewardAmount = convertMoneyToShard(budget)
 
     final interpolations = [
       itemDesc,
-      atLocation.name,
       cityhall.name,
     ]
 
@@ -454,15 +460,11 @@ namespace Quests {
     return quest;
   }
 
-  // 探索某个隐藏据点
+  // 探索某个隐藏城市
   function discover_location(cityhall, {
     difficulty = 0,
     sect,
   }) {
-    final atLocation = game.locations[cityhall.atLocationId]
-    assert(atLocation != null, 'location not found, id: ${cityhall.atLocationId}')
-    assert(atLocation.category == 'city')
-
     final sites = game.locations.values
       .where((loc) => loc.category == 'city' && loc.isHidden == true && loc.isDiscovered == false)
     if (sites.isEmpty) return
@@ -483,7 +485,7 @@ namespace Quests {
     final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
 
     final interpolations = [
-      '[${deviationLeft}, ${deviationTop}]',
+      '[${deviationLeft},${deviationTop}]',
       targetLocation.name,
     ]
 
@@ -503,6 +505,8 @@ namespace Quests {
       reportSiteId: cityhall.id,
       interpolations: interpolations,
       sectId: sect?.id,
+      orderly: 1,
+      idealistic: -1,
     );
     return quest;
   }
@@ -570,7 +574,7 @@ function createQuest(cityhall, {
   return quest
 }
 
-/// 刷新悬赏任务，这里不检查据点类型
+/// 刷新悬赏任务，这里不检查城市类型
 function replenishBounty(location) {
   // 此处的 sect 可能为 null
   final sect = game.sects[location.sectId]

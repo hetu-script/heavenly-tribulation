@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/task.dart';
 import 'package:hetu_script/utils/uid.dart';
 
-import '../engine.dart';
+import '../global.dart';
 
 class IllustrationInfo {
   final String path;
@@ -39,10 +39,6 @@ class SceneInfo {
 }
 
 class GameDialog with ChangeNotifier, TaskController {
-  static final singleton = GameDialog._();
-
-  GameDialog._();
-
   bool isOpened = false;
 
   /// key是图片的asset路径

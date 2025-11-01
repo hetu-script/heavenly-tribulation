@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/effects.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/effect/camera_shake.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import 'particles/cloud.dart';
 import 'particles/rubble.dart';
 import '../common.dart';
@@ -55,16 +56,6 @@ const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
 const kTerrainKindCity = 'city';
-
-enum WorldMapPopUpMenuItems {
-  terrainInformation,
-  buildFarmLand,
-  buildFishery,
-  buildTimberLand,
-  buildMine,
-  buildHuntingGround,
-  warMode,
-}
 
 enum WorldEditorDropMenuItems {
   addWorld,
@@ -167,7 +158,11 @@ class WorldMapScene extends Scene with HasCursorState {
 
   bool get isMainWorld => worldData['isMain'] ?? false;
 
-  late FpsComponent fps;
+  late final FpsComponent fps;
+
+  late final Timer timer;
+
+  bool isStandby = false;
 
   final menuController = fluent.FlyoutController();
 
@@ -180,7 +175,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _setSelectedTerrain(TileMapTerrain? terrain) {
     if (terrain == null) {
-      context.read<SelectedPositionState>().clear();
+      context.read<WorldMapSelectedTileState>().clear();
       return;
     }
 
@@ -211,7 +206,7 @@ class WorldMapScene extends Scene with HasCursorState {
       selectedLocation = null;
     }
 
-    context.read<SelectedPositionState>().update(
+    context.read<WorldMapSelectedTileState>().update(
           currentZoneData: selectedZone,
           currentNationData: selectedNation,
           currentLocationData: selectedLocation,
@@ -246,12 +241,12 @@ class WorldMapScene extends Scene with HasCursorState {
     } else {
       heroAtNation = null;
     }
-    context.read<HeroPositionState>().updateTerrain(
-          currentZoneData: heroAtZone,
-          currentNationData: heroAtNation,
-          currentTerrainData: terrain,
-          notify: notify,
-        );
+    gameState.updateTerrain(
+      currentZoneData: heroAtZone,
+      currentNationData: heroAtNation,
+      currentTerrainData: terrain,
+      notify: notify,
+    );
 
     if (moveCameraToHero) {
       await map.moveCameraToHero(animated: animated);
@@ -263,6 +258,10 @@ class WorldMapScene extends Scene with HasCursorState {
     super.update(dt);
 
     fps.update(dt);
+
+    if (isStandby) {
+      timer.update(dt);
+    }
 
     if (!isEditorMode && isMainWorld) {
       if (map.isLoaded) {
@@ -356,6 +355,12 @@ class WorldMapScene extends Scene with HasCursorState {
     world.add(map);
 
     fps = FpsComponent();
+
+    timer = Timer(
+      kTimeFlowInterval / 1000,
+      repeat: true,
+      onTick: _autoUpdateGame,
+    );
 
     engine.hetu.interpreter.bindExternalFunction('World::updateTerrainSprite', (
         {positionalArgs, namedArgs}) async {
@@ -585,6 +590,11 @@ class WorldMapScene extends Scene with HasCursorState {
         'World::setMapComponentVisible', ({positionalArgs, namedArgs}) {
       map.setMapComponentVisible(positionalArgs[0], positionalArgs[1]);
     }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('World::clearMapComponents', (
+        {positionalArgs, namedArgs}) {
+      map.clearMapComponents();
+    }, override: true);
   }
 
   @override
@@ -648,7 +658,7 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   void _onTapDownInEditorMode(int button, Vector2 position) {
-    if (!GameData.isInteractable) return;
+    if (!gameState.isInteractable) return;
 
     _focusNode.requestFocus();
     if (button == kPrimaryButton) {
@@ -737,7 +747,7 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   void _onTapUpInEditorMode(int button, Vector2 position) {
-    if (!GameData.isInteractable) return;
+    if (!gameState.isInteractable) return;
 
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
@@ -965,10 +975,9 @@ class WorldMapScene extends Scene with HasCursorState {
       npcs.add(charData);
     }
 
-    final otherNpcs = engine.hetu.invoke('getNpcsAtWorldMapPosition',
-        positionalArgs: [worldPos['left'], worldPos['top']]);
+    final otherNpcs = GameData.getNpcsAtHeroWorldMapPosition();
     npcs.addAll(otherNpcs);
-    context.read<NpcListState>().update(npcs);
+    gameState.updateNpcs(npcs);
   }
 
   void _setWorldMapCaption(int left, int top, String caption, [Color? color]) {
@@ -984,7 +993,7 @@ class WorldMapScene extends Scene with HasCursorState {
     );
   }
 
-  Future<void> _updateWorldMapCaptions() async {
+  void _updateWorldMapCaptions() {
     final locations = GameData.game['locations'].values;
     for (final location in locations) {
       if (location['worldId'] == GameData.world['id'] &&
@@ -998,16 +1007,28 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
+  void _updateWorldMapObjects() {
+    for (final object in worldData['objects'].values) {
+      if (object['category'] == 'enemy') {
+        final entity = object['battleEntity'];
+        _characterSetToWorldPosition(
+          entity,
+          entity['worldPosition']['left'],
+          entity['worldPosition']['top'],
+        );
+      }
+    }
+  }
+
   Future<void> _updateWorldMapNpc() async {
     await _updateCharactersOnWorldMap();
 
     await _updateNpcsAtHeroPosition();
-
-    context.read<HeroAndGlobalHistoryState>().update();
   }
 
   void _tryEnterLocation(dynamic location) async {
-    GameData.isInteractable = false;
+    gameState.isInteractable = false;
+    context.read<HoverContentState>().hide();
 
     if (location['isDiscovered'] != true) {
       await engine.hetu.invoke('discoverLocation', positionalArgs: [
@@ -1270,7 +1291,7 @@ class WorldMapScene extends Scene with HasCursorState {
   Future<void> _onDragUpdateInGameMode(Vector2 position) async {}
 
   void _onTapDownInGameMode(int button, Vector2 position) {
-    if (!GameData.isInteractable) return;
+    if (!gameState.isInteractable) return;
     context.read<HoverContentState>().hide();
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
@@ -1293,7 +1314,7 @@ class WorldMapScene extends Scene with HasCursorState {
     //       'tapped on map! world position: $position, screen position: $screenPosition');
     // }
 
-    if (!GameData.isInteractable) return;
+    if (!gameState.isInteractable) return;
 
     _focusNode.requestFocus();
 
@@ -1305,6 +1326,7 @@ class WorldMapScene extends Scene with HasCursorState {
     }
 
     final tilePosition = map.worldPosition2Tile(position);
+    map.trySelectTile(tilePosition.left, tilePosition.top);
     if (button == kPrimaryButton) {
       // if (cursorState == MouseCursorState.press) {
       //   cursorState = MouseCursorState.click;
@@ -1329,28 +1351,39 @@ class WorldMapScene extends Scene with HasCursorState {
         showFluentMenu(
           position: menuPosition.toOffset(),
           items: {
-            engine.locale('terrainInformation'):
-                WorldMapPopUpMenuItems.terrainInformation,
+            // engine.locale('terrainInformation'): 'terrainInformation',
             engine.locale('build'): {
-              engine.locale('farmland'): WorldMapPopUpMenuItems.buildFarmLand,
-              engine.locale('fishery'): WorldMapPopUpMenuItems.buildFishery,
-              engine.locale('timberland'):
-                  WorldMapPopUpMenuItems.buildTimberLand,
-              engine.locale('mine'): WorldMapPopUpMenuItems.buildMine,
-              engine.locale('huntingground'):
-                  WorldMapPopUpMenuItems.buildHuntingGround,
+              engine.locale('city'): 'buildCity',
+              '___0': null,
+              engine.locale('farmland'): 'buildFarmLand',
+              engine.locale('fishery'): 'buildFishery',
+              engine.locale('timberland'): 'buildTimberLand',
+              engine.locale('mine'): 'buildMine',
+              engine.locale('huntingground'): 'buildHuntingGround',
             },
-            engine.locale('warMode'): WorldMapPopUpMenuItems.warMode,
+            engine.locale('warMode'): 'warMode',
+            '___1': null,
+            engine.locale('standby'): 'standby',
           },
-          onSelectedItem: (item) {
+          onSelectedItem: (String item) {
             switch (item) {
-              case WorldMapPopUpMenuItems.terrainInformation:
-              case WorldMapPopUpMenuItems.buildFarmLand:
-              case WorldMapPopUpMenuItems.buildFishery:
-              case WorldMapPopUpMenuItems.buildTimberLand:
-              case WorldMapPopUpMenuItems.buildMine:
-              case WorldMapPopUpMenuItems.buildHuntingGround:
-              case WorldMapPopUpMenuItems.warMode:
+              // case 'terrainInformation':
+              case 'buildCity':
+                {}
+              case 'buildFarmLand':
+                {}
+              case 'buildFishery':
+                {}
+              case 'buildTimberLand':
+                {}
+              case 'buildMine':
+                {}
+              case 'buildHuntingGround':
+                {}
+              case 'warMode':
+                {}
+              case 'standby':
+                {}
             }
           },
         );
@@ -1366,7 +1399,7 @@ class WorldMapScene extends Scene with HasCursorState {
       if (GameData.hero == null) {
         final Iterable characters = GameData.game['characters'].values;
         List availableCharacters;
-        if (engine.config.debugMode) {
+        if (kDebugMode) {
           availableCharacters = GameData.game['characters'].values.toList();
         } else {
           availableCharacters = characters.where((character) {
@@ -1415,7 +1448,6 @@ class WorldMapScene extends Scene with HasCursorState {
             width: 1000.0,
             height: 450.0,
             title: engine.locale('selectHero'),
-            barrierDismissible: false,
             showCloseButton: false,
             confirmationOnSelect: true,
             mode: InformationMode.selectCharacter,
@@ -1446,12 +1478,7 @@ class WorldMapScene extends Scene with HasCursorState {
     map.moveCameraToHero(animated: false);
 
     _updateWorldMapCaptions();
-
-    context.read<HeroInfoVisibilityState>().setVisible(
-        isNewGame ? (map.data['useCustomLogic'] != true ? true : false) : true);
-    context.read<HeroAndGlobalHistoryState>().update();
-    context.read<GameTimestampState>().update();
-    context.read<HeroJournalUpdate>().update();
+    _updateWorldMapObjects();
 
     if (isMainWorld) {
       for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
@@ -1462,53 +1489,37 @@ class WorldMapScene extends Scene with HasCursorState {
     if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
     }
-
-    await _enterScene(updateHeroTerrain: true);
-  }
-
-  Future<void> _enterScene({bool updateHeroTerrain = true}) async {
-    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
-
-    await _updateWorldMapNpc();
-
-    if (updateHeroTerrain) {
-      await _updateHeroAtTerrain();
-
-      if (map.data['useCustomLogic'] != true) {
-        map.lightUpAroundTile(map.hero!.tilePosition,
-            size: GameData.hero['stats']['lightRadius']);
-      }
-    }
   }
 
   @override
   FutureOr<void> onStart([dynamic arguments = const {}]) async {
     super.onStart(arguments);
 
+    cursorState = MouseCursorState.normal;
+    GameData.world = worldData;
+    gameState.isInteractable = true;
+
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
 
-    GameData.isInteractable = true;
-
-    GameData.world = worldData;
-
     engine.hetu.invoke('setCurrentWorld', positionalArgs: [worldData['id']]);
-
-    if (!isLoaded || !map.isLoaded) return;
-
-    _enterScene();
   }
 
   @override
-  void onMount() {
+  void onMount() async {
     super.onMount();
-    cursorState = MouseCursorState.normal;
-    context.read<GameTimestampState>().update();
-    context.read<NpcListState>().update();
-    context.read<HeroPositionState>().updateLocation();
-    context.read<HeroPositionState>().updateDungeon();
-    context.read<HeroJournalUpdate>().update();
-    context.read<GameTimestampState>().update();
+
+    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+
+    gameState.reset();
+
+    await _updateHeroAtTerrain();
+    await _updateWorldMapNpc();
+
+    if (map.data['useCustomLogic'] != true && map.hero != null) {
+      map.lightUpAroundTile(map.hero!.tilePosition,
+          size: GameData.hero['stats']['lightRadius']);
+    }
   }
 
   // TODO: 自动移动屏幕
@@ -1517,7 +1528,7 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
-    if (!GameData.isInteractable) return;
+    if (!gameState.isInteractable) return;
 
     bool clickable = false;
     if (tile != null && (tile.isLighted || !map.showFogOfWar)) {
@@ -1528,7 +1539,7 @@ class WorldMapScene extends Scene with HasCursorState {
       }
       hoverContent.writeln(' ${engine.locale(tile.kind)}'
           '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
-          ' [${tile.left}, ${tile.top}]');
+          ' [${tile.left},${tile.top}]');
       if (tile.nationId != null) {
         final sect = GameData.getSect(tile.nationId);
         hoverContent.write(sect['name']);
@@ -1574,9 +1585,9 @@ class WorldMapScene extends Scene with HasCursorState {
       //   final renderPosition = tile.position;
       //   final screenPosition = worldPosition2Screen(renderPosition);
       //   hoverContent.writeln(
-      //       '<grey>renderPosition: (${renderPosition.x.toStringAsFixed(1)}, ${renderPosition.y.toStringAsFixed(1)})</>');
+      //       '<grey>renderPosition: (${renderPosition.x.toStringAsFixed(1)},${renderPosition.y.toStringAsFixed(1)})</>');
       //   hoverContent.writeln(
-      //       '<grey>screenPosition: (${screenPosition.x.toStringAsFixed(1)}, ${screenPosition.y.toStringAsFixed(1)})</>');
+      //       '<grey>screenPosition: (${screenPosition.x.toStringAsFixed(1)},${screenPosition.y.toStringAsFixed(1)})</>');
       // }
 
       final content = hoverContent.toString();
@@ -1605,6 +1616,8 @@ class WorldMapScene extends Scene with HasCursorState {
       cursorState = MouseCursorState.normal;
     }
   }
+
+  void _autoUpdateGame() {}
 
   void addHintTextOnTile(
     String text,
@@ -1708,7 +1721,7 @@ class WorldMapScene extends Scene with HasCursorState {
           if (!isEditorMode) ...[
             GameUIOverlay(
               showNpcs: true,
-              showActiveJournal: true,
+              showJournal: true,
               actions: [
                 if (isMainWorld) ViewModeMenuButton(map: map),
                 DropMenuButton(map: map),

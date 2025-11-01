@@ -64,12 +64,14 @@ List<fluent.MenuFlyoutItemBase> buildFluentMenuItems<T>({
         text: Text(text),
         items: (context) {
           return value.entries
-              .map((entry) => fluent.MenuFlyoutItem(
-                    text: Text(entry.key),
-                    onPressed: () {
-                      onSelectedItem?.call(entry.value);
-                    },
-                  ))
+              .map((entry) => entry.key.startsWith('___')
+                  ? fluent.MenuFlyoutSeparator()
+                  : fluent.MenuFlyoutItem(
+                      text: Text(entry.key),
+                      onPressed: () {
+                        onSelectedItem?.call(entry.value);
+                      },
+                    ))
               .toList();
         },
       );

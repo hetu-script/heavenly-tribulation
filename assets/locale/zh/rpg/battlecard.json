@@ -41,49 +41,53 @@
   "kind_potion": "丹药",
   "kind_scroll": "符箓",
 
-  "exhaustResource": "使用",
-  "exhaustResource_description": "使用资源以行使功法，若没有足够的资源，仍可以成功使用功法，但会获得负面效果。",
+  "exhaustResource": "消耗",
+  "exhaustResource_description": "消耗资源以行使功法，若没有足够的资源，仍可以成功使用功法，但会获得负面效果。",
 
-  "consumeResource": "每使用",
+  "consumeResource": "消耗",
   "consumeResource_description": "尝试使用资源以获得某些额外效果，若没有足够的资源，不会有任何效果。",
 
   "affix_attack_unarmed": "徒手攻击造成 {0} 物理伤害",
-  "affix_attack_unarmed_exhaust_mana": "使用 {0} 点灵气：徒手攻击造成 {1} 元素伤害",
-  "affix_attack_unarmed_multiple_exhaust_rage": "使用 {0} 点怒气：徒手攻击造成 {1}×{2} 真气伤害",
-  "affix_attack_unarmed_exhaust_rage_slow": "徒手攻击造成 {0} 真气伤害\n对手缓慢 +{1}",
-  "affix_attack_unarmed_exhaust_rage_clumsy": "徒手攻击造成 {0} 真气伤害\n对手迟钝 +{1}",
+  "affix_attack_unarmed_multiple_exhaust_rage": "消耗 {0} 怒气：徒手攻击造成 {1}×{2} 物理伤害",
+  "affix_attack_unarmed_exhaust_rage_slow": "消耗 {0} 怒气：徒手攻击造成 {1} 真气伤害\n对手缓慢 +{2}",
+  "affix_attack_unarmed_exhaust_chakra_clumsy": "消耗 {0} 剑气：徒手攻击造成 {1} 真气伤害\n对手迟钝 +{2}",
+
+  "affix_attack_unarmed_multiple_exhaust_chakra": "消耗 {0} 剑气：徒手攻击造成 {1}×{2} 物理伤害",
+  "affix_attack_unarmed_exhaust_mana": "消耗 {0} 灵气：徒手攻击造成 {1} 元素伤害",
+  "affix_attack_unarmed_exhaust_karma": "消耗 {0} 煞气：徒手攻击造成 {1} 精神伤害",
 
   "affix_attack_weapon": "武器攻击造成 {0} 物理伤害",
   "affix_attack_weapon_multiple": "武器攻击造成 {0}×{1} 物理伤害",
-  "affix_attack_weapon_exhaust_mana": "使用 {0} 点灵气：武器攻击造成 {1} 元素伤害",
-  "affix_attack_weapon_multiple_exhaust_mana": "使用 {0} 点灵气：武器攻击造成 {1}×{2} 元素伤害",
-  "affix_attack_weapon_multiple_exhaust_chakra": "使用 {0} 点怒气：武器攻击造成 {1}×{2} 物理伤害",
-  "affix_attack_weapon_multiple_exhaust_rage": "使用 {0} 点怒气：武器攻击造成 {1}×{2} 真气伤害",
-  "affix_attack_weapon_multiple_exhaust_karma": "使用 {0} 点煞气：武器攻击造成 {1}×{2} 纯粹伤害",
 
-  "affix_attack_spell": "使用 {0} 灵气：法术攻击造成 {1} 元素伤害",
+  "affix_attack_weapon_exhaust_mana": "消耗 {0} 灵气：武器攻击造成 {1} 元素伤害",
+  "affix_attack_weapon_multiple_exhaust_rage": "消耗 {0} 怒气：武器攻击造成 {1}×{2} 真气伤害",
+  "affix_attack_weapon_multiple_exhaust_chakra": "消耗 {0} 剑气：武器攻击造成 {1}×{2} 物理伤害",
+  "affix_attack_weapon_multiple_exhaust_karma": "消耗 {0} 煞气：武器攻击造成 {1}×{2} 物理伤害",
 
-  "affix_attack_spell_slow": "使用 {0} 灵气：法术攻击造成 {1} 物理伤害\n对手缓慢 +{2}",
-  "affix_attack_spell_clumsy": "使用 {0} 灵气：法术攻击造成 {1} 元素伤害\n对手迟钝 +{2}",
+  "affix_attack_spell_slow": "消耗 {0} 灵气：法术攻击造成 {1} 物理伤害\n对手缓慢 +{2}",
+  "affix_attack_spell_clumsy": "消耗 {0} 灵气：法术攻击造成 {1} 元素伤害\n对手迟钝 +{2}",
 
-  "affix_attack_spell_exhaust_chakra_multiple": "使用 {0} 剑气：法术攻击造成 {1}×{2} 物理伤害",
-  "affix_attack_spell_exhaust_mana_multiple": "使用 {0} 灵气：法术攻击造成 {1}×{2} 元素伤害",
-
-  "affix_attack_curse": "咒术攻击造成 {0} 精神伤害",
-  "affix_attack_curse_exhaust_mana": "使用 {0} 点灵气：咒术攻击造成 {1} 物理伤害",
-  "affix_attack_curse_exhaust_karma": "使用 {0} 点煞气：咒术攻击造成 {1} 精神伤害",
-  "affix_attack_curse_multiple_exhaust_karma": "使用 {0} 点煞气：咒术攻击造成 {1}×{2} 纯粹伤害",
+  "affix_attack_spell_exhaust_chakra_multiple": "消耗 {0} 剑气：法术攻击造成 {1}×{2} 物理伤害",
+  "affix_attack_spell_exhaust_mana": "消耗 {0} 灵气：法术攻击造成 {1} 元素伤害",
+  "affix_attack_curse_exhaust_karma": "消耗 {0} 煞气：咒术攻击造成 {1} 精神伤害",
 
   "affix_defend_physical": "物理防御 +{0}",
-  "affix_defend_physical_exhaust_mana": "使用 {0} 点灵气：物理防御 +{1}",
-  "affix_defend_physical_exhaust_chakra": "使用 {0} 点剑气：物理防御 +{1}",
+  "affix_defend_physical_exhaust_rage": "消耗 {0} 怒气：物理防御 +{1}",
+  "affix_defend_physical_exhaust_chakra": "消耗 {0} 剑气：物理防御 +{1}",
+  "affix_defend_physical_exhaust_mana": "消耗 {0} 灵气：物理防御 +{1}",
+  "affix_defend_physical_exhaust_karma": "消耗 {0} 煞气：物理防御 +{1}",
+
   "affix_defend_chi": "真气防御 +{0}",
-  "affix_defend_chi_exhaust_rage": "使用 {0} 点怒气：真气防御 +{1}",
+  "affix_defend_chi_exhaust_rage": "消耗 {0} 怒气：真气防御 +{1}",
+  "affix_defend_multiple_exhaust_rage": "消耗 {0} 怒气：物理和真气防御 +{1}",
+
   "affix_defend_elemental": "元素防御 +{0}",
-  "affix_defend_elemental_exhaust_mana": "使用 {0} 点灵气：物理防御 +{1}",
-  "affix_defend_elemental_exhaust_chakra": "使用 {0} 点剑气：物理防御 +{1}",
+  "affix_defend_elemental_exhaust_mana": "消耗 {0} 灵气：元素防御 +{1}",
+  "affix_defend_multiple_exhaust_mana": "消耗 {0} 灵气：物理和元素防御 +{1}",
+
   "affix_defend_psychic": "精神防御 +{0}",
-  "affix_defend_psychic_exhaust_karma": "使用 {0} 点煞气：精神防御 +{1}",
+  "affix_defend_psychic_exhaust_karma": "消耗 {0} 煞气：精神防御 +{1}",
+  "affix_defend_multiple_exhaust_karma": "消耗 {0} 煞气：物理和精神防御 +{1}",
 
   "affix_speed_quick": "速度 +{0}",
   "affix_dodge_nimble": "闪避 +{0}",
@@ -91,23 +95,28 @@
   "affix_heal": "生命 +{0}",
 
   "affix_vigor": "元气 +{0}",
-  "affix_mana": "灵气 +{0}",
-  "affix_chakra": "剑气 +{0}",
   "affix_rage": "怒气 +{0}",
+  "affix_chakra": "剑气 +{0}",
+  "affix_mana": "灵气 +{0}",
   "affix_karma": "煞气 +{0}",
 
-  "affix_heal_exhaust_mana": "使用 {0} 灵气：回复 {1}% 生命 (可超过上限)",
+  "affix_mana_chakra": "灵气和剑气 +{0}",
+
+  "affix_heal_exhaust_mana": "消耗 {0} 灵气：回复 {1}% 生命 (可超过上限)",
 
   "affix_speed_quick_defend_physical": "速度 +{0}, 物理防御 +{1}",
   "affix_dodge_nimble_defend_physical": "闪避 +{0}, 物理防御 +{1}",
 
-  "affix_speed_quick_exhaust_mana_defend_elemental": "使用 {0} 点灵气：速度 +{1}, 元素防御 +{2}",
-  "affix_dodge_nimble_exhaust_mana_defend_elemental": "使用 {0} 点灵气：闪避 +{1}, 元素防御 +{2}",
-  "affix_speed_quick_exhaust_rage_defend_chi": "使用 {0} 点怒气：速度 +{1}, 真气防御 +{2}",
-  "affix_dodge_nimble_exhaust_rage_defend_chi": "使用 {0} 点怒气：闪避 +{1}, 真气防御 +{2}",
+  "affix_speed_quick_exhaust_rage_defend_chi": "消耗 {0} 怒气：速度 +{1}, 真气防御 +{2}",
+  "affix_dodge_nimble_exhaust_rage_defend_chi": "消耗 {0} 怒气：闪避 +{1}, 真气防御 +{2}",
 
-  "affix_lifemax_debuff_exhaust_karma": "使用 {0} 点煞气：对手生命上限 -{1}",
-  "affix_lifemax_buff_exhaust_karma": "使用 {0} 点煞气：自身生命及生命上限 +{1}",
+  "affix_speed_quick_exhaust_mana_defend_physical": "消耗 {0} 灵气：速度 +{1}, 物理防御 +{2}",
+  "affix_dodge_nimble_exhaust_mana_defend_elemental": "消耗 {0} 灵气：闪避 +{1}, 元素防御 +{2}",
+
+  "affix_speed_quick_exhaust_chakra_defend_physical": "消耗 {0} 剑气：速度 +{1}, 物理防御 +{2}",
+
+  "affix_lifemax_debuff_exhaust_karma": "消耗 {0} 煞气：对手生命上限 -{1}",
+  "affix_lifemax_buff_exhaust_karma": "消耗 {0} 煞气：自身生命及生命上限 +{1}",
 
   "affix_consume_chakra_for_extra_damage_physical": "每使用 {0} 剑气：造成 {1} 物理伤害",
   "affix_consume_rage_for_extra_damage_chi": "每使用 {0} 怒气：造成 {1} 真气伤害",

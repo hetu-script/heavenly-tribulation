@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../ui.dart';
 import '../../../widgets/entity_table.dart';
 import '../../../widgets/character/memory_and_bond.dart';
@@ -676,7 +676,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                               case CharacterPopUpMenuItems.setWorldPosition:
                                 final charPosData = character['worldPosition'];
                                 final selectedTile = context
-                                    .read<SelectedPositionState>()
+                                    .read<WorldMapSelectedTileState>()
                                     .currentTerrain;
                                 final currentMapId =
                                     context.read<SamsaraEngine>().scene?.id;
@@ -719,7 +719,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                         GameData.game['locations'][locationId];
                                     if (location == null) {
                                       GameDialogContent.show(context,
-                                          '输入的据点 id [$locationId] 不存在！');
+                                          '输入的城市 id [$locationId] 不存在！');
                                     } else {
                                       engine.hetu.invoke(
                                         'setCharacterHome',
@@ -788,7 +788,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: fluent.Button(
                       onPressed: () async {
                         final selectedTile = context
-                            .read<SelectedPositionState>()
+                            .read<WorldMapSelectedTileState>()
                             .currentTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
@@ -866,7 +866,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: fluent.Button(
                       onPressed: () async {
                         final selectedTile = context
-                            .read<SelectedPositionState>()
+                            .read<WorldMapSelectedTileState>()
                             .currentTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
@@ -874,18 +874,18 @@ class _EntityListPanelState extends State<EntityListPanel>
                           return;
                         }
                         dynamic atTerrain = selectedTile.data;
-                        dynamic atLocation;
+                        dynamic atCity;
                         if (selectedTile.locationId != null) {
-                          atLocation =
+                          atCity =
                               GameData.getLocation(selectedTile.locationId);
                         }
                         final value = await showDialog(
                           context: context,
                           builder: (context) {
                             return EditLocationBasics(
-                              category: atLocation != null ? 'site' : 'city',
-                              atLocation: atLocation,
-                              allowEditCategory: atLocation == null,
+                              category: atCity != null ? 'site' : 'city',
+                              atCity: atCity,
+                              allowEditCategory: atCity == null,
                             );
                           },
                         );
@@ -909,7 +909,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             'image': image,
                             'background': background,
                             'atTerrain': atTerrain,
-                            if (category == 'site') 'atLocation': atLocation,
+                            if (category == 'site') 'atCity': atCity,
                             'npcId': npcId,
                           },
                         );
@@ -955,7 +955,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 case LocationPopUpMenuItems.checkInformation:
                                   _editLocation(dataId);
                                 case LocationPopUpMenuItems.setWorldId:
-                                  final worldId = await GameLogic.selectWorld();
+                                  final worldId =
+                                      await GameLogic.selectWorldId();
                                   if (worldId != null) {
                                     if (location['worldId'] != worldId) {
                                       location['worldId'] = worldId;
@@ -965,7 +966,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 case LocationPopUpMenuItems.setWorldPosition:
                                   final locPosData = location['worldPosition'];
                                   final selectedTile = context
-                                      .read<SelectedPositionState>()
+                                      .read<WorldMapSelectedTileState>()
                                       .currentTerrain;
                                   final currentMapId =
                                       context.read<SamsaraEngine>().scene?.id;

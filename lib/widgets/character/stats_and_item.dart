@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import 'stats.dart';
 import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';

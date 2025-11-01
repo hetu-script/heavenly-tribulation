@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:hetu_script/values.dart';
 
 import '../ui.dart';
-import '../../../engine.dart';
+import '../global.dart';
 import 'common.dart';
 import '../state/hover_content.dart';
 import '../data/game.dart';

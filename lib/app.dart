@@ -8,13 +8,12 @@ import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:hetu_script/value/function/function.dart';
 
-import 'scene/mainmenu/mainmenu.dart';
-import 'engine.dart';
+import 'scene/mainmenu/mainmenu_scene.dart';
+import 'global.dart';
 import 'scene/world/world.dart';
 import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
-import 'data/game.dart';
 import 'ui.dart';
 import 'scene/location/location.dart';
 import 'state/states.dart';
@@ -26,6 +25,7 @@ import 'data/constants.dart';
 import 'scene/loading_screen.dart';
 import 'scene/mini_game/matching/matching.dart';
 import 'data/common.dart';
+import 'data/game.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -257,9 +257,9 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'maxSiteCountForCity',
+        'calculateMaxSiteCountForCity',
         ({positionalArgs, namedArgs}) =>
-            GameLogic.maxSiteCountForCity(positionalArgs.first),
+            GameLogic.calculateMaxSiteCountForCity(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -428,17 +428,17 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Game::updateUI', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
-      context.read<GameTimestampState>().update();
+      gameState.updateDatetime();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHeroAtLocation', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroPositionState>().updateLocation(positionalArgs.first);
+      gameState.updateLocation(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateActiveJournals', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroJournalUpdate>().update();
+      gameState.updateActiveJournals();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -467,12 +467,12 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHistory', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroAndGlobalHistoryState>().update();
+      gameState.updateHistory();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateDungeon', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroPositionState>().updateDungeon(positionalArgs.first);
+      gameState.updateDungeon(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::tryEnterDungeon', (
@@ -498,20 +498,15 @@ class _GameAppState extends State<GameApp> {
       );
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::updateNpcs', (
-        {positionalArgs, namedArgs}) {
-      context.read<NpcListState>().update(positionalArgs.first);
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Game::updateNpcsAtLocation', (
         {positionalArgs, namedArgs}) {
       final npcs = GameData.getNpcsAtLocation(positionalArgs.first);
-      context.read<NpcListState>().update(npcs);
+      gameState.updateNpcs(npcs);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::hideNpc', (
         {positionalArgs, namedArgs}) {
-      context.read<NpcListState>().hide(positionalArgs.first);
+      gameState.hideNpc(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::promptItems', (
@@ -536,24 +531,36 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::selectCharacter', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.selectCharacter(positionalArgs.first);
+      return GameLogic.selectCharacter(
+          ids: namedArgs['ids'], datas: namedArgs['datas']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::selectLocation', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.selectLocation(positionalArgs.first);
+      return GameLogic.selectLocation(
+          ids: namedArgs['ids'], datas: namedArgs['datas']);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::selectSite', (
+        {positionalArgs, namedArgs}) {
+      return GameLogic.selectSite(
+          ids: namedArgs['ids'], datas: namedArgs['datas']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::selectSect', (
         {positionalArgs, namedArgs}) {
-      return GameLogic.selectSect(positionalArgs.first);
+      return GameLogic.selectSect(
+          ids: namedArgs['ids'], datas: namedArgs['datas']);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (
+    engine.hetu.interpreter.bindExternalFunction('Game::setUIVisible', (
         {positionalArgs, namedArgs}) {
-      context
-          .read<HeroInfoVisibilityState>()
-          .setVisible(positionalArgs.first ?? true);
+      gameState.setUIVisible(positionalArgs.first ?? true);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::setInteractable', (
+        {positionalArgs, namedArgs}) {
+      gameState.isInteractable = positionalArgs.first ?? true;
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showTimeflow', (

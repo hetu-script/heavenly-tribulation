@@ -12,7 +12,7 @@ const kLocationKindResidence = 'residence'
 const kLocationKindHome = 'home'
 // 门派总堂，每个门派在总部的默认建筑，用来管理门派
 const kLocationKindHeadquarters = 'headquarters'
-// 据点总堂，每个城市默认建筑，用来管理据点
+// 城市总堂，每个城市默认建筑，用来管理城市
 const kLocationKindCityhall = 'cityhall'
 // 交易所，每个城市默认建筑，用来进行材料的交易
 const kLocationKindTradingHouse = 'tradinghouse'
@@ -102,11 +102,11 @@ const _kAlchemyCraftmaterialProbabilityReplaceAffix = 0.4
 const _kAlchemyCraftmaterialProbabilityRerollAffix = 0.25
 const _kAlchemyCraftmaterialProbabilityUpgradeRank = 0.1
 
-/// 据点、场景、建筑等
+/// 城市、场景、建筑等
 /// 某些可能在地图上直接进入，某些则是其他场景的子场景
 /// [category]: 'city', 'site'
 /// [kind]: 'inland' | 'island'；'home', 'cityhall'
-/// [isAffiliate] 表示这个建筑是某种不出现在据点场景列表中的场景，比如生产建筑的交易所 或者角色的住宅等
+/// [isAffiliate] 表示这个建筑是某种不出现在城市场景列表中的场景，比如生产建筑的交易所 或者角色的住宅等
 struct Location {
   constructor ({
     id,
@@ -115,7 +115,7 @@ struct Location {
     isAffiliate,
     worldId,
     atTerrain,
-    atLocation,
+    atCity,
     sectId,
     name,
     background,
@@ -139,10 +139,10 @@ struct Location {
 
     this.createdTimestamp = game.timestamp
 
-    // 这个据点的子场景，这里只保存id
+    // 这个城市的子场景，这里只保存id
     this.siteIds = []
     
-    // 据点和场所的规模需要花费钱币、矿石和木材来升级
+    // 城市和场所的规模需要花费钱币、矿石和木材来升级
     this.development = development ?? 0
     this.isCapitalCity = isCapitalCity ?? false
     
@@ -161,11 +161,11 @@ struct Location {
       
       this.id = id ?? this.name
       this.color = random.nextBrightColorHex()
-      // 定居在这个据点的角色，这里只保存id
+      // 定居在这个城市的角色，这里只保存id
       this.residents = []
       
-      // 据点的最大建筑数量
-      this.maxSiteCount = maxSiteCountForCity(this)
+      // 城市的最大建筑数量
+      this.maxSiteCount = calculateMaxSiteCountForCity(this)
 
       if (background != null) {
         this.background = background
@@ -192,15 +192,11 @@ struct Location {
         assert(managerId != null, '住宅的 managerId 不能为空')
         this.id = '${managerId}_${kLocationKindHome}'
       } else {
-        if (atLocation != null) {
-          this.id = atLocation.id + '_' + this.name
+        if (atCity != null) {
+          this.id = atCity.id + '_' + this.name + '_' + crypto.randomUID();
         } else {
           this.id = id ?? (this.name + crypto.randomUID(withTime: true))
         }
-      }
-
-      if (atLocation != null) {
-        atLocation.siteIds.add(this.id)
       }
 
       this.image = image ?? 'location/card/${kind}.png'
@@ -242,7 +238,7 @@ struct Location {
     // 如果同时有 managerId 和 sectID，意味着这个建筑为非私有
     // 住所的 manager 就是这个住所的主人
     this.managerId = managerId
-    // 该据点的NPC，会显示在左侧列表中
+    // 该城市的NPC，会显示在左侧列表中
     this.npcId = npcId
     if (this.kind == kLocationKindHome) {
       assert(this.managerId != null)
@@ -257,17 +253,17 @@ struct Location {
       }
     }
 
-    // 该据点的事件触发选项
+    // 该城市的事件触发选项
     this.flags = {
       monthly: {},
     }
 
     // 大牢中的角色
-    // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
+    // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本城市的敌对名单。
     // 另外两种选择是通过说服，或者贿赂离开
     // this.jailedCharacterIds = []
 
-    // 据点的历史
+    // 城市的历史
     this.experienced = []
 
     // 和人物类似，也具有物品栏
@@ -279,13 +275,13 @@ struct Location {
     // 后者则用于玩家和商店进行交易，后者的资金独立于前者，且无法直接取出，必须通过交易才可以获得
     this.storage = {}
 
-    // 当此据点未被任何门派控制时=
-    // 据点自身记录角色在此据点的功勋
+    // 当此城市未被任何门派控制时=
+    // 城市自身记录角色在此城市的功勋
     // key: characterId, value: contribution amount
     this.contributions = {}
 
     if (atTerrain != null) {
-      engine.info('在${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了${this.name}')
+      engine.info('在${world.name} [${atTerrain.left},${atTerrain.top}] 建立了${this.name}')
       
       atTerrain.locationId = this.id
       
@@ -297,9 +293,9 @@ struct Location {
       this.terrainIndex = atTerrain.index
 
       if (this.category == 'city') {
-        // 这个据点周围所控制的地块
+        // 这个城市周围所控制的地块
         this.territoryIndexes = []
-        // 保存了据点领地范围外可以扩张到的地块
+        // 保存了城市领地范围外可以扩张到的地块
         this.borderIndexes = []
         
         // atTerrain.kind = 'city'
@@ -317,7 +313,7 @@ struct Location {
           name: this.name + engine.locale('cityhall'),
           category: 'site',
           kind: kLocationKindCityhall,
-          atLocation: this,
+          atCity: this,
           sectId: sectId,
           npcId: Constants.siteKindToNpcId[kLocationKindCityhall]
           development: this.development,
@@ -328,17 +324,24 @@ struct Location {
           name: engine.locale('tradinghouse'),
           category: 'site',
           kind: kLocationKindTradingHouse,
-          atLocation: this,
+          atCity: this,
           sectId: sectId,
           development: tradinghouseDevelopment ?? 0,
           npcId: Constants.siteKindToNpcId[kLocationKindTradingHouse]
         )
+      } else {
+        // 在大地图上的建筑也有 atCityId 方便查询
+        this.atCityId = atCity?.id
       }
-    } else if (atLocation != null) {
-      engine.info('在${atLocation.name}建立了${this.name}')
-      this.atLocationId = atLocation.id
+      engine.info('在 [${atTerrain.left},${atTerrain.top}] 建立了${this.name}')
+    } else if (atCity != null) {
+      engine.info('在${atCity.name}建立了${this.name}')
+      this.atCityId = atCity.id
+      atCity.siteIds.add(this.id)
     } else {
-      engine.info('建立了${this.name}')
+      if (kind != kLocationKindHome) {
+        engine.warn('场景 ${this.name} 没有指定 atTerrain 或 atCity')
+      }
     }
     
     if (this.kind == kLocationKindCityhall) {
@@ -363,7 +366,7 @@ function resetLocationUpdateStatus(location) {
   location.updateStatus = updateStatus
 }
 
-// function addLocations(loca tions: List, {worldId, atTerrain, atLocation, updateWorldMap = false }) {
+// function addLocations(loca tions: List, {worldId, atTerrain, atCity, updateWorldMap = false }) {
 //   engine.debug('载入地点数据')
 //   for (const location in locations) {
 //     if (location.nameId) {
@@ -371,14 +374,14 @@ function resetLocationUpdateStatus(location) {
 //     }
 //     let atWorld = worldId != null ? universe[worldId] : world
 //     let atTerrain
-//     let atLocation
+//     let atCity
 //     if (location.terrainIndex) {
 //       atTerrain = atWorld.terrains[location.terrainIndex]
 //     }
-//     if (location.atLocationId) {
-//       atLocation = atWorld.locations[location.atLocationId]
+//     if (location.atCityId) {
+//       atCity = atWorld.locations[location.atCityId]
 //     }
-//     addLocation(location, worldId: worldId, atTerrain: atTerrain, atLocation: atLocation, updateWorldMap: updateWorldMap)
+//     addLocation(location, worldId: worldId, atTerrain: atTerrain, atCity: atCity, updateWorldMap: updateWorldMap)
 //   }
 // }
 
@@ -407,11 +410,11 @@ function removeLocation(location, { updateWorldMap = false }) {
       World.setTerrainCaption(terrain.left, terrain.top, null)
       World.updateTerrainOverlaySprite(terrain.left, terrain.top)
     }
-  } else if (location.atLocationId != null) {
-    const atLocation = game.locations[location.atLocationId]
-    assert(atLocation != null, '场景不存在，id: ${location.atLocationId}')
-    if (atLocation.siteIds.contains(location.id)) {
-      atLocation.siteIds.remove(location.id)
+  } else if (location.atCityId != null) {
+    const atCity = game.locations[location.atCityId]
+    assert(atCity != null, '场景不存在，id: ${location.atCityId}')
+    if (atCity.siteIds.contains(location.id)) {
+      atCity.siteIds.remove(location.id)
     }
   }
   delete game.locations[location.id]
@@ -422,7 +425,7 @@ function getLocationDistance(loc1, loc2) {
 }
 
 // 每个城市规模对应的居民上限
-// 居民可以用于充当据点的仆役
+// 居民可以用于充当城市的仆役
 // function maxPopulationOfLocationDevelopment(n: integer) {
 //   return  (n - 1) * (n - 1) * (n - 1) * 50 + 100
 // }
@@ -431,8 +434,8 @@ function getLocationDistance(loc1, loc2) {
 //   return n * n + 1
 // }
 
-// 每个据点，每个月会自然增加人口，直到达到上限
-// 人口上限会受到掌门的技能，门派的规模和价值观，以及据点的规模和建筑所影响
+// 每个城市，每个月会自然增加人口，直到达到上限
+// 人口上限会受到掌门的技能，门派的规模和价值观，以及城市的规模和建筑所影响
 function increaseLocationPopulationPerMonth(location) {
 
 }
@@ -464,7 +467,7 @@ function getLocationByWorldPosition(left, top, {worldId}) {
 
 async function discoverLocation(location, { updateWorldMap = false }) {
   if (location.isDiscovered) return
-  // engine.debug('发现新据点：${location.name}')
+  // engine.debug('发现新城市：${location.name}')
   location.isDiscovered = true
   assert(universe.containsKey(location.worldId), location.worldId)
   let atWorld = universe[location.worldId]
@@ -472,7 +475,7 @@ async function discoverLocation(location, { updateWorldMap = false }) {
     World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   }
   if (location.isHidden) {
-    engine.warn('据点 ${location.name} 被发现，刷新大地图显示。')
+    engine.warn('城市 ${location.name} 被发现，刷新大地图显示。')
     const tile = atWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite = { sprite: kSpriteCity }
@@ -487,7 +490,7 @@ function increaseLocationDevelopment(location) {
   if (location.development < kLocationDevelopmentMax) {
     ++location.development
   } else {
-    engine.warn('据点 ${location.name} 的规模（${location.development}）已达到或超过最大值。')
+    engine.warn('城市 ${location.name} 的规模（${location.development}）已达到或超过最大值。')
   }
 }
 
@@ -527,20 +530,20 @@ function replenishTradingMoney(location) {
 function replenishTradingMaterials(location) {
   assert(location.kind == 'tradinghouse')
 
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
+  final atCity = game.locations[location.atCityId]
+  assert(atCity != null, 'location not found, id: ${location.atCityId}')
+  assert(atCity.category == 'city')
 
   // 刷新交易所材料
   let price = {}
   for (final materialId in Constants.nonCurrencyMaterialKinds) {
     price[materialId] = 1.0
   }
-  // 根据据点的纬度、季节和城市类型，决定材料的价格
+  // 根据城市的纬度、季节和城市类型，决定材料的价格
   // 所有的变量的范围在 -0.25 ~ +0.25 之间
 
   // 纬度变量
-  let latitudeFactor = 0.25 - (atLocation.worldPosition.top / world.height) * 0.5
+  let latitudeFactor = 0.25 - (atCity.worldPosition.top / world.height) * 0.5
 
   // 纬度越高，劳工价格越高
   price.worker += latitudeFactor
@@ -599,16 +602,16 @@ function replenishTradingMaterials(location) {
   price.ore += -seasonFactor
 
   let cityFactor
-  if (atLocation.kind == 'mountain') {
+  if (atCity.kind == 'mountain') {
     // 山地
     cityFactor = 0.25
-  } else if (atLocation.kind == 'inland') {
+  } else if (atCity.kind == 'inland') {
     // 内陆
     cityFactor = 0.083
-  } else if (atLocation.kind == 'island') {
+  } else if (atCity.kind == 'island') {
     // 岛屿
     cityFactor = -0.083
-  } else if (atLocation.kind == 'harbor') {
+  } else if (atCity.kind == 'harbor') {
     // 港口
     cityFactor = -0.25
   }
@@ -632,9 +635,9 @@ function replenishTradingMaterials(location) {
   // 港口岛屿矿物价格高
   price.ore += -cityFactor
 
-  // engine.log('latitude', atLocation.worldPosition.top, atLocation.id, 'latitude factor:', latitudeFactor)
-  // engine.log('season', dt.month, atLocation.id, 'season factor:', seasonFactor)
-  // engine.log('city', atLocation.category, atLocation.id, 'city factor:', cityFactor)
+  // engine.log('latitude', atCity.worldPosition.top, atCity.id, 'latitude factor:', latitudeFactor)
+  // engine.log('season', dt.month, atCity.id, 'season factor:', seasonFactor)
+  // engine.log('city', atCity.category, atCity.id, 'city factor:', cityFactor)
 
   for (final key in price.keys) {
     let v = price[key].toDouble().toFixed(2)
@@ -642,10 +645,10 @@ function replenishTradingMaterials(location) {
     price[key] = v
   }
 
-  // 根据据点和其下属的生产场所的规模，决定材料的刷新数量
+  // 根据城市和其下属的生产场所的规模，决定材料的刷新数量
 
   let developmentFactor = {
-    worker: atLocation.development + 1,
+    worker: atCity.development + 1,
     grain: 1,
     meat: 1,
     water: 1,
@@ -656,8 +659,8 @@ function replenishTradingMaterials(location) {
     ore: 1,
   }
   
-  for (final terrainIndex in atLocation.territoryIndexes) {
-    final atWorld = universe[atLocation.worldId]
+  for (final terrainIndex in atCity.territoryIndexes) {
+    final atWorld = universe[atCity.worldId]
     final terrain = atWorld.terrains[terrainIndex]
     if (terrain.locationId == null) continue
     final site = game.locations[terrain.locationId]
@@ -700,7 +703,7 @@ function replenishTradingMaterials(location) {
   for (final materialId in Constants.nonCurrencyMaterialKinds) {
     assert(developmentFactor.containsKey(materialId))
     final factor = developmentFactor[materialId]
-    final amount = random.nextInt(_kBaseStoreMaterialAmount * factor * factor)
+    final amount = random.nextInt(_kBaseStoreMaterialAmount * factor)
     // engine.log(location.id, materialId, 'factor:', factor, 'amount:', amount)
     location.materials[materialId] = amount
   }
@@ -767,16 +770,16 @@ function replenishTradingItem(location) {
   }
   location.inventory = {}
   let amount = _kBaseItemReplenishAmount + location.development
-  final atLocation = game.locations[location.atLocationId]
-  assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  assert(atLocation.category == 'city')
+  final atCity = game.locations[location.atCityId]
+  assert(atCity != null, 'location not found, id: ${location.atCityId}')
+  assert(atCity.category == 'city')
   final rank = location.development + 1
   switch (location.kind) {
     'tradinghouse': {
       // 根据地形，决定商店里是否有船只和靴子
       let hasMountainNeighbor = false
       let hasWaterNeighbor = false
-      final neighbors = getTileNeighbors(atLocation.worldPosition.left, atLocation.worldPosition.top)
+      final neighbors = getTileNeighbors(atCity.worldPosition.left, atCity.worldPosition.top)
       for (final neighbor in neighbors.values) {
         if (neighbor.kind == 'mountain') {
           hasMountainNeighbor = true
@@ -793,14 +796,15 @@ function replenishTradingItem(location) {
         entityAcquire(location, item)
       }
       for (var i in range(amount)) {
+        final rankRoll = random.nextInt(location.development + 1)
         final typeRoll = random.nextDouble()
         let item
         if (typeRoll < 0.5) {
-          item = Equipment(rank: 0)
+          item = Equipment(rank: rankRoll)
         } else if (typeRoll < 0.7) {
-          item = Potion(rank: 0)
+          item = Potion(rank: rankRoll)
         } else if (typeRoll < 0.9) {
-          item = Cardpack(rank: 0)
+          item = Cardpack(rank: rankRoll)
         } else {
           item = createItemById('identify_scroll')
         }
@@ -808,7 +812,7 @@ function replenishTradingItem(location) {
       }
     }
     'auctionhouse': {
-      for (final siteId in atLocation.siteIds) {
+      for (final siteId in atCity.siteIds) {
         final site = game.locations[siteId]
         assert(site != null, 'location not found, id: ${siteId}')
         if (site.kind == kLocationKindWorkshop) {
@@ -817,7 +821,7 @@ function replenishTradingItem(location) {
       }
 
       for (var i in range(amount)) {
-        let item = Equipment(rank: random.nearInt(rank))
+        let item = Equipment(rank: random.nextInt(kCultivationRankMax + 1), isIdentified: false)
         entityAcquire(location, item)
       }
     }
@@ -872,15 +876,18 @@ function replenishTradingItem(location) {
         }
       }
     }
+    else: {
+      engine.error('场所 ${location.name} 不支持物品交易刷新')
+    }
   }
 }
 
 /// 刷新聚灵阵中的可用灵气
 function replenishCollectableLight(location) {
   assert(location.kind == 'exparray')
-  // final atLocation = game.locations[location.atLocationId]
-  // assert(atLocation != null, 'location not found, id: ${location.atLocationId}')
-  // assert(atLocation.category == 'city')
+  // final atCity = game.locations[location.atCityId]
+  // assert(atCity != null, 'location not found, id: ${location.atCityId}')
+  // assert(atCity.category == 'city')
 
   final replenishAmount = Math.pow(_kBaseCollectableLightReplenishAmount, location.development) * 3
   location.collectableLight = random.nearInt(replenishAmount + 10) + 10

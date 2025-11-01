@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/services.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/common.dart';
 import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';

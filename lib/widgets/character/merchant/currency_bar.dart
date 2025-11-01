@@ -4,7 +4,7 @@ import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 // import '../../../game/ui.dart';
 import '../../../state/hover_content.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 
 class CurrencyBar extends StatelessWidget {
   const CurrencyBar({

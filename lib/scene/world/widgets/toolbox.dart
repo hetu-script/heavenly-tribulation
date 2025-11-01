@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/ink_button.dart';
 import 'package:provider/provider.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../ui.dart';
 import '../../../state/editor_tool.dart';
 import '../../../data/game.dart';

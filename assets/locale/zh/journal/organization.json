@@ -1,6 +1,6 @@
 {
   "journal_sectInitiation_title": "修真门派",
-  "journal_sectInitiation_stage_0": "去{1}找上级{2}报到，领取{0}配发的丹药和秘籍。",
+  "journal_sectInitiation_stage_0": "去{0}找上级{1}报到，领取{2}配发的丹药和秘籍。",
   "journal_sectInitiation_stage_1": "参加每个月月初 1-5 号举办的例会，获取门派任务。",
   "journal_sectInitiation_stage_2": "提升门派职位到「执事」。",
 
@@ -32,9 +32,21 @@
 
   "sect_meeting_monthlySummary": "接下来，进入上月总结环节。",
   "sect_meeting_monthlySummary_contribution": "{0}积累的功勋为 <yellow>{2}</>。",
-  "sect_meeting_monthlySummary_contribution_normal": "{0}，鉴于你的表现，本月你未能获得奖励。天道酬勤，还望你再接再厉，争取下一次能够获得门派的奖赏。",
+  "sect_meeting_monthlySummary_contribution_normal": "{0}，鉴于你上个月的表现，你未能获得奖励。天道酬勤，还望你再接再厉，争取下一次能够获得门派的奖赏。",
   "sect_meeting_monthlySummary_contribution_bonus": "{0}，你上月表现卓越，积累了不少功劳。你的付出，门派上下皆看在眼里。此乃嘉奖，望你日后能为门派做出更大贡献。",
-  "sect_meeting_monthlySummary_promotion": "{0}，念你功勋卓著，修为亦有所成。自今日起，擢升你为门派「{1}」，望你恪尽职守，不负所托！",
+  "sect_meeting_monthlySummary_promotion": "{0}，念你功勋卓著，修为亦有所成。自今日起，擢升你为门派<yellow>「{1}」</>，望你恪尽职守，不负所托！",
+
+  "sect_meeting_monthlySummary_newSuperior": "你现在既已升职，今后改为向<yellow>{0}</>报告，有任何问题都可以和他沟通。",
+
+  "sect_title_taskman": "{0}，自今日起，便任你为门派<yellow>「{1}」</>，望你恪尽职守，不负所托！",
+
+  "sect_title_promotion": "{0}，念你修为卓越，自今日起，便任你为门派<yellow>「{1}」</>，望你恪尽职守，不负所托！",
+
+  "sect_promotion_manager": "「总管」一职拥有管理一个门派建筑的权力，请选择你想要管理的地点。",
+
+  "sect_promotion_mayor": "「堂主」一职拥有管理一个门派城市的权力，请选择你想要管理的城市。",
+
+  "sect_promotion_governor": "「长老」一职可以管理多个门派城市，请选择你想要管理的城市。",
 
   "sect_meeting_quests": "接下来，开始本月的任务分配，诸位可自行认领。有志者切莫推诿。",
 

@@ -6,7 +6,7 @@
 
 游戏核心存档（包含所有的角色，组织等）
 游戏时间线存档
-游戏宇宙存档（包含所有的地图地块信息和据点信息）
+游戏宇宙存档（包含所有的地图地块信息和城市信息）
 本地化文本
 动画
 战斗卡牌主词条
@@ -96,9 +96,9 @@ async function onShow(character, item)
 async function onGift(character, item)
 /// 某些身上的装备，会随着时间流逝调用自定义函数刷新属性
 async function onUpdateItem(item)
-/// ----------据点场景----------
+/// ----------城市场景----------
 async function onBeforeEnterLocation(location)
-/// 进入据点场景
+/// 进入城市场景
 /// 如果返回 true，会跳过游戏内置的交互逻辑
 /// 因为这个事件的逻辑较复杂，所以并不会一次就触发所有的事件
 /// 每次触发后，就会返回 true，停止后续其他逻辑的判断

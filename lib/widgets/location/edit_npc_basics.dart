@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
@@ -14,7 +14,7 @@ class EditNpcBasics extends StatefulWidget {
   /// illustration
   const EditNpcBasics({
     super.key,
-    required this.atLocation,
+    required this.atCity,
     required this.id,
     this.nameId,
     this.icon,
@@ -22,7 +22,7 @@ class EditNpcBasics extends StatefulWidget {
     this.useCustomLogic = false,
   });
 
-  final dynamic atLocation;
+  final dynamic atCity;
   final String id;
   final String? nameId;
   final String? icon;
@@ -177,7 +177,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                     child: fluent.Button(
                       onPressed: () {
                         GameData.game['npcs'].remove(widget.id);
-                        widget.atLocation.remove('npcId');
+                        widget.atCity.remove('npcId');
                         Navigator.of(context).pop(null);
                       },
                       child: Text(
@@ -208,7 +208,7 @@ class _EditNpcBasicsState extends State<EditNpcBasics> {
                               'icon': _iconEditingController.text,
                               'illustration':
                                   _illustrationEditingController.text,
-                              'atLocationId': widget.atLocation['id'],
+                              'atCityId': widget.atCity['id'],
                               'useCustomLogic': _useCustomLogic,
                             },
                           );

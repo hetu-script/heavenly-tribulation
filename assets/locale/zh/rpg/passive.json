@@ -55,7 +55,7 @@
 
   "passive_enable_chakra_description": "战斗中每造成 10 点伤害获得 1 点剑气",
   "passive_enable_rage_description": "战斗中每受到 10 点伤害获得 1 点怒气",
-  "passive_enable_karma_description": "每次击败对手后获得 1 点煞气",
+  "passive_enable_karma_description": "每次击败对手后获得 5 点煞气",
 
   "passive_no_need_sword_description": "无需装备剑就可使用剑法和御剑术",
   "passive_no_need_sabre_description": "无需装备刀就可以使用刀法",
@@ -236,11 +236,11 @@
   "passive_overflowed_mana_convert_to_vigor_description": "溢出的灵气转化为元气",
   "passive_overflowed_chakra_debuff_affect_opponent_description": "剑气溢出时改为由对方承受随机负面效果",
 
-  "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气",
+  "passive_mana_is_also_chakra_description": "灵气同时也被视作剑气，剑气同时也被视作灵气",
 
   "passive_exhaust_life_for_insufficient_rage_description": "怒气枯竭时不会获得阴气，而是改为消耗生命",
 
-  "passive_dart_and_poison_deal_pure_damage_description": "暗器和毒术卡牌伤害减少30%，并转为纯粹伤害",
+  "passive_dart_and_bow_attack_deal_pure_damage_description": "你的暗器和弓术攻击减少30%，并转为纯粹伤害",
   "passive_curse_deal_pure_damage_description": "咒术攻击减少30%，并转为纯粹伤害",
 
   "passive_gained_debuff_affect_opponent_description": "每当你获得负面效果时，对手获得同样的负面效果",

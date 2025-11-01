@@ -7,7 +7,7 @@ import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
 // import 'package:samsara/components/task_component.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
@@ -22,14 +22,14 @@ const kResourceMaxId = {
   'energy_positive_weapon': 'chakraMax',
 };
 
-const kNegativeResourceNames = {
-  'life',
-  'leech',
-  'pure',
-  'unarmed',
-  'weapon',
-  'spell',
-  'curse',
+const kResourceHasNegatives = {
+  'energy_positive_life',
+  'energy_positive_leech',
+  'energy_positive_pure',
+  'energy_positive_unarmed',
+  'energy_positive_weapon',
+  'energy_positive_spell',
+  'energy_positive_curse',
 };
 
 Color getDamageColor(String damageType) {
@@ -331,7 +331,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     String id, {
     int? amount,
     double? percentage,
-    String? exhaust,
   }) {
     int removeAmount = 0;
     StatusEffect? existEffect;
@@ -370,17 +369,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    if (amount != null && removeAmount < amount && exhaust != null) {
+    if (amount != null &&
+        removeAmount < amount &&
+        kResourceHasNegatives.contains(id)) {
       // 只有消耗阳气时，才会触发枯竭
-      assert(id.startsWith('energy_positive'));
-      assert(kNegativeResourceNames.contains(exhaust));
-      // 触发资源枯竭时的情况
       final hint = engine.locale('resourceLacking',
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
 
       final rest = (amount - removeAmount);
-      final oppositeId = 'energy_negative_$exhaust';
+      final oppositeId = id.replaceAll('positive', 'negative');
       // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
       addStatusEffect(oppositeId, amount: rest, handleCallback: false);
 
@@ -395,9 +393,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void addStatusEffect(String id, {int? amount, bool handleCallback = true}) {
-    if (amount == null) {
-      engine.warn(
-          'Status effect [$id] added without a specific amount, set to 1');
+    if (amount == null || amount <= 0) {
+      engine.error('Status effect [$id] added with amount <= 0, set to 1');
       amount = 1;
     }
     assert(amount > 0);
@@ -474,16 +471,19 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       game.world.add(effect);
 
       if (effect.isResource) {
-        addHintText(
-          '${engine.locale('status_$id')} +$amount',
-          color: getResourceColor(id),
-        );
         reArrangeResourceEffects();
       } else if (effect.isPermanent) {
         reArrangePermanentEffects();
       } else {
         reArrangeNonResourceEffects();
       }
+    }
+
+    if (effect.isResource) {
+      addHintText(
+        '${engine.locale('status_$id')} +$amount',
+        color: getResourceColor(id),
+      );
     }
 
     if (handleCallback) {

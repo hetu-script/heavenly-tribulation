@@ -15,12 +15,12 @@
   "quest_late_failed": "关于之前拜托给您的任务「{0}」，已经超过了时限啊。这次委托只能算是失败了。\n真令人失望啊，我们下次可能就不会再找你帮忙了。",
   "quest_purchase_late_failed": "关于之前拜托给您的任务「{0}」，已经超过了时限啊。这次委托只能算是失败了。之前给你的预算金我们也会扣除。",
 
-  "quest_purchase_material_description": "购买 {0} 个{1}，然后返回{2}的{3}交付。",
-  "quest_purchase_item_description": "购买{0}，然后返回{1}的{2}交付。",
+  "quest_purchase_material_description": "购买 {0} 个{1}，然后返回{2}交付。",
+  "quest_purchase_item_description": "购买{0}，然后返回{1}交付。",
   "quest_deliver_material_description": "将 {0} 个{1}送到{2}的{3}。",
   "quest_deliver_item_description": "将{0}送到{1}的{2}。",
   "quest_escort_description": "护送{0}到{1}的{2}。",
-  "quest_discover_location_description": "在 {0} 附近探索隐藏据点{1}。",
+  "quest_discover_location_description": "在 {0} 附近探索隐藏城市{1}。",
 
   "quest_deliver_success": "你是来送货的吧，交给我就行了，多谢你一路辛苦。",
   "quest_deliver_late_success": "你是来送货的吧，怎么这么久才来？无论如何，赶紧把物资给我吧。",
@@ -54,6 +54,6 @@
   "quest_purchase_success": "这确实是约定的物资，多谢你一路辛苦。\n预算中剩余的部分你收好就行，那就是你的报酬。",
   "quest_purchase_late_success": "这确实是约定的物资。虽然你送到了，但也耽搁太久了。无论如何，先交给我吧。",
 
-  "quest_discover_success": "你真的找到了{0}！\n看来你确实有点本事。这是报酬，你收好吧。",
-  "quest_discover_late_success": "你怎么这么久才来？不过，你真的找到了{0}啊！\n看来你确实有点本事。这是报酬，你收好吧。"
+  "quest_discover_success": "你真的找到了<yellow>{0}</>！\n看来你确实有点本事。这是报酬，你收好吧。",
+  "quest_discover_late_success": "你怎么这么久才来？不过，你真的找到了<yellow>{0}</>啊！\n看来你确实有点本事。这是报酬，你收好吧。"
 }

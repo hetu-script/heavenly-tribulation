@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../ui.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../logic/logic.dart';
@@ -309,17 +309,14 @@ class LocationScene extends Scene with HasCursorState {
     engine.info('玩家进入了 ${location['name']}');
     await GameLogic.onAfterEnterLocation(location);
 
+    gameState.clearTerrain();
+    gameState.updateDungeon();
+    gameState.updateActiveJournals();
+    gameState.updateDatetime();
+
+    gameState.updateLocation(location);
     final npcs = GameData.getNpcsAtLocation(location);
-    context.read<NpcListState>().update(npcs);
-    context.read<HeroPositionState>().updateTerrain(
-          currentZoneData: null,
-          currentNationData: null,
-          currentTerrainData: null,
-        );
-    context.read<HeroPositionState>().updateLocation(location);
-    context.read<HeroPositionState>().updateDungeon();
-    context.read<HeroJournalUpdate>().update();
-    context.read<GameTimestampState>().update();
+    gameState.updateNpcs(npcs);
   }
 
   @override
@@ -346,7 +343,7 @@ class LocationScene extends Scene with HasCursorState {
         ),
         GameUIOverlay(
           showNpcs: true,
-          showActiveJournal: true,
+          showJournal: true,
           actions: [DropMenuButton()],
         ),
       ],

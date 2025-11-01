@@ -52,9 +52,9 @@ struct BattleCard {
         return affix.id == affixId
       } else {
         if (affix.isHidden) return false
-        if (kind != null && affix.kind != kind) return false
         if (category != null && affix.category != category) return false
         if (affix.rank > this.rank) return false
+        if (kind != null && affix.kind != kind) return false
         if (genre != null) {
           if (genre == 'none') {
             if (affix.genre != null) {
@@ -69,7 +69,32 @@ struct BattleCard {
     })
 
     if (mainAffixes.isEmpty) {
-      throw('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
+      // 去掉 kind 限制再试一次
+      engine.error('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}, try again without kind limit')
+      mainAffixes = game.battleCards.values.where( (affix) {
+        if (affixId) {
+          return affix.id == affixId
+        } else {
+          if (affix.isHidden) return false
+          if (category != null && affix.category != category) return false
+          if (affix.rank > this.rank) return false
+          // if (kind != null && affix.kind != kind) return false
+          if (genre != null) {
+            if (genre == 'none') {
+              if (affix.genre != null) {
+                return false
+              }
+            } else if (genre != affix.genre) {
+              return false
+            }
+          }
+          return true
+        }
+      })
+    }
+
+    if (mainAffixes.isEmpty) {
+      throw('Found no main affix for: id: ${affixId} genre: ${genre}, kind: ${kind}, rank: ${rank}')
     }
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
@@ -461,7 +486,7 @@ struct Cardpack {
   }) {
     assert(genre == null || genre == 'none' || Constants.cultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
-    assert(kind == null || kBattleCardKinds.contains(kind), kind)
+    assert(kind == null || Constants.battleCardKinds.contains(kind), kind)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
     this.type = kItemTypeCardpack

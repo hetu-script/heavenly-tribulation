@@ -130,12 +130,12 @@ async function onEnterMap() {
   }
 
   if (!game.flags.dungeon.buildCompleted) {
+    Game.setUIVisible(false)
     dialog.pushBackground('black.png')
     dialog.pushTask(() {
       _prepareMap()
       World.lightUpAllTiles()
       Player.setTo(_kStartTile.left, _kStartTile.top, worldId: world.id, direction: 'north')
-      Game.showHeroInfo()
     })
     dialog.popBackground(isFadeOut: true)
     if (!game.flags.dungeon.introCompleted) {
@@ -143,6 +143,7 @@ async function onEnterMap() {
       dialog.pushDialog('cultivation_trial_intro_1')
     }
     await dialog.execute()
+    Game.setUIVisible(true)
   }
 }
 

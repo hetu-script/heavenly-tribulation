@@ -6,7 +6,7 @@ import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 // import 'package:samsara/colors.dart';
 
 import 'data/common.dart';
-import 'engine.dart';
+import 'global.dart';
 import 'widgets/ui/close_button2.dart';
 import 'widgets/ui/responsive_view.dart';
 
@@ -75,34 +75,6 @@ final class TextStyles {
 }
 
 final class FluentButtonStyles {
-  static final column = fluent.ButtonStyle(
-    backgroundColor: WidgetStateProperty<Color>.fromMap(
-      <WidgetStatesConstraint, Color>{
-        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
-            Colors.white24,
-        WidgetState.hovered: Colors.white12,
-        WidgetState.disabled: Colors.transparent,
-        WidgetState.any: Colors.transparent,
-      },
-    ),
-    foregroundColor: WidgetStateProperty<Color>.fromMap(
-      <WidgetStatesConstraint, Color>{
-        WidgetState.disabled: GameUI.foregroundDisabled,
-        WidgetState.any: GameUI.foregroundColor,
-      },
-    ),
-    shape: WidgetStatePropertyAll<ShapeBorder>(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-        side: BorderSide.none,
-      ),
-    ),
-    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
-      EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
-    ),
-    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodySmall),
-  );
-
   static final outlined = fluent.ButtonStyle(
     backgroundColor: WidgetStateProperty<Color>.fromMap(
       <WidgetStatesConstraint, Color>{
@@ -155,9 +127,8 @@ final class FluentButtonStyles {
   static final tabVL = outlined.copyWith(
     backgroundColor: WidgetStateProperty<Color>.fromMap(
       <WidgetStatesConstraint, Color>{
-        WidgetState.pressed | WidgetState.focused:
-            GameUI.focusColor.withAlpha(60),
-        WidgetState.hovered: GameUI.hoverColor.withAlpha(60),
+        WidgetState.pressed | WidgetState.focused: GameUI.focusColor,
+        WidgetState.hovered: GameUI.hoverColor,
         WidgetState.disabled: Colors.transparent,
         WidgetState.any: Colors.transparent,
       },
@@ -181,6 +152,34 @@ final class FluentButtonStyles {
 
   static final tabVLSelected = tabVL.copyWith(
     foregroundColor: WidgetStatePropertyAll<Color>(GameUI.selectedColor),
+  );
+
+  static final flat = fluent.ButtonStyle(
+    backgroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.pressed | WidgetState.focused | WidgetState.selected:
+            Colors.white24,
+        WidgetState.hovered: Colors.white12,
+        WidgetState.disabled: Colors.transparent,
+        WidgetState.any: Colors.transparent,
+      },
+    ),
+    foregroundColor: WidgetStateProperty<Color>.fromMap(
+      <WidgetStatesConstraint, Color>{
+        WidgetState.disabled: GameUI.foregroundDisabled,
+        WidgetState.any: GameUI.foregroundColor,
+      },
+    ),
+    shape: WidgetStatePropertyAll<ShapeBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero,
+        side: BorderSide.none,
+      ),
+    ),
+    padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+      EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+    ),
+    textStyle: WidgetStatePropertyAll<TextStyle>(TextStyles.bodySmall),
   );
 }
 
@@ -247,21 +246,21 @@ final class GameUI {
 
   static final barrierColor = Colors.black54;
 
-  static const backgroundColor = Color(0xcc1b1613);
+  static const backgroundColor = Color(0xaa1b1613);
   static const backgroundColorOpaque = Color(0xff1b1613);
-  static const backgroundColor2 = Color(0xcc270505);
+  static const backgroundColor2 = Color(0xaa270505);
   static const backgroundColor2Opaque = Color(0xff270505);
-  static const backgroundDisabled = Color(0xcc607D8B);
+  static const backgroundDisabled = Color(0xaa607D8B);
 
   static final Paint background2Paint = Paint()
     ..style = PaintingStyle.fill
     ..color = backgroundColor2;
 
-  static const primaryColor = Colors.lightBlue;
-  static const focusColor = Colors.lightBlueAccent;
-  static const hoverColor = primaryColor;
-  static const selectedColor = Colors.lightBlue;
+  static const primaryColor = Color(0xFF03A9F4);
   static const highlightColor = Colors.yellow;
+  static const focusColor = Color(0xAA40C4FF);
+  static const hoverColor = Color(0xAA03A9F4);
+  static const selectedColor = Color(0xAA03A9F4);
 
   static const borderColor = Color(0xaa607d8B);
   static const borderColor2 = Color(0xaacc5500);
@@ -543,8 +542,8 @@ final class GameUI {
 
   static final collectPanelPosition = Vector2(1000.0, 35.0);
   static final collectPanalSize = Vector2(420.0, 210.0);
-  static final collectPanalAvatarSize = Vector2(120.0, 120.0);
-  static final collectPanalAvatarPosition = Vector2(266, 46);
+  static final collectPanalAvatarSize = Vector2(100.0, 100.0);
+  static final collectPanalAvatarPosition = Vector2(266, 66);
   // static final collectPanelIconSize = Vector2(60.0, 60.0);
   // static final collectPanelIconPositions = [
   //   Vector2(33.0, 45.0),

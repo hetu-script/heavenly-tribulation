@@ -3,13 +3,12 @@ import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 
 import '../state/view_panels.dart';
-import '../state/game_update.dart';
 import '../ui.dart';
-import '../engine.dart';
+import '../global.dart';
 import 'history_list.dart';
 import '../state/hover_content.dart';
 import '../data/game.dart';
-import '../state/selected_tile.dart';
+import '../state/game_state.dart';
 
 class HistoryPanel extends StatelessWidget {
   const HistoryPanel({
@@ -23,7 +22,7 @@ class HistoryPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final positionDetails = StringBuffer();
-    final dateString = context.watch<GameTimestampState>().datetimeString;
+    final dateString = context.watch<GameState>().datetimeString;
     positionDetails.write(dateString);
 
     dynamic currentZone,
@@ -32,11 +31,11 @@ class HistoryPanel extends StatelessWidget {
         currentLocation,
         currentDungeon;
 
-    currentZone = context.watch<HeroPositionState>().currentZone;
-    currentNation = context.watch<HeroPositionState>().currentNation;
-    currentTerrain = context.watch<HeroPositionState>().currentTerrain;
-    currentLocation = context.watch<HeroPositionState>().currentLocation;
-    currentDungeon = context.watch<HeroPositionState>().currentDungeon;
+    currentZone = context.watch<GameState>().currentZone;
+    currentNation = context.watch<GameState>().currentNation;
+    currentTerrain = context.watch<GameState>().currentTerrain;
+    currentLocation = context.watch<GameState>().currentLocation;
+    currentDungeon = context.watch<GameState>().currentDungeon;
 
     // if (isEditorMode) {
     //   positionDetails.write(engine.locale('terrainDetail'));
@@ -61,35 +60,41 @@ class HistoryPanel extends StatelessWidget {
             ' ${engine.locale('currentDungeonRoom')}: ${room + 1}/${currentDungeon['roomMax'] + 1}');
       }
     } else if (currentLocation != null) {
-      dynamic manager;
-      // dynamic sect;
-      final managerId = currentLocation['managerId'];
-      // 这里 manager 可能是 null
-      manager = GameData.game['characters'][managerId];
-      // final sectId = currentLocation['sectId'];
-      // sect = GameData.gameData['sects'][sectId];
-
+      String? managerId = currentLocation['managerId'];
+      dynamic manager = GameData.game['characters'][managerId];
       String title;
-      if (currentLocation['category'] == 'city') {
-        title = engine.locale('mayor');
-      } else {
+      int development = currentLocation['development'];
+      if (currentLocation['category'] == 'site') {
         final kind = currentLocation['kind'];
         if (kind == 'headquarters') {
           title = engine.locale('head');
+          final sectId = currentLocation['sectId'];
+          final sect = GameData.getSect(sectId);
+          managerId = sect['headId'];
+          manager = GameData.game['characters'][managerId];
         } else if (kind == 'cityhall') {
           title = engine.locale('mayor');
-        } else if (kind == 'home') {
-          title = engine.locale('homeOwner');
+          final atCityId = currentLocation['atCityId'];
+          final atCity = GameData.getLocation(atCityId);
+          managerId = atCity['managerId'];
+          manager = GameData.game['characters'][managerId];
+          development = atCity['development'];
         } else {
-          title = engine.locale('manager');
+          if (kind == 'home') {
+            title = engine.locale('homeOwner');
+          } else {
+            title = engine.locale('manager');
+          }
         }
+      } else {
+        assert(currentLocation['category'] == 'city');
+        title = engine.locale('mayor');
       }
 
       positionDetails.write(' ${currentLocation['name']}');
       positionDetails
           .write(' $title ${manager?['name'] ?? engine.locale('none')}');
-      positionDetails.write(
-          ' ${engine.locale('development')}: ${currentLocation['development']}');
+      positionDetails.write(' ${engine.locale('development')}: $development');
     } else {
       if (currentZone != null) {
         positionDetails.write(' ${currentZone!['name']}');
@@ -101,7 +106,7 @@ class HistoryPanel extends StatelessWidget {
         positionDetails
             .write(' ${engine.locale(currentTerrain.data?['kind'])}');
         positionDetails
-            .write(' [${currentTerrain.left}, ${currentTerrain.top}]');
+            .write(' [${currentTerrain.left},${currentTerrain.top}]');
       }
     }
 

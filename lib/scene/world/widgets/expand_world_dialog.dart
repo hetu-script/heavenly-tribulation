@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/integer_input_field.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../widgets/ui/close_button2.dart';
 import '../../../widgets/ui/responsive_view.dart';
 

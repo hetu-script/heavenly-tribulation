@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'inventory/inventory.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../state/states.dart';
 import '../ui/close_button2.dart';

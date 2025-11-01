@@ -214,7 +214,7 @@ function firstItemKindInInventory(entity, kind, {rank}) {
 
 /// 直接获得资源
 function entityCollect(entity, materialId, amount, { onStorage = false, incurIncident = true }) {
-  engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
+  // engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
   if (amount <= 0) {
     engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
@@ -285,10 +285,10 @@ function entityExhaust(
   return exhausted
 }
 
-/// 对象（人物、据点等）获得一个已经存在与世界上的物品
+/// 对象（人物、城市等）获得一个已经存在与世界上的物品
 function entityAcquire(entity, item, { amount, incurIncident = true }) {
   if (item.isUnique)
-  assert(item.entityType == kEntityTypeItem, '${item.entityType}')
+  assert(item.entityType == kEntityTypeItem, item.entityType)
 
   item.stackSize ??= 1
   let acquireAmount = amount ?? item.stackSize
@@ -431,7 +431,7 @@ function entityLoseItemKind(entity, kind, amount) {
 function characterAcquireBattleCard(character, card, { incurIncident = true }) {
   assert(character.entityType == kEntityTypeCharacter || character.entityType == kEntityTypeBattleEntity, '${character.entityType}')
   assert(!character.cardLibrary.containsKey(card.id))
-  assert(card.entityType == kEntityTypeBattleCard, '${card.entityType}')
+  assert(card.entityType == kEntityTypeBattleCard, card.entityType)
 
   character.cardLibrary[card.id] = card
   card.acquiredSequence = character.achievements.acquiredBattleCards

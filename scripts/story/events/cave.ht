@@ -8,7 +8,7 @@ async function onNewGame() {
   // dialog.pushBackground('black.png', isFadeIn: true)
   dialog.pushDialog('prelude_ling_line1', isHero: true)
   dialog.pushTask(() {
-    Game.showHeroInfo()
+    Game.setUIVisible(true)
     Player.setTo(6, 22, worldId: 'prelude', direction: 'south')
   })
   // dialog.popBackground(isFadeOut: true)

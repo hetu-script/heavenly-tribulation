@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/character/memory_and_bond.dart';
+import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../ui/avatar.dart';
 import '../common.dart';
 import 'edit_character_basics.dart';
@@ -48,16 +49,17 @@ class _CharacterProfileState extends State<CharacterProfile> {
   late int charisma, wisdom, luck;
 
   late String race;
-  late String birthday, restLifespan;
+  late String birthday; //, restLifespan;
   late String sectName, title;
+  late String supieriorName, reportCityName; //managingLocationNames;
 
   late int fame, infamy;
   final Map<String, TextEditingController> attributeControllers = {};
   final Map<String, Widget> attributeWidgets = {};
 
   late String homeName;
-  late String worldPosition, locationName;
-  late String cultivationFavor, sectFavor;
+  // late String worldPosition, locationName;
+  // late String cultivationFavor, sectFavor;
 
   late int rank, level;
   late List motivationIds;
@@ -94,7 +96,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     }
     assert(_character != null);
 
-    for (final id in kAttributes) {
+    for (final id in kVisibleAttributes) {
       final ctrl = TextEditingController();
       attributeControllers[id] = ctrl;
 
@@ -108,7 +110,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
       attributeWidgets[id] = SizedBox(
         height: 35.0,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text('${engine.locale(id)}: '),
             textWidget,
@@ -130,7 +131,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
       personalityWidgets[id] = Container(
         height: 35.0,
-        width: 125.0,
+        width: 110.0,
         padding: const EdgeInsets.only(left: 5.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -166,7 +167,30 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final sectId = _character['sectId'];
     // 这里有可能为 null
     final sect = GameData.game['sects'][sectId];
-    sectName = sect != null ? sect['name'] : none;
+    if (sect != null) {
+      sectName = sect['name'];
+      final memberData = sect['membersData'][_character['id']];
+      assert(memberData != null,
+          'could not find member data of character [${_character['name']}] in sect: ${sect['name']}!');
+      final superiorId = memberData['superiorId'];
+      if (superiorId != null) {
+        final superior = GameData.getCharacter(superiorId);
+        supieriorName = superior['name'];
+      } else {
+        supieriorName = none;
+      }
+      final reportCityId = memberData['reportCityId'];
+      if (reportCityId != null) {
+        final reportLocation = GameData.getLocation(reportCityId);
+        reportCityName = reportLocation['name'];
+      } else {
+        reportCityName = none;
+      }
+    } else {
+      sectName = none;
+      supieriorName = none;
+      reportCityName = none;
+    }
 
     final titleId = _character['titleId'];
     title = titleId != null ? engine.locale(titleId) : none;
@@ -176,34 +200,34 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
     birthday = engine.hetu
         .invoke('getCharacterBirthDayString', positionalArgs: [_character]);
-    restLifespan = engine.hetu
-        .invoke('getCharacterRestLifespanString', positionalArgs: [_character]);
+    // restLifespan = engine.hetu
+    //     .invoke('getCharacterRestLifespanString', positionalArgs: [_character]);
 
-    cultivationFavor = engine.locale(_character['cultivationFavor']);
-    sectFavor = engine.locale(_character['sectFavor']);
+    // cultivationFavor = engine.locale(_character['cultivationFavor']);
+    // sectFavor = engine.locale(_character['sectFavor']);
 
     final homeId = _character['homeLocationId'];
     final homeLocation = GameData.game['locations'][homeId];
     homeName = homeLocation != null ? homeLocation['name'] : none;
 
-    final locationId = _character['locationId'];
-    final location = GameData.game['locations'][locationId];
-    locationName = location != null ? location['name'] : none;
+    // final locationId = _character['locationId'];
+    // final location = GameData.game['locations'][locationId];
+    // locationName = location != null ? location['name'] : none;
 
-    final worldPositionX = _character['worldPosition']?['left'];
-    final worldPositionY = _character['worldPosition']?['top'];
-    if (worldPositionX != null && worldPositionY != null) {
-      worldPosition = '[$worldPositionX, $worldPositionY]';
-    } else {
-      worldPosition = '';
-    }
+    // // final worldPositionX = _character['worldPosition']?['left'];
+    // // final worldPositionY = _character['worldPosition']?['top'];
+    // // if (worldPositionX != null && worldPositionY != null) {
+    // //   worldPosition = '[$worldPositionX, $worldPositionY]';
+    // // } else {
+    // //   worldPosition = '';
+    // // }
 
     rank = _character['rank'];
     level = _character['level'];
 
     motivationIds = _character['motivations'];
 
-    for (final id in kAttributes) {
+    for (final id in kVisibleAttributes) {
       final value = _character['stats'][id].toInt();
       attributeControllers[id]!.text = value.toString();
     }
@@ -237,8 +261,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          height: widget.height,
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          height: 340.0,
           child: SingleChildScrollView(
             child: ListView(
               shrinkWrap: true,
@@ -258,7 +282,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     ),
                     Expanded(
                       child: Container(
-                        margin: const EdgeInsets.only(right: 10.0),
                         height: 150.0,
                         decoration: GameUI.boxDecoration,
                         child: HistoryList(
@@ -277,235 +300,208 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     ),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(left: 5.0),
+                      width: 110.0,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 35.0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                isEditorMode
+                                    ? Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text('${engine.locale('gender')}: '),
+                                          Container(
+                                            width: 55,
+                                            height: 30,
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: FittedBox(
+                                              fit: BoxFit.fill,
+                                              child: fluent.ToggleSwitch(
+                                                checked: isFemale,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    isFemale = value;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Text(
+                                        '${engine.locale('gender')}: ${isFemale ? engine.locale('female') : engine.locale('male')}'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 35.0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('${engine.locale('age')}: '),
+                                isEditorMode
+                                    ? IntEditField(controller: _ageController)
+                                    : Text('$age${engine.locale('ageYear')}'),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 35.0,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('${engine.locale('race')}: '),
+                                isEditorMode
+                                    ? fluent.DropDownButton(
+                                        items: buildFluentMenuItems(
+                                          items: {
+                                            for (final r in kRaces)
+                                              engine.locale(r): r
+                                          },
+                                          onSelectedItem: (String raceId) {
+                                            setState(() {
+                                              race = raceId;
+                                            });
+                                          },
+                                        ),
+                                      )
+                                    : Text(race),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: Label(
+                              '${engine.locale('cultivationRank')}: <rank$rank>${engine.locale('cultivationRank_$rank')}</>',
+                              textStyle: TextStyles.bodyMedium,
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: Text('${engine.locale('level2')}: $level'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 5.0, top: 7.0),
+                      width: 110.0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: kBattleAttributes
+                            .map((attrId) => attributeWidgets[attrId]!)
+                            .toList(),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 5.0, top: 7.0),
+                      width: 110.0,
+                      child: Column(
+                        children: [
+                          attributeWidgets['charisma']!,
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text('${engine.locale('fame')}: $fame'),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text('${engine.locale('infamy')}: $infamy'),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text('${engine.locale('home')}: $homeName'),
+                          ),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text(
+                              '${engine.locale('birthday')}: $birthday',
+                              softWrap: false,
+                              overflow: TextOverflow.visible,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 5.0, top: 7.0),
+                      width: 125.0,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            width: 125.0,
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      isEditorMode
-                                          ? Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                Text(
-                                                    '${engine.locale('isFemale')}:'),
-                                                Container(
-                                                  width: 55,
-                                                  height: 30,
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 10.0),
-                                                  child: FittedBox(
-                                                    fit: BoxFit.fill,
-                                                    child: fluent.ToggleSwitch(
-                                                      checked: isFemale,
-                                                      onChanged: (bool value) {
-                                                        setState(() {
-                                                          isFemale = value;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : Text(
-                                              '${engine.locale('gender')}: ${isFemale ? engine.locale('female') : engine.locale('male')}'),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text('${engine.locale('age')}: '),
-                                      isEditorMode
-                                          ? IntEditField(
-                                              controller: _ageController)
-                                          : Text(age),
-                                      Text(engine.locale('ageYear')),
-                                    ],
-                                  ),
-                                ),
-                                ...kNonBattleAttributes
-                                    .map((attrId) => attributeWidgets[attrId]!),
-                              ],
-                            ),
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text('${engine.locale('sect')}: $sectName'),
                           ),
                           Container(
-                            padding: const EdgeInsets.only(left: 5.0),
-                            width: 125.0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: kBattleAttributes
-                                  .map((attrId) => attributeWidgets[attrId]!)
-                                  .toList(),
-                            ),
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text('${engine.locale('jobTitle')}: $title'),
                           ),
                           Container(
-                            padding: const EdgeInsets.only(left: 5.0, top: 7.0),
-                            width: 125.0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank_$rank')}'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('cultivationLevel')}: $level'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child:
-                                      Text('${engine.locale('race')}: $race'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('sect')}: $sectName'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('jobTitle')}: $title'),
-                                ),
-                              ],
-                            ),
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text(
+                                '${engine.locale('superior')}: $supieriorName'),
                           ),
                           Container(
-                            padding: const EdgeInsets.only(left: 5.0, top: 7.0),
-                            width: 160.0,
-                            child: Column(
-                              children: [
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child:
-                                      Text('${engine.locale('fame')}: $fame'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('infamy')}: $infamy'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('home')}: $homeName'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('birthday')}: $birthday'),
-                                ),
-                                Container(
-                                  alignment: Alignment.centerLeft,
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('restLifespan')}: $restLifespan'),
-                                ),
-                              ],
-                            ),
+                            alignment: Alignment.centerLeft,
+                            height: 35.0,
+                            child: Text(
+                                '${engine.locale('reportCity')}: $reportCityName'),
                           ),
-                          if (widget.mode == InformationViewMode.edit ||
-                              widget.showIntimacy)
-                            Container(
-                              padding: const EdgeInsets.only(top: 7.0),
-                              width: 150.0,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                      '${engine.locale('charismaFavor')}: ${_character['charismaFavor'].truncate()}',
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                      '${engine.locale('cultivationFavor')}: $cultivationFavor',
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                      '${engine.locale('sectFavor')}: $sectFavor',
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                        '${engine.locale('worldPosition')}: $worldPosition'),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    height: 35.0,
-                                    child: Text(
-                                        '${engine.locale('location')}: $locationName'),
-                                  ),
-                                ],
-                              ),
-                            ),
                         ],
                       ),
-                      if (widget.mode == InformationViewMode.edit ||
-                          widget.showPersonality) ...[
-                        const Divider(),
-                        // Text('---${engine.locale('personality')}---'),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            ...kWorldViews.map((id) => personalityWidgets[id]!),
-                            LabelsWrap(
-                              '${engine.locale('motivation')}:',
-                              minWidth: 125.0,
-                              children: motivationIds.isNotEmpty
-                                  ? motivationIds
-                                      .map((e) => Label(engine.locale(e)))
-                                      .toList()
-                                  : [Text(engine.locale('none'))],
-                            ),
-                          ],
-                        ),
-                        Wrap(
-                          children: kPersonalitiesWithoutWorldViews
-                              .map((id) => personalityWidgets[id]!)
-                              .toList(),
+                    ),
+                  ],
+                ),
+                if (widget.mode == InformationViewMode.edit ||
+                    widget.showPersonality) ...[
+                  const Divider(),
+                  Wrap(
+                    children: kPersonalities
+                        .map((id) => personalityWidgets[id]!)
+                        .toList(),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(left: 5.0, top: 10.0),
+                    child: Row(
+                      children: [
+                        Text('${engine.locale('motivation')}: '),
+                        LabelsWrap(
+                          children: motivationIds.isNotEmpty
+                              ? motivationIds
+                                  .map(
+                                    (e) => Label(
+                                      engine.locale(e),
+                                      textStyle: TextStyles.bodyMedium,
+                                    ),
+                                  )
+                                  .toList()
+                              : [Text(engine.locale('none'))],
                         ),
                       ],
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -681,7 +677,6 @@ class CharacterProfileView extends StatelessWidget {
               characterId: characterId,
               character: character,
               mode: mode,
-              height: h - 100.0,
               showIntimacy: showIntimacy,
               showPersonality: showPersonality,
             ),

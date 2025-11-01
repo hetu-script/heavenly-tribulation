@@ -12,7 +12,7 @@ import '../../data/game.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
 import 'deckbuilding_zone.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../game_dialog/game_dialog_content.dart';
 import 'card_library.dart';
 import '../../widgets/common.dart';

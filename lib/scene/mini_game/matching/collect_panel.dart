@@ -8,7 +8,7 @@ import 'package:samsara/samsara.dart';
 
 import '../../../ui.dart';
 import 'matching.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 
 const _kCollectPanelPriority = 5;
 
