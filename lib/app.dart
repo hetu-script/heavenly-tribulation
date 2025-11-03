@@ -71,7 +71,7 @@ class _GameAppState extends State<GameApp> {
   Future<void> _initEngine() async {
     engine.setLoading(true);
     // 初始化引擎
-    int tik = DateTime.now().millisecondsSinceEpoch;
+    final sw = Stopwatch()..start();
 
     GameUI.init();
 
@@ -166,6 +166,7 @@ class _GameAppState extends State<GameApp> {
         // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         isEditorMode: isEditorMode,
       );
+      GameData.worldScenes[worldData['id']] = scene;
       return scene;
     });
 
@@ -186,7 +187,7 @@ class _GameAppState extends State<GameApp> {
         staminaCost = (staminaCost * workStaminaCostFactor).round();
 
         // 该地块所拥有的资源类型及其丰富度
-        final terrain = GameData.getTerrain(location['terrainIndex']);
+        final terrain = GameData.getTerrainById(location['terrainIndex']);
         final res = terrain['resources'];
         final double workEfficiency = GameData.hero['stats']['workEfficiency'];
         for (final materialId in res.keys) {
@@ -427,7 +428,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateUI', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroState>().update();
+      gameState.updateUI();
       gameState.updateDatetime();
     }, override: true);
 
@@ -459,9 +460,7 @@ class _GameAppState extends State<GameApp> {
       GameLogic.updateGame(
         ticks: namedArgs['tick'] ?? kTicksPerTime,
         force: namedArgs['force'] ?? false,
-        updateEntity: namedArgs['updateEntity'] ?? true,
         updateUI: namedArgs['updateUI'] ?? true,
-        updateWorldMap: namedArgs['updateWorldMap'] ?? true,
       );
     }, override: true);
 
@@ -658,9 +657,9 @@ class _GameAppState extends State<GameApp> {
           positionalArgs[0], positionalArgs[1], positionalArgs[2]);
     }, override: true);
 
-    engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('游戏引擎初始化耗时：${sw.elapsedMilliseconds}ms');
 
-    tik = DateTime.now().millisecondsSinceEpoch;
+    sw.reset();
     final mainConfig = {'locale': engine.languageId};
     if (kDebugMode) {
       await engine.loadModFromAssetsString(
@@ -699,14 +698,14 @@ class _GameAppState extends State<GameApp> {
         }
       }
     }
-    engine.info('模组数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('模组数据初始化耗时：${sw.elapsedMilliseconds}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
-    tik = DateTime.now().millisecondsSinceEpoch;
+    sw.reset();
 
     await GameData.init();
 
-    engine.info('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    engine.info('游戏数据初始化耗时：${sw.elapsedMilliseconds}ms');
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));
@@ -730,6 +729,8 @@ class _GameAppState extends State<GameApp> {
         engine.setLoading(false);
       },
     );
+
+    sw.stop();
   }
 
   @override

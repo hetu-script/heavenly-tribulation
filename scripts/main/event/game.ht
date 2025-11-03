@@ -144,17 +144,17 @@ async function onAfterEnterLocation(location) -> bool {
       let isLate = game.timestamp > endTime
       switch (journal.quest.kind) {
         case 'deliver_material', 'deliver_item': {
-          final receiverId = journal.quest.receiverId
-          final receiver = game.characters[receiverId]
+          // final receiverId = journal.quest.receiverId
+          // final receiver = game.characters[receiverId]
           final success = Player.deliver(journal.quest.package)
           characterMet(receiver, hero)
           if (success) {
             Player.progressJournalById(journal.id)
             if (isLate) {
-              dialog.pushDialog('quest_deliver_late_success', character: receiver);
+              dialog.pushDialog('quest_deliver_late_success', npcId: location.npcId);
               await dialog.execute();
             } else {
-              dialog.pushDialog('quest_deliver_success', character: receiver);
+              dialog.pushDialog('quest_deliver_success', npcId: location.npcId);
               await dialog.execute();
             }
             final items = await Player.loot(journal.quest.reward)
@@ -162,11 +162,11 @@ async function onAfterEnterLocation(location) -> bool {
           } else {
             Player.progressJournalById(journal.id, stage: 2)
             if (isLate) {
-              dialog.pushDialog('quest_late_failed', character: receiver);
-              await dialog.execute()
+              dialog.pushDialog('quest_late_failed', npcId: location.npcId);
+              await dialog.execute();
             } else {
-              dialog.pushDialog('quest_unfinished', character: receiver, interpolations: [journal.title]);
-              await dialog.execute()
+              dialog.pushDialog('quest_unfinished', npcId: location.npcId, interpolations: [journal.title]);
+              await dialog.execute();
             }
           }
           return true

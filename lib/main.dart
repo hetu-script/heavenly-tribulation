@@ -73,6 +73,8 @@ void main() {
       'click': 'assets/images/cursor/click.png',
       'press': 'assets/images/cursor/press.png',
       'drag': 'assets/images/cursor/drag.png',
+      'talk': 'assets/images/cursor/talk.png',
+      'sandglass': 'assets/images/cursor/sandglass.png',
     });
 
     runApp(
@@ -82,12 +84,10 @@ void main() {
           ChangeNotifierProvider(create: (_) => dialog),
           ChangeNotifierProvider(create: (_) => gameState),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
-          ChangeNotifierProvider(create: (_) => EditorToolState()),
-          ChangeNotifierProvider(create: (_) => WorldMapSelectedTileState()),
+          ChangeNotifierProvider(create: (_) => WorldMapState()),
           ChangeNotifierProvider(create: (_) => JournalPromptState()),
           ChangeNotifierProvider(create: (_) => ItemsPromptState()),
           ChangeNotifierProvider(create: (_) => RankPromptState()),
-          ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => MerchantState()),
           ChangeNotifierProvider(create: (_) => ItemSelectState()),

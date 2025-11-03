@@ -10,6 +10,7 @@ class GameState with ChangeNotifier {
   bool isInteractable = true;
   bool isStandby = false;
 
+  dynamic get hero => GameData.hero;
   bool isUIVisible = false;
   String datetimeString = '';
   int timestamp = 0;
@@ -18,6 +19,11 @@ class GameState with ChangeNotifier {
   Iterable<dynamic> npcs = [];
   dynamic currentZone, currentNation, currentLocation, currentDungeon;
   TileMapTerrain? currentTerrain;
+
+  void updateUI() {
+    GameData.hero = engine.hetu.fetch('hero');
+    notifyListeners();
+  }
 
   void setUIVisible([bool value = true]) {
     if (isUIVisible == value) return;

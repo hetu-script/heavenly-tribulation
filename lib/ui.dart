@@ -188,6 +188,8 @@ final class Cursors {
   static const click = 'click';
   static const drag = 'drag';
   static const press = 'press';
+  static const talk = 'talk';
+  static const sandglass = 'sandglass';
 }
 
 class _GameCursor extends WidgetStateMouseCursor {

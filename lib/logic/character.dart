@@ -1,11 +1,166 @@
 part of 'logic.dart';
 
-void _updateCharacterMonthly(dynamic character, {bool force = false}) {
-  // engine.debug('${character['id']} 的月度更新');
+const _kCharacterMonthlyActionProbabilityStandby = 0.45;
+const _kCharacterMonthlyActionProbabilityWork = 0.65;
+const _kCharacterMonthlyActionProbabilityWander = 0.9;
 
-  engine.hetu.invoke('resetCharacterMonthly', positionalArgs: [character]);
+Future<void> _updateCharactersWorldMapPosition() async {
+  // 此时不处于大地图场景，根据时间差直接更新角色位置。
+  for (final character in GameData.game['characters'].values) {
+    if (character['locationId'] != null) continue;
+    final worldPosition = character['worldPosition'];
+    if (worldPosition == null) continue;
+    final moveTo = worldPosition['moveTo'];
+    if (moveTo == null) continue;
+    final List<int> route = moveTo['route'];
+    assert(route.isNotEmpty);
+    final timeDiff = GameData.game['timestamp'] - moveTo['lastMoveTimestamp'];
+    // 默认在山地移动一格消耗 1 个时间单位，平原 1/2 个，水域 1/4 个。
+    final tileIndex = route.first;
+    final terrain =
+        GameData.getTerrainById(tileIndex, worldId: character['worldId']);
+    int timeCost;
+    if (kTerrainKindsWater.contains(terrain['kind'])) {
+      timeCost =
+          kTicksPerTime ~/ kBaseMoveSpeedOnWater * kNPCMoveSpeedMultiplier;
+    } else if (kTerrainKindsMountain.contains(terrain['kind'])) {
+      timeCost =
+          kTicksPerTime ~/ kBaseMoveSpeedOnMountain * kNPCMoveSpeedMultiplier;
+    } else {
+      timeCost =
+          kTicksPerTime ~/ kBaseMoveSpeedOnPlain * kNPCMoveSpeedMultiplier;
+    }
+    if (timeDiff >= timeCost) {
+      // 可以移动到下一个地块
+      worldPosition['left'] = terrain['left'];
+      worldPosition['top'] = terrain['top'];
+      moveTo['lastMoveTimestamp'] = GameData.game['timestamp'];
+      route.removeAt(0);
+      if (route.isEmpty) {
+        // 到达目的地
+        character['locationId'] = moveTo['locationId'];
+        worldPosition['moveTo'] = null;
+      }
+    }
+  }
+}
+
+Future<void> _updateCharacterMonthly(dynamic character,
+    {bool force = false}) async {
+  if (character['flags']['monthly']['updated'] == true && !force) return;
   if (force) {
     character['flags']['monthly']['updated'] = true;
+  }
+
+  // 重置角色位置到家中
+  character['locationId'] = character['homeSiteId'];
+  // 每个角色每个月会随机采取一种行动
+  final actionRoll = GameData.random.nextDouble();
+  if (actionRoll < _kCharacterMonthlyActionProbabilityStandby) {
+    // 待命，不做任何行动
+    // engine.info('角色 [${character['name']}] 本月留在家中。');
+  } else if (actionRoll < _kCharacterMonthlyActionProbabilityWork) {
+    bool worked = false;
+    if (character['sectId'] != null) {
+      final sect = GameData.getSect(character['sectId']);
+      final memberData = sect['membersData'][character['id']];
+      switch (memberData['titleId']) {
+        case 'head':
+          worked = true;
+          final headquartersSiteId =
+              '${sect['headquartersLocationId']}_${sect['id']}';
+          character['locationId'] = headquartersSiteId;
+        case 'mayor' || 'governor' || 'manager':
+          worked = true;
+          final List managingLocationIds = character['managingLocationIds'];
+          assert(managingLocationIds.isNotEmpty);
+          character['locationId'] = managingLocationIds.first;
+      }
+    }
+    if (!worked) {
+      final location = GameData.getLocation(character['homeLocationId']);
+      final sites = (location['siteIds'] as Iterable)
+          .map((id) => GameData.getLocation(id))
+          .where((site) =>
+              site['kind'] != kLocationKindCityhall &&
+              site['kind'] != kLocationKindHeadquarters);
+      final site = GameData.random.nextIterable(sites);
+      character['locationId'] = site['id'];
+    }
+  } else if (actionRoll < _kCharacterMonthlyActionProbabilityWander) {
+    // 漫游，随机前往某个地点
+    if (character['sectId'] != null) {
+      final sect = GameData.getSect(character['sectId']);
+      final locations = (sect['locationIds'] as Iterable)
+          .map((id) => GameData.getLocation(id));
+      final location = GameData.random.nextIterable(locations);
+      character['locationId'] = location['id'];
+    } else {
+      final locations = (GameData.game['locations'].values as Iterable)
+          .where((loc) => loc['category'] == 'city' && loc['sectId'] == null);
+      final location = GameData.random.nextIterable(locations);
+      final roll = GameData.random.nextDouble();
+      if (location['siteIds'].isEmpty || roll < 0.1) {
+        character['locationId'] = location['id'];
+      } else {
+        final sites = (location['siteIds'] as Iterable)
+            .map((id) => GameData.getLocation(id))
+            .where((site) =>
+                site['kind'] != kLocationKindCityhall &&
+                site['kind'] != kLocationKindHeadquarters);
+        final site = GameData.random.nextIterable(sites);
+        character['locationId'] = site['id'];
+      }
+    }
+  } else {
+    character['locationId'] = null;
+    final locationOnWorldMap = (GameData.game['locations'].values as Iterable)
+        .where((loc) =>
+            loc['worldPosition'] != null &&
+            (loc['worldPosition']['left'] !=
+                    character['worldPosition']?['left'] &&
+                loc['worldPosition']['top'] !=
+                    character['worldPosition']?['top']));
+    final location = GameData.random.nextIterable(locationOnWorldMap);
+    String locationId;
+    final roll = GameData.random.nextDouble();
+    if (location['siteIds'].isEmpty || roll < 0.1) {
+      locationId = location['id'];
+    } else {
+      final sites = (location['siteIds'] as Iterable)
+          .map((id) => GameData.getLocation(id))
+          .where((site) =>
+              site['kind'] != kLocationKindCityhall &&
+              site['kind'] != kLocationKindHeadquarters);
+      final site = GameData.random.nextIterable(sites);
+      locationId = site['id'];
+    }
+    final worldMapScene = GameData.worldScenes[character['worldId']];
+    if (worldMapScene != null) {
+      final moveTo = character['worldPosition']['moveTo'] = {
+        'lastMoveTimestamp': GameData.game['timestamp'],
+      };
+      moveTo['locationId'] = locationId;
+      moveTo['left'] = location['worldPosition']['left'];
+      moveTo['top'] = location['worldPosition']['top'];
+      // 如果此时处于大地图场景，计算移动路径。
+      final fromX = character['worldPosition']['left'];
+      final fromY = character['worldPosition']['top'];
+      final toX = moveTo['left'];
+      final toY = moveTo['top'];
+      final route = await GameLogic.calculateRoute(
+        fromX: fromX,
+        fromY: fromY,
+        toX: toX,
+        toY: toY,
+        terrainKinds: kTerrainKindsAll,
+      );
+      assert(
+          route != null, '角色大地图集路径计算失败, from: [$fromX,$fromY] to: [$toX,$toY]');
+      moveTo['route'] = route;
+    } else {
+      character['locationId'] = location['id'];
+    }
   }
 }
 
@@ -195,7 +350,7 @@ void _heroRest(dynamic location) async {
     onProgress: () {
       engine.hetu.invoke('restoreLife',
           namespace: 'Player', positionalArgs: [lifeRestorePerTime]);
-      engine.context.read<HeroState>().update();
+      gameState.updateUI();
       if (restCostPerTime > 0) {
         final haveMoney = GameData.hero['materials']['money'];
         if (haveMoney < restCostPerTime) {
@@ -1211,8 +1366,10 @@ Future<void> _onInteractCharacter(dynamic character) async {
   await dialog.execute();
   final selected = dialog.checkSelected('characterInteraction');
 
+  bool interacted = true;
   switch (selected) {
     case 'characterInformation':
+      interacted = false;
       await showDialog(
         context: engine.context,
         builder: (context) => CharacterProfileView(
@@ -1234,6 +1391,10 @@ Future<void> _onInteractCharacter(dynamic character) async {
       );
       await dialog.execute();
       final topic = dialog.checkSelected('topicSelections');
+      if (topic == null || topic == 'cancel') {
+        interacted = false;
+        return;
+      }
       switch (topic) {
         case 'journalTopic':
           final journalsData = GameData.hero['journals'];
@@ -1247,12 +1408,15 @@ Future<void> _onInteractCharacter(dynamic character) async {
             await dialog.execute();
             return;
           }
-          journalsSelections['cancel'] = engine.locale('cancel');
+          journalsSelections['forgetIt'] = engine.locale('forgetIt');
           dialog.pushSelectionRaw(
               {'id': 'journalSelections', 'selections': journalsSelections});
           await dialog.execute();
           final selectedJournalId = dialog.checkSelected('journalSelections');
-          if (selectedJournalId == 'cancel') return;
+          if (selectedJournalId == null || selectedJournalId == 'forgetIt') {
+            interacted = false;
+            return;
+          }
           // final selectedJournal = journalsData[selectedJournalId];
           final result = await engine.hetu.invoke('onGameEvent',
               positionalArgs: [
@@ -1345,7 +1509,7 @@ Future<void> _onInteractCharacter(dynamic character) async {
         }
       }
     case 'trade':
-      // interacted = true;
+      interacted = false;
       // TODO:
       // 根据好感度决定折扣
       // 根据角色技能决定不同物品的折扣
@@ -1438,19 +1602,11 @@ Future<void> _onInteractCharacter(dynamic character) async {
         }
       }
 
-      // 组织的加入，招募和开除
-      if (GameData.hero['sectId'] == null) {
-        final bool isCharacterHead = GameData.hero['sectId'] != null &&
+      // 门派成员招募
+      if (GameData.hero['sectId'] != null && character['sectId'] == null) {
+        final bool isHeroHead = GameData.hero['sectId'] != null &&
             GameData.game['sects'][GameData.hero['sectId']]['headId'] ==
-                character['id'];
-        final bool hasEnrolled = GameData.checkMonthly(
-            MonthlyActivityIds.enrolled, character['sectId']);
-        if (isCharacterHead && !hasEnrolled) {
-          relationshipSelections.add('enroll');
-        }
-      } else {
-        final bool isHeroHead =
-            engine.hetu.invoke('isSectHead', positionalArgs: [GameData.hero]);
+                GameData.hero['id'];
         final bool hasRecruited = GameData.checkMonthly(
             MonthlyActivityIds.recruited, character['id']);
         if (isHeroHead && !hasRecruited) {
@@ -1465,7 +1621,10 @@ Future<void> _onInteractCharacter(dynamic character) async {
       await dialog.execute();
       final selected2 =
           dialog.checkSelected('characterRelationshipInteraction');
-
+      if (selected2 == null || selected2 == 'forgetIt') {
+        interacted = false;
+        return;
+      }
       switch (selected2) {
         case 'propose':
           {}
@@ -1486,10 +1645,11 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
   }
 
-  // if (interacted && !GameData.hero['companions'].contains(character['id'])) {
-  //   // 任何互动操作后，隐藏该角色不能再次互动
-  //   dialog.pushDialog(engine.locale('discourse_bye'), character: character);
-  //   await dialog.execute();
-  //   engine.context.read<NpcListState>().hide(character['id']);
-  // }
+  if (interacted && !GameData.hero['companions'].contains(character['id'])) {
+    // 任何互动操作后，隐藏该角色不能再次互动
+    dialog.pushDialog(engine.locale('discourse_bye'), character: character);
+    await dialog.execute();
+    gameState.hideNpc(character['id']);
+    character['locationId'] = character['homeSiteId'];
+  }
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/state/states.dart';
 import 'package:samsara/widgets/ui/ink_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../../global.dart';
 import '../../../ui.dart';
-import '../../../state/editor_tool.dart';
 import '../../../data/game.dart';
 import '../../../widgets/common.dart';
 
@@ -58,7 +58,7 @@ class _ToolboxState extends State<Toolbox> {
         image: AssetImage(icon),
         isSelected: selectedItem == toolId,
         onPressed: () {
-          context.read<EditorToolState>().select(toolId);
+          context.read<WorldMapState>().selectTool(toolId);
           widget.onToolClicked?.call(toolId);
         },
       ),
@@ -67,7 +67,7 @@ class _ToolboxState extends State<Toolbox> {
 
   @override
   Widget build(BuildContext context) {
-    final item = context.watch<EditorToolState>().selectedId;
+    final item = context.watch<WorldMapState>().selectedToolId;
 
     return Container(
       width: 640,

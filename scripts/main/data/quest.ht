@@ -108,24 +108,25 @@ namespace Quests {
     final endSite = random.nextIterable(sites)
     final endLocation = game.locations[endSite.atCityId]
 
-    let receiver
-    let characters
-    if (sect != null) {
-      characters = sect.membersData.keys
-        .map((id) => game.characters[id])
-        .where((char) => char.rank == difficulty)
-    } else {
-      characters = game.characters.values
-        .where((char) => char.rank == difficulty && char.sectId == null)
-    }
-    if (characters.isNotEmpty) {
-      receiver = random.nextIterable(characters)
-    } else {
-      receiver = Character(
-        locationId: cityhall.atCityId,
-        rank: difficulty,
-      )
-    }
+    // let receiver
+    // let characters
+    // if (sect != null) {
+    //   characters = sect.membersData.keys
+    //     .map((id) => game.characters[id])
+    //     .where((char) => char.rank == difficulty)
+    // } else {
+    //   characters = game.characters.values
+    //     .where((char) => char.rank == difficulty && char.sectId == null)
+    // }
+    // if (characters.isNotEmpty) {
+    //   receiver = random.nextIterable(characters)
+    // } else {
+    //   return null
+    //   // receiver = Character(
+    //   //   homeLocationId: cityhall.atCityId,
+    //   //   rank: difficulty,
+    //   // )
+    // }
 
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
     final amount = kBaseAmountForDeliveryMaterial * (difficulty + 1)
@@ -157,7 +158,7 @@ namespace Quests {
       difficulty: difficulty,
       timeLimit: _createTimeLimit(difficulty),
       acquiredFromSiteId: cityhall.id,
-      receiverId: receiver?.id,
+      // receiverId: receiver?.id,
       package: {
         type: 'material',
         material: material,
@@ -196,24 +197,25 @@ namespace Quests {
     final endSite = random.nextIterable(sites)
     final endLocation = game.locations[endSite.atCityId]
 
-    let receiver
-    let characters
-    if (sect != null) {
-      characters = sect.membersData.keys
-        .map((id) => game.characters[id])
-        .where((char) => char.rank == difficulty)
-    } else {
-      characters = game.characters.values
-        .where((char) => char.rank == difficulty && char.sectId == null)
-    }
-    if (characters.isNotEmpty) {
-      receiver = random.nextIterable(characters)
-    } else {
-      receiver = Character(
-        locationId: cityhall.atCityId,
-        rank: difficulty,
-      )
-    }
+    // let receiver
+    // let characters
+    // if (sect != null) {
+    //   characters = sect.membersData.keys
+    //     .map((id) => game.characters[id])
+    //     .where((char) => char.rank == difficulty)
+    // } else {
+    //   characters = game.characters.values
+    //     .where((char) => char.rank == difficulty && char.sectId == null)
+    // }
+    // if (characters.isNotEmpty) {
+    //   receiver = random.nextIterable(characters)
+    // } else {
+    //   return null
+    //   // receiver = Character(
+    //   //   homeLocationId: cityhall.atCityId,
+    //   //   rank: difficulty,
+    //   // )
+    // }
 
     let item
     final typeRoll = random.nextDouble()
@@ -251,7 +253,7 @@ namespace Quests {
       difficulty: difficulty,
       timeLimit: _createTimeLimit(difficulty),
       acquiredFromSiteId: cityhall.id,
-      receiverId: receiver?.id,
+      // receiverId: receiver?.id,
       package: {
         'type': 'item',
         'item': item,
@@ -301,10 +303,11 @@ namespace Quests {
     if (characters.isNotEmpty) {
       escortee = random.nextIterable(characters)
     } else {
-      escortee = Character(
-        locationId: cityhall.atCityId,
-        rank: difficulty,
-      )
+      return null
+      // escortee = Character(
+      //   homeLocationId: cityhall.atCityId,
+      //   rank: difficulty,
+      // )
     }
 
     final difficultyFactor = difficulty * difficulty + 1

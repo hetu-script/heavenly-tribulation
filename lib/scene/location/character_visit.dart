@@ -69,6 +69,13 @@ class CharacterVisitDialog extends StatelessWidget {
 
     tableData.addAll(characterIds.map((id) {
       final character = GameData.getCharacter(id);
+      String homeName = character['name'];
+      // final List spouseIds = character['familyRelationships']['spouseIds'];
+      // if (spouseIds.isNotEmpty) {
+      //   final spouseId = spouseIds.first;
+      //   final spouse = GameData.getCharacter(spouseId);
+      //   homeName += '${engine.locale('and')}${spouse['name']}';
+      // }
       final haveMet = engine.hetu
           .invoke('haveMet', positionalArgs: [GameData.hero, character]);
       final isFriend = GameData.hero['friendIds'].contains(character['id']);
@@ -83,7 +90,7 @@ class CharacterVisitDialog extends StatelessWidget {
           },
           cells: [
             DataCell(
-              Text(character['name']),
+              Text(homeName),
             ),
             DataCell(
               Text((haveMet != null)

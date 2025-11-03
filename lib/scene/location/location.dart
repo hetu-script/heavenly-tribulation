@@ -7,6 +7,7 @@ import 'package:flame/flame.dart';
 import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/components/sprite_component2.dart';
 
 import '../../ui.dart';
 import '../../global.dart';
@@ -31,7 +32,7 @@ class LocationScene extends Scene with HasCursorState {
         );
   final menuController = fluent.FlyoutController();
 
-  late final SpriteComponent _backgroundComponent;
+  late final SpriteComponent2 _backgroundComponent;
 
   final dynamic location;
   dynamic sect;
@@ -71,6 +72,7 @@ class LocationScene extends Scene with HasCursorState {
 
   void _onPreviewSiteCard() {
     cursorState = MouseCursorState.click;
+    context.read<HoverContentState>().hide();
   }
 
   void _onUnpreviewSiteCard() {
@@ -224,10 +226,13 @@ class LocationScene extends Scene with HasCursorState {
       sect = GameData.getSect(sectId);
     }
 
-    _backgroundComponent = SpriteComponent(
+    _backgroundComponent = SpriteComponent2(
       sprite: Sprite(await Flame.images.load(location['background'])),
       size: size,
     );
+    _backgroundComponent.onTapDown = (button, position) {
+      context.read<HoverContentState>().hide();
+    };
     world.add(_backgroundComponent);
 
     siteList = PiledZone(

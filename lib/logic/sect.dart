@@ -4,7 +4,7 @@ const _kManagingTitles = {'manager', 'mayor', 'governor'};
 
 /// 组织月度更新
 void _updateSectMonthly(dynamic sect, {bool force = false}) {
-  // engine.debug('${sect['id']} 的月度更新');
+  if (sect['flags']['monthly']['updated'] == true && !force) return;
 
   engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
   if (force) {

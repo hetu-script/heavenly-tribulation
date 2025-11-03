@@ -6,12 +6,11 @@ const _kForestThreshold = 0.6
 const _kMirageThreshold = 0.15
 const _kArcanaThreshold = 0.3
 
-const _kFarmLandThreshold = 0.1
-const _kFisheryThreshold = 0.035
-
-const _kTimberLandThreshold = 0.075
-const _kHuntingGroundThreshold = 0.04
-const _kMineThreshold = 0.02
+const _kFarmLandThreshold = 0.15
+const _kFisheryThreshold = 0.075
+const _kTimberLandThreshold = 0.1
+const _kHuntingGroundThreshold = 0.075
+const _kMineThreshold = 0.035
 
 const _kDungeonOnTerritoryProbability = 0.265
 
@@ -294,41 +293,60 @@ function createSandboxWorld({
   for (final city in discoveredCities) {
     final neighbors = locationNeighbors[city.terrainIndex]
     assert(neighbors != null)
+    let hasFishery = false
+    let hasMine = false
+    let hasHuntingGround = false
+    let hasTimberLand = false
+    let hasFarmLand = false
     for (final terrain in neighbors) {
       if (terrain.locationId != null) continue
       if (terrain.kind != 'plain' && terrain.kind != 'forest') continue
       final r = random.nextDouble()
       if (r < _kFarmLandThreshold) {
         addProductionSite('farmland', terrain, city)
+        hasFarmLand = true
+        break; // 每个城市周围只生成一个农田
       }
     }
+
     for (final terrainIndex in city.territoryIndexes) {
       const terrain = world.terrains[terrainIndex]
       if (terrain.locationId != null) continue
-      if (world.fisheryIndexes.contains(terrain.index)) {
+      if (!hasFishery && world.fisheryIndexes.contains(terrain.index)) {
         // 生成渔场
         final r = random.nextDouble()
         if (r < _kFisheryThreshold) {
           addProductionSite('fishery', terrain, city)
+          hasFishery = true
         }
-      } else if (world.mountainIndexes.contains(terrain.index)) {
+      } else if ((!hasMine || !hasHuntingGround) && world.mountainIndexes.contains(terrain.index)) {
         // 生成矿场和猎场
         final r = random.nextDouble()
-        if (r < _kMineThreshold) {
+        if (!hasMine && r < _kMineThreshold) {
           addProductionSite('mine', terrain, city)
-        } else if (r < _kHuntingGroundThreshold) {
+          hasMine = true
+        } else if (!hasHuntingGround && r < _kHuntingGroundThreshold) {
           addProductionSite('huntingground', terrain, city)
+          hasHuntingGround = true
         }
-      } else if (forestIndexes.contains(terrain.index)) {
+      } else if ((!hasMine || !hasHuntingGround || !hasTimberLand) && forestIndexes.contains(terrain.index)) {
         // 生成林场、矿场、猎场
         final r = random.nextDouble()
-        if (r < _kMineThreshold) {
+        if (!hasMine && r < _kMineThreshold) {
           addProductionSite('mine', terrain, city)
-        } else if (r < _kHuntingGroundThreshold) {
+          hasMine = true
+        } else if (!hasHuntingGround && r < _kHuntingGroundThreshold) {
           addProductionSite('huntingground', terrain, city)
-        } else if (r < _kTimberLandThreshold) {
+          hasHuntingGround = true
+        } else if (!hasTimberLand && r < _kTimberLandThreshold) {
+          engine.warn('adding timberland')
           addProductionSite('timberland', terrain, city)
+          hasTimberLand = true
         }
+      }
+
+      if (hasFishery && hasMine && hasHuntingGround && hasTimberLand && hasFarmLand) {
+        break
       }
     }
   }
@@ -427,8 +445,6 @@ function createSandboxWorld({
     final sectCategoryKind = Constants.sectCategoryToSiteKind[sect.category]
     siteKinds.remove(sectCategoryKind)
     Location(
-      id: city.name + '_${engine.locale(sectCategoryKind)}',
-      name: engine.locale(sectCategoryKind),
       category: 'site',
       kind: sectCategoryKind,
       atCity: city,
@@ -441,8 +457,6 @@ function createSandboxWorld({
     final secondaryClassSiteKind = random.nextIterable(sectGenreKinds)
     siteKinds.remove(secondaryClassSiteKind)
     Location(
-      id: city.name + '_${engine.locale(secondaryClassSiteKind)}',
-      name: engine.locale(secondaryClassSiteKind),
       category: 'site',
       kind: secondaryClassSiteKind,
       atCity: city,
@@ -458,8 +472,6 @@ function createSandboxWorld({
 
         final kind = random.nextIterable(siteKinds)
         Location(
-          id: city.name + '_${engine.locale(kind)}',
-          name: engine.locale(kind),
           category: 'site',
           kind: kind,
           atCity: city,
@@ -489,8 +501,6 @@ function createSandboxWorld({
         
         final kind = random.nextIterable(siteKinds)
         Location(
-          id: city.name + '_${engine.locale(kind)}',
-          name: engine.locale(kind),
           category: 'site',
           kind: kind,
           atCity: city,
@@ -512,7 +522,7 @@ function createSandboxWorld({
     // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
     const city = random.nextIterable(cities)
     Character(
-      locationId: city.id,
+      homeLocationId: city.id,
       rank: random.distantInt(_kSandboxInitialRankMax + 1),
       birthTimestamp: createBirthTimestamp(min: 12, max: 60),
     )
@@ -670,7 +680,7 @@ function createSandboxWorld({
 
   engine.info('--------世界生成完毕，清理临时数据--------')
 
-  Game.updateGame(tick: 0, force: true, updateEntity: true, updateUI: false, updateWorldMap: false)
+  Game.updateGame(tick: 0, force: true, updateUI: false, updateWorldMap: false)
   
   // setRandomSeed()
 

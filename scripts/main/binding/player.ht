@@ -621,6 +621,7 @@ namespace Player {
 
   async function enroll(sect, { npcId, titleId, incurIncident = true }) {
     assert(hero != null)
+    assert(titleId != 'head')
     final oldHome = hero.homeLocationId
     final titleId = addCharacterToSect(
       hero,

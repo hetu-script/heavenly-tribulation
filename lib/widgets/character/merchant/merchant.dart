@@ -374,7 +374,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
         engine.play('pickup_item-64282.mp3');
       }
     }
-    context.read<HeroState>().update();
+    gameState.updateUI();
   }
 
   void _onBuy() async {
@@ -576,7 +576,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
         engine.play('pickup_item-64282.mp3');
       }
     }
-    context.read<HeroState>().update();
+    gameState.updateUI();
   }
 
   void close() {

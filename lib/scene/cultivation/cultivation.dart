@@ -655,7 +655,7 @@ class CultivationScene extends Scene with HasCursorState {
           _addExpLightPoint();
         }
 
-        GameLogic.updateGame(ticks: timeCost);
+        await GameLogic.updateGame(ticks: timeCost);
         _updateTimeOfDay();
       });
     } else {

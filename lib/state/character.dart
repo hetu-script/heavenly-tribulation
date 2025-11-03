@@ -2,18 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import '../data/game.dart';
-import '../global.dart';
-
-class HeroState with ChangeNotifier {
-  dynamic get hero => GameData.hero;
-
-  void update() {
-    GameData.hero = engine.hetu.fetch('hero');
-    notifyListeners();
-  }
-}
-
 class HeroPassivesDescriptionUpdate with ChangeNotifier {
   String description = '';
 

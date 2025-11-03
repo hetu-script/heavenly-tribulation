@@ -144,6 +144,8 @@ class BattleScene extends Scene {
 
   final int endBattleAfterRounds;
 
+  final _sw = Stopwatch();
+
   BattleScene({
     required this.heroData,
     required this.enemyData,
@@ -582,7 +584,7 @@ class BattleScene extends Scene {
     if (currentCharacter.deckZone.cards.isNotEmpty) {
       CustomGameCard card = currentCharacter.deckZone.current!;
       do {
-        final tik = DateTime.now().millisecondsSinceEpoch;
+        _sw.start();
 
         if (currentCharacter.deckZone.isFirstCard) {
           final oppponentStatus =
@@ -611,11 +613,15 @@ class BattleScene extends Scene {
 
         final turnDetails =
             await currentCharacter.onTurnStart(card, isExtra: extraTurn);
-        final delta = DateTime.now().millisecondsSinceEpoch - tik;
+
+        final delta = _sw.elapsedMilliseconds;
         if (delta < kMinTurnDuration) {
           await Future.delayed(
               Duration(milliseconds: kMinTurnDuration - delta));
         }
+        _sw.stop();
+        _sw.reset();
+
         bool skipTurn = turnDetails['skipTurn'] ?? false;
         if (!skipTurn) {
           final turnEndDetails = await currentCharacter.onTurnEnd(card);

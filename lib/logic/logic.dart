@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 import 'package:hetu_script/utils/collection.dart' as utils;
+import 'package:samsara/tilemap/tile_info.dart';
 
 import '../data/common.dart';
 import '../data/game.dart';
@@ -19,6 +21,7 @@ import '../widgets/information.dart';
 import '../widgets/view/quest_view.dart';
 import '../widgets/character/profile.dart';
 import '../widgets/dialog/input_name.dart';
+import '../scene/world/world.dart';
 
 part 'character.dart';
 part 'location.dart';
@@ -249,6 +252,206 @@ final class GameLogic {
 
     engine.info('生成了 $count 个地域。');
     return count;
+  }
+
+  /// manhattan 距离算法
+  static int getTileDistance(dynamic start, dynamic end) {
+    int result;
+    final dx = end['slashLeft'] - start['slashLeft'];
+    final dy = end['slashTop'] - start['slashTop'];
+    if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {
+      result = (dx + dy).abs();
+    } else {
+      result = math.max(dx.abs(), dy.abs());
+    }
+    // print('getTileDistance: ${start}, ${end}, result: ${result}')
+    return result;
+  }
+
+  static int tilePos2Index(int left, int top, int mapWidth) {
+    return left - 1 + (top - 1) * mapWidth;
+  }
+
+  // 从索引得到 hexagonal 坐标
+  static TilePosition index2TilePosition(int index, int mapWidth) {
+    final left = index % mapWidth + 1;
+    final top = index ~/ mapWidth + 1;
+    return TilePosition(left, top);
+  }
+
+  /// 获取相邻并且在地图范围内的格子
+  /// 返回一个Map，index 是 1-8 (边和角)
+  /// 每个编号对应一个固定位置的相邻地块，如果值为 null 表示这个位置没有符合要求的相邻地块
+  /// 对于方格tile，邻居顺序是上(1)右(2)下(3)左(4)左上(5)右上(6)右下(7)左下(8)
+  /// 如果 [terrainKinds] 不为 空，则只会返回指定 kind 属性范围的格子
+  static Map<int, dynamic> getMapTileNeighbors(int left, int top, dynamic map,
+      {Iterable terrainKinds = const [], includeDiagonal = false}) {
+    Map<int, dynamic> neighbors = {};
+
+    void addNeighbor(neighborIndex, tileIndex) {
+      if (tileIndex < 0 || tileIndex >= map['terrains'].length) return;
+      final tile = map['terrains'][tileIndex];
+      if (terrainKinds.isEmpty || (terrainKinds.contains(tile['kind']))) {
+        neighbors[neighborIndex] = tile;
+      }
+    }
+
+    final mapWidth = map['width'];
+
+    // 上面
+    addNeighbor(1, tilePos2Index(left, top - 1, mapWidth));
+    // 右边
+    addNeighbor(2, tilePos2Index(left + 1, top, mapWidth));
+    // 下面
+    addNeighbor(3, tilePos2Index(left, top + 1, mapWidth));
+    // 左边
+    addNeighbor(4, tilePos2Index(left - 1, top, mapWidth));
+    if (includeDiagonal) {
+      // 左上
+      addNeighbor(5, tilePos2Index(left - 1, top - 1, mapWidth));
+      // 右上
+      addNeighbor(6, tilePos2Index(left + 1, top - 1, mapWidth));
+      // 右下
+      addNeighbor(7, tilePos2Index(left + 1, top + 1, mapWidth));
+      // 左下
+      addNeighbor(8, tilePos2Index(left - 1, top + 1, mapWidth));
+    }
+    return neighbors;
+  }
+
+  /// hScore(n) 是曼哈顿距离时的 A* 算法
+  static List<int>? _calculateRoute(dynamic start, dynamic end, dynamic map,
+      {List terrainKinds = const []}) {
+    // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
+
+    if (start == end || start['index'] == end['index']) {
+      return null;
+    }
+
+    // g(n): 原点到该点的距离
+    final gScore = <int, int>{};
+    gScore[start['index']] = 0;
+    // h(n): 该点到终点的距离
+    final hScore = <int, int>{};
+    hScore[start['index']] = getTileDistance(start, end);
+    // f(n) = g(n) + h(n)
+    final fScore = <int, int>{};
+    fScore[start['index']] = hScore[start['index']]!;
+
+    // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
+    final cameFrom = <int, int>{};
+    List<int> reconstructPath(Map<int, int> cameFrom, int current) {
+      final from = cameFrom[current];
+      if (from != null) {
+        final path = reconstructPath(cameFrom, from);
+        return [...path, current];
+      } else {
+        return [current];
+      }
+    }
+
+    // 已被计算的坐标
+    final closed = <int>{};
+    // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
+    final open = <int>[];
+    open.add(start['index']);
+    // final distance = getTileDistance(start, end);
+
+    while (open.isNotEmpty) {
+      // 找到 f(x) 最小的节点
+      open.sort((t1, t2) {
+        assert(fScore.containsKey(t1));
+        assert(fScore.containsKey(t2));
+        return fScore[t1]!.compareTo(fScore[t2]!);
+      });
+      final nextIndex = open.first;
+      final nextTile = map['terrains'][nextIndex];
+      if (nextIndex == end['index']) {
+        // route.path = reconstructPath(cameFrom, end.index)
+        final route = reconstructPath(cameFrom, end['index']);
+        return route;
+      }
+      open.remove(nextIndex);
+      closed.add(nextIndex);
+      final neighbors = getMapTileNeighbors(
+          nextTile['left'], nextTile['top'], map,
+          terrainKinds: terrainKinds);
+      for (final neighbor in neighbors.values) {
+        final neighborIndex = neighbor['index'];
+        if ((neighbor['isNonEnterable'] ?? false) &&
+            neighborIndex != end['index']) {
+          continue;
+        }
+        if (closed.contains(neighborIndex)) continue;
+        assert(gScore.containsKey(nextIndex));
+        final tentetiveGScore = gScore[nextIndex]! + 1;
+        var tentativelyBetter = false;
+        if (!open.contains(neighborIndex) ||
+            (tentetiveGScore < gScore[neighborIndex]!)) {
+          tentativelyBetter = true;
+        }
+        if (tentativelyBetter) {
+          cameFrom[neighborIndex] = nextIndex;
+          gScore[neighborIndex] = tentetiveGScore;
+          hScore[neighborIndex] = getTileDistance(neighbor, end);
+          assert(gScore.containsKey(neighborIndex));
+          assert(hScore.containsKey(neighborIndex));
+          fScore[neighborIndex] =
+              gScore[neighborIndex]! + hScore[neighborIndex]!;
+          if (!open.contains(neighborIndex)) {
+            open.add(neighborIndex);
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  static Future<List<int>?> calculateRoute({
+    dynamic fromTile,
+    dynamic toTile,
+    int? fromX,
+    int? fromY,
+    int? toX,
+    int? toY,
+    List? terrainKinds,
+    String? worldId,
+  }) async {
+    assert(fromTile != null || (fromX != null && fromY != null));
+    assert(toTile != null || (toX != null && toY != null));
+    fromTile ??= GameData.getTerrain(fromX!, fromY!);
+    toTile ??= GameData.getTerrain(toX!, toY!);
+    worldId ??= GameData.world['id'];
+    final atWorld = GameData.universe[worldId];
+    List<int>? calculatedRoute = _calculateRoute(
+      fromTile!,
+      toTile!,
+      atWorld,
+      terrainKinds: terrainKinds ?? kTerrainKindsLand,
+    );
+    // 如果陆地路线不可达，则尝试计算山地或者水路移动的路线
+    if (calculatedRoute == null && terrainKinds == null) {
+      final List movableTerrainKinds = engine.hetu.invoke(
+        'getCharacterMovableTerrainKinds',
+        positionalArgs: [GameData.hero],
+      );
+      if (movableTerrainKinds.contains(toTile['kind'])) {
+        calculatedRoute = await calculateRoute(
+          fromTile: fromTile,
+          toTile: toTile,
+          terrainKinds: movableTerrainKinds,
+        );
+      } else {
+        if (kTerrainKindsWater.contains(toTile['kind'])) {
+          dialog.pushDialog('hint_ship');
+          await dialog.execute();
+        } else if (kTerrainKindsMountain.contains(toTile['kind'])) {
+          dialog.pushDialog('hint_boots');
+          await dialog.execute();
+        }
+      }
+    }
+    return calculatedRoute;
   }
 
   /// 计算某个境界的最低等级
@@ -994,11 +1197,13 @@ final class GameLogic {
     );
   }
 
-  static Future<String?> selectObjectId() async {
+  static Future<String?> selectObjectId({String? worldId}) async {
     final selections = <String, String>{};
-    if (GameData.world['objects'].isEmpty) return null;
+    worldId ??= GameData.world['id'];
+    final atWorld = GameData.universe[worldId];
+    if (atWorld['objects'].isEmpty) return null;
 
-    for (final element in GameData.world['objects'].keys) {
+    for (final element in atWorld['objects'].keys) {
       selections[element] = element;
     }
     return showDialog(
@@ -1355,11 +1560,9 @@ final class GameLogic {
   /// 如果时间没有推进到下一个日期，返回 false，否则返回 true
   static Future<bool> updateGame({
     int ticks = kTicksPerTime,
-    bool updateEntity = true,
     bool updateUI = true,
-    bool updateWorldMap = true,
     bool force = false,
-    bool showPerformance = false,
+    WorldMapScene? worldMap,
   }) async {
     final before = getDatetimeString();
     GameData.game['timestamp'] += ticks;
@@ -1368,7 +1571,7 @@ final class GameLogic {
     // 如果时间没有推进到下一个日期，则不进行任何更新，除非 force 为 true
     if (before == after && !force) return false;
 
-    final int tik = DateTime.now().millisecondsSinceEpoch;
+    final sw = Stopwatch()..start();
     if (updateUI) {
       gameState.updateDatetime(timestamp: timestamp, datetimeString: after);
     }
@@ -1377,56 +1580,60 @@ final class GameLogic {
           '--------${GameLogic.getDatetimeString(withTime: false)}--------');
     }
 
-    if (updateEntity || force) {
-      // 每个月 1 日刷新玩家事件标记
-      if ((time == 1 && day == _kGameFlagsUpdateDay) || force) {
-        // 重置玩家自己的每月行动
-        engine.hetu.invoke('resetHeroMonthly');
-      }
+    // 如果当前场景不是地图场景，需要手动更新角色位置
+    if (worldMap == null) {
+      _updateCharactersWorldMapPosition();
+    }
 
-      // 触发每个角色的刷新事件
-      final chars = GameData.game['characters'].values.toList();
-      for (final character in chars) {
-        if (character == GameData.hero) continue;
-        // 角色事件每个角色不同，会随机分配在某一天
-        // 这是为了减缓同时更新大量角色的压力
-        if ((time == 1 && day == character['updateDay']) || force) {
-          if (character['flags']['updated'] != true || force) {
-            _updateCharacterMonthly(character);
-          }
+    // 每个月 1 日刷新玩家事件标记
+    if ((time == 1 && day == _kGameFlagsUpdateDay) || force) {
+      // 重置玩家自己的每月行动
+      engine.hetu.invoke('resetHeroMonthly');
+    }
+
+    // 触发每个角色的刷新事件
+    final chars = GameData.game['characters'].values.toList();
+    for (final character in chars) {
+      if (character == GameData.hero) continue;
+      // 角色事件每个角色不同，会随机分配在某一天
+      // 这是为了减缓同时更新大量角色的压力
+      if ((time == 1 && day == character['updateDay']) || force) {
+        if (!force) {
+          engine.hetu
+              .invoke('resetCharacterMonthly', positionalArgs: [character]);
         }
+        await _updateCharacterMonthly(character, force: force);
       }
-      // 每个建筑每月会根据其属性而消耗维持费用和获得收入
-      // 生产类建筑每天都会刷新生产进度
-      // 商店类建筑会刷新物品和银两
-      // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-      final locs = GameData.game['locations'].values.toList();
-      for (final location in locs) {
-        if (GameData.hero != null &&
-            location['managerId'] == GameData.hero['id']) {
-          continue;
+    }
+    // 每个建筑每月会根据其属性而消耗维持费用和获得收入
+    // 生产类建筑每天都会刷新生产进度
+    // 商店类建筑会刷新物品和银两
+    // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
+    final locs = GameData.game['locations'].values.toList();
+    for (final location in locs) {
+      // 场景每月重置
+      if ((time == 1 && day == location['updateDay']) || force) {
+        if (!force) {
+          engine.hetu
+              .invoke('resetLocationMonthly', positionalArgs: [location]);
         }
-        // 场景每月重置
-        if ((time == 1 && day == location['updateDay']) || force) {
-          if (location['flags']['monthly']['updated'] != true || force) {
-            _updateLocationMonthly(location);
-          }
-        }
-        // 场景每日维护
-        if ((time == 1) || force) {
-          _updateLocationDaily(location);
-        }
+        _updateLocationMonthly(location, force: force);
       }
-      // 触发每个组织的刷新事件
-      final orgs = GameData.game['sects'].values.toList();
-      for (final sect in orgs) {
-        if (sect['headId'] == GameData.hero?['id']) continue;
-        // 组织每月 6 日刷新
-        if ((time == 1 && day == _kSectUpdateDay) || force) {
-          if (sect['flags']['monthly']['updated'] != true || force) {
-            _updateSectMonthly(sect);
-          }
+      // 场景每日维护
+      if ((time == 1) || force) {
+        _updateLocationDaily(location);
+      }
+    }
+    // 触发每个组织的刷新事件
+    final orgs = GameData.game['sects'].values.toList();
+    for (final sect in orgs) {
+      if (sect['headId'] == GameData.hero?['id']) continue;
+      // 组织每月 6 日刷新
+      if ((time == 1 && day == _kSectUpdateDay) || force) {
+        if (!force) {
+          engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
         }
+        _updateSectMonthly(sect, force: force);
       }
     }
 
@@ -1451,11 +1658,11 @@ final class GameLogic {
 
     engine.hetu.invoke('handleBabies');
 
-    if (showPerformance) {
-      engine.info(
-          'game update took: ${DateTime.now().millisecondsSinceEpoch - tik}ms');
+    if (kDebugMode) {
+      engine.info('update game in: ${sw.elapsedMilliseconds}ms');
     }
 
+    sw.stop();
     return true;
   }
 

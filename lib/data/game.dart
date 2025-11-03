@@ -20,6 +20,7 @@ import '../global.dart';
 import '../scene/common.dart';
 import '../logic/logic.dart';
 import '../state/game_save.dart';
+import '../scene/world/world.dart';
 
 const _kSkinAnimationWidth = 288.0;
 const _kSkinAnimationHeight = 112.0;
@@ -120,14 +121,26 @@ final class GameData with ChangeNotifier {
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic game, flags, universe, world, history, hero;
 
+  static WorldMapScene? mainWorld, currentWorld;
+  static Map<String, WorldMapScene> worldScenes = {};
+
   static Iterable<String> get worldIds => universe?.keys ?? const [];
 
   static math.Random random = math.Random();
 
-  static dynamic getTerrain(int index) {
-    final terrain = GameData.world['terrains'][index];
+  static dynamic getTerrainById(int index, {String? worldId}) {
+    worldId ??= world['id'];
+    final atWorld = universe[worldId];
+    final terrain = atWorld['terrains'][index];
     assert(terrain != null, 'Terrain not found, id: $index');
     return terrain;
+  }
+
+  static dynamic getTerrain(int left, int top, {String? worldId}) {
+    worldId ??= world['id'];
+    final atWorld = universe[worldId];
+    return getTerrainById(GameLogic.tilePos2Index(left, top, atWorld['width']),
+        worldId: worldId);
   }
 
   static dynamic getNpc(dynamic id) {
@@ -159,42 +172,31 @@ final class GameData with ChangeNotifier {
     return npcs;
   }
 
-  static List getNpcsAtHeroWorldMapPosition() {
-    return getNpcsAtWorldMapPosition(
-        hero['worldPosition']['left'], hero['worldPosition']['top'],
-        worldId: hero['worldId']);
-  }
-
-  static List getNpcsAtWorldMapPosition(int left, int top, {String? worldId}) {
-    worldId ??= world['id'];
-    // dynamic atWorld = universe[worldId];
-
-    List npcs = (game['characters'].values as Iterable).where((char) {
-      if (char['id'] == hero['id']) return false;
-      if (char['worldId'] != worldId) return false;
-      if (char['locationId'] != null) return false;
-      if (char['worldPosition']?['left'] != left ||
-          char['worldPosition']?['top'] != top) {
-        return false;
-      }
-      return true;
-    }).toList();
-    return npcs;
-  }
-
   static List getNpcsOnWorldMap({String? worldId}) {
     worldId ??= world['id'];
-    List npcs = game.characters.values.where((char) {
-      if (char['id'] == hero['id']) return false;
-      if (char['worldId'] != worldId) return false;
-      if (char['locationId'] != null) return false;
-      if (char['worldPosition']?['left'] != null ||
-          char['worldPosition']?['top'] != null) {
-        return true;
-      }
-      return false;
-    });
+    final npcs = (GameData.game['characters'].values as Iterable).where(
+        (char) =>
+            (char['id'] != GameData.hero?['id']) &&
+            (char['locationId'] == null) &&
+            (char['worldId'] == worldId) &&
+            (char['worldPosition'] != null));
+    return npcs.toList();
+  }
 
+  static Iterable getNpcsAtWorldMapPosition(int left, int top,
+      {String? worldId}) {
+    worldId ??= world['id'];
+    final npcs = (game['characters'].values as Iterable).where(
+      (char) =>
+          char['id'] != GameData.hero?['id'] &&
+          char['locationId'] == null &&
+          char['worldId'] == worldId &&
+          char['worldPosition'] != null &&
+          char['worldPosition']?['left'] ==
+              GameData.hero?['worldPosition']['left'] &&
+          char['worldPosition']?['top'] ==
+              GameData.hero?['worldPosition']['top'],
+    );
     return npcs;
   }
 
@@ -1574,10 +1576,8 @@ final class GameData with ChangeNotifier {
     if (location['worldPosition'] != null) {
       final worldPosition = location['worldPosition'];
       row.add('[${worldPosition['left']},${worldPosition['top']}]');
-    } else {
+    } else if (location['atCityId'] != null) {
       final atCityId = location['atCityId'];
-      assert(atCityId != null,
-          'Site location has no worldPosition or atCityId: ${location['name']}');
       final atCity = GameData.getLocation(atCityId);
       row.add(atCity['name']);
     }

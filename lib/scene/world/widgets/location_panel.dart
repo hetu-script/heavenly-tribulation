@@ -5,7 +5,7 @@ import 'package:samsara/widgets/ui/mouse_region2.dart';
 import '../../../data/game.dart';
 import '../../../ui.dart';
 import '../../../global.dart';
-import '../../../state/selected_tile.dart';
+import '../../../state/world_map.dart';
 import '../../../state/hover_content.dart';
 
 const kSpriteIndexCategory = {
@@ -33,12 +33,10 @@ class LocationPanel extends StatelessWidget {
         currentLocation,
         currentDungeon;
     if (isEditorMode) {
-      currentZone = context.watch<WorldMapSelectedTileState>().currentZone;
-      currentNation = context.watch<WorldMapSelectedTileState>().currentNation;
-      currentTerrain =
-          context.watch<WorldMapSelectedTileState>().currentTerrain;
-      currentLocation =
-          context.watch<WorldMapSelectedTileState>().currentLocation;
+      currentZone = context.watch<WorldMapState>().selectedZone;
+      currentNation = context.watch<WorldMapState>().selectedNation;
+      currentTerrain = context.watch<WorldMapState>().selectedTerrain;
+      currentLocation = context.watch<WorldMapState>().selectedLocation;
     } else {
       currentZone = gameState.currentZone;
       currentNation = gameState.currentNation;

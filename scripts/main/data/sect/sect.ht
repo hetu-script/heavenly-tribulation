@@ -186,7 +186,6 @@ function stationSect(sect, city, { incurIncident: bool }) {
     addLocationToSect(city, sect, incurIncident: incurIncident)
   }
   const headquarters = Location(
-    id: sect.id + '_headquarters',
     name: sect.name,
     category: 'site',
     kind: kLocationKindHeadquarters,
@@ -370,22 +369,17 @@ function assignCharacterSuperior(character, sect) {
     // 总管或以下，报告位置在角色所在城市的会堂场景
     const location = game.locations[character.homeLocationId]
     assert(location != null, 'location not found for id: ${character.homeLocationId}')
-    let cityhallSiteId
-    for (let siteId in location.siteIds) {
-      const site = game.locations[siteId]
-      if (site.kind == kLocationKindCityhall) {
-        cityhallSiteId = site.id
-        break
-      }
-    }
-    assert(cityhallSiteId != null, 'cityhall site not found for location id: ${location.id}')
-    memberData.reportSiteId = cityhallSiteId
+    let cityhallId = '${location['id']}_${location['id']}${engine.locale('cityhall')}'
+    const cityhall = game.locations[cityhallId]
+    assert(cityhall != null, 'cityhall not found for city: ${location.name}, cityhall id: ${cityhallId}')
+    memberData.reportSiteId = cityhallId
     memberData.reportCityId = location.id
   } else {
     // 堂主，报告位置在门派总堂所在城市的门派场景
-    const headquarters = game.locations[sect.headquartersLocationId]
-    assert(headquarters != null, 'headquarters not found! sect id: [${sect.id}], headquarters id: ${sect.headquartersLocationId}')
-    memberData.reportSiteId = headquarters.id
+    const headquartersSiteId = '${sect.headquartersLocationId}_${sect.id}'
+    const headquartersSite = game.locations[headquartersSiteId]
+    assert(headquartersSite != null, 'headquarters not found for city: ${headquartersSite.name}, headquarters id: ${headquartersSiteId}')
+    memberData.reportSiteId = headquartersSiteId
     memberData.reportCityId = sect.headquartersLocationId
   }
 
@@ -485,7 +479,7 @@ function setCharacterTitle(
           if (assignManagingSite) {
             managingSite = random.nextIterable(sites)
             managingSite.managerId = character.id
-            if (!character.managingLocationIds.contains(managingSite.id) == false) {
+            if (!character.managingLocationIds.contains(managingSite.id)) {
               character.managingLocationIds.add(managingSite.id)
             }
             if (moveToManagingSite) {
@@ -519,13 +513,10 @@ function setCharacterTitle(
             character.managingLocationIds.clear()
             character.managingLocationIds.add(managingSite.id)
             if (moveToManagingSite) {
-              for (final siteId in managingCity.siteIds) {
-                final site = game.locations[siteId]
-                if (site.kind == kLocationKindCityhall) {
-                  character.locationId = site.id
-                  break
-                }
-              }
+              let cityhallId = '${managingCity['id']}_${managingCity['id']}${engine.locale('cityhall')}'
+              const cityhall = game.locations[cityhallId]
+              assert(cityhall != null, 'cityhall not found for city: ${managingCity.name}, cityhall id: ${cityhallId}')
+              character.locationId = cityhallId
             }
             if (moveHome) {
               setCharacterHome(character, managingCity, moveToHome: !moveToManagingSite)
@@ -546,17 +537,14 @@ function setCharacterTitle(
           if (assignManagingSite) {
             managingCity = random.nextIterable(cities)
             managingCity.managerId = character.id
-            if (!character.managingLocationIds.contains(managingSite.id) == false) {
+            if (!character.managingLocationIds.contains(managingSite.id)) {
               character.managingLocationIds.add(managingSite.id)
             }
             if (moveToManagingSite) {
-              for (final siteId in managingCity.siteIds) {
-                final site = game.locations[siteId]
-                if (site.kind == kLocationKindCityhall) {
-                  character.locationId = site.id
-                  break
-                }
-              }
+              let cityhallId = '${managingCity['id']}_${managingCity['id']}${engine.locale('cityhall')}'
+              const cityhall = game.locations[cityhallId]
+              assert(cityhall != null, 'cityhall not found for city: ${managingCity.name}, cityhall id: ${cityhallId}')
+              character.locationId = cityhallId
             }
             if (moveHome) {
               setCharacterHome(character, managingCity, moveToHome: !moveToManagingSite)
@@ -566,29 +554,24 @@ function setCharacterTitle(
       }
       case 'head': {
         if (moveToManagingSite) {
-          engine.warn('trying to set head locationId')
-          final headquarters = game.locations[sect.headquartersLocationId]
-          for (final siteId in headquarters.siteIds) {
-            final site = game.locations[siteId]
-            if (site.kind == kLocationKindHeadquarters) {
-              engine.warn('set head locationId')
-              character.locationId = site.id
-              break
-            }
-          }
+          const headquartersSiteId = '${sect.headquartersLocationId}_${sect.id}'
+          const headquartersSite = game.locations[headquartersSiteId]
+          assert(headquartersSite != null, 'headquarters not found for city: ${headquartersSite.name}, headquarters id: ${headquartersSiteId}')
+          character.locationId = headquartersSiteId
           if (moveHome) {
-            setCharacterHome(character, headquarters, moveToHome: !moveToManagingSite)
+            const headquartersLocation = game.locations[sect.headquartersLocationId]
+            setCharacterHome(character, headquartersLocation, moveToHome: !moveToManagingSite)
           }
         }
       }
       else : {
-        // 执事或以下，移动到随机城市
+        // 执事或以下
         if (moveHome) {
           final cities = sect.locationIds.map((id) => game.locations[id])
             .where((loc) => loc.category == 'city')
           const city = random.nextIterable(cities)
           if (moveToManagingSite) {
-            character.locationId = city.id
+            character.locationId = '${character.id}_${kLocationKindHome}'
           }
           setCharacterHome(character, city, moveToHome: !moveToManagingSite)
         }

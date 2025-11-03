@@ -64,9 +64,11 @@ void _updateLocationDaily(dynamic location) {
 
 /// 城市月度更新
 void _updateLocationMonthly(dynamic location, {bool force = false}) {
+  if (location['flags']['monthly']['updated'] == true && !force) return;
+
   engine.hetu.invoke('resetLocationMonthly', positionalArgs: [location]);
   if (force) {
-    location['flags']['monthly']['updated'] = true;
+    location['flags']['monthly']['updated'] = force;
   }
 
   final kind = location['kind'];

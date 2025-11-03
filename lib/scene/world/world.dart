@@ -162,11 +162,11 @@ class WorldMapScene extends Scene with HasCursorState {
 
   late final Timer timer;
 
-  bool isStandby = false;
-
   final menuController = fluent.FlyoutController();
 
   dynamic territoryMode;
+
+  List charactersOnWorldMap = [];
 
   bool _playerFreezed = false;
   set playerFreezed(bool value) {
@@ -175,7 +175,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _setSelectedTerrain(TileMapTerrain? terrain) {
     if (terrain == null) {
-      context.read<WorldMapSelectedTileState>().clear();
+      context.read<WorldMapState>().clearTerrain();
       return;
     }
 
@@ -206,7 +206,7 @@ class WorldMapScene extends Scene with HasCursorState {
       selectedLocation = null;
     }
 
-    context.read<WorldMapSelectedTileState>().update(
+    context.read<WorldMapState>().updateSelectedTerrain(
           currentZoneData: selectedZone,
           currentNationData: selectedNation,
           currentLocationData: selectedLocation,
@@ -241,6 +241,7 @@ class WorldMapScene extends Scene with HasCursorState {
     } else {
       heroAtNation = null;
     }
+
     gameState.updateTerrain(
       currentZoneData: heroAtZone,
       currentNationData: heroAtNation,
@@ -251,6 +252,8 @@ class WorldMapScene extends Scene with HasCursorState {
     if (moveCameraToHero) {
       await map.moveCameraToHero(animated: animated);
     }
+
+    await _updateNpcsAtHeroPosition();
   }
 
   @override
@@ -259,7 +262,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     fps.update(dt);
 
-    if (isStandby) {
+    if (gameState.isStandby) {
       timer.update(dt);
     }
 
@@ -293,75 +296,7 @@ class WorldMapScene extends Scene with HasCursorState {
   //   // }
   // }
 
-  @override
-  Future<void> onLoad() async {
-    super.onLoad();
-
-    camera.zoom = 2.0;
-
-    if (backgroundSpriteId != null) {
-      backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
-    }
-
-    GameData.loadZoneColors(map);
-    map.colorMode = kColorModeNation;
-
-    map.onAfterLoaded =
-        isEditorMode ? _onAfterLoadedInEditorMode : _onAfterLoadedInGameMode;
-
-    map.onMouseEnterScreenEdge = _onMouseEnterScreenEdge;
-
-    map.onMouseEnterTile = _onMouseEnterTile;
-
-    // map.onMouseScrollUp = () {
-    //   if (camera.zoom < 4) {
-    //     camera.zoom += 0.2;
-    //   }
-    // };
-
-    // map.onMouseScrollDown = () {
-    //   if (camera.zoom > 2) {
-    //     camera.zoom -= 0.2;
-    //   }
-    // };
-
-    map.onTapDown =
-        isEditorMode ? _onTapDownInEditorMode : _onTapDownInGameMode;
-    map.onTapUp = isEditorMode ? _onTapUpInEditorMode : _onTapUpInGameMode;
-    map.onDragStart = (int button, Vector2 position) {
-      context.read<HoverContentState>().hide();
-      if (button == kPrimaryButton) {
-        isEditorMode
-            ? _onDragUpdateInEditorMode(position)
-            : _onDragUpdateInGameMode(position);
-      } else if (button == kSecondaryButton) {
-        cursorState = MouseCursorState.drag;
-      }
-      return null;
-    };
-    map.onDragUpdate = (int button, Vector2 position, Vector2 delta) {
-      if (button == kPrimaryButton) {
-        isEditorMode
-            ? _onDragUpdateInEditorMode(position)
-            : _onDragUpdateInGameMode(position);
-      } else if (button == kSecondaryButton) {
-        camera.moveBy(-camera.localToGlobal(delta) / camera.zoom);
-      }
-    };
-    map.onDragEnd = (int button, Vector2 offset) {
-      cursorState = MouseCursorState.normal;
-    };
-
-    world.add(map);
-
-    fps = FpsComponent();
-
-    timer = Timer(
-      kTimeFlowInterval / 1000,
-      repeat: true,
-      onTick: _autoUpdateGame,
-    );
-
+  void _loadBindings() {
     engine.hetu.interpreter.bindExternalFunction('World::updateTerrainSprite', (
         {positionalArgs, namedArgs}) async {
       if (!map.isLoaded) return;
@@ -407,30 +342,6 @@ class WorldMapScene extends Scene with HasCursorState {
       map.lightUpAllTiles();
     }, override: true);
 
-    // engine.hetu.interpreter.bindExternalFunction('World::clearTerrainSprite', (
-    //     {positionalArgs, namedArgs}) {
-    //   final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-    //   tile?.clearSprite();
-    // }, override: true);
-
-    // engine.hetu.interpreter.bindExternalFunction('World::clearTerrainAnimation',
-    //     ({positionalArgs, namedArgs}) {
-    //   final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-    //   tile?.clearAnimation();
-    // }, override: true);
-
-    // engine.hetu.interpreter.bindExternalFunction(
-    //     'World::clearTerrainOverlaySprite', ({positionalArgs, namedArgs}) {
-    //   final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-    //   tile?.clearOverlaySprite();
-    // }, override: true);
-
-    // engine.hetu.interpreter.bindExternalFunction(
-    //     'World::clearTerrainOverlayAnimation', ({positionalArgs, namedArgs}) {
-    //   final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-    //   tile?.clearOverlayAnimation();
-    // }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('World::setPlayerFreeze', (
         {positionalArgs, namedArgs}) {
       playerFreezed = positionalArgs.first;
@@ -454,40 +365,39 @@ class WorldMapScene extends Scene with HasCursorState {
 
     engine.hetu.interpreter.bindExternalFunction('World::characterWalkTo', (
         {positionalArgs, namedArgs}) async {
-      final character = map.components[positionalArgs[0]];
-      if (character == null) {
+      final charObj = map.components[positionalArgs[0]];
+      if (charObj == null) {
         engine.warn('大地图对象 id [${positionalArgs[0]}] 不存在');
         return null;
       }
-      character.isWalkCanceled = false;
+      charObj.isWalkCanceled = false;
       final completer = Completer();
       final int toX = positionalArgs[1];
       final int toY = positionalArgs[2];
       final String? endDirString = namedArgs['endDirection'];
-      OrthogonalDirection? finishMoveDirection;
+      OrthogonalDirection? finishDirection;
       if (endDirString != null) {
-        finishMoveDirection = OrthogonalDirection.values
+        finishDirection = OrthogonalDirection.values
             .singleWhere((element) => element.name == endDirString);
       }
       final HTFunction? onStepCallback = namedArgs['onStepCallback'];
 
-      final route = await _calculateRoute(
-          fromX: character.left, fromY: character.top, toX: toX, toY: toY);
+      final route = await GameLogic.calculateRoute(
+          fromX: charObj.left, fromY: charObj.top, toX: toX, toY: toY);
       if (route != null) {
         assert(route.length > 1);
-        map.componentWalkToTilePositionByRoute(
-          character,
+        charObj.walkToTilePositionByRoute(
           List<int>.from(route),
-          finishMoveDirection: finishMoveDirection,
+          finishDirection: finishDirection,
           onStepCallback: (terrain, next, isFinished) {
             onStepCallback?.call(positionalArgs: [terrain.data, next?.data]);
             completer.complete();
-            map.updateTileInfo(character);
+            map.updateTileInfo(charObj);
           },
         );
       } else {
         engine.error(
-            '无法将对象 ${character.id} 从大地图位置 [${character.tilePosition}] 移动到 [$toX, $toY]}');
+            '无法将对象 ${charObj.id} 从大地图位置 [${charObj.tilePosition}] 移动到 [$toX, $toY]}');
         completer.complete();
       }
       return completer.future;
@@ -598,6 +508,80 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   @override
+  Future<void> onLoad() async {
+    super.onLoad();
+
+    camera.zoom = 2.0;
+
+    if (backgroundSpriteId != null) {
+      backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
+    }
+
+    GameData.loadZoneColors(map);
+    map.colorMode = kColorModeNation;
+
+    map.onAfterLoaded =
+        isEditorMode ? _onAfterLoadedInEditorMode : _onAfterLoadedInGameMode;
+
+    map.onMouseEnterScreenEdge = _onMouseEnterScreenEdge;
+
+    map.onMouseEnterTile = _onMouseEnterTile;
+
+    // map.onMouseScrollUp = () {
+    //   if (camera.zoom < 4) {
+    //     camera.zoom += 0.2;
+    //   }
+    // };
+
+    // map.onMouseScrollDown = () {
+    //   if (camera.zoom > 2) {
+    //     camera.zoom -= 0.2;
+    //   }
+    // };
+
+    map.onTapDown =
+        isEditorMode ? _onTapDownInEditorMode : _onTapDownInGameMode;
+    map.onTapUp = isEditorMode ? _onTapUpInEditorMode : _onTapUpInGameMode;
+    map.onDragStart = (int button, Vector2 position) {
+      context.read<HoverContentState>().hide();
+      if (button == kPrimaryButton) {
+        isEditorMode
+            ? _onDragUpdateInEditorMode(position)
+            : _onDragUpdateInGameMode(position);
+      } else if (button == kSecondaryButton) {
+        cursorState = MouseCursorState.drag;
+      }
+      return null;
+    };
+    map.onDragUpdate = (int button, Vector2 position, Vector2 delta) {
+      if (button == kPrimaryButton) {
+        isEditorMode
+            ? _onDragUpdateInEditorMode(position)
+            : _onDragUpdateInGameMode(position);
+      } else if (button == kSecondaryButton) {
+        camera.moveBy(-camera.localToGlobal(delta) / camera.zoom);
+      }
+    };
+    map.onDragEnd = (int button, Vector2 offset) {
+      if (gameState.isStandby) {
+        cursorState = MouseCursorState.sandglass;
+      } else {
+        cursorState = MouseCursorState.normal;
+      }
+    };
+
+    world.add(map);
+
+    fps = FpsComponent();
+
+    timer = Timer(
+      kTimeFlowInterval / 1000,
+      repeat: true,
+      onTick: _autoUpdateGame,
+    );
+  }
+
+  @override
   void onEnd() {
     super.onEnd();
 
@@ -666,7 +650,7 @@ class WorldMapScene extends Scene with HasCursorState {
       final terrain = map.trySelectTile(tilePosition.left, tilePosition.top);
       _setSelectedTerrain(terrain);
       if (terrain != null) {
-        final toolId = context.read<EditorToolState>().selectedId;
+        final toolId = context.read<WorldMapState>().selectedToolId;
         if (toolId != null) {
           _paintTile(toolId, terrain);
         } else if (territoryMode != null) {
@@ -740,7 +724,7 @@ class WorldMapScene extends Scene with HasCursorState {
     final tilePosition = map.worldPosition2Tile(position);
     final tile = map.getTerrain(tilePosition.left, tilePosition.top);
     if (tile == null) return;
-    final toolId = context.read<EditorToolState>().selectedId;
+    final toolId = context.read<WorldMapState>().selectedToolId;
     if (toolId != null) {
       _paintTile(toolId, tile);
     }
@@ -758,7 +742,7 @@ class WorldMapScene extends Scene with HasCursorState {
     if (selectedTerrain == null) return;
     cursorState = MouseCursorState.normal;
     if (button == kSecondaryButton) {
-      context.read<EditorToolState>().clear();
+      context.read<WorldMapState>().clearTool();
       territoryMode = null;
       final tileRenderPosition = map.selectedTerrain!.topRight;
       final screenPosition = worldPosition2Screen(tileRenderPosition);
@@ -902,10 +886,9 @@ class WorldMapScene extends Scene with HasCursorState {
 
   Future<void> _onAfterLoadedInEditorMode() async {
     _focusNode.requestFocus();
-    await _updateCharactersOnWorldMap();
 
+    await _updateWorldMapNpcs();
     _updateWorldMapCaptions();
-
     map.moveCameraToTilePosition(
       map.tileMapWidth ~/ 2,
       map.tileMapHeight ~/ 2,
@@ -913,70 +896,114 @@ class WorldMapScene extends Scene with HasCursorState {
     );
   }
 
-  Future<void> _updateCharactersOnWorldMap() async {
-    List<dynamic> charactersOnWorldMap = engine.hetu
-        .invoke('getCharactersOnWorldMap', positionalArgs: [map.id]).toList();
-
+  Future<void> _updateWorldMapNpcs({bool updateNpcMove = false}) async {
     final toBeRemoved = [];
     for (final obj in map.components.values) {
       if (obj == map.hero) continue;
       if (!obj.isCharacter) continue;
 
-      final worldPos = obj.data['worldPosition'];
-      if (obj.data['worldId'] != map.id || worldPos == null) {
+      if (obj.data['worldId'] != map.id ||
+          obj.data['worldPosition'] == null ||
+          obj.data['locationId'] != null) {
         toBeRemoved.add(obj.id);
       }
-      // else {
-      //   if (!charactersOnWorldMap.contains(obj.id)) {
-      //     toBeRemoved.add(obj.id);
-      //   }
-      // }
     }
-
     for (final id in toBeRemoved) {
       map.removeTileMapComponentById(id);
     }
 
+    charactersOnWorldMap = GameData.getNpcsOnWorldMap();
     for (final char in charactersOnWorldMap) {
-      if (map.components.values.any((component) {
-        return component.id == char['id'];
-      })) {
-        continue;
+      TileMapComponent charObj;
+      if (map.components.values
+          .any((component) => component.data['id'] == char['id'])) {
+        charObj = map.components[char['id']]!;
+        if (charObj.tilePosition.left != char['worldPosition']['left'] ||
+            charObj.tilePosition.top != char['worldPosition']['top']) {
+          int left = char['worldPosition']['left'];
+          int top = char['worldPosition']['top'];
+          charObj.tilePosition = TilePosition(left, top);
+          map.updateTileInfo(charObj);
+          if (charObj.isWalking) {
+            charObj.finishWalk();
+          }
+        }
+      } else {
+        int left = char['worldPosition']['left'];
+        int top = char['worldPosition']['top'];
+        charObj = await map.loadTileMapComponentFromData(
+          char,
+          isCharacter: true,
+          srcSize: kCharacterAnimationSize,
+          srcOffset: kTileOffset,
+        );
+        charObj.tilePosition = TilePosition(left, top);
+        map.updateTileInfo(charObj); // 非玩家控制角色，第一次出现在大地图上，必有一个移动目标
       }
 
-      assert(char['worldPosition'] != null);
-      int? left = char['worldPosition']['left'];
-      int? top = char['worldPosition']['top'];
-      if (left == null || top == null) {
-        continue;
+      if (updateNpcMove) {
+        final moveTo = char['worldPosition']['moveTo'];
+        assert(moveTo != null && moveTo['locationId'] != null,
+            'Character ${char['id']} 在大地图 ${worldData['id']} 上缺少 moveTo 数据');
+        final List<int> route = moveTo['route'];
+        assert(route.isNotEmpty);
+        if (!charObj.isWalking) {
+          final tileIndex = route.first;
+          final tilePosition = map.index2TilePosition(tileIndex);
+          charObj.tilePosition = tilePosition;
+          map.updateTileInfo(charObj);
+          route.removeAt(0);
+          if (route.isEmpty) {
+            moveTo['route'] = null;
+            char['locationId'] = moveTo['locationId'];
+          } else {
+            final nextIndex = route.first;
+            final nextTilePosition = map.index2TilePosition(route.first);
+            final nextTerrain =
+                map.getTerrain(nextTilePosition.left, nextTilePosition.top);
+            assert(nextTerrain != null,
+                'Character ${char['id']} 在大地图 ${worldData['id']} 上的移动目标 $nextTilePosition 无效');
+            double multiplier = 1.0;
+            if (kTerrainKindsWater.contains(nextTerrain!.kind)) {
+              multiplier = 0.5;
+            } else if (kTerrainKindsMountain.contains(nextTerrain.kind)) {
+              multiplier = 0.125;
+            } else {
+              multiplier = 0.25;
+            }
+            charObj.walkToTilePositionByRoute([tileIndex, nextIndex],
+                speedMultiplier: multiplier,
+                onStepCallback: (terrain, next, isFinished) {
+              if (isFinished) {
+                final worldPosition = charObj.data['worldPosition'];
+                worldPosition['left'] = terrain.left;
+                worldPosition['top'] = terrain.top;
+                worldPosition['moveTo']['lastMoveTimestamp'] =
+                    GameData.game['timestamp'];
+                if (terrain.tilePosition == map.hero?.tilePosition) {
+                  _updateNpcsAtHeroPosition();
+                }
+              }
+            });
+          }
+        }
       }
-      final charObj = await map.loadTileMapComponentFromData(
-        char,
-        isCharacter: true,
-        srcSize: kCharacterAnimationSize,
-        srcOffset: kTileOffset,
-      );
-      charObj.tilePosition = TilePosition(left, top);
-      map.updateTileInfo(charObj);
     }
   }
 
   Future<void> _updateNpcsAtHeroPosition() async {
-    final npcs = [];
-    final worldPos = GameData.hero?['worldPosition'];
-    if (worldPos == null ||
-        worldPos?['left'] == null ||
-        worldPos?['top'] == null) {
-      return;
-    }
+    if (GameData.hero == null) return;
 
+    final npcs = [];
     for (final id in GameData.hero['companions']) {
       final charData = GameData.getCharacter(id);
       npcs.add(charData);
     }
-
-    final otherNpcs = GameData.getNpcsAtHeroWorldMapPosition();
-    npcs.addAll(otherNpcs);
+    final characters = GameData.getNpcsAtWorldMapPosition(
+        GameData.hero['worldPosition']['left'],
+        GameData.hero['worldPosition']['top'],
+        worldId: GameData.hero['worldId']);
+    npcs.addAll(characters);
     gameState.updateNpcs(npcs);
   }
 
@@ -996,7 +1023,7 @@ class WorldMapScene extends Scene with HasCursorState {
   void _updateWorldMapCaptions() {
     final locations = GameData.game['locations'].values;
     for (final location in locations) {
-      if (location['worldId'] == GameData.world['id'] &&
+      if (location['worldId'] == worldData['id'] &&
           location['terrainIndex'] != null &&
           location['isDiscovered'] == true) {
         final int left = location['worldPosition']['left'];
@@ -1020,15 +1047,8 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
-  Future<void> _updateWorldMapNpc() async {
-    await _updateCharactersOnWorldMap();
-
-    await _updateNpcsAtHeroPosition();
-  }
-
   void _tryEnterLocation(dynamic location) async {
     gameState.isInteractable = false;
-    context.read<HoverContentState>().hide();
 
     if (location['isDiscovered'] != true) {
       await engine.hetu.invoke('discoverLocation', positionalArgs: [
@@ -1083,14 +1103,14 @@ class WorldMapScene extends Scene with HasCursorState {
     } else {
       dir = OrthogonalDirection.south;
     }
-    charComponent.setDirection(dir, jumpToEnd: true);
+    charComponent.setDirection(dir);
     map.updateTileInfo(charComponent);
     if (character == map.hero?.data) {
       _updateHeroAtTerrain();
     }
   }
 
-  Future<void> _onHeroStep(
+  Future<void> _onHeroStepOnMap(
       TileMapTerrain terrain, TileMapTerrain? next, bool isFinished) async {
     if (next != null) {
       if (next.objectId != null) {
@@ -1139,8 +1159,9 @@ class WorldMapScene extends Scene with HasCursorState {
       }
       timeCost = (kTicksPerTime / speed).round();
       if (isMainWorld) {
-        GameLogic.updateGame(ticks: timeCost);
+        await GameLogic.updateGame(ticks: timeCost, worldMap: this);
       }
+      await _updateWorldMapNpcs(updateNpcMove: true);
 
       if (staminaCost > 0) {
         final isDying = engine.hetu.invoke('setLife',
@@ -1150,7 +1171,7 @@ class WorldMapScene extends Scene with HasCursorState {
         addHintTextOnTile('${engine.locale('stamina')} -${staminaCost.round()}',
             terrain.left, terrain.top,
             color: Colors.red);
-        context.read<HeroState>().update();
+        gameState.updateUI();
         if (isDying) {
           map.hero!.isWalkCanceled = true;
           GameLogic.onDying();
@@ -1174,8 +1195,6 @@ class WorldMapScene extends Scene with HasCursorState {
         map.hero!.tilePosition.top
       ]);
       await _updateHeroAtTerrain(tile: terrain, animated: true, notify: false);
-      // 刷新地图上的NPC，这一步只需要在整个移动结束后执行
-      await _updateWorldMapNpc();
 
       if (map.hero!.isWalkCanceled) return;
 
@@ -1208,13 +1227,11 @@ class WorldMapScene extends Scene with HasCursorState {
       } else {
         lastTerrain = map.getTerrain(hero.left, hero.top)!;
       }
-      hero.changedRoute =
-          await _calculateRoute(fromTile: lastTerrain, toTile: terrain);
+      hero.changedRoute = await GameLogic.calculateRoute(
+          fromTile: lastTerrain.data, toTile: terrain.data);
       return;
     }
-
     hero.isWalkCanceled = false;
-
     final heroTerrain = map.getTerrain(hero.left, hero.top);
     final neighbors = map.getTileNeighbors(heroTerrain!);
     if (terrain.isNonEnterable &&
@@ -1223,8 +1240,8 @@ class WorldMapScene extends Scene with HasCursorState {
       GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
       return;
     } else {
-      List<int>? calculatedRoute =
-          await _calculateRoute(fromTile: heroTerrain, toTile: terrain);
+      List<int>? calculatedRoute = await GameLogic.calculateRoute(
+          fromTile: heroTerrain.data, toTile: terrain.data);
 
       if (calculatedRoute != null) {
         assert(calculatedRoute.length > 1);
@@ -1233,59 +1250,15 @@ class WorldMapScene extends Scene with HasCursorState {
         if (result == true) {
           return;
         }
-        map.componentWalkToTilePositionByRoute(
-          map.hero!,
+        hero.walkToTilePositionByRoute(
           calculatedRoute,
-          onStepCallback: _onHeroStep,
+          onStepCallback: _onHeroStepOnMap,
         );
       } else {
         engine.warn(
             '无法将英雄从大地图位置 [${hero.tilePosition}] 移动到 [${terrain.tilePosition}]');
       }
     }
-  }
-
-  Future<List<int>?> _calculateRoute({
-    TileMapTerrain? fromTile,
-    TileMapTerrain? toTile,
-    int? fromX,
-    int? fromY,
-    int? toX,
-    int? toY,
-    List? terrainKinds,
-  }) async {
-    assert(fromTile != null || (fromX != null && fromY != null));
-    assert(toTile != null || (toX != null && toY != null));
-    fromTile ??= map.getTerrain(fromX!, fromY!);
-    toTile ??= map.getTerrain(toX!, toY!);
-    List<int>? calculatedRoute = map.calculateRoute(
-      fromTile!,
-      toTile!,
-      terrainKinds: terrainKinds ?? kTerrainKindsLand,
-    );
-    // 如果陆地路线不可达，则尝试计算山地或者水路移动的路线
-    if (calculatedRoute == null && terrainKinds == null) {
-      final List movableTerrainKinds = engine.hetu.invoke(
-        'getCharacterMovableTerrainKinds',
-        positionalArgs: [GameData.hero],
-      );
-      if (movableTerrainKinds.contains(toTile.kind)) {
-        calculatedRoute = await _calculateRoute(
-          fromTile: fromTile,
-          toTile: toTile,
-          terrainKinds: movableTerrainKinds,
-        );
-      } else {
-        if (kTerrainKindsWater.contains(toTile.kind)) {
-          dialog.pushDialog('hint_ship');
-          await dialog.execute();
-        } else if (kTerrainKindsMountain.contains(toTile.kind)) {
-          dialog.pushDialog('hint_boots');
-          await dialog.execute();
-        }
-      }
-    }
-    return calculatedRoute;
   }
 
   Future<void> _onDragUpdateInGameMode(Vector2 position) async {}
@@ -1295,38 +1268,25 @@ class WorldMapScene extends Scene with HasCursorState {
     context.read<HoverContentState>().hide();
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
-    if (button == kPrimaryButton) {
-      map.trySelectTile(tilePosition.left, tilePosition.top);
-      //   // if (cursorState == MouseCursorState.click) {
-      //   //   cursorState = MouseCursorState.press;
-    }
-    // } else if (button == kSecondaryButton) {
-    //   // if (map.hero?.isWalking == true) {
-    //   //   map.hero!.isWalkCanceled = true;
-    //   // }
-    // }
+    map.trySelectTile(tilePosition.left, tilePosition.top);
   }
 
   void _onTapUpInGameMode(int button, Vector2 position) async {
-    // if (kDebugMode) {
-    //   final screenPosition = worldPosition2Screen(position);
-    //   print(
-    //       'tapped on map! world position: $position, screen position: $screenPosition');
-    // }
-
-    if (!gameState.isInteractable) return;
-
     _focusNode.requestFocus();
-
+    if (!gameState.isInteractable) return;
     if (_playerFreezed) return;
     if (map.hero == null) return;
+    if (gameState.isStandby) {
+      gameState.isStandby = false;
+      cursorState = MouseCursorState.normal;
+      return;
+    }
 
     if (dialog.isOpened) {
       await dialog.execute();
     }
 
     final tilePosition = map.worldPosition2Tile(position);
-    map.trySelectTile(tilePosition.left, tilePosition.top);
     if (button == kPrimaryButton) {
       // if (cursorState == MouseCursorState.press) {
       //   cursorState = MouseCursorState.click;
@@ -1345,13 +1305,14 @@ class WorldMapScene extends Scene with HasCursorState {
         }
       }
     } else if (button == kSecondaryButton) {
+      if (!isMainWorld) return;
+
       if (tilePosition == map.hero!.tilePosition) {
         final menuPosition =
             worldPosition2Screen(map.selectedTerrain!.topRight);
         showFluentMenu(
           position: menuPosition.toOffset(),
           items: {
-            // engine.locale('terrainInformation'): 'terrainInformation',
             engine.locale('build'): {
               engine.locale('city'): 'buildCity',
               '___0': null,
@@ -1365,9 +1326,8 @@ class WorldMapScene extends Scene with HasCursorState {
             '___1': null,
             engine.locale('standby'): 'standby',
           },
-          onSelectedItem: (String item) {
+          onSelectedItem: (item) {
             switch (item) {
-              // case 'terrainInformation':
               case 'buildCity':
                 {}
               case 'buildFarmLand':
@@ -1383,7 +1343,10 @@ class WorldMapScene extends Scene with HasCursorState {
               case 'warMode':
                 {}
               case 'standby':
-                {}
+                gameState.isStandby = !gameState.isStandby;
+                cursorState = gameState.isStandby
+                    ? MouseCursorState.sandglass
+                    : MouseCursorState.normal;
             }
           },
         );
@@ -1394,81 +1357,77 @@ class WorldMapScene extends Scene with HasCursorState {
   Future<void> _onAfterLoadedInGameMode() async {
     _focusNode.requestFocus();
     final bool isNewGame = GameData.game['isNewGame'] ?? false;
-    if (isNewGame) {
-      // GameLogic.updateGame(timeflow: false);
-      if (GameData.hero == null) {
-        final Iterable characters = GameData.game['characters'].values;
-        List availableCharacters;
-        if (kDebugMode) {
-          availableCharacters = GameData.game['characters'].values.toList();
-        } else {
-          availableCharacters = characters.where((character) {
-            final age = engine.hetu
-                .invoke('getCharacterAge', positionalArgs: [character]);
-            if (age > kMaxHeroAge) {
-              return false;
-            }
-            final int rank = character['rank'];
-            if (rank > 0) {
-              return false;
-            }
-            final sectId = character['sectId'];
-            if (sectId != null) {
-              return false;
-            }
-            final homeLocationId = character['homeLocationId'];
-            assert(homeLocationId != null,
-                'Character ${character['id']} has no homeLocationId!');
-            final homeLocation = GameData.getLocation(homeLocationId);
-            if (homeLocation['isHidden']) {
-              return false;
-            }
-            return true;
-          }).toList();
-        }
-        if (availableCharacters.length < _kInitialCharacterSelectionCount) {
-          for (var i = availableCharacters.length;
-              i < _kInitialCharacterSelectionCount;
-              ++i) {
-            final locations = GameData.game['locations'].values.where((data) {
-              return data['category'] == 'city' && data['isDiscovered'] == true;
-            }).toList()
-              ..shuffle(GameData.random);
-            final char = engine.hetu.invoke('Character', namedArgs: {
-              'age': GameData.random.nextInt(6) + 12,
-              'locationId': locations.first['id'],
-            });
-            availableCharacters.add(char);
+    if (isNewGame && GameData.hero == null) {
+      final Iterable characters = GameData.game['characters'].values;
+      List availableCharacters;
+      if (kDebugMode) {
+        availableCharacters = GameData.game['characters'].values.toList();
+      } else {
+        availableCharacters = characters.where((character) {
+          final age = engine.hetu
+              .invoke('getCharacterAge', positionalArgs: [character]);
+          if (age > kMaxHeroAge) {
+            return false;
           }
-        }
-        final key = await showDialog<String>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => InformationView(
-            width: 1000.0,
-            height: 450.0,
-            title: engine.locale('selectHero'),
-            showCloseButton: false,
-            confirmationOnSelect: true,
-            mode: InformationMode.selectCharacter,
-            characters: availableCharacters,
-          ),
-        );
-        engine.hetu.invoke('setHero', positionalArgs: [key]);
-        if (GameData.game['enableTutorial'] == true) {
-          engine.hetu.invoke('randomizeHeroWorldPosition');
-        }
-        GameData.hero = engine.hetu.fetch('hero');
-        final heroHomeLocation =
-            GameData.getLocation(GameData.hero['homeLocationId']);
-        await engine.hetu.invoke('discoverLocation', positionalArgs: [
-          heroHomeLocation,
-        ], namedArgs: {
-          'updateWorldMap': true,
-        });
+          final int rank = character['rank'];
+          if (rank > 0) {
+            return false;
+          }
+          final sectId = character['sectId'];
+          if (sectId != null) {
+            return false;
+          }
+          final homeLocationId = character['homeLocationId'];
+          assert(homeLocationId != null,
+              'Character ${character['id']} has no homeLocationId!');
+          final homeLocation = GameData.getLocation(homeLocationId);
+          if (homeLocation['isHidden']) {
+            return false;
+          }
+          return true;
+        }).toList();
       }
+      if (availableCharacters.length < _kInitialCharacterSelectionCount) {
+        for (var i = availableCharacters.length;
+            i < _kInitialCharacterSelectionCount;
+            ++i) {
+          final locations = GameData.game['locations'].values.where((data) {
+            return data['category'] == 'city' && data['isDiscovered'] == true;
+          }).toList()
+            ..shuffle(GameData.random);
+          final char = engine.hetu.invoke('Character', namedArgs: {
+            'age': GameData.random.nextInt(6) + 12,
+            'locationId': locations.first['id'],
+          });
+          availableCharacters.add(char);
+        }
+      }
+      final key = await showDialog<String>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => InformationView(
+          width: 1000.0,
+          height: 450.0,
+          title: engine.locale('selectHero'),
+          showCloseButton: false,
+          confirmationOnSelect: true,
+          mode: InformationMode.selectCharacter,
+          characters: availableCharacters,
+        ),
+      );
+      engine.hetu.invoke('setHero', positionalArgs: [key]);
+      if (GameData.game['enableTutorial'] == true) {
+        engine.hetu.invoke('randomizeHeroWorldPosition');
+      }
+      GameData.hero = engine.hetu.fetch('hero');
+      final heroHomeLocation =
+          GameData.getLocation(GameData.hero['homeLocationId']);
+      await engine.hetu.invoke('discoverLocation', positionalArgs: [
+        heroHomeLocation,
+      ], namedArgs: {
+        'updateWorldMap': true,
+      });
     }
-
     assert(GameData.hero != null);
     await map.loadHeroFromData(
       GameData.hero,
@@ -1476,6 +1435,8 @@ class WorldMapScene extends Scene with HasCursorState {
       srcOffset: kTileOffset,
     );
     map.moveCameraToHero(animated: false);
+    map.lightUpAroundTile(map.hero!.tilePosition,
+        size: GameData.hero['stats']['lightRadius']);
 
     _updateWorldMapCaptions();
     _updateWorldMapObjects();
@@ -1499,6 +1460,13 @@ class WorldMapScene extends Scene with HasCursorState {
     GameData.world = worldData;
     gameState.isInteractable = true;
 
+    if (worldData['isMain'] == true) {
+      GameData.mainWorld = this;
+    }
+    GameData.currentWorld = this;
+
+    _loadBindings();
+
     context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
 
@@ -1513,8 +1481,8 @@ class WorldMapScene extends Scene with HasCursorState {
 
     gameState.reset();
 
+    await _updateWorldMapNpcs();
     await _updateHeroAtTerrain();
-    await _updateWorldMapNpc();
 
     if (map.data['useCustomLogic'] != true && map.hero != null) {
       map.lightUpAroundTile(map.hero!.tilePosition,
@@ -1529,95 +1497,129 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
     if (!gameState.isInteractable) return;
+    if (gameState.isStandby) return;
+
+    context.read<HoverContentState>().hide();
 
     bool clickable = false;
+    bool talkable = false;
     if (tile != null && (tile.isLighted || !map.showFogOfWar)) {
-      final hoverContent = StringBuffer();
-      if (tile.zoneId != null) {
-        final zone = GameData.world['zones'][tile.zoneId];
-        hoverContent.write('${zone['name']}');
-      }
-      hoverContent.writeln(' ${engine.locale(tile.kind)}'
-          '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
-          ' [${tile.left},${tile.top}]');
-      if (tile.nationId != null) {
-        final sect = GameData.getSect(tile.nationId);
-        hoverContent.write(sect['name']);
-      }
-
-      if (tile.cityId != null) {
-        final city = GameData.getLocation(tile.cityId);
-        hoverContent.write(' <grey>${city['name']}</>');
-      }
-
-      if (tile.locationId != null) {
-        final location = GameData.getLocation(tile.locationId);
-        if (location['isDiscovered']) {
-          hoverContent.writeln('');
-          if (location['category'] == 'city' && engine.config.debugMode) {
-            hoverContent.writeln('${engine.locale('city')}'
-                ' <grey>${engine.locale('development')}: ${location['development']},'
-                ' ${engine.locale('residents')}: ${location['residents'].length}</>');
-          } else {
-            if (engine.config.debugMode) {
-              hoverContent.writeln('${location['name']}'
-                  ' <grey>${engine.locale('development')}: ${location['development']}</>');
-            }
-          }
-          clickable = true;
-        }
-      } else if (tile.objectId != null) {
-        final objects = engine.hetu.fetch('objects', namespace: 'world');
-        final object = objects[tile.objectId!];
-        assert(object != null, 'objectId: ${tile.objectId} not found!');
-
-        final objectHoverContent = object?['hoverContent'] ?? '';
-        hoverContent.writeln(objectHoverContent);
-        if (engine.config.debugMode) {
-          hoverContent.writeln('<grey>${object['id']}</>');
-        }
+      if (tile == gameState.currentTerrain) {
         clickable = true;
-      } else {
-        hoverContent.writeln('');
       }
 
-      // if (kDebugMode) {
-      //   final renderPosition = tile.position;
-      //   final screenPosition = worldPosition2Screen(renderPosition);
-      //   hoverContent.writeln(
-      //       '<grey>renderPosition: (${renderPosition.x.toStringAsFixed(1)},${renderPosition.y.toStringAsFixed(1)})</>');
-      //   hoverContent.writeln(
-      //       '<grey>screenPosition: (${screenPosition.x.toStringAsFixed(1)},${screenPosition.y.toStringAsFixed(1)})</>');
+      // for (final char in charactersOnWorldMap) {
+      //   final worldPosition = char['worldPosition'];
+      //   if (worldPosition['left'] == tile.left &&
+      //       worldPosition['top'] == tile.top) {
+      //     talkable = true;
+      //     break;
+      //   }
       // }
 
-      final content = hoverContent.toString();
-      if (content.isNotBlank) {
-        final screenPosition = worldPosition2Screen(tile.position);
-        context.read<HoverContentState>().show(
-              content,
-              Rect.fromLTWH(
-                screenPosition.x + map.tileOffset.x * camera.zoom,
-                screenPosition.y + map.tileOffset.y * camera.zoom,
-                tile.width * camera.zoom,
-                tile.height * camera.zoom,
-              ),
-              direction: HoverContentDirection.topCenter,
-            );
+      if (!talkable) {
+        final hoverContent = StringBuffer();
+        if (tile.zoneId != null) {
+          final zone = worldData['zones'][tile.zoneId];
+          hoverContent.write('${zone['name']}');
+        }
+        hoverContent.writeln(' ${engine.locale(tile.kind)}'
+            '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
+            ' [${tile.left},${tile.top}]');
+        if (tile.nationId != null) {
+          final sect = GameData.getSect(tile.nationId);
+          hoverContent.write(sect['name']);
+        }
+
+        if (tile.cityId != null) {
+          final city = GameData.getLocation(tile.cityId);
+          hoverContent.write(' <grey>${city['name']}</>');
+        }
+
+        if (tile.locationId != null) {
+          final location = GameData.getLocation(tile.locationId);
+          if (location['isDiscovered']) {
+            hoverContent.writeln('');
+            if (location['category'] == 'city' && engine.config.debugMode) {
+              hoverContent.writeln('${engine.locale('city')}'
+                  ' <grey>${engine.locale('development')}: ${location['development']},'
+                  ' ${engine.locale('residents')}: ${location['residents'].length}</>');
+            } else {
+              if (engine.config.debugMode) {
+                hoverContent.writeln('${location['name']}'
+                    ' <grey>${engine.locale('development')}: ${location['development']}</>');
+              }
+            }
+            clickable = true;
+          }
+        } else if (tile.objectId != null) {
+          final objects = engine.hetu.fetch('objects', namespace: 'world');
+          final object = objects[tile.objectId!];
+          assert(object != null, 'objectId: ${tile.objectId} not found!');
+
+          final objectHoverContent = object?['hoverContent'] ?? '';
+          hoverContent.writeln(objectHoverContent);
+          if (engine.config.debugMode) {
+            hoverContent.writeln('<grey>${object['id']}</>');
+          }
+          clickable = true;
+        } else {
+          hoverContent.writeln('');
+        }
+
+        // if (kDebugMode) {
+        //   final renderPosition = tile.position;
+        //   final screenPosition = worldPosition2Screen(renderPosition);
+        //   hoverContent.writeln(
+        //       '<grey>renderPosition: (${renderPosition.x.toStringAsFixed(1)},${renderPosition.y.toStringAsFixed(1)})</>');
+        //   hoverContent.writeln(
+        //       '<grey>screenPosition: (${screenPosition.x.toStringAsFixed(1)},${screenPosition.y.toStringAsFixed(1)})</>');
+        // }
+
+        final content = hoverContent.toString();
+        if (content.isNotBlank) {
+          final screenPosition = worldPosition2Screen(tile.position);
+          context.read<HoverContentState>().show(
+                content,
+                Rect.fromLTWH(
+                  screenPosition.x + map.tileOffset.x * camera.zoom,
+                  screenPosition.y + map.tileOffset.y * camera.zoom,
+                  tile.width * camera.zoom,
+                  tile.height * camera.zoom,
+                ),
+                direction: HoverContentDirection.topCenter,
+              );
+        }
+      }
+
+      // if (talkable) {
+      //   cursorState = MouseCursorState.talk;
+      // } else
+
+      if (clickable) {
+        cursorState = MouseCursorState.click;
+      } else if (gameState.isStandby) {
+        cursorState = MouseCursorState.sandglass;
       } else {
-        context.read<HoverContentState>().hide();
+        cursorState = MouseCursorState.normal;
       }
     } else {
       context.read<HoverContentState>().hide();
-    }
 
-    if (clickable) {
-      cursorState = MouseCursorState.click;
-    } else {
-      cursorState = MouseCursorState.normal;
+      if (gameState.isStandby) {
+        cursorState = MouseCursorState.sandglass;
+      } else {
+        cursorState = MouseCursorState.normal;
+      }
     }
   }
 
-  void _autoUpdateGame() {}
+  void _autoUpdateGame() {
+    schedule(() async {
+      await GameLogic.updateGame(ticks: kTicksPerTime, worldMap: this);
+      _updateWorldMapNpcs(updateNpcMove: true);
+    });
+  }
 
   void addHintTextOnTile(
     String text,
@@ -1680,7 +1682,7 @@ class WorldMapScene extends Scene with HasCursorState {
               }
             case LogicalKeyboardKey.escape:
               if (isEditorMode) {
-                context.read<EditorToolState>().clear();
+                context.read<WorldMapState>().clearTool();
 
                 if (territoryMode != null) {
                   territoryMode = null;
@@ -1743,7 +1745,7 @@ class WorldMapScene extends Scene with HasCursorState {
             ),
             EntityListPanel(
               size: Size(390, GameUI.size.y),
-              onUpdateCharacters: _updateCharactersOnWorldMap,
+              onUpdateCharacters: _updateWorldMapNpcs,
               onUpdateLocations: _updateWorldMapCaptions,
               onCreatedSect: (sect, location) {
                 final territoryIndexes = location['territoryIndexes'];

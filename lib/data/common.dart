@@ -1260,9 +1260,12 @@ const kRaceMainAttributes = {
 
 const kBaseExpGainPerLight = 40;
 const kBaseExpCollectSpeed = 1.0;
+const kNPCMoveSpeed = 0.5;
+const kNPCMoveSpeedMultiplier = 2;
 const kBaseMoveSpeedOnPlain = 2.0;
 const kBaseMoveSpeedOnMountain = 1.0;
-const kBaseMoveSpeedOnWater = 3.0;
+const kBaseMoveSpeedOnWater = 4.0;
+
 const kBaseStaminaCostOnMountain = 2.0;
 const kBaseStaminaCostOnWater = 4.0;
 const kBaseCraftSkillLevel = 0;

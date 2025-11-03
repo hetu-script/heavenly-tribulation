@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../global.dart';
-import '../../../state/selected_tile.dart';
+import '../../../state/world_map.dart';
 import '../../../widgets/ui/close_button2.dart';
 import '../../../data/game.dart';
 import '../../../widgets/ui/responsive_view.dart';
@@ -17,14 +17,10 @@ class TileDetailPanel extends StatefulWidget {
 class _TileDetailPanelState extends State<TileDetailPanel> {
   @override
   Widget build(BuildContext context) {
-    dynamic currentZone =
-        context.watch<WorldMapSelectedTileState>().currentZone;
-    dynamic currentNation =
-        context.watch<WorldMapSelectedTileState>().currentNation;
-    dynamic currentTerrain =
-        context.watch<WorldMapSelectedTileState>().currentTerrain;
-    dynamic currentLocation =
-        context.watch<WorldMapSelectedTileState>().currentLocation;
+    dynamic currentZone = context.watch<WorldMapState>().selectedZone;
+    dynamic currentNation = context.watch<WorldMapState>().selectedNation;
+    dynamic currentTerrain = context.watch<WorldMapState>().selectedTerrain;
+    dynamic currentLocation = context.watch<WorldMapState>().selectedLocation;
 
     final positionDetails = StringBuffer();
 

@@ -15,10 +15,8 @@ namespace Game {
   
   external function updateGame({
     tick = Constants.ticksPerTime,
-    force = false,
-    updateEntity = true,
     updateUI = true,
-    updateWorldMap = true,
+    force = false,
   })
 
   external function updateHistory()

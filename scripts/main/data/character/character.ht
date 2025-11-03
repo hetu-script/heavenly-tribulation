@@ -320,6 +320,9 @@ function createSpouseRelationships(husband, wife) {
   wife.familyIds.addAll(husband.familyIds)
   wife.familyId = husband.familyId
   characterMet(husband, wife)
+  // wife.homeLocationId = husband.homeLocationId
+  // wife.homeSiteId = husband.homeSiteId
+  // wife.locationId = husband.homeSiteId
 
   updateBond(husband, wife, score: kRelationshipScore.family.spouse, relationship: {
     kind: 'spouse',
@@ -517,7 +520,7 @@ struct Character {
     worldId,
     worldPositionX,
     worldPositionY,
-    locationId,
+    homeLocationId,
     isNewBorn = false,
     fatherId,
     motherId,
@@ -679,7 +682,6 @@ struct Character {
     /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景
     /// 此处创建的家宅场景此时尚未绑定到任何城市
     final home = Location(
-      id: '${this.id})_${kLocationKindHome}',
       category: 'site',
       kind: kLocationKindHome,
       name: engine.locale('characterHomeSite', interpolations: [this.name]),
@@ -719,12 +721,16 @@ struct Character {
         this.birthLocationId = locationId
       }
     }
+
+    this.worldPosition = null
     
-    if (locationId) {
-      const location = game.locations[locationId]
-      this.worldPosition = {
-        left: location.worldPosition?.left,
-        top: location.worldPosition?.top,
+    if (homeLocationId) {
+      const location = game.locations[homeLocationId]
+      if (location.worldPosition) {
+        this.worldPosition = {
+          left: location.worldPosition.left,
+          top: location.worldPosition.top,
+        }
       }
       setCharacterHome(this, location)
     } else {
@@ -914,51 +920,11 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
   return
 }
 
-function getCharacterWorldPosition(character) {
-  return character.worldPosition
-}
-
-// 赋值时位置可以是Null，但worldId为Null则会被忽略
 function setCharacterWorldPosition(character, left, top, {worldId}) {
-  if (left == null || top == null) {
-    character.worldPosition = null
-  } else {
-    character.worldPosition = { left, top }
-  }
+  character.worldPosition = { left, top }
   if (worldId != null) {
     character.worldId = worldId
   }
-}
-
-// function addCharacter(character) {
-//   // assert(character != null)
-//   // engine.debug('向当前世界添加新角色：${character.id}')
-//   game.characters[character.id] = character
-// }
-
-// function addCharacters(chars: List) {
-//   for (const char in chars) {
-//     addCharacter(char)
-//   }
-// }
-
-/// 如果不传 ids，就返回所有的角色
-function getCharacters([ids]) {
-  if (ids?.isNotEmpty) {
-    return game.characters.values.where( (char) => char.id in ids)
-  } else {
-    return game.characters.values
-  }
-}
-
-function getCharactersOnWorldMap([ worldId ]) {
-  worldId ??= world.id
-  return game.characters.values.where((char) {
-    if (char.worldId != worldId) return false
-    if (char.worldPosition == null) return false
-    if (char.locationId != null) return false
-    return true
-  })
 }
 
 function getCharactersAtWorldMapPosition(left, top, [ worldId ]) {

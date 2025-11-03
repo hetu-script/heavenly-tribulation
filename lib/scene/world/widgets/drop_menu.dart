@@ -206,8 +206,8 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                   case DropMenuItems.console:
                     GameUI.showConsole(context);
                   case DropMenuItems.exit:
-                    context.read<WorldMapSelectedTileState>().clear();
-                    context.read<EditorToolState>().clear();
+                    context.read<WorldMapState>().clearTerrain();
+                    context.read<WorldMapState>().clearTool();
                     await engine.clearAllCachedScene(
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},

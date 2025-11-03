@@ -19,7 +19,7 @@ import '../../../widgets/dialog/input_string.dart';
 import '../../../widgets/dialog/confirm.dart';
 import '../../../widgets/sect/edit_sect_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
-import '../../../state/selected_tile.dart';
+import '../../../state/world_map.dart';
 import '../../../logic/logic.dart';
 import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
@@ -293,7 +293,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
     _charactersTableData.clear();
 
-    _characters = engine.hetu.invoke('getCharacters');
+    _characters = GameData.game['characters'].values;
     for (final char in _characters) {
       final rowData = <String>[];
       rowData.add(char['name']);
@@ -676,8 +676,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                               case CharacterPopUpMenuItems.setWorldPosition:
                                 final charPosData = character['worldPosition'];
                                 final selectedTile = context
-                                    .read<WorldMapSelectedTileState>()
-                                    .currentTerrain;
+                                    .read<WorldMapState>()
+                                    .selectedTerrain;
                                 final currentMapId =
                                     context.read<SamsaraEngine>().scene?.id;
                                 int? left =
@@ -787,9 +787,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0),
                     child: fluent.Button(
                       onPressed: () async {
-                        final selectedTile = context
-                            .read<WorldMapSelectedTileState>()
-                            .currentTerrain;
+                        final selectedTile =
+                            context.read<WorldMapState>().selectedTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectTilePrompt'));
@@ -865,9 +864,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0, right: 10.0),
                     child: fluent.Button(
                       onPressed: () async {
-                        final selectedTile = context
-                            .read<WorldMapSelectedTileState>()
-                            .currentTerrain;
+                        final selectedTile =
+                            context.read<WorldMapState>().selectedTerrain;
                         if (selectedTile == null) {
                           GameDialogContent.show(
                               context, engine.locale('hint_selectTilePrompt'));
@@ -966,8 +964,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 case LocationPopUpMenuItems.setWorldPosition:
                                   final locPosData = location['worldPosition'];
                                   final selectedTile = context
-                                      .read<WorldMapSelectedTileState>()
-                                      .currentTerrain;
+                                      .read<WorldMapState>()
+                                      .selectedTerrain;
                                   final currentMapId =
                                       context.read<SamsaraEngine>().scene?.id;
                                   int? left =

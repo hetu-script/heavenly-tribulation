@@ -1,11 +1,10 @@
 export 'character.dart';
-export 'editor_tool.dart';
 export 'game_dialog.dart';
 export 'game_save.dart';
 export 'hover_content.dart';
 export 'item_select.dart';
 export 'meeting.dart';
 export 'new_prompt.dart';
-export 'selected_tile.dart';
+export 'world_map.dart';
 export 'game_state.dart';
 export 'view_panels.dart';

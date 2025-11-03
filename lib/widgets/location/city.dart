@@ -226,7 +226,8 @@ class _CityViewState extends State<CityView>
 
     worldMapSiteCards.clear();
     for (final terrainIndex in _city['territoryIndexes']) {
-      final terrain = GameData.world['terrains'][terrainIndex];
+      final atWorld = GameData.universe[_city['worldId']];
+      final terrain = atWorld['terrains'][terrainIndex];
       final locationId = terrain['locationId'];
       if (locationId == null || locationId == _city['id']) continue;
       final siteData = GameData.getLocation(locationId);

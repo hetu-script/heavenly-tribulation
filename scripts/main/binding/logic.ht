@@ -508,7 +508,7 @@ function handleBabies {
         shorname: baby.shorname,
         isFemale: baby.isFemale,
         birthTimestamp: baby.conceptionTimestamp + baby.pregnancyTime,
-        locationId: location.id,
+        homeLocationId: location.id,
         isNewBorn: true,
         motherId: baby.motherId,
         fatherId: baby.fatherId,

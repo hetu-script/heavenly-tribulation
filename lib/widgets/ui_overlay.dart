@@ -95,7 +95,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     //     (GameData.game?['flags']['autoWork'] ?? false);
 
     // final hero = context.watch<HeroState>().hero;
-    final hero = context.watch<HeroState>().hero;
+    final hero = context.watch<GameState>().hero;
     final showHero = widget.showHero && hero != null;
 
     // final money = (hero?['materials']['money'] ?? 0).toString();

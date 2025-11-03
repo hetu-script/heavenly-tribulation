@@ -12,7 +12,6 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/tilemap/tile_info.dart';
 import 'package:samsara/components/ui/hovertip.dart';
-import 'package:provider/provider.dart';
 
 import '../../../global.dart';
 import '../../../ui.dart';
@@ -22,7 +21,6 @@ import '../../../widgets/ui_overlay.dart';
 import 'collect_panel.dart';
 import '../../../data/common.dart';
 import '../../cursor_state.dart';
-import '../../../state/states.dart';
 
 const _kTileCoverPriority = 500;
 const _kDraggingPriority = 1000;
@@ -331,7 +329,7 @@ class MatchingGame extends Scene with HasCursorState {
         engine.play('coins-31879.mp3');
         hintTile('${engine.locale('money')} +$amount',
             tilePosition: grid.tilePosition, color: Colors.yellow);
-        context.read<HeroState>().update();
+        gameState.updateUI();
       } else {
         final amount = rarity * rarity;
         engine.hetu.invoke(
@@ -376,7 +374,7 @@ class MatchingGame extends Scene with HasCursorState {
         engine.play('coins-31879.mp3');
         hintTile('${engine.locale('money')} +$totalPrice',
             tilePosition: grid.tilePosition, color: Colors.yellow);
-        context.read<HeroState>().update();
+        gameState.updateUI();
       }
     }
 
@@ -560,7 +558,7 @@ class MatchingGame extends Scene with HasCursorState {
       engine.locale('${engine.locale('stamina')} -$staminaCost'),
       color: Colors.red,
     );
-    context.read<HeroState>().update();
+    gameState.updateUI();
 
     schedule(() async {
       await GameLogic.updateGame(ticks: kTicksPerTime);

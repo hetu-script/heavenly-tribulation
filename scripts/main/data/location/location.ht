@@ -145,6 +145,7 @@ struct Location {
     // 城市和场所的规模需要花费钱币、矿石和木材来升级
     this.development = development ?? 0
     this.isCapitalCity = isCapitalCity ?? false
+    this.id = id
     
     if (category == 'city') {
       if (name) {
@@ -159,7 +160,7 @@ struct Location {
         this.name = randomName
       }
       
-      this.id = id ?? this.name
+      this.id ??= this.name
       this.color = random.nextBrightColorHex()
       // 定居在这个城市的角色，这里只保存id
       this.residents = []
@@ -188,14 +189,16 @@ struct Location {
     } else if (category == 'site') {
       this.name = name ?? engine.locale(kind)
 
-      if (kind == kLocationKindHome) {
-        assert(managerId != null, '住宅的 managerId 不能为空')
-        this.id = '${managerId}_${kLocationKindHome}'
-      } else {
-        if (atCity != null) {
-          this.id = atCity.id + '_' + this.name + '_' + crypto.randomUID();
+      if (this.id == null) {
+        if (kind == kLocationKindHome) {
+          assert(managerId != null, '住宅的 managerId 不能为空')
+          this.id = '${managerId}_${kLocationKindHome}'
         } else {
-          this.id = id ?? (this.name + crypto.randomUID(withTime: true))
+          if (atCity != null) {
+            this.id = atCity.id + '_' + this.name
+          } else {
+            this.id = this.name
+          }
         }
       }
 
@@ -309,7 +312,6 @@ struct Location {
         
         /// 默认添加一个总堂建筑和一个交易所
         const cityhall = Location(
-          id: this.id + '_cityhall',
           name: this.name + engine.locale('cityhall'),
           category: 'site',
           kind: kLocationKindCityhall,
@@ -320,8 +322,6 @@ struct Location {
         )
         
         const tradinghouse = Location(
-          id: this.id + '_tradinghouse',
-          name: engine.locale('tradinghouse'),
           category: 'site',
           kind: kLocationKindTradingHouse,
           atCity: this,
