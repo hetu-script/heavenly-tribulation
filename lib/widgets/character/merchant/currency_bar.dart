@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
+import 'package:samsara/hover_info.dart';
 
-// import '../../../game/ui.dart';
-import '../../../state/hover_content.dart';
 import '../../../global.dart';
 
 class CurrencyBar extends StatelessWidget {

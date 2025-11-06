@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/character/memory_and_bond.dart';
-import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/game_dialog/avatar.dart';
 
 import '../../global.dart';
-import '../ui/avatar.dart';
 import '../common.dart';
 import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
@@ -17,6 +16,7 @@ import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import '../../ui.dart';
 import '../history_list.dart';
+import 'memory_and_bond.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
@@ -273,6 +273,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     Padding(
                       padding: const EdgeInsets.only(right: 15.0, top: 10.0),
                       child: Avatar(
+                        color: GameUI.foregroundColor,
                         name: _character['name'],
                         size: const Size(120.0, 120.0),
                         nameAlignment: AvatarNameAlignment.bottom,

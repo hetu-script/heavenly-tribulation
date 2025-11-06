@@ -3,6 +3,8 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../global.dart';
 import '../../ui.dart';
@@ -13,14 +15,12 @@ import '../common.dart';
 import '../../data/common.dart';
 import '../entity_table.dart';
 import '../character/profile.dart';
-import '../ui/menu_builder.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import 'site.dart';
 import '../character/inventory/material.dart';
 import '../../state/view_panels.dart';
 import '../../logic/logic.dart';
-import '../../state/hover_content.dart';
 
 enum SiteOperation {
   check,
@@ -148,6 +148,7 @@ class _CityViewState extends State<CityView>
       onSecondaryTap: (site, details) {
         if (!isManageMode && !isEditorMode) return;
         showFluentMenu(
+          cursor: GameUI.cursor,
           position: details.globalPosition,
           items: {
             engine.locale('check'): SiteOperation.check,
@@ -451,6 +452,7 @@ class _CityViewState extends State<CityView>
                               child: fluent.Button(
                                 onPressed: () {
                                   showFluentMenu(
+                                    cursor: GameUI.cursor,
                                     placementMode:
                                         fluent.FlyoutPlacementMode.topLeft,
                                     controller: _buildSiteMenuController,
@@ -473,6 +475,7 @@ class _CityViewState extends State<CityView>
                               child: fluent.Button(
                                 onPressed: () async {
                                   showFluentMenu(
+                                    cursor: GameUI.cursor,
                                     placementMode:
                                         fluent.FlyoutPlacementMode.topLeft,
                                     controller: _depositMaterialMenuController,

@@ -11,9 +11,9 @@ import 'package:hetu_script/utils/crc32b.dart';
 
 import '../../global.dart';
 import '../../data/common.dart';
-import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/ui/close_button2.dart';
 import '../../widgets/ui/responsive_view.dart';
+import '../../extensions.dart';
 
 int _floatToInt8(double x) {
   // return (x * 255.0).round() & 0xff;
@@ -462,8 +462,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                   child: fluent.Button(
                     onPressed: () async {
                       if (_seedEditingController.text.isBlank) {
-                        GameDialogContent.show(
-                            context, engine.locale('hint_emptySeed'));
+                        dialog.pushDialog('hint_emptySeed');
+                        dialog.execute();
                         return;
                       }
                       applyAllConfig();

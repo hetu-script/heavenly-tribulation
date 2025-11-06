@@ -358,10 +358,9 @@ Future<void> _onAfterEnterLocation(dynamic location) async {
     if (managerId != GameData.hero['id']) {
       final manager = GameData.getCharacter(managerId);
       if (manager['locationId'] != location['id']) {
-        await GameDialogContent.show(
-            engine.context,
-            engine.locale('hint_visitEmptyHome',
-                interpolations: [manager['name']]));
+        dialog.pushDialog('hint_visitEmptyHome',
+            interpolations: [manager['name']]);
+        await dialog.execute();
         engine.popScene(clearCache: true);
       }
     }

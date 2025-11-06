@@ -6,6 +6,7 @@ import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/extensions.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
@@ -15,7 +16,6 @@ import '../game_creation/create_sandbox_game.dart';
 import '../game_creation/create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
-import '../../widgets/ui/menu_builder.dart';
 import '../../data/common.dart';
 
 enum MenuStates {
@@ -367,6 +367,7 @@ class _DebugButtonState extends State<DebugButton> {
           mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu(
+              cursor: GameUI.cursor,
               controller: menuController,
               items: {
                 engine.locale('console'): 'debugConsole',

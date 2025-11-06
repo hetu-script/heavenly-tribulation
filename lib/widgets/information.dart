@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
 import 'character/memory_and_bond.dart';
 import '../global.dart';
@@ -6,13 +7,13 @@ import 'entity_table.dart';
 import 'location/city.dart';
 import 'location/site.dart';
 import 'sect/sect.dart';
-import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/stats_and_item.dart';
 import '../data/game.dart';
 import 'ui/close_button2.dart';
 import 'common.dart';
 import '../widgets/ui/responsive_view.dart';
+import '../ui.dart';
 
 enum InformationMode {
   all,
@@ -226,6 +227,7 @@ class _InformationViewState extends State<InformationView>
         },
         onItemSecondaryPressed: (position, dataId) {
           showFluentMenu(
+            cursor: GameUI.cursor,
             position: position,
             items: {
               if (widget.mode == InformationMode.selectCharacter) ...{
@@ -313,6 +315,7 @@ class _InformationViewState extends State<InformationView>
         },
         onItemSecondaryPressed: (position, dataId) {
           showFluentMenu(
+            cursor: GameUI.cursor,
             position: position,
             items: {
               if (widget.mode == InformationMode.selectCity ||
@@ -381,6 +384,7 @@ class _InformationViewState extends State<InformationView>
         },
         onItemSecondaryPressed: (position, dataId) {
           showFluentMenu(
+            cursor: GameUI.cursor,
             position: position,
             items: {
               if (widget.mode == InformationMode.selectSect) ...{

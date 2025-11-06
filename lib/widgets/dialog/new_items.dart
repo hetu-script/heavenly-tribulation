@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/hover_info.dart';
 
 import '../../global.dart';
-import '../../state/hover_content.dart';
 import '../../state/new_prompt.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/responsive_view.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/hover_info.dart';
 
-import '../../../state/hover_content.dart';
 import 'item_grid.dart';
 import '../../common.dart';
 
@@ -38,6 +38,8 @@ class EquipmentBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDetailed = context.read<HoverContentState>().isDetailed;
+
     final children = List<Widget>.from(
       (character['equipments'].values as Iterable).map(
         (itemId) => ItemGrid(
@@ -53,8 +55,11 @@ class EquipmentBar extends StatelessWidget {
               onItemMouseEnter!(itemData, rect);
             } else {
               context.read<HoverContentState>().show(
-                    itemData,
-                    type: type,
+                    buildItemHoverInfo(
+                      itemData,
+                      type: type,
+                      isDetailed: isDetailed,
+                    ),
                     rect,
                   );
             }

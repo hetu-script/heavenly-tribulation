@@ -165,7 +165,8 @@ Future<void> _updateCharacterMonthly(dynamic character,
 }
 
 Future<void> _onDying() async {
-  await GameDialogContent.show(engine.context, engine.locale('hint_dying'));
+  dialog.pushDialog('hint_dying');
+  await dialog.execute();
 
   final int tribulationCount = GameData.hero['tribulationCount'];
   final int tribulationCountMax = GameData.hero['stats']['tribulationCountMax'];
@@ -332,8 +333,8 @@ void _heroRest(dynamic location) async {
                   .ceil() *
               kTicksPerTime;
       if (t <= 0) {
-        GameDialogContent.show(
-            engine.context, engine.locale('hint_alreadyFullHealthNoNeedRest'));
+        dialog.pushDialog('hint_alreadyFullHealthNoNeedRest');
+        await dialog.execute();
         return;
       }
       stopAtFullHealth = true;

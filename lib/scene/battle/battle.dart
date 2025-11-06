@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -13,6 +12,8 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../ui.dart';
 import '../../logic/logic.dart';
@@ -817,6 +818,7 @@ class BattleScene extends Scene {
                       mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                       onPressed: () {
                         showFluentMenu(
+                          cursor: GameUI.cursor,
                           controller: menuController,
                           items: {
                             engine.locale('console'): BattleMenuItems.console,

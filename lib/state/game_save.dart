@@ -10,10 +10,19 @@ import 'package:hetu_script/values.dart';
 import 'package:json5/json5.dart';
 
 import '../global.dart';
-import '../extensions.dart';
 import '../data/common.dart';
 import '../data/game.dart';
 import '../scene/common.dart';
+
+extension MeaningfulString on DateTime {
+  String toMeaningfulString({bool useUnderscore = false}) {
+    final sep = useUnderscore ? '' : '_';
+    final ymdSep = useUnderscore ? '' : '/';
+    final hmsSep = useUnderscore ? '' : ':';
+    return '$year$ymdSep${(month).toString().padLeft(2, '0')}$ymdSep${(day).toString().padLeft(2, '0')}$sep'
+        '${(hour).toString().padLeft(2, '0')}$hmsSep${(minute).toString().padLeft(2, '0')}';
+  }
+}
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
-import 'package:heavenly_tribulation/widgets/ui/menu_builder.dart';
 import 'package:hetu_script/utils/uid.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
@@ -11,7 +10,10 @@ import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/utils/math.dart' as math;
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
+import '../../extensions.dart';
 import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
@@ -22,7 +24,6 @@ import 'common.dart';
 import '../../state/states.dart';
 import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
-import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
 import '../../data/common.dart';
 import '../particles/light_point.dart';
@@ -265,16 +266,16 @@ class CardLibraryScene extends Scene {
         deckPiles.length * (GameUI.deckbuildingCardSize.y + GameUI.indent);
   }
 
-  void _setBattleDeck(DeckBuildingZone zone) {
+  void _setBattleDeck(DeckBuildingZone zone) async {
     if (!zone.isCardsEnough) {
-      GameDialogContent.show(
-          context, engine.locale('deckbuilding_cards_not_enough'));
+      dialog.pushDialog('deckbuilding_cards_not_enough');
+      await dialog.execute();
       return;
     }
 
     if (!zone.isRequirementMet) {
-      GameDialogContent.show(
-          context, engine.locale('deckbuilding_card_invalid'));
+      dialog.pushDialog('deckbuilding_card_invalid');
+      await dialog.execute();
       return;
     }
 
@@ -296,6 +297,7 @@ class CardLibraryScene extends Scene {
 
   void onOpenDeckMenu(DeckBuildingZone zone) {
     showFluentMenu(
+      cursor: GameUI.cursor,
       position: zone.absolutePosition.toOffset(),
       items: {
         engine.locale('deckbuilding_set_title'): DeckMenuItems.setTitle,
@@ -542,7 +544,8 @@ class CardLibraryScene extends Scene {
 
     if (result != null) {
       // 返回的是提示的文本信息
-      GameDialogContent.show(context, result);
+      dialog.pushDialog(result);
+      dialog.execute();
       if (id != 'dismantle') {
         return;
       }
@@ -716,12 +719,14 @@ class CardLibraryScene extends Scene {
     );
 
     if (GameData.hero['exp'] < expCost) {
-      GameDialogContent.show(context, engine.locale('hint_notEnoughExp'));
+      dialog.pushDialog('hint_notEnoughExp');
+      dialog.execute();
       return;
     }
 
     if (paper == null) {
-      GameDialogContent.show(context, engine.locale('hint_notEnoughMaterial2'));
+      dialog.pushDialog('hint_notEnoughMaterial2');
+      dialog.execute();
       return;
     }
 
@@ -1180,6 +1185,7 @@ class CardLibraryScene extends Scene {
     );
     orderBy.onTapUp = (button, position) {
       showFluentMenu<OrderByOptions>(
+        cursor: GameUI.cursor,
         position: orderBy.bottomLeft.toOffset(),
         items: {
           engine.locale('acquiredTime'): {
@@ -1214,6 +1220,7 @@ class CardLibraryScene extends Scene {
     );
     filterBy.onTapUp = (button, position) {
       showFluentMenu<FilterByOptions>(
+        cursor: GameUI.cursor,
         position: filterBy.bottomLeft.toOffset(),
         items: {
           engine.locale('all'): FilterByOptions.all,
@@ -1578,11 +1585,8 @@ class CardLibraryScene extends Scene {
                 padding: const EdgeInsets.all(0),
                 mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                 onPressed: () {
-                  GameDialogContent.show(
-                    context,
-                    engine.locale('hint_cardLibrary'),
-                    style: TextStyle(color: Colors.yellow),
-                  );
+                  dialog.pushDialog('hint_cardLibrary');
+                  dialog.execute();
                 },
               ),
             ),

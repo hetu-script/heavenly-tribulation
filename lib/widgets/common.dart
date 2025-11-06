@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/hover_info.dart';
 
-import '../state/hover_content.dart';
+import '../global.dart';
+import '../data/game.dart';
 
 void previewCard(
   BuildContext context,
@@ -13,11 +15,12 @@ void previewCard(
   dynamic character,
 }) {
   context.read<HoverContentState>().show(
-        cardData,
+        buildItemHoverInfo(
+          cardData,
+          type: isLibrary ? ItemType.player : ItemType.none,
+        ),
         rect,
-        type: isLibrary ? ItemType.player : ItemType.none,
         direction: direction ?? HoverContentDirection.rightTop,
-        data2: character,
       );
 }
 
@@ -31,8 +34,6 @@ enum InformationViewMode {
   manage,
   edit,
 }
-
-const kHoverInfoIndent = 10.0;
 
 const kTabBarHeight = 72.0;
 const kNestedTabBarHeight = 178.0;
@@ -101,4 +102,55 @@ enum ItemType {
   npc,
   customer,
   merchant,
+}
+
+String? buildItemHoverInfo(
+  dynamic data, {
+  dynamic priceFactor,
+  ItemType type = ItemType.none,
+  bool isDetailed = false,
+}) {
+  switch (data['entityType']) {
+    case 'item':
+      String description;
+      switch (type) {
+        case ItemType.none:
+        case ItemType.npc:
+          description = GameData.getItemDescription(
+            data,
+            isDetailed: isDetailed,
+          );
+        case ItemType.player:
+          description = GameData.getItemDescription(
+            data,
+            isInventory: true,
+            isDetailed: isDetailed,
+          );
+        case ItemType.customer:
+          description = GameData.getItemDescription(
+            data,
+            priceFactor: priceFactor,
+            isSell: true,
+            isDetailed: isDetailed,
+          );
+        case ItemType.merchant:
+          description = GameData.getItemDescription(
+            data,
+            priceFactor: priceFactor,
+            isSell: false,
+            isDetailed: isDetailed,
+          );
+      }
+      return description;
+    case 'battle_card':
+      final (_, description) = GameData.getBattleCardDescription(
+        showRequirement: type == ItemType.player,
+        data,
+        isDetailed: isDetailed,
+        showDebugId: engine.config.debugMode,
+      );
+      return description;
+  }
+
+  return null;
 }

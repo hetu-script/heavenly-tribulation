@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../global.dart';
 import '../../data/common.dart';
 import '../../widgets/character/stats.dart';
-import '../../state/hover_content.dart';
 
 const kItemGridSize = 30.0;
 

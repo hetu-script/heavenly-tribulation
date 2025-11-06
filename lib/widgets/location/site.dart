@@ -3,6 +3,8 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../global.dart';
 import '../../ui.dart';
@@ -14,7 +16,6 @@ import '../ui/responsive_view.dart';
 import '../character/inventory/material.dart';
 import '../../logic/logic.dart';
 import '../../state/states.dart';
-import '../ui/menu_builder.dart';
 
 enum NpcOperation {
   create,
@@ -268,6 +269,7 @@ class _SiteViewState extends State<SiteView>
                               child: fluent.Button(
                                 onPressed: () async {
                                   showFluentMenu(
+                                    cursor: GameUI.cursor,
                                     placementMode:
                                         fluent.FlyoutPlacementMode.topLeft,
                                     controller: _depositMaterialMenuController,

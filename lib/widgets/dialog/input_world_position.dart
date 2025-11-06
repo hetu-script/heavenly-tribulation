@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/widgets/ui/integer_input_field.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
 import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../ui/close_button2.dart';
-import '../ui/menu_builder.dart';
 import '../ui/responsive_view.dart';
 
 class InputWorldPositionDialog extends StatefulWidget {
@@ -129,6 +129,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
                           child: fluent.Button(
                             onPressed: () {
                               showFluentMenu(
+                                cursor: GameUI.cursor,
                                 controller: _menuController,
                                 items: {
                                   for (final key in GameData.worldIds) key: key,

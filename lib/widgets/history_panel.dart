@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../state/view_panels.dart';
 import '../ui.dart';
 import '../global.dart';
 import 'history_list.dart';
-import '../state/hover_content.dart';
 import '../data/game.dart';
 import '../state/game_state.dart';
 

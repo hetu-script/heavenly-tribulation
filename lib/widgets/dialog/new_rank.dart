@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/state/new_prompt.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../global.dart';
 import '../ui/bordered_icon_button.dart';
-import '../../state/hover_content.dart';
 import '../../data/common.dart';
 import '../ui/responsive_view.dart';
 

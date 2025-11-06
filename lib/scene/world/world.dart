@@ -13,7 +13,10 @@ import 'package:flame/flame.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/effect/camera_shake.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
+import '../../extensions.dart';
 import '../../global.dart';
 import 'particles/cloud.dart';
 import 'particles/rubble.dart';
@@ -21,11 +24,9 @@ import '../common.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../state/states.dart';
-import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/information.dart';
-import '../../widgets/ui/menu_builder.dart';
 import 'widgets/entity_list.dart';
 import 'widgets/tile_detail.dart';
 import 'widgets/toolbox.dart';
@@ -747,6 +748,7 @@ class WorldMapScene extends Scene with HasCursorState {
       final tileRenderPosition = map.selectedTerrain!.topRight;
       final screenPosition = worldPosition2Screen(tileRenderPosition);
       showFluentMenu(
+        cursor: GameUI.cursor,
         position: screenPosition.toOffset(),
         items: {
           engine.locale('checkInformation'):
@@ -828,10 +830,9 @@ class WorldMapScene extends Scene with HasCursorState {
                 selectedTerrain.objectId = value;
                 selectedTerrain.caption = value;
               } else {
-                GameDialogContent.show(
-                  context,
-                  engine.locale('objectIdNonExist', interpolations: [value]),
-                );
+                dialog.pushDialog('objectIdNonExist', interpolations: [value]);
+                dialog.execute();
+                return;
               }
             case TerrainPopUpMenuItems.clearObject:
               selectedTerrain.objectId = null;
@@ -1311,6 +1312,7 @@ class WorldMapScene extends Scene with HasCursorState {
         final menuPosition =
             worldPosition2Screen(map.selectedTerrain!.topRight);
         showFluentMenu(
+          cursor: GameUI.cursor,
           position: menuPosition.toOffset(),
           items: {
             engine.locale('build'): {

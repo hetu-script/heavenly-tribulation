@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../ui.dart';
 import '../data/game.dart';

@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/hover_info.dart';
 
 import '../../../ui.dart';
 import '../../../logic/logic.dart';
 import '../../../global.dart';
-import '../../../state/hover_content.dart';
 import '../../../data/common.dart';
 
 enum MaterialListType {

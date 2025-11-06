@@ -8,12 +8,12 @@ import 'package:hetu_script/utils/math.dart' as math;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/tilemap/tile_info.dart';
 
+import '../extensions.dart';
 import '../data/common.dart';
 import '../data/game.dart';
 import '../global.dart';
 import '../scene/common.dart';
 import '../state/states.dart';
-import '../scene/game_dialog/game_dialog_content.dart';
 import '../widgets/timeflow.dart';
 import '../widgets/dialog/select_menu.dart';
 import '../widgets/dialog/input_slider.dart';
@@ -22,6 +22,7 @@ import '../widgets/view/quest_view.dart';
 import '../widgets/character/profile.dart';
 import '../widgets/dialog/input_name.dart';
 import '../scene/world/world.dart';
+import '../widgets/common.dart';
 
 part 'character.dart';
 part 'location.dart';
@@ -257,8 +258,8 @@ final class GameLogic {
   /// manhattan 距离算法
   static int getTileDistance(dynamic start, dynamic end) {
     int result;
-    final dx = end['slashLeft'] - start['slashLeft'];
-    final dy = end['slashTop'] - start['slashTop'];
+    final int dx = end['slashLeft'] - start['slashLeft'];
+    final int dy = end['slashTop'] - start['slashTop'];
     if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {
       result = (dx + dy).abs();
     } else {
@@ -298,23 +299,34 @@ final class GameLogic {
 
     final mapWidth = map['width'];
 
-    // 上面
-    addNeighbor(1, tilePos2Index(left, top - 1, mapWidth));
-    // 右边
-    addNeighbor(2, tilePos2Index(left + 1, top, mapWidth));
-    // 下面
-    addNeighbor(3, tilePos2Index(left, top + 1, mapWidth));
-    // 左边
-    addNeighbor(4, tilePos2Index(left - 1, top, mapWidth));
-    if (includeDiagonal) {
+    if (left.isOdd) {
+      // 奇数列
       // 左上
-      addNeighbor(5, tilePos2Index(left - 1, top - 1, mapWidth));
+      addNeighbor(1, tilePos2Index(left - 1, top - 1, mapWidth));
+      // 上面
+      addNeighbor(2, tilePos2Index(left, top - 1, mapWidth));
       // 右上
-      addNeighbor(6, tilePos2Index(left + 1, top - 1, mapWidth));
+      addNeighbor(3, tilePos2Index(left + 1, top - 1, mapWidth));
       // 右下
-      addNeighbor(7, tilePos2Index(left + 1, top + 1, mapWidth));
+      addNeighbor(4, tilePos2Index(left + 1, top, mapWidth));
+      // 下面
+      addNeighbor(5, tilePos2Index(left, top + 1, mapWidth));
       // 左下
-      addNeighbor(8, tilePos2Index(left - 1, top + 1, mapWidth));
+      addNeighbor(6, tilePos2Index(left - 1, top, mapWidth));
+    } else {
+      // 偶数列
+      // 左上
+      addNeighbor(1, tilePos2Index(left - 1, top, mapWidth));
+      // 上面
+      addNeighbor(2, tilePos2Index(left, top - 1, mapWidth));
+      // 右上
+      addNeighbor(3, tilePos2Index(left + 1, top, mapWidth));
+      // 右下
+      addNeighbor(4, tilePos2Index(left + 1, top + 1, mapWidth));
+      // 下面
+      addNeighbor(5, tilePos2Index(left, top + 1, mapWidth));
+      // 左下
+      addNeighbor(6, tilePos2Index(left - 1, top + 1, mapWidth));
     }
     return neighbors;
   }
@@ -1281,20 +1293,20 @@ final class GameLogic {
 
   // 进入天道战斗
   static void showTribulation(int level, int rank) async {
-    await GameDialogContent.show(
-        engine.context, engine.locale('hint_tribulation_1'));
+    dialog.pushDialog('hint_tribulation_1');
+    await dialog.execute();
 
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['tribulation'] != true) {
         GameData.flags['tutorial']['tribulation'] = true;
 
-        await GameDialogContent.show(
-            engine.context, engine.locale('hint_tribulation_2'));
+        dialog.pushDialog('hint_tribulation_2');
+        await dialog.execute();
       }
     }
 
-    await GameDialogContent.show(
-        engine.context, engine.locale('hint_tribulation_3'));
+    dialog.pushDialog('hint_tribulation_3');
+    await dialog.execute();
 
     dialog.pushSelection('tribulation', ['do_tribulation', 'forgetIt']);
     await dialog.execute();
@@ -1324,8 +1336,8 @@ final class GameLogic {
         },
       );
     } else {
-      GameDialogContent.show(
-          engine.context, engine.locale('hint_tribulation_4'));
+      dialog.pushDialog('hint_tribulation_4');
+      await dialog.execute();
     }
   }
 
@@ -1366,8 +1378,8 @@ final class GameLogic {
   static void onUseItem(dynamic itemData) async {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
-      GameDialogContent.show(
-          engine.context, engine.locale('hint_unidentifiedItem'));
+      dialog.pushDialog('hint_unidentifiedItem');
+      await dialog.execute();
       return;
     }
     if (itemData['useCustomLogic'] == true) {
@@ -1426,8 +1438,8 @@ final class GameLogic {
           'generateAttributes',
           positionalArgs: [GameData.hero],
         );
-        GameDialogContent.show(
-            engine.context, engine.locale('hint_generateAttributes'));
+        dialog.pushDialog('hint_generateAttributes');
+        await dialog.execute();
         engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
           itemData
         ], namedArgs: {
@@ -1453,16 +1465,16 @@ final class GameLogic {
     assert(itemData['chargeData'] != null);
     final chargeData = itemData['chargeData'];
     if (chargeData['current'] >= chargeData['max']) {
-      GameDialogContent.show(
-          engine.context, engine.locale('hint_itemFullyCharged'));
+      dialog.pushDialog('hint_itemFullyCharged');
+      await dialog.execute();
       return;
     }
 
     final int shards = GameData.hero['materials']['shard'] ?? 0;
     final int shardsPerCharge = chargeData['shardsPerCharge'];
     if (shards < shardsPerCharge) {
-      GameDialogContent.show(
-          engine.context, engine.locale('hint_notEnoughShard'));
+      dialog.pushDialog('hint_notEnoughShard');
+      await dialog.execute();
       return;
     }
 

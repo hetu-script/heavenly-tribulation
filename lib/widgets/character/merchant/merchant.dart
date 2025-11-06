@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/hover_info.dart';
 
+import '../../../extensions.dart';
 import '../../../logic/logic.dart';
 import '../../../global.dart';
 import '../inventory/inventory.dart';
 import '../../../data/game.dart';
 import '../../../state/character.dart';
-import '../../../scene/game_dialog/game_dialog_content.dart';
 import 'currency_bar.dart';
 import '../inventory/material.dart';
 import '../../dialog/input_slider.dart';
 import '../../ui/close_button2.dart';
 import '../../ui/responsive_view.dart';
 import '../../../data/common.dart';
-import '../../../state/hover_content.dart';
 import '../../../ui.dart';
 
 class MerchantDialog extends StatefulWidget {
@@ -210,8 +210,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         String currency = widget.useShard ? 'shard' : 'money';
         int merchantHave = widget.useShard ? merchantShard : merchantMoney;
         if (merchantHave < totalPrice) {
-          GameDialogContent.show(
-              context, engine.locale('hint_merchantNotEnough_$currency'));
+          dialog.pushDialog('hint_merchantNotEnough_$currency');
+          dialog.execute();
           return;
         }
         engine.hetu.invoke(
@@ -334,8 +334,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         String currency = widget.useShard ? 'shard' : 'money';
         int merchantHave = widget.useShard ? merchantShard : merchantMoney;
         if (merchantHave < totalPrice) {
-          GameDialogContent.show(
-              context, engine.locale('hint_merchantNotEnough_$currency'));
+          dialog.pushDialog('hint_merchantNotEnough_$currency');
+          dialog.execute();
           return;
         }
         engine.hetu.invoke(
@@ -411,8 +411,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         int heroHave = widget.useShard ? heroShard : heroMoney;
 
         if (heroHave < totalPrice) {
-          GameDialogContent.show(
-              context, engine.locale('hint_notEnough_$currency'));
+          dialog.pushDialog('hint_notEnough_$currency');
+          dialog.execute();
           return;
         }
         engine.hetu.invoke(
@@ -534,8 +534,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         int heroHave = widget.useShard ? heroShard : heroMoney;
 
         if (heroHave < totalPrice) {
-          GameDialogContent.show(
-              context, engine.locale('hint_notEnough_$currency'));
+          dialog.pushDialog('hint_notEnough_$currency');
+          dialog.execute();
           return;
         }
         engine.hetu.invoke(

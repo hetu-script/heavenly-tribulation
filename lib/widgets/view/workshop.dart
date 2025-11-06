@@ -3,23 +3,23 @@ import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/widgets/ui/empty_placeholder.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../logic/logic.dart';
 import '../../state/view_panels.dart';
-import '../../state/hover_content.dart';
 import '../../data/common.dart';
 import '../ui/close_button2.dart';
-import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../character/inventory/inventory.dart';
 import '../character/inventory/material.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/bordered_icon_button.dart';
-import '../../scene/game_dialog/game_dialog_content.dart';
 import '../ui/responsive_view.dart';
+import '../../extensions.dart';
 
 class WorkbenchDialog extends StatefulWidget {
   const WorkbenchDialog({
@@ -98,6 +98,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
       dynamic itemData, Offset screenPosition) {
     if (itemData == null) return;
     showFluentMenu(
+      cursor: GameUI.cursor,
       position: screenPosition,
       items: {
         engine.locale('unselect'): 'unselect',
@@ -118,6 +119,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
     } else if (_tabIndex == 1) {
       if (kItemEquipmentCategories.contains(category)) {
         showFluentMenu(
+          cursor: GameUI.cursor,
           position: screenPosition,
           items: {
             if (_selectedModifyItem == itemData)
@@ -128,8 +130,8 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
           onSelectedItem: (item) async {
             final isIdentified = itemData['isIdentified'] == true;
             if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
+              dialog.pushDialog('hint_unidentifiedItem');
+              dialog.execute();
               return;
             }
             if (item == 'select') {

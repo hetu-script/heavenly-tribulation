@@ -5,22 +5,23 @@ import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
+import 'package:samsara/game_dialog/avatar.dart';
 
 import '../ui/bordered_icon_button.dart';
-import '../ui/avatar.dart';
 import '../../global.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import 'battlecard.dart';
-import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../../scene/common.dart';
 import '../../logic/logic.dart';
 import '../../state/states.dart';
 import '../character/stats.dart';
-import '../../scene/game_dialog/game_dialog_content.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
+import '../../extensions.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
@@ -189,24 +190,25 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
               Column(
                 children: [
                   Avatar(
+                    color: GameUI.foregroundColor,
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    characterData: widget.hero,
+                    data: widget.hero,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                 ],
               ),
@@ -289,6 +291,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             child: fluent.Button(
                               onPressed: () {
                                 showFluentMenu(
+                                    cursor: GameUI.cursor,
                                     controller: menuController,
                                     items: _heroDecks.isEmpty
                                         ? {
@@ -356,7 +359,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                       child: fluent.Button(
                         onPressed: () {
                           if (_warning != null && !widget.ignoreRequirement) {
-                            GameDialogContent.show(context, _warning!);
+                            dialog.pushDialog(_warning!);
+                            dialog.execute();
                             return;
                           }
                           assert(enemyBattleDeckCards.isNotEmpty);
@@ -455,11 +459,9 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                   }
                                 }
                                 if (!identified) {
-                                  GameDialogContent.show(
-                                    context,
-                                    engine
-                                        .locale('identify_deck_identifed_all'),
-                                  );
+                                  dialog.pushDialog(
+                                      'identify_deck_identifed_all');
+                                  dialog.execute();
                                   return;
                                 }
                                 engine
@@ -473,10 +475,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                       _createDeckCardWidgets(widget.enemy);
                                 });
                               } else {
-                                GameDialogContent.show(
-                                  context,
-                                  engine.locale('identify_deck_reach_limit'),
-                                );
+                                dialog.pushDialog('identify_deck_reach_limit');
+                                dialog.execute();
                               }
                             },
                             child: Label(
@@ -521,24 +521,25 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
               Column(
                 children: [
                   Avatar(
+                    color: GameUI.foregroundColor,
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    characterData: widget.enemy,
+                    data: widget.enemy,
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                   Avatar(
                     margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                    showPlaceholder: true,
+                    placeholderId: 'illustration/placeholder.png',
                   ),
                 ],
               ),

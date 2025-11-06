@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-// import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
 import '../../global.dart';
 import 'stats.dart';
 import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';
-import '../ui/menu_builder.dart';
 import '../dialog/confirm.dart';
-import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
 import '../../data/game.dart';
@@ -16,6 +14,7 @@ import '../common.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import '../../scene/common.dart';
+import '../../extensions.dart';
 
 enum ItemPopUpMenuItems {
   unequip,
@@ -57,6 +56,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
 
   void onItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
     showFluentMenu(
+      cursor: GameUI.cursor,
       position: screenPosition,
       items: {
         if (itemData['equippedPosition'] != null)
@@ -75,8 +75,8 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
         switch (item) {
           case ItemPopUpMenuItems.unequip:
             if (itemData['isCursed'] == true) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_cursedEquipment'));
+              dialog.pushDialog('hint_cursedEquipment');
+              dialog.execute();
               return;
             }
             engine.play('put_item-83043.mp3');
@@ -86,8 +86,8 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
             setState(() {});
           case ItemPopUpMenuItems.equip:
             if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
+              dialog.pushDialog('hint_unidentifiedItem');
+              dialog.execute();
               return;
             }
             final category = itemData['category'];
@@ -100,10 +100,9 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
                     namespace: 'Player',
                     positionalArgs: ['${category}UnrestrictedEquip']);
                 if (hasUnrestrictedPassive == null) {
-                  GameDialogContent.show(
-                      context,
-                      engine.locale('hint_restrictedEquipment',
-                          interpolations: [engine.locale(category)]));
+                  dialog.pushDialog('hint_restrictedEquipment',
+                      interpolations: [engine.locale(category)]);
+                  dialog.execute();
                   return;
                 }
               }
@@ -115,16 +114,16 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
             setState(() {});
           case ItemPopUpMenuItems.use:
             if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
+              dialog.pushDialog('hint_unidentifiedItem');
+              dialog.execute();
               return;
             }
             GameLogic.onUseItem(itemData);
             setState(() {});
           case ItemPopUpMenuItems.charge:
             if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
+              dialog.pushDialog('hint_unidentifiedItem');
+              dialog.execute();
               return;
             }
             GameLogic.onChargeItem(itemData);

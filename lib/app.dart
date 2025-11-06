@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:hetu_script/value/function/function.dart';
+import 'package:samsara/hover_info.dart';
 
 import 'scene/mainmenu/mainmenu_scene.dart';
 import 'global.dart';
@@ -26,6 +27,7 @@ import 'scene/loading_screen.dart';
 import 'scene/mini_game/matching/matching.dart';
 import 'data/common.dart';
 import 'data/game.dart';
+import 'extensions.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});

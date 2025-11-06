@@ -4,21 +4,21 @@ import 'package:samsara/widgets/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/markdown_wiki.dart';
+import 'package:samsara/hover_info.dart';
+import 'package:samsara/game_dialog/avatar.dart';
+import 'package:samsara/game_dialog.dart';
 
-import 'ui/avatar.dart';
 import 'character/profile.dart';
 import 'character/memory_and_bond.dart';
 import '../global.dart';
 import 'character/journal.dart';
 import '../ui.dart';
-import 'hover_info.dart';
 import 'character/stats_and_item.dart';
 import 'prebatle/prebattle.dart';
 import '../state/states.dart';
 import '../scene/common.dart';
 import 'character/item_select_dialog.dart';
 import 'ui/draggable_panel.dart';
-import '../scene/game_dialog/game_dialog_controller.dart';
 import 'history_panel.dart';
 import 'npc_list.dart';
 import 'character/merchant/merchant.dart';
@@ -307,7 +307,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 children: [
                   Avatar(
                     size: const Size(120, 120),
-                    image: AssetImage('assets/images/${hero['icon']}'),
+                    imageId: hero['icon'],
+                    color: GameUI.foregroundColor,
                     radius: Radius.zero,
                     borderWidth: 0.0,
                     showBorderImage: true,
@@ -702,8 +703,31 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   ),
                 _ => SizedBox.shrink(),
               },
-            GameDialogController(),
-            if (hoverContent != null) HoverInfo(hoverContent),
+            GameDialogController(
+              cursor: GameUI.cursor,
+              barrierColor: GameUI.barrierColor,
+              dialogTextStyle: TextStyles.bodyLarge,
+              dialogDecoration: BoxDecoration(
+                borderRadius: GameUI.borderRadius,
+                border: GameUI.boxBorder,
+              ),
+              onAvatarPressed: (characterId) {
+                if (characterId != null) {
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        CharacterProfileView(characterId: characterId),
+                  );
+                }
+              },
+              selectionButtonStyle: FluentButtonStyles.slim,
+              selectionTextStyle: TextStyles.bodyLarge,
+            ),
+            if (hoverContent != null)
+              HoverInfo(
+                hoverContent,
+                backgroundColor: GameUI.backgroundColor2,
+              ),
           ],
         ),
       ),

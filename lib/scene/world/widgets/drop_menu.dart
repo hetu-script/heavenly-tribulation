@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 import 'package:samsara/tilemap/tilemap.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
-import '../../../widgets/ui/menu_builder.dart';
 import '../../../ui.dart';
 import '../../../global.dart';
 import '../../../data/game.dart';
-import '../../game_dialog/game_dialog_content.dart';
 import '../../game_creation/load_game.dart';
 import '../../../widgets/information.dart';
 import '../../../widgets/dialog/input_string.dart';
@@ -17,6 +16,7 @@ import '../../../logic/logic.dart';
 import '../../../widgets/dialog/confirm.dart';
 import 'expand_world_dialog.dart';
 import '../../../state/states.dart';
+import '../../../extensions.dart';
 
 enum ViewModeMenuItems {
   none,
@@ -55,6 +55,7 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
           mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu<ViewModeMenuItems>(
+              cursor: GameUI.cursor,
               controller: menuController,
               items: {
                 engine.locale('none'): ViewModeMenuItems.none,
@@ -122,15 +123,12 @@ class _DropMenuButtonState extends State<DropMenuButton> {
     final saveInfo =
         await context.read<GameSavesState>().saveGame(worldId, saveName);
     if (saveInfo != null) {
-      GameDialogContent.show(
-        context,
-        engine.locale('savedSuccessfully', interpolations: [saveInfo.savePath]),
-      );
+      dialog
+          .pushDialog('savedSuccessfully', interpolations: [saveInfo.savePath]);
+      dialog.execute();
     } else {
-      GameDialogContent.show(
-        context,
-        engine.locale('saveFailed'),
-      );
+      dialog.pushDialog('saveFailed');
+      dialog.execute();
     }
   }
 
@@ -149,6 +147,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
           mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onPressed: () {
             showFluentMenu<DropMenuItems>(
+              cursor: GameUI.cursor,
               controller: menuController,
               items: {
                 engine.locale('save'): DropMenuItems.save,
@@ -246,10 +245,8 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                     final worldId = await GameLogic.selectWorldId();
                     if (worldId == null) return;
                     if (worldId == GameData.world['id']) {
-                      GameDialogContent.show(
-                        context,
-                        engine.locale('cannotDeleteCurrentWorld'),
-                      );
+                      dialog.pushDialog('cannotDeleteCurrentWorld');
+                      dialog.execute();
                       return;
                     }
                     final result = await showDialog<bool?>(
@@ -274,20 +271,18 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                     engine.info('重新生成地图分区，共生成 $count 个分区');
                     engine.hetu
                         .invoke('nameZones', positionalArgs: [GameData.world]);
-                    GameDialogContent.show(
-                      context,
-                      engine.locale(
-                        'generatedZone',
-                        interpolations: [count],
-                      ),
+                    dialog.pushDialog(
+                      'generatedZone',
+                      interpolations: [count],
                     );
+                    dialog.execute();
                     if (widget.map != null) {
                       GameData.loadZoneColors(widget.map!);
                     }
                   case DropMenuItems.reloadGameData:
                     GameData.initGameData();
-                    GameDialogContent.show(
-                        context, engine.locale('reloadGameDataPrompt'));
+                    dialog.pushDialog('reloadGameDataPrompt');
+                    dialog.execute();
                   case DropMenuItems.updateCharacterStats:
                     for (final character
                         in GameData.game['characters'].values) {
@@ -300,10 +295,8 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                         },
                       );
                     }
-                    GameDialogContent.show(
-                      context,
-                      engine.locale('hint_updateCharacterStats'),
-                    );
+                    dialog.pushDialog('hint_updateCharacterStats');
+                    dialog.execute();
                   case DropMenuItems.saveMapAs:
                     String worldId = GameData.world['id'];
                     final saveName = await showDialog(
@@ -320,16 +313,12 @@ class _DropMenuButtonState extends State<DropMenuButton> {
                         .read<GameSavesState>()
                         .saveMap(worldId, saveName);
                     if (savePath != null) {
-                      GameDialogContent.show(
-                        context,
-                        engine.locale('savedSuccessfully',
-                            interpolations: [savePath]),
-                      );
+                      dialog.pushDialog('savedSuccessfully',
+                          interpolations: [savePath]);
+                      dialog.execute();
                     } else {
-                      GameDialogContent.show(
-                        context,
-                        engine.locale('saveFailed'),
-                      );
+                      dialog.pushDialog('saveFailed');
+                      dialog.execute();
                     }
                 }
               },

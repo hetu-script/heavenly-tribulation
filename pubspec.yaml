@@ -19,9 +19,6 @@ dependencies:
   # hive: ^2.0.4
   # hive_flutter: ^1.1.0
 
-  flame: ^1.32.0
-  flame_splash_screen: ^0.3.0
-
   hetu_script:
     path: ../hetu-script/packages/hetu_script
   hetu_script_flutter:
@@ -32,6 +29,9 @@ dependencies:
     path: ../fluent_ui
   data_table_2:
     path: ../data_table_2
+
+  flame: ^1.32.0
+  flame_splash_screen: ^0.3.0
 
   quiver: ^3.0.1+1
   change_case: ^2.0.1

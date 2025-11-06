@@ -8,6 +8,7 @@ import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/components/sprite_component2.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../ui.dart';
 import '../../global.dart';
@@ -18,8 +19,8 @@ import '../../data/common.dart';
 import '../../state/states.dart';
 import '../world/widgets/drop_menu.dart';
 import '../cursor_state.dart';
-import '../game_dialog/game_dialog_content.dart';
 import 'character_visit.dart';
+import '../../extensions.dart';
 
 class LocationScene extends Scene with HasCursorState {
   LocationScene({
@@ -63,10 +64,10 @@ class LocationScene extends Scene with HasCursorState {
         GameLogic.tryEnterLocation(homeSiteData);
       }
     } else {
-      GameDialogContent.show(context, {
-        'lines': [engine.locale('hint_visitEmptyVillage')],
-        'isHero': true,
-      });
+      dialog.pushDialog(
+        'hint_visitEmptyVillage',
+        isHero: true,
+      );
     }
   }
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/hover_info.dart';
 
 import '../../ui.dart';
 import '../../global.dart';
-import '../../state/hover_content.dart';
 import '../../logic/logic.dart';
 import '../../widgets/common.dart';
 

@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/hover_info.dart';
 
-import '../../../state/hover_content.dart';
 import '../../../logic/logic.dart';
 import '../../common.dart';
 import 'item_grid.dart';
@@ -43,6 +43,8 @@ class Inventory extends StatelessWidget {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
+    final isDetailed = context.read<HoverContentState>().isDetailed;
+
     final filteredItems = GameLogic.getFilteredItems(
       character,
       type: itemType,
@@ -62,22 +64,31 @@ class Inventory extends StatelessWidget {
               case ItemType.npc:
               case ItemType.player:
                 context.read<HoverContentState>().show(
-                      itemData,
-                      type: itemType,
+                      buildItemHoverInfo(
+                        itemData,
+                        type: itemType,
+                        isDetailed: isDetailed,
+                      ),
                       rect,
                     );
               case ItemType.merchant:
                 context.read<HoverContentState>().show(
-                      itemData,
-                      type: itemType,
-                      data2: priceFactor,
+                      buildItemHoverInfo(
+                        itemData,
+                        type: itemType,
+                        priceFactor: priceFactor,
+                        isDetailed: isDetailed,
+                      ),
                       rect,
                     );
               case ItemType.customer:
                 context.read<HoverContentState>().show(
-                      itemData,
-                      type: itemType,
-                      data2: priceFactor,
+                      buildItemHoverInfo(
+                        itemData,
+                        type: itemType,
+                        priceFactor: priceFactor,
+                        isDetailed: isDetailed,
+                      ),
                       rect,
                     );
             }

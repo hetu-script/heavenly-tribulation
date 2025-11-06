@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/label.dart';
+import 'package:samsara/game_dialog/avatar.dart';
 
-import '../../widgets/ui/avatar.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
 import '../../global.dart';
@@ -52,9 +52,9 @@ class Meeting extends StatelessWidget {
         Align(
           alignment: position,
           child: Avatar(
-            characterData: character,
+            data: character,
             size: const Size(120, 120),
-            // showBorderImage: true,
+            color: GameUI.foregroundColor,
             nameAlignment: AvatarNameAlignment.inside,
             onPressed: (character) async {
               await GameLogic.onInteractCharacter(character);

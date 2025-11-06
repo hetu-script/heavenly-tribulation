@@ -15,7 +15,9 @@ import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/hover_info.dart';
 
+import '../../extensions.dart';
 import '../particles/light_point.dart';
 import '../../global.dart';
 import '../../logic/logic.dart';
@@ -24,7 +26,6 @@ import '../../data/game.dart';
 import '../../widgets/ui_overlay.dart';
 import '../common.dart';
 import '../particles/light_trail.dart';
-import '../game_dialog/game_dialog_content.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
@@ -145,15 +146,15 @@ class CultivationScene extends Scene with HasCursorState {
   void setMeditateState(CultivationMode state) {
     if (state == CultivationMode.collect) {
       if (collectableLight <= 0) {
-        GameDialogContent.show(
-            context, engine.locale('hint_insufficientLight'));
+        dialog.pushDialog('hint_insufficientLight');
+        dialog.execute();
         return;
       }
       isMeditating = true;
     } else if (state == CultivationMode.exhaust) {
       if (collectableLight <= 0) {
-        GameDialogContent.show(
-            context, engine.locale('hint_insufficientShard'));
+        dialog.pushDialog('hint_insufficientShard');
+        dialog.execute();
         return;
       }
       isMeditating = true;
@@ -470,15 +471,15 @@ class CultivationScene extends Scene with HasCursorState {
           final String? warning =
               GameLogic.checkRequirements(passiveTreeNodeData);
           if (warning != null) {
-            GameDialogContent.show(
-                context, engine.locale('hint_requirementNotMetForSkill'));
+            dialog.pushDialog('hint_requirementNotMetForSkill');
+            dialog.execute();
             return;
           }
 
           if (!isEditorMode) {
             if (character['skillPoints'] <= 0) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_notEnoughPassiveSkillPoints'));
+              dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
+              dialog.execute();
               return;
             }
           }
@@ -1084,8 +1085,8 @@ class CultivationScene extends Scene with HasCursorState {
       if (level < maxLevel) {
         levelUp();
       } else {
-        GameDialogContent.show(
-            engine.context, engine.locale('hint_tribulation_5'));
+        dialog.pushDialog('hint_tribulation_5');
+        dialog.execute();
       }
     } else {
       if (tribulationCheckResult) {
@@ -1261,10 +1262,8 @@ class CultivationScene extends Scene with HasCursorState {
                   padding: const EdgeInsets.all(0),
                   mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
                   onPressed: () {
-                    GameDialogContent.show(
-                      context,
-                      engine.locale('hint_cultivation'),
-                    );
+                    dialog.pushDialog('hint_cultivation');
+                    dialog.execute();
                   },
                 ),
               ),

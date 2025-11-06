@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-// import 'package:samsara/colors.dart';
 
 import 'data/common.dart';
 import 'global.dart';
@@ -230,14 +229,10 @@ final class GameUI {
   static const smallIndent = 10.0;
   // general ui
   static const avatarSize = 120.0;
-  static const heroInfoHeight = 130.0;
   static const infoButtonSize = Size(30.0, 30.0);
 
   static const String fontFamily = 'LXGWMONO';
   static const String fontFamily2 = 'RuiZiYunZiKuLiBianTiGBK';
-
-  static const pileZoneIndent = 30.0;
-  static const pileZoneMargin = 60.0;
 
   // static const foregroundColor = GameColors.darkSlateGrey;
   // static const foregroundColorPressed = Colors.black;
@@ -280,10 +275,6 @@ final class GameUI {
     borderRadius: GameUI.borderRadius,
     border: boxBorder,
   );
-
-  static const profileWindowPosition =
-      Offset(largeIndent, heroInfoHeight + smallIndent);
-  static final profileWindowSize = Vector2(640.0, 480.0);
 
   static late Offset detailsWindowPosition;
 
@@ -426,6 +417,8 @@ final class GameUI {
     textStyle: TextStyles.bodySmall,
   );
 
+  static const heroInfoHeight = 130.0;
+
   // location site scene ui
   static late Vector2 siteCardSize;
   static late Vector2 siteCardFocusedSize;
@@ -437,13 +430,20 @@ final class GameUI {
   static const cardIllustrationRelativePaddings =
       Rect.fromLTRB(0.06, 0.04, 0.06, 0.42);
 
+  // ratio = height / width
+  static const cardSizeRatio = 1.382;
+
   static final battleCardPreferredSize = Vector2(250, 250 * 1.382);
   static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
 
   static final Vector2 promptBannerSize = Vector2(640.0, 160.0);
 
-  // ratio = height / width
-  static const cardSizeRatio = 1.382;
+  static const profileWindowPosition =
+      Offset(largeIndent, heroInfoHeight + smallIndent);
+  static final profileWindowSize = Vector2(640.0, 480.0);
+
+  static const pileZoneIndent = 30.0;
+  static const pileZoneMargin = 60.0;
 
   // deckbuilding ui
   static late Vector2 libraryCardSize;

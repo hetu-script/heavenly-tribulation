@@ -3,6 +3,7 @@ import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:samsara/widgets/ui/menu_builder.dart';
 
 import '../../../global.dart';
 import '../../../ui.dart';
@@ -10,7 +11,6 @@ import '../../../widgets/entity_table.dart';
 import '../../../widgets/character/memory_and_bond.dart';
 import '../../../widgets/location/city.dart';
 import '../../../widgets/sect/sect.dart';
-import '../../../widgets/ui/menu_builder.dart';
 import '../../../widgets/character/stats_and_item.dart';
 import '../../../widgets/character/profile.dart';
 import '../../../widgets/dialog/input_world_position.dart';
@@ -21,12 +21,12 @@ import '../../../widgets/sect/edit_sect_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
 import '../../../state/world_map.dart';
 import '../../../logic/logic.dart';
-import '../../game_dialog/game_dialog_content.dart';
 import '../../../widgets/character/edit_character_basics.dart';
 import '../../common.dart';
 import '../../../data/game.dart';
 import '../../../widgets/character/edit_rank_level.dart';
 import '../../../widgets/location/edit_location_basics.dart';
+import '../../../extensions.dart';
 
 const kMapObjectSourceTemplate = '''{
   id: 'object1',
@@ -570,6 +570,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                       },
                       onItemSecondaryPressed: (position, characterId) {
                         showFluentMenu(
+                          cursor: GameUI.cursor,
                           position: position,
                           items: {
                             engine.locale('checkProfile'):
@@ -718,8 +719,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                                     final location =
                                         GameData.game['locations'][locationId];
                                     if (location == null) {
-                                      GameDialogContent.show(context,
-                                          '输入的城市 id [$locationId] 不存在！');
+                                      dialog.pushDialog('objectIdNonExist',
+                                          interpolations: [locationId]);
+                                      dialog.execute();
                                     } else {
                                       engine.hetu.invoke(
                                         'setCharacterHome',
@@ -790,25 +792,25 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final selectedTile =
                             context.read<WorldMapState>().selectedTerrain;
                         if (selectedTile == null) {
-                          GameDialogContent.show(
-                              context, engine.locale('hint_selectTilePrompt'));
+                          dialog.pushDialog('hint_selectTilePrompt');
+                          dialog.execute();
                           return;
                         }
                         if (selectedTile.nationId != null) {
-                          GameDialogContent.show(context,
-                              engine.locale('hint_selectedTileOccupied'));
+                          dialog.pushDialog('hint_selectedTileOccupied');
+                          dialog.execute();
                           return;
                         }
                         if (selectedTile.locationId == null) {
-                          GameDialogContent.show(
-                              context, engine.locale('hint_selectCityPrompt'));
+                          dialog.pushDialog('hint_selectCityPrompt');
+                          dialog.execute();
                           return;
                         }
                         final location =
                             GameData.getLocation(selectedTile.locationId);
                         if (location['category'] != 'city') {
-                          GameDialogContent.show(
-                              context, engine.locale('hint_selectCityPrompt'));
+                          dialog.pushDialog('hint_selectCityPrompt');
+                          dialog.execute();
                           return;
                         }
                         final value = await showDialog(
@@ -867,8 +869,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final selectedTile =
                             context.read<WorldMapState>().selectedTerrain;
                         if (selectedTile == null) {
-                          GameDialogContent.show(
-                              context, engine.locale('hint_selectTilePrompt'));
+                          dialog.pushDialog('hint_selectTilePrompt');
+                          dialog.execute();
                           return;
                         }
                         dynamic atTerrain = selectedTile.data;
@@ -935,6 +937,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                       },
                       onItemSecondaryPressed: (position, dataId) {
                         showFluentMenu(
+                            cursor: GameUI.cursor,
                             position: position,
                             items: {
                               engine.locale('checkInformation'):
@@ -1024,6 +1027,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                       child: fluent.Button(
                         onPressed: () {
                           showFluentMenu(
+                            cursor: GameUI.cursor,
                             controller: _createObjectFlyoutController,
                             items: {
                               engine.locale('portal'):
@@ -1085,6 +1089,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                       },
                       onItemSecondaryPressed: (position, dataId) {
                         showFluentMenu(
+                          cursor: GameUI.cursor,
                           position: position,
                           items: {
                             engine.locale('edit'): ObjectPopUpMenuItems.edit,

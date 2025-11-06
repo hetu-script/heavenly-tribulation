@@ -6,16 +6,15 @@ import 'package:samsara/samsara.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
-// import 'package:samsara/components/hovertip.dart';
 
 import '../../data/game.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../../global.dart';
-import '../game_dialog/game_dialog_content.dart';
 import 'card_library.dart';
 import '../../widgets/common.dart';
+import '../../extensions.dart';
 
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。
@@ -367,7 +366,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
         if (buildingZone != null) {
           String? result = buildingZone!.tryAddCard(card, clone: true);
           if (result != null) {
-            GameDialogContent.show(game.context, engine.locale(result));
+            dialog.pushDialog(result);
+            dialog.execute();
           } else {
             engine.play(GameSound.cardDealt);
             card.isEnabled = false;

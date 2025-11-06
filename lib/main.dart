@@ -9,12 +9,13 @@ import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:display_metrics/display_metrics.dart';
+import 'package:samsara/widgets/ui/menu_builder.dart';
+import 'package:samsara/hover_info.dart';
 
 import 'app.dart';
 import 'global.dart';
 import 'state/states.dart';
 import 'ui.dart';
-import 'widgets/ui/menu_builder.dart';
 
 // class CustomWindowListener extends WindowListener {
 //   @override
