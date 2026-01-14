@@ -199,7 +199,7 @@ struct ObjectMerchant {
       }
       
       else {
-        engine.warn('未知的商人商品类别：${c}')
+        engine.warning('未知的商人商品类别：${c}')
       }
     }
 

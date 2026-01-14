@@ -300,7 +300,7 @@ class LocationScene extends Scene with HasCursorState {
       if (onEnterSceneCallback is FutureOr<void> Function()) {
         onEnterScene = onEnterSceneCallback;
       } else {
-        engine.warn(
+        engine.warning(
             'LocationScene: onEnterScene 必须是 FutureOr<void> Function(), 当前类型: ${onEnterSceneCallback.runtimeType}');
       }
     }

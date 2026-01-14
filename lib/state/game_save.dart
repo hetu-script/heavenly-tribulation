@@ -125,7 +125,7 @@ class GameSavesState with ChangeNotifier {
         info = await createSaveInfo(worldId, saveName);
         saves[info.saveName] = info;
       }
-      engine.warn('保存游戏至：[${info.savePath}]');
+      engine.warning('保存游戏至：[${info.savePath}]');
       info.currentWorldId = worldId;
 
       final gameJSONData = (GameData.game as HTStruct).toJSON();

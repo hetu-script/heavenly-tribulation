@@ -148,7 +148,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
   }
 
   if (character.known.contains(incident.id)) {
-    engine.warn('${entity.name} 已经知道了事件：[${incident.message}]，不能再次添加。')
+    engine.warning('${entity.name} 已经知道了事件：[${incident.message}]，不能再次添加。')
     return
   }
 
@@ -182,7 +182,7 @@ function entityExperienceIncident(entity, incident) {
   }
 
   if (entity.experienced.contains(incident.id)) {
-    engine.warn('${entity.id} 已经经历了事件：[${incident.message}]')
+    engine.warning('${entity.id} 已经经历了事件：[${incident.message}]')
     return
   }
 

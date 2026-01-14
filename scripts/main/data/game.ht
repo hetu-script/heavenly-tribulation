@@ -376,7 +376,7 @@ function setCurrentWorld(id) {
 
 function deleteWorldById(id) {
   assert(world.id != id)
-  engine.warn('删除世界数据: [${id}]')
+  engine.warning('删除世界数据: [${id}]')
   universe.remove(id)
 }
 

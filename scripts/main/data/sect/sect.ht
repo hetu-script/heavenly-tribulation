@@ -118,7 +118,7 @@ struct Sect {
     this.id = id ?? this.name
     
     if (game.sects.containsKey(this.id)) {
-      engine.warn('已经存在 id 为 ${this.id} 的组织。旧数据将会被覆盖。')
+      engine.warning('已经存在 id 为 ${this.id} 的组织。旧数据将会被覆盖。')
     }
     game.sects[this.id] = this
     
@@ -413,7 +413,7 @@ function checkCharacterTitle(character, { setAsManger = false}) {
   }
   if (currentJobRank >= kJobRankMax - 1) {
     // 门派掌门的职位不会通过晋升而得到，因此这里 rank 4 已经是最高了
-    engine.warn('${character.name} 已经是最大职级，没有下一级职位了！')
+    engine.warning('${character.name} 已经是最大职级，没有下一级职位了！')
   } else {
     const nextJobRank = currentJobRank + 1
     final requiredContributionForNextRank = contributionForJobRank(nextJobRank)
@@ -681,7 +681,7 @@ function removeLocationFromSect(location, sect) {
     for (let siteId in location.siteIds) {
       const site = game.locations[siteId]
       if (site.kind == kLocationKindHeadquarters) {
-        engine.warn('${sect.id} 失去了总堂所在地块！')
+        engine.warning('${sect.id} 失去了总堂所在地块！')
         delete game.locations[siteId]
         break
       }
@@ -707,7 +707,7 @@ function removeLocationFromSect(location, sect) {
 
 function addLocationToSect(location, sect, { incurIncident = true }) {
   if (location.sectId == sect.id || sect.locationIds.contains(location.id)) {
-    engine.warn('[${sect.name}] 已经拥有 [${location.name}]，不能再次添加！')
+    engine.warning('[${sect.name}] 已经拥有 [${location.name}]，不能再次添加！')
     return
   }
   if (location.sectId != null) {

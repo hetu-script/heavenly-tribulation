@@ -137,7 +137,7 @@ function addModMetaData(mod) {
 function addMapsData(mapsData) {
   for (final map of mapsData) {
     if (universe.containsKey(map.id)) {
-      engine.warn('地图数据 id 冲突: [${map.id}]，将会被覆盖')
+      engine.warning('地图数据 id 冲突: [${map.id}]，将会被覆盖')
     }
     universe[map.id] = Object.create(map)
     // history[map.id] = []
@@ -151,7 +151,7 @@ function addGameData(gameData, directory, name) {
     final dir = game[directory]
     assert(dir != null, 'game.${directory} 不存在')
     if (dir.containsKey(item.id)) {
-      engine.warn('${name}数据 id 冲突: [${item.id}]，将会被覆盖')
+      engine.warning('${name}数据 id 冲突: [${item.id}]，将会被覆盖')
     }
     dir[item.id] = item
   }

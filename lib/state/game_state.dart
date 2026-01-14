@@ -8,7 +8,6 @@ import '../global.dart';
 
 class GameState with ChangeNotifier {
   bool isInteractable = true;
-  bool isStandby = false;
 
   dynamic get hero => GameData.hero;
   bool isUIVisible = false;

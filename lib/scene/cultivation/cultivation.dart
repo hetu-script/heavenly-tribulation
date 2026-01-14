@@ -1233,7 +1233,7 @@ class CultivationScene extends Scene with HasCursorState {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.warn('keydown: ${event.logicalKey.debugName}');
+          engine.warning('keydown: ${event.logicalKey.debugName}');
           if (event.logicalKey == LogicalKeyboardKey.space) {
             camera.zoom = 1.0;
             camera.snapTo(center);

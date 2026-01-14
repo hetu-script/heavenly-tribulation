@@ -43,8 +43,8 @@ async function onNewGame() {
 
     Player.createJournalById('sandboxTutorial')
 
-    final homeLocation = game.locations[hero.homeLocationId]
-    World.markTile(homeLocation.worldPosition.left, homeLocation.worldPosition.top)
+    // final homeLocation = game.locations[hero.homeLocationId]
+    // World.markTile(homeLocation.worldPosition.left, homeLocation.worldPosition.top)
   }
 }
 

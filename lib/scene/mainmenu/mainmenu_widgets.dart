@@ -370,23 +370,38 @@ class _DebugButtonState extends State<DebugButton> {
               cursor: GameUI.cursor,
               controller: menuController,
               items: {
-                engine.locale('console'): 'debugConsole',
-                engine.locale('debugResetHero'): 'debugResetHero',
-                engine.locale('debugMoney'): 'debugMoney',
-                engine.locale('debugItem'): 'debugItem',
+                'console': 'debugConsole',
+                'chat': 'debugLlmChat',
+                'resetHero': 'debugResetHero',
+                'get money': 'debugMoney',
+                'get item': 'debugItem',
                 '___1': null,
-                engine.locale('debugMerchant'): 'debugMerchant',
-                engine.locale('debugWorkbench'): 'debugWorkbench',
-                engine.locale('debugAlchemy'): 'debugAlchemy',
+                'merchant': 'debugMerchant',
+                'workbench': 'debugWorkbench',
+                'alchemy': 'debugAlchemy',
                 '___2': null,
-                engine.locale('debugMeeting'): 'debugMeeting',
+                'debugMeeting': 'debugMeeting',
                 '___3': null,
-                engine.locale('debugMatchingGame'): 'debugMatchingGame',
+                'debugMatchingGame': 'debugMatchingGame',
               },
               onSelectedItem: (String item) async {
                 switch (item) {
                   case 'debugConsole':
                     GameUI.showConsole(context);
+                  case 'debugLlmChat':
+                    final npc = engine.hetu.invoke('Character');
+                    engine.hetu.invoke('characterMet',
+                        positionalArgs: [npc, GameData.hero]);
+                    if (!engine.baseInitialized) {
+                      final worldInfo = GameData.getLlmChatSystemPrompt1();
+                      await engine.prepareLlamaBaseState(worldInfo);
+                    }
+                    final prompt = GameData.getLlmChatSystemPrompt2(npc);
+                    GameUI.showLlmChat(
+                      context,
+                      systemPrompt: prompt,
+                      npc: npc,
+                    );
                   case 'debugResetHero':
                     await engine.clearAllCachedScene(
                       except: Scenes.mainmenu,

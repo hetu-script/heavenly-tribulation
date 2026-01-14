@@ -216,7 +216,7 @@ function firstItemKindInInventory(entity, kind, {rank}) {
 function entityCollect(entity, materialId, amount, { onStorage = false, incurIncident = true }) {
   // engine.log('entityCollect: entity: ${entity.id}, materialId: ${materialId}, amount: ${amount}')
   if (amount <= 0) {
-    engine.warn('entity [${entity.id}] collect [${materialId}] amount <=0')
+    engine.warning('entity [${entity.id}] collect [${materialId}] amount <=0')
     return
   }
   amount = amount.round()
@@ -263,7 +263,7 @@ function entityExhaust(
 }) -> bool {
   assert(Constants.materialKinds.contains(materialId))
   if (amount <= 0) {
-    engine.warn('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
+    engine.warning('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
     return 0
   }
   final data = onStorage ? entity.storage : entity.materials
@@ -273,13 +273,13 @@ function entityExhaust(
   if (existed >= amount) {
     exhausted = amount
     data[materialId] = existed - amount
-    // engine.warn('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+    // engine.warning('[${entity.name}] 失去了 [${materialId} × ${amount}]')
   } else if (forceExhaust) {
     exhausted = existed
     data[materialId] = 0
-    engine.warn('[${entity.name}] 失去了 [${materialId} × ${existed}], 但还欠 [${amount - existed}] 个。')
+    engine.warning('[${entity.name}] 失去了 [${materialId} × ${existed}], 但还欠 [${amount - existed}] 个。')
   } else {
-    engine.warn('[${entity.name}] 只有 [${existed ?? 0}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
+    engine.warning('[${entity.name}] 只有 [${existed ?? 0}] 个 [${materialId}]，但需要支付 [${amount}] 个。')
   }
 
   return exhausted
@@ -387,10 +387,10 @@ function entityLose(entity, item, { amount }) {
     } else {
       item.stackSize = itemAmount
     }
-    // engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+    // engine.warning('[${entity.name}] 失去了 [${item.name} × ${amount}]')
     return true
   } else {
-    engine.warn('[${entity.name}] 只有 [${item.stackSize}] 个 [${item.name}]，但需要支付 [${amount}] 个。')
+    engine.warning('[${entity.name}] 只有 [${item.stackSize}] 个 [${item.name}]，但需要支付 [${amount}] 个。')
     return false
   }
 }
@@ -414,16 +414,16 @@ function entityLoseItemKind(entity, kind, amount) {
       if (itemAmount > amount) {
         item.stackSize -= amount
         amount = 0
-        // engine.warn('[${entity.name}] 失去了 [${item.name} × ${amount}]')
+        // engine.warning('[${entity.name}] 失去了 [${item.name} × ${amount}]')
       } else {
         amount -= itemAmount
         delete entity.inventory[item.id]
-        // engine.warn('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
+        // engine.warning('[${entity.name}] 失去了 [${item.name} × ${itemAmount}]')
       }
     }
     return true
   } else {
-    engine.warn('对象 [${entity.id}] 只有 [${count}] 个 [${kind}] 物品，但需要支付 [${amount}] 个。')
+    engine.warning('对象 [${entity.id}] 只有 [${count}] 个 [${kind}] 物品，但需要支付 [${amount}] 个。')
     return false
   }
 }

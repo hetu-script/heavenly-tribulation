@@ -221,7 +221,7 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
   }
 
   if (rewards.isEmpty) {
-    engine.warn('生成的战利品列表为空！')
+    engine.warning('生成的战利品列表为空！')
   }
   return rewards
 }

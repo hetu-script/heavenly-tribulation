@@ -31,7 +31,7 @@ import 'widgets/entity_list.dart';
 import 'widgets/tile_detail.dart';
 import 'widgets/toolbox.dart';
 import '../../logic/logic.dart';
-import 'components/banner.dart';
+import 'animation/banner.dart';
 import '../../data/common.dart';
 import 'widgets/location_panel.dart';
 import 'widgets/drop_menu.dart';
@@ -161,7 +161,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   late final FpsComponent fps;
 
-  late final Timer timer;
+  late final Timer mainTimer;
 
   final menuController = fluent.FlyoutController();
 
@@ -169,10 +169,17 @@ class WorldMapScene extends Scene with HasCursorState {
 
   List charactersOnWorldMap = [];
 
+  // 跟随目标相关
+  String? _followingTargetId;
+
   bool _playerFreezed = false;
   set playerFreezed(bool value) {
     _playerFreezed = map.autoUpdateComponent = value;
   }
+
+  // 当场景 onLoad 和地图 onAfterLoaded 都执行完毕后，初始化完成
+  // 地图场景的初始化在游戏运行时只会执行一次，已经执行初始化后，onMount中会有一些差别处理
+  bool _isInitializing = true;
 
   void _setSelectedTerrain(TileMapTerrain? terrain) {
     if (terrain == null) {
@@ -217,7 +224,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   Future<void> _updateHeroAtTerrain({
     TileMapTerrain? tile,
-    bool moveCameraToHero = true,
+    // bool moveCameraToHero = true,
     bool animated = false,
     bool notify = true,
   }) async {
@@ -250,9 +257,9 @@ class WorldMapScene extends Scene with HasCursorState {
       notify: notify,
     );
 
-    if (moveCameraToHero) {
-      await map.moveCameraToHero(animated: animated);
-    }
+    // if (moveCameraToHero) {
+    //   await map.moveCameraToHero(animated: animated);
+    // }
 
     await _updateNpcsAtHeroPosition();
   }
@@ -263,8 +270,8 @@ class WorldMapScene extends Scene with HasCursorState {
 
     fps.update(dt);
 
-    if (gameState.isStandby) {
-      timer.update(dt);
+    if (map.isStandby) {
+      mainTimer.update(dt);
     }
 
     if (!isEditorMode && isMainWorld) {
@@ -368,7 +375,7 @@ class WorldMapScene extends Scene with HasCursorState {
         {positionalArgs, namedArgs}) async {
       final charObj = map.components[positionalArgs[0]];
       if (charObj == null) {
-        engine.warn('大地图对象 id [${positionalArgs[0]}] 不存在');
+        engine.warning('大地图对象 id [${positionalArgs[0]}] 不存在');
         return null;
       }
       charObj.isWalkCanceled = false;
@@ -384,7 +391,12 @@ class WorldMapScene extends Scene with HasCursorState {
       final HTFunction? onStepCallback = namedArgs['onStepCallback'];
 
       final route = await GameLogic.calculateRoute(
-          fromX: charObj.left, fromY: charObj.top, toX: toX, toY: toY);
+        fromX: charObj.left,
+        fromY: charObj.top,
+        toX: toX,
+        toY: toY,
+        isHero: false,
+      );
       if (route != null) {
         assert(route.length > 1);
         charObj.walkToTilePositionByRoute(
@@ -394,6 +406,7 @@ class WorldMapScene extends Scene with HasCursorState {
             onStepCallback?.call(positionalArgs: [terrain.data, next?.data]);
             completer.complete();
             map.updateTileInfo(charObj);
+            return false;
           },
         );
       } else {
@@ -408,7 +421,7 @@ class WorldMapScene extends Scene with HasCursorState {
         {positionalArgs, namedArgs}) {
       final object = map.components[positionalArgs[0]];
       if (object == null) {
-        engine.warn(
+        engine.warning(
             'object with id [${positionalArgs[0]}] not found in map component list.');
         return;
       }
@@ -423,7 +436,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     engine.hetu.interpreter.bindExternalFunction(
         'World::updateWorldMapLocations',
-        ({positionalArgs, namedArgs}) => _updateWorldMapCaptions(),
+        ({positionalArgs, namedArgs}) => _loadWorldMapCaptions(),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::addHintText', (
@@ -564,7 +577,7 @@ class WorldMapScene extends Scene with HasCursorState {
       }
     };
     map.onDragEnd = (int button, Vector2 offset) {
-      if (gameState.isStandby) {
+      if (map.isStandby) {
         cursorState = MouseCursorState.sandglass;
       } else {
         cursorState = MouseCursorState.normal;
@@ -575,7 +588,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     fps = FpsComponent();
 
-    timer = Timer(
+    mainTimer = Timer(
       kTimeFlowInterval / 1000,
       repeat: true,
       onTick: _autoUpdateGame,
@@ -587,6 +600,9 @@ class WorldMapScene extends Scene with HasCursorState {
     super.onEnd();
 
     map.saveComponentsFrameData();
+
+    // 清理跟随状态
+    _stopFollowing();
   }
 
   void _addCloud() {
@@ -709,13 +725,13 @@ class WorldMapScene extends Scene with HasCursorState {
             if (!map.components.values.any(
                 (component) => component.tilePosition == tile.tilePosition)) {
               final componentData = GameData.mapComponents[toolId];
-              final created =
+              final obj =
                   engine.hetu.invoke('createMapComponent', positionalArgs: [
                 componentData,
                 tile.tilePosition.left,
                 tile.tilePosition.top,
               ]);
-              map.loadTileMapComponentFromData(created);
+              map.loadComponentFromData(obj, animateOnlyWhenHeroWalking: false);
             }
         }
     }
@@ -889,7 +905,7 @@ class WorldMapScene extends Scene with HasCursorState {
     _focusNode.requestFocus();
 
     await _updateWorldMapNpcs();
-    _updateWorldMapCaptions();
+    _loadWorldMapCaptions();
     map.moveCameraToTilePosition(
       map.tileMapWidth ~/ 2,
       map.tileMapHeight ~/ 2,
@@ -924,25 +940,26 @@ class WorldMapScene extends Scene with HasCursorState {
           int left = char['worldPosition']['left'];
           int top = char['worldPosition']['top'];
           charObj.tilePosition = TilePosition(left, top);
-          map.updateTileInfo(charObj);
-          if (charObj.isWalking) {
-            charObj.finishWalk();
+          if (!charObj.isWalking) {
+            map.updateTileInfo(charObj);
           }
         }
       } else {
         int left = char['worldPosition']['left'];
         int top = char['worldPosition']['top'];
-        charObj = await map.loadTileMapComponentFromData(
+        charObj = await map.loadComponentFromData(
           char,
           isCharacter: true,
           srcSize: kCharacterAnimationSize,
           srcOffset: kTileOffset,
+          animateOnlyWhenHeroWalking: true,
         );
         charObj.tilePosition = TilePosition(left, top);
-        map.updateTileInfo(charObj); // 非玩家控制角色，第一次出现在大地图上，必有一个移动目标
+        map.updateTileInfo(charObj);
       }
 
       if (updateNpcMove) {
+        // 非玩家控制角色，第一次出现在大地图上，必有一个移动目标
         final moveTo = char['worldPosition']['moveTo'];
         assert(moveTo != null && moveTo['locationId'] != null,
             'Character ${char['id']} 在大地图 ${worldData['id']} 上缺少 moveTo 数据');
@@ -952,7 +969,6 @@ class WorldMapScene extends Scene with HasCursorState {
           final tileIndex = route.first;
           final tilePosition = map.index2TilePosition(tileIndex);
           charObj.tilePosition = tilePosition;
-          map.updateTileInfo(charObj);
           route.removeAt(0);
           if (route.isEmpty) {
             moveTo['route'] = null;
@@ -985,6 +1001,7 @@ class WorldMapScene extends Scene with HasCursorState {
                   _updateNpcsAtHeroPosition();
                 }
               }
+              return false;
             });
           }
         }
@@ -1021,7 +1038,7 @@ class WorldMapScene extends Scene with HasCursorState {
     );
   }
 
-  void _updateWorldMapCaptions() {
+  void _loadWorldMapCaptions() {
     final locations = GameData.game['locations'].values;
     for (final location in locations) {
       if (location['worldId'] == worldData['id'] &&
@@ -1035,7 +1052,7 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
-  void _updateWorldMapObjects() {
+  void _loadWorldMapObjects() {
     for (final object in worldData['objects'].values) {
       if (object['category'] == 'enemy') {
         final entity = object['battleEntity'];
@@ -1084,11 +1101,12 @@ class WorldMapScene extends Scene with HasCursorState {
       if (map.components.containsKey(charId)) {
         charComponent = map.components[charId]!;
       } else {
-        charComponent = await map.loadTileMapComponentFromData(
+        charComponent = await map.loadComponentFromData(
           character,
           isCharacter: true,
           srcSize: kCharacterAnimationSize,
           srcOffset: kTileOffset,
+          animateOnlyWhenHeroWalking: true,
         );
       }
     }
@@ -1111,7 +1129,7 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
-  Future<void> _onHeroStepOnMap(
+  Future<bool> _onHeroStepOnMap(
       TileMapTerrain terrain, TileMapTerrain? next, bool isFinished) async {
     if (next != null) {
       if (next.objectId != null) {
@@ -1176,44 +1194,50 @@ class WorldMapScene extends Scene with HasCursorState {
         if (isDying) {
           map.hero!.isWalkCanceled = true;
           GameLogic.onDying();
-          return;
+          return false;
         }
       }
     }
 
     if (isFinished) {
-      final List markedTiles = map.data['markedTiles'] ?? const [];
-      if (markedTiles.contains(terrain.index)) {
-        markedTiles.remove(terrain.index);
-        final overlaySpriteData = terrain.data['overlaySprite'];
-        overlaySpriteData.remove('animation');
-        await terrain.tryLoadSprite(isOverlay: true);
-      }
-
       engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
         GameData.hero,
         map.hero!.tilePosition.left,
         map.hero!.tilePosition.top
       ]);
       await _updateHeroAtTerrain(tile: terrain, animated: true, notify: false);
+      await _updateNpcsAtHeroPosition();
 
-      if (map.hero!.isWalkCanceled) return;
+      if (map.hero!.isWalkCanceled) return false;
 
-      if (next != null) {
-        if (next.objectId != null) {
-          GameLogic.tryInteractObject(next.objectId!, next.data);
-        }
+      // debugPrint('移动完成，检查跟随状态: $_followingTargetId');
+
+      // 检查是否处于跟随状态
+      // 跟随状态下不执行其他交互逻辑
+      if (_followingTargetId != null) {
+        engine.info('继续跟随下一格');
+        await _continueFollowing();
+        // 返回 true，表示取消移动完成相关逻辑，继续移动
+        return true;
       } else {
-        if (terrain.objectId != null) {
-          GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
-        } else if (terrain.objectId != null) {
-          GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
-        } else if (terrain.locationId != null) {
-          final location = GameData.getLocation(terrain.locationId);
-          _tryEnterLocation(location);
+        if (next != null) {
+          if (next.objectId != null) {
+            GameLogic.tryInteractObject(next.objectId!, next.data);
+          }
+        } else {
+          if (terrain.objectId != null) {
+            GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
+          } else if (terrain.objectId != null) {
+            GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
+          } else if (terrain.locationId != null) {
+            final location = GameData.getLocation(terrain.locationId);
+            _tryEnterLocation(location);
+          }
         }
       }
     }
+
+    return false;
   }
 
   void _heroMoveTo(TileMapTerrain terrain) async {
@@ -1229,9 +1253,13 @@ class WorldMapScene extends Scene with HasCursorState {
         lastTerrain = map.getTerrain(hero.left, hero.top)!;
       }
       hero.changedRoute = await GameLogic.calculateRoute(
-          fromTile: lastTerrain.data, toTile: terrain.data);
+        fromTile: lastTerrain.data,
+        toTile: terrain.data,
+        isHero: true,
+      );
       return;
     }
+
     hero.isWalkCanceled = false;
     final heroTerrain = map.getTerrain(hero.left, hero.top);
     final neighbors = map.getTileNeighbors(heroTerrain!);
@@ -1242,7 +1270,10 @@ class WorldMapScene extends Scene with HasCursorState {
       return;
     } else {
       List<int>? calculatedRoute = await GameLogic.calculateRoute(
-          fromTile: heroTerrain.data, toTile: terrain.data);
+        fromTile: heroTerrain.data,
+        toTile: terrain.data,
+        isHero: true,
+      );
 
       if (calculatedRoute != null) {
         assert(calculatedRoute.length > 1);
@@ -1256,10 +1287,100 @@ class WorldMapScene extends Scene with HasCursorState {
           onStepCallback: _onHeroStepOnMap,
         );
       } else {
-        engine.warn(
+        engine.warning(
             '无法将英雄从大地图位置 [${hero.tilePosition}] 移动到 [${terrain.tilePosition}]');
       }
     }
+  }
+
+  /// 让主角跟随指定的NPC
+  /// [targetId] NPC的id
+  /// 每次英雄移动一格后，会在 _onHeroStepOnMap 中自动检查并继续跟随
+  void _heroFollowTo(String targetId) async {
+    if (_followingTargetId == targetId) return;
+
+    // 如果已经在跟随其他目标，先停止
+    if (_followingTargetId != null && _followingTargetId != targetId) {
+      _stopFollowing();
+    }
+
+    assert(map.components[targetId] != null, '跟随目标 $targetId 不存在');
+
+    // 设置跟随目标
+    _followingTargetId = targetId;
+
+    engine.info('开始跟随目标: $targetId');
+
+    // 开始第一次跟随移动
+    await _continueFollowing();
+  }
+
+  /// 停止跟随
+  void _stopFollowing() {
+    _followingTargetId = null;
+  }
+
+  /// 继续跟随移动（在每次移动完成后调用）
+  Future<void> _continueFollowing() async {
+    if (_followingTargetId == null) return;
+
+    final hero = map.hero;
+    assert(hero != null, '英雄对象不存在，无法跟随');
+
+    // 等待一帧，确保之前的移动状态完全更新
+    await Future.delayed(Duration.zero);
+
+    // 英雄已经在移动
+    if (hero!.isWalking) {
+      return;
+    }
+
+    // 检查目标是否还在地图上
+    final target = map.components[_followingTargetId];
+    if (target == null) {
+      // debugPrint('跟随目标 $_followingTargetId 已不在地图上');
+      _stopFollowing();
+      return;
+    }
+
+    // 获取当前英雄和目标的位置
+    final heroTerrain = map.getTerrain(hero.left, hero.top);
+    final targetTerrain = map.getTerrain(target.left, target.top);
+
+    assert(heroTerrain != null && targetTerrain != null);
+
+    // debugPrint(
+    //     '继续跟随: 英雄位置(${hero.left}, ${hero.top}) -> 目标位置(${target.left}, ${target.top})');
+
+    // 如果已经在同一位置，停止跟随
+    if (hero.left == target.left && hero.top == target.top) {
+      // debugPrint('已到达目标位置');
+      _stopFollowing();
+      return;
+    }
+
+    // 计算从英雄位置到目标位置的完整路径
+    List<int>? route = await GameLogic.calculateRoute(
+      fromTile: heroTerrain!.data,
+      toTile: targetTerrain!.data,
+      isHero: true,
+    );
+
+    if (route == null || route.length < 2) {
+      debugPrint('到目标 $_followingTargetId 的路径计算失败或路径过短: ${route?.length}');
+      _stopFollowing();
+      return;
+    }
+
+    // 只取路径的前两个点（即只移动一格）
+    List<int> oneStepRoute = route.take(2).toList();
+
+    // 执行移动一格
+    hero.isWalkCanceled = false;
+    hero.walkToTilePositionByRoute(
+      oneStepRoute,
+      onStepCallback: _onHeroStepOnMap,
+    );
   }
 
   Future<void> _onDragUpdateInGameMode(Vector2 position) async {}
@@ -1277,8 +1398,8 @@ class WorldMapScene extends Scene with HasCursorState {
     if (!gameState.isInteractable) return;
     if (_playerFreezed) return;
     if (map.hero == null) return;
-    if (gameState.isStandby) {
-      gameState.isStandby = false;
+    if (map.isStandby) {
+      map.isStandby = false;
       cursorState = MouseCursorState.normal;
       return;
     }
@@ -1287,30 +1408,26 @@ class WorldMapScene extends Scene with HasCursorState {
       await dialog.execute();
     }
 
-    final tilePosition = map.worldPosition2Tile(position);
+    final terrain = map.selectedTerrain!;
     if (button == kPrimaryButton) {
       // if (cursorState == MouseCursorState.press) {
       //   cursorState = MouseCursorState.click;
       // }
-      if (tilePosition == map.selectedTerrain?.tilePosition) {
-        final terrain = map.selectedTerrain!;
-        if (terrain.tilePosition != map.hero!.tilePosition) {
-          _heroMoveTo(terrain);
-        } else {
-          if (terrain.locationId != null) {
-            final location = GameData.getLocation(terrain.locationId);
-            _tryEnterLocation(location);
-          } else if (terrain.objectId != null) {
-            GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
-          }
+      if (terrain.tilePosition != map.hero!.tilePosition) {
+        _heroMoveTo(terrain);
+      } else {
+        if (terrain.locationId != null) {
+          final location = GameData.getLocation(terrain.locationId);
+          _tryEnterLocation(location);
+        } else if (terrain.objectId != null) {
+          GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
         }
       }
     } else if (button == kSecondaryButton) {
       if (!isMainWorld) return;
 
-      if (tilePosition == map.hero!.tilePosition) {
-        final menuPosition =
-            worldPosition2Screen(map.selectedTerrain!.topRight);
+      final menuPosition = worldPosition2Screen(map.selectedTerrain!.topRight);
+      if (terrain.tilePosition == map.hero!.tilePosition) {
         showFluentMenu(
           cursor: GameUI.cursor,
           position: menuPosition.toOffset(),
@@ -1345,14 +1462,58 @@ class WorldMapScene extends Scene with HasCursorState {
               case 'warMode':
                 {}
               case 'standby':
-                gameState.isStandby = !gameState.isStandby;
-                cursorState = gameState.isStandby
+                map.isStandby = !map.isStandby;
+                cursorState = map.isStandby
                     ? MouseCursorState.sandglass
                     : MouseCursorState.normal;
             }
           },
         );
+      } else {
+        final List<TileMapComponent> charactersHere = [];
+
+        for (final obj in map.components.values) {
+          if (obj.isCharacter && obj.id != map.hero!.id) {
+            if (obj.containsPoint(position)) {
+              charactersHere.add(obj);
+            }
+          }
+        }
+
+        showFluentMenu(
+          cursor: GameUI.cursor,
+          position: menuPosition.toOffset(),
+          items: {
+            engine.locale('moveToHere'): 'moveToHere',
+            if (charactersHere.isNotEmpty)
+              engine.locale('follow'): {
+                for (final char in charactersHere)
+                  char.data['name'] as String: char.id
+              },
+          },
+          onSelectedItem: (String item) {
+            switch (item) {
+              case 'moveToHere':
+                if (terrain.tilePosition != map.hero!.tilePosition) {
+                  _heroMoveTo(terrain);
+                }
+              default:
+                // 其他选项均为跟随某个NPC
+                _heroFollowTo(item);
+            }
+          },
+        );
       }
+    }
+  }
+
+  void _updateWorldMapInGameMode() {
+    _updateWorldMapNpcs();
+    _updateHeroAtTerrain();
+    _updateNpcsAtHeroPosition();
+    if (map.data['useCustomLogic'] != true && map.hero != null) {
+      map.lightUpAroundTile(map.hero!.tilePosition,
+          size: GameData.hero['stats']['lightRadius']);
     }
   }
 
@@ -1408,8 +1569,6 @@ class WorldMapScene extends Scene with HasCursorState {
         context: context,
         barrierDismissible: false,
         builder: (context) => InformationView(
-          width: 1000.0,
-          height: 450.0,
           title: engine.locale('selectHero'),
           showCloseButton: false,
           confirmationOnSelect: true,
@@ -1431,17 +1590,27 @@ class WorldMapScene extends Scene with HasCursorState {
       });
     }
     assert(GameData.hero != null);
+
+    engine.setLoading(true, tip: engine.locale(kTips.random));
+    await Future.delayed(const Duration(milliseconds: 250));
+
+    final worldInfo = GameData.getLlmChatSystemPrompt1();
+    await engine.prepareLlamaBaseState(worldInfo);
+
     await map.loadHeroFromData(
       GameData.hero,
       srcSize: kCharacterAnimationSize,
       srcOffset: kTileOffset,
     );
+
     map.moveCameraToHero(animated: false);
     map.lightUpAroundTile(map.hero!.tilePosition,
         size: GameData.hero['stats']['lightRadius']);
 
-    _updateWorldMapCaptions();
-    _updateWorldMapObjects();
+    _loadWorldMapObjects();
+    _loadWorldMapCaptions();
+
+    _updateWorldMapInGameMode();
 
     if (isMainWorld) {
       for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
@@ -1452,6 +1621,8 @@ class WorldMapScene extends Scene with HasCursorState {
     if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
     }
+
+    engine.setLoading(false);
   }
 
   @override
@@ -1483,12 +1654,14 @@ class WorldMapScene extends Scene with HasCursorState {
 
     gameState.reset();
 
-    await _updateWorldMapNpcs();
-    await _updateHeroAtTerrain();
-
-    if (map.data['useCustomLogic'] != true && map.hero != null) {
-      map.lightUpAroundTile(map.hero!.tilePosition,
-          size: GameData.hero['stats']['lightRadius']);
+    if (_isInitializing) {
+      _isInitializing = false;
+    } else {
+      if (isEditorMode) {
+        _updateWorldMapNpcs();
+      } else {
+        _updateWorldMapInGameMode();
+      }
     }
   }
 
@@ -1499,7 +1672,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
     if (!gameState.isInteractable) return;
-    if (gameState.isStandby) return;
+    if (map.isStandby) return;
 
     context.read<HoverContentState>().hide();
 
@@ -1600,7 +1773,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
       if (clickable) {
         cursorState = MouseCursorState.click;
-      } else if (gameState.isStandby) {
+      } else if (map.isStandby) {
         cursorState = MouseCursorState.sandglass;
       } else {
         cursorState = MouseCursorState.normal;
@@ -1608,7 +1781,7 @@ class WorldMapScene extends Scene with HasCursorState {
     } else {
       context.read<HoverContentState>().hide();
 
-      if (gameState.isStandby) {
+      if (map.isStandby) {
         cursorState = MouseCursorState.sandglass;
       } else {
         cursorState = MouseCursorState.normal;
@@ -1620,6 +1793,7 @@ class WorldMapScene extends Scene with HasCursorState {
     schedule(() async {
       await GameLogic.updateGame(ticks: kTicksPerTime, worldMap: this);
       _updateWorldMapNpcs(updateNpcMove: true);
+      _updateNpcsAtHeroPosition();
     });
   }
 
@@ -1673,7 +1847,7 @@ class WorldMapScene extends Scene with HasCursorState {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.warn('keydown: ${event.logicalKey.debugName}');
+          engine.warning('keydown: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.space:
               camera.zoom = 2.0;
@@ -1691,6 +1865,14 @@ class WorldMapScene extends Scene with HasCursorState {
                   cursorState = MouseCursorState.normal;
                 }
               }
+
+              if (map.hero != null) {
+                if (map.hero!.isWalking) {
+                  map.hero!.isWalkCanceled = true;
+                }
+
+                _stopFollowing();
+              }
             case LogicalKeyboardKey.keyW:
               camera.moveBy(Vector2(0, -10));
             case LogicalKeyboardKey.keyS:
@@ -1701,7 +1883,7 @@ class WorldMapScene extends Scene with HasCursorState {
               camera.moveBy(Vector2(10, 0));
           }
         } else if (event is KeyRepeatEvent) {
-          engine.warn('key repeat: ${event.logicalKey.debugName}');
+          engine.warning('key repeat: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.keyW:
               camera.moveBy(Vector2(0, -10));
@@ -1748,7 +1930,7 @@ class WorldMapScene extends Scene with HasCursorState {
             EntityListPanel(
               size: Size(390, GameUI.size.y),
               onUpdateCharacters: _updateWorldMapNpcs,
-              onUpdateLocations: _updateWorldMapCaptions,
+              onUpdateLocations: _loadWorldMapCaptions,
               onCreatedSect: (sect, location) {
                 final territoryIndexes = location['territoryIndexes'];
                 for (final index in territoryIndexes) {

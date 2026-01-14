@@ -223,14 +223,10 @@
   "haveMet": "认识",
 
   "talk": "对话",
-  "smallTalk": "闲聊",
-  "topicTalk": "话题",
 
-  "journalTopic": "重要话题",
-  "characterTopic": "人物话题",
-  "sectTopic": "门派话题",
-  "locationTopic": "场景话题",
-  "itemTopic": "物品话题",
+  "chitchat": "闲聊",
+  "journalTopic": "任务相关",
+  "objectiveTopic": "我想要……",
 
   "martialArts": "武艺",
   "sorcery": "法术",
@@ -535,6 +531,8 @@
 
   "interact": "互动",
   "moveTo": "移动",
+  "moveToHere": "移动到此",
+  "follow": "跟随",
   "enter": "进入",
   "work": "打工",
   "produce": "生产",
@@ -833,7 +831,8 @@
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
   "sectBuild": "{0}在{1}建立了{2}。",
 
-  "hint_console": " [Ctrl+回车] 提交。[Ctrl+上/下] 浏览输入历史。",
+  "hint_console": "按 [Ctrl+回车] 提交。按 [Ctrl+上/下] 浏览输入历史。",
+  "hint_chat": "按 [回车] 提交。",
 
   "hint_checkSectContribution": "您在本门派的功勋是 <yellow>{0}</>。\n您可以通过完成每月门派任务、据点会堂悬赏任务，以及捐献资源等方式提升您在门派中的功勋。",
   "hint_checkCityContribution": "您在本地的功勋是 <yellow>{0}</>。\n您可以通过完成据点会堂悬赏任务、以及捐献资源等方式提升您在本地功勋。",

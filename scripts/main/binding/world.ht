@@ -66,14 +66,21 @@ namespace World {
 
   external function clearMapComponents()
 
-  function markTile(left, top) {
-    final terrain = getTerrainByWorldPosition(left, top)
-    if (world.markedTiles == null) {
-      world.markedTiles = []
-    }
-    world.markedTiles.add(terrain.index)
-    terrain.overlaySprite ??= {}
-    Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/arrow.png'}})
-    World.updateTerrainOverlaySprite(terrain.left, terrain.top)
-  }
+  // function markTile(left, top) {
+  //   final terrain = getTerrainByWorldPosition(left, top)
+  //   world.markedTiles.add(terrain.index)
+  //   terrain.overlaySprite ??= {}
+  //   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/arrow.png'}})
+  //   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  // }
+
+  // function unmarkTile(left, top) {
+  //   final terrain = getTerrainByWorldPosition(left, top)
+  //   markedTiles.remove(terrain.index);
+  //   final overlaySpriteData = terrain.overlaySprite
+  //   if (overlaySpriteData != null) {
+  //     delete overlaySpriteData.animation
+  //     World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  //   }
+  // }
 }

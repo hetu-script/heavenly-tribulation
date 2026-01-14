@@ -59,7 +59,7 @@ namespace debug {
   }
 
   function testItem([character]) {
-    engine.warn('debug.testItem ${character?.name}')
+    engine.warning('debug.testItem ${character?.name}')
     character ??= hero
 
     for (final affixId in game.battleCards.keys) {

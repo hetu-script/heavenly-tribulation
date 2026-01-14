@@ -151,6 +151,8 @@ class _GameAppState extends State<GameApp> {
       if (method == 'load' || method == 'preset') {
         worldData = engine.hetu
             .invoke('setCurrentWorld', positionalArgs: [arguments['id']]);
+        final worldInfo = GameData.getLlmChatSystemPrompt1();
+        engine.prepareLlamaBaseState(worldInfo);
       } else if (method == 'generate') {
         engine.info('创建程序生成的随机世界。');
         worldData =

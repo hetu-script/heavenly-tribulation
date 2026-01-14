@@ -339,7 +339,7 @@ function createSandboxWorld({
           addProductionSite('huntingground', terrain, city)
           hasHuntingGround = true
         } else if (!hasTimberLand && r < _kTimberLandThreshold) {
-          engine.warn('adding timberland')
+          engine.warning('adding timberland')
           addProductionSite('timberland', terrain, city)
           hasTimberLand = true
         }
@@ -548,7 +548,7 @@ function createSandboxWorld({
         location.sectId == null
       ).toList()
       if (availableCities.isEmpty) {
-        // engine.warn('组织 ${sect.id} 没有可用的城市可以扩张了。')
+        // engine.warning('组织 ${sect.id} 没有可用的城市可以扩张了。')
         continue
       }
       // engine.debug('组织 ${sect.name} 尝试扩张新领土')
@@ -575,7 +575,7 @@ function createSandboxWorld({
         char.sectId == null
       )
       if (availableCharacters.isEmpty) {
-        // engine.warn('组织 ${sect.id} 没有可用的角色可以招募了。')
+        // engine.warning('组织 ${sect.id} 没有可用的角色可以招募了。')
         continue
       }
       // engine.debug('组织 ${sect.id} 尝试招募新成员')

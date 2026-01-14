@@ -227,7 +227,7 @@ struct Location {
 
     assert(this.id != null)
     if (game.locations.containsKey(this.id)) {
-      engine.warn('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
+      engine.warning('已存在 id 为 ${this.id} 的场景，数据将被覆盖')
     }
     game.locations[this.id] = this
 
@@ -340,7 +340,7 @@ struct Location {
       atCity.siteIds.add(this.id)
     } else {
       if (kind != kLocationKindHome) {
-        engine.warn('场景 ${this.name} 没有指定 atTerrain 或 atCity')
+        engine.warning('场景 ${this.name} 没有指定 atTerrain 或 atCity')
       }
     }
     
@@ -387,7 +387,7 @@ function resetLocationUpdateStatus(location) {
 
 function removeLocation(location, { updateWorldMap = false }) {
   assert(location.kind != kLocationKindHome, '住宅场景不能被移除！')
-  engine.warn('正在移除场景 [${location.name}]！')
+  engine.warning('正在移除场景 [${location.name}]！')
   for (final siteId in location.siteIds) {
     removeLocation(siteId)
   }
@@ -475,7 +475,7 @@ async function discoverLocation(location, { updateWorldMap = false }) {
     World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   }
   if (location.isHidden) {
-    engine.warn('城市 ${location.name} 被发现，刷新大地图显示。')
+    engine.warning('城市 ${location.name} 被发现，刷新大地图显示。')
     const tile = atWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite = { sprite: kSpriteCity }
@@ -490,7 +490,7 @@ function increaseLocationDevelopment(location) {
   if (location.development < kLocationDevelopmentMax) {
     ++location.development
   } else {
-    engine.warn('城市 ${location.name} 的规模（${location.development}）已达到或超过最大值。')
+    engine.warning('城市 ${location.name} 的规模（${location.development}）已达到或超过最大值。')
   }
 }
 
@@ -761,11 +761,11 @@ function replenishProductionMaterials(location) {
 /// 刷新交易类场景的物品
 function replenishTradingItem(location) {
   if (location?.entityType != kEntityTypeLocation) {
-    engine.warn('replenishTradingItem 只能对 location 对象使用')
+    engine.warning('replenishTradingItem 只能对 location 对象使用')
     return
   }
   if (!Constants.siteKindsTradable.contains(location.kind)) {
-    engine.warn('场所 ${location.name} 不支持物品交易刷新')
+    engine.warning('场所 ${location.name} 不支持物品交易刷新')
     return
   }
   location.inventory = {}

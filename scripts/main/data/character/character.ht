@@ -471,7 +471,7 @@ struct Baby {
     }
     this.id = id ?? this.name
     if (game.babies.containsKey(this.id)) {
-      engine.warn('已经存在 id 为 ${this.id} 的婴儿。旧数据将会被覆盖。')
+      engine.warning('已经存在 id 为 ${this.id} 的婴儿。旧数据将会被覆盖。')
     }
     game.babies[this.id] = this
     const incidentContent = engine.locale('characterConception', interpolations: [
@@ -553,7 +553,7 @@ struct Character {
     this.entityType = kEntityTypeCharacter
 
     if (game.characters.containsKey(this.id)) {
-      engine.warn('已经存在 id 为 ${this.id} 的角色。旧数据将会被覆盖。')
+      engine.warning('已经存在 id 为 ${this.id} 的角色。旧数据将会被覆盖。')
     }
     game.characters[this.id] = this
 
@@ -858,7 +858,7 @@ function characterMet(subject, target, { firstImpression = true, incurIncident }
 
 function getCharacterHomeSite(character, {worldId}) {
   if (character.homeSiteId == null) {
-    engine.warn('角色 ${character.name} 目前没有住宅！')
+    engine.warning('角色 ${character.name} 目前没有住宅！')
     return
   }
   
@@ -882,7 +882,7 @@ function getCharacterHomeLocation(character) {
 
 function setCharacterHome(character, location, { moveToHome = true, incurIncident = true }) {
   if (character.homeLocationId == location.id) {
-    engine.warn('角色 ${character.name} 已经定居在 ${location.name} 了！')
+    engine.warning('角色 ${character.name} 已经定居在 ${location.name} 了！')
     return
   }
   assert(!location.residents.contains(character.id), 'location already has resident: ${character.id}')
@@ -972,7 +972,7 @@ function getResidingCharacters(location) {
 // }
 
 function removeCharacterById(id: string) {
-  engine.warn('正在移除ID为 [${id}] 的角色。')
+  engine.warning('正在移除ID为 [${id}] 的角色。')
   // TODO: 角色相关的信息，例如门派首领，拥有的建筑等等需要一并清除才行
   delete game.characters[id]
 }
@@ -1003,12 +1003,12 @@ function updateBond(subject, target, {
   if (relationship != null) {
     if (relationship.operation == 'add') {
       if (!bond.relationships.contains(relationship.kind)) {
-        engine.warn('${subject.name} 现在是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+        engine.warning('${subject.name} 现在是 ${target.name} 的 ${engine.locale(relationship.kind)}')
         bond.relationships.add(relationship.kind)
       }
     } else if (relationship.operation == 'remove') {
       bond.relationships.remove(relationship.kind)
-      engine.warn('${subject.name} 不再是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+      engine.warning('${subject.name} 不再是 ${target.name} 的 ${engine.locale(relationship.kind)}')
       return
     }
   }
@@ -1029,7 +1029,7 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
   assert(level > 0)
   final levelMax = maxLevelForRank(character.rank)
   if (character.level >= levelMax) {
-    engine.warn('角色 ${character.name} 已经达到当前境界允许的最高等级，无法再提升。')
+    engine.warning('角色 ${character.name} 已经达到当前境界允许的最高等级，无法再提升。')
     return
   }
 
@@ -1042,7 +1042,7 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
   }
 
   if (character.level <= originalLevel) {
-    engine.warn('角色 ${character.name} 已经达到当前境界允许的最高等级，无法再提升。')
+    engine.warning('角色 ${character.name} 已经达到当前境界允许的最高等级，无法再提升。')
     return
   }
 
@@ -1064,7 +1064,7 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
 /// 和玩家只能一级一级提升不同，NPC可以直接提升多个境界
 function characterRankUp(character, {rank, incurIncident = true }) {
   if (character.rank >= kCultivationRankMax) {
-    engine.warn('角色已经达到最高境界，无法再提升。')
+    engine.warning('角色已经达到最高境界，无法再提升。')
     return character.rank
   }
 
@@ -1110,7 +1110,7 @@ function characterGainExp(character, value) {
 function characterMakeContribution(character, data, { incurIncident = true }) {
   let contribution = data.stackSize ?? data.amount ?? 0
   if (contribution <= 0) {
-    engine.warn('contribution amount is less than or equal to 0, cannot collect!')
+    engine.warning('contribution amount is less than or equal to 0, cannot collect!')
     return false
   }
 

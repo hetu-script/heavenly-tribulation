@@ -1,3 +1,4 @@
+import 'package:samsara/llm_chat/llm_chat.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
@@ -8,6 +9,8 @@ import 'data/common.dart';
 import 'global.dart';
 import 'widgets/ui/close_button2.dart';
 import 'widgets/ui/responsive_view.dart';
+import 'data/game.dart';
+import 'widgets/character/profile.dart';
 
 export 'package:samsara/colors.dart';
 
@@ -750,18 +753,51 @@ final class GameUI {
       context: context,
       builder: (BuildContext context) {
         return ResponsiveView(
-          margin: const EdgeInsets.all(50.0),
+          margin: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 50.0),
+          cursor: GameUI.cursor,
           child: Console(
             engine: engine,
-            cursor: GameUI.cursor,
-            margin:
-                const EdgeInsets.symmetric(horizontal: 100.0, vertical: 50.0),
             backgroundColor: GameUI.backgroundColor,
             closeButton: CloseButton2(),
             label: engine.locale('hint_console'),
             labelStyle: TextStyles.bodySmall.copyWith(
               color: Colors.grey,
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  static void showLlmChat(BuildContext context,
+      {String? systemPrompt, dynamic npc}) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ResponsiveView(
+          cursor: GameUI.cursor,
+          width: 800.0,
+          height: 600.0,
+          child: ChatView(
+            engine: engine,
+            systemPrompt: systemPrompt,
+            npc: npc,
+            hero: GameData.hero,
+            backgroundColor: GameUI.backgroundColor,
+            closeButton: CloseButton2(),
+            label: engine.locale('hint_chat'),
+            labelStyle: TextStyles.bodySmall.copyWith(
+              color: Colors.grey,
+            ),
+            onAvatarPressed: (data) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CharacterProfileView(character: data);
+                },
+              );
+            },
+            avatarCursor: GameUI.cursor,
           ),
         );
       },

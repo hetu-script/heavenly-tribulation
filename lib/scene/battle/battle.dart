@@ -208,7 +208,7 @@ class BattleScene extends Scene {
       if (passiveData != null) {
         int? value = passiveData['value'];
         if (value == null) {
-          engine.warn('passiveData has no field `value`! $passiveData');
+          engine.warning('passiveData has no field `value`! $passiveData');
         }
         character.addStatusEffect(statusId,
             amount: value, handleCallback: false);
@@ -218,7 +218,7 @@ class BattleScene extends Scene {
       if (potionPassiveData != null) {
         int? value = potionPassiveData['value'];
         if (value == null) {
-          engine.warn(
+          engine.warning(
               'potionPassiveData has no field `value`! $potionPassiveData');
         }
         character.addStatusEffect(statusId,
@@ -233,7 +233,7 @@ class BattleScene extends Scene {
       if (passiveData != null) {
         int? value = passiveData['value'];
         if (value == null) {
-          engine.warn('passiveData $passiveData has no field `value`!');
+          engine.warning('passiveData $passiveData has no field `value`!');
           value = 1;
         }
         opponentPrebattleStatus[statusId] = value;
@@ -785,7 +785,7 @@ class BattleScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.warn('keydown: ${event.logicalKey.debugName}');
+          engine.warning('keydown: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.controlLeft:
             case LogicalKeyboardKey.controlRight:

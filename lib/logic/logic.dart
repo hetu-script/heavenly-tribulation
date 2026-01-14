@@ -23,6 +23,7 @@ import '../widgets/character/profile.dart';
 import '../widgets/dialog/input_name.dart';
 import '../scene/world/world.dart';
 import '../widgets/common.dart';
+import '../ui.dart';
 
 part 'character.dart';
 part 'location.dart';
@@ -428,6 +429,7 @@ final class GameLogic {
     int? toY,
     List? terrainKinds,
     String? worldId,
+    bool isHero = true,
   }) async {
     assert(fromTile != null || (fromX != null && fromY != null));
     assert(toTile != null || (toX != null && toY != null));
@@ -443,10 +445,15 @@ final class GameLogic {
     );
     // 如果陆地路线不可达，则尝试计算山地或者水路移动的路线
     if (calculatedRoute == null && terrainKinds == null) {
-      final List movableTerrainKinds = engine.hetu.invoke(
-        'getCharacterMovableTerrainKinds',
-        positionalArgs: [GameData.hero],
-      );
+      List movableTerrainKinds;
+      if (isHero) {
+        movableTerrainKinds = engine.hetu.invoke(
+          'getCharacterMovableTerrainKinds',
+          positionalArgs: [GameData.hero],
+        );
+      } else {
+        movableTerrainKinds = kTerrainKindsAll;
+      }
       if (movableTerrainKinds.contains(toTile['kind'])) {
         calculatedRoute = await calculateRoute(
           fromTile: fromTile,
@@ -454,12 +461,14 @@ final class GameLogic {
           terrainKinds: movableTerrainKinds,
         );
       } else {
-        if (kTerrainKindsWater.contains(toTile['kind'])) {
-          dialog.pushDialog('hint_ship');
-          await dialog.execute();
-        } else if (kTerrainKindsMountain.contains(toTile['kind'])) {
-          dialog.pushDialog('hint_boots');
-          await dialog.execute();
+        if (isHero) {
+          if (kTerrainKindsWater.contains(toTile['kind'])) {
+            dialog.pushDialog('hint_ship');
+            await dialog.execute();
+          } else if (kTerrainKindsMountain.contains(toTile['kind'])) {
+            dialog.pushDialog('hint_boots');
+            await dialog.execute();
+          }
         }
       }
     }
@@ -936,7 +945,7 @@ final class GameLogic {
 
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
     if (passiveTreeNodeData == null) {
-      engine.warn('天赋树节点 $nodeId 不存在');
+      engine.warning('天赋树节点 $nodeId 不存在');
       return false;
     }
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;

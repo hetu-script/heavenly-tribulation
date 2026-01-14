@@ -124,7 +124,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
           ),
         );
       } else {
-        engine.warn('Invalid battle deck index: $battleDeckIndex');
+        engine.warning('Invalid battle deck index: $battleDeckIndex');
         character['battleDeckIndex'] = -1;
       }
     }

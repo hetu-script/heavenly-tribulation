@@ -352,7 +352,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       engine.error('deckbuilding_card_unidentified');
     }
     if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
-      engine.warn('deckbuilding_ongoing_card_limit');
+      engine.warning('deckbuilding_ongoing_card_limit');
     }
 
     CustomGameCard card = c;

@@ -18,7 +18,7 @@ struct Npc {
     this.useCustomLogic = useCustomLogic
 
     if (game.npcs.containsKey(this.id)) {
-      engine.warn('NPC 已存在，id: ${this.id}，将会被覆盖')
+      engine.warning('NPC 已存在，id: ${this.id}，将会被覆盖')
     }
     
     game.npcs[this.id] = this

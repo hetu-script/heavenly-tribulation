@@ -172,7 +172,7 @@ function _getSupportAffixes(card) {
   }
 
   if (affixes.isEmpty) {
-    engine.warn('Found no support affixes for card: [genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
+    engine.warning('Found no support affixes for card: [genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
 
   return affixes
@@ -281,7 +281,7 @@ function _addExtraAffixes(card) {
     // 检索出所有符合条件的额外词条
     let supportAffixes = _getSupportAffixes(card)
     if (supportAffixes.isEmpty) {
-      engine.warn('Found no extra affix for: mainAffix: ${card.affixes.first.id} genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
+      engine.warning('Found no extra affix for: mainAffix: ${card.affixes.first.id} genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
       break
     }
 

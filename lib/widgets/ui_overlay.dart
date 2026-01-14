@@ -649,7 +649,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 ),
               ),
             if (widget.showNpcs)
-              const Positioned(
+              Positioned(
                 left: 5,
                 top: 100,
                 child: NpcList(),

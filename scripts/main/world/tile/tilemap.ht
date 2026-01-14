@@ -57,6 +57,8 @@ struct TileMap {
     this.objects = {}
     // 地图上的非地块类显示组件，例如跨越多个地块的大型贴图或动画等
     this.components = []
+    // 用箭头标记的地块
+    // this.markedTiles = []
   }
 }
 

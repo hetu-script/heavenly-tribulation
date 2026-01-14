@@ -92,11 +92,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
     enableReplenish = widget.allowManualReplenish;
     if (widget.merchantData?['entityType'] != 'location') {
-      engine.warn('replenishTradingItem 只能对 location 对象使用');
+      engine.warning('replenishTradingItem 只能对 location 对象使用');
       enableReplenish = false;
     }
     if (!kSiteKindsTradable.contains(widget.merchantData?['kind'])) {
-      engine.warn('场所 ${widget.merchantData['id']} 不支持物品交易刷新');
+      engine.warning('场所 ${widget.merchantData['id']} 不支持物品交易刷新');
       enableReplenish = false;
     }
     if (enableReplenish) {

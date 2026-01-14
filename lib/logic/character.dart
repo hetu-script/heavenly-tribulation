@@ -14,21 +14,23 @@ Future<void> _updateCharactersWorldMapPosition() async {
     if (moveTo == null) continue;
     final List<int> route = moveTo['route'];
     assert(route.isNotEmpty);
-    final timeDiff = GameData.game['timestamp'] - moveTo['lastMoveTimestamp'];
+    final int timeDiff =
+        GameData.game['timestamp'] - moveTo['lastMoveTimestamp'];
     // 默认在山地移动一格消耗 1 个时间单位，平原 1/2 个，水域 1/4 个。
     final tileIndex = route.first;
     final terrain =
         GameData.getTerrainById(tileIndex, worldId: character['worldId']);
-    int timeCost;
+    double timeCost;
     if (kTerrainKindsWater.contains(terrain['kind'])) {
       timeCost =
-          kTicksPerTime ~/ kBaseMoveSpeedOnWater * kNPCMoveSpeedMultiplier;
+          kTicksPerTime / kBaseMoveSpeedOnWater * kBaseNPCMoveSpeedMultiplier;
     } else if (kTerrainKindsMountain.contains(terrain['kind'])) {
-      timeCost =
-          kTicksPerTime ~/ kBaseMoveSpeedOnMountain * kNPCMoveSpeedMultiplier;
+      timeCost = kTicksPerTime /
+          kBaseMoveSpeedOnMountain *
+          kBaseNPCMoveSpeedMultiplier;
     } else {
       timeCost =
-          kTicksPerTime ~/ kBaseMoveSpeedOnPlain * kNPCMoveSpeedMultiplier;
+          kTicksPerTime / kBaseMoveSpeedOnPlain * kBaseNPCMoveSpeedMultiplier;
     }
     if (timeDiff >= timeCost) {
       // 可以移动到下一个地块
@@ -1358,7 +1360,6 @@ Future<void> _onInteractCharacter(dynamic character) async {
   if (!hasGifted) selections.add('gift');
   if (!hasAttacked) selections.add('attack');
   if (!hasStolen) selections.add('steal');
-  selections.add('relationshipDiscourse');
   selections.add('bye');
   dialog.pushSelection(
     'characterInteraction',
@@ -1378,17 +1379,9 @@ Future<void> _onInteractCharacter(dynamic character) async {
         ),
       );
     case 'talk':
-      final topicSelections = [
-        'journalTopic',
-        'characterTopic',
-        'sectTopic',
-        'locationTopic',
-        'itemTopic',
-        'cancel',
-      ];
       dialog.pushSelection(
         'topicSelections',
-        topicSelections,
+        ['chitchat', 'journalTopic', 'objectiveTopic', 'cancel'],
       );
       await dialog.execute();
       final topic = dialog.checkSelected('topicSelections');
@@ -1397,6 +1390,14 @@ Future<void> _onInteractCharacter(dynamic character) async {
         return;
       }
       switch (topic) {
+        case 'chitchat':
+          interacted = false;
+          final prompt = GameData.getLlmChatSystemPrompt2(character);
+          GameUI.showLlmChat(
+            engine.context,
+            systemPrompt: prompt,
+            npc: character,
+          );
         case 'journalTopic':
           final journalsData = GameData.hero['journals'];
           final journalsSelections = {};
@@ -1471,14 +1472,110 @@ Future<void> _onInteractCharacter(dynamic character) async {
             dialog.pushDialog('discourse_defaultUnknown', character: character);
             await dialog.execute();
           }
-        case 'characterTopic':
-          {}
-        case 'sectTopic':
-          {}
-        case 'locationTopic':
-          {}
-        case 'itemTopic':
-          {}
+        case 'objectiveTopic':
+          final familyRelationships = GameData.hero['familyRelationships'];
+          final shituRelationships = GameData.hero['shituRelationships'];
+          final relationshipSelections = [];
+
+          /// 玩家角色并不能主动发起浪漫关系
+          /// 只能有概率的被动触发 NPC 爱上自己的事件
+          /// 只有对方爱上自己的情况下，才可以创建婚姻关系
+          final bool isCharacterSpouse =
+              familyRelationships['spouseIds'].contains(character['id']);
+          if (!isCharacterSpouse) {
+            final bool isCharacterRomance =
+                GameData.hero['romanceIds'].contains(character['id']);
+            if (isCharacterRomance) {
+              final bool hasProposed = GameData.checkMonthly(
+                  MonthlyActivityIds.proposed, character['id']);
+              if (!hasProposed) {
+                relationshipSelections.add('propose');
+              }
+            }
+          } else {
+            relationshipSelections.add('divorce');
+          }
+
+          // 师徒关系的传授功法
+          final bool isCharacterShifu =
+              shituRelationships['shifuIds'].contains(character['id']);
+          final bool isCharacterTudi =
+              shituRelationships['tudiIds'].contains(character['id']);
+          // 不允许既是师父又是徒弟
+          assert(!(isCharacterShifu && isCharacterTudi));
+          final bool hasConsulted =
+              GameData.checkMonthly(MonthlyActivityIds.consulted, character.id);
+          final bool hasTutored =
+              GameData.checkMonthly(MonthlyActivityIds.tutored, character.id);
+          if (isCharacterShifu) {
+            if (!hasConsulted) {
+              relationshipSelections.add('consult');
+            }
+          } else if (isCharacterTudi) {
+            if (!hasTutored) {
+              relationshipSelections.add('tutor');
+            }
+          } else {
+            final int heroLevel = GameData.hero['level'];
+            final int heroRank = GameData.hero['rank'];
+            final int characterLevel = character['level'];
+            final int characterRank = character['rank'];
+            if (characterLevel > heroLevel && characterRank > heroRank) {
+              final bool hasBaishi = GameData.checkMonthly(
+                  MonthlyActivityIds.baishi, character.id);
+              if (!hasBaishi) {
+                relationshipSelections.add('baishi');
+              }
+            } else if (heroLevel > characterLevel && heroRank > characterRank) {
+              final bool hasShoutu = GameData.checkMonthly(
+                  MonthlyActivityIds.shoutu, character.id);
+              if (!hasShoutu) {
+                relationshipSelections.add('shoutu');
+              }
+            }
+          }
+
+          // 门派成员招募
+          if (GameData.hero['sectId'] != null && character['sectId'] == null) {
+            final bool isHeroHead = GameData.hero['sectId'] != null &&
+                GameData.game['sects'][GameData.hero['sectId']]['headId'] ==
+                    GameData.hero['id'];
+            final bool hasRecruited = GameData.checkMonthly(
+                MonthlyActivityIds.recruited, character['id']);
+            if (isHeroHead && !hasRecruited) {
+              relationshipSelections.add('recruit');
+            }
+          }
+          relationshipSelections.add('forgetIt');
+          dialog.pushSelection(
+            'characterRelationshipInteraction',
+            relationshipSelections,
+          );
+          await dialog.execute();
+          final selected2 =
+              dialog.checkSelected('characterRelationshipInteraction');
+          if (selected2 == null || selected2 == 'forgetIt') {
+            interacted = false;
+            return;
+          }
+          switch (selected2) {
+            case 'propose':
+              {}
+            case 'divorce':
+              {}
+            case 'consult':
+              {}
+            case 'tutor':
+              {}
+            case 'baishi':
+              {}
+            case 'shoutu':
+              {}
+            case 'apply':
+              {}
+            case 'recruit':
+              {}
+          }
       }
     case 'show':
       // 向角色展示某个物品
@@ -1540,110 +1637,6 @@ Future<void> _onInteractCharacter(dynamic character) async {
       {}
     case 'steal':
       {}
-    case 'relationshipDiscourse':
-      final familyRelationships = GameData.hero['familyRelationships'];
-      final shituRelationships = GameData.hero['shituRelationships'];
-      final relationshipSelections = [];
-
-      /// 玩家角色并不能主动发起浪漫关系
-      /// 只能有概率的被动触发 NPC 爱上自己的事件
-      /// 只有对方爱上自己的情况下，才可以创建婚姻关系
-      final bool isCharacterSpouse =
-          familyRelationships['spouseIds'].contains(character['id']);
-      if (!isCharacterSpouse) {
-        final bool isCharacterRomance =
-            GameData.hero['romanceIds'].contains(character['id']);
-        if (isCharacterRomance) {
-          final bool hasProposed = GameData.checkMonthly(
-              MonthlyActivityIds.proposed, character['id']);
-          if (!hasProposed) {
-            relationshipSelections.add('propose');
-          }
-        }
-      } else {
-        relationshipSelections.add('divorce');
-      }
-
-      // 师徒关系的传授功法
-      final bool isCharacterShifu =
-          shituRelationships['shifuIds'].contains(character['id']);
-      final bool isCharacterTudi =
-          shituRelationships['tudiIds'].contains(character['id']);
-      // 不允许既是师父又是徒弟
-      assert(!(isCharacterShifu && isCharacterTudi));
-      final bool hasConsulted =
-          GameData.checkMonthly(MonthlyActivityIds.consulted, character.id);
-      final bool hasTutored =
-          GameData.checkMonthly(MonthlyActivityIds.tutored, character.id);
-      if (isCharacterShifu) {
-        if (!hasConsulted) {
-          relationshipSelections.add('consult');
-        }
-      } else if (isCharacterTudi) {
-        if (!hasTutored) {
-          relationshipSelections.add('tutor');
-        }
-      } else {
-        final int heroLevel = GameData.hero['level'];
-        final int heroRank = GameData.hero['rank'];
-        final int characterLevel = character['level'];
-        final int characterRank = character['rank'];
-        if (characterLevel > heroLevel && characterRank > heroRank) {
-          final bool hasBaishi =
-              GameData.checkMonthly(MonthlyActivityIds.baishi, character.id);
-          if (!hasBaishi) {
-            relationshipSelections.add('baishi');
-          }
-        } else if (heroLevel > characterLevel && heroRank > characterRank) {
-          final bool hasShoutu =
-              GameData.checkMonthly(MonthlyActivityIds.shoutu, character.id);
-          if (!hasShoutu) {
-            relationshipSelections.add('shoutu');
-          }
-        }
-      }
-
-      // 门派成员招募
-      if (GameData.hero['sectId'] != null && character['sectId'] == null) {
-        final bool isHeroHead = GameData.hero['sectId'] != null &&
-            GameData.game['sects'][GameData.hero['sectId']]['headId'] ==
-                GameData.hero['id'];
-        final bool hasRecruited = GameData.checkMonthly(
-            MonthlyActivityIds.recruited, character['id']);
-        if (isHeroHead && !hasRecruited) {
-          relationshipSelections.add('recruit');
-        }
-      }
-      relationshipSelections.add('forgetIt');
-      dialog.pushSelection(
-        'characterRelationshipInteraction',
-        relationshipSelections,
-      );
-      await dialog.execute();
-      final selected2 =
-          dialog.checkSelected('characterRelationshipInteraction');
-      if (selected2 == null || selected2 == 'forgetIt') {
-        interacted = false;
-        return;
-      }
-      switch (selected2) {
-        case 'propose':
-          {}
-        case 'divorce':
-          {}
-        case 'consult':
-          {}
-        case 'tutor':
-          {}
-        case 'baishi':
-          {}
-        case 'shoutu':
-          {}
-        case 'apply':
-          {}
-        case 'recruit':
-          {}
-      }
   }
 
   if (interacted && !GameData.hero['companions'].contains(character['id'])) {

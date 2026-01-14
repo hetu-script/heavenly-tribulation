@@ -391,7 +391,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 function setCharacterLife(character, life, { overflow = false }) {
   let isDying = false
   if (life <= 0) {
-    engine.warn('角色 ${character.id} 遭遇劫难，生命值重设为 1')
+    engine.warning('角色 ${character.id} 遭遇劫难，生命值重设为 1')
     life = 1.0
     isDying = true
     character.tribulationCount += 1
@@ -444,7 +444,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
   assert(level != 0, 'Character set passive error: level is zero')
   if (character.passives[dataId] == null) {
     if (level < 0) {
-      engine.warn('Could not found passive dataId [${dataId}] on character for decrease!')
+      engine.warning('Could not found passive dataId [${dataId}] on character for decrease!')
       return
     }
     final passiveRawData = game.passives[dataId]
@@ -470,7 +470,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
     passiveData.level += level
     if (passiveData.level <= 0) {
       if (passiveData.level < 0) {
-        engine.warn('decrease passive level below zero, dataId: ${dataId}')
+        engine.warning('decrease passive level below zero, dataId: ${dataId}')
       }
       delete character.passives[dataId]
     } else {
@@ -486,11 +486,11 @@ function characterSetPassive(character, dataId, {level = 1}) {
 /// 降低天赋技能等级
 // function characterRefundPassive(character, dataId, {level = 1}) {
 //   if (level == 0) {
-//     engine.warn('refund passive error: level is zero')
+//     engine.warning('refund passive error: level is zero')
 //     return
 //   }
 //   if (character.passives[dataId] == null) {
-//     engine.warn('dataId [${dataId}] not found on character passives data for refund!')
+//     engine.warning('dataId [${dataId}] not found on character passives data for refund!')
 //     return
 //   }
 //   final passiveData = character.passives[dataId]
@@ -588,16 +588,16 @@ function characterEquip(entity, item, { index }) {
   assert(index == null || (index >= 0 && index <= kEquipmentMax))
 
   if (entity.inventory[item.id] == null) {
-    // engine.warn('${item.name} 不在${entity.name}的物品栏中，无法装备。')
+    // engine.warning('${item.name} 不在${entity.name}的物品栏中，无法装备。')
     item = entityAcquire(entity, item)
   }
 
   if (!item.isEquippable) {
-    engine.warn('${item.name} 无法装备。')
+    engine.warning('${item.name} 无法装备。')
     return false
   }
   if (item.equippedPosition) {
-    engine.warn('${item.name} 已经在装备中了。')
+    engine.warning('${item.name} 已经在装备中了。')
     return false
   }
 
@@ -714,7 +714,7 @@ function characterFirstEquippedKind(entity, kind) {
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
 function characterSetPotionPassive(character, dataId, {level = 1}) {
   if (level == 0) {
-    engine.warn('Character gain passive error: level is zero')
+    engine.warning('Character gain passive error: level is zero')
     return
   }
   final passiveRawData = game.passives[dataId]

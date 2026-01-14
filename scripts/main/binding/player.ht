@@ -67,7 +67,7 @@ namespace Player {
     assert(hero != null)
     final result = entityExhaust(hero, materialId, amount)
     if (result > 0) {
-      engine.warn('[${hero.name}] 失去了 [${materialId} × ${result}]')
+      engine.warning('[${hero.name}] 失去了 [${materialId} × ${result}]')
     }
     return result
   }
@@ -121,7 +121,7 @@ namespace Player {
   function lose(item, { amount, incurIncident = true }) {
     assert(hero != null)
     entityLose(hero, item, amount: amount, incurIncident: incurIncident)
-    engine.warn('[${hero.name}] 失去了 [${item.name} × ${amount ?? item.stackSize ?? 1}]')
+    engine.warning('[${hero.name}] 失去了 [${item.name} × ${amount ?? item.stackSize ?? 1}]')
   }
 
   function acquireCard(card, { incurIncident = true }) {
@@ -159,7 +159,7 @@ namespace Player {
   // 此函数允许对一个不在物品栏中的物品调用
   // function consume(item, { forcerCharacter }) {
   //   if (!item.isConsumable) {
-  //     engine.warn('${item.id} 无法食用。')
+  //     engine.warning('${item.id} 无法食用。')
   //     return false
   //   }
 
@@ -387,7 +387,7 @@ namespace Player {
   function accompany(companion, { incurIncident = true }) {
     assert(hero != null)
     if (hero.companions.contains(companion.id)) {
-      engine.warn('${companion.name} 已经是随从了，无法再次添加。')
+      engine.warning('${companion.name} 已经是随从了，无法再次添加。')
       return
     }
     hero.companions.add(companion.id)
@@ -410,7 +410,7 @@ namespace Player {
   function dismiss(companion, { incurIncident = true }) {
     assert(hero != null)
     if (!hero.companions.contains(companion.id)) {
-      engine.warn('${companion.name} 不是随从，无法解散。')
+      engine.warning('${companion.name} 不是随从，无法解散。')
       return
     }
 
@@ -434,13 +434,13 @@ namespace Player {
     assert(hero != null)
     final levelMax = maxLevelForRank(hero.rank)
     if (hero.level >= levelMax) {
-      engine.warn('角色已达到境界允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
+      engine.warning('角色已达到境界允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
       return
     }
 
     let expRequirement = expForLevel(hero.level)
     if (hero.exp < expRequirement) {
-      engine.warn('没有足够的经验值用来提升等级！当前经验值：[${hero.exp}], 需要的经验值：[${expRequirement}]')
+      engine.warning('没有足够的经验值用来提升等级！当前经验值：[${hero.exp}], 需要的经验值：[${expRequirement}]')
       return
     }
 
@@ -610,7 +610,7 @@ namespace Player {
     final journals = []
     for (final id in hero.activeJournalIds) {
       if (hero.journals[id] == null) {
-        engine.warn('active journal not found: ${id}, removing it from active list.')
+        engine.warning('active journal not found: ${id}, removing it from active list.')
         toBeRemoved.add(id)
       } else {
         journals.add(hero.journals[id])

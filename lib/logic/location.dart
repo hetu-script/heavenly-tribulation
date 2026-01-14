@@ -20,8 +20,8 @@ void _updateLocationDaily(dynamic location) {
     if (exhausted == 0) {
       // 资源不足，暂停运转
       updateStatus['isPaused'] = true;
-      engine
-          .warn('${location['name']} 暂停运行，缺少资源: ${engine.locale(materialId)}');
+      engine.warning(
+          '${location['name']} 暂停运行，缺少资源: ${engine.locale(materialId)}');
       break;
     }
   }
@@ -45,7 +45,7 @@ void _updateLocationDaily(dynamic location) {
         final maxCityCount =
             GameLogic.maxCityCountForSectDevelopment(development);
         sect['maxCityCount'] = maxCityCount;
-        engine.warn(
+        engine.warning(
             '门派 ${sect['name']} 的规模扩大到了 [$development] 最大城市数量提升到了 [$maxCityCount]');
       } else if (location['category'] == 'city') {
         // 城市扩建完成，提升最大建筑数量
@@ -53,10 +53,10 @@ void _updateLocationDaily(dynamic location) {
         final city = GameData.getLocation(location['atCityId']);
         city['development'] = development;
         city['maxSiteCount'] = maxSiteCount;
-        engine.warn(
+        engine.warning(
             '${city['name']} 的规模扩大到了 [$development] 最大建筑数量提升到了 [$maxSiteCount]');
       } else {
-        engine.warn('${location['name']} 的规模提升到了 $development');
+        engine.warning('${location['name']} 的规模提升到了 $development');
       }
     }
   }
