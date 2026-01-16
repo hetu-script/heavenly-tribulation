@@ -397,14 +397,13 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // };
 
     card.onPreviewed = () => previewCard(
-          game.context,
           'deckbuilding_card_${card.id}',
           card.data,
           card.toAbsoluteRect(),
           direction: HoverContentDirection.leftTop,
           character: GameData.hero,
         );
-    card.onUnpreviewed = () => unpreviewCard(game.context);
+    card.onUnpreviewed = () => unpreviewCard();
 
     placeCard(card, index: index, animated: animated);
 

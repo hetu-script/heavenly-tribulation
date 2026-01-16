@@ -72,8 +72,9 @@ flutter:
     - assets/
 
     - assets/audio/
-    - assets/audio/sound/
     - assets/audio/music/
+    - assets/audio/sound/
+    - assets/audio/sound/transition/
 
     - assets/data/
 
@@ -121,6 +122,9 @@ flutter:
     - assets/images/location/site/
     - assets/images/mini_game/
     - assets/images/mini_game/matching/
+    - assets/images/mini_game/difference/
+    - assets/images/mini_game/difference/library/
+    - assets/images/mini_game/difference/library/1/
     - assets/images/object/
     - assets/images/object/components/
     - assets/images/object/animation/

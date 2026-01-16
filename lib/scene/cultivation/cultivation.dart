@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/progress_indicator.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/utils/math.dart';
@@ -70,7 +69,6 @@ enum CultivationMode {
 
 class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
-    required super.context,
     this.isEditorMode = false,
   }) : super(
           id: Scenes.cultivation,
@@ -692,7 +690,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     backgroundSprite = SpriteComponent(
       position: Vector2(center.x, center.y - 130),
-      sprite: Sprite(await Flame.images.load('cultivation/cave2.png')),
+      sprite: await Sprite.load('cultivation/cave2.png'),
       anchor: Anchor.center,
       priority: _kBackgroundPriority,
     );
@@ -999,9 +997,9 @@ class CultivationScene extends Scene with HasCursorState {
   void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<ViewPanelState>().clearAll();
-    context.read<HoverContentState>().hide();
+    engine.context.read<EnemyState>().setPrebattleVisible(false);
+    engine.context.read<ViewPanelState>().clearAll();
+    engine.context.read<HoverContentState>().hide();
 
     if (arguments['characterId'] != null) {
       character = GameData.getCharacter(arguments['characterId']);

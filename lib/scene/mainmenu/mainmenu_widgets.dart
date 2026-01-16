@@ -383,6 +383,7 @@ class _DebugButtonState extends State<DebugButton> {
                 'debugMeeting': 'debugMeeting',
                 '___3': null,
                 'debugMatchingGame': 'debugMatchingGame',
+                'debugDifferenceGame': 'debugDifferenceGame',
               },
               onSelectedItem: (String item) async {
                 switch (item) {
@@ -468,6 +469,13 @@ class _DebugButtonState extends State<DebugButton> {
                       arguments: {
                         'kind': kProductionSiteKinds.random,
                         'isProduction': math.Random().nextBool(),
+                      },
+                    );
+                  case 'debugDifferenceGame':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {
+                        'gameId': '1',
                       },
                     );
                 }

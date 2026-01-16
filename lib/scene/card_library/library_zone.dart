@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:samsara/cardgame.dart';
 import 'package:samsara/samsara.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
 
@@ -90,11 +89,11 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     //   }
     // };
 
-    onMouseScrollUp = () {
+    onMouseScrollUp = (position) {
       if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(100);
     };
-    onMouseScrollDown = () {
+    onMouseScrollDown = (position) {
       if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(-100);
     };
@@ -309,7 +308,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
   @override
   Future<void> onLoad() async {
-    stackSprite ??= Sprite(await Flame.images.load('cardstack_back.png'));
+    stackSprite ??= await Sprite.load('cardstack_back.png');
 
     container = PositionComponent(
       position: GameUI.libraryZonePosition,
@@ -389,13 +388,12 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // };
 
     card.onPreviewed = () => previewCard(
-          game.context,
           'library_card_${card.id}',
           card.data,
           card.toAbsoluteRect(),
           character: GameData.hero,
         );
-    card.onUnpreviewed = () => unpreviewCard(game.context);
+    card.onUnpreviewed = () => unpreviewCard();
 
     library[card.id] = card;
 

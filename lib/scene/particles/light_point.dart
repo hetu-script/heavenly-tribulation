@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
-import 'package:flame/flame.dart';
 import 'package:samsara/gestures.dart';
 
 import 'package:samsara/samsara.dart';
@@ -66,7 +65,7 @@ class LightPoint extends BorderComponent with HandlesGesture {
 
   @override
   void onLoad() async {
-    sprite = Sprite(await Flame.images.load(assetId));
+    sprite = await Sprite.load(assetId);
     if (preferredSize.isZero()) {
       size = preferredSize = sprite.srcSize;
     }

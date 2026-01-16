@@ -564,6 +564,15 @@ final class GameUI {
     Vector2(155.0, 70.0),
   ];
 
+  // 找不同游戏UI
+
+  static final differenceGamePictureSize = Vector2(500.0, 500.0);
+  static const differenceGameTopBarHeight = 180.0;
+  static const differenceGameLeftBarWidth = 220.0;
+  static const spotCount = 10;
+  static const spotIndicatorSize = 48.0;
+  static late Vector2 spotIndicatorsPosition;
+
   static void init() {
     SpriteButton.defaultTextConfig = spriteButtonTextConfig;
 
@@ -744,6 +753,10 @@ final class GameUI {
         center.x + buttonSizeMedium.x / 2 + indent, expBarPosition.y + 50);
     collectButtonPosition = Vector2(
         center.x - buttonSizeMedium.x / 2 - indent, levelUpButtonPosition.y);
+
+    spotIndicatorsPosition = Vector2(
+        size.x / 2 - (spotCount / 2) * spotIndicatorSize,
+        differenceGameTopBarHeight - spotIndicatorSize - smallIndent);
 
     _isInitted = true;
   }

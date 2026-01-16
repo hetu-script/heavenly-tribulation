@@ -9,7 +9,6 @@ import 'package:flame/components.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
-import 'package:flame/flame.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/effect/camera_shake.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -110,7 +109,6 @@ const _kInitialCharacterSelectionCount = 5;
 
 class WorldMapScene extends Scene with HasCursorState {
   WorldMapScene({
-    required super.context,
     required this.worldData,
     required this.isEditorMode,
     this.backgroundSpriteId,
@@ -183,7 +181,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _setSelectedTerrain(TileMapTerrain? terrain) {
     if (terrain == null) {
-      context.read<WorldMapState>().clearTerrain();
+      engine.context.read<WorldMapState>().clearTerrain();
       return;
     }
 
@@ -214,7 +212,7 @@ class WorldMapScene extends Scene with HasCursorState {
       selectedLocation = null;
     }
 
-    context.read<WorldMapState>().updateSelectedTerrain(
+    engine.context.read<WorldMapState>().updateSelectedTerrain(
           currentZoneData: selectedZone,
           currentNationData: selectedNation,
           currentLocationData: selectedLocation,
@@ -528,7 +526,7 @@ class WorldMapScene extends Scene with HasCursorState {
     camera.zoom = 2.0;
 
     if (backgroundSpriteId != null) {
-      backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
+      backgroundSprite = await Sprite.load(backgroundSpriteId!);
     }
 
     GameData.loadZoneColors(map);
@@ -557,7 +555,7 @@ class WorldMapScene extends Scene with HasCursorState {
         isEditorMode ? _onTapDownInEditorMode : _onTapDownInGameMode;
     map.onTapUp = isEditorMode ? _onTapUpInEditorMode : _onTapUpInGameMode;
     map.onDragStart = (int button, Vector2 position) {
-      context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
       if (button == kPrimaryButton) {
         isEditorMode
             ? _onDragUpdateInEditorMode(position)
@@ -667,7 +665,7 @@ class WorldMapScene extends Scene with HasCursorState {
       final terrain = map.trySelectTile(tilePosition.left, tilePosition.top);
       _setSelectedTerrain(terrain);
       if (terrain != null) {
-        final toolId = context.read<WorldMapState>().selectedToolId;
+        final toolId = engine.context.read<WorldMapState>().selectedToolId;
         if (toolId != null) {
           _paintTile(toolId, terrain);
         } else if (territoryMode != null) {
@@ -741,7 +739,7 @@ class WorldMapScene extends Scene with HasCursorState {
     final tilePosition = map.worldPosition2Tile(position);
     final tile = map.getTerrain(tilePosition.left, tilePosition.top);
     if (tile == null) return;
-    final toolId = context.read<WorldMapState>().selectedToolId;
+    final toolId = engine.context.read<WorldMapState>().selectedToolId;
     if (toolId != null) {
       _paintTile(toolId, tile);
     }
@@ -759,7 +757,7 @@ class WorldMapScene extends Scene with HasCursorState {
     if (selectedTerrain == null) return;
     cursorState = MouseCursorState.normal;
     if (button == kSecondaryButton) {
-      context.read<WorldMapState>().clearTool();
+      engine.context.read<WorldMapState>().clearTool();
       territoryMode = null;
       final tileRenderPosition = map.selectedTerrain!.topRight;
       final screenPosition = worldPosition2Screen(tileRenderPosition);
@@ -806,7 +804,7 @@ class WorldMapScene extends Scene with HasCursorState {
           switch (item) {
             case TerrainPopUpMenuItems.checkInformation:
               showDialog(
-                  context: context,
+                  context: engine.context,
                   builder: (context) => const TileDetailPanel());
             // case TerrainPopUpMenuItems.createLocation:
             case TerrainPopUpMenuItems.setTerritory:
@@ -836,7 +834,7 @@ class WorldMapScene extends Scene with HasCursorState {
               selectedTerrain.caption = null;
             case TerrainPopUpMenuItems.bindObject:
               final value = await showDialog(
-                context: context,
+                context: engine.context,
                 builder: (context) => const InputStringDialog(),
               );
               if (value == null) return;
@@ -1387,7 +1385,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _onTapDownInGameMode(int button, Vector2 position) {
     if (!gameState.isInteractable) return;
-    context.read<HoverContentState>().hide();
+    engine.context.read<HoverContentState>().hide();
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
     map.trySelectTile(tilePosition.left, tilePosition.top);
@@ -1566,7 +1564,7 @@ class WorldMapScene extends Scene with HasCursorState {
         }
       }
       final key = await showDialog<String>(
-        context: context,
+        context: engine.context,
         barrierDismissible: false,
         builder: (context) => InformationView(
           title: engine.locale('selectHero'),
@@ -1640,8 +1638,8 @@ class WorldMapScene extends Scene with HasCursorState {
 
     _loadBindings();
 
-    context.read<HoverContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
 
     engine.hetu.invoke('setCurrentWorld', positionalArgs: [worldData['id']]);
   }
@@ -1667,14 +1665,14 @@ class WorldMapScene extends Scene with HasCursorState {
 
   // TODO: 自动移动屏幕
   void _onMouseEnterScreenEdge(OrthogonalDirection direction) {
-    context.read<HoverContentState>().hide();
+    engine.context.read<HoverContentState>().hide();
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
     if (!gameState.isInteractable) return;
     if (map.isStandby) return;
 
-    context.read<HoverContentState>().hide();
+    engine.context.read<HoverContentState>().hide();
 
     bool clickable = false;
     bool talkable = false;
@@ -1754,7 +1752,7 @@ class WorldMapScene extends Scene with HasCursorState {
         final content = hoverContent.toString();
         if (content.isNotBlank) {
           final screenPosition = worldPosition2Screen(tile.position);
-          context.read<HoverContentState>().show(
+          engine.context.read<HoverContentState>().show(
                 content,
                 Rect.fromLTWH(
                   screenPosition.x + map.tileOffset.x * camera.zoom,
@@ -1779,7 +1777,7 @@ class WorldMapScene extends Scene with HasCursorState {
         cursorState = MouseCursorState.normal;
       }
     } else {
-      context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
 
       if (map.isStandby) {
         cursorState = MouseCursorState.sandglass;

@@ -28,6 +28,7 @@ import 'scene/mini_game/matching/matching.dart';
 import 'data/common.dart';
 import 'data/game.dart';
 import 'extensions.dart';
+import 'scene/mini_game/difference/difference.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -103,19 +104,15 @@ class _GameAppState extends State<GameApp> {
     context.read<GameSavesState>().loadList();
 
     engine.registerSceneConstructor(Scenes.mainmenu, (arguments) async {
-      return MainMenuScene(context: context);
+      return MainMenuScene();
     });
 
     engine.registerSceneConstructor(Scenes.cultivation, (arguments) async {
-      return CultivationScene(
-        context: context,
-        isEditorMode: arguments['isEditorMode'] ?? false,
-      );
+      return CultivationScene(isEditorMode: arguments['isEditorMode'] ?? false);
     });
 
     engine.registerSceneConstructor(Scenes.library, (arguments) async {
       return CardLibraryScene(
-        context: context,
         isEditorMode: arguments['isEditorMode'] ?? false,
       );
     });
@@ -138,10 +135,7 @@ class _GameAppState extends State<GameApp> {
       assert(locationId != null, 'LocationScene 需要传入 locationId 参数');
       final location = GameData.getLocation(locationId);
       assert(location != null);
-      return LocationScene(
-        context: context,
-        location: location,
-      );
+      return LocationScene(location: location);
     });
 
     engine.registerSceneConstructor(Scenes.worldmap, (arguments) async {
@@ -164,7 +158,6 @@ class _GameAppState extends State<GameApp> {
       }
 
       final scene = WorldMapScene(
-        context: context,
         worldData: worldData,
         backgroundSpriteId: arguments['background'],
         // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
@@ -204,13 +197,16 @@ class _GameAppState extends State<GameApp> {
 
       return MatchingGame(
         id: Scenes.matchingGame,
-        context: context,
         kind: kind,
         development: arguments['development'] ?? 0,
         isProduction: isProduction,
         staminaCost: staminaCost,
         resources: resources,
       );
+    });
+
+    engine.registerSceneConstructor('difference_game', ([dynamic args]) async {
+      return DifferenceGame(id: 'difference_game', gameId: args['gameId']);
     });
 
     engine.hetu.interpreter.bindExternalFunctionType(

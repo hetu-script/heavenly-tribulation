@@ -103,7 +103,6 @@ enum FilterByOptions {
 
 class CardLibraryScene extends Scene {
   CardLibraryScene({
-    required super.context,
     this.isEditorMode = false,
   }) : super(id: Scenes.library);
 
@@ -221,9 +220,9 @@ class CardLibraryScene extends Scene {
   void onStart([dynamic arguments]) {
     super.onStart(arguments);
 
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
+    engine.context.read<EnemyState>().setPrebattleVisible(false);
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
 
     enableCardCraft = arguments?['enableCardCraft'] ??
         (GameData.hero['passives']['enable_cardcraft'] ?? false);
@@ -310,7 +309,7 @@ class CardLibraryScene extends Scene {
         switch (item) {
           case DeckMenuItems.setTitle:
             final String? title = await showDialog(
-              context: context,
+              context: engine.context,
               builder: (context) {
                 return InputStringDialog(
                   title: engine.locale('inputName'),
@@ -397,7 +396,7 @@ class CardLibraryScene extends Scene {
   void _deleteDeck(DeckBuildingZone zone, {bool warning = true}) async {
     if (warning) {
       final value = await showDialog<bool>(
-        context: context,
+        context: engine.context,
         builder: (context) =>
             ConfirmDialog(description: engine.locale('dangerOperationPrompt')),
       );
@@ -648,7 +647,7 @@ class CardLibraryScene extends Scene {
   }
 
   void onStartCraft(CustomGameCard card) {
-    context.read<HoverContentState>().hide();
+    engine.context.read<HoverContentState>().hide();
 
     skillBook.enableGesture = false;
     expBottle.enableGesture = false;
@@ -868,14 +867,13 @@ class CardLibraryScene extends Scene {
 
         card.onTapUp = (int button, Vector2 position) {
           if (card.data['isIdentified'] != true) {
-            unpreviewCard(context);
+            unpreviewCard();
             engine.play(GameSound.craft);
             card.data['isIdentified'] = true;
             final (description, _) =
                 GameData.getBattleCardDescription(card.data);
             card.description = description;
             previewCard(
-              context,
               'cardpack_card_${card.id}',
               card.data,
               card.toAbsoluteRect(),
@@ -891,13 +889,12 @@ class CardLibraryScene extends Scene {
         };
 
         card.onPreviewed = () => previewCard(
-              context,
               'cardpack_card_${card.id}',
               card.data,
               card.toAbsoluteRect(),
               character: GameData.hero,
             );
-        card.onUnpreviewed = () => unpreviewCard(context);
+        card.onUnpreviewed = () => unpreviewCard();
 
         camera.viewport.add(card);
 
@@ -977,7 +974,7 @@ class CardLibraryScene extends Scene {
   }
 
   void showCardpackSelect({Iterable? selectedItems}) {
-    context.read<ItemSelectState>().show(
+    engine.context.read<ItemSelectState>().show(
           GameData.hero,
           title: engine.locale('selectCardpack'),
           filter: {'category': 'cardpack'},
@@ -1052,8 +1049,8 @@ class CardLibraryScene extends Scene {
       enableGesture: true,
       priority: kDeckPilesZonePriority,
     );
-    deckPilesZone.onMouseScrollUp = () => _repositionDeckPiles(100);
-    deckPilesZone.onMouseScrollDown = () => _repositionDeckPiles(-100);
+    deckPilesZone.onMouseScrollUp = (position) => _repositionDeckPiles(100);
+    deckPilesZone.onMouseScrollDown = (position) => _repositionDeckPiles(-100);
     world.add(deckPilesZone);
 
     deckPilesContainer = PositionComponent(
@@ -1172,7 +1169,7 @@ class CardLibraryScene extends Scene {
     );
     exit.onTap = (_, __) {
       engine.popScene();
-      context.read<EnemyState>().setPrebattleVisible();
+      engine.context.read<EnemyState>().setPrebattleVisible();
     };
     camera.viewport.add(exit);
 

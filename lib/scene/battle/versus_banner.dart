@@ -1,6 +1,5 @@
 import 'package:flame/components.dart';
 import 'package:samsara/components.dart';
-import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
@@ -9,6 +8,7 @@ import '../../ui.dart';
 import '../../widgets/character/profile.dart';
 // import '../../state/hoverinfo.dart';
 import 'equipments_bar.dart';
+import '../../global.dart';
 
 class VersusBanner extends GameComponent {
   // late final SpriteComponent2 versus;
@@ -29,7 +29,7 @@ class VersusBanner extends GameComponent {
 
   void showCharacterInfo(dynamic data) {
     showDialog(
-      context: game.context,
+      context: engine.context,
       builder: (context) {
         return CharacterProfileView(character: data);
       },
@@ -42,7 +42,7 @@ class VersusBanner extends GameComponent {
       // position: Vector2(center.x - 80.0, center.y - 90.0),
       position:
           Vector2(GameUI.battleCharacterAvatarSize.x + GameUI.hugeIndent, 0),
-      sprite: Sprite(await Flame.images.load('battle/versus.png')),
+      sprite: await Sprite.load('ui/versus.png'),
       size: GameUI.versusIconSize,
       paint: paint,
     );

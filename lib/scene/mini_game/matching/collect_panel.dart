@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/components/ui/hovertip.dart';
@@ -105,12 +104,12 @@ class CollectPanel extends GameComponent with HandlesGesture {
     //   collect(objectIndex);
     // };
 
-    frame = Sprite(await Flame.images.load('mini_game/matching/panel.png'));
+    frame = await Sprite.load('mini_game/matching/panel.png');
     // focusFrame = Sprite(
     //     await Flame.images.load('mini_game/matching/panel_focus.png'));
 
     if (avatar == null && avatarId != null) {
-      avatar = Sprite(await Flame.images.load(avatarId!));
+      avatar = await Sprite.load(avatarId!);
     }
 
     final materials = _kSiteKindToMaterial[matchingGame.kind]!;
@@ -132,7 +131,7 @@ class CollectPanel extends GameComponent with HandlesGesture {
     //   }
     // }
 
-    checkMark = Sprite(await Flame.images.load('ui/checked.png'));
+    checkMark = await Sprite.load('ui/checked.png');
   }
 
   @override

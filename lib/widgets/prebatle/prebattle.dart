@@ -342,7 +342,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image(
-                    image: AssetImage('assets/images/battle/versus.png'),
+                    image: AssetImage('assets/images/ui/versus.png'),
                     width: 200,
                     height: 200,
                   ),

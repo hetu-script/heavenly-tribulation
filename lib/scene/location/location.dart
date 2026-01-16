@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
 import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -25,7 +24,6 @@ import '../../extensions.dart';
 class LocationScene extends Scene with HasCursorState {
   LocationScene({
     required this.location,
-    required super.context,
   }) : super(
           id: location['id'],
           // bgmFile: 'vietnam-bamboo-flute-143601.mp3',
@@ -53,7 +51,7 @@ class LocationScene extends Scene with HasCursorState {
         heroResidesHere = true;
       }
       final selectedId = await CharacterVisitDialog.show(
-        context: context,
+        context: engine.context,
         characterIds: characterIds,
         heroResidesHere: heroResidesHere,
       );
@@ -73,7 +71,7 @@ class LocationScene extends Scene with HasCursorState {
 
   void _onPreviewSiteCard() {
     cursorState = MouseCursorState.click;
-    context.read<HoverContentState>().hide();
+    engine.context.read<HoverContentState>().hide();
   }
 
   void _onUnpreviewSiteCard() {
@@ -228,11 +226,11 @@ class LocationScene extends Scene with HasCursorState {
     }
 
     _backgroundComponent = SpriteComponent2(
-      sprite: Sprite(await Flame.images.load(location['background'])),
+      sprite: await Sprite.load(location['background']),
       size: size,
     );
     _backgroundComponent.onTapDown = (button, position) {
-      context.read<HoverContentState>().hide();
+      engine.context.read<HoverContentState>().hide();
     };
     world.add(_backgroundComponent);
 
@@ -290,8 +288,8 @@ class LocationScene extends Scene with HasCursorState {
   void onStart([dynamic arguments = const {}]) {
     super.onStart(arguments);
 
-    context.read<HoverContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
 
     engine.hetu.assign('location', location);
 

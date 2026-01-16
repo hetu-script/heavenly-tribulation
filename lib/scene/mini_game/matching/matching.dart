@@ -149,7 +149,6 @@ class MatchingGame extends Scene with HasCursorState {
 
   MatchingGame({
     required super.id,
-    required super.context,
     required this.kind,
     this.development = 0,
     required this.isProduction,
@@ -175,8 +174,9 @@ class MatchingGame extends Scene with HasCursorState {
     final exit = SpriteButton(
       spriteId: 'ui/button.png',
       size: GameUI.buttonSizeMedium,
-      position: Vector2(size.x - GameUI.buttonSizeMedium.x - GameUI.indent,
-          size.y - GameUI.buttonSizeMedium.y - GameUI.indent),
+      anchor: Anchor.center,
+      position: Vector2(size.x - GameUI.buttonSizeMedium.x / 2 - GameUI.indent,
+          size.y - GameUI.buttonSizeMedium.y / 2 - GameUI.indent),
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
@@ -216,13 +216,13 @@ class MatchingGame extends Scene with HasCursorState {
     );
 
     board = SpriteComponent2(
-      sprite: Sprite(await Flame.images.load('mini_game/matching/board.png')),
+      sprite: await Sprite.load('mini_game/matching/board.png'),
       size: size,
       enableGesture: true,
     );
     world.add(board);
 
-    border = Sprite(await Flame.images.load('mini_game/matching/border.png'));
+    border = await Sprite.load('mini_game/matching/border.png');
 
     final sourceIndex = _kMatchingGameKindToSourceSpriteIndex[kind]!;
     sourceButton = TileObject(

@@ -6,7 +6,6 @@ import '../global.dart';
 import '../data/game.dart';
 
 void previewCard(
-  BuildContext context,
   String id,
   dynamic cardData,
   Rect rect, {
@@ -14,7 +13,7 @@ void previewCard(
   HoverContentDirection? direction,
   dynamic character,
 }) {
-  context.read<HoverContentState>().show(
+  engine.context.read<HoverContentState>().show(
         buildItemHoverInfo(
           cardData,
           type: isLibrary ? ItemType.player : ItemType.none,
@@ -24,8 +23,8 @@ void previewCard(
       );
 }
 
-void unpreviewCard(BuildContext context) {
-  context.read<HoverContentState>().hide();
+void unpreviewCard() {
+  engine.context.read<HoverContentState>().hide();
 }
 
 enum InformationViewMode {

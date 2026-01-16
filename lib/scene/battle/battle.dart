@@ -7,7 +7,6 @@ import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
-import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/components/ui/hovertip.dart';
@@ -157,7 +156,7 @@ class BattleScene extends Scene {
     this.endBattleAfterRounds = 0,
     required this.backgroundImageId,
   }) : super(
-          context: engine.context,
+          // context: engine.context,
           id: Scenes.battle,
           bgm: engine.bgm,
           bgmFile: 'war-drums-173853.mp3',
@@ -262,9 +261,9 @@ class BattleScene extends Scene {
   void onStart([dynamic arguments = const {}]) {
     super.onStart();
 
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
+    engine.context.read<EnemyState>().setPrebattleVisible(false);
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
   }
 
   @override
@@ -299,13 +298,13 @@ class BattleScene extends Scene {
     _victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
-      sprite: Sprite(await Flame.images.load('battle/victory.png')),
+      sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
     _defeatPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
-      sprite: Sprite(await Flame.images.load('battle/defeat.png')),
+      sprite: await Sprite.load('ui/defeat.png'),
       size: Vector2(480.0, 240.0),
     );
 
@@ -455,7 +454,7 @@ class BattleScene extends Scene {
           heroDeckZone.position.y -
               GameUI.buttonSizeMedium.y * 2 -
               GameUI.indent),
-      size: Vector2(100.0, 40.0),
+      size: GameUI.buttonSizeSmall,
     );
     restartButton.onTap = (_, __) async {
       restartButton.isVisible = false;
@@ -485,7 +484,7 @@ class BattleScene extends Scene {
       anchor: Anchor.center,
       position: Vector2(
           center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
-      size: Vector2(100.0, 40.0),
+      size: GameUI.buttonSizeSmall,
     );
     nextTurnButton.onTap = (_, __) {
       if (engine.config.debugMode || !isAutoBattle) {
@@ -673,7 +672,7 @@ class BattleScene extends Scene {
   void _endScene() async {
     engine.hetu
         .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
-    context.read<EnemyState>().clear();
+    engine.context.read<EnemyState>().clear();
     engine.hetu.assign('enemy', null);
     engine.hetu.assign('self', null);
     engine.hetu.assign('opponent', null);

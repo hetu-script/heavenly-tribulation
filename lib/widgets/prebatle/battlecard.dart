@@ -55,7 +55,6 @@ class BattleCard extends StatelessWidget {
                 if (entered) {
                   final rect = getRenderRect(context);
                   previewCard(
-                    context,
                     'prebattle_card_${data['id']}',
                     data,
                     rect,
@@ -64,7 +63,7 @@ class BattleCard extends StatelessWidget {
                     character: isHero ? character : null,
                   );
                 } else {
-                  unpreviewCard(context);
+                  unpreviewCard();
                 }
               },
               borderRadius: GameUI.borderRadius,

@@ -15,6 +15,7 @@ final class Scenes {
   static const battle = 'battle';
 
   static const matchingGame = 'matching_game';
+  static const differenceGame = 'difference_game';
 
   /// 下面的 id 仅用于事件注册
   static const editor = 'editor';

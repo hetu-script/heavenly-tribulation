@@ -8,10 +8,8 @@ import '../../data/game.dart';
 import '../../global.dart';
 
 class MainMenuScene extends Scene {
-  MainMenuScene({
-    // required super.controller,
-    required super.context,
-  }) : super(
+  MainMenuScene()
+      : super(
           id: Scenes.mainmenu,
           bgm: engine.bgm,
           bgmFile: 'chinese-oriental-tune-06-12062.mp3',
