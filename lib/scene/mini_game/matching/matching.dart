@@ -7,7 +7,7 @@ import 'package:hetu_script/utils/math.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+// import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/tilemap/tile_info.dart';
@@ -17,10 +17,10 @@ import '../../../global.dart';
 import '../../../ui.dart';
 import '../../../data/game.dart';
 import '../../../logic/logic.dart';
-import '../../../widgets/ui_overlay.dart';
 import 'collect_panel.dart';
 import '../../../data/common.dart';
 import '../../cursor_state.dart';
+import '../../common.dart';
 
 const _kTileCoverPriority = 500;
 const _kDraggingPriority = 1000;
@@ -112,17 +112,13 @@ class _Grid extends GameComponent {
 class MatchingGame extends Scene with HasCursorState {
   static final random = math.Random();
 
-  late FpsComponent fps;
-
-  final fluent.FlyoutController menuController = fluent.FlyoutController();
+  // final fluent.FlyoutController menuController = fluent.FlyoutController();
 
   late final SpriteSheet hiddenTileSpriteSheet,
       iconSpriteSheet,
       iconHoverSpriteSheet;
 
   final String kind;
-
-  late final SpriteComponent2 board;
 
   /// 记录地砖是否被掀开
   late final List<_Grid> _grids = [];
@@ -145,10 +141,9 @@ class MatchingGame extends Scene with HasCursorState {
 
   late final boardCenter = tilePositionToWorldPosition(
           _centerTilePosition.left, _centerTilePosition.top) +
-      GameUI.matchingTileSrcSize / 2;
+      GameUI.matchingTileSize / 2;
 
   MatchingGame({
-    required super.id,
     required this.kind,
     this.development = 0,
     required this.isProduction,
@@ -159,6 +154,7 @@ class MatchingGame extends Scene with HasCursorState {
             development >= 0 && development <= kProductionSiteDevelopmentMax),
         maxRarity = development + kProductionBaseMaxRarity,
         super(
+          id: Scenes.matchingGame,
           enableLighting: false,
           bgm: engine.bgm,
           bgmFile: 'vietnam-bamboo-flute-143601.mp3',
@@ -169,14 +165,11 @@ class MatchingGame extends Scene with HasCursorState {
   Future<void> onLoad() async {
     super.onLoad();
 
-    fps = FpsComponent();
-
     final exit = SpriteButton(
       spriteId: 'ui/button.png',
       size: GameUI.buttonSizeMedium,
       anchor: Anchor.center,
-      position: Vector2(size.x - GameUI.buttonSizeMedium.x / 2 - GameUI.indent,
-          size.y - GameUI.buttonSizeMedium.y / 2 - GameUI.indent),
+      position: GameUI.exitButtonPosition,
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
@@ -186,8 +179,8 @@ class MatchingGame extends Scene with HasCursorState {
 
     scaleFactor = Vector2(
         size.x / defaultGameSize.width, size.y / defaultGameSize.height);
-    tileSize = Vector2(GameUI.matchingTileSrcSize.x * scaleFactor.x,
-        GameUI.matchingTileSrcSize.y * scaleFactor.y);
+    tileSize = Vector2(GameUI.matchingTileSize.x * scaleFactor.x,
+        GameUI.matchingTileSize.y * scaleFactor.y);
 
     for (var i = 0;
         i < GameUI.matchingBoardGridWidth * GameUI.matchingBoardGridHeight;
@@ -204,18 +197,18 @@ class MatchingGame extends Scene with HasCursorState {
 
     hiddenTileSpriteSheet = SpriteSheet(
       image: await Flame.images.load('mini_game/matching/tile_cover.png'),
-      srcSize: GameUI.matchingTileSrcSize,
+      srcSize: GameUI.matchingTileSize,
     );
     iconSpriteSheet = SpriteSheet(
       image: await Flame.images.load('mini_game/matching/icon.png'),
-      srcSize: GameUI.matchingTileSrcSize,
+      srcSize: GameUI.matchingTileSize,
     );
     iconHoverSpriteSheet = SpriteSheet(
       image: await Flame.images.load('mini_game/matching/icon_hover.png'),
-      srcSize: GameUI.matchingTileSrcSize,
+      srcSize: GameUI.matchingTileSize,
     );
 
-    board = SpriteComponent2(
+    final board = SpriteComponent2(
       sprite: await Sprite.load('mini_game/matching/board.png'),
       size: size,
       enableGesture: true,
@@ -228,7 +221,7 @@ class MatchingGame extends Scene with HasCursorState {
     sourceButton = TileObject(
       position: tilePositionToWorldPosition(
           _centerTilePosition.left, _centerTilePosition.top),
-      size: GameUI.matchingTileSrcSize,
+      size: GameUI.matchingTileSize,
       sprite: iconHoverSpriteSheet.getSpriteById(sourceIndex),
     );
     sourceButton.onTap = (buttons, position) {
@@ -257,16 +250,18 @@ class MatchingGame extends Scene with HasCursorState {
   }
 
   TilePosition worldPositionToTilePosition(Vector2 position) {
-    position -= GameUI.matchingBoardOffset;
+    position -= Vector2(
+      GameUI.matchingBoardOffset.x * scaleFactor.x,
+      GameUI.matchingBoardOffset.y * scaleFactor.y,
+    );
     final col = position.x ~/ tileSize.x;
     final row = position.y ~/ tileSize.y;
     return TilePosition(col, row);
   }
 
   Vector2 tilePositionToWorldPosition(int left, int top) {
-    final x =
-        GameUI.matchingBoardOffset.x + left * GameUI.matchingTileSrcSize.x;
-    final y = GameUI.matchingBoardOffset.y + top * GameUI.matchingTileSrcSize.y;
+    final x = GameUI.matchingBoardOffset.x + left * GameUI.matchingTileSize.x;
+    final y = GameUI.matchingBoardOffset.y + top * GameUI.matchingTileSize.y;
     return Vector2(x * scaleFactor.x, y * scaleFactor.y);
   }
 
@@ -326,7 +321,7 @@ class MatchingGame extends Scene with HasCursorState {
           namespace: 'Player',
           positionalArgs: ['money', amount],
         );
-        engine.play('coins-31879.mp3');
+        engine.play(GameSound.coins);
         hintTile('${engine.locale('money')} +$amount',
             tilePosition: grid.tilePosition, color: Colors.yellow);
         gameState.updateUI();
@@ -337,7 +332,7 @@ class MatchingGame extends Scene with HasCursorState {
           namespace: 'Player',
           positionalArgs: ['shard', amount],
         );
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
         hintTile('${engine.locale('shard')} +$amount',
             tilePosition: grid.tilePosition, color: Colors.yellow);
       }
@@ -360,7 +355,7 @@ class MatchingGame extends Scene with HasCursorState {
           namespace: 'Player',
           positionalArgs: [materialId, amount],
         );
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
         hintTile('${engine.locale(materialId)} +$amount',
             tilePosition: grid.tilePosition, color: Colors.lightGreen);
       } else {
@@ -371,7 +366,7 @@ class MatchingGame extends Scene with HasCursorState {
           namespace: 'Player',
           positionalArgs: ['money', totalPrice],
         );
-        engine.play('coins-31879.mp3');
+        engine.play(GameSound.coins);
         hintTile('${engine.locale('money')} +$totalPrice',
             tilePosition: grid.tilePosition, color: Colors.yellow);
         gameState.updateUI();
@@ -413,7 +408,7 @@ class MatchingGame extends Scene with HasCursorState {
       value: (objectIndex, tileIndex),
       position: tilePositionToWorldPosition(
           _centerTilePosition.left, _centerTilePosition.top),
-      size: GameUI.matchingTileSrcSize,
+      size: GameUI.matchingTileSize,
       sprite: iconSpriteSheet.getSpriteById(objectIndex),
       hoverSprite: iconHoverSpriteSheet.getSpriteById(objectIndex),
     );
@@ -423,7 +418,7 @@ class MatchingGame extends Scene with HasCursorState {
       object.priority += _kDraggingPriority;
       return object;
     };
-    object.onDragEnd = (buttons, position) {
+    object.onDragEnd = (position) {
       object.priority -= _kDraggingPriority;
       final prevGrid = _grids[object.value!.$2];
       final tilePos = worldPositionToTilePosition(position);
@@ -625,7 +620,7 @@ class MatchingGame extends Scene with HasCursorState {
       isMain: isMain,
       avatarId: 'illustration/avatar/npc/${kSiteKindToNpcId[kind]}.png',
     );
-    panel.onDragIn = (buttons, position, object) {
+    panel.onDragIn = (position, object) {
       if (object is! TileObject) return;
       _collectObject(object, panel: panel);
     };
@@ -668,47 +663,22 @@ class MatchingGame extends Scene with HasCursorState {
     ]);
   }
 
-  @override
-  void update(double dt) {
-    super.update(dt);
-
-    fps.update(dt);
-  }
-
   void hintTile(String text,
       {TilePosition? tilePosition, Color color = Colors.white}) {
     tilePosition ??= _centerTilePosition;
     Vector2 pos =
         tilePositionToWorldPosition(tilePosition.left, tilePosition.top);
-    pos.x += GameUI.matchingTileSrcSize.x / 2;
+    pos.x += GameUI.matchingTileSize.x / 2;
     addHintText(
       text,
       position: pos,
       textStyle: TextStyle(
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
         fontSize: 20,
         color: color,
       ),
     );
   }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   if (engine.config.debugMode || engine.config.showFps) {
-  //     drawScreenText(
-  //       canvas,
-  //       'FPS: ${fps.fps.toStringAsFixed(0)}',
-  //       config: ScreenTextConfig(
-  //         textStyle: const TextStyle(fontSize: 20),
-  //         size: size,
-  //         anchor: Anchor.topCenter,
-  //         padding: const EdgeInsets.only(top: 40),
-  //       ),
-  //     );
-  //   }
-  // }
 
   @override
   Widget build(
@@ -733,6 +703,8 @@ class MatchingGame extends Scene with HasCursorState {
           actions: [
             Container(
               decoration: GameUI.boxDecoration,
+              width: GameUI.infoButtonSize.width,
+              height: GameUI.infoButtonSize.height,
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),

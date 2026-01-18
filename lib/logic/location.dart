@@ -232,7 +232,7 @@ Future<bool> _checkRented(dynamic location,
     positionalArgs: [materialId, rentCost],
   );
   if (success) {
-    engine.play('coins-31879.mp3');
+    engine.play(GameSound.coins);
     GameData.addMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
       'hint_rentedFacility',

@@ -1,11 +1,10 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
+// import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:json5/json5.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:samsara/components/sprite_component2.dart';
@@ -16,12 +15,14 @@ import 'package:samsara/components/ui/sprite_button.dart';
 
 import '../../../ui.dart';
 import '../../../global.dart';
-import '../../../widgets/ui_overlay.dart';
+import '../../cursor_state.dart';
+import '../../common.dart';
+import '../../../data/game.dart';
 
 const _kPicPriority = 50;
 const _kDiffIndicatorPriority = 10;
 const _kErrorIndicatorPriority = 20;
-const _kConfettiPriority = 100;
+const _kConfettiPriority = 1000;
 
 /// 椭圆标记组件，黄色圆圈内外都有黑色描边，带阴影
 class FoundIndicator extends PositionComponent {
@@ -103,10 +104,10 @@ class DiffData {
   });
 }
 
-class DifferenceGame extends Scene {
+class DifferenceGame extends Scene with HasCursorState {
   static final random = math.Random();
 
-  final fluent.FlyoutController menuController = fluent.FlyoutController();
+  // final fluent.FlyoutController menuController = fluent.FlyoutController();
 
   final String gameId;
 
@@ -122,16 +123,20 @@ class DifferenceGame extends Scene {
 
   late final SpriteComponent _victoryPrompt;
 
-  late final SpriteButton next, exit;
+  late final SpriteButton restart, exit;
 
   late final Sprite hidden, found;
 
   int _foundedCount = 0;
 
   DifferenceGame({
-    required super.id,
     required this.gameId,
-  });
+  }) : super(
+          id: Scenes.differenceGame,
+          bgm: engine.bgm,
+          bgmFile: 'Echoes of the East.mp3',
+          bgmVolume: 0.5,
+        );
 
   void setOffset(Vector2 newClipOffset) {
     // 边界检查：确保图片不会超出组件边界
@@ -165,19 +170,26 @@ class DifferenceGame extends Scene {
   }
 
   void checkDifferenceAt(
-      GameComponent component, int button, Vector2 position) {
+      SpriteComponent2 component, int button, Vector2 position) {
     if (button != kPrimaryButton) return;
     if (successed) return;
+
+    // 鼠标光标的手指实际位置和光标图片的左上角有10个像素的偏差(仅x方向)
+    // 需要调整位置以对应手指的实际点击位置
+    final fingerPosition = position + Vector2(10.0, 0.0);
+    // 将局部坐标转换到原图坐标系（考虑 zoom 和 clipOffset）
+    final imagePosition = (fingerPosition + component.clipOffset) / _zoom;
+    final offset = Offset(imagePosition.x, imagePosition.y);
 
     bool found = false;
     for (final diff in diffs) {
       if (diff.found) continue;
-      if (diff.rect.contains(Offset(position.x, position.y))) {
+      if (diff.rect.contains(offset)) {
         // 找到差异，执行相应操作
         // debugPrint('Found difference at (${diff.rect.left}, ${diff.rect.top})');
         diff.found = found = true;
         ++_foundedCount;
-        engine.play('new-notification-026-380249.mp3');
+        engine.play(GameSound.success);
 
         // 需要创建两个独立的组件实例，因为一个组件只能有一个父组件
         final indicatorLeft = FoundIndicator(
@@ -197,7 +209,7 @@ class DifferenceGame extends Scene {
         if (diffs.every((d) => d.found)) {
           successed = true;
 
-          _gameSuccess();
+          _onGameSuccess();
         }
 
         break;
@@ -208,16 +220,21 @@ class DifferenceGame extends Scene {
       final error = _triggerError(position);
       component.add(error);
 
-      engine.play('notification-error-427345.mp3');
+      engine.play(GameSound.error);
     }
   }
 
-  GameComponent _triggerError(Vector2 worldPosition) {
-    // 在世界坐标系中添加错误指示器
+  GameComponent _triggerError(Vector2 localPosition) {
+    // 在组件坐标系中添加错误指示器
+    // localPosition 是用户点击的局部坐标（光标左上角位置）
+    // 需要加上10像素偏差(仅x方向)得到手指实际位置
+    // 再加上 clipOffset 得到在原图上的位置,然后除以 zoom 补偿缩放效果
+    final fingerPosition = localPosition + Vector2(10.0, 0.0);
     final indicator = SpriteComponent2(
       sprite: _errorIndicatorSprite,
-      position: worldPosition - Vector2(16.0, 16.0),
-      size: Vector2(32.0, 32.0),
+      position:
+          (fingerPosition + picLeft.clipOffset - Vector2(16.0, 16.0)) / _zoom,
+      size: Vector2(32.0, 32.0) / _zoom,
       priority: _kErrorIndicatorPriority,
     );
     indicator.add(
@@ -229,24 +246,25 @@ class DifferenceGame extends Scene {
     return indicator;
   }
 
-  void _gameSuccess() {
-    Future.delayed(Duration(milliseconds: 500)).then((_) {
-      engine.play('transition/chinese-ident-transition-1-283708.mp3');
-    });
+  void _onGameSuccess() {
+    engine.play(GameSound.victory);
 
     camera.viewport.add(_victoryPrompt);
 
-    final celebration = Celebration(
-      position: Vector2.zero(),
-      size: size.clone(),
+    final celebration = ConfettiEffect(
+      size: size,
       priority: _kConfettiPriority,
     );
     camera.viewport.add(celebration);
 
-    next.isVisible = true;
+    restart.position = Vector2(
+        center.x,
+        _victoryPrompt.bottomRight.y +
+            GameUI.buttonSizeMedium.y +
+            GameUI.largeIndent);
 
     exit.position = Vector2(center.x,
-        next.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
+        restart.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
   }
 
   @override
@@ -266,8 +284,31 @@ class DifferenceGame extends Scene {
 
     final background = SpriteComponent(
       sprite: await Sprite.load('mini_game/difference/background.png'),
+      size: size,
     );
     world.add(background);
+
+    restart = SpriteButton(
+      spriteId: 'ui/button2.png',
+      size: GameUI.buttonSizeMedium,
+      anchor: Anchor.center,
+      position: GameUI.restartButtonPosition,
+      text: engine.locale('restart'),
+    );
+    restart.onTap = (_, __) {};
+    camera.viewport.add(restart);
+
+    exit = SpriteButton(
+      spriteId: 'ui/button.png',
+      size: GameUI.buttonSizeMedium,
+      anchor: Anchor.center,
+      position: GameUI.exitButtonPosition,
+      text: engine.locale('exit'),
+    );
+    exit.onTap = (_, __) {
+      engine.popScene(clearCache: true);
+    };
+    camera.viewport.add(exit);
 
     hidden = await Sprite.load(
       'mini_game/difference/question_mark.png',
@@ -275,34 +316,6 @@ class DifferenceGame extends Scene {
     found = await Sprite.load(
       'mini_game/difference/check_mark.png',
     );
-
-    next = SpriteButton(
-      spriteId: 'ui/button2.png',
-      size: GameUI.buttonSizeMedium,
-      anchor: Anchor.center,
-      position: Vector2(
-          center.x,
-          _victoryPrompt.bottomRight.y +
-              GameUI.buttonSizeMedium.y +
-              GameUI.largeIndent),
-      text: engine.locale('continue'),
-      isVisible: false,
-    );
-    next.onTap = (_, __) {};
-    camera.viewport.add(next);
-
-    exit = SpriteButton(
-      spriteId: 'ui/button.png',
-      size: GameUI.buttonSizeMedium,
-      anchor: Anchor.center,
-      position: Vector2(size.x - GameUI.buttonSizeMedium.x / 2 - GameUI.indent,
-          size.y - GameUI.buttonSizeMedium.y / 2 - GameUI.indent),
-      text: engine.locale('exit'),
-    );
-    exit.onTap = (_, __) {
-      engine.popScene(clearCache: true);
-    };
-    camera.viewport.add(exit);
 
     picLeft = SpriteComponent2(
       sprite:
@@ -314,11 +327,31 @@ class DifferenceGame extends Scene {
       enableGesture: true,
       clipMode: true,
     );
+    picLeft.onMouseEnter = () {
+      cursorState = MouseCursorState.click;
+    };
+    picLeft.onMouseExit = () {
+      if (!picLeft.isHovering && !picRight.isHovering) {
+        cursorState = MouseCursorState.normal;
+      }
+    };
     picLeft.onMouseScrollUp = (position) {
       setZoom(_zoom + 0.25, position);
     };
     picLeft.onMouseScrollDown = (position) {
       setZoom(_zoom - 0.25, position);
+    };
+    picLeft.onDragStart = (button, position) {
+      if (button != kSecondaryButton) return null;
+      cursorState = MouseCursorState.drag;
+      return picLeft;
+    };
+    picLeft.onDragEnd = (position) {
+      if (picLeft.containsPoint(position) || picRight.containsPoint(position)) {
+        cursorState = MouseCursorState.click;
+      } else {
+        cursorState = MouseCursorState.normal;
+      }
     };
     picLeft.onDragUpdate = (button, position, delta) {
       if (button != kSecondaryButton) return;
@@ -342,11 +375,31 @@ class DifferenceGame extends Scene {
       enableGesture: true,
       clipMode: true,
     );
+    picRight.onMouseEnter = () {
+      cursorState = MouseCursorState.click;
+    };
+    picRight.onMouseExit = () {
+      if (!picLeft.isHovering && !picRight.isHovering) {
+        cursorState = MouseCursorState.normal;
+      }
+    };
     picRight.onMouseScrollUp = (position) {
       setZoom(_zoom + 0.25, position);
     };
     picRight.onMouseScrollDown = (position) {
       setZoom(_zoom - 0.25, position);
+    };
+    picRight.onDragStart = (button, position) {
+      if (button != kSecondaryButton) return null;
+      cursorState = MouseCursorState.drag;
+      return picRight;
+    };
+    picRight.onDragEnd = (position) {
+      if (picLeft.containsPoint(position) || picRight.containsPoint(position)) {
+        cursorState = MouseCursorState.click;
+      } else {
+        cursorState = MouseCursorState.normal;
+      }
     };
     picRight.onDragUpdate = (button, position, delta) {
       if (button != kSecondaryButton) return;
@@ -454,6 +507,8 @@ class DifferenceGame extends Scene {
           actions: [
             Container(
               decoration: GameUI.boxDecoration,
+              width: GameUI.infoButtonSize.width,
+              height: GameUI.infoButtonSize.height,
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),

@@ -1141,7 +1141,7 @@ Future<void> _onInteractNpc(dynamic location) async {
           'addLocationToSect',
           positionalArgs: [atCity, sect],
         );
-        engine.play('success-resolution-99782.mp3');
+        // engine.play('success-resolution-99782.mp3');
         if (heroId == sect['headId']) {
           atCity['managerId'] = heroId;
         } else {

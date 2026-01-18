@@ -325,7 +325,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       config: ScreenTextConfig(
         outlined: true,
         textStyle: TextStyle(
-          fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyKaiti,
         ),
         anchor: Anchor.bottomCenter,
         padding: EdgeInsets.only(bottom: 120),

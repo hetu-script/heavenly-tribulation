@@ -360,7 +360,7 @@ async function onInteractTreasureBox(object, terrain) {
   for (final item in items) {
     await Player.acquire(item)
   }
-  engine.play('pickup_item-64282.mp3')
+  engine.play(GameSound.pickup)
   Game.promptItems(items)
 }
 

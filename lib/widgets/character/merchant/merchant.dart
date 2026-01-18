@@ -245,7 +245,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
       if (amount == max) {
         _selectedHeroMaterialId = null;
       }
-      engine.play('pickup_item-64282.mp3');
+      engine.play(GameSound.pickup);
     } else {
       if (_selectedHeroItemsData.isEmpty) return;
       final itemsData = _selectedHeroItemsData.values;
@@ -303,7 +303,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
           );
           _selectedHeroItemsData.remove(itemData['id']);
         }
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
       } else {
         assert(_selectedHeroItemsData.length <= 1);
         final itemData = _selectedHeroItemsData.values.first;
@@ -351,7 +351,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
           namespace: 'Player',
           positionalArgs: [currency, totalPrice],
         );
-        engine.play('coins-31879.mp3');
+        engine.play(GameSound.coins);
         engine.hetu.invoke(
           'lose',
           namespace: 'Player',
@@ -371,7 +371,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
           },
         );
         _selectedHeroItemsData.remove(itemData['id']);
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
       }
     }
     gameState.updateUI();
@@ -446,7 +446,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
       if (amount == merchantHave) {
         _selectedMerchantMaterialId = null;
       }
-      engine.play('pickup_item-64282.mp3');
+      engine.play(GameSound.pickup);
     } else {
       if (_selectedMerchantItemsData.isEmpty) return;
       final itemsData = _selectedMerchantItemsData.values;
@@ -502,7 +502,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
           );
           _selectedMerchantItemsData.remove(itemData['id']);
         }
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
       } else {
         assert(_selectedMerchantItemsData.length <= 1);
         final itemData = _selectedMerchantItemsData.values.first;
@@ -573,7 +573,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
           },
         );
         _selectedMerchantItemsData.remove(itemData['id']);
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
       }
     }
     gameState.updateUI();
@@ -808,7 +808,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               engine.hetu.invoke('replenishTradingItem',
                                   positionalArgs: [widget.merchantData]);
                               updateReplenishCount();
-                              engine.play('pickup_item-64282.mp3');
+                              engine.play(GameSound.pickup);
                               setState(() {});
                             },
                             child: Label(

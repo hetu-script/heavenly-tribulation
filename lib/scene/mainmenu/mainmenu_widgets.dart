@@ -383,7 +383,11 @@ class _DebugButtonState extends State<DebugButton> {
                 'debugMeeting': 'debugMeeting',
                 '___3': null,
                 'debugMatchingGame': 'debugMatchingGame',
+                'debugMatchingGame2': 'debugMatchingGame2',
                 'debugDifferenceGame': 'debugDifferenceGame',
+                'debugMouseMazeGame': 'debugMouseMazeGame',
+                'debugMemoryCardGame': 'debugMemoryCardGame',
+                'debugNanogramGame': 'debugNanogramGame',
               },
               onSelectedItem: (String item) async {
                 switch (item) {
@@ -471,12 +475,38 @@ class _DebugButtonState extends State<DebugButton> {
                         'isProduction': math.Random().nextBool(),
                       },
                     );
+                  case 'debugMatchingGame2':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {
+                        'tileCount': 108,
+                      },
+                    );
                   case 'debugDifferenceGame':
                     engine.pushScene(
                       Scenes.differenceGame,
                       arguments: {
                         'gameId': '1',
                       },
+                    );
+                  case 'debugMouseMazeGame':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {
+                        'portalPairCount': 2,
+                        'switchDoorCount': 2,
+                        'keyLockPairCount': 0,
+                      },
+                    );
+                  case 'debugMemoryCardGame':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {},
+                    );
+                  case 'debugNanogramGame':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {},
                     );
                 }
               },

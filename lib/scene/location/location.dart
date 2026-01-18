@@ -12,7 +12,6 @@ import 'package:samsara/hover_info.dart';
 import '../../ui.dart';
 import '../../global.dart';
 import '../../data/game.dart';
-import '../../widgets/ui_overlay.dart';
 import '../../logic/logic.dart';
 import '../../data/common.dart';
 import '../../state/states.dart';

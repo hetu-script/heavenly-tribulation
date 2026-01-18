@@ -79,7 +79,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
               dialog.execute();
               return;
             }
-            engine.play('put_item-83043.mp3');
+            engine.play(GameSound.put);
             engine.hetu.invoke('unequip',
                 namespace: 'Player', positionalArgs: [itemData]);
             engine.emit(GameEvents.heroPassivesUpdated);
@@ -135,7 +135,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
                   description: engine.locale('dangerOperationPrompt')),
             );
             if (value != true) return;
-            engine.play('break06-36414.mp3');
+            engine.play(GameSound.broken);
             engine.hetu.invoke('lose',
                 namespace: 'Player', positionalArgs: [itemData]);
             setState(() {});

@@ -15,7 +15,7 @@ function initModData() {
   feiyu.rank = 1
   feiyu.level = 5
   // generateDeck(feiyu, cardInfoList: [
-  //   {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge_nimble'}
+  //   {affixId: 'sabre_attack'}, {affixId: 'sabre_defend'}, {affixId: 'dodge_nimble'}
   // ])
   // Game.characterAllocateSkills(feiyu)
   // characterCalculateStats(feiyu)
@@ -24,7 +24,7 @@ function initModData() {
   feiyu.rank = 2
   feiyu.level = 16
   generateDeck(feixiong, cardInfoList: [
-    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'attack_punch'}, {affixId: 'heal'},
+    {affixId: 'sabre_attack'}, {affixId: 'sabre_defend'}, {affixId: 'punch_attack'}, {affixId: 'heal'},
   ])
   // Game.characterAllocateSkills(feixiong)
   characterCalculateStats(feixiong)
@@ -41,7 +41,7 @@ function initModData() {
     ])
   } else {
     generateDeck(chuxue, cardInfoList: [
-      {affixId: 'defend_punch'},{affixId: 'attack_punch'},{affixId: 'attack_kick'}
+      {affixId: 'punch_defend'},{affixId: 'punch_attack'},{affixId: 'kick_attack'}
     ])
   }
   // Game.characterAllocateSkills(chuxue)

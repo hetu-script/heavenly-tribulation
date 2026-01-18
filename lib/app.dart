@@ -24,11 +24,15 @@ import 'scene/common.dart';
 import 'widgets/timeflow.dart';
 import 'data/constants.dart';
 import 'scene/loading_screen.dart';
-import 'scene/mini_game/matching/matching.dart';
 import 'data/common.dart';
 import 'data/game.dart';
 import 'extensions.dart';
+import 'scene/mini_game/matching/matching.dart';
+import 'scene/mini_game/matching2/matching2.dart';
 import 'scene/mini_game/difference/difference.dart';
+import 'scene/mini_game/mouse_maze/mouse_maze.dart';
+import 'scene/mini_game/memory_card/memory_card.dart';
+import 'scene/mini_game/nanogram/nanogram.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -196,7 +200,6 @@ class _GameAppState extends State<GameApp> {
       }
 
       return MatchingGame(
-        id: Scenes.matchingGame,
         kind: kind,
         development: arguments['development'] ?? 0,
         isProduction: isProduction,
@@ -205,8 +208,32 @@ class _GameAppState extends State<GameApp> {
       );
     });
 
-    engine.registerSceneConstructor('difference_game', ([dynamic args]) async {
-      return DifferenceGame(id: 'difference_game', gameId: args['gameId']);
+    engine.registerSceneConstructor(Scenes.matchingGame2, (
+        [dynamic args]) async {
+      return MatchingGame2(tileCount: args['tileCount']);
+    });
+
+    engine.registerSceneConstructor(Scenes.differenceGame, (
+        [dynamic args]) async {
+      return DifferenceGame(gameId: args['gameId']);
+    });
+
+    engine.registerSceneConstructor(Scenes.mouseMazeGame, (
+        [dynamic args]) async {
+      return MouseMazeGame(
+        portalPairCount: args['portalPairCount'],
+        switchDoorCount: args['switchDoorCount'],
+      );
+    });
+
+    engine.registerSceneConstructor(Scenes.memoryCardGame, (
+        [dynamic args]) async {
+      return MemoryCardGame();
+    });
+
+    engine.registerSceneConstructor(Scenes.nanogramGame, (
+        [dynamic args]) async {
+      return NanogramGame();
     });
 
     engine.hetu.interpreter.bindExternalFunctionType(

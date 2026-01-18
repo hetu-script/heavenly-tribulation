@@ -44,7 +44,7 @@ class QuestDetail extends StatelessWidget {
                       children: buildFlutterRichText(
                           GameData.getQuestDetailDescription(quest)),
                       style: TextStyle(
-                        fontFamily: GameUI.fontFamily,
+                        fontFamily: GameUI.fontFamilyKaiti,
                         fontSize: 16.0,
                       ),
                     ),
@@ -161,7 +161,7 @@ class _QuestViewState extends State<QuestView> {
                                       GameData.getQuestBriefDescription(
                                           bounty)),
                                   style: TextStyle(
-                                    fontFamily: GameUI.fontFamily,
+                                    fontFamily: GameUI.fontFamilyKaiti,
                                     fontSize: 16.0,
                                   ),
                                 ),

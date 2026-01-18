@@ -43,6 +43,8 @@ import 'common.dart';
 
 String? markdownWikiPath;
 
+const kUIOverlayHeight = 120.0;
+
 const tickName = {
   1: 'morning.jpg',
   2: 'afternoon.jpg',
@@ -306,7 +308,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Avatar(
-                    size: const Size(120, 120),
+                    size: const Size.square(kUIOverlayHeight),
                     imageId: hero['icon'],
                     color: GameUI.foregroundColor,
                     radius: Radius.zero,

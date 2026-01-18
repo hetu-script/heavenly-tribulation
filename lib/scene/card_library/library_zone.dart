@@ -336,7 +336,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     final pos = Vector2(posX, posY);
     _cardPositions.add(pos);
 
-    return pos.clone();
+    return pos;
   }
 
   CustomGameCard addCardByData(dynamic data) {
@@ -368,7 +368,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
             dialog.pushDialog(result);
             dialog.execute();
           } else {
-            engine.play(GameSound.cardDealt);
+            engine.play(GameSound.dealCard);
             card.isEnabled = false;
           }
         }

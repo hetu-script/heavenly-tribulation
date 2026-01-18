@@ -23,7 +23,6 @@ import '../common.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../state/states.dart';
-import '../../widgets/ui_overlay.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/information.dart';
 import 'widgets/entity_list.dart';
@@ -574,7 +573,7 @@ class WorldMapScene extends Scene with HasCursorState {
         camera.moveBy(-camera.localToGlobal(delta) / camera.zoom);
       }
     };
-    map.onDragEnd = (int button, Vector2 offset) {
+    map.onDragEnd = (Vector2 offset) {
       if (map.isStandby) {
         cursorState = MouseCursorState.sandglass;
       } else {
@@ -1030,7 +1029,7 @@ class WorldMapScene extends Scene with HasCursorState {
       caption,
       TextStyle(
         fontSize: 7,
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
         color: color ?? Colors.white,
       ),
     );
@@ -1365,7 +1364,7 @@ class WorldMapScene extends Scene with HasCursorState {
     );
 
     if (route == null || route.length < 2) {
-      debugPrint('到目标 $_followingTargetId 的路径计算失败或路径过短: ${route?.length}');
+      engine.error('到目标 $_followingTargetId 的路径计算失败或路径过短: ${route?.length}');
       _stopFollowing();
       return;
     }
@@ -1815,7 +1814,7 @@ class WorldMapScene extends Scene with HasCursorState {
       textStyle: TextStyle(
         color: color ?? Colors.white,
         fontSize: 8,
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
       ),
       onViewport: false,
     );

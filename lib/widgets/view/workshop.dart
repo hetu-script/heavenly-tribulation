@@ -105,7 +105,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
       },
       onSelectedItem: (item) async {
         if (item == 'unselect') {
-          engine.play('put_item-83043.mp3');
+          engine.play(GameSound.put);
           setSelectedModifyItem(null);
           setState(() {});
         }
@@ -138,7 +138,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
               setSelectedModifyItem(itemData);
               engine.play('sword-sheathed-178549.mp3');
             } else if (item == 'unselect') {
-              engine.play('put_item-83043.mp3');
+              engine.play(GameSound.put);
               setSelectedModifyItem(null);
             }
             setState(() {});

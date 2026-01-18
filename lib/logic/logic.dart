@@ -1413,7 +1413,7 @@ final class GameLogic {
         if (items.isNotEmpty) {
           final selectedItem = items.first;
           selectedItem['isIdentified'] = true;
-          engine.play('hammer-hitting-an-anvil-25390.mp3');
+          engine.play(GameSound.anvil);
           engine.hetu
               .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
         }
@@ -1427,7 +1427,7 @@ final class GameLogic {
           namespace: 'Player',
           positionalArgs: [itemData['kind'], itemData['stackSize']],
         );
-        engine.play('pickup_item-64282.mp3');
+        engine.play(GameSound.pickup);
       // case kItemCategoryExppack:
       //   engine.hetu.invoke('gainExp',
       //       namespace: 'Player', positionalArgs: [itemData['stackSize']]);
@@ -1435,14 +1435,14 @@ final class GameLogic {
       //       .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
       //   engine.play('magic-smite-6012.mp3');
       case kItemCategoryPotion:
-        engine.play('drink-sip-and-swallow-6974.mp3');
+        engine.play(GameSound.drink);
         engine.hetu.invoke(
           'consumePotion',
           namespace: 'Player',
           positionalArgs: [itemData],
         );
       case 'craftmaterial_rerollAffix':
-        engine.play('drink-sip-and-swallow-6974.mp3');
+        engine.play(GameSound.drink);
         engine.hetu.invoke(
           'generateAttributes',
           positionalArgs: [GameData.hero],
@@ -1457,7 +1457,7 @@ final class GameLogic {
         engine.hetu
             .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
       case 'craftmaterial_upgrade':
-        engine.play('drink-sip-and-swallow-6974.mp3');
+        engine.play(GameSound.drink);
         engine.hetu.invoke(
           'characterSetUpgradeRankPotionPassive',
           positionalArgs: [GameData.hero, itemData['rank']],
@@ -1519,7 +1519,7 @@ final class GameLogic {
     );
 
     engine.info('物品 ${itemData['name']} 增加了 $charge 充能次数');
-    engine.play('electric-sparks-68814.mp3');
+    engine.play(GameSound.charge);
   }
 
   static void heroRest(dynamic location) => _heroRest(location);

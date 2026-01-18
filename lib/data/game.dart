@@ -30,29 +30,29 @@ const _kSkinAnimationHeight = 112.0;
 const _kSkinAnimationStepTime1 = 0.1;
 const _kSkinAnimationStepTime2 = 0.7;
 
-const _kActionIds = [
+const _kActionIds = {
   'defeat',
   'dodge',
   'hit',
   'melee_startup',
   'melee_recovery',
-  'attack_bow',
-  'attack_kick',
-  'attack_punch',
-  'attack_sabre',
-  'attack_spear',
-  'attack_sword',
-  'attack_staff',
-  'attack_spell',
-  'attack_spell_recovery',
-  'buff_kick',
-  'buff_punch',
-  'buff_sabre',
-  'buff_spear',
-  'buff_sword',
-  'buff_staff',
-  'buff_spell',
-];
+  'bow_attack',
+  'kick_attack',
+  'punch_attack',
+  'sabre_attack',
+  'spear_attack',
+  'sword_attack',
+  'staff_attack',
+  'spell_attack',
+  'spell_attack_recovery',
+  'kick_buff',
+  'punch_buff',
+  'sabre_buff',
+  'spear_buff',
+  'sword_buff',
+  'staff_buff',
+  'spell_buff',
+};
 
 final class MonthlyActivityIds {
   static const gifted = 'gifted';
@@ -76,16 +76,34 @@ final class GameMusic {
 }
 
 final class GameSound {
+  static const victory = 'transition/chinese-ident-transition-1-283708.mp3';
+  static const gameOver = 'transition/chinese-ident-transition-2-283707.mp3';
+
+  static const click = 'click-21156.mp3';
+  static const success = 'new-notification-026-380249.mp3';
+  static const error = 'notification-error-427345.mp3';
+
   static const buff = 'buffer-spell-88994.mp3';
   static const debuff = 'bone-break-8-218516.mp3';
   static const block = 'shield-block-shortsword-143940.mp3';
+  static const slash = 'hit-flesh-02-266309.mp3';
   static const enhance = 'dagger_drawn2-89025.mp3';
   static const fire = 'lighting-a-fire-14421.mp3';
 
   static const craft = 'hammer-hitting-an-anvil-25390.mp3';
-  static const cardDealt = 'playing-cards-being-delt-29099.mp3';
-  static const cardDealt2 = 'card-sounds-35956.mp3';
-  static const cardFlipping = 'card-flipping-75622.mp3';
+  static const dealCard = 'playing-cards-being-delt-29099.mp3';
+  static const dealDeck = 'card-flipping-75622.mp3';
+
+  static const coins = 'coins-31879.mp3';
+  static const anvil = 'hammer-hitting-an-anvil-25390.mp3';
+  static const pickup = 'pickup_item-64282.mp3';
+  static const drink = 'drink-sip-and-swallow-6974.mp3';
+  static const charge = 'electric-sparks-68814.mp3';
+  static const paperrip = 'paper-rip-twice-252619.mp3';
+  static const writing = 'writing-263642.mp3';
+  static const put = 'put_item-83043.mp3';
+  static const broken = 'break06-36414.mp3';
+  static const flip = 'flipcard-91468.mp3';
 }
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
@@ -1321,7 +1339,7 @@ final class GameData with ChangeNotifier {
         outlined: true,
         textStyle: TextStyle(
           color: getColorFromRank(cardRank),
-          fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 14.0,
         ),
       ),
@@ -1330,8 +1348,7 @@ final class GameData with ChangeNotifier {
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.center,
         textStyle: TextStyle(
-          fontFamily: 'NotoSansMono',
-          // fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyBlack,
           fontSize: 8.0,
           color: Colors.black,
         ),
@@ -1387,7 +1404,8 @@ final class GameData with ChangeNotifier {
           final rankString =
               engine.locale('cultivationRank_$rank') + engine.locale('rank2');
           final genreString = genre != null ? engine.locale(genre) : '';
-          final kindString = kind != null ? engine.locale('kind_$kind') : '';
+          final kindString =
+              kind != null ? engine.locale('battlecard_$kind') : '';
           final name =
               rankString + genreString + kindString + engine.locale('cardpack');
           desc.write('$amount $name');

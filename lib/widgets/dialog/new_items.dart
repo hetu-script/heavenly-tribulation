@@ -9,6 +9,7 @@ import '../../global.dart';
 import '../../state/new_prompt.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/responsive_view.dart';
+import '../../data/game.dart';
 
 const _kItemCountMax = 18;
 
@@ -77,7 +78,7 @@ class NewItems extends StatelessWidget {
                 onPressed: () {
                   completer?.complete();
                   context.read<ItemsPromptState>().update();
-                  engine.play('pickup_item-64282.mp3');
+                  engine.play(GameSound.pickup);
                 },
                 child: Text(
                   engine.locale('confirm'),

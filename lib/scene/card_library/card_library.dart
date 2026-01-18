@@ -23,7 +23,6 @@ import '../../global.dart';
 import 'common.dart';
 import '../../state/states.dart';
 import '../../data/game.dart';
-import '../../widgets/ui_overlay.dart';
 import '../common.dart';
 import '../../data/common.dart';
 import '../particles/light_point.dart';
@@ -549,14 +548,14 @@ class CardLibraryScene extends Scene {
         return;
       }
     } else {
-      engine.play('hammer-hitting-an-anvil-25390.mp3');
+      engine.play(GameSound.anvil);
 
       addHintText(
         engine.locale('deckbuilding_${id}_hint'),
         position: card.center,
         offsetY: 30.0,
         textStyle: TextStyle(
-          fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyKaiti,
         ),
         horizontalVariation: 0.0,
         verticalVariation: 0.0,
@@ -575,7 +574,7 @@ class CardLibraryScene extends Scene {
         pile.removeCardById(card.id);
       }
 
-      engine.play('paper-rip-twice-252619.mp3');
+      engine.play(GameSound.paperrip);
 
       onEndCraft();
     }
@@ -776,7 +775,7 @@ class CardLibraryScene extends Scene {
       button.isEnabled = false;
     }
 
-    engine.play('writing-263642.mp3');
+    engine.play(GameSound.writing);
   }
 
   void updateCardData(CustomGameCard card) {
@@ -813,7 +812,6 @@ class CardLibraryScene extends Scene {
     dynamic createCard({
       required bool isMainCard,
       required filter,
-      bool isIdentified = false,
     }) {
       final bool basic = filter['isBasic'] ?? false;
       final category = isMainCard ? filter['category'] : null;
@@ -833,7 +831,6 @@ class CardLibraryScene extends Scene {
           'category': category,
           'rank': rank,
           'maxRank': maxRank,
-          'isIdentified': isIdentified,
         },
       );
       return cardData;
@@ -847,29 +844,26 @@ class CardLibraryScene extends Scene {
 
       collectButton.text = engine.locale('deckbuilding_identify_all');
 
-      engine.play(GameSound.cardDealt2);
+      engine.play(GameSound.dealCard);
       for (var i = 0; i < 3; ++i) {
         bool isMainCard = i == 1;
         final cardData = createCard(
           isMainCard: isMainCard,
           filter: cardpackData['filter'],
-          isIdentified: false,
         );
 
         final card = GameData.createBattleCard(cardData);
         _cardpackCards.add(card);
 
-        card.showGlow = true;
         card.preferredPriority = kBarrierUIPriority;
         card.resetPriority();
         card.size = Vector2.zero();
         card.position = skillBook.center;
-
         card.onTapUp = (int button, Vector2 position) {
-          if (card.data['isIdentified'] != true) {
+          if (card.isFlipped) {
             unpreviewCard();
             engine.play(GameSound.craft);
-            card.data['isIdentified'] = true;
+            card.isFlipped = false;
             final (description, _) =
                 GameData.getBattleCardDescription(card.data);
             card.description = description;
@@ -880,21 +874,28 @@ class CardLibraryScene extends Scene {
               character: GameData.hero,
             );
           }
-          final unidentifiedCards = _cardpackCards.where((card) {
-            return card.data['isIdentified'] != true;
-          });
+          final unidentifiedCards =
+              _cardpackCards.where((card) => card.isFlipped == true);
           if (unidentifiedCards.isEmpty) {
             collectButton.text = engine.locale('deckbuilding_collect_all');
           }
         };
 
-        card.onPreviewed = () => previewCard(
-              'cardpack_card_${card.id}',
-              card.data,
-              card.toAbsoluteRect(),
-              character: GameData.hero,
-            );
-        card.onUnpreviewed = () => unpreviewCard();
+        card.onPreviewed = () {
+          card.showGlow = true;
+          if (card.isFlipped) return;
+          previewCard(
+            'cardpack_card_${card.id}',
+            card.data,
+            card.toAbsoluteRect(),
+            character: GameData.hero,
+          );
+        };
+        card.onUnpreviewed = () {
+          card.showGlow = false;
+          if (card.isFlipped) return;
+          unpreviewCard();
+        };
 
         camera.viewport.add(card);
 
@@ -907,7 +908,7 @@ class CardLibraryScene extends Scene {
         )
             .then((_) {
           if (index == 0) {
-            engine.play(GameSound.cardFlipping);
+            engine.play(GameSound.dealDeck);
             collectButton.isVisible = true;
           } else {
             card.moveTo(
@@ -931,7 +932,7 @@ class CardLibraryScene extends Scene {
       //   return cardpacksData.containsKey(itemData['id']);
       // }).toList();
 
-      engine.play(GameSound.cardDealt2);
+      engine.play(GameSound.dealCard);
       for (final cardpackData in cardpacksData) {
         engine.hetu.invoke(
           'lose',
@@ -944,7 +945,6 @@ class CardLibraryScene extends Scene {
           final cardData = createCard(
             isMainCard: isMainCard,
             filter: cardpackData['filter'],
-            isIdentified: true,
           );
 
           engine.hetu.invoke('acquireCard',
@@ -1067,7 +1067,7 @@ class CardLibraryScene extends Scene {
       size: GameUI.buttonSizeMedium,
       config: ScreenTextConfig(
         outlined: true,
-        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+        textStyle: TextStyle(fontFamily: GameUI.fontFamilyKaiti),
         anchor: Anchor.bottomCenter,
       ),
       priority: kDeckPilesZonePriority,
@@ -1081,7 +1081,7 @@ class CardLibraryScene extends Scene {
       size: Vector2(140, 240),
       config: ScreenTextConfig(
         outlined: true,
-        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+        textStyle: TextStyle(fontFamily: GameUI.fontFamilyKaiti),
         anchor: Anchor.bottomCenter,
       ),
       priority: kDeckPilesZonePriority,
@@ -1351,7 +1351,7 @@ class CardLibraryScene extends Scene {
         outlined: true,
         textStyle: TextStyle(
           color: Colors.yellow,
-          fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 20,
         ),
         anchor: Anchor.bottomCenter,
@@ -1383,7 +1383,7 @@ class CardLibraryScene extends Scene {
         }
         collectButton.text = engine.locale('deckbuilding_collect_all');
       } else {
-        engine.play(GameSound.cardDealt2);
+        engine.play(GameSound.dealCard);
 
         barrier.isVisible = false;
         collectButton.isVisible = false;

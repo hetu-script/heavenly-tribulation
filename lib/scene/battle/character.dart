@@ -549,7 +549,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       text,
       position: center,
       textStyle: TextStyle(
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
         color: color,
       ),
     );
@@ -701,11 +701,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         color: getDamageColor(damageDetails['damageType']));
 
     if (damageDetails['blocked'] ?? false) {
-      engine.play('shield-block-shortsword-143940.mp3',
-          volume: engine.config.soundEffectVolume);
+      engine.play(GameSound.block, volume: engine.config.soundEffectVolume);
     } else {
-      engine.play('hit-flesh-02-266309.mp3',
-          volume: engine.config.soundEffectVolume);
+      engine.play(GameSound.slash, volume: engine.config.soundEffectVolume);
     }
 
     if (finalDamage > 0) {

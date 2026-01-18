@@ -300,67 +300,67 @@
       from: 90,
       to: 94,
     },
-    attack_punch: {
+    punch_attack: {
       from: 94,
       to: 103,
     },
-    attack_kick: {
+    kick_attack: {
       from: 103,
       to: 110,
     },
-    attack_sabre: {
+    sabre_attack: {
       from: 110,
       to: 121,
     },
-    attack_spear: {
+    spear_attack: {
       from: 121,
       to: 132,
     },
-    attack_sword: {
+    sword_attack: {
       from: 132,
       to: 143,
     },
-    attack_staff: {
+    staff_attack: {
       from: 143,
       to: 151,
     },
-    attack_bow: {
+    bow_attack: {
       from: 151,
       to: 163,
     },
-    attack_spell: {
+    spell_attack: {
       from: 163,
       to: 170,
     },
-    attack_spell_recovery: {
+    spell_attack_recovery: {
       from: 170,
       to: 173,
     },
-    buff_punch: {
+    punch_buff: {
       from: 173,
       to: 182,
     },
-    buff_kick: {
+    kick_buff: {
       from: 182,
       to: 192,
     },
-    buff_sabre: {
+    sabre_buff: {
       from: 192,
       to: 207,
     },
-    buff_spear: {
+    spear_buff: {
       from: 207,
       to: 222,
     },
-    buff_sword: {
+    sword_buff: {
       from: 222,
       to: 242,
     },
-    buff_staff: {
+    staff_buff: {
       from: 242,
       to: 257,
     },
-    buff_spell: {
+    spell_buff: {
       from: 257,
       to: 264,
     },

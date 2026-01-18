@@ -24,7 +24,6 @@ import '../common.dart';
 import '../../data/game.dart';
 import 'common.dart';
 import '../../state/states.dart';
-import '../../widgets/ui_overlay.dart';
 
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;

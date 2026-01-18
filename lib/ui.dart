@@ -13,6 +13,7 @@ import 'data/game.dart';
 import 'widgets/character/profile.dart';
 
 export 'package:samsara/colors.dart';
+export 'widgets/ui_overlay.dart';
 
 const double _kTextShadowOffset = 0.5;
 
@@ -45,35 +46,35 @@ const List<Shadow> kTextShadow = [
 
 final class TextStyles {
   static const displayLarge =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 36.0);
   static const displayMedium =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 34.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 34.0);
   static const displaySmall =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 32.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 32.0);
   static const headlineLarge =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 30.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 30.0);
   static const headlineMedium =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 28.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 28.0);
   static const headlineSmall =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 26.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 26.0);
   static const titleLarge =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 24.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 24.0);
   static const titleMedium =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 22.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 22.0);
   static const titleSmall =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 20.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 20.0);
   static const bodyLarge =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 18.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 18.0);
   static const bodyMedium =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 16.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 16.0);
   static const bodySmall =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 14.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 14.0);
   static const labelLarge =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 12.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 12.0);
   static const labelMedium =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 10.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 10.0);
   static const labelSmall =
-      TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0);
+      TextStyle(fontFamily: GameUI.fontFamilyKaiti, fontSize: 8.0);
 }
 
 final class FluentButtonStyles {
@@ -234,8 +235,14 @@ final class GameUI {
   static const avatarSize = 120.0;
   static const infoButtonSize = Size(30.0, 30.0);
 
-  static const String fontFamily = 'LXGWMONO';
-  static const String fontFamily2 = 'RuiZiYunZiKuLiBianTiGBK';
+  /// 楷体
+  static const String fontFamilyKaiti = 'LXGWMONO';
+
+  /// 隶书
+  static const String fontFamilyLishu = 'RuiZiYunZiKuLiBianTiGBK';
+
+  /// 黑体
+  static const String fontFamilyBlack = 'NotoSansMono';
 
   // static const foregroundColor = GameColors.darkSlateGrey;
   // static const foregroundColorPressed = Colors.black;
@@ -307,7 +314,7 @@ final class GameUI {
   static final darkMaterialTheme = ThemeData(
     brightness: Brightness.dark,
     textTheme: textTheme,
-    fontFamily: GameUI.fontFamily,
+    fontFamily: GameUI.fontFamilyKaiti,
     scaffoldBackgroundColor: Colors.transparent,
     iconTheme: iconTheme,
     splashFactory: NoSplash.splashFactory,
@@ -337,7 +344,7 @@ final class GameUI {
       dataRowCursor: cursor,
       headingTextStyle: TextStyles.bodySmall,
       dataTextStyle: TextStyle(
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
         fontSize: 14.0,
         color: GameUI.foregroundColor,
       ),
@@ -353,7 +360,7 @@ final class GameUI {
     acrylicBackgroundColor: backgroundColor,
     accentColor: fluent.Colors.blue,
     brightness: Brightness.dark,
-    fontFamily: GameUI.fontFamily,
+    fontFamily: GameUI.fontFamilyKaiti,
     tooltipTheme: fluent.TooltipThemeData(
       textStyle: TextStyles.labelSmall,
     ),
@@ -448,7 +455,7 @@ final class GameUI {
   static const pileZoneIndent = 30.0;
   static const pileZoneMargin = 60.0;
 
-  // deckbuilding ui
+  // 卡牌库 ui
   static late Vector2 libraryCardSize;
   static late Vector2 deckbuildingCardSize;
 
@@ -538,12 +545,15 @@ final class GameUI {
   static final skillButtonSizeMedium = Vector2(60, 60);
   static final skillButtonSizeLarge = Vector2(80, 80);
 
+  static late Vector2 restartButtonPosition, exitButtonPosition;
+
   // 消除游戏 ui
+  static final matchingBoardOffset = Vector2(108.0, 216.0);
+  static final matchingSlotOffset = Vector2(1188.0, 135.0);
+
   static const matchingBoardGridWidth = 11;
   static const matchingBoardGridHeight = 7;
-
-  static final matchingBoardOffset = Vector2(113.0, 135.0);
-  static final matchingTileSrcSize = Vector2(81.0, 81.0);
+  static final matchingTileSize = Vector2(81.0, 81.0);
 
   static final collectPanelPosition = Vector2(1000.0, 35.0);
   static final collectPanalSize = Vector2(420.0, 210.0);
@@ -565,7 +575,6 @@ final class GameUI {
   ];
 
   // 找不同游戏UI
-
   static final differenceGamePictureSize = Vector2(500.0, 500.0);
   static const differenceGameTopBarHeight = 180.0;
   static const differenceGameLeftBarWidth = 220.0;
@@ -753,6 +762,13 @@ final class GameUI {
         center.x + buttonSizeMedium.x / 2 + indent, expBarPosition.y + 50);
     collectButtonPosition = Vector2(
         center.x - buttonSizeMedium.x / 2 - indent, levelUpButtonPosition.y);
+
+    exitButtonPosition = Vector2(
+        size.x - GameUI.buttonSizeMedium.x / 2 - GameUI.indent,
+        size.y - GameUI.buttonSizeMedium.y / 2 - GameUI.indent);
+    restartButtonPosition = Vector2(
+        exitButtonPosition.x - GameUI.buttonSizeMedium.x - GameUI.indent,
+        exitButtonPosition.y);
 
     spotIndicatorsPosition = Vector2(
         size.x / 2 - (spotCount / 2) * spotIndicatorSize,

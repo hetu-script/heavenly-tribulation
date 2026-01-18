@@ -18,9 +18,9 @@
   },
 
   // ------------通用·攻击------------
-  attack_punch: {
+  punch_attack: {
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    id: "attack_punch",
+    id: "punch_attack",
     // 和 support_affix 不同，category [不是] 数组
     // attack 攻击类的卡牌没有uniqueId
     // 效果类型，分为攻击（attack），加持（buff）两种
@@ -44,14 +44,14 @@
     // rank: 0,
     description: "affix_attack_unarmed",
     // 卡牌插画
-    image: "battlecard/illustration/attack_punch.png",
+    image: "battlecard/illustration/punch_attack.png",
     animation: {
       // 前摇动画
       startup: ["before_melee_startup", "melee_startup"],
       // 后摇动画（可选）
       recovery: ["melee_recovery", "after_melee_recovery"],
       // 过渡动画组（可选）
-      actions: "attack_punch",
+      actions: "punch_attack",
       // 叠加动画（爆炸效果等，可选）
       // overlays: [],
       // 动画播放时的声音效果
@@ -76,18 +76,18 @@
       },
     ],
   },
-  attack_kick: {
-    id: "attack_kick",
+  kick_attack: {
+    id: "kick_attack",
     category: "attack",
     kind: "kick",
     attackType: "unarmed",
     damageType: "physical",
     description: "affix_attack_unarmed",
-    image: "battlecard/illustration/attack_kick.png",
+    image: "battlecard/illustration/kick_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_kick",
+      actions: "kick_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
@@ -98,18 +98,18 @@
       },
     ],
   },
-  attack_sword: {
-    id: "attack_sword",
+  sword_attack: {
+    id: "sword_attack",
     category: "attack",
     kind: "sword",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
-    image: "battlecard/illustration/attack_sword.png",
+    image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_sword",
+      actions: "sword_attack",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
@@ -121,18 +121,18 @@
       },
     ],
   },
-  attack_sabre: {
-    id: "attack_sabre",
+  sabre_attack: {
+    id: "sabre_attack",
     category: "attack",
     kind: "sabre",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
-    image: "battlecard/illustration/attack_sabre.png",
+    image: "battlecard/illustration/sabre_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_sabre",
+      actions: "sabre_attack",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
@@ -144,18 +144,18 @@
       },
     ],
   },
-  attack_spear: {
-    id: "attack_spear",
+  spear_attack: {
+    id: "spear_attack",
     category: "attack",
     kind: "spear",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
-    image: "battlecard/illustration/attack_spear.png",
+    image: "battlecard/illustration/spear_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_spear",
+      actions: "spear_attack",
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack",
@@ -167,18 +167,18 @@
       },
     ],
   },
-  attack_staff: {
-    id: "attack_staff",
+  staff_attack: {
+    id: "staff_attack",
     category: "attack",
     kind: "staff",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
-    image: "battlecard/illustration/attack_staff.png",
+    image: "battlecard/illustration/staff_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_staff",
+      actions: "staff_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
@@ -190,16 +190,16 @@
       },
     ],
   },
-  attack_bow: {
-    id: "attack_bow",
+  bow_attack: {
+    id: "bow_attack",
     category: "attack",
     kind: "bow",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
-    image: "battlecard/illustration/attack_bow.png",
+    image: "battlecard/illustration/bow_attack.png",
     animation: {
-      startup: "attack_bow",
+      startup: "bow_attack",
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack",
@@ -211,17 +211,17 @@
       },
     ],
   },
-  attack_dart: {
-    id: "attack_dart",
+  dart_attack: {
+    id: "dart_attack",
     category: "attack",
     kind: "dart",
     attackType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon_multiple",
-    image: "battlecard/illustration/attack_dart.png",
+    image: "battlecard/illustration/dart_attack.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple",
@@ -239,16 +239,16 @@
     ],
   },
   // ------------通用·加持------------
-  defend_punch: {
-    id: "defend_punch",
+  punch_defend: {
+    id: "punch_defend",
     category: "buff",
     kind: "punch",
     damageType: "physical",
     description: "affix_defend_physical",
     tags: ["status_defense"],
-    image: "battlecard/illustration/defend_punch.png",
+    image: "battlecard/illustration/punch_defend.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -259,15 +259,15 @@
       },
     ],
   },
-  defend_kick: {
-    id: "defend_kick",
+  kick_defend: {
+    id: "kick_defend",
     category: "buff",
     kind: "kick",
     damageType: "physical",
     description: "affix_defend_physical",
-    image: "battlecard/illustration/defend_kick.png",
+    image: "battlecard/illustration/kick_defend.png",
     animation: {
-      startup: "buff_kick",
+      startup: "kick_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -279,8 +279,8 @@
       },
     ],
   },
-  defend_sabre: {
-    id: "defend_sabre",
+  sabre_defend: {
+    id: "sabre_defend",
     genre: null,
     category: "buff",
     kind: "sabre",
@@ -288,9 +288,9 @@
     rank: 0,
     description: "affix_defend_physical",
     tags: ["status_defense"],
-    image: "battlecard/illustration/defend_sabre.png",
+    image: "battlecard/illustration/sabre_defend.png",
     animation: {
-      startup: "buff_sabre",
+      startup: "sabre_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -302,16 +302,16 @@
       },
     ],
   },
-  defend_sword: {
-    id: "defend_sword",
+  sword_defend: {
+    id: "sword_defend",
     category: "buff",
     kind: "sword",
     damageType: "physical",
     description: "affix_defend_physical",
     tags: ["status_defense"],
-    image: "battlecard/illustration/defend_sword.png",
+    image: "battlecard/illustration/sword_defend.png",
     animation: {
-      startup: "buff_sword",
+      startup: "sword_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -323,16 +323,16 @@
       },
     ],
   },
-  defend_spear: {
-    id: "defend_spear",
+  spear_defend: {
+    id: "spear_defend",
     category: "buff",
     kind: "spear",
     damageType: "physical",
     description: "affix_defend_physical",
     tags: ["status_defense"],
-    image: "battlecard/illustration/defend_spear.png",
+    image: "battlecard/illustration/spear_defend.png",
     animation: {
-      startup: "buff_spear",
+      startup: "spear_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -344,16 +344,16 @@
       },
     ],
   },
-  defend_staff: {
-    id: "defend_staff",
+  staff_defend: {
+    id: "staff_defend",
     category: "buff",
     kind: "staff",
     damageType: "physical",
     description: "affix_defend_physical",
     tags: ["status_defense"],
-    image: "battlecard/illustration/defend_staff.png",
+    image: "battlecard/illustration/staff_defend.png",
     animation: {
-      startup: "buff_staff",
+      startup: "staff_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
@@ -373,7 +373,7 @@
     description: "affix_heal",
     image: "battlecard/illustration/xinfa2.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       overlays: "restore_life",
       sound: "spell-of-healing-876.mp3",
     },
@@ -395,7 +395,7 @@
     tags: ["status_energy_positive_life"],
     image: "battlecard/illustration/xinfa3.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       sound: "spell-of-healing-876.mp3",
     },
     script: "vigor",
@@ -414,7 +414,7 @@
     description: "affix_speed_quick_defend_physical",
     image: "battlecard/illustration/quick.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
@@ -438,7 +438,7 @@
     description: "affix_dodge_nimble_defend_physical",
     image: "battlecard/illustration/nimble.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
@@ -456,8 +456,8 @@
   },
 
   // ------------锻体·攻击------------
-  attack_punch_exhaust_rage: {
-    id: "attack_punch_exhaust_rage",
+  punch_attack_exhaust_rage: {
+    id: "punch_attack_exhaust_rage",
     category: "attack",
     genre: "bodyforge",
     kind: "punch",
@@ -466,11 +466,11 @@
     damageType: "physical",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_unarmed_multiple_exhaust_rage",
-    image: "battlecard/illustration/attack_punch.png",
+    image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -491,8 +491,8 @@
       },
     ],
   },
-  attack_kick_exhaust_rage: {
-    id: "attack_kick_exhaust_rage",
+  kick_attack_exhaust_rage: {
+    id: "kick_attack_exhaust_rage",
     category: "attack",
     genre: "bodyforge",
     kind: "kick",
@@ -501,11 +501,11 @@
     damageType: "physical",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_unarmed_multiple_exhaust_rage",
-    image: "battlecard/illustration/attack_kick.png",
+    image: "battlecard/illustration/kick_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_kick",
+      actions: "kick_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -526,8 +526,8 @@
       },
     ],
   },
-  attack_sabre_exhaust_rage: {
-    id: "attack_sabre_exhaust_rage",
+  sabre_attack_exhaust_rage: {
+    id: "sabre_attack_exhaust_rage",
     category: "attack",
     genre: "bodyforge",
     kind: "sabre",
@@ -536,11 +536,11 @@
     damageType: "chi",
     resourceType: "energy_positive_weapon",
     description: "affix_attack_weapon_multiple_exhaust_rage",
-    image: "battlecard/illustration/attack_sabre.png",
+    image: "battlecard/illustration/sabre_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_sabre",
+      actions: "sabre_attack",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -577,7 +577,7 @@
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_slow_exhaust",
@@ -597,8 +597,8 @@
     ],
   },
   // ------------锻体·加持------------
-  defend_punch_exhaust_rage: {
-    id: "defend_punch_exhaust_rage",
+  punch_defend_exhaust_rage: {
+    id: "punch_defend_exhaust_rage",
     category: "buff",
     genre: "bodyforge",
     kind: "punch",
@@ -606,9 +606,9 @@
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_defend_physical_exhaust_rage",
-    image: "battlecard/illustration/defend_punch.png",
+    image: "battlecard/illustration/punch_defend.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -624,8 +624,8 @@
       },
     ],
   },
-  defend_kick_exhaust_rage: {
-    id: "defend_kick_exhaust_rage",
+  kick_defend_exhaust_rage: {
+    id: "kick_defend_exhaust_rage",
     category: "buff",
     genre: "bodyforge",
     kind: "kick",
@@ -633,9 +633,9 @@
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_defend_physical_exhaust_rage",
-    image: "battlecard/illustration/defend_kick.png",
+    image: "battlecard/illustration/kick_defend.png",
     animation: {
-      startup: "buff_kick",
+      startup: "kick_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -651,8 +651,8 @@
       },
     ],
   },
-  defend_sabre_exhaust_rage: {
-    id: "defend_sabre_exhaust_rage",
+  sabre_defend_exhaust_rage: {
+    id: "sabre_defend_exhaust_rage",
     category: "buff",
     genre: "bodyforge",
     kind: "sabre",
@@ -660,9 +660,9 @@
     resourceType: "energy_positive_weapon",
     rank: 1,
     description: "affix_defend_chi_exhaust_rage",
-    image: "battlecard/illustration/defend_sabre.png",
+    image: "battlecard/illustration/sabre_defend.png",
     animation: {
-      startup: "buff_sabre",
+      startup: "sabre_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -690,7 +690,7 @@
     description: "affix_speed_quick_exhaust_rage_defend_chi",
     image: "battlecard/illustration/quick.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust_defend",
@@ -721,7 +721,7 @@
     description: "affix_dodge_nimble_exhaust_rage_defend_chi",
     image: "battlecard/illustration/nimble.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust_defend",
@@ -743,8 +743,8 @@
   },
 
   // ------------御剑·攻击------------
-  attack_punch_exhaust_chakra: {
-    id: "attack_punch_exhaust_chakra",
+  punch_attack_exhaust_chakra: {
+    id: "punch_attack_exhaust_chakra",
     category: "attack",
     genre: "swordcraft",
     kind: "punch",
@@ -753,11 +753,11 @@
     damageType: "physical",
     resourceType: "energy_positive_spell",
     description: "affix_attack_unarmed_exhaust_mana",
-    image: "battlecard/illustration/attack_punch.png",
+    image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -793,7 +793,7 @@
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_clumsy_exhaust",
@@ -812,8 +812,8 @@
       },
     ],
   },
-  attack_sword_exhaust_chakra: {
-    id: "attack_sword_exhaust_chakra",
+  sword_attack_exhaust_chakra: {
+    id: "sword_attack_exhaust_chakra",
     category: "attack",
     genre: "swordcraft",
     kind: "sword",
@@ -822,11 +822,11 @@
     damageType: "physical",
     resourceType: "energy_positive_weapon",
     description: "affix_attack_weapon_multiple_exhaust_chakra",
-    image: "battlecard/illustration/attack_sword.png",
+    image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_sword",
+      actions: "sword_attack",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -848,8 +848,8 @@
       },
     ],
   },
-  attack_sword_exhaust_mana: {
-    id: "attack_sword_exhaust_mana",
+  sword_attack_exhaust_mana: {
+    id: "sword_attack_exhaust_mana",
     category: "attack",
     genre: "swordcraft",
     kind: "sword",
@@ -858,11 +858,11 @@
     damageType: "elemental",
     resourceType: "energy_positive_spell",
     description: "affix_attack_weapon_exhaust_mana",
-    image: "battlecard/illustration/attack_sword.png",
+    image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_sword",
+      actions: "sword_attack",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_exhaust",
@@ -888,11 +888,11 @@
     attackType: "spell",
     damageType: "physical",
     rank: 1,
-    description: "affix_attack_spell_exhaust_chakra_multiple",
+    description: "affix_spell_attack_exhaust_chakra_multiple",
     image: "battlecard/illustration/swordcraft_flying_sword.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "flying_sword",
       sound: "sword-sound-2-36274.mp3",
     },
@@ -924,11 +924,11 @@
     attackType: "spell",
     damageType: "elemental",
     rank: 1,
-    description: "affix_attack_spell_exhaust_mana",
+    description: "affix_spell_attack_exhaust_mana",
     image: "battlecard/illustration/swordcraft_flying_sword.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "flying_sword",
       sound: "sword-sound-2-36274.mp3",
     },
@@ -957,7 +957,7 @@
     tags: ["status_energy_positive_spell", "status_energy_positive_weapon"],
     image: "battlecard/illustration/xinfa.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       overlays: "restore_mana",
       sound: "spell-of-healing-876.mp3",
     },
@@ -969,8 +969,8 @@
       },
     ],
   },
-  defend_kick_exhaust_chakra: {
-    id: "defend_kick_exhaust_chakra",
+  kick_defend_exhaust_chakra: {
+    id: "kick_defend_exhaust_chakra",
     category: "buff",
     genre: "swordcraft",
     kind: "kick",
@@ -978,9 +978,9 @@
     resourceType: "energy_positive_weapon",
     rank: 1,
     description: "affix_defend_physical_exhaust_chakra",
-    image: "battlecard/illustration/defend_kick.png",
+    image: "battlecard/illustration/kick_defend.png",
     animation: {
-      startup: "buff_kick",
+      startup: "kick_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -996,8 +996,8 @@
       },
     ],
   },
-  defend_kick_exhaust_mana: {
-    id: "defend_kick_exhaust_mana",
+  kick_defend_exhaust_mana: {
+    id: "kick_defend_exhaust_mana",
     category: "buff",
     genre: "swordcraft",
     kind: "kick",
@@ -1005,9 +1005,9 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_defend_elemental_exhaust_mana",
-    image: "battlecard/illustration/defend_kick.png",
+    image: "battlecard/illustration/kick_defend.png",
     animation: {
-      startup: "buff_kick",
+      startup: "kick_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1023,8 +1023,8 @@
       },
     ],
   },
-  defend_sword_exhaust_chakra: {
-    id: "defend_sword_exhaust_chakra",
+  sword_defend_exhaust_chakra: {
+    id: "sword_defend_exhaust_chakra",
     category: "buff",
     genre: "swordcraft",
     kind: "sword",
@@ -1032,9 +1032,9 @@
     resourceType: "energy_positive_weapon",
     rank: 1,
     description: "affix_defend_physical_exhaust_chakra",
-    image: "battlecard/illustration/defend_sword.png",
+    image: "battlecard/illustration/sword_defend.png",
     animation: {
-      startup: "buff_sword",
+      startup: "sword_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1051,8 +1051,8 @@
       },
     ],
   },
-  defend_sword_exhaust_mana: {
-    id: "defend_sword_exhaust_mana",
+  sword_defend_exhaust_mana: {
+    id: "sword_defend_exhaust_mana",
     category: "buff",
     genre: "swordcraft",
     kind: "sword",
@@ -1060,9 +1060,9 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_defend_elemental_exhaust_mana",
-    image: "battlecard/illustration/defend_sword.png",
+    image: "battlecard/illustration/sword_defend.png",
     animation: {
-      startup: "buff_sword",
+      startup: "sword_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1090,7 +1090,7 @@
     description: "affix_speed_quick_exhaust_chakra_defend_physical",
     image: "battlecard/illustration/quick.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust_defend",
@@ -1121,7 +1121,7 @@
     description: "affix_dodge_nimble_exhaust_mana_defend_elemental",
     image: "battlecard/illustration/nimble.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust_defend",
@@ -1150,10 +1150,10 @@
     damageTypes: ["physical", "elemental"],
     resourceType: "energy_positive_weapon",
     description: "affix_defend_multiple_exhaust_mana",
-    image: "battlecard/illustration/defend_flying_sword.png",
+    image: "battlecard/illustration/flying_sword_defend.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_multiple_exhaust",
@@ -1171,8 +1171,8 @@
   },
 
   // ------------悟道·攻击------------
-  attack_punch_exhaust_mana: {
-    id: "attack_punch_exhaust_mana",
+  punch_attack_exhaust_mana: {
+    id: "punch_attack_exhaust_mana",
     category: "attack",
     genre: "spellcraft",
     kind: "punch",
@@ -1181,11 +1181,11 @@
     damageType: "elemental",
     resourceType: "energy_positive_spell",
     description: "affix_attack_unarmed_exhaust_mana",
-    image: "battlecard/illustration/attack_punch.png",
+    image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_exhaust",
@@ -1210,11 +1210,11 @@
     attackType: "spell",
     damageType: "physical",
     rank: 1,
-    description: "affix_attack_spell_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_falling_stone.png",
+    description: "affix_spell_attack_exhaust_mana",
+    image: "battlecard/illustration/spellcraft_earth_attack.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "falling_stone",
       sound: "small-rock-break-194553.mp3",
     },
@@ -1240,11 +1240,11 @@
     attackType: "spell",
     damageType: "elemental",
     rank: 1,
-    description: "affix_attack_spell_exhaust_mana",
+    description: "affix_spell_attack_exhaust_mana",
     image: "battlecard/illustration/spellcraft_fireball.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "fireball",
       sound: "fireball-whoosh-5-179129.mp3",
     },
@@ -1270,11 +1270,11 @@
     attackType: "spell",
     damageType: "physical",
     rank: 1,
-    description: "affix_attack_spell_slow",
+    description: "affix_spell_attack_slow",
     image: "battlecard/illustration/spellcraft_attack_wind.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "wind_blade",
       sound: "wind-1-44149.mp3",
     },
@@ -1304,11 +1304,11 @@
     attackType: "spell",
     damageType: "elemental",
     rank: 1,
-    description: "affix_attack_spell_clumsy",
+    description: "affix_spell_attack_clumsy",
     image: "battlecard/illustration/spellcraft_lightning.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "lightning",
       sound: "big-thunder-67697.mp3",
     },
@@ -1338,9 +1338,9 @@
     rank: 1,
     description: "affix_mana",
     tags: ["status_energy_positive_spell"],
-    image: "battlecard/illustration/xinfa.png",
+    image: "battlecard/illustration/spellcraft_xinfa.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       overlays: "restore_mana",
       sound: "spell-of-healing-876.mp3",
     },
@@ -1352,8 +1352,8 @@
       },
     ],
   },
-  defend_punch_exhaust_mana: {
-    id: "defend_punch_exhaust_mana",
+  punch_defend_exhaust_mana: {
+    id: "punch_defend_exhaust_mana",
     category: "buff",
     genre: "spellcraft",
     kind: "punch",
@@ -1361,9 +1361,9 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_defend_physical_exhaust_mana",
-    image: "battlecard/illustration/defend_punch.png",
+    image: "battlecard/illustration/punch_defend.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1388,10 +1388,10 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_speed_quick_exhaust_mana_defend_physical",
-    image: "battlecard/illustration/spellcraft_airbend.png",
+    image: "battlecard/illustration/spellcraft_wind_defend.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "wind_buff",
       sound: "wind-1-44149.mp3",
     },
@@ -1422,8 +1422,8 @@
     description: "affix_heal_exhaust_mana",
     image: "battlecard/illustration/spellcraft_wood.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "wood_buff",
       sound: "timber-tree-falling-1-40384.mp3",
     },
@@ -1451,8 +1451,8 @@
     description: "affix_defend_physical_exhaust_mana",
     image: "battlecard/illustration/spellcraft_wood.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "wood_buff",
       sound: "timber-tree-falling-1-40384.mp3",
     },
@@ -1471,8 +1471,8 @@
   },
 
   // ------------炼魂·攻击------------
-  attack_punch_exhaust_karma: {
-    id: "attack_punch_exhaust_karma",
+  punch_attack_exhaust_karma: {
+    id: "punch_attack_exhaust_karma",
     category: "attack",
     genre: "vitality",
     kind: "punch",
@@ -1481,11 +1481,11 @@
     damageType: "psychic",
     resourceType: "energy_positive_curse",
     description: "affix_attack_unarmed_exhaust_karma",
-    image: "battlecard/illustration/attack_punch.png",
+    image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_punch",
+      actions: "punch_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1506,8 +1506,8 @@
       },
     ],
   },
-  attack_dart_exhaust_karma: {
-    id: "attack_dart_exhaust_karma",
+  dart_attack_exhaust_karma: {
+    id: "dart_attack_exhaust_karma",
     category: "attack",
     genre: "vitality",
     kind: "dart",
@@ -1516,10 +1516,10 @@
     resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_attack_weapon_multiple_exhaust_karma",
-    image: "battlecard/illustration/attack_dart.png",
+    image: "battlecard/illustration/dart_attack.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1541,8 +1541,8 @@
       },
     ],
   },
-  attack_bow_exhaust_karma: {
-    id: "attack_bow_exhaust_karma",
+  bow_attack_exhaust_karma: {
+    id: "bow_attack_exhaust_karma",
     category: "attack",
     genre: "vitality",
     kind: "bow",
@@ -1551,9 +1551,9 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_attack_weapon_multiple_exhaust_karma",
-    image: "battlecard/illustration/attack_bow.png",
+    image: "battlecard/illustration/bow_attack.png",
     animation: {
-      startup: "attack_bow",
+      startup: "bow_attack",
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1576,8 +1576,8 @@
     ],
   },
   // ------------炼魂·加持------------
-  defend_punch_exhaust_karma: {
-    id: "defend_punch_exhaust_karma",
+  punch_defend_exhaust_karma: {
+    id: "punch_defend_exhaust_karma",
     category: "buff",
     genre: "vitality",
     kind: "punch",
@@ -1585,9 +1585,9 @@
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_defend_physical_exhaust_rage",
-    image: "battlecard/illustration/defend_punch.png",
+    image: "battlecard/illustration/punch_defend.png",
     animation: {
-      startup: "buff_punch",
+      startup: "punch_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1612,10 +1612,10 @@
     resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_lifemax_debuff_exhaust_karma",
-    image: "battlecard/illustration/vitality_attack_power_word.png",
+    image: "battlecard/illustration/vitality_power_word_attack.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "curse",
       sound: "magic-smite-6012.mp3",
     },
@@ -1639,9 +1639,9 @@
     resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_lifemax_buff_exhaust_karma",
-    image: "battlecard/illustration/vitality_defend_power_word.png",
+    image: "battlecard/illustration/vitality_power_word_defend.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       overlays: "restore_life",
       sound: "buffer-spell-88994.mp3",
     },
@@ -1659,8 +1659,8 @@
   },
 
   // ------------法身·攻击------------
-  attack_kick_exhaust_karma: {
-    id: "attack_kick_exhaust_karma",
+  kick_attack_exhaust_karma: {
+    id: "kick_attack_exhaust_karma",
     category: "attack",
     genre: "avatar",
     kind: "kick",
@@ -1669,11 +1669,11 @@
     damageType: "physical",
     resourceType: "energy_positive_curse",
     description: "affix_attack_unarmed_multiple_exhaust_karma",
-    image: "battlecard/illustration/attack_kick.png",
+    image: "battlecard/illustration/kick_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_kick",
+      actions: "kick_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1694,8 +1694,8 @@
       },
     ],
   },
-  attack_staff_exhaust_rage: {
-    id: "attack_staff_exhaust_rage",
+  staff_attack_exhaust_rage: {
+    id: "staff_attack_exhaust_rage",
     category: "attack",
     genre: "avatar",
     kind: "staff",
@@ -1704,11 +1704,11 @@
     damageType: "chi",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_weapon_multiple_exhaust_rage",
-    image: "battlecard/illustration/attack_staff.png",
+    image: "battlecard/illustration/staff_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_staff",
+      actions: "staff_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1730,8 +1730,8 @@
       },
     ],
   },
-  attack_spear_exhaust_karma: {
-    id: "attack_spear_exhaust_karma",
+  spear_attack_exhaust_karma: {
+    id: "spear_attack_exhaust_karma",
     category: "attack",
     genre: "avatar",
     kind: "spear",
@@ -1740,11 +1740,11 @@
     damageType: "physical",
     resourceType: "energy_positive_curse",
     description: "affix_attack_weapon_multiple_exhaust_karma",
-    image: "battlecard/illustration/attack_spear.png",
+    image: "battlecard/illustration/spear_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
       recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "attack_spear",
+      actions: "spear_attack",
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple_exhaust",
@@ -1778,8 +1778,8 @@
     description: "affix_attack_curse_exhaust_karma",
     image: "battlecard/illustration/avatar_sigil.png",
     animation: {
-      startup: "attack_spell",
-      recovery: "attack_spell_recovery",
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
       overlays: "sigil",
       sound: "cymbal-unsettle-63943.mp3",
     },
@@ -1797,8 +1797,8 @@
     ],
   },
   // ------------法身·加持------------
-  defend_kick_exhaust_karma: {
-    id: "defend_kick_exhaust_karma",
+  kick_defend_exhaust_karma: {
+    id: "kick_defend_exhaust_karma",
     category: "buff",
     genre: "bodyforge",
     kind: "kick",
@@ -1806,9 +1806,9 @@
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_defend_physical_exhaust_karma",
-    image: "battlecard/illustration/defend_kick.png",
+    image: "battlecard/illustration/kick_defend.png",
     animation: {
-      startup: "buff_kick",
+      startup: "kick_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1824,8 +1824,8 @@
       },
     ],
   },
-  defend_staff_exhaust_rage: {
-    id: "defend_staff_exhaust_rage",
+  staff_defend_exhaust_rage: {
+    id: "staff_defend_exhaust_rage",
     category: "buff",
     genre: "avatar",
     kind: "staff",
@@ -1833,9 +1833,9 @@
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_defend_chi_exhaust_rage",
-    image: "battlecard/illustration/defend_staff.png",
+    image: "battlecard/illustration/staff_defend.png",
     animation: {
-      startup: "buff_staff",
+      startup: "staff_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1852,8 +1852,8 @@
       },
     ],
   },
-  defend_spear_exhaust_karma: {
-    id: "defend_spear_exhaust_karma",
+  spear_defend_exhaust_karma: {
+    id: "spear_defend_exhaust_karma",
     category: "buff",
     genre: "avatar",
     kind: "spear",
@@ -1861,9 +1861,9 @@
     resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_defend_psychic_exhaust_karma",
-    image: "battlecard/illustration/defend_spear.png",
+    image: "battlecard/illustration/spear_defend.png",
     animation: {
-      startup: "buff_spear",
+      startup: "spear_buff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
@@ -1889,9 +1889,9 @@
     damageType: ["physical", "psychic"],
     resourceType: "energy_positive_curse",
     description: "affix_defend_multiple_exhaust_karma",
-    image: "battlecard/illustration/avatar_defend_scripture.png",
+    image: "battlecard/illustration/avatar_scripture_defend.png",
     animation: {
-      startup: "buff_spell",
+      startup: "spell_buff",
       overlays: "sigil_buff",
       sound: "sword-sound-2-36274.mp3",
     },

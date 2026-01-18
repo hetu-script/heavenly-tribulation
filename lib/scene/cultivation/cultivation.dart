@@ -22,7 +22,6 @@ import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
-import '../../widgets/ui_overlay.dart';
 import '../common.dart';
 import '../particles/light_trail.dart';
 import '../../state/states.dart';
@@ -272,7 +271,7 @@ class CultivationScene extends Scene with HasCursorState {
       offsetY: 60.0,
       textStyle: TextStyle(
         fontSize: 20,
-        fontFamily: GameUI.fontFamily,
+        fontFamily: GameUI.fontFamilyKaiti,
         color: color,
       ),
       onViewport: false,
@@ -510,7 +509,7 @@ class CultivationScene extends Scene with HasCursorState {
           updatePassivesDescription();
           updateInformation();
 
-          engine.play('click-21156.mp3');
+          engine.play(GameSound.click);
         } else if (button == kSecondaryButton) {
           if (!isLearned) return;
           Hovertip.hide(skillButton);
@@ -525,7 +524,7 @@ class CultivationScene extends Scene with HasCursorState {
 
           updatePassivesDescription();
           updateInformation();
-          engine.play('click-21156.mp3');
+          engine.play(GameSound.click);
         }
       };
 
@@ -749,7 +748,7 @@ class CultivationScene extends Scene with HasCursorState {
         textStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
-          fontFamily: GameUI.fontFamily,
+          fontFamily: GameUI.fontFamilyKaiti,
         ),
       ),
     );
@@ -771,7 +770,7 @@ class CultivationScene extends Scene with HasCursorState {
         ..color = Colors.white
         ..strokeWidth = 1
         ..style = PaintingStyle.stroke,
-      labelFontFamily: GameUI.fontFamily,
+      labelFontFamily: GameUI.fontFamilyKaiti,
     );
     camera.viewport.add(expBar);
 

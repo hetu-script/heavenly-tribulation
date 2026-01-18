@@ -508,7 +508,7 @@ struct Cardpack {
     this.id = crypto.randomUID(withTime: true)
     final rankString = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
     final genreString = genre != null ? engine.locale(genre) : ''
-    final kindString = kind != null ? engine.locale('kind_${kind}') : ''
+    final kindString = kind != null ? engine.locale('battlecard_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
     this.icon = 'item/craft/cardpack.png'
     

@@ -15,7 +15,11 @@ final class Scenes {
   static const battle = 'battle';
 
   static const matchingGame = 'matching_game';
+  static const matchingGame2 = 'matching_game_2';
   static const differenceGame = 'difference_game';
+  static const mouseMazeGame = 'mouse_maze_game';
+  static const memoryCardGame = 'memory_card_game';
+  static const nanogramGame = 'nanogram_game';
 
   /// 下面的 id 仅用于事件注册
   static const editor = 'editor';

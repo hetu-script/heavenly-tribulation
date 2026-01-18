@@ -161,7 +161,7 @@ class CollectPanel extends GameComponent with HandlesGesture {
       iconSprite.render(
         canvas,
         position: GameUI.collectPanelIconPositions[i],
-        size: GameUI.matchingTileSrcSize,
+        size: GameUI.matchingTileSize,
       );
     }
   }

@@ -1,13 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
-import 'package:samsara/gestures.dart';
 
 import 'package:samsara/samsara.dart';
 
 const _kLightRadius = 25.0;
 
-class LightPoint extends BorderComponent with HandlesGesture {
+class LightPoint extends BorderComponent {
   static final random = math.Random();
 
   double _flickerTimer = 0.0;
@@ -89,6 +88,8 @@ class LightPoint extends BorderComponent with HandlesGesture {
   @override
   void render(Canvas canvas) {
     if (!isVisible) return;
+
+    // canvas.drawRect(border, borderPaint);
 
     sprite.renderRect(canvas, border, overridePaint: paint);
   }
