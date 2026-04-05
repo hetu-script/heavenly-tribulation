@@ -11,6 +11,7 @@ import 'widgets/ui/close_button2.dart';
 import 'widgets/ui/responsive_view.dart';
 import 'data/game.dart';
 import 'widgets/character/profile.dart';
+import 'scene/mini_game/common.dart';
 
 export 'package:samsara/colors.dart';
 export 'widgets/ui_overlay.dart';
@@ -576,11 +577,11 @@ final class GameUI {
 
   // 找不同游戏UI
   static final differenceGamePictureSize = Vector2(500.0, 500.0);
-  static const differenceGameTopBarHeight = 180.0;
+  static const miniGameTopBarHeight = 180.0;
   static const differenceGameLeftBarWidth = 220.0;
   static const spotCount = 10;
-  static const spotIndicatorSize = 48.0;
-  static late Vector2 spotIndicatorsPosition;
+  static const miniGameIndicatorIconSize = 48.0;
+  static late Vector2 errorCountIndicatorsPosition;
 
   static void init() {
     SpriteButton.defaultTextConfig = spriteButtonTextConfig;
@@ -770,9 +771,10 @@ final class GameUI {
         exitButtonPosition.x - GameUI.buttonSizeMedium.x - GameUI.indent,
         exitButtonPosition.y);
 
-    spotIndicatorsPosition = Vector2(
-        size.x / 2 - (spotCount / 2) * spotIndicatorSize,
-        differenceGameTopBarHeight - spotIndicatorSize - smallIndent);
+    errorCountIndicatorsPosition = Vector2(
+        size.x / 2 -
+            (kMiniGameMaxErrors / 2) * GameUI.miniGameIndicatorIconSize,
+        size.y - miniGameIndicatorIconSize - indent);
 
     _isInitted = true;
   }

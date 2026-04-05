@@ -93,10 +93,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   late int _lifeMax;
   int get lifeMax => _lifeMax;
 
-  /// 降低角色生命上限，最低为 1
+  /// 设置角色生命上限，最低为 1
   void setLifeMax(int value, {bool rejuvenate = false}) {
-    if (value < 0) value = 1;
-    final int characterLifeMax = data['stats']['lifeMax'];
+    if (value < 1) value = 1;
+    final int characterLifeMax = data['stats']['battleLifeMax'];
     int diff = (value - characterLifeMax).abs();
     _lifeMax = _hpBar.max = value;
     if (value > characterLifeMax) {
@@ -187,7 +187,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // await loadStates();
 
     _life = data['life'].toInt();
-    _lifeMax = data['stats']['lifeMax'].toInt();
+    _lifeMax = data['stats']['battleLifeMax'].toInt();
 
     _hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -557,7 +557,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   void reset() {
     _life = data['life'].toInt();
-    _lifeMax = data['stats']['lifeMax'].toInt();
+    _lifeMax = data['stats']['battleLifeMax'].toInt();
     _hpBar.max = _lifeMax;
     _hpBar.setValue(_life);
     _hpBar.labelColor = Colors.white;

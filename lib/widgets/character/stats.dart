@@ -18,6 +18,7 @@ const kStats = [
   'perception',
   'divider',
   'lifeMax',
+  'battleLifeMax',
   'manaMax',
   'chakraMax',
   'karma',

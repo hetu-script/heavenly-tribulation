@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
@@ -6,6 +7,7 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/effect/confetti.dart';
+import 'package:samsara/components/sprite_component2.dart';
 
 import '../../particles/light_point.dart';
 import '../../../global.dart';
@@ -13,18 +15,15 @@ import '../../../ui.dart';
 import '../../cursor_state.dart';
 import '../../common.dart';
 import '../../../data/game.dart';
+import '../common.dart';
 
 const _kMazePartPriority = 10;
 const _kMazePartPriority2 = 20;
-const _kPromptPriority = 100;
 const _kDragZonePriority = 500;
-const _kConfettiPriority = 1000;
 
 const _kLightPointRadius = 15.0;
 
-const int kMazeRows = 10;
-const int kMazeColumns = 20;
-const double kCellSize = 50.0;
+const double _kCellSize = 50.0;
 
 const _kCollisionThreshold = _kLightPointRadius * 2 / 3;
 
@@ -87,7 +86,7 @@ class _Portal extends CircleComponent {
         _inactivePaint = Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2.0
-          ..color = Colors.grey.withValues(alpha: 150),
+          ..color = Colors.grey.withValues(alpha: 0.6),
         _animation = SpriteAnimationWithTicker(
           animationId: 'mini_game/mouse_maze/portal.png',
           srcSize: Vector2(48, 48),
@@ -96,7 +95,7 @@ class _Portal extends CircleComponent {
         super(
           radius: _kLightPointRadius,
           anchor: Anchor.center,
-          paint: Paint()..color = portalColor.withValues(alpha: 200),
+          paint: Paint()..color = portalColor.withValues(alpha: 0.8),
           priority: _kMazePartPriority2,
         );
 
@@ -166,7 +165,7 @@ class _SwitchDoor extends BorderComponent {
           ..strokeWidth = 6.0
           ..strokeCap = StrokeCap.round,
         _glowPaint = Paint()
-          ..color = Colors.orange.withValues(alpha: 100)
+          ..color = Colors.orange.withValues(alpha: 0.4)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 12.0
           ..strokeCap = StrokeCap.round,
@@ -206,8 +205,8 @@ class _SwitchDoor extends BorderComponent {
     if (_phase < 0.1) return; // 完全打开时不渲染
 
     final opacity = (1.0 - _phase).clamp(0.0, 1.0);
-    _doorPaint.color = Colors.orange.withValues(alpha: opacity * 255);
-    _glowPaint.color = Colors.orange.withValues(alpha: opacity * 100);
+    _doorPaint.color = Colors.orange.withValues(alpha: opacity);
+    _glowPaint.color = Colors.orange.withValues(alpha: opacity);
 
     if (isHorizontal) {
       final y = size.y / 2;
@@ -283,12 +282,28 @@ class _Wall {
 
 /// 迷宫渲染组件
 class _Maze extends PositionComponent {
+  static final Paint _shadowPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.6)
+    ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 8.0
+    ..isAntiAlias = true;
+  static final Paint _outerStrokePaint = Paint()
+    ..color = Colors.black87
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 6.0
+    ..strokeCap = StrokeCap.round
+    ..isAntiAlias = true;
+  static final Paint _innerStrokePaint = Paint()
+    ..color = Colors.white70
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 3.0
+    ..strokeCap = StrokeCap.round
+    ..isAntiAlias = true;
+
   List<List<_Cell>>? _maze;
 
   final double kCellSize;
-  final Paint _shadowPaint;
-  final Paint _outerStrokePaint;
-  final Paint _innerStrokePaint;
 
   final List<_Wall> wallSegments = [];
 
@@ -296,24 +311,7 @@ class _Maze extends PositionComponent {
     required this.kCellSize,
     required super.size,
     super.position,
-  })  : _shadowPaint = Paint()
-          ..color = Colors.black.withValues(alpha: 150)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 8.0
-          ..isAntiAlias = true,
-        _outerStrokePaint = Paint()
-          ..color = Colors.black87
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 6.0
-          ..strokeCap = StrokeCap.round
-          ..isAntiAlias = true,
-        _innerStrokePaint = Paint()
-          ..color = Colors.white70
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3.0
-          ..strokeCap = StrokeCap.round
-          ..isAntiAlias = true;
+  });
 
   void setMazeData(List<List<_Cell>> maze) {
     assert(maze.isNotEmpty);
@@ -425,44 +423,94 @@ class MouseMazeGame extends Scene with HasCursorState {
   Vector2? _endPosition;
 
   bool _isDragging = false;
-
-  bool _isGameEnded = false;
+  int _errorCount = 0;
+  bool _isGameOver = false;
+  bool _isGameWon = false;
 
   late final SpriteButton restart, exit;
+
+  late final Sprite heart, brokenHeart;
 
   // 游戏元素
   final List<_Portal> _portals = [];
   final List<_SwitchDoor> _switchDoors = [];
 
-  // 元素数量配置
-  final int portalPairCount;
-  final int switchDoorCount;
+  // 难度配置
+  final MiniGameDifficulty difficulty;
+  late final int mazeRows;
+  late final int mazeColumns;
+  late final int portalPairCount;
+  late final int switchDoorCount;
 
-  late final SpriteComponent _victoryPrompt;
+  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+
+  late final SpriteComponent2 barrier;
+
+  FutureOr<void> Function()? onGameStart;
+  FutureOr<dynamic> Function(bool won)? onGameEnd;
 
   MouseMazeGame({
-    required this.portalPairCount,
-    required this.switchDoorCount,
+    required this.difficulty,
+    this.onGameStart,
+    this.onGameEnd,
   }) : super(
           id: Scenes.mouseMazeGame,
+          bgm: engine.bgm,
+          bgmFile: 'Shadows Within.mp3',
+          bgmVolume: 0.5,
           enableLighting: true,
           backgroundLightingColor: Colors.black,
-        );
+        ) {
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        mazeRows = 6;
+        mazeColumns = 16;
+        portalPairCount = 0;
+        switchDoorCount = 0;
+      case MiniGameDifficulty.medium:
+        mazeRows = 8;
+        mazeColumns = 20;
+        portalPairCount = 1;
+        switchDoorCount = 1;
+      case MiniGameDifficulty.hard:
+        mazeRows = 10;
+        mazeColumns = 24;
+        portalPairCount = 2;
+        switchDoorCount = 2;
+    }
+  }
 
   @override
   void onLoad() async {
     super.onLoad();
 
     final background = SpriteComponent(
-      sprite: await Sprite.load('mini_game/mouse_maze/background.png'),
+      sprite: await Sprite.load('mini_game/background2.png'),
       size: size,
     );
     world.add(background);
+
+    heart = await Sprite.load('mini_game/heart.png');
+    brokenHeart = await Sprite.load('mini_game/broken_heart.png');
+
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      priority: 10000,
+      isVisible: false,
+    );
+    world.add(barrier);
 
     _victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
+      size: Vector2(480.0, 240.0),
+    );
+    _defeatPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: await Sprite.load('ui/defeat.png'),
       size: Vector2(480.0, 240.0),
     );
 
@@ -491,13 +539,13 @@ class MouseMazeGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      engine.popScene(clearCache: true);
+      _endScene(_isGameWon);
     };
     camera.viewport.add(exit);
 
     // 计算迷宫的实际尺寸和位置（居中显示）
-    final mazeWidth = kMazeColumns * kCellSize;
-    final mazeHeight = kMazeRows * kCellSize;
+    final mazeWidth = mazeColumns * _kCellSize;
+    final mazeHeight = mazeRows * _kCellSize;
     final mazePosition = Vector2(
       (size.x - mazeWidth) / 2,
       (size.y - kUIOverlayHeight - mazeHeight) / 2 + kUIOverlayHeight,
@@ -505,24 +553,24 @@ class MouseMazeGame extends Scene with HasCursorState {
 
     // 创建迷宫
     _maze = _Maze(
-      kCellSize: kCellSize,
+      kCellSize: _kCellSize,
       size: Vector2(mazeWidth, mazeHeight),
       position: mazePosition,
     );
     world.add(_maze);
 
     // 设置起点和终点
-    _startPosition = mazePosition + Vector2(kCellSize / 2, kCellSize / 2);
+    _startPosition = mazePosition + Vector2(_kCellSize / 2, _kCellSize / 2);
     _endPosition = mazePosition +
         Vector2(
-            (kMazeColumns - 0.5) * kCellSize, (kMazeRows - 0.5) * kCellSize);
+            (mazeColumns - 0.5) * _kCellSize, (mazeRows - 0.5) * _kCellSize);
 
     // 创建起点标记（绿色圆圈）
     final startMarker = CircleComponent(
       radius: _kLightPointRadius,
       position: _startPosition,
       anchor: Anchor.center,
-      paint: Paint()..color = Colors.green.withValues(alpha: 180),
+      paint: Paint()..color = Colors.green.withValues(alpha: 0.8),
       priority: _kMazePartPriority,
     );
     world.add(startMarker);
@@ -532,7 +580,7 @@ class MouseMazeGame extends Scene with HasCursorState {
       radius: _kLightPointRadius,
       position: _endPosition,
       anchor: Anchor.center,
-      paint: Paint()..color = Colors.red.withValues(alpha: 180),
+      paint: Paint()..color = Colors.red.withValues(alpha: 0.8),
       priority: _kMazePartPriority,
     );
     world.add(endMarker);
@@ -573,17 +621,32 @@ class MouseMazeGame extends Scene with HasCursorState {
 
     // 初始化游戏（生成迷宫数据和游戏元素）
     _initializeGame();
+
+    await onGameStart?.call();
   }
 
   void _initializeGame() {
-    _isGameEnded = false;
+    engine.bgm.resume();
+
+    _errorCount = 0;
+    _isGameOver = false;
+    _isDragging = false;
+    barrier.isVisible = false;
+
     _victoryPrompt.removeFromParent();
+    _defeatPrompt.removeFromParent();
+
     restart.isVisible = false;
 
     exit.position = GameUI.exitButtonPosition;
 
+    // 重置光点位置
+    if (_startPosition != null) {
+      _lightPoint.position = _startPosition!;
+    }
+
     // 生成迷宫
-    _mazeData = _generateMaze(kMazeRows, kMazeColumns);
+    _mazeData = _generateMaze(mazeRows, mazeColumns);
 
     _maze.setMazeData(_mazeData);
 
@@ -611,34 +674,36 @@ class MouseMazeGame extends Scene with HasCursorState {
         final portalColor = _portalColors[i % _portalColors.length];
 
         // 随机选择两个不同的位置，且不能在入口 (0, 0)
-        var pos1Row = random.nextInt(kMazeRows);
-        var pos1Col = random.nextInt(kMazeColumns);
+        var pos1Row = random.nextInt(mazeRows);
+        var pos1Col = random.nextInt(mazeColumns);
         // 确保第一个传送门不在入口
         while (pos1Row == 0 && pos1Col == 0) {
-          pos1Row = random.nextInt(kMazeRows);
-          pos1Col = random.nextInt(kMazeColumns);
+          pos1Row = random.nextInt(mazeRows);
+          pos1Col = random.nextInt(mazeColumns);
         }
 
-        var pos2Row = random.nextInt(kMazeRows);
-        var pos2Col = random.nextInt(kMazeColumns);
+        var pos2Row = random.nextInt(mazeRows);
+        var pos2Col = random.nextInt(mazeColumns);
         // 确保第二个传送门不在入口，且不与第一个传送门重叠
         while ((pos2Row == 0 && pos2Col == 0) ||
             (pos2Row == pos1Row && pos2Col == pos1Col)) {
-          pos2Row = random.nextInt(kMazeRows);
-          pos2Col = random.nextInt(kMazeColumns);
+          pos2Row = random.nextInt(mazeRows);
+          pos2Col = random.nextInt(mazeColumns);
         }
 
         final portal1 = _Portal(
           id: 'portal_${i}_1',
           position: mazePosition +
-              Vector2((pos1Col + 0.5) * kCellSize, (pos1Row + 0.5) * kCellSize),
+              Vector2(
+                  (pos1Col + 0.5) * _kCellSize, (pos1Row + 0.5) * _kCellSize),
           portalColor: portalColor,
         );
 
         final portal2 = _Portal(
           id: 'portal_${i}_2',
           position: mazePosition +
-              Vector2((pos2Col + 0.5) * kCellSize, (pos2Row + 0.5) * kCellSize),
+              Vector2(
+                  (pos2Col + 0.5) * _kCellSize, (pos2Row + 0.5) * _kCellSize),
           portalColor: portalColor,
         );
 
@@ -678,8 +743,8 @@ class MouseMazeGame extends Scene with HasCursorState {
   /// 使用BFS找到从起点到终点的路径，并返回适合放置门的位置
   List<Map<String, dynamic>> _findDoorPositionsOnPath() {
     // BFS 找到从 (0,0) 到 (rows-1, cols-1) 的路径
-    final rows = kMazeRows;
-    final cols = kMazeColumns;
+    final rows = mazeRows;
+    final cols = mazeColumns;
     final visited = List.generate(rows, (_) => List.filled(cols, false));
     final parent = <(int, int), (int, int)>{};
     final queue = <(int, int)>[];
@@ -755,12 +820,14 @@ class MouseMazeGame extends Scene with HasCursorState {
       if (row1 == row2) {
         // 水平移动
         final minCol = math.min(col1, col2);
-        position = Vector2((minCol + 1) * kCellSize, (row1 + 0.5) * kCellSize);
+        position =
+            Vector2((minCol + 1) * _kCellSize, (row1 + 0.5) * _kCellSize);
         isHorizontal = false; // 垂直门横跨水平通道
       } else {
         // 垂直移动
         final minRow = math.min(row1, row2);
-        position = Vector2((col1 + 0.5) * kCellSize, (minRow + 1) * kCellSize);
+        position =
+            Vector2((col1 + 0.5) * _kCellSize, (minRow + 1) * _kCellSize);
         isHorizontal = true; // 水平门横跨垂直通道
       }
 
@@ -841,7 +908,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   }
 
   void checkMouseHover(Vector2 position) {
-    if (_isGameEnded) return;
+    if (_isGameOver) return;
     if (_isDragging) return;
 
     // 可以在这里添加鼠标悬停时的逻辑
@@ -862,7 +929,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   }
 
   void onLightPointDragUpdate(Vector2 position) {
-    if (!_isDragging || _isGameEnded) return;
+    if (!_isDragging || _isGameOver) return;
 
     // 检查传送门
     for (final portal in _portals) {
@@ -898,20 +965,20 @@ class MouseMazeGame extends Scene with HasCursorState {
     // 检查开关门
     for (final door in _switchDoors) {
       if (door.blocksPosition(position)) {
-        _onGameFailed();
+        _onError();
         return;
       }
     }
 
     // 检查墙壁碰撞
     if (_checkCollision(_lightPoint.center)) {
-      _onGameFailed();
+      _onError();
       return;
     }
 
     // 检查是否到达终点
     if (_endPosition != null && position.distanceTo(_endPosition!) <= 20.0) {
-      _onGameSuccess();
+      _onGameOver(true);
     }
   }
 
@@ -939,74 +1006,101 @@ class MouseMazeGame extends Scene with HasCursorState {
     return false;
   }
 
-  void _onGameFailed() {
-    _isGameEnded = true;
+  void _onError() {
+    ++_errorCount;
+    if (_errorCount >= kMiniGameMaxErrors) {
+      _onGameOver(false);
+    }
+
     // 播放失败音效
     engine.play(GameSound.error);
 
-    // 显示失败提示
-    final failText = TextComponent(
-      text: engine.locale('mouseMazeGame_fail'),
-      textRenderer: TextPaint(
-        style: const TextStyle(
-          color: Colors.red,
-          fontSize: 48.0,
-          fontWeight: FontWeight.bold,
-          fontFamily: GameUI.fontFamilyLishu,
-        ),
+    addHintText(
+      engine.locale('mouseMazeGame_fail'),
+      textStyle: const TextStyle(
+        color: Colors.red,
+        fontSize: 48.0,
+        fontWeight: FontWeight.bold,
+        fontFamily: GameUI.fontFamilyLishu,
       ),
-      anchor: Anchor.center,
-      position: size / 2,
-      priority: _kPromptPriority,
+      horizontalVariation: 0.0,
+      verticalVariation: 0.0,
+      onViewport: true,
+      duration: 1.5,
     );
-    camera.viewport.add(failText);
 
-    // 2秒后重置游戏
-    Future.delayed(const Duration(seconds: 2), () {
-      if (isMounted) {
-        _resetGame();
-      }
-    });
-  }
-
-  void _onGameSuccess() {
-    _isGameEnded = true;
-    // 播放成功音效
-    engine.play(GameSound.victory);
-
-    // 显示成功提示
-    camera.viewport.add(_victoryPrompt);
-
-    final celebration = ConfettiEffect(
-      position: Vector2.zero(),
-      size: size,
-      priority: _kConfettiPriority,
-    );
-    camera.viewport.add(celebration);
-
-    restart.isVisible = true;
-    exit.position = Vector2(center.x,
-        restart.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
-  }
-
-  void _resetGame() {
+    // 重置游戏
     _isDragging = false;
-    _isGameEnded = false;
-
-    // 重置光点位置
     if (_startPosition != null) {
       _lightPoint.position = _startPosition!;
     }
-
-    // 重置传送门激活状态
     for (final portal in _portals) {
       portal.isActive = true;
     }
+  }
 
-    // 移除所有提示文本
-    camera.viewport.children.whereType<TextComponent>().forEach((text) {
-      text.removeFromParent();
+  void _onGameOver(bool won) {
+    if (_isGameOver) return;
+
+    engine.bgm.pause();
+
+    _isGameOver = true;
+    _isGameWon = won;
+    barrier.isVisible = true;
+
+    if (won) {
+      camera.viewport.add(_victoryPrompt);
+      engine.play(GameSound.victory);
+
+      final celebration = ConfettiEffect(
+        position: Vector2.zero(),
+        size: size,
+        priority: kConfettiPriority,
+      );
+      camera.viewport.add(celebration);
+    } else {
+      camera.viewport.add(_defeatPrompt);
+      engine.play(GameSound.gameOver);
+    }
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      restart.isVisible = engine.config.debugMode;
+      exit.position = Vector2(
+          center.x,
+          restart.bottomRight.y +
+              GameUI.buttonSizeMedium.y / 2 +
+              GameUI.indent);
     });
+  }
+
+  Future<void> _endScene(bool won) async {
+    final result = await onGameEnd?.call(won);
+    if (result != true) {
+      engine.popScene(clearCache: true);
+    }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
+    for (var i = 0; i < kMiniGameMaxErrors; ++i) {
+      if (i < kMiniGameMaxErrors - _errorCount) {
+        heart.render(
+          canvas,
+          position: startPoint2,
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
+        );
+      } else {
+        brokenHeart.render(
+          canvas,
+          position: startPoint2,
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
+        );
+      }
+      startPoint2.x += GameUI.miniGameIndicatorIconSize;
+    }
   }
 
   @override

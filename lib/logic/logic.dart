@@ -931,136 +931,6 @@ final class GameLogic {
     return completer.future;
   }
 
-  /// 为某个角色解锁某个天赋树节点
-  /// 注意这里不会检查和处理技能点，而是直接增加某个天赋
-  static bool characterUnlockPassiveTreeNode(
-    dynamic character,
-    String nodeId, {
-    String? selectedAttributeId,
-  }) {
-    final unlockedNodes = character['unlockedPassiveTreeNodes'];
-    if (unlockedNodes[nodeId] != null) {
-      return false;
-    }
-
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
-    if (passiveTreeNodeData == null) {
-      engine.warning('天赋树节点 $nodeId 不存在');
-      return false;
-    }
-    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-
-    if (selectedAttributeId == null) {
-      final r = GameData.random.nextDouble();
-      if (r < 0.4) {
-        selectedAttributeId = character['mainAttribute'];
-      } else {
-        selectedAttributeId = GameData.random.nextIterable(kBattleAttributes);
-      }
-    } else {
-      assert(kBattleAttributes.contains(selectedAttributeId));
-    }
-    assert(selectedAttributeId != null);
-
-    if (isAttribute) {
-      // 属性点类的node，记录的是选择的具体属性的名字
-      unlockedNodes[nodeId] = selectedAttributeId;
-      engine.hetu.invoke(
-        'characterSetPassive',
-        positionalArgs: [character, selectedAttributeId],
-        namedArgs: {'level': kPassiveTreeAttributeAnyLevel},
-      );
-    } else {
-      unlockedNodes[nodeId] = true;
-      final List nodePassiveData = passiveTreeNodeData['passives'];
-      for (final data in nodePassiveData) {
-        engine.hetu.invoke(
-          'characterSetPassive',
-          positionalArgs: [character, data['id']],
-          namedArgs: {'level': data['level'] ?? 1},
-        );
-      }
-    }
-
-    return true;
-  }
-
-  static void characterRefundPassiveTreeNode(
-    dynamic character,
-    String nodeId,
-  ) {
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
-    final unlockedNodes = character['unlockedPassiveTreeNodes'];
-    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-
-    if (isAttribute) {
-      final attributeId = unlockedNodes[nodeId];
-      assert(kBattleAttributes.contains(attributeId));
-      // engine.hetu.invoke('refundPassive',
-      //     namespace: 'Player', positionalArgs: ['lifeMax']);
-      engine.hetu.invoke(
-        'characterSetPassive',
-        positionalArgs: [character, attributeId],
-        namedArgs: {'level': -kPassiveTreeAttributeAnyLevel},
-      );
-    } else {
-      final List nodePassiveData = passiveTreeNodeData['passives'];
-      for (final data in nodePassiveData) {
-        engine.hetu.invoke(
-          'characterSetPassive',
-          positionalArgs: [character, data['id']],
-          namedArgs: {'level': -(data['level'] ?? 1)},
-        );
-      }
-    }
-    unlockedNodes.remove(nodeId);
-  }
-
-  static void characterAllocateSkills(dynamic character,
-      {bool rejuvenate = true}) {
-    final genre = character['cultivationFavor'];
-    final style = character['cultivationStyle'];
-    final int rank = character['rank'];
-    final int level = character['level'];
-
-    final List<String>? rankPath = kCultivationRankPaths[genre];
-    final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
-    assert(rankPath != null, 'genre: $genre');
-    assert(stylePath != null, 'genre: $genre, style: $style');
-
-    int count = 0;
-    for (var i = 0; i < rank; ++i) {
-      assert(i < rankPath!.length);
-      final nodeId = rankPath![i];
-      final unlocked = characterUnlockPassiveTreeNode(character, nodeId);
-      if (unlocked) {
-        count++;
-      }
-    }
-
-    for (var i = 0; i < level - rank; ++i) {
-      assert(i < stylePath!.length);
-      final nodeId = stylePath![i];
-      final unlocked = characterUnlockPassiveTreeNode(character, nodeId);
-      if (unlocked) {
-        count++;
-      }
-    }
-
-    engine.hetu.invoke('characterCalculateStats', positionalArgs: [
-      character
-    ], namedArgs: {
-      'rejuvenate': rejuvenate,
-    });
-
-    engine.info(
-        '${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
-  }
-
-  static dynamic characterHasPassive(dynamic character, String passiveId) {
-    return character['passives']?[passiveId];
-  }
-
   // 返回值依次是：卡组下限，消耗牌上限，持续牌上限
   static Map<String, int> getDeckLimitForRank(int rank) {
     assert(rank >= 0);
@@ -1259,95 +1129,27 @@ final class GameLogic {
     );
   }
 
-  /// 角色渡劫检测，返回值 null 表示没有服用破境丹
-  /// true 表示渡劫成功 false 表示失败
-  /// 此时将不会正常升级，但仍会扣掉经验值
-  static bool? checkTribulation() {
-    final rank = GameData.hero['rank'];
-
-    final potionData = GameData.hero['potionPassives']['upgradeRank'];
-    if (potionData == null) return null;
-
-    final bool consumedUpgradeRankPotion = potionData['level'] == rank;
-    if (!consumedUpgradeRankPotion) return null;
-
-    final level = GameData.hero['level'];
-    final minLevel = minLevelForRank(rank);
-    final maxLevel = maxLevelForRank(rank);
-
-    bool doTribulation = false;
-    // if (GameData.flags['tribulation'] == true) {
-    //   doTribulation = true;
-    // } else {
-    if (level > minLevel) {
-      if (level == maxLevel) {
-        doTribulation = true;
-      } else {
-        final chance = math.gradualValue(level - minLevel, maxLevel - minLevel);
-        final r = GameData.random.nextDouble();
-        if (r < chance) {
-          doTribulation = true;
-        }
-      }
-    }
-    // }
-
-    // GameData.flags['tribulation'] = doTribulation;
-    if (doTribulation) {
-      showTribulation(maxLevel, rank + 1);
-    }
-
-    return doTribulation;
-  }
-
   // 进入天道战斗
-  static void showTribulation(int level, int rank) async {
-    dialog.pushDialog('hint_tribulation_1');
-    await dialog.execute();
+  static void showTribulation(int level, int rank,
+      {void Function(bool)? onResult}) async {
+    final enemy = engine.hetu.invoke(
+      'BattleEntity',
+      namedArgs: {
+        'isFemale': false,
+        'name': engine.locale('theHeavenlyWay'),
+        'icon': 'illustration/man_in_shadow.png',
+        'level': level,
+        'rank': rank,
+      },
+    );
 
-    if (GameData.game['enableTutorial'] == true) {
-      if (GameData.flags['tutorial']['tribulation'] != true) {
-        GameData.flags['tutorial']['tribulation'] = true;
-
-        dialog.pushDialog('hint_tribulation_2');
-        await dialog.execute();
-      }
-    }
-
-    dialog.pushDialog('hint_tribulation_3');
-    await dialog.execute();
-
-    dialog.pushSelection('tribulation', ['do_tribulation', 'forgetIt']);
-    await dialog.execute();
-    final selected = dialog.checkSelected('tribulation');
-    if (selected == 'do_tribulation') {
-      final enemy = engine.hetu.invoke(
-        'BattleEntity',
-        namedArgs: {
-          'isFemale': false,
-          'name': engine.locale('theHeavenlyWay'),
-          'icon': 'illustration/man_in_shadow.png',
-          'level': level,
-          'rank': rank,
-        },
-      );
-
-      engine.context.read<EnemyState>().show(
-        enemy,
-        loseOnEscape: true,
-        onBattleEnd: (bool result, int roundCount) {
-          if (result) {
-            GameData.flags['tribulation'] = false;
-            engine.hetu.invoke('levelUp', namespace: 'Player');
-            final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
-            promptNewRank(rank);
-          }
-        },
-      );
-    } else {
-      dialog.pushDialog('hint_tribulation_4');
-      await dialog.execute();
-    }
+    engine.context.read<EnemyState>().show(
+      enemy,
+      loseOnEscape: true,
+      onBattleEnd: (bool result, int roundCount) {
+        onResult?.call(result);
+      },
+    );
   }
 
   static Future<void> promptItems(List items) async {
@@ -1522,6 +1324,12 @@ final class GameLogic {
     engine.play(GameSound.charge);
   }
 
+  static void openDepositBox(dynamic home) {
+    engine.context
+        .read<MerchantState>()
+        .show(home, merchantType: MerchantType.depositBox);
+  }
+
   static void heroRest(dynamic location) => _heroRest(location);
 
   static Future<void> heroWork(dynamic location) => _heroWork(location);
@@ -1563,10 +1371,21 @@ final class GameLogic {
     }
   }
 
-  static void openDepositBox(dynamic home) {
-    engine.context
-        .read<MerchantState>()
-        .show(home, merchantType: MerchantType.depositBox);
+  static bool characterUnlockPassiveTreeNode(dynamic character, String nodeId,
+          {String? selectedAttributeId}) =>
+      _characterUnlockPassiveTreeNode(character, nodeId,
+          selectedAttributeId: selectedAttributeId);
+
+  static void characterRefundPassiveTreeNode(
+          dynamic character, String nodeId) =>
+      _characterRefundPassiveTreeNode(character, nodeId);
+
+  static void characterAllocateSkills(dynamic character,
+          {bool rejuvenate = true}) =>
+      _characterAllocateSkills(character, rejuvenate: rejuvenate);
+
+  static dynamic characterHasPassive(dynamic character, String passiveId) {
+    return character['passives']?[passiveId];
   }
 
   static Future<void> onInteractNpc(dynamic location) =>

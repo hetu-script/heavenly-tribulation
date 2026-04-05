@@ -33,6 +33,7 @@ import 'scene/mini_game/difference/difference.dart';
 import 'scene/mini_game/mouse_maze/mouse_maze.dart';
 import 'scene/mini_game/memory_card/memory_card.dart';
 import 'scene/mini_game/nanogram/nanogram.dart';
+import 'scene/mini_game/common.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -82,19 +83,7 @@ class _GameAppState extends State<GameApp> {
 
     GameUI.init();
 
-    engine.config = EngineConfig(
-      name: 'Heavenly Tribulation',
-      desktop: true,
-      debugMode: true,
-      musicVolume: 0.5,
-      soundEffectVolume: 0.5,
-      mods: {
-        'story': {
-          'enabled': false,
-        },
-      },
-      showFps: false,
-    );
+    await gameConfig.load();
 
     await engine.init(context);
 
@@ -210,30 +199,53 @@ class _GameAppState extends State<GameApp> {
 
     engine.registerSceneConstructor(Scenes.matchingGame2, (
         [dynamic args]) async {
-      return MatchingGame2(tileCount: args['tileCount']);
+      return MatchingGame2(
+        difficulty:
+            MiniGameDifficulty.values.byName(args['difficulty'] ?? 'easy'),
+        onGameStart: args['onGameStart'],
+        onGameEnd: args['onGameEnd'],
+      );
     });
 
     engine.registerSceneConstructor(Scenes.differenceGame, (
         [dynamic args]) async {
-      return DifferenceGame(gameId: args['gameId']);
+      return DifferenceGame(
+        gameId: args['gameId'],
+        difficulty:
+            MiniGameDifficulty.values.byName(args['difficulty'] ?? 'easy'),
+        onGameStart: args['onGameStart'],
+        onGameEnd: args['onGameEnd'],
+      );
     });
 
     engine.registerSceneConstructor(Scenes.mouseMazeGame, (
         [dynamic args]) async {
       return MouseMazeGame(
-        portalPairCount: args['portalPairCount'],
-        switchDoorCount: args['switchDoorCount'],
+        difficulty:
+            MiniGameDifficulty.values.byName(args['difficulty'] ?? 'easy'),
+        onGameStart: args['onGameStart'],
+        onGameEnd: args['onGameEnd'],
       );
     });
 
     engine.registerSceneConstructor(Scenes.memoryCardGame, (
         [dynamic args]) async {
-      return MemoryCardGame();
+      return MemoryCardGame(
+        difficulty:
+            MiniGameDifficulty.values.byName(args['difficulty'] ?? 'easy'),
+        onGameStart: args['onGameStart'],
+        onGameEnd: args['onGameEnd'],
+      );
     });
 
     engine.registerSceneConstructor(Scenes.nanogramGame, (
         [dynamic args]) async {
-      return NanogramGame();
+      return NanogramGame(
+        difficulty:
+            MiniGameDifficulty.values.byName(args['difficulty'] ?? 'easy'),
+        onGameStart: args['onGameStart'],
+        onGameEnd: args['onGameEnd'],
+      );
     });
 
     engine.hetu.interpreter.bindExternalFunctionType(
@@ -241,6 +253,15 @@ class _GameAppState extends State<GameApp> {
       (HTFunction function) {
         return (bool arg1, int arg2) {
           return function.call(positionalArgs: [arg1, arg2]);
+        };
+      },
+    );
+
+    engine.hetu.interpreter.bindExternalFunctionType(
+      'onGameEnd',
+      (HTFunction function) {
+        return (bool arg1) {
+          return function.call(positionalArgs: [arg1]);
         };
       },
     );
@@ -696,8 +717,8 @@ class _GameAppState extends State<GameApp> {
         isMainMod: true,
       );
 
-      for (final key in engine.mods.keys) {
-        if (engine.mods[key]?['enabled'] == true) {
+      for (final key in engine.config.mods.keys) {
+        if (engine.config.mods[key]?['enabled'] == true) {
           await engine.loadModFromAssetsString(
             '$key/main.ht',
             module: key,
@@ -714,8 +735,8 @@ class _GameAppState extends State<GameApp> {
         isMainMod: true,
       );
 
-      for (final key in engine.mods.keys) {
-        if (engine.mods[key]?['enabled'] == true) {
+      for (final key in engine.config.mods.keys) {
+        if (engine.config.mods[key]?['enabled'] == true) {
           final mod = await rootBundle.load('assets/mods/$key.mod');
           final modBytes = mod.buffer.asUint8List();
           await engine.loadModFromBytes(

@@ -183,7 +183,7 @@ packages:
       path: "../data_table_2"
       relative: true
     source: path
-    version: "2.7.0"
+    version: "2.7.2"
   diffutil_dart:
     dependency: transitive
     description:
@@ -548,10 +548,11 @@ packages:
   llama_cpp_dart:
     dependency: transitive
     description:
-      path: "../llama_cpp_dart"
-      relative: true
-    source: path
-    version: "0.2.3"
+      name: llama_cpp_dart
+      sha256: "8bfc902fb6ef80ec0a2d06d5cdb499364271f9a6c6f11623ca9d7b4488fa7a98"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.2"
   logger:
     dependency: transitive
     description:
@@ -588,10 +589,10 @@ packages:
     dependency: transitive
     description:
       name: math_expressions
-      sha256: "218dc65bed4726562bb31c53d8daa3cc824664b26fb72d77bc592757edf74ba0"
+      sha256: "2e1ceb974c2b1893c809a68c7005f1b63f7324db0add800a0e792b1ac8ff9f03"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.7.0"
+    version: "3.1.0"
   matrix2d:
     dependency: transitive
     description:
@@ -708,10 +709,10 @@ packages:
     dependency: transitive
     description:
       name: petitparser
-      sha256: "07c8f0b1913bcde1ff0d26e57ace2f3012ccbf2b204e070290dad3bb22797646"
+      sha256: "91bd59303e9f769f108f8df05e371341b15d59e995e6806aefab827b58336675"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.0"
+    version: "7.0.2"
   platform:
     dependency: transitive
     description:
@@ -1024,10 +1025,10 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: b015a8ad1c488f66851d762d3090a21c600e479dc75e68328c52774040cf9226
+      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.5.0"
+    version: "6.6.1"
   yaml:
     dependency: transitive
     description:

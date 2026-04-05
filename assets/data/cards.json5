@@ -371,7 +371,7 @@
     category: "buff",
     kind: "xinfa",
     description: "affix_heal",
-    image: "battlecard/illustration/xinfa2.png",
+    image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "spell_buff",
       overlays: "restore_life",

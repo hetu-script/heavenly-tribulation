@@ -511,8 +511,8 @@ final class GameData with ChangeNotifier {
   static Future<void> registerModuleEventHandlers() async {
     engine.hetu.invoke('main');
 
-    for (final id in engine.mods.keys) {
-      if (engine.mods[id]?['enabled'] == true) {
+    for (final id in engine.config.mods.keys) {
+      if (engine.config.mods[id]?['enabled'] == true) {
         final moduleConfig = {'version': kGameVersion};
         engine.hetu.invoke('main', module: id, positionalArgs: [moduleConfig]);
       }
@@ -537,8 +537,8 @@ final class GameData with ChangeNotifier {
       },
     );
 
-    for (final id in engine.mods.keys) {
-      if (engine.mods[id]?['enabled'] == true) {
+    for (final id in engine.config.mods.keys) {
+      if (engine.config.mods[id]?['enabled'] == true) {
         final moduleConfig = {'version': kGameVersion};
         engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
       }

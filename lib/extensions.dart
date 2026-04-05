@@ -5,7 +5,7 @@ import '../data/game.dart';
 import '../global.dart';
 
 extension DialogDataHelper on GameDialog {
-  /// 简化模式的对话框接口，会根据情况自动包装需要的信息
+  /// 对话框接口，会根据情况自动包装需要的信息
   void pushDialog(
     dynamic localeKeys, {
     dynamic character,
@@ -98,7 +98,7 @@ extension DialogDataHelper on GameDialog {
     );
   }
 
-  /// 简易版本的选择对话框，localeId是一个字符串列表或[Map<String, String>]，
+  /// 选择对话框接口，localeId是一个字符串列表或[Map<String, String>]，
   void pushSelection(String id, dynamic locales) {
     final selections = {};
     if (locales is List) {

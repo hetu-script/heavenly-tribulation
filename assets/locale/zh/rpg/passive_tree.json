@@ -1,7 +1,9 @@
 {
   "passivetree_unlock_hint": "<yellow>点击鼠标左键解锁天道技能。</>",
   "passivetree_refund_hint": "<green>点击鼠标右键退回技能点数。</>",
-  "passivetree_rank_hint": "<red>不可用：人物未满足境界需求。</>",
+  "passivetree_rank_hint": "<yellow>点击鼠标左键进行突破试炼。</>",
+  "passivetree_rank_no_points_hint": "<red>不可用：可分配天道技能点数不足。</>",
+  "passivetree_rank_node_no_refund_hint": "<red>境界节点不可退回。</>",
   "passivetree_locked_hint": "<red>不可用：前置节点尚未解锁。</>",
   "passivetree_points_hint": "<red>不可用：可分配天道技能点数不足。</>",
 
@@ -64,5 +66,13 @@
   "passivetree_vitality_rank_5": "化神·炼魂",
 
   "passivetree_attribute_any": "属性",
-  "passivetree_attribute_any_description": "任选一个战斗属性 + 5"
+  "passivetree_attribute_any_description": "任选一个战斗属性 + 5",
+
+  "passivetree_tribulation_intro": "此乃天道技能中的境界节点。\n解锁境界节点需要通过一场突破试炼。试炼方式分为文试和武试。\n武试需要战胜天道感应所化的幻象法身。\n试炼失败不会消耗技能点。但每次试炼都需要消耗时间和精力。\n境界节点一旦解锁便无法退回。",
+  "passivetree_tribulation_prompt": "你即将挑战突破试炼。请选择试炼方式。",
+  "tribulation_martial": "武试",
+  "tribulation_literary": "文试（尚未开放）",
+  "passivetree_tribulation_success": "试炼成功！你的境界得到了提升。",
+  "passivetree_tribulation_fail": "试炼失败。你可以随时再次尝试。",
+  "passivetree_tribulation_cancel": "你放弃了这次试炼。"
 }

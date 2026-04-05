@@ -40,6 +40,16 @@
   "execute": "执行",
   "progress": "进度",
 
+  "musicVolume": "音乐音量",
+  "soundEffectVolume": "音效音量",
+  "showFps": "显示帧率",
+  "enableLlm": "启用大模型",
+  "llmModelId": "LLM 模型",
+  "modsList": "模组管理",
+  "noModsFound": "没有可用的模组",
+  "restartRequired": "重启生效",
+  "hint_restartRequired": "部分选项修改后需要重新启动游戏才能生效。",
+
   "noUsableItems": "无可用项目",
 
   "generateZone": "自动生成地域",
@@ -945,7 +955,7 @@
   "hint_tribulation_2": "\n此乃天道感应所化的一具幻象法身。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。但如果失败，不但修为经验不会返还，还会获得一层劫数。\n无论是失败还是放弃，你在下一次升级时必将再次触发天道劫数。",
   "hint_tribulation_3": "\n你要挑战天道吗？",
   "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。",
-  "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。除非服用对应境界的破境丹药，否则无法继续提升修为等级了。",
+  "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。你需要在天道技能中解锁更高的境界节点才能继续提升。",
 
   "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。",
 

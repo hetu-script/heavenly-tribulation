@@ -14,6 +14,8 @@ import '../../global.dart';
 import '../game_creation/load_game.dart';
 import '../game_creation/create_sandbox_game.dart';
 import '../game_creation/create_blank_map.dart';
+import '../game_creation/game_settings.dart';
+import '../game_creation/mods_list.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../data/common.dart';
@@ -102,9 +104,30 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.Button(
-                        onPressed: null,
+                        onPressed: () async {
+                          await showDialog(
+                            context: context,
+                            builder: (context) => const GameSettingsDialog(),
+                          );
+                        },
                         child: Label(
                           engine.locale('settings'),
+                          width: 150.0,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: fluent.Button(
+                        onPressed: () async {
+                          await showDialog(
+                            context: context,
+                            builder: (context) => const ModsListDialog(),
+                          );
+                        },
+                        child: Label(
+                          engine.locale('modsList'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
@@ -479,34 +502,36 @@ class _DebugButtonState extends State<DebugButton> {
                     engine.pushScene(
                       Scenes.matchingGame2,
                       arguments: {
-                        'tileCount': 108,
+                        'difficulty': 'easy',
                       },
                     );
                   case 'debugDifferenceGame':
                     engine.pushScene(
                       Scenes.differenceGame,
                       arguments: {
-                        'gameId': '1',
+                        'difficulty': 'easy',
                       },
                     );
                   case 'debugMouseMazeGame':
                     engine.pushScene(
                       Scenes.mouseMazeGame,
                       arguments: {
-                        'portalPairCount': 2,
-                        'switchDoorCount': 2,
-                        'keyLockPairCount': 0,
+                        'difficulty': 'easy',
                       },
                     );
                   case 'debugMemoryCardGame':
                     engine.pushScene(
                       Scenes.memoryCardGame,
-                      arguments: {},
+                      arguments: {
+                        'difficulty': 'easy',
+                      },
                     );
                   case 'debugNanogramGame':
                     engine.pushScene(
                       Scenes.nanogramGame,
-                      arguments: {},
+                      arguments: {
+                        'difficulty': 'easy',
+                      },
                     );
                 }
               },

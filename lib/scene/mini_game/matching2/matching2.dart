@@ -10,32 +10,23 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/effect/confetti.dart';
+import 'package:samsara/components/sprite_component2.dart';
 
 import '../../../global.dart';
 import '../../../ui.dart';
 import '../../cursor_state.dart';
 import '../../common.dart';
 import '../../../data/game.dart';
+import '../common.dart';
 
 const _kLayerPriority = [30, 20, 10];
-const _kConfettiPriority = 1000;
 
 const _kMaxSlots = 7; // 槽位上限：7个
 const _kIconTypes = 12; // 图标种类：12种
 const _kStackedTileCount = 18; // 每个堆叠位置的方块数量
-const _kStackPositions = 2; // 堆叠位置数量
-
-// 避开中心区域，让方块集中在边缘和角落，增加遮挡难度
-const _kExcludeRadius = 3; // 半径（曼哈顿距离）
 
 // 堆叠方块配置
 const _kStackOffsetY = 9.0; // 每个堆叠方块的Y轴偏移量（像素）
-
-// 两个堆叠位置的网格坐标（对称分布）
-const _kStackGridPositions = [
-  {'x': 4, 'y': 4}, // 左侧堆叠
-  {'x': 6, 'y': 4}, // 右侧堆叠
-];
 
 /// 匹配成功的碎片效果
 class MatchParticle extends PositionComponent {
@@ -274,13 +265,16 @@ class MatchingGame2 extends Scene with HasCursorState {
   final List<MatchingTile> boardTiles = [];
   final List<MatchingTile> slotTiles = []; // 槽位中的方块
 
-  final int tileCount; // 方块总数：66个（11种×6个）
+  final MiniGameDifficulty difficulty;
+  final int tileCount; // 方块总数
   late final int normalTileCount; // 普通方块数量
+  late final int stackPositions; // 堆叠位置数量
+  late final List<Map<String, int>> stackGridPositions; // 堆叠位置坐标
 
   late List<int> _layerCounts; // 每层的方块数量 [第1层, 第2层, 第3层]
 
-  bool gameOver = false;
-  bool gameWon = false;
+  bool _isGameOver = false;
+  bool _isGameWon = false;
 
   MatchingTile? _hoveringTile;
 
@@ -288,22 +282,56 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   late final SpriteButton restart, exit;
 
+  late final SpriteComponent2 barrier;
+
+  FutureOr<void> Function()? onGameStart;
+  FutureOr<dynamic> Function(bool won)? onGameEnd;
+
   MatchingGame2({
-    required this.tileCount,
-  })  : assert(tileCount > _kStackedTileCount * _kStackPositions,
-            '总方块数必须大于堆叠方块数(${_kStackedTileCount * _kStackPositions})'),
-        assert(tileCount % _kIconTypes == 0, '总方块数必须是$_kIconTypes的倍数'),
-        normalTileCount = tileCount - (_kStackedTileCount * _kStackPositions),
+    required this.difficulty,
+    this.onGameStart,
+    this.onGameEnd,
+  })  : tileCount = switch (difficulty) {
+          MiniGameDifficulty.easy => 36, // 12种×3个
+          MiniGameDifficulty.medium => 72, // 12种×6个
+          MiniGameDifficulty.hard => 108, // 12种×9个
+        },
         super(
           id: Scenes.matchingGame2,
           bgm: engine.bgm,
           bgmFile: 'ghuzheng-fantasie-23506.mp3',
           bgmVolume: 0.5,
-        );
+        ) {
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.medium:
+        stackPositions = 1;
+        stackGridPositions = [
+          {'x': 5, 'y': 4}, // 中心堆叠
+        ];
+      case MiniGameDifficulty.hard:
+        stackPositions = 2;
+        stackGridPositions = [
+          {'x': 4, 'y': 4}, // 左侧堆叠
+          {'x': 6, 'y': 4}, // 右侧堆叠
+        ];
+    }
+    normalTileCount = tileCount - (_kStackedTileCount * stackPositions);
+  }
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
+
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      priority: 10000,
+      isVisible: false,
+    );
+    world.add(barrier);
 
     _victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
@@ -328,6 +356,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     restart.onTap = (_, __) {
       _initializeGame();
     };
+    restart.isVisible = engine.config.debugMode;
     camera.viewport.add(restart);
 
     exit = SpriteButton(
@@ -338,7 +367,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      engine.popScene(clearCache: true);
+      _endScene(_isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -364,6 +393,21 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 初始化游戏 - 生成方块
   Future<void> _initializeGame() async {
+    engine.bgm.resume();
+
+    restart.position = GameUI.restartButtonPosition;
+    exit.position = GameUI.exitButtonPosition;
+
+    _isGameOver = false;
+    barrier.isVisible = false;
+
+    final List<int> iconIds = [];
+
+    _victoryPrompt.removeFromParent();
+    _defeatPrompt.removeFromParent();
+
+    restart.isVisible = engine.config.debugMode;
+
     // 移除所有旧方块
     for (var tile in boardTiles) {
       tile.removeFromParent();
@@ -372,24 +416,14 @@ class MatchingGame2 extends Scene with HasCursorState {
       tile.removeFromParent();
     }
 
-    _victoryPrompt.removeFromParent();
-    _defeatPrompt.removeFromParent();
-
-    restart.position = GameUI.restartButtonPosition;
-    exit.position = GameUI.exitButtonPosition;
-
     boardTiles.clear();
     slotTiles.clear();
-    gameOver = false;
-    gameWon = false;
-
-    final List<int> iconIds = [];
 
     // 为每种图标分配数量（必须能被3整除以支持三消）
     final countPerIcon = tileCount ~/ _kIconTypes;
 
     // ===== 第一步：生成堆叠方块 =====
-    final totalStackedCount = _kStackedTileCount * _kStackPositions;
+    final totalStackedCount = _kStackedTileCount * stackPositions;
     final stackedIconIds = <int>[];
     for (int i = 0; i < totalStackedCount; i++) {
       stackedIconIds.add(i % _kIconTypes);
@@ -397,9 +431,9 @@ class MatchingGame2 extends Scene with HasCursorState {
     stackedIconIds.shuffle(random);
 
     // 为每个堆叠位置创建方块
-    for (int stackPos = 0; stackPos < _kStackPositions; stackPos++) {
-      final stackGridX = _kStackGridPositions[stackPos]['x']!;
-      final stackGridY = _kStackGridPositions[stackPos]['y']!;
+    for (int stackPos = 0; stackPos < stackPositions; stackPos++) {
+      final stackGridX = stackGridPositions[stackPos]['x']!;
+      final stackGridY = stackGridPositions[stackPos]['y']!;
 
       // 创建该堆叠位置的方块（从底部到顶部）
       for (int i = 0; i < _kStackedTileCount; i++) {
@@ -503,6 +537,8 @@ class MatchingGame2 extends Scene with HasCursorState {
     //   debugPrint(
     //       '第${layer + 1}层: 总数=${layerTiles.length}, 可点击=${unblockedTiles.length}');
     // }
+
+    await onGameStart?.call();
   }
 
   /// 根据方块总数自动计算每层的分配数量
@@ -515,48 +551,54 @@ class MatchingGame2 extends Scene with HasCursorState {
     return [layer1Count, layer2Count, layer3Count];
   }
 
-  /// 检查点是否在排除区域内
-  /// 使用曼哈顿距离判断：|x - centerX| + |y - centerY| <= radius
-  bool _isInExcludeZone(
-    int x,
-    int y,
-    int centerX,
-    int centerY,
-    int radius,
-  ) {
-    if (radius <= 0) return false;
-    final manhattanDistance = (x - centerX).abs() + (y - centerY).abs();
-    return manhattanDistance <= radius;
+  /// 检查指定位置是否在排除区域内
+  /// 不同难度使用不同的排除策略：
+  /// - 简单：无排除
+  /// - 中等：曼哈顿距离 ≤ 3 的菱形排除（原始行为）
+  /// - 困难：棋盘中心 3×3 矩形排除
+  bool _isPositionExcluded(int x, int y, int layer) {
+    // 棋盘中心
+    final centerX = GameUI.matchingBoardGridWidth ~/ 2; // 5
+    final centerY = GameUI.matchingBoardGridHeight ~/ 2; // 3
+
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        // 无堆叠，不排除
+        return false;
+
+      case MiniGameDifficulty.medium:
+        // 曼哈顿距离 ≤ 3 的菱形排除
+        const radius = 3;
+        if (layer == 1) {
+          // Layer 1 有半格偏移，(x,y) 覆盖 Layer 0/2 的 (x,y),(x+1,y),(x,y+1),(x+1,y+1)
+          return _manhattanExcluded(x, y, centerX, centerY, radius) ||
+              _manhattanExcluded(x + 1, y, centerX, centerY, radius) ||
+              _manhattanExcluded(x, y + 1, centerX, centerY, radius) ||
+              _manhattanExcluded(x + 1, y + 1, centerX, centerY, radius);
+        }
+        return _manhattanExcluded(x, y, centerX, centerY, radius);
+
+      case MiniGameDifficulty.hard:
+        // 中心 3×3 矩形排除：x∈[4,6], y∈[2,4]
+        const minX = 4, maxX = 6, minY = 2, maxY = 4;
+        if (layer == 1) {
+          // Layer 1 有半格偏移，检查所有覆盖位置
+          return _rectExcluded(x, y, minX, minY, maxX, maxY) ||
+              _rectExcluded(x + 1, y, minX, minY, maxX, maxY) ||
+              _rectExcluded(x, y + 1, minX, minY, maxX, maxY) ||
+              _rectExcluded(x + 1, y + 1, minX, minY, maxX, maxY);
+        }
+        return _rectExcluded(x, y, minX, minY, maxX, maxY);
+    }
   }
 
-  /// 检查第2层的位置是否会影响排除区域
-  /// 由于第2层有半格向右下偏移，检查该位置和右下相邻位置
-  bool _isInExcludeZoneForLayer2(
-    int x,
-    int y,
-    int centerX,
-    int centerY,
-    int radius,
-  ) {
-    if (radius <= 0) return false;
+  static bool _manhattanExcluded(int x, int y, int cx, int cy, int radius) {
+    return (x - cx).abs() + (y - cy).abs() <= radius;
+  }
 
-    // 第1/3层的网格是 11x7，中心是 (5,3)
-    // 第2层网格是 10x6，由于半格偏移，检查当前位置和右下相邻位置
-    final layer13CenterX = GameUI.matchingBoardGridWidth ~/ 2; // 5
-    final layer13CenterY = GameUI.matchingBoardGridHeight ~/ 2; // 3
-
-    // 第2层在位置(x,y)，由于半格偏移会部分覆盖(x,y), (x+1,y), (x,y+1), (x+1,y+1)
-    // 检查其中任何一个是否在排除区域内
-    // 为了避免过度排除，我们只检查最接近中心的位置
-    if (_isInExcludeZone(x, y, layer13CenterX, layer13CenterY, radius)) {
-      return true;
-    }
-    if (_isInExcludeZone(
-        x + 1, y + 1, layer13CenterX, layer13CenterY, radius)) {
-      return true;
-    }
-
-    return false;
+  static bool _rectExcluded(
+      int x, int y, int minX, int minY, int maxX, int maxY) {
+    return x >= minX && x <= maxX && y >= minY && y <= maxY;
   }
 
   /// 生成方块的位置（第一层少，第二三层多）
@@ -573,37 +615,33 @@ class MatchingGame2 extends Scene with HasCursorState {
 
     // 按层顺序生成，保证 layerAssignments 和 positions 的对应关系
 
-    // 第1层（最上层, layer=0）- 避开中心
+    // 第1层（最上层, layer=0）
     final layer1Positions = _generateRandomPositions(
       layer1Count,
       GameUI.matchingBoardGridWidth,
       GameUI.matchingBoardGridHeight,
-      excludeRadius: _kExcludeRadius,
       layer: 0,
     );
     for (var pos in layer1Positions) {
       positions.add({'layer': 0, 'x': pos['x']!, 'y': pos['y']!});
     }
 
-    // 第2层（layer=1，有半格错位）- 避开中心菱形
-    // 由于半格错位，需要更严格的排除判断
+    // 第2层（layer=1，有半格错位）
     final layer2Positions = _generateRandomPositions(
       layer2Count,
       GameUI.matchingBoardGridWidth - 1,
       GameUI.matchingBoardGridHeight - 1,
-      excludeRadius: _kExcludeRadius,
       layer: 1,
     );
     for (var pos in layer2Positions) {
       positions.add({'layer': 1, 'x': pos['x']!, 'y': pos['y']!});
     }
 
-    // 第3层（最下层, layer=2）- 避开中心菱形
+    // 第3层（最下层, layer=2）
     final layer3Positions = _generateRandomPositions(
       layer3Count,
       GameUI.matchingBoardGridWidth,
       GameUI.matchingBoardGridHeight,
-      excludeRadius: _kExcludeRadius,
       layer: 2,
     );
     for (var pos in layer3Positions) {
@@ -614,21 +652,14 @@ class MatchingGame2 extends Scene with HasCursorState {
   }
 
   /// 生成不重复的随机位置
-  /// [excludeRadius] 定义要排除的中心菱形区域半径（曼哈顿距离）
-  /// 设置为0则不排除任何区域
   List<Map<String, int>> _generateRandomPositions(
     int count,
     int maxX,
     int maxY, {
-    int excludeRadius = 0,
     int layer = 0,
   }) {
     final positions = <Map<String, int>>[];
     final used = <String>{};
-
-    // 计算棋盘中心点
-    final centerX = maxX ~/ 2;
-    final centerY = maxY ~/ 2;
 
     // 添加安全计数器，防止死循环
     int attempts = 0;
@@ -637,11 +668,9 @@ class MatchingGame2 extends Scene with HasCursorState {
     while (positions.length < count) {
       attempts++;
       if (attempts > maxAttempts) {
-        // 如果尝试次数过多，说明可用位置不足
         engine.error('警告：第${layer + 1}层位置生成失败，'
             '需要$count个位置，只找到${positions.length}个。'
-            '网格大小: ${maxX}x$maxY, 排除半径: $excludeRadius');
-        // 返回已找到的位置，让上层处理
+            '网格大小: ${maxX}x$maxY');
         break;
       }
 
@@ -649,24 +678,14 @@ class MatchingGame2 extends Scene with HasCursorState {
       final y = random.nextInt(maxY);
       final key = '$x,$y';
 
-      // 检查位置是否已使用
       if (used.contains(key)) {
         continue;
       }
 
-      // 检查是否在排除区域内
-      // 对于第2层（layer=1），由于有半格错位，需要更严格的检查
-      if (layer == 1) {
-        if (_isInExcludeZoneForLayer2(x, y, centerX, centerY, excludeRadius)) {
-          continue; // 在排除区域内，跳过
-        }
-      } else {
-        if (_isInExcludeZone(x, y, centerX, centerY, excludeRadius)) {
-          continue; // 在中心菱形排除区域内，跳过
-        }
+      if (_isPositionExcluded(x, y, layer)) {
+        continue;
       }
 
-      // 位置有效，添加到结果中
       used.add(key);
       positions.add({'x': x, 'y': y});
     }
@@ -782,9 +801,9 @@ class MatchingGame2 extends Scene with HasCursorState {
         boardTiles.where((t) => t.isStacked && !t.isSelected).toList();
     if (stackedTiles.isNotEmpty) {
       // 按堆叠位置分组
-      for (int stackPos = 0; stackPos < _kStackPositions; stackPos++) {
-        final stackGridX = _kStackGridPositions[stackPos]['x']!;
-        final stackGridY = _kStackGridPositions[stackPos]['y']!;
+      for (int stackPos = 0; stackPos < stackPositions; stackPos++) {
+        final stackGridX = stackGridPositions[stackPos]['x']!;
+        final stackGridY = stackGridPositions[stackPos]['y']!;
 
         // 获取该堆叠位置的所有方块
         final stackTilesAtPos = stackedTiles
@@ -830,7 +849,7 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 点击方块的处理
   void _onTileTapped(MatchingTile tile) async {
-    if (gameOver || gameWon) return;
+    if (_isGameOver) return;
     if (tile.isBlocked || tile.isSelected || tile.isInSlot) return;
 
     // debugPrint(
@@ -839,7 +858,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     // 添加到槽位
     if (slotTiles.length >= _kMaxSlots) {
       // 槽位已满，游戏失败
-      _onGameEnd(false);
+      _onGameOver(false);
       return;
     }
 
@@ -955,7 +974,7 @@ class MatchingGame2 extends Scene with HasCursorState {
 
     // 检查是否槽位满但无法配对
     if (slotTiles.length >= _kMaxSlots) {
-      _onGameEnd(false);
+      _onGameOver(false);
     }
   }
 
@@ -976,20 +995,24 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 检查是否胜利
   void _checkWin() {
-    if (gameOver || gameWon) return;
+    if (_isGameOver) return;
 
     // 检查是否所有方块都被选中
     if (boardTiles.isEmpty && slotTiles.isEmpty) {
-      _onGameEnd(true);
+      _onGameOver(true);
     }
   }
 
   /// 显示游戏结果
-  void _onGameEnd(bool won) {
-    if (gameOver || gameWon) return;
+  void _onGameOver(bool won) {
+    if (_isGameOver) return;
 
-    gameOver = true;
-    gameWon = won;
+    engine.bgm.pause();
+
+    _isGameOver = true;
+    _isGameWon = won;
+    barrier.isVisible = true;
+
     if (won) {
       camera.viewport.add(_victoryPrompt);
       engine.play(GameSound.victory);
@@ -997,7 +1020,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       final celebration = ConfettiEffect(
         position: Vector2.zero(),
         size: size,
-        priority: _kConfettiPriority,
+        priority: kConfettiPriority,
       );
       camera.viewport.add(celebration);
     } else {
@@ -1005,13 +1028,27 @@ class MatchingGame2 extends Scene with HasCursorState {
       engine.play(GameSound.gameOver);
     }
 
-    restart.position = Vector2(
-        center.x,
-        _victoryPrompt.bottomRight.y +
-            GameUI.buttonSizeMedium.y +
-            GameUI.largeIndent);
-    exit.position = Vector2(center.x,
-        restart.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
+    Future.delayed(const Duration(milliseconds: 500), () {
+      restart.isVisible = engine.config.debugMode;
+      restart.position = Vector2(
+          center.x,
+          _victoryPrompt.bottomRight.y +
+              GameUI.buttonSizeMedium.y +
+              GameUI.largeIndent);
+
+      exit.position = Vector2(
+          center.x,
+          restart.bottomRight.y +
+              GameUI.buttonSizeMedium.y / 2 +
+              GameUI.indent);
+    });
+  }
+
+  Future<void> _endScene(bool won) async {
+    final result = await onGameEnd?.call(won);
+    if (result != true) {
+      engine.popScene(clearCache: true);
+    }
   }
 
   @override

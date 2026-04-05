@@ -387,8 +387,169 @@ class CultivationScene extends Scene with HasCursorState {
     return selected;
   }
 
+  Future<void> _onSkillButtonTapUp(
+      SpriteButton skillButton, String nodeId, int button) async {
+    final (isLearned, isOpen) = checkPassiveStatus(nodeId);
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+
+    if (button == kPrimaryButton) {
+      if (isLearned || !isOpen) return;
+      Hovertip.hide(skillButton);
+
+      final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
+      if (warning != null) {
+        dialog.pushDialog('hint_requirementNotMetForSkill');
+        dialog.execute();
+        return;
+      }
+
+      if (!isEditorMode) {
+        if (character['skillPoints'] <= 0) {
+          dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
+          dialog.execute();
+          return;
+        }
+      }
+
+      // 境界节点：触发突破试炼
+      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+      if (rankRequirement == character['rank'] + 1) {
+        _tryTribulation(skillButton, nodeId);
+        return;
+      }
+
+      if (isAttribute) {
+        // 如果是属性节点，需要特殊处理
+        final selectedAttributeId = await _selectHeroAttribute();
+
+        if (selectedAttributeId == null || selectedAttributeId == 'cancel') {
+          return;
+        }
+
+        GameLogic.characterUnlockPassiveTreeNode(
+          character,
+          nodeId,
+          selectedAttributeId: selectedAttributeId,
+        );
+
+        skillButton.tryLoadSprite(
+            spriteId: GameData.passives[selectedAttributeId]['icon']);
+      } else {
+        GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+      }
+      skillButton.isSelected = true;
+      if (!isEditorMode) {
+        --character['skillPoints'];
+      }
+
+      updatePassivesDescription();
+      updateInformation();
+
+      engine.play(GameSound.click);
+    } else if (button == kSecondaryButton) {
+      if (!isLearned) return;
+
+      // 境界节点不可退点
+      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+      if (rankRequirement > 0) {
+        hint(engine.locale('passivetree_rank_node_no_refund_hint'));
+        return;
+      }
+
+      Hovertip.hide(skillButton);
+      skillButton.isSelected = false;
+      if (!isEditorMode) {
+        ++character['skillPoints'];
+      }
+
+      // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
+
+      GameLogic.characterRefundPassiveTreeNode(character, nodeId);
+
+      updatePassivesDescription();
+      updateInformation();
+      engine.play(GameSound.click);
+    }
+  }
+
+  void _onSkillButtonMouseEnter(SpriteButton skillButton, String nodeId) {
+    final (isLearned, isOpen) = checkPassiveStatus(nodeId);
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+    final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
+
+    final skillDescription = StringBuffer();
+
+    if (engine.config.debugMode) {
+      skillDescription.write('<grey>$nodeId</>\n \n');
+    }
+
+    if (isAttribute && isLearned) {
+      // 只有已经学习过的属性节点需要特殊处理
+      // 其他情况下的节点描述文字已经在游戏载入时预先生成过了
+      skillDescription.writeln(
+          '<bold yellow>${engine.locale('passivetree_attribute_any')}</>');
+      skillDescription.writeln(' ');
+
+      final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
+      assert(attributeId is String);
+      final attributeSkillData = GameData.passives[attributeId];
+      assert(attributeSkillData != null);
+      String attributeDescription = engine
+          .locale(attributeSkillData['description'], interpolations: [
+        '+${(kPassiveTreeAttributeAnyLevel * 0.5).toInt()}'
+      ]);
+      skillDescription.writeln('<lightBlue>$attributeDescription</>');
+    } else {
+      skillDescription.writeln(passiveTreeNodeData['description']);
+    }
+
+    skillDescription.writeln(' ');
+    if (isLearned) {
+      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+      if (rankRequirement > 0) {
+        skillDescription
+            .writeln(engine.locale('passivetree_rank_node_no_refund_hint'));
+      } else {
+        skillDescription.writeln(engine.locale('passivetree_refund_hint'));
+      }
+    } else {
+      if (isOpen) {
+        final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+        if (rankRequirement > 0 && character['rank'] < rankRequirement) {
+          // 境界节点：需要突破试炼
+          if (character['skillPoints'] > 0 || isEditorMode) {
+            skillDescription.writeln(engine.locale('passivetree_rank_hint'));
+          } else {
+            skillDescription
+                .writeln(engine.locale('passivetree_rank_no_points_hint'));
+          }
+        } else if (character['skillPoints'] > 0 || isEditorMode) {
+          skillDescription.writeln(engine.locale('passivetree_unlock_hint'));
+        } else {
+          skillDescription.writeln(engine.locale('passivetree_points_hint'));
+        }
+      } else {
+        skillDescription.writeln(engine.locale('passivetree_locked_hint'));
+      }
+    }
+
+    if (warning != null) {
+      skillDescription.writeln(warning);
+    }
+
+    Hovertip.show(
+      scene: this,
+      target: skillButton,
+      direction: HovertipDirection.rightTop,
+      content: skillDescription.toString(),
+    );
+  }
+
   void _addSkillButton({required String nodeId, required Vector2 position}) {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
     late SpriteButton skillButton;
 
@@ -421,8 +582,6 @@ class CultivationScene extends Scene with HasCursorState {
       }
     } else {
       // 已经开发完毕，写好数据的技能
-      // 是否是属性点天赋
-      bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
       final buttonSize = switch (passiveTreeNodeData['size']) {
         'large' => GameUI.skillButtonSizeLarge,
@@ -459,140 +618,11 @@ class CultivationScene extends Scene with HasCursorState {
       }
 
       skillButton.onTapUp = (button, position) async {
-        final (isLearned, isOpen) = checkPassiveStatus(nodeId);
-
-        if (button == kPrimaryButton) {
-          if (isLearned || !isOpen) return;
-          Hovertip.hide(skillButton);
-
-          final String? warning =
-              GameLogic.checkRequirements(passiveTreeNodeData);
-          if (warning != null) {
-            dialog.pushDialog('hint_requirementNotMetForSkill');
-            dialog.execute();
-            return;
-          }
-
-          if (!isEditorMode) {
-            if (character['skillPoints'] <= 0) {
-              dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
-              dialog.execute();
-              return;
-            }
-          }
-
-          if (isAttribute) {
-            // 如果是属性节点，需要特殊处理
-            final selectedAttributeId = await _selectHeroAttribute();
-
-            if (selectedAttributeId == null ||
-                selectedAttributeId == 'cancel') {
-              return;
-            }
-
-            GameLogic.characterUnlockPassiveTreeNode(
-              character,
-              nodeId,
-              selectedAttributeId: selectedAttributeId,
-            );
-
-            skillButton.tryLoadSprite(
-                spriteId: GameData.passives[selectedAttributeId]['icon']);
-          } else {
-            GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-          }
-          skillButton.isSelected = true;
-          if (!isEditorMode) {
-            --character['skillPoints'];
-          }
-
-          updatePassivesDescription();
-          updateInformation();
-
-          engine.play(GameSound.click);
-        } else if (button == kSecondaryButton) {
-          if (!isLearned) return;
-          Hovertip.hide(skillButton);
-          skillButton.isSelected = false;
-          if (!isEditorMode) {
-            ++character['skillPoints'];
-          }
-
-          // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
-
-          GameLogic.characterRefundPassiveTreeNode(character, nodeId);
-
-          updatePassivesDescription();
-          updateInformation();
-          engine.play(GameSound.click);
-        }
+        _onSkillButtonTapUp(skillButton, nodeId, button);
       };
 
       skillButton.onMouseEnter = () {
-        final (isLearned, isOpen) = checkPassiveStatus(nodeId);
-
-        final String? warning =
-            GameLogic.checkRequirements(passiveTreeNodeData);
-
-        final skillDescription = StringBuffer();
-
-        if (engine.config.debugMode) {
-          skillDescription.write('<grey>$nodeId</>\n \n');
-        }
-
-        if (isAttribute && isLearned) {
-          // 只有已经学习过的属性节点需要特殊处理
-          // 其他情况下的节点描述文字已经在游戏载入时预先生成过了
-          skillDescription.writeln(
-              '<bold yellow>${engine.locale('passivetree_attribute_any')}</>');
-          skillDescription.writeln(' ');
-
-          final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
-          assert(attributeId is String);
-          final attributeSkillData = GameData.passives[attributeId];
-          assert(attributeSkillData != null);
-          String attributeDescription = engine
-              .locale(attributeSkillData['description'], interpolations: [
-            '+${(kPassiveTreeAttributeAnyLevel * 0.5).toInt()}'
-          ]);
-          skillDescription.writeln('<lightBlue>$attributeDescription</>');
-        } else {
-          skillDescription.writeln(passiveTreeNodeData['description']);
-        }
-
-        skillDescription.writeln(' ');
-        if (isLearned) {
-          skillDescription.writeln(engine.locale('passivetree_refund_hint'));
-        } else {
-          if (isOpen) {
-            if (character['skillPoints'] > 0 || isEditorMode) {
-              final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-              if (character['rank'] >= rankRequirement) {
-                skillDescription
-                    .writeln(engine.locale('passivetree_unlock_hint'));
-              } else {
-                skillDescription
-                    .writeln(engine.locale('passivetree_rank_hint'));
-              }
-            } else {
-              skillDescription
-                  .writeln(engine.locale('passivetree_points_hint'));
-            }
-          } else {
-            skillDescription.writeln(engine.locale('passivetree_locked_hint'));
-          }
-        }
-
-        if (warning != null) {
-          skillDescription.writeln(warning);
-        }
-
-        Hovertip.show(
-          scene: this,
-          target: skillButton,
-          direction: HovertipDirection.rightTop,
-          content: skillDescription.toString(),
-        );
+        _onSkillButtonMouseEnter(skillButton, nodeId);
       };
 
       skillButton.onMouseExit = () {
@@ -1056,41 +1086,89 @@ class CultivationScene extends Scene with HasCursorState {
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
   }
 
+  /// 点击境界节点时触发突破试炼
+  Future<void> _tryTribulation(SpriteButton skillButton, String nodeId) async {
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    if (passiveTreeNodeData == null) return;
+
+    final int nodeRank = passiveTreeNodeData['rank'] ?? 0;
+    assert(nodeRank == character['rank'] + 1);
+
+    if (!isEditorMode) {
+      if (character['skillPoints'] <= 0) {
+        dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
+        dialog.execute();
+        return;
+      }
+    }
+
+    // 教程提示
+    if (GameData.game['enableTutorial'] == true) {
+      if (GameData.flags['tutorial']['tribulation'] != true) {
+        GameData.flags['tutorial']['tribulation'] = true;
+
+        dialog.pushDialog('passivetree_tribulation_intro');
+        await dialog.execute();
+      }
+    }
+
+    // 选择试炼方式
+    dialog.pushDialog('passivetree_tribulation_prompt');
+    await dialog.execute();
+
+    dialog.pushSelection('tribulationMethod',
+        ['tribulation_martial', 'tribulation_literary', 'cancel']);
+    await dialog.execute();
+    final selected = dialog.checkSelected('tribulationMethod');
+
+    if (selected == 'tribulation_martial') {
+      // 武试：进入天道战斗
+      final int maxLevel = GameLogic.maxLevelForRank(nodeRank);
+      GameLogic.showTribulation(maxLevel, nodeRank, onResult: (bool result) {
+        if (result) {
+          // 渡劫成功：提升境界 + 解锁节点 + 扣技能点
+          engine.hetu.invoke('rankUp', namespace: 'Player');
+          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+          skillButton.isSelected = true;
+          if (!isEditorMode) {
+            --character['skillPoints'];
+          }
+          updatePassivesDescription();
+          updateInformation();
+          GameLogic.promptNewRank(character['rank']);
+        } else {
+          dialog.pushDialog('passivetree_tribulation_fail');
+          dialog.execute();
+        }
+      });
+    } else if (selected == 'tribulation_literary') {
+      // 文试暂未开放
+      dialog.pushDialog('functionDisabled');
+      await dialog.execute();
+    } else {
+      dialog.pushDialog('passivetree_tribulation_cancel');
+      await dialog.execute();
+    }
+  }
+
   /// 处理角色升级相关逻辑
   void tryLevelUp() {
     int level = character['level'];
     int rank = character['rank'];
     int maxLevel = GameLogic.maxLevelForRank(rank);
-    int expForLevel = character['expForLevel'];
     int exp = character['exp'];
+    int expForLevel = character['expForLevel'];
 
     if (exp < expForLevel) return;
 
-    bool? tribulationCheckResult = GameLogic.checkTribulation();
-
-    void levelUp() {
+    if (level < maxLevel) {
       exp -= expForLevel;
       engine.hetu.invoke('levelUp', namespace: 'Player');
 
-      hint(
-        '${engine.locale('cultivationLevel')} + 1',
-        color: Colors.yellow,
-      );
-    }
-
-    if (tribulationCheckResult == null) {
-      if (level < maxLevel) {
-        levelUp();
-      } else {
-        dialog.pushDialog('hint_tribulation_5');
-        dialog.execute();
-      }
+      hint('修为等级 + 1', color: Colors.yellow);
     } else {
-      if (tribulationCheckResult) {
-        levelUp();
-      } else {
-        character['exp'] = exp;
-      }
+      dialog.pushDialog('hint_tribulation_5');
+      dialog.execute();
     }
 
     updateInformation();

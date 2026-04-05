@@ -117,12 +117,6 @@
             ],
           },
           {
-            id: "sect",
-            title: "wiki_sect_title",
-            path: "docs/docs/how2play/rpg/sect/readme.md",
-            children: [],
-          },
-          {
             id: "quest",
             title: "wiki_bounty_quest_title",
             path: "docs/docs/how2play/rpg/quest/readme.md",
@@ -151,6 +145,12 @@
             id: "city",
             title: "wiki_city_title",
             path: "docs/docs/how2play/tycoon/city/readme.md",
+            children: [],
+          },
+          {
+            id: "sect",
+            title: "wiki_sect_title",
+            path: "docs/docs/how2play/tycoon/sect/readme.md",
             children: [],
           },
           {

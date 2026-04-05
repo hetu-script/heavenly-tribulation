@@ -28,8 +28,8 @@ Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
   saveName ??= randomUID();
   final directory = await path.getApplicationDocumentsDirectory();
-  final savePath = path.join(
-      directory.path, engine.name, 'save', '$saveName$kGameSaveFileExtension');
+  final savePath = path.join(directory.path, engine.config.name, 'save',
+      '$saveName$kGameSaveFileExtension');
   return SaveInfo(
     saveName: saveName,
     savePath: savePath,
@@ -58,7 +58,7 @@ class GameSavesState with ChangeNotifier {
     saves.clear();
 
     final appDirectory = await path.getApplicationDocumentsDirectory();
-    final saveFolder = path.join(appDirectory.path, engine.name, folder);
+    final saveFolder = path.join(appDirectory.path, engine.config.name, folder);
 
     final saveDirectory = Directory(saveFolder);
     if (saveDirectory.existsSync()) {
@@ -95,7 +95,7 @@ class GameSavesState with ChangeNotifier {
       final worldStringData = json5Encode(worldJSONData, space: 2);
 
       final directory = await path.getApplicationDocumentsDirectory();
-      final savePath = path.join(directory.path, engine.name, 'save',
+      final savePath = path.join(directory.path, engine.config.name, 'save',
           '$saveName$kGameSaveFileExtension$kWorldSaveFilePostfix');
 
       final saveFile = File(savePath);

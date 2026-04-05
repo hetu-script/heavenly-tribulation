@@ -112,7 +112,7 @@ class CardLibraryScene extends Scene {
   late final SpriteComponent cardCraftZoneDecoration;
 
   late final CardLibraryZone libraryZone;
-  final List<DeckBuildingZone> preloadBuildingZones = [];
+  final List<DeckBuildingZone> heroDeckZones = [];
 
   late final SpriteButton closeButton, setBattleDeckButton;
   late final RichTextComponent deckCount, cardCount;
@@ -1146,13 +1146,6 @@ class CardLibraryScene extends Scene {
     libraryZone = CardLibraryZone();
     world.add(libraryZone);
 
-    for (final deckData in _heroDecks) {
-      final zone = createNewDeckBuildingZone(deckData: deckData);
-      preloadBuildingZones.add(zone);
-    }
-    createNewDeckBuildingZone();
-    _updateDeckCount();
-
     cardCraftZoneDecoration = SpriteComponent(
       sprite: await Sprite.load('cultivation/cardlibrary_cardcraft.png'),
       size: GameUI.cardCraftZoneSize,
@@ -1507,6 +1500,25 @@ class CardLibraryScene extends Scene {
       onEndCraft();
     };
     camera.viewport.add(closeCraftButton);
+
+    // 载入卡牌库中的卡牌
+    libraryZone.updateHeroLibrary();
+
+    for (final deckData in _heroDecks) {
+      final zone = createNewDeckBuildingZone(deckData: deckData);
+      heroDeckZones.add(zone);
+
+      for (final cardId in zone.preloadCardIds) {
+        final card = libraryZone.library[cardId];
+        assert(card != null, 'Card $cardId not found in library');
+        zone.tryAddCard(card!, animated: false, clone: true);
+      }
+      zone.collapse(animated: false);
+
+      zone.updateDeckLimit();
+    }
+    createNewDeckBuildingZone();
+    _updateDeckCount();
   }
 
   @override
@@ -1518,24 +1530,10 @@ class CardLibraryScene extends Scene {
     updateOrderByButtonText();
     updateFilterByButtonText();
     libraryZone.repositionToTop();
-    libraryZone.updateHeroLibrary();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
 
     updateExp();
     addExpLightPoints();
-
-    for (final zone in preloadBuildingZones) {
-      for (final cardId in zone.preloadCardIds) {
-        final card = libraryZone.library[cardId];
-        assert(card != null, 'Card $cardId not found in library');
-        zone.tryAddCard(card!, animated: false, clone: true);
-      }
-      zone.collapse(animated: false);
-    }
-
-    for (final deckZone in deckPiles) {
-      deckZone.updateDeckLimit();
-    }
 
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['cardLibrary'] != true) {

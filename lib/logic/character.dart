@@ -1647,3 +1647,130 @@ Future<void> _onInteractCharacter(dynamic character) async {
     character['locationId'] = character['homeSiteId'];
   }
 }
+
+/// 为某个角色解锁某个天赋树节点
+/// 注意这里不会检查和处理技能点，而是直接增加某个天赋
+bool _characterUnlockPassiveTreeNode(
+  dynamic character,
+  String nodeId, {
+  String? selectedAttributeId,
+}) {
+  final unlockedNodes = character['unlockedPassiveTreeNodes'];
+  if (unlockedNodes[nodeId] != null) {
+    return false;
+  }
+
+  final passiveTreeNodeData = GameData.passiveTree[nodeId];
+  if (passiveTreeNodeData == null) {
+    engine.warning('天赋树节点 $nodeId 不存在');
+    return false;
+  }
+  bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+
+  if (selectedAttributeId == null) {
+    final r = GameData.random.nextDouble();
+    if (r < 0.4) {
+      selectedAttributeId = character['mainAttribute'];
+    } else {
+      selectedAttributeId = GameData.random.nextIterable(kBattleAttributes);
+    }
+  } else {
+    assert(kBattleAttributes.contains(selectedAttributeId));
+  }
+  assert(selectedAttributeId != null);
+
+  if (isAttribute) {
+    // 属性点类的node，记录的是选择的具体属性的名字
+    unlockedNodes[nodeId] = selectedAttributeId;
+    engine.hetu.invoke(
+      'characterSetPassive',
+      positionalArgs: [character, selectedAttributeId],
+      namedArgs: {'level': kPassiveTreeAttributeAnyLevel},
+    );
+  } else {
+    unlockedNodes[nodeId] = true;
+    final List nodePassiveData = passiveTreeNodeData['passives'];
+    for (final data in nodePassiveData) {
+      engine.hetu.invoke(
+        'characterSetPassive',
+        positionalArgs: [character, data['id']],
+        namedArgs: {'level': data['level'] ?? 1},
+      );
+    }
+  }
+
+  return true;
+}
+
+void _characterRefundPassiveTreeNode(
+  dynamic character,
+  String nodeId,
+) {
+  final passiveTreeNodeData = GameData.passiveTree[nodeId];
+  final unlockedNodes = character['unlockedPassiveTreeNodes'];
+  bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+
+  if (isAttribute) {
+    final attributeId = unlockedNodes[nodeId];
+    assert(kBattleAttributes.contains(attributeId));
+    // engine.hetu.invoke('refundPassive',
+    //     namespace: 'Player', positionalArgs: ['lifeMax']);
+    engine.hetu.invoke(
+      'characterSetPassive',
+      positionalArgs: [character, attributeId],
+      namedArgs: {'level': -kPassiveTreeAttributeAnyLevel},
+    );
+  } else {
+    final List nodePassiveData = passiveTreeNodeData['passives'];
+    for (final data in nodePassiveData) {
+      engine.hetu.invoke(
+        'characterSetPassive',
+        positionalArgs: [character, data['id']],
+        namedArgs: {'level': -(data['level'] ?? 1)},
+      );
+    }
+  }
+  unlockedNodes.remove(nodeId);
+}
+
+void _characterAllocateSkills(dynamic character, {bool rejuvenate = true}) {
+  final genre = character['cultivationFavor'];
+  final style = character['cultivationStyle'];
+  final int rank = character['rank'];
+  final int level = character['level'];
+
+  final List<String>? rankPath = kCultivationRankPaths[genre];
+  final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
+  assert(rankPath != null, 'genre: $genre');
+  assert(stylePath != null, 'genre: $genre, style: $style');
+
+  int count = 0;
+  for (var i = 0; i < rank; ++i) {
+    assert(i < rankPath!.length);
+    final nodeId = rankPath![i];
+    final unlocked =
+        GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+    if (unlocked) {
+      count++;
+    }
+  }
+
+  for (var i = 0; i < level - rank; ++i) {
+    assert(i < stylePath!.length);
+    final nodeId = stylePath![i];
+    final unlocked =
+        GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+    if (unlocked) {
+      count++;
+    }
+  }
+
+  engine.hetu.invoke('characterCalculateStats', positionalArgs: [
+    character
+  ], namedArgs: {
+    'rejuvenate': rejuvenate,
+  });
+
+  engine.info(
+      '${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
+}

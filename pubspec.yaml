@@ -126,6 +126,17 @@ flutter:
     - assets/images/mini_game/difference/
     - assets/images/mini_game/difference/library/
     - assets/images/mini_game/difference/library/1/
+    - assets/images/mini_game/difference/library/2/
+    - assets/images/mini_game/difference/library/3/
+    - assets/images/mini_game/difference/library/4/
+    - assets/images/mini_game/difference/library/5/
+    - assets/images/mini_game/difference/library/6/
+    - assets/images/mini_game/difference/library/7/
+    - assets/images/mini_game/difference/library/8/
+    - assets/images/mini_game/difference/library/9/
+    - assets/images/mini_game/difference/library/10/
+    - assets/images/mini_game/difference/library/11/
+    - assets/images/mini_game/difference/library/12/
     - assets/images/mini_game/matching/
     - assets/images/mini_game/memory/
     - assets/images/mini_game/mouse_maze/
@@ -211,7 +222,6 @@ flutter:
     - docs/docs/how2play/rpg/item/
     - docs/docs/how2play/rpg/item/consumable/
     - docs/docs/how2play/rpg/item/equipment/
-    - docs/docs/how2play/rpg/sect/
     - docs/docs/how2play/rpg/quest/
 
     - docs/docs/how2play/tutorial/
@@ -219,6 +229,7 @@ flutter:
     - docs/docs/how2play/tycoon/terrain/
     - docs/docs/how2play/tycoon/material/
     - docs/docs/how2play/tycoon/city/
+    - docs/docs/how2play/tycoon/sect/
     - docs/docs/how2play/tycoon/site/
 
     - docs/docs/story/

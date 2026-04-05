@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:samsara/cardgame/cardgame.dart';
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/effect/confetti.dart';
+import 'package:samsara/components/sprite_component2.dart';
+import 'package:samsara/components/ui/rich_text_component.dart';
 
 import '../../cursor_state.dart';
 import '../../common.dart';
@@ -14,34 +17,76 @@ import '../../../data/common.dart';
 import '../../../global.dart';
 import '../../../ui.dart';
 import '../../../data/game.dart';
-
-const _kConfettiPriority = 1000;
-
-const _kCardKindCount = 12;
-const _kGridColumns = 8; // 每行8张
-const _kGridRows = 3; // 每列3张
-const _kCardSpacing = 10.0; // 卡牌间距
+import '../common.dart';
 
 class MemoryCardGame extends Scene with HasCursorState {
+  final MiniGameDifficulty difficulty;
+
   final List<CustomGameCard> cards = [];
   final math.Random random = math.Random();
+
+  late int cardKindCount; // 卡牌种类数
+  late int cardTotalCount; // 卡牌总数
+  late int gridColumns; // 网格列数
+  late int gridRows; // 网格行数
 
   late Vector2 cardSize;
   late Vector2 gridStartPosition;
 
-  late final SpriteComponent _victoryPrompt;
+  late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
   late final SpriteButton restart, exit;
+
+  late final SpriteComponent2 barrier;
+
+  late final RichTextComponent _flipCountText;
 
   // 游戏状态
   CustomGameCard? _firstFlippedCard;
   CustomGameCard? _secondFlippedCard;
   bool _isChecking = false; // 防止在检查过程中点击其他卡牌
+  bool _isGameOver = false;
+  bool _isGameWon = false;
 
-  MemoryCardGame()
-      : super(
+  int _flipCount = 0;
+  late int _maxFlips;
+
+  FutureOr<void> Function()? onGameStart;
+  FutureOr<dynamic> Function(bool won)? onGameEnd;
+
+  MemoryCardGame({
+    required this.difficulty,
+    this.onGameStart,
+    this.onGameEnd,
+  }) : super(
           id: Scenes.memoryCardGame,
-        );
+          bgm: engine.bgm,
+          bgmFile: 'Serenity of the East.mp3',
+          bgmVolume: 0.5,
+        ) {
+    // 根据难度设置卡牌数量和网格布局
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        cardKindCount = 6;
+        gridColumns = 4;
+        gridRows = 3;
+      case MiniGameDifficulty.medium:
+        cardKindCount = 12;
+        gridColumns = 6;
+        gridRows = 4;
+      case MiniGameDifficulty.hard:
+        cardKindCount = 24;
+        gridColumns = 12;
+        gridRows = 4;
+    }
+    cardTotalCount = cardKindCount * 2;
+    // 翻牌次数限制：简单模式较宽松，困难模式较紧凑
+    _maxFlips = switch (difficulty) {
+      MiniGameDifficulty.easy => cardKindCount * 6,
+      MiniGameDifficulty.medium => cardKindCount * 5,
+      MiniGameDifficulty.hard => cardKindCount * 4,
+    };
+  }
 
   /// 计算卡牌大小以适应屏幕
   void _calculateCardSize() {
@@ -54,19 +99,19 @@ class MemoryCardGame extends Scene with HasCursorState {
 
     // 计算单张卡牌的最大宽度（根据列数）
     final maxCardWidth =
-        (availableWidth - (_kGridColumns - 1) * _kCardSpacing) / _kGridColumns;
+        (availableWidth - (gridColumns - 1) * GameUI.smallIndent) / gridColumns;
 
     // 根据宽度计算高度
     final cardHeight = maxCardWidth * GameUI.cardSizeRatio;
 
     // 检查高度是否超出屏幕
     final estimateHeight =
-        cardHeight * _kGridRows + (_kGridRows - 1) * _kCardSpacing;
+        cardHeight * gridRows + (gridRows - 1) * GameUI.smallIndent;
 
     if (estimateHeight > availableHeight) {
       // 如果高度超出，以高度为准重新计算
       final maxCardHeight =
-          (availableHeight - (_kGridRows - 1) * _kCardSpacing) / _kGridRows;
+          (availableHeight - (gridRows - 1) * GameUI.smallIndent) / gridRows;
       final cardWidth = maxCardHeight / GameUI.cardSizeRatio;
       cardSize = Vector2(cardWidth, maxCardHeight);
     } else {
@@ -75,9 +120,9 @@ class MemoryCardGame extends Scene with HasCursorState {
 
     // 计算网格起始位置（居中）
     final totalWidth =
-        cardSize.x * _kGridColumns + (_kGridColumns - 1) * _kCardSpacing;
+        cardSize.x * gridColumns + (gridColumns - 1) * GameUI.smallIndent;
     final totalHeight =
-        cardSize.y * _kGridRows + (_kGridRows - 1) * _kCardSpacing;
+        cardSize.y * gridRows + (gridRows - 1) * GameUI.smallIndent;
 
     gridStartPosition = Vector2(
         (size.x - totalWidth) / 2,
@@ -94,15 +139,46 @@ class MemoryCardGame extends Scene with HasCursorState {
   void onLoad() async {
     super.onLoad();
 
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      priority: 10000,
+      isVisible: false,
+    );
+    world.add(barrier);
+
     _victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
+    _defeatPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: await Sprite.load('ui/defeat.png'),
+      size: Vector2(480.0, 240.0),
+    );
+
+    _flipCountText = RichTextComponent(
+      text: '',
+      anchor: Anchor.topCenter,
+      position: Vector2(center.x, GameUI.size.y - GameUI.largeIndent),
+      size: Vector2(400, 40),
+      config: ScreenTextConfig(
+        anchor: Anchor.topCenter,
+        size: Vector2(400, 40),
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamilyLishu,
+          fontSize: 24.0,
+          color: Colors.white,
+        ),
+      ),
+    );
+    camera.viewport.add(_flipCountText);
 
     final background = SpriteComponent(
-      sprite: await Sprite.load('mini_game/memory/background.png'),
+      sprite: await Sprite.load('mini_game/background2.png'),
       size: size,
     );
     world.add(background);
@@ -128,7 +204,7 @@ class MemoryCardGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      engine.popScene(clearCache: true);
+      _endScene(_isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -137,21 +213,31 @@ class MemoryCardGame extends Scene with HasCursorState {
   }
 
   Future<void> _initializeGame() async {
+    engine.bgm.resume();
+
     for (final card in cards) {
       card.removeFromParent();
     }
     cards.clear();
     _victoryPrompt.removeFromParent();
+    _defeatPrompt.removeFromParent();
     restart.isVisible = false;
     exit.position = GameUI.exitButtonPosition;
+
+    _isGameOver = false;
+    barrier.isVisible = false;
+
+    _flipCount = 0;
+    _updateFlipCountText();
+
+    restart.isVisible = false;
 
     // 获取所有可用的卡牌插画ID
     final allIllustrations = kBattleCardIllustrations.toList();
     allIllustrations.shuffle(random);
 
-    // 选取前12种
-    final selectedIllustrations =
-        allIllustrations.take(_kCardKindCount).toList();
+    // 根据难度选取对应数量的卡牌种类
+    final selectedIllustrations = allIllustrations.take(cardKindCount).toList();
 
     // 为每种卡牌创建2张（配对游戏需要）
     for (int i = 0; i < selectedIllustrations.length; i++) {
@@ -175,6 +261,8 @@ class MemoryCardGame extends Scene with HasCursorState {
     }
 
     _layoutCards();
+
+    await onGameStart?.call();
   }
 
   /// 创建单张卡牌
@@ -212,13 +300,14 @@ class MemoryCardGame extends Scene with HasCursorState {
       glowSpriteId: 'battlecard/glow2.png',
     );
     card.onPreviewed = () {
-      if (_isChecking) return;
+      if (_isChecking || _isGameOver) return;
       card.showGlow = true;
     };
     card.onUnpreviewed = () {
       card.showGlow = false;
     };
     card.onTap = (button, position) {
+      if (_isChecking || _isGameOver) return;
       _onTapCard(card);
     };
 
@@ -231,12 +320,12 @@ class MemoryCardGame extends Scene with HasCursorState {
       final card = cards[i];
 
       // 计算卡牌的目标位置（网格位置）
-      final row = i ~/ _kGridColumns;
-      final col = i % _kGridColumns;
+      final row = i ~/ gridColumns;
+      final col = i % gridColumns;
 
       final targetPosition = Vector2(
-        gridStartPosition.x + col * (cardSize.x + _kCardSpacing),
-        gridStartPosition.y + row * (cardSize.y + _kCardSpacing),
+        gridStartPosition.x + col * (cardSize.x + GameUI.smallIndent),
+        gridStartPosition.y + row * (cardSize.y + GameUI.smallIndent),
       );
 
       engine.play(GameSound.dealDeck);
@@ -264,6 +353,9 @@ class MemoryCardGame extends Scene with HasCursorState {
     // 翻开卡牌
     card.isFlipped = false;
     engine.play(GameSound.flip);
+
+    ++_flipCount;
+    _updateFlipCountText();
 
     // 如果是第一张卡牌
     if (_firstFlippedCard == null) {
@@ -315,7 +407,7 @@ class MemoryCardGame extends Scene with HasCursorState {
         }
       }
       if (allMatched) {
-        _onGameSuccess();
+        _onGameOver(true);
       }
     } else {
       // 播放翻牌音效
@@ -327,23 +419,50 @@ class MemoryCardGame extends Scene with HasCursorState {
         _secondFlippedCard!.isFlipped = true;
 
         reset();
+
+        // 翻牌次数用尽，游戏失败
+        if (_flipCount >= _maxFlips) {
+          _onGameOver(false);
+        }
       });
     }
   }
 
-  /// 游戏完成
-  void _onGameSuccess() {
-    engine.play(GameSound.victory);
+  void _updateFlipCountText() {
+    final remaining = _maxFlips - _flipCount;
+    if (remaining <= _maxFlips ~/ 4) {
+      _flipCountText.text =
+          '${engine.locale('memoryCardGame_flipsRemaining')}: <red>$remaining</>';
+    } else {
+      _flipCountText.text =
+          '${engine.locale('memoryCardGame_flipsRemaining')}: <yellow>$remaining</>';
+    }
+  }
 
-    restart.isVisible = true;
-    camera.viewport.add(_victoryPrompt);
+  void _onGameOver(bool won) {
+    if (_isGameOver) return;
 
-    final celebration = ConfettiEffect(
-      size: size,
-      priority: _kConfettiPriority,
-    );
-    camera.viewport.add(celebration);
+    engine.bgm.pause();
 
+    _isGameOver = true;
+    _isGameWon = won;
+    barrier.isVisible = true;
+
+    if (won) {
+      camera.viewport.add(_victoryPrompt);
+      engine.play(GameSound.victory);
+
+      final celebration = ConfettiEffect(
+        size: size,
+        priority: kConfettiPriority,
+      );
+      camera.viewport.add(celebration);
+    } else {
+      camera.viewport.add(_defeatPrompt);
+      engine.play(GameSound.gameOver);
+    }
+
+    restart.isVisible = engine.config.debugMode;
     restart.position = Vector2(
         center.x,
         _victoryPrompt.bottomRight.y +
@@ -352,6 +471,13 @@ class MemoryCardGame extends Scene with HasCursorState {
 
     exit.position = Vector2(center.x,
         restart.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
+  }
+
+  Future<void> _endScene(bool won) async {
+    final result = await onGameEnd?.call(won);
+    if (result != true) {
+      engine.popScene(clearCache: true);
+    }
   }
 
   @override

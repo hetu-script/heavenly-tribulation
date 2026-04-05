@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Image;
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:json5/json5.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -18,45 +19,38 @@ import '../../../global.dart';
 import '../../cursor_state.dart';
 import '../../common.dart';
 import '../../../data/game.dart';
+import '../common.dart';
+
+const _kMaxDifferenceGames = 12;
 
 const _kPicPriority = 50;
 const _kDiffIndicatorPriority = 10;
 const _kErrorIndicatorPriority = 20;
-const _kConfettiPriority = 1000;
 
 /// 椭圆标记组件，黄色圆圈内外都有黑色描边，带阴影
 class FoundIndicator extends PositionComponent {
-  final Paint _shadowPaint;
-  final Paint _strokePaint;
-  final Paint _fillerPaint;
+  static final _shadowPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.4)
+    ..maskFilter = MaskFilter.blur(BlurStyle.normal, 6.0)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 9.0
+    ..isAntiAlias = true;
+  static final _strokePaint = Paint()
+    ..color = Colors.black26
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 3.0
+    ..isAntiAlias = true;
+  static final _fillerPaint = Paint()
+    ..color = Colors.yellow
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 4.0
+    ..isAntiAlias = true;
 
   FoundIndicator({
     required super.position,
     required super.size,
-    Color strokeColor = Colors.black26,
-    Color fillerColor = Colors.yellow,
-    double blackStrokeWidth = 3.0,
-    double yellowStrokeWidth = 4.0,
-    Color shadowColor = Colors.black,
-    double shadowBlur = 6.0,
     super.priority,
-  })  : _shadowPaint = Paint()
-          ..color = shadowColor.withValues(alpha: 100)
-          ..maskFilter = MaskFilter.blur(BlurStyle.normal, shadowBlur)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth =
-              blackStrokeWidth + yellowStrokeWidth + blackStrokeWidth
-          ..isAntiAlias = true,
-        _strokePaint = Paint()
-          ..color = strokeColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = blackStrokeWidth
-          ..isAntiAlias = true,
-        _fillerPaint = Paint()
-          ..color = fillerColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = yellowStrokeWidth
-          ..isAntiAlias = true;
+  });
 
   @override
   void render(Canvas canvas) {
@@ -95,12 +89,12 @@ class FoundIndicator extends PositionComponent {
 
 class DiffData {
   final Rect rect;
-  final Sprite sprite;
+  final SpriteComponent component;
   bool found = false;
 
   DiffData({
     required this.rect,
-    required this.sprite,
+    required this.component,
   });
 }
 
@@ -109,28 +103,45 @@ class DifferenceGame extends Scene with HasCursorState {
 
   // final fluent.FlyoutController menuController = fluent.FlyoutController();
 
-  final String gameId;
+  int? gameId;
 
-  final List<DiffData> diffs = [];
+  final MiniGameDifficulty difficulty;
+
+  late List<dynamic> _diffsData;
+  final List<DiffData> _diffs = [];
+  final List<FoundIndicator> _foundIndicators = [];
+  final Map<int, Image> _diffImages = {};
 
   late SpriteComponent2 picLeft, picRight;
+
+  late Vector2 _spotIndicatorsPosition;
 
   double _zoom = 1.0;
 
   late Sprite _errorIndicatorSprite;
 
-  bool successed = false;
+  bool _isGameOver = false;
+  bool _isGameWon = false;
 
-  late final SpriteComponent _victoryPrompt;
+  late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
   late final SpriteButton restart, exit;
 
-  late final Sprite hidden, found;
+  late final Sprite hidden, found, heart, brokenHeart;
 
   int _foundedCount = 0;
+  int _errorCount = 0;
+
+  late final SpriteComponent2 barrier;
+
+  FutureOr<void> Function()? onGameStart;
+  FutureOr<dynamic> Function(bool won)? onGameEnd;
 
   DifferenceGame({
-    required this.gameId,
+    this.gameId,
+    required this.difficulty,
+    this.onGameStart,
+    this.onGameEnd,
   }) : super(
           id: Scenes.differenceGame,
           bgm: engine.bgm,
@@ -172,7 +183,7 @@ class DifferenceGame extends Scene with HasCursorState {
   void checkDifferenceAt(
       SpriteComponent2 component, int button, Vector2 position) {
     if (button != kPrimaryButton) return;
-    if (successed) return;
+    if (_isGameOver) return;
 
     // 鼠标光标的手指实际位置和光标图片的左上角有10个像素的偏差(仅x方向)
     // 需要调整位置以对应手指的实际点击位置
@@ -182,7 +193,7 @@ class DifferenceGame extends Scene with HasCursorState {
     final offset = Offset(imagePosition.x, imagePosition.y);
 
     bool found = false;
-    for (final diff in diffs) {
+    for (final diff in _diffs) {
       if (diff.found) continue;
       if (diff.rect.contains(offset)) {
         // 找到差异，执行相应操作
@@ -198,18 +209,18 @@ class DifferenceGame extends Scene with HasCursorState {
           priority: _kDiffIndicatorPriority,
         );
         picLeft.add(indicatorLeft);
+        _foundIndicators.add(indicatorLeft);
         final indicatorRight = FoundIndicator(
           position: diff.rect.topLeft.toVector2(),
           size: diff.rect.size.toVector2(),
           priority: _kDiffIndicatorPriority,
         );
         picRight.add(indicatorRight);
+        _foundIndicators.add(indicatorRight);
 
         // 检查是否所有差异都已找到
-        if (diffs.every((d) => d.found)) {
-          successed = true;
-
-          _onGameSuccess();
+        if (_diffs.every((d) => d.found)) {
+          _onGameOver(true);
         }
 
         break;
@@ -217,10 +228,16 @@ class DifferenceGame extends Scene with HasCursorState {
     }
 
     if (!found) {
+      ++_errorCount;
+      if (_errorCount >= kMiniGameMaxErrors) {
+        _onGameOver(false);
+      }
+
+      // 播放失败音效
+      engine.play(GameSound.error);
+
       final error = _triggerError(position);
       component.add(error);
-
-      engine.play(GameSound.error);
     }
   }
 
@@ -246,25 +263,51 @@ class DifferenceGame extends Scene with HasCursorState {
     return indicator;
   }
 
-  void _onGameSuccess() {
-    engine.play(GameSound.victory);
+  void _onGameOver(bool won) {
+    if (_isGameOver) return;
 
-    camera.viewport.add(_victoryPrompt);
+    engine.bgm.pause();
 
-    final celebration = ConfettiEffect(
-      size: size,
-      priority: _kConfettiPriority,
-    );
-    camera.viewport.add(celebration);
+    _isGameOver = true;
+    _isGameWon = won;
+    barrier.isVisible = true;
 
-    restart.position = Vector2(
-        center.x,
-        _victoryPrompt.bottomRight.y +
-            GameUI.buttonSizeMedium.y +
-            GameUI.largeIndent);
+    if (won) {
+      camera.viewport.add(_victoryPrompt);
+      engine.play(GameSound.victory);
 
-    exit.position = Vector2(center.x,
-        restart.bottomRight.y + GameUI.buttonSizeMedium.y / 2 + GameUI.indent);
+      final celebration = ConfettiEffect(
+        position: Vector2.zero(),
+        size: size,
+        priority: kConfettiPriority,
+      );
+      camera.viewport.add(celebration);
+    } else {
+      camera.viewport.add(_defeatPrompt);
+      engine.play(GameSound.gameOver);
+    }
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      restart.isVisible = engine.config.debugMode;
+      restart.position = Vector2(
+          center.x,
+          _victoryPrompt.bottomRight.y +
+              GameUI.buttonSizeMedium.y +
+              GameUI.largeIndent);
+
+      exit.position = Vector2(
+          center.x,
+          restart.bottomRight.y +
+              GameUI.buttonSizeMedium.y / 2 +
+              GameUI.indent);
+    });
+  }
+
+  Future<void> _endScene(bool won) async {
+    final result = await onGameEnd?.call(won);
+    if (result != true) {
+      engine.popScene(clearCache: true);
+    }
   }
 
   @override
@@ -275,10 +318,24 @@ class DifferenceGame extends Scene with HasCursorState {
       'mini_game/difference/error.png',
     );
 
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      priority: 10000,
+      isVisible: false,
+    );
+    world.add(barrier);
+
     _victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
+      size: Vector2(480.0, 240.0),
+    );
+    _defeatPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: await Sprite.load('ui/defeat.png'),
       size: Vector2(480.0, 240.0),
     );
 
@@ -295,7 +352,10 @@ class DifferenceGame extends Scene with HasCursorState {
       position: GameUI.restartButtonPosition,
       text: engine.locale('restart'),
     );
-    restart.onTap = (_, __) {};
+    restart.onTap = (_, __) {
+      _initializeGame();
+    };
+    restart.isVisible = engine.config.debugMode;
     camera.viewport.add(restart);
 
     exit = SpriteButton(
@@ -306,22 +366,18 @@ class DifferenceGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      engine.popScene(clearCache: true);
+      _endScene(_isGameWon);
     };
     camera.viewport.add(exit);
 
-    hidden = await Sprite.load(
-      'mini_game/difference/question_mark.png',
-    );
-    found = await Sprite.load(
-      'mini_game/difference/check_mark.png',
-    );
+    hidden = await Sprite.load('mini_game/difference/question_mark.png');
+    found = await Sprite.load('mini_game/difference/check_mark.png');
+    heart = await Sprite.load('mini_game/heart.png');
+    brokenHeart = await Sprite.load('mini_game/broken_heart.png');
 
     picLeft = SpriteComponent2(
-      sprite:
-          await Sprite.load('mini_game/difference/library/$gameId/main.png'),
       position: Vector2(
-          GameUI.differenceGameLeftBarWidth, GameUI.differenceGameTopBarHeight),
+          GameUI.differenceGameLeftBarWidth, GameUI.miniGameTopBarHeight),
       size: GameUI.differenceGamePictureSize,
       priority: _kPicPriority,
       enableGesture: true,
@@ -364,12 +420,10 @@ class DifferenceGame extends Scene with HasCursorState {
     world.add(picLeft);
 
     picRight = SpriteComponent2(
-      sprite:
-          await Sprite.load('mini_game/difference/library/$gameId/main.png'),
       position: Vector2(
           GameUI.differenceGameLeftBarWidth +
               GameUI.differenceGamePictureSize.x,
-          GameUI.differenceGameTopBarHeight),
+          GameUI.miniGameTopBarHeight),
       size: GameUI.differenceGamePictureSize,
       priority: _kPicPriority,
       enableGesture: true,
@@ -411,11 +465,76 @@ class DifferenceGame extends Scene with HasCursorState {
     };
     world.add(picRight);
 
+    await _initializeGame(newGameId: gameId);
+  }
+
+  Future<void> _initializeGame({int? newGameId}) async {
+    restart.position = GameUI.restartButtonPosition;
+    exit.position = GameUI.exitButtonPosition;
+
+    for (final diff in _diffs) {
+      diff.component.removeFromParent();
+    }
+    _diffs.clear();
+
+    for (final indicator in _foundIndicators) {
+      indicator.removeFromParent();
+    }
+    _foundIndicators.clear();
+
+    _foundedCount = 0;
+    _errorCount = 0;
+    _isGameOver = false;
+    barrier.isVisible = false;
+
+    _victoryPrompt.removeFromParent();
+    _defeatPrompt.removeFromParent();
+
+    restart.isVisible = engine.config.debugMode;
+
+    engine.bgm.resume();
+
+    await onGameStart?.call();
+
+    newGameId ??= random.nextInt(_kMaxDifferenceGames) + 1;
+    gameId = newGameId.clamp(1, _kMaxDifferenceGames);
+
     final gameDataString = await rootBundle.loadString(
         'assets/images/mini_game/difference/library/$gameId/config.json5');
-    final diffData = json5Decode(gameDataString);
-    final indices = List.generate(20, (i) => i)..shuffle();
-    final selectedDiffs = {for (var i in indices.take(10)) i: diffData[i]};
+    _diffsData = json5Decode(gameDataString);
+
+    final mainSprite = await Sprite.load(
+      'mini_game/difference/library/$gameId/main.png',
+    );
+    await picLeft.tryLoadSprite(sprite: mainSprite);
+    await picRight.tryLoadSprite(sprite: mainSprite);
+
+    int diffCount;
+    List<dynamic> selectedDiffs = _diffsData.toList();
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        diffCount = 5;
+        // 简单模式：挑选尺寸（面积）最大的不同之处
+        // 按面积降序排序
+        selectedDiffs.sort((a, b) =>
+            ((b['width'] as num) * (b['height'] as num))
+                .compareTo((a['width'] as num) * (a['height'] as num)));
+      case MiniGameDifficulty.medium:
+      case MiniGameDifficulty.hard:
+        // 普通和困难模式：随机挑选
+        diffCount = difficulty == MiniGameDifficulty.medium ? 10 : 15;
+        selectedDiffs.shuffle();
+    }
+    selectedDiffs = selectedDiffs.take(diffCount).toList();
+    _spotIndicatorsPosition = Vector2(
+        size.x / 2 - (diffCount / 2) * GameUI.miniGameIndicatorIconSize,
+        GameUI.miniGameTopBarHeight -
+            GameUI.miniGameIndicatorIconSize -
+            GameUI.smallIndent);
+
+    // 加载完整的差异图片（只在首次加载，之后使用缓存）
+    final diffImage = _diffImages[gameId!] ??=
+        await images.load('mini_game/difference/library/$gameId/diff.png');
 
     // 获取原始图片尺寸
     final originalSize = picRight.sprite!.srcSize;
@@ -423,33 +542,33 @@ class DifferenceGame extends Scene with HasCursorState {
     final scaleX = GameUI.differenceGamePictureSize.x / originalSize.x;
     final scaleY = GameUI.differenceGamePictureSize.y / originalSize.y;
 
-    for (final index in selectedDiffs.keys) {
-      final data = selectedDiffs[index];
-      final sprite = await Sprite.load(
-          'mini_game/difference/library/$gameId/p${index + 1}.png');
+    for (final data in selectedDiffs) {
+      final srcPosition = Vector2(
+        (data['left'] as num).toDouble(),
+        (data['top'] as num).toDouble(),
+      );
+      final srcSize = Vector2(
+        (data['width'] as num).toDouble(),
+        (data['height'] as num).toDouble(),
+      );
+      // 从完整的差异图片中截取特定区域生成Sprite
+      final sprite = Sprite(
+        diffImage,
+        srcPosition: srcPosition,
+        srcSize: srcSize,
+      );
 
       final ratio =
           GameUI.differenceGamePictureSize.x / picLeft.sprite!.srcSize.x;
       final scaledRect = Rect.fromLTWH(data['left'] * ratio,
           data['top'] * ratio, data['width'] * ratio, data['height'] * ratio);
-      final diffData = DiffData(
-        rect: scaledRect,
-        sprite: sprite,
-      );
-      diffs.add(diffData);
 
       // 将贴片作为子组件添加到右侧图片上
       // 坐标从原始图片坐标映射到显示坐标
       final diffComponent = SpriteComponent(
         sprite: sprite,
-        position: Vector2(
-          (data['left'] as num).toDouble() * scaleX,
-          (data['top'] as num).toDouble() * scaleY,
-        ),
-        size: Vector2(
-          (data['width'] as num).toDouble() * scaleX,
-          (data['height'] as num).toDouble() * scaleY,
-        ),
+        position: Vector2(srcPosition.x * scaleX, srcPosition.y * scaleY),
+        size: Vector2(srcSize.x * scaleX, srcSize.y * scaleY),
       );
       final roll = random.nextBool();
       if (roll) {
@@ -457,6 +576,12 @@ class DifferenceGame extends Scene with HasCursorState {
       } else {
         picRight.add(diffComponent);
       }
+
+      final diffData = DiffData(
+        rect: scaledRect,
+        component: diffComponent,
+      );
+      _diffs.add(diffData);
     }
   }
 
@@ -464,23 +589,40 @@ class DifferenceGame extends Scene with HasCursorState {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    final startPoint = GameUI.spotIndicatorsPosition.clone();
-
-    for (var i = 0; i < 10; ++i) {
+    final startPoint = _spotIndicatorsPosition.clone();
+    for (var i = 0; i < _diffs.length; ++i) {
       if (i < _foundedCount) {
         found.render(
           canvas,
           position: startPoint,
-          size: Vector2.all(GameUI.spotIndicatorSize),
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
         );
       } else {
         hidden.render(
           canvas,
           position: startPoint,
-          size: Vector2.all(GameUI.spotIndicatorSize),
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
         );
       }
-      startPoint.x += GameUI.spotIndicatorSize;
+      startPoint.x += GameUI.miniGameIndicatorIconSize;
+    }
+
+    final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
+    for (var i = 0; i < kMiniGameMaxErrors; ++i) {
+      if (i < kMiniGameMaxErrors - _errorCount) {
+        heart.render(
+          canvas,
+          position: startPoint2,
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
+        );
+      } else {
+        brokenHeart.render(
+          canvas,
+          position: startPoint2,
+          size: Vector2.all(GameUI.miniGameIndicatorIconSize),
+        );
+      }
+      startPoint2.x += GameUI.miniGameIndicatorIconSize;
     }
   }
 
