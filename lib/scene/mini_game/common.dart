@@ -1,9 +1,10 @@
 enum MiniGameDifficulty {
   easy,
-  medium,
+  normal,
+  challenging,
   hard,
+  tough,
+  brutal,
 }
-
-const kMiniGameMaxErrors = 5;
 
 const kConfettiPriority = 10000;

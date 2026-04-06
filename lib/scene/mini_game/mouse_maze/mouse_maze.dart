@@ -424,8 +424,8 @@ class MouseMazeGame extends Scene with HasCursorState {
 
   bool _isDragging = false;
   int _errorCount = 0;
-  bool _isGameOver = false;
-  bool _isGameWon = false;
+  bool isGameOver = false;
+  bool isGameWon = false;
 
   late final SpriteButton restart, exit;
 
@@ -436,11 +436,12 @@ class MouseMazeGame extends Scene with HasCursorState {
   final List<_SwitchDoor> _switchDoors = [];
 
   // 难度配置
-  final MiniGameDifficulty difficulty;
-  late final int mazeRows;
-  late final int mazeColumns;
-  late final int portalPairCount;
-  late final int switchDoorCount;
+  late MiniGameDifficulty difficulty;
+  late int mazeRows;
+  late int mazeColumns;
+  late int portalPairCount;
+  late int switchDoorCount;
+  late int maxErrors;
 
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -463,20 +464,41 @@ class MouseMazeGame extends Scene with HasCursorState {
         ) {
     switch (difficulty) {
       case MiniGameDifficulty.easy:
-        mazeRows = 6;
-        mazeColumns = 16;
-        portalPairCount = 0;
-        switchDoorCount = 0;
-      case MiniGameDifficulty.medium:
-        mazeRows = 8;
-        mazeColumns = 20;
+        maxErrors = 6;
+        mazeRows = 4;
+        mazeColumns = 6;
         portalPairCount = 1;
         switchDoorCount = 1;
-      case MiniGameDifficulty.hard:
-        mazeRows = 10;
-        mazeColumns = 24;
+      case MiniGameDifficulty.normal:
+        maxErrors = 5;
+        mazeRows = 4;
+        mazeColumns = 8;
+        portalPairCount = 1;
+        switchDoorCount = 1;
+      case MiniGameDifficulty.challenging:
+        maxErrors = 4;
+        mazeRows = 6;
+        mazeColumns = 12;
         portalPairCount = 2;
         switchDoorCount = 2;
+      case MiniGameDifficulty.hard:
+        maxErrors = 3;
+        mazeRows = 6;
+        mazeColumns = 16;
+        portalPairCount = 2;
+        switchDoorCount = 2;
+      case MiniGameDifficulty.tough:
+        maxErrors = 2;
+        mazeRows = 8;
+        mazeColumns = 20;
+        portalPairCount = 3;
+        switchDoorCount = 3;
+      case MiniGameDifficulty.brutal:
+        maxErrors = 1;
+        mazeRows = 10;
+        mazeColumns = 24;
+        portalPairCount = 3;
+        switchDoorCount = 3;
     }
   }
 
@@ -539,7 +561,7 @@ class MouseMazeGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      _endScene(_isGameWon);
+      _endScene(isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -629,7 +651,7 @@ class MouseMazeGame extends Scene with HasCursorState {
     engine.bgm.resume();
 
     _errorCount = 0;
-    _isGameOver = false;
+    isGameOver = false;
     _isDragging = false;
     barrier.isVisible = false;
 
@@ -908,7 +930,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   }
 
   void checkMouseHover(Vector2 position) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
     if (_isDragging) return;
 
     // 可以在这里添加鼠标悬停时的逻辑
@@ -929,7 +951,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   }
 
   void onLightPointDragUpdate(Vector2 position) {
-    if (!_isDragging || _isGameOver) return;
+    if (!_isDragging || isGameOver) return;
 
     // 检查传送门
     for (final portal in _portals) {
@@ -1008,7 +1030,7 @@ class MouseMazeGame extends Scene with HasCursorState {
 
   void _onError() {
     ++_errorCount;
-    if (_errorCount >= kMiniGameMaxErrors) {
+    if (_errorCount >= maxErrors) {
       _onGameOver(false);
     }
 
@@ -1040,12 +1062,12 @@ class MouseMazeGame extends Scene with HasCursorState {
   }
 
   void _onGameOver(bool won) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     engine.bgm.pause();
 
-    _isGameOver = true;
-    _isGameWon = won;
+    isGameOver = true;
+    isGameWon = won;
     barrier.isVisible = true;
 
     if (won) {
@@ -1085,8 +1107,8 @@ class MouseMazeGame extends Scene with HasCursorState {
     super.render(canvas);
 
     final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
-    for (var i = 0; i < kMiniGameMaxErrors; ++i) {
-      if (i < kMiniGameMaxErrors - _errorCount) {
+    for (var i = 0; i < maxErrors; ++i) {
+      if (i < maxErrors - _errorCount) {
         heart.render(
           canvas,
           position: startPoint2,

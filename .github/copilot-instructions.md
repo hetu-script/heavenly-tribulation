@@ -35,7 +35,13 @@ final gameState = GameState();      // 全局状态（ChangeNotifier）
 
 ### 场景系统
 
-场景继承 Samsara 的 `Scene`，通过 `engine.registerSceneConstructor()` 注册，在 `lib/app.dart` 初始化。场景 ID 定义在 `lib/scene/common.dart`（Scenes 类）。
+场景继承 Samsara 的 `Scene`。
+
+场景 ID 定义在 `lib/scene/common.dart`（Scenes 类）。
+
+场景的构造函数在 `lib/app.dart` 通过 `engine.registerSceneConstructor()` 注册。
+
+进入和离开场景通过engine的 `pushScene()` 和 `popScene()` 实现。
 
 - `lib/scene/battle/` — 卡牌战斗
 - `lib/scene/world/` — 六边形大地图
@@ -43,7 +49,7 @@ final gameState = GameState();      // 全局状态（ChangeNotifier）
 - `lib/scene/location/` — 据点/地点
 - `lib/scene/sect/` — 门派
 - `lib/scene/mainmenu/` — 主菜单
-- `lib/scene/mini_game/` — 小游戏（消除、2048 等）
+- `lib/scene/mini_game/` — 小游戏
 
 ### 逻辑分层
 

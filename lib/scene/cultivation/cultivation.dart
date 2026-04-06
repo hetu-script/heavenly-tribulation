@@ -299,7 +299,7 @@ class CultivationScene extends Scene with HasCursorState {
     return (isLearned, isOpen);
   }
 
-  void _addExpLightPoint([int? value]) {
+  void addExpLightPoint([int? value]) {
     Vector2 randomPosition;
     do {
       randomPosition =
@@ -333,7 +333,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     int lightPointCount = math.min(collectableLight, _kLightDisplayMax);
     while (_lightPoints.length < lightPointCount) {
-      _addExpLightPoint();
+      addExpLightPoint();
     }
 
     // final int expPerLightPoint = GameData.hero['stats']['expGainPerLight'];
@@ -365,7 +365,7 @@ class CultivationScene extends Scene with HasCursorState {
     // }
   }
 
-  Future<String?> _selectHeroAttribute() async {
+  Future<String?> selectHeroAttribute() async {
     final selections = {};
     for (final key in kBattleAttributes) {
       final attrName = engine.locale(key);
@@ -387,7 +387,7 @@ class CultivationScene extends Scene with HasCursorState {
     return selected;
   }
 
-  Future<void> _onSkillButtonTapUp(
+  Future<void> onSkillButtonTapUp(
       SpriteButton skillButton, String nodeId, int button) async {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
@@ -415,13 +415,13 @@ class CultivationScene extends Scene with HasCursorState {
       // 境界节点：触发突破试炼
       final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
       if (rankRequirement == character['rank'] + 1) {
-        _tryTribulation(skillButton, nodeId);
+        tryTribulation(skillButton, nodeId);
         return;
       }
 
       if (isAttribute) {
         // 如果是属性节点，需要特殊处理
-        final selectedAttributeId = await _selectHeroAttribute();
+        final selectedAttributeId = await selectHeroAttribute();
 
         if (selectedAttributeId == null || selectedAttributeId == 'cancel') {
           return;
@@ -473,7 +473,7 @@ class CultivationScene extends Scene with HasCursorState {
     }
   }
 
-  void _onSkillButtonMouseEnter(SpriteButton skillButton, String nodeId) {
+  void onSkillButtonMouseEnter(SpriteButton skillButton, String nodeId) {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
@@ -618,11 +618,11 @@ class CultivationScene extends Scene with HasCursorState {
       }
 
       skillButton.onTapUp = (button, position) async {
-        _onSkillButtonTapUp(skillButton, nodeId, button);
+        onSkillButtonTapUp(skillButton, nodeId, button);
       };
 
       skillButton.onMouseEnter = () {
-        _onSkillButtonMouseEnter(skillButton, nodeId);
+        onSkillButtonMouseEnter(skillButton, nodeId);
       };
 
       skillButton.onMouseExit = () {
@@ -656,11 +656,11 @@ class CultivationScene extends Scene with HasCursorState {
     engine.hetu.invoke('calculateStats', namespace: 'Player');
   }
 
-  void _updateTimeOfDay() {
+  void updateTimeOfDay() {
     timeOfDaySprite.tryLoadSprite(spriteId: 'time/${GameLogic.timeString}.png');
   }
 
-  void _tick() async {
+  void tick() async {
     if (collectableLight > 0) {
       collectableLight -= 1;
       schedule(() async {
@@ -680,11 +680,11 @@ class CultivationScene extends Scene with HasCursorState {
         updateExpBar();
 
         if (collectableLight > _lightPoints.length) {
-          _addExpLightPoint();
+          addExpLightPoint();
         }
 
         await GameLogic.updateGame(ticks: timeCost);
-        _updateTimeOfDay();
+        updateTimeOfDay();
       });
     } else {
       setMeditateState(CultivationMode.none);
@@ -706,7 +706,7 @@ class CultivationScene extends Scene with HasCursorState {
     timer = Timer(
       kTimeFlowInterval / 1000,
       repeat: true,
-      onTick: _tick,
+      onTick: tick,
     );
 
     timeOfDaySprite = SpriteComponent2(
@@ -715,7 +715,7 @@ class CultivationScene extends Scene with HasCursorState {
       priority: _kTimeOfDayPriority,
     );
     world.add(timeOfDaySprite);
-    _updateTimeOfDay();
+    updateTimeOfDay();
 
     backgroundSprite = SpriteComponent(
       position: Vector2(center.x, center.y - 130),
@@ -1087,7 +1087,7 @@ class CultivationScene extends Scene with HasCursorState {
   }
 
   /// 点击境界节点时触发突破试炼
-  Future<void> _tryTribulation(SpriteButton skillButton, String nodeId) async {
+  Future<void> tryTribulation(SpriteButton skillButton, String nodeId) async {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
     if (passiveTreeNodeData == null) return;
 
@@ -1121,30 +1121,31 @@ class CultivationScene extends Scene with HasCursorState {
     await dialog.execute();
     final selected = dialog.checkSelected('tribulationMethod');
 
+    void onTribulationSuccess() {
+      GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+      skillButton.isSelected = true;
+      if (!isEditorMode) {
+        --character['skillPoints'];
+      }
+
+      updatePassivesDescription();
+      updateInformation();
+
+      engine.play(GameSound.click);
+    }
+
     if (selected == 'tribulation_martial') {
       // 武试：进入天道战斗
       final int maxLevel = GameLogic.maxLevelForRank(nodeRank);
       GameLogic.showTribulation(maxLevel, nodeRank, onResult: (bool result) {
         if (result) {
-          // 渡劫成功：提升境界 + 解锁节点 + 扣技能点
-          engine.hetu.invoke('rankUp', namespace: 'Player');
-          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-          skillButton.isSelected = true;
-          if (!isEditorMode) {
-            --character['skillPoints'];
-          }
-          updatePassivesDescription();
-          updateInformation();
-          GameLogic.promptNewRank(character['rank']);
+          onTribulationSuccess();
         } else {
           dialog.pushDialog('passivetree_tribulation_fail');
           dialog.execute();
         }
       });
     } else if (selected == 'tribulation_literary') {
-      // 文试暂未开放
-      dialog.pushDialog('functionDisabled');
-      await dialog.execute();
     } else {
       dialog.pushDialog('passivetree_tribulation_cancel');
       await dialog.execute();

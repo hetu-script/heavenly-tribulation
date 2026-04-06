@@ -20,11 +20,10 @@ import '../../../data/game.dart';
 import '../common.dart';
 
 class MemoryCardGame extends Scene with HasCursorState {
-  final MiniGameDifficulty difficulty;
-
   final List<CustomGameCard> cards = [];
   final math.Random random = math.Random();
 
+  late MiniGameDifficulty difficulty;
   late int cardKindCount; // 卡牌种类数
   late int cardTotalCount; // 卡牌总数
   late int gridColumns; // 网格列数
@@ -45,11 +44,11 @@ class MemoryCardGame extends Scene with HasCursorState {
   CustomGameCard? _firstFlippedCard;
   CustomGameCard? _secondFlippedCard;
   bool _isChecking = false; // 防止在检查过程中点击其他卡牌
-  bool _isGameOver = false;
-  bool _isGameWon = false;
+  bool isGameOver = false;
+  bool isGameWon = false;
 
   int _flipCount = 0;
-  late int _maxFlips;
+  late int maxFlips;
 
   FutureOr<void> Function()? onGameStart;
   FutureOr<dynamic> Function(bool won)? onGameEnd;
@@ -68,24 +67,36 @@ class MemoryCardGame extends Scene with HasCursorState {
     switch (difficulty) {
       case MiniGameDifficulty.easy:
         cardKindCount = 6;
-        gridColumns = 4;
+        maxFlips = 20;
         gridRows = 3;
-      case MiniGameDifficulty.medium:
+        gridColumns = 4;
+      case MiniGameDifficulty.normal:
+        cardKindCount = 8;
+        maxFlips = 30;
+        gridRows = 4;
+        gridColumns = 4;
+      case MiniGameDifficulty.challenging:
         cardKindCount = 12;
+        maxFlips = 40;
+        gridRows = 4;
         gridColumns = 6;
-        gridRows = 4;
       case MiniGameDifficulty.hard:
-        cardKindCount = 24;
-        gridColumns = 12;
+        cardKindCount = 16;
+        maxFlips = 50;
         gridRows = 4;
+        gridColumns = 8;
+      case MiniGameDifficulty.tough:
+        cardKindCount = 20;
+        maxFlips = 60;
+        gridRows = 4;
+        gridColumns = 10;
+      case MiniGameDifficulty.brutal:
+        cardKindCount = 24;
+        maxFlips = 70;
+        gridRows = 4;
+        gridColumns = 12;
     }
     cardTotalCount = cardKindCount * 2;
-    // 翻牌次数限制：简单模式较宽松，困难模式较紧凑
-    _maxFlips = switch (difficulty) {
-      MiniGameDifficulty.easy => cardKindCount * 6,
-      MiniGameDifficulty.medium => cardKindCount * 5,
-      MiniGameDifficulty.hard => cardKindCount * 4,
-    };
   }
 
   /// 计算卡牌大小以适应屏幕
@@ -204,7 +215,7 @@ class MemoryCardGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      _endScene(_isGameWon);
+      _endScene(isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -224,7 +235,7 @@ class MemoryCardGame extends Scene with HasCursorState {
     restart.isVisible = false;
     exit.position = GameUI.exitButtonPosition;
 
-    _isGameOver = false;
+    isGameOver = false;
     barrier.isVisible = false;
 
     _flipCount = 0;
@@ -300,14 +311,14 @@ class MemoryCardGame extends Scene with HasCursorState {
       glowSpriteId: 'battlecard/glow2.png',
     );
     card.onPreviewed = () {
-      if (_isChecking || _isGameOver) return;
+      if (_isChecking || isGameOver) return;
       card.showGlow = true;
     };
     card.onUnpreviewed = () {
       card.showGlow = false;
     };
     card.onTap = (button, position) {
-      if (_isChecking || _isGameOver) return;
+      if (_isChecking || isGameOver) return;
       _onTapCard(card);
     };
 
@@ -421,7 +432,7 @@ class MemoryCardGame extends Scene with HasCursorState {
         reset();
 
         // 翻牌次数用尽，游戏失败
-        if (_flipCount >= _maxFlips) {
+        if (_flipCount >= maxFlips) {
           _onGameOver(false);
         }
       });
@@ -429,8 +440,8 @@ class MemoryCardGame extends Scene with HasCursorState {
   }
 
   void _updateFlipCountText() {
-    final remaining = _maxFlips - _flipCount;
-    if (remaining <= _maxFlips ~/ 4) {
+    final remaining = maxFlips - _flipCount;
+    if (remaining <= maxFlips ~/ 4) {
       _flipCountText.text =
           '${engine.locale('memoryCardGame_flipsRemaining')}: <red>$remaining</>';
     } else {
@@ -440,12 +451,12 @@ class MemoryCardGame extends Scene with HasCursorState {
   }
 
   void _onGameOver(bool won) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     engine.bgm.pause();
 
-    _isGameOver = true;
-    _isGameWon = won;
+    isGameOver = true;
+    isGameWon = won;
     barrier.isVisible = true;
 
     if (won) {

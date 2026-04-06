@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
+// import 'package:quiver/iterables.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -21,8 +22,6 @@ import '../common.dart';
 
 const _kLayerPriority = [30, 20, 10];
 
-const _kMaxSlots = 7; // 槽位上限：7个
-const _kIconTypes = 12; // 图标种类：12种
 const _kStackedTileCount = 18; // 每个堆叠位置的方块数量
 
 // 堆叠方块配置
@@ -128,7 +127,7 @@ class MatchCelebration extends PositionComponent {
 
 /// 表示一个可点击的方块
 class MatchingTile extends GameComponent with HandlesGesture {
-  final int iconId; // 图标ID (0-10)
+  final int iconId; // 图标ID
   final int layer; // 层级 (0-2, 0是最上层)
   final int gridX; // 网格X坐标
   final int gridY; // 网格Y坐标
@@ -256,25 +255,29 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   // final fluent.FlyoutController _menuController = fluent.FlyoutController();
 
-  late final SpriteSheet _iconSpriteSheet;
+  late final SpriteSheet iconSpriteSheet;
 
-  late Vector2 _scaleFactor;
-  late Vector2 _tileSize;
+  late Vector2 scaleFactor;
+  late Vector2 tileSize;
 
   // 游戏状态
   final List<MatchingTile> boardTiles = [];
   final List<MatchingTile> slotTiles = []; // 槽位中的方块
 
-  final MiniGameDifficulty difficulty;
-  final int tileCount; // 方块总数
-  late final int normalTileCount; // 普通方块数量
-  late final int stackPositions; // 堆叠位置数量
-  late final List<Map<String, int>> stackGridPositions; // 堆叠位置坐标
+  late MiniGameDifficulty difficulty;
+  late int tileCount; // 方块总数
+
+  late int maxSlots; // 槽位上限
+  late int iconTypes; // 图标种类
+
+  late int normalTileCount; // 普通方块数量
+  late int stackPositions; // 堆叠位置数量
+  late List<Map<String, int>> stackGridPositions; // 堆叠位置坐标
 
   late List<int> _layerCounts; // 每层的方块数量 [第1层, 第2层, 第3层]
 
-  bool _isGameOver = false;
-  bool _isGameWon = false;
+  bool isGameOver = false;
+  bool isGameWon = false;
 
   MatchingTile? _hoveringTile;
 
@@ -291,12 +294,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     required this.difficulty,
     this.onGameStart,
     this.onGameEnd,
-  })  : tileCount = switch (difficulty) {
-          MiniGameDifficulty.easy => 36, // 12种×3个
-          MiniGameDifficulty.medium => 72, // 12种×6个
-          MiniGameDifficulty.hard => 108, // 12种×9个
-        },
-        super(
+  }) : super(
           id: Scenes.matchingGame2,
           bgm: engine.bgm,
           bgmFile: 'ghuzheng-fantasie-23506.mp3',
@@ -304,14 +302,39 @@ class MatchingGame2 extends Scene with HasCursorState {
         ) {
     switch (difficulty) {
       case MiniGameDifficulty.easy:
+        iconTypes = 6;
+        tileCount = iconTypes * 3;
         stackPositions = 0;
         stackGridPositions = [];
-      case MiniGameDifficulty.medium:
+      case MiniGameDifficulty.normal:
+        iconTypes = 12;
+        tileCount = iconTypes * 3;
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.challenging:
+        iconTypes = 12;
+        tileCount = iconTypes * 6;
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.hard:
+        iconTypes = 12;
+        tileCount = iconTypes * 6;
         stackPositions = 1;
         stackGridPositions = [
           {'x': 5, 'y': 4}, // 中心堆叠
         ];
-      case MiniGameDifficulty.hard:
+
+      case MiniGameDifficulty.tough:
+        iconTypes = 12;
+        tileCount = iconTypes * 9;
+        stackPositions = 2;
+        stackGridPositions = [
+          {'x': 4, 'y': 4}, // 左侧堆叠
+          {'x': 6, 'y': 4}, // 右侧堆叠
+        ];
+      case MiniGameDifficulty.brutal:
+        iconTypes = 12;
+        tileCount = iconTypes * 12;
         stackPositions = 2;
         stackGridPositions = [
           {'x': 4, 'y': 4}, // 左侧堆叠
@@ -367,16 +390,16 @@ class MatchingGame2 extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      _endScene(_isGameWon);
+      _endScene(isGameWon);
     };
     camera.viewport.add(exit);
 
-    _scaleFactor = Vector2(
+    scaleFactor = Vector2(
         size.x / defaultGameSize.width, size.y / defaultGameSize.height);
-    _tileSize = Vector2(GameUI.matchingTileSize.x * _scaleFactor.x,
-        GameUI.matchingTileSize.y * _scaleFactor.y);
+    tileSize = Vector2(GameUI.matchingTileSize.x * scaleFactor.x,
+        GameUI.matchingTileSize.y * scaleFactor.y);
 
-    _iconSpriteSheet = SpriteSheet(
+    iconSpriteSheet = SpriteSheet(
       image: await Flame.images.load('mini_game/matching/icon.png'),
       srcSize: Vector2(81, 81),
     );
@@ -398,7 +421,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     restart.position = GameUI.restartButtonPosition;
     exit.position = GameUI.exitButtonPosition;
 
-    _isGameOver = false;
+    isGameOver = false;
     barrier.isVisible = false;
 
     final List<int> iconIds = [];
@@ -420,13 +443,15 @@ class MatchingGame2 extends Scene with HasCursorState {
     slotTiles.clear();
 
     // 为每种图标分配数量（必须能被3整除以支持三消）
-    final countPerIcon = tileCount ~/ _kIconTypes;
+    final countPerIcon = tileCount ~/ iconTypes;
+    assert(countPerIcon % 3 == 0,
+        '方块数必须是3的整数倍，以支持三消。当前配置：tileCount=$tileCount, iconTypes=$iconTypes');
 
     // ===== 第一步：生成堆叠方块 =====
     final totalStackedCount = _kStackedTileCount * stackPositions;
     final stackedIconIds = <int>[];
     for (int i = 0; i < totalStackedCount; i++) {
-      stackedIconIds.add(i % _kIconTypes);
+      stackedIconIds.add(i % iconTypes);
     }
     stackedIconIds.shuffle(random);
 
@@ -437,9 +462,9 @@ class MatchingGame2 extends Scene with HasCursorState {
 
       // 创建该堆叠位置的方块（从底部到顶部）
       for (int i = 0; i < _kStackedTileCount; i++) {
-        final iconIndex = stackPos * _kStackedTileCount + i;
+        final iconId = stackPos * _kStackedTileCount + i;
         final tile = await _createTile(
-          stackedIconIds[iconIndex],
+          stackedIconIds[iconId],
           2, // 使用第3层（最下层）
           stackGridX,
           stackGridY,
@@ -448,7 +473,7 @@ class MatchingGame2 extends Scene with HasCursorState {
         );
         boardTiles.add(tile);
         world.add(tile);
-        iconIds.add(stackedIconIds[iconIndex]);
+        iconIds.add(stackedIconIds[iconId]);
       }
     }
 
@@ -457,14 +482,14 @@ class MatchingGame2 extends Scene with HasCursorState {
     _layerCounts = _calculateLayerDistribution(normalTileCount);
 
     // 计算剩余需要分配的图标（总数 - 已用于堆叠的）
-    final remainingIconCounts = List.filled(_kIconTypes, countPerIcon);
+    final remainingIconCounts = List.filled(iconTypes, countPerIcon);
     for (var id in stackedIconIds) {
       remainingIconCounts[id]--;
     }
 
     // 将所有剩余图标ID收集到一个列表中
     final allRemainingIcons = <int>[];
-    for (int iconId = 0; iconId < _kIconTypes; iconId++) {
+    for (int iconId = 0; iconId < iconTypes; iconId++) {
       for (int i = 0; i < remainingIconCounts[iconId]; i++) {
         allRemainingIcons.add(iconId);
       }
@@ -517,11 +542,11 @@ class MatchingGame2 extends Scene with HasCursorState {
     }
 
     // 最终验证：统计每种图标的数量
-    final iconCounts = List.filled(_kIconTypes, 0);
+    final iconCounts = List.filled(iconTypes, 0);
     for (var id in iconIds) {
       iconCounts[id]++;
     }
-    for (int i = 0; i < _kIconTypes; i++) {
+    for (int i = 0; i < iconTypes; i++) {
       assert(iconCounts[i] == countPerIcon,
           '图标$i数量错误：期望$countPerIcon个，实际${iconCounts[i]}个');
     }
@@ -563,10 +588,11 @@ class MatchingGame2 extends Scene with HasCursorState {
 
     switch (difficulty) {
       case MiniGameDifficulty.easy:
+      case MiniGameDifficulty.normal:
         // 无堆叠，不排除
         return false;
-
-      case MiniGameDifficulty.medium:
+      case MiniGameDifficulty.challenging:
+      case MiniGameDifficulty.hard:
         // 曼哈顿距离 ≤ 3 的菱形排除
         const radius = 3;
         if (layer == 1) {
@@ -578,7 +604,8 @@ class MatchingGame2 extends Scene with HasCursorState {
         }
         return _manhattanExcluded(x, y, centerX, centerY, radius);
 
-      case MiniGameDifficulty.hard:
+      case MiniGameDifficulty.tough:
+      case MiniGameDifficulty.brutal:
         // 中心 3×3 矩形排除：x∈[4,6], y∈[2,4]
         const minX = 4, maxX = 6, minY = 2, maxY = 4;
         if (layer == 1) {
@@ -714,7 +741,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       // 第6列（索引5）
       spriteId = (iconId - 6) * 6 + 5;
     }
-    final iconSprite = _iconSpriteSheet.getSpriteById(spriteId);
+    final iconSprite = iconSpriteSheet.getSpriteById(spriteId);
 
     // 加载背景图
     final tileSprite = await Sprite.load('mini_game/matching/tile.png');
@@ -736,8 +763,8 @@ class MatchingGame2 extends Scene with HasCursorState {
     }
 
     // 应用缩放
-    position.x *= _scaleFactor.x;
-    position.y *= _scaleFactor.y;
+    position.x *= scaleFactor.x;
+    position.y *= scaleFactor.y;
 
     // 堆叠方块使用更高的优先级（索引越大，越靠上）
     final priority = isStacked ? (100 + stackIndex) : _kLayerPriority[layer];
@@ -752,7 +779,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       tileSprite: tileSprite,
       iconSprite: iconSprite,
       position: position,
-      size: _tileSize,
+      size: tileSize,
     )..priority = priority;
 
     tile.onTap = (button, position) {
@@ -781,9 +808,9 @@ class MatchingGame2 extends Scene with HasCursorState {
   Vector2 _getSlotPosition(int index) {
     // 计算位置
     final pos = Vector2(
-      GameUI.matchingSlotOffset.x * _scaleFactor.x,
+      GameUI.matchingSlotOffset.x * scaleFactor.x,
       (GameUI.matchingSlotOffset.y + index * GameUI.matchingTileSize.y + 10) *
-          _scaleFactor.y,
+          scaleFactor.y,
     );
 
     return pos;
@@ -849,14 +876,14 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 点击方块的处理
   void _onTileTapped(MatchingTile tile) async {
-    if (_isGameOver) return;
+    if (isGameOver) return;
     if (tile.isBlocked || tile.isSelected || tile.isInSlot) return;
 
     // debugPrint(
     //     '点击方块: Layer=${tile.layer}, Grid=(${tile.gridX},${tile.gridY}), IconId=${tile.iconId}');
 
     // 添加到槽位
-    if (slotTiles.length >= _kMaxSlots) {
+    if (slotTiles.length >= maxSlots) {
       // 槽位已满，游戏失败
       _onGameOver(false);
       return;
@@ -973,7 +1000,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     }
 
     // 检查是否槽位满但无法配对
-    if (slotTiles.length >= _kMaxSlots) {
+    if (slotTiles.length >= maxSlots) {
       _onGameOver(false);
     }
   }
@@ -995,7 +1022,7 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 检查是否胜利
   void _checkWin() {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     // 检查是否所有方块都被选中
     if (boardTiles.isEmpty && slotTiles.isEmpty) {
@@ -1005,12 +1032,12 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   /// 显示游戏结果
   void _onGameOver(bool won) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     engine.bgm.pause();
 
-    _isGameOver = true;
-    _isGameWon = won;
+    isGameOver = true;
+    isGameWon = won;
     barrier.isVisible = true;
 
     if (won) {

@@ -105,7 +105,8 @@ class DifferenceGame extends Scene with HasCursorState {
 
   int? gameId;
 
-  final MiniGameDifficulty difficulty;
+  late MiniGameDifficulty difficulty;
+  late int maxErrors;
 
   late List<dynamic> _diffsData;
   final List<DiffData> _diffs = [];
@@ -120,8 +121,8 @@ class DifferenceGame extends Scene with HasCursorState {
 
   late Sprite _errorIndicatorSprite;
 
-  bool _isGameOver = false;
-  bool _isGameWon = false;
+  bool isGameOver = false;
+  bool isGameWon = false;
 
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -183,7 +184,7 @@ class DifferenceGame extends Scene with HasCursorState {
   void checkDifferenceAt(
       SpriteComponent2 component, int button, Vector2 position) {
     if (button != kPrimaryButton) return;
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     // 鼠标光标的手指实际位置和光标图片的左上角有10个像素的偏差(仅x方向)
     // 需要调整位置以对应手指的实际点击位置
@@ -229,7 +230,7 @@ class DifferenceGame extends Scene with HasCursorState {
 
     if (!found) {
       ++_errorCount;
-      if (_errorCount >= kMiniGameMaxErrors) {
+      if (_errorCount >= maxErrors) {
         _onGameOver(false);
       }
 
@@ -264,12 +265,12 @@ class DifferenceGame extends Scene with HasCursorState {
   }
 
   void _onGameOver(bool won) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     engine.bgm.pause();
 
-    _isGameOver = true;
-    _isGameWon = won;
+    isGameOver = true;
+    isGameWon = won;
     barrier.isVisible = true;
 
     if (won) {
@@ -366,7 +367,7 @@ class DifferenceGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      _endScene(_isGameWon);
+      _endScene(isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -484,7 +485,7 @@ class DifferenceGame extends Scene with HasCursorState {
 
     _foundedCount = 0;
     _errorCount = 0;
-    _isGameOver = false;
+    isGameOver = false;
     barrier.isVisible = false;
 
     _victoryPrompt.removeFromParent();
@@ -511,19 +512,34 @@ class DifferenceGame extends Scene with HasCursorState {
 
     int diffCount;
     List<dynamic> selectedDiffs = _diffsData.toList();
+    if (difficulty != MiniGameDifficulty.easy) {
+      // 难度大于简单时随机打乱差异顺序
+      selectedDiffs.shuffle();
+    }
     switch (difficulty) {
       case MiniGameDifficulty.easy:
-        diffCount = 5;
+        maxErrors = 9;
+        diffCount = 4;
         // 简单模式：挑选尺寸（面积）最大的不同之处
         // 按面积降序排序
         selectedDiffs.sort((a, b) =>
             ((b['width'] as num) * (b['height'] as num))
                 .compareTo((a['width'] as num) * (a['height'] as num)));
-      case MiniGameDifficulty.medium:
+      case MiniGameDifficulty.normal:
+        maxErrors = 7;
+        diffCount = 8;
+      case MiniGameDifficulty.challenging:
+        maxErrors = 5;
+        diffCount = 12;
       case MiniGameDifficulty.hard:
-        // 普通和困难模式：随机挑选
-        diffCount = difficulty == MiniGameDifficulty.medium ? 10 : 15;
-        selectedDiffs.shuffle();
+        maxErrors = 3;
+        diffCount = 16;
+      case MiniGameDifficulty.tough:
+        maxErrors = 2;
+        diffCount = 20;
+      case MiniGameDifficulty.brutal:
+        maxErrors = 1;
+        diffCount = 20;
     }
     selectedDiffs = selectedDiffs.take(diffCount).toList();
     _spotIndicatorsPosition = Vector2(
@@ -608,8 +624,8 @@ class DifferenceGame extends Scene with HasCursorState {
     }
 
     final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
-    for (var i = 0; i < kMiniGameMaxErrors; ++i) {
-      if (i < kMiniGameMaxErrors - _errorCount) {
+    for (var i = 0; i < maxErrors; ++i) {
+      if (i < maxErrors - _errorCount) {
         heart.render(
           canvas,
           position: startPoint2,

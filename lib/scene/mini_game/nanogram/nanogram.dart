@@ -45,51 +45,67 @@ class _NanogramPuzzle {
   }) {
     final random = seed != null ? math.Random(seed) : math.Random();
 
-    // 根据难度确定最大提示数字数量
-    final maxHints = switch (difficulty) {
-      MiniGameDifficulty.easy => 3,
-      MiniGameDifficulty.medium => 4,
-      MiniGameDifficulty.hard => 5,
-    };
-
     // 根据难度决定唯一解的生成策略
     Set<int> uniqueRows = {};
     Set<int> uniqueCols = {};
 
-    if (difficulty != MiniGameDifficulty.easy) {
-      // 确保至少有一个唯一解行或列
+    void addUniqueRowAndCol() {
+      uniqueRows.add(random.nextInt(rows));
+      uniqueCols.add(random.nextInt(cols));
+    }
+
+    void addUniqueRowOrCol() {
       if (random.nextBool()) {
         uniqueRows.add(random.nextInt(rows));
       } else {
         uniqueCols.add(random.nextInt(cols));
       }
+    }
+
+    void addUniqueRowOrColByNumber(int number) {
       // 随机数量和位置，但至少有一行或一列
       final hasUniqueRow = random.nextBool();
       final hasUniqueCol = random.nextBool();
 
-      // 确保至少有一个
-      if (!hasUniqueRow && !hasUniqueCol) {
-        if (random.nextBool()) {
+      if (hasUniqueRow) {
+        // 随机0-n个唯一解行
+        final count = random.nextInt(number);
+        while (uniqueRows.length < count && uniqueRows.length < rows) {
           uniqueRows.add(random.nextInt(rows));
-        } else {
-          uniqueCols.add(random.nextInt(cols));
-        }
-      } else {
-        if (hasUniqueRow) {
-          // 随机1-3个唯一解行
-          final count = 1 + random.nextInt(3);
-          while (uniqueRows.length < count && uniqueRows.length < rows) {
-            uniqueRows.add(random.nextInt(rows));
-          }
-        }
-        if (hasUniqueCol) {
-          // 随机1-3个唯一解列
-          final count = 1 + random.nextInt(3);
-          while (uniqueCols.length < count && uniqueCols.length < cols) {
-            uniqueCols.add(random.nextInt(cols));
-          }
         }
       }
+      if (hasUniqueCol) {
+        // 随机0-n个唯一解列
+        final count = random.nextInt(number);
+        while (uniqueCols.length < count && uniqueCols.length < cols) {
+          uniqueCols.add(random.nextInt(cols));
+        }
+      }
+    }
+
+    late int maxHints;
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        maxHints = 3;
+        addUniqueRowAndCol();
+      case MiniGameDifficulty.normal:
+        maxHints = 4;
+        addUniqueRowAndCol();
+        addUniqueRowOrColByNumber(3);
+      case MiniGameDifficulty.challenging:
+        maxHints = 4;
+        addUniqueRowOrCol();
+        addUniqueRowOrColByNumber(2);
+      case MiniGameDifficulty.hard:
+        maxHints = 5;
+        addUniqueRowOrCol();
+        addUniqueRowOrColByNumber(3);
+      case MiniGameDifficulty.tough:
+        maxHints = 5;
+        addUniqueRowOrCol();
+        addUniqueRowOrColByNumber(2);
+      case MiniGameDifficulty.brutal:
+        maxHints = 5;
     }
 
     // 为每行生成方块
@@ -1248,8 +1264,8 @@ class NanogramGame extends Scene with HasCursorState {
   _NanogramPuzzle? _currentPuzzle;
   _NanogramBoard? _currentBoard;
 
-  bool _isGameOver = false;
-  bool _isGameWon = false;
+  bool isGameOver = false;
+  bool isGameWon = false;
 
   late final SpriteComponent2 barrier;
 
@@ -1329,7 +1345,7 @@ class NanogramGame extends Scene with HasCursorState {
       text: engine.locale('exit'),
     );
     exit.onTap = (_, __) {
-      _endScene(_isGameWon);
+      _endScene(isGameWon);
     };
     camera.viewport.add(exit);
 
@@ -1340,7 +1356,7 @@ class NanogramGame extends Scene with HasCursorState {
     engine.bgm.resume();
 
     _errorCount = 0;
-    _isGameOver = false;
+    isGameOver = false;
     barrier.isVisible = false;
 
     _victoryPrompt.removeFromParent();
@@ -1405,12 +1421,12 @@ class NanogramGame extends Scene with HasCursorState {
   }
 
   void _onGameOver(bool won) {
-    if (_isGameOver) return;
+    if (isGameOver) return;
 
     engine.bgm.pause();
 
-    _isGameOver = true;
-    _isGameWon = won;
+    isGameOver = true;
+    isGameWon = won;
     barrier.isVisible = true;
 
     _currentPuzzle?.isFinished = true;
