@@ -625,8 +625,9 @@ class _MerchantDialogState extends State<MerchantDialog> {
                     Inventory(
                       height: 364.0,
                       character: GameData.hero,
-                      itemType:
-                          isDepositBox ? ItemType.none : ItemType.customer,
+                      inventoryType: isDepositBox
+                          ? InventoryType.none
+                          : InventoryType.customer,
                       priceFactor: priceFactor,
                       selectedItemId: _selectedHeroItemsData.keys,
                       onItemTapped: (itemData, screenPosition) {
@@ -746,8 +747,9 @@ class _MerchantDialogState extends State<MerchantDialog> {
                     Inventory(
                       height: 364.0,
                       character: widget.merchantData,
-                      itemType:
-                          isDepositBox ? ItemType.none : ItemType.merchant,
+                      inventoryType: isDepositBox
+                          ? InventoryType.none
+                          : InventoryType.merchant,
                       priceFactor: priceFactor,
                       selectedItemId: _selectedMerchantItemsData.keys,
                       onItemTapped: (itemData, screenPosition) {

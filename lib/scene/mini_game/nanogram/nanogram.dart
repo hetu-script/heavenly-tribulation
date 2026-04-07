@@ -1269,6 +1269,9 @@ class NanogramGame extends Scene with HasCursorState {
 
   late final SpriteComponent2 barrier;
 
+  late int maxErrors;
+  late Vector2 errorIndicatorStartPoint;
+
   int _errorCount = 0;
 
   FutureOr<void> Function()? onGameStart;
@@ -1371,11 +1374,31 @@ class NanogramGame extends Scene with HasCursorState {
     _currentBoard?.removeFromParent();
 
     // 根据难度设置棋盘大小
-    int puzzleSize = switch (difficulty) {
-      MiniGameDifficulty.easy => 5,
-      MiniGameDifficulty.medium => 10,
-      MiniGameDifficulty.hard => 15,
-    };
+    late int puzzleSize;
+
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        maxErrors = 5;
+        puzzleSize = 5;
+      case MiniGameDifficulty.normal:
+        maxErrors = 7;
+        puzzleSize = 10;
+      case MiniGameDifficulty.challenging:
+        maxErrors = 5;
+        puzzleSize = 10;
+      case MiniGameDifficulty.hard:
+        maxErrors = 7;
+        puzzleSize = 15;
+      case MiniGameDifficulty.tough:
+        maxErrors = 5;
+        puzzleSize = 15;
+      case MiniGameDifficulty.brutal:
+        maxErrors = 3;
+        puzzleSize = 15;
+    }
+    errorIndicatorStartPoint = Vector2(
+        size.x / 2 - (maxErrors / 2) * GameUI.miniGameIndicatorIconSize,
+        size.y - GameUI.miniGameIndicatorIconSize - GameUI.indent);
 
     // 生成新谜题（使用中心对称）
     _currentPuzzle = _NanogramPuzzle(
@@ -1412,7 +1435,7 @@ class NanogramGame extends Scene with HasCursorState {
 
   void _onError() {
     ++_errorCount;
-    if (_errorCount >= kMiniGameMaxErrors) {
+    if (_errorCount >= maxErrors) {
       _onGameOver(false);
     }
 
@@ -1473,9 +1496,9 @@ class NanogramGame extends Scene with HasCursorState {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
-    for (var i = 0; i < kMiniGameMaxErrors; ++i) {
-      if (i < kMiniGameMaxErrors - _errorCount) {
+    Vector2 startPoint2 = errorIndicatorStartPoint.clone();
+    for (var i = 0; i < maxErrors; ++i) {
+      if (i < maxErrors - _errorCount) {
         heart.render(
           canvas,
           position: startPoint2,

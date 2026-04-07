@@ -62,42 +62,7 @@ class MemoryCardGame extends Scene with HasCursorState {
           bgm: engine.bgm,
           bgmFile: 'Serenity of the East.mp3',
           bgmVolume: 0.5,
-        ) {
-    // 根据难度设置卡牌数量和网格布局
-    switch (difficulty) {
-      case MiniGameDifficulty.easy:
-        cardKindCount = 6;
-        maxFlips = 20;
-        gridRows = 3;
-        gridColumns = 4;
-      case MiniGameDifficulty.normal:
-        cardKindCount = 8;
-        maxFlips = 30;
-        gridRows = 4;
-        gridColumns = 4;
-      case MiniGameDifficulty.challenging:
-        cardKindCount = 12;
-        maxFlips = 40;
-        gridRows = 4;
-        gridColumns = 6;
-      case MiniGameDifficulty.hard:
-        cardKindCount = 16;
-        maxFlips = 50;
-        gridRows = 4;
-        gridColumns = 8;
-      case MiniGameDifficulty.tough:
-        cardKindCount = 20;
-        maxFlips = 60;
-        gridRows = 4;
-        gridColumns = 10;
-      case MiniGameDifficulty.brutal:
-        cardKindCount = 24;
-        maxFlips = 70;
-        gridRows = 4;
-        gridColumns = 12;
-    }
-    cardTotalCount = cardKindCount * 2;
-  }
+        );
 
   /// 计算卡牌大小以适应屏幕
   void _calculateCardSize() {
@@ -219,7 +184,6 @@ class MemoryCardGame extends Scene with HasCursorState {
     };
     camera.viewport.add(exit);
 
-    _calculateCardSize();
     await _initializeGame();
   }
 
@@ -237,11 +201,47 @@ class MemoryCardGame extends Scene with HasCursorState {
 
     isGameOver = false;
     barrier.isVisible = false;
+    restart.isVisible = false;
 
     _flipCount = 0;
-    _updateFlipCountText();
 
-    restart.isVisible = false;
+    // 根据难度设置卡牌数量和网格布局
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        cardKindCount = 6;
+        maxFlips = 20;
+        gridRows = 3;
+        gridColumns = 4;
+      case MiniGameDifficulty.normal:
+        cardKindCount = 8;
+        maxFlips = 30;
+        gridRows = 4;
+        gridColumns = 4;
+      case MiniGameDifficulty.challenging:
+        cardKindCount = 12;
+        maxFlips = 40;
+        gridRows = 4;
+        gridColumns = 6;
+      case MiniGameDifficulty.hard:
+        cardKindCount = 16;
+        maxFlips = 50;
+        gridRows = 4;
+        gridColumns = 8;
+      case MiniGameDifficulty.tough:
+        cardKindCount = 20;
+        maxFlips = 60;
+        gridRows = 4;
+        gridColumns = 10;
+      case MiniGameDifficulty.brutal:
+        cardKindCount = 24;
+        maxFlips = 70;
+        gridRows = 4;
+        gridColumns = 12;
+    }
+    cardTotalCount = cardKindCount * 2;
+
+    _updateFlipCountText();
+    _calculateCardSize();
 
     // 获取所有可用的卡牌插画ID
     final allIllustrations = kBattleCardIllustrations.toList();
@@ -272,7 +272,6 @@ class MemoryCardGame extends Scene with HasCursorState {
     }
 
     _layoutCards();
-
     await onGameStart?.call();
   }
 

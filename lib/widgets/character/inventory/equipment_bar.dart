@@ -16,7 +16,7 @@ class EquipmentBar extends StatelessWidget {
     super.key,
     this.style = EquipmentBarStyle.horizontal,
     required this.character,
-    this.type = ItemType.none,
+    this.inventoryType = InventoryType.none,
     this.gridSize = kDefaultItemGridSize,
     this.selectedItemId = const [],
     this.onItemTapped,
@@ -27,7 +27,7 @@ class EquipmentBar extends StatelessWidget {
 
   final EquipmentBarStyle style;
   final dynamic character;
-  final ItemType type;
+  final InventoryType inventoryType;
   final Size gridSize;
   final Iterable selectedItemId;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
@@ -57,7 +57,7 @@ class EquipmentBar extends StatelessWidget {
               context.read<HoverContentState>().show(
                     buildItemHoverInfo(
                       itemData,
-                      type: type,
+                      inventoryType: inventoryType,
                       isDetailed: isDetailed,
                     ),
                     rect,

@@ -1,4 +1,5 @@
 export 'character.dart';
+export 'craft.dart';
 export 'game_config.dart';
 export 'game_save.dart';
 export 'item_select.dart';

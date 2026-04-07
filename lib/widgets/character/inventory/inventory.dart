@@ -8,14 +8,14 @@ import '../../../logic/logic.dart';
 import '../../common.dart';
 import 'item_grid.dart';
 
-export '../../common.dart' show ItemType;
+export '../../common.dart' show InventoryType;
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatelessWidget {
   Inventory({
     super.key,
     required this.character,
-    required this.itemType,
+    required this.inventoryType,
     this.height = 312.0,
     this.minSlotCount = 60,
     this.gridsPerLine = 5,
@@ -27,7 +27,7 @@ class Inventory extends StatelessWidget {
   });
 
   final dynamic character;
-  final ItemType itemType;
+  final InventoryType inventoryType;
   final double height;
   final int minSlotCount, gridsPerLine;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
@@ -35,6 +35,19 @@ class Inventory extends StatelessWidget {
       onItemSecondaryTapped;
   final Iterable selectedItemId;
   final dynamic priceFactor;
+
+  /// 物品过滤条件，传入一个 Map/HTStruct，支持以下字段：
+  /// - `rank`（int）：精确匹配境界等级
+  /// - `minRank`（int）：最低境界等级（含）
+  /// - `maxRank`（int）：最高境界等级（含）
+  /// - `type`（String）：物品类型，如 `'equipment'`、`'craft_material'` 等
+  /// - `category`（String）：物品类别，如 `'weapon'`、`'armor'` 等
+  /// - `kind`（String）：物品种类，如 `'sword'`、`'shard'` 等
+  /// - `id`（String）：物品唯一 ID
+  /// - `isIdentified`（bool）：是否已鉴定
+  ///
+  /// 所有字段均可选，为 null 时不过滤该维度。
+  /// 已装备的物品始终被排除。
   final dynamic filter;
 
   final _scrollController = ScrollController();
@@ -47,11 +60,10 @@ class Inventory extends StatelessWidget {
 
     final filteredItems = GameLogic.getFilteredItems(
       character,
-      type: itemType,
+      inventoryType: inventoryType,
       filter: filter,
       filterShard: priceFactor?['useShard'] ?? false,
     );
-
     for (final itemData in filteredItems) {
       grids.add(
         ItemGrid(
@@ -59,33 +71,33 @@ class Inventory extends StatelessWidget {
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
-            switch (itemType) {
-              case ItemType.none:
-              case ItemType.npc:
-              case ItemType.player:
+            switch (inventoryType) {
+              case InventoryType.none:
+              case InventoryType.npc:
+              case InventoryType.player:
                 context.read<HoverContentState>().show(
                       buildItemHoverInfo(
                         itemData,
-                        type: itemType,
+                        inventoryType: inventoryType,
                         isDetailed: isDetailed,
                       ),
                       rect,
                     );
-              case ItemType.merchant:
+              case InventoryType.merchant:
                 context.read<HoverContentState>().show(
                       buildItemHoverInfo(
                         itemData,
-                        type: itemType,
+                        inventoryType: inventoryType,
                         priceFactor: priceFactor,
                         isDetailed: isDetailed,
                       ),
                       rect,
                     );
-              case ItemType.customer:
+              case InventoryType.customer:
                 context.read<HoverContentState>().show(
                       buildItemHoverInfo(
                         itemData,
-                        type: itemType,
+                        inventoryType: inventoryType,
                         priceFactor: priceFactor,
                         isDetailed: isDetailed,
                       ),

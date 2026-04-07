@@ -301,30 +301,26 @@ class _Maze extends PositionComponent {
     ..strokeCap = StrokeCap.round
     ..isAntiAlias = true;
 
-  List<List<_Cell>>? _maze;
+  List<List<_Cell>>? _data;
 
   final double kCellSize;
 
   final List<_Wall> wallSegments = [];
 
-  _Maze({
-    required this.kCellSize,
-    required super.size,
-    super.position,
-  });
+  _Maze({required this.kCellSize});
 
-  void setMazeData(List<List<_Cell>> maze) {
-    assert(maze.isNotEmpty);
-    _maze = maze;
+  void setMazeData(List<List<_Cell>> data) {
+    assert(data.isNotEmpty);
+    _data = data;
 
     wallSegments.clear();
 
-    final rows = _maze!.length;
-    final cols = _maze![0].length;
+    final rows = _data!.length;
+    final cols = _data![0].length;
 
     for (var row = 0; row < rows; row++) {
       for (var col = 0; col < cols; col++) {
-        final cell = _maze![row][col];
+        final cell = _data![row][col];
         final x = col * kCellSize;
         final y = row * kCellSize;
 
@@ -360,15 +356,15 @@ class _Maze extends PositionComponent {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    if (_maze == null) return;
+    if (_data == null) return;
 
-    final rows = _maze!.length;
-    final cols = _maze![0].length;
+    final rows = _data!.length;
+    final cols = _data![0].length;
 
     // 绘制所有墙壁
     for (var row = 0; row < rows; row++) {
       for (var col = 0; col < cols; col++) {
-        final cell = _maze![row][col];
+        final cell = _data![row][col];
         final x = col * kCellSize;
         final y = row * kCellSize;
 
@@ -416,11 +412,12 @@ class MouseMazeGame extends Scene with HasCursorState {
   static final random = math.Random();
 
   late List<List<_Cell>> _mazeData;
-  late _Maze _maze;
-  late LightPoint _lightPoint;
+  late final _Maze _maze;
+  late final LightPoint lightPoint;
+  late final CircleComponent startMarker, endMarker;
 
-  Vector2? _startPosition;
-  Vector2? _endPosition;
+  Vector2? startPosition;
+  Vector2? endPosition;
 
   bool _isDragging = false;
   int _errorCount = 0;
@@ -442,6 +439,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   late int portalPairCount;
   late int switchDoorCount;
   late int maxErrors;
+  late Vector2 errorIndicatorStartPoint;
 
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -461,46 +459,7 @@ class MouseMazeGame extends Scene with HasCursorState {
           bgmVolume: 0.5,
           enableLighting: true,
           backgroundLightingColor: Colors.black,
-        ) {
-    switch (difficulty) {
-      case MiniGameDifficulty.easy:
-        maxErrors = 6;
-        mazeRows = 4;
-        mazeColumns = 6;
-        portalPairCount = 1;
-        switchDoorCount = 1;
-      case MiniGameDifficulty.normal:
-        maxErrors = 5;
-        mazeRows = 4;
-        mazeColumns = 8;
-        portalPairCount = 1;
-        switchDoorCount = 1;
-      case MiniGameDifficulty.challenging:
-        maxErrors = 4;
-        mazeRows = 6;
-        mazeColumns = 12;
-        portalPairCount = 2;
-        switchDoorCount = 2;
-      case MiniGameDifficulty.hard:
-        maxErrors = 3;
-        mazeRows = 6;
-        mazeColumns = 16;
-        portalPairCount = 2;
-        switchDoorCount = 2;
-      case MiniGameDifficulty.tough:
-        maxErrors = 2;
-        mazeRows = 8;
-        mazeColumns = 20;
-        portalPairCount = 3;
-        switchDoorCount = 3;
-      case MiniGameDifficulty.brutal:
-        maxErrors = 1;
-        mazeRows = 10;
-        mazeColumns = 24;
-        portalPairCount = 3;
-        switchDoorCount = 3;
-    }
-  }
+        );
 
   @override
   void onLoad() async {
@@ -565,32 +524,13 @@ class MouseMazeGame extends Scene with HasCursorState {
     };
     camera.viewport.add(exit);
 
-    // 计算迷宫的实际尺寸和位置（居中显示）
-    final mazeWidth = mazeColumns * _kCellSize;
-    final mazeHeight = mazeRows * _kCellSize;
-    final mazePosition = Vector2(
-      (size.x - mazeWidth) / 2,
-      (size.y - kUIOverlayHeight - mazeHeight) / 2 + kUIOverlayHeight,
-    );
-
     // 创建迷宫
-    _maze = _Maze(
-      kCellSize: _kCellSize,
-      size: Vector2(mazeWidth, mazeHeight),
-      position: mazePosition,
-    );
+    _maze = _Maze(kCellSize: _kCellSize);
     world.add(_maze);
 
-    // 设置起点和终点
-    _startPosition = mazePosition + Vector2(_kCellSize / 2, _kCellSize / 2);
-    _endPosition = mazePosition +
-        Vector2(
-            (mazeColumns - 0.5) * _kCellSize, (mazeRows - 0.5) * _kCellSize);
-
     // 创建起点标记（绿色圆圈）
-    final startMarker = CircleComponent(
+    startMarker = CircleComponent(
       radius: _kLightPointRadius,
-      position: _startPosition,
       anchor: Anchor.center,
       paint: Paint()..color = Colors.green.withValues(alpha: 0.8),
       priority: _kMazePartPriority,
@@ -598,9 +538,8 @@ class MouseMazeGame extends Scene with HasCursorState {
     world.add(startMarker);
 
     // 创建终点标记（红色圆圈）
-    final endMarker = CircleComponent(
+    endMarker = CircleComponent(
       radius: _kLightPointRadius,
-      position: _endPosition,
       anchor: Anchor.center,
       paint: Paint()..color = Colors.red.withValues(alpha: 0.8),
       priority: _kMazePartPriority,
@@ -608,15 +547,14 @@ class MouseMazeGame extends Scene with HasCursorState {
     world.add(endMarker);
 
     // 创建光点
-    _lightPoint = LightPoint(
+    lightPoint = LightPoint(
       assetId: 'light_point.png',
-      position: _startPosition!,
       preferredRadius: 150.0, // 增大光照半径以获得更好的视野
       flickerRate: 5,
       priority: _kMazePartPriority2,
       preferredSize: Vector2(30.0, 30.0),
     );
-    world.add(_lightPoint);
+    world.add(lightPoint);
 
     // 添加一个透明的拖拽区域覆盖整个屏幕
     final dragArea = _DragArea(size: size, game: this);
@@ -662,14 +600,71 @@ class MouseMazeGame extends Scene with HasCursorState {
 
     exit.position = GameUI.exitButtonPosition;
 
-    // 重置光点位置
-    if (_startPosition != null) {
-      _lightPoint.position = _startPosition!;
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        maxErrors = 6;
+        mazeRows = 4;
+        mazeColumns = 6;
+        portalPairCount = 1;
+        switchDoorCount = 1;
+      case MiniGameDifficulty.normal:
+        maxErrors = 5;
+        mazeRows = 4;
+        mazeColumns = 8;
+        portalPairCount = 1;
+        switchDoorCount = 1;
+      case MiniGameDifficulty.challenging:
+        maxErrors = 4;
+        mazeRows = 6;
+        mazeColumns = 12;
+        portalPairCount = 2;
+        switchDoorCount = 2;
+      case MiniGameDifficulty.hard:
+        maxErrors = 3;
+        mazeRows = 6;
+        mazeColumns = 16;
+        portalPairCount = 2;
+        switchDoorCount = 2;
+      case MiniGameDifficulty.tough:
+        maxErrors = 2;
+        mazeRows = 8;
+        mazeColumns = 20;
+        portalPairCount = 3;
+        switchDoorCount = 3;
+      case MiniGameDifficulty.brutal:
+        maxErrors = 1;
+        mazeRows = 10;
+        mazeColumns = 24;
+        portalPairCount = 3;
+        switchDoorCount = 3;
     }
+    errorIndicatorStartPoint = Vector2(
+        size.x / 2 - (maxErrors / 2) * GameUI.miniGameIndicatorIconSize,
+        size.y - GameUI.miniGameIndicatorIconSize - GameUI.indent);
+
+    // 计算迷宫的实际尺寸和位置（居中显示）
+    final mazeWidth = mazeColumns * _kCellSize;
+    final mazeHeight = mazeRows * _kCellSize;
+    final mazePosition = Vector2(
+      (size.x - mazeWidth) / 2,
+      (size.y - kUIOverlayHeight - mazeHeight) / 2 + kUIOverlayHeight,
+    );
+    _maze.position = mazePosition;
+    _maze.size = Vector2(mazeWidth, mazeHeight);
+
+    // 设置起点和终点
+    startPosition = mazePosition + Vector2(_kCellSize / 2, _kCellSize / 2);
+    startMarker.position = startPosition!;
+    endPosition = mazePosition +
+        Vector2(
+            (mazeColumns - 0.5) * _kCellSize, (mazeRows - 0.5) * _kCellSize);
+    endMarker.position = endPosition!;
+
+    // 重置光点位置
+    lightPoint.position = startPosition!;
 
     // 生成迷宫
     _mazeData = _generateMaze(mazeRows, mazeColumns);
-
     _maze.setMazeData(_mazeData);
 
     for (final portal in _portals) {
@@ -934,7 +929,7 @@ class MouseMazeGame extends Scene with HasCursorState {
     if (_isDragging) return;
 
     // 可以在这里添加鼠标悬停时的逻辑
-    if (_lightPoint.containsPoint(position)) {
+    if (lightPoint.containsPoint(position)) {
       cursorState = MouseCursorState.click;
     } else {
       cursorState = MouseCursorState.normal;
@@ -943,7 +938,7 @@ class MouseMazeGame extends Scene with HasCursorState {
 
   void onLightPointDragStart(Vector2 position) {
     // 检查是否点击在光点附近
-    if (_lightPoint.containsPoint(position)) {
+    if (lightPoint.containsPoint(position)) {
       _isDragging = true;
 
       cursorState = MouseCursorState.drag;
@@ -962,7 +957,7 @@ class MouseMazeGame extends Scene with HasCursorState {
         final targetPortal = portal.linkedPortal!;
 
         // 传送到目标传送门位置
-        _lightPoint.position = targetPortal.position;
+        lightPoint.position = targetPortal.position;
 
         // 将入口传送门和出口传送门都设为未激活状态
         portal.isActive = false;
@@ -982,7 +977,7 @@ class MouseMazeGame extends Scene with HasCursorState {
       }
     }
     // 更新光点位置
-    _lightPoint.position = position;
+    lightPoint.position = position;
 
     // 检查开关门
     for (final door in _switchDoors) {
@@ -993,13 +988,13 @@ class MouseMazeGame extends Scene with HasCursorState {
     }
 
     // 检查墙壁碰撞
-    if (_checkCollision(_lightPoint.center)) {
+    if (_checkCollision(lightPoint.center)) {
       _onError();
       return;
     }
 
     // 检查是否到达终点
-    if (_endPosition != null && position.distanceTo(_endPosition!) <= 20.0) {
+    if (endPosition != null && position.distanceTo(endPosition!) <= 20.0) {
       _onGameOver(true);
     }
   }
@@ -1007,7 +1002,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   void onLightPointDragEnd(Vector2 position) {
     _isDragging = false;
 
-    if (_lightPoint.containsPoint(position)) {
+    if (lightPoint.containsPoint(position)) {
       cursorState = MouseCursorState.click;
     } else {
       cursorState = MouseCursorState.normal;
@@ -1053,8 +1048,8 @@ class MouseMazeGame extends Scene with HasCursorState {
 
     // 重置游戏
     _isDragging = false;
-    if (_startPosition != null) {
-      _lightPoint.position = _startPosition!;
+    if (startPosition != null) {
+      lightPoint.position = startPosition!;
     }
     for (final portal in _portals) {
       portal.isActive = true;
@@ -1106,7 +1101,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
+    Vector2 startPoint2 = errorIndicatorStartPoint.clone();
     for (var i = 0; i < maxErrors; ++i) {
       if (i < maxErrors - _errorCount) {
         heart.render(

@@ -2,8 +2,9 @@
   // 这里定义了一些没有特殊词条，属性固定的物品
 
   // 特殊属性：
-  // isRankedItem 该物品属性应用于从 1 到 5 的不同境界，
-  //          并且会拥有相应的 flavortext 和 icon
+  // isRankedItem 该物品境界和稀有度至少为1
+  //              属性应用于从 1 到 5 的不同境界，
+  //              并且会拥有相应的 flavortext 和 icon
   // isRankedName 该物品根据境界不同而有独特的名字
   // isIdentified 是否已鉴定
   // isUntradable 是否不可交易
@@ -26,7 +27,6 @@
     isIdentified: true,
     isUntradable: true,
   },
-
   identify_scroll: {
     id: "identify_scroll",
     name: "identify_scroll",
@@ -39,36 +39,34 @@
     isIdentified: true,
   },
 
-  scroll_paper: {
-    id: "scroll_paper",
-    name: "scroll_paper",
-    flavortext: "flavortext_scroll_paper",
-    type: "material",
-    category: "scroll_paper",
-    rarity: "rare",
-    icon: "item/craft/scroll_paper.png",
-    isRankedItem: true,
-    isIdentified: true,
-  },
-
   dungeon_ticket: {
     id: "dungeon_ticket",
     name: "dungeon_ticket",
     flavortext: "flavortext_dungeon_ticket",
-    type: "material",
+    type: "dungeon_ticket",
     category: "dungeon_ticket",
-    rarity: "rare",
     icon: "item/craft/dungeon_ticket.png",
     isRankedItem: true,
     isIdentified: true,
     isUnstackable: true,
   },
 
+  scroll_paper: {
+    id: "scroll_paper",
+    name: "scroll_paper",
+    flavortext: "flavortext_scroll_paper",
+    type: "craft_material",
+    category: "scroll_paper",
+    icon: "item/craft/scroll_paper.png",
+    isRankedItem: true,
+    isIdentified: true,
+  },
+
   craftmaterial_addAffix: {
     id: "craftmaterial_addAffix",
     name: "craftmaterial_addAffix",
     flavortext: "flavortext_craftmaterial_addAffix",
-    type: "material",
+    type: ["consumable", "craft_material"],
     category: "craftmaterial_addAffix",
     rarity: "rare",
     icon: "item/craft/craftmaterial_addAffix.png",
@@ -79,7 +77,7 @@
     id: "craftmaterial_replaceAffix",
     name: "craftmaterial_replaceAffix",
     flavortext: "flavortext_craftmaterial_replaceAffix",
-    type: "material",
+    type: ["consumable", "craft_material"],
     category: "craftmaterial_replaceAffix",
     icon: "item/craft/craftmaterial_replaceAffix.png",
     isRankedItem: true,
@@ -89,7 +87,7 @@
     id: "craftmaterial_rerollAffix",
     name: "craftmaterial_rerollAffix",
     flavortext: "flavortext_craftmaterial_rerollAffix",
-    type: ["consumable", "material"],
+    type: ["consumable", "craft_material"],
     category: "craftmaterial_rerollAffix",
     icon: "item/craft/craftmaterial_rerollAffix.png",
     isRankedItem: true,
@@ -100,7 +98,7 @@
     id: "craftmaterial_upgrade",
     name: "craftmaterial_upgrade",
     flavortext: "flavortext_craftmaterial_upgrade",
-    type: ["consumable", "material"],
+    type: ["consumable", "craft_material"],
     category: "craftmaterial_upgrade",
     icon: "item/craft/craftmaterial_upgrade.png",
     isRankedItem: true,

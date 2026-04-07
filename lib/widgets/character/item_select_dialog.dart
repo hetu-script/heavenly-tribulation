@@ -6,7 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'inventory/inventory.dart';
 import '../../global.dart';
 import '../../logic/logic.dart';
-import '../../state/states.dart';
+import '../../state/item_select.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 
@@ -15,7 +15,7 @@ class ItemSelectDialog extends StatefulWidget {
     super.key,
     required this.character,
     this.title,
-    this.type = ItemType.none,
+    this.inventoryType = InventoryType.none,
     this.filter,
     this.multiSelect = false,
     this.onSelect,
@@ -24,7 +24,7 @@ class ItemSelectDialog extends StatefulWidget {
 
   final String? title;
   final dynamic character;
-  final ItemType type;
+  final InventoryType inventoryType;
   final dynamic filter;
   final bool multiSelect;
   final void Function(Iterable itemsData)? onSelect;
@@ -71,28 +71,28 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
           height: 480.0,
           child: Column(
             children: [
-              SizedBox(
-                height: 10,
-              ),
-              Inventory(
-                itemType: ItemType.player,
-                character: widget.character,
-                height: 364.0,
-                gridsPerLine: 6,
-                filter: widget.filter,
-                onItemTapped: (data, offset) {
-                  final itemId = data['id'];
-                  if (_selectedItemsData.containsKey(itemId)) {
-                    _selectedItemsData.remove(itemId);
-                  } else {
-                    if (!widget.multiSelect) {
-                      _selectedItemsData.clear();
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Inventory(
+                  inventoryType: InventoryType.player,
+                  character: widget.character,
+                  height: 364.0,
+                  gridsPerLine: 6,
+                  filter: widget.filter,
+                  onItemTapped: (data, offset) {
+                    final itemId = data['id'];
+                    if (_selectedItemsData.containsKey(itemId)) {
+                      _selectedItemsData.remove(itemId);
+                    } else {
+                      if (!widget.multiSelect) {
+                        _selectedItemsData.clear();
+                      }
+                      _selectedItemsData[itemId] = data;
                     }
-                    _selectedItemsData[itemId] = data;
-                  }
-                  setState(() {});
-                },
-                selectedItemId: _selectedItemsData.keys.toSet(),
+                    setState(() {});
+                  },
+                  selectedItemId: _selectedItemsData.keys.toSet(),
+                ),
               ),
               const Spacer(),
               Row(
@@ -119,7 +119,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                           _selectedItemsData.clear();
                           final filteredItems = GameLogic.getFilteredItems(
                             widget.character,
-                            type: widget.type,
+                            inventoryType: widget.inventoryType,
                             filter: widget.filter,
                           );
                           for (final item in filteredItems) {

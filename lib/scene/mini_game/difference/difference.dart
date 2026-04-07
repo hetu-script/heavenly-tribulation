@@ -107,6 +107,7 @@ class DifferenceGame extends Scene with HasCursorState {
 
   late MiniGameDifficulty difficulty;
   late int maxErrors;
+  late Vector2 errorIndicatorStartPoint;
 
   late List<dynamic> _diffsData;
   final List<DiffData> _diffs = [];
@@ -518,8 +519,8 @@ class DifferenceGame extends Scene with HasCursorState {
     }
     switch (difficulty) {
       case MiniGameDifficulty.easy:
-        maxErrors = 9;
-        diffCount = 4;
+        maxErrors = 7;
+        diffCount = 5;
         // 简单模式：挑选尺寸（面积）最大的不同之处
         // 按面积降序排序
         selectedDiffs.sort((a, b) =>
@@ -530,17 +531,21 @@ class DifferenceGame extends Scene with HasCursorState {
         diffCount = 8;
       case MiniGameDifficulty.challenging:
         maxErrors = 5;
-        diffCount = 12;
+        diffCount = 11;
       case MiniGameDifficulty.hard:
-        maxErrors = 3;
-        diffCount = 16;
+        maxErrors = 5;
+        diffCount = 14;
       case MiniGameDifficulty.tough:
-        maxErrors = 2;
-        diffCount = 20;
+        maxErrors = 3;
+        diffCount = 17;
       case MiniGameDifficulty.brutal:
-        maxErrors = 1;
+        maxErrors = 3;
         diffCount = 20;
     }
+    errorIndicatorStartPoint = Vector2(
+        size.x / 2 - (maxErrors / 2) * GameUI.miniGameIndicatorIconSize,
+        size.y - GameUI.miniGameIndicatorIconSize - GameUI.indent);
+
     selectedDiffs = selectedDiffs.take(diffCount).toList();
     _spotIndicatorsPosition = Vector2(
         size.x / 2 - (diffCount / 2) * GameUI.miniGameIndicatorIconSize,
@@ -623,7 +628,7 @@ class DifferenceGame extends Scene with HasCursorState {
       startPoint.x += GameUI.miniGameIndicatorIconSize;
     }
 
-    final startPoint2 = GameUI.errorCountIndicatorsPosition.clone();
+    Vector2 startPoint2 = errorIndicatorStartPoint.clone();
     for (var i = 0; i < maxErrors; ++i) {
       if (i < maxErrors - _errorCount) {
         heart.render(

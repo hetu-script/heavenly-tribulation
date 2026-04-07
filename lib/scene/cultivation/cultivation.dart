@@ -27,6 +27,7 @@ import '../particles/light_trail.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
+import '../mini_game/common.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -549,11 +550,8 @@ class CultivationScene extends Scene with HasCursorState {
 
   void _addSkillButton({required String nodeId, required Vector2 position}) {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
-    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
     late SpriteButton skillButton;
-
-    final (isLearned, isOpen) = checkPassiveStatus(nodeId);
 
     if (passiveTreeNodeData == null) {
       // 还未开放的技能，在debug模式下显示为占位符
@@ -582,6 +580,8 @@ class CultivationScene extends Scene with HasCursorState {
       }
     } else {
       // 已经开发完毕，写好数据的技能
+      bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+      final (isLearned, isOpen) = checkPassiveStatus(nodeId);
 
       final buttonSize = switch (passiveTreeNodeData['size']) {
         'large' => GameUI.skillButtonSizeLarge,
@@ -1106,7 +1106,6 @@ class CultivationScene extends Scene with HasCursorState {
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['tribulation'] != true) {
         GameData.flags['tutorial']['tribulation'] = true;
-
         dialog.pushDialog('passivetree_tribulation_intro');
         await dialog.execute();
       }
@@ -1127,11 +1126,9 @@ class CultivationScene extends Scene with HasCursorState {
       if (!isEditorMode) {
         --character['skillPoints'];
       }
-
       updatePassivesDescription();
       updateInformation();
-
-      engine.play(GameSound.click);
+      // engine.play(GameSound.click);
     }
 
     if (selected == 'tribulation_martial') {
@@ -1146,9 +1143,29 @@ class CultivationScene extends Scene with HasCursorState {
         }
       });
     } else if (selected == 'tribulation_literary') {
-    } else {
-      dialog.pushDialog('passivetree_tribulation_cancel');
-      await dialog.execute();
+      // 文试：随机进入一种小游戏。难度和节点本身的境界有关。
+      const miniGameScenes = [
+        Scenes.matchingGame2,
+        Scenes.differenceGame,
+        Scenes.mouseMazeGame,
+        Scenes.memoryCardGame,
+        Scenes.nanogramGame,
+      ];
+      final sceneId =
+          miniGameScenes[math.Random().nextInt(miniGameScenes.length)];
+      final difficulty = MiniGameDifficulty
+          .values[nodeRank.clamp(0, MiniGameDifficulty.values.length - 1)];
+      engine.pushScene(sceneId, arguments: {
+        'difficulty': difficulty.name,
+        'onGameEnd': (bool won) {
+          if (won) {
+            onTribulationSuccess();
+          } else {
+            dialog.pushDialog('passivetree_tribulation_fail');
+            dialog.execute();
+          }
+        },
+      });
     }
   }
 
@@ -1165,7 +1182,6 @@ class CultivationScene extends Scene with HasCursorState {
     if (level < maxLevel) {
       exp -= expForLevel;
       engine.hetu.invoke('levelUp', namespace: 'Player');
-
       hint('修为等级 + 1', color: Colors.yellow);
     } else {
       dialog.pushDialog('hint_tribulation_5');

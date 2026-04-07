@@ -856,7 +856,7 @@ final class GameLogic {
 
   static List<dynamic> getFilteredItems(
     dynamic character, {
-    required ItemType type,
+    required InventoryType inventoryType,
     dynamic filter,
     bool filterShard = false,
   }) {
@@ -865,6 +865,7 @@ final class GameLogic {
     final int? minRank = filter?['minRank'];
     final int? maxRank = filter?['maxRank'];
     final int? rank = filter?['rank'];
+    final String? type = filter?['type'];
     final String? category = filter?['category'];
     final String? kind = filter?['kind'];
     final String? id = filter?['id'];
@@ -884,6 +885,9 @@ final class GameLogic {
       if (maxRank != null && itemData['rank'] > maxRank) {
         continue;
       }
+      if (type != null && itemData['type'] != type) {
+        continue;
+      }
       if (category != null && itemData['category'] != category) {
         continue;
       }
@@ -896,11 +900,10 @@ final class GameLogic {
       if (isIdentified != null && isIdentified != itemData['isIdentified']) {
         continue;
       }
-      if (type == ItemType.customer) {
+      if (inventoryType == InventoryType.customer) {
         if (kUntradableItemKinds.contains(itemData['kind'])) continue;
         if (itemData['isUntradable'] == true) continue;
-      }
-      if (type == ItemType.merchant) {
+      } else if (inventoryType == InventoryType.merchant) {
         if (kUntradableItemKinds.contains(itemData['kind'])) continue;
         if (itemData['isUntradable'] == true) continue;
         if (filterShard && itemData['kind'] == 'shard') continue;

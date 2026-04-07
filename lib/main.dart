@@ -84,6 +84,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => engine),
           ChangeNotifierProvider(create: (_) => dialog),
           ChangeNotifierProvider(create: (_) => gameState),
+          ChangeNotifierProvider(create: (_) => CraftState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => WorldMapState()),
           ChangeNotifierProvider(create: (_) => JournalPromptState()),

@@ -155,7 +155,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               EquipmentBar(
-                type: ItemType.player,
+                inventoryType: InventoryType.player,
                 character: _characterData,
                 onItemSecondaryTapped: onItemSecondaryTapped,
                 style: EquipmentBarStyle.vertical,
@@ -167,7 +167,7 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
               Inventory(
                 height: (kDefaultItemGridSize.height + 4.0) * 7,
                 character: _characterData,
-                itemType: ItemType.player,
+                inventoryType: InventoryType.player,
                 gridsPerLine: 6,
                 onItemSecondaryTapped: onItemSecondaryTapped,
               ),

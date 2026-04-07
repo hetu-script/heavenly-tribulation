@@ -299,50 +299,7 @@ class MatchingGame2 extends Scene with HasCursorState {
           bgm: engine.bgm,
           bgmFile: 'ghuzheng-fantasie-23506.mp3',
           bgmVolume: 0.5,
-        ) {
-    switch (difficulty) {
-      case MiniGameDifficulty.easy:
-        iconTypes = 6;
-        tileCount = iconTypes * 3;
-        stackPositions = 0;
-        stackGridPositions = [];
-      case MiniGameDifficulty.normal:
-        iconTypes = 12;
-        tileCount = iconTypes * 3;
-        stackPositions = 0;
-        stackGridPositions = [];
-      case MiniGameDifficulty.challenging:
-        iconTypes = 12;
-        tileCount = iconTypes * 6;
-        stackPositions = 0;
-        stackGridPositions = [];
-      case MiniGameDifficulty.hard:
-        iconTypes = 12;
-        tileCount = iconTypes * 6;
-        stackPositions = 1;
-        stackGridPositions = [
-          {'x': 5, 'y': 4}, // 中心堆叠
-        ];
-
-      case MiniGameDifficulty.tough:
-        iconTypes = 12;
-        tileCount = iconTypes * 9;
-        stackPositions = 2;
-        stackGridPositions = [
-          {'x': 4, 'y': 4}, // 左侧堆叠
-          {'x': 6, 'y': 4}, // 右侧堆叠
-        ];
-      case MiniGameDifficulty.brutal:
-        iconTypes = 12;
-        tileCount = iconTypes * 12;
-        stackPositions = 2;
-        stackGridPositions = [
-          {'x': 4, 'y': 4}, // 左侧堆叠
-          {'x': 6, 'y': 4}, // 右侧堆叠
-        ];
-    }
-    normalTileCount = tileCount - (_kStackedTileCount * stackPositions);
-  }
+        );
 
   @override
   Future<void> onLoad() async {
@@ -441,6 +398,49 @@ class MatchingGame2 extends Scene with HasCursorState {
 
     boardTiles.clear();
     slotTiles.clear();
+
+    maxSlots = 7;
+    switch (difficulty) {
+      case MiniGameDifficulty.easy:
+        iconTypes = 8;
+        tileCount = iconTypes * 3;
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.normal:
+        iconTypes = 12;
+        tileCount = iconTypes * 3;
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.challenging:
+        iconTypes = 12;
+        tileCount = iconTypes * 6;
+        stackPositions = 0;
+        stackGridPositions = [];
+      case MiniGameDifficulty.hard:
+        iconTypes = 12;
+        tileCount = iconTypes * 6;
+        stackPositions = 1;
+        stackGridPositions = [
+          {'x': 5, 'y': 4}, // 中心堆叠
+        ];
+      case MiniGameDifficulty.tough:
+        iconTypes = 12;
+        tileCount = iconTypes * 9;
+        stackPositions = 2;
+        stackGridPositions = [
+          {'x': 4, 'y': 4}, // 左侧堆叠
+          {'x': 6, 'y': 4}, // 右侧堆叠
+        ];
+      case MiniGameDifficulty.brutal:
+        iconTypes = 12;
+        tileCount = iconTypes * 12;
+        stackPositions = 2;
+        stackGridPositions = [
+          {'x': 4, 'y': 4}, // 左侧堆叠
+          {'x': 6, 'y': 4}, // 右侧堆叠
+        ];
+    }
+    normalTileCount = tileCount - (_kStackedTileCount * stackPositions);
 
     // 为每种图标分配数量（必须能被3整除以支持三消）
     final countPerIcon = tileCount ~/ iconTypes;
@@ -1117,14 +1117,14 @@ class MatchingGame2 extends Scene with HasCursorState {
     );
   }
 
-  /// 显示帮助信息
-  void _showHelp(BuildContext context) {
-    debugPrint('游戏规则：\n'
-        '1. 点击未被遮挡的方块，方块会移动到右侧槽位\n'
-        '2. 槽位最多容纳7个方块\n'
-        '3. 当槽位中有3个相同的方块时会自动消除\n'
-        '4. 消除所有方块即为胜利\n'
-        '5. 如果槽位满了还无法配对，游戏失败\n'
-        '6. 上层方块会遮挡下层方块，被遮挡的方块会变暗');
-  }
+  // /// 显示帮助信息
+  // void _showHelp(BuildContext context) {
+  //   debugPrint('游戏规则：\n'
+  //       '1. 点击未被遮挡的方块，方块会移动到右侧槽位\n'
+  //       '2. 槽位最多容纳7个方块\n'
+  //       '3. 当槽位中有3个相同的方块时会自动消除\n'
+  //       '4. 消除所有方块即为胜利\n'
+  //       '5. 如果槽位满了还无法配对，游戏失败\n'
+  //       '6. 上层方块会遮挡下层方块，被遮挡的方块会变暗');
+  // }
 }

@@ -406,17 +406,54 @@ class _DebugButtonState extends State<DebugButton> {
                 'debugMeeting': 'debugMeeting',
                 '___3': null,
                 'debugMatchingGame': 'debugMatchingGame',
-                'debugMatchingGame2': 'debugMatchingGame2',
-                'debugDifferenceGame': 'debugDifferenceGame',
-                'debugMouseMazeGame': 'debugMouseMazeGame',
-                'debugMemoryCardGame': 'debugMemoryCardGame',
-                'debugNanogramGame': 'debugNanogramGame',
+                'debugMatchingGame2': {
+                  'easy': 'debugMatchingGame2_easy',
+                  'normal': 'debugMatchingGame2_normal',
+                  'challenging': 'debugMatchingGame2_challenging',
+                  'hard': 'debugMatchingGame2_hard',
+                  'tough': 'debugMatchingGame2_tough',
+                  'brutal': 'debugMatchingGame2_brutal',
+                },
+                'debugDifferenceGame': {
+                  'easy': 'debugDifferenceGame_easy',
+                  'normal': 'debugDifferenceGame_normal',
+                  'challenging': 'debugDifferenceGame_challenging',
+                  'hard': 'debugDifferenceGame_hard',
+                  'tough': 'debugDifferenceGame_tough',
+                  'brutal': 'debugDifferenceGame_brutal',
+                },
+                'debugMouseMazeGame': {
+                  'easy': 'debugMouseMazeGame_easy',
+                  'normal': 'debugMouseMazeGame_normal',
+                  'challenging': 'debugMouseMazeGame_challenging',
+                  'hard': 'debugMouseMazeGame_hard',
+                  'tough': 'debugMouseMazeGame_tough',
+                  'brutal': 'debugMouseMazeGame_brutal',
+                },
+                'debugMemoryCardGame': {
+                  'easy': 'debugMemoryCardGame_easy',
+                  'normal': 'debugMemoryCardGame_normal',
+                  'challenging': 'debugMemoryCardGame_challenging',
+                  'hard': 'debugMemoryCardGame_hard',
+                  'tough': 'debugMemoryCardGame_tough',
+                  'brutal': 'debugMemoryCardGame_brutal',
+                },
+                'debugNanogramGame': {
+                  'easy': 'debugNanogramGame_easy',
+                  'normal': 'debugNanogramGame_normal',
+                  'challenging': 'debugNanogramGame_challenging',
+                  'hard': 'debugNanogramGame_hard',
+                  'tough': 'debugNanogramGame_tough',
+                  'brutal': 'debugNanogramGame_brutal',
+                },
               },
               onSelectedItem: (String item) async {
                 switch (item) {
                   case 'debugConsole':
                     GameUI.showConsole(context);
                   case 'debugLlmChat':
+                    if (!engine.config.enableLlm) return;
+
                     final npc = engine.hetu.invoke('Character');
                     engine.hetu.invoke('characterMet',
                         positionalArgs: [npc, GameData.hero]);
@@ -498,40 +535,155 @@ class _DebugButtonState extends State<DebugButton> {
                         'isProduction': math.Random().nextBool(),
                       },
                     );
-                  case 'debugMatchingGame2':
+                  case 'debugMatchingGame2_easy':
                     engine.pushScene(
                       Scenes.matchingGame2,
-                      arguments: {
-                        'difficulty': 'easy',
-                      },
+                      arguments: {'difficulty': 'easy'},
                     );
-                  case 'debugDifferenceGame':
+                  case 'debugMatchingGame2_normal':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {'difficulty': 'normal'},
+                    );
+                  case 'debugMatchingGame2_challenging':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {'difficulty': 'challenging'},
+                    );
+                  case 'debugMatchingGame2_hard':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {'difficulty': 'hard'},
+                    );
+                  case 'debugMatchingGame2_tough':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {'difficulty': 'tough'},
+                    );
+                  case 'debugMatchingGame2_brutal':
+                    engine.pushScene(
+                      Scenes.matchingGame2,
+                      arguments: {'difficulty': 'brutal'},
+                    );
+                  case 'debugDifferenceGame_easy':
                     engine.pushScene(
                       Scenes.differenceGame,
-                      arguments: {
-                        'difficulty': 'easy',
-                      },
+                      arguments: {'difficulty': 'easy'},
                     );
-                  case 'debugMouseMazeGame':
+                  case 'debugDifferenceGame_normal':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {'difficulty': 'normal'},
+                    );
+                  case 'debugDifferenceGame_challenging':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {'difficulty': 'challenging'},
+                    );
+                  case 'debugDifferenceGame_hard':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {'difficulty': 'hard'},
+                    );
+                  case 'debugDifferenceGame_tough':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {'difficulty': 'tough'},
+                    );
+                  case 'debugDifferenceGame_brutal':
+                    engine.pushScene(
+                      Scenes.differenceGame,
+                      arguments: {'difficulty': 'brutal'},
+                    );
+                  case 'debugMouseMazeGame_easy':
                     engine.pushScene(
                       Scenes.mouseMazeGame,
-                      arguments: {
-                        'difficulty': 'easy',
-                      },
+                      arguments: {'difficulty': 'easy'},
                     );
-                  case 'debugMemoryCardGame':
+                  case 'debugMouseMazeGame_normal':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {'difficulty': 'normal'},
+                    );
+                  case 'debugMouseMazeGame_challenging':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {'difficulty': 'challenging'},
+                    );
+                  case 'debugMouseMazeGame_hard':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {'difficulty': 'hard'},
+                    );
+                  case 'debugMouseMazeGame_tough':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {'difficulty': 'tough'},
+                    );
+                  case 'debugMouseMazeGame_brutal':
+                    engine.pushScene(
+                      Scenes.mouseMazeGame,
+                      arguments: {'difficulty': 'brutal'},
+                    );
+                  case 'debugMemoryCardGame_easy':
                     engine.pushScene(
                       Scenes.memoryCardGame,
-                      arguments: {
-                        'difficulty': 'easy',
-                      },
+                      arguments: {'difficulty': 'easy'},
                     );
-                  case 'debugNanogramGame':
+                  case 'debugMemoryCardGame_normal':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {'difficulty': 'normal'},
+                    );
+                  case 'debugMemoryCardGame_challenging':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {'difficulty': 'challenging'},
+                    );
+                  case 'debugMemoryCardGame_hard':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {'difficulty': 'hard'},
+                    );
+                  case 'debugMemoryCardGame_tough':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {'difficulty': 'tough'},
+                    );
+                  case 'debugMemoryCardGame_brutal':
+                    engine.pushScene(
+                      Scenes.memoryCardGame,
+                      arguments: {'difficulty': 'brutal'},
+                    );
+                  case 'debugNanogramGame_easy':
                     engine.pushScene(
                       Scenes.nanogramGame,
-                      arguments: {
-                        'difficulty': 'easy',
-                      },
+                      arguments: {'difficulty': 'easy'},
+                    );
+                  case 'debugNanogramGame_normal':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {'difficulty': 'normal'},
+                    );
+                  case 'debugNanogramGame_challenging':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {'difficulty': 'challenging'},
+                    );
+                  case 'debugNanogramGame_hard':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {'difficulty': 'hard'},
+                    );
+                  case 'debugNanogramGame_tough':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {'difficulty': 'tough'},
+                    );
+                  case 'debugNanogramGame_brutal':
+                    engine.pushScene(
+                      Scenes.nanogramGame,
+                      arguments: {'difficulty': 'brutal'},
                     );
                 }
               },

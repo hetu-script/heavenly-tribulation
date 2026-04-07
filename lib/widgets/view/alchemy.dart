@@ -120,7 +120,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                     padding: const EdgeInsets.only(top: 20.0),
                     child: Inventory(
                       character: GameData.hero,
-                      itemType: ItemType.none,
+                      inventoryType: InventoryType.none,
                       gridsPerLine: 6,
                       onItemSecondaryTapped: onInventoryItemSecondaryTapped,
                     ),

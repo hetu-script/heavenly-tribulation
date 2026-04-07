@@ -342,7 +342,7 @@ void _onInteractCardLibraryDesk({
   engine.pushScene(Scenes.library, arguments: {
     'locationId': location['id'],
     'enableCardCraft': true,
-    'enableScrollCraft': true,
+    'enableScrollCraft': false,
   });
 }
 

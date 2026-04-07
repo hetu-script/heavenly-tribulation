@@ -16,7 +16,7 @@ void previewCard(
   engine.context.read<HoverContentState>().show(
         buildItemHoverInfo(
           cardData,
-          type: isLibrary ? ItemType.player : ItemType.none,
+          inventoryType: isLibrary ? InventoryType.player : InventoryType.none,
         ),
         rect,
         direction: direction ?? HoverContentDirection.rightTop,
@@ -95,7 +95,7 @@ const kEntityTableSectColumns = {
   'recruitMonth': 50.0,
 };
 
-enum ItemType {
+enum InventoryType {
   none,
   player,
   npc,
@@ -106,33 +106,33 @@ enum ItemType {
 String? buildItemHoverInfo(
   dynamic data, {
   dynamic priceFactor,
-  ItemType type = ItemType.none,
+  InventoryType inventoryType = InventoryType.none,
   bool isDetailed = false,
 }) {
   switch (data['entityType']) {
     case 'item':
       String description;
-      switch (type) {
-        case ItemType.none:
-        case ItemType.npc:
+      switch (inventoryType) {
+        case InventoryType.none:
+        case InventoryType.npc:
           description = GameData.getItemDescription(
             data,
             isDetailed: isDetailed,
           );
-        case ItemType.player:
+        case InventoryType.player:
           description = GameData.getItemDescription(
             data,
             isInventory: true,
             isDetailed: isDetailed,
           );
-        case ItemType.customer:
+        case InventoryType.customer:
           description = GameData.getItemDescription(
             data,
             priceFactor: priceFactor,
             isSell: true,
             isDetailed: isDetailed,
           );
-        case ItemType.merchant:
+        case InventoryType.merchant:
           description = GameData.getItemDescription(
             data,
             priceFactor: priceFactor,
@@ -143,7 +143,7 @@ String? buildItemHoverInfo(
       return description;
     case 'battle_card':
       final (_, description) = GameData.getBattleCardDescription(
-        showRequirement: type == ItemType.player,
+        showRequirement: inventoryType == InventoryType.player,
         data,
         isDetailed: isDetailed,
         showDebugId: engine.config.debugMode,

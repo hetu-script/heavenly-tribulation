@@ -284,7 +284,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   }
 
   character.lifeMax = Constants.baseLife + character.level * Constants.baseLifePerLevel
-  character.battleLifeMax = character.lifeMax + character.strength * 2
+  character.battleLifeMax = character.lifeMax + character.strength
   character.manaMax = character.spirituality ~/ 10
   character.chakraMax = character.dexterity ~/ 10
   character.karmaMax = character.willpower ~/ 10
@@ -326,7 +326,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.willpower = character.willpower + character.passives.willpower?.value + character.potionPassives.willpower?.value
 
   character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value + character.potionPassives.lifeMax?.value
-  character.stats.battleLifeMax = character.stats.lifeMax + character.stats.strength * 2 + character.passives.battleLifeMax?.value + character.potionPassives.battleLifeMax?.value
+  character.stats.battleLifeMax = character.stats.lifeMax + character.stats.strength + character.passives.battleLifeMax?.value + character.potionPassives.battleLifeMax?.value
   character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.potionPassives.manaMax?.value
   character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.potionPassives.chakraMax?.value
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value

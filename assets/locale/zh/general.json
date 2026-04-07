@@ -202,6 +202,7 @@
   "unequip": "卸下",
   "discard": "丢弃",
   "destroy": "销毁",
+  "craft": "打造",
   "charge": "充能",
   "chargeItem": "为物品充能",
   "shardsCost": "灵石消耗",
@@ -513,7 +514,7 @@
   "scroll": "符箓",
   "scroll2": "符",
   "alchemy": "炼丹",
-  "craft": "炼器",
+  "forging": "炼器",
   "divination": "占卜",
   "illusion": "幻术",
 

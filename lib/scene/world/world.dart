@@ -1401,9 +1401,11 @@ class WorldMapScene extends Scene with HasCursorState {
       return;
     }
 
-    if (dialog.isOpened) {
-      await dialog.execute();
-    }
+    // if (dialog.isOpened) {
+    //   await dialog.execute();
+    // }
+
+    if (map.selectedTerrain == null) return;
 
     final terrain = map.selectedTerrain!;
     if (button == kPrimaryButton) {
@@ -1591,8 +1593,10 @@ class WorldMapScene extends Scene with HasCursorState {
     engine.setLoading(true, tip: engine.locale(kTips.random));
     await Future.delayed(const Duration(milliseconds: 250));
 
-    final worldInfo = GameData.getLlmChatSystemPrompt1();
-    await engine.prepareLlamaBaseState(worldInfo);
+    if (engine.config.enableLlm) {
+      final worldInfo = GameData.getLlmChatSystemPrompt1();
+      await engine.prepareLlamaBaseState(worldInfo);
+    }
 
     await map.loadHeroFromData(
       GameData.hero,
