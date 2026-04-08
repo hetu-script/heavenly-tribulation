@@ -98,6 +98,7 @@ const kEntityTableSectColumns = {
 enum InventoryType {
   none,
   player,
+  crafting,
   npc,
   customer,
   merchant,
@@ -125,13 +126,14 @@ String? buildItemHoverInfo(
             isInventory: true,
             isDetailed: isDetailed,
           );
-        case InventoryType.customer:
+        case InventoryType.crafting:
           description = GameData.getItemDescription(
             data,
-            priceFactor: priceFactor,
-            isSell: true,
+            isInventory: true,
+            isCrafting: true,
             isDetailed: isDetailed,
           );
+        case InventoryType.customer:
         case InventoryType.merchant:
           description = GameData.getItemDescription(
             data,

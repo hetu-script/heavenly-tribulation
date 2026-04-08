@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/widgets/ui/label.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import 'inventory/inventory.dart';
 import '../../global.dart';
 import '../../data/game.dart';
-import '../../game_events.dart';
 import '../../ui.dart';
 
 class ItemCraft extends StatefulWidget {
   const ItemCraft({
     super.key,
     required this.position,
-    this.width,
-    this.height,
     this.title,
     this.rank,
+    this.scrollMode = false,
   });
 
   final Offset position;
-  final double? width, height;
   final String? title;
   final int? rank;
+  final bool scrollMode;
 
   @override
   State<ItemCraft> createState() => _ItemCraftState();
@@ -30,28 +27,28 @@ class ItemCraft extends StatefulWidget {
 class _ItemCraftState extends State<ItemCraft> {
   dynamic _selectedItemData;
 
-  final Map<String, dynamic> filter = {'kind': 'craft_material'};
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.rank != null) {
-      filter['rank'] = widget.rank;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> filter = {};
+
+    if (widget.scrollMode) {
+      filter['type'] = 'scroll_paper';
+    } else {
+      filter['type'] = 'craft_material';
+    }
+    if (widget.rank != null) {
+      filter['minRank'] = widget.rank;
+    }
+
     return Positioned(
-      left: widget.position.dx,
-      top: widget.position.dy,
+      right: 20.0,
+      top: GameUI.toolbarHeight,
       child: Material(
         type: MaterialType.transparency,
         child: Container(
           decoration: GameUI.boxDecoration,
-          width: widget.width,
-          height: widget.height,
+          width: 540.0,
+          height: 480.0,
           child: Stack(
             children: [
               Positioned.fill(
@@ -63,51 +60,57 @@ class _ItemCraftState extends State<ItemCraft> {
               Scaffold(
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  title: Text(widget.title ?? engine.locale('craft')),
+                  title: Text(widget.title ?? engine.locale('craft_material')),
                 ),
                 body: SizedBox(
-                  width: 380.0,
+                  width: 540.0,
                   height: 480.0,
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.only(top: 10.0),
                         child: Inventory(
-                          inventoryType: InventoryType.player,
+                          inventoryType: InventoryType.crafting,
                           character: GameData.hero,
                           height: 364.0,
-                          gridsPerLine: 6,
+                          gridsPerLine: 10,
+                          minSlotCount: 70,
                           filter: filter,
-                          onItemTapped: (data, offset) {
-                            if (_selectedItemData == data) {
-                              _selectedItemData = null;
-                            } else {
-                              _selectedItemData = data;
-                            }
-                            setState(() {});
-                          },
                           selectedItemId: _selectedItemData != null
                               ? [_selectedItemData['id']]
                               : [],
+                          // onItemTapped: (data, offset) {
+                          //   if (!widget.scrollMode) return;
+                          //   if (_selectedItemData == data) {
+                          //     _selectedItemData = null;
+                          //   } else {
+                          //     _selectedItemData = data;
+                          //   }
+                          //   setState(() {});
+                          // },
+                          onItemSecondaryTapped: (data, offset) {
+                            setState(() {});
+                          },
+                          onMouseEnterItemGrid: (data) {
+                            // if (widget.scrollMode) return;
+                            if (_selectedItemData != data) {
+                              _selectedItemData = data;
+                              setState(() {});
+                            }
+                          },
                         ),
                       ),
-                      const Spacer(),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(right: 35.0, bottom: 15.0),
-                        child: fluent.Button(
-                          onPressed: _selectedItemData != null
-                              ? () {
-                                  engine.emit(GameEvents.craftMaterialSelected,
-                                      _selectedItemData);
-                                }
-                              : null,
-                          child: Label(
-                            engine.locale('use'),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
+                      // if (widget.scrollMode)
+                      //   Padding(
+                      //     padding: const EdgeInsets.only(top: 10.0),
+                      //     child: fluent.Button(
+                      //       onPressed: () {},
+                      //       child: Text(
+                      //         engine.locale('use'),
+                      //         textAlign: TextAlign.center,
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                 ),

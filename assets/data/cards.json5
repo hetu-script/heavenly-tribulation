@@ -393,7 +393,7 @@
     rank: 1,
     description: "affix_vigor",
     tags: ["status_energy_positive_life"],
-    image: "battlecard/illustration/xinfa3.png",
+    image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "spell_buff",
       sound: "spell-of-healing-876.mp3",
@@ -889,7 +889,7 @@
     damageType: "physical",
     rank: 1,
     description: "affix_spell_attack_exhaust_chakra_multiple",
-    image: "battlecard/illustration/swordcraft_flying_sword.png",
+    image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -925,7 +925,7 @@
     damageType: "elemental",
     rank: 1,
     description: "affix_spell_attack_exhaust_mana",
-    image: "battlecard/illustration/swordcraft_flying_sword.png",
+    image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1150,7 +1150,7 @@
     damageTypes: ["physical", "elemental"],
     resourceType: "energy_positive_weapon",
     description: "affix_defend_multiple_exhaust_mana",
-    image: "battlecard/illustration/flying_sword_defend.png",
+    image: "battlecard/illustration/swordcraft_flying_sword_defend.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1241,7 +1241,7 @@
     damageType: "elemental",
     rank: 1,
     description: "affix_spell_attack_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_fireball.png",
+    image: "battlecard/illustration/spellcraft_fire_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1271,7 +1271,7 @@
     damageType: "physical",
     rank: 1,
     description: "affix_spell_attack_slow",
-    image: "battlecard/illustration/spellcraft_attack_wind.png",
+    image: "battlecard/illustration/spellcraft_wind_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1305,7 +1305,7 @@
     damageType: "elemental",
     rank: 1,
     description: "affix_spell_attack_clumsy",
-    image: "battlecard/illustration/spellcraft_lightning.png",
+    image: "battlecard/illustration/spellcraft_lightning_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1420,7 +1420,7 @@
     resourceType: "energy_positive_spell",
     rank: 1,
     description: "affix_heal_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_wood.png",
+    image: "battlecard/illustration/spellcraft_wood_defend.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1449,7 +1449,7 @@
     damageType: "physical",
     resourceType: "energy_positive_spell",
     description: "affix_defend_physical_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_wood.png",
+    image: "battlecard/illustration/spellcraft_wood_defend.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",
@@ -1776,7 +1776,7 @@
     resourceType: "energy_positive_karma",
     rank: 1,
     description: "affix_attack_curse_exhaust_karma",
-    image: "battlecard/illustration/avatar_sigil.png",
+    image: "battlecard/illustration/avatar_sigil_attack.png",
     animation: {
       startup: "spell_attack",
       recovery: "spell_attack_recovery",

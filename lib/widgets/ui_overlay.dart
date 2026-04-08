@@ -134,6 +134,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final isCrafting = context.watch<CraftState>().isCrafting;
     final craftRank = context.watch<CraftState>().rank;
+    final craftScroll = context.watch<CraftState>().scrollMode;
 
     final showMeeting = context.watch<MeetingState>().showMeeting;
     final meetingPeople = context.watch<MeetingState>().people;
@@ -693,6 +694,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               ItemCraft(
                 position: Offset(0, 0),
                 rank: craftRank,
+                scrollMode: craftScroll,
               ),
             if (showMeeting && meetingPeople.isNotEmpty)
               Meeting(people: meetingPeople, showExitButton: showExitButton),

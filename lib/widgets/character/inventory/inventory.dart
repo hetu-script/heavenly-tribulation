@@ -19,10 +19,11 @@ class Inventory extends StatelessWidget {
     this.height = 312.0,
     this.minSlotCount = 60,
     this.gridsPerLine = 5,
-    this.onItemTapped,
-    this.onItemSecondaryTapped,
     this.selectedItemId = const [],
     this.priceFactor,
+    this.onItemTapped,
+    this.onItemSecondaryTapped,
+    this.onMouseEnterItemGrid,
     this.filter,
   });
 
@@ -30,11 +31,12 @@ class Inventory extends StatelessWidget {
   final InventoryType inventoryType;
   final double height;
   final int minSlotCount, gridsPerLine;
+  final Iterable selectedItemId;
+  final dynamic priceFactor;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onItemSecondaryTapped;
-  final Iterable selectedItemId;
-  final dynamic priceFactor;
+  final void Function(dynamic itemData)? onMouseEnterItemGrid;
 
   /// 物品过滤条件，传入一个 Map/HTStruct，支持以下字段：
   /// - `rank`（int）：精确匹配境界等级
@@ -71,39 +73,19 @@ class Inventory extends StatelessWidget {
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
-            switch (inventoryType) {
-              case InventoryType.none:
-              case InventoryType.npc:
-              case InventoryType.player:
-                context.read<HoverContentState>().show(
-                      buildItemHoverInfo(
-                        itemData,
-                        inventoryType: inventoryType,
-                        isDetailed: isDetailed,
-                      ),
-                      rect,
-                    );
-              case InventoryType.merchant:
-                context.read<HoverContentState>().show(
-                      buildItemHoverInfo(
-                        itemData,
-                        inventoryType: inventoryType,
-                        priceFactor: priceFactor,
-                        isDetailed: isDetailed,
-                      ),
-                      rect,
-                    );
-              case InventoryType.customer:
-                context.read<HoverContentState>().show(
-                      buildItemHoverInfo(
-                        itemData,
-                        inventoryType: inventoryType,
-                        priceFactor: priceFactor,
-                        isDetailed: isDetailed,
-                      ),
-                      rect,
-                    );
-            }
+            onMouseEnterItemGrid?.call(itemData);
+            context.read<HoverContentState>().show(
+                  buildItemHoverInfo(
+                    itemData,
+                    inventoryType: inventoryType,
+                    isDetailed: isDetailed,
+                    priceFactor: inventoryType == InventoryType.merchant ||
+                            inventoryType == InventoryType.customer
+                        ? priceFactor
+                        : null,
+                  ),
+                  rect,
+                );
           },
           onMouseExit: () {
             context.read<HoverContentState>().hide();

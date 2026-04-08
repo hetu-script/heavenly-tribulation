@@ -203,6 +203,7 @@
   "discard": "丢弃",
   "destroy": "销毁",
   "craft": "打造",
+  "craft_material": "打造材料",
   "charge": "充能",
   "chargeItem": "为物品充能",
   "shardsCost": "灵石消耗",

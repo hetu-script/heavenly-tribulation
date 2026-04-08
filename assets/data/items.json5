@@ -55,13 +55,12 @@
     id: "scroll_paper",
     name: "scroll_paper",
     flavortext: "flavortext_scroll_paper",
-    type: "craft_material",
+    type: "scroll_paper",
     category: "scroll_paper",
     icon: "item/craft/scroll_paper.png",
     isRankedItem: true,
     isIdentified: true,
   },
-
   craftmaterial_addAffix: {
     id: "craftmaterial_addAffix",
     name: "craftmaterial_addAffix",
@@ -72,6 +71,7 @@
     icon: "item/craft/craftmaterial_addAffix.png",
     isRankedItem: true,
     isIdentified: true,
+    isUsable: true,
   },
   craftmaterial_replaceAffix: {
     id: "craftmaterial_replaceAffix",
@@ -82,6 +82,7 @@
     icon: "item/craft/craftmaterial_replaceAffix.png",
     isRankedItem: true,
     isIdentified: true,
+    isUsable: true,
   },
   craftmaterial_rerollAffix: {
     id: "craftmaterial_rerollAffix",

@@ -92,11 +92,11 @@ namespace debug {
       entityAcquire(character, item)
     }
 
-    final shardPack = Materialpack(kind: 'shard', amount: 50)
+    final shardPack = Materialpack(kind: 'shard', amount: 500)
     entityAcquire(character, shardPack)
     items.add(shardPack)
 
-    final moneyPack = Materialpack(kind: 'money', amount: 5000)
+    final moneyPack = Materialpack(kind: 'money', amount: 50000)
     entityAcquire(character, moneyPack)
     items.add(moneyPack)
 

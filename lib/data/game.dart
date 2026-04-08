@@ -984,6 +984,7 @@ final class GameData with ChangeNotifier {
   static String getItemDescription(
     dynamic itemData, {
     bool isInventory = false,
+    bool isCrafting = false,
     dynamic priceFactor,
     bool isSell = false,
     bool isDetailed = false,
@@ -1001,7 +1002,7 @@ final class GameData with ChangeNotifier {
     final bool isIdentified = itemData['isIdentified'] == true;
     final bool isEquippable = itemData['isEquippable'] == true;
     final bool isCursed = itemData['isCursed'] == true;
-    final bool isUsable = itemData['isUsable'] == true;
+    final bool isUsable = itemData['isUsable'] == true || isCrafting;
     final bool isUntradable = itemData['isUntradable'] == true;
 
     final level = itemData['level'];
@@ -1102,26 +1103,26 @@ final class GameData with ChangeNotifier {
       }
     }
 
-    if (!isIdentified) {
-      if (extraDescription.isNotEmpty) {
-        description.writeln('<red>${engine.locale('unidentified')}</>');
-      }
-    } else {
+    if (isIdentified) {
       if (extraDescription.isNotEmpty) {
         description.writeln(kSeparateLine);
         description.write(extraDescription.toString());
       }
-    }
 
-    if (isIdentified && explanations.isNotEmpty) {
-      if (isDetailed) {
-        description.writeln(kSeparateLine);
-        for (final tag in explanations.keys) {
-          description.writeln(explanations[tag]);
+      if (explanations.isNotEmpty) {
+        if (isDetailed) {
+          description.writeln(kSeparateLine);
+          for (final tag in explanations.keys) {
+            description.writeln(explanations[tag]);
+          }
+        } else if (showDetailedHint) {
+          description.writeln(kSeparateLine);
+          description.writeln('<grey>${engine.locale('explanation_hint')}</>');
         }
-      } else if (showDetailedHint) {
-        description.writeln(kSeparateLine);
-        description.writeln('<grey>${engine.locale('explanation_hint')}</>');
+      }
+    } else {
+      if (extraDescription.isNotEmpty) {
+        description.writeln('<red>${engine.locale('unidentified')}</>');
       }
     }
 

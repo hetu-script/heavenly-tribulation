@@ -396,7 +396,6 @@ class _DebugButtonState extends State<DebugButton> {
                 'console': 'debugConsole',
                 'chat': 'debugLlmChat',
                 'resetHero': 'debugResetHero',
-                'get money': 'debugMoney',
                 'get item': 'debugItem',
                 '___1': null,
                 'merchant': 'debugMerchant',
@@ -472,23 +471,6 @@ class _DebugButtonState extends State<DebugButton> {
                       except: Scenes.mainmenu,
                       arguments: {'reset': true},
                       triggerOnStart: true,
-                    );
-                  case 'debugMoney':
-                    engine.hetu.invoke(
-                      'collect',
-                      namespace: 'Player',
-                      positionalArgs: [
-                        'money',
-                        5000000,
-                      ],
-                    );
-                    engine.hetu.invoke(
-                      'collect',
-                      namespace: 'Player',
-                      positionalArgs: [
-                        'shard',
-                        5000,
-                      ],
                     );
                   case 'debugItem':
                     engine.hetu.invoke('testItem', namespace: 'debug');

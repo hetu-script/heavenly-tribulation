@@ -876,13 +876,13 @@ final class GameLogic {
       if (itemData['equippedPosition'] != null) {
         continue;
       }
-      if (rank != null && itemData['rank'] != rank) {
+      if (rank != null && (itemData['rank'] ?? 0) != rank) {
         continue;
       }
-      if (minRank != null && itemData['rank'] < minRank) {
+      if (minRank != null && (itemData['rank'] ?? 0) < minRank) {
         continue;
       }
-      if (maxRank != null && itemData['rank'] > maxRank) {
+      if (maxRank != null && (itemData['rank'] ?? 0) > maxRank) {
         continue;
       }
       if (type != null) {
