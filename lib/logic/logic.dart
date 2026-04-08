@@ -885,8 +885,17 @@ final class GameLogic {
       if (maxRank != null && itemData['rank'] > maxRank) {
         continue;
       }
-      if (type != null && itemData['type'] != type) {
-        continue;
+      if (type != null) {
+        final itemType = itemData['type'];
+        if (itemType is List) {
+          if (!itemType.contains(type)) {
+            continue;
+          }
+        } else {
+          if (itemType != type) {
+            continue;
+          }
+        }
       }
       if (category != null && itemData['category'] != category) {
         continue;

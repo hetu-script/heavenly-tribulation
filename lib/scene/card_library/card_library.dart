@@ -646,6 +646,7 @@ class CardLibraryScene extends Scene {
 
   void onStartCraft(CustomGameCard card) {
     engine.context.read<HoverContentState>().hide();
+    engine.context.read<CraftState>().setCrafting(rank: card.data['rank']);
 
     skillBook.enableGesture = false;
     expBottle.enableGesture = false;
@@ -681,6 +682,7 @@ class CardLibraryScene extends Scene {
 
   void onEndCraft() async {
     Hovertip.hideAll();
+    engine.context.read<CraftState>().clear();
 
     skillBook.enableGesture = true;
     expBottle.enableGesture = true;

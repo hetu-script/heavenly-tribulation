@@ -15,7 +15,7 @@ class ResponsiveView extends StatelessWidget {
     this.borderColor = GameUI.borderColor,
     this.borderWidth = 2.0,
     this.backgroundColor = Colors.transparent,
-    this.barrierColor = Colors.transparent,
+    this.barrierColor,
     this.barrierDismissible = true,
     this.onBarrierDismissed,
     this.cursor = GameUI.cursor,

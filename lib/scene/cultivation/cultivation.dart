@@ -28,6 +28,7 @@ import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
 import '../mini_game/common.dart';
+import '../../game_events.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;

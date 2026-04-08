@@ -22,6 +22,7 @@ import '../character/stats.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
 import '../../extensions.dart';
+import '../../game_events.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色

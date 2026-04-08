@@ -13,8 +13,8 @@ import '../../ui.dart';
 import '../common.dart';
 import '../ui/close_button2.dart';
 import '../ui/responsive_view.dart';
-import '../../scene/common.dart';
 import '../../extensions.dart';
+import '../../game_events.dart';
 
 enum ItemPopUpMenuItems {
   unequip,

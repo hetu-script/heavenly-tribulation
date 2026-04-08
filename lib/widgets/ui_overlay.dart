@@ -40,6 +40,7 @@ import 'sect/sect.dart';
 import 'location/city.dart';
 import 'location/site.dart';
 import 'common.dart';
+import 'character/item_craft.dart';
 
 String? markdownWikiPath;
 
@@ -130,6 +131,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final itemSelectOnSelect = context.watch<ItemSelectState>().onSelect;
     final itemSelectSelectedItemsData =
         context.watch<ItemSelectState>().selectedItems;
+
+    final isCrafting = context.watch<CraftState>().isCrafting;
+    final craftRank = context.watch<CraftState>().rank;
 
     final showMeeting = context.watch<MeetingState>().showMeeting;
     final meetingPeople = context.watch<MeetingState>().people;
@@ -684,6 +688,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 multiSelect: itemSelectMultiSelect,
                 onSelect: itemSelectOnSelect,
                 selectedItemsData: itemSelectSelectedItemsData,
+              ),
+            if (isCrafting)
+              ItemCraft(
+                position: Offset(0, 0),
+                rank: craftRank,
               ),
             if (showMeeting && meetingPeople.isNotEmpty)
               Meeting(people: meetingPeople, showExitButton: showExitButton),

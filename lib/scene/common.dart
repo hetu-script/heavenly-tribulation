@@ -25,7 +25,3 @@ final class Scenes {
   static const editor = 'editor';
   static const prebattle = 'prebattle';
 }
-
-final class GameEvents {
-  static const heroPassivesUpdated = 'hero_passives_updated';
-}
