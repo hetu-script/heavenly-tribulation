@@ -26,6 +26,7 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryCraftmaterialAddAffix = 'craftmaterial_addAffix';
 const kItemCategoryCraftmaterialReplaceAffix = 'craftmaterial_replaceAffix';
+const kItemCategoryCraftmaterialFreezeAffix = 'craftmaterial_freezeAffix';
 const kItemCategoryCraftmaterialRerollAffix = 'craftmaterial_rerollAffix';
 const kItemCategoryCraftmaterialUpgrade = 'craftmaterial_upgrade';
 
@@ -38,6 +39,7 @@ const kRankedPrototypeItems = [
   kItemCategoryDungeonTicket,
   kItemCategoryCraftmaterialAddAffix,
   kItemCategoryCraftmaterialReplaceAffix,
+  kItemCategoryCraftmaterialFreezeAffix,
   kItemCategoryCraftmaterialRerollAffix,
   kItemCategoryCraftmaterialUpgrade,
 ];
@@ -287,17 +289,15 @@ function entityExhaust(
 
 /// 对象（人物、城市等）获得一个已经存在与世界上的物品
 function entityAcquire(entity, item, { amount, incurIncident = true }) {
-  if (item.isUnique)
   assert(item.entityType == kEntityTypeItem, item.entityType)
 
-  item.stackSize ??= 1
-  let acquireAmount = amount ?? item.stackSize
+  let acquireAmount = amount ?? (item.stackSize > 0 ? item.stackSize : 1)
   assert(acquireAmount > 0, 'entityAcquire amount <= 0, stackSize: ${item.stackSize}, amount: ${amount}')
   
   let acquiredItem
   if (entity.inventory.containsKey(item.id)) {
     acquiredItem = entity.inventory[item.id]
-    acquiredItem.stackSize += amount
+    acquiredItem.stackSize += acquireAmount
   } else {
     entity.inventory[item.id] = acquiredItem = Object.create(item)
     acquiredItem.ownerId = entity.id

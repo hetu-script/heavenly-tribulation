@@ -876,18 +876,21 @@ final class GameLogic {
       if (itemData['equippedPosition'] != null) {
         continue;
       }
-      if (rank != null && (itemData['rank'] ?? 0) != rank) {
+      if (rank != null && itemData['rank'] != rank) {
         continue;
       }
-      if (minRank != null && (itemData['rank'] ?? 0) < minRank) {
+      if (minRank != null && itemData['rank'] < minRank) {
         continue;
       }
-      if (maxRank != null && (itemData['rank'] ?? 0) > maxRank) {
+      if (maxRank != null && itemData['rank'] > maxRank) {
         continue;
       }
+      // if (type != null && itemData['type'] != type) {
+      //   continue;
+      // }
       if (type != null) {
         final itemType = itemData['type'];
-        if (itemType is List) {
+        if (itemType is Iterable) {
           if (!itemType.contains(type)) {
             continue;
           }

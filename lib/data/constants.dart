@@ -169,6 +169,8 @@ class Constants extends HTExternalClass {
         return kTerrainKindToEnemyEncounterRate;
       case 'Constants.enemyEncounterQuests':
         return kEnemyEncounterQuests;
+      case 'Constants.fragmentGainFromDismantle':
+        return kFragmentGainFromDismantle;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

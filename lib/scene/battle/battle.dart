@@ -723,7 +723,9 @@ class BattleScene extends Scene {
       if (card.data['isEphemeral'] == true) {
         hasScroll = true;
         engine.hetu.invoke('dismantleCard',
-            namespace: 'Player', positionalArgs: [card.data]);
+            namespace: 'Player',
+            positionalArgs: [card.data],
+            namedArgs: {'gainFragments': false});
       }
     }
     if (hasScroll) {

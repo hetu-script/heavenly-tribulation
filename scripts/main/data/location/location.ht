@@ -852,6 +852,8 @@ function replenishTradingItem(location) {
             craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
           } else if (typeRoll < _kAlchemyCraftmaterialProbabilityRerollAffix) {
             craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+          } else if (typeRoll < _kAlchemyCraftmaterialProbabilityFreezeAffix) {
+            craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
           } else if (typeRoll < _kAlchemyCraftmaterialProbabilityReplaceAffix) {
             craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
           } else {

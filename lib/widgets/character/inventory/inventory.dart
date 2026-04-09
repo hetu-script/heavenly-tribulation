@@ -3,16 +3,27 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../../logic/logic.dart';
 import '../../common.dart';
 import 'item_grid.dart';
+import '../../../global.dart';
+import '../../../ui.dart';
 
 export '../../common.dart' show InventoryType;
 
+const kDefaultInventoryItemTypes = {
+  'all',
+  'equipment',
+  'consumable',
+  'craftmaterial',
+  'miscellaneous',
+};
+
 /// 如果是玩家自己的物品栏，则传入characterData
-class Inventory extends StatelessWidget {
-  Inventory({
+class Inventory extends StatefulWidget {
+  const Inventory({
     super.key,
     required this.character,
     required this.inventoryType,
@@ -42,7 +53,7 @@ class Inventory extends StatelessWidget {
   /// - `rank`（int）：精确匹配境界等级
   /// - `minRank`（int）：最低境界等级（含）
   /// - `maxRank`（int）：最高境界等级（含）
-  /// - `type`（String）：物品类型，如 `'equipment'`、`'craft_material'` 等
+  /// - `type`（String）：物品类型，如 `'equipment'`、`'craftmaterial'` 等
   /// - `category`（String）：物品类别，如 `'weapon'`、`'armor'` 等
   /// - `kind`（String）：物品种类，如 `'sword'`、`'shard'` 等
   /// - `id`（String）：物品唯一 ID
@@ -52,7 +63,21 @@ class Inventory extends StatelessWidget {
   /// 已装备的物品始终被排除。
   final dynamic filter;
 
+  @override
+  State<Inventory> createState() => _InventoryState();
+}
+
+class _InventoryState extends State<Inventory> {
   final _scrollController = ScrollController();
+
+  late dynamic filter;
+
+  @override
+  void initState() {
+    super.initState();
+
+    filter = widget.filter ?? {};
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +86,10 @@ class Inventory extends StatelessWidget {
     final isDetailed = context.read<HoverContentState>().isDetailed;
 
     final filteredItems = GameLogic.getFilteredItems(
-      character,
-      inventoryType: inventoryType,
+      widget.character,
+      inventoryType: widget.inventoryType,
       filter: filter,
-      filterShard: priceFactor?['useShard'] ?? false,
+      filterShard: widget.priceFactor?['useShard'] ?? false,
     );
     for (final itemData in filteredItems) {
       grids.add(
@@ -73,16 +98,17 @@ class Inventory extends StatelessWidget {
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
-            onMouseEnterItemGrid?.call(itemData);
+            widget.onMouseEnterItemGrid?.call(itemData);
             context.read<HoverContentState>().show(
                   buildItemHoverInfo(
                     itemData,
-                    inventoryType: inventoryType,
+                    inventoryType: widget.inventoryType,
                     isDetailed: isDetailed,
-                    priceFactor: inventoryType == InventoryType.merchant ||
-                            inventoryType == InventoryType.customer
-                        ? priceFactor
-                        : null,
+                    priceFactor:
+                        widget.inventoryType == InventoryType.merchant ||
+                                widget.inventoryType == InventoryType.customer
+                            ? widget.priceFactor
+                            : null,
                   ),
                   rect,
                 );
@@ -90,15 +116,16 @@ class Inventory extends StatelessWidget {
           onMouseExit: () {
             context.read<HoverContentState>().hide();
           },
-          onTapped: onItemTapped,
-          onSecondaryTapped: onItemSecondaryTapped,
-          isSelected: selectedItemId.contains(itemData['id']),
+          onTapped: widget.onItemTapped,
+          onSecondaryTapped: widget.onItemSecondaryTapped,
+          isSelected: widget.selectedItemId.contains(itemData['id']),
         ),
       );
     }
 
     int gridCount = math.max(
-        (grids.length ~/ gridsPerLine + 1) * gridsPerLine, minSlotCount);
+        (grids.length ~/ widget.gridsPerLine + 1) * widget.gridsPerLine,
+        widget.minSlotCount);
 
     while (grids.length < gridCount) {
       grids.add(
@@ -106,29 +133,55 @@ class Inventory extends StatelessWidget {
       );
     }
 
-    return ScrollConfiguration(
-      behavior: MaterialScrollBehavior(),
-      child: Scrollbar(
-        controller: _scrollController,
-        thumbVisibility: true,
-        trackVisibility: true,
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: SizedBox(
-            width: (kDefaultItemGridSize.width + 4.0) * gridsPerLine + 20.0,
-            height: height,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  children: grids,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 15.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: kDefaultInventoryItemTypes
+                .map(
+                  (type) => fluent.Button(
+                      child: Text(
+                        engine.locale(type),
+                        style: TextStyles.labelLarge,
+                      ),
+                      onPressed: () {
+                        filter['type'] = type == 'all' ? null : type;
+                        setState(() {});
+                      }),
                 )
-              ],
+                .toList(),
+          ),
+        ),
+        ScrollConfiguration(
+          behavior: MaterialScrollBehavior(),
+          child: Scrollbar(
+            controller: _scrollController,
+            thumbVisibility: true,
+            trackVisibility: true,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: SizedBox(
+                width:
+                    (kDefaultItemGridSize.width + 4.0) * widget.gridsPerLine +
+                        20.0,
+                height: widget.height,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      children: grids,
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

@@ -453,18 +453,6 @@ function upgradeRank(card) {
   return null
 }
 
-/// 分解卡牌，返回获得的灵气数量
-function dismantle(card) {
-  final price = Player.dismantleCard(card)
-
-  final info = engine.locale('deckbuilding_dismantle_warning', interpolations:[
-    card.name,
-    price,
-  ])
-  
-  return info
-}
-
 /// 升级卡牌等级
 /// 这个操作并非打造操作，而是某些卡牌词条效果可能会用到
 function upgradeCard(card) {

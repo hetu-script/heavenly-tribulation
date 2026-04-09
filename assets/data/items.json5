@@ -1,15 +1,20 @@
 {
   // 这里定义了一些没有特殊词条，属性固定的物品
 
+  // type 决定了物品在物品栏中的大类，
+  // consumable 可消耗的物品，使用后会消失
+  // equipment 可装备的物品，装备后会提供属性加成
+  // craftmaterial 用于打造的材料，不能直接使用
+  // miscellaneous 其他类型的物品，可能有特殊用途
+
   // 特殊属性：
-  // isRankedItem 该物品境界和稀有度至少为1
-  //              属性应用于从 1 到 5 的不同境界，
-  //              并且会拥有相应的 flavortext 和 icon
   // isRankedName 该物品根据境界不同而有独特的名字
+  // isRankedItem 该物品境界和稀有度至少为1，属性应用于从 1 到 5 的不同境界，并且会拥有相应的 flavortext 和 icon
   // isIdentified 是否已鉴定
   // isUntradable 是否不可交易
   // isUnstackable 是否不可堆叠
   // isUsable 是否可使用
+  // isCombinable 是否可合成，通常是用碎片组合成完整物品
   // isEquipable 是否可装备
   // isCursed 是否被诅咒，诅咒的物品装备后不能卸下
   // isCorrupted 是否被腐化，腐化的物品不能通过打造来修改属性
@@ -43,7 +48,7 @@
     id: "dungeon_ticket",
     name: "dungeon_ticket",
     flavortext: "flavortext_dungeon_ticket",
-    type: "dungeon_ticket",
+    type: "miscellaneous",
     category: "dungeon_ticket",
     icon: "item/craft/dungeon_ticket.png",
     isRankedItem: true,
@@ -51,21 +56,45 @@
     isUnstackable: true,
   },
 
+  scroll_paper_fragment: {
+    id: "scroll_paper_fragment",
+    name: "scroll_paper_fragment",
+    flavortext: "flavortext_scroll_paper_fragment",
+    type: "craftmaterial",
+    category: "scroll_paper_fragment",
+    icon: "item/craft/scroll_paper_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
   scroll_paper: {
     id: "scroll_paper",
     name: "scroll_paper",
     flavortext: "flavortext_scroll_paper",
-    type: "scroll_paper",
+    type: "craftmaterial",
     category: "scroll_paper",
     icon: "item/craft/scroll_paper.png",
     isRankedItem: true,
     isIdentified: true,
   },
+
+  craftmaterial_addAffix_fragment: {
+    id: "craftmaterial_addAffix_fragment",
+    name: "craftmaterial_addAffix_fragment",
+    flavortext: "flavortext_craftmaterial_addAffix_fragment",
+    type: "craftmaterial",
+    category: "craftmaterial_addAffix_fragment",
+    rarity: "rare",
+    icon: "item/craft/craftmaterial_addAffix_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
   craftmaterial_addAffix: {
     id: "craftmaterial_addAffix",
     name: "craftmaterial_addAffix",
     flavortext: "flavortext_craftmaterial_addAffix",
-    type: ["consumable", "craft_material"],
+    type: ["consumable", "craftmaterial"],
     category: "craftmaterial_addAffix",
     rarity: "rare",
     icon: "item/craft/craftmaterial_addAffix.png",
@@ -73,37 +102,96 @@
     isIdentified: true,
     isUsable: true,
   },
+  craftmaterial_replaceAffix_fragment: {
+    id: "craftmaterial_replaceAffix_fragment",
+    name: "craftmaterial_replaceAffix_fragment",
+    flavortext: "flavortext_craftmaterial_replaceAffix_fragment",
+    type: "craftmaterial",
+    category: "craftmaterial_replaceAffix_fragment",
+    rarity: "rare",
+    icon: "item/craft/craftmaterial_replaceAffix_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
   craftmaterial_replaceAffix: {
     id: "craftmaterial_replaceAffix",
     name: "craftmaterial_replaceAffix",
     flavortext: "flavortext_craftmaterial_replaceAffix",
-    type: ["consumable", "craft_material"],
+    type: ["consumable", "craftmaterial"],
     category: "craftmaterial_replaceAffix",
     icon: "item/craft/craftmaterial_replaceAffix.png",
     isRankedItem: true,
     isIdentified: true,
     isUsable: true,
   },
+  craftmaterial_freezeAffix_fragment: {
+    id: "craftmaterial_freezeAffix_fragment",
+    name: "craftmaterial_freezeAffix_fragment",
+    flavortext: "flavortext_craftmaterial_freezeAffix_fragment",
+    type: "craftmaterial",
+    category: "craftmaterial_freezeAffix_fragment",
+    rarity: "rare",
+    icon: "item/craft/craftmaterial_freezeAffix_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
+  craftmaterial_freezeAffix: {
+    id: "craftmaterial_freezeAffix",
+    name: "craftmaterial_freezeAffix",
+    flavortext: "flavortext_craftmaterial_freezeAffix",
+    type: ["consumable", "craftmaterial"],
+    category: "craftmaterial_freezeAffix",
+    icon: "item/craft/craftmaterial_freezeAffix.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isUsable: true,
+  },
+  craftmaterial_rerollAffix_fragment: {
+    id: "craftmaterial_rerollAffix_fragment",
+    name: "craftmaterial_rerollAffix_fragment",
+    flavortext: "flavortext_craftmaterial_rerollAffix_fragment",
+    type: "craftmaterial",
+    category: "craftmaterial_rerollAffix_fragment",
+    rarity: "rare",
+    icon: "item/craft/craftmaterial_rerollAffix_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
   craftmaterial_rerollAffix: {
     id: "craftmaterial_rerollAffix",
     name: "craftmaterial_rerollAffix",
     flavortext: "flavortext_craftmaterial_rerollAffix",
-    type: ["consumable", "craft_material"],
+    type: ["consumable", "craftmaterial"],
     category: "craftmaterial_rerollAffix",
     icon: "item/craft/craftmaterial_rerollAffix.png",
     isRankedItem: true,
     isIdentified: true,
     isUsable: true,
   },
+  craftmaterial_upgrade_fragment: {
+    id: "craftmaterial_upgrade_fragment",
+    name: "craftmaterial_upgrade_fragment",
+    flavortext: "flavortext_craftmaterial_upgrade_fragment",
+    type: "craftmaterial",
+    category: "craftmaterial_upgrade_fragment",
+    rarity: "rare",
+    icon: "item/craft/craftmaterial_upgrade_fragment.png",
+    isRankedItem: true,
+    isIdentified: true,
+    isCombinable: true,
+  },
   craftmaterial_upgrade: {
     id: "craftmaterial_upgrade",
     name: "craftmaterial_upgrade",
     flavortext: "flavortext_craftmaterial_upgrade",
-    type: ["consumable", "craft_material"],
+    type: ["consumable", "craftmaterial"],
     category: "craftmaterial_upgrade",
     icon: "item/craft/craftmaterial_upgrade.png",
-    isRankedItem: true,
     isRankedName: true,
+    isRankedItem: true,
     isIdentified: true,
     isUsable: true,
   },

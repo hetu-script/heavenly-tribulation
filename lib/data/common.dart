@@ -1201,7 +1201,8 @@ const kUnknownItemPrice = 10;
 /// 物品的基础价格
 final kItemPriceByCategory = {
   'craftmaterial_addAffix': 350,
-  'craftmaterial_replaceAffix': 750,
+  'craftmaterial_replaceAffix': 550,
+  'craftmaterial_freezeAffix': 750,
   'craftmaterial_rerollAffix': 1000,
   'craftmaterial_upgrade': 3500,
   'dungeon_ticket': 2000,
@@ -2043,4 +2044,70 @@ const kBattleCardIllustrations = {
   "vitality_power_word_defend",
   "vitality_xinfa",
   "xinfa",
+};
+
+const kFragmentGainFromDismantle = {
+  0: {
+    'min': 1,
+    'max': 5,
+    'scroll_paper_fragment': 1,
+    'fragments': {},
+  },
+  1: {
+    'min': 3,
+    'max': 8,
+    'scroll_paper_fragment': 0.6,
+    'fragments': {
+      'craftmaterial_freezeAffix_fragment': 0.4,
+      'craftmaterial_replaceAffix_fragment': 0.7,
+      'craftmaterial_addAffix_fragment': 1,
+    },
+  },
+  2: {
+    'min': 6,
+    'max': 12,
+    'scroll_paper_fragment': 0.3,
+    'fragments': {
+      'craftmaterial_rerollAffix_fragment': 0.25,
+      'craftmaterial_freezeAffix_fragment': 0.5,
+      'craftmaterial_replaceAffix_fragment': 0.75,
+      'craftmaterial_addAffix_fragment': 1,
+    },
+  },
+  3: {
+    'min': 10,
+    'max': 18,
+    'scroll_paper_fragment': 0.2,
+    'fragments': {
+      'craftmaterial_upgrade_fragment': 0.2,
+      'craftmaterial_rerollAffix_fragment': 0.4,
+      'craftmaterial_freezeAffix_fragment': 0.6,
+      'craftmaterial_replaceAffix_fragment': 0.8,
+      'craftmaterial_addAffix_fragment': 1,
+    },
+  },
+  4: {
+    'min': 15,
+    'max': 25,
+    'scroll_paper_fragment': 0.1,
+    'fragments': {
+      'craftmaterial_upgrade_fragment': 0.4,
+      'craftmaterial_rerollAffix_fragment': 0.55,
+      'craftmaterial_freezeAffix_fragment': 0.7,
+      'craftmaterial_replaceAffix_fragment': 0.85,
+      'craftmaterial_addAffix_fragment': 1,
+    },
+  },
+  5: {
+    'min': 20,
+    'max': 36,
+    'scroll_paper_fragment': 0.05,
+    'fragments': {
+      'craftmaterial_upgrade_fragment': 0.6,
+      'craftmaterial_rerollAffix_fragment': 0.7,
+      'craftmaterial_freezeAffix_fragment': 0.8,
+      'craftmaterial_replaceAffix_fragment': 0.9,
+      'craftmaterial_addAffix_fragment': 1,
+    },
+  },
 };

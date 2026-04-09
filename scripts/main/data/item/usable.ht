@@ -27,6 +27,7 @@ struct Materialpack {
     this.id = 'materialpack_' + kind
     this.entityType = kEntityTypeItem
     this.rarity = kRarityRare
+    this.rank = kRarity[this.rarity].rank
     this.color = kRarity[this.rarity].color
     this.name = engine.locale('${kind}_package')
     this.icon = 'item/material/${kind}.png'

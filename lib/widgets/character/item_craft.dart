@@ -34,7 +34,7 @@ class _ItemCraftState extends State<ItemCraft> {
     if (widget.scrollMode) {
       filter['type'] = 'scroll_paper';
     } else {
-      filter['type'] = 'craft_material';
+      filter['type'] = 'craftmaterial';
     }
     if (widget.rank != null) {
       filter['minRank'] = widget.rank;
@@ -60,7 +60,7 @@ class _ItemCraftState extends State<ItemCraft> {
               Scaffold(
                 appBar: AppBar(
                   automaticallyImplyLeading: false,
-                  title: Text(widget.title ?? engine.locale('craft_material')),
+                  title: Text(widget.title ?? engine.locale('craftmaterial')),
                 ),
                 body: SizedBox(
                   width: 540.0,

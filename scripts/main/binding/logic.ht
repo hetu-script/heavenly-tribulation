@@ -42,7 +42,8 @@ const kRewardProbabilityCraftMaterial = 0.02
 const kRewardProbabilityDungeonTicket = 0.01
 const _kRewardProbabilityDungeonTicketNextLevel = 0.5
 
-const _kRewardProbabilityCraftMaterialReplaceAffix = 0.45
+const _kRewardProbabilityCraftMaterialReplaceAffix = 0.7
+const _kRewardProbabilityCraftMaterialFreezeAffix = 0.45
 const _kRewardProbabilityCraftMaterialRerollAffix = 0.25
 const _kRewardProbabilityCraftMaterialUpgradeRank = 0.1
 
@@ -188,6 +189,8 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
         craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
       } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
         craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
+        craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
       } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
         craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
       } else {
@@ -449,6 +452,8 @@ async function onInteractSpiritWell(object) {
         craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
       } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
         craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
+        craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
       } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
         craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
       } else {

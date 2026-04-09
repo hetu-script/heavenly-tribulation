@@ -86,4 +86,6 @@ external abstract class Constants {
   static get equipmentKinds;
   static get terrainKindToEnemyEncounterRate;
   static get enemyEncounterQuests;
+
+  static get fragmentGainFromDismantle;
 }

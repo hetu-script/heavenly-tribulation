@@ -167,6 +167,7 @@ function _addGeneralMerchant(tilePosition) {
       'scroll_paper',
       'craftmaterial_addAffix',
       'craftmaterial_replaceAffix',
+      'craftmaterial_freezeAffix',
       'craftmaterial_rerollAffix',
       'craftmaterial_upgrade',
     ],
@@ -260,6 +261,7 @@ function _addRandomMerchant() {
         itemCategories: [
           'craftmaterial_addAffix',
           'craftmaterial_replaceAffix',
+          'craftmaterial_freezeAffix',
           'craftmaterial_rerollAffix',
           'craftmaterial_upgrade',
         ],

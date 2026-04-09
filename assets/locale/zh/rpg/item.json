@@ -4,7 +4,7 @@
   "importantItem": "重要物品",
 
   "equipment": "装备",
-  "consumable": "消耗品",
+  "consumable": "消耗",
   "material": "物资",
 
   "usableHint": "点击右键使用",
@@ -95,6 +95,8 @@
   "energy_ultimate": "无极之气",
   "energy_ultimate_description": "无极之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
 
+  "scroll_paper_fragment": "符纸碎片",
+  "flavortext_scroll_paper_fragment": "20 个符纸碎片可以合成一个符纸。",
   "scroll_paper": "符纸",
   "flavortext_scroll_paper": "用来制作符箓的材料。",
 
@@ -123,11 +125,26 @@
   "equipment_affix": "特性",
   "flavortext_equipment_affix": "可以通过打造将特性作为词条赋予物品。",
 
+  "craftmaterial_addAffix_fragment": "灵宝残韵",
+  "flavortext_craftmaterial_addAffix_fragment": "20 个灵宝残韵可以合成一个灵宝丹。",
+
   "craftmaterial_addAffix": "灵宝丹",
   "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条。每高一境界，额外词条上限 +1。\n直接服用：获得一个随机丹药 Buff。",
 
+  "craftmaterial_replaceAffix_fragment": "神照残韵",
+  "flavortext_craftmaterial_replaceAffix_fragment": "20 个神照残韵可以合成一个神照丹。",
+
   "craftmaterial_replaceAffix": "神照丹",
   "flavortext_craftmaterial_replaceAffix": "用于物品或功法：随机替换一个额外词条。\n直接服用：随机替换一个已有的丹药 Buff。",
+
+  "craftmaterial_freezeAffix_fragment": "真定残韵",
+  "flavortext_craftmaterial_freezeAffix_fragment": "20 个真定残韵可以合成一个真定丹。",
+
+  "craftmaterial_freezeAffix": "真定丹",
+  "flavortext_craftmaterial_freezeAffix": "用于物品或功法：冻结一个额外词条，使其无法被替换。\n直接服用：冻结一个已有的丹药 Buff，使其无法被其他丹药替换。",
+
+  "craftmaterial_rerollAffix_fragment": "混元残韵",
+  "flavortext_craftmaterial_rerollAffix_fragment": "20 个混元残韵可以合成一个混元丹。",
 
   "craftmaterial_rerollAffix": "混元丹",
   "flavortext_craftmaterial_rerollAffix": "用于物品或功法：重置所有词条等级。\n直接服用：重置自身灵根的数值。",
@@ -139,5 +156,5 @@
   "craftmaterial_upgrade_rank3": "结丹丹",
   "craftmaterial_upgrade_rank4": "还婴丹",
   "craftmaterial_upgrade_rank5": "化神丹",
-  "flavortext_craftmaterial_upgrade": "用于物品或功法：提升境界。\n直接服用：下一次天道试炼的难度 -1。"
+  "flavortext_craftmaterial_upgrade": "用于物品或功法：提升境界。\n直接服用：降低下一次天道试炼的难度。"
 }

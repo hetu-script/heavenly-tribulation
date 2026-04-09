@@ -273,7 +273,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     }
   }
 
-  void removeCard(String cardId) {
+  void removeCardById(String cardId) {
     final card = library[cardId];
     if (card != null) {
       library.remove(cardId);
@@ -315,8 +315,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       size: GameUI.libraryZoneSize,
     );
     game.world.add(container);
-
-    updateHeroLibrary();
   }
 
   bool containsCard(String cardId) => library.containsKey(cardId);

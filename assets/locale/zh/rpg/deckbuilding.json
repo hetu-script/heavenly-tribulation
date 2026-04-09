@@ -40,14 +40,18 @@
 
   "deckbuilding_addAffix": "精炼·灵宝",
   "deckbuilding_replaceAffix": "精炼·神照",
+  "deckbuilding_freezeAffix": "精炼·真定",
   "deckbuilding_rerollAffix": "精炼·混元",
   "deckbuilding_upgradeRank": "精炼·破境",
-  "deckbuilding_dismantle": "精炼·化尘",
 
   "deckbuilding_exp_cost": "修为经验消耗",
   "deckbuilding_exp_gain": "可获取修为经验",
 
-  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。但符箓卡牌有使用次数限制，使用完毕后会消失。制作符箓会消耗空白符纸和原本的卡牌。",
+  "deckbuilding_dismantle_card_description": "<red b>分解卡牌</>\n \n分解卡牌可获得随机打造材料。分解后卡牌将消失。",
+
+  "deckbuilding_dismantle_card_disabled": "<red b>分解卡牌</>\n \n无法使用此功能。",
+
+  "deckbuilding_craft_scroll": "<yellow b>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。但符箓卡牌有使用次数限制，使用完毕后会消失。制作符箓会消耗空白符纸和原本的卡牌。",
   "deckbuilding_scroll_paper_count": "符纸消耗",
 
   "deckbuilding_identifyCard_description": "鉴定卡牌。",
@@ -64,8 +68,6 @@
   "deckbuilding_upgradeCard_warning": "当前卡牌已经达到境界允许的最高等级({0})。",
   "deckbuilding_upgradeRank_warning": "当前卡牌未达到下一境界最低等级要求({0})。",
   "deckbuilding_upgradeRank_warning_maxRank": "当前卡牌已达到最高境界。",
-
-  "deckbuilding_dismantle_warning": "成功分解了卡牌「{0}」，获得 {1} 修为经验。",
 
   "deckbuilding_identifyCard_hint": "鉴定成功！",
   "deckbuilding_addAffix_hint": "添加成功！",

@@ -80,6 +80,7 @@ namespace Player {
   /// 直接获取一个已经被创造出来的物品
   async function acquire(item, { amount, autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
+
     if (autoUnpack) {
       switch (item.category) {
         case kItemCategoryExppack: {
@@ -129,29 +130,55 @@ namespace Player {
     characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
   
-  /// 分解卡牌，返回获得的灵气数量
-  function dismantleCard(card, { incurIncident = true }) {
+  /// 分解卡牌，
+  function dismantleCard(card, { gainFragments = true, incurIncident = true }) {
     assert(hero != null)
     assert(hero.cardLibrary.containsKey(card.id))
 
-    final price = getCardCraftMaterial('dismantle', card)['exp'] ?? 0
+    if (gainFragments) {
+      final rank = card.rank == 0 ? 1 : card.rank
+      final {min, max, scroll_paper_fragment, fragments} = Constants.fragmentGainFromDismantle[card.rank]
+      final n = random.nextInt(max - min) + min
+      final gainedFragments = {}
+      for (var i in range(n)) {
+        final rand = random.nextDouble()
+        if (rand < scroll_paper_fragment) {
+          if (gainedFragments.containsKey('scroll_paper_fragment')) {
+            gainedFragments['scroll_paper_fragment'].stack += 1
+          } else {
+            final fragment = createItemById('scroll_paper_fragment', rank: rank)
+            gainedFragments['scroll_paper_fragment'] = fragment
+          }
+        } else {
+          for (final fragmentId in fragments.keys) {
+            if (rand <= fragments[fragmentId]) {
+              if (gainedFragments.containsKey(fragmentId)) {
+                gainedFragments[fragmentId].stack += 1
+              } else {
+                final fragment = createItemById(fragmentId, rank: rank)
+                gainedFragments[fragmentId] = fragment
+              }
+              break
+            }
+          }
+        }
+      }
+      for (final fragment of gainedFragments) {
+        acquire(fragment, incurIncident: incurIncident)
+      }
+    }
 
-    hero.exp += price
     hero.cardLibrary.remove(card.id)
-
     for (final deck in hero.battleDecks) {
       if (deck.cards.contains(card.id)) {
         deck.cards.remove(card.id)
       }
     }
-    
     let incidentContent = engine.locale('entityLose', interpolations: [
       hero.name,
       card.name,
     ])
     engine.info(incidentContent)
-
-    return price
   }
 
   // 使用食物或者丹药

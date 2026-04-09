@@ -137,7 +137,7 @@ class CardLibraryScene extends Scene {
 
   late final SpriteButton collectButton;
 
-  late final SpriteButton craftScrollButton;
+  late final SpriteButton dismantleButton;
 
   late final SpriteButton closeCraftButton;
 
@@ -566,17 +566,6 @@ class CardLibraryScene extends Scene {
     }
 
     updateExp();
-
-    if (id == 'dismantle') {
-      libraryZone.removeCard(card.id);
-      for (final pile in deckPiles) {
-        pile.removeCardById(card.id);
-      }
-
-      engine.play(GameSound.paperrip);
-
-      onEndCraft();
-    }
   }
 
   void addAffixOperationButton(String id, Vector2 position) {
@@ -644,6 +633,26 @@ class CardLibraryScene extends Scene {
     craftOptionButtons.add(affixButton);
   }
 
+  void dismantleCard(String cardId) {
+    assert(craftingCard != null);
+
+    engine.hetu.invoke(
+      'dismantleCard',
+      namespace: 'Player',
+      positionalArgs: [craftingCard!.data],
+      namedArgs: {'gainFragments': true},
+    );
+
+    libraryZone.removeCardById(cardId);
+    for (final pile in deckPiles) {
+      pile.removeCardById(cardId);
+    }
+
+    engine.play(GameSound.paperrip);
+
+    onEndCraft();
+  }
+
   void onStartCraft(CustomGameCard card) {
     engine.context.read<HoverContentState>().hide();
     engine.context
@@ -658,8 +667,8 @@ class CardLibraryScene extends Scene {
 
     bool isScroll = card.data['genre'] == 'scroll';
 
-    craftScrollButton.isVisible = true;
-    craftScrollButton.isEnabled =
+    dismantleButton.isVisible = true;
+    dismantleButton.isEnabled =
         enableScrollCraft && !isScroll && (card.data['rank'] > 0);
 
     final clone = card.clone();
@@ -681,7 +690,7 @@ class CardLibraryScene extends Scene {
     expLabel.isVisible = false;
     barrier.isVisible = false;
     closeCraftButton.isVisible = false;
-    craftScrollButton.isVisible = false;
+    dismantleButton.isVisible = false;
 
     assert(craftingCard != null);
     updateCardData(craftingCard!);
@@ -759,7 +768,7 @@ class CardLibraryScene extends Scene {
 
     libraryZone.updateHeroLibrary();
 
-    craftScrollButton.isEnabled = false;
+    dismantleButton.isEnabled = false;
 
     engine.play(GameSound.writing);
   }
@@ -1390,7 +1399,7 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(collectButton);
 
-    craftScrollButton = SpriteButton(
+    dismantleButton = SpriteButton(
       anchor: Anchor.center,
       size: Vector2(180, 180),
       position: Vector2(
@@ -1405,34 +1414,31 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
       isVisible: false,
     );
-    craftScrollButton.onTapUp = (button, position) {
-      if (!craftScrollButton.isEnabled) return;
+    dismantleButton.onTapUp = (button, position) {
+      if (!dismantleButton.isEnabled) return;
       if (button == kSecondaryButton) return;
       assert(craftingCard != null);
-      final scrollMode = engine.context.read<CraftState>().scrollMode;
-      if (scrollMode) {
-        engine.context
-            .read<CraftState>()
-            .setCrafting(rank: craftingCard!.data['rank'], scrollMode: false);
+      dismantleCard(craftingCard!.id);
+    };
+    dismantleButton.onMouseEnter = () {
+      if (dismantleButton.isEnabled) {
+        engine.context.read<HoverContentState>().show(
+              engine.locale('deckbuilding_dismantle_card_description'),
+              dismantleButton.toAbsoluteRect(),
+              direction: HoverContentDirection.topCenter,
+            );
       } else {
-        engine.context
-            .read<CraftState>()
-            .setCrafting(rank: craftingCard!.data['rank'], scrollMode: true);
+        engine.context.read<HoverContentState>().show(
+              engine.locale('deckbuilding_dismantle_card_disabled'),
+              dismantleButton.toAbsoluteRect(),
+              direction: HoverContentDirection.topCenter,
+            );
       }
     };
-    craftScrollButton.onMouseEnter = () {
-      assert(craftingCard != null);
-
-      engine.context.read<HoverContentState>().show(
-            engine.locale('deckbuilding_craft_scroll'),
-            craftScrollButton.toAbsoluteRect(),
-            direction: HoverContentDirection.topCenter,
-          );
-    };
-    craftScrollButton.onMouseExit = () {
+    dismantleButton.onMouseExit = () {
       engine.context.read<HoverContentState>().hide();
     };
-    camera.viewport.add(craftScrollButton);
+    camera.viewport.add(dismantleButton);
 
     closeCraftButton = SpriteButton(
       text: engine.locale('close'),
@@ -1448,22 +1454,6 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(closeCraftButton);
 
-    // 载入卡牌库中的卡牌
-    libraryZone.updateHeroLibrary();
-
-    for (final deckData in heroDecks) {
-      final zone = createNewDeckBuildingZone(deckData: deckData);
-      heroDeckZones.add(zone);
-
-      for (final cardId in zone.preloadCardIds) {
-        final card = libraryZone.library[cardId];
-        assert(card != null, 'Card $cardId not found in library');
-        zone.tryAddCard(card!, animated: false, clone: true);
-      }
-      zone.collapse(animated: false);
-
-      zone.updateDeckLimit();
-    }
     createNewDeckBuildingZone();
     _updateDeckCount();
   }
@@ -1477,8 +1467,24 @@ class CardLibraryScene extends Scene {
     updateFilterByButtonText();
     updateExp();
     updateExpLightPoints();
+
+    // 载入卡牌库中的卡牌
+    libraryZone.updateHeroLibrary();
     libraryZone.repositionToTop();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
+
+    for (final deckData in heroDecks) {
+      final zone = createNewDeckBuildingZone(deckData: deckData);
+      heroDeckZones.add(zone);
+
+      for (final cardId in zone.preloadCardIds) {
+        final card = libraryZone.library[cardId];
+        assert(card != null, 'Card $cardId not found in library');
+        zone.tryAddCard(card!, animated: false, clone: true);
+      }
+      zone.collapse(animated: false);
+      zone.updateDeckLimit();
+    }
 
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['cardLibrary'] != true) {
