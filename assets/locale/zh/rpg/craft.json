@@ -1,0 +1,40 @@
+{
+  "craft_addAffix": "精炼·灵宝",
+  "craft_replaceAffix": "精炼·神照",
+  "craft_freezeAffix": "精炼·真定",
+  "craft_rerollAffix": "精炼·混元",
+  "craft_upgradeRank": "精炼·破境",
+
+  "craft_dismantle_description": "<red bold>分解</>\n \n分解卡牌或装备可获得随机打造材料。",
+  "craft_dismantle_disabled": "<red bold>分解</>\n \n无法使用此功能。",
+
+  "craft_addAffix_description": "增加一个随机的额外词条。\n不能超过当前境界所允许的额外词条数量上限。\n增加的词条境界等同于灵宝丹自身的境界。",
+  "craft_replaceAffix_description": "随机替换一个境界最低的额外词条。\n灵宝丹的境界必须大于等于卡牌或装备的境界才能使用。",
+  "craft_freezeAffix_description": "随机锁定一个境界最高的额外词条。\n被锁定的词条在其他精炼操作中不会被影响。\n最多只能锁定一个词条。\n真定丹的境界决定了能锁定的最高境界的词条。",
+  "craft_rerollAffix_description": "重置所有词条的等级。\n不能超过当前境界所允许的等级上限。\n混元丹的境界必须大于等于卡牌或装备的境界才能使用。",
+  "craft_upgradeRank_description": "提升卡牌或装备的境界。\n提升境界后会重新生成所有非锁定的额外词条。\n破境丹的境界必须大于卡牌或装备的当前境界才能使用。",
+
+  "craft_addAffix_warning": "当前卡牌或装备已经拥有最大数量的额外词条！",
+  "craft_addAffix_warning_materialRank": "灵宝丹的境界必须大于等于卡牌或装备的境界！",
+  "craft_rerollAffix_warning": "当前卡牌或装备没有可以重置数值的额外词条！",
+  "craft_rerollAffix_warning_materialRank": "混元丹的境界必须大于等于卡牌或装备的境界！",
+  "craft_replaceAffix_warning": "当前卡牌没有可以替换的额外词条！",
+  "craft_freezeAffix_warning": "当前卡牌或装备已有锁定的词条！",
+  "craft_freezeAffix_noAffix": "当前卡牌或装备没有可以锁定的额外词条！",
+  "craft_upgradeCard_warning": "当前卡牌或装备已经达到境界允许的最高等级({0})！",
+  "craft_upgradeRank_warning": "当前卡牌或装备未达到下一境界最低等级要求({0})！",
+  "craft_upgradeRank_warning_maxRank": "当前卡牌或装备已达到最高境界！",
+  "craft_upgradeRank_warning_materialRank": "提升境界时破镜石的境界必须大于卡牌或装备境界！",
+
+  "craft_addAffix_hint": "添加成功！",
+  "craft_rerollAffix_hint": "重置成功！",
+  "craft_replaceAffix_hint": "替换成功！",
+  "craft_freezeAffix_hint": "锁定成功！",
+  "craft_upgradeCard_hint": "等级提升！",
+  "craft_upgradeRank_hint": "境界提升！",
+  "craft_upgradeRank_failed_hint": "破境失败！",
+
+  "craft_scroll_cannotCraft": "符箓卡牌无法进行打造！",
+  "craft_scroll_cannotMakeScroll": "符箓卡牌无法再次制作为符箓！",
+  "craft_scroll_cannotMakeScroll2": "只有凝气境或以上卡牌才可以制作符箓！"
+}

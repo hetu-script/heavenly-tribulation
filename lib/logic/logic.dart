@@ -575,52 +575,6 @@ final class GameLogic {
     };
   }
 
-  // TODO: 对于灵宝、神照、混元，境界仅仅影响随机数概率
-  // 对于破境，则必须使用 [当前境界 + 1] 的破境丹
-  static Map<String, dynamic> getCardCraftMaterial(
-      String operation, dynamic cardData) {
-    assert(kCardOperations.contains(operation));
-    switch (operation) {
-      case 'dismantle':
-        return {'exp': calculateBattleCardPrice(cardData)};
-      case 'addAffix':
-        return {
-          'id': 'craftmaterial_addAffix',
-          'rank'
-              'count': 1,
-        };
-      case 'replaceAffix':
-        return {
-          'id': 'craftmaterial_replaceAffix',
-          'count': 1,
-        };
-      case 'rerollAffix':
-        return {
-          'id': 'craftmaterial_rerollAffix',
-          'count': 1,
-        };
-      case 'upgradeRank':
-        final int rank = cardData['rank']!;
-        if (rank < kCultivationRankMax) {
-          return {
-            'id': 'craftmaterial_upgrade_rank${rank + 1}',
-            'count': 1,
-          };
-        } else {
-          return {};
-        }
-      case 'craftScroll':
-        return {
-          'exp':
-              (expForLevel(cardData['level']) * kCraftScrollCostRate).round(),
-          'paperCount': 1,
-        };
-      default:
-        engine.error('未知的卡牌操作类型 $operation');
-        return {};
-    }
-  }
-
   /// 检查英雄是否满足某个对象的需求
   /// 需求包括：境界，流派，属性等等
   /// 如果满足需求，返回 null
@@ -888,7 +842,7 @@ final class GameLogic {
       // if (type != null && itemData['type'] != type) {
       //   continue;
       // }
-      if (type != null) {
+      if (type != null && type != 'all') {
         final itemType = itemData['type'];
         if (itemType is Iterable) {
           if (!itemType.contains(type)) {

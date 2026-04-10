@@ -291,18 +291,21 @@ function entityExhaust(
 function entityAcquire(entity, item, { amount, incurIncident = true }) {
   assert(item.entityType == kEntityTypeItem, item.entityType)
 
-  let acquireAmount = amount ?? (item.stackSize > 0 ? item.stackSize : 1)
-  assert(acquireAmount > 0, 'entityAcquire amount <= 0, stackSize: ${item.stackSize}, amount: ${amount}')
-  
   let acquiredItem
+  let acquiredAmount
   if (entity.inventory.containsKey(item.id)) {
     acquiredItem = entity.inventory[item.id]
-    acquiredItem.stackSize += acquireAmount
+    acquiredAmount = amount ?? 1
+    acquiredItem.stackSize += acquiredAmount
   } else {
     entity.inventory[item.id] = acquiredItem = Object.create(item)
     acquiredItem.ownerId = entity.id
     acquiredItem.ownerType = entity.entityType
-    acquiredItem.stackSize = acquireAmount
+    if (amount != null) {
+      acquiredItem.stackSize = acquiredAmount = amount
+    } else {
+      acquiredAmount = acquiredItem.stackSize
+    }
   }
 
   if (entity.achievements) {
@@ -311,10 +314,10 @@ function entityAcquire(entity, item, { amount, incurIncident = true }) {
   }
 
   let incidentContent
-  if (amount > 1) {
+  if (acquiredAmount > 1) {
     incidentContent = engine.locale('entityAcquireMultiple', interpolations: [
       entity.name,
-      amount,
+      acquiredAmount,
       item.name,
     ])
   } else {

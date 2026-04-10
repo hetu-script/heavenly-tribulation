@@ -109,7 +109,7 @@ namespace debug {
 
     for (var i in range(1, kCultivationRankMax + 1)) {
       final paper = createItemById('scroll_paper', rank: i)
-      paper.stackSize = 5
+      paper.stackSize = 99
       entityAcquire(character, paper)
       items.add(paper)
     }
@@ -117,7 +117,7 @@ namespace debug {
     for (var i in range(1, kCultivationRankMax + 1)) {
       for (var materialId in _kCraftMaterials) {
         final material = createItemById(materialId, rank: i)
-        material.stackSize = 5
+        material.stackSize = 99
         entityAcquire(character, material)
         items.add(material)
       }

@@ -332,12 +332,6 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'getCardCraftMaterial',
-        ({positionalArgs, namedArgs}) => GameLogic.getCardCraftMaterial(
-            positionalArgs[0], positionalArgs[1]),
-        override: true);
-
-    engine.hetu.interpreter.bindExternalFunction(
         'getDeckLimitForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getDeckLimitForRank(positionalArgs.first),

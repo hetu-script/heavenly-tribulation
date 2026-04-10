@@ -1235,9 +1235,19 @@ final class GameData with ChangeNotifier {
             description.writeln(line);
             extraDescription.writeln(line);
           } else {
-            // 某些词条没有数值变化，也没有等级，不需要显示
-            if (affix['value'] != null && isDetailed) {
-              line += ' ($levelPrefix ${affix['level']})';
+            // 在详细模式下显示词条等级和隐藏境界
+            if (isDetailed) {
+              final int? affixRank = affix['rank'];
+              if (affix['value'] != null) {
+                if (affixRank != null) {
+                  line +=
+                      ' ($levelPrefix ${affix['level']}, ${engine.locale('cultivationRank_$affixRank')})';
+                } else {
+                  line += ' ($levelPrefix ${affix['level']})';
+                }
+              } else if (affixRank != null) {
+                line += ' (${engine.locale('cultivationRank_$affixRank')})';
+              }
             }
             extraDescription.writeln('<lightBlue>$line</>');
           }

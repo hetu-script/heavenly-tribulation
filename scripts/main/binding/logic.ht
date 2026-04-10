@@ -18,8 +18,6 @@ external function getMinMaxExtraAffixCount(rank) -> Map
 
 external function getTribulationCountForRank(rank) -> integer
 
-external function getCardCraftMaterial(operationId, card) -> integer 
-
 external function getDeckLimitForRank(rank) -> Map
 
 // external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer

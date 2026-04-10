@@ -98,6 +98,7 @@ struct BattleCard {
     }
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
+    mainAffix.rank = this.rank
 
     this.affixes = [mainAffix]
 
@@ -145,9 +146,6 @@ struct BattleCard {
     _addExtraAffixes(this)
 
     _updateAffixUniqueIds(this)
-
-    // _updateRequirementsOfCard(this)
-    // _updateCardTags(this)
   }
 }
 
@@ -222,12 +220,12 @@ function _updateMainAffixValue(card) {
 
 function _randomizeAffixLevel(card, affix) {
   if (affix.valueData is List) {
+    let levelMin = minLevelForRank(affix.rank)
+    let levelMax = maxLevelForRank(affix.rank)
     if (affix.maxLevel) {
-      let affixMaxLevel = Math.min(card.level, affix.maxLevel)
-      affix.level = getRandomLevel(0, affixMaxLevel)
-    } else {
-      affix.level = getRandomLevel(0, card.level)
+      levelMax = Math.min(levelMax, affix.maxLevel)
     }
+    affix.level = getRandomLevel(levelMin, levelMax)
     let values = []
     for (final valueData in affix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
@@ -241,7 +239,8 @@ function _randomizeAffixLevel(card, affix) {
   }
 }
 
-function _addAffixToCard(card, affix) {
+function _addAffixToCard(card, affix, rank) {
+  affix.rank = rank
 
   _randomizeAffixLevel(card, affix)
 
@@ -276,6 +275,11 @@ function _addExtraAffixes(card) {
   if (extraAffixCount < affixCountInfo.maxExtra) {
     extraAffixCount += random.nextInt(affixCountInfo.maxExtra - extraAffixCount + 1)
   }
+
+  // 减去已有的额外词条数量（例如被锁定的词条）
+  final existingExtraCount = card.affixes.length - 1
+  extraAffixCount -= existingExtraCount
+  if (extraAffixCount <= 0) return
   
   for (var i = 0; i < extraAffixCount; ++i) {
     // 检索出所有符合条件的额外词条
@@ -287,7 +291,9 @@ function _addExtraAffixes(card) {
 
     let affix = Object.create(random.nextIterable(supportAffixes))
 
-    _addAffixToCard(card, affix)
+    // 随机生成词条的隐藏境界
+    let rank = random.nearInt(card.rank + 1)
+    _addAffixToCard(card, affix, rank)
   }
 }
 
@@ -303,91 +309,91 @@ function _addExtraAffixes(card) {
 // }
 
 /// 增加一个额外词条
-function addAffix(card) {
+/// materialRank 为打造材料的境界，决定新词条的隐藏境界
+function addAffix(card, materialRank) {
+  if (materialRank < card.rank) {
+    return engine.locale('craft_addAffix_warning_materialRank')
+  }
+
   let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
   // 这里判断的时候要 +1 因为主词条本身也在 length 中
   if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
-    return engine.locale('deckbuilding_addAffix_warning')
+    return engine.locale('craft_addAffix_warning')
   }
 
   let supportAffixes = _getSupportAffixes(card)
-
   if (supportAffixes.isEmpty) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
-  
-  final materialCost = getCardCraftMaterial('addAffix', card)
-  final materialId = materialCost['id']
-  final cost = materialCost['count'] ?? 1
-  final hasCount = entityHasItemKind(hero, materialId)
-  if (hasCount < cost) {
-    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
-  }
-  entityLoseItemKind(hero, materialId, cost)
-
   final affix = Object.create(random.nextIterable(supportAffixes))
 
-  _addAffixToCard(card, affix)
-
-  // _updateRequirementsOfCard(card)
-  // _updateCardTags(card)
+  _addAffixToCard(card, affix, materialRank)
 
   // 这里显式返回空值表明成功执行
   return null
 }
 
 /// 替换一个额外词条
-function replaceAffix(card) {
+/// materialRank 为打造材料的境界，决定新词条的隐藏境界
+function replaceAffix(card, materialRank) {
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain)
-  })
+    return (!affix.isMain && !affix.isFreezed)
+  }).toList()
+
+  extraAffixes.sort((a, b) => a.rank.compareTo(b.rank))
 
   if (extraAffixes.isEmpty) {
-    return engine.locale('deckbuilding_replaceAffix_warning')
+    return engine.locale('craft_replaceAffix_warning')
   }
-
-  final materialCost = getCardCraftMaterial('replaceAffix', card)
-  final materialId = materialCost['materialId']
-  final cost = materialCost['count'] ?? 1
-  final hasCount = entityHasItemKind(hero, materialId)
-  if (hasCount < cost) {
-    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
-  }
-  entityLoseItemKind(hero, materialId, cost)
-
   final affix = random.nextIterable(extraAffixes)
 
   card.affixes.remove(affix)
   
-  addAffix(card)
+  addAffix(card, materialRank: materialRank)
 
   _updateAffixUniqueIds(card)
-
-  // _updateRequirementsOfCard(card)
-  // _updateCardTags(card)
 
   // 这里显式返回空值表明成功执行
   return null
 }
 
-/// 重置额外词条的数值
-function rerollAffix(card) {
+/// 锁定一个额外词条
+function freezeAffix(card, materialRank) {
+  if (card.hasFreezedAffix) {
+    return engine.locale('craft_freezeAffix_warning')
+  }
+
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.valueData != null)
+    return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
+  }).toList()
+
+  extraAffixes.sort( (a, b) => b.rank.compareTo(a.rank) )
+
+  if (extraAffixes.isEmpty) {
+    return engine.locale('craft_freezeAffix_noAffix')
+  }
+
+  final affix = extraAffixes.first
+  affix.isFreezed = true
+  card.hasFreezedAffix = true
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+/// 重置卡牌的数值
+function rerollAffix(card, materialRank) {
+  if (materialRank < card.rank) {
+    return engine.locale('craft_rerollAffix_warning_materialRank')
+  }
+
+  final extraAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain && !affix.isFreezed && affix.valueData != null)
   })
 
   if (extraAffixes.isEmpty) {
-    return engine.locale('deckbuilding_rerollAffix_warning')
+    return engine.locale('craft_rerollAffix_warning')
   }
-  
-  final materialCost = getCardCraftMaterial('rerollAffix', card)
-  final materialId = materialCost['materialId']
-  final cost = materialCost['count'] ?? 1
-  final hasCount = entityHasItemKind(hero, materialId)
-  if (hasCount < cost) {
-    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
-  }
-  entityLoseItemKind(hero, materialId, cost)
   
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
@@ -404,35 +410,31 @@ function rerollAffix(card) {
 }
 
 /// 升级卡牌境界
-function upgradeRank(card) {
+function upgradeRank(card, materialRank) {
   if (card.rank >= kCultivationRankMax) {
-    return engine.locale('deckbuilding_upgradeRank_warning_maxRank')
+    return engine.locale('craft_upgradeRank_warning_maxRank')
+  }
+
+  if (materialRank <= card.rank) {
+    return engine.locale('craft_upgradeRank_warning_materialRank')
   }
   
-  final nextRankMinLevel = minLevelForRank(card.rank + 1)
-  if (card.level < nextRankMinLevel) {
-    return engine.locale('deckbuilding_upgradeRank_warning', interpolations: [nextRankMinLevel])
-  }
+  // final nextRankMinLevel = minLevelForRank(card.rank + 1)
+  // if (card.level < nextRankMinLevel) {
+  //   return engine.locale('craft_upgradeRank_warning', interpolations: [nextRankMinLevel])
+  // }
 
-  final materialCost = getCardCraftMaterial('upgradeRank', card)
-  final materialId = materialCost['materialId']
-  final cost = materialCost['count'] ?? 1
-  final hasCount = entityHasItemKind(hero, materialId)
-  if (hasCount < cost) {
-    return engine.locale('hint_notEnough', interpolations: [engine.locale(materialId)] )
-  }
-  entityLoseItemKind(hero, materialId, cost)
-
-  final successRate = getCardRankUpProbability(card.rank)
-  if (random.nextDouble() > successRate) {
-    return 'deckbuilding_upgradeRank_failed_hint'
-  }
+  // final successRate = getCardRankUpProbability(card.rank)
+  // if (random.nextDouble() > successRate) {
+  //   return 'craft_upgradeRank_failed_hint'
+  // }
 
   card.rank += 1
   // card.minLevel = minLevelForRank(card.rank)
   // card.maxLevel = maxLevelForRank(card.rank)
 
   final mainAffix = card.affixes.first
+  mainAffix.rank = card.rank
 
   if (card.level < card.minLevel) {
     card.level = card.minLevel
@@ -440,14 +442,18 @@ function upgradeRank(card) {
     _updateMainAffixValue(card)
   }
 
+  // 保留主词条和被锁定的词条
+  final freezedAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain && affix.isFreezed)
+  })
   card.affixes = [mainAffix]
+  for (final affix in freezedAffixes) {
+    card.affixes.add(affix)
+  }
 
   _addExtraAffixes(card)
   
   _updateAffixUniqueIds(card)
-
-  // _updateRequirementsOfCard(card)
-  // _updateCardTags(card)
 
   // 这里显式返回空值表明成功执行
   return null

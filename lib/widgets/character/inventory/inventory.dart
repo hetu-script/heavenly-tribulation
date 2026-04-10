@@ -23,7 +23,7 @@ const kDefaultInventoryItemTypes = {
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatefulWidget {
-  const Inventory({
+  Inventory({
     super.key,
     required this.character,
     required this.inventoryType,
@@ -36,7 +36,9 @@ class Inventory extends StatefulWidget {
     this.onItemSecondaryTapped,
     this.onMouseEnterItemGrid,
     this.filter,
-  });
+    this.itemTypes = kDefaultInventoryItemTypes,
+  }) : assert(itemTypes == null || itemTypes.isNotEmpty,
+            'itemTypes cannot be empty');
 
   final dynamic character;
   final InventoryType inventoryType;
@@ -62,6 +64,7 @@ class Inventory extends StatefulWidget {
   /// 所有字段均可选，为 null 时不过滤该维度。
   /// 已装备的物品始终被排除。
   final dynamic filter;
+  final Iterable? itemTypes;
 
   @override
   State<Inventory> createState() => _InventoryState();
@@ -77,6 +80,9 @@ class _InventoryState extends State<Inventory> {
     super.initState();
 
     filter = widget.filter ?? {};
+    if (widget.itemTypes != null) {
+      filter['type'] = widget.itemTypes!.first;
+    }
   }
 
   @override
@@ -136,25 +142,29 @@ class _InventoryState extends State<Inventory> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: kDefaultInventoryItemTypes
-                .map(
-                  (type) => fluent.Button(
-                      child: Text(
-                        engine.locale(type),
-                        style: TextStyles.labelLarge,
-                      ),
-                      onPressed: () {
-                        filter['type'] = type == 'all' ? null : type;
-                        setState(() {});
-                      }),
-                )
-                .toList(),
+        if (widget.filter == null && widget.itemTypes != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Row(
+              children: widget.itemTypes!
+                  .map(
+                    (type) => Padding(
+                      padding: const EdgeInsets.only(right: 5.0),
+                      child: fluent.Button(
+                          style: FluentButtonStyles.slim,
+                          child: Text(
+                            engine.locale(type),
+                            style: TextStyles.bodySmall,
+                          ),
+                          onPressed: () {
+                            filter['type'] = type == 'all' ? null : type;
+                            setState(() {});
+                          }),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
-        ),
         ScrollConfiguration(
           behavior: MaterialScrollBehavior(),
           child: Scrollbar(

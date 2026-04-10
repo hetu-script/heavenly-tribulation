@@ -98,7 +98,7 @@
   "scroll_paper_fragment": "符纸碎片",
   "flavortext_scroll_paper_fragment": "20 个符纸碎片可以合成一个符纸。",
   "scroll_paper": "符纸",
-  "flavortext_scroll_paper": "用来制作符箓的材料。",
+  "flavortext_scroll_paper": "用来将功法卡牌制作为符箓的材料。符箓卡牌将移除所有装备和境界需求，但有次数限制，使用完毕后会消失。制作符箓会消耗原本的卡牌。",
 
   "dungeon_ticket": "秘境石",
   "flavortext_dungeon_ticket": "进入高阶秘境需要消耗对应品级的秘境石。",

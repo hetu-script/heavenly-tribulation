@@ -1303,18 +1303,9 @@ const kCraftScrollCostRate = 0.06;
 const kCardCraftOperations = [
   'addAffix',
   'replaceAffix',
+  'freezeAffix',
   'rerollAffix',
   'upgradeRank',
-  'dismantle',
-];
-
-const kCardOperations = [
-  'addAffix',
-  'rerollAffix',
-  'replaceAffix',
-  'upgradeRank',
-  'dismantle',
-  'craftScroll',
 ];
 
 const kTimeStrings = {

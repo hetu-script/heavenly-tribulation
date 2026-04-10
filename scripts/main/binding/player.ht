@@ -129,7 +129,23 @@ namespace Player {
     assert(hero != null)
     characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
-  
+
+  function craftScroll(scrollCard) {
+    let incidentContent
+    incidentContent = engine.locale('entityAcquire', interpolations: [
+      character.name,
+      scrollCard.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: character.id,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+    
   /// 分解卡牌，
   function dismantleCard(card, { gainFragments = true, incurIncident = true }) {
     assert(hero != null)

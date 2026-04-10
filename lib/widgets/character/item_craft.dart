@@ -5,20 +5,17 @@ import 'inventory/inventory.dart';
 import '../../global.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
+import '../../game_events.dart';
 
 class ItemCraft extends StatefulWidget {
   const ItemCraft({
     super.key,
-    required this.position,
     this.title,
     this.rank,
-    this.scrollMode = false,
   });
 
-  final Offset position;
   final String? title;
   final int? rank;
-  final bool scrollMode;
 
   @override
   State<ItemCraft> createState() => _ItemCraftState();
@@ -29,13 +26,10 @@ class _ItemCraftState extends State<ItemCraft> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> filter = {};
+    final Map<String, dynamic> filter = {
+      'type': 'craftmaterial',
+    };
 
-    if (widget.scrollMode) {
-      filter['type'] = 'scroll_paper';
-    } else {
-      filter['type'] = 'craftmaterial';
-    }
     if (widget.rank != null) {
       filter['minRank'] = widget.rank;
     }
@@ -76,6 +70,7 @@ class _ItemCraftState extends State<ItemCraft> {
                           gridsPerLine: 10,
                           minSlotCount: 70,
                           filter: filter,
+                          itemTypes: null,
                           selectedItemId: _selectedItemData != null
                               ? [_selectedItemData['id']]
                               : [],
@@ -89,15 +84,16 @@ class _ItemCraftState extends State<ItemCraft> {
                           //   setState(() {});
                           // },
                           onItemSecondaryTapped: (data, offset) {
+                            engine.emit(GameEvents.craftMaterialSelected, data);
                             setState(() {});
                           },
-                          onMouseEnterItemGrid: (data) {
-                            // if (widget.scrollMode) return;
-                            if (_selectedItemData != data) {
-                              _selectedItemData = data;
-                              setState(() {});
-                            }
-                          },
+                          // onMouseEnterItemGrid: (data) {
+                          //   // if (widget.scrollMode) return;
+                          //   if (_selectedItemData != data) {
+                          //     _selectedItemData = data;
+                          //     setState(() {});
+                          //   }
+                          // },
                         ),
                       ),
                       // if (widget.scrollMode)
