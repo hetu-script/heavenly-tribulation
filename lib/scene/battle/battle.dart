@@ -104,7 +104,7 @@ class BattleScene extends Scene {
   final String backgroundImageId;
 
   late final SpriteComponent2 background;
-  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+  late final SpriteComponent victoryPrompt, defeatPrompt;
 
   late final VersusBanner versusBanner;
 
@@ -291,13 +291,13 @@ class BattleScene extends Scene {
     );
     world.add(background);
 
-    _victoryPrompt = SpriteComponent(
+    victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
-    _defeatPrompt = SpriteComponent(
+    defeatPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/defeat.png'),
@@ -448,8 +448,8 @@ class BattleScene extends Scene {
     );
     restartButton.onTap = (_, __) async {
       restartButton.isVisible = false;
-      _victoryPrompt.removeFromParent();
-      _defeatPrompt.removeFromParent();
+      victoryPrompt.removeFromParent();
+      defeatPrompt.removeFromParent();
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
       nextTurnButton.onTap = (_, __) {
@@ -678,7 +678,7 @@ class BattleScene extends Scene {
 
   Future<void> _onBattleEnd() async {
     if (battleResult == true) {
-      camera.viewport.add(_victoryPrompt);
+      camera.viewport.add(victoryPrompt);
       enemy.setState(kDefeatState);
 
       // 如果开启了煞气天赋，战胜对手后增加 5 点煞气
@@ -687,7 +687,7 @@ class BattleScene extends Scene {
       }
     } else {
       battleResult = false;
-      camera.viewport.add(_defeatPrompt);
+      camera.viewport.add(defeatPrompt);
       hero.setState(kDefeatState);
     }
 

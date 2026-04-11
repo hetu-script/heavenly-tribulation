@@ -498,10 +498,15 @@
 
   "cultivationRank_0": "无",
   "cultivationRank_1": "凝气",
+  "cultivationRank_1_description": "<yellow bold>凝气境</>\n体力上限+20",
   "cultivationRank_2": "筑基",
+  "cultivationRank_2_description": "<yellow bold>筑基境</>\n体力上限+40",
   "cultivationRank_3": "结丹",
+  "cultivationRank_3_description": "<yellow bold>结丹境</>\n体力上限+60",
   "cultivationRank_4": "还婴",
+  "cultivationRank_4_description": "<yellow bold>还婴境</>\n体力上限+80",
   "cultivationRank_5": "化神",
+  "cultivationRank_5_description": "<yellow bold>化神境</>\n体力上限+100",
 
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
@@ -889,7 +894,7 @@
   "hint_merchantNotEnough_shard": "对方身上没有足够的灵石。",
   "hint_noJournals": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
-  "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
+  "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求：{0}",
   "hint_cultivateMode": "点击左键切换到打坐修炼模式",
   "hint_passiveTreeMode": "点击左键切换到天道技能模式",
 

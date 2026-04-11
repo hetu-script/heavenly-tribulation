@@ -32,7 +32,7 @@ class MemoryCardGame extends Scene with HasCursorState {
   late Vector2 cardSize;
   late Vector2 gridStartPosition;
 
-  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+  late final SpriteComponent victoryPrompt, defeatPrompt;
 
   late final SpriteButton restart, exit;
 
@@ -123,13 +123,13 @@ class MemoryCardGame extends Scene with HasCursorState {
     );
     world.add(barrier);
 
-    _victoryPrompt = SpriteComponent(
+    victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
-    _defeatPrompt = SpriteComponent(
+    defeatPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/defeat.png'),
@@ -194,8 +194,8 @@ class MemoryCardGame extends Scene with HasCursorState {
       card.removeFromParent();
     }
     cards.clear();
-    _victoryPrompt.removeFromParent();
-    _defeatPrompt.removeFromParent();
+    victoryPrompt.removeFromParent();
+    defeatPrompt.removeFromParent();
     restart.isVisible = false;
     exit.position = GameUI.exitButtonPosition;
 
@@ -459,7 +459,7 @@ class MemoryCardGame extends Scene with HasCursorState {
     barrier.isVisible = true;
 
     if (won) {
-      camera.viewport.add(_victoryPrompt);
+      camera.viewport.add(victoryPrompt);
       engine.play(GameSound.victory);
 
       final celebration = ConfettiEffect(
@@ -468,14 +468,14 @@ class MemoryCardGame extends Scene with HasCursorState {
       );
       camera.viewport.add(celebration);
     } else {
-      camera.viewport.add(_defeatPrompt);
+      camera.viewport.add(defeatPrompt);
       engine.play(GameSound.gameOver);
     }
 
     restart.isVisible = engine.config.developmentMode;
     restart.position = Vector2(
         center.x,
-        _victoryPrompt.bottomRight.y +
+        victoryPrompt.bottomRight.y +
             GameUI.buttonSizeMedium.y +
             GameUI.largeIndent);
 

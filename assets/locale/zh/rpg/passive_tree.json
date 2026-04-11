@@ -3,9 +3,10 @@
   "passivetree_refund_hint": "<green>点击鼠标右键退回技能点数。</>",
   "passivetree_rank_hint": "<yellow>点击鼠标左键进行突破试炼。</>",
   "passivetree_rank_no_points_hint": "<red>不可用：可分配天道技能点数不足。</>",
-  "passivetree_rank_node_no_refund_hint": "<red>境界节点不可退回。</>",
   "passivetree_locked_hint": "<red>不可用：前置节点尚未解锁。</>",
   "passivetree_points_hint": "<red>不可用：可分配天道技能点数不足。</>",
+
+  "passivetree_rank_node_no_refund_hint": "境界节点不可退回。",
 
   "passivetree_passives_description_title": "从技能和装备中获得的额外属性",
   "passivetree_potion_passives_description_title": "从饮食中获得的额外属性",

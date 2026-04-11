@@ -15,6 +15,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
+import 'package:samsara/effect/confetti.dart';
 
 import '../../extensions.dart';
 import '../particles/light_point.dart';
@@ -68,6 +69,8 @@ enum CultivationMode {
   none,
 }
 
+const _kBarrierPriority = 100;
+
 class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
     this.isEditorMode = false,
@@ -85,6 +88,14 @@ class CultivationScene extends Scene with HasCursorState {
   dynamic location;
 
   late CultivationMode mode;
+
+  late final SpriteComponent2 barrier;
+
+  late final SpriteComponent newRankPrompt;
+
+  late final SpriteButton rankInfo;
+
+  late final SpriteButton confirm;
 
   set collectableLight(int value) {
     switch (mode) {
@@ -397,12 +408,12 @@ class CultivationScene extends Scene with HasCursorState {
       if (isLearned || !isOpen) return;
       Hovertip.hide(skillButton);
 
-      final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
-      if (warning != null) {
-        dialog.pushDialog('hint_requirementNotMetForSkill');
-        dialog.execute();
-        return;
-      }
+      // final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
+      // if (warning != null) {
+      //   dialog.pushDialog('hint_requirementNotMetForSkill$warning');
+      //   dialog.execute();
+      //   return;
+      // }
 
       if (!isEditorMode) {
         if (character['skillPoints'] <= 0) {
@@ -410,13 +421,13 @@ class CultivationScene extends Scene with HasCursorState {
           dialog.execute();
           return;
         }
-      }
 
-      // 境界节点：触发突破试炼
-      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-      if (rankRequirement == character['rank'] + 1) {
-        tryTribulation(skillButton, nodeId);
-        return;
+        // 境界节点：触发突破试炼
+        final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+        if (rankRequirement == character['rank'] + 1) {
+          tryTribulation(skillButton, nodeId);
+          return;
+        }
       }
 
       if (isAttribute) {
@@ -453,7 +464,8 @@ class CultivationScene extends Scene with HasCursorState {
       // 境界节点不可退点
       final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
       if (rankRequirement > 0) {
-        hint(engine.locale('passivetree_rank_node_no_refund_hint'));
+        dialog.pushDialog('passivetree_rank_node_no_refund_hint');
+        dialog.execute();
         return;
       }
 
@@ -715,6 +727,66 @@ class CultivationScene extends Scene with HasCursorState {
     );
     world.add(timeOfDaySprite);
     updateTimeOfDay();
+
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      isVisible: false,
+      priority: _kBarrierPriority,
+      enableGesture: true,
+    );
+    camera.viewport.add(barrier);
+
+    newRankPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: await Sprite.load('rank_up.png'),
+      size: Vector2(800.0, 220.0),
+      priority: _kBarrierPriority,
+    );
+
+    rankInfo = SpriteButton(
+      anchor: Anchor.center,
+      position: center,
+      size: Vector2(125.0, 125.0),
+      isVisible: false,
+      priority: _kBarrierPriority,
+    );
+    rankInfo.onMouseEnter = () {
+      Hovertip.show(
+        scene: this,
+        target: rankInfo,
+        direction: HovertipDirection.topCenter,
+        config: ScreenTextConfig(textAlign: TextAlign.center),
+        content: engine
+            .locale('cultivationRank_${GameData.hero['rank']}_description'),
+      );
+    };
+    rankInfo.onMouseExit = () {
+      Hovertip.hide(rankInfo);
+    };
+    camera.viewport.add(rankInfo);
+
+    confirm = SpriteButton(
+      spriteId: 'ui/button2.png',
+      size: GameUI.buttonSizeMedium,
+      anchor: Anchor.center,
+      position: Vector2(
+          center.x,
+          newRankPrompt.bottomRight.y +
+              GameUI.buttonSizeMedium.y +
+              GameUI.largeIndent),
+      text: engine.locale('confirm'),
+      isVisible: false,
+      priority: _kBarrierPriority,
+    );
+    confirm.onTap = (_, __) {
+      newRankPrompt.removeFromParent();
+      barrier.isVisible = false;
+      rankInfo.isVisible = false;
+      confirm.isVisible = false;
+    };
+    camera.viewport.add(confirm);
 
     backgroundSprite = SpriteComponent(
       position: Vector2(center.x, center.y - 130),
@@ -1141,12 +1213,28 @@ class CultivationScene extends Scene with HasCursorState {
     void onTribulationSuccess() {
       GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       skillButton.isSelected = true;
-      if (!isEditorMode) {
-        --character['skillPoints'];
-      }
+      --character['skillPoints'];
+      character['rank'] = nodeRank;
       updatePassivesDescription();
       updateInformation();
       // engine.play(GameSound.click);
+      barrier.isVisible = true;
+      camera.viewport.add(newRankPrompt);
+      rankInfo.tryLoadSprite(spriteId: 'cultivation/cultivation$nodeRank.png');
+      rankInfo.isVisible = true;
+      confirm.isVisible = true;
+      engine.play(GameSound.ascension);
+
+      final celebration = ConfettiEffect(
+        position: Vector2.zero(),
+        size: size,
+        priority: kConfettiPriority,
+      );
+      camera.viewport.add(celebration);
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        confirm.isVisible = true;
+      });
     }
 
     if (selected == 'tribulation_martial') {

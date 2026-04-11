@@ -4,7 +4,7 @@ const _kCharacterMonthlyActionProbabilityStandby = 0.45;
 const _kCharacterMonthlyActionProbabilityWork = 0.65;
 const _kCharacterMonthlyActionProbabilityWander = 0.9;
 
-Future<void> _updateCharactersWorldMapPosition() async {
+Future<void> _updateCharactersAtWorldMapPosition() async {
   // 此时不处于大地图场景，根据时间差直接更新角色位置。
   for (final character in GameData.game['characters'].values) {
     if (character['locationId'] != null) continue;
@@ -12,7 +12,7 @@ Future<void> _updateCharactersWorldMapPosition() async {
     if (worldPosition == null) continue;
     final moveTo = worldPosition['moveTo'];
     if (moveTo == null) continue;
-    final List<int> route = moveTo['route'];
+    final route = List<int>.from(moveTo['route']);
     assert(route.isNotEmpty);
     final int timeDiff =
         GameData.game['timestamp'] - moveTo['lastMoveTimestamp'];
@@ -156,6 +156,7 @@ Future<void> _updateCharacterMonthly(dynamic character,
         toX: toX,
         toY: toY,
         terrainKinds: kTerrainKindsAll,
+        worldId: worldMapScene.id,
       );
       assert(
           route != null, '角色大地图集路径计算失败, from: [$fromX,$fromY] to: [$toX,$toY]');

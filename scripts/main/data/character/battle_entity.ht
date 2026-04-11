@@ -7,8 +7,8 @@ const _kAvatarCount = 41
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
 
-const _kInitialMoneyPerLevel = 1000
-const _kInitialShardPerRank = 10
+const _kInitialMoneyPerLevel = 500
+const _kInitialShardPerRank = 15
 
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0;
@@ -142,7 +142,7 @@ struct BattleEntity {
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
     // 金钱也是一种材料，其他材料包括可以用来建筑的木材、石料等
     this.materials = {
-      money: _kInitialMoneyPerLevel * (this.level + 1),
+      money: _kInitialMoneyPerLevel * (this.level + 2),
       shard: _kInitialShardPerRank * (this.rank),
     }
 

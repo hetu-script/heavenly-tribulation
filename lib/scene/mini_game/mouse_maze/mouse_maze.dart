@@ -441,7 +441,7 @@ class MouseMazeGame extends Scene with HasCursorState {
   late int maxErrors;
   late Vector2 errorIndicatorStartPoint;
 
-  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+  late final SpriteComponent victoryPrompt, defeatPrompt;
 
   late final SpriteComponent2 barrier;
 
@@ -482,13 +482,13 @@ class MouseMazeGame extends Scene with HasCursorState {
     );
     world.add(barrier);
 
-    _victoryPrompt = SpriteComponent(
+    victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
-    _defeatPrompt = SpriteComponent(
+    defeatPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/defeat.png'),
@@ -501,7 +501,7 @@ class MouseMazeGame extends Scene with HasCursorState {
       anchor: Anchor.center,
       position: Vector2(
           center.x,
-          _victoryPrompt.bottomRight.y +
+          victoryPrompt.bottomRight.y +
               GameUI.buttonSizeMedium.y +
               GameUI.largeIndent),
       text: engine.locale('restart'),
@@ -593,8 +593,8 @@ class MouseMazeGame extends Scene with HasCursorState {
     _isDragging = false;
     barrier.isVisible = false;
 
-    _victoryPrompt.removeFromParent();
-    _defeatPrompt.removeFromParent();
+    victoryPrompt.removeFromParent();
+    defeatPrompt.removeFromParent();
 
     restart.isVisible = false;
 
@@ -603,32 +603,32 @@ class MouseMazeGame extends Scene with HasCursorState {
     switch (difficulty) {
       case MiniGameDifficulty.easy:
         maxErrors = 6;
-        mazeRows = 4;
-        mazeColumns = 6;
+        mazeRows = 5;
+        mazeColumns = 9;
         portalPairCount = 1;
         switchDoorCount = 1;
       case MiniGameDifficulty.normal:
         maxErrors = 5;
-        mazeRows = 4;
-        mazeColumns = 8;
+        mazeRows = 6;
+        mazeColumns = 12;
         portalPairCount = 1;
         switchDoorCount = 1;
       case MiniGameDifficulty.challenging:
         maxErrors = 4;
-        mazeRows = 6;
-        mazeColumns = 12;
+        mazeRows = 7;
+        mazeColumns = 15;
         portalPairCount = 2;
         switchDoorCount = 2;
       case MiniGameDifficulty.hard:
         maxErrors = 3;
-        mazeRows = 6;
-        mazeColumns = 16;
+        mazeRows = 8;
+        mazeColumns = 18;
         portalPairCount = 2;
         switchDoorCount = 2;
       case MiniGameDifficulty.tough:
         maxErrors = 2;
-        mazeRows = 8;
-        mazeColumns = 20;
+        mazeRows = 9;
+        mazeColumns = 21;
         portalPairCount = 3;
         switchDoorCount = 3;
       case MiniGameDifficulty.brutal:
@@ -1066,7 +1066,7 @@ class MouseMazeGame extends Scene with HasCursorState {
     barrier.isVisible = true;
 
     if (won) {
-      camera.viewport.add(_victoryPrompt);
+      camera.viewport.add(victoryPrompt);
       engine.play(GameSound.victory);
 
       final celebration = ConfettiEffect(
@@ -1076,7 +1076,7 @@ class MouseMazeGame extends Scene with HasCursorState {
       );
       camera.viewport.add(celebration);
     } else {
-      camera.viewport.add(_defeatPrompt);
+      camera.viewport.add(defeatPrompt);
       engine.play(GameSound.gameOver);
     }
 

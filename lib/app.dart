@@ -570,11 +570,6 @@ class _GameAppState extends State<GameApp> {
       );
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptNewRank', (
-        {positionalArgs, namedArgs}) {
-      return GameLogic.promptNewRank(positionalArgs.first);
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Game::selectCharacter', (
         {positionalArgs, namedArgs}) {
       return GameLogic.selectCharacter(

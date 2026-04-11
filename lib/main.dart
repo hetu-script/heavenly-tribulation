@@ -89,7 +89,6 @@ void main() {
           ChangeNotifierProvider(create: (_) => WorldMapState()),
           ChangeNotifierProvider(create: (_) => JournalPromptState()),
           ChangeNotifierProvider(create: (_) => ItemsPromptState()),
-          ChangeNotifierProvider(create: (_) => RankPromptState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => MerchantState()),
           ChangeNotifierProvider(create: (_) => ItemSelectState()),

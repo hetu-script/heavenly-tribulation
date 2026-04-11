@@ -433,9 +433,9 @@ final class GameLogic {
   }) async {
     assert(fromTile != null || (fromX != null && fromY != null));
     assert(toTile != null || (toX != null && toY != null));
-    fromTile ??= GameData.getTerrain(fromX!, fromY!);
-    toTile ??= GameData.getTerrain(toX!, toY!);
     worldId ??= GameData.world['id'];
+    fromTile ??= GameData.getTerrain(fromX!, fromY!, worldId: worldId);
+    toTile ??= GameData.getTerrain(toX!, toY!, worldId: worldId);
     final atWorld = GameData.universe[worldId];
     List<int>? calculatedRoute = _calculateRoute(
       fromTile!,
@@ -459,6 +459,7 @@ final class GameLogic {
           fromTile: fromTile,
           toTile: toTile,
           terrainKinds: movableTerrainKinds,
+          worldId: worldId,
         );
       } else {
         if (isHero) {
@@ -1147,14 +1148,6 @@ final class GameLogic {
     return completer.future;
   }
 
-  static Future<void> promptNewRank(int rank) async {
-    final completer = Completer();
-    engine.context
-        .read<RankPromptState>()
-        .update(rank: rank, completer: completer);
-    return completer.future;
-  }
-
   static void onUseItem(dynamic itemData) async {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
@@ -1169,16 +1162,18 @@ final class GameLogic {
     }
     switch (itemData['category']) {
       case kItemCategoryCardpack:
+        engine.context.read<ViewPanelState>().toogle(ViewPanels.statsAndItem);
         engine.pushScene(Scenes.library, arguments: {
           'cardpacks': {itemData},
           'enableCardCraft': engine.scene?.id == Scenes.mainmenu,
           'enableScrollCraft': engine.scene?.id == Scenes.mainmenu,
         });
       case kItemCategoryIdentifyScroll:
+        engine.context.read<ViewPanelState>().toogle(ViewPanels.statsAndItem);
         final items = await selectItem(
           character: GameData.hero,
           title: engine.locale('selectItem'),
-          filter: {'isIdentified': false},
+          filter: <String, dynamic>{'isIdentified': false},
           multiSelect: false,
         );
         if (items.isNotEmpty) {
@@ -1391,7 +1386,7 @@ final class GameLogic {
 
     // 如果当前场景不是地图场景，需要手动更新角色位置
     if (worldMap == null) {
-      _updateCharactersWorldMapPosition();
+      _updateCharactersAtWorldMapPosition();
     }
 
     // 每个月 1 日刷新玩家事件标记

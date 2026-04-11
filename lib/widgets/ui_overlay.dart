@@ -30,7 +30,6 @@ import 'ui/bordered_icon_button.dart';
 import 'ui/close_button2.dart';
 import '../scene/sect/meeting.dart';
 import 'journal_panel.dart';
-import 'dialog/new_rank.dart';
 import 'view/alchemy.dart';
 import 'view/workshop.dart';
 import 'ui/responsive_view.dart';
@@ -141,14 +140,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         context.watch<JournalPromptState>().completer;
     final items = context.watch<ItemsPromptState>().items;
     final itemsPromptCompleter = context.watch<ItemsPromptState>().completer;
-    final rank = context.watch<RankPromptState>().rank;
-    final rankPromptCompleter = context.watch<RankPromptState>().completer;
 
-    if (rank != null) {
-      _prompts.add('rank');
-    } else {
-      _prompts.remove('rank');
-    }
     if (items != null) {
       _prompts.add('item');
     } else {
@@ -694,10 +686,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             ...panels,
             if (_prompts.isNotEmpty)
               switch (_prompts.last) {
-                'rank' => NewRank(
-                    rank: rank!,
-                    completer: rankPromptCompleter,
-                  ),
                 'journal' => NewJournal(
                     journal: journal!,
                     selections: selections,

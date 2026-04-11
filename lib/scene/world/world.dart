@@ -436,6 +436,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     engine.hetu.interpreter.bindExternalFunction('World::addHintText', (
         {positionalArgs, namedArgs}) {
+      if (!isMounted) return;
       final hexString = positionalArgs[3];
       Color? color;
       if (hexString != null) {
@@ -449,9 +450,11 @@ class WorldMapScene extends Scene with HasCursorState {
       );
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('World::promptTextBanner',
-        ({positionalArgs, namedArgs}) => promptTextBanner(positionalArgs.first),
-        override: true);
+    engine.hetu.interpreter.bindExternalFunction('World::promptTextBanner', (
+        {positionalArgs, namedArgs}) {
+      if (!isMounted) return;
+      promptTextBanner(positionalArgs.first);
+    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::lightUpAroundTile', (
         {positionalArgs, namedArgs}) {
@@ -472,16 +475,18 @@ class WorldMapScene extends Scene with HasCursorState {
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'World::moveCameraToTilePosition',
-        ({positionalArgs, namedArgs}) => map.moveCameraToTilePosition(
-              positionalArgs[0],
-              positionalArgs[1],
-              animated: namedArgs['animated'],
-            ),
-        override: true);
+        'World::moveCameraToTilePosition', ({positionalArgs, namedArgs}) {
+      if (!isMounted) return;
+      map.moveCameraToTilePosition(
+        positionalArgs[0],
+        positionalArgs[1],
+        animated: namedArgs['animated'],
+      );
+    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::shakeCamera', (
         {positionalArgs, namedArgs}) {
+      if (!isMounted) return null;
       final Completer completer = Completer();
       add(
         CameraShakeEffect(
@@ -499,6 +504,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     engine.hetu.interpreter.bindExternalFunction('World::addFallingRubbles', (
         {positionalArgs, namedArgs}) {
+      if (!isMounted) return;
       final int amount = namedArgs['amount'];
       for (var i = 0; i < amount; ++i) {
         camera.viewport.add(ParticleRubble());
@@ -954,7 +960,7 @@ class WorldMapScene extends Scene with HasCursorState {
         final moveTo = char['worldPosition']['moveTo'];
         assert(moveTo != null && moveTo['locationId'] != null,
             'Character ${char['id']} 在大地图 ${worldData['id']} 上缺少 moveTo 数据');
-        final List<int> route = moveTo['route'];
+        final route = List<int>.from(moveTo['route']);
         assert(route.isNotEmpty);
         if (!charObj.isWalking) {
           final tileIndex = route.first;
@@ -1876,6 +1882,7 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   Future<void> promptTextBanner(String text) async {
+    gameState.isInteractable = false;
     final prompt = PromptTextBanner(
       text: text,
       backgroundColor: GameUI.backgroundColor2,
@@ -1885,6 +1892,7 @@ class WorldMapScene extends Scene with HasCursorState {
     await prompt.fadeIn(duration: 0.8);
     await Future.delayed(Duration(milliseconds: 500));
     await prompt.fadeOut(duration: 1.0);
+    gameState.isInteractable = true;
   }
 
   @override

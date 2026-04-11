@@ -47,14 +47,3 @@ class ItemsPromptState with ChangeNotifier {
     notifyListeners();
   }
 }
-
-class RankPromptState with ChangeNotifier {
-  int? rank;
-  Completer? completer;
-
-  void update({int? rank, Completer? completer}) {
-    this.rank = rank;
-    this.completer = completer;
-    notifyListeners();
-  }
-}

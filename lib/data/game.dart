@@ -79,6 +79,9 @@ final class GameSound {
   static const victory = 'transition/chinese-ident-transition-1-283708.mp3';
   static const gameOver = 'transition/chinese-ident-transition-2-283707.mp3';
 
+  static const ascension =
+      'transition/breakzstudios-epic-flute-reveal-logo-201062.mp3';
+
   static const click = 'click-21156.mp3';
   static const success = 'new-notification-026-380249.mp3';
   static const error = 'notification-error-427345.mp3';
@@ -104,6 +107,8 @@ final class GameSound {
   static const put = 'put_item-83043.mp3';
   static const broken = 'break06-36414.mp3';
   static const flip = 'flipcard-91468.mp3';
+
+  static const clock = 'clock-ticking-405471.mp3';
 }
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存

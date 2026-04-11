@@ -47,8 +47,6 @@ namespace Game {
     interpolations,
   }) -> string
 
-  external function promptNewRank(rank)
-
   external async function selectCharacter({ ids, datas })
 
   external async function selectLocation({ ids, datas })

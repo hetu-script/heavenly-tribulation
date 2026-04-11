@@ -21,7 +21,7 @@ import '../../common.dart';
 import '../../../data/game.dart';
 import '../common.dart';
 
-const _kMaxDifferenceGames = 12;
+const _kMaxDifferenceGames = 11;
 
 const _kPicPriority = 50;
 const _kDiffIndicatorPriority = 10;
@@ -125,7 +125,7 @@ class DifferenceGame extends Scene with HasCursorState {
   bool isGameOver = false;
   bool isGameWon = false;
 
-  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+  late final SpriteComponent victoryPrompt, defeatPrompt;
 
   late final SpriteButton restart, exit;
 
@@ -275,7 +275,7 @@ class DifferenceGame extends Scene with HasCursorState {
     barrier.isVisible = true;
 
     if (won) {
-      camera.viewport.add(_victoryPrompt);
+      camera.viewport.add(victoryPrompt);
       engine.play(GameSound.victory);
 
       final celebration = ConfettiEffect(
@@ -285,7 +285,7 @@ class DifferenceGame extends Scene with HasCursorState {
       );
       camera.viewport.add(celebration);
     } else {
-      camera.viewport.add(_defeatPrompt);
+      camera.viewport.add(defeatPrompt);
       engine.play(GameSound.gameOver);
     }
 
@@ -293,7 +293,7 @@ class DifferenceGame extends Scene with HasCursorState {
       restart.isVisible = engine.config.developmentMode;
       restart.position = Vector2(
           center.x,
-          _victoryPrompt.bottomRight.y +
+          victoryPrompt.bottomRight.y +
               GameUI.buttonSizeMedium.y +
               GameUI.largeIndent);
 
@@ -328,13 +328,13 @@ class DifferenceGame extends Scene with HasCursorState {
     );
     world.add(barrier);
 
-    _victoryPrompt = SpriteComponent(
+    victoryPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
     );
-    _defeatPrompt = SpriteComponent(
+    defeatPrompt = SpriteComponent(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/defeat.png'),
@@ -489,8 +489,8 @@ class DifferenceGame extends Scene with HasCursorState {
     isGameOver = false;
     barrier.isVisible = false;
 
-    _victoryPrompt.removeFromParent();
-    _defeatPrompt.removeFromParent();
+    victoryPrompt.removeFromParent();
+    defeatPrompt.removeFromParent();
 
     restart.isVisible = engine.config.developmentMode;
 

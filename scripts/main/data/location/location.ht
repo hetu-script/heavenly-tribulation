@@ -890,6 +890,6 @@ function replenishCollectableLight(location) {
   // assert(atCity != null, 'location not found, id: ${location.atCityId}')
   // assert(atCity.category == 'city')
 
-  final replenishAmount = Math.pow(_kBaseCollectableLightReplenishAmount, location.development) * 3
-  location.collectableLight = random.nearInt(replenishAmount + 10) + 10
+  final replenishAmount = Math.pow(_kBaseCollectableLightReplenishAmount, location.development + 1) * 2
+  location.collectableLight = random.nearInt(replenishAmount) + _kBaseCollectableLightReplenishAmount
 }
