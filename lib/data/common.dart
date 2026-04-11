@@ -571,37 +571,24 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 50,
       'worker': 2,
-      'water': 1,
-      'timber': 2,
-      'stone': 1,
     },
   },
   'headquarters': {
     'developmentCost': {
       'money': 1000,
       'worker': 25,
-      'timber': 8,
-      'stone': 8,
     },
   },
   'cityhall': {
     'developmentCost': {
       'money': 500,
       'worker': 10,
-      'water': 1,
-      'ore': 1,
-      'leather': 1,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
   },
   'tradinghouse': {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'timber': 2,
-      'stone': 2,
     },
     'maintainanceCost': {
       'money': 100,
@@ -612,10 +599,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'timber': 1,
-      'stone': 4,
-      'ore': 2,
-      'herb': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -626,11 +609,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 2,
-      'ore': 1,
-      'herb': 1,
-      'timber': 2,
-      'stone': 2,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -641,10 +619,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'leather': 1,
-      'herb': 1,
-      'timber': 5,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -655,10 +629,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'ore': 1,
-      'herb': 1,
-      'timber': 2,
-      'stone': 4,
     },
     'maintainanceCost': {
       'money': 200,
@@ -669,10 +639,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'ore': 2,
-      'leather': 2,
-      'timber': 2,
-      'stone': 2,
     },
     'maintainanceCost': {
       'money': 500,
@@ -683,10 +649,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'leather': 3,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -697,12 +659,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 1,
-      'leather': 1,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'money': 500,
@@ -713,8 +669,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'timber': 3,
-      'stone': 5,
     },
     'maintainanceCost': {
       'money': 500,
@@ -725,8 +679,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'timber': 5,
-      'stone': 3,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -737,12 +689,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 1,
-      'leather': 1,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -753,12 +699,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 1,
-      'leather': 1,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -769,12 +709,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 1,
-      'leather': 1,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -785,10 +719,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 2,
-      'timber': 3,
-      'stone': 2,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -799,11 +729,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 2,
-      'herb': 1,
-      'timber': 3,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -814,11 +739,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 1,
-      'ore': 2,
-      'herb': 2,
-      'timber': 2,
-      'stone': 1,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -829,10 +749,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'ore': 2,
-      'herb': 1,
-      'timber': 2,
-      'stone': 3,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -843,10 +759,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'ore': 2,
-      'herb': 2,
-      'timber': 2,
-      'stone': 2,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -857,9 +769,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 2,
-      'herb': 1,
-      'stone': 1,
     },
     'maintainanceCost': {
       'money': 50,
@@ -870,9 +779,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 2,
-      'timber': 1,
-      'stone': 1,
     },
     'maintainanceCost': {
       'money': 50,
@@ -883,8 +789,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'water': 2,
-      'timber': 2,
     },
     'maintainanceCost': {
       'money': 50,
@@ -895,9 +799,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'herb': 1,
-      'timber': 2,
-      'stone': 1,
     },
     'maintainanceCost': {
       'money': 50,
@@ -908,8 +809,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 200,
       'worker': 5,
-      'timber': 1,
-      'stone': 3,
     },
     'maintainanceCost': {
       'money': 50,
@@ -920,9 +819,6 @@ const kSiteKindsManagable = {
     'developmentCost': {
       'money': 500,
       'worker': 10,
-      'ore': 6,
-      'timber': 4,
-      'stone': 6,
     },
     'maintainanceCost': {
       'shard': 1,
@@ -1204,21 +1100,21 @@ final kItemPriceByCategory = {
   'craftmaterial_replaceAffix': 550,
   'craftmaterial_freezeAffix': 750,
   'craftmaterial_rerollAffix': 1000,
-  'craftmaterial_upgrade': 3500,
+  'craftmaterial_upgradeRank': 3500,
   'dungeon_ticket': 2000,
   'cardpack': 700,
   'scroll_paper': 350,
   'identify_scroll': 75,
-  'weapon': 20,
-  'shield': 10,
-  'armor': 10,
-  'gloves': 10,
-  'helmet': 10,
-  'boots': 20,
+  'weapon': 25,
+  'shield': 15,
+  'armor': 30,
+  'gloves': 15,
+  'helmet': 15,
+  'boots': 25,
   'vehicle': 75,
   'jewelry': 35,
   'talisman': 50,
-  'potion': 10,
+  'potion': 15,
 };
 
 const kItemWithAffixCategories = [
@@ -1805,11 +1701,6 @@ const kItemEquipmentKinds = {
   'pearl',
 };
 
-const kItemModificationOperations = {
-  'rerollAffix',
-  'extract',
-};
-
 const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
 const kItemCategoryScrollPaper = 'scroll_paper';
@@ -2070,7 +1961,7 @@ const kFragmentGainFromDismantle = {
     'max': 18,
     'scroll_paper_fragment': 0.2,
     'fragments': {
-      'craftmaterial_upgrade_fragment': 0.2,
+      'craftmaterial_upgradeRank_fragment': 0.2,
       'craftmaterial_rerollAffix_fragment': 0.4,
       'craftmaterial_freezeAffix_fragment': 0.6,
       'craftmaterial_replaceAffix_fragment': 0.8,
@@ -2082,7 +1973,7 @@ const kFragmentGainFromDismantle = {
     'max': 25,
     'scroll_paper_fragment': 0.1,
     'fragments': {
-      'craftmaterial_upgrade_fragment': 0.4,
+      'craftmaterial_upgradeRank_fragment': 0.4,
       'craftmaterial_rerollAffix_fragment': 0.55,
       'craftmaterial_freezeAffix_fragment': 0.7,
       'craftmaterial_replaceAffix_fragment': 0.85,
@@ -2094,11 +1985,19 @@ const kFragmentGainFromDismantle = {
     'max': 36,
     'scroll_paper_fragment': 0.05,
     'fragments': {
-      'craftmaterial_upgrade_fragment': 0.6,
+      'craftmaterial_upgradeRank_fragment': 0.6,
       'craftmaterial_rerollAffix_fragment': 0.7,
       'craftmaterial_freezeAffix_fragment': 0.8,
       'craftmaterial_replaceAffix_fragment': 0.9,
       'craftmaterial_addAffix_fragment': 1,
     },
   },
+};
+
+const kScrollCardUseLimit = {
+  1: 3,
+  2: 5,
+  3: 7,
+  4: 10,
+  5: 15,
 };

@@ -113,14 +113,14 @@ const _kEncampmentKinds = [
   // 'alchemy_furnace',
 ]
 
-const _kBasicMerchantKinds = [
+const _kMerchantKinds = [
   'smith',
   'enchanter',
   'pharmacist',
-  'bookdealer',
+  'bookDealer',
 ]
 
-const _kMerchantKinds = [
+const _kMerchantKinds2 = [
   'smith',
   'enchanter',
   'pharmacist',
@@ -148,15 +148,9 @@ function _addEncampment() {
 }
 
 function _addGeneralMerchant(tilePosition) {
-  addMerchant(
-    tilePosition,
-    objectId: 'merchant_general',
-    name: engine.locale('merchant'),
-    sprite: 'object/characterMan31.png',
-    rank: game.flags.dungeon.rank,
-    money: 500000,
-    shard: 5000,
-    itemCategories: [
+  let itemCategories;
+  if (game.flags.dungeon.rank > 0) {
+    itemCategories = [
       'weapon',
       'armor',
       'jewelry',
@@ -169,15 +163,34 @@ function _addGeneralMerchant(tilePosition) {
       'craftmaterial_replaceAffix',
       'craftmaterial_freezeAffix',
       'craftmaterial_rerollAffix',
-      'craftmaterial_upgrade',
-    ],
+      'craftmaterial_upgradeRank',
+    ]
+  } else {
+    itemCategories = [
+      'weapon',
+      'armor',
+      'jewelry',
+      'talisman',
+      'potion',
+      'cardpack',
+    ]
+  }
+  addMerchant(
+    tilePosition,
+    objectId: 'merchant_general',
+    name: engine.locale('merchant'),
+    sprite: 'object/characterMan31.png',
+    rank: game.flags.dungeon.rank,
+    money: 500000,
+    shard: 5000,
+    itemCategories: itemCategories,
     itemCount: 12 + game.flags.dungeon.rank,
     useShard: game.flags.dungeon.rank > 0,
   )
 }
 
 function _addRandomMerchant() {
-  final merchantKind = random.nextIterable(game.flags.dungeon.isBasic ? _kBasicMerchantKinds : _kMerchantKinds)
+  final merchantKind = random.nextIterable(game.flags.dungeon.rank > 0 ? _kMerchantKinds2 : _kMerchantKinds)
   switch (merchantKind) {
     'smith': {
       addMerchant(
@@ -263,7 +276,7 @@ function _addRandomMerchant() {
           'craftmaterial_replaceAffix',
           'craftmaterial_freezeAffix',
           'craftmaterial_rerollAffix',
-          'craftmaterial_upgrade',
+          'craftmaterial_upgradeRank',
         ],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
@@ -560,7 +573,7 @@ async function onEnterMap() {
           chance: game.flags.dungeon.isBoss ? 0.45 : 
           (game.flags.dungeon.isElite ? 0.25 : kRewardProbabilityScrollPaper),
         },
-        craftMaterial: {
+        affixMaterial: {
           chance: game.flags.dungeon.isBoss ? 0.65 : 
           (game.flags.dungeon.isElite ? 0.35 : kRewardProbabilityCraftMaterial),
         },

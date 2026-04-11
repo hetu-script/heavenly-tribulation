@@ -36,8 +36,8 @@ class EquipmentsBar extends GameComponent {
     spriteButton.onMouseEnter = () {
       if (itemData == null) return;
       engine.context.read<HoverContentState>().show(
-            itemData,
-            spriteButton.toAbsoluteRect(),
+            rect: spriteButton.toAbsoluteRect(),
+            data: itemData,
           );
     };
     spriteButton.onMouseExit = () {
@@ -74,8 +74,8 @@ class EquipmentsBar extends GameComponent {
         showNonBattleStats: false,
       );
       engine.context.read<HoverContentState>().show(
-            statsView,
-            statsButton.toAbsoluteRect(),
+            rect: statsButton.toAbsoluteRect(),
+            data: statsView,
             direction: HoverContentDirection.rightTop,
           );
     };
@@ -93,8 +93,8 @@ class EquipmentsBar extends GameComponent {
     );
     cultivationButton.onMouseEnter = () {
       engine.context.read<HoverContentState>().show(
-            cultivationDescription,
-            cultivationButton.toAbsoluteRect(),
+            rect: cultivationButton.toAbsoluteRect(),
+            data: cultivationDescription,
             direction: HoverContentDirection.rightTop,
             textAlign: TextAlign.left,
           );

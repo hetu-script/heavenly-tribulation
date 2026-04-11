@@ -19,7 +19,7 @@ async function onNewGame() {
   ]
   final items = createLoot(itemsInfo)
   for (final item in items) {
-    entityAcquire(homeSite, item)
+    entityAcquire(homeSite, item, incurIncident: false)
   }
 
   if (game.enableTutorial) {

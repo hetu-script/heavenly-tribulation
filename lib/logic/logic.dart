@@ -1227,7 +1227,7 @@ final class GameLogic {
         });
         engine.hetu
             .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
-      case 'craftmaterial_upgrade':
+      case 'craftmaterial_upgradeRank':
         engine.play(GameSound.drink);
         engine.hetu.invoke(
           'characterSetUpgradeRankPotionPassive',

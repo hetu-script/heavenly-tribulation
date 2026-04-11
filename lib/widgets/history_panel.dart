@@ -121,8 +121,8 @@ class HistoryPanel extends StatelessWidget {
           MouseRegion2(
             onEnter: (rect) {
               context.read<HoverContentState>().show(
-                    engine.locale('hint_datetime'),
-                    rect,
+                    rect: rect,
+                    data: engine.locale('hint_datetime'),
                     textAlign: TextAlign.left,
                     direction: HoverContentDirection.bottomLeft,
                   );
@@ -148,7 +148,7 @@ class HistoryPanel extends StatelessWidget {
               onMouseEnter: (rect) {
                 context
                     .read<HoverContentState>()
-                    .show(engine.locale('history'), rect);
+                    .show(rect: rect, data: engine.locale('history'));
               },
               onMouseExit: () {
                 context.read<HoverContentState>().hide();

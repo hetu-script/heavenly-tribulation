@@ -108,7 +108,7 @@ async function onInteractMapObject(object, terrain) {
         dialog.pushDialog('hint_movement')
         await dialog.execute()
         for (final item in items) {
-          entityAcquire(chuxue, item)
+          entityAcquire(chuxue, item, incurIncident: false)
         }
 
         Player.accompany(chuxue)

@@ -1337,7 +1337,7 @@ class NanogramGame extends Scene with HasCursorState {
     restart.onTap = (_, __) {
       _initializeGame();
     };
-    restart.isVisible = engine.config.debugMode;
+    restart.isVisible = engine.config.developmentMode;
     camera.viewport.add(restart);
 
     exit = SpriteButton(
@@ -1368,7 +1368,7 @@ class NanogramGame extends Scene with HasCursorState {
     restart.position = GameUI.restartButtonPosition;
     exit.position = GameUI.exitButtonPosition;
 
-    restart.isVisible = engine.config.debugMode;
+    restart.isVisible = engine.config.developmentMode;
 
     // 移除旧的棋盘
     _currentBoard?.removeFromParent();
@@ -1470,7 +1470,7 @@ class NanogramGame extends Scene with HasCursorState {
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      restart.isVisible = engine.config.debugMode;
+      restart.isVisible = engine.config.developmentMode;
       restart.position = Vector2(
           center.x,
           _victoryPrompt.bottomRight.y +

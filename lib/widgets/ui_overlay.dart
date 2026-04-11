@@ -79,11 +79,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
   final Set<String> _prompts = {};
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final isUIVisible = context.watch<GameState>().isUIVisible;
     if (!isUIVisible) {
@@ -134,6 +129,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final isCrafting = context.watch<CraftState>().isCrafting;
     final craftRank = context.watch<CraftState>().rank;
+    final craftMode = context.watch<CraftState>().craftMode;
 
     final showMeeting = context.watch<MeetingState>().showMeeting;
     final meetingPeople = context.watch<MeetingState>().people;
@@ -324,7 +320,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                     onEnter: (rect) {
                       context
                           .read<HoverContentState>()
-                          .show(GameData.hero['name'], rect);
+                          .show(rect: rect, data: GameData.hero['name']);
                     },
                     onExit: () {
                       context.read<HoverContentState>().hide();
@@ -401,7 +397,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                   );
                                   context
                                       .read<HoverContentState>()
-                                      .show(content, rect);
+                                      .show(rect: rect, data: content);
                                 },
                                 onExit: () {
                                   context.read<HoverContentState>().hide();
@@ -431,9 +427,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .toogle(ViewPanels.profile);
                               },
                               onEnter: (rect) {
-                                context
-                                    .read<HoverContentState>()
-                                    .show(engine.locale('information'), rect);
+                                context.read<HoverContentState>().show(
+                                    rect: rect,
+                                    data: engine.locale('information'));
                               },
                               onExit: () {
                                 context.read<HoverContentState>().hide();
@@ -459,8 +455,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                   return !journal['isFinished'];
                                 }).length;
                                 context.read<HoverContentState>().show(
-                                      '${engine.locale('journal')}\n${engine.locale('ongoingJournals')}: $ongoingJournals',
-                                      rect,
+                                      rect: rect,
+                                      data:
+                                          '${engine.locale('journal')}\n${engine.locale('ongoingJournals')}: $ongoingJournals',
                                       textAlign: TextAlign.left,
                                     );
                               },
@@ -491,8 +488,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 final statsDesc =
                                     '${engine.locale('statsAndItem')}\n$levelString\n$rankString';
                                 context.read<HoverContentState>().show(
-                                      statsDesc,
-                                      rect,
+                                      rect: rect,
+                                      data: statsDesc,
                                       textAlign: TextAlign.left,
                                     );
                               },
@@ -528,8 +525,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 //     GameData.getPassivesDescription(
                                 //         title: title);
                                 context.read<HoverContentState>().show(
-                                      desc,
-                                      rect,
+                                      rect: rect,
+                                      data: desc,
                                       direction:
                                           HoverContentDirection.bottomLeft,
                                       textAlign: TextAlign.left,
@@ -564,10 +561,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 final deckCount =
                                     GameData.hero['battleDecks'].length;
                                 context.read<HoverContentState>().show(
-                                      '${engine.locale('cardlibrary')}\n'
-                                      '${engine.locale('cardCount')}: $cardCount\n'
-                                      '${engine.locale('deckCount')}: $deckCount',
-                                      rect,
+                                      rect: rect,
+                                      data: '${engine.locale('cardlibrary')}\n'
+                                          '${engine.locale('cardCount')}: $cardCount\n'
+                                          '${engine.locale('deckCount')}: $deckCount',
                                       textAlign: TextAlign.left,
                                     );
                               },
@@ -603,9 +600,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 );
                               },
                               onEnter: (rect) {
-                                context
-                                    .read<HoverContentState>()
-                                    .show(engine.locale('wiki'), rect);
+                                context.read<HoverContentState>().show(
+                                    rect: rect, data: engine.locale('wiki'));
                               },
                               onExit: () {
                                 context.read<HoverContentState>().hide();
@@ -624,9 +620,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 GameUI.showConsole(context);
                               },
                               onEnter: (rect) {
-                                context
-                                    .read<HoverContentState>()
-                                    .show(engine.locale('console'), rect);
+                                context.read<HoverContentState>().show(
+                                    rect: rect, data: engine.locale('console'));
                               },
                               onExit: () {
                                 context.read<HoverContentState>().hide();
@@ -689,7 +684,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 onSelect: itemSelectOnSelect,
                 selectedItemsData: itemSelectSelectedItemsData,
               ),
-            if (isCrafting) ItemCraft(rank: craftRank),
+            if (isCrafting)
+              ItemCraft(
+                rank: craftRank,
+                craftMode: craftMode,
+              ),
             if (showMeeting && meetingPeople.isNotEmpty)
               Meeting(people: meetingPeople, showExitButton: showExitButton),
             ...panels,

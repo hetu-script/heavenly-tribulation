@@ -136,8 +136,6 @@ class CultivationScene extends Scene with HasCursorState {
     cultivateButton.isEnabled = mode != CultivationMode.none;
   }
 
-  final _focusNode = FocusNode();
-
   late final Timer timer;
 
   bool isMeditating = false;
@@ -483,7 +481,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     final skillDescription = StringBuffer();
 
-    if (engine.config.debugMode) {
+    if (engine.config.developmentMode) {
       skillDescription.write('<grey>$nodeId</>\n \n');
     }
 
@@ -556,7 +554,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     if (passiveTreeNodeData == null) {
       // 还未开放的技能，在debug模式下显示为占位符
-      if (engine.config.debugMode) {
+      if (engine.config.developmentMode) {
         skillButton = SpriteButton(
           anchor: Anchor.center,
           position: position,
@@ -1087,6 +1085,25 @@ class CultivationScene extends Scene with HasCursorState {
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
   }
 
+  @override
+  void onAttach() {
+    engine.addEventListener(Scenes.cultivation, GameEvents.keyBoardEvent,
+        (event) {
+      if (event is KeyDownEvent) {
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.space:
+            camera.zoom = 1.0;
+            camera.snapTo(center);
+        }
+      }
+    });
+  }
+
+  @override
+  void onDetach() {
+    engine.removeEventListeners(Scenes.cultivation);
+  }
+
   /// 点击境界节点时触发突破试炼
   Future<void> tryTribulation(SpriteButton skillButton, String nodeId) async {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
@@ -1145,17 +1162,10 @@ class CultivationScene extends Scene with HasCursorState {
       });
     } else if (selected == 'tribulation_literary') {
       // 文试：随机进入一种小游戏。难度和节点本身的境界有关。
-      const miniGameScenes = [
-        Scenes.matchingGame2,
-        Scenes.differenceGame,
-        Scenes.mouseMazeGame,
-        Scenes.memoryCardGame,
-        Scenes.nanogramGame,
-      ];
       final sceneId =
-          miniGameScenes[math.Random().nextInt(miniGameScenes.length)];
-      final difficulty = MiniGameDifficulty
-          .values[nodeRank.clamp(0, MiniGameDifficulty.values.length - 1)];
+          kMiniGameScenes[math.Random().nextInt(kMiniGameScenes.length)];
+      assert(nodeRank >= 0 && nodeRank < MiniGameDifficulty.values.length);
+      final difficulty = MiniGameDifficulty.values[nodeRank];
       engine.pushScene(sceneId, arguments: {
         'difficulty': difficulty.name,
         'onGameEnd': (bool won) {
@@ -1262,8 +1272,6 @@ class CultivationScene extends Scene with HasCursorState {
   void onDragEnd(int pointer, int button, TapUpDetails details) {
     super.onDragEnd(pointer, button, details);
 
-    _focusNode.requestFocus();
-
     cursorState = MouseCursorState.normal;
   }
 
@@ -1281,8 +1289,6 @@ class CultivationScene extends Scene with HasCursorState {
         camera.zoom += 0.1;
       }
     }
-
-    _focusNode.requestFocus();
   }
 
   @override
@@ -1300,7 +1306,7 @@ class CultivationScene extends Scene with HasCursorState {
   // void render(Canvas canvas) {
   //   super.render(canvas);
 
-  //   // if (engine.config.debugMode || engine.config.showFps) {
+  //   // if (engine.config.developmentMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
@@ -1321,49 +1327,36 @@ class CultivationScene extends Scene with HasCursorState {
     Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
     List<String>? initialActiveOverlays,
   }) {
-    return KeyboardListener(
-      autofocus: true,
-      focusNode: _focusNode,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          engine.warning('keydown: ${event.logicalKey.debugName}');
-          if (event.logicalKey == LogicalKeyboardKey.space) {
-            camera.zoom = 1.0;
-            camera.snapTo(center);
-          }
-        }
-      },
-      child: Stack(
-        children: [
-          SceneWidget(
-            scene: this,
-            loadingBuilder: loadingBuilder,
-            overlayBuilderMap: overlayBuilderMap,
-            initialActiveOverlays: initialActiveOverlays,
-          ),
-          GameUIOverlay(
-            showHero: !isEditorMode,
-            showNpcs: false,
-            enableCultivation: false,
-            actions: [
-              Container(
-                decoration: GameUI.boxDecoration,
-                width: GameUI.infoButtonSize.width,
-                height: GameUI.infoButtonSize.height,
-                child: IconButton(
-                  icon: Icon(Icons.question_mark),
-                  padding: const EdgeInsets.all(0),
-                  mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
-                  onPressed: () {
-                    dialog.pushDialog('hint_cultivation');
-                    dialog.execute();
-                  },
-                ),
+    return Stack(
+      children: [
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
+        GameUIOverlay(
+          showHero: !isEditorMode,
+          showNpcs: false,
+          enableCultivation: false,
+          actions: [
+            Container(
+              decoration: GameUI.boxDecoration,
+              width: GameUI.infoButtonSize.width,
+              height: GameUI.infoButtonSize.height,
+              child: IconButton(
+                icon: Icon(Icons.question_mark),
+                padding: const EdgeInsets.all(0),
+                mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                onPressed: () {
+                  dialog.pushDialog('hint_cultivation');
+                  dialog.execute();
+                },
               ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

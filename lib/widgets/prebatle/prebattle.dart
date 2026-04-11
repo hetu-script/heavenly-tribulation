@@ -92,7 +92,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
 
   @override
   void dispose() {
-    engine.removeEventListener(Scenes.prebattle);
+    engine.removeEventListeners(Scenes.prebattle);
 
     menuController.dispose();
     super.dispose();
@@ -234,9 +234,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 .toogle(ViewPanels.statsAndItem);
                           },
                           onEnter: (rect) {
-                            context
-                                .read<HoverContentState>()
-                                .show(engine.locale('equipments'), rect);
+                            context.read<HoverContentState>().show(
+                                rect: rect, data: engine.locale('equipments'));
                           },
                           onExit: () {
                             context.read<HoverContentState>().hide();
@@ -253,9 +252,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             engine.pushScene(Scenes.cultivation);
                           },
                           onEnter: (rect) {
-                            context
-                                .read<HoverContentState>()
-                                .show(engine.locale('skillTree'), rect);
+                            context.read<HoverContentState>().show(
+                                rect: rect, data: engine.locale('skillTree'));
                           },
                           onExit: () {
                             context.read<HoverContentState>().hide();
@@ -272,9 +270,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             engine.pushScene(Scenes.library);
                           },
                           onEnter: (rect) {
-                            context
-                                .read<HoverContentState>()
-                                .show(engine.locale('cardlibrary'), rect);
+                            context.read<HoverContentState>().show(
+                                rect: rect, data: engine.locale('cardlibrary'));
                           },
                           onExit: () {
                             context.read<HoverContentState>().hide();
@@ -412,8 +409,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                               showNonBattleStats: false,
                             );
                             context.read<HoverContentState>().show(
-                                  statsView,
-                                  rect,
+                                  rect: rect,
+                                  data: statsView,
                                   direction: HoverContentDirection.leftTop,
                                 );
                           },
@@ -488,8 +485,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                     '${engine.locale('available_count')}: <bold ${_availableIdentifyCount > 0 ? 'yellow' : 'grey'}>${_availableIdentifyCount.toString().padLeft(4)}</>\n'
                                     '<grey>${engine.locale('identify_deck_hint')}</>';
                                 context.read<HoverContentState>().show(
-                                      hint,
-                                      rect,
+                                      rect: rect,
+                                      data: hint,
                                       textAlign: TextAlign.left,
                                       direction:
                                           HoverContentDirection.topCenter,

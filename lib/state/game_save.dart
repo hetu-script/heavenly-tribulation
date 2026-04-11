@@ -16,9 +16,9 @@ import '../scene/common.dart';
 
 extension MeaningfulString on DateTime {
   String toMeaningfulString({bool useUnderscore = false}) {
-    final sep = useUnderscore ? '' : '_';
-    final ymdSep = useUnderscore ? '' : '/';
-    final hmsSep = useUnderscore ? '' : ':';
+    final sep = ' ';
+    final ymdSep = '-';
+    final hmsSep = ':';
     return '$year$ymdSep${(month).toString().padLeft(2, '0')}$ymdSep${(day).toString().padLeft(2, '0')}$sep'
         '${(hour).toString().padLeft(2, '0')}$hmsSep${(minute).toString().padLeft(2, '0')}';
   }
@@ -121,7 +121,7 @@ class GameSavesState with ChangeNotifier {
       if (saveName != null && saves.containsKey(saveName)) {
         info = saves[saveName]!;
       } else {
-        saveName ??= DateTime.now().toMeaningfulString(useUnderscore: true);
+        saveName ??= DateTime.now().toMeaningfulString();
         info = await createSaveInfo(worldId, saveName);
         saves[info.saveName] = info;
       }

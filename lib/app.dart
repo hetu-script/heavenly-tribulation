@@ -34,6 +34,7 @@ import 'scene/mini_game/mouse_maze/mouse_maze.dart';
 import 'scene/mini_game/memory_card/memory_card.dart';
 import 'scene/mini_game/nanogram/nanogram.dart';
 import 'scene/mini_game/common.dart';
+import 'game_events.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -45,7 +46,9 @@ class GameApp extends StatefulWidget {
 class _GameAppState extends State<GameApp> {
   bool _isInitializingDisplayMetricsData = true;
 
-  final _focusNode = FocusNode();
+  Scene? scene;
+
+  final focusNode = FocusNode();
 
   @override
   void didChangeDependencies() {
@@ -64,8 +67,8 @@ class _GameAppState extends State<GameApp> {
   @override
   void dispose() {
     super.dispose();
-    _focusNode.dispose();
-    // engine.removeEventListener(id);
+    focusNode.dispose();
+    // engine.removeEventListeners(id);
     engine.bgm.dispose();
   }
 
@@ -777,6 +780,34 @@ class _GameAppState extends State<GameApp> {
     sw.stop();
   }
 
+  void onKeyEvent(KeyEvent event) {
+    // engine.warning('key board event: ${event.logicalKey.debugName}');
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.controlLeft:
+        case LogicalKeyboardKey.controlRight:
+          context.read<HoverContentState>().setDetailed(true);
+        case LogicalKeyboardKey.keyC:
+          if (HardwareKeyboard.instance.isControlPressed) {
+            final text = context.read<HoverContentState>().currentId;
+            if (text != null) {
+              Clipboard.setData(ClipboardData(text: text));
+              engine.info('已复制 [$text] 到剪贴板。');
+            }
+          }
+        default:
+      }
+    } else if (event is KeyUpEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.controlLeft:
+        case LogicalKeyboardKey.controlRight:
+          context.read<HoverContentState>().setDetailed(false);
+        default:
+      }
+    }
+    engine.emit(GameEvents.keyBoardEvent, event);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isInitializingDisplayMetricsData) {
@@ -786,18 +817,19 @@ class _GameAppState extends State<GameApp> {
     final screenSize = MediaQuery.sizeOf(context);
     GameUI.setSize(screenSize.toVector2());
 
-    final scene = context.watch<SamsaraEngine>().scene;
+    scene = context.watch<SamsaraEngine>().scene;
     final isLoading = context.watch<SamsaraEngine>().isLoading;
-    return Scaffold(
-      body: Stack(
-        children: [
-          scene?.build(
-                context,
-                loadingBuilder: (context) => const LoadingScreen(),
-              ) ??
-              const LoadingScreen(),
-          if (isLoading) const LoadingScreen(),
-        ],
+    return KeyboardListener(
+      autofocus: true,
+      focusNode: focusNode,
+      onKeyEvent: onKeyEvent,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            if (scene != null) scene!.build(context),
+            if (isLoading) const LoadingScreen(),
+          ],
+        ),
       ),
     );
   }

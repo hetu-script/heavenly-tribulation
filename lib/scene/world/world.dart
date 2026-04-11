@@ -34,6 +34,7 @@ import '../../data/common.dart';
 import 'widgets/location_panel.dart';
 import 'widgets/drop_menu.dart';
 import '../cursor_state.dart';
+import '../../game_events.dart';
 
 final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
@@ -142,8 +143,6 @@ class WorldMapScene extends Scene with HasCursorState {
           bgmVolume: engine.config.musicVolume,
         );
 
-  final _focusNode = FocusNode();
-
   Sprite? backgroundSprite;
 
   final String? backgroundSpriteId;
@@ -174,8 +173,7 @@ class WorldMapScene extends Scene with HasCursorState {
     _playerFreezed = map.autoUpdateComponent = value;
   }
 
-  // 当场景 onLoad 和地图 onAfterLoaded 都执行完毕后，初始化完成
-  // 地图场景的初始化在游戏运行时只会执行一次，已经执行初始化后，onMount中会有一些差别处理
+  // onLoad在游戏运行时只会执行一次，在第二次onMount时，会有一些差别处理
   bool _isInitializing = true;
 
   void _setSelectedTerrain(TileMapTerrain? terrain) {
@@ -258,7 +256,7 @@ class WorldMapScene extends Scene with HasCursorState {
     //   await map.moveCameraToHero(animated: animated);
     // }
 
-    await _updateNpcsAtHeroPosition();
+    await _updateNpcsAtHeroPosition(notify: notify);
   }
 
   @override
@@ -287,7 +285,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   //   super.render(canvas);
 
-  //   // if (engine.config.debugMode || engine.config.showFps) {
+  //   // if (engine.config.developmentMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
@@ -658,7 +656,6 @@ class WorldMapScene extends Scene with HasCursorState {
   void _onTapDownInEditorMode(int button, Vector2 position) {
     if (!gameState.isInteractable) return;
 
-    _focusNode.requestFocus();
     if (button == kPrimaryButton) {
       final tilePosition = map.worldPosition2Tile(position);
       final terrain = map.trySelectTile(tilePosition.left, tilePosition.top);
@@ -747,7 +744,6 @@ class WorldMapScene extends Scene with HasCursorState {
   void _onTapUpInEditorMode(int button, Vector2 position) {
     if (!gameState.isInteractable) return;
 
-    _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
     final selectedTerrain = map.getTerrain(tilePosition.left, tilePosition.top);
     // if (map.trySelectTile(tilePosition.left, tilePosition.top)) {
@@ -899,8 +895,6 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   Future<void> _onAfterLoadedInEditorMode() async {
-    _focusNode.requestFocus();
-
     await _updateWorldMapNpcs();
     _loadWorldMapCaptions();
     map.moveCameraToTilePosition(
@@ -1006,7 +1000,7 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
-  Future<void> _updateNpcsAtHeroPosition() async {
+  Future<void> _updateNpcsAtHeroPosition({bool notify = true}) async {
     if (GameData.hero == null) return;
 
     final npcs = [];
@@ -1019,7 +1013,7 @@ class WorldMapScene extends Scene with HasCursorState {
         GameData.hero['worldPosition']['top'],
         worldId: GameData.hero['worldId']);
     npcs.addAll(characters);
-    gameState.updateNpcs(npcs);
+    gameState.updateNpcs(npcs, notify: notify);
   }
 
   void _setWorldMapCaption(int left, int top, String caption, [Color? color]) {
@@ -1385,13 +1379,11 @@ class WorldMapScene extends Scene with HasCursorState {
   void _onTapDownInGameMode(int button, Vector2 position) {
     if (!gameState.isInteractable) return;
     engine.context.read<HoverContentState>().hide();
-    _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
     map.trySelectTile(tilePosition.left, tilePosition.top);
   }
 
   void _onTapUpInGameMode(int button, Vector2 position) async {
-    _focusNode.requestFocus();
     if (!gameState.isInteractable) return;
     if (_playerFreezed) return;
     if (map.hero == null) return;
@@ -1517,7 +1509,6 @@ class WorldMapScene extends Scene with HasCursorState {
   }
 
   Future<void> _onAfterLoadedInGameMode() async {
-    _focusNode.requestFocus();
     final bool isNewGame = GameData.game['isNewGame'] ?? false;
     if (isNewGame && GameData.hero == null) {
       final Iterable characters = GameData.game['characters'].values;
@@ -1666,6 +1657,65 @@ class WorldMapScene extends Scene with HasCursorState {
     }
   }
 
+  @override
+  void onAttach() {
+    engine.addEventListener(Scenes.worldmap, GameEvents.keyBoardEvent, (event) {
+      if (event is KeyDownEvent) {
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.space:
+            camera.zoom = 2.0;
+            if (isEditorMode) {
+              // map.moveCameraToTileMapCenter();
+            } else {
+              map.moveCameraToHero();
+            }
+          case LogicalKeyboardKey.escape:
+            if (isEditorMode) {
+              engine.context.read<WorldMapState>().clearTool();
+
+              if (territoryMode != null) {
+                territoryMode = null;
+                cursorState = MouseCursorState.normal;
+              }
+            }
+
+            if (map.hero != null) {
+              if (map.hero!.isWalking) {
+                map.hero!.isWalkCanceled = true;
+              }
+
+              _stopFollowing();
+            }
+          case LogicalKeyboardKey.keyW:
+            camera.moveBy(Vector2(0, -10));
+          case LogicalKeyboardKey.keyS:
+            camera.moveBy(Vector2(0, 10));
+          case LogicalKeyboardKey.keyA:
+            camera.moveBy(Vector2(-10, 0));
+          case LogicalKeyboardKey.keyD:
+            camera.moveBy(Vector2(10, 0));
+        }
+      } else if (event is KeyRepeatEvent) {
+        engine.warning('key repeat: ${event.logicalKey.debugName}');
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.keyW:
+            camera.moveBy(Vector2(0, -10));
+          case LogicalKeyboardKey.keyS:
+            camera.moveBy(Vector2(0, 10));
+          case LogicalKeyboardKey.keyA:
+            camera.moveBy(Vector2(-10, 0));
+          case LogicalKeyboardKey.keyD:
+            camera.moveBy(Vector2(10, 0));
+        }
+      }
+    });
+  }
+
+  @override
+  void onDetach() {
+    engine.removeEventListeners(Scenes.worldmap);
+  }
+
   // TODO: 自动移动屏幕
   void _onMouseEnterScreenEdge(OrthogonalDirection direction) {
     engine.context.read<HoverContentState>().hide();
@@ -1700,7 +1750,7 @@ class WorldMapScene extends Scene with HasCursorState {
           hoverContent.write('${zone['name']}');
         }
         hoverContent.writeln(' ${engine.locale(tile.kind)}'
-            '${engine.config.debugMode ? ' <grey>#${tile.index}</>' : ''}'
+            '${engine.config.developmentMode ? ' <grey>#${tile.index}</>' : ''}'
             ' [${tile.left},${tile.top}]');
         if (tile.nationId != null) {
           final sect = GameData.getSect(tile.nationId);
@@ -1716,12 +1766,13 @@ class WorldMapScene extends Scene with HasCursorState {
           final location = GameData.getLocation(tile.locationId);
           if (location['isDiscovered']) {
             hoverContent.writeln('');
-            if (location['category'] == 'city' && engine.config.debugMode) {
+            if (location['category'] == 'city' &&
+                engine.config.developmentMode) {
               hoverContent.writeln('${engine.locale('city')}'
                   ' <grey>${engine.locale('development')}: ${location['development']},'
                   ' ${engine.locale('residents')}: ${location['residents'].length}</>');
             } else {
-              if (engine.config.debugMode) {
+              if (engine.config.developmentMode) {
                 hoverContent.writeln('${location['name']}'
                     ' <grey>${engine.locale('development')}: ${location['development']}</>');
               }
@@ -1735,7 +1786,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
           final objectHoverContent = object?['hoverContent'] ?? '';
           hoverContent.writeln(objectHoverContent);
-          if (engine.config.debugMode) {
+          if (engine.config.developmentMode) {
             hoverContent.writeln('<grey>${object['id']}</>');
           }
           clickable = true;
@@ -1756,13 +1807,13 @@ class WorldMapScene extends Scene with HasCursorState {
         if (content.isNotBlank) {
           final screenPosition = worldPosition2Screen(tile.position);
           engine.context.read<HoverContentState>().show(
-                content,
-                Rect.fromLTWH(
+                rect: Rect.fromLTWH(
                   screenPosition.x + map.tileOffset.x * camera.zoom,
                   screenPosition.y + map.tileOffset.y * camera.zoom,
                   tile.width * camera.zoom,
                   tile.height * camera.zoom,
                 ),
+                data: content,
                 direction: HoverContentDirection.topCenter,
               );
         }
@@ -1843,121 +1894,66 @@ class WorldMapScene extends Scene with HasCursorState {
     Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
     List<String>? initialActiveOverlays,
   }) {
-    return KeyboardListener(
-      autofocus: true,
-      focusNode: _focusNode,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          engine.warning('keydown: ${event.logicalKey.debugName}');
-          switch (event.logicalKey) {
-            case LogicalKeyboardKey.space:
-              camera.zoom = 2.0;
-              if (isEditorMode) {
-                // map.moveCameraToTileMapCenter();
-              } else {
-                map.moveCameraToHero();
-              }
-            case LogicalKeyboardKey.escape:
-              if (isEditorMode) {
-                context.read<WorldMapState>().clearTool();
-
-                if (territoryMode != null) {
-                  territoryMode = null;
-                  cursorState = MouseCursorState.normal;
-                }
-              }
-
-              if (map.hero != null) {
-                if (map.hero!.isWalking) {
-                  map.hero!.isWalkCanceled = true;
-                }
-
-                _stopFollowing();
-              }
-            case LogicalKeyboardKey.keyW:
-              camera.moveBy(Vector2(0, -10));
-            case LogicalKeyboardKey.keyS:
-              camera.moveBy(Vector2(0, 10));
-            case LogicalKeyboardKey.keyA:
-              camera.moveBy(Vector2(-10, 0));
-            case LogicalKeyboardKey.keyD:
-              camera.moveBy(Vector2(10, 0));
-          }
-        } else if (event is KeyRepeatEvent) {
-          engine.warning('key repeat: ${event.logicalKey.debugName}');
-          switch (event.logicalKey) {
-            case LogicalKeyboardKey.keyW:
-              camera.moveBy(Vector2(0, -10));
-            case LogicalKeyboardKey.keyS:
-              camera.moveBy(Vector2(0, 10));
-            case LogicalKeyboardKey.keyA:
-              camera.moveBy(Vector2(-10, 0));
-            case LogicalKeyboardKey.keyD:
-              camera.moveBy(Vector2(10, 0));
-          }
-        }
-      },
-      child: Stack(
-        children: [
-          SceneWidget(
-            scene: this,
-            loadingBuilder: loadingBuilder,
-            overlayBuilderMap: overlayBuilderMap,
-            initialActiveOverlays: initialActiveOverlays,
+    return Stack(
+      children: [
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
+        if (!isEditorMode) ...[
+          GameUIOverlay(
+            showNpcs: true,
+            showJournal: true,
+            actions: [
+              if (isMainWorld) ViewModeMenuButton(map: map),
+              DropMenuButton(map: map),
+            ],
           ),
-          if (!isEditorMode) ...[
-            GameUIOverlay(
-              showNpcs: true,
-              showJournal: true,
-              actions: [
-                if (isMainWorld) ViewModeMenuButton(map: map),
-                DropMenuButton(map: map),
-              ],
+        ] else ...[
+          Positioned(
+            right: 32,
+            top: 0,
+            child: ViewModeMenuButton(map: map),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            child: DropMenuButton(
+              map: map,
+              isEditorMode: true,
             ),
-          ] else ...[
-            Positioned(
-              right: 32,
-              top: 0,
-              child: ViewModeMenuButton(map: map),
+          ),
+          EntityListPanel(
+            size: Size(390, GameUI.size.y),
+            onUpdateCharacters: _updateWorldMapNpcs,
+            onUpdateLocations: _loadWorldMapCaptions,
+            onCreatedSect: (sect, location) {
+              final territoryIndexes = location['territoryIndexes'];
+              for (final index in territoryIndexes) {
+                map.zoneColors[kColorModeNation][index] =
+                    HexColor.fromString(sect['color']);
+              }
+            },
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Toolbox(),
             ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: DropMenuButton(
-                map: map,
-                isEditorMode: true,
-              ),
+          ),
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: LocationPanel(
+              width: 390.0,
+              height: 200.0,
+              isEditorMode: true,
             ),
-            EntityListPanel(
-              size: Size(390, GameUI.size.y),
-              onUpdateCharacters: _updateWorldMapNpcs,
-              onUpdateLocations: _loadWorldMapCaptions,
-              onCreatedSect: (sect, location) {
-                final territoryIndexes = location['territoryIndexes'];
-                for (final index in territoryIndexes) {
-                  map.zoneColors[kColorModeNation][index] =
-                      HexColor.fromString(sect['color']);
-                }
-              },
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Toolbox(),
-              ),
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: LocationPanel(
-                width: 390.0,
-                height: 200.0,
-                isEditorMode: true,
-              ),
-            )
-          ],
+          )
         ],
-      ),
+      ],
     );
   }
 }

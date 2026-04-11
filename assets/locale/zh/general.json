@@ -205,6 +205,7 @@
   "destroy": "销毁",
   "craft": "打造",
   "craftmaterial": "材料",
+  "affix_crafting_material": "精炼石",
   "charge": "充能",
   "chargeItem": "为物品充能",
   "shardsCost": "灵石消耗",

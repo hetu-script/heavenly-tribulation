@@ -78,7 +78,7 @@ const _kSpiritWellProbabilityCraftMaterial = 0.5
 ///     chance: 0.1,
 ///     amount: 1,
 ///   },
-///   craftMaterial: {
+///   affixMaterial: {
 ///     chance: 0.1,
 ///     amount: 1,
 ///   },
@@ -117,8 +117,8 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
           (details?.cardpack.chance ?? kRewardProbabilityCardpack)
   let rewardPotion = random.nextDouble() <
           (details?.potion.chance ?? kRewardProbabilityPotion)
-  let rewardCraftMaterial = random.nextDouble() <
-          (details?.craftMaterial.chance ?? kRewardProbabilityCraftMaterial)
+  let rewardAffixMaterial = random.nextDouble() <
+          (details?.affixMaterial.chance ?? kRewardProbabilityCraftMaterial)
   let rewardDungeonTicket
   let rewardScrollPaper
   if (entity.rank > 0) {
@@ -177,24 +177,24 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
       rewards.add(potion)
     }
   }
-  if (rewardCraftMaterial) {
-    let amount = details?.craftMaterial.amount ?? 1
+  if (rewardAffixMaterial) {
+    let amount = details?.affixMaterial.amount ?? 1
     for (var i in range(amount)) {
-      let craftMaterialTypeRoll = random.nextDouble()
-      let craftMaterial
+      let affixMaterialTypeRoll = random.nextDouble()
+      let affixMaterial
       final itemRank = random.nearInt(entity.rank) + 1
-      if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
-        craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
-        craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
-        craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
-        craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
+      if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
+        affixMaterial = createItemById('craftmaterial_upgradeRank', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
+        affixMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
+        affixMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
+        affixMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
       } else {
-        craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+        affixMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
       }
-      rewards.add(craftMaterial)
+      rewards.add(affixMaterial)
     }
   }
   if (entity.rank > 0) {
@@ -443,21 +443,21 @@ async function onInteractSpiritWell(object) {
   // } else
   if (spiritWellDropRoll < _kSpiritWellProbabilityCraftMaterial) {
     for (var i in range(3)) {
-      let craftMaterialTypeRoll = random.nextDouble()
-      let craftMaterial
+      let affixMaterialTypeRoll = random.nextDouble()
+      let affixMaterial
       final itemRank = random.nearInt(object.rank) + 1
-      if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
-        craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
-        craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
-        craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
-      } else if (craftMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
-        craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
+      if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialUpgradeRank) {
+        affixMaterial = createItemById('craftmaterial_upgradeRank', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
+        affixMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
+        affixMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
+        affixMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
       } else {
-        craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+        affixMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
       }
-      items.add(craftMaterial)
+      items.add(affixMaterial)
     }
   } else {
     final shard = random.nextInt(hero.level + 1) + 1

@@ -5,7 +5,7 @@ import 'package:samsara/samsara.dart';
 
 import '../../ui.dart';
 import '../../data/game.dart';
-import 'battle.dart';
+import '../../global.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {
   CustomGameCard? current;
@@ -49,7 +49,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
         }
 
         card.onPreviewed = () {
-          final isDetailed = (game as BattleScene).isDetailedHovertip;
+          final isDetailed = engine.config.developmentMode;
           final (_, description) = GameData.getBattleCardDescription(
             (card as CustomGameCard).data,
             isDetailed: isDetailed,

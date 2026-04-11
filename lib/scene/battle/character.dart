@@ -779,7 +779,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
     }
-    // final isDetailed = (game as BattleScene).isDetailedHovertip;
     final (description, exDescription) = GameData.getBattleCardDescription(
       card.data,
       showRequirement: false,

@@ -137,7 +137,7 @@ class _CharacterStatsState extends State<CharacterStats> {
       width: widget.width,
       textAlign: TextAlign.left,
       onMouseEnter: (rect) {
-        context.read<HoverContentState>().show(description, rect);
+        context.read<HoverContentState>().show(rect: rect, data: description);
       },
       onMouseExit: () {
         context.read<HoverContentState>().hide();

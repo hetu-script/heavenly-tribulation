@@ -92,11 +92,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
     enableReplenish = widget.allowManualReplenish;
     if (widget.merchantData?['entityType'] != 'location') {
-      engine.warning('replenishTradingItem 只能对 location 对象使用');
+      // engine.warning('replenishTradingItem 只能对 location 对象使用');
       enableReplenish = false;
     }
     if (!kSiteKindsTradable.contains(widget.merchantData?['kind'])) {
-      engine.warning('场所 ${widget.merchantData['id']} 不支持物品交易刷新');
+      // engine.warning('场所 ${widget.merchantData['id']} 不支持物品交易刷新');
       enableReplenish = false;
     }
     if (enableReplenish) {
@@ -127,28 +127,28 @@ class _MerchantDialogState extends State<MerchantDialog> {
       if (value > 1.0) {
         if (value < 1.3) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FE9696>${engine.locale('expensiveSmall')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FE9696>${engine.locale('expensiveSmall')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         } else if (value < 1.6) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FF6161>${engine.locale('expensiveMedium')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FF6161>${engine.locale('expensiveMedium')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         } else {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FF2222>${engine.locale('expensiveLarge')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FF2222>${engine.locale('expensiveLarge')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         }
       } else if (value < 1.0) {
         if (value > 0.7) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#96FF96>${engine.locale('cheapSmall')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#96FF96>${engine.locale('cheapSmall')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         } else if (value > 0.4) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#61FF61>${engine.locale('cheapMedium')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#61FF61>${engine.locale('cheapMedium')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         } else {
           desc.writeln(
-              '${engine.locale(key)}: <color=#22FF22>${engine.locale('cheapLarge')} ${engine.config.debugMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#22FF22>${engine.locale('cheapLarge')} ${engine.config.developmentMode ? '×$value' : ''}</>');
         }
       } else {
         desc.writeln(
-            '${engine.locale(key)}: ${engine.locale('normal')} ${engine.config.debugMode ? '×$value' : ''}');
+            '${engine.locale(key)}: ${engine.locale('normal')} ${engine.config.developmentMode ? '×$value' : ''}');
       }
     }
 
@@ -718,8 +718,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                     '${engine.locale('priceFactor')}\n \n${engine.locale('none')}');
                               }
                               context.read<HoverContentState>().show(
-                                    content.toString(),
-                                    rect,
+                                    rect: rect,
+                                    data: content.toString(),
                                   );
                             },
                             onMouseExit: () {
@@ -819,13 +819,14 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                   horizontal: 16.0, vertical: 8.0),
                               onMouseEnter: (rect) {
                                 context.read<HoverContentState>().show(
-                                      engine.locale('hint_replenishLocation',
+                                      rect: rect,
+                                      data: engine.locale(
+                                          'hint_replenishLocation',
                                           interpolations: [
                                             updateDay,
                                             replenishCount,
                                             replenishCost,
                                           ]),
-                                      rect,
                                       direction:
                                           HoverContentDirection.topCenter,
                                     );

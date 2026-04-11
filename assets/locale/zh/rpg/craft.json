@@ -33,6 +33,7 @@
   "craft_upgradeCard_hint": "等级提升！",
   "craft_upgradeRank_hint": "境界提升！",
   "craft_upgradeRank_failed_hint": "破境失败！",
+  "craft_scroll_hint": "制符成功！",
 
   "craft_scroll_cannotCraft": "符箓卡牌无法进行打造！",
   "craft_scroll_cannotMakeScroll": "符箓卡牌无法再次制作为符箓！",

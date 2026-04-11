@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
@@ -99,8 +98,6 @@ enum StatusCircumstances {
 
 class BattleScene extends Scene {
   final menuController = fluent.FlyoutController();
-
-  final _focusNode = FocusNode();
 
   late FpsComponent fps;
 
@@ -432,14 +429,8 @@ class BattleScene extends Scene {
     final enemyRank = enemyData['rank'];
 
     if (heroRank == enemyRank) {
-      final heroLevel = heroData['level'];
-      final enemyLevel = enemyData['level'];
-      if (heroLevel == enemyLevel) {
-        isFirsthand =
-            heroData['stats']['dexterity'] >= enemyData['stats']['dexterity'];
-      } else {
-        isFirsthand = heroLevel > enemyLevel;
-      }
+      isFirsthand =
+          heroData['stats']['dexterity'] >= enemyData['stats']['dexterity'];
     } else {
       isFirsthand = heroRank > enemyRank;
     }
@@ -462,7 +453,7 @@ class BattleScene extends Scene {
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
       nextTurnButton.onTap = (_, __) {
-        if (engine.config.debugMode || !isAutoBattle) {
+        if (engine.config.developmentMode || !isAutoBattle) {
           nextTurn();
         } else {
           startAutoBattle();
@@ -486,7 +477,7 @@ class BattleScene extends Scene {
       size: GameUI.buttonSizeSmall,
     );
     nextTurnButton.onTap = (_, __) {
-      if (engine.config.debugMode || !isAutoBattle) {
+      if (engine.config.developmentMode || !isAutoBattle) {
         nextTurn();
       } else {
         startAutoBattle();
@@ -680,6 +671,9 @@ class BattleScene extends Scene {
     if (result != true) {
       engine.popScene(clearCache: true);
     }
+    if (battleResult == false) {
+      gameState.isInteractable = false;
+    }
   }
 
   Future<void> _onBattleEnd() async {
@@ -778,69 +772,53 @@ class BattleScene extends Scene {
     Map<String, Widget Function(BuildContext, Scene)>? overlayBuilderMap,
     List<String>? initialActiveOverlays,
   }) {
-    _focusNode.requestFocus();
-
-    return KeyboardListener(
-      autofocus: true,
-      focusNode: _focusNode,
-      onKeyEvent: (event) {
-        if (event is KeyDownEvent) {
-          engine.warning('keydown: ${event.logicalKey.debugName}');
-          switch (event.logicalKey) {
-            case LogicalKeyboardKey.controlLeft:
-            case LogicalKeyboardKey.controlRight:
-              isDetailedHovertip = !isDetailedHovertip;
-          }
-        }
-      },
-      child: Stack(
-        children: [
-          SceneWidget(
-            scene: this,
-            loadingBuilder: loadingBuilder,
-            overlayBuilderMap: overlayBuilderMap,
-            initialActiveOverlays: initialActiveOverlays,
-          ),
-          GameUIOverlay(
-            showHero: false,
-            showNpcs: false,
-            actions: [
-              if (engine.config.debugMode)
-                Container(
-                  decoration: GameUI.boxDecoration,
-                  width: GameUI.infoButtonSize.width,
-                  height: GameUI.infoButtonSize.height,
-                  child: fluent.FlyoutTarget(
-                    controller: menuController,
-                    child: IconButton(
-                      icon: Icon(Icons.menu_open),
-                      padding: const EdgeInsets.all(0),
-                      mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
-                      onPressed: () {
-                        showFluentMenu(
-                          cursor: GameUI.cursor,
-                          controller: menuController,
-                          items: {
-                            engine.locale('console'): BattleMenuItems.console,
-                            engine.locale('exit'): BattleMenuItems.exit,
-                          },
-                          onSelectedItem: (item) {
-                            switch (item) {
-                              case BattleMenuItems.console:
-                                GameUI.showConsole(context);
-                              case BattleMenuItems.exit:
-                                _endScene();
-                            }
-                          },
-                        );
-                      },
-                    ),
+    return Stack(
+      children: [
+        SceneWidget(
+          scene: this,
+          loadingBuilder: loadingBuilder,
+          overlayBuilderMap: overlayBuilderMap,
+          initialActiveOverlays: initialActiveOverlays,
+        ),
+        GameUIOverlay(
+          showHero: false,
+          showNpcs: false,
+          actions: [
+            if (engine.config.developmentMode)
+              Container(
+                decoration: GameUI.boxDecoration,
+                width: GameUI.infoButtonSize.width,
+                height: GameUI.infoButtonSize.height,
+                child: fluent.FlyoutTarget(
+                  controller: menuController,
+                  child: IconButton(
+                    icon: Icon(Icons.menu_open),
+                    padding: const EdgeInsets.all(0),
+                    mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                    onPressed: () {
+                      showFluentMenu(
+                        cursor: GameUI.cursor,
+                        controller: menuController,
+                        items: {
+                          engine.locale('console'): BattleMenuItems.console,
+                          engine.locale('exit'): BattleMenuItems.exit,
+                        },
+                        onSelectedItem: (item) {
+                          switch (item) {
+                            case BattleMenuItems.console:
+                              GameUI.showConsole(context);
+                            case BattleMenuItems.exit:
+                              _endScene();
+                          }
+                        },
+                      );
+                    },
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -855,7 +833,7 @@ class BattleScene extends Scene {
   // void render(Canvas canvas) {
   //   super.render(canvas);
 
-  //   // if (engine.config.debugMode || engine.config.showFps) {
+  //   // if (engine.config.developmentMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',

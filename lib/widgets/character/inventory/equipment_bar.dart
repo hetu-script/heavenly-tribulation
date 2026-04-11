@@ -38,7 +38,7 @@ class EquipmentBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDetailed = context.read<HoverContentState>().isDetailed;
+    final hoverState = context.read<HoverContentState>();
 
     final children = List<Widget>.from(
       (character['equipments'].values as Iterable).map(
@@ -54,14 +54,14 @@ class EquipmentBar extends StatelessWidget {
             if (onItemMouseEnter != null) {
               onItemMouseEnter!(itemData, rect);
             } else {
-              context.read<HoverContentState>().show(
-                    buildItemHoverInfo(
-                      itemData,
-                      inventoryType: inventoryType,
-                      isDetailed: isDetailed,
-                    ),
-                    rect,
-                  );
+              hoverState.show(
+                rect: rect,
+                contentBuilder: (isDetailed) => buildItemHoverInfo(
+                  itemData,
+                  inventoryType: inventoryType,
+                  isDetailed: isDetailed,
+                ),
+              );
             }
           },
           onMouseExit: () {

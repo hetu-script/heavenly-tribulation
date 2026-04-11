@@ -6,16 +6,19 @@ import '../../global.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
 import '../../game_events.dart';
+import '../../state/craft.dart';
 
 class ItemCraft extends StatefulWidget {
   const ItemCraft({
     super.key,
     this.title,
     this.rank,
+    this.craftMode = CraftMode.affix,
   });
 
   final String? title;
   final int? rank;
+  final CraftMode craftMode;
 
   @override
   State<ItemCraft> createState() => _ItemCraftState();
@@ -26,10 +29,15 @@ class _ItemCraftState extends State<ItemCraft> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> filter = {
-      'type': 'craftmaterial',
-    };
-
+    final Map<String, dynamic> filter = {};
+    switch (widget.craftMode) {
+      case CraftMode.affix:
+        filter['category'] = 'affix_crafting_material';
+      case CraftMode.scroll:
+        filter['category'] = 'scroll_paper';
+      case CraftMode.all:
+        filter['type'] = 'craftmaterial';
+    }
     if (widget.rank != null) {
       filter['minRank'] = widget.rank;
     }

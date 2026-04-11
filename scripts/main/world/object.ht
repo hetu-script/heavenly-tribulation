@@ -177,25 +177,26 @@ struct ObjectMerchant {
     }
 
     for (var i in range(itemCount)) {
-      final itemRank = random.nextInt(rank + 1)
+      let itemRank = random.nextInt(rank + 1)
       final c = random.nextIterable(itemCategories)
       if(Constants.equipmentCategoryKinds.containsKey(c)) {
         final k = random.nextIterable(Constants.equipmentCategoryKinds[c])
         final item = Equipment(kind: k, rank: itemRank, isIdentified: !isMysterious)
-        entityAcquire(this.merchant, item)
+        entityAcquire(this.merchant, item, incurIncident: false)
       } else if (c == kItemCategoryCardpack) {
         final item = Cardpack(rank: itemRank)
-        entityAcquire(this.merchant, item)
+        entityAcquire(this.merchant, item, incurIncident: false)
       } else if (c == kItemCategoryPotion) {
         final item = Potion(rank: itemRank, isIdentified: !isMysterious)
-        entityAcquire(this.merchant, item)
+        entityAcquire(this.merchant, item, incurIncident: false)
       } else if (kNormalPrototypeItems.contains(c)) {
         final item = createItemById(c)
-        entityAcquire(this.merchant, item)
+        entityAcquire(this.merchant, item, incurIncident: false)
       } else if (kRankedPrototypeItems.contains(c)) {
-        if (rank == 0) continue
+        assert(rank > 0);
+        itemRank = itemRank.clamp(1, rank)
         final item = createItemById(c, rank: itemRank)
-        entityAcquire(this.merchant, item)
+        entityAcquire(this.merchant, item, incurIncident: false)
       }
       
       else {

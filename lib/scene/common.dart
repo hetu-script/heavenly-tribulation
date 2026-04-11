@@ -25,3 +25,11 @@ final class Scenes {
   static const editor = 'editor';
   static const prebattle = 'prebattle';
 }
+
+const kMiniGameScenes = [
+  Scenes.matchingGame2,
+  Scenes.differenceGame,
+  Scenes.mouseMazeGame,
+  Scenes.memoryCardGame,
+  Scenes.nanogramGame,
+];

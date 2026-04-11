@@ -283,7 +283,7 @@ class MemoryCardGame extends Scene with HasCursorState {
 
     final card = CustomGameCard(
       id: 'memory_card_${index}_$illustrationId',
-      deckId: illustrationId,
+      uniqueId: illustrationId,
       position: initialPosition,
       size: cardSize,
       preferredSize: GameUI.battleCardSize,
@@ -396,7 +396,7 @@ class MemoryCardGame extends Scene with HasCursorState {
     }
 
     // 检查两张卡牌的插图是否相同（通过deckId判断）
-    if (_firstFlippedCard!.deckId == _secondFlippedCard!.deckId) {
+    if (_firstFlippedCard!.uniqueId == _secondFlippedCard!.uniqueId) {
       // 播放成功音效
       engine.play(GameSound.success);
 
@@ -472,7 +472,7 @@ class MemoryCardGame extends Scene with HasCursorState {
       engine.play(GameSound.gameOver);
     }
 
-    restart.isVisible = engine.config.debugMode;
+    restart.isVisible = engine.config.developmentMode;
     restart.position = Vector2(
         center.x,
         _victoryPrompt.bottomRight.y +

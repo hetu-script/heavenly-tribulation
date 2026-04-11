@@ -167,7 +167,7 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: difficulty == 0 ? 'money' : 'shard',
+          kind: 'money',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
         },
       ],
@@ -261,7 +261,7 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: difficulty == 0 ? 'money' : 'shard',
+          kind: 'money',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
         },
       ],
@@ -343,7 +343,7 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: difficulty == 0 ? 'money' : 'shard',
+          kind: 'money',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
         },
       ],
@@ -453,7 +453,7 @@ namespace Quests {
       requirement: requirement,
       budget: {
         type: 'material',
-        kind: difficulty == 0 ? 'money' : 'shard',
+          kind: 'money',
         amount: difficulty == 0 ? budget : shardRewardAmount,
       },
       reportSiteId: cityhall.id,
@@ -501,7 +501,7 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: difficulty == 0 ? 'money' : 'shard',
+          kind: 'money',
           amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
         },
       ],

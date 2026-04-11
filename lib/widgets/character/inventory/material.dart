@@ -84,9 +84,10 @@ class MaterialList extends StatelessWidget {
           cursor: GameUI.cursor.resolve({WidgetState.hovered}),
           onEnter: (rect) {
             context.read<HoverContentState>().show(
-                '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
-                '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money2')}</>' : ''}',
-                rect);
+                rect: rect,
+                data:
+                    '<grey>${engine.locale(key)}: ${engine.locale('${key}_description')}</>'
+                    '${priceFactor != null ? '\n \n<yellow>${engine.locale('unitPrice')}: $unitPrice ${engine.locale('money2')}</>' : ''}');
           },
           onExit: () {
             context.read<HoverContentState>().hide();

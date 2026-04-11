@@ -119,10 +119,10 @@ namespace Player {
     return item
   }
 
-  function lose(item, { amount, incurIncident = true }) {
+  function lose(item, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     entityLose(hero, item, amount: amount, incurIncident: incurIncident)
-    engine.warning('[${hero.name}] 失去了 [${item.name} × ${amount ?? item.stackSize ?? 1}]')
+    engine.warning('[${hero.name}] 失去了 [${item.name} × ${amount}]')
   }
 
   function acquireCard(card, { incurIncident = true }) {
@@ -130,16 +130,29 @@ namespace Player {
     characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
 
-  function craftScroll(scrollCard) {
+  function craftScroll(card, { incurIncident = true }) {
+    hero.cardLibrary.remove(card.id)
+    for (final deck in hero.battleDecks) {
+      deck.cards.remove(card.id)
+    }
+
+    card.id = crypto.randomUID(withTime: true)
+    card.name = '${card.name}(${engine.locale('scroll2')})';
+    card.image = 'battlecard/illustration/scroll.png';
+    card.genre = 'scroll';
+    card.rank = 0;
+    card.equipment = null;
+    card.isEphemeral = true;
+
     let incidentContent
     incidentContent = engine.locale('entityAcquire', interpolations: [
-      character.name,
-      scrollCard.name,
+      hero.name,
+      card.name,
     ])
     if (incurIncident) {
       Incident(
         message: incidentContent,
-        subjectId: character.id,
+        subjectId: hero.id,
       )
     } else {
       engine.info(incidentContent)
@@ -186,10 +199,9 @@ namespace Player {
 
     hero.cardLibrary.remove(card.id)
     for (final deck in hero.battleDecks) {
-      if (deck.cards.contains(card.id)) {
-        deck.cards.remove(card.id)
-      }
+      deck.cards.remove(card.id)
     }
+
     let incidentContent = engine.locale('entityLose', interpolations: [
       hero.name,
       card.name,

@@ -134,7 +134,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // onDragIn = (int button, Vector2 position, GameComponent? component) {
     //   if (component is! CustomGameCard) return;
     //   if (cards.contains(component)) return;
-    //   if (containsCard(component.deckId)) return;
+    //   if (containsCard(component.uniqueId)) return;
 
     //   final index =
     //       ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
@@ -340,7 +340,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   @override
   String? tryAddCard(GameCard c,
       {int? index, bool animated = true, bool clone = false}) {
-    if (containsCard(c.deckId)) {
+    if (containsCard(c.uniqueId)) {
       return 'deckbuilding_already_in_battle_deck';
     }
     if (isFull) {
@@ -374,7 +374,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       //   (game as CardLibraryScene).cardDragRelease();
       // } else
       if (button == kSecondaryButton) {
-        library.setCardEnabledById(card.deckId, true);
+        library.setCardEnabledById(card.uniqueId, true);
         card.removeFromPile();
       }
     };
@@ -415,7 +415,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       'title': title,
       'isBattleDeck': isBattleDeck,
       // 'isValid': isCardsEnough && isRequirementMet,
-      'cards': cards.map((card) => card.deckId).toList(),
+      'cards': cards.map((card) => card.uniqueId).toList(),
     };
 
     return info;

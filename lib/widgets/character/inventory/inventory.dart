@@ -89,7 +89,7 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final isDetailed = context.read<HoverContentState>().isDetailed;
+    final hoverState = context.read<HoverContentState>();
 
     final filteredItems = GameLogic.getFilteredItems(
       widget.character,
@@ -105,19 +105,20 @@ class _InventoryState extends State<Inventory> {
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
             widget.onMouseEnterItemGrid?.call(itemData);
-            context.read<HoverContentState>().show(
-                  buildItemHoverInfo(
-                    itemData,
-                    inventoryType: widget.inventoryType,
-                    isDetailed: isDetailed,
-                    priceFactor:
-                        widget.inventoryType == InventoryType.merchant ||
-                                widget.inventoryType == InventoryType.customer
-                            ? widget.priceFactor
-                            : null,
-                  ),
-                  rect,
-                );
+            final priceFactor =
+                widget.inventoryType == InventoryType.merchant ||
+                        widget.inventoryType == InventoryType.customer
+                    ? widget.priceFactor
+                    : null;
+            hoverState.show(
+              rect: rect,
+              contentBuilder: (isDetailed) => buildItemHoverInfo(
+                itemData,
+                inventoryType: widget.inventoryType,
+                isDetailed: isDetailed,
+                priceFactor: priceFactor,
+              ),
+            );
           },
           onMouseExit: () {
             context.read<HoverContentState>().hide();

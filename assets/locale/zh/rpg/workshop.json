@@ -1,0 +1,10 @@
+{
+  "craft_item": "制作",
+  "modify_item": "精炼",
+
+  "days_needed": "所需天数",
+  "base_material": "基础材料",
+  "extra_material": "额外材料",
+
+  "workshop_hint": "右键点击物品栏中的装备，放入工作台进行精炼。"
+}

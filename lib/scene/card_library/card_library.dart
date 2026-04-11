@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
-import 'package:hetu_script/utils/uid.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/sprite_component2.dart';
@@ -105,6 +104,7 @@ class CardLibraryScene extends Scene {
     this.isEditorMode = false,
   }) : super(id: Scenes.library);
 
+  bool _isInitializing = true;
   final bool isEditorMode;
 
   late final SpriteComponent background;
@@ -263,7 +263,7 @@ class CardLibraryScene extends Scene {
         deckPiles.length * (GameUI.deckbuildingCardSize.y + GameUI.indent);
   }
 
-  void _setBattleDeck(DeckBuildingZone zone) async {
+  void setBattleDeck(DeckBuildingZone zone) async {
     if (!zone.isCardsEnough) {
       dialog.pushDialog('deckbuilding_cards_not_enough');
       await dialog.execute();
@@ -321,22 +321,22 @@ class CardLibraryScene extends Scene {
             assert(deck != null);
             deck['title'] = title;
           case DeckMenuItems.setAsBattleDeck:
-            _setBattleDeck(zone);
+            setBattleDeck(zone);
           case DeckMenuItems.editDeck:
             onEditDeck(zone);
           case DeckMenuItems.deleteDeck:
-            _deleteDeck(zone);
+            deleteDeck(zone);
         }
       },
     );
   }
 
-  void _updateDeckCount() {
+  void updateDeckCount() {
     deckCount.text =
         '${engine.locale('deckbuilding_deck_count')}: ${deckPiles.length - 1}';
   }
 
-  void _updateCardCount(DeckBuildingZone zone) {
+  void updateCardCount(DeckBuildingZone zone) {
     final detailedCount = StringBuffer();
     detailedCount.writeln(
         '${engine.locale('deckbuilding_card_count')}: ${zone.cards.length}');
@@ -372,12 +372,12 @@ class CardLibraryScene extends Scene {
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y -
         zone.index * (GameUI.deckbuildingCardSize.y + GameUI.indent);
 
-    _updateCardCount(zone);
+    updateCardCount(zone);
 
     zone.expand();
   }
 
-  void _deleteDeckBuildingZone(DeckBuildingZone zone) {
+  void deleteDeckBuildingZone(DeckBuildingZone zone) {
     deckPiles.remove(zone);
     zone.dispose();
     _resizeDeckPilesContainer();
@@ -388,10 +388,10 @@ class CardLibraryScene extends Scene {
           Vector2(0, i * (GameUI.deckbuildingCardSize.y + GameUI.indent));
     }
 
-    _checkDeckPilesContainerPosition();
+    checkDeckPilesContainerPosition();
   }
 
-  void _deleteDeck(DeckBuildingZone zone, {bool warning = true}) async {
+  void deleteDeck(DeckBuildingZone zone, {bool warning = true}) async {
     if (warning) {
       final value = await showDialog<bool>(
         context: engine.context,
@@ -407,13 +407,11 @@ class CardLibraryScene extends Scene {
     }
     heroDecks.removeAt(zone.index);
 
-    _deleteDeckBuildingZone(zone);
-
+    deleteDeckBuildingZone(zone);
     if (deckPiles.isEmpty) {
       createNewDeckBuildingZone();
     }
-
-    _updateDeckCount();
+    updateDeckCount();
   }
 
   void onCloseDeck() async {
@@ -429,11 +427,11 @@ class CardLibraryScene extends Scene {
 
     if (currentBuildingZone!.cards.isEmpty) {
       if (currentBuildingZone != deckPiles.last && deckPiles.length > 1) {
-        _deleteDeck(currentBuildingZone!, warning: false);
+        deleteDeck(currentBuildingZone!, warning: false);
       }
     } else {
       for (final card in currentBuildingZone!.cards) {
-        libraryZone.setCardEnabledById(card.deckId, true);
+        libraryZone.setCardEnabledById(card.uniqueId, true);
       }
       if (deckPiles.last == currentBuildingZone) {
         createNewDeckBuildingZone();
@@ -448,7 +446,7 @@ class CardLibraryScene extends Scene {
 
     libraryZone.buildingZone = currentBuildingZone = null;
 
-    _updateDeckCount();
+    updateDeckCount();
   }
 
   void _resizeDeckPilesContainer() {
@@ -471,7 +469,7 @@ class CardLibraryScene extends Scene {
       priority: kDeckPilesZonePriority,
       onEditDeck: (buildingZone) => onEditDeck(buildingZone),
       onOpenDeckMenu: (buildingZone) => onOpenDeckMenu(buildingZone),
-      onDeckEdited: (buildingZone) => _updateCardCount(buildingZone),
+      onDeckEdited: (buildingZone) => updateCardCount(buildingZone),
     );
     deckPilesContainer.add(zone);
     deckPiles.add(zone);
@@ -490,7 +488,7 @@ class CardLibraryScene extends Scene {
         : 0.0;
   }
 
-  void _checkDeckPilesContainerPosition() {
+  void checkDeckPilesContainerPosition() {
     double curOffsetY = deckPilesContainer.position.y;
     if (deckPilesContainer.height <= GameUI.decksZoneBackgroundSize.y) {
       curOffsetY = GameUI.decksZoneBackgroundPosition.y;
@@ -510,7 +508,7 @@ class CardLibraryScene extends Scene {
   void repositionDeckPiles(double offsetY) {
     deckPilesContainer.position.y += offsetY;
 
-    _checkDeckPilesContainerPosition();
+    checkDeckPilesContainerPosition();
   }
 
   void showCraftingCardInfo() {
@@ -546,7 +544,8 @@ class CardLibraryScene extends Scene {
 
     final operationId = category.replaceAll('craftmaterial_', '');
 
-    assert(kCardCraftOperations.contains(operationId));
+    assert(kCardCraftOperations.contains(operationId),
+        'Unknown card crafting operation: $operationId');
 
     final result = engine.hetu.invoke(operationId,
         positionalArgs: [craftingCard!.data, craftmeterialData['rank']]);
@@ -556,10 +555,16 @@ class CardLibraryScene extends Scene {
       dialog.pushDialog(result);
       dialog.execute();
     } else {
+      engine.hetu.invoke(
+        'lose',
+        namespace: 'Player',
+        positionalArgs: [craftmeterialData],
+      );
+
       engine.play(GameSound.anvil);
 
       addHintText(
-        engine.locale('deckbuilding_${operationId}_hint'),
+        engine.locale('craft_${operationId}_hint'),
         position: craftingCard!.center,
         offsetY: 30.0,
         textStyle: TextStyle(
@@ -593,10 +598,10 @@ class CardLibraryScene extends Scene {
 
     engine.play(GameSound.paperrip);
 
-    onEndCraft();
+    endCraft();
   }
 
-  void onStartCraft(CustomGameCard card) {
+  void startCraft(CustomGameCard card) {
     engine.context.read<HoverContentState>().hide();
 
     skillBook.enableGesture = false;
@@ -608,13 +613,19 @@ class CardLibraryScene extends Scene {
     bool isScroll = card.data['genre'] == 'scroll';
 
     dismantleButton.isVisible = true;
-    dismantleButton.isEnabled =
-        enableScrollCraft && !isScroll && (card.data['rank'] > 0);
+    dismantleButton.isEnabled = !isScroll;
 
     if (!isScroll) {
-      engine.context
-          .read<CraftState>()
-          .setCrafting(true, rank: card.data['rank']);
+      if (enableCardCraft && enableScrollCraft) {
+        engine.context.read<CraftState>().setCrafting(true,
+            rank: card.data['rank'], craftMode: CraftMode.all);
+      } else if (enableCardCraft) {
+        engine.context.read<CraftState>().setCrafting(true,
+            rank: card.data['rank'], craftMode: CraftMode.affix);
+      } else if (enableScrollCraft) {
+        engine.context.read<CraftState>().setCrafting(true,
+            rank: card.data['rank'], craftMode: CraftMode.scroll);
+      }
     }
 
     final clone = card.clone();
@@ -627,10 +638,10 @@ class CardLibraryScene extends Scene {
     showCraftingCardInfo();
 
     engine.addEventListener(
-        'card_library', GameEvents.craftMaterialSelected, onUseCraftMaterial);
+        Scenes.library, GameEvents.craftMaterialSelected, onUseCraftMaterial);
   }
 
-  void onEndCraft() async {
+  void endCraft() async {
     Hovertip.hideAll();
     engine.context.read<CraftState>().setCrafting(false);
 
@@ -648,39 +659,46 @@ class CardLibraryScene extends Scene {
     craftingCard!.removeFromParent();
     craftingCard = null;
 
-    engine.removeEventListener('card_library');
+    engine.removeEventListeners(Scenes.library);
   }
 
   void craftScroll(dynamic paper) {
     assert(craftingCard != null);
     final scrollCard = craftingCard!;
 
-    final oldTitle = scrollCard.data['name'];
+    engine.hetu.invoke('craftScroll',
+        namespace: 'Player', positionalArgs: [scrollCard.data]);
 
-    scrollCard.data['id'] = randomUID(withTime: true);
-    scrollCard.data['image'] = 'battlecard/illustration/scroll.png';
-    scrollCard.title =
-        scrollCard.data['name'] = '$oldTitle(${engine.locale('scroll2')})';
+    libraryZone.removeCardById(scrollCard.id);
+    for (final pile in deckPiles) {
+      pile.removeCardById(scrollCard.id);
+    }
 
-    // scrollCard.data['category'] = 'scroll';
-    scrollCard.data['genre'] = 'scroll';
-    scrollCard.data['equipment'] = null;
-    scrollCard.data['isEphemeral'] = true;
-
+    scrollCard.id = scrollCard.data['id'];
+    scrollCard.title = scrollCard.data['name'];
     final (description, _) = GameData.getBattleCardDescription(scrollCard.data);
     scrollCard.description = description;
-
     scrollCard.tryLoadSprite(
         illustrationSpriteId: 'battlecard/illustration/scroll.png');
 
     showCraftingCardInfo();
 
-    engine.hetu.invoke('craftScroll',
-        namespace: 'Player', positionalArgs: [scrollCard.data]);
-
-    dismantleButton.isEnabled = false;
-
     engine.context.read<CraftState>().setCrafting(false);
+    engine.context.read<HoverContentState>().hide();
+
+    libraryZone.addCardByData(craftingCard!.data);
+    libraryZone.sortCards();
+
+    addHintText(
+      engine.locale('craft_scroll_hint'),
+      position: craftingCard!.center,
+      offsetY: 30.0,
+      textStyle: TextStyle(
+        fontFamily: GameUI.fontFamilyKaiti,
+      ),
+      horizontalVariation: 0.0,
+      verticalVariation: 0.0,
+    );
 
     engine.play(GameSound.writing);
   }
@@ -694,7 +712,7 @@ class CardLibraryScene extends Scene {
     for (final zone in deckPiles) {
       if (zone.cards.isNotEmpty) {
         final Iterable<GameCard> cards = zone.cards.where((card) {
-          return card.deckId == libraryCard.id;
+          return card.uniqueId == libraryCard.id;
         });
         if (cards.isNotEmpty) {
           final deckCard = cards.first as CustomGameCard;
@@ -913,7 +931,7 @@ class CardLibraryScene extends Scene {
     barrier.onTapUp = (button, position) {
       if (button == kSecondaryButton) {
         if (craftingCard != null) {
-          onEndCraft();
+          endCraft();
         }
       }
     };
@@ -1046,7 +1064,7 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     setBattleDeckButton.onTapUp = (button, position) {
-      _setBattleDeck(currentBuildingZone!);
+      setBattleDeck(currentBuildingZone!);
     };
     camera.viewport.add(setBattleDeckButton);
 
@@ -1335,14 +1353,14 @@ class CardLibraryScene extends Scene {
     dismantleButton.onMouseEnter = () {
       if (dismantleButton.isEnabled) {
         engine.context.read<HoverContentState>().show(
-              engine.locale('craft_dismantle_description'),
-              dismantleButton.toAbsoluteRect(),
+              rect: dismantleButton.toAbsoluteRect(),
+              data: engine.locale('craft_dismantle_description'),
               direction: HoverContentDirection.topCenter,
             );
       } else {
         engine.context.read<HoverContentState>().show(
-              engine.locale('craft_dismantle_disabled'),
-              dismantleButton.toAbsoluteRect(),
+              rect: dismantleButton.toAbsoluteRect(),
+              data: engine.locale('craft_dismantle_disabled'),
               direction: HoverContentDirection.topCenter,
             );
       }
@@ -1362,28 +1380,11 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     closeCraftButton.onTapUp = (button, position) {
-      onEndCraft();
+      endCraft();
     };
     camera.viewport.add(closeCraftButton);
 
-    createNewDeckBuildingZone();
-    _updateDeckCount();
-  }
-
-  @override
-  void onMount() async {
-    super.onMount();
-
-    Hovertip.hideAll();
-    updateOrderByButtonText();
-    updateFilterByButtonText();
-    // updateExp();
-    // updateExpLightPoints();
-
-    // 载入卡牌库中的卡牌
     libraryZone.updateHeroLibrary();
-    libraryZone.repositionToTop();
-    deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
 
     for (final deckData in heroDecks) {
       final zone = createNewDeckBuildingZone(deckData: deckData);
@@ -1397,6 +1398,28 @@ class CardLibraryScene extends Scene {
       zone.collapse(animated: false);
       zone.updateDeckLimit();
     }
+    createNewDeckBuildingZone();
+    updateDeckCount();
+  }
+
+  @override
+  void onMount() async {
+    super.onMount();
+
+    Hovertip.hideAll();
+    updateOrderByButtonText();
+    updateFilterByButtonText();
+    // updateExp();
+    // updateExpLightPoints();
+
+    if (_isInitializing) {
+      _isInitializing = false;
+    } else {
+      // 载入卡牌库中的卡牌
+      libraryZone.updateHeroLibrary();
+    }
+    libraryZone.repositionToTop();
+    deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
 
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['cardLibrary'] != true) {

@@ -10,6 +10,7 @@ import '../../state/new_prompt.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/responsive_view.dart';
 import '../../data/game.dart';
+import '../common.dart';
 
 const _kItemCountMax = 18;
 
@@ -31,7 +32,11 @@ class NewItems extends StatelessWidget {
         itemData: i < itemsData.length ? itemsData.elementAt(i) : null,
         margin: const EdgeInsets.all(2.5),
         onMouseEnter: (itemData, rect) {
-          context.read<HoverContentState>().show(itemData, rect);
+          context.read<HoverContentState>().show(
+                rect: rect,
+                data: buildItemHoverInfo(itemData,
+                    inventoryType: InventoryType.none),
+              );
         },
         onMouseExit: () {
           context.read<HoverContentState>().hide();

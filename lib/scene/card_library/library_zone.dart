@@ -32,7 +32,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     if (zone != null) {
       for (final card in zone.cards) {
-        setCardEnabledById(card.deckId, false);
+        setCardEnabledById(card.uniqueId, false);
       }
     }
   }
@@ -83,7 +83,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // onDragIn = (int button, Vector2 position, GameComponent? component) {
     //   if (component is CustomGameCard) {
     //     if (buildingZone != null && buildingZone!.cards.contains(component)) {
-    //       setCardEnabledById(component.deckId, true);
+    //       setCardEnabledById(component.uniqueId, true);
     //       component.removeFromPile();
     //     }
     //   }
@@ -104,9 +104,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     };
   }
 
-  void setCardEnabledById(String deckId, [bool isEnabled = true]) {
-    assert(library.containsKey(deckId));
-    final card = library[deckId]!;
+  void setCardEnabledById(String uniqueId, [bool isEnabled = true]) {
+    assert(library.containsKey(uniqueId));
+    final card = library[uniqueId]!;
     card.isEnabled = isEnabled;
     // card.enableGesture = isEnabled;
   }
@@ -274,14 +274,14 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   void removeCardById(String cardId) {
-    final card = library[cardId];
-    if (card != null) {
-      library.remove(cardId);
-      card.removeFromParent();
+    assert(library.containsKey(cardId));
+    final card = library[cardId]!;
 
-      _calculateContainerHeight();
-      sortCards();
-    }
+    library.remove(cardId);
+    card.removeFromParent();
+
+    _calculateContainerHeight();
+    sortCards();
   }
 
   void updateHeroLibrary() {
@@ -372,7 +372,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
         }
         // (game as CardLibraryScene).cardDragRelease();
       } else if (button == kSecondaryButton) {
-        (game as CardLibraryScene).onStartCraft(card);
+        (game as CardLibraryScene).startCraft(card);
       }
     };
 

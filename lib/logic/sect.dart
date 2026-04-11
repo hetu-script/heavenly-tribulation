@@ -162,7 +162,7 @@ Future<void> _showMeeting(
       final reward = engine.hetu.invoke('createReward', namedArgs: {
         'genre': sect['genre'],
         'details': {
-          'craftMaterial': {
+          'affixMaterial': {
             'amount': heroJobRank * (heroJobRank + 1) + 1,
           },
         },

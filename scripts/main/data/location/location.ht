@@ -98,9 +98,10 @@ const _kBaseCollectableLightReplenishAmount = 10
 const _kProductionSiteResourceGeneration = 10
 
 const _kAlchemyCraftmaterialProbability = 0.35
-const _kAlchemyCraftmaterialProbabilityReplaceAffix = 0.4
-const _kAlchemyCraftmaterialProbabilityRerollAffix = 0.25
-const _kAlchemyCraftmaterialProbabilityUpgradeRank = 0.1
+const _kAlchemyCraftmaterialProbabilityReplaceAffix = 0.65
+const _kAlchemyCraftmaterialProbabilityRerollAffix = 0.35
+const _kAlchemyCraftmaterialProbabilityFreezeAffix = 0.15
+const _kAlchemyCraftmaterialProbabilityUpgradeRank = 0.05
 
 /// 城市、场景、建筑等
 /// 某些可能在地图上直接进入，某些则是其他场景的子场景
@@ -789,11 +790,11 @@ function replenishTradingItem(location) {
       }
       if (hasMountainNeighbor) {
         let item = Equipment(kind: 'boots', rank: 0)
-        entityAcquire(location, item)
+        entityAcquire(location, item, incurIncident: false)
       }
       if (hasWaterNeighbor) {
         let item = Equipment(kind: 'ship', rank: 0)
-        entityAcquire(location, item)
+        entityAcquire(location, item, incurIncident: false)
       }
       for (var i in range(amount)) {
         final rankRoll = random.nextInt(location.development + 1)
@@ -808,7 +809,7 @@ function replenishTradingItem(location) {
         } else {
           item = createItemById('identify_scroll')
         }
-        entityAcquire(location, item)
+        entityAcquire(location, item, incurIncident: false)
       }
     }
     'auctionhouse': {
@@ -822,7 +823,7 @@ function replenishTradingItem(location) {
 
       for (var i in range(amount)) {
         let item = Equipment(rank: random.nextInt(kCultivationRankMax + 1), isIdentified: false)
-        entityAcquire(location, item)
+        entityAcquire(location, item, incurIncident: false)
       }
     }
     'library': {
@@ -837,45 +838,43 @@ function replenishTradingItem(location) {
           rank: random.nearInt(rank),
           genre: genre,
         )
-        entityAcquire(location, item)
+        entityAcquire(location, item, incurIncident: false)
       }
     }
     'alchemylab': {
       // TODO: 丹房销售的丹药数量和苗圃数量有关
       for (var i in range(amount)) {
-        let craftMaterialRoll = random.nextDouble()
-        let craftMaterial
+        let affixMaterialTypeRoll = random.nextDouble()
+        let affixMaterial
         final itemRank = random.nearInt(rank)
-        if (craftMaterialRoll < _kAlchemyCraftmaterialProbability) {
+        if (affixMaterialTypeRoll < _kAlchemyCraftmaterialProbability) {
           final typeRoll = random.nextDouble()
           if (typeRoll < _kAlchemyCraftmaterialProbabilityUpgradeRank) {
-            craftMaterial = createItemById('craftmaterial_upgrade', rank: itemRank)
+            affixMaterial = createItemById('craftmaterial_upgradeRank', rank: itemRank)
           } else if (typeRoll < _kAlchemyCraftmaterialProbabilityRerollAffix) {
-            craftMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+            affixMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
           } else if (typeRoll < _kAlchemyCraftmaterialProbabilityFreezeAffix) {
-            craftMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
+            affixMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
           } else if (typeRoll < _kAlchemyCraftmaterialProbabilityReplaceAffix) {
-            craftMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
+            affixMaterial = createItemById('craftmaterial_replaceAffix', rank: itemRank)
           } else {
-            craftMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
+            affixMaterial = createItemById('craftmaterial_addAffix', rank: itemRank)
           }
-          entityAcquire(location, craftMaterial)
+          entityAcquire(location, affixMaterial, incurIncident: false)
         } else {
           final item = Potion(rank: random.nearInt(location.development + 1))
-          entityAcquire(location, item)
+          entityAcquire(location, item, incurIncident: false)
         }
       }
     }
     'runelab': {
-      for (var i in range(amount)) {
-        final item = createItemById('identify_scroll')
-        entityAcquire(location, item)
-      }
+      final item = createItemById('identify_scroll')
+      entityAcquire(location, item, incurIncident: false)
+      item.stackSize = random.nearInt(amount) + 1
       for (var i in range(rank)) {
-        for (var j in range(amount)) {
-          final paper = createItemById('scroll_paper', rank: i + 1)
-          entityAcquire(location, paper)
-        }
+        final paper = createItemById('scroll_paper', rank: i + 1)
+        entityAcquire(location, paper, incurIncident: false)
+        paper.stackSize = random.nearInt(amount) + 1
       }
     }
     else: {

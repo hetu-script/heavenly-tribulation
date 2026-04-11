@@ -75,12 +75,12 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
     _ageController.dispose();
 
-    for (final ctrl in attributeControllers.values) {
-      ctrl.dispose();
+    for (final controller in attributeControllers.values) {
+      controller.dispose();
     }
 
-    for (final ctrl in personalityControllers.values) {
-      ctrl.dispose();
+    for (final controller in personalityControllers.values) {
+      controller.dispose();
     }
   }
 
@@ -97,14 +97,14 @@ class _CharacterProfileState extends State<CharacterProfile> {
     assert(_character != null);
 
     for (final id in kVisibleAttributes) {
-      final ctrl = TextEditingController();
-      attributeControllers[id] = ctrl;
+      final controller = TextEditingController();
+      attributeControllers[id] = controller;
 
       final value = _character['stats'][id].toInt();
-      ctrl.text = value.toString();
+      controller.text = value.toString();
 
       final textWidget = isEditorMode
-          ? IntEditField(controller: ctrl)
+          ? IntEditField(controller: controller)
           : Text(value.toString());
 
       attributeWidgets[id] = SizedBox(
@@ -119,14 +119,14 @@ class _CharacterProfileState extends State<CharacterProfile> {
     }
 
     void createLabel(id) {
-      final ctrl = TextEditingController();
-      personalityControllers[id] = ctrl;
+      final controller = TextEditingController();
+      personalityControllers[id] = controller;
 
       final value = _character['personality'][id].toInt();
-      ctrl.text = value.toString();
+      controller.text = value.toString();
 
       final textWidget = isEditorMode
-          ? IntEditField(controller: ctrl, allowNegative: true)
+          ? IntEditField(controller: controller, allowNegative: true)
           : Text(value.toString());
 
       personalityWidgets[id] = Container(

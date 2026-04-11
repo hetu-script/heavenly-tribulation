@@ -198,7 +198,7 @@ class _SiteViewState extends State<SiteView>
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverContentState>()
-                                .show(_costDescription, rect);
+                                .show(rect: rect, data: _costDescription);
                           },
                           onMouseExit: () {
                             context.read<HoverContentState>().hide();
@@ -210,8 +210,9 @@ class _SiteViewState extends State<SiteView>
                       MouseRegion2(
                         onEnter: (rect) {
                           context.read<HoverContentState>().show(
-                                '${engine.locale('progress')}: $_progress/$_max ${engine.locale('timeDay')}',
-                                rect,
+                                rect: rect,
+                                data:
+                                    '${engine.locale('progress')}: $_progress/$_max ${engine.locale('timeDay')}',
                               );
                         },
                         onExit: () {
@@ -249,8 +250,8 @@ class _SiteViewState extends State<SiteView>
                                     return;
                                   }
                                   context.read<HoverContentState>().show(
-                                        _developmentCostDescription!,
-                                        rect,
+                                        rect: rect,
+                                        data: _developmentCostDescription!,
                                         direction:
                                             HoverContentDirection.topCenter,
                                       );
@@ -367,8 +368,9 @@ class _SiteViewState extends State<SiteView>
                             padding: const EdgeInsets.only(top: 5.0),
                             onMouseEnter: (rect) {
                               context.read<HoverContentState>().show(
-                                    '<grey>${engine.locale('storage_description')}</>',
-                                    rect,
+                                    rect: rect,
+                                    data:
+                                        '<grey>${engine.locale('storage_description')}</>',
                                   );
                             },
                             onMouseExit: () {

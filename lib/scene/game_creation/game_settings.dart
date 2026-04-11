@@ -17,7 +17,7 @@ class GameSettingsDialog extends StatefulWidget {
 }
 
 class _GameSettingsDialogState extends State<GameSettingsDialog> {
-  late bool _debugMode;
+  late bool _developmentMode;
   late double _musicVolume;
   late double _soundEffectVolume;
   late bool _showFps;
@@ -25,7 +25,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
   late String _llmModelId;
 
   /// 记录初始值，用于判断是否有重启选项被修改
-  late final bool _initialDebugMode;
+  late final bool _initialDevelopmentMode;
   late final bool _initialEnableLlm;
   late final String _initialLlmModelId;
 
@@ -35,27 +35,27 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
   void initState() {
     super.initState();
     final config = engine.config;
-    _debugMode = config.debugMode;
+    _developmentMode = config.developmentMode;
     _musicVolume = config.musicVolume;
     _soundEffectVolume = config.soundEffectVolume;
     _showFps = config.showFps;
     _enableLlm = config.enableLlm;
     _llmModelId = config.llmModelId ?? '';
 
-    _initialDebugMode = _debugMode;
+    _initialDevelopmentMode = _developmentMode;
     _initialEnableLlm = _enableLlm;
     _initialLlmModelId = _llmModelId;
   }
 
   void _checkRestartNeeded() {
-    _needRestart = _debugMode != _initialDebugMode ||
+    _needRestart = _developmentMode != _initialDevelopmentMode ||
         _enableLlm != _initialEnableLlm ||
         _llmModelId != _initialLlmModelId;
   }
 
   Future<void> _applySettings() async {
     await gameConfig.updateConfig(
-      debugMode: _debugMode,
+      developmentMode: _developmentMode,
       musicVolume: _musicVolume,
       soundEffectVolume: _soundEffectVolume,
       showFps: _showFps,
@@ -203,12 +203,12 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                             ),
                           ),
                           fluent.Checkbox(
-                            content: Text(engine
-                                .locale(_debugMode ? 'enabled' : 'disabled')),
-                            checked: _debugMode,
+                            content: Text(engine.locale(
+                                _developmentMode ? 'enabled' : 'disabled')),
+                            checked: _developmentMode,
                             onChanged: (bool? value) {
                               setState(() {
-                                _debugMode = value ?? false;
+                                _developmentMode = value ?? false;
                                 _checkRestartNeeded();
                               });
                             },

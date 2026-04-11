@@ -45,8 +45,8 @@ class _NewRankState extends State<NewRank> {
             ),
             onEnter: (rect) {
               context.read<HoverContentState>().show(
-                    engine.locale('cultivationRank_${widget.rank}'),
-                    rect,
+                    rect: rect,
+                    data: engine.locale('cultivationRank_${widget.rank}'),
                     direction: HoverContentDirection.topCenter,
                   );
             },

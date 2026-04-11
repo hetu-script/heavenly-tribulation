@@ -171,6 +171,8 @@ class Constants extends HTExternalClass {
         return kEnemyEncounterQuests;
       case 'Constants.fragmentGainFromDismantle':
         return kFragmentGainFromDismantle;
+      case 'Constants.scrollCardUseLimit':
+        return kScrollCardUseLimit;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

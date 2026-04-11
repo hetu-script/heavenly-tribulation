@@ -5,48 +5,48 @@
   // 武器
   sword: {
     id: "sword",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 20,
     timber: 10,
   },
   sabre: {
     id: "sabre",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 20,
     timber: 10,
   },
   spear: {
     id: "spear",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
     timber: 30,
   },
   staff: {
     id: "staff",
-    time: 10,
+    day: 10,
     worker: 10,
     timber: 30,
   },
   bow: {
     id: "bow",
-    time: 10,
+    day: 10,
     worker: 10,
     leather: 20,
     timber: 20,
   },
   dart: {
     id: "dart",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
   },
   // 防具
   shield: {
     id: "shield",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
     timber: 20,
@@ -54,21 +54,21 @@
   },
   armor: {
     id: "armor",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 30,
     leather: 30,
   },
   gloves: {
     id: "gloves",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
     leather: 20,
   },
   helmet: {
     id: "helmet",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
     leather: 20,
@@ -76,14 +76,14 @@
   // 载具
   boots: {
     id: "boots",
-    time: 10,
+    day: 10,
     worker: 10,
     ore: 10,
     leather: 20,
   },
   ship: {
     id: "ship",
-    time: 30,
+    day: 30,
     worker: 30,
     ore: 100,
     timber: 200,
@@ -93,13 +93,13 @@
   // 首饰
   ring: {
     id: "ring",
-    time: 20,
+    day: 20,
     worker: 10,
     ore: 10,
   },
   amulet: {
     id: "amulet",
-    time: 20,
+    day: 20,
     worker: 10,
     ore: 10,
     leather: 10,
@@ -108,7 +108,7 @@
   // 法宝
   pearl: {
     id: "pearl",
-    time: 30,
+    day: 30,
     worker: 20,
     ore: 50,
   },

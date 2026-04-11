@@ -1081,7 +1081,7 @@ class MouseMazeGame extends Scene with HasCursorState {
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      restart.isVisible = engine.config.debugMode;
+      restart.isVisible = engine.config.developmentMode;
       exit.position = Vector2(
           center.x,
           restart.bottomRight.y +

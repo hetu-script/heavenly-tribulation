@@ -51,7 +51,7 @@
       },
       {
         id: "lifeMax",
-        level: 50,
+        level: 40,
       },
     ],
     rank: 1,
@@ -71,7 +71,7 @@
       },
       {
         id: "lifeMax",
-        level: 200,
+        level: 80,
       },
     ],
     rank: 2,
@@ -91,7 +91,7 @@
       },
       {
         id: "lifeMax",
-        level: 450,
+        level: 120,
       },
     ],
     rank: 3,
@@ -360,7 +360,7 @@
       },
       {
         id: "lifeMax",
-        level: 50,
+        level: 40,
       },
     ],
     rank: 1,
@@ -380,7 +380,7 @@
       },
       {
         id: "lifeMax",
-        level: 200,
+        level: 80,
       },
     ],
     rank: 2,
@@ -400,7 +400,7 @@
       },
       {
         id: "lifeMax",
-        level: 450,
+        level: 120,
       },
     ],
     rank: 3,
@@ -668,7 +668,7 @@
       },
       {
         id: "lifeMax",
-        level: 50,
+        level: 40,
       },
     ],
     rank: 1,
@@ -688,7 +688,7 @@
       },
       {
         id: "lifeMax",
-        level: 200,
+        level: 80,
       },
     ],
     rank: 2,
@@ -708,7 +708,7 @@
       },
       {
         id: "lifeMax",
-        level: 450,
+        level: 120,
       },
     ],
     rank: 3,
@@ -973,7 +973,7 @@
       },
       {
         id: "lifeMax",
-        level: 50,
+        level: 40,
       },
     ],
     rank: 1,
@@ -993,7 +993,7 @@
       },
       {
         id: "lifeMax",
-        level: 200,
+        level: 80,
       },
     ],
     rank: 2,
@@ -1013,7 +1013,7 @@
       },
       {
         id: "lifeMax",
-        level: 450,
+        level: 120,
       },
     ],
     rank: 3,
@@ -1281,7 +1281,7 @@
       },
       {
         id: "lifeMax",
-        level: 50,
+        level: 40,
       },
     ],
     rank: 1,
@@ -1301,7 +1301,7 @@
       },
       {
         id: "lifeMax",
-        level: 200,
+        level: 80,
       },
     ],
     rank: 2,
@@ -1321,7 +1321,7 @@
       },
       {
         id: "lifeMax",
-        level: 450,
+        level: 120,
       },
     ],
     rank: 3,

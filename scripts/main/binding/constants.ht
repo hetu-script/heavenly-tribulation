@@ -88,4 +88,5 @@ external abstract class Constants {
   static get enemyEncounterQuests;
 
   static get fragmentGainFromDismantle;
+  static get scrollCardUseLimit;
 }

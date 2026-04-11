@@ -7,8 +7,8 @@ const _kAvatarCount = 41
 const _kCostumeCount = 5
 const _kCostumeColorCount = 3
 
-const _kInitialMoneyPerLevel = 500
-const _kInitialShardPerRank = 5
+const _kInitialMoneyPerLevel = 1000
+const _kInitialShardPerRank = 10
 
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0;
@@ -568,7 +568,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
       )
       deck.add(card)
     }
-    final equipment = Equipment(kind: weaponKind, rank: character.rank)
+    final equipment = Equipment(kind: weaponKind ?? weaponKind2, rank: character.rank)
     characterEquip(character, equipment)
   }
   for (final card in deck) {
@@ -590,7 +590,7 @@ function characterEquip(entity, item, { index }) {
 
   if (entity.inventory[item.id] == null) {
     // engine.warning('${item.name} 不在${entity.name}的物品栏中，无法装备。')
-    item = entityAcquire(entity, item)
+    item = entityAcquire(entity, item, incurIncident: false)
   }
 
   if (!item.isEquippable) {

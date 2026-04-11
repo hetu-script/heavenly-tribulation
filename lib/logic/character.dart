@@ -227,6 +227,7 @@ Future<void> _onDying() async {
   await Future.delayed(const Duration(milliseconds: 500));
 
   engine.setLoading(false);
+  gameState.isInteractable = true;
 }
 
 void _heroRest(dynamic location) async {

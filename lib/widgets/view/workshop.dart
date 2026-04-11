@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
-import 'package:samsara/widgets/ui/empty_placeholder.dart';
 import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';
 
@@ -13,13 +12,11 @@ import '../../logic/logic.dart';
 import '../../state/view_panels.dart';
 import '../../data/common.dart';
 import '../ui/close_button2.dart';
-import '../character/inventory/equipment_bar.dart';
 import '../character/inventory/inventory.dart';
 import '../character/inventory/material.dart';
 import '../character/inventory/item_grid.dart';
-import '../ui/bordered_icon_button.dart';
 import '../ui/responsive_view.dart';
-import '../../extensions.dart';
+import '../common.dart';
 
 class WorkbenchDialog extends StatefulWidget {
   const WorkbenchDialog({
@@ -38,23 +35,9 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
   dynamic _selectedCraftItemRequirements;
   int _extraAffixCount = 0;
   late final List<Widget> _affixWidgets;
-
-  String _selectedModifyKind = kItemModificationOperations.first;
-  dynamic _selectedModifyItem;
-  List? _selectedModifyItemAffixes;
-  dynamic _selectedAffix;
-
-  void setSelectedModifyItem(dynamic itemData) {
-    _selectedModifyItem = itemData;
-    if (itemData != null) {
-      final List affixes = itemData['affixes'];
-      assert(affixes.isNotEmpty);
-      _selectedModifyItemAffixes = affixes.sublist(1);
-    } else {
-      _selectedModifyItemAffixes = null;
-    }
-    _selectedAffix = null;
-  }
+  dynamic _selectedEquipment;
+  bool _isCrafting = false;
+  Map<String, dynamic> _filter = {'type': 'equipment'};
 
   @override
   void initState() {
@@ -66,12 +49,19 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
         padding: const EdgeInsets.symmetric(horizontal: 2.5),
         child: ItemGrid(
           onMouseEnter: (itemData, rect) {
-            context.read<HoverContentState>().show(itemData, rect);
+            context.read<HoverContentState>().show(
+                  rect: rect,
+                  contentBuilder: (isDetailed) => buildItemHoverInfo(
+                    itemData,
+                    inventoryType: InventoryType.none,
+                    isDetailed: isDetailed,
+                  ),
+                );
           },
           onMouseExit: () {
             context.read<HoverContentState>().hide();
           },
-          onSecondaryTapped: onExtraCraftMaterialSecondaryTapped,
+          onSecondaryTapped: (_, __) {},
         ),
       ),
     );
@@ -94,57 +84,18 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
     _extraAffixCount = extraAffixConfig['maxExtra'] as int;
   }
 
-  void onExtraCraftMaterialSecondaryTapped(
-      dynamic itemData, Offset screenPosition) {
-    if (itemData == null) return;
-    showFluentMenu(
-      cursor: GameUI.cursor,
-      position: screenPosition,
-      items: {
-        engine.locale('unselect'): 'unselect',
-      },
-      onSelectedItem: (item) async {
-        if (item == 'unselect') {
-          engine.play(GameSound.put);
-          setSelectedModifyItem(null);
-          setState(() {});
-        }
-      },
-    );
-  }
-
   void onInventoryItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
-    final category = itemData['category'];
-    if (_tabIndex == 0) {
-    } else if (_tabIndex == 1) {
-      if (kItemEquipmentCategories.contains(category)) {
-        showFluentMenu(
-          cursor: GameUI.cursor,
-          position: screenPosition,
-          items: {
-            if (_selectedModifyItem == itemData)
-              engine.locale('unselect'): 'unselect'
-            else
-              engine.locale('select'): 'select',
-          },
-          onSelectedItem: (item) async {
-            final isIdentified = itemData['isIdentified'] == true;
-            if (!isIdentified) {
-              dialog.pushDialog('hint_unidentifiedItem');
-              dialog.execute();
-              return;
-            }
-            if (item == 'select') {
-              setSelectedModifyItem(itemData);
-              engine.play('sword-sheathed-178549.mp3');
-            } else if (item == 'unselect') {
-              engine.play(GameSound.put);
-              setSelectedModifyItem(null);
-            }
-            setState(() {});
-          },
-        );
-      } else {}
+    if (_tabIndex == 1) {
+      if (_isCrafting) {
+        assert(itemData['category'] == 'affix_crafting_material');
+      } else {
+        assert(itemData['type'] == 'equipment');
+        _isCrafting = true;
+        _filter = {'category': 'affix_crafting_material'};
+        engine.play('sword-sheathed-178549.mp3');
+        _selectedEquipment = itemData;
+        setState(() {});
+      }
     }
   }
 
@@ -156,7 +107,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 800.0,
-      height: 500.0,
+      height: 550.0,
       onBarrierDismissed: close,
       child: Scaffold(
         appBar: AppBar(
@@ -189,6 +140,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                         text: Text(
                           engine.locale('craft_item'),
                           style: TextStyles.bodySmall,
+                          textAlign: TextAlign.center,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -248,10 +200,14 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                 padding: const EdgeInsets.only(
                                     top: 10.0, bottom: 10.0),
                                 child: Text(
-                                    engine.locale('material_requirements')),
+                                    '${engine.locale('days_needed')} ${_selectedCraftItemRequirements['day']}'),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: Text(engine.locale('base_material')),
                               ),
                               MaterialList(
-                                height: 121.0,
+                                height: 150.0,
                                 requirements: _selectedCraftItemRequirements,
                                 entity: GameData.hero,
                               ),
@@ -281,6 +237,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                         text: Text(
                           engine.locale('modify_item'),
                           style: TextStyles.bodySmall,
+                          textAlign: TextAlign.center,
                         ),
                         body: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
@@ -293,45 +250,33 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     ItemGrid(
-                                      itemData: _selectedModifyItem,
+                                      itemData: _selectedEquipment,
                                       onMouseEnter: (itemData, rect) {
-                                        if (itemData == null) return;
-                                        context
-                                            .read<HoverContentState>()
-                                            .show(itemData, rect);
+                                        context.read<HoverContentState>().show(
+                                              rect: rect,
+                                              contentBuilder: (isDetailed) =>
+                                                  buildItemHoverInfo(
+                                                itemData,
+                                                inventoryType:
+                                                    InventoryType.none,
+                                                isDetailed: isDetailed,
+                                              ),
+                                            );
                                       },
                                       onMouseExit: () {
                                         context
                                             .read<HoverContentState>()
                                             .hide();
                                       },
-                                      onSecondaryTapped:
-                                          onExtraCraftMaterialSecondaryTapped,
+                                      onSecondaryTapped: (_, __) {
+                                        _isCrafting = false;
+                                        _filter = {'type': 'equipment'};
+                                        engine.play(GameSound.put);
+                                        _selectedEquipment = null;
+                                        setState(() {});
+                                      },
                                     ),
                                   ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: 140.0,
-                                child: fluent.DropDownButton(
-                                  cursor: GameUI.cursor,
-                                  style: FluentButtonStyles.small,
-                                  title: Text(
-                                    engine.locale(
-                                        'modify_item_$_selectedModifyKind'),
-                                    textAlign: TextAlign.end,
-                                  ),
-                                  items: buildFluentMenuItems(
-                                    items: {
-                                      for (final key
-                                          in kItemModificationOperations)
-                                        engine.locale('modify_item_$key'): key,
-                                    },
-                                    onSelectedItem: (String value) {
-                                      _selectedModifyKind = value;
-                                      setState(() {});
-                                    },
-                                  ),
                                 ),
                               ),
                               Container(
@@ -339,52 +284,10 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                 height: 65.0,
                                 padding: const EdgeInsets.only(top: 10.0),
                                 child: Text(
-                                  engine.locale(
-                                      'modify_item_${_selectedModifyKind}_description'),
+                                  engine.locale('workshop_hint'),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              if (_selectedModifyKind == 'upgrade' &&
-                                  _selectedModifyItem != null)
-                                Text(
-                                    '${engine.locale('level2')}: ${_selectedModifyItem['level']}'),
-                              if (_selectedModifyKind == 'extract' &&
-                                  _selectedModifyItemAffixes != null)
-                                _selectedModifyItemAffixes!.isEmpty
-                                    ? EmptyPlaceholder(
-                                        engine.locale('noUsableItems'))
-                                    : Column(
-                                        children: _selectedModifyItemAffixes!
-                                            .map((affixData) {
-                                        return BorderedIconButton(
-                                          size: const Size(400.0, 30.0),
-                                          isSelected:
-                                              _selectedAffix == affixData,
-                                          onPressed: () {
-                                            _selectedAffix = affixData;
-                                            setState(() {});
-                                          },
-                                          child: Text(
-                                            engine.locale(
-                                                affixData['description'],
-                                                interpolations: [
-                                                  affixData['value'],
-                                                ]),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 12.0,
-                                              color: _selectedAffix == affixData
-                                                  ? GameUI.selectedColor
-                                                  : GameUI.foregroundColor,
-                                            ),
-                                          ),
-                                        );
-                                      }).toList()),
-                              const Spacer(),
-                              fluent.Button(
-                                onPressed: () {},
-                                child: Text(engine.locale('execute')),
-                              )
                             ],
                           ),
                         ),
@@ -393,25 +296,19 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                   ),
                 ),
               ),
-              Column(
-                children: [
-                  EquipmentBar(
-                    character: GameData.hero,
-                    onItemSecondaryTapped: onInventoryItemSecondaryTapped,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: Inventory(
-                      character: GameData.hero,
-                      selectedItemId: _selectedModifyItem != null
-                          ? [_selectedModifyItem['id']]
-                          : [],
-                      inventoryType: InventoryType.none,
-                      gridsPerLine: 6,
-                      onItemSecondaryTapped: onInventoryItemSecondaryTapped,
-                    ),
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: Inventory(
+                  character: GameData.hero,
+                  selectedItemId: _selectedEquipment != null
+                      ? [_selectedEquipment['id']]
+                      : [],
+                  inventoryType: InventoryType.none,
+                  itemTypes: null,
+                  filter: _filter,
+                  gridsPerLine: 6,
+                  onItemSecondaryTapped: onInventoryItemSecondaryTapped,
+                ),
               ),
             ],
           ),

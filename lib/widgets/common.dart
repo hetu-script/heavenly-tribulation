@@ -13,14 +13,17 @@ void previewCard(
   HoverContentDirection? direction,
   dynamic character,
 }) {
-  engine.context.read<HoverContentState>().show(
-        buildItemHoverInfo(
-          cardData,
-          inventoryType: isLibrary ? InventoryType.player : InventoryType.none,
-        ),
-        rect,
-        direction: direction ?? HoverContentDirection.rightTop,
-      );
+  final state = engine.context.read<HoverContentState>();
+  final inventoryType = isLibrary ? InventoryType.player : InventoryType.none;
+  state.show(
+    rect: rect,
+    direction: direction ?? HoverContentDirection.rightTop,
+    contentBuilder: (isDetailed) => buildItemHoverInfo(
+      cardData,
+      isDetailed: isDetailed,
+      inventoryType: inventoryType,
+    ),
+  );
 }
 
 void unpreviewCard() {
@@ -110,6 +113,8 @@ String? buildItemHoverInfo(
   InventoryType inventoryType = InventoryType.none,
   bool isDetailed = false,
 }) {
+  engine.context.read<HoverContentState>().setCurrentId(data['id']);
+
   switch (data['entityType']) {
     case 'item':
       String description;
@@ -134,6 +139,12 @@ String? buildItemHoverInfo(
             isDetailed: isDetailed,
           );
         case InventoryType.customer:
+          description = GameData.getItemDescription(
+            data,
+            priceFactor: priceFactor,
+            isSell: true,
+            isDetailed: isDetailed,
+          );
         case InventoryType.merchant:
           description = GameData.getItemDescription(
             data,
@@ -148,7 +159,7 @@ String? buildItemHoverInfo(
         showRequirement: inventoryType == InventoryType.player,
         data,
         isDetailed: isDetailed,
-        showDebugId: engine.config.debugMode,
+        showDebugId: engine.config.developmentMode,
       );
       return description;
   }

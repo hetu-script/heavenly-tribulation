@@ -9,7 +9,7 @@ const defaultGameSize = Size(1440.0, 810.0);
 final engine = SamsaraEngine(
   config: EngineConfig(
     name: 'Heavenly Tribulation',
-    debugMode: true,
+    developmentMode: true,
     musicVolume: 0.5,
     soundEffectVolume: 0.5,
     showFps: false,

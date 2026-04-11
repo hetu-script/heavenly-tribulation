@@ -853,7 +853,7 @@ final class GameData with ChangeNotifier {
     final id = siteData['id'];
     final card = CustomGameCard(
       id: id,
-      deckId: id,
+      uniqueId: id,
       data: siteData,
       anchor: Anchor.center,
       borderRadius: 15.0,
@@ -889,7 +889,7 @@ final class GameData with ChangeNotifier {
   }) {
     final card = CustomGameCard(
       id: id ?? spriteId,
-      deckId: id ?? spriteId,
+      uniqueId: id ?? spriteId,
       borderRadius: 20.0,
       spriteId: 'location/site_frame.png',
       title: title,
@@ -1030,8 +1030,9 @@ final class GameData with ChangeNotifier {
     }
 
     description.writeln(titleString);
-    if (engine.config.debugMode) {
-      description.writeln('<grey>[${itemData['id']}]</> - press `c` to copy');
+    if (engine.config.developmentMode) {
+      description
+          .writeln('<grey>[${itemData['id']}]</> - press `ctrl+c` to copy');
     }
     description.writeln('$rarityString$typeString$priceString');
 
@@ -1173,7 +1174,7 @@ final class GameData with ChangeNotifier {
         description.writeln('<yellow>${engine.locale('estimatedPrice')}: '
             '$estimatedPrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
       }
-      if (engine.config.debugMode) {
+      if (engine.config.developmentMode) {
         description.writeln('<grey>basePrice: ${itemData['price']}</>');
       }
     }
@@ -1215,9 +1216,9 @@ final class GameData with ChangeNotifier {
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     extraDescription.writeln(titleString);
-    if (engine.config.debugMode && showDebugId) {
+    if (engine.config.developmentMode && showDebugId) {
       extraDescription
-          .writeln('<grey>[${cardData['id']}]</> - press `c` to copy');
+          .writeln('<grey>[${cardData['id']}]</> - press `ctrl+c` to copy');
     }
     extraDescription.writeln('$rankString$genreString$categoryString');
     extraDescription.writeln(kSeparateLine);
@@ -1249,7 +1250,11 @@ final class GameData with ChangeNotifier {
                 line += ' (${engine.locale('cultivationRank_$affixRank')})';
               }
             }
-            extraDescription.writeln('<lightBlue>$line</>');
+            if (affix['isFreezed'] == true) {
+              extraDescription.writeln('<green>$line</>');
+            } else {
+              extraDescription.writeln('<lightBlue>$line</>');
+            }
           }
         }
 
@@ -1336,7 +1341,7 @@ final class GameData with ChangeNotifier {
 
     return CustomGameCard(
       id: id,
-      // deckId: id,
+      // uniqueId: id,
       data: cardData,
       preferredSize: GameUI.deckbuildingCardSize,
       spriteId: 'battlecard/border4.png',

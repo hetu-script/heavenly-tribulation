@@ -29,7 +29,7 @@ class CurrencyBar extends StatelessWidget {
             onEnter: (rect) {
               context
                   .read<HoverContentState>()
-                  .show(engine.locale('money_description'), rect);
+                  .show(rect: rect, data: engine.locale('money_description'));
             },
             onExit: () {
               context.read<HoverContentState>().hide();
@@ -59,7 +59,7 @@ class CurrencyBar extends StatelessWidget {
             onEnter: (rect) {
               context
                   .read<HoverContentState>()
-                  .show(engine.locale('shard_description'), rect);
+                  .show(rect: rect, data: engine.locale('shard_description'));
             },
             onExit: () {
               context.read<HoverContentState>().hide();

@@ -38,7 +38,7 @@ class GameState with ChangeNotifier {
     updateActiveJournals();
     updateLocation();
     updateDungeon();
-    updateNpcs();
+    updateNpcs([]);
   }
 
   void updateDatetime({int? timestamp, String? datetimeString}) {
@@ -91,9 +91,11 @@ class GameState with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNpcs([Iterable characters = const []]) {
+  void updateNpcs(Iterable characters, {bool notify = true}) {
     npcs = characters;
-    notifyListeners();
+    if (notify) {
+      notifyListeners();
+    }
   }
 
   void updateTerrain({
@@ -118,7 +120,7 @@ class GameState with ChangeNotifier {
         engine.hetu.assign('terrain', currentTerrain!.data);
       }
     }
-    if (changed) {
+    if (changed && notify) {
       notifyListeners();
     }
   }

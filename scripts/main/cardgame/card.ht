@@ -98,13 +98,11 @@ struct BattleCard {
     }
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
-    mainAffix.rank = this.rank
+    mainAffix.isMain = true
+    final mainAffixRank = Math.max(mainAffix.rank, this.rank)
+    this.rank = mainAffix.rank = mainAffixRank
 
     this.affixes = [mainAffix]
-
-    if (mainAffix.rank > this.rank) {
-      this.rank = mainAffix.rank
-    }
     if (mainAffix.kind != null) {
       this.name = generateSkillName(kind: mainAffix.kind)
     } else {
@@ -130,7 +128,7 @@ struct BattleCard {
     }
     this.level = level
     
-    _updateMainAffixValue(this)
+    _updateAffixValue(this, mainAffix)
 
     final affixUniqueIds = []
     // if (mainAffix.uniqueId) {
@@ -194,27 +192,28 @@ function _checkRequirementForCard(character, card) {
 
 }
 
-function _updateMainAffixValue(card) {
-  let mainAffix = card.affixes.first
-  if (mainAffix.valueData is List) {
-    if (mainAffix.maxLevel) {
-      mainAffix.level = Math.min(card.level, mainAffix.maxLevel)
-    } else {
-      mainAffix.level = card.level
-    }
+function _updateAffixValue(card, affix) {
+  final minLevel = minLevelForRank(affix.rank)
+  final maxLevel = maxLevelForRank(affix.rank)
+  affix.level = minLevel + random.nextInt(maxLevel - minLevel)
+  if (affix.maxLevel) {
+    affix.level = Math.min(affix.level, affix.maxLevel)
+  }
+
+  if (affix.valueData is List) {
     let values = []
-    for (final valueData in mainAffix.valueData) {
-      let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, mainAffix.level) : mainAffix.level
+    for (final valueData in affix.valueData) {
+      let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
       final value = valueData.base + valueData.increment * valueLevel
       values.add(value.round())
     }
-    // if (mainAffix.requirement && mainAffix.requirement.isNotEmpty) {
+    // if (affix.requirement && affix.requirement.isNotEmpty) {
     //   for (final reqData in mainAffix.requirement.values) {
     //     final value = reqData.base + reqData.increment * mainAffix.level
     //     reqData.value = value.round()
     //   }
     // }
-    mainAffix.value = values
+    affix.value = values
   }
 }
 
@@ -239,12 +238,17 @@ function _randomizeAffixLevel(card, affix) {
   }
 }
 
-function _addAffixToCard(card, affix, rank) {
-  affix.rank = rank
+function _addAffixToCard(card, affix, rank, {index}) {
+  affix.rank = Math.min(rank, card.rank)
 
   _randomizeAffixLevel(card, affix)
 
-  card.affixes.add(affix)
+  if (index != null) {
+    assert(index >= 0 && index <= card.affixes.length)
+    card.affixes[index] = affix
+  } else {
+    card.affixes.add(affix)
+  }
 
   _updateAffixUniqueIds(card)
 }
@@ -310,15 +314,13 @@ function _addExtraAffixes(card) {
 
 /// 增加一个额外词条
 /// materialRank 为打造材料的境界，决定新词条的隐藏境界
-function addAffix(card, materialRank) {
-  if (materialRank < card.rank) {
-    return engine.locale('craft_addAffix_warning_materialRank')
-  }
-
-  let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
-  // 这里判断的时候要 +1 因为主词条本身也在 length 中
-  if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
-    return engine.locale('craft_addAffix_warning')
+function addAffix(card, materialRank, {index}) {
+  if (index == null) {
+    let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
+    // 这里判断的时候要 +1 因为主词条本身也在 length 中
+    if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
+      return engine.locale('craft_addAffix_warning')
+    }
   }
 
   let supportAffixes = _getSupportAffixes(card)
@@ -327,7 +329,7 @@ function addAffix(card, materialRank) {
   }
   final affix = Object.create(random.nextIterable(supportAffixes))
 
-  _addAffixToCard(card, affix, materialRank)
+  _addAffixToCard(card, affix, materialRank, index: index)
 
   // 这里显式返回空值表明成功执行
   return null
@@ -339,17 +341,19 @@ function replaceAffix(card, materialRank) {
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && !affix.isFreezed)
   }).toList()
-
-  extraAffixes.sort((a, b) => a.rank.compareTo(b.rank))
-
   if (extraAffixes.isEmpty) {
     return engine.locale('craft_replaceAffix_warning')
   }
-  final affix = random.nextIterable(extraAffixes)
+  extraAffixes.sort((a, b) => a.rank.compareTo(b.rank))
 
-  card.affixes.remove(affix)
-  
-  addAffix(card, materialRank: materialRank)
+
+  final rank = extraAffixes.first.rank
+  final availableAffixes = extraAffixes.where( (affix) => affix.rank == rank)
+  final targetAffix = random.nextIterable(availableAffixes)
+
+  final index = card.affixes.indexOf(targetAffix)
+
+  addAffix(card, materialRank, index: index)
 
   _updateAffixUniqueIds(card)
 
@@ -366,15 +370,16 @@ function freezeAffix(card, materialRank) {
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
   }).toList()
-
-  extraAffixes.sort( (a, b) => b.rank.compareTo(a.rank) )
-
   if (extraAffixes.isEmpty) {
     return engine.locale('craft_freezeAffix_noAffix')
   }
+  extraAffixes.sort( (a, b) => b.rank.compareTo(a.rank) )
+  
+  final rank = extraAffixes.first.rank
+  final availableAffixes = extraAffixes.where( (affix) => affix.rank == rank)
+  final targetAffix = random.nextIterable(availableAffixes)
 
-  final affix = extraAffixes.first
-  affix.isFreezed = true
+  targetAffix.isFreezed = true
   card.hasFreezedAffix = true
 
   // 这里显式返回空值表明成功执行
@@ -398,8 +403,7 @@ function rerollAffix(card, materialRank) {
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
   card.level = minLevel + random.nearInt(maxLevel - minLevel)
-  
-  _updateMainAffixValue(card)
+  _updateAffixValue(card, card.affixes.first)
 
   for (final affix in extraAffixes) {
     _randomizeAffixLevel(card, affix)
@@ -430,25 +434,21 @@ function upgradeRank(card, materialRank) {
   // }
 
   card.rank += 1
-  // card.minLevel = minLevelForRank(card.rank)
-  // card.maxLevel = maxLevelForRank(card.rank)
+  card.affixes.first.rank = card.rank
 
-  final mainAffix = card.affixes.first
-  mainAffix.rank = card.rank
-
-  if (card.level < card.minLevel) {
-    card.level = card.minLevel
-    mainAffix.level = card.level
-    _updateMainAffixValue(card)
-  }
+  final minLevel = minLevelForRank(card.rank)
+  final maxLevel = maxLevelForRank(card.rank)
+  final newLevel = minLevel + random.nearInt(maxLevel - minLevel)
+  card.level = Math.max(card.level, newLevel)
 
   // 保留主词条和被锁定的词条
   final freezedAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && affix.isFreezed)
   })
-  card.affixes = [mainAffix]
-  for (final affix in freezedAffixes) {
-    card.affixes.add(affix)
+  card.affixes = [card.affixes.first, ...freezedAffixes]
+  for (final affix in card.affixes) {
+    affix.rank = card.rank
+    _updateAffixValue(card, affix)
   }
 
   _addExtraAffixes(card)
@@ -463,7 +463,7 @@ function upgradeRank(card, materialRank) {
 /// 这个操作并非打造操作，而是某些卡牌词条效果可能会用到
 function upgradeCard(card) {
   card.level += 1
-  _updateMainAffixValue(card)
+  _updateAffixValue(card, card.affixes.first)
 }
 
 /// 卡牌包是一种特殊物品，每个卡牌包包含3张牌

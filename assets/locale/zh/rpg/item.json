@@ -141,7 +141,7 @@
   "flavortext_craftmaterial_freezeAffix_fragment": "20 个真定残韵可以合成一个真定丹。",
 
   "craftmaterial_freezeAffix": "真定丹",
-  "flavortext_craftmaterial_freezeAffix": "用于物品或功法：冻结一个额外词条，使其无法被替换。\n直接服用：冻结一个已有的丹药 Buff，使其无法被其他丹药替换。",
+  "flavortext_craftmaterial_freezeAffix": "用于物品或功法：冻结一个额外词条，使其无法被替换。\n直接服用：延长当前丹药 Buff 效果的持续时间。",
 
   "craftmaterial_rerollAffix_fragment": "混元残韵",
   "flavortext_craftmaterial_rerollAffix_fragment": "20 个混元残韵可以合成一个混元丹。",
@@ -149,12 +149,12 @@
   "craftmaterial_rerollAffix": "混元丹",
   "flavortext_craftmaterial_rerollAffix": "用于物品或功法：重置所有词条等级。\n直接服用：重置自身灵根的数值。",
 
-  "craftmaterial_upgrade": "破镜丹",
+  "craftmaterial_upgradeRank": "破镜丹",
 
-  "craftmaterial_upgrade_rank1": "凝气丹",
-  "craftmaterial_upgrade_rank2": "筑基丹",
-  "craftmaterial_upgrade_rank3": "结丹丹",
-  "craftmaterial_upgrade_rank4": "还婴丹",
-  "craftmaterial_upgrade_rank5": "化神丹",
-  "flavortext_craftmaterial_upgrade": "用于物品或功法：提升境界。\n直接服用：降低下一次天道试炼的难度。"
+  "craftmaterial_upgradeRank1": "凝气丹",
+  "craftmaterial_upgradeRank2": "筑基丹",
+  "craftmaterial_upgradeRank3": "结丹丹",
+  "craftmaterial_upgradeRank4": "还婴丹",
+  "craftmaterial_upgradeRank5": "化神丹",
+  "flavortext_craftmaterial_upgradeRank": "用于物品或功法：提升境界。\n直接服用：降低下一次天道试炼的难度。"
 }

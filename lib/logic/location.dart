@@ -226,12 +226,12 @@ Future<bool> _checkRented(dynamic location,
   await dialog.execute();
   final selected = dialog.checkSelected('rentQuery');
   if (selected != 'rentFacility') return false;
-  bool success = engine.hetu.invoke(
+  int exhausted = engine.hetu.invoke(
     'exhaust',
     namespace: 'Player',
     positionalArgs: [materialId, rentCost],
   );
-  if (success) {
+  if (exhausted == rentCost) {
     engine.play(GameSound.coins);
     GameData.addMonthly(MonthlyActivityIds.rented, locationId);
     dialog.pushDialog(
