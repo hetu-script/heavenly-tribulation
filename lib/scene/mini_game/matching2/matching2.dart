@@ -336,7 +336,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     restart.onTap = (_, __) {
       _initializeGame();
     };
-    restart.isVisible = engine.config.developmentMode;
+    restart.isVisible = engine.config.developMode;
     camera.viewport.add(restart);
 
     exit = SpriteButton(
@@ -386,7 +386,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     victoryPrompt.removeFromParent();
     defeatPrompt.removeFromParent();
 
-    restart.isVisible = engine.config.developmentMode;
+    restart.isVisible = engine.config.developMode;
 
     // 移除所有旧方块
     for (var tile in boardTiles) {
@@ -1056,7 +1056,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      restart.isVisible = engine.config.developmentMode;
+      restart.isVisible = engine.config.developMode;
       restart.position = Vector2(
           center.x,
           victoryPrompt.bottomRight.y +

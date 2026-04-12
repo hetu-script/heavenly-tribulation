@@ -285,7 +285,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   //   super.render(canvas);
 
-  //   // if (engine.config.developmentMode || engine.config.showFps) {
+  //   // if (engine.config.developMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
@@ -1164,14 +1164,14 @@ class WorldMapScene extends Scene with HasCursorState {
       double speed;
       int timeCost;
       if (kTerrainKindsMountain.contains(terrain.kind)) {
-        staminaCost = GameData.hero['stats']['staminaCostOnMountain'];
-        speed = GameData.hero['stats']['speedOnMountain'];
+        staminaCost = GameData.hero['stats']['mountainMoveStaminaCost'];
+        speed = GameData.hero['stats']['mountainMoveSpeed'];
       } else if (kTerrainKindsWater.contains(terrain.kind)) {
-        staminaCost = GameData.hero['stats']['staminaCostOnWater'];
-        speed = GameData.hero['stats']['speedOnWater'];
+        staminaCost = GameData.hero['stats']['waterMoveStaminaCost'];
+        speed = GameData.hero['stats']['waterMoveSpeed'];
       } else {
         staminaCost = 0.0;
-        speed = GameData.hero['stats']['speedOnPlain'];
+        speed = GameData.hero['stats']['plainMoveSpeed'];
       }
       timeCost = (kTicksPerTime / speed).round();
       if (isMainWorld) {
@@ -1762,7 +1762,7 @@ class WorldMapScene extends Scene with HasCursorState {
           hoverContent.write('${zone['name']}');
         }
         hoverContent.writeln(' ${engine.locale(tile.kind)}'
-            '${engine.config.developmentMode ? ' <grey>#${tile.index}</>' : ''}'
+            '${engine.config.developMode ? ' <grey>#${tile.index}</>' : ''}'
             ' [${tile.left},${tile.top}]');
         if (tile.nationId != null) {
           final sect = GameData.getSect(tile.nationId);
@@ -1778,13 +1778,12 @@ class WorldMapScene extends Scene with HasCursorState {
           final location = GameData.getLocation(tile.locationId);
           if (location['isDiscovered']) {
             hoverContent.writeln('');
-            if (location['category'] == 'city' &&
-                engine.config.developmentMode) {
+            if (location['category'] == 'city' && engine.config.developMode) {
               hoverContent.writeln('${engine.locale('city')}'
                   ' <grey>${engine.locale('development')}: ${location['development']},'
                   ' ${engine.locale('residents')}: ${location['residents'].length}</>');
             } else {
-              if (engine.config.developmentMode) {
+              if (engine.config.developMode) {
                 hoverContent.writeln('${location['name']}'
                     ' <grey>${engine.locale('development')}: ${location['development']}</>');
               }
@@ -1798,7 +1797,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
           final objectHoverContent = object?['hoverContent'] ?? '';
           hoverContent.writeln(objectHoverContent);
-          if (engine.config.developmentMode) {
+          if (engine.config.developMode) {
             hoverContent.writeln('<grey>${object['id']}</>');
           }
           clickable = true;

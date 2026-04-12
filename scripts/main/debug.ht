@@ -74,7 +74,7 @@ namespace debug {
     
     final items = []
     for (var kind in Constants.equipmentKinds) {
-      final item = Equipment(kind: kind, rank: hero.rank)
+      final item = Equipment(kind: kind, rank: 5)
       items.add(item)
       entityAcquire(character, item, incurIncident: false)
     }

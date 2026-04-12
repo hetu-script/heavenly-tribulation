@@ -453,7 +453,7 @@ class BattleScene extends Scene {
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
       nextTurnButton.onTap = (_, __) {
-        if (engine.config.developmentMode || !isAutoBattle) {
+        if (engine.config.developMode || !isAutoBattle) {
           nextTurn();
         } else {
           startAutoBattle();
@@ -477,7 +477,7 @@ class BattleScene extends Scene {
       size: GameUI.buttonSizeSmall,
     );
     nextTurnButton.onTap = (_, __) {
-      if (engine.config.developmentMode || !isAutoBattle) {
+      if (engine.config.developMode || !isAutoBattle) {
         nextTurn();
       } else {
         startAutoBattle();
@@ -676,6 +676,21 @@ class BattleScene extends Scene {
     }
   }
 
+  void clearPotionPassives(BattleCharacter character) {
+    final potionPassives = character.data['potionPassives'];
+    final toBeRemovedPotionPassives = [];
+    for (final passiveId in potionPassives.keys) {
+      if (potionPassives[passiveId]['isPermanent'] != true) {
+        toBeRemovedPotionPassives.add(passiveId);
+      }
+    }
+    for (final passiveId in toBeRemovedPotionPassives) {
+      potionPassives.remove(passiveId);
+    }
+    engine.hetu
+        .invoke('characterCalculateStats', positionalArgs: [character.data]);
+  }
+
   Future<void> _onBattleEnd() async {
     if (battleResult == true) {
       camera.viewport.add(victoryPrompt);
@@ -698,19 +713,8 @@ class BattleScene extends Scene {
 
     battleEnded = true;
 
-    final heroPotionPassives = hero.data['potionPassives'];
-    if (heroPotionPassives.isNotEmpty) {
-      heroPotionPassives.clear();
-      engine.hetu
-          .invoke('characterCalculateStats', positionalArgs: [hero.data]);
-    }
-
-    final enemyPotionPassives = enemy.data['potionPassives'];
-    if (enemyPotionPassives.isNotEmpty) {
-      enemyPotionPassives.clear();
-      engine.hetu
-          .invoke('characterCalculateStats', positionalArgs: [enemy.data]);
-    }
+    clearPotionPassives(hero);
+    clearPotionPassives(enemy);
 
     bool hasScroll = false;
     for (final card in heroDeck) {
@@ -784,7 +788,7 @@ class BattleScene extends Scene {
           showHero: false,
           showNpcs: false,
           actions: [
-            if (engine.config.developmentMode)
+            if (engine.config.developMode)
               Container(
                 decoration: GameUI.boxDecoration,
                 width: GameUI.infoButtonSize.width,
@@ -833,7 +837,7 @@ class BattleScene extends Scene {
   // void render(Canvas canvas) {
   //   super.render(canvas);
 
-  //   // if (engine.config.developmentMode || engine.config.showFps) {
+  //   // if (engine.config.developMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',

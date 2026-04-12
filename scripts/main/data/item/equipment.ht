@@ -1,34 +1,4 @@
 
-const kTalismanEnergyTypes = [
-  'start_battle_with_energy_positive_spell',
-  'start_deck_with_energy_positive_spell',
-  'start_turn_with_energy_positive_spell',
-  'start_battle_with_energy_positive_weapon',
-  'start_deck_with_energy_positive_weapon',
-  'start_battle_with_energy_positive_unarmed',
-  'start_battle_with_energy_positive_ultimate',
-]
-
-const kArmorResistPassives = [
-  'physicalResist',
-  'elementalResist',
-]
-
-// const kStatusSpiritPassives = [
-//   'physicalResist',
-//   'elementalResist',
-//   'chiResist',
-//   'psychicResist',
-//   'unarmedAttack',
-//   'weaponAttack',
-//   'spellAttack',
-//   'curseAttack',
-//   'lifeMax',
-//   'manaMax',
-//   'chakraMax',
-//   'karmaMax',
-// ]
-
 struct Equipment {
   constructor ({
     id,
@@ -49,7 +19,13 @@ struct Equipment {
     this.isEquippable = true
     this.type = 'equipment'
 
+    // kind 决定了物品名字的生成方式
+    // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
+    // talisman具体分为：buff, ongoing, consume
+    // 其他情况下 kind == type
     this.kind = kind
+    // category 决定了能装备的数量
+    // weapon, armor, helmet, boots, vehicle，talisman
     this.category = category
     if (category == null) {
       if (this.kind != null) {
@@ -67,10 +43,6 @@ struct Equipment {
       this.kind = random.nextIterable(Constants.equipmentCategoryKinds[this.category])
     }
     assert(Constants.equipmentKinds.contains(this.kind))
-    // kind 决定了物品名字的生成方式
-    // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
-    // talisman具体分为：buff, ongoing, consume
-    // 其他情况下 kind == type
     this.name = name ?? generateTalismanName(kind: this.kind)
 
     if (rarity != null) {
@@ -93,38 +65,20 @@ struct Equipment {
     // 这里要再判断一次，因为可能是从外部传入的 level
     this.level = level.clamp(Math.max(1, minLevel), maxLevel)
 
-    let mainAffix
-    let passiveRawData
     this.affixes = []
     this.affixUniqueIds = Set()
-    // category 决定了能装备的数量
-    // weapon, armor, helmet, boots, vehicle，talisman
-    switch(this.category) {
-      'weapon', 'boots', 'vehicle': {
-        // 武器的固定词条是允许使用该类卡牌
-        passiveRawData = game.passives['equipment_${this.kind}']
-        assert(passiveRawData != null, 'kind: ${this.kind}')
-      }
-      'shield', 'armor', 'gloves', 'helmet': {
-        // 护甲的固定词条获得元素或物理抗性
-        final resistType = random.nextIterable(kArmorResistPassives)
-        passiveRawData = game.passives[resistType]
-        assert(passiveRawData != null, 'resistType: ${resistType}')
-      }
-      'jewelry': {
-        // 饰品的固定词条是获得主属性
-        final attributeType = random.nextIterable(Constants.battleAttributes)
-        passiveRawData = game.passives[attributeType]
-        assert(passiveRawData != null, 'attributeType: ${attributeType}')
-      }
-      else: {
-        // 法器的固定词条是获得资源
-        final energytype = random.nextIterable(kTalismanEnergyTypes)
-        passiveRawData = game.passives[energytype]
-        assert(passiveRawData != null, 'energytype: ${energytype}')
-      }
+    let mainAffix
+    final mainAffixes = game.passives.values.where((affix) {
+      if (!affix.isItemMain) return false
+      if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
+      if (affix.rank > this.rank) return false
+      return true
+    })
+    if (mainAffixes.isEmpty) {
+      throw('Found no main affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
     }
-    mainAffix = Object.create(passiveRawData)
+
+    mainAffix = Object.create(random.nextIterable(mainAffixes))
     mainAffix.level = this.level
     if (mainAffix.increment != null) {
       if (mainAffix.increment < 1) {
@@ -152,10 +106,10 @@ struct Equipment {
     if (affixCount > 0) {
       for (var i in range(affixCount)) {
         final supportAffixes = game.passives.values.where((affix) {
-          if (!affix.isItemAffix) return false
+          if (!affix.isItem) return false
           if (this.affixUniqueIds.contains(affix.id) ||
             (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
-          if (affix.kind is List && !affix.kind.contains(this.kind)) return false
+          if (affix.categories is List && !affix.categories.contains(this.kind)) return false
           if (affix.rank > this.rank) return false
           return true
         })

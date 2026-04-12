@@ -48,51 +48,6 @@ struct Materialpack {
   }
 }
 
-/// 临时性丹药效果。在下一次战斗后消失。同类效果会覆盖。
-const kPotionEphemeralKinds = [
-  'heal',
-  'excessiveHeal',
-  'vigor',
-  'mana',
-  'quick',
-  'nimble',
-  'ward',
-  'shieldPhysical',
-  'shieldChi',
-  'shieldElemental',
-  'shieldPsychic',
-  'defensePhysical',
-  'defenseChi',
-  'defenseElemental',
-  'defensePsychic',
-]
-
-/// 永久性丹药效果。同类效果会覆盖。
-/// 永久性丹药
-const kPotionPermanentKinds = [
-  'lifeMax',
-  'manaMax',
-  'chakraMax',
-  'karmaMax',
-  'dexterity',
-  'spirituality',
-  'strength',
-  'willpower',
-  'perception',
-  'unarmedAttack',
-  'weaponAttack',
-  'spellAttack',
-  'curseAttack',
-  'physicalResist',
-  'chiResist',
-  'elementalResist',
-  'psychicResist',
-  'physicalResistMax',
-  'chiResistMax',
-  'elementalResistMax',
-  'psychicResistMax',
-]
-
 const kPotionBottleCount = 2
 const kPotionBottleColorCount = 4
 
@@ -117,6 +72,7 @@ struct Potion {
     this.isUsable = true
     this.type = kItemTypeConsumable
     this.category = kItemCategoryPotion
+    this.kind = 'potion'
 
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
@@ -149,11 +105,7 @@ struct Potion {
     this.affixUniqueIds = Set()
     let mainAffix
     let passiveRawData
-    // if (this.rank < 3) {
-    //   passiveRawData = game.passives['heal']
-    // } else {
-      passiveRawData = game.passives['overheal']
-    // }
+    passiveRawData = game.passives['overheal']
     assert(passiveRawData != null, 'could not find passive for potion (rank: ${this.rank})')
     mainAffix = Object.create(passiveRawData)
     if (mainAffix.increment != null) {
@@ -180,7 +132,7 @@ struct Potion {
     if (affixCount > 0) {
       for (var i in range(affixCount)) {
         final supportAffixes = game.passives.values.where((affix) {
-          if (!affix.isEphemeralPotionAffix && !affix.isPermanentPotionAffix) return false
+          if (!affix.isPotion) return false
           if (this.affixUniqueIds.contains(affix.id) ||
             (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
           if (affix.rank > this.rank) return false

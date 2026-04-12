@@ -290,7 +290,7 @@ class DifferenceGame extends Scene with HasCursorState {
     }
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      restart.isVisible = engine.config.developmentMode;
+      restart.isVisible = engine.config.developMode;
       restart.position = Vector2(
           center.x,
           victoryPrompt.bottomRight.y +
@@ -357,7 +357,7 @@ class DifferenceGame extends Scene with HasCursorState {
     restart.onTap = (_, __) {
       _initializeGame();
     };
-    restart.isVisible = engine.config.developmentMode;
+    restart.isVisible = engine.config.developMode;
     camera.viewport.add(restart);
 
     exit = SpriteButton(
@@ -492,7 +492,7 @@ class DifferenceGame extends Scene with HasCursorState {
     victoryPrompt.removeFromParent();
     defeatPrompt.removeFromParent();
 
-    restart.isVisible = engine.config.developmentMode;
+    restart.isVisible = engine.config.developMode;
 
     engine.bgm.resume();
 

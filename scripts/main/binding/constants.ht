@@ -6,12 +6,11 @@ external abstract class Constants {
 
   static get baseExpGainPerLight;
   static get baseExpCollectSpeed;
-  static get baseMoveSpeedOnPlain;
-  static get baseMoveSpeedOnMountain;
-  static get baseMoveSpeedOnWater;
-  static get baseStaminaCostOnMountain;
-  static get baseStaminaCostOnWater;
-  static get baseCraftSkillLevel;
+  static get basePlainMoveSpeed;
+  static get baseMountainMoveSpeed;
+  static get baseWaterMoveSpeed;
+  static get baseMountainMoveStaminaCost;
+  static get baseWaterMoveStaminaCost;
   static get baseLife;
   static get baseLifePerLevel;
   static get baseLightRadius;

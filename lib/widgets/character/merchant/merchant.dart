@@ -127,28 +127,28 @@ class _MerchantDialogState extends State<MerchantDialog> {
       if (value > 1.0) {
         if (value < 1.3) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FE9696>${engine.locale('expensiveSmall')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FE9696>${engine.locale('expensiveSmall')} ${engine.config.developMode ? '×$value' : ''}</>');
         } else if (value < 1.6) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FF6161>${engine.locale('expensiveMedium')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FF6161>${engine.locale('expensiveMedium')} ${engine.config.developMode ? '×$value' : ''}</>');
         } else {
           desc.writeln(
-              '${engine.locale(key)}: <color=#FF2222>${engine.locale('expensiveLarge')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#FF2222>${engine.locale('expensiveLarge')} ${engine.config.developMode ? '×$value' : ''}</>');
         }
       } else if (value < 1.0) {
         if (value > 0.7) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#96FF96>${engine.locale('cheapSmall')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#96FF96>${engine.locale('cheapSmall')} ${engine.config.developMode ? '×$value' : ''}</>');
         } else if (value > 0.4) {
           desc.writeln(
-              '${engine.locale(key)}: <color=#61FF61>${engine.locale('cheapMedium')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#61FF61>${engine.locale('cheapMedium')} ${engine.config.developMode ? '×$value' : ''}</>');
         } else {
           desc.writeln(
-              '${engine.locale(key)}: <color=#22FF22>${engine.locale('cheapLarge')} ${engine.config.developmentMode ? '×$value' : ''}</>');
+              '${engine.locale(key)}: <color=#22FF22>${engine.locale('cheapLarge')} ${engine.config.developMode ? '×$value' : ''}</>');
         }
       } else {
         desc.writeln(
-            '${engine.locale(key)}: ${engine.locale('normal')} ${engine.config.developmentMode ? '×$value' : ''}');
+            '${engine.locale(key)}: ${engine.locale('normal')} ${engine.config.developMode ? '×$value' : ''}');
       }
     }
 

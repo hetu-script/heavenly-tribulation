@@ -1141,13 +1141,12 @@ const kRaceMainAttributes = {
 const kBaseExpGainPerLight = 40;
 const kBaseExpCollectSpeed = 1.0;
 const kBaseNPCMoveSpeedMultiplier = 2;
-const kBaseMoveSpeedOnPlain = 2.0;
-const kBaseMoveSpeedOnMountain = 1.0;
-const kBaseMoveSpeedOnWater = 4.0;
+const kBasePlainMoveSpeed = 2.0;
+const kBaseMountainMoveSpeed = 1.0;
+const kBaseWaterMoveSpeed = 4.0;
 
-const kBaseStaminaCostOnMountain = 2.0;
-const kBaseStaminaCostOnWater = 4.0;
-const kBaseCraftSkillLevel = 0;
+const kBaseMountainMoveStaminaCost = 2.0;
+const kBaseWaterMoveStaminaCost = 4.0;
 
 const kBaseLife = 10;
 const kBaseLifePerLevel = 5;
@@ -1685,15 +1684,17 @@ const kItemEquipmentKinds = {
   'pearl',
 };
 
-const kItemCategoryCardpack = 'cardpack';
-const kItemCategoryIdentifyScroll = 'identify_scroll';
-const kItemCategoryScrollPaper = 'scroll_paper';
-const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
 const kItemCategoryExtractedAffix = 'extracted_affix';
+const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryPotion = 'potion';
+const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryIdentifyScroll = 'identify_scroll';
+const kItemCategoryScrollPaper = 'scroll_paper';
+const kItemCategoryDungeonTicket = 'dungeon_ticket';
+const kItemCategoryAffixMaterial = 'affix_crafting_material';
 
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位

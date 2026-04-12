@@ -14,9 +14,9 @@ struct ExtractedAffix {
     this.icon = 'item/craft/extracted_affix.png'
     this.stackSize = 1
 
-    this.type = kItemTypeMiscellaneous
+    this.type = kItemTypeEquipment
     this.category = kItemCategoryExtractedAffix
-    this.affix = affix
+    this.affixes = [affix]
     
     this.isIdentified = true
     

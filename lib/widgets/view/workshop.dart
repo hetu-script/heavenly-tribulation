@@ -40,7 +40,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   dynamic _selectedEquipment;
   bool get isExtracting => _selectedEquipment != null;
 
-  List? _selectedEquipmentAffixes;
+  List _selectedEquipmentAffixes = [];
   dynamic _selectedAffix;
 
   @override
@@ -93,6 +93,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
       assert(itemData['type'] == 'equipment');
       engine.play('sword-sheathed-178549.mp3');
       _selectedEquipment = itemData;
+      _selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
       setState(() {});
     }
   }
@@ -225,7 +226,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                               const Spacer(),
                               fluent.Button(
                                 onPressed: () {},
-                                child: Text(engine.locale('craft_item')),
+                                child: Text(engine.locale('craft')),
                               ),
                             ],
                           ),
@@ -269,6 +270,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                       onSecondaryTapped: (_, __) {
                                         engine.play(GameSound.put);
                                         _selectedEquipment = null;
+                                        _selectedEquipmentAffixes = [];
                                         setState(() {});
                                       },
                                     ),
@@ -286,11 +288,11 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              _selectedEquipmentAffixes!.isEmpty
+                              _selectedEquipmentAffixes.isEmpty
                                   ? EmptyPlaceholder(
                                       engine.locale('noUsableItems'))
                                   : Column(
-                                      children: _selectedEquipmentAffixes!
+                                      children: _selectedEquipmentAffixes
                                           .map((affixData) {
                                         return BorderedIconButton(
                                           size: const Size(400.0, 30.0),
@@ -307,19 +309,34 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                                   affixData['value'],
                                                 ]),
                                             textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 12.0,
-                                              color: _selectedAffix == affixData
-                                                  ? GameUI.selectedColor
-                                                  : GameUI.foregroundColor,
-                                            ),
                                           ),
                                         );
                                       }).toList(),
                                     ),
                               const Spacer(),
                               fluent.Button(
-                                onPressed: () {},
+                                onPressed: _selectedAffix != null
+                                    ? () {
+                                        final extractedAffix = engine.hetu
+                                            .invoke('ExtractedAffix',
+                                                namedArgs: {
+                                              'affix': _selectedAffix,
+                                              'rank':
+                                                  _selectedEquipment['rank'],
+                                            });
+                                        engine.hetu.invoke('lose',
+                                            namespace: 'Player',
+                                            positionalArgs: [
+                                              _selectedEquipment,
+                                            ]);
+                                        engine.hetu.invoke('acquire',
+                                            namespace: 'Player',
+                                            positionalArgs: [
+                                              extractedAffix,
+                                            ]);
+                                        engine.play(GameSound.anvil);
+                                      }
+                                    : null,
                                 child: Text(engine.locale('extract')),
                               )
                             ],

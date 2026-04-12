@@ -498,15 +498,15 @@
 
   "cultivationRank_0": "无",
   "cultivationRank_1": "凝气",
-  "cultivationRank_1_description": "<yellow bold>凝气境</>\n体力上限+20",
+  "cultivationRank_1_description": "<yellow bold>凝气境</>\n体力上限增加: +20\n装备上限: 4\n卡组上限: 4\n职级上限：执事",
   "cultivationRank_2": "筑基",
-  "cultivationRank_2_description": "<yellow bold>筑基境</>\n体力上限+40",
+  "cultivationRank_2_description": "<yellow bold>筑基境</>\n体力上限增加: +60\n装备上限: 5\n卡组上限: 5\n职级上限：总管",
   "cultivationRank_3": "结丹",
-  "cultivationRank_3_description": "<yellow bold>结丹境</>\n体力上限+60",
+  "cultivationRank_3_description": "<yellow bold>结丹境</>\n体力上限增加: +120\n装备上限: 6\n卡组上限: 6\n职级上限：堂主",
   "cultivationRank_4": "还婴",
-  "cultivationRank_4_description": "<yellow bold>还婴境</>\n体力上限+80",
+  "cultivationRank_4_description": "<yellow bold>还婴境</>\n体力上限增加: +200\n装备上限: 7\n卡组上限: 7\n职级上限：长老",
   "cultivationRank_5": "化神",
-  "cultivationRank_5_description": "<yellow bold>化神境</>\n体力上限+100",
+  "cultivationRank_5_description": "<yellow bold>化神境</>\n体力上限增加: +300\n装备上限: +8\n卡组上限: 8\n职级上限：掌门",
 
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
@@ -965,7 +965,7 @@
   "hint_tribulation_4": "放弃天道挑战后，扣掉的修为经验不会返还。",
   "hint_tribulation_5": "你现在的修为已经达到了目前境界所允许的巅峰。你需要在天道技能中解锁更高的境界节点才能继续提升。",
 
-  "hint_generateAttributes": "服下丹药之后，你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。",
+  "hint_generateAttributes": "你感到四肢百骸一阵酥麻，体内的真气也变得异常畅通。你的灵力、体魄、身法、念力、神识似乎被重塑了一遍。",
 
   "hint_replenishLocation": "商店重置日期: 每月 {0} 日\n本月手动刷新次数：{1}\n本次手动刷新花费: {2} 文",
 

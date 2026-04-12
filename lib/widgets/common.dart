@@ -159,7 +159,7 @@ String? buildItemHoverInfo(
         showRequirement: inventoryType == InventoryType.player,
         data,
         isDetailed: isDetailed,
-        showDebugId: engine.config.developmentMode,
+        showDebugId: engine.config.developMode,
       );
       return description;
   }

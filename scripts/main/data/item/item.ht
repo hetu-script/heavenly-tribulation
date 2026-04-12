@@ -16,33 +16,27 @@ const kItemTypeMiscellaneous = 'miscellaneous';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
+const kItemCategoryExtractedAffix = 'extracted_affix';
 const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryPotion = 'potion';
-
 const kItemCategoryEquipmentAffix = 'equipment_affix';
-
 const kItemCategoryIdentifyScroll = 'identify_scroll';
-
 const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
-const kItemCategoryCraftmaterialAddAffix = 'craftmaterial_addAffix';
-const kItemCategoryCraftmaterialReplaceAffix = 'craftmaterial_replaceAffix';
-const kItemCategoryCraftmaterialFreezeAffix = 'craftmaterial_freezeAffix';
-const kItemCategoryCraftmaterialRerollAffix = 'craftmaterial_rerollAffix';
-const kItemCategoryCraftmaterialUpgrade = 'craftmaterial_upgradeRank';
+const kItemCategoryAffixMaterial = 'affix_crafting_material';
 
 const kNormalPrototypeItems = [
   kItemCategoryIdentifyScroll,
 ];
 
 const kRankedPrototypeItems = [
-  kItemCategoryScrollPaper,
-  kItemCategoryDungeonTicket,
-  kItemCategoryCraftmaterialAddAffix,
-  kItemCategoryCraftmaterialReplaceAffix,
-  kItemCategoryCraftmaterialFreezeAffix,
-  kItemCategoryCraftmaterialRerollAffix,
-  kItemCategoryCraftmaterialUpgrade,
+  'scroll_paper',
+  'craftmaterial_addAffix',
+  'craftmaterial_replaceAffix',
+  'craftmaterial_freezeAffix',
+  'craftmaterial_removeAffix',
+  'craftmaterial_rerollAffix',
+  'craftmaterial_upgradeRank',
 ];
 
 const kEstimatePriceFactor = 0.8;
@@ -106,7 +100,7 @@ function createItemById(id, {amount, rank, level}) {
     item.rank = (rank ?? 1).clamp(1, kCultivationRankMax)
     item.rarity = Constants.rankToRarity[item.rank]
     final rankString = '${item.rank}'
-    item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : (item.id + rankString)
+    item.id = item.isUnstackable ? crypto.randomUID(withTime: true) : ('${item.id}_${rankString}')
     if (item.isRankedName) {
       item.name = engine.locale(item.name + rankString)
     } else {

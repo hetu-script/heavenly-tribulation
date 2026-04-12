@@ -43,16 +43,16 @@ const kMoreStats = [
   'divider',
   'monthlyIdentifyCardsMax',
   'lightRadius',
-  'speedOnPlain',
-  'speedOnMountain',
-  'speedOnWater',
-  'staminaCostOnMountain',
-  'staminaCostOnWater',
-  'speedExpCollect',
+  'plainMoveSpeed',
+  'mountainMoveSpeed',
+  'waterMoveSpeed',
+  'mountainMoveStaminaCost',
+  'waterMoveStaminaCost',
+  'expCollectSpeed',
   'expGainPerLight',
   'staminaCostWork',
   'workEfficiency',
-  'craftSkillLevel',
+  'craftEfficiency',
 ];
 
 const kNonBattleItemsLength = 4;
@@ -84,6 +84,7 @@ class _CharacterStatsState extends State<CharacterStats> {
     final num baseValue = character[id] ?? 0;
     final num value = character['stats'][id] ?? baseValue;
 
+    String idString = engine.locale(id);
     String valueString;
     String description;
     if (id == 'tribulationCount') {
@@ -93,16 +94,19 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueMax</>'
           : valueMax.toString();
       valueString = '$value/$maxString';
-      description = engine.locale('${id}_description');
+      description = engine.locale('stats_${id}_description');
     } else if (id == 'level') {
       valueString = baseValue.toString();
       final int levelMax = GameLogic.maxLevelForRank(character['rank']);
       description =
-          '${engine.locale('level_description')}\n${engine.locale('levelMax')}: $levelMax';
+          '${engine.locale('stats_level_description')}\n${engine.locale('stats_levelMax')}: $levelMax';
     } else if (id == 'rank') {
       final int rank = character['rank'];
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
-      description = engine.locale('${id}_description');
+      description = engine.locale('stats_${id}_description');
+    } else if (id.endsWith('Attack')) {
+      valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
+      description = engine.locale('stats_${id}_description');
     } else if (id.endsWith('Resist')) {
       final int baseValueMax = character['${id}Max'];
       final int valueMax = character['stats']?['${id}Max'];
@@ -111,29 +115,32 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueMax</>'
           : valueMax.toString();
 
-      valueString = '$value%';
-      description =
-          '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
+      valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
+      description = engine.locale('stats_${id}_description');
+      '${engine.locale('stats_${id}_description')}\n${engine.locale('stats_${id}Max')}: $maxString%';
     } else if (id.endsWith('Threshold')) {
       valueString = value < baseValue ? '<yellow>$value</>' : value.toString();
-      description = engine.locale('${id}_description');
-    } else if (id.startsWith('speed')) {
+      description = engine.locale('stats_${id}_description');
+    } else if (id.endsWith('Speed')) {
       final baseTimeCost = kTicksPerTime ~/ baseValue;
       final timeCost = kTicksPerTime ~/ value;
       valueString = timeCost < baseTimeCost
           ? '<yellow>$timeCost</>'
           : timeCost.toString();
-      description = engine.locale('${id}_description');
-    } else if (id == 'workEfficiency' || id == 'staminaCostWork') {
+      description = engine
+          .locale('stats_${id.replaceAll('Speed', 'TimeCost')}_description');
+    } else if (id == 'craftEfficiency' ||
+        id == 'workEfficiency' ||
+        id == 'staminaCostWork') {
       valueString = '${(value * 100).toStringAsFixed(0)}%';
-      description = engine.locale('${id}_description');
+      description = engine.locale('stats_${id}_description');
     } else {
       valueString = value > baseValue ? '<yellow>$value</>' : value.toString();
-      description = engine.locale('${id}_description');
+      description = engine.locale('stats_${id}_description');
     }
 
     return Label(
-      '${engine.locale(id)}: $valueString',
+      '$idString: $valueString',
       width: widget.width,
       textAlign: TextAlign.left,
       onMouseEnter: (rect) {

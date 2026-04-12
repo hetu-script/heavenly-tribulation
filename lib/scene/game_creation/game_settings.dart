@@ -35,7 +35,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
   void initState() {
     super.initState();
     final config = engine.config;
-    _developmentMode = config.developmentMode;
+    _developmentMode = config.developMode;
     _musicVolume = config.musicVolume;
     _soundEffectVolume = config.soundEffectVolume;
     _showFps = config.showFps;
@@ -55,7 +55,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
 
   Future<void> _applySettings() async {
     await gameConfig.updateConfig(
-      developmentMode: _developmentMode,
+      developMode: _developmentMode,
       musicVolume: _musicVolume,
       soundEffectVolume: _soundEffectVolume,
       showFps: _showFps,

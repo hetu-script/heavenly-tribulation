@@ -493,7 +493,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     final skillDescription = StringBuffer();
 
-    if (engine.config.developmentMode) {
+    if (engine.config.developMode) {
       skillDescription.write('<grey>$nodeId</>\n \n');
     }
 
@@ -566,7 +566,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     if (passiveTreeNodeData == null) {
       // 还未开放的技能，在debug模式下显示为占位符
-      if (engine.config.developmentMode) {
+      if (engine.config.developMode) {
         skillButton = SpriteButton(
           anchor: Anchor.center,
           position: position,
@@ -675,8 +675,8 @@ class CultivationScene extends Scene with HasCursorState {
     if (collectableLight > 0) {
       collectableLight -= 1;
       schedule(() async {
-        double speedExpCollect = GameData.hero['stats']['speedExpCollect'];
-        int timeCost = kTicksPerTime ~/ speedExpCollect;
+        double expCollectSpeed = GameData.hero['stats']['expCollectSpeed'];
+        int timeCost = kTicksPerTime ~/ expCollectSpeed;
 
         final light = _lightPoints.first;
         await condenseOne(light);
@@ -1394,7 +1394,7 @@ class CultivationScene extends Scene with HasCursorState {
   // void render(Canvas canvas) {
   //   super.render(canvas);
 
-  //   // if (engine.config.developmentMode || engine.config.showFps) {
+  //   // if (engine.config.developMode || engine.config.showFps) {
   //   //   drawScreenText(
   //   //     canvas,
   //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',

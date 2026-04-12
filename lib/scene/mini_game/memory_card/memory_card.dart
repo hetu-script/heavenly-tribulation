@@ -472,7 +472,7 @@ class MemoryCardGame extends Scene with HasCursorState {
       engine.play(GameSound.gameOver);
     }
 
-    restart.isVisible = engine.config.developmentMode;
+    restart.isVisible = engine.config.developMode;
     restart.position = Vector2(
         center.x,
         victoryPrompt.bottomRight.y +

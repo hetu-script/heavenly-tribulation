@@ -112,7 +112,7 @@ Future<dynamic> _tryEnterLocation(dynamic location) async {
 
   engine.context.read<ViewPanelState>().clearAll();
 
-  await GameLogic.updateGame(ticks: (kTicksPerTime ~/ kBaseMoveSpeedOnPlain));
+  await GameLogic.updateGame(ticks: (kTicksPerTime ~/ kBasePlainMoveSpeed));
   engine.pushScene(
     location['id'],
     constructorId: Scenes.location,

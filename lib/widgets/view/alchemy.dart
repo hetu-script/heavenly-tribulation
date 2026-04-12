@@ -82,7 +82,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                               const Spacer(),
                               fluent.Button(
                                 onPressed: () {},
-                                child: Text(engine.locale('craft_item')),
+                                child: Text(engine.locale('craft')),
                               ),
                             ],
                           ),
@@ -100,7 +100,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                               const Spacer(),
                               fluent.Button(
                                 onPressed: () {},
-                                child: Text(engine.locale('craft_item')),
+                                child: Text(engine.locale('craft')),
                               )
                             ],
                           ),

@@ -119,7 +119,7 @@
         level: 40,
       },
       {
-        id: "start_battle_with_energy_positive_spell",
+        id: "start_deck_with_energy_positive_spell",
         level: 10,
       },
     ],
@@ -158,7 +158,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_spell",
+        id: "start_deck_with_energy_positive_spell",
         level: 5,
       },
     ],
@@ -1079,7 +1079,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_unarmed",
+        id: "start_deck_with_energy_positive_unarmed",
         level: 5,
       },
     ],
@@ -1387,7 +1387,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_weapon",
+        id: "start_deck_with_energy_positive_weapon",
         level: 5,
       },
     ],

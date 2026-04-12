@@ -32,8 +32,7 @@ class GameConfigState with ChangeNotifier {
 
       engine.config = EngineConfig(
         name: json['name'] as String? ?? engine.config.name,
-        developmentMode:
-            json['developmentMode'] as bool? ?? engine.config.developmentMode,
+        developMode: json['developMode'] as bool? ?? engine.config.developMode,
         musicVolume: (json['musicVolume'] as num?)?.toDouble() ??
             engine.config.musicVolume,
         soundEffectVolume: (json['soundEffectVolume'] as num?)?.toDouble() ??
@@ -53,7 +52,7 @@ class GameConfigState with ChangeNotifier {
   /// 更新 engine.config 并保存到文件。
   /// 只传入需要修改的字段，未传入的字段保持不变。
   Future<void> updateConfig({
-    bool? developmentMode,
+    bool? developMode,
     double? musicVolume,
     double? soundEffectVolume,
     bool? showFps,
@@ -63,7 +62,7 @@ class GameConfigState with ChangeNotifier {
   }) async {
     engine.config = EngineConfig(
       name: engine.config.name,
-      developmentMode: developmentMode ?? engine.config.developmentMode,
+      developMode: developMode ?? engine.config.developMode,
       musicVolume: musicVolume ?? engine.config.musicVolume,
       soundEffectVolume: soundEffectVolume ?? engine.config.soundEffectVolume,
       showFps: showFps ?? engine.config.showFps,
@@ -79,7 +78,7 @@ class GameConfigState with ChangeNotifier {
     try {
       final json = {
         'name': engine.config.name,
-        'debugMode': engine.config.developmentMode,
+        'debugMode': engine.config.developMode,
         'musicVolume': engine.config.musicVolume,
         'soundEffectVolume': engine.config.soundEffectVolume,
         'showFps': engine.config.showFps,

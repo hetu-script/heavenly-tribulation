@@ -1035,7 +1035,7 @@ final class GameData with ChangeNotifier {
     }
 
     description.writeln(titleString);
-    if (engine.config.developmentMode) {
+    if (engine.config.developMode) {
       description
           .writeln('<grey>[${itemData['id']}]</> - press `ctrl+c` to copy');
     }
@@ -1179,7 +1179,7 @@ final class GameData with ChangeNotifier {
         description.writeln('<yellow>${engine.locale('estimatedPrice')}: '
             '$estimatedPrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
       }
-      if (engine.config.developmentMode) {
+      if (engine.config.developMode) {
         description.writeln('<grey>basePrice: ${itemData['price']}</>');
       }
     }
@@ -1221,7 +1221,7 @@ final class GameData with ChangeNotifier {
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     extraDescription.writeln(titleString);
-    if (engine.config.developmentMode && showDebugId) {
+    if (engine.config.developMode && showDebugId) {
       extraDescription
           .writeln('<grey>[${cardData['id']}]</> - press `ctrl+c` to copy');
     }

@@ -63,7 +63,7 @@ description: "Use when editing JSON5 game data files. Covers schemas for cards, 
 ## 天赋（passives.json5）
 
 字段：`id`, `description`, `uniqueId`（相关天赋共享）, `priority`, `increment`。
-可选：`isItemAffix`, `kind`（装备类型限制）, `rank`。
+可选：`isItem`, `isItemMain`, `isPotion`, `isPotionMain`, `kind`（装备类型限制）, `rank`。
 
 ## 状态效果（status_effect.json5）
 

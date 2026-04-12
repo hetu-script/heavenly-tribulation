@@ -294,15 +294,15 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
   character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception ~/ 10
   character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * Constants.baseExpGainPerLight
-  character.speedExpCollect = Constants.baseExpCollectSpeed
-  character.speedOnPlain = Constants.baseMoveSpeedOnPlain
-  character.speedOnMountain = Constants.baseMoveSpeedOnMountain
-  character.speedOnWater = Constants.baseMoveSpeedOnWater
-  character.staminaCostOnMountain = Constants.baseStaminaCostOnMountain
-  character.staminaCostOnWater = Constants.baseStaminaCostOnWater
+  character.expCollectSpeed = Constants.baseExpCollectSpeed
+  character.plainMoveSpeed = Constants.basePlainMoveSpeed
+  character.mountainMoveSpeed = Constants.baseMountainMoveSpeed
+  character.waterMoveSpeed = Constants.baseWaterMoveSpeed
+  character.mountainMoveStaminaCost = Constants.baseMountainMoveStaminaCost
+  character.waterMoveStaminaCost = Constants.baseWaterMoveStaminaCost
   character.workEfficiency = 1.0
   character.staminaCostWork = 1.0
-  character.craftSkillLevel = Constants.baseCraftSkillLevel
+  character.craftEfficiency = 1.0
 
   character.physicalResistMax = Constants.baseResistMax
   character.chiResistMax = Constants.baseResistMax
@@ -338,16 +338,16 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   }
   character.stats.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.stats.perception ~/ 10 + character.passives.monthlyIdentifyCardsMax?.value + character.potionPassives.monthlyIdentifyCardsMax?.value
   character.stats.lightRadius = Constants.baseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value + character.potionPassives.lightRadius?.value
-  character.stats.speedOnPlain = (character.speedOnPlain * (1 - character.passives.speedOnPlain?.value / 100) * (1 - character.potionPassives.speedOnPlain?.value / 100)).toFixed(2)
-  character.stats.speedOnMountain = (character.speedOnMountain * (1 - character.passives.speedOnMountain?.value / 100) * (1 - character.potionPassives.speedOnMountain?.value / 100)).toFixed(2)
-  character.stats.speedOnWater = (character.speedOnWater * (1 - character.passives.speedOnWater?.value / 100) * (1 - character.potionPassives.speedOnWater?.value / 100)).toFixed(2)
-  character.stats.staminaCostOnMountain = (character.staminaCostOnMountain * (1 + character.passives.staminaCostOnMountain?.value / 100) * (1 + character.potionPassives.staminaCostOnMountain?.value / 100)).toFixed(2)
-  character.stats.staminaCostOnWater = (character.staminaCostOnWater * (1 + character.passives.staminaCostOnWater?.value / 100) * (1 + character.potionPassives.staminaCostOnWater?.value / 100)).toFixed(2)
+  character.stats.plainMoveSpeed = (character.plainMoveSpeed * (1 - character.passives.plainMoveSpeed?.value / 100) * (1 - character.potionPassives.plainMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.mountainMoveSpeed = (character.mountainMoveSpeed * (1 - character.passives.mountainMoveSpeed?.value / 100) * (1 - character.potionPassives.mountainMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.waterMoveSpeed = (character.waterMoveSpeed * (1 - character.passives.waterMoveSpeed?.value / 100) * (1 - character.potionPassives.waterMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.mountainMoveStaminaCost = (character.mountainMoveStaminaCost * (1 + character.passives.mountainMoveStaminaCost?.value / 100) * (1 + character.potionPassives.mountainMoveStaminaCost?.value / 100)).toFixed(2)
+  character.stats.waterMoveStaminaCost = (character.waterMoveStaminaCost * (1 + character.passives.waterMoveStaminaCost?.value / 100) * (1 + character.potionPassives.waterMoveStaminaCost?.value / 100)).toFixed(2)
   character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
-  character.stats.speedExpCollect = (character.speedExpCollect * (1 - character.passives.speedExpCollect?.value / 100) * (1 - character.potionPassives.speedExpCollect?.value / 100)).toFixed(2)
+  character.stats.expCollectSpeed = (character.expCollectSpeed * (1 - character.passives.expCollectSpeed?.value / 100) * (1 - character.potionPassives.expCollectSpeed?.value / 100)).toFixed(2)
   character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.potionPassives.workEfficiency?.value / 100)).toFixed(2)
   character.stats.staminaCostWork = (character.staminaCostWork * (1 + character.passives.staminaCostWork?.value / 100) * (1 + character.potionPassives.staminaCostWork?.value / 100)).toFixed(2)
-  character.stats.craftSkillLevel = character.craftSkillLevel + character.passives.craftSkillLevel?.value + character.potionPassives.craftSkillLevel?.value
+  character.stats.craftEfficiency = (character.craftEfficiency * (1 + character.passives.craftEfficiency?.value / 100) * (1 + character.potionPassives.craftEfficiency?.value / 100)).toFixed(2)
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value
   character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value
@@ -725,7 +725,6 @@ function characterSetPotionPassive(character, dataId, {level = 1}) {
     priority: passiveRawData.priority ?? 0,
     level: level,
     description: passiveRawData.description,
-    isPermanent: passiveRawData.isPermanentPotionAffix ?? false,
   )
   if (passiveRawData.increment != null) {
     passiveData.increment = passiveRawData.increment

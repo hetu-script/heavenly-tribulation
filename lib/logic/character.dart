@@ -23,14 +23,13 @@ Future<void> _updateCharactersAtWorldMapPosition() async {
     double timeCost;
     if (kTerrainKindsWater.contains(terrain['kind'])) {
       timeCost =
-          kTicksPerTime / kBaseMoveSpeedOnWater * kBaseNPCMoveSpeedMultiplier;
+          kTicksPerTime / kBaseWaterMoveSpeed * kBaseNPCMoveSpeedMultiplier;
     } else if (kTerrainKindsMountain.contains(terrain['kind'])) {
-      timeCost = kTicksPerTime /
-          kBaseMoveSpeedOnMountain *
-          kBaseNPCMoveSpeedMultiplier;
+      timeCost =
+          kTicksPerTime / kBaseMountainMoveSpeed * kBaseNPCMoveSpeedMultiplier;
     } else {
       timeCost =
-          kTicksPerTime / kBaseMoveSpeedOnPlain * kBaseNPCMoveSpeedMultiplier;
+          kTicksPerTime / kBasePlainMoveSpeed * kBaseNPCMoveSpeedMultiplier;
     }
     if (timeDiff >= timeCost) {
       // 可以移动到下一个地块

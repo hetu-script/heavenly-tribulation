@@ -1148,6 +1148,17 @@ final class GameLogic {
     return completer.future;
   }
 
+  static void rerollHeroAttributes() async {
+    engine.hetu.invoke(
+      'generateAttributes',
+      positionalArgs: [GameData.hero],
+    );
+    dialog.pushDialog('hint_generateAttributes');
+    await dialog.execute();
+    engine.hetu
+        .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
+  }
+
   static void onUseItem(dynamic itemData) async {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
@@ -1194,12 +1205,6 @@ final class GameLogic {
           positionalArgs: [itemData['kind'], itemData['stackSize']],
         );
         engine.play(GameSound.pickup);
-      // case kItemCategoryExppack:
-      //   engine.hetu.invoke('gainExp',
-      //       namespace: 'Player', positionalArgs: [itemData['stackSize']]);
-      //   engine.hetu
-      //       .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
-      //   engine.play('magic-smite-6012.mp3');
       case kItemCategoryPotion:
         engine.play(GameSound.drink);
         engine.hetu.invoke(
@@ -1207,21 +1212,22 @@ final class GameLogic {
           namespace: 'Player',
           positionalArgs: [itemData],
         );
-      case 'craftmaterial_rerollAffix':
+      case kItemCategoryAffixMaterial:
         engine.play(GameSound.drink);
-        engine.hetu.invoke(
-          'generateAttributes',
-          positionalArgs: [GameData.hero],
-        );
-        dialog.pushDialog('hint_generateAttributes');
-        await dialog.execute();
-        engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
-          itemData
-        ], namedArgs: {
-          'amount': 1,
-        });
-        engine.hetu
-            .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
+        switch (itemData['kind']) {
+          // TODO: 丹药效果
+          // potion的增益/减益应该有数量上限（根据境界可以获得2-6个丹药效果）
+          case 'craftmaterial_addAffix':
+          case 'craftmaterial_replaceAffix':
+          case 'craftmaterial_freezeAffix':
+          case 'craftmaterial_removeAffix':
+          case 'craftmaterial_rerollAffix':
+          case 'craftmaterial_upgradeRank':
+            engine.hetu.invoke('characterSetPotionPassive', positionalArgs: [
+              GameData.hero,
+              'decreaseTribulationDifficulty'
+            ]);
+        }
       case 'craftmaterial_upgradeRank':
         engine.play(GameSound.drink);
         engine.hetu.invoke(

@@ -23,18 +23,16 @@ class Constants extends HTExternalClass {
         return kBaseExpGainPerLight;
       case 'Constants.baseExpCollectSpeed':
         return kBaseExpCollectSpeed;
-      case 'Constants.baseMoveSpeedOnPlain':
-        return kBaseMoveSpeedOnPlain;
-      case 'Constants.baseMoveSpeedOnMountain':
-        return kBaseMoveSpeedOnMountain;
-      case 'Constants.baseMoveSpeedOnWater':
-        return kBaseMoveSpeedOnWater;
-      case 'Constants.baseStaminaCostOnMountain':
-        return kBaseStaminaCostOnMountain;
-      case 'Constants.baseStaminaCostOnWater':
-        return kBaseStaminaCostOnWater;
-      case 'Constants.baseCraftSkillLevel':
-        return kBaseCraftSkillLevel;
+      case 'Constants.basePlainMoveSpeed':
+        return kBasePlainMoveSpeed;
+      case 'Constants.baseMountainMoveSpeed':
+        return kBaseMountainMoveSpeed;
+      case 'Constants.baseWaterMoveSpeed':
+        return kBaseWaterMoveSpeed;
+      case 'Constants.baseMountainMoveStaminaCost':
+        return kBaseMountainMoveStaminaCost;
+      case 'Constants.baseWaterMoveStaminaCost':
+        return kBaseWaterMoveStaminaCost;
       case 'Constants.baseLife':
         return kBaseLife;
       case 'Constants.baseLifePerLevel':
