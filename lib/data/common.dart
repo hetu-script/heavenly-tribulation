@@ -1087,6 +1087,7 @@ final kItemPriceByCategory = {
   'cardpack': 700,
   'scroll_paper': 350,
   'identify_scroll': 75,
+  'extracted_affix': 500,
   'weapon': 25,
   'shield': 15,
   'armor': 30,
@@ -1182,6 +1183,7 @@ const kCardCraftOperations = [
   'addAffix',
   'replaceAffix',
   'freezeAffix',
+  'removeAffix',
   'rerollAffix',
   'upgradeRank',
 ];
@@ -1690,7 +1692,7 @@ const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
-const kItemCategoryEquipmentAffix = 'equipment_affix';
+const kItemCategoryExtractedAffix = 'extracted_affix';
 const kItemCategoryPotion = 'potion';
 
 /// 职位等级

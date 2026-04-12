@@ -42,8 +42,9 @@ const _kRewardProbabilityDungeonTicketNextLevel = 0.5
 
 const _kRewardProbabilityCraftMaterialReplaceAffix = 0.7
 const _kRewardProbabilityCraftMaterialFreezeAffix = 0.45
-const _kRewardProbabilityCraftMaterialRerollAffix = 0.25
-const _kRewardProbabilityCraftMaterialUpgradeRank = 0.1
+const _kRewardProbabilityCraftMaterialRemoveAffix = 0.25
+const _kRewardProbabilityCraftMaterialRerollAffix = 0.1
+const _kRewardProbabilityCraftMaterialUpgradeRank = 0.03
 
 const _kSpiritWellProbabilityCraftMaterial = 0.5
 
@@ -187,6 +188,8 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
         affixMaterial = createItemById('craftmaterial_upgradeRank', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
         affixMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRemoveAffix) {
+        affixMaterial = createItemById('craftmaterial_removeAffix', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
         affixMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {
@@ -450,6 +453,8 @@ async function onInteractSpiritWell(object) {
         affixMaterial = createItemById('craftmaterial_upgradeRank', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRerollAffix) {
         affixMaterial = createItemById('craftmaterial_rerollAffix', rank: itemRank)
+      } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialRemoveAffix) {
+        affixMaterial = createItemById('craftmaterial_removeAffix', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialFreezeAffix) {
         affixMaterial = createItemById('craftmaterial_freezeAffix', rank: itemRank)
       } else if (affixMaterialTypeRoll < _kRewardProbabilityCraftMaterialReplaceAffix) {

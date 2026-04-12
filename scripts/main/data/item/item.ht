@@ -5,6 +5,7 @@ const kItemTypeEquipment = 'equipment';
 const kItemTypeConsumable = 'consumable';
 const kItemTypeMaterial = 'material';
 const kItemTypeCardpack = 'cardpack';
+const kItemTypeMiscellaneous = 'miscellaneous';
 
 // category
 // 物品小类别

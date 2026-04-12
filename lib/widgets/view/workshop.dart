@@ -4,6 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';
+import 'package:samsara/widgets/ui/empty_placeholder.dart';
 
 import '../../global.dart';
 import '../../ui.dart';
@@ -17,17 +18,18 @@ import '../character/inventory/material.dart';
 import '../character/inventory/item_grid.dart';
 import '../ui/responsive_view.dart';
 import '../common.dart';
+import '../ui/bordered_icon_button.dart';
 
-class WorkbenchDialog extends StatefulWidget {
-  const WorkbenchDialog({
+class WorkshopDialog extends StatefulWidget {
+  const WorkshopDialog({
     super.key,
   });
 
   @override
-  State<WorkbenchDialog> createState() => _WorkbenchDialogState();
+  State<WorkshopDialog> createState() => _WorkshopDialogState();
 }
 
-class _WorkbenchDialogState extends State<WorkbenchDialog> {
+class _WorkshopDialogState extends State<WorkshopDialog> {
   int _tabIndex = 0;
 
   String _selectedCraftKind = kItemEquipmentKinds.first;
@@ -36,8 +38,10 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
   int _extraAffixCount = 0;
   late final List<Widget> _affixWidgets;
   dynamic _selectedEquipment;
-  bool _isCrafting = false;
-  Map<String, dynamic> _filter = {'type': 'equipment'};
+  bool get isExtracting => _selectedEquipment != null;
+
+  List? _selectedEquipmentAffixes;
+  dynamic _selectedAffix;
 
   @override
   void initState() {
@@ -86,16 +90,10 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
 
   void onInventoryItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
     if (_tabIndex == 1) {
-      if (_isCrafting) {
-        assert(itemData['category'] == 'affix_crafting_material');
-      } else {
-        assert(itemData['type'] == 'equipment');
-        _isCrafting = true;
-        _filter = {'category': 'affix_crafting_material'};
-        engine.play('sword-sheathed-178549.mp3');
-        _selectedEquipment = itemData;
-        setState(() {});
-      }
+      assert(itemData['type'] == 'equipment');
+      engine.play('sword-sheathed-178549.mp3');
+      _selectedEquipment = itemData;
+      setState(() {});
     }
   }
 
@@ -138,7 +136,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                     tabs: [
                       fluent.Tab(
                         text: Text(
-                          engine.locale('craft_item'),
+                          engine.locale('craft'),
                           style: TextStyles.bodySmall,
                           textAlign: TextAlign.center,
                         ),
@@ -235,7 +233,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                       ),
                       fluent.Tab(
                         text: Text(
-                          engine.locale('modify_item'),
+                          engine.locale('extract'),
                           style: TextStyles.bodySmall,
                           textAlign: TextAlign.center,
                         ),
@@ -269,8 +267,6 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                             .hide();
                                       },
                                       onSecondaryTapped: (_, __) {
-                                        _isCrafting = false;
-                                        _filter = {'type': 'equipment'};
                                         engine.play(GameSound.put);
                                         _selectedEquipment = null;
                                         setState(() {});
@@ -284,10 +280,48 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                                 height: 65.0,
                                 padding: const EdgeInsets.only(top: 10.0),
                                 child: Text(
-                                  engine.locale('workshop_hint'),
+                                  engine.locale(isExtracting
+                                      ? 'extract_hint'
+                                      : 'workshop_hint'),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
+                              _selectedEquipmentAffixes!.isEmpty
+                                  ? EmptyPlaceholder(
+                                      engine.locale('noUsableItems'))
+                                  : Column(
+                                      children: _selectedEquipmentAffixes!
+                                          .map((affixData) {
+                                        return BorderedIconButton(
+                                          size: const Size(400.0, 30.0),
+                                          isSelected:
+                                              _selectedAffix == affixData,
+                                          onPressed: () {
+                                            _selectedAffix = affixData;
+                                            setState(() {});
+                                          },
+                                          child: Text(
+                                            engine.locale(
+                                                affixData['description'],
+                                                interpolations: [
+                                                  affixData['value'],
+                                                ]),
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 12.0,
+                                              color: _selectedAffix == affixData
+                                                  ? GameUI.selectedColor
+                                                  : GameUI.foregroundColor,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                              const Spacer(),
+                              fluent.Button(
+                                onPressed: () {},
+                                child: Text(engine.locale('extract')),
+                              )
                             ],
                           ),
                         ),
@@ -305,7 +339,7 @@ class _WorkbenchDialogState extends State<WorkbenchDialog> {
                       : [],
                   inventoryType: InventoryType.none,
                   itemTypes: null,
-                  filter: _filter,
+                  filter: {'type': 'equipment'},
                   gridsPerLine: 6,
                   onItemSecondaryTapped: onInventoryItemSecondaryTapped,
                 ),

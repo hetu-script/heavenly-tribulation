@@ -3,6 +3,7 @@ const _kCraftMaterials = [
   'craftmaterial_addAffix',
   'craftmaterial_replaceAffix',
   'craftmaterial_freezeAffix',
+  'craftmaterial_removeAffix',
   'craftmaterial_rerollAffix',
   'craftmaterial_upgradeRank',
 ]

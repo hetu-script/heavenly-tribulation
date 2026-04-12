@@ -282,7 +282,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 : InformationViewMode.view,
           ));
         case ViewPanels.workbench:
-          panels.add(WorkbenchDialog());
+          panels.add(WorkshopDialog());
         case ViewPanels.alchemy:
           panels.add(AlchemyDialog());
       }

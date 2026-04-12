@@ -2,6 +2,7 @@
   "craft_addAffix": "精炼·灵宝",
   "craft_replaceAffix": "精炼·神照",
   "craft_freezeAffix": "精炼·真定",
+  "craft_removeAffix": "精炼·坐忘",
   "craft_rerollAffix": "精炼·混元",
   "craft_upgradeRank": "精炼·破境",
 
@@ -21,6 +22,7 @@
   "craft_replaceAffix_warning": "当前卡牌没有可以替换的额外词条！",
   "craft_freezeAffix_warning": "当前卡牌或装备已有锁定的词条！",
   "craft_freezeAffix_noAffix": "当前卡牌或装备没有可以锁定的额外词条！",
+  "craft_removeAffix_warning": "当前卡牌或装备没有可以移除的额外词条！",
   "craft_upgradeCard_warning": "当前卡牌或装备已经达到境界允许的最高等级({0})！",
   "craft_upgradeRank_warning": "当前卡牌或装备未达到下一境界最低等级要求({0})！",
   "craft_upgradeRank_warning_maxRank": "当前卡牌或装备已达到最高境界！",

@@ -386,6 +386,27 @@ function freezeAffix(card, materialRank) {
   return null
 }
 
+function removeAffix(card, materialRank) {
+  final extraAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
+  }).toList()
+  if (extraAffixes.isEmpty) {
+    return engine.locale('craft_removeAffix_warning')
+  }
+  extraAffixes.sort( (a, b) => a.rank.compareTo(b.rank) )
+  
+  final rank = extraAffixes.first.rank
+  final availableAffixes = extraAffixes.where( (affix) => affix.rank == rank)
+  targetAffix = random.nextIterable(availableAffixes)
+
+  card.affixes.remove(targetAffix)
+
+  _updateAffixUniqueIds(card)
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
 /// 重置卡牌的数值
 function rerollAffix(card, materialRank) {
   if (materialRank < card.rank) {

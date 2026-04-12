@@ -1,0 +1,24 @@
+
+/// 从装备上萃取的单个词条
+struct ExtractedAffix {
+  constructor ({
+    affix,
+    rank,
+  }) {
+    this.id = crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeItem
+    this.rank = rank ?? 0
+    this.rarity = Constants.rankToRarity[this.rank]
+    this.color = kRarity[this.rarity].color
+    this.name = engine.locale('extracted_affix')
+    this.icon = 'item/craft/extracted_affix.png'
+    this.stackSize = 1
+
+    this.type = kItemTypeMiscellaneous
+    this.category = kItemCategoryExtractedAffix
+    this.affix = affix
+    
+    this.isIdentified = true
+    
+  }
+}

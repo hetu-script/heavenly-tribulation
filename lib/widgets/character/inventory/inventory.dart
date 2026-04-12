@@ -17,6 +17,7 @@ const kDefaultInventoryItemTypes = {
   'all',
   'equipment',
   'consumable',
+  'cardpack',
   'craftmaterial',
   'miscellaneous',
 };
