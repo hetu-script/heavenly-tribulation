@@ -7,9 +7,11 @@
   "taskman": "杂役",
 
   "chancellor": "供奉长老",
-  "guestChancellor": "客卿长老",
   "envoy": "巡按堂主",
-  "guard": "护法总管",
+  "captain": "护法总管",
+  "guard": "护法",
+
+  "guestChancellor": "客卿长老",
 
   "createSect2": "开宗立派",
   "recruitCity": "招募城市",

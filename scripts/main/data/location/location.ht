@@ -356,12 +356,12 @@ struct Location {
 function resetLocationUpdateStatus(location) {
   assert(Constants.siteKindsManagable.containsKey(location.kind))
   final updateStatus = {}
-  final maintainanceCost = Constants.siteKindsManagable[location.kind].maintainanceCost;
-  if (maintainanceCost != null) {
+  final maintenanceCost = Constants.siteKindsManagable[location.kind].maintenanceCost;
+  if (maintenanceCost != null) {
     updateStatus.cost = {}
-    for (final materialId in maintainanceCost.keys) {
+    for (final materialId in maintenanceCost.keys) {
       updateStatus.cost[materialId] =
-        maintainanceCost[materialId] * (location.development + 1)
+        maintenanceCost[materialId] * (location.development + 1)
     }
   }
   location.updateStatus = updateStatus
@@ -509,11 +509,11 @@ function setLocationWorldPosition(location, left, top, {worldId}) {
 function replenishStorage(location) {
   assert(Constants.siteKindsManagable.containsKey(location.kind))
 
-  final maintainanceCost = Constants.siteKindsManagable[location.kind].maintainanceCost
-  if (!maintainanceCost) return
+  final maintenanceCost = Constants.siteKindsManagable[location.kind].maintenanceCost
+  if (!maintenanceCost) return
 
-  for (final materialId in maintainanceCost.keys) {
-    final amount = maintainanceCost[materialId] * (location.development + 1) * Constants.daysPerMonth
+  for (final materialId in maintenanceCost.keys) {
+    final amount = maintenanceCost[materialId] * (location.development + 1) * Constants.daysPerMonth
     location.storage[materialId] = amount
   }
 }
@@ -822,7 +822,8 @@ function replenishTradingItem(location) {
       }
 
       for (var i in range(amount)) {
-        let item = Equipment(rank: random.nextInt(kCultivationRankMax + 1), isIdentified: false)
+        final itemRank = random.distantInt(kCultivationRankMax + 1)
+        let item = Equipment(rank: itemRank, isIdentified: false)
         entityAcquire(location, item, incurIncident: false)
       }
     }

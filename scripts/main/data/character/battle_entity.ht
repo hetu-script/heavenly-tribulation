@@ -757,7 +757,11 @@ function characterConsumePotion(entity, item) {
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {
     case 'overheal': {
-      setCharacterLife(entity, entity.life + mainAffix.value, overflow: true)
+      let currentLife = Math.min(entity.life, entity.stats.lifeMax)
+      let targetLife = currentLife + mainAffix.value
+      if (entity.life < targetLife) {
+        setCharacterLife(entity, targetLife, overflow: true)
+      }
     }
     else: {
       characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)

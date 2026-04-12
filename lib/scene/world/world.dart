@@ -526,7 +526,7 @@ class WorldMapScene extends Scene with HasCursorState {
   Future<void> onLoad() async {
     super.onLoad();
 
-    camera.zoom = 2.0;
+    camera.zoom = 4.0;
 
     if (backgroundSpriteId != null) {
       backgroundSprite = await Sprite.load(backgroundSpriteId!);
@@ -542,17 +542,17 @@ class WorldMapScene extends Scene with HasCursorState {
 
     map.onMouseEnterTile = _onMouseEnterTile;
 
-    // map.onMouseScrollUp = () {
-    //   if (camera.zoom < 4) {
-    //     camera.zoom += 0.2;
-    //   }
-    // };
+    map.onMouseScrollUp = (_) {
+      if (camera.zoom < 4) {
+        camera.zoom += 0.2;
+      }
+    };
 
-    // map.onMouseScrollDown = () {
-    //   if (camera.zoom > 2) {
-    //     camera.zoom -= 0.2;
-    //   }
-    // };
+    map.onMouseScrollDown = (_) {
+      if (camera.zoom > 2) {
+        camera.zoom -= 0.2;
+      }
+    };
 
     map.onTapDown =
         isEditorMode ? _onTapDownInEditorMode : _onTapDownInGameMode;
@@ -1579,10 +1579,18 @@ class WorldMapScene extends Scene with HasCursorState {
       GameData.hero = engine.hetu.fetch('hero');
       final heroHomeLocation =
           GameData.getLocation(GameData.hero['homeLocationId']);
-      await engine.hetu.invoke('discoverLocation', positionalArgs: [
-        heroHomeLocation,
+      await engine.hetu.invoke(
+        'discoverLocation',
+        positionalArgs: [heroHomeLocation],
+        namedArgs: {'updateWorldMap': true},
+      );
+      GameData.hero['worldId'] = worldData['id'];
+      engine.hetu.invoke('setCharacterWorldPosition', positionalArgs: [
+        GameData.hero,
+        heroHomeLocation['worldPosition']['left'],
+        heroHomeLocation['worldPosition']['top']
       ], namedArgs: {
-        'updateWorldMap': true,
+        'worldId': worldData['id']
       });
     }
     assert(GameData.hero != null);
@@ -1669,10 +1677,8 @@ class WorldMapScene extends Scene with HasCursorState {
       if (event is KeyDownEvent) {
         switch (event.logicalKey) {
           case LogicalKeyboardKey.space:
-            camera.zoom = 2.0;
-            if (isEditorMode) {
-              // map.moveCameraToTileMapCenter();
-            } else {
+            camera.zoom = 4.0;
+            if (!isEditorMode) {
               map.moveCameraToHero();
             }
           case LogicalKeyboardKey.escape:

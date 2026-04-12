@@ -389,7 +389,7 @@ function assignCharacterSuperior(character, sect) {
 
 /// 检查适合角色，且不同于角色当前称号的称号
 /// setAsManger 表示是否立即分配到驻地
-function checkCharacterTitle(character, { setAsManger = false}) {
+function checkCharacterTitle(character) {
   assert(character.sectId != null,
     'character does not belong to any sect, cannot check contribution!')
   const sect = game.sects[character.sectId]
@@ -411,9 +411,10 @@ function checkCharacterTitle(character, { setAsManger = false}) {
     titleId = Constants.cultivationRankToTitle[prevRank]
     currentJobRank = prevRank
   }
+
   if (currentJobRank >= kJobRankMax - 1) {
     // 门派掌门的职位不会通过晋升而得到，因此这里 rank 4 已经是最高了
-    engine.warning('${character.name} 已经是最大职级，没有下一级职位了！')
+    engine.warning('${character.name} 已经是门派中的最大职级了！')
   } else {
     const nextJobRank = currentJobRank + 1
     final requiredContributionForNextRank = contributionForJobRank(nextJobRank)
@@ -444,6 +445,7 @@ function setCharacterTitle(
   assignManagingSite = true,
   moveToManagingSite = true,
   moveHome = true,
+  deductContribution = true,
   incurIncident = true,
 }) {
   character.titleId = titleId
@@ -579,10 +581,16 @@ function setCharacterTitle(
     }
 
     let jobRank = Constants.titleToJobRank[titleId]
-    let jobRankContribution = contributionForJobRank(jobRank)
-    if (memberData.contribution < jobRankContribution) {
-      memberData.contribution = jobRankContribution
+    
+    if (deductContribution) {
+      let jobRankContribution = contributionForJobRank(jobRank)
+      if (memberData.contribution < jobRankContribution) {
+        memberData.contribution = 0
+      } else {
+        memberData.contribution -= jobRankContribution
+      }
     }
+
     if (memberData.rank < jobRank) {
       addSectMonthly(sect, 'promoted', character.id)
     }

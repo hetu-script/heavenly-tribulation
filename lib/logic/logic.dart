@@ -42,7 +42,7 @@ const _kLandCityTerritoryTerrainKinds = {
 
 const _kHintDyingVariants = 5;
 
-const _kBasicDungeonShardCost = 1;
+const _kBasicDungeonMoneyCost = 1500;
 
 const _kGameFlagsUpdateDay = 1;
 const _kSectUpdateDay = 6;

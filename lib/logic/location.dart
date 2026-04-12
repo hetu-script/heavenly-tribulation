@@ -189,21 +189,21 @@ Future<bool> _checkRented(dynamic location,
   final siteKind = location['kind'];
   assert(kSiteRentMoneyCostByDay.containsKey(siteKind),
       'Rent cost not defined for site kind: $siteKind');
-  final int rentCostRaw = kSiteRentMoneyCostByDay[siteKind]!;
-  final int shardPrice = kMaterialPrice['shard']!;
-  bool useShard = rentCostRaw >= shardPrice;
-  int rentCost = rentCostRaw;
+  int rentCost = kSiteRentMoneyCostByDay[siteKind]!;
+  // final int shardPrice = kMaterialPrice['shard']!;
+  // bool useShard = rentCostRaw >= shardPrice;
+  // int rentCost = rentCostRaw;
   final int availableDays = kDaysPerMonth - GameLogic.day;
   final int development = location['development'] ?? 0;
   rentCost *= (development + 1);
   if (perAvailableDaysTillMonthEnd) {
     rentCost *= (availableDays + 1);
   }
-  if (useShard) {
-    rentCost = (rentCost / shardPrice).ceil();
-  }
-  final materialId = useShard ? 'shard' : 'money';
-  final materialName = engine.locale(materialId);
+  // if (useShard) {
+  //   rentCost = (rentCost / shardPrice).ceil();
+  // }
+  // final materialId = useShard ? 'shard' : 'money';
+  // final materialName = engine.locale(materialId);
 
   dialog.pushSelectionRaw(
     {
@@ -215,7 +215,7 @@ Future<bool> _checkRented(dynamic location,
             'rentFacility_description',
             interpolations: [
               rentCost,
-              materialName,
+              engine.locale('money'),
             ],
           ),
         },
@@ -229,7 +229,7 @@ Future<bool> _checkRented(dynamic location,
   int exhausted = engine.hetu.invoke(
     'exhaust',
     namespace: 'Player',
-    positionalArgs: [materialId, rentCost],
+    positionalArgs: ['money', rentCost],
   );
   if (exhausted == rentCost) {
     engine.play(GameSound.coins);
@@ -244,7 +244,7 @@ Future<bool> _checkRented(dynamic location,
     dialog.pushDialog(
       'hint_notEnough',
       npcId: location['npcId'],
-      interpolations: [materialName],
+      interpolations: [engine.locale('money')],
     );
     await dialog.execute();
     return false;
@@ -277,7 +277,7 @@ void _onInteractDungeonEntrance({
   if (selected == null || selected == 'forgetIt') return;
 
   if (selected == 'enter_common_dungeon') {
-    final cost = _kBasicDungeonShardCost;
+    final cost = _kBasicDungeonMoneyCost;
 
     dialog.pushDialog(
       'hint_dungeon_cost',
@@ -289,7 +289,7 @@ void _onInteractDungeonEntrance({
     dialog.pushSelectionRaw({
       'id': 'dungeonBasicCost',
       'selections': {
-        'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
+        'pay_money': engine.locale('pay_money', interpolations: [cost]),
         'forgetIt': engine.locale('forgetIt'),
       }
     });
@@ -297,10 +297,8 @@ void _onInteractDungeonEntrance({
     final selected = dialog.checkSelected('dungeonBasicCost');
     if (selected == null || selected == 'forgetIt') return;
 
-    engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
-      'shard',
-      cost,
-    ]);
+    engine.hetu.invoke('exhaust',
+        namespace: 'Player', positionalArgs: ['money', cost]);
   } else if (selected == 'enter_advanced_dungeon') {
     dialog.pushDialog(
       'hint_dungeon_cost2',

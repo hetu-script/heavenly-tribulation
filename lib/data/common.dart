@@ -559,9 +559,9 @@ const kSiteKindToAttribute = {
   'mine': 'strength',
 };
 
-const kSiteDevelopmentDaysBase = 5;
-const kCityDevelopmentDaysBase = 10;
-const kSectDevelopmentDaysBase = 20;
+const kSiteDevelopmentDaysBase = 7;
+const kCityDevelopmentDaysBase = 21;
+const kSectDevelopmentDaysBase = 36;
 
 /// 所有的城市和建筑升级，每天所要消耗的基础资源
 /// 实际消耗主要取决于开发所需要的总时间
@@ -569,260 +569,242 @@ const kSectDevelopmentDaysBase = 20;
 const kSiteKindsManagable = {
   'home': {
     'developmentCost': {
-      'money': 50,
-      'worker': 2,
+      'money': 500,
+      'worker': 10,
     },
   },
   'headquarters': {
     'developmentCost': {
-      'money': 1000,
-      'worker': 25,
+      'money': 5000,
+      'worker': 100,
+    },
+    'maintenanceCost': {
+      'money': 3000,
     },
   },
   'cityhall': {
     'developmentCost': {
-      'money': 500,
-      'worker': 10,
+      'money': 2500,
+      'worker': 50,
+    },
+    'maintenanceCost': {
+      'money': 1500,
     },
   },
   'tradinghouse': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 100,
-      'worker': 2,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'daostele': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 5,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'exparray': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 5,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'library': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 5,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'arena': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
+    'maintenanceCost': {
       'money': 200,
-      'worker': 2,
     },
   },
   'militarypost': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 500,
-      'worker': 2,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'auctionhouse': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 5,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'hotel': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 500,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'workshop': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 500,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'enchantshop': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'alchemylab': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'tattooshop': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'runelab': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'arraylab': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'illusionaltar': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'psychictemple': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'divinationaltar': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'theurgytemple': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 3,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'farmland': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 50,
-      'worker': 1,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'timberland': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 50,
-      'worker': 1,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'fishery': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 50,
-      'worker': 1,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'huntingground': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 50,
-      'worker': 1,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'mine': {
     'developmentCost': {
-      'money': 200,
-      'worker': 5,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'money': 50,
-      'worker': 1,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
   'dungeon': {
     'developmentCost': {
-      'money': 500,
-      'worker': 10,
+      'money': 1000,
+      'worker': 20,
     },
-    'maintainanceCost': {
-      'shard': 1,
-      'worker': 5,
+    'maintenanceCost': {
+      'money': 200,
     },
   },
 };
@@ -1720,7 +1702,7 @@ const kTitleToJobRank = {
   'mayor': 3,
   'governor': 4,
   'head': 5,
-  'guard': 2,
+  'captain': 2,
   'envoy': 3,
   'chancellor': 4,
   "guestChancellor": 4,
@@ -1735,7 +1717,7 @@ const kCultivationRankToTitle = {
 };
 
 const kTitleToAlternativeTitle = {
-  'manager': 'guard',
+  'manager': 'captain',
   'mayor': 'envoy',
   'governor': 'chancellor',
 };

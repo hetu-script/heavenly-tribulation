@@ -166,7 +166,7 @@ struct GameData {
     this.families = {}
     
     this.sects = {}
-
+    
     // 门派之间的外交关系
     // key 是外交关系的 id，值是 Diplomacy 数据
     // 在门派自己的数据中保存的则是对方门派和外交关系 id 的对应关系表

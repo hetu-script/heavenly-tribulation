@@ -32,7 +32,7 @@ class Meeting extends StatelessWidget {
   const Meeting({
     super.key,
     required this.people,
-    this.showExitButton = false,
+    this.showExitButton = true,
   });
 
   final List people;
@@ -89,7 +89,7 @@ class Meeting extends StatelessWidget {
                 ),
                 onPressed: () {
                   // 清空人员并隐藏
-                  context.read<MeetingState>().update();
+                  context.read<MeetingState>().clear();
                 },
               ),
             ),

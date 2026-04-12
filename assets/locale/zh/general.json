@@ -569,12 +569,12 @@
   "storage": "仓库",
   "storage_description": "仓库中的物资仅能用于建造和运营。",
 
-  "maintainanceCostPerDay": "维护费用(每日)",
-  "maintainanceCost_description": "建筑每日自动从仓库中扣减维护或扩建所需物资。若没有足够的物资，将不能手动刷新商店和使用工作台，扩建进度也将停滞。",
-
-  "developmentCost_description": "扩建可以提升「规模」。扩建需要花费时间，并且额外增加每日维护费用。扩建期间不影响正常运营。但如果当前仓库中没有足够的物资，将会暂停扩建和运营。",
+  "maintenanceCostPerDay": "维护费用(每日)",
+  "maintenanceCostPerMonth": "维护费用(每月)",
+  "maintenanceCost_description": "建筑自动从仓库中扣减维护或扩建所需物资。若没有足够的物资，将不能使用商店和工作台等功能，正在进行的扩建进度也将停滞。",
+  "developmentCost_description": "扩建可以提升「规模」。扩建需要花费时间，并且额外增加每月维护费用。扩建期间不影响正常运营。但如果当前仓库中没有足够的物资，将会暂停扩建和运营。",
   "developmentDays": "扩建所需天数",
-  "maintainanceCostIncreasedToDuringDevelopment": "扩建期期间维护费用总计",
+  "maintenanceCostIncreasedToDuringDevelopment": "扩建期期间维护费用总计",
 
   "updateStatusNormal": "运转正常",
   "updateStatusPaused": "运转停滞",
@@ -910,7 +910,7 @@
 
   "hint_dungeonEntrance": "这里是通往<yellow>「秘境」</>的入口。秘境中充满了各种奇异的宝藏，但也有无数同样想要获取这些宝藏的竞争者。\n你可以在这里挑战秘境，获得修为经验和战利品。\n秘境的难度和境界有关，无境界秘境可以随时进入。但更高境界的秘境则需要消耗<yellow>「秘境石」</>才可以开启。\n但如果是非本门派的成员，进入秘境同样需要支付一笔费用。",
 
-  "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要<yellow> {0} 灵石</>。",
+  "hint_dungeon_cost": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于普通秘境，每次进入需要<yellow> {0} 铜钱</>。",
   "hint_dungeon_cost2": "你可以进入这里的秘境，不过每次进入还有额外的消耗。对于高阶秘境，需要使用<yellow>秘境石</>才能开启。",
 
   "hint_dungeonAlreadyEntered": "你这个月已经进入过一次这个秘境了。因此目前无法进入，你还是请回吧。",

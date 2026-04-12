@@ -1712,8 +1712,8 @@ final class GameData with ChangeNotifier {
     if (cost != null) {
       StringBuffer desc = StringBuffer();
       desc.writeln(
-          '<grey>${engine.locale('maintainanceCost_description')}</>\n ');
-      desc.writeln('${engine.locale('maintainanceCostPerDay')}:');
+          '<grey>${engine.locale('maintenanceCost_description')}</>\n ');
+      desc.writeln('${engine.locale('maintenanceCostPerDay')}:');
       for (final materialId in cost.keys) {
         final amount = cost[materialId];
         if (amount == null) continue;
@@ -1726,7 +1726,7 @@ final class GameData with ChangeNotifier {
       costDescription = desc.toString();
     } else {
       costDescription =
-          '${engine.locale('maintainanceCostPerDay')}:\n \n${engine.locale('none')}';
+          '${engine.locale('maintenanceCostPerDay')}:\n \n${engine.locale('none')}';
     }
 
     return (isDeveloping, progress, max, statusString, costDescription);
@@ -1739,7 +1739,7 @@ final class GameData with ChangeNotifier {
     final int days = developmentCost['days']!;
     desc.writeln('${engine.locale('developmentDays')}: $days\n ');
     desc.writeln(
-        '${engine.locale('maintainanceCostIncreasedToDuringDevelopment')}:');
+        '${engine.locale('maintenanceCostIncreasedToDuringDevelopment')}:');
     for (final materialId in developmentCost.keys) {
       if (materialId == 'days') continue;
       final amount = developmentCost[materialId];

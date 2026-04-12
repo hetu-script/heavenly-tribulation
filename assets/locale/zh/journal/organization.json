@@ -38,6 +38,8 @@
 
   "sect_meeting_monthlySummary_newSuperior": "你现在既已升职，今后改为向<yellow>{0}</>报告，有任何问题都可以和他沟通。",
 
+  "sect_meeting_monthlySummary_promotion_noQuest_hint": "你本月刚刚晋升，可以先熟悉下你的新职位，等下个月例会时会给你发布任务的。",
+
   "sect_title_taskman": "{0}，自今日起，便任你为门派<yellow>「{1}」</>，望你恪尽职守，不负所托！",
 
   "sect_title_promotion": "{0}，念你修为卓越，自今日起，便任你为门派<yellow>「{1}」</>，望你恪尽职守，不负所托！",

@@ -18,10 +18,10 @@ void _updateSectMonthly(dynamic sect, {bool force = false}) {
 // 门派每月例会分为 7 个部分：
 // 1，事件通报：新的联盟和敌对关系、新门派建立。
 // 2，仪式庆典：新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
-// 3，上月总结：任务完成情况，进行物品赏赐，以及功勋加减。
+// 3，上月总结：任务完成情况，进行物品赏赐，以及功勋加减，最后会进行职级晋升。
 // 4，内政沟通：如内政策略，赏赐成员，驱逐功勋过低的成员，门派迁移。
 //    这些决定成员可以发表自己的意见。总管以上成员可以投票。
-// 5，个人请求：要求晋升，以及获得修炼资源等。
+// 5，个人请求：要求晋升（功勋不足会触发额外任务），以及获得修炼资源等。
 // 6，门派任务：每次会有三个，玩家可以自由选择其中一个领取。
 // 7，会议结束
 // 门派会议上只处理玩家角色自己的相关数值变化
@@ -150,8 +150,10 @@ Future<void> _showMeeting(
     await dialog.execute();
 
     final heroContributionLastMonth = contributionsLastMonth[heroId] ?? 0;
+    final expectedMonthlyContribution =
+        _kSectExpectedMonthlyContribution * (heroJobRank + 1);
 
-    if (heroContributionLastMonth >= _kSectExpectedMonthlyContribution) {
+    if (heroContributionLastMonth >= expectedMonthlyContribution) {
       dialog.pushDialog(
         'sect_meeting_monthlySummary_contribution_bonus',
         character: superior,
@@ -159,18 +161,20 @@ Future<void> _showMeeting(
       );
       await dialog.execute();
 
+      final amount = heroJobRank * (heroJobRank + 1) + 1;
       final reward = engine.hetu.invoke('createReward', namedArgs: {
         'genre': sect['genre'],
         'details': {
+          'shard': {
+            'amount': GameData.random.nextInt(amount) + 1,
+          },
           'affixMaterial': {
-            'amount': heroJobRank * (heroJobRank + 1) + 1,
+            'amount': amount,
           },
         },
       });
       await engine.hetu
-          .invoke('acquireAll', namespace: 'Player', positionalArgs: [
-        reward,
-      ]);
+          .invoke('acquireAll', namespace: 'Player', positionalArgs: [reward]);
       await GameLogic.promptItems(reward);
     } else {
       dialog.pushDialog(
@@ -182,24 +186,7 @@ Future<void> _showMeeting(
     }
   }
 
-  // 新的门派任务
-  dialog.pushDialog('sect_meeting_quests', character: superior);
-  await dialog.execute();
-
-  final quests = engine.hetu
-      .invoke('generateSectQuests', positionalArgs: [sect, location]);
-
-  final quest = await showDialog(
-    context: engine.context,
-    barrierDismissible: false,
-    builder: (context) => QuestView(
-      quests: quests,
-      showCloseButton: false,
-    ),
-  );
-
-  await GameLogic.heroAcquireQuest(quest, location, sect);
-
+  // 职级晋升
   final newTitleId = engine.hetu.invoke('checkCharacterTitle',
       positionalArgs: [GameData.hero], namedArgs: {'setAsManager': true});
   if (newTitleId != null) {
@@ -215,7 +202,10 @@ Future<void> _showMeeting(
       positionalArgs: [GameData.hero, newTitleId],
       namedArgs: {
         'sect': sect,
-        'autoManagningSite': false,
+        'assignManagingSite': true,
+        'moveToManagingSite': true,
+        'moveHome': true,
+        'deductContribution': true,
       },
     );
     if (_kManagingTitles.contains(newTitleId)) {
@@ -272,17 +262,35 @@ Future<void> _showMeeting(
             GameData.hero['managingLocationIds'].add(managingCity['id']);
           }
       }
-      final newSuperiorId =
-          engine.hetu.invoke('assignCharacterSuperior', positionalArgs: [
-        GameData.hero,
-        sect,
-      ]);
+      final newSuperiorId = engine.hetu.invoke('assignCharacterSuperior',
+          positionalArgs: [GameData.hero, sect]);
       if (newSuperiorId != superior['id']) {
-        final newSuperior = GameData.getCharacter(newSuperiorId);
         dialog.pushDialog('sect_meeting_monthlySummary_newSuperior',
-            character: newSuperior, interpolations: [newSuperior['name']]);
+            character: superior, interpolations: [superior['name']]);
+        superior = GameData.getCharacter(newSuperiorId);
       }
     }
+  }
+
+  if (newTitleId == null) {
+    // 新的门派任务，如果刚晋升则跳过此环节
+    dialog.pushDialog('sect_meeting_quests', character: superior);
+    await dialog.execute();
+    final quests = engine.hetu
+        .invoke('generateSectQuests', positionalArgs: [sect, location]);
+    final quest = await showDialog(
+      context: engine.context,
+      barrierDismissible: false,
+      builder: (context) => QuestView(
+        quests: quests,
+        showCloseButton: false,
+      ),
+    );
+    await GameLogic.heroAcquireQuest(quest, location, sect);
+  } else {
+    dialog.pushDialog('sect_meeting_monthlySummary_promotion_noQuest_hint',
+        character: superior);
+    await dialog.execute();
   }
 
   dialog.pushDialog('sect_meeting_ending', character: superior);
