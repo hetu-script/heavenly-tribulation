@@ -506,6 +506,7 @@ struct Cardpack {
     this.createdTimestamp = game.timestamp
     this.type = kItemTypeCardpack
     this.category = kItemCategoryCardpack;
+    this.kind = 'cardpack'
 
     rank ??= 0
     if (rank < 1 && genre != null) {

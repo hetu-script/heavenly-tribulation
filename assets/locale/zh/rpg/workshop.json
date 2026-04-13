@@ -1,9 +1,10 @@
 {
   "extract": "萃取",
 
-  "days_needed": "所需天数",
-  "base_material": "基础材料",
-  "extra_material": "额外材料",
+  "days_needed": "需要的天数",
+  "base_material_needed": "需要的基础材料",
+  "extra_affixes": "器灵残魂",
+  "shard_cost": "灵石消耗",
 
   "workshop_hint": "右键点击物品栏中的装备，放入工作台进行萃取。",
 

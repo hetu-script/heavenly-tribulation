@@ -23,7 +23,12 @@ import '../ui/bordered_icon_button.dart';
 class WorkshopDialog extends StatefulWidget {
   const WorkshopDialog({
     super.key,
+    this.locationData,
+    this.development,
   });
+
+  final dynamic locationData;
+  final int? development;
 
   @override
   State<WorkshopDialog> createState() => _WorkshopDialogState();
@@ -33,42 +38,44 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   int _tabIndex = 0;
 
   String _selectedCraftKind = kItemEquipmentKinds.first;
+  Set<String> get _availableCraftRarities {
+    if (widget.locationData == null && widget.development == null) {
+      return kRarities;
+    }
+
+    final rarities = <String>{};
+    for (final rarity in kRarities) {
+      final rank = kRaritiesToRank[rarity] as int;
+      if (widget.locationData != null) {
+        if (widget.locationData['development'] >= rank) {
+          rarities.add(rarity);
+        }
+      } else if (widget.development != null) {
+        if (widget.development! >= rank) {
+          rarities.add(rarity);
+        }
+      }
+    }
+    return rarities;
+  }
+
   String _selectedCraftRarity = kRarities.first;
   dynamic _selectedCraftItemRequirements;
   int _extraAffixCount = 0;
-  late final List<Widget> _affixWidgets;
+  final List<dynamic> _selectedAffixesForCraft =
+      List.generate(6, (index) => null);
+
   dynamic _selectedEquipment;
   bool get isExtracting => _selectedEquipment != null;
 
   List _selectedEquipmentAffixes = [];
   dynamic _selectedAffix;
 
+  List selectedItemIds = [];
+
   @override
   void initState() {
     super.initState();
-
-    _affixWidgets = List.generate(
-      kMaxAffixCount,
-      (index) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 2.5),
-        child: ItemGrid(
-          onMouseEnter: (itemData, rect) {
-            context.read<HoverContentState>().show(
-                  rect: rect,
-                  contentBuilder: (isDetailed) => buildItemHoverInfo(
-                    itemData,
-                    inventoryType: InventoryType.none,
-                    isDetailed: isDetailed,
-                  ),
-                );
-          },
-          onMouseExit: () {
-            context.read<HoverContentState>().hide();
-          },
-          onSecondaryTapped: (_, __) {},
-        ),
-      ),
-    );
 
     _updateSelectedCraftItemRequirements();
   }
@@ -86,20 +93,121 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     }
     final extraAffixConfig = GameLogic.getMinMaxExtraAffixCount(rank);
     _extraAffixCount = extraAffixConfig['maxExtra'] as int;
+    _selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
   }
 
   void onInventoryItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
-    if (_tabIndex == 1) {
-      assert(itemData['type'] == 'equipment');
-      engine.play('sword-sheathed-178549.mp3');
-      _selectedEquipment = itemData;
-      _selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
-      setState(() {});
+    assert(itemData['type'] == 'equipment');
+    if (_tabIndex == 0) {
+      if (itemData['category'] == kItemCategoryExtractedAffix) {
+        bool isUnselected = true;
+        for (var i = 0; i < _extraAffixCount; ++i) {
+          if (_selectedAffixesForCraft[i] == itemData['affixes'][0]) {
+            _selectedAffixesForCraft[i] = null;
+            isUnselected = false;
+            updateInfo();
+            setState(() {});
+            break;
+          }
+        }
+        if (isUnselected) {
+          for (var i = 0; i < _extraAffixCount; ++i) {
+            if (_selectedAffixesForCraft[i] == null) {
+              engine.play('sword-sheathed-178549.mp3');
+              _selectedAffixesForCraft[i] = itemData['affixes'][0];
+              updateInfo();
+              setState(() {});
+              break;
+            }
+          }
+        }
+      }
+    } else if (_tabIndex == 1) {
+      if (itemData['category'] != kItemCategoryExtractedAffix) {
+        engine.play('sword-sheathed-178549.mp3');
+        _selectedEquipment = itemData;
+        _selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
+        updateInfo();
+        setState(() {});
+      }
     }
   }
 
   void close() {
     engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+  }
+
+  void craftEquipment() {
+    final result =
+        GameLogic.heroExhaustMaterials(_selectedCraftItemRequirements);
+
+    if (!result) return;
+
+    final selectedAffixes =
+        _selectedAffixesForCraft.where((affix) => affix != null);
+
+    final affixes = [];
+    for (final affixItem in selectedAffixes) {
+      final affix = affixItem['affixes'][0];
+      assert(affix != null);
+      affixes.add(affix);
+    }
+
+    final equipment = engine.hetu.invoke('Equipment', namedArgs: {
+      'kind': _selectedCraftKind,
+      'rank': kRaritiesToRank[_selectedCraftRarity],
+      'affixes': affixes,
+    });
+
+    engine.play(GameSound.anvil);
+
+    engine.hetu
+        .invoke('acquire', namespace: 'Player', positionalArgs: [equipment]);
+
+    setState(() {});
+  }
+
+  void extractAffix() {
+    final extractedAffix = engine.hetu.invoke('ExtractedAffix', namedArgs: {
+      'affix': _selectedAffix,
+      'rank': _selectedEquipment['rank'],
+    });
+    engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
+      _selectedEquipment,
+    ]);
+    engine.hetu.invoke('acquire', namespace: 'Player', positionalArgs: [
+      extractedAffix,
+    ]);
+    engine.play(GameSound.anvil);
+
+    _selectedEquipment = null;
+    _selectedEquipmentAffixes.clear();
+    _selectedAffix = null;
+
+    updateInfo();
+    setState(() {});
+  }
+
+  void updateInfo() {
+    selectedItemIds.clear();
+    if (_selectedEquipment != null) {
+      selectedItemIds.add(_selectedEquipment['id']);
+    }
+    int affixCount = 0;
+    for (final affix in _selectedAffixesForCraft) {
+      if (affix != null) {
+        ++affixCount;
+        selectedItemIds.add(affix['id']);
+      }
+    }
+
+    int shardCost = GameLogic.calculateShardCostForCrafting(affixCount);
+
+    if (shardCost > 0) {
+      _selectedCraftItemRequirements['shard'] = shardCost;
+    } else {
+      _selectedCraftItemRequirements.remove('shard');
+    }
   }
 
   @override
@@ -141,11 +249,12 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                           style: TextStyles.bodySmall,
                           textAlign: TextAlign.center,
                         ),
-                        body: Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Column(
-                            children: [
-                              Row(
+                        body: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                              child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
@@ -182,7 +291,8 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                       ),
                                       items: buildFluentMenuItems(
                                         items: {
-                                          for (final key in kRarities)
+                                          for (final key
+                                              in _availableCraftRarities)
                                             engine.locale(key): key,
                                         },
                                         onSelectedItem: (String value) {
@@ -195,41 +305,75 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                   ),
                                 ],
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 10.0, bottom: 10.0),
-                                child: Text(
-                                    '${engine.locale('days_needed')} ${_selectedCraftItemRequirements['day']}'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 10.0),
-                                child: Text(engine.locale('base_material')),
-                              ),
-                              MaterialList(
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: Text(
+                                  '${engine.locale('days_needed')} ${_selectedCraftItemRequirements['day']}'),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: MaterialList(
                                 height: 150.0,
                                 requirements: _selectedCraftItemRequirements,
                                 entity: GameData.hero,
                               ),
-                              if (_extraAffixCount > 0)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 5.0),
-                                  child: Text(engine.locale('extra_material')),
-                                ),
+                            ),
+                            if (_extraAffixCount > 0) ...[
                               Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: _affixWidgets.sublist(
-                                      0, _extraAffixCount),
-                                ),
-                              ),
-                              const Spacer(),
-                              fluent.Button(
-                                onPressed: () {},
-                                child: Text(engine.locale('craft')),
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: Text(engine.locale('extra_affixes')),
                               ),
                             ],
-                          ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 5.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  kMaxAffixCount,
+                                  (index) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 2.5),
+                                    child: ItemGrid(
+                                      itemData: _selectedAffixesForCraft[index],
+                                      onMouseEnter: (itemData, rect) {
+                                        context.read<HoverContentState>().show(
+                                              rect: rect,
+                                              contentBuilder: (isDetailed) =>
+                                                  buildItemHoverInfo(
+                                                itemData,
+                                                inventoryType:
+                                                    InventoryType.none,
+                                                isDetailed: isDetailed,
+                                              ),
+                                            );
+                                      },
+                                      onMouseExit: () {
+                                        context
+                                            .read<HoverContentState>()
+                                            .hide();
+                                      },
+                                      onSecondaryTapped: (_, __) {
+                                        if (_selectedAffixesForCraft[index] !=
+                                            null) {
+                                          engine.play(GameSound.put);
+                                          _selectedAffixesForCraft[index] =
+                                              null;
+                                          updateInfo();
+                                          setState(() {});
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ).sublist(0, _extraAffixCount),
+                              ),
+                            ),
+                            const Spacer(),
+                            fluent.Button(
+                              onPressed: craftEquipment,
+                              child: Text(engine.locale('craft')),
+                            ),
+                          ],
                         ),
                       ),
                       fluent.Tab(
@@ -271,6 +415,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                         engine.play(GameSound.put);
                                         _selectedEquipment = null;
                                         _selectedEquipmentAffixes = [];
+                                        updateInfo();
                                         setState(() {});
                                       },
                                     ),
@@ -290,7 +435,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                               ),
                               _selectedEquipmentAffixes.isEmpty
                                   ? EmptyPlaceholder(
-                                      engine.locale('noUsableItems'))
+                                      engine.locale('noExtractableAffixes'))
                                   : Column(
                                       children: _selectedEquipmentAffixes
                                           .map((affixData) {
@@ -316,26 +461,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                               const Spacer(),
                               fluent.Button(
                                 onPressed: _selectedAffix != null
-                                    ? () {
-                                        final extractedAffix = engine.hetu
-                                            .invoke('ExtractedAffix',
-                                                namedArgs: {
-                                              'affix': _selectedAffix,
-                                              'rank':
-                                                  _selectedEquipment['rank'],
-                                            });
-                                        engine.hetu.invoke('lose',
-                                            namespace: 'Player',
-                                            positionalArgs: [
-                                              _selectedEquipment,
-                                            ]);
-                                        engine.hetu.invoke('acquire',
-                                            namespace: 'Player',
-                                            positionalArgs: [
-                                              extractedAffix,
-                                            ]);
-                                        engine.play(GameSound.anvil);
-                                      }
+                                    ? extractAffix
                                     : null,
                                 child: Text(engine.locale('extract')),
                               )
@@ -351,9 +477,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: Inventory(
                   character: GameData.hero,
-                  selectedItemId: _selectedEquipment != null
-                      ? [_selectedEquipment['id']]
-                      : [],
+                  selectedItemIds: selectedItemIds,
                   inventoryType: InventoryType.none,
                   itemTypes: null,
                   filter: {'type': 'equipment'},

@@ -51,6 +51,7 @@
   "hint_restartRequired": "部分选项修改后需要重新启动游戏才能生效。",
 
   "noUsableItems": "无可用项目",
+  "noExtractableAffixes": "没有可提取的词条",
 
   "generateZone": "自动生成地域",
   "reloadGameData": "重新载入游戏数据",
@@ -205,7 +206,7 @@
   "destroy": "销毁",
   "craft": "打造",
   "craftmaterial": "材料",
-  "affix_crafting_material": "精炼石",
+  "craftmaterial_affix": "精炼石",
   "charge": "充能",
   "chargeItem": "为物品充能",
   "shardsCost": "灵石消耗",

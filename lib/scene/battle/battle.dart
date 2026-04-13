@@ -27,6 +27,9 @@ import '../../state/states.dart';
 const kMinTurnDuration = 1500;
 const kBattleRoundLimit = 5;
 
+/// 后手方恢复 20% 战斗生命上限
+const double kSecondHandHealRate = 0.2;
+
 enum BattleMenuItems {
   console,
   exit,
@@ -119,7 +122,7 @@ class BattleScene extends Scene {
   int roundCount = 0;
 
   // 先手角色
-  late final bool isFirsthand;
+  late bool isFirsthand;
   // 当前是否是玩家回合
   late bool heroTurn;
   late BattleCharacter currentCharacter, currentOpponent;
@@ -191,6 +194,13 @@ class BattleScene extends Scene {
     if (character.data['passives']['enable_rage'] != null) {
       character.addStatusEffect('enable_rage',
           amount: 1, handleCallback: false);
+    }
+
+    // 灵力每 10 点：战斗开始时获得 1 点灵气
+    final int initialMana = character.data['stats']['spirituality'] ~/ 10;
+    if (initialMana > 0) {
+      character.addStatusEffect('energy_positive_spell',
+          amount: initialMana, handleCallback: false);
     }
   }
 
@@ -425,15 +435,7 @@ class BattleScene extends Scene {
     );
     camera.viewport.add(versusBanner);
 
-    final heroRank = heroData['rank'];
-    final enemyRank = enemyData['rank'];
-
-    if (heroRank == enemyRank) {
-      isFirsthand =
-          heroData['stats']['dexterity'] >= enemyData['stats']['dexterity'];
-    } else {
-      isFirsthand = heroRank > enemyRank;
-    }
+    _rollFirsthand();
 
     restartButton = SpriteButton(
       spriteId: 'ui/button2.png',
@@ -486,6 +488,20 @@ class BattleScene extends Scene {
     camera.viewport.add(nextTurnButton);
   }
 
+  /// 根据身法加权随机决定先手，偷袭时英雄直接先手
+  void _rollFirsthand() {
+    if (isSneakAttack) {
+      isFirsthand = true;
+      return;
+    }
+    final int heroDex = heroData['stats']['dexterity'];
+    final int enemyDex = enemyData['stats']['dexterity'];
+    // 每差 10 点身法，先手概率偏移 10%
+    final double probability = (0.5 + (heroDex - enemyDex) / 100).clamp(0, 1);
+    final roll = random.nextDouble();
+    isFirsthand = roll < probability;
+  }
+
   Future<void> _onBattleStart() async {
     battleEnded = false;
     battleResult = null;
@@ -493,6 +509,7 @@ class BattleScene extends Scene {
     enemy.reset();
     heroDeckZone.reset();
     enemyDeckZone.reset();
+    _rollFirsthand();
 
     _prepareBattleStart(hero);
     final enemyStatus = _prepareStatus(hero, StatusCircumstances.start_battle);
@@ -512,6 +529,23 @@ class BattleScene extends Scene {
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
+
+    // 后手补偿：恢复少量生命（偷袭时无补偿）
+    if (!isSneakAttack) {
+      final secondHandCharacter = heroTurn ? enemy : hero;
+      final int overheal = secondHandCharacter.life -
+          secondHandCharacter.data['stats']['lifeMax'] as int;
+      final int heal =
+          secondHandCharacter.lifeMax - secondHandCharacter.life + overheal;
+      if (heal > 0) {
+        secondHandCharacter.setLife(secondHandCharacter.lifeMax,
+            overflow: true);
+        secondHandCharacter.addHintText(
+            '${engine.locale('secondHandHeal')} +$heal',
+            color: Colors.lightGreen);
+      }
+    }
+
     nextTurnButton.text = engine.locale('nextTurn');
 
     await onBattleStart?.call();

@@ -248,8 +248,6 @@ class MatchingTile extends GameComponent with HandlesGesture {
 }
 
 class MatchingGame2 extends Scene with HasCursorState {
-  static final random = math.Random();
-
   // 层级偏移（第2层有半格错位）
   static final layer2Offset = GameUI.matchingTileSize / 2; // 半个格子
 

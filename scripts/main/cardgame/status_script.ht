@@ -26,9 +26,9 @@ import 'common.ht'
 /// 对方/自己造成伤害后 opponent/self_done_damage
 /// 对方/自己受到伤害后 opponent/self_taken_damage
 
-/// 对方/自己获得阳气时 opponent/self_gaining_energy_positive
-/// 对方/自己获得负面效果时 opponent/self_gaining_debuff
-/// // 对方/自己获得伤势时 opponent/self_gaining_injury
+/// 对方/自己获得阳气后 opponent/self_gained_energy_positive
+/// 对方/自己获得负面效果后 opponent/self_gained_debuff
+/// // 对方/自己获得伤势后 opponent/self_gained_injury
 
 /// 对方/自己资源溢出时 opponent/self_overflowed_energy
 
@@ -197,9 +197,9 @@ struct StatusScript {
     details.baseChange -= blocked
   }
 
-  function vulnerable_self_turn_start(self, opponent, effect, details) {
-    self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
-  }
+  // function vulnerable_self_turn_start(self, opponent, effect, details) {
+  //   self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
+  // }
 
   function vulnerable_self_taking_damage(self, opponent, effect, details) {
     if (effect.damageType != details.damageType) return
@@ -217,7 +217,7 @@ struct StatusScript {
     }
   }
 
-  function ward_self_gaining_debuff(self, opponent, effect, details) {
+  function ward_self_gained_debuff(self, opponent, effect, details) {
     if (!details.cancelDebuff) {
       details.cancelDebuff = true
       self.removeStatusEffect(effect.id, amount: 1)

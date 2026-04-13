@@ -31,7 +31,7 @@ class Inventory extends StatefulWidget {
     this.height = 312.0,
     this.minSlotCount = 60,
     this.gridsPerLine = 5,
-    this.selectedItemId = const [],
+    this.selectedItemIds = const [],
     this.priceFactor,
     this.onItemTapped,
     this.onItemSecondaryTapped,
@@ -45,7 +45,7 @@ class Inventory extends StatefulWidget {
   final InventoryType inventoryType;
   final double height;
   final int minSlotCount, gridsPerLine;
-  final Iterable selectedItemId;
+  final Iterable selectedItemIds;
   final dynamic priceFactor;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
@@ -126,7 +126,7 @@ class _InventoryState extends State<Inventory> {
           },
           onTapped: widget.onItemTapped,
           onSecondaryTapped: widget.onItemSecondaryTapped,
-          isSelected: widget.selectedItemId.contains(itemData['id']),
+          isSelected: widget.selectedItemIds.contains(itemData['id']),
         ),
       );
     }

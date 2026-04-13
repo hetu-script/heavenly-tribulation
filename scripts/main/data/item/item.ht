@@ -23,7 +23,7 @@ const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
 const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
-const kItemCategoryAffixMaterial = 'affix_crafting_material';
+const kItemCategoryAffixMaterial = 'craftmaterial_affix';
 
 const kNormalPrototypeItems = [
   kItemCategoryIdentifyScroll,
@@ -39,6 +39,31 @@ const kRankedPrototypeItems = [
   'craftmaterial_upgradeRank',
 ];
 
+// 材料的类型
+const kMaterialMoney = 'money'
+const kMaterialShard =  'shard'
+const kMaterialWorker =  'worker'
+
+const kMaterialWater =  'water'
+const kMaterialGrain =  'grain'
+const kMaterialMeat =   'meat'
+const kMaterialOre =   'ore'
+const kMaterialLeather =  'leather'
+const kMaterialHerb =  'herb'
+const kMaterialTimber = 'timber'
+const kMaterialStone = 'stone'
+
+const kMaterials = {
+  kMaterialWater,
+  kMaterialGrain,
+  kMaterialMeat,
+  kMaterialOre,
+  kMaterialLeather,
+  kMaterialHerb,
+  kMaterialTimber,
+  kMaterialStone,
+}
+
 const kEstimatePriceFactor = 0.8;
 
 const kItemExtraAffixMinLevel = minLevelForRank(1);
@@ -46,11 +71,11 @@ const kItemExtraAffixMinLevel = minLevelForRank(1);
 const kUnknownItemBasePrice = 100;
 
 function calculatePrice(item) {
-  if (Constants.itemWithAffixCategories.contains(item.category)) {
+  if (Constants.itemWithAffixKinds.contains(item.kind)) {
     item.price = (item.rank * item.rank + 1) * (item.level + 1) *
-      (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+      (item.affixes?.length ?? 0 + 1) * (Constants.kItemPriceByKind[item.kind] ?? kUnknownItemBasePrice)
   } else {
-    item.price = (item.rank * item.rank + 1) * (Constants.basePriceByCategory[item.category] ?? kUnknownItemBasePrice)
+    item.price = (item.rank * item.rank + 1) * (Constants.kItemPriceByKind[item.kind] ?? kUnknownItemBasePrice)
   }
 }
 
@@ -258,6 +283,7 @@ function entityExhaust(
   amount: integer, {
   forceExhaust = false,
   onStorage = false,
+  warning = false,
 }) -> bool {
   assert(Constants.materialKinds.contains(materialId))
   if (amount <= 0) {
@@ -271,7 +297,9 @@ function entityExhaust(
   if (existed >= amount) {
     exhausted = amount
     data[materialId] = existed - amount
-    // engine.warning('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+    if (warning) {
+      engine.warning('[${entity.name}] 失去了 [${materialId} × ${amount}]')
+    }
   } else if (forceExhaust) {
     exhausted = existed
     data[materialId] = 0
@@ -281,6 +309,17 @@ function entityExhaust(
   }
 
   return exhausted
+}
+
+function entityExhaustAll(entity, materials, {
+  forceExhaust = false,
+  onStorage = false,
+}) {
+
+  for (let materialId in materials.keys) {
+    final amount = materials[materialId]
+    entityExhaust(entity, materialId, amount, forceExhaust: forceExhaust, onStorage: onStorage)
+  }
 }
 
 /// 对象（人物、城市等）获得一个已经存在与世界上的物品

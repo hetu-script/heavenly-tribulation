@@ -673,6 +673,33 @@ final class GameLogic {
     return price;
   }
 
+  static int calculateShardCostForCrafting(int affixCount) {
+    if (affixCount <= 0) return 0;
+    return math.pow(2, affixCount) as int;
+  }
+
+  static bool checkHeroHasSufficientMaterial(dynamic materials) {
+    for (final materialId in materials.keys) {
+      final requiredAmount = materials[materialId] as int;
+      if (requiredAmount <= 0) continue;
+      final int availableAmount = GameData.hero['materials'][materialId] ?? 0;
+      if (availableAmount < requiredAmount) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static bool heroExhaustMaterials(dynamic materials) {
+    final hasSufficient = checkHeroHasSufficientMaterial(materials);
+    if (!hasSufficient) return false;
+
+    engine.hetu
+        .invoke('exhaustAll', namespace: 'Player', positionalArgs: [materials]);
+
+    return true;
+  }
+
   /// 计算购买或卖出物品时的价格
   ///
   /// [priceFactor] 交易物品时，需要支付的价格相比商品基础价格的乘数
@@ -763,15 +790,22 @@ final class GameLogic {
     }
   }
 
-  static int estimateItemPrice(
-    String category,
+  static int estimateItemPriceByKind(
+    String kind,
     int rank, {
     String range = 'normal',
     bool useShard = false,
   }) {
     assert(kEstimatePriceRange.contains(range));
     int price;
-    if (kItemWithAffixCategories.contains(category)) {
+    int basePrice;
+    if (kBasePriceByKind.containsKey(kind)) {
+      basePrice = kBasePriceByKind[kind]!;
+    } else {
+      engine.warning('Unknown item price, kind: $kind, using default price');
+      basePrice = kUnknownItemPrice;
+    }
+    if (kItemWithAffixKinds.contains(kind)) {
       final minLevel = minLevelForRank(rank);
       final maxLevel = maxLevelForRank(rank);
       final extraAffixCount = getMinMaxExtraAffixCount(rank);
@@ -792,13 +826,9 @@ final class GameLogic {
         default:
           throw ('estimatedPrice range should be `cheap`, `normal`, or `expensive`: $range');
       }
-      price = (rank * rank + 1) *
-          (level + 1) *
-          (affixCount + 1) *
-          (kItemPriceByCategory[category] ?? kUnknownItemPrice);
+      price = (rank * rank + 1) * (level + 1) * (affixCount + 1) * basePrice;
     } else {
-      price = (rank * rank + 1) *
-          (kItemPriceByCategory[category] ?? kUnknownItemPrice);
+      price = (rank * rank + 1) * basePrice;
     }
 
     if (useShard) {
@@ -1222,6 +1252,7 @@ final class GameLogic {
           case 'craftmaterial_freezeAffix':
           case 'craftmaterial_removeAffix':
           case 'craftmaterial_rerollAffix':
+            break;
           case 'craftmaterial_upgradeRank':
             engine.hetu.invoke('characterSetPotionPassive', positionalArgs: [
               GameData.hero,

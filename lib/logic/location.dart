@@ -226,6 +226,7 @@ Future<bool> _checkRented(dynamic location,
   await dialog.execute();
   final selected = dialog.checkSelected('rentQuery');
   if (selected != 'rentFacility') return false;
+
   int exhausted = engine.hetu.invoke(
     'exhaust',
     namespace: 'Player',

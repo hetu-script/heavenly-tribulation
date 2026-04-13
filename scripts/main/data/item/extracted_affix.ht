@@ -3,22 +3,27 @@
 struct ExtractedAffix {
   constructor ({
     affix,
+    kind,
     rank,
+    level,
   }) {
     this.id = crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeItem
     this.rank = rank ?? 0
     this.rarity = Constants.rankToRarity[this.rank]
     this.color = kRarity[this.rarity].color
-    this.name = engine.locale('extracted_affix')
-    this.icon = 'item/craft/extracted_affix.png'
-    this.stackSize = 1
 
     this.type = kItemTypeEquipment
     this.category = kItemCategoryExtractedAffix
+    this.kind = 'extracted_affix'
+    this.name = engine.locale('extracted_affix')
+    this.flavortext = engine.locale('flavortext_${this.category}')
+    this.icon = 'item/craft/extracted_affix.png'
+    this.stackSize = 1
+    
+    this.level = level ?? affix.level
     this.affixes = [affix]
     
     this.isIdentified = true
-    
   }
 }

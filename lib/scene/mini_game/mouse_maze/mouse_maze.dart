@@ -409,8 +409,6 @@ class _DragArea extends GameComponent with HandlesGesture {
 }
 
 class MouseMazeGame extends Scene with HasCursorState {
-  static final random = math.Random();
-
   late List<List<_Cell>> _mazeData;
   late final _Maze _maze;
   late final LightPoint lightPoint;

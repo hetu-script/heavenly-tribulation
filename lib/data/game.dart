@@ -1173,7 +1173,7 @@ final class GameData with ChangeNotifier {
             '${engine.locale(useShard ? 'shard' : 'money2')}</>');
       } else {
         assert(itemData['isIdentified'] == false);
-        final estimatedPrice = GameLogic.estimateItemPrice(
+        final estimatedPrice = GameLogic.estimateItemPriceByKind(
             itemData['category'], itemData['rank'],
             range: estimatePriceRange);
         description.writeln('<yellow>${engine.locale('estimatedPrice')}: '

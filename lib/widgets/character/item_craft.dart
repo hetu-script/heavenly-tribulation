@@ -32,7 +32,7 @@ class _ItemCraftState extends State<ItemCraft> {
     final Map<String, dynamic> filter = {};
     switch (widget.craftMode) {
       case CraftMode.affix:
-        filter['category'] = 'affix_crafting_material';
+        filter['category'] = 'craftmaterial_affix';
       case CraftMode.scroll:
         filter['category'] = 'scroll_paper';
       case CraftMode.all:
@@ -79,7 +79,7 @@ class _ItemCraftState extends State<ItemCraft> {
                           minSlotCount: 70,
                           filter: filter,
                           itemTypes: null,
-                          selectedItemId: _selectedItemData != null
+                          selectedItemIds: _selectedItemData != null
                               ? [_selectedItemData['id']]
                               : [],
                           // onItemTapped: (data, offset) {

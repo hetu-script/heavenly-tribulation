@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
@@ -110,8 +109,6 @@ class _Grid extends GameComponent {
 }
 
 class MatchingGame extends Scene with HasCursorState {
-  static final random = math.Random();
-
   // final fluent.FlyoutController menuController = fluent.FlyoutController();
 
   late final SpriteSheet hiddenTileSpriteSheet,

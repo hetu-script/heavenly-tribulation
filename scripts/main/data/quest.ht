@@ -418,6 +418,7 @@ namespace Quests {
       requirement = {
         'type': 'potion',
         category: 'potion',
+        kind: 'potion',
         rank: difficulty,
         rarity: rarity,
       }
@@ -426,6 +427,7 @@ namespace Quests {
       requirement = {
         'type': 'cardpack',
         category: 'cardpack',
+        kind: 'cardpack',
         genre: difficulty == 0 ? 'none' : random.nextIterable(Constants.cultivationGenres),
         rank: difficulty,
       }
@@ -434,8 +436,8 @@ namespace Quests {
 
     final difficultyFactor = difficulty * difficulty + 1
     let budget = 
-          estimateItemPrice(requirement.category, requirement.rank, 'expensive')
-    if (!Constants.itemWithAffixCategories.contains(requirement.category)) {
+          estimateItemPriceByKind(requirement.kind, requirement.rank, 'expensive')
+    if (!Constants.itemWithAffixKinds.contains(requirement.kind)) {
       budget += kBaseReward * difficultyFactor + budget ~/ 4;
     }
     final shardRewardAmount = convertMoneyToShard(budget)

@@ -72,6 +72,11 @@ namespace Player {
     return result
   }
 
+  function exhaustAll(materials) {
+    assert(hero != null)
+    entityExhaustAll(hero, materials, warning: true)
+  }
+
   function makeContribution(data, { incurIncident = true }) {
     assert(hero != null)
     characterMakeContribution(hero, data, incurIncident: incurIncident)

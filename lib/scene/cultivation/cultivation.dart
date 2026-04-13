@@ -1237,10 +1237,23 @@ class CultivationScene extends Scene with HasCursorState {
       });
     }
 
+    int difficulty = nodeRank;
+    if (GameData.hero['passives']['decreaseTribulationDifficulty'] != null) {
+      difficulty -= 1;
+
+      GameData.hero['passives'].remove('decreaseTribulationDifficulty');
+
+      dialog.pushDialog('tribulation_difficulty_decreased');
+      await dialog.execute();
+    }
+
+    assert(difficulty >= 0 && difficulty < MiniGameDifficulty.values.length);
+
     if (selected == 'tribulation_martial') {
       // 武试：进入天道战斗
       final int maxLevel = GameLogic.maxLevelForRank(nodeRank);
-      GameLogic.showTribulation(maxLevel, nodeRank, onResult: (bool result) {
+
+      GameLogic.showTribulation(maxLevel, difficulty, onResult: (bool result) {
         if (result) {
           onTribulationSuccess();
         } else {
@@ -1252,10 +1265,10 @@ class CultivationScene extends Scene with HasCursorState {
       // 文试：随机进入一种小游戏。难度和节点本身的境界有关。
       final sceneId =
           kMiniGameScenes[math.Random().nextInt(kMiniGameScenes.length)];
-      assert(nodeRank >= 0 && nodeRank < MiniGameDifficulty.values.length);
-      final difficulty = MiniGameDifficulty.values[nodeRank];
+
+      final miniGameDifficulty = MiniGameDifficulty.values[difficulty];
       engine.pushScene(sceneId, arguments: {
-        'difficulty': difficulty.name,
+        'difficulty': miniGameDifficulty.name,
         'onGameEnd': (bool won) {
           if (won) {
             onTribulationSuccess();

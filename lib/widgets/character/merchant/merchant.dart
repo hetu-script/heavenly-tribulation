@@ -629,7 +629,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           ? InventoryType.none
                           : InventoryType.customer,
                       priceFactor: priceFactor,
-                      selectedItemId: _selectedHeroItemsData.keys,
+                      selectedItemIds: _selectedHeroItemsData.keys,
                       onItemTapped: (itemData, screenPosition) {
                         if (isDepositBox) {
                           if (_selectedHeroItemsData
@@ -751,7 +751,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                           ? InventoryType.none
                           : InventoryType.merchant,
                       priceFactor: priceFactor,
-                      selectedItemId: _selectedMerchantItemsData.keys,
+                      selectedItemIds: _selectedMerchantItemsData.keys,
                       onItemTapped: (itemData, screenPosition) {
                         if (isDepositBox) {
                           if (_selectedMerchantItemsData

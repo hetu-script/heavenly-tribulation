@@ -32,6 +32,19 @@ const kResourceHasNegatives = {
   'energy_positive_curse',
 };
 
+const kDebuffs = {
+  'speed_slow',
+  'dodge_clumsy',
+  'injury_external',
+  'injury_internal',
+  'injury_poison',
+  'injury_hallucination',
+  'vulnerable_physical',
+  'vulnerable_chi',
+  'vulnerable_elemental',
+  'vulnerable_psychic',
+};
+
 Color getDamageColor(String damageType) {
   return switch (damageType) {
     'chi' => Colors.purple,
@@ -58,6 +71,8 @@ Color getResourceColor(String resourceType) {
 }
 
 class BattleCharacter extends GameComponent with AnimationStateController {
+  static final random = math.Random();
+
   final String skinId;
 
   final bool isHero;
@@ -441,8 +456,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final int maxValue = data['stats'][maxId];
       if (effect.amount > maxValue) {
         dynamic result;
+        final overflowedAmount = effect.amount - maxValue;
         if (handleCallback) {
-          buffDetails['overflow'] = effect.amount - maxValue;
+          buffDetails['overflow'] = overflowedAmount;
           // 触发对方资源溢出时的效果
           opponent!.handleStatusEffectCallback(
               'opponent_overflowed_energy', buffDetails);
@@ -458,6 +474,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
                 interpolations: [engine.locale('status_$id')]),
             color: Colors.blue,
           );
+
+          if (id == 'energy_positive_weapon') {
+            // 处理剑气溢出时的逻辑
+            for (var i = 0; i < overflowedAmount; ++i) {
+              final debuffId = kDebuffs.random;
+              if (random.nextBool()) {
+                opponent!.addStatusEffect(debuffId, amount: 1);
+              } else {
+                addStatusEffect(debuffId, amount: 1);
+              }
+            }
+          }
         }
       }
     }
@@ -492,13 +520,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         opponent!.handleStatusEffectCallback('opponent_gained_energy_positive');
         // 触发自己获得阳气后的效果
         handleStatusEffectCallback('self_gained_energy_positive');
-      }
-
-      if (effectData['isDebuff'] == true) {
-        // 触发对方获得永久负面状态后的效果
-        opponent!.handleStatusEffectCallback('opponent_gained_debuff');
-        // 触发自己获得永久负面状态后的效果
-        handleStatusEffectCallback('self_gained_debuff');
+      } else if (effectData['isDebuff'] == true) {
+        for (var i = 0; i < effect.amount; ++i) {
+          // 触发对方获得永久负面状态后的效果
+          opponent!.handleStatusEffectCallback('opponent_gained_debuff');
+          // 触发自己获得永久负面状态后的效果
+          handleStatusEffectCallback('self_gained_debuff');
+        }
       }
     }
   }

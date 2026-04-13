@@ -86,25 +86,19 @@
 
 随机替换一个额外词条
 
+### 精炼·真定
+
+随机锁定一个词条，使其不会被神照替换，或者被混元随机化，也不会被坐忘删除。
+
+### 精炼·坐忘
+
+随机移除一个词条。
+
 ### 精炼·混元
 
 随机化词条的等级。词条的等级最大值等于主词条的等级，也就是卡牌等级。
 
-### 精炼·真定
-
-随机锁定一个词条，使其不会被神照替换，或者被混元随机化。
-
 ### 精炼·破境
-
-提升境界有成功几率
-
-```javascript
-function getCardRankUpProbability(rank) {
-  if (rank == 0) return 1.0;
-  if (rank >= kCultivationRankMax) return 0.0;
-  return 1 - rank / kCultivationRankMax;
-}
-```
 
 提升卡牌境界（卡牌本身升级满后才能提升境界，每个境界需要的材料不同）
 

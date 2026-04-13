@@ -10,6 +10,7 @@ struct Equipment {
     rarity,
     rank,
     level,
+    affixes,
     isIdentified = true,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
@@ -95,33 +96,41 @@ struct Equipment {
     // 在 category 赋值之后才能获取风味文本
     this.flavortext = flavortext ?? engine.locale('flavortext_${this.category}')
 
-    // 根据境界，生成额外词条
-    final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
-    let affixCount = affixCountInfo.minExtra
-    if (affixCountInfo.maxExtra > 0) {
-      if (affixCount < affixCountInfo.maxExtra) {
-        affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+    if (affixes == null) {
+      // 根据境界，生成额外词条
+      final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
+      let affixCount = affixCountInfo.minExtra
+      if (affixCountInfo.maxExtra > 0) {
+        if (affixCount < affixCountInfo.maxExtra) {
+          affixCount += random.nextInt(affixCountInfo.maxExtra - affixCount + 1)
+        }
       }
-    }
-    if (affixCount > 0) {
-      for (var i in range(affixCount)) {
-        final supportAffixes = game.passives.values.where((affix) {
-          if (!affix.isItem) return false
-          if (this.affixUniqueIds.contains(affix.id) ||
-            (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
-          if (affix.categories is List && !affix.categories.contains(this.kind)) return false
-          if (affix.rank > this.rank) return false
-          return true
-        })
-        if (supportAffixes.isEmpty) {
-          throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+      if (affixCount > 0) {
+        for (var i in range(affixCount)) {
+          final supportAffixes = game.passives.values.where((affix) {
+            if (!affix.isItem) return false
+            if (this.affixUniqueIds.contains(affix.id) ||
+              (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
+            if (affix.categories is List && !affix.categories.contains(this.kind)) return false
+            if (affix.rank > this.rank) return false
+            return true
+          })
+          if (supportAffixes.isEmpty) {
+            throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+          }
+          
+          final affix = Object.create(random.nextIterable(supportAffixes))
+          if (affix.increment != null) {
+            affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
+            affix.value = (affix.increment * affix.level).round()
+          }
+          this.affixes.add(affix)
+          this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
         }
-        
-        final affix = Object.create(random.nextIterable(supportAffixes))
-        if (affix.increment != null) {
-          affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
-          affix.value = (affix.increment * affix.level).round()
-        }
+      }
+    } else {
+      for (final affixData in affixes) {
+        final affix = Object.create(affixData)
         this.affixes.add(affix)
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
       }

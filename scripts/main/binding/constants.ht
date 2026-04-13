@@ -66,8 +66,8 @@ external abstract class Constants {
   static get minSellRate;
   static get minBuyRate;
   static get materialBasePrice;
-  static get basePriceByCategory;
-  static get itemWithAffixCategories;
+  static get itemPriceByKind;
+  static get itemWithAffixKinds;
   
   static get terrainKindsLand;
   static get terrainKindsWater;

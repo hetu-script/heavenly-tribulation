@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
@@ -99,8 +98,6 @@ class DiffData {
 }
 
 class DifferenceGame extends Scene with HasCursorState {
-  static final random = math.Random();
-
   // final fluent.FlyoutController menuController = fluent.FlyoutController();
 
   int? gameId;

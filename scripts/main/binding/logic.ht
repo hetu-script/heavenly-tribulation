@@ -22,7 +22,7 @@ external function getDeckLimitForRank(rank) -> Map
 
 // external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
 
-external function estimateItemPrice(category, rank, {range = 'normal'}) -> integer
+external function estimateItemPriceByKind(kind, rank, {range = 'normal'}) -> integer
 
 external function generateCityTerritory(world)
 

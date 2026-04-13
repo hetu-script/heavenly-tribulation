@@ -1077,30 +1077,44 @@ final kMaterialPrice = {
 const kUnknownItemPrice = 10;
 
 /// 物品的基础价格
-final kItemPriceByCategory = {
-  'craftmaterial_addAffix': 350,
-  'craftmaterial_replaceAffix': 550,
-  'craftmaterial_freezeAffix': 750,
-  'craftmaterial_rerollAffix': 1000,
-  'craftmaterial_upgradeRank': 3500,
-  'dungeon_ticket': 2000,
-  'cardpack': 700,
-  'scroll_paper': 350,
+final kBasePriceByKind = {
+  'craftmaterial_addAffix_fragment': 16,
+  'craftmaterial_addAffix': 320,
+  'craftmaterial_replaceAffix_fragment': 28,
+  'craftmaterial_replaceAffix': 560,
+  'craftmaterial_freezeAffix_fragment': 40,
+  'craftmaterial_freezeAffix': 800,
+  'craftmaterial_removeAffix_fragment': 60,
+  'craftmaterial_removeAffix': 1200,
+  'craftmaterial_rerollAffix_fragment': 110,
+  'craftmaterial_rerollAffix': 2200,
+  'craftmaterial_upgradeRank_fragment': 180,
+  'craftmaterial_upgradeRank': 3600,
+  'scroll_paper_fragment': 18,
+  'scroll_paper': 360,
   'identify_scroll': 75,
+  'cardpack': 700,
+  'dungeon_ticket': 2000,
   'extracted_affix': 500,
-  'weapon': 25,
+  'sword': 25,
+  'sabre': 25,
+  'spear': 25,
+  'staff': 25,
+  'bow': 25,
+  'dart': 25,
   'shield': 15,
   'armor': 30,
   'gloves': 15,
   'helmet': 15,
   'boots': 25,
   'vehicle': 75,
-  'jewelry': 35,
-  'talisman': 50,
+  'ring': 35,
+  'amulet': 35,
+  'pearl': 50,
   'potion': 15,
 };
 
-const kItemWithAffixCategories = [
+const kItemWithAffixKinds = [
   'weapon',
   'shield',
   'armor',
@@ -1694,7 +1708,7 @@ const kItemCategoryEquipmentAffix = 'equipment_affix';
 const kItemCategoryIdentifyScroll = 'identify_scroll';
 const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
-const kItemCategoryAffixMaterial = 'affix_crafting_material';
+const kItemCategoryAffixMaterial = 'craftmaterial_affix';
 
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位

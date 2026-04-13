@@ -91,7 +91,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                     }
                     setState(() {});
                   },
-                  selectedItemId: _selectedItemsData.keys.toSet(),
+                  selectedItemIds: _selectedItemsData.keys.toSet(),
                 ),
               ),
               const Spacer(),

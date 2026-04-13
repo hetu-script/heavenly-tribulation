@@ -6,6 +6,7 @@
   sword: {
     id: "sword",
     day: 10,
+    money: 50,
     worker: 10,
     ore: 20,
     timber: 10,

@@ -94,19 +94,19 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueMax</>'
           : valueMax.toString();
       valueString = '$value/$maxString';
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     } else if (id == 'level') {
       valueString = baseValue.toString();
       final int levelMax = GameLogic.maxLevelForRank(character['rank']);
       description =
-          '${engine.locale('stats_level_description')}\n${engine.locale('stats_levelMax')}: $levelMax';
+          '${engine.locale('level_description')}\n${engine.locale('levelMax')}: $levelMax';
     } else if (id == 'rank') {
       final int rank = character['rank'];
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     } else if (id.endsWith('Attack')) {
       valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     } else if (id.endsWith('Resist')) {
       final int baseValueMax = character['${id}Max'];
       final int valueMax = character['stats']?['${id}Max'];
@@ -116,27 +116,28 @@ class _CharacterStatsState extends State<CharacterStats> {
           : valueMax.toString();
 
       valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
-      description = engine.locale('stats_${id}_description');
-      '${engine.locale('stats_${id}_description')}\n${engine.locale('stats_${id}Max')}: $maxString%';
+      description = engine.locale('${id}_description');
+      '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
     } else if (id.endsWith('Threshold')) {
       valueString = value < baseValue ? '<yellow>$value</>' : value.toString();
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     } else if (id.endsWith('Speed')) {
+      idString = engine.locale(id.replaceAll('Speed', 'TimeCost'));
       final baseTimeCost = kTicksPerTime ~/ baseValue;
       final timeCost = kTicksPerTime ~/ value;
       valueString = timeCost < baseTimeCost
           ? '<yellow>$timeCost</>'
           : timeCost.toString();
-      description = engine
-          .locale('stats_${id.replaceAll('Speed', 'TimeCost')}_description');
+      description =
+          engine.locale('${id.replaceAll('Speed', 'TimeCost')}_description');
     } else if (id == 'craftEfficiency' ||
         id == 'workEfficiency' ||
         id == 'staminaCostWork') {
       valueString = '${(value * 100).toStringAsFixed(0)}%';
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     } else {
       valueString = value > baseValue ? '<yellow>$value</>' : value.toString();
-      description = engine.locale('stats_${id}_description');
+      description = engine.locale('${id}_description');
     }
 
     return Label(

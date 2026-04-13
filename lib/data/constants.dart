@@ -135,10 +135,10 @@ class Constants extends HTExternalClass {
         return kMinBuyRate;
       case 'Constants.materialBasePrice':
         return kMaterialPrice;
-      case 'Constants.basePriceByCategory':
-        return kItemPriceByCategory;
-      case 'Constants.itemWithAffixCategories':
-        return kItemWithAffixCategories;
+      case 'Constants.basePriceByKind':
+        return kBasePriceByKind;
+      case 'Constants.itemWithAffixKinds':
+        return kItemWithAffixKinds;
       case 'Constants.terrainKindsLand':
         return kTerrainKindsLand;
       case 'Constants.terrainKindsWater':

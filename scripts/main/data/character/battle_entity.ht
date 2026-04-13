@@ -292,7 +292,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
-  character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception ~/ 10
+  character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception
   character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * Constants.baseExpGainPerLight
   character.expCollectSpeed = Constants.baseExpCollectSpeed
   character.plainMoveSpeed = Constants.basePlainMoveSpeed
@@ -336,7 +336,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   } else {
     character.stats.tribulationCountMax = -1
   }
-  character.stats.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.stats.perception ~/ 10 + character.passives.monthlyIdentifyCardsMax?.value + character.potionPassives.monthlyIdentifyCardsMax?.value
+  character.stats.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.stats.perception + character.passives.monthlyIdentifyCardsMax?.value + character.potionPassives.monthlyIdentifyCardsMax?.value
   character.stats.lightRadius = Constants.baseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value + character.potionPassives.lightRadius?.value
   character.stats.plainMoveSpeed = (character.plainMoveSpeed * (1 - character.passives.plainMoveSpeed?.value / 100) * (1 - character.potionPassives.plainMoveSpeed?.value / 100)).toFixed(2)
   character.stats.mountainMoveSpeed = (character.mountainMoveSpeed * (1 - character.passives.mountainMoveSpeed?.value / 100) * (1 - character.potionPassives.mountainMoveSpeed?.value / 100)).toFixed(2)
@@ -377,10 +377,12 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
     character.stats.psychicResist = character.stats.psychicResistMax
   }
 
-  character.stats.quickThreshold = (Constants.baseTurnActionThreshold + character.passives.quickThreshold?.value + character.potionPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.passives.slowThreshold?.value + character.potionPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold + character.passives.nimbleThreshold?.value + character.potionPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.passives.clumsyThreshold?.value + character.potionPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  // 神识每 20 点：速度和闪避阈值 -1
+  character.stats.quickThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.quickThreshold?.value + character.potionPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  // 念力每 20 点：缓慢和迟钝阈值 +1
+  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.slowThreshold?.value + character.potionPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.nimbleThreshold?.value + character.potionPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.clumsyThreshold?.value + character.potionPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
 
   if (rejuvenate) {
     setCharacterLife(character, character.stats.lifeMax)

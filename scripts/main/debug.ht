@@ -35,22 +35,6 @@ namespace debug {
     await Player.acquire(pack2)
   }
 
-  function cheat() {
-    hero.materials = {
-      money: 5000000,
-      shard: 5000,
-      worker: 5000,
-      water: 5000,
-      grain: 5000,
-      meat: 5000,
-      leather: 5000,
-      herb: 5000,
-      timber: 5000,
-      stone: 5000,
-      ore: 5000,
-    }
-  }
-
   function cheatContribution({ locationId }) {
     final contributionData = {
       sectId: hero.sectId,
@@ -94,6 +78,21 @@ namespace debug {
       entityAcquire(character, item, incurIncident: false)
     }
 
+    
+    hero.materials = {
+      money: 5000000,
+      shard: 5000,
+      worker: 5000,
+      water: 5000,
+      grain: 5000,
+      meat: 5000,
+      leather: 5000,
+      herb: 5000,
+      timber: 5000,
+      stone: 5000,
+      ore: 5000,
+    }
+
     final shardPack = Materialpack(kind: 'shard', amount: 500)
     entityAcquire(character, shardPack, incurIncident: false)
     items.add(shardPack)
@@ -101,6 +100,12 @@ namespace debug {
     final moneyPack = Materialpack(kind: 'money', amount: 50000)
     entityAcquire(character, moneyPack, incurIncident: false)
     items.add(moneyPack)
+
+    for (final materialId in kMaterials) {
+      final pack = Materialpack(kind: materialId, amount: 5000)
+      entityAcquire(character, pack, incurIncident: false)
+      items.add(pack)
+    }
 
     for (var i in range(3)) {
       final scroll = createItemById('identify_scroll')

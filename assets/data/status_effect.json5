@@ -520,9 +520,8 @@
     icon: "icon/status/vulnerable_physical.png",
     damageType: "physical",
     script: "vulnerable",
-    isDebuff: true,
     priority: 1505,
-    callbacks: ["self_turn_start", "self_taking_damage"],
+    callbacks: ["self_taking_damage"],
   },
   vulnerable_chi: {
     id: "vulnerable_chi",
@@ -531,9 +530,8 @@
     icon: "icon/status/vulnerable_chi.png",
     damageType: "chi",
     script: "vulnerable",
-    isDebuff: true,
     priority: 1504,
-    callbacks: ["self_turn_start", "self_taking_damage"],
+    callbacks: ["self_taking_damage"],
   },
   vulnerable_elemental: {
     id: "vulnerable_elemental",
@@ -542,9 +540,8 @@
     icon: "icon/status/vulnerable_elemental.png",
     damageType: "elemental",
     script: "vulnerable",
-    isDebuff: true,
     priority: 1503,
-    callbacks: ["self_turn_start", "self_taking_damage"],
+    callbacks: ["self_taking_damage"],
   },
   vulnerable_psychic: {
     id: "vulnerable_psychic",
@@ -553,9 +550,8 @@
     icon: "icon/status/vulnerable_psychic.png",
     damageType: "psychic",
     script: "vulnerable",
-    isDebuff: true,
     priority: 1502,
-    callbacks: ["self_turn_start", "self_taking_damage"],
+    callbacks: ["self_taking_damage"],
   },
 
   shield_physical: {
@@ -606,7 +602,7 @@
     icon: "icon/status/ward.png",
     script: "ward",
     priority: 1401,
-    callbacks: ["self_gaining_debuff", "self_turn_end"],
+    callbacks: ["self_gained_debuff", "self_turn_end"],
   },
 
   injury_external: {

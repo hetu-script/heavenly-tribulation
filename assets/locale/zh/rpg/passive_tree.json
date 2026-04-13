@@ -73,6 +73,7 @@
   "passivetree_tribulation_prompt": "你即将挑战突破试炼。请选择试炼方式。",
   "tribulation_martial": "武试",
   "tribulation_literary": "文试",
+  "tribulation_difficulty_decreased": "由于你提前服下了破境丹药，本次试炼难度降低了！",
   "passivetree_tribulation_success": "试炼成功！你的境界得到了提升。",
   "passivetree_tribulation_fail": "试炼失败。你可以随时再次尝试。"
 }
