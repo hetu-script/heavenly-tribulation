@@ -1710,6 +1710,10 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryAffixMaterial = 'craftmaterial_affix';
 
+const kItemPotionKinds = {
+  'overheal',
+};
+
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位
 const kTitleToJobRank = {
