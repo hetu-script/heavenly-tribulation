@@ -954,21 +954,21 @@
     isItem: true,
     tags: ["workEfficiency"],
   },
-  staminaCostWork: {
-    id: "staminaCostWork",
+  workStaminaCost: {
+    id: "workStaminaCost",
     description: "passive_workStaminaCost_description",
     priority: 3688,
     increment: -1,
     isItem: true,
-    tags: ["staminaCostWork"],
+    tags: ["workStaminaCost"],
   },
-  craftEfficiency: {
-    id: "craftEfficiency",
-    description: "passive_craftEfficiency_description",
+  craftMaterialCost: {
+    id: "craftMaterialCost",
+    description: "passive_craftMaterialCost_description",
     priority: 3687,
     increment: -1,
     isItem: true,
-    tags: ["craftEfficiency"],
+    tags: ["craftMaterialCost"],
   },
 
   // 功能性特殊词条

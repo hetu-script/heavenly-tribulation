@@ -680,6 +680,7 @@ final class GameLogic {
 
   static bool checkHeroHasSufficientMaterial(dynamic materials) {
     for (final materialId in materials.keys) {
+      if (!kMaterialKinds.contains(materialId)) continue;
       final requiredAmount = materials[materialId] as int;
       if (requiredAmount <= 0) continue;
       final int availableAmount = GameData.hero['materials'][materialId] ?? 0;
@@ -700,7 +701,7 @@ final class GameLogic {
     return true;
   }
 
-  /// 计算购买或卖出物品时的价格
+  /// 计算购买或卖出物品时的价格，始终以铜钱计价
   ///
   /// [priceFactor] 交易物品时，需要支付的价格相比商品基础价格的乘数
   /// key为`base`, `sell`, category、kind 或 id，value 为价格乘数
@@ -734,7 +735,7 @@ final class GameLogic {
   static int calculateItemPrice(
     dynamic itemData, {
     dynamic priceFactor,
-    bool? useShard,
+    // bool? useShard,
     bool isSell = true,
   }) {
     final int price = itemData['price'] ?? 0;
@@ -755,14 +756,20 @@ final class GameLogic {
 
       int finalPrice = (price * ratio).ceil();
 
-      useShard ??= priceFactor['useShard'] == true;
-      if (useShard) {
-        final shardToMoneyRate = kMaterialPrice['shard'] as int;
-        finalPrice = (finalPrice / shardToMoneyRate).ceil();
-      }
+      // useShard ??= (finalPrice >= 1000 && priceFactor['useShard'] == true);
+      // if (useShard) {
+      //   final shardToMoneyRate = kMaterialPrice['shard'] as int;
+      //   finalPrice = (finalPrice / shardToMoneyRate).ceil();
+      // }
 
       return finalPrice;
     }
+  }
+
+  static int convertPriceToShard(int price) {
+    final shardToMoneyRate = kMaterialPrice['shard'] as int;
+    int finalPrice = (price / shardToMoneyRate).ceil();
+    return finalPrice;
   }
 
   /// 参考 [calculateItemPrice]
@@ -780,11 +787,6 @@ final class GameLogic {
       final double kind = priceFactor['kind']?[materialId] ?? 1.0;
 
       price = price * base * kind * (isSell ? sell : 1.0);
-
-      if (priceFactor['useShard'] == true) {
-        final shardToMoneyRate = kMaterialPrice['shard'] as int;
-        price /= shardToMoneyRate;
-      }
 
       return price.round();
     }
@@ -1225,10 +1227,11 @@ final class GameLogic {
               .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
         }
       case kItemCategoryMaterialPack:
-        engine.hetu.invoke('lose',
-            namespace: 'Player',
-            positionalArgs: [itemData],
-            namedArgs: {'incurIncident': false});
+        engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
+          itemData
+        ], namedArgs: {
+          'amount': itemData['stackSize'],
+        });
         engine.hetu.invoke(
           'collect',
           namespace: 'Player',

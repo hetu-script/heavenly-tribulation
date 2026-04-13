@@ -311,7 +311,6 @@ class _MerchantDialogState extends State<MerchantDialog> {
         int unitPrice = GameLogic.calculateItemPrice(
           itemData,
           priceFactor: priceFactor,
-          useShard: widget.useShard,
           isSell: true,
         );
         if (amount > 1) {
@@ -331,7 +330,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         }
         int totalPrice = unitPrice * amount;
 
-        String currency = widget.useShard ? 'shard' : 'money';
+        String currency =
+            (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
         int merchantHave = widget.useShard ? merchantShard : merchantMoney;
         if (merchantHave < totalPrice) {
           dialog.pushDialog('hint_merchantNotEnough_$currency');
@@ -510,7 +510,6 @@ class _MerchantDialogState extends State<MerchantDialog> {
         int unitPrice = GameLogic.calculateItemPrice(
           itemData,
           priceFactor: priceFactor,
-          useShard: widget.useShard,
           isSell: false,
         );
         if (amount > 1) {
@@ -530,7 +529,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
         }
         int totalPrice = unitPrice * amount;
 
-        String currency = widget.useShard ? 'shard' : 'money';
+        String currency =
+            (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
         int heroHave = widget.useShard ? heroShard : heroMoney;
 
         if (heroHave < totalPrice) {
@@ -785,7 +785,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      if (widget.allowManualReplenish)
+                      if (widget.allowManualReplenish && replenishCount < 5)
                         Padding(
                           padding: const EdgeInsets.only(left: 15.0, top: 10.0),
                           child: fluent.Button(

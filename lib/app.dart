@@ -178,7 +178,7 @@ class _GameAppState extends State<GameApp> {
       if (location != null) {
         staminaCost = kSiteWorkableStaminaCost[kind]!;
         final double workStaminaCostFactor =
-            GameData.hero['stats']['staminaCostWork'];
+            GameData.hero['stats']['workStaminaCost'];
         staminaCost = (staminaCost * workStaminaCostFactor).round();
 
         // 该地块所拥有的资源类型及其丰富度

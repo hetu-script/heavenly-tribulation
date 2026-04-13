@@ -797,15 +797,13 @@ function replenishTradingItem(location) {
         entityAcquire(location, item, incurIncident: false)
       }
       for (var i in range(amount)) {
-        final rankRoll = random.nextInt(location.development + 1)
+        final rankRoll = random.distantInt(location.development + 1)
         final typeRoll = random.nextDouble()
         let item
-        if (typeRoll < 0.5) {
+        if (typeRoll < 0.55) {
           item = Equipment(rank: rankRoll)
-        } else if (typeRoll < 0.7) {
+        } else if (typeRoll < 0.8) {
           item = Potion(rank: rankRoll)
-        } else if (typeRoll < 0.9) {
-          item = Cardpack(rank: rankRoll)
         } else {
           item = createItemById('identify_scroll')
         }

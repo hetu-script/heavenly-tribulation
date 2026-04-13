@@ -301,8 +301,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.mountainMoveStaminaCost = Constants.baseMountainMoveStaminaCost
   character.waterMoveStaminaCost = Constants.baseWaterMoveStaminaCost
   character.workEfficiency = 1.0
-  character.staminaCostWork = 1.0
-  character.craftEfficiency = 1.0
+  character.workStaminaCost = 1.0
+  character.craftMaterialCost = 1.0
 
   character.physicalResistMax = Constants.baseResistMax
   character.chiResistMax = Constants.baseResistMax
@@ -332,7 +332,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value
   
   if (character.rank > 0) {
-    character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100)).round()
+    character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100) * (1 + character.potionPassives.tribulationCountMax?.value / 100)).round()
   } else {
     character.stats.tribulationCountMax = -1
   }
@@ -346,8 +346,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
   character.stats.expCollectSpeed = (character.expCollectSpeed * (1 - character.passives.expCollectSpeed?.value / 100) * (1 - character.potionPassives.expCollectSpeed?.value / 100)).toFixed(2)
   character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.potionPassives.workEfficiency?.value / 100)).toFixed(2)
-  character.stats.staminaCostWork = (character.staminaCostWork * (1 + character.passives.staminaCostWork?.value / 100) * (1 + character.potionPassives.staminaCostWork?.value / 100)).toFixed(2)
-  character.stats.craftEfficiency = (character.craftEfficiency * (1 + character.passives.craftEfficiency?.value / 100) * (1 + character.potionPassives.craftEfficiency?.value / 100)).toFixed(2)
+  character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.potionPassives.workStaminaCost?.value / 100)).toFixed(2)
+  character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.potionPassives.craftMaterialCost?.value / 100)).toFixed(2)
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value
   character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value

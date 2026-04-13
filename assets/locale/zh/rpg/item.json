@@ -73,10 +73,10 @@
   "flavortext_boots": "长途跋涉时必须的装备。",
 
   "vehicle": "载具",
+  "flavortext_vehicle": "长途跋涉时必须的装备。",
+
   "ship": "船只",
-  "flavortext_ship": "长途跋涉时必须的装备。",
   "aircraft": "飞行器",
-  "flavortext_aircraft": "长途跋涉时必须的装备。",
 
   "amulet": "项链",
   "ring": "指环",
@@ -131,31 +131,31 @@
   "flavortext_craftmaterial_addAffix_fragment": "20 个灵宝残韵可以合成一个灵宝丹。",
 
   "craftmaterial_addAffix": "灵宝丹",
-  "flavortext_craftmaterial_addAffix": "用于物品或功法：增加一个额外词条。\n凝气境最多有两个额外词条。每高一境界，额外词条上限 +1。\n直接服用：获得1-5个随机增益∕减益效果。",
+  "flavortext_craftmaterial_addAffix": "用于功法卡牌：增加一个额外词条。\n凝气境最多有两个额外词条。每高一境界，额外词条上限 +1。\n直接服用：获得1-5个随机增益∕减益效果。",
 
   "craftmaterial_replaceAffix_fragment": "神照残韵",
   "flavortext_craftmaterial_replaceAffix_fragment": "20 个神照残韵可以合成一个神照丹。",
 
   "craftmaterial_replaceAffix": "神照丹",
-  "flavortext_craftmaterial_replaceAffix": "用于物品或功法：随机替换一个额外词条。\n直接服用：将一个随机减益效果替换为增益效果。",
+  "flavortext_craftmaterial_replaceAffix": "用于功法卡牌：随机替换一个额外词条。\n直接服用：将一个随机减益效果替换为增益效果。",
 
   "craftmaterial_freezeAffix_fragment": "真定残韵",
   "flavortext_craftmaterial_freezeAffix_fragment": "20 个真定残韵可以合成一个真定丹。",
 
   "craftmaterial_freezeAffix": "真定丹",
-  "flavortext_craftmaterial_freezeAffix": "用于物品或功法：冻结一个额外词条，使其无法被替换。\n直接服用：将一个随机增益效果设为永久效果。",
+  "flavortext_craftmaterial_freezeAffix": "用于功法卡牌：冻结一个额外词条，使其无法被替换。\n直接服用：将一个随机增益效果设为永久效果。",
 
   "craftmaterial_removeAffix_fragment": "坐忘残韵",
   "flavortext_craftmaterial_removeAffix_fragment": "20 个坐忘残韵可以合成一个坐忘丹。",
 
   "craftmaterial_removeAffix": "坐忘丹",
-  "flavortext_craftmaterial_removeAffix": "用于物品或功法：移除一个额外词条。\n直接服用：随机移除一个减益效果。",
+  "flavortext_craftmaterial_removeAffix": "用于功法卡牌：移除一个额外词条。\n直接服用：随机移除一个减益效果。",
 
   "craftmaterial_rerollAffix_fragment": "混元残韵",
   "flavortext_craftmaterial_rerollAffix_fragment": "20 个混元残韵可以合成一个混元丹。",
 
   "craftmaterial_rerollAffix": "混元丹",
-  "flavortext_craftmaterial_rerollAffix": "用于物品或功法：重置所有词条等级。\n直接服用：移除所有增益∕减益效果。",
+  "flavortext_craftmaterial_rerollAffix": "用于功法卡牌：重置所有词条等级。\n直接服用：移除所有增益∕减益效果。",
 
   "craftmaterial_upgradeRank": "破镜丹",
 
@@ -164,5 +164,5 @@
   "craftmaterial_upgradeRank3": "结丹丹",
   "craftmaterial_upgradeRank4": "还婴丹",
   "craftmaterial_upgradeRank5": "化神丹",
-  "flavortext_craftmaterial_upgradeRank": "用于物品或功法：提升境界。\n直接服用：降低天道技能境界节点突破试炼的难度。"
+  "flavortext_craftmaterial_upgradeRank": "用于功法卡牌：提升境界。\n直接服用：降低天道技能境界节点突破试炼的难度。"
 }

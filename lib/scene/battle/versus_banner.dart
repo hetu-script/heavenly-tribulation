@@ -14,14 +14,14 @@ class VersusBanner extends GameComponent {
   // late final SpriteComponent2 versus;
   // late final Rect versusBannerRect;
 
-  final dynamic hero, enemyData;
+  final dynamic hero, enemy;
   // late final SpriteComponent2 heroIcon, enemyIcon;
 
   VersusBanner({
     super.priority,
     super.position,
     required this.hero,
-    required this.enemyData,
+    required this.enemy,
   }) : super(
           anchor: Anchor.center,
           size: GameUI.versusBannerSize,
@@ -78,7 +78,7 @@ class VersusBanner extends GameComponent {
               GameUI.hugeIndent * 2 +
               GameUI.versusIconSize.x,
           40.0),
-      spriteId: enemyData['icon'],
+      spriteId: enemy['icon'],
       // image2: await Flame.images.load('illustration/border.png'),
       size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,
@@ -93,7 +93,7 @@ class VersusBanner extends GameComponent {
       position: enemyIcon.bottomLeft +
           Vector2((heroIcon.size.x - GameUI.equipmentsBarSize.x) / 2,
               GameUI.smallIndent),
-      character: enemyData,
+      character: enemy,
       paint: paint,
     );
     add(enemyEquipments);

@@ -92,9 +92,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     int value, {
     bool animated = true,
     bool overflow = false,
+    int? max,
   }) {
+    max ??= _lifeMax;
     if (!overflow) {
-      _life = value.clamp(0, _lifeMax);
+      _life = value.clamp(0, max);
     } else {
       if (value < 0) {
         _life = 0;
@@ -607,10 +609,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   void changeLife(int value, {bool playSound = false, bool isHeal = false}) {
     if (value == 0) return;
 
+    final currentLifeMax = math.max(life, lifeMax);
+
     int hp = life;
     hp += value;
-    if (hp > lifeMax) {
-      hp = lifeMax;
+    if (hp > currentLifeMax) {
+      hp = currentLifeMax;
     } else if (hp < 0) {
       hp = 0;
     }
@@ -640,7 +644,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       );
     }
 
-    setLife(hp);
+    setLife(hp, max: currentLifeMax);
   }
 
   /// 人物受到伤害，返回实际伤害值（有可能是0）

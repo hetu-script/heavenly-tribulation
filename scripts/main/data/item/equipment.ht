@@ -111,7 +111,7 @@ struct Equipment {
             if (!affix.isItem) return false
             if (this.affixUniqueIds.contains(affix.id) ||
               (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
-            if (affix.categories is List && !affix.categories.contains(this.kind)) return false
+            if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
             if (affix.rank > this.rank) return false
             return true
           })

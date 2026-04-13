@@ -124,9 +124,9 @@ namespace Player {
     return item
   }
 
-  function lose(item, { amount = 1, incurIncident = true }) {
+  function lose(item, { amount = 1 }) {
     assert(hero != null)
-    entityLose(hero, item, amount: amount, incurIncident: incurIncident)
+    entityLose(hero, item, amount: amount)
     engine.warning('[${hero.name}] 失去了 [${item.name} × ${amount}]')
   }
 

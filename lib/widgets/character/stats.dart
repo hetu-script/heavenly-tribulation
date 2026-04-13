@@ -50,9 +50,9 @@ const kMoreStats = [
   'waterMoveStaminaCost',
   'expCollectSpeed',
   'expGainPerLight',
-  'staminaCostWork',
+  'workStaminaCost',
   'workEfficiency',
-  'craftEfficiency',
+  'craftMaterialCost',
 ];
 
 const kNonBattleItemsLength = 4;
@@ -105,7 +105,9 @@ class _CharacterStatsState extends State<CharacterStats> {
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
       description = engine.locale('${id}_description');
     } else if (id.endsWith('Attack')) {
-      valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
+      valueString = value > baseValue
+          ? '<yellow>$value%</>'
+          : (value < baseValue ? '<red>$value%</>' : '$value%');
       description = engine.locale('${id}_description');
     } else if (id.endsWith('Resist')) {
       final int baseValueMax = character['${id}Max'];
@@ -115,7 +117,9 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueMax</>'
           : valueMax.toString();
 
-      valueString = value > baseValue ? '<yellow>$value%</>' : '$value%';
+      valueString = value > baseValue
+          ? '<yellow>$value%</>'
+          : (value < baseValue ? '<red>$value%</>' : '$value%');
       description = engine.locale('${id}_description');
       '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
     } else if (id.endsWith('Threshold')) {
@@ -130,13 +134,24 @@ class _CharacterStatsState extends State<CharacterStats> {
           : timeCost.toString();
       description =
           engine.locale('${id.replaceAll('Speed', 'TimeCost')}_description');
-    } else if (id == 'craftEfficiency' ||
+    } else if (id == 'craftMaterialCost' ||
         id == 'workEfficiency' ||
-        id == 'staminaCostWork') {
+        id == 'workStaminaCost') {
       valueString = '${(value * 100).toStringAsFixed(0)}%';
+      valueString = value > 1.0
+          ? '<yellow>$valueString</>'
+          : (value < 1.0 ? '<red>$valueString</>' : valueString);
       description = engine.locale('${id}_description');
     } else {
-      valueString = value > baseValue ? '<yellow>$value</>' : value.toString();
+      if (id.endsWith('Cost')) {
+        valueString = value < baseValue
+            ? '<yellow>$value</>'
+            : (value > baseValue ? '<red>$value</>' : '$value');
+      } else {
+        valueString = value > baseValue
+            ? '<yellow>$value</>'
+            : (value < baseValue ? '<red>$value</>' : '$value');
+      }
       description = engine.locale('${id}_description');
     }
 

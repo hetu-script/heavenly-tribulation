@@ -96,9 +96,8 @@
   "affix_attack_unarmed_exhaust_rage_slow": "消耗 {0} 怒气：徒手攻击造成 {1} 真气伤害\n对手缓慢 +{2}",
   "affix_attack_unarmed_exhaust_chakra_clumsy": "消耗 {0} 剑气：徒手攻击造成 {1} 真气伤害\n对手迟钝 +{2}",
 
-  "affix_attack_unarmed_multiple_exhaust_chakra": "消耗 {0} 剑气：徒手攻击造成 {1}×{2} 物理伤害",
   "affix_attack_unarmed_exhaust_mana": "消耗 {0} 灵气：徒手攻击造成 {1} 元素伤害",
-  "affix_attack_unarmed_exhaust_karma": "消耗 {0} 煞气：徒手攻击造成 {1} 精神伤害",
+  "affix_attack_unarmed_multiple_exhaust_karma": "消耗 {0} 煞气：徒手攻击造成 {1}×{2} 精神伤害",
 
   "affix_attack_weapon": "武器攻击造成 {0} 物理伤害",
   "affix_attack_weapon_multiple": "武器攻击造成 {0}×{1} 物理伤害",

@@ -135,7 +135,8 @@ const _kEncounterKinds = [
 ]
 
 function _addEncampment() {
-  final collectableLight = (expForLevel(hero.level) ~/ 4) ~/ hero.stats.expGainPerLight
+  final expForNextLevel = expForLevel(hero.level + 1)
+  final collectableLight = Random().nextInt(expForNextLevel) ~/ hero.stats.expGainPerLight + 5
   addExpArray(
     _kFunction1,
     collectableLight: collectableLight,

@@ -431,7 +431,7 @@ class BattleScene extends Scene {
     versusBanner = VersusBanner(
       position: Vector2(center.x, center.y - 120),
       hero: heroData,
-      enemyData: enemyData,
+      enemy: enemyData,
     );
     camera.viewport.add(versusBanner);
 

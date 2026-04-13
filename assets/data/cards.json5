@@ -1480,7 +1480,7 @@
     attackType: "unarmed",
     damageType: "psychic",
     resourceType: "energy_positive_curse",
-    description: "affix_attack_unarmed_exhaust_karma",
+    description: "affix_attack_unarmed_multiple_exhaust_karma",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1646,6 +1646,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "lifemax_buff_exhaust",
+    tags: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -1800,7 +1801,7 @@
   kick_defend_exhaust_karma: {
     id: "kick_defend_exhaust_karma",
     category: "buff",
-    genre: "bodyforge",
+    genre: "avatar",
     kind: "kick",
     damageType: "physical",
     resourceType: "energy_positive_unarmed",

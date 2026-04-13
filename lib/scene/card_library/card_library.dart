@@ -1417,6 +1417,10 @@ class CardLibraryScene extends Scene {
     } else {
       // 载入卡牌库中的卡牌
       libraryZone.updateHeroLibrary();
+
+      for (final zone in deckPiles) {
+        zone.updateDeckLimit();
+      }
     }
     libraryZone.repositionToTop();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;

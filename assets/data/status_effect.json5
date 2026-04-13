@@ -625,8 +625,8 @@
   },
   injury_poison: {
     id: "injury_poison",
-    title: "status_status_injury_poison",
-    description: "status_status_injury_poison_description",
+    title: "status_injury_poison",
+    description: "status_injury_poison_description",
     icon: "icon/status/injury_when_turn_start.png",
     script: "injury_poison",
     isDebuff: true,

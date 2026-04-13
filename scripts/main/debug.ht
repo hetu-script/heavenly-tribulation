@@ -101,7 +101,7 @@ namespace debug {
     entityAcquire(character, moneyPack, incurIncident: false)
     items.add(moneyPack)
 
-    for (final materialId in kMaterials) {
+    for (final materialId in Constants.materialKinds) {
       final pack = Materialpack(kind: materialId, amount: 5000)
       entityAcquire(character, pack, incurIncident: false)
       items.add(pack)

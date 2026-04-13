@@ -45,7 +45,7 @@
     },
     lightning: {
       spriteSheet: "overlay/lightning.png",
-      offsetY: -60.0,
+      offsetY: -80.0,
       width: 320.0,
       height: 192.0,
       stepTime: 0.1,

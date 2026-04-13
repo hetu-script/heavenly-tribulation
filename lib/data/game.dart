@@ -1069,19 +1069,23 @@ final class GameData with ChangeNotifier {
 
     final extraDescription = StringBuffer();
     final Map<String, String> explanations = {};
-    final affixList = itemData['affixes'];
-    if (affixList is List && affixList.isNotEmpty) {
-      for (var i = 0; i < affixList.length; i++) {
-        final passiveData = affixList[i];
-        String descriptionString = engine.locale(passiveData['description']);
-        num? value = passiveData['value'];
+    final affixes = itemData['affixes'];
+    if (affixes is List && affixes.isNotEmpty) {
+      for (var i = 0; i < affixes.length; i++) {
+        final affix = affixes[i];
+        String descriptionString = engine.locale(affix['description']);
+        num? value = affix['value'];
         bool isAfflicted = false;
         if (value != null) {
-          isAfflicted = value < 0;
-          descriptionString = descriptionString
-              .interpolate(['${isAfflicted ? '' : '+'}$value']);
+          if (affix['id'].endsWith('Cost')) {
+            isAfflicted = value > 0;
+          } else {
+            isAfflicted = value < 0;
+          }
+          descriptionString =
+              descriptionString.interpolate(['${value < 0 ? '' : '+'}$value']);
         }
-        final passiveRawData = passives[passiveData['id']];
+        final passiveRawData = passives[affix['id']];
         final List? tags = passiveRawData['tags'];
         if (tags != null && tags.isNotEmpty) {
           for (final tag in tags) {
@@ -1091,7 +1095,7 @@ final class GameData with ChangeNotifier {
         }
 
         if (i != 0 && isDetailed) {
-          final level = passiveData['level'];
+          final level = affix['level'];
           final levelString =
               level != null ? ' (${engine.locale('level2')}: $level)' : '';
           descriptionString = '$descriptionString $levelString';
@@ -1161,21 +1165,29 @@ final class GameData with ChangeNotifier {
         }
       }
     } else {
-      final useShard = priceFactor['useShard'] == true;
       final estimatePriceRange = priceFactor['estimatePriceRange'];
       if (estimatePriceRange == null) {
-        final price = GameLogic.calculateItemPrice(
+        int price = GameLogic.calculateItemPrice(
           itemData,
           priceFactor: priceFactor,
           isSell: isSell,
         );
+        bool useShard = price > 1000 && priceFactor['useShard'] == true;
+        if (useShard) {
+          price = GameLogic.convertPriceToShard(price);
+        }
         description.writeln('<yellow>${engine.locale('price')}: $price '
             '${engine.locale(useShard ? 'shard' : 'money2')}</>');
       } else {
         assert(itemData['isIdentified'] == false);
-        final estimatedPrice = GameLogic.estimateItemPriceByKind(
+        int estimatedPrice = GameLogic.estimateItemPriceByKind(
             itemData['category'], itemData['rank'],
             range: estimatePriceRange);
+        bool useShard =
+            estimatedPrice > 1000 && priceFactor['useShard'] == true;
+        if (useShard) {
+          estimatedPrice = GameLogic.convertPriceToShard(estimatedPrice);
+        }
         description.writeln('<yellow>${engine.locale('estimatedPrice')}: '
             '$estimatedPrice ${engine.locale(useShard ? 'shard' : 'money2')}</>');
       }

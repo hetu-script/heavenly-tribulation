@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/common.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
@@ -37,7 +38,7 @@ class EquipmentsBar extends GameComponent {
       if (itemData == null) return;
       engine.context.read<HoverContentState>().show(
             rect: spriteButton.toAbsoluteRect(),
-            data: itemData,
+            data: buildItemHoverInfo(itemData),
           );
     };
     spriteButton.onMouseExit = () {

@@ -30,7 +30,7 @@ class ConfirmDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 300,
-      height: 240,
+      height: 250,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
