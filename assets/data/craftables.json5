@@ -4,6 +4,7 @@
 {
   // 武器
   sword: {
+    id: "sword",
     day: 10,
     money: 50,
     worker: 10,
@@ -11,35 +12,41 @@
     timber: 10,
   },
   sabre: {
+    id: "sabre",
     day: 10,
     worker: 10,
     ore: 20,
     timber: 10,
   },
   spear: {
+    id: "spear",
     day: 10,
     worker: 10,
     ore: 10,
     timber: 30,
   },
   staff: {
+    id: "staff",
     day: 10,
     worker: 10,
     timber: 30,
   },
   bow: {
+    id: "bow",
     day: 10,
     worker: 10,
     leather: 20,
     timber: 20,
   },
   dart: {
+    id: "dart",
     day: 10,
     worker: 10,
     ore: 10,
   },
   // 防具
   shield: {
+    id: "shield",
     day: 10,
     worker: 10,
     ore: 10,
@@ -47,18 +54,21 @@
     leather: 20,
   },
   armor: {
+    id: "armor",
     day: 10,
     worker: 10,
     ore: 30,
     leather: 30,
   },
   gloves: {
+    id: "gloves",
     day: 10,
     worker: 10,
     ore: 10,
     leather: 20,
   },
   helmet: {
+    id: "helmet",
     day: 10,
     worker: 10,
     ore: 10,
@@ -66,12 +76,14 @@
   },
   // 载具
   boots: {
+    id: "boots",
     day: 10,
     worker: 10,
     ore: 10,
     leather: 20,
   },
   ship: {
+    id: "ship",
     day: 30,
     worker: 30,
     ore: 100,
@@ -81,11 +93,13 @@
   //   'aircraft',
   // 首饰
   ring: {
+    id: "ring",
     day: 20,
     worker: 10,
     ore: 10,
   },
   amulet: {
+    id: "amulet",
     day: 20,
     worker: 10,
     ore: 10,
@@ -94,12 +108,14 @@
   // 'belt',
   // 法宝
   pearl: {
+    id: "pearl",
     day: 30,
     worker: 20,
     ore: 50,
   },
   // 丹药
   potion: {
+    id: "potion",
     day: 10,
     worker: 20,
     grain: 20,

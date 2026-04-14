@@ -80,7 +80,6 @@ struct Equipment {
     }
 
     mainAffix = Object.create(random.nextIterable(mainAffixes))
-    mainAffix.level = this.level
     if (mainAffix.increment != null) {
       if (mainAffix.increment < 1) {
         final minAffixLevel = (1 / mainAffix.increment).ceil()
@@ -88,7 +87,8 @@ struct Equipment {
           this.level = minAffixLevel
         }
       }
-      mainAffix.value = (mainAffix.increment * this.level).round()
+      mainAffix.level = this.level
+      mainAffix.value = (mainAffix.increment * this.level).floor()
     }
     this.affixes.add(mainAffix)
     // this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
@@ -122,7 +122,7 @@ struct Equipment {
           final affix = Object.create(random.nextIterable(supportAffixes))
           if (affix.increment != null) {
             affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
-            affix.value = (affix.increment * affix.level).round()
+            affix.value = (affix.increment * affix.level).floor()
           }
           this.affixes.add(affix)
           this.affixUniqueIds.add(affix.uniqueId ?? affix.id)

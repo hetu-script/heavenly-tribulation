@@ -309,10 +309,10 @@ async function onInteractMapObject(object, terrain) {
       onInteractSpiritWell(object)
     }
     kObjectCategoryWorkbench: {
-      Game.showWorkbench()
+      Game.showWorkbench(object)
     }
     kObjectCategoryAlchemyFurnace: {
-      Game.showAlchemy()
+      Game.showAlchemy(object)
     }
     default: {
       engine.error('不支持的地图交互物品类型: ${object.category}')

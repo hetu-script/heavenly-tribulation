@@ -121,7 +121,7 @@ class _SiteViewState extends State<SiteView>
         widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
-      engine.context.read<ViewPanelState>().toogle(ViewPanels.siteInformation);
+      engine.context.read<ViewPanelState>().hide(ViewPanels.siteInformation);
     }
   }
 
@@ -221,8 +221,10 @@ class _SiteViewState extends State<SiteView>
                         child: SizedBox(
                           width: 200.0,
                           height: 20.0,
-                          child:
-                              LinearProgressIndicator(value: _progress / _max),
+                          child: LinearProgressIndicator(
+                            value: _progress / _max,
+                            minHeight: 10.0,
+                          ),
                         ),
                       ),
                     const Spacer(),

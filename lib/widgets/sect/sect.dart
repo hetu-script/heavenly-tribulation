@@ -90,7 +90,7 @@ class _SectViewState extends State<SectView> {
         widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
-      engine.context.read<ViewPanelState>().toogle(ViewPanels.sectInformation);
+      engine.context.read<ViewPanelState>().hide(ViewPanels.sectInformation);
     }
   }
 

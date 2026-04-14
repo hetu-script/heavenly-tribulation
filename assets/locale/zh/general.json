@@ -472,7 +472,6 @@
   "mapLevel": "第 {0} 层",
 
   "diagnose": "诊断",
-  "heal": "治疗",
 
   "jobTitle": "职位",
   "managingLocations": "辖地",
@@ -891,10 +890,10 @@
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
   "hint_itemFullyCharged": "这件物品已经充能完毕了。",
 
-  "hint_notEnough_money": "你没有足够的钱。",
+  "hint_notEnough_money": "你没有足够的铜钱。",
   "hint_notEnough_shard": "你没有足够的灵石。",
   "hint_notEnoughExp": "你没有足够的修为经验。",
-  "hint_notEnoughMaterial": "你没有足够的材料",
+  "hint_notEnoughMaterial": "你没有足够的材料。",
   "hint_notEnough": "你没有足够的{0}。",
   "hint_storageNotEnough": "仓库中没有足够的{0}！请先存入扩建所需全部物资再进行此操作。",
 

@@ -564,6 +564,7 @@
     isPotionMain: true,
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     tags: ["status_defense"],
+    rank: 1,
   },
   start_battle_with_defense_elemental: {
     id: "start_battle_with_defense_elemental",
@@ -575,6 +576,7 @@
     isPotionMain: true,
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     tags: ["status_defense"],
+    rank: 1,
   },
   start_battle_with_defense_psychic: {
     id: "start_battle_with_defense_psychic",
@@ -586,6 +588,7 @@
     isPotionMain: true,
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     tags: ["status_defense"],
+    rank: 1,
   },
 
   // 速度和闪避

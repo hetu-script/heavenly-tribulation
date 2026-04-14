@@ -96,9 +96,9 @@ namespace Game {
     filter,
   })
 
-  external function showWorkbench()
+  external function showWorkbench(location)
 
-  external function showAlchemy()
+  external function showAlchemy(location)
 
   external function showMeeting(sect, location, superior)
 }

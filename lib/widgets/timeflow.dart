@@ -141,7 +141,10 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
                   fit: BoxFit.contain,
                 ),
                 if (widget.max != null)
-                  LinearProgressIndicator(value: _progress / widget.max!),
+                  LinearProgressIndicator(
+                    value: _progress / widget.max!,
+                    minHeight: 10.0,
+                  ),
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                   child: Row(

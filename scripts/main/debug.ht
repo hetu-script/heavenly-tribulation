@@ -79,33 +79,33 @@ namespace debug {
     }
 
     
-    hero.materials = {
-      money: 5000000,
-      shard: 5000,
-      worker: 5000,
-      water: 5000,
-      grain: 5000,
-      meat: 5000,
-      leather: 5000,
-      herb: 5000,
-      timber: 5000,
-      stone: 5000,
-      ore: 5000,
+    character.materials = {
+      money: character.materials.money + 5000000,
+      shard: character.materials.shard + 500,
+      worker: character.materials.worker + 5000,
+      water: character.materials.water + 5000,
+      grain: character.materials.grain + 5000,
+      meat: character.materials.meat + 5000,
+      leather: character.materials.leather + 5000,
+      herb: character.materials.herb + 5000,
+      timber: character.materials.timber + 5000,
+      stone: character.materials.stone + 5000,
+      ore: character.materials.ore + 5000,
     }
 
-    final shardPack = Materialpack(kind: 'shard', amount: 500)
-    entityAcquire(character, shardPack, incurIncident: false)
-    items.add(shardPack)
+    // final shardPack = Materialpack(kind: 'shard', amount: 500)
+    // entityAcquire(character, shardPack, incurIncident: false)
+    // items.add(shardPack)
 
-    final moneyPack = Materialpack(kind: 'money', amount: 50000)
-    entityAcquire(character, moneyPack, incurIncident: false)
-    items.add(moneyPack)
+    // final moneyPack = Materialpack(kind: 'money', amount: 50000)
+    // entityAcquire(character, moneyPack, incurIncident: false)
+    // items.add(moneyPack)
 
-    for (final materialId in Constants.materialKinds) {
-      final pack = Materialpack(kind: materialId, amount: 5000)
-      entityAcquire(character, pack, incurIncident: false)
-      items.add(pack)
-    }
+    // for (final materialId in Constants.materialKinds) {
+    //   final pack = Materialpack(kind: materialId, amount: 5000)
+    //   entityAcquire(character, pack, incurIncident: false)
+    //   items.add(pack)
+    // }
 
     for (var i in range(3)) {
       final scroll = createItemById('identify_scroll')

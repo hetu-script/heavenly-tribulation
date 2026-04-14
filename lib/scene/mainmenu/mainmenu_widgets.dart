@@ -499,9 +499,17 @@ class _DebugButtonState extends State<DebugButton> {
                           allowManualReplenish: true,
                         );
                   case 'debugWorkbench':
-                    context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+                    final heroHomeSiteId = GameData.hero['homeSiteId'];
+                    final location = GameData.getLocation(heroHomeSiteId);
+                    location['development'] = 5;
+                    context.read<ViewPanelState>().toogle(ViewPanels.workbench,
+                        arguments: {'location': location});
                   case 'debugAlchemy':
-                    context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+                    final heroHomeSiteId = GameData.hero['homeSiteId'];
+                    final location = GameData.getLocation(heroHomeSiteId);
+                    location['development'] = 5;
+                    context.read<ViewPanelState>().toogle(ViewPanels.alchemy,
+                        arguments: {'location': location});
                   case 'debugMeeting':
                     final people = [];
                     for (var i = 0; i < 5; ++i) {

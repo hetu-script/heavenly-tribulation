@@ -1304,9 +1304,15 @@ Future<void> _onInteractNpc(dynamic location) async {
               allowManualReplenish: true,
             );
       case 'workbench':
-        engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.workbench,
+          arguments: {'location': location},
+        );
       case 'alchemy_furnace':
-        engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.alchemy,
+          arguments: {'location': location},
+        );
       case 'about_dungeon':
         dialog.pushDialog(
           'hint_dungeonEntrance',

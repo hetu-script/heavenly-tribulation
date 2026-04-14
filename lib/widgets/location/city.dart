@@ -263,7 +263,7 @@ class _CityViewState extends State<CityView>
         widget.mode == InformationViewMode.select) {
       Navigator.of(context).pop();
     } else {
-      engine.context.read<ViewPanelState>().toogle(ViewPanels.cityInformation);
+      engine.context.read<ViewPanelState>().hide(ViewPanels.cityInformation);
     }
   }
 
@@ -362,8 +362,10 @@ class _CityViewState extends State<CityView>
                         child: SizedBox(
                           width: 200.0,
                           height: 20.0,
-                          child:
-                              LinearProgressIndicator(value: _progress / _max),
+                          child: LinearProgressIndicator(
+                            value: _progress / _max,
+                            minHeight: 10.0,
+                          ),
                         ),
                       ),
                     if (isEditorMode) ...[

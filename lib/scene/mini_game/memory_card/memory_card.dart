@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
@@ -21,7 +20,6 @@ import '../common.dart';
 
 class MemoryCardGame extends Scene with HasCursorState {
   final List<CustomGameCard> cards = [];
-  final math.Random random = math.Random();
 
   late MiniGameDifficulty difficulty;
   late int cardKindCount; // 卡牌种类数

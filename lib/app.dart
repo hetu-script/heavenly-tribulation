@@ -686,12 +686,18 @@ class _GameAppState extends State<GameApp> {
     }, override: true);
     engine.hetu.interpreter.bindExternalFunction('Game::showWorkbench', (
         {positionalArgs, namedArgs}) {
-      engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+      engine.context.read<ViewPanelState>().toogle(
+        ViewPanels.workbench,
+        arguments: {'location': positionalArgs.first},
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showAlchemy', (
         {positionalArgs, namedArgs}) {
-      engine.context.read<ViewPanelState>().toogle(ViewPanels.alchemy);
+      engine.context.read<ViewPanelState>().toogle(
+        ViewPanels.alchemy,
+        arguments: {'location': positionalArgs.first},
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showMeeting', (

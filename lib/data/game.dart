@@ -1365,6 +1365,7 @@ final class GameData with ChangeNotifier {
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.074, 0.135, 0.074, 0.235),
       illustrationSpriteId: image,
+      backSpriteId: 'battlecard/cardback.png',
       title: title,
       titleRelativePaddings: const EdgeInsets.fromLTRB(0.2, 0.05, 0.2, 0.865),
       titleConfig: ScreenTextConfig(

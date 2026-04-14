@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
@@ -35,22 +36,25 @@ class WorkshopDialog extends StatefulWidget {
 }
 
 class _WorkshopDialogState extends State<WorkshopDialog> {
-  int _tabIndex = 0;
+  int tabIndex = 0;
 
-  String _selectedCraftKind = kItemEquipmentKinds.first;
-  final Set<String> _availableCraftRarities = {};
+  String selectedCraftKind = kItemEquipmentKinds.first;
+  final Set<String> availableCraftRarities = {};
 
-  String _selectedCraftRarity = kRarities.first;
-  dynamic _selectedCraftItemRequirements;
-  int _extraAffixCount = 0;
-  final List<dynamic> _selectedAffixesForCraft =
+  String selectedCraftRarity = kRarities.first;
+  dynamic selectedCraftItemRequirements;
+  int extraAffixCount = 0;
+  final List<dynamic> selectedAffixesForCraft =
       List.generate(6, (index) => null);
 
-  dynamic _selectedEquipment;
-  bool get isExtracting => _selectedEquipment != null;
+  dynamic craftedEquipment;
+  dynamic extractedAffix;
 
-  List _selectedEquipmentAffixes = [];
-  dynamic _selectedAffix;
+  dynamic selectedEquipment;
+  bool get isExtracting => selectedEquipment != null;
+
+  List selectedEquipmentAffixes = [];
+  dynamic selectedAffix;
 
   List selectedItemIds = [];
 
@@ -58,50 +62,55 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   void initState() {
     super.initState();
 
-    _updateSelectedCraftItemRequirements();
+    updateSelectedCraftItemRequirements();
+
+    if (widget.locationData != null) {
+      craftedEquipment = widget.locationData['craftedEquipment'];
+      extractedAffix = widget.locationData['extractedAffix'];
+    }
 
     if (widget.locationData == null && widget.development == null) {
-      _availableCraftRarities.addAll(kRarities);
+      availableCraftRarities.addAll(kRarities);
     } else {
       for (final rarity in kRarities) {
         final rank = kRaritiesToRank[rarity] as int;
         if (widget.locationData != null) {
           if (widget.locationData['development'] >= rank) {
-            _availableCraftRarities.add(rarity);
+            availableCraftRarities.add(rarity);
           }
         } else if (widget.development != null) {
           if (widget.development! >= rank) {
-            _availableCraftRarities.add(rarity);
+            availableCraftRarities.add(rarity);
           }
         }
       }
     }
   }
 
-  void _updateSelectedCraftItemRequirements() {
-    _selectedCraftItemRequirements =
-        utils.deepCopy(GameData.craftables[_selectedCraftKind]);
-    final rank = kRaritiesToRank[_selectedCraftRarity] as int;
+  void updateSelectedCraftItemRequirements() {
+    selectedCraftItemRequirements =
+        utils.deepCopy(GameData.craftables[selectedCraftKind]);
+    final rank = kRaritiesToRank[selectedCraftRarity] as int;
     for (final materialId in kMaterialKinds) {
-      if (_selectedCraftItemRequirements[materialId] != null) {
-        final baseValue = _selectedCraftItemRequirements[materialId];
-        _selectedCraftItemRequirements[materialId] =
+      if (selectedCraftItemRequirements[materialId] != null) {
+        final baseValue = selectedCraftItemRequirements[materialId];
+        selectedCraftItemRequirements[materialId] =
             baseValue * (rank * rank + 1);
       }
     }
     final extraAffixConfig = GameLogic.getMinMaxExtraAffixCount(rank);
-    _extraAffixCount = extraAffixConfig['maxExtra'] as int;
-    _selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
+    extraAffixCount = extraAffixConfig['maxExtra'] as int;
+    selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
   }
 
   void onInventoryItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
     assert(itemData['type'] == 'equipment');
-    if (_tabIndex == 0) {
+    if (tabIndex == 0) {
       if (itemData['category'] == kItemCategoryExtractedAffix) {
         bool isUnselected = true;
-        for (var i = 0; i < _extraAffixCount; ++i) {
-          if (_selectedAffixesForCraft[i] == itemData['affixes'][0]) {
-            _selectedAffixesForCraft[i] = null;
+        for (var i = 0; i < extraAffixCount; ++i) {
+          if (selectedAffixesForCraft[i] == itemData['affixes'][0]) {
+            selectedAffixesForCraft[i] = null;
             isUnselected = false;
             updateInfo();
             setState(() {});
@@ -109,10 +118,10 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
           }
         }
         if (isUnselected) {
-          for (var i = 0; i < _extraAffixCount; ++i) {
-            if (_selectedAffixesForCraft[i] == null) {
+          for (var i = 0; i < extraAffixCount; ++i) {
+            if (selectedAffixesForCraft[i] == null) {
               engine.play('sword-sheathed-178549.mp3');
-              _selectedAffixesForCraft[i] = itemData['affixes'][0];
+              selectedAffixesForCraft[i] = itemData['affixes'][0];
               updateInfo();
               setState(() {});
               break;
@@ -120,11 +129,11 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
           }
         }
       }
-    } else if (_tabIndex == 1) {
+    } else if (tabIndex == 1) {
       if (itemData['category'] != kItemCategoryExtractedAffix) {
         engine.play('sword-sheathed-178549.mp3');
-        _selectedEquipment = itemData;
-        _selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
+        selectedEquipment = itemData;
+        selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
         updateInfo();
         setState(() {});
       }
@@ -132,17 +141,21 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   }
 
   void close() {
-    engine.context.read<ViewPanelState>().toogle(ViewPanels.workbench);
+    engine.context.read<ViewPanelState>().hide(ViewPanels.workbench);
   }
 
   void craftEquipment() {
     final result =
-        GameLogic.heroExhaustMaterials(_selectedCraftItemRequirements);
+        GameLogic.heroExhaustMaterials(selectedCraftItemRequirements);
 
-    if (!result) return;
+    if (!result) {
+      dialog.pushDialog('hint_notEnoughMaterial');
+      dialog.execute();
+      return;
+    }
 
     final selectedAffixes =
-        _selectedAffixesForCraft.where((affix) => affix != null);
+        selectedAffixesForCraft.where((affix) => affix != null);
 
     final affixes = [];
     for (final affixItem in selectedAffixes) {
@@ -152,47 +165,83 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     }
 
     final equipment = engine.hetu.invoke('Equipment', namedArgs: {
-      'kind': _selectedCraftKind,
-      'rank': kRaritiesToRank[_selectedCraftRarity],
+      'kind': selectedCraftKind,
+      'rank': kRaritiesToRank[selectedCraftRarity],
       'affixes': affixes,
     });
 
     engine.play(GameSound.anvil);
 
-    engine.hetu
-        .invoke('acquire', namespace: 'Player', positionalArgs: [equipment]);
+    craftedEquipment = equipment;
+    if (widget.locationData != null) {
+      widget.locationData['craftedEquipment'] = equipment;
+    }
+
+    selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
+    updateInfo();
+    setState(() {});
+  }
+
+  void pickupCraftedEquipment() {
+    if (craftedEquipment == null) return;
+
+    engine.hetu.invoke('acquire',
+        namespace: 'Player', positionalArgs: [craftedEquipment]);
+    engine.play(GameSound.pickup);
+
+    if (widget.locationData != null) {
+      widget.locationData['craftedEquipment'] = null;
+    }
+    craftedEquipment = null;
 
     setState(() {});
   }
 
   void extractAffix() {
-    final extractedAffix = engine.hetu.invoke('ExtractedAffix', namedArgs: {
-      'affix': _selectedAffix,
-      'rank': _selectedEquipment['rank'],
+    final item = engine.hetu.invoke('ExtractedAffix', namedArgs: {
+      'affix': selectedAffix,
+      'rank': selectedEquipment['rank'],
     });
     engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
-      _selectedEquipment,
-    ]);
-    engine.hetu.invoke('acquire', namespace: 'Player', positionalArgs: [
-      extractedAffix,
+      selectedEquipment,
     ]);
     engine.play(GameSound.anvil);
 
-    _selectedEquipment = null;
-    _selectedEquipmentAffixes.clear();
-    _selectedAffix = null;
+    extractedAffix = item;
+    if (widget.locationData != null) {
+      widget.locationData['extractedAffix'] = item;
+    }
+
+    selectedEquipment = null;
+    selectedEquipmentAffixes.clear();
+    selectedAffix = null;
 
     updateInfo();
     setState(() {});
   }
 
+  void pickupExtractedAffix() {
+    if (extractedAffix == null) return;
+
+    engine.hetu.invoke('acquire',
+        namespace: 'Player', positionalArgs: [extractedAffix]);
+    engine.play(GameSound.pickup);
+
+    if (widget.locationData != null) {
+      widget.locationData['extractedAffix'] = null;
+    }
+    extractedAffix = null;
+
+    setState(() {});
+  }
+
   void updateInfo() {
     selectedItemIds.clear();
-    if (_selectedEquipment != null) {
-      selectedItemIds.add(_selectedEquipment['id']);
+    if (selectedEquipment != null) {
+      selectedItemIds.add(selectedEquipment['id']);
     }
     int affixCount = 0;
-    for (final affix in _selectedAffixesForCraft) {
+    for (final affix in selectedAffixesForCraft) {
       if (affix != null) {
         ++affixCount;
         selectedItemIds.add(affix['id']);
@@ -202,9 +251,9 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     int shardCost = GameLogic.calculateShardCostForCrafting(affixCount);
 
     if (shardCost > 0) {
-      _selectedCraftItemRequirements['shard'] = shardCost;
+      selectedCraftItemRequirements['shard'] = shardCost;
     } else {
-      _selectedCraftItemRequirements.remove('shard');
+      selectedCraftItemRequirements.remove('shard');
     }
   }
 
@@ -212,8 +261,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   Widget build(BuildContext context) {
     return ResponsiveView(
       width: 800.0,
-      height: 550.0,
-      onBarrierDismissed: close,
+      height: 500.0,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -222,257 +270,291 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
         ),
         body: Container(
           width: 800.0,
-          height: 600.0,
+          height: 500.0,
           padding: const EdgeInsets.only(
-            left: 20.0,
-            right: 20.0,
-            top: 40.0,
-          ),
+              top: 10.0, bottom: 10.0, left: 20.0, right: 20.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(
                 width: 400.0,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
-                  child: fluent.TabView(
-                    currentIndex: _tabIndex,
-                    onChanged: (index) => setState(() => _tabIndex = index),
-                    closeButtonVisibility:
-                        fluent.CloseButtonVisibilityMode.never,
-                    tabs: [
-                      fluent.Tab(
-                        text: Text(
-                          engine.locale('craft'),
-                          style: TextStyles.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        body: Column(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  SizedBox(
-                                    width: 140.0,
-                                    child: fluent.DropDownButton(
-                                      cursor: GameUI.cursor,
-                                      style: FluentButtonStyles.small,
-                                      title: Text(
-                                        '${engine.locale('kind')}: ${engine.locale(_selectedCraftKind)}',
-                                        textAlign: TextAlign.end,
-                                      ),
-                                      items: buildFluentMenuItems(
-                                        items: {
-                                          for (final key in kItemEquipmentKinds)
-                                            engine.locale(key): key,
-                                        },
-                                        onSelectedItem: (String value) {
-                                          _selectedCraftKind = value;
-                                          _updateSelectedCraftItemRequirements();
-                                          setState(() {});
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 140.0,
-                                    child: fluent.DropDownButton(
-                                      cursor: GameUI.cursor,
-                                      style: FluentButtonStyles.small,
-                                      title: Text(
-                                        '${engine.locale('rarity')}: ${engine.locale(_selectedCraftRarity)}',
-                                        textAlign: TextAlign.end,
-                                      ),
-                                      items: buildFluentMenuItems(
-                                        items: {
-                                          for (final key
-                                              in _availableCraftRarities)
-                                            engine.locale(key): key,
-                                        },
-                                        onSelectedItem: (String value) {
-                                          _selectedCraftRarity = value;
-                                          _updateSelectedCraftItemRequirements();
-                                          setState(() {});
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: Text(
-                                  '${engine.locale('days_needed')} ${_selectedCraftItemRequirements['day']}'),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: MaterialList(
-                                height: 150.0,
-                                requirements: _selectedCraftItemRequirements,
-                                entity: GameData.hero,
-                              ),
-                            ),
-                            if (_extraAffixCount > 0) ...[
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 5.0),
-                                child: Text(engine.locale('extra_affixes')),
-                              ),
-                            ],
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 5.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: List.generate(
-                                  kMaxAffixCount,
-                                  (index) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 2.5),
-                                    child: ItemGrid(
-                                      itemData: _selectedAffixesForCraft[index],
-                                      onMouseEnter: (itemData, rect) {
-                                        context.read<HoverContentState>().show(
-                                              rect: rect,
-                                              contentBuilder: (isDetailed) =>
-                                                  buildItemHoverInfo(
-                                                itemData,
-                                                inventoryType:
-                                                    InventoryType.none,
-                                                isDetailed: isDetailed,
-                                              ),
-                                            );
-                                      },
-                                      onMouseExit: () {
-                                        context
-                                            .read<HoverContentState>()
-                                            .hide();
-                                      },
-                                      onSecondaryTapped: (_, __) {
-                                        if (_selectedAffixesForCraft[index] !=
-                                            null) {
-                                          engine.play(GameSound.put);
-                                          _selectedAffixesForCraft[index] =
-                                              null;
-                                          updateInfo();
-                                          setState(() {});
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ).sublist(0, _extraAffixCount),
-                              ),
-                            ),
-                            const Spacer(),
-                            fluent.Button(
-                              onPressed: craftEquipment,
-                              child: Text(engine.locale('craft')),
-                            ),
-                          ],
-                        ),
+                child: fluent.TabView(
+                  currentIndex: tabIndex,
+                  onChanged: (index) => setState(() => tabIndex = index),
+                  closeButtonVisibility: fluent.CloseButtonVisibilityMode.never,
+                  tabs: [
+                    fluent.Tab(
+                      text: Text(
+                        engine.locale('craft'),
+                        style: TextStyles.bodySmall,
+                        textAlign: TextAlign.center,
                       ),
-                      fluent.Tab(
-                        text: Text(
-                          engine.locale('extract'),
-                          style: TextStyles.bodySmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        body: Padding(
-                          padding: const EdgeInsets.only(top: 10.0),
-                          child: Column(
+                      body: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
                             children: [
-                              Padding(
+                              Container(
+                                width: 360.0,
+                                alignment: Alignment.center,
                                 padding: const EdgeInsets.only(
-                                    top: 10.0, bottom: 10.0),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    ItemGrid(
-                                      itemData: _selectedEquipment,
-                                      onMouseEnter: (itemData, rect) {
-                                        context.read<HoverContentState>().show(
-                                              rect: rect,
-                                              contentBuilder: (isDetailed) =>
-                                                  buildItemHoverInfo(
-                                                itemData,
-                                                inventoryType:
-                                                    InventoryType.none,
-                                                isDetailed: isDetailed,
-                                              ),
-                                            );
-                                      },
-                                      onMouseExit: () {
-                                        context
-                                            .read<HoverContentState>()
-                                            .hide();
-                                      },
-                                      onSecondaryTapped: (_, __) {
-                                        engine.play(GameSound.put);
-                                        _selectedEquipment = null;
-                                        _selectedEquipmentAffixes = [];
-                                        updateInfo();
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ],
+                                    top: 20.0, bottom: 20.0),
+                                child: ItemGrid(
+                                  itemData: craftedEquipment,
+                                  onMouseEnter: (itemData, rect) {
+                                    if (itemData == null) return;
+                                    context.read<HoverContentState>().show(
+                                          rect: rect,
+                                          contentBuilder: (isDetailed) =>
+                                              buildItemHoverInfo(
+                                            itemData,
+                                            inventoryType: InventoryType.none,
+                                            isDetailed: isDetailed,
+                                          ),
+                                        );
+                                  },
+                                  onMouseExit: () {
+                                    context.read<HoverContentState>().hide();
+                                  },
+                                  onSecondaryTapped: (_, __) {
+                                    pickupCraftedEquipment();
+                                  },
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: SizedBox(
+                                  width: 360.0,
+                                  height: 50.0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(
+                                      kMaxAffixCount,
+                                      (index) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2),
+                                        child: ItemGrid(
+                                          itemData:
+                                              selectedAffixesForCraft[index],
+                                          onMouseEnter: (itemData, rect) {
+                                            context
+                                                .read<HoverContentState>()
+                                                .show(
+                                                  rect: rect,
+                                                  contentBuilder:
+                                                      (isDetailed) =>
+                                                          buildItemHoverInfo(
+                                                    itemData,
+                                                    inventoryType:
+                                                        InventoryType.none,
+                                                    isDetailed: isDetailed,
+                                                  ),
+                                                );
+                                          },
+                                          onMouseExit: () {
+                                            context
+                                                .read<HoverContentState>()
+                                                .hide();
+                                          },
+                                          onSecondaryTapped: (_, __) {
+                                            if (selectedAffixesForCraft[
+                                                    index] !=
+                                                null) {
+                                              engine.play(GameSound.put);
+                                              selectedAffixesForCraft[index] =
+                                                  null;
+                                              updateInfo();
+                                              setState(() {});
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ).sublist(0, extraAffixCount),
+                                  ),
                                 ),
                               ),
                               Container(
-                                width: 400.0,
-                                height: 65.0,
-                                padding: const EdgeInsets.only(top: 10.0),
-                                child: Text(
-                                  engine.locale(isExtracting
-                                      ? 'extract_hint'
-                                      : 'workshop_hint'),
-                                  textAlign: TextAlign.center,
+                                width: 360.0,
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: fluent.Button(
+                                  onPressed: craftedEquipment == null
+                                      ? craftEquipment
+                                      : null,
+                                  child: Text(engine.locale('craft')),
                                 ),
                               ),
-                              _selectedEquipmentAffixes.isEmpty
-                                  ? EmptyPlaceholder(
-                                      engine.locale('noExtractableAffixes'))
-                                  : Column(
-                                      children: _selectedEquipmentAffixes
-                                          .map((affixData) {
-                                        return BorderedIconButton(
-                                          size: const Size(400.0, 30.0),
-                                          isSelected:
-                                              _selectedAffix == affixData,
-                                          onPressed: () {
-                                            _selectedAffix = affixData;
-                                            setState(() {});
-                                          },
-                                          child: Text(
-                                            engine.locale(
-                                                affixData['description'],
-                                                interpolations: [
-                                                  affixData['value'],
-                                                ]),
-                                            textAlign: TextAlign.center,
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 5.0),
+                                child: SizedBox(
+                                  width: 360.0,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      SizedBox(
+                                        width: 178.0,
+                                        child: fluent.DropDownButton(
+                                          cursor: GameUI.cursor,
+                                          style: FluentButtonStyles.small,
+                                          placement: fluent
+                                              .FlyoutPlacementMode.rightTop,
+                                          title: Text(
+                                            '${engine.locale('kind')}: ${engine.locale(selectedCraftKind)}',
+                                            textAlign: TextAlign.end,
                                           ),
-                                        );
-                                      }).toList(),
-                                    ),
-                              const Spacer(),
-                              fluent.Button(
-                                onPressed: _selectedAffix != null
-                                    ? extractAffix
-                                    : null,
-                                child: Text(engine.locale('extract')),
-                              )
+                                          items: buildFluentMenuItems(
+                                            items: {
+                                              for (final key
+                                                  in kItemEquipmentKinds)
+                                                engine.locale(key): key,
+                                            },
+                                            onSelectedItem: (String value) {
+                                              selectedCraftKind = value;
+                                              updateSelectedCraftItemRequirements();
+                                              setState(() {});
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 178.0,
+                                        child: fluent.DropDownButton(
+                                          cursor: GameUI.cursor,
+                                          style: FluentButtonStyles.small,
+                                          placement: fluent
+                                              .FlyoutPlacementMode.rightTop,
+                                          title: Text(
+                                            '${engine.locale('rarity')}: ${engine.locale(selectedCraftRarity)}',
+                                            textAlign: TextAlign.end,
+                                          ),
+                                          items: buildFluentMenuItems(
+                                            items: {
+                                              for (final key
+                                                  in availableCraftRarities)
+                                                engine.locale(key): key,
+                                            },
+                                            onSelectedItem: (String value) {
+                                              selectedCraftRarity = value;
+                                              updateSelectedCraftItemRequirements();
+                                              setState(() {});
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              MaterialList(
+                                height: 160.0,
+                                width: 360.0,
+                                requirements: selectedCraftItemRequirements,
+                                entity: GameData.hero,
+                              ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    fluent.Tab(
+                      text: Text(
+                        engine.locale('extract'),
+                        style: TextStyles.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                      body: Column(
+                        children: [
+                          Container(
+                            width: 360.0,
+                            alignment: Alignment.center,
+                            padding:
+                                const EdgeInsets.only(top: 20.0, bottom: 10.0),
+                            child: ItemGrid(
+                              itemData: extractedAffix ?? selectedEquipment,
+                              onMouseEnter: (itemData, rect) {
+                                context.read<HoverContentState>().show(
+                                      rect: rect,
+                                      contentBuilder: (isDetailed) =>
+                                          buildItemHoverInfo(
+                                        itemData,
+                                        inventoryType: InventoryType.none,
+                                        isDetailed: isDetailed,
+                                      ),
+                                    );
+                              },
+                              onMouseExit: () {
+                                context.read<HoverContentState>().hide();
+                              },
+                              onSecondaryTapped: (_, __) {
+                                if (extractedAffix != null) {
+                                  pickupExtractedAffix();
+                                } else {
+                                  engine.play(GameSound.put);
+                                  selectedEquipment = null;
+                                  selectedEquipmentAffixes = [];
+                                  updateInfo();
+                                  setState(() {});
+                                }
+                              },
+                            ),
+                          ),
+                          Text(
+                            engine.locale(extractedAffix != null
+                                ? 'pickup_hint'
+                                : isExtracting
+                                    ? 'extract_hint'
+                                    : 'workshop_hint'),
+                            textAlign: TextAlign.center,
+                          ),
+                          Container(
+                            width: 360.0,
+                            padding:
+                                const EdgeInsets.only(top: 10.0, bottom: 5.0),
+                            child: fluent.Button(
+                              onPressed: extractedAffix == null &&
+                                      selectedAffix != null
+                                  ? extractAffix
+                                  : null,
+                              child: Text(
+                                engine.locale('extract'),
+                              ),
+                            ),
+                          ),
+                          selectedEquipmentAffixes.isEmpty
+                              ? Container(
+                                  height: 200.0,
+                                  alignment: Alignment.center,
+                                  child: EmptyPlaceholder(
+                                    engine.locale('noExtractableAffixes'),
+                                  ),
+                                )
+                              : Column(
+                                  children:
+                                      selectedEquipmentAffixes.map((affixData) {
+                                    return BorderedIconButton(
+                                      size: const Size(400.0, 30.0),
+                                      isSelected: selectedAffix == affixData,
+                                      onPressed: () {
+                                        selectedAffix = affixData;
+                                        setState(() {});
+                                      },
+                                      child: Text(
+                                        engine.locale(affixData['description'],
+                                            interpolations: [
+                                              affixData['value'],
+                                            ]),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: Inventory(
                   character: GameData.hero,
                   selectedItemIds: selectedItemIds,
@@ -480,6 +562,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                   itemTypes: null,
                   filter: {'type': 'equipment'},
                   gridsPerLine: 6,
+                  height: 416.0,
                   onItemSecondaryTapped: onInventoryItemSecondaryTapped,
                 ),
               ),

@@ -156,7 +156,7 @@ function createItemById(id, {amount, rank, level}) {
       final affix = Object.create(affixRawData)
       if (affix.increment != null) {
         affix.level = level ?? 1
-        affix.value = (affix.increment * affix.level).round()
+        affix.value = (affix.increment * affix.level).floor()
       }
       item.affixes.add(affix)
     }

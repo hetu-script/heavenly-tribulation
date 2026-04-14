@@ -71,6 +71,7 @@
     description: "affix_defend_chi",
     tags: ["status_defense"],
     script: "defend",
+    rank: 1,
     valueData: [
       {
         base: 3,
@@ -86,6 +87,7 @@
     description: "affix_defend_elemental",
     tags: ["status_defense"],
     script: "defend",
+    rank: 1,
     valueData: [
       {
         base: 3,
@@ -101,6 +103,7 @@
     description: "affix_defend_psychic",
     tags: ["status_defense"],
     script: "defend",
+    rank: 1,
     valueData: [
       {
         base: 3,
@@ -250,6 +253,7 @@
     description: "affix_by_damage_heal",
     damageType: "pure",
     script: "by_damage_heal",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -265,6 +269,7 @@
     tags: ["status_defense"],
     damageType: "physical",
     script: "by_damage_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -280,6 +285,7 @@
     tags: ["status_defense"],
     damageType: "chi",
     script: "by_damage_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -295,6 +301,7 @@
     tags: ["status_defense"],
     damageType: "elemental",
     script: "by_damage_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -310,6 +317,7 @@
     tags: ["status_defense"],
     damageType: "psychic",
     script: "by_damage_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -327,6 +335,7 @@
     priority: -1,
     description: "affix_for_spirituality_increase_damage",
     script: "for_attribute_increase_damage",
+    rank: 1,
   },
   for_dexterity_increase_damage: {
     id: "for_dexterity_increase_damage",
@@ -337,6 +346,7 @@
     priority: -1,
     description: "affix_for_dexterity_increase_damage",
     script: "for_attribute_increase_damage",
+    rank: 1,
   },
   for_strength_increase_damage: {
     id: "for_strength_increase_damage",
@@ -347,6 +357,7 @@
     priority: -1,
     description: "affix_for_strength_increase_damage",
     script: "for_attribute_increase_damage",
+    rank: 1,
   },
   for_willpower_increase_damage: {
     id: "for_willpower_increase_damage",
@@ -357,6 +368,7 @@
     priority: -1,
     description: "affix_for_willpower_increase_damage",
     script: "for_attribute_increase_damage",
+    rank: 1,
   },
   for_perception_increase_damage: {
     id: "for_perception_increase_damage",
@@ -367,6 +379,7 @@
     priority: -1,
     description: "affix_for_perception_increase_damage",
     script: "for_attribute_increase_damage",
+    rank: 1,
   },
 
   // 加持额外词条
@@ -378,6 +391,7 @@
     tags: ["status_defense"],
     damageType: "physical",
     script: "consume_vigor_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -397,6 +411,7 @@
     tags: ["status_defense"],
     damageType: "chi",
     script: "consume_vigor_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -416,6 +431,7 @@
     tags: ["status_defense"],
     damageType: "elemental",
     script: "consume_vigor_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,
@@ -435,6 +451,7 @@
     tags: ["status_defense"],
     damageType: "psychic",
     script: "consume_vigor_gain_defense",
+    rank: 1,
     valueData: [
       {
         base: 1,

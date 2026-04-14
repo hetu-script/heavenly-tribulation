@@ -42,6 +42,7 @@ struct Potion {
   constructor ({
     id,
     rank,
+    kind,
     level,
     rarity,
     isIdentified = true,
@@ -57,7 +58,7 @@ struct Potion {
     this.isUsable = true
     this.type = kItemTypeConsumable
     this.category = kItemCategoryPotion
-    this.kind = 'potion'
+    this.kind = kind
 
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
@@ -89,10 +90,23 @@ struct Potion {
     this.affixes = []
     this.affixUniqueIds = Set()
     let mainAffix
-    let passiveRawData
-    passiveRawData = game.passives['heal']
-    assert(passiveRawData != null, 'could not find passive for potion (rank: ${this.rank})')
-    mainAffix = Object.create(passiveRawData)
+    if (this.kind == null) {
+      final mainAffixes = game.passives.values.where((affix) {
+        if (!affix.isPotionMain) return false
+        if (affix.rank > this.rank) return false
+        return true
+      })
+      if (mainAffixes.isEmpty) {
+        throw('Found no main affix for potion: kind: ${this.kind}, rank: ${this.rank}')
+      }
+
+      mainAffix = Object.create(random.nextIterable(mainAffixes))
+      this.kind = mainAffix.id
+    } else {
+      let passiveRawData = game.passives[this.kind]
+      assert(passiveRawData != null, 'could not find passive for potion kind `${this.kind}`')
+      mainAffix = Object.create(passiveRawData)
+    }
     if (mainAffix.increment != null) {
       if (mainAffix.increment < 1) {
         final minAffixLevel = (1 / mainAffix.increment).ceil()
@@ -101,11 +115,11 @@ struct Potion {
         }
       }
       mainAffix.level = this.level
-      mainAffix.value = (mainAffix.increment * this.level).round()
+      mainAffix.value = (mainAffix.increment * this.level).floor()
     }
     this.affixes.add(mainAffix)
-    // affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
 
+    this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
     // 根据境界，生成额外词条
     final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
     let affixCount = affixCountInfo.minExtra
@@ -130,7 +144,7 @@ struct Potion {
         final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
-          affix.value = (affix.increment * affix.level).round()
+          affix.value = (affix.increment * affix.level).floor()
         }
         this.affixes.add(affix)
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)

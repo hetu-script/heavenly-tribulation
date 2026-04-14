@@ -784,6 +784,7 @@ class CardLibraryScene extends Scene {
         card.resetPriority();
         card.size = Vector2.zero();
         card.position = skillBook.center;
+        card.isFlipped = true;
         card.onTapUp = (int button, Vector2 position) {
           if (card.isFlipped) {
             unpreviewCard();
