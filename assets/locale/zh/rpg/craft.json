@@ -1,4 +1,7 @@
 {
+  "craft_potion": "制作丹药",
+  "craft_potion_battleCard": "制作丹药卡牌",
+
   "craft_addAffix": "精炼·灵宝",
   "craft_replaceAffix": "精炼·神照",
   "craft_freezeAffix": "精炼·真定",
@@ -39,5 +42,31 @@
 
   "craft_scroll_cannotCraft": "符箓卡牌无法进行打造！",
   "craft_scroll_cannotMakeScroll": "符箓卡牌无法再次制作为符箓！",
-  "craft_scroll_cannotMakeScroll2": "只有凝气境或以上卡牌才可以制作符箓！"
+  "craft_scroll_cannotMakeScroll2": "只有凝气境或以上卡牌才可以制作符箓！",
+
+  "potion2": "丹",
+
+  "potion_heal": "治疗",
+  "potion_start_battle_with_speed_quick": "速度",
+  "potion_start_battle_with_dodge_nimble": "闪避",
+  "potion_start_battle_with_defense_physical": "物理防御",
+  "potion_start_battle_with_defense_chi": "真气防御",
+  "potion_start_battle_with_defense_elemental": "元素防御",
+  "potion_start_battle_with_defense_psychic": "精神防御",
+
+  "potion_decreaseTribulationDifficulty": "天道",
+  "potion_start_battle_with_energy_positive_life": "元气",
+  "potion_start_battle_with_energy_positive_leech": "正气",
+  "potion_start_battle_with_energy_positive_pure": "豪气",
+  "potion_start_battle_with_energy_positive_spell": "灵气",
+  "potion_start_battle_with_energy_positive_weapon": "剑气",
+  "potion_start_battle_with_energy_positive_unarmed": "怒气",
+
+  "potion_tribulationCountReduce": "天命",
+  "potion_start_battle_with_energy_positive_ultimate": "无极",
+  "potion_start_battle_with_ward": "辟邪",
+  "potion_start_battle_with_shield_physical": "物理加护",
+  "potion_start_battle_with_shield_chi": "真气加护",
+  "potion_start_battle_with_shield_elemental": "元素加护",
+  "potion_start_battle_with_shield_psychic": "精神加护"
 }

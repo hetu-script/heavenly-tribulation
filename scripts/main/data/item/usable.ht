@@ -90,7 +90,7 @@ struct Potion {
     this.affixUniqueIds = Set()
     let mainAffix
     let passiveRawData
-    passiveRawData = game.passives['overheal']
+    passiveRawData = game.passives['heal']
     assert(passiveRawData != null, 'could not find passive for potion (rank: ${this.rank})')
     mainAffix = Object.create(passiveRawData)
     if (mainAffix.increment != null) {

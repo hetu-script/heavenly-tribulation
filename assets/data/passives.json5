@@ -2,17 +2,12 @@
   /// 被动属性加成词条数据
   /// 这里的词条公用于天赋树、装备、丹药等场合
   /// 这里只保存单个技能词条，具体到装备或者天赋树技能时，可能是多个词条的组合
-  /// 天赋树节点的数据保存在在 passive_tree.json5里面
+  /// 词条可能有 rank 境界需求，但只对装备和丹药等生效，天赋树节点无视此参数
+  /// 属性词条没有 base 数值，只计算 increment * level
   /// isItemMain: true 表示属于装备主词条
-  // 武器的主词条是允许使用该类卡牌
-  // 护甲的主词条获得抗性
-  // 饰品的主词条是获得主属性
-  // 法器的主词条是获得资源
   /// isItem: true 表示属于装备额外词条
   /// isPotionMain: true 表示属于丹药主词条
   /// isPotion: true 表示属于丹药额外词条
-  /// 词条可能有 rank 境界需求，但只对装备和丹药等生效，天赋树节点无视此参数
-  /// 属性词条没有 base 数值，只计算 increment * level
 
   /// 流派卡牌解锁入口
   swordcraft_rank: {
@@ -631,6 +626,7 @@
     isPotionMain: true,
     kinds: ["pearl"],
     tags: ["status_energy_positive_life"],
+    rank: 1,
   },
   // 正气
   start_battle_with_energy_positive_leech: {
@@ -660,20 +656,6 @@
     tags: ["status_energy_positive_pure"],
     rank: 1,
   },
-  // 无极之气
-  start_battle_with_energy_positive_ultimate: {
-    id: "start_battle_with_energy_positive_ultimate",
-    uniqueId: "start_with_energy_positive_ultimate",
-    description: "passive_start_battle_with_energy_positive_ultimate_description",
-    priority: 4266,
-    increment: 0.2,
-    isItem: true,
-    isItemMain: true,
-    isPotionMain: true,
-    kinds: ["pearl"],
-    tags: ["status_energy_positive_ultimate"],
-    rank: 2,
-  },
 
   // 灵气
   start_battle_with_energy_positive_spell: {
@@ -684,6 +666,7 @@
     increment: 0.2,
     isPotionMain: true,
     tags: ["status_energy_positive_spell"],
+    rank: 1,
   },
   start_deck_with_energy_positive_spell: {
     id: "start_deck_with_energy_positive_spell",
@@ -705,6 +688,7 @@
     increment: 0.2,
     isPotionMain: true,
     tags: ["status_energy_positive_weapon"],
+    rank: 1,
   },
   start_deck_with_energy_positive_weapon: {
     id: "start_deck_with_energy_positive_weapon",
@@ -726,6 +710,7 @@
     increment: 0.2,
     isPotionMain: true,
     tags: ["status_energy_positive_unarmed"],
+    rank: 1,
   },
   start_deck_with_energy_positive_unarmed: {
     id: "start_deck_with_energy_positive_unarmed",
@@ -739,6 +724,20 @@
     tags: ["status_energy_positive_unarmed"],
   },
 
+  // 无极之气
+  start_battle_with_energy_positive_ultimate: {
+    id: "start_battle_with_energy_positive_ultimate",
+    uniqueId: "start_with_energy_positive_ultimate",
+    description: "passive_start_battle_with_energy_positive_ultimate_description",
+    priority: 4266,
+    increment: 0.2,
+    isItem: true,
+    isItemMain: true,
+    isPotionMain: true,
+    kinds: ["pearl"],
+    tags: ["status_energy_positive_ultimate"],
+    rank: 2,
+  },
   // 辟邪（最多5层）
   start_battle_with_ward: {
     id: "start_battle_with_ward",
@@ -753,7 +752,6 @@
     kinds: ["pearl"],
     tags: ["status_ward"],
   },
-
   // 加护（最多5层）
   start_battle_with_shield_physical: {
     id: "start_battle_with_shield_physical",
@@ -1058,26 +1056,26 @@
   },
 
   // 丹药专属词条
-  overheal: {
-    id: "overheal",
-    description: "passive_overheal_description",
+  heal: {
+    id: "heal",
+    description: "passive_heal_description",
     increment: 2,
     isPotionMain: true,
     priority: 3499,
   },
-  tribulationCountReduce: {
-    id: "tribulationCountReduce",
-    description: "passive_tribulationCountReduce_description",
-    rank: 2,
-    increment: -0.1,
-    isPotionMain: true,
-    priority: 3497,
-  },
-
   decreaseTribulationDifficulty: {
     id: "decreaseTribulationDifficulty",
     description: "passive_decreaseTribulationDifficulty_description",
     priority: 3496,
+    rank: 1,
+  },
+  tribulationCountReduce: {
+    id: "tribulationCountReduce",
+    description: "passive_tribulationCountReduce_description",
+    increment: -0.1,
+    isPotionMain: true,
+    priority: 3497,
+    rank: 2,
   },
 
   // 地牢玩法中的debuff

@@ -38,26 +38,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   int _tabIndex = 0;
 
   String _selectedCraftKind = kItemEquipmentKinds.first;
-  Set<String> get _availableCraftRarities {
-    if (widget.locationData == null && widget.development == null) {
-      return kRarities;
-    }
-
-    final rarities = <String>{};
-    for (final rarity in kRarities) {
-      final rank = kRaritiesToRank[rarity] as int;
-      if (widget.locationData != null) {
-        if (widget.locationData['development'] >= rank) {
-          rarities.add(rarity);
-        }
-      } else if (widget.development != null) {
-        if (widget.development! >= rank) {
-          rarities.add(rarity);
-        }
-      }
-    }
-    return rarities;
-  }
+  final Set<String> _availableCraftRarities = {};
 
   String _selectedCraftRarity = kRarities.first;
   dynamic _selectedCraftItemRequirements;
@@ -78,6 +59,23 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     super.initState();
 
     _updateSelectedCraftItemRequirements();
+
+    if (widget.locationData == null && widget.development == null) {
+      _availableCraftRarities.addAll(kRarities);
+    } else {
+      for (final rarity in kRarities) {
+        final rank = kRaritiesToRank[rarity] as int;
+        if (widget.locationData != null) {
+          if (widget.locationData['development'] >= rank) {
+            _availableCraftRarities.add(rarity);
+          }
+        } else if (widget.development != null) {
+          if (widget.development! >= rank) {
+            _availableCraftRarities.add(rarity);
+          }
+        }
+      }
+    }
   }
 
   void _updateSelectedCraftItemRequirements() {

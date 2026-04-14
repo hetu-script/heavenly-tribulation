@@ -757,7 +757,7 @@ function characterConsumePotion(entity, item) {
 
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {
-    case 'overheal': {
+    case 'heal': {
       let currentLife = Math.min(entity.life, entity.stats.lifeMax)
       let targetLife = currentLife + mainAffix.value
       if (entity.life < targetLife) {

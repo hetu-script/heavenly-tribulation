@@ -108,9 +108,8 @@
   "mythic_scroll": "还婴符箓",
   "arcane_scroll": "化神符箓",
 
-  "pill": "丹药",
-  "potion": "药剂",
-  "flavortext_potion": "在下一次战斗结束后会失去所有丹药效果。",
+  "potion": "丹药",
+  "flavortext_potion": "获得一些立即生效的效果，以及一些会在下一次战斗后消失的临时增益。",
 
   "identify_scroll": "鉴定符",
   "flavortext_identify_scroll": "揭示一些属性未知的物品的词条。",

@@ -1710,10 +1710,6 @@ const kItemCategoryScrollPaper = 'scroll_paper';
 const kItemCategoryDungeonTicket = 'dungeon_ticket';
 const kItemCategoryAffixMaterial = 'craftmaterial_affix';
 
-const kItemPotionKinds = {
-  'overheal',
-};
-
 /// 职位等级
 /// 职位等级对应于境界，角色境界若小于职位等级，则无法任命该职位
 const kTitleToJobRank = {
@@ -2003,4 +1999,34 @@ const kScrollCardUseLimit = {
   3: 7,
   4: 10,
   5: 15,
+};
+
+const kPotionKinds = {
+  'common': {
+    'heal',
+    'start_battle_with_speed_quick',
+    'start_battle_with_dodge_nimble',
+    'start_battle_with_defense_physical',
+    'start_battle_with_defense_chi',
+    'start_battle_with_defense_elemental',
+    'start_battle_with_defense_psychic',
+  },
+  'rare': {
+    'potion_decreaseTribulationDifficulty',
+    'potion_start_battle_with_energy_positive_life',
+    'potion_start_battle_with_energy_positive_leech',
+    'potion_start_battle_with_energy_positive_pure',
+    'potion_start_battle_with_energy_positive_spell',
+    'potion_start_battle_with_energy_positive_weapon',
+    'potion_start_battle_with_energy_positive_unarmed',
+  },
+  'epic': {
+    'potion_tribulationCountReduce',
+    'potion_start_battle_with_energy_positive_ultimate',
+    'potion_start_battle_with_ward',
+    'potion_start_battle_with_shield_physical',
+    'potion_start_battle_with_shield_chi',
+    'potion_start_battle_with_shield_elemental',
+    'potion_start_battle_with_shield_psychic',
+  },
 };

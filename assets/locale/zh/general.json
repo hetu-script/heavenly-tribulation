@@ -299,6 +299,13 @@
   "mythic": "绝品",
   "arcane": "神品",
 
+  "tier5": "五品",
+  "tier4": "四品",
+  "tier3": "三品",
+  "tier2": "二品",
+  "tier1": "一品",
+  "tier0": "神品",
+
   "easy": "轻松",
   "normal": "普通",
   "challenging": "挑战",
