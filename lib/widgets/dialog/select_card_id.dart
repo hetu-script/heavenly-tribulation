@@ -87,12 +87,12 @@ class _SelectCardIdDialogState extends State<SelectCardIdDialog> {
           child: Column(
             children: [
               SizedBox(
-                width: 480.0,
+                width: 400,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
-                      width: 120.0,
+                      width: 100.0,
                       child: DropdownMenuButton(
                         selected: _selectedCategory,
                         selections: {
@@ -106,7 +106,7 @@ class _SelectCardIdDialogState extends State<SelectCardIdDialog> {
                       ),
                     ),
                     SizedBox(
-                      width: 120.0,
+                      width: 100.0,
                       child: DropdownMenuButton(
                         selected: _selectedRarity,
                         selections: {
@@ -137,7 +137,7 @@ class _SelectCardIdDialogState extends State<SelectCardIdDialog> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.only(top: 20.0),
                 child: fluent.Button(
                   onPressed: () {
                     Navigator.of(context).pop((

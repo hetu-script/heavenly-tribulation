@@ -71,6 +71,7 @@
 
   "passivetree_tribulation_intro": "此乃天道技能中的流派境界节点。需要通过一场突破试炼才能解锁。\n试炼方式分为文试和武试。武试需要战胜天道感应所化的幻象法身。文试则需要通过小游戏的测试。\n流派境界节点一旦解锁便无法退回。但试炼失败不会消耗技能点。",
   "passivetree_tribulation_prompt": "你即将挑战突破试炼。请选择试炼方式。",
+  "passivetree_tribulation_prompt2": "现在要尝试挑战突破试炼吗？",
   "tribulation_martial": "武试",
   "tribulation_literary": "文试",
   "tribulation_difficulty_decreased": "由于你提前服下了破境丹药，本次试炼难度降低了！",

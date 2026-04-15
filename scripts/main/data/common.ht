@@ -129,7 +129,7 @@ const kEntityTypeLocation = 'location' // game.locations
 const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 function getRandomLevel(min, max) {
-  if (min >= max) return max
+  if (min >= max) return min
   return  min + random.nextInt(max - min + 1)
 }
 

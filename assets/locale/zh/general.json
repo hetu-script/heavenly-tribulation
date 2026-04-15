@@ -518,7 +518,7 @@
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
 
-  "general": "通用",
+  "neutral": "通用",
   "spellcraft": "悟道",
   "bodyforge": "锻体",
   "avatar": "法身",
@@ -546,6 +546,7 @@
 
   "collectableLight": "可收集的灵光",
   "availableShard": "剩余灵石",
+  "daoSteleInfo": "问道",
 
   "skillPoints": "天道技能点",
 

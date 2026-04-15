@@ -93,7 +93,7 @@ const _kCityShoreBackgroundCount = {
 const _kBaseStoreMoneyAmount = 250000
 const _kBaseStoreMaterialAmount = 100
 const _kBaseItemReplenishAmount = 3
-const _kBaseCollectableLightReplenishAmount = 10
+const _kBaseCollectableLightReplenishAmount = 20
 
 const _kProductionSiteResourceGeneration = 10
 
@@ -889,6 +889,6 @@ function replenishCollectableLight(location) {
   // assert(atCity != null, 'location not found, id: ${location.atCityId}')
   // assert(atCity.category == 'city')
 
-  final replenishAmount = Math.pow(_kBaseCollectableLightReplenishAmount, location.development + 1) * 2
+  final replenishAmount = _kBaseCollectableLightReplenishAmount * (location.development + 1)
   location.collectableLight = random.nearInt(replenishAmount) + _kBaseCollectableLightReplenishAmount
 }

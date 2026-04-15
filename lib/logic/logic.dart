@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/tilemap/tile_info.dart';
-import 'package:hetu_script/values.dart';
 
 import '../extensions.dart';
 import '../data/common.dart';
@@ -52,6 +51,7 @@ const _kSectUpdateDay = 6;
 const _kSectExpectedMonthlyContribution = 16;
 
 final class GameLogic {
+  static final math.Random random = math.Random();
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
 
   static int ticksOfYear = 0;

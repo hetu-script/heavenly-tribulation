@@ -55,7 +55,7 @@ const kMaterialStone = 'stone'
 
 const kEstimatePriceFactor = 0.8;
 
-const kItemExtraAffixMinLevel = minLevelForRank(1);
+// const kItemExtraAffixMinLevel = minLevelForRank(1);
 
 const kUnknownItemBasePrice = 100;
 
@@ -155,7 +155,11 @@ function createItemById(id, {amount, rank, level}) {
       assert(affixRawData != null)
       final affix = Object.create(affixRawData)
       if (affix.increment != null) {
-        affix.level = level ?? 1
+        let minAffixLevel = 1
+        if (affix.increment < 1) {
+          minAffixLevel = (1 / affix.increment).ceil()
+        }
+        affix.level = getRandomLevel(minAffixLevel, item.level)
         affix.value = (affix.increment * affix.level).floor()
       }
       item.affixes.add(affix)

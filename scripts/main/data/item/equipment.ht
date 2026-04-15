@@ -121,7 +121,11 @@ struct Equipment {
           
           final affix = Object.create(random.nextIterable(supportAffixes))
           if (affix.increment != null) {
-            affix.level = getRandomLevel(kItemExtraAffixMinLevel, this.level)
+            let minAffixLevel = 1
+            if (affix.increment < 1) {
+              minAffixLevel = (1 / affix.increment).ceil()
+            }
+            affix.level = getRandomLevel(minAffixLevel, this.level)
             affix.value = (affix.increment * affix.level).floor()
           }
           this.affixes.add(affix)

@@ -11,7 +11,7 @@ Future<void> _updateCharactersAtWorldMapPosition() async {
     final worldPosition = character['worldPosition'];
     if (worldPosition == null) continue;
     final moveTo = worldPosition['moveTo'];
-    if (moveTo == null) continue;
+    if (moveTo?['route'] == null) continue;
     final route = List<int>.from(moveTo['route']);
     assert(route.isNotEmpty);
     final int timeDiff =
@@ -99,18 +99,20 @@ Future<void> _updateCharacterMonthly(dynamic character,
     } else {
       final locations = (GameData.game['locations'].values as Iterable)
           .where((loc) => loc['category'] == 'city' && loc['sectId'] == null);
-      final location = GameData.random.nextIterable(locations);
-      final roll = GameData.random.nextDouble();
-      if (location['siteIds'].isEmpty || roll < 0.1) {
-        character['locationId'] = location['id'];
-      } else {
-        final sites = (location['siteIds'] as Iterable)
-            .map((id) => GameData.getLocation(id))
-            .where((site) =>
-                site['kind'] != kLocationKindCityhall &&
-                site['kind'] != kLocationKindHeadquarters);
-        final site = GameData.random.nextIterable(sites);
-        character['locationId'] = site['id'];
+      if (locations.isNotEmpty) {
+        final location = GameData.random.nextIterable(locations);
+        final roll = GameData.random.nextDouble();
+        if (location['siteIds'].isEmpty || roll < 0.1) {
+          character['locationId'] = location['id'];
+        } else {
+          final sites = (location['siteIds'] as Iterable)
+              .map((id) => GameData.getLocation(id))
+              .where((site) =>
+                  site['kind'] != kLocationKindCityhall &&
+                  site['kind'] != kLocationKindHeadquarters);
+          final site = GameData.random.nextIterable(sites);
+          character['locationId'] = site['id'];
+        }
       }
     }
   } else {
@@ -215,7 +217,7 @@ Future<void> _onDying() async {
         'locationId': homeSiteId,
         'onEnterScene': () async {
           dialog.pushDialog(
-            'hint_return_home_afterDying_${math.Random().nextInt(_kHintDyingVariants) + 1}',
+            'hint_return_home_afterDying_${GameLogic.random.nextInt(_kHintDyingVariants) + 1}',
             isHero: true,
           );
           await dialog.execute();
@@ -394,6 +396,17 @@ Future<void> _heroDivination(dynamic location) async {
 
   switch (selected) {
     case 'divination_self':
+      // 选择具体占卜内容
+      dialog.pushSelection('divination_self_topic', [
+        'divination_self_luck',
+        'divination_self_wisdom',
+        'divination_self_lifespan',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final topic = dialog.checkSelected('divination_self_topic');
+      if (topic == 'cancel') return;
+
       final int rank = GameData.hero['rank'];
       final int cost = kDivinationSelfBaseCost * (rank + 1);
 
@@ -423,32 +436,41 @@ Future<void> _heroDivination(dynamic location) async {
         cost,
       ]);
 
-      // 计算运气和悟性的5档描述
-      final int luck = GameData.hero['attributes']['luck'] ?? 0;
-      final int wisdom = GameData.hero['attributes']['wisdom'] ?? 0;
-      final luckDesc = engine.locale(
-          'divination_level_${_getDivinationLevel(luck, kDivinationThresholds)}');
-      final wisdomDesc = engine.locale(
-          'divination_level_${_getDivinationLevel(wisdom, kDivinationThresholds)}');
+      switch (topic) {
+        case 'divination_self_luck':
+          final int luck = GameData.hero['stats']['luck'] ?? 0;
+          final luckDesc = engine.locale(
+              'divination_level_${_getDivinationLevel(luck, kDivinationThresholds)}');
+          dialog.pushDialog('hint_divination_self_luck_result',
+              npcId: location['npcId'], interpolations: [luckDesc]);
+          await dialog.execute();
 
-      // 计算寿元的5档描述：基于当前境界期望寿命的比例
-      final lifespanData = GameLogic.getLifeSpanForRank(rank);
-      final int expectedLifespanTicks =
-          ((lifespanData['min']! + lifespanData['max']!) / 2 * kTicksPerYear)
-              .round();
-      final int restLifespanTicks =
-          GameData.hero['deathTimestamp'] - GameData.game['timestamp'] as int;
-      final double lifespanRatio = expectedLifespanTicks > 0
-          ? restLifespanTicks / expectedLifespanTicks
-          : 0;
-      final lifespanDesc = engine.locale(
-          'divination_lifespan_${_getDivinationLevelByRatio(lifespanRatio, kDivinationLifespanThresholds)}');
+        case 'divination_self_wisdom':
+          final int wisdom = GameData.hero['stats']['wisdom'] ?? 0;
+          final wisdomDesc = engine.locale(
+              'divination_level_${_getDivinationLevel(wisdom, kDivinationThresholds)}');
+          dialog.pushDialog('hint_divination_self_wisdom_result',
+              npcId: location['npcId'], interpolations: [wisdomDesc]);
+          await dialog.execute();
 
-      // 展示结果
-      dialog.pushDialog('hint_divination_self_result',
-          npcId: location['npcId'],
-          interpolations: [luckDesc, wisdomDesc, lifespanDesc]);
-      await dialog.execute();
+        case 'divination_self_lifespan':
+          final lifespanData = GameLogic.getLifeSpanForRank(rank);
+          final int expectedLifespanTicks =
+              ((lifespanData['min']! + lifespanData['max']!) /
+                      2 *
+                      kTicksPerYear)
+                  .round();
+          final int restLifespanTicks = GameData.hero['deathTimestamp'] -
+              GameData.game['timestamp'] as int;
+          final double lifespanRatio = expectedLifespanTicks > 0
+              ? restLifespanTicks / expectedLifespanTicks
+              : 0;
+          final lifespanDesc = engine.locale(
+              'divination_lifespan_${_getDivinationLevelByRatio(lifespanRatio, kDivinationLifespanThresholds)}');
+          dialog.pushDialog('hint_divination_self_lifespan_result',
+              npcId: location['npcId'], interpolations: [lifespanDesc]);
+          await dialog.execute();
+      }
 
     case 'divination_other':
       // 从已遇到的角色中选择
@@ -463,6 +485,18 @@ Future<void> _heroDivination(dynamic location) async {
 
       final targetId = await GameLogic.selectCharacter(ids: bondIds);
       if (targetId == null) return;
+
+      // 选择具体占卜内容
+      dialog.pushSelection('divination_other_topic', [
+        'divination_other_charisma',
+        'divination_other_cultivation',
+        'divination_other_sect',
+        'divination_other_location',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final topic = dialog.checkSelected('divination_other_topic');
+      if (topic == 'cancel') return;
 
       final target = GameData.getCharacter(targetId);
       final int targetRank = target['rank'];
@@ -494,27 +528,93 @@ Future<void> _heroDivination(dynamic location) async {
         cost,
       ]);
 
-      // 魅力偏好：计算对方偏好与自身魅力的差值，差值越小越喜欢
-      final int charismaFavor = target['charismaFavor'] ?? 50;
-      final int heroCharisma = GameData.hero['stats']['charisma'] ?? 50;
-      final int charismaDiff = (charismaFavor - heroCharisma).abs();
-      final charismaDesc = engine.locale(
-          'divination_charisma_favor_${_getDivinationCharismaFavorLevel(charismaDiff, kDivinationCharismaFavorThresholds)}');
+      switch (topic) {
+        case 'divination_other_charisma':
+          final int charismaFavor = target['charismaFavor'] ?? 50;
+          final int heroCharisma = GameData.hero['stats']['charisma'] ?? 50;
+          final int charismaDiff = (charismaFavor - heroCharisma).abs();
+          final charismaDesc = engine.locale(
+              'divination_charisma_favor_${_getDivinationCharismaFavorLevel(charismaDiff, kDivinationCharismaFavorThresholds)}');
+          dialog.pushDialog('hint_divination_other_charisma_result',
+              npcId: location['npcId'], interpolations: [charismaDesc]);
+          await dialog.execute();
 
-      // 修炼偏好：直接翻译 genre
-      final String cultivationFavor =
-          target['cultivationFavor'] ?? 'swordcraft';
-      final cultivationDesc = engine.locale(cultivationFavor);
+        case 'divination_other_cultivation':
+          final String cultivationFavor =
+              target['cultivationFavor'] ?? 'swordcraft';
+          final cultivationDesc = engine.locale(cultivationFavor);
+          dialog.pushDialog('hint_divination_other_cultivation_result',
+              npcId: location['npcId'], interpolations: [cultivationDesc]);
+          await dialog.execute();
 
-      // 门派偏好：直接翻译 sect category
-      final String sectFavor = target['sectFavor'] ?? 'wuwei';
-      final sectDesc = engine.locale(sectFavor);
+        case 'divination_other_sect':
+          final String sectFavor = target['sectFavor'] ?? 'wuwei';
+          final sectDesc = engine.locale(sectFavor);
+          dialog.pushDialog('hint_divination_other_sect_result',
+              npcId: location['npcId'], interpolations: [sectDesc]);
+          await dialog.execute();
 
-      // 展示结果
-      dialog.pushDialog('hint_divination_other_result',
-          npcId: location['npcId'],
-          interpolations: [charismaDesc, cultivationDesc, sectDesc]);
-      await dialog.execute();
+        case 'divination_other_location':
+          final String? targetLocationId = target['locationId'];
+          final targetWorldPos = target['worldPosition'];
+
+          if (targetLocationId != null) {
+            // 角色在某个具体场景中
+            final targetLocation = GameData.getLocation(targetLocationId);
+            final String locName = targetLocation['name'];
+            final String? atCityId = targetLocation['atCityId'];
+            if (atCityId != null) {
+              // 子场景，获取所在城市名字和城市坐标
+              final city = GameData.getLocation(atCityId);
+              final cityWorldPos = city['worldPosition'];
+              if (cityWorldPos != null) {
+                dialog.pushDialog('hint_divination_other_location_site_result',
+                    npcId: location['npcId'],
+                    interpolations: [
+                      city['name'],
+                      locName,
+                      cityWorldPos['left'],
+                      cityWorldPos['top'],
+                    ]);
+              } else {
+                dialog.pushDialog(
+                    'hint_divination_other_location_site_nopos_result',
+                    npcId: location['npcId'],
+                    interpolations: [city['name'], locName]);
+              }
+            } else {
+              // 城市或大地图上的独立场景（如生产建筑）
+              final locWorldPos = targetLocation['worldPosition'];
+              if (locWorldPos != null) {
+                dialog.pushDialog('hint_divination_other_location_city_result',
+                    npcId: location['npcId'],
+                    interpolations: [
+                      locName,
+                      locWorldPos['left'],
+                      locWorldPos['top'],
+                    ]);
+              } else {
+                dialog.pushDialog(
+                    'hint_divination_other_location_city_nopos_result',
+                    npcId: location['npcId'],
+                    interpolations: [locName]);
+              }
+            }
+            await dialog.execute();
+          } else if (targetWorldPos != null) {
+            // 角色在大地图上
+            final int left = targetWorldPos['left'];
+            final int top = targetWorldPos['top'];
+            dialog.pushDialog('hint_divination_other_location_world_result',
+                npcId: location['npcId'], interpolations: [left, top]);
+            await dialog.execute();
+          } else {
+            // 没有任何位置信息，占卜失败
+            dialog.pushDialog('hint_divination_other_location_failed',
+                npcId: location['npcId']);
+            await dialog.execute();
+          }
+      }
   }
 }
 
