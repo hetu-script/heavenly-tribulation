@@ -378,6 +378,170 @@ void _heroRest(dynamic location) async {
   engine.hetu.invoke('onGameEvent', positionalArgs: ['onRested']);
 }
 
+Future<void> _heroDivination(dynamic location) async {
+  // 介绍占卜功能
+  dialog.pushDialog('hint_divination_intro', npcId: location['npcId']);
+  await dialog.execute();
+
+  // 选择占卜类型
+  dialog.pushSelection('divination_type', [
+    'divination_self',
+    'divination_other',
+    'cancel',
+  ]);
+  await dialog.execute();
+  final selected = dialog.checkSelected('divination_type');
+
+  switch (selected) {
+    case 'divination_self':
+      final int rank = GameData.hero['rank'];
+      final int cost = kDivinationSelfBaseCost * (rank + 1);
+
+      // 确认费用
+      dialog.pushDialog('hint_divination_cost',
+          npcId: location['npcId'], interpolations: [cost]);
+      dialog.pushSelection('divination_confirm_selection', [
+        'divination_confirm',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final confirm = dialog.checkSelected('divination_confirm_selection');
+      if (confirm != 'divination_confirm') return;
+
+      // 检查灵石
+      final int haveShard = GameData.hero['materials']['shard'];
+      if (haveShard < cost) {
+        dialog.pushDialog('hint_divination_not_enough_shard',
+            npcId: location['npcId']);
+        await dialog.execute();
+        return;
+      }
+
+      // 扣除灵石
+      engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+        'shard',
+        cost,
+      ]);
+
+      // 计算运气和悟性的5档描述
+      final int luck = GameData.hero['attributes']['luck'] ?? 0;
+      final int wisdom = GameData.hero['attributes']['wisdom'] ?? 0;
+      final luckDesc = engine.locale(
+          'divination_level_${_getDivinationLevel(luck, kDivinationThresholds)}');
+      final wisdomDesc = engine.locale(
+          'divination_level_${_getDivinationLevel(wisdom, kDivinationThresholds)}');
+
+      // 计算寿元的5档描述：基于当前境界期望寿命的比例
+      final lifespanData = GameLogic.getLifeSpanForRank(rank);
+      final int expectedLifespanTicks =
+          ((lifespanData['min']! + lifespanData['max']!) / 2 * kTicksPerYear)
+              .round();
+      final int restLifespanTicks =
+          GameData.hero['deathTimestamp'] - GameData.game['timestamp'] as int;
+      final double lifespanRatio = expectedLifespanTicks > 0
+          ? restLifespanTicks / expectedLifespanTicks
+          : 0;
+      final lifespanDesc = engine.locale(
+          'divination_lifespan_${_getDivinationLevelByRatio(lifespanRatio, kDivinationLifespanThresholds)}');
+
+      // 展示结果
+      dialog.pushDialog('hint_divination_self_result',
+          npcId: location['npcId'],
+          interpolations: [luckDesc, wisdomDesc, lifespanDesc]);
+      await dialog.execute();
+
+    case 'divination_other':
+      // 从已遇到的角色中选择
+      final bonds = GameData.hero['bonds'];
+      assert(bonds != null);
+      final bondIds = bonds.keys.where((id) => id != GameData.hero['id']);
+      if (bondIds.isEmpty) {
+        dialog.pushDialog('hint_divination_no_bonds', npcId: location['npcId']);
+        await dialog.execute();
+        return;
+      }
+
+      final targetId = await GameLogic.selectCharacter(ids: bondIds);
+      if (targetId == null) return;
+
+      final target = GameData.getCharacter(targetId);
+      final int targetRank = target['rank'];
+      final int cost = kDivinationOtherBaseCost * (targetRank + 1);
+
+      // 确认费用
+      dialog.pushDialog('hint_divination_cost',
+          npcId: location['npcId'], interpolations: [cost]);
+      dialog.pushSelection('divination_confirm_selection', [
+        'divination_confirm',
+        'cancel',
+      ]);
+      await dialog.execute();
+      final confirm = dialog.checkSelected('divination_confirm_selection');
+      if (confirm != 'divination_confirm') return;
+
+      // 检查灵石
+      final int haveShard = GameData.hero['materials']['shard'];
+      if (haveShard < cost) {
+        dialog.pushDialog('hint_divination_not_enough_shard',
+            npcId: location['npcId']);
+        await dialog.execute();
+        return;
+      }
+
+      // 扣除灵石
+      engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
+        'shard',
+        cost,
+      ]);
+
+      // 魅力偏好：计算对方偏好与自身魅力的差值，差值越小越喜欢
+      final int charismaFavor = target['charismaFavor'] ?? 50;
+      final int heroCharisma = GameData.hero['stats']['charisma'] ?? 50;
+      final int charismaDiff = (charismaFavor - heroCharisma).abs();
+      final charismaDesc = engine.locale(
+          'divination_charisma_favor_${_getDivinationCharismaFavorLevel(charismaDiff, kDivinationCharismaFavorThresholds)}');
+
+      // 修炼偏好：直接翻译 genre
+      final String cultivationFavor =
+          target['cultivationFavor'] ?? 'swordcraft';
+      final cultivationDesc = engine.locale(cultivationFavor);
+
+      // 门派偏好：直接翻译 sect category
+      final String sectFavor = target['sectFavor'] ?? 'wuwei';
+      final sectDesc = engine.locale(sectFavor);
+
+      // 展示结果
+      dialog.pushDialog('hint_divination_other_result',
+          npcId: location['npcId'],
+          interpolations: [charismaDesc, cultivationDesc, sectDesc]);
+      await dialog.execute();
+  }
+}
+
+/// 根据属性数值和阈值列表返回1~5的档位
+int _getDivinationLevel(int value, List<int> thresholds) {
+  for (int i = 0; i < thresholds.length; i++) {
+    if (value < thresholds[i]) return i + 1;
+  }
+  return 5;
+}
+
+/// 根据比例值和阈值列表返回1~5的档位
+int _getDivinationLevelByRatio(double ratio, List<double> thresholds) {
+  for (int i = 0; i < thresholds.length; i++) {
+    if (ratio < thresholds[i]) return i + 1;
+  }
+  return 5;
+}
+
+/// 根据魅力偏好差值返回1~5的档位（差值越小档位越高）
+int _getDivinationCharismaFavorLevel(int diff, List<int> thresholds) {
+  for (int i = thresholds.length - 1; i >= 0; i--) {
+    if (diff >= thresholds[i]) return i + 1;
+  }
+  return 5;
+}
+
 Future<void> _heroProduce(dynamic location) async {
   final siteKind = location['kind'];
   assert(
@@ -1263,6 +1427,8 @@ Future<void> _onInteractNpc(dynamic location) async {
       siteOptions.add('workbench');
     } else if (siteKind == 'alchemylab') {
       siteOptions.add('alchemy_furnace');
+    } else if (siteKind == 'divinationaltar') {
+      siteOptions.add('divination');
     } else if (siteKind == 'dungeon') {
       siteOptions.add('about_dungeon');
     }
@@ -1319,6 +1485,8 @@ Future<void> _onInteractNpc(dynamic location) async {
           npcId: location['npcId'],
         );
         await dialog.execute();
+      case 'divination':
+        await _heroDivination(location);
     }
   }
 }

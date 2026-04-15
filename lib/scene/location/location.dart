@@ -111,6 +111,18 @@ class LocationScene extends Scene with HasCursorState {
           siteList.cards.add(depositCard);
           world.add(depositCard);
         }
+      case 'daostele':
+        final siteCard = GameData.createSiteCard(
+          spriteId: 'location/card/daostele.png',
+          title: engine.locale('meditate'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
+        siteCard.onTap = (button, position) {
+          GameLogic.onInteractDaoStele(sect, location: location);
+        };
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
       case 'exparray':
         final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/exparray.png',
@@ -119,10 +131,7 @@ class LocationScene extends Scene with HasCursorState {
           onUnpreviewed: _onUnpreviewSiteCard,
         );
         siteCard.onTap = (button, position) {
-          GameLogic.onInteractExpArray(
-            sect,
-            location: location,
-          );
+          GameLogic.onInteractExpArray(sect, location: location);
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);

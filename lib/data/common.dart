@@ -466,7 +466,7 @@ const kCultivationGenres = {
 const kBattleCardCategories = {
   'attack',
   'buff',
-}
+};
 
 const kBattleCardGenres = {
   'neutral',
@@ -1886,6 +1886,21 @@ const kHotelVipLifeRestorePerTime = 15;
 
 const kItemPriceToContributionRate = 0.001;
 
+/// 占卜自己的基础灵石费用
+const kDivinationSelfBaseCost = 1;
+
+/// 占卜他人的基础灵石费用
+const kDivinationOtherBaseCost = 2;
+
+/// 占卜结果5档阈值（百分比，用于 luck/wisdom 等 0~100 的属性）
+const kDivinationThresholds = [20, 40, 60, 80];
+
+/// 占卜寿元5档阈值（剩余寿元占当前境界期望寿命的百分比）
+const kDivinationLifespanThresholds = [0.2, 0.4, 0.6, 0.8];
+
+/// 占卜魅力偏好5档阈值（偏好与自身魅力差值的绝对值）
+const kDivinationCharismaFavorThresholds = [10, 25, 45, 70];
+
 const kBattleCardIllustrations = {
   "array",
   "avatar_scripture_attack",
@@ -2036,7 +2051,8 @@ const kPotionKinds = {
   },
 };
 
-const Map<String, Map<String, Map<String, Set<String>>>> kBattleCardKindsByCategory = {
+const Map<String, Map<String, Map<String, Set<String>>>>
+    kBattleCardKindsByCategory = {
   'attack': {
     'common': {
       'neutral': {

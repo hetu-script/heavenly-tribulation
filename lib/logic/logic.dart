@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:hetu_script/utils/math.dart' as math;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/tilemap/tile_info.dart';
+import 'package:hetu_script/values.dart';
 
 import '../extensions.dart';
 import '../data/common.dart';
@@ -1560,6 +1561,15 @@ final class GameLogic {
 
   static Future<void> cancelLocationDevelopment(dynamic location) =>
       _cancelLocationDevelopment(location);
+
+  static void onInteractDaoStele(
+    dynamic sect, {
+    dynamic location,
+  }) =>
+      _onInteractDaoStele(
+        sect,
+        location: location,
+      );
 
   static void onInteractExpArray(
     dynamic sect, {

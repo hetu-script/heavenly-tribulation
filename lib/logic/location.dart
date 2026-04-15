@@ -316,6 +316,22 @@ void _onInteractDungeonEntrance({
 
 /// 和门派总堂的聚灵阵交互
 /// 如果并非此组织成员，无法使用
+void _onInteractDaoStele(
+  dynamic sect, {
+  dynamic location,
+}) async {
+  final isRented = await _checkRented(location);
+  if (!isRented) return;
+
+  engine.pushScene(Scenes.cultivation, arguments: {
+    'location': location,
+    'enableCultivate': true,
+    'enableDaoStele': true,
+  });
+}
+
+/// 和聚灵阵交互
+/// 如果并非此组织成员，无法使用
 void _onInteractExpArray(
   dynamic sect, {
   dynamic location,

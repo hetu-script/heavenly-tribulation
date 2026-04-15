@@ -92,7 +92,7 @@ class CultivationScene extends Scene with HasCursorState {
 
   late CultivationMode mode;
 
-  bool get isDaoStele => location != null && location['kind'] == 'daostele';
+  bool isDaoStele = false;
 
   String? _daoSteleCategory;
   String? _daoSteleRarity;
@@ -1273,12 +1273,16 @@ class CultivationScene extends Scene with HasCursorState {
     if (arguments['location'] != null) {
       mode = CultivationMode.collect;
       location = arguments['location'];
+
+      isDaoStele = location != null && location['kind'] == 'daostele';
     } else {
       if (arguments['enableCultivate'] == true) {
         mode = CultivationMode.exhaust;
       } else {
         mode = CultivationMode.none;
       }
+
+      isDaoStele = arguments['enableDaoStele'] == true;
     }
 
     onEnterScene = arguments['onEnterScene'];

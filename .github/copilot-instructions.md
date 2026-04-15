@@ -95,20 +95,20 @@ final gameState = GameState();      // 全局状态（ChangeNotifier）
 
 ### Hetu 脚本
 
-入口：`scripts/main/main.ht`。编译后输出到 `assets/mods/main.mod`。
-
-- `scripts/main/binding/` — Dart↔Hetu 桥接
-- `scripts/main/data/` — 数据定义（稀有度、常量、角色/物品/地点/门派）
-- `scripts/main/cardgame/` — 卡牌战斗逻辑
-- `scripts/main/event/` — 事件回调（sandbox、dungeon、cultivation 等）
-- `scripts/main/world/` — 世界生成和地图算法
-
 游戏中的大部分数据以 HTStruct 的形式定义在 Hetu 脚本中。同时可以在脚本和Dart两侧进行类似的操作。
 
 HTStruct 类似 Javascript 中的 object ，可以在运行时动态增删属性。适合游戏中经常变化的对象，如角色、物品、事件等。
 
 在脚本中，使用 object.property 的方式访问属性，如 `hero.level`、`item.name`。
 在 Dart 中，使用类似 Map 对象的方式访问属性，如 `hero['level']`、`item['name']`。
+
+脚本入口：`scripts/main/main.ht`。编译后输出到 `assets/mods/main.mod`。
+
+- `scripts/main/binding/` — Dart↔Hetu 桥接
+- `scripts/main/data/` — 数据定义（稀有度、常量、角色/物品/地点/门派）
+- `scripts/main/cardgame/` — 卡牌战斗逻辑
+- `scripts/main/event/` — 事件回调（sandbox、dungeon、cultivation 等）
+- `scripts/main/world/` — 世界生成和地图算法
 
 ## 代码风格
 
