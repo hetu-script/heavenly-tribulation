@@ -71,8 +71,8 @@ class Constants extends HTExternalClass {
         return kSectCategories;
       case 'Constants.cultivationGenres':
         return kCultivationGenres;
-      case 'Constants.cardpackGenres':
-        return kCardpackGenres;
+      case 'Constants.battleCardGenres':
+        return kBattleCardGenres;
       case 'Constants.materialKinds':
         return kMaterialKinds;
       case 'Constants.nonCurrencyMaterialKinds':

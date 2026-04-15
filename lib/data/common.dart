@@ -463,8 +463,13 @@ const kCultivationGenres = {
   'vitality',
 };
 
-const kCardpackGenres = {
-  'none',
+const kBattleCardCategories = {
+  'attack',
+  'buff',
+}
+
+const kBattleCardGenres = {
+  'neutral',
   'swordcraft',
   'spellcraft',
   'bodyforge',
@@ -2031,7 +2036,7 @@ const kPotionKinds = {
   },
 };
 
-const kBattleCardKindsByCategory = {
+const Map<String, Map<String, Map<String, Set<String>>>> kBattleCardKindsByCategory = {
   'attack': {
     'common': {
       'neutral': {

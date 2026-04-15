@@ -32,7 +32,7 @@ external abstract class Constants {
 
   static get sectCategories;
   static get cultivationGenres;
-  static get cardpackGenres;
+  static get battleCardGenres;
   static get materialKinds;
   static get nonCurrencyMaterialKinds;
   static get naturalResourceKinds;

@@ -17,6 +17,8 @@ import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
 import 'package:samsara/effect/confetti.dart';
 
+import 'package:samsara/cardgame/cardgame.dart';
+
 import '../../extensions.dart';
 import '../particles/light_point.dart';
 import '../../global.dart';
@@ -30,6 +32,7 @@ import '../../data/common.dart';
 import '../cursor_state.dart';
 import '../mini_game/common.dart';
 import '../../game_events.dart';
+import '../../widgets/dialog/select_card_id.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -88,6 +91,14 @@ class CultivationScene extends Scene with HasCursorState {
   dynamic location;
 
   late CultivationMode mode;
+
+  bool get isDaoStele => location != null && location['kind'] == 'daostele';
+
+  String? _daoSteleCategory;
+  String? _daoSteleRarity;
+  String? _daoSteleGenre;
+  CustomGameCard? _revealedCard;
+  late final SpriteButton collectCard;
 
   late final SpriteComponent2 barrier;
 
@@ -232,6 +243,33 @@ class CultivationScene extends Scene with HasCursorState {
   }
 
   void updateInformation() {
+    if (isDaoStele) {
+      String collectableLightString =
+          '${engine.locale('collectableLight')}: <bold ${collectableLight > 0 ? 'yellow' : 'grey'}>$collectableLight</>';
+
+      String daoSteleInfo = '';
+      if (_daoSteleCategory != null) {
+        daoSteleInfo =
+            '${engine.locale(_daoSteleCategory!)} / ${engine.locale(_daoSteleRarity!)} / ${engine.locale(_daoSteleGenre!)}';
+      }
+
+      final int skillPoints = character['skillPoints'];
+      final pointsString = skillPoints > 0
+          ? '<bold yellow>$skillPoints</>'
+          : '<bold red>$skillPoints</>';
+
+      final int rank = character['rank'];
+      final rankString =
+          '<bold rank$rank>${engine.locale('cultivationRank_$rank')}</>';
+
+      levelDescription.text = '$collectableLightString '
+          '${daoSteleInfo.isNotEmpty ? daoSteleInfo : ''}\n'
+          '${engine.locale('cultivationLevel')}: ${character['level']} '
+          '${engine.locale('cultivationRank')}: $rankString '
+          '${engine.locale('skillPoints')}: $pointsString';
+      return;
+    }
+
     String collectableLightString = '';
     final int expGainPerLight = GameData.hero['stats']['expGainPerLight'];
     if (mode == CultivationMode.collect) {
@@ -672,6 +710,10 @@ class CultivationScene extends Scene with HasCursorState {
   }
 
   void tick() async {
+    if (isDaoStele) {
+      tickDaoStele();
+      return;
+    }
     if (collectableLight > 0) {
       collectableLight -= 1;
       schedule(() async {
@@ -701,6 +743,84 @@ class CultivationScene extends Scene with HasCursorState {
       setMeditateState(CultivationMode.none);
       checkAvailableMode();
     }
+  }
+
+  void tickDaoStele() async {
+    if (collectableLight > 0) {
+      collectableLight -= 1;
+      schedule(() async {
+        double expCollectSpeed = GameData.hero['stats']['expCollectSpeed'];
+        int timeCost = kTicksPerTime ~/ expCollectSpeed;
+
+        if (_lightPoints.isNotEmpty) {
+          final light = _lightPoints.first;
+          await condenseOne(light);
+          light.removeFromParent();
+        }
+
+        updateInformation();
+
+        if (collectableLight > _lightPoints.length) {
+          addExpLightPoint();
+        }
+
+        await GameLogic.updateGame(ticks: timeCost);
+        updateTimeOfDay();
+
+        // 判定是否获得卡牌
+        final probability = GameLogic.daoSteleCardProbability();
+        if (math.Random().nextDouble() < probability) {
+          await showDaoSteleCard();
+        }
+      });
+    } else {
+      setMeditateState(CultivationMode.none);
+      checkAvailableMode();
+    }
+  }
+
+  Future<void> showDaoSteleCard() async {
+    // 暂停打坐
+    setMeditateState(CultivationMode.none);
+
+    // 根据玩家选择的类型、稀有度和流派生成卡牌
+    final int rank = kRaritiesToRank[_daoSteleRarity] ?? 0;
+    final String genre =
+        _daoSteleGenre == 'neutral' ? 'none' : (_daoSteleGenre ?? 'none');
+
+    final cardData = engine.hetu.invoke(
+      'BattleCard',
+      namedArgs: {
+        'category': _daoSteleCategory,
+        'genre': genre,
+        'rank': rank,
+      },
+    );
+
+    final card = GameData.createBattleCard(cardData);
+    _revealedCard = card;
+
+    card.preferredPriority = _kBarrierPriority + 1;
+    card.resetPriority();
+    card.size = GameUI.cardpackCardSize;
+    card.anchor = Anchor.center;
+    card.position = Vector2(center.x, center.y - 30);
+    card.isFlipped = true;
+
+    card.onTapUp = (int button, Vector2 position) {
+      if (card.isFlipped) {
+        engine.play(GameSound.craft);
+        card.isFlipped = false;
+        final (description, _) = GameData.getBattleCardDescription(card.data);
+        card.description = description;
+      }
+    };
+
+    barrier.isVisible = true;
+    camera.viewport.add(card);
+    collectCard.isVisible = true;
+
+    engine.play(GameSound.dealCard);
   }
 
   @override
@@ -787,6 +907,38 @@ class CultivationScene extends Scene with HasCursorState {
       confirm.isVisible = false;
     };
     camera.viewport.add(confirm);
+
+    collectCard = SpriteButton(
+      spriteId: 'ui/button2.png',
+      size: GameUI.buttonSizeMedium,
+      anchor: Anchor.center,
+      position: confirm.position,
+      text: engine.locale('confirm'),
+      isVisible: false,
+      priority: _kBarrierPriority + 1,
+    );
+    collectCard.onTap = (_, __) {
+      if (_revealedCard == null) return;
+
+      engine.hetu.invoke(
+        'acquireCard',
+        namespace: 'Player',
+        positionalArgs: [_revealedCard!.data],
+      );
+
+      hint(
+        engine.locale('daostele_card_acquired'),
+        color: Colors.lightGreen,
+      );
+
+      _revealedCard!.removeFromParent();
+      _revealedCard = null;
+      barrier.isVisible = false;
+      collectCard.isVisible = false;
+
+      engine.play(GameSound.dealCard);
+    };
+    camera.viewport.add(collectCard);
 
     backgroundSprite = SpriteComponent(
       position: Vector2(center.x, center.y - 130),
@@ -886,6 +1038,17 @@ class CultivationScene extends Scene with HasCursorState {
       if (!cultivateButton.isEnabled) return;
       if (button != kPrimaryButton) return;
       if (button == kPrimaryButton) {
+        if (isDaoStele && !isMeditating) {
+          // 问道碑模式：先选择卡牌类型
+          final result = await SelectCardIdDialog.show(
+            context: engine.context,
+            title: engine.locale('daostele'),
+          );
+          if (result == null) return;
+          _daoSteleCategory = result.$1;
+          _daoSteleRarity = result.$2;
+          _daoSteleGenre = result.$3;
+        }
         setMeditateState(isMeditating ? CultivationMode.none : mode);
         setPassiveTreeState(false);
       }

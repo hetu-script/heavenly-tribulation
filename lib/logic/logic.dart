@@ -498,6 +498,12 @@ final class GameLogic {
     return ((level * level) * 10 + level * 100 + 40) ~/ 3 * 2;
   }
 
+  /// 问道碑打坐时，每次时间流逝获得卡牌的概率
+  /// 平均而言，花费半个月的时间可以获得一张牌
+  static double daoSteleCardProbability() {
+    return 1.0 / (kTicksPerMonth / 2);
+  }
+
   /// 计算某个职位等级所需的功勋值
   static int contributionForJobRank(int jobRank) {
     assert(jobRank >= 0 && jobRank <= kJobRankMax);
