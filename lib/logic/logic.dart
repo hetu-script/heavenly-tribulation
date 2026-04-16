@@ -1362,10 +1362,13 @@ final class GameLogic {
     final journal = engine.hetu.invoke('createJournalByQuest',
         namespace: 'Player', positionalArgs: [quest]);
     if (quest['kind'] == 'escort') {
+      final escorteeId = quest['package']['characterId'];
+      final escortee = GameData.getCharacter(escorteeId);
       final escortType = engine.hetu.invoke(
-        'initEscort',
-        positionalArgs: [journal['quest']],
+        'getRelationshipType',
+        positionalArgs: [escortee],
       );
+      quest['escortType'] = escortType;
       dialog.pushDialog(
         'quest_escort_greeting_$escortType',
         characterId: package['characterId'],
@@ -1568,6 +1571,13 @@ final class GameLogic {
   }) =>
       _onInteractDaoStele(
         sect,
+        location: location,
+      );
+
+  static void onInteractArena({
+    dynamic location,
+  }) =>
+      _onInteractArena(
         location: location,
       );
 

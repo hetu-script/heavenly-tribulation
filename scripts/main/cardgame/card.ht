@@ -70,7 +70,7 @@ struct BattleCard {
 
     if (mainAffixes.isEmpty) {
       // 去掉 kind 限制再试一次
-      engine.error('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}, try again without kind limit')
+      engine.warning('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}, try again without kind limit')
       mainAffixes = game.battleCards.values.where( (affix) {
         if (affixId) {
           return affix.id == affixId
@@ -233,8 +233,8 @@ function _randomizeAffixLevel(card, affix) {
     }
     affix.value = values
   } else {
-    // 对于没有 valueData 的词条，意味着是非数值词条，等级永远是 0
-    affix.level = 0
+    // 对于没有 valueData 的词条，意味着是非数值词条，等级永远是 1
+    affix.level = 1
   }
 }
 

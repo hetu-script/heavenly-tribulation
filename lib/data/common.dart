@@ -985,6 +985,20 @@ final kSiteRentMoneyCostByDay = {
   'dungeon': 5000,
 };
 
+/// 斗技厅赌注基础金额
+/// rank 0 使用铜钱(money)，rank >= 1 使用灵石(shard)
+const kArenaWagerBase = {
+  0: 1000, // 铜钱
+  1: 2, // 灵石
+  2: 5,
+  3: 9,
+  4: 17,
+  5: 33,
+};
+
+/// 斗技厅赌注倍率：低/中/高
+const kArenaWagerMultipliers = [1, 3, 5];
+
 final class AttackType {
   static const unarmed = 'unarmed';
   static const weapon = 'weapon';

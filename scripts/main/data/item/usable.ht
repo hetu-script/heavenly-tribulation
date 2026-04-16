@@ -144,8 +144,10 @@ struct Potion {
         final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null) {
           let minAffixLevel = 1
-          if (affix.increment < 1) {
+          if (affix.increment > 0 && affix.increment < 1) {
             minAffixLevel = (1 / affix.increment).ceil()
+          } else if (affix.increment < 0 && affix.increment > -1) {
+            minAffixLevel = (1 / -affix.increment).ceil()
           }
           affix.level = getRandomLevel(minAffixLevel, this.level)
           affix.value = (affix.increment * affix.level).floor()

@@ -828,10 +828,13 @@ function replenishTradingItem(location) {
     'library': {
       final sect = game.sects[location.sectId]
       for (var i in range(amount)) {
-        let genre = sect?.genre
-        final genreRoll = random.nextDouble()
-        if (genreRoll < 0.3) {
-          genre = random.nextIterable(Constants.cultivationGenres)
+        let genre
+        if (location.development > 0) {
+          genre = sect?.genre
+          final genreRoll = random.nextDouble()
+          if (genreRoll < 0.35) {
+            genre = random.nextIterable(Constants.cultivationGenres)
+          }
         }
         let item = Cardpack(
           rank: random.nearInt(rank),

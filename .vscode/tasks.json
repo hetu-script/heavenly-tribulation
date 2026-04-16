@@ -4,12 +4,12 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "compileAllGameScript",
+      "label": "compileAllGameScripts",
       "type": "shell",
       "command": "python build.py",
       "group": "build",
       "presentation": {
-        "reveal": "always",
+        "reveal": "always"
       }
     }
   ]

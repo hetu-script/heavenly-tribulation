@@ -1525,10 +1525,10 @@ Future<void> _onInteractNpc(dynamic location) async {
       siteOptions.add('tradeMaterial');
     } else if (siteKind == 'workshop') {
       siteOptions.add('workbench');
-    } else if (siteKind == 'alchemylab') {
-      siteOptions.add('alchemy_furnace');
     } else if (siteKind == 'divinationaltar') {
       siteOptions.add('divination');
+    } else if (siteKind == 'arena') {
+      siteOptions.add('about_arena');
     } else if (siteKind == 'dungeon') {
       siteOptions.add('about_dungeon');
     }
@@ -1574,14 +1574,15 @@ Future<void> _onInteractNpc(dynamic location) async {
           ViewPanels.workbench,
           arguments: {'location': location},
         );
-      case 'alchemy_furnace':
-        engine.context.read<ViewPanelState>().toogle(
-          ViewPanels.alchemy,
-          arguments: {'location': location},
-        );
       case 'about_dungeon':
         dialog.pushDialog(
           'hint_dungeonEntrance',
+          npcId: location['npcId'],
+        );
+        await dialog.execute();
+      case 'about_arena':
+        dialog.pushDialog(
+          'hint_arenaEntrance',
           npcId: location['npcId'],
         );
         await dialog.execute();

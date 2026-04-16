@@ -397,6 +397,7 @@ class _DebugButtonState extends State<DebugButton> {
                 'chat': 'debugLlmChat',
                 'resetHero': 'debugResetHero',
                 'get item': 'debugItem',
+                'daoStele': 'debugDaoStele',
                 '___1': null,
                 'merchant': 'debugMerchant',
                 'workbench': 'debugWorkbench',
@@ -474,6 +475,9 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                   case 'debugItem':
                     engine.hetu.invoke('testItem', namespace: 'debug');
+                  case 'debugDaoStele':
+                    engine.pushScene(Scenes.cultivation,
+                        arguments: {'enableDaoStele': true});
                   case 'debugMerchant':
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {

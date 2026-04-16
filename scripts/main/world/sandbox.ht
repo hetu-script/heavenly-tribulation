@@ -339,7 +339,6 @@ function createSandboxWorld({
           addProductionSite('huntingground', terrain, city)
           hasHuntingGround = true
         } else if (!hasTimberLand && r < _kTimberLandThreshold) {
-          engine.warning('adding timberland')
           addProductionSite('timberland', terrain, city)
           hasTimberLand = true
         }
@@ -465,23 +464,24 @@ function createSandboxWorld({
       npcId: Constants.siteKindToNpcId[secondaryClassSiteKind],
     )
 
-    if (city.siteIds.length < city.maxSiteCount) {
-      for (var i in range(city.siteIds.length, city.maxSiteCount)) {
+    let originalSiteCount = city.siteIds.length
+    while (city.siteIds.length < city.maxSiteCount) {
+      if (city.siteIds.length > originalSiteCount) {
         final roll = random.nextDouble()
         if (roll > _kCityHasExtraBuildingProbability) continue
-
-        final kind = random.nextIterable(siteKinds)
-        Location(
-          category: 'site',
-          kind: kind,
-          atCity: city,
-          sectId: sect.id,
-          development: random.nextInt(city.development + 1),
-          npcId: Constants.siteKindToNpcId[kind],
-        )
-        siteKinds.remove(kind)
-        if (siteKinds.isEmpty) break
       }
+
+      final kind = random.nextIterable(siteKinds)
+      Location(
+        category: 'site',
+        kind: kind,
+        atCity: city,
+        sectId: sect.id,
+        development: random.nextInt(city.development + 1),
+        npcId: Constants.siteKindToNpcId[kind],
+      )
+      siteKinds.remove(kind)
+      if (siteKinds.isEmpty) break
     }
   }
 
@@ -493,24 +493,24 @@ function createSandboxWorld({
     .toList()
   for (final city in nonCapitalCities) {
     final siteKinds = Constants.siteKindsBuildable.toList()
-    // 这里 + 2 是因为非首都城市默认会拥有会堂和交易所两个建筑
-    if (city.siteIds.length < city.maxSiteCount) {
-      for (var i in range(city.siteIds.length, city.maxSiteCount)) {
+    let originalSiteCount = city.siteIds.length
+    while (city.siteIds.length < city.maxSiteCount) {
+      if (city.siteIds.length > originalSiteCount) {
         final roll = random.nextDouble()
         if (roll > _kCityHasExtraBuildingProbability) continue
-        
-        final kind = random.nextIterable(siteKinds)
-        Location(
-          category: 'site',
-          kind: kind,
-          atCity: city,
-          sectId: city.sectId,
-          development: random.nextInt(city.development + 1),
-          npcId: Constants.siteKindToNpcId[kind],
-        )
-        siteKinds.remove(kind)
-        if (siteKinds.isEmpty) break
       }
+      
+      final kind = random.nextIterable(siteKinds)
+      Location(
+        category: 'site',
+        kind: kind,
+        atCity: city,
+        sectId: city.sectId,
+        development: random.nextInt(city.development + 1),
+        npcId: Constants.siteKindToNpcId[kind],
+      )
+      siteKinds.remove(kind)
+      if (siteKinds.isEmpty) break
     }
   }
 

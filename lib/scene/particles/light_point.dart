@@ -1,10 +1,12 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flame/sprite.dart';
 
 import 'package:samsara/samsara.dart';
 
 const _kLightRadius = 25.0;
+const _kDefaultLightAsset = 'sprite/light_point.png';
 
 class LightPoint extends BorderComponent {
   static final random = math.Random();
@@ -29,8 +31,12 @@ class LightPoint extends BorderComponent {
 
   String assetId;
 
+  /// 用于给白色光点着色的颜色，如果不为 null 则使用 ColorFilter 进行 tint
+  Color? color;
+
   LightPoint({
-    required this.assetId,
+    this.assetId = _kDefaultLightAsset,
+    this.color,
     super.isVisible,
     super.position,
     super.opacity,
@@ -46,6 +52,7 @@ class LightPoint extends BorderComponent {
           lightConfig: LightConfig(
             radius: preferredRadius,
             blurBorder: _kLightRadius,
+            color: color ?? Colors.transparent,
             shape: LightShape.circle,
           ),
         ) {
@@ -67,6 +74,9 @@ class LightPoint extends BorderComponent {
     sprite = await Sprite.load(assetId);
     if (preferredSize.isZero()) {
       size = preferredSize = sprite.srcSize;
+    }
+    if (color != null) {
+      paint.colorFilter = ui.ColorFilter.mode(color!, ui.BlendMode.modulate);
     }
   }
 

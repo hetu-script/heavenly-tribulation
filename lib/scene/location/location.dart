@@ -171,6 +171,33 @@ class LocationScene extends Scene with HasCursorState {
         };
         siteList.cards.add(restCard);
         world.add(restCard);
+      case 'alchemylab':
+        final alchemyCard = GameData.createSiteCard(
+          spriteId: 'location/card/alchemylab.png',
+          title: engine.locale('alchemy_furnace'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
+        alchemyCard.onTap = (button, position) {
+          engine.context.read<ViewPanelState>().toogle(
+            ViewPanels.alchemy,
+            arguments: {'location': location},
+          );
+        };
+        siteList.cards.add(alchemyCard);
+        world.add(alchemyCard);
+      case 'arena':
+        final challengeCard = GameData.createSiteCard(
+          spriteId: 'location/card/arena.png',
+          title: engine.locale('arenaChallenge'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
+        challengeCard.onTap = (button, position) {
+          GameLogic.onInteractArena(location: location);
+        };
+        siteList.cards.add(challengeCard);
+        world.add(challengeCard);
       case 'cityhall':
         final restCard = GameData.createSiteCard(
           spriteId: 'location/card/bed.png',
@@ -246,7 +273,7 @@ class LocationScene extends Scene with HasCursorState {
       position: GameUI.siteListPosition,
       pileStyle: PileStyle.queue,
       piledCardSize: GameUI.siteCardSize,
-      pileOffset: Vector2(GameUI.siteCardSize.x / 3 * 2, 0),
+      pileOffset: Vector2(GameUI.siteCardSize.x / 2, 0),
     );
     world.add(siteList);
 

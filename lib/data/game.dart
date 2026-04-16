@@ -66,6 +66,7 @@ final class MonthlyActivityIds {
   static const enrolled = 'enrolled';
   static const recruited = 'recruited';
   static const rented = 'rented';
+  static const arenaChallenged = 'arenaChallenged';
 }
 
 final class GameMusic {
@@ -865,6 +866,7 @@ final class GameData with ChangeNotifier {
       spriteId: 'location/site_frame.png',
       title: siteData['name'],
       titleConfig: GameUI.siteTitleConfig,
+      titleLayout: CardTitleLayout.verticalRightTop,
       showTitle: true,
       enablePreview: true,
       focusOnPreviewing: true,
@@ -899,6 +901,7 @@ final class GameData with ChangeNotifier {
       spriteId: 'location/site_frame.png',
       title: title,
       titleConfig: GameUI.siteTitleConfig,
+      titleLayout: CardTitleLayout.verticalRightTop,
       showTitle: true,
       size: GameUI.siteCardSize,
       preferredSize: GameUI.siteCardSize,

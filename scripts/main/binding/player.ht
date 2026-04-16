@@ -806,3 +806,37 @@ namespace Player {
     }
   }
 }
+
+
+/// 判断某个角色和主角的关系类型，返回对应的类型
+/// 'stranger'、'acquintance'、'superior'、'intimidate'、'respectful'
+function getRelationshipType(character) {
+  let relationshipType = 'stranger'
+
+  if (character.sectId && character.sectId == hero.sectId) {
+    final sect = game.sects[character.sectId]
+    final character = game.characters[characterId];
+    if (character.sectJobRank > hero.sectJobRank) {
+      relationshipType = 'superior'
+    } else if (character.sectJobRank < hero.sectJobRank) {
+      relationshipType = 'respectful'
+    }
+  } else {
+    if (character.rank > hero.rank) {
+      relationshipType = 'intimidate'
+    } else if (character.rank < hero.rank) {
+      relationshipType = 'respectful'
+    } else {
+      let bond = character.bonds[hero.id]
+      if (bond?.score < 0) {
+        return 'hostile'
+      } else if (bond?.score > 0) {
+        return 'acquaintance'
+      }
+    }
+  }
+
+  characterMet(character, hero)
+
+  return relationshipType
+}

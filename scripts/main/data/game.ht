@@ -48,6 +48,8 @@ struct HeroMonthly {
     this.consulted = []
     this.tutored = []
 
+    this.arenaChallenged = []
+
     // 组织的加入和招募
     this.enrolled = []
     this.recruited = []

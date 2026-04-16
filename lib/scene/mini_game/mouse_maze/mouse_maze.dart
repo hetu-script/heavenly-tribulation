@@ -511,7 +511,7 @@ class MouseMazeGame extends Scene with HasCursorState {
     camera.viewport.add(restart);
 
     exit = SpriteButton(
-      spriteId: 'ui/button.png',
+      spriteId: 'ui/button1.png',
       size: GameUI.buttonSizeMedium,
       anchor: Anchor.center,
       position: GameUI.exitButtonPosition,
@@ -546,7 +546,7 @@ class MouseMazeGame extends Scene with HasCursorState {
 
     // 创建光点
     lightPoint = LightPoint(
-      assetId: 'light_point.png',
+      color: const Color(0xFFBB77FF), // 紫色
       preferredRadius: 150.0, // 增大光照半径以获得更好的视野
       flickerRate: 5,
       priority: _kMazePartPriority2,

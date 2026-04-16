@@ -517,40 +517,6 @@ namespace Quests {
   }
 }
 
-function initEscort(quest) {
-  assert(quest.kind == 'escort', 'quest kind is not escort, kind: ${quest.kind}')
-  final escorteeId = quest.package.characterId;
-  final escortee = game.characters[escorteeId];
-
-  let escortType = 'stranger'
-  final bond = escortee.bonds[hero.id]
-  if (bond?.score > 0) {
-    escortType = 'acquintance'
-  }
-
-  if (escortee.sectId && escortee.sectId == hero.sectId) {
-    final sect = game.sects[escortee.sectId]
-    final escortee = game.characters[escorteeId];
-    if (escortee.sectJobRank > hero.sectJobRank) {
-      escortType = 'superior'
-    } else if (escortee.sectJobRank < hero.sectJobRank) {
-      escortType = 'respectful'
-    }
-  } else {
-    if (escortee.rank > hero.rank) {
-      escortType = 'intimidate'
-    } else if (escortee.rank < hero.rank) {
-      escortType = 'respectful'
-    }
-  }
-
-  quest.escortType = escortType
-
-  characterMet(escortee, hero)
-
-  return escortType
-}
-
 function createQuest(cityhall, {
   kind, sect,
   isBounty = false,

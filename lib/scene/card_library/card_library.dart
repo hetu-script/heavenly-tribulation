@@ -169,7 +169,7 @@ class CardLibraryScene extends Scene {
   //   }
   //   while (lightPoints.length < lightCount) {
   //     final lightPoint = LightPoint(
-  //       assetId: 'light_point.png',
+  //       color: const Color(0xFFBB77FF),
   //       position: _lightPointsPositions.random.position,
   //       priority: kExpLightPriority,
   //       preferredSize: Vector2(20, 20),
@@ -1060,7 +1060,7 @@ class CardLibraryScene extends Scene {
       anchor: Anchor.topLeft,
       position: GameUI.deckbuildingZoneButtonPosition,
       size: GameUI.buttonSizeMedium,
-      spriteId: 'ui/button.png',
+      spriteId: 'ui/button1.png',
       priority: kDeckPilesZonePriority,
       isVisible: false,
     );

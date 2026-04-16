@@ -84,6 +84,7 @@ namespace Game {
     enemy,
     isSneakAttack: bool = false,
     // isAutoBattle: bool = false,
+    isPractice: bool = false,
     onBattleStart,
     onBattleEnd,
   })

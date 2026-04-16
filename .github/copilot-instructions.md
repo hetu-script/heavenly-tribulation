@@ -13,15 +13,7 @@
 
 ## 构建和运行
 
-```shell
-# 编译 Hetu 脚本（scripts/ → assets/mods/*.mod
-python build.py
-
-# 运行
-flutter run -d windows
-```
-
-无自动化测试。无 CI/CD。
+使用 VSCode的 tasks: compileAllGameScripts 任务会编译 Hetu 脚本并输出到 `assets/mods/` 目录，并编译Flutter工程，生成Windows可执行文件。
 
 ## 架构
 
@@ -109,6 +101,11 @@ HTStruct 类似 Javascript 中的 object ，可以在运行时动态增删属性
 - `scripts/main/cardgame/` — 卡牌战斗逻辑
 - `scripts/main/event/` — 事件回调（sandbox、dungeon、cultivation 等）
 - `scripts/main/world/` — 世界生成和地图算法
+- `scripts/main/quest/` — 任务系统
+- `scripts/main/data/character/` — 角色对象（英雄、NPC、敌人）
+- `scripts/main/data/item/` — 物品对象
+- `scripts/main/data/location/` — 场景、建筑对象
+- `scripts/main/data/sect/` — 门派对象
 
 ## 代码风格
 

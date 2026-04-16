@@ -156,8 +156,10 @@ function createItemById(id, {amount, rank, level}) {
       final affix = Object.create(affixRawData)
       if (affix.increment != null) {
         let minAffixLevel = 1
-        if (affix.increment < 1) {
+        if (affix.increment > 0 && affix.increment < 1) {
           minAffixLevel = (1 / affix.increment).ceil()
+        } else if (affix.increment < 0 && affix.increment > -1) {
+          minAffixLevel = (1 / -affix.increment).ceil()
         }
         affix.level = getRandomLevel(minAffixLevel, item.level)
         affix.value = (affix.increment * affix.level).floor()

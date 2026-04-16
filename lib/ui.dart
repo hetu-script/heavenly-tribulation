@@ -423,9 +423,10 @@ final class GameUI {
 
   static final siteTitleConfig = ScreenTextConfig(
     outlined: true,
-    padding: EdgeInsets.only(top: 10),
+    padding: EdgeInsets.all(10.0),
     anchor: Anchor.topCenter,
-    textStyle: TextStyles.bodySmall,
+    textStyle: TextStyles.bodyLarge,
+    backgroundColor: Colors.white60,
   );
 
   static const heroInfoHeight = 130.0;

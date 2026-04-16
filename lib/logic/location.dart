@@ -314,6 +314,187 @@ void _onInteractDungeonEntrance({
   );
 }
 
+/// 和斗技厅交互：选择赌注档位，匹配对手，开始战斗
+void _onInteractArena({
+  dynamic location,
+}) async {
+  final hero = GameData.hero;
+  final int heroRank = hero['rank'];
+  final int heroLevel = hero['level'];
+
+  // 确定货币类型和基础赌注
+  final String currencyId = heroRank == 0 ? 'money' : 'shard';
+  final String currencyName = engine.locale(currencyId);
+  final int baseWager = kArenaWagerBase[heroRank] ?? kArenaWagerBase[0]!;
+
+  // 根据角色等级在当前境界中的位置限制可选档位
+  // 等级越高，低档可能不可选
+  final int minLevel = GameLogic.minLevelForRank(heroRank);
+  final int maxLevel = GameLogic.maxLevelForRank(heroRank);
+  final double levelRatio =
+      maxLevel > minLevel ? (heroLevel - minLevel) / (maxLevel - minLevel) : 0;
+
+  // 构建赌注选项
+  final Map<String, dynamic> selections = {};
+  int minTier = 0;
+  if (levelRatio > 0.66) {
+    minTier = 1; // 等级较高，至少中档
+  }
+  if (levelRatio > 0.9) {
+    minTier = 2; // 等级很高，只能高档
+  }
+
+  final tierKeys = ['arenaWagerLow', 'arenaWagerMid', 'arenaWagerHigh'];
+  for (int i = minTier; i < kArenaWagerMultipliers.length; i++) {
+    final multiplier = kArenaWagerMultipliers[i];
+    final wager = baseWager * multiplier;
+    selections[tierKeys[i]] =
+        engine.locale(tierKeys[i], interpolations: [wager, currencyName]);
+  }
+  selections['forgetIt'] = engine.locale('forgetIt');
+
+  dialog.pushSelectionRaw({
+    'id': 'arenaWagerSelect',
+    'selections': selections,
+  });
+  await dialog.execute();
+  final selected = dialog.checkSelected('arenaWagerSelect');
+  if (selected == null || selected == 'forgetIt') return;
+
+  // 解析选中的档位
+  final int tierIndex = tierKeys.indexOf(selected);
+  final int multiplier = kArenaWagerMultipliers[tierIndex];
+  final int wager = baseWager * multiplier;
+
+  // 检查余额
+  final int available = hero['materials'][currencyId] ?? 0;
+  if (available < wager) {
+    dialog.pushDialog(
+      'hint_notEnoughWager',
+      npcId: location?['npcId'],
+      interpolations: [currencyName],
+    );
+    await dialog.execute();
+    return;
+  }
+
+  // 扣除赌注
+  engine.hetu.invoke('exhaust',
+      namespace: 'Player', positionalArgs: [currencyId, wager]);
+  engine.play(GameSound.coins);
+
+  // 匹配对手
+  dynamic opponent;
+  final heroId = hero['id'];
+  final List companionIds = hero['companions'] ?? [];
+  final List challengedIds =
+      GameData.game['flags']['monthly']['arenaChallenged'] ?? [];
+
+  final candidates =
+      (GameData.game['characters'].values as Iterable).where((char) {
+    if (char['id'] == heroId) return false;
+    if (companionIds.contains(char['id'])) return false;
+    if (char['rank'] != heroRank) return false;
+    if (challengedIds.contains(char['id'])) return false;
+    // 在家的角色
+    final homeSiteId = '${char['id']}_$kLocationKindHome';
+    return char['locationId'] == homeSiteId;
+  }).toList();
+
+  if (candidates.isNotEmpty) {
+    candidates.shuffle(GameLogic.random);
+    opponent = candidates.first;
+    // 记录已挑战过的对手
+    GameData.addMonthly(MonthlyActivityIds.arenaChallenged, opponent['id']);
+  } else {
+    // 没有合适的NPC，生成路人角色
+    engine.warning('斗技厅没有找到合适的NPC对手，生成路人角色');
+
+    final strangerNames = [
+      'arenaStrangerSanxiu',
+      'arenaStrangerYouxia',
+      'arenaStrangerLangren',
+      'arenaStrangerWuzhe',
+    ];
+    final prefixes = [
+      'arenaPrefixWeak',
+      'arenaPrefixUnknown',
+      'arenaPrefixStrong',
+    ];
+    // 前缀和档位（难度）有关
+    final prefix = engine.locale(prefixes[tierIndex.clamp(0, 2)]);
+    final baseName = engine
+        .locale(strangerNames[GameLogic.random.nextInt(strangerNames.length)]);
+    final name = '$prefix$baseName';
+
+    opponent = engine.hetu.invoke('BattleEntity', namedArgs: {
+      'rank': heroRank,
+      'name': name,
+    });
+  }
+
+  // 根据赌注档位调整对手等级
+  // 低档：境界最小等级附近；中档：中间等级；高档：接近最高等级
+  if (opponent['id'] == null) {
+    // 路人角色可以直接设定等级
+    int targetLevel;
+    switch (tierIndex) {
+      case 0:
+        targetLevel = minLevel + ((maxLevel - minLevel) * 0.3).round();
+      case 1:
+        targetLevel = minLevel + ((maxLevel - minLevel) * 0.6).round();
+      default:
+        targetLevel = minLevel + ((maxLevel - minLevel) * 0.9).round();
+    }
+    opponent['level'] = targetLevel;
+  }
+
+  // 赛前垃圾话环节
+  final String challengeType =
+      engine.hetu.invoke('getRelationshipType', positionalArgs: [opponent]);
+  dialog.pushDialog(
+    'arena_greeting_$challengeType',
+    npc: opponent,
+  );
+  await dialog.execute();
+
+  // 发起战斗
+  engine.context.read<EnemyState>().show(
+    opponent,
+    loseOnEscape: true,
+    onBattleEnd: (bool battleResult, int roundCount) async {
+      if (battleResult) {
+        // 胜利：返还赌注 + 获得等额奖金
+        final reward = wager * 2;
+        engine.hetu.invoke('collect',
+            namespace: 'Player', positionalArgs: [currencyId, reward]);
+        dialog.pushDialog(
+          'arena_win_$challengeType',
+          npc: opponent,
+        );
+        await dialog.execute();
+        engine.play(GameSound.coins);
+        dialog.pushDialog(
+          'arenaWin',
+          interpolations: [wager, currencyName],
+        );
+        await dialog.execute();
+      } else {
+        dialog.pushDialog(
+          'arena_lose_$challengeType',
+          npc: opponent,
+        );
+        await dialog.execute();
+        dialog.pushDialog(
+          'arenaLose',
+          interpolations: [wager, currencyName],
+        );
+        await dialog.execute();
+      }
+    },
+  );
+}
+
 /// 和门派总堂的聚灵阵交互
 /// 如果并非此组织成员，无法使用
 void _onInteractDaoStele(

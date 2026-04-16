@@ -444,7 +444,10 @@ function getCharacterMovableTerrainKinds(character) {
 /// 升级天赋时，并不会立刻影响角色数据，
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
 function characterSetPassive(character, dataId, {level = 1}) {
-  assert(level != 0, 'Character set passive error: level is zero')
+  if (level == 0) {
+    engine.warning('Character set passive error: level is zero, dataId: ${dataId}')
+    level = 1
+  }
   if (character.passives[dataId] == null) {
     if (level < 0) {
       engine.warning('Could not found passive dataId [${dataId}] on character for decrease!')
@@ -635,7 +638,7 @@ function characterEquip(entity, item, { index }) {
   if (equipped) {
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
-        characterSetPassive(entity, passiveData.id, level: passiveData.level)
+        characterSetPassive(entity, passiveData.id, level: passiveData.level ?? 1)
       }
       // 重新计算角色状态值
       characterCalculateStats(entity, rejuvenate: false)

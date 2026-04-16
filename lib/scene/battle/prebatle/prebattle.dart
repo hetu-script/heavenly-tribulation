@@ -9,20 +9,20 @@ import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';
 import 'package:samsara/game_dialog/avatar.dart';
 
-import '../ui/bordered_icon_button.dart';
-import '../../global.dart';
-import '../../ui.dart';
-import '../../data/game.dart';
+import '../../../widgets/ui/bordered_icon_button.dart';
+import '../../../global.dart';
+import '../../../ui.dart';
+import '../../../data/game.dart';
 import 'battlecard.dart';
-import '../character/inventory/equipment_bar.dart';
-import '../../scene/common.dart';
-import '../../logic/logic.dart';
-import '../../state/states.dart';
-import '../character/stats.dart';
-import '../ui/close_button2.dart';
-import '../ui/responsive_view.dart';
-import '../../extensions.dart';
-import '../../game_events.dart';
+import '../../../widgets/character/inventory/equipment_bar.dart';
+import '../../common.dart';
+import '../../../logic/logic.dart';
+import '../../../state/states.dart';
+import '../../../widgets/character/stats.dart';
+import '../../../widgets/ui/close_button2.dart';
+import '../../../widgets/ui/responsive_view.dart';
+import '../../../extensions.dart';
+import '../../../game_events.dart';
 
 class PreBattleDialog extends StatefulWidget {
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色

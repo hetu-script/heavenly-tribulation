@@ -1003,12 +1003,12 @@ function updateBond(subject, target, {
   if (relationship != null) {
     if (relationship.operation == 'add') {
       if (!bond.relationships.contains(relationship.kind)) {
-        engine.warning('${subject.name} 现在是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+        engine.info('${subject.name} 现在是 ${target.name} 的 ${engine.locale(relationship.kind)}')
         bond.relationships.add(relationship.kind)
       }
     } else if (relationship.operation == 'remove') {
       bond.relationships.remove(relationship.kind)
-      engine.warning('${subject.name} 不再是 ${target.name} 的 ${engine.locale(relationship.kind)}')
+      engine.info('${subject.name} 不再是 ${target.name} 的 ${engine.locale(relationship.kind)}')
       return
     }
   }

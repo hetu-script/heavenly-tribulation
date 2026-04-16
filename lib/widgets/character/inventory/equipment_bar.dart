@@ -21,8 +21,6 @@ class EquipmentBar extends StatelessWidget {
     this.selectedItemId = const [],
     this.onItemTapped,
     this.onItemSecondaryTapped,
-    this.onItemMouseEnter,
-    this.onItemMouseExit,
   });
 
   final EquipmentBarStyle style;
@@ -33,8 +31,6 @@ class EquipmentBar extends StatelessWidget {
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onItemSecondaryTapped;
-  final void Function(dynamic itemData, Rect rect)? onItemMouseEnter;
-  final void Function()? onItemMouseExit;
 
   @override
   Widget build(BuildContext context) {
@@ -51,25 +47,17 @@ class EquipmentBar extends StatelessWidget {
           onTapped: onItemTapped,
           onSecondaryTapped: onItemSecondaryTapped,
           onMouseEnter: (itemData, rect) {
-            if (onItemMouseEnter != null) {
-              onItemMouseEnter!(itemData, rect);
-            } else {
-              hoverState.show(
-                rect: rect,
-                contentBuilder: (isDetailed) => buildItemHoverInfo(
-                  itemData,
-                  inventoryType: inventoryType,
-                  isDetailed: isDetailed,
-                ),
-              );
-            }
+            hoverState.show(
+              rect: rect,
+              contentBuilder: (isDetailed) => buildItemHoverInfo(
+                itemData,
+                inventoryType: inventoryType,
+                isDetailed: isDetailed,
+              ),
+            );
           },
           onMouseExit: () {
-            if (onItemMouseExit != null) {
-              onItemMouseExit!();
-            } else {
-              context.read<HoverContentState>().hide();
-            }
+            context.read<HoverContentState>().hide();
           },
         ),
       ),

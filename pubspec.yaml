@@ -145,6 +145,7 @@ flutter:
     - assets/images/particles/
     - assets/images/particles/clouds/
     - assets/images/particles/rubbles/
+    - assets/images/sprite/
     - assets/images/story/
     - assets/images/story/cg/
     - assets/images/story/cg/prelude/

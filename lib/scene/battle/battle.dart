@@ -118,6 +118,7 @@ class BattleScene extends Scene {
 
   final bool isSneakAttack;
   final bool isAutoBattle;
+  final bool isPractice;
 
   int roundCount = 0;
 
@@ -145,14 +146,17 @@ class BattleScene extends Scene {
 
   final _sw = Stopwatch();
 
+  late final int _heroLifePrebattle;
+
   BattleScene({
     required this.heroData,
     required this.enemyData,
     required this.isSneakAttack,
     this.isAutoBattle = true,
+    this.isPractice = false,
     this.onBattleStart,
     this.onBattleEnd,
-    this.endBattleAfterRounds = 0,
+    this.endBattleAfterRounds = 50,
     required this.backgroundImageId,
   }) : super(
           // context: engine.context,
@@ -435,8 +439,6 @@ class BattleScene extends Scene {
     );
     camera.viewport.add(versusBanner);
 
-    _rollFirsthand();
-
     restartButton = SpriteButton(
       spriteId: 'ui/button2.png',
       text: engine.locale('restart'),
@@ -464,6 +466,9 @@ class BattleScene extends Scene {
       await _onBattleStart();
     };
 
+    _heroLifePrebattle = heroData['life'].toInt();
+
+    _rollFirsthand();
     showStartPrompt();
   }
 
@@ -471,7 +476,7 @@ class BattleScene extends Scene {
     await versusBanner.fadeIn(duration: 1.2);
 
     nextTurnButton = SpriteButton(
-      spriteId: 'ui/button.png',
+      spriteId: 'ui/button1.png',
       text: engine.locale('start'),
       anchor: Anchor.center,
       position: Vector2(
@@ -694,8 +699,10 @@ class BattleScene extends Scene {
   }
 
   void _endScene() async {
-    engine.hetu
-        .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
+    if (!isPractice) {
+      engine.hetu
+          .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
+    }
     engine.context.read<EnemyState>().clear();
     engine.hetu.assign('enemy', null);
     engine.hetu.assign('self', null);
@@ -730,9 +737,11 @@ class BattleScene extends Scene {
       camera.viewport.add(victoryPrompt);
       enemy.setState(kDefeatState);
 
-      // 如果开启了煞气天赋，战胜对手后增加 5 点煞气
-      if (heroData['passives']['enable_karma'] != null) {
-        heroData['karma'] += 5;
+      if (!isPractice) {
+        // 如果开启了煞气天赋，战胜对手后增加 5 点煞气
+        if (heroData['passives']['enable_karma'] != null) {
+          heroData['karma'] += 5;
+        }
       }
     } else {
       battleResult = false;
@@ -747,22 +756,24 @@ class BattleScene extends Scene {
 
     battleEnded = true;
 
-    clearPotionPassives(hero);
-    clearPotionPassives(enemy);
+    if (!isPractice) {
+      clearPotionPassives(hero);
+      clearPotionPassives(enemy);
 
-    bool hasScroll = false;
-    for (final card in heroDeck) {
-      if (card.data['isEphemeral'] == true) {
-        hasScroll = true;
-        engine.hetu.invoke('dismantleCard',
-            namespace: 'Player',
-            positionalArgs: [card.data],
-            namedArgs: {'gainFragments': false});
+      bool hasScroll = false;
+      for (final card in heroDeck) {
+        if (card.data['isEphemeral'] == true) {
+          hasScroll = true;
+          engine.hetu.invoke('dismantleCard',
+              namespace: 'Player',
+              positionalArgs: [card.data],
+              namedArgs: {'gainFragments': false});
+        }
       }
-    }
-    if (hasScroll) {
-      /// 清除卡牌图书馆场景的缓存，因为需要重新生成卡组的内容组件
-      engine.clearCachedScene(Scenes.library);
+      if (hasScroll) {
+        /// 清除卡牌图书馆场景的缓存，因为需要重新生成卡组的内容组件
+        engine.clearCachedScene(Scenes.library);
+      }
     }
 
     if (!nextTurnButton.isMounted) {
@@ -773,16 +784,18 @@ class BattleScene extends Scene {
 
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(roundCount);
     final int life = hero.life;
-    if (battleResult == true) {
-      final replenish = (hero.lifeMax * hpRestoreRate).round();
-      engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
-      final int newLife = life + replenish;
-      hero.setLife(newLife);
-    } else {
-      if (life <= 0) {
-        hero.setLife(1);
-      } else if (life > hero.lifeMax) {
-        hero.setLife(hero.lifeMax);
+    if (!isPractice) {
+      if (battleResult == true) {
+        final replenish = (hero.lifeMax * hpRestoreRate).round();
+        engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
+        final int newLife = life + replenish;
+        hero.setLife(newLife);
+      } else {
+        if (life <= 0) {
+          hero.setLife(1);
+        } else if (life > hero.lifeMax) {
+          hero.setLife(hero.lifeMax);
+        }
       }
     }
   }

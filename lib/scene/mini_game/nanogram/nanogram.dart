@@ -1341,7 +1341,7 @@ class NanogramGame extends Scene with HasCursorState {
     camera.viewport.add(restart);
 
     exit = SpriteButton(
-      spriteId: 'ui/button.png',
+      spriteId: 'ui/button1.png',
       size: GameUI.buttonSizeMedium,
       anchor: Anchor.center,
       position: GameUI.exitButtonPosition,

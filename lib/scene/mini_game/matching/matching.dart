@@ -163,7 +163,7 @@ class MatchingGame extends Scene with HasCursorState {
     super.onLoad();
 
     final exit = SpriteButton(
-      spriteId: 'ui/button.png',
+      spriteId: 'ui/button1.png',
       size: GameUI.buttonSizeMedium,
       anchor: Anchor.center,
       position: GameUI.exitButtonPosition,

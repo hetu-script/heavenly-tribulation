@@ -171,6 +171,10 @@ class Constants extends HTExternalClass {
         return kFragmentGainFromDismantle;
       case 'Constants.scrollCardUseLimit':
         return kScrollCardUseLimit;
+      case 'Constants.arenaWagerBase':
+        return kArenaWagerBase;
+      case 'Constants.arenaWagerMultipliers':
+        return kArenaWagerMultipliers;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);

@@ -14,7 +14,7 @@ import '../global.dart';
 import 'character/journal.dart';
 import '../ui.dart';
 import 'character/stats_and_item.dart';
-import 'prebatle/prebattle.dart';
+import '../scene/battle/prebatle/prebattle.dart';
 import '../state/states.dart';
 import '../scene/common.dart';
 import 'character/item_select_dialog.dart';

@@ -88,4 +88,7 @@ external abstract class Constants {
 
   static get fragmentGainFromDismantle;
   static get scrollCardUseLimit;
+
+  static get arenaWagerBase;
+  static get arenaWagerMultipliers;
 }
