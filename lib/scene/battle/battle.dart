@@ -146,8 +146,6 @@ class BattleScene extends Scene {
 
   final _sw = Stopwatch();
 
-  late final int _heroLifePrebattle;
-
   BattleScene({
     required this.heroData,
     required this.enemyData,
@@ -465,8 +463,6 @@ class BattleScene extends Scene {
       };
       await _onBattleStart();
     };
-
-    _heroLifePrebattle = heroData['life'].toInt();
 
     _rollFirsthand();
     showStartPrompt();

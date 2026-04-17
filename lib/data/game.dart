@@ -910,9 +910,8 @@ final class GameData with ChangeNotifier {
       focusOnPreviewing: true,
       focusedPriority: kSiteCardPriority,
       focusedSize: GameUI.siteCardFocusedSize,
-      focusedOffset: Vector2(
-          -(GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
-          GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
+      focusedOffset:
+          Vector2(0, GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: spriteId,

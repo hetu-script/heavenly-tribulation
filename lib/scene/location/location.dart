@@ -21,9 +21,8 @@ import 'character_visit.dart';
 import '../../extensions.dart';
 
 class LocationScene extends Scene with HasCursorState {
-  LocationScene({
-    required this.location,
-  }) : super(
+  LocationScene({required this.location})
+      : super(
           id: location['id'],
           // bgmFile: 'vietnam-bamboo-flute-143601.mp3',
           // bgmVolume: GameConfig.musicVolume,
@@ -111,6 +110,18 @@ class LocationScene extends Scene with HasCursorState {
           siteList.cards.add(depositCard);
           world.add(depositCard);
         }
+      case 'cityhall':
+        final restCard = GameData.createSiteCard(
+          spriteId: 'location/card/bed.png',
+          title: engine.locale('guestRoom'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
+        restCard.onTap = (button, position) {
+          GameLogic.heroRest(location);
+        };
+        siteList.cards.add(restCard);
+        world.add(restCard);
       case 'daostele':
         final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/daostele.png',
@@ -147,18 +158,6 @@ class LocationScene extends Scene with HasCursorState {
         };
         siteList.cards.add(siteCard);
         world.add(siteCard);
-      case 'dungeon':
-        final siteCard = GameData.createSiteCard(
-          spriteId: 'location/card/dungeon.png',
-          title: engine.locale('dungeon'),
-          onPreviewed: _onPreviewSiteCard,
-          onUnpreviewed: _onUnpreviewSiteCard,
-        );
-        siteCard.onTap = (button, position) {
-          GameLogic.onInteractDungeonEntrance(sect: sect, location: location);
-        };
-        siteList.cards.add(siteCard);
-        world.add(siteCard);
       case 'hotel':
         final restCard = GameData.createSiteCard(
           spriteId: 'location/card/bed.png',
@@ -178,14 +177,23 @@ class LocationScene extends Scene with HasCursorState {
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        alchemyCard.onTap = (button, position) {
-          engine.context.read<ViewPanelState>().toogle(
-            ViewPanels.alchemy,
-            arguments: {'location': location},
-          );
+        alchemyCard.onTap = (button, position) async {
+          GameLogic.onInteractAlchemyFurnace(location: location);
         };
         siteList.cards.add(alchemyCard);
         world.add(alchemyCard);
+      case 'runelab':
+        final runeCard = GameData.createSiteCard(
+          spriteId: 'location/card/runelab.png',
+          title: engine.locale('rune_forge'),
+          onPreviewed: _onPreviewSiteCard,
+          onUnpreviewed: _onUnpreviewSiteCard,
+        );
+        runeCard.onTap = (button, position) async {
+          GameLogic.onInteractRunlabWorkbench(location: location);
+        };
+        siteList.cards.add(runeCard);
+        world.add(runeCard);
       case 'arena':
         final challengeCard = GameData.createSiteCard(
           spriteId: 'location/card/arena.png',
@@ -198,18 +206,18 @@ class LocationScene extends Scene with HasCursorState {
         };
         siteList.cards.add(challengeCard);
         world.add(challengeCard);
-      case 'cityhall':
-        final restCard = GameData.createSiteCard(
-          spriteId: 'location/card/bed.png',
-          title: engine.locale('guestRoom'),
+      case 'dungeon':
+        final siteCard = GameData.createSiteCard(
+          spriteId: 'location/card/dungeon.png',
+          title: engine.locale('dungeon'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        restCard.onTap = (button, position) {
-          GameLogic.heroRest(location);
+        siteCard.onTap = (button, position) {
+          GameLogic.onInteractDungeonEntrance(sect: sect, location: location);
         };
-        siteList.cards.add(restCard);
-        world.add(restCard);
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
       default:
         for (final siteId in location['siteIds']) {
           final siteData = GameData.getLocation(siteId);
@@ -277,8 +285,6 @@ class LocationScene extends Scene with HasCursorState {
     );
     world.add(siteList);
 
-    _loadSites();
-
     final exit = GameData.createSiteCard(
       id: 'exit',
       spriteId: 'location/card/exit.png',
@@ -313,10 +319,11 @@ class LocationScene extends Scene with HasCursorState {
     };
     world.add(exit);
 
-    engine.hetu.interpreter.bindExternalFunction('World::updateLocationSites', (
-        {positionalArgs, namedArgs}) {
-      _loadSites();
-    }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('World::updateLocationSites',
+        ({positionalArgs, namedArgs}) => _loadSites(),
+        override: true);
+
+    _loadSites();
   }
 
   @override

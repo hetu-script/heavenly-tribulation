@@ -579,6 +579,11 @@ final class GameLogic {
     };
   }
 
+  static Future<bool> checkRented(dynamic location,
+          {bool perAvailableDaysTillMonthEnd = true}) =>
+      _checkRented(location,
+          perAvailableDaysTillMonthEnd: perAvailableDaysTillMonthEnd);
+
   /// 检查英雄是否满足某个对象的需求
   /// 需求包括：境界，流派，属性等等
   /// 如果满足需求，返回 null
@@ -1598,6 +1603,12 @@ final class GameLogic {
         sect: sect,
         location: location,
       );
+
+  static void onInteractAlchemyFurnace({dynamic location}) =>
+      _onInteractAlchemyFurnace(location: location);
+
+  static void onInteractRunlabWorkbench({dynamic location}) =>
+      _onInteractRunlabWorkbench(location: location);
 
   static Future<void> showMeeting(
           dynamic sect, dynamic location, dynamic superior) =>

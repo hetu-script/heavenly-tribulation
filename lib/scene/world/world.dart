@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flame/effects.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -1519,33 +1518,33 @@ class WorldMapScene extends Scene with HasCursorState {
     if (isNewGame && GameData.hero == null) {
       final Iterable characters = GameData.game['characters'].values;
       List availableCharacters;
-      if (kDebugMode) {
-        availableCharacters = GameData.game['characters'].values.toList();
-      } else {
-        availableCharacters = characters.where((character) {
-          final age = engine.hetu
-              .invoke('getCharacterAge', positionalArgs: [character]);
-          if (age > kMaxHeroAge) {
-            return false;
-          }
-          final int rank = character['rank'];
-          if (rank > 0) {
-            return false;
-          }
-          final sectId = character['sectId'];
-          if (sectId != null) {
-            return false;
-          }
-          final homeLocationId = character['homeLocationId'];
-          assert(homeLocationId != null,
-              'Character ${character['id']} has no homeLocationId!');
-          final homeLocation = GameData.getLocation(homeLocationId);
-          if (homeLocation['isHidden']) {
-            return false;
-          }
-          return true;
-        }).toList();
-      }
+      // if (kDebugMode) {
+      //   availableCharacters = GameData.game['characters'].values.toList();
+      // } else {
+      availableCharacters = characters.where((character) {
+        final age =
+            engine.hetu.invoke('getCharacterAge', positionalArgs: [character]);
+        if (age > kMaxHeroAge) {
+          return false;
+        }
+        final int rank = character['rank'];
+        if (rank > 0) {
+          return false;
+        }
+        final sectId = character['sectId'];
+        if (sectId != null) {
+          return false;
+        }
+        final homeLocationId = character['homeLocationId'];
+        assert(homeLocationId != null,
+            'Character ${character['id']} has no homeLocationId!');
+        final homeLocation = GameData.getLocation(homeLocationId);
+        if (homeLocation['isHidden']) {
+          return false;
+        }
+        return true;
+      }).toList();
+      // }
       if (availableCharacters.length < _kInitialCharacterSelectionCount) {
         for (var i = availableCharacters.length;
             i < _kInitialCharacterSelectionCount;

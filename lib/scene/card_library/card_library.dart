@@ -222,10 +222,8 @@ class CardLibraryScene extends Scene {
     engine.context.read<HoverContentState>().hide();
     engine.context.read<ViewPanelState>().clearAll();
 
-    enableCardCraft = arguments?['enableCardCraft'] ??
-        (GameData.hero['passives']['enable_cardcraft'] ?? false);
-    enableScrollCraft = arguments?['enableScrollCraft'] ??
-        (GameData.hero['passives']['enable_scrollcraft'] ?? false);
+    enableCardCraft = arguments?['enableCardCraft'] ?? false;
+    enableScrollCraft = arguments?['enableScrollCraft'] ?? false;
 
     onEnterScene = arguments?['onEnterScene'];
 

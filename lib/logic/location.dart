@@ -180,10 +180,7 @@ Future<bool> _checkRented(dynamic location,
     return true;
   }
 
-  dialog.pushDialog(
-    'hint_sectFacilityNotMember',
-    npcId: location['npcId'],
-  );
+  dialog.pushDialog('hint_sectFacilityNotMember', npcId: location['npcId']);
   await dialog.execute();
 
   final siteKind = location['kind'];
@@ -528,7 +525,7 @@ void _onInteractExpArray(
 
 /// 和门派藏书阁的功法图录交互
 /// 如果并非此组织成员，无法使用
-void _onInteractCardLibraryDesk({
+Future<void> _onInteractCardLibraryDesk({
   dynamic sect,
   dynamic location,
 }) async {
@@ -536,9 +533,28 @@ void _onInteractCardLibraryDesk({
   if (!isRented) return;
 
   engine.pushScene(Scenes.library, arguments: {
-    'locationId': location['id'],
+    'location': location,
     'enableCardCraft': true,
     'enableScrollCraft': false,
+  });
+}
+
+Future<void> _onInteractAlchemyFurnace({dynamic location}) async {
+  final isRented = await GameLogic.checkRented(location);
+  if (!isRented) return;
+
+  engine.context.read<ViewPanelState>().toogle(
+    ViewPanels.alchemy,
+    arguments: {'location': location},
+  );
+}
+
+Future<void> _onInteractRunlabWorkbench({dynamic location}) async {
+  final isRented = await GameLogic.checkRented(location);
+  if (!isRented) return;
+
+  engine.pushScene(Scenes.library, arguments: {
+    'enableScrollCraft': true,
   });
 }
 

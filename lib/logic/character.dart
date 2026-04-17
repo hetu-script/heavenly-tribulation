@@ -649,7 +649,7 @@ Future<void> _heroProduce(dynamic location) async {
           kSiteWorkableStaminaCost.containsKey(siteKind),
       '非可生产场所：${location['name']} ($siteKind)');
 
-  final isRented = await _checkRented(location);
+  final isRented = await GameLogic.checkRented(location);
   if (!isRented) return;
 
   if (GameData.hero['life'] <= 1) {
