@@ -49,10 +49,6 @@ class PreBattleDialog extends StatefulWidget {
 }
 
 class _PreBattleDialogState extends State<PreBattleDialog> {
-  final GlobalKey
-      // _identifyStatsButtonKey = GlobalKey(),
-      _identifyDeckButtonKey = GlobalKey();
-
   final menuController = fluent.FlyoutController();
 
   List<dynamic> _heroDecks = [];
@@ -160,8 +156,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // final buttonKey = GlobalKey();
-
     return ResponsiveView(
       width: 1080.0,
       height: 640.0,
@@ -445,7 +439,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         Padding(
                           padding: EdgeInsets.only(right: 5.0),
                           child: fluent.Button(
-                            key: _identifyDeckButtonKey,
                             onPressed: () {
                               if (_availableIdentifyCount > 0) {
                                 bool identified = false;

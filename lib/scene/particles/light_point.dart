@@ -62,6 +62,10 @@ class LightPoint extends BorderComponent {
 
     this.flickerRate = flickerRate;
 
+    if (color != null) {
+      paint.colorFilter = ui.ColorFilter.mode(color!, ui.BlendMode.modulate);
+    }
+
     if (condensedPosition != null) {
       final dx = (position.x - condensedPosition.x).abs();
       final dy = (position.y - condensedPosition.y).abs();
@@ -74,9 +78,6 @@ class LightPoint extends BorderComponent {
     sprite = await Sprite.load(assetId);
     if (preferredSize.isZero()) {
       size = preferredSize = sprite.srcSize;
-    }
-    if (color != null) {
-      paint.colorFilter = ui.ColorFilter.mode(color!, ui.BlendMode.modulate);
     }
   }
 

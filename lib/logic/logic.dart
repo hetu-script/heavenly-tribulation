@@ -1607,8 +1607,8 @@ final class GameLogic {
   static void onInteractAlchemyFurnace({dynamic location}) =>
       _onInteractAlchemyFurnace(location: location);
 
-  static void onInteractRunlabWorkbench({dynamic location}) =>
-      _onInteractRunlabWorkbench(location: location);
+  static void onInteractRunelabWorkbench({dynamic location}) =>
+      _onInteractRunelabWorkbench(location: location);
 
   static Future<void> showMeeting(
           dynamic sect, dynamic location, dynamic superior) =>

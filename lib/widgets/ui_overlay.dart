@@ -266,6 +266,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             mode: arguments?['isAdmin'] == true
                 ? InformationViewMode.manage
                 : InformationViewMode.view,
+            isViewPanel: true,
           ));
         case ViewPanels.cityInformation:
           panels.add(CityView(
@@ -273,6 +274,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             mode: arguments?['isAdmin'] == true
                 ? InformationViewMode.manage
                 : InformationViewMode.view,
+            isViewPanel: true,
           ));
         case ViewPanels.siteInformation:
           panels.add(SiteView(
@@ -280,6 +282,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             mode: arguments?['isAdmin'] == true
                 ? InformationViewMode.manage
                 : InformationViewMode.view,
+            isViewPanel: true,
           ));
         case ViewPanels.workbench:
           panels.add(WorkshopDialog(locationData: arguments?['location']));

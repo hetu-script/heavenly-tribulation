@@ -15,16 +15,18 @@ import '../ui/responsive_view.dart';
 import '../../state/view_panels.dart';
 
 class SectView extends StatefulWidget {
-  final String? sectId;
-  final HTStruct? sect;
-  final InformationViewMode mode;
-
   const SectView({
     super.key,
     this.sectId,
     this.sect,
     this.mode = InformationViewMode.view,
+    this.isViewPanel = false,
   });
+
+  final String? sectId;
+  final HTStruct? sect;
+  final InformationViewMode mode;
+  final bool isViewPanel;
 
   @override
   State<SectView> createState() => _SectViewState();
@@ -86,11 +88,10 @@ class _SectViewState extends State<SectView> {
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit ||
-        widget.mode == InformationViewMode.select) {
-      Navigator.of(context).pop();
-    } else {
+    if (widget.isViewPanel) {
       engine.context.read<ViewPanelState>().hide(ViewPanels.sectInformation);
+    } else {
+      Navigator.of(context).pop();
     }
   }
 

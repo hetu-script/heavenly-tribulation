@@ -33,11 +33,13 @@ class CityView extends StatefulWidget {
     this.cityId,
     this.city,
     this.mode = InformationViewMode.view,
+    this.isViewPanel = false,
   });
 
   final String? cityId;
   final dynamic city;
   final InformationViewMode mode;
+  final bool isViewPanel;
 
   @override
   State<CityView> createState() => _CityViewState();
@@ -259,11 +261,10 @@ class _CityViewState extends State<CityView>
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit ||
-        widget.mode == InformationViewMode.select) {
-      Navigator.of(context).pop();
-    } else {
+    if (widget.isViewPanel) {
       engine.context.read<ViewPanelState>().hide(ViewPanels.cityInformation);
+    } else {
+      Navigator.of(context).pop();
     }
   }
 

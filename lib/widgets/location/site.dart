@@ -29,11 +29,13 @@ class SiteView extends StatefulWidget {
     this.siteId,
     this.site,
     this.mode = InformationViewMode.view,
+    this.isViewPanel = false,
   });
 
   final String? siteId;
   final dynamic site;
   final InformationViewMode mode;
+  final bool isViewPanel;
 
   @override
   State<SiteView> createState() => _SiteViewState();
@@ -117,11 +119,10 @@ class _SiteViewState extends State<SiteView>
   void _saveData() {}
 
   void close() {
-    if (widget.mode == InformationViewMode.edit ||
-        widget.mode == InformationViewMode.select) {
-      Navigator.of(context).pop();
-    } else {
+    if (widget.isViewPanel) {
       engine.context.read<ViewPanelState>().hide(ViewPanels.siteInformation);
+    } else {
+      Navigator.of(context).pop();
     }
   }
 

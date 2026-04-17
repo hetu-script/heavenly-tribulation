@@ -4,7 +4,8 @@ import 'package:samsara/paint/paint.dart';
 import '../../ui.dart';
 
 class BorderedIconButton extends StatelessWidget {
-  BorderedIconButton({
+  const BorderedIconButton({
+    super.key,
     this.cursor,
     this.size = const Size(24.0, 24.0),
     this.child,
@@ -16,7 +17,7 @@ class BorderedIconButton extends StatelessWidget {
     this.onExit,
     this.isSelected = false,
     this.isEnabled = true,
-  }) : super(key: GlobalKey());
+  });
 
   final MouseCursor? cursor;
   final Size size;

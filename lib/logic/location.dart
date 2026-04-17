@@ -549,7 +549,7 @@ Future<void> _onInteractAlchemyFurnace({dynamic location}) async {
   );
 }
 
-Future<void> _onInteractRunlabWorkbench({dynamic location}) async {
+Future<void> _onInteractRunelabWorkbench({dynamic location}) async {
   final isRented = await GameLogic.checkRented(location);
   if (!isRented) return;
 

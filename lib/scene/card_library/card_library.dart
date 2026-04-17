@@ -786,11 +786,8 @@ class CardLibraryScene extends Scene {
         card.onTapUp = (int button, Vector2 position) {
           if (card.isFlipped) {
             unpreviewCard();
-            engine.play(GameSound.craft);
+            engine.play(GameSound.flip);
             card.isFlipped = false;
-            final (description, _) =
-                GameData.getBattleCardDescription(card.data);
-            card.description = description;
             previewCard(
               'cardpack_card_${card.id}',
               card.data,
@@ -798,9 +795,9 @@ class CardLibraryScene extends Scene {
               character: GameData.hero,
             );
           }
-          final unidentifiedCards =
+          final unflippedCards =
               cardpackCards.where((card) => card.isFlipped == true);
-          if (unidentifiedCards.isEmpty) {
+          if (unflippedCards.isEmpty) {
             collectButton.text = engine.locale('deckbuilding_collect_all');
           }
         };
@@ -826,10 +823,9 @@ class CardLibraryScene extends Scene {
         final index = i;
         card
             .moveTo(
-          duration: 0.35,
-          toPosition: GameUI.cardpackCardPositions[0],
-          toSize: GameUI.cardpackCardSize,
-        )
+                duration: 0.35,
+                toPosition: GameUI.cardpackCardPositions[0],
+                toSize: GameUI.cardpackCardSize)
             .then((_) {
           if (index == 0) {
             engine.play(GameSound.dealDeck);
@@ -1287,16 +1283,12 @@ class CardLibraryScene extends Scene {
     );
     collectButton.onTapUp = (button, position) {
       if (button == kSecondaryButton) return;
-      final unidentifiedCards = cardpackCards.where((card) {
-        return card.data['isIdentified'] != true;
-      });
+      final unflippedCards = cardpackCards.where((card) => card.isFlipped);
 
-      if (unidentifiedCards.isNotEmpty) {
-        engine.play(GameSound.craft);
-        for (final card in unidentifiedCards) {
-          card.data['isIdentified'] = true;
-          final (description, _) = GameData.getBattleCardDescription(card.data);
-          card.description = description;
+      if (unflippedCards.isNotEmpty) {
+        engine.play(GameSound.flip);
+        for (final card in unflippedCards) {
+          card.isFlipped = false;
         }
         collectButton.text = engine.locale('deckbuilding_collect_all');
       } else {

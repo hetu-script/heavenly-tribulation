@@ -99,12 +99,13 @@ class _HistoryListState extends State<HistoryList> {
 }
 
 class HeroAndGlobalHistoryList extends StatefulWidget {
-  HeroAndGlobalHistoryList({
+  const HeroAndGlobalHistoryList({
+    super.key,
     this.onTapUp,
     this.onMouseEnter,
     this.onMouseExit,
     this.limit = 5,
-  }) : super(key: GlobalKey());
+  });
 
   final void Function()? onTapUp;
   final void Function(Rect rect)? onMouseEnter;

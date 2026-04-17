@@ -95,9 +95,9 @@ class LocationScene extends Scene with HasCursorState {
           restCard.onTap = (button, position) {
             GameLogic.heroRest(location);
           };
-          siteList.cards.add(restCard);
-          world.add(restCard);
+          siteList.tryAddCard(restCard, animated: false);
 
+          world.add(restCard);
           final depositCard = GameData.createSiteCard(
             spriteId: 'location/card/depositBox.png',
             title: engine.locale('depositBox'),
@@ -107,21 +107,21 @@ class LocationScene extends Scene with HasCursorState {
           depositCard.onTap = (button, position) {
             GameLogic.openDepositBox(location);
           };
-          siteList.cards.add(depositCard);
+          siteList.tryAddCard(depositCard, animated: false);
           world.add(depositCard);
         }
       case 'cityhall':
-        final restCard = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/bed.png',
           title: engine.locale('guestRoom'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        restCard.onTap = (button, position) {
+        siteCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };
-        siteList.cards.add(restCard);
-        world.add(restCard);
+        siteList.tryAddCard(siteCard, animated: false);
+        world.add(siteCard);
       case 'daostele':
         final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/daostele.png',
@@ -132,7 +132,7 @@ class LocationScene extends Scene with HasCursorState {
         siteCard.onTap = (button, position) {
           GameLogic.onInteractDaoStele(sect, location: location);
         };
-        siteList.cards.add(siteCard);
+        siteList.tryAddCard(siteCard, animated: false);
         world.add(siteCard);
       case 'exparray':
         final siteCard = GameData.createSiteCard(
@@ -144,7 +144,7 @@ class LocationScene extends Scene with HasCursorState {
         siteCard.onTap = (button, position) {
           GameLogic.onInteractExpArray(sect, location: location);
         };
-        siteList.cards.add(siteCard);
+        siteList.tryAddCard(siteCard, animated: false);
         world.add(siteCard);
       case 'library':
         final siteCard = GameData.createSiteCard(
@@ -156,56 +156,56 @@ class LocationScene extends Scene with HasCursorState {
         siteCard.onTap = (button, position) {
           GameLogic.onInteractCardLibraryDesk(sect: sect, location: location);
         };
-        siteList.cards.add(siteCard);
+        siteList.tryAddCard(siteCard, animated: false);
         world.add(siteCard);
       case 'hotel':
-        final restCard = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/bed.png',
           title: engine.locale('guestRoom'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        restCard.onTap = (button, position) {
+        siteCard.onTap = (button, position) {
           GameLogic.heroRest(location);
         };
-        siteList.cards.add(restCard);
-        world.add(restCard);
+        siteList.tryAddCard(siteCard, animated: false);
+        world.add(siteCard);
       case 'alchemylab':
-        final alchemyCard = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/alchemylab.png',
           title: engine.locale('alchemy_furnace'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        alchemyCard.onTap = (button, position) async {
+        siteCard.onTap = (button, position) async {
           GameLogic.onInteractAlchemyFurnace(location: location);
         };
-        siteList.cards.add(alchemyCard);
-        world.add(alchemyCard);
+        siteList.tryAddCard(siteCard, animated: false);
+        world.add(siteCard);
       case 'runelab':
-        final runeCard = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/runelab.png',
-          title: engine.locale('rune_forge'),
+          title: engine.locale('runelab_workbench'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        runeCard.onTap = (button, position) async {
-          GameLogic.onInteractRunlabWorkbench(location: location);
+        siteCard.onTap = (button, position) async {
+          GameLogic.onInteractRunelabWorkbench(location: location);
         };
-        siteList.cards.add(runeCard);
-        world.add(runeCard);
+        siteList.tryAddCard(siteCard, animated: false);
+        world.add(siteCard);
       case 'arena':
-        final challengeCard = GameData.createSiteCard(
+        final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/arena.png',
           title: engine.locale('arenaChallenge'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );
-        challengeCard.onTap = (button, position) {
+        siteCard.onTap = (button, position) {
           GameLogic.onInteractArena(location: location);
         };
-        siteList.cards.add(challengeCard);
-        world.add(challengeCard);
+        siteList.tryAddCard(siteCard, animated: false);
+        world.add(siteCard);
       case 'dungeon':
         final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/dungeon.png',
@@ -216,7 +216,7 @@ class LocationScene extends Scene with HasCursorState {
         siteCard.onTap = (button, position) {
           GameLogic.onInteractDungeonEntrance(sect: sect, location: location);
         };
-        siteList.cards.add(siteCard);
+        siteList.tryAddCard(siteCard, animated: false);
         world.add(siteCard);
       default:
         for (final siteId in location['siteIds']) {
@@ -237,26 +237,26 @@ class LocationScene extends Scene with HasCursorState {
               ]);
             }
           };
-          siteList.cards.add(siteCard);
+          siteList.tryAddCard(siteCard, animated: false);
           world.add(siteCard);
         }
     }
 
     if (location['category'] == 'city') {
-      final siteCardResidence = GameData.createSiteCard(
+      final siteCard = GameData.createSiteCard(
         spriteId: 'location/card/residence.png',
         title: engine.locale('residence'),
         onPreviewed: _onPreviewSiteCard,
         onUnpreviewed: _onUnpreviewSiteCard,
       );
-      siteCardResidence.onTap = (button, position) {
+      siteCard.onTap = (button, position) {
         openResidenceList();
       };
-      siteList.cards.add(siteCardResidence);
-      world.add(siteCardResidence);
+      siteList.tryAddCard(siteCard, animated: false);
+      world.add(siteCard);
     }
 
-    siteList.sortCards(animated: false, reversed: true);
+    // siteList.sortCards(animated: false, reversed: true);
   }
 
   @override
@@ -282,6 +282,8 @@ class LocationScene extends Scene with HasCursorState {
       pileStyle: PileStyle.queue,
       piledCardSize: GameUI.siteCardSize,
       pileOffset: Vector2(GameUI.siteCardSize.x / 2, 0),
+      spreadOnFocus: true,
+      spreadMargin: 10.0,
     );
     world.add(siteList);
 

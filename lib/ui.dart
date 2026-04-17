@@ -743,7 +743,7 @@ final class GameUI {
 
     siteCardSize = Vector2(siteCardWidth, siteCardHeight);
 
-    siteCardFocusedSize = siteCardSize * 1.2;
+    siteCardFocusedSize = siteCardSize * 1.1;
 
     siteListPosition = Vector2(indent, newSize.y - indent - siteCardSize.y);
 

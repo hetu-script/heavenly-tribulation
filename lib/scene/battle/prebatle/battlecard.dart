@@ -8,12 +8,13 @@ import '../../../logic/logic.dart';
 import '../../../widgets/common.dart';
 
 class BattleCard extends StatelessWidget {
-  BattleCard({
+  const BattleCard({
+    super.key,
     required this.data,
     this.character,
     this.isHero = false,
     this.cardInfoDirection = HoverContentDirection.rightTop,
-  }) : super(key: GlobalKey());
+  });
 
   final dynamic data;
   final dynamic character;
