@@ -42,6 +42,7 @@
 
   "hint_sect_diplomacy_already_ally": "我们已经是盟友了。",
   "hint_alreadyTrialedThisMonth": "本月你已经尝试过这个门派的招募试炼了，需要等到明年的这个月才可以再次尝试。",
+  "hint_enroll_rankTooLow": "阁下目前的境界为{0}，而想要拜入宗门至少需要达到{1}境界。\n修行之路漫漫，阁下不妨先去历练一番，待修为精进之后再来拜访。",
   "hint_notRecruitMonth": "本门招募月份是每年的 {0} 月，你想要加入我们的话，可以到时再来尝试。",
   "hint_select_sect_home": "请选择一个门派下辖的城市作为你的宅邸所在地。",
 

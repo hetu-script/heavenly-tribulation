@@ -713,6 +713,327 @@ Future<void> _heroWork(dynamic location) async {
   );
 }
 
+/// 玩家尝试加入门派（入门试炼）
+/// [sect] 门派对象，[npc] 负责招募的NPC对象
+Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
+  // 检查玩家境界是否达到最低要求
+  final int heroRank = GameData.hero['rank'];
+  if (heroRank < kSectEnrollMinRank) {
+    final heroRankString =
+        '<rank$heroRank>${engine.locale('cultivationRank_$heroRank')}</>';
+    final requiredRankString =
+        '<rank$kSectEnrollMinRank>${engine.locale('cultivationRank_$kSectEnrollMinRank')}</>';
+    dialog.pushDialog(
+      'hint_enroll_rankTooLow',
+      npc: npc,
+      interpolations: [heroRankString, requiredRankString],
+    );
+    await dialog.execute();
+    return;
+  }
+
+  // 检查门派招募月份
+  final recruitMonth = sect['recruitMonth'];
+  if (recruitMonth != GameLogic.month) {
+    dialog.pushDialog(
+      'hint_notRecruitMonth',
+      interpolations: [recruitMonth],
+      npc: npc,
+    );
+    await dialog.execute();
+    return;
+  }
+  // 玩家本月是否已经进行过此门派的试炼
+  if (GameData.checkMonthly(MonthlyActivityIds.enrolled, sect['id'])) {
+    dialog.pushDialog(
+      'hint_alreadyTrialedThisMonth',
+      npc: npc,
+    );
+    return;
+  }
+  final sectCategory = sect['category'];
+  assert(kSectCategories.contains(sectCategory));
+  dialog.pushDialog(
+    'sect_${sectCategory}_trial_intro',
+    npc: npc,
+  );
+  await dialog.execute();
+  switch (sectCategory) {
+    case 'wuwei':
+      bool passed = true;
+      final questions =
+          List<int>.generate(kWuweiTrialQuestionCount, (i) => i + 1);
+      questions.shuffle();
+      final selectedQuestions = questions.skip(5);
+      for (final q in selectedQuestions) {
+        final qString = 'sect_wuwei_trial_question_$q';
+        dialog.pushDialog(
+          qString,
+          npc: npc,
+        );
+        await dialog.execute();
+        final trialQuestionAnswers = [];
+        for (var i = 0; i < kWuweiTrialOptionsCount; ++i) {
+          trialQuestionAnswers.add('${qString}_option_${i + 1}');
+        }
+        dialog.pushSelection(qString, trialQuestionAnswers);
+        await dialog.execute();
+        final selectedAnswer = dialog.checkSelected(qString);
+        dialog.pushDialog(
+          '${selectedAnswer}_comment',
+          npc: npc,
+        );
+        await dialog.execute();
+        final correctAnswer = kWuweiTrialAnswers[q];
+        if (selectedAnswer != '${qString}_option_$correctAnswer') {
+          passed = false;
+          break;
+        }
+      }
+      if (passed) {
+        dialog.pushDialog(
+          'sect_${sectCategory}_trial_pass',
+          npc: npc,
+        );
+        await dialog.execute();
+        await engine.hetu.invoke(
+          'enroll',
+          namespace: 'Player',
+          positionalArgs: [sect],
+          namedArgs: {
+            'npcId': npc['id'],
+          },
+        );
+      } else {
+        GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
+        dialog.pushDialog(
+          'sect_${sectCategory}_trial_fail',
+          npc: npc,
+        );
+        await dialog.execute();
+      }
+    case 'cultivation':
+      final enemy = engine.hetu.invoke('Character', namedArgs: {
+        'name': 'wooden_dummy',
+        'isFemale': false,
+        'level': 10,
+        'rank': 0,
+        'icon': 'illustration/npc/wooden_dummy_head.png',
+        'skin': 'wooden_dummy',
+        'attributes': {
+          'charisma': 0,
+          'wisdom': 0,
+          'luck': 0,
+          'spirituality': 0,
+          'dexterity': 0,
+          'strength': 120,
+          'willpower': 0,
+          'perception': 0,
+        },
+        'allocateSkills': false,
+        'generateDeck': false,
+      });
+      engine.hetu.invoke('generateBattleDeck', positionalArgs: [
+        enemy
+      ], namedArgs: {
+        'cardInfoList': [
+          {
+            'affixId': 'blank_default',
+          },
+          {
+            'affixId': 'blank_default',
+          },
+          {
+            'affixId': 'blank_default',
+          },
+        ],
+      });
+      engine.context.read<EnemyState>().show(
+        enemy,
+        loseOnEscape: true,
+        onBattleEnd: (bool battleResult, int roundCount) async {
+          if (roundCount <= kCultivationTrialMinBattleRound) {
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_pass',
+              npc: npc,
+            );
+            await dialog.execute();
+            await engine.hetu.invoke(
+              'enroll',
+              namespace: 'Player',
+              positionalArgs: [sect],
+              namedArgs: {
+                'npcId': npc['id'],
+              },
+            );
+          } else {
+            GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_fail',
+              npc: npc,
+            );
+            await dialog.execute();
+          }
+        },
+      );
+    case 'immortality':
+      engine.hetu.invoke('resetTrial', namedArgs: {
+        'name': engine.locale('cultivation_trial'),
+        'difficulty': 0,
+        'sectId': sect['id'],
+        'npcId': npc['id'],
+      });
+      engine.pushScene(
+        'cultivation_trial_1',
+        constructorId: Scenes.worldmap,
+        arguments: {
+          'id': 'cultivation_trial_1',
+          'method': 'load',
+        },
+      );
+    case 'chivalry':
+      final enemy = engine.hetu.invoke('BattleEntity', namedArgs: {
+        'rank': GameData.hero['rank'],
+        'name': engine.locale('trialCompetitor'),
+      });
+      engine.context.read<EnemyState>().show(
+        enemy,
+        loseOnEscape: true,
+        onBattleEnd: (bool battleResult, int roundCount) async {
+          if (battleResult) {
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_pass',
+              npc: npc,
+            );
+            await dialog.execute();
+            await engine.hetu.invoke(
+              'enroll',
+              namespace: 'Player',
+              positionalArgs: [sect],
+              namedArgs: {
+                'npcId': npc['id'],
+              },
+            );
+          } else {
+            GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_fail',
+              npc: npc,
+            );
+            await dialog.execute();
+          }
+        },
+      );
+    case 'entrepreneur':
+      final Iterable membersData = sect['membersData'].values;
+      final testersData = membersData.where((m) {
+        return m['rank'] == GameData.hero['rank'];
+      }).toList();
+      dynamic tester;
+      if (testersData.isNotEmpty) {
+        testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
+        tester = GameData.getCharacter(testersData.first['id']);
+      } else {
+        tester = engine.hetu.invoke('BattleEntity', namedArgs: {
+          'rank': GameData.hero['rank'],
+          'name': engine.locale('trialTester'),
+        });
+      }
+      engine.context.read<EnemyState>().show(
+        tester,
+        loseOnEscape: true,
+        onBattleEnd: (bool battleResult, int roundCount) async {
+          if (battleResult) {
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_pass',
+              npc: npc,
+            );
+            await dialog.execute();
+            await engine.hetu.invoke(
+              'enroll',
+              namespace: 'Player',
+              positionalArgs: [sect],
+              namedArgs: {
+                'npcId': npc['id'],
+              },
+            );
+          } else {
+            GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
+            dialog.pushDialog(
+              'sect_${sectCategory}_trial_fail',
+              npc: npc,
+            );
+            await dialog.execute();
+          }
+        },
+      );
+    case 'wealth':
+      final int cost = kWealthTrialCost;
+      dialog.pushSelectionRaw({
+        'id': 'sect_wealth_trial',
+        'selections': {
+          'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
+          'forgetIt': engine.locale('forgetIt'),
+        }
+      });
+      await dialog.execute();
+      final selected = dialog.checkSelected('sect_wealth_trial');
+      if (selected == 'pay_shard') {
+        final int shard = GameData.hero['materials']['shard'] ?? 0;
+        if (shard >= cost) {
+          engine.hetu.invoke(
+            'exhaust',
+            namespace: 'Player',
+            positionalArgs: ['shard', cost],
+          );
+          dialog.pushDialog(
+            'sect_${sectCategory}_trial_pass',
+            npc: npc,
+          );
+          await dialog.execute();
+          await engine.hetu.invoke(
+            'enroll',
+            namespace: 'Player',
+            positionalArgs: [sect],
+            namedArgs: {
+              'npcId': npc['id'],
+            },
+          );
+        } else {
+          dialog.pushDialog(engine.locale('hint_notEnoughShard'));
+          dialog.pushDialog(
+            'sect_${sectCategory}_trial_fail',
+            npc: npc,
+          );
+          await dialog.execute();
+        }
+      }
+    case 'pleasure':
+      final heroCharisma = GameData.hero['stats']['charisma'];
+      if (heroCharisma >= kPleasureTrialMinCharisma) {
+        dialog.pushDialog(
+          'sect_${sectCategory}_trial_pass',
+          npc: npc,
+        );
+        await dialog.execute();
+        await engine.hetu.invoke(
+          'enroll',
+          namespace: 'Player',
+          positionalArgs: [sect],
+          namedArgs: {
+            'npcId': npc['id'],
+          },
+        );
+      } else {
+        dialog.pushDialog(
+          'sect_${sectCategory}_trial_fail',
+          npc: npc,
+        );
+        await dialog.execute();
+      }
+  }
+}
+
 Future<void> _onInteractNpc(dynamic location) async {
   final npc = GameData.game['npcs'][location['npcId']];
   assert(npc != null);
@@ -804,306 +1125,7 @@ Future<void> _onInteractNpc(dynamic location) async {
           },
         );
       case 'enroll':
-        // 检查门派招募月份
-        final recruitMonth = sect['recruitMonth'];
-        if (recruitMonth != GameLogic.month) {
-          dialog.pushDialog(
-            'hint_notRecruitMonth',
-            interpolations: [recruitMonth],
-            npc: npc,
-          );
-          await dialog.execute();
-          return;
-        }
-        // 玩家本月是否已经进行过此门派的试炼
-        if (GameData.checkMonthly(MonthlyActivityIds.enrolled, sect['id'])) {
-          dialog.pushDialog(
-            'hint_alreadyTrialedThisMonth',
-            npc: npc,
-          );
-          return;
-        }
-        final sectCategory = sect['category'];
-        assert(kSectCategories.contains(sectCategory));
-        dialog.pushDialog(
-          'sect_${sectCategory}_trial_intro',
-          npc: npc,
-        );
-        await dialog.execute();
-        switch (sectCategory) {
-          case 'wuwei':
-            bool passed = true;
-            final questions =
-                List<int>.generate(kWuweiTrialQuestionCount, (i) => i + 1);
-            questions.shuffle();
-            final selectedQuestions = questions.skip(5);
-            for (final q in selectedQuestions) {
-              final qString = 'sect_wuwei_trial_question_$q';
-              dialog.pushDialog(
-                qString,
-                npc: npc,
-              );
-              await dialog.execute();
-              final trialQuestionAnswers = [];
-              for (var i = 0; i < kWuweiTrialOptionsCount; ++i) {
-                trialQuestionAnswers.add('${qString}_option_${i + 1}');
-              }
-              dialog.pushSelection(qString, trialQuestionAnswers);
-              await dialog.execute();
-              final selectedAnswer = dialog.checkSelected(qString);
-              dialog.pushDialog(
-                '${selectedAnswer}_comment',
-                npc: npc,
-              );
-              await dialog.execute();
-              final correctAnswer = kWuweiTrialAnswers[q];
-              if (selectedAnswer != '${qString}_option_$correctAnswer') {
-                passed = false;
-                break;
-              }
-            }
-            if (passed) {
-              dialog.pushDialog(
-                'sect_${sectCategory}_trial_pass',
-                npc: npc,
-              );
-              await dialog.execute();
-              await engine.hetu.invoke(
-                'enroll',
-                namespace: 'Player',
-                positionalArgs: [sect],
-                namedArgs: {
-                  'npcId': npc['id'],
-                },
-              );
-            } else {
-              GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
-              dialog.pushDialog(
-                'sect_${sectCategory}_trial_fail',
-                npc: npc,
-              );
-              await dialog.execute();
-            }
-          case 'cultivation':
-            final enemy = engine.hetu.invoke('Character', namedArgs: {
-              'name': 'wooden_dummy',
-              'isFemale': false,
-              'level': 10,
-              'rank': 0,
-              'icon': 'illustration/npc/wooden_dummy_head.png',
-              'skin': 'wooden_dummy',
-              'attributes': {
-                'charisma': 0,
-                'wisdom': 0,
-                'luck': 0,
-                'spirituality': 0,
-                'dexterity': 0,
-                'strength': 120,
-                'willpower': 0,
-                'perception': 0,
-              },
-              'allocateSkills': false,
-              'generateDeck': false,
-            });
-            engine.hetu.invoke('generateBattleDeck', positionalArgs: [
-              enemy
-            ], namedArgs: {
-              'cardInfoList': [
-                {
-                  'affixId': 'blank_default',
-                },
-                {
-                  'affixId': 'blank_default',
-                },
-                {
-                  'affixId': 'blank_default',
-                },
-              ],
-            });
-            engine.context.read<EnemyState>().show(
-              enemy,
-              loseOnEscape: true,
-              onBattleEnd: (bool battleResult, int roundCount) async {
-                if (roundCount <= kCultivationTrialMinBattleRound) {
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_pass',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                  await engine.hetu.invoke(
-                    'enroll',
-                    namespace: 'Player',
-                    positionalArgs: [sect],
-                    namedArgs: {
-                      'npcId': npc['id'],
-                    },
-                  );
-                } else {
-                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_fail',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                }
-              },
-            );
-          case 'immortality':
-            engine.hetu.invoke('resetTrial', namedArgs: {
-              'name': engine.locale('cultivation_trial'),
-              'difficulty': 0,
-              'sectId': sect['id'],
-              'npcId': npc['id'],
-            });
-            engine.pushScene(
-              'cultivation_trial_1',
-              constructorId: Scenes.worldmap,
-              arguments: {
-                'id': 'cultivation_trial_1',
-                'method': 'load',
-              },
-            );
-          case 'chivalry':
-            final enemy = engine.hetu.invoke('BattleEntity', namedArgs: {
-              'rank': GameData.hero['rank'],
-              'name': engine.locale('trialCompetitor'),
-            });
-            engine.context.read<EnemyState>().show(
-              enemy,
-              loseOnEscape: true,
-              onBattleEnd: (bool battleResult, int roundCount) async {
-                if (battleResult) {
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_pass',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                  await engine.hetu.invoke(
-                    'enroll',
-                    namespace: 'Player',
-                    positionalArgs: [sect],
-                    namedArgs: {
-                      'npcId': npc['id'],
-                    },
-                  );
-                } else {
-                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_fail',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                }
-              },
-            );
-          case 'entrepreneur':
-            final Iterable membersData = sect['membersData'].values;
-            final testersData = membersData.where((m) {
-              return m['rank'] == GameData.hero['rank'];
-            }).toList();
-            dynamic tester;
-            if (testersData.isNotEmpty) {
-              testersData.sort((a, b) => a['rank'].compareTo(b['rank']));
-              tester = GameData.getCharacter(testersData.first['id']);
-            } else {
-              tester = engine.hetu.invoke('BattleEntity', namedArgs: {
-                'rank': GameData.hero['rank'],
-                'name': engine.locale('trialTester'),
-              });
-            }
-            engine.context.read<EnemyState>().show(
-              tester,
-              loseOnEscape: true,
-              onBattleEnd: (bool battleResult, int roundCount) async {
-                if (battleResult) {
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_pass',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                  await engine.hetu.invoke(
-                    'enroll',
-                    namespace: 'Player',
-                    positionalArgs: [sect],
-                    namedArgs: {
-                      'npcId': npc['id'],
-                    },
-                  );
-                } else {
-                  GameData.addMonthly(MonthlyActivityIds.enrolled, sect['id']);
-                  dialog.pushDialog(
-                    'sect_${sectCategory}_trial_fail',
-                    npc: npc,
-                  );
-                  await dialog.execute();
-                }
-              },
-            );
-          case 'wealth':
-            final int cost = kWealthTrialCost;
-            dialog.pushSelectionRaw({
-              'id': 'sect_wealth_trial',
-              'selections': {
-                'pay_shard': engine.locale('pay_shard', interpolations: [cost]),
-                'forgetIt': engine.locale('forgetIt'),
-              }
-            });
-            await dialog.execute();
-            final selected = dialog.checkSelected('sect_wealth_trial');
-            if (selected == 'pay_shard') {
-              final int shard = GameData.hero['materials']['shard'] ?? 0;
-              if (shard >= cost) {
-                engine.hetu.invoke(
-                  'exhaust',
-                  namespace: 'Player',
-                  positionalArgs: ['shard', cost],
-                );
-                dialog.pushDialog(
-                  'sect_${sectCategory}_trial_pass',
-                  npc: npc,
-                );
-                await dialog.execute();
-                await engine.hetu.invoke(
-                  'enroll',
-                  namespace: 'Player',
-                  positionalArgs: [sect],
-                  namedArgs: {
-                    'npcId': npc['id'],
-                  },
-                );
-              } else {
-                dialog.pushDialog(engine.locale('hint_notEnoughShard'));
-                dialog.pushDialog(
-                  'sect_${sectCategory}_trial_fail',
-                  npc: npc,
-                );
-                await dialog.execute();
-              }
-            }
-          case 'pleasure':
-            final heroCharisma = GameData.hero['stats']['charisma'];
-            if (heroCharisma >= kPleasureTrialMinCharisma) {
-              dialog.pushDialog(
-                'sect_${sectCategory}_trial_pass',
-                npc: npc,
-              );
-              await dialog.execute();
-              await engine.hetu.invoke(
-                'enroll',
-                namespace: 'Player',
-                positionalArgs: [sect],
-                namedArgs: {
-                  'npcId': npc['id'],
-                },
-              );
-            } else {
-              dialog.pushDialog(
-                'sect_${sectCategory}_trial_fail',
-                npc: npc,
-              );
-              await dialog.execute();
-            }
-        }
+        await _heroEnrollSect(sect, npc);
       case 'resign':
         final memberData = sect['membersData'][heroId];
         final jobRank = memberData['rank'] ?? 0;

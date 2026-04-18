@@ -5,7 +5,11 @@
 
   "equipment": "装备",
   "consumable": "消耗",
-  "material": "物资",
+  "cardpack": "秘籍",
+  "craftmaterial": "材料",
+  "miscellaneous": "杂项",
+
+  "material": "资源",
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
@@ -28,7 +32,6 @@
   "package": "包",
 
   "material_pack": "物资包",
-  "cardpack": "秘籍",
   "ownedBattleCard": "拥有的功法",
   "ownedCardpack": "拥有的秘籍",
 
@@ -113,6 +116,9 @@
 
   "identify_scroll": "鉴定符",
   "flavortext_identify_scroll": "揭示一些属性未知的物品的词条。",
+
+  "teleport_scroll": "传送符",
+  "flavortext_teleport_scroll": "使用后可以将你传送到指定场景。",
 
   "exp_pack": "一团灵光",
   "flavortext_exp_pack": "灵光在获取后转化为修为经验。",

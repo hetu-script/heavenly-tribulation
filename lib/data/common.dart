@@ -1879,6 +1879,9 @@ const kWealthTrialCost = 5;
 
 const kPleasureTrialMinCharisma = 70;
 
+// 加入门派的最低境界要求（1 = 凝气）
+const kSectEnrollMinRank = 1;
+
 const kRecruitCityRequirementContribution = 50;
 const kRecruitCityRequirementMoney = 50_000;
 const kRecruitCityRequirementShard = 50;

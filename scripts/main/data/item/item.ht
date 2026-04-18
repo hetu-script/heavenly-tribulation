@@ -3,8 +3,8 @@
 // 物品的大类别，用于物品栏筛选，以及显示在物品详细信息浮窗中
 const kItemTypeEquipment = 'equipment';
 const kItemTypeConsumable = 'consumable';
-const kItemTypeMaterial = 'material';
 const kItemTypeCardpack = 'cardpack';
+const kItemTypeCraftMaterial = 'craftmaterial';
 const kItemTypeMiscellaneous = 'miscellaneous';
 
 // category
@@ -71,25 +71,6 @@ function calculatePrice(item) {
 function convertMoneyToShard(money) {
   final amount = (money / Constants.materialBasePrice['shard']).round()
   return amount < 1 ? 1 : amount
-}
-
-struct AbstractedAffix {
-  constructor ({
-    kind,
-    affix,
-  }) {
-    assert(kind != null, 'AbstractedAffix constructor error: kind: ${kind}')
-    assert(affix != null, 'AbstractedAffix constructor error: affix: ${affix}')
-    this.kind = kind
-    this.entityType = kEntityTypeItem
-    this.type = kItemTypeMaterial
-    this.affix = Object.create(affix)
-    
-    this.id = crypto.randomUID(withTime: true)
-    this.name = engine.locale('equipment_affix')
-    this.icon = 'item/affix.png'
-    this.category = kItemCategoryEquipmentAffix
-  }
 }
 
 function createItemById(id, {amount, rank, level}) {

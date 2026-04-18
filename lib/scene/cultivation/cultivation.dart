@@ -1696,8 +1696,8 @@ class CultivationScene extends Scene with HasCursorState {
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
     if (passiveTreeNodeData == null) return;
 
-    final int nodeRank = passiveTreeNodeData['rank'] ?? 0;
-    assert(nodeRank == character['rank'] + 1);
+    final int difficulty = passiveTreeNodeData['rank'] ?? 0;
+    assert(difficulty == character['rank'] + 1);
 
     if (!isEditorMode) {
       if (character['skillPoints'] <= 0) {
@@ -1729,13 +1729,14 @@ class CultivationScene extends Scene with HasCursorState {
       GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       skillButton.isSelected = true;
       --character['skillPoints'];
-      character['rank'] = nodeRank;
+      character['rank'] = difficulty;
       updatePassivesDescription();
       updateInformation();
       // engine.play(GameSound.click);
       barrier.isVisible = true;
       camera.viewport.add(newRankPrompt);
-      rankInfo.tryLoadSprite(spriteId: 'cultivation/cultivation$nodeRank.png');
+      rankInfo.tryLoadSprite(
+          spriteId: 'cultivation/cultivation$difficulty.png');
       rankInfo.isVisible = true;
       confirm.isVisible = true;
       engine.play(GameSound.ascension);
@@ -1752,23 +1753,21 @@ class CultivationScene extends Scene with HasCursorState {
       });
     }
 
-    int difficulty = nodeRank;
+    // if (selected == 'tribulation_martial') {
+    // 进入天道战斗
+    final level = GameLogic.maxLevelForRank(difficulty - 1);
+
+    bool isDifficultyDecreased = false;
     if (GameData.hero['passives']['decreaseTribulationDifficulty'] != null) {
-      difficulty -= 1;
-
+      isDifficultyDecreased = true;
       GameData.hero['passives'].remove('decreaseTribulationDifficulty');
-
       dialog.pushDialog('tribulation_difficulty_decreased');
       await dialog.execute();
     }
 
-    assert(difficulty >= 0 && difficulty < MiniGameDifficulty.values.length);
-
-    // if (selected == 'tribulation_martial') {
-    // 进入天道战斗
-    final int maxLevel = GameLogic.maxLevelForRank(nodeRank);
-
-    GameLogic.showTribulation(maxLevel, difficulty, onResult: (bool result) {
+    GameLogic.showTribulation(
+        level, isDifficultyDecreased ? difficulty - 1 : difficulty,
+        onResult: (bool result) {
       if (result) {
         onTribulationSuccess();
       } else {

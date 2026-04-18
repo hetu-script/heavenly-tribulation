@@ -44,9 +44,9 @@
 在 `quests.json5` 中新增任务类型：
 
 ```
-hunt_target:      猎杀目标（击败即可），policy: "expansion"
-capture_target:   捉拿目标（击败后押送），policy: "expansion"
-assassinate:      暗杀目标（击败+不被目击），policy: "expansion", rank: 1
+quest_hunt:      击败（击败即可），policy: "expansion"
+quest_capture:   捉拿（击败后押送），policy: "expansion"
+quest_assassinate:      暗杀（击败+不被目击），policy: "expansion", rank: 1
 ```
 
 在 `scripts/main/data/quest.ht` 中新增对应的 quest 生成函数，仿照 `createQuest` 的模式，但目标从物品/地点改为角色 NPC。
@@ -74,7 +74,7 @@ assassinate:      暗杀目标（击败+不被目击），policy: "expansion", r
 
 #### Phase 2: 悬赏生成
 
-4. 在 `scripts/main/data/quest.ht` 中新增 `createJusticeHallQuest()` 函数，从非本门派的 NPC 中选取目标，生成包含目标角色信息的任务对象
+4. 在 `scripts/main/data/quest.ht` 中新增 `createJusticeHallQuest()` 函数，从非本门派的 NPC 中选取目标，生成包含目标角色信息的任务对象，任务难度等同于目标的境界。
 5. 新增 `replenishJusticeHallBounty(location)` 函数，仿照 `replenishBounty()` 的模式，在每月初为镇魔司刷新悬赏列表，存入 `location.justiceHallBounties`
 
 #### Phase 3: NPC 交互
@@ -97,17 +97,9 @@ assassinate:      暗杀目标（击败+不被目击），policy: "expansion", r
 - `docs/docs/how2play/rpg/quest/readme.md` — 更新任务列表文档
 - `docs/docs/how2play/tycoon/site/readme.md` — 更新镇魔司建筑说明
 
-### Verification
-
-1. 进入有镇魔司的城市，与司正 NPC 互动，确认「接取悬赏」菜单出现
-2. 悬赏列表显示目标角色信息（姓名、境界、城市、赏金）
-3. 接取任务后事项面板正确显示任务内容
-4. 找到目标并战斗胜利后，回镇魔司可以交差领赏
-5. `python build.py` 编译通过
-
 ### Decisions
 
-- 「暗杀」类型中的「不被目击」机制，初版可简化为：目标身边无其他 NPC 时击败即算暗杀成功，否则降级为猎杀
+- 「暗杀」类型中的「不被目击」机制，要求进行暗杀时对方必须位于自己家中，否则任务失败（即使击败了目标）。
 - 「发布悬赏」的异步结算为概率事件，不做实时模拟
 - 任务 policy 统一为 `expansion`，与权霸门派的扩张倾向一致
-- 初版不实现「捉拿」的押送机制，先按猎杀处理，后续再加押送逻辑
+- 「捉拿」的押送机制，简单实现为先击败目标，然后要求角色前往指定地点即可

@@ -1406,6 +1406,9 @@ final class GameLogic {
   static Future<void> onInteractNpc(dynamic location) =>
       _onInteractNpc(location);
 
+  static Future<void> heroEnrollSect(dynamic sect, dynamic npc) =>
+      _heroEnrollSect(sect, npc);
+
   static Future<void> onInteractCharacter(dynamic character) =>
       _onInteractCharacter(character);
 
