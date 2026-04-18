@@ -1134,15 +1134,21 @@ final kBasePriceByKind = {
 };
 
 const kItemWithAffixKinds = [
-  'weapon',
+  'sword',
+  'sabre',
+  'spear',
+  'staff',
+  'bow',
+  'dart',
   'shield',
   'armor',
   'gloves',
   'helmet',
   'boots',
   'vehicle',
-  'jewelry',
-  'talisman',
+  'ring',
+  'amulet',
+  'pearl',
   'potion',
 ];
 

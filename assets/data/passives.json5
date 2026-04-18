@@ -920,6 +920,7 @@
     increment: 0.5,
     isItem: true,
     tags: ["tribulationCount"],
+    rank: 3,
   },
   monthlyIdentifyCardsMax: {
     id: "monthlyIdentifyCardsMax",

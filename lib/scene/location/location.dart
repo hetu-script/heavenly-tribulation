@@ -283,7 +283,7 @@ class LocationScene extends Scene with HasCursorState {
       piledCardSize: GameUI.siteCardSize,
       pileOffset: Vector2(GameUI.siteCardSize.x / 2, 0),
       spreadOnFocus: true,
-      spreadMargin: 10.0,
+      spreadMargin: 20.0,
     );
     world.add(siteList);
 

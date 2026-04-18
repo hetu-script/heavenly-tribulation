@@ -572,7 +572,7 @@ function createSandboxWorld({
       let roll = random.nextDouble()
       if (roll > _kSectRecruitProbability) continue
       final availableCharacters = game.characters.values.where((char) =>
-        char.sectId == null
+        char.sectId == null && char.rank >= 1
       )
       if (availableCharacters.isEmpty) {
         // engine.warning('组织 ${sect.id} 没有可用的角色可以招募了。')
