@@ -24,8 +24,8 @@ const kLocationKindExpArray = 'exparray'
 const kLocationKindLibrary = 'library'
 // 任侠：斗技场
 const kLocationKindArena = 'arena'
-// 权霸：哨所
-const kLocationKindMilitaryPost = 'militarypost'
+// 权霸：镇魔司
+const kLocationKindJusticeHall = 'justicehall'
 // 财富：拍卖行
 const kLocationKindAuctionHouse = 'auctionhouse'
 // 欢愉：酒楼
