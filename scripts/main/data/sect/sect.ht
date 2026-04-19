@@ -7,15 +7,19 @@ const _kMinJobRankForGlobalIncident = 3
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
 /// score 和 type 都反映了外交关系
-/// type 代表了关系的大方向，有三种取值： 'neutral' || 'ally' || 'enemy',
+/// type 代表了关系的大方向，有六种取值：
+///   'neutral' — 中立（默认初始状态）
+///   'pact' — 互不侵犯（score >= 20 时可签订）
+///   'ally' — 同盟（score >= 50 时可结盟，设施共享，无法宣战）
+///   'enemy' — 敌对（score <= -20 时可宣战）
+///   'truce' — 停战（到期后自动转为 neutral）
 /// score 代表了关系的具体数值，score 可以正负变化
 /// 盟友门派的成员可以共享各自领地上的设施
 /// 宣战门派的成员则无法进入对方领地
-/// 需要满足一定的 score 条件才能宣战和结盟
+/// 需要满足一定的 score 条件才能执行对应的外交操作
 /// 修改 type 为 enemy，意味着宣战，ally 则意味着结盟
 /// 但无论 score 如何变化，并不会自动变成 enemy 或 ally
 /// 要提升 score，可以通过向其他门派赠送礼物、完成对方的帮助请求等方式
-/// 要降低 score，可以通过
 struct Diplomacy {
   constructor ({
     sect1Id,
@@ -24,7 +28,7 @@ struct Diplomacy {
     score = 0,
     timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久
   }) {
-    assert(['neutral', 'ally', 'enemy'].contains(type))
+    assert(['neutral', 'pact', 'ally', 'enemy', 'truce'].contains(type))
 
     this.id = crypto.randomUID(withTime: true)
     this.sect1Id = sect1Id
@@ -138,6 +142,8 @@ struct Sect {
     // key 是其他门派 id，值是 Diplomacy 对象 id
     // 完整的外交关系数据保存在 game.diplomacies 中
     this.diplomacies = {}
+    this.allySectIds = []
+    this.enemySectIds = []
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -664,7 +670,7 @@ function getSects([ids]) {
   }
 }
 
-function removeLocationFromSect(location, sect) {
+function removeLocationFromSect(location, sect, { attackerSect }) {
   if (location.sectId == null) return
 
   assert(location.sectId == sect.id)
@@ -692,6 +698,14 @@ function removeLocationFromSect(location, sect) {
         engine.warning('${sect.id} 失去了总堂所在地块！')
         delete game.locations[siteId]
         break
+      }
+    }
+
+    // 领土变更触发外交评分变动
+    if (attackerSect != null && attackerSect.id != sect.id) {
+      final diplomacyData = getDiplomacy(sect, attackerSect)
+      if (diplomacyData != null) {
+        updateDiplomacyScore(sect, attackerSect, kDiplomacyScoreOccupyCity)
       }
     }
   }
@@ -764,25 +778,156 @@ function addLocationToSect(location, sect, { incurIncident = true }) {
   return
 }
 
+/// 更新或创建两个门派之间的外交关系
+/// 如果关系已存在，则更新 type、score、timespanByMonth
+/// 如果关系不存在，则创建新关系
+/// 会触发 Incident，并更新 allySectIds / enemySectIds
+/// 外交变更会记录到 sect.flags.monthly.diplomacyChanges 中
 function updateDiplomacy(sect1, sect2, {
   type = 'neutral',
-  score = kDiplomacyDefaultScore,
-  timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久, > 0 表示持续多少个月
+  score,
+  timespanByMonth = 0,
 }) {
   assert(sect1.id != sect2.id)
-  assert(!sect1.diplomacies.containsKey(sect2.id))
-  assert(!sect2.diplomacies.containsKey(sect1.id))
 
-  final diplomacyData = Diplomacy(
-    sect1Id: sect1.id,
-    sect2Id: sect2.id,
-    type: type,
-    score: score,
-    timespanByMonth: timespanByMonth,
-  )
+  final existingId = sect1.diplomacies[sect2.id]
+  let diplomacyData
 
-  sect1.diplomacies[sect2.id] = diplomacyData.id
-  sect2.diplomacies[sect1.id] = diplomacyData.id
+  if (existingId != null) {
+    // 更新现有关系
+    diplomacyData = game.diplomacies[existingId]
+    assert(diplomacyData != null, '外交数据 ${existingId} 不存在！')
+    final oldType = diplomacyData.type
+    diplomacyData.type = type
+    if (score != null) {
+      diplomacyData.score = score
+    }
+    diplomacyData.timespanByMonth = timespanByMonth
+    diplomacyData.timestamp = game.timestamp
 
-  engine.info('${sect1.id}和${sect2.id}建立了外交关系，当前关系评分为 ${score}，关系类型为 ${type}')
+    if (oldType != type) {
+      final incidentContent = engine.locale('hint_sect_meeting_diplomacy_item', interpolations: [
+        sect1.name,
+        sect2.name,
+        engine.locale('diplomacy_${type}'),
+      ])
+      Incident(
+        sectId: sect1.id,
+        message: incidentContent,
+        isGlobal: true,
+      )
+    }
+  } else {
+    // 创建新关系
+    diplomacyData = Diplomacy(
+      sect1Id: sect1.id,
+      sect2Id: sect2.id,
+      type: type,
+      score: score ?? kDiplomacyDefaultScore,
+      timespanByMonth: timespanByMonth,
+    )
+    sect1.diplomacies[sect2.id] = diplomacyData.id
+    sect2.diplomacies[sect1.id] = diplomacyData.id
+  }
+
+  // 更新 allySectIds 和 enemySectIds
+  _refreshDiplomacyLists(sect1, sect2, type)
+
+  // 记录到月度变动
+  addSectMonthly(sect1, 'diplomacyChanges', {
+    'targetSectId': sect2.id,
+    'type': type,
+    'score': diplomacyData.score,
+  })
+  addSectMonthly(sect2, 'diplomacyChanges', {
+    'targetSectId': sect1.id,
+    'type': type,
+    'score': diplomacyData.score,
+  })
+
+  engine.info('${sect1.id}和${sect2.id}的外交关系更新为 ${type}，评分为 ${diplomacyData.score}')
+  return diplomacyData
+}
+
+/// 仅更新两个门派之间的外交评分，不变更关系类型
+/// 不触发 Incident，但记录日志
+function updateDiplomacyScore(sect1, sect2, delta) {
+  assert(sect1.id != sect2.id)
+  final existingId = sect1.diplomacies[sect2.id]
+  if (existingId == null) {
+    engine.warning('${sect1.id}和${sect2.id}之间没有外交关系，无法更新评分')
+    return
+  }
+  final diplomacyData = game.diplomacies[existingId]
+  assert(diplomacyData != null)
+  diplomacyData.score += delta
+  engine.info('${sect1.id}和${sect2.id}的外交评分变动 ${delta}，当前评分为 ${diplomacyData.score}')
+  return diplomacyData
+}
+
+/// 获取两个门派之间的外交关系数据
+/// 返回 Diplomacy 对象或 null
+function getDiplomacy(sect1, sect2) {
+  final existingId = sect1.diplomacies[sect2.id]
+  if (existingId == null) return null
+  return game.diplomacies[existingId]
+}
+
+/// 快捷查询两个门派是否处于敌对关系
+function isHostile(sect1, sect2) {
+  final diplomacyData = getDiplomacy(sect1, sect2)
+  if (diplomacyData == null) return false
+  return diplomacyData.type == 'enemy'
+}
+
+/// 检查角色是否可以进入某个据点
+/// 如果据点属于和角色所在门派敌对的门派，则无法进入
+function canAccessLocation(character, location) {
+  if (location.sectId == null) return true
+  if (character.sectId == null) return true
+  if (location.sectId == character.sectId) return true
+
+  final charSect = game.sects[character.sectId]
+  final locSect = game.sects[location.sectId]
+  if (charSect == null || locSect == null) return true
+
+  final diplomacyData = getDiplomacy(charSect, locSect)
+  if (diplomacyData == null) return true
+  // 敌对时，禁止进入
+  if (diplomacyData.type == 'enemy') return false
+  return true
+}
+
+/// 获取某门派的所有敌对门派的所有成员
+function getEnemySectMembers(sect) {
+  final members = []
+  for (final enemySectId in sect.enemySectIds) {
+    final enemySect = game.sects[enemySectId]
+    if (enemySect == null) continue
+    for (final memberData in enemySect.membersData.values) {
+      if (memberData.isAbsent == true) continue
+      final character = game.characters[memberData.id]
+      if (character != null) {
+        members.add(character)
+      }
+    }
+  }
+  return members
+}
+
+/// 内部函数：根据外交类型刷新双方的 allySectIds / enemySectIds
+function _refreshDiplomacyLists(sect1, sect2, type) {
+  // 先从所有列表中移除
+  sect1.allySectIds.remove(sect2.id)
+  sect1.enemySectIds.remove(sect2.id)
+  sect2.allySectIds.remove(sect1.id)
+  sect2.enemySectIds.remove(sect1.id)
+
+  if (type == 'ally') {
+    sect1.allySectIds.add(sect2.id)
+    sect2.allySectIds.add(sect1.id)
+  } else if (type == 'enemy') {
+    sect1.enemySectIds.add(sect2.id)
+    sect2.enemySectIds.add(sect1.id)
+  }
 }

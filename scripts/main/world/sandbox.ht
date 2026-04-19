@@ -584,6 +584,10 @@ function createSandboxWorld({
     }
   }
   
+  // 为门派建立初始外交关系
+  engine.info('建立门派初始外交关系')
+  _initializeSectDiplomacy(nations)
+
   engine.info('处理婚姻和生育')
   for (var i in range(characterNumber ~/ 4)) {
     for (const char of game.characters) {
@@ -696,4 +700,71 @@ function createSandboxWorld({
   delete world.fisheryIndexes
 
   return world
+}
+
+/// 为门派建立初始外交关系
+/// 门派只对离自己近的几个门派有随机的 pact 和 enemy 关系，远的保持 neutral
+/// 最终在整个地图上随机对一些尚无关系的门派之间创建一两个敌对关系
+function _initializeSectDiplomacy(nations) {
+  if (nations.length < 2) return
+
+  final nationCount = nations.length
+  // 近距离门派的关系数量基于门派总数
+  final nearRelationCount = (nationCount * 0.6).ceil().clamp(1, nationCount - 1)
+  // 远距离额外敌对数量
+  final extraEnemyCount = (nationCount * 0.15).ceil().clamp(1, 3)
+
+  // 计算门派之间的距离
+  for (final sect in nations) {
+    final hqLocation = game.locations[sect.headquartersLocationId]
+    if (hqLocation == null || hqLocation.terrainIndex == null) continue
+    final hqTile = world.terrains[hqLocation.terrainIndex]
+
+    // 按距离排序其他门派
+    final others = nations.where((s) => s.id != sect.id).toList()
+    others.sort((a, b) {
+      final aHq = game.locations[a.headquartersLocationId]
+      final bHq = game.locations[b.headquartersLocationId]
+      if (aHq == null || bHq == null) return 0
+      final distA = getTileDistance(hqTile, world.terrains[aHq.terrainIndex])
+      final distB = getTileDistance(hqTile, world.terrains[bHq.terrainIndex])
+      return distA.compareTo(distB)
+    })
+
+    // 对最近的几个门派建立关系
+    final nearSects = others.take(nearRelationCount)
+    for (final otherSect in nearSects) {
+      // 跳过已有关系的门派
+      if (sect.diplomacies.containsKey(otherSect.id)) continue
+
+      final roll = random.nextDouble()
+      if (roll < 0.3) {
+        // 30% 概率建立互不侵犯
+        updateDiplomacy(sect, otherSect, type: 'pact', score: 25)
+      } else if (roll < 0.5) {
+        // 20% 概率建立敌对
+        updateDiplomacy(sect, otherSect, type: 'enemy', score: -25)
+      } else {
+        // 50% 概率建立中立（带随机评分）
+        final score = random.nextInt(21) - 10  // -10 到 10
+        updateDiplomacy(sect, otherSect, type: 'neutral', score: score)
+      }
+    }
+  }
+
+  // 在尚无关系的门派之间额外创建一些敌对关系
+  let extraEnemiesCreated = 0
+  final shuffledNations = random.shuffle(nations.toList())
+  for (final sect in shuffledNations) {
+    if (extraEnemiesCreated >= extraEnemyCount) break
+    for (final otherSect in shuffledNations) {
+      if (sect.id == otherSect.id) continue
+      if (sect.diplomacies.containsKey(otherSect.id)) continue
+      if (extraEnemiesCreated >= extraEnemyCount) break
+      updateDiplomacy(sect, otherSect, type: 'enemy', score: -25)
+      extraEnemiesCreated += 1
+    }
+  }
+
+  engine.info('初始外交关系建立完毕，共创建了 ${game.diplomacies.length} 组外交关系')
 }

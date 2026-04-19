@@ -1765,9 +1765,37 @@ const kTitleToAlternativeTitle = {
 };
 
 const kDiplomacyScoreAllyThreshold = 50;
-const kDiplomacyScoreEnemyThreshold = -50;
+const kDiplomacyScorePactThreshold = 20;
+const kDiplomacyScoreEnemyThreshold = -20;
 
 const kDiplomacyDefaultScore = 0;
+
+/// 宣战时旁观门派的 score 变动
+const kDiplomacyScoreWarBystander = -5;
+
+/// 宣战时双方 score 变动
+const kDiplomacyScoreWarDeclare = -30;
+
+/// 占领城市时 score 变动
+const kDiplomacyScoreOccupyCity = -20;
+
+/// 失去城市时攻方 score 变动
+const kDiplomacyScoreLoseCity = 5;
+
+/// 成员被击杀时 score 变动
+const kDiplomacyScoreMemberKilled = -10;
+
+/// 完成帮助请求时 score 变动
+const kDiplomacyScoreHelpComplete = 5;
+
+/// 暗杀任务完成时 score 变动
+const kDiplomacyScoreAssassination = -15;
+
+/// 暗杀被发现额外 score 变动
+const kDiplomacyScoreAssassinationExposed = -10;
+
+/// 镇魔司悬赏完成时 score 变动
+const kDiplomacyScoreBountyComplete = -5;
 
 const kConsumableCategoryKinds = [
   kItemCategoryCardpack,
@@ -2244,4 +2272,14 @@ const Map<String, Map<String, Map<String, Set<String>>>>
       'avatar': {},
     },
   },
+};
+
+const kDiplomacyTypes = {
+  'neutral',
+  'pact',
+  'ally',
+  'enemy',
+  'truce',
+  // 'trade',
+  // 'vassal',
 };

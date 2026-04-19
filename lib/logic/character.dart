@@ -1075,34 +1075,47 @@ Future<void> _onInteractNpc(dynamic location) async {
         final heroTitleId = GameData.hero['titleId'];
         if (heroTitleId == 'head' || heroTitleId == 'envoy') {
           final heroSect = GameData.getSect(heroSectId);
-          final diplomacyDataId = sect['diplomacies'][heroSectId][heroSectId];
+          var diplomacyDataId = sect['diplomacies'][heroSectId];
           if (diplomacyDataId == null) {
-            engine.hetu.invoke(
-              'createDiplomacy',
+            final result = engine.hetu.invoke(
+              'updateDiplomacy',
               positionalArgs: [heroSect, sect],
               namedArgs: {
                 'type': 'neutral',
                 'score': kDiplomacyDefaultScore,
               },
             );
+            diplomacyDataId = result['id'];
           }
           final diplomacyData = GameData.game['diplomacies'][diplomacyDataId];
           assert(diplomacyData != null);
           final String type = diplomacyData['type'];
           final score = diplomacyData['score'] as int;
+          siteOptions.add('sectDiplomacy');
           switch (type) {
             case 'ally':
               siteOptions.add('breakAlliance');
+            case 'pact':
+              siteOptions.add('breakPact');
+              if (score >= kDiplomacyScoreAllyThreshold) {
+                siteOptions.add('formAlliance');
+              }
+              siteOptions.add('makeFriend');
             case 'enemy':
               siteOptions.add('startPeaceTalk');
+            case 'truce':
+              siteOptions.add('makeFriend');
             case 'neutral':
               if (score >= kDiplomacyScoreAllyThreshold) {
                 siteOptions.add('formAlliance');
-              } else if (score <= kDiplomacyScoreEnemyThreshold) {
+              }
+              if (score >= kDiplomacyScorePactThreshold) {
+                siteOptions.add('signPact');
+              }
+              if (score <= kDiplomacyScoreEnemyThreshold) {
                 siteOptions.add('declareWar');
               }
               siteOptions.add('makeFriend');
-              siteOptions.add('askHelp');
           }
         }
       }
@@ -1191,12 +1204,152 @@ Future<void> _onInteractNpc(dynamic location) async {
         dialog.pushDialog('hint_checkSectContribution',
             npc: npc, interpolations: [contribution]);
         await dialog.execute();
+      case 'sectDiplomacy':
+        final heroSect = GameData.getSect(heroSectId);
+        final diplomacyDataId = sect['diplomacies'][heroSectId];
+        final diplomacyData = GameData.game['diplomacies'][diplomacyDataId];
+        final typeLocale = engine.locale('diplomacy_${diplomacyData['type']}');
+        dialog.pushDialog(
+          'hint_sect_diplomacy_current',
+          npc: npc,
+          interpolations: [
+            heroSect['name'],
+            sect['name'],
+            typeLocale,
+            diplomacyData['score'],
+          ],
+        );
+        await dialog.execute();
       case 'formAlliance':
+        final heroSect = GameData.getSect(heroSectId);
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'ally'},
+        );
+        dialog.pushDialog(
+          'hint_sect_diplomacy_form_alliance',
+          npc: npc,
+          interpolations: [sect['name'], heroSect['name']],
+        );
+        await dialog.execute();
       case 'breakAlliance':
-      case 'makeFriend':
-      case 'askHelp':
-      case 'makePeace':
+        final heroSect = GameData.getSect(heroSectId);
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'neutral'},
+        );
+        dialog.pushDialog(
+          'hint_sect_diplomacy_break_alliance',
+          npc: npc,
+          interpolations: [heroSect['name'], sect['name']],
+        );
+        await dialog.execute();
+      case 'signPact':
+        final heroSect = GameData.getSect(heroSectId);
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'pact'},
+        );
+        dialog.pushDialog(
+          'hint_sect_diplomacy_sign_pact',
+          npc: npc,
+          interpolations: [heroSect['name'], sect['name']],
+        );
+        await dialog.execute();
+      case 'breakPact':
+        final heroSect = GameData.getSect(heroSectId);
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'neutral'},
+        );
+        dialog.pushDialog(
+          'hint_sect_diplomacy_break_pact',
+          npc: npc,
+          interpolations: [heroSect['name'], sect['name']],
+        );
+        await dialog.execute();
       case 'declareWar':
+        final heroSect = GameData.getSect(heroSectId);
+        // 宣战：更新关系为 enemy，扣除 score
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'enemy'},
+        );
+        engine.hetu.invoke(
+          'updateDiplomacyScore',
+          positionalArgs: [heroSect, sect, kDiplomacyScoreWarDeclare],
+        );
+        // 盟友 C 对 A（宣战方）降低 score
+        final allySectIds = sect['allySectIds'] as Iterable;
+        for (final allySectId in allySectIds) {
+          final allySect = GameData.getSect(allySectId);
+          if (allySect != null) {
+            final allyDiplomacy = allySect['diplomacies'][heroSect['id']];
+            if (allyDiplomacy != null) {
+              engine.hetu.invoke(
+                'updateDiplomacyScore',
+                positionalArgs: [
+                  allySect,
+                  heroSect,
+                  kDiplomacyScoreWarBystander
+                ],
+              );
+            }
+          }
+        }
+        dialog.pushDialog(
+          'hint_sect_diplomacy_declare_war',
+          npc: npc,
+          interpolations: [heroSect['name'], sect['name']],
+        );
+        await dialog.execute();
+      case 'startPeaceTalk':
+        final heroSect = GameData.getSect(heroSectId);
+        // 停战持续 6 个月
+        engine.hetu.invoke(
+          'updateDiplomacy',
+          positionalArgs: [heroSect, sect],
+          namedArgs: {'type': 'truce', 'timespanByMonth': 6},
+        );
+        dialog.pushDialog(
+          'hint_sect_diplomacy_start_peace_talk',
+          npc: npc,
+          interpolations: [heroSect['name'], sect['name']],
+        );
+        await dialog.execute();
+      case 'makeFriend':
+        final heroSect = GameData.getSect(heroSectId);
+        // 增进关系，赠礼（消耗少量铜钱）
+        const giftCost = 1000;
+        final exhausted = engine.hetu.invoke(
+          'exhaust',
+          namespace: 'Player',
+          positionalArgs: ['money', giftCost],
+        ) as int;
+        if (exhausted >= giftCost) {
+          final scoreDelta = (giftCost / 10).floor();
+          engine.hetu.invoke(
+            'updateDiplomacyScore',
+            positionalArgs: [heroSect, sect, scoreDelta],
+          );
+          dialog.pushDialog(
+            'hint_sect_diplomacy_make_friend',
+            npc: npc,
+            interpolations: [heroSect['name'], sect['name']],
+          );
+        } else {
+          dialog.pushDialog(
+            'hint_notEnough',
+            npc: npc,
+            interpolations: [engine.locale('money')],
+          );
+        }
+        await dialog.execute();
     }
   } else if (siteKind == 'cityhall') {
     final siteOptions = <dynamic>[];
@@ -1363,13 +1516,11 @@ Future<void> _onInteractNpc(dynamic location) async {
           kRecruitCityRequirementShard,
         ]);
         await dialog.execute();
-        final diplomacies = sect['diplomacies'];
+        final heroSect = GameData.getSect(GameData.hero['sectId']);
         bool hasEnemy = false;
-        for (final diplomacy in diplomacies.values) {
-          if (diplomacy['type'] == 'enemy') {
-            hasEnemy = true;
-            break;
-          }
+        if (heroSect != null) {
+          final enemySectIds = heroSect['enemySectIds'] as Iterable? ?? [];
+          hasEnemy = enemySectIds.isNotEmpty;
         }
         if (hasEnemy) {
           dialog.pushDialog(

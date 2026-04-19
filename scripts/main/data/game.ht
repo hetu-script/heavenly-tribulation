@@ -74,14 +74,17 @@ struct LocationMonthly {
 
 struct SectMonthly {
   constructor {
+    // 本月内各个成员获得的功勋
+    // key: characterId, value: contribution amount
+    this.contributions = {}
     // 本月新加入的成员
     this.recruited = []
     // 本月获得职位的成员
     this.promoted = []
     // 本月境界突破的成员
     this.breakthrough = []
-    // key: characterId, value: contribution amount
-    this.contributions = {}
+    // 本月外交关系变动
+    this.diplomacyChanges = []
   }
 }
 

@@ -91,4 +91,16 @@ external abstract class Constants {
 
   static get arenaWagerBase;
   static get arenaWagerMultipliers;
+
+  static get diplomacyScoreAllyThreshold;
+  static get diplomacyScorePactThreshold;
+  static get diplomacyScoreEnemyThreshold;
+  static get diplomacyDefaultScore;
+  static get diplomacyScoreWarBystander;
+  static get diplomacyScoreWarDeclare;
+  static get diplomacyScoreOccupyCity;
+  static get diplomacyScoreLoseCity;
+  static get diplomacyScoreMemberKilled;
+  static get diplomacyScoreHelpComplete;
+  static get diplomacyTypes;
 }

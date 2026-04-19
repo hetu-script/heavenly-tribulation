@@ -193,9 +193,19 @@ const kEncounterDefeatMaterialLostPerRank = 0.1
 const kEncounterDefeatEquipmentLostBase = 0.1
 const kEncounterDefeatEquipmentLostPerRank = 0.1
 
-const kDiplomacyTypes = ['neutral', 'ally', 'enemy']
-
 const kDiplomacyDefaultScore = 0
+const kDiplomacyScorePactThreshold = 20
+const kDiplomacyScoreAllyThreshold = 50
+const kDiplomacyScoreEnemyThreshold = -20
+const kDiplomacyScoreWarBystander = -5
+const kDiplomacyScoreWarDeclare = -30
+const kDiplomacyScoreOccupyCity = -20
+const kDiplomacyScoreLoseCity = 5
+const kDiplomacyScoreMemberKilled = -10
+const kDiplomacyScoreHelpComplete = 5
+const kDiplomacyScoreAssassination = -15
+const kDiplomacyScoreAssassinationExposed = -10
+const kDiplomacyScoreBountyComplete = -5
 const kSectJobRankMax = 5
 
 /// 贡献值低于 -100 ，此人将会被门派视为敌人

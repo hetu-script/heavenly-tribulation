@@ -180,6 +180,31 @@ Future<bool> _checkRented(dynamic location,
     return true;
   }
 
+  // 盟友门派的设施免费共享
+  final heroSectId = GameData.hero['sectId'];
+  if (heroSectId != null) {
+    final heroSect = GameData.getSect(heroSectId);
+    final locSectId = location['sectId'];
+    if (locSectId != null && heroSect != null) {
+      final allySectIds = heroSect['allySectIds'] as Iterable?;
+      if (allySectIds != null && allySectIds.contains(locSectId)) {
+        return true;
+      }
+      // 敌对门派的设施不可租用
+      final enemySectIds = heroSect['enemySectIds'] as Iterable?;
+      if (enemySectIds != null && enemySectIds.contains(locSectId)) {
+        final locSect = GameData.getSect(locSectId);
+        dialog.pushDialog(
+          'hint_sect_diplomacy_access_denied',
+          npcId: location['npcId'],
+          interpolations: [locSect?['name'] ?? '', heroSect['name']],
+        );
+        await dialog.execute();
+        return false;
+      }
+    }
+  }
+
   dialog.pushDialog('hint_sectFacilityNotMember', npcId: location['npcId']);
   await dialog.execute();
 

@@ -6,9 +6,55 @@ const _kManagingTitles = {'manager', 'mayor', 'governor'};
 void _updateSectMonthly(dynamic sect, {bool force = false}) {
   if (sect['flags']['monthly']['updated'] == true && !force) return;
 
+  // 检查外交关系是否到期
+  _checkDiplomacyExpiry(sect);
+
   engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
   if (force) {
     sect['flags']['monthly']['updated'] = true;
+  }
+}
+
+/// 检查门派的外交关系是否到期（停战、互不侵犯等有时间限制的关系）
+void _checkDiplomacyExpiry(dynamic sect) {
+  final diplomacies = sect['diplomacies'] as Map?;
+  if (diplomacies == null || diplomacies.isEmpty) return;
+
+  final currentTimestamp = GameData.game['timestamp'] as int;
+
+  for (final entry in diplomacies.entries.toList()) {
+    final otherSectId = entry.key;
+    final diplomacyDataId = entry.value;
+    final diplomacyData = GameData.game['diplomacies'][diplomacyDataId];
+    if (diplomacyData == null) continue;
+
+    final int timespanByMonth = diplomacyData['timespanByMonth'] ?? 0;
+    if (timespanByMonth <= 0) continue;
+
+    final int createdTimestamp = diplomacyData['timestamp'] ?? 0;
+    final int elapsedTicks = currentTimestamp - createdTimestamp;
+    final int durationTicks = timespanByMonth * kTicksPerMonth;
+
+    if (elapsedTicks >= durationTicks) {
+      final otherSect = GameData.getSect(otherSectId);
+      if (otherSect == null) continue;
+
+      final String type = diplomacyData['type'];
+      final localeKey = type == 'truce'
+          ? 'hint_sect_diplomacy_truce_expired'
+          : 'hint_sect_diplomacy_pact_expired';
+      engine.info(engine.locale(localeKey, interpolations: [
+        sect['name'],
+        otherSect['name'],
+      ]));
+
+      // 到期后自动变为 neutral
+      engine.hetu.invoke(
+        'updateDiplomacy',
+        positionalArgs: [sect, otherSect],
+        namedArgs: {'type': 'neutral', 'timespanByMonth': 0},
+      );
+    }
   }
 }
 
@@ -74,7 +120,32 @@ Future<void> _showMeeting(
   dialog.pushDialog('sect_meeting_intro_2', character: superior);
   await dialog.execute();
 
-  final sectMonthly = sect['monthly'] ?? {};
+  final sectMonthly = sect['flags']?['monthly'] ?? {};
+
+  // Part 1: 事件通报 — 外交关系变动通知
+  final List diplomacyChanges = sectMonthly['diplomacyChanges'] ?? [];
+  if (diplomacyChanges.isNotEmpty) {
+    final changeDescriptions = <String>[];
+    for (final change in diplomacyChanges) {
+      final targetSectId = change['targetSectId'];
+      final targetSect = GameData.getSect(targetSectId);
+      if (targetSect == null) continue;
+      final typeLocale = engine.locale('diplomacy_${change['type']}');
+      changeDescriptions.add(engine.locale(
+        'hint_sect_meeting_diplomacy_item',
+        interpolations: [sect['name'], targetSect['name'], typeLocale],
+      ));
+    }
+    if (changeDescriptions.isNotEmpty) {
+      final changesText = changeDescriptions.join('\n');
+      dialog.pushDialog(
+        'hint_sect_meeting_diplomacy_change',
+        character: superior,
+        interpolations: [changesText],
+      );
+      await dialog.execute();
+    }
+  }
 
   // 仪式庆典：新成员加入
   final List recruitedThisMonthIds = sectMonthly['recruited'] ?? [];

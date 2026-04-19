@@ -175,6 +175,28 @@ class Constants extends HTExternalClass {
         return kArenaWagerBase;
       case 'Constants.arenaWagerMultipliers':
         return kArenaWagerMultipliers;
+      case 'Constants.diplomacyScoreAllyThreshold':
+        return kDiplomacyScoreAllyThreshold;
+      case 'Constants.diplomacyScorePactThreshold':
+        return kDiplomacyScorePactThreshold;
+      case 'Constants.diplomacyScoreEnemyThreshold':
+        return kDiplomacyScoreEnemyThreshold;
+      case 'Constants.diplomacyDefaultScore':
+        return kDiplomacyDefaultScore;
+      case 'Constants.diplomacyScoreWarBystander':
+        return kDiplomacyScoreWarBystander;
+      case 'Constants.diplomacyScoreWarDeclare':
+        return kDiplomacyScoreWarDeclare;
+      case 'Constants.diplomacyScoreOccupyCity':
+        return kDiplomacyScoreOccupyCity;
+      case 'Constants.diplomacyScoreLoseCity':
+        return kDiplomacyScoreLoseCity;
+      case 'Constants.diplomacyScoreMemberKilled':
+        return kDiplomacyScoreMemberKilled;
+      case 'Constants.diplomacyScoreHelpComplete':
+        return kDiplomacyScoreHelpComplete;
+      case 'Constants.diplomacyTypes':
+        return kDiplomacyTypes;
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(id);
