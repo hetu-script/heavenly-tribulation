@@ -135,9 +135,9 @@ struct Sect {
     // key 是 城市 id，值是 政策 id
     this.policies = {}
     
-    // 门派牵涉到的外交关系数据 id 列表
+    // key 是其他门派 id，值是 Diplomacy 对象 id
     // 完整的外交关系数据保存在 game.diplomacies 中
-    this.diplomacyIds = []
+    this.diplomacies = {}
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -764,7 +764,7 @@ function addLocationToSect(location, sect, { incurIncident = true }) {
   return
 }
 
-function createDiplomacy(sects: List, {
+function updateDiplomacy(sect1, sect2, {
   type = 'neutral',
   score = kDiplomacyDefaultScore,
   timespanByMonth = 0, // 表示外交关系持续的时间，0 表示永久, > 0 表示持续多少个月
@@ -784,5 +784,5 @@ function createDiplomacy(sects: List, {
   sect1.diplomacies[sect2.id] = diplomacyData.id
   sect2.diplomacies[sect1.id] = diplomacyData.id
 
-  engine.info('${sect1.id}和${sect2.id}建立了外交关系，初始好感度为 ${score}，关系类型为 ${type}')
+  engine.info('${sect1.id}和${sect2.id}建立了外交关系，当前关系评分为 ${score}，关系类型为 ${type}')
 }
