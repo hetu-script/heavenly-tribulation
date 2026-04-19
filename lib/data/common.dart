@@ -446,13 +446,13 @@ Color getColorFromRank(int rank) {
 
 /// 组织的类型即动机，代表了不同的发展方向
 const kSectCategories = {
-  'wuwei', // 无为：清净，隐居，不问世事
-  'cultivation', // 修真：功法，战斗
-  'immortality', // 长生：宗教，等级，境界
-  'chivalry', // 任侠：江湖义气，路见不平拔刀相助
-  'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
-  'wealth', // 财富：经营商号，积累钱币和灵石
-  'pleasure', // 欢愉：享乐，赌博，情色
+  'wuwei', // 无为: 清净，隐居，不问世事
+  'cultivation', // 修真: 功法，战斗
+  'immortality', // 长生: 宗教，等级，境界
+  'chivalry', // 任侠: 江湖义气，路见不平拔刀相助
+  'entrepreneur', // 权霸: 扩张国家领地，发展下属和附庸
+  'wealth', // 财富: 经营商号，积累钱币和灵石
+  'pleasure', // 欢愉: 享乐，赌博，情色
 };
 
 const kCultivationGenres = {
@@ -876,11 +876,11 @@ const kSectCategoryToSiteKind = {
 };
 
 const kSectCategoryExpansionRate = {
-  'wuwei': 0.2,
+  'wuwei': 0.1,
   'cultivation': 0.5,
   'immortality': 0.3,
   'chivalry': 0.6,
-  'entrepreneur': 0.8,
+  'entrepreneur': 0.9,
   'wealth': 0.7,
   'pleasure': 0.4,
 };
@@ -996,7 +996,7 @@ const kArenaWagerBase = {
   5: 33,
 };
 
-/// 斗技厅赌注倍率：低/中/高
+/// 斗技厅赌注倍率: 低/中/高
 const kArenaWagerMultipliers = [1, 3, 5];
 
 final class AttackType {
@@ -1111,9 +1111,9 @@ final kBasePriceByKind = {
   'craftmaterial_upgradeRank': 3600,
   'scroll_paper_fragment': 18,
   'scroll_paper': 360,
-  'identify_scroll': 75,
-  'cardpack': 700,
-  'dungeon_ticket': 2000,
+  'identify_scroll': 250,
+  'cardpack': 1000,
+  'dungeon_ticket': 3000,
   'extracted_affix': 500,
   'sword': 25,
   'sabre': 25,
@@ -1126,11 +1126,11 @@ final kBasePriceByKind = {
   'gloves': 15,
   'helmet': 15,
   'boots': 25,
-  'vehicle': 75,
+  'ship': 75,
   'ring': 35,
   'amulet': 35,
   'pearl': 50,
-  'potion': 15,
+  'potion': 35,
 };
 
 const kItemWithAffixKinds = [
@@ -1145,7 +1145,7 @@ const kItemWithAffixKinds = [
   'gloves',
   'helmet',
   'boots',
-  'vehicle',
+  'ship',
   'ring',
   'amulet',
   'pearl',

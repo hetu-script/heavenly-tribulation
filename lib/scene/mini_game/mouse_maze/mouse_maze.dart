@@ -127,7 +127,7 @@ class _Portal extends CircleComponent {
       final glowRadius = radius + 5 + math.sin(_glowTimer * 3) * 3;
       canvas.drawCircle(offset, glowRadius, _glowPaint);
     } else {
-      // 未激活状态：绘制灰色圆圈，无光晕
+      // 未激活状态: 绘制灰色圆圈，无光晕
       canvas.drawCircle(offset, radius, _inactivePaint);
     }
   }
@@ -225,11 +225,11 @@ class _SwitchDoor extends BorderComponent {
     // 使用通用的线段碰撞检测逻辑
     final Vector2 start, end;
     if (isHorizontal) {
-      // 水平门：从左到右
+      // 水平门: 从左到右
       start = position - Vector2(size.x / 2, 0);
       end = position + Vector2(size.x / 2, 0);
     } else {
-      // 垂直门：从上到下
+      // 垂直门: 从上到下
       start = position - Vector2(0, size.y / 2);
       end = position + Vector2(0, size.y / 2);
     }

@@ -19,7 +19,7 @@ struct Materialpack {
 
     this.category = kItemCategoryMaterialPack
     this.type = kItemTypeConsumable
-    this.kind = kind
+    this.mainAffixId = kind
     this.flavortext = engine.locale('${kind}_description')
     this.stackSize = amount ?? 1
     this.showStack = true
@@ -42,7 +42,7 @@ struct Potion {
   constructor ({
     id,
     rank,
-    kind,
+    mainAffixId,
     level,
     rarity,
     isIdentified = true,
@@ -50,7 +50,6 @@ struct Potion {
     name,
     flavortext,
   }) {
-    
     this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
@@ -58,7 +57,8 @@ struct Potion {
     this.isUsable = true
     this.type = kItemTypeConsumable
     this.category = kItemCategoryPotion
-    this.kind = kind
+    this.kind = 'potion'
+    this.mainAffixId = mainAffixId
 
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
@@ -90,21 +90,21 @@ struct Potion {
     this.affixes = []
     this.affixUniqueIds = Set()
     let mainAffix
-    if (this.kind == null) {
+    if (this.mainAffixId == null) {
       final mainAffixes = game.passives.values.where((affix) {
         if (!affix.isPotionMain) return false
         if (affix.rank > this.rank) return false
         return true
       })
       if (mainAffixes.isEmpty) {
-        throw('Found no main affix for potion: kind: ${this.kind}, rank: ${this.rank}')
+        throw('Found no main affix for potion: kind: ${this.mainAffixId}, rank: ${this.rank}')
       }
 
       mainAffix = Object.create(random.nextIterable(mainAffixes))
-      this.kind = mainAffix.id
+      this.mainAffixId = mainAffix.id
     } else {
-      let passiveRawData = game.passives[this.kind]
-      assert(passiveRawData != null, 'could not find passive for potion kind `${this.kind}`')
+      let passiveRawData = game.passives[this.mainAffixId]
+      assert(passiveRawData != null, 'could not find passive for potion kind `${this.mainAffixId}`')
       mainAffix = Object.create(passiveRawData)
     }
     if (mainAffix.increment != null) {

@@ -106,7 +106,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
   int _worldScale = 1;
   int _worldWidth = 0, _worldHeight = 0;
   late int _locationNumber;
-  late int _sectNumber;
+  late int _nationNumber;
   late int _characterNumber;
   late int _seed;
 
@@ -133,7 +133,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
     final entityNumber = kEntityNumberPerWorldScale[_worldScale]!;
     _locationNumber = entityNumber.$1;
-    _sectNumber = entityNumber.$2;
+    _nationNumber = entityNumber.$2;
     _characterNumber = entityNumber.$3;
 
     _worldScale = kWorldLabelToScale[_worldScaleLabel]!;
@@ -391,7 +391,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                             SizedBox(
                               width: 40.0,
                               child: Text(
-                                '$_sectNumber',
+                                '$_nationNumber',
                                 textAlign: TextAlign.right,
                               ),
                             ),
@@ -477,7 +477,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                         'style': _worldStyle,
                         'width': _worldWidth,
                         'height': _worldHeight,
-                        'nationNumber': _sectNumber,
+                        'nationNumber': _nationNumber,
                         'locationNumber': _locationNumber,
                         'characterNumber': _characterNumber,
                         'enableTutorial': _enableTutorial,

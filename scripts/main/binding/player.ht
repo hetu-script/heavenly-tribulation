@@ -494,13 +494,13 @@ namespace Player {
     assert(hero != null)
     final levelMax = maxLevelForRank(hero.rank)
     if (hero.level >= levelMax) {
-      engine.warning('角色已达到境界允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
+      engine.warning('角色已达到境界允许的最高等级，无法再提升！等级: [${hero.level}], 当前境界: [${hero.rank}]')
       return
     }
 
     let expRequirement = expForLevel(hero.level)
     if (hero.exp < expRequirement) {
-      engine.warning('没有足够的经验值用来提升等级！当前经验值：[${hero.exp}], 需要的经验值：[${expRequirement}]')
+      engine.warning('没有足够的经验值用来提升等级！当前经验值: [${hero.exp}], 需要的经验值: [${expRequirement}]')
       return
     }
 

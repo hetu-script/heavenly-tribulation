@@ -70,7 +70,7 @@ class GameSavesState with ChangeNotifier {
               .convert((await gameSave.read(await gameSave.length())).toList());
           await gameSave.close();
           final gameData = json5Decode(gameDataString);
-          final currentWorldId = (gameData as Map)['currentWorldId'];
+          final currentWorldId = gameData['currentWorldId'];
           final fileName = path.basenameWithoutExtension(entity.path);
           final timestamp =
               entity.lastModifiedSync().toLocal().toMeaningfulString();
@@ -125,7 +125,7 @@ class GameSavesState with ChangeNotifier {
         info = await createSaveInfo(worldId, saveName);
         saves[info.saveName] = info;
       }
-      engine.warning('保存游戏至：[${info.savePath}]');
+      engine.warning('保存游戏至: [${info.savePath}]');
       info.currentWorldId = worldId;
 
       final gameJSONData = (GameData.game as HTStruct).toJSON();

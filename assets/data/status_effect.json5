@@ -1,7 +1,7 @@
 {
   // 战斗状态数据，目前只保存了该状态的id、类型和触发时机
   // 所有的状态都必定有一个图标，永久状态是大图标，临时状态是小图标
-  // 状态icon约定路径为：'assets\images\icon\${id}.png'
+  // 状态icon约定路径为: 'assets\images\icon\${id}.png'
   // isPermanent 的状态为永久状态，单独以大图标绘制在卡组上方，而非角色血条上
   // isOngoing 的状态为持续状态，经过指定的回合数后自动移除
   // isUnique 代表此状态只能获得 1 个，之后再次获取会忽略
@@ -469,7 +469,7 @@
     callbacks: ["self_taking_damage", "opponent_turn_end"],
   },
 
-  // 所有类型的防御：回合开始时减半，受到攻击时抵消伤害
+  // 所有类型的防御: 回合开始时减半，受到攻击时抵消伤害
   // 计算伤害时，防御的优先级是最高的
   defense_physical: {
     id: "defense_physical",
@@ -512,7 +512,7 @@
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
 
-  // 所有类型的易伤：回合开始时减半，受到攻击时增加伤害
+  // 所有类型的易伤: 回合开始时减半，受到攻击时增加伤害
   vulnerable_physical: {
     id: "vulnerable_physical",
     title: "status_vulnerable_physical",
@@ -661,7 +661,7 @@
     callbacks: ["opponent_turn_end"],
   },
 
-  // 元气：回合结束时回复生命
+  // 元气: 回合结束时回复生命
   // 某些地方简称为 vigor
   energy_positive_life: {
     id: "energy_positive_life",
@@ -672,7 +672,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 正气：攻击后恢复生命
+  // 正气: 攻击后恢复生命
   energy_positive_leech: {
     id: "energy_positive_leech",
     title: "status_energy_positive_leech",
@@ -682,7 +682,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 豪气：获得 10 防御穿透
+  // 豪气: 获得 10 防御穿透
   energy_positive_pure: {
     id: "energy_positive_pure",
     title: "status_energy_positive_pure",
@@ -752,7 +752,7 @@
     callbacks: ["self_doing_damage"],
   },
 
-  // 死气：回合结束时失去生命
+  // 死气: 回合结束时失去生命
   energy_negative_life: {
     id: "energy_negative_life",
     title: "status_energy_negative_life",
@@ -762,7 +762,7 @@
     isResource: true,
     callbacks: ["self_turn_start"],
   },
-  // 戾气：攻击后自身受到伤害
+  // 戾气: 攻击后自身受到伤害
   energy_negative_leech: {
     id: "energy_negative_leech",
     title: "status_energy_negative_leech",
@@ -772,7 +772,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 衰气：可能会跳过回合
+  // 衰气: 可能会跳过回合
   energy_negative_pure: {
     id: "energy_negative_pure",
     title: "status_energy_negative_pure",

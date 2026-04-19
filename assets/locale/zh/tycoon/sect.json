@@ -32,7 +32,7 @@
 
   "hint_createSect_success_4": "好地，我们{1}将以<yellow>{0}</>为主要的功法流派。\n阁下果然独具慧眼，必能引领我派弟子走上一条与众不同的修行之路！\n从今日起，{1}正式成立！\n愿我{1}仙福永享，武运昌隆！",
 
-  "hint_recruitCity_intro": "阁下欲招募此城加入贵门派？\n此事非同小可，需满足几项条件。\n其一，阁下需确保贵门派此时<yellow>并未和任何其他门派交战</>，否则我等小民惊惧之下，难以从命。\n其二，阁下需争取本地支持，在本地至少拥有 <yellow>{0} 功勋</>。这可以通过<cyan>完成城市会堂中的悬赏任务来积累</>。\n其三，阁下需准备足够抚慰金以安定民心。这需要：<yellow>{1} × 铜钱，{2} × 灵石</>。\n只要阁下能妥善处理以上事项，城中百姓散修自然情愿归顺。此地便是贵门派的新城市。",
+  "hint_recruitCity_intro": "阁下欲招募此城加入贵门派？\n此事非同小可，需满足几项条件。\n其一，阁下需确保贵门派此时<yellow>并未和任何其他门派交战</>，否则我等小民惊惧之下，难以从命。\n其二，阁下需争取本地支持，在本地至少拥有 <yellow>{0} 功勋</>。这可以通过<cyan>完成城市会堂中的悬赏任务来积累</>。\n其三，阁下需准备足够抚慰金以安定民心。这需要: <yellow>{1} × 铜钱，{2} × 灵石</>。\n只要阁下能妥善处理以上事项，城中百姓散修自然情愿归顺。此地便是贵门派的新城市。",
 
   "hint_recruitCity_atWar": "阁下所属门派目前与其他门派正处于交战状态，无法招募新的城市。\n待战事平息后，再来此处商议此事吧。",
   "hint_recruitCity_notEnoughContribution": "阁下目前在此地的功勋为 {0}，而招募此城至少需要 {1} 功勋。\n阁下可前往城市会堂，领取悬赏任务以积累功勋。",
@@ -87,7 +87,7 @@
   "diplomacy_enemy": "敌对",
   "diplomacy_truce": "停战",
 
-  "hint_sect_diplomacy_current": "目前{0}与{1}的关系为：{2}（评分：{3}）。",
+  "hint_sect_diplomacy_current": "目前{0}与{1}的关系为: {2}（评分: {3}）。",
   "hint_sect_diplomacy_form_alliance": "{0}接受了{1}的同盟请求。两派正式结为同盟。",
   "hint_sect_diplomacy_break_alliance": "{0}单方面解除了与{1}的同盟关系。",
   "hint_sect_diplomacy_declare_war": "{0}向{1}正式宣战！",
@@ -101,7 +101,7 @@
   "hint_sect_diplomacy_pact_expired": "{0}与{1}的互不侵犯条约已到期，双方恢复中立关系。",
   "hint_sect_diplomacy_access_denied": "此地属于{0}的领地，而{0}目前与你所在的{1}处于敌对状态，你无法进入。",
 
-  "hint_sect_meeting_diplomacy_change": "本月外交变动：{0}",
+  "hint_sect_meeting_diplomacy_change": "本月外交变动: {0}",
   "hint_sect_meeting_diplomacy_item": "{0}与{1}的关系变更为{2}",
 
   "sect_wuwei_trial_question_1": "有顽石阻拦溪流，致使下游村庄断水，你将如何？",

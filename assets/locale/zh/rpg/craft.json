@@ -14,7 +14,7 @@
 
   "craft_addAffix_description": "增加一个随机的额外词条。\n不能超过当前境界所允许的额外词条数量上限。\n增加的词条境界等同于灵宝丹自身的境界。",
   "craft_replaceAffix_description": "随机替换一个境界最低的额外词条。\n灵宝丹的境界必须大于等于卡牌或装备的境界才能使用。",
-  "craft_freezeAffix_description": "随机锁定一个境界最高的额外词条。\n被锁定的词条在其他精炼操作中不会被影响。\n最多只能锁定一个词条。\n真定丹的境界决定了能锁定的最高境界的词条。",
+  "craft_freezeAffix_description": "随机锁定一个境界最高的额外词条。\n被锁定的词条在其他精炼操作中不会被影响。\n最多可锁定5个词条，每多一个已锁定词条，所需真定丹境界+1。",
   "craft_rerollAffix_description": "重置所有词条的等级。\n不能超过当前境界所允许的等级上限。\n混元丹的境界必须大于等于卡牌或装备的境界才能使用。",
   "craft_upgradeRank_description": "提升卡牌或装备的境界。\n提升境界后会重新生成所有非锁定的额外词条。\n破境丹的境界必须大于卡牌或装备的当前境界才能使用。",
 
@@ -23,7 +23,8 @@
   "craft_rerollAffix_warning": "当前卡牌或装备没有可以重置数值的额外词条！",
   "craft_rerollAffix_warning_materialRank": "混元丹的境界必须大于等于卡牌或装备的境界！",
   "craft_replaceAffix_warning": "当前卡牌没有可以替换的额外词条！",
-  "craft_freezeAffix_warning": "当前卡牌或装备已有锁定的词条！",
+  "craft_freezeAffix_warning_maxCount": "当前卡牌或装备已锁定词条数已达上限！",
+  "craft_freezeAffix_warning_materialRank": "需要境界不低于{0}的真定丹！",
   "craft_freezeAffix_noAffix": "当前卡牌或装备没有可以锁定的额外词条！",
   "craft_removeAffix_warning": "当前卡牌或装备没有可以移除的额外词条！",
   "craft_upgradeCard_warning": "当前卡牌或装备已经达到境界允许的最高等级({0})！",

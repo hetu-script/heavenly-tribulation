@@ -46,7 +46,7 @@ struct BattleCard {
 
     this.tags = []
 
-    // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
+    // 注意: 主词条数据的genre是字符串，但额外词条的genre是字符串数组
     let mainAffixes = game.battleCards.values.where( (affix) {
       if (affixId) {
         return affix.id == affixId
@@ -172,24 +172,6 @@ function _getSupportAffixes(card) {
   }
 
   return affixes
-}
-
-// function calculateRequirementsOfCard(card) {
-//   let requirement = {}
-
-//   for (final affix in card.affixes) {
-//     for (final key in affix.requirement.keys) {
-//       if (!requirement.containsKey(key)) {
-//         requirement[key] = 0
-//       }
-//       requirement[key] += affix.requirement[key].base + affix.requirement[key].increment * affix.level
-//     }
-//   }
-//   return requirement
-// }
-
-function _checkRequirementForCard(character, card) {
-
 }
 
 function _updateAffixValue(card, affix) {
@@ -362,13 +344,22 @@ function replaceAffix(card, materialRank) {
 }
 
 /// 锁定一个额外词条
+/// 已锁定词条数量决定所需真定丹的最低境界: 
+/// 0个已锁定 → rank>=1, 1个已锁定 → rank>=2, 以此类推，最多5个
 function freezeAffix(card, materialRank) {
-  if (card.hasFreezedAffix) {
-    return engine.locale('craft_freezeAffix_warning')
+  final frozenCount = card.affixes.where( (affix) => affix.isFreezed == true ).length
+  if (frozenCount >= kCultivationRankMax) {
+    return engine.locale('craft_freezeAffix_warning_maxCount')
+  }
+
+  final requiredRank = frozenCount + 1
+  if (materialRank < requiredRank) {
+    return engine.locale('craft_freezeAffix_warning_materialRank',
+      interpolations: [engine.locale('cultivationRank_${requiredRank}')])
   }
 
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
+    return (!affix.isMain && !affix.isFreezed)
   }).toList()
   if (extraAffixes.isEmpty) {
     return engine.locale('craft_freezeAffix_noAffix')
@@ -380,7 +371,6 @@ function freezeAffix(card, materialRank) {
   final targetAffix = random.nextIterable(availableAffixes)
 
   targetAffix.isFreezed = true
-  card.hasFreezedAffix = true
 
   // 这里显式返回空值表明成功执行
   return null

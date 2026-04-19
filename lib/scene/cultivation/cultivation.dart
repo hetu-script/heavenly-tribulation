@@ -74,7 +74,7 @@ enum CultivationMode {
 
 const _kBarrierPriority = 100;
 
-/// 问道碑冥想：每个阶段需要收集的同色光点数量
+/// 问道碑冥想: 每个阶段需要收集的同色光点数量
 const kDaoSteleLightTarget = 5;
 
 /// 每种颜色生成的光点数量
@@ -95,7 +95,7 @@ const kDaoSteleVibrateInterval = 0.15;
 /// 光点抖动幅度
 const kDaoSteleVibrateAmount = 3.0;
 
-/// 第0轮：卡牌类型（attack / buff）
+/// 第0轮: 卡牌类型（attack / buff）
 /// key = locale key, value = 实际值
 const kDaoSteleCategoryPhrases = {
   'daostele_phrase_attack_1': 'attack',
@@ -108,7 +108,7 @@ const kDaoSteleCategoryPhrases = {
   'daostele_phrase_buff_4': 'buff',
 };
 
-/// 第1轮：卡牌稀有度
+/// 第1轮: 卡牌稀有度
 const kDaoSteleRarityPhrases = {
   'daostele_phrase_common': 'common',
   'daostele_phrase_rare': 'rare',
@@ -118,7 +118,7 @@ const kDaoSteleRarityPhrases = {
   'daostele_phrase_arcane': 'arcane',
 };
 
-/// 第2轮：卡牌流派
+/// 第2轮: 卡牌流派
 const kDaoSteleGenrePhrases = {
   'daostele_phrase_neutral': 'neutral',
   'daostele_phrase_swordcraft': 'swordcraft',
@@ -573,7 +573,7 @@ class CultivationScene extends Scene with HasCursorState {
           return;
         }
 
-        // 境界节点：触发突破试炼
+        // 境界节点: 触发突破试炼
         final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement == character['rank'] + 1) {
           tryTribulation(skillButton, nodeId);
@@ -681,7 +681,7 @@ class CultivationScene extends Scene with HasCursorState {
       if (isOpen) {
         final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement > 0 && character['rank'] < rankRequirement) {
-          // 境界节点：需要突破试炼
+          // 境界节点: 需要突破试炼
           if (character['skillPoints'] > 0 || isEditorMode) {
             skillDescription.writeln(engine.locale('passivetree_rank_hint'));
           } else {
@@ -771,7 +771,7 @@ class CultivationScene extends Scene with HasCursorState {
         // 如果是属性节点，需要特殊处理
         // 分配新的属性天赋点时，从五种属性中选择一种，并获得3点该属性值
         // 分配后，按钮也会相应变成对应该属性的颜色
-        // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
+        // 身法: 绿 灵力: 蓝 体魄: 红 意志: 白 神识: 黄
         final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
         assert(attributeId is String);
         final attributeSkillData = GameData.passives[attributeId];
@@ -846,7 +846,7 @@ class CultivationScene extends Scene with HasCursorState {
     _daoStelePhrases.clear();
   }
 
-  /// 进入聚光阶段：生成两种颜色的光点
+  /// 进入聚光阶段: 生成两种颜色的光点
   void _startDaoSteleLightPhase() {
     _clearDaoSteleComponents();
     _daoStelePhase = 0;
@@ -859,7 +859,7 @@ class CultivationScene extends Scene with HasCursorState {
       color: Colors.amberAccent,
     );
 
-    // 生成光点：每种颜色各 kDaoSteleOrbsPerColor 个
+    // 生成光点: 每种颜色各 kDaoSteleOrbsPerColor 个
     for (final colorId in RankedColors.values.keys) {
       for (var i = 0; i < kDaoSteleOrbsPerColor; i++) {
         Vector2 pos;
@@ -927,7 +927,7 @@ class CultivationScene extends Scene with HasCursorState {
     }
   }
 
-  /// 进入选文阶段：生成漂浮的文字选项
+  /// 进入选文阶段: 生成漂浮的文字选项
   void _startDaoSteleTextPhase() {
     _clearDaoSteleComponents();
     _daoStelePhase = 1;
@@ -939,7 +939,7 @@ class CultivationScene extends Scene with HasCursorState {
     );
 
     var allPhrases = getPhrasesForRound(_daoSteleRound);
-    // 稀有度轮次：根据角色境界和据点发展度限制可选稀有度
+    // 稀有度轮次: 根据角色境界和据点发展度限制可选稀有度
     if (_daoSteleRound == 1) {
       final int maxRank = math.min(
         character['rank'] as int,
@@ -953,7 +953,7 @@ class CultivationScene extends Scene with HasCursorState {
     final validPhrases = selectValidPhrases(allPhrases, random);
     final nonsensePhrases = selectNonsensePhrases(random);
 
-    // 构建所有文字选项：(localeKey, value?) — value 为 null 表示胡言乱语
+    // 构建所有文字选项: (localeKey, value?) — value 为 null 表示胡言乱语
     final allOptions = <(String, String?)>[];
     for (final entry in validPhrases) {
       allOptions.add((entry.key, entry.value));
@@ -1388,7 +1388,7 @@ class CultivationScene extends Scene with HasCursorState {
           setMeditateState(CultivationMode.none);
         } else {
           if (isDaoStele) {
-            // 问道碑模式：进入交互式冥想
+            // 问道碑模式: 进入交互式冥想
             _startDaoSteleMeditation();
           } else {
             setMeditateState(mode);

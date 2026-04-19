@@ -21,8 +21,8 @@ struct Equipment {
     this.type = 'equipment'
 
     // kind 决定了物品名字的生成方式
-    // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
-    // talisman具体分为：buff, ongoing, consume
+    // weapon具体分为: sabre, sword, spear, staff, bow, dart, music
+    // talisman具体分为: buff, ongoing, consume
     // 其他情况下 kind == type
     this.kind = kind
     // category 决定了能装备的数量

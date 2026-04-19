@@ -198,7 +198,7 @@ class BattleScene extends Scene {
           amount: 1, handleCallback: false);
     }
 
-    // 灵力每 10 点：战斗开始时获得 1 点灵气
+    // 灵力每 10 点: 战斗开始时获得 1 点灵气
     final int initialMana = character.data['stats']['spirituality'] ~/ 10;
     if (initialMana > 0) {
       character.addStatusEffect('energy_positive_spell',
@@ -531,7 +531,7 @@ class BattleScene extends Scene {
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
 
-    // 后手补偿：恢复少量生命（偷袭时无补偿）
+    // 后手补偿: 恢复少量生命（偷袭时无补偿）
     if (!isSneakAttack) {
       final secondHandCharacter = heroTurn ? enemy : hero;
       final int overheal = secondHandCharacter.life -
@@ -783,7 +783,7 @@ class BattleScene extends Scene {
     if (!isPractice) {
       if (battleResult == true) {
         final replenish = (hero.lifeMax * hpRestoreRate).round();
-        engine.info('战斗结果：[$battleResult], 角色生命恢复：$replenish');
+        engine.info('战斗结果: [$battleResult], 角色生命恢复: $replenish');
         final int newLife = life + replenish;
         hero.setLife(newLife);
       } else {

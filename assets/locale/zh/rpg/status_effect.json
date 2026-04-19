@@ -144,10 +144,10 @@
   "status_shield_psychic_description": "当你受到精神伤害时，免疫所有伤害，消耗 1 层加护。",
 
   "status_ward": "辟邪",
-  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。回合结束时，移除 1 层辟邪。负面效果包括：缓慢、迟钝、内伤、外伤、中毒、幻觉、以及所有种类的易伤。",
+  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。回合结束时，移除 1 层辟邪。负面效果包括: 缓慢、迟钝、内伤、外伤、中毒、幻觉、以及所有种类的易伤。",
 
   "status_injury": "伤势",
-  "status_injury_description": "伤势包括：流血、内伤、中毒、幻觉。",
+  "status_injury_description": "伤势包括: 流血、内伤、中毒、幻觉。",
   "status_injury_external": "流血",
   "status_injury_external_description": "每 1 层流血使你在使用攻击牌时失去 5 点生命。每次恢复生命时，减少 1 层流血。",
   "status_injury_internal": "内伤",
@@ -163,7 +163,7 @@
   "status_enable_rage_description": "回合中每受到 10 点伤害，在回合结束时便获得 1 点剑气。",
 
   "status_energy_positive": "阳气",
-  "status_energy_positive_description": "阳气包括：元气、正气、豪气、灵气、剑气、怒气、煞气、无极之气",
+  "status_energy_positive_description": "阳气包括: 元气、正气、豪气、灵气、剑气、怒气、煞气、无极之气",
   "status_energy_positive_life": "元气",
   "status_energy_positive_life_description": "回合结束时，若生命值不满，消耗 1 层元气，恢复 10% 生命。",
   "status_energy_positive_leech": "正气",
@@ -182,7 +182,7 @@
   "status_energy_positive_ultimate_description": "每层无极之气使你的所有攻击伤害 +5。",
 
   "status_energy_negative": "阴气",
-  "status_energy_negative_description": "阴气包括：死气、戾气、衰气、逆灵之气、止戈之气、非战之气、无心之气、虚空之气。",
+  "status_energy_negative_description": "阴气包括: 死气、戾气、衰气、逆灵之气、止戈之气、非战之气、无心之气、虚空之气。",
   "status_energy_negative_life": "死气",
   "status_energy_negative_life_description": "回合开始时消耗 1 层死气，失去 10% 生命。",
   "status_energy_negative_leech": "戾气",

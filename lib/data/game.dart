@@ -1805,20 +1805,20 @@ final class GameData with ChangeNotifier {
         loc['isDiscovered'] == true);
 
     if (cities.isNotEmpty) {
-      desc.writeln('城市：');
+      desc.writeln('城市: ');
       for (final city in cities) {
         final cityName = city['name'];
         final development = city['development'] ?? 0;
         final kind = city['kind'];
         final kindName = engine.locale(kind);
 
-        desc.write('$cityName（$kindName，规模：$development');
+        desc.write('$cityName（$kindName，规模: $development');
 
         // 所属门派
         final sectId = city['sectId'];
         if (sectId != null) {
           final sect = GameData.getSect(sectId);
-          desc.write('，所属门派：${sect['name']}');
+          desc.write('，所属门派: ${sect['name']}');
         } else {
           desc.write('，无门派管辖');
         }
@@ -1837,7 +1837,7 @@ final class GameData with ChangeNotifier {
                   .toList();
 
           if (charactersInCity.isNotEmpty) {
-            desc.write('  居民：');
+            desc.write('  居民: ');
             final names = charactersInCity.map((char) {
               final name = char['name'];
               final titleId = char['titleId'];
@@ -1856,7 +1856,7 @@ final class GameData with ChangeNotifier {
     }
 
     // 2. 世界门派概况
-    desc.writeln('门派：');
+    desc.writeln('门派: ');
     final sects = GameData.game['sects'].values as Iterable;
     for (final sect in sects) {
       final sectName = sect['name'];
@@ -1884,7 +1884,7 @@ final class GameData with ChangeNotifier {
       final headquartersName = headquarters['name'];
 
       desc.writeln(
-          '- $sectName（$categoryName，$genreName，规模：$development级，成员：$activeMembers人，掌门：$headName（$headRankName），总堂位于$headquartersName）');
+          '- $sectName（$categoryName，$genreName，规模: $development级，成员: $activeMembers人，掌门: $headName（$headRankName），总堂位于$headquartersName）');
     }
 
     return desc.toString().trim();
@@ -1897,13 +1897,13 @@ final class GameData with ChangeNotifier {
     final currentTerrain = engine.context.read<GameState>().currentTerrain;
     final currentLocation = engine.context.read<GameState>().currentLocation;
 
-    desc.writeln('国家：${currentNation != null ? currentNation!['name'] : '无'}');
+    desc.writeln('国家: ${currentNation != null ? currentNation!['name'] : '无'}');
     desc.writeln(
-        '城市：${currentTerrain != null && currentTerrain.cityId != null ? currentTerrain.cityId : '无'}');
+        '城市: ${currentTerrain != null && currentTerrain.cityId != null ? currentTerrain.cityId : '无'}');
     desc.writeln(
-        '坐标：[${currentTerrain != null ? '[${currentTerrain.left},${currentTerrain.top}](${' ${engine.locale(currentTerrain.data?['kind'])}'})' : '未知'}]');
+        '坐标: [${currentTerrain != null ? '[${currentTerrain.left},${currentTerrain.top}](${' ${engine.locale(currentTerrain.data?['kind'])}'})' : '未知'}]');
     desc.writeln(
-        '场景：${currentLocation != null ? currentLocation!['name'] : '无'}');
+        '场景: ${currentLocation != null ? currentLocation!['name'] : '无'}');
 
     return desc.toString().trim();
   }
@@ -1915,26 +1915,26 @@ final class GameData with ChangeNotifier {
     final name = character['name'];
     final isFemale = character['isFemale'];
     final gender = engine.locale(isFemale ? '女' : '男');
-    desc.writeln('姓名：$name');
-    desc.writeln('性别：$gender');
+    desc.writeln('姓名: $name');
+    desc.writeln('性别: $gender');
 
     // 年龄
     final age = engine.hetu
         .invoke('getCharacterAgeString', positionalArgs: [character]);
-    desc.writeln('年龄：$age');
+    desc.writeln('年龄: $age');
 
     // 等级和境界
     final level = character['level'];
     final rank = character['rank'];
     final rankName = engine.locale('cultivationRank_$rank');
-    desc.writeln('等级：$level');
-    desc.writeln('境界：$rankName');
+    desc.writeln('等级: $level');
+    desc.writeln('境界: $rankName');
 
     // 流派
     final cultivationFavor = character['cultivationFavor'];
     if (cultivationFavor != null) {
       final favorName = engine.locale(cultivationFavor);
-      desc.writeln('流派：$favorName');
+      desc.writeln('流派: $favorName');
     }
 
     // 名声和恶名
@@ -1942,8 +1942,8 @@ final class GameData with ChangeNotifier {
         .invoke('getCharacterFameString', positionalArgs: [character]);
     final infamyString = engine.hetu
         .invoke('getCharacterInfamyString', positionalArgs: [character]);
-    desc.writeln('名声：$fameString');
-    desc.writeln('恶名：$infamyString');
+    desc.writeln('名声: $fameString');
+    desc.writeln('恶名: $infamyString');
 
     desc.writeln();
 
@@ -1952,24 +1952,24 @@ final class GameData with ChangeNotifier {
     if (sectId != null) {
       final sect = GameData.getSect(sectId);
       final sectName = sect['name'];
-      desc.write('门派：$sectName');
+      desc.write('门派: $sectName');
 
       final titleId = character['titleId'];
       if (titleId != null) {
         final title = engine.locale(titleId);
-        desc.writeln('职位：$title');
+        desc.writeln('职位: $title');
       }
     } else {
-      desc.writeln('门派：无');
+      desc.writeln('门派: 无');
     }
 
     // 住宅所在城市
     final homeLocationId = character['homeLocationId'];
     if (homeLocationId != null) {
       final homeLocation = GameData.getLocation(homeLocationId);
-      desc.writeln('家宅：${homeLocation['name']}');
+      desc.writeln('家宅: ${homeLocation['name']}');
     } else {
-      desc.writeln('家宅：无固定住所');
+      desc.writeln('家宅: 无固定住所');
     }
 
     desc.writeln();
@@ -1980,13 +1980,13 @@ final class GameData with ChangeNotifier {
     if (motivations != null && motivations.isNotEmpty) {
       final motivationNames =
           motivations.map((m) => engine.locale(m)).join('、');
-      desc.writeln('动机：$motivationNames');
+      desc.writeln('动机: $motivationNames');
     }
 
     // 性格特质
     final personality = character['personality'];
     if (personality != null && personality.isNotEmpty) {
-      desc.write('性格特质：');
+      desc.write('性格特质: ');
       final traits = <String>[];
       for (final traitId in personality.keys) {
         final value = personality[traitId];
@@ -2020,7 +2020,7 @@ final class GameData with ChangeNotifier {
     if (spouseIds != null && spouseIds.isNotEmpty) {
       final spouses =
           spouseIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('配偶：$spouses');
+      desc.writeln('配偶: $spouses');
     }
 
     // 父母
@@ -2028,10 +2028,10 @@ final class GameData with ChangeNotifier {
     final motherId = familyRelationships['motherId'];
     if (fatherId != null || motherId != null) {
       if (fatherId != null) {
-        desc.writeln('父亲：${GameData.getCharacter(fatherId)['name']}');
+        desc.writeln('父亲: ${GameData.getCharacter(fatherId)['name']}');
       }
       if (motherId != null) {
-        desc.writeln('母亲：${GameData.getCharacter(motherId)['name']}');
+        desc.writeln('母亲: ${GameData.getCharacter(motherId)['name']}');
       }
     }
 
@@ -2040,7 +2040,7 @@ final class GameData with ChangeNotifier {
     if (childIds != null && childIds.isNotEmpty) {
       final children =
           childIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('子女：$children');
+      desc.writeln('子女: $children');
     }
 
     // 兄弟姐妹
@@ -2048,7 +2048,7 @@ final class GameData with ChangeNotifier {
     if (siblingIds != null && siblingIds.isNotEmpty) {
       final siblings =
           siblingIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('兄弟姐妹：$siblings');
+      desc.writeln('兄弟姐妹: $siblings');
     }
 
     // 师徒关系
@@ -2059,7 +2059,7 @@ final class GameData with ChangeNotifier {
       if (shifuIds != null && shifuIds.isNotEmpty) {
         final shifus =
             shifuIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-        desc.writeln('师父：$shifus');
+        desc.writeln('师父: $shifus');
       }
 
       // 徒弟
@@ -2070,7 +2070,7 @@ final class GameData with ChangeNotifier {
             .take(5)
             .join('、');
         final more = tudiIds.length > 5 ? '等${tudiIds.length}人' : '';
-        desc.writeln('徒弟：$tudis$more');
+        desc.writeln('徒弟: $tudis$more');
       }
 
       // 同门
@@ -2081,7 +2081,7 @@ final class GameData with ChangeNotifier {
             .take(5)
             .join('、');
         final more = tongmenIds.length > 5 ? '等${tongmenIds.length}人' : '';
-        desc.writeln('同门：$tongmen$more');
+        desc.writeln('同门: $tongmen$more');
       }
     }
 
@@ -2090,21 +2090,21 @@ final class GameData with ChangeNotifier {
     if (romanceIds.isNotEmpty) {
       final romanceNames =
           romanceIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('暧昧：$romanceNames');
+      desc.writeln('暧昧: $romanceNames');
     }
 
     final friendIds = character['friendIds'];
     if (friendIds.isNotEmpty) {
       final friendNames =
           friendIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('朋友：$friendNames');
+      desc.writeln('朋友: $friendNames');
     }
 
     final enemyIds = character['enemyIds'];
     if (enemyIds.isNotEmpty) {
       final enemyNames =
           enemyIds.map((id) => GameData.getCharacter(id)['name']).join('、');
-      desc.writeln('敌人：$enemyNames');
+      desc.writeln('敌人: $enemyNames');
     }
 
     return desc.toString().trim();
@@ -2118,35 +2118,35 @@ final class GameData with ChangeNotifier {
     final name = character['name'];
     final isFemale = character['isFemale'];
     final gender = engine.locale(isFemale ? '女' : '男');
-    desc.writeln('姓名：$name');
-    desc.writeln('性别：$gender');
+    desc.writeln('姓名: $name');
+    desc.writeln('性别: $gender');
 
     // 年龄
     final age = engine.hetu
         .invoke('getCharacterAgeString', positionalArgs: [character]);
-    desc.writeln('年龄：$age');
+    desc.writeln('年龄: $age');
 
     // 等级和境界
     final level = character['level'];
     final rank = character['rank'];
     final rankName = engine.locale('cultivationRank_$rank');
-    desc.writeln('等级：$level');
-    desc.writeln('境界：$rankName');
+    desc.writeln('等级: $level');
+    desc.writeln('境界: $rankName');
 
     // 所属门派和职位
     final sectId = character['sectId'];
     if (sectId != null) {
       final sect = GameData.getSect(sectId);
       final sectName = sect['name'];
-      desc.write('门派：$sectName');
+      desc.write('门派: $sectName');
 
       final titleId = character['titleId'];
       if (titleId != null) {
         final title = engine.locale(titleId);
-        desc.writeln('职位：$title');
+        desc.writeln('职位: $title');
       }
     } else {
-      desc.writeln('门派：无');
+      desc.writeln('门派: 无');
     }
 
     return desc.toString().trim();

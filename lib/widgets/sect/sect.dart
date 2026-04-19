@@ -80,7 +80,7 @@ class _SectViewState extends State<SectView> {
       _locationsTable.add(row);
     }
 
-    final Map diplomacies = _sect['diplomacies'] as Map;
+    final diplomacies = _sect['diplomacies'];
     for (final otherSectId in diplomacies.keys) {
       final row = GameData.getDiplomacyInformationRow(_sect, otherSectId);
       _diplomacyTable.add(row);

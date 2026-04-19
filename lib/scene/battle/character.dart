@@ -649,7 +649,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 人物受到伤害，返回实际伤害值（有可能是0）
   /// 出发伤害时和伤害后的状态效果，并最终结算伤害数值
-  /// details 是脚本发过来的数据对象，内容如下：
+  /// details 是脚本发过来的数据对象，内容如下:
   /// {
   ///   kind: affix.kind,
   ///   attackType: affix.attackType,
@@ -665,9 +665,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 而是对 baseChange 和 percentageChange 进行修改
   /// 最终伤害计算方法
   /// (baseValue + baseValueChange) * (1 + percentageChange1) * (1 + percentageChange2) * (1 + percentageChange3)
-  /// 乘区1：攻击增强，攻击削弱，抗性，弱点，伤害增加，乘区1最小值为-0.75，也就是说最小伤害是0.25
-  /// 乘区2：从闪避中获得的免疫，从迟钝中获得的踉跄
-  /// 乘区3：正气的伤害增加，戾气的伤害减少
+  /// 乘区1: 攻击增强，攻击削弱，抗性，弱点，伤害增加，乘区1最小值为-0.75，也就是说最小伤害是0.25
+  /// 乘区2: 从闪避中获得的免疫，从迟钝中获得的踉跄
+  /// 乘区3: 正气的伤害增加，戾气的伤害减少
   int takeDamage(dynamic damageDetails, {bool recovery = true}) {
     damageDetails['baseChange'] ??= 0;
     damageDetails['percentageChange1'] ??= 0.0;

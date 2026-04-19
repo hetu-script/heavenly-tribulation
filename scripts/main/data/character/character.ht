@@ -19,13 +19,13 @@ const _kCharacterRandomAgeMax = 29
 /// 主要动机决定了门派发展类型
 /// 除了无为之外，主要动机都有正反两面
 const kMajorMotivations= [
-  'wuwei', // 无欲：不愿意加入任何门派
-  'cultivation', // 修真：悟道，功法，战斗
-  'immortality', // 长生：宗教，等级，境界
-  'chivalry', // 任侠：江湖豪杰
-  'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
-  'wealth', // 财富：经营商号，积累钱币和灵石
-  'pleasure', // 欢愉：享乐，赌博，情色
+  'wuwei', // 无欲: 不愿意加入任何门派
+  'cultivation', // 修真: 悟道，功法，战斗
+  'immortality', // 长生: 宗教，等级，境界
+  'chivalry', // 任侠: 江湖豪杰
+  'entrepreneur', // 权霸: 扩张国家领地，发展下属和附庸
+  'wealth', // 财富: 经营商号，积累钱币和灵石
+  'pleasure', // 欢愉: 享乐，赌博，情色
 ]
 
 // 次要动机
@@ -43,8 +43,8 @@ const kMinorMotivations = [
   'protector', // 守护者
   // 长生衍生动机
   'missionary', // 普度世人
-  'religious', // 出家人：侍奉神明
-  'heritage', // 传承：寻找自身财富、知识和地位的继承人
+  'religious', // 出家人: 侍奉神明
+  'heritage', // 传承: 寻找自身财富、知识和地位的继承人
   // 侠义衍生动机
   'swornBrotherhood', // 义气
   'goldPromise', // 一诺千金
@@ -55,19 +55,19 @@ const kMinorMotivations = [
   'monopolism', // 垄断
   // 权霸衍生动机
   // 欢愉衍生动机
-  'adventurer', // 冒险精神：赌博，追求刺激
-  'collector', // 收藏家：收藏和鉴定法宝
+  'adventurer', // 冒险精神: 赌博，追求刺激
+  'collector', // 收藏家: 收藏和鉴定法宝
   'erotic', // 纵情欲海
   // 无欲衍生动机
   'celibate', // 独身
   'dink', // 无后
-  'escapist', // 避世：避免接触其他人，隐瞒自己的过往
+  'escapist', // 避世: 避免接触其他人，隐瞒自己的过往
   // 负面动机
   'avenger', // 复仇
   'prankster', // 捉弄
   'plunderer', // 掠夺
   'destroyer', // 破坏
-  'domination', // 支配：获取仆役和姬妾
+  'domination', // 支配: 获取仆役和姬妾
 ]
 
 const kRelationshipCategories = [
@@ -248,7 +248,7 @@ function _calculateFirstRomance(subject, target) {
   return score
 }
 
-/// 羁绊：保存了对其他角色的主观印象和评价
+/// 羁绊: 保存了对其他角色的主观印象和评价
 /// 羁绊不一定是双向的，可能只有单方面的数据
 struct Bond {
   constructor ({
@@ -266,7 +266,7 @@ struct Bond {
     this.score = score
     // 自己是否见过此对象
     this.haveMet = haveMet
-    // 注意这里是反过来的：
+    // 注意这里是反过来的: 
     // 记录了对象和自己的关系
     // 注意可以同时存在多种关系
     // 这里只保存关系的 kind
@@ -1012,7 +1012,7 @@ function updateBond(subject, target, {
       return
     }
   }
-  engine.info('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动：${score}')
+  engine.info('更新 ${subject.name} 对 ${target.name} 的羁绊，好感变动: ${score}')
 }
 
 function getBondScore(subject, target) {

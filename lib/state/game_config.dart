@@ -45,7 +45,7 @@ class GameConfigState with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      engine.error('加载配置文件失败：$e');
+      engine.error('加载配置文件失败: $e');
     }
   }
 
@@ -97,7 +97,7 @@ class GameConfigState with ChangeNotifier {
 
       notifyListeners();
     } catch (e) {
-      engine.error('保存配置文件失败：$e');
+      engine.error('保存配置文件失败: $e');
     }
   }
 

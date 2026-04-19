@@ -562,12 +562,14 @@ final class GameLogic {
     if (rank <= 0) {
       return -1;
     } else {
-      var count = 128;
-      for (var i = 0; i < rank; ++i) {
-        count = count ~/ 2;
-      }
+      final count = 64 ~/ math.pow(2, rank);
       return count;
     }
+  }
+
+  static int getBaseExpGainPerLight(int rank) {
+    final exp = (rank * rank + (rank + 1)) * kBaseExpGainPerLight;
+    return exp;
   }
 
   static Map<String, int> getLifeSpanForRank(int rank) {
@@ -585,7 +587,7 @@ final class GameLogic {
           perAvailableDaysTillMonthEnd: perAvailableDaysTillMonthEnd);
 
   /// 检查英雄是否满足某个对象的需求
-  /// 需求包括：境界，流派，属性等等
+  /// 需求包括: 境界，流派，属性等等
   /// 如果满足需求，返回 null
   /// 否则返回一个包含了具体信息的富文本字符串
   static String? checkRequirements(dynamic entityData,
@@ -730,13 +732,13 @@ final class GameLogic {
   /// ```
   /// 将所有匹配的乘数乘在一起，然后再乘以物品本身的price
   ///
-  /// 游戏端不会显示具体的影响因子数值，只是会根据数值偏离1.0的程度显示：
+  /// 游戏端不会显示具体的影响因子数值，只是会根据数值偏离1.0的程度显示:
   /// 1.0 = 正常
-  /// 大于1.0时：
+  /// 大于1.0时:
   /// 1.0-1.3: 略微昂贵
   /// 1.3-1.6: 昂贵
   /// 1.6+: 非常昂贵
-  /// 小于1.0时：
+  /// 小于1.0时:
   /// 0.7-1.0: 略微便宜
   /// 0.4-0.7: 便宜
   /// 0.1-0.4: 非常便宜
@@ -751,8 +753,8 @@ final class GameLogic {
     if (priceFactor == null) {
       return price;
     } else {
-      final double base = priceFactor['base'] ?? kBuyRateBase; // 基础值：1.0
-      final double sell = priceFactor['sell'] ?? kSellRateBase; // 基础值：0.5
+      final double base = priceFactor['base'] ?? kBuyRateBase; // 基础值: 1.0
+      final double sell = priceFactor['sell'] ?? kSellRateBase; // 基础值: 0.5
 
       final double category =
           priceFactor['category']?[itemData['category']] ?? 1.0;
@@ -789,8 +791,8 @@ final class GameLogic {
     if (priceFactor == null) {
       return price.round();
     } else {
-      final double base = priceFactor['base'] ?? kBuyRateBase; // 基础值：1.0
-      final double sell = priceFactor['sell'] ?? kSellRateBase; // 基础值：0.5
+      final double base = priceFactor['base'] ?? kBuyRateBase; // 基础值: 1.0
+      final double sell = priceFactor['sell'] ?? kSellRateBase; // 基础值: 0.5
 
       final double kind = priceFactor['kind']?[materialId] ?? 1.0;
 
@@ -941,7 +943,7 @@ final class GameLogic {
     return completer.future;
   }
 
-  // 返回值依次是：卡组下限，消耗牌上限，持续牌上限
+  // 返回值依次是: 卡组下限，消耗牌上限，持续牌上限
   static Map<String, int> getDeckLimitForRank(int rank) {
     assert(rank >= 0);
     final limit = rank + 3;

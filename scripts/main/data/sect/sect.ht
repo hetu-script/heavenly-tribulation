@@ -7,7 +7,7 @@ const _kMinJobRankForGlobalIncident = 3
 /// 门派外交关系数据
 /// 外交关系必然会在双方的数据中同时创建
 /// score 和 type 都反映了外交关系
-/// type 代表了关系的大方向，有六种取值：
+/// type 代表了关系的大方向，有六种取值: 
 ///   'neutral' — 中立（默认初始状态）
 ///   'pact' — 互不侵犯（score >= 20 时可签订）
 ///   'ally' — 同盟（score >= 50 时可结盟，设施共享，无法宣战）
@@ -915,7 +915,7 @@ function getEnemySectMembers(sect) {
   return members
 }
 
-/// 内部函数：根据外交类型刷新双方的 allySectIds / enemySectIds
+/// 内部函数: 根据外交类型刷新双方的 allySectIds / enemySectIds
 function _refreshDiplomacyLists(sect1, sect2, type) {
   // 先从所有列表中移除
   sect1.allySectIds.remove(sect2.id)

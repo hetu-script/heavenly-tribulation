@@ -375,6 +375,7 @@
     isItem: true,
     tags: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
+    rank: 2,
   },
   elementalResistMax: {
     id: "elementalResistMax",
@@ -384,6 +385,7 @@
     isItem: true,
     tags: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
+    rank: 2,
   },
   chiResistMax: {
     id: "chiResistMax",
@@ -393,6 +395,7 @@
     isItem: true,
     tags: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
+    rank: 2,
   },
   psychicResistMax: {
     id: "psychicResistMax",
@@ -402,6 +405,7 @@
     isItem: true,
     tags: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
+    rank: 2,
   },
 
   // 防御保持
@@ -920,7 +924,7 @@
     increment: 0.5,
     isItem: true,
     tags: ["tribulationCount"],
-    rank: 3,
+    rank: 2,
   },
   monthlyIdentifyCardsMax: {
     id: "monthlyIdentifyCardsMax",

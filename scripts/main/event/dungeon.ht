@@ -312,7 +312,7 @@ function _addRandomMerchant() {
 
 function _addPortalByKind(id, kind, tilePosition) {
   let hoverContent
-  engine.info('添加传送门，类别：${kind} 位置：(${tilePosition.left},${tilePosition.top})')
+  engine.info('添加传送门，类别: ${kind} 位置: (${tilePosition.left},${tilePosition.top})')
   hoverContent = engine.locale('dungeon_${kind}_description')
   addPortal(
     tilePosition,
@@ -358,7 +358,7 @@ function _addPortalByNextRoomType(nextRoomType) {
 }
 
 function _prepareMap() {
-  engine.info('生成地牢：当前难度：${game.flags.dungeon.level} 房间编号：${game.flags.dungeon.room}')
+  engine.info('生成地牢: 当前难度: ${game.flags.dungeon.level} 房间编号: ${game.flags.dungeon.room}')
   game.flags.dungeon.buildCompleted = true
   game.flags.dungeon.isElite = false
   game.flags.dungeon.isBoss = false
@@ -370,7 +370,7 @@ function _prepareMap() {
   assert(game.flags.dungeon.room <= game.flags.dungeon.roomMax &&
         roomInfo.contains(game.flags.dungeon.room.toString()) &&
         roomInfo.contains((game.flags.dungeon.room + 1).toString()), 
-    '房间编号超出范围：${game.flags.dungeon.room}')
+    '房间编号超出范围: ${game.flags.dungeon.room}')
 
   final nextRoomType = roomInfo[game.flags.dungeon.room + 1]
   /// 用随机遭遇填充地图
@@ -645,7 +645,7 @@ async function onInteractMapObject(object, terrain) {
             promptExit()
           }
           'replay': {
-            engine.info('重玩当前地牢，当前境界：${game.flags.dungeon.rank}')
+            engine.info('重玩当前地牢，当前境界: ${game.flags.dungeon.rank}')
             Game.tryEnterDungeon(rank: game.flags.dungeon.rank, pushScene: false)
             onEnterMap()
           }
@@ -662,7 +662,7 @@ async function onInteractMapObject(object, terrain) {
               await dialog.execute()
               final selected = dialog.checkSelected('enterNextDungeonLevel')
               if (selected == 'enterNextDungeonLevel') {
-                engine.info('将进入下一层地牢，等级：${game.flags.dungeon.level}')
+                engine.info('将进入下一层地牢，等级: ${game.flags.dungeon.level}')
                 game.flags.dungeon.buildCompleted = false
                 game.flags.dungeon.room = 0
                 game.flags.dungeon.level += 1
@@ -681,7 +681,7 @@ async function onInteractMapObject(object, terrain) {
                 await dialog.execute()
                 final selected = dialog.checkSelected('enterNextDungeonRank')
                 if (selected == 'enterNextDungeonRank') {
-                  engine.info('即将进入下一个境界的地牢，当前境界：${game.flags.dungeon.rank}')
+                  engine.info('即将进入下一个境界的地牢，当前境界: ${game.flags.dungeon.rank}')
                   Game.tryEnterDungeon(isCommon: false, pushScene: false)
                   onEnterMap()
                 }

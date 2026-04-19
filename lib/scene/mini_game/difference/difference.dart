@@ -149,8 +149,8 @@ class DifferenceGame extends Scene with HasCursorState {
         );
 
   void setOffset(Vector2 newClipOffset) {
-    // 边界检查：确保图片不会超出组件边界
-    // clipOffset的有效范围：[0, size * (zoom - 1)]
+    // 边界检查: 确保图片不会超出组件边界
+    // clipOffset的有效范围: [0, size * (zoom - 1)]
     final maxOffset = GameUI.differenceGamePictureSize * (_zoom - 1.0);
     newClipOffset.x = newClipOffset.x.clamp(0.0, maxOffset.x);
     newClipOffset.y = newClipOffset.y.clamp(0.0, maxOffset.y);
@@ -170,9 +170,9 @@ class DifferenceGame extends Scene with HasCursorState {
     picRight.zoom = _zoom;
 
     // 计算鼠标位置在图片上对应的点（相对于原图的坐标）
-    // 缩放前：imagePoint = (mousePos + clipOffset) / oldZoom
-    // 缩放后保持该点在鼠标位置：(mousePos + newClipOffset) / newZoom = imagePoint
-    // 因此：newClipOffset = imagePoint * newZoom - mousePos
+    // 缩放前: imagePoint = (mousePos + clipOffset) / oldZoom
+    // 缩放后保持该点在鼠标位置: (mousePos + newClipOffset) / newZoom = imagePoint
+    // 因此: newClipOffset = imagePoint * newZoom - mousePos
     final imagePoint = (mousePos + picLeft.clipOffset) / oldZoom;
     final newClipOffset = imagePoint * _zoom - mousePos;
 
@@ -518,7 +518,7 @@ class DifferenceGame extends Scene with HasCursorState {
       case MiniGameDifficulty.easy:
         maxErrors = 7;
         diffCount = 5;
-        // 简单模式：挑选尺寸（面积）最大的不同之处
+        // 简单模式: 挑选尺寸（面积）最大的不同之处
         // 按面积降序排序
         selectedDiffs.sort((a, b) =>
             ((b['width'] as num) * (b['height'] as num))
@@ -556,7 +556,7 @@ class DifferenceGame extends Scene with HasCursorState {
 
     // 获取原始图片尺寸
     final originalSize = picRight.sprite!.srcSize;
-    // 计算缩放比例：显示尺寸 / 原始尺寸
+    // 计算缩放比例: 显示尺寸 / 原始尺寸
     final scaleX = GameUI.differenceGamePictureSize.x / originalSize.x;
     final scaleY = GameUI.differenceGamePictureSize.y / originalSize.y;
 

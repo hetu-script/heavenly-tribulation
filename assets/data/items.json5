@@ -7,7 +7,7 @@
   // craftmaterial 用于打造的材料，不能直接使用
   // miscellaneous 其他类型的物品，可能有特殊用途
 
-  // 特殊属性：
+  // 特殊属性:
   // isRankedName 该物品根据境界不同而有独特的名字
   // isRankedItem 该物品境界和稀有度至少为1，属性应用于从 1 到 5 的不同境界，并且会拥有相应的 flavortext 和 icon
   // isIdentified 是否已鉴定

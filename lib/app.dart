@@ -80,7 +80,7 @@ class _GameAppState extends State<GameApp> {
   }
 
   Future<void> _initEngine() async {
-    engine.setLoading(true);
+    engine.setLoading(true, tip: engine.locale(kTips.random));
     // 初始化引擎
     final sw = Stopwatch()..start();
 
@@ -334,6 +334,12 @@ class _GameAppState extends State<GameApp> {
         'getTribulationCountForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getTribulationCountForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'getBaseExpGainPerLight',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.getBaseExpGainPerLight(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
@@ -709,7 +715,7 @@ class _GameAppState extends State<GameApp> {
           positionalArgs[0], positionalArgs[1], positionalArgs[2]);
     }, override: true);
 
-    engine.info('游戏引擎初始化耗时：${sw.elapsedMilliseconds}ms');
+    engine.info('游戏引擎初始化耗时: ${sw.elapsedMilliseconds}ms');
 
     sw.reset();
     final mainConfig = {'locale': engine.languageId};
@@ -750,14 +756,14 @@ class _GameAppState extends State<GameApp> {
         }
       }
     }
-    engine.info('模组数据初始化耗时：${sw.elapsedMilliseconds}ms');
+    engine.info('模组数据初始化耗时: ${sw.elapsedMilliseconds}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     sw.reset();
 
     await GameData.init();
 
-    engine.info('游戏数据初始化耗时：${sw.elapsedMilliseconds}ms');
+    engine.info('游戏数据初始化耗时: ${sw.elapsedMilliseconds}ms');
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));

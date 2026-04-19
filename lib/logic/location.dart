@@ -336,7 +336,7 @@ void _onInteractDungeonEntrance({
   );
 }
 
-/// 和斗技厅交互：选择赌注档位，匹配对手，开始战斗
+/// 和斗技厅交互: 选择赌注档位，匹配对手，开始战斗
 void _onInteractArena({
   dynamic location,
 }) async {
@@ -456,7 +456,7 @@ void _onInteractArena({
   }
 
   // 根据赌注档位调整对手等级
-  // 低档：境界最小等级附近；中档：中间等级；高档：接近最高等级
+  // 低档: 境界最小等级附近；中档: 中间等级；高档: 接近最高等级
   if (opponent['id'] == null) {
     // 路人角色可以直接设定等级
     int targetLevel;
@@ -486,7 +486,7 @@ void _onInteractArena({
     loseOnEscape: true,
     onBattleEnd: (bool battleResult, int roundCount) async {
       if (battleResult) {
-        // 胜利：返还赌注 + 获得等额奖金
+        // 胜利: 返还赌注 + 获得等额奖金
         final reward = wager * 2;
         engine.hetu.invoke('collect',
             namespace: 'Player', positionalArgs: [currencyId, reward]);

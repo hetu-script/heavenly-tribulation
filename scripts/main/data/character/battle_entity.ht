@@ -123,7 +123,6 @@ struct BattleEntity {
     this.description = description ?? ''
 
     // 修真境界，凝气期是1
-    // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
     // 在所有流派中，只有修为等级最高的那个流派决定了境界
     this.rank = rank ?? 0
     // 修为等级，每次提升修为等级可以获得1点天赋点
@@ -186,7 +185,7 @@ struct BattleEntity {
     this.battleDeckIndex = -1
 
     // 角色的属性
-    // 包括：灵力、身法、体魄、念力、神识
+    // 包括: 灵力、身法、体魄、念力、神识
     if (attributes == null) {
       generateAttributes(this)
     } else {
@@ -212,15 +211,15 @@ struct BattleEntity {
 
     // 角色的数值
     // 包括经过物品、天赋和状态加成的基本属性值
-    // 通过属性还会计算出：攻击、防御、体力、生命、灵气
+    // 通过属性还会计算出: 攻击、防御、体力、生命、灵气
     this.stats = stats ?? {}
 
-    // 煞气：角色击败过的其他角色的数量，本身也是一种资源，可以被消耗
+    // 煞气: 角色击败过的其他角色的数量，本身也是一种资源，可以被消耗
     this.karma = 0
     
     this.mainAttribute = getMainAttribute(this)
 
-    // 主流派：御剑、道术、锻体、炼魂、法身
+    // 主流派: 御剑、道术、锻体、炼魂、法身
     this.cultivationFavor = cultivationFavor ?? Constants.attributeToGenre[this.mainAttribute]
     // 加点路线
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
@@ -277,7 +276,7 @@ function getMainAttribute(character) {
 }
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
-/// 状态包括：生命、伤害、防御等。
+/// 状态包括: 生命、伤害、防御等。
 function characterCalculateStats(character, { reset = false, rejuvenate = false}) {
   if (reset) {
     character.stats = {}
@@ -293,7 +292,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
   character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception
-  character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * Constants.baseExpGainPerLight
+  character.expGainPerLight = getBaseExpGainPerLight(character.rank)
   character.expCollectSpeed = Constants.baseExpCollectSpeed
   character.plainMoveSpeed = Constants.basePlainMoveSpeed
   character.mountainMoveSpeed = Constants.baseMountainMoveSpeed
@@ -377,9 +376,9 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
     character.stats.psychicResist = character.stats.psychicResistMax
   }
 
-  // 神识每 20 点：速度和闪避阈值 -1
+  // 神识每 20 点: 速度和闪避阈值 -1
   character.stats.quickThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.quickThreshold?.value + character.potionPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  // 念力每 20 点：缓慢和迟钝阈值 +1
+  // 念力每 20 点: 缓慢和迟钝阈值 +1
   character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.slowThreshold?.value + character.potionPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
   character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.nimbleThreshold?.value + character.potionPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
   character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.clumsyThreshold?.value + character.potionPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
@@ -390,11 +389,11 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 }
 
 /// 设定生命值，最终值一定大于 0
-/// 若尝试将生命设为小于 0 则会触发劫难 并返回 true
+/// 若尝试将生命设为小于 0 则会触发劫数 并返回 true
 function setCharacterLife(character, life, { overflow = false }) {
   let isDying = false
   if (life <= 0) {
-    engine.warning('角色 ${character.id} 遭遇劫难，生命值重设为 1')
+    engine.warning('角色 ${character.id} 遭遇劫数，生命值重设为 1')
     life = 1.0
     isDying = true
     character.tribulationCount += 1

@@ -1,4 +1,4 @@
-# 项目：天道奇劫 (Heavenly Tribulation)
+# 项目: 天道奇劫 (Heavenly Tribulation)
 
 仙侠题材 RPG，融合 Roguelike + 卡牌战斗 + 经营建设 + 大地图探索。
 设计文档见 `docs/` 目录。
@@ -8,8 +8,8 @@
 - Flutter 3.27+ / Dart 3.6+ / Flame 1.32+
 - 自研引擎 Samsara Engine（本地路径 `../samsara-engine`，基于 Flame）
 - 脚本系统 Hetu Script（本地路径 `../hetu-script`）
-- UI：Material + Fluent UI（本地 fork）
-- 状态管理：Provider + ChangeNotifier（见 `lib/state/`）
+- UI: Material + Fluent UI（本地 fork）
+- 状态管理: Provider + ChangeNotifier（见 `lib/state/`）
 
 ## 构建和运行
 
@@ -56,7 +56,7 @@ final gameState = GameState();      // 全局状态（ChangeNotifier）
 
 ### 状态管理
 
-`lib/state/` 下的 `ChangeNotifier` 类，通过 Provider 注入：
+`lib/state/` 下的 `ChangeNotifier` 类，通过 Provider 注入:
 
 - `GameState` — 主状态（英雄、时间戳、日志、NPC、地形）
 - `WorldMapState`、`CharacterState`、`MeetingState` 等
@@ -77,7 +77,7 @@ final gameState = GameState();      // 全局状态（ChangeNotifier）
 
 ### 数据
 
-- `assets/data/*.json5` — JSON5 格式的游戏数据：
+- `assets/data/*.json5` — JSON5 格式的游戏数据:
 - `cards.json5` / `card_affixes.json5` — 卡牌和词条
 - `items.json5` — 物品
 - `maps.json5` — 地图定义（六边形地块）
@@ -94,7 +94,7 @@ HTStruct 类似 Javascript 中的 object ，可以在运行时动态增删属性
 在脚本中，使用 object.property 的方式访问属性，如 `hero.level`、`item.name`。
 在 Dart 中，使用类似 Map 对象的方式访问属性，如 `hero['level']`、`item['name']`。
 
-脚本入口：`scripts/main/main.ht`。编译后输出到 `assets/mods/main.mod`。
+脚本入口: `scripts/main/main.ht`。编译后输出到 `assets/mods/main.mod`。
 
 - `scripts/main/binding/` — Dart↔Hetu 桥接
 - `scripts/main/data/` — 数据定义（稀有度、常量、角色/物品/地点/门派）
@@ -113,6 +113,6 @@ HTStruct 类似 Javascript 中的 object ，可以在运行时动态增删属性
 - 允许 `constant_identifier_names`（常量使用 `kMaxHeroAge` 风格）
 - 允许 `avoid_print`（调试用）
 - 使用 `final class` 防止继承
-- 本地化字符串：`engine.locale('key')`
+- 本地化字符串: `engine.locale('key')`
 - Hetu 互操作时常用 `dynamic` 类型
 - 注释使用中文

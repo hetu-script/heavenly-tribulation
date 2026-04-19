@@ -238,7 +238,7 @@ struct CardScriptExtra {
     self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0] * amount)
   }
 
-  /// 加持额外词条：
+  /// 加持额外词条: 
 
   /// 使用元气，获得生命
   async function consume_vigor_heal(self, opponent, affix, mainAffix) {

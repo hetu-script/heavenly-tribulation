@@ -271,7 +271,7 @@ class _NanogramPuzzle {
     // (1, length-2, 1) 等各种组合...
     for (int a = 1; a < length - 1; a++) {
       for (int b = 1; b < length - a; b++) {
-        // 检查是否唯一：a + b + 间隔数 == length
+        // 检查是否唯一: a + b + 间隔数 == length
         int gaps = 1; // a和b之间至少1个空格
         if (a + b + gaps == length) {
           patterns.add([a, b]);
@@ -715,10 +715,10 @@ class _NanogramBoard extends GameComponent with HandlesGesture {
 
         // 根据锁定的方向判断是否处理该格子
         if (_dragDirection == _DragDirection.horizontal) {
-          // 水平拖动：只处理同行的格子
+          // 水平拖动: 只处理同行的格子
           if (cellPos.$2 != _dragStartCell!.row) return;
         } else if (_dragDirection == _DragDirection.vertical) {
-          // 垂直拖动：只处理同列的格子
+          // 垂直拖动: 只处理同列的格子
           if (cellPos.$1 != _dragStartCell!.col) return;
         }
 
@@ -1410,7 +1410,7 @@ class NanogramGame extends Scene with HasCursorState {
     final availableHeight =
         size.y - GameUI.miniGameTopBarHeight - GameUI.largeIndent;
 
-    // 提示区域：左侧2个tileSize，上方2个tileSize
+    // 提示区域: 左侧2个tileSize，上方2个tileSize
     // 总需求 = (puzzleSize + 2) * tileSize
     final maxTileSizeWidth = availableWidth / (puzzleSize + 2);
     final maxTileSizeHeight = availableHeight / (puzzleSize + 2);

@@ -16,19 +16,19 @@ const kLocationKindHeadquarters = 'headquarters'
 const kLocationKindCityhall = 'cityhall'
 // 交易所，每个城市默认建筑，用来进行材料的交易
 const kLocationKindTradingHouse = 'tradinghouse'
-// 无为：问道碑，可以打坐获取功法
+// 无为: 问道碑，可以打坐获取功法
 const kLocationKindDaoStele = 'daostele'
-// 长生：聚灵阵，可以打坐获取经验值
+// 长生: 聚灵阵，可以打坐获取经验值
 const kLocationKindExpArray = 'exparray'
-// 修真：藏书阁
+// 修真: 藏书阁
 const kLocationKindLibrary = 'library'
-// 任侠：斗技场
+// 任侠: 斗技场
 const kLocationKindArena = 'arena'
-// 权霸：镇魔司
+// 权霸: 镇魔司
 const kLocationKindJusticeHall = 'justicehall'
-// 财富：拍卖行
+// 财富: 拍卖行
 const kLocationKindAuctionHouse = 'auctionhouse'
-// 欢愉：酒楼
+// 欢愉: 酒楼
 const kLocationKindHotel = 'hotel'
  
 // 下面这些建筑是副职业，每种流派有两个
@@ -468,7 +468,7 @@ function getLocationByWorldPosition(left, top, {worldId}) {
 
 async function discoverLocation(location, { updateWorldMap = false }) {
   if (location.isDiscovered) return
-  // engine.debug('发现新城市：${location.name}')
+  // engine.debug('发现新城市: ${location.name}')
   location.isDiscovered = true
   assert(universe.containsKey(location.worldId), location.worldId)
   let atWorld = universe[location.worldId]

@@ -43,7 +43,7 @@ namespace dialog {
     interpolations,
   });
 
-  /// selection 对话框的 data 数据结构：
+  /// selection 对话框的 data 数据结构: 
   /// {
   ///   id: 'taskId',
   ///   selections: {

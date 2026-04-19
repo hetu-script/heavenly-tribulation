@@ -42,20 +42,20 @@ struct Incident {
       if(subject != null) {
         entityExperienceIncident(subject, this)
       } else {
-        engine.error('无法找到事件的主体角色，id 为：${subjectId}')
+        engine.error('无法找到事件的主体角色，id 为: ${subjectId}')
       }
     }
 
     if (targetId) {
       if (targetId == subjectId) {
-        engine.error('事件的主体和目标不能是同一个角色，id 为：${targetId}')
+        engine.error('事件的主体和目标不能是同一个角色，id 为: ${targetId}')
       } else {
         chars.add(targetId)
         const target = game.characters[targetId]
         if(target != null) {
           entityExperienceIncident(target, this)
         } else {
-          engine.error('无法找到事件的目标角色，id 为：${targetId}')
+          engine.error('无法找到事件的目标角色，id 为: ${targetId}')
         }
       }
     }
@@ -67,21 +67,21 @@ struct Incident {
     let sect
     if (sectId) {
       sect = game.sects[sectId]
-      assert(sect != null, '无法找到事件所属的组织，id 为：${sectId}')
+      assert(sect != null, '无法找到事件所属的组织，id 为: ${sectId}')
       entityExperienceIncident(sect, this)
     }
 
     let location
     if (locationId) {
       location = game.locations[locationId]
-      assert(location != null, '无法找到事件所属的地点，id 为：${locationId}')
+      assert(location != null, '无法找到事件所属的地点，id 为: ${locationId}')
       entityExperienceIncident(location, this)
     }
     
     let terrain
     if (terrainIndex) {
       terrain = world.terrains[terrainIndex]
-      assert(terrain != null, '无法找到事件所属的地块，index 为：${terrainIndex}')
+      assert(terrain != null, '无法找到事件所属的地块，index 为: ${terrainIndex}')
       entityExperienceIncident(terrain, this)
     }
 
@@ -97,7 +97,7 @@ struct Incident {
           if (chars.contains(id)) continue
           chars.add(id)
           const member = game.characters[id]
-          assert(member != null, '无法找到组织成员，id 为：${id}')
+          assert(member != null, '无法找到组织成员，id 为: ${id}')
           characterKnowIncident(member, this, witnessed: true)
         }
       }
@@ -148,7 +148,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
   }
 
   if (character.known.contains(incident.id)) {
-    engine.warning('${entity.name} 已经知道了事件：[${incident.message}]，不能再次添加。')
+    engine.warning('${entity.name} 已经知道了事件: [${incident.message}]，不能再次添加。')
     return
   }
 
@@ -182,7 +182,7 @@ function entityExperienceIncident(entity, incident) {
   }
 
   if (entity.experienced.contains(incident.id)) {
-    engine.warning('${entity.id} 已经经历了事件：[${incident.message}]')
+    engine.warning('${entity.id} 已经经历了事件: [${incident.message}]')
     return
   }
 

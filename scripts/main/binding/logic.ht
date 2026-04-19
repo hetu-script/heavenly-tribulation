@@ -18,6 +18,8 @@ external function getMinMaxExtraAffixCount(rank) -> Map
 
 external function getTribulationCountForRank(rank) -> integer
 
+external function getBaseExpGainPerLight(rank) -> integer
+
 external function getDeckLimitForRank(rank) -> Map
 
 // external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
@@ -529,7 +531,7 @@ function handleBabies {
   }
 }
 
-/// 动态计算角色声名：对此人的评价大于等于零的人数(n)除以世界总人口(p)。
+/// 动态计算角色声名: 对此人的评价大于等于零的人数(n)除以世界总人口(p)。
 function calculateFame(character) {
   let n = 0
   for (final otherChar of game.characters) {
@@ -544,7 +546,7 @@ function calculateFame(character) {
   character.fame = (n / game.characters.length * 100).truncate()
 }
 
-/// 动态计算角色恶名：对此人的评价小于零的人数(n)除以世界总人口(p)。
+/// 动态计算角色恶名: 对此人的评价小于零的人数(n)除以世界总人口(p)。
 function calculateInfamy(character) {
   let n = 0
   for (final otherChar of game.characters) {

@@ -52,15 +52,15 @@ class Inventory extends StatefulWidget {
       onItemSecondaryTapped;
   final void Function(dynamic itemData)? onMouseEnterItemGrid;
 
-  /// 物品过滤条件，传入一个 Map/HTStruct，支持以下字段：
-  /// - `rank`（int）：精确匹配境界等级
-  /// - `minRank`（int）：最低境界等级（含）
-  /// - `maxRank`（int）：最高境界等级（含）
-  /// - `type`（String）：物品类型，如 `'equipment'`、`'craftmaterial'` 等
-  /// - `category`（String）：物品类别，如 `'weapon'`、`'armor'` 等
-  /// - `kind`（String）：物品种类，如 `'sword'`、`'shard'` 等
-  /// - `id`（String）：物品唯一 ID
-  /// - `isIdentified`（bool）：是否已鉴定
+  /// 物品过滤条件，传入一个 Map/HTStruct，支持以下字段:
+  /// - `rank`（int）: 精确匹配境界等级
+  /// - `minRank`（int）: 最低境界等级（含）
+  /// - `maxRank`（int）: 最高境界等级（含）
+  /// - `type`（String）: 物品类型，如 `'equipment'`、`'craftmaterial'` 等
+  /// - `category`（String）: 物品类别，如 `'weapon'`、`'armor'` 等
+  /// - `kind`（String）: 物品种类，如 `'sword'`、`'shard'` 等
+  /// - `id`（String）: 物品唯一 ID
+  /// - `isIdentified`（bool）: 是否已鉴定
   ///
   /// 所有字段均可选，为 null 时不过滤该维度。
   /// 已装备的物品始终被排除。

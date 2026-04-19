@@ -60,6 +60,9 @@ const kEstimatePriceFactor = 0.8;
 const kUnknownItemBasePrice = 100;
 
 function calculatePrice(item) {
+  if (!Constants.basePriceByKind.containsKey(item.kind)) {
+    engine.warning('found no base price for item kind: ${item.kind}')
+  }
   if (Constants.itemWithAffixKinds.contains(item.kind)) {
     item.price = (item.rank * item.rank + 1) * (item.level + 1) *
       (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByKind[item.kind] ?? kUnknownItemBasePrice)
@@ -468,7 +471,7 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 }
 
 /// 按配置获取宝箱内的物品
-/// 分为四种：材料，预定义物品，装备，卡包
+/// 分为四种: 材料，预定义物品，装备，卡包
 /// category: ['material', 'prototype', 'equipment', 'cardpack']
 /// items = [
 ///   {

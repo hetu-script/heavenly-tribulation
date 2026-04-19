@@ -187,12 +187,6 @@
         children: [],
       },
       {
-        id: "pivotal",
-        title: "wiki_pivotal_title",
-        path: "docs/docs/story/pivotal/readme.md",
-        children: [],
-      },
-      {
         id: "ending",
         title: "wiki_ending_title",
         path: "docs/docs/story/ending/readme.md",

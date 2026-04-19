@@ -10,7 +10,7 @@ import '../ui/responsive_view.dart';
 import '../../ui.dart';
 
 class EditLocationBasics extends StatefulWidget {
-  /// 返回六个值的元组：
+  /// 返回六个值的元组:
   /// category, kind, id, name, image, background
   const EditLocationBasics({
     super.key,

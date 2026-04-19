@@ -598,7 +598,7 @@ final class GameUI {
   static void setSize(Vector2 newSize) {
     if (size == newSize) return;
     size = newSize;
-    engine.info('画面尺寸修改为：${size.x}x${size.y}');
+    engine.info('画面尺寸修改为: ${size.x}x${size.y}');
 
     // Hovertip.defaultContentConfig = Hovertip.defaultContentConfig.copyWith(
     //   textStyle: TextStyle(fontFamily: GameUI.fontFamily),

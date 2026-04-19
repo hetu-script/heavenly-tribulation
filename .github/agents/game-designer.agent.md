@@ -7,15 +7,15 @@ tools: [read, search, edit, web]
 
 ## 知识范围
 
-- 灵感来源：太阁立志传、弈仙牌、暗黑破坏神、POE、杀戮尖塔、战场兄弟
-- 游戏设计文档：`docs/` 目录
-- 角色修炼系统：6 境界（无/凝气/筑基/结丹/还婴/化神），5 流派（锻体/御剑/悟道/炼魂/法身）
-- 卡牌战斗系统：`assets/data/cards.json5`、`assets/data/card_affixes.json5`、`scripts/main/cardgame/`
-- 天赋树：`assets/data/passives.json5`、`assets/data/passive_tree.json5`
-- 物品和制造：`assets/data/passives.json5`、`assets/data/items.json5`、`assets/data/craftables.json5`
-- 地图和世界生成：`assets/data/maps.json5`、`scripts/main/world/`
-- 任务和事件：`assets/data/quests.json5`、`assets/data/journals.json5`、`scripts/main/event/`
-- 状态效果：`assets/data/status_effect.json5`
+- 灵感来源: 太阁立志传、弈仙牌、暗黑破坏神、POE、杀戮尖塔、战场兄弟
+- 游戏设计文档: `docs/` 目录
+- 角色修炼系统: 6 境界（无/凝气/筑基/结丹/还婴/化神），5 流派（锻体/御剑/悟道/炼魂/法身）
+- 卡牌战斗系统: `assets/data/cards.json5`、`assets/data/card_affixes.json5`、`scripts/main/cardgame/`
+- 天赋树: `assets/data/passives.json5`、`assets/data/passive_tree.json5`
+- 物品和制造: `assets/data/passives.json5`、`assets/data/items.json5`、`assets/data/craftables.json5`
+- 地图和世界生成: `assets/data/maps.json5`、`scripts/main/world/`
+- 任务和事件: `assets/data/quests.json5`、`assets/data/journals.json5`、`scripts/main/event/`
+- 状态效果: `assets/data/status_effect.json5`
 
 ## 工作方式
 

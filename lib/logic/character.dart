@@ -304,7 +304,7 @@ void _heroRest(dynamic location) async {
       dialog.pushDialog('hint_hotelRoom_selected', npcId: location['npcId']);
       await dialog.execute();
     } else {
-      engine.error('非可休息场所：[${location['name']}] ($siteKind)');
+      engine.error('非可休息场所: [${location['name']}] ($siteKind)');
       return;
     }
   }
@@ -647,7 +647,7 @@ Future<void> _heroProduce(dynamic location) async {
   assert(
       kProductionSiteKinds.contains(siteKind) &&
           kSiteWorkableStaminaCost.containsKey(siteKind),
-      '非可生产场所：${location['name']} ($siteKind)');
+      '非可生产场所: ${location['name']} ($siteKind)');
 
   final isRented = await GameLogic.checkRented(location);
   if (!isRented) return;
@@ -674,7 +674,7 @@ Future<void> _heroProduce(dynamic location) async {
 Future<void> _heroWork(dynamic location) async {
   final siteKind = location['kind'];
   if (!kSiteKindsWorkable.contains(siteKind)) {
-    engine.error('非可工作场所：${location['name']} ($siteKind)');
+    engine.error('非可工作场所: ${location['name']} ($siteKind)');
     return;
   }
 
@@ -1274,7 +1274,7 @@ Future<void> _onInteractNpc(dynamic location) async {
         await dialog.execute();
       case 'declareWar':
         final heroSect = GameData.getSect(heroSectId);
-        // 宣战：更新关系为 enemy，扣除 score
+        // 宣战: 更新关系为 enemy，扣除 score
         engine.hetu.invoke(
           'updateDiplomacy',
           positionalArgs: [heroSect, sect],

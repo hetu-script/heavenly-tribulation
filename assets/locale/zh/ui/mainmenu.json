@@ -24,7 +24,7 @@
   "loadMap": "载入地图",
   "unnamedMap": "未命名地图",
 
-  "directoryNotEmpty": "保存失败：目录不是空的。",
+  "directoryNotEmpty": "保存失败: 目录不是空的。",
 
   "characterEditingMustEnterId": "必须填写角色ID！",
   "characterEditingMustEnterName": "必须填写角色姓名！"

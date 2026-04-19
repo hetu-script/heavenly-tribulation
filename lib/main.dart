@@ -21,7 +21,7 @@ import 'ui.dart';
 //   @override
 //   void onWindowResize() async {
 //     final size = (await windowManager.getSize());
-//     engine.debug('画面尺寸修改为：${size.width}x${size.height}');
+//     engine.debug('画面尺寸修改为: ${size.width}x${size.height}');
 //     // GameUI.setSize(size);
 //   }
 // }

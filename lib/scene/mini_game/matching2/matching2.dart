@@ -230,15 +230,15 @@ class MatchingTile extends GameComponent with HandlesGesture {
     // 第1层和第3层对齐网格，第2层有半格错位
 
     if (layer == 0 && other.layer == 1) {
-      // 第1层遮挡第2层：第1层(x,y)遮挡第2层(x,y)和相邻格子
+      // 第1层遮挡第2层: 第1层(x,y)遮挡第2层(x,y)和相邻格子
       // 由于第2层有半格错位，第1层(x,y)会遮挡第2层(x,y), (x-1,y), (x,y-1), (x-1,y-1)
       return (gridX == other.gridX || gridX == other.gridX + 1) &&
           (gridY == other.gridY || gridY == other.gridY + 1);
     } else if (layer == 0 && other.layer == 2) {
-      // 第1层遮挡第3层：相同网格位置
+      // 第1层遮挡第3层: 相同网格位置
       return gridX == other.gridX && gridY == other.gridY;
     } else if (layer == 1 && other.layer == 2) {
-      // 第2层遮挡第3层：第2层(x,y)由于半格错位，会遮挡第3层(x,y), (x+1,y), (x,y+1), (x+1,y+1)
+      // 第2层遮挡第3层: 第2层(x,y)由于半格错位，会遮挡第3层(x,y), (x+1,y), (x,y+1), (x+1,y+1)
       return (other.gridX == gridX || other.gridX == gridX + 1) &&
           (other.gridY == gridY || other.gridY == gridY + 1);
     }
@@ -443,9 +443,9 @@ class MatchingGame2 extends Scene with HasCursorState {
     // 为每种图标分配数量（必须能被3整除以支持三消）
     final countPerIcon = tileCount ~/ iconTypes;
     assert(countPerIcon % 3 == 0,
-        '方块数必须是3的整数倍，以支持三消。当前配置：tileCount=$tileCount, iconTypes=$iconTypes');
+        '方块数必须是3的整数倍，以支持三消。当前配置: tileCount=$tileCount, iconTypes=$iconTypes');
 
-    // ===== 第一步：生成堆叠方块 =====
+    // ===== 第一步: 生成堆叠方块 =====
     final totalStackedCount = _kStackedTileCount * stackPositions;
     final stackedIconIds = <int>[];
     for (int i = 0; i < totalStackedCount; i++) {
@@ -475,7 +475,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       }
     }
 
-    // ===== 第二步：生成普通方块 =====
+    // ===== 第二步: 生成普通方块 =====
     // 根据剩余方块总数自动计算每层的数量
     _layerCounts = _calculateLayerDistribution(normalTileCount);
 
@@ -496,7 +496,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     // 打乱所有图标
     allRemainingIcons.shuffle(random);
 
-    // 按层分配：直接按顺序分配到3层
+    // 按层分配: 直接按顺序分配到3层
     final layerAssignments = <List<int>>[
       allRemainingIcons.sublist(0, _layerCounts[0]),
       allRemainingIcons.sublist(
@@ -507,11 +507,11 @@ class MatchingGame2 extends Scene with HasCursorState {
     // 生成位置（只生成一次）
     final positions = _generateLayerPositions(normalTileCount);
 
-    // 验证：确保生成的位置数量正确
+    // 验证: 确保生成的位置数量正确
     assert(positions.length == normalTileCount,
-        '位置数量错误：期望$normalTileCount个，实际${positions.length}个');
+        '位置数量错误: 期望$normalTileCount个，实际${positions.length}个');
 
-    // 验证：确保每层的位置数量与分配的图标数量匹配
+    // 验证: 确保每层的位置数量与分配的图标数量匹配
     for (int layer = 0; layer < 3; layer++) {
       final layerPositionCount =
           positions.where((p) => p['layer'] == layer).length;
@@ -539,14 +539,14 @@ class MatchingGame2 extends Scene with HasCursorState {
       world.add(tile);
     }
 
-    // 最终验证：统计每种图标的数量
+    // 最终验证: 统计每种图标的数量
     final iconCounts = List.filled(iconTypes, 0);
     for (var id in iconIds) {
       iconCounts[id]++;
     }
     for (int i = 0; i < iconTypes; i++) {
       assert(iconCounts[i] == countPerIcon,
-          '图标$i数量错误：期望$countPerIcon个，实际${iconCounts[i]}个');
+          '图标$i数量错误: 期望$countPerIcon个，实际${iconCounts[i]}个');
     }
 
     // 更新遮挡状态
@@ -565,7 +565,7 @@ class MatchingGame2 extends Scene with HasCursorState {
   }
 
   /// 根据方块总数自动计算每层的分配数量
-  /// 分配比例：第1层25%，第2层25%，第3层50%
+  /// 分配比例: 第1层25%，第2层25%，第3层50%
   List<int> _calculateLayerDistribution(int totalCount) {
     final layer1Count = (totalCount * 0.25).round();
     final layer2Count = (totalCount * 0.25).round();
@@ -575,10 +575,10 @@ class MatchingGame2 extends Scene with HasCursorState {
   }
 
   /// 检查指定位置是否在排除区域内
-  /// 不同难度使用不同的排除策略：
-  /// - 简单：无排除
-  /// - 中等：曼哈顿距离 ≤ 3 的菱形排除（原始行为）
-  /// - 困难：棋盘中心 3×3 矩形排除
+  /// 不同难度使用不同的排除策略:
+  /// - 简单: 无排除
+  /// - 中等: 曼哈顿距离 ≤ 3 的菱形排除（原始行为）
+  /// - 困难: 棋盘中心 3×3 矩形排除
   bool _isPositionExcluded(int x, int y, int layer) {
     // 棋盘中心
     final centerX = GameUI.matchingBoardGridWidth ~/ 2; // 5
@@ -604,7 +604,7 @@ class MatchingGame2 extends Scene with HasCursorState {
 
       case MiniGameDifficulty.tough:
       case MiniGameDifficulty.brutal:
-        // 中心 3×3 矩形排除：x∈[4,6], y∈[2,4]
+        // 中心 3×3 矩形排除: x∈[4,6], y∈[2,4]
         const minX = 4, maxX = 6, minY = 2, maxY = 4;
         if (layer == 1) {
           // Layer 1 有半格偏移，检查所有覆盖位置
@@ -693,7 +693,7 @@ class MatchingGame2 extends Scene with HasCursorState {
     while (positions.length < count) {
       attempts++;
       if (attempts > maxAttempts) {
-        engine.error('警告：第${layer + 1}层位置生成失败，'
+        engine.error('警告: 第${layer + 1}层位置生成失败，'
             '需要$count个位置，只找到${positions.length}个。'
             '网格大小: ${maxX}x$maxY');
         break;
@@ -754,7 +754,7 @@ class MatchingGame2 extends Scene with HasCursorState {
       position += layer2Offset;
     }
 
-    // 堆叠方块的特殊处理：stackIndex=0在底部(gridY=4)，越大越往上
+    // 堆叠方块的特殊处理: stackIndex=0在底部(gridY=4)，越大越往上
     if (isStacked) {
       // 直接从底部位置向上偏移
       position.y -= stackIndex * _kStackOffsetY;
@@ -1117,7 +1117,7 @@ class MatchingGame2 extends Scene with HasCursorState {
 
   // /// 显示帮助信息
   // void _showHelp(BuildContext context) {
-  //   debugPrint('游戏规则：\n'
+  //   debugPrint('游戏规则: \n'
   //       '1. 点击未被遮挡的方块，方块会移动到右侧槽位\n'
   //       '2. 槽位最多容纳7个方块\n'
   //       '3. 当槽位中有3个相同的方块时会自动消除\n'

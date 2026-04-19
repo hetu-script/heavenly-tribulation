@@ -34,7 +34,7 @@ class AlchemyDialog extends StatefulWidget {
 }
 
 class _AlchemyDialogState extends State<AlchemyDialog> {
-  String selectedCraftKind = 'heal';
+  String selectedMainAffixId = 'heal';
   final Set<String> _availableCraftRarities = {};
 
   int selectedCraftRank = 0;
@@ -114,7 +114,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
     }
 
     final potion = engine.hetu.invoke('Potion', namedArgs: {
-      'kind': selectedCraftKind,
+      'mainAffixId': selectedMainAffixId,
       'rank': selectedCraftRank,
     });
 
@@ -214,13 +214,13 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                                 cursor: GameUI.cursor,
                                 style: FluentButtonStyles.small,
                                 title: Text(
-                                  '${engine.locale('kind')}: ${engine.locale('potion_$selectedCraftKind')}',
+                                  '${engine.locale('kind')}: ${engine.locale('potion_$selectedMainAffixId')}',
                                   textAlign: TextAlign.end,
                                 ),
                                 items: buildFluentMenuItems(
                                   items: potionKindItems,
                                   onSelectedItem: (String value) {
-                                    selectedCraftKind =
+                                    selectedMainAffixId =
                                         value.replaceAll('potion_', '');
                                     updateSelectedCraftItemRequirements();
                                     setState(() {});

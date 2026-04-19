@@ -6,25 +6,14 @@ const _kManagingTitles = {'manager', 'mayor', 'governor'};
 void _updateSectMonthly(dynamic sect, {bool force = false}) {
   if (sect['flags']['monthly']['updated'] == true && !force) return;
 
-  // 检查外交关系是否到期
-  _checkDiplomacyExpiry(sect);
-
-  engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
-  if (force) {
-    sect['flags']['monthly']['updated'] = true;
-  }
-}
-
-/// 检查门派的外交关系是否到期（停战、互不侵犯等有时间限制的关系）
-void _checkDiplomacyExpiry(dynamic sect) {
-  final diplomacies = sect['diplomacies'] as Map?;
+  /// 检查门派的外交关系是否到期（停战、互不侵犯等有时间限制的关系）
+  final diplomacies = sect['diplomacies'];
   if (diplomacies == null || diplomacies.isEmpty) return;
 
   final currentTimestamp = GameData.game['timestamp'] as int;
 
-  for (final entry in diplomacies.entries.toList()) {
-    final otherSectId = entry.key;
-    final diplomacyDataId = entry.value;
+  for (final otherSectId in diplomacies.keys) {
+    final diplomacyDataId = diplomacies[otherSectId];
     final diplomacyData = GameData.game['diplomacies'][diplomacyDataId];
     if (diplomacyData == null) continue;
 
@@ -56,19 +45,24 @@ void _checkDiplomacyExpiry(dynamic sect) {
       );
     }
   }
+
+  engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
+  if (force) {
+    sect['flags']['monthly']['updated'] = true;
+  }
 }
 
 // 每个月 5 日前，门派成员需要前往指定场景开会。
 // 对于总管或以下的职位，需要前往自己所属的城市的会堂场景。
 // 对于堂主或以上的职位，需要前往门派总堂所在城市的门派场景。
-// 门派每月例会分为 7 个部分：
-// 1，事件通报：新的联盟和敌对关系、新门派建立。
-// 2，仪式庆典：新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
-// 3，上月总结：任务完成情况，进行物品赏赐，以及功勋加减，最后会进行职级晋升。
-// 4，内政沟通：如内政策略，赏赐成员，驱逐功勋过低的成员，门派迁移。
+// 门派每月例会分为 7 个部分:
+// 1，事件通报: 新的联盟和敌对关系、新门派建立。
+// 2，仪式庆典: 新成员加入、师徒结对、成员境界突破或陨落、出关仪式。
+// 3，上月总结: 任务完成情况，进行物品赏赐，以及功勋加减，最后会进行职级晋升。
+// 4，内政沟通: 如内政策略，赏赐成员，驱逐功勋过低的成员，门派迁移。
 //    这些决定成员可以发表自己的意见。总管以上成员可以投票。
-// 5，个人请求：要求晋升（功勋不足会触发额外任务），以及获得修炼资源等。
-// 6，门派任务：每次会有三个，玩家可以自由选择其中一个领取。
+// 5，个人请求: 要求晋升（功勋不足会触发额外任务），以及获得修炼资源等。
+// 6，门派任务: 每次会有三个，玩家可以自由选择其中一个领取。
 // 7，会议结束
 // 门派会议上只处理玩家角色自己的相关数值变化
 // NPC 角色的数值变化另外由 updateSectMonthly 处理。
@@ -147,7 +141,7 @@ Future<void> _showMeeting(
     }
   }
 
-  // 仪式庆典：新成员加入
+  // 仪式庆典: 新成员加入
   final List recruitedThisMonthIds = sectMonthly['recruited'] ?? [];
   bool recruitedHero = recruitedThisMonthIds.contains(heroId);
   if (recruitedHero) {

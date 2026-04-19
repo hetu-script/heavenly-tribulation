@@ -256,7 +256,7 @@ function getMapComponents() {
 function createMapComponent(componentData, left, top) {
   assert(componentData.entityType == null)
   final component = Object.fromJSON(componentData)
-  engine.info('添加显示组件：[${component.id}]')
+  engine.info('添加显示组件: [${component.id}]')
   component.worldPosition = { left, top }
   world.components.add(component)
   return component
