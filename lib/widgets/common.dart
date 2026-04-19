@@ -98,6 +98,12 @@ const kEntityTableSectColumns = {
   'recruitMonth': 50.0,
 };
 
+const kEntityTableDiplomacyColumns = {
+  'sect': 100.0,
+  'diplomacyType': 80.0,
+  'diplomacyScore': 80.0,
+};
+
 enum InventoryType {
   none,
   player,

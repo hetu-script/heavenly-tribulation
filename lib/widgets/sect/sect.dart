@@ -36,7 +36,9 @@ class _SectViewState extends State<SectView> {
   static late List<Tab> tabs;
   late final HTStruct _sect;
 
-  final List<List<String>> _charactersTable = [], _locationsTable = [];
+  final List<List<String>> _charactersTable = [],
+      _locationsTable = [],
+      _diplomacyTable = [];
 
   late final dynamic _headquartersLocation, _head;
 
@@ -78,10 +80,17 @@ class _SectViewState extends State<SectView> {
       _locationsTable.add(row);
     }
 
+    final Map diplomacies = _sect['diplomacies'] as Map;
+    for (final otherSectId in diplomacies.keys) {
+      final row = GameData.getDiplomacyInformationRow(_sect, otherSectId);
+      _diplomacyTable.add(row);
+    }
+
     tabs = [
       Tab(text: engine.locale('information')),
       Tab(text: '${engine.locale('character')}(${_charactersTable.length})'),
       Tab(text: '${engine.locale('city')}(${_locationsTable.length})'),
+      Tab(text: '${engine.locale('sectDiplomacy')}(${_diplomacyTable.length})'),
     ];
   }
 
@@ -224,6 +233,16 @@ class _SectViewState extends State<SectView> {
                 columns: kEntityTableLocationColumns,
                 tableData: _locationsTable,
                 onItemPressed: (position, dataId) {},
+              ),
+              EntityTable(
+                columns: kEntityTableDiplomacyColumns,
+                tableData: _diplomacyTable,
+                onItemPressed: (position, dataId) {
+                  showDialog(
+                    context: context,
+                    builder: (context) => SectView(sectId: dataId),
+                  );
+                },
               ),
             ],
           ),

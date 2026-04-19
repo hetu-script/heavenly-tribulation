@@ -78,6 +78,8 @@
   "signPact": "签订互不侵犯条约",
   "breakPact": "撕毁互不侵犯条约",
   "sectDiplomacy": "门派外交",
+  "diplomacyType": "关系",
+  "diplomacyScore": "评分",
 
   "diplomacy_neutral": "中立",
   "diplomacy_pact": "互不侵犯",

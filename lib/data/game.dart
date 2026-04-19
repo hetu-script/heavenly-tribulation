@@ -1698,6 +1698,27 @@ final class GameData with ChangeNotifier {
     return row;
   }
 
+  /// 获取门派外交关系的表格行数据
+  /// [sect] 当前门派，[otherSectId] 对方门派 id
+  static List<String> getDiplomacyInformationRow(
+      dynamic sect, String otherSectId) {
+    final row = <String>[];
+    final otherSect = GameData.getSect(otherSectId);
+    // 门派名
+    row.add(otherSect['name']);
+    // 外交类型
+    final diplomacyId = sect['diplomacies'][otherSectId];
+    final diplomacyData = GameData.game['diplomacies'][diplomacyId];
+    final type = diplomacyData?['type'] ?? 'neutral';
+    row.add(engine.locale('diplomacy_$type'));
+    // 外交评分
+    final score = diplomacyData?['score'] ?? 0;
+    row.add(score.toString());
+    // 多存一个隐藏的 id 信息，用于点击事件
+    row.add(otherSectId);
+    return row;
+  }
+
   /// return: (isPaused, isDeveloping, progress, max, statusString, costDescription)
   static (bool, int, int, String, String) getLocationDevelopmentStatus(
       dynamic location) {
