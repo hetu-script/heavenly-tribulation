@@ -1,15 +1,4 @@
-
-const _kBasicRooms = {
-  '0': 'chest',
-  '1': 'enemy',
-  '2': '2portal',
-  '3': 'elite',
-  '4': 'encampment',
-  '5': 'boss',
-  '6': 'exit',
-}
-
-const _kNormalRooms = {
+const kDungeonRooms = {
   '0': 'chest',
   '1': 'enemy',
   '2': '2portal',
@@ -365,14 +354,12 @@ function _prepareMap() {
   
   resetMapTerrains()
 
-  let roomInfo = game.flags.dungeon.isBasic ? _kBasicRooms : _kNormalRooms
-
   assert(game.flags.dungeon.room <= game.flags.dungeon.roomMax &&
-        roomInfo.contains(game.flags.dungeon.room.toString()) &&
-        roomInfo.contains((game.flags.dungeon.room + 1).toString()), 
+        kDungeonRooms.contains(game.flags.dungeon.room.toString()) &&
+        kDungeonRooms.contains((game.flags.dungeon.room + 1).toString()), 
     '房间编号超出范围: ${game.flags.dungeon.room}')
 
-  final nextRoomType = roomInfo[game.flags.dungeon.room + 1]
+  final nextRoomType = kDungeonRooms[game.flags.dungeon.room + 1]
   /// 用随机遭遇填充地图
   if (game.flags.dungeon.isBasic) {
     switch (game.flags.dungeon.room + 1) {
@@ -709,9 +696,7 @@ async function onInteractMapObject(object, terrain) {
             world.objects.remove(object.id)
             World.updateTerrainData(tile.left, tile.top)
             World.removeCharacter(object.battleEntity.id)
-            final nextRoomType = game.flags.dungeon.isBasic ?
-              _kBasicRooms[game.flags.dungeon.room + 1] :
-              _kNormalRooms[game.flags.dungeon.room + 1]
+            final nextRoomType = kDungeonRooms[game.flags.dungeon.room + 1]
             _addPortalByNextRoomType(nextRoomType)
             if (game.flags.dungeon.isBoss) {
               addRestBed(_kCenterTile)

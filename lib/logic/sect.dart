@@ -2,56 +2,6 @@ part of 'logic.dart';
 
 const _kManagingTitles = {'manager', 'mayor', 'governor'};
 
-/// 组织月度更新
-void _updateSectMonthly(dynamic sect, {bool force = false}) {
-  if (sect['flags']['monthly']['updated'] == true && !force) return;
-
-  /// 检查门派的外交关系是否到期（停战、互不侵犯等有时间限制的关系）
-  final diplomacies = sect['diplomacies'];
-  if (diplomacies == null || diplomacies.isEmpty) return;
-
-  final currentTimestamp = GameData.game['timestamp'] as int;
-
-  for (final otherSectId in diplomacies.keys) {
-    final diplomacyDataId = diplomacies[otherSectId];
-    final diplomacyData = GameData.game['diplomacies'][diplomacyDataId];
-    if (diplomacyData == null) continue;
-
-    final int timespanByMonth = diplomacyData['timespanByMonth'] ?? 0;
-    if (timespanByMonth <= 0) continue;
-
-    final int createdTimestamp = diplomacyData['timestamp'] ?? 0;
-    final int elapsedTicks = currentTimestamp - createdTimestamp;
-    final int durationTicks = timespanByMonth * kTicksPerMonth;
-
-    if (elapsedTicks >= durationTicks) {
-      final otherSect = GameData.getSect(otherSectId);
-      if (otherSect == null) continue;
-
-      final String type = diplomacyData['type'];
-      final localeKey = type == 'truce'
-          ? 'hint_sect_diplomacy_truce_expired'
-          : 'hint_sect_diplomacy_pact_expired';
-      engine.info(engine.locale(localeKey, interpolations: [
-        sect['name'],
-        otherSect['name'],
-      ]));
-
-      // 到期后自动变为 neutral
-      engine.hetu.invoke(
-        'updateDiplomacy',
-        positionalArgs: [sect, otherSect],
-        namedArgs: {'type': 'neutral', 'timespanByMonth': 0},
-      );
-    }
-  }
-
-  engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
-  if (force) {
-    sect['flags']['monthly']['updated'] = true;
-  }
-}
-
 // 每个月 5 日前，门派成员需要前往指定场景开会。
 // 对于总管或以下的职位，需要前往自己所属的城市的会堂场景。
 // 对于堂主或以上的职位，需要前往门派总堂所在城市的门派场景。
@@ -363,5 +313,6 @@ Future<void> _showMeeting(
 
   engine.context.read<MeetingState>().end();
 
-  _updateSectMonthly(sect, force: true);
+  engine.hetu.invoke('updateSectMonthly',
+      positionalArgs: [sect], namedArgs: {'force': true});
 }

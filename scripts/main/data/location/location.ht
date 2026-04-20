@@ -123,7 +123,6 @@ struct Location {
     image,
     isHidden = false,
     isDiscovered = false,
-    updateWorldMap = false,
     development,
     isCapitalCity = false,
     tradinghouseDevelopment,
@@ -283,6 +282,10 @@ struct Location {
     // 城市自身记录角色在此城市的功勋
     // key: characterId, value: contribution amount
     this.contributions = {}
+    
+    // 城市自身记录角色在此场景的积分，用于斗技场，旅馆等拥有积分商店的场景
+    // key: characterId, value: credit amount
+    this.credits = {}
 
     if (atTerrain != null) {
       engine.info('在${world.name} [${atTerrain.left},${atTerrain.top}] 建立了${this.name}')
@@ -302,13 +305,12 @@ struct Location {
         // 保存了城市领地范围外可以扩张到的地块
         this.borderIndexes = []
         
-        // atTerrain.kind = 'city'
         if (!this.isHidden) {
           atTerrain.overlaySprite = { sprite: kSpriteCity }
-          if (updateWorldMap) {
-            World.setTerrainCaption(atTerrain.left, atTerrain.top, this.name)
-            World.updateTerrainOverlaySprite(atTerrain.left, atTerrain.top)
-          }
+          // if (updateWorldMap) {
+          //   World.setTerrainCaption(atTerrain.left, atTerrain.top, this.name)
+          //   World.updateTerrainOverlaySprite(atTerrain.left, atTerrain.top)
+          // }
         }
         
         /// 默认添加一个总堂建筑和一个交易所

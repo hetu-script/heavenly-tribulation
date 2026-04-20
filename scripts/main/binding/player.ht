@@ -82,6 +82,12 @@ namespace Player {
     characterMakeContribution(hero, data, incurIncident: incurIncident)
   }
 
+  function gainCredit(location, amount) {
+    assert(hero != null)
+
+    characterGainCredit(hero, location, amount)
+  }
+
   /// 直接获取一个已经被创造出来的物品
   async function acquire(item, { amount, autoUnpack = true, incurIncident = true }) {
     assert(hero != null)
@@ -98,6 +104,12 @@ namespace Player {
         }
         case kItemCategoryContributionPack: {
           makeContribution(item, incurIncident: incurIncident)
+          return
+        }
+        case kItemCategoryCreditPack: {
+          const location = game.locations[item.locationId]
+          assert(location != null, 'location not found for credit pack: ${item.locationId}')
+          gainCredit(location, item.stackSize)
           return
         }
       }
@@ -534,6 +546,8 @@ namespace Player {
     }
 
     ++hero.rank
+
+    hero.tribulationCount = 0
 
     const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
       hero.name,

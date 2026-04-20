@@ -16,6 +16,7 @@ const kItemTypeMiscellaneous = 'miscellaneous';
 const kItemCategoryExppack = 'exp_pack';
 const kItemCategoryMaterialPack = 'material_pack';
 const kItemCategoryContributionPack = 'contribution_pack';
+const kItemCategoryCreditPack = 'credit_pack';
 const kItemCategoryExtractedAffix = 'extracted_affix';
 const kItemCategoryCardpack = 'cardpack';
 const kItemCategoryPotion = 'potion';
@@ -221,7 +222,7 @@ function entityCollect(entity, materialId, amount, { onStorage = false, incurInc
     return
   }
   amount = amount.round()
-  assert(Constants.materialKinds.contains(materialId))
+  assert(Constants.materialKinds.contains(materialId), 'invalid materialId: ${materialId}')
   if (onStorage) {
     entity.storage[materialId] += amount
   } else {
@@ -264,7 +265,7 @@ function entityExhaust(
   onStorage = false,
   warning = false,
 }) -> bool {
-  assert(Constants.materialKinds.contains(materialId))
+  assert(Constants.materialKinds.contains(materialId), 'invalid materialId: ${materialId}')
   if (amount <= 0) {
     engine.warning('entity [${entity.name ?? entity.id}] exhaust [${materialId}] by amount <=0')
     return 0
@@ -470,19 +471,18 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
   }
 }
 
-/// 按配置获取宝箱内的物品
-/// 分为四种: 材料，预定义物品，装备，卡包
-/// category: ['material', 'prototype', 'equipment', 'cardpack']
+/// 按配置获取物品
+/// 分为八种: 经验，资源，装备，卡包，丹药，功勋，积分，物品模板（定义在assets/data/items.json5中）
+/// type: ['exp', 'material', 'equipment', 'cardpack', 'potion', 'contribution', 'credit', 'prototype']
 /// items = [
+///   {
+///     type: 'exp',
+///     amount: 100,
+///   },
 ///   {
 ///     type: 'material',
 ///     kind: 'money',
 ///     amount: 100,
-///   },
-///   {
-///     type: 'prototype',
-///     id: 'exp_pack',
-///     amount: 1,
 ///   },
 ///   {
 ///     type: 'equipment',
@@ -499,26 +499,46 @@ function characterAcquireBattleCard(character, card, { incurIncident = true }) {
 ///     rank: 0,
 ///     amount: 1,
 ///   },
+///   {
+///     type: 'potion',
+///     mainAffixId: 'heal',
+///     rank: 0,
+///     amount: 1,
+///   },
+///   {
+///     type: 'prototype',
+///     id: 'exp_pack',
+///     amount: 1,
+///   },
+///   {
+///     type: 'contribution',
+///     sectId: 'some_sect_id',
+///     locationId: 'some_location_id',
+///     amount: 100,
+///   },
+///   {
+///     type: 'credit',
+///     cityId: 'some_city_id',
+///     locationId: 'some_location_id',
+///     amount: 100,
+///   },
 /// ]
 function createLoot(itemsInfo: List) {
   final items = []
   for (final itemInfo in itemsInfo) {
     final amount = itemInfo.amount ?? 1
     switch (itemInfo.type) {
-      'material': {
-        assert(Constants.materialKinds.contains(itemInfo.kind))
-        final pack = Materialpack(kind: itemInfo.kind, amount: amount)
+      'exp': {
+        final pack = createItemById('exp_pack', amount: amount)
         items.add(pack)
       }
-      'prototype': {
-        assert(game.items.contains(itemInfo.kind))
-        for (var i in range(amount)) {
-          final created = createItemById(itemInfo.id)
-          items.add(created)
-        }
+      'material': {
+        assert(Constants.materialKinds.contains(itemInfo.kind), 'invalid material kind: ${itemInfo.kind}')
+        final pack = MaterialPack(kind: itemInfo.kind, amount: amount)
+        items.add(pack)
       }
       'equipment': {
-        assert(Constants.equipmentKinds.contains(itemInfo.kind))
+        assert(Constants.equipmentKinds.contains(itemInfo.kind), 'invalid equipment kind: ${itemInfo.kind}')
         for (var i in range(amount)) {
           final equipment = Equipment(
             kind: itemInfo.kind,
@@ -531,9 +551,7 @@ function createLoot(itemsInfo: List) {
       }
       'potion': {
         for (var i in range(amount)) {
-          final potion = Potion(
-            rank: itemInfo.rank,
-          )
+          final potion = Potion(rank: itemInfo.rank)
           items.add(potion)
         }
       }
@@ -550,12 +568,26 @@ function createLoot(itemsInfo: List) {
         }
       }
       'contribution': {
-        final pack = Contributionpack(
+        final pack = ContributionPack(
           sectId: itemInfo.sectId,
           locationId: itemInfo.locationId,
           amount: amount,
         )
         items.add(pack)
+      }
+      'credit': {
+        final pack = CreditPack(
+          cityId: itemInfo.cityId,
+          locationId: itemInfo.locationId,
+          amount: amount,
+        )
+        items.add(pack)
+      }
+      'prototype': {
+        final itemId = itemInfo.id ?? itemInfo.kind
+        assert(game.items.contains(itemId), 'prototype item not found: ${itemId}')
+        final created = createItemById(itemId, amount: amount)
+        items.add(created)
       }
     }
   }

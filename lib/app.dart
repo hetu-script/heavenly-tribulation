@@ -80,7 +80,7 @@ class _GameAppState extends State<GameApp> {
   }
 
   Future<void> _initEngine() async {
-    engine.setLoading(true, tip: engine.locale(kTips.random));
+    engine.setLoading(true);
     // 初始化引擎
     final sw = Stopwatch()..start();
 
@@ -363,6 +363,22 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('generateZone', (
         {positionalArgs, namedArgs}) {
       return GameLogic.generateZone(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('calculateNpcRoute', (
+        {positionalArgs, namedArgs}) async {
+      final String worldId = positionalArgs[0];
+      final worldMapScene = GameData.worldScenes[worldId];
+      if (worldMapScene == null) return null;
+      return await GameLogic.calculateRoute(
+        fromX: positionalArgs[1],
+        fromY: positionalArgs[2],
+        toX: positionalArgs[3],
+        toY: positionalArgs[4],
+        terrainKinds: kTerrainKindsAll,
+        worldId: worldMapScene.id,
+        isHero: false,
+      );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('dialog::execute', (

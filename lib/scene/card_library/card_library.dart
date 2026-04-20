@@ -1424,6 +1424,21 @@ class CardLibraryScene extends Scene {
             npc: GameData.game['npcs']['xitong']);
         await dialog.execute();
       }
+      if (enableCardCraft && GameData.flags['tutorial']['cardCraft'] != true) {
+        // 卡牌淬炼教程
+        GameData.flags['tutorial']['cardCraft'] = true;
+        dialog.pushDialog('hint_cardCraft',
+            npc: GameData.game['npcs']['xitong']);
+        await dialog.execute();
+      }
+      if (enableScrollCraft &&
+          GameData.flags['tutorial']['scrollCraft'] != true) {
+        // 符箓制作教程
+        GameData.flags['tutorial']['scrollCraft'] = true;
+        dialog.pushDialog('hint_scrollCraft',
+            npc: GameData.game['npcs']['xitong']);
+        await dialog.execute();
+      }
     }
 
     await onEnterScene?.call();

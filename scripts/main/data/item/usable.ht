@@ -1,12 +1,12 @@
 
 /// 材料包类物品在获得后，可以自动转化为材料数值
-struct Materialpack {
+struct MaterialPack {
   constructor ({
     // id,
     kind,
     amount,
   }) {
-    assert(kind != null)
+    assert(Constants.materialKinds.contains(kind), 'invalid materialId: ${kind}')
 
     // this.id = id ?? crypto.randomUID(withTime: true)
     this.id = 'materialpack_' + kind
@@ -19,7 +19,7 @@ struct Materialpack {
 
     this.category = kItemCategoryMaterialPack
     this.type = kItemTypeConsumable
-    this.mainAffixId = kind
+    this.kind = kind
     this.flavortext = engine.locale('${kind}_description')
     this.stackSize = amount ?? 1
     this.showStack = true
@@ -30,6 +30,73 @@ struct Materialpack {
     if (Constants.materialBasePrice.containsKey(kind)) {
       this.price = Constants.materialBasePrice[kind] * this.stackSize
     }
+  }
+}
+
+// 功勋
+struct ContributionPack {
+  constructor ({
+    amount,
+    locationId,
+    sectId,
+  }) {
+    assert(locationId != null, 'must have locationId for contribution pack!')
+
+    this.id = 'contribution_pack_${sectId}'
+    this.entityType = kEntityTypeItem
+    this.rarity = kRarityRare
+    this.color = kRarity[this.rarity].color
+    this.name = engine.locale('contribution_pack')
+    this.icon = 'item/contribution.png'
+
+    this.locationId = locationId
+    this.sectId = sectId
+
+    final location = game.locations[locationId]
+    final sect = game.sects[sectId]
+    
+    this.flavortext = (sect?.name ?? location.name) +
+      engine.locale('contribution') + '\n' +
+      engine.locale('flavortext_contribution_pack')
+
+    this.category = kItemCategoryContributionPack
+    this.type = kItemTypeConsumable
+    this.stackSize = amount ?? 1
+    
+    this.isIdentified = true
+    this.isUsable = true
+    this.isUntradable = true
+  }
+}
+
+struct CreditPack {
+  constructor ({
+    amount,
+    locationId,
+    cityId,
+  }) {
+    this.id = 'credit_pack_${cityId}_${locationId}'
+    this.entityType = kEntityTypeItem
+    this.rarity = kRarityRare
+    this.color = kRarity[this.rarity].color
+    this.name = engine.locale('credit_pack')
+    this.icon = 'item/credit.png'
+
+    this.locationId = locationId
+    final location = game.locations[locationId]
+    final city = game.locations[cityId]
+
+    this.flavortext = city.name + location.name +
+      engine.locale('credit_pack') + '\n' +
+      engine.locale('flavortext_credit_pack')
+
+    this.category = kItemCategoryCreditPack
+    this.type = kItemTypeConsumable
+    this.stackSize = amount ?? 1
+    
+    this.isIdentified = true
+    this.isUsable = true
+    this.isUntradable = true
   }
 }
 

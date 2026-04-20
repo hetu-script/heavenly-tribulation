@@ -8,8 +8,8 @@
 
   "passivetree_rank_node_no_refund_hint": "境界节点不可退回。",
 
-  "passivetree_passives_description_title": "从技能和装备中获得的额外属性",
-  "passivetree_potion_passives_description_title": "从饮食中获得的额外属性",
+  "passivetree_passives_description_title": "从技能和装备中获得的属性",
+  "passivetree_ephemeral_passives_description_title": "临时获得的属性",
 
   "passivetree_swordcraft_rank_1_comment": "匣中三尺鸣，寒芒初破空。",
   "passivetree_swordcraft_rank_2_comment": "踏罡步北斗，剑影随云动。",

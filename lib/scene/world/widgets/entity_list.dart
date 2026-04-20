@@ -133,13 +133,13 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
   hoverContent: 'treasureBox1',
   items: [
     {
-      type: 'material',
-      kind: 'money',
+      type: 'exp',
       amount: 100,
     },
     {
-      type: 'prototype',
-      kind: 'shard',
+      type: 'material',
+      kind: 'money',
+      amount: 100,
     },
     {
       type: 'equipment',
@@ -147,12 +147,37 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
       rarity: 'common',
       rank: 0,
       level: 0,
+      amount: 1,
     },
     {
       type: 'cardpack',
       kind: 'punch',
       genre: null,
       rank: 0,
+      amount: 1,
+    },
+    {
+      type: 'potion',
+      mainAffixId: 'heal',
+      rank: 0,
+      amount: 1,
+    },
+    {
+      type: 'prototype',
+      id: 'exp_pack',
+      amount: 1,
+    },
+    {
+      type: 'contribution',
+      sectId: 'some_sect_id',
+      locationId: 'some_location_id',
+      amount: 100,
+    },
+    {
+      type: 'credit',
+      cityId: 'some_city_id',
+      locationId: 'some_location_id',
+      amount: 100,
     },
   ]
 }
@@ -769,11 +794,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                                       description: engine
                                           .locale('dangerOperationPrompt')),
                                 );
-                                if (value == true) {
-                                  engine.hetu.invoke('removeCharacterById',
-                                      positionalArgs: [characterId]);
-                                  _updateCharacters();
-                                }
+                                if (value != true) return;
+                                engine.hetu.invoke('removeCharacterById',
+                                    positionalArgs: [characterId]);
+                                _updateCharacters();
                             }
                           },
                         );
@@ -1108,7 +1132,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                       description: engine
                                           .locale('dangerOperationPrompt')),
                                 );
-                                if (value == null) return;
+                                if (value != true) return;
                                 engine.hetu.invoke('removeObjectById',
                                     positionalArgs: [dataId]);
                                 _updateObjects();

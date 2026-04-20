@@ -47,6 +47,39 @@
       },
     ],
   },
+  // 获得剑气
+  chakra: {
+    id: "chakra",
+    uniqueId: "chakra",
+    genre: "swordcraft",
+    category: ["buff", "attack"],
+    description: "affix_chakra",
+    tags: ["status_energy_positive_weapon"],
+    script: "chakra",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  rage: {
+    id: "rage",
+    uniqueId: "rage",
+    genre: "bodyforge",
+    category: ["buff", "attack"],
+    description: "affix_rage",
+    tags: ["status_energy_positive_unarmed"],
+    script: "rage",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
 
   defend_physical: {
     id: "defend_physical",
@@ -451,7 +484,7 @@
     tags: ["status_defense"],
     damageType: "psychic",
     script: "consume_vigor_gain_defense",
-    rank: 1,
+    rank: 2,
     valueData: [
       {
         base: 1,

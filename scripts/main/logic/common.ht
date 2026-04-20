@@ -1,9 +1,14 @@
-
-
+/// 大地图遇袭
 async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: function }) {
   name ??= engine.locale('enemyStranger')
+  rank ??= hero.rank
+  final minLevel = minLevelForRank(rank)
+  final maxLevel = maxLevelForRank(rank)
 
-  final enemy = BattleEntity(name: name, rank: rank ?? hero.rank)
+  let level = random.nextInt(11) + hero.level - 5
+  level = level.clamp(minLevel, maxLevel)
+
+  final enemy = BattleEntity(name: name, rank: rank, level: level)
 
   dialog.pushDialog('enemy_encounter_${engine.random.nextInt(kEnemyEncounterDialogCount) + 1}', character: enemy)
   await dialog.execute()

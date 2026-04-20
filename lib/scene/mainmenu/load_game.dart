@@ -10,6 +10,7 @@ import '../../global.dart';
 import '../../data/common.dart';
 import '../../ui.dart';
 import '../../widgets/ui/responsive_view.dart';
+import '../../widgets/dialog/confirm.dart';
 
 class LoadGameDialog extends StatefulWidget {
   const LoadGameDialog({super.key});
@@ -107,47 +108,65 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                                   const EdgeInsets.symmetric(
                                                       vertical: 5),
                                               child: fluent.Button(
-                                                onPressed: () {
-                                                  if (deleteButtonDisabled) {
-                                                    return;
-                                                  }
-                                                  setState(() {
-                                                    deleteButtonDisabled = true;
-                                                  });
-                                                  // TODO: 显示一个进度条动画，避免多次点击，或者将按钮改为无效
+                                                onPressed: deleteButtonDisabled
+                                                    ? null
+                                                    : () async {
+                                                        final value =
+                                                            await showDialog<
+                                                                bool>(
+                                                          context: context,
+                                                          builder: (context) =>
+                                                              ConfirmDialog(
+                                                                  description:
+                                                                      engine.locale(
+                                                                          'dangerOperationPrompt')),
+                                                        );
+                                                        if (value != true) {
+                                                          return;
+                                                        }
 
-                                                  final file =
-                                                      File(info.savePath);
-                                                  if (file.existsSync()) {
-                                                    file.deleteSync();
-                                                  }
-                                                  final file2 = File(
-                                                      '${info.savePath}$kUniverseSaveFilePostfix');
-                                                  if (file2.existsSync()) {
-                                                    file2.deleteSync();
-                                                  }
-                                                  final file3 = File(
-                                                      '${info.savePath}$kHistorySaveFilePostfix');
-                                                  if (file3.existsSync()) {
-                                                    file3.deleteSync();
-                                                  }
-                                                  final file4 = File(
-                                                      '${info.savePath}$kScenesSaveFilePostfix');
-                                                  if (file4.existsSync()) {
-                                                    file4.deleteSync();
-                                                  }
-                                                  setState(() {
-                                                    saves.removeWhere(
-                                                        (id, save) =>
-                                                            save == info);
-                                                    deleteButtonDisabled =
-                                                        false;
-                                                    if (saves.isEmpty) {
-                                                      Navigator.of(context)
-                                                          .pop();
-                                                    }
-                                                  });
-                                                },
+                                                        setState(() {
+                                                          deleteButtonDisabled =
+                                                              true;
+                                                        });
+                                                        // TODO: 显示一个进度条动画，避免多次点击，或者将按钮改为无效
+
+                                                        final file =
+                                                            File(info.savePath);
+                                                        if (file.existsSync()) {
+                                                          file.deleteSync();
+                                                        }
+                                                        final file2 = File(
+                                                            '${info.savePath}$kUniverseSaveFilePostfix');
+                                                        if (file2
+                                                            .existsSync()) {
+                                                          file2.deleteSync();
+                                                        }
+                                                        final file3 = File(
+                                                            '${info.savePath}$kHistorySaveFilePostfix');
+                                                        if (file3
+                                                            .existsSync()) {
+                                                          file3.deleteSync();
+                                                        }
+                                                        final file4 = File(
+                                                            '${info.savePath}$kScenesSaveFilePostfix');
+                                                        if (file4
+                                                            .existsSync()) {
+                                                          file4.deleteSync();
+                                                        }
+                                                        setState(() {
+                                                          saves.removeWhere(
+                                                              (id, save) =>
+                                                                  save == info);
+                                                          deleteButtonDisabled =
+                                                              false;
+                                                          if (saves.isEmpty) {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          }
+                                                        });
+                                                      },
                                                 child: Text(
                                                     engine.locale('delete')),
                                               ),

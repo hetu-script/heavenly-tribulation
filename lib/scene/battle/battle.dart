@@ -221,12 +221,13 @@ class BattleScene extends Scene {
             amount: value, handleCallback: false);
       }
 
-      final potionPassiveData = character.data['potionPassives'][passiveId];
-      if (potionPassiveData != null) {
-        int? value = potionPassiveData['value'];
+      final ephemeralPassivesData =
+          character.data['ephemeralPassives'][passiveId];
+      if (ephemeralPassivesData != null) {
+        int? value = ephemeralPassivesData['value'];
         if (value == null) {
           engine.warning(
-              'potionPassiveData has no field `value`! $potionPassiveData');
+              'ephemeralPassivesData has no field `value`! $ephemeralPassivesData');
         }
         character.addStatusEffect(statusId,
             amount: value, handleCallback: false);
@@ -713,16 +714,16 @@ class BattleScene extends Scene {
     }
   }
 
-  void clearPotionPassives(BattleCharacter character) {
-    final potionPassives = character.data['potionPassives'];
-    final toBeRemovedPotionPassives = [];
-    for (final passiveId in potionPassives.keys) {
-      if (potionPassives[passiveId]['isPermanent'] != true) {
-        toBeRemovedPotionPassives.add(passiveId);
+  void clearEphemeralPassives(BattleCharacter character) {
+    final ephemeralPassives = character.data['ephemeralPassives'];
+    final toBeRemovedEphemeralPassives = [];
+    for (final passiveId in ephemeralPassives.keys) {
+      if (ephemeralPassives[passiveId]['isPermanent'] != true) {
+        toBeRemovedEphemeralPassives.add(passiveId);
       }
     }
-    for (final passiveId in toBeRemovedPotionPassives) {
-      potionPassives.remove(passiveId);
+    for (final passiveId in toBeRemovedEphemeralPassives) {
+      ephemeralPassives.remove(passiveId);
     }
     engine.hetu
         .invoke('characterCalculateStats', positionalArgs: [character.data]);
@@ -753,8 +754,8 @@ class BattleScene extends Scene {
     battleEnded = true;
 
     if (!isPractice) {
-      clearPotionPassives(hero);
-      clearPotionPassives(enemy);
+      clearEphemeralPassives(hero);
+      clearEphemeralPassives(enemy);
 
       bool hasScroll = false;
       for (final card in heroDeck) {

@@ -136,7 +136,7 @@ async function onEnterCultivation() {
     dialog.pushDialog('chapter1_afu_initialCultivate_line4', characterId: 'afu')
     await dialog.execute()
 
-    final shardPack = Materialpack(kind: 'shard', amount: 4)
+    final shardPack = MaterialPack(kind: 'shard', amount: 4)
     await Player.acquire(shardPack)
     Game.promptItems([shardPack])
   }

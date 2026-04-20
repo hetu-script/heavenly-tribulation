@@ -851,44 +851,27 @@ final class GameData with ChangeNotifier {
     }
   }
 
-  static CustomGameCard getSiteCard(
+  static CustomGameCard createSiteCardByData(
     dynamic siteData, {
     void Function()? onPreviewed,
     void Function()? onUnpreviewed,
   }) {
-    final id = siteData['id'];
-    final card = CustomGameCard(
-      id: id,
-      uniqueId: id,
-      data: siteData,
-      anchor: Anchor.center,
-      borderRadius: 15.0,
-      spriteId: 'location/site_frame.png',
+    return createSiteCard(
+      id: siteData['id'],
+      spriteId: siteData['image'],
       title: siteData['name'],
-      titleConfig: GameUI.siteTitleConfig,
-      titleLayout: CardTitleLayout.verticalRightTop,
-      showTitle: true,
-      enablePreview: true,
-      focusOnPreviewing: true,
-      focusedPriority: kSiteCardPriority,
-      focusedSize: GameUI.siteCardFocusedSize,
-      focusedOffset: Vector2(
-          (GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
-          (GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y) / 2),
-      illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
-      illustrationSpriteId: siteData['image'],
+      index: siteData['priority'],
+      data: siteData,
       onPreviewed: onPreviewed,
       onUnpreviewed: onUnpreviewed,
     );
-    card.index = siteData['priority'] ?? 0;
-    return card;
   }
 
   static CustomGameCard createSiteCard({
     String? id,
     required String spriteId,
     required String title,
+    dynamic data,
     Vector2? position,
     int index = 0,
     void Function()? onPreviewed,
@@ -897,6 +880,8 @@ final class GameData with ChangeNotifier {
     final card = CustomGameCard(
       id: id ?? spriteId,
       uniqueId: id ?? spriteId,
+      index: index,
+      data: data,
       borderRadius: 20.0,
       spriteId: 'location/site_frame.png',
       title: title,
@@ -919,7 +904,6 @@ final class GameData with ChangeNotifier {
       onPreviewed: onPreviewed,
       onUnpreviewed: onUnpreviewed,
     );
-    card.index = index;
     return card;
   }
 
@@ -974,8 +958,8 @@ final class GameData with ChangeNotifier {
     }
 
     final passivesDescription = _getPassivesDescription(character['passives']);
-    final potionPassivesDescription =
-        _getPassivesDescription(character['potionPassives']);
+    final ephemeralPassivesDescription =
+        _getPassivesDescription(character['ephemeralPassives']);
 
     desc.writeln(
         '${engine.locale('passivetree_passives_description_title')}\n ');
@@ -983,8 +967,8 @@ final class GameData with ChangeNotifier {
     desc.writeln(' ');
 
     desc.writeln(
-        '${engine.locale('passivetree_potion_passives_description_title')}\n ');
-    desc.writeln(potionPassivesDescription);
+        '${engine.locale('passivetree_ephemeral_passives_description_title')}\n ');
+    desc.writeln(ephemeralPassivesDescription);
 
     return desc.toString();
   }

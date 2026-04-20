@@ -274,7 +274,7 @@ struct StatusScript {
   function energy_positive_life_self_turn_end(self, opponent, effect, details) {
     if (self.life >= self.lifeMax) return
 
-    let regen = (self.lifeMax / 10).round()
+    let regen = (self.lifeMax / 100 * 5).round()
     self.changeLife(regen)
 
     self.removeStatusEffect(effect.id, amount: 1)
@@ -292,7 +292,7 @@ struct StatusScript {
   function energy_positive_pure_self_attacking(self, opponent, effect, details) {
     if (self.turnFlags.penetration >= 1) return
 
-    self.turnFlags.penetration += 0.1
+    self.turnFlags.penetration += 0.2
     self.removeStatusEffect(effect.id, amount: 1)
   }
 

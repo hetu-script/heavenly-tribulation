@@ -1,6 +1,84 @@
 
 export { createSandboxWorld } from 'sandbox.ht'
 
+/// 确保英雄出生城市有斗技场和秘境
+function ensureStartingCityFacilities() {
+  final heroHomeLocation = game.locations[hero.homeLocationId]
+  if (heroHomeLocation == null) return
+
+  // 获取英雄所在城市
+  let city
+  if (heroHomeLocation.category == 'city') {
+    city = heroHomeLocation
+  } else {
+    city = game.locations[heroHomeLocation.atCityId]
+  }
+  if (city == null) return
+
+  // 检查是否有斗技场
+  let hasArena = false
+  for (final siteId in city.siteIds) {
+    final site = game.locations[siteId]
+    if (site != null && site.kind == kLocationKindArena) {
+      hasArena = true
+      break
+    }
+  }
+  if (!hasArena) {
+    engine.info('英雄出生城市没有斗技场，自动创建')
+    final arena = Location(
+      category: 'site',
+      kind: kLocationKindArena,
+      atCity: city,
+      npcId: Constants.siteKindToNpcId[kLocationKindArena],
+      development: 0,
+    )
+    replenishStorage(arena)
+  }
+
+  // 检查领地是否有秘境
+  let hasDungeon = false
+  if (city.territoryIndexes != null) {
+    for (final index in city.territoryIndexes) {
+      final tile = world.terrains[index]
+      if (tile.locationId != null) {
+        final loc = game.locations[tile.locationId]
+        if (loc != null && loc.kind == kLocationDungeonEntrance) {
+          hasDungeon = true
+          break
+        }
+      }
+    }
+  }
+
+  if (!hasDungeon && city.territoryIndexes != null) {
+    let availableTiles = city.territoryIndexes
+      .map((index) => world.terrains[index])
+      .where((tile) => !tile.isWater && tile.locationId == null)
+    if (availableTiles.isNotEmpty) {
+      engine.info('英雄出生城市领地没有秘境，自动创建')
+      final dungeonTile = random.nextIterable(availableTiles)
+      const location = Location(
+        category: 'site',
+        kind: 'dungeon',
+        atTerrain: dungeonTile,
+        atCity: city,
+        npcId: Constants.siteKindToNpcId['dungeon'],
+        development: 0,
+      )
+      replenishStorage(location)
+      location.dungeonId = 'dungeon_1'
+      dungeonTile.locationId = location.id
+      dungeonTile.overlaySprite = {
+        sprite: 'object/dungeon.png',
+      }
+      World.setTerrainCaption(dungeonTile.left, dungeonTile.top, location.name)
+      World.updateTerrainData(dungeonTile.left, dungeonTile.top, updateOverlaySprite: true)
+
+    }
+  }
+}
+
 /// 获得当前地图的区域上色信息
 function getCurrentWorldZoneColors {
   const colors = []

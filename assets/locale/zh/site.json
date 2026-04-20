@@ -92,7 +92,7 @@
   "arenaWagerLow": "低档 — {0} × {1}",
   "arenaWagerMid": "中档 — {0} × {1}",
   "arenaWagerHigh": "高档 — {0} × {1}",
-  "arenaWin": "你赢了！获得奖金 <yellow>{0} × {1}</>。",
+  "arenaWin": "你赢了！获得奖金 <yellow>{0} × {1}，积分 × 1</>。",
   "arenaLose": "你输了……失去赌注 <yellow>{0} × {1}</>。",
   "hint_notEnoughWager": "你的{0}不足以支付赌注。",
   "arenaStrangerSanxiu": "散修",

@@ -11,19 +11,21 @@ import 'package:samsara/widgets/ui/menu_builder.dart';
 import '../../ui.dart';
 import '../../data/game.dart';
 import '../../global.dart';
-import '../game_creation/load_game.dart';
-import '../game_creation/create_sandbox_game.dart';
-import '../game_creation/create_blank_map.dart';
-import '../game_creation/game_settings.dart';
-import '../game_creation/mods_list.dart';
+import 'load_game.dart';
+import 'create_sandbox_game.dart';
+import 'create_blank_map.dart';
+import 'game_settings.dart';
+import 'mods_list.dart';
 import '../../state/states.dart';
 import '../common.dart';
+import '../mini_game/common.dart';
 import '../../data/common.dart';
 
 enum MenuStates {
   main,
   editor,
   game,
+  miniGame,
 }
 
 class MainMenuWidgets extends StatefulWidget {
@@ -83,6 +85,19 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                         },
                         child: Label(
                           engine.locale('startGame'),
+                          width: 150.0,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: fluent.Button(
+                        onPressed: () {
+                          setMenuState(MenuStates.miniGame);
+                        },
+                        child: Label(
+                          engine.locale('miniGames'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
@@ -282,6 +297,81 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                       ),
                     ),
                   ],
+                MenuStates.miniGame => [
+                    for (final entry in {
+                      Scenes.matchingGame2: 'miniGame_matching2',
+                      Scenes.differenceGame: 'miniGame_difference',
+                      Scenes.mouseMazeGame: 'miniGame_mouseMaze',
+                      Scenes.memoryCardGame: 'miniGame_memoryCard',
+                      Scenes.nanogramGame: 'miniGame_nanogram',
+                    }.entries)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: fluent.Button(
+                          onPressed: () async {
+                            final difficulty = await showDialog<String>(
+                              context: context,
+                              builder: (context) => fluent.ContentDialog(
+                                title: Text(engine.locale(entry.value)),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    for (final diff
+                                        in MiniGameDifficulty.values)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
+                                        child: fluent.Button(
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(diff.name);
+                                          },
+                                          child: Label(
+                                            engine.locale(diff.name),
+                                            width: 150.0,
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                actions: [
+                                  fluent.Button(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(),
+                                    child: Text(engine.locale('goBack')),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (difficulty == null) return;
+                            engine.pushScene(
+                              entry.key,
+                              arguments: {'difficulty': difficulty},
+                            );
+                          },
+                          child: Label(
+                            engine.locale(entry.value),
+                            width: 150.0,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: fluent.Button(
+                        onPressed: () {
+                          setMenuState(MenuStates.main);
+                        },
+                        child: Label(
+                          engine.locale('goBack'),
+                          width: 150.0,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
                 MenuStates.editor => [
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
@@ -406,46 +496,6 @@ class _DebugButtonState extends State<DebugButton> {
                 'debugMeeting': 'debugMeeting',
                 '___3': null,
                 'debugMatchingGame': 'debugMatchingGame',
-                'debugMatchingGame2': {
-                  'easy': 'debugMatchingGame2_easy',
-                  'normal': 'debugMatchingGame2_normal',
-                  'challenging': 'debugMatchingGame2_challenging',
-                  'hard': 'debugMatchingGame2_hard',
-                  'tough': 'debugMatchingGame2_tough',
-                  'brutal': 'debugMatchingGame2_brutal',
-                },
-                'debugDifferenceGame': {
-                  'easy': 'debugDifferenceGame_easy',
-                  'normal': 'debugDifferenceGame_normal',
-                  'challenging': 'debugDifferenceGame_challenging',
-                  'hard': 'debugDifferenceGame_hard',
-                  'tough': 'debugDifferenceGame_tough',
-                  'brutal': 'debugDifferenceGame_brutal',
-                },
-                'debugMouseMazeGame': {
-                  'easy': 'debugMouseMazeGame_easy',
-                  'normal': 'debugMouseMazeGame_normal',
-                  'challenging': 'debugMouseMazeGame_challenging',
-                  'hard': 'debugMouseMazeGame_hard',
-                  'tough': 'debugMouseMazeGame_tough',
-                  'brutal': 'debugMouseMazeGame_brutal',
-                },
-                'debugMemoryCardGame': {
-                  'easy': 'debugMemoryCardGame_easy',
-                  'normal': 'debugMemoryCardGame_normal',
-                  'challenging': 'debugMemoryCardGame_challenging',
-                  'hard': 'debugMemoryCardGame_hard',
-                  'tough': 'debugMemoryCardGame_tough',
-                  'brutal': 'debugMemoryCardGame_brutal',
-                },
-                'debugNanogramGame': {
-                  'easy': 'debugNanogramGame_easy',
-                  'normal': 'debugNanogramGame_normal',
-                  'challenging': 'debugNanogramGame_challenging',
-                  'hard': 'debugNanogramGame_hard',
-                  'tough': 'debugNanogramGame_tough',
-                  'brutal': 'debugNanogramGame_brutal',
-                },
               },
               onSelectedItem: (String item) async {
                 switch (item) {
@@ -528,156 +578,6 @@ class _DebugButtonState extends State<DebugButton> {
                         'kind': kProductionSiteKinds.random,
                         'isProduction': math.Random().nextBool(),
                       },
-                    );
-                  case 'debugMatchingGame2_easy':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'easy'},
-                    );
-                  case 'debugMatchingGame2_normal':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'normal'},
-                    );
-                  case 'debugMatchingGame2_challenging':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'challenging'},
-                    );
-                  case 'debugMatchingGame2_hard':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'hard'},
-                    );
-                  case 'debugMatchingGame2_tough':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'tough'},
-                    );
-                  case 'debugMatchingGame2_brutal':
-                    engine.pushScene(
-                      Scenes.matchingGame2,
-                      arguments: {'difficulty': 'brutal'},
-                    );
-                  case 'debugDifferenceGame_easy':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'easy'},
-                    );
-                  case 'debugDifferenceGame_normal':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'normal'},
-                    );
-                  case 'debugDifferenceGame_challenging':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'challenging'},
-                    );
-                  case 'debugDifferenceGame_hard':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'hard'},
-                    );
-                  case 'debugDifferenceGame_tough':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'tough'},
-                    );
-                  case 'debugDifferenceGame_brutal':
-                    engine.pushScene(
-                      Scenes.differenceGame,
-                      arguments: {'difficulty': 'brutal'},
-                    );
-                  case 'debugMouseMazeGame_easy':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'easy'},
-                    );
-                  case 'debugMouseMazeGame_normal':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'normal'},
-                    );
-                  case 'debugMouseMazeGame_challenging':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'challenging'},
-                    );
-                  case 'debugMouseMazeGame_hard':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'hard'},
-                    );
-                  case 'debugMouseMazeGame_tough':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'tough'},
-                    );
-                  case 'debugMouseMazeGame_brutal':
-                    engine.pushScene(
-                      Scenes.mouseMazeGame,
-                      arguments: {'difficulty': 'brutal'},
-                    );
-                  case 'debugMemoryCardGame_easy':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'easy'},
-                    );
-                  case 'debugMemoryCardGame_normal':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'normal'},
-                    );
-                  case 'debugMemoryCardGame_challenging':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'challenging'},
-                    );
-                  case 'debugMemoryCardGame_hard':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'hard'},
-                    );
-                  case 'debugMemoryCardGame_tough':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'tough'},
-                    );
-                  case 'debugMemoryCardGame_brutal':
-                    engine.pushScene(
-                      Scenes.memoryCardGame,
-                      arguments: {'difficulty': 'brutal'},
-                    );
-                  case 'debugNanogramGame_easy':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'easy'},
-                    );
-                  case 'debugNanogramGame_normal':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'normal'},
-                    );
-                  case 'debugNanogramGame_challenging':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'challenging'},
-                    );
-                  case 'debugNanogramGame_hard':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'hard'},
-                    );
-                  case 'debugNanogramGame_tough':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'tough'},
-                    );
-                  case 'debugNanogramGame_brutal':
-                    engine.pushScene(
-                      Scenes.nanogramGame,
-                      arguments: {'difficulty': 'brutal'},
                     );
                 }
               },

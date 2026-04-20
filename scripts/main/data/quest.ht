@@ -70,6 +70,17 @@ struct Quest {
     final difficultyFactor = this.difficulty * this.difficulty / 2 + 1
     final contribution = (game.quests[this.kind].contribution * difficultyFactor).round()
     
+    // 经验奖励：expForLevel(heroLevel) × (difficulty × 0.04 + 0.05)
+    final expRate = (this.difficulty + 1) * 0.02
+    final level = maxLevelForRank(this.rank)
+    final expAmount = (expForLevel(level) * expRate).round()
+    if (expAmount > 0) {
+      this.reward.add({
+        type: 'exp',
+        amount: expAmount,
+      })
+    }
+
     this.reward.add({
       type: 'contribution',
       amount: contribution,
@@ -132,8 +143,7 @@ namespace Quests {
     final amount = kBaseAmountForDeliveryMaterial * (difficulty + 1)
     
     final difficultyFactor = difficulty * difficulty + 1
-    final moneyRewardAmount = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 4
-    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+    final budgetMoney = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 4
 
     final endLocationDesc
     if (endLocation != null) {
@@ -168,7 +178,7 @@ namespace Quests {
         {
           type: 'material',
           kind: 'money',
-          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+          amount: budgetMoney,
         },
       ],
       reportSiteId: endSite.id,
@@ -228,8 +238,8 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    final moneyRewardAmount = kBaseReward * difficultyFactor + item.basePrice ~/ 4
-    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+    final budgetMoney = kBaseReward * difficultyFactor + item.basePrice ~/ 4
+    final budgetShard = convertMoneyToShard(budgetMoney)
 
     final endLocationDesc
     if (endLocation != null) {
@@ -261,8 +271,8 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: 'money',
-          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? budgetMoney : budgetShard,
         },
       ],
       reportSiteId: endSite.id,
@@ -311,8 +321,8 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    final moneyRewardAmount = kBaseRewardForEscort * difficultyFactor
-    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+    final budgetMoney = kBaseRewardForEscort * difficultyFactor
+    final budgetShard = convertMoneyToShard(budgetMoney)
 
     final endLocationDesc
     if (endLocation != null) {
@@ -343,8 +353,8 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: 'money',
-          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? budgetMoney : budgetShard,
         },
       ],
       reportSiteId: endSite.id,
@@ -363,7 +373,7 @@ namespace Quests {
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
     final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)
 
-    final moneyBudget = (Constants.materialBasePrice[material] * amount).round()
+    final budgetMoney = (Constants.materialBasePrice[material] * amount).round()
 
     final interpolations = [
       amount,
@@ -384,7 +394,7 @@ namespace Quests {
       budget: {
         type: 'material',
         kind: 'money',
-        amount: moneyBudget,
+        amount: budgetMoney,
       },
       reportSiteId: cityhall.id,
       interpolations: interpolations,
@@ -435,12 +445,12 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    let budget = 
+    let budgetMoney = 
           estimateItemPriceByKind(requirement.kind, requirement.rank, 'expensive')
     if (!Constants.itemWithAffixKinds.contains(requirement.kind)) {
-      budget += kBaseReward * difficultyFactor + budget ~/ 4;
+      budgetMoney += kBaseReward * difficultyFactor + budgetMoney ~/ 4;
     }
-    final shardRewardAmount = convertMoneyToShard(budget)
+    final budgetShard = convertMoneyToShard(budgetMoney)
 
     final interpolations = [
       itemDesc,
@@ -455,8 +465,8 @@ namespace Quests {
       requirement: requirement,
       budget: {
         type: 'material',
-          kind: 'money',
-        amount: difficulty == 0 ? budget : shardRewardAmount,
+        kind: difficulty == 0 ? 'money' : 'shard',
+        amount: difficulty == 0 ? budgetMoney : budgetShard,
       },
       reportSiteId: cityhall.id,
       interpolations: interpolations,
@@ -483,11 +493,11 @@ namespace Quests {
     final deviationTop = targetTop + (random.nextBool() ? deviation : -deviation)
     
     final difficultyFactor = difficulty * difficulty + 1
-    let moneyRewardAmount = kBaseRewardForDiscoverLocation * difficultyFactor
+    let budgetMoney = kBaseRewardForDiscoverLocation * difficultyFactor
     if (targetLocation.kind == 'island') {
-      moneyRewardAmount *= 2
+      budgetMoney *= 2
     } 
-    final shardRewardAmount = convertMoneyToShard(moneyRewardAmount)
+    final budgetShard = convertMoneyToShard(budgetMoney)
 
     final interpolations = [
       '[${deviationLeft},${deviationTop}]',
@@ -503,8 +513,8 @@ namespace Quests {
       reward: [
         {
           type: 'material',
-          kind: 'money',
-          amount: difficulty == 0 ? moneyRewardAmount : shardRewardAmount,
+          kind: difficulty == 0 ? 'money' : 'shard',
+          amount: difficulty == 0 ? budgetMoney : budgetShard,
         },
       ],
       reportSiteId: cityhall.id,

@@ -121,7 +121,7 @@
   "passive_tribulationCountMax_description": "劫数上限增加 {0}",
   "passive_monthlyIdentifyCardsMax_description": "每月可探查对手手牌数量 {0}",
   "passive_lightRadius_description": "大地图视野范围 {0}",
-  "passive_plainMoveSpeed_description": "平地移动时间消耗 {0}",
+  "passive_plainMoveSpeed_description": "平地移动速度 {0}%",
   "passive_mountainMoveSpeed_description": "山地移动速度 {0}%",
   "passive_waterMoveSpeed_description": "水面移动速度 {0}%",
   "passive_mountainMoveStaminaCost_description": "山地移动体力消耗 {0}%",

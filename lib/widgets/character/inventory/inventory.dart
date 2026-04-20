@@ -141,30 +141,36 @@ class _InventoryState extends State<Inventory> {
       );
     }
 
+    final totalWidth =
+        (kDefaultItemGridSize.width + 4.0) * widget.gridsPerLine + 20.0;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (widget.filter == null && widget.itemTypes != null)
           Padding(
             padding: const EdgeInsets.only(left: 10.0),
-            child: Row(
-              children: widget.itemTypes!
-                  .map(
-                    (type) => Padding(
-                      padding: const EdgeInsets.only(right: 5.0),
-                      child: fluent.Button(
-                          style: FluentButtonStyles.slim,
-                          child: Text(
-                            engine.locale(type),
-                            style: TextStyles.bodySmall,
-                          ),
-                          onPressed: () {
-                            filter['type'] = type == 'all' ? null : type;
-                            setState(() {});
-                          }),
-                    ),
-                  )
-                  .toList(),
+            child: Container(
+              width: totalWidth,
+              padding: const EdgeInsets.symmetric(horizontal: 7.0),
+              child: Row(
+                children: widget.itemTypes!
+                    .map(
+                      (type) => Padding(
+                        padding: const EdgeInsets.only(right: 5.0),
+                        child: fluent.Button(
+                            style: FluentButtonStyles.slim,
+                            child: Text(
+                              engine.locale(type),
+                              style: TextStyles.bodySmall,
+                            ),
+                            onPressed: () {
+                              filter['type'] = type == 'all' ? null : type;
+                              setState(() {});
+                            }),
+                      ),
+                    )
+                    .toList(),
+              ),
             ),
           ),
         ScrollConfiguration(
@@ -176,9 +182,7 @@ class _InventoryState extends State<Inventory> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: SizedBox(
-                width:
-                    (kDefaultItemGridSize.width + 4.0) * widget.gridsPerLine +
-                        20.0,
+                width: totalWidth,
                 height: widget.height,
                 child: ListView(
                   shrinkWrap: true,

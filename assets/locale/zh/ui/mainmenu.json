@@ -6,6 +6,13 @@
   "sandboxMode": "沙盒模式",
   "endlessMode": "无尽模式",
 
+  "miniGames": "小游戏",
+  "miniGame_matching2": "消消乐",
+  "miniGame_difference": "找不同",
+  "miniGame_mouseMaze": "走迷宫",
+  "miniGame_memoryCard": "记忆翻牌",
+  "miniGame_nanogram": "数织",
+
   "editors": "游戏编辑器",
   "createMap": "创建新地图",
   "characterEditor": "人物编辑器",

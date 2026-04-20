@@ -1267,7 +1267,7 @@ final class GameLogic {
           case 'craftmaterial_rerollAffix':
             break;
           case 'craftmaterial_upgradeRank':
-            engine.hetu.invoke('characterSetPotionPassive', positionalArgs: [
+            engine.hetu.invoke('characterSetEphemeralPassive', positionalArgs: [
               GameData.hero,
               'decreaseTribulationDifficulty'
             ]);
@@ -1275,14 +1275,13 @@ final class GameLogic {
       case 'craftmaterial_upgradeRank':
         engine.play(GameSound.drink);
         engine.hetu.invoke(
-          'characterSetUpgradeRankPotionPassive',
-          positionalArgs: [GameData.hero, itemData['rank']],
+          'characterSetEphemeralPassive',
+          positionalArgs: [GameData.hero, 'decreaseTribulationDifficulty'],
         );
-        engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
-          itemData
-        ], namedArgs: {
-          'amount': 1,
-        });
+        engine.hetu.invoke('lose',
+            namespace: 'Player',
+            positionalArgs: [itemData],
+            namedArgs: {'amount': 1});
     }
   }
 
@@ -1462,7 +1461,8 @@ final class GameLogic {
           engine.hetu
               .invoke('resetCharacterMonthly', positionalArgs: [character]);
         }
-        await _updateCharacterMonthly(character, force: force);
+        await engine.hetu.invoke('updateCharacterMonthly',
+            positionalArgs: [character], namedArgs: {'force': force});
       }
     }
     // 每个建筑每月会根据其属性而消耗维持费用和获得收入
@@ -1473,15 +1473,12 @@ final class GameLogic {
     for (final location in locs) {
       // 场景每月重置
       if ((time == 1 && day == location['updateDay']) || force) {
-        if (!force) {
-          engine.hetu
-              .invoke('resetLocationMonthly', positionalArgs: [location]);
-        }
-        _updateLocationMonthly(location, force: force);
+        engine.hetu.invoke('updateLocationMonthly',
+            positionalArgs: [location], namedArgs: {'force': force});
       }
       // 场景每日维护
       if ((time == 1) || force) {
-        _updateLocationDaily(location);
+        engine.hetu.invoke('updateLocationDaily', positionalArgs: [location]);
       }
     }
     // 触发每个组织的刷新事件
@@ -1490,10 +1487,8 @@ final class GameLogic {
       if (sect['headId'] == GameData.hero?['id']) continue;
       // 组织每月 6 日刷新
       if ((time == 1 && day == _kSectUpdateDay) || force) {
-        if (!force) {
-          engine.hetu.invoke('resetSectMonthly', positionalArgs: [sect]);
-        }
-        _updateSectMonthly(sect, force: force);
+        engine.hetu.invoke('updateSectMonthly',
+            positionalArgs: [sect], namedArgs: {'force': force});
       }
     }
 

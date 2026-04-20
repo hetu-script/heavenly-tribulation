@@ -273,31 +273,7 @@ struct ObjectBed {
 }
 
 /// 创建一个宝箱对象，打开后可以获得物品
-/// [items] 是物品信息列表，包含了用于生成实际物品的信息
-/// items: [
-///   {
-///     type: 'material',
-///     kind: 'money',
-///     amount: 100,
-///   },
-///   {
-///     type: 'prototype',
-///     kind: 'shard',
-///   },
-///   {
-///     type: 'equipment',
-///     kind: 'sword',
-///     rarity: 'common',
-///     rank: 0,
-///     level: 0,
-///   },
-///   {
-///     type: 'cardpack',
-///     kind: 'punch',
-///     genre: null,
-///     rank: 0,
-///   },
-/// ]
+/// [items] 是物品信息列表，具体格式参考createLoot的注释
 struct ObjectTreasureBox {
   constructor ({
     id,

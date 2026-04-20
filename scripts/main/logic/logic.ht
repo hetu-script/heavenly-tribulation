@@ -30,6 +30,9 @@ external function generateCityTerritory(world)
 
 external function generateZone(world)
 
+/// 计算NPC在大地图上的移动路径，如果大地图场景不存在则返回null
+external async function calculateNpcRoute(worldId, fromX, fromY, toX, toY)
+
 const _kMoneyRewardRate = 0.4
 const kRewardProbabilityExppack = 1.0
 const kRewardProbabilityMoney = 1.0
@@ -148,7 +151,7 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
     if (amount == null) {
       amount = random.nextInt(refQuantity * _kMoneyRewardRate) + 50
     }
-    final moneyPack = Materialpack(kind: 'money', amount: amount)
+    final moneyPack = MaterialPack(kind: 'money', amount: amount)
     rewards.add(moneyPack)
   }
   if (rewardShard) {
@@ -156,7 +159,7 @@ function createReward({entity, genre, isIdentified = true, details: {}}) {
     if (amount == null) {
       amount = random.nextInt((entity.level) + 1) + 1
     }
-    final shardPack = Materialpack(kind: 'shard', amount: amount)
+    final shardPack = MaterialPack(kind: 'shard', amount: amount)
     rewards.add(shardPack)
   }
   if (rewardEquipment) {
@@ -468,7 +471,7 @@ async function onInteractSpiritWell(object) {
     }
   } else {
     final shard = random.nextInt(hero.level + 1) + 1
-    final shardPack = Materialpack(kind: 'shard', amount: shard)
+    final shardPack = MaterialPack(kind: 'shard', amount: shard)
     items.add(shardPack)
   }
   await Player.acquireAll(items)

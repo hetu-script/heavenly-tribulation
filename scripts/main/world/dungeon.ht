@@ -1,6 +1,4 @@
-
-const _kBasicDungeonRoomMax = 5
-const _kDungeonRoomMax = 13
+const kDungeonRoomMax = 13
 
 struct DungeonFlags {
   constructor ({
@@ -12,15 +10,11 @@ struct DungeonFlags {
     rank = rank.clamp(0, kCultivationRankMax - 1)
     this.rank = rank
     this.level = 0
-    if (isBasic) {
-      this.levelMax = 0
-    } else {
-      this.levelMax = rank * 2 + 1
-    }
+    this.levelMax = isBasic ? 0 : rank * 2 + 1
     this.minEnemyLevel = minLevelForRank(rank)
     this.isBasic = isBasic
     this.room = initialRoom ? 0 : 1
-    this.roomMax = isBasic ? _kBasicDungeonRoomMax : _kDungeonRoomMax
+    this.roomMax = kDungeonRoomMax
     this.buildCompleted = false
     this.battleResult = null
     this.selectedPortal = null

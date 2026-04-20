@@ -1539,7 +1539,7 @@ class WorldMapScene extends Scene with HasCursorState {
         assert(homeLocationId != null,
             'Character ${character['id']} has no homeLocationId!');
         final homeLocation = GameData.getLocation(homeLocationId);
-        if (homeLocation['isHidden']) {
+        if (homeLocation['isHidden'] || homeLocation['sectId'] != null) {
           return false;
         }
         return true;
@@ -1550,7 +1550,9 @@ class WorldMapScene extends Scene with HasCursorState {
             i < _kInitialCharacterSelectionCount;
             ++i) {
           final locations = GameData.game['locations'].values.where((data) {
-            return data['category'] == 'city' && data['isDiscovered'] == true;
+            return data['category'] == 'city' &&
+                data['isDiscovered'] == true &&
+                data['sectId'] == null;
           }).toList()
             ..shuffle(GameData.random);
           final char = engine.hetu.invoke('Character', namedArgs: {
@@ -1624,6 +1626,9 @@ class WorldMapScene extends Scene with HasCursorState {
     }
 
     if (isNewGame) {
+      // 确保英雄出生城市有斗技场和秘境
+      engine.hetu.invoke('ensureStartingCityFacilities');
+
       await engine.hetu.invoke('onNewGame');
     }
 

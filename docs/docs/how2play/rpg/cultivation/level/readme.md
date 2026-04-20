@@ -15,7 +15,7 @@
 ```dart
 const kBaseExpGainPerLight = 40
 character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * kBaseExpGainPerLight
-character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
+character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.ephemeralPassives.expGainPerLight?.value / 100)).round()
 ```
 
 | 境界 | 数值 | 等级下限 | 等级上限 | 劫数上限 | 灵光转化效率 |

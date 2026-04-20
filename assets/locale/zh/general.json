@@ -851,6 +851,7 @@
   "characterAcquireSectTitleWithManagingSite": "{0}成为了{1}的{2}，并管理着{3}。",
   "characterAcquireTitle": "{0}成为了{1}。",
   "characterMakeContribution": "{0}在{1}的功勋增加了 {2}。",
+  "characterGainCredit": "{0}在{1}的积分增加了 {2}。",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
   "sectBuild": "{0}在{1}建立了{2}。",
@@ -949,6 +950,9 @@
   "hint_cardLibrary": "在功法图录中可以打开秘籍，获得一个指定境界、流派和种类的功法，以及两本随机功法。\n点击功法图录右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战方可在战斗中使用该套卡牌。\n注意：某些功法卡牌需要点出某些天道技能，或是装备某些特定武器或法宝才可使用。",
 
   "hint_cardLibrary_facility": "在藏书阁或者玄机碑等处打开功法图录时，可以消耗材料对卡牌进行淬炼以提升或修改卡牌效果数值。",
+
+  "hint_cardCraft": "当前可以进行功法精炼。\n右键点击功法卡牌即可进入精炼界面，消耗背包中的打造材料修改卡牌的词条。",
+  "hint_scrollCraft": "当前可以制作符箓。\n右键点击功法卡牌即可进入制符界面，消耗背包中的符纸可以将功法制成符箓卡牌。\n符箓卡牌没有任何境界、装备需求，但在次数用尽后会从卡牌库和卡组中消失。",
 
   "hint_visitEmptyVillage": "似乎没有任何重要人物居住在此。",
   "hint_visitEmptyHome": "这里空无一人，看来{0}现在不在家。",

@@ -1130,7 +1130,7 @@ final kBasePriceByKind = {
   'ring': 35,
   'amulet': 35,
   'pearl': 50,
-  'potion': 35,
+  'potion': 500,
 };
 
 const kItemWithAffixKinds = [

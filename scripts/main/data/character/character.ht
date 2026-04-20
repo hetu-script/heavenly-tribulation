@@ -1177,3 +1177,15 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
   
   return true;
 }
+
+function characterGainCredit(character, location, amount) {
+  location.credits[character.id] += amount
+
+  let incidentContent = engine.locale('characterGainCredit', interpolations: [
+    character.name, 
+    location.name,
+    amount,
+  ])
+
+  engine.info(incidentContent)
+}

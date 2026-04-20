@@ -203,8 +203,8 @@ struct BattleEntity {
     // 从装备或者天赋树中获得的被动加成，key是词条id
     this.passives = {}
 
-    // 从丹药中获得的被动加成，临时性加成将会在战斗结束时移除
-    this.potionPassives = {}
+    // 临时被动加成，临时性加成将会在战斗结束时移除
+    this.ephemeralPassives = {}
 
     // 在秘境中获得的被动加成，将会在离开秘境时移除
     this.dungeonPassives = {}
@@ -318,50 +318,50 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.wisdom = character.wisdom + character.passives.wisdom?.value
   character.stats.luck = character.luck + character.passives.luck?.value
 
-  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value + character.potionPassives.dexterity?.value
-  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value + character.potionPassives.spirituality?.value
-  character.stats.strength = character.strength + character.passives.strength?.value + character.potionPassives.strength?.value
-  character.stats.perception = character.perception + character.passives.perception?.value + character.potionPassives.perception?.value
-  character.stats.willpower = character.willpower + character.passives.willpower?.value + character.potionPassives.willpower?.value
+  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value + character.ephemeralPassives.dexterity?.value
+  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value + character.ephemeralPassives.spirituality?.value
+  character.stats.strength = character.strength + character.passives.strength?.value + character.ephemeralPassives.strength?.value
+  character.stats.perception = character.perception + character.passives.perception?.value + character.ephemeralPassives.perception?.value
+  character.stats.willpower = character.willpower + character.passives.willpower?.value + character.ephemeralPassives.willpower?.value
 
-  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value + character.potionPassives.lifeMax?.value
-  character.stats.battleLifeMax = character.stats.lifeMax + character.stats.strength + character.passives.battleLifeMax?.value + character.potionPassives.battleLifeMax?.value
-  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.potionPassives.manaMax?.value
-  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.potionPassives.chakraMax?.value
-  character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.potionPassives.karmaMax?.value
+  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value + character.ephemeralPassives.lifeMax?.value
+  character.stats.battleLifeMax = character.stats.lifeMax + character.stats.strength + character.passives.battleLifeMax?.value + character.ephemeralPassives.battleLifeMax?.value
+  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.ephemeralPassives.manaMax?.value
+  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.ephemeralPassives.chakraMax?.value
+  character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.ephemeralPassives.karmaMax?.value
   
   if (character.rank > 0) {
-    character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100) * (1 + character.potionPassives.tribulationCountMax?.value / 100)).round()
+    character.stats.tribulationCountMax = (character.tribulationCountMax * (1 + character.passives.tribulationCountMax?.value / 100) * (1 + character.ephemeralPassives.tribulationCountMax?.value / 100)).round()
   } else {
     character.stats.tribulationCountMax = -1
   }
-  character.stats.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.stats.perception + character.passives.monthlyIdentifyCardsMax?.value + character.potionPassives.monthlyIdentifyCardsMax?.value
-  character.stats.lightRadius = Constants.baseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value + character.potionPassives.lightRadius?.value
-  character.stats.plainMoveSpeed = (character.plainMoveSpeed * (1 - character.passives.plainMoveSpeed?.value / 100) * (1 - character.potionPassives.plainMoveSpeed?.value / 100)).toFixed(2)
-  character.stats.mountainMoveSpeed = (character.mountainMoveSpeed * (1 - character.passives.mountainMoveSpeed?.value / 100) * (1 - character.potionPassives.mountainMoveSpeed?.value / 100)).toFixed(2)
-  character.stats.waterMoveSpeed = (character.waterMoveSpeed * (1 - character.passives.waterMoveSpeed?.value / 100) * (1 - character.potionPassives.waterMoveSpeed?.value / 100)).toFixed(2)
-  character.stats.mountainMoveStaminaCost = (character.mountainMoveStaminaCost * (1 + character.passives.mountainMoveStaminaCost?.value / 100) * (1 + character.potionPassives.mountainMoveStaminaCost?.value / 100)).toFixed(2)
-  character.stats.waterMoveStaminaCost = (character.waterMoveStaminaCost * (1 + character.passives.waterMoveStaminaCost?.value / 100) * (1 + character.potionPassives.waterMoveStaminaCost?.value / 100)).toFixed(2)
-  character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.potionPassives.expGainPerLight?.value / 100)).round()
-  character.stats.expCollectSpeed = (character.expCollectSpeed * (1 - character.passives.expCollectSpeed?.value / 100) * (1 - character.potionPassives.expCollectSpeed?.value / 100)).toFixed(2)
-  character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.potionPassives.workEfficiency?.value / 100)).toFixed(2)
-  character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.potionPassives.workStaminaCost?.value / 100)).toFixed(2)
-  character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.potionPassives.craftMaterialCost?.value / 100)).toFixed(2)
+  character.stats.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.stats.perception + character.passives.monthlyIdentifyCardsMax?.value + character.ephemeralPassives.monthlyIdentifyCardsMax?.value
+  character.stats.lightRadius = Constants.baseLightRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value + character.ephemeralPassives.lightRadius?.value
+  character.stats.plainMoveSpeed = (character.plainMoveSpeed * (1 - character.passives.plainMoveSpeed?.value / 100) * (1 - character.ephemeralPassives.plainMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.mountainMoveSpeed = (character.mountainMoveSpeed * (1 - character.passives.mountainMoveSpeed?.value / 100) * (1 - character.ephemeralPassives.mountainMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.waterMoveSpeed = (character.waterMoveSpeed * (1 - character.passives.waterMoveSpeed?.value / 100) * (1 - character.ephemeralPassives.waterMoveSpeed?.value / 100)).toFixed(2)
+  character.stats.mountainMoveStaminaCost = (character.mountainMoveStaminaCost * (1 + character.passives.mountainMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.mountainMoveStaminaCost?.value / 100)).toFixed(2)
+  character.stats.waterMoveStaminaCost = (character.waterMoveStaminaCost * (1 + character.passives.waterMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.waterMoveStaminaCost?.value / 100)).toFixed(2)
+  character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.ephemeralPassives.expGainPerLight?.value / 100)).round()
+  character.stats.expCollectSpeed = (character.expCollectSpeed * (1 - character.passives.expCollectSpeed?.value / 100) * (1 - character.ephemeralPassives.expCollectSpeed?.value / 100)).toFixed(2)
+  character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.ephemeralPassives.workEfficiency?.value / 100)).toFixed(2)
+  character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.ephemeralPassives.workStaminaCost?.value / 100)).toFixed(2)
+  character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.ephemeralPassives.craftMaterialCost?.value / 100)).toFixed(2)
 
-  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.potionPassives.unarmedAttack?.value
-  character.stats.weaponAttack = character.passives.weaponAttack?.value + character.potionPassives.weaponAttack?.value
-  character.stats.spellAttack = character.passives.spellAttack?.value + character.potionPassives.spellAttack?.value
-  character.stats.curseAttack = character.passives.curseAttack?.value + character.potionPassives.curseAttack?.value
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.ephemeralPassives.unarmedAttack?.value
+  character.stats.weaponAttack = character.passives.weaponAttack?.value + character.ephemeralPassives.weaponAttack?.value
+  character.stats.spellAttack = character.passives.spellAttack?.value + character.ephemeralPassives.spellAttack?.value
+  character.stats.curseAttack = character.passives.curseAttack?.value + character.ephemeralPassives.curseAttack?.value
 
-  character.stats.physicalResist = character.passives.physicalResist?.value + character.potionPassives.physicalResist?.value
-  character.stats.chiResist = character.passives.chiResist?.value + character.potionPassives.chiResist?.value
-  character.stats.elementalResist = character.passives.elementalResist?.value + character.potionPassives.elementalResist?.value
-  character.stats.psychicResist = character.passives.psychicResist?.value + character.potionPassives.psychicResist?.value
+  character.stats.physicalResist = character.passives.physicalResist?.value + character.ephemeralPassives.physicalResist?.value
+  character.stats.chiResist = character.passives.chiResist?.value + character.ephemeralPassives.chiResist?.value
+  character.stats.elementalResist = character.passives.elementalResist?.value + character.ephemeralPassives.elementalResist?.value
+  character.stats.psychicResist = character.passives.psychicResist?.value + character.ephemeralPassives.psychicResist?.value
 
-  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.potionPassives.physicalResistMax?.value
-  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.potionPassives.chiResistMax?.value
-  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMax?.value + character.potionPassives.elementalResistMax?.value
-  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMax?.value + character.potionPassives.psychicResistMax?.value
+  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.ephemeralPassives.physicalResistMax?.value
+  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.ephemeralPassives.chiResistMax?.value
+  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
+  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMax?.value + character.ephemeralPassives.psychicResistMax?.value
 
   if (character.stats.physicalResist > character.stats.physicalResistMax) {
     character.stats.physicalResist = character.stats.physicalResistMax
@@ -377,11 +377,11 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   }
 
   // 神识每 20 点: 速度和闪避阈值 -1
-  character.stats.quickThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.quickThreshold?.value + character.potionPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.quickThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.quickThreshold?.value + character.ephemeralPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
   // 念力每 20 点: 缓慢和迟钝阈值 +1
-  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.slowThreshold?.value + character.potionPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.nimbleThreshold?.value + character.potionPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.clumsyThreshold?.value + character.potionPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.slowThreshold?.value + character.ephemeralPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.nimbleThreshold?.value + character.ephemeralPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.clumsyThreshold?.value + character.ephemeralPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
 
   if (rejuvenate) {
     setCharacterLife(character, character.stats.lifeMax)
@@ -717,7 +717,7 @@ function characterFirstEquippedKind(entity, kind) {
 /// 修改从丹药中获得的被动属性
 /// 相同的属性会被覆盖
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
-function characterSetPotionPassive(character, dataId, {level = 1}) {
+function characterSetEphemeralPassive(character, dataId, {level = 1}) {
   if (level == 0) {
     engine.warning('Character gain passive error: level is zero')
     return
@@ -738,18 +738,7 @@ function characterSetPotionPassive(character, dataId, {level = 1}) {
     }
     passiveData.value = (passiveData.increment * passiveLevel).round()
   }
-  character.potionPassives[dataId] = passiveData
-}
-
-function characterSetUpgradeRankPotionPassive(character, rank) {
-  assert(rank > 0 && rank <= kCultivationRankMax)
-  character.potionPassives['upgradeRank'] = {
-    id: 'upgradeRank',
-    priority: 3498,
-    level: rank,
-    description: engine.locale('passive_upgradeRank_${rank}_description'),
-    isPermanent: true,
-  }
+  character.ephemeralPassives[dataId] = passiveData
 }
 
 function characterConsumePotion(entity, item) {
@@ -767,12 +756,12 @@ function characterConsumePotion(entity, item) {
       }
     }
     else: {
-      characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)
+      characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level)
     }
   }
 
   for (final passiveData in item.affixes.skip(1)) {
-    characterSetPotionPassive(entity, passiveData.id, level: passiveData.level)
+    characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level)
   }
   // 重新计算角色状态值
   characterCalculateStats(entity, rejuvenate: false)

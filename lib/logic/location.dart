@@ -1,107 +1,5 @@
 part of 'logic.dart';
 
-void _updateLocationDaily(dynamic location) {
-  final updateStatus = location['updateStatus'];
-  final cost = updateStatus?['cost'];
-  if (cost == null) return;
-
-  if (updateStatus['isPaused'] == true) return;
-
-  for (final materialId in cost.keys) {
-    final int requiredAmount = cost[materialId] ?? 0;
-    assert(requiredAmount > 0);
-    int exhausted = engine.hetu.invoke('entityExhaust', positionalArgs: [
-      location,
-      materialId,
-      requiredAmount
-    ], namedArgs: {
-      'onStorage': true,
-    });
-    if (exhausted == 0) {
-      // 资源不足，暂停运转
-      updateStatus['isPaused'] = true;
-      engine.warning(
-          '${location['name']} 暂停运行，缺少资源: ${engine.locale(materialId)}');
-      break;
-    }
-  }
-  if (updateStatus['isPaused'] == true) return;
-
-  final isDeveloping = updateStatus['isDeveloping'] ?? false;
-  if (isDeveloping) {
-    updateStatus['progress'] += 1;
-
-    if (updateStatus['progress'] == updateStatus['max']) {
-      engine.hetu
-          .invoke('resetLocationUpdateStatus', positionalArgs: [location]);
-
-      location['development'] += 1;
-      final development = location['development'];
-
-      if (location['kind'] == 'headquarters') {
-        // 门派总部扩建完成，提升门派最大城市数量
-        final sect = GameData.getSect(location['sectId']);
-        sect['development'] = development;
-        final maxCityCount =
-            GameLogic.maxCityCountForSectDevelopment(development);
-        sect['maxCityCount'] = maxCityCount;
-        engine.warning(
-            '门派 ${sect['name']} 的规模扩大到了 [$development] 最大城市数量提升到了 [$maxCityCount]');
-      } else if (location['category'] == 'city') {
-        // 城市扩建完成，提升最大建筑数量
-        final maxSiteCount = GameLogic.calculateMaxSiteCountForCity(location);
-        final city = GameData.getLocation(location['atCityId']);
-        city['development'] = development;
-        city['maxSiteCount'] = maxSiteCount;
-        engine.warning(
-            '${city['name']} 的规模扩大到了 [$development] 最大建筑数量提升到了 [$maxSiteCount]');
-      } else {
-        engine.warning('${location['name']} 的规模提升到了 $development');
-      }
-    }
-  }
-}
-
-/// 城市月度更新
-void _updateLocationMonthly(dynamic location, {bool force = false}) {
-  if (location['flags']['monthly']['updated'] == true && !force) return;
-
-  engine.hetu.invoke('resetLocationMonthly', positionalArgs: [location]);
-  if (force) {
-    location['flags']['monthly']['updated'] = force;
-  }
-
-  final kind = location['kind'];
-
-  if (location['category'] == 'city') {
-  } else if (location['category'] == 'site') {
-    if (kSiteKindsManagable.containsKey(kind)) {
-      engine.hetu.invoke('replenishStorage', positionalArgs: [location]);
-    }
-
-    // 交易类场景每个月刷新物品
-    switch (location['kind']) {
-      case 'cityhall':
-        engine.hetu.invoke('replenishBounty', positionalArgs: [location]);
-      case 'tradinghouse':
-        engine.hetu.invoke('replenishTradingMoney', positionalArgs: [location]);
-        engine.hetu
-            .invoke('replenishTradingMaterials', positionalArgs: [location]);
-        engine.hetu.invoke('replenishTradingItem', positionalArgs: [location]);
-      case 'library' || 'auctionhouse' || 'alchemylab' || 'runelab':
-        engine.hetu.invoke('replenishTradingMoney', positionalArgs: [location]);
-        engine.hetu.invoke('replenishTradingItem', positionalArgs: [location]);
-      case 'farmland' || 'fishery' || 'timberland' || 'huntingground' || 'mine':
-        engine.hetu.invoke('replenishTradingMoney', positionalArgs: [location]);
-        engine.hetu
-            .invoke('replenishProductionMaterials', positionalArgs: [location]);
-      case 'exparray':
-        engine.hetu
-            .invoke('replenishCollectableLight', positionalArgs: [location]);
-    }
-  }
-}
-
 /// 异步函数，在显示场景窗口之前执行
 Future<dynamic> _tryEnterLocation(dynamic location) async {
   engine.info('尝试进入城市 [${location['name']}]');
@@ -353,8 +251,7 @@ void _onInteractArena({
   // 等级越高，低档可能不可选
   final int minLevel = GameLogic.minLevelForRank(heroRank);
   final int maxLevel = GameLogic.maxLevelForRank(heroRank);
-  final double levelRatio =
-      maxLevel > minLevel ? (heroLevel - minLevel) / (maxLevel - minLevel) : 0;
+  final double levelRatio = (heroLevel - minLevel) / (maxLevel - minLevel);
 
   // 构建赌注选项
   final Map<String, dynamic> selections = {};
@@ -384,8 +281,8 @@ void _onInteractArena({
   if (selected == null || selected == 'forgetIt') return;
 
   // 解析选中的档位
-  final int tierIndex = tierKeys.indexOf(selected);
-  final int multiplier = kArenaWagerMultipliers[tierIndex];
+  final int tier = tierKeys.indexOf(selected);
+  final int multiplier = kArenaWagerMultipliers[tier];
   final int wager = baseWager * multiplier;
 
   // 检查余额
@@ -412,11 +309,27 @@ void _onInteractArena({
   final List challengedIds =
       GameData.game['flags']['monthly']['arenaChallenged'] ?? [];
 
+  // 根据赌注档位调整对手等级
+  // 低档: 境界最小等级附近；中档: 中间等级；高档: 接近最高等级
+  List<int> tierLevels = [
+    minLevel + ((maxLevel - minLevel) * 0.3).round(),
+    minLevel + ((maxLevel - minLevel) * 0.6).round(),
+    minLevel + ((maxLevel - minLevel) * 0.9).round(),
+  ];
+
+  int targetMaxLevel = tierLevels[tier];
+  int targetMinLevel = tier == 0
+      ? minLevel
+      : tierLevels[tier - 1] + 1; // 当前档位的最小等级是前一档位的最大等级 + 1
+
   final candidates =
       (GameData.game['characters'].values as Iterable).where((char) {
     if (char['id'] == heroId) return false;
     if (companionIds.contains(char['id'])) return false;
     if (char['rank'] != heroRank) return false;
+    if (char['level'] > targetMaxLevel || char['level'] < targetMinLevel) {
+      return false;
+    }
     if (challengedIds.contains(char['id'])) return false;
     // 在家的角色
     final homeSiteId = '${char['id']}_$kLocationKindHome';
@@ -444,31 +357,22 @@ void _onInteractArena({
       'arenaPrefixStrong',
     ];
     // 前缀和档位（难度）有关
-    final prefix = engine.locale(prefixes[tierIndex.clamp(0, 2)]);
+    final prefix = engine.locale(prefixes[tier.clamp(0, 2)]);
     final baseName = engine
         .locale(strangerNames[GameLogic.random.nextInt(strangerNames.length)]);
     final name = '$prefix$baseName';
 
+    // 根据赌注档位调整对手等级
+    // 低档: 境界最小等级附近；中档: 中间等级；高档: 接近最高等级
+    int enemyLevel =
+        GameLogic.random.nextInt(targetMaxLevel - targetMinLevel + 1) +
+            targetMinLevel;
+
     opponent = engine.hetu.invoke('BattleEntity', namedArgs: {
       'rank': heroRank,
+      'level': enemyLevel,
       'name': name,
     });
-  }
-
-  // 根据赌注档位调整对手等级
-  // 低档: 境界最小等级附近；中档: 中间等级；高档: 接近最高等级
-  if (opponent['id'] == null) {
-    // 路人角色可以直接设定等级
-    int targetLevel;
-    switch (tierIndex) {
-      case 0:
-        targetLevel = minLevel + ((maxLevel - minLevel) * 0.3).round();
-      case 1:
-        targetLevel = minLevel + ((maxLevel - minLevel) * 0.6).round();
-      default:
-        targetLevel = minLevel + ((maxLevel - minLevel) * 0.9).round();
-    }
-    opponent['level'] = targetLevel;
   }
 
   // 赛前垃圾话环节
@@ -486,21 +390,45 @@ void _onInteractArena({
     loseOnEscape: true,
     onBattleEnd: (bool battleResult, int roundCount) async {
       if (battleResult) {
-        // 胜利: 返还赌注 + 获得等额奖金
-        final reward = wager * 2;
-        engine.hetu.invoke('collect',
-            namespace: 'Player', positionalArgs: [currencyId, reward]);
         dialog.pushDialog(
           'arena_win_$challengeType',
           npc: opponent,
         );
-        await dialog.execute();
-        engine.play(GameSound.coins);
         dialog.pushDialog(
           'arenaWin',
           interpolations: [wager, currencyName],
         );
         await dialog.execute();
+
+        // 生成斗技场战利品
+        // 胜利: 返还赌注 + 获得等额奖金
+        final reward = wager * 2;
+        // 经验值
+        const tierExpRates = [0.08, 0.18, 0.28];
+        final int expAmount =
+            (GameLogic.expForLevel(heroLevel) * tierExpRates[tier]).round();
+        final loot = engine.hetu.invoke('createLoot', positionalArgs: [
+          [
+            {
+              'type': 'exp',
+              'amount': expAmount,
+            },
+            {
+              'type': 'material',
+              'kind': currencyId,
+              'amount': reward,
+            },
+            {
+              'type': 'credit',
+              'cityId': location['atCityId'],
+              'locationId': location['id'],
+              'amount': 1,
+            },
+          ]
+        ]);
+        await engine.hetu
+            .invoke('acquireAll', namespace: 'Player', positionalArgs: [loot]);
+        await GameLogic.promptItems(loot);
       } else {
         dialog.pushDialog(
           'arena_lose_$challengeType',

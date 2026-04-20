@@ -191,7 +191,6 @@ function createSandboxWorld({
           category: 'city',
           kind: 'island',
           atTerrain: terrain,
-          updateWorldMap: false,
           isHidden: true,
           // 随机生成的城市，初始规模是0-3之间随机。
           development: random.nextInt(_kLocationInitialDevelopmentMax),
@@ -207,7 +206,6 @@ function createSandboxWorld({
           category: 'city',
           kind: 'mountain',
           atTerrain: terrain,
-          updateWorldMap: false,
           isHidden: true,
           // 随机生成的城市，初始规模是0-3之间随机。
           development: random.nextInt(_kLocationInitialDevelopmentMax),
@@ -227,7 +225,6 @@ function createSandboxWorld({
         category: 'city',
         kind: terrain.kind == 'shore' ? 'harbor' : 'inland',
         atTerrain: terrain,
-        updateWorldMap: false,
         isHidden: false,
         // 随机生成的城市，初始规模是0-3之间随机。
         development: random.nextInt(_kLocationInitialDevelopmentMax),
@@ -281,7 +278,6 @@ function createSandboxWorld({
       kind: kind,
       atTerrain: terrain,
       atCity: city,
-      updateWorldMap: false,
       // 随机生成的场所，初始规模是0-3之间随机。
       development: random.nextInt(_kLocationInitialDevelopmentMax),
       npcId: Constants.siteKindToNpcId[kind],
@@ -643,7 +639,6 @@ function createSandboxWorld({
       kind: 'dungeon',
       atTerrain: dungeionTile,
       atCity: city, 
-      updateWorldMap: false,
       sectId: city.sectId,
       npcId: Constants.siteKindToNpcId['dungeon'],
       development: random.nextInt(_kLocationInitialDevelopmentMax),

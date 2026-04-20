@@ -221,7 +221,7 @@ class LocationScene extends Scene with HasCursorState {
       default:
         for (final siteId in location['siteIds']) {
           final siteData = GameData.getLocation(siteId);
-          final siteCard = GameData.getSiteCard(
+          final siteCard = GameData.createSiteCardByData(
             siteData,
             onPreviewed: _onPreviewSiteCard,
             onUnpreviewed: _onUnpreviewSiteCard,

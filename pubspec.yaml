@@ -179,6 +179,7 @@ flutter:
     - scripts/main/data/location/
     - scripts/main/data/sect/
     - scripts/main/event/
+    - scripts/main/logic/
     - scripts/main/name/
     - scripts/main/name/book/
     - scripts/main/name/character/

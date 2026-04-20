@@ -36,12 +36,14 @@ namespace debug {
   }
 
   function cheatContribution({ locationId }) {
+    let location = game.locations[locationId]
+    assert(location != null && location.sectId == hero.sectId)
     final contributionData = {
       sectId: hero.sectId,
       locationId: locationId,
       amount: 5000,
     }
-    .makeContribution(contributionData)
+    makeContribution(contributionData)
   }
 
   function testItem([character]) {
@@ -93,16 +95,16 @@ namespace debug {
       ore: character.materials.ore + 5000,
     }
 
-    // final shardPack = Materialpack(kind: 'shard', amount: 500)
+    // final shardPack = MaterialPack(kind: 'shard', amount: 500)
     // entityAcquire(character, shardPack, incurIncident: false)
     // items.add(shardPack)
 
-    // final moneyPack = Materialpack(kind: 'money', amount: 50000)
+    // final moneyPack = MaterialPack(kind: 'money', amount: 50000)
     // entityAcquire(character, moneyPack, incurIncident: false)
     // items.add(moneyPack)
 
     // for (final materialId in Constants.materialKinds) {
-    //   final pack = Materialpack(kind: materialId, amount: 5000)
+    //   final pack = MaterialPack(kind: materialId, amount: 5000)
     //   entityAcquire(character, pack, incurIncident: false)
     //   items.add(pack)
     // }

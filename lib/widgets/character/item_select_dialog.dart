@@ -74,9 +74,9 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Inventory(
-                  inventoryType: InventoryType.player,
+                  inventoryType: InventoryType.none,
                   character: widget.character,
-                  height: 364.0,
+                  height: 312.0,
                   gridsPerLine: 6,
                   filter: widget.filter,
                   onItemTapped: (data, offset) {

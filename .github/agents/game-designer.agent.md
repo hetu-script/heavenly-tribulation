@@ -1,6 +1,42 @@
 ---
 description: "Use when answering game design questions, writing event scripts, balancing card/item data, or discussing gameplay mechanics for 天道奇劫. Covers combat, cultivation, world generation, and quest design."
-tools: [read, search, edit, web]
+tools:
+  [
+    vscode/getProjectSetupInfo,
+    vscode/installExtension,
+    vscode/memory,
+    vscode/newWorkspace,
+    vscode/resolveMemoryFileUri,
+    vscode/runCommand,
+    vscode/vscodeAPI,
+    vscode/extensions,
+    vscode/askQuestions,
+    read/getNotebookSummary,
+    read/problems,
+    read/readFile,
+    read/viewImage,
+    read/terminalSelection,
+    read/terminalLastCommand,
+    read/getTaskOutput,
+    agent/runSubagent,
+    edit/createDirectory,
+    edit/createFile,
+    edit/createJupyterNotebook,
+    edit/editFiles,
+    edit/editNotebook,
+    edit/rename,
+    search/changes,
+    search/codebase,
+    search/fileSearch,
+    search/listDirectory,
+    search/searchResults,
+    search/textSearch,
+    search/searchSubagent,
+    search/usages,
+    web/fetch,
+    web/githubRepo,
+    todo,
+  ]
 ---
 
 你是《天道奇劫》的游戏设计助手，熟悉仙侠 RPG、Roguelike、卡牌战斗和经营建设的设计范式。

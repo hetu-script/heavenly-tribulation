@@ -241,6 +241,7 @@
   // ------------通用·加持------------
   punch_defend: {
     id: "punch_defend",
+    uniqueId: "defend_physical",
     category: "buff",
     kind: "punch",
     damageType: "physical",
@@ -261,6 +262,7 @@
   },
   kick_defend: {
     id: "kick_defend",
+    uniqueId: "defend_physical",
     category: "buff",
     kind: "kick",
     damageType: "physical",
@@ -281,6 +283,7 @@
   },
   sabre_defend: {
     id: "sabre_defend",
+    uniqueId: "defend_physical",
     genre: null,
     category: "buff",
     kind: "sabre",
@@ -304,6 +307,7 @@
   },
   sword_defend: {
     id: "sword_defend",
+    uniqueId: "defend_physical",
     category: "buff",
     kind: "sword",
     damageType: "physical",
@@ -325,6 +329,7 @@
   },
   spear_defend: {
     id: "spear_defend",
+    uniqueId: "defend_physical",
     category: "buff",
     kind: "spear",
     damageType: "physical",
@@ -346,6 +351,7 @@
   },
   staff_defend: {
     id: "staff_defend",
+    uniqueId: "defend_physical",
     category: "buff",
     kind: "staff",
     damageType: "physical",
@@ -368,6 +374,7 @@
   // 直接回复生命
   heal: {
     id: "heal",
+    uniqueId: "heal",
     category: "buff",
     kind: "xinfa",
     description: "affix_heal",
@@ -388,6 +395,7 @@
   // 获得生命元气
   vigor: {
     id: "vigor",
+    uniqueId: "vigor",
     category: "buff",
     kind: "xinfa",
     rank: 1,
@@ -408,6 +416,7 @@
   },
   speed_quick_defend_physical: {
     id: "speed_quick_defend_physical",
+    uniqueId: ["speed_quick", "defend_physical"],
     category: "buff",
     kind: "shenfa",
     damageType: "physical",
@@ -432,6 +441,7 @@
   },
   dodge_nimble_defend_physical: {
     id: "affix_dodge_nimble_defend_physical",
+    uniqueId: ["dodge_nimble", "defend_physical"],
     category: "buff",
     kind: "qinggong",
     damageType: "physical",
@@ -599,6 +609,7 @@
   // ------------锻体·加持------------
   punch_defend_exhaust_rage: {
     id: "punch_defend_exhaust_rage",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "bodyforge",
     kind: "punch",
@@ -626,6 +637,7 @@
   },
   kick_defend_exhaust_rage: {
     id: "kick_defend_exhaust_rage",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "bodyforge",
     kind: "kick",
@@ -653,6 +665,7 @@
   },
   sabre_defend_exhaust_rage: {
     id: "sabre_defend_exhaust_rage",
+    uniqueId: "defend_chi",
     category: "buff",
     genre: "bodyforge",
     kind: "sabre",
@@ -681,6 +694,7 @@
   },
   speed_quick_exhaust_rage_defend_chi: {
     id: "speed_quick_exhaust_rage_defend_chi",
+    uniqueId: ["speed_quick", "defend_chi"],
     genre: "bodyforge",
     category: "buff",
     kind: "shenfa",
@@ -712,6 +726,7 @@
   },
   dodge_nimble_exhaust_rage_defend_chi: {
     id: "dodge_nimble_exhaust_rage_defend_chi",
+    uniqueId: ["dodge_nimble", "defend_chi"],
     genre: "bodyforge",
     category: "buff",
     kind: "qinggong",
@@ -949,6 +964,7 @@
   // ------------御剑·加持------------
   mana_chakra: {
     id: "mana_chakra",
+    uniqueId: ["mana", "chakra"],
     category: "buff",
     genre: "swordcraft",
     kind: "xinfa",
@@ -971,6 +987,7 @@
   },
   kick_defend_exhaust_chakra: {
     id: "kick_defend_exhaust_chakra",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "swordcraft",
     kind: "kick",
@@ -998,6 +1015,7 @@
   },
   kick_defend_exhaust_mana: {
     id: "kick_defend_exhaust_mana",
+    uniqueId: "defend_elemental",
     category: "buff",
     genre: "swordcraft",
     kind: "kick",
@@ -1025,6 +1043,7 @@
   },
   sword_defend_exhaust_chakra: {
     id: "sword_defend_exhaust_chakra",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "swordcraft",
     kind: "sword",
@@ -1053,6 +1072,7 @@
   },
   sword_defend_exhaust_mana: {
     id: "sword_defend_exhaust_mana",
+    uniqueId: "defend_elemental",
     category: "buff",
     genre: "swordcraft",
     kind: "sword",
@@ -1081,6 +1101,7 @@
   },
   speed_quick_exhaust_chakra_defend_physical: {
     id: "speed_quick_exhaust_chakra_defend_physicall",
+    uniqueId: ["speed_quick", "defend_physical"],
     genre: "swordcraft",
     category: "buff",
     kind: "shenfa",
@@ -1112,6 +1133,7 @@
   },
   dodge_nimble_exhaust_mana_defend_elemental: {
     id: "dodge_nimble_exhaust_mana_defend_elemental",
+    uniqueId: ["dodge_nimble", "defend_elemental"],
     genre: "swordcraft",
     category: "buff",
     kind: "qinggong",
@@ -1143,6 +1165,7 @@
   },
   flying_sword_defense: {
     id: "flying_sword_defense",
+    uniqueId: ["defend_physical", "defend_elemental"],
     genre: "swordcraft",
     category: "buff",
     kind: "flying_sword",
@@ -1332,6 +1355,7 @@
   // ------------悟道·加持------------
   mana: {
     id: "mana",
+    uniqueId: "mana",
     category: "buff",
     genre: "spellcraft",
     kind: "xinfa",
@@ -1354,6 +1378,7 @@
   },
   punch_defend_exhaust_mana: {
     id: "punch_defend_exhaust_mana",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "spellcraft",
     kind: "punch",
@@ -1381,6 +1406,7 @@
   },
   wind_buff: {
     id: "wind_buff",
+    uniqueId: ["speed_quick", "defend_physical"],
     category: "buff",
     genre: "spellcraft",
     kind: "airbend",
@@ -1414,6 +1440,7 @@
   },
   wood_heal: {
     id: "wood_heal",
+    uniqueId: "heal",
     genre: "spellcraft",
     category: "buff",
     kind: "plant_control",
@@ -1442,6 +1469,7 @@
   },
   wood_defense_physical: {
     id: "wood_defense_physical",
+    uniqueId: "defend_physical",
     genre: "spellcraft",
     category: "buff",
     kind: "plant_control",
@@ -1578,6 +1606,7 @@
   // ------------炼魂·加持------------
   punch_defend_exhaust_karma: {
     id: "punch_defend_exhaust_karma",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "vitality",
     kind: "punch",
@@ -1633,6 +1662,7 @@
   },
   power_word_buff: {
     id: "power_word_buff",
+    uniqueId: "heal",
     genre: "vitality",
     category: "buff",
     kind: "power_word",
@@ -1800,6 +1830,7 @@
   // ------------法身·加持------------
   kick_defend_exhaust_karma: {
     id: "kick_defend_exhaust_karma",
+    uniqueId: "defend_physical",
     category: "buff",
     genre: "avatar",
     kind: "kick",
@@ -1827,6 +1858,7 @@
   },
   staff_defend_exhaust_rage: {
     id: "staff_defend_exhaust_rage",
+    uniqueId: "defend_chi",
     category: "buff",
     genre: "avatar",
     kind: "staff",
@@ -1855,6 +1887,7 @@
   },
   spear_defend_exhaust_karma: {
     id: "spear_defend_exhaust_karma",
+    uniqueId: "defend_psychic",
     category: "buff",
     genre: "avatar",
     kind: "spear",
@@ -1883,6 +1916,7 @@
   },
   scripture: {
     id: "scripture",
+    uniqueId: ["defend_physical", "defend_psychic"],
     genre: "avatar",
     category: "buff",
     kind: "scripture",
