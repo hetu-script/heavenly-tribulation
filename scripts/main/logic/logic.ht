@@ -18,8 +18,6 @@ external function getMinMaxExtraAffixCount(rank) -> Map
 
 external function getTribulationCountForRank(rank) -> integer
 
-external function getBaseExpGainPerLight(rank) -> integer
-
 external function getDeckLimitForRank(rank) -> Map
 
 // external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
@@ -296,7 +294,7 @@ async function onInteractMapObject(object, terrain) {
       onInteractEnemy(object.battleEntity)
     }
     kObjectCategoryExpArray: {
-      Game.showCultivation(location: object, enableCultivate: true)
+      Game.showCultivation(location: object, mode: 'exparray')
     }
     kObjectCategoryCardLibrary: {
       Game.showLibrary(enableCardCraft: true, enableScrollCraft: true)

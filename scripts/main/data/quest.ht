@@ -16,9 +16,9 @@ const kTimeLimitDaysVariation2 = 25
 
 const kHiddenCityShardReward = 2
 
-const kBaseReward = 50
-const kBaseRewardForEscort = 150
-const kBaseRewardForDiscoverLocation = 450
+const kBaseReward = 500
+const kBaseRewardForEscort = 1500
+const kBaseRewardForDiscoverLocation = 4500
 
 const kBudgetFactorForPurchaseMaterial = 0.8
 
@@ -220,7 +220,7 @@ namespace Quests {
     // if (characters.isNotEmpty) {
     //   receiver = random.nextIterable(characters)
     // } else {
-    //   return null
+    //   // return null
     //   // receiver = Character(
     //   //   homeLocationId: cityhall.atCityId,
     //   //   rank: difficulty,

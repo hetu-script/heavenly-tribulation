@@ -159,7 +159,7 @@ struct Potion {
     let mainAffix
     if (this.mainAffixId == null) {
       final mainAffixes = game.passives.values.where((affix) {
-        if (!affix.isPotionMain) return false
+        if (!affix.isPotion) return false
         if (affix.rank > this.rank) return false
         return true
       })
@@ -198,7 +198,7 @@ struct Potion {
     if (affixCount > 0) {
       for (var i in range(affixCount)) {
         final supportAffixes = game.passives.values.where((affix) {
-          if (!affix.isPotion) return false
+          if (!affix.isEphemeral) return false
           if (this.affixUniqueIds.contains(affix.id) ||
             (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
           if (affix.rank > this.rank) return false

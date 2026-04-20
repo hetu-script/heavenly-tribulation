@@ -153,7 +153,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
-    gameState.isInteractable = visiblePanels.isEmpty;
 
     final panelPositions =
         context.watch<ViewPanelPositionState>().panelPositions;
@@ -505,8 +504,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 context.read<ViewPanelState>().clearAll();
                                 engine
                                     .pushScene(Scenes.cultivation, arguments: {
-                                  'enableCultivate':
-                                      engine.scene?.id == 'mainmenu',
+                                  'mode': engine.scene?.id == Scenes.mainmenu
+                                      ? 'exparray'
+                                      : null
                                 });
                               },
                               onEnter: (rect) {

@@ -135,6 +135,7 @@ struct BattleEntity {
       this.level = this.level.clamp(minLevel, maxLevel)
     }
 
+    this.life = 1
     this.tribulationCount = 0
 
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
@@ -292,8 +293,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
   character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception
-  character.expGainPerLight = getBaseExpGainPerLight(character.rank)
-  character.expCollectSpeed = Constants.baseExpCollectSpeed
+  character.medidateSpeed = Constants.baseMeditateSpeed
+  character.expCollectEfficiency = 1.0
   character.plainMoveSpeed = Constants.basePlainMoveSpeed
   character.mountainMoveSpeed = Constants.baseMountainMoveSpeed
   character.waterMoveSpeed = Constants.baseWaterMoveSpeed
@@ -342,8 +343,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.waterMoveSpeed = (character.waterMoveSpeed * (1 - character.passives.waterMoveSpeed?.value / 100) * (1 - character.ephemeralPassives.waterMoveSpeed?.value / 100)).toFixed(2)
   character.stats.mountainMoveStaminaCost = (character.mountainMoveStaminaCost * (1 + character.passives.mountainMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.mountainMoveStaminaCost?.value / 100)).toFixed(2)
   character.stats.waterMoveStaminaCost = (character.waterMoveStaminaCost * (1 + character.passives.waterMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.waterMoveStaminaCost?.value / 100)).toFixed(2)
-  character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.ephemeralPassives.expGainPerLight?.value / 100)).round()
-  character.stats.expCollectSpeed = (character.expCollectSpeed * (1 - character.passives.expCollectSpeed?.value / 100) * (1 - character.ephemeralPassives.expCollectSpeed?.value / 100)).toFixed(2)
+  character.stats.medidateSpeed = (character.medidateSpeed * (1 - character.passives.medidateSpeed?.value / 100) * (1 - character.ephemeralPassives.medidateSpeed?.value / 100)).round()
+  character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + character.passives.expCollectEfficiency?.value / 100) * (1 + character.ephemeralPassives.expCollectEfficiency?.value / 100)).toFixed(2)
   character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.ephemeralPassives.workEfficiency?.value / 100)).toFixed(2)
   character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.ephemeralPassives.workStaminaCost?.value / 100)).toFixed(2)
   character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.ephemeralPassives.craftMaterialCost?.value / 100)).toFixed(2)

@@ -4,8 +4,7 @@ external abstract class Constants {
   static get races;
   static get raceMainAttributes;
 
-  static get baseExpGainPerLight;
-  static get baseExpCollectSpeed;
+  static get baseMeditateSpeed;
   static get basePlainMoveSpeed;
   static get baseMountainMoveSpeed;
   static get baseWaterMoveSpeed;

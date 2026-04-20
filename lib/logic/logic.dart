@@ -567,11 +567,6 @@ final class GameLogic {
     }
   }
 
-  static int getBaseExpGainPerLight(int rank) {
-    final exp = (rank * rank + (rank + 1)) * kBaseExpGainPerLight;
-    return exp;
-  }
-
   static Map<String, int> getLifeSpanForRank(int rank) {
     assert(rank >= 0 && rank <= kCultivationRankMax);
 

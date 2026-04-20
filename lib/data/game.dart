@@ -1405,22 +1405,22 @@ final class GameData with ChangeNotifier {
     final desc = StringBuffer();
     // desc.writeln('${engine.locale('reward')}:');
     for (var i = 0; i < reward.length; ++i) {
-      if (i > 0) {
-        desc.write(', ');
-      }
+      // if (i > 0) {
+      //   desc.write(', ');
+      // }
       final itemInfo = reward[i];
       final amount = itemInfo['amount'] ?? 1;
       switch (itemInfo['type']) {
+        case 'exp':
+          desc.writeln('${engine.locale('exp')} × $amount');
         case 'material':
           final kind = itemInfo['kind'];
-          desc.write('$amount ${engine.locale(kind)}');
-        case 'prototype':
-          final id = itemInfo['id'];
-          desc.write('$amount ${engine.locale(id)}');
+          desc.writeln('${engine.locale(kind)} × $amount');
         case 'equipment':
           final kind = itemInfo['kind'];
           final rarity = itemInfo['rarity'];
-          desc.write('$amount ${engine.locale(rarity)}${engine.locale(kind)}');
+          desc.writeln(
+              '${engine.locale(rarity)}${engine.locale(kind)} × $amount');
         case 'cardpack':
           final rank = itemInfo['rank'] ?? 0;
           final genre = itemInfo['genre'];
@@ -1432,18 +1432,28 @@ final class GameData with ChangeNotifier {
               kind != null ? engine.locale('battlecard_$kind') : '';
           final name =
               rankString + genreString + kindString + engine.locale('cardpack');
-          desc.write('$amount $name');
+          desc.writeln('$name × $amount');
+        case 'potion':
+          final kind = itemInfo['kind'];
+          final rarity = itemInfo['rarity'];
+          desc.writeln(
+              '${engine.locale(rarity)}${engine.locale(kind)} × $amount');
+        case 'prototype':
+          final id = itemInfo['id'];
+          desc.writeln('${engine.locale(id)} × $amount');
         case 'contribution':
           final amount = itemInfo['amount'] ?? 0;
           final sectId = itemInfo['sectId'];
           if (sectId != null && hero['sectId'] != sectId) {
-            desc.write('${amount ~/ 2} ${engine.locale('contribution')}');
-            desc.write(' (${engine.locale('contribution_note')})');
+            desc.write('${engine.locale('contribution')} × $amount'
+                ' (${engine.locale('contribution_note')})');
           } else {
-            desc.write('$amount ${engine.locale('contribution')}');
+            desc.writeln('${engine.locale('contribution')} × $amount');
           }
+        case 'credit':
+          desc.writeln('${engine.locale('credit')} × $amount');
         default:
-          desc.write(engine.locale('unknown_item'));
+          desc.writeln(engine.locale('unknown_item'));
       }
     }
     return desc.toString();
@@ -1491,7 +1501,7 @@ final class GameData with ChangeNotifier {
       // for (final line in lines) {
       //   desc.writeln('  $line');
       // }
-      desc.writeln('<yellow>${engine.locale('reward')}: $rewardDesc</>');
+      desc.writeln('<yellow>${engine.locale('reward')}: </>\n$rewardDesc');
     }
     return desc.toString();
   }

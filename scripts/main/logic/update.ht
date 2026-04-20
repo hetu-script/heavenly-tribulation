@@ -92,9 +92,6 @@ function updateLocationMonthly(location, {force = false}) {
         replenishTradingMoney(location)
         replenishProductionMaterials(location)
       }
-      'exparray': {
-        replenishCollectableLight(location)
-      }
     }
   }
 }

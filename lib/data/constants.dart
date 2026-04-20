@@ -19,10 +19,8 @@ class Constants extends HTExternalClass {
         return kRaces;
       case 'Constants.raceMainAttributes':
         return kRaceMainAttributes;
-      case 'Constants.baseExpGainPerLight':
-        return kBaseExpGainPerLight;
-      case 'Constants.baseExpCollectSpeed':
-        return kBaseExpCollectSpeed;
+      case 'Constants.baseMeditateSpeed':
+        return kBaseMeditateSpeed;
       case 'Constants.basePlainMoveSpeed':
         return kBasePlainMoveSpeed;
       case 'Constants.baseMountainMoveSpeed':

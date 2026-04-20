@@ -819,8 +819,42 @@ namespace Player {
       Game.promptJournal(journal)
     }
   }
-}
 
+  /// 聚灵阵冥想 — 根据类别和境界生成随机 buff 并赋予玩家
+  /// type: 'attack' | 'buff' | 'attribute' | 'energy'
+  /// rank: 角色当前境界
+  function getExpArrayBuff(type, rank) {
+    assert(hero != null)
+    
+    final supportAffixes = game.passives.values.where((affix) {
+      if (!affix.isEphemeral) return false
+      if (affix.ephemeralType != type) return false
+      if (affix.rank > rank) return false
+      return true
+    })
+    if (supportAffixes.isEmpty) {
+      throw('Found no support affix for exp array buff, type: ${type}, rank: ${rank}')
+    }
+
+    final affix = random.nextIterable(supportAffixes)
+    let level = 1
+    if (affix.increment != null) {
+      let minAffixLevel = 1
+      if (affix.increment > 0 && affix.increment < 1) {
+        minAffixLevel = (1 / affix.increment).ceil()
+      } else if (affix.increment < 0 && affix.increment > -1) {
+        minAffixLevel = (1 / -affix.increment).ceil()
+      }
+      let minLevel = minLevelForRank(rank)
+      let maxLevel = maxLevelForRank(rank)
+      
+      level = getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
+    }
+
+    characterSetEphemeralPassive(hero, affix.id, level: level)
+    engine.info('聚灵阵赋予buff: ${affix.id} lv${level}')
+  }
+}
 
 /// 判断某个角色和主角的关系类型，返回对应的类型
 /// 'stranger'、'acquintance'、'superior'、'intimidate'、'respectful'

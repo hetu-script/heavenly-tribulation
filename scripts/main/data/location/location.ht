@@ -886,14 +886,3 @@ function replenishTradingItem(location) {
     }
   }
 }
-
-/// 刷新聚灵阵中的可用灵气
-function replenishCollectableLight(location) {
-  assert(location.kind == 'exparray')
-  // final atCity = game.locations[location.atCityId]
-  // assert(atCity != null, 'location not found, id: ${location.atCityId}')
-  // assert(atCity.category == 'city')
-
-  final replenishAmount = _kBaseCollectableLightReplenishAmount * (location.development + 1)
-  location.collectableLight = random.nearInt(replenishAmount) + _kBaseCollectableLightReplenishAmount
-}

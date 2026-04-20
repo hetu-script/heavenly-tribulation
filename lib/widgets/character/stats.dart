@@ -48,8 +48,8 @@ const kMoreStats = [
   'waterMoveSpeed',
   'mountainMoveStaminaCost',
   'waterMoveStaminaCost',
-  'expCollectSpeed',
-  'expGainPerLight',
+  'medidateSpeed',
+  'expCollectEfficiency',
   'workStaminaCost',
   'workEfficiency',
   'craftMaterialCost',
@@ -134,8 +134,8 @@ class _CharacterStatsState extends State<CharacterStats> {
           : timeCost.toString();
       description =
           engine.locale('${id.replaceAll('Speed', 'TimeCost')}_description');
-    } else if (id == 'craftMaterialCost' ||
-        id == 'workEfficiency' ||
+    } else if (id.endsWith('Efficiency') ||
+        id == 'craftMaterialCost' ||
         id == 'workStaminaCost') {
       valueString = '${(value * 100).toStringAsFixed(0)}%';
       valueString = value > 1.0

@@ -335,7 +335,6 @@ struct ObjectExpArray {
     hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
-    collectableLight,
   }) {
     if (useCustomLogic) {
       assert(id != null)
@@ -349,7 +348,6 @@ struct ObjectExpArray {
     this.category = kObjectCategoryExpArray
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
-    this.collectableLight = collectableLight ?? 0
 
     world.objects[this.id] = this
   }

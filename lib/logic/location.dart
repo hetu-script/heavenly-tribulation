@@ -456,8 +456,6 @@ void _onInteractDaoStele(
 
   engine.pushScene(Scenes.cultivation, arguments: {
     'location': location,
-    'enableCultivate': true,
-    'enableDaoStele': true,
   });
 }
 
@@ -472,7 +470,6 @@ void _onInteractExpArray(
 
   engine.pushScene(Scenes.cultivation, arguments: {
     'location': location,
-    'enableCultivate': true,
   });
 }
 

@@ -46,6 +46,7 @@ async function onAfterEnterLocation(location) -> bool {
             'perception': 0,
           },
           cultivationFavor: '',
+          allocateSkills: false,
           generateDeck: false,
         )
         generateBattleDeck(dummy,
@@ -147,7 +148,7 @@ async function onAfterEnterLocation(location) -> bool {
           // final receiverId = journal.quest.receiverId
           // final receiver = game.characters[receiverId]
           final success = Player.deliver(journal.quest.package)
-          characterMet(receiver, hero)
+          // characterMet(receiver, hero)
           if (success) {
             Player.progressJournalById(journal.id)
             if (isLate) {

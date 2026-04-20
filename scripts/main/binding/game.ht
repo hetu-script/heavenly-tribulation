@@ -70,7 +70,7 @@ namespace Game {
   
   external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
   
-  external function showCultivation({location, enableCultivate: bool = false})
+  external function showCultivation({location, mode})
 
   external function showPrebattle(enemyData, {
     onBattleStart,

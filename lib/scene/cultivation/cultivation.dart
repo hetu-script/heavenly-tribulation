@@ -19,7 +19,6 @@ import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 
 import '../../extensions.dart';
-import '../particles/light_point.dart';
 import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../ui.dart';
@@ -33,10 +32,7 @@ import '../mini_game/common.dart';
 import '../../game_events.dart';
 import '../../widgets/common.dart';
 
-const _kLightPointMoveSpeed = 450.0;
-// const _kButtonAnimationDuration = 1.2;
-// const _kExpPerLightPoint = 10;
-const _kLightDisplayMax = 100;
+const _kOrbMoveSpeed = 450.0;
 
 const _kTimeOfDayPriority = 5;
 const _kBackgroundPriority = 10;
@@ -67,8 +63,7 @@ const kTrackRadius = [
 
 enum CultivationMode {
   daostele,
-  collect,
-  exhaust,
+  exparray,
   none,
 }
 
@@ -95,7 +90,19 @@ const kDaoSteleVibrateInterval = 0.15;
 /// 光点抖动幅度
 const kDaoSteleVibrateAmount = 3.0;
 
-/// 第0轮: 卡牌类型（attack / buff）
+/// 胡言乱语（干扰项），点击即失败
+const kNonsensePhrases = [
+  'meditate_nonsense_1',
+  'meditate_nonsense_2',
+  'meditate_nonsense_3',
+  'meditate_nonsense_4',
+  'meditate_nonsense_5',
+  'meditate_nonsense_6',
+  'meditate_nonsense_7',
+  'meditate_nonsense_8',
+];
+
+/// 悟道碑冥想 - 第0轮: 卡牌类型（attack / buff）
 /// key = locale key, value = 实际值
 const kDaoSteleCategoryPhrases = {
   'daostele_phrase_attack_1': 'attack',
@@ -108,7 +115,7 @@ const kDaoSteleCategoryPhrases = {
   'daostele_phrase_buff_4': 'buff',
 };
 
-/// 第1轮: 卡牌稀有度
+/// 悟道碑冥想 - 第1轮: 稀有度
 const kDaoSteleRarityPhrases = {
   'daostele_phrase_common': 'common',
   'daostele_phrase_rare': 'rare',
@@ -118,7 +125,7 @@ const kDaoSteleRarityPhrases = {
   'daostele_phrase_arcane': 'arcane',
 };
 
-/// 第2轮: 卡牌流派
+/// 悟道碑冥想 - 第2轮: 流派
 const kDaoSteleGenrePhrases = {
   'daostele_phrase_neutral': 'neutral',
   'daostele_phrase_swordcraft': 'swordcraft',
@@ -128,72 +135,17 @@ const kDaoSteleGenrePhrases = {
   'daostele_phrase_vitality': 'vitality',
 };
 
-/// 胡言乱语（干扰项），点击即失败
-const kDaoSteleNonsensePhrases = [
-  'daostele_nonsense_1',
-  'daostele_nonsense_2',
-  'daostele_nonsense_3',
-  'daostele_nonsense_4',
-  'daostele_nonsense_5',
-  'daostele_nonsense_6',
-  'daostele_nonsense_7',
-  'daostele_nonsense_8',
-];
-
-/// 根据轮次获取该轮的有效文字选项
-Map<String, String> getPhrasesForRound(int round) {
-  switch (round) {
-    case 0:
-      return kDaoSteleCategoryPhrases;
-    case 1:
-      return kDaoSteleRarityPhrases;
-    case 2:
-      return kDaoSteleGenrePhrases;
-    default:
-      return {};
-  }
-}
-
-/// 从有效选项中随机抽取一部分，确保每个 value 至少出现一次
-List<MapEntry<String, String>> selectValidPhrases(
-    Map<String, String> allPhrases, math.Random random) {
-  // 先按 value 分组
-  final byValue = <String, List<MapEntry<String, String>>>{};
-  for (final entry in allPhrases.entries) {
-    byValue.putIfAbsent(entry.value, () => []).add(entry);
-  }
-
-  // 每个 value 至少选一个
-  final selected = <MapEntry<String, String>>[];
-  for (final entries in byValue.values) {
-    entries.shuffle(random);
-    selected.add(entries.first);
-  }
-
-  // 如果超过上限，随机裁剪（保留每个value至少一个）
-  if (selected.length > kDaoSteleValidPhraseMax) {
-    selected.shuffle(random);
-    // 保留每个value一个，多余的从尾部移除
-    final seen = <String>{};
-    final kept = <MapEntry<String, String>>[];
-    for (final entry in selected) {
-      if (!seen.contains(entry.value) ||
-          kept.length < kDaoSteleValidPhraseMax) {
-        kept.add(entry);
-        seen.add(entry.value);
-      }
-    }
-    return kept.take(kDaoSteleValidPhraseMax).toList();
-  }
-
-  return selected;
-}
-
-/// 随机抽取胡言乱语
-List<String> selectNonsensePhrases(math.Random random) {
-  final shuffled = List<String>.from(kDaoSteleNonsensePhrases)..shuffle(random);
-  return shuffled.take(kDaoSteleNonsenseCount).toList();
-}
+/// 聚灵阵冥想 - 属性类型（attack / buff）
+const kExpArrayCategoryPhrases = {
+  'exparray_phrase_attack_1': 'attack',
+  'exparray_phrase_attack_2': 'attack',
+  'exparray_phrase_buff_1': 'defense',
+  'exparray_phrase_buff_2': 'defense',
+  'exparray_phrase_attribute_1': 'attribute',
+  'exparray_phrase_attribute_2': 'attribute',
+  'exparray_phrase_energy_1': 'energy',
+  'exparray_phrase_energy_2': 'energy',
+};
 
 class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
@@ -214,6 +166,7 @@ class CultivationScene extends Scene with HasCursorState {
   late CultivationMode mode;
 
   bool get isDaoStele => mode == CultivationMode.daostele;
+  bool get isExpArray => mode == CultivationMode.exparray;
 
   String? _daoSteleCategory;
   String? _daoSteleRarity;
@@ -221,15 +174,19 @@ class CultivationScene extends Scene with HasCursorState {
   CustomGameCard? _revealedCard;
   late final SpriteButton collectButton;
 
-  // 问道碑冥想状态
+  // 冥想共享状态（问道碑和聚灵阵共用，同一时间只会有一种模式在运行）
   /// 0=聚光阶段, 1=选文阶段, -1=空闲
-  int _daoStelePhase = -1;
-  int _daoSteleRound = 0;
-  int _daoSteleLightCollected = 0;
-  String? _daoSteleTargetColor;
-  final List<SpriteButton> _daoSteleOrbs = [];
-  final List<SpriteButton> _daoStelePhrases = [];
-  double _daoSteleVibrateTimer = 0;
+  int _meditatePhase = -1;
+  int _meditateRound = 0;
+  int _meditateLightCollected = 0;
+  String? _meditateTargetColor;
+  final List<SpriteButton> _meditateOrbs = [];
+  final List<SpriteButton> _meditatePhrases = [];
+  double _meditateVibrateTimer = 0;
+
+  // 聚灵阵专用状态
+  int _expArrayMaxRounds = 1;
+  final List<String> _expArrayGrantedBuffs = [];
 
   late final SpriteComponent2 barrier;
 
@@ -239,83 +196,15 @@ class CultivationScene extends Scene with HasCursorState {
 
   late final SpriteButton confirm;
 
-  set collectableLight(int value) {
-    switch (mode) {
-      case CultivationMode.collect:
-        location['collectableLight'] = value;
-      case CultivationMode.exhaust:
-        GameData.hero['materials']['shard'] = value;
-      case CultivationMode.daostele:
-      case CultivationMode.none:
-        return;
-    }
-  }
-
-  int get collectableLight {
-    switch (mode) {
-      case CultivationMode.collect:
-        return location['collectableLight'] ?? 0;
-      case CultivationMode.exhaust:
-        return GameData.hero['materials']['shard'] ?? 0;
-      case CultivationMode.daostele:
-      case CultivationMode.none:
-        return 0;
-    }
-  }
-
-  void checkAvailableMode() {
-    if (mode == CultivationMode.collect) {
-      if (collectableLight <= 0) {
-        hint(
-          engine.locale('hint_outOfLight'),
-          color: GameColors.lightRed,
-        );
-        mode = CultivationMode.exhaust;
-        if (collectableLight <= 0) {
-          hint(
-            engine.locale('hint_outOfShard'),
-            color: GameColors.copperRed,
-          );
-          mode = CultivationMode.none;
-        }
-      }
-    } else if (mode == CultivationMode.exhaust) {
-      if (collectableLight <= 0) {
-        hint(
-          engine.locale('hint_outOfShard'),
-          color: GameColors.copperRed,
-        );
-        mode = CultivationMode.none;
-      }
-    }
-    cultivateButton.isEnabled = mode != CultivationMode.none;
-  }
-
   late final Timer timer;
 
   bool isMeditating = false;
 
   void setMeditateState(CultivationMode state) {
-    if (state == CultivationMode.collect) {
-      if (collectableLight <= 0) {
-        dialog.pushDialog('hint_insufficientLight');
-        dialog.execute();
-        return;
-      }
-      isMeditating = true;
-    } else if (state == CultivationMode.exhaust) {
-      if (collectableLight <= 0) {
-        dialog.pushDialog('hint_insufficientShard');
-        dialog.execute();
-        return;
-      }
-      isMeditating = true;
-    } else if (state == CultivationMode.none) {
+    if (state == CultivationMode.none) {
       isMeditating = false;
-      if (isDaoStele) {
-        _resetDaoSteleMeditation();
-      }
-    } else if (state == CultivationMode.daostele) {
+      _resetMeditation();
+    } else {
       isMeditating = true;
     }
 
@@ -341,8 +230,6 @@ class CultivationScene extends Scene with HasCursorState {
 
   late final SpriteButton cultivator;
 
-  final List<LightPoint> _lightPoints = [];
-
   final List<LightTrail> _lightTrails = [];
 
   // late final RichTextComponent expDescription;
@@ -364,9 +251,6 @@ class CultivationScene extends Scene with HasCursorState {
   void setPassiveTreeState(bool state) {
     _showPassiveTree = state;
 
-    for (final light in _lightPoints) {
-      light.isVisible = !_showPassiveTree;
-    }
     for (final trail in _lightTrails) {
       trail.isVisible = isMeditating && !_showPassiveTree;
     }
@@ -394,26 +278,6 @@ class CultivationScene extends Scene with HasCursorState {
         '${engine.locale('cultivationLevel')}: ${character['level']} '
         '${engine.locale('cultivationRank')}: $rankString '
         '${engine.locale('skillPoints')}: $pointsString';
-
-    if (!isDaoStele) {
-      String collectableLightString = '';
-      final int expGainPerLight = GameData.hero['stats']['expGainPerLight'];
-      if (mode == CultivationMode.collect) {
-        collectableLightString =
-            '${engine.locale('collectableLight')}: <bold ${collectableLight > 0 ? 'yellow' : 'grey'}>$collectableLight</>';
-      } else if (mode == CultivationMode.exhaust) {
-        int shard = GameData.hero['materials']['shard'] ?? 0;
-        assert(expGainPerLight > 0);
-        collectableLightString =
-            '${engine.locale('availableShard')}: <bold ${shard > 0 ? 'yellow' : 'grey'}>$shard</>';
-      }
-
-      String expCollectEfficiencyString =
-          '${engine.locale('expGainPerLight')}: $expGainPerLight';
-
-      statusDescription.text =
-          '$collectableLightString $expCollectEfficiencyString\n${statusDescription.text}';
-    }
   }
 
   void updateExpBar() {
@@ -459,72 +323,6 @@ class CultivationScene extends Scene with HasCursorState {
       }
     }
     return (isLearned, isOpen);
-  }
-
-  void addExpLightPoint([int? value]) {
-    Vector2 randomPosition;
-    do {
-      randomPosition =
-          generateRandomPointOnCircle(cultivator.center, 640, exponent: 0.2);
-    } while (cultivator.containsPoint(randomPosition));
-    final lightPoint = LightPoint(
-      color: mode == CultivationMode.collect
-          ? const Color(0xFFFFD700) // 金色
-          : const Color(0xFFBB77FF), // 紫色
-      position: randomPosition,
-      flickerRate: 8,
-      condensedPosition: GameUI.condensedPosition,
-      value: value,
-      priority: _kLightPriority,
-    );
-    _lightPoints.add(lightPoint);
-    world.add(lightPoint);
-  }
-
-  /// 出于性能考虑，光点数量上限 100 个
-  void updateExpLightPoints({bool clearCache = false}) {
-    if (clearCache) {
-      for (final light in _lightPoints) {
-        light.removeFromParent();
-      }
-      _lightPoints.clear();
-    }
-
-    if (mode == CultivationMode.none) return;
-    if (collectableLight <= 0) return;
-
-    int lightPointCount = math.min(collectableLight, _kLightDisplayMax);
-    while (_lightPoints.length < lightPointCount) {
-      addExpLightPoint();
-    }
-
-    // final int expPerLightPoint = GameData.hero['stats']['expGainPerLight'];
-    // assert(expPerLightPoint > 0);
-
-    // final int expForLevel = characterData['expForLevel'];
-
-    // int expOnExistedLights = 0;
-    // for (final light in _lightPoints) {
-    //   expOnExistedLights += light.value as int;
-    // }
-
-    // int expToDisplay = collectableExp - expOnExistedLights;
-
-    // if (expToDisplay <= 0) return;
-
-    // int lightPointCount = collectableExp ~/ expPerLightPoint;
-    // int expPerLightPoint = math.max(expForLevel ~/ 20, _kExpPerLightPoint);
-    // if (lightPointCount > _kLightDisplayMax) {
-    //   // 最多只显示 100 个光点
-    //   lightPointCount = _kLightDisplayMax;
-    //   // kExpPerLightPoint = collectableExp ~/ lightPointCount;
-    // }
-    // while (_lightPoints.length < lightPointCount &&
-    //     expToDisplay >= expPerLightPoint) {
-    //   expToDisplay -= expPerLightPoint;
-
-    //   _addExpLightPoint(expPerLightPoint);
-    // }
   }
 
   Future<String?> selectHeroAttribute() async {
@@ -822,44 +620,94 @@ class CultivationScene extends Scene with HasCursorState {
     timeOfDaySprite.tryLoadSprite(spriteId: 'time/${GameLogic.timeString}.png');
   }
 
-  // ── 问道碑冥想 ──
+  // ── 冥想共享逻辑 ──
 
-  /// 开始一次完整的冥想（3轮）
-  void _startDaoSteleMeditation() {
-    _daoSteleRound = 0;
-    _daoSteleCategory = null;
-    _daoSteleRarity = null;
-    _daoSteleGenre = null;
-    setMeditateState(mode);
-    _startDaoSteleLightPhase();
+  /// 根据轮次获取该轮的有效文字选项
+  Map<String, String> getPhrasesForRound(int round) {
+    switch (round) {
+      case 0:
+        return kDaoSteleCategoryPhrases;
+      case 1:
+        return kDaoSteleGenrePhrases;
+      case 2:
+        assert(location != null);
+        int maxRank =
+            math.min(character['rank'] as int, location['development'] as int);
+        return Map.fromEntries(
+          kDaoSteleRarityPhrases.entries
+              .where((e) => (kRaritiesToRank[e.value] ?? 0) <= maxRank),
+        );
+      default:
+        return {};
+    }
   }
 
-  /// 清除当前冥想中的所有临时组件
-  void _clearDaoSteleComponents() {
-    for (final orb in _daoSteleOrbs) {
+  /// 从有效选项中随机抽取一部分，确保每个 value 至少出现一次
+  List<MapEntry<String, String>> selectValidPhrases(
+      Map<String, String> allPhrases, math.Random random) {
+    // 先按 value 分组
+    final byValue = <String, List<MapEntry<String, String>>>{};
+    for (final entry in allPhrases.entries) {
+      byValue.putIfAbsent(entry.value, () => []).add(entry);
+    }
+
+    // 每个 value 至少选一个
+    final selected = <MapEntry<String, String>>[];
+    for (final entries in byValue.values) {
+      entries.shuffle(random);
+      selected.add(entries.first);
+    }
+
+    // 如果超过上限，随机裁剪（保留每个value至少一个）
+    if (selected.length > kDaoSteleValidPhraseMax) {
+      selected.shuffle(random);
+      // 保留每个value一个，多余的从尾部移除
+      final seen = <String>{};
+      final kept = <MapEntry<String, String>>[];
+      for (final entry in selected) {
+        if (!seen.contains(entry.value) ||
+            kept.length < kDaoSteleValidPhraseMax) {
+          kept.add(entry);
+          seen.add(entry.value);
+        }
+      }
+      return kept.take(kDaoSteleValidPhraseMax).toList();
+    }
+
+    return selected;
+  }
+
+  /// 随机抽取胡言乱语
+  List<String> selectNonsensePhrases(math.Random random) {
+    final shuffled = List<String>.from(kNonsensePhrases)..shuffle(random);
+    return shuffled.take(kDaoSteleNonsenseCount).toList();
+  }
+
+  /// 清除冥想中的所有临时组件
+  void _clearMeditateComponents() {
+    for (final orb in _meditateOrbs) {
       orb.removeFromParent();
     }
-    _daoSteleOrbs.clear();
-    for (final phrase in _daoStelePhrases) {
+    _meditateOrbs.clear();
+    for (final phrase in _meditatePhrases) {
       phrase.removeFromParent();
     }
-    _daoStelePhrases.clear();
+    _meditatePhrases.clear();
   }
 
-  /// 进入聚光阶段: 生成两种颜色的光点
-  void _startDaoSteleLightPhase() {
-    _clearDaoSteleComponents();
-    _daoStelePhase = 0;
-    _daoSteleLightCollected = 0;
-    _daoSteleTargetColor = null;
+  /// 进入聚光阶段（问道碑和聚灵阵共用）
+  void _startLightPhase() {
+    _clearMeditateComponents();
+    _meditatePhase = 0;
+    _meditateLightCollected = 0;
+    _meditateTargetColor = null;
 
     hint(
-      engine.locale('daostele_hint_light_phase'),
+      engine.locale('meditate_hint_light_phase'),
       duration: 3,
       color: Colors.amberAccent,
     );
 
-    // 生成光点: 每种颜色各 kDaoSteleOrbsPerColor 个
     for (final colorId in RankedColors.values.keys) {
       for (var i = 0; i < kDaoSteleOrbsPerColor; i++) {
         Vector2 pos;
@@ -880,76 +728,126 @@ class CultivationScene extends Scene with HasCursorState {
         final capturedColor = colorId;
         final capturedOrb = orb;
         orb.onTap = (_, __) {
-          _onDaoSteleOrbTap(capturedColor, capturedOrb);
+          _onOrbTap(capturedColor, capturedOrb);
         };
-        _daoSteleOrbs.add(orb);
+        _meditateOrbs.add(orb);
         world.add(orb);
       }
     }
   }
 
-  /// 玩家点击了一个光点
-  void _onDaoSteleOrbTap(String colorId, SpriteButton orb) {
-    if (_daoStelePhase != 0) return;
+  /// 玩家点击了一个光点（问道碑和聚灵阵共用）
+  void _onOrbTap(String colorId, SpriteButton orb) {
+    if (_meditatePhase != 0) return;
 
-    if (_daoSteleTargetColor == null) {
+    if (_meditateTargetColor == null) {
       // 第一次点击，确定目标颜色
-      _daoSteleTargetColor = colorId;
-      _daoSteleLightCollected = 1;
+      _meditateTargetColor = colorId;
+      _meditateLightCollected = 1;
       orb.removeFromParent();
-      _daoSteleOrbs.remove(orb);
+      _meditateOrbs.remove(orb);
       hint(
-        '${engine.locale('daostele_hint_light_collected')} $_daoSteleLightCollected/$kDaoSteleLightTarget',
+        '${engine.locale('meditate_hint_light_collected')} $_meditateLightCollected/$kDaoSteleLightTarget',
         color: Colors.lightBlueAccent,
       );
       engine.play(GameSound.click);
-      _daoSteleAdvanceTime();
-    } else if (colorId == _daoSteleTargetColor) {
+      _advanceTime();
+    } else if (colorId == _meditateTargetColor) {
       // 正确颜色
-      _daoSteleLightCollected++;
-      orb.removeFromParent();
-      _daoSteleOrbs.remove(orb);
+      _meditateLightCollected++;
+      orb
+          .moveTo(
+              toPosition: GameUI.condensedPosition,
+              duration: orb.center.distanceTo(center) / _kOrbMoveSpeed,
+              curve: Curves.linear)
+          .then((_) {
+        orb.removeFromParent();
+      });
+      _meditateOrbs.remove(orb);
       hint(
-        '${engine.locale('daostele_hint_light_collected')} $_daoSteleLightCollected/$kDaoSteleLightTarget',
+        '${engine.locale('meditate_hint_light_collected')} $_meditateLightCollected/$kDaoSteleLightTarget',
         color: Colors.lightBlueAccent,
       );
       engine.play(GameSound.click);
-      _daoSteleAdvanceTime();
+      _advanceTime();
 
-      if (_daoSteleLightCollected >= kDaoSteleLightTarget) {
+      if (_meditateLightCollected >= kDaoSteleLightTarget) {
         // 聚光完成，进入选文阶段
-        _startDaoSteleTextPhase();
+        if (isDaoStele) {
+          _startDaoSteleTextPhase();
+        } else {
+          _startExpArrayTextPhase();
+        }
       }
     } else {
       // 错误颜色，冥想失败
-      _daoSteleAdvanceTime();
-      _daoSteleMeditationFail('daostele_hint_wrong_color');
+      _advanceTime();
+      _meditationFail('meditate_hint_wrong_color');
     }
   }
 
-  /// 进入选文阶段: 生成漂浮的文字选项
+  /// 冥想失败（问道碑和聚灵阵共用）
+  void _meditationFail(String hintKey) {
+    hint(
+      engine.locale(hintKey),
+      duration: 3,
+      color: GameColors.lightRed,
+    );
+    engine.play(GameSound.error);
+    _clearMeditateComponents();
+    _meditatePhase = -1;
+    setMeditateState(CultivationMode.none);
+  }
+
+  /// 停止冥想时清理状态
+  void _resetMeditation() {
+    _clearMeditateComponents();
+    _meditatePhase = -1;
+    _meditateRound = 0;
+    _meditateLightCollected = 0;
+    _meditateTargetColor = null;
+    _meditateVibrateTimer = 0;
+  }
+
+  /// 冥想中每次交互触发的时间流逝
+  Future<void> _advanceTime() async {
+    final int development = location?['development'] ?? 0;
+    final double developmentBonus = 1.0 + development * 0.25;
+    int medidateSpeed = GameData.hero['stats']['medidateSpeed'];
+    int timeCost = math.max(
+        1, (kTicksPerTime / (medidateSpeed * developmentBonus)).round());
+
+    updateInformation();
+
+    await GameLogic.updateGame(ticks: timeCost);
+    updateTimeOfDay();
+  }
+
+  // ── 问道碑冥想 ──
+
+  /// 开始一次完整的问道碑冥想（3轮）
+  void _startDaoSteleMeditation() {
+    _meditateRound = 0;
+    _daoSteleCategory = null;
+    _daoSteleRarity = null;
+    _daoSteleGenre = null;
+    setMeditateState(mode);
+    _startLightPhase();
+  }
+
+  /// 进入问道碑选文阶段: 生成漂浮的文字选项
   void _startDaoSteleTextPhase() {
-    _clearDaoSteleComponents();
-    _daoStelePhase = 1;
+    _clearMeditateComponents();
+    _meditatePhase = 1;
 
     hint(
-      engine.locale('daostele_hint_text_phase'),
+      engine.locale('meditate_hint_text_phase'),
       duration: 3,
       color: Colors.amberAccent,
     );
 
-    var allPhrases = getPhrasesForRound(_daoSteleRound);
+    var allPhrases = getPhrasesForRound(_meditateRound);
     // 稀有度轮次: 根据角色境界和据点发展度限制可选稀有度
-    if (_daoSteleRound == 1) {
-      final int maxRank = math.min(
-        character['rank'] as int,
-        (location?['development'] as int?) ?? 0,
-      );
-      allPhrases = Map.fromEntries(
-        allPhrases.entries
-            .where((e) => (kRaritiesToRank[e.value] ?? 0) <= maxRank),
-      );
-    }
     final validPhrases = selectValidPhrases(allPhrases, random);
     final nonsensePhrases = selectNonsensePhrases(random);
 
@@ -985,128 +883,193 @@ class CultivationScene extends Scene with HasCursorState {
       phrase.onTap = (_, __) {
         _onDaoStelePhraseTap(capturedValue);
       };
-      _daoStelePhrases.add(phrase);
+      _meditatePhrases.add(phrase);
       world.add(phrase);
     }
   }
 
-  /// 玩家点击了一个文字选项
+  /// 问道碑: 玩家点击了一个文字选项
   void _onDaoStelePhraseTap(String? value) {
-    if (_daoStelePhase != 1) return;
+    if (_meditatePhase != 1) return;
 
     if (value == null) {
       // 点击了胡言乱语，冥想失败
-      _daoSteleAdvanceTime();
-      _daoSteleMeditationFail('daostele_hint_nonsense');
+      _advanceTime();
+      _meditationFail('meditate_hint_nonsense');
       return;
     }
 
     // 记录本轮选择结果
-    switch (_daoSteleRound) {
+    switch (_meditateRound) {
       case 0:
         _daoSteleCategory = value;
       case 1:
-        _daoSteleRarity = value;
-      case 2:
         _daoSteleGenre = value;
+      case 2:
+        _daoSteleRarity = value;
     }
 
     hint(
-      engine.locale('daostele_hint_round_complete'),
+      engine.locale('meditate_hint_round_complete'),
       color: Colors.lightGreenAccent,
     );
     engine.play(GameSound.click);
-    _daoSteleAdvanceTime();
+    _advanceTime();
 
-    _daoSteleRound++;
+    _meditateRound++;
 
-    if (_daoSteleRound >= kDaoSteleRoundCount) {
+    if (_meditateRound >= kDaoSteleRoundCount) {
       // 三轮完成，生成卡牌
       _daoSteleMeditationComplete();
     } else {
       // 进入下一轮的聚光阶段
-      _startDaoSteleLightPhase();
+      _startLightPhase();
     }
   }
 
-  /// 冥想失败
-  void _daoSteleMeditationFail(String hintKey) {
-    hint(
-      engine.locale(hintKey),
-      duration: 3,
-      color: GameColors.lightRed,
-    );
-    engine.play(GameSound.error);
-    _clearDaoSteleComponents();
-    _daoStelePhase = -1;
-    setMeditateState(CultivationMode.none);
-  }
-
-  /// 冥想成功，生成并展示卡牌
+  /// 问道碑冥想成功，生成并展示卡牌
   void _daoSteleMeditationComplete() {
-    _clearDaoSteleComponents();
-    _daoStelePhase = -1;
+    _clearMeditateComponents();
+    _meditatePhase = -1;
     showDaoSteleCard();
   }
 
-  /// 停止冥想时清理状态
-  void _resetDaoSteleMeditation() {
-    _clearDaoSteleComponents();
-    _daoStelePhase = -1;
-    _daoSteleRound = 0;
-    _daoSteleLightCollected = 0;
-    _daoSteleTargetColor = null;
-    _daoSteleVibrateTimer = 0;
+  // ── 聚灵阵冥想 ──
+
+  /// 开始一次完整的聚灵阵冥想
+  void _startExpArrayMeditation() async {
+    final int development = location?['development'] ?? 0;
+    final int cost = development + 1;
+
+    int exhausted = engine.hetu.invoke(
+      'exhaust',
+      namespace: 'Player',
+      positionalArgs: ['shard', cost],
+    );
+    if (exhausted != cost) {
+      dialog.pushDialog('exparray_hint_insufficient_shard');
+      dialog.execute();
+      return;
+    }
+
+    _meditateRound = 0;
+    _expArrayMaxRounds = development + 1;
+    _expArrayGrantedBuffs.clear();
+    setMeditateState(mode);
+
+    hint(
+      engine.locale('exparray_hint_start'),
+      duration: 3,
+      color: Colors.amberAccent,
+    );
+
+    _startLightPhase();
   }
 
-  /// 冥想中每次交互触发的时间流逝
-  Future<void> _daoSteleAdvanceTime() async {
-    final int development = location?['development'] ?? 0;
-    final double developmentBonus = 1.0 + development * 0.25;
-    double expCollectSpeed = GameData.hero['stats']['expCollectSpeed'];
-    int timeCost = math.max(
-        1, (kTicksPerTime / (expCollectSpeed * developmentBonus)).round());
+  /// 进入聚灵阵选文阶段
+  void _startExpArrayTextPhase() {
+    _clearMeditateComponents();
+    _meditatePhase = 1;
 
-    updateInformation();
+    hint(
+      engine.locale('meditate_hint_text_phase'),
+      duration: 3,
+      color: Colors.amberAccent,
+    );
 
-    await GameLogic.updateGame(ticks: timeCost);
-    updateTimeOfDay();
+    final validPhrases = selectValidPhrases(kExpArrayCategoryPhrases, random);
+    final nonsensePhrases = selectNonsensePhrases(random);
+
+    final allOptions = <(String, String?)>[];
+    for (final entry in validPhrases) {
+      allOptions.add((entry.key, entry.value));
+    }
+    for (final key in nonsensePhrases) {
+      allOptions.add((key, null));
+    }
+    allOptions.shuffle(random);
+
+    final positions = generateDividingPointsOnCircle(
+        center: center, radius: 150, number: allOptions.length);
+
+    for (var i = 0; i < allOptions.length; i++) {
+      final (localeKey, value) = allOptions[i];
+      final text = engine.locale(localeKey);
+      final pos = positions[i].position;
+
+      final phrase = SpriteButton(
+        spriteId: 'ui/button.png',
+        text: text,
+        position: pos,
+        size: GameUI.buttonSizeSmall,
+        anchor: Anchor.center,
+        priority: _kLightPriority + 5,
+      );
+      final capturedValue = value;
+      phrase.onTap = (_, __) {
+        _onExpArrayPhraseTap(capturedValue);
+      };
+      _meditatePhrases.add(phrase);
+      world.add(phrase);
+    }
+  }
+
+  /// 聚灵阵: 玩家点击了一个文字选项
+  void _onExpArrayPhraseTap(String? value) {
+    if (_meditatePhase != 1) return;
+
+    if (value == null) {
+      _advanceTime();
+      _meditationFail('meditate_hint_nonsense');
+      return;
+    }
+
+    // 调用 Hetu 生成并赋予该类别的随机 buff
+    final int rank = character['rank'] as int;
+    engine.hetu.invoke(
+      'getExpArrayBuff',
+      namespace: 'Player',
+      positionalArgs: [value, rank],
+    );
+
+    hint(
+      engine.locale('meditate_buff_acquired'),
+      color: Colors.lightGreenAccent,
+    );
+    engine.play(GameSound.click);
+    _advanceTime();
+
+    _expArrayGrantedBuffs.add(value);
+    _meditateRound++;
+
+    if (_meditateRound >= _expArrayMaxRounds) {
+      _expArrayMeditationComplete();
+    } else {
+      hint(
+        engine.locale('exparray_hint_round',
+            interpolations: ['${_meditateRound + 1}']),
+        duration: 2,
+        color: Colors.amberAccent,
+      );
+      _startLightPhase();
+    }
+    updatePassivesDescription();
+  }
+
+  /// 聚灵阵冥想成功完成
+  void _expArrayMeditationComplete() {
+    _clearMeditateComponents();
+    _meditatePhase = -1;
+    hint(
+      engine.locale('exparray_hint_complete'),
+      duration: 3,
+      color: Colors.lightGreenAccent,
+    );
+    setMeditateState(CultivationMode.none);
   }
 
   void tick() async {
-    if (isDaoStele) {
-      // 冥想时间流逝由玩家交互触发，tick 中不再自动消耗时间
-    } else {
-      if (collectableLight > 0) {
-        collectableLight -= 1;
-        schedule(() async {
-          double expCollectSpeed = GameData.hero['stats']['expCollectSpeed'];
-          int timeCost = kTicksPerTime ~/ expCollectSpeed;
-
-          final light = _lightPoints.first;
-          await condenseOne(light);
-          light.removeFromParent();
-          final expGainPerLight = GameData.hero['stats']['expGainPerLight'];
-          character['exp'] += expGainPerLight;
-          hint(
-            '${engine.locale('exp')} +$expGainPerLight',
-            color: Colors.lightBlue,
-          );
-          updateInformation();
-          updateExpBar();
-
-          if (collectableLight > _lightPoints.length) {
-            addExpLightPoint();
-          }
-
-          await GameLogic.updateGame(ticks: timeCost);
-          updateTimeOfDay();
-        });
-      } else {
-        setMeditateState(CultivationMode.none);
-        checkAvailableMode();
-      }
-    }
+    // 问道碑和聚灵阵的时间流逝都由玩家交互触发，tick 中不再自动消耗时间
   }
 
   Future<void> showDaoSteleCard() async {
@@ -1177,6 +1140,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     engine.addEventListener(Scenes.cultivation, GameEvents.heroPassivesUpdated,
         (args) {
+      if (!isMounted) return;
       updatePassivesDescription();
     });
 
@@ -1273,7 +1237,7 @@ class CultivationScene extends Scene with HasCursorState {
       );
 
       hint(
-        engine.locale('daostele_card_acquired'),
+        engine.locale('meditate_card_acquired'),
         color: Colors.lightGreen,
       );
 
@@ -1383,19 +1347,16 @@ class CultivationScene extends Scene with HasCursorState {
     cultivateButton.onTapUp = (button, position) async {
       if (!cultivateButton.isEnabled) return;
       if (button != kPrimaryButton) return;
-      if (button == kPrimaryButton) {
-        if (isMeditating) {
-          setMeditateState(CultivationMode.none);
-        } else {
-          if (isDaoStele) {
-            // 问道碑模式: 进入交互式冥想
-            _startDaoSteleMeditation();
-          } else {
-            setMeditateState(mode);
-          }
+      if (isMeditating) {
+        setMeditateState(CultivationMode.none);
+      } else {
+        if (isDaoStele) {
+          _startDaoSteleMeditation();
+        } else if (isExpArray) {
+          _startExpArrayMeditation();
         }
-        setPassiveTreeState(false);
       }
+      setPassiveTreeState(false);
     };
     cultivateButton.onMouseEnter = () {
       String hint = engine.locale('hint_cultivate');
@@ -1618,20 +1579,35 @@ class CultivationScene extends Scene with HasCursorState {
     if (arguments['location'] != null) {
       location = arguments['location'];
 
-      if (location != null && location['kind'] == 'daostele') {
+      final kind = location?['kind'] ?? location?['category'];
+      if (kind == 'daostele') {
         mode = CultivationMode.daostele;
+      } else if (kind == 'exparray') {
+        mode = CultivationMode.exparray;
       } else {
-        mode = CultivationMode.collect;
+        mode = CultivationMode.none;
       }
     } else {
-      if (arguments['enableDaoStele'] == true) {
+      if (arguments['mode'] == 'daostele') {
         mode = CultivationMode.daostele;
-      } else if (arguments['enableCultivate'] == true) {
-        mode = CultivationMode.exhaust;
+      } else if (arguments['mode'] == 'exparray') {
+        mode = CultivationMode.exparray;
       } else {
         mode = CultivationMode.none;
       }
     }
+
+    engine.addEventListener(Scenes.cultivation, GameEvents.keyBoardEvent,
+        (event) {
+      if (!isMounted) return;
+      if (event is KeyDownEvent) {
+        switch (event.logicalKey) {
+          case LogicalKeyboardKey.space:
+            camera.zoom = 1.0;
+            camera.snapTo(center);
+        }
+      }
+    });
 
     onEnterScene = arguments['onEnterScene'];
   }
@@ -1645,12 +1621,11 @@ class CultivationScene extends Scene with HasCursorState {
     cursorState = MouseCursorState.normal;
     Hovertip.hideAll();
 
-    checkAvailableMode();
+    cultivateButton.isEnabled = mode != CultivationMode.none;
 
     updateUnlockedNode();
     updatePassivesDescription();
     setMeditateState(CultivationMode.none);
-    updateExpLightPoints(clearCache: true);
     updateInformation();
     updateExpBar();
 
@@ -1670,25 +1645,6 @@ class CultivationScene extends Scene with HasCursorState {
     await onEnterScene?.call();
 
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
-  }
-
-  @override
-  void onAttach() {
-    engine.addEventListener(Scenes.cultivation, GameEvents.keyBoardEvent,
-        (event) {
-      if (event is KeyDownEvent) {
-        switch (event.logicalKey) {
-          case LogicalKeyboardKey.space:
-            camera.zoom = 1.0;
-            camera.snapTo(center);
-        }
-      }
-    });
-  }
-
-  @override
-  void onDetach() {
-    engine.removeEventListeners(Scenes.cultivation);
   }
 
   /// 点击境界节点时触发突破试炼
@@ -1818,43 +1774,6 @@ class CultivationScene extends Scene with HasCursorState {
     updateExpBar();
   }
 
-  Future<void> condenseOne(LightPoint light) async {
-    _lightPoints.remove(light);
-
-    return light.moveTo(
-      toPosition: GameUI.condensedPosition,
-      duration: light.distance2CondensePoint / _kLightPointMoveSpeed,
-      curve: Curves.linear,
-    );
-  }
-
-  // FutureOr<void> condenseAll() async {
-  //   if (_lightPoints.isEmpty) {
-  //     return;
-  //   }
-
-  //   int exp = characterData['exp'];
-  //   final int expForLevel = characterData['expForLevel'];
-
-  //   if (exp >= expForLevel) {
-  //     checkEXP();
-  //     return;
-  //   }
-
-  //   List<Future> futures = [];
-  //   for (final light in _lightPoints) {
-  //     futures.add(condenseOne(light));
-  //     exp += light.value as int;
-  //     if (exp > expForLevel) {
-  //       break;
-  //     }
-  //   }
-
-  //   await Future.wait(futures);
-
-  //   checkEXP();
-  // }
-
   @override
   void onTapDown(int pointer, int button, TapDownDetails details) {
     super.onTapDown(pointer, button, details);
@@ -1915,18 +1834,18 @@ class CultivationScene extends Scene with HasCursorState {
     if (isMeditating) {
       timer.update(dt);
 
-      // 问道碑冥想中的组件抖动效果
-      if (_daoStelePhase >= 0) {
-        _daoSteleVibrateTimer += dt;
-        if (_daoSteleVibrateTimer >= kDaoSteleVibrateInterval) {
-          _daoSteleVibrateTimer -= kDaoSteleVibrateInterval;
-          for (final orb in _daoSteleOrbs) {
+      // 冥想中的组件抖动效果
+      if (_meditatePhase >= 0) {
+        _meditateVibrateTimer += dt;
+        if (_meditateVibrateTimer >= kDaoSteleVibrateInterval) {
+          _meditateVibrateTimer -= kDaoSteleVibrateInterval;
+          for (final orb in _meditateOrbs) {
             orb.position.x +=
                 (random.nextDouble() - 0.5) * 2 * kDaoSteleVibrateAmount;
             orb.position.y +=
                 (random.nextDouble() - 0.5) * 2 * kDaoSteleVibrateAmount;
           }
-          for (final phrase in _daoStelePhrases) {
+          for (final phrase in _meditatePhrases) {
             phrase.position.x +=
                 (random.nextDouble() - 0.5) * 2 * kDaoSteleVibrateAmount;
             phrase.position.y +=

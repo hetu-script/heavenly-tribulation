@@ -704,6 +704,7 @@ Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
           'willpower': 0,
           'perception': 0,
         },
+        'cultivationFavor': '',
         'allocateSkills': false,
         'generateDeck': false,
       });
@@ -2116,29 +2117,32 @@ void _characterAllocateSkills(dynamic character, {bool rejuvenate = true}) {
   final int rank = character['rank'];
   final int level = character['level'];
 
-  final List<String>? rankPath = kCultivationRankPaths[genre];
-  final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
-  assert(rankPath != null, 'genre: $genre');
-  assert(stylePath != null, 'genre: $genre, style: $style');
-
   int count = 0;
-  for (var i = 0; i < rank; ++i) {
-    assert(i < rankPath!.length);
-    final nodeId = rankPath![i];
-    final unlocked =
-        GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-    if (unlocked) {
-      count++;
-    }
-  }
+  final List<String>? rankPath = kCultivationRankPaths[genre];
+  if (rankPath == null) {
+    engine.warning('修炼流派 $genre 的 rankPath 不存在');
+  } else {
+    final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
+    assert(stylePath != null, 'genre: $genre, style: $style');
 
-  for (var i = 0; i < level - rank; ++i) {
-    assert(i < stylePath!.length);
-    final nodeId = stylePath![i];
-    final unlocked =
-        GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-    if (unlocked) {
-      count++;
+    for (var i = 0; i < rank; ++i) {
+      assert(i < rankPath!.length);
+      final nodeId = rankPath![i];
+      final unlocked =
+          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+      if (unlocked) {
+        count++;
+      }
+    }
+
+    for (var i = 0; i < level - rank; ++i) {
+      assert(i < stylePath!.length);
+      final nodeId = stylePath![i];
+      final unlocked =
+          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+      if (unlocked) {
+        count++;
+      }
     }
   }
 

@@ -498,6 +498,8 @@
   "contribution": "功勋",
   "contribution_note": "非门派成员减半",
 
+  "credit": "积分",
+
   "levelUp": "提升修为等级",
   "dismiss": "解散",
 
@@ -541,10 +543,6 @@
 
   "functionDisabled": "功能当前不可用",
   "functionOnlyAvailableInLibrary": "此功能只能在藏书阁或玄机碑处使用",
-
-  "collectableLight": "可收集的灵光",
-  "availableShard": "剩余灵石",
-  "daoSteleInfo": "问道",
 
   "skillPoints": "天道技能点",
 

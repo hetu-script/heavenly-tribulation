@@ -8,24 +8,14 @@
 
 每个修为等级增加: 10 点生命。
 
-不同境界打坐获取的经验数量不同。基础效率是 10，意味着消耗 1 点灵光获得 10 经验。聚灵阵所能提供的灵光总数有上限。但每个月 1 日会恢复，具体恢复的数量有一定随机性。
-
-灵光转化效率计算公式:
-
-```dart
-const kBaseExpGainPerLight = 40
-character.expGainPerLight = (character.rank * character.rank + (character.rank + 1)) * kBaseExpGainPerLight
-character.stats.expGainPerLight = (character.expGainPerLight * (1 + character.passives.expGainPerLight?.value / 100) * (1 + character.ephemeralPassives.expGainPerLight?.value / 100)).round()
-```
-
-| 境界 | 数值 | 等级下限 | 等级上限 | 劫数上限 | 灵光转化效率 |
-| ---- | ---- | -------- | -------- | -------- | ------------ |
-| 无   | 0    | 0        | 15       | -1       | 40           |
-| 凝气 | 1    | 5        | 25       | 32       | 120          |
-| 筑基 | 2    | 10       | 35       | 16       | 280          |
-| 结丹 | 3    | 20       | 45       | 8        | 520          |
-| 还婴 | 4    | 30       | 55       | 4        | 840          |
-| 化神 | 5    | 40       | 65       | 2        | 1240         |
+| 境界 | 数值 | 等级下限 | 等级上限 | 劫数上限 |
+| ---- | ---- | -------- | -------- | -------- |
+| 无   | 0    | 0        | 15       | -1       |
+| 凝气 | 1    | 5        | 25       | 32       |
+| 筑基 | 2    | 10       | 35       | 16       |
+| 结丹 | 3    | 20       | 45       | 8        |
+| 还婴 | 4    | 30       | 55       | 4        |
+| 化神 | 5    | 40       | 65       | 2        |
 
 等级下限是角色可以尝试进阶下一个境界的最小等级。
 等级下限同时也是该境界卡牌额外词条可能出现的最小值。

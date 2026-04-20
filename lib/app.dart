@@ -337,12 +337,6 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'getBaseExpGainPerLight',
-        ({positionalArgs, namedArgs}) =>
-            GameLogic.getBaseExpGainPerLight(positionalArgs.first),
-        override: true);
-
-    engine.hetu.interpreter.bindExternalFunction(
         'getDeckLimitForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getDeckLimitForRank(positionalArgs.first),
@@ -658,7 +652,7 @@ class _GameAppState extends State<GameApp> {
       engine.context.read<ViewPanelState>().clearAll();
       engine.pushScene(Scenes.cultivation, arguments: {
         'location': namedArgs['location'],
-        'enableCultivate': namedArgs['enableCultivate'] ?? false,
+        'mode': namedArgs['mode'],
       });
     }, override: true);
 

@@ -302,27 +302,27 @@ function setHero(id: string) {
   Game.updateUI()
 }
 
-function randomizeHeroWorldPosition() {
-  hero.locationId = null
-  final location = game.locations[hero.homeLocationId]
-  final availableTiles = location.territoryIndexes.where((index) {
-    final tile = world.terrains[index]
-    return !tile.isWater
-  })
-  if (availableTiles.isEmpty) {
-    hero.worldPosition = {
-      left: location.worldPosition.left,
-      top: location.worldPosition.top,
-    }
-  } else {
-    final randomTileIndex = random.nextIterable(availableTiles)
-    final randomTile = world.terrains[randomTileIndex]
-    hero.worldPosition = {
-      left: randomTile.left,
-      top: randomTile.top,
-    }
-  }
-}
+// function randomizeHeroWorldPosition() {
+//   hero.locationId = null
+//   final location = game.locations[hero.homeLocationId]
+//   final availableTiles = location.territoryIndexes.where((index) {
+//     final tile = world.terrains[index]
+//     return !tile.isWater
+//   })
+//   if (availableTiles.isEmpty) {
+//     hero.worldPosition = {
+//       left: location.worldPosition.left,
+//       top: location.worldPosition.top,
+//     }
+//   } else {
+//     final randomTileIndex = random.nextIterable(availableTiles)
+//     final randomTile = world.terrains[randomTileIndex]
+//     hero.worldPosition = {
+//       left: randomTile.left,
+//       top: randomTile.top,
+//     }
+//   }
+// }
 
 function setHeroWorldId(worldId) {
   hero.worldId = worldId

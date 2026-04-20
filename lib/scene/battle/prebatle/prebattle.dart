@@ -68,6 +68,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
 
     engine.addEventListener(Scenes.prebattle, GameEvents.heroPassivesUpdated,
         (args) {
+      if (!mounted) return;
       setState(() {});
     });
 

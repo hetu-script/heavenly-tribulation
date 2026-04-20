@@ -526,8 +526,7 @@ class _DebugButtonState extends State<DebugButton> {
                   case 'debugItem':
                     engine.hetu.invoke('testItem', namespace: 'debug');
                   case 'debugDaoStele':
-                    engine.pushScene(Scenes.cultivation,
-                        arguments: {'enableDaoStele': true});
+                    engine.pushScene(Scenes.cultivation, arguments: {});
                   case 'debugMerchant':
                     final merchant =
                         engine.hetu.invoke('BattleEntity', namedArgs: {

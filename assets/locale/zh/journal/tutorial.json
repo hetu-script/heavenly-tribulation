@@ -21,7 +21,7 @@
 
   "tutorial_homeLocation_line_1": "很好，这里就是你如今的「家宅」所在的「城市」。\n点击屏幕下方的「卡牌」就可以进入相应的场景。\n现在，请点击「住所」，然后进入你的家。",
 
-  "tutorial_homeLocation_line_2": "这里就是你的家。<yellow>点击左下角的「休息」可以恢复你的生命值。点击「箱子」可以存取物品。</>\n你应该在这里保存着一件武器和两本秘籍。\n拿走它们，然后<yellow>打开屏幕顶部的物品栏</>，然后再<yellow>右键点击它们并使用</>吧。",
+  "tutorial_homeLocation_line_2": "这里就是你的家。<yellow>点击左下角的「休息」可以恢复你的生命值。</>",
 
   "tutorial_homeLocation_line_3": "现在你已经恢复了状态，也准备好了卡组，是时候练习一下战斗了。\n准备好你的战斗卡组，然后尝试击败这个木人桩吧！\n请放心，这场战斗完全是安全的……木人并不会对你反击。",
 
@@ -34,7 +34,7 @@
   "journal_sandboxTutorial_title": "系统教程",
   "journal_sandboxTutorial_stage_0": "你<yellow>「穿越」</>到了这个奇怪的世界，并且还见到了一个神秘的<yellow>「系统」</>。它承诺帮助你变强，在这个修真世界活下去。不过，因为你现在体力不支，所以要先<yellow>想办法回家</>。",
   "journal_sandboxTutorial_stage_1": "你在家中休息，恢复了体力。然后发现家里收藏着一件装备和几本秘籍。它们是你在这个修真世界立足的起点。<yellow>装备武器，打开秘籍，构筑战斗卡组，这样你才可以面对未来的战斗。</>",
-  "journal_sandboxTutorial_stage_2": "将修为等级提升到 1 级，并积累 2000 铜钱。",
+  "journal_sandboxTutorial_stage_2": "将修为等级提升到 2 级，并积累 5000 铜钱。",
   "journal_sandboxTutorial_stage_3": "加入任意门派。",
   "journal_sandboxTutorial_stage_4": "通过战斗或分解卡牌获取修行经验，提升修真境界到「凝气」。通过完成门派任务积累功勋，提升门派职位到「执事」。"
 }

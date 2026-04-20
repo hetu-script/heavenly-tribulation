@@ -1178,7 +1178,7 @@ const kRaceMainAttributes = {
 };
 
 const kBaseExpGainPerLight = 40;
-const kBaseExpCollectSpeed = 1.0;
+const kBaseMeditateSpeed = 1.0;
 const kBaseNPCMoveSpeedMultiplier = 2;
 const kBasePlainMoveSpeed = 2.0;
 const kBaseMountainMoveSpeed = 1.0;
@@ -1926,7 +1926,7 @@ const kCreateSectRequirementShard = 500;
 
 const kHomeRelocationCost = 200;
 
-const kHomeLifeRestorePerTime = 2;
+const kHomeLifeRestorePerTime = 5;
 
 const kHotelStableCostPerTime = 50;
 const kHotelNormalCostPerTime = 150;
@@ -2102,178 +2102,6 @@ const kPotionKinds = {
   },
 };
 
-const Map<String, Map<String, Map<String, Set<String>>>>
-    kBattleCardKindsByCategory = {
-  'attack': {
-    'common': {
-      'neutral': {
-        'punch_attack',
-        'kick_attack',
-        'sword_attack',
-        'sabre_attack',
-        'spear_attack',
-        'staff_attack',
-        'bow_attack',
-        'dart_attack',
-      },
-    },
-    'rare': {
-      'neutral': {},
-      'bodyforge': {
-        'punch_attack_exhaust_rage',
-        'kick_attack_exhaust_rage',
-        'sabre_attack_exhaust_rage',
-        'attack_qinna',
-      },
-      'swordcraft': {
-        'punch_attack_exhaust_chakra',
-        'attack_dianxue',
-        'sword_attack_exhaust_chakra',
-        'sword_attack_exhaust_mana',
-        'flying_sword_exhaust_chakra',
-        'flying_sword_exhaust_mana',
-      },
-      'spellcraft': {
-        'punch_attack_exhaust_mana',
-        'falling_stone',
-        'fireball',
-        'wind_blade',
-        'lightning',
-      },
-      'vitality': {
-        'punch_attack_exhaust_karma',
-        'dart_attack_exhaust_karma',
-        'bow_attack_exhaust_karma',
-      },
-      'avatar': {
-        'kick_attack_exhaust_karma',
-        'staff_attack_exhaust_rage',
-        'spear_attack_exhaust_karma',
-        'sigil',
-      },
-    },
-    'epic': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'legendary': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'mythic': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'arcane': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-  },
-  'buff': {
-    'common': {
-      'neutral': {
-        'punch_defend',
-        'kick_defend',
-        'sabre_defend',
-        'sword_defend',
-        'spear_defend',
-        'staff_defend',
-        'heal',
-        'speed_quick_defend_physical',
-        'dodge_nimble_defend_physical',
-      },
-    },
-    'rare': {
-      'neutral': {
-        'vigor',
-      },
-      'bodyforge': {
-        'punch_defend_exhaust_rage',
-        'kick_defend_exhaust_rage',
-        'sabre_defend_exhaust_rage',
-        'speed_quick_exhaust_rage_defend_chi',
-        'dodge_nimble_exhaust_rage_defend_chi',
-      },
-      'swordcraft': {
-        'mana_chakra',
-        'kick_defend_exhaust_chakra',
-        'kick_defend_exhaust_mana',
-        'sword_defend_exhaust_chakra',
-        'sword_defend_exhaust_mana',
-        'speed_quick_exhaust_chakra_defend_physical',
-        'dodge_nimble_exhaust_mana_defend_elemental',
-        'flying_sword_defense',
-      },
-      'spellcraft': {
-        'mana',
-        'punch_defend_exhaust_mana',
-        'wind_buff',
-        'wood_heal',
-        'wood_defense_physical',
-      },
-      'vitality': {
-        'punch_defend_exhaust_karma',
-        'power_word_debuff',
-        'power_word_buff',
-      },
-      'avatar': {
-        'kick_defend_exhaust_karma',
-        'staff_defend_exhaust_rage',
-        'spear_defend_exhaust_karma',
-        'scripture',
-      },
-    },
-    'epic': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'legendary': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'mythic': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-    'arcane': {
-      'neutral': {},
-      'bodyforge': {},
-      'swordcraft': {},
-      'spellcraft': {},
-      'vitality': {},
-      'avatar': {},
-    },
-  },
-};
-
 const kDiplomacyTypes = {
   'neutral',
   'pact',
@@ -2283,3 +2111,12 @@ const kDiplomacyTypes = {
   // 'trade',
   // 'vassal',
 };
+
+const kItemInfoTypeExp = 'exp';
+const kItemInfoTypeMaterial = 'material';
+const kItemInfoTypeEquipment = 'equipment';
+const kItemInfoTypeCardpack = 'cardpack';
+const kItemInfoTypePotion = 'potion';
+const kItemInfoTypePrototype = 'prototype';
+const kItemInfoTypeContribution = 'contribution';
+const kItemInfoTypeCredit = 'credit';

@@ -1531,13 +1531,17 @@ class WorldMapScene extends Scene with HasCursorState {
         if (rank > 0) {
           return false;
         }
+        final level = character['level'];
+        if (level > 0) {
+          return false;
+        }
         final sectId = character['sectId'];
         if (sectId != null) {
           return false;
         }
         final homeLocationId = character['homeLocationId'];
-        assert(homeLocationId != null,
-            'Character ${character['id']} has no homeLocationId!');
+        // assert(homeLocationId != null,
+        //     'Character ${character['id']} has no homeLocationId!');
         final homeLocation = GameData.getLocation(homeLocationId);
         if (homeLocation['isHidden'] || homeLocation['sectId'] != null) {
           return false;
@@ -1557,7 +1561,9 @@ class WorldMapScene extends Scene with HasCursorState {
             ..shuffle(GameData.random);
           final char = engine.hetu.invoke('Character', namedArgs: {
             'age': GameData.random.nextInt(6) + 12,
-            'locationId': locations.first['id'],
+            'homeLocationId': locations.first['id'],
+            'rank': 0,
+            'level': 0,
           });
           availableCharacters.add(char);
         }
@@ -1574,9 +1580,9 @@ class WorldMapScene extends Scene with HasCursorState {
         ),
       );
       engine.hetu.invoke('setHero', positionalArgs: [key]);
-      if (GameData.game['enableTutorial'] == true) {
-        engine.hetu.invoke('randomizeHeroWorldPosition');
-      }
+      // if (GameData.game['enableTutorial'] == true) {
+      //   engine.hetu.invoke('randomizeHeroWorldPosition');
+      // }
       GameData.hero = engine.hetu.fetch('hero');
       final heroHomeLocation =
           GameData.getLocation(GameData.hero['homeLocationId']);
@@ -1604,6 +1610,11 @@ class WorldMapScene extends Scene with HasCursorState {
       await engine.prepareLlamaBaseState(worldInfo);
     }
 
+    if (isNewGame) {
+      // 确保英雄出生城市有斗技场和秘境
+      engine.hetu.invoke('ensureStartingCityFacilities');
+    }
+
     await map.loadHeroFromData(
       GameData.hero,
       srcSize: kCharacterAnimationSize,
@@ -1625,14 +1636,15 @@ class WorldMapScene extends Scene with HasCursorState {
       }
     }
 
-    if (isNewGame) {
-      // 确保英雄出生城市有斗技场和秘境
-      engine.hetu.invoke('ensureStartingCityFacilities');
+    engine.setLoading(false);
 
+    engine.context.read<HoverContentState>().hide();
+
+    if (isNewGame) {
       await engine.hetu.invoke('onNewGame');
     }
 
-    engine.setLoading(false);
+    gameState.isInteractable = true;
   }
 
   @override
@@ -1641,7 +1653,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
     cursorState = MouseCursorState.normal;
     GameData.world = worldData;
-    gameState.isInteractable = true;
+    gameState.isInteractable = false;
 
     if (worldData['isMain'] == true) {
       GameData.mainWorld = this;
@@ -1650,40 +1662,14 @@ class WorldMapScene extends Scene with HasCursorState {
 
     _loadBindings();
 
-    engine.context.read<HoverContentState>().hide();
-    engine.context.read<ViewPanelState>().clearAll();
-
-    engine.hetu.invoke('setCurrentWorld', positionalArgs: [worldData['id']]);
-  }
-
-  @override
-  void onMount() async {
-    super.onMount();
-
-    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
-
-    gameState.reset();
-
-    if (_isInitializing) {
-      _isInitializing = false;
-    } else {
-      if (isEditorMode) {
-        _updateWorldMapNpcs();
-      } else {
-        _updateWorldMapInGameMode();
-      }
-    }
-  }
-
-  @override
-  void onAttach() {
     engine.addEventListener(Scenes.worldmap, GameEvents.keyBoardEvent, (event) {
+      if (!isMounted) return;
       if (event is KeyDownEvent) {
         switch (event.logicalKey) {
           case LogicalKeyboardKey.space:
             camera.zoom = 4.0;
             if (!isEditorMode) {
-              map.moveCameraToHero();
+              map.moveCameraToHero(animated: false);
             }
           case LogicalKeyboardKey.escape:
             if (isEditorMode) {
@@ -1725,11 +1711,31 @@ class WorldMapScene extends Scene with HasCursorState {
         }
       }
     });
+
+    engine.context.read<HoverContentState>().hide();
+    engine.context.read<ViewPanelState>().clearAll();
+
+    engine.hetu.invoke('setCurrentWorld', positionalArgs: [worldData['id']]);
   }
 
   @override
-  void onDetach() {
-    engine.removeEventListeners(Scenes.worldmap);
+  void onMount() async {
+    super.onMount();
+
+    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+
+    gameState.reset();
+    gameState.isInteractable = true;
+
+    if (_isInitializing) {
+      _isInitializing = false;
+    } else {
+      if (isEditorMode) {
+        _updateWorldMapNpcs();
+      } else {
+        _updateWorldMapInGameMode();
+      }
+    }
   }
 
   // TODO: 自动移动屏幕

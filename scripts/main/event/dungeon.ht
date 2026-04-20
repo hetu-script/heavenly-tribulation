@@ -124,15 +124,8 @@ const _kEncounterKinds = [
 ]
 
 function _addEncampment() {
-  final expForNextLevel = expForLevel(hero.level + 1)
-  final collectableLight = Random().nextInt(expForNextLevel) ~/ hero.stats.expGainPerLight + 5
-  addExpArray(
-    _kFunction1,
-    collectableLight: collectableLight,
-  )
-  addCardLibraryStele(
-    _kFunction2,
-  )
+  addExpArray(_kFunction1)
+  addCardLibraryStele(_kFunction2)
   addRestBed(_kFunction3)
   _addGeneralMerchant(_kFunction4)
 }
