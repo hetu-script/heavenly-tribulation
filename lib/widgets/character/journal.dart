@@ -68,9 +68,10 @@ class _JournalViewState extends State<JournalView> {
     if (budget != null) {
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          padding: const EdgeInsets.only(right: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('${engine.locale('budget')}:'),
               Text(
@@ -81,26 +82,28 @@ class _JournalViewState extends State<JournalView> {
           ),
         ),
       );
+      descriptions.add(const Divider());
     }
     final reward = _selectedJournal['quest']?['reward'];
     if (reward != null) {
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          padding: const EdgeInsets.only(right: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('${engine.locale('reward')}:'),
               Text(
                 GameData.getQuestRewardDescription(reward),
-                style: TextStyle(
-                  color: Colors.yellow,
-                ),
+                textAlign: TextAlign.right,
+                style: TextStyle(color: Colors.yellow),
               ),
             ],
           ),
         ),
       );
+      descriptions.add(const Divider());
     }
     final timeLimit = _selectedJournal['quest']?['timeLimit'];
     if (timeLimit != null) {
@@ -110,7 +113,7 @@ class _JournalViewState extends State<JournalView> {
       final isLate = currentTimestamp > startDate;
       descriptions.add(
         Padding(
-          padding: const EdgeInsets.only(bottom: 10.0, right: 10.0),
+          padding: const EdgeInsets.only(right: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

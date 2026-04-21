@@ -16,8 +16,8 @@ const kTimeLimitDaysVariation2 = 25
 
 const kHiddenCityShardReward = 2
 
-const kBaseReward = 500
-const kBaseRewardForEscort = 1500
+const kBaseReward = 1000
+const kBaseRewardForEscort = 2000
 const kBaseRewardForDiscoverLocation = 4500
 
 const kBudgetFactorForPurchaseMaterial = 0.8
@@ -140,10 +140,10 @@ namespace Quests {
     // }
 
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
-    final amount = kBaseAmountForDeliveryMaterial * (difficulty + 1)
+    final amount = (kBaseAmountForDeliveryMaterial * (difficulty + 1)).round()
     
     final difficultyFactor = difficulty * difficulty + 1
-    final budgetMoney = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 4
+    final budgetMoney = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 2
 
     final endLocationDesc
     if (endLocation != null) {
@@ -238,7 +238,7 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    final budgetMoney = kBaseReward * difficultyFactor + item.basePrice ~/ 4
+    final budgetMoney = kBaseReward * difficultyFactor + item.basePrice ~/ 2
     final budgetShard = convertMoneyToShard(budgetMoney)
 
     final endLocationDesc
@@ -371,9 +371,10 @@ namespace Quests {
     sect,
   }) {
     final material = random.nextIterable(Constants.nonCurrencyMaterialKinds)
-    final amount = kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)
+    final amount = (kBaseAmountForDeliveryMaterial + random.nextInt(kBaseAmountForDeliveryMaterial) * (difficulty + 1)).round()
 
-    final budgetMoney = (Constants.materialBasePrice[material] * amount).round()
+    final difficultyFactor = difficulty * difficulty + 1
+    final budgetMoney = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount
 
     final interpolations = [
       amount,
@@ -445,7 +446,7 @@ namespace Quests {
     }
 
     final difficultyFactor = difficulty * difficulty + 1
-    let budgetMoney = 
+    let budgetMoney = kBaseReward * difficultyFactor +
           estimateItemPriceByKind(requirement.kind, requirement.rank, 'expensive')
     if (!Constants.itemWithAffixKinds.contains(requirement.kind)) {
       budgetMoney += kBaseReward * difficultyFactor + budgetMoney ~/ 4;
@@ -492,8 +493,7 @@ namespace Quests {
     final deviationLeft = targetLeft + (random.nextBool() ? deviation : -deviation)
     final deviationTop = targetTop + (random.nextBool() ? deviation : -deviation)
     
-    final difficultyFactor = difficulty * difficulty + 1
-    let budgetMoney = kBaseRewardForDiscoverLocation * difficultyFactor
+    let budgetMoney = kBaseRewardForDiscoverLocation * (difficulty + 1)
     if (targetLocation.kind == 'island') {
       budgetMoney *= 2
     } 

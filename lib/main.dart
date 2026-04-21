@@ -43,14 +43,15 @@ void main() {
     // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
     PlatformDispatcher.instance.onError = (error, stackTrace) {
       final statck = trimStackTrace(stackTrace);
-      engine.error('$error\n$statck');
+      engine.error('${error.toString()}\n$statck');
       alertNativeError(error, statck);
       return false;
     };
 
     // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
     FlutterError.onError = (details) {
-      engine.error(details.toString());
+      engine.error(
+          '${details.exceptionAsString()}\n${details.stack != null ? trimStackTrace(details.stack!) : ''}');
       // FlutterError.presentError(details);
       alertFlutterError(details);
     };

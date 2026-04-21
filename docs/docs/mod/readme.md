@@ -106,6 +106,13 @@ async function onAfterEnterLocation(location)
 async function onBeforeExitLocation(location)
 /// 在场景中点击某个非预定义的子场景时触发
 async function onInteractLocationObject(object, location)
+
+async function onBeforeEnterDungeon(location)
+async function onArenaEnd(location)
+
+async function onHeroRankUp()
+
+async function onAfterJoinedSect(sect)
 ```
 
 ### 地图事件

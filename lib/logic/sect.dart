@@ -296,7 +296,7 @@ Future<void> _showMeeting(
     final quest = await showDialog(
       context: engine.context,
       barrierDismissible: false,
-      builder: (context) => QuestView(
+      builder: (context) => BountyQuestListView(
         quests: quests,
         showCloseButton: false,
       ),

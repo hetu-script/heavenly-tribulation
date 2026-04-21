@@ -12,18 +12,12 @@
     // endings 数组代表了任务结束节点
     // 当任务的 stage 推进到这些值时
     // 会将任务标记为 isFinished
-    endings: [9],
+    endings: [8],
   },
   // 门派指引任务
   sectInitiation: {
     id: "sectInitiation",
     title: "journal_sectInitiation_title",
     endings: [5],
-  },
-  // 招募城市成功，但角色并非掌门，需要汇报
-  sectRecruitCityReportToLeader: {
-    id: "sectRecruitCityReportToLeader",
-    title: "journal_sectRecruitCityReportToLeader_title",
-    endings: [1],
   },
 }

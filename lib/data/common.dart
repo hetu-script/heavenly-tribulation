@@ -1112,7 +1112,7 @@ final kBasePriceByKind = {
   'scroll_paper_fragment': 18,
   'scroll_paper': 360,
   'identify_scroll': 250,
-  'cardpack': 1000,
+  'cardpack': 1200,
   'dungeon_ticket': 3000,
   'extracted_affix': 500,
   'sword': 25,
@@ -1130,7 +1130,7 @@ final kBasePriceByKind = {
   'ring': 35,
   'amulet': 35,
   'pearl': 50,
-  'potion': 500,
+  'potion': 100,
 };
 
 const kItemWithAffixKinds = [

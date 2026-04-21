@@ -1456,7 +1456,7 @@ final class GameData with ChangeNotifier {
           desc.writeln(engine.locale('unknown_item'));
       }
     }
-    return desc.toString();
+    return desc.toString().trim();
   }
 
   static String getQuestBudgetDescription(dynamic budget,

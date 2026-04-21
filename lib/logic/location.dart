@@ -6,7 +6,10 @@ Future<dynamic> _tryEnterLocation(dynamic location) async {
   // [result] 值是 true 意味着不会进入场景
   final result = await engine.hetu.invoke('onGameEvent',
       positionalArgs: ['onBeforeEnterLocation', location]);
-  if (GameLogic.truthy(result)) return;
+  if (GameLogic.truthy(result)) {
+    gameState.isInteractable = true;
+    return;
+  }
 
   engine.context.read<ViewPanelState>().clearAll();
 
@@ -30,6 +33,9 @@ void _tryEnterDungeon({
       'isBasic': true,
     });
     if (!pushScene) return;
+    // 通知教程系统：进入秘境
+    await engine.hetu
+        .invoke('onGameEvent', positionalArgs: ['onBeforeEnterDungeon']);
     engine.pushScene(
       'dungeon_1',
       constructorId: Scenes.worldmap,
@@ -57,6 +63,9 @@ void _tryEnterDungeon({
         'isBasic': false,
       });
       if (!pushScene) return;
+      // 通知教程系统：进入秘境
+      await engine.hetu
+          .invoke('onGameEvent', positionalArgs: ['onBeforeEnterDungeon']);
       engine.pushScene(
         dungeonId,
         constructorId: Scenes.worldmap,
@@ -441,6 +450,8 @@ void _onInteractArena({
         );
         await dialog.execute();
       }
+      // 通知教程系统：斗技场战斗结束（无论胜负）
+      await engine.hetu.invoke('onGameEvent', positionalArgs: ['onArenaEnd']);
     },
   );
 }

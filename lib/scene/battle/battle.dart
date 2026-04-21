@@ -138,6 +138,10 @@ class BattleScene extends Scene {
   final Map<String, dynamic> battleFlags = {};
 
   FutureOr<void> Function()? onBattleStart;
+
+  /// battleResult: true表示英雄胜利，false表示英雄失败，null表示战斗未结束
+  /// roundCount: 战斗回合数（英雄每行动一次回合数加1）
+  /// 如果返回值是 true, 则代表战斗结束逻辑中已经退出当前战斗场景，不会再重复退出
   FutureOr<dynamic> Function(bool result, int roundCount)? onBattleEnd;
 
   bool isDetailedHovertip = false;
@@ -700,17 +704,17 @@ class BattleScene extends Scene {
       engine.hetu
           .invoke('setCharacterLife', positionalArgs: [hero.data, hero.life]);
     }
+    if (battleResult == false) {
+      gameState.isInteractable = false;
+    }
     engine.context.read<EnemyState>().clear();
     engine.hetu.assign('enemy', null);
     engine.hetu.assign('self', null);
     engine.hetu.assign('opponent', null);
     engine.hetu.assign('battleFlags', null);
-    final result = await onBattleEnd?.call(battleResult ?? false, roundCount);
-    if (result != true) {
+    await onBattleEnd?.call(battleResult ?? false, roundCount);
+    if (engine.scene?.id == Scenes.battle) {
       engine.popScene(clearCache: true);
-    }
-    if (battleResult == false) {
-      gameState.isInteractable = false;
     }
   }
 

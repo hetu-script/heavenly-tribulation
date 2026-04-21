@@ -807,7 +807,10 @@ namespace Player {
       superior.name,
     ])
     await dialog.execute()
-    
+
+    // 触发加入门派事件（教程等系统可监听此事件）
+    await onGameEvent('onAfterJoinedSect')
+
     if (!hero.journals.containsKey('sectInitiation')) {
       final journal = Player.createJournalById('sectInitiation',
         interpolations: [

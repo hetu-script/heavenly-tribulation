@@ -279,6 +279,7 @@ struct Bond {
 /// 家族或门派成员的地位数据
 /// 包含了职级、头衔和贡献值
 /// 贡献值可能是负的
+/// isAbsent表示非门派成员
 struct MemberData {
   constructor ({
     id,
@@ -1120,9 +1121,9 @@ function characterMakeContribution(character, data, { incurIncident = true }) {
     const sect = game.sects[data.sectId]
     assert(sect != null,
       'sect not found in contribution pack: ${data.sectId}')
-    const memberData = sect.membersData[character.id]
-    assert(memberData != null,
-      'member data not found for character id: ${character.id} in sect: ${sect.id}')
+    let memberData = sect.membersData[character.id]
+    // assert(memberData != null,
+    //   'member data not found for character id: ${character.id} in sect: ${sect.id}')
     if (character.sectId == data.sectId) {
       // 如果主角是该门派成员
       assert(memberData != null,

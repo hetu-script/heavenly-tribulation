@@ -1210,11 +1210,13 @@ class CultivationScene extends Scene with HasCursorState {
       isVisible: false,
       priority: _kBarrierPriority,
     );
-    confirm.onTap = (_, __) {
+    confirm.onTap = (_, __) async {
       newRankPrompt.removeFromParent();
       barrier.isVisible = false;
       rankInfo.isVisible = false;
       confirm.isVisible = false;
+      // 通知教程系统境界突破成功
+      await engine.hetu.invoke('onGameEvent', positionalArgs: ['onHeroRankUp']);
     };
     camera.viewport.add(confirm);
 

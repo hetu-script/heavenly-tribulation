@@ -83,9 +83,11 @@ class ResponsiveView extends StatelessWidget {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: fluent.Acrylic(
-                        luminosityAlpha: 0.4,
-                        blurAmount: 5.0,
+                      child: RepaintBoundary(
+                        child: fluent.Acrylic(
+                          luminosityAlpha: 0.4,
+                          blurAmount: 5.0,
+                        ),
                       ),
                     ),
                     if (child != null) child!,

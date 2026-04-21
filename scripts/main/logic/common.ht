@@ -32,7 +32,6 @@ async function encounterEnemy({ rank, terrainKind, name, battleEndCallback: func
         await Game.promptItems(rewards)
       } else {
         Game.onDying()
-        return true
       }
     }
   )

@@ -82,8 +82,8 @@ class QuestDetail extends StatelessWidget {
   }
 }
 
-class QuestView extends StatefulWidget {
-  const QuestView({
+class BountyQuestListView extends StatefulWidget {
+  const BountyQuestListView({
     super.key,
     required this.quests,
     this.showCloseButton = true,
@@ -93,10 +93,10 @@ class QuestView extends StatefulWidget {
   final bool showCloseButton;
 
   @override
-  State<QuestView> createState() => _QuestViewState();
+  State<BountyQuestListView> createState() => _BountyQuestListViewState();
 }
 
-class _QuestViewState extends State<QuestView> {
+class _BountyQuestListViewState extends State<BountyQuestListView> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(

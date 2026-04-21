@@ -43,6 +43,11 @@ Future<void> _updateCharactersAtWorldMapPosition() async {
 }
 
 Future<void> _onDying() async {
+  if (engine.scene?.id == Scenes.battle) {
+    engine.popScene(clearCache: true);
+  }
+  // engine.clearCachedScene();
+
   dialog.pushDialog('hint_dying');
   await dialog.execute();
 
@@ -1270,7 +1275,9 @@ Future<void> _onInteractCityhall(
     if (GameData.hero['sectId'] == null) {
       siteOptions.add('createSect2');
     } else {
-      siteOptions.add('recruitCity');
+      if (GameData.hero['titleId'] == 'head') {
+        siteOptions.add('recruitCity');
+      }
     }
     siteOptions.add('donate');
     siteOptions.add('checkCityContribution');
@@ -1320,7 +1327,7 @@ Future<void> _onInteractCityhall(
       }
       final quest = await showDialog(
         context: engine.context,
-        builder: (context) => QuestView(
+        builder: (context) => BountyQuestListView(
           quests: bounties,
         ),
       );
@@ -1550,23 +1557,7 @@ Future<void> _cityhallRecruitCity(
     'addLocationToSect',
     positionalArgs: [atCity, sect],
   );
-  if (heroId == sect['headId']) {
-    atCity['managerId'] = heroId;
-  } else {
-    engine.hetu.invoke(
-      'createJournalById',
-      namespace: 'Player',
-      positionalArgs: [
-        'sectRecruitReport',
-      ],
-      namedArgs: {
-        'interpolations': [
-          atCity['name'],
-          sect['name'],
-        ],
-      },
-    );
-  }
+  atCity['managerId'] = heroId;
 }
 
 Future<void> _cityhallMoveHere(
@@ -2126,8 +2117,8 @@ void _characterAllocateSkills(dynamic character, {bool rejuvenate = true}) {
     assert(stylePath != null, 'genre: $genre, style: $style');
 
     for (var i = 0; i < rank; ++i) {
-      assert(i < rankPath!.length);
-      final nodeId = rankPath![i];
+      assert(i < rankPath.length);
+      final nodeId = rankPath[i];
       final unlocked =
           GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       if (unlocked) {
