@@ -357,6 +357,9 @@ const kGenreToAttribute = {
   'avatar': 'perception',
 };
 
+const kDeckLimit = 10;
+const kDeckOngoingLimit = 3;
+
 const kCultivationRankMax = 5;
 const kEquipmentMax = 5;
 const kFameRankMax = 5;

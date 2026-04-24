@@ -344,7 +344,7 @@ class CardLibraryScene extends Scene {
       detailedCount.writeln(
           '${engine.locale('deckbuilding_limit')}: ${currentBuildingZone!.limit}');
       detailedCount.writeln(
-          '${engine.locale('deckbuilding_limit_ongoing')}: ${currentBuildingZone!.ongoingCount}/${currentBuildingZone!.limitOngoingMax}');
+          '${engine.locale('deckbuilding_limit_ongoing')}: ${currentBuildingZone!.ongoingCount}/$kDeckOngoingLimit');
     } // detailedCount.writeln(
     //     '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
     cardCount.text = detailedCount.toString();
@@ -519,8 +519,9 @@ class CardLibraryScene extends Scene {
         isDetailed: true);
     Hovertip.show(
       scene: this,
-      target: craftingCard!,
-      direction: HovertipDirection.leftTop,
+      position: Vector2(
+          GameUI.craftCardPosition.x - kHovertipDefautWidth - GameUI.indent,
+          GameUI.craftCardPosition.y + GameUI.hugeIndent + GameUI.indent),
       content: description,
       config: ScreenTextConfig(
         anchor: Anchor.topCenter,
@@ -628,8 +629,8 @@ class CardLibraryScene extends Scene {
 
     final clone = card.clone();
     craftingCard = clone;
-    clone.size = GameUI.cardpackCardSize;
-    clone.position = GameUI.cardpackCardPositions[1];
+    clone.size = GameUI.craftCardSize;
+    clone.position = GameUI.craftCardPosition;
     clone.priority = kBarrierUIPriority;
     clone.enableGesture = false;
     camera.viewport.add(clone);
@@ -768,8 +769,11 @@ class CardLibraryScene extends Scene {
       collectButton.text = engine.locale('deckbuilding_identify_all');
 
       engine.play(GameSound.dealCard);
-      for (var i = 0; i < 3; ++i) {
-        bool isMainCard = i == 1;
+      bool isMainCard = false;
+      for (var i = 0; i < 5; ++i) {
+        if (!isMainCard) {
+          isMainCard = i < 4 ? random.nextBool() : true;
+        }
         final cardData = createCard(
           isMainCard: isMainCard,
           filter: cardpackData['filter'],
@@ -778,6 +782,7 @@ class CardLibraryScene extends Scene {
         final card = GameData.createBattleCard(cardData);
         cardpackCards.add(card);
 
+        card.anchor = Anchor.center;
         card.preferredPriority = kBarrierUIPriority;
         card.resetPriority();
         card.size = Vector2.zero();
@@ -825,7 +830,7 @@ class CardLibraryScene extends Scene {
             .moveTo(
                 duration: 0.35,
                 toPosition: GameUI.cardpackCardPositions[0],
-                toSize: GameUI.cardpackCardSize)
+                toSize: GameUI.libraryCardSize)
             .then((_) {
           if (index == 0) {
             engine.play(GameSound.dealDeck);
@@ -834,7 +839,7 @@ class CardLibraryScene extends Scene {
             card.moveTo(
               duration: 0.55,
               toPosition: GameUI.cardpackCardPositions[index],
-              toSize: GameUI.cardpackCardSize,
+              toSize: GameUI.libraryCardSize,
             );
           }
         });
@@ -1275,7 +1280,7 @@ class CardLibraryScene extends Scene {
     collectButton = SpriteButton(
       text: engine.locale('deckbuilding_identify_all'),
       anchor: Anchor.center,
-      position: GameUI.craftZoneCloseButtonPosition,
+      position: center,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
       priority: kBarrierUIPriority,
@@ -1325,10 +1330,7 @@ class CardLibraryScene extends Scene {
       size: Vector2(180, 180),
       position: Vector2(
         GameUI.size.x / 2,
-        GameUI.cardpackCardPositions[1].y +
-            GameUI.cardpackCardSize.y +
-            GameUI.hugeIndent +
-            GameUI.indent,
+        GameUI.craftCardPosition.y + GameUI.craftCardSize.y + GameUI.hugeIndent,
       ),
       spriteId: 'cultivation/scroll.png',
       hoverSpriteId: 'cultivation/scroll_hover.png',
@@ -1387,7 +1389,7 @@ class CardLibraryScene extends Scene {
         zone.tryAddCard(card!, animated: false, clone: true);
       }
       zone.collapse(animated: false);
-      zone.updateDeckLimit();
+      // zone.updateDeckLimit();
     }
     createNewDeckBuildingZone();
     updateDeckCount();
@@ -1409,9 +1411,9 @@ class CardLibraryScene extends Scene {
       // 载入卡牌库中的卡牌
       libraryZone.updateHeroLibrary();
 
-      for (final zone in deckPiles) {
-        zone.updateDeckLimit();
-      }
+      // for (final zone in deckPiles) {
+      //   zone.updateDeckLimit();
+      // }
     }
     libraryZone.repositionToTop();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;

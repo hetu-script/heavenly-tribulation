@@ -939,7 +939,7 @@ final class GameLogic {
   }
 
   // 返回值依次是: 卡组下限，消耗牌上限，持续牌上限
-  static Map<String, int> getDeckLimitForRank(int rank) {
+  static Map<String, int> getHandLimitForRank(int rank) {
     assert(rank >= 0);
     final limit = rank + 3;
     final ongoingMax = (rank + 1) ~/ 3;
@@ -951,9 +951,7 @@ final class GameLogic {
   }
 
   static String? checkDeckRequirement(Iterable<dynamic> cards) {
-    final deckLimit = getDeckLimitForRank(GameData.hero['rank']);
-
-    if (cards.length < deckLimit['limit']!) {
+    if (cards.length < kDeckLimit) {
       return 'deckbuilding_cards_not_enough';
     }
 

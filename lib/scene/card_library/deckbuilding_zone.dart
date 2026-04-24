@@ -12,6 +12,7 @@ import 'common.dart';
 import '../../logic/logic.dart';
 import '../../data/game.dart';
 import '../../widgets/common.dart';
+import '../../data/common.dart';
 
 enum PlaceHolderState {
   newDeck,
@@ -75,7 +76,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   final List<dynamic> preloadCardIds;
 
-  int limitOngoingMax = -1; // limitEphemeralMax = -1;
+  // int limitOngoingMax = -1; // limitEphemeralMax = -1;
 
   bool get isCardsEnough {
     if (cards.length < limit) return false;
@@ -128,6 +129,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           pileMargin: Vector2(0, 0),
           pileOffset: GameUI.deckbuildingZonePileOffset,
           borderRadius: 20.0,
+          limit: kDeckLimit,
         ) {
     title ??= engine.locale('untitled');
 
@@ -241,18 +243,18 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     }
   }
 
-  void updateDeckLimit() {
-    final deckLimit = GameLogic.getDeckLimitForRank(GameData.hero['rank']);
-    limit = deckLimit['limit']!;
-    limitOngoingMax = deckLimit['ongoingMax']!;
-    // limitEphemeralMax = deckLimit['ephemeralMax']!;
-    assert(limitOngoingMax >= 0);
-    // assert(limitEphemeralMax >= 0);
-  }
+  // void updateDeckLimit() {
+  //   final deckLimit = GameLogic.getHandLimitForRank(GameData.hero['rank']);
+  //   limit = deckLimit['limit']!;
+  //   limitOngoingMax = deckLimit['ongoingMax']!;
+  //   // limitEphemeralMax = deckLimit['ephemeralMax']!;
+  //   assert(limitOngoingMax >= 0);
+  //   // assert(limitEphemeralMax >= 0);
+  // }
 
   @override
   void onLoad() async {
-    updateDeckLimit();
+    // updateDeckLimit();
 
     placeholder = SpriteButton(
       spriteId: 'cultivation/deck_placeholder.png',
@@ -351,7 +353,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cardData['isIdentified'] != true) {
       engine.error('deckbuilding_card_unidentified');
     }
-    if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
+    if (ongoingCount >= kDeckOngoingLimit &&
+        cardData['category'] == 'ongoing') {
       engine.warning('deckbuilding_ongoing_card_limit');
     }
 

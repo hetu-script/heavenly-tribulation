@@ -26,6 +26,7 @@ external abstract class Constants {
   static get battleAttributes;
   static get attributeToGenre;
   static get genreToAttribute;
+  static get deckLimit;
   static get attackTypes;
   static get damageTypes;
 

@@ -25,7 +25,7 @@ import 'common.dart';
 import '../../state/states.dart';
 
 const kMinTurnDuration = 1500;
-const kBattleRoundLimit = 5;
+const kBattleRoundLimit = 16;
 
 /// 后手方恢复 20% 战斗生命上限
 const double kSecondHandHealRate = 0.2;

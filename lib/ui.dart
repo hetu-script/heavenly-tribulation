@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:samsara/utils/math.dart';
 
 import 'data/common.dart';
 import 'global.dart';
@@ -483,9 +484,11 @@ final class GameUI {
   static late Vector2 orderByButtonPosition, filterByButtonPosition;
 
   /// 卡包展示卡牌的大小
-  static late Vector2 cardpackCardSize;
+  static late Vector2 craftCardSize;
 
-  /// 卡包中1，2，3号卡牌的位置
+  static late Vector2 craftCardPosition;
+
+  /// 卡包中的卡牌的位置
   static late List<Vector2> cardpackCardPositions;
 
   static late Vector2 craftZoneCloseButtonPosition;
@@ -661,16 +664,15 @@ final class GameUI {
     libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     // libraryCardSize = deckbuildingCardSize;
 
-    cardpackCardSize = libraryCardSize * 1.5;
+    craftCardSize = libraryCardSize * 1.5;
 
-    final position2 = Vector2(
-      newSize.x / 2 - cardpackCardSize.x / 2,
-      135.0,
-    );
-    final position1 = position2 - Vector2(cardpackCardSize.x + hugeIndent, 0);
-    final position3 = position2 + Vector2(cardpackCardSize.x + hugeIndent, 0);
+    craftCardPosition = Vector2(newSize.x / 2 - craftCardSize.x / 2,
+        center.y - craftCardSize.y + indent);
 
-    cardpackCardPositions = [position1, position2, position3];
+    cardpackCardPositions =
+        generateDividingPointsOnCircle(center: center, radius: 250.0, number: 5)
+            .map((e) => Vector2(e.position.x, e.position.y + indent))
+            .toList();
 
     craftZoneCloseButtonPosition = Vector2(
         newSize.x / 2, newSize.y - largeIndent - buttonSizeMedium.y / 2);

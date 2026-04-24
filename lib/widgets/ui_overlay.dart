@@ -629,7 +629,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                           ],
                         ),
                       ),
-                      HistoryPanel(width: 550, height: 80),
+                      HistoryPanel(width: 450, height: 80),
                     ],
                   ),
                 ],
@@ -640,16 +640,10 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               Positioned(
                 right: 2.5,
                 top: 2.5,
-                child: Row(
-                  children: widget.actions!,
-                ),
+                child: Row(children: widget.actions!),
               ),
             if (widget.showNpcs)
-              Positioned(
-                left: 5,
-                top: 100,
-                child: NpcList(),
-              ),
+              Positioned(left: 5, top: 100, child: NpcList()),
             if (enemyData != null && showPrebattle)
               PreBattleDialog(
                 hero: hero,

@@ -61,6 +61,8 @@ class Constants extends HTExternalClass {
         return kAttributeToGenre;
       case 'Constants.genreToAttribute':
         return kGenreToAttribute;
+      case 'Constants.deckLimit':
+        return kDeckLimit;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constants.damageTypes':

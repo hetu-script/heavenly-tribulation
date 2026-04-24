@@ -1095,7 +1095,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     card.preferredPriority = _kBarrierPriority + 1;
     card.resetPriority();
-    card.size = GameUI.cardpackCardSize;
+    card.size = GameUI.craftCardSize;
     card.anchor = Anchor.center;
     card.position = Vector2(center.x, center.y - 30);
     card.isFlipped = true;
