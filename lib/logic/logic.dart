@@ -951,7 +951,7 @@ final class GameLogic {
   }
 
   static String? checkDeckRequirement(Iterable<dynamic> cards) {
-    if (cards.length < kDeckLimit) {
+    if (cards.length < kBattleDeckSize) {
       return 'deckbuilding_cards_not_enough';
     }
 

@@ -536,7 +536,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
     let weaponKind2 = random.nextIterable(kBattleCardWeaponKinds)
     let buffs = []
     let attacks = []
-    for (var i in range(Constants.deckLimit)) {
+    for (var i in range(Constants.battleDeckSize)) {
       let genre = character.rank > 0 ? character.cultivationFavor : null
       final isBuff = random.nextDouble() < 0.35
       let kind

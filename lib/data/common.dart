@@ -357,7 +357,6 @@ const kGenreToAttribute = {
   'avatar': 'perception',
 };
 
-const kDeckLimit = 10;
 const kDeckOngoingLimit = 3;
 
 const kCultivationRankMax = 5;
@@ -1213,6 +1212,9 @@ const kTerrainKindsAll = [
 
 /// 战斗结束后生命恢复比例计算时，
 const kLifeRestoreRateAfterBattle = 0.25;
+
+/// 战斗中牌库的固定大小
+const kBattleDeckSize = 10;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;

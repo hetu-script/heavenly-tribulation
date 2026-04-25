@@ -487,6 +487,8 @@ class _DebugButtonState extends State<DebugButton> {
                 'chat': 'debugLlmChat',
                 'resetHero': 'debugResetHero',
                 'get item': 'debugItem',
+                'battle': 'debugBattle',
+                '___0': null,
                 'daoStele': 'debugDaoStele',
                 '___1': null,
                 'merchant': 'debugMerchant',
@@ -525,6 +527,10 @@ class _DebugButtonState extends State<DebugButton> {
                     );
                   case 'debugItem':
                     engine.hetu.invoke('testItem', namespace: 'debug');
+                  case 'debugBattle':
+                    final enemy = engine.hetu.invoke('Character',
+                        namedArgs: {'rank': 0, 'level': 10});
+                    context.read<EnemyState>().show(enemy);
                   case 'debugDaoStele':
                     engine.pushScene(Scenes.cultivation, arguments: {});
                   case 'debugMerchant':

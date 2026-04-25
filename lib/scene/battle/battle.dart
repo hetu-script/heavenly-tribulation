@@ -17,14 +17,15 @@ import '../../ui.dart';
 import '../../logic/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
+import 'hand_zone.dart';
 import '../../global.dart';
-import 'versus_banner.dart';
+import 'character_information.dart';
 import '../common.dart';
 import '../../data/game.dart';
 import 'common.dart';
 import '../../state/states.dart';
 
-const kMinTurnDuration = 1500;
+const kMinTurnDuration = 800;
 const kBattleRoundLimit = 16;
 
 /// 后手方恢复 20% 战斗生命上限
@@ -107,30 +108,33 @@ class BattleScene extends Scene {
   final String backgroundImageId;
 
   late final SpriteComponent2 background;
-  late final SpriteComponent victoryPrompt, defeatPrompt;
+  late final SpriteComponent2 victoryPrompt, defeatPrompt;
 
-  late final VersusBanner versusBanner;
+  late final CharacterInformation charactersInformation;
 
   late final BattleCharacter hero, enemy;
   late final BattleDeckZone heroDeckZone, enemyDeckZone;
+  late final HandZone heroHandZone, enemyHandZone;
   final dynamic heroData, enemyData;
   late final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
-  final bool isAutoBattle;
   final bool isPractice;
 
   int roundCount = 0;
 
-  // 先手角色
+  /// 先手角色
   late bool isFirsthand;
-  // 当前是否是玩家回合
+
+  /// 当前是否是玩家回合
   late bool heroTurn;
   late BattleCharacter currentCharacter, currentOpponent;
 
   bool? battleResult;
 
-  late final SpriteButton nextTurnButton, restartButton;
+  late final SpriteButton restartButton;
+  // late final SpriteButton startButton;
+  late final SpriteButton endButton;
 
   bool battleStarted = false;
   bool battleEnded = false;
@@ -148,20 +152,19 @@ class BattleScene extends Scene {
 
   final int endBattleAfterRounds;
 
-  final _sw = Stopwatch();
+  Completer<CustomGameCard>? _playerCardSelection;
+  bool _isRestarting = false;
 
   BattleScene({
     required this.heroData,
     required this.enemyData,
     required this.isSneakAttack,
-    this.isAutoBattle = true,
     this.isPractice = false,
     this.onBattleStart,
     this.onBattleEnd,
     this.endBattleAfterRounds = 50,
     required this.backgroundImageId,
   }) : super(
-          // context: engine.context,
           id: Scenes.battle,
           bgm: engine.bgm,
           bgmFile: 'war-drums-173853.mp3',
@@ -263,7 +266,10 @@ class BattleScene extends Scene {
       return cardIds.map((id) {
         final data = character['cardLibrary'][id];
         assert(data != null);
-        return GameData.createBattleCard(data, deepCopyData: true);
+        final card = GameData.createBattleCard(data, deepCopyData: true);
+        card.isFlipped = true;
+        world.add(card);
+        return card;
       }).toList();
     } else {
       return [];
@@ -283,7 +289,6 @@ class BattleScene extends Scene {
   void onMount() {
     super.onMount();
 
-    // cursorState = MouseCursorState.normal;
     Hovertip.hideAll();
   }
 
@@ -308,27 +313,41 @@ class BattleScene extends Scene {
     );
     world.add(background);
 
-    victoryPrompt = SpriteComponent(
+    victoryPrompt = SpriteComponent2(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/victory.png'),
       size: Vector2(480.0, 240.0),
+      isVisible: false,
     );
-    defeatPrompt = SpriteComponent(
+    camera.viewport.add(victoryPrompt);
+    defeatPrompt = SpriteComponent2(
       anchor: Anchor.center,
       position: Vector2(center.x, center.y - 125),
       sprite: await Sprite.load('ui/defeat.png'),
       size: Vector2(480.0, 240.0),
+      isVisible: false,
     );
+    camera.viewport.add(defeatPrompt);
 
     heroDeckZone = BattleDeckZone(
       position: GameUI.p1BattleDeckZonePosition,
       cards: heroDeck,
       focusedOffset: GameUI.battleCardFocusedOffset,
-      pileStyle: PileStyle.queue,
       reverseX: false,
+      isVisible: false,
     );
     world.add(heroDeckZone);
+
+    // 英雄手牌区：屏幕正下方
+    heroHandZone = HandZone(
+      position: Vector2((size.x - GameUI.handZoneSize.x) / 2,
+          size.y - GameUI.handZoneSize.y - GameUI.indent),
+      reverseX: false,
+      isVisible: false,
+    );
+    heroHandZone.onCardSelected = _onHeroCardSelected;
+    world.add(heroHandZone);
 
     final String heroSkinId = heroData['skin'];
     final String heroGenre = heroData['cultivationFavor'];
@@ -381,10 +400,19 @@ class BattleScene extends Scene {
       position: GameUI.p2BattleDeckZonePosition,
       cards: enemyDeck,
       focusedOffset: GameUI.battleCardFocusedOffset,
-      pileStyle: PileStyle.queue,
       reverseX: true,
+      isVisible: false,
     );
     world.add(enemyDeckZone);
+
+    // 敌方手牌区：屏幕正上方（牌库区下方）
+    enemyHandZone = HandZone(
+      position:
+          Vector2((size.x - GameUI.handZoneSize.x) / 2, GameUI.enemyHandZoneY),
+      reverseX: true,
+      isVisible: false,
+    );
+    world.add(enemyHandZone);
 
     final String enemySkinId = enemyData['skin'];
     final String enemyGenre = enemyData['cultivationFavor'];
@@ -435,63 +463,67 @@ class BattleScene extends Scene {
     hero.opponent = enemy;
     enemy.opponent = hero;
 
-    versusBanner = VersusBanner(
-      position: Vector2(center.x, center.y - 120),
+    charactersInformation = CharacterInformation(
+      position: Vector2(0, 0),
       hero: heroData,
       enemy: enemyData,
     );
-    camera.viewport.add(versusBanner);
+    camera.viewport.add(charactersInformation);
 
     restartButton = SpriteButton(
       spriteId: 'ui/button2.png',
-      text: engine.locale('restart'),
+      text: engine.locale('start'),
       anchor: Anchor.center,
       position: Vector2(
-          center.x,
-          heroDeckZone.position.y -
-              GameUI.buttonSizeMedium.y * 2 -
-              GameUI.indent),
+          center.x, size.y - GameUI.buttonSizeMedium.y * 2 - GameUI.indent),
       size: GameUI.buttonSizeSmall,
+      isVisible: true,
     );
     restartButton.onTap = (_, __) async {
-      restartButton.isVisible = false;
-      victoryPrompt.removeFromParent();
-      defeatPrompt.removeFromParent();
-      nextTurnButton.isVisible = true;
-      nextTurnButton.text = engine.locale('start');
-      nextTurnButton.onTap = (_, __) {
-        if (engine.config.developMode || !isAutoBattle) {
-          nextTurn();
-        } else {
-          startAutoBattle();
+      if (battleEnded) {
+        // 战斗已结束：重置 UI，重新开始
+        charactersInformation.showEquipments();
+        heroDeckZone.isVisible = true;
+        enemyDeckZone.isVisible = true;
+        heroHandZone.isVisible = true;
+        enemyHandZone.isVisible = true;
+
+        victoryPrompt.isVisible = false;
+        defeatPrompt.isVisible = false;
+        endButton.isVisible = false;
+        _startBattleFlow();
+      } else if (battleStarted) {
+        // 战斗中重启：设置标志位，解除等待中的 completer
+        _isRestarting = true;
+        if (_playerCardSelection != null &&
+            !_playerCardSelection!.isCompleted) {
+          _playerCardSelection!.complete(heroDeck.first);
         }
-      };
-      await _onBattleStart();
+      } else {
+        restartButton.text = engine.locale('restart');
+        _startBattleFlow();
+      }
     };
+    camera.viewport.add(restartButton);
+
+    endButton = SpriteButton(
+      spriteId: 'ui/button1.png',
+      text: engine.locale('end'),
+      anchor: Anchor.center,
+      position: Vector2(
+          center.x, size.y - GameUI.buttonSizeMedium.y - GameUI.indent * 2),
+      size: GameUI.buttonSizeSmall,
+      isVisible: false,
+    );
+    endButton.onTap = (_, __) => _endScene();
+    camera.viewport.add(endButton);
 
     _rollFirsthand();
     showStartPrompt();
   }
 
   Future<void> showStartPrompt() async {
-    await versusBanner.fadeIn(duration: 1.2);
-
-    nextTurnButton = SpriteButton(
-      spriteId: 'ui/button1.png',
-      text: engine.locale('start'),
-      anchor: Anchor.center,
-      position: Vector2(
-          center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
-      size: GameUI.buttonSizeSmall,
-    );
-    nextTurnButton.onTap = (_, __) {
-      if (engine.config.developMode || !isAutoBattle) {
-        nextTurn();
-      } else {
-        startAutoBattle();
-      }
-    };
-    camera.viewport.add(nextTurnButton);
+    await charactersInformation.fadeIn(duration: 1.2);
   }
 
   /// 根据身法加权随机决定先手，偷袭时英雄直接先手
@@ -509,12 +541,13 @@ class BattleScene extends Scene {
   }
 
   Future<void> _onBattleStart() async {
+    battleStarted = true;
     battleEnded = false;
     battleResult = null;
     hero.reset();
     enemy.reset();
-    heroDeckZone.reset();
-    enemyDeckZone.reset();
+    heroDeckZone.shuffle();
+    enemyDeckZone.shuffle();
     _rollFirsthand();
 
     _prepareBattleStart(hero);
@@ -552,58 +585,108 @@ class BattleScene extends Scene {
       }
     }
 
-    nextTurnButton.text = engine.locale('nextTurn');
-
     await onBattleStart?.call();
   }
 
-  Future<void> nextTurn() async {
-    if (!battleStarted) {
-      battleStarted = true;
-      versusBanner.moveTo(
-        duration: 0.3,
-        toPosition: Vector2(center.x, GameUI.hugeIndent),
-      );
-      camera.viewport.add(restartButton);
+  Future<void> _startBattleFlow() async {
+    while (true) {
+      _isRestarting = false;
       await _onBattleStart();
-    } else if (battleResult == null) {
-      final skipped = await _startTurn();
-      if (skipped) {
-        _startTurn();
+
+      while (battleResult == null && !_isRestarting) {
+        await _startTurn();
       }
-    } else {
-      _onBattleEnd();
+
+      if (_isRestarting) {
+        await _cleanupForRestart();
+        continue;
+      }
+
+      await _onBattleEnd();
+      break;
     }
   }
 
-  CustomGameCard nextCard() {
-    assert(currentCharacter.deckZone.cards.isNotEmpty);
-    assert(currentCharacter.deckZone.current != null);
-    CustomGameCard card;
-    if (currentCharacter.deckZone.current!.next == null) {
-      for (final card in currentCharacter.deckZone.cards) {
-        card.isEnabled = true;
-      }
-
-      currentCharacter.handleStatusEffectCallback('self_deck_end');
-      currentCharacter.opponent!
-          .handleStatusEffectCallback('opponent_deck_end');
-
-      card = currentCharacter.deckZone.cards.first as CustomGameCard;
-
-      currentCharacter.deckZone.isFirstCard = true;
-      currentCharacter.deckZone.round += 1;
-    } else {
-      card = currentCharacter.deckZone.current!.next as CustomGameCard;
+  Future<void> _cleanupForRestart() async {
+    // 将手牌区中的所有卡牌归还到各自的牌库区，然后清空手牌
+    if (heroHandZone.cards.isNotEmpty) {
+      await _returnCardsToDeck(heroHandZone, heroDeckZone);
     }
-    return card;
+    await heroHandZone.clearHand();
+    if (enemyHandZone.cards.isNotEmpty) {
+      await _returnCardsToDeck(enemyHandZone, enemyDeckZone);
+    }
+    await enemyHandZone.clearHand();
   }
 
-  Future<bool> _startTurn() async {
-    restartButton.isVisible = false;
-    nextTurnButton.isVisible = false;
+  /// 从牌库抽取指定数量的卡牌到指定手牌区
+  List<CustomGameCard> _drawCards(
+      BattleDeckZone deckZone, HandZone handZone, int count) {
+    final actualCount = math.min(count, deckZone.cards.length);
+    final drawn = <CustomGameCard>[];
+    for (var i = 0; i < actualCount; i++) {
+      final card = deckZone.cards.removeLast() as CustomGameCard;
+      card.isFlipped = false;
+      drawn.add(card);
+    }
+    deckZone.sortCards(animated: false);
+    return drawn;
+  }
+
+  /// 将手牌放回牌库并洗牌
+  Future<void> _returnCardsToDeck(
+      HandZone handZone, BattleDeckZone deckZone) async {
+    for (final card in handZone.cards.toList()) {
+      handZone.clearCardInteraction(card as CustomGameCard);
+      handZone.cards.remove(card);
+
+      deckZone.cards.add(card);
+      card.pile = deckZone;
+    }
+    await deckZone.sortCards(animated: true);
+    deckZone.shuffle();
+  }
+
+  /// 将手牌区的牌加入并播放动画
+  Future<void> _addCardsToHand(
+      HandZone handZone, List<CustomGameCard> cards) async {
+    for (final card in cards) {
+      handZone.cards.add(card);
+      card.pile = handZone;
+      handZone.setupCardInteraction(card);
+    }
+    await handZone.sortCards();
+  }
+
+  void _onHeroCardSelected(CustomGameCard card) {
+    if (_playerCardSelection != null && !_playerCardSelection!.isCompleted) {
+      _playerCardSelection!.complete(card);
+    }
+  }
+
+  /// 敌方简单AI：血量<50%优先buff，否则优先attack
+  CustomGameCard _enemySelectCard(List<CustomGameCard> hand) {
+    final buffs = hand.where((c) {
+      final affix = c.data['affixes'][0];
+      return affix['category'] == 'buff';
+    }).toList();
+    final attacks = hand.where((c) {
+      final affix = c.data['affixes'][0];
+      return affix['category'] == 'attack';
+    }).toList();
+
+    if (currentCharacter.life < currentCharacter.lifeMax * 0.5 &&
+        buffs.isNotEmpty) {
+      return buffs[engine.random.nextInt(buffs.length)];
+    }
+    if (attacks.isNotEmpty) {
+      return attacks[engine.random.nextInt(attacks.length)];
+    }
+    return hand[engine.random.nextInt(hand.length)];
+  }
+
+  Future<void> _startTurn() async {
     bool extraTurn = false;
-    bool skipTurn = false;
 
     engine.hetu.assign('self', currentCharacter);
     engine.hetu.assign('opponent', currentOpponent);
@@ -611,65 +694,76 @@ class BattleScene extends Scene {
     currentCharacter.priority = kTopLayerAnimationPriority;
     currentOpponent.priority = 0;
 
-    if (currentCharacter.deckZone.cards.isNotEmpty) {
-      CustomGameCard card = currentCharacter.deckZone.current!;
+    final deckZone = currentCharacter.deckZone;
+    final handZone = currentCharacter == hero ? heroHandZone : enemyHandZone;
+
+    // 死亡debuff：与回合数绑定，每 kBattleRoundLimit 回合触发
+    if (roundCount > 0 && roundCount % kBattleRoundLimit == 0) {
+      currentCharacter.addStatusEffect('energy_negative_life',
+          amount: roundCount ~/ kBattleRoundLimit);
+    }
+
+    if (deckZone.cards.isNotEmpty) {
       do {
-        _sw.start();
-
-        if (currentCharacter.deckZone.isFirstCard) {
-          final oppponentStatus =
-              _prepareStatus(currentCharacter, StatusCircumstances.start_deck);
-          for (final statusId in oppponentStatus.keys) {
-            final value = oppponentStatus[statusId]!;
-            currentOpponent.addStatusEffect(statusId,
-                amount: value, handleCallback: false);
-          }
-          currentCharacter.deckZone.isFirstCard = false;
-
-          if (currentCharacter.deckZone.round >= kBattleRoundLimit) {
-            // 如果回合数超过上限，角色会获得死气的 debuff
-            currentCharacter.addStatusEffect('energy_negative_life',
-                amount: currentCharacter.deckZone.round);
-          }
-        }
-
-        final oppponentStatus =
+        // 回合开始状态效果
+        final opponentStatus =
             _prepareStatus(currentCharacter, StatusCircumstances.start_turn);
-        for (final statusId in oppponentStatus.keys) {
-          final value = oppponentStatus[statusId]!;
+        for (final statusId in opponentStatus.keys) {
+          final value = opponentStatus[statusId]!;
           currentOpponent.addStatusEffect(statusId,
               amount: value, handleCallback: false);
         }
 
-        final turnDetails =
-            await currentCharacter.onTurnStart(card, isExtra: extraTurn);
+        // 抽牌
+        final drawCount = GameLogic.getHandLimitForRank(
+            currentCharacter.data['rank'])['limit'] as int;
+        final drawnCards = _drawCards(deckZone, handZone, drawCount);
 
-        final delta = _sw.elapsedMilliseconds;
-        if (delta < kMinTurnDuration) {
-          await Future.delayed(
-              Duration(milliseconds: kMinTurnDuration - delta));
+        if (drawnCards.isEmpty) {
+          break;
         }
-        _sw.stop();
-        _sw.reset();
 
-        bool skipTurn = turnDetails['skipTurn'] ?? false;
+        await _addCardsToHand(handZone, drawnCards);
+
+        // 选择卡牌
+        CustomGameCard selectedCard;
+        if (currentCharacter == hero) {
+          _playerCardSelection = Completer<CustomGameCard>();
+          selectedCard = await _playerCardSelection!.future;
+          _playerCardSelection = null;
+          if (_isRestarting) return;
+        } else {
+          await Future.delayed(Duration(milliseconds: 600));
+          selectedCard = _enemySelectCard(drawnCards);
+        }
+
+        // 禁用所有手牌交互
+        for (final card in handZone.cards) {
+          handZone.clearCardInteraction(card as CustomGameCard);
+        }
+
+        // 执行选中卡牌的效果
+        final turnDetails = await currentCharacter.onTurnStart(selectedCard,
+            isExtra: extraTurn);
+
+        final skipTurn = turnDetails['skipTurn'] ?? false;
         if (!skipTurn) {
-          final turnEndDetails = await currentCharacter.onTurnEnd(card);
-          card.isEnabled = false;
-          card = currentCharacter.deckZone.current = nextCard();
+          final turnEndDetails = await currentCharacter.onTurnEnd(selectedCard);
           extraTurn = turnEndDetails['extraTurn'] ?? false;
 
-          final oppponentStatus =
+          final opponentEndStatus =
               _prepareStatus(currentCharacter, StatusCircumstances.end_turn);
-          for (final statusId in oppponentStatus.keys) {
-            final value = oppponentStatus[statusId]!;
+          for (final statusId in opponentEndStatus.keys) {
+            final value = opponentEndStatus[statusId]!;
             currentOpponent.addStatusEffect(statusId,
                 amount: value, handleCallback: false);
           }
         }
+
+        // 将所有手牌（包括打出的）放回牌库并洗牌
+        await _returnCardsToDeck(handZone, deckZone);
+        await handZone.clearHand();
       } while (extraTurn);
-    } else {
-      skipTurn = true;
     }
 
     heroTurn = !heroTurn;
@@ -680,7 +774,7 @@ class BattleScene extends Scene {
       roundCount += 1;
     }
 
-    // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
+    // 检查战斗是否结束
     if (enemy.life <= 0) {
       battleResult = true;
     } else if (hero.life <= 0) {
@@ -692,11 +786,6 @@ class BattleScene extends Scene {
         battleResult = false;
       }
     }
-
-    nextTurnButton.isVisible = true;
-    restartButton.isVisible = true;
-
-    return skipTurn;
   }
 
   void _endScene() async {
@@ -734,8 +823,11 @@ class BattleScene extends Scene {
   }
 
   Future<void> _onBattleEnd() async {
+    battleEnded = true;
+    endButton.isVisible = true;
+
     if (battleResult == true) {
-      camera.viewport.add(victoryPrompt);
+      victoryPrompt.isVisible = true;
       enemy.setState(kDefeatState);
 
       if (!isPractice) {
@@ -746,7 +838,7 @@ class BattleScene extends Scene {
       }
     } else {
       battleResult = false;
-      camera.viewport.add(defeatPrompt);
+      defeatPrompt.isVisible = true;
       hero.setState(kDefeatState);
     }
 
@@ -754,8 +846,6 @@ class BattleScene extends Scene {
     final enemyName = '${enemy.data['name']}(enemy)';
     engine.info(
         '$heroName和$enemyName结束了战斗。${battleResult! ? heroName : enemyName}获胜！');
-
-    battleEnded = true;
 
     if (!isPractice) {
       clearEphemeralPassives(hero);
@@ -772,16 +862,9 @@ class BattleScene extends Scene {
         }
       }
       if (hasScroll) {
-        /// 清除卡牌图书馆场景的缓存，因为需要重新生成卡组的内容组件
         engine.clearCachedScene(Scenes.library);
       }
     }
-
-    if (!nextTurnButton.isMounted) {
-      camera.viewport.add(nextTurnButton);
-    }
-    nextTurnButton.text = engine.locale('end');
-    nextTurnButton.onTap = (_, __) => _endScene();
 
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(roundCount);
     final int life = hero.life;
@@ -799,22 +882,6 @@ class BattleScene extends Scene {
         }
       }
     }
-  }
-
-  Future<void> startAutoBattle() async {
-    nextTurnButton.removeFromParent();
-
-    await versusBanner.moveTo(
-      duration: 0.3,
-      toPosition: Vector2(center.x, GameUI.hugeIndent),
-    );
-    await _onBattleStart();
-
-    do {
-      await _startTurn();
-    } while (battleResult == null);
-
-    await _onBattleEnd();
   }
 
   @override
@@ -880,22 +947,4 @@ class BattleScene extends Scene {
 
     fps.update(dt);
   }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   // if (engine.config.developMode || engine.config.showFps) {
-  //   //   drawScreenText(
-  //   //     canvas,
-  //   //     'FPS: ${fps.fps.toStringAsFixed(0)}',
-  //   //     config: ScreenTextConfig(
-  //   //       textStyle: const TextStyle(fontSize: 20),
-  //   //       size: GameUI.size,
-  //   //       anchor: Anchor.topCenter,
-  //   //       padding: const EdgeInsets.only(top: 40),
-  //   //     ),
-  //   //   );
-  //   // }
-  // }
 }

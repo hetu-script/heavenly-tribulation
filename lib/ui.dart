@@ -511,9 +511,25 @@ final class GameUI {
   static late Vector2 p1CharacterAnimationPosition;
   static late Vector2 p2CharacterAnimationPosition;
 
-  static late Vector2 versusBannerSize;
-  static late Vector2 versusIconSize;
-  static late Vector2 battleCharacterAvatarSize;
+  /// 手牌区大小
+  static late Vector2 handZoneSize;
+
+  /// 手牌区间距
+  static late double handCardSpacing;
+
+  /// 敌方手牌区Y坐标
+  static late double enemyHandZoneY;
+
+  /// 英雄装备栏位置
+  static late Vector2 p1EquipmentsBarPosition;
+
+  /// 敌方装备栏位置
+  static late Vector2 p2EquipmentsBarPosition;
+
+  static Vector2 versusBannerSize = Vector2(520.0, 180.0);
+  static Vector2 versusIconSize = Vector2(160.0, 180.0);
+  static Vector2 battleCharacterAvatarSize = Vector2(100.0, 100.0);
+
   static final Vector2 equipmentsBarSize =
       Vector2(32 * (kEquipmentMax + 3), 30);
 
@@ -608,19 +624,18 @@ final class GameUI {
     // );
 
     detailsWindowPosition = Offset(
-        newSize.x - profileWindowSize.x - largeIndent,
-        profileWindowPosition.dy);
+        size.x - profileWindowSize.x - largeIndent, profileWindowPosition.dy);
 
     libraryZonePosition = Vector2(
-        (120 / defaultGameSize.width * newSize.x).roundToDouble(),
-        (180 / defaultGameSize.height * newSize.y).roundToDouble());
+        (120 / defaultGameSize.width * size.x).roundToDouble(),
+        (180 / defaultGameSize.height * size.y).roundToDouble());
     libraryZoneSize = Vector2(
-        (960 / defaultGameSize.width * newSize.x).roundToDouble(),
-        (450 / defaultGameSize.height * newSize.y).roundToDouble());
+        (960 / defaultGameSize.width * size.x).roundToDouble(),
+        (450 / defaultGameSize.height * size.y).roundToDouble());
 
     libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
     libraryZoneBackgroundSize = Vector2(
-        (1190 / defaultGameSize.width * newSize.x).roundToDouble(),
+        (1190 / defaultGameSize.width * size.x).roundToDouble(),
         (libraryZoneSize.y).roundToDouble());
 
     orderByButtonPosition = libraryZonePosition + Vector2(35, -50);
@@ -628,12 +643,12 @@ final class GameUI {
         orderByButtonPosition + Vector2(buttonSizeLong.x + largeIndent, 0);
 
     decksZoneBackgroundSize = Vector2(
-        newSize.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
+        size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
     decksZoneBackgroundPosition =
         Vector2(libraryZoneBackgroundSize.x, libraryZoneBackgroundPosition.y);
 
     final deckbuildingCardWidth =
-        ((130 / defaultGameSize.width * newSize.x).roundToDouble());
+        ((130 / defaultGameSize.width * size.x).roundToDouble());
     final deckbuildingCardHeight =
         (deckbuildingCardWidth * 1.351351).roundToDouble();
     deckbuildingCardSize =
@@ -666,22 +681,22 @@ final class GameUI {
 
     craftCardSize = libraryCardSize * 1.5;
 
-    craftCardPosition = Vector2(newSize.x / 2 - craftCardSize.x / 2,
-        center.y - craftCardSize.y + indent);
+    craftCardPosition = Vector2(
+        size.x / 2 - craftCardSize.x / 2, center.y - craftCardSize.y + indent);
 
     cardpackCardPositions =
         generateDividingPointsOnCircle(center: center, radius: 250.0, number: 5)
             .map((e) => Vector2(e.position.x, e.position.y + indent))
             .toList();
 
-    craftZoneCloseButtonPosition = Vector2(
-        newSize.x / 2, newSize.y - largeIndent - buttonSizeMedium.y / 2);
+    craftZoneCloseButtonPosition =
+        Vector2(size.x / 2, size.y - largeIndent - buttonSizeMedium.y / 2);
 
-    cardLibraryExpLabelPosition = Vector2(newSize.x / 2, newSize.y - 50);
+    cardLibraryExpLabelPosition = Vector2(size.x / 2, size.y - 50);
 
     cardCraftZoneSize = Vector2(
-        (270 / defaultGameSize.width * newSize.x).roundToDouble(),
-        (270 / defaultGameSize.height * newSize.y).roundToDouble());
+        (270 / defaultGameSize.width * size.x).roundToDouble(),
+        (270 / defaultGameSize.height * size.y).roundToDouble());
 
     cardCraftZonePosition = Vector2(decksZoneBackgroundPosition.x, -150.0);
 
@@ -694,17 +709,44 @@ final class GameUI {
         GameUI.size.y - expBottleSize.y * 0.33);
 
     battleCardSize = deckbuildingCardSize;
-    battleDeckZoneSize =
-        Vector2(newSize.x / 2 - largeIndent, battleCardSize.y + indent);
+    battleDeckZoneSize = Vector2(battleCardSize.x + 4, battleCardSize.y + 4);
 
     battleCardFocusedSize =
         Vector2(battleCardSize.x + largeIndent, battleCardSize.y + largeIndent);
 
-    p1BattleDeckZonePosition =
-        Vector2(indent / 2, newSize.y - battleDeckZoneSize.y - indent / 2);
-    p2BattleDeckZonePosition = Vector2(
-        newSize.x - battleDeckZoneSize.x - indent / 2,
-        p1BattleDeckZonePosition.y);
+    /// 手牌区：屏幕底部中央
+    handZoneSize = Vector2(
+        (840 / defaultGameSize.width * size.x).roundToDouble(),
+        battleCardSize.y + smallIndent);
+    handCardSpacing = (battleCardSize.x * 0.5).roundToDouble();
+
+    // 牌库区位于头像正下方挨着屏幕边缘
+    final double deckZoneY =
+        smallIndent + battleCharacterAvatarSize.y + smallIndent * 2;
+    p1BattleDeckZonePosition = Vector2(largeIndent, deckZoneY);
+    p2BattleDeckZonePosition =
+        Vector2(size.x - battleDeckZoneSize.x - largeIndent, deckZoneY);
+
+    /// 敌方手牌区Y坐标（屏幕上方，牌库区下方）
+    enemyHandZoneY = deckZoneY + battleDeckZoneSize.y + smallIndent;
+
+    /// 英雄装备栏位置（头像右侧）
+    p1EquipmentsBarPosition = Vector2(
+        largeIndent + battleCharacterAvatarSize.x + smallIndent,
+        smallIndent +
+            battleCharacterAvatarSize.y / 2 -
+            equipmentsBarSize.y / 2);
+
+    /// 敌方装备栏位置（头像左侧）
+    p2EquipmentsBarPosition = Vector2(
+        size.x -
+            battleCharacterAvatarSize.x -
+            largeIndent -
+            smallIndent -
+            equipmentsBarSize.x,
+        smallIndent +
+            battleCharacterAvatarSize.y / 2 -
+            equipmentsBarSize.y / 2);
 
     // p1BattleCardFocusedPosition = Vector2(
     //     indent,
@@ -727,30 +769,26 @@ final class GameUI {
         -(battleCardFocusedSize.y - battleCardSize.y));
 
     p1CharacterAnimationPosition = Vector2(
-      newSize.x / 2 - 208,
-      p1BattleDeckZonePosition.y - heroSpriteSize.y,
+      size.x / 2 - 208,
+      size.y / 2 - 50,
     );
 
     p2CharacterAnimationPosition = Vector2(
-      newSize.x / 2 + 208,
-      p2BattleDeckZonePosition.y - heroSpriteSize.y,
+      size.x / 2 + 208,
+      size.y / 2 - 50,
     );
 
-    versusBannerSize = Vector2(520.0, 180.0);
-    versusIconSize = Vector2(160.0, 180.0);
-    battleCharacterAvatarSize = Vector2(100.0, 100.0);
-
-    final siteCardWidth = (newSize.x - 300) / 8 - indent;
+    final siteCardWidth = (size.x - 300) / 8 - indent;
     final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();
 
     siteCardSize = Vector2(siteCardWidth, siteCardHeight);
 
     siteCardFocusedSize = siteCardSize * 1.1;
 
-    siteListPosition = Vector2(indent, newSize.y - indent - siteCardSize.y);
+    siteListPosition = Vector2(indent, size.y - indent - siteCardSize.y);
 
     siteExitCardPositon =
-        Vector2(newSize.x - indent - siteCardSize.x, siteListPosition.y + 10);
+        Vector2(size.x - indent - siteCardSize.x, siteListPosition.y + 10);
 
     cultivatorPosition = Vector2(center.x, center.y);
 
