@@ -506,8 +506,8 @@ final class GameUI {
   static late Vector2 battleCardSize;
   static late Vector2 battleCardFocusedSize;
   static late Vector2 battleDeckZoneSize;
-  static late Vector2 p1BattleDeckZonePosition;
-  static late Vector2 p2BattleDeckZonePosition;
+  static late Vector2 p1BattleDeckZonePosition, p2BattleDeckZonePosition;
+  static late Vector2 p1HandZonePosition, p2HandZonePosition;
   static late Vector2 p1CharacterAnimationPosition;
   static late Vector2 p2CharacterAnimationPosition;
 
@@ -711,14 +711,11 @@ final class GameUI {
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize = Vector2(battleCardSize.x + 4, battleCardSize.y + 4);
 
-    battleCardFocusedSize =
-        Vector2(battleCardSize.x + largeIndent, battleCardSize.y + largeIndent);
+    battleCardFocusedSize = battleCardSize * 1.5;
 
     /// 手牌区：屏幕底部中央
-    handZoneSize = Vector2(
-        (840 / defaultGameSize.width * size.x).roundToDouble(),
-        battleCardSize.y + smallIndent);
-    handCardSpacing = (battleCardSize.x * 0.5).roundToDouble();
+    handZoneSize = Vector2(battleCardSize.x * 8, battleCardSize.y);
+    handCardSpacing = battleCardSize.x * 0.5;
 
     // 牌库区位于头像正下方挨着屏幕边缘
     final double deckZoneY =
@@ -726,6 +723,11 @@ final class GameUI {
     p1BattleDeckZonePosition = Vector2(largeIndent, deckZoneY);
     p2BattleDeckZonePosition =
         Vector2(size.x - battleDeckZoneSize.x - largeIndent, deckZoneY);
+
+    p1HandZonePosition = Vector2(GameUI.largeIndent,
+        size.y - GameUI.battleCardSize.y - GameUI.largeIndent);
+    p2HandZonePosition = Vector2(size.x - GameUI.largeIndent - handZoneSize.x,
+        size.y - GameUI.battleCardSize.y - GameUI.largeIndent);
 
     /// 敌方手牌区Y坐标（屏幕上方，牌库区下方）
     enemyHandZoneY = deckZoneY + battleDeckZoneSize.y + smallIndent;

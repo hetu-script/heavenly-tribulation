@@ -333,18 +333,17 @@ class BattleScene extends Scene {
     heroDeckZone = BattleDeckZone(
       position: GameUI.p1BattleDeckZonePosition,
       cards: heroDeck,
-      focusedOffset: GameUI.battleCardFocusedOffset,
       reverseX: false,
       isVisible: false,
     );
     world.add(heroDeckZone);
 
-    // 英雄手牌区：屏幕正下方
+    // 英雄手牌区：屏幕左下方
     heroHandZone = HandZone(
-      position: Vector2((size.x - GameUI.handZoneSize.x) / 2,
-          size.y - GameUI.handZoneSize.y - GameUI.indent),
-      reverseX: false,
+      position: GameUI.p1HandZonePosition,
       isVisible: false,
+      focusedPosition: Vector2(
+          GameUI.largeIndent, size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
     );
     heroHandZone.onCardSelected = _onHeroCardSelected;
     world.add(heroHandZone);
@@ -399,18 +398,23 @@ class BattleScene extends Scene {
     enemyDeckZone = BattleDeckZone(
       position: GameUI.p2BattleDeckZonePosition,
       cards: enemyDeck,
-      focusedOffset: GameUI.battleCardFocusedOffset,
       reverseX: true,
       isVisible: false,
     );
     world.add(enemyDeckZone);
 
-    // 敌方手牌区：屏幕正上方（牌库区下方）
+    // 敌方手牌区：屏幕右下方
     enemyHandZone = HandZone(
-      position:
-          Vector2((size.x - GameUI.handZoneSize.x) / 2, GameUI.enemyHandZoneY),
-      reverseX: true,
+      position: GameUI.p2HandZonePosition,
       isVisible: false,
+      reverseX: true,
+      pileStartPosition: Vector2(
+        GameUI.p2HandZonePosition.x + GameUI.battleCardSize.x * 7,
+        GameUI.p2HandZonePosition.y,
+      ),
+      focusedPosition: Vector2(
+          size.x - GameUI.largeIndent - GameUI.battleCardFocusedSize.x,
+          size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
     );
     world.add(enemyHandZone);
 
@@ -477,7 +481,7 @@ class BattleScene extends Scene {
       position: Vector2(
           center.x, size.y - GameUI.buttonSizeMedium.y * 2 - GameUI.indent),
       size: GameUI.buttonSizeSmall,
-      isVisible: true,
+      isVisible: false,
     );
     restartButton.onTap = (_, __) async {
       if (battleEnded) {
@@ -637,6 +641,7 @@ class BattleScene extends Scene {
   Future<void> _returnCardsToDeck(
       HandZone handZone, BattleDeckZone deckZone) async {
     for (final card in handZone.cards.toList()) {
+      card.isFlipped = true;
       handZone.clearCardInteraction(card as CustomGameCard);
       handZone.cards.remove(card);
 
@@ -647,7 +652,7 @@ class BattleScene extends Scene {
     deckZone.shuffle();
   }
 
-  /// 将手牌区的牌加入并播放动画
+  /// 将牌加入手牌区并播放动画
   Future<void> _addCardsToHand(
       HandZone handZone, List<CustomGameCard> cards) async {
     for (final card in cards) {
@@ -825,6 +830,7 @@ class BattleScene extends Scene {
   Future<void> _onBattleEnd() async {
     battleEnded = true;
     endButton.isVisible = true;
+    restartButton.isVisible = engine.config.developMode;
 
     if (battleResult == true) {
       victoryPrompt.isVisible = true;

@@ -12,27 +12,27 @@ class HandZone extends PiledZone with HandlesGesture {
 
   HandZone({
     required super.position,
-    required super.reverseX,
+    super.reverseX,
     super.cardBasePriority = 500,
     super.isVisible,
+    super.pileStartPosition,
+    super.focusedPosition,
   }) : super(
           size: GameUI.handZoneSize,
           piledCardSize: GameUI.battleCardSize,
           pileOffset: Vector2(GameUI.handCardSpacing, 0),
-          focusedOffset: GameUI.battleCardFocusedOffset,
           focusedSize: GameUI.battleCardFocusedSize,
           pileStyle: PileStyle.queue,
         );
 
   void setupCardInteraction(CustomGameCard card) {
     card.enablePreview = true;
-    card.isEnabled = true;
     card.onTapUp = (button, position) {
-      if (!card.isEnabled) return;
       onCardSelected?.call(card);
     };
 
     card.onPreviewed = () {
+      card.priority = 1000; // 提高优先级以覆盖其他元素
       final isDetailed = engine.config.developMode;
       final (_, description) = GameData.getBattleCardDescription(
         card.data,
@@ -52,6 +52,7 @@ class HandZone extends PiledZone with HandlesGesture {
     };
 
     card.onUnpreviewed = () {
+      card.resetPriority();
       Hovertip.hide(card);
     };
   }

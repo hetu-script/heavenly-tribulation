@@ -16,7 +16,6 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
   }) : super(
           size: GameUI.battleDeckZoneSize,
           piledCardSize: GameUI.battleCardSize,
-          focusedSize: GameUI.battleCardFocusedSize,
           pileOffset: Vector2(-1, -1),
           pileStyle: PileStyle.stack,
         );

@@ -278,8 +278,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         );
       } else {
         // 敌方从右向左排列
-        final rightEdge = GameUI.p2EquipmentsBarPosition.x +
-            GameUI.equipmentsBarSize.x;
+        final rightEdge =
+            GameUI.p2EquipmentsBarPosition.x + GameUI.equipmentsBarSize.x;
         effect.position = Vector2(
           rightEdge - (i + 1) * iconStep,
           effectY,
@@ -807,7 +807,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 展示当前卡牌及其详情
     card.enablePreview = false;
-    await card.setFocused(true);
+    await card.setFocused(true, duration: 0.2);
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
     }
@@ -822,7 +822,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     Hovertip.show(
       scene: game,
       target: card,
-      direction: HovertipDirection.topCenter,
+      direction: HovertipDirection.rightCenter,
       // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
       content: exDescription,
       config: ScreenTextConfig(
@@ -927,7 +927,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     handleStatusEffectCallback('self_turn_end');
     opponent!.handleStatusEffectCallback('opponent_turn_end');
 
-    await card.setFocused(false);
+    await card.setFocused(false, duration: 0.2);
     Hovertip.hide(card);
     card.enablePreview = true;
 
