@@ -822,7 +822,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     Hovertip.show(
       scene: game,
       target: card,
-      direction: HovertipDirection.rightCenter,
+      direction:
+          isHero ? HovertipDirection.rightCenter : HovertipDirection.leftCenter,
       // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
       content: exDescription,
       config: ScreenTextConfig(

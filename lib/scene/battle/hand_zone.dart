@@ -27,12 +27,14 @@ class HandZone extends PiledZone with HandlesGesture {
 
   void setupCardInteraction(CustomGameCard card) {
     card.enablePreview = true;
+
     card.onTapUp = (button, position) {
       onCardSelected?.call(card);
     };
 
     card.onPreviewed = () {
       card.priority = 1000; // 提高优先级以覆盖其他元素
+      card.showGlow = true;
       final isDetailed = engine.config.developMode;
       final (_, description) = GameData.getBattleCardDescription(
         card.data,
@@ -53,6 +55,7 @@ class HandZone extends PiledZone with HandlesGesture {
 
     card.onUnpreviewed = () {
       card.resetPriority();
+      card.showGlow = false;
       Hovertip.hide(card);
     };
   }

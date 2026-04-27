@@ -476,7 +476,7 @@ class BattleScene extends Scene {
 
     restartButton = SpriteButton(
       spriteId: 'ui/button2.png',
-      text: engine.locale('start'),
+      text: engine.locale('restart'),
       anchor: Anchor.center,
       position: Vector2(
           center.x, size.y - GameUI.buttonSizeMedium.y * 2 - GameUI.indent),
@@ -485,6 +485,7 @@ class BattleScene extends Scene {
     );
     restartButton.onTap = (_, __) async {
       if (battleEnded) {
+        restartButton.isVisible = false;
         // 战斗已结束：重置 UI，重新开始
         charactersInformation.showEquipments();
         heroDeckZone.isVisible = true;
@@ -528,6 +529,8 @@ class BattleScene extends Scene {
 
   Future<void> showStartPrompt() async {
     await charactersInformation.fadeIn(duration: 1.2);
+
+    _startBattleFlow();
   }
 
   /// 根据身法加权随机决定先手，偷袭时英雄直接先手
