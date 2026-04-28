@@ -740,7 +740,7 @@ final class GameLogic {
   static int calculateItemPrice(
     dynamic itemData, {
     dynamic priceFactor,
-    // bool? useShard,
+    // bool useShard = false,
     bool isSell = true,
   }) {
     final int price = itemData['price'] ?? 0;
@@ -761,7 +761,6 @@ final class GameLogic {
 
       int finalPrice = (price * ratio).ceil();
 
-      // useShard ??= (finalPrice >= 1000 && priceFactor['useShard'] == true);
       // if (useShard) {
       //   final shardToMoneyRate = kMaterialPrice['shard'] as int;
       //   finalPrice = (finalPrice / shardToMoneyRate).ceil();

@@ -18,6 +18,12 @@ import '../../ui/responsive_view.dart';
 import '../../../data/common.dart';
 import '../../../ui.dart';
 
+int _getShardPrice(int price) {
+  final shardToMoneyRate = kMaterialPrice['shard'] as int;
+  final finalPrice = (price / shardToMoneyRate).ceil();
+  return finalPrice;
+}
+
 class MerchantDialog extends StatefulWidget {
   const MerchantDialog({
     super.key,
@@ -305,73 +311,125 @@ class _MerchantDialogState extends State<MerchantDialog> {
         }
         engine.play(GameSound.pickup);
       } else {
-        assert(_selectedHeroItemsData.length <= 1);
-        final itemData = _selectedHeroItemsData.values.first;
-        int amount = itemData['stackSize'] ?? 1;
-        int unitPrice = GameLogic.calculateItemPrice(
-          itemData,
-          priceFactor: priceFactor,
-          isSell: true,
-        );
-        if (amount > 1) {
-          final choosedAmount = await InputSliderDialog.show(
-            context: context,
-            min: 1,
-            max: amount,
-            value: amount,
-            labelBuilder: (value) {
-              String label = '${engine.locale('amount')}: $value';
-              label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-              return label;
+        if (itemsData.length > 1) {
+          int totalPrice = 0;
+          for (final itemData in itemsData) {
+            totalPrice += GameLogic.calculateItemPrice(
+              itemData,
+              priceFactor: priceFactor,
+              isSell: true,
+            );
+          }
+
+          String currency =
+              (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
+          int merchantHave = widget.useShard ? merchantShard : merchantMoney;
+          if (merchantHave < totalPrice) {
+            dialog.pushDialog('hint_merchantNotEnough_$currency');
+            dialog.execute();
+            return;
+          }
+          engine.hetu.invoke(
+            'entityExhaust',
+            positionalArgs: [
+              widget.merchantData,
+              currency,
+              totalPrice,
+            ],
+          );
+          engine.hetu.invoke(
+            'collect',
+            namespace: 'Player',
+            positionalArgs: [currency, totalPrice],
+          );
+          engine.play(GameSound.coins);
+          for (final itemData in itemsData) {
+            engine.hetu.invoke(
+              'lose',
+              namespace: 'Player',
+              positionalArgs: [itemData],
+              namedArgs: {'amount': 1},
+            );
+            engine.hetu.invoke(
+              'entityAcquire',
+              positionalArgs: [
+                widget.merchantData,
+                itemData,
+              ],
+              namedArgs: {'amount': 1},
+            );
+          }
+          _selectedHeroItemsData.clear();
+          engine.play(GameSound.pickup);
+        } else {
+          final itemData = _selectedHeroItemsData.values.first;
+          int amount = itemData['stackSize'] ?? 1;
+          int unitPrice = GameLogic.calculateItemPrice(
+            itemData,
+            priceFactor: priceFactor,
+            isSell: true,
+          );
+          if (amount > 1) {
+            final choosedAmount = await InputSliderDialog.show(
+              context: context,
+              min: 1,
+              max: amount,
+              value: amount,
+              labelBuilder: (value) {
+                String label = '${engine.locale('amount')}: $value';
+                label +=
+                    '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+                return label;
+              },
+            );
+            if (choosedAmount == null) return;
+            amount = choosedAmount;
+          }
+          int totalPrice = unitPrice * amount;
+
+          String currency =
+              (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
+          int merchantHave = widget.useShard ? merchantShard : merchantMoney;
+          if (merchantHave < totalPrice) {
+            dialog.pushDialog('hint_merchantNotEnough_$currency');
+            dialog.execute();
+            return;
+          }
+          engine.hetu.invoke(
+            'entityExhaust',
+            positionalArgs: [
+              widget.merchantData,
+              currency,
+              totalPrice,
+            ],
+          );
+          engine.hetu.invoke(
+            'collect',
+            namespace: 'Player',
+            positionalArgs: [currency, totalPrice],
+          );
+          engine.play(GameSound.coins);
+          engine.hetu.invoke(
+            'lose',
+            namespace: 'Player',
+            positionalArgs: [itemData],
+            namedArgs: {
+              'amount': amount,
             },
           );
-          if (choosedAmount == null) return;
-          amount = choosedAmount;
+          engine.hetu.invoke(
+            'entityAcquire',
+            positionalArgs: [
+              widget.merchantData,
+              itemData,
+            ],
+            namedArgs: {
+              'amount': amount,
+            },
+          );
+          _selectedHeroItemsData.remove(itemData['id']);
+          engine.play(GameSound.pickup);
         }
-        int totalPrice = unitPrice * amount;
-
-        String currency =
-            (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
-        int merchantHave = widget.useShard ? merchantShard : merchantMoney;
-        if (merchantHave < totalPrice) {
-          dialog.pushDialog('hint_merchantNotEnough_$currency');
-          dialog.execute();
-          return;
-        }
-        engine.hetu.invoke(
-          'entityExhaust',
-          positionalArgs: [
-            widget.merchantData,
-            currency,
-            totalPrice,
-          ],
-        );
-        engine.hetu.invoke(
-          'collect',
-          namespace: 'Player',
-          positionalArgs: [currency, totalPrice],
-        );
-        engine.play(GameSound.coins);
-        engine.hetu.invoke(
-          'lose',
-          namespace: 'Player',
-          positionalArgs: [itemData],
-          namedArgs: {
-            'amount': amount,
-          },
-        );
-        engine.hetu.invoke(
-          'entityAcquire',
-          positionalArgs: [
-            widget.merchantData,
-            itemData,
-          ],
-          namedArgs: {
-            'amount': amount,
-          },
-        );
-        _selectedHeroItemsData.remove(itemData['id']);
-        engine.play(GameSound.pickup);
       }
     }
     gameState.updateUI();
@@ -406,11 +464,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
       if (!isDepositBox) {
         final totalPrice = unitPrice * amount;
-
-        String currency = widget.useShard ? 'shard' : 'money';
-        int heroHave = widget.useShard ? heroShard : heroMoney;
-
-        if (heroHave < totalPrice) {
+        String currency = 'money';
+        if (heroMoney < totalPrice) {
           dialog.pushDialog('hint_notEnough_$currency');
           dialog.execute();
           return;
@@ -504,76 +559,136 @@ class _MerchantDialogState extends State<MerchantDialog> {
         }
         engine.play(GameSound.pickup);
       } else {
-        assert(_selectedMerchantItemsData.length <= 1);
-        final itemData = _selectedMerchantItemsData.values.first;
-        int amount = itemData['stackSize'] ?? 1;
-        int unitPrice = GameLogic.calculateItemPrice(
-          itemData,
-          priceFactor: priceFactor,
-          isSell: false,
-        );
-        if (amount > 1) {
-          final choosedAmount = await InputSliderDialog.show(
-            context: context,
-            min: 1,
-            max: amount,
-            value: amount,
-            labelBuilder: (value) {
-              String label = '${engine.locale('amount')}: $value';
-              label += '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
-              return label;
+        if (itemsData.length > 1) {
+          int totalPrice = 0;
+          for (final itemData in itemsData) {
+            totalPrice += GameLogic.calculateItemPrice(
+              itemData,
+              priceFactor: priceFactor,
+              isSell: false,
+            );
+          }
+
+          String currency =
+              (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
+
+          int heroHave = widget.useShard ? heroShard : heroMoney;
+
+          if (heroHave < totalPrice) {
+            dialog.pushDialog('hint_notEnough_$currency');
+            dialog.execute();
+            return;
+          }
+          engine.hetu.invoke(
+            'exhaust',
+            namespace: 'Player',
+            positionalArgs: [currency, totalPrice],
+          );
+          engine.hetu.invoke(
+            'entityCollect',
+            positionalArgs: [
+              widget.merchantData,
+              currency,
+              totalPrice,
+            ],
+          );
+
+          for (final itemData in itemsData) {
+            engine.hetu.invoke(
+              'entityLose',
+              positionalArgs: [
+                widget.merchantData,
+                itemData,
+              ],
+              namedArgs: {'amount': 1},
+            );
+            await engine.hetu.invoke(
+              'acquire',
+              namespace: 'Player',
+              positionalArgs: [
+                itemData,
+              ],
+              namedArgs: {'amount': 1},
+            );
+          }
+          _selectedMerchantItemsData.clear();
+          engine.play(GameSound.pickup);
+        } else {
+          final itemData = _selectedMerchantItemsData.values.first;
+          int amount = itemData['stackSize'] ?? 1;
+          int unitPrice = GameLogic.calculateItemPrice(
+            itemData,
+            priceFactor: priceFactor,
+            isSell: false,
+          );
+          if (amount > 1) {
+            final choosedAmount = await InputSliderDialog.show(
+              context: context,
+              min: 1,
+              max: amount,
+              value: amount,
+              labelBuilder: (value) {
+                String label = '${engine.locale('amount')}: $value';
+                label +=
+                    '\n${engine.locale('totalPrice')}: ${unitPrice * value}';
+                return label;
+              },
+            );
+            if (choosedAmount == null) return;
+            amount = choosedAmount;
+          }
+          int totalPrice = unitPrice * amount;
+
+          bool useShard = widget.useShard && totalPrice >= 1000;
+          String currency = useShard ? 'shard' : 'money';
+          if (useShard) {
+            totalPrice = _getShardPrice(totalPrice);
+          }
+
+          int heroHave = widget.useShard ? heroShard : heroMoney;
+
+          if (heroHave < totalPrice) {
+            dialog.pushDialog('hint_notEnough_$currency');
+            dialog.execute();
+            return;
+          }
+          engine.hetu.invoke(
+            'exhaust',
+            namespace: 'Player',
+            positionalArgs: [currency, totalPrice],
+          );
+          engine.hetu.invoke(
+            'entityCollect',
+            positionalArgs: [
+              widget.merchantData,
+              currency,
+              totalPrice,
+            ],
+          );
+
+          engine.hetu.invoke(
+            'entityLose',
+            positionalArgs: [
+              widget.merchantData,
+              itemData,
+            ],
+            namedArgs: {
+              'amount': amount,
             },
           );
-          if (choosedAmount == null) return;
-          amount = choosedAmount;
+          await engine.hetu.invoke(
+            'acquire',
+            namespace: 'Player',
+            positionalArgs: [
+              itemData,
+            ],
+            namedArgs: {
+              'amount': amount,
+            },
+          );
+          _selectedMerchantItemsData.remove(itemData['id']);
+          engine.play(GameSound.pickup);
         }
-        int totalPrice = unitPrice * amount;
-
-        String currency =
-            (widget.useShard && totalPrice >= 1000) ? 'shard' : 'money';
-        int heroHave = widget.useShard ? heroShard : heroMoney;
-
-        if (heroHave < totalPrice) {
-          dialog.pushDialog('hint_notEnough_$currency');
-          dialog.execute();
-          return;
-        }
-        engine.hetu.invoke(
-          'exhaust',
-          namespace: 'Player',
-          positionalArgs: [currency, totalPrice],
-        );
-        engine.hetu.invoke(
-          'entityCollect',
-          positionalArgs: [
-            widget.merchantData,
-            currency,
-            totalPrice,
-          ],
-        );
-
-        engine.hetu.invoke(
-          'entityLose',
-          positionalArgs: [
-            widget.merchantData,
-            itemData,
-          ],
-          namedArgs: {
-            'amount': amount,
-          },
-        );
-        await engine.hetu.invoke(
-          'acquire',
-          namespace: 'Player',
-          positionalArgs: [
-            itemData,
-          ],
-          namedArgs: {
-            'amount': amount,
-          },
-        );
-        _selectedMerchantItemsData.remove(itemData['id']);
-        engine.play(GameSound.pickup);
       }
     }
     gameState.updateUI();
@@ -643,7 +758,6 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               .containsKey(itemData['id'])) {
                             _selectedHeroItemsData.remove(itemData['id']);
                           } else {
-                            _selectedHeroItemsData.clear();
                             _selectedHeroItemsData[itemData['id']] = itemData;
                           }
                         }
@@ -766,7 +880,6 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               .containsKey(itemData['id'])) {
                             _selectedMerchantItemsData.remove(itemData['id']);
                           } else {
-                            _selectedMerchantItemsData.clear();
                             _selectedMerchantItemsData[itemData['id']] =
                                 itemData;
                           }
