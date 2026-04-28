@@ -1661,7 +1661,8 @@ Future<void> _onInteractSite(
             useShard: siteKind != 'tradinghouse',
             priceFactor: location['priceFactor'],
             merchantType: MerchantType.location,
-            allowManualReplenish: true,
+            enableReplenish: true,
+            enableSteal: true,
           );
     case 'workbench':
       engine.context.read<ViewPanelState>().toogle(
@@ -1717,18 +1718,18 @@ Future<void> _onInteractCharacter(dynamic character) async {
   final selections = [
     'characterInformation',
     'talk',
-    'trade',
     'show',
+    'trade',
   ];
+  final hasStolen =
+      GameData.checkMonthly(MonthlyActivityIds.stolen, character.id);
   final hasGifted =
       GameData.checkMonthly(MonthlyActivityIds.gifted, character.id);
   final hasAttacked =
       GameData.checkMonthly(MonthlyActivityIds.attacked, character.id);
-  final hasStolen =
-      GameData.checkMonthly(MonthlyActivityIds.stolen, character.id);
+  if (!hasStolen) selections.add('steal');
   if (!hasGifted) selections.add('gift');
   if (!hasAttacked) selections.add('attack');
-  if (!hasStolen) selections.add('steal');
   selections.add('bye');
   dialog.pushSelection(
     'characterInteraction',
@@ -2002,9 +2003,19 @@ Future<void> _onInteractCharacter(dynamic character) async {
             },
             merchantType: MerchantType.character,
           );
-    case 'attack':
-      {}
     case 'steal':
+      interacted = false;
+      engine.context.read<MerchantState>().show(
+            character,
+            useShard: true,
+            priceFactor: <String, dynamic>{
+              'base': kBuyRateBase,
+              'sell': kSellRateBase,
+            },
+            merchantType: MerchantType.character,
+            enableSteal: true,
+          );
+    case 'attack':
       {}
   }
 

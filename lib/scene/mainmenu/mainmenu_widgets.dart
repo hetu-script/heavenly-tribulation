@@ -555,6 +555,8 @@ class _DebugButtonState extends State<DebugButton> {
                             // 'base': 1.2,
                           },
                           merchantType: MerchantType.character,
+                          enableSteal: true,
+                          enableReplenish: false,
                         );
                   case 'debugWorkbench':
                     final heroHomeSiteId = GameData.hero['homeSiteId'];

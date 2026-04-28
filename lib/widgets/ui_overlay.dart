@@ -114,8 +114,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final merchantPriceFactor = context.watch<MerchantState>().priceFactor;
     final merchantFilter = context.watch<MerchantState>().filter;
     final merchantType = context.watch<MerchantState>().merchantType;
-    final allowManualReplenish =
-        context.watch<MerchantState>().allowManualReplenish;
+    final enableTrade = context.watch<MerchantState>().enableTrade;
+    final enableReplenish = context.watch<MerchantState>().enableReplenish;
+    final merchantEnableSteal = context.watch<MerchantState>().enableSteal;
 
     final showItemSelect = context.watch<ItemSelectState>().showItemSelect;
     final itemSelectCharacter = context.watch<ItemSelectState>().character;
@@ -662,7 +663,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 priceFactor: merchantPriceFactor,
                 filter: merchantFilter,
                 merchantType: merchantType,
-                enalbeReplenish: allowManualReplenish,
+                enableTrade: enableTrade,
+                enalbeReplenish: enableReplenish,
+                enalbeSteal: merchantEnableSteal,
               ),
             if (showItemSelect)
               ItemSelectDialog(

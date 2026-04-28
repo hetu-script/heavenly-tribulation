@@ -76,7 +76,9 @@ class MerchantState with ChangeNotifier {
   dynamic priceFactor;
   dynamic filter;
   MerchantType merchantType = MerchantType.none;
-  bool allowManualReplenish = false;
+  bool enableTrade = true;
+  bool enableReplenish = false;
+  bool enableSteal = false;
 
   void show(
     dynamic merchantData, {
@@ -85,15 +87,21 @@ class MerchantState with ChangeNotifier {
     dynamic priceFactor,
     dynamic filter,
     MerchantType merchantType = MerchantType.none,
-    bool allowManualReplenish = false,
+    bool enableTrade = true,
+    bool enableReplenish = false,
+    bool enableSteal = false,
   }) {
+    assert(enableTrade || enableSteal);
+
     this.materialMode = materialMode;
     this.useShard = useShard;
     this.merchantData = merchantData;
     this.priceFactor = priceFactor;
     this.filter = filter;
     this.merchantType = merchantType;
-    this.allowManualReplenish = allowManualReplenish;
+    this.enableTrade = enableTrade;
+    this.enableReplenish = enableReplenish;
+    this.enableSteal = enableSteal;
     showMerchant = true;
     notifyListeners();
   }
@@ -105,7 +113,9 @@ class MerchantState with ChangeNotifier {
     priceFactor = null;
     filter = null;
     merchantType = MerchantType.none;
-    allowManualReplenish = false;
+    enableTrade = true;
+    enableReplenish = false;
+    enableSteal = false;
     showMerchant = false;
     notifyListeners();
   }

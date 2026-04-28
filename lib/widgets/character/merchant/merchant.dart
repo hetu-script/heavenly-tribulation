@@ -19,6 +19,8 @@ import '../../ui/responsive_view.dart';
 import '../../../data/common.dart';
 import '../../../ui.dart';
 import '../../common.dart';
+import '../../../scene/common.dart';
+import '../../../scene/mini_game/common.dart';
 
 const _tempTradeGridCount = 15;
 
@@ -57,6 +59,7 @@ class MerchantDialog extends StatefulWidget {
     required this.priceFactor,
     this.filter,
     this.merchantType = MerchantType.none,
+    this.enableTrade = true,
     this.enalbeReplenish = false,
     this.enalbeSteal = false,
   });
@@ -64,6 +67,7 @@ class MerchantDialog extends StatefulWidget {
   final dynamic merchantData;
   final bool useShard;
   final bool materialMode;
+  final bool enableTrade;
   final bool enalbeReplenish;
   final bool enalbeSteal;
 
@@ -140,6 +144,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
   int updateDay = 0;
   int replenishCostBase = 0;
   int replenishCost = 0;
+  bool enableSteal = false;
 
   @override
   void initState() {
@@ -151,10 +156,9 @@ class _MerchantDialogState extends State<MerchantDialog> {
     development = widget.merchantData?['development'] as int? ?? 0;
 
     enableReplenish = widget.enalbeReplenish;
-    if (widget.merchantData?['entityType'] != 'location') {
-      enableReplenish = false;
-    }
-    if (!kSiteKindsTradable.contains(widget.merchantData?['kind'])) {
+    enableSteal = widget.enalbeSteal;
+    if (widget.merchantData?['entityType'] != 'location' ||
+        !kSiteKindsTradable.contains(widget.merchantData?['kind'])) {
       enableReplenish = false;
     }
     if (enableReplenish) {
@@ -986,6 +990,104 @@ class _MerchantDialogState extends State<MerchantDialog> {
     gameState.updateUI();
   }
 
+  MiniGameDifficulty _calculateStealDifficulty() {
+    int totalItems = 0;
+    double qualitySum = 0;
+    for (final e in _tradeEntries) {
+      totalItems += e.amount;
+      final rarity = e.itemData['rarity'] as String? ?? 'common';
+      final rank = kRaritiesToRank[rarity] ?? 0;
+      qualitySum += rank * e.amount;
+    }
+    final double avgQuality = totalItems > 0 ? qualitySum / totalItems : 0;
+
+    final entityType = widget.merchantData?['entityType'] as String?;
+    int targetRank = widget.merchantData?['rank'] ??
+        widget.merchantData?['development'] ??
+        0;
+
+    final int heroRank = GameData.hero['rank'] as int? ?? 0;
+    final int realmGap = targetRank - heroRank;
+
+    int dexterityGap = 0;
+    if (entityType == 'character') {
+      final int targetDex =
+          widget.merchantData?['stats']?['dexterity'] as int? ?? 0;
+      final int heroDex = GameData.hero['stats']['dexterity'] as int? ?? 0;
+      dexterityGap = targetDex - heroDex;
+    }
+
+    double score = totalItems * 0.5 +
+        avgQuality * 1.2 +
+        (realmGap > 0 ? realmGap * 1.5 : 0) +
+        (dexterityGap > 0 ? dexterityGap * 0.3 : 0);
+    if (score < 0) score = 0;
+
+    if (score <= 2) return MiniGameDifficulty.easy;
+    if (score <= 5) return MiniGameDifficulty.normal;
+    if (score <= 9) return MiniGameDifficulty.challenging;
+    if (score <= 14) return MiniGameDifficulty.hard;
+    if (score <= 20) return MiniGameDifficulty.tough;
+    return MiniGameDifficulty.brutal;
+  }
+
+  Future<void> _settleStolenItems() async {
+    for (final entry in _tradeEntries) {
+      if (entry.isPlayerItem) {
+        if (entry.amount == entry.stackSize) {
+          engine.hetu.invoke('lose',
+              namespace: 'Player', positionalArgs: [entry.itemData]);
+          engine.hetu.invoke('entityAcquire',
+              positionalArgs: [widget.merchantData, entry.itemData]);
+        } else {
+          engine.hetu.invoke('lose',
+              namespace: 'Player',
+              positionalArgs: [entry.itemData],
+              namedArgs: {'amount': entry.amount});
+          engine.hetu.invoke('entityAcquire',
+              positionalArgs: [widget.merchantData, entry.itemData],
+              namedArgs: {'amount': entry.amount});
+        }
+      } else {
+        if (entry.amount == entry.stackSize) {
+          engine.hetu.invoke('entityLose',
+              positionalArgs: [widget.merchantData, entry.itemData]);
+          await engine.hetu.invoke('acquire',
+              namespace: 'Player', positionalArgs: [entry.itemData]);
+        } else {
+          engine.hetu.invoke('entityLose',
+              positionalArgs: [widget.merchantData, entry.itemData],
+              namedArgs: {'amount': entry.amount});
+          await engine.hetu.invoke('acquire',
+              namespace: 'Player',
+              positionalArgs: [entry.itemData],
+              namedArgs: {'amount': entry.amount});
+        }
+      }
+    }
+
+    engine.play(GameSound.pickup);
+  }
+
+  void _onSteal() {
+    assert(_tradeEntries.isNotEmpty);
+
+    close();
+
+    final difficulty = _calculateStealDifficulty();
+    final targetId = widget.merchantData['id'] as String? ?? '';
+
+    engine.pushScene(Scenes.mouseMazeGame, arguments: {
+      'difficulty': difficulty.name,
+      'onGameEnd': (bool won) async {
+        if (won) await _settleStolenItems();
+        GameData.addMonthly(MonthlyActivityIds.stolen, targetId);
+        dialog.pushDialog(won ? 'hint_steal_success' : 'hint_steal_fail');
+        dialog.execute();
+      },
+    });
+  }
+
   void close() {
     context.read<MerchantState>().close();
   }
@@ -1402,20 +1504,36 @@ class _MerchantDialogState extends State<MerchantDialog> {
           const SizedBox(height: 10.0),
           _buildSettlementPreview(),
           const SizedBox(height: 10.0),
-          SizedBox(
-            width: 156.0,
-            child: fluent.Button(
-              onPressed: _tradeEntries.isNotEmpty ? _onTrade : null,
-              child: Text(engine.locale('trade')),
+          if (widget.enableTrade)
+            SizedBox(
+              width: 156.0,
+              child: fluent.Button(
+                onPressed: _tradeEntries.isNotEmpty ? _onTrade : null,
+                child: Text(engine.locale('trade')),
+              ),
             ),
-          ),
-          if (widget.enalbeReplenish && replenishCount < 5)
+          if (enableSteal)
+            Padding(
+              padding: const EdgeInsets.only(top: 6.0),
+              child: SizedBox(
+                width: 156.0,
+                child: fluent.Button(
+                  style: FluentButtonStyles.slim,
+                  onPressed: _tradeEntries.isNotEmpty ? _onSteal : null,
+                  child: Text(
+                    engine.locale('steal'),
+                    style: const TextStyle(color: Color(0xffef5350)),
+                  ),
+                ),
+              ),
+            ),
+          if (widget.enalbeReplenish)
             Container(
               width: 156.0,
               padding: const EdgeInsets.only(bottom: 6.0),
               child: fluent.Button(
                 style: FluentButtonStyles.slim,
-                onPressed: _onReplenish,
+                onPressed: replenishCount < 5 ? _onReplenish : null,
                 child: Label(
                   engine.locale('refresh'),
                   padding: const EdgeInsets.symmetric(

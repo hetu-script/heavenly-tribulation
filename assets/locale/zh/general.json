@@ -266,6 +266,8 @@
   "gift": "赠礼",
   "attack": "攻击",
   "steal": "偷取",
+  "hint_steal_success": "你成功偷取了物品！",
+  "hint_steal_fail": "偷取失败，被发现了！",
 
   "court": "追求",
   "breakup": "分手",
@@ -839,8 +841,6 @@
   "characterLearn": "{0}学会了{1}。",
   "characterGive": "{0}将{1}给了{2}。",
   "characterGiveMultiple": "{0}将 {1} 个{2}给了{3}。",
-  "characterSteal": "{0}拿走了{1}身上的{2}。",
-  "characterStealMultiple": "{0}拿走了{1}身上的 {2} 个{3}。",
   "characterCultivationLevelUp": "{0}的修为等级提升到了 {1}",
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
   "characterDefeat": "{0}击败了{1}。",
@@ -850,6 +850,8 @@
   "characterAcquireTitle": "{0}成为了{1}。",
   "characterMakeContribution": "{0}在{1}的功勋增加了 {2}。",
   "characterGainCredit": "{0}在{1}的积分增加了 {2}。",
+  "characterSteal": "{0}偷走了{1}的: {2}",
+  "characterStealthPut": "{0}偷偷将: {1} 塞给了{2}",
 
   "locationDeveloped": "{0}的规模扩大到了 {1}。",
   "sectBuild": "{0}在{1}建立了{2}。",
