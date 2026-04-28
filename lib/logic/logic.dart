@@ -1335,9 +1335,17 @@ final class GameLogic {
         .show(home, merchantType: MerchantType.depositBox);
   }
 
-  static void heroRest(dynamic location) => _heroRest(location);
+  static Future<void> heroRest(dynamic location) => _heroRest(location);
+
+  static Future<void> heroDivination(dynamic location) =>
+      _heroDivination(location);
+
+  static Future<void> heroProduce(dynamic location) => _heroProduce(location);
 
   static Future<void> heroWork(dynamic location) => _heroWork(location);
+
+  static Future<void> heroEnrollSect(dynamic sect, dynamic npc) =>
+      _heroEnrollSect(sect, npc);
 
   static Future<void> heroAcquireQuest(
       dynamic quest, dynamic location, dynamic sect) async {
@@ -1398,9 +1406,6 @@ final class GameLogic {
 
   static Future<void> onInteractNpc(dynamic location) =>
       _onInteractNpc(location);
-
-  static Future<void> heroEnrollSect(dynamic sect, dynamic npc) =>
-      _heroEnrollSect(sect, npc);
 
   static Future<void> onInteractCharacter(dynamic character) =>
       _onInteractCharacter(character);

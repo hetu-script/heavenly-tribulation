@@ -16,11 +16,13 @@ class ItemGrid extends StatelessWidget {
     this.onSecondaryTapped,
     this.onMouseEnter,
     this.onMouseExit,
-    this.hasBorder = true,
     this.isSelected = false,
     this.isEquipped = false,
     this.child,
+    this.showBorder = true,
+    this.showStackNumber = true,
     this.showEquippedIcon = true,
+    this.borderColor,
   });
 
   final Size size;
@@ -31,16 +33,17 @@ class ItemGrid extends StatelessWidget {
       onSecondaryTapped;
   final void Function(dynamic itemData, Rect rect)? onMouseEnter;
   final void Function()? onMouseExit;
-  final bool hasBorder;
   final bool isSelected, isEquipped;
   final Widget? child;
+  final bool showBorder;
+  final bool showStackNumber;
   final bool showEquippedIcon;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
     final String? icon = itemData?['icon'];
     final int stackSize = itemData?['stackSize'] ?? 1;
-    final bool showStack = itemData?['showStack'] ?? false;
     final int rank = itemData?['rank'] ?? 0;
 
     final isEquipped = itemData?['equippedPosition'] != null;
@@ -74,12 +77,14 @@ class ItemGrid extends StatelessWidget {
             width: size.width,
             height: size.height,
             margin: margin,
-            decoration: hasBorder
+            decoration: showBorder
                 ? BoxDecoration(
                     borderRadius: GameUI.borderRadius,
                     border: Border.all(
                       width: 2.0,
-                      color: isSelected ? Colors.yellow : Colors.transparent,
+                      color: isSelected
+                          ? (borderColor ?? Colors.yellow)
+                          : Colors.transparent,
                     ),
                     image: DecorationImage(
                       fit: BoxFit.contain,
@@ -100,7 +105,7 @@ class ItemGrid extends StatelessWidget {
                     borderWidth: 0.0,
                   ),
                 if (child != null) child!,
-                if (showStack || stackSize > 1)
+                if (showStackNumber && stackSize > 1)
                   Positioned(
                     right: 0,
                     bottom: -5,

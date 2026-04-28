@@ -26,25 +26,6 @@ class NewItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> itemWidgets = [];
-    for (var i = 0; i < _kItemCountMax; ++i) {
-      final grid = ItemGrid(
-        itemData: i < itemsData.length ? itemsData.elementAt(i) : null,
-        margin: const EdgeInsets.all(2.5),
-        onMouseEnter: (itemData, rect) {
-          context.read<HoverContentState>().show(
-                rect: rect,
-                data: buildItemHoverInfo(itemData,
-                    inventoryType: InventoryType.none),
-              );
-        },
-        onMouseExit: () {
-          context.read<HoverContentState>().hide();
-        },
-      );
-      itemWidgets.add(grid);
-    }
-
     return ResponsiveView(
       barrierColor: null,
       width: 400.0,
@@ -60,22 +41,34 @@ class NewItems extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ScrollConfiguration(
-                behavior: MaterialScrollBehavior(),
-                child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: 320.0,
-                    height: 160.0,
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Wrap(
-                          alignment: WrapAlignment.start,
-                          children: itemWidgets,
-                        )
-                      ],
-                    ),
-                  ),
+              SizedBox(
+                width: 320.0,
+                height: 160.0,
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      children: List.generate(_kItemCountMax, (index) {
+                        return ItemGrid(
+                          itemData: index < itemsData.length
+                              ? itemsData.elementAt(index)
+                              : null,
+                          margin: const EdgeInsets.all(2.0),
+                          onMouseEnter: (itemData, rect) {
+                            context.read<HoverContentState>().show(
+                                  rect: rect,
+                                  data: buildItemHoverInfo(itemData,
+                                      inventoryType: InventoryType.none),
+                                );
+                          },
+                          onMouseExit: () {
+                            context.read<HoverContentState>().hide();
+                          },
+                        );
+                      }),
+                    )
+                  ],
                 ),
               ),
               const Spacer(),

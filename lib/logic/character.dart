@@ -111,7 +111,7 @@ Future<void> _onDying() async {
   gameState.isInteractable = true;
 }
 
-void _heroRest(dynamic location) async {
+Future<void> _heroRest(dynamic location) async {
   final siteKind = location['kind'];
 
   int developmentFactor = location['development'] + 1;

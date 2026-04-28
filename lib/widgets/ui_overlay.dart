@@ -662,7 +662,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 priceFactor: merchantPriceFactor,
                 filter: merchantFilter,
                 merchantType: merchantType,
-                allowManualReplenish: allowManualReplenish,
+                enalbeReplenish: allowManualReplenish,
               ),
             if (showItemSelect)
               ItemSelectDialog(
