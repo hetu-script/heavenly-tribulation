@@ -940,8 +940,8 @@ final class GameLogic {
   // 返回值依次是: 卡组下限，消耗牌上限，持续牌上限
   static Map<String, int> getHandLimitForRank(int rank) {
     assert(rank >= 0);
-    final limit = rank + 3;
-    final ongoingMax = (rank + 1) ~/ 3;
+    final limit = rank + 2;
+    final ongoingMax = (rank + 1) ~/ 3 + 1;
     return {
       'limit': limit,
       'ongoingMax': ongoingMax,

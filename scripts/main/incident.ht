@@ -7,7 +7,6 @@ struct Incident {
     timestamp,
     subjectId,
     targetId,
-    item, // 只有物品数据是直接传输，而不是传 id
     sectId,
     locationId: string,
     terrainIndex: integer,
@@ -20,17 +19,17 @@ struct Incident {
     this.isGlobal = isGlobal
     this.timestamp = timestamp ?? game.timestamp
     this.subjectId = subjectId
-    if (targetId) this.targetId = targetId
-    // if (withItem) this.withItemId = withItem.id
-    if (item) this.itemId = item.id
-    if (sectId) this.sectId = sectId
-    if (locationId) this.locationId = locationId
-    if (terrainIndex) this.terrainIndex = terrainIndex
+    this.targetId = targetId
+    this.sectId = sectId
+    this.locationId = locationId
+    this.terrainIndex = terrainIndex
+
     this.idealistic = idealistic
     this.orderly = orderly
     this.goodwill = goodwill
 
     this.id = crypto.randomUUID()
+    
     history[this.id] = this
 
     let chars = Set()
@@ -39,50 +38,35 @@ struct Incident {
     if (subjectId) {
       chars.add(subjectId)
       subject = game.characters[subjectId]
-      if(subject != null) {
-        entityExperienceIncident(subject, this)
-      } else {
-        engine.error('无法找到事件的主体角色，id 为: ${subjectId}')
-      }
+      assert(subject != null, '无法找到事件的主体角色，id 为: ${subjectId}')
+      entityExperienceIncident(subject, this)
     }
 
     if (targetId) {
-      if (targetId == subjectId) {
-        engine.error('事件的主体和目标不能是同一个角色，id 为: ${targetId}')
-      } else {
-        chars.add(targetId)
-        const target = game.characters[targetId]
-        if(target != null) {
-          entityExperienceIncident(target, this)
-        } else {
-          engine.error('无法找到事件的目标角色，id 为: ${targetId}')
-        }
-      }
-    }
+      assert(targetId != subjectId, '事件的主体和目标不能是同一个角色，id : ${targetId}')
 
-    if (item) {
-      entityExperienceIncident(item, this)
+      chars.add(targetId)
+      const target = game.characters[targetId]
+      assert(target != null, '无法找到事件的目标角色，id 为: ${targetId}')
+      entityExperienceIncident(target, this)
     }
 
     let sect
     if (sectId) {
       sect = game.sects[sectId]
       assert(sect != null, '无法找到事件所属的组织，id 为: ${sectId}')
-      entityExperienceIncident(sect, this)
     }
 
     let location
     if (locationId) {
       location = game.locations[locationId]
       assert(location != null, '无法找到事件所属的地点，id 为: ${locationId}')
-      entityExperienceIncident(location, this)
     }
     
     let terrain
     if (terrainIndex) {
       terrain = world.terrains[terrainIndex]
       assert(terrain != null, '无法找到事件所属的地块，index 为: ${terrainIndex}')
-      entityExperienceIncident(terrain, this)
     }
 
     if (isGlobal) {
@@ -175,11 +159,10 @@ function characterKnowIncident(character, incident, { witnessed }) {
 }
 
 /// 某个对象经历某个发生在它所处环境的事件
-function entityExperienceIncident(entity, incident) {
-  // 为了兼容性，如果没有事件数组，就创建一个
-  if (entity.experienced == null) {
-    entity.experienced = []
-  }
+function entityExperienceIncident(entity, incident, { score }) {
+  assert(entity.experienced is List)
+
+  if (entity.entityType != kEntityTypeCharacter) return
 
   if (entity.experienced.contains(incident.id)) {
     engine.warning('${entity.id} 已经经历了事件: [${incident.message}]')
@@ -188,37 +171,23 @@ function entityExperienceIncident(entity, incident) {
 
   entity.experienced.add(incident.id)
   
-  if (entity.entityType != kEntityTypeCharacter) return
+  if (entity.id == incident.subjectId) return
 
-  // 只有人物会有世界观和评价的计算
-  if (entity.id == incident.subjectId) {
-    // let idealChange = entity.personality.idealistic * incident.idealistic / 100
-    // if (idealChange != 0) {
-    //   entity.personality.idealistic += idealChange
-    //   // engine.debug('角色 ${entity.id} 的 idealistic 改变了 [${idealChange}] 到 [${entity.personality.idealistic}]。')
-    // }
-    // let orderChange = entity.personality.orderly * incident.orderly / 100
-    // if (orderChange != 0) {
-    //   entity.personality.orderly += orderChange
-    //   // engine.debug('角色 ${entity.id} 的 orderly 改变了 [${orderChange}] 到 [${entity.personality.orderly}]。')
-    // }
-    // let goodChange = entity.personality.goodwill * incident.goodwill / 100
-    // if (goodChange != 0) {
-    //   entity.personality.goodwill += goodChange
-    //   // engine.debug('角色 ${entity.id} 的 goodwill 改变了 [${goodChange}] 到 [${entity.personality.goodwill}]。')
-    // }
-  } else if (entity.id == incident.targetId) {
-    const subject = game.characters[incident.subjectId]
+  if (entity.id == incident.targetId) {
+    assert(score != null, '当角色是事件的目标时，必须提供 score 参数')
     if (!entity.bonds.contains(subject.id)) {
       // 如果还不认识行动者
       characterMet(entity, subject)
     }
-    // 作为事情的受事方会放大评价
-    const score = (characterCalculateScoreOfIncident(entity, incident) * 1.5).toInt()
-    if (score != 0) {
-      let bond = entity.bonds[incident.subjectId]
+    updateBond(entity, subject, score: score)
+  } else {
+    const score = characterCalculateScoreOfIncident(entity, incident)
+    let bond = entity.bonds[incident.subjectId]
+    if (bond == null) {
+      const subject = game.characters[incident.subjectId]
+      Bond(character: entity, target: subject, score: score)
+    } else {
       bond.score += score
-      // engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${bond.score}]')
     }
   }
 }

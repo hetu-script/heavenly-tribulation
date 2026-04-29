@@ -596,20 +596,20 @@ Future<void> _heroWork(dynamic location) async {
 /// [sect] 门派对象，[npc] 负责招募的NPC对象
 Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
   // 检查玩家境界是否达到最低要求
-  final int heroRank = GameData.hero['rank'];
-  if (heroRank < kSectEnrollMinRank) {
-    final heroRankString =
-        '<rank$heroRank>${engine.locale('cultivationRank_$heroRank')}</>';
-    final requiredRankString =
-        '<rank$kSectEnrollMinRank>${engine.locale('cultivationRank_$kSectEnrollMinRank')}</>';
-    dialog.pushDialog(
-      'hint_enroll_rankTooLow',
-      npc: npc,
-      interpolations: [heroRankString, requiredRankString],
-    );
-    await dialog.execute();
-    return;
-  }
+  // final int heroRank = GameData.hero['rank'];
+  // if (heroRank < kSectEnrollMinRank) {
+  //   final heroRankString =
+  //       '<rank$heroRank>${engine.locale('cultivationRank_$heroRank')}</>';
+  //   final requiredRankString =
+  //       '<rank$kSectEnrollMinRank>${engine.locale('cultivationRank_$kSectEnrollMinRank')}</>';
+  //   dialog.pushDialog(
+  //     'hint_enroll_rankTooLow',
+  //     npc: npc,
+  //     interpolations: [heroRankString, requiredRankString],
+  //   );
+  //   await dialog.execute();
+  //   return;
+  // }
 
   // 检查门派招募月份
   final recruitMonth = sect['recruitMonth'];
@@ -622,6 +622,7 @@ Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
     await dialog.execute();
     return;
   }
+
   // 玩家本月是否已经进行过此门派的试炼
   if (GameData.checkMonthly(MonthlyActivityIds.enrolled, sect['id'])) {
     dialog.pushDialog(
@@ -1751,7 +1752,12 @@ Future<void> _onInteractCharacter(dynamic character) async {
     case 'talk':
       dialog.pushSelection(
         'topicSelections',
-        ['chitchat', 'journalTopic', 'objectiveTopic', 'cancel'],
+        [
+          if (engine.config.enableLlm) 'chitchat',
+          'journalTopic',
+          'objectiveTopic',
+          'cancel',
+        ],
       );
       await dialog.execute();
       final topic = dialog.checkSelected('topicSelections');
@@ -1761,7 +1767,6 @@ Future<void> _onInteractCharacter(dynamic character) async {
       }
       switch (topic) {
         case 'chitchat':
-          interacted = false;
           final prompt = GameData.getLlmChatSystemPrompt2(character);
           GameUI.showLlmChat(
             engine.context,
@@ -1977,7 +1982,6 @@ Future<void> _onInteractCharacter(dynamic character) async {
         }
       }
     case 'trade':
-      interacted = false;
       // TODO:
       // 根据好感度决定折扣
       // 根据角色技能决定不同物品的折扣
@@ -2004,7 +2008,6 @@ Future<void> _onInteractCharacter(dynamic character) async {
             merchantType: MerchantType.character,
           );
     case 'steal':
-      interacted = false;
       engine.context.read<MerchantState>().show(
             character,
             useShard: true,

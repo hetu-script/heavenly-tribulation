@@ -32,12 +32,7 @@ const kNormalPrototypeItems = [
 
 const kRankedPrototypeItems = [
   'scroll_paper',
-  'craftmaterial_addAffix',
-  'craftmaterial_replaceAffix',
-  'craftmaterial_freezeAffix',
-  'craftmaterial_removeAffix',
-  'craftmaterial_rerollAffix',
-  'craftmaterial_upgradeRank',
+  ...kCraftMaterials,
 ];
 
 // 材料的类型
@@ -347,7 +342,6 @@ function entityAcquire(entity, item, { amount, incurIncident = true }) {
       Incident(
         message: incidentContent,
         subjectId: entity.id,
-        item: acquiredItem,
       )
     } else {
       engine.info(incidentContent)
@@ -383,7 +377,6 @@ function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
       Incident(
         message: incidentContent,
         subjectId: entity.id,
-        item: item,
       )
     } else {
       engine.info(incidentContent)

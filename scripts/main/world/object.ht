@@ -137,7 +137,7 @@ struct ObjectMerchant {
     rank,
     money = 1000000,
     shard = 1000,
-    itemCategories,
+    merchantItemCategories,
     itemCount = 5,
     useShard = false,
     isMysterious = false,
@@ -172,35 +172,35 @@ struct ObjectMerchant {
       entityCollect(this.merchant, 'shard', shard)
     }
 
-    if (itemCategories is! List) {
-      itemCategories = [itemCategories]
+    if (merchantItemCategories is! List) {
+      merchantItemCategories = [merchantItemCategories]
     }
 
     for (var i in range(itemCount)) {
       let itemRank = random.nextInt(rank + 1)
-      final c = random.nextIterable(itemCategories)
-      if(Constants.equipmentCategoryKinds.containsKey(c)) {
-        final k = random.nextIterable(Constants.equipmentCategoryKinds[c])
-        final item = Equipment(kind: k, rank: itemRank, isIdentified: !isMysterious)
-        entityAcquire(this.merchant, item, incurIncident: false)
-      } else if (c == kItemCategoryCardpack) {
+      final category = random.nextIterable(merchantItemCategories)
+      if (category == kItemCategoryCardpack) {
         final item = Cardpack(rank: itemRank)
         entityAcquire(this.merchant, item, incurIncident: false)
-      } else if (c == kItemCategoryPotion) {
+      } else if (category == kItemCategoryPotion) {
         final item = Potion(rank: itemRank, isIdentified: !isMysterious)
         entityAcquire(this.merchant, item, incurIncident: false)
-      } else if (kNormalPrototypeItems.contains(c)) {
-        final item = createItemById(c)
+      } else if (Constants.equipmentCategoryKinds.containsKey(category)) {
+        final kind = random.nextIterable(Constants.equipmentCategoryKinds[category])
+        final item = Equipment(kind: kind, rank: itemRank, isIdentified: !isMysterious)
         entityAcquire(this.merchant, item, incurIncident: false)
-      } else if (kRankedPrototypeItems.contains(c)) {
+      } else if (kNormalPrototypeItems.contains(category)) {
+        final item = createItemById(category)
+        entityAcquire(this.merchant, item, incurIncident: false)
+      } else if (kRankedPrototypeItems.contains(category)) {
         assert(rank > 0);
         itemRank = itemRank.clamp(1, rank)
-        final item = createItemById(c, rank: itemRank)
+        final item = createItemById(category, rank: itemRank)
         entityAcquire(this.merchant, item, incurIncident: false)
       }
       
       else {
-        engine.warning('未知的商人商品类别: ${c}')
+        engine.warning('未知的商人商品类别: ${category}')
       }
     }
 

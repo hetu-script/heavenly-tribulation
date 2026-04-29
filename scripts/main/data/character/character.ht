@@ -1190,3 +1190,25 @@ function characterGainCredit(character, location, amount) {
 
   engine.info(incidentContent)
 }
+
+function characterSteal(character, target, entries) {
+  for (final entry in entries) {
+    if (entry.isPlayerItem) {
+      if (entry.amount == entry.stackSize) {
+        Player.lose(entry.item);
+        entityAcquire(target, entry.item);
+      } else {
+        Player.lose(entry.item, amount: entry.amount);
+        entityAcquire(target, entry.item, amount: entry.amount);
+      }
+    } else {
+      if (entry.amount == entry.stackSize) {
+        entityLose(target, entry.item);
+        Player.acquire(entry.item);
+      } else {
+        entityLose(target, entry.item, amount: entry.amount);
+        Player.acquire(entry.item, amount: entry.amount);
+      }
+    }
+  }
+}

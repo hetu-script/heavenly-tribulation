@@ -210,3 +210,12 @@ const kSectJobRankMax = 5
 
 /// 贡献值低于 -100 ，此人将会被门派视为敌人
 const kSectEnemyContributionThreshold = -100
+
+const kCraftMaterials = [
+  'craftmaterial_addAffix',
+  'craftmaterial_replaceAffix',
+  'craftmaterial_freezeAffix',
+  'craftmaterial_removeAffix',
+  'craftmaterial_rerollAffix',
+  'craftmaterial_upgradeRank',
+]

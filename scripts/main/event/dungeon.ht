@@ -131,31 +131,27 @@ function _addEncampment() {
 }
 
 function _addGeneralMerchant(tilePosition) {
-  let itemCategories;
+  let merchantItemCategories;
   if (game.flags.dungeon.rank > 0) {
-    itemCategories = [
+    merchantItemCategories = [
+      'cardpack',
+      'potion',
       'weapon',
       'armor',
       'jewelry',
       'talisman',
-      'potion',
-      'cardpack',
       'identify_scroll',
       'scroll_paper',
-      'craftmaterial_addAffix',
-      'craftmaterial_replaceAffix',
-      'craftmaterial_freezeAffix',
-      'craftmaterial_rerollAffix',
-      'craftmaterial_upgradeRank',
+      ...kCraftMaterials,
     ]
   } else {
-    itemCategories = [
+    merchantItemCategories = [
+      'cardpack',
+      'potion',
       'weapon',
       'armor',
       'jewelry',
       'talisman',
-      'potion',
-      'cardpack',
     ]
   }
   addMerchant(
@@ -166,7 +162,7 @@ function _addGeneralMerchant(tilePosition) {
     rank: game.flags.dungeon.rank,
     money: 500000,
     shard: 5000,
-    itemCategories: itemCategories,
+    merchantItemCategories: merchantItemCategories,
     itemCount: 12 + game.flags.dungeon.rank,
     useShard: game.flags.dungeon.rank > 0,
   )
@@ -184,7 +180,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: ['weapon', 'armor'],
+        merchantItemCategories: ['weapon', 'armor'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -198,7 +194,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: ['jewelry', 'talisman'],
+        merchantItemCategories: ['jewelry', 'talisman'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -212,7 +208,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: ['potion'],
+        merchantItemCategories: ['potion'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -226,7 +222,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: ['cardpack'],
+        merchantItemCategories: ['cardpack'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -240,7 +236,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: ['scroll_paper', 'identify_scroll'],
+        merchantItemCategories: ['scroll_paper', 'identify_scroll'],
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -254,13 +250,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: [
-          'craftmaterial_addAffix',
-          'craftmaterial_replaceAffix',
-          'craftmaterial_freezeAffix',
-          'craftmaterial_rerollAffix',
-          'craftmaterial_upgradeRank',
-        ],
+        merchantItemCategories: kCraftMaterials,
         itemCount: 5 + game.flags.dungeon.rank,
         useShard: game.flags.dungeon.rank > 0,
       )
@@ -274,7 +264,7 @@ function _addRandomMerchant() {
         rank: game.flags.dungeon.rank,
         money: 500000,
         shard: 5000,
-        itemCategories: [
+        merchantItemCategories: [
           'weapon',
           'armor',
           'jewelry',

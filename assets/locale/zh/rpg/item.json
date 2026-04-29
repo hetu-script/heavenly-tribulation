@@ -6,10 +6,10 @@
   "equipment": "装备",
   "consumable": "消耗",
   "cardpack": "秘籍",
-  "craftmaterial": "材料",
+  "craftmaterial": "打造",
   "miscellaneous": "杂项",
 
-  "material": "资源",
+  "material": "材料",
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",

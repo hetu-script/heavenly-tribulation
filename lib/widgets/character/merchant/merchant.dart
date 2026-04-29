@@ -48,6 +48,16 @@ class _ItemEntry {
   int get totalPrice => unitPrice * amount;
   String get itemId => itemData['id'];
   int get stackSize => itemData['stackSize'] ?? 1;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'item': itemData,
+      'amount': amount,
+      'isPlayerItem': isPlayerItem,
+      'unitPrice': unitPrice,
+      'currency': currency,
+    };
+  }
 }
 
 class MerchantDialog extends StatefulWidget {
@@ -1031,44 +1041,6 @@ class _MerchantDialogState extends State<MerchantDialog> {
     return MiniGameDifficulty.brutal;
   }
 
-  Future<void> _settleStolenItems() async {
-    for (final entry in _tradeEntries) {
-      if (entry.isPlayerItem) {
-        if (entry.amount == entry.stackSize) {
-          engine.hetu.invoke('lose',
-              namespace: 'Player', positionalArgs: [entry.itemData]);
-          engine.hetu.invoke('entityAcquire',
-              positionalArgs: [widget.merchantData, entry.itemData]);
-        } else {
-          engine.hetu.invoke('lose',
-              namespace: 'Player',
-              positionalArgs: [entry.itemData],
-              namedArgs: {'amount': entry.amount});
-          engine.hetu.invoke('entityAcquire',
-              positionalArgs: [widget.merchantData, entry.itemData],
-              namedArgs: {'amount': entry.amount});
-        }
-      } else {
-        if (entry.amount == entry.stackSize) {
-          engine.hetu.invoke('entityLose',
-              positionalArgs: [widget.merchantData, entry.itemData]);
-          await engine.hetu.invoke('acquire',
-              namespace: 'Player', positionalArgs: [entry.itemData]);
-        } else {
-          engine.hetu.invoke('entityLose',
-              positionalArgs: [widget.merchantData, entry.itemData],
-              namedArgs: {'amount': entry.amount});
-          await engine.hetu.invoke('acquire',
-              namespace: 'Player',
-              positionalArgs: [entry.itemData],
-              namedArgs: {'amount': entry.amount});
-        }
-      }
-    }
-
-    engine.play(GameSound.pickup);
-  }
-
   void _onSteal() {
     assert(_tradeEntries.isNotEmpty);
 
@@ -1080,7 +1052,12 @@ class _MerchantDialogState extends State<MerchantDialog> {
     engine.pushScene(Scenes.mouseMazeGame, arguments: {
       'difficulty': difficulty.name,
       'onGameEnd': (bool won) async {
-        if (won) await _settleStolenItems();
+        if (won) {
+          engine.play(GameSound.pickup);
+          final entries = _tradeEntries.map((e) => e.toMap());
+          engine.hetu.invoke('characterSteal',
+              positionalArgs: [GameData.hero, widget.merchantData, entries]);
+        }
         GameData.addMonthly(MonthlyActivityIds.stolen, targetId);
         dialog.pushDialog(won ? 'hint_steal_success' : 'hint_steal_fail');
         dialog.execute();

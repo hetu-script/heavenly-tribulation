@@ -53,7 +53,7 @@
   "luck": "运气",
 
   "dexterity": "身法",
-  "dexterity_description": "御剑流派主属性。每 10 点身法: 剑气上限 +1；身法每比对手多 1: 先手概率 +1%，偷窃成功率 +1%。",
+  "dexterity_description": "御剑流派主属性。每 10 点身法: 剑气上限 +1；身法比对手多时: 增加先手概率，降低偷窃难度。",
   "spirituality": "灵力",
   "spirituality_description": "悟道流派主属性。每 10 点灵力: 灵气上限 +1，且战斗开始时获得 1 点灵气。",
   "willpower": "念力",
@@ -61,7 +61,7 @@
   "perception": "神识",
   "perception_description": "法身流派主属性。每 1 点神识: 每个月可探查对手手牌 +1；每 20 点神识: 速度和闪避阈值 -1 (最小 5)。",
   "strength": "体魄",
-  "strength_description": "锻体流派主属性。每 1 点体魄: 战斗时生命上限 +1。",
+  "strength_description": "锻体流派主属性。每 1 点体魄: 战斗时生命上限 +1，材料载重 +1。",
 
   "unarmedAttack": "徒手攻击",
   "unarmedAttack_description": "每点使你的徒手攻击伤害增加 1%。",
