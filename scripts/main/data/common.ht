@@ -219,3 +219,15 @@ const kCraftMaterials = [
   'craftmaterial_rerollAffix',
   'craftmaterial_upgradeRank',
 ]
+
+final kInventoryItemCategories = [
+  'cardpack',
+  'potion',
+  'weapon',
+  'armor',
+  'jewelry',
+  'talisman',
+  'identify_scroll',
+  'scroll_paper',
+  ...kCraftMaterials,
+]

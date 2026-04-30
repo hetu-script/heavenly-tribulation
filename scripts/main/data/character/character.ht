@@ -1212,3 +1212,34 @@ function characterSteal(character, target, entries) {
     }
   }
 }
+
+function characterInitItems(character, categories, amount) {
+  for (var i in range(amount)) {
+    let itemRank = random.nearInt(character.rank + 1)
+    final category = random.nextIterable(categories)
+    if (category == kItemCategoryCardpack) {
+      final item = Cardpack(rank: itemRank)
+      entityAcquire(this.merchant, item, incurIncident: false)
+    } else if (category == kItemCategoryPotion) {
+      final item = Potion(rank: itemRank, isIdentified: !isMysterious)
+      entityAcquire(this.merchant, item, incurIncident: false)
+    } else if (Constants.equipmentCategoryKinds.containsKey(category)) {
+      final kind = random.nextIterable(Constants.equipmentCategoryKinds[category])
+      final item = Equipment(kind: kind, rank: itemRank, isIdentified: !isMysterious)
+      entityAcquire(this.merchant, item, incurIncident: false)
+    } else if (kNormalPrototypeItems.contains(category)) {
+      final item = createItemById(category)
+      entityAcquire(this.merchant, item, incurIncident: false)
+    } else if (kRankedPrototypeItems.contains(category)) {
+      assert(rank > 0);
+      itemRank = itemRank.clamp(1, rank)
+      final item = createItemById(category, rank: itemRank)
+      entityAcquire(this.merchant, item, incurIncident: false)
+    }
+    
+    else {
+      engine.warning('未知的商人商品类别: ${category}')
+    }
+  }
+
+}
