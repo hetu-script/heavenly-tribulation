@@ -1,3 +1,7 @@
+# About Dart
+
+Remember: In mordern Dart, non-empty case clauses jump to the end of the switch after completion. They do not require a break statement.
+
 # 项目: 天道奇劫 (Heavenly Tribulation)
 
 **天道奇劫** 是一款仙侠题材的 RPG 游戏，融合了 Roguelike、卡牌战斗、经营建设和大地图探索玩法。设计灵感来源于《太阁立志传》《弈仙牌》《Battle Brothers》《Slay the Spire》等作品。

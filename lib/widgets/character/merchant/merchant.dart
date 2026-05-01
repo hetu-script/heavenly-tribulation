@@ -762,7 +762,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
   void _onReplenish() async {
     if (!enableReplenish) return;
-    await GameLogic.updateGame();
+    GameLogic.updateGame();
     final hasMoney = GameData.hero['materials']['money'] ?? 0;
     if (hasMoney < replenishCost) {
       dialog.pushDialog('hint_notEnough_money');
@@ -1287,7 +1287,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                     style: FluentButtonStyles.slim,
                     onPressed: () async {
                       if (!enableReplenish) return;
-                      await GameLogic.updateGame();
+                      GameLogic.updateGame();
                       final hasMoney = GameData.hero['materials']['money'] ?? 0;
                       if (hasMoney < replenishCost) {
                         dialog.pushDialog('hint_notEnough_money');

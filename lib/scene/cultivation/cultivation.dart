@@ -819,7 +819,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     updateInformation();
 
-    await GameLogic.updateGame(ticks: timeCost);
+    GameLogic.updateGame(ticks: timeCost);
     updateTimeOfDay();
   }
 

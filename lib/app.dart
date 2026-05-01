@@ -363,7 +363,7 @@ class _GameAppState extends State<GameApp> {
       final String worldId = positionalArgs[0];
       final worldMapScene = GameData.worldScenes[worldId];
       if (worldMapScene == null) return null;
-      return await GameLogic.calculateRoute(
+      final route = GameLogic.calculateRoute(
         fromX: positionalArgs[1],
         fromY: positionalArgs[2],
         toX: positionalArgs[3],
@@ -372,6 +372,7 @@ class _GameAppState extends State<GameApp> {
         worldId: worldMapScene.id,
         isHero: false,
       );
+      return route;
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('dialog::execute', (

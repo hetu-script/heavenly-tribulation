@@ -217,6 +217,7 @@ async function updateCharacterMonthly(character, {force = false}) {
     return
   } else {
     // 远行，在大地图上移动到另一个城市
+    engine.error('角色 ${character.name} 计划远行，正在选择目的地')
     final locationOnWorldMap = game.locations.values
       .where((loc) =>
         loc.worldPosition != null &&
@@ -255,7 +256,6 @@ async function updateCharacterMonthly(character, {force = false}) {
         route: route,
       }
     } else {
-      engine.error('无法为角色 ${character.name} 计算大地图路径，直接传送')
       // 大地图场景不存在，直接传送
       character.locationId = locationId
     }

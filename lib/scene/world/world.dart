@@ -384,7 +384,7 @@ class WorldMapScene extends Scene with HasCursorState {
       }
       final HTFunction? onStepCallback = namedArgs['onStepCallback'];
 
-      final route = await GameLogic.calculateRoute(
+      final route = GameLogic.calculateRoute(
         fromX: charObj.left,
         fromY: charObj.top,
         toX: toX,
@@ -993,6 +993,15 @@ class WorldMapScene extends Scene with HasCursorState {
                 worldPosition['top'] = terrain.top;
                 worldPosition['moveTo']['lastMoveTimestamp'] =
                     GameData.game['timestamp'];
+
+                // 从原始 route 中移除已走完的 tile
+                final originalRoute = worldPosition['moveTo']['route'];
+                originalRoute?.removeAt(0);
+                if (originalRoute == null || originalRoute.isEmpty) {
+                  charObj.data['locationId'] =
+                      worldPosition['moveTo']['locationId'];
+                }
+
                 if (terrain.tilePosition == map.hero?.tilePosition) {
                   _updateNpcsAtHeroPosition();
                 }
@@ -1174,7 +1183,7 @@ class WorldMapScene extends Scene with HasCursorState {
       }
       timeCost = (kTicksPerTime / speed).round();
       if (isMainWorld) {
-        await GameLogic.updateGame(ticks: timeCost, worldMap: this);
+        GameLogic.updateGame(ticks: timeCost, worldMap: this);
       }
       await _updateWorldMapNpcs(updateNpcMove: true);
 
@@ -1248,7 +1257,7 @@ class WorldMapScene extends Scene with HasCursorState {
       } else {
         lastTerrain = map.getTerrain(hero.left, hero.top)!;
       }
-      hero.changedRoute = await GameLogic.calculateRoute(
+      hero.changedRoute = GameLogic.calculateRoute(
         fromTile: lastTerrain.data,
         toTile: terrain.data,
         isHero: true,
@@ -1265,7 +1274,7 @@ class WorldMapScene extends Scene with HasCursorState {
       GameLogic.tryInteractObject(terrain.objectId!, terrain.data);
       return;
     } else {
-      List<int>? calculatedRoute = await GameLogic.calculateRoute(
+      List<int>? calculatedRoute = GameLogic.calculateRoute(
         fromTile: heroTerrain.data,
         toTile: terrain.data,
         isHero: true,
@@ -1356,7 +1365,7 @@ class WorldMapScene extends Scene with HasCursorState {
     }
 
     // 计算从英雄位置到目标位置的完整路径
-    List<int>? route = await GameLogic.calculateRoute(
+    List<int>? route = GameLogic.calculateRoute(
       fromTile: heroTerrain!.data,
       toTile: targetTerrain!.data,
       isHero: true,
@@ -1864,7 +1873,7 @@ class WorldMapScene extends Scene with HasCursorState {
 
   void _autoUpdateGame() {
     schedule(() async {
-      await GameLogic.updateGame(ticks: kTicksPerTime, worldMap: this);
+      GameLogic.updateGame(ticks: kTicksPerTime, worldMap: this);
       _updateWorldMapNpcs(updateNpcMove: true);
       _updateNpcsAtHeroPosition();
     });

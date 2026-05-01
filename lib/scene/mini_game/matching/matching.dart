@@ -553,7 +553,7 @@ class MatchingGame extends Scene with HasCursorState {
     gameState.updateUI();
 
     schedule(() async {
-      await GameLogic.updateGame(ticks: kTicksPerTime);
+      GameLogic.updateGame(ticks: kTicksPerTime);
 
       int spriteRow = 0;
       int spriteCol = 0;

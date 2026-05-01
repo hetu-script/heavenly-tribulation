@@ -70,7 +70,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
           _timer!.cancel();
         }
 
-        final updated = await GameLogic.updateGame(ticks: 1);
+        final updated = GameLogic.updateGame(ticks: 1);
 
         if (updated) {
           final result = widget.onProgress?.call();

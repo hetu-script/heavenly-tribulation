@@ -421,7 +421,7 @@ final class GameLogic {
     return null;
   }
 
-  static Future<List<int>?> calculateRoute({
+  static List<int>? calculateRoute({
     dynamic fromTile,
     dynamic toTile,
     int? fromX,
@@ -431,7 +431,7 @@ final class GameLogic {
     List? terrainKinds,
     String? worldId,
     bool isHero = true,
-  }) async {
+  }) {
     assert(fromTile != null || (fromX != null && fromY != null));
     assert(toTile != null || (toX != null && toY != null));
     worldId ??= GameData.world['id'];
@@ -456,7 +456,7 @@ final class GameLogic {
         movableTerrainKinds = kTerrainKindsAll;
       }
       if (movableTerrainKinds.contains(toTile['kind'])) {
-        calculatedRoute = await calculateRoute(
+        calculatedRoute = calculateRoute(
           fromTile: fromTile,
           toTile: toTile,
           terrainKinds: movableTerrainKinds,
@@ -466,10 +466,10 @@ final class GameLogic {
         if (isHero) {
           if (kTerrainKindsWater.contains(toTile['kind'])) {
             dialog.pushDialog('hint_ship');
-            await dialog.execute();
+            dialog.execute();
           } else if (kTerrainKindsMountain.contains(toTile['kind'])) {
             dialog.pushDialog('hint_boots');
-            await dialog.execute();
+            dialog.execute();
           }
         }
       }
@@ -1414,12 +1414,12 @@ final class GameLogic {
   /// 如果遇到了一些特殊事件可能提前终止
   /// 这会影响一些连续进行的动作，例如探索或者修炼等等
   /// 如果时间没有推进到下一个日期，返回 false，否则返回 true
-  static Future<bool> updateGame({
+  static bool updateGame({
     int ticks = kTicksPerTime,
     bool updateUI = true,
     bool force = false,
     WorldMapScene? worldMap,
-  }) async {
+  }) {
     final before = getDatetimeString();
     GameData.game['timestamp'] += ticks;
     final (timestamp, after) = calculateTimestamp();
@@ -1458,7 +1458,7 @@ final class GameLogic {
           engine.hetu
               .invoke('resetCharacterMonthly', positionalArgs: [character]);
         }
-        await engine.hetu.invoke('updateCharacterMonthly',
+        engine.hetu.invoke('updateCharacterMonthly',
             positionalArgs: [character], namedArgs: {'force': force});
       }
     }
@@ -1503,7 +1503,7 @@ final class GameLogic {
         final itemData = GameData.hero['inventory'][itemId];
         if (itemData['isUpdatable'] != true) continue;
         engine.info('触发装备物品 ${itemData['name']} 刷新事件');
-        await engine.hetu
+        engine.hetu
             .invoke('onGameEvent', positionalArgs: ['onUpdateItem', itemData]);
       }
     }
