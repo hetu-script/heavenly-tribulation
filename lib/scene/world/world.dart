@@ -991,15 +991,21 @@ class WorldMapScene extends Scene with HasCursorState {
                 final worldPosition = charObj.data['worldPosition'];
                 worldPosition['left'] = terrain.left;
                 worldPosition['top'] = terrain.top;
-                worldPosition['moveTo']['lastMoveTimestamp'] =
-                    GameData.game['timestamp'];
+
+                final moveTo = worldPosition['moveTo'];
+                if (moveTo == null) {
+                  engine.error(
+                      'Character ${char['id']} 在大地图 ${worldData['id']} 上缺少 moveTo 数据');
+                  return false;
+                }
+
+                moveTo['lastMoveTimestamp'] = GameData.game['timestamp'];
 
                 // 从原始 route 中移除已走完的 tile
-                final originalRoute = worldPosition['moveTo']['route'];
+                final originalRoute = moveTo['route'];
                 originalRoute?.removeAt(0);
                 if (originalRoute == null || originalRoute.isEmpty) {
-                  charObj.data['locationId'] =
-                      worldPosition['moveTo']['locationId'];
+                  charObj.data['locationId'] = moveTo['locationId'];
                 }
 
                 if (terrain.tilePosition == map.hero?.tilePosition) {
