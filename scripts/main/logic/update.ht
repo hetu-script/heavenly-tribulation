@@ -151,6 +151,7 @@ async function updateCharacterMonthly(character, {force = false}) {
 
   // 重置角色位置到家中
   character.locationId = character.homeSiteId
+  delete character.worldPosition.moveTo
 
   // 每个角色每个月会随机采取一种行动
   final actionRoll = random.nextDouble()
@@ -216,7 +217,6 @@ async function updateCharacterMonthly(character, {force = false}) {
     return
   } else {
     // 远行，在大地图上移动到另一个城市
-    character.locationId = null
     final locationOnWorldMap = game.locations.values
       .where((loc) =>
         loc.worldPosition != null &&
@@ -245,6 +245,8 @@ async function updateCharacterMonthly(character, {force = false}) {
     final route = await calculateNpcRoute(character.worldId, fromX, fromY, toX, toY)
 
     if (route != null) {
+      character.locationId = null
+      character.worldId = location.worldId
       character.worldPosition.moveTo = {
         lastMoveTimestamp: game.timestamp,
         locationId: locationId,
@@ -253,6 +255,7 @@ async function updateCharacterMonthly(character, {force = false}) {
         route: route,
       }
     } else {
+      engine.error('无法为角色 ${character.name} 计算大地图路径，直接传送')
       // 大地图场景不存在，直接传送
       character.locationId = locationId
     }

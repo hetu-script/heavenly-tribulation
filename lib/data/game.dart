@@ -206,7 +206,8 @@ final class GameData with ChangeNotifier {
             (char['id'] != GameData.hero?['id']) &&
             (char['locationId'] == null) &&
             (char['worldId'] == worldId) &&
-            (char['worldPosition'] != null));
+            (char['worldPosition'] != null) &&
+            (char['worldPosition']['moveTo'] != null));
     return npcs.toList();
   }
 

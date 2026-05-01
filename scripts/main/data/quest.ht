@@ -145,7 +145,7 @@ namespace Quests {
     final difficultyFactor = difficulty * difficulty + 1
     final budgetMoney = kBaseReward * difficultyFactor + Constants.materialBasePrice[material] * amount ~/ 2
 
-    final endLocationDesc
+    let endLocationDesc
     if (endLocation != null) {
       endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
@@ -241,7 +241,7 @@ namespace Quests {
     final budgetMoney = kBaseReward * difficultyFactor + item.basePrice ~/ 2
     final budgetShard = convertMoneyToShard(budgetMoney)
 
-    final endLocationDesc
+    let endLocationDesc
     if (endLocation != null) {
       endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
@@ -324,7 +324,7 @@ namespace Quests {
     final budgetMoney = kBaseRewardForEscort * difficultyFactor
     final budgetShard = convertMoneyToShard(budgetMoney)
 
-    final endLocationDesc
+    let endLocationDesc
     if (endLocation != null) {
       endLocationDesc = '${endLocation.name}[${endLocation.worldPosition.left},${endLocation.worldPosition.top}]';
     } else {
@@ -489,7 +489,7 @@ namespace Quests {
     final targetLeft = targetLocation.worldPosition.left
     final targetTop = targetLocation.worldPosition.top
 
-    final deviation = difficulty + 1
+    final deviation = (difficulty * 1.5).round() + 1
     final deviationLeft = targetLeft + (random.nextBool() ? deviation : -deviation)
     final deviationTop = targetTop + (random.nextBool() ? deviation : -deviation)
     

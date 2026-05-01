@@ -137,13 +137,6 @@ function getCultivationRankName(character) {
   return engine.locale('cultivationRank_${character.rank}')
 }
 
-function setEntityWorldPosition(entity, left, top, [ worldId ]) {
-  entity.worldPosition = { left, top }
-  if (worldId != null) {
-    entity.worldId = worldId
-  }
-}
-
 function tryChangeStats(entity, statName, change, { overflow = false }) {
   assert(entity.stats != null && entity.stats[statName] != null)
   let value = entity.stats[statName]
@@ -220,13 +213,17 @@ const kCraftMaterials = [
   'craftmaterial_upgradeRank',
 ]
 
-final kInventoryItemCategories = [
+const kInventoryItemCategories = [
   'cardpack',
   'potion',
   'weapon',
   'armor',
   'jewelry',
   'talisman',
+]
+
+const kInventoryItemCategories2 = [
+  ...kInventoryItemCategories,
   'identify_scroll',
   'scroll_paper',
   ...kCraftMaterials,

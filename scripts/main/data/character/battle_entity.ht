@@ -226,6 +226,7 @@ struct BattleEntity {
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
+    
     if (allocateSkills) {
       Game.characterAllocateSkills(this, rejuvenate: true)
     } else {

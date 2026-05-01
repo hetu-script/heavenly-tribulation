@@ -492,13 +492,6 @@ namespace Player {
       companion.name,
       hero.name,
     ])
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: companion.id,
-        targetId: hero.id,
-      )
-    }
     engine.info(incidentContent)
   }
 

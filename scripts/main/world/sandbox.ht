@@ -426,7 +426,15 @@ function createSandboxWorld({
     )
     head.locationId = city.id
     assert(city.worldPosition != null)
-    head.worldPosition = Object.create(city.worldPosition)
+    if (head.worldPosition == null) {
+      head.worldPosition = {
+        left: city.worldPosition.left,
+        top: city.worldPosition.top,
+      }
+    } else {
+      head.worldPosition.left = city.worldPosition.left
+      head.worldPosition.top = city.worldPosition.top
+    }
     const sect = Sect(
       headquarters: city,
       headId: head.id,

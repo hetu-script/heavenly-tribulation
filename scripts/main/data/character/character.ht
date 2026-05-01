@@ -550,13 +550,18 @@ struct Character {
       cultivationStyle: cultivationStyle,
     )
     Object.assign(this, battleInfo)
-    
-    this.entityType = kEntityTypeCharacter
 
     if (game.characters.containsKey(this.id)) {
       engine.warning('已经存在 id 为 ${this.id} 的角色。旧数据将会被覆盖。')
     }
     game.characters[this.id] = this
+    
+    this.entityType = kEntityTypeCharacter
+
+    final itemCategories = game.flags.dungeon.rank > 0 ?
+      kInventoryItemCategories2 : kInventoryItemCategories
+    final itemCount = 3 + this.rank + random.nextInt(3)
+    characterInitItems(this, itemCategories, itemCount)
 
     // this.entityType = 'character'
     // this.category = category ?? 'character'
@@ -899,9 +904,14 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
   if (moveToHome) {
     let homeSiteId = '${character.id}_${kLocationKindHome}'
     character.locationId = homeSiteId
-    character.worldPosition = {
-      left: location.worldPosition.left,
-      top: location.worldPosition.top,
+    if (character.worldPosition == null) {
+      character.worldPosition = {
+        left: location.worldPosition.left,
+        top: location.worldPosition.top,
+      }
+    } else {
+      character.worldPosition.left = location.worldPosition.left
+      character.worldPosition.top = location.worldPosition.top
     }
   }
   let incidentContent
@@ -922,7 +932,15 @@ function setCharacterHome(character, location, { moveToHome = true, incurInciden
 }
 
 function setCharacterWorldPosition(character, left, top, {worldId}) {
-  character.worldPosition = { left, top }
+  if (character.worldPosition == null) {
+    character.worldPosition = {
+      left: left,
+      top: top,
+    }
+  } else {
+    character.worldPosition.left = left
+    character.worldPosition.top = top
+  }
   if (worldId != null) {
     character.worldId = worldId
   }
@@ -1213,33 +1231,32 @@ function characterSteal(character, target, entries) {
   }
 }
 
-function characterInitItems(character, categories, amount) {
+function characterInitItems(character, categories, amount, { isIdentified = true }) {
   for (var i in range(amount)) {
     let itemRank = random.nearInt(character.rank + 1)
     final category = random.nextIterable(categories)
     if (category == kItemCategoryCardpack) {
       final item = Cardpack(rank: itemRank)
-      entityAcquire(this.merchant, item, incurIncident: false)
+      entityAcquire(character, item, incurIncident: false)
     } else if (category == kItemCategoryPotion) {
-      final item = Potion(rank: itemRank, isIdentified: !isMysterious)
-      entityAcquire(this.merchant, item, incurIncident: false)
+      final item = Potion(rank: itemRank, isIdentified: isIdentified)
+      entityAcquire(character, item, incurIncident: false)
     } else if (Constants.equipmentCategoryKinds.containsKey(category)) {
       final kind = random.nextIterable(Constants.equipmentCategoryKinds[category])
-      final item = Equipment(kind: kind, rank: itemRank, isIdentified: !isMysterious)
-      entityAcquire(this.merchant, item, incurIncident: false)
+      final item = Equipment(kind: kind, rank: itemRank, isIdentified: isIdentified)
+      entityAcquire(character, item, incurIncident: false)
     } else if (kNormalPrototypeItems.contains(category)) {
       final item = createItemById(category)
-      entityAcquire(this.merchant, item, incurIncident: false)
+      entityAcquire(character, item, incurIncident: false)
     } else if (kRankedPrototypeItems.contains(category)) {
       assert(rank > 0);
       itemRank = itemRank.clamp(1, rank)
       final item = createItemById(category, rank: itemRank)
-      entityAcquire(this.merchant, item, incurIncident: false)
+      entityAcquire(character, item, incurIncident: false)
     }
     
     else {
       engine.warning('未知的商人商品类别: ${category}')
     }
   }
-
 }

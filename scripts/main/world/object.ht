@@ -176,7 +176,7 @@ struct ObjectMerchant {
       merchantItemCategories = [merchantItemCategories]
     }
 
-    characterInitItems(this.merchant, merchantItemCategories, itemCount)
+    characterInitItems(this.merchant, merchantItemCategories, itemCount, isIdentified: !isMysterious)
 
     world.objects[this.id] = this
   }

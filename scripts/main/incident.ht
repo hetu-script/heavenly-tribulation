@@ -1,3 +1,4 @@
+const kIncidentTypeAttack = 'attack'
 
 /// 历史事件记录
 struct Incident {
@@ -7,6 +8,7 @@ struct Incident {
     timestamp,
     subjectId,
     targetId,
+    scoreModifier,
     sectId,
     locationId: string,
     terrainIndex: integer,
@@ -48,7 +50,7 @@ struct Incident {
       chars.add(targetId)
       const target = game.characters[targetId]
       assert(target != null, '无法找到事件的目标角色，id 为: ${targetId}')
-      entityExperienceIncident(target, this)
+      entityExperienceIncident(target, this, scoreModifier: scoreModifier)
     }
 
     let sect
@@ -159,7 +161,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
 }
 
 /// 某个对象经历某个发生在它所处环境的事件
-function entityExperienceIncident(entity, incident, { score }) {
+function entityExperienceIncident(entity, incident, { scoreModifier = 0 }) {
   assert(entity.experienced is List)
 
   if (entity.entityType != kEntityTypeCharacter) return
@@ -172,22 +174,24 @@ function entityExperienceIncident(entity, incident, { score }) {
   entity.experienced.add(incident.id)
   
   if (entity.id == incident.subjectId) return
+  const subject = game.characters[incident.subjectId]
 
+  let score = characterCalculateScoreOfIncident(entity, incident)
   if (entity.id == incident.targetId) {
-    assert(score != null, '当角色是事件的目标时，必须提供 score 参数')
-    if (!entity.bonds.contains(subject.id)) {
+    // 直接受害者会放大原本的评价
+    score = (score * 1.5).toInt()
+  }
+  score += scoreModifier
+  
+  let bond = entity.bonds[incident.subjectId]
+  if (bond == null) {
+    if (entity.id == incident.targetId) {
       // 如果还不认识行动者
       characterMet(entity, subject)
-    }
-    updateBond(entity, subject, score: score)
-  } else {
-    const score = characterCalculateScoreOfIncident(entity, incident)
-    let bond = entity.bonds[incident.subjectId]
-    if (bond == null) {
-      const subject = game.characters[incident.subjectId]
-      Bond(character: entity, target: subject, score: score)
     } else {
-      bond.score += score
+      const subject = game.characters[incident.subjectId]
+      bond = Bond(character: entity, target: subject)
     }
   }
+  updateBond(entity, subject, score: score)
 }

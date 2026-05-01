@@ -131,19 +131,8 @@ function _addEncampment() {
 }
 
 function _addGeneralMerchant(tilePosition) {
-  let merchantItemCategories;
-  if (game.flags.dungeon.rank > 0) {
-    merchantItemCategories = kInventoryItemCategories
-  } else {
-    merchantItemCategories = [
-      'cardpack',
-      'potion',
-      'weapon',
-      'armor',
-      'jewelry',
-      'talisman',
-    ]
-  }
+  final merchantItemCategories = game.flags.dungeon.rank > 0 ?
+    kInventoryItemCategories2 : kInventoryItemCategories
   addMerchant(
     tilePosition,
     objectId: 'merchant_general',

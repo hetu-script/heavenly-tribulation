@@ -1,26 +1,26 @@
 
 async function onNewGame() {
-  final homeSite = game.locations[hero.homeSiteId]
   final xitong = game.npcs['xitong']
 
-  final itemsInfo = [
-    {
-      type: 'cardpack',
-      rank: hero.rank,
-      genre: hero.rank == 0 ? null : hero.cultivationFavor,
-      isBasic: hero.rank == 0,
-    },
-    {
-      type: 'cardpack',
-      rank: hero.rank,
-      genre: hero.rank == 0 ? null : hero.cultivationFavor,
-      isBasic: hero.rank == 0,
-    },
-  ]
-  final items = createLoot(itemsInfo)
-  for (final item in items) {
-    entityAcquire(homeSite, item, incurIncident: false)
-  }
+  // final itemsInfo = [
+  //   {
+  //     type: 'cardpack',
+  //     rank: hero.rank,
+  //     genre: hero.rank == 0 ? null : hero.cultivationFavor,
+  //     isBasic: hero.rank == 0,
+  //   },
+  //   {
+  //     type: 'cardpack',
+  //     rank: hero.rank,
+  //     genre: hero.rank == 0 ? null : hero.cultivationFavor,
+  //     isBasic: hero.rank == 0,
+  //   },
+  // ]
+  // final items = createLoot(itemsInfo)
+  // final homeSite = game.locations[hero.homeSiteId]
+  // for (final item in items) {
+  //   entityAcquire(homeSite, item, incurIncident: false)
+  // }
 
   if (game.enableTutorial) {
     if (game.flags.tutorial.newGame) return
