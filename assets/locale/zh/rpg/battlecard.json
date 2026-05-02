@@ -7,7 +7,7 @@
   "requirement_hint": "未满足",
   "explanation_hint": "按住 Ctrl 键显示详细信息",
 
-  "blank_default": "什么都不做",
+  "blank_default": "什么都不做\n战斗开始后，不满足使用需求的卡牌会被此牌替代",
 
   "buff": "加持",
   "ongoing": "持续",

@@ -8,7 +8,6 @@ import 'package:hetu_script/utils/math.dart' as math;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/tilemap/tile_info.dart';
 
-import '../extensions.dart';
 import '../data/common.dart';
 import '../data/game.dart';
 import '../global.dart';
@@ -480,7 +479,7 @@ final class GameLogic {
   /// 计算某个境界的最低等级
   static int minLevelForRank(int rank) {
     assert(rank >= 0);
-    return rank == 0 ? 0 : (rank * 10 - 5);
+    return rank == 0 ? 0 : (rank * 10);
   }
 
   /// 计算某个境界的最高等级

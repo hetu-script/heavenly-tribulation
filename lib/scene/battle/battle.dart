@@ -22,6 +22,7 @@ import '../../global.dart';
 import 'character_information.dart';
 import '../common.dart';
 import '../../data/game.dart';
+import '../../data/common.dart';
 import 'common.dart';
 import '../../state/states.dart';
 
@@ -155,6 +156,9 @@ class BattleScene extends Scene {
   Completer<CustomGameCard>? _playerCardSelection;
   bool _isRestarting = false;
 
+  int _replacedCardCount = 0;
+  int _missingCardCount = 0;
+
   BattleScene({
     required this.heroData,
     required this.enemyData,
@@ -263,17 +267,45 @@ class BattleScene extends Scene {
     if (decks.isNotEmpty && index >= 0 && index < decks.length) {
       final deckInfo = decks[index];
       final List cardIds = deckInfo['cards'];
-      return cardIds.map((id) {
+      final bool isHero = identical(character, heroData);
+      final List<CustomGameCard> cards = [];
+
+      for (final id in cardIds) {
         final data = character['cardLibrary'][id];
         assert(data != null);
+        if (isHero &&
+            GameLogic.checkRequirements(data, checkIdentified: true) != null) {
+          _replacedCardCount++;
+          cards.add(_createBlankCard());
+          continue;
+        }
         final card = GameData.createBattleCard(data, deepCopyData: true);
         card.isFlipped = true;
         world.add(card);
-        return card;
-      }).toList();
+        cards.add(card);
+      }
+
+      if (isHero) {
+        _missingCardCount =
+            math.max(0, kBattleDeckSize - cards.length);
+        for (var i = 0; i < _missingCardCount; i++) {
+          cards.add(_createBlankCard());
+        }
+      }
+
+      return cards;
     } else {
       return [];
     }
+  }
+
+  CustomGameCard _createBlankCard() {
+    final blankData =
+        engine.hetu.invoke('BattleCard', namedArgs: {'affixId': 'blank_default'});
+    final card = GameData.createBattleCard(blankData, deepCopyData: true);
+    card.isFlipped = true;
+    world.add(card);
+    return card;
   }
 
   @override
@@ -556,6 +588,20 @@ class BattleScene extends Scene {
     heroDeckZone.shuffle();
     enemyDeckZone.shuffle();
     _rollFirsthand();
+
+    if (_replacedCardCount > 0 || _missingCardCount > 0) {
+      if (_replacedCardCount > 0) {
+        dialog.pushDialog('prebattle_card_invalid_replaced',
+            interpolations: [_replacedCardCount]);
+      }
+      if (_missingCardCount > 0) {
+        dialog.pushDialog('prebattle_card_empty_filled',
+            interpolations: [_missingCardCount]);
+      }
+      await dialog.execute();
+      _replacedCardCount = 0;
+      _missingCardCount = 0;
+    }
 
     _prepareBattleStart(hero);
     final enemyStatus = _prepareStatus(hero, StatusCircumstances.start_battle);

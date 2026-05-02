@@ -13,7 +13,6 @@ import '../../global.dart';
 import '../../data/common.dart';
 import '../../widgets/ui/close_button2.dart';
 import '../../widgets/ui/responsive_view.dart';
-import '../../extensions.dart';
 
 int _floatToInt8(double x) {
   // return (x * 255.0).round() & 0xff;

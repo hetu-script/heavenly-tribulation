@@ -48,7 +48,7 @@ const kMoreStats = [
   'waterMoveSpeed',
   'mountainMoveStaminaCost',
   'waterMoveStaminaCost',
-  'medidateSpeed',
+  'meditateSpeed',
   'expCollectEfficiency',
   'workStaminaCost',
   'workEfficiency',

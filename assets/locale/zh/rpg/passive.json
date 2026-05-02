@@ -126,7 +126,7 @@
   "passive_waterMoveSpeed_description": "水面移动速度 {0}%",
   "passive_mountainMoveStaminaCost_description": "山地移动体力消耗 {0}%",
   "passive_waterMoveStaminaCost_description": "水面移动体力消耗 {0}%",
-  "passive_medidateSpeed_description": "冥想速度 {0}%",
+  "passive_meditateSpeed_description": "冥想速度 {0}%",
   "passive_expCollectEfficiency_description": "修为经验获取效率 {0}%",
   "passive_workEfficiency_description": "工作效率 {0}%",
   "passive_workStaminaCost_description": "工作体力消耗 {0}%",

@@ -18,7 +18,6 @@ import 'package:samsara/hover_info.dart';
 import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 
-import '../../extensions.dart';
 import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../ui.dart';
@@ -813,9 +812,9 @@ class CultivationScene extends Scene with HasCursorState {
   Future<void> _advanceTime() async {
     final int development = location?['development'] ?? 0;
     final double developmentBonus = 1.0 + development * 0.25;
-    int medidateSpeed = GameData.hero['stats']['medidateSpeed'];
+    int meditateSpeed = GameData.hero['stats']['meditateSpeed'];
     int timeCost = math.max(
-        1, (kTicksPerTime / (medidateSpeed * developmentBonus)).round());
+        1, (kTicksPerTime / (meditateSpeed * developmentBonus)).round());
 
     updateInformation();
 

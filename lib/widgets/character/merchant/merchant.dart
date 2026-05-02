@@ -4,7 +4,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/label.dart';
 import 'package:samsara/hover_info.dart';
 
-import '../../../extensions.dart';
 import '../../../logic/logic.dart';
 import '../../../global.dart';
 import '../inventory/inventory.dart';

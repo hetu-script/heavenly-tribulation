@@ -26,7 +26,6 @@ import 'data/constants.dart';
 import 'scene/loading_screen.dart';
 import 'data/common.dart';
 import 'data/game.dart';
-import 'extensions.dart';
 import 'scene/mini_game/matching/matching.dart';
 import 'scene/mini_game/matching2/matching2.dart';
 import 'scene/mini_game/difference/difference.dart';

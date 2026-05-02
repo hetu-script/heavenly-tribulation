@@ -374,7 +374,7 @@ const kRestrictedEquipmentCategories = {
   'vehicle',
 };
 
-const kRarities = {
+const kRarityNames = {
   'common',
   'rare',
   'epic',
@@ -382,6 +382,79 @@ const kRarities = {
   'mythic',
   'arcane',
 };
+
+final class Rarity {
+  final int rank;
+  final double probability;
+  final String name;
+  final String color;
+
+  const Rarity({
+    required this.rank,
+    required this.probability,
+    required this.name,
+    required this.color,
+  });
+}
+
+final class Rarities {
+  /// 未分类 黑
+  static const common = Rarity(
+    rank: 0,
+    probability: 1.0,
+    name: 'common',
+    color: '#B4B4B4',
+  );
+
+  /// 凡品 灰
+  static const rare = Rarity(
+    rank: 1,
+    probability: 0.45,
+    name: 'rare',
+    color: '#D4FFFF',
+  );
+
+  /// 良品 蓝
+  static const epic = Rarity(
+    rank: 2,
+    probability: 0.22,
+    name: 'uncommon',
+    color: '#ACACFF',
+  );
+
+  /// 上品 紫
+  static const legendary = Rarity(
+    rank: 3,
+    probability: 0.09,
+    name: 'rare',
+    color: '#8D66C4',
+  );
+
+  /// 极品 金
+  static const mythic = Rarity(
+    rank: 4,
+    probability: 0.04,
+    name: 'epic',
+    color: '#E7E7AC',
+  );
+
+  /// 神品 红
+  static const arcane = Rarity(
+    rank: 5,
+    probability: 0.01,
+    name: 'arcane',
+    color: '#C65043',
+  );
+
+  static const values = [
+    common,
+    rare,
+    epic,
+    legendary,
+    mythic,
+    arcane,
+  ];
+}
 
 const kRaritiesToRank = {
   'common': 0,
@@ -2125,3 +2198,5 @@ const kItemInfoTypePotion = 'potion';
 const kItemInfoTypePrototype = 'prototype';
 const kItemInfoTypeContribution = 'contribution';
 const kItemInfoTypeCredit = 'credit';
+
+const kCardPackCardCount = 5;

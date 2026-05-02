@@ -24,13 +24,11 @@ namespace debug {
     final pack = Cardpack(
       rank: hero.rank,
       genre: hero.rank == 0 ? null : hero.cultivationFavor,
-      isBasic: hero.rank == 0,
     )
     await Player.acquire(pack)
     final pack2 = Cardpack(
       rank: hero.rank,
       genre: hero.rank == 0 ? null : hero.cultivationFavor,
-      isBasic: hero.rank == 0,
     )
     await Player.acquire(pack2)
   }
@@ -49,6 +47,20 @@ namespace debug {
   function testItem([character]) {
     engine.warning('debug.testItem ${character?.name}')
     character ??= hero
+    
+    character.materials = {
+      money: character.materials.money + 5000000,
+      shard: character.materials.shard + 500,
+      worker: character.materials.worker + 5000,
+      water: character.materials.water + 5000,
+      grain: character.materials.grain + 5000,
+      meat: character.materials.meat + 5000,
+      leather: character.materials.leather + 5000,
+      herb: character.materials.herb + 5000,
+      timber: character.materials.timber + 5000,
+      stone: character.materials.stone + 5000,
+      ore: character.materials.ore + 5000,
+    }
 
     for (final affixId in game.battleCards.keys) {
       final card = BattleCard(
@@ -65,49 +77,21 @@ namespace debug {
       entityAcquire(character, item, incurIncident: false)
     }
 
-    for (var genre in [null, ...Constants.cultivationGenres]) {
-      final pack = Cardpack(
-        genre: genre,
-        rank: hero.rank,
-      )
-      items.add(pack)
-      entityAcquire(character, pack, incurIncident: false)
-    }
-
     for (var i in range(5)) {
       final item = Potion(rank: hero.rank)
       items.add(item)
       entityAcquire(character, item, incurIncident: false)
     }
 
-    
-    character.materials = {
-      money: character.materials.money + 5000000,
-      shard: character.materials.shard + 500,
-      worker: character.materials.worker + 5000,
-      water: character.materials.water + 5000,
-      grain: character.materials.grain + 5000,
-      meat: character.materials.meat + 5000,
-      leather: character.materials.leather + 5000,
-      herb: character.materials.herb + 5000,
-      timber: character.materials.timber + 5000,
-      stone: character.materials.stone + 5000,
-      ore: character.materials.ore + 5000,
+    for (var genre in [null, ...Constants.cultivationGenres]) {
+      for (var i in range(kCultivationRankMax + 1)) {
+        for (var j in range(3)) {
+          final cardpack = Cardpack(rank: i, genre: genre)
+          items.add(cardpack)
+          entityAcquire(character, cardpack, incurIncident: false)
+        }
+      }
     }
-
-    // final shardPack = MaterialPack(kind: 'shard', amount: 500)
-    // entityAcquire(character, shardPack, incurIncident: false)
-    // items.add(shardPack)
-
-    // final moneyPack = MaterialPack(kind: 'money', amount: 50000)
-    // entityAcquire(character, moneyPack, incurIncident: false)
-    // items.add(moneyPack)
-
-    // for (final materialId in Constants.materialKinds) {
-    //   final pack = MaterialPack(kind: materialId, amount: 5000)
-    //   entityAcquire(character, pack, incurIncident: false)
-    //   items.add(pack)
-    // }
 
     for (var i in range(3)) {
       final scroll = createItemById('identify_scroll')

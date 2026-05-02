@@ -12,7 +12,6 @@ import 'package:samsara/utils/math.dart' as math;
 import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';
 
-import '../../extensions.dart';
 import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
@@ -30,7 +29,7 @@ import '../../game_events.dart';
 
 const kMaxLightPointCount = 20;
 
-const _kBattleCardBasicBuffs = [
+const kBattleCardBasicBuffs = [
   'punch',
   'kick',
   'xinfa',
@@ -737,16 +736,17 @@ class CardLibraryScene extends Scene {
       required bool isMainCard,
       required filter,
     }) {
-      final bool basic = filter['isBasic'] ?? false;
-      final category = isMainCard ? filter['category'] : null;
-      final genre = isMainCard ? filter['genre'] : (basic ? 'none' : null);
-      final rank = isMainCard ? filter['rank'] : (basic ? 0 : null);
-      final kind = isMainCard
-          ? filter['kind']
-          : (basic
-              ? GameData.random.nextIterable(_kBattleCardBasicBuffs)
-              : null);
-      final maxRank = filter['rank'];
+      String? category;
+      String? genre;
+      String? kind;
+      int rank = filter['rank'] ?? 0;
+      if (isMainCard) {
+        category = filter['category'];
+        genre = filter['genre'];
+        kind = filter['kind'];
+      } else {
+        rank = GameData.random.distantInt(rank + 1);
+      }
       final cardData = engine.hetu.invoke(
         'BattleCard',
         namedArgs: {
@@ -754,7 +754,6 @@ class CardLibraryScene extends Scene {
           'genre': genre,
           'category': category,
           'rank': rank,
-          'maxRank': maxRank,
         },
       );
       return cardData;
@@ -770,9 +769,13 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.dealCard);
       bool isMainCard = false;
-      for (var i = 0; i < 5; ++i) {
-        if (!isMainCard) {
+      bool hasMainCard = false;
+      for (var i = 0; i < kCardPackCardCount; ++i) {
+        if (!hasMainCard) {
           isMainCard = i < 4 ? random.nextBool() : true;
+          hasMainCard = isMainCard;
+        } else {
+          isMainCard = false;
         }
         final cardData = createCard(
           isMainCard: isMainCard,
@@ -865,7 +868,7 @@ class CardLibraryScene extends Scene {
           positionalArgs: [cardpackData],
           namedArgs: {'incurIncident': false},
         );
-        for (var i = 0; i < 3; ++i) {
+        for (var i = 0; i < kCardPackCardCount; ++i) {
           bool isMainCard = i == 1;
           final cardData = createCard(
             isMainCard: isMainCard,
@@ -1006,7 +1009,9 @@ class CardLibraryScene extends Scene {
       size: Vector2(140, 240),
       config: ScreenTextConfig(
         outlined: true,
-        textStyle: TextStyle(fontFamily: GameUI.fontFamilyKaiti),
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamilyKaiti,
+        ),
         anchor: Anchor.bottomCenter,
       ),
       priority: kDeckPilesZonePriority,

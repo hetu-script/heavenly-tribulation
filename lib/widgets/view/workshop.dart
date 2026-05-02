@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
@@ -41,7 +40,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   String selectedCraftKind = kItemEquipmentKinds.first;
   final Set<String> availableCraftRarities = {};
 
-  String selectedCraftRarity = kRarities.first;
+  String selectedCraftRarity = kRarityNames.first;
   dynamic selectedCraftItemRequirements;
   int extraAffixCount = 0;
   final List<dynamic> selectedAffixesForCraft =
@@ -70,9 +69,9 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     }
 
     if (widget.locationData == null && widget.development == null) {
-      availableCraftRarities.addAll(kRarities);
+      availableCraftRarities.addAll(kRarityNames);
     } else {
-      for (final rarity in kRarities) {
+      for (final rarity in kRarityNames) {
         final rank = kRaritiesToRank[rarity] as int;
         if (widget.locationData != null) {
           if (widget.locationData['development'] >= rank) {

@@ -21,7 +21,6 @@ import '../../../state/states.dart';
 import '../../../widgets/character/stats.dart';
 import '../../../widgets/ui/close_button2.dart';
 import '../../../widgets/ui/responsive_view.dart';
-import '../../../extensions.dart';
 import '../../../game_events.dart';
 
 class PreBattleDialog extends StatefulWidget {
@@ -351,12 +350,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                       height: 50.0,
                       child: fluent.Button(
                         onPressed: () {
-                          if (_warning != null && !widget.ignoreRequirement) {
-                            dialog.pushDialog(_warning!);
-                            dialog.execute();
-                            return;
-                          }
-                          assert(enemyBattleDeckCards.isNotEmpty);
+                          if (_heroDeck.isEmpty) return;
                           context.read<EnemyState>().setPrebattleVisible(false);
                           final arg = {
                             'id': Scenes.battle,
@@ -377,6 +371,18 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
+                          onMouseEnter: (rect) {
+                            if (_warning != null && !widget.ignoreRequirement) {
+                              context.read<HoverContentState>().show(
+                                    rect: rect,
+                                    data: _warning!,
+                                    direction: HoverContentDirection.topCenter,
+                                  );
+                            }
+                          },
+                          onMouseExit: () {
+                            context.read<HoverContentState>().hide();
+                          },
                         ),
                       ),
                     ),

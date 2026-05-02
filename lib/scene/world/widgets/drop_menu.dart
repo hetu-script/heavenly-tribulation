@@ -16,7 +16,6 @@ import '../../../logic/logic.dart';
 import '../../../widgets/dialog/confirm.dart';
 import 'expand_world_dialog.dart';
 import '../../../state/states.dart';
-import '../../../extensions.dart';
 
 enum ViewModeMenuItems {
   none,

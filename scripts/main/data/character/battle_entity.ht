@@ -294,7 +294,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
   character.monthlyIdentifyCardsMax = Constants.baseMonthlyIdentifyCardsMax + character.perception
-  character.medidateSpeed = Constants.baseMeditateSpeed
+  character.meditateSpeed = Constants.baseMeditateSpeed
   character.expCollectEfficiency = 1.0
   character.plainMoveSpeed = Constants.basePlainMoveSpeed
   character.mountainMoveSpeed = Constants.baseMountainMoveSpeed
@@ -344,7 +344,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.waterMoveSpeed = (character.waterMoveSpeed * (1 - character.passives.waterMoveSpeed?.value / 100) * (1 - character.ephemeralPassives.waterMoveSpeed?.value / 100)).toFixed(2)
   character.stats.mountainMoveStaminaCost = (character.mountainMoveStaminaCost * (1 + character.passives.mountainMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.mountainMoveStaminaCost?.value / 100)).toFixed(2)
   character.stats.waterMoveStaminaCost = (character.waterMoveStaminaCost * (1 + character.passives.waterMoveStaminaCost?.value / 100) * (1 + character.ephemeralPassives.waterMoveStaminaCost?.value / 100)).toFixed(2)
-  character.stats.medidateSpeed = (character.medidateSpeed * (1 - character.passives.medidateSpeed?.value / 100) * (1 - character.ephemeralPassives.medidateSpeed?.value / 100)).round()
+  character.stats.meditateSpeed = (character.meditateSpeed * (1 - character.passives.meditateSpeed?.value / 100) * (1 - character.ephemeralPassives.meditateSpeed?.value / 100)).round()
   character.stats.expCollectEfficiency = (character.expCollectEfficiency * (1 + character.passives.expCollectEfficiency?.value / 100) * (1 + character.ephemeralPassives.expCollectEfficiency?.value / 100)).toFixed(2)
   character.stats.workEfficiency = (character.workEfficiency * (1 + character.passives.workEfficiency?.value / 100) * (1 + character.ephemeralPassives.workEfficiency?.value / 100)).toFixed(2)
   character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.ephemeralPassives.workStaminaCost?.value / 100)).toFixed(2)

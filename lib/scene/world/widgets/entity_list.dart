@@ -26,7 +26,6 @@ import '../../common.dart';
 import '../../../data/game.dart';
 import '../../../widgets/character/edit_rank_level.dart';
 import '../../../widgets/location/edit_location_basics.dart';
-import '../../../extensions.dart';
 
 const kMapObjectSourceTemplate = '''{
   id: 'object1',

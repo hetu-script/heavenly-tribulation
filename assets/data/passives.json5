@@ -1054,13 +1054,13 @@
     isItem: true,
     kinds: ["ship"],
   },
-  medidateSpeed: {
-    id: "medidateSpeed",
-    description: "passive_medidateSpeed_description",
+  meditateSpeed: {
+    id: "meditateSpeed",
+    description: "passive_meditateSpeed_description",
     priority: 3689,
     increment: 1,
     isItem: true,
-    tags: ["medidateSpeed"],
+    tags: ["meditateSpeed"],
   },
   expCollectEfficiency: {
     id: "expCollectEfficiency",

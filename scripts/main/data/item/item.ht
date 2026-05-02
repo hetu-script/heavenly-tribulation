@@ -555,7 +555,6 @@ function createLoot(itemsInfo: List) {
             kind: itemInfo.kind,
             genre: itemInfo.genre,
             rank: itemInfo.rank,
-            isBasic: itemInfo.isBasic,
           )
           items.add(cardpack)
         }

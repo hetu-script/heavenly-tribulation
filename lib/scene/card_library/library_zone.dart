@@ -13,7 +13,6 @@ import 'deckbuilding_zone.dart';
 import '../../global.dart';
 import 'card_library.dart';
 import '../../widgets/common.dart';
-import '../../extensions.dart';
 
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。

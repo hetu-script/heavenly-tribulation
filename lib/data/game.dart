@@ -1318,9 +1318,9 @@ final class GameData with ChangeNotifier {
     final cardData = engine.hetu.invoke(
       'BattleCard',
       namedArgs: {
-        'kind': (filter['isBasic'] == true ? 'none' : filter['kind']),
-        'genre': (filter['isBasic'] == true ? 'none' : filter['genre']),
-        'category': (filter['isBasic'] == true ? 'attack' : filter['category']),
+        'kind': filter?['kind'],
+        'genre': filter?['genre'],
+        'category': filter?['category'],
         'rank': filter?['rank'],
         'isIdentified': isIdentified,
       },
@@ -1340,8 +1340,8 @@ final class GameData with ChangeNotifier {
     final String id = cardData['id'];
     final String image = cardData['image'];
     final String title = cardData['name'];
-    final int cardRank = cardData['rank'];
-    final rarity = kRankToRarity[cardRank] ?? 'common';
+    final int rank = cardData['rank'];
+    final rarity = kRankToRarity[rank] ?? 'common';
     final rarityColor = RankedColors.values[rarity] ?? RankedColors.common;
 
     final (description, extraDescription) = getBattleCardDescription(cardData);
@@ -1362,7 +1362,7 @@ final class GameData with ChangeNotifier {
         anchor: Anchor.center,
         outlined: true,
         textStyle: TextStyle(
-          color: getColorFromRank(cardRank),
+          color: getColorFromRank(rank),
           fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 14.0,
         ),
@@ -1379,6 +1379,21 @@ final class GameData with ChangeNotifier {
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description.toString(),
+      cost: rank + 1,
+      showCostIcon: true,
+      showCostNumber: true,
+      costIconSpriteId: 'cultivation/cultivation$rank.png',
+      costIconRelativePaddings:
+          const EdgeInsets.fromLTRB(0.419, 0.575, 0.419, 0.305),
+      costNumberTextStyle: ScreenTextConfig(
+        anchor: Anchor.center,
+        outlined: true,
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamilyBlack,
+          fontSize: 14.0,
+          color: Colors.white,
+        ),
+      ),
       glowSpriteId: 'battlecard/glow.png',
       glowColor: rarityColor,
       enablePreview: true,

@@ -1,20 +1,25 @@
 {
   // 最终的卡牌上可能还会有一些其他的属性
-  // 被诅咒的卡牌，必然出现在战斗卡组中，并且自身的卡组数量上限减一
-  // isCursed: false,
-  // 被腐化的卡牌，无法再进行精炼
-  // isCorrupted: false,
+  // isUnique: false,
+  // 绝世卡牌的词条默认就是被锁定的，无法移除
   // 不能从卡包中获得，例如阵法、幻术卡牌
-  // isCraftOnly: false,
+  // isCraft: false,
+  // isExalted: false,
+  // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
+  // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
+  // 2, 卡牌的词条等级上限提升20%
+  // 3, 卡牌额外词条数量增加1
+  // 4, 没有效果。
+  // isUnpackable: false,
+  // 不会出现在卡包中
 
+  // 特殊卡牌，不会出现在卡包中，可能通过技能获得
   blank_default: {
     id: "blank_default",
     description: "blank_default",
     image: "battlecard/illustration/blank_default.png",
-    // 绝世卡牌的词条是固定的且无法修改
     isUnique: true,
-    // 不会出现在卡包中
-    isHidden: true,
+    isUnpackable: true,
   },
 
   // ------------通用·攻击------------

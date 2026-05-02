@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/extensions.dart';
 import 'package:provider/provider.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:hetu_script/utils/collection.dart' as utils;
@@ -52,9 +51,9 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
     }
 
     if (widget.locationData == null && widget.development == null) {
-      _availableCraftRarities.addAll(kRarities);
+      _availableCraftRarities.addAll(kRarityNames);
     } else {
-      for (final rarity in kRarities) {
+      for (final rarity in kRarityNames) {
         final rank = kRaritiesToRank[rarity] as int;
         if (widget.locationData != null) {
           if (widget.locationData['development'] >= rank) {

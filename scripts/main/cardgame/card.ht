@@ -30,7 +30,7 @@ struct BattleCard {
       if (maxRank == 0) {
         this.rank = 0
       } else {
-        this.rank = random.nearInt(maxRank + 1)
+        this.rank = random.distantInt(maxRank + 1)
       }
     } else {
       this.rank = 0
@@ -51,7 +51,7 @@ struct BattleCard {
       if (affixId) {
         return affix.id == affixId
       } else {
-        if (affix.isHidden) return false
+        if (affix.isUnpackable) return false
         if (category != null && affix.category != category) return false
         if (affix.rank > this.rank) return false
         if (kind != null && affix.kind != kind) return false
@@ -75,7 +75,7 @@ struct BattleCard {
         if (affixId) {
           return affix.id == affixId
         } else {
-          if (affix.isHidden) return false
+          if (affix.isUnpackable) return false
           if (category != null && affix.category != category) return false
           if (affix.rank > this.rank) return false
           // if (kind != null && affix.kind != kind) return false
@@ -480,14 +480,12 @@ function upgradeCard(card) {
 /// 卡牌包是一种特殊物品，每个卡牌包包含3张牌
 /// 其中一张必然是指定的类别、流派、境界和类型的卡牌
 /// 另外两张则是随机卡牌，但境界不会超过卡包本身的境界
-/// 如果 isBasic 为 true，则另外两张卡牌不会有装备和流派要求
 struct Cardpack {
   constructor ({
     category,
     genre,
     rank,
     kind,
-    isBasic = false,
   }) {
     assert(genre == null || genre == 'none' || Constants.cultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
@@ -508,7 +506,6 @@ struct Cardpack {
       genre: genre,
       rank: rank,
       kind: kind,
-      isBasic: isBasic,
     }
 
     this.id = crypto.randomUID(withTime: true)

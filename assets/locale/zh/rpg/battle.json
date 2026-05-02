@@ -10,6 +10,8 @@
   "prebattle": "战斗准备",
   "prebattle_check_stats": "查看属性",
   "prebattle_no_decks": "（未选择战斗卡组）",
+  "prebattle_card_invalid_replaced": "你的卡组中有{0}张卡牌不满足使用条件，将在战斗中以空白卡牌补足。",
+  "prebattle_card_empty_filled": "你的卡组中还缺少{0}张卡牌，将以空白卡牌补足。",
 
   "resourceLacking": "{0}枯竭！",
   "resourceOverflowed": "{0}溢出！",
