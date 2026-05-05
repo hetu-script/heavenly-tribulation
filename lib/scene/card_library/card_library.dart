@@ -512,10 +512,11 @@ class CardLibraryScene extends Scene {
     assert(craftingCard != null);
     Hovertip.hide(craftingCard!);
     final (_, description) = GameData.getBattleCardDescription(
-        craftingCard!.data,
-        showRequirement: false,
-        showDetailedHint: false,
-        isDetailed: true);
+      craftingCard!.data,
+      showRequirement: false,
+      isDetailed: true,
+      showAffixes: true,
+    );
     Hovertip.show(
       scene: this,
       position: Vector2(
@@ -526,21 +527,20 @@ class CardLibraryScene extends Scene {
         anchor: Anchor.topCenter,
         textAlign: TextAlign.center,
       ),
-      width: kCraftingCardInfoWidth,
     );
   }
 
   void onUseCraftMaterial(dynamic craftmeterialData) {
     assert(craftingCard != null);
 
-    final category = craftmeterialData['category'] as String;
+    final kind = craftmeterialData['kind'] as String;
 
-    if (category == 'scroll_paper') {
+    if (kind == 'scroll_paper') {
       craftScroll(craftmeterialData);
       return;
     }
 
-    final operationId = category.replaceAll('craftmaterial_', '');
+    final operationId = kind.replaceAll('craftmaterial_', '');
 
     assert(kCardCraftOperations.contains(operationId),
         'Unknown card crafting operation: $operationId');
@@ -596,10 +596,10 @@ class CardLibraryScene extends Scene {
 
     engine.play(GameSound.paperrip);
 
-    endCraft();
+    onEndCraft();
   }
 
-  void startCraft(CustomGameCard card) {
+  void onStartCraft(CustomGameCard card) {
     engine.context.read<HoverContentState>().hide();
 
     skillBook.enableGesture = false;
@@ -628,7 +628,7 @@ class CardLibraryScene extends Scene {
 
     final clone = card.clone();
     craftingCard = clone;
-    clone.size = GameUI.craftCardSize;
+    clone.size = GameUI.focusedCardSize;
     clone.position = GameUI.craftCardPosition;
     clone.priority = kBarrierUIPriority;
     clone.enableGesture = false;
@@ -639,7 +639,7 @@ class CardLibraryScene extends Scene {
         Scenes.library, GameEvents.craftMaterialSelected, onUseCraftMaterial);
   }
 
-  void endCraft() async {
+  void onEndCraft() async {
     Hovertip.hideAll();
     engine.context.read<CraftState>().setCrafting(false);
 
@@ -934,7 +934,7 @@ class CardLibraryScene extends Scene {
     barrier.onTapUp = (button, position) {
       if (button == kSecondaryButton) {
         if (craftingCard != null) {
-          endCraft();
+          onEndCraft();
         }
       }
     };
@@ -1335,7 +1335,9 @@ class CardLibraryScene extends Scene {
       size: Vector2(180, 180),
       position: Vector2(
         GameUI.size.x / 2,
-        GameUI.craftCardPosition.y + GameUI.craftCardSize.y + GameUI.hugeIndent,
+        GameUI.craftCardPosition.y +
+            GameUI.focusedCardSize.y +
+            GameUI.hugeIndent,
       ),
       spriteId: 'cultivation/scroll.png',
       hoverSpriteId: 'cultivation/scroll_hover.png',
@@ -1378,7 +1380,7 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     closeCraftButton.onTapUp = (button, position) {
-      endCraft();
+      onEndCraft();
     };
     camera.viewport.add(closeCraftButton);
 

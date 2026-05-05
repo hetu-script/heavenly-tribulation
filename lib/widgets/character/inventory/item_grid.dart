@@ -113,7 +113,7 @@ class ItemGrid extends StatelessWidget {
                       stackSize.toString(),
                       style: const TextStyle(
                         color: Colors.yellow,
-                        shadows: kTextShadow,
+                        shadows: kTextShadows,
                       ),
                     ),
                   ),

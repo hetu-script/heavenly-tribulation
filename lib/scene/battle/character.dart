@@ -348,6 +348,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     String id, {
     int? amount,
     double? percentage,
+    bool force = false,
   }) {
     int removeAmount = 0;
     StatusEffect? existEffect;
@@ -359,47 +360,49 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       if (amount != null) {
         assert(amount > 0);
-        removeAmount = math.min(existEffect.amount, amount);
+        if (force) {
+          removeAmount = math.min(existEffect.amount, amount);
+        }
       } else if (percentage != null) {
         assert(percentage > 0 && percentage < 1);
         removeAmount = (existEffect.amount * percentage).round();
       } else {
         removeAmount = existEffect.amount;
       }
-      assert(removeAmount > 0);
 
-      existEffect.amount -= removeAmount;
+      if (removeAmount > 0) {
+        existEffect.amount -= removeAmount;
 
-      if (existEffect.amount <= 0) {
-        _statusEffects.remove(existEffect.id);
-        existEffect.removeFromParent();
-      }
+        if (existEffect.amount <= 0) {
+          _statusEffects.remove(existEffect.id);
+          existEffect.removeFromParent();
+        }
 
-      if (existEffect.isPermanent) {
-        reArrangePermanentEffects();
-      } else {
-        if (existEffect.isResource) {
-          resourceIconNeedsRearranging = true;
+        if (existEffect.isPermanent) {
+          reArrangePermanentEffects();
         } else {
-          reArrangeNonResourceEffects();
+          if (existEffect.isResource) {
+            resourceIconNeedsRearranging = true;
+          } else {
+            reArrangeNonResourceEffects();
+          }
         }
       }
     }
 
-    if (amount != null &&
-        removeAmount < amount &&
-        kResourceHasNegatives.contains(id)) {
-      // 只有消耗阳气时，才会触发枯竭
+    if (amount != null && removeAmount < amount
+        // && kResourceHasNegatives.contains(id)
+        ) {
       final hint = engine.locale('resourceLacking',
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
 
-      final rest = (amount - removeAmount);
-      final oppositeId = id.replaceAll('positive', 'negative');
-      // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
-      addStatusEffect(oppositeId, amount: rest, handleCallback: false);
+      // final rest = (amount - removeAmount);
+      // final oppositeId = id.replaceAll('positive', 'negative');
+      // // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
+      // addStatusEffect(oppositeId, amount: rest, handleCallback: false);
 
-      resourceIconNeedsRearranging = true;
+      // resourceIconNeedsRearranging = true;
     }
 
     if (resourceIconNeedsRearranging) {
@@ -811,26 +814,26 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
     }
-    final (description, exDescription) = GameData.getBattleCardDescription(
-      card.data,
-      showRequirement: false,
-      isDetailed: false,
-      showDetailedHint: false,
-      showDebugId: false,
-    );
-    card.description = description;
-    Hovertip.show(
-      scene: game,
-      target: card,
-      direction:
-          isHero ? HovertipDirection.rightCenter : HovertipDirection.leftCenter,
-      // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
-      content: exDescription,
-      config: ScreenTextConfig(
-        anchor: Anchor.topCenter,
-        textAlign: TextAlign.center,
-      ),
-    );
+    // final (description, exDescription) = GameData.getBattleCardDescription(
+    //   card.data,
+    //   showRequirement: false,
+    //   isDetailed: false,
+    //   showDetailedHint: false,
+    //   showDebugId: false,
+    // );
+    // card.description = description;
+    // Hovertip.show(
+    //   scene: game,
+    //   target: card,
+    //   direction:
+    //       isHero ? HovertipDirection.rightCenter : HovertipDirection.leftCenter,
+    //   // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
+    //   content: exDescription,
+    //   config: ScreenTextConfig(
+    //     anchor: Anchor.topCenter,
+    //     textAlign: TextAlign.center,
+    //   ),
+    // );
 
     final List affixes = card.data['affixes'];
     assert(affixes.isNotEmpty);

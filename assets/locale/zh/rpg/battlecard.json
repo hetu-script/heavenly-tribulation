@@ -166,11 +166,11 @@
   "affix_consume_mana_for_extra_damage_elemental": "每使用 {0} 灵气: 造成 {1} 元素伤害",
   "affix_consume_karma_for_extra_damage_psychic": "每使用 {0} 煞气: 造成 {1} 精神伤害",
 
-  "affix_for_spirituality_increase_damage": "每有 1 点灵力: 伤害增加 1%",
-  "affix_for_dexterity_increase_damage": "每有 1 点身法: 伤害增加 1%",
-  "affix_for_strength_increase_damage": "每有 1 点体魄: 伤害增加 1%",
-  "affix_for_willpower_increase_damage": "每有 1 点念力: 伤害增加 1%",
-  "affix_for_perception_increase_damage": "每有 1 点神识: 伤害增加 1%",
+  "affix_for_spirituality_increase_damage": "每有 1 点灵力: 伤害增加 0.5%",
+  "affix_for_dexterity_increase_damage": "每有 1 点身法: 伤害增加 0.5%",
+  "affix_for_strength_increase_damage": "每有 1 点体魄: 伤害增加 0.5%",
+  "affix_for_willpower_increase_damage": "每有 1 点念力: 伤害增加 0.5%",
+  "affix_for_perception_increase_damage": "每有 1 点神识: 伤害增加 0.5%",
 
   "affix_consume_vigor_heal": "每使用 {0} 元气: 回复 {1}% 生命",
   "affix_consume_vigor_gain_defense_physical": "每使用 {0} 元气: 物理防御 +{1}",

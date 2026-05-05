@@ -588,8 +588,10 @@ final class GameLogic {
       {bool checkIdentified = false}) {
     final StringBuffer description = StringBuffer();
 
+    final tags = 'red t6';
+
     if (checkIdentified && entityData['isIdentified'] != true) {
-      return '<red>${engine.locale('unidentified3')}</>';
+      return '<$tags>${engine.locale('unidentified3')}</>';
     }
 
     final heroRank = GameData.hero['rank'];
@@ -600,7 +602,7 @@ final class GameLogic {
       if (heroRank < rankRequirement) {
         requirementsMet = false;
         description.writeln(
-            '<red>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+            '<$tags>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
       }
       final String? genreRequirement = entityData['genre'];
       if (genreRequirement != null) {
@@ -617,7 +619,7 @@ final class GameLogic {
           if (!hasGenreRankPassive) {
             requirementsMet = false;
             description.writeln(
-                '<red>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
+                '<$tags>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
           }
         }
       }
@@ -637,7 +639,7 @@ final class GameLogic {
         if (!hasAnyEquipment) {
           requirementsMet = false;
           description.writeln(
-              '<red>${engine.locale('equipment_requirement')}: ${equipmentRequirement.map((r) => engine.locale(r)).join(',')}</>');
+              '<$tags>${engine.locale('equipment_requirement')}: ${equipmentRequirement.map((r) => engine.locale(r)).join(',')}</>');
         }
       } else {
         assert(equipmentRequirement is String,
@@ -646,7 +648,7 @@ final class GameLogic {
             null) {
           requirementsMet = false;
           description.writeln(
-              '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
+              '<$tags>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
         }
       }
     }
@@ -659,11 +661,11 @@ final class GameLogic {
         if (attrValue < attrRequirement) {
           requirementsMet = false;
           description.writeln(
-              '<red>${engine.locale('attribute_requirement')}: ${engine.locale(attr)} - $attrRequirement</>');
+              '<$tags>${engine.locale('attribute_requirement')}: ${engine.locale(attr)} - $attrRequirement</>');
         }
       }
     }
-    final info = description.toString();
+    final info = description.toString().trim();
     return requirementsMet ? null : info;
   }
 

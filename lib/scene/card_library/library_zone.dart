@@ -371,7 +371,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
         }
         // (game as CardLibraryScene).cardDragRelease();
       } else if (button == kSecondaryButton) {
-        (game as CardLibraryScene).startCraft(card);
+        (game as CardLibraryScene).onStartCraft(card);
       }
     };
 

@@ -81,6 +81,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
               positionalArgs[0],
               amount: namedArgs['amount'],
               percentage: namedArgs['percentage'],
+              force: namedArgs['force'] ?? false,
             );
       case 'addStatusEffect':
         return ({object, positionalArgs, namedArgs}) => character

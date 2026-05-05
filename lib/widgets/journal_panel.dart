@@ -67,7 +67,7 @@ class _JournalPanelState extends State<JournalPanel> {
                             style: const TextStyle(
                               fontSize: 20.0,
                               color: Colors.yellow,
-                              shadows: kTextShadow,
+                              shadows: kTextShadows,
                             ),
                           ),
                           const Divider(),
@@ -76,7 +76,7 @@ class _JournalPanelState extends State<JournalPanel> {
                             textAlign: TextAlign.left,
                             textStyle: const TextStyle(
                               fontSize: 16.0,
-                              shadows: kTextShadow,
+                              shadows: kTextShadows,
                             ),
                           ),
                           if (journal['quest']?['timeLimit'] != null)
@@ -89,7 +89,7 @@ class _JournalPanelState extends State<JournalPanel> {
                                     '${engine.locale('deadline')}: ',
                                     style: const TextStyle(
                                       fontSize: 16.0,
-                                      shadows: kTextShadow,
+                                      shadows: kTextShadows,
                                     ),
                                   ),
                                   Text(
@@ -97,7 +97,7 @@ class _JournalPanelState extends State<JournalPanel> {
                                         journal),
                                     style: TextStyle(
                                       fontSize: 16.0,
-                                      shadows: kTextShadow,
+                                      shadows: kTextShadows,
                                       color: GameData.game['timestamp'] >
                                               (journal['timestamp'] +
                                                   journal['quest']['timeLimit'])

@@ -4,7 +4,6 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 
 import '../../ui.dart';
-import '../../global.dart';
 import '../../data/game.dart';
 
 class HandZone extends PiledZone with HandlesGesture {
@@ -35,11 +34,11 @@ class HandZone extends PiledZone with HandlesGesture {
     card.onPreviewed = () {
       card.priority = 1000; // 提高优先级以覆盖其他元素
       card.showGlow = true;
-      final isDetailed = engine.config.developMode;
+      // final isDetailed = engine.config.developMode;
       final (_, description) = GameData.getBattleCardDescription(
         card.data,
-        isDetailed: isDetailed,
-        showDetailedHint: false,
+        isDetailed: true,
+        showAffixes: false,
       );
       Hovertip.show(
         scene: game,

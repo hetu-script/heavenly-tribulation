@@ -192,7 +192,7 @@ struct GameData {
 function createGame(saveName, {
   seed: integer,
   mainWorldId: string,
-  enableTutorial = true
+  enableTutorial = false
 }) {
   engine.info('创建新游戏')
   game = GameData(

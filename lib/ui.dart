@@ -19,7 +19,7 @@ export 'widgets/ui_overlay.dart';
 
 const double _kTextShadowOffset = 0.5;
 
-const List<Shadow> kTextShadow = [
+const List<Shadow> kTextShadows = [
   Shadow(
     // bottomLeft
     offset: Offset(-_kTextShadowOffset, -_kTextShadowOffset),
@@ -484,7 +484,7 @@ final class GameUI {
   static late Vector2 orderByButtonPosition, filterByButtonPosition;
 
   /// 卡包展示卡牌的大小
-  static late Vector2 craftCardSize;
+  static late Vector2 focusedCardSize;
 
   static late Vector2 craftCardPosition;
 
@@ -679,10 +679,10 @@ final class GameUI {
     libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     // libraryCardSize = deckbuildingCardSize;
 
-    craftCardSize = libraryCardSize * 1.5;
+    focusedCardSize = libraryCardSize * 1.5;
 
-    craftCardPosition = Vector2(
-        size.x / 2 - craftCardSize.x / 2, center.y - craftCardSize.y + indent);
+    craftCardPosition = Vector2(size.x / 2 - focusedCardSize.x / 2,
+        center.y - focusedCardSize.y + indent);
 
     cardpackCardPositions =
         generateDividingPointsOnCircle(center: center, radius: 250.0, number: 5)

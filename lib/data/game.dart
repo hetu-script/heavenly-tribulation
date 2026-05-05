@@ -565,7 +565,7 @@ final class GameData with ChangeNotifier {
     Map<String, dynamic> arguments = const {},
     String? mainWorldId,
     int? seed,
-    bool enableTutorial = true,
+    bool enableTutorial = false,
     bool isEditorMode = false,
   }) async {
     engine.clearLogs();
@@ -1192,18 +1192,16 @@ final class GameData with ChangeNotifier {
   static (String, String) getBattleCardDescription(
     dynamic cardData, {
     bool isDetailed = false,
+    bool showAffixes = false,
     bool showRequirement = true,
-    bool showDetailedHint = true,
     bool showDebugId = true,
   }) {
     final List affixes = cardData['affixes'];
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
-    final bool isIdentified = cardData['isIdentified'] == true;
     String title = cardData['name'];
 
     assert(affixes.isNotEmpty);
-    // final mainAffix = affixes[0];
 
     final description = StringBuffer();
     final extraDescription = StringBuffer();
@@ -1220,13 +1218,23 @@ final class GameData with ChangeNotifier {
     final categoryString =
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
-    extraDescription.writeln(titleString);
+    if (showAffixes) {
+      extraDescription.writeln(titleString);
+      extraDescription.writeln('$rankString$genreString$categoryString');
+    }
+
     if (engine.config.developMode && showDebugId) {
       extraDescription
           .writeln('<grey>[${cardData['id']}]</> - press `ctrl+c` to copy');
     }
-    extraDescription.writeln('$rankString$genreString$categoryString');
-    extraDescription.writeln(kSeparateLine);
+
+    if (showRequirement) {
+      String? requirementString = GameLogic.checkRequirements(cardData);
+      if (requirementString != null) {
+        extraDescription.writeln(kSeparateLine);
+        extraDescription.writeln(requirementString);
+      }
+    }
 
     final Map<String, String> explanations = {};
     for (var i = 0; i < affixes.length; ++i) {
@@ -1235,74 +1243,54 @@ final class GameData with ChangeNotifier {
       final affixDescription =
           affixDescriptionRaw.interpolate(affix['value']).split(RegExp('\n'));
 
-      if (isIdentified) {
-        for (var line in affixDescription) {
-          if (i == 0) {
-            description.writeln(line);
+      for (var line in affixDescription) {
+        if (i == 0) {
+          description.writeln(line);
+          if (showAffixes) {
+            extraDescription.writeln(kSeparateLine);
             extraDescription.writeln(line);
-          } else {
-            // 在详细模式下显示词条等级和隐藏境界
-            if (isDetailed) {
-              final int? affixRank = affix['rank'];
-              if (affix['value'] != null) {
-                if (affixRank != null) {
-                  line +=
-                      ' ($levelPrefix ${affix['level']}, ${engine.locale('cultivationRank_$affixRank')})';
-                } else {
-                  line += ' ($levelPrefix ${affix['level']})';
-                }
-              } else if (affixRank != null) {
-                line += ' (${engine.locale('cultivationRank_$affixRank')})';
+          }
+        } else {
+          // 在详细模式下显示词条等级和隐藏境界
+          if (isDetailed) {
+            final int? affixRank = affix['rank'];
+            if (affix['value'] != null) {
+              if (affixRank != null) {
+                line +=
+                    ' ($levelPrefix ${affix['level']}, ${engine.locale('cultivationRank_$affixRank')})';
+              } else {
+                line += ' ($levelPrefix ${affix['level']})';
               }
-            }
-            if (affix['isFreezed'] == true) {
-              extraDescription.writeln('<green>$line</>');
-            } else {
-              extraDescription.writeln('<lightBlue>$line</>');
+            } else if (affixRank != null) {
+              line += ' (${engine.locale('cultivationRank_$affixRank')})';
             }
           }
-        }
-
-        final List? tags = affix['tags'];
-        if (tags != null && tags.isNotEmpty) {
-          for (final tag in tags) {
-            explanations[tag] =
-                '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
+          if (affix['isFreezed'] == true) {
+            line = '<lightGreen>$line</>';
+          } else {
+            line = '<lightBlue>$line</>';
+          }
+          description.writeln(line);
+          if (showAffixes) {
+            extraDescription.writeln(line);
           }
         }
-      } else {
-        continue;
       }
-    }
 
-    if (!isIdentified) {
-      description.writeln('<red>${engine.locale('unidentified')}</>');
-      extraDescription.writeln('<red>${engine.locale('unidentified')}</>');
+      final List? tags = affix['tags'];
+      if (tags != null && tags.isNotEmpty) {
+        for (final tag in tags) {
+          explanations[tag] =
+              '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
+        }
+      }
     }
 
     if (explanations.isNotEmpty) {
-      if (isDetailed) {
-        extraDescription.writeln(kSeparateLine);
-        for (final tag in explanations.keys) {
-          extraDescription.writeln(explanations[tag]);
-        }
-      } else if (showDetailedHint) {
-        extraDescription.writeln(kSeparateLine);
-        extraDescription
-            .writeln('<grey>${engine.locale('explanation_hint')}</>');
+      extraDescription.writeln(kSeparateLine);
+      for (final tag in explanations.keys) {
+        extraDescription.writeln(explanations[tag]);
       }
-    }
-
-    if (isIdentified && showRequirement) {
-      String? requirementString = GameLogic.checkRequirements(cardData);
-      if (requirementString != null) {
-        extraDescription.writeln(requirementString);
-      }
-    }
-
-    if (isIdentified && affixes.length > 1) {
-      description.writeln(
-          '<lightBlue>+ ${affixes.length - 1} ${engine.locale('extraAffix')}</>');
     }
 
     return (
@@ -1341,20 +1329,21 @@ final class GameData with ChangeNotifier {
     final String image = cardData['image'];
     final String title = cardData['name'];
     final int rank = cardData['rank'];
+    final String? genre = cardData['genre'];
     final rarity = kRankToRarity[rank] ?? 'common';
     final rarityColor = RankedColors.values[rarity] ?? RankedColors.common;
 
-    final (description, extraDescription) = getBattleCardDescription(cardData);
+    final (description, _) = getBattleCardDescription(cardData);
 
     return CustomGameCard(
       id: id,
       // uniqueId: id,
       data: cardData,
       preferredSize: GameUI.deckbuildingCardSize,
-      spriteId: 'battlecard/border4.png',
-      illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.074, 0.135, 0.074, 0.235),
+      spriteId: 'battlecard/border7.png',
       illustrationSpriteId: image,
+      illustrationRelativePaddings:
+          const EdgeInsets.fromLTRB(0.0622, 0.135, 0.0622, 0.216),
       backSpriteId: 'battlecard/cardback.png',
       title: title,
       titleRelativePaddings: const EdgeInsets.fromLTRB(0.2, 0.05, 0.2, 0.865),
@@ -1368,23 +1357,24 @@ final class GameData with ChangeNotifier {
         ),
       ),
       descriptionRelativePaddings:
-          const EdgeInsets.fromLTRB(0.108, 0.735, 0.108, 0.08),
+          const EdgeInsets.fromLTRB(0.108, 0.55, 0.108, 0.08),
       descriptionConfig: const ScreenTextConfig(
-        anchor: Anchor.center,
+        anchor: Anchor.bottomCenter,
         textStyle: TextStyle(
-          fontFamily: GameUI.fontFamilyBlack,
+          fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 8.0,
-          color: Colors.black,
+          color: Colors.white,
+          shadows: kTextShadows,
         ),
+        textAlign: TextAlign.left,
         overflow: ScreenTextOverflow.wordwrap,
       ),
-      description: description.toString(),
+      description: description,
       cost: rank + 1,
-      showCostIcon: true,
       showCostNumber: true,
       costIconSpriteId: 'cultivation/cultivation$rank.png',
       costIconRelativePaddings:
-          const EdgeInsets.fromLTRB(0.419, 0.575, 0.419, 0.305),
+          const EdgeInsets.fromLTRB(0.789, 0.04, 0.049, 0.841),
       costNumberTextStyle: ScreenTextConfig(
         anchor: Anchor.center,
         outlined: true,
@@ -1394,9 +1384,14 @@ final class GameData with ChangeNotifier {
           color: Colors.white,
         ),
       ),
+      showGenreIcon: true,
+      genreIconSpriteId: genre == null ? null : 'cultivation/genre_$genre.png',
+      genreIconRelativePaddings:
+          const EdgeInsets.fromLTRB(0.049, 0.04, 0.789, 0.841),
       glowSpriteId: 'battlecard/glow.png',
       glowColor: rarityColor,
       enablePreview: true,
+      focusedSize: GameUI.focusedCardSize,
     );
   }
 
