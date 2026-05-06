@@ -628,7 +628,7 @@ class CardLibraryScene extends Scene {
 
     final clone = card.clone();
     craftingCard = clone;
-    clone.size = GameUI.focusedCardSize;
+    clone.size = GameUI.battleCardFocusedSize;
     clone.position = GameUI.craftCardPosition;
     clone.priority = kBarrierUIPriority;
     clone.enableGesture = false;
@@ -1336,7 +1336,7 @@ class CardLibraryScene extends Scene {
       position: Vector2(
         GameUI.size.x / 2,
         GameUI.craftCardPosition.y +
-            GameUI.focusedCardSize.y +
+            GameUI.battleCardFocusedSize.y +
             GameUI.hugeIndent,
       ),
       spriteId: 'cultivation/scroll.png',

@@ -144,9 +144,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return list;
   }
 
-  List<StatusEffect> get nonPermanentEffects {
+  List<StatusEffect> get otherEffects {
+    final list = _statusEffects.values
+        .where((element) => !element.isPermanent && !element.isResource)
+        .toList();
+    list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
+  }
+
+  List<StatusEffect> get resourceEffects {
     final list =
-        _statusEffects.values.where((element) => !element.isPermanent).toList();
+        _statusEffects.values.where((element) => element.isResource).toList();
     list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
     return list;
   }
@@ -262,6 +270,48 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
+  /// 非永久效果位置在血条上方
+  void reArrangeOtherEffects() {
+    for (var i = 0; i < otherEffects.length; ++i) {
+      final effect = otherEffects.elementAt(i);
+      if (isHero) {
+        effect.position = Vector2(
+            GameUI.p1CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                i * GameUI.statusEffectIconSize.x,
+            GameUI.p1CharacterAnimationPosition.y -
+                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
+      } else {
+        effect.position = Vector2(
+            GameUI.p2CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                (i + 1) * GameUI.statusEffectIconSize.x,
+            GameUI.p2CharacterAnimationPosition.y -
+                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
+      }
+    }
+  }
+
+  /// 资源位于血条下方
+  void reArrangeResourceEffects() {
+    for (var i = 0; i < resourceEffects.length; ++i) {
+      final effect = resourceEffects.elementAt(i);
+      if (isHero) {
+        effect.position = Vector2(
+            GameUI.p1CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                i * GameUI.statusEffectIconSize.x,
+            GameUI.p1CharacterAnimationPosition.y);
+      } else {
+        effect.position = Vector2(
+            GameUI.p2CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                (i + 1) * GameUI.statusEffectIconSize.x,
+            GameUI.p2CharacterAnimationPosition.y);
+      }
+    }
+  }
+
   /// 永久效果位置：英雄在装备栏下方，敌人在装备栏下方（从右向左排列）
   void reArrangePermanentEffects() {
     final iconStep =
@@ -284,51 +334,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           rightEdge - (i + 1) * iconStep,
           effectY,
         );
-      }
-    }
-  }
-
-  /// 非永久效果位置在血条上方
-  void reArrangeNonResourceEffects() {
-    final nonResourceEffects =
-        nonPermanentEffects.where((e1) => !e1.isResource);
-    for (var i = 0; i < nonResourceEffects.length; ++i) {
-      final effect = nonResourceEffects.elementAt(i);
-      if (isHero) {
-        effect.position = Vector2(
-            GameUI.p1CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                i * GameUI.statusEffectIconSize.x,
-            GameUI.p1CharacterAnimationPosition.y -
-                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
-      } else {
-        effect.position = Vector2(
-            GameUI.p2CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                (i + 1) * GameUI.statusEffectIconSize.x,
-            GameUI.p2CharacterAnimationPosition.y -
-                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
-      }
-    }
-  }
-
-  /// 资源位于血条下方
-  void reArrangeResourceEffects() {
-    final resourceEffects = nonPermanentEffects.where((e1) => e1.isResource);
-    for (var i = 0; i < resourceEffects.length; ++i) {
-      final effect = resourceEffects.elementAt(i);
-      if (isHero) {
-        effect.position = Vector2(
-            GameUI.p1CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                i * GameUI.statusEffectIconSize.x,
-            GameUI.p1CharacterAnimationPosition.y);
-      } else {
-        effect.position = Vector2(
-            GameUI.p2CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                (i + 1) * GameUI.statusEffectIconSize.x,
-            GameUI.p2CharacterAnimationPosition.y);
       }
     }
   }
@@ -384,7 +389,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           if (existEffect.isResource) {
             resourceIconNeedsRearranging = true;
           } else {
-            reArrangeNonResourceEffects();
+            reArrangeOtherEffects();
           }
         }
       }
@@ -508,7 +513,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       } else if (effect.isPermanent) {
         reArrangePermanentEffects();
       } else {
-        reArrangeNonResourceEffects();
+        reArrangeOtherEffects();
       }
     }
 
@@ -565,7 +570,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    for (final effect in nonPermanentEffects) {
+    for (final effect in otherEffects) {
       if (effect.callbacks.contains(callbackId)) {
         final r = _invokeScript(effect, callbackId, details);
         if (r != null) {

@@ -286,8 +286,7 @@ class BattleScene extends Scene {
       }
 
       if (isHero) {
-        _missingCardCount =
-            math.max(0, kBattleDeckSize - cards.length);
+        _missingCardCount = math.max(0, kBattleDeckSize - cards.length);
         for (var i = 0; i < _missingCardCount; i++) {
           cards.add(_createBlankCard());
         }
@@ -300,8 +299,8 @@ class BattleScene extends Scene {
   }
 
   CustomGameCard _createBlankCard() {
-    final blankData =
-        engine.hetu.invoke('BattleCard', namedArgs: {'affixId': 'blank_default'});
+    final blankData = engine.hetu
+        .invoke('BattleCard', namedArgs: {'affixId': 'blank_default'});
     final card = GameData.createBattleCard(blankData, deepCopyData: true);
     card.isFlipped = true;
     world.add(card);
@@ -374,8 +373,8 @@ class BattleScene extends Scene {
     heroHandZone = HandZone(
       position: GameUI.p1HandZonePosition,
       isVisible: false,
-      focusedPosition: Vector2(
-          GameUI.largeIndent, size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
+      focusedPosition: Vector2(GameUI.hugeIndent + GameUI.indent,
+          size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
     );
     heroHandZone.onCardSelected = _onHeroCardSelected;
     world.add(heroHandZone);
@@ -445,7 +444,9 @@ class BattleScene extends Scene {
         GameUI.p2HandZonePosition.y,
       ),
       focusedPosition: Vector2(
-          size.x - GameUI.largeIndent - GameUI.battleCardFocusedSize.x,
+          size.x -
+              (GameUI.hugeIndent + GameUI.indent) -
+              GameUI.battleCardFocusedSize.x,
           size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
     );
     world.add(enemyHandZone);

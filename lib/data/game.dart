@@ -1376,22 +1376,21 @@ final class GameData with ChangeNotifier {
       costIconRelativePaddings:
           const EdgeInsets.fromLTRB(0.789, 0.04, 0.049, 0.841),
       costNumberTextStyle: ScreenTextConfig(
-        anchor: Anchor.center,
+        anchor: Anchor.topCenter,
         outlined: true,
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyBlack,
           fontSize: 14.0,
-          color: Colors.white,
         ),
       ),
       showGenreIcon: true,
-      genreIconSpriteId: genre == null ? null : 'cultivation/genre_$genre.png',
+      genreIconSpriteId: genre == null ? null : 'battlecard/genre_$genre.png',
       genreIconRelativePaddings:
           const EdgeInsets.fromLTRB(0.049, 0.04, 0.789, 0.841),
       glowSpriteId: 'battlecard/glow.png',
       glowColor: rarityColor,
       enablePreview: true,
-      focusedSize: GameUI.focusedCardSize,
+      focusedSize: GameUI.battleCardFocusedSize,
     );
   }
 

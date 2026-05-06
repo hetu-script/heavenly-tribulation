@@ -49,8 +49,8 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   String? get script => data['script'];
   String? get soundId => data['sound'];
   bool get isHidden => data['isHidden'] ?? false;
-  bool get isResource => data['isResource'] ?? false;
   bool get isDebuff => data['isDebuff'] ?? false;
+  bool get isResource => data['isResource'] ?? false;
   bool get isPermanent => data['isPermanent'] ?? false;
   bool get isOngoing => data['isOngoing'] ?? false;
   bool get isUnique => data['isUnique'] ?? false;

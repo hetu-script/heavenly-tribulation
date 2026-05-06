@@ -484,7 +484,6 @@ final class GameUI {
   static late Vector2 orderByButtonPosition, filterByButtonPosition;
 
   /// 卡包展示卡牌的大小
-  static late Vector2 focusedCardSize;
 
   static late Vector2 craftCardPosition;
 
@@ -679,10 +678,8 @@ final class GameUI {
     libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     // libraryCardSize = deckbuildingCardSize;
 
-    focusedCardSize = libraryCardSize * 1.5;
-
-    craftCardPosition = Vector2(size.x / 2 - focusedCardSize.x / 2,
-        center.y - focusedCardSize.y + indent);
+    craftCardPosition = Vector2(size.x / 2 - battleCardFocusedSize.x / 2,
+        center.y - battleCardFocusedSize.y + indent);
 
     cardpackCardPositions =
         generateDividingPointsOnCircle(center: center, radius: 250.0, number: 5)

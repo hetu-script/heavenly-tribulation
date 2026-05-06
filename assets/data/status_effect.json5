@@ -741,6 +741,7 @@
     attackType: "curse",
     callbacks: ["self_doing_damage"],
   },
+  // 无极之气
   energy_positive_ultimate: {
     id: "energy_positive_ultimate",
     title: "status_energy_positive_ultimate",
@@ -827,6 +828,7 @@
     attackType: "curse",
     callbacks: ["self_doing_damage"],
   },
+  // 虚无之气
   energy_negative_ultimate: {
     id: "energy_negative_ultimate",
     title: "status_energy_negative_ultimate",
