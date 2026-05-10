@@ -1141,8 +1141,8 @@ class MouseMazeGame extends Scene with HasCursorState {
           actions: [
             Container(
               decoration: GameUI.boxDecoration,
-              width: GameUI.infoButtonSize.width,
-              height: GameUI.infoButtonSize.height,
+              width: GameUI.buttonSizeIconSmall.width,
+              height: GameUI.buttonSizeIconSmall.height,
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),

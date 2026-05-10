@@ -20,7 +20,7 @@ class CloseButton2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BorderedIconButton(
-      size: GameUI.infoButtonSize,
+      size: GameUI.buttonSizeIconSmall,
       padding: const EdgeInsets.all(2),
       borderRadius: 5.0,
       onPressed: () {

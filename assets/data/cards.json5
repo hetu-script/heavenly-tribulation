@@ -16,7 +16,7 @@
   // 特殊卡牌，不会出现在卡包中，可能通过技能获得
   blank_default: {
     id: "blank_default",
-    description: "blank_default",
+    description: "blank_default_description",
     image: "battlecard/illustration/blank_default.png",
     isUnique: true,
     isUnpackable: true,

@@ -235,7 +235,14 @@ final class GameUI {
   static const smallIndent = 10.0;
   // general ui
   static const avatarSize = 120.0;
-  static const infoButtonSize = Size(30.0, 30.0);
+  static const buttonSizeIconSmall = Size(30.0, 30.0);
+  static const buttonSizeIconMedium = Size(55.0, 55.0);
+  static const buttonSizeIconLarge = Size(80.0, 80.0);
+  static final buttonSizeSmall = Vector2(110, 40);
+  static final buttonSizeMedium = Vector2(160, 60);
+  static final buttonSizeLarge = Vector2(240, 80);
+  static final buttonSizeSquare = Vector2(60, 60);
+  static final buttonSizeLong = Vector2(180, 60);
 
   /// 楷体
   static const String fontFamilyKaiti = 'LXGWMONO';
@@ -552,11 +559,6 @@ final class GameUI {
 
   static late Vector2 levelUpButtonPosition;
   static late Vector2 collectButtonPosition;
-  static final buttonSizeSmall = Vector2(110, 40);
-  static final buttonSizeMedium = Vector2(160, 60);
-  static final buttonSizeLarge = Vector2(240, 80);
-  static final buttonSizeSquare = Vector2(60, 60);
-  static final buttonSizeLong = Vector2(180, 60);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 

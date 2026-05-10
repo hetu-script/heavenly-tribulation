@@ -14,6 +14,7 @@ import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
 
+const kMinCardDisplayDuration = 800;
 const kDamagePercentageMin = -0.75;
 
 const kResourceMaxId = {
@@ -78,11 +79,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final dynamic data;
 
+  final _sw = Stopwatch();
+
   final Set<String> animationStates = {};
   final Set<String> overlayAnimationStates = {};
 
-  late final DynamicColorProgressIndicator _hpBar; //, _mpBar;
-
+  late final DynamicColorProgressIndicator hpBar;
   late int _life;
   int get life => _life;
 
@@ -103,7 +105,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         _life = value;
       }
     }
-    _hpBar.setValue(_life, animated: animated);
+    hpBar.setValue(_life, animated: animated);
   }
 
   late int _lifeMax;
@@ -114,23 +116,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (value < 1) value = 1;
     final int characterLifeMax = data['stats']['battleLifeMax'];
     int diff = (value - characterLifeMax).abs();
-    _lifeMax = _hpBar.max = value;
+    _lifeMax = hpBar.max = value;
     if (value > characterLifeMax) {
       addHintText('${engine.locale('lifeMax')} +$diff',
           color: Colors.lightGreen);
-      _hpBar.labelColor = Colors.yellow;
+      hpBar.labelColor = Colors.yellow;
       if (rejuvenate) {
         _life += diff;
       }
     } else if (value < characterLifeMax) {
       addHintText('${engine.locale('lifeMax')} -$diff', color: Colors.pink);
-      _hpBar.labelColor = Colors.grey;
+      hpBar.labelColor = Colors.grey;
       if (_life > _lifeMax) {
         _life = _lifeMax;
       }
     }
-    _hpBar.setValue(_life);
-    _hpBar.max = _lifeMax;
+    hpBar.setValue(_life);
+    hpBar.max = _lifeMax;
   }
 
   BattleCharacter? opponent;
@@ -167,9 +169,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final BattleDeckZone deckZone;
 
-  int currentEnergy = 0;
-  int maxEnergy = 0;
-  int turnCounter = 0;
+  int _energyMax = 0;
+  int get energyMax => _energyMax;
+
+  int energy = 0;
+  int turnCount = 0;
 
   final Map<String, dynamic> turnFlags = {};
   final Map<String, dynamic> cardFlags = {};
@@ -218,35 +222,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _life = data['life'].toInt();
     _lifeMax = data['stats']['battleLifeMax'].toInt();
 
-    _hpBar = DynamicColorProgressIndicator(
+    // TODO:修改费用上限的装备效果
+    _energyMax = (data['rank'] as int) + 2;
+
+    hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       position: Vector2(0, -GameUI.resourceBarHeight),
       size: Vector2(width, GameUI.resourceBarHeight),
-      value: life,
-      max: lifeMax,
+      value: _life,
+      max: _lifeMax,
       colors: [Colors.red, Colors.green],
       showNumber: true,
       labelFontSize: 10.0,
       labelColor: Colors.white,
     );
     if (!isHero) {
-      _hpBar.flipHorizontally();
+      hpBar.flipHorizontally();
     }
-    add(_hpBar);
-
-    // _mpBar = DynamicColorProgressIndicator(
-    //   anchor: isHero ? Anchor.topLeft : Anchor.topRight,
-    //   position: Vector2(0, -GameUI.resourceBarHeight * 2),
-    //   size: Vector2(width, GameUI.resourceBarHeight),
-    //   value: mana,
-    //   max: manaMax,
-    //   colors: [Colors.lightBlue, Colors.blue],
-    //   showNumber: true,
-    // );
-    // if (!isHero) {
-    //   _mpBar.flipHorizontally();
-    // }
-    // add(_mpBar);
+    add(hpBar);
   }
 
   @override
@@ -598,16 +591,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void reset() {
-    _life = data['life'].toInt();
-    _lifeMax = data['stats']['battleLifeMax'].toInt();
-    _hpBar.max = _lifeMax;
-    _hpBar.setValue(_life);
-    _hpBar.labelColor = Colors.white;
-    // setMana(0, animated: false);
-    setState(kStandState);
-    clearAllStatusEffects();
+    if (!isLoaded) return;
     turnFlags.clear();
     cardFlags.clear();
+    _life = data['life'].toInt();
+    _lifeMax = data['stats']['battleLifeMax'].toInt();
+    hpBar.max = _lifeMax;
+    hpBar.setValue(_life);
+    hpBar.labelColor = Colors.white;
+    setState(kStandState);
+    clearAllStatusEffects();
   }
 
   /// 尝试消耗指定的生命，如果消耗值大于生命，返回 false
@@ -682,13 +675,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 乘区2: 从闪避中获得的免疫，从迟钝中获得的踉跄
   /// 乘区3: 正气的伤害增加，戾气的伤害减少
   int takeDamage(dynamic damageDetails, {bool recovery = true}) {
+    assert(damageDetails['baseValue'] > 0);
+    assert(opponent != null && opponent!.cardFlags['damage'] != null);
+
     damageDetails['baseChange'] ??= 0;
     damageDetails['percentageChange1'] ??= 0.0;
     damageDetails['percentageChange2'] ??= 0.0;
     damageDetails['percentageChange3'] ??= 0.0;
     damageDetails['penetration'] ??= 0.0;
-
-    assert(opponent != null && opponent!.cardFlags['damage'] != null);
 
     damageDetails['baseChange'] +=
         opponent!.cardFlags['damage']['baseChange'] ?? 0;
@@ -700,8 +694,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         opponent!.cardFlags['damage']['percentageChange3'] ?? 0.0;
     damageDetails['penetration'] +=
         opponent!.cardFlags['damage']['penetration'] ?? 0;
-
-    assert(damageDetails['baseValue'] > 0);
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
     // 否则的话意味着是某些状态效果或者额外词条造成的伤害
@@ -740,6 +732,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           'unexpected: calculated damage < 0 on damage details: \n${damageDetails.toString()}');
       finalDamage = 0;
     }
+
     String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
 
     addHintText(damageString,
@@ -776,6 +769,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       handleStatusEffectCallback('self_taken_damage', damageDetails);
 
       opponent!.cardFlags['damage']['total'] += finalDamage;
+      opponent!.turnFlags['totalDamage'] += finalDamage;
     }
 
     // bool blocked = damageDetails['blocked'] ?? false;
@@ -794,9 +788,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 重置 turnFlags
     turnFlags.clear();
     // 重置主词条本回合累计伤害计数
-    turnFlags['damage'] = <String, dynamic>{
-      'total': 0,
-    };
+    turnFlags['totalDamage'] = 0;
     // isExtra 表示这是某些机制触发的再次行动回合
     turnFlags["isExtra"] = isExtra;
 
@@ -817,8 +809,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
   Future<void> onUseCard(CustomGameCard card) async {
+    _sw.start();
     // 重置 cardFlags
     cardFlags.clear();
+    cardFlags['damage'] = <String, dynamic>{
+      'total': 0,
+    };
 
     // 展示当前卡牌及其详情
     card.enablePreview = false;
@@ -904,6 +900,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 触发对方被发动攻击后的效果
       opponent!.handleStatusEffectCallback('opponent_attacked');
     }
+
+    final delta = _sw.elapsedMilliseconds;
+    if (delta < kMinCardDisplayDuration) {
+      await Future.delayed(
+          Duration(milliseconds: kMinCardDisplayDuration - delta));
+    }
+    _sw.stop();
+    _sw.reset();
   }
 
   /// 返回值true表示获得一个额外回合

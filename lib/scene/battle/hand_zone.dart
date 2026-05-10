@@ -11,6 +11,8 @@ class HandZone extends PiledZone with HandlesGesture {
 
   bool enableInteraction;
 
+  int energy = 0;
+
   HandZone({
     required super.position,
     super.reverseX,
@@ -27,19 +29,27 @@ class HandZone extends PiledZone with HandlesGesture {
           pileStyle: PileStyle.queue,
         );
 
-  void addCard(CustomGameCard card) {
-    if (!cards.contains(card)) {
-      cards.add(card);
-    }
-    card.pile = this;
+  @override
+  void tryAddCard(
+    GameCard c, {
+    int? index,
+    bool animated = true,
+    bool clone = false,
+    bool sort = true,
+  }) {
+    assert(c is CustomGameCard);
+    CustomGameCard card = c as CustomGameCard;
 
-    if (!enableInteraction) return;
+    super.tryAddCard(card, animated: true, clone: false, sort: sort);
 
     card.isFlipped = false;
     card.enablePreview = true;
 
+    if (!enableInteraction) return;
+
     card.onTapUp = (button, position) {
       onCardSelected?.call(card);
+      Hovertip.hide(card);
     };
 
     card.onPreviewed = () {
@@ -76,7 +86,7 @@ class HandZone extends PiledZone with HandlesGesture {
     card.onUnpreviewed = null;
   }
 
-  Future<void> clearHand() async {
+  void clearHand() {
     for (final card in cards) {
       clearCardInteraction(card as CustomGameCard);
     }

@@ -220,7 +220,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                     child: Row(
                       children: [
                         BorderedIconButton(
-                          size: GameUI.infoButtonSize,
+                          size: GameUI.buttonSizeIconSmall,
                           padding: const EdgeInsets.only(right: 10.0),
                           onPressed: () {
                             context
@@ -240,7 +240,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           ),
                         ),
                         BorderedIconButton(
-                          size: GameUI.infoButtonSize,
+                          size: GameUI.buttonSizeIconSmall,
                           padding: const EdgeInsets.only(right: 10.0),
                           onPressed: () {
                             engine.pushScene(Scenes.cultivation);
@@ -258,7 +258,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           ),
                         ),
                         BorderedIconButton(
-                          size: GameUI.infoButtonSize,
+                          size: GameUI.buttonSizeIconSmall,
                           padding: const EdgeInsets.only(right: 10.0),
                           onPressed: () {
                             engine.pushScene(Scenes.library);
@@ -402,7 +402,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                     child: Row(
                       children: [
                         BorderedIconButton(
-                          size: GameUI.infoButtonSize,
+                          size: GameUI.buttonSizeIconSmall,
                           padding: const EdgeInsets.only(left: 5.0),
                           onEnter: (rect) {
                             final Widget statsView = CharacterStats(

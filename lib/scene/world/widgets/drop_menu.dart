@@ -44,8 +44,8 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
     return Container(
       decoration: GameUI.boxDecoration,
       margin: const EdgeInsets.only(left: 5.0),
-      width: GameUI.infoButtonSize.width,
-      height: GameUI.infoButtonSize.height,
+      width: GameUI.buttonSizeIconSmall.width,
+      height: GameUI.buttonSizeIconSmall.height,
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(
@@ -136,8 +136,8 @@ class _DropMenuButtonState extends State<DropMenuButton> {
     return Container(
       decoration: GameUI.boxDecoration,
       margin: const EdgeInsets.only(left: 5.0),
-      width: GameUI.infoButtonSize.width,
-      height: GameUI.infoButtonSize.height,
+      width: GameUI.buttonSizeIconSmall.width,
+      height: GameUI.buttonSizeIconSmall.height,
       child: fluent.FlyoutTarget(
         controller: menuController,
         child: IconButton(

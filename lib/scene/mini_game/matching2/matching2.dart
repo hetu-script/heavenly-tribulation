@@ -1100,8 +1100,8 @@ class MatchingGame2 extends Scene with HasCursorState {
             // 帮助按钮
             Container(
               decoration: GameUI.boxDecoration,
-              width: GameUI.infoButtonSize.width,
-              height: GameUI.infoButtonSize.height,
+              width: GameUI.buttonSizeIconSmall.width,
+              height: GameUI.buttonSizeIconSmall.height,
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),

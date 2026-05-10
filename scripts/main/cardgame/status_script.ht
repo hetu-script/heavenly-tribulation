@@ -258,14 +258,14 @@ struct StatusScript {
   }
 
   function enable_chakra_self_turn_end(self, opponent, effect, details) {
-    final chakra = self.turnFlags.damage.total ~/ 10
+    final chakra = self.turnFlags.totalDamage ~/ 10
     if (chakra > 0) {
       self.addStatusEffect('energy_positive_weapon', amount: chakra)
     }
   }
 
   function enable_rage_opponent_turn_end(self, opponent, effect, details) {
-    final rage = opponent.turnFlags.damage.total ~/ 10
+    final rage = opponent.turnFlags.totalDamage ~/ 10
     if (rage > 0) {
       self.addStatusEffect('energy_positive_unarmed', amount: rage)
     }
@@ -281,9 +281,9 @@ struct StatusScript {
   }
 
   function energy_positive_leech_self_turn_end(self, opponent, effect, details) {
-    if (self.turnFlags.damage.total <= 0) return
+    if (self.turnFlags.totalDamage <= 0) return
 
-    let gain = ((self.turnFlags.damage.total / 10) * effect.amount).round()
+    let gain = ((self.turnFlags.totalDamage / 10) * effect.amount).round()
     self.changeLife(gain)
     
     self.removeStatusEffect(effect.id, amount: 1)
@@ -358,9 +358,9 @@ struct StatusScript {
   }
 
   function energy_negative_leech_self_turn_end(self, opponent, effect, details) {
-    if (self.turnFlags.damage.total <= 0) return
+    if (self.turnFlags.totalDamage <= 0) return
 
-    let lost = -((self.turnFlags.damage.total / 10) * effect.amount).round()
+    let lost = -((self.turnFlags.totalDamage / 10) * effect.amount).round()
     self.changeLife(lost)
     
     self.removeStatusEffect(effect.id, amount: 1)

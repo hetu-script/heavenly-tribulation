@@ -1393,7 +1393,7 @@ class CardLibraryScene extends Scene {
       for (final cardId in zone.preloadCardIds) {
         final card = libraryZone.library[cardId];
         assert(card != null, 'Card $cardId not found in library');
-        zone.tryAddCard(card!, animated: false, clone: true);
+        zone.tryAddCard(card!);
       }
       zone.collapse(animated: false);
       // zone.updateDeckLimit();
@@ -1476,8 +1476,8 @@ class CardLibraryScene extends Scene {
           actions: [
             Container(
               decoration: GameUI.boxDecoration,
-              width: GameUI.infoButtonSize.width,
-              height: GameUI.infoButtonSize.height,
+              width: GameUI.buttonSizeIconSmall.width,
+              height: GameUI.buttonSizeIconSmall.height,
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),

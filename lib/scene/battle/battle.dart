@@ -28,7 +28,6 @@ import '../../data/common.dart';
 import 'common.dart';
 import '../../state/states.dart';
 
-const kMinTurnDuration = 800;
 const kBattleRoundLimit = 16;
 
 /// 后手方恢复 20% 战斗生命上限
@@ -112,7 +111,7 @@ class BattleScene extends Scene {
 
   late final BattleCharacter hero, enemy;
   late final BattleDeckZone heroDeckZone, enemyDeckZone;
-  late final BattleDiscardZone heroDiscardZone, enemyDiscardZone;
+  late final DiscardZone heroDiscardZone, enemyDiscardZone;
   late final HandZone heroHandZone, enemyHandZone;
   late final EnergyDisplay heroEnergyDisplay, enemyEnergyDisplay;
   late final SpriteButton endTurnButton;
@@ -151,8 +150,8 @@ class BattleScene extends Scene {
 
   final int endBattleAfterRounds;
 
-  Completer<CustomGameCard>? _playerCardSelection;
-  Completer<bool>? _playerTurnAction;
+  Completer<CustomGameCard?>? _playerCardSelection;
+  bool _isPlayerTurnEnded = false;
   bool _isRestarting = false;
 
   int _replacedCardCount = 0;
@@ -320,6 +319,10 @@ class BattleScene extends Scene {
     super.onMount();
 
     Hovertip.hideAll();
+
+    Future.delayed(Duration(milliseconds: 250), () {
+      _startBattle();
+    });
   }
 
   @override
@@ -368,7 +371,7 @@ class BattleScene extends Scene {
     );
     world.add(heroDeckZone);
 
-    heroDiscardZone = BattleDiscardZone(
+    heroDiscardZone = DiscardZone(
       position: GameUI.p1BattleDiscardZonePosition,
       reverseX: false,
       isVisible: false,
@@ -446,7 +449,7 @@ class BattleScene extends Scene {
     );
     world.add(enemyDeckZone);
 
-    enemyDiscardZone = BattleDiscardZone(
+    enemyDiscardZone = DiscardZone(
       position: GameUI.p2BattleDiscardZonePosition,
       reverseX: true,
       isVisible: false,
@@ -549,37 +552,26 @@ class BattleScene extends Scene {
       text: engine.locale('endTurn'),
       anchor: Anchor.center,
       position: Vector2(GameUI.indent, size.y / 2),
-      size: Vector2(80, 80),
+      size: GameUI.buttonSizeIconLarge.toVector2(),
       isVisible: false,
     );
     endTurnButton.onTap = (_, __) {
-      _playerTurnAction?.complete(false);
+      endTurnButton.isVisible = false;
+      _isPlayerTurnEnded = true;
+
+      for (final card in heroHandZone.cards) {
+        heroHandZone.clearCardInteraction(card as CustomGameCard);
+      }
     };
     camera.viewport.add(endTurnButton);
 
-    _rollFirsthand();
-    showStartPrompt();
+    // showStartPrompt();
   }
 
-  Future<void> showStartPrompt() async {
-    await charactersInformation.fadeIn(duration: 1.2);
+  // Future<void> showStartPrompt() async {
+  // await charactersInformation.fadeIn(duration: 1.2);
 
-    _startBattleFlow();
-  }
-
-  /// 根据身法加权随机决定先手，偷袭时英雄直接先手
-  void _rollFirsthand() {
-    if (isSneakAttack) {
-      isFirsthand = true;
-      return;
-    }
-    final int heroDex = heroData['stats']['dexterity'];
-    final int enemyDex = enemyData['stats']['dexterity'];
-    // 每差 10 点身法，先手概率偏移 10%
-    final double probability = (0.5 + (heroDex - enemyDex) / 100).clamp(0, 1);
-    final roll = random.nextDouble();
-    isFirsthand = roll < probability;
-  }
+  // }
 
   Future<void> _onBattleStart() async {
     battleStarted = true;
@@ -597,12 +589,10 @@ class BattleScene extends Scene {
     heroHandZone.isVisible = true;
     enemyHandZone.isVisible = true;
 
-    hero.currentEnergy = 0;
-    hero.maxEnergy = 0;
-    hero.turnCounter = 0;
-    enemy.currentEnergy = 0;
-    enemy.maxEnergy = 0;
-    enemy.turnCounter = 0;
+    hero.energy = 0;
+    hero.turnCount = 0;
+    enemy.energy = 0;
+    enemy.turnCount = 0;
 
     heroEnergyDisplay.setEnergy(0);
     heroEnergyDisplay.isVisible = true;
@@ -612,7 +602,17 @@ class BattleScene extends Scene {
     heroDiscardZone.isVisible = true;
     enemyDiscardZone.isVisible = true;
 
-    _rollFirsthand();
+    /// 根据身法加权随机决定先手，偷袭时英雄直接先手
+    if (isSneakAttack) {
+      isFirsthand = true;
+    } else {
+      final int heroDex = heroData['stats']['dexterity'];
+      final int enemyDex = enemyData['stats']['dexterity'];
+      // 每差 10 点身法，先手概率偏移 10%
+      final double probability = (0.5 + (heroDex - enemyDex) / 100).clamp(0, 1);
+      final roll = random.nextDouble();
+      isFirsthand = roll < probability;
+    }
 
     if (_replacedCardCount > 0 || _missingCardCount > 0) {
       if (_replacedCardCount > 0) {
@@ -649,16 +649,14 @@ class BattleScene extends Scene {
 
     // 后手补偿: 恢复少量生命（偷袭时无补偿）
     if (!isSneakAttack) {
-      final secondHandCharacter = heroTurn ? enemy : hero;
-      final int overheal = secondHandCharacter.life -
-          secondHandCharacter.data['stats']['lifeMax'] as int;
+      final secondCharacter = heroTurn ? enemy : hero;
+      final int overheal = secondCharacter.life -
+          secondCharacter.data['stats']['lifeMax'] as int;
       final int heal =
-          secondHandCharacter.lifeMax - secondHandCharacter.life + overheal;
+          secondCharacter.lifeMax - secondCharacter.life + overheal;
       if (heal > 0) {
-        secondHandCharacter.setLife(secondHandCharacter.lifeMax,
-            overflow: true);
-        secondHandCharacter.addHintText(
-            '${engine.locale('secondHandHeal')} +$heal',
+        secondCharacter.setLife(secondCharacter.lifeMax, overflow: true);
+        secondCharacter.addHintText('${engine.locale('secondHandHeal')} +$heal',
             color: Colors.lightGreen);
       }
     }
@@ -666,23 +664,32 @@ class BattleScene extends Scene {
     await onBattleStart?.call();
   }
 
-  Future<void> _startBattleFlow() async {
-    while (true) {
-      _isRestarting = false;
-      await _onBattleStart();
+  void _cleanupForRestart() {
+    _returnAllCardsToDecks();
+    heroHandZone.clearHand();
+    enemyHandZone.clearHand();
+    heroDeckZone.sortCards(animated: false);
+    heroDeckZone.shuffle();
+    enemyDeckZone.sortCards(animated: false);
+    enemyDeckZone.shuffle();
+    _isRestarting = false;
+  }
 
-      while (battleResult == null && !_isRestarting) {
-        await _startTurn();
-      }
-
+  Future<void> _startBattle() async {
+    while (battleResult == null) {
       if (_isRestarting) {
-        await _cleanupForRestart();
-        continue;
+        _cleanupForRestart();
+        battleStarted = false;
       }
 
-      await _onBattleEnd();
-      break;
+      if (!battleStarted) {
+        await _onBattleStart();
+      }
+
+      await _startTurn();
     }
+
+    await _onBattleEnd();
   }
 
   void _returnAllCardsToDecks() {
@@ -708,26 +715,7 @@ class BattleScene extends Scene {
     }
   }
 
-  Future<void> _cleanupForRestart() async {
-    _returnAllCardsToDecks();
-    await heroHandZone.clearHand();
-    await enemyHandZone.clearHand();
-    heroDeckZone.sortCards(animated: false);
-    heroDeckZone.shuffle();
-    enemyDeckZone.sortCards(animated: false);
-    enemyDeckZone.shuffle();
-  }
-
-  void _setEnergy(BattleCharacter character) {
-    character.turnCounter++;
-    character.maxEnergy = (character.data['rank'] as int) + 2;
-    character.currentEnergy =
-        math.min(character.turnCounter, character.maxEnergy);
-    final display = character.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
-    display.setEnergy(character.currentEnergy);
-  }
-
-  void _shuffleDiscardIntoDeck(BattleDeckZone deck, BattleDiscardZone discard) {
+  void _shuffleDiscardIntoDeck(BattleDeckZone deck, DiscardZone discard) {
     for (final card in discard.cards.toList()) {
       discard.removeCardByIndex(card.index);
       card.isFlipped = true;
@@ -736,9 +724,9 @@ class BattleScene extends Scene {
     deck.shuffle();
   }
 
-  Future<int> _drawCardsToHand(
+  Future<int> drawCardsToHand(
     BattleDeckZone deck,
-    BattleDiscardZone discard,
+    DiscardZone discard,
     HandZone hand,
     int count,
   ) async {
@@ -754,7 +742,7 @@ class BattleScene extends Scene {
       } else {
         card.isFlipped = false;
       }
-      hand.addCard(card);
+      hand.tryAddCard(card, sort: false);
       drawn++;
     }
     await hand.sortCards();
@@ -763,9 +751,9 @@ class BattleScene extends Scene {
 
   void _onHeroCardSelected(CustomGameCard card) {
     if (_playerCardSelection != null && !_playerCardSelection!.isCompleted) {
-      if (card.cost > currentCharacter.currentEnergy) return;
+      if (card.cost > currentCharacter.energy) return;
       _playerCardSelection!.complete(card);
-      _playerTurnAction?.complete(true);
+      _playerCardSelection = null;
     }
   }
 
@@ -814,13 +802,15 @@ class BattleScene extends Scene {
     assert(deckZone.cards.isNotEmpty || discardZone.cards.isNotEmpty);
 
     do {
-      _setEnergy(currentCharacter);
+      currentCharacter.turnCount += 1;
+      currentCharacter.energy = currentCharacter.energyMax;
+      energyDisplay.setEnergy(currentCharacter.energy);
 
       final drawCount =
           GameLogic.getHandLimitForRank(currentCharacter.data['rank'])['limit']
               as int;
       final drawn =
-          await _drawCardsToHand(deckZone, discardZone, handZone, drawCount);
+          await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
 
       await currentCharacter.onStartTurn(isExtra: extraTurn);
 
@@ -845,75 +835,41 @@ class BattleScene extends Scene {
       }
 
       if (heroTurn) {
-        while (currentCharacter.currentEnergy > 0) {
-          final affordable = handZone.cards.where((c) {
-            return (c as CustomGameCard).cost <= currentCharacter.currentEnergy;
-          }).toList();
-          if (affordable.isEmpty) break;
-
-          for (final card in handZone.cards) {
-            final cgCard = card as CustomGameCard;
-            if (cgCard.cost <= currentCharacter.currentEnergy) {
-              handZone.addCard(cgCard);
-            } else {
-              handZone.clearCardInteraction(cgCard);
-            }
-          }
-
-          endTurnButton.isVisible = true;
-          _playerTurnAction = Completer<bool>();
-          _playerCardSelection = Completer<CustomGameCard>();
-
-          final action = await _playerTurnAction!.future;
-          _playerTurnAction = null;
-          if (_isRestarting) return;
-          if (!action) break;
-
+        endTurnButton.isVisible = true;
+        _isPlayerTurnEnded = false;
+        while (!_isRestarting && !_isPlayerTurnEnded) {
+          assert(_playerCardSelection == null);
+          _playerCardSelection = Completer<CustomGameCard?>();
           final selectedCard = await _playerCardSelection!.future;
-          _playerCardSelection = null;
+          if (selectedCard == null) break;
 
-          currentCharacter.currentEnergy -= selectedCard.cost;
-          energyDisplay.setEnergy(currentCharacter.currentEnergy);
-          selectedCard.removeFromPile();
+          currentCharacter.energy -= selectedCard.cost;
+          handZone.energy = currentCharacter.energy;
+          energyDisplay.setEnergy(currentCharacter.energy);
           handZone.clearCardInteraction(selectedCard);
           await currentCharacter.onUseCard(selectedCard);
           await Future.delayed(const Duration(milliseconds: 500));
-          discardZone.cards.add(selectedCard);
+          discardZone.tryAddCard(selectedCard);
           selectedCard.pile = discardZone;
-
-          if (currentCharacter.turnFlags['extraTurn'] == true) {
-            extraTurn = true;
-          }
-        }
-
-        endTurnButton.isVisible = false;
-        for (final card in handZone.cards) {
-          handZone.clearCardInteraction(card as CustomGameCard);
         }
       } else {
-        while (currentCharacter.currentEnergy > 0 && !_isRestarting) {
+        while (!_isRestarting && currentCharacter.energy > 0) {
           final affordable = handZone.cards
-              .where((c) =>
-                  (c as CustomGameCard).cost <= currentCharacter.currentEnergy)
+              .where(
+                  (c) => (c as CustomGameCard).cost <= currentCharacter.energy)
               .toList()
               .cast<CustomGameCard>();
           if (affordable.isEmpty) break;
 
           final selectedCard = _enemySelectCard(affordable);
-          currentCharacter.currentEnergy -= selectedCard.cost;
-          (currentCharacter.isHero ? heroEnergyDisplay : enemyEnergyDisplay)
-              .setEnergy(currentCharacter.currentEnergy);
+          currentCharacter.energy -= selectedCard.cost;
+          energyDisplay.setEnergy(currentCharacter.energy);
 
           selectedCard.isFlipped = false;
-          await Future.delayed(const Duration(milliseconds: 600));
-
-          selectedCard.removeFromPile();
-          handZone.clearCardInteraction(selectedCard);
           await currentCharacter.onUseCard(selectedCard);
-
+          handZone.clearCardInteraction(selectedCard);
           selectedCard.isFlipped = true;
-          discardZone.cards.add(selectedCard);
-          selectedCard.pile = discardZone;
+          discardZone.tryAddCard(selectedCard);
 
           if (currentCharacter.turnFlags['extraTurn'] == true) {
             extraTurn = true;
@@ -940,7 +896,7 @@ class BattleScene extends Scene {
         discardZone.cards.add(card);
         card.pile = discardZone;
       }
-      await handZone.clearHand();
+      handZone.clearHand();
     } while (extraTurn);
 
     heroTurn = !heroTurn;
@@ -1087,8 +1043,8 @@ class BattleScene extends Scene {
             if (engine.config.developMode)
               Container(
                 decoration: GameUI.boxDecoration,
-                width: GameUI.infoButtonSize.width,
-                height: GameUI.infoButtonSize.height,
+                width: GameUI.buttonSizeIconSmall.width,
+                height: GameUI.buttonSizeIconSmall.height,
                 child: fluent.FlyoutTarget(
                   controller: menuController,
                   child: IconButton(
@@ -1122,17 +1078,14 @@ class BattleScene extends Scene {
                                 victoryPrompt.isVisible = false;
                                 defeatPrompt.isVisible = false;
                                 endButton.isVisible = false;
-                                _startBattleFlow();
+                                _startBattle();
                               } else if (battleStarted) {
                                 _isRestarting = true;
+                                _isPlayerTurnEnded = false;
                                 if (_playerCardSelection != null &&
                                     !_playerCardSelection!.isCompleted) {
-                                  _playerCardSelection!
-                                      .complete(heroDeck.first);
-                                }
-                                if (_playerTurnAction != null &&
-                                    !_playerTurnAction!.isCompleted) {
-                                  _playerTurnAction!.complete(false);
+                                  _playerCardSelection!.complete(null);
+                                  _playerCardSelection = null;
                                 }
                               }
                             case 'console':

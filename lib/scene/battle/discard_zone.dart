@@ -4,8 +4,8 @@ import 'package:samsara/samsara.dart';
 
 import '../../ui.dart';
 
-class BattleDiscardZone extends PiledZone with HandlesGesture {
-  BattleDiscardZone({
+class DiscardZone extends PiledZone with HandlesGesture {
+  DiscardZone({
     required super.position,
     super.cards,
     super.reverseX,

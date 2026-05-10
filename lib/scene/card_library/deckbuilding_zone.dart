@@ -339,8 +339,13 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   /// 尝试加入卡牌，如果不能加入，返回的是表示原因的字符串
   @override
-  String? tryAddCard(GameCard c,
-      {int? index, bool animated = true, bool clone = false}) {
+  String? tryAddCard(
+    GameCard c, {
+    int? index,
+    bool animated = true,
+    bool clone = false,
+    bool sort = false,
+  }) {
     if (containsCard(c.uniqueId)) {
       return 'deckbuilding_already_in_battle_deck';
     }
@@ -359,11 +364,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     CustomGameCard card = c;
 
-    if (clone) {
-      card = c.clone();
-      card.position = c.absolutePosition - absolutePosition;
-      add(card);
-    }
+    card = c.clone();
+    card.position = c.absolutePosition - absolutePosition;
+    add(card);
 
     // card.onTapDown = (button, position) {
     //   if (button == kPrimaryButton) {
@@ -407,7 +410,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         );
     card.onUnpreviewed = () => unpreviewCard();
 
-    placeCard(card, index: index, animated: animated);
+    placeCard(card, animated: false);
 
     return null;
   }

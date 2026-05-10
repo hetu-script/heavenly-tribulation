@@ -413,7 +413,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               gridSize: const Size(30.0, 30.0),
                             ),
                             BorderedIconButton(
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -435,7 +435,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             BorderedIconButton(
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -465,7 +465,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             BorderedIconButton(
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -498,7 +498,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             ),
                             BorderedIconButton(
                               isEnabled: widget.enableCultivation,
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -538,7 +538,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             ),
                             BorderedIconButton(
                               isEnabled: widget.enableLibrary,
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -573,7 +573,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             BorderedIconButton(
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
@@ -608,7 +608,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               ),
                             ),
                             BorderedIconButton(
-                              size: GameUI.infoButtonSize,
+                              size: GameUI.buttonSizeIconSmall,
                               padding: const EdgeInsets.all(2),
                               borderRadius: 5.0,
                               onPressed: () {
