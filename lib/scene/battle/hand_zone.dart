@@ -9,6 +9,8 @@ import '../../data/game.dart';
 class HandZone extends PiledZone with HandlesGesture {
   void Function(CustomGameCard card)? onCardSelected;
 
+  bool enableInteraction;
+
   HandZone({
     required super.position,
     super.reverseX,
@@ -16,6 +18,7 @@ class HandZone extends PiledZone with HandlesGesture {
     super.isVisible,
     super.pileStartPosition,
     super.focusedPosition,
+    required this.enableInteraction,
   }) : super(
           size: GameUI.handZoneSize,
           piledCardSize: GameUI.battleCardSize,
@@ -24,7 +27,15 @@ class HandZone extends PiledZone with HandlesGesture {
           pileStyle: PileStyle.queue,
         );
 
-  void setupCardInteraction(CustomGameCard card) {
+  void addCard(CustomGameCard card) {
+    if (!cards.contains(card)) {
+      cards.add(card);
+    }
+    card.pile = this;
+
+    if (!enableInteraction) return;
+
+    card.isFlipped = false;
     card.enablePreview = true;
 
     card.onTapUp = (button, position) {
@@ -32,9 +43,8 @@ class HandZone extends PiledZone with HandlesGesture {
     };
 
     card.onPreviewed = () {
-      card.priority = 1000; // 提高优先级以覆盖其他元素
+      card.priority = 1000;
       card.showGlow = true;
-      // final isDetailed = engine.config.developMode;
       final (_, description) = GameData.getBattleCardDescription(
         card.data,
         isDetailed: true,
@@ -60,8 +70,10 @@ class HandZone extends PiledZone with HandlesGesture {
   }
 
   void clearCardInteraction(CustomGameCard card) {
-    card.onTapUp = null;
     card.enablePreview = false;
+    card.onTapUp = null;
+    card.onPreviewed = null;
+    card.onUnpreviewed = null;
   }
 
   Future<void> clearHand() async {

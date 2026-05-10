@@ -6,6 +6,10 @@ import 'package:samsara/colors.dart';
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
 
 const kSeparateDot = '・';
+const kLozenge = '◊';
+
+const kAffixLeading = '◆';
+const kAffixLeading2 = '✶';
 
 /// Unicode Character "∕" (U+2215)
 const kSlash = '∕';

@@ -521,7 +521,7 @@ class CardLibraryScene extends Scene {
       scene: this,
       position: Vector2(
           GameUI.craftCardPosition.x - kHovertipDefautWidth - GameUI.indent,
-          GameUI.craftCardPosition.y + GameUI.hugeIndent + GameUI.indent),
+          GameUI.craftCardPosition.y + GameUI.indent),
       content: description,
       config: ScreenTextConfig(
         anchor: Anchor.topCenter,
@@ -628,7 +628,7 @@ class CardLibraryScene extends Scene {
 
     final clone = card.clone();
     craftingCard = clone;
-    clone.size = GameUI.battleCardFocusedSize;
+    clone.size = GameUI.craftCardSize;
     clone.position = GameUI.craftCardPosition;
     clone.priority = kBarrierUIPriority;
     clone.enableGesture = false;

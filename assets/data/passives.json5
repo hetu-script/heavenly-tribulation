@@ -731,14 +731,6 @@
     tags: ["status_energy_positive_spell"],
     rank: 1,
   },
-  start_deck_with_energy_positive_spell: {
-    id: "start_deck_with_energy_positive_spell",
-    uniqueId: "start_with_energy_positive_spell",
-    description: "passive_start_deck_with_energy_positive_spell_description",
-    priority: 4257,
-    increment: 0.2,
-    tags: ["status_energy_positive_spell"],
-  },
   // 剑气
   start_battle_with_energy_positive_weapon: {
     id: "start_battle_with_energy_positive_weapon",
@@ -755,14 +747,6 @@
     tags: ["status_energy_positive_weapon"],
     rank: 1,
   },
-  start_deck_with_energy_positive_weapon: {
-    id: "start_deck_with_energy_positive_weapon",
-    uniqueId: "start_with_energy_positive_weapon",
-    description: "passive_start_deck_with_energy_positive_weapon_description",
-    priority: 4248,
-    increment: 0.2,
-    tags: ["status_energy_positive_weapon"],
-  },
   // 怒气
   start_battle_with_energy_positive_unarmed: {
     id: "start_battle_with_energy_positive_unarmed",
@@ -778,14 +762,6 @@
     kinds: ["pearl"],
     tags: ["status_energy_positive_unarmed"],
     rank: 1,
-  },
-  start_deck_with_energy_positive_unarmed: {
-    id: "start_deck_with_energy_positive_unarmed",
-    uniqueId: "start_with_energy_positive_unarmed",
-    description: "passive_start_deck_with_energy_positive_unarmed_description",
-    priority: 4239,
-    increment: 0.2,
-    tags: ["status_energy_positive_unarmed"],
   },
 
   // 无极之气

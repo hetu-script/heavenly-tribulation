@@ -16,6 +16,8 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return character.data;
       case 'turnFlags':
         return character.turnFlags;
+      case 'cardFlags':
+        return character.cardFlags;
       case 'life':
         return character.life;
       case 'lifeMax':

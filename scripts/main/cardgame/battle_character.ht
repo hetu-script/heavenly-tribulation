@@ -13,6 +13,8 @@ external class BattleCharacter {
   get data
 
   get turnFlags
+
+  get cardFlags
   
   get life
 

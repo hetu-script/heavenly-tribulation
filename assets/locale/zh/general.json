@@ -121,6 +121,7 @@
   "start": "开始",
   "restart": "重新开始",
   "nextTurn": "下一回合",
+  "endTurn": "结束\n回合",
   "add": "添加",
   "retry": "重试",
   "end": "结束",

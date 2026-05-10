@@ -6,7 +6,7 @@ import 'common.ht'
 /// 这个脚本将会根据该状态在例如回合开始时等时机触发
 /// 状态脚本必须是非阻塞，不能是async
 /// 函数的类型固定为: function (self, opponent, effect, details)
-/// 战斗角色对象上的 turnFlags 保存了此角色此回合的卡牌的一些参数
+/// 战斗角色对象上的 cardFlags 保存了此角色此回合打出的卡牌的一些参数
 /// details 则是此次脚本事件本身的参数（如果有的话）
 
 /// 触发时机包括: 
@@ -103,7 +103,7 @@ struct StatusScript {
     final threshold = self.data.stats.nimbleThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_nimble', amount: threshold)
-      self.turnFlags.immuneDamage = true
+      self.turnFlags.invincible = true
       self.addStatusEffect('dodge_invincible')
     }
   }
@@ -113,7 +113,7 @@ struct StatusScript {
     final threshold = self.data.stats.clumsyThreshold
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_clumsy', amount: threshold)
-      self.turnFlags.staggeringTurn = true
+      self.turnFlags.staggering = true
       self.addStatusEffect('dodge_staggering')
     }
   }

@@ -1188,7 +1188,7 @@ final class GameData with ChangeNotifier {
     return out;
   }
 
-  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
+  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是卡牌悬浮提示
   static (String, String) getBattleCardDescription(
     dynamic cardData, {
     bool isDetailed = false,
@@ -1245,6 +1245,7 @@ final class GameData with ChangeNotifier {
 
       for (var line in affixDescription) {
         if (i == 0) {
+          line = '<bold>$line</>';
           description.writeln(line);
           if (showAffixes) {
             extraDescription.writeln(kSeparateLine);
@@ -1265,6 +1266,7 @@ final class GameData with ChangeNotifier {
               line += ' (${engine.locale('cultivationRank_$affixRank')})';
             }
           }
+          line = '$kSeparateDot$line';
           if (affix['isFreezed'] == true) {
             line = '<lightGreen>$line</>';
           } else {
@@ -1375,7 +1377,7 @@ final class GameData with ChangeNotifier {
       costIconSpriteId: 'cultivation/cultivation$rank.png',
       costIconRelativePaddings:
           const EdgeInsets.fromLTRB(0.789, 0.04, 0.049, 0.841),
-      costNumberTextStyle: ScreenTextConfig(
+      costNumberTextConfig: ScreenTextConfig(
         anchor: Anchor.topCenter,
         outlined: true,
         textStyle: TextStyle(

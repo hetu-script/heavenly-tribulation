@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/progress_indicator.dart';
-import 'package:samsara/components/ui/hovertip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
 // import 'package:samsara/components/task_component.dart';
@@ -168,7 +167,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final BattleDeckZone deckZone;
 
+  int currentEnergy = 0;
+  int maxEnergy = 0;
+  int turnCounter = 0;
+
   final Map<String, dynamic> turnFlags = {};
+  final Map<String, dynamic> cardFlags = {};
 
   BattleCharacter({
     super.position,
@@ -603,6 +607,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     setState(kStandState);
     clearAllStatusEffects();
     turnFlags.clear();
+    cardFlags.clear();
   }
 
   /// 尝试消耗指定的生命，如果消耗值大于生命，返回 false
@@ -683,18 +688,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     damageDetails['percentageChange3'] ??= 0.0;
     damageDetails['penetration'] ??= 0.0;
 
-    assert(opponent != null && opponent!.turnFlags['damage'] != null);
+    assert(opponent != null && opponent!.cardFlags['damage'] != null);
 
     damageDetails['baseChange'] +=
-        opponent!.turnFlags['damage']['baseChange'] ?? 0;
+        opponent!.cardFlags['damage']['baseChange'] ?? 0;
     damageDetails['percentageChange1'] +=
-        opponent!.turnFlags['damage']['percentageChange1'] ?? 0.0;
+        opponent!.cardFlags['damage']['percentageChange1'] ?? 0.0;
     damageDetails['percentageChange2'] +=
-        opponent!.turnFlags['damage']['percentageChange2'] ?? 0.0;
+        opponent!.cardFlags['damage']['percentageChange2'] ?? 0.0;
     damageDetails['percentageChange3'] +=
-        opponent!.turnFlags['damage']['percentageChange3'] ?? 0.0;
+        opponent!.cardFlags['damage']['percentageChange3'] ?? 0.0;
     damageDetails['penetration'] +=
-        opponent!.turnFlags['damage']['penetration'] ?? 0;
+        opponent!.cardFlags['damage']['penetration'] ?? 0;
 
     assert(damageDetails['baseValue'] > 0);
 
@@ -770,7 +775,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 触发自己受到伤害后的效果
       handleStatusEffectCallback('self_taken_damage', damageDetails);
 
-      opponent!.turnFlags['damage']['total'] += finalDamage;
+      opponent!.cardFlags['damage']['total'] += finalDamage;
     }
 
     // bool blocked = damageDetails['blocked'] ?? false;
@@ -785,11 +790,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return finalDamage;
   }
 
-  /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
-  Future<Map<String, dynamic>> onTurnStart(CustomGameCard card,
-      {bool isExtra = false}) async {
-    // 重置 turnflag
-    // turnFlags 是词条 callback 调用使用的出入参
+  Future<void> onStartTurn({bool isExtra = false}) async {
+    // 重置 turnFlags
     turnFlags.clear();
     // 重置主词条本回合累计伤害计数
     turnFlags['damage'] = <String, dynamic>{
@@ -805,40 +807,22 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (turnFlags['skipTurn'] ?? false) {
       addHintText(engine.locale('skipTurn'));
-      await Future.delayed(Duration(milliseconds: 500));
-      return turnFlags;
+      await Future.delayed(Duration(milliseconds: 350));
     }
 
     if (turnFlags['defensePersisted'] ?? false) {
       addHintText(engine.locale('defensePersisted'));
     }
+  }
+
+  /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
+  Future<void> onUseCard(CustomGameCard card) async {
+    // 重置 cardFlags
+    cardFlags.clear();
 
     // 展示当前卡牌及其详情
     card.enablePreview = false;
     await card.setFocused(true, duration: 0.2);
-    if (card.data['isIdentified'] != true) {
-      card.data['isIdentified'] = true;
-    }
-    // final (description, exDescription) = GameData.getBattleCardDescription(
-    //   card.data,
-    //   showRequirement: false,
-    //   isDetailed: false,
-    //   showDetailedHint: false,
-    //   showDebugId: false,
-    // );
-    // card.description = description;
-    // Hovertip.show(
-    //   scene: game,
-    //   target: card,
-    //   direction:
-    //       isHero ? HovertipDirection.rightCenter : HovertipDirection.leftCenter,
-    //   // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
-    //   content: exDescription,
-    //   config: ScreenTextConfig(
-    //     anchor: Anchor.topCenter,
-    //     textAlign: TextAlign.center,
-    //   ),
-    // );
 
     final List affixes = card.data['affixes'];
     assert(affixes.isNotEmpty);
@@ -848,13 +832,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final category = mainAffix['category'];
     final genre = mainAffix['genre'];
     final kind = mainAffix['kind'];
-    turnFlags['category'] = category;
-    turnFlags['genre'] = genre;
-    turnFlags['kind'] = kind;
+    cardFlags['category'] = category;
+    cardFlags['genre'] = genre;
+    cardFlags['kind'] = kind;
 
     if (category == 'attack') {
-      turnFlags['attackType'] = mainAffix['attackType'];
-      turnFlags['damageType'] = mainAffix['damageType'];
+      cardFlags['attackType'] = mainAffix['attackType'];
+      cardFlags['damageType'] = mainAffix['damageType'];
     }
 
     opponent!
@@ -920,33 +904,20 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 触发对方被发动攻击后的效果
       opponent!.handleStatusEffectCallback('opponent_attacked');
     }
-
-    // if (mainAffix['isEphemeral'] == true) {
-    //   // 触发自己使用消耗牌后的效果
-    //   handleStatusEffectCallback('self_consumed');
-    //   // 触发对方使用消耗牌后的效果
-    //   opponent!.handleStatusEffectCallback('opponent_consumed');
-    // }
-
-    return turnFlags;
   }
 
   /// 返回值true表示获得一个额外回合
-  Future<Map<String, dynamic>> onTurnEnd(CustomGameCard card) async {
+  Future<void> onEndTurn() async {
     handleStatusEffectCallback('self_turn_end');
     opponent!.handleStatusEffectCallback('opponent_turn_end');
 
-    await card.setFocused(false, duration: 0.2);
-    Hovertip.hide(card);
-    card.enablePreview = true;
-
-    if (turnFlags['staggeringTurn'] == true) {
-      addHintText(engine.locale('staggeringTurn'));
+    if (turnFlags['staggering'] == true) {
+      addHintText(engine.locale('staggering'));
       await Future.delayed(Duration(milliseconds: 350));
     }
 
-    if (turnFlags['immuneDamage'] == true) {
-      addHintText(engine.locale('immuneDamage'));
+    if (turnFlags['invincible'] == true) {
+      addHintText(engine.locale('invincible'));
       await Future.delayed(Duration(milliseconds: 350));
     }
 
@@ -954,7 +925,5 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       addHintText(engine.locale('extraTurn'));
       await Future.delayed(Duration(milliseconds: 350));
     }
-
-    return turnFlags;
   }
 }

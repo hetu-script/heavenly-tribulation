@@ -224,17 +224,17 @@ struct CardScriptExtra {
 
   /// 攻击后每造成10点伤害回复生命
   async function by_damage_heal(self, opponent, affix, mainAffix) {
-    final turnDamage = self.turnFlags.damage.total ?? 0
-    if (turnDamage < 10) return
-    final amount = (turnDamage / 10).floor()
+    final cardDamage = self.cardFlags.damage.total ?? 0
+    if (cardDamage < 10) return
+    final amount = (cardDamage / 10).floor()
     self.changeLife(affix.value[0] * amount)
   }
 
   /// 攻击后每造成10点伤害获得防御
   async function by_damage_gain_defense(self, opponent, affix, mainAffix) {
-    final turnDamage = self.turnFlags.damage.total ?? 0
-    if (turnDamage < 10) return
-    final amount = (turnDamage / 10).floor()
+    final cardDamage = self.cardFlags.damage.total ?? 0
+    if (cardDamage < 10) return
+    final amount = (cardDamage / 10).floor()
     self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0] * amount)
   }
 
@@ -256,6 +256,6 @@ struct CardScriptExtra {
 
   async function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
     final amount = self.data.stats[affix.attributeId] * 0.005
-    self.turnFlags.damage.percentageChange1 += amount
+    self.cardFlags.damage.percentageChange1 += amount
   }
 }

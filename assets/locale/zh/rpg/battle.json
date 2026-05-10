@@ -20,10 +20,9 @@
   "secondHandHeal": "后手生命回复",
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",
-  "immuneDamage": "免伤！",
   "missedHit": "MISS！",
-  "immuneDebuff": "辟邪！",
-  "staggeringTurn": "踉跄！",
+  "invincible": "免伤！",
+  "staggering": "踉跄！",
   "defensePersisted": "防御保持！",
 
   "wooden_dummy": "木人",
