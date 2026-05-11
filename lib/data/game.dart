@@ -1201,6 +1201,7 @@ final class GameData with ChangeNotifier {
     final List affixes = cardData['affixes'];
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
+    final bool isIdentified = cardData['isIdentified'] ?? false;
     String title = cardData['name'];
 
     assert(affixes.isNotEmpty);
@@ -1240,6 +1241,8 @@ final class GameData with ChangeNotifier {
 
     final Map<String, String> explanations = {};
     for (var i = 0; i < affixes.length; ++i) {
+      if (!isIdentified) continue;
+
       final affix = affixes[i];
       final affixDescriptionRaw = engine.locale(affix['description']);
       final affixDescription =
@@ -1249,7 +1252,7 @@ final class GameData with ChangeNotifier {
         if (i == 0) {
           line = '<bold>$line</>';
           description.writeln(line);
-          if (showAffixes) {
+          if (showAffixes && isIdentified) {
             extraDescription.writeln(kSeparateLine);
             extraDescription.writeln(line);
           }
@@ -1288,6 +1291,11 @@ final class GameData with ChangeNotifier {
               '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
         }
       }
+    }
+
+    if (!isIdentified) {
+      description.writeln('<red>${engine.locale('unidentified')}</>');
+      extraDescription.writeln('<red>${engine.locale('unidentified')}</>');
     }
 
     if (explanations.isNotEmpty) {

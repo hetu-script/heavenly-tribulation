@@ -1389,7 +1389,7 @@ class CardLibraryScene extends Scene {
       for (final cardId in zone.preloadCardIds) {
         final card = libraryZone.library[cardId];
         assert(card != null, 'Card $cardId not found in library');
-        zone.tryAddCard(card!);
+        await zone.tryAddCard(card!);
       }
       zone.collapse(animated: false);
       // zone.updateDeckLimit();

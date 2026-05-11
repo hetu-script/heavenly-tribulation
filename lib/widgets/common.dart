@@ -9,6 +9,7 @@ void previewCard(
   dynamic cardData,
   Rect rect, {
   bool isLibrary = true,
+  bool showAffixes = false,
   HoverContentDirection? direction,
   dynamic character,
 }) {
@@ -20,6 +21,7 @@ void previewCard(
     contentBuilder: (isDetailed) => buildItemHoverInfo(
       cardData,
       isDetailed: isDetailed,
+      showAffixes: showAffixes,
       inventoryType: inventoryType,
     ),
   );
@@ -117,6 +119,7 @@ String? buildItemHoverInfo(
   dynamic priceFactor,
   InventoryType inventoryType = InventoryType.none,
   bool isDetailed = false,
+  bool showAffixes = false,
 }) {
   engine.context.read<HoverContentState>().setCurrentId(data['id']);
 
@@ -163,6 +166,7 @@ String? buildItemHoverInfo(
       final (_, description) = GameData.getBattleCardDescription(
         showRequirement: inventoryType == InventoryType.player,
         data,
+        showAffixes: showAffixes,
         isDetailed: isDetailed,
         showDebugId: engine.config.developMode,
       );

@@ -59,6 +59,7 @@ class BattleCard extends StatelessWidget {
                     data,
                     rect,
                     isLibrary: isHero,
+                    showAffixes: true,
                     direction: cardInfoDirection,
                     character: isHero ? character : null,
                   );

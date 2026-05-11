@@ -341,10 +341,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   @override
   String? tryAddCard(
     GameCard c, {
-    int? index,
-    bool animated = true,
     bool clone = false,
-    bool sort = false,
+    int? index,
+    // bool animated = true,
+    // bool sort = false,
   }) {
     if (containsCard(c.uniqueId)) {
       return 'deckbuilding_already_in_battle_deck';
@@ -409,7 +409,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         );
     card.onMouseExit = () => unpreviewCard();
 
-    placeCard(card, animated: false);
+    placeCard(card);
 
     return null;
   }

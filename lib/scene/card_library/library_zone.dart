@@ -360,7 +360,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       if (button == kPrimaryButton) {
         if (!card.isEnabled) return;
         if (buildingZone != null) {
-          String? result = buildingZone!.tryAddCard(card, clone: true);
+          String? result = await buildingZone!.tryAddCard(card, clone: true);
           if (result != null) {
             dialog.pushDialog(result);
             dialog.execute();

@@ -741,8 +741,8 @@ final class GameUI {
     p1HandZonePosition = Vector2(
         p1BattleDeckZonePosition.x + battleDeckZoneSize.x + indent,
         deckAndHandY);
-    p2HandZonePosition =
-        Vector2(p2BattleDiscardZonePosition.x - indent, deckAndHandY);
+    p2HandZonePosition = Vector2(
+        p2BattleDiscardZonePosition.x - indent - handZoneSize.x, deckAndHandY);
 
     // 费用酒瓶位置：手牌区上方
     p1EnergyDisplayPosition = Vector2(indent + battleEnergyBottleSize.x / 2,

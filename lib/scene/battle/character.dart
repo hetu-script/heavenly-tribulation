@@ -14,7 +14,7 @@ import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
 
-const kMinCardDisplayDuration = 800;
+const kMinCardDisplayDuration = 1000;
 const kDamagePercentageMin = -0.75;
 
 const kResourceMaxId = {
@@ -362,7 +362,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       if (amount != null) {
         assert(amount > 0);
-        if (force) {
+        if (!existEffect.isResource || force) {
           removeAmount = math.min(existEffect.amount, amount);
         }
       } else if (percentage != null) {
@@ -392,19 +392,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    if (amount != null && removeAmount < amount
-        // && kResourceHasNegatives.contains(id)
-        ) {
+    if (amount != null &&
+        removeAmount < amount &&
+        existEffect?.isResource == true) {
       final hint = engine.locale('resourceLacking',
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
-
-      // final rest = (amount - removeAmount);
-      // final oppositeId = id.replaceAll('positive', 'negative');
-      // // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
-      // addStatusEffect(oppositeId, amount: rest, handleCallback: false);
-
-      // resourceIconNeedsRearranging = true;
     }
 
     if (resourceIconNeedsRearranging) {
@@ -815,6 +808,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     cardFlags['damage'] = <String, dynamic>{
       'total': 0,
     };
+
+    if (card.data['isIdentified'] != true) {
+      card.data['isIdentified'] = true;
+      final (description, _) = GameData.getBattleCardDescription(
+        card.data,
+        showRequirement: false,
+        isDetailed: false,
+      );
+      card.description = description;
+    }
 
     // 展示当前卡牌及其详情
     card.enableGesture = false;

@@ -29,28 +29,32 @@ class HandZone extends PiledZone with HandlesGesture {
               -(GameUI.battleCardFocusedSize.x - GameUI.battleCardSize.x) / 2,
               -(GameUI.battleCardFocusedSize.y - GameUI.battleCardSize.y)),
           pileStyle: PileStyle.queue,
+          spreadMargin: GameUI.battleCardSize.x / 4,
         );
 
   @override
   void tryAddCard(
     GameCard c, {
+    bool clone = false,
     int? index,
     bool animated = true,
-    bool clone = false,
     bool sort = true,
   }) {
     assert(c is CustomGameCard);
     CustomGameCard card = c as CustomGameCard;
 
-    super.tryAddCard(card, animated: true, clone: false, sort: sort);
+    super.tryAddCard(card, clone: clone);
 
     if (!enableInteraction) return;
 
     card.enableGesture = true;
 
     card.onTapUp = (button, position) {
-      onCardSelected?.call(card);
       Hovertip.hide(card);
+      onCardSelected?.call(card);
+
+      card.removeFromPile();
+      setSpreadCenter(card, false);
     };
 
     card.onMouseEnter = () {
@@ -71,25 +75,21 @@ class HandZone extends PiledZone with HandlesGesture {
           textAlign: TextAlign.center,
         ),
       );
+      setSpreadCenter(card, true);
     };
 
     card.onMouseExit = () {
       card.setFocused(false);
       card.showGlow = false;
       Hovertip.hide(card);
+      setSpreadCenter(card, false);
     };
   }
 
   void clearCardInteraction(CustomGameCard card) {
+    card.enableGesture = false;
     card.onTapUp = null;
     card.onMouseEnter = null;
     card.onMouseExit = null;
-  }
-
-  void clearHand() {
-    for (final card in cards) {
-      clearCardInteraction(card as CustomGameCard);
-    }
-    cards.clear();
   }
 }
