@@ -21,12 +21,13 @@ import 'discard_zone.dart';
 import 'energy_display.dart';
 import 'hand_zone.dart';
 import '../../global.dart';
-import 'character_information.dart';
 import '../common.dart';
 import '../../data/game.dart';
 import '../../data/common.dart';
 import 'common.dart';
 import '../../state/states.dart';
+import 'equipments_bar.dart';
+import '../../widgets/character/profile.dart';
 
 const kBattleRoundLimit = 16;
 
@@ -105,9 +106,12 @@ class BattleScene extends Scene {
   final String backgroundImageId;
 
   late final SpriteComponent2 background;
-  late final SpriteComponent2 victoryPrompt, defeatPrompt;
 
-  late final CharacterInformation charactersInformation;
+  late final SpriteComponent versusIcon;
+  late final SpriteButton heroIcon, enemyIcon;
+  late final EquipmentsBar heroEquipments, enemyEquipments;
+
+  late final SpriteComponent2 victoryPrompt, defeatPrompt;
 
   late final BattleCharacter hero, enemy;
   late final BattleDeckZone heroDeckZone, enemyDeckZone;
@@ -156,6 +160,14 @@ class BattleScene extends Scene {
 
   int _replacedCardCount = 0;
   int _missingCardCount = 0;
+  void showCharacterInfo(dynamic data) {
+    showDialog(
+      context: engine.context,
+      builder: (context) {
+        return CharacterProfileView(character: data);
+      },
+    );
+  }
 
   BattleScene({
     required this.heroData,
@@ -259,7 +271,7 @@ class BattleScene extends Scene {
     return opponentPrebattleStatus;
   }
 
-  List<CustomGameCard> getDeck(dynamic character) {
+  List<CustomGameCard> getDeck(dynamic character, BattleDeckZone deck) {
     final List decks = character['battleDecks'];
     final index = character['battleDeckIndex'];
     if (decks.isNotEmpty && index >= 0 && index < decks.length) {
@@ -279,9 +291,13 @@ class BattleScene extends Scene {
         }
         final card = GameData.createBattleCard(data, deepCopyData: true);
         card.isFlipped = true;
-        world.add(card);
+        card.enableGesture = false;
         cards.add(card);
+        world.add(card);
+        deck.tryAddCard(card, sort: false, animated: false);
       }
+
+      deck.sortCards();
 
       if (isHero) {
         _missingCardCount = math.max(0, kBattleDeckSize - cards.length);
@@ -334,9 +350,6 @@ class BattleScene extends Scene {
 
     fps = FpsComponent();
 
-    heroDeck = getDeck(heroData);
-    enemyDeck = getDeck(enemyData);
-
     background = SpriteComponent2(
       spriteId: backgroundImageId,
       anchor: Anchor.center,
@@ -345,6 +358,60 @@ class BattleScene extends Scene {
       boxFit: BoxFit.cover,
     );
     world.add(background);
+
+    // 英雄头像：左上角
+    heroIcon = SpriteButton(
+      position: Vector2(GameUI.indent, GameUI.indent),
+      spriteId: heroData['icon'],
+      size: GameUI.battleCharacterAvatarSize,
+      borderRadius: 12.0,
+    );
+    heroIcon.onTap = (_, __) {
+      showCharacterInfo(heroData);
+    };
+    world.add(heroIcon);
+
+    // 敌方头像：右上角
+    enemyIcon = SpriteButton(
+      position: Vector2(
+          size.x - GameUI.battleCharacterAvatarSize.x - GameUI.indent,
+          GameUI.indent),
+      spriteId: enemyData['icon'],
+      size: GameUI.battleCharacterAvatarSize,
+      borderRadius: 12.0,
+    );
+    enemyIcon.onTap = (_, __) {
+      showCharacterInfo(enemyData);
+    };
+    world.add(enemyIcon);
+
+    // 英雄装备栏：头像右侧
+    heroEquipments = EquipmentsBar(
+      position: Vector2(
+          GameUI.largeIndent +
+              GameUI.battleCharacterAvatarSize.x +
+              GameUI.smallIndent,
+          GameUI.smallIndent +
+              GameUI.battleCharacterAvatarSize.y / 2 -
+              GameUI.equipmentsBarSize.y / 2),
+      character: heroData,
+    );
+    world.add(heroEquipments);
+
+    // 敌方装备栏：头像左侧
+    enemyEquipments = EquipmentsBar(
+      position: Vector2(
+          size.x -
+              GameUI.battleCharacterAvatarSize.x -
+              GameUI.largeIndent -
+              GameUI.smallIndent -
+              GameUI.equipmentsBarSize.x,
+          GameUI.smallIndent +
+              GameUI.battleCharacterAvatarSize.y / 2 -
+              GameUI.equipmentsBarSize.y / 2),
+      character: enemyData,
+    );
+    world.add(enemyEquipments);
 
     victoryPrompt = SpriteComponent2(
       anchor: Anchor.center,
@@ -365,16 +432,17 @@ class BattleScene extends Scene {
 
     heroDeckZone = BattleDeckZone(
       position: GameUI.p1BattleDeckZonePosition,
-      cards: heroDeck,
       reverseX: false,
-      isVisible: false,
+      hovertipDirection: HovertipDirection.rightCenter,
     );
     world.add(heroDeckZone);
+
+    heroDeck = getDeck(heroData, heroDeckZone);
 
     heroDiscardZone = DiscardZone(
       position: GameUI.p1BattleDiscardZonePosition,
       reverseX: false,
-      isVisible: false,
+      hovertipDirection: HovertipDirection.rightCenter,
     );
     world.add(heroDiscardZone);
 
@@ -386,9 +454,6 @@ class BattleScene extends Scene {
     // 英雄手牌区：屏幕左下方
     heroHandZone = HandZone(
       position: GameUI.p1HandZonePosition,
-      isVisible: false,
-      focusedPosition: Vector2(GameUI.hugeIndent + GameUI.indent,
-          size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
       enableInteraction: true,
     );
     heroHandZone.onCardSelected = _onHeroCardSelected;
@@ -443,16 +508,17 @@ class BattleScene extends Scene {
 
     enemyDeckZone = BattleDeckZone(
       position: GameUI.p2BattleDeckZonePosition,
-      cards: enemyDeck,
       reverseX: true,
-      isVisible: false,
+      hovertipDirection: HovertipDirection.leftCenter,
     );
     world.add(enemyDeckZone);
+
+    enemyDeck = getDeck(enemyData, enemyDeckZone);
 
     enemyDiscardZone = DiscardZone(
       position: GameUI.p2BattleDiscardZonePosition,
       reverseX: true,
-      isVisible: false,
+      hovertipDirection: HovertipDirection.leftCenter,
     );
     world.add(enemyDiscardZone);
 
@@ -464,18 +530,12 @@ class BattleScene extends Scene {
     // 敌方手牌区：屏幕右下方
     enemyHandZone = HandZone(
       position: GameUI.p2HandZonePosition,
-      isVisible: false,
       reverseX: true,
       enableInteraction: false,
       pileStartPosition: Vector2(
         GameUI.p2HandZonePosition.x + GameUI.battleCardSize.x * 7,
         GameUI.p2HandZonePosition.y,
       ),
-      focusedPosition: Vector2(
-          size.x -
-              (GameUI.hugeIndent + GameUI.indent) -
-              GameUI.battleCardFocusedSize.x,
-          size.y / 2 - GameUI.battleCardFocusedSize.y / 2),
     );
     world.add(enemyHandZone);
 
@@ -528,13 +588,6 @@ class BattleScene extends Scene {
     hero.opponent = enemy;
     enemy.opponent = hero;
 
-    charactersInformation = CharacterInformation(
-      position: Vector2(0, 0),
-      hero: heroData,
-      enemy: enemyData,
-    );
-    camera.viewport.add(charactersInformation);
-
     endButton = SpriteButton(
       spriteId: 'ui/button1.png',
       text: engine.locale('end'),
@@ -551,12 +604,13 @@ class BattleScene extends Scene {
       spriteId: 'ui/button1.png',
       text: engine.locale('endTurn'),
       anchor: Anchor.center,
-      position: Vector2(GameUI.indent, size.y / 2),
+      position:
+          Vector2(GameUI.indent + GameUI.buttonSizeIconLarge.width, size.y / 2),
       size: GameUI.buttonSizeIconLarge.toVector2(),
-      isVisible: false,
+      isEnabled: false,
     );
     endTurnButton.onTap = (_, __) {
-      endTurnButton.isVisible = false;
+      endTurnButton.isEnabled = false;
       _isPlayerTurnEnded = true;
 
       for (final card in heroHandZone.cards) {
@@ -583,11 +637,7 @@ class BattleScene extends Scene {
     _returnAllCardsToDecks();
 
     heroDeckZone.shuffle();
-    heroDeckZone.isVisible = true;
     enemyDeckZone.shuffle();
-    enemyDeckZone.isVisible = true;
-    heroHandZone.isVisible = true;
-    enemyHandZone.isVisible = true;
 
     hero.energy = 0;
     hero.turnCount = 0;
@@ -595,12 +645,7 @@ class BattleScene extends Scene {
     enemy.turnCount = 0;
 
     heroEnergyDisplay.setEnergy(0);
-    heroEnergyDisplay.isVisible = true;
     enemyEnergyDisplay.setEnergy(0);
-    enemyEnergyDisplay.isVisible = true;
-
-    heroDiscardZone.isVisible = true;
-    enemyDiscardZone.isVisible = true;
 
     /// 根据身法加权随机决定先手，偷袭时英雄直接先手
     if (isSneakAttack) {
@@ -717,9 +762,7 @@ class BattleScene extends Scene {
 
   void _shuffleDiscardIntoDeck(BattleDeckZone deck, DiscardZone discard) {
     for (final card in discard.cards.toList()) {
-      discard.removeCardByIndex(card.index);
-      card.isFlipped = true;
-      deck.cards.add(card);
+      deck.tryAddCard(card, sort: false);
     }
     deck.shuffle();
   }
@@ -737,15 +780,16 @@ class BattleScene extends Scene {
         _shuffleDiscardIntoDeck(deck, discard);
       }
       final card = deck.cards.removeLast() as CustomGameCard;
-      if (hand == enemyHandZone) {
-        card.isFlipped = true;
-      } else {
-        card.isFlipped = false;
-      }
       hand.tryAddCard(card, sort: false);
       drawn++;
     }
-    await hand.sortCards();
+    await hand.sortCards(onComplete: () {
+      if (hand == heroHandZone) {
+        for (final card in hand.cards) {
+          card.isFlipped = false;
+        }
+      }
+    });
     return drawn;
   }
 
@@ -835,7 +879,7 @@ class BattleScene extends Scene {
       }
 
       if (heroTurn) {
-        endTurnButton.isVisible = true;
+        endTurnButton.isEnabled = true;
         _isPlayerTurnEnded = false;
         while (!_isRestarting && !_isPlayerTurnEnded) {
           assert(_playerCardSelection == null);
@@ -848,7 +892,8 @@ class BattleScene extends Scene {
           energyDisplay.setEnergy(currentCharacter.energy);
           handZone.clearCardInteraction(selectedCard);
           await currentCharacter.onUseCard(selectedCard);
-          await Future.delayed(const Duration(milliseconds: 500));
+          selectedCard.isFlipped = true;
+          selectedCard.showGlow = false;
           discardZone.tryAddCard(selectedCard);
           selectedCard.pile = discardZone;
         }
@@ -891,12 +936,11 @@ class BattleScene extends Scene {
 
       for (final card in handZone.cards.toList()) {
         handZone.clearCardInteraction(card as CustomGameCard);
-        handZone.cards.remove(card);
         card.isFlipped = true;
-        discardZone.cards.add(card);
-        card.pile = discardZone;
+        discardZone.tryAddCard(card, sort: false);
       }
       handZone.clearHand();
+      discardZone.sortCards(animated: false);
     } while (extraTurn);
 
     heroTurn = !heroTurn;
@@ -957,11 +1001,6 @@ class BattleScene extends Scene {
   Future<void> _onBattleEnd() async {
     battleEnded = true;
     endButton.isVisible = true;
-    endTurnButton.isVisible = false;
-    heroEnergyDisplay.isVisible = false;
-    enemyEnergyDisplay.isVisible = false;
-    heroDiscardZone.isVisible = false;
-    enemyDiscardZone.isVisible = false;
 
     if (battleResult == true) {
       victoryPrompt.isVisible = true;
@@ -1065,16 +1104,6 @@ class BattleScene extends Scene {
                           switch (item) {
                             case 'restart':
                               if (battleEnded) {
-                                charactersInformation.showEquipments();
-                                heroDeckZone.isVisible = true;
-                                enemyDeckZone.isVisible = true;
-                                heroHandZone.isVisible = true;
-                                enemyHandZone.isVisible = true;
-                                heroDiscardZone.isVisible = true;
-                                enemyDiscardZone.isVisible = true;
-                                heroEnergyDisplay.isVisible = true;
-                                enemyEnergyDisplay.isVisible = true;
-
                                 victoryPrompt.isVisible = false;
                                 defeatPrompt.isVisible = false;
                                 endButton.isVisible = false;

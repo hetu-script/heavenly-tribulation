@@ -797,7 +797,6 @@ class CardLibraryScene extends Scene {
             engine.play(GameSound.flip);
             card.isFlipped = false;
             previewCard(
-              'cardpack_card_${card.id}',
               card.data,
               card.toAbsoluteRect(),
               character: GameData.hero,
@@ -810,17 +809,16 @@ class CardLibraryScene extends Scene {
           }
         };
 
-        card.onPreviewed = () {
+        card.onMouseEnter = () {
           card.showGlow = true;
           if (card.isFlipped) return;
           previewCard(
-            'cardpack_card_${card.id}',
             card.data,
             card.toAbsoluteRect(),
             character: GameData.hero,
           );
         };
-        card.onUnpreviewed = () {
+        card.onMouseExit = () {
           card.showGlow = false;
           if (card.isFlipped) return;
           unpreviewCard();
@@ -1335,9 +1333,7 @@ class CardLibraryScene extends Scene {
       size: Vector2(180, 180),
       position: Vector2(
         GameUI.size.x / 2,
-        GameUI.craftCardPosition.y +
-            GameUI.battleCardFocusedSize.y +
-            GameUI.hugeIndent,
+        GameUI.craftCardPosition.y + GameUI.craftCardSize.y + GameUI.hugeIndent,
       ),
       spriteId: 'cultivation/scroll.png',
       hoverSpriteId: 'cultivation/scroll_hover.png',
@@ -1355,13 +1351,13 @@ class CardLibraryScene extends Scene {
         engine.context.read<HoverContentState>().show(
               rect: dismantleButton.toAbsoluteRect(),
               data: engine.locale('craft_dismantle_description'),
-              direction: HoverContentDirection.topCenter,
+              direction: HoverContentDirection.bottomCenter,
             );
       } else {
         engine.context.read<HoverContentState>().show(
               rect: dismantleButton.toAbsoluteRect(),
               data: engine.locale('craft_dismantle_disabled'),
-              direction: HoverContentDirection.topCenter,
+              direction: HoverContentDirection.bottomCenter,
             );
       }
     };

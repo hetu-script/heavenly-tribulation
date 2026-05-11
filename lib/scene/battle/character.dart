@@ -817,8 +817,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     };
 
     // 展示当前卡牌及其详情
-    card.enablePreview = false;
-    await card.setFocused(true, duration: 0.2);
+    card.enableGesture = false;
+    card.moveTo(
+      duration: 0.3,
+      toPosition: isHero
+          ? GameUI.p1BattleCardUsedPosition
+          : GameUI.p2BattleCardUsedPosition,
+      toSize: GameUI.battleCardUsedSize,
+    );
 
     final List affixes = card.data['affixes'];
     assert(affixes.isNotEmpty);

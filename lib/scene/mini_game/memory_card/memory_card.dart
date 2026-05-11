@@ -307,11 +307,11 @@ class MemoryCardGame extends Scene with HasCursorState {
       ),
       glowSpriteId: 'battlecard/glow2.png',
     );
-    card.onPreviewed = () {
+    card.onMouseEnter = () {
       if (_isChecking || isGameOver) return;
       card.showGlow = true;
     };
-    card.onUnpreviewed = () {
+    card.onMouseExit = () {
       card.showGlow = false;
     };
     card.onTap = (button, position) {
@@ -345,7 +345,7 @@ class MemoryCardGame extends Scene with HasCursorState {
           duration: 0.3,
           curve: Curves.easeOutCubic,
           onComplete: () {
-            card.enablePreview = true;
+            card.enableGesture = true;
           },
         );
       });
@@ -400,9 +400,9 @@ class MemoryCardGame extends Scene with HasCursorState {
 
       // 禁用已配对卡牌的预览功能
       _firstFlippedCard!.showGlow = false;
-      _firstFlippedCard!.enablePreview = false;
+      _firstFlippedCard!.enableGesture = false;
       _secondFlippedCard!.showGlow = false;
-      _secondFlippedCard!.enablePreview = false;
+      _secondFlippedCard!.enableGesture = false;
 
       reset();
 

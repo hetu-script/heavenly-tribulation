@@ -9,6 +9,13 @@ class EnergyDisplay extends SpriteButton {
   }) : super(
           size: GameUI.battleEnergyBottleSize,
           anchor: Anchor.center,
+          textConfig: ScreenTextConfig(
+            textStyle: TextStyle(
+              fontFamily: GameUI.fontFamilyKaiti,
+              fontWeight: FontWeight.bold,
+              fontSize: 24.0,
+            ),
+          ),
         );
   void setEnergy(int current) {
     text = '$current';

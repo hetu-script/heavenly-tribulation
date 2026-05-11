@@ -19,13 +19,15 @@ class HandZone extends PiledZone with HandlesGesture {
     super.cardBasePriority = 500,
     super.isVisible,
     super.pileStartPosition,
-    super.focusedPosition,
     required this.enableInteraction,
   }) : super(
           size: GameUI.handZoneSize,
           piledCardSize: GameUI.battleCardSize,
           pileOffset: Vector2(GameUI.handCardSpacing, 0),
           focusedSize: GameUI.battleCardFocusedSize,
+          focusedOffset: Vector2(
+              -(GameUI.battleCardFocusedSize.x - GameUI.battleCardSize.x) / 2,
+              -(GameUI.battleCardFocusedSize.y - GameUI.battleCardSize.y)),
           pileStyle: PileStyle.queue,
         );
 
@@ -42,18 +44,17 @@ class HandZone extends PiledZone with HandlesGesture {
 
     super.tryAddCard(card, animated: true, clone: false, sort: sort);
 
-    card.isFlipped = false;
-    card.enablePreview = true;
-
     if (!enableInteraction) return;
+
+    card.enableGesture = true;
 
     card.onTapUp = (button, position) {
       onCardSelected?.call(card);
       Hovertip.hide(card);
     };
 
-    card.onPreviewed = () {
-      card.priority = 1000;
+    card.onMouseEnter = () {
+      card.setFocused(true);
       card.showGlow = true;
       final (_, description) = GameData.getBattleCardDescription(
         card.data,
@@ -72,18 +73,17 @@ class HandZone extends PiledZone with HandlesGesture {
       );
     };
 
-    card.onUnpreviewed = () {
-      card.resetPriority();
+    card.onMouseExit = () {
+      card.setFocused(false);
       card.showGlow = false;
       Hovertip.hide(card);
     };
   }
 
   void clearCardInteraction(CustomGameCard card) {
-    card.enablePreview = false;
     card.onTapUp = null;
-    card.onPreviewed = null;
-    card.onUnpreviewed = null;
+    card.onMouseEnter = null;
+    card.onMouseExit = null;
   }
 
   void clearHand() {

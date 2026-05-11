@@ -892,8 +892,6 @@ final class GameData with ChangeNotifier {
       size: GameUI.siteCardSize,
       preferredSize: GameUI.siteCardSize,
       position: position,
-      enablePreview: true,
-      focusOnPreviewing: true,
       focusedPriority: kSiteCardPriority,
       focusedSize: GameUI.siteCardFocusedSize,
       focusedOffset: Vector2(
@@ -902,9 +900,13 @@ final class GameData with ChangeNotifier {
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
       illustrationSpriteId: spriteId,
-      onPreviewed: onPreviewed,
-      onUnpreviewed: onUnpreviewed,
     );
+    card.onMouseEnter = () {
+      card.setFocused(true);
+    };
+    card.onMouseExit = () {
+      card.setFocused(false);
+    };
     return card;
   }
 
@@ -1391,8 +1393,6 @@ final class GameData with ChangeNotifier {
           const EdgeInsets.fromLTRB(0.049, 0.04, 0.789, 0.841),
       glowSpriteId: 'battlecard/glow.png',
       glowColor: rarityColor,
-      enablePreview: true,
-      focusedSize: GameUI.battleCardFocusedSize,
     );
   }
 

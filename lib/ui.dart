@@ -233,6 +233,7 @@ final class GameUI {
   static const largeIndent = 40.0;
   static const indent = 20.0;
   static const smallIndent = 10.0;
+
   // general ui
   static const avatarSize = 120.0;
   static const buttonSizeIconSmall = Size(30.0, 30.0);
@@ -509,7 +510,9 @@ final class GameUI {
   static late Vector2 skillBookPosition, expBottlePosition;
 
   // battle ui
+  static late Vector2 piledCardSize;
   static late Vector2 battleCardSize;
+  static late Vector2 battleCardUsedSize;
   static late Vector2 battleCardFocusedSize;
   static late Vector2 battleDeckZoneSize;
   static late Vector2 p1BattleDeckZonePosition, p2BattleDeckZonePosition;
@@ -519,6 +522,8 @@ final class GameUI {
   static late Vector2 battleEnergyBottleSize;
   static late Vector2 p1CharacterAnimationPosition;
   static late Vector2 p2CharacterAnimationPosition;
+
+  static late Vector2 p1BattleCardUsedPosition, p2BattleCardUsedPosition;
 
   /// 手牌区大小
   static late Vector2 handZoneSize;
@@ -538,8 +543,6 @@ final class GameUI {
 
   static final Vector2 equipmentsBarSize =
       Vector2(32 * (kEquipmentMax + 3), 30);
-
-  static late Vector2 battleCardFocusedOffset;
 
   static final heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
   static final statusEffectIconSize = Vector2(24, 24);
@@ -681,9 +684,11 @@ final class GameUI {
     // libraryCardSize = deckbuildingCardSize;
 
     battleCardSize = deckbuildingCardSize;
-    battleCardFocusedSize = battleCardSize * 1.5;
+    piledCardSize = battleCardSize * 0.3;
+    battleCardFocusedSize = battleCardSize * 1.2;
+    battleCardUsedSize = battleCardSize * 1.5;
 
-    craftCardSize = libraryCardSize * 1.5;
+    craftCardSize = battleCardSize * 1.5;
     craftCardPosition = Vector2(
         size.x / 2 - craftCardSize.x / 2, center.y - craftCardSize.y - indent);
 
@@ -711,41 +716,40 @@ final class GameUI {
         skillBookPosition.x + skillBookSize.x + largeIndent,
         GameUI.size.y - expBottleSize.y * 0.33);
 
-    battleDeckZoneSize = Vector2(battleCardSize.x + 4, battleCardSize.y + 4);
+    battleDeckZoneSize = Vector2(piledCardSize.x + 20, piledCardSize.y + 20);
 
     /// 手牌区
     handZoneSize = Vector2(battleCardSize.x * 8, battleCardSize.y);
     handCardSpacing = battleCardSize.x * 0.5;
 
     /// 费用酒瓶
-    battleEnergyBottleSize = Vector2(36, 48);
+    battleEnergyBottleSize = Vector2(60, 60);
 
-    // 牌库区：屏幕左下/右下角贴边
+    // 牌库区：屏幕左下/右下角
     final double deckAndHandY = size.y - battleCardSize.y - largeIndent;
-    p1BattleDeckZonePosition = Vector2(largeIndent, deckAndHandY);
+    p1BattleDeckZonePosition = Vector2(indent, deckAndHandY);
     p2BattleDeckZonePosition =
-        Vector2(size.x - battleDeckZoneSize.x - largeIndent, deckAndHandY);
+        Vector2(size.x - battleDeckZoneSize.x - indent, deckAndHandY);
+
+    // 弃牌堆：牌库区下方
+    p1BattleDiscardZonePosition = Vector2(p1BattleDeckZonePosition.x,
+        p1BattleDeckZonePosition.y + battleDeckZoneSize.y + indent);
+    p2BattleDiscardZonePosition = Vector2(p2BattleDeckZonePosition.x,
+        p2BattleDeckZonePosition.y + battleDeckZoneSize.y + indent);
 
     // 手牌区：紧挨牌库区
-    p1HandZonePosition =
-        Vector2(largeIndent + battleDeckZoneSize.x + indent, deckAndHandY);
-    p2HandZonePosition = Vector2(
-        size.x - battleDeckZoneSize.x - largeIndent - indent - handZoneSize.x,
+    p1HandZonePosition = Vector2(
+        p1BattleDeckZonePosition.x + battleDeckZoneSize.x + indent,
         deckAndHandY);
+    p2HandZonePosition =
+        Vector2(p2BattleDiscardZonePosition.x - indent, deckAndHandY);
 
     // 费用酒瓶位置：手牌区上方
-    p1EnergyDisplayPosition = Vector2(
-        largeIndent, deckAndHandY - battleEnergyBottleSize.y - smallIndent);
+    p1EnergyDisplayPosition = Vector2(indent + battleEnergyBottleSize.x / 2,
+        deckAndHandY - battleEnergyBottleSize.y / 2 - indent);
     p2EnergyDisplayPosition = Vector2(
-        size.x - battleEnergyBottleSize.x - largeIndent,
-        deckAndHandY - battleEnergyBottleSize.y - smallIndent);
-
-    // 弃牌堆：旧牌库位置（头像下方）
-    final double discardZoneY =
-        smallIndent + battleCharacterAvatarSize.y + smallIndent * 2;
-    p1BattleDiscardZonePosition = Vector2(largeIndent, discardZoneY);
-    p2BattleDiscardZonePosition =
-        Vector2(size.x - battleDeckZoneSize.x - largeIndent, discardZoneY);
+        size.x - battleEnergyBottleSize.x / 2 - indent,
+        deckAndHandY - battleEnergyBottleSize.y / 2 - indent);
 
     /// 英雄装备栏位置（头像右侧）
     p1EquipmentsBarPosition = Vector2(
@@ -765,26 +769,6 @@ final class GameUI {
             battleCharacterAvatarSize.y / 2 -
             equipmentsBarSize.y / 2);
 
-    // p1BattleCardFocusedPosition = Vector2(
-    //     indent,
-    //     p1BattleDeckZonePosition.y -
-    //         indent -
-    //         permanentStatusEffectIconSize.y -
-    //         battleCardFocusedSize.y -
-    //         indent);
-
-    // p2BattleCardFocusedPosition = Vector2(
-    //     size.x - indent - battleCardFocusedSize.x,
-    //     p2BattleDeckZonePosition.y -
-    //         indent -
-    //         permanentStatusEffectIconSize.y -
-    //         battleCardFocusedSize.y -
-    //         indent);
-
-    battleCardFocusedOffset = Vector2(
-        -(battleCardFocusedSize.x - battleCardSize.x) / 2,
-        -(battleCardFocusedSize.y - battleCardSize.y));
-
     p1CharacterAnimationPosition = Vector2(
       size.x / 2 - 208,
       size.y / 2 - 50,
@@ -794,6 +778,15 @@ final class GameUI {
       size.x / 2 + 208,
       size.y / 2 - 50,
     );
+
+    p1BattleCardUsedPosition = Vector2(GameUI.hugeIndent + GameUI.indent,
+        size.y / 2 - GameUI.battleCardUsedSize.y / 2);
+
+    p2BattleCardUsedPosition = Vector2(
+        size.x -
+            (GameUI.hugeIndent + GameUI.indent) -
+            GameUI.battleCardUsedSize.x,
+        size.y / 2 - GameUI.battleCardUsedSize.y / 2);
 
     final siteCardWidth = (size.x - 300) / 8 - indent;
     final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();

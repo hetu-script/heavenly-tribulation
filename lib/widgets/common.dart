@@ -6,7 +6,6 @@ import '../global.dart';
 import '../data/game.dart';
 
 void previewCard(
-  String id,
   dynamic cardData,
   Rect rect, {
   bool isLibrary = true,

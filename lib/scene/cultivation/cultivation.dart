@@ -1094,7 +1094,7 @@ class CultivationScene extends Scene with HasCursorState {
 
     card.preferredPriority = _kBarrierPriority + 1;
     card.resetPriority();
-    card.size = GameUI.battleCardFocusedSize;
+    card.size = GameUI.craftCardSize;
     card.anchor = Anchor.center;
     card.position = Vector2(center.x, center.y - 30);
     card.isFlipped = true;
@@ -1108,17 +1108,16 @@ class CultivationScene extends Scene with HasCursorState {
       }
     };
 
-    card.onPreviewed = () {
+    card.onMouseEnter = () {
       card.showGlow = true;
       if (card.isFlipped) return;
       previewCard(
-        'cardpack_card_${card.id}',
         card.data,
         card.toAbsoluteRect(),
         character: GameData.hero,
       );
     };
-    card.onUnpreviewed = () {
+    card.onMouseExit = () {
       card.showGlow = false;
       if (card.isFlipped) return;
       unpreviewCard();

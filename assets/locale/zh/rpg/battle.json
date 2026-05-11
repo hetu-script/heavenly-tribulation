@@ -2,6 +2,9 @@
   "identifyStats": "识别属性",
   "identifyDeck": "识别卡牌",
 
+  "deck_zone_card_count": "卡组卡牌数量",
+  "discard_zone_card_count": "弃牌堆卡牌数量",
+
   "identify_deck_hint": "识别对手卡牌可以在战斗前得知对手卡牌的详情。识别效果永久保留。每个月可以识别的对手卡牌有数量限制。神识可以提高上限。",
 
   "identify_deck_reach_limit": "本月识别卡牌数量已达上限。",

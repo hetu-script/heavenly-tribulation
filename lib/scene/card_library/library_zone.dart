@@ -384,13 +384,12 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     //   (game as CardLibraryScene).cardDragRelease();
     // };
 
-    card.onPreviewed = () => previewCard(
-          'library_card_${card.id}',
+    card.onMouseEnter = () => previewCard(
           card.data,
           card.toAbsoluteRect(),
           character: GameData.hero,
         );
-    card.onUnpreviewed = () => unpreviewCard();
+    card.onMouseExit = () => unpreviewCard();
 
     library[card.id] = card;
 

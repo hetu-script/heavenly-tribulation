@@ -56,7 +56,6 @@ class BattleCard extends StatelessWidget {
                 if (entered) {
                   final rect = getRenderRect(context);
                   previewCard(
-                    'prebattle_card_${data['id']}',
                     data,
                     rect,
                     isLibrary: isHero,
