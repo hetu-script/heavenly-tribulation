@@ -48,4 +48,6 @@ external class BattleCharacter {
   }) -> integer
 
   function addStatusEffect(effectId: string, {amount: integer})
+
+  function drawCards(count: integer)
 }

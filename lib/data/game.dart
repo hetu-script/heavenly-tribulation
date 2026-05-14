@@ -1343,6 +1343,7 @@ final class GameData with ChangeNotifier {
     final int rank = cardData['rank'];
     final String? genre = cardData['genre'];
     final rarity = kRankToRarity[rank] ?? 'common';
+    final isUnique = cardData['isUnique'] == true;
     final rarityColor = RankedColors.values[rarity] ?? RankedColors.common;
 
     final (description, _) = getBattleCardDescription(cardData);
@@ -1352,7 +1353,8 @@ final class GameData with ChangeNotifier {
       // uniqueId: id,
       data: cardData,
       preferredSize: GameUI.deckbuildingCardSize,
-      spriteId: 'battlecard/border7.png',
+      spriteId:
+          isUnique ? 'battlecard/border_unique.png' : 'battlecard/border.png',
       illustrationSpriteId: image,
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0622, 0.135, 0.0622, 0.216),

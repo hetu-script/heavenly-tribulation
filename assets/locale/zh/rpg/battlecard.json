@@ -10,6 +10,9 @@
   "blank_default": "什么都不做",
   "blank_default_description": "战斗开始后，不满足使用需求的卡牌会被此牌替代",
 
+  "uniquecard_draw": "参玄功",
+  "uniquecard_draw_description": "消耗 {0} 灵气: 抽取 {1} 张卡牌",
+
   "buff": "加持",
   "ongoing": "持续",
   "ephemeral": "消耗",
@@ -91,6 +94,9 @@
 
   "consumeResource": "消耗",
   "consumeResource_description": "尝试使用资源以获得某些额外效果，若没有足够的资源，不会有任何效果。",
+
+  "drawCards": "抽牌",
+  "drawCards_description": "将指定数量的卡牌立即放入手牌中",
 
   "affix_attack_unarmed": "徒手攻击造成 {0} 物理伤害",
   "affix_attack_unarmed_multiple_exhaust_rage": "消耗 {0} 怒气: 徒手攻击造成 {1}×{2} 物理伤害",

@@ -494,9 +494,9 @@ class BattleScene extends Scene {
     heroAnimationStates.remove('');
     heroOverlayAnimationStates.remove('');
     hero = BattleCharacter(
+      isHero: true,
       position: GameUI.p1CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
-      isHero: true,
       skinId: '${heroSkinId}_$heroGenre',
       animationStates: heroAnimationStates,
       overlayAnimationStates: heroOverlayAnimationStates,
@@ -574,6 +574,7 @@ class BattleScene extends Scene {
     enemyAnimationStates.remove('');
     enemyOverlayAnimationStates.remove('');
     enemy = BattleCharacter(
+      isHero: false,
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       skinId: '$enemySkinId${enemyGenre.isNotEmpty ? '_$enemyGenre' : ''}',

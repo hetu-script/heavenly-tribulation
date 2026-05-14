@@ -8,12 +8,11 @@ const commonNames = [
   ...commonNamesData.budda,
   ...commonNamesData.emotion,
   ...commonNamesData.creature,
-  ...commonNamesData.object,
-  ...commonNamesData.color,
+  ...commonNamesData.nature,
   ...commonNamesData.place,
   ...commonNamesData.number,
   ...commonNamesData.action,
-  ...commonNamesData.target,
+  ...commonNamesData.fight,
 ];
 
 const kStrangeNameProbability = 0.1

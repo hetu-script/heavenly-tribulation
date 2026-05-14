@@ -1,11 +1,11 @@
 // import 'battle_character.ht'
 
-/// 卡牌的每个词条都对应一个脚本。
+/// 卡牌的每个词条都对应一个异步async脚本。
 /// 这个脚本将会在这张牌被打出时invoke
 
 struct CardScriptMain {
   /// ------------------------------------------------------------
-  /// 主词条（异步async）
+  /// 主词条
   /// ------------------------------------------------------------
   /// 攻击
   async function attack(self, opponent, affix) {
@@ -171,11 +171,20 @@ struct CardScriptMain {
     await characterAnimate(self, affix.animation)
     opponent.setLifeMax(self.lifeMax - affix.value[1])
   }
+
+  /// ------------------------------------------------------------
+  /// 绝世词条
+  /// ------------------------------------------------------------
+  /// 抽牌
+
+  async function draw(self, opponent, affix) {
+    self.drawCards(affix.value[1])
+  }
 }
 
 struct CardScriptExtra {
   /// ------------------------------------------------------------
-  /// 额外词条（异步async）
+  /// 额外词条
   /// 额外词条的回调函数多一个参数，即卡牌的主词条
   /// ------------------------------------------------------------
 
@@ -213,7 +222,7 @@ struct CardScriptExtra {
     final amount = self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
     if (amount < 1) return
     for (var i in range(amount)) {
-      opponent.takeDamage({
+      await opponent.takeDamage({
         kind: mainAffix.kind,
         attackType: affix.attackType ?? mainAffix.attackType,
         damageType: affix.damageType ?? mainAffix.damageType,
@@ -258,4 +267,6 @@ struct CardScriptExtra {
     final amount = self.data.stats[affix.attributeId] * 0.005
     self.cardFlags.damage.percentageChange1 += amount
   }
+
+
 }

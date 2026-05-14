@@ -106,7 +106,7 @@ struct BattleCard {
     if (mainAffix.kind != null) {
       this.name = generateSkillName(kind: mainAffix.kind)
     } else {
-      this.name = engine.locale('blank_default')
+      this.name = engine.locale(mainAffix.id)
     }
     this.image = mainAffix.image
     this.genre = mainAffix.genre

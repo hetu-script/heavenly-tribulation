@@ -4,7 +4,6 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/progress_indicator.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
-// import 'package:samsara/components/task_component.dart';
 
 import '../../global.dart';
 import '../../data/game.dart';
@@ -13,6 +12,7 @@ import '../../ui.dart';
 import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
+import 'battle.dart';
 
 const kMinCardDisplayDuration = 1000;
 const kDamagePercentageMin = -0.75;
@@ -77,6 +77,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final bool isHero;
 
+  BattleCharacter? opponent;
+
   final dynamic data;
 
   final _sw = Stopwatch();
@@ -135,8 +137,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     hpBar.max = _lifeMax;
   }
 
-  BattleCharacter? opponent;
-
   final Map<String, StatusEffect> _statusEffects = {};
 
   List<StatusEffect> get effects {
@@ -181,7 +181,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   BattleCharacter({
     super.position,
     super.size,
-    this.isHero = false,
+    required this.isHero,
     required this.skinId,
     Iterable<String> animationStates = const [],
     Iterable<String> overlayAnimationStates = const [],
@@ -937,6 +937,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (turnFlags['extraTurn'] == true) {
       addHintText(engine.locale('extraTurn'));
       await Future.delayed(Duration(milliseconds: 350));
+    }
+  }
+
+  Future<void> drawCards(int count) async {
+    final battleScene = game as BattleScene;
+
+    if (isHero) {
+      await battleScene.drawCardsToHand(battleScene.heroDeckZone,
+          battleScene.heroDiscardZone, battleScene.heroHandZone, count);
+    } else {
+      await battleScene.drawCardsToHand(battleScene.enemyDeckZone,
+          battleScene.enemyDiscardZone, battleScene.enemyHandZone, count);
     }
   }
 }
