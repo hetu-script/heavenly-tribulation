@@ -7,6 +7,8 @@ const commonNames = [
   ...commonNamesData.dao,
   ...commonNamesData.budda,
   ...commonNamesData.emotion,
+  ...commonNamesData.contradictory,
+  ...commonNamesData.element,
   ...commonNamesData.creature,
   ...commonNamesData.nature,
   ...commonNamesData.place,

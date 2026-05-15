@@ -158,9 +158,9 @@
   "status_injury_hallucination_description": "每 1 层幻觉在你在回合开始时转化为 1 点缓慢或 1 点迟钝。",
 
   "status_enable_chakra": "剑气获取",
-  "status_enable_chakra_description": "回合中每造成 10 点伤害，在回合结束时便获得 1 点怒气。",
+  "status_enable_chakra_description": "回合中每造成 10 点伤害，在回合结束时便获得 1 点剑气。",
   "status_enable_rage": "怒气获取",
-  "status_enable_rage_description": "回合中每受到 10 点伤害，在回合结束时便获得 1 点剑气。",
+  "status_enable_rage_description": "回合中每受到 10 点伤害，在回合结束时便获得 1 点怒气。",
 
   "status_energy_positive": "阳气",
   "status_energy_positive_description": "阳气包括: 元气、正气、豪气、灵气、剑气、怒气、煞气、无极之气",
@@ -173,9 +173,9 @@
   "status_energy_positive_spell": "灵气",
   "status_energy_positive_spell_description": "每层灵气使你的法术攻击伤害 +5。",
   "status_energy_positive_weapon": "剑气",
-  "status_energy_positive_weapon_description": "每层剑气使你的武器攻击伤害 +5。溢出的剑气会使你或者对手获得随机的负面效果。",
+  "status_energy_positive_weapon_description": "每层剑气使你的武器攻击伤害 +5。剑气溢出时会使你获得随机负面效果。回合结束时移除所有剑气。",
   "status_energy_positive_unarmed": "怒气",
-  "status_energy_positive_unarmed_description": "每层怒气使你的徒手攻击伤害 +5。",
+  "status_energy_positive_unarmed_description": "每层怒气使你的徒手攻击伤害 +5，自身受到的伤害 +3%，回合结束时怒气减半。",
   "status_energy_positive_curse": "煞气",
   "status_energy_positive_curse_description": "每层煞气使你的咒术攻击伤害 +5。",
   "status_energy_positive_ultimate": "无极之气",

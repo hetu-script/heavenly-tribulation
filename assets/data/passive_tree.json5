@@ -118,10 +118,6 @@
         id: "spirituality",
         level: 40,
       },
-      {
-        id: "start_battle_with_energy_positive_spell",
-        level: 10,
-      },
     ],
   },
   track_5_2: {
@@ -158,8 +154,8 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_spell",
-        level: 5,
+        id: "spirituality",
+        level: 20,
       },
     ],
   },

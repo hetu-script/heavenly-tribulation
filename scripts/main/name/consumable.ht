@@ -8,9 +8,11 @@ const commonConsumableNames = [
   ...commonNamesData.dao,
   ...commonNamesData.budda,
   ...commonNamesData.emotion,
-  ...commonNamesData.color,
+  ...commonNamesData.contradictory,
+  ...commonNamesData.element,
   ...commonNamesData.number,
   ...commonNamesData.action,
+  ...commonNamesData.fight,
 ]
 
 // 生成方剂、饮品、灵丹的名字

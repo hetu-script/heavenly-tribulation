@@ -44,7 +44,7 @@ struct BattleCard {
     this.isIdentified = isIdentified
     this.isEphemeral = isEphemeral
 
-    this.tags = []
+    this.keywords = []
 
     // 注意: 主词条数据的genre是字符串，但额外词条的genre是字符串数组
     let mainAffixes = game.battleCards.values.where( (affix) {
@@ -237,7 +237,7 @@ function _addAffixToCard(card, affix, rank, {index}) {
 
 function _updateAffixUniqueIds(card) {
   card.affixUniqueIds = Set()
-  // card.tags = Set()
+  card.keywords = Set()
   for (final affix in card.affixes) {
     if (affix.isMain) {
       if (affix.uniqueId is List) {
@@ -248,7 +248,7 @@ function _updateAffixUniqueIds(card) {
     } else if (affix.uniqueId is string) {
       card.affixUniqueIds.add(affix.uniqueId)
     }
-    // card.tags.addAll(affix.tags)
+    card.keywords.addAll(affix.keywords)
   }
 }
 

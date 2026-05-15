@@ -226,7 +226,7 @@ struct BattleEntity {
     this.cultivationStyle = cultivationStyle ?? random.nextIterable(Constants.cultivationStyles[this.mainAttribute])
     
     this.achievements = Achievements()
-    
+
     if (allocateSkills) {
       Game.characterAllocateSkills(this, rejuvenate: true)
     } else {
@@ -575,6 +575,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
       )
       deck.add(card)
     }
+    
     final equipment = Equipment(kind: weaponKind ?? weaponKind2, rank: character.rank)
     characterEquip(character, equipment)
   }

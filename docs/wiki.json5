@@ -22,15 +22,15 @@
             path: "docs/docs/how2play/rpg/battle/readme.md",
             children: [
               {
-                id: "battle_card",
+                id: "card",
                 title: "wiki_battle_card_title",
-                path: "docs/docs/how2play/rpg/battle/battle_card/readme.md",
+                path: "docs/docs/how2play/rpg/battle/card/readme.md",
                 children: [],
               },
               {
-                id: "battle_resource",
+                id: "resource",
                 title: "wiki_battle_resource_title",
-                path: "docs/docs/how2play/rpg/battle/battle_resource/readme.md",
+                path: "docs/docs/how2play/rpg/battle/resource/readme.md",
                 children: [],
               },
             ],

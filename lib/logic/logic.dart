@@ -588,42 +588,41 @@ final class GameLogic {
       {bool checkIdentified = false}) {
     final StringBuffer description = StringBuffer();
 
-    final tags = 'red t6';
+    final label = 'red t6';
 
     if (checkIdentified && entityData['isIdentified'] != true) {
-      return '<$tags>${engine.locale('unidentified3')}</>';
+      return '<$label>${engine.locale('unidentified3')}</>';
     }
 
     final heroRank = GameData.hero['rank'];
-    final entityRank = entityData['rank'];
     bool requirementsMet = true;
     final int? rankRequirement = entityData['rank'];
     if (rankRequirement != null) {
       if (heroRank < rankRequirement) {
         requirementsMet = false;
         description.writeln(
-            '<$tags>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
-      }
-      final String? genreRequirement = entityData['genre'];
-      if (genreRequirement != null) {
-        if (kCultivationGenres.contains(genreRequirement)) {
-          bool hasGenreRankPassive = false;
-          final passive = GameData.hero['passives']['${genreRequirement}_rank'];
-          if (passive != null) {
-            final int genreRank = passive['level'];
-            if (genreRank >= entityRank) {
-              hasGenreRankPassive = true;
-            }
-          }
-
-          if (!hasGenreRankPassive) {
-            requirementsMet = false;
-            description.writeln(
-                '<$tags>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
-          }
-        }
+            '<$label>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
       }
     }
+    // final String? genreRequirement = entityData['genre'];
+    // if (genreRequirement != null) {
+    //   if (kCultivationGenres.contains(genreRequirement)) {
+    //     bool hasGenreRankPassive = false;
+    //     final passive = GameData.hero['passives']['${genreRequirement}_rank'];
+    //     if (passive != null) {
+    //       final int genreRank = passive['level'];
+    //       if (genreRank >= rankRequirement) {
+    //         hasGenreRankPassive = true;
+    //       }
+    //     }
+
+    //     if (!hasGenreRankPassive) {
+    //       requirementsMet = false;
+    //       description.writeln(
+    //           '<$label>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
+    //     }
+    //   }
+    // }
     final equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
       if (equipmentRequirement is List) {
@@ -639,7 +638,7 @@ final class GameLogic {
         if (!hasAnyEquipment) {
           requirementsMet = false;
           description.writeln(
-              '<$tags>${engine.locale('equipment_requirement')}: ${equipmentRequirement.map((r) => engine.locale(r)).join(',')}</>');
+              '<$label>${engine.locale('equipment_requirement')}: ${equipmentRequirement.map((r) => engine.locale(r)).join(',')}</>');
         }
       } else {
         assert(equipmentRequirement is String,
@@ -648,20 +647,20 @@ final class GameLogic {
             null) {
           requirementsMet = false;
           description.writeln(
-              '<$tags>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
+              '<$label>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
         }
       }
     }
-    final attributeRequirement = entityData['requirement'];
-    if (attributeRequirement != null) {
+    final attributesRequirement = entityData['attributes'];
+    if (attributesRequirement != null) {
       for (final attr in kBattleAttributes) {
-        final int? attrRequirement = attributeRequirement[attr];
+        final int? attrRequirement = attributesRequirement[attr];
         if (attrRequirement == null) continue;
         final int attrValue = GameData.hero['stats'][attr];
         if (attrValue < attrRequirement) {
           requirementsMet = false;
           description.writeln(
-              '<$tags>${engine.locale('attribute_requirement')}: ${engine.locale(attr)} - $attrRequirement</>');
+              '<$label>${engine.locale('attribute_requirement')}: ${engine.locale(attr)} - $attrRequirement</>');
         }
       }
     }

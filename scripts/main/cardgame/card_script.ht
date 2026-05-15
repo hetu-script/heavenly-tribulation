@@ -13,7 +13,7 @@ struct CardScriptMain {
     await opponent.takeDamage({
       isMain: true,
       kind: affix.kind,
-      attackType: affix.attackType,
+      cardType: affix.cardType,
       damageType: affix.damageType,
       baseValue: affix.value[0],
     })
@@ -25,7 +25,7 @@ struct CardScriptMain {
       await opponent.takeDamage({
         isMain: true,
         kind: affix.kind,
-        attackType: affix.attackType,
+        cardType: affix.cardType,
         damageType: affix.damageType,
         baseValue: affix.value[1],
       })
@@ -38,7 +38,7 @@ struct CardScriptMain {
     await opponent.takeDamage({
       isMain: true,
       kind: affix.kind,
-      attackType: affix.attackType,
+      cardType: affix.cardType,
       damageType: affix.damageType,
       baseValue: affix.value[1],
     })
@@ -50,7 +50,7 @@ struct CardScriptMain {
     await opponent.takeDamage({
       isMain: true,
       kind: affix.kind,
-      attackType: affix.attackType,
+      cardType: affix.cardType,
       damageType: affix.damageType,
       baseValue: affix.value[1],
     })
@@ -63,7 +63,7 @@ struct CardScriptMain {
     await opponent.takeDamage({
       isMain: true,
       kind: affix.kind,
-      attackType: affix.attackType,
+      cardType: affix.cardType,
       damageType: affix.damageType,
       baseValue: affix.value[1],
     })
@@ -77,7 +77,7 @@ struct CardScriptMain {
       await opponent.takeDamage({
         isMain: true,
         kind: affix.kind,
-        attackType: affix.attackType,
+        cardType: affix.cardType,
         damageType: affix.damageType,
         baseValue: affix.value[2],
       })
@@ -99,7 +99,7 @@ struct CardScriptMain {
   async function defend_multiple_exhaust(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
     await characterAnimate(self, affix.animation)
-    for (final damageType in affix.damageTypes) {
+    for (final damageType in affix.damageType) {
       self.addStatusEffect('defense_${damageType}', amount: affix.value[1])
     }
   }
@@ -224,7 +224,7 @@ struct CardScriptExtra {
     for (var i in range(amount)) {
       await opponent.takeDamage({
         kind: mainAffix.kind,
-        attackType: affix.attackType ?? mainAffix.attackType,
+        cardType: affix.cardType ?? mainAffix.cardType,
         damageType: affix.damageType ?? mainAffix.damageType,
         baseValue: affix.value[1],
       })

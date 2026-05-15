@@ -1076,9 +1076,9 @@ final class GameData with ChangeNotifier {
               descriptionString.interpolate(['${value < 0 ? '' : '+'}$value']);
         }
         final passiveRawData = passives[affix['id']];
-        final List? tags = passiveRawData['tags'];
-        if (tags != null && tags.isNotEmpty) {
-          for (final tag in tags) {
+        final List? keywords = passiveRawData['keywords'];
+        if (keywords != null && keywords.isNotEmpty) {
+          for (final tag in keywords) {
             explanations[tag] =
                 '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
           }
@@ -1284,9 +1284,9 @@ final class GameData with ChangeNotifier {
         }
       }
 
-      final List? tags = affix['tags'];
-      if (tags != null && tags.isNotEmpty) {
-        for (final tag in tags) {
+      final List? keywords = affix['keywords'];
+      if (keywords != null && keywords.isNotEmpty) {
+        for (final tag in keywords) {
           explanations[tag] =
               '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
         }

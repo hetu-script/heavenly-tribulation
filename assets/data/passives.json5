@@ -251,7 +251,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["gloves", "boots"],
-    tags: ["status_enhance"],
+    keywords: ["status_enhance"],
   },
   weaponAttack: {
     id: "weaponAttack",
@@ -262,7 +262,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa"],
-    tags: ["status_enhance"],
+    keywords: ["status_enhance"],
   },
   spellAttack: {
     id: "spellAttack",
@@ -273,7 +273,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["amulet", "ring", "pearl"],
-    tags: ["status_enhance"],
+    keywords: ["status_enhance"],
   },
   curseAttack: {
     id: "curseAttack",
@@ -284,7 +284,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["amulet", "ring", "pearl"],
-    tags: ["status_enhance"],
+    keywords: ["status_enhance"],
   },
 
   // 攻击穿透
@@ -297,7 +297,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["gloves", "boots"],
-    tags: ["status_penetration"],
+    keywords: ["status_penetration"],
   },
   weaponPenetration: {
     id: "weaponPenetration",
@@ -308,7 +308,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa"],
-    tags: ["status_penetration"],
+    keywords: ["status_penetration"],
   },
   spellPenetration: {
     id: "spellPenetration",
@@ -319,7 +319,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["amulet", "ring", "pearl"],
-    tags: ["status_penetration"],
+    keywords: ["status_penetration"],
   },
   cursePenetration: {
     id: "cursePenetration",
@@ -330,7 +330,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["amulet", "ring", "pearl"],
-    tags: ["status_penetration"],
+    keywords: ["status_penetration"],
   },
 
   // 抗性
@@ -344,7 +344,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
   },
   elementalResist: {
     id: "elementalResist",
@@ -356,7 +356,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
   },
   chiResist: {
     id: "chiResist",
@@ -368,7 +368,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
   },
   psychicResist: {
     id: "psychicResist",
@@ -380,7 +380,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
   },
 
   // 抗性上限
@@ -390,7 +390,7 @@
     priority: 4589,
     increment: 0.5,
     isItem: true,
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
@@ -400,7 +400,7 @@
     priority: 4588,
     increment: 0.5,
     isItem: true,
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
@@ -410,7 +410,7 @@
     priority: 4587,
     increment: 0.5,
     isItem: true,
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
@@ -420,7 +420,7 @@
     priority: 4586,
     increment: 0.5,
     isItem: true,
-    tags: ["status_resist"],
+    keywords: ["status_resist"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
@@ -434,7 +434,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "defense",
-    tags: ["status_persistent"],
+    keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   chiPersistent: {
@@ -445,7 +445,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "defense",
-    tags: ["status_persistent"],
+    keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   elementalPersistent: {
@@ -456,7 +456,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "defense",
-    tags: ["status_persistent"],
+    keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
   },
   psychicPersistent: {
@@ -467,7 +467,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "defense",
-    tags: ["status_persistent"],
+    keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
   },
 
@@ -483,7 +483,7 @@
     isEphemeral: true,
     ephemeralType: "attribute",
     kinds: ["amulet", "ring"],
-    tags: ["dexterity"],
+    keywords: ["dexterity"],
   },
   spirituality: {
     id: "spirituality",
@@ -496,7 +496,7 @@
     isEphemeral: true,
     ephemeralType: "attribute",
     kinds: ["amulet", "ring"],
-    tags: ["spirituality"],
+    keywords: ["spirituality"],
   },
   strength: {
     id: "strength",
@@ -509,7 +509,7 @@
     isEphemeral: true,
     ephemeralType: "attribute",
     kinds: ["amulet", "ring"],
-    tags: ["strength"],
+    keywords: ["strength"],
   },
   willpower: {
     id: "willpower",
@@ -522,7 +522,7 @@
     isEphemeral: true,
     ephemeralType: "attribute",
     kinds: ["amulet", "ring"],
-    tags: ["willpower"],
+    keywords: ["willpower"],
   },
   perception: {
     id: "perception",
@@ -535,7 +535,7 @@
     isEphemeral: true,
     ephemeralType: "attribute",
     kinds: ["amulet", "ring"],
-    tags: ["perception"],
+    keywords: ["perception"],
   },
 
   lifeMax: {
@@ -546,7 +546,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attribute",
-    tags: ["lifeMax"],
+    keywords: ["lifeMax"],
   },
   manaMax: {
     id: "manaMax",
@@ -556,7 +556,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attribute",
-    tags: ["status_energy_positive_spell"],
+    keywords: ["status_energy_positive_spell"],
   },
   chakraMax: {
     id: "chakraMax",
@@ -566,7 +566,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attribute",
-    tags: ["status_energy_positive_weapon"],
+    keywords: ["status_energy_positive_weapon"],
   },
   karmaMax: {
     id: "karmaMax",
@@ -576,7 +576,7 @@
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attribute",
-    tags: ["status_energy_positive_curse"],
+    keywords: ["status_energy_positive_curse"],
   },
 
   // 开始战斗时获得
@@ -592,7 +592,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
   },
   start_battle_with_defense_chi: {
     id: "start_battle_with_defense_chi",
@@ -605,7 +605,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     rank: 1,
   },
   start_battle_with_defense_elemental: {
@@ -619,7 +619,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     rank: 1,
   },
   start_battle_with_defense_psychic: {
@@ -633,7 +633,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     rank: 1,
   },
 
@@ -650,7 +650,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["pearl"],
-    tags: ["status_speed_quick"],
+    keywords: ["status_speed_quick"],
   },
   start_battle_with_dodge_nimble: {
     id: "start_battle_with_dodge_nimble",
@@ -664,7 +664,7 @@
     isEphemeral: true,
     ephemeralType: "defense",
     kinds: ["pearl"],
-    tags: ["status_dodge_nimble"],
+    keywords: ["status_dodge_nimble"],
   },
 
   // 元气
@@ -680,7 +680,7 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_life"],
+    keywords: ["status_energy_positive_life"],
   },
   // 正气
   start_battle_with_energy_positive_leech: {
@@ -695,7 +695,7 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_leech"],
+    keywords: ["status_energy_positive_leech"],
     rank: 1,
   },
   // 豪气
@@ -711,7 +711,7 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_pure"],
+    keywords: ["status_energy_positive_pure"],
     rank: 1,
   },
 
@@ -728,7 +728,7 @@
     isItem: true,
     isItemMain: true,
     kinds: ["pearl"],
-    tags: ["status_energy_positive_spell"],
+    keywords: ["status_energy_positive_spell"],
     rank: 1,
   },
   // 剑气
@@ -744,7 +744,7 @@
     isItemMain: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_weapon"],
+    keywords: ["status_energy_positive_weapon"],
     rank: 1,
   },
   // 怒气
@@ -760,7 +760,7 @@
     isItemMain: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_unarmed"],
+    keywords: ["status_energy_positive_unarmed"],
     rank: 1,
   },
 
@@ -777,7 +777,7 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    tags: ["status_energy_positive_ultimate"],
+    keywords: ["status_energy_positive_ultimate"],
     rank: 2,
   },
   // 辟邪（最多5层）
@@ -794,7 +794,7 @@
     ephemeralType: "defense",
     rank: 2,
     kinds: ["pearl"],
-    tags: ["status_ward"],
+    keywords: ["status_ward"],
   },
   // 加护（最多5层）
   start_battle_with_shield_physical: {
@@ -810,7 +810,7 @@
     ephemeralType: "defense",
     rank: 2,
     kinds: ["pearl"],
-    tags: ["status_shield"],
+    keywords: ["status_shield"],
   },
   start_battle_with_shield_chi: {
     id: "start_battle_with_shield_chi",
@@ -825,7 +825,7 @@
     ephemeralType: "defense",
     rank: 2,
     kinds: ["pearl"],
-    tags: ["status_shield"],
+    keywords: ["status_shield"],
   },
   start_battle_with_shield_elemental: {
     id: "start_battle_with_shield_elemental",
@@ -840,7 +840,7 @@
     ephemeralType: "defense",
     rank: 2,
     kinds: ["pearl"],
-    tags: ["status_shield"],
+    keywords: ["status_shield"],
   },
   start_battle_with_shield_psychic: {
     id: "start_battle_with_shield_psychic",
@@ -855,7 +855,7 @@
     ephemeralType: "defense",
     rank: 2,
     kinds: ["pearl"],
-    tags: ["status_shield"],
+    keywords: ["status_shield"],
   },
 
   // start_battle_with_opponent_negative_status: {
@@ -968,7 +968,7 @@
     priority: 3699,
     increment: 0.5,
     isItem: true,
-    tags: ["tribulationCount"],
+    keywords: ["tribulationCount"],
     rank: 2,
   },
   monthlyIdentifyCardsMax: {
@@ -983,7 +983,7 @@
     priority: 3697,
     increment: 0.5,
     isItem: true,
-    tags: ["lightRadius"],
+    keywords: ["lightRadius"],
   },
   plainMoveSpeed: {
     id: "plainMoveSpeed",
@@ -992,7 +992,7 @@
     increment: 1,
     isItem: true,
     kinds: ["boots"],
-    tags: ["plainMoveSpeed"],
+    keywords: ["plainMoveSpeed"],
   },
   mountainMoveSpeed: {
     id: "mountainMoveSpeed",
@@ -1001,7 +1001,7 @@
     increment: 1,
     isItem: true,
     kinds: ["boots"],
-    tags: ["mountainMoveSpeed"],
+    keywords: ["mountainMoveSpeed"],
   },
   waterMoveSpeed: {
     id: "waterMoveSpeed",
@@ -1010,7 +1010,7 @@
     increment: 1,
     isItem: true,
     kinds: ["ship"],
-    tags: ["waterMoveSpeed"],
+    keywords: ["waterMoveSpeed"],
   },
   mountainMoveStaminaCost: {
     id: "mountainMoveStaminaCost",
@@ -1036,7 +1036,7 @@
     priority: 3689,
     increment: 1,
     isItem: true,
-    tags: ["meditateSpeed"],
+    keywords: ["meditateSpeed"],
   },
   expCollectEfficiency: {
     id: "expCollectEfficiency",
@@ -1044,7 +1044,7 @@
     priority: 3688,
     increment: 1,
     isItem: true,
-    tags: ["expCollectEfficiency"],
+    keywords: ["expCollectEfficiency"],
   },
   workEfficiency: {
     id: "workEfficiency",
@@ -1052,7 +1052,7 @@
     priority: 3687,
     increment: 1,
     isItem: true,
-    tags: ["workEfficiency"],
+    keywords: ["workEfficiency"],
   },
   workStaminaCost: {
     id: "workStaminaCost",
@@ -1060,7 +1060,7 @@
     priority: 3686,
     increment: -1,
     isItem: true,
-    tags: ["workStaminaCost"],
+    keywords: ["workStaminaCost"],
   },
   craftMaterialCost: {
     id: "craftMaterialCost",
@@ -1068,7 +1068,7 @@
     priority: 3685,
     increment: -1,
     isItem: true,
-    tags: ["craftMaterialCost"],
+    keywords: ["craftMaterialCost"],
   },
 
   // 功能性特殊词条

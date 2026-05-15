@@ -53,9 +53,9 @@
   "passive_enable_cardcraft_description": "允许在任何地方精炼卡牌",
   "passive_enable_scrollcraft_description": "允许在任何地方制作符箓",
 
-  "passive_enable_chakra_description": "战斗中每造成 10 点伤害获得 1 点剑气",
-  "passive_enable_rage_description": "战斗中每受到 10 点伤害获得 1 点怒气",
-  "passive_enable_karma_description": "每次击败对手后获得 5 点煞气",
+  "passive_enable_chakra_description": "战斗中使用武器攻击卡牌并造成伤害时，获得 1 点剑气",
+  "passive_enable_rage_description": "战斗中对手使用任意攻击卡牌并造成伤害时，获得 1 点怒气",
+  "passive_enable_karma_description": "每次战斗胜利时，获得 5 点煞气",
 
   "passive_no_need_sword_description": "无需装备剑就可使用剑法和御剑术",
   "passive_no_need_sabre_description": "无需装备刀就可以使用刀法",

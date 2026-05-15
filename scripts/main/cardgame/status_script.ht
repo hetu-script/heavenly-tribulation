@@ -36,9 +36,8 @@ import 'common.ht'
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
 /// // 对方/自己获得伤势后 opponent/self_gained_injury
 
-/// 对方/自己使用攻击牌时 opponent/self_use_card_category_attack
-/// 对方/自己使用加持牌时 opponent/self_use_card_category_buff
-/// 对方/自己使用持续牌时 opponent/self_use_card_category_ongoing
+/// 对方/自己使用卡牌时 opponent/self_using_card
+/// 对方/自己使用卡牌后 opponent/self_used_card
 
 /// 对方/自己使用拳法时 opponent/self_use_card_kind_punch
 /// 对方/自己使用腿法时 opponent/self_use_card_kind_
@@ -135,21 +134,21 @@ struct StatusScript {
   }
 
   function enhance_self_doing_damage(self, opponent, effect, details) {
-    if (effect.attackType != details.attackType) return
+    if (effect.cardType != details.cardType) return
     
     let percentage = 0.01 * effect.amount
     details.percentageChange1 += percentage
   }
 
   function weaken_self_doing_damage(self, opponent, effect, details) {
-    if (effect.attackType != details.attackType) return
+    if (effect.cardType != details.cardType) return
     
     let percentage = -0.01 * effect.amount
     details.percentageChange1 += percentage
   }
 
   function penetration_self_doing_damage(self, opponent, effect, details) {
-    if (effect.attackType != details.attackType) return
+    if (effect.cardType != details.cardType) return
     
     details.penetration += effect.amount
   }
@@ -257,18 +256,24 @@ struct StatusScript {
     }
   }
 
-  function enable_chakra_self_turn_end(self, opponent, effect, details) {
-    final chakra = self.turnFlags.totalDamage ~/ 10
-    if (chakra > 0) {
-      self.addStatusEffect('energy_positive_weapon', amount: chakra)
+  function enable_chakra_self_used_card(self, opponent, effect, details) {
+    if (self.cardFlags.category == 'attack' && self.cardFlags.cardType == 'weapon' && self.cardFlags.damage.total > 0) {
+      self.addStatusEffect('energy_positive_weapon', amount: 1)
     }
   }
 
-  function enable_rage_opponent_turn_end(self, opponent, effect, details) {
-    final rage = opponent.turnFlags.totalDamage ~/ 10
-    if (rage > 0) {
-      self.addStatusEffect('energy_positive_unarmed', amount: rage)
+  function enable_chakra_self_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect('energy_positive_weapon')
+  }
+
+  function enable_rage_opponent_used_card(self, opponent, effect, details) {
+    if (opponent.cardFlags.category == 'attack' && opponent.cardFlags.damage.total > 0) {
+      self.addStatusEffect('energy_positive_unarmed', amount: 1)
     }
+  }
+
+  function enable_rage_self_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect('energy_positive_unarmed', percentage: 0.5)
   }
 
   function energy_positive_life_self_turn_end(self, opponent, effect, details) {
@@ -313,7 +318,7 @@ struct StatusScript {
   }
 
   function energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange += effect.amount * 5
   }
@@ -333,19 +338,19 @@ struct StatusScript {
   }
 
   function energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange += effect.amount * 5
   }
 
   function energy_positive_unarmed_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange += effect.amount * 5
   }
 
   function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange += effect.amount * 5
   }
@@ -381,25 +386,25 @@ struct StatusScript {
   }
 
   function energy_negative_spell_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_weapon_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_unarmed_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange -= effect.amount * 5
   }
 
   function energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
-    if (details.attackType != effect.attackType) return
+    if (details.cardType != effect.cardType) return
 
     details.baseChange -= effect.amount * 5
   }

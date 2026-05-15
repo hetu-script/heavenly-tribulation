@@ -89,6 +89,13 @@
   "illustration_vitality_xinfa": "炼魂·心法",
   "illustration_xinfa": "心法",
 
+  "element_earth": "土",
+  "element_fire": "火",
+  "element_lightning": "雷",
+  "element_water": "水",
+  "element_wood": "木",
+  "element_wind": "风",
+
   "exhaustResource": "消耗",
   "exhaustResource_description": "消耗资源以行使功法，若没有足够的资源，仍可以成功使用功法，但会获得负面效果。",
 

@@ -367,7 +367,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       } else if (percentage != null) {
         assert(percentage > 0 && percentage < 1);
-        removeAmount = (existEffect.amount * percentage).round();
+        removeAmount = (existEffect.amount * percentage).ceil();
       } else {
         removeAmount = existEffect.amount;
       }
@@ -651,7 +651,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// details 是脚本发过来的数据对象，内容如下:
   /// {
   ///   kind: affix.kind,
-  ///   attackType: affix.attackType,
+  ///   cardType: affix.cardType,
   ///   damageType: affix.damageType,
   ///   baseValue: damage, // 伤害基础值
   ///   baseChange: 0, // 伤害基础值修正
@@ -805,9 +805,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _sw.start();
     // 重置 cardFlags
     cardFlags.clear();
-    cardFlags['damage'] = <String, dynamic>{
-      'total': 0,
-    };
 
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
@@ -840,19 +837,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     cardFlags['category'] = category;
     cardFlags['genre'] = genre;
     cardFlags['kind'] = kind;
+    cardFlags['damage'] = <String, dynamic>{'total': 0};
 
-    if (category == 'attack') {
-      cardFlags['attackType'] = mainAffix['attackType'];
-      cardFlags['damageType'] = mainAffix['damageType'];
-    }
+    cardFlags['cardType'] = mainAffix['cardType'];
+    cardFlags['damageType'] = mainAffix['damageType'];
 
-    opponent!
-        .handleStatusEffectCallback('opponent_use_card_category_$category');
-    handleStatusEffectCallback('self_use_card_category_$category');
-    opponent!.handleStatusEffectCallback('opponent_use_card_genre_$genre');
-    handleStatusEffectCallback('self_use_card_genre_$genre');
-    opponent!.handleStatusEffectCallback('opponent_use_card_kind_$kind');
-    handleStatusEffectCallback('self_use_card_kind_$kind');
+    opponent!.handleStatusEffectCallback('opponent_using_card');
+    handleStatusEffectCallback('self_using_card');
 
     // 先处理优先级高于主词条的额外词条
     // 其中可能包含一些当前回合就立即起作用的buff
@@ -917,6 +908,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
     _sw.stop();
     _sw.reset();
+
+    opponent!.handleStatusEffectCallback('opponent_used_card');
+    handleStatusEffectCallback('self_used_card');
   }
 
   /// 返回值true表示获得一个额外回合

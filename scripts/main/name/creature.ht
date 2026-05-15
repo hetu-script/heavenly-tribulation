@@ -6,9 +6,10 @@ import 'common/strange.json5' as strangeCreature
 
 const commonCreatureNames = [
   ...commonNamesData.dao,
+  ...commonNamesData.budda,
   ...commonNamesData.place,
-  ...commonNamesData.number,
   ...commonNamesData.action,
+  ...commonNamesData.fight,
 ]
 
 function generateCreatureName({category, rarity}) {

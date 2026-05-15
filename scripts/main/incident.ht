@@ -106,7 +106,7 @@ struct Incident {
     Game.updateHistory()
 
     if (chars.contains(hero?.id) || isGlobal) {
-      engine.debug(this.message)
+      engine.info(this.message)
     } else if (sect) {
       engine.info(this.message)
     }

@@ -1,13 +1,13 @@
 import 'organization/organization.json5' as orgNames
 import 'common/common.json5' as commonNamesData
 
-const kNonBattleOrganizationNames = [
-  ...commonNamesData.emotion,
-  ...commonNamesData.object,
-  ...commonNamesData.color,
-  ...commonNamesData.number,
-  ...commonNamesData.action,
-]
+// const kNonBattleOrganizationNames = [
+//   ...commonNamesData.emotion,
+//   ...commonNamesData.object,
+//   ...commonNamesData.color,
+//   ...commonNamesData.number,
+//   ...commonNamesData.action,
+// ]
 
 function generateOrganizationName(
   // {category: string}

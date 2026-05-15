@@ -206,8 +206,8 @@ flutter:
     - docs/docs/how2play/
     - docs/docs/how2play/rpg/
     - docs/docs/how2play/rpg/battle/
-    - docs/docs/how2play/rpg/battle/battle_card/
-    - docs/docs/how2play/rpg/battle/battle_resource/
+    - docs/docs/how2play/rpg/battle/card/
+    - docs/docs/how2play/rpg/battle/resource/
     - docs/docs/how2play/rpg/character/
     - docs/docs/how2play/rpg/character/personality/
     - docs/docs/how2play/rpg/character/relationship/

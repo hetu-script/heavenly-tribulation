@@ -1,24 +1,55 @@
 {
-  // 最终的卡牌上可能还会有一些其他的属性
-  // 绝世卡牌的境界固定，等级固定为境界上限，词条默认锁定
-  // isUnique: false,
-  // 不能从卡包中获得，例如阵法、幻术卡牌
-  // isCraft: false,
-  // isExalted: false,
+  // id:
+  // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+  // category:
+  // 类型，分为攻击（attack），加持（buff）两种
+  // genre:
+  // 流派，御剑，悟道，炼魂等，如果为null表示无流派
+  // 流派仅表示获得方法，使用时并无限制
+  // kind:
+  // kind决定了卡牌名字类型，例如剑法，咒语等等
+  // 虽然并非强制，但多数时候kind和战斗动画也是对应的
+  // rank:
+  // 使用卡牌需要符合境界要求
+  // 境界影响卡牌的额外词条数量和种类以及卡牌等级上限
+  // chance:
+  // 词条出现的几率，如果 roll 值大于几率，会重新选择词条
+  // cardType:
+  // 卡牌类型，一共五种，徒手，武器，法术，咒语，神通
+  // damageType:
+  // 伤害和防御类型，一共五种，物理，真气，元素，精神，纯粹
+  // elementType: null,
+  // 元素类型，只有悟道流法术拥有元素类型，会和某些天赋、道具、卡牌产生互动。
+  // image:卡牌插画
+  // animation.startup 前摇动画
+  // animation.recovery 后摇动画（可选）
+  // animation.actions 过渡动画组（可选）
+  // animation.overlays 叠加动画（爆炸效果等，可选）
+  // animation.sound 动画播放时的声音效果
+  // script: 调用的脚本函数的id
+  // equipment: 装备需求
+  // valueData:
+  // 实际的数值会在游戏中实际创建时才添加到这里
+  // 主词条等级始终和卡牌等级一致
+  // level: 0,
+  // value: [0]
+  // 实际值=base+level*increment
+  // 每个值可能有自己的maxLevel
+  // isUnique:
+  // 绝世卡牌，属性列表固定，但数值在范围内随机。
+  // isExalted:
   // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
   // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
   // 2, 卡牌的词条等级上限提升20%
   // 3, 卡牌额外词条数量增加1
   // 4, 没有效果。
-  // isUnpackable: false,
+  // isUnpackable:
   // 不会出现在卡包中
 
-  // 特殊卡牌，不会出现在卡包中，可能通过技能获得
   blank_default: {
     id: "blank_default",
     description: "blank_default_description",
     image: "battlecard/illustration/blank_default.png",
-    isUnique: true,
     isUnpackable: true,
   },
 
@@ -38,7 +69,7 @@
   //     sound: "spell-of-healing-876",
   //   },
   //   script: "draw",
-  //   tags: ["exhaustResource", "drawCards"],
+  //   keywords: ["exhaustResource", "drawCards"],
   //   valueData: [
   //     {
   //       base: 1,
@@ -55,58 +86,23 @@
 
   // ------------通用·攻击------------
   punch_attack: {
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
     id: "punch_attack",
-    // 和 support_affix 不同，category [不是] 数组
-    // attack 攻击类的卡牌没有uniqueId
-    // 效果类型，分为攻击（attack），加持（buff）两种
     category: "attack",
-    // 流派，御剑，悟道，炼魂等，如果为null表示无流派
-    // isEphemeral 代表此卡牌是否在卡组中只能使用一次，卡组再次轮到时会跳过
-    // isEphemeral: false,
-    // 流派仅表示获得方法，使用时并无限制
-    // genre: null,
-    // kind决定了卡牌名字类型，例如剑法，咒语等等
-    // 虽然并非强制，但多数时候kind和战斗动画也是对应的
     kind: "punch",
-    // 词条出现的几率，如果 roll 值大于几率，会重新选择词条
-    // chance: 0.4,
-    // 攻击类型，一共五种，徒手，武器，法术，咒语，混沌
-    attackType: "unarmed",
-    // 伤害类型，一共五种，物理，真气，元素，精神，纯粹
+    cardType: "unarmed",
     damageType: "physical",
-    // 使用卡牌需要符合境界要求
-    // 境界影响卡牌的额外词条数量和种类以及卡牌等级上限
-    // rank: 0,
     description: "affix_attack_unarmed",
-    // 卡牌插画
     image: "battlecard/illustration/punch_attack.png",
     animation: {
-      // 前摇动画
       startup: ["before_melee_startup", "melee_startup"],
-      // 后摇动画（可选）
       recovery: ["melee_recovery", "after_melee_recovery"],
-      // 过渡动画组（可选）
       actions: "punch_attack",
-      // 叠加动画（爆炸效果等，可选）
-      // overlays: [],
-      // 动画播放时的声音效果
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
-    // 调用的脚本函数的id
     script: "attack",
-    // 是否是主词条，主词条会直接写在卡面上，额外词条会在光标浮窗中显示
-    // 主词条不需要鉴定，额外词条签订前没有效果并且显示为问号
-    // 只有主词条上会出现装备需求
     equipment: null,
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // 主词条等级始终和卡牌等级一致
-    // level: 0,
-    // value: [0]
     valueData: [
       {
-        // 实际值=base+level*increment
-        // 每个值可能有自己的maxLevel，大多数速度，闪避类的加成最高40级
         base: 7,
         increment: 0.7,
       },
@@ -116,7 +112,7 @@
     id: "kick_attack",
     category: "attack",
     kind: "kick",
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "physical",
     description: "affix_attack_unarmed",
     image: "battlecard/illustration/kick_attack.png",
@@ -138,7 +134,7 @@
     id: "sword_attack",
     category: "attack",
     kind: "sword",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
     image: "battlecard/illustration/sword_attack.png",
@@ -161,7 +157,7 @@
     id: "sabre_attack",
     category: "attack",
     kind: "sabre",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
     image: "battlecard/illustration/sabre_attack.png",
@@ -184,7 +180,7 @@
     id: "spear_attack",
     category: "attack",
     kind: "spear",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
     image: "battlecard/illustration/spear_attack.png",
@@ -207,7 +203,7 @@
     id: "staff_attack",
     category: "attack",
     kind: "staff",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
     image: "battlecard/illustration/staff_attack.png",
@@ -230,7 +226,7 @@
     id: "bow_attack",
     category: "attack",
     kind: "bow",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon",
     image: "battlecard/illustration/bow_attack.png",
@@ -251,7 +247,7 @@
     id: "dart_attack",
     category: "attack",
     kind: "dart",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/dart_attack.png",
@@ -282,7 +278,7 @@
     kind: "punch",
     damageType: "physical",
     description: "affix_defend_physical",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     image: "battlecard/illustration/punch_defend.png",
     animation: {
       startup: "punch_buff",
@@ -309,7 +305,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     valueData: [
       {
         base: 9,
@@ -326,7 +322,7 @@
     damageType: "physical",
     rank: 0,
     description: "affix_defend_physical",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     image: "battlecard/illustration/sabre_defend.png",
     animation: {
       startup: "sabre_buff",
@@ -348,7 +344,7 @@
     kind: "sword",
     damageType: "physical",
     description: "affix_defend_physical",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     image: "battlecard/illustration/sword_defend.png",
     animation: {
       startup: "sword_buff",
@@ -370,7 +366,7 @@
     kind: "spear",
     damageType: "physical",
     description: "affix_defend_physical",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     image: "battlecard/illustration/spear_defend.png",
     animation: {
       startup: "spear_buff",
@@ -392,7 +388,7 @@
     kind: "staff",
     damageType: "physical",
     description: "affix_defend_physical",
-    tags: ["status_defense"],
+    keywords: ["status_defense"],
     image: "battlecard/illustration/staff_defend.png",
     animation: {
       startup: "staff_buff",
@@ -435,7 +431,7 @@
     category: "buff",
     kind: "xinfa",
     description: "affix_vigor",
-    tags: ["status_energy_positive_life"],
+    keywords: ["status_energy_positive_life"],
     image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "spell_buff",
@@ -462,11 +458,11 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    tags: ["status_speed_quick", "status_defense"],
+    keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
         base: 1,
-        increment: 0.2,
+        increment: 0.15,
       },
       {
         base: 8,
@@ -487,15 +483,327 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    tags: ["status_dodge_nimble", "status_defense"],
+    keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
+      {
+        base: 1,
+        increment: 0.15,
+      },
+      {
+        base: 8,
+        increment: 0.8,
+      },
+    ],
+  },
+
+  // ------------悟道·攻击------------
+  punch_attack_exhaust_mana: {
+    id: "punch_attack_exhaust_mana",
+    category: "attack",
+    genre: "spellcraft",
+    kind: "punch",
+    rank: 1,
+    cardType: "unarmed",
+    damageType: "elemental",
+    resourceType: "energy_positive_spell",
+    description: "affix_attack_unarmed_exhaust_mana",
+    image: "battlecard/illustration/punch_attack.png",
+    animation: {
+      startup: ["before_melee_startup", "melee_startup"],
+      recovery: ["melee_recovery", "after_melee_recovery"],
+      actions: "punch_attack",
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
+    script: "attack_exhaust",
+    keywords: ["exhaustResource"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 14,
+        increment: 1.4,
+      },
+    ],
+  },
+  falling_stone: {
+    id: "falling_stone",
+    genre: "spellcraft",
+    category: "attack",
+    kind: "earthbend",
+    resourceType: "energy_positive_spell",
+    cardType: "spell",
+    damageType: "physical",
+    elementType: "element_earth",
+    rank: 1,
+    description: "affix_spell_attack_exhaust_mana",
+    image: "battlecard/illustration/spellcraft_earth_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "falling_stone",
+      sound: "small-rock-break-194553.mp3",
+    },
+    script: "attack_exhaust",
+    keywords: ["exhaustResource"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 25,
+        increment: 2.5,
+      },
+    ],
+  },
+  wind_blade: {
+    id: "wind_blade",
+    genre: "spellcraft",
+    category: "attack",
+    kind: "airbend",
+    resourceType: "energy_positive_spell",
+    cardType: "spell",
+    damageType: "physical",
+    elementType: "element_wind",
+    rank: 1,
+    description: "affix_spell_attack_slow",
+    image: "battlecard/illustration/spellcraft_wind_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "wind_blade",
+      sound: "wind-1-44149.mp3",
+    },
+    script: "attack_slow_exhaust",
+    keywords: ["exhaustResource", "status_speed_slow"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 15,
+        increment: 1.5,
+      },
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  fireball: {
+    id: "fireball",
+    genre: "spellcraft",
+    category: "attack",
+    kind: "firebend",
+    resourceType: "energy_positive_spell",
+    cardType: "spell",
+    damageType: "elemental",
+    elementType: "element_fire",
+    rank: 1,
+    description: "affix_spell_attack_exhaust_mana",
+    image: "battlecard/illustration/spellcraft_fire_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "fireball",
+      sound: "fireball-whoosh-5-179129.mp3",
+    },
+    script: "attack_exhaust",
+    keywords: ["exhaustResource"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 21,
+        increment: 2.1,
+      },
+    ],
+  },
+  lightning: {
+    id: "lightning",
+    genre: "spellcraft",
+    category: "attack",
+    kind: "lightning_control",
+    resourceType: "energy_positive_spell",
+    cardType: "spell",
+    damageType: "elemental",
+    elementType: "element_lightning",
+    rank: 1,
+    description: "affix_spell_attack_clumsy",
+    image: "battlecard/illustration/spellcraft_lightning_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "lightning",
+      sound: "big-thunder-67697.mp3",
+    },
+    script: "attack_clumsy_exhaust",
+    keywords: ["exhaustResource", "status_dodge_clumsy"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 15,
+        increment: 1.5,
+      },
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // ------------悟道·加持------------
+  mana: {
+    id: "mana",
+    uniqueId: "mana",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_mana",
+    keywords: ["status_energy_positive_spell"],
+    image: "battlecard/illustration/spellcraft_xinfa.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "mana",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.3,
+      },
+    ],
+  },
+  punch_defend_exhaust_mana: {
+    id: "punch_defend_exhaust_mana",
+    uniqueId: "defend_physical",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "punch",
+    damageType: "physical",
+    resourceType: "energy_positive_spell",
+    rank: 1,
+    description: "affix_defend_physical_exhaust_mana",
+    image: "battlecard/illustration/punch_defend.png",
+    animation: {
+      startup: "punch_buff",
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "defend_exhaust",
+    keywords: ["exhaustResource", "status_defense"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 15,
+        increment: 1.5,
+      },
+    ],
+  },
+  wind_buff: {
+    id: "wind_buff",
+    uniqueId: ["speed_quick", "defend_physical"],
+    category: "buff",
+    genre: "spellcraft",
+    kind: "airbend",
+    damageType: "physical",
+    resourceType: "energy_positive_spell",
+    elementType: "element_wind",
+    rank: 1,
+    description: "affix_speed_quick_exhaust_mana_defend_physical",
+    image: "battlecard/illustration/spellcraft_wind_defend.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "wind_buff",
+      sound: "wind-1-44149.mp3",
+    },
+    script: "speed_quick_defend",
+    keywords: ["status_speed_quick", "status_defense"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
       {
         base: 1,
         increment: 0.2,
       },
       {
-        base: 8,
-        increment: 0.8,
+        base: 15,
+        increment: 1.5,
+      },
+    ],
+  },
+  wood_heal: {
+    id: "wood_heal",
+    uniqueId: "heal",
+    genre: "spellcraft",
+    category: "buff",
+    kind: "plant_control",
+    resourceType: "energy_positive_spell",
+    elementType: "element_wood",
+    rank: 1,
+    description: "affix_heal_exhaust_mana",
+    image: "battlecard/illustration/spellcraft_wood_defend.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "wood_buff",
+      sound: "timber-tree-falling-1-40384.mp3",
+    },
+    script: "heal_exhaust",
+    keywords: ["exhaustResource"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 0,
+        increment: 1.5,
+      },
+    ],
+  },
+  wood_defense_physical: {
+    id: "wood_defense_physical",
+    uniqueId: "defend_physical",
+    genre: "spellcraft",
+    category: "buff",
+    kind: "plant_control",
+    rank: 1,
+    damageType: "physical",
+    resourceType: "energy_positive_spell",
+    elementType: "element_wood",
+    description: "affix_defend_physical_exhaust_mana",
+    image: "battlecard/illustration/spellcraft_wood_defend.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "wood_buff",
+      sound: "timber-tree-falling-1-40384.mp3",
+    },
+    script: "defend_exhaust",
+    keywords: ["exhaustResource", "status_defense"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 20,
+        increment: 2.0,
       },
     ],
   },
@@ -507,7 +815,7 @@
     genre: "bodyforge",
     kind: "punch",
     rank: 1,
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "physical",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_unarmed_multiple_exhaust_rage",
@@ -519,7 +827,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -542,7 +850,7 @@
     genre: "bodyforge",
     kind: "kick",
     rank: 1,
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "physical",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_unarmed_multiple_exhaust_rage",
@@ -553,21 +861,16 @@
       actions: "kick_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
-    script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    script: "attack_exhaust",
+    keywords: ["exhaustResource"],
     valueData: [
       {
-        base: 0,
+        base: 1,
         increment: 0.1,
       },
       {
-        base: 2,
-        increment: 0,
-        maxLevel: 0,
-      },
-      {
-        base: 7,
-        increment: 0.7,
+        base: 16,
+        increment: 1.6,
       },
     ],
   },
@@ -577,7 +880,7 @@
     genre: "bodyforge",
     kind: "sabre",
     rank: 1,
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "chi",
     resourceType: "energy_positive_weapon",
     description: "affix_attack_weapon_multiple_exhaust_rage",
@@ -589,7 +892,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "sabre",
     valueData: [
       {
@@ -612,12 +915,12 @@
     genre: "bodyforge",
     category: "attack",
     kind: "qinna",
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "chi",
     resourceType: "energy_positive_unarmed",
     rank: 1,
     description: "affix_attack_unarmed_exhaust_rage_slow",
-    tags: ["status_speed_slow"],
+    keywords: ["status_speed_slow"],
     image: "battlecard/illustration/bodyforge_qinna.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -658,7 +961,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -686,7 +989,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -714,7 +1017,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     equipment: "sabre",
     valueData: [
       {
@@ -743,7 +1046,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust_defend",
-    tags: ["exhaustResource", "status_speed_quick", "status_defense"],
+    keywords: ["exhaustResource", "status_speed_quick", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -775,7 +1078,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust_defend",
-    tags: ["exhaustResource", "status_dodge_nimble", "status_defense"],
+    keywords: ["exhaustResource", "status_dodge_nimble", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -799,7 +1102,7 @@
     genre: "swordcraft",
     kind: "punch",
     rank: 1,
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "physical",
     resourceType: "energy_positive_spell",
     description: "affix_attack_unarmed_exhaust_mana",
@@ -811,7 +1114,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -833,12 +1136,12 @@
     genre: "swordcraft",
     category: "attack",
     kind: "dianxue",
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "chi",
     resourceType: "energy_positive_weapon",
     rank: 1,
     description: "affix_attack_unarmed_exhaust_chakra_clumsy",
-    tags: ["status_dodge_clumsy"],
+    keywords: ["status_dodge_clumsy"],
     image: "battlecard/illustration/bodyforge_dianxue.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -868,7 +1171,7 @@
     genre: "swordcraft",
     kind: "sword",
     rank: 1,
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     resourceType: "energy_positive_weapon",
     description: "affix_attack_weapon_multiple_exhaust_chakra",
@@ -880,7 +1183,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "sword",
     valueData: [
       {
@@ -904,7 +1207,7 @@
     genre: "swordcraft",
     kind: "sword",
     rank: 1,
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "elemental",
     resourceType: "energy_positive_spell",
     description: "affix_attack_weapon_exhaust_mana",
@@ -916,7 +1219,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "sword",
     valueData: [
       {
@@ -935,7 +1238,7 @@
     category: "attack",
     kind: "flying_sword",
     resourceType: "energy_positive_weapon",
-    attackType: "spell",
+    cardType: "spell",
     damageType: "physical",
     rank: 1,
     description: "affix_spell_attack_exhaust_chakra_multiple",
@@ -947,7 +1250,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "sword",
     valueData: [
       {
@@ -971,7 +1274,7 @@
     category: "attack",
     kind: "flying_sword",
     resourceType: "energy_positive_spell",
-    attackType: "spell",
+    cardType: "spell",
     damageType: "elemental",
     rank: 1,
     description: "affix_spell_attack_exhaust_mana",
@@ -983,7 +1286,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "sword",
     valueData: [
       {
@@ -1005,7 +1308,7 @@
     kind: "xinfa",
     rank: 1,
     description: "affix_mana_chakra",
-    tags: ["status_energy_positive_spell", "status_energy_positive_weapon"],
+    keywords: ["status_energy_positive_spell", "status_energy_positive_weapon"],
     image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "spell_buff",
@@ -1036,7 +1339,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1064,7 +1367,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1092,7 +1395,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     equipment: "sword",
     valueData: [
       {
@@ -1121,7 +1424,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     equipment: "sword",
     valueData: [
       {
@@ -1150,7 +1453,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust_defend",
-    tags: ["exhaustResource", "status_speed_quick", "status_defense"],
+    keywords: ["exhaustResource", "status_speed_quick", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1182,7 +1485,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust_defend",
-    tags: ["exhaustResource", "status_dodge_nimble", "status_defense"],
+    keywords: ["exhaustResource", "status_dodge_nimble", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1205,7 +1508,7 @@
     category: "buff",
     kind: "flying_sword",
     rank: 1,
-    damageTypes: ["physical", "elemental"],
+    damageType: ["physical", "elemental"],
     resourceType: "energy_positive_weapon",
     description: "affix_defend_multiple_exhaust_mana",
     image: "battlecard/illustration/swordcraft_flying_sword_defend.png",
@@ -1215,7 +1518,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_multiple_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1228,311 +1531,6 @@
     ],
   },
 
-  // ------------悟道·攻击------------
-  punch_attack_exhaust_mana: {
-    id: "punch_attack_exhaust_mana",
-    category: "attack",
-    genre: "spellcraft",
-    kind: "punch",
-    rank: 1,
-    attackType: "unarmed",
-    damageType: "elemental",
-    resourceType: "energy_positive_spell",
-    description: "affix_attack_unarmed_exhaust_mana",
-    image: "battlecard/illustration/punch_attack.png",
-    animation: {
-      startup: ["before_melee_startup", "melee_startup"],
-      recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "punch_attack",
-      sound: "punch-or-kick-sound-effect-1-239696.mp3",
-    },
-    script: "attack_exhaust",
-    tags: ["exhaustResource"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 14,
-        increment: 1.4,
-      },
-    ],
-  },
-  falling_stone: {
-    id: "falling_stone",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "earthbend",
-    resourceType: "energy_positive_spell",
-    attackType: "spell",
-    damageType: "physical",
-    rank: 1,
-    description: "affix_spell_attack_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_earth_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "falling_stone",
-      sound: "small-rock-break-194553.mp3",
-    },
-    script: "attack_exhaust",
-    tags: ["exhaustResource"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 25,
-        increment: 2.5,
-      },
-    ],
-  },
-  fireball: {
-    id: "fireball",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "firebend",
-    resourceType: "energy_positive_spell",
-    attackType: "spell",
-    damageType: "elemental",
-    rank: 1,
-    description: "affix_spell_attack_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_fire_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "fireball",
-      sound: "fireball-whoosh-5-179129.mp3",
-    },
-    script: "attack_exhaust",
-    tags: ["exhaustResource"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 21,
-        increment: 2.1,
-      },
-    ],
-  },
-  wind_blade: {
-    id: "wind_blade",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "airbend",
-    resourceType: "energy_positive_spell",
-    attackType: "spell",
-    damageType: "physical",
-    rank: 1,
-    description: "affix_spell_attack_slow",
-    image: "battlecard/illustration/spellcraft_wind_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "wind_blade",
-      sound: "wind-1-44149.mp3",
-    },
-    script: "attack_slow_exhaust",
-    tags: ["exhaustResource", "status_speed_slow"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 15,
-        increment: 1.5,
-      },
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  lightning: {
-    id: "lightning",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "lightning_control",
-    resourceType: "energy_positive_spell",
-    attackType: "spell",
-    damageType: "elemental",
-    rank: 1,
-    description: "affix_spell_attack_clumsy",
-    image: "battlecard/illustration/spellcraft_lightning_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "lightning",
-      sound: "big-thunder-67697.mp3",
-    },
-    script: "attack_clumsy_exhaust",
-    tags: ["exhaustResource", "status_dodge_clumsy"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 15,
-        increment: 1.5,
-      },
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  // ------------悟道·加持------------
-  mana: {
-    id: "mana",
-    uniqueId: "mana",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    rank: 1,
-    description: "affix_mana",
-    tags: ["status_energy_positive_spell"],
-    image: "battlecard/illustration/spellcraft_xinfa.png",
-    animation: {
-      startup: "spell_buff",
-      overlays: "restore_mana",
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "mana",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.3,
-      },
-    ],
-  },
-  punch_defend_exhaust_mana: {
-    id: "punch_defend_exhaust_mana",
-    uniqueId: "defend_physical",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "punch",
-    damageType: "physical",
-    resourceType: "energy_positive_spell",
-    rank: 1,
-    description: "affix_defend_physical_exhaust_mana",
-    image: "battlecard/illustration/punch_defend.png",
-    animation: {
-      startup: "punch_buff",
-      sound: "buffer-spell-88994.mp3",
-    },
-    script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 15,
-        increment: 1.5,
-      },
-    ],
-  },
-  wind_buff: {
-    id: "wind_buff",
-    uniqueId: ["speed_quick", "defend_physical"],
-    category: "buff",
-    genre: "spellcraft",
-    kind: "airbend",
-    damageType: "physical",
-    resourceType: "energy_positive_spell",
-    rank: 1,
-    description: "affix_speed_quick_exhaust_mana_defend_physical",
-    image: "battlecard/illustration/spellcraft_wind_defend.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "wind_buff",
-      sound: "wind-1-44149.mp3",
-    },
-    script: "speed_quick_defend",
-    tags: ["status_speed_quick", "status_defense"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 1,
-        increment: 0.2,
-      },
-      {
-        base: 15,
-        increment: 1.5,
-      },
-    ],
-  },
-  wood_heal: {
-    id: "wood_heal",
-    uniqueId: "heal",
-    genre: "spellcraft",
-    category: "buff",
-    kind: "plant_control",
-    resourceType: "energy_positive_spell",
-    rank: 1,
-    description: "affix_heal_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_wood_defend.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "wood_buff",
-      sound: "timber-tree-falling-1-40384.mp3",
-    },
-    script: "heal_exhaust",
-    tags: ["exhaustResource"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 0,
-        increment: 1.5,
-      },
-    ],
-  },
-  wood_defense_physical: {
-    id: "wood_defense_physical",
-    uniqueId: "defend_physical",
-    genre: "spellcraft",
-    category: "buff",
-    kind: "plant_control",
-    rank: 1,
-    damageType: "physical",
-    resourceType: "energy_positive_spell",
-    description: "affix_defend_physical_exhaust_mana",
-    image: "battlecard/illustration/spellcraft_wood_defend.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "wood_buff",
-      sound: "timber-tree-falling-1-40384.mp3",
-    },
-    script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 20,
-        increment: 2.0,
-      },
-    ],
-  },
-
   // ------------炼魂·攻击------------
   punch_attack_exhaust_karma: {
     id: "punch_attack_exhaust_karma",
@@ -1540,7 +1538,7 @@
     genre: "vitality",
     kind: "punch",
     rank: 1,
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "psychic",
     resourceType: "energy_positive_curse",
     description: "affix_attack_unarmed_multiple_exhaust_karma",
@@ -1552,7 +1550,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -1574,7 +1572,7 @@
     category: "attack",
     genre: "vitality",
     kind: "dart",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     resourceType: "energy_positive_curse",
     rank: 1,
@@ -1586,7 +1584,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "dart",
     valueData: [
       {
@@ -1609,7 +1607,7 @@
     category: "attack",
     genre: "vitality",
     kind: "bow",
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     resourceType: "energy_positive_spell",
     rank: 1,
@@ -1620,7 +1618,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "bow",
     valueData: [
       {
@@ -1655,7 +1653,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1711,7 +1709,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "lifemax_buff_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -1731,7 +1729,7 @@
     genre: "avatar",
     kind: "kick",
     rank: 1,
-    attackType: "unarmed",
+    cardType: "unarmed",
     damageType: "physical",
     resourceType: "energy_positive_curse",
     description: "affix_attack_unarmed_multiple_exhaust_karma",
@@ -1743,7 +1741,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -1766,7 +1764,7 @@
     genre: "avatar",
     kind: "staff",
     rank: 1,
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "chi",
     resourceType: "energy_positive_unarmed",
     description: "affix_attack_weapon_multiple_exhaust_rage",
@@ -1778,7 +1776,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "staff",
     valueData: [
       {
@@ -1802,7 +1800,7 @@
     genre: "avatar",
     kind: "spear",
     rank: 1,
-    attackType: "weapon",
+    cardType: "weapon",
     damageType: "physical",
     resourceType: "energy_positive_curse",
     description: "affix_attack_weapon_multiple_exhaust_karma",
@@ -1814,7 +1812,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     equipment: "spear",
     valueData: [
       {
@@ -1837,7 +1835,7 @@
     category: "attack",
     genre: "avatar",
     kind: "sigil",
-    attackType: "curse",
+    cardType: "curse",
     damageType: "psychic",
     resourceType: "energy_positive_karma",
     rank: 1,
@@ -1850,7 +1848,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack_exhaust",
-    tags: ["exhaustResource"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 0,
@@ -1879,7 +1877,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,
@@ -1907,7 +1905,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     equipment: "staff",
     valueData: [
       {
@@ -1936,7 +1934,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     equipment: "spear",
     valueData: [
       {
@@ -1966,7 +1964,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_multiple_exhaust",
-    tags: ["exhaustResource", "status_defense"],
+    keywords: ["exhaustResource", "status_defense"],
     valueData: [
       {
         base: 0,

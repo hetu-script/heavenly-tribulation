@@ -44,7 +44,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   String? get category => data['category'];
   String? get genre => data['genre'];
   String? get kind => data['kind'];
-  String? get attackType => data['attackType'];
+  String? get cardType => data['cardType'];
   String? get damageType => data['damageType'];
   String? get script => data['script'];
   String? get soundId => data['sound'];

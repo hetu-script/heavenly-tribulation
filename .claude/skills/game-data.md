@@ -20,7 +20,7 @@ description: 关于游戏数据结构和脚本的说明
     id: "punch_attack",
     category: "attack",          // "attack" | "buff"
     kind: "punch",
-    attackType: "unarmed",       // unarmed | weapon | spell | curse | chaos
+    cardType: "unarmed",       // unarmed | weapon | spell | curse | chaos
     damageType: "physical",      // physical | chi | element | spirit | pure
     description: "affix_attack_unarmed",
     image: "battlecard/illustration/punch_attack.png",
@@ -67,7 +67,7 @@ description: 关于游戏数据结构和脚本的说明
 ## 状态效果（status_effect.json5）
 
 字段: `id`, `title`, `description`, `icon`, `script`。
-可选: `isPermanent`, `isOngoing`, `isUnique`, `attackType`, `callbacks`。
+可选: `isPermanent`, `isOngoing`, `isUnique`, `cardType`, `callbacks`。
 图标路径: `icon/status/{permanent|temporary}/{id}.png`。
 
 ## 跨文件引用
