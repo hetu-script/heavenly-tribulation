@@ -393,7 +393,7 @@ class CultivationScene extends Scene with HasCursorState {
         );
 
         skillButton.tryLoadSprite(
-            spriteId: GameData.passives[selectedAttributeId]['icon']);
+            selectedSpriteId: GameData.passives[selectedAttributeId]['icon']);
       } else {
         GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       }
@@ -573,7 +573,7 @@ class CultivationScene extends Scene with HasCursorState {
         assert(attributeId is String);
         final attributeSkillData = GameData.passives[attributeId];
         assert(attributeSkillData != null);
-        skillButton.tryLoadSprite(spriteId: attributeSkillData['icon']);
+        skillButton.tryLoadSprite(selectedSpriteId: attributeSkillData['icon']);
       }
 
       skillButton.onTapUp = (button, position) async {
@@ -603,7 +603,8 @@ class CultivationScene extends Scene with HasCursorState {
       final passiveTreeNodeData = GameData.passiveTree[nodeId];
       if (passiveTreeNodeData['isAttribute'] == true) {
         final String attributeId = unlockedNodes[nodeId];
-        button.tryLoadSprite(spriteId: GameData.passives[attributeId]['icon']);
+        button.tryLoadSprite(
+            selectedSpriteId: GameData.passives[attributeId]['icon']);
       }
     }
   }
@@ -1649,18 +1650,18 @@ class CultivationScene extends Scene with HasCursorState {
 
   /// 点击境界节点时触发突破试炼
   Future<void> tryTribulation(SpriteButton skillButton, String nodeId) async {
+    assert(!isEditorMode);
+
     final passiveTreeNodeData = GameData.passiveTree[nodeId];
     if (passiveTreeNodeData == null) return;
 
-    final int difficulty = passiveTreeNodeData['rank'] ?? 0;
-    assert(difficulty == character['rank'] + 1);
+    int difficulty = character['rank'];
+    assert(difficulty == (passiveTreeNodeData['rank'] as int) - 1);
 
-    if (!isEditorMode) {
-      if (character['skillPoints'] <= 0) {
-        dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
-        dialog.execute();
-        return;
-      }
+    if (character['skillPoints'] <= 0) {
+      dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
+      dialog.execute();
+      return;
     }
 
     // 教程提示
@@ -1711,7 +1712,8 @@ class CultivationScene extends Scene with HasCursorState {
 
     // if (selected == 'tribulation_martial') {
     // 进入天道战斗
-    final level = GameLogic.maxLevelForRank(difficulty - 1);
+    int levelMax = GameLogic.maxLevelForRank(difficulty);
+    int level = levelMax;
 
     bool isDifficultyDecreased = false;
     if (GameData.hero['passives']['decreaseTribulationDifficulty'] != null) {
@@ -1721,9 +1723,13 @@ class CultivationScene extends Scene with HasCursorState {
       await dialog.execute();
     }
 
-    GameLogic.showTribulation(
-        level, isDifficultyDecreased ? difficulty - 1 : difficulty,
-        onResult: (bool result) {
+    if (isDifficultyDecreased) {
+      level -= 5;
+    }
+
+    level = level.clamp(0, levelMax);
+
+    GameLogic.showTribulation(level, difficulty, onResult: (bool result) {
       if (result) {
         onTribulationSuccess();
       } else {

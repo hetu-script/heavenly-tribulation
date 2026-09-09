@@ -1,6 +1,6 @@
 ---
 name: Game Data
-description: 关于游戏数据结构和脚本的说明
+description: 关于游戏数据结构的说明
 ---
 
 # 游戏数据（JSON5）编写规范

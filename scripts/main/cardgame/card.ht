@@ -248,7 +248,7 @@ function _updateAffixUniqueIds(card) {
     } else if (affix.uniqueId is string) {
       card.affixUniqueIds.add(affix.uniqueId)
     }
-    card.keywords.addAll(affix.keywords)
+    card.keywords.addAll(affix.keywords ?? [])
   }
 }
 

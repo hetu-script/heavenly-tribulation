@@ -309,27 +309,29 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 永久效果位置：英雄在装备栏下方，敌人在装备栏下方（从右向左排列）
+  /// 永久效果位置：能量瓶旁边，英雄向右排列，敌人向左排列
   void reArrangePermanentEffects() {
     final iconStep =
         GameUI.permanentStatusEffectIconSize.x + GameUI.smallIndent;
-    final effectY = GameUI.p1EquipmentsBarPosition.y +
-        GameUI.equipmentsBarSize.y +
-        GameUI.smallIndent;
     for (var i = 0; i < permanentEffects.length; ++i) {
       final effect = permanentEffects.elementAt(i);
       if (isHero) {
         effect.position = Vector2(
-          GameUI.p1EquipmentsBarPosition.x + i * iconStep,
-          effectY,
+          GameUI.p1EnergyDisplayPosition.x +
+              GameUI.battleEnergyBottleSize.x / 2 +
+              GameUI.smallIndent +
+              i * iconStep,
+          GameUI.p1EnergyDisplayPosition.y -
+              GameUI.permanentStatusEffectIconSize.y / 2,
         );
       } else {
-        // 敌方从右向左排列
-        final rightEdge =
-            GameUI.p2EquipmentsBarPosition.x + GameUI.equipmentsBarSize.x;
         effect.position = Vector2(
-          rightEdge - (i + 1) * iconStep,
-          effectY,
+          GameUI.p2EnergyDisplayPosition.x -
+              GameUI.battleEnergyBottleSize.x / 2 -
+              GameUI.smallIndent -
+              i * iconStep,
+          GameUI.p2EnergyDisplayPosition.y -
+              GameUI.permanentStatusEffectIconSize.y / 2,
         );
       }
     }

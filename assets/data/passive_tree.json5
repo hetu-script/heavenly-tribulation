@@ -45,7 +45,7 @@
     comment: "passivetree_swordcraft_rank_1_comment",
     passives: [
       {
-        id: "swordcraft_rank",
+        id: "swordcraft_rank_1",
         description: "passive_swordcraft_rank_1_description",
         level: 1,
       },
@@ -65,7 +65,7 @@
     comment: "passivetree_swordcraft_rank_2_comment",
     passives: [
       {
-        id: "swordcraft_rank",
+        id: "swordcraft_rank_2",
         description: "passive_swordcraft_rank_2_description",
         level: 1,
       },
@@ -85,7 +85,7 @@
     comment: "passivetree_swordcraft_rank_3_comment",
     passives: [
       {
-        id: "swordcraft_rank",
+        id: "swordcraft_rank_3",
         description: "passive_swordcraft_rank_3_description",
         level: 1,
       },
@@ -114,6 +114,9 @@
     icon: "cultivation/skill/more/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
+      {
+        id: "enable_mana",
+      },
       {
         id: "spirituality",
         level: 40,
@@ -350,7 +353,7 @@
     comment: "passivetree_spellcraft_rank_1_comment",
     passives: [
       {
-        id: "spellcraft_rank",
+        id: "spellcraft_rank_1",
         description: "passive_spellcraft_rank_1_description",
         level: 1,
       },
@@ -370,7 +373,7 @@
     comment: "passivetree_spellcraft_rank_2_comment",
     passives: [
       {
-        id: "spellcraft_rank",
+        id: "spellcraft_rank_2",
         description: "passive_spellcraft_rank_2_description",
         level: 1,
       },
@@ -390,7 +393,7 @@
     comment: "passivetree_spellcraft_rank_3_comment",
     passives: [
       {
-        id: "spellcraft_rank",
+        id: "spellcraft_rank_3",
         description: "passive_spellcraft_rank_3_description",
         level: 1,
       },
@@ -658,7 +661,7 @@
     comment: "passivetree_vitality_rank_1_comment",
     passives: [
       {
-        id: "vitality_rank",
+        id: "vitality_rank_1",
         description: "passive_vitality_rank_1_description",
         level: 1,
       },
@@ -678,7 +681,7 @@
     comment: "passivetree_vitality_rank_2_comment",
     passives: [
       {
-        id: "vitality_rank",
+        id: "vitality_rank_2",
         description: "passive_vitality_rank_2_description",
         level: 1,
       },
@@ -698,7 +701,7 @@
     comment: "passivetree_vitality_rank_3_comment",
     passives: [
       {
-        id: "vitality_rank",
+        id: "vitality_rank_3",
         description: "passive_vitality_rank_3_description",
         level: 1,
       },
@@ -727,6 +730,9 @@
     icon: "cultivation/skill/more/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
+      {
+        id: "enable_ultimate",
+      },
       {
         id: "perception",
         level: 40,
@@ -963,7 +969,7 @@
     comment: "passivetree_avatar_rank_1_comment",
     passives: [
       {
-        id: "avatar_rank",
+        id: "avatar_rank_1",
         description: "passive_avatar_rank_1_description",
         level: 1,
       },
@@ -983,7 +989,7 @@
     comment: "passivetree_avatar_rank_2_comment",
     passives: [
       {
-        id: "avatar_rank",
+        id: "avatar_rank_2",
         description: "passive_avatar_rank_2_description",
         level: 1,
       },
@@ -1003,7 +1009,7 @@
     comment: "passivetree_avatar_rank_3_comment",
     passives: [
       {
-        id: "avatar_rank",
+        id: "avatar_rank_3",
         description: "passive_avatar_rank_3_description",
         level: 1,
       },
@@ -1271,7 +1277,7 @@
     comment: "passivetree_bodyforge_rank_1_comment",
     passives: [
       {
-        id: "bodyforge_rank",
+        id: "bodyforge_rank_1",
         description: "passive_bodyforge_rank_1_description",
         level: 1,
       },
@@ -1291,7 +1297,7 @@
     comment: "passivetree_bodyforge_rank_2_comment",
     passives: [
       {
-        id: "bodyforge_rank",
+        id: "bodyforge_rank_2",
         description: "passive_bodyforge_rank_2_description",
         level: 1,
       },
@@ -1311,7 +1317,7 @@
     comment: "passivetree_bodyforge_rank_3_comment",
     passives: [
       {
-        id: "bodyforge_rank",
+        id: "bodyforge_rank_3",
         description: "passive_bodyforge_rank_3_description",
         level: 1,
       },
