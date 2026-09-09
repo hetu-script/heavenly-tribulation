@@ -34,15 +34,14 @@ class DropdownMenuButton<T> extends StatelessWidget {
     final button = DropdownButton2<T>(
       style: GameUI.textTheme.bodySmall,
       hint: hint,
-      menuItemStyleData: const MenuItemStyleData(height: 35.0),
+      menuItemStyleData: const MenuItemStyleData(),
       dropdownStyleData: DropdownStyleData(
         decoration: GameUI.boxDecoration,
       ),
       isExpanded: true,
-      value: selected,
       items: selections.keys
           .map(
-            (key) => DropdownMenuItem<T>(
+            (key) => DropdownItem<T>(
               value: selections[key],
               child: Text(key),
             ),
