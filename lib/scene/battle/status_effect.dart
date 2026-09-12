@@ -7,7 +7,6 @@ import 'package:hetu_script/utils/collection.dart' as utils;
 import '../../global.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
-import 'common.dart';
 
 class StatusEffect extends BorderComponent with HandlesGesture {
   static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
@@ -66,8 +65,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     int amount = 1,
     super.position,
     super.anchor,
-  })  : _amount = amount,
-        super(priority: kStatusEffectIconPriority) {
+  }) : _amount = amount {
     assert(amount >= 1);
     assert(GameData.statusEffects.containsKey(id));
     data = utils.deepCopy(GameData.statusEffects[id]);

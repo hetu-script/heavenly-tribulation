@@ -305,7 +305,7 @@ class MemoryCardGame extends Scene with HasCursorState {
         ),
         overflow: ScreenTextOverflow.wordwrap,
       ),
-      glowSpriteId: 'battlecard/glow2.png',
+      glowSpriteId: 'battlecard/glow3.png',
     );
     card.onMouseEnter = () {
       if (_isChecking || isGameOver) return;

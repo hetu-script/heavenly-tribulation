@@ -1401,7 +1401,7 @@ final class GameData with ChangeNotifier {
       genreIconSpriteId: genre == null ? null : 'battlecard/genre_$genre.png',
       genreIconRelativePaddings:
           const EdgeInsets.fromLTRB(0.049, 0.04, 0.789, 0.841),
-      glowSpriteId: 'battlecard/glow.png',
+      glowSpriteId: 'battlecard/glow3.png',
       glowColor: rarityColor,
     );
   }

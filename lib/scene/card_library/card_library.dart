@@ -591,7 +591,7 @@ class CardLibraryScene extends Scene {
 
     libraryZone.removeCardById(cardId);
     for (final pile in deckPiles) {
-      pile.removeCardById(cardId);
+      pile.removeCardByUniqueId(cardId);
     }
 
     engine.play(GameSound.paperrip);
@@ -669,7 +669,7 @@ class CardLibraryScene extends Scene {
 
     libraryZone.removeCardById(scrollCard.id);
     for (final pile in deckPiles) {
-      pile.removeCardById(scrollCard.id);
+      pile.removeCardByUniqueId(scrollCard.id);
     }
 
     scrollCard.id = scrollCard.data['id'];

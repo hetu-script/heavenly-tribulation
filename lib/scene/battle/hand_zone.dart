@@ -47,14 +47,20 @@ class HandZone extends PiledZone with HandlesGesture {
 
     if (!enableInteraction) return;
 
+    enableCardInteraction(card);
+  }
+
+  void enableCardInteraction(CustomGameCard card) {
+    if (!cards.contains(card)) return;
+
     card.enableGesture = true;
 
+    // 恢复交互回调（参考 tryAddCard 中的逻辑）
     card.onTapUp = (button, position) {
       Hovertip.hide(card);
-      onCardSelected?.call(card);
-
-      card.removeFromPile();
+      card.setFocused(false);
       setSpreadCenter(card, false);
+      onCardSelected?.call(card);
     };
 
     card.onMouseEnter = () {
@@ -80,16 +86,12 @@ class HandZone extends PiledZone with HandlesGesture {
 
     card.onMouseExit = () {
       card.setFocused(false);
-      card.showGlow = false;
+      if (!card.isSelected) {
+        card.showGlow = false;
+      }
+      card.resetPriority();
       Hovertip.hide(card);
       setSpreadCenter(card, false);
     };
-  }
-
-  void clearCardInteraction(CustomGameCard card) {
-    card.enableGesture = false;
-    card.onTapUp = null;
-    card.onMouseEnter = null;
-    card.onMouseExit = null;
   }
 }

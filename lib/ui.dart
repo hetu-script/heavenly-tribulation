@@ -787,13 +787,13 @@ final class GameUI {
     );
 
     p1BattleCardUsedPosition = Vector2(GameUI.hugeIndent + GameUI.indent,
-        size.y / 2 - GameUI.battleCardUsedSize.y / 2);
+        size.y / 2 - GameUI.battleCardUsedSize.y / 2 - GameUI.hugeIndent);
 
     p2BattleCardUsedPosition = Vector2(
         size.x -
             (GameUI.hugeIndent + GameUI.indent) -
             GameUI.battleCardUsedSize.x,
-        size.y / 2 - GameUI.battleCardUsedSize.y / 2);
+        size.y / 2 - GameUI.battleCardUsedSize.y / 2 - GameUI.hugeIndent);
 
     final siteCardWidth = (size.x - 300) / 8 - indent;
     final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();

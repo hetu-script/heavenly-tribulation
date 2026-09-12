@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -147,7 +148,18 @@ class BattleScene extends Scene {
 
   final int endBattleAfterRounds;
 
-  Completer<CustomGameCard?>? _playerCardSelection;
+  // 队列模式：移除旧的 Completer
+  // Completer<CustomGameCard?>? _playerCardSelection;
+
+  // 待打出队列
+  final Queue<CustomGameCard> _cardQueue = Queue();
+
+  // 队列处理状态锁
+  bool _isProcessingQueue = false;
+
+  // 结束回合标志
+  bool _endPlayerTurn = false;
+
   bool _isRestarting = false;
 
   int _replacedCardCount = 0;
@@ -199,6 +211,11 @@ class BattleScene extends Scene {
       character.data['karma'] -= karmaInBattle;
       character.addStatusEffect('energy_positive_curse',
           amount: karmaInBattle, handleCallback: false);
+    }
+
+    if (character.data['passives']['enable_mana'] != null) {
+      character.addStatusEffect('enable_mana',
+          amount: 1, handleCallback: false);
     }
 
     if (character.data['passives']['enable_chakra'] != null) {
@@ -702,7 +719,7 @@ class BattleScene extends Scene {
       {bool animated = true}) async {
     for (final card in hand.cards.reversed.toList()) {
       card.isFlipped = true;
-      hand.clearCardInteraction(card as CustomGameCard);
+      card.clearInteraction();
       discard.tryAddCard(card);
     }
     await discard.sortCards(animated: animated);
@@ -712,6 +729,11 @@ class BattleScene extends Scene {
   Future<void> _startBattle() async {
     while (battleResult == null) {
       if (_isRestarting) {
+        // 清理队列和状态
+        _cardQueue.clear();
+        _isProcessingQueue = false;
+        _endPlayerTurn = false;
+
         await _returnAllCardsToDecks();
         _isRestarting = false;
         battleStarted = false;
@@ -769,15 +791,130 @@ class BattleScene extends Scene {
     return drawn;
   }
 
-  void onPlayerSelectedCard(CustomGameCard? card) {
-    if (_playerCardSelection == null || _playerCardSelection!.isCompleted) {
+  /// 将卡牌加入待打出队列
+  void _enqueueCard(CustomGameCard card) {
+    // 验证不重复入队
+    if (_cardQueue.contains(card)) return;
+
+    // 验证卡牌在手牌中
+    if (!heroHandZone.cards.contains(card)) return;
+
+    // 计算队列中已有卡牌的总消耗
+    int queuedCost = 0;
+    for (final queuedCard in _cardQueue) {
+      queuedCost += queuedCard.cost;
+    }
+
+    // 验证能量足够（当前能量 - 队列消耗 >= 当前卡牌消耗）
+    final remainingEnergy = hero.energy - queuedCost;
+    if (card.cost > remainingEnergy) {
+      engine.info(
+          '能量不足，无法入队: ${card.data['name']} (需要: ${card.cost}, 剩余: $remainingEnergy)');
       return;
     }
 
-    if (card != null && card.cost > currentCharacter.energy) return;
+    // 入队并标记
+    _cardQueue.add(card);
+    card.showGlow = true;
+    card.isSelected = true;
 
-    _playerCardSelection!.complete(card);
-    _playerCardSelection = null;
+    Hovertip.hide(card);
+
+    // 清除卡牌交互
+    // heroHandZone.clearCardInteraction(card);
+
+    engine.info(
+        '卡牌入队: ${card.data['name']}, 队列长度: ${_cardQueue.length}, 预计剩余能量: ${remainingEnergy - card.cost}');
+  }
+
+  /// 处理待打出队列（异步单线程）
+  Future<void> _processCardQueue() async {
+    // 防止重入
+    if (_isProcessingQueue) return;
+    _isProcessingQueue = true;
+
+    try {
+      while (_cardQueue.isNotEmpty) {
+        // 检查中断条件
+        if (_isRestarting || battleEnded || _endPlayerTurn) {
+          break;
+        }
+
+        final card = _cardQueue.removeFirst();
+        card.clearInteraction();
+        // 从 cards 列表中移除，避免被 applySpread 重新定位
+        heroHandZone.removeCardByUniqueId(card.uniqueId, updateIndex: false);
+
+        // 执行打出逻辑
+        await _playCard(card);
+      }
+
+      // 清空队列并处理剩余卡牌
+      for (final card in _cardQueue) {
+        card.showGlow = false;
+        card.isSelected = false;
+        if (_isRestarting) {
+          // 重启战斗：放回手牌区
+          heroHandZone.tryAddCard(card);
+          heroHandZone.enableCardInteraction(card);
+        } else {
+          // 直接移到弃牌堆，不要放回手牌区
+          card.isFlipped = true;
+          card.clearInteraction();
+          heroDiscardZone.tryAddCard(card);
+        }
+      }
+      _cardQueue.clear();
+
+      if (_isRestarting) {
+        await heroHandZone.sortCards();
+      } else {
+        await heroDiscardZone.sortCards();
+      }
+      heroHandZone.updateIndices();
+      // 队列处理完成后，整理手牌区
+      await heroHandZone.sortCards();
+    } finally {
+      _isProcessingQueue = false;
+    }
+  }
+
+  /// 执行单张卡牌的打出流程
+  Future<void> _playCard(CustomGameCard card) async {
+    engine.info('开始打出卡牌: ${card.data['name']}');
+
+    // 1. 扣除能量
+    hero.energy -= card.cost;
+    heroHandZone.energy = hero.energy;
+    heroEnergyDisplay.setEnergy(hero.energy);
+
+    card.clearInteraction();
+    // 2. 卡牌结算
+    await hero.onUseCard(card);
+
+    // 3. 翻面并移到弃牌堆
+    card.isFlipped = true;
+    card.showGlow = false;
+
+    // 卡牌已经在入队时从 heroHandZone.cards 移除，直接移到弃牌堆
+    heroDiscardZone.tryAddCard(card);
+    await heroDiscardZone.sortCards();
+
+    engine.info('卡牌打出完成: ${card.data['name']}, 剩余能量: ${hero.energy}');
+  }
+
+  void onPlayerSelectedCard(CustomGameCard? card) {
+    // null 表示结束回合
+    if (card == null) {
+      _endPlayerTurn = true;
+      return;
+    }
+
+    // 加入队列
+    _enqueueCard(card);
+
+    // 启动队列处理器（不 await，让它在后台运行）
+    _processCardQueue();
   }
 
   /// 敌方简单AI：血量<50%优先buff，否则优先attack
@@ -859,22 +996,30 @@ class BattleScene extends Scene {
 
       if (heroTurn) {
         endTurnButton.isEnabled = true;
-        while (!_isRestarting && handZone.cards.isNotEmpty) {
-          assert(_playerCardSelection == null);
-          _playerCardSelection = Completer<CustomGameCard?>();
-          final selectedCard = await _playerCardSelection!.future;
-          if (selectedCard == null) break;
 
-          currentCharacter.energy -= selectedCard.cost;
-          handZone.energy = currentCharacter.energy;
-          energyDisplay.setEnergy(currentCharacter.energy);
-          handZone.clearCardInteraction(selectedCard);
-          await currentCharacter.onUseCard(selectedCard);
-          selectedCard.isFlipped = true;
-          selectedCard.showGlow = false;
-          discardZone.tryAddCard(selectedCard);
-          await discardZone.sortCards();
+        // 重置结束回合标志
+        _endPlayerTurn = false;
+
+        // 等待玩家结束回合（通过 _shouldEndTurn 标志）
+        while (_isProcessingQueue || (!_isRestarting && !_endPlayerTurn)) {
+          // 等待队列处理器空闲
+          // if (!_isProcessingQueue && _cardQueue.isEmpty) {
+          // 检查是否还有可打出的卡牌
+          // final affordableCards = heroHandZone.cards
+          //     .where((c) => (c as CustomGameCard).cost <= hero.energy)
+          //     .toList();
+
+          // if (affordableCards.isEmpty) {
+          //   // 没有可打出的卡牌，自动结束回合
+          //   engine.info('没有可打出的卡牌，自动结束回合');
+          //   break;
+          // }
+          // }
+
+          // 短暂等待，避免忙等
+          await Future.delayed(Duration(milliseconds: 50));
         }
+
         endTurnButton.isEnabled = false;
       } else {
         while (!_isRestarting &&
@@ -1085,7 +1230,7 @@ class BattleScene extends Scene {
                                 _startBattle();
                               } else if (battleStarted) {
                                 _isRestarting = true;
-                                onPlayerSelectedCard(null);
+                                _endPlayerTurn = true;
                               }
                             case 'console':
                               GameUI.showConsole(context);
