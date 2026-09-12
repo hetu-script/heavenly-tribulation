@@ -188,13 +188,6 @@ struct StatusScript {
     self.removeStatusEffect('defense', percentage: percentage)
   }
 
-  // 护甲的抵扣结算已移至 Dart 侧 takeDamage，在所有乘区之后按数值扣除
-  // （原先在此处的 defense_self_taking_damage 写 baseChange，会放大护甲吸收）
-
-  // function vulnerable_self_turn_start(self, opponent, effect, details) {
-  //   self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
-  // }
-
   /// 易伤：受到任何伤害时消耗，增加等量伤害（不分类型的单一状态）
   function vulnerable_self_taking_damage(self, opponent, effect, details) {
     let added = self.removeStatusEffect('vulnerable', amount: details.baseValue)
@@ -220,16 +213,13 @@ struct StatusScript {
     }
   }
 
-  function ward_self_gained_debuff(self, opponent, effect, details) {
+  /// 清气：获得负面效果时，消耗 1 层清气并取消该效果
+  function energy_positive_ward_self_gained_debuff(self, opponent, effect, details) {
     if (!details.cancelDebuff) {
       details.cancelDebuff = true
       self.removeStatusEffect(effect.id, amount: 1)
     }
   }
-
-  // function ward_self_turn_end(self, opponent, effect, details) {
-  //   self.removeStatusEffect(effect.id, amount: 1)
-  // }
 
   function injury_external_self_attacked(self, opponent, effect, details) {
     self.changeLife(-effect.amount * 5)
@@ -346,11 +336,11 @@ struct StatusScript {
 
   function energy_positive_weapon_self_overflowed_energy(self, opponent, effect, details) {
     final debuff = random.nextIterable(kDebuffs)
-
-    self.addStatusEffect(debuff, amount: details.overflow)
-
+    
     if (self.data.passives.overflowed_chakra_debuff_affect_opponent) {
       opponent.addStatusEffect(debuff, amount: details.overflow)
+    } else {
+      self.addStatusEffect(debuff, amount: details.overflow)
     }
   }
 
@@ -369,6 +359,10 @@ struct StatusScript {
   /// 每点怒气使自身受到的伤害 +5%
   function energy_positive_unarmed_self_taking_damage(self, opponent, effect, details) {
     details.percentageChange1 += 0.05 * effect.amount
+  }
+
+  function energy_positive_unarmed_self_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect('energy_positive_unarmed', percentage: 0.5)
   }
 
   function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
@@ -396,6 +390,17 @@ struct StatusScript {
 
   // 衰气（energy_negative_crit）的效果在 Dart 侧 takeDamage 的暴击分支中结算：
   // 每层使本次暴击倍率 -25%（下限 100%），触发时全部消耗
+
+  /// 浊气：回合开始时，消耗 1 层浊气并获得 1 层随机负面效果（从 kDebuffs 池抽取）
+  function energy_negative_ward_self_turn_start(self, opponent, effect, details) {
+    if (self.hasStatusEffect('energy_negative_ward') > 0) {
+      self.removeStatusEffect(effect.id, amount: 1)
+      
+      // 从 kDebuffs 池中随机选择一个负面效果
+      final debuffId = random.nextIterable(kDebuffs)
+      self.addStatusEffect(debuffId, amount: 1)
+    }
+  }
 
   function energy_negative_ultimate_self_doing_damage(self, opponent, effect, details) {
     details.baseChange -= effect.amount * 5

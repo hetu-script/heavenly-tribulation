@@ -15,10 +15,9 @@ const kDebuffs = [
   // 'energy_negative_crit',
   // 'energy_negative_ultimate',
   'speed_slow',
-  'speed_clumsy',
+  'dodge_clumsy',
   'vulnerable',
   'injury_external',
   'injury_internal',
-  'injury_poison',
   'injury_hallucination',
 ]

@@ -773,7 +773,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_ward",
+        id: "start_battle_with_energy_positive_ward",
         level: 5,
       },
     ],

@@ -44,23 +44,21 @@ const kStatsToPermanentEffects = {
   'chiResist': ('resistant_chi', 'weakness_chi'),
   'elementalResist': ('resistant_elemental', 'weakness_elemental'),
   'psychicResist': ('resistant_psychic', 'weakness_psychic'),
-  // 穿透：单一属性，只作用于物理和真气伤害
-  'penetration': ('penetration', ''),
 };
 
 const kSelfStatusOnCircumstance = {
   'defense',
   'speed_quick',
   'speed_nimble',
-  'energy_positive_spell',
-  'energy_positive_weapon',
-  'energy_positive_unarmed',
   'energy_positive_life',
   'energy_positive_penetrate',
   'energy_positive_crit',
-  'energy_positive_ultimate',
+  'energy_positive_ward',
   'energy_positive_shield',
-  'ward',
+  'energy_positive_spell',
+  'energy_positive_weapon',
+  'energy_positive_unarmed',
+  'energy_positive_ultimate',
 };
 
 const kOpponentStatusOnCircumstance = {
@@ -74,15 +72,16 @@ const kOpponentStatusOnCircumstance = {
   'weakness_psychic',
   'vulnerable',
   'speed_slow',
-  'speed_clumsy',
-  'energy_negative_spell',
-  'energy_negative_weapon',
-  'energy_negative_unarmed',
+  'dodge_clumsy',
   'energy_negative_life',
   'energy_negative_penetrate',
   'energy_negative_crit',
-  'energy_negative_ultimate',
+  'energy_negative_ward',
   'energy_negative_shield',
+  'energy_negative_spell',
+  'energy_negative_weapon',
+  'energy_negative_unarmed',
+  'energy_negative_ultimate',
 };
 
 enum StatusCircumstances {

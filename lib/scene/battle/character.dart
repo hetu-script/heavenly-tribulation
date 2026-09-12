@@ -26,6 +26,7 @@ const kResourceHasNegatives = {
   'energy_positive_life',
   'energy_positive_penetrate',
   'energy_positive_crit',
+  'energy_positive_ward',
   'energy_positive_unarmed',
   'energy_positive_weapon',
   'energy_positive_spell',
@@ -48,6 +49,7 @@ Color getResourceColor(String resourceType) {
     'energy_positive_life' || 'energy_negative_life' => Colors.lightGreen,
     'energy_positive_penetrate' || 'energy_negative_penetrate' => Colors.grey,
     'energy_positive_crit' || 'energy_negative_crit' => Colors.blueGrey,
+    'energy_positive_ward' || 'energy_negative_ward' => Colors.white,
     'energy_positive_shield' || 'energy_negative_shield' => Colors.blue,
     'energy_positive_spell' || 'energy_negative_spell' => Colors.purple,
     'energy_positive_weapon' || 'energy_negative_weapon' => Colors.lightBlue,
@@ -486,18 +488,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
                 interpolations: [engine.locale('status_$id')]),
             color: Colors.blue,
           );
-
-          // if (id == 'energy_positive_weapon') {
-          //   // 处理剑气溢出时的逻辑
-          //   for (var i = 0; i < overflowedAmount; ++i) {
-          //     final debuffId = kDebuffs.random;
-          //     if (random.nextBool()) {
-          //       opponent!.addStatusEffect(debuffId, amount: 1);
-          //     } else {
-          //       addStatusEffect(debuffId, amount: 1);
-          //     }
-          //   }
-          // }
         }
       }
     }

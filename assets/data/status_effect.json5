@@ -431,39 +431,6 @@
     callbacks: ["self_taking_damage"],
   },
 
-  // 浩然之气（护盾）：每层抵挡一次任意非纯粹伤害，触发时消耗
-  energy_positive_shield: {
-    id: "energy_positive_shield",
-    title: "status_energy_positive_shield",
-    description: "status_energy_positive_shield_description",
-    icon: "icon/status/shield_physical.png",
-    script: "shield",
-    isResource: true,
-    priority: 1405,
-    callbacks: ["self_taking_damage"],
-  },
-  // 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗
-  energy_negative_shield: {
-    id: "energy_negative_shield",
-    title: "status_energy_negative_shield",
-    description: "status_energy_negative_shield_description",
-    icon: "icon/status/energy_negative_shield.png",
-    script: "energy_negative_shield",
-    isResource: true,
-    priority: 1404,
-    callbacks: ["self_taking_damage"],
-  },
-
-  ward: {
-    id: "ward",
-    title: "status_ward",
-    description: "status_ward_description",
-    icon: "icon/status/ward.png",
-    script: "ward",
-    priority: 1401,
-    callbacks: ["self_gained_debuff", "self_turn_end"],
-  },
-
   injury_external: {
     id: "injury_external",
     title: "status_injury_external",
@@ -481,15 +448,6 @@
     script: "injury_internal",
     isDebuff: true,
     callbacks: ["self_used_card", "self_gain_energy_positive"],
-  },
-  injury_poison: {
-    id: "injury_poison",
-    title: "status_injury_poison",
-    description: "status_injury_poison_description",
-    icon: "icon/status/injury_when_turn_start.png",
-    script: "injury_poison",
-    isDebuff: true,
-    callbacks: ["self_turn_start"],
   },
   injury_hallucination: {
     id: "injury_hallucination",
@@ -552,6 +510,28 @@
     script: "energy_positive_crit",
     isResource: true,
     callbacks: ["self_using_card"],
+  },
+  // 清气（辟邪改造）：获得负面效果时消耗并取消该效果
+  energy_positive_ward: {
+    id: "energy_positive_ward",
+    title: "status_energy_positive_ward",
+    description: "status_energy_positive_ward_description",
+    icon: "icon/status/energy_positive_ward.png",
+    script: "energy_positive_ward",
+    isResource: true,
+    priority: 1401,
+    callbacks: ["self_gained_debuff"],
+  },
+  // 浩然之气（护盾）：每层抵挡一次任意非纯粹伤害，触发时消耗
+  energy_positive_shield: {
+    id: "energy_positive_shield",
+    title: "status_energy_positive_shield",
+    description: "status_energy_positive_shield_description",
+    icon: "icon/status/shield_physical.png",
+    script: "shield",
+    isResource: true,
+    priority: 1405,
+    callbacks: ["self_taking_damage"],
   },
 
   // 灵气
@@ -642,6 +622,27 @@
     description: "status_energy_negative_crit_description",
     icon: "icon/status/energy_negative_pure.png",
     isResource: true,
+  },
+  // 浊气：回合开始时消耗并获得随机负面效果
+  energy_negative_ward: {
+    id: "energy_negative_ward",
+    title: "status_energy_negative_ward",
+    description: "status_energy_negative_ward_description",
+    icon: "icon/status/energy_negative_ward.png",
+    script: "energy_negative_ward",
+    isResource: true,
+    callbacks: ["self_turn_start"],
+  },
+  // 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗
+  energy_negative_shield: {
+    id: "energy_negative_shield",
+    title: "status_energy_negative_shield",
+    description: "status_energy_negative_shield_description",
+    icon: "icon/status/energy_negative_shield.png",
+    script: "energy_negative_shield",
+    isResource: true,
+    priority: 1404,
+    callbacks: ["self_taking_damage"],
   },
 
   // 逆灵之气

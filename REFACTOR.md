@@ -53,8 +53,8 @@
     中毒迁入元素持续伤害（见决策 11，吃毒抗）。
 11. **四种元素持续伤害（DOT）统一规则**：回合开始时每层失去 X 点生命（伤害类型为对应元素，受对应抗性减免），
     回合结束时移除 Y 层。同一规则模板 + 四种参数制造节奏差异（详见 `REFACTOR_4_ELEMENTS.md`）：
-    灼伤 `element_dot_fire`（5 / 减 1 层，稳定）、触电 `element_dot_lightning`（8 / 全部衰减，爆发）、
-    冻伤 `element_dot_ice`（3 / 每 2 回合减 1 层，绵长）、中毒 `element_dot_poison`（2 / 不衰减，治疗可驱散，累积）。
+    灼伤 `element_dot_fire`（5 / 减 1 层，稳定）、感电 `element_dot_lightning`（8 / 全部衰减，爆发）、
+    冰缓 `element_dot_ice`（3 / 每 2 回合减 1 层，绵长）、中毒 `element_dot_poison`（2 / 不衰减，治疗可驱散，累积）。
     id 统一为 `element_dot_fire/ice/lightning/poison`，共用同一参数化脚本，便于检索。
     **【参数均为初值，实机调；雷（全衰减）与毒（不衰减）是两个极端，重点验证】**
 12. **易伤规则**：触发对应伤害后自动消耗即可，回合开始不再衰减。（代码现状已是如此，只需改文档。）

@@ -97,15 +97,14 @@
    四种元素共用**同一个参数化状态脚本**（脚本 id `element_dot`，damageType / X / Y 为参数），靠参数制造节奏差异，避免机制换皮。
    状态 id 统一为 `element_dot_fire/ice/lightning/poison`，便于检索：
 
-   | 元素 | 状态 id                 | 中文 | X（每层伤害） | Y（每回合衰减） | 节奏                                                              |
-   | ---- | ----------------------- | ---- | ------------- | --------------- | ----------------------------------------------------------------- |
-   | 火   | `element_dot_fire`      | 灼伤 | 5             | 1 层            | 稳定燃烧（基准）                                                  |
-   | 雷   | `element_dot_lightning` | 触电 | 10            | 全部            | 瞬时爆发：施加后立刻兑现                                          |
-   | 冰   | `element_dot_ice`       | 冻伤 | 1             | 1 层            | 绵长消磨：长战有利                                                |
-   | 毒   | `element_dot_poison`    | 中毒 | 3             | **不衰减**      | 累积施压：只能靠治疗/净化驱散（`self_heal` 时减层，与流血同规则） |
-   - 毒"不衰减"继承旧 `injury_poison` 的性格（旧中毒本就无衰减），以低数值 + 治疗驱散平衡。
+   | 元素 | 状态 id                 | 中文 | X（每层伤害）             | Y（每回合衰减） | 节奏                                                              |
+   | ---- | ----------------------- | ---- | ------------------------- | --------------- | ----------------------------------------------------------------- |
+   | 火   | `element_dot_fire`      | 灼伤 | 5                         | 1 层            | 稳定燃烧（基准）                                                  |
+   | 雷   | `element_dot_lightning` | 感电 | 1~10                      | 随机            | 每回合随机消耗层数，每层随机造成伤害。                            |
+   | 冰   | `element_dot_ice`       | 冰缓 | 0（随机转为缓慢或者迟钝） | 1 层            | 绵长消磨：长战有利                                                |
+   | 毒   | `element_dot_poison`    | 中毒 | 3                         | **不衰减**      | 累积施压：只能靠治疗/净化驱散（`self_heal` 时减层，与流血同规则） |
    - 实现：状态脚本内读取 `hasStatusEffect('resistant_X')` 按比例减免后 `changeLife`，
-     **不走 `takeDamage`**（避免触发护甲/暴击等攻击向结算）。
+     **不走 `takeDamage`**（不触发护甲/暴击等攻击向结算）。
    - 实机重点测两个极端：雷（全衰减，会不会太弱）与毒（不衰减，会不会滚雪球）。
    - 图标 ×4 + 本地化 ×4。
 
@@ -118,8 +117,6 @@
 
 - `assets/data/status_effect.json5`：删除 `injury_poison`（中毒迁入元素持续伤害 poisoned，见 4.4 第 4 项）。
 - `assets/locale/zh/rpg/status_effect.json`：
-  `status_injury_description` 改为"伤势包括: 流血、内伤、幻觉"；
-  `status_ward_description` 的"负面效果包括"清单同步（去掉中毒、加入元素状态如需要）。
 - `scripts/main/cardgame/common.ht` `kDebuffs`：`injury_poison` 移除；四种元素持续伤害
   （`element_dot_fire/lightning/ice/poison`）入池（已确认，总览决策 14）。
 - 幻觉保持精神系伤势（不可减免）——阶段 5 可考虑念力减免幻觉，本阶段不动。
