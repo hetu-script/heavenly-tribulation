@@ -373,7 +373,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           removedAmount = amount;
         }
       } else if (percentage != null) {
-        assert(percentage > 0 && percentage < 1);
+        if (percentage <= 0) {
+          engine.warning(
+              'percentage must be positive and less than 1. percentage: $percentage');
+          return 0;
+        } else if (percentage > 1) {
+          engine.warning(
+              'percentage must be positive and less than 1. percentage: $percentage');
+          percentage = 1;
+        }
         removedAmount = (existEffect.amount * percentage).ceil();
       } else if (force) {
         removedAmount = existEffect.amount;
@@ -738,8 +746,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 阶段1重构：原先由 defense_self_taking_damage 脚本在乘区前扣除，
     // 会导致攻击方的增伤乘区放大护甲吸收量
     if (finalDamage > 0) {
-      final defenseId = 'defense_${damageDetails['damageType']}';
-      if (hasStatusEffect(defenseId) > 0) {
+      // final defenseId = 'defense_${damageDetails['damageType']}';
+      // if (hasStatusEffect(defenseId) > 0) {
+      if (hasStatusEffect('defense') > 0) {
         num penetration = (damageDetails['penetration'] ?? 0.0) as num;
         // 真气伤害自带 50% 防御穿透（伤害类型固有规则）
         if (damageDetails['damageType'] == 'chi') {
@@ -748,7 +757,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         penetration = penetration.clamp(0.0, 1.0);
         final int toBeBlocked = (finalDamage * (1 - penetration)).round();
         if (toBeBlocked > 0) {
-          final int blocked = removeStatusEffect(defenseId, amount: toBeBlocked);
+          final int blocked =
+              removeStatusEffect('defense', amount: toBeBlocked);
           if (blocked > 0) {
             damageDetails['blocked'] = true;
             damageDetails['blockedAmount'] = blocked;
@@ -795,7 +805,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     handleStatusEffectCallback('opponent_done_damage', damageDetails);
 
     // 触发对方受到伤害后的效果
-    opponent!.handleStatusEffectCallback('opponent_taken_damage', damageDetails);
+    opponent!
+        .handleStatusEffectCallback('opponent_taken_damage', damageDetails);
     // 触发自己受到伤害后的效果
     handleStatusEffectCallback('self_taken_damage', damageDetails);
 

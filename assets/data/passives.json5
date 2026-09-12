@@ -260,34 +260,6 @@
     keywords: ["status_enhance"],
   },
 
-  // 攻击穿透
-
-  // 穿透：单一属性，与伤害类型绑定，只作用于物理和真气伤害
-  penetration: {
-    id: "penetration",
-    description: "passive_penetration_description",
-    priority: 4649,
-    increment: 0.5,
-    isItem: true,
-    isEphemeral: true,
-    ephemeralType: "attack",
-    kinds: [
-      "gloves",
-      "boots",
-      "sword",
-      "sabre",
-      "staff",
-      "spear",
-      "bow",
-      "dart",
-      "pipa",
-      "amulet",
-      "ring",
-      "pearl",
-    ],
-    keywords: ["status_penetration"],
-  },
-
   // 抗性
   physicalResist: {
     id: "physicalResist",
@@ -380,44 +352,37 @@
     rank: 2,
   },
 
-  // 防御保持
-  physicalPersistent: {
-    id: "physicalPersistent",
-    description: "passive_physical_persistent_description",
+  // 护甲穿透：只作用于物理和真气伤害
+  penetration: {
+    id: "penetration",
+    description: "passive_penetration_description",
+    priority: 4649,
+    increment: 0.5,
+    isItem: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: [
+      "gloves",
+      "boots",
+      "sword",
+      "sabre",
+      "staff",
+      "spear",
+      "bow",
+      "dart",
+      "pipa",
+      "amulet",
+      "ring",
+      "pearl",
+    ],
+    keywords: ["status_penetration"],
+  },
+
+  // 护甲保持
+  persistent: {
+    id: "persistent",
+    description: "passive_persistent_description",
     priority: 4579,
-    increment: 0.5,
-    isItem: true,
-    isEphemeral: true,
-    ephemeralType: "defense",
-    keywords: ["status_persistent"],
-    kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-  },
-  chiPersistent: {
-    id: "chiPersistent",
-    description: "passive_chi_persistent_description",
-    priority: 4578,
-    increment: 0.5,
-    isItem: true,
-    isEphemeral: true,
-    ephemeralType: "defense",
-    keywords: ["status_persistent"],
-    kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-  },
-  elementalPersistent: {
-    id: "elementalPersistent",
-    description: "passive_elemental_persistent_description",
-    priority: 4577,
-    increment: 0.5,
-    isItem: true,
-    isEphemeral: true,
-    ephemeralType: "defense",
-    keywords: ["status_persistent"],
-    kinds: ["armor", "gloves", "boots", "helmet", "shield"],
-  },
-  psychicPersistent: {
-    id: "psychicPersistent",
-    description: "passive_psychic_persistent_description",
-    priority: 4576,
     increment: 0.5,
     isItem: true,
     isEphemeral: true,

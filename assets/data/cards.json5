@@ -287,8 +287,8 @@
     script: "defend",
     valueData: [
       {
-        base: 8,
-        increment: 0.8,
+        base: 5,
+        increment: 0.25,
       },
     ],
   },
@@ -308,8 +308,8 @@
     keywords: ["status_defense"],
     valueData: [
       {
-        base: 9,
-        increment: 0.9,
+        base: 6,
+        increment: 0.3,
       },
     ],
   },
@@ -332,8 +332,8 @@
     equipment: "sabre",
     valueData: [
       {
-        base: 9,
-        increment: 0.9,
+        base: 8,
+        increment: 0.4,
       },
     ],
   },
@@ -354,8 +354,8 @@
     equipment: "sword",
     valueData: [
       {
-        base: 8,
-        increment: 0.8,
+        base: 7,
+        increment: 0.35,
       },
     ],
   },
@@ -376,8 +376,8 @@
     equipment: "spear",
     valueData: [
       {
-        base: 10,
-        increment: 1,
+        base: 9,
+        increment: 0.45,
       },
     ],
   },
@@ -399,7 +399,7 @@
     valueData: [
       {
         base: 10,
-        increment: 1,
+        increment: 0.5,
       },
     ],
   },
@@ -420,7 +420,7 @@
     valueData: [
       {
         base: 8,
-        increment: 1.6,
+        increment: 1,
       },
     ],
   },
@@ -466,7 +466,7 @@
       },
       {
         base: 8,
-        increment: 0.8,
+        increment: 0.4,
       },
     ],
   },
@@ -491,7 +491,7 @@
       },
       {
         base: 8,
-        increment: 0.8,
+        increment: 0.4,
       },
     ],
   },
@@ -710,8 +710,8 @@
         increment: 0.1,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -746,8 +746,8 @@
         increment: 0.2,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 8,
+        increment: 0.4,
       },
     ],
   },
@@ -809,8 +809,8 @@
         increment: 0.1,
       },
       {
-        base: 20,
-        increment: 2.0,
+        base: 15,
+        increment: 0.75,
       },
     ],
   },
@@ -975,8 +975,8 @@
         increment: 0.1,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1003,8 +1003,8 @@
         increment: 0.1,
       },
       {
-        base: 17,
-        increment: 1.7,
+        base: 13,
+        increment: 0.65,
       },
     ],
   },
@@ -1032,8 +1032,8 @@
         increment: 0.1,
       },
       {
-        base: 20,
-        increment: 2.0,
+        base: 15,
+        increment: 0.75,
       },
     ],
   },
@@ -1064,8 +1064,8 @@
         increment: 0.2,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1096,8 +1096,8 @@
         increment: 0.2,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1353,8 +1353,8 @@
         increment: 0.1,
       },
       {
-        base: 17,
-        increment: 1.7,
+        base: 13,
+        increment: 0.75,
       },
     ],
   },
@@ -1381,8 +1381,8 @@
         increment: 0.1,
       },
       {
-        base: 17,
-        increment: 1.7,
+        base: 13,
+        increment: 0.75,
       },
     ],
   },
@@ -1410,8 +1410,8 @@
         increment: 0.1,
       },
       {
-        base: 20,
-        increment: 2.0,
+        base: 14,
+        increment: 0.7,
       },
     ],
   },
@@ -1439,8 +1439,8 @@
         increment: 0.1,
       },
       {
-        base: 24,
-        increment: 2.4,
+        base: 14,
+        increment: 0.7,
       },
     ],
   },
@@ -1471,8 +1471,8 @@
         increment: 0.2,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1503,8 +1503,8 @@
         increment: 0.2,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1532,8 +1532,8 @@
         increment: 0.1,
       },
       {
-        base: 10,
-        increment: 1.0,
+        base: 15,
+        increment: 0.75,
       },
     ],
   },
@@ -1667,8 +1667,8 @@
         increment: 0.1,
       },
       {
-        base: 15,
-        increment: 1.5,
+        base: 12,
+        increment: 0.6,
       },
     ],
   },
@@ -1891,8 +1891,8 @@
         increment: 0.1,
       },
       {
-        base: 17,
-        increment: 1.7,
+        base: 13,
+        increment: 0.75,
       },
     ],
   },
@@ -1920,8 +1920,8 @@
         increment: 0.1,
       },
       {
-        base: 17,
-        increment: 1.7,
+        base: 18,
+        increment: 0.9,
       },
     ],
   },
@@ -1949,8 +1949,8 @@
         increment: 0.1,
       },
       {
-        base: 20,
-        increment: 2.0,
+        base: 17,
+        increment: 0.85,
       },
     ],
   },
@@ -1979,7 +1979,7 @@
       },
       {
         base: 10,
-        increment: 1.0,
+        increment: 0.5,
       },
     ],
   },

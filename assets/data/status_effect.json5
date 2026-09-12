@@ -92,17 +92,6 @@
     callbacks: ["self_doing_damage"],
   },
 
-  // 攻击穿透：每层无视 1% 护甲，只作用于物理和真气伤害
-  penetration: {
-    id: "penetration",
-    title: "status_penetration",
-    description: "status_penetration_description",
-    icon: "icon/status/permanent/penetration_weapon.png",
-    script: "penetration",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
-
   // 所有类型的伤害增加
   increase_damage_punch: {
     id: "increase_damage_punch",
@@ -339,13 +328,23 @@
     callbacks: ["self_taking_damage"],
   },
 
-  // 所有类型的防御保持
+  // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
+  penetration: {
+    id: "penetration",
+    title: "status_penetration",
+    description: "status_penetration_description",
+    icon: "icon/status/permanent/penetration_weapon.png",
+    script: "penetration",
+    isPermanent: true,
+    callbacks: ["self_doing_damage"],
+  },
+
   // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
-  persistent_physical: {
-    id: "persistent_physical",
-    title: "status_persistent_physical",
-    description: "status_persistent_physical_description",
-    icon: "icon/status/permanent/persistent_physical.png",
+  persistent: {
+    id: "persistent",
+    title: "status_persistent",
+    description: "status_persistent_description",
+    icon: "icon/status/permanent/persistent.png",
     isPermanent: true,
   },
 

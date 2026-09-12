@@ -87,13 +87,13 @@ struct CardScriptMain {
   /// 防御
   async function defend(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0])
+    self.addStatusEffect('defense', amount: affix.value[0])
   }
   /// 防御消耗资源
   async function defend_exhaust(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
     await characterAnimate(self, affix.animation)
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+    self.addStatusEffect('defense', amount: affix.value[1])
   }
 
   /// 获得灵气
@@ -129,27 +129,27 @@ struct CardScriptMain {
   async function speed_quick_defend(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('speed_quick', amount: affix.value[0])
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+    self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 获得闪避和防御
   async function dodge_nimble_defend(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('dodge_nimble', amount: affix.value[0])
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+    self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 消耗资源获得速度和防御
   async function speed_quick_exhaust_defend(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('speed_quick', amount: affix.value[0])
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+    self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 消耗资源获得闪避和防御
   async function dodge_nimble_exhaust_defend(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('dodge_nimble', amount: affix.value[0])
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
+    self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 消耗资源提升生命上限
   async function lifemax_buff_exhaust(self, opponent, affix) {
@@ -196,7 +196,7 @@ struct CardScriptExtra {
 
   /// 防御
   async function defend(self, opponent, affix, mainAffix) {
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0])
+    self.addStatusEffect('defense', amount: affix.value[0])
   }
   /// 速度
   async function speed_quick(self, opponent, affix, mainAffix) {
@@ -236,7 +236,7 @@ struct CardScriptExtra {
     final cardDamage = self.cardFlags.damage.total ?? 0
     if (cardDamage < 10) return
     final amount = (cardDamage / 10).floor()
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0] * amount)
+    self.addStatusEffect('defense', amount: affix.value[0] * amount)
   }
 
   /// 加持额外词条: 
@@ -252,7 +252,7 @@ struct CardScriptExtra {
   async function consume_vigor_gain_defense(self, opponent, affix, mainAffix) {
     final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
     if (amount < 1) return
-    self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1] * amount)
+    self.addStatusEffect('defense', amount: affix.value[1] * amount)
   }
 
   async function for_attribute_increase_damage(self, opponent, affix, mainAffix) {

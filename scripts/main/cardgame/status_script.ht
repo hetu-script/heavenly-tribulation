@@ -177,13 +177,15 @@ struct StatusScript {
   }
 
   function defense_self_turn_start(self, opponent, effect, details) {
-    let persistent = self.hasStatusEffect('persistent_${effect.damageType}')
+    let persistent = self.hasStatusEffect('persistent')
     if (persistent > 0) {
       self.turnFlags.defensePersisted = true
     }
-    let reserved = 0.5 + persistent * 0.01
+    final amount = Math.min(persistent, 10)
+    let reserved = 0.5 + amount * 0.05
     let percentage = 1 - reserved
-    self.removeStatusEffect('defense_${effect.damageType}', percentage: percentage)
+    self.removeStatusEffect('persistent', amount: amount)
+    self.removeStatusEffect('defense', percentage: percentage)
   }
 
   // 护甲的抵扣结算已移至 Dart 侧 takeDamage，在所有乘区之后按数值扣除
@@ -270,11 +272,11 @@ struct StatusScript {
     self.removeStatusEffect('energy_positive_weapon')
   }
 
-  // function enable_rage_opponent_used_card(self, opponent, effect, details) {
-  //   if (opponent.cardFlags.category == 'attack' && opponent.cardFlags.damage.total > 0) {
-  //     self.addStatusEffect('energy_positive_unarmed', amount: 1)
-  //   }
-  // }
+  function enable_rage_opponent_used_card(self, opponent, effect, details) {
+    if (opponent.cardFlags.category == 'attack' && opponent.cardFlags.damage.total > 0) {
+      self.addStatusEffect('energy_positive_unarmed', amount: 1)
+    }
+  }
 
   /// 自己的伤害被对手的护甲阻挡时，获得 1 点怒气
   function enable_rage_self_done_damage(self, opponent, effect, details) {

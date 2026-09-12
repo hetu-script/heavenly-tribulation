@@ -1784,28 +1784,22 @@ class CultivationScene extends Scene with HasCursorState {
   void onTapDown(int pointer, int button, TapDownDetails details) {
     super.onTapDown(pointer, button, details);
 
-    if (button == kSecondaryButton) {
-      cursorState = MouseCursorState.drag;
-      Hovertip.hideAll();
-    }
+    cursorState = MouseCursorState.drag;
+    Hovertip.hideAll();
   }
 
   @override
   void onTapUp(int pointer, int button, TapUpDetails details) {
     super.onTapUp(pointer, button, details);
 
-    if (button == kSecondaryButton) {
-      cursorState = MouseCursorState.normal;
-    }
+    cursorState = MouseCursorState.normal;
   }
 
   @override
   void onDragUpdate(int pointer, int button, DragUpdateDetails details) {
     super.onDragUpdate(pointer, button, details);
 
-    if (button == kSecondaryButton) {
-      camera.moveBy(-details.delta.toVector2() / camera.zoom);
-    }
+    camera.moveBy(-details.delta.toVector2() / camera.zoom);
   }
 
   @override
