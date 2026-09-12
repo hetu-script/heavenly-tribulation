@@ -250,9 +250,9 @@ struct StatusScript {
   function injury_hallucination_self_turn_start(self, opponent, effect, details) {
     final isSlow = random.nextBool()
     if (isSlow) {
-      opponent.addStatusEffect('speed_slow', amount: 1)
+      self.addStatusEffect('speed_slow', amount: 1)
     } else {
-      opponent.addStatusEffect('dodge_clumsy', amount: 1)
+      self.addStatusEffect('dodge_clumsy', amount: 1)
     }
   }
 

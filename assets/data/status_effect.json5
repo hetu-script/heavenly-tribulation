@@ -512,7 +512,7 @@
     callbacks: ["self_turn_start", "self_taking_damage"],
   },
 
-  // 所有类型的易伤: 回合开始时减半，受到攻击时增加伤害
+  // 所有类型的易伤: 受到攻击时增加伤害并消耗
   vulnerable_physical: {
     id: "vulnerable_physical",
     title: "status_vulnerable_physical",
