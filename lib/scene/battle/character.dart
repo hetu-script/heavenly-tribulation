@@ -745,6 +745,27 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       finalDamage = 0;
     }
 
+    // 护甲在所有乘区结算完毕后，按数值抵扣最终伤害（杀戮尖塔式）
+    // 阶段1重构：原先由 defense_self_taking_damage 脚本在乘区前扣除，
+    // 会导致攻击方的增伤乘区放大护甲吸收量
+    if (finalDamage > 0) {
+      final defenseId = 'defense_${damageDetails['damageType']}';
+      if (hasStatusEffect(defenseId) > 0) {
+        final num penetration =
+            ((damageDetails['penetration'] ?? 0.0) as num).clamp(0.0, 1.0);
+        final int toBeBlocked = (finalDamage * (1 - penetration)).round();
+        if (toBeBlocked > 0) {
+          final int blocked = removeStatusEffect(defenseId, amount: toBeBlocked);
+          if (blocked > 0) {
+            damageDetails['blocked'] = true;
+            damageDetails['blockedAmount'] = blocked;
+            finalDamage -= blocked;
+            assert(finalDamage >= 0);
+          }
+        }
+      }
+    }
+
     String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
 
     addHintText(damageString,
@@ -766,23 +787,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       damageDetails['finalDamage'] = finalDamage;
 
-      // isMain 为 true 表示伤害来源来自主词条的攻击
-      // 否则的话意味着是某些状态效果或者额外词条造成的伤害
-
-      // 触发自己造成伤害后的效果
-      opponent!.handleStatusEffectCallback('self_done_damage', damageDetails);
-      // 触发对方造成伤害后的效果
-      handleStatusEffectCallback('opponent_done_damage', damageDetails);
-
-      // 触发对方受到伤害后的效果
-      opponent!
-          .handleStatusEffectCallback('opponent_taken_damage', damageDetails);
-      // 触发自己受到伤害后的效果
-      handleStatusEffectCallback('self_taken_damage', damageDetails);
-
       opponent!.cardFlags['damage']['total'] += finalDamage;
       opponent!.turnFlags['totalDamage'] += finalDamage;
     }
+
+    damageDetails['finalDamage'] = finalDamage;
+
+    // isMain 为 true 表示伤害来源来自主词条的攻击
+    // 否则的话意味着是某些状态效果或者额外词条造成的伤害
+
+    // 触发自己造成伤害后的效果
+    opponent!.handleStatusEffectCallback('self_done_damage', damageDetails);
+    // 触发对方造成伤害后的效果
+    handleStatusEffectCallback('opponent_done_damage', damageDetails);
+
+    // 触发对方受到伤害后的效果
+    opponent!.handleStatusEffectCallback('opponent_taken_damage', damageDetails);
+    // 触发自己受到伤害后的效果
+    handleStatusEffectCallback('self_taken_damage', damageDetails);
 
     // bool blocked = damageDetails['blocked'] ?? false;
 

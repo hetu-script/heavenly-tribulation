@@ -38,6 +38,7 @@ import 'common.ht'
 
 /// 对方/自己使用卡牌时 opponent/self_using_card
 /// 对方/自己使用卡牌后 opponent/self_used_card
+/// 自己/对方使用攻击牌后 self/opponent_attacked
 
 /// 对方/自己使用拳法时 opponent/self_use_card_kind_punch
 /// 对方/自己使用腿法时 opponent/self_use_card_kind_
@@ -184,17 +185,8 @@ struct StatusScript {
     self.removeStatusEffect('defense_${effect.damageType}', percentage: percentage)
   }
 
-  function defense_self_taking_damage(self, opponent, effect, details) {
-    if (effect.damageType != details.damageType) return
-    
-    let penetration = details.penetration.clamp(0, 1)
-    final toBeBlocked = details.baseValue * (1 - penetration)
-    let blocked = self.removeStatusEffect('defense_${details.damageType}', amount: toBeBlocked)
-    if (blocked > 0) {
-      details.blocked = true
-    }
-    details.baseChange -= blocked
-  }
+  // 护甲的抵扣结算已移至 Dart 侧 takeDamage，在所有乘区之后按数值扣除
+  // （原先在此处的 defense_self_taking_damage 写 baseChange，会放大护甲吸收）
 
   // function vulnerable_self_turn_start(self, opponent, effect, details) {
   //   self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
@@ -227,7 +219,7 @@ struct StatusScript {
   //   self.removeStatusEffect(effect.id, amount: 1)
   // }
 
-  function injury_external_self_attacking(self, opponent, effect, details) {
+  function injury_external_self_attacked(self, opponent, effect, details) {
     self.changeLife(-effect.amount * 5)
   }
 
@@ -235,7 +227,9 @@ struct StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function injury_internal_self_buffing(self, opponent, effect, details) {
+  function injury_internal_self_used_card(self, opponent, effect, details) {
+    if (self.cardFlags.category != 'buff') return
+
     self.changeLife(-effect.amount * 5)
   }
 
@@ -272,6 +266,18 @@ struct StatusScript {
     }
   }
 
+  /// 自己的伤害被对手的护甲阻挡时，获得 1 点怒气
+  function enable_rage_self_done_damage(self, opponent, effect, details) {
+    if (details.blocked == true) {
+      self.addStatusEffect('energy_positive_unarmed', amount: 1)
+    }
+  }
+
+  /// 每点怒气使自身受到的伤害 +5%（软上限，未实现补全）
+  function energy_positive_unarmed_self_taking_damage(self, opponent, effect, details) {
+    details.percentageChange1 += 0.05 * effect.amount
+  }
+
   function enable_rage_self_turn_end(self, opponent, effect, details) {
     self.removeStatusEffect('energy_positive_unarmed', percentage: 0.5)
   }
@@ -294,10 +300,12 @@ struct StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function energy_positive_pure_self_attacking(self, opponent, effect, details) {
+  function energy_positive_pure_self_using_card(self, opponent, effect, details) {
+    if (self.cardFlags.category != 'attack') return
     if (self.turnFlags.penetration >= 1) return
 
-    self.turnFlags.penetration += 0.2
+    // 直接为本张卡牌的伤害增加穿透（cardFlags.damage 会在 takeDamage 时累加进 details）
+    self.cardFlags.damage.penetration = (self.cardFlags.damage.penetration ?? 0) + 0.2
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
