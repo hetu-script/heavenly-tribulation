@@ -5,7 +5,7 @@
 
 ## 目标
 
-1. 四种防御（`defense_physical/chi/elemental/psychic`）合并为单一**护甲**（id 建议沿用 `defense_physical` 或改名 `defense`，见下）。
+1. 四种防御（`defense/chi/elemental/psychic`）合并为单一**护甲**（id 建议沿用 `defense` 或改名 `defense`，见下）。
 2. 真气伤害自带 50% 防御穿透；穿透属性只作用于物理/真气。
 3. 穿透词条、护盾、易伤按总览的"建议"收敛。
 4. 删除/改造所有产 chi/elemental/psychic 防御的数据。
@@ -15,9 +15,9 @@
 ### 2.1 防御状态合一
 
 - `assets/data/status_effect.json5`：
-  - 保留一个防御状态。建议**沿用 `defense_physical` 作为唯一 id**（改动面最小：
+  - 保留一个防御状态。建议**沿用 `defense` 作为唯一 id**（改动面最小：
     卡牌主词条 defend 牌已全是 physical，脚本里 `'defense_${affix.damageType}'` 只需把 damageType 固定为 physical）。
-    本地化标题改为"护甲"（新建locale键或改 `status_defense_physical` 文案）。
+    本地化标题改为"护甲"（新建locale键或改 `status_defense` 文案）。
   - 删除 `defense_chi` / `defense_elemental` / `defense_psychic`。
   - `persistent_physical/chi/elemental/psychic` 四个"防御持久"状态合并为一个（`persistent_physical` 保留，
     文案改为"护甲持久"）。
@@ -40,17 +40,17 @@
 `assets/data/cards.json5`：
 
 - 主词条 defend 牌（punch/kick/sabre/sword/spear/staff 等）现状全是 physical——无需改伤害类型，
-  只需确认 `uniqueId: "defend_physical"` 语义保留。
+  只需确认 `uniqueId: "defend"` 语义保留。
 - **两张多重防御牌重设计**（`defend_multiple_exhaust` 脚本将失去意义）：
   - `flying_sword_defense`（御剑，原物理+元素双防）→ 改为"消耗剑气，获得护甲 + 附加效果"
     （建议附加：剑气相关或 speed_quick，保持御剑风味）。**【附加效果待确认】**
   - 法身 scripture 的 karma 版（约 1966 行，原物理+精神双防）→ 同上思路。**【待确认】**
   - 脚本 `defend_multiple_exhaust` 删除或保留（若没有其他使用者则删除）。
-- `speed_quick_defend_physical` / `dodge_nimble_defend_physical` 等复合主词条：damageType 字段语义不变，无需大改。
+- `speed_quick_defend` / `dodge_nimble_defend` 等复合主词条：damageType 字段语义不变，无需大改。
 
 `assets/data/card_affixes.json5`（额外词条）：
 
-- `defend_chi` / `defend_elemental` / `defend_psychic` 删除，只留 `defend_physical`（唯一护甲词条）。
+- `defend_chi` / `defend_elemental` / `defend_psychic` 删除，只留 `defend`（唯一护甲词条）。
 - `by_damage_gain_defense_chi/elemental/psychic` 删除，只留 physical 版。
 - `consume_vigor_gain_defense_chi/elemental/psychic` 删除，只留 physical 版。
 
@@ -76,7 +76,7 @@
 
 `assets/data/passives.json5`：
 
-- `start_battle_with_defense_chi/elemental/psychic` 删除；`start_battle_with_defense_physical` 保留（文案改"战斗开始获得护甲"）。
+- `start_battle_with_defense_chi/elemental/psychic` 删除；`start_battle_with_defense` 保留（文案改"战斗开始获得护甲"）。
 - `start_battle_with_shield_chi/elemental/psychic` 删除；`start_battle_with_shield_physical` 保留并改为通用护盾（见 2.5）。
 - 穿透类装备词条收敛（已确认）：`unarmedPenetration/weaponPenetration/spellPenetration/cursePenetration`
   → **合并为单一 `penetration` 词条**（isItem，适用装备部位取原四者的并集）。

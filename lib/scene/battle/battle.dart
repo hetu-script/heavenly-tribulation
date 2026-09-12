@@ -44,13 +44,12 @@ const kStatsToPermanentEffects = {
   'chiResist': ('resistant_chi', 'weakness_chi'),
   'elementalResist': ('resistant_elemental', 'weakness_elemental'),
   'psychicResist': ('resistant_psychic', 'weakness_psychic'),
+  // 穿透：单一属性，只作用于物理和真气伤害
+  'penetration': ('penetration', ''),
 };
 
 const kSelfStatusOnCircumstance = {
-  'defense_physical',
-  'defense_chi',
-  'defense_elemental',
-  'defense_psychic',
+  'defense',
   'speed_quick',
   'speed_nimble',
   'energy_positive_spell',
@@ -60,11 +59,8 @@ const kSelfStatusOnCircumstance = {
   'energy_positive_leech',
   'energy_positive_pure',
   'energy_positive_ultimate',
+  'energy_positive_shield',
   'ward',
-  'shield_physical',
-  'shield_chi',
-  'shield_elemental',
-  'shield_psychic',
 };
 
 const kOpponentStatusOnCircumstance = {
@@ -76,10 +72,7 @@ const kOpponentStatusOnCircumstance = {
   'weakness_chi',
   'weakness_elemental',
   'weakness_psychic',
-  'vulnerable_physical',
-  'vulnerable_chi',
-  'vulnerable_elemental',
-  'vulnerable_psychic',
+  'vulnerable',
   'speed_slow',
   'speed_clumsy',
   'energy_negative_spell',
@@ -89,6 +82,7 @@ const kOpponentStatusOnCircumstance = {
   'energy_negative_leech',
   'energy_negative_pure',
   'energy_negative_ultimate',
+  'energy_negative_shield',
 };
 
 enum StatusCircumstances {
@@ -193,7 +187,7 @@ class BattleScene extends Scene {
       if (value1 > 0) {
         character.addStatusEffect(positiveEffectId,
             amount: value1, handleCallback: false);
-      } else if (value1 < 0) {
+      } else if (value1 < 0 && negativeEffectId.isNotEmpty) {
         character.addStatusEffect(negativeEffectId,
             amount: -value1, handleCallback: false);
       }

@@ -86,7 +86,7 @@
 | punch_defend_exhaust_mana | punch         | 无   | defend_exhaust     | 保留作为通用防御               |
 | wind_buff                 | airbend       | 风   | speed_quick_defend | 有元素特性                     |
 | wood_heal                 | plant_control | 木   | heal_exhaust       | 有元素，但有 resourceType 消耗 |
-| wood_defense_physical     | plant_control | 木   | defend_exhaust     | 有元素特性                     |
+| wood_defense              | plant_control | 木   | defend_exhaust     | 有元素特性                     |
 
 ### 建议的修改
 
@@ -279,7 +279,7 @@ lightning_speed: {
 | earth_armor     | 土    | buff   | 护盾 + 防御         |
 | lightning_speed | 雷    | buff   | 急速 + 灵气         |
 
-这样每个元素都有一张攻击卡和一张 buff 卡（除了木系 buff 已有 wood_heal 和 wood_defense_physical），形成了对称的元素体系。
+这样每个元素都有一张攻击卡和一张 buff 卡（除了木系 buff 已有 wood_heal 和 wood_defense），形成了对称的元素体系。
 
 ---
 
@@ -648,7 +648,7 @@ lightning_speed: {
    - `wind_blade` → `tags: ["exhaustResource", "wind_element", "status_speed_slow"]`
    - `lightning` → `tags: ["exhaustResource", "lightning_element", "status_dodge_clumsy"]`
    - `wood_heal` → `tags: ["exhaustResource", "wood_element"]`
-   - `wood_defense_physical` → `tags: ["exhaustResource", "wood_element", "status_defense"]`
+   - `wood_defense` → `tags: ["exhaustResource", "wood_element", "status_defense"]`
    - `wind_buff` → `tags: ["wind_element", "status_speed_quick", "status_defense"]`
 
 2. **修改 falling_stone 脚本**（`card_script.ht`）

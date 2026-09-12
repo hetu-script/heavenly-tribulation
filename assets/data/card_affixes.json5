@@ -81,62 +81,14 @@
     ],
   },
 
-  defend_physical: {
-    id: "defend_physical",
-    uniqueId: "defend_physical",
+  defend: {
+    id: "defend",
+    uniqueId: "defend",
     category: ["buff", "attack"],
     damageType: "physical",
-    description: "affix_defend_physical",
+    description: "affix_defend",
     keywords: ["status_defense"],
     script: "defend",
-    valueData: [
-      {
-        base: 3,
-        increment: 0.5,
-      },
-    ],
-  },
-  defend_chi: {
-    id: "defend_chi",
-    uniqueId: "defend_chi",
-    category: ["buff", "attack"],
-    damageType: "chi",
-    description: "affix_defend_chi",
-    keywords: ["status_defense"],
-    script: "defend",
-    rank: 1,
-    valueData: [
-      {
-        base: 3,
-        increment: 0.5,
-      },
-    ],
-  },
-  defend_elemental: {
-    id: "defend_elemental",
-    uniqueId: "defend_elemental",
-    category: ["buff", "attack"],
-    damageType: "elemental",
-    description: "affix_defend_elemental",
-    keywords: ["status_defense"],
-    script: "defend",
-    rank: 1,
-    valueData: [
-      {
-        base: 3,
-        increment: 0.5,
-      },
-    ],
-  },
-  defend_psychic: {
-    id: "defend_psychic",
-    uniqueId: "defend_psychic",
-    category: ["buff", "attack"],
-    damageType: "psychic",
-    description: "affix_defend_psychic",
-    keywords: ["status_defense"],
-    script: "defend",
-    rank: 1,
     valueData: [
       {
         base: 3,
@@ -293,61 +245,13 @@
       },
     ],
   },
-  by_damage_gain_defense_physical: {
-    id: "by_damage_gain_defense_physical",
+  by_damage_gain_defense: {
+    id: "by_damage_gain_defense",
     uniqueId: "by_damage_gain_defense",
     category: ["attack"],
-    description: "affix_by_damage_gain_defense_physical",
+    description: "affix_by_damage_gain_defense",
     keywords: ["status_defense"],
     damageType: "physical",
-    script: "by_damage_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.3,
-      },
-    ],
-  },
-  by_damage_gain_defense_chi: {
-    id: "by_damage_gain_defense_chi",
-    uniqueId: "by_damage_gain_defense",
-    category: ["attack"],
-    description: "affix_by_damage_gain_defense_chi",
-    keywords: ["status_defense"],
-    damageType: "chi",
-    script: "by_damage_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.3,
-      },
-    ],
-  },
-  by_damage_gain_defense_elemental: {
-    id: "by_damage_gain_defense_elemental",
-    uniqueId: "by_damage_gain_defense",
-    category: ["attack"],
-    description: "affix_by_damage_gain_defense_elemental",
-    keywords: ["status_defense"],
-    damageType: "elemental",
-    script: "by_damage_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.3,
-      },
-    ],
-  },
-  by_damage_gain_defense_psychic: {
-    id: "by_damage_gain_defense_psychic",
-    uniqueId: "by_damage_gain_defense",
-    category: ["attack"],
-    description: "affix_by_damage_gain_defense_psychic",
-    keywords: ["status_defense"],
-    damageType: "psychic",
     script: "by_damage_gain_defense",
     rank: 1,
     valueData: [
@@ -415,75 +319,15 @@
   },
 
   // 加持额外词条
-  consume_vigor_gain_defense_physical: {
-    id: "consume_vigor_gain_defense_physical",
+  consume_vigor_gain_defense: {
+    id: "consume_vigor_gain_defense",
     uniqueId: "consume_vigor",
     category: ["buff", "attack"],
-    description: "affix_consume_vigor_gain_defense_physical",
+    description: "affix_consume_vigor_gain_defense",
     keywords: ["status_defense"],
     damageType: "physical",
     script: "consume_vigor_gain_defense",
     rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 12,
-        increment: 1,
-      },
-    ],
-  },
-  consume_vigor_gain_defense_chi: {
-    id: "consume_vigor_gain_defense_chi",
-    uniqueId: "consume_vigor",
-    category: ["buff", "attack"],
-    description: "affix_consume_vigor_gain_defense_chi",
-    keywords: ["status_defense"],
-    damageType: "chi",
-    script: "consume_vigor_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 12,
-        increment: 1,
-      },
-    ],
-  },
-  consume_vigor_gain_defense_elemental: {
-    id: "consume_vigor_gain_defense_elemental",
-    uniqueId: "consume_vigor",
-    category: ["buff", "attack"],
-    description: "affix_consume_vigor_gain_defense_elemental",
-    keywords: ["status_defense"],
-    damageType: "elemental",
-    script: "consume_vigor_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 12,
-        increment: 1,
-      },
-    ],
-  },
-  consume_vigor_gain_defense_psychic: {
-    id: "consume_vigor_gain_defense_psychic",
-    uniqueId: "consume_vigor",
-    category: ["buff", "attack"],
-    description: "affix_consume_vigor_gain_defense_psychic",
-    keywords: ["status_defense"],
-    damageType: "psychic",
-    script: "consume_vigor_gain_defense",
-    rank: 2,
     valueData: [
       {
         base: 1,

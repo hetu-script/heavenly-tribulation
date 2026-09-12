@@ -92,43 +92,12 @@
     callbacks: ["self_doing_damage"],
   },
 
-  // 所有类型的攻击贯穿，每有一点，无视 1% 的防御
-  penetration_unarmed: {
-    id: "penetration_unarmed",
-    title: "status_penetration_unarmed",
-    description: "status_penetration_unarmed_description",
-    icon: "icon/status/permanent/penetration_unarmed.png",
-    cardType: "unarmed",
-    script: "penetration",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
-  penetration_weapon: {
-    id: "penetration_weapon",
-    title: "status_penetration_weapon",
-    description: "status_penetration_weapon_description",
+  // 攻击穿透：每层无视 1% 护甲，只作用于物理和真气伤害
+  penetration: {
+    id: "penetration",
+    title: "status_penetration",
+    description: "status_penetration_description",
     icon: "icon/status/permanent/penetration_weapon.png",
-    cardType: "weapon",
-    script: "penetration",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
-  penetration_spell: {
-    id: "penetration_spell",
-    title: "status_penetration_spell",
-    description: "status_penetration_spell_description",
-    icon: "icon/status/permanent/penetration_spell.png",
-    cardType: "spell",
-    script: "penetration",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
-  penetration_curse: {
-    id: "penetration_curse",
-    title: "status_penetration_curse",
-    description: "status_penetration_curse_description",
-    icon: "icon/status/permanent/penetration_curse.png",
-    cardType: "curse",
     script: "penetration",
     isPermanent: true,
     callbacks: ["self_doing_damage"],
@@ -371,45 +340,13 @@
   },
 
   // 所有类型的防御保持
+  // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
   persistent_physical: {
     id: "persistent_physical",
     title: "status_persistent_physical",
     description: "status_persistent_physical_description",
     icon: "icon/status/permanent/persistent_physical.png",
-    damageType: "physical",
-    script: "weakness",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
-  },
-  persistent_chi: {
-    id: "persistent_chi",
-    title: "status_persistent_chi",
-    description: "status_persistent_chi_description",
-    icon: "icon/status/permanent/weakness_chi.png",
-    damageType: "chi",
-    script: "weakness",
-    isPermanent: true,
-    callbacks: ["self_taking_damage"],
-  },
-  persistent_elemental: {
-    id: "persistent_elemental",
-    title: "status_persistent_elemental",
-    description: "status_persistent_elemental_description",
-    icon: "icon/status/permanent/persistent_elemental.png",
-    damageType: "elemental",
-    script: "weakness",
-    isPermanent: true,
-    callbacks: ["self_taking_damage"],
-  },
-  persistent_psychic: {
-    id: "persistent_psychic",
-    title: "status_persistent_psychic",
-    description: "status_persistent_psychic_description",
-    icon: "icon/status/permanent/persistent_psychic.png",
-    damageType: "psychic",
-    script: "weakness",
-    isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
 
   // 速度
@@ -471,127 +408,50 @@
 
   // 所有类型的防御: 回合开始时减半，受到攻击时抵消伤害
   // 计算伤害时，防御的优先级是最高的
-  defense_physical: {
-    id: "defense_physical",
-    title: "status_defense_physical",
-    description: "status_defense_physical_description",
-    icon: "icon/status/defense_physical.png",
+  // 护甲：唯一防御类型，只抵挡物理伤害（真气自带50%穿透）
+  // 抵扣结算在 Dart 侧 takeDamage 乘区后进行，脚本只负责回合开始衰减
+  defense: {
+    id: "defense",
+    title: "status_defense",
+    description: "status_defense_description",
+    icon: "icon/status/defense.png",
     damageType: "physical",
     script: "defense",
     priority: 1510,
-    callbacks: ["self_turn_start", "self_taking_damage"],
-  },
-  defense_chi: {
-    id: "defense_chi",
-    title: "status_defense_chi",
-    description: "status_defense_chi_description",
-    icon: "icon/status/defense_chi.png",
-    damageType: "chi",
-    script: "defense",
-    priority: 1509,
-    callbacks: ["self_turn_start", "self_taking_damage"],
-  },
-  defense_elemental: {
-    id: "defense_elemental",
-    title: "status_defense_elemental",
-    description: "status_defense_elemental_description",
-    icon: "icon/status/defense_elemental.png",
-    damageType: "elemental",
-    script: "defense",
-    priority: 1508,
-    callbacks: ["self_turn_start", "self_taking_damage"],
-  },
-  defense_psychic: {
-    id: "defense_psychic",
-    title: "status_defense_psychic",
-    description: "status_defense_psychic_description",
-    icon: "icon/status/defense_psychic.png",
-    damageType: "psychic",
-    script: "defense",
-    priority: 1507,
-    callbacks: ["self_turn_start", "self_taking_damage"],
+    callbacks: ["self_turn_start"],
   },
 
-  // 所有类型的易伤: 受到攻击时增加伤害并消耗
-  vulnerable_physical: {
-    id: "vulnerable_physical",
-    title: "status_vulnerable_physical",
-    description: "status_vulnerable_physical_description",
+  // 易伤：受到任何伤害时消耗并增加等量伤害（不分类型的单一状态）
+  vulnerable: {
+    id: "vulnerable",
+    title: "status_vulnerable",
+    description: "status_vulnerable_description",
     icon: "icon/status/vulnerable_physical.png",
-    damageType: "physical",
     script: "vulnerable",
     priority: 1505,
     callbacks: ["self_taking_damage"],
   },
-  vulnerable_chi: {
-    id: "vulnerable_chi",
-    title: "status_vulnerable_chi",
-    description: "status_vulnerable_chi_description",
-    icon: "icon/status/vulnerable_chi.png",
-    damageType: "chi",
-    script: "vulnerable",
-    priority: 1504,
-    callbacks: ["self_taking_damage"],
-  },
-  vulnerable_elemental: {
-    id: "vulnerable_elemental",
-    title: "status_vulnerable_elemental",
-    description: "status_vulnerable_elemental_description",
-    icon: "icon/status/vulnerable_elemental.png",
-    damageType: "elemental",
-    script: "vulnerable",
-    priority: 1503,
-    callbacks: ["self_taking_damage"],
-  },
-  vulnerable_psychic: {
-    id: "vulnerable_psychic",
-    title: "status_vulnerable_psychic",
-    description: "status_vulnerable_psychic_description",
-    icon: "icon/status/vulnerable_psychic.png",
-    damageType: "psychic",
-    script: "vulnerable",
-    priority: 1502,
-    callbacks: ["self_taking_damage"],
-  },
 
-  shield_physical: {
-    id: "shield_physical",
-    title: "status_shield_physical",
-    description: "status_shield_physical_description",
+  // 浩然之气（护盾）：每层抵挡一次任意非纯粹伤害，触发时消耗
+  energy_positive_shield: {
+    id: "energy_positive_shield",
+    title: "status_energy_positive_shield",
+    description: "status_energy_positive_shield_description",
     icon: "icon/status/shield_physical.png",
-    damageType: "physical",
     script: "shield",
+    isResource: true,
     priority: 1405,
     callbacks: ["self_taking_damage"],
   },
-  shield_chi: {
-    id: "shield_chi",
-    title: "status_shield_chi",
-    description: "status_shield_chi_description",
-    icon: "icon/status/shield_chi.png",
-    damageType: "chi",
-    script: "shield",
+  // 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗
+  energy_negative_shield: {
+    id: "energy_negative_shield",
+    title: "status_energy_negative_shield",
+    description: "status_energy_negative_shield_description",
+    icon: "icon/status/energy_negative_pure.png",
+    script: "energy_negative_shield",
+    isResource: true,
     priority: 1404,
-    callbacks: ["self_taking_damage"],
-  },
-  shield_elemental: {
-    id: "shield_elemental",
-    title: "status_shield_elemental",
-    description: "status_shield_elemental_description",
-    icon: "icon/status/shield_elemental.png",
-    damageType: "elemental",
-    script: "shield",
-    priority: 1403,
-    callbacks: ["self_taking_damage"],
-  },
-  shield_psychic: {
-    id: "shield_psychic",
-    title: "status_shield_psychic",
-    description: "status_shield_psychic_description",
-    icon: "icon/status/shield_psychic.png",
-    damageType: "psychic",
-    script: "shield",
-    priority: 1402,
     callbacks: ["self_taking_damage"],
   },
 
@@ -612,7 +472,7 @@
     icon: "icon/status/injury_when_attack.png",
     script: "injury_external",
     isDebuff: true,
-    callbacks: ["self_attacking", "self_heal"],
+    callbacks: ["self_attacked", "self_heal"],
   },
   injury_internal: {
     id: "injury_internal",
@@ -621,7 +481,7 @@
     icon: "icon/status/injury_when_buff.png",
     script: "injury_internal",
     isDebuff: true,
-    callbacks: ["self_buffing", "self_gain_energy_positive"],
+    callbacks: ["self_used_card", "self_gain_energy_positive"],
   },
   injury_poison: {
     id: "injury_poison",
@@ -658,7 +518,7 @@
     icon: "icon/status/permanent/enable_rage.png",
     script: "enable_rage",
     isPermanent: true,
-    callbacks: ["opponent_used_card", "self_turn_end"],
+    callbacks: ["opponent_used_card", "self_done_damage", "self_turn_end"],
   },
 
   // 元气: 回合结束时回复生命
@@ -682,7 +542,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 豪气: 获得 10 防御穿透
+  // 豪气: 使用攻击牌时消耗 1 层，本回合获得 20% 防御穿透
   energy_positive_pure: {
     id: "energy_positive_pure",
     title: "status_energy_positive_pure",
@@ -690,7 +550,7 @@
     icon: "icon/status/energy_positive_pure.png",
     script: "energy_positive_pure",
     isResource: true,
-    callbacks: ["self_attacking"],
+    callbacks: ["self_using_card"],
   },
 
   // 灵气
@@ -727,7 +587,7 @@
     script: "energy_positive_unarmed",
     isResource: true,
     cardType: "unarmed",
-    callbacks: ["self_doing_damage", "self_turn_end"],
+    callbacks: ["self_doing_damage", "self_taking_damage", "self_turn_end"],
   },
   // 煞气
   // 某些地方简称为 karma

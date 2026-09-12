@@ -95,14 +95,6 @@ struct CardScriptMain {
     await characterAnimate(self, affix.animation)
     self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
   }
-  /// 多重防御消耗资源
-  async function defend_multiple_exhaust(self, opponent, affix) {
-    self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
-    await characterAnimate(self, affix.animation)
-    for (final damageType in affix.damageType) {
-      self.addStatusEffect('defense_${damageType}', amount: affix.value[1])
-    }
-  }
 
   /// 获得灵气
   async function mana(self, opponent, affix) {

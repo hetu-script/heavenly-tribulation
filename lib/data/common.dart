@@ -2159,12 +2159,9 @@ const kPotionKinds = {
     'potion_heal',
     'potion_start_battle_with_speed_quick',
     'potion_start_battle_with_dodge_nimble',
-    'potion_start_battle_with_defense_physical',
+    'potion_start_battle_with_defense',
   },
   'rare': {
-    'potion_start_battle_with_defense_chi',
-    'potion_start_battle_with_defense_elemental',
-    'potion_start_battle_with_defense_psychic',
     'potion_start_battle_with_energy_positive_life',
     'potion_start_battle_with_energy_positive_leech',
     'potion_start_battle_with_energy_positive_pure',
@@ -2176,10 +2173,7 @@ const kPotionKinds = {
   'epic': {
     'potion_start_battle_with_energy_positive_ultimate',
     'potion_start_battle_with_ward',
-    'potion_start_battle_with_shield_physical',
-    'potion_start_battle_with_shield_chi',
-    'potion_start_battle_with_shield_elemental',
-    'potion_start_battle_with_shield_psychic',
+    'potion_start_battle_with_energy_positive_shield',
     'potion_tribulationCountReduce',
   },
 };

@@ -148,10 +148,11 @@ struct StatusScript {
     details.percentageChange1 += percentage
   }
 
+  /// 穿透：每层 +1%，只作用于物理和真气伤害
   function penetration_self_doing_damage(self, opponent, effect, details) {
-    if (effect.cardType != details.cardType) return
-    
-    details.penetration += effect.amount
+    if (details.damageType != 'physical' && details.damageType != 'chi') return
+
+    details.penetration += effect.amount * 0.01
   }
 
   function increase_damage_self_doing_damage(self, opponent, effect, details) {
@@ -192,19 +193,28 @@ struct StatusScript {
   //   self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
   // }
 
+  /// 易伤：受到任何伤害时消耗，增加等量伤害（不分类型的单一状态）
   function vulnerable_self_taking_damage(self, opponent, effect, details) {
-    if (effect.damageType != details.damageType) return
-    
-    let added = self.removeStatusEffect('vulnerable_${details.damageType}', amount: details.baseValue)
+    let added = self.removeStatusEffect('vulnerable', amount: details.baseValue)
     details.baseChange += added
   }
 
+  /// 浩然之气（护盾）：每层抵挡一次任意非纯粹伤害，触发时消耗
   function shield_self_taking_damage(self, opponent, effect, details) {
-    if (effect.damageType != details.damageType) return
-    
+    if (details.damageType == 'pure') return
+
     if (!details.cancelDamage) {
       details.cancelDamage = true
       self.removeStatusEffect(effect.id, amount: 1)
+    }
+  }
+
+  /// 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗 1 层
+  /// 多段攻击每段各消耗 1 层
+  function energy_negative_shield_self_taking_damage(self, opponent, effect, details) {
+    final removed = self.removeStatusEffect(effect.id, amount: 1)
+    if (removed > 0) {
+      details.percentageChange2 += 1.0
     }
   }
 
@@ -260,22 +270,17 @@ struct StatusScript {
     self.removeStatusEffect('energy_positive_weapon')
   }
 
-  function enable_rage_opponent_used_card(self, opponent, effect, details) {
-    if (opponent.cardFlags.category == 'attack' && opponent.cardFlags.damage.total > 0) {
-      self.addStatusEffect('energy_positive_unarmed', amount: 1)
-    }
-  }
+  // function enable_rage_opponent_used_card(self, opponent, effect, details) {
+  //   if (opponent.cardFlags.category == 'attack' && opponent.cardFlags.damage.total > 0) {
+  //     self.addStatusEffect('energy_positive_unarmed', amount: 1)
+  //   }
+  // }
 
   /// 自己的伤害被对手的护甲阻挡时，获得 1 点怒气
   function enable_rage_self_done_damage(self, opponent, effect, details) {
     if (details.blocked == true) {
       self.addStatusEffect('energy_positive_unarmed', amount: 1)
     }
-  }
-
-  /// 每点怒气使自身受到的伤害 +5%（软上限，未实现补全）
-  function energy_positive_unarmed_self_taking_damage(self, opponent, effect, details) {
-    details.percentageChange1 += 0.05 * effect.amount
   }
 
   function enable_rage_self_turn_end(self, opponent, effect, details) {
@@ -355,6 +360,11 @@ struct StatusScript {
     if (details.cardType != effect.cardType) return
 
     details.baseChange += effect.amount * 5
+  }
+
+  /// 每点怒气使自身受到的伤害 +5%
+  function energy_positive_unarmed_self_taking_damage(self, opponent, effect, details) {
+    details.percentageChange1 += 0.05 * effect.amount
   }
 
   function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {

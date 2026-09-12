@@ -32,6 +32,7 @@ const kOppositeStatus = {
   'energy_positive_unarmed': 'energy_negative_unarmed',
   'energy_positive_curse': 'energy_negative_curse',
   'energy_positive_ultimate': 'energy_negative_ultimate',
+  'energy_positive_shield': 'energy_negative_shield',
   'energy_negative_life': 'energy_positive_life',
   'energy_negative_leech': 'energy_positive_leech',
   'energy_negative_pure': 'energy_positive_pure',
@@ -40,14 +41,9 @@ const kOppositeStatus = {
   'energy_negative_unarmed': 'energy_positive_unarmed',
   'energy_negative_curse': 'energy_positive_curse',
   'energy_negative_ultimate': 'energy_positive_ultimate',
-  'defense_physical': 'vulnerable_physical',
-  'defense_chi': 'vulnerable_chi',
-  'defense_elemental': 'vulnerable_elemental',
-  'defense_psychic': 'vulnerable_psychic',
-  'vulnerable_physical': 'defense_physical',
-  'vulnerable_chi': 'defense_chi',
-  'vulnerable_elemental': 'defense_elemental',
-  'vulnerable_psychic': 'defense_psychic',
+  'energy_negative_shield': 'energy_positive_shield',
+  'defense': 'vulnerable',
+  'vulnerable': 'defense',
 };
 
 const Set<String> kCardCategories = {

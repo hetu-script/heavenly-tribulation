@@ -30,20 +30,8 @@ const kResourceHasNegatives = {
   'energy_positive_weapon',
   'energy_positive_spell',
   'energy_positive_curse',
+  'energy_positive_shield',
 };
-
-// const kDebuffs = {
-//   'speed_slow',
-//   'dodge_clumsy',
-//   'injury_external',
-//   'injury_internal',
-//   'injury_poison',
-//   'injury_hallucination',
-//   'vulnerable_physical',
-//   'vulnerable_chi',
-//   'vulnerable_elemental',
-//   'vulnerable_psychic',
-// };
 
 Color getDamageColor(String damageType) {
   return switch (damageType) {
@@ -60,6 +48,7 @@ Color getResourceColor(String resourceType) {
     'energy_positive_life' || 'energy_negative_life' => Colors.lightGreen,
     'energy_positive_leech' || 'energy_negative_leech' => Colors.grey,
     'energy_positive_pure' || 'energy_negative_pure' => Colors.blueGrey,
+    'energy_positive_shield' || 'energy_negative_shield' => Colors.blue,
     'energy_positive_poison' || 'energy_negative_poison' => Colors.yellow,
     'energy_positive_spell' || 'energy_negative_spell' => Colors.purple,
     'energy_positive_weapon' || 'energy_negative_weapon' => Colors.lightBlue,
@@ -751,8 +740,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (finalDamage > 0) {
       final defenseId = 'defense_${damageDetails['damageType']}';
       if (hasStatusEffect(defenseId) > 0) {
-        final num penetration =
-            ((damageDetails['penetration'] ?? 0.0) as num).clamp(0.0, 1.0);
+        num penetration = (damageDetails['penetration'] ?? 0.0) as num;
+        // 真气伤害自带 50% 防御穿透（伤害类型固有规则）
+        if (damageDetails['damageType'] == 'chi') {
+          penetration += 0.5;
+        }
+        penetration = penetration.clamp(0.0, 1.0);
         final int toBeBlocked = (finalDamage * (1 - penetration)).round();
         if (toBeBlocked > 0) {
           final int blocked = removeStatusEffect(defenseId, amount: toBeBlocked);
