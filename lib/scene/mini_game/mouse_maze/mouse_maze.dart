@@ -1146,7 +1146,7 @@ class MouseMazeGame extends Scene with HasCursorState {
               child: IconButton(
                 icon: Icon(Icons.question_mark),
                 padding: const EdgeInsets.all(0),
-                mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                mouseCursor: GameCursors.hovered,
                 onPressed: () {
                   // GameDialogContent.show(
                   //   context,

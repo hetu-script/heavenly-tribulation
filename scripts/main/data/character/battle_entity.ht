@@ -539,7 +539,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
     let attacks = []
     for (var i in range(Constants.battleDeckSize)) {
       let genre = character.rank > 0 ? character.cultivationFavor : null
-      final isBuff = random.nextDouble() < 0.5
+      final isBuff = random.nextDouble() < 0.35
       let kind
       final kindRoll = random.nextDouble()
       if (kindRoll < 0.35) {

@@ -777,7 +777,9 @@ class BattleScene extends Scene {
   }
 
   void onPlayerSelectedCard(CustomGameCard? card) {
-    assert(_playerCardSelection != null && !_playerCardSelection!.isCompleted);
+    if (_playerCardSelection == null || _playerCardSelection!.isCompleted) {
+      return;
+    }
 
     if (card != null && card.cost > currentCharacter.energy) return;
 
@@ -788,12 +790,12 @@ class BattleScene extends Scene {
   /// 敌方简单AI：血量<50%优先buff，否则优先attack
   CustomGameCard _enemySelectCard(List<CustomGameCard> hand) {
     final buffs = hand.where((c) {
-      final affix = c.data['affixes'][0];
-      return affix['category'] == 'buff';
+      final mainAffix = c.data['affixes'][0];
+      return mainAffix['category'] == 'buff';
     }).toList();
     final attacks = hand.where((c) {
-      final affix = c.data['affixes'][0];
-      return affix['category'] == 'attack';
+      final mainAffix = c.data['affixes'][0];
+      return mainAffix['category'] == 'attack';
     }).toList();
 
     if (currentCharacter.life < currentCharacter.lifeMax * 0.5 &&
@@ -864,9 +866,7 @@ class BattleScene extends Scene {
 
       if (heroTurn) {
         endTurnButton.isEnabled = true;
-        while (!_isRestarting &&
-            handZone.cards.isNotEmpty &&
-            currentCharacter.energy > 0) {
+        while (!_isRestarting && handZone.cards.isNotEmpty) {
           assert(_playerCardSelection == null);
           _playerCardSelection = Completer<CustomGameCard?>();
           final selectedCard = await _playerCardSelection!.future;
@@ -1071,7 +1071,7 @@ class BattleScene extends Scene {
                   child: IconButton(
                     icon: Icon(Icons.menu_open),
                     padding: const EdgeInsets.all(0),
-                    mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+                    mouseCursor: GameCursors.hovered,
                     onPressed: () {
                       showFluentMenu(
                         cursor: GameUI.cursor,

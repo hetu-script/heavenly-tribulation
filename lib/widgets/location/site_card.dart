@@ -37,7 +37,7 @@ class SiteCard extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
-              mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+              mouseCursor: GameCursors.hovered,
               borderRadius: GameUI.borderRadius,
               onTap: () => onTap?.call(site),
               onSecondaryTapUp: (details) =>

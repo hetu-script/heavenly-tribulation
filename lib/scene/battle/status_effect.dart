@@ -67,9 +67,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     super.position,
     super.anchor,
   })  : _amount = amount,
-        super(
-          priority: kStatusEffectIconPriority,
-        ) {
+        super(priority: kStatusEffectIconPriority) {
     assert(amount >= 1);
     assert(GameData.statusEffects.containsKey(id));
     data = utils.deepCopy(GameData.statusEffects[id]);
@@ -92,6 +90,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
         target: this,
         direction: HovertipDirection.topLeft,
         content: description,
+        width: 200.0,
       );
     };
     onMouseExit = () {

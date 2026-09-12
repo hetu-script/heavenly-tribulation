@@ -141,7 +141,7 @@ struct StatusScript {
   }
 
   function weaken_self_doing_damage(self, opponent, effect, details) {
-    if (effect.cardType != details.cardType) return
+    // if (effect.cardType != details.cardType) return
     
     let percentage = -0.01 * effect.amount
     details.percentageChange1 += percentage

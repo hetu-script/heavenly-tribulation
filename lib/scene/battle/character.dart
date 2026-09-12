@@ -160,6 +160,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return list;
   }
 
+  List<StatusEffect> get nonPermanentEffects {
+    final list =
+        _statusEffects.values.where((element) => !element.isPermanent).toList();
+    list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
+  }
+
   List<StatusEffect> get permanentEffects {
     final list =
         _statusEffects.values.where((element) => element.isPermanent).toList();
@@ -223,7 +230,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _lifeMax = data['stats']['battleLifeMax'].toInt();
 
     // TODO:修改费用上限的装备效果
-    _energyMax = (data['rank'] as int) + 2;
+    final defaultEnergyMax =
+        GameLogic.getHandLimitForRank(data['rank'])['limit'] as int;
+    _energyMax = defaultEnergyMax;
 
     hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -354,9 +363,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     double? percentage,
     bool force = false,
   }) {
-    int removeAmount = 0;
+    int removedAmount = 0;
     StatusEffect? existEffect;
     bool resourceIconNeedsRearranging = false;
+    bool doRemove = true;
     if (_statusEffects.containsKey(id)) {
       existEffect = _statusEffects[id]!;
       assert(!existEffect.isPermanent);
@@ -364,18 +374,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       if (amount != null) {
         assert(amount > 0);
-        if (!existEffect.isResource || force) {
-          removeAmount = math.min(existEffect.amount, amount);
+        if (existEffect.amount < amount) {
+          if (!existEffect.isResource || force) {
+            removedAmount = existEffect.amount;
+          } else {
+            doRemove = false;
+          }
+        } else {
+          removedAmount = amount;
         }
       } else if (percentage != null) {
         assert(percentage > 0 && percentage < 1);
-        removeAmount = (existEffect.amount * percentage).ceil();
-      } else {
-        removeAmount = existEffect.amount;
+        removedAmount = (existEffect.amount * percentage).ceil();
+      } else if (force) {
+        removedAmount = existEffect.amount;
       }
 
-      if (removeAmount > 0) {
-        existEffect.amount -= removeAmount;
+      if (doRemove) {
+        existEffect.amount -= removedAmount;
 
         if (existEffect.amount <= 0) {
           _statusEffects.remove(existEffect.id);
@@ -394,9 +410,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    if (amount != null &&
-        removeAmount < amount &&
-        existEffect?.isResource == true) {
+    if (!doRemove && existEffect?.isResource == true) {
       final hint = engine.locale('resourceLacking',
           interpolations: [engine.locale('status_$id')]);
       addHintText(hint, color: Colors.grey);
@@ -406,7 +420,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       reArrangeResourceEffects();
     }
 
-    return removeAmount;
+    return removedAmount;
   }
 
   void addStatusEffect(String id, {int? amount, bool handleCallback = true}) {
@@ -552,8 +566,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   dynamic handleStatusEffectCallback(String callbackId, [dynamic details]) {
     dynamic result;
 
-    // 永久效果的执行优先级更高
-    for (final effect in permanentEffects) {
+    void handle(StatusEffect effect) {
       if (effect.callbacks.contains(callbackId)) {
         final r = _invokeScript(effect, callbackId, details);
         if (r != null) {
@@ -562,13 +575,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
+    // 永久效果的执行优先级更高
+    for (final effect in permanentEffects) {
+      handle(effect);
+    }
+
+    for (final effect in resourceEffects) {
+      handle(effect);
+    }
+
     for (final effect in otherEffects) {
-      if (effect.callbacks.contains(callbackId)) {
-        final r = _invokeScript(effect, callbackId, details);
-        if (r != null) {
-          result = r;
-        }
-      }
+      handle(effect);
     }
 
     return result;

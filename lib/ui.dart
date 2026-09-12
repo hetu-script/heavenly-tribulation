@@ -219,6 +219,13 @@ class _GameCursor extends WidgetStateMouseCursor {
   String get debugDescription => throw UnimplementedError();
 }
 
+final class GameCursors {
+  static const hovered = FlutterCustomMemoryImageCursor(key: Cursors.click);
+  static const pressed = FlutterCustomMemoryImageCursor(key: Cursors.press);
+  static const dragged = FlutterCustomMemoryImageCursor(key: Cursors.drag);
+  static const normal = FlutterCustomMemoryImageCursor(key: Cursors.normal);
+}
+
 final class GameUI {
   static Vector2 size = Vector2.zero();
 

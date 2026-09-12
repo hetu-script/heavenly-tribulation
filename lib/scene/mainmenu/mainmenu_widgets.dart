@@ -477,7 +477,7 @@ class _DebugButtonState extends State<DebugButton> {
         child: IconButton(
           icon: Icon(Icons.menu_open),
           padding: const EdgeInsets.all(0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          mouseCursor: GameCursors.hovered,
           onPressed: () {
             showFluentMenu(
               cursor: GameUI.cursor,

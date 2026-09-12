@@ -51,7 +51,7 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
         child: IconButton(
           icon: const Icon(Icons.dashboard),
           padding: const EdgeInsets.all(0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          mouseCursor: GameCursors.hovered,
           onPressed: () {
             showFluentMenu<ViewModeMenuItems>(
               cursor: GameUI.cursor,
@@ -143,7 +143,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
         child: IconButton(
           icon: const Icon(Icons.menu_open),
           padding: const EdgeInsets.all(0),
-          mouseCursor: GameUI.cursor.resolve({WidgetState.hovered}),
+          mouseCursor: GameCursors.hovered,
           onPressed: () {
             showFluentMenu<DropMenuItems>(
               cursor: GameUI.cursor,

@@ -1271,7 +1271,7 @@ final class GameData with ChangeNotifier {
               line += ' (${engine.locale('cultivationRank_$affixRank')})';
             }
           }
-          line = '$kSeparateDot$line';
+          // line = '$kSeparateDot$line';
           if (affix['isFreezed'] == true) {
             line = '<lightGreen>$line</>';
           } else {
@@ -1380,7 +1380,7 @@ final class GameData with ChangeNotifier {
           color: Colors.white,
           shadows: kTextShadows,
         ),
-        textAlign: TextAlign.left,
+        textAlign: TextAlign.center,
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description,

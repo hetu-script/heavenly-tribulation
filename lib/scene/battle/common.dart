@@ -1,5 +1,5 @@
 const kTopLayerAnimationPriority = 500;
-const kStatusEffectIconPriority = 1000;
+const kStatusEffectIconPriority = 200;
 
 const kOppositeStatus = {
   'enhance_unarmed': 'weaken_unarmed',

@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(flutter analyze *)",
-      "Bash(dart analyze *)"
-    ]
-  },
-  "outputStyle": "default"
-}
