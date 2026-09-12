@@ -59,23 +59,7 @@
 - `defend` / `defend_exhaust` 等脚本中 `'defense_${affix.damageType}'` 简化（固定物理或保留插值但数据只剩 physical）。
 - 删除 `defend_multiple_exhaust`（若 2.3 的两张牌不再使用）。
 
-### 2.4 装备 / 天赋盘清理
-
-`assets/data/passives.json5`：
-
-- `start_battle_with_defense_chi/elemental/psychic` 删除；`start_battle_with_defense_physical` 保留（文案改"战斗开始获得护甲"）。
-- `start_battle_with_shield_chi/elemental/psychic` 删除；`start_battle_with_shield_physical` 保留并改为通用护盾（见 2.5）。
-- 穿透类装备词条收敛（已确认）：`unarmedPenetration/weaponPenetration/spellPenetration/cursePenetration`
-  → **合并为单一 `penetration` 词条**（isItem，适用装备部位取原四者的并集）。
-  属性与**伤害类型**绑定而非攻击类型：词条文本注明"只作用于物理和真气伤害"。
-  `cursePenetration` 随之删除。
-
-`assets/data/passive_tree.json5`：
-
-- 引用被删 passive 的天赋节点替换为对应新节点（护甲、穿透、护盾）。
-  注意节点带轨道坐标与 `connectedNodes`，尽量**原位替换 passives 数组内容**，不动布局。
-
-### 2.5 护盾与易伤收敛
+### 2.4 护盾与易伤收敛
 
 - **护盾（已确认）**：`shield_physical/chi/elemental/psychic` 四件合并，并入阴阳气系统，作为**浩然之气**：
   id `energy_positive_shield`，每层抵挡一次任意**非纯粹**伤害，触发消耗 1 层。
@@ -87,6 +71,22 @@
 - **易伤（已确认，总览决策 15）**：`vulnerable_physical/chi/elemental/psychic` → 合并为单一 `vulnerable`
   （受到任何伤害时消耗并增加等量伤害；百分比弱点在阶段 4 只保留元素分型）。
   `kDebuffs`（`scripts/main/cardgame/common.ht`）中的四个 vulnerable 条目替换为单一 `vulnerable`（保留在随机池中）。
+
+### 2.5 装备 / 天赋盘清理
+
+`assets/data/passives.json5`：
+
+- `start_battle_with_defense_chi/elemental/psychic` 删除；`start_battle_with_defense_physical` 保留（文案改"战斗开始获得护甲"）。
+- `start_battle_with_shield_chi/elemental/psychic` 删除；`start_battle_with_shield_physical` 保留并改为通用护盾（见 2.5）。
+- 穿透类装备词条收敛（已确认）：`unarmedPenetration/weaponPenetration/spellPenetration/cursePenetration`
+  → **合并为单一 `penetration` 词条**（isItem，适用装备部位取原四者的并集）。
+  属性与**伤害类型**绑定而非攻击类型：词条文本注明"只作用于物理和真气伤害"。
+  `cursePenetration` 随之删除。
+
+`assets/data/passive_skills.json5`：
+
+- 引用被删 passive 的天赋节点替换为对应新节点（护甲、穿透、护盾）。
+  注意节点带轨道坐标与 `connectedNodes`，尽量**原位替换 passives 数组内容**，不动布局。
 
 ### 2.6 本地化
 
@@ -106,7 +106,7 @@
 ## 涉及文件
 
 - `assets/data/status_effect.json5`、`assets/data/cards.json5`、`assets/data/card_affixes.json5`
-- `assets/data/passives.json5`、`assets/data/passive_tree.json5`
+- `assets/data/passives.json5`、`assets/data/passive_skills.json5`
 - `scripts/main/cardgame/status_script.ht`、`card_script.ht`、`common.ht`
 - `lib/scene/battle/character.dart`、`lib/scene/battle/common.dart`、`lib/scene/battle/battle.dart`（若有 defense 映射）
 - `assets/locale/zh/rpg/status_effect.json`、`battlecard.json`、`craft.json`、`passive.json`
@@ -116,6 +116,5 @@
 
 - [ ] 编译通过，`flutter analyze` 无新增错误
 - [ ] 实机：打出任意 defend 牌只获得一种护甲；真气攻击 20 点对 8 护甲造成 16 点（10 穿透 + 10−8）
-- [ ] 实机：穿透词条对咒术牌不再生效
+- [ ] 实机：穿透词条对物理/真气伤害之外的伤害无效
 - [ ] 装备/天赋界面不再出现被删词条；旧存档兼容（见下）
-- [ ] 旧存档迁移：角色已有的 `defense_chi` 等状态/词条在加载时的处理策略（直接丢弃或映射为护甲）**【待确认】**

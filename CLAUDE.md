@@ -129,7 +129,7 @@ heavenly-tribulation/
 - `cards.json5` / `card_affixes.json5` — 卡牌和词条
 - `items.json5` — 物品
 - `maps.json5` — 地图定义（六边形地块）
-- `passives.json5` / `passive_tree.json5` — 天赋树
+- `passives.json5` / `passive_skills.json5` — 天赋树
 - `status_effect.json5` — 状态效果
 - `quests.json5` / `journals.json5` — 任务和日志
 

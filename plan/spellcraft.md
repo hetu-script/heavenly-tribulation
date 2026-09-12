@@ -604,7 +604,7 @@ lightning_speed: {
    // rank 2~5 类似
    ```
 
-2. **`passive_tree.json5`** — 将共鸣被动绑定到悟道 rank 节点
+2. **`passive_skills.json5`** — 将共鸣被动绑定到悟道 rank 节点
    - `track_5_4`（凝气）附加 `elemental_resonance_1`
    - `track_6_8`（筑基）附加 `elemental_resonance_2`
    - 以此类推
@@ -634,7 +634,7 @@ lightning_speed: {
 | `elemental_resonance_4` | 链条长度 >= 4    | 下一次共鸣灵气获取翻倍                   |
 | `elemental_resonance_5` | 链条长度 >= 5    | 重置链条，下一张法术免费且伤害翻倍       |
 
-**改动文件**：`passives.json5`, `passive_tree.json5`, `card_script.ht`, `character.dart`, `battle.dart`, `card.ht`
+**改动文件**：`passives.json5`, `passive_skills.json5`, `card_script.ht`, `character.dart`, `battle.dart`, `card.ht`
 
 ### Phase 2：悟道现有卡牌修改
 
@@ -732,7 +732,7 @@ lightning_speed: {
 | `assets/data/cards.json5`                | 是      |         | 是      | 是      | 是      |
 | `assets/data/card_affixes.json5`         | 是      |         |         |         | 是      |
 | `assets/data/passives.json5`             | 是      | 是      |         |         | 是      |
-| `assets/data/passive_tree.json5`         |         | 是      |         |         |         |
+| `assets/data/passive_skills.json5`       |         | 是      |         |         |         |
 | `assets/data/status_effect.json5`        |         |         | 是      |         |         |
 | `scripts/main/cardgame/card.ht`          | 是      | 是      |         |         |         |
 | `scripts/main/cardgame/card_script.ht`   |         | 是      | 是      | 是      | 是      |

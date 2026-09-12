@@ -71,7 +71,7 @@
 - `kEquipmentStatsToStatus` 映射表：`physicalResist → resistant_physical` 等四组
   替换为 `fireResist → resistant_fire` 等新四组；删除 chiResist/psychicResist 映射。
 
-`assets/data/passive_tree.json5`：
+`assets/data/passive_skills.json5`：
 
 - 旧抗性节点原位替换为四元素抗性节点（数量可能增加，注意布局预留）。
 
@@ -131,7 +131,7 @@
 
 - `lib/data/common.dart`、`lib/data/constants.dart`、`scripts/main/binding/constants.ht`
 - `lib/scene/battle/character.dart`（颜色）、`lib/scene/battle/battle.dart`（映射表）
-- `assets/data/cards.json5`、`card_affixes.json5`、`status_effect.json5`、`passives.json5`、`passive_tree.json5`
+- `assets/data/cards.json5`、`card_affixes.json5`、`status_effect.json5`、`passives.json5`、`passive_skills.json5`
 - `scripts/main/cardgame/status_script.ht`、`card_script.ht`、`common.ht`
 - `scripts/main/data/character/battle_entity.ht`
 - `assets/locale/zh/rpg/`（status_effect / battlecard / craft / passive / character）

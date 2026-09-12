@@ -130,7 +130,7 @@ final class GameData with ChangeNotifier {
   static final Map<String, dynamic> statusEffects = {};
   static final Map<String, dynamic> items = {};
   static final Map<String, dynamic> passives = {};
-  static final Map<String, dynamic> passiveTree = {};
+  static final Map<String, dynamic> passiveSkills = {};
   static final Map<String, dynamic> craftables = {};
   static final Map<String, dynamic> journals = {};
   static final Map<String, dynamic> quests = {};
@@ -326,9 +326,9 @@ final class GameData with ChangeNotifier {
         await rootBundle.loadString('assets/data/craftables.json5');
     craftables.addAll(JSON5.parse(craftablesDataString));
 
-    final passiveTreeDataString =
-        await rootBundle.loadString('assets/data/passive_tree.json5');
-    passiveTree.addAll(JSON5.parse(passiveTreeDataString));
+    final passiveSkillsDataString =
+        await rootBundle.loadString('assets/data/passive_skills.json5');
+    passiveSkills.addAll(JSON5.parse(passiveSkillsDataString));
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');
@@ -454,7 +454,7 @@ final class GameData with ChangeNotifier {
     }
 
     // 拼接技能树节点的描述
-    for (final passiveTreeNodeData in passiveTree.values) {
+    for (final passiveTreeNodeData in passiveSkills.values) {
       final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
 
       final nodeDescription = StringBuffer();

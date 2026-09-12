@@ -13,16 +13,16 @@
 
 ## 设计定案（来自总览决策 3、7、8）
 
-| 项 | 定案 |
-| --- | --- |
-| 可暴击类型 | 仅物理（含风、土系法术——它们在阶段 4 转物理后也可暴击） |
-| 基础暴击率 | 5%（可调） |
-| 基础暴击伤害 | 150%（可调） |
-| 暴击乘区 | 独立乘区（与乘区 1/2/3 相乘），在护甲扣除**之前**计入——配合阶段 1 的结算顺序，大数字才能砸穿护甲 |
-| 豪气 | `energy_positive_crit`（原名 energy_positive_pure）：消耗 1 层 → 下一次物理攻击**必定暴击** |
-| 正气 | `energy_positive_penetrate`（原名 energy_positive_leech）：消耗 1 层 → 本回合获得 20% 防御穿透 |
-| 衰气 | `energy_negative_crit`（原名 energy_negative_pure）：触发暴击时消耗，降低该次暴击伤害（每层使暴击倍率 −0.25，数值待调） |
-| 抗暴 | **不设置**——暴击保持纯进攻属性 |
+| 项           | 定案                                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| 可暴击类型   | 仅物理（含风、土系法术——它们在阶段 4 转物理后也可暴击）                                                                 |
+| 基础暴击率   | 5%（可调）                                                                                                              |
+| 基础暴击伤害 | 150%（可调）                                                                                                            |
+| 暴击乘区     | 独立乘区（与乘区 1/2/3 相乘），在护甲扣除**之前**计入——配合阶段 1 的结算顺序，大数字才能砸穿护甲                        |
+| 豪气         | `energy_positive_crit`（原名 energy_positive_pure）：消耗 1 层 → 下一次物理攻击**必定暴击**                             |
+| 正气         | `energy_positive_penetrate`（原名 energy_positive_leech）：消耗 1 层 → 本回合获得 20% 防御穿透                          |
+| 衰气         | `energy_negative_crit`（原名 energy_negative_pure）：触发暴击时消耗，降低该次暴击伤害（每层使暴击倍率 −0.25，数值待调） |
+| 抗暴         | **不设置**——暴击保持纯进攻属性                                                                                          |
 
 命名定案：leech/pure 系列改名 penetrate/crit 系列，**阴气与阳气英文名保持对称**（仅 positive/negative 前缀不同）：
 `energy_positive_leech → energy_positive_penetrate`（正气）、`energy_negative_leech → energy_negative_penetrate`（戾气）、
@@ -84,9 +84,9 @@
 
 - `critChance`：isItem，暴击率 +X%（装备部位建议：武器类 + ring/amulet）。
 - `critDamage`：isItem，暴击伤害 +X%（部位同上）。
-- 两者同步加入天赋盘可用词条（passive_tree 节点引用）。
+- 两者同步加入天赋盘可用词条（passive_skill 节点引用）。
 
-`assets/data/passive_tree.json5`：
+`assets/data/passive_skills.json5`：
 
 - 新增暴击节点（建议放在锻体/御剑主轴附近——物理流派）；原位利用被删节点位置或新增坐标。
   新增坐标涉及轨道布局计算，工作量单独预留。
@@ -117,7 +117,7 @@
 - `lib/data/common.dart`（基础暴击常量 kBaseCritChance / kBaseCritDamage）
 - `scripts/main/cardgame/status_script.ht`、`battle_character.ht`
 - `scripts/main/data/character/battle_entity.ht`
-- `assets/data/status_effect.json5`、`passives.json5`、`passive_tree.json5`
+- `assets/data/status_effect.json5`、`passives.json5`、`passive_skills.json5`
 - `assets/locale/zh/rpg/status_effect.json`、`character.json`、`passive.json`
 - `docs/docs/how2play/rpg/battle/readme.md`、`resource/readme.md`（豪气/正气/衰气条目）
 

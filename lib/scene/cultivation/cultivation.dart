@@ -305,7 +305,7 @@ class CultivationScene extends Scene with HasCursorState {
 
   /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
   (bool, bool) checkPassiveStatus(String nodeId) {
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     final unlockedNodes = character['unlockedPassiveTreeNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(nodeId);
     // 可以学的技能，如果邻近的父节点无一解锁，则无法学习
@@ -349,7 +349,7 @@ class CultivationScene extends Scene with HasCursorState {
   Future<void> onSkillButtonTapUp(
       SpriteButton skillButton, String nodeId, int button) async {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
     if (button == kPrimaryButton) {
@@ -435,7 +435,7 @@ class CultivationScene extends Scene with HasCursorState {
 
   void onSkillButtonMouseEnter(SpriteButton skillButton, String nodeId) {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
     final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
 
@@ -508,7 +508,7 @@ class CultivationScene extends Scene with HasCursorState {
   }
 
   void _addSkillButton({required String nodeId, required Vector2 position}) {
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
 
     late SpriteButton skillButton;
 
@@ -600,7 +600,7 @@ class CultivationScene extends Scene with HasCursorState {
       final button = _skillButtons[nodeId];
       assert(button != null);
       button!.isSelected = true;
-      final passiveTreeNodeData = GameData.passiveTree[nodeId];
+      final passiveTreeNodeData = GameData.passiveSkills[nodeId];
       if (passiveTreeNodeData['isAttribute'] == true) {
         final String attributeId = unlockedNodes[nodeId];
         button.tryLoadSprite(
@@ -1418,7 +1418,7 @@ class CultivationScene extends Scene with HasCursorState {
     }
 
     for (final nodeId in _skillButtons.keys) {
-      final passiveTreeNodeData = GameData.passiveTree[nodeId];
+      final passiveTreeNodeData = GameData.passiveSkills[nodeId];
 
       if (passiveTreeNodeData != null) {
         final button = _skillButtons[nodeId]!;
@@ -1652,7 +1652,7 @@ class CultivationScene extends Scene with HasCursorState {
   Future<void> tryTribulation(SpriteButton skillButton, String nodeId) async {
     assert(!isEditorMode);
 
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     if (passiveTreeNodeData == null) return;
 
     int difficulty = character['rank'];

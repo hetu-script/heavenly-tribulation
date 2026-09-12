@@ -2034,7 +2034,7 @@ bool _characterUnlockPassiveTreeNode(
     return false;
   }
 
-  final passiveTreeNodeData = GameData.passiveTree[nodeId];
+  final passiveTreeNodeData = GameData.passiveSkills[nodeId];
   if (passiveTreeNodeData == null) {
     engine.warning('天赋树节点 $nodeId 不存在');
     return false;
@@ -2080,7 +2080,7 @@ void _characterRefundPassiveTreeNode(
   dynamic character,
   String nodeId,
 ) {
-  final passiveTreeNodeData = GameData.passiveTree[nodeId];
+  final passiveTreeNodeData = GameData.passiveSkills[nodeId];
   final unlockedNodes = character['unlockedPassiveTreeNodes'];
   bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 

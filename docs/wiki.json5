@@ -72,9 +72,9 @@
                 children: [],
               },
               {
-                id: "passive_skill",
+                id: "passive_skills",
                 title: "wiki_passive_skill_title",
-                path: "docs/docs/how2play/rpg/cultivation/passive_skill/readme.md",
+                path: "docs/docs/how2play/rpg/cultivation/passive_skills/readme.md",
                 children: [],
               },
             ],
