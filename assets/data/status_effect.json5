@@ -447,7 +447,7 @@
     id: "energy_negative_shield",
     title: "status_energy_negative_shield",
     description: "status_energy_negative_shield_description",
-    icon: "icon/status/energy_negative_pure.png",
+    icon: "icon/status/energy_negative_shield.png",
     script: "energy_negative_shield",
     isResource: true,
     priority: 1404,
@@ -532,22 +532,24 @@
     callbacks: ["self_turn_end"],
   },
   // 正气: 攻击后恢复生命
-  energy_positive_leech: {
-    id: "energy_positive_leech",
-    title: "status_energy_positive_leech",
-    description: "status_energy_positive_leech_description",
+  // 正气: 使用攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
+  energy_positive_penetrate: {
+    id: "energy_positive_penetrate",
+    title: "status_energy_positive_penetrate",
+    description: "status_energy_positive_penetrate_description",
     icon: "icon/status/energy_positive_leech.png",
-    script: "energy_positive_leech",
+    script: "energy_positive_penetrate",
     isResource: true,
-    callbacks: ["self_turn_end"],
+    callbacks: ["self_using_card"],
   },
   // 豪气: 使用攻击牌时消耗 1 层，本回合获得 20% 防御穿透
-  energy_positive_pure: {
-    id: "energy_positive_pure",
-    title: "status_energy_positive_pure",
-    description: "status_energy_positive_pure_description",
+  // 豪气: 使用物理攻击牌时消耗 1 层，使本张卡牌必定暴击
+  energy_positive_crit: {
+    id: "energy_positive_crit",
+    title: "status_energy_positive_crit",
+    description: "status_energy_positive_crit_description",
     icon: "icon/status/energy_positive_pure.png",
-    script: "energy_positive_pure",
+    script: "energy_positive_crit",
     isResource: true,
     callbacks: ["self_using_card"],
   },
@@ -623,24 +625,23 @@
     callbacks: ["self_turn_start"],
   },
   // 戾气: 攻击后自身受到伤害
-  energy_negative_leech: {
-    id: "energy_negative_leech",
-    title: "status_energy_negative_leech",
-    description: "status_energy_negative_leech_description",
+  // 戾气: 回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命
+  energy_negative_penetrate: {
+    id: "energy_negative_penetrate",
+    title: "status_energy_negative_penetrate",
+    description: "status_energy_negative_penetrate_description",
     icon: "icon/status/energy_negative_leech.png",
-    script: "energy_negative_leech",
+    script: "energy_negative_penetrate",
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 衰气: 可能会跳过回合
-  energy_negative_pure: {
-    id: "energy_negative_pure",
-    title: "status_energy_negative_pure",
-    description: "status_energy_negative_pure_description",
+  // 衰气: 每层使下一次暴击的暴击倍率 -25%（在 Dart 侧暴击分支结算，无脚本）
+  energy_negative_crit: {
+    id: "energy_negative_crit",
+    title: "status_energy_negative_crit",
+    description: "status_energy_negative_crit_description",
     icon: "icon/status/energy_negative_pure.png",
-    script: "energy_negative_pure",
     isResource: true,
-    callbacks: ["self_turn_start"],
   },
 
   // 逆灵之气

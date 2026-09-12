@@ -24,9 +24,10 @@
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",
   "missedHit": "MISS！",
+  "critHint": "暴击！",
   "invincible": "免伤！",
   "staggering": "踉跄！",
-  "defensePersisted": "防御保持！",
+  "defensePersisted": "护甲保持！",
 
   "wooden_dummy": "木人",
 

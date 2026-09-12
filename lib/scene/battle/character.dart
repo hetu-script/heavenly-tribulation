@@ -24,8 +24,8 @@ const kResourceMaxId = {
 
 const kResourceHasNegatives = {
   'energy_positive_life',
-  'energy_positive_leech',
-  'energy_positive_pure',
+  'energy_positive_penetrate',
+  'energy_positive_crit',
   'energy_positive_unarmed',
   'energy_positive_weapon',
   'energy_positive_spell',
@@ -46,10 +46,9 @@ Color getDamageColor(String damageType) {
 Color getResourceColor(String resourceType) {
   return switch (resourceType) {
     'energy_positive_life' || 'energy_negative_life' => Colors.lightGreen,
-    'energy_positive_leech' || 'energy_negative_leech' => Colors.grey,
-    'energy_positive_pure' || 'energy_negative_pure' => Colors.blueGrey,
+    'energy_positive_penetrate' || 'energy_negative_penetrate' => Colors.grey,
+    'energy_positive_crit' || 'energy_negative_crit' => Colors.blueGrey,
     'energy_positive_shield' || 'energy_negative_shield' => Colors.blue,
-    'energy_positive_poison' || 'energy_negative_poison' => Colors.yellow,
     'energy_positive_spell' || 'energy_negative_spell' => Colors.purple,
     'energy_positive_weapon' || 'energy_negative_weapon' => Colors.lightBlue,
     'energy_positive_unarmed' || 'energy_negative_unarmed' => Colors.red,
@@ -742,6 +741,30 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       finalDamage = 0;
     }
 
+    // 暴击：只有物理伤害可以暴击，独立乘区，在护甲扣除之前计入
+    damageDetails['isCritical'] = false;
+    if (finalDamage > 0 && damageDetails['damageType'] == 'physical') {
+      final attackerStats = opponent!.data['stats'];
+      final int critChance = (attackerStats['critChance'] ?? 0).toInt();
+      final bool guaranteed = opponent!.turnFlags['guaranteedCrit'] == true;
+      if (guaranteed) {
+        opponent!.turnFlags['guaranteedCrit'] = false;
+      }
+      if (critChance > 0 && (guaranteed || random.nextInt(100) < critChance)) {
+        int critMultiplier = (attackerStats['critMultiplier'] ?? 150).toInt();
+        // 衰气：每层使本次暴击倍率 -25%（暴击倍率下限 100%），触发时全部消耗
+        final int weakenCrit =
+            opponent!.hasStatusEffect('energy_negative_crit');
+        if (weakenCrit > 0) {
+          critMultiplier -= 25 * weakenCrit;
+          if (critMultiplier < 100) critMultiplier = 100;
+          opponent!.removeStatusEffect('energy_negative_crit');
+        }
+        finalDamage = (finalDamage * critMultiplier / 100).round();
+        damageDetails['isCritical'] = true;
+      }
+    }
+
     // 护甲在所有乘区结算完毕后，按数值抵扣最终伤害（杀戮尖塔式）
     // 阶段1重构：原先由 defense_self_taking_damage 脚本在乘区前扣除，
     // 会导致攻击方的增伤乘区放大护甲吸收量
@@ -770,9 +793,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
+    if (damageDetails['isCritical'] == true) {
+      damageString = '$damageString ${engine.locale('critHint')}';
+    }
 
     addHintText(damageString,
-        color: getDamageColor(damageDetails['damageType']));
+        color: damageDetails['isCritical'] == true
+            ? Colors.orange
+            : getDamageColor(damageDetails['damageType']));
 
     if (damageDetails['blocked'] ?? false) {
       engine.play(GameSound.block, volume: engine.config.soundEffectVolume);

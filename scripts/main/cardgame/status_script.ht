@@ -17,8 +17,8 @@ import 'common.ht'
 
 /// 对方/自己使用消耗牌后 opponent/self_consumed
 
-/// // 对方/自己恢复生命时 opponent/self_heal
-/// // 对方/自己失去生命时 opponent/self_lose_life
+/// 对方/自己恢复生命时 opponent/self_heal
+/// 对方/自己失去生命时 opponent/self_lose_life
 
 /// 对方/自己造成伤害时 opponent/self_doing_damage
 /// 对方/自己受到伤害时 opponent/self_taking_damage
@@ -28,17 +28,17 @@ import 'common.ht'
 
 /// 对方/自己获得阳气后 opponent/self_gained_energy_positive
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
-/// // 对方/自己获得伤势后 opponent/self_gained_injury
+/// 对方/自己获得伤势后 opponent/self_gained_injury
 
 /// 对方/自己资源溢出时 opponent/self_overflowed_energy
 
 /// 对方/自己获得阳气后 opponent/self_gained_energy_positive
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
-/// // 对方/自己获得伤势后 opponent/self_gained_injury
+/// 对方/自己获得伤势后 opponent/self_gained_injury
 
 /// 对方/自己使用卡牌时 opponent/self_using_card
 /// 对方/自己使用卡牌后 opponent/self_used_card
-/// 自己/对方使用攻击牌后 self/opponent_attacked
+/// 对方/自己使用攻击牌后 opponent/self_attacked
 
 /// 对方/自己使用拳法时 opponent/self_use_card_kind_punch
 /// 对方/自己使用腿法时 opponent/self_use_card_kind_
@@ -298,21 +298,23 @@ struct StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function energy_positive_leech_self_turn_end(self, opponent, effect, details) {
-    if (self.turnFlags.totalDamage <= 0) return
+  /// 正气：使用物理或真气伤害的攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
+  function energy_positive_penetrate_self_using_card(self, opponent, effect, details) {
+    if (self.cardFlags.category != 'attack') return
+    if (self.cardFlags.damageType != 'physical' && self.cardFlags.damageType != 'chi') return
+    if (self.hasStatusEffect('energy_positive_penetrate') <= 0) return
 
-    let gain = ((self.turnFlags.totalDamage / 10) * effect.amount).round()
-    self.changeLife(gain)
-    
+    self.cardFlags.damage.penetration = (self.cardFlags.damage.penetration ?? 0) + 0.2
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function energy_positive_pure_self_using_card(self, opponent, effect, details) {
+  /// 豪气：使用攻击牌时，若该牌为物理伤害，消耗 1 层使本张卡牌必定暴击
+  function energy_positive_crit_self_using_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'attack') return
-    if (self.turnFlags.penetration >= 1) return
+    if (self.cardFlags.damageType != 'physical') return
+    if (self.hasStatusEffect('energy_positive_crit') <= 0) return
 
-    // 直接为本张卡牌的伤害增加穿透（cardFlags.damage 会在 takeDamage 时累加进 details）
-    self.cardFlags.damage.penetration = (self.cardFlags.damage.penetration ?? 0) + 0.2
+    self.turnFlags.guaranteedCrit = true
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
@@ -382,7 +384,8 @@ struct StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function energy_negative_leech_self_turn_end(self, opponent, effect, details) {
+  /// 戾气：回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命（穿透的是自身）
+  function energy_negative_penetrate_self_turn_end(self, opponent, effect, details) {
     if (self.turnFlags.totalDamage <= 0) return
 
     let lost = -((self.turnFlags.totalDamage / 10) * effect.amount).round()
@@ -391,15 +394,8 @@ struct StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  function energy_negative_pure_self_turn_start(self, opponent, effect, details) {
-    if (self.turnFlags.skipTurn) return
-
-    final roll = random.nextDouble()
-    if (roll < 0.1) {
-      self.turnFlags.skipTurn = true
-      self.removeStatusEffect(effect.id, amount: 1)
-    }
-  }
+  // 衰气（energy_negative_crit）的效果在 Dart 侧 takeDamage 的暴击分支中结算：
+  // 每层使本次暴击倍率 -25%（下限 100%），触发时全部消耗
 
   function energy_negative_ultimate_self_doing_damage(self, opponent, effect, details) {
     details.baseChange -= effect.amount * 5

@@ -1271,7 +1271,15 @@ const kBaseLifePerLevel = 5;
 const kBaseLightRadius = 2;
 
 const kBaseMonthlyIdentifyCardsMax = 12;
+
 const kBaseResistMax = 75;
+
+/// 基础暴击率（百分比整数制，5%）
+const kBaseCritChance = 5;
+
+/// 基础暴击伤害（百分比整数制，150%）
+const kBaseCritMultiplier = 150;
+
 const kBaseTurnActionThreshold = 10;
 const kMaxTurnActionThreshold = 15;
 const kMinTurnActionThreshold = 5;
@@ -2157,23 +2165,23 @@ const kScrollCardUseLimit = {
 const kPotionKinds = {
   'common': {
     'potion_heal',
-    'potion_start_battle_with_speed_quick',
+    'pdefensetart_battle_with_speed_quick',
     'potion_start_battle_with_dodge_nimble',
     'potion_start_battle_with_defense',
   },
   'rare': {
     'potion_start_battle_with_energy_positive_life',
-    'potion_start_battle_with_energy_positive_leech',
-    'potion_start_battle_with_energy_positive_pure',
+    'potion_start_battle_with_energy_positive_penetrate',
+    'potion_start_battle_with_energy_positive_crit',
     'potion_start_battle_with_energy_positive_spell',
     'potion_start_battle_with_energy_positive_weapon',
     'potion_start_battle_with_energy_positive_unarmed',
     'potion_decreaseTribulationDifficulty',
   },
   'epic': {
+    'potion_start_battle_with_energy_positive_shield',
     'potion_start_battle_with_energy_positive_ultimate',
     'potion_start_battle_with_ward',
-    'potion_start_battle_with_energy_positive_shield',
     'potion_tribulationCountReduce',
   },
 };

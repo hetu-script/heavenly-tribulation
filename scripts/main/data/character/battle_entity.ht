@@ -358,6 +358,10 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   // 穿透：单一属性，只作用于物理和真气伤害
   character.stats.penetration = character.passives.penetration?.value + character.ephemeralPassives.penetration?.value
 
+  // 暴击：只有物理伤害可以暴击，百分比整数制
+  character.stats.critChance = Constants.baseCritChance + character.passives.critChance?.value + character.ephemeralPassives.critChance?.value
+  character.stats.critMultiplier = Constants.baseCritMultiplier + character.passives.critMultiplier?.value + character.ephemeralPassives.critMultiplier?.value
+
   character.stats.physicalResist = character.passives.physicalResist?.value + character.ephemeralPassives.physicalResist?.value
   character.stats.chiResist = character.passives.chiResist?.value + character.ephemeralPassives.chiResist?.value
   character.stats.elementalResist = character.passives.elementalResist?.value + character.ephemeralPassives.elementalResist?.value

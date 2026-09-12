@@ -184,7 +184,7 @@ class LocationScene extends Scene with HasCursorState {
       case 'runelab':
         final siteCard = GameData.createSiteCard(
           spriteId: 'location/card/runelab.png',
-          title: engine.locale('runelab_workbench'),
+          title: engine.locale('runedesk'),
           onPreviewed: _onPreviewSiteCard,
           onUnpreviewed: _onUnpreviewSiteCard,
         );

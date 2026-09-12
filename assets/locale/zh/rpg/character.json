@@ -86,6 +86,11 @@
   "elementalResistMax": "元素抗性上限",
   "psychicResistMax": "精神抗性上限",
 
+  "critChance": "暴击率",
+  "critChance_description": "基础为 5%。只有物理伤害可以暴击。",
+  "critMultiplier": "暴击伤害",
+  "critMultiplier_description": "基础为 150%。只有物理伤害可以暴击。",
+
   "quickThreshold": "连续行动的速度阈值",
   "quickThreshold_description": "回合结束时，消耗阈值数量的速度，并获得一个额外回合。\n行动阈值最大 15， 最小 5",
   "slowThreshold": "跳过回合的缓慢阈值",

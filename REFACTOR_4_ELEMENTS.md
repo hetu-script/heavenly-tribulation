@@ -75,6 +75,15 @@
 
 - 旧抗性节点原位替换为四元素抗性节点（数量可能增加，注意布局预留）。
 
+`lib/widgets/character/stats.dart`：
+
+- `kStats` 中的 `'physicalResist'` / `'chiResist'` / `'elementalResist'` / `'psychicResist'`
+  替换为 `'fireResist'` / `'iceResist'` / `'lightningResist'` / `'poisonResist'`。
+
+`assets/locale/zh/rpg/character.json`：
+
+- 四种元素抗性及其上限的属性名与描述键同步增删。
+
 ### 4.4 新增内容（本阶段重头）
 
 1. **冰攻击主词条卡牌**（御水术攻击牌）：数张 + 插画 + 动画 + 音效。

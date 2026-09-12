@@ -6,7 +6,6 @@
   /// 属性词条没有 base 数值，只计算 increment * level
   /// isItemMain: true 表示属于装备主词条
   /// isItem: true 表示属于装备额外词条
-  /// isPotion: true 表示属于丹药主词条
   /// isEphemeral: true 表示属于临时增益额外词条
   /// ephemeralType: {'attack', 'defense', 'attribute', 'energy'} 表示临时增益的类型，影响显示和排序
 
@@ -378,6 +377,52 @@
     keywords: ["status_penetration"],
   },
 
+  // 暴击率：只有物理伤害可以暴击
+  critChance: {
+    id: "critChance",
+    description: "passive_crit_chance_description",
+    priority: 4648,
+    increment: 0.5,
+    isItem: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: [
+      "gloves",
+      "sword",
+      "sabre",
+      "staff",
+      "spear",
+      "bow",
+      "dart",
+      "amulet",
+      "ring",
+    ],
+    keywords: ["status_crit"],
+  },
+
+  // 暴击倍率：只有物理伤害可以暴击
+  critMultiplier: {
+    id: "critMultiplier",
+    description: "passive_crit_multiplier_description",
+    priority: 4647,
+    increment: 5,
+    isItem: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: [
+      "gloves",
+      "sword",
+      "sabre",
+      "staff",
+      "spear",
+      "bow",
+      "dart",
+      "amulet",
+      "ring",
+    ],
+    keywords: ["status_crit"],
+  },
+
   // 护甲保持
   persistent: {
     id: "persistent",
@@ -561,10 +606,10 @@
     keywords: ["status_energy_positive_life"],
   },
   // 正气
-  start_battle_with_energy_positive_leech: {
-    id: "start_battle_with_energy_positive_leech",
-    uniqueId: "start_with_energy_positive_leech",
-    description: "passive_start_battle_with_energy_positive_leech_description",
+  start_battle_with_energy_positive_penetrate: {
+    id: "start_battle_with_energy_positive_penetrate",
+    uniqueId: "start_with_energy_positive_penetrate",
+    description: "passive_start_battle_with_energy_positive_penetrate_description",
     priority: 4268,
     increment: 0.2,
     isItem: true,
@@ -573,14 +618,14 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    keywords: ["status_energy_positive_leech"],
+    keywords: ["status_energy_positive_penetrate"],
     rank: 1,
   },
   // 豪气
-  start_battle_with_energy_positive_pure: {
-    id: "start_battle_with_energy_positive_pure",
-    uniqueId: "start_with_energy_positive_pure",
-    description: "passive_start_battle_with_energy_positive_pure_description",
+  start_battle_with_energy_positive_crit: {
+    id: "start_battle_with_energy_positive_crit",
+    uniqueId: "start_with_energy_positive_crit",
+    description: "passive_start_battle_with_energy_positive_crit_description",
     priority: 4267,
     increment: 0.2,
     isItem: true,
@@ -589,7 +634,7 @@
     isEphemeral: true,
     ephemeralType: "energy",
     kinds: ["pearl"],
-    keywords: ["status_energy_positive_pure"],
+    keywords: ["status_energy_positive_crit"],
     rank: 1,
   },
 
