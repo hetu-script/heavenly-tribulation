@@ -223,9 +223,9 @@ struct StatusScript {
     }
   }
 
-  function ward_self_turn_end(self, opponent, effect, details) {
-    self.removeStatusEffect(effect.id, amount: 1)
-  }
+  // function ward_self_turn_end(self, opponent, effect, details) {
+  //   self.removeStatusEffect(effect.id, amount: 1)
+  // }
 
   function injury_external_self_attacking(self, opponent, effect, details) {
     self.changeLife(-effect.amount * 5)

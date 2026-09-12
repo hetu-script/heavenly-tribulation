@@ -144,7 +144,7 @@
   "status_shield_psychic_description": "当你受到精神伤害时，免疫所有伤害，消耗 1 层加护。",
 
   "status_ward": "辟邪",
-  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。回合结束时，移除 1 层辟邪。负面效果包括: 缓慢、迟钝、内伤、外伤、中毒、幻觉、以及所有种类的易伤。",
+  "status_ward_description": "当你获得负面效果时，取消该效果，并消耗 1 层辟邪。负面效果包括: 缓慢、迟钝、内伤、外伤、中毒、幻觉、以及所有种类的易伤。",
 
   "status_injury": "伤势",
   "status_injury_description": "伤势包括: 流血、内伤、中毒、幻觉。",

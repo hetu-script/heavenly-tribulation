@@ -32,18 +32,18 @@ const kResourceHasNegatives = {
   'energy_positive_curse',
 };
 
-const kDebuffs = {
-  'speed_slow',
-  'dodge_clumsy',
-  'injury_external',
-  'injury_internal',
-  'injury_poison',
-  'injury_hallucination',
-  'vulnerable_physical',
-  'vulnerable_chi',
-  'vulnerable_elemental',
-  'vulnerable_psychic',
-};
+// const kDebuffs = {
+//   'speed_slow',
+//   'dodge_clumsy',
+//   'injury_external',
+//   'injury_internal',
+//   'injury_poison',
+//   'injury_hallucination',
+//   'vulnerable_physical',
+//   'vulnerable_chi',
+//   'vulnerable_elemental',
+//   'vulnerable_psychic',
+// };
 
 Color getDamageColor(String damageType) {
   return switch (damageType) {
@@ -491,17 +491,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             color: Colors.blue,
           );
 
-          if (id == 'energy_positive_weapon') {
-            // 处理剑气溢出时的逻辑
-            for (var i = 0; i < overflowedAmount; ++i) {
-              final debuffId = kDebuffs.random;
-              if (random.nextBool()) {
-                opponent!.addStatusEffect(debuffId, amount: 1);
-              } else {
-                addStatusEffect(debuffId, amount: 1);
-              }
-            }
-          }
+          // if (id == 'energy_positive_weapon') {
+          //   // 处理剑气溢出时的逻辑
+          //   for (var i = 0; i < overflowedAmount; ++i) {
+          //     final debuffId = kDebuffs.random;
+          //     if (random.nextBool()) {
+          //       opponent!.addStatusEffect(debuffId, amount: 1);
+          //     } else {
+          //       addStatusEffect(debuffId, amount: 1);
+          //     }
+          //   }
+          // }
         }
       }
     }
