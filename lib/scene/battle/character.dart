@@ -27,11 +27,12 @@ const kResourceHasNegatives = {
   'energy_positive_penetrate',
   'energy_positive_crit',
   'energy_positive_ward',
+  'energy_positive_shield',
   'energy_positive_unarmed',
   'energy_positive_weapon',
   'energy_positive_spell',
   'energy_positive_curse',
-  'energy_positive_shield',
+  'energy_positive_ultimate',
 };
 
 Color getDamageColor(String damageType) {
@@ -724,8 +725,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       opponent!.addHintText(engine.locale('missedHit'));
       return 0;
     }
-	
-	String damageType = damageDetails['damageType'];
+
+    String damageType = damageDetails['damageType'];
     int baseDamage = damageDetails['baseValue'];
     final int baseChange = damageDetails['baseChange'] ?? 0;
 

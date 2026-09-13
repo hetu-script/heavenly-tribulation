@@ -47,22 +47,7 @@ const kStatsToPermanentEffects = {
   'poisonResist': ('resistant_poison', 'weakness_poison'),
 };
 
-const kSelfStatusOnCircumstance = {
-  'defense',
-  'speed_quick',
-  'speed_nimble',
-  'energy_positive_life',
-  'energy_positive_penetrate',
-  'energy_positive_crit',
-  'energy_positive_ward',
-  'energy_positive_shield',
-  'energy_positive_spell',
-  'energy_positive_weapon',
-  'energy_positive_unarmed',
-  'energy_positive_ultimate',
-};
-
-const kOpponentStatusOnCircumstance = {
+const kStatusOnCircumstance = {
   'weaken_unarmed',
   'weaken_weapon',
   'weaken_spell',
@@ -238,7 +223,7 @@ class BattleScene extends Scene {
 
   Map<String, int> _prepareStatus(
       BattleCharacter character, StatusCircumstances circumstance) {
-    for (final statusId in kSelfStatusOnCircumstance) {
+    for (final statusId in kStatusOnCircumstance) {
       final passiveId = '${circumstance.name}_with_$statusId';
 
       final passiveData = character.data['passives'][passiveId];
