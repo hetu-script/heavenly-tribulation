@@ -59,6 +59,7 @@
     id: "draw_cards",
     uniqueId: "draw_cards",
     category: "buff",
+    kind: "xinfa",
     rank: 0,
     isUnique: true,
     description: "affix_draw_cards",
@@ -68,7 +69,7 @@
       sound: "spell-of-healing-876",
     },
     script: "draw",
-    keywords: ["exhaustResource", "drawCards"],
+    keywords: ["exhaustResource"],
     valueData: [
       {
         base: 1,

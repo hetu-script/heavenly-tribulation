@@ -380,7 +380,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       // } else
       if (button == kSecondaryButton) {
         library.setCardEnabledById(card.uniqueId, true);
-        card.removeFromPile();
+        card.removeFromPile(removeFromGame: true);
       }
     };
 

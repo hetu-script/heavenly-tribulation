@@ -365,6 +365,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
             dialog.pushDialog(result);
             dialog.execute();
           } else {
+            buildingZone!.sortCards();
             engine.play(GameSound.dealCard);
             card.isEnabled = false;
           }
