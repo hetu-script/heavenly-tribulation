@@ -212,7 +212,7 @@
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
     passives: [
       {
-        id: "overflowed_mana_deal_elemental_damage",
+        id: "overflowed_mana_deal_random_element_damage",
       },
     ],
   },
@@ -525,7 +525,7 @@
     ],
   },
 
-  // 悟道+炼魂: 生命·元气副轴·左(元素防)
+  // 悟道+炼魂: 生命·元气副轴·左(四元素抗性)
   track_4_5: {
     size: "small",
     connectedNodes: ["track_3_3"],
@@ -533,7 +533,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "elementalResist",
+        id: "fireResist",
         level: 2,
       },
     ],
@@ -545,7 +545,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "elementalResist",
+        id: "iceResist",
         level: 4,
       },
     ],
@@ -557,7 +557,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "elementalResist",
+        id: "lightningResist",
         level: 4,
       },
     ],
@@ -569,13 +569,13 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "elementalResist",
+        id: "poisonResist",
         level: 10,
       },
     ],
   },
 
-  // 悟道+炼魂: 生命·元气副轴·右(真气防)
+  // 悟道+炼魂: 生命·元气副轴·右(四元素抗性)
   track_4_7: {
     size: "small",
     connectedNodes: ["track_3_3"],
@@ -583,7 +583,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "chiResist",
+        id: "fireResist",
         level: 2,
       },
     ],
@@ -595,7 +595,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "chiResist",
+        id: "iceResist",
         level: 4,
       },
     ],
@@ -607,7 +607,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "chiResist",
+        id: "lightningResist",
         level: 4,
       },
     ],
@@ -619,7 +619,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "chiResist",
+        id: "poisonResist",
         level: 10,
       },
     ],
@@ -833,7 +833,7 @@
     ],
   },
 
-  // 炼魂+法身: 辟邪副轴·左(精神防)
+  // 炼魂+法身: 辟邪副轴·左(四元素抗性)
   track_4_9: {
     size: "small",
     connectedNodes: ["track_3_5"],
@@ -841,7 +841,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "psychicResist",
+        id: "fireResist",
         level: 2,
       },
     ],
@@ -853,7 +853,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "psychicResist",
+        id: "iceResist",
         level: 4,
       },
     ],
@@ -865,7 +865,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "psychicResist",
+        id: "lightningResist",
         level: 4,
       },
     ],
@@ -877,7 +877,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "psychicResist",
+        id: "poisonResist",
         level: 10,
       },
     ],
@@ -1500,7 +1500,7 @@
     ],
   },
 
-  // 锻体+御剑: 剑气副轴·左(物理防)
+  // 锻体+御剑: 剑气副轴·左(四元素抗性)
   track_4_17: {
     size: "small",
     connectedNodes: ["track_3_9"],
@@ -1508,7 +1508,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "physicalResist",
+        id: "fireResist",
         level: 2,
       },
     ],
@@ -1520,7 +1520,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "physicalResist",
+        id: "iceResist",
         level: 4,
       },
     ],
@@ -1532,7 +1532,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "physicalResist",
+        id: "lightningResist",
         level: 4,
       },
     ],
@@ -1544,7 +1544,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "physicalResist",
+        id: "poisonResist",
         level: 10,
       },
     ],

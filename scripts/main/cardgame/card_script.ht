@@ -69,6 +69,19 @@ struct CardScriptMain {
     })
     opponent.addStatusEffect('dodge_clumsy', amount: affix.value[2])
   }
+  /// 攻击附带元素持续伤害，消耗资源
+  async function attack_element_dot_exhaust(self, opponent, affix) {
+    self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
+    await characterAnimate(self, affix.animation)
+    await opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: affix.value[1],
+    })
+    opponent.addStatusEffect('element_dot_${affix.damageType}', amount: affix.value[2])
+  }
   /// 多次攻击消耗资源
   async function attack_multiple_exhaust(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
@@ -209,18 +222,9 @@ struct CardScriptExtra {
 
   /// 攻击额外词条
 
-  /// 使用资源，攻击后额外造成伤害
-  async function consume_energy_for_extra_damage(self, opponent, affix, mainAffix) {
-    final amount = self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
-    if (amount < 1) return
-    for (var i in range(amount)) {
-      await opponent.takeDamage({
-        kind: mainAffix.kind,
-        cardType: affix.cardType ?? mainAffix.cardType,
-        damageType: affix.damageType ?? mainAffix.damageType,
-        baseValue: affix.value[1],
-      })
-    }
+  /// 降低对手元素抗性（以弱点形式附加，与抗性互相抵消）
+  async function reduce_resist(self, opponent, affix, mainAffix) {
+    opponent.addStatusEffect('weakness_${affix.damageType}', amount: affix.value[0])
   }
 
   /// 攻击后每造成10点伤害回复生命
@@ -239,22 +243,7 @@ struct CardScriptExtra {
     self.addStatusEffect('defense', amount: affix.value[0] * amount)
   }
 
-  /// 加持额外词条: 
-
-  /// 使用元气，获得生命
-  async function consume_vigor_heal(self, opponent, affix, mainAffix) {
-    final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
-    if (amount < 1) return
-    self.changeLife(affix.value[1] * amount)
-  }
-
-  /// 使用元气，获得防御
-  async function consume_vigor_gain_defense(self, opponent, affix, mainAffix) {
-    final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
-    if (amount < 1) return
-    self.addStatusEffect('defense', amount: affix.value[1] * amount)
-  }
-
+  /// 根据属性提升伤害
   async function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
     final amount = self.data.stats[affix.attributeId] * 0.005
     self.cardFlags.damage.percentageChange1 += amount

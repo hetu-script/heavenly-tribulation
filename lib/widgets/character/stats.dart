@@ -28,10 +28,10 @@ const kStats = [
   'weaponAttack',
   'spellAttack',
   'curseAttack',
-  'physicalResist',
-  'chiResist',
-  'elementalResist',
-  'psychicResist',
+  'fireResist',
+  'iceResist',
+  'lightningResist',
+  'poisonResist',
 ];
 
 const kMoreStats = [

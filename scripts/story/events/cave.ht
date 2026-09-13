@@ -45,7 +45,7 @@ async function onEnterMap() {
     generateDeck(chuxue, cardInfoList: [
       {affixId: 'mana'},
       {affixId: 'fireball'},
-      {affixId: 'flying_sword_exhaust_mana'},
+      {affixId: 'flying_sword_exhaust_mana_fire'},
       {affixId: 'scripture_exhaust_karma'},
     ])
     Game.showBattle(hero: chuxue, enemy: feixiong)

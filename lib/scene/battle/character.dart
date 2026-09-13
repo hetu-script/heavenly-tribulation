@@ -37,7 +37,10 @@ const kResourceHasNegatives = {
 Color getDamageColor(String damageType) {
   return switch (damageType) {
     'chi' => Colors.purple,
-    'elemental' => Colors.yellow,
+    'fire' => Colors.deepOrange,
+    'ice' => Colors.lightBlueAccent,
+    'lightning' => Colors.amber,
+    'poison' => Colors.purpleAccent,
     'psychic' => Colors.green,
     'pure' => Colors.red,
     _ => Colors.cyan,
@@ -711,7 +714,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       opponent!.addHintText(engine.locale('missedHit'));
       return 0;
     }
-
+	
+	String damageType = damageDetails['damageType'];
     int baseDamage = damageDetails['baseValue'];
     final int baseChange = damageDetails['baseChange'] ?? 0;
 
@@ -733,7 +737,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 暴击：只有物理伤害可以暴击，独立乘区，在护甲扣除之前计入
     damageDetails['isCritical'] = false;
-    if (finalDamage > 0 && damageDetails['damageType'] == 'physical') {
+    if (finalDamage > 0 && damageType == 'physical') {
       final attackerStats = opponent!.data['stats'];
       final int critChance = (attackerStats['critChance'] ?? 0).toInt();
       final bool guaranteed = opponent!.turnFlags['guaranteedCrit'] == true;
@@ -758,7 +762,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 护甲在所有乘区结算完毕后，按数值抵扣最终伤害（杀戮尖塔式）
     // 阶段1重构：原先由 defense_self_taking_damage 脚本在乘区前扣除，
     // 会导致攻击方的增伤乘区放大护甲吸收量
-    if (finalDamage > 0) {
+    if (finalDamage > 0 && (damageType == 'physical' || damageType == 'chi')) {
       // final defenseId = 'defense_${damageDetails['damageType']}';
       // if (hasStatusEffect(defenseId) > 0) {
       if (hasStatusEffect('defense') > 0) {

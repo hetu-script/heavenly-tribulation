@@ -1095,7 +1095,10 @@ const List<String> kAttackTypes = [
 final class DamageType {
   static const physical = 'physical';
   static const chi = 'chi';
-  static const elemental = 'elemental';
+  static const fire = 'fire';
+  static const ice = 'ice';
+  static const lightning = 'lightning';
+  static const poison = 'poison';
   static const psychic = 'psychic';
   static const pure = 'pure';
 }
@@ -1103,7 +1106,10 @@ final class DamageType {
 const List<String> kDamageTypes = [
   DamageType.physical,
   DamageType.chi,
-  DamageType.elemental,
+  DamageType.fire,
+  DamageType.ice,
+  DamageType.lightning,
+  DamageType.poison,
   DamageType.psychic,
   DamageType.pure,
 ];

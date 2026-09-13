@@ -260,9 +260,9 @@
   },
 
   // 抗性
-  physicalResist: {
-    id: "physicalResist",
-    description: "passive_physical_resist_description",
+  fireResist: {
+    id: "fireResist",
+    description: "passive_fire_resist_description",
     priority: 4599,
     increment: 0.5,
     isItem: true,
@@ -272,9 +272,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     keywords: ["status_resist"],
   },
-  elementalResist: {
-    id: "elementalResist",
-    description: "passive_elemental_resist_description",
+  iceResist: {
+    id: "iceResist",
+    description: "passive_ice_resist_description",
     priority: 4598,
     increment: 0.5,
     isItem: true,
@@ -284,9 +284,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     keywords: ["status_resist"],
   },
-  chiResist: {
-    id: "chiResist",
-    description: "passive_chi_resist_description",
+  lightningResist: {
+    id: "lightningResist",
+    description: "passive_lightning_resist_description",
     priority: 4597,
     increment: 0.5,
     isItem: true,
@@ -296,9 +296,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     keywords: ["status_resist"],
   },
-  psychicResist: {
-    id: "psychicResist",
-    description: "passive_psychic_resist_description",
+  poisonResist: {
+    id: "poisonResist",
+    description: "passive_poison_resist_description",
     priority: 4596,
     increment: 0.5,
     isItem: true,
@@ -310,9 +310,9 @@
   },
 
   // 抗性上限
-  physicalResistMax: {
-    id: "physicalResistMax",
-    description: "passive_physical_resist_max_description",
+  fireResistMax: {
+    id: "fireResistMax",
+    description: "passive_fire_resist_max_description",
     priority: 4589,
     increment: 0.5,
     isItem: true,
@@ -320,9 +320,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
-  elementalResistMax: {
-    id: "elementalResistMax",
-    description: "passive_elemental_resist_max_description",
+  iceResistMax: {
+    id: "iceResistMax",
+    description: "passive_ice_resist_max_description",
     priority: 4588,
     increment: 0.5,
     isItem: true,
@@ -330,9 +330,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
-  chiResistMax: {
-    id: "chiResistMax",
-    description: "passive_chi_resist_max_description",
+  lightningResistMax: {
+    id: "lightningResistMax",
+    description: "passive_lightning_resist_max_description",
     priority: 4587,
     increment: 0.5,
     isItem: true,
@@ -340,9 +340,9 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 2,
   },
-  psychicResistMax: {
-    id: "psychicResistMax",
-    description: "passive_psychic_resist_max_description",
+  poisonResistMax: {
+    id: "poisonResistMax",
+    description: "passive_poison_resist_max_description",
     priority: 4586,
     increment: 0.5,
     isItem: true,
@@ -769,9 +769,9 @@
     priority: 3995,
   },
 
-  overflowed_mana_deal_elemental_damage: {
-    id: "overflowed_mana_deal_elemental_damage",
-    description: "passive_overflowed_mana_deal_elemental_damage_description",
+  overflowed_mana_deal_random_element_damage: {
+    id: "overflowed_mana_deal_random_element_damage",
+    description: "passive_overflowed_mana_deal_random_element_damage_description",
     priority: 3899,
   },
   overflowed_mana_convert_to_vigor: {

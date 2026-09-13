@@ -305,10 +305,10 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.workStaminaCost = 1.0
   character.craftMaterialCost = 1.0
 
-  character.physicalResistMax = Constants.baseResistMax
-  character.chiResistMax = Constants.baseResistMax
-  character.elementalResistMax = Constants.baseResistMax
-  character.psychicResistMax = Constants.baseResistMax
+  character.fireResistMax = Constants.baseResistMax
+  character.iceResistMax = Constants.baseResistMax
+  character.lightningResistMax = Constants.baseResistMax
+  character.poisonResistMax = Constants.baseResistMax
 
   character.quickThreshold = Constants.baseTurnActionThreshold
   character.slowThreshold = Constants.baseTurnActionThreshold
@@ -362,27 +362,27 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.critChance = Constants.baseCritChance + character.passives.critChance?.value + character.ephemeralPassives.critChance?.value
   character.stats.critMultiplier = Constants.baseCritMultiplier + character.passives.critMultiplier?.value + character.ephemeralPassives.critMultiplier?.value
 
-  character.stats.physicalResist = character.passives.physicalResist?.value + character.ephemeralPassives.physicalResist?.value
-  character.stats.chiResist = character.passives.chiResist?.value + character.ephemeralPassives.chiResist?.value
-  character.stats.elementalResist = character.passives.elementalResist?.value + character.ephemeralPassives.elementalResist?.value
-  character.stats.psychicResist = character.passives.psychicResist?.value + character.ephemeralPassives.psychicResist?.value
+  character.stats.fireResist = character.passives.fireResist?.value + character.ephemeralPassives.fireResist?.value
+  character.stats.iceResist = character.passives.iceResist?.value + character.ephemeralPassives.iceResist?.value
+  character.stats.lightningResist = character.passives.lightningResist?.value + character.ephemeralPassives.lightningResist?.value
+  character.stats.poisonResist = character.passives.poisonResist?.value + character.ephemeralPassives.poisonResist?.value
 
-  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMax?.value + character.ephemeralPassives.physicalResistMax?.value
-  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMax?.value + character.ephemeralPassives.chiResistMax?.value
-  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
-  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMax?.value + character.ephemeralPassives.psychicResistMax?.value
+  character.stats.fireResistMax = character.fireResistMax + character.passives.fireResistMax?.value + character.ephemeralPassives.fireResistMax?.value
+  character.stats.iceResistMax = character.iceResistMax + character.passives.iceResistMax?.value + character.ephemeralPassives.iceResistMax?.value
+  character.stats.lightningResistMax = character.lightningResistMax + character.passives.lightningResistMax?.value + character.ephemeralPassives.lightningResistMax?.value
+  character.stats.poisonResistMax = character.poisonResistMax + character.passives.poisonResistMax?.value + character.ephemeralPassives.poisonResistMax?.value
 
-  if (character.stats.physicalResist > character.stats.physicalResistMax) {
-    character.stats.physicalResist = character.stats.physicalResistMax
+  if (character.stats.fireResist > character.stats.fireResistMax) {
+    character.stats.fireResist = character.stats.fireResistMax
   }
-  if (character.stats.chiResist > character.stats.chiResistMax) {
-    character.stats.chiResist = character.stats.chiResistMax
+  if (character.stats.iceResist > character.stats.iceResistMax) {
+    character.stats.iceResist = character.stats.iceResistMax
   }
-  if (character.stats.elementalResist > character.stats.elementalResistMax) {
-    character.stats.elementalResist = character.stats.elementalResistMax
+  if (character.stats.lightningResist > character.stats.lightningResistMax) {
+    character.stats.lightningResist = character.stats.lightningResistMax
   }
-  if (character.stats.psychicResist > character.stats.psychicResistMax) {
-    character.stats.psychicResist = character.stats.psychicResistMax
+  if (character.stats.poisonResist > character.stats.poisonResistMax) {
+    character.stats.poisonResist = character.stats.poisonResistMax
   }
 
   // 神识每 20 点: 速度和闪避阈值 -1

@@ -127,107 +127,55 @@
   },
 
   // 攻击额外词条
-  consume_chakra_for_extra_damage_physical: {
-    id: "consume_chakra_for_extra_damage_physical",
-    // 不同的词条可能有相同的 uniqueId，非 null 的 uniqueId 只会在一张卡牌上出现一次。
-    // 同一个额外词条有可能出现在多种流派和效果类型的卡牌上
-    // 和main_affix不同，额外词条的 uniqueId **不是** 数组
-    // category **是** 数组，因为某些词条可以出现在多个类型的卡牌上
-    uniqueId: "consume_chakra",
-    genre: "swordcraft",
-    rank: 1,
-    category: ["attack"],
-    // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
-    // rank: 0,
-    // 词条出现的几率，如果 roll 值大于几率，会重新选择词条
-    // chance: 0.4,
-    // 脚本执行的优先级，数值越大，越早执行
-    // **如果 priority 为负数，执行优先级在主词条之前**
-    // priority: 0,
-    description: "affix_consume_chakra_for_extra_damage_physical",
-    keywords: ["status_energy_positive_weapon"],
-    // 某些额外属性会有 属性id 攻击类型和伤害类型
-    // attributeId: "dexterity",
-    damageType: "physical",
-    resourceType: "energy_positive_weapon",
-    script: "consume_energy_for_extra_damage",
-    // 额外词条等级在0和境界允许的最大等级之间随机
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 5,
-        increment: 0.3,
-      },
-    ],
-  },
-  consume_rage_for_extra_damage_chi: {
-    id: "consume_rage_for_extra_damage_chi",
-    uniqueId: "consume_rage",
-    genre: "bodyforge",
-    rank: 1,
-    category: ["attack"],
-    description: "affix_consume_rage_for_extra_damage_chi",
-    keywords: ["status_energy_positive_unarmed"],
-    damageType: "chi",
-    resourceType: "energy_positive_unarmed",
-    script: "consume_energy_for_extra_damage",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 5,
-        increment: 0.3,
-      },
-    ],
-  },
-  consume_mana_for_extra_damage_elemental: {
-    id: "consume_mana_for_extra_damage_elemental",
-    uniqueId: "consume_mana",
+
+  // 降抗词条：降低对手元素抗性（以弱点形式附加，持续本场战斗，与抗性互相抵消）
+  reduce_resist_fire: {
+    id: "reduce_resist_fire",
+    uniqueId: "reduce_resist",
     genre: "spellcraft",
     rank: 1,
     category: ["attack"],
-    description: "affix_consume_mana_for_extra_damage_elemental",
-    keywords: ["status_energy_positive_spell"],
-    damageType: "elemental",
-    resourceType: "energy_positive_spell",
-    script: "consume_energy_for_extra_damage",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 5,
-        increment: 0.3,
-      },
-    ],
+    description: "affix_reduce_resist_fire",
+    keywords: ["status_weakness_fire"],
+    damageType: "fire",
+    script: "reduce_resist",
+    valueData: [{ base: 5, increment: 1 }],
   },
-  consume_karma_for_extra_damage_psychic: {
-    id: "consume_karma_for_extra_damage_psychic",
-    uniqueId: "consume_karma",
-    genre: "avatar",
+  reduce_resist_ice: {
+    id: "reduce_resist_ice",
+    uniqueId: "reduce_resist",
+    genre: "spellcraft",
     rank: 1,
     category: ["attack"],
-    description: "affix_consume_karma_for_extra_damage_psychic",
-    keywords: ["status_energy_positive_curse"],
-    damageType: "psychic",
-    resourceType: "energy_positive_curse",
-    script: "consume_energy_for_extra_damage",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 5,
-        increment: 0.3,
-      },
-    ],
+    description: "affix_reduce_resist_ice",
+    keywords: ["status_weakness_ice"],
+    damageType: "ice",
+    script: "reduce_resist",
+    valueData: [{ base: 5, increment: 1 }],
+  },
+  reduce_resist_lightning: {
+    id: "reduce_resist_lightning",
+    uniqueId: "reduce_resist",
+    genre: "spellcraft",
+    rank: 1,
+    category: ["attack"],
+    description: "affix_reduce_resist_lightning",
+    keywords: ["status_weakness_lightning"],
+    damageType: "lightning",
+    script: "reduce_resist",
+    valueData: [{ base: 5, increment: 1 }],
+  },
+  reduce_resist_poison: {
+    id: "reduce_resist_poison",
+    uniqueId: "reduce_resist",
+    genre: "spellcraft",
+    rank: 1,
+    category: ["attack"],
+    description: "affix_reduce_resist_poison",
+    keywords: ["status_weakness_poison"],
+    damageType: "poison",
+    script: "reduce_resist",
+    valueData: [{ base: 5, increment: 1 }],
   },
 
   by_damage_heal: {
@@ -316,27 +264,5 @@
     description: "affix_for_perception_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
-  },
-
-  // 加持额外词条
-  consume_vigor_gain_defense: {
-    id: "consume_vigor_gain_defense",
-    uniqueId: "consume_vigor",
-    category: ["buff", "attack"],
-    description: "affix_consume_vigor_gain_defense",
-    keywords: ["status_defense"],
-    damageType: "physical",
-    script: "consume_vigor_gain_defense",
-    rank: 1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.05,
-      },
-      {
-        base: 12,
-        increment: 1,
-      },
-    ],
   },
 }
