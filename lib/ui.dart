@@ -17,32 +17,28 @@ import 'widgets/character/profile.dart';
 export 'package:samsara/colors.dart';
 export 'widgets/ui_overlay.dart';
 
-const double _kTextShadowOffset = 0.5;
+const double _kTextShadowOffset = 2;
 
 const List<Shadow> kTextShadows = [
   Shadow(
     // bottomLeft
     offset: Offset(-_kTextShadowOffset, -_kTextShadowOffset),
     color: Colors.black,
-    blurRadius: 2.5,
   ),
   Shadow(
     // bottomRight
     offset: Offset(_kTextShadowOffset, -_kTextShadowOffset),
     color: Colors.black,
-    blurRadius: 2.5,
   ),
   Shadow(
     // topRight
     offset: Offset(_kTextShadowOffset, _kTextShadowOffset),
     color: Colors.black,
-    blurRadius: 2.5,
   ),
   Shadow(
     // topLeft
     offset: Offset(-_kTextShadowOffset, _kTextShadowOffset),
     color: Colors.black,
-    blurRadius: 2.5,
   ),
 ];
 

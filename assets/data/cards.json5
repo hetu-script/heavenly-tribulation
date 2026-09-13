@@ -80,7 +80,14 @@
         increment: 0.05,
       },
     ],
-    affixes: ["defend", "heal"],
+    affixes: [
+      "defend",
+      "heal",
+      "speed_quick",
+      "dodge_nimble",
+      "gain_resource_ward",
+      "gain_resource_ultimate",
+    ],
   },
 
   // ------------通用·攻击------------
