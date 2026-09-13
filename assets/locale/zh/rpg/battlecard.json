@@ -114,8 +114,6 @@
   "affix_spell_attack_exhaust_mana_ice": "消耗 {0} 灵气: 法术攻击造成 {1} 寒冰伤害",
   "affix_spell_attack_exhaust_mana_lightning": "消耗 {0} 灵气: 法术攻击造成 {1} 雷电伤害",
   "affix_spell_attack_exhaust_mana_physical": "消耗 {0} 灵气: 法术攻击造成 {1} 物理伤害",
-  "affix_spell_attack_ice_dot": "消耗 {0} 灵气: 法术攻击造成 {1} 寒冰伤害\n对手冰缓 +{2}",
-  "affix_spell_attack_poison_dot": "消耗 {0} 灵气: 法术攻击造成 {1} 毒素伤害\n对手中毒 +{2}",
   "affix_attack_curse_exhaust_karma": "消耗 {0} 煞气: 咒术攻击造成 {1} 精神伤害",
   "affix_defend": "护甲 +{0}",
   "affix_defend_exhaust_mana": "消耗 {0} 灵气: 护甲 +{1}",

@@ -84,19 +84,6 @@ namespace CardScriptMain {
     })
     opponent.addStatusEffect('dodge_clumsy', amount: affix.value[2])
   }
-  /// 攻击附带元素持续伤害，消耗资源
-  async function attack_element_dot_exhaust(self, opponent, affix) {
-    self.removeStatusEffect(affix.resourceType, amount: affix.value[0])
-    await characterAnimate(self, affix.animation)
-    await opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: affix.value[1],
-    })
-    opponent.addStatusEffect('element_dot_${affix.damageType}', amount: affix.value[2])
-  }
   /// 多次攻击消耗资源
   async function attack_multiple_exhaust(self, opponent, affix) {
     self.removeStatusEffect(affix.resourceType, amount: affix.value[0])

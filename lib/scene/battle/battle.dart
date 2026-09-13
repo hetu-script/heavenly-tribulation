@@ -250,7 +250,7 @@ class BattleScene extends Scene {
     }
 
     Map<String, int> opponentPrebattleStatus = {};
-    for (final statusId in kOpponentStatusOnCircumstance) {
+    for (final statusId in kStatusOnCircumstance) {
       final passiveId = '${circumstance.name}_with_opponent_$statusId';
       final passiveData = character.data['passives'][passiveId];
       if (passiveData != null) {

@@ -37,6 +37,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
               positionalArgs[0],
               playSound: namedArgs['playSound'] ?? false,
               isHeal: namedArgs['isHeal'] ?? false,
+              damageType: namedArgs['damageType'],
             );
       case 'takeDamage':
         return ({object, positionalArgs, namedArgs}) {
@@ -77,6 +78,9 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'hasStatusEffect':
         return ({object, positionalArgs, namedArgs}) =>
             character.hasStatusEffect(positionalArgs.first);
+      case 'getElementalResist':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.getElementalResist(positionalArgs.first);
       case 'removeStatusEffect':
         return ({object, positionalArgs, namedArgs}) =>
             character.removeStatusEffect(

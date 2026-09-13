@@ -45,6 +45,10 @@ class Constants extends HTExternalClass {
         return kBaseCritChance;
       case 'Constants.baseCritMultiplier':
         return kBaseCritMultiplier;
+      case 'Constants.baseAilmentChance':
+        return kBaseAilmentChance;
+      case 'Constants.baseAilmentMultiplier':
+        return kBaseAilmentMultiplier;
       case 'Constants.baseTurnActionThreshold':
         return kBaseTurnActionThreshold;
       case 'Constants.maxTurnActionThreshold':

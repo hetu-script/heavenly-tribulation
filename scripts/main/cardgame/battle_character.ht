@@ -24,7 +24,9 @@ external class BattleCharacter {
 
   function addHintText(text, {color: string})
 
-  function changeLife(value: integer, {playSound: bool = false, changeLife: bool = false})
+  function changeLife(value: integer, {playSound: bool = false, isHeal: bool = false, damageType: string})
+
+  function getElementalResist(damageType: string) -> int
 
   async function takeDamage(details) -> integer
 

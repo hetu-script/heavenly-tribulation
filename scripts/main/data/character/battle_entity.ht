@@ -362,10 +362,15 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.critChance = Constants.baseCritChance + character.passives.critChance?.value + character.ephemeralPassives.critChance?.value
   character.stats.critMultiplier = Constants.baseCritMultiplier + character.passives.critMultiplier?.value + character.ephemeralPassives.critMultiplier?.value
 
-  character.stats.fireResist = character.passives.fireResist?.value + character.ephemeralPassives.fireResist?.value
-  character.stats.iceResist = character.passives.iceResist?.value + character.ephemeralPassives.iceResist?.value
-  character.stats.lightningResist = character.passives.lightningResist?.value + character.ephemeralPassives.lightningResist?.value
-  character.stats.poisonResist = character.passives.poisonResist?.value + character.ephemeralPassives.poisonResist?.value
+  // 元素异常：几率与伤害倍率，百分比整数制
+  character.stats.ailmentChance = Constants.baseAilmentChance + character.passives.ailmentChance?.value + character.ephemeralPassives.ailmentChance?.value
+  character.stats.ailmentMultiplier = Constants.baseAilmentMultiplier + character.passives.ailmentMultiplier?.value + character.ephemeralPassives.ailmentMultiplier?.value
+
+  // 全元素抗性折算进每一个单抗，属性面板不单独显示全抗
+  character.stats.fireResist = character.passives.fireResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.fireResist?.value + character.ephemeralPassives.elementalResist?.value
+  character.stats.iceResist = character.passives.iceResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.iceResist?.value + character.ephemeralPassives.elementalResist?.value
+  character.stats.lightningResist = character.passives.lightningResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.lightningResist?.value + character.ephemeralPassives.elementalResist?.value
+  character.stats.poisonResist = character.passives.poisonResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.poisonResist?.value + character.ephemeralPassives.elementalResist?.value
 
   character.stats.fireResistMax = character.fireResistMax + character.passives.fireResistMax?.value + character.ephemeralPassives.fireResistMax?.value
   character.stats.iceResistMax = character.iceResistMax + character.passives.iceResistMax?.value + character.ephemeralPassives.iceResistMax?.value

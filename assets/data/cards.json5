@@ -776,6 +776,39 @@
       },
     ],
   },
+  ice_block: {
+    id: "ice_block",
+    genre: "spellcraft",
+    category: "attack",
+    kind: "waterbend",
+    resourceType: "energy_positive_spell",
+    cardType: "spell",
+    damageType: "ice",
+    elementType: "element_water",
+    tags: ["element"],
+    rank: 1,
+    description: "affix_spell_attack_exhaust_mana_ice",
+    image: "battlecard/illustration/spellcraft_ice_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      // 占位音效，暂无冰系专属资源
+      overlays: "ice_block",
+      sound: "wind-1-44149.mp3",
+    },
+    script: "attack_exhaust",
+    keywords: ["exhaustResource"],
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 15,
+        increment: 1.5,
+      },
+    ],
+  },
   fireball: {
     id: "fireball",
     genre: "spellcraft",
@@ -969,79 +1002,6 @@
       {
         base: 15,
         increment: 0.75,
-      },
-    ],
-  },
-  ice_blade: {
-    id: "ice_blade",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "waterbend",
-    resourceType: "energy_positive_spell",
-    cardType: "spell",
-    damageType: "ice",
-    elementType: "element_water",
-    tags: ["element"],
-    rank: 1,
-    description: "affix_spell_attack_ice_dot",
-    // 占位插画与音效，暂无冰系专属资源
-    image: "battlecard/illustration/spellcraft_water.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      sound: "wind-1-44149.mp3",
-    },
-    script: "attack_element_dot_exhaust",
-    keywords: ["exhaustResource", "status_element_dot_ice"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 15,
-        increment: 1.5,
-      },
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  poison_vine: {
-    id: "poison_vine",
-    genre: "spellcraft",
-    category: "attack",
-    kind: "plant_control",
-    resourceType: "energy_positive_spell",
-    cardType: "spell",
-    damageType: "poison",
-    elementType: "element_wood",
-    tags: ["element"],
-    rank: 1,
-    description: "affix_spell_attack_poison_dot",
-    // 占位插画与音效，暂无毒系专属资源
-    image: "battlecard/illustration/spellcraft_wood_defend.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "poison",
-      sound: "timber-tree-falling-1-40384.mp3",
-    },
-    script: "attack_element_dot_exhaust",
-    keywords: ["exhaustResource", "status_element_dot_poison"],
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 12,
-        increment: 1.2,
-      },
-      {
-        base: 2,
-        increment: 0.2,
       },
     ],
   },

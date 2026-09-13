@@ -91,6 +91,11 @@
   "critMultiplier": "暴击伤害",
   "critMultiplier_description": "基础为 150%。只有物理伤害可以暴击。",
 
+  "ailmentChance": "元素异常几率",
+  "ailmentChance_description": "基础为 15%。每造成满 10 点元素伤害，独立判定一次元素异常。",
+  "ailmentMultiplier": "元素异常伤害",
+  "ailmentMultiplier_description": "基础为 100%。放大你施加的元素异常造成的伤害。",
+
   "quickThreshold": "连续行动的速度阈值",
   "quickThreshold_description": "回合结束时，消耗阈值数量的速度，并获得一个额外回合。\n行动阈值最大 15， 最小 5",
   "slowThreshold": "跳过回合的缓慢阈值",

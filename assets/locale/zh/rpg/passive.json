@@ -78,6 +78,7 @@
   "passive_ice_resist_description": "寒冰抗性 {0}%",
   "passive_lightning_resist_description": "雷电抗性 {0}%",
   "passive_poison_resist_description": "毒素抗性 {0}%",
+  "passive_elemental_resist_description": "全元素抗性 {0}%",
   "passive_all_resist_max_description": "所有抗性上限 {0}%",
   "passive_fire_resist_max_description": "火焰抗性上限 {0}%",
   "passive_ice_resist_max_description": "寒冰抗性上限 {0}%",
@@ -153,5 +154,7 @@
   "passive_decreaseTribulationDifficulty_description": "降低天道技能境界节点突破试炼的难度",
   "passive_penetration_description": "攻击穿透 {0}（只作用于物理和真气伤害）",
   "passive_crit_chance_description": "暴击率 {0}%",
-  "passive_crit_multiplier_description": "暴击伤害 {0}%"
+  "passive_crit_multiplier_description": "暴击伤害 {0}%",
+  "passive_ailment_chance_description": "元素异常几率 {0}%",
+  "passive_ailment_multiplier_description": "元素异常伤害 {0}%"
 }

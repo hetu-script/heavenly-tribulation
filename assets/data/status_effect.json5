@@ -9,15 +9,14 @@
 
   // 所有类型的攻击增强，每有一点，造成的伤害增加 1%
   // 攻击增强是永久效果，并且可以从装备、天赋等场合获得
+  // 阶段4.5：脚本退役，结算收敛进 takeDamage（乘区1 直接读取状态净值），此处仅作计数与展示
   enhance_unarmed: {
     id: "enhance_unarmed",
     title: "status_enhance_unarmed",
     description: "status_enhance_unarmed_description",
     icon: "icon/status/permanent/enhance_unarmed.png",
     cardType: "unarmed",
-    script: "enhance",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   enhance_weapon: {
     id: "enhance_weapon",
@@ -25,9 +24,7 @@
     description: "status_enhance_weapon_description",
     icon: "icon/status/permanent/enhance_weapon.png",
     cardType: "weapon",
-    script: "enhance",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   enhance_spell: {
     id: "enhance_spell",
@@ -35,9 +32,7 @@
     description: "status_enhance_spell_description",
     icon: "icon/status/permanent/enhance_spell.png",
     cardType: "spell",
-    script: "enhance",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   enhance_curse: {
     id: "enhance_curse",
@@ -45,21 +40,18 @@
     description: "status_enhance_curse_description",
     icon: "icon/status/permanent/enhance_curse.png",
     cardType: "curse",
-    script: "enhance",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
 
   // 所有类型的攻击削弱，每有一点，造成的伤害减少 1%
+  // 阶段4.5：脚本退役，结算收敛进 takeDamage（恢复 cardType 匹配，weaken 只削弱对应类型的攻击）
   weaken_unarmed: {
     id: "weaken_unarmed",
     title: "status_weaken_unarmed",
     description: "status_weaken_unarmed_description",
     icon: "icon/status/permanent/weaken_unarmed.png",
     cardType: "unarmed",
-    script: "weaken",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   weaken_weapon: {
     id: "weaken_weapon",
@@ -67,9 +59,7 @@
     description: "status_weaken_weapon_description",
     icon: "icon/status/permanent/weaken_weapon.png",
     cardType: "weapon",
-    script: "weaken",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   weaken_spell: {
     id: "weaken_spell",
@@ -77,9 +67,7 @@
     description: "status_weaken_spell_description",
     icon: "icon/status/permanent/weaken_spell.png",
     cardType: "spell",
-    script: "weaken",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
   weaken_curse: {
     id: "weaken_curse",
@@ -87,9 +75,7 @@
     description: "status_weaken_curse_description",
     icon: "icon/status/permanent/weaken_curse.png",
     cardType: "curse",
-    script: "weaken",
     isPermanent: true,
-    callbacks: ["self_doing_damage"],
   },
 
   // 所有类型的伤害增加
@@ -245,15 +231,14 @@
   },
 
   // 四元素抗性（占位图标沿用旧图标，美术后续替换）
+  // 阶段4.5：脚本退役，结算收敛进 takeDamage / getElementalResist（状态净值即真值），此处仅作计数与展示
   resistant_fire: {
     id: "resistant_fire",
     title: "status_resist_fire",
     description: "status_resist_fire_description",
     icon: "icon/status/permanent/resistant_fire.png",
     damageType: "fire",
-    script: "resistant",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   resistant_ice: {
     id: "resistant_ice",
@@ -261,9 +246,7 @@
     description: "status_resist_ice_description",
     icon: "icon/status/permanent/resistant_ice.png",
     damageType: "ice",
-    script: "resistant",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   resistant_lightning: {
     id: "resistant_lightning",
@@ -271,9 +254,7 @@
     description: "status_resist_lightning_description",
     icon: "icon/status/permanent/resistant_lightning.png",
     damageType: "lightning",
-    script: "resistant",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   resistant_poison: {
     id: "resistant_poison",
@@ -281,9 +262,16 @@
     description: "status_resist_poison_description",
     icon: "icon/status/permanent/resistant_poison.png",
     damageType: "poison",
-    script: "resistant",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
+  },
+  // 全元素抗性：战斗内全元素修正，经 getElementalResist 状态净值生效
+  resistant_elemental: {
+    id: "resistant_elemental",
+    title: "status_resist_elemental",
+    description: "status_resist_elemental_description",
+    icon: "icon/status/permanent/resistant_elemental.png",
+    damageType: "elemental",
+    isPermanent: true,
   },
 
   // 四元素弱点（占位图标沿用旧图标，美术后续替换）
@@ -293,9 +281,7 @@
     description: "status_weakness_fire_description",
     icon: "icon/status/permanent/weakness_fire.png",
     damageType: "fire",
-    script: "weakness",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   weakness_ice: {
     id: "weakness_ice",
@@ -303,9 +289,7 @@
     description: "status_weakness_ice_description",
     icon: "icon/status/permanent/weakness_ice.png",
     damageType: "ice",
-    script: "weakness",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   weakness_lightning: {
     id: "weakness_lightning",
@@ -313,9 +297,7 @@
     description: "status_weakness_lightning_description",
     icon: "icon/status/permanent/weakness_lightning.png",
     damageType: "lightning",
-    script: "weakness",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
   },
   weakness_poison: {
     id: "weakness_poison",
@@ -323,9 +305,16 @@
     description: "status_weakness_poison_description",
     icon: "icon/status/permanent/weakness_poison.png",
     damageType: "poison",
-    script: "weakness",
     isPermanent: true,
-    callbacks: ["self_taking_damage"],
+  },
+  // 全元素弱点：与全元素抗性互斥抵消
+  weakness_elemental: {
+    id: "weakness_elemental",
+    title: "status_weakness_elemental",
+    description: "status_weakness_elemental_description",
+    icon: "icon/status/permanent/weakness_elemental.png",
+    damageType: "elemental",
+    isPermanent: true,
   },
 
   // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
@@ -447,7 +436,7 @@
     icon: "icon/status/injury_when_buff.png",
     script: "injury_internal",
     isDebuff: true,
-    callbacks: ["self_used_card", "self_gain_energy_positive"],
+    callbacks: ["self_used_card", "self_gained_energy_positive"],
   },
   injury_hallucination: {
     id: "injury_hallucination",
@@ -456,12 +445,12 @@
     icon: "icon/status/slow_and_clumsy_when_turn_start.png",
     script: "injury_hallucination",
     isDebuff: true,
-    callbacks: ["self_turn_start"],
+    callbacks: ["self_turn_start", "self_gained_energy_positive"],
   },
 
   // 元素持续伤害（DOT）：统一参数化脚本 element_dot
-  // dotDamage = 回合开始时每层失去的生命（0 表示不扣血）；decay = 回合结束时移除的层数（0 表示不衰减）
-  // 灼伤：稳定燃烧
+  // dotDamage = 固定伤害数值（感电为脚本内随机 1~10）；消耗逻辑全部内联进脚本
+  // 点燃：回合开始时受到固定 5 点火焰伤害，同时消耗 1 层（层数=剩余触发次数）
   element_dot_fire: {
     id: "element_dot_fire",
     title: "status_element_dot_fire",
@@ -469,12 +458,11 @@
     icon: "icon/status/injury_when_turn_start.png",
     damageType: "fire",
     dotDamage: 5,
-    decay: 1,
     script: "element_dot",
     isDebuff: true,
-    callbacks: ["self_turn_start", "self_turn_end"],
+    callbacks: ["self_turn_start"],
   },
-  // 感电：每层随机 1~10 伤害单独跳字，回合结束随机消耗层数（脚本内特判）
+  // 感电：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
   element_dot_lightning: {
     id: "element_dot_lightning",
     title: "status_element_dot_lightning",
@@ -482,36 +470,33 @@
     icon: "icon/status/status_placeholder.png",
     damageType: "lightning",
     dotDamage: 0,
-    decay: 0,
     script: "element_dot",
     isDebuff: true,
-    callbacks: ["self_turn_start", "self_turn_end"],
+    callbacks: ["self_turn_start"],
   },
-  // 冰缓：不扣血；回合结束时所有层一次性分别随机转化为缓慢或迟钝（脚本内特判，转化后状态全部消耗）
+  // 冰缓：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并分别随机转化为缓慢或迟钝
   element_dot_ice: {
     id: "element_dot_ice",
     title: "status_element_dot_ice",
     description: "status_element_dot_ice_description",
     icon: "icon/status/slow_and_clumsy_when_turn_start.png",
     damageType: "ice",
-    dotDamage: 0,
-    decay: 0,
+    dotDamage: 1,
     script: "element_dot",
     isDebuff: true,
     callbacks: ["self_turn_end"],
   },
-  // 中毒：不衰减；治疗时驱散 1 层（与流血同规则）
+  // 中毒：回合结束时受到固定 5 点毒素伤害，不自动消耗；治疗时驱散 1 层（与流血同规则）
   element_dot_poison: {
     id: "element_dot_poison",
     title: "status_element_dot_poison",
     description: "status_element_dot_poison_description",
     icon: "icon/status/injury_when_attack.png",
     damageType: "poison",
-    dotDamage: 3,
-    decay: 0,
+    dotDamage: 5,
     script: "element_dot",
     isDebuff: true,
-    callbacks: ["self_turn_start", "self_heal"],
+    callbacks: ["self_turn_end", "self_heal"],
   },
 
   enable_chakra: {

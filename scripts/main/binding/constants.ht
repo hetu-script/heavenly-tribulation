@@ -17,6 +17,8 @@ external abstract class Constants {
   static get baseResistMax;
   static get baseCritChance;
   static get baseCritMultiplier;
+  static get baseAilmentChance;
+  static get baseAilmentMultiplier;
   static get baseTurnActionThreshold;
   static get maxTurnActionThreshold;
   static get minTurnActionThreshold;

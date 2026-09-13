@@ -1286,6 +1286,12 @@ const kBaseCritChance = 5;
 /// 基础暴击伤害（百分比整数制，150%）
 const kBaseCritMultiplier = 150;
 
+/// 基础元素异常触发几率（百分比整数制，15%）
+const kBaseAilmentChance = 15;
+
+/// 基础元素异常伤害（百分比整数制，100%）
+const kBaseAilmentMultiplier = 100;
+
 const kBaseTurnActionThreshold = 10;
 const kMaxTurnActionThreshold = 15;
 const kMinTurnActionThreshold = 5;

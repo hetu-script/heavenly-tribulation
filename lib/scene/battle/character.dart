@@ -7,6 +7,7 @@ import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../global.dart';
 import '../../data/game.dart';
+import '../../data/common.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
 import '../../logic/logic.dart';
@@ -270,6 +271,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
+  /// 元素抗性唯一真值来源：resistant/weakness 状态净值（含全元素对），上限 75
+  /// 战斗开始时 stats（含全抗折算）已转换为 resistant_X 永久图标，故不再读 stats
+  /// 允许负抗性（定案）：弱点净值超过抗性时伤害加深，与 weakness 既有语义一致
+  int getElementalResist(String damageType) {
+    int resist = hasStatusEffect('resistant_$damageType');
+    resist -= hasStatusEffect('weakness_$damageType');
+    resist += hasStatusEffect('resistant_elemental');
+    resist -= hasStatusEffect('weakness_elemental');
+    return resist > kBaseResistMax ? kBaseResistMax : resist;
+  }
+
   /// 非永久效果位置在血条上方
   void reArrangeOtherEffects() {
     for (var i = 0; i < otherEffects.length; ++i) {
@@ -522,10 +534,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (handleCallback) {
       if (id.startsWith('energy_positive')) {
+        // 触发回调时传入资源 id 与数量，脚本可据此区分具体的阳气种类
+        final energyDetails = {'id': id, 'amount': amount};
         // 触发对方获得阳气后的效果
-        opponent!.handleStatusEffectCallback('opponent_gained_energy_positive');
+        opponent!.handleStatusEffectCallback(
+            'opponent_gained_energy_positive', energyDetails);
         // 触发自己获得阳气后的效果
-        handleStatusEffectCallback('self_gained_energy_positive');
+        handleStatusEffectCallback(
+            'self_gained_energy_positive', energyDetails);
       } else if (effectData['isDebuff'] == true) {
         // 一次获得多层只触发一次；debuffDetails 在双方回调间共享，
         // 脚本（如清气 energy_positive_ward）可写入 cancelDebuff 取消本次获得
@@ -624,7 +640,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 增加或减少指定的生命
-  void changeLife(int value, {bool playSound = false, bool isHeal = false}) {
+  /// damageType 用于跳字着色（DOT 等脚本侧伤害传入）
+  void changeLife(int value,
+      {bool playSound = false, bool isHeal = false, String? damageType}) {
     if (value == 0) return;
 
     final currentLifeMax = math.max(life, lifeMax);
@@ -658,7 +676,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       addHintText(
         '${engine.locale('life')} -${life - hp}',
-        color: Colors.pink,
+        color: damageType != null ? getDamageColor(damageType) : Colors.pink,
       );
     }
 
@@ -683,9 +701,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 而是对 baseChange 和 percentageChange 进行修改
   /// 最终伤害计算方法
   /// (baseValue + baseValueChange) * (1 + percentageChange1) * (1 + percentageChange2) * (1 + percentageChange3)
-  /// 乘区1: 攻击增强，攻击削弱，抗性，弱点，伤害增加，乘区1最小值为-0.75，也就是说最小伤害是0.25
+  /// 乘区1: 攻击增强，攻击削弱（图标净值，在下方结算），伤害增加，乘区1最小值为-0.75，也就是说最小伤害是0.25
   /// 乘区2: 从闪避中获得的免疫，从迟钝中获得的踉跄
   /// 乘区3: 正气的伤害增加，戾气的伤害减少
+  /// 元素抗性在乘区结算之后按状态净值单独结算（元素无视护甲，不进护甲分支）
   int takeDamage(dynamic damageDetails, {bool recovery = true}) {
     assert(damageDetails['baseValue'] > 0);
     assert(opponent != null && opponent!.cardFlags['damage'] != null);
@@ -733,6 +752,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     baseDamage += baseChange;
 
     num percentage1 = damageDetails['percentageChange1'];
+    // 攻击增强/削弱（阶段4.5收敛：脚本退役，直接读取攻击方状态净值，图标即真值）
+    // 恢复 weaken 的 cardType 匹配：weaken_weapon 只削弱武器攻击，与 enhance 对称
+    final String? cardType = damageDetails['cardType'];
+    if (cardType != null) {
+      final int enhanceNet = opponent!.hasStatusEffect('enhance_$cardType') -
+          opponent!.hasStatusEffect('weaken_$cardType');
+      if (enhanceNet != 0) percentage1 += 0.01 * enhanceNet;
+    }
     if (percentage1 < kDamagePercentageMin) percentage1 = kDamagePercentageMin;
     num percentage2 = damageDetails['percentageChange2'];
     num percentage3 = damageDetails['percentageChange3'];
@@ -744,6 +771,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       engine.error(
           'unexpected: calculated damage < 0 on damage details: \n${damageDetails.toString()}');
       finalDamage = 0;
+    }
+
+    // 元素抗性：四种元素伤害在乘区结算后按状态净值减免（允许负抗性加深伤害）
+    final bool isElemental = damageType == 'fire' ||
+        damageType == 'ice' ||
+        damageType == 'lightning' ||
+        damageType == 'poison';
+    if (finalDamage > 0 && isElemental) {
+      final int resist = getElementalResist(damageType);
+      finalDamage = (finalDamage * (1 - 0.01 * resist)).round();
     }
 
     // 暴击：只有物理伤害可以暴击，独立乘区，在护甲扣除之前计入
@@ -825,6 +862,25 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       opponent!.cardFlags['damage']['total'] += finalDamage;
       opponent!.turnFlags['totalDamage'] += finalDamage;
+    }
+
+    // 元素异常触发：每满 10 点最终元素伤害独立判定一次，每次成功 +1 层
+    if (finalDamage > 0 && isElemental) {
+      final attackerStats = opponent!.data['stats'];
+      final int ailmentChance = (attackerStats['ailmentChance'] ?? 0).toInt();
+      final int rolls = finalDamage ~/ 10;
+      int stacks = 0;
+      for (int i = 0; i < rolls; ++i) {
+        if (random.nextInt(100) < ailmentChance) stacks += 1;
+      }
+      if (stacks > 0) {
+        final ailmentId = 'element_dot_$damageType';
+        addStatusEffect(ailmentId, amount: stacks);
+        // 写入施加方的异常伤害倍率（以最后一次触发为准）
+        _statusEffects[ailmentId]?.data['ailmentMultiplier'] =
+            (attackerStats['ailmentMultiplier'] ?? kBaseAilmentMultiplier)
+                .toInt();
+      }
     }
 
     damageDetails['finalDamage'] = finalDamage;

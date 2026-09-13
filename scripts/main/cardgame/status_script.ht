@@ -134,20 +134,6 @@ namespace StatusScript {
     details.percentageChange2 += 0.75
   }
 
-  function enhance_self_doing_damage(self, opponent, effect, details) {
-    if (effect.cardType != details.cardType) return
-    
-    let percentage = 0.01 * effect.amount
-    details.percentageChange1 += percentage
-  }
-
-  function weaken_self_doing_damage(self, opponent, effect, details) {
-    // if (effect.cardType != details.cardType) return
-    
-    let percentage = -0.01 * effect.amount
-    details.percentageChange1 += percentage
-  }
-
   /// 穿透：每层 +1%，只作用于物理和真气伤害
   function penetration_self_doing_damage(self, opponent, effect, details) {
     if (details.damageType != 'physical' && details.damageType != 'chi') return
@@ -157,20 +143,6 @@ namespace StatusScript {
 
   function increase_damage_self_doing_damage(self, opponent, effect, details) {
     if (effect.kind != details.kind) return
-    
-    let percentage = 0.01 * effect.amount
-    details.percentageChange1 += percentage
-  }
-
-  function resistant_self_taking_damage(self, opponent, effect, details) {
-    if (effect.damageType != details.damageType) return
-    
-    let percentage = -0.01 * effect.amount
-    details.percentageChange1 += percentage
-  }
-
-  function weakness_self_taking_damage(self, opponent, effect, details) {
-    if (effect.damageType != details.damageType) return
     
     let percentage = 0.01 * effect.amount
     details.percentageChange1 += percentage
@@ -235,7 +207,9 @@ namespace StatusScript {
     self.changeLife(-effect.amount * 5)
   }
 
-  function injury_internal_self_gain_energy_positive(self, opponent, effect, details) {
+  /// 内伤：每次获得元气时，减少 1 层内伤
+  function injury_internal_self_gained_energy_positive(self, opponent, effect, details) {
+    if (details.id != 'energy_positive_life') return
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
@@ -248,30 +222,42 @@ namespace StatusScript {
     }
   }
 
-  /// 元素持续伤害（DOT）统一脚本：回合开始按层扣血（受对应抗性减免、弱点加深，抗性上限 75%），回合结束按 decay 衰减
-  /// 感电特判：每层随机 1~10 伤害、单独跳字，回合结束随机消耗 1~当前层数
-  /// 冰缓特判：回合结束时所有层一次性分别随机转化为缓慢（speed_slow）或迟钝（dodge_clumsy），随后全部消耗
-  /// 中毒特判：不衰减，治疗时驱散 1 层
+  /// 幻觉：每次获得灵气（含无极之气）时，减少 1 层幻觉
+  function injury_hallucination_self_gained_energy_positive(self, opponent, effect, details) {
+    if (details.id != 'energy_positive_spell' && details.id != 'energy_positive_ultimate') return
+    self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  /// 元素持续伤害（DOT）统一脚本
+  /// 伤害受对应元素抗性减免（抗性净值由 getElementalResist 给出，含全元素抗性，上限 75%，允许负抗性加深），
+  /// 并受施加方的元素异常伤害倍率（ailmentMultiplier）放大
+  /// 点燃（火）：回合开始时受到固定 5 点火焰伤害，同时消耗 1 层（层数=剩余触发次数）
+  /// 感电（雷）：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
+  /// 冰缓（冰）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并分别随机转化为缓慢或迟钝
+  /// 中毒（毒）：回合结束时受到固定 5 点毒素伤害，不自动消耗；治疗时驱散 1 层（与流血同规则）
   function element_dot_self_turn_start(self, opponent, effect, details) {
-    if (effect.damageType == 'ice') return
-    let resist = self.hasStatusEffect('resistant_${effect.damageType}') - self.hasStatusEffect('weakness_${effect.damageType}')
-    if (resist > 75) resist = 75
-    let factor = 1 - 0.01 * resist
-    if (factor < 0) factor = 0
+    final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
+    final multiplier = (effect.ailmentMultiplier ?? 100) / 100
     if (effect.damageType == 'lightning') {
       for (final i in range(effect.amount)) {
-        final dmg = ((random.nextInt(10) + 1) * factor).round()
-        if (dmg > 0) self.changeLife(-dmg)
+        final dmg = ((random.nextInt(10) + 1) * multiplier * factor).round()
+        if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
       }
-    } else {
-      final dmg = (effect.amount * effect.dotDamage * factor).round()
-      if (dmg > 0) self.changeLife(-dmg)
+      self.removeStatusEffect(effect.id)
+    } else if (effect.damageType == 'fire') {
+      final dmg = (effect.dotDamage * multiplier * factor).round()
+      if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
+      self.removeStatusEffect(effect.id, amount: 1)
     }
   }
 
   function element_dot_self_turn_end(self, opponent, effect, details) {
+    final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
+    final multiplier = (effect.ailmentMultiplier ?? 100) / 100
     if (effect.damageType == 'ice') {
       for (final i in range(effect.amount)) {
+        final dmg = (effect.dotDamage * multiplier * factor).round()
+        if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
         if (random.nextBool()) {
           self.addStatusEffect('speed_slow', amount: 1)
         } else {
@@ -279,14 +265,9 @@ namespace StatusScript {
         }
       }
       self.removeStatusEffect(effect.id)
-      return
-    }
-    if (effect.damageType == 'lightning') {
-      self.removeStatusEffect(effect.id, amount: random.nextInt(effect.amount) + 1)
-      return
-    }
-    if (effect.decay > 0) {
-      self.removeStatusEffect(effect.id, amount: effect.decay)
+    } else if (effect.damageType == 'poison') {
+      final dmg = (effect.dotDamage * multiplier * factor).round()
+      if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
     }
   }
 
@@ -363,15 +344,12 @@ namespace StatusScript {
     if (self.data.passives.overflowed_mana_deal_random_element_damage != null) {
       // 随机选择火/冰/雷之一作为伤害类型
       final damageType = random.nextIterable(['fire', 'ice', 'lightning'])
-      // 按 对手抗性 - 弱点 计算减免系数（抗性上限 75%）
-      let resist = opponent.hasStatusEffect('resistant_${damageType}') - opponent.hasStatusEffect('weakness_${damageType}')
-      if (resist > 75) resist = 75
-      let factor = 1 - 0.01 * resist
-      if (factor < 0) factor = 0
+      // 抗性系数统一由 getElementalResist 给出（含全元素抗性，上限 75%）
+      let factor = 1 - 0.01 * opponent.getElementalResist(damageType)
       // 每点溢出 5 点伤害为初值，实机调参
       final damage = (details.overflow * 5 * factor).round()
       if (damage > 0) {
-        opponent.changeLife(-damage)
+        opponent.changeLife(-damage, damageType: damageType)
       }
     }
   }

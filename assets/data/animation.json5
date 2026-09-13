@@ -43,6 +43,12 @@
       height: 112.0,
       stepTime: 0.1,
     },
+    ice_block: {
+      spriteSheet: "overlay/ice_block.png",
+      width: 320.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
     lightning: {
       spriteSheet: "overlay/lightning.png",
       offsetY: -80.0,

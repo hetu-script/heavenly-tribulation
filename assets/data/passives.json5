@@ -308,6 +308,19 @@
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
     keywords: ["status_resist"],
   },
+  // 全元素抗性：折算进每一个单抗，不作为独立面板属性
+  elementalResist: {
+    id: "elementalResist",
+    description: "passive_elemental_resist_description",
+    priority: 4595,
+    increment: 0.25,
+    isItem: true,
+    isItemMain: true,
+    isEphemeral: true,
+    ephemeralType: "defense",
+    kinds: ["armor", "gloves", "boots", "helmet", "shield"],
+    keywords: ["status_resist"],
+  },
 
   // 抗性上限
   fireResistMax: {
@@ -421,6 +434,32 @@
       "ring",
     ],
     keywords: ["status_crit"],
+  },
+
+  // 元素异常几率：每满 10 点元素伤害独立判定一次
+  ailmentChance: {
+    id: "ailmentChance",
+    description: "passive_ailment_chance_description",
+    priority: 4646,
+    increment: 0.5,
+    isItem: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: ["amulet", "ring", "pearl"],
+    keywords: ["status_element_dot"],
+  },
+
+  // 元素异常伤害：放大施加的元素持续伤害
+  ailmentMultiplier: {
+    id: "ailmentMultiplier",
+    description: "passive_ailment_multiplier_description",
+    priority: 4645,
+    increment: 5,
+    isItem: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: ["amulet", "ring", "pearl"],
+    keywords: ["status_element_dot"],
   },
 
   // 护甲保持
