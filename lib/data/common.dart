@@ -1095,22 +1095,22 @@ const List<String> kAttackTypes = [
 final class DamageType {
   static const physical = 'physical';
   static const chi = 'chi';
+  static const psychic = 'psychic';
   static const fire = 'fire';
   static const ice = 'ice';
   static const lightning = 'lightning';
   static const poison = 'poison';
-  static const psychic = 'psychic';
   static const pure = 'pure';
 }
 
 const List<String> kDamageTypes = [
   DamageType.physical,
   DamageType.chi,
+  DamageType.psychic,
   DamageType.fire,
   DamageType.ice,
   DamageType.lightning,
   DamageType.poison,
-  DamageType.psychic,
   DamageType.pure,
 ];
 
@@ -2079,7 +2079,6 @@ const kBattleCardIllustrations = {
   "spellcraft_lightning_attack",
   "spellcraft_water_defend",
   "spellcraft_wood_defend",
-  "spellcraft_xinfa",
   "staff_attack",
   "staff_defend",
   "sword_attack",
@@ -2091,7 +2090,8 @@ const kBattleCardIllustrations = {
   "vitality_power_word_attack",
   "vitality_power_word_defend",
   "vitality_xinfa",
-  "xinfa",
+  "xinfa_common",
+  "xinfa_genre",
 };
 
 const kFragmentGainFromDismantle = {

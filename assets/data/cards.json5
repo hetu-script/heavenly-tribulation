@@ -37,6 +37,7 @@
   // 每个值可能有自己的maxLevel
   // isUnique:
   // 绝世卡牌，属性列表固定，但数值在范围内随机。
+  // 绝世卡牌只能在卡组中放入一张
   // isExalted:
   // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
   // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
@@ -53,36 +54,33 @@
     isUnpackable: true,
   },
 
-  // ------------绝世·攻击------------
-
   // ------------绝世·加持------------
-  // uniquecard_draw: {
-  //   id: "uniquecard_draw",
-  //   uniqueId: "draw",
-  //   category: "buff",
-  //   rank: 1,
-  //   description: "uniquecard_draw_description",
-  //   image: "battlecard/illustration/uniquecard_draw.png",
-  //   animation: {
-  //     startup: "spell_buff",
-  //     overlays: "sigil_buff",
-  //     sound: "spell-of-healing-876",
-  //   },
-  //   script: "draw",
-  //   keywords: ["exhaustResource", "drawCards"],
-  //   valueData: [
-  //     {
-  //       base: 1,
-  //       rankIncrement: 1,
-  //       maxLevel: 0,
-  //     },
-  //     {
-  //       base: 1,
-  //       rankIncrement: 1,
-  //       maxLevel: 0,
-  //     },
-  //   ],
-  // },
+  draw_cards: {
+    id: "draw_cards",
+    uniqueId: "draw_cards",
+    category: "buff",
+    rank: 0,
+    isUnique: true,
+    description: "affix_draw_cards",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876",
+    },
+    script: "draw",
+    keywords: ["exhaustResource", "drawCards"],
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+      {
+        base: 1,
+        increment: 0.05,
+      },
+    ],
+    affixes: ["defend", "heal"],
+  },
 
   // ------------通用·攻击------------
   punch_attack: {
@@ -403,48 +401,6 @@
       },
     ],
   },
-  // 直接回复生命
-  heal: {
-    id: "heal",
-    uniqueId: "heal",
-    category: "buff",
-    kind: "xinfa",
-    description: "affix_heal",
-    image: "battlecard/illustration/xinfa.png",
-    animation: {
-      startup: "spell_buff",
-      overlays: "restore_life",
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "heal",
-    valueData: [
-      {
-        base: 8,
-        increment: 1,
-      },
-    ],
-  },
-  // 获得生命元气
-  vigor: {
-    id: "vigor",
-    uniqueId: "vigor",
-    category: "buff",
-    kind: "xinfa",
-    description: "affix_vigor",
-    keywords: ["status_energy_positive_life"],
-    image: "battlecard/illustration/xinfa.png",
-    animation: {
-      startup: "spell_buff",
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "vigor",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
   speed_quick_defend: {
     id: "speed_quick_defend",
     uniqueId: ["speed_quick", "defend"],
@@ -492,6 +448,165 @@
       {
         base: 8,
         increment: 0.4,
+      },
+    ],
+  },
+  // 回复生命
+  heal: {
+    id: "heal",
+    uniqueId: "heal",
+    category: "buff",
+    kind: "xinfa",
+    description: "affix_heal",
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_life",
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "heal",
+    valueData: [
+      {
+        base: 8,
+        increment: 1,
+      },
+    ],
+  },
+  // 获得元气
+  gain_resource_vigor: {
+    id: "gain_resource_vigor",
+    uniqueId: "common_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    description: "affix_gain_resource_vigor",
+    keywords: ["status_energy_positive_life"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_life",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // 获得正气
+  gain_resource_penetrate: {
+    id: "gain_resource_penetrate",
+    uniqueId: "common_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_resource_penetrate",
+    keywords: ["status_energy_positive_penetrate"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_penetrate",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // 获得豪气
+  gain_resource_crit: {
+    id: "gain_resource_crit",
+    uniqueId: "common_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_resource_crit",
+    keywords: ["status_energy_positive_crit"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_crit",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // 获得清气
+  gain_resource_ward: {
+    id: "gain_resource_ward",
+    uniqueId: "common_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 2,
+    description: "affix_gain_resource_ward",
+    keywords: ["status_energy_positive_ward"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_ward",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // 获得浩然之气
+  gain_resource_shield: {
+    id: "gain_resource_shield",
+    uniqueId: "common_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 3,
+    description: "affix_gain_resource_shield",
+    keywords: ["status_energy_positive_shield"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_shield",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
+  // 获得灵气
+  gain_resource_mana: {
+    id: "gain_resource_mana",
+    uniqueId: "genre_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_resource_mana",
+    keywords: ["status_energy_positive_spell"],
+    image: "battlecard/illustration/xinfa_genre.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_spell",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
       },
     ],
   },
@@ -730,29 +845,6 @@
     ],
   },
   // ------------悟道·加持------------
-  mana: {
-    id: "mana",
-    uniqueId: "mana",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    rank: 1,
-    description: "affix_mana",
-    keywords: ["status_energy_positive_spell"],
-    image: "battlecard/illustration/spellcraft_xinfa.png",
-    animation: {
-      startup: "spell_buff",
-      overlays: "restore_mana",
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "mana",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.3,
-      },
-    ],
-  },
   punch_defend_exhaust_mana: {
     id: "punch_defend_exhaust_mana",
     uniqueId: "defend",
@@ -1091,6 +1183,30 @@
     ],
   },
   // ------------锻体·加持------------
+  // 获得；怒气
+  gain_resource_rage: {
+    id: "gain_resource_rage",
+    uniqueId: "genre_yangqi",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_resource_rage",
+    keywords: ["status_energy_positive_unarmed"],
+    image: "battlecard/illustration/xinfa_genre.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    resourceType: "energy_positive_unarmed",
+    script: "gain_resource",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+      },
+    ],
+  },
   punch_defend_exhaust_rage: {
     id: "punch_defend_exhaust_rage",
     uniqueId: "defend",
@@ -1582,25 +1698,26 @@
     ],
   },
   // ------------御剑·加持------------
-  mana_chakra: {
-    id: "mana_chakra",
-    uniqueId: ["mana", "chakra"],
+  // 获得；剑气
+  gain_resource_chakra: {
+    id: "gain_resource_chakra",
+    uniqueId: "genre_yangqi",
     category: "buff",
-    genre: "swordcraft",
     kind: "xinfa",
     rank: 1,
-    description: "affix_mana_chakra",
-    keywords: ["status_energy_positive_spell", "status_energy_positive_weapon"],
-    image: "battlecard/illustration/xinfa.png",
+    description: "affix_gain_resource_chakra",
+    keywords: ["status_energy_positive_weapon"],
+    image: "battlecard/illustration/xinfa_genre.png",
     animation: {
       startup: "spell_buff",
       overlays: "restore_mana",
       sound: "spell-of-healing-876.mp3",
     },
-    script: "mana_chakra",
+    resourceType: "energy_positive_weapon",
+    script: "gain_resource",
     valueData: [
       {
-        base: 0,
+        base: 1,
         increment: 0.2,
       },
     ],
@@ -1891,7 +2008,7 @@
     kind: "bow",
     cardType: "weapon",
     damageType: "physical",
-    resourceType: "energy_positive_spell",
+    resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_attack_weapon_multiple_exhaust_karma",
     image: "battlecard/illustration/bow_attack.png",
@@ -1926,7 +2043,7 @@
     genre: "vitality",
     kind: "punch",
     damageType: "physical",
-    resourceType: "energy_positive_unarmed",
+    resourceType: "energy_positive_curse",
     rank: 1,
     description: "affix_defend_exhaust_rage",
     image: "battlecard/illustration/punch_defend.png",
@@ -1977,7 +2094,6 @@
   },
   power_word_buff: {
     id: "power_word_buff",
-    uniqueId: "heal",
     genre: "vitality",
     category: "buff",
     kind: "power_word",
@@ -2000,6 +2116,29 @@
       {
         base: 0,
         increment: 1.5,
+      },
+    ],
+  },
+  reduce_resist_poison: {
+    id: "reduce_resist_poison",
+    genre: "vitality",
+    category: "buff",
+    kind: "power_word",
+    resourceType: "energy_positive_curse",
+    rank: 1,
+    description: "affix_reduce_resist_poison",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "magic-smite-6012.mp3",
+    },
+    damageType: "poison",
+    script: "reduce_resist",
+    keywords: ["exhaustResource", "resist"],
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
       },
     ],
   },

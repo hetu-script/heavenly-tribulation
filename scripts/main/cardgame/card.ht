@@ -101,6 +101,7 @@ struct BattleCard {
     mainAffix.isMain = true
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
     this.rank = mainAffix.rank = mainAffixRank
+    this.isUnique = mainAffix.isUnique ?? false
 
     this.affixes = [mainAffix]
     if (mainAffix.kind != null) {

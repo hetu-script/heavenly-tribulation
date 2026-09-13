@@ -544,7 +544,6 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 正气: 攻击后恢复生命
   // 正气: 使用攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
   energy_positive_penetrate: {
     id: "energy_positive_penetrate",
@@ -555,7 +554,6 @@
     isResource: true,
     callbacks: ["self_using_card"],
   },
-  // 豪气: 使用攻击牌时消耗 1 层，本回合获得 20% 防御穿透
   // 豪气: 使用物理攻击牌时消耗 1 层，使本张卡牌必定暴击
   energy_positive_crit: {
     id: "energy_positive_crit",
@@ -659,7 +657,6 @@
     isResource: true,
     callbacks: ["self_turn_start"],
   },
-  // 戾气: 攻击后自身受到伤害
   // 戾气: 回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命
   energy_negative_penetrate: {
     id: "energy_negative_penetrate",

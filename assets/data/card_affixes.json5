@@ -1,86 +1,5 @@
 {
-  // 通用额外词条
-  // 回复生命
-  heal: {
-    id: "heal",
-    uniqueId: "heal",
-    category: ["buff", "attack"],
-    description: "affix_heal",
-    script: "heal",
-    valueData: [
-      {
-        base: 3,
-        increment: 0.5,
-      },
-    ],
-  },
-  // 获得灵气
-  mana: {
-    id: "mana",
-    uniqueId: "mana",
-    category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_mana",
-    keywords: ["status_energy_positive_spell"],
-    script: "mana",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  // 获得生命元气
-  vigor: {
-    id: "vigor",
-    uniqueId: "vigor",
-    category: ["buff", "attack"],
-    description: "affix_vigor",
-    keywords: ["status_energy_positive_life"],
-    script: "vigor",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  // 获得剑气
-  chakra: {
-    id: "chakra",
-    uniqueId: "chakra",
-    genre: "swordcraft",
-    category: ["buff", "attack"],
-    description: "affix_chakra",
-    keywords: ["status_energy_positive_weapon"],
-    script: "chakra",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  rage: {
-    id: "rage",
-    uniqueId: "rage",
-    genre: "bodyforge",
-    category: ["buff", "attack"],
-    description: "affix_rage",
-    keywords: ["status_energy_positive_unarmed"],
-    script: "rage",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-
+  // ------------额外词条·通用------------
   defend: {
     id: "defend",
     uniqueId: "defend",
@@ -96,7 +15,6 @@
       },
     ],
   },
-
   speed_quick: {
     id: "speed_quick",
     uniqueId: "speed_quick",
@@ -125,58 +43,218 @@
       },
     ],
   },
+  // 回复生命
+  heal: {
+    id: "heal",
+    uniqueId: "heal",
+    category: ["buff", "attack"],
+    description: "affix_heal",
+    script: "heal",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+  // 获得元气
+  gain_resource_vigor: {
+    id: "gain_resource_vigor",
+    uniqueId: "common_yangqi",
+    category: ["buff", "attack"],
+    description: "affix_gain_resource_vigor",
+    keywords: ["status_energy_positive_life"],
+    resourceType: "energy_positive_life",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得正气
+  gain_resource_penetrate: {
+    id: "gain_resource_penetrate",
+    uniqueId: "common_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_penetrate",
+    keywords: ["status_energy_positive_penetrate"],
+    resourceType: "energy_positive_penetrate",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得豪气
+  gain_resource_crit: {
+    id: "gain_resource_crit",
+    uniqueId: "common_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_crit",
+    keywords: ["status_energy_positive_crit"],
+    resourceType: "energy_positive_crit",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得清气
+  gain_resource_ward: {
+    id: "gain_resource_ward",
+    uniqueId: "common_yangqi",
+    category: ["buff", "attack"],
+    rank: 2,
+    description: "affix_gain_resource_ward",
+    keywords: ["status_energy_positive_ward"],
+    resourceType: "energy_positive_ward",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得浩然之气
+  gain_resource_shield: {
+    id: "gain_resource_shield",
+    uniqueId: "common_yangqi",
+    category: ["buff", "attack"],
+    rank: 3,
+    description: "affix_gain_resource_shield",
+    keywords: ["status_energy_positive_shield"],
+    resourceType: "energy_positive_shield",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得灵气
+  gain_resource_mana: {
+    id: "gain_resource_mana",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_mana",
+    keywords: ["status_energy_positive_spell"],
+    resourceType: "energy_positive_spell",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得剑气
+  gain_resource_chakra: {
+    id: "gain_resource_chakra",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_chakra",
+    keywords: ["status_energy_positive_weapon"],
+    resourceType: "energy_positive_weapon",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得怒气
+  gain_resource_rage: {
+    id: "gain_resource_rage",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_rage",
+    keywords: ["status_energy_positive_unarmed"],
+    resourceType: "energy_positive_unarmed",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得煞气
+  gain_resource_karma: {
+    id: "gain_resource_karma",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_karma",
+    keywords: ["status_energy_positive_curse"],
+    resourceType: "energy_positive_curse",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得无极之气
+  gain_resource_ultimate: {
+    id: "gain_resource_ultimate",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 3,
+    description: "affix_gain_resource_ultimate",
+    keywords: ["status_energy_positive_ultimate"],
+    resourceType: "energy_positive_ultimate",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
 
-  // 攻击额外词条
+  // 临时升级手牌中的其他卡牌(buff)
 
-  // 降抗词条：降低对手元素抗性（以弱点形式附加，持续本场战斗，与抗性互相抵消）
-  reduce_resist_fire: {
-    id: "reduce_resist_fire",
-    uniqueId: "reduce_resist",
-    genre: "spellcraft",
-    rank: 1,
-    category: ["attack"],
-    description: "affix_reduce_resist_fire",
-    keywords: ["status_weakness_fire"],
-    damageType: "fire",
-    script: "reduce_resist",
-    valueData: [{ base: 5, increment: 1 }],
-  },
-  reduce_resist_ice: {
-    id: "reduce_resist_ice",
-    uniqueId: "reduce_resist",
-    genre: "spellcraft",
-    rank: 1,
-    category: ["attack"],
-    description: "affix_reduce_resist_ice",
-    keywords: ["status_weakness_ice"],
-    damageType: "ice",
-    script: "reduce_resist",
-    valueData: [{ base: 5, increment: 1 }],
-  },
-  reduce_resist_lightning: {
-    id: "reduce_resist_lightning",
-    uniqueId: "reduce_resist",
-    genre: "spellcraft",
-    rank: 1,
-    category: ["attack"],
-    description: "affix_reduce_resist_lightning",
-    keywords: ["status_weakness_lightning"],
-    damageType: "lightning",
-    script: "reduce_resist",
-    valueData: [{ base: 5, increment: 1 }],
-  },
-  reduce_resist_poison: {
-    id: "reduce_resist_poison",
-    uniqueId: "reduce_resist",
-    genre: "spellcraft",
-    rank: 1,
-    category: ["attack"],
-    description: "affix_reduce_resist_poison",
-    keywords: ["status_weakness_poison"],
-    damageType: "poison",
-    script: "reduce_resist",
-    valueData: [{ base: 5, increment: 1 }],
-  },
+  // ------------额外词条·攻击------------
+  // 临时升级卡牌(attack)
+  // upgrade_card: {
+  //   id: "upgrade_card",
+  //   uniqueId: "upgrade_card",
+  //   category: ["buff", "attack"],
+  //   rank: 1,
+  //   description: "affix_upgrade_card",
+  //   script: "upgrade_card",
+  //   valueData: [
+  //     {
+  //       base: 1,
+  //       increment: 0.1,
+  //     },
+  //   ],
+  // },
 
   by_damage_heal: {
     id: "by_damage_heal",

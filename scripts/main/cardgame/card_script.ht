@@ -4,6 +4,21 @@
 /// 这个脚本将会在这张牌被打出时invoke
 
 namespace CardScriptMain {
+
+  /// ------------------------------------------------------------
+  /// 绝世词条
+  /// ------------------------------------------------------------
+  /// 抽牌
+
+  async function draw(self, opponent, affix) {
+    self.drawCards(affix.value[1])
+  }
+
+  /// 降低对手元素抗性（以弱点形式附加，与抗性互相抵消）
+  async function reduce_resist(self, opponent, affix, mainAffix) {
+    opponent.addStatusEffect('weakness_${affix.damageType}', amount: affix.value[0])
+  }
+  
   /// ------------------------------------------------------------
   /// 主词条
   /// ------------------------------------------------------------
@@ -109,26 +124,10 @@ namespace CardScriptMain {
     self.addStatusEffect('defense', amount: affix.value[1])
   }
 
-  /// 获得灵气
-  async function mana(self, opponent, affix) {
-    await characterAnimate(self, affix.animation)
-    self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
-  }
-  /// 获得灵气和剑气
-  async function mana_chakra(self, opponent, affix) {
-    await characterAnimate(self, affix.animation)
-    self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
-    self.addStatusEffect('energy_positive_weapon', amount: affix.value[0])
-  }
   /// 获得生命
   async function heal(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
     await self.changeLife(affix.value[0], isHeal: true)
-  }
-  /// 获得元气
-  async function vigor(self, opponent, affix) {
-    await characterAnimate(self, affix.animation)
-    self.addStatusEffect('energy_positive_life', amount: affix.value[0])
   }
   /// 消耗资源恢复生命，可以超过上限
   async function heal_exhaust(self, opponent, affix) {
@@ -136,6 +135,12 @@ namespace CardScriptMain {
     await characterAnimate(self, affix.animation)
     final regen = (affix.value[1] / 100 * self.lifeMax).round()
     self.changeLife(regen, isHeal: true)
+  }
+  
+  /// 获得阴气或阳气
+  async function gain_resource(self, opponent, affix) {
+    await characterAnimate(self, affix.animation)
+    self.addStatusEffect(affix.resourceType, amount: affix.value[0])
   }
 
   /// 获得速度和防御
@@ -176,15 +181,6 @@ namespace CardScriptMain {
     await characterAnimate(self, affix.animation)
     opponent.setLifeMax(self.lifeMax - affix.value[1])
   }
-
-  /// ------------------------------------------------------------
-  /// 绝世词条
-  /// ------------------------------------------------------------
-  /// 抽牌
-
-  async function draw(self, opponent, affix) {
-    self.drawCards(affix.value[1])
-  }
 }
 
 struct CardScriptExtra {
@@ -194,18 +190,6 @@ struct CardScriptExtra {
   /// ------------------------------------------------------------
 
   /// 通用额外词条
-
-  async function heal(self, opponent, affix, mainAffix) {
-    self.changeLife(affix.value[0], isHeal: true)
-  }
-
-  async function mana(self, opponent, affix, mainAffix) {
-    self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
-  }
-
-  async function vigor(self, opponent, affix, mainAffix) {
-    self.addStatusEffect('energy_positive_life', amount: affix.value[0])
-  }
 
   /// 防御
   async function defend(self, opponent, affix, mainAffix) {
@@ -220,12 +204,16 @@ struct CardScriptExtra {
     self.addStatusEffect('dodge_nimble', amount: affix.value[0])
   }
 
-  /// 攻击额外词条
-
-  /// 降低对手元素抗性（以弱点形式附加，与抗性互相抵消）
-  async function reduce_resist(self, opponent, affix, mainAffix) {
-    opponent.addStatusEffect('weakness_${affix.damageType}', amount: affix.value[0])
+  async function heal(self, opponent, affix, mainAffix) {
+    self.changeLife(affix.value[0], isHeal: true)
   }
+  
+  /// 获得阴气或阳气
+  async function gain_resource(self, opponent, affix, mainAffix) {
+    self.addStatusEffect(affix.resourceType, amount: affix.value[0])
+  }
+
+  /// 攻击额外词条
 
   /// 攻击后每造成10点伤害回复生命
   async function by_damage_heal(self, opponent, affix, mainAffix) {
