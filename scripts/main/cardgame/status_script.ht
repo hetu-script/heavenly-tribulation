@@ -79,7 +79,7 @@ import 'common.ht'
 
 /// 对方/自己再次行动时 opponent/self_extra_turn
 
-struct StatusScript {
+namespace StatusScript {
   function speed_quick_self_turn_end(self, opponent, effect, details) {
     final existed = self.hasStatusEffect('speed_quick')
     final threshold = self.data.stats.quickThreshold

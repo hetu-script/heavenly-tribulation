@@ -526,11 +526,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         // 触发自己获得阳气后的效果
         handleStatusEffectCallback('self_gained_energy_positive');
       } else if (effectData['isDebuff'] == true) {
-        for (var i = 0; i < effect.amount; ++i) {
-          // 触发对方获得永久负面状态后的效果
-          opponent!.handleStatusEffectCallback('opponent_gained_debuff');
-          // 触发自己获得永久负面状态后的效果
-          handleStatusEffectCallback('self_gained_debuff');
+        // 一次获得多层只触发一次；debuffDetails 在双方回调间共享，
+        // 脚本（如清气 energy_positive_ward）可写入 cancelDebuff 取消本次获得
+        final debuffDetails = <String, dynamic>{};
+        // 触发对方获得负面效果后的效果
+        opponent!.handleStatusEffectCallback(
+            'opponent_gained_debuff', debuffDetails);
+        // 触发自己获得负面效果后的效果
+        handleStatusEffectCallback('self_gained_debuff', debuffDetails);
+        if (debuffDetails['cancelDebuff'] == true) {
+          removeStatusEffect(id, amount: amount);
+        } else if (data['passives']['gained_debuff_affect_opponent'] != null) {
+          // 天赋：自己获得负面效果时，对手获得同样的负面效果
+          // （被清气取消的不会传播；handleCallback: false 防止双方都有此天赋时无限循环，
+          // 同时被传播方无法再以清气等方式响应此次获得）
+          opponent!.addStatusEffect(id, amount: amount, handleCallback: false);
         }
       }
     }
@@ -706,7 +716,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 触发对方受到伤害时的效果
     opponent!
-        .handleStatusEffectCallback('oponent_taking_damage', damageDetails);
+        .handleStatusEffectCallback('opponent_taking_damage', damageDetails);
     // 触发自己受到伤害时的效果
     handleStatusEffectCallback('self_taking_damage', damageDetails);
 
