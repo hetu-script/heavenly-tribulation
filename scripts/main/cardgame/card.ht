@@ -510,7 +510,12 @@ function upgradeRank(card, materialRank) {
   card.level = Math.max(card.level, newLevel)
 
   if (card.isUnique == true) {
-    // 绝世卡牌的额外词条是固定的，破境时追加下一个预定义词条
+    // 绝世卡牌的词条身份固定：破境时所有既有词条随新境界免费重 roll 数值
+    //（与普通卡保留词条的行为一致），并追加下一个预定义词条
+    for (final affix in card.affixes) {
+      affix.rank = card.rank
+      _updateAffixValue(card, affix)
+    }
     _addPredefinedAffixes(card)
   } else {
     // 保留主词条和被锁定的词条

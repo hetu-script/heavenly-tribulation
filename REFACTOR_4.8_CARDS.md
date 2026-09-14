@@ -197,8 +197,10 @@
    执行时核对 `draw_cards` 预定义列表中的 id（defend/heal/speed_quick/dodge_nimble/
    gain_resource_ward/gain_resource_ultimate）在 card_affixes.json5 中都存在，缺的补。
 
-3. **破境解锁**：`upgradeRank`（card.ht:429-472）——`isUnique` 卡不清空、不重随机
-   额外词条，追加下一个预定义词条（数量 = 新 rank + 1，列表取满为止）。
+3. **破境解锁**：`upgradeRank`——`isUnique` 卡不清空、不重随机词条身份，
+   追加下一个预定义词条（数量 = 新 rank + 1，列表取满为止）。
+   **（作者补充定案）破境时所有既有词条（含主词条）与普通卡保留词条一样，
+   随新境界免费重 roll 数值**（`_updateAffixValue`），混元重 roll 依然可用。
 
 4. **精炼限制**：`addAffix`/`replaceAffix`/`freezeAffix`/`removeAffix` 入口检查
    `card.isUnique`，返回提示文本（invoke 返回非 null 即弹提示的既有机制，

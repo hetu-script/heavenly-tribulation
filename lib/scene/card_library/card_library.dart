@@ -560,6 +560,13 @@ class CardLibraryScene extends Scene {
           GameData.getBattleCardDescription(craftingCard!.data);
       craftingCard!.description = description;
       showCraftingCardInfo();
+
+      // 鉴定成功后刷新打造界面，显示该卡牌可用的全部打造道具
+      final craftMode = _craftModeForCard(craftingCard!.data);
+      if (craftMode != null) {
+        engine.context.read<CraftState>().setCrafting(true,
+            rank: craftingCard!.data['rank'], craftMode: craftMode);
+      }
       return;
     }
 
@@ -629,6 +636,18 @@ class CardLibraryScene extends Scene {
     onEndCraft();
   }
 
+  /// 根据卡牌状态决定打造界面的道具过滤模式：
+  /// 未鉴定只显示鉴定卷轴；符箓不显示打造道具（返回 null）；
+  /// 其余按场景开启的打造功能过滤
+  CraftMode? _craftModeForCard(dynamic cardData) {
+    if (cardData['isIdentified'] != true) return CraftMode.identify;
+    if (cardData['genre'] == 'scroll') return null;
+    if (enableCardCraft && enableScrollCraft) return CraftMode.all;
+    if (enableCardCraft) return CraftMode.affix;
+    if (enableScrollCraft) return CraftMode.scroll;
+    return null;
+  }
+
   void onStartCraft(CustomGameCard card) {
     engine.context.read<HoverContentState>().hide();
 
@@ -643,22 +662,12 @@ class CardLibraryScene extends Scene {
     dismantleButton.isVisible = true;
     dismantleButton.isEnabled = !isScroll;
 
-    if (card.data['isIdentified'] != true) {
-      // 未鉴定的卡牌在打造界面只显示鉴定卷轴
-      engine.context
-          .read<CraftState>()
-          .setCrafting(true, craftMode: CraftMode.identify);
-    } else if (!isScroll) {
-      if (enableCardCraft && enableScrollCraft) {
-        engine.context.read<CraftState>().setCrafting(true,
-            rank: card.data['rank'], craftMode: CraftMode.all);
-      } else if (enableCardCraft) {
-        engine.context.read<CraftState>().setCrafting(true,
-            rank: card.data['rank'], craftMode: CraftMode.affix);
-      } else if (enableScrollCraft) {
-        engine.context.read<CraftState>().setCrafting(true,
-            rank: card.data['rank'], craftMode: CraftMode.scroll);
-      }
+    final craftMode = _craftModeForCard(card.data);
+    if (craftMode != null) {
+      engine.context.read<CraftState>().setCrafting(true,
+          // 鉴定卷轴不过滤境界
+          rank: craftMode == CraftMode.identify ? null : card.data['rank'],
+          craftMode: craftMode);
     }
 
     final clone = card.clone();
