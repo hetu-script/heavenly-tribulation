@@ -390,12 +390,12 @@
     keywords: ["status_penetration"],
   },
 
-  // 暴击率：只有物理伤害可以暴击
-  critChance: {
-    id: "critChance",
-    description: "passive_crit_chance_description",
+  // 暴击阈值：物理伤害充能达到阈值后下一次物理伤害暴击，低者优
+  critThreshold: {
+    id: "critThreshold",
+    description: "passive_crit_threshold_description",
     priority: 4648,
-    increment: 0.5,
+    increment: -0.5,
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attack",
@@ -436,12 +436,12 @@
     keywords: ["status_crit"],
   },
 
-  // 元素异常几率：每满 10 点元素伤害独立判定一次
-  ailmentChance: {
-    id: "ailmentChance",
-    description: "passive_ailment_chance_description",
+  // 元素异常阈值：四元素共享充能达到阈值后下一次元素伤害造成异常，低者优
+  ailmentThreshold: {
+    id: "ailmentThreshold",
+    description: "passive_ailment_threshold_description",
     priority: 4646,
-    increment: 0.5,
+    increment: -0.5,
     isItem: true,
     isEphemeral: true,
     ephemeralType: "attack",

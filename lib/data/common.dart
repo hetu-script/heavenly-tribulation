@@ -1280,14 +1280,8 @@ const kBaseMonthlyIdentifyCardsMax = 12;
 
 const kBaseResistMax = 75;
 
-/// 基础暴击率（百分比整数制，5%）
-const kBaseCritChance = 5;
-
 /// 基础暴击伤害（百分比整数制，150%）
 const kBaseCritMultiplier = 150;
-
-/// 基础元素异常触发几率（百分比整数制，15%）
-const kBaseAilmentChance = 15;
 
 /// 随机生成卡牌时出现绝世卡的几率（百分比整数制，5%）
 const kUniqueCardChance = 5;
@@ -1298,6 +1292,15 @@ const kBaseAilmentMultiplier = 100;
 const kBaseTurnActionThreshold = 10;
 const kMaxTurnActionThreshold = 15;
 const kMinTurnActionThreshold = 5;
+
+/// 基础暴击阈值（点数制）：造成物理伤害累计充能，满阈值后下一次物理伤害暴击
+const kBaseCritThreshold = 10;
+
+/// 基础元素异常阈值（点数制）：造成元素伤害累计充能，满阈值后下一次元素伤害造成异常
+const kBaseAilmentThreshold = 10;
+
+const kMaxChargeThreshold = 15;
+const kMinChargeThreshold = 5;
 
 const kLocationKindHome = 'home';
 

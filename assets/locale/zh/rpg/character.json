@@ -86,13 +86,13 @@
   "lightningResistMax": "雷电抗性上限",
   "poisonResistMax": "毒素抗性上限",
 
-  "critChance": "暴击率",
-  "critChance_description": "基础为 5%。只有物理伤害可以暴击。",
+  "critThreshold": "暴击阈值",
+  "critThreshold_description": "基础为 10。每造成一次物理伤害积累 1 点暴击充能，充能达到阈值后，下一次物理伤害消耗阈值数量的充能并暴击。\n阈值最大 15，最小 5。",
   "critMultiplier": "暴击伤害",
   "critMultiplier_description": "基础为 150%。只有物理伤害可以暴击。",
 
-  "ailmentChance": "元素异常几率",
-  "ailmentChance_description": "基础为 15%。每造成满 10 点元素伤害，独立判定一次元素异常。",
+  "ailmentThreshold": "元素异常阈值",
+  "ailmentThreshold_description": "基础为 10。每造成一次元素伤害积累 1 点异常充能（火、冰、雷、毒共享），充能达到阈值后，下一次元素伤害消耗阈值数量的充能并造成元素异常。\n阈值最大 15，最小 5。",
   "ailmentMultiplier": "元素异常伤害",
   "ailmentMultiplier_description": "基础为 100%。放大你施加的元素异常造成的伤害。",
 

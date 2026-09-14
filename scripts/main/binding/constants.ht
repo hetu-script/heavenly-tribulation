@@ -15,14 +15,16 @@ external abstract class Constants {
   static get baseLightRadius;
   static get baseMonthlyIdentifyCardsMax;
   static get baseResistMax;
-  static get baseCritChance;
+  static get baseCritThreshold;
   static get baseCritMultiplier;
-  static get baseAilmentChance;
+  static get baseAilmentThreshold;
   static get uniqueCardChance;
   static get baseAilmentMultiplier;
   static get baseTurnActionThreshold;
   static get maxTurnActionThreshold;
   static get minTurnActionThreshold;
+  static get maxChargeThreshold;
+  static get minChargeThreshold;
 
   static get npcIds;
   static get personalities;

@@ -314,6 +314,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.slowThreshold = Constants.baseTurnActionThreshold
   character.nimbleThreshold = Constants.baseTurnActionThreshold
   character.clumsyThreshold = Constants.baseTurnActionThreshold
+  character.critThreshold = Constants.baseCritThreshold
+  character.ailmentThreshold = Constants.baseAilmentThreshold
 
   // 基础属性，在此基础上还要加上物品和状态的加成
   character.stats.charisma = character.charisma + character.passives.charisma?.value
@@ -358,12 +360,12 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   // 穿透：单一属性，只作用于物理和真气伤害
   character.stats.penetration = character.passives.penetration?.value + character.ephemeralPassives.penetration?.value
 
-  // 暴击：只有物理伤害可以暴击，百分比整数制
-  character.stats.critChance = Constants.baseCritChance + character.passives.critChance?.value + character.ephemeralPassives.critChance?.value
+  // 暴击：只有物理伤害可以暴击；计数器满阈值后下一次物理伤害暴击，倍率为百分比整数制
+  character.stats.critThreshold = (Constants.baseCritThreshold + character.passives.critThreshold?.value + character.ephemeralPassives.critThreshold?.value).clamp(Constants.minChargeThreshold, Constants.maxChargeThreshold)
   character.stats.critMultiplier = Constants.baseCritMultiplier + character.passives.critMultiplier?.value + character.ephemeralPassives.critMultiplier?.value
 
-  // 元素异常：几率与伤害倍率，百分比整数制
-  character.stats.ailmentChance = Constants.baseAilmentChance + character.passives.ailmentChance?.value + character.ephemeralPassives.ailmentChance?.value
+  // 元素异常：四元素共享计数器，满阈值后下一次元素伤害造成异常；异常伤害倍率为百分比整数制
+  character.stats.ailmentThreshold = (Constants.baseAilmentThreshold + character.passives.ailmentThreshold?.value + character.ephemeralPassives.ailmentThreshold?.value).clamp(Constants.minChargeThreshold, Constants.maxChargeThreshold)
   character.stats.ailmentMultiplier = Constants.baseAilmentMultiplier + character.passives.ailmentMultiplier?.value + character.ephemeralPassives.ailmentMultiplier?.value
 
   // 全元素抗性折算进每一个单抗，属性面板不单独显示全抗

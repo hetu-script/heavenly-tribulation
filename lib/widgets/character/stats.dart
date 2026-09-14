@@ -36,9 +36,9 @@ const kStats = [
 
 const kMoreStats = [
   'divider',
-  'critChance',
+  'critThreshold',
   'critMultiplier',
-  'ailmentChance',
+  'ailmentThreshold',
   'ailmentMultiplier',
   'divider',
   'quickThreshold',
@@ -147,25 +147,12 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueString</>'
           : (value < 1.0 ? '<red>$valueString</>' : valueString);
       description = engine.locale('${id}_description');
-    } else if (id == 'critChance') {
-      valueString = '$value%';
-      description = engine.locale('${id}_description');
-
-      valueString =
-          value > kBaseCritChance ? '<yellow>$valueString</>' : valueString;
     } else if (id == 'critMultiplier') {
       valueString = '$value%';
       description = engine.locale('${id}_description');
 
       valueString =
           value > kBaseCritMultiplier ? '<yellow>$valueString</>' : valueString;
-    } else if (id == 'ailmentChance') {
-      valueString = '$value%';
-      description = engine.locale('${id}_description');
-
-      valueString = value > kBaseAilmentChance
-          ? '<yellow>$valueString</>'
-          : valueString;
     } else if (id == 'ailmentMultiplier') {
       valueString = '$value%';
       description = engine.locale('${id}_description');

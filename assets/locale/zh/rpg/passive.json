@@ -153,8 +153,8 @@
   "passive_tribulationCountReduce_description": "劫数 {0} (可变成负数)",
   "passive_decreaseTribulationDifficulty_description": "降低天道技能境界节点突破试炼的难度",
   "passive_penetration_description": "攻击穿透 {0}（只作用于物理和真气伤害）",
-  "passive_crit_chance_description": "暴击率 {0}%",
+  "passive_crit_threshold_description": "暴击阈值 {0}",
   "passive_crit_multiplier_description": "暴击伤害 {0}%",
-  "passive_ailment_chance_description": "元素异常几率 {0}%",
+  "passive_ailment_threshold_description": "元素异常阈值 {0}",
   "passive_ailment_multiplier_description": "元素异常伤害 {0}%"
 }

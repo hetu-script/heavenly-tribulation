@@ -284,8 +284,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
   /// 只计算确定性部分（与 takeDamage 同顺序）：增强/削弱净值 → 元素抗性/弱点 →
-  /// 必暴（豪气，扣除衰气减倍率）；不计算护甲、穿透与脚本回调类修正。
-  /// 返回 (伤害, 是否必暴, 必异常层数)；非攻击类词条返回 null。
+  /// 暴击（豪气必暴或暴击计数器满阈值，扣除衰气减倍率）、异常（豪气必异常或异常计数器满阈值）；
+  /// 不计算护甲、穿透与脚本回调类修正。
+  /// 返回 (伤害, 是否暴击, 异常层数)；非攻击类词条返回 null。
   (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
     final int? valueIndex =
         GameData.kBattleCardDamageValueIndex[affix['script']];
@@ -318,30 +319,38 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       damage = (damage * (1 - 0.01 * getElementalResist(damageType))).round();
     }
 
-    // 必暴（豪气）：物理伤害按暴击倍率计算，衰气按层循环扣除（同 takeDamage）
+    // 暴击（豪气必暴，或暴击计数器满阈值）：物理伤害按暴击倍率计算，衰气按层循环扣除（同 takeDamage）
     bool isCrit = false;
-    if (damage > 0 &&
-        damageType == 'physical' &&
-        attacker.turnFlags['guaranteedCrit'] == true) {
+    if (damage > 0 && damageType == 'physical') {
       final attackerStats = attacker.data['stats'];
-      int critMultiplier = (attackerStats['critMultiplier'] ?? 150).toInt();
-      final int consumed = math.min(
-          attacker.hasStatusEffect('energy_negative_crit'),
-          ((critMultiplier - 100) / 50).ceil());
-      critMultiplier -= 50 * consumed;
-      if (critMultiplier < 100) critMultiplier = 100;
-      damage = (damage * critMultiplier / 100).round();
-      isCrit = true;
+      final int critThreshold =
+          (attackerStats['critThreshold'] ?? kBaseCritThreshold).toInt();
+      if (attacker.turnFlags['guaranteedCrit'] == true ||
+          attacker.hasStatusEffect('crit_charge') >= critThreshold) {
+        int critMultiplier =
+            (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
+        final int consumed = math.min(
+            attacker.hasStatusEffect('energy_negative_crit'),
+            ((critMultiplier - 100) / 50).ceil());
+        critMultiplier -= 50 * consumed;
+        if (critMultiplier < 100) critMultiplier = 100;
+        damage = (damage * critMultiplier / 100).round();
+        isCrit = true;
+      }
     }
 
-    // 必异常（豪气）：元素伤害固定每满 10 点 1 层，衰气逐层抵消（同 takeDamage）
+    // 异常（豪气必异常，或异常计数器满阈值）：元素伤害固定每满 10 点 1 层，衰气逐层抵消（同 takeDamage）
     int ailmentStacks = 0;
-    if (damage > 0 &&
-        isElemental &&
-        attacker.turnFlags['guaranteedAilment'] == true) {
-      ailmentStacks = damage ~/ 10;
-      ailmentStacks -= math.min(
-          ailmentStacks, attacker.hasStatusEffect('energy_negative_crit'));
+    if (damage > 0 && isElemental) {
+      final attackerStats = attacker.data['stats'];
+      final int ailmentThreshold =
+          (attackerStats['ailmentThreshold'] ?? kBaseAilmentThreshold).toInt();
+      if (attacker.turnFlags['guaranteedAilment'] == true ||
+          attacker.hasStatusEffect('ailment_charge') >= ailmentThreshold) {
+        ailmentStacks = damage ~/ 10;
+        ailmentStacks -= math.min(
+            ailmentStacks, attacker.hasStatusEffect('energy_negative_crit'));
+      }
     }
 
     return (damage, isCrit, ailmentStacks);
@@ -850,16 +859,26 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     // 暴击：只有物理伤害可以暴击，独立乘区，在护甲扣除之前计入
+    // 计数器机制：攻击方 crit_charge 达到 critThreshold 时，本次伤害消耗阈值层数并暴击；
+    // 豪气（guaranteedCrit）走独立路径，必定暴击且不消耗计数器
     damageDetails['isCritical'] = false;
     if (finalDamage > 0 && damageType == 'physical') {
       final attackerStats = opponent!.data['stats'];
-      final int critChance = (attackerStats['critChance'] ?? 0).toInt();
       final bool guaranteed = opponent!.turnFlags['guaranteedCrit'] == true;
       if (guaranteed) {
         opponent!.turnFlags['guaranteedCrit'] = false;
       }
-      if (critChance > 0 && (guaranteed || random.nextInt(100) < critChance)) {
-        int critMultiplier = (attackerStats['critMultiplier'] ?? 150).toInt();
+      final int critThreshold =
+          (attackerStats['critThreshold'] ?? kBaseCritThreshold).toInt();
+      bool isCrit = guaranteed;
+      if (!isCrit &&
+          opponent!.hasStatusEffect('crit_charge') >= critThreshold) {
+        opponent!.removeStatusEffect('crit_charge', amount: critThreshold);
+        isCrit = true;
+      }
+      if (isCrit) {
+        int critMultiplier =
+            (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
         // 衰气：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
         // 按层循环消耗，直到倍率降为 100% 或衰气耗尽
         while (critMultiplier > 100 &&
@@ -928,22 +947,34 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       opponent!.cardFlags['damage']['total'] += finalDamage;
       opponent!.turnFlags['totalDamage'] += finalDamage;
+
+      // 充能：每次实际造成伤害的实例为攻击方对应计数器 +1
+      //（物理 → crit_charge，元素 → ailment_charge；检查触发在先、充能在后，
+      // 因此充满阈值的那次伤害本身不会立即触发）
+      if (damageType == 'physical') {
+        opponent!.addStatusEffect('crit_charge');
+      } else if (isElemental) {
+        opponent!.addStatusEffect('ailment_charge');
+      }
     }
 
-    // 元素异常触发：每满 10 点最终元素伤害独立判定一次，每次成功 +1 层
+    // 元素异常触发：火/冰/雷/毒共享计数器，攻击方 ailment_charge 达到 ailmentThreshold 时，
+    // 本次伤害消耗阈值层数并造成异常，层数为每满 10 点最终伤害 1 层，类别取本次伤害的元素
+    // 豪气：元素攻击必定造成异常（独立路径，不消耗计数器，豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
     if (finalDamage > 0 && isElemental) {
       final attackerStats = opponent!.data['stats'];
-      final int ailmentChance = (attackerStats['ailmentChance'] ?? 0).toInt();
-      final int rolls = finalDamage ~/ 10;
       int stacks = 0;
-      // 豪气：元素攻击必定造成异常，固定每满 10 点伤害 1 层，跳过随机判定
-      //（豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
       if (opponent!.turnFlags['guaranteedAilment'] == true) {
         opponent!.turnFlags['guaranteedAilment'] = false;
-        stacks = rolls;
+        stacks = finalDamage ~/ 10;
       } else {
-        for (int i = 0; i < rolls; ++i) {
-          if (random.nextInt(100) < ailmentChance) stacks += 1;
+        final int ailmentThreshold =
+            (attackerStats['ailmentThreshold'] ?? kBaseAilmentThreshold)
+                .toInt();
+        if (opponent!.hasStatusEffect('ailment_charge') >= ailmentThreshold) {
+          opponent!.removeStatusEffect('ailment_charge',
+              amount: ailmentThreshold);
+          stacks = finalDamage ~/ 10;
         }
       }
       // 衰气：攻击方持有衰气时按层抵消其赋予的元素异常，

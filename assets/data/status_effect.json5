@@ -394,6 +394,23 @@
     callbacks: ["self_taking_damage", "opponent_turn_end"],
   },
 
+  // 暴击充能：每造成一次物理伤害 +1，达到暴击阈值后下一次物理伤害消耗阈值层数并暴击
+  //（触发结算在 Dart 侧 takeDamage 中，无脚本）
+  crit_charge: {
+    id: "crit_charge",
+    title: "status_crit_charge",
+    description: "status_crit_charge_description",
+    icon: "icon/status/crit.png",
+  },
+  // 异常充能：每造成一次元素伤害 +1（火/冰/雷/毒共享），达到异常阈值后下一次元素伤害消耗阈值层数并造成异常
+  //（触发结算在 Dart 侧 takeDamage 中，无脚本）
+  ailment_charge: {
+    id: "ailment_charge",
+    title: "status_ailment_charge",
+    description: "status_ailment_charge_description",
+    icon: "icon/status/ailment.png",
+  },
+
   // 所有类型的防御: 回合开始时减半，受到攻击时抵消伤害
   // 计算伤害时，防御的优先级是最高的
   // 护甲：唯一防御类型，只抵挡物理伤害（真气自带50%穿透）
@@ -424,7 +441,7 @@
     id: "injury_external",
     title: "status_injury_external",
     description: "status_injury_external_description",
-    icon: "icon/status/injury_when_attack.png",
+    icon: "icon/status/injury_external.png",
     script: "injury_external",
     isDebuff: true,
     callbacks: ["self_attacked", "self_heal"],
@@ -433,7 +450,7 @@
     id: "injury_internal",
     title: "status_injury_internal",
     description: "status_injury_internal_description",
-    icon: "icon/status/injury_when_buff.png",
+    icon: "icon/status/injury_internal.png",
     script: "injury_internal",
     isDebuff: true,
     callbacks: ["self_used_card", "self_gained_energy_positive"],
@@ -442,7 +459,7 @@
     id: "injury_hallucination",
     title: "status_injury_hallucination",
     description: "status_injury_hallucination_description",
-    icon: "icon/status/slow_and_clumsy_when_turn_start.png",
+    icon: "icon/status/injury_hallucination.png",
     script: "injury_hallucination",
     isDebuff: true,
     callbacks: ["self_turn_start", "self_gained_energy_positive"],
@@ -455,7 +472,7 @@
     id: "element_dot_fire",
     title: "status_element_dot_fire",
     description: "status_element_dot_fire_description",
-    icon: "icon/status/injury_when_turn_start.png",
+    icon: "icon/status/element_dot_fire.png",
     damageType: "fire",
     dotDamage: 5,
     script: "element_dot",
@@ -467,7 +484,7 @@
     id: "element_dot_lightning",
     title: "status_element_dot_lightning",
     description: "status_element_dot_lightning_description",
-    icon: "icon/status/status_placeholder.png",
+    icon: "icon/status/element_dot_lightning.png",
     damageType: "lightning",
     dotDamage: 0,
     script: "element_dot",
@@ -479,7 +496,7 @@
     id: "element_dot_ice",
     title: "status_element_dot_ice",
     description: "status_element_dot_ice_description",
-    icon: "icon/status/slow_and_clumsy_when_turn_start.png",
+    icon: "icon/status/element_dot_ice.png",
     damageType: "ice",
     dotDamage: 1,
     script: "element_dot",
@@ -491,7 +508,7 @@
     id: "element_dot_poison",
     title: "status_element_dot_poison",
     description: "status_element_dot_poison_description",
-    icon: "icon/status/injury_when_attack.png",
+    icon: "icon/status/element_dot_poison.png",
     damageType: "poison",
     dotDamage: 5,
     script: "element_dot",
@@ -565,7 +582,7 @@
     id: "energy_positive_shield",
     title: "status_energy_positive_shield",
     description: "status_energy_positive_shield_description",
-    icon: "icon/status/shield_physical.png",
+    icon: "icon/status/energy_positive_shield.png",
     script: "shield",
     isResource: true,
     priority: 1405,

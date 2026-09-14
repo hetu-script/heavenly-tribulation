@@ -41,12 +41,12 @@ class Constants extends HTExternalClass {
         return kBaseMonthlyIdentifyCardsMax;
       case 'Constants.baseResistMax':
         return kBaseResistMax;
-      case 'Constants.baseCritChance':
-        return kBaseCritChance;
+      case 'Constants.baseCritThreshold':
+        return kBaseCritThreshold;
       case 'Constants.baseCritMultiplier':
         return kBaseCritMultiplier;
-      case 'Constants.baseAilmentChance':
-        return kBaseAilmentChance;
+      case 'Constants.baseAilmentThreshold':
+        return kBaseAilmentThreshold;
       case 'Constants.uniqueCardChance':
         return kUniqueCardChance;
       case 'Constants.baseAilmentMultiplier':
@@ -57,6 +57,10 @@ class Constants extends HTExternalClass {
         return kMaxTurnActionThreshold;
       case 'Constants.minTurnActionThreshold':
         return kMinTurnActionThreshold;
+      case 'Constants.maxChargeThreshold':
+        return kMaxChargeThreshold;
+      case 'Constants.minChargeThreshold':
+        return kMinChargeThreshold;
       case 'Constants.npcIds':
         return kNpcIds;
       case 'Constants.personalities':
