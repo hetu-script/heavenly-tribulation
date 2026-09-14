@@ -128,4 +128,5 @@
 | `invincible` / `staggering` | 闪避/迟钝达到阈值后的免伤/踉跄 | dodge_nimble/clumsy 脚本 |
 | `defensePersisted` | 护甲保留标记（有 persistent 状态） | defense 脚本 |
 | `guaranteedCrit` | 下一次物理攻击必定暴击（豪气） | energy_positive_crit 脚本 |
+| `guaranteedAilment` | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（豪气） | energy_positive_crit 脚本 |
 | `totalDamage` | 本回合造成的总伤害（戾气结算用） | takeDamage 累加 |

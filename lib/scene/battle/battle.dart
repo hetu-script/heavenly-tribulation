@@ -698,6 +698,8 @@ class BattleScene extends Scene {
     }
 
     await onBattleStart?.call();
+
+    refreshHandCardDescriptions();
   }
 
   Future<void> clearHand(HandZone hand, DiscardZone discard,
@@ -773,7 +775,33 @@ class BattleScene extends Scene {
       }
     }
     await hand.sortCards();
+    if (hand == heroHandZone) {
+      refreshHandCardDescriptions();
+    }
     return drawn;
+  }
+
+  /// 刷新英雄手牌所有卡牌的卡面描述：
+  /// 逐词条计算伤害预测值并写入词条数据（原始 value 不动），
+  /// 预测值与原值的比较着色由 getBattleCardDescription(withPrediction) 完成
+  void refreshHandCardDescriptions() {
+    for (final card in heroHandZone.cards) {
+      final cardData = (card as CustomGameCard).data;
+      for (final affix in cardData['affixes']) {
+        // 英雄手牌的攻击目标是敌方，预测以敌方为防守方计算
+        final predicted = enemy.predictDamage(hero, affix);
+        affix['predictedValue'] = predicted?.$1;
+        affix['predictedCrit'] = predicted?.$2;
+        affix['predictedAilment'] = predicted?.$3;
+      }
+      final (description, _) = GameData.getBattleCardDescription(
+        cardData,
+        showRequirement: false,
+        isDetailed: false,
+        withPrediction: true,
+      );
+      card.description = description;
+    }
   }
 
   /// 将卡牌加入待打出队列
@@ -885,6 +913,8 @@ class BattleScene extends Scene {
     heroDiscardZone.tryAddCard(card);
     await heroDiscardZone.sortCards();
 
+    refreshHandCardDescriptions();
+
     engine.info('卡牌打出完成: ${card.data['name']}, 剩余能量: ${hero.energy}');
   }
 
@@ -978,6 +1008,8 @@ class BattleScene extends Scene {
         currentOpponent.addStatusEffect(statusId,
             amount: value, handleCallback: false);
       }
+      // 回合开始注入的状态（如施加给对方的弱点）会影响预测数值
+      refreshHandCardDescriptions();
 
       if (heroTurn) {
         endTurnButton.isEnabled = true;
@@ -1031,6 +1063,8 @@ class BattleScene extends Scene {
             extraTurn = true;
           }
         }
+        // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
+        refreshHandCardDescriptions();
       }
 
       if (_isRestarting) return;
@@ -1044,6 +1078,8 @@ class BattleScene extends Scene {
         currentOpponent.addStatusEffect(statusId,
             amount: value, handleCallback: false);
       }
+      // 回合结束注入的状态（如施加给对方的弱点）会影响预测数值
+      refreshHandCardDescriptions();
 
       await clearHand(handZone, discardZone);
     } while (extraTurn);

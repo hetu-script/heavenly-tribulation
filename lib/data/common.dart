@@ -1289,6 +1289,9 @@ const kBaseCritMultiplier = 150;
 /// 基础元素异常触发几率（百分比整数制，15%）
 const kBaseAilmentChance = 15;
 
+/// 随机生成卡牌时出现绝世卡的几率（百分比整数制，5%）
+const kUniqueCardChance = 5;
+
 /// 基础元素异常伤害（百分比整数制，100%）
 const kBaseAilmentMultiplier = 100;
 

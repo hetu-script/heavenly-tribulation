@@ -282,6 +282,72 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return resist > kBaseResistMax ? kBaseResistMax : resist;
   }
 
+  /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
+  /// 只计算确定性部分（与 takeDamage 同顺序）：增强/削弱净值 → 元素抗性/弱点 →
+  /// 必暴（豪气，扣除衰气减倍率）；不计算护甲、穿透与脚本回调类修正。
+  /// 返回 (伤害, 是否必暴, 必异常层数)；非攻击类词条返回 null。
+  (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
+    final int? valueIndex =
+        GameData.kBattleCardDamageValueIndex[affix['script']];
+    if (valueIndex == null) return null;
+    final List value = affix['value'];
+    if (valueIndex >= value.length) return null;
+
+    final String damageType = affix['damageType'];
+    final bool isElemental = damageType == 'fire' ||
+        damageType == 'ice' ||
+        damageType == 'lightning' ||
+        damageType == 'poison';
+
+    int damage = (value[valueIndex] as num).toInt();
+
+    // 乘区1：攻击增强/削弱净值，下限 kDamagePercentageMin（同 takeDamage）
+    final String? cardType = affix['cardType'];
+    if (cardType != null) {
+      final int enhanceNet = attacker.hasStatusEffect('enhance_$cardType') -
+          attacker.hasStatusEffect('weaken_$cardType');
+      if (enhanceNet != 0) {
+        num p1 = 0.01 * enhanceNet;
+        if (p1 < kDamagePercentageMin) p1 = kDamagePercentageMin;
+        damage = (damage * (1 + p1)).round();
+      }
+    }
+
+    // 元素抗性/弱点（弱点为负抗性，已包含在净值中）
+    if (damage > 0 && isElemental) {
+      damage = (damage * (1 - 0.01 * getElementalResist(damageType))).round();
+    }
+
+    // 必暴（豪气）：物理伤害按暴击倍率计算，衰气按层循环扣除（同 takeDamage）
+    bool isCrit = false;
+    if (damage > 0 &&
+        damageType == 'physical' &&
+        attacker.turnFlags['guaranteedCrit'] == true) {
+      final attackerStats = attacker.data['stats'];
+      int critMultiplier = (attackerStats['critMultiplier'] ?? 150).toInt();
+      final int consumed = math.min(
+          attacker.hasStatusEffect('energy_negative_crit'),
+          ((critMultiplier - 100) / 50).ceil());
+      critMultiplier -= 50 * consumed;
+      if (critMultiplier < 100) critMultiplier = 100;
+      damage = (damage * critMultiplier / 100).round();
+      isCrit = true;
+    }
+
+    // 必异常（豪气）：元素伤害固定每满 10 点 1 层，衰气逐层抵消（同 takeDamage）
+    int ailmentStacks = 0;
+    if (damage > 0 &&
+        isElemental &&
+        attacker.turnFlags['guaranteedAilment'] == true) {
+      ailmentStacks = damage ~/ 10;
+      ailmentStacks -= math.min(
+          ailmentStacks, attacker.hasStatusEffect('energy_negative_crit'));
+    }
+
+    return (damage, isCrit, ailmentStacks);
+  }
+
+
   /// 非永久效果位置在血条上方
   void reArrangeOtherEffects() {
     for (var i = 0; i < otherEffects.length; ++i) {
@@ -794,13 +860,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
       if (critChance > 0 && (guaranteed || random.nextInt(100) < critChance)) {
         int critMultiplier = (attackerStats['critMultiplier'] ?? 150).toInt();
-        // 衰气：每层使本次暴击倍率 -25%（暴击倍率下限 100%），触发时全部消耗
-        final int weakenCrit =
-            opponent!.hasStatusEffect('energy_negative_crit');
-        if (weakenCrit > 0) {
-          critMultiplier -= 25 * weakenCrit;
+        // 衰气：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
+        // 按层循环消耗，直到倍率降为 100% 或衰气耗尽
+        while (critMultiplier > 100 &&
+            opponent!.hasStatusEffect('energy_negative_crit') > 0) {
+          critMultiplier -= 50;
           if (critMultiplier < 100) critMultiplier = 100;
-          opponent!.removeStatusEffect('energy_negative_crit');
+          opponent!.removeStatusEffect('energy_negative_crit', amount: 1);
         }
         finalDamage = (finalDamage * critMultiplier / 100).round();
         damageDetails['isCritical'] = true;
@@ -870,8 +936,26 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final int ailmentChance = (attackerStats['ailmentChance'] ?? 0).toInt();
       final int rolls = finalDamage ~/ 10;
       int stacks = 0;
-      for (int i = 0; i < rolls; ++i) {
-        if (random.nextInt(100) < ailmentChance) stacks += 1;
+      // 豪气：元素攻击必定造成异常，固定每满 10 点伤害 1 层，跳过随机判定
+      //（豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
+      if (opponent!.turnFlags['guaranteedAilment'] == true) {
+        opponent!.turnFlags['guaranteedAilment'] = false;
+        stacks = rolls;
+      } else {
+        for (int i = 0; i < rolls; ++i) {
+          if (random.nextInt(100) < ailmentChance) stacks += 1;
+        }
+      }
+      // 衰气：攻击方持有衰气时按层抵消其赋予的元素异常，
+      // 直到异常全部抵消或衰气耗尽
+      if (stacks > 0) {
+        final int negated = math
+            .min(stacks, opponent!.hasStatusEffect('energy_negative_crit'));
+        if (negated > 0) {
+          stacks -= negated;
+          opponent!.removeStatusEffect('energy_negative_crit',
+              amount: negated);
+        }
       }
       if (stacks > 0) {
         final ailmentId = 'element_dot_$damageType';

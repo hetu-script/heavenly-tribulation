@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 enum CraftMode {
   affix,
   scroll,
+  identify,
   all,
 }
 

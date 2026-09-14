@@ -70,6 +70,7 @@ class HandZone extends PiledZone with HandlesGesture {
         card.data,
         isDetailed: true,
         showAffixes: false,
+        withPrediction: true,
       );
       Hovertip.show(
         scene: game,

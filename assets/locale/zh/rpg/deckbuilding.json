@@ -18,6 +18,7 @@
 
   "deckbuilding_requirement_not_met": "不可用",
   "deckbuilding_already_in_battle_deck": "该卡牌已在出战卡组中！",
+  "deckbuilding_unique_card_exists": "卡组中已有相同的绝世功法！",
   "deckbuilding_deck_is_full": "卡牌数量已达到当前境界上限！",
   "deckbuilding_card_unidentified": "需要要先鉴定才能将卡牌加入卡组！",
   "deckbuilding_ongoing_card_limit": "持续牌数量已达到当前境界允许上限！",

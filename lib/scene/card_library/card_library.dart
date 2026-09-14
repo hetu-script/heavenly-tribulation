@@ -533,6 +533,36 @@ class CardLibraryScene extends Scene {
   void onUseCraftMaterial(dynamic craftmeterialData) {
     assert(craftingCard != null);
 
+    if (craftmeterialData['category'] == kItemCategoryIdentifyScroll) {
+      // 使用鉴定卷轴鉴定卡牌
+      craftingCard!.data['isIdentified'] = true;
+
+      engine.hetu.invoke(
+        'lose',
+        namespace: 'Player',
+        positionalArgs: [craftmeterialData],
+      );
+
+      engine.play(GameSound.anvil);
+
+      addHintText(
+        engine.locale('craft_identify_hint'),
+        position: craftingCard!.center,
+        offsetY: 30.0,
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamilyKaiti,
+        ),
+        horizontalVariation: 0.0,
+        verticalVariation: 0.0,
+      );
+
+      final (description, _) =
+          GameData.getBattleCardDescription(craftingCard!.data);
+      craftingCard!.description = description;
+      showCraftingCardInfo();
+      return;
+    }
+
     final kind = craftmeterialData['kind'] as String;
 
     if (kind == 'scroll_paper') {
@@ -613,7 +643,12 @@ class CardLibraryScene extends Scene {
     dismantleButton.isVisible = true;
     dismantleButton.isEnabled = !isScroll;
 
-    if (!isScroll) {
+    if (card.data['isIdentified'] != true) {
+      // 未鉴定的卡牌在打造界面只显示鉴定卷轴
+      engine.context
+          .read<CraftState>()
+          .setCrafting(true, craftMode: CraftMode.identify);
+    } else if (!isScroll) {
       if (enableCardCraft && enableScrollCraft) {
         engine.context.read<CraftState>().setCrafting(true,
             rank: card.data['rank'], craftMode: CraftMode.all);

@@ -323,13 +323,20 @@ namespace StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  /// 豪气：使用攻击牌时，若该牌为物理伤害，消耗 1 层使本张卡牌必定暴击
+  /// 豪气：使用攻击牌时，消耗 1 层：
+  /// 物理伤害 → 本张卡牌必定暴击；元素伤害 → 本张卡牌必定造成异常（每满 10 点伤害 1 层）
   function energy_positive_crit_self_using_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'attack') return
-    if (self.cardFlags.damageType != 'physical') return
     if (self.hasStatusEffect('energy_positive_crit') <= 0) return
 
-    self.turnFlags.guaranteedCrit = true
+    final damageType = self.cardFlags.damageType
+    if (damageType == 'physical') {
+      self.turnFlags.guaranteedCrit = true
+    } else if (damageType == 'fire' || damageType == 'ice' || damageType == 'lightning' || damageType == 'poison') {
+      self.turnFlags.guaranteedAilment = true
+    } else {
+      return
+    }
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
@@ -426,8 +433,9 @@ namespace StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
   }
 
-  // 衰气（energy_negative_crit）的效果在 Dart 侧 takeDamage 的暴击分支中结算：
-  // 每层使本次暴击倍率 -25%（下限 100%），触发时全部消耗
+  // 衰气（energy_negative_crit）的效果在 Dart 侧 takeDamage 中结算，双效果：
+  // 暴击分支：每层使本次暴击倍率 -50%（下限 100%），按层循环消耗至倍率 100% 或衰气耗尽
+  // 异常分支：持有衰气的攻击方赋予元素异常时按层抵消（1 层衰气抵消 1 层异常）
 
   /// 浊气：回合开始时，消耗 1 层浊气并获得 1 层随机负面效果（从 kDebuffs 池抽取）
   function energy_negative_ward_self_turn_start(self, opponent, effect, details) {

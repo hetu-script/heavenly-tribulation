@@ -25,13 +25,19 @@
 
 ### 1.2 定案（作者已确认）
 
-1. **预测范围：只算确定性部分**——基础值 + 增强/削弱净值 + 元素抗性 + 护甲抵扣 + 必暴。
-   不含护盾抵消、易伤、萧索之气、闪避免疫/踉跄、阳气 baseChange、penetration 状态等
-   脚本回调类修正（它们有消耗/取消语义，预测会产生副作用；列入后续补齐，见 1.4）。
+1. **预测范围（作者收窄定案）**：基础值 + 增强/削弱净值 + 元素抗性/弱点 + 必暴。
+   **忽略护甲抵扣与穿透**（含真气自带 50% 穿透——physical/chi 在预测中不再特殊处理）；
+   也不含护盾抵消、易伤、萧索之气、闪避免疫/踉跄、阳气 baseChange、penetration 状态等
+   脚本回调类修正（列入后续补齐，见 1.4）。
 2. **暴击**：默认显示非暴击伤害；攻击方 `turnFlags['guaranteedCrit'] == true`（豪气）
-   时按暴击倍率显示。不显示期望值。
+   时显示按暴击倍率计算后的伤害，并在数值上加括号标注"暴击"
+   （形如 `24(暴击)`，可叠加颜色标签）。不显示期望值。
 3. **颜色规则**：预测值 > 原始静态值 → `<yellow>`；< 原值 → `<red>`；相等不变色。
    比较基准永远是 `affix['value']` 原始值，不是上次显示值。
+   **预测值单独保存在词条数据上（`affix['predictedValue']`），原始 `affix['value']`
+   不被改写**（作者补充定案）——描述生成时读预测值与原值比较决定颜色；
+   预测值属战斗期临时数据，离开战斗后无意义（存档中的残留值在下次入战斗刷新时覆盖，
+   战斗外描述生成忽略该字段）。
 4. **只对攻击类词条的伤害数字实时化**；护甲、抽牌、资源获得等静态词条不动。
 5. 精神伤害（念力对抗公式）待阶段 5 落地后纳入预测（本阶段预留入口）。
 
@@ -47,29 +53,33 @@
    dmg = (base × (1 + p1)).round()
    若 damageType ∈ {fire, ice, lightning, poison}:
      dmg = (dmg × (1 - 0.01 × self.getElementalResist(damageType))).round()
+     // getElementalResist 读状态净值，弱点（负抗性）天然包含在内
    若 damageType == 'physical' 且 attacker.turnFlags['guaranteedCrit'] == true:
      dmg = (dmg × attacker.stats.critMultiplier / 100).round()
-   若 damageType ∈ {physical, chi}:
-     penetration = (damageType == 'chi' ? 0.5 : 0.0)   // 不含穿透状态/正气（脚本类，后续补齐）
-     blocked = min(self.hasStatusEffect('defense'), (dmg × (1 - penetration)).round())
-     dmg -= blocked
+     显示时标注"(暴击)"
+   // 护甲抵扣与穿透不预测（作者定案，见 1.2.1）
    ```
 
-   与 `takeDamage` 的确定性分支保持同一顺序（乘区 → 抗性 → 暴击 → 护甲）。
+   与 `takeDamage` 的确定性分支保持同一顺序（乘区 → 抗性 → 暴击）。
 
    脚本 → 伤害 value 索引表（`card_script.ht` 全部攻击脚本已枚举）：
    `attack: 0`、`attack_multiple: 1`、`attack_exhaust / attack_slow_exhaust /
    attack_clumsy_exhaust: 1`、`attack_multiple_exhaust: 2`。
    不在表内的脚本（defend/heal/draw/gain_resource 等）不预测，显示静态值。
 
-2. **描述生成扩展**：`getBattleCardDescription` 增加可选参数
-   `Map<int, List>? valueOverrides`（词条索引 → 显示用值列表，元素可为已包裹
-   颜色标签的字符串），插值前替换。单点改动，Hovertip 详细描述
+2. **描述生成扩展**：`getBattleCardDescription` 在插值前检查词条上的
+   `affix['predictedValue']`（存在且为攻击类词条的伤害索引位时）：
+   与原值比较，大于 → `<yellow>预测值</>`，小于 → `<red>预测值</>`，相等保持原样；
+   若预测时命中必暴，在数值后加 `(暴击)` 标注（可用 `affix['predictedCrit']` 布尔位）。
+   无预测值时行为与现状完全一致。单点改动，Hovertip 详细描述
    （`lib/scene/battle/hand_zone.dart:69-83`）自动复用。
+   （替代原 `valueOverrides` 参数方案——预测值直接存在卡牌数据上，
+   描述生成无需额外传参。）
 
 3. **刷新入口**：`BattleScene.refreshHandCardDescriptions()`——遍历 hero 手牌区
-   所有卡牌，逐词条计算预测值并构造 overrides（无差异则传原值），
-   重新赋值 `card.description`。敌方手牌背面朝上不处理。
+   所有卡牌，逐词条计算预测值并写入 `affix['predictedValue']`（及 `predictedCrit`），
+   非攻击词条或无差异时清除该字段，随后重新赋值 `card.description`。
+   敌方手牌背面朝上不处理。
 
 4. **刷新时机**（固定时机手动调用，作者指定 + 补齐）：
    - 战斗准备完成后（`battle.dart:679` 之后）
@@ -83,12 +93,54 @@
 
 ### 1.4 后续补齐（本阶段不做，仅记录）
 
-- 脚本回调类修正的预测：阳气每层 +5 baseChange、penetration 状态、正气穿透、
+- 护甲抵扣与穿透（含真气自带 50% 穿透、penetration 状态、正气穿透）——作者定案本阶段忽略，
+  日后如需更精确可按 takeDamage 公式补回（注意穿透状态有消耗语义）。
+- 脚本回调类修正的预测：阳气每层 +5 baseChange、
   易伤、萧索之气、护盾 cancelDamage、闪避免疫/踉跄——需要给状态脚本加
   `isPrediction` 约定或 Dart 侧逐个硬编码，单独立项评估。
 - `heal_exhaust`（按 lifeMax% 回血）等依赖当前生命上限的脚本数字动态化。
 - `by_damage_*` 类词条依赖本牌已造成伤害，无法预测，永久保持静态。
 - 精神伤害预测（依赖阶段 5 念力公式）。
+
+## 一·五、豪气/衰气双效果改造（作者补充，并入本阶段）
+
+### 1.5.1 设计定案（作者已确认）
+
+1. **豪气（`energy_positive_crit`）双效果**：
+   - 物理攻击牌 → 消耗 1 层，本张卡牌必定暴击（现状不变）；
+   - 元素攻击牌（fire/ice/lightning/poison）→ 消耗 1 层，本张卡牌**必定造成异常**：
+     不按 `ailmentChance` roll，固定每满 10 点最终元素伤害赋予 1 层。
+   - 真气/精神/纯粹伤害不受豪气影响（不可暴击、非元素）。
+2. **衰气（`energy_negative_crit`）双效果**：
+   - 暴击侧：每层使暴击倍率 −50%，触发时**按层循环消耗**，直到倍率降为 100% 或
+     衰气耗尽（现状为固定消耗 1 层，本次改为循环消耗）；
+   - 异常侧：持有衰气的攻击方赋予元素异常时，按当前衰气层数**逐层抵消**
+     （1 层衰气抵消 1 层异常），直到异常全部抵消或衰气耗尽。
+3. **卡面预测联动**：豪气必异常时，元素攻击牌伤害数字后加括号标注
+   `24(造成3层点燃)`；异常名复用 `status_element_dot_*` 本地化标题，层数为
+   预测最终伤害 `~/ 10` 再扣除攻击方衰气抵消（确定性，一并预测）。无豪气时
+   不显示期望异常（与暴击不显示期望值一致）。暴击侧的衰气减倍率同属确定性，
+   预测暴击伤害时一并扣除。
+
+### 1.5.2 实现方案
+
+1. `status_script.ht` `energy_positive_crit_self_using_card`（:327-334）：damageType 为
+   physical 走原逻辑；为四元素之一时设 `self.turnFlags.guaranteedAilment = true`
+   并消耗 1 层。执行时确认元素攻击牌的 `cardFlags.category` 同为 `'attack'`。
+2. `character.dart` takeDamage：
+   - 异常分支（:867-884）：`attacker.turnFlags['guaranteedAilment'] == true` 时
+     `stacks = rolls`（跳过 roll）并清除 flag；随后读攻击方衰气层数逐层抵消
+     `stacks` 并消耗对应衰气，抵消后 >0 才 `addStatusEffect`。
+   - 暴击分支衰气（:797-804）：改为循环——`while (critMultiplier > 100 && 衰气 > 0)`
+     每层 −50 并消耗 1 层。
+3. `predictDamage`：元素伤害且攻击方 `guaranteedAilment` 时，预测异常层数
+   `= max(0, 预测伤害 ~/ 10 − 攻击方衰气层数)`，写入 `affix['predictedAilment']`；
+   物理必暴时暴击倍率按衰气循环扣除后再乘。描述生成（game.dart）读
+   `predictedAilment` 渲染 `(造成X层{异常名})`，暴击标注复用 `critHint`。
+4. 本地化：`status_effect.json` 豪气/衰气描述改写为双效果；新增预测标注键
+   （如 `predictedAilmentHint: "造成{0}层{1}"`）。
+5. 文档：`REFACTOR.md` 决策 7/9 补注双效果；`REFACTOR_3_CRIT.md` 末尾加修订注记；
+   `docs/docs/how2play/rpg/battle/` 资源相关页同步。
 
 ## 二、绝世卡牌（unique）
 
@@ -189,8 +241,12 @@
 ## 三、涉及文件
 
 - 需求 1：`lib/scene/battle/character.dart`（predictDamage）、
-  `lib/data/game.dart`（getBattleCardDescription 加 valueOverrides）、
+  `lib/data/game.dart`（getBattleCardDescription 读取 predictedValue 着色）、
   `lib/scene/battle/battle.dart`（刷新时机挂载）、`lib/scene/battle/hand_zone.dart`（复用确认）
+- 需求 1.5：`scripts/main/cardgame/status_script.ht`（豪气脚本放宽 damageType）、
+  `lib/scene/battle/character.dart`（takeDamage 异常分支必发 + 衰气抵消、暴击分支衰气循环）、
+  `assets/locale/zh/rpg/status_effect.json`（豪气/衰气描述改写 + predictedAilmentHint）、
+  `REFACTOR.md` / `REFACTOR_3_CRIT.md` / `docs/docs/how2play/rpg/battle/`（文档同步）
 - 需求 2：`scripts/main/cardgame/card.ht`（uniqueId、固定词条、破境、精炼限制、
   概率控制）、`scripts/main/data/game.ht`（setHero 跳过）、
   `lib/scene/card_library/deckbuilding_zone.dart`（唯一性 + 去强制鉴定）、
@@ -205,10 +261,13 @@
 
 ## 四、验证清单
 
-- [ ] 编译通过（`python build.py`），`flutter analyze` 无新增错误
+- [x] 编译通过（`python build.py`），`flutter analyze` 无新增错误（仅 1 个既有错误：
+  `deckbuilding_zone.dart:386` `removeFromGame` 未定义命名参数，改动前已存在）
 - [ ] 实机：战斗开始/抽牌/出牌后手牌伤害数字实时刷新；高于原值黄色、低于红色
-- [ ] 实机：元素牌数字反映对方抗性/弱点；物理/真气牌数字反映对方护甲；豪气在必暴时显示暴击伤害
+- [ ] 实机：元素牌数字反映对方抗性/弱点；物理/真气牌数字不反映对方护甲（本阶段忽略）；豪气在必暴时显示暴击伤害并标注"(暴击)"
 - [ ] 实机：刷新无闪烁/性能问题；敌方回合后数字正确更新
+- [ ] 实机：豪气对元素攻击牌必发异常（每 10 点伤害 1 层，不 roll）；卡面标注"(造成X层{异常名})"
+- [ ] 实机：衰气循环消耗至暴击倍率 100%；攻击方衰气逐层抵消其赋予的元素异常
 - [ ] 实机：随机生成（卡包）以低概率产出绝世卡；draw_cards 生成时带预定义固定词条（按境界 1~6 个）
 - [ ] 实机：绝世卡获得后未鉴定（卡面红字、不能入卡组/出战）；打造界面只显示鉴定卷轴，使用后鉴定成功
 - [ ] 实机：绝世卡的灵宝/神照/真定/坐忘被拒并提示；混元/破境可用；破境追加下一个预定义词条
@@ -216,7 +275,9 @@
 
 ## 待确认问题（全部已定案）
 
-- ~~Q1 预测范围~~：只算确定性部分（1.2.1），脚本类修正列入后续补齐。
-- ~~Q2 暴击显示~~：默认非暴击，必暴时按暴击倍率显示。
+- ~~Q1 预测范围~~：基础值 + 增强/削弱净值 + 元素抗性/弱点 + 必暴；忽略护甲与穿透（1.2.1）。
+- ~~Q2 暴击显示~~：默认非暴击，必暴时显示暴击后伤害并加括号标注"暴击"。
 - ~~Q3 随机池~~：绝世卡保留在随机池，两段式 roll 控制概率（初值 5%，实机调）。
 - ~~Q4 鉴定方式~~：复用鉴定卷轴；打造界面中未鉴定卡只显示鉴定卷轴。
+- ~~Q5 豪气/衰气双效果~~：并入本轮执行（1.5）；衰气暴击侧改为按层循环消耗至 100%。
+- ~~Q6 必异常卡面标注~~：括号内直接写具体异常，形如 `24(造成3层点燃)`，层数扣除衰气抵消。

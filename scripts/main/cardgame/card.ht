@@ -18,7 +18,7 @@ struct BattleCard {
     rank, // 境界决定了额外词条数量
     maxOutLevel = false, // 是否最大化等级
     maxRank,
-    isIdentified = true,
+    isIdentified,
     isEphemeral = false,
   }) {
     this.entityType = kEntityTypeBattleCard
@@ -41,7 +41,6 @@ struct BattleCard {
     }
 
     this.id = crypto.randomUID(withTime: true)
-    this.isIdentified = isIdentified
     this.isEphemeral = isEphemeral
 
     this.keywords = []
@@ -67,6 +66,19 @@ struct BattleCard {
         return true
       }
     })
+
+    if (affixId == null && mainAffixes.isNotEmpty) {
+      // 两段式 roll：先按概率判定是否出绝世卡，再从对应的词条池中随机
+      final uniquePool = mainAffixes.where( (affix) => affix.isUnique == true )
+      final normalPool = mainAffixes.where( (affix) => affix.isUnique != true )
+      if (random.nextInt(100) < Constants.uniqueCardChance) {
+        if (uniquePool.isNotEmpty) {
+          mainAffixes = uniquePool
+        }
+      } else if (normalPool.isNotEmpty) {
+        mainAffixes = normalPool
+      }
+    }
 
     if (mainAffixes.isEmpty) {
       // 去掉 kind 限制再试一次
@@ -102,6 +114,11 @@ struct BattleCard {
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
     this.rank = mainAffix.rank = mainAffixRank
     this.isUnique = mainAffix.isUnique ?? false
+    if (this.isUnique) {
+      this.uniqueId = mainAffix.uniqueId ?? mainAffix.id
+    }
+    // 绝世卡牌生成时默认未鉴定，需要使用鉴定卷轴鉴定
+    this.isIdentified = isIdentified ?? !this.isUnique
 
     this.affixes = [mainAffix]
     if (mainAffix.kind != null) {
@@ -142,7 +159,11 @@ struct BattleCard {
 
     this.affixUniqueIds = affixUniqueIds
 
-    _addExtraAffixes(this)
+    if (this.isUnique) {
+      _addPredefinedAffixes(this)
+    } else {
+      _addExtraAffixes(this)
+    }
 
     _updateAffixUniqueIds(this)
   }
@@ -284,6 +305,25 @@ function _addExtraAffixes(card) {
   }
 }
 
+/// 绝世卡牌的额外词条是固定的
+/// 按主词条数据中预定义的词条 id 列表顺序解锁，总数为 rank + 1 个
+function _addPredefinedAffixes(card) {
+  final predefinedAffixIds = card.affixes.first.affixes
+  if (predefinedAffixIds is! List) return
+
+  final targetCount = Math.min(predefinedAffixIds.length, card.rank + 1)
+  for (var i = card.affixes.length - 1; i < targetCount; ++i) {
+    final affixId = predefinedAffixIds[i]
+    final prototype = game.battleCardAffixes[affixId]
+    if (prototype == null) {
+      engine.warning('Found no predefined affix for unique card: [${card.affixes.first.id}], affixId: ${affixId}')
+      continue
+    }
+    final affix = Object.create(prototype)
+    _addAffixToCard(card, affix, card.rank)
+  }
+}
+
 // function identifyCard(card) {
 //   if (card.isIdentified == true) {
 //     return 'deckbuilding_identifyCard_warning'
@@ -298,6 +338,10 @@ function _addExtraAffixes(card) {
 /// 增加一个额外词条
 /// materialRank 为打造材料的境界，决定新词条的隐藏境界
 function addAffix(card, materialRank, {index}) {
+  if (card.isUnique == true) {
+    return engine.locale('craft_unique_forbidden_hint')
+  }
+
   if (index == null) {
     let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
     // 这里判断的时候要 +1 因为主词条本身也在 length 中
@@ -321,6 +365,10 @@ function addAffix(card, materialRank, {index}) {
 /// 替换一个额外词条
 /// materialRank 为打造材料的境界，决定新词条的隐藏境界
 function replaceAffix(card, materialRank) {
+  if (card.isUnique == true) {
+    return engine.locale('craft_unique_forbidden_hint')
+  }
+
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && !affix.isFreezed)
   }).toList()
@@ -348,6 +396,10 @@ function replaceAffix(card, materialRank) {
 /// 已锁定词条数量决定所需真定丹的最低境界: 
 /// 0个已锁定 → rank>=1, 1个已锁定 → rank>=2, 以此类推，最多5个
 function freezeAffix(card, materialRank) {
+  if (card.isUnique == true) {
+    return engine.locale('craft_unique_forbidden_hint')
+  }
+
   final frozenCount = card.affixes.where( (affix) => affix.isFreezed == true ).length
   if (frozenCount >= kCultivationRankMax) {
     return engine.locale('craft_freezeAffix_warning_maxCount')
@@ -378,6 +430,10 @@ function freezeAffix(card, materialRank) {
 }
 
 function removeAffix(card, materialRank) {
+  if (card.isUnique == true) {
+    return engine.locale('craft_unique_forbidden_hint')
+  }
+
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
   }).toList()
@@ -453,17 +509,22 @@ function upgradeRank(card, materialRank) {
   final newLevel = minLevel + random.nearInt(maxLevel - minLevel)
   card.level = Math.max(card.level, newLevel)
 
-  // 保留主词条和被锁定的词条
-  final freezedAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.isFreezed)
-  })
-  card.affixes = [card.affixes.first, ...freezedAffixes]
-  for (final affix in card.affixes) {
-    affix.rank = card.rank
-    _updateAffixValue(card, affix)
-  }
+  if (card.isUnique == true) {
+    // 绝世卡牌的额外词条是固定的，破境时追加下一个预定义词条
+    _addPredefinedAffixes(card)
+  } else {
+    // 保留主词条和被锁定的词条
+    final freezedAffixes = card.affixes.where( (affix) {
+      return (!affix.isMain && affix.isFreezed)
+    })
+    card.affixes = [card.affixes.first, ...freezedAffixes]
+    for (final affix in card.affixes) {
+      affix.rank = card.rank
+      _updateAffixValue(card, affix)
+    }
 
-  _addExtraAffixes(card)
+    _addExtraAffixes(card)
+  }
   
   _updateAffixUniqueIds(card)
 

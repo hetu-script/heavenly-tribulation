@@ -961,6 +961,14 @@ final class GameLogic {
       }
     }
 
+    // 兜底校验：同一卡组中同一 uniqueId 的绝世卡只能有一张
+    final uniqueCardIds = <dynamic>{};
+    for (final card in cards) {
+      if (card['isUnique'] == true && !uniqueCardIds.add(card['uniqueId'])) {
+        return 'deckbuilding_unique_card_exists';
+      }
+    }
+
     return null;
   }
 

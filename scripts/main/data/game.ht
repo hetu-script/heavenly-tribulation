@@ -296,7 +296,10 @@ function setHero(id: string) {
   }
 
   for (final card in hero.cardLibrary.values) {
-    card.isIdentified = true
+    // 绝世卡牌需要手动使用鉴定卷轴鉴定
+    if (card.isUnique != true) {
+      card.isIdentified = true
+    }
   }
 
   Game.updateUI()

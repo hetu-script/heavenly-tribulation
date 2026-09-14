@@ -35,6 +35,8 @@ class _ItemCraftState extends State<ItemCraft> {
         filter['category'] = 'craftmaterial_affix';
       case CraftMode.scroll:
         filter['category'] = 'scroll_paper';
+      case CraftMode.identify:
+        filter['category'] = 'identify_scroll';
       case CraftMode.all:
         filter['type'] = 'craftmaterial';
     }

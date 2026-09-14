@@ -25,6 +25,8 @@
   "extraTurn": "再次行动！",
   "missedHit": "MISS！",
   "critHint": "暴击！",
+  "critPredictedHint": "暴击",
+  "predictedAilmentHint": "造成{0}层{1}",
   "invincible": "免伤！",
   "staggering": "踉跄！",
   "defensePersisted": "护甲保持！",

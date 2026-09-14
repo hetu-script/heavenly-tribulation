@@ -353,9 +353,12 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       return 'deckbuilding_deck_is_full';
     }
     final cardData = (c as CustomGameCard).data;
-    cardData['isIdentified'] = true;
-    if (cardData['isIdentified'] != true) {
-      engine.error('deckbuilding_card_unidentified');
+    // 同一卡组中同一 uniqueId 的绝世卡只能有一张
+    if (cardData['isUnique'] == true &&
+        cards.any((card) =>
+            (card as CustomGameCard).data['uniqueId'] ==
+            cardData['uniqueId'])) {
+      return 'deckbuilding_unique_card_exists';
     }
     if (ongoingCount >= kDeckOngoingLimit &&
         cardData['category'] == 'ongoing') {
