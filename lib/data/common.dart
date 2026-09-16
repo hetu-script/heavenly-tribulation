@@ -361,6 +361,27 @@ const kGenreToAttribute = {
   'avatar': 'perception',
 };
 
+/// 流派 → 费用色映射（战斗费用系统重构，见 plan-battle_qi_cost_rework.md §3.2）
+/// 法身（avatar）为怒气 + 煞气双色，对半拆；奇数时无色少 1
+const kGenreCostColors = {
+  'spellcraft': ['spell'],
+  'swordcraft': ['weapon'],
+  'bodyforge': ['unarmed'],
+  'vitality': ['curse'],
+  'avatar': ['unarmed', 'curse'],
+};
+
+/// 费用色 → 阳气状态 id 映射（基础卡的有色费用仅限这 4 色）
+const kCostColorStatusIds = {
+  'spell': 'energy_positive_spell',
+  'weapon': 'energy_positive_weapon',
+  'unarmed': 'energy_positive_unarmed',
+  'curse': 'energy_positive_curse',
+};
+
+/// 万能费用色（无极之气）的状态 id，可支付任意有色费用
+const kWildcardStatusId = 'energy_positive_ultimate';
+
 const kDeckOngoingLimit = 3;
 
 const kCultivationRankMax = 5;

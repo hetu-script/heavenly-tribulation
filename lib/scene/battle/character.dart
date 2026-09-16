@@ -23,19 +23,6 @@ const kResourceMaxId = {
   'energy_positive_weapon': 'chakraMax',
 };
 
-const kResourceHasNegatives = {
-  'energy_positive_life',
-  'energy_positive_penetrate',
-  'energy_positive_crit',
-  'energy_positive_ward',
-  'energy_positive_shield',
-  'energy_positive_unarmed',
-  'energy_positive_weapon',
-  'energy_positive_spell',
-  'energy_positive_curse',
-  'energy_positive_ultimate',
-};
-
 Color getDamageColor(String damageType) {
   return switch (damageType) {
     'chi' => Colors.purple,
@@ -171,10 +158,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final BattleDeckZone deckZone;
 
-  int _energyMax = 0;
-  int get energyMax => _energyMax;
+  /// 元气（无色费用）= energy_positive_life 状态层数（§4.1：energy 计数器已归一为状态）。
+  /// 回合开始获得 rank + 3 层，支付无色费用移除对应层数，回合结束按剩余层数回血。
+  int get energy => hasStatusEffect('energy_positive_life');
 
-  int energy = 0;
+  /// 本回合打出的武器攻击牌数量（回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
+  int weaponAttackCardsPlayed = 0;
+  int lastTurnWeaponAttackCards = 0;
+
+  /// 本回合自身受到的伤害（回合开始时结转为上回合数据后清零，§4.3 怒气产出依据）
+  int damageTaken = 0;
+  int lastTurnDamageTaken = 0;
+
   int turnCount = 0;
 
   final Map<String, dynamic> turnFlags = {};
@@ -223,11 +218,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     _life = data['life'].toInt();
     _lifeMax = data['stats']['battleLifeMax'].toInt();
-
-    // TODO:修改费用上限的装备效果
-    final defaultEnergyMax =
-        GameLogic.getHandLimitForRank(data['rank'])['limit'] as int;
-    _energyMax = defaultEnergyMax;
 
     hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -436,8 +426,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 返回的是移除的实际数量
-  /// 如果 exhaust 为 true ，并且该状态有对应的 energy_negative
-  /// 则会在没有足够资源时获得反面的资源
+  /// 资源类状态为全有或全无：存量不足时一点也不移除，返回 0
   int removeStatusEffect(
     String id, {
     int? amount,
@@ -638,6 +627,65 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
+  /// 清空所有资源气（统一生命周期，决策 5：资源持有至持有者的下个回合开始）。
+  /// 煞气（energy_positive_curse）未用量返回 karma 池（§4.5）；其余资源直接移除。
+  /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用。
+  void clearResourceEffects() {
+    for (final effect in resourceEffects) {
+      if (effect.id == 'energy_positive_curse' && effect.amount > 0) {
+        data['karma'] += effect.amount;
+        addHintText(
+            engine.locale('karmaPoolReturnHint', interpolations: [effect.amount]),
+            color: Colors.purple);
+      }
+      removeStatusEffect(effect.id, force: true);
+    }
+  }
+
+  /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
+  /// 元气 rank + 3（获得时与持有的死气自然对冲）；剑气/怒气按滞后一轮模型结算；
+  /// 煞气从 karma 池提取；灵气节点加成缺省 0（§7 天赋树落地后补充）。
+  void produceTurnStartResources() {
+    final int rank = data['rank'];
+
+    // 元气 = 无色费用池（§4.1）
+    addStatusEffect('energy_positive_life', amount: rank + 3);
+
+    // 剑气：上回合打出的武器攻击牌数量（§4.2；节点加成缺省 0，预留读取位）
+    if (hasStatusEffect('enable_chakra') > 0 && lastTurnWeaponAttackCards > 0) {
+      addStatusEffect('energy_positive_weapon',
+          amount: lastTurnWeaponAttackCards);
+    }
+
+    // 怒气：上回合自身受到的伤害 ÷ 10（§4.3；节点加成缺省 0，预留读取位）
+    if (hasStatusEffect('enable_rage') > 0 && lastTurnDamageTaken > 0) {
+      addStatusEffect(
+          'energy_positive_unarmed', amount: lastTurnDamageTaken ~/ 10);
+    }
+
+    // 灵气：enable_mana 天赋每回合开始 +1（不超过 manaMax）；
+    // 悟道节点回合产出加成缺省 0，天赋树落地后在此补充（§4.4）
+    if (hasStatusEffect('enable_mana') > 0) {
+      final int manaMax = (data['stats']['manaMax'] ?? 0) as int;
+      if (hasStatusEffect('energy_positive_spell') < manaMax) {
+        addStatusEffect('energy_positive_spell', amount: 1);
+      }
+    }
+
+    // 煞气：从 karma 池提取 min(karmaMax, max(1, 池存量 ~/ 10))（§4.5；提取节点加成缺省 0，预留）
+    if (hasStatusEffect('enable_karma') > 0) {
+      final int karma = data['karma'];
+      if (karma > 0) {
+        final int karmaMax = (data['stats']['karmaMax'] ?? 0) as int;
+        final int extract = math.min(karmaMax, math.max(1, karma ~/ 10));
+        if (extract > 0) {
+          data['karma'] = karma - extract;
+          addStatusEffect('energy_positive_curse', amount: extract);
+        }
+      }
+    }
+  }
+
   dynamic _invokeScript(StatusEffect effect, String callbackId,
       [dynamic details]) {
     assert(effect.script != null);
@@ -697,6 +745,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (!isLoaded) return;
     turnFlags.clear();
     cardFlags.clear();
+    turnCount = 0;
+    weaponAttackCardsPlayed = 0;
+    lastTurnWeaponAttackCards = 0;
+    damageTaken = 0;
+    lastTurnDamageTaken = 0;
     _life = data['life'].toInt();
     _lifeMax = data['stats']['battleLifeMax'].toInt();
     hpBar.max = _lifeMax;
@@ -947,6 +1000,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       opponent!.cardFlags['damage']['total'] += finalDamage;
       opponent!.turnFlags['totalDamage'] += finalDamage;
+      // 怒气滞后产出模型的数据源（§4.3）：累计自身本回合实际受到的伤害
+      damageTaken += finalDamage;
 
       // 充能：每次实际造成伤害的实例为攻击方对应计数器 +1
       //（物理 → crit_charge，元素 → ailment_charge；检查触发在先、充能在后，
@@ -1034,6 +1089,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // isExtra 表示这是某些机制触发的再次行动回合
     turnFlags["isExtra"] = isExtra;
 
+    // 回合统计结转（滞后一轮产出模型的数据源，须在回合开始回调之前归档）
+    lastTurnWeaponAttackCards = weaponAttackCardsPlayed;
+    weaponAttackCardsPlayed = 0;
+    lastTurnDamageTaken = damageTaken;
+    damageTaken = 0;
+
     setState(kStandState);
 
     opponent!.handleStatusEffectCallback('opponent_turn_start');
@@ -1090,6 +1151,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['damageType'] = mainAffix['damageType'];
+
+    // 剑气滞后产出模型的数据源（§4.2）：累计本回合打出的武器攻击牌数量
+    if (category == 'attack' && mainAffix['cardType'] == 'weapon') {
+      weaponAttackCardsPlayed += 1;
+    }
 
     opponent!.handleStatusEffectCallback('opponent_using_card');
     handleStatusEffectCallback('self_using_card');
@@ -1164,6 +1230,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 返回值true表示获得一个额外回合
   Future<void> onEndTurn() async {
+    // 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血，见 §4.6/§4.1；
+    // 灵气转化出的元气层数可赶上同回合的元气回血）
+    engine.hetu.invoke('turn_end_resource_settlement',
+        namespace: 'StatusScript', positionalArgs: [this, opponent]);
+
     handleStatusEffectCallback('self_turn_end');
     opponent!.handleStatusEffectCallback('opponent_turn_end');
 

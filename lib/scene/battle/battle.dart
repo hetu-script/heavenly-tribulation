@@ -32,6 +32,14 @@ import '../../widgets/character/profile.dart';
 
 const kBattleRoundLimit = 16;
 
+/// 手牌置灰用的灰度 ColorFilter（可打出高亮，见计划 §6.2）
+const ColorFilter kCardGrayscaleFilter = ColorFilter.matrix([
+  0.2126, 0.7152, 0.0722, 0, 0, //
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0.2126, 0.7152, 0.0722, 0, 0,
+  0, 0, 0, 1, 0,
+]);
+
 /// 后手方恢复 20% 战斗生命上限
 const double kSecondHandHealRate = 0.2;
 
@@ -189,15 +197,6 @@ class BattleScene extends Scene {
       }
     }
 
-    final int karma = character.data['karma'];
-    final int karmaMax = character.data['stats']['karmaMax'];
-    if (karma > 0 && karmaMax > 0) {
-      int karmaInBattle = math.min(karma, karmaMax);
-      character.data['karma'] -= karmaInBattle;
-      character.addStatusEffect('energy_positive_curse',
-          amount: karmaInBattle, handleCallback: false);
-    }
-
     if (character.data['passives']['enable_mana'] != null) {
       character.addStatusEffect('enable_mana',
           amount: 1, handleCallback: false);
@@ -210,6 +209,11 @@ class BattleScene extends Scene {
 
     if (character.data['passives']['enable_rage'] != null) {
       character.addStatusEffect('enable_rage',
+          amount: 1, handleCallback: false);
+    }
+
+    if (character.data['passives']['enable_karma'] != null) {
+      character.addStatusEffect('enable_karma',
           amount: 1, handleCallback: false);
     }
 
@@ -451,6 +455,15 @@ class BattleScene extends Scene {
       enableInteraction: true,
     );
     heroHandZone.onCardSelected = onPlayerSelectedCard;
+    // 置灰卡牌的悬浮提示附加缺少资源信息（§6.2；可支付的卡牌缺失列表为空，原样展示）
+    heroHandZone.onHoverDescription = (card, description) {
+      if (_cardQueue.contains(card)) return description;
+      final missing = _missingCostReport(card);
+      if (missing.isNotEmpty) {
+        return '<red>$missing</>\n$description';
+      }
+      return description;
+    };
     world.add(heroHandZone);
 
     final String heroSkinId = heroData['skin'];
@@ -627,9 +640,7 @@ class BattleScene extends Scene {
     hero.reset();
     enemy.reset();
 
-    hero.energy = 0;
     hero.turnCount = 0;
-    enemy.energy = 0;
     enemy.turnCount = 0;
 
     heroEnergyDisplay.setEnergy(0);
@@ -804,25 +815,178 @@ class BattleScene extends Scene {
     }
   }
 
+  /// 卡牌的有色费用（颜色 → 数量），无则空表
+  Map<String, int> _cardCostColored(CustomGameCard card) {
+    final costColored = card.data['costColored'];
+    if (costColored is Map) {
+      return costColored.map(
+          (key, value) => MapEntry('$key', (value as num).toInt()));
+    }
+    return const {};
+  }
+
+  /// 费用对应的阴气状态 id（无色费用对应死气，有色费用对应对应的阴气）
+  String? _costYinStatusId(String? color) {
+    if (color == null) return 'energy_negative_life';
+    final yangId = kCostColorStatusIds[color];
+    return yangId != null ? kOppositeStatus[yangId] : null;
+  }
+
+  /// 有效费用需求 = 基础需求 + min(对应阴气层数, 2)（阴气增费，同色至多 +2）
+  int _effectiveCostNeed(BattleCharacter character, String? color, int base) {
+    final yinId = _costYinStatusId(color);
+    final yin = yinId != null ? character.hasStatusEffect(yinId) : 0;
+    return base + math.min(yin, 2);
+  }
+
+  /// 检查能否支付卡牌费用（全有或全无）。
+  /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
+  bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
+      [List<CustomGameCard>? queued]) {
+    var colorlessNeed = 0;
+    final coloredNeeds = <String, int>{};
+    void accumulate(CustomGameCard c) {
+      colorlessNeed += _effectiveCostNeed(character, null, c.cost);
+      for (final entry in _cardCostColored(c).entries) {
+        coloredNeeds[entry.key] = (coloredNeeds[entry.key] ?? 0) +
+            _effectiveCostNeed(character, entry.key, entry.value);
+      }
+    }
+
+    if (queued != null) {
+      for (final queuedCard in queued) {
+        accumulate(queuedCard);
+      }
+    }
+    accumulate(card);
+
+    if (colorlessNeed > character.energy) return false;
+
+    // 有色费用：每色先扣本色气，缺口由无极之气补齐（无极全色共享，按各颜色缺口之和校验）
+    var ultimateNeed = 0;
+    for (final entry in coloredNeeds.entries) {
+      final yangId = kCostColorStatusIds[entry.key];
+      if (yangId == null) continue;
+      ultimateNeed +=
+          math.max(0, entry.value - character.hasStatusEffect(yangId));
+    }
+    return ultimateNeed <= character.hasStatusEffect(kWildcardStatusId);
+  }
+
+  /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣无极之气。
+  /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
+  /// 返回 false 且不扣除任何费用。
+  bool _payCardCost(BattleCharacter character, CustomGameCard card) {
+    final colorlessNeed = _effectiveCostNeed(character, null, card.cost);
+
+    final pending = <(String, int)>[];
+    var ultimateNeed = 0;
+    for (final entry in _cardCostColored(card).entries) {
+      final yangId = kCostColorStatusIds[entry.key];
+      if (yangId == null) continue;
+      final need = _effectiveCostNeed(character, entry.key, entry.value);
+      final ownPaid = math.min(character.hasStatusEffect(yangId), need);
+      pending.add((yangId, ownPaid));
+      ultimateNeed += need - ownPaid;
+    }
+
+    if (colorlessNeed > character.energy ||
+        ultimateNeed > character.hasStatusEffect(kWildcardStatusId)) {
+      engine.warning('卡牌 [${card.data['name']}] 支付失败：资源不足');
+      return false;
+    }
+
+    // 无色费用 = 移除元气（energy_positive_life）状态层数；
+    // 入队检查与上方校验已保证存量充足，资源类的全有或全无语义不会截断
+    if (colorlessNeed > 0) {
+      character.removeStatusEffect('energy_positive_life',
+          amount: colorlessNeed);
+    }
+    final energyDisplay =
+        character.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
+    energyDisplay.setEnergy(character.energy);
+
+    for (final (statusId, amount) in pending) {
+      if (amount > 0) {
+        character.removeStatusEffect(statusId, amount: amount);
+      }
+    }
+    if (ultimateNeed > 0) {
+      character.removeStatusEffect(kWildcardStatusId, amount: ultimateNeed);
+    }
+
+    // 支付反馈（计划 §6.2）：有色费用按气种弹出负量跳字（无极抵扣单独标注）
+    for (final (statusId, amount) in pending) {
+      if (amount > 0) {
+        character.addHintText(
+            '${engine.locale('status_$statusId')} -$amount',
+            color: getResourceColor(statusId));
+      }
+    }
+    if (ultimateNeed > 0) {
+      character.addHintText(
+          '${engine.locale('status_$kWildcardStatusId')} -$ultimateNeed',
+          color: getResourceColor(kWildcardStatusId));
+    }
+    return true;
+  }
+
+  /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰（§6.2 可打出高亮）。
+  /// 非己方回合全部置灰。置灰只影响卡面图像渲染，悬浮提示仍可用。
+  void refreshHandAffordability() {
+    for (final c in heroHandZone.cards) {
+      final card = c as CustomGameCard;
+      final grayed = !heroTurn ||
+          (!_cardQueue.contains(card) &&
+              !_canPayCardCost(hero, card, _cardQueue.toList()));
+      card.paint.colorFilter = grayed ? kCardGrayscaleFilter : null;
+    }
+  }
+
+  /// 生成卡牌缺少资源的悬浮提示文本（每行一种缺少的资源）。
+  /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）。
+  String _missingCostReport(CustomGameCard card) {
+    final lines = <String>[];
+    final colorlessNeed = _effectiveCostNeed(hero, null, card.cost);
+    if (colorlessNeed > hero.energy) {
+      lines.add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
+        engine.locale('status_energy_positive_life'),
+        colorlessNeed,
+        hero.energy,
+      ]));
+    }
+    final ultimateStock = hero.hasStatusEffect(kWildcardStatusId);
+    for (final entry in _cardCostColored(card).entries) {
+      final yangId = kCostColorStatusIds[entry.key];
+      if (yangId == null) continue;
+      final need = _effectiveCostNeed(hero, entry.key, entry.value);
+      final stock = hero.hasStatusEffect(yangId) + ultimateStock;
+      if (need > stock) {
+        lines.add(engine.locale('battlecard_cost_lacking_hint',
+            interpolations: [
+              engine.locale('status_$yangId'),
+              need,
+              stock,
+            ]));
+      }
+    }
+    return lines.join('\n');
+  }
+
   /// 将卡牌加入待打出队列
   void _enqueueCard(CustomGameCard card) {
+    // 只能在自己的回合入队（统一生命周期下资源跨对方回合保留，仅作展示）
+    if (!heroTurn) return;
+
     // 验证不重复入队
     if (_cardQueue.contains(card)) return;
 
     // 验证卡牌在手牌中
     if (!heroHandZone.cards.contains(card)) return;
 
-    // 计算队列中已有卡牌的总消耗
-    int queuedCost = 0;
-    for (final queuedCard in _cardQueue) {
-      queuedCost += queuedCard.cost;
-    }
-
-    // 验证能量足够（当前能量 - 队列消耗 >= 当前卡牌消耗）
-    final remainingEnergy = hero.energy - queuedCost;
-    if (card.cost > remainingEnergy) {
-      engine.info(
-          '能量不足，无法入队: ${card.data['name']} (需要: ${card.cost}, 剩余: $remainingEnergy)');
+    // 验证费用足够（无色能量 + 有色气，含队列中已入队卡牌的占用）
+    if (!_canPayCardCost(hero, card, _cardQueue.toList())) {
+      engine.info('资源不足，无法入队: ${card.data['name']}');
       return;
     }
 
@@ -831,13 +995,15 @@ class BattleScene extends Scene {
     card.showGlow = true;
     card.isSelected = true;
 
+    // 队列占用变化，刷新其余手牌的置灰状态
+    refreshHandAffordability();
+
     Hovertip.hide(card);
 
     // 清除卡牌交互
     // heroHandZone.clearCardInteraction(card);
 
-    engine.info(
-        '卡牌入队: ${card.data['name']}, 队列长度: ${_cardQueue.length}, 预计剩余能量: ${remainingEnergy - card.cost}');
+    engine.info('卡牌入队: ${card.data['name']}, 队列长度: ${_cardQueue.length}');
   }
 
   /// 处理待打出队列（异步单线程）
@@ -887,6 +1053,8 @@ class BattleScene extends Scene {
       heroHandZone.updateIndices();
       // 队列处理完成后，整理手牌区
       await heroHandZone.sortCards();
+      // 队列结算完毕（资源与占用均已变化），刷新置灰状态
+      refreshHandAffordability();
     } finally {
       _isProcessingQueue = false;
     }
@@ -896,10 +1064,15 @@ class BattleScene extends Scene {
   Future<void> _playCard(CustomGameCard card) async {
     engine.info('开始打出卡牌: ${card.data['name']}');
 
-    // 1. 扣除能量
-    hero.energy -= card.cost;
+    // 1. 扣除费用（无色能量 + 有色气，先本色后无极）
+    if (!_payCardCost(hero, card)) {
+      // 入队时已保证可支付，此处失败属意外情况：退回手牌并中断本次打出
+      heroHandZone.tryAddCard(card);
+      await heroHandZone.sortCards();
+      refreshHandCardDescriptions();
+      return;
+    }
     heroHandZone.energy = hero.energy;
-    heroEnergyDisplay.setEnergy(hero.energy);
 
     card.clearInteraction();
     // 2. 卡牌结算
@@ -914,6 +1087,8 @@ class BattleScene extends Scene {
     await heroDiscardZone.sortCards();
 
     refreshHandCardDescriptions();
+    // 资源已扣除，刷新置灰状态
+    refreshHandAffordability();
 
     engine.info('卡牌打出完成: ${card.data['name']}, 剩余能量: ${hero.energy}');
   }
@@ -969,8 +1144,9 @@ class BattleScene extends Scene {
     final energyDisplay =
         currentCharacter.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
 
+    // 软狂暴（§4.8）：每 16 回合叠劫气（tribulation），劫气非资源、不对冲、不影响费用
     if (roundCount > 0 && roundCount % kBattleRoundLimit == 0) {
-      currentCharacter.addStatusEffect('energy_negative_life',
+      currentCharacter.addStatusEffect('tribulation',
           amount: roundCount ~/ kBattleRoundLimit);
     }
 
@@ -978,8 +1154,6 @@ class BattleScene extends Scene {
 
     do {
       currentCharacter.turnCount += 1;
-      currentCharacter.energy = currentCharacter.energyMax;
-      energyDisplay.setEnergy(currentCharacter.energy);
 
       final drawCount =
           GameLogic.getHandLimitForRank(currentCharacter.data['rank'])['limit']
@@ -987,6 +1161,7 @@ class BattleScene extends Scene {
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
 
+      // ① 回合开始回调（死气/劫气/DOT/缓慢/幻觉等；其中死气消耗 1 层失去 10% 生命）
       await currentCharacter.onStartTurn(isExtra: extraTurn);
 
       extraTurn = false;
@@ -1001,6 +1176,13 @@ class BattleScene extends Scene {
         break;
       }
 
+      // ② 统一生命周期：清空上回合残留的所有资源气（煞气未用量返回 karma 池）
+      // ③ 结算本回合新产出（元气 rank+3 / 剑气 / 怒气 / 灵气 / 煞气池提取）
+      // 顺序显式保证：先清空残留，再结算产出
+      currentCharacter.clearResourceEffects();
+      currentCharacter.produceTurnStartResources();
+      energyDisplay.setEnergy(currentCharacter.energy);
+
       final opponentStatus =
           _prepareStatus(currentCharacter, StatusCircumstances.start_turn);
       for (final statusId in opponentStatus.keys) {
@@ -1010,6 +1192,8 @@ class BattleScene extends Scene {
       }
       // 回合开始注入的状态（如施加给对方的弱点）会影响预测数值
       refreshHandCardDescriptions();
+      // 新产出已结算，刷新手牌置灰状态
+      refreshHandAffordability();
 
       if (heroTurn) {
         endTurnButton.isEnabled = true;
@@ -1043,15 +1227,14 @@ class BattleScene extends Scene {
             handZone.cards.isNotEmpty &&
             currentCharacter.energy > 0) {
           final affordable = handZone.cards
-              .where(
-                  (c) => (c as CustomGameCard).cost <= currentCharacter.energy)
+              .where((c) =>
+                  _canPayCardCost(currentCharacter, c as CustomGameCard))
               .toList()
               .cast<CustomGameCard>();
           if (affordable.isEmpty) break;
 
           final selectedCard = _enemySelectCard(affordable);
-          currentCharacter.energy -= selectedCard.cost;
-          energyDisplay.setEnergy(currentCharacter.energy);
+          _payCardCost(currentCharacter, selectedCard);
 
           selectedCard.isFlipped = false;
           await currentCharacter.onUseCard(selectedCard);
@@ -1087,6 +1270,8 @@ class BattleScene extends Scene {
     heroTurn = !heroTurn;
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
+    // 回合归属切换：非己方回合期间整手置灰
+    refreshHandAffordability();
 
     if (currentCharacter == hero) {
       roundCount += 1;

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' hide Viewport;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:flame/sprite.dart';
@@ -7,6 +8,15 @@ import 'package:hetu_script/utils/collection.dart' as utils;
 import '../../global.dart';
 import '../../data/game.dart';
 import '../../ui.dart';
+import 'common.dart';
+
+/// 资源阴气图标的反色矩阵（净值 UI，见计划 §5：同一图标的反色版本，不出新图）
+const List<double> kNegativeQiInvertMatrix = [
+  -1, 0, 0, 0, 255, //
+  0, -1, 0, 0, 255,
+  0, 0, -1, 0, 255,
+  0, 0, 0, 1, 0,
+];
 
 class StatusEffect extends BorderComponent with HandlesGesture {
   static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
@@ -60,6 +70,9 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   late final String description;
 
+  /// 资源阴气反色渲染的缓存画笔（惰性创建，组件生命周期内复用）
+  Paint? _invertPaint;
+
   StatusEffect({
     required this.id,
     int amount = 1,
@@ -108,7 +121,14 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   @override
   void render(Canvas canvas) {
-    sprite.render(canvas, size: size);
+    if (isNegativeResourceQi(id)) {
+      // 资源阴气：以对应阳气的反色版本显示（阴阳净值 UI）
+      _invertPaint ??= Paint()
+        ..colorFilter = const ColorFilter.matrix(kNegativeQiInvertMatrix);
+      sprite.render(canvas, size: size, overridePaint: _invertPaint);
+    } else {
+      sprite.render(canvas, size: size);
+    }
     drawScreenText(canvas, '$amount', config: countTextConfig);
   }
 }

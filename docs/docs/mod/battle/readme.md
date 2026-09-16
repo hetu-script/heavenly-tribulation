@@ -1,25 +1,23 @@
-**玩家回合（heroTurn == true）：**
+**玩家回合（heroTurn == true）与敌方回合（heroTurn == false）共用同一套流程（`_startTurn`）：**
 
-1. 执行 `currentCharacter.onStartTurn()`
-2. 抽牌：`drawCardsToHand()`
-3. 等待玩家选择：使用 `_playerCardSelection(Completer<CustomGameCard>)`
-4. 玩家点击卡牌 → 验证可打出（资源足够等）→ 执行效果
-5. 返回 3
-6. 玩家点击回合结束
-7. 执行 `currentCharacter.onEndTurn()`
-8. `heroHandZone.clearHand()`
-9. 切换回合
+1. 摸牌：`drawCardsToHand()`
+2. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
+3. 跳过检查（`turnFlags.skipTurn` 或空手空库）→ 跳过则直接回合结束
+4. 清空资源：`clearResourceEffects()`（所有资源气在下个回合开始清空；煞气未用量返回业力池）
+5. 产出结算：`produceTurnStartResources()`（元气 rank+3 / 剑气=上回合武器攻击牌数 /
+   怒气=上回合受伤÷10 / 灵气获取天赋+1 / 煞气从业力池提取），刷新能量瓶
+6. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
+7. 出牌阶段：
+   - 玩家：点击卡牌 → `_enqueueCard`（`heroTurn` 守卫 + 费用硬检查，含队列占用）
+     → `_processCardQueue` 依次 `_playCard`（`_payCardCost` 支付：
+     无色扣元气层数，有色先扣本色气、缺口自动扣无极之气）→ 弃牌
+   - 敌方：循环 `_canPayCardCost` 过滤可支付手牌 → AI 选牌 → 支付并出牌，直至无牌可出
+8. 执行 `currentCharacter.onEndTurn()`：先显式调用 `turn_end_resource_settlement`
+   （灵气溢出天赋 → 元气回血），再派发其余回合结束回调
+9. end_turn 被动注入，`clearHand()` 弃掉本回合手牌
+10. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
 
-**敌方回合（heroTurn == false）：**
-
-1. 执行 `currentCharacter.onStartTurn()`
-2. 抽牌：`enemyHandZone.drawCards(enemyDeck, enemyDrawCount)`
-3. 选择一张牌
-4. 自动执行效果
-5. 当手牌中还有小于剩余费用的卡牌时，返回 3
-6. 执行 `currentCharacter.onEndTurn()`
-7. `enemyHandZone.clearHand()`
-8. 切换回合
+额外回合（`turnFlags.extraTurn`）重复 2-9 后才会切换回合。
 
 ---
 
@@ -58,7 +56,7 @@
 | `self/opponent_gained_energy_positive` | 获得阳气后 |
 | `self/opponent_gained_debuff` | 获得负面效果后（一次获得多层只触发一次；可写入 cancelDebuff） |
 | `self/opponent_gained_injury` | 获得伤势后 |
-| `self/opponent_overflowed_energy` | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值） |
+| `self/opponent_overflowed_energy` | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（`turn_end_resource_settlement`），该派发保留但为空转 |
 | `self/opponent_using_card` / `self/opponent_used_card` | 使用卡牌时 / 后 |
 | `self/opponent_attacked` | 使用攻击牌后 |
 | `self/opponent_use_card_kind_*` | 使用特定流派（kind）卡牌时 |
@@ -80,7 +78,7 @@
 | `percentageChange2` | 出 | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75） |
 | `percentageChange3` | 出 | 乘区 3：预留 |
 | `penetration` | 出 | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5） |
-| `cancelDamage` | 出 | 写 true 取消本次伤害（浩然之气护盾） |
+| `cancelDamage` | 出 | 写 true 取消本次伤害（护盾） |
 | `isCritical` | 回 | takeDamage 写入：本次是否暴击 |
 | `blocked` / `blockedAmount` | 回 | takeDamage 写入：被护甲抵消的量 |
 
@@ -93,7 +91,12 @@
 | ---- | ---- | ---- |
 | `overflow` | 入 | 溢出的资源层数 |
 
-返回值 true 表示保留溢出部分（如 overflowed_mana_keep_to_deck_end）。
+返回值 true 表示保留溢出部分。当前无注册者；灵气溢出天赋的实际触发点为
+回合结束 `turn_end_resource_settlement`（按剩余层数，先灵气溢出、后元气回血）。
+
+**费用与增费（新费用体系）**：打出卡牌前做硬检查——无色费用 ≤ 元气层数，
+每色 需求 + min(对应阴气层数, 2) ≤ 本色存量 + 无极存量；死气对应无色费用。
+支付时先扣本色气、缺口自动扣无极之气（`kWildcardStatusId`）。
 
 ## debuffDetails 键（获得负面效果事件）
 
@@ -127,6 +130,6 @@
 | `extraTurn` | 获得额外回合（迅捷达到阈值） | speed_quick 脚本 |
 | `invincible` / `staggering` | 闪避/迟钝达到阈值后的免伤/踉跄 | dodge_nimble/clumsy 脚本 |
 | `defensePersisted` | 护甲保留标记（有 persistent 状态） | defense 脚本 |
-| `guaranteedCrit` | 下一次物理攻击必定暴击（豪气） | energy_positive_crit 脚本 |
-| `guaranteedAilment` | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（豪气） | energy_positive_crit 脚本 |
+| `guaranteedCrit` | 下一次物理攻击必定暴击（幸运） | energy_positive_crit 脚本 |
+| `guaranteedAilment` | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（幸运） | energy_positive_crit 脚本 |
 | `totalDamage` | 本回合造成的总伤害（戾气结算用） | takeDamage 累加 |

@@ -1,5 +1,18 @@
 const kTopLayerAnimationPriority = 500;
 
+/// 6 种资源阴气的状态 id（净值 UI：图标运行时反色显示，见计划 §5）
+const kNegativeResourceQi = {
+  'energy_negative_life',
+  'energy_negative_spell',
+  'energy_negative_weapon',
+  'energy_negative_unarmed',
+  'energy_negative_curse',
+  'energy_negative_ultimate',
+};
+
+/// 是否为资源阴气（阴阳对冲保证同对阴阳不会同时持有，阴气显示为对应阳气的反色图标）
+bool isNegativeResourceQi(String statusId) => kNegativeResourceQi.contains(statusId);
+
 const kOppositeStatus = {
   'enhance_unarmed': 'weaken_unarmed',
   'enhance_weapon': 'weaken_weapon',
@@ -26,20 +39,12 @@ const kOppositeStatus = {
   'dodge_invincible': 'dodge_staggering',
   'dodge_staggering': 'dodge_invincible',
   'energy_positive_life': 'energy_negative_life',
-  'energy_positive_penetrate': 'energy_negative_penetrate',
-  'energy_positive_crit': 'energy_negative_crit',
-  'energy_positive_ward': 'energy_negative_ward',
-  'energy_positive_shield': 'energy_negative_shield',
   'energy_positive_spell': 'energy_negative_spell',
   'energy_positive_weapon': 'energy_negative_weapon',
   'energy_positive_unarmed': 'energy_negative_unarmed',
   'energy_positive_curse': 'energy_negative_curse',
   'energy_positive_ultimate': 'energy_negative_ultimate',
   'energy_negative_life': 'energy_positive_life',
-  'energy_negative_penetrate': 'energy_positive_penetrate',
-  'energy_negative_crit': 'energy_positive_crit',
-  'energy_negative_ward': 'energy_positive_ward',
-  'energy_negative_shield': 'energy_positive_shield',
   'energy_negative_spell': 'energy_positive_spell',
   'energy_negative_weapon': 'energy_positive_weapon',
   'energy_negative_unarmed': 'energy_positive_unarmed',

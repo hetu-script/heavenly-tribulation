@@ -604,25 +604,6 @@ final class GameLogic {
             '<$label>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
       }
     }
-    // final String? genreRequirement = entityData['genre'];
-    // if (genreRequirement != null) {
-    //   if (kCultivationGenres.contains(genreRequirement)) {
-    //     bool hasGenreRankPassive = false;
-    //     final passive = GameData.hero['passives']['${genreRequirement}_rank'];
-    //     if (passive != null) {
-    //       final int genreRank = passive['level'];
-    //       if (genreRank >= rankRequirement) {
-    //         hasGenreRankPassive = true;
-    //       }
-    //     }
-
-    //     if (!hasGenreRankPassive) {
-    //       requirementsMet = false;
-    //       description.writeln(
-    //           '<$label>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
-    //     }
-    //   }
-    // }
     final equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
       if (equipmentRequirement is List) {

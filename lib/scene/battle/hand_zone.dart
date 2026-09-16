@@ -9,6 +9,10 @@ import '../../data/game.dart';
 class HandZone extends PiledZone with HandlesGesture {
   void Function(CustomGameCard card)? onCardSelected;
 
+  /// 悬浮描述自定义回调：接收默认描述，返回最终展示的悬浮文本
+  ///（如 battle.dart 为置灰卡牌附加缺少资源提示）
+  String Function(CustomGameCard card, String description)? onHoverDescription;
+
   bool enableInteraction;
 
   int energy = 0;
@@ -76,7 +80,7 @@ class HandZone extends PiledZone with HandlesGesture {
         scene: game,
         target: card,
         direction: HovertipDirection.topCenter,
-        content: description,
+        content: onHoverDescription?.call(card, description) ?? description,
         config: ScreenTextConfig(
           anchor: Anchor.topCenter,
           textAlign: TextAlign.center,

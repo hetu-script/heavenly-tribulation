@@ -17,16 +17,13 @@ class EnergyDisplay extends SpriteButton {
             ),
           ),
         );
+  /// 能量瓶显示元气（energy_positive_life 状态层数）。
+  /// 图标暂用元气费用图标（原瓶子图标已弃用，见计划 §6.2；图标美术后续人工处理）
   void setEnergy(int current) {
     text = '$current';
-    if (current > 0) {
-      tryLoadSprite(
-          spriteId: 'battle/bottle.png',
-          hoverSpriteId: 'battle/bottle_hover.png');
-    } else {
-      tryLoadSprite(
-          spriteId: 'battle/bottle_empty.png',
-          hoverSpriteId: 'battle/bottle_empty_hover.png');
-    }
+    tryLoadSprite(
+      spriteId: 'icon/cost/qi_basic.png',
+      hoverSpriteId: 'icon/cost/qi_basic.png',
+    );
   }
 }

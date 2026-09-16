@@ -6,6 +6,7 @@
   // isOngoing 的状态为持续状态，经过指定的回合数后自动移除
   // isUnique 代表此状态只能获得 1 个，之后再次获取会忽略
   // 当获得或失去状态时，如果存在反状态，数值会抵消
+  // isResource 的状态为资源，显示在角色血条下方的资源栏中
 
   // 所有类型的攻击增强，每有一点，造成的伤害增加 1%
   // 攻击增强是永久效果，并且可以从装备、天赋等场合获得
@@ -523,7 +524,6 @@
     icon: "icon/status/permanent/enable_chakra.png",
     script: "enable_chakra",
     isPermanent: true,
-    callbacks: ["self_used_card", "self_turn_end"],
   },
   enable_rage: {
     id: "enable_rage",
@@ -532,98 +532,114 @@
     icon: "icon/status/permanent/enable_rage.png",
     script: "enable_rage",
     isPermanent: true,
-    callbacks: ["opponent_used_card", "self_done_damage", "self_turn_end"],
+  },
+  enable_mana: {
+    id: "enable_mana",
+    title: "status_enable_mana",
+    description: "status_enable_mana_description",
+    icon: "icon/cost/qi_mana.png",
+    script: "enable_mana",
+    isPermanent: true,
+  },
+  enable_karma: {
+    id: "enable_karma",
+    title: "status_enable_karma",
+    description: "status_enable_karma_description",
+    icon: "icon/cost/qi_karma.png",
+    script: "enable_karma",
+    isPermanent: true,
   },
 
-  // 元气: 回合结束时回复生命
+  // 元气: 无色费用池。回合开始获得 rank + 3 层，支付无色费用移除层数；
+  // 回合结束每剩余 1 层回复 2% 生命上限（每层至少 1 点），下个回合开始时清空
   // 某些地方简称为 vigor
   energy_positive_life: {
     id: "energy_positive_life",
     title: "status_energy_positive_life",
     description: "status_energy_positive_life_description",
-    icon: "icon/status/energy_positive_life.png",
+    icon: "icon/cost/qi_basic.png",
     script: "energy_positive_life",
     isResource: true,
-    callbacks: ["self_turn_end"],
   },
-  // 正气: 使用攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
+  // 正气: 使用攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透（普通状态，非资源）
   energy_positive_penetrate: {
     id: "energy_positive_penetrate",
     title: "status_energy_positive_penetrate",
     description: "status_energy_positive_penetrate_description",
-    icon: "icon/status/energy_positive_penetrate.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_positive_penetrate",
-    isResource: true,
     callbacks: ["self_using_card"],
   },
-  // 豪气: 使用物理攻击牌时消耗 1 层，使本张卡牌必定暴击
+  // 幸运（原豪气）: 使用物理攻击牌时消耗 1 层，使本张卡牌必定暴击（普通状态，非资源）
   energy_positive_crit: {
     id: "energy_positive_crit",
     title: "status_energy_positive_crit",
     description: "status_energy_positive_crit_description",
-    icon: "icon/status/energy_positive_crit.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_positive_crit",
-    isResource: true,
     callbacks: ["self_using_card"],
   },
-  // 清气（辟邪改造）：获得负面效果时消耗并取消该效果
+  // 清气（辟邪改造）：获得负面效果时消耗并取消该效果（普通状态，非资源）
   energy_positive_ward: {
     id: "energy_positive_ward",
     title: "status_energy_positive_ward",
     description: "status_energy_positive_ward_description",
-    icon: "icon/status/energy_positive_ward.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_positive_ward",
-    isResource: true,
     priority: 1401,
     callbacks: ["self_gained_debuff"],
   },
-  // 浩然之气（护盾）：每层抵挡一次任意非纯粹伤害，触发时消耗
+  // 护盾（原浩然之气）：每层抵挡一次任意非纯粹伤害，触发时消耗（普通状态，非资源）
   energy_positive_shield: {
     id: "energy_positive_shield",
     title: "status_energy_positive_shield",
     description: "status_energy_positive_shield_description",
-    icon: "icon/status/energy_positive_shield.png",
+    icon: "icon/status/status_placeholder.png",
     script: "shield",
-    isResource: true,
     priority: 1405,
     callbacks: ["self_taking_damage"],
   },
 
   // 灵气
   // 某些地方简称为 mana
+  // 回合结束按剩余层数触发 overflowed_mana_* 天赋（结算函数 turn_end_resource_settlement）；
+  // 下个回合开始时清空（统一生命周期）
   energy_positive_spell: {
     id: "energy_positive_spell",
     title: "status_energy_positive_spell",
     description: "status_energy_positive_spell_description",
-    icon: "icon/status/energy_positive_spell.png",
+    icon: "icon/cost/qi_mana.png",
     script: "energy_positive_spell",
     isResource: true,
     cardType: "spell",
-    callbacks: ["self_overflowed_energy", "self_deck_end", "self_doing_damage"],
+    callbacks: ["self_doing_damage"],
   },
   // 剑气
   // 某些地方简称为 chakra
+  // 产出 = 上回合打出的武器攻击牌数量（需 enable_chakra）；下个回合开始时清空
   energy_positive_weapon: {
     id: "energy_positive_weapon",
     title: "status_energy_positive_weapon",
     description: "status_energy_positive_weapon_description",
-    icon: "icon/status/energy_positive_weapon.png",
+    icon: "icon/cost/qi_chakra.png",
     script: "energy_positive_weapon",
     isResource: true,
     cardType: "weapon",
-    callbacks: ["self_overflowed_energy", "self_doing_damage"],
+    callbacks: ["self_doing_damage"],
   },
   // 怒气
   // 某些地方简称为 rage
+  // 产出 = 上回合自身受到的伤害 ÷ 10（需 enable_rage）；下个回合开始时清空
+  // 保留风险代价：每层使自身受到的伤害 +5%（对方回合同样生效）
   energy_positive_unarmed: {
     id: "energy_positive_unarmed",
     title: "status_energy_positive_unarmed",
     description: "status_energy_positive_unarmed_description",
-    icon: "icon/status/energy_positive_unarmed.png",
+    icon: "icon/cost/qi_rage.png",
     script: "energy_positive_unarmed",
     isResource: true,
     cardType: "unarmed",
-    callbacks: ["self_doing_damage", "self_taking_damage", "self_turn_end"],
+    callbacks: ["self_doing_damage", "self_taking_damage"],
   },
   // 煞气
   // 某些地方简称为 karma
@@ -631,127 +647,142 @@
     id: "energy_positive_curse",
     title: "status_energy_positive_curse",
     description: "status_energy_positive_curse_description",
-    icon: "icon/status/energy_positive_curse.png",
+    icon: "icon/cost/qi_karma.png",
     script: "energy_positive_curse",
     isResource: true,
     cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
   // 无极之气
+  // 万能费用色，可支付任意有色费用
   energy_positive_ultimate: {
     id: "energy_positive_ultimate",
     title: "status_energy_positive_ultimate",
     description: "status_energy_positive_ultimate_description",
-    icon: "icon/status/energy_positive_ultimate.png",
+    icon: "icon/cost/qi_ultimate.png",
     script: "energy_positive_ultimate",
     isResource: true,
     cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
 
-  // 死气: 回合结束时失去生命
+  // 死气: 回合开始时失去生命
+  // 元气对应的阴气，保留为资源（仅通过卡牌/效果互动施加，不再自动叠层）
   energy_negative_life: {
     id: "energy_negative_life",
     title: "status_energy_negative_life",
     description: "status_energy_negative_life_description",
-    icon: "icon/status/energy_negative_life.png",
+    icon: "icon/status/decay.png",
     script: "energy_negative_life",
     isResource: true,
     callbacks: ["self_turn_start"],
   },
-  // 戾气: 回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命
+  // 戾气: 回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命（普通状态，非资源）
   energy_negative_penetrate: {
     id: "energy_negative_penetrate",
     title: "status_energy_negative_penetrate",
     description: "status_energy_negative_penetrate_description",
-    icon: "icon/status/energy_negative_penetrate.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_negative_penetrate",
-    isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 衰气: 每层使下一次暴击的暴击倍率 -25%（在 Dart 侧暴击分支结算，无脚本）
+  // 衰气: 每层使下一次暴击的暴击倍率 -25%（在 Dart 侧暴击分支结算，无脚本）（普通状态，非资源）
   energy_negative_crit: {
     id: "energy_negative_crit",
     title: "status_energy_negative_crit",
     description: "status_energy_negative_crit_description",
-    icon: "icon/status/energy_negative_crit.png",
-    isResource: true,
+    icon: "icon/status/status_placeholder.png",
   },
-  // 浊气：回合开始时消耗并获得随机负面效果
+  // 浊气：回合开始时消耗并获得随机负面效果（普通状态，非资源）
   energy_negative_ward: {
     id: "energy_negative_ward",
     title: "status_energy_negative_ward",
     description: "status_energy_negative_ward_description",
-    icon: "icon/status/energy_negative_ward.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_negative_ward",
-    isResource: true,
     callbacks: ["self_turn_start"],
   },
-  // 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗
+  // 萧索之气：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗（普通状态，非资源）
   energy_negative_shield: {
     id: "energy_negative_shield",
     title: "status_energy_negative_shield",
     description: "status_energy_negative_shield_description",
-    icon: "icon/status/energy_negative_shield.png",
+    icon: "icon/status/status_placeholder.png",
     script: "energy_negative_shield",
-    isResource: true,
     priority: 1404,
     callbacks: ["self_taking_damage"],
   },
 
   // 逆灵之气
+  // 灵气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_spell: {
     id: "energy_negative_spell",
     title: "status_energy_negative_spell",
     description: "status_energy_negative_spell_description",
-    icon: "icon/status/energy_negative_spell.png",
+    icon: "icon/cost/qi_mana.png",
     script: "energy_negative_spell",
     isResource: true,
     cardType: "spell",
     callbacks: ["self_doing_damage"],
   },
   // 止戈之气
+  // 剑气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_weapon: {
     id: "energy_negative_weapon",
     title: "status_energy_negative_weapon",
     description: "status_energy_negative_weapon_description",
-    icon: "icon/status/energy_negative_weapon.png",
+    icon: "icon/cost/qi_chakra.png",
     script: "energy_negative_weapon",
     isResource: true,
     cardType: "weapon",
     callbacks: ["self_doing_damage"],
   },
   // 非战之气
+  // 怒气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_unarmed: {
     id: "energy_negative_unarmed",
     title: "status_energy_negative_unarmed",
     description: "status_energy_negative_unarmed_description",
-    icon: "icon/status/energy_negative_unarmed.png",
+    icon: "icon/cost/qi_rage.png",
     script: "energy_negative_unarmed",
     isResource: true,
     cardType: "unarmed",
     callbacks: ["self_doing_damage"],
   },
   // 无心之气
+  // 煞气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_curse: {
     id: "energy_negative_curse",
     title: "status_energy_negative_curse",
     description: "status_energy_negative_curse_description",
-    icon: "icon/status/energy_negative_curse.png",
+    icon: "icon/cost/qi_karma.png",
     script: "energy_negative_curse",
     isResource: true,
     cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
   // 虚无之气
+  // 无极之气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_ultimate: {
     id: "energy_negative_ultimate",
     title: "status_energy_negative_ultimate",
     description: "status_energy_negative_ultimate_description",
-    icon: "icon/status/energy_negative_ultimate.png",
+    icon: "icon/cost/qi_ultimate.png",
     script: "energy_negative_ultimate",
     isResource: true,
     cardType: "curse",
     callbacks: ["self_doing_damage"],
+  },
+
+  // 劫气：战斗拖得太久时天道降下的惩罚（软狂暴状态，非资源）
+  // 回合开始时消耗 1 层，失去 10% 生命上限的生命
+  tribulation: {
+    id: "tribulation",
+    title: "status_tribulation",
+    description: "status_tribulation_description",
+    icon: "icon/status/status_placeholder.png",
+    script: "tribulation",
+    isDebuff: true,
+    callbacks: ["self_turn_start"],
   },
 }

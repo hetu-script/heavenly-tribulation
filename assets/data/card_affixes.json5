@@ -164,60 +164,60 @@
       },
     ],
   },
-  // // 获得剑气
-  // gain_resource_chakra: {
-  //   id: "gain_resource_chakra",
-  //   uniqueId: "genre_yangqi",
-  //   category: ["buff", "attack"],
-  //   rank: 1,
-  //   description: "affix_gain_resource_chakra",
-  //   keywords: ["status_energy_positive_weapon"],
-  //   resourceType: "energy_positive_weapon",
-  //   script: "gain_resource",
-  //   priority: -1,
-  //   valueData: [
-  //     {
-  //       base: 1,
-  //       increment: 0.1,
-  //     },
-  //   ],
-  // },
-  // // 获得怒气
-  // gain_resource_rage: {
-  //   id: "gain_resource_rage",
-  //   uniqueId: "genre_yangqi",
-  //   category: ["buff", "attack"],
-  //   rank: 1,
-  //   description: "affix_gain_resource_rage",
-  //   keywords: ["status_energy_positive_unarmed"],
-  //   resourceType: "energy_positive_unarmed",
-  //   script: "gain_resource",
-  //   priority: -1,
-  //   valueData: [
-  //     {
-  //       base: 1,
-  //       increment: 0.1,
-  //     },
-  //   ],
-  // },
-  // // 获得煞气
-  // gain_resource_karma: {
-  //   id: "gain_resource_karma",
-  //   uniqueId: "genre_yangqi",
-  //   category: ["buff", "attack"],
-  //   rank: 1,
-  //   description: "affix_gain_resource_karma",
-  //   keywords: ["status_energy_positive_curse"],
-  //   resourceType: "energy_positive_curse",
-  //   script: "gain_resource",
-  //   priority: -1,
-  //   valueData: [
-  //     {
-  //       base: 1,
-  //       increment: 0.1,
-  //     },
-  //   ],
-  // },
+  // 获得剑气
+  gain_resource_chakra: {
+    id: "gain_resource_chakra",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_chakra",
+    keywords: ["status_energy_positive_weapon"],
+    resourceType: "energy_positive_weapon",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得怒气
+  gain_resource_rage: {
+    id: "gain_resource_rage",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_rage",
+    keywords: ["status_energy_positive_unarmed"],
+    resourceType: "energy_positive_unarmed",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
+  // 获得煞气
+  gain_resource_karma: {
+    id: "gain_resource_karma",
+    uniqueId: "genre_yangqi",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_resource_karma",
+    keywords: ["status_energy_positive_curse"],
+    resourceType: "energy_positive_curse",
+    script: "gain_resource",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+  },
   // 获得无极之气
   gain_resource_ultimate: {
     id: "gain_resource_ultimate",
