@@ -39,7 +39,6 @@ Color getDamageColor(String damageType) {
 Color getResourceColor(String resourceType) {
   return switch (resourceType) {
     'energy_positive_life' || 'energy_negative_life' => Colors.lightGreen,
-    'energy_positive_penetrate' || 'energy_negative_penetrate' => Colors.grey,
     'energy_positive_crit' || 'energy_negative_crit' => Colors.blueGrey,
     'energy_positive_ward' || 'energy_negative_ward' => Colors.white,
     'energy_positive_shield' || 'energy_negative_shield' => Colors.blue,
@@ -346,7 +345,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return (damage, isCrit, ailmentStacks);
   }
 
-
   /// 非永久效果位置在血条上方
   void reArrangeOtherEffects() {
     for (var i = 0; i < otherEffects.length; ++i) {
@@ -635,7 +633,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (effect.id == 'energy_positive_curse' && effect.amount > 0) {
         data['karma'] += effect.amount;
         addHintText(
-            engine.locale('karmaPoolReturnHint', interpolations: [effect.amount]),
+            engine
+                .locale('karmaPoolReturnHint', interpolations: [effect.amount]),
             color: Colors.purple);
       }
       removeStatusEffect(effect.id, force: true);
@@ -659,8 +658,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // 怒气：上回合自身受到的伤害 ÷ 10（§4.3；节点加成缺省 0，预留读取位）
     if (hasStatusEffect('enable_rage') > 0 && lastTurnDamageTaken > 0) {
-      addStatusEffect(
-          'energy_positive_unarmed', amount: lastTurnDamageTaken ~/ 10);
+      addStatusEffect('energy_positive_unarmed',
+          amount: lastTurnDamageTaken ~/ 10);
     }
 
     // 灵气：enable_mana 天赋每回合开始 +1（不超过 manaMax）；
@@ -1027,20 +1026,19 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             (attackerStats['ailmentThreshold'] ?? kBaseAilmentThreshold)
                 .toInt();
         if (opponent!.hasStatusEffect('ailment_charge') >= ailmentThreshold) {
-          opponent!.removeStatusEffect('ailment_charge',
-              amount: ailmentThreshold);
+          opponent!
+              .removeStatusEffect('ailment_charge', amount: ailmentThreshold);
           stacks = finalDamage ~/ 10;
         }
       }
       // 衰气：攻击方持有衰气时按层抵消其赋予的元素异常，
       // 直到异常全部抵消或衰气耗尽
       if (stacks > 0) {
-        final int negated = math
-            .min(stacks, opponent!.hasStatusEffect('energy_negative_crit'));
+        final int negated =
+            math.min(stacks, opponent!.hasStatusEffect('energy_negative_crit'));
         if (negated > 0) {
           stacks -= negated;
-          opponent!.removeStatusEffect('energy_negative_crit',
-              amount: negated);
+          opponent!.removeStatusEffect('energy_negative_crit', amount: negated);
         }
       }
       if (stacks > 0) {

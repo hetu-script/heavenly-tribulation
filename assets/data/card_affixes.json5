@@ -57,33 +57,16 @@
       },
     ],
   },
-  // 获得元气
-  gain_resource_vigor: {
-    id: "gain_resource_vigor",
-    uniqueId: "common_yangqi",
-    category: ["buff", "attack"],
-    description: "affix_gain_resource_vigor",
-    keywords: ["status_energy_positive_life"],
-    resourceType: "energy_positive_life",
-    script: "gain_resource",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.1,
-      },
-    ],
-  },
-  // 获得正气
-  gain_resource_penetrate: {
-    id: "gain_resource_penetrate",
-    uniqueId: "common_yangqi",
+  // 获得幸运
+  gain_buff_crit: {
+    id: "gain_buff_crit",
+    uniqueId: "gain_buff_crit",
     category: ["buff", "attack"],
     rank: 1,
-    description: "affix_gain_resource_penetrate",
-    keywords: ["status_energy_positive_penetrate"],
-    resourceType: "energy_positive_penetrate",
-    script: "gain_resource",
+    description: "affix_gain_buff_crit",
+    keywords: ["status_buff_crit"],
+    buffId: "buff_crit",
+    script: "gain_buff",
     priority: -1,
     valueData: [
       {
@@ -92,34 +75,16 @@
       },
     ],
   },
-  // 获得豪气
-  gain_resource_crit: {
-    id: "gain_resource_crit",
-    uniqueId: "common_yangqi",
-    category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_gain_resource_crit",
-    keywords: ["status_energy_positive_crit"],
-    resourceType: "energy_positive_crit",
-    script: "gain_resource",
-    priority: -1,
-    valueData: [
-      {
-        base: 1,
-        increment: 0.1,
-      },
-    ],
-  },
-  // 获得清气
-  gain_resource_ward: {
-    id: "gain_resource_ward",
-    uniqueId: "common_yangqi",
+  // 获得辟邪
+  gain_buff_ward: {
+    id: "gain_buff_ward",
+    uniqueId: "gain_buff_ward",
     category: ["buff", "attack"],
     rank: 2,
-    description: "affix_gain_resource_ward",
-    keywords: ["status_energy_positive_ward"],
-    resourceType: "energy_positive_ward",
-    script: "gain_resource",
+    description: "affix_gain_buff_ward",
+    keywords: ["status_gain_buff_ward"],
+    buffId: "buff_ward",
+    script: "gain_buff",
     priority: -1,
     valueData: [
       {
@@ -128,16 +93,16 @@
       },
     ],
   },
-  // 获得浩然之气
-  gain_resource_shield: {
-    id: "gain_resource_shield",
-    uniqueId: "common_yangqi",
+  // 获得护盾
+  gain_buff_shield: {
+    id: "gain_buff_shield",
+    uniqueId: "gain_buff_shield",
     category: ["buff", "attack"],
     rank: 3,
-    description: "affix_gain_resource_shield",
-    keywords: ["status_energy_positive_shield"],
-    resourceType: "energy_positive_shield",
-    script: "gain_resource",
+    description: "affix_gain_buff_shield",
+    keywords: ["status_buff_shield"],
+    buffId: "buff_shield",
+    script: "gain_buff",
     priority: -1,
     valueData: [
       {
@@ -146,34 +111,35 @@
       },
     ],
   },
-  // 获得灵气
-  gain_resource_mana: {
-    id: "gain_resource_mana",
-    uniqueId: "genre_yangqi",
+
+  // 对手获得易伤
+  opponent_gain_vulnerable: {
+    id: "opponent_gain_vulnerable",
+    uniqueId: "opponent_gain_vulnerable",
     category: ["buff", "attack"],
     rank: 1,
-    description: "affix_gain_resource_mana",
-    keywords: ["status_energy_positive_spell"],
-    resourceType: "energy_positive_spell",
-    script: "gain_resource",
+    description: "affix_opponent_gain_vulnerable",
+    keywords: ["status_vulnerable"],
+    buffId: "vulnerable",
+    script: "opponent_gain_debuff",
     priority: -1,
     valueData: [
       {
-        base: 1,
-        increment: 0.1,
+        base: 4,
+        increment: 0.2,
       },
     ],
   },
-  // 获得剑气
-  gain_resource_chakra: {
-    id: "gain_resource_chakra",
-    uniqueId: "genre_yangqi",
+  // 对手获得不幸
+  opponent_gain_debuff_crit: {
+    id: "opponent_gain_debuff_crit",
+    uniqueId: "opponent_gain_debuff_crit",
     category: ["buff", "attack"],
     rank: 1,
-    description: "affix_gain_resource_chakra",
-    keywords: ["status_energy_positive_weapon"],
-    resourceType: "energy_positive_weapon",
-    script: "gain_resource",
+    description: "affix_opponent_gain_debuff_crit",
+    keywords: ["status_debuff_crit"],
+    buffId: "debuff_crit",
+    script: "opponent_gain_debuff",
     priority: -1,
     valueData: [
       {
@@ -182,16 +148,16 @@
       },
     ],
   },
-  // 获得怒气
-  gain_resource_rage: {
-    id: "gain_resource_rage",
-    uniqueId: "genre_yangqi",
+  // 对手获得邪祟
+  opponent_gain_debuff_ward: {
+    id: "opponent_gain_debuff_ward",
+    uniqueId: "opponent_gain_debuff_ward",
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_gain_resource_rage",
-    keywords: ["status_energy_positive_unarmed"],
-    resourceType: "energy_positive_unarmed",
-    script: "gain_resource",
+    rank: 2,
+    description: "affix_opponent_gain_debuff_ward",
+    keywords: ["status_debuff_ward"],
+    buffId: "debuff_ward",
+    script: "opponent_gain_debuff",
     priority: -1,
     valueData: [
       {
@@ -200,39 +166,57 @@
       },
     ],
   },
-  // 获得煞气
-  gain_resource_karma: {
-    id: "gain_resource_karma",
-    uniqueId: "genre_yangqi",
+  // 对手获得破绽
+  opponent_gain_debuff_shield: {
+    id: "opponent_gain_debuff_shield",
+    uniqueId: "opponent_gain_debuff_shield",
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_gain_resource_karma",
-    keywords: ["status_energy_positive_curse"],
-    resourceType: "energy_positive_curse",
-    script: "gain_resource",
+    rank: 3,
+    description: "affix_opponent_gain_debuff_shield",
+    keywords: ["status_debuff_shield"],
+    buffId: "debuff_shield",
+    script: "opponent_gain_debuff",
     priority: -1,
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
     ],
   },
-  // 获得无极之气
-  gain_resource_ultimate: {
-    id: "gain_resource_ultimate",
-    uniqueId: "genre_yangqi",
+  // 对手降低全抗
+  reduce_resist_all: {
+    id: "reduce_resist_all",
+    uniqueId: "reduce_resist_all",
     category: ["buff", "attack"],
     rank: 4,
-    description: "affix_gain_resource_ultimate",
-    keywords: ["status_energy_positive_ultimate"],
-    resourceType: "energy_positive_ultimate",
-    script: "gain_resource",
+    description: "affix_reduce_resist_all",
+    keywords: ["status_debuff_shield"],
+    buffId: "debuff_shield",
+    script: "opponent_gain_debuff",
     priority: -1,
     valueData: [
       {
         base: 1,
         increment: 0.1,
+      },
+    ],
+  },
+
+  // 获得元气
+  gain_energy_positive_life: {
+    id: "gain_energy_positive_life",
+    uniqueId: "gain_energy_positive_life",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_gain_energy_positive_life",
+    keywords: ["status_gain_energy_positive_life"],
+    buffId: "energy_positive_life",
+    script: "gain_buff",
+    priority: -1,
+    valueData: [
+      {
+        rankIncrement: 1,
       },
     ],
   },
@@ -283,7 +267,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.3,
+        increment: 0.15,
       },
     ],
   },
@@ -292,7 +276,7 @@
     id: "for_spirituality_increase_damage",
     uniqueId: "for_spirituality_increase_damage",
     category: ["attack"],
-    genre: "spellcraft",
+    genre: ["spellcraft"],
     attributeId: "spirituality",
     priority: -1,
     description: "affix_for_spirituality_increase_damage",
@@ -303,7 +287,7 @@
     id: "for_dexterity_increase_damage",
     uniqueId: "for_dexterity_increase_damage",
     category: ["attack"],
-    genre: "swordcraft",
+    genre: ["swordcraft"],
     attributeId: "dexterity",
     priority: -1,
     description: "affix_for_dexterity_increase_damage",
@@ -314,7 +298,7 @@
     id: "for_strength_increase_damage",
     uniqueId: "for_strength_increase_damage",
     category: ["attack"],
-    genre: "bodyforge",
+    genre: ["bodyforge"],
     attributeId: "strength",
     priority: -1,
     description: "affix_for_strength_increase_damage",
@@ -325,7 +309,7 @@
     id: "for_willpower_increase_damage",
     uniqueId: "for_willpower_increase_damage",
     category: ["attack"],
-    genre: "vitality",
+    genre: ["vitality"],
     attributeId: "willpower",
     priority: -1,
     description: "affix_for_willpower_increase_damage",
@@ -336,7 +320,7 @@
     id: "for_perception_increase_damage",
     uniqueId: "for_perception_increase_damage",
     category: ["attack"],
-    genre: "avatar",
+    genre: ["avatar"],
     attributeId: "perception",
     priority: -1,
     description: "affix_for_perception_increase_damage",

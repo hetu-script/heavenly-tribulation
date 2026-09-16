@@ -516,32 +516,32 @@ final class GameData with ChangeNotifier {
     _isInitted = true;
   }
 
-  /// 校验卡牌有色费用 costColored 数据（见 plan-battle_qi_cost_rework.md §3.1）：
-  /// 1. 总费用不变量：cost（缺省推导的无色费用）+ ΣcostColored = rank + 1
+  /// 校验卡牌有色费用 qiCost 数据（见 plan-battle_qi_cost_rework.md §3.1）：
+  /// 1. 总费用不变量：cost（缺省推导的无色费用）+ ΣqiCost = rank + 1
   /// 2. 非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色
   /// 数据问题只警告，不中断加载
   static void _validateBattleCardCostColored() {
     for (final cardData in battleCards.values) {
-      final costColored = cardData['costColored'];
-      if (costColored == null) continue;
+      final qiCost = cardData['qiCost'];
+      if (qiCost == null) continue;
 
       final String cardId = cardData['id'];
-      if (costColored is! Map) {
-        engine.warning('卡牌 [$cardId] 的 costColored 字段必须是映射，当前值: $costColored');
+      if (qiCost is! Map) {
+        engine.warning('卡牌 [$cardId] 的 qiCost 字段必须是映射，当前值: $qiCost');
         continue;
       }
 
       final bool isUnique = cardData['isUnique'] == true;
       int coloredCostSum = 0;
-      for (final entry in costColored.entries) {
+      for (final entry in qiCost.entries) {
         final color = entry.key;
         final value = entry.value;
         if (!isUnique && !kCostColorStatusIds.containsKey(color)) {
-          engine.warning('卡牌 [$cardId] 的 costColored 含有非法费用色 [$color]，'
+          engine.warning('卡牌 [$cardId] 的 qiCost 含有非法费用色 [$color]，'
               '非绝世卡的费用色只能属于 ${kCostColorStatusIds.keys.toList()}');
         }
         if (value is! num || value < 0) {
-          engine.warning('卡牌 [$cardId] 的 costColored [$color] 数值非法: $value');
+          engine.warning('卡牌 [$cardId] 的 qiCost [$color] 数值非法: $value');
           continue;
         }
         coloredCostSum += value.toInt();
@@ -549,7 +549,7 @@ final class GameData with ChangeNotifier {
 
       final rankValue = cardData['rank'];
       if (rankValue is! num) {
-        engine.warning('卡牌 [$cardId] 缺少有效的 rank 字段，跳过 costColored 校验');
+        engine.warning('卡牌 [$cardId] 缺少有效的 rank 字段，跳过 qiCost 校验');
         continue;
       }
       final int totalCost = rankValue.toInt() + 1;
@@ -562,7 +562,7 @@ final class GameData with ChangeNotifier {
           : totalCost - defaultColoredCost;
       if (cost + coloredCostSum != totalCost) {
         engine.warning('卡牌 [$cardId] 的费用不变量不满足：'
-            'cost($cost) + ΣcostColored($coloredCostSum) != rank + 1($totalCost)');
+            'cost($cost) + ΣqiCost($coloredCostSum) != rank + 1($totalCost)');
       }
     }
   }
@@ -1314,8 +1314,7 @@ final class GameData with ChangeNotifier {
       dynamic affixValues = affix['value'];
       final predictedValue = withPrediction ? affix['predictedValue'] : null;
       if (predictedValue != null && affixValues != null) {
-        final int? valueIndex =
-            kBattleCardDamageValueIndex[affix['script']];
+        final int? valueIndex = kBattleCardDamageValueIndex[affix['script']];
         if (valueIndex != null && valueIndex < affixValues.length) {
           final int original = (affixValues[valueIndex] as num).toInt();
           final int predicted = (predictedValue as num).toInt();
@@ -1323,11 +1322,12 @@ final class GameData with ChangeNotifier {
           if (affix['predictedCrit'] == true) {
             display += '(${engine.locale('critPredictedHint')})';
           }
-          final int predictedAilment =
-              (affix['predictedAilment'] ?? 0) as int;
+          final int predictedAilment = (affix['predictedAilment'] ?? 0) as int;
           if (predictedAilment > 0) {
-            display +=
-                '(${engine.locale('predictedAilmentHint').interpolate([predictedAilment, engine.locale('status_element_dot_${affix['damageType']}')])})';
+            display += '(${engine.locale('predictedAilmentHint').interpolate([
+                  predictedAilment,
+                  engine.locale('status_element_dot_${affix['damageType']}')
+                ])})';
           }
           if (predicted > original) {
             display = '<yellow>$display</>';
@@ -1387,18 +1387,19 @@ final class GameData with ChangeNotifier {
     }
 
     // 有色费用（过渡期方案：卡面 pip 渲染暂缓，以文本行附加在描述区，见计划 §6.1）
-    final costColored = cardData['costColored'];
-    if (costColored is Map && costColored.isNotEmpty) {
+    final qiCost = cardData['qiCost'];
+    if (qiCost is Map && qiCost.isNotEmpty) {
       final parts = <String>[];
-      costColored.forEach((color, amount) {
+      qiCost.forEach((color, amount) {
         final statusId = kCostColorStatusIds[color];
         if (statusId != null) {
           parts.add('${engine.locale('status_$statusId')}×$amount');
         }
       });
       if (parts.isNotEmpty) {
-        final line = engine.locale('battlecard_costColored_hint',
-            interpolations: [parts.join(engine.locale('enumeration_separator'))]);
+        final line = engine.locale('battlecard_qiCost_hint', interpolations: [
+          parts.join(engine.locale('enumeration_separator'))
+        ]);
         description.writeln(line);
         if (showAffixes && isIdentified) {
           extraDescription.writeln(line);
@@ -1443,8 +1444,8 @@ final class GameData with ChangeNotifier {
   }
 
   /// 推导卡牌费用（见 plan-battle_qi_cost_rework.md §3.1）：
-  /// 总费用 = rank + 1 = 无色 cost + ΣcostColored。
-  /// 显式 costColored 优先；缺省推导：无流派卡全无色，
+  /// 总费用 = rank + 1 = 无色 cost + ΣqiCost。
+  /// 显式 qiCost 优先；缺省推导：无流派卡全无色，
   /// 有流派卡 有色 = ⌈(rank+1)/2⌉（颜色由 kGenreCostColors 决定，多色对半拆、
   /// 余数给列表首位，即法身奇数时多出的一点给 unarmed）、无色 = ⌊(rank+1)/2⌋。
   /// 与 scripts/main/cardgame/card.ht 中 BattleCard 构造器的推导逻辑保持一致。
@@ -1452,7 +1453,7 @@ final class GameData with ChangeNotifier {
     final int rank = (cardData['rank'] as num).toInt();
     final int totalCost = rank + 1;
 
-    final explicit = cardData['costColored'];
+    final explicit = cardData['qiCost'];
     if (explicit is Map && explicit.isNotEmpty) {
       final colored = <String, int>{};
       int sum = 0;
@@ -1503,10 +1504,10 @@ final class GameData with ChangeNotifier {
     final isUnique = cardData['isUnique'] == true;
     final rarityColor = RankedColors.values[rarity] ?? RankedColors.common;
 
-    // 写入费用数据（无色 cost + 有色 costColored），供卡面显示与战斗支付读取
-    final (cost, costColored) = deriveBattleCardCost(cardData);
+    // 写入费用数据（无色 cost + 有色 qiCost），供卡面显示与战斗支付读取
+    final (cost, qiCost) = deriveBattleCardCost(cardData);
     cardData['cost'] = cost;
-    cardData['costColored'] = costColored;
+    cardData['qiCost'] = qiCost;
 
     final (description, _) = getBattleCardDescription(cardData);
 
@@ -1547,10 +1548,10 @@ final class GameData with ChangeNotifier {
       ),
       description: description,
       cost: cost,
-      // 全有色卡（cost == 0 且 costColored 非空）隐藏无色费用徽章，避免显示 "0"
+      // 全有色卡（cost == 0 且 qiCost 非空）隐藏无色费用徽章，避免显示 "0"
       //（卡面 pip 渲染随美术设计人工完成，过渡期以描述区"另需"行展示有色费用）
-      showCostNumber: cost > 0 || costColored.isEmpty,
-      costIconSpriteId: (cost > 0 || costColored.isEmpty)
+      showCostNumber: cost > 0 || qiCost.isEmpty,
+      costIconSpriteId: (cost > 0 || qiCost.isEmpty)
           ? 'cultivation/cultivation$rank.png'
           : null,
       costIconRelativePaddings:

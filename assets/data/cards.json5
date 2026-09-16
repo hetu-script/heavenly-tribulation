@@ -55,6 +55,7 @@
   },
 
   // ------------绝世·加持------------
+  // 抽牌
   draw_cards: {
     id: "draw_cards",
     uniqueId: "draw_cards",
@@ -68,13 +69,9 @@
       startup: "spell_buff",
       sound: "spell-of-healing-876",
     },
-    script: "draw",
+    script: "draw_cards",
     keywords: ["exhaustResource"],
     valueData: [
-      {
-        base: 1,
-        increment: 0.1,
-      },
       {
         base: 1,
         increment: 0.05,
@@ -83,10 +80,53 @@
     affixes: [
       "defend",
       "heal",
-      "speed_quick",
-      "dodge_nimble",
-      "gain_resource_ward",
-      "gain_resource_ultimate",
+      "gain_energy_positive_life",
+      "gain_buff_crit",
+      "gain_buff_ward",
+      "gain_buff_ultimate",
+    ],
+  },
+  // 获得元气
+  gain_energy_positive_life: {
+    id: "gain_energy_positive_life",
+    uniqueId: "gain_energy_positive_life",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_energy_positive_life",
+    keywords: ["status_yangqi_life"],
+    image: "battlecard/illustration/xinfa_common.png",
+    animation: {
+      startup: "spell_buff",
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "gain_buff",
+    valueData: [
+      {
+        rankIncrement: 2,
+      },
+    ],
+  },
+  // 降低全抗
+  opponent_reduce_resist_all: {
+    id: "opponent_reduce_resist_all",
+    uniqueId: "reduce_resist",
+    category: "buff",
+    kind: "power_word",
+    rank: 4,
+    description: "affix_opponent_reduce_resist_all",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "reduce_resist_all",
+    keywords: ["resist"],
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
     ],
   },
 
@@ -276,6 +316,7 @@
       },
     ],
   },
+
   // ------------通用·加持------------
   punch_defend: {
     id: "punch_defend",
@@ -409,6 +450,7 @@
       },
     ],
   },
+
   speed_quick_defend: {
     id: "speed_quick_defend",
     uniqueId: ["speed_quick", "defend"],
@@ -459,6 +501,7 @@
       },
     ],
   },
+
   // 回复生命
   heal: {
     id: "heal",
@@ -480,133 +523,66 @@
       },
     ],
   },
-  // 获得元气
-  gain_resource_vigor: {
-    id: "gain_resource_vigor",
-    uniqueId: "common_yangqi",
-    category: "buff",
-    kind: "xinfa",
-    description: "affix_gain_resource_vigor",
-    keywords: ["status_energy_positive_life"],
-    image: "battlecard/illustration/xinfa_common.png",
-    animation: {
-      startup: "spell_buff",
-      sound: "spell-of-healing-876.mp3",
-    },
-    resourceType: "energy_positive_life",
-    script: "gain_resource",
-    costColored: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0.1,
-      },
-    ],
-  },
-  // 获得正气
-  gain_resource_penetrate: {
-    id: "gain_resource_penetrate",
-    uniqueId: "common_yangqi",
+
+  // 获得幸运
+  gain_buff_crit: {
+    id: "gain_buff_crit",
+    uniqueId: "gain_buff_crit",
     category: "buff",
     kind: "xinfa",
     rank: 1,
-    description: "affix_gain_resource_penetrate",
-    keywords: ["status_energy_positive_penetrate"],
+    description: "affix_gain_buff_crit",
+    keywords: ["status_buff_crit"],
     image: "battlecard/illustration/xinfa_common.png",
     animation: {
       startup: "spell_buff",
       sound: "spell-of-healing-876.mp3",
     },
-    resourceType: "energy_positive_penetrate",
-    script: "gain_resource",
-    costColored: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
+    buffId: "buff_crit",
+    script: "gain_buff",
   },
-  // 获得豪气
-  gain_resource_crit: {
-    id: "gain_resource_crit",
-    uniqueId: "common_yangqi",
-    category: "buff",
-    kind: "xinfa",
-    rank: 1,
-    description: "affix_gain_resource_crit",
-    keywords: ["status_energy_positive_crit"],
-    image: "battlecard/illustration/xinfa_common.png",
-    animation: {
-      startup: "spell_buff",
-      sound: "spell-of-healing-876.mp3",
-    },
-    resourceType: "energy_positive_crit",
-    script: "gain_resource",
-    costColored: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
-  },
-  // 获得清气
-  gain_resource_ward: {
-    id: "gain_resource_ward",
-    uniqueId: "common_yangqi",
+  // 获得辟邪
+  gain_buff_ward: {
+    id: "gain_buff_ward",
+    uniqueId: "gain_buff_ward",
     category: "buff",
     kind: "xinfa",
     rank: 2,
-    description: "affix_gain_resource_ward",
-    keywords: ["status_energy_positive_ward"],
+    description: "affix_gain_buff_ward",
+    keywords: ["status_buff_ward"],
     image: "battlecard/illustration/xinfa_common.png",
     animation: {
       startup: "spell_buff",
       sound: "spell-of-healing-876.mp3",
     },
-    resourceType: "energy_positive_ward",
-    script: "gain_resource",
-    costColored: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
+    buffId: "buff_ward",
+    script: "gain_buff",
   },
-  // 获得浩然之气
-  gain_resource_shield: {
-    id: "gain_resource_shield",
-    uniqueId: "common_yangqi",
+  // 获得护盾
+  gain_buff_shield: {
+    id: "gain_buff_shield",
+    uniqueId: "gain_buff_shield",
     category: "buff",
     kind: "xinfa",
     rank: 3,
-    description: "affix_gain_resource_shield",
-    keywords: ["status_energy_positive_shield"],
+    description: "affix_gain_buff_shield",
+    keywords: ["status_buff_shield"],
     image: "battlecard/illustration/xinfa_common.png",
     animation: {
       startup: "spell_buff",
       sound: "spell-of-healing-876.mp3",
     },
-    resourceType: "energy_positive_shield",
-    script: "gain_resource",
-    costColored: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0.2,
-      },
-    ],
+    buffId: "buff_shield",
+    script: "gain_buff",
   },
+
   // 获得灵气
-  gain_resource_mana: {
-    id: "gain_resource_mana",
-    uniqueId: "genre_yangqi",
+  gain_energy_positive_spell: {
+    id: "gain_energy_positive_spell",
     category: "buff",
     kind: "xinfa",
     rank: 1,
-    description: "affix_gain_resource_mana",
+    description: "affix_gain_energy_positive_spell",
     keywords: ["status_energy_positive_spell"],
     image: "battlecard/illustration/xinfa_genre.png",
     animation: {
@@ -614,13 +590,81 @@
       overlays: "restore_mana",
       sound: "spell-of-healing-876.mp3",
     },
-    resourceType: "energy_positive_spell",
-    script: "gain_resource",
-    costColored: {},
+    buffId: "energy_positive_spell",
+    script: "gain_buff",
     valueData: [
       {
         base: 1,
-        increment: 0.2,
+        rankIncrement: 1,
+      },
+    ],
+  },
+  // 获得剑气
+  gain_energy_positive_weapon: {
+    id: "gain_energy_positive_weapon",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_energy_positive_weapon",
+    keywords: ["status_energy_positive_weapon"],
+    image: "battlecard/illustration/xinfa_genre.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_weapon",
+    script: "gain_buff",
+    valueData: [
+      {
+        base: 1,
+        rankIncrement: 1,
+      },
+    ],
+  },
+  // 获得怒气
+  gain_energy_positive_unarmed: {
+    id: "gain_energy_positive_unarmed",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_gain_energy_positive_unarmed",
+    keywords: ["status_energy_positive_unarmed"],
+    image: "battlecard/illustration/xinfa_genre.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_unarmed",
+    script: "gain_buff",
+    valueData: [
+      {
+        base: 1,
+        rankIncrement: 1,
+      },
+    ],
+  },
+  // 获得无极之气
+  gain_energy_positive_ultimate: {
+    id: "gain_energy_positive_ultimate",
+    category: "buff",
+    kind: "xinfa",
+    rank: 3,
+    description: "affix_gain_energy_positive_ultimate",
+    keywords: ["status_energy_positive_ultimate"],
+    image: "battlecard/illustration/xinfa_genre.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_mana",
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_ultimate",
+    script: "gain_buff",
+    valueData: [
+      {
+        base: 1,
+        rankIncrement: 1,
       },
     ],
   },
@@ -645,7 +689,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 14,
@@ -672,7 +716,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 14,
@@ -699,7 +743,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 14,
@@ -726,7 +770,7 @@
       sound: "small-rock-break-194553.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 25,
@@ -753,7 +797,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "attack_slow",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_speed_slow"],
     valueData: [
       {
@@ -786,7 +830,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 15,
@@ -813,7 +857,7 @@
       sound: "fireball-whoosh-5-179129.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 21,
@@ -840,7 +884,7 @@
       sound: "big-thunder-67697.mp3",
     },
     script: "attack_clumsy",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_dodge_clumsy"],
     valueData: [
       {
@@ -869,7 +913,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -897,7 +941,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "speed_quick_defend",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -928,7 +972,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "heal_lifeMax",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 0,
@@ -955,7 +999,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "defend",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -983,7 +1027,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     valueData: [
       {
         base: 2,
@@ -1013,7 +1057,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
-    costColored: { unarmed: 2 },
+    qiCost: { unarmed: 2 },
     valueData: [
       {
         base: 16,
@@ -1038,7 +1082,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     equipment: "sabre",
     valueData: [
       {
@@ -1070,7 +1114,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_slow",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     valueData: [
       {
         base: 10,
@@ -1100,7 +1144,6 @@
     },
     resourceType: "energy_positive_unarmed",
     script: "gain_resource",
-    costColored: {},
     valueData: [
       {
         base: 1,
@@ -1123,7 +1166,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1147,7 +1190,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1171,7 +1214,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_defense"],
     equipment: "sabre",
     valueData: [
@@ -1196,7 +1239,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1224,7 +1267,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1256,7 +1299,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     valueData: [
       {
         base: 3,
@@ -1287,7 +1330,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_clumsy",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     valueData: [
       {
         base: 10,
@@ -1316,7 +1359,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1349,7 +1392,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1377,7 +1420,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1405,7 +1448,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1431,7 +1474,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1464,7 +1507,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1492,7 +1535,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1520,7 +1563,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     equipment: "sword",
     valueData: [
       {
@@ -1547,7 +1590,6 @@
     },
     resourceType: "energy_positive_weapon",
     script: "gain_resource",
-    costColored: {},
     valueData: [
       {
         base: 1,
@@ -1570,7 +1612,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1594,7 +1636,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1618,7 +1660,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1643,7 +1685,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { spell: 1 },
+    qiCost: { spell: 1 },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1668,7 +1710,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1696,7 +1738,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1725,7 +1767,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "speed_quick_defend",
-    costColored: { weapon: 1 },
+    qiCost: { weapon: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1735,190 +1777,6 @@
       {
         base: 15,
         increment: 0.75,
-      },
-    ],
-  },
-
-  // ------------炼魂·攻击------------
-  punch_attack_exhaust_karma: {
-    id: "punch_attack_exhaust_karma",
-    category: "attack",
-    genre: "vitality",
-    kind: "punch",
-    rank: 1,
-    cardType: "unarmed",
-    damageType: "psychic",
-    description: "affix_attack_unarmed_multiple_exhaust_karma",
-    image: "battlecard/illustration/punch_attack.png",
-    animation: {
-      startup: ["before_melee_startup", "melee_startup"],
-      recovery: ["melee_recovery", "after_melee_recovery"],
-      actions: "punch_attack",
-      sound: "punch-or-kick-sound-effect-1-239696.mp3",
-    },
-    script: "attack_multiple",
-    costColored: { curse: 1 },
-    valueData: [
-      {
-        base: 4,
-        increment: 0,
-        maxLevel: 0,
-      },
-      {
-        base: 3,
-        increment: 0.3,
-      },
-    ],
-  },
-  dart_attack_exhaust_karma: {
-    id: "dart_attack_exhaust_karma",
-    category: "attack",
-    genre: "vitality",
-    kind: "dart",
-    cardType: "weapon",
-    damageType: "physical",
-    rank: 1,
-    description: "affix_attack_weapon_multiple_exhaust_karma",
-    image: "battlecard/illustration/dart_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      sound: "clean-fast-swooshaiff-14784.mp3",
-    },
-    script: "attack_multiple",
-    costColored: { curse: 1 },
-    equipment: "dart",
-    valueData: [
-      {
-        base: 4,
-        increment: 0,
-        maxLevel: 0,
-      },
-      {
-        base: 5,
-        increment: 0.5,
-      },
-    ],
-  },
-  bow_attack_exhaust_karma: {
-    id: "bow_attack_exhaust_karma",
-    category: "attack",
-    genre: "vitality",
-    kind: "bow",
-    cardType: "weapon",
-    damageType: "physical",
-    rank: 1,
-    description: "affix_attack_weapon_multiple_exhaust_karma",
-    image: "battlecard/illustration/bow_attack.png",
-    animation: {
-      startup: "bow_attack",
-      sound: "clean-fast-swooshaiff-14784.mp3",
-    },
-    script: "attack_multiple",
-    costColored: { curse: 1 },
-    equipment: "bow",
-    valueData: [
-      {
-        base: 4,
-        increment: 0,
-        maxLevel: 0,
-      },
-      {
-        base: 6,
-        increment: 0.6,
-      },
-    ],
-  },
-  // ------------炼魂·加持------------
-  punch_defend_exhaust_karma: {
-    id: "punch_defend_exhaust_karma",
-    uniqueId: "defend",
-    category: "buff",
-    genre: "vitality",
-    kind: "punch",
-    damageType: "physical",
-    rank: 1,
-    description: "affix_defend_exhaust_rage",
-    image: "battlecard/illustration/punch_defend.png",
-    animation: {
-      startup: "punch_buff",
-      sound: "buffer-spell-88994.mp3",
-    },
-    script: "defend",
-    costColored: { curse: 1 },
-    keywords: ["status_defense"],
-    valueData: [
-      {
-        base: 12,
-        increment: 0.6,
-      },
-    ],
-  },
-  /// 降低角色生命上限，最低为 1
-  power_word_debuff: {
-    id: "power_word_debuff",
-    genre: "vitality",
-    category: "buff",
-    kind: "power_word",
-    rank: 1,
-    description: "affix_lifemax_debuff_exhaust_karma",
-    image: "battlecard/illustration/vitality_power_word_attack.png",
-    animation: {
-      startup: "spell_attack",
-      recovery: "spell_attack_recovery",
-      overlays: "curse",
-      sound: "magic-smite-6012.mp3",
-    },
-    script: "lifemax_debuff",
-    costColored: { curse: 1 },
-    valueData: [
-      {
-        base: 0,
-        increment: 1.5,
-      },
-    ],
-  },
-  power_word_buff: {
-    id: "power_word_buff",
-    genre: "vitality",
-    category: "buff",
-    kind: "power_word",
-    rank: 1,
-    description: "affix_lifemax_buff_exhaust_karma",
-    image: "battlecard/illustration/vitality_power_word_defend.png",
-    animation: {
-      startup: "spell_buff",
-      overlays: "restore_life",
-      sound: "buffer-spell-88994.mp3",
-    },
-    script: "lifemax_buff",
-    costColored: { curse: 1 },
-    valueData: [
-      {
-        base: 0,
-        increment: 1.5,
-      },
-    ],
-  },
-  reduce_resist_poison: {
-    id: "reduce_resist_poison",
-    genre: "vitality",
-    category: "buff",
-    kind: "power_word",
-    rank: 1,
-    description: "affix_reduce_resist_poison",
-    image: "battlecard/illustration/unique_draw_cards.png",
-    animation: {
-      startup: "spell_buff",
-      sound: "magic-smite-6012.mp3",
-    },
-    damageType: "poison",
-    script: "reduce_resist",
-    keywords: ["resist"],
-    valueData: [
-      {
-        base: 5,
-        increment: 0.5,
       },
     ],
   },
@@ -1941,7 +1799,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    costColored: { curse: 1 },
+    qiCost: { curse: 1 },
     valueData: [
       {
         base: 4,
@@ -1971,7 +1829,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     equipment: "staff",
     valueData: [
       {
@@ -2002,7 +1860,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple",
-    costColored: { curse: 1 },
+    qiCost: { curse: 1 },
     equipment: "spear",
     valueData: [
       {
@@ -2033,7 +1891,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    costColored: { curse: 1 },
+    qiCost: { curse: 1 },
     valueData: [
       {
         base: 22,
@@ -2057,7 +1915,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2081,7 +1939,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { unarmed: 1 },
+    qiCost: { unarmed: 1 },
     keywords: ["status_defense"],
     equipment: "staff",
     valueData: [
@@ -2106,7 +1964,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
-    costColored: { curse: 1 },
+    qiCost: { curse: 1 },
     keywords: ["status_defense"],
     equipment: "spear",
     valueData: [
@@ -2132,7 +1990,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "dodge_nimble_defend",
-    costColored: { curse: 1 },
+    qiCost: { curse: 1 },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2141,6 +1999,390 @@
       },
       {
         base: 10,
+        increment: 0.5,
+      },
+    ],
+  },
+
+  // ------------炼魂·攻击------------
+  punch_attack_exhaust_karma: {
+    id: "punch_attack_exhaust_karma",
+    category: "attack",
+    genre: "vitality",
+    kind: "punch",
+    rank: 1,
+    cardType: "unarmed",
+    damageType: "psychic",
+    description: "affix_attack_unarmed_multiple_exhaust_karma",
+    image: "battlecard/illustration/punch_attack.png",
+    animation: {
+      startup: ["before_melee_startup", "melee_startup"],
+      recovery: ["melee_recovery", "after_melee_recovery"],
+      actions: "punch_attack",
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
+    script: "attack_multiple",
+    qiCost: { curse: 1 },
+    valueData: [
+      {
+        base: 4,
+        increment: 0,
+        maxLevel: 0,
+      },
+      {
+        base: 3,
+        increment: 0.3,
+      },
+    ],
+  },
+  dart_attack_exhaust_karma: {
+    id: "dart_attack_exhaust_karma",
+    category: "attack",
+    genre: "vitality",
+    kind: "dart",
+    cardType: "weapon",
+    damageType: "physical",
+    rank: 1,
+    description: "affix_attack_weapon_multiple_exhaust_karma",
+    image: "battlecard/illustration/dart_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      sound: "clean-fast-swooshaiff-14784.mp3",
+    },
+    script: "attack_multiple",
+    qiCost: { curse: 1 },
+    equipment: "dart",
+    valueData: [
+      {
+        base: 4,
+        increment: 0,
+        maxLevel: 0,
+      },
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  bow_attack_exhaust_karma: {
+    id: "bow_attack_exhaust_karma",
+    category: "attack",
+    genre: "vitality",
+    kind: "bow",
+    cardType: "weapon",
+    damageType: "physical",
+    rank: 1,
+    description: "affix_attack_weapon_multiple_exhaust_karma",
+    image: "battlecard/illustration/bow_attack.png",
+    animation: {
+      startup: "bow_attack",
+      sound: "clean-fast-swooshaiff-14784.mp3",
+    },
+    script: "attack_multiple",
+    qiCost: { curse: 1 },
+    equipment: "bow",
+    valueData: [
+      {
+        base: 4,
+        increment: 0,
+        maxLevel: 0,
+      },
+      {
+        base: 6,
+        increment: 0.6,
+      },
+    ],
+  },
+  // ------------炼魂·加持------------
+  punch_defend_exhaust_karma: {
+    id: "punch_defend_exhaust_karma",
+    uniqueId: "defend",
+    category: "buff",
+    genre: "vitality",
+    kind: "punch",
+    damageType: "physical",
+    rank: 1,
+    description: "affix_defend_exhaust_rage",
+    image: "battlecard/illustration/punch_defend.png",
+    animation: {
+      startup: "punch_buff",
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "defend",
+    qiCost: { curse: 1 },
+    keywords: ["status_defense"],
+    valueData: [
+      {
+        base: 12,
+        increment: 0.6,
+      },
+    ],
+  },
+  power_word_buff: {
+    id: "power_word_buff",
+    genre: "vitality",
+    category: "buff",
+    kind: "power_word",
+    rank: 1,
+    description: "affix_buff_lifemax_exhaust_karma",
+    image: "battlecard/illustration/vitality_power_word_defend.png",
+    animation: {
+      startup: "spell_buff",
+      overlays: "restore_life",
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "buff_lifemax",
+    qiCost: { curse: 1 },
+    valueData: [
+      {
+        base: 0,
+        increment: 1.5,
+      },
+    ],
+  },
+  /// 降低角色生命上限，最低为 1
+  power_word_debuff: {
+    id: "power_word_debuff",
+    genre: "vitality",
+    category: "buff",
+    kind: "power_word",
+    rank: 1,
+    description: "affix_debuff_lifemax_exhaust_karma",
+    image: "battlecard/illustration/vitality_power_word_attack.png",
+    animation: {
+      startup: "spell_attack",
+      recovery: "spell_attack_recovery",
+      overlays: "curse",
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "debuff_lifemax",
+    qiCost: { curse: 1 },
+    valueData: [
+      {
+        base: 0,
+        increment: 1.5,
+      },
+    ],
+  },
+  opponent_gain_vulnerable: {
+    id: "opponent_gain_vulnerable",
+    uniqueId: ["opponent_gain_vulnerable"],
+    category: "buff",
+    kind: "curse",
+    rank: 1,
+    description: "affix_opponent_gain_vulnerable",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "vulnerable",
+    script: "opponent_debuff",
+    keywords: ["status_vulnerable"],
+    valueData: [
+      {
+        base: 8,
+        increment: 0.4,
+      },
+    ],
+  },
+  opponent_gain_debuff_crit: {
+    id: "opponent_gain_debuff_crit",
+    uniqueId: ["opponent_gain_debuff_crit"],
+    category: "buff",
+    kind: "curse",
+    rank: 1,
+    description: "affix_opponent_gain_debuff_crit",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "debuff_crit",
+    script: "opponent_debuff",
+    keywords: ["status_debuff_crit"],
+    valueData: [
+      {
+        base: 8,
+        increment: 0.4,
+      },
+    ],
+  },
+  opponent_gain_debuff_ward: {
+    id: "opponent_gain_debuff_ward",
+    uniqueId: ["opponent_gain_debuff_ward"],
+    category: "buff",
+    kind: "curse",
+    rank: 2,
+    description: "affix_opponent_gain_debuff_ward",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "debuff_ward",
+    script: "opponent_debuff",
+    keywords: ["status_debuff_ward"],
+    valueData: [
+      {
+        base: 3,
+        increment: 0.15,
+      },
+    ],
+  },
+  opponent_gain_debuff_shield: {
+    id: "opponent_gain_debuff_shield",
+    uniqueId: ["opponent_gain_debuff_shield"],
+    category: "buff",
+    kind: "curse",
+    rank: 3,
+    description: "affix_opponent_gain_debuff_shield",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "debuff_shield",
+    script: "opponent_debuff",
+    keywords: ["status_debuff_shield"],
+    valueData: [
+      {
+        base: 2,
+        increment: 0.1,
+      },
+    ],
+  },
+  opponent_gain_speed_slow: {
+    id: "opponent_gain_speed_slow",
+    uniqueId: ["opponent_gain_speed_slow"],
+    category: "buff",
+    kind: "curse",
+    rank: 1,
+    description: "affix_opponent_gain_speed_slow",
+    image: "battlecard/illustration/quick.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "speed_slow",
+    script: "opponent_debuff",
+    keywords: ["status_speed_slow"],
+    valueData: [
+      {
+        base: 1,
+        increment: 0.15,
+      },
+    ],
+  },
+  opponent_gain_dodge_clumsy: {
+    id: "opponent_gain_dodge_clumsy",
+    uniqueId: ["opponent_gain_dodge_clumsy"],
+    category: "buff",
+    kind: "curse",
+    rank: 1,
+    description: "affix_opponent_gain_dodge_clumsy",
+    image: "battlecard/illustration/nimble.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    buffId: "dodge_clumsy",
+    script: "opponent_debuff",
+    keywords: ["status_dodge_clumsy"],
+    valueData: [
+      {
+        base: 1,
+        increment: 0.15,
+      },
+    ],
+  },
+
+  // 降低对手抗性
+  opponent_reduce_resist_fire: {
+    id: "opponent_reduce_resist_fire",
+    uniqueId: "reduce_resist",
+    category: "buff",
+    kind: "power_word",
+    rank: 2,
+    description: "affix_opponent_reduce_resist_fire",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    elementType: "fire",
+    script: "reduce_resist",
+    keywords: ["resist"],
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  opponent_reduce_resist_ice: {
+    id: "opponent_reduce_resist_ice",
+    uniqueId: "reduce_resist",
+    category: "buff",
+    kind: "power_word",
+    rank: 2,
+    description: "affix_opponent_reduce_resist_ice",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    elementType: "ice",
+    script: "reduce_resist",
+    keywords: ["resist"],
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  opponent_reduce_resist_lightning: {
+    id: "opponent_reduce_resist_lightning",
+    uniqueId: "reduce_resist",
+    category: "buff",
+    kind: "power_word",
+    rank: 2,
+    description: "affix_opponent_reduce_resist_lightning",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    elementType: "lightning",
+    script: "reduce_resist",
+    keywords: ["resist"],
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  opponent_reduce_resist_poison: {
+    id: "opponent_reduce_resist_poison",
+    uniqueId: "reduce_resist",
+    category: "buff",
+    kind: "power_word",
+    rank: 2,
+    description: "affix_opponent_reduce_resist_poison",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: "spell_attack",
+      sound: "magic-smite-6012.mp3",
+    },
+    elementType: "poison",
+    script: "reduce_resist",
+    keywords: ["resist"],
+    valueData: [
+      {
+        base: 5,
         increment: 0.5,
       },
     ],

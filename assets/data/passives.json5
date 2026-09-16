@@ -629,37 +629,6 @@
     keywords: ["status_dodge_nimble"],
   },
 
-  // 元气
-  start_battle_with_energy_positive_life: {
-    id: "start_battle_with_energy_positive_life",
-    uniqueId: "start_with_energy_positive_life",
-    description: "passive_start_battle_with_energy_positive_life_description",
-    priority: 4269,
-    increment: 0.2,
-    isItem: true,
-    isItemMain: true,
-    isPotion: true,
-    isEphemeral: true,
-    ephemeralType: "energy",
-    kinds: ["pearl"],
-    keywords: ["status_energy_positive_life"],
-  },
-  // 正气
-  start_battle_with_energy_positive_penetrate: {
-    id: "start_battle_with_energy_positive_penetrate",
-    uniqueId: "start_with_energy_positive_penetrate",
-    description: "passive_start_battle_with_energy_positive_penetrate_description",
-    priority: 4268,
-    increment: 0.2,
-    isItem: true,
-    isItemMain: true,
-    isPotion: true,
-    isEphemeral: true,
-    ephemeralType: "energy",
-    kinds: ["pearl"],
-    keywords: ["status_energy_positive_penetrate"],
-    rank: 1,
-  },
   // 豪气
   start_battle_with_energy_positive_crit: {
     id: "start_battle_with_energy_positive_crit",
@@ -707,6 +676,21 @@
     keywords: ["status_shield"],
   },
 
+  // 元气
+  start_battle_with_energy_positive_life: {
+    id: "start_battle_with_energy_positive_life",
+    uniqueId: "start_with_energy_positive_life",
+    description: "passive_start_battle_with_energy_positive_life_description",
+    priority: 4269,
+    increment: 0.2,
+    isItem: true,
+    isItemMain: true,
+    isPotion: true,
+    isEphemeral: true,
+    ephemeralType: "energy",
+    kinds: ["pearl"],
+    keywords: ["status_energy_positive_life"],
+  },
   // 灵气
   start_battle_with_energy_positive_spell: {
     id: "start_battle_with_energy_positive_spell",

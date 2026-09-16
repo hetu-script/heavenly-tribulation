@@ -2210,7 +2210,6 @@ const kPotionKinds = {
   },
   'rare': {
     'potion_start_battle_with_energy_positive_life',
-    'potion_start_battle_with_energy_positive_penetrate',
     'potion_start_battle_with_energy_positive_crit',
     'potion_start_battle_with_energy_positive_spell',
     'potion_start_battle_with_energy_positive_weapon',

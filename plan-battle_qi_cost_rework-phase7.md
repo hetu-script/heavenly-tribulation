@@ -3,15 +3,10 @@
 > 所属计划：`plan-battle_qi_cost_rework.md` §8 Phase 7（构筑面板暂缓，未做）
 > 注：Phase 6（流派节点赋能）按用户要求暂缓，无报告。
 
-## 验收结果
-
-- locale JSON 全部解析通过（assets/locale/zh/ 下 15 个文件逐个校验）。
-- `dart analyze lib`：No issues found（本 Phase 未动代码；hetu 未改，无需编译）。
-- 全量 grep 复核：旧术语与旧机制措辞已清（见下文清单）。
-
 ## 任务 1：本地化改动摘要
 
 **battlecard.json（38 条重写）**
+
 - **插值错位修正（核心）**：37 条迁移卡词条描述原形如"消耗 {0} 灵气： 徒手攻击造成 {1} 火焰伤害"——valueData 已在 Phase 2 删除 exhaust 槽，{0} 会显示为伤害值、{1} 悬空。全部改为纯效果描述并下移索引（如"徒手攻击造成 {0} 火焰伤害"、"徒手攻击造成 {0}×{1} 物理伤害"、"护甲 +{0}"、"速度 +{0}, 护甲 +{1}"、"对手生命上限 -{0}"等）；有色费用由卡面"另需"行展示，描述不再重复费用措辞。
 - `uniquecard_draw_description`/`affix_draw_cards`：删"消耗 {0} 灵气"（draw_cards 从不消耗，Phase 5 已定不加费用），保留 {1} 取值（value[0] 是遗留显示槽，不动数据）。
 - `exhaustResource_description`：改为"某些卡牌需要特定的气作为有色费用才能打出"。

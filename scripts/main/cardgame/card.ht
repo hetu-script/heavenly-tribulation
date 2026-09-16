@@ -133,17 +133,17 @@ struct BattleCard {
     this.equipment = mainAffix.equipment
     this.requirement = mainAffix.requirement
 
-    // 费用：总费用 = rank + 1 = 无色 cost + ΣcostColored
-    // 显式 costColored 优先；缺省推导规则与 Dart 侧 GameData.deriveBattleCardCost 保持一致
-    const explicitCostColored = mainAffix.costColored
+    // 费用：总费用 = rank + 1 = 无色 cost + ΣqiCost
+    // 显式 qiCost 优先；缺省推导规则与 Dart 侧 GameData.deriveBattleCardCost 保持一致
+    const explicitCostColored = mainAffix.qiCost
     final totalCost = this.rank + 1
-    this.costColored = {}
+    this.qiCost = {}
     if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
       let coloredSum = 0
       for (final color in explicitCostColored.keys) {
         final amount = explicitCostColored[color]
         if (amount > 0) {
-          this.costColored[color] = amount
+          this.qiCost[color] = amount
           coloredSum += amount
         }
       }
@@ -162,7 +162,7 @@ struct BattleCard {
           for (var i = 0; i < colors.length; ++i) {
             final amount = half + (i < remainder ? 1 : 0)
             if (amount > 0) {
-              this.costColored[colors[i]] = amount
+              this.qiCost[colors[i]] = amount
             }
           }
         }
@@ -211,10 +211,14 @@ function _getSupportAffixes(card) {
   for (final affix of game.battleCardAffixes) {
     assert(affix.uniqueId != null)
     assert(affix.category is List)
+    assert(affix.genre == null || affix.genre is List)
     if (affix.genre && affix.genre != card.genre) {
       continue
     }
     if (!affix.category.contains(card.category)) {
+      continue
+    }
+    if (affix.genre != null && $affix.genre.contains(card.genre)) {
       continue
     }
     if (card.affixUniqueIds.contains(affix.uniqueId)) {

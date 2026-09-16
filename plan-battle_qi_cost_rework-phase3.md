@@ -2,34 +2,28 @@
 
 > 所属计划：`plan-battle_qi_cost_rework.md` §8 Phase 3
 
-## 验收结果
-
-- `dart analyze lib`：**No issues found**（全仓仅 3 条预存 pubspec 资产目录警告）。
-- `python build.py`：main/story 编译成功；反查 main.mod 确认 7 个旧回调函数（enable_chakra_self_used_card / enable_rage_opponent_used_card / enable_mana_self_turn_end / energy_positive_life_self_turn_end / energy_positive_spell_self_overflowed_energy / energy_positive_spell_self_deck_end / energy_positive_weapon_self_overflowed_energy / energy_positive_unarmed_self_turn_end）全部清零，`turn_end_resource_settlement` 已编入。
-- locale JSON 校验通过。
-
 ## 改造后的回合时序
 
 **回合开始（battle.dart `_startTurn`，do 循环内）**
 
-| 步骤 | 动作 | 说明 |
-|---|---|---|
-| 0 | 每 16 回合叠劫气 | tribulation 替换原死气叠层（非资源，不清空、不对冲、不影响费用） |
-| 1 | 摸牌 | 现有逻辑不变 |
-| 2 | `onStartTurn` 回调 | 死气消耗 1 层 -10% 生命、劫气 -10%、点燃/感电 DOT、缓慢跳过判定、幻觉等。**保留死气伤害**：它是回合开始回调，必须先于清空执行，否则层数被清永不触发 |
-| 3 | 跳过检查 | skipTurn 则 break（不清空不产出） |
-| 4 | `clearResourceEffects()` | 清空全部 12 种资源气（6 阳 6 阴）；煞气剩余层数 1:1 返回 `data['karma']` 池（带跳字提示，locale 键 `karmaPoolReturnHint`） |
-| 5 | `produceTurnStartResources()` | 元气 rank+3（走 addStatusEffect，若有死气会自然对冲——因先清空，实际对冲发生在回合内获得场景，如产元气卡）；剑气 = 上回合武器攻击牌数（需 enable_chakra）；怒气 = 上回合受伤 ÷10（需 enable_rage）；灵气 = enable_mana 未满上限 +1（节点加成留注释接口）；煞气 = min(karmaMax, max(1, 池÷10)) 从池提取 |
-| 6 | `energyDisplay.setEnergy(元气层数)` | 能量瓶改读状态 |
-| 7 | start_turn 被动注入 → 玩家/敌方出牌阶段 | `_canPayCardCost`/`_payCardCost` 无色部分读元气层数，存量经校验后 `removeStatusEffect('energy_positive_life', amount: N)` 精确扣除（全有或全无不会截断） |
+| 步骤 | 动作                                    | 说明                                                                                                                                                                                                                                                                                                  |
+| ---- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | 每 16 回合叠劫气                        | tribulation 替换原死气叠层（非资源，不清空、不对冲、不影响费用）                                                                                                                                                                                                                                      |
+| 1    | 摸牌                                    | 现有逻辑不变                                                                                                                                                                                                                                                                                          |
+| 2    | `onStartTurn` 回调                      | 死气消耗 1 层 -10% 生命、劫气 -10%、点燃/感电 DOT、缓慢跳过判定、幻觉等。**保留死气伤害**：它是回合开始回调，必须先于清空执行，否则层数被清永不触发                                                                                                                                                   |
+| 3    | 跳过检查                                | skipTurn 则 break（不清空不产出）                                                                                                                                                                                                                                                                     |
+| 4    | `clearResourceEffects()`                | 清空全部 12 种资源气（6 阳 6 阴）；煞气剩余层数 1:1 返回 `data['karma']` 池（带跳字提示，locale 键 `karmaPoolReturnHint`）                                                                                                                                                                            |
+| 5    | `produceTurnStartResources()`           | 元气 rank+3（走 addStatusEffect，若有死气会自然对冲——因先清空，实际对冲发生在回合内获得场景，如产元气卡）；剑气 = 上回合武器攻击牌数（需 enable_chakra）；怒气 = 上回合受伤 ÷10（需 enable_rage）；灵气 = enable_mana 未满上限 +1（节点加成留注释接口）；煞气 = min(karmaMax, max(1, 池÷10)) 从池提取 |
+| 6    | `energyDisplay.setEnergy(元气层数)`     | 能量瓶改读状态                                                                                                                                                                                                                                                                                        |
+| 7    | start_turn 被动注入 → 玩家/敌方出牌阶段 | `_canPayCardCost`/`_payCardCost` 无色部分读元气层数，存量经校验后 `removeStatusEffect('energy_positive_life', amount: N)` 精确扣除（全有或全无不会截断）                                                                                                                                              |
 
 **回合结束（character.dart `onEndTurn`）**
 
-| 步骤 | 动作 | 说明 |
-|---|---|---|
-| 1 | `turn_end_resource_settlement`（hetu，显式调用） | ① 灵气按**剩余层数**触发 overflowed_mana_*：convert_to_vigor → 剩余灵气 1:1 转元气；随机元素伤害 → 每层 5 点。② 元气回血：每剩余 1 层 `max(1, round(lifeMax×2%))`，不消耗层数、不超过缺失量。**顺序在函数内显式保证**，转化的元气赶上同回合回血 |
-| 2 | 其余 self_turn_end / opponent_turn_end 回调 | 速度、冰缓/中毒 DOT 等，现有逻辑不变 |
-| 3 | — | 资源图标保留显示至下个回合开始清空（对方可见剩余费用） |
+| 步骤 | 动作                                             | 说明                                                                                                                                                                                                                                             |
+| ---- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | `turn_end_resource_settlement`（hetu，显式调用） | ① 灵气按**剩余层数**触发 overflowed*mana*\*：convert_to_vigor → 剩余灵气 1:1 转元气；随机元素伤害 → 每层 5 点。② 元气回血：每剩余 1 层 `max(1, round(lifeMax×2%))`，不消耗层数、不超过缺失量。**顺序在函数内显式保证**，转化的元气赶上同回合回血 |
+| 2    | 其余 self_turn_end / opponent_turn_end 回调      | 速度、冰缓/中毒 DOT 等，现有逻辑不变                                                                                                                                                                                                             |
+| 3    | —                                                | 资源图标保留显示至下个回合开始清空（对方可见剩余费用）                                                                                                                                                                                           |
 
 **回合统计结转**：`onStartTurn` 内、回调分发前归档——`lastTurnWeaponAttackCards`/`lastTurnDamageTaken` ← 本回合值，本回合清零。武器攻击牌数在 `onUseCard` 累计（category==attack 且 cardType==weapon，hero/enemy 共用）；受伤在 `takeDamage` 的 finalDamage>0 分支累计（DOT 的 changeLife 不计入，见"偏离"第 3 条）。
 

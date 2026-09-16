@@ -29,10 +29,10 @@
    - 怒气的"每层受伤 +5%"等防御侧效果，受伤发生在对方回合，必须让资源活到对方回合才有意义；
    - 对方能看到你没花完的费用（炉石式信息）；
    - 没花掉的怒气在对方回合是防御风险——花掉怒气既是进攻收益也是卸除防御 debuff。
-   回合结束的结算（元气回血、溢出利用、煞气记录未用量）仍在自己回合结束按剩余量进行，仅清空时机延后。
+     回合结束的结算（元气回血、溢出利用、煞气记录未用量）仍在自己回合结束按剩余量进行，仅清空时机延后。
 6. **无极之气 = 万能色**：落地"可支付任意有色费用"，优先扣本色气、不足自动用无极补差；保留稀有度（rank 4 产气词缀）。
 7. **煞气特殊化**：跨战斗永久积累池（karma）保留；天赋开通后每回合开始从 karma 池提取一部分作为当回合煞气；回合结束记录未用量，**下个回合开始清空时未使用的煞气返回 karma 池**（而非消失）。
-8. **中立气转普通状态**：正气、豪气（→"幸运"）、清气、浩然之气（→"护盾"）取消资源属性，行为不变（Phase 1 已完成）。
+8. **中立气转普通状态**：正气、豪气（→"幸运"）、清气（→"辟邪"）、浩然之气（→"护盾"）取消资源属性，行为不变（Phase 1 已完成）。
 9. **阴气精简为 6 种资源**：保留与元气、四色、无极对应的死气、逆灵之气、止戈之气、非战之气、无心之气、虚空之气；除现有负面效果外，统一附加"对应费用 +1/层"的增费作用（同色至多 +2）。戾气、衰气、浊气、萧索之气已转普通 debuff 状态（Phase 1 已完成）。
 10. **阴气不入基础卡费用**：极少数绝世卡可例外（exotic 费用，如"需求 3 层死气"），保留绝世词条利用阴气的扩展空间。
 11. **阴阳净值显示**：每种资源气只占一个 UI 槽位，显示净值（阳 − 阴），阴大于阳时同一图标用反色/深底区分（见第 5 节）。
@@ -45,16 +45,14 @@
 
 ```
 card.cost        // 无色费用（int），引擎渲染与现有代码继续用
-card.costColored // 有色费用映射，如 { spell: 3 } 或 { unarmed: 2, curse: 1 }（法身双色）
+card.qiCost // 有色费用映射，如 { spell: 3 } 或 { unarmed: 2, curse: 1 }（法身双色）
                  // 无流派卡为 null 或 {}
-// 不变量：cost + ΣcostColored.values = rank + 1（校验脚本保证）
+// 不变量：cost + ΣqiCost.values = rank + 1（校验脚本保证）
 ```
 
-字段命名用 `costColored`（不用 costChi，避免与真气 chi 伤害类型撞名）。
-
-- cards.json5 主词条新增可选字段 `costColored`。
-- **缺省推导**：有流派的卡按"有色 = ⌈(rank+1)/2⌉、无色 = ⌊(rank+1)/2⌋"分配，颜色由 genre→颜色映射决定；无流派卡全无色。逐卡微调时可参考该卡原 exhaust 消耗量填写显式 `costColored`。
-- **显式填写优先**：用于特殊卡；校验总费用不变量，且基础卡的费用色必须属于 4 色（exotic 费用仅允许 `isUnique: true` 的卡）。加载期校验已在 Phase 1 落地（lib/data/game.dart `_validateBattleCardCostChi`，随字段改名同步为 costColored）。
+- cards.json5 主词条新增可选字段 `qiCost`。
+- **缺省推导**：有流派的卡按"有色 = ⌈(rank+1)/2⌉、无色 = ⌊(rank+1)/2⌋"分配，颜色由 genre→颜色映射决定；无流派卡全无色。逐卡微调时可参考该卡原 exhaust 消耗量填写显式 `qiCost`。
+- **显式填写优先**：用于特殊卡；校验总费用不变量，且基础卡的费用色必须属于 4 色（exotic 费用仅允许 `isUnique: true` 的卡）。加载期校验已在 Phase 1 落地（lib/data/game.dart `_validateBattleCardCostChi`，随字段改名同步为 qiCost）。
 
 ### 3.2 genre → 费用色映射（常量，三处同步，Phase 1 已完成）
 
@@ -70,7 +68,7 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 
 ### 3.3 支付与检查规则
 
-- **费用色集合由 costColored 的键空间天然限定**：合法键只有 spell / weapon / unarmed / curse（+ exotic 仅绝世卡），不需要额外的角色声明字段。
+- **费用色集合由 qiCost 的键空间天然限定**：合法键只有 spell / weapon / unarmed / curse（+ exotic 仅绝世卡），不需要额外的角色声明字段。
 - **可打出检查**：`无色费用 ≤ 剩余元气 && 每色需求 ≤ 对应气存量 + 无极存量`。
 - **支付顺序**：先扣本色气，缺口自动扣无极之气（默认自动，可在设置中加确认开关——见第 10 节）。
 - **阴气增费**：检查与支付时，对应颜色持有 N 层阴气则该色费用 +N（同色至多 +2）；死气对应无色费用（元气）。
@@ -89,7 +87,7 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 - **实施决策：energy 计数器转换为 energy_positive_life 状态层数**——元气就是状态，不再是独立计数器。回合开始清空残留后获得 rank+3 层（获得时与死气自然对冲）；打牌支付无色费用 = 移除元气层数；EnergyDisplay 与支付检查改读状态层数。
 - **回血**：自己回合结束时每剩余 1 层回复 2% 生命上限，**每层至少回复 1 点生命**（取代旧的"消耗 1 层回 5%"回调）。
 - 回血后图标保留（对方可见剩余量），下个回合开始清空。
-- gain_resource_vigor 等产元气卡改为直接增加元气层数（= 本回合可用费用，用不完则转化为回合结束回血）。
+- gain_buff_life 等产元气卡改为直接增加元气层数（= 本回合可用费用，用不完则转化为回合结束回血）。
 
 ### 4.2 剑气（御剑/武器系）
 
@@ -145,16 +143,16 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 
 **图标映射**（Phase 1 已修复 status_effect.json5 的 20 处死链）：
 
-| 状态 ID | 新 icon 路径 |
-|---|---|
-| energy_positive_life（元气） | icon/cost/qi_basic.png |
-| energy_positive_spell（灵气） | icon/cost/qi_mana.png |
-| energy_positive_weapon（剑气） | icon/cost/qi_chakra.png |
-| energy_positive_unarmed（怒气） | icon/cost/qi_rage.png |
-| energy_positive_curse（煞气） | icon/cost/qi_karma.png |
-| energy_positive_ultimate（无极之气） | icon/cost/qi_ultimate.png |
-| energy_negative_life（死气） | icon/status/decay.png |
-| energy_negative_spell/weapon/unarmed/curse/ultimate | 各自对应阳气的 icon/cost 路径（运行时反色） |
+| 状态 ID                                                                    | 新 icon 路径                                              |
+| -------------------------------------------------------------------------- | --------------------------------------------------------- |
+| energy_positive_life（元气）                                               | icon/cost/qi_basic.png                                    |
+| energy_positive_spell（灵气）                                              | icon/cost/qi_mana.png                                     |
+| energy_positive_weapon（剑气）                                             | icon/cost/qi_chakra.png                                   |
+| energy_positive_unarmed（怒气）                                            | icon/cost/qi_rage.png                                     |
+| energy_positive_curse（煞气）                                              | icon/cost/qi_karma.png                                    |
+| energy_positive_ultimate（无极之气）                                       | icon/cost/qi_ultimate.png                                 |
+| energy_negative_life（死气）                                               | icon/status/decay.png                                     |
+| energy_negative_spell/weapon/unarmed/curse/ultimate                        | 各自对应阳气的 icon/cost 路径（运行时反色）               |
 | penetrate/crit(→幸运)/ward/shield(→护盾) 及其对应 4 种阴气（均转普通状态） | 暂用 icon/status/status_placeholder.png，图标人工后续制作 |
 
 ## 6. UI 设计需求
@@ -182,15 +180,15 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 
 ### 6.5 美术资源清单
 
-| 资源 | 状态 |
-| ---- | ---- |
-| 6 种费用图标（qi_basic/mana/chakra/rage/karma/ultimate） | ✅ 已完成（用户提供，icon/cost/） |
-| 死气图标 decay.png | ✅ 已完成（用户提供） |
-| 勾玉基础图（蓝）qi_magatama_base_v2.jpg | ✅ 已生成，其他颜色由用户编辑派生 |
-| 6 种阴气反色图标 | 运行时 ColorFilter 程序化反色，无需出图 |
-| 中立状态图标（穿透/幸运/清气/护盾 + 4 种阴） | 暂用 placeholder，人工后续制作 |
-| 卡面 pip 组合设计（徽章底座、排列样式） | **暂缓，人工完成** |
-| 劫气图标 | 暂缓，随卡面 pip 一起人工完成 |
+| 资源                                                     | 状态                                    |
+| -------------------------------------------------------- | --------------------------------------- |
+| 6 种费用图标（qi_basic/mana/chakra/rage/karma/ultimate） | ✅ 已完成（用户提供，icon/cost/）       |
+| 死气图标 decay.png                                       | ✅ 已完成（用户提供）                   |
+| 勾玉基础图（蓝）qi_magatama_base_v2.jpg                  | ✅ 已生成，其他颜色由用户编辑派生       |
+| 6 种阴气反色图标                                         | 运行时 ColorFilter 程序化反色，无需出图 |
+| 中立状态图标（穿透/幸运/辟邪/护盾 + 4 种阴）             | 暂用 placeholder，人工后续制作          |
+| 卡面 pip 组合设计（徽章底座、排列样式）                  | **暂缓，人工完成**                      |
+| 劫气图标                                                 | 暂缓，随卡面 pip 一起人工完成           |
 
 ## 7. 流派天赋节点赋能（产出型模板）——后续任务，本轮不实施
 
@@ -212,16 +210,18 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 ## 8. 实施步骤
 
 - **Phase 0：清理** ✅ 已完成（删注释流派检查、`kResourceHasNegatives` 死代码、怒气双减半删一处、补 enable_mana 状态与脚本）。
-- **Phase 1：数据层** ✅ 已完成（icon 死链修复、8 中立气转普通状态、劫气条目与脚本、kOppositeStatus 收窄、常量三处同步、costColored 加载校验、本地化改名）。注：曾加入的 `role` 字段已按讨论结论移除（冗余）。
+- **Phase 1：数据层** ✅ 已完成（icon 死链修复、8 中立气转普通状态、劫气条目与脚本、kOppositeStatus 收窄、常量三处同步、qiCost 加载校验、本地化改名）。
 
 ### Phase 2：结算核心（进行中）
-- card.ht / createBattleCard 写入 `cost`/`costColored`（含缺省推导规则）。
+
+- card.ht / createBattleCard 写入 `cost`/`qiCost`（含缺省推导规则）。
 - 可打出检查与支付（含无极自动抵扣、阴气增费、同色增费上限 +2）。
-- 删除 `_exhaust` 脚本变体；引用它们的卡牌改回基础脚本变体，并按原 exhaust 消耗量写入显式 `costColored`（上限 rank+1）。
+- 删除 `_exhaust` 脚本变体；引用它们的卡牌改回基础脚本变体，并按原 exhaust 消耗量写入显式 `qiCost`（上限 rank+1）。
 - 过渡期卡面文本：描述区自动生成"另需：X气×N"行。
 - 验收：测试脚本构造各流派卡，验证检查/支付/无极抵扣/阴气增费上限。
 
 ### Phase 3：气的产出与回合行为
+
 - **统一生命周期改造**：所有资源气的清空时机从"自己回合结束"移到"下个回合开始时"（顺序：清空残留 → 结算新产出）；元气回血、溢出利用、煞气未用量记录仍在自己回合结束结算。
 - 元气回血（2%/点、每点至少 1 点）；energy_positive_life 状态与 energy 计数器的归一（4.1 注）。
 - 剑气/怒气新产出模型：滞后一轮结算（上回合武器牌数 / 上回合受伤 ÷10），节点加成/种子缺省 0；需新增回合统计字段；enable_chakra/enable_rage 回调重写；删除怒气剩余的一处减半。
@@ -231,18 +231,22 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 - 验收：实战一局，验证资源跨对方回合保留、下回合开始清空、怒气受伤加成在对方回合生效、劫气叠层不影响费用。
 
 ### Phase 4：战斗 UI（仅代码部分；卡面 pip 渲染暂缓，人工完成）
+
 - 气池净值 + 反色阴气显示（出现才显示，不常显；对方回合期间保留显示）。
 - 手牌置灰 + 缺少资源提示；支付反馈（数字跳动 + 图标闪烁）。
 - 能量瓶图标换用 qi_basic.png（或随卡面 pip 一起人工处理）。
 - ~~引擎 `CustomGameCard` pip 渲染~~ → **暂缓，人工完成**。
 
 ### Phase 5：卡牌与词缀数据迁移
-- 80 张卡逐卡复核 costColored（Phase 2 已按原 exhaust 消耗量处理 exhaust 卡；本阶段复核缺省推导结果是否合理）。
+
+- 80 张卡逐卡复核 qiCost（Phase 2 已按原 exhaust 消耗量处理 exhaust 卡；本阶段复核缺省推导结果是否合理）。
 - card_affixes.json5：复核产气词缀数值（硬检查后产气价值上升）；评估启用被注释的剑气/怒气/煞气产气词缀（167-220 行）。
-- `gain_resource_*` 8 张产气卡复核。
+- `gain_buff_*` 8 张产气卡复核。
 
 ### Phase 6（暂缓，后续与天赋树工作一起）：流派节点赋能 + stats.dart 产出条目
+
 ### Phase 7：本地化收尾与文档（构筑面板暂缓）
+
 - 本地化：旧称残留清理（battlecard.json 的"豪气/浩然之气"产气词条文案、craft.json、passive.json 的 start_battle 描述等）+ 新增条目定稿。
 - 文档：`docs/docs/how2play/rpg/battle/` 三篇重写费用与气章节；`docs/docs/mod/battle/readme.md` 同步流程。
 - 删除/归档 `plan-card_cost_pip.md`。
@@ -250,16 +254,16 @@ avatar     → unarmed + curse（双色，对半拆；奇数时无色少 1）
 
 ## 9. 主要涉及文件
 
-| 模块 | 文件 |
-|---|---|
-| 费用检查 | lib/scene/battle/battle.dart、lib/scene/battle/character.dart、lib/logic/logic.dart |
-| 卡牌数据 | assets/data/cards.json5、assets/data/card_affixes.json5、lib/data/game.dart、scripts/main/cardgame/card.ht、card_script.ht |
-| 气行为 | assets/data/status_effect.json5、scripts/main/cardgame/status_script.ht、lib/scene/battle/common.dart |
-| 引擎卡面（暂缓） | ../samsara-engine/lib/cardgame/custom_card.dart |
-| 天赋（暂缓） | assets/data/passive_skills.json5、assets/data/passives.json5 |
-| UI | lib/scene/battle/energy_display.dart、lib/widgets/battlecard/、lib/widgets/character/stats.dart、lib/scene/card_library/（暂缓） |
-| 本地化 | assets/locale/zh/rpg/status_effect.json、battlecard.json、passive.json |
-| 文档 | docs/docs/how2play/rpg/battle/*、docs/docs/mod/battle/readme.md |
+| 模块             | 文件                                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 费用检查         | lib/scene/battle/battle.dart、lib/scene/battle/character.dart、lib/logic/logic.dart                                              |
+| 卡牌数据         | assets/data/cards.json5、assets/data/card_affixes.json5、lib/data/game.dart、scripts/main/cardgame/card.ht、card_script.ht       |
+| 气行为           | assets/data/status_effect.json5、scripts/main/cardgame/status_script.ht、lib/scene/battle/common.dart                            |
+| 引擎卡面（暂缓） | ../samsara-engine/lib/cardgame/custom_card.dart                                                                                  |
+| 天赋（暂缓）     | assets/data/passive_skills.json5、assets/data/passives.json5                                                                     |
+| UI               | lib/scene/battle/energy_display.dart、lib/widgets/battlecard/、lib/widgets/character/stats.dart、lib/scene/card_library/（暂缓） |
+| 本地化           | assets/locale/zh/rpg/status_effect.json、battlecard.json、passive.json                                                           |
+| 文档             | docs/docs/how2play/rpg/battle/\*、docs/docs/mod/battle/readme.md                                                                 |
 
 ## 10. 风险与平衡关注点
 

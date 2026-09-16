@@ -11,7 +11,6 @@ const kDebuffs = [
   // 'energy_negative_weapon',
   // 'energy_negative_unarmed',
   // 'energy_negative_life',
-  // 'energy_negative_penetrate',
   // 'energy_negative_crit',
   // 'energy_negative_ultimate',
   'speed_slow',
@@ -20,7 +19,6 @@ const kDebuffs = [
   'injury_external',
   'injury_internal',
   'injury_hallucination',
-  // 元素持续伤害入池，总纲决策 14
   'element_dot_fire',
   'element_dot_lightning',
   'element_dot_ice',

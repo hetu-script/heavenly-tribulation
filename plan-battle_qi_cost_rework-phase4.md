@@ -11,10 +11,12 @@
 ## 任务完成情况
 
 **4.1 阴气反色显示** ✅
+
 - `lib/scene/battle/common.dart` 新增 `kNegativeResourceQi` 集合与 `isNegativeResourceQi(String)` 判定 helper（6 种资源阴气，含死气）。
 - `lib/scene/battle/status_effect.dart`：`StatusEffect.render` 对资源阴气用 `ColorFilter.matrix` 反色矩阵渲染（矩阵常量 `kNegativeQiInvertMatrix` 同文件顶部），惰性缓存画笔；层数文字不受影响。lib/widgets/ 下无状态图标渲染，无需额外处理。悬浮说明维持现状（显示阴气自身名称/描述）。
 
 **4.2 手牌置灰 + 缺少提示** ✅
+
 - 项目原先没有任何手牌置灰逻辑（计划中"现逻辑只查能量"实不存在，`battle.dart` 里只有注释掉的自动结束回合代码），本次为全新实现。
 - `battle.dart` 新增 `refreshHandAffordability()`：不可支付（复用 Phase 2 `_canPayCardCost`，含无色+有色+阴气增费+队列占用）且未入队的卡牌以灰度 `ColorFilter`（`kCardGrayscaleFilter`）置灰；**非己方回合整手置灰**。调用点：回合开始产出后、入队后、每张牌打出后、队列结算完毕后、回合归属切换后。
 - 未用引擎 `GameCard.isEnabled` setter——查明它会 `getPaint('invalid')` 而 'invalid' 画笔从未注册，直接调用会抛 ArgumentError（引擎陷阱）；改为操作 `card.paint.colorFilter`，置灰只影响卡面图像，文字与悬浮仍可用。
@@ -24,8 +26,9 @@
 **4.3 支付反馈** ✅ `_payCardCost` 成功路径：每扣一种气弹一个负量跳字（"剑气 -2"，用 `getResourceColor` 着色），无极之气抵扣部分单独弹（"无极之气 -1"）。复用现有 `addHintText`，无飞行动画。
 
 **4.4 能量瓶与 0 费徽章** ✅
+
 - `energy_display.dart`：图标换用 `icon/cost/qi_basic.png`（原 bottle 四图标弃用；无空瓶变体，0 时同图标、数字显示 0——限制见下）。
-- `game.dart` `createBattleCard`：`cost == 0 && costColored 非空` 时 `showCostNumber` 置 false 且 `costIconSpriteId` 传 null（引擎 `showCostIcon` 自动随 null 关闭），全有色卡不再显示 "0" 徽章。
+- `game.dart` `createBattleCard`：`cost == 0 && qiCost 非空` 时 `showCostNumber` 置 false 且 `costIconSpriteId` 传 null（引擎 `showCostIcon` 自动随 null 关闭），全有色卡不再显示 "0" 徽章。
 
 ## 修改文件
 

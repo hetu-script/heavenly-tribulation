@@ -10,13 +10,8 @@ namespace CardScriptMain {
   /// ------------------------------------------------------------
   /// 抽牌
 
-  async function draw(self, opponent, affix) {
-    self.drawCards(affix.value[1])
-  }
-
-  /// 降低对手元素抗性（以弱点形式附加，与抗性互相抵消）
-  async function reduce_resist(self, opponent, affix, mainAffix) {
-    opponent.addStatusEffect('weakness_${affix.damageType}', amount: affix.value[0])
+  async function draw_cards(self, opponent, affix) {
+    self.drawCards(affix.value[0])
   }
   
   /// ------------------------------------------------------------
@@ -89,10 +84,28 @@ namespace CardScriptMain {
     self.changeLife(regen, isHeal: true)
   }
   
-  /// 获得阴气或阳气
-  async function gain_resource(self, opponent, affix) {
+  /// 获得增益
+  async function gain_buff(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
-    self.addStatusEffect(affix.resourceType, amount: affix.value[0])
+    self.addStatusEffect(affix.buffId, amount: affix.value[0])
+  }
+  
+  /// 对手获得减益
+  async function opponent_gain_debuff(self, opponent, affix) {
+    await characterAnimate(self, affix.animation)
+    opponent.addStatusEffect(affix.buffId, amount: affix.value[0])
+  }
+
+  /// 降低对手元素抗性（以弱点形式附加，与抗性互相抵消）
+  async function reduce_resist(self, opponent, affix, mainAffix) {
+    opponent.addStatusEffect('weakness_${affix.elementType}', amount: affix.value[0])
+  }
+
+  /// 降低对手全部元素抗性（以弱点形式附加，与抗性互相抵消）
+  async function reduce_resist_all(self, opponent, affix, mainAffix) {
+    for (var damageType in ['fire', 'ice', 'lightning', 'poison']) {
+      opponent.addStatusEffect('weakness_${damageType}', amount: affix.value[0])
+    }
   }
 
   /// 获得速度和防御
@@ -108,12 +121,12 @@ namespace CardScriptMain {
     self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 提升生命上限
-  async function lifemax_buff(self, opponent, affix) {
+  async function buff_lifemax(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
     self.setLifeMax(self.lifeMax + affix.value[0], rejuvenate: true)
   }
   /// 降低对手生命上限
-  async function lifemax_debuff(self, opponent, affix) {
+  async function debuff_lifemax(self, opponent, affix) {
     await characterAnimate(self, affix.animation)
     opponent.setLifeMax(opponent.lifeMax - affix.value[0])
   }

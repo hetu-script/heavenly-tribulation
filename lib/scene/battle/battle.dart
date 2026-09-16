@@ -68,7 +68,6 @@ const kStatusOnCircumstance = {
   'speed_slow',
   'dodge_clumsy',
   'energy_negative_life',
-  'energy_negative_penetrate',
   'energy_negative_crit',
   'energy_negative_ward',
   'energy_negative_shield',
@@ -817,10 +816,10 @@ class BattleScene extends Scene {
 
   /// 卡牌的有色费用（颜色 → 数量），无则空表
   Map<String, int> _cardCostColored(CustomGameCard card) {
-    final costColored = card.data['costColored'];
-    if (costColored is Map) {
-      return costColored.map(
-          (key, value) => MapEntry('$key', (value as num).toInt()));
+    final qiCost = card.data['qiCost'];
+    if (qiCost is Map) {
+      return qiCost
+          .map((key, value) => MapEntry('$key', (value as num).toInt()));
     }
     return const {};
   }
@@ -918,8 +917,7 @@ class BattleScene extends Scene {
     // 支付反馈（计划 §6.2）：有色费用按气种弹出负量跳字（无极抵扣单独标注）
     for (final (statusId, amount) in pending) {
       if (amount > 0) {
-        character.addHintText(
-            '${engine.locale('status_$statusId')} -$amount',
+        character.addHintText('${engine.locale('status_$statusId')} -$amount',
             color: getResourceColor(statusId));
       }
     }
@@ -962,12 +960,12 @@ class BattleScene extends Scene {
       final need = _effectiveCostNeed(hero, entry.key, entry.value);
       final stock = hero.hasStatusEffect(yangId) + ultimateStock;
       if (need > stock) {
-        lines.add(engine.locale('battlecard_cost_lacking_hint',
-            interpolations: [
-              engine.locale('status_$yangId'),
-              need,
-              stock,
-            ]));
+        lines
+            .add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
+          engine.locale('status_$yangId'),
+          need,
+          stock,
+        ]));
       }
     }
     return lines.join('\n');
@@ -1227,8 +1225,8 @@ class BattleScene extends Scene {
             handZone.cards.isNotEmpty &&
             currentCharacter.energy > 0) {
           final affordable = handZone.cards
-              .where((c) =>
-                  _canPayCardCost(currentCharacter, c as CustomGameCard))
+              .where(
+                  (c) => _canPayCardCost(currentCharacter, c as CustomGameCard))
               .toList()
               .cast<CustomGameCard>();
           if (affordable.isEmpty) break;

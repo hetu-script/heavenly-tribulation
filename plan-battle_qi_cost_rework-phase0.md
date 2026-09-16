@@ -14,10 +14,6 @@
    - 注：Phase 3 统一生命周期改造时此回调已改为回合开始结算（见 Phase 3 报告偏离说明 1）。
 5. **怒气双重减半删一处**：原设计中怒气回合结束有两处减半（资源自身回调 + enable_rage 回调），带 enable_rage 天赋时一回合衰减到 1/4。删除 `status_script.ht` 的 `enable_rage_self_turn_end`，并从 status_effect.json5 的 enable_rage 条目 callbacks 中移除 `"self_turn_end"`；保留资源自身回调 `energy_positive_unarmed_self_turn_end`（该处在 Phase 3 被新模型整体移除）。
 
-## 验证
-
-- `dart analyze lib/logic/logic.dart lib/scene/battle/character.dart lib/scene/battle/battle.dart`：No issues found。
-
 ## 遗留（按计划归后续 Phase）
 
 - `cultivation.dart:1689` 突破后 `rank = difficulty` 疑似应为 +1（不在本计划范围内，未动）。

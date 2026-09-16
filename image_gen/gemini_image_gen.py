@@ -24,7 +24,8 @@ from datetime import datetime
 API_URL = "https://img-api.apinebula.ai/v1beta/models/gemini-3.1-flash-image:generateContent"
 ASPECT_RATIO = "1:1"
 IMAGE_SIZE = "1K"
-REQUEST_TIMEOUT = 600  # 秒
+REQUEST_TIMEOUT = 300  # 秒
+MAX_ATTEMPTS = 5  # 网络不稳定时的最大重试次数
 
 
 def main() -> int:
@@ -59,21 +60,37 @@ def main() -> int:
         return 1
 
     # ---- 调用图片生成 API ----
-    resp = requests.post(
-        API_URL,
-        headers={
-            "Authorization": token,
-            "Content-Type": "application/json",
-        },
-        json={
-            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "responseModalities": ["TEXT", "IMAGE"],
-                "imageConfig": {"aspectRatio": ASPECT_RATIO, "imageSize": IMAGE_SIZE},
-            },
-        },
-        timeout=REQUEST_TIMEOUT,
-    )
+    # 注意：必须绕过系统代理（trust_env=False）。
+    # Windows 下 requests 会自动读取注册表中的系统代理，而本机代理
+    # 无法连通该 API（连接建立后服务器永不响应），会导致请求一直卡住。
+    session = requests.Session()
+    session.trust_env = False
+
+    resp = None
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            resp = session.post(
+                API_URL,
+                headers={
+                    "Authorization": token,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "responseModalities": ["TEXT", "IMAGE"],
+                        "imageConfig": {"aspectRatio": ASPECT_RATIO, "imageSize": IMAGE_SIZE},
+                    },
+                },
+                timeout=REQUEST_TIMEOUT,
+            )
+            break
+        except requests.RequestException as e:
+            print(f"警告: 第 {attempt}/{MAX_ATTEMPTS} 次请求失败: {e}", file=sys.stderr)
+            if attempt == MAX_ATTEMPTS:
+                print("错误: 多次重试后仍无法连接 API。", file=sys.stderr)
+                return 1
+    assert resp is not None
     resp.raise_for_status()
 
     # ---- 从响应中提取图片数据 ----
@@ -91,4 +108,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit_code = main()
+    sys.exit(exit_code)
