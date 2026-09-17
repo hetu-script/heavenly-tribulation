@@ -343,9 +343,8 @@ class CardLibraryScene extends Scene {
       detailedCount.writeln(
           '${engine.locale('deckbuilding_limit')}: ${currentBuildingZone!.limit}');
       detailedCount.writeln(
-          '${engine.locale('deckbuilding_limit_ongoing')}: ${currentBuildingZone!.ongoingCount}/$kDeckOngoingLimit');
-    } // detailedCount.writeln(
-    //     '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
+          '${engine.locale('deckbuilding_limit_ephemeral')}: ${currentBuildingZone!.ephemeralCount}/$kDeckEphemeralCount');
+    }
     cardCount.text = detailedCount.toString();
   }
 

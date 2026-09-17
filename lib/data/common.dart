@@ -382,7 +382,7 @@ const kCostColorStatusIds = {
 /// 万能费用色（无极之气）的状态 id，可支付任意有色费用
 const kWildcardStatusId = 'energy_positive_ultimate';
 
-const kDeckOngoingLimit = 3;
+const kDeckEphemeralCount = 3;
 
 const kCultivationRankMax = 5;
 const kEquipmentMax = 5;
@@ -2199,29 +2199,6 @@ const kScrollCardUseLimit = {
   3: 7,
   4: 10,
   5: 15,
-};
-
-const kPotionKinds = {
-  'common': {
-    'potion_heal',
-    'pdefensetart_battle_with_speed_quick',
-    'potion_start_battle_with_dodge_nimble',
-    'potion_start_battle_with_defense',
-  },
-  'rare': {
-    'potion_start_battle_with_energy_positive_life',
-    'potion_start_battle_with_energy_positive_crit',
-    'potion_start_battle_with_energy_positive_spell',
-    'potion_start_battle_with_energy_positive_weapon',
-    'potion_start_battle_with_energy_positive_unarmed',
-    'potion_decreaseTribulationDifficulty',
-  },
-  'epic': {
-    'potion_start_battle_with_energy_positive_shield',
-    'potion_start_battle_with_energy_positive_ultimate',
-    'potion_start_battle_with_ward',
-    'potion_tribulationCountReduce',
-  },
 };
 
 const kDiplomacyTypes = {

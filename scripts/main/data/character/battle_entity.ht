@@ -286,10 +286,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.lifeMax = Constants.baseLife + character.level * Constants.baseLifePerLevel
   character.battleLifeMax = character.lifeMax + character.strength
-  character.manaMax = character.spirituality ~/ 10
-  character.chakraMax = character.dexterity ~/ 10
   character.karmaMax = character.willpower ~/ 10
-  // character.expMax = (expForLevel(character.level) * 2.5).truncate()
 
   character.tribulationCountMax = getTribulationCountForRank(character.rank)
   character.lightRadius = Constants.baseLightRadius + character.perception ~/ 10
@@ -330,8 +327,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
 
   character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value + character.ephemeralPassives.lifeMax?.value
   character.stats.battleLifeMax = character.stats.lifeMax + character.stats.strength + character.passives.battleLifeMax?.value + character.ephemeralPassives.battleLifeMax?.value
-  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value + character.ephemeralPassives.manaMax?.value
-  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value + character.ephemeralPassives.chakraMax?.value
   character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value + character.ephemeralPassives.karmaMax?.value
   
   if (character.rank > 0) {
@@ -766,7 +761,7 @@ function characterConsumePotion(entity, item) {
 
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {
-    case 'heal': {
+    case 'overheal': {
       let currentLife = Math.min(entity.life, entity.stats.lifeMax)
       let targetLife = currentLife + mainAffix.value
       if (entity.life < targetLife) {

@@ -11,7 +11,8 @@ const kNegativeResourceQi = {
 };
 
 /// 是否为资源阴气（阴阳对冲保证同对阴阳不会同时持有，阴气显示为对应阳气的反色图标）
-bool isNegativeResourceQi(String statusId) => kNegativeResourceQi.contains(statusId);
+bool isNegativeResourceQi(String statusId) =>
+    kNegativeResourceQi.contains(statusId);
 
 const kOppositeStatus = {
   'enhance_unarmed': 'weaken_unarmed',
@@ -38,6 +39,12 @@ const kOppositeStatus = {
   'dodge_clumsy': 'dodge_nimble',
   'dodge_invincible': 'dodge_staggering',
   'dodge_staggering': 'dodge_invincible',
+  'buff_crit': 'debuff_crit',
+  'buff_ward': 'debuff_ward',
+  'buff_shield': 'debuff_shield',
+  'debuff_crit': 'buff_crit',
+  'debuff_ward': 'buff_ward',
+  'debuff_shield': 'buff_shield',
   'energy_positive_life': 'energy_negative_life',
   'energy_positive_spell': 'energy_negative_spell',
   'energy_positive_weapon': 'energy_negative_weapon',

@@ -187,11 +187,7 @@ struct BattleCard {
 
     final affixUniqueIds = []
     if (mainAffix.uniqueId) {
-      if (mainAffix.uniqueId is List) {
-        affixUniqueIds.addAll(mainAffix.uniqueId)
-      } else if (mainAffix.uniqueId is string) {
-        affixUniqueIds.add(mainAffix.uniqueId)
-      }
+      affixUniqueIds.addAll(mainAffix.uniqueId)
     }
 
     this.affixUniqueIds = affixUniqueIds

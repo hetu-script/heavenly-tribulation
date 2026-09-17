@@ -1,8 +1,6 @@
 费用随境界上涨
 卡牌变灰有现成代码
 EnergyDisplay控件用来显示所有颜色的气
-potion词条整理
-start_battle_with系列效果整理为回合开始时
 
 不幸改为对手暴击增加
 劫气改为16回合开始每个回合增加
@@ -12,3 +10,9 @@ turn_end_resource_settlement应该挪到dart侧
 增加rankIncrement，计算value时以境界作为乘数而非等级
 
 虚无之气导致所有颜色费用增加
+
+data_validate 验证 json5文件
+
+治疗时随机移除一个负面效果（不含阴气）
+ 
+符箓不再摧毁原本的卡牌，符箓本身变成ephemeral，用过之后不进入弃牌堆。

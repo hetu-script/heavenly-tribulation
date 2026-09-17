@@ -2,7 +2,7 @@
   // 这里定义了一些没有特殊词条，属性固定的物品
   // 除非特别设定，否则 prototype 物品的 kind == id
   // type 决定了物品在物品栏中的大类，
-  // consumable 可消耗的物品，使用后会消失
+  // consumable 可食用的物品，食用后会消失
   // equipment 可装备的物品，装备后会提供属性加成
   // craftmaterial 用于打造的材料，不能直接使用
   // miscellaneous 其他类型的物品，可能有特殊用途

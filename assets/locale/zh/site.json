@@ -12,7 +12,7 @@
   "divination_other_location": "占卜所在位置",
 
   "hint_divination_intro": "星辰流转，万物有灵。老朽于此观天象、察气运，可为施主窥探天机一二。然天机不可轻泄，需以灵石为引，方能感应天道。",
-  "hint_divination_cost": "此次占卜需消耗 {0} 灵石，施主可愿一试？",
+  "hint_divination_cost": "此次占卜需花费 {0} 灵石，施主可愿一试？",
   "hint_divination_not_enough_shard": "施主灵石不足，恐难以沟通天道。",
   "hint_divination_self_luck_result": "老朽已观得施主气运——运气: {0}",
   "hint_divination_self_wisdom_result": "老朽已观得施主气运——悟性: {0}",

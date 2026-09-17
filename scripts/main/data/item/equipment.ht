@@ -70,7 +70,7 @@ struct Equipment {
     this.affixUniqueIds = Set()
     let mainAffix
     final mainAffixes = game.passives.values.where((affix) {
-      if (!affix.isItemMain) return false
+      if (!affix.isEquipmentMain) return false
       if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
       if (affix.rank > this.rank) return false
       return true
@@ -108,7 +108,7 @@ struct Equipment {
       if (affixCount > 0) {
         for (var i in range(affixCount)) {
           final supportAffixes = game.passives.values.where((affix) {
-            if (!affix.isItem) return false
+            if (!affix.isEquipmentExtraAffix) return false
             if (this.affixUniqueIds.contains(affix.id) ||
               (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
             if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false

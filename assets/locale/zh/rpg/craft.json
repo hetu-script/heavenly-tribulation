@@ -1,4 +1,5 @@
 {
+  "potion2": "丹",
   "craft_potion": "制作丹药",
   "craft_potion_battleCard": "制作丹药功法",
   "craft_addAffix": "精炼·灵宝",
@@ -40,19 +41,34 @@
   "craft_scroll_cannotCraft": "符箓无法进行打造！",
   "craft_scroll_cannotMakeScroll": "符箓无法再次制作为符箓！",
   "craft_scroll_cannotMakeScroll2": "只有凝气境或以上的功法才可以制作符箓！",
-  "potion2": "丹",
-  "potion_heal": "治疗",
+
+  "potion_overheal": "治疗",
+  "potion_tribulationCountReduce": "恢复劫难次数",
+  "potion_decreaseTribulationDifficulty": "天道试炼难度降低",
+
+  "potion_start_battle_with_defense": "护甲",
   "potion_start_battle_with_speed_quick": "速度",
   "potion_start_battle_with_dodge_nimble": "闪避",
-  "potion_start_battle_with_defense": "护甲",
-  "potion_start_battle_with_energy_positive_life": "元气",
-  "potion_start_battle_with_energy_positive_crit": "幸运",
-  "potion_start_battle_with_energy_positive_shield": "护盾",
-  "potion_start_battle_with_energy_positive_spell": "灵气",
-  "potion_start_battle_with_energy_positive_weapon": "剑气",
-  "potion_start_battle_with_energy_positive_unarmed": "怒气",
-  "potion_start_battle_with_energy_positive_ultimate": "无极之气",
-  "potion_decreaseTribulationDifficulty": "天道",
-  "potion_start_battle_with_ward": "辟邪",
-  "potion_tribulationCountReduce": "天命"
+  "potion_start_battle_with_buff_crit": "幸运",
+  "potion_start_battle_with_buff_ward": "辟邪",
+  "potion_start_battle_with_buff_shield": "护盾",
+  "potion_start_battle_with_opponent_vulnerable": "易伤",
+  "potion_start_battle_with_opponent_speed_slow": "缓慢",
+  "potion_start_battle_with_opponent_dodge_clumsy": "迟钝",
+  "potion_start_battle_with_opponent_debuff_crit": "不幸",
+  "potion_start_battle_with_opponent_debuff_ward": "邪祟",
+  "potion_start_battle_with_opponent_debuff_shield": "破绽",
+
+  "potion_start_battle_with_opponent_energy_negative_life": "死气",
+  "potion_start_battle_with_opponent_energy_negative_spell": "逆灵之气",
+  "potion_start_battle_with_opponent_energy_negative_weapon": "止戈之气",
+  "potion_start_battle_with_opponent_energy_negative_unarmed": "非战之气",
+  "potion_start_battle_with_opponent_energy_negative_curse": "无心之气",
+  "potion_start_battle_with_opponent_energy_negative_ultimate": "虚空之气",
+
+  "potion_start_turn_with_energy_postive_life": "元气",
+  "potion_start_turn_with_energy_postive_spell": "灵气",
+  "potion_start_turn_with_energy_postive_weapon": "剑气",
+  "potion_start_turn_with_energy_postive_unarmed": "怒气",
+  "potion_start_turn_with_energy_postive_ultimate": "无极之气"
 }

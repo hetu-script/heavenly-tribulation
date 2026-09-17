@@ -10,18 +10,13 @@ import '../../data/game.dart';
 import '../../data/common.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
-import '../../logic/logic.dart';
+// import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
 import 'battle.dart';
 
 const kMinCardDisplayDuration = 1000;
 const kDamagePercentageMin = -0.75;
-
-const kResourceMaxId = {
-  'energy_positive_spell': 'manaMax',
-  'energy_positive_weapon': 'chakraMax',
-};
 
 Color getDamageColor(String damageType) {
   return switch (damageType) {
@@ -39,9 +34,6 @@ Color getDamageColor(String damageType) {
 Color getResourceColor(String resourceType) {
   return switch (resourceType) {
     'energy_positive_life' || 'energy_negative_life' => Colors.lightGreen,
-    'energy_positive_crit' || 'energy_negative_crit' => Colors.blueGrey,
-    'energy_positive_ward' || 'energy_negative_ward' => Colors.white,
-    'energy_positive_shield' || 'energy_negative_shield' => Colors.blue,
     'energy_positive_spell' || 'energy_negative_spell' => Colors.purple,
     'energy_positive_weapon' || 'energy_negative_weapon' => Colors.lightBlue,
     'energy_positive_unarmed' || 'energy_negative_unarmed' => Colors.red,
@@ -162,8 +154,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   int get energy => hasStatusEffect('energy_positive_life');
 
   /// 本回合打出的武器攻击牌数量（回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
-  int weaponAttackCardsPlayed = 0;
-  int lastTurnWeaponAttackCards = 0;
+  int weaponCardsPlayed = 0;
+  int lastTurnWeaponCards = 0;
 
   /// 本回合自身受到的伤害（回合开始时结转为上回合数据后清零，§4.3 怒气产出依据）
   int damageTaken = 0;
@@ -266,9 +258,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   int getElementalResist(String damageType) {
     int resist = hasStatusEffect('resistant_$damageType');
     resist -= hasStatusEffect('weakness_$damageType');
-    resist += hasStatusEffect('resistant_elemental');
-    resist -= hasStatusEffect('weakness_elemental');
-    return resist > kBaseResistMax ? kBaseResistMax : resist;
+    final resistMax = data['stats']['${damageType}ResistMax'].toInt();
+    return resist > resistMax ? resistMax : resist;
   }
 
   /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
@@ -318,8 +309,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           attacker.hasStatusEffect('crit_charge') >= critThreshold) {
         int critMultiplier =
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
-        final int consumed = math.min(
-            attacker.hasStatusEffect('energy_negative_crit'),
+        final int consumed = math.min(attacker.hasStatusEffect('debuff_crit'),
             ((critMultiplier - 100) / 50).ceil());
         critMultiplier -= 50 * consumed;
         if (critMultiplier < 100) critMultiplier = 100;
@@ -328,7 +318,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    // 异常（豪气必异常，或异常计数器满阈值）：元素伤害固定每满 10 点 1 层，衰气逐层抵消（同 takeDamage）
+    // 异常（幸运必异常，或异常计数器满阈值）：元素伤害固定每满 10 点 1 层，不幸逐层抵消（同 takeDamage）
     int ailmentStacks = 0;
     if (damage > 0 && isElemental) {
       final attackerStats = attacker.data['stats'];
@@ -337,8 +327,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (attacker.turnFlags['guaranteedAilment'] == true ||
           attacker.hasStatusEffect('ailment_charge') >= ailmentThreshold) {
         ailmentStacks = damage ~/ 10;
-        ailmentStacks -= math.min(
-            ailmentStacks, attacker.hasStatusEffect('energy_negative_crit'));
+        ailmentStacks -=
+            math.min(ailmentStacks, attacker.hasStatusEffect('debuff_crit'));
       }
     }
 
@@ -510,7 +500,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       return;
     }
     final effectData = GameData.statusEffects[id];
-    final buffDetails = {};
+    // final buffDetails = {};
 
     bool isNewlyAdded = false;
     StatusEffect effect;
@@ -542,33 +532,33 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       _statusEffects[id] = effect;
     }
 
-    final maxId = kResourceMaxId[id];
-    if (maxId != null) {
-      // 检查资源是否溢出
-      final int maxValue = data['stats'][maxId];
-      if (effect.amount > maxValue) {
-        dynamic result;
-        final overflowedAmount = effect.amount - maxValue;
-        if (handleCallback) {
-          buffDetails['overflow'] = overflowedAmount;
-          // 触发对方资源溢出时的效果
-          opponent!.handleStatusEffectCallback(
-              'opponent_overflowed_energy', buffDetails);
-          // 触发资源溢出时的效果，返回 true 表示保留溢出的值
-          result =
-              handleStatusEffectCallback('self_overflowed_energy', buffDetails);
-        }
+    // final maxId = kResourceMaxId[id];
+    // if (maxId != null) {
+    //   // 检查资源是否溢出
+    //   final int maxValue = data['stats'][maxId];
+    //   if (effect.amount > maxValue) {
+    //     dynamic result;
+    //     final overflowedAmount = effect.amount - maxValue;
+    //     if (handleCallback) {
+    //       buffDetails['overflow'] = overflowedAmount;
+    //       // 触发对方资源溢出时的效果
+    //       opponent!.handleStatusEffectCallback(
+    //           'opponent_overflowed_energy', buffDetails);
+    //       // 触发资源溢出时的效果，返回 true 表示保留溢出的值
+    //       result =
+    //           handleStatusEffectCallback('self_overflowed_energy', buffDetails);
+    //     }
 
-        if (!GameLogic.truthy(result)) {
-          effect.amount = maxValue;
-          addHintText(
-            engine.locale('resourceOverflowed',
-                interpolations: [engine.locale('status_$id')]),
-            color: Colors.blue,
-          );
-        }
-      }
-    }
+    //     if (!GameLogic.truthy(result)) {
+    //       effect.amount = maxValue;
+    //       addHintText(
+    //         engine.locale('resourceOverflowed',
+    //             interpolations: [engine.locale('status_$id')]),
+    //         color: Colors.blue,
+    //       );
+    //     }
+    //   }
+    // }
 
     if (effect.amount <= 0) {
       _statusEffects.remove(effect.id);
@@ -650,10 +640,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 元气 = 无色费用池（§4.1）
     addStatusEffect('energy_positive_life', amount: rank + 3);
 
-    // 剑气：上回合打出的武器攻击牌数量（§4.2；节点加成缺省 0，预留读取位）
-    if (hasStatusEffect('enable_chakra') > 0 && lastTurnWeaponAttackCards > 0) {
-      addStatusEffect('energy_positive_weapon',
-          amount: lastTurnWeaponAttackCards);
+    // 剑气：上回合打出的武器牌数量（§4.2；节点加成缺省 0，预留读取位）
+    if (hasStatusEffect('enable_chakra') > 0 && lastTurnWeaponCards > 0) {
+      addStatusEffect('energy_positive_weapon', amount: lastTurnWeaponCards);
     }
 
     // 怒气：上回合自身受到的伤害 ÷ 10（§4.3；节点加成缺省 0，预留读取位）
@@ -662,13 +651,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           amount: lastTurnDamageTaken ~/ 10);
     }
 
-    // 灵气：enable_mana 天赋每回合开始 +1（不超过 manaMax）；
-    // 悟道节点回合产出加成缺省 0，天赋树落地后在此补充（§4.4）
+    // 灵气：enable_mana
+    // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充（§4.4）
     if (hasStatusEffect('enable_mana') > 0) {
-      final int manaMax = (data['stats']['manaMax'] ?? 0) as int;
-      if (hasStatusEffect('energy_positive_spell') < manaMax) {
-        addStatusEffect('energy_positive_spell', amount: 1);
-      }
+      addStatusEffect('energy_positive_spell', amount: 1);
     }
 
     // 煞气：从 karma 池提取 min(karmaMax, max(1, 池存量 ~/ 10))（§4.5；提取节点加成缺省 0，预留）
@@ -745,8 +731,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     turnFlags.clear();
     cardFlags.clear();
     turnCount = 0;
-    weaponAttackCardsPlayed = 0;
-    lastTurnWeaponAttackCards = 0;
+    weaponCardsPlayed = 0;
+    lastTurnWeaponCards = 0;
     damageTaken = 0;
     lastTurnDamageTaken = 0;
     _life = data['life'].toInt();
@@ -934,10 +920,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         // 衰气：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
         // 按层循环消耗，直到倍率降为 100% 或衰气耗尽
         while (critMultiplier > 100 &&
-            opponent!.hasStatusEffect('energy_negative_crit') > 0) {
+            opponent!.hasStatusEffect('debuff_crit') > 0) {
           critMultiplier -= 50;
           if (critMultiplier < 100) critMultiplier = 100;
-          opponent!.removeStatusEffect('energy_negative_crit', amount: 1);
+          opponent!.removeStatusEffect('debuff_crit', amount: 1);
         }
         finalDamage = (finalDamage * critMultiplier / 100).round();
         damageDetails['isCritical'] = true;
@@ -1031,14 +1017,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           stacks = finalDamage ~/ 10;
         }
       }
-      // 衰气：攻击方持有衰气时按层抵消其赋予的元素异常，
+      // 不幸：攻击方有不幸时按层抵消其赋予的元素异常，
       // 直到异常全部抵消或衰气耗尽
       if (stacks > 0) {
         final int negated =
-            math.min(stacks, opponent!.hasStatusEffect('energy_negative_crit'));
+            math.min(stacks, opponent!.hasStatusEffect('debuff_crit'));
         if (negated > 0) {
           stacks -= negated;
-          opponent!.removeStatusEffect('energy_negative_crit', amount: negated);
+          opponent!.removeStatusEffect('debuff_crit', amount: negated);
         }
       }
       if (stacks > 0) {
@@ -1088,8 +1074,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     turnFlags["isExtra"] = isExtra;
 
     // 回合统计结转（滞后一轮产出模型的数据源，须在回合开始回调之前归档）
-    lastTurnWeaponAttackCards = weaponAttackCardsPlayed;
-    weaponAttackCardsPlayed = 0;
+    lastTurnWeaponCards = weaponCardsPlayed;
+    weaponCardsPlayed = 0;
     lastTurnDamageTaken = damageTaken;
     damageTaken = 0;
 
@@ -1150,9 +1136,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['damageType'] = mainAffix['damageType'];
 
-    // 剑气滞后产出模型的数据源（§4.2）：累计本回合打出的武器攻击牌数量
-    if (category == 'attack' && mainAffix['cardType'] == 'weapon') {
-      weaponAttackCardsPlayed += 1;
+    // 剑气滞后产出模型的数据源（§4.2）：累计本回合打出的武器牌数量
+    if (mainAffix['cardType'] == 'weapon') {
+      weaponCardsPlayed += 1;
     }
 
     opponent!.handleStatusEffectCallback('opponent_using_card');
@@ -1170,7 +1156,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final affix in beforeMain) {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
-      await engine.hetu.invoke(
+      engine.hetu.invoke(
         scriptId,
         namespace: 'CardScriptExtra',
         positionalArgs: [this, opponent, affix, mainAffix],
@@ -1180,10 +1166,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 处理主词条
     final mainScriptId = mainAffix['script'];
     if (mainScriptId != null) {
-      await engine.hetu.invoke(
+      final animation = mainAffix['animation'] ?? {};
+      await setCompositeState(
+        startup: animation['startup'],
+        recovery: animation['recovery'],
+        actions: animation['actions'],
+        overlays: animation['overlays'],
+        sound: animation['sound'],
+      );
+      engine.hetu.invoke(
         mainScriptId,
         namespace: 'CardScriptMain',
-        positionalArgs: [this, opponent, mainAffix],
+        positionalArgs: [this, opponent, mainAffix, mainAffix],
       );
     }
 
@@ -1200,7 +1194,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final affix in afterMain) {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
-      await engine.hetu.invoke(
+      engine.hetu.invoke(
         scriptId,
         namespace: 'CardScriptExtra',
         positionalArgs: [this, opponent, affix, mainAffix],

@@ -83,10 +83,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     return true;
   }
 
-  int get ongoingCount {
+  int get ephemeralCount {
     return cards.where((card) {
       final cardData = (card as CustomGameCard).data;
-      return cardData['category'] == 'ongoing';
+      return cardData['isEphemeral'] == true;
     }).length;
   }
 
@@ -360,7 +360,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             cardData['uniqueId'])) {
       return 'deckbuilding_unique_card_exists';
     }
-    if (ongoingCount >= kDeckOngoingLimit &&
+    if (ephemeralCount >= kDeckEphemeralCount &&
         cardData['category'] == 'ongoing') {
       engine.warning('deckbuilding_ongoing_card_limit');
     }

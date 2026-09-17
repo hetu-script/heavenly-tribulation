@@ -13,7 +13,6 @@
 
   "deckbuilding_limit": "最少卡牌数",
   "deckbuilding_limit_ephemeral": "消耗牌数量",
-  "deckbuilding_limit_ongoing": "持续牌数量",
   "deckbuilding_limit_hint": "提升境界会增加允许的最少卡牌数，以及消耗牌和持续牌的数量。",
 
   "deckbuilding_requirement_not_met": "不可用",

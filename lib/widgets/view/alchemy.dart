@@ -40,7 +40,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
   dynamic selectedCraftItemRequirements;
   dynamic craftedPotion;
 
-  final potionKindItems = <String, dynamic>{};
+  final potionKindItems = <String, Set<String>>{};
 
   @override
   void initState() {
@@ -67,8 +67,8 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
       }
     }
 
-    updateSelectedCraftItemRequirements();
     updatePotionKinds();
+    updateSelectedCraftItemRequirements();
   }
 
   void updateSelectedCraftItemRequirements() {
@@ -89,16 +89,16 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
 
   void updatePotionKinds() {
     potionKindItems.clear();
-    for (final key in kPotionKinds.keys) {
-      final rank = kRaritiesToRank[key] as int;
-      if (rank > selectedCraftRank) continue;
+    for (final rarity in kRarityNames) {
+      potionKindItems[engine.locale(rarity)] = {};
+    }
 
-      final kinds = kPotionKinds[key] as Iterable;
-      final items = <String, String>{};
-      for (final kind in kinds) {
-        items[engine.locale(kind)] = kind;
-      }
-      potionKindItems[engine.locale(key)] = items;
+    for (final passiveId in GameData.passives.keys) {
+      final passiveData = GameData.passives[passiveId];
+      if (passiveData['isPotionMain'] != true) continue;
+      final rank = passiveData['rank'] ?? 0;
+      final rarity = kRankToRarity[rank] as String;
+      potionKindItems[engine.locale(rarity)]!.add(passiveId);
     }
   }
 
@@ -219,8 +219,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                                 items: buildFluentMenuItems(
                                   items: potionKindItems,
                                   onSelectedItem: (String value) {
-                                    selectedMainAffixId =
-                                        value.replaceAll('potion_', '');
+                                    selectedMainAffixId = value;
                                     updateSelectedCraftItemRequirements();
                                     setState(() {});
                                   },
@@ -245,7 +244,6 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                                     selectedCraftRank =
                                         kRaritiesToRank[value] as int;
                                     updateSelectedCraftItemRequirements();
-                                    updatePotionKinds();
                                     setState(() {});
                                   },
                                 ),

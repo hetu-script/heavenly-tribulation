@@ -64,13 +64,24 @@ const kStatusOnCircumstance = {
   'weakness_ice',
   'weakness_lightning',
   'weakness_poison',
+  'penetration',
   'vulnerable',
+  'speed_quick',
+  'dodge_nimble',
   'speed_slow',
   'dodge_clumsy',
+  'buff_crit',
+  'buff_ward',
+  'buff_shield',
+  'debuff_crit',
+  'debuff_ward',
+  'debuff_shield',
+  'energy_positive_life',
+  'energy_positive_spell',
+  'energy_positive_weapon',
+  'energy_positive_unarmed',
+  'energy_positive_ultimate',
   'energy_negative_life',
-  'energy_negative_crit',
-  'energy_negative_ward',
-  'energy_negative_shield',
   'energy_negative_spell',
   'energy_negative_weapon',
   'energy_negative_unarmed',
@@ -79,9 +90,7 @@ const kStatusOnCircumstance = {
 
 enum StatusCircumstances {
   start_battle,
-  start_deck,
   start_turn,
-  end_turn,
 }
 
 class BattleScene extends Scene {
@@ -194,26 +203,6 @@ class BattleScene extends Scene {
         character.addStatusEffect(negativeEffectId,
             amount: -value1, handleCallback: false);
       }
-    }
-
-    if (character.data['passives']['enable_mana'] != null) {
-      character.addStatusEffect('enable_mana',
-          amount: 1, handleCallback: false);
-    }
-
-    if (character.data['passives']['enable_chakra'] != null) {
-      character.addStatusEffect('enable_chakra',
-          amount: 1, handleCallback: false);
-    }
-
-    if (character.data['passives']['enable_rage'] != null) {
-      character.addStatusEffect('enable_rage',
-          amount: 1, handleCallback: false);
-    }
-
-    if (character.data['passives']['enable_karma'] != null) {
-      character.addStatusEffect('enable_karma',
-          amount: 1, handleCallback: false);
     }
 
     // 灵力每 10 点: 战斗开始时获得 1 点灵气
@@ -1252,15 +1241,15 @@ class BattleScene extends Scene {
 
       await currentCharacter.onEndTurn();
 
-      final opponentEndStatus =
-          _prepareStatus(currentCharacter, StatusCircumstances.end_turn);
-      for (final statusId in opponentEndStatus.keys) {
-        final value = opponentEndStatus[statusId]!;
-        currentOpponent.addStatusEffect(statusId,
-            amount: value, handleCallback: false);
-      }
-      // 回合结束注入的状态（如施加给对方的弱点）会影响预测数值
-      refreshHandCardDescriptions();
+      // final opponentEndStatus =
+      //     _prepareStatus(currentCharacter, StatusCircumstances.end_turn);
+      // for (final statusId in opponentEndStatus.keys) {
+      //   final value = opponentEndStatus[statusId]!;
+      //   currentOpponent.addStatusEffect(statusId,
+      //       amount: value, handleCallback: false);
+      // }
+      // // 回合结束注入的状态（如施加给对方的弱点）会影响预测数值
+      // refreshHandCardDescriptions();
 
       await clearHand(handZone, discardZone);
     } while (extraTurn);

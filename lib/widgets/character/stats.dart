@@ -19,10 +19,7 @@ const kStats = [
   'divider',
   'lifeMax',
   'battleLifeMax',
-  'manaMax',
-  'chakraMax',
   'karma',
-  'karmaMax',
   'divider',
   'unarmedAttack',
   'weaponAttack',
@@ -109,6 +106,20 @@ class _CharacterStatsState extends State<CharacterStats> {
       final int rank = character['rank'];
       valueString = '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
       description = engine.locale('${id}_description');
+    } else if (id == 'karma') {
+      valueString = value > baseValue
+          ? '<yellow>$value%</>'
+          : (value < baseValue ? '<red>$value%</>' : '$value%');
+      final int karmaMaxBaseValue = character['karmaMax'] ?? 0;
+      final int karmaMaxValue =
+          character['stats']['karmaMax'] ?? karmaMaxBaseValue;
+      final karmaMaxValueString = karmaMaxValue > karmaMaxBaseValue
+          ? '<yellow>$karmaMaxValue%</>'
+          : (value < karmaMaxBaseValue
+              ? '<red>$karmaMaxValue%</>'
+              : '$karmaMaxValue%');
+      description =
+          '${engine.locale('${id}_description')}\n${engine.locale('karmaMax')}: $karmaMaxValueString';
     } else if (id.endsWith('Attack')) {
       valueString = value > baseValue
           ? '<yellow>$value%</>'
