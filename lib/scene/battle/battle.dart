@@ -813,31 +813,17 @@ class BattleScene extends Scene {
     return const {};
   }
 
-  /// 费用对应的阴气状态 id（无色费用对应死气，有色费用对应对应的阴气）
-  String? _costYinStatusId(String? color) {
-    if (color == null) return 'energy_negative_life';
-    final yangId = kCostColorStatusIds[color];
-    return yangId != null ? kOppositeStatus[yangId] : null;
-  }
-
-  /// 有效费用需求 = 基础需求 + min(对应阴气层数, 2)（阴气增费，同色至多 +2）
-  int _effectiveCostNeed(BattleCharacter character, String? color, int base) {
-    final yinId = _costYinStatusId(color);
-    final yin = yinId != null ? character.hasStatusEffect(yinId) : 0;
-    return base + math.min(yin, 2);
-  }
-
   /// 检查能否支付卡牌费用（全有或全无）。
   /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
     var colorlessNeed = 0;
     final coloredNeeds = <String, int>{};
+
     void accumulate(CustomGameCard c) {
-      colorlessNeed += _effectiveCostNeed(character, null, c.cost);
+      colorlessNeed += c.cost;
       for (final entry in _cardCostColored(c).entries) {
-        coloredNeeds[entry.key] = (coloredNeeds[entry.key] ?? 0) +
-            _effectiveCostNeed(character, entry.key, entry.value);
+        coloredNeeds[entry.key] = coloredNeeds[entry.key] ?? 0;
       }
     }
 
@@ -865,14 +851,14 @@ class BattleScene extends Scene {
   /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
   /// 返回 false 且不扣除任何费用。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
-    final colorlessNeed = _effectiveCostNeed(character, null, card.cost);
+    final colorlessNeed = card.cost;
 
     final pending = <(String, int)>[];
     var ultimateNeed = 0;
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = _effectiveCostNeed(character, entry.key, entry.value);
+      final need = entry.value;
       final ownPaid = math.min(character.hasStatusEffect(yangId), need);
       pending.add((yangId, ownPaid));
       ultimateNeed += need - ownPaid;
@@ -934,7 +920,7 @@ class BattleScene extends Scene {
   /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）。
   String _missingCostReport(CustomGameCard card) {
     final lines = <String>[];
-    final colorlessNeed = _effectiveCostNeed(hero, null, card.cost);
+    final colorlessNeed = card.cost;
     if (colorlessNeed > hero.energy) {
       lines.add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
         engine.locale('status_energy_positive_life'),
@@ -946,7 +932,7 @@ class BattleScene extends Scene {
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = _effectiveCostNeed(hero, entry.key, entry.value);
+      final need = entry.value;
       final stock = hero.hasStatusEffect(yangId) + ultimateStock;
       if (need > stock) {
         lines

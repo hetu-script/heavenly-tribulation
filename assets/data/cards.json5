@@ -639,7 +639,7 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "fire",
-    description: "affix_attack_unarmed_exhaust_mana_fire",
+    description: "affix_attack_unarmed_fire",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -670,7 +670,7 @@
     cardType: "unarmed",
     damageType: "ice",
     elementResist: "ice",
-    description: "affix_attack_unarmed_exhaust_mana_ice",
+    description: "affix_attack_unarmed_ice",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -701,7 +701,7 @@
     cardType: "unarmed",
     damageType: "lightning",
     elementResist: "lightning",
-    description: "affix_attack_unarmed_exhaust_mana_lightning",
+    description: "affix_attack_unarmed_lightning",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -733,7 +733,7 @@
     elementType: "element_wind",
     tags: ["element"],
     rank: 1,
-    description: "affix_spell_attack_slow",
+    description: "affix_attack_spell_slow",
     image: "battlecard/illustration/spellcraft_wind_attack.png",
     animation: {
       startup: "spell_attack",
@@ -765,7 +765,7 @@
     tags: ["element"],
     elementType: "element_earth",
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_physical",
+    description: "affix_attack_spell",
     image: "battlecard/illustration/spellcraft_earth_attack.png",
     animation: {
       startup: "spell_attack",
@@ -792,7 +792,7 @@
     elementType: "element_water",
     tags: ["element"],
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_ice",
+    description: "affix_attack_spell_ice",
     image: "battlecard/illustration/spellcraft_water_attack.png",
     animation: {
       startup: "spell_attack",
@@ -820,7 +820,7 @@
     elementType: "element_fire",
     tags: ["element"],
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_fire",
+    description: "affix_attack_spell_fire",
     image: "battlecard/illustration/spellcraft_fire_attack.png",
     animation: {
       startup: "spell_attack",
@@ -847,7 +847,7 @@
     elementType: "element_lightning",
     tags: ["element"],
     rank: 1,
-    description: "affix_spell_attack_clumsy",
+    description: "affix_attack_spell_lightning",
     image: "battlecard/illustration/spellcraft_lightning_attack.png",
     animation: {
       startup: "spell_attack",
@@ -860,12 +860,8 @@
     keywords: ["status_dodge_clumsy"],
     valueData: [
       {
-        base: 15,
+        base: 17,
         increment: 1.5,
-      },
-      {
-        base: 1,
-        increment: 0.2,
       },
     ],
   },
@@ -878,7 +874,7 @@
     kind: "punch",
     cardType: "unarmed",
     rank: 1,
-    description: "affix_defend_exhaust_mana",
+    description: "affix_defend",
     image: "battlecard/illustration/punch_defend.png",
     animation: {
       startup: "punch_buff",
@@ -905,7 +901,7 @@
     elementType: "element_wind",
     tags: ["element"],
     rank: 1,
-    description: "affix_speed_quick_exhaust_mana_defend",
+    description: "affix_speed_quick_defend",
     image: "battlecard/illustration/spellcraft_wind_defend.png",
     animation: {
       startup: "spell_attack",
@@ -937,7 +933,7 @@
     elementType: "element_wood",
     tags: ["element"],
     rank: 1,
-    description: "affix_heal_exhaust_mana",
+    description: "affix_overheal",
     image: "battlecard/illustration/spellcraft_wood_defend.png",
     animation: {
       startup: "spell_attack",
@@ -964,7 +960,7 @@
     rank: 1,
     elementType: "element_wood",
     tags: ["element"],
-    description: "affix_defend_exhaust_mana",
+    description: "affix_defend",
     image: "battlecard/illustration/spellcraft_wood_defend.png",
     animation: {
       startup: "spell_attack",
@@ -992,7 +988,7 @@
     kind: "punch",
     rank: 1,
     cardType: "unarmed",
-    damageType: "physical",
+    damageType: "chi",
     description: "affix_attack_unarmed_multiple_exhaust_rage",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
@@ -1022,8 +1018,8 @@
     kind: "kick",
     rank: 1,
     cardType: "unarmed",
-    damageType: "physical",
-    description: "affix_attack_unarmed_multiple_exhaust_rage",
+    damageType: "chi",
+    description: "affix_attack_unarmed_exhaust_rage",
     image: "battlecard/illustration/kick_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1031,7 +1027,7 @@
       actions: "kick_attack",
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
-    script: "attack",
+    script: "attack_debuff",
     qiCost: { unarmed: 1 },
     valueData: [
       {
@@ -1079,7 +1075,7 @@
     cardType: "unarmed",
     damageType: "chi",
     rank: 1,
-    description: "affix_attack_unarmed_exhaust_rage_slow",
+    description: "affix_attack_unarmed_rage_slow",
     keywords: ["status_speed_slow"],
     image: "battlecard/illustration/bodyforge_qinna.png",
     animation: {
@@ -1111,7 +1107,7 @@
     kind: "punch",
     cardType: "unarmed",
     rank: 1,
-    description: "affix_defend_exhaust_rage",
+    description: "affix_defend",
     image: "battlecard/illustration/punch_defend.png",
     animation: {
       startup: "punch_buff",
@@ -1136,7 +1132,7 @@
     kind: "kick",
     cardType: "unarmed",
     rank: 1,
-    description: "affix_defend_exhaust_rage",
+    description: "affix_defend",
     image: "battlecard/illustration/kick_defend.png",
     animation: {
       startup: "kick_buff",
@@ -1187,7 +1183,7 @@
     kind: "shenfa",
     cardType: "shenfa",
     rank: 1,
-    description: "affix_speed_quick_exhaust_rage_defend",
+    description: "affix_speed_quick_defend",
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "punch_buff",
@@ -1215,7 +1211,7 @@
     kind: "qinggong",
     cardType: "shenfa",
     rank: 1,
-    description: "affix_dodge_nimble_exhaust_rage_defend",
+    description: "affix_dodge_nimble_defend",
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "punch_buff",
@@ -1246,7 +1242,7 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "physical",
-    description: "affix_attack_unarmed_exhaust_mana",
+    description: "affix_attack_unarmed_chakra_vulnerable",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1276,7 +1272,7 @@
     cardType: "unarmed",
     damageType: "chi",
     rank: 1,
-    description: "affix_attack_unarmed_exhaust_chakra_clumsy",
+    description: "affix_attack_unarmed_chakra_clumsy",
     keywords: ["status_dodge_clumsy"],
     image: "battlecard/illustration/bodyforge_dianxue.png",
     animation: {
@@ -1307,7 +1303,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "physical",
-    description: "affix_attack_weapon_multiple_exhaust_chakra",
+    description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1338,7 +1334,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "fire",
-    description: "affix_attack_weapon_exhaust_mana_fire",
+    description: "affix_attack_weapon_fire",
     image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1364,7 +1360,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "ice",
-    description: "affix_attack_weapon_exhaust_mana_ice",
+    description: "affix_attack_weapon_ice",
     image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1390,7 +1386,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "lightning",
-    description: "affix_attack_weapon_exhaust_mana_lightning",
+    description: "affix_attack_weapon_lightning",
     image: "battlecard/illustration/sword_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1416,7 +1412,7 @@
     cardType: "spell",
     damageType: "physical",
     rank: 1,
-    description: "affix_spell_attack_exhaust_chakra_multiple",
+    description: "affix_attack_spell_multiple",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
@@ -1447,7 +1443,7 @@
     cardType: "spell",
     damageType: "fire",
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_fire",
+    description: "affix_attack_spell_fire",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
@@ -1473,7 +1469,7 @@
     cardType: "spell",
     damageType: "ice",
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_ice",
+    description: "affix_attack_spell_ice",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
@@ -1499,7 +1495,7 @@
     cardType: "spell",
     damageType: "lightning",
     rank: 1,
-    description: "affix_spell_attack_exhaust_mana_lightning",
+    description: "affix_attack_spell_lightning",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
     animation: {
       startup: "spell_attack",
@@ -1526,7 +1522,7 @@
     kind: "kick",
     cardType: "unarmed",
     rank: 1,
-    description: "affix_defend_exhaust_chakra",
+    description: "affix_defend",
     image: "battlecard/illustration/kick_defend.png",
     animation: {
       startup: "kick_buff",
@@ -1551,7 +1547,7 @@
     kind: "kick",
     cardType: "unarmed",
     rank: 1,
-    description: "affix_defend_exhaust_mana",
+    description: "affix_defend",
     image: "battlecard/illustration/kick_defend.png",
     animation: {
       startup: "kick_buff",
@@ -1576,7 +1572,7 @@
     kind: "sword",
     cardType: "weapon",
     rank: 1,
-    description: "affix_defend_exhaust_chakra",
+    description: "affix_defend",
     image: "battlecard/illustration/sword_defend.png",
     animation: {
       startup: "sword_buff",
@@ -1602,7 +1598,7 @@
     kind: "sword",
     cardType: "weapon",
     rank: 1,
-    description: "affix_defend_exhaust_mana",
+    description: "affix_defend",
     image: "battlecard/illustration/sword_defend.png",
     animation: {
       startup: "sword_buff",
@@ -1628,7 +1624,7 @@
     kind: "shenfa",
     cardType: "shenfa",
     rank: 1,
-    description: "affix_speed_quick_exhaust_chakra_defend",
+    description: "affix_speed_quick_defend",
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "punch_buff",
@@ -1656,7 +1652,7 @@
     kind: "qinggong",
     cardType: "shenfa",
     rank: 1,
-    description: "affix_dodge_nimble_exhaust_mana_defend",
+    description: "affix_dodge_nimble_defend",
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "punch_buff",
@@ -1684,7 +1680,7 @@
     kind: "flying_sword",
     cardType: "spell",
     rank: 1,
-    description: "affix_speed_quick_exhaust_chakra_defend",
+    description: "affix_speed_quick_defend",
     image: "battlecard/illustration/swordcraft_flying_sword_defend.png",
     animation: {
       startup: "spell_attack",
@@ -1715,7 +1711,7 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "physical",
-    description: "affix_attack_unarmed_multiple_exhaust_karma",
+    description: "affix_attack_unarmed_multiple_exhaust",
     image: "battlecard/illustration/kick_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1745,7 +1741,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "chi",
-    description: "affix_attack_weapon_multiple_exhaust_rage",
+    description: "affix_attack_weapon_multiple_chi",
     image: "battlecard/illustration/staff_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1776,7 +1772,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "physical",
-    description: "affix_attack_weapon_multiple_exhaust_karma",
+    description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/spear_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -1807,7 +1803,7 @@
     cardType: "curse",
     damageType: "psychic",
     rank: 1,
-    description: "affix_attack_curse_exhaust_karma",
+    description: "affix_attack_curse_psychic",
     image: "battlecard/illustration/avatar_sigil_attack.png",
     animation: {
       startup: "spell_attack",
@@ -1833,7 +1829,7 @@
     kind: "kick",
     rank: 1,
     cardType: "unarmed",
-    description: "affix_defend_exhaust_karma",
+    description: "affix_defend",
     image: "battlecard/illustration/kick_defend.png",
     animation: {
       startup: "kick_buff",
@@ -1858,7 +1854,7 @@
     kind: "staff",
     rank: 1,
     cardType: "weapon",
-    description: "affix_defend_exhaust_rage",
+    description: "affix_defend",
     image: "battlecard/illustration/staff_defend.png",
     animation: {
       startup: "staff_buff",
@@ -1884,7 +1880,7 @@
     kind: "spear",
     rank: 1,
     cardType: "weapon",
-    description: "affix_defend_exhaust_karma",
+    description: "affix_defend",
     image: "battlecard/illustration/spear_defend.png",
     animation: {
       startup: "spear_buff",
@@ -1910,7 +1906,7 @@
     kind: "scripture",
     rank: 1,
     cardType: "curse",
-    description: "affix_dodge_nimble_exhaust_defend",
+    description: "affix_dodge_nimble_defend",
     image: "battlecard/illustration/avatar_scripture_defend.png",
     animation: {
       startup: "spell_buff",
@@ -2001,7 +1997,7 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "physical",
-    description: "affix_attack_unarmed_multiple_exhaust_karma",
+    description: "affix_attack_unarmed_multiple_exhaust",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -2091,7 +2087,7 @@
     kind: "punch",
     rank: 1,
     cardType: "unarmed",
-    description: "affix_defend_exhaust_rage",
+    description: "affix_defend",
     image: "battlecard/illustration/punch_defend.png",
     animation: {
       startup: "punch_buff",
@@ -2140,7 +2136,7 @@
     kind: "power_word",
     rank: 1,
     cardType: "curse",
-    description: "affix_buff_lifemax_exhaust_karma",
+    description: "affix_buff_lifemax",
     image: "battlecard/illustration/vitality_power_word_defend.png",
     animation: {
       startup: "spell_buff",
@@ -2164,7 +2160,7 @@
     kind: "power_word",
     rank: 1,
     cardType: "curse",
-    description: "affix_debuff_lifemax_exhaust_karma",
+    description: "affix_debuff_lifemax",
     image: "battlecard/illustration/vitality_power_word_attack.png",
     animation: {
       startup: "spell_attack",

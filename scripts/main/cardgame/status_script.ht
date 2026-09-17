@@ -160,18 +160,6 @@ namespace StatusScript {
     self.removeStatusEffect('defense', percentage: percentage)
   }
 
-  function vulnerable_self_turn_end(self, opponent, effect, details) {
-    let persistent = self.hasStatusEffect('persistent')
-    if (persistent > 0) {
-      self.turnFlags.defensePersisted = true
-    }
-    final amount = Math.min(persistent, 10)
-    let reserved = 0.5 + amount * 0.05
-    let percentage = 1 - reserved
-    self.removeStatusEffect('persistent', amount: amount)
-    self.removeStatusEffect('defense', percentage: percentage)
-  }
-
   /// 易伤：受到任何伤害时消耗，增加等量伤害（不分类型的单一状态）
   function vulnerable_self_taking_damage(self, opponent, effect, details) {
     details.baseChange += effect.amount
@@ -215,11 +203,11 @@ namespace StatusScript {
       self.removeStatusEffect(effect.id, amount: 1)
     }
   }
-  // 衰气（energy_negative_crit）的效果在 Dart 侧 takeDamage 中结算，双效果：
+  // 不幸（debuff_crit）的效果在 Dart 侧 takeDamage 中结算，双效果：
   // 暴击分支：每层使本次暴击倍率 -50%（下限 100%），按层循环消耗至倍率 100% 或衰气耗尽
   // 异常分支：持有衰气的攻击方赋予元素异常时按层抵消（1 层衰气抵消 1 层异常）
 
-  /// 浊气：回合开始时，消耗 1 层浊气并获得 1 层随机负面效果（从 kDebuffs 池抽取）
+  /// 邪祟：回合开始时，消耗 1 层邪祟并获得 1 层随机负面效果（从 kDebuffs 池抽取）
   function debuff_ward_self_turn_start(self, opponent, effect, details) {
     if (self.hasStatusEffect('energy_negative_ward') > 0) {
       self.removeStatusEffect(effect.id, amount: 1)
@@ -238,8 +226,6 @@ namespace StatusScript {
       details.percentageChange2 += 1.0
     }
   }
-
-
 
 
   function injury_external_self_attacked(self, opponent, effect, details) {

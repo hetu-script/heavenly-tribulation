@@ -486,6 +486,7 @@
     callbacks: ["self_taking_damage"],
   },
 
+  // 伤势
   injury_external: {
     id: "injury_external",
     title: "status_injury_external",
