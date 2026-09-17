@@ -186,8 +186,10 @@ struct BattleCard {
     _updateAffixValue(this, mainAffix)
 
     final affixUniqueIds = []
-    if (mainAffix.uniqueId) {
-      affixUniqueIds.addAll(mainAffix.uniqueId)
+    if (mainAffix.uniqueIds) {
+      affixUniqueIds.addAll(mainAffix.uniqueIds)
+    } else if (mainAffix.uniqueId) {
+      affixUniqueIds.add(mainAffix.uniqueId)
     }
 
     this.affixUniqueIds = affixUniqueIds
@@ -206,12 +208,10 @@ function _getSupportAffixes(card) {
   let affixes = []
   for (final affix of game.battleCardAffixes) {
     assert(affix.uniqueId != null)
-    assert(affix.category is List)
-    assert(affix.genre == null || affix.genre is List)
-    if (!affix.category.contains(card.category)) {
+    if (!affix.categories.contains(card.category)) {
       continue
     }
-    if (affix.genre != null && !affix.genre.contains(card.genre)) {
+    if (affix.genres is List && !affix.genres.contains(card.genre)) {
       continue
     }
     if (card.affixUniqueIds.contains(affix.uniqueId)) {
@@ -296,7 +296,7 @@ function _updateAffixUniqueIds(card) {
   card.keywords = Set()
   for (final affix in card.affixes) {
     if (affix.isMain) {
-      if (affix.uniqueId is List) {
+      if (affix.uniqueIds is List) {
         card.affixUniqueIds.addAll(affix.uniqueId)
       } else if (affix.uniqueId is string) {
         card.affixUniqueIds.add(affix.uniqueId)
