@@ -222,7 +222,7 @@
   },
   increase_damage_power_word: {
     id: "increase_damage_power_word",
-    title: "status_increase_damage_punch",
+    title: "status_increase_damage_power_word",
     description: "status_increase_damage_power_word_description",
     icon: "icon/status/permanent/increase_damage_power_word.png",
     kind: "power_word",
@@ -263,15 +263,6 @@
     description: "status_resist_poison_description",
     icon: "icon/status/permanent/resistant_poison.png",
     damageType: "poison",
-    isPermanent: true,
-  },
-  // 全元素抗性：战斗内全元素修正，经 getElementalResist 状态净值生效
-  resistant_elemental: {
-    id: "resistant_elemental",
-    title: "status_resist_elemental",
-    description: "status_resist_elemental_description",
-    icon: "icon/status/permanent/resistant_elemental.png",
-    damageType: "elemental",
     isPermanent: true,
   },
 
@@ -434,7 +425,7 @@
   buff_crit: {
     id: "buff_crit",
     title: "status_buff_crit",
-    description: "status_energy_positive_crit_description",
+    description: "status_buff_crit_description",
     icon: "icon/status/buff_crit.png",
     script: "buff_crit",
     callbacks: ["self_using_card"],
@@ -465,7 +456,7 @@
     description: "status_debuff_crit_description",
     script: "debuff_crit",
     icon: "icon/status/debuff_crit.png",
-    callbacks: ["self_crit"],
+    isDebuff: true,
   },
   // 邪祟：回合开始时移除并获得随机负面效果（普通状态，非资源）
   debuff_ward: {
@@ -475,6 +466,7 @@
     script: "debuff_ward",
     icon: "icon/status/debuff_ward.png",
     callbacks: ["self_turn_start"],
+    isDebuff: true,
   },
   // 破绽：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时移除（普通状态，非资源）
   debuff_shield: {
@@ -484,6 +476,7 @@
     script: "debuff_shield",
     icon: "icon/status/debuff_shield.png",
     callbacks: ["self_taking_damage"],
+    isDebuff: true,
   },
 
   // 伤势
@@ -639,7 +632,6 @@
     icon: "icon/cost/qi_ultimate.png",
     script: "energy_positive_ultimate",
     isResource: true,
-    cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
 
@@ -711,7 +703,6 @@
     icon: "icon/cost/qi_ultimate.png",
     script: "energy_negative_ultimate",
     isResource: true,
-    cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
 

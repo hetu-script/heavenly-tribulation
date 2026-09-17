@@ -114,8 +114,8 @@
     ],
   },
 
-  // 对手获得缓慢
-  opponent_debuff_vulnerable: {
+  // 对手获得易伤
+  opponent_vulnerable: {
     id: "opponent_vulnerable",
     uniqueId: "opponent_vulnerable",
     category: ["buff", "attack"],
@@ -229,8 +229,8 @@
     category: ["buff", "attack"],
     rank: 4,
     description: "affix_opponent_reduce_resist_all",
-    keywords: ["status_debuff_shield"],
-    buffId: "debuff_shield",
+    keywords: ["status_vulnerable"],
+    buffId: "vulnerable",
     script: "opponent_debuff",
     priority: -1,
     valueData: [

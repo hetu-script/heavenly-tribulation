@@ -118,7 +118,7 @@ namespace StatusScript {
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_nimble', amount: threshold)
       self.turnFlags.invincible = true
-      self.addStatusEffect('dodge_invincible')
+      self.addStatusEffect('dodge_invincible', amount: 1)
     }
   }
 
@@ -128,7 +128,7 @@ namespace StatusScript {
     if (existed >= threshold) {
       self.removeStatusEffect('dodge_clumsy', amount: threshold)
       self.turnFlags.staggering = true
-      self.addStatusEffect('dodge_staggering')
+      self.addStatusEffect('dodge_staggering', amount: 1)
     }
   }
 
@@ -175,7 +175,6 @@ namespace StatusScript {
   /// 物理伤害 → 本张卡牌必定暴击；元素伤害 → 本张卡牌必定造成异常（每满 10 点伤害 1 层）
   function buff_crit_self_using_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'attack') return
-    if (self.hasStatusEffect('energy_positive_crit') <= 0) return
 
     final damageType = self.cardFlags.damageType
     if (damageType == 'physical') {
@@ -198,6 +197,8 @@ namespace StatusScript {
 
   /// 护盾：每层抵挡一次任意伤害，触发时消耗
   function buff_shield_self_taking_damage(self, opponent, effect, details) {
+    if (details.damageType == 'pure') return
+
     if (!details.cancelDamage) {
       details.cancelDamage = true
       self.removeStatusEffect(effect.id, amount: 1)
@@ -209,13 +210,11 @@ namespace StatusScript {
 
   /// 邪祟：回合开始时，消耗 1 层邪祟并获得 1 层随机负面效果（从 kDebuffs 池抽取）
   function debuff_ward_self_turn_start(self, opponent, effect, details) {
-    if (self.hasStatusEffect('energy_negative_ward') > 0) {
-      self.removeStatusEffect(effect.id, amount: 1)
-      
-      // 从 kDebuffs 池中随机选择一个负面效果
-      final debuffId = random.nextIterable(kDebuffs)
-      self.addStatusEffect(debuffId, amount: 1)
-    }
+    self.removeStatusEffect(effect.id, amount: 1)
+    
+    // 从 kDebuffs 池中随机选择一个负面效果
+    final debuffId = random.nextIterable(kDebuffs)
+    self.addStatusEffect(debuffId, amount: 1)
   }
 
   /// 破绽：持有者下一次受到的任意类型伤害翻倍（含纯粹），触发时消耗 1 层
@@ -329,10 +328,6 @@ namespace StatusScript {
     details.baseChange += effect.amount * 5
   }
 
-  function energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
-    details.baseChange += effect.amount * 5
-  }
-
   function energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
     if (details.cardType != effect.cardType) return
 
@@ -350,43 +345,13 @@ namespace StatusScript {
     details.percentageChange1 += 0.05 * effect.amount
   }
 
-  /// 回合结束资源结算（由 Dart 侧 BattleCharacter.onEndTurn 显式调用，
-  /// 顺序显式保证：先灵气溢出利用，后元气回血——转化出的元气可赶上同回合回血）：
-  /// ① 灵气按剩余层数触发 overflowed_mana_* 天赋（增益型，§4.6）：
-  ///   convert_to_vigor → 剩余灵气 1:1 转为元气；deal_random_element_damage → 每层 5 点随机元素伤害
-  /// ② 元气回血：每剩余 1 层回复 2% 生命上限（每层至少 1 点），不消耗层数（§4.1）
-  function turn_end_resource_settlement(self, opponent) {
-    final manaCount = self.hasStatusEffect('energy_positive_spell')
-    if (manaCount > 0) {
-      if (self.hasStatusEffect('overflowed_mana_convert_to_vigor') > 0) {
-        self.removeStatusEffect('energy_positive_spell', force: true)
-        self.addStatusEffect('energy_positive_life', amount: manaCount)
-      } else if (self.data.passives.overflowed_mana_deal_random_element_damage != null) {
-        // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
-        final damageType = random.nextIterable(['fire', 'ice', 'lightning'])
-        let factor = 1 - 0.01 * opponent.getElementalResist(damageType)
-        final damage = (manaCount * 5 * factor).round()
-        if (damage > 0) {
-          opponent.changeLife(-damage, damageType: damageType)
-        }
-      }
-    }
-
-    final vigor = self.hasStatusEffect('energy_positive_life')
-    if (vigor > 0 && self.life < self.lifeMax) {
-      let regenPerLayer = (self.lifeMax / 100 * 2).round()
-      if (regenPerLayer < 1) regenPerLayer = 1
-      final missing = self.lifeMax - self.life
-      final regen = Math.min(regenPerLayer * vigor, missing)
-      if (regen > 0) {
-        self.changeLife(regen, isHeal: true)
-      }
-    }
-  }
-
   function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
     if (details.cardType != effect.cardType) return
 
+    details.baseChange += effect.amount * 5
+  }
+
+  function energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
     details.baseChange += effect.amount * 5
   }
 
@@ -428,6 +393,10 @@ namespace StatusScript {
   function energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
     if (details.cardType != effect.cardType) return
 
+    details.baseChange -= effect.amount * 5
+  }
+
+  function energy_negative_ultimate_self_doing_damage(self, opponent, effect, details) {
     details.baseChange -= effect.amount * 5
   }
 

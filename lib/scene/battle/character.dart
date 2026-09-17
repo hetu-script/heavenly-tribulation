@@ -268,11 +268,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 不计算护甲、穿透与脚本回调类修正。
   /// 返回 (伤害, 是否暴击, 异常层数)；非攻击类词条返回 null。
   (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
-    final int? valueIndex =
-        GameData.kBattleCardDamageValueIndex[affix['script']];
-    if (valueIndex == null) return null;
     final List value = affix['value'];
-    if (valueIndex >= value.length) return null;
 
     final String damageType = affix['damageType'];
     final bool isElemental = damageType == 'fire' ||
@@ -280,7 +276,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         damageType == 'lightning' ||
         damageType == 'poison';
 
-    int damage = (value[valueIndex] as num).toInt();
+    int damage = (value[0] as num).toInt();
 
     // 乘区1：攻击增强/削弱净值，下限 kDamagePercentageMin（同 takeDamage）
     final String? cardType = affix['cardType'];
@@ -640,25 +636,25 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 元气 = 无色费用池（§4.1）
     addStatusEffect('energy_positive_life', amount: rank + 3);
 
+    // 灵气：enable_mana
+    // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充（§4.4）
+    if (data['passives']['enable_mana'] != null) {
+      addStatusEffect('energy_positive_spell', amount: 1);
+    }
+
     // 剑气：上回合打出的武器牌数量（§4.2；节点加成缺省 0，预留读取位）
-    if (hasStatusEffect('enable_chakra') > 0 && lastTurnWeaponCards > 0) {
+    if (data['passives']['enable_chakra'] != null && lastTurnWeaponCards > 0) {
       addStatusEffect('energy_positive_weapon', amount: lastTurnWeaponCards);
     }
 
     // 怒气：上回合自身受到的伤害 ÷ 10（§4.3；节点加成缺省 0，预留读取位）
-    if (hasStatusEffect('enable_rage') > 0 && lastTurnDamageTaken > 0) {
+    if (data['passives']['enable_rage'] != null && lastTurnDamageTaken > 0) {
       addStatusEffect('energy_positive_unarmed',
           amount: lastTurnDamageTaken ~/ 10);
     }
 
-    // 灵气：enable_mana
-    // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充（§4.4）
-    if (hasStatusEffect('enable_mana') > 0) {
-      addStatusEffect('energy_positive_spell', amount: 1);
-    }
-
     // 煞气：从 karma 池提取 min(karmaMax, max(1, 池存量 ~/ 10))（§4.5；提取节点加成缺省 0，预留）
-    if (hasStatusEffect('enable_karma') > 0) {
+    if (data['passives']['enable_karma'] != null) {
       final int karma = data['karma'];
       if (karma > 0) {
         final int karmaMax = (data['stats']['karmaMax'] ?? 0) as int;
@@ -1158,7 +1154,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (scriptId == null) continue;
       engine.hetu.invoke(
         scriptId,
-        namespace: 'CardScriptExtra',
+        namespace: 'CardScript',
         positionalArgs: [this, opponent, affix, mainAffix],
       );
     }
@@ -1176,7 +1172,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       );
       engine.hetu.invoke(
         mainScriptId,
-        namespace: 'CardScriptMain',
+        namespace: 'CardScript',
         positionalArgs: [this, opponent, mainAffix, mainAffix],
       );
     }
@@ -1196,7 +1192,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (scriptId == null) continue;
       engine.hetu.invoke(
         scriptId,
-        namespace: 'CardScriptExtra',
+        namespace: 'CardScript',
         positionalArgs: [this, opponent, affix, mainAffix],
       );
     }

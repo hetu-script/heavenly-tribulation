@@ -208,13 +208,10 @@ function _getSupportAffixes(card) {
     assert(affix.uniqueId != null)
     assert(affix.category is List)
     assert(affix.genre == null || affix.genre is List)
-    if (affix.genre && affix.genre != card.genre) {
-      continue
-    }
     if (!affix.category.contains(card.category)) {
       continue
     }
-    if (affix.genre != null && $affix.genre.contains(card.genre)) {
+    if (affix.genre != null && !affix.genre.contains(card.genre)) {
       continue
     }
     if (card.affixUniqueIds.contains(affix.uniqueId)) {
@@ -481,7 +478,7 @@ function removeAffix(card, materialRank) {
   
   final rank = extraAffixes.first.rank
   final availableAffixes = extraAffixes.where( (affix) => affix.rank == rank)
-  targetAffix = random.nextIterable(availableAffixes)
+  final targetAffix = random.nextIterable(availableAffixes)
 
   card.affixes.remove(targetAffix)
 

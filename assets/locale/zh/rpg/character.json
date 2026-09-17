@@ -91,13 +91,13 @@
   "ailmentMultiplier": "元素异常伤害",
   "ailmentMultiplier_description": "基础为 100%。放大你施加的元素异常造成的伤害。",
 
-  "quickThreshold": "连续行动的速度阈值",
+  "quickThreshold": "速度阈值",
   "quickThreshold_description": "回合结束时，移除阈值数量的速度，并获得一个额外回合。\n行动阈值最大 15， 最小 5",
-  "slowThreshold": "跳过回合的缓慢阈值",
+  "slowThreshold": "缓慢阈值",
   "slowThreshold_description": "回合开始时，移除阈值数量的缓慢，并跳过这个回合。\n行动阈值最大 15， 最小 5",
-  "nimbleThreshold": "获得飘忽的闪避阈值",
+  "nimbleThreshold": "闪避阈值",
   "nimbleThreshold_description": "回合结束时，移除阈值数量的闪避，使你在下个对手回合受到的所有伤害减少 75%。\n行动阈值最大 15， 最小 5",
-  "clumsyThreshold": "获得踉跄的迟钝阈值",
+  "clumsyThreshold": "迟钝阈值",
   "clumsyThreshold_description": "回合结束时，移除阈值数量的迟钝，使你在下个对手回合受到的所有伤害增加 75%。\n行动阈值最大 15， 最小 5",
 
   "favorScoreToThisCharacter": "与自己的好感度",

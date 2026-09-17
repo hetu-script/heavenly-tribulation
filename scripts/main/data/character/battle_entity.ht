@@ -369,10 +369,10 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.lightningResist = character.passives.lightningResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.lightningResist?.value + character.ephemeralPassives.elementalResist?.value
   character.stats.poisonResist = character.passives.poisonResist?.value + character.passives.elementalResist?.value + character.ephemeralPassives.poisonResist?.value + character.ephemeralPassives.elementalResist?.value
 
-  character.stats.fireResistMax = character.fireResistMax + character.passives.fireResistMax?.value + character.ephemeralPassives.fireResistMax?.value
-  character.stats.iceResistMax = character.iceResistMax + character.passives.iceResistMax?.value + character.ephemeralPassives.iceResistMax?.value
-  character.stats.lightningResistMax = character.lightningResistMax + character.passives.lightningResistMax?.value + character.ephemeralPassives.lightningResistMax?.value
-  character.stats.poisonResistMax = character.poisonResistMax + character.passives.poisonResistMax?.value + character.ephemeralPassives.poisonResistMax?.value
+  character.stats.fireResistMax = character.fireResistMax + character.passives.fireResistMax?.value + character.passives.elementalResistMax?.value + character.ephemeralPassives.fireResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
+  character.stats.iceResistMax = character.iceResistMax + character.passives.iceResistMax?.value + character.passives.elementalResistMax?.value + character.ephemeralPassives.iceResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
+  character.stats.lightningResistMax = character.lightningResistMax + character.passives.lightningResistMax?.value + character.passives.elementalResistMax?.value + character.ephemeralPassives.lightningResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
+  character.stats.poisonResistMax = character.poisonResistMax + character.passives.poisonResistMax?.value + character.passives.elementalResistMax?.value + character.ephemeralPassives.poisonResistMax?.value + character.ephemeralPassives.elementalResistMax?.value
 
   if (character.stats.fireResist > character.stats.fireResistMax) {
     character.stats.fireResist = character.stats.fireResistMax

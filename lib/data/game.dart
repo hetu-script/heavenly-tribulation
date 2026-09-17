@@ -1242,15 +1242,6 @@ final class GameData with ChangeNotifier {
     return out;
   }
 
-  /// 攻击类脚本 id → 伤害数值在 affix.value 列表中的索引
-  ///（与 scripts/main/cardgame/card_script.ht 的取值位置一一对应）
-  static const Map<String, int> kBattleCardDamageValueIndex = {
-    'attack': 0,
-    'attack_multiple': 1,
-    'attack_slow': 0,
-    'attack_clumsy': 0,
-  };
-
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是卡牌悬浮提示
   /// withPrediction 为 true 时，词条上的战斗伤害预测值（predictedValue 等，
   /// 由 BattleScene 刷新时写入）会替换原始数值显示并按差异着色
@@ -1314,29 +1305,26 @@ final class GameData with ChangeNotifier {
       dynamic affixValues = affix['value'];
       final predictedValue = withPrediction ? affix['predictedValue'] : null;
       if (predictedValue != null && affixValues != null) {
-        final int? valueIndex = kBattleCardDamageValueIndex[affix['script']];
-        if (valueIndex != null && valueIndex < affixValues.length) {
-          final int original = (affixValues[valueIndex] as num).toInt();
-          final int predicted = (predictedValue as num).toInt();
-          String display = '$predicted';
-          if (affix['predictedCrit'] == true) {
-            display += '(${engine.locale('critPredictedHint')})';
-          }
-          final int predictedAilment = (affix['predictedAilment'] ?? 0) as int;
-          if (predictedAilment > 0) {
-            display += '(${engine.locale('predictedAilmentHint').interpolate([
-                  predictedAilment,
-                  engine.locale('status_element_dot_${affix['damageType']}')
-                ])})';
-          }
-          if (predicted > original) {
-            display = '<yellow>$display</>';
-          } else if (predicted < original) {
-            display = '<red>$display</>';
-          }
-          affixValues = List.of(affixValues);
-          affixValues[valueIndex] = display;
+        final int original = (affixValues[0] as num).toInt();
+        final int predicted = (predictedValue as num).toInt();
+        String display = '$predicted';
+        if (affix['predictedCrit'] == true) {
+          display += '(${engine.locale('critPredictedHint')})';
         }
+        final int predictedAilment = (affix['predictedAilment'] ?? 0) as int;
+        if (predictedAilment > 0) {
+          display += '(${engine.locale('predictedAilmentHint').interpolate([
+                predictedAilment,
+                engine.locale('status_element_dot_${affix['damageType']}')
+              ])})';
+        }
+        if (predicted > original) {
+          display = '<yellow>$display</>';
+        } else if (predicted < original) {
+          display = '<red>$display</>';
+        }
+        affixValues = List.of(affixValues);
+        affixValues[0] = display;
       }
       final affixDescription =
           affixDescriptionRaw.interpolate(affixValues).split(RegExp('\n'));

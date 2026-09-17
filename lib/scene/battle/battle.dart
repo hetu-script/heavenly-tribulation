@@ -56,6 +56,7 @@ const kStatsToPermanentEffects = {
 };
 
 const kStatusOnCircumstance = {
+  'defense',
   'weaken_unarmed',
   'weaken_weapon',
   'weaken_spell',
@@ -85,6 +86,7 @@ const kStatusOnCircumstance = {
   'energy_negative_spell',
   'energy_negative_weapon',
   'energy_negative_unarmed',
+  'energy_negative_curse',
   'energy_negative_ultimate',
 };
 
@@ -823,7 +825,7 @@ class BattleScene extends Scene {
     void accumulate(CustomGameCard c) {
       colorlessNeed += c.cost;
       for (final entry in _cardCostColored(c).entries) {
-        coloredNeeds[entry.key] = coloredNeeds[entry.key] ?? 0;
+        coloredNeeds[entry.key] = coloredNeeds[entry.key] ?? 0 + entry.value;
       }
     }
 
