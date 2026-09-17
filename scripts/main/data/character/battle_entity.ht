@@ -352,8 +352,17 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.spellAttack = character.passives.spellAttack?.value + character.ephemeralPassives.spellAttack?.value
   character.stats.curseAttack = character.passives.curseAttack?.value + character.ephemeralPassives.curseAttack?.value
 
+  // 各流派伤害增加（装备/天赋词条 → 属性，战斗开始时转换为同名永久状态图标，每层 1%）
+  for (final kind in ['punch', 'kick', 'qinna', 'dianxue', 'sword', 'sabre', 'spear', 'staff', 'bow', 'dart', 'firebend', 'airbend', 'waterbend', 'earthbend', 'lightning_control', 'sigil', 'power_word']) {
+    final statId = 'increase_damage_${kind}'
+    character.stats[statId] = character.passives[statId]?.value + character.ephemeralPassives[statId]?.value
+  }
+
   // 穿透：单一属性，只作用于物理和真气伤害
   character.stats.penetration = character.passives.penetration?.value + character.ephemeralPassives.penetration?.value
+
+  // 护甲保持：回合开始时在减半基础上额外保留的护甲百分比（每层 1%）
+  character.stats.persistent = character.passives.persistent?.value + character.ephemeralPassives.persistent?.value
 
   // 暴击：只有物理伤害可以暴击；计数器满阈值后下一次物理伤害暴击，倍率为百分比整数制
   character.stats.critThreshold = (Constants.baseCritThreshold + character.passives.critThreshold?.value + character.ephemeralPassives.critThreshold?.value).clamp(Constants.minChargeThreshold, Constants.maxChargeThreshold)
@@ -472,13 +481,14 @@ function characterSetPassive(character, dataId, {level = 1}) {
       maxLevel: passiveRawData.maxLevel,
       description: passiveRawData.description,
     )
-    if (passiveRawData.increment != null) {
+    if (passiveRawData.increment != null || passiveRawData.rankIncrement != null) {
       passiveData.increment = passiveRawData.increment
+      passiveData.rankIncrement = passiveRawData.rankIncrement
       let passiveLevel = passiveData.level
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = (passiveData.increment * passiveLevel).round()
+      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
     }
     character.passives[dataId] = passiveData
   } else {
@@ -494,7 +504,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = (passiveData.increment * passiveLevel).round()
+      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
     }
   }
 }
@@ -743,13 +753,14 @@ function characterSetEphemeralPassive(character, dataId, {level = 1}) {
     level: level,
     description: passiveRawData.description,
   )
-  if (passiveRawData.increment != null) {
+  if (passiveRawData.increment != null || passiveRawData.rankIncrement != null) {
     passiveData.increment = passiveRawData.increment
+    passiveData.rankIncrement = passiveRawData.rankIncrement
     let passiveLevel = passiveData.level
     if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
       passiveLevel = passiveData.maxLevel
     }
-    passiveData.value = (passiveData.increment * passiveLevel).round()
+    passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
   }
   character.ephemeralPassives[dataId] = passiveData
 }

@@ -6,11 +6,8 @@
 EnergyDisplay控件用来显示所有颜色的气
 
 不幸改为对手暴击增加
-劫气改为16回合开始每个回合增加
 
 turn_end_resource_settlement应该挪到dart侧
-
-增加rankIncrement，计算value时以境界作为乘数而非等级
 
 虚无之气导致所有颜色费用增加
 
@@ -19,15 +16,3 @@ data_validate 验证 json5文件
 治疗时随机移除一个负面效果（不含阴气）
  
 符箓不再摧毁原本的卡牌，符箓本身变成ephemeral，用过之后不进入弃牌堆。
-
-额外回合（速度）机制断裂
-
-1,2,4,5,6,7,9,10,11
-
-3,8
-
-persistent
-
-increase_damage_
-
-ward 的bug

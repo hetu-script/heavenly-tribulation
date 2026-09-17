@@ -592,20 +592,32 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             'self_gained_energy_positive', energyDetails);
       } else if (effectData['isDebuff'] == true) {
         // 一次获得多层只触发一次；debuffDetails 在双方回调间共享，
-        // 脚本（如清气 energy_positive_ward）可写入 cancelDebuff 取消本次获得
-        final debuffDetails = <String, dynamic>{};
+        // 脚本（如辟邪 buff_ward）可写入 cancelAmount 按层抵消本次获得
+        final debuffDetails = <String, dynamic>{'id': id, 'amount': amount};
         // 触发对方获得负面效果后的效果
         opponent!.handleStatusEffectCallback(
             'opponent_gained_debuff', debuffDetails);
         // 触发自己获得负面效果后的效果
         handleStatusEffectCallback('self_gained_debuff', debuffDetails);
+        // 脚本写入的数值经 hetu 传递可能是 double，统一按 num 解析
+        final cancelAmountRaw = debuffDetails['cancelAmount'];
+        int cancelAmount = cancelAmountRaw is num ? cancelAmountRaw.toInt() : 0;
+        // 兼容旧的全量取消标记
         if (debuffDetails['cancelDebuff'] == true) {
-          removeStatusEffect(id, amount: amount);
-        } else if (data['passives']['gained_debuff_affect_opponent'] != null) {
+          cancelAmount = amount;
+        }
+        cancelAmount = math.min(cancelAmount, amount);
+        final int remaining = amount - cancelAmount;
+        if (cancelAmount > 0) {
+          removeStatusEffect(id, amount: cancelAmount);
+        }
+        if (remaining > 0 &&
+            data['passives']['gained_debuff_affect_opponent'] != null) {
           // 天赋：自己获得负面效果时，对手获得同样的负面效果
-          // （被清气取消的不会传播；handleCallback: false 防止双方都有此天赋时无限循环，
-          // 同时被传播方无法再以清气等方式响应此次获得）
-          opponent!.addStatusEffect(id, amount: amount, handleCallback: false);
+          // （被抵消的部分不会传播；handleCallback: false 防止双方都有此天赋时无限循环，
+          // 同时被传播方无法再以辟邪等方式响应此次获得）
+          opponent!
+              .addStatusEffect(id, amount: remaining, handleCallback: false);
         }
       }
     }
@@ -834,6 +846,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         opponent!.cardFlags['damage']['percentageChange3'] ?? 0.0;
     damageDetails['penetration'] +=
         opponent!.cardFlags['damage']['penetration'] ?? 0;
+
+    // 护甲穿透属性（战斗开始由属性转换为永久状态，图标即真值）：每层 1%
+    damageDetails['penetration'] += opponent!.hasStatusEffect('penetration') * 0.01;
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
     // 否则的话意味着是某些状态效果或者额外词条造成的伤害

@@ -242,7 +242,7 @@ function _updateAffixValue(card, affix) {
     let values = []
     for (final valueData in affix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
-      final value = valueData.base + valueData.increment * valueLevel
+      final value = calcAffixValue(valueData, level: valueLevel, rank: affix.rank)
       values.add(value.floor())
     }
     // if (affix.requirement && affix.requirement.isNotEmpty) {
@@ -266,7 +266,7 @@ function _randomizeAffixLevel(card, affix) {
     let values = []
     for (final valueData in affix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
-      let value = valueData.base + valueData.increment * valueLevel
+      let value = calcAffixValue(valueData, level: valueLevel, rank: affix.rank)
       values.add(value.floor())
     }
     affix.value = values

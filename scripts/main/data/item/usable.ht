@@ -173,15 +173,15 @@ struct Potion {
       assert(passiveRawData != null, 'could not find passive for potion kind `${this.mainAffixId}`')
       mainAffix = Object.create(passiveRawData)
     }
-    if (mainAffix.increment != null) {
-      if (mainAffix.increment < 1) {
+    if (mainAffix.increment != null || mainAffix.rankIncrement != null) {
+      if (mainAffix.increment != null && mainAffix.increment < 1) {
         final minAffixLevel = (1 / mainAffix.increment).ceil()
         if (this.level < minAffixLevel) {
           this.level = minAffixLevel
         }
       }
       mainAffix.level = this.level
-      mainAffix.value = (mainAffix.increment * this.level).floor()
+      mainAffix.value = calcAffixValue(mainAffix, level: this.level, rank: this.rank).floor()
     }
     this.affixes.add(mainAffix)
 
@@ -208,15 +208,17 @@ struct Potion {
         }
         
         final affix = Object.create(random.nextIterable(supportAffixes))
-        if (affix.increment != null) {
+        if (affix.increment != null || affix.rankIncrement != null) {
           let minAffixLevel = 1
-          if (affix.increment > 0 && affix.increment < 1) {
-            minAffixLevel = (1 / affix.increment).ceil()
-          } else if (affix.increment < 0 && affix.increment > -1) {
-            minAffixLevel = (1 / -affix.increment).ceil()
+          if (affix.increment != null) {
+            if (affix.increment > 0 && affix.increment < 1) {
+              minAffixLevel = (1 / affix.increment).ceil()
+            } else if (affix.increment < 0 && affix.increment > -1) {
+              minAffixLevel = (1 / -affix.increment).ceil()
+            }
           }
           affix.level = getRandomLevel(minAffixLevel, this.level)
-          affix.value = (affix.increment * affix.level).floor()
+          affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).floor()
         }
         this.affixes.add(affix)
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)

@@ -53,7 +53,7 @@
 | `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                                                                                                           |
 | `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                                                                                                   |
 | `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                        |
-| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelDebuff）                                                                                                                     |
+| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                     |
 | `self/opponent_gained_injury`                              | 获得伤势后                                                                                                                                                                        |
 | `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（`turn_end_resource_settlement`），该派发保留但为空转 |
 | `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                                   |
@@ -76,7 +76,7 @@
 | `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75） |
 | `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）              |
 | `percentageChange3`                | 出   | 乘区 3：预留                                              |
-| `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5）           |
+| `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
 | `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                              |
 | `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                             |
 | `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                           |
@@ -99,12 +99,14 @@
 
 ## debuffDetails 键（获得负面效果事件）
 
-| 键             | 方向 | 含义                                                   |
-| -------------- | ---- | ------------------------------------------------------ |
-| `cancelDebuff` | 出   | 写 true 取消本次获得的负面效果（清气），触发消耗见脚本 |
+| 键             | 方向 | 含义                                                                       |
+| -------------- | ---- | -------------------------------------------------------------------------- |
+| `id`           | 入   | 本次获得的负面效果 id                                                      |
+| `amount`       | 入   | 本次获得的层数                                                             |
+| `cancelAmount` | 出   | 抵消的层数（辟邪按层抵消，消耗等量辟邪）；旧键 `cancelDebuff` 弃用但仍兼容 |
 
-若持有者拥有天赋 `gained_debuff_affect_opponent`，未被取消的负面效果会传播给对手
-（对手获得同样的 id 与层数）；被取消的不会传播。传播不再触发任何回调（防止双方互传死循环）。
+若持有者拥有天赋 `gained_debuff_affect_opponent`，未被抵消的层数会传播给对手
+（对手获得同样的 id 与剩余层数）；被抵消的部分不会传播。传播不再触发任何回调（防止双方互传死循环）。
 
 ## cardFlags 字段（出牌期间，`角色.cardFlags`）
 

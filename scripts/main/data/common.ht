@@ -133,6 +133,17 @@ function getRandomLevel(min, max) {
   return  min + random.nextInt(max - min + 1)
 }
 
+/// 计算词条数值：value = base + increment × level + rankIncrement × rank
+/// increment 按等级缩放；rankIncrement 按境界缩放（化神 rank 5 时为 5 倍），
+/// 用于按等级只能写出极小数值的强力词条（见 DESIGN_NOTE.md，
+/// 天赋树节点不应使用 rankIncrement 词条）
+function calcAffixValue(affix, {level = 1, rank = 0}) {
+  final base = affix.base ?? 0
+  final increment = affix.increment ?? 0
+  final rankIncrement = affix.rankIncrement ?? 0
+  return base + increment * level + rankIncrement * rank
+}
+
 function getCultivationRankName(character) {
   return engine.locale('cultivationRank_${character.rank}')
 }

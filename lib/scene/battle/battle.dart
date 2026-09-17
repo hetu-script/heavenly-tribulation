@@ -55,6 +55,10 @@ const kStatsToPermanentEffects = {
   'poisonResist': ('resistant_poison', 'weakness_poison'),
 };
 
+/// 无反面效果的纯增益属性 → 同名永久状态（在 _prepareBattleStart 中单独处理，
+/// 各流派伤害增加 increase_damage_* 以状态数据为准动态匹配，不在此列出）
+const _kPositiveOnlyStatsToPermanentEffects = ['persistent', 'penetration'];
+
 const kStatusOnCircumstance = {
   'defense',
   'weaken_unarmed',
@@ -65,7 +69,6 @@ const kStatusOnCircumstance = {
   'weakness_ice',
   'weakness_lightning',
   'weakness_poison',
-  'penetration',
   'vulnerable',
   'speed_quick',
   'dodge_nimble',
@@ -204,6 +207,25 @@ class BattleScene extends Scene {
       } else if (value1 < 0 && negativeEffectId.isNotEmpty) {
         character.addStatusEffect(negativeEffectId,
             amount: -value1, handleCallback: false);
+      }
+    }
+
+    // 无反面效果的纯增益属性（护甲保持/护甲穿透/各流派伤害增加）：
+    // 不放入 kStatsToPermanentEffects，单独转换为同名永久状态图标（图标即真值）
+    for (final statName in _kPositiveOnlyStatsToPermanentEffects) {
+      final value = character.data['stats'][statName];
+      if (value is num && value > 0) {
+        character.addStatusEffect(statName,
+            amount: value.toInt(), handleCallback: false);
+      }
+    }
+    // 各流派伤害增加：以状态数据为准（increase_damage_ 前缀），stats 中的同名属性转换为永久图标
+    for (final statusId in GameData.statusEffects.keys) {
+      if (!statusId.startsWith('increase_damage_')) continue;
+      final value = character.data['stats'][statusId];
+      if (value is num && value > 0) {
+        character.addStatusEffect(statusId,
+            amount: value.toInt(), handleCallback: false);
       }
     }
 
@@ -1215,10 +1237,6 @@ class BattleScene extends Scene {
           selectedCard.isFlipped = true;
           discardZone.tryAddCard(selectedCard);
           await discardZone.sortCards();
-
-          if (currentCharacter.turnFlags['extraTurn'] == true) {
-            extraTurn = true;
-          }
         }
         // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
         refreshHandCardDescriptions();
@@ -1227,6 +1245,12 @@ class BattleScene extends Scene {
       if (_isRestarting) return;
 
       await currentCharacter.onEndTurn();
+
+      // 速度达到阈值时 speed_quick 脚本在 onEndTurn 中写入 extraTurn 标记，
+      // 在此读取并重复整个回合体（onStartTurn 会清空 turnFlags，标记不会泄漏）
+      if (currentCharacter.turnFlags['extraTurn'] == true) {
+        extraTurn = true;
+      }
 
       // final opponentEndStatus =
       //     _prepareStatus(currentCharacter, StatusCircumstances.end_turn);

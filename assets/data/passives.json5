@@ -442,17 +442,17 @@
     rankIncrement: -1,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
-    keywords: ["status_buff_crit"],
+    keywords: ["status_speed_quick"],
     rank: 1,
   },
   slowThreshold: {
     id: "slowThreshold",
-    description: "passive_quick_threshold_description",
+    description: "passive_slow_threshold_description",
     priority: 4557,
     rankIncrement: 1,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
-    keywords: ["status_buff_crit"],
+    keywords: ["status_speed_slow"],
     rank: 1,
   },
   nimbleThreshold: {
@@ -462,7 +462,7 @@
     rankIncrement: -1,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
-    keywords: ["status_buff_crit"],
+    keywords: ["status_dodge_nimble"],
     rank: 1,
   },
   clumsyThreshold: {
@@ -472,7 +472,7 @@
     rankIncrement: 1,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
-    keywords: ["status_buff_crit"],
+    keywords: ["status_dodge_clumsy"],
     rank: 1,
   },
 
@@ -530,7 +530,6 @@
     keywords: ["status_element_dot"],
     rank: 3,
   },
-
   // 元素异常伤害：放大施加的元素持续伤害
   ailmentMultiplier: {
     id: "ailmentMultiplier",

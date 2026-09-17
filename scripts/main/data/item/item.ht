@@ -134,15 +134,17 @@ function createItemById(id, {amount, rank, level}) {
       final affixRawData = game.passives[id]
       assert(affixRawData != null)
       final affix = Object.create(affixRawData)
-      if (affix.increment != null) {
+      if (affix.increment != null || affix.rankIncrement != null) {
         let minAffixLevel = 1
-        if (affix.increment > 0 && affix.increment < 1) {
-          minAffixLevel = (1 / affix.increment).ceil()
-        } else if (affix.increment < 0 && affix.increment > -1) {
-          minAffixLevel = (1 / -affix.increment).ceil()
+        if (affix.increment != null) {
+          if (affix.increment > 0 && affix.increment < 1) {
+            minAffixLevel = (1 / affix.increment).ceil()
+          } else if (affix.increment < 0 && affix.increment > -1) {
+            minAffixLevel = (1 / -affix.increment).ceil()
+          }
         }
         affix.level = getRandomLevel(minAffixLevel, item.level)
-        affix.value = (affix.increment * affix.level).floor()
+        affix.value = calcAffixValue(affix, level: affix.level, rank: item.rank).floor()
       }
       item.affixes.add(affix)
     }

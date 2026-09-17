@@ -126,6 +126,8 @@
     description: "status_increase_damage_sword_description",
     icon: "icon/status/permanent/increase_damage_sword.png",
     kind: "sword",
+    // 剑法伤害增加同时覆盖剑法和御剑术（脚本优先匹配 kinds 列表）
+    kinds: ["sword", "flying_sword"],
     script: "increase_damage",
     isPermanent: true,
     callbacks: ["self_doing_damage"],
@@ -203,7 +205,7 @@
   increase_damage_waterbend: {
     id: "increase_damage_waterbend",
     title: "status_increase_damage_waterbend",
-    description: "status_increase_damage_earthbend_description",
+    description: "status_increase_damage_waterbend_description",
     icon: "icon/status/permanent/increase_damage_waterbend.png",
     kind: "waterbend",
     script: "increase_damage",
@@ -320,25 +322,23 @@
     isPermanent: true,
   },
 
-  // // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
-  // penetration: {
-  //   id: "penetration",
-  //   title: "status_penetration",
-  //   description: "status_penetration_description",
-  //   icon: "icon/status/permanent/penetration_weapon.png",
-  //   script: "penetration",
-  //   isPermanent: true,
-  //   callbacks: ["self_doing_damage"],
-  // },
+  // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
+  penetration: {
+    id: "penetration",
+    title: "status_penetration",
+    description: "status_penetration_description",
+    icon: "icon/status/permanent/penetration_weapon.png",
+    isPermanent: true,
+  },
 
-  // // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
-  // persistent: {
-  //   id: "persistent",
-  //   title: "status_persistent",
-  //   description: "status_persistent_description",
-  //   icon: "icon/status/permanent/persistent.png",
-  //   isPermanent: true,
-  // },
+  // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
+  persistent: {
+    id: "persistent",
+    title: "status_persistent",
+    description: "status_persistent_description",
+    icon: "icon/status/permanent/persistent.png",
+    isPermanent: true,
+  },
 
   // 速度
   speed_quick: {

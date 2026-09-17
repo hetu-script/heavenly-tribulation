@@ -10,6 +10,7 @@ struct PassiveData {
     level,
     value,
     increment,
+    rankIncrement,
     description,
   }) {
     assert(id != null && description != null)
@@ -18,6 +19,7 @@ struct PassiveData {
     this.level = level ?? 0
     this.value = value
     this.increment = increment
+    this.rankIncrement = rankIncrement
     this.description = description
   }
 }

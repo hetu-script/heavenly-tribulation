@@ -20,9 +20,6 @@
   "status_weaken_curse": "咒术攻击削弱",
   "status_weaken_curse_description": "每层使你的咒术攻击伤害减少 1%。最多减少75%。同类型的攻击增强和削弱会抵消。",
 
-  "status_penetration": "护甲穿透",
-  "status_penetration_description": "每层使你的物理和真气伤害的 1% 无视护甲。",
-
   "status_increase_damage_punch": "拳法伤害增加",
   "status_increase_damage_punch_description": "每层使你的拳法伤害增加 1%。",
   "status_increase_damage_kick": "腿法伤害增加",
@@ -49,7 +46,6 @@
   "status_increase_damage_earthbend_description": "每层使你的土遁术伤害增加 1%。",
   "status_increase_damage_waterbend": "御水术伤害增加",
   "status_increase_damage_waterbend_description": "每层使你的御水术伤害增加 1%。",
-
   "status_increase_damage_firebend": "御火术伤害增加",
   "status_increase_damage_firebend_description": "每层使你的御火术伤害增加 1%。",
   "status_increase_damage_lightning_control": "雷法伤害增加",
@@ -58,6 +54,12 @@
   "status_increase_damage_sigil_description": "每层使你的印法伤害增加 1%。",
   "status_increase_damage_power_word": "真言术伤害增加",
   "status_increase_damage_power_word_description": "每层使真言术伤害增加 1%。",
+
+  "status_penetration": "护甲穿透",
+  "status_penetration_description": "每层使你的物理和真气伤害增加 1% 护甲穿透（真气自带50%护甲穿透）。",
+  "status_persistent": "护甲保持",
+  "status_persistent_description": "每层使你回合开始时额外保留 1% 护甲",
+
   "status_resist": "抗性",
   "status_resist_description": "每层使你受到的该类型伤害减少 1%。最多减少75%。同类型的抗性和弱点会抵消。",
   "status_resist_fire": "火焰抗性",
@@ -80,8 +82,6 @@
   "status_weakness_lightning_description": "每层使你受到的雷电伤害增加 1%。同类型的抗性和弱点会抵消。",
   "status_weakness_poison": "毒素弱点",
   "status_weakness_poison_description": "每层使你受到的毒素伤害增加 1%。同类型的抗性和弱点会抵消。",
-  "status_persistent": "护甲保持",
-  "status_persistent_description": "每层使你回合开始时额外保留 5% 护甲",
   "status_speed_quick": "速度",
   "status_speed_quick_description": "回合结束时拥有 10 点速度会获得一个额外回合并消耗这些速度。速度和缓慢会抵消。",
   "status_speed_slow": "缓慢",
