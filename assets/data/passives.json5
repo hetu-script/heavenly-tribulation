@@ -400,8 +400,10 @@
     description: "passive_persistent_description",
     priority: 4550,
     increment: 0.5,
+    isEquipmentMain: true,
     isEquipmentExtraAffix: true,
     isEphemeral: true,
+    isPotionMain: true,
     ephemeralType: "defense",
     keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
@@ -480,6 +482,7 @@
     description: "passive_crit_threshold_description",
     priority: 4548,
     rankIncrement: -1,
+    isEquipmentExtraAffix: true,
     kinds: [
       "sword",
       "sabre",

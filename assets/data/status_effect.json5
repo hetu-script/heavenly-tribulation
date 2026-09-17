@@ -180,22 +180,42 @@
     isPermanent: true,
     callbacks: ["self_doing_damage"],
   },
-  increase_damage_firebend: {
-    id: "increase_damage_firebend",
-    title: "status_increase_damage_firebend",
-    description: "status_increase_damage_firebend_description",
-    icon: "icon/status/permanent/increase_damage_firebend.png",
-    kind: "firebend",
-    script: "increase_damage",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
   increase_damage_airbend: {
     id: "increase_damage_airbend",
     title: "status_increase_damage_airbend",
     description: "status_increase_damage_airbend_description",
     icon: "icon/status/permanent/increase_damage_airbend.png",
     kind: "airbend",
+    script: "increase_damage",
+    isPermanent: true,
+    callbacks: ["self_doing_damage"],
+  },
+  increase_damage_earthbend: {
+    id: "increase_damage_earthbend",
+    title: "status_increase_damage_earthbend",
+    description: "status_increase_damage_earthbend_description",
+    icon: "icon/status/permanent/increase_damage_earthbend.png",
+    kind: "earthbend",
+    script: "increase_damage",
+    isPermanent: true,
+    callbacks: ["self_doing_damage"],
+  },
+  increase_damage_waterbend: {
+    id: "increase_damage_waterbend",
+    title: "status_increase_damage_waterbend",
+    description: "status_increase_damage_earthbend_description",
+    icon: "icon/status/permanent/increase_damage_waterbend.png",
+    kind: "waterbend",
+    script: "increase_damage",
+    isPermanent: true,
+    callbacks: ["self_doing_damage"],
+  },
+  increase_damage_firebend: {
+    id: "increase_damage_firebend",
+    title: "status_increase_damage_firebend",
+    description: "status_increase_damage_firebend_description",
+    icon: "icon/status/permanent/increase_damage_firebend.png",
+    kind: "firebend",
     script: "increase_damage",
     isPermanent: true,
     callbacks: ["self_doing_damage"],
@@ -300,25 +320,25 @@
     isPermanent: true,
   },
 
-  // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
-  penetration: {
-    id: "penetration",
-    title: "status_penetration",
-    description: "status_penetration_description",
-    icon: "icon/status/permanent/penetration_weapon.png",
-    script: "penetration",
-    isPermanent: true,
-    callbacks: ["self_doing_damage"],
-  },
+  // // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
+  // penetration: {
+  //   id: "penetration",
+  //   title: "status_penetration",
+  //   description: "status_penetration_description",
+  //   icon: "icon/status/permanent/penetration_weapon.png",
+  //   script: "penetration",
+  //   isPermanent: true,
+  //   callbacks: ["self_doing_damage"],
+  // },
 
-  // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
-  persistent: {
-    id: "persistent",
-    title: "status_persistent",
-    description: "status_persistent_description",
-    icon: "icon/status/permanent/persistent.png",
-    isPermanent: true,
-  },
+  // // 护甲保持：回合开始时按比例保留护甲（作为标记状态存在，无脚本）
+  // persistent: {
+  //   id: "persistent",
+  //   title: "status_persistent",
+  //   description: "status_persistent_description",
+  //   icon: "icon/status/permanent/persistent.png",
+  //   isPermanent: true,
+  // },
 
   // 速度
   speed_quick: {
