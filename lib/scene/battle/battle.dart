@@ -30,7 +30,7 @@ import '../../state/states.dart';
 import 'equipments_bar.dart';
 import '../../widgets/character/profile.dart';
 
-const kBattleRoundLimit = 16;
+const kBattleRoundLimit = 8;
 
 /// 手牌置灰用的灰度 ColorFilter（可打出高亮，见计划 §6.2）
 const ColorFilter kCardGrayscaleFilter = ColorFilter.matrix([
@@ -1117,10 +1117,9 @@ class BattleScene extends Scene {
     final energyDisplay =
         currentCharacter.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
 
-    // 软狂暴（§4.8）：每 16 回合叠劫气（tribulation），劫气非资源、不对冲、不影响费用
-    if (roundCount > 0 && roundCount % kBattleRoundLimit == 0) {
-      currentCharacter.addStatusEffect('tribulation',
-          amount: roundCount ~/ kBattleRoundLimit);
+    // 软狂暴：从第 8 回合叠劫气（debuff_tribulation）
+    if (roundCount > 0 && roundCount > kBattleRoundLimit) {
+      currentCharacter.addStatusEffect('debuff_tribulation', amount: 1);
     }
 
     assert(deckZone.cards.isNotEmpty || discardZone.cards.isNotEmpty);
