@@ -1,4 +1,55 @@
 
+/// 计算单条有色费用的实际数值：条目可以是固定数值，
+/// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
+/// 例如 {base: 0.5, rankIncrement: 0.5} → rank1-2 费用 1，rank3-4 费用 2，rank5 费用 3
+function _calcQiCostAmount(valueData, rank) {
+  if (valueData is num) return valueData.floor()
+  return calcAffixValue(valueData, level: 0, rank: rank).floor()
+}
+
+/// 计算/重算卡牌费用：总费用 = rank + 1 = 无色 cost + ΣqiCost
+/// 显式 qiCost 优先（条目可为固定数值或公式）；缺省推导：无流派卡全无色，
+/// 有流派卡有色 = ⌈(rank+1)/2⌉（颜色由流派决定，多色对半拆，余数给列表首位）
+/// 与 Dart 侧 GameData.deriveBattleCardCost 保持一致
+function _updateCardCost(card) {
+  const mainAffix = card.affixes.first
+  const explicitCostColored = mainAffix.qiCost
+  final totalCost = card.rank + 1
+  card.qiCost = {}
+  if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
+    let coloredSum = 0
+    for (final color in explicitCostColored.keys) {
+      final amount = _calcQiCostAmount(explicitCostColored[color], card.rank)
+      if (amount > 0) {
+        card.qiCost[color] = amount
+        coloredSum += amount
+      }
+    }
+    // 有色超出总费用时无色 clamp 为 0（Dart 侧数据校验会对此报警）
+    card.cost = Math.max(0, totalCost - coloredSum)
+  } else {
+    // rank 0（总费用 1）一律全无色：唯一一 pip 若有色，无产气手段的角色等于死卡
+    if (card.rank == 0) {
+      card.cost = totalCost
+    } else {
+      final colors = Constants.genreCostColors[card.genre]
+      final coloredTotal = colors != null ? ((totalCost + 1) / 2).ceil() : 0
+      if (coloredTotal > 0) {
+        // 多色对半拆，余数给列表首位（法身奇数时多出的一点给 unarmed）
+        final half = (coloredTotal / colors.length).floor()
+        final remainder = coloredTotal % colors.length
+        for (var i = 0; i < colors.length; ++i) {
+          final amount = half + (i < remainder ? 1 : 0)
+          if (amount > 0) {
+            card.qiCost[colors[i]] = amount
+          }
+        }
+      }
+      card.cost = totalCost - coloredTotal
+    }
+  }
+}
+
 function getCardRankUpProbability(rank) {
   if (rank == 0) return 1.0;
   if (rank >= kCultivationRankMax) return 0.0;
@@ -135,40 +186,7 @@ struct BattleCard {
 
     // 费用：总费用 = rank + 1 = 无色 cost + ΣqiCost
     // 显式 qiCost 优先；缺省推导规则与 Dart 侧 GameData.deriveBattleCardCost 保持一致
-    const explicitCostColored = mainAffix.qiCost
-    final totalCost = this.rank + 1
-    this.qiCost = {}
-    if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
-      let coloredSum = 0
-      for (final color in explicitCostColored.keys) {
-        final amount = explicitCostColored[color]
-        if (amount > 0) {
-          this.qiCost[color] = amount
-          coloredSum += amount
-        }
-      }
-      this.cost = totalCost - coloredSum
-    } else {
-      // rank 0（总费用 1）一律全无色：唯一一 pip 若有色，无产气手段的角色等于死卡
-      if (this.rank == 0) {
-        this.cost = totalCost
-      } else {
-        final colors = Constants.genreCostColors[this.genre]
-        final coloredTotal = colors != null ? ((totalCost + 1) / 2).ceil() : 0
-        if (coloredTotal > 0) {
-          // 多色对半拆，余数给列表首位（法身奇数时多出的一点给 unarmed）
-          final half = (coloredTotal / colors.length).floor()
-          final remainder = coloredTotal % colors.length
-          for (var i = 0; i < colors.length; ++i) {
-            final amount = half + (i < remainder ? 1 : 0)
-            if (amount > 0) {
-              this.qiCost[colors[i]] = amount
-            }
-          }
-        }
-        this.cost = totalCost - coloredTotal
-      }
-    }
+    _updateCardCost(this)
 
     final minLevel = minLevelForRank(this.rank)
     final maxLevel = maxLevelForRank(this.rank)
@@ -537,6 +555,9 @@ function upgradeRank(card, materialRank) {
 
   card.rank += 1
   card.affixes.first.rank = card.rank
+
+  // 破境后重算费用：有色费用公式随新境界折算，无色费用相应增减
+  _updateCardCost(card)
 
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)
