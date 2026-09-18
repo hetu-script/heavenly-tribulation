@@ -9,6 +9,7 @@ import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/utils/math.dart' as math;
+import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';
 
@@ -572,7 +573,12 @@ class CardLibraryScene extends Scene {
     final kind = craftmeterialData['kind'] as String;
 
     if (kind == 'scroll_paper') {
-      craftScroll(craftmeterialData);
+      // 符纸用在符箓上=补充使用次数；用在普通卡上=转化为符箓
+      if (craftingCard!.data['genre'] == 'scroll') {
+        rechargeScroll(craftmeterialData);
+      } else {
+        craftScroll(craftmeterialData);
+      }
       return;
     }
 
@@ -636,11 +642,11 @@ class CardLibraryScene extends Scene {
   }
 
   /// 根据卡牌状态决定打造界面的道具过滤模式：
-  /// 未鉴定只显示鉴定卷轴；符箓不显示打造道具（返回 null）；
+  /// 未鉴定只显示鉴定卷轴；符箓只显示空白符纸（用于补充使用次数）；
   /// 其余按场景开启的打造功能过滤
   CraftMode? _craftModeForCard(dynamic cardData) {
     if (cardData['isIdentified'] != true) return CraftMode.identify;
-    if (cardData['genre'] == 'scroll') return null;
+    if (cardData['genre'] == 'scroll') return CraftMode.scroll;
     if (enableCardCraft && enableScrollCraft) return CraftMode.all;
     if (enableCardCraft) return CraftMode.affix;
     if (enableScrollCraft) return CraftMode.scroll;
@@ -705,34 +711,80 @@ class CardLibraryScene extends Scene {
 
   void craftScroll(dynamic paper) {
     assert(craftingCard != null);
-    final scrollCard = craftingCard!;
+    final originCard = craftingCard!;
 
+    // 符箓是原卡的独立副本（原卡保留），由脚本侧改写字段并入库、消耗符纸
+    final newCardData = utils.deepCopy(originCard.data);
     engine.hetu.invoke('craftScroll',
-        namespace: 'Player', positionalArgs: [scrollCard.data]);
+        namespace: 'Player', positionalArgs: [newCardData, paper]);
 
-    libraryZone.removeCardById(scrollCard.id);
-    for (final pile in deckPiles) {
-      pile.removeCardByUniqueId(scrollCard.id);
-    }
+    libraryZone.addCardByData(newCardData);
+    libraryZone.sortCards();
 
-    scrollCard.id = scrollCard.data['id'];
-    scrollCard.title = scrollCard.data['name'];
-    final (description, _) = GameData.getBattleCardDescription(scrollCard.data);
-    scrollCard.description = description;
-    scrollCard.tryLoadSprite(
-        illustrationSpriteId: 'battlecard/illustration/scroll.png');
-
+    // 打造界面改显示新获得的符箓（替换原卡的展示位）
+    Hovertip.hide(originCard);
+    originCard.removeFromParent();
+    final scrollCard = GameData.createBattleCard(newCardData);
+    scrollCard.size = GameUI.craftCardSize;
+    scrollCard.position = GameUI.craftCardPosition;
+    scrollCard.priority = kBarrierUIPriority;
+    scrollCard.enableGesture = false;
+    camera.viewport.add(scrollCard);
+    craftingCard = scrollCard;
+    // 符箓不可分解
+    dismantleButton.isEnabled = false;
     showCraftingCardInfo();
 
-    engine.context.read<CraftState>().setCrafting(false);
-    engine.context.read<HoverContentState>().hide();
-
-    libraryZone.addCardByData(craftingCard!.data);
-    libraryZone.sortCards();
+    // 符箓只显示符纸（用于补充次数），刷新打造道具过滤
+    final craftMode = _craftModeForCard(newCardData);
+    if (craftMode != null) {
+      engine.context.read<CraftState>().setCrafting(true,
+          rank: craftMode == CraftMode.identify ? null : newCardData['rank'],
+          craftMode: craftMode);
+    }
 
     addHintText(
       engine.locale('craft_scroll_hint'),
       position: craftingCard!.center,
+      offsetY: 30.0,
+      textStyle: TextStyle(
+        fontFamily: GameUI.fontFamilyKaiti,
+      ),
+      horizontalVariation: 0.0,
+      verticalVariation: 0.0,
+    );
+
+    engine.play(GameSound.writing);
+  }
+
+  /// 用空白符纸为符箓补充 1 次使用次数
+  void rechargeScroll(dynamic paper) {
+    assert(craftingCard != null);
+    final scrollCard = craftingCard!;
+
+    final result = engine.hetu.invoke('rechargeScroll',
+        namespace: 'Player',
+        positionalArgs: [scrollCard.data['id'], paper]);
+
+    if (result != null) {
+      // 返回的是提示文本的 locale 键
+      dialog.pushDialog(result);
+      dialog.execute();
+      return;
+    }
+
+    // 更新卡面标题上的使用次数 (current/max)
+    final data = scrollCard.data;
+    scrollCard.title = GameData.getBattleCardTitle(data);
+    final libraryCard = libraryZone.library[data['id']];
+    if (libraryCard != null) {
+      libraryCard.title = scrollCard.title;
+    }
+    showCraftingCardInfo();
+
+    addHintText(
+      engine.locale('craft_rechargeScroll_hint'),
+      position: scrollCard.center,
       offsetY: 30.0,
       textStyle: TextStyle(
         fontFamily: GameUI.fontFamilyKaiti,

@@ -51,6 +51,18 @@ namespace CardScript {
     opponent.addStatusEffect(affix.buffId, amount: affix.value[1])
   }
 
+  /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
+  /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
+  function attack_rank_scaled(self, opponent, affix, mainAffix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: self.data.rank * 5,
+    })
+  }
+
   /// 获得速度和防御
   async function speed_quick_defend(self, opponent, affix, mainAffix) {
     self.addStatusEffect('speed_quick', amount: affix.value[0])

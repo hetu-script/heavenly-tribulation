@@ -718,7 +718,7 @@ Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
         enemy
       ], namedArgs: {
         'cardInfoList':
-            List.generate(kBattleDeckSize, (_) => {'affixId': 'blank_default'}),
+            List.generate(kBattleDeckSize, (_) => {'affixId': 'placeholder'}),
       });
       engine.context.read<EnemyState>().show(
         enemy,

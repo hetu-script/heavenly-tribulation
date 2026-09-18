@@ -1508,6 +1508,16 @@ final class GameData with ChangeNotifier {
     return (totalCost - coloredTotal, colored);
   }
 
+  /// 卡牌标题：符箓等带使用次数（chargeData）的卡牌追加 (current/max)
+  static String getBattleCardTitle(dynamic cardData) {
+    String title = cardData['name'];
+    final chargeData = cardData['chargeData'];
+    if (chargeData != null) {
+      title = '$title(${chargeData['current']}/${chargeData['max']})';
+    }
+    return title;
+  }
+
   static CustomGameCard createBattleCard(dynamic data,
       {bool deepCopyData = false}) {
     assert(data != null && data['id'] != null, 'Invalid battle card data!');
@@ -1518,7 +1528,7 @@ final class GameData with ChangeNotifier {
 
     final String id = cardData['id'];
     final String image = cardData['image'];
-    final String title = cardData['name'];
+    final String title = getBattleCardTitle(cardData);
     final int rank = cardData['rank'];
     final String? genre = cardData['genre'];
     final rarity = kRankToRarity[rank] ?? 'common';

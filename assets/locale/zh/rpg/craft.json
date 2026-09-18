@@ -41,6 +41,8 @@
   "craft_scroll_cannotCraft": "符箓无法进行打造！",
   "craft_scroll_cannotMakeScroll": "符箓无法再次制作为符箓！",
   "craft_scroll_cannotMakeScroll2": "只有凝气境或以上的功法才可以制作符箓！",
+  "craft_rechargeScroll_hint": "符箓充能成功！",
+  "craft_rechargeScroll_warning_full": "符箓的使用次数已满！",
 
   "potion_overheal": "治疗",
   "potion_tribulationCountReduce": "恢复劫难次数",

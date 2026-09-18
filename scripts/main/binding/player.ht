@@ -152,24 +152,37 @@ namespace Player {
     characterAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
 
-  function craftScroll(card, { incurIncident = true }) {
-    hero.cardLibrary.remove(card.id)
-    for (final deck in hero.battleDecks) {
-      deck.cards.remove(card.id)
-    }
+  /// 将卡牌复制转化为符箓：原卡保留，副本（由 Dart 侧深拷贝后传入）加入卡库，
+  /// 并消耗 1 张空白符纸。符箓是易逝卡牌：战斗中打出后即碎裂消失，
+  /// 战斗结束时实际打出过的符箓使用次数 -1
+  function craftScroll(newCardData, paper, { incurIncident = true }) {
+    assert(hero != null)
+    assert(newCardData != null)
 
-    card.id = crypto.randomUID(withTime: true)
-    card.name = '${card.name}(${engine.locale('scroll2')})';
-    card.image = 'battlecard/illustration/scroll.png';
-    card.genre = 'scroll';
-    card.rank = 0;
-    card.equipment = null;
-    card.isEphemeral = true;
+    // 消耗空白符纸
+    lose(paper)
+
+    newCardData.id = crypto.randomUID(withTime: true)
+    newCardData.name = '${newCardData.name}(${engine.locale('scroll2')})'
+    newCardData.image = 'battlecard/illustration/scroll.png'
+    newCardData.genre = 'scroll'
+    newCardData.rank = 0
+    newCardData.equipment = null
+    newCardData.isEphemeral = true
+    newCardData.chargeData = {
+      current: Constants.scrollMaxCharges,
+      max: Constants.scrollMaxCharges,
+    }
+    // rank 0：总费用 1，全无色
+    newCardData.cost = 1
+    newCardData.qiCost = {}
+
+    hero.cardLibrary[newCardData.id] = newCardData
 
     let incidentContent
     incidentContent = engine.locale('entityAcquire', interpolations: [
       hero.name,
-      card.name,
+      newCardData.name,
     ])
     if (incurIncident) {
       Incident(
@@ -178,6 +191,39 @@ namespace Player {
       )
     } else {
       engine.info(incidentContent)
+    }
+  }
+
+  /// 用 1 张空白符纸为符箓补充 1 次使用次数
+  /// 返回值参照打造函数的约定：null 表示成功，否则为提示文本的 locale 键
+  function rechargeScroll(cardId, paper) {
+    assert(hero != null)
+    final card = hero.cardLibrary[cardId]
+    assert(card != null && card.chargeData != null, 'rechargeScroll: not a scroll card: ${cardId}')
+
+    if (card.chargeData.current >= card.chargeData.max) {
+      return 'craft_rechargeScroll_warning_full'
+    }
+
+    // 消耗空白符纸
+    lose(paper)
+
+    card.chargeData.current += 1
+
+    // 这里显式返回空值表明成功执行
+    return null
+  }
+
+  /// 战斗结束结算：战斗中实际打出过的符箓使用次数 -1（未打出的不扣）
+  function settleScrollCharges(usedCardIds) {
+    assert(hero != null)
+    for (final cardId in usedCardIds) {
+      final card = hero.cardLibrary[cardId]
+      if (card == null || card.chargeData == null) continue
+      card.chargeData.current -= 1
+      if (card.chargeData.current < 0) {
+        card.chargeData.current = 0
+      }
     }
   }
     

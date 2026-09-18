@@ -950,6 +950,13 @@ final class GameLogic {
       }
     }
 
+    // 易逝卡牌（符箓等）数量上限
+    final ephemeralCount =
+        cards.where((card) => card['isEphemeral'] == true).length;
+    if (ephemeralCount > kDeckEphemeralCount) {
+      return 'deckbuilding_ephemeral_card_limit';
+    }
+
     return null;
   }
 

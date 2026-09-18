@@ -402,6 +402,9 @@ const kDebuffs = [
 
 const kDeckEphemeralCount = 3;
 
+/// 符箓的使用次数上限（与 ephemeral 卡组上限数值相同纯属巧合，两者是独立概念）
+const kScrollMaxCharges = 3;
+
 const kCultivationRankMax = 5;
 const kEquipmentMax = 5;
 const kFameRankMax = 5;

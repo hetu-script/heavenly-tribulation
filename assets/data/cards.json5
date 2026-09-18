@@ -46,9 +46,24 @@
   // isUnpackable:
   // 不会出现在卡包中
 
+  // 默认卡：战斗开始后，不满足使用需求的卡牌（含次数耗尽的符箓）会被此牌替代
+  // 效果为基础拳法：固定造成 角色境界 × 5 的伤害（脚本 attack_rank_scaled 读取角色境界）
   blank_default: {
     id: "blank_default",
+    category: "attack",
+    kind: "punch",
+    cardType: "unarmed",
+    damageType: "physical",
     description: "blank_default_description",
+    image: "battlecard/illustration/punch_attack.png",
+    script: "attack_rank_scaled",
+    isUnpackable: true,
+  },
+
+  // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
+  placeholder: {
+    id: "placeholder",
+    description: "placeholder_description",
     image: "battlecard/illustration/blank_default.png",
     isUnpackable: true,
   },

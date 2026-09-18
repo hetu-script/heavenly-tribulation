@@ -360,9 +360,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             cardData['uniqueId'])) {
       return 'deckbuilding_unique_card_exists';
     }
-    if (ephemeralCount >= kDeckEphemeralCount &&
-        cardData['category'] == 'ongoing') {
-      engine.warning('deckbuilding_ongoing_card_limit');
+    // 易逝卡牌（符箓等）数量上限
+    if (cardData['isEphemeral'] == true && ephemeralCount >= kDeckEphemeralCount) {
+      return 'deckbuilding_ephemeral_card_limit';
     }
 
     CustomGameCard card = c;
