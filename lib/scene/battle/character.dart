@@ -1231,12 +1231,48 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     handleStatusEffectCallback('self_used_card');
   }
 
+  /// 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血——
+  /// 转化出的元气层数可赶上同回合回血，见 §4.6/§4.1）：
+  /// ① 灵气按剩余层数触发 overflowed_mana_* 天赋（增益型）：
+  ///   convert_to_vigor → 剩余灵气 1:1 转为元气；
+  ///   deal_random_element_damage → 每层 5 点随机元素伤害（受对方抗性减免）
+  /// ② 元气回血：每剩余 1 层回复 2% 生命上限（每层至少 1 点），不消耗层数
+  void _settleTurnEndResources() {
+    final passives = data['passives'];
+    final manaCount = hasStatusEffect('energy_positive_spell');
+    if (manaCount > 0) {
+      if (passives['overflowed_mana_convert_to_vigor'] != null) {
+        removeStatusEffect('energy_positive_spell', force: true);
+        addStatusEffect('energy_positive_life', amount: manaCount);
+      } else if (passives['overflowed_mana_deal_random_element_damage'] !=
+          null) {
+        // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
+        final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
+        final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
+        final damage = (manaCount * 5 * factor).round();
+        if (damage > 0) {
+          opponent!.changeLife(-damage, damageType: damageType);
+        }
+      }
+    }
+
+    final vigor = hasStatusEffect('energy_positive_life');
+    if (vigor > 0 && life < lifeMax) {
+      int regenPerLayer = (lifeMax / 100 * 2).round();
+      if (regenPerLayer < 1) regenPerLayer = 1;
+      final missing = lifeMax - life;
+      final regen = math.min(regenPerLayer * vigor, missing);
+      if (regen > 0) {
+        changeLife(regen, isHeal: true);
+      }
+    }
+  }
+
   /// 返回值true表示获得一个额外回合
   Future<void> onEndTurn() async {
-    // 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血，见 §4.6/§4.1；
-    // 灵气转化出的元气层数可赶上同回合的元气回血）
-    engine.hetu.invoke('turn_end_resource_settlement',
-        namespace: 'StatusScript', positionalArgs: [this, opponent]);
+    // 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血——
+    // 灵气转化出的元气层数可赶上同回合回血，见 §4.6/§4.1）
+    _settleTurnEndResources();
 
     handleStatusEffectCallback('self_turn_end');
     opponent!.handleStatusEffectCallback('opponent_turn_end');

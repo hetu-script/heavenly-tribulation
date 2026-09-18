@@ -592,7 +592,7 @@
   },
   // 灵气
   // 某些地方简称为 mana
-  // 回合结束按剩余层数触发 overflowed_mana_* 天赋（结算函数 turn_end_resource_settlement）；
+  // 回合结束按剩余层数触发 overflowed_mana_* 天赋（Dart 侧回合结束资源结算）；
   // 下个回合开始时清空（统一生命周期）
   energy_positive_spell: {
     id: "energy_positive_spell",

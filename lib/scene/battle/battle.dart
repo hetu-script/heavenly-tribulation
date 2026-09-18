@@ -32,14 +32,6 @@ import '../../widgets/character/profile.dart';
 
 const kBattleRoundLimit = 8;
 
-/// 手牌置灰用的灰度 ColorFilter（可打出高亮，见计划 §6.2）
-const ColorFilter kCardGrayscaleFilter = ColorFilter.matrix([
-  0.2126, 0.7152, 0.0722, 0, 0, //
-  0.2126, 0.7152, 0.0722, 0, 0,
-  0.2126, 0.7152, 0.0722, 0, 0,
-  0, 0, 0, 1, 0,
-]);
-
 /// 后手方恢复 20% 战斗生命上限
 const double kSecondHandHealRate = 0.2;
 
@@ -929,14 +921,15 @@ class BattleScene extends Scene {
   }
 
   /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰（§6.2 可打出高亮）。
-  /// 非己方回合全部置灰。置灰只影响卡面图像渲染，悬浮提示仍可用。
+  /// 非己方回合全部置灰。置灰通过 isEnabled 切换 invalid paint（卡面灰度、文字半透明），
+  /// 只影响绘图不影响交互：悬浮提示仍可用，打出由 _enqueueCard 的费用硬检查拦截。
   void refreshHandAffordability() {
     for (final c in heroHandZone.cards) {
       final card = c as CustomGameCard;
       final grayed = !heroTurn ||
           (!_cardQueue.contains(card) &&
               !_canPayCardCost(hero, card, _cardQueue.toList()));
-      card.paint.colorFilter = grayed ? kCardGrayscaleFilter : null;
+      card.isEnabled = !grayed;
     }
   }
 

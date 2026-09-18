@@ -1,36 +1,5 @@
-/// 回合结束资源结算（由 Dart 侧 BattleCharacter.onEndTurn 显式调用，
-/// 顺序显式保证：先灵气溢出利用，后元气回血——转化出的元气可赶上同回合回血）：
-/// ① 灵气按剩余层数触发 overflowed_mana_* 天赋（增益型，§4.6）：
-///   convert_to_vigor → 剩余灵气 1:1 转为元气；deal_random_element_damage → 每层 5 点随机元素伤害
-/// ② 元气回血：每剩余 1 层回复 2% 生命上限（每层至少 1 点），不消耗层数（§4.1）
-function turn_end_resource_settlement(self, opponent) {
-  final manaCount = self.hasStatusEffect('energy_positive_spell')
-  if (manaCount > 0) {
-    if (self.hasStatusEffect('overflowed_mana_convert_to_vigor') > 0) {
-      self.removeStatusEffect('energy_positive_spell', force: true)
-      self.addStatusEffect('energy_positive_life', amount: manaCount)
-    } else if (self.data.passives.overflowed_mana_deal_random_element_damage != null) {
-      // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
-      final damageType = random.nextIterable(['fire', 'ice', 'lightning'])
-      let factor = 1 - 0.01 * opponent.getElementalResist(damageType)
-      final damage = (manaCount * 5 * factor).round()
-      if (damage > 0) {
-        opponent.changeLife(-damage, damageType: damageType)
-      }
-    }
-  }
-
-  final vigor = self.hasStatusEffect('energy_positive_life')
-  if (vigor > 0 && self.life < self.lifeMax) {
-    let regenPerLayer = (self.lifeMax / 100 * 2).round()
-    if (regenPerLayer < 1) regenPerLayer = 1
-    final missing = self.lifeMax - self.life
-    final regen = Math.min(regenPerLayer * vigor, missing)
-    if (regen > 0) {
-      self.changeLife(regen, isHeal: true)
-    }
-  }
-}
+/// 回合结束资源结算已由 Dart 侧 BattleCharacter._settleTurnEndResources 处理
+/// （先灵气溢出利用，后元气回血，顺序显式保证）
 
 external class BattleCharacter {
   get data

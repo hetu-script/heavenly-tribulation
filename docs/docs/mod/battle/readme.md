@@ -12,7 +12,7 @@
      → `_processCardQueue` 依次 `_playCard`（`_payCardCost` 支付：
      无色扣元气层数，有色先扣本色气、缺口自动扣无极之气）→ 弃牌
    - 敌方：循环 `_canPayCardCost` 过滤可支付手牌 → AI 选牌 → 支付并出牌，直至无牌可出
-8. 执行 `currentCharacter.onEndTurn()`：先显式调用 `turn_end_resource_settlement`
+8. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧进行回合结束资源结算
    （灵气溢出天赋 → 元气回血），再派发其余回合结束回调
 9. end_turn 被动注入，`clearHand()` 弃掉本回合手牌
 10. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
@@ -55,7 +55,7 @@
 | `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                        |
 | `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                     |
 | `self/opponent_gained_injury`                              | 获得伤势后                                                                                                                                                                        |
-| `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（`turn_end_resource_settlement`），该派发保留但为空转 |
+| `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（Dart 侧回合结束资源结算），该派发保留但为空转 |
 | `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                                   |
 | `self/opponent_attacked`                                   | 使用攻击牌后                                                                                                                                                                      |
 | `self/opponent_use_card_kind_*`                            | 使用特定流派（kind）卡牌时                                                                                                                                                        |
@@ -91,7 +91,7 @@
 | `overflow` | 入   | 溢出的资源层数 |
 
 返回值 true 表示保留溢出部分。当前无注册者；灵气溢出天赋的实际触发点为
-回合结束 `turn_end_resource_settlement`（按剩余层数，先灵气溢出、后元气回血）。
+回合结束资源结算（Dart 侧，按剩余层数，先灵气溢出、后元气回血）。
 
 **费用与增费（新费用体系）**：打出卡牌前做硬检查——无色费用 ≤ 元气层数，
 每色 需求 + min(对应阴气层数, 2) ≤ 本色存量 + 无极存量；死气对应无色费用。
