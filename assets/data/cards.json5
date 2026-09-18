@@ -46,6 +46,14 @@
   // isUnpackable:
   // 不会出现在卡包中
 
+  // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
+  placeholder: {
+    id: "placeholder",
+    description: "placeholder_description",
+    image: "battlecard/illustration/blank_default.png",
+    isUnpackable: true,
+  },
+
   // 默认卡：战斗开始后，不满足使用需求的卡牌（含次数耗尽的符箓）会被此牌替代
   // 效果为基础拳法：固定造成 角色境界 × 5 的伤害（脚本 attack_rank_scaled 读取角色境界）
   blank_default: {
@@ -57,14 +65,6 @@
     description: "blank_default_description",
     image: "battlecard/illustration/punch_attack.png",
     script: "attack_rank_scaled",
-    isUnpackable: true,
-  },
-
-  // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
-  placeholder: {
-    id: "placeholder",
-    description: "placeholder_description",
-    image: "battlecard/illustration/blank_default.png",
     isUnpackable: true,
   },
 
@@ -2073,7 +2073,7 @@
     cardType: "weapon",
     damageType: "physical",
     rank: 1,
-    description: "affix_attack_weapon_multiple_exhaust_karma",
+    description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/dart_attack.png",
     animation: {
       startup: "spell_attack",
@@ -2158,7 +2158,7 @@
     rank: 1,
     cardType: "curse",
     damageType: "psychic",
-    description: "affix_attack_curse",
+    description: "affix_attack_curse_psychic",
     image: "battlecard/illustration/vitality_power_word_attack.png",
     animation: {
       startup: "spell_attack",

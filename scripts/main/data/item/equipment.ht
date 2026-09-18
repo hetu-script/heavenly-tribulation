@@ -91,7 +91,11 @@ struct Equipment {
       mainAffix.value = calcAffixValue(mainAffix, level: this.level, rank: this.rank).round()
     }
     this.affixes.add(mainAffix)
-    // this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+    if (mainAffix.uniqueIds is List) {
+      this.affixUniqueIds.addAll(mainAffix.uniqueIds)
+    } else {
+      this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+    }
     
     // 在 category 赋值之后才能获取风味文本
     this.flavortext = flavortext ?? engine.locale('flavortext_${this.category}')

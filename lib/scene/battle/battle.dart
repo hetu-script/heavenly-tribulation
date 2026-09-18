@@ -33,9 +33,6 @@ import '../../widgets/character/profile.dart';
 
 const kBattleRoundLimit = 8;
 
-/// 后手方恢复 20% 战斗生命上限
-const double kSecondHandHealRate = 0.2;
-
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermanentEffects = {
   'unarmedAttack': ('enhance_unarmed', 'weaken_unarmed'),
@@ -706,15 +703,12 @@ class BattleScene extends Scene {
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
 
-    // 后手补偿: 恢复少量生命（偷袭时无补偿）
+    // 后手补偿：恢复到当前战斗生命上限（偷袭时无补偿）
     if (!isSneakAttack) {
       final secondCharacter = heroTurn ? enemy : hero;
-      final int overheal = secondCharacter.life -
-          secondCharacter.data['stats']['lifeMax'] as int;
-      final int heal =
-          secondCharacter.lifeMax - secondCharacter.life + overheal;
+      final int heal = secondCharacter.lifeMax - secondCharacter.life;
       if (heal > 0) {
-        secondCharacter.setLife(secondCharacter.lifeMax, overflow: true);
+        secondCharacter.setLife(secondCharacter.lifeMax);
         secondCharacter.addHintText('${engine.locale('secondHandHeal')} +$heal',
             color: Colors.lightGreen);
       }
@@ -1258,8 +1252,17 @@ class BattleScene extends Scene {
           selectedCard.isFlipped = false;
           await currentCharacter.onUseCard(selectedCard);
           selectedCard.isFlipped = true;
-          discardZone.tryAddCard(selectedCard);
-          await discardZone.sortCards();
+          if (selectedCard.data['isEphemeral'] == true) {
+            world.add(CardShatterEffect(
+              position: selectedCard.absolutePosition,
+              size: selectedCard.size.clone(),
+              priority: kTopLayerAnimationPriority,
+            ));
+            selectedCard.removeFromPile(removeFromGame: true);
+          } else {
+            discardZone.tryAddCard(selectedCard);
+            await discardZone.sortCards();
+          }
         }
         // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
         refreshHandCardDescriptions();

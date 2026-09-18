@@ -249,11 +249,11 @@ function _getSupportAffixes(card) {
 }
 
 function _updateAffixValue(card, affix) {
-  final minLevel = minLevelForRank(affix.rank)
-  final maxLevel = maxLevelForRank(affix.rank)
-  affix.level = minLevel + random.nextInt(maxLevel - minLevel)
-  if (affix.maxLevel) {
-    affix.level = Math.min(affix.level, affix.maxLevel)
+  // 主词条的等级由卡牌等级唯一决定；这个函数只按已有等级重算数值，不隐式重随
+  if (affix.isMain) {
+    affix.level = card.level
+  } else if (affix.level == null) {
+    affix.level = card.level
   }
 
   if (affix.valueData is List) {
@@ -569,7 +569,11 @@ function upgradeRank(card, materialRank) {
     //（与普通卡保留词条的行为一致），并追加下一个预定义词条
     for (final affix in card.affixes) {
       affix.rank = card.rank
-      _updateAffixValue(card, affix)
+      if (affix.isMain) {
+        _updateAffixValue(card, affix)
+      } else {
+        _randomizeAffixLevel(card, affix)
+      }
     }
     _addPredefinedAffixes(card)
   } else {
@@ -580,7 +584,11 @@ function upgradeRank(card, materialRank) {
     card.affixes = [card.affixes.first, ...freezedAffixes]
     for (final affix in card.affixes) {
       affix.rank = card.rank
-      _updateAffixValue(card, affix)
+      if (affix.isMain) {
+        _updateAffixValue(card, affix)
+      } else {
+        _randomizeAffixLevel(card, affix)
+      }
     }
 
     _addExtraAffixes(card)
@@ -595,7 +603,10 @@ function upgradeRank(card, materialRank) {
 /// 升级卡牌等级
 /// 这个操作并非打造操作，而是某些卡牌词条效果可能会用到
 function upgradeCard(card) {
-  card.level += 1
+  final maxLevel = maxLevelForRank(card.rank)
+  if (card.level < maxLevel) {
+    card.level += 1
+  }
   _updateAffixValue(card, card.affixes.first)
 }
 

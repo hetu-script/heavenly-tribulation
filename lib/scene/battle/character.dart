@@ -268,9 +268,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 不计算护甲、穿透与脚本回调类修正。
   /// 返回 (伤害, 是否暴击, 异常层数)；非攻击类词条返回 null。
   (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
-    final List value = affix['value'];
+    if (affix['category'] != 'attack') return null;
 
-    final String damageType = affix['damageType'];
+    final value = affix['value'];
+    if (value is! List || value.isEmpty || value.first is! num) return null;
+
+    final damageType = affix['damageType'];
+    if (damageType is! String || damageType.isEmpty) return null;
     final bool isElemental = damageType == 'fire' ||
         damageType == 'ice' ||
         damageType == 'lightning' ||
@@ -384,7 +388,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     (game as BattleScene).refreshQiDisplay(isHero);
   }
 
-  /// 返回的是移除的实际数量
+  /// 返回的是移除的实际数量；不传 [amount] 和 [percentage] 时移除全部层数
   /// 资源类状态为全有或全无：存量不足时一点也不移除，返回 0
   int removeStatusEffect(
     String id, {
@@ -422,7 +426,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           percentage = 1;
         }
         removedAmount = (existEffect.amount * percentage).ceil();
-      } else if (force) {
+      } else {
         removedAmount = existEffect.amount;
       }
 
@@ -759,8 +763,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         handleStatusEffectCallback('self_heal');
 
         // 治疗驱散：随机移除一层持有的负面效果（kDebuffs 池，含伤势与元素 DOT）
-        final heldDebuffs =
-            _statusEffects.values.where((e) => kDebuffs.contains(e.id)).toList();
+        final heldDebuffs = _statusEffects.values
+            .where((e) => kDebuffs.contains(e.id))
+            .toList();
         if (heldDebuffs.isNotEmpty) {
           final debuff = heldDebuffs[random.nextInt(heldDebuffs.length)];
           removeStatusEffect(debuff.id, amount: 1);
@@ -832,7 +837,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         opponent!.cardFlags['damage']['penetration'] ?? 0;
 
     // 护甲穿透属性（战斗开始由属性转换为永久状态，图标即真值）：每层 1%
-    damageDetails['penetration'] += opponent!.hasStatusEffect('penetration') * 0.01;
+    damageDetails['penetration'] +=
+        opponent!.hasStatusEffect('penetration') * 0.01;
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
     // 否则的话意味着是某些状态效果或者额外词条造成的伤害
@@ -983,13 +989,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 怒气滞后产出模型的数据源（§4.3）：累计自身本回合实际受到的伤害
       damageTaken += finalDamage;
 
-      // 充能：每次实际造成伤害的实例为攻击方对应计数器 +1
-      //（物理 → crit_charge，元素 → ailment_charge；检查触发在先、充能在后，
-      // 因此充满阈值的那次伤害本身不会立即触发）
+      // 暴击充能：检查触发在先、充能在后，因此充满阈值的这次物理伤害
+      // 本身不会立即暴击
       if (damageType == 'physical') {
         opponent!.addStatusEffect('crit_charge');
-      } else if (isElemental) {
-        opponent!.addStatusEffect('ailment_charge');
       }
     }
 
@@ -1030,6 +1033,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             (attackerStats['ailmentMultiplier'] ?? kBaseAilmentMultiplier)
                 .toInt();
       }
+
+      // 异常充能同暴击充能：先使用伤害前已有层数判断触发，再为本次实际元素伤害 +1
+      opponent!.addStatusEffect('ailment_charge');
     }
 
     damageDetails['finalDamage'] = finalDamage;

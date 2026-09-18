@@ -37,8 +37,8 @@ class MainMenuScene extends Scene {
         'generateHero',
         namespace: 'debug',
         namedArgs: {
-          'level': 10,
-          'rank': 0,
+          'level': 30,
+          'rank': 2,
         },
       );
       arguments['reset'] = false;
