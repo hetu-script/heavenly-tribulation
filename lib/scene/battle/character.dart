@@ -757,6 +757,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         opponent!.handleStatusEffectCallback('opponent_heal');
         // 触发自己恢复生命时的效果
         handleStatusEffectCallback('self_heal');
+
+        // 治疗驱散：随机移除一层持有的负面效果（kDebuffs 池，含伤势与元素 DOT）
+        final heldDebuffs =
+            _statusEffects.values.where((e) => kDebuffs.contains(e.id)).toList();
+        if (heldDebuffs.isNotEmpty) {
+          final debuff = heldDebuffs[random.nextInt(heldDebuffs.length)];
+          removeStatusEffect(debuff.id, amount: 1);
+          addHintText('${engine.locale('status_${debuff.id}')} -1',
+              color: Colors.lightGreen);
+        }
       }
 
       addHintText(

@@ -382,6 +382,24 @@ const kCostColorStatusIds = {
 /// 万能费用色（无极之气）的状态 id，可支付任意有色费用
 const kWildcardStatusId = 'energy_positive_ultimate';
 
+/// 战斗负面效果池：邪祟（debuff_ward）回合开始随机施加、治疗时随机驱散的抽取池
+/// 通过 Constants.debuffs 导出到脚本侧
+const kDebuffs = [
+  'speed_slow',
+  'dodge_clumsy',
+  'vulnerable',
+  'debuff_crit',
+  'debuff_ward',
+  'debuff_shield',
+  'injury_external',
+  'injury_internal',
+  'injury_hallucination',
+  'element_dot_fire',
+  'element_dot_lightning',
+  'element_dot_ice',
+  'element_dot_poison',
+];
+
 const kDeckEphemeralCount = 3;
 
 const kCultivationRankMax = 5;

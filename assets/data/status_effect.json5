@@ -438,6 +438,7 @@
     icon: "icon/status/vulnerable_physical.png",
     script: "vulnerable",
     priority: 1505,
+    isDebuff: true,
     callbacks: ["self_taking_damage", "self_turn_end"],
   },
 
@@ -500,6 +501,7 @@
   },
 
   // 伤势
+  // 流血: 使用攻击牌后失去生命（治疗时的随机驱散由 Dart 侧 changeLife 统一处理）
   injury_external: {
     id: "injury_external",
     title: "status_injury_external",
@@ -507,7 +509,7 @@
     icon: "icon/status/injury_external.png",
     script: "injury_external",
     isDebuff: true,
-    callbacks: ["self_attacked", "self_heal"],
+    callbacks: ["self_attacked"],
   },
   injury_internal: {
     id: "injury_internal",
@@ -576,7 +578,7 @@
     dotDamage: 5,
     script: "element_dot",
     isDebuff: true,
-    callbacks: ["self_turn_end", "self_heal"],
+    callbacks: ["self_turn_end"],
   },
 
   // 元气: 无色费用池。回合开始获得 rank + 3 层，支付无色费用移除层数；

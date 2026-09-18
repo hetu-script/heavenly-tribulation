@@ -81,6 +81,8 @@ class Constants extends HTExternalClass {
         return kCostColorStatusIds;
       case 'Constants.wildcardStatusId':
         return kWildcardStatusId;
+      case 'Constants.debuffs':
+        return kDebuffs;
       case 'Constants.battleDeckSize':
         return kBattleDeckSize;
       case 'Constants.attackTypes':
