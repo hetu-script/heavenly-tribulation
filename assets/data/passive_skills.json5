@@ -45,11 +45,6 @@
     comment: "passivetree_swordcraft_rank_1_comment",
     passives: [
       {
-        id: "swordcraft_rank_1",
-        description: "passive_swordcraft_rank_1_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 40,
       },
@@ -65,11 +60,6 @@
     comment: "passivetree_swordcraft_rank_2_comment",
     passives: [
       {
-        id: "swordcraft_rank_2",
-        description: "passive_swordcraft_rank_2_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 80,
       },
@@ -84,11 +74,6 @@
     title: "passivetree_swordcraft_rank_3",
     comment: "passivetree_swordcraft_rank_3_comment",
     passives: [
-      {
-        id: "swordcraft_rank_3",
-        description: "passive_swordcraft_rank_3_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 120,
@@ -353,11 +338,6 @@
     comment: "passivetree_spellcraft_rank_1_comment",
     passives: [
       {
-        id: "spellcraft_rank_1",
-        description: "passive_spellcraft_rank_1_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 40,
       },
@@ -373,11 +353,6 @@
     comment: "passivetree_spellcraft_rank_2_comment",
     passives: [
       {
-        id: "spellcraft_rank_2",
-        description: "passive_spellcraft_rank_2_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 80,
       },
@@ -392,11 +367,6 @@
     title: "passivetree_spellcraft_rank_3",
     comment: "passivetree_spellcraft_rank_3_comment",
     passives: [
-      {
-        id: "spellcraft_rank_3",
-        description: "passive_spellcraft_rank_3_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 120,
@@ -465,7 +435,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_life",
+        id: "start_turn_with_energy_positive_life",
         level: 5,
       },
     ],
@@ -661,11 +631,6 @@
     comment: "passivetree_vitality_rank_1_comment",
     passives: [
       {
-        id: "vitality_rank_1",
-        description: "passive_vitality_rank_1_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 40,
       },
@@ -681,11 +646,6 @@
     comment: "passivetree_vitality_rank_2_comment",
     passives: [
       {
-        id: "vitality_rank_2",
-        description: "passive_vitality_rank_2_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 80,
       },
@@ -700,11 +660,6 @@
     title: "passivetree_vitality_rank_3",
     comment: "passivetree_vitality_rank_3_comment",
     passives: [
-      {
-        id: "vitality_rank_3",
-        description: "passive_vitality_rank_3_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 120,
@@ -773,7 +728,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_ward",
+        id: "start_battle_with_buff_ward",
         level: 5,
       },
     ],
@@ -969,11 +924,6 @@
     comment: "passivetree_avatar_rank_1_comment",
     passives: [
       {
-        id: "avatar_rank_1",
-        description: "passive_avatar_rank_1_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 40,
       },
@@ -989,11 +939,6 @@
     comment: "passivetree_avatar_rank_2_comment",
     passives: [
       {
-        id: "avatar_rank_2",
-        description: "passive_avatar_rank_2_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 80,
       },
@@ -1008,11 +953,6 @@
     title: "passivetree_avatar_rank_3",
     comment: "passivetree_avatar_rank_3_comment",
     passives: [
-      {
-        id: "avatar_rank_3",
-        description: "passive_avatar_rank_3_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 120,
@@ -1081,7 +1021,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_unarmed",
+        id: "start_turn_with_energy_positive_unarmed",
         level: 5,
       },
     ],
@@ -1277,11 +1217,6 @@
     comment: "passivetree_bodyforge_rank_1_comment",
     passives: [
       {
-        id: "bodyforge_rank_1",
-        description: "passive_bodyforge_rank_1_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 40,
       },
@@ -1297,11 +1232,6 @@
     comment: "passivetree_bodyforge_rank_2_comment",
     passives: [
       {
-        id: "bodyforge_rank_2",
-        description: "passive_bodyforge_rank_2_description",
-        level: 1,
-      },
-      {
         id: "lifeMax",
         level: 80,
       },
@@ -1316,11 +1246,6 @@
     title: "passivetree_bodyforge_rank_3",
     comment: "passivetree_bodyforge_rank_3_comment",
     passives: [
-      {
-        id: "bodyforge_rank_3",
-        description: "passive_bodyforge_rank_3_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 120,
@@ -1389,7 +1314,7 @@
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "start_battle_with_energy_positive_weapon",
+        id: "start_turn_with_energy_positive_weapon",
         level: 5,
       },
     ],
