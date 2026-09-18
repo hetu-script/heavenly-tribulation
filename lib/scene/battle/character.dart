@@ -353,27 +353,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 资源位于血条下方
-  void reArrangeResourceEffects() {
-    for (var i = 0; i < resourceEffects.length; ++i) {
-      final effect = resourceEffects.elementAt(i);
-      if (isHero) {
-        effect.position = Vector2(
-            GameUI.p1CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                i * GameUI.statusEffectIconSize.x,
-            GameUI.p1CharacterAnimationPosition.y);
-      } else {
-        effect.position = Vector2(
-            GameUI.p2CharacterAnimationPosition.x -
-                GameUI.heroSpriteSize.x / 2 +
-                (i + 1) * GameUI.statusEffectIconSize.x,
-            GameUI.p2CharacterAnimationPosition.y);
-      }
-    }
-  }
-
-  /// 永久效果位置：能量瓶旁边，英雄向右排列，敌人向左排列
+  /// 永久效果位置：永久状态行（资源气行下方一行），英雄从左向右排列，敌人从右向左排列
   void reArrangePermanentEffects() {
     final iconStep =
         GameUI.permanentStatusEffectIconSize.x + GameUI.smallIndent;
@@ -381,21 +361,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final effect = permanentEffects.elementAt(i);
       if (isHero) {
         effect.position = Vector2(
-          GameUI.p1EnergyDisplayPosition.x +
-              GameUI.battleEnergyBottleSize.x / 2 +
-              GameUI.smallIndent +
-              i * iconStep,
-          GameUI.p1EnergyDisplayPosition.y -
-              GameUI.permanentStatusEffectIconSize.y / 2,
+          GameUI.p1PermanentStatusPosition.x + i * iconStep,
+          GameUI.p1PermanentStatusPosition.y,
         );
       } else {
         effect.position = Vector2(
-          GameUI.p2EnergyDisplayPosition.x -
-              GameUI.battleEnergyBottleSize.x / 2 -
-              GameUI.smallIndent -
-              i * iconStep,
-          GameUI.p2EnergyDisplayPosition.y -
-              GameUI.permanentStatusEffectIconSize.y / 2,
+          GameUI.p2PermanentStatusPosition.x - i * iconStep,
+          GameUI.p2PermanentStatusPosition.y,
         );
       }
     }
@@ -407,6 +379,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     _statusEffects.clear();
+
+    // 资源气行同步清空
+    (game as BattleScene).refreshQiDisplay(isHero);
   }
 
   /// 返回的是移除的实际数量
@@ -419,7 +394,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }) {
     int removedAmount = 0;
     StatusEffect? existEffect;
-    bool resourceIconNeedsRearranging = false;
     bool doRemove = true;
     if (_statusEffects.containsKey(id)) {
       existEffect = _statusEffects[id]!;
@@ -462,12 +436,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
         if (existEffect.isPermanent) {
           reArrangePermanentEffects();
-        } else {
-          if (existEffect.isResource) {
-            resourceIconNeedsRearranging = true;
-          } else {
-            reArrangeOtherEffects();
-          }
+        } else if (!existEffect.isResource) {
+          reArrangeOtherEffects();
         }
       }
     }
@@ -478,8 +448,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       addHintText(hint, color: Colors.grey);
     }
 
-    if (resourceIconNeedsRearranging) {
-      reArrangeResourceEffects();
+    // 资源气由 EnergyDisplay 资源气行统一呈现
+    if (removedAmount > 0 && existEffect?.isResource == true) {
+      (game as BattleScene).refreshQiDisplay(isHero);
     }
 
     return removedAmount;
@@ -561,12 +532,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       return;
     }
 
-    if (isNewlyAdded && !effect.isHidden) {
+    if (effect.isResource) {
+      // 资源气不再以状态图标显示，由 EnergyDisplay 资源气行统一呈现
+      (game as BattleScene).refreshQiDisplay(isHero);
+    } else if (isNewlyAdded && !effect.isHidden) {
       game.world.add(effect);
 
-      if (effect.isResource) {
-        reArrangeResourceEffects();
-      } else if (effect.isPermanent) {
+      if (effect.isPermanent) {
         reArrangePermanentEffects();
       } else {
         reArrangeOtherEffects();
@@ -623,11 +595,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 清空所有资源气（统一生命周期，决策 5：资源持有至持有者的下个回合开始）。
-  /// 煞气（energy_positive_curse）未用量返回 karma 池（§4.5）；其余资源直接移除。
+  /// 清空所有阳气（资源生命周期：阳气持有至持有者的下个回合开始）。
+  /// 阴气永久存在，直到被对应阳气对冲抵消（plan/qi_display.md 共识 4），不在此清空。
+  /// 煞气（energy_positive_curse）未用量返回 karma 池（§4.5）；其余阳气直接移除。
   /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用。
   void clearResourceEffects() {
     for (final effect in resourceEffects) {
+      if (isNegativeResourceQi(effect.id)) continue;
       if (effect.id == 'energy_positive_curse' && effect.amount > 0) {
         data['karma'] += effect.amount;
         addHintText(

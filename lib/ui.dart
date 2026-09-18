@@ -521,8 +521,8 @@ final class GameUI {
   static late Vector2 p1BattleDeckZonePosition, p2BattleDeckZonePosition;
   static late Vector2 p1HandZonePosition, p2HandZonePosition;
   static late Vector2 p1BattleDiscardZonePosition, p2BattleDiscardZonePosition;
-  static late Vector2 p1EnergyDisplayPosition, p2EnergyDisplayPosition;
-  static late Vector2 battleEnergyBottleSize;
+  static late Vector2 p1QiBarPosition, p2QiBarPosition;
+  static late Vector2 p1PermanentStatusPosition, p2PermanentStatusPosition;
   static late Vector2 p1CharacterAnimationPosition;
   static late Vector2 p2CharacterAnimationPosition;
 
@@ -551,6 +551,12 @@ final class GameUI {
   static final statusEffectIconSize = Vector2(24, 24);
   static final permanentStatusEffectIconSize = Vector2(48, 48);
   static const resourceBarHeight = 10.0;
+
+  /// 资源气行槽位尺寸与整行宽度（6 槽位 + 间距 + 无极前的额外间隔）
+  static final qiSlotSize = Vector2(40, 40);
+  static const qiSlotCount = 6;
+  static double get qiRowWidth =>
+      qiSlotCount * qiSlotSize.x + (qiSlotCount - 1) * smallIndent + largeIndent;
 
   // cultivation ui
   static late Vector2 cultivatorPosition;
@@ -725,9 +731,6 @@ final class GameUI {
     handZoneSize = Vector2(battleCardSize.x * 8, battleCardSize.y);
     handCardSpacing = battleCardSize.x * 0.5;
 
-    /// 费用酒瓶
-    battleEnergyBottleSize = Vector2(60, 60);
-
     // 牌库区：屏幕左下/右下角
     final double deckAndHandY = size.y - battleCardSize.y - largeIndent;
     p1BattleDeckZonePosition = Vector2(indent, deckAndHandY);
@@ -747,12 +750,18 @@ final class GameUI {
     p2HandZonePosition = Vector2(
         p2BattleDiscardZonePosition.x - indent - handZoneSize.x, deckAndHandY);
 
-    // 费用酒瓶位置：手牌区上方
-    p1EnergyDisplayPosition = Vector2(indent + battleEnergyBottleSize.x / 2,
-        deckAndHandY - battleEnergyBottleSize.y / 2 - indent);
-    p2EnergyDisplayPosition = Vector2(
-        size.x - battleEnergyBottleSize.x / 2 - indent,
-        deckAndHandY - battleEnergyBottleSize.y / 2 - indent);
+    // 永久状态行：手牌区上方（原能量瓶一行，能量瓶已由资源气行取代）
+    p1PermanentStatusPosition = Vector2(
+        indent, deckAndHandY - permanentStatusEffectIconSize.y - indent);
+    p2PermanentStatusPosition = Vector2(
+        size.x - indent - permanentStatusEffectIconSize.x,
+        deckAndHandY - permanentStatusEffectIconSize.y - indent);
+
+    // 资源气行：永久状态行上方单独一行；敌方为行右缘锚点（槽位从右向左排列）
+    p1QiBarPosition = Vector2(
+        indent, p1PermanentStatusPosition.y - qiSlotSize.y - indent);
+    p2QiBarPosition = Vector2(size.x - indent - qiRowWidth,
+        p1PermanentStatusPosition.y - qiSlotSize.y - indent);
 
     /// 英雄装备栏位置（头像右侧）
     p1EquipmentsBarPosition = Vector2(

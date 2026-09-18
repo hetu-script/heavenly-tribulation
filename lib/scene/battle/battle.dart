@@ -449,7 +449,8 @@ class BattleScene extends Scene {
     world.add(heroDiscardZone);
 
     heroEnergyDisplay = EnergyDisplay(
-      position: GameUI.p1EnergyDisplayPosition,
+      position: GameUI.p1QiBarPosition,
+      isHero: true,
     );
     camera.viewport.add(heroEnergyDisplay);
 
@@ -534,7 +535,8 @@ class BattleScene extends Scene {
     world.add(enemyDiscardZone);
 
     enemyEnergyDisplay = EnergyDisplay(
-      position: GameUI.p2EnergyDisplayPosition,
+      position: GameUI.p2QiBarPosition,
+      isHero: false,
     );
     camera.viewport.add(enemyEnergyDisplay);
 
@@ -647,8 +649,8 @@ class BattleScene extends Scene {
     hero.turnCount = 0;
     enemy.turnCount = 0;
 
-    heroEnergyDisplay.setEnergy(0);
-    enemyEnergyDisplay.setEnergy(0);
+    heroEnergyDisplay.refresh(hero);
+    enemyEnergyDisplay.refresh(enemy);
 
     // 将弃牌堆和手牌区的卡牌归还牌库
     await _returnAllCardsToDecks();
@@ -831,15 +833,18 @@ class BattleScene extends Scene {
 
   /// 检查能否支付卡牌费用（全有或全无）。
   /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
+  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限（共识 5）。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
     var colorlessNeed = 0;
     final coloredNeeds = <String, int>{};
+    final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
 
     void accumulate(CustomGameCard c) {
       colorlessNeed += c.cost;
       for (final entry in _cardCostColored(c).entries) {
-        coloredNeeds[entry.key] = coloredNeeds[entry.key] ?? 0 + entry.value;
+        coloredNeeds[entry.key] =
+            (coloredNeeds[entry.key] ?? 0) + entry.value + voidQi;
       }
     }
 
@@ -864,6 +869,7 @@ class BattleScene extends Scene {
   }
 
   /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣无极之气。
+  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限（共识 5）。
   /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
   /// 返回 false 且不扣除任何费用。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
@@ -871,10 +877,11 @@ class BattleScene extends Scene {
 
     final pending = <(String, int)>[];
     var ultimateNeed = 0;
+    final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = entry.value;
+      final need = entry.value + voidQi;
       final ownPaid = math.min(character.hasStatusEffect(yangId), need);
       pending.add((yangId, ownPaid));
       ultimateNeed += need - ownPaid;
@@ -888,13 +895,11 @@ class BattleScene extends Scene {
 
     // 无色费用 = 移除元气（energy_positive_life）状态层数；
     // 入队检查与上方校验已保证存量充足，资源类的全有或全无语义不会截断
+    // 资源气行显示由 removeStatusEffect 的钩子自动刷新
     if (colorlessNeed > 0) {
       character.removeStatusEffect('energy_positive_life',
           amount: colorlessNeed);
     }
-    final energyDisplay =
-        character.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
-    energyDisplay.setEnergy(character.energy);
 
     for (final (statusId, amount) in pending) {
       if (amount > 0) {
@@ -920,6 +925,13 @@ class BattleScene extends Scene {
     return true;
   }
 
+  /// 刷新指定一侧的资源气行显示（气状态增删/层数变化时由 BattleCharacter 调用）
+  void refreshQiDisplay(bool isHero) {
+    final display = isHero ? heroEnergyDisplay : enemyEnergyDisplay;
+    final character = isHero ? hero : enemy;
+    if (display.isLoaded) display.refresh(character);
+  }
+
   /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰（§6.2 可打出高亮）。
   /// 非己方回合全部置灰。置灰通过 isEnabled 切换 invalid paint（卡面灰度、文字半透明），
   /// 只影响绘图不影响交互：悬浮提示仍可用，打出由 _enqueueCard 的费用硬检查拦截。
@@ -935,6 +947,7 @@ class BattleScene extends Scene {
 
   /// 生成卡牌缺少资源的悬浮提示文本（每行一种缺少的资源）。
   /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）。
+  /// 有色需求含虚空之气增费（每层 +1，无上限）。
   String _missingCostReport(CustomGameCard card) {
     final lines = <String>[];
     final colorlessNeed = card.cost;
@@ -946,10 +959,11 @@ class BattleScene extends Scene {
       ]));
     }
     final ultimateStock = hero.hasStatusEffect(kWildcardStatusId);
+    final int voidQi = hero.hasStatusEffect('energy_negative_ultimate');
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = entry.value;
+      final need = entry.value + voidQi;
       final stock = hero.hasStatusEffect(yangId) + ultimateStock;
       if (need > stock) {
         lines
@@ -1131,8 +1145,6 @@ class BattleScene extends Scene {
     final discardZone =
         currentCharacter.isHero ? heroDiscardZone : enemyDiscardZone;
     final handZone = currentCharacter.isHero ? heroHandZone : enemyHandZone;
-    final energyDisplay =
-        currentCharacter.isHero ? heroEnergyDisplay : enemyEnergyDisplay;
 
     // 软狂暴：从第 8 回合叠劫气（debuff_tribulation）
     if (roundCount > 0 && roundCount > kBattleRoundLimit) {
@@ -1165,12 +1177,12 @@ class BattleScene extends Scene {
         break;
       }
 
-      // ② 统一生命周期：清空上回合残留的所有资源气（煞气未用量返回 karma 池）
+      // ② 统一生命周期：清空上回合残留的所有阳气（阴气永久存在；煞气未用量返回 karma 池）
       // ③ 结算本回合新产出（元气 rank+3 / 剑气 / 怒气 / 灵气 / 煞气池提取）
       // 顺序显式保证：先清空残留，再结算产出
+      // 资源气行显示由 addStatusEffect/removeStatusEffect 的钩子自动刷新
       currentCharacter.clearResourceEffects();
       currentCharacter.produceTurnStartResources();
-      energyDisplay.setEnergy(currentCharacter.energy);
 
       final opponentStatus =
           _prepareStatus(currentCharacter, StatusCircumstances.start_turn);

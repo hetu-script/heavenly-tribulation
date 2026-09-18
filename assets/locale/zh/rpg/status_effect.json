@@ -161,7 +161,7 @@
   "status_energy_negative_curse": "无心之气",
   "status_energy_negative_curse_description": "每层使你的咒术攻击伤害 -5；煞气 -1。",
   "status_energy_negative_ultimate": "虚空之气",
-  "status_energy_negative_ultimate_description": "每层使你的所有攻击伤害 -5；所有阳气 -1。",
+  "status_energy_negative_ultimate_description": "每层使你的所有攻击伤害 -5，并使所有有色费用 +1；只能被无极之气抵消。",
   "status_debuff_tribulation": "劫气",
   "status_debuff_tribulation_description": "战斗拖得越久，天道降劫越重。回合开始时消耗 1 层，失去生命上限 10% 的生命。"
 }
