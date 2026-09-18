@@ -441,14 +441,14 @@ packages:
       path: "../hetu-script/packages/hetu_script"
       relative: true
     source: path
-    version: "0.6.2"
+    version: "0.6.4"
   hetu_script_flutter:
     dependency: "direct main"
     description:
       path: "../hetu-script/packages/hetu_script_flutter"
       relative: true
     source: path
-    version: "0.1.0+2"
+    version: "0.1.2+1"
   html:
     dependency: transitive
     description:

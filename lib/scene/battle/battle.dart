@@ -980,7 +980,7 @@ class BattleScene extends Scene {
   /// 将卡牌加入待打出队列
   void _enqueueCard(CustomGameCard card) {
     // 只能在自己的回合入队（统一生命周期下资源跨对方回合保留，仅作展示）
-    if (!heroTurn) return;
+    if (!heroTurn || battleResult != null) return;
 
     // 验证不重复入队
     if (_cardQueue.contains(card)) return;
@@ -1019,7 +1019,10 @@ class BattleScene extends Scene {
     try {
       while (_cardQueue.isNotEmpty) {
         // 检查中断条件
-        if (_isRestarting || battleEnded || _endPlayerTurn) {
+        if (_isRestarting ||
+            battleEnded ||
+            battleResult != null ||
+            _endPlayerTurn) {
           break;
         }
 
@@ -1102,6 +1105,9 @@ class BattleScene extends Scene {
       await heroDiscardZone.sortCards();
     }
 
+    // 当前卡牌完整结算并处理去向后立即检查胜负，避免队列中的后续卡牌继续执行。
+    _checkBattleResult();
+
     refreshHandCardDescriptions();
     // 资源已扣除，刷新置灰状态
     refreshHandAffordability();
@@ -1144,6 +1150,28 @@ class BattleScene extends Scene {
     return hand[engine.random.nextInt(hand.length)];
   }
 
+  /// 在结算边界检查战斗是否结束。
+  /// 同时死亡时保持既有规则：优先判定敌方死亡，即英雄胜利。
+  bool _checkBattleResult({bool checkRoundLimit = false}) {
+    if (battleResult != null) return true;
+
+    if (enemy.life <= 0) {
+      battleResult = true;
+    } else if (hero.life <= 0) {
+      battleResult = false;
+    } else if (checkRoundLimit &&
+        endBattleAfterRounds > 0 &&
+        roundCount >= endBattleAfterRounds) {
+      battleResult = hero.life > enemy.life;
+    }
+
+    if (battleResult != null) {
+      endTurnButton.isEnabled = false;
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _startTurn() async {
     bool extraTurn = false;
 
@@ -1158,14 +1186,14 @@ class BattleScene extends Scene {
         currentCharacter.isHero ? heroDiscardZone : enemyDiscardZone;
     final handZone = currentCharacter.isHero ? heroHandZone : enemyHandZone;
 
-    // 软狂暴：从第 8 回合叠劫气（debuff_tribulation）
+    // 软狂暴：roundCount > 8 后，在本次普通行动回合开始前叠加 1 层劫气。
+    // 额外回合位于下方循环内，不会再次叠加。
     if (roundCount > 0 && roundCount > kBattleRoundLimit) {
       currentCharacter.addStatusEffect('debuff_tribulation', amount: 1);
     }
 
-    assert(deckZone.cards.isNotEmpty || discardZone.cards.isNotEmpty);
-
     do {
+      final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
       final drawCount =
@@ -1179,21 +1207,20 @@ class BattleScene extends Scene {
 
       extraTurn = false;
 
-      bool skipTurn = false;
-      if (drawn == 0 && handZone.cards.isEmpty) {
-        skipTurn = true;
-      } else if (currentCharacter.turnFlags['skipTurn'] == true) {
-        skipTurn = true;
-      }
-      if (skipTurn) {
-        break;
-      }
+      // 回合开始效果造成死亡后，不再继续资源或出牌阶段。
+      if (_checkBattleResult()) return;
+
+      final skipPlayPhase = (drawn == 0 && handZone.cards.isEmpty) ||
+          currentCharacter.turnFlags['skipTurn'] == true;
 
       // ② 统一生命周期：清空上回合残留的所有阳气（阴气永久存在；煞气未用量返回 karma 池）
       // ③ 结算本回合新产出（元气 rank+3 / 剑气 / 怒气 / 灵气 / 煞气池提取）
       // 顺序显式保证：先清空残留，再结算产出
+      // 各角色第一次行动保留战斗开始时获得的阳气；从下一次行动开始正常清理。
       // 资源气行显示由 addStatusEffect/removeStatusEffect 的钩子自动刷新
-      currentCharacter.clearResourceEffects();
+      if (!isFirstAction) {
+        currentCharacter.clearResourceEffects();
+      }
       currentCharacter.produceTurnStartResources();
 
       final opponentStatus =
@@ -1208,14 +1235,17 @@ class BattleScene extends Scene {
       // 新产出已结算，刷新手牌置灰状态
       refreshHandAffordability();
 
-      if (heroTurn) {
+      if (skipPlayPhase) {
+        endTurnButton.isEnabled = false;
+      } else if (heroTurn) {
         endTurnButton.isEnabled = true;
 
         // 重置结束回合标志
         _endPlayerTurn = false;
 
         // 等待玩家结束回合（通过 _shouldEndTurn 标志）
-        while (_isProcessingQueue || (!_isRestarting && !_endPlayerTurn)) {
+        while (_isProcessingQueue ||
+            (battleResult == null && !_isRestarting && !_endPlayerTurn)) {
           // 等待队列处理器空闲
           // if (!_isProcessingQueue && _cardQueue.isEmpty) {
           // 检查是否还有可打出的卡牌
@@ -1237,6 +1267,7 @@ class BattleScene extends Scene {
         endTurnButton.isEnabled = false;
       } else {
         while (!_isRestarting &&
+            battleResult == null &&
             handZone.cards.isNotEmpty &&
             currentCharacter.energy > 0) {
           final affordable = handZone.cards
@@ -1263,14 +1294,20 @@ class BattleScene extends Scene {
             discardZone.tryAddCard(selectedCard);
             await discardZone.sortCards();
           }
+
+          // 当前卡牌完整结算并处理去向后终止已分出胜负的战斗。
+          if (_checkBattleResult()) break;
         }
         // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
         refreshHandCardDescriptions();
       }
 
-      if (_isRestarting) return;
+      if (_isRestarting || _checkBattleResult()) return;
 
       await currentCharacter.onEndTurn();
+
+      // 回合结束资源和状态效果造成死亡后，不再判定额外回合或切换回合。
+      if (_checkBattleResult()) return;
 
       // 速度达到阈值时 speed_quick 脚本在 onEndTurn 中写入 extraTurn 标记，
       // 在此读取并重复整个回合体（onStartTurn 会清空 turnFlags，标记不会泄漏）
@@ -1301,17 +1338,7 @@ class BattleScene extends Scene {
       roundCount += 1;
     }
 
-    if (enemy.life <= 0) {
-      battleResult = true;
-    } else if (hero.life <= 0) {
-      battleResult = false;
-    } else if (endBattleAfterRounds > 0 && roundCount >= endBattleAfterRounds) {
-      if (hero.life > enemy.life) {
-        battleResult = true;
-      } else {
-        battleResult = false;
-      }
-    }
+    _checkBattleResult(checkRoundLimit: true);
   }
 
   void _endScene() async {

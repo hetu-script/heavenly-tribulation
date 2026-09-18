@@ -2,22 +2,26 @@
 
 1. 摸牌：`drawCardsToHand()`
 2. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
-3. 跳过检查（`turnFlags.skipTurn` 或空手空库）→ 跳过则直接回合结束
-4. 清空资源：`clearResourceEffects()`（所有阳气在下个回合开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消）
-5. 产出结算：`produceTurnStartResources()`（元气 rank+3 / 剑气=上回合武器攻击牌数 /
+3. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
+4. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
+5. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消）
+6. 产出结算：`produceTurnStartResources()`（元气 rank+3 / 剑气=上回合所有武器牌数，包括攻击与加持 /
    怒气=上回合受伤÷10 / 灵气获取天赋+1 / 煞气从业力池提取），刷新能量瓶
-6. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
-7. 出牌阶段：
+7. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
+8. 出牌阶段（若标记跳过则略过本阶段）：
    - 玩家：点击卡牌 → `_enqueueCard`（`heroTurn` 守卫 + 费用硬检查，含队列占用）
      → `_processCardQueue` 依次 `_playCard`（`_payCardCost` 支付：
      无色扣元气层数，有色先扣本色气、缺口自动扣无极之气）→ 弃牌
    - 敌方：循环 `_canPayCardCost` 过滤可支付手牌 → AI 选牌 → 支付并出牌，直至无牌可出
-8. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧进行回合结束资源结算
+9. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧进行回合结束资源结算
    （灵气溢出天赋 → 元气回血），再派发其余回合结束回调
-9. end_turn 被动注入，`clearHand()` 弃掉本回合手牌
-10. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
+10. 检查战斗结果；若未结束，读取额外回合标记，`clearHand()` 弃掉本回合手牌
+11. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
 
-额外回合（`turnFlags.extraTurn`）重复 2-9 后才会切换回合。
+额外回合（`turnFlags.extraTurn`）重复 1-10 后才会切换回合。每张牌完整结算并处理去向后也会检查战斗结果，已分出胜负时不再执行队列中的后续牌。
+
+软狂暴遵循当前实现：当 `roundCount > 8` 后，每次普通行动回合开始前为当前角色赋予 1 层
+`debuff_tribulation`，随后的回合开始回调消耗 1 层并使其失去当前战斗生命上限 10% 的生命；额外回合不重复赋予。
 
 ---
 

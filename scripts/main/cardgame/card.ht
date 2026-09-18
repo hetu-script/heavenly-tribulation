@@ -513,7 +513,7 @@ function rerollAffix(card, materialRank) {
   }
 
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.valueData != null)
+    return (!affix.isMain && affix.isFreezed != true && affix.valueData != null)
   })
 
   if (extraAffixes.isEmpty) {

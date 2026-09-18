@@ -153,7 +153,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 回合开始获得 rank + 3 层，支付无色费用移除对应层数，回合结束按剩余层数回血。
   int get energy => hasStatusEffect('energy_positive_life');
 
-  /// 本回合打出的武器攻击牌数量（回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
+  /// 本回合打出的武器牌数量（含攻击与加持；回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
   int weaponCardsPlayed = 0;
   int lastTurnWeaponCards = 0;
 
@@ -602,7 +602,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 清空所有阳气（资源生命周期：阳气持有至持有者的下个回合开始）。
   /// 阴气永久存在，直到被对应阳气对冲抵消（plan/qi_display.md 共识 4），不在此清空。
   /// 煞气（energy_positive_curse）未用量返回 karma 池（§4.5）；其余阳气直接移除。
-  /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用。
+  /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用；
+  /// 每个角色在本场战斗中的第一次行动会跳过调用，以保留战初阳气。
   void clearResourceEffects() {
     for (final effect in resourceEffects) {
       if (isNegativeResourceQi(effect.id)) continue;
@@ -734,7 +735,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   bool consumeLife(int value) {
     assert(value > 0);
     if (life < value) return false;
-    changeLife(life - value);
+    changeLife(-value);
     return true;
   }
 
@@ -1132,7 +1133,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     cardFlags['category'] = category;
     cardFlags['genre'] = genre;
     cardFlags['kind'] = kind;
-    cardFlags['damage'] = <String, dynamic>{'total': 0};
+    cardFlags['damage'] = <String, dynamic>{
+      'total': 0,
+      'baseChange': 0,
+      'percentageChange1': 0.0,
+      'percentageChange2': 0.0,
+      'percentageChange3': 0.0,
+      'penetration': 0.0,
+    };
 
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['damageType'] = mainAffix['damageType'];

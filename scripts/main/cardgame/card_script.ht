@@ -29,13 +29,13 @@ namespace CardScript {
   }
   /// 多次攻击
   function attack_multiple(self, opponent, affix, mainAffix) {
-    for (final i in range(affix.value[0])) {
+    for (final i in range(affix.value[1])) {
       opponent.takeDamage({
         isMain: true,
         kind: affix.kind,
         cardType: affix.cardType,
         damageType: affix.damageType,
-        baseValue: affix.value[1],
+        baseValue: affix.value[0],
       })
     }
   }
