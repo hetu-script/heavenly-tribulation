@@ -254,7 +254,7 @@ function generateAttributes(entity) {
     ).round()
   }
   for (final id in Constants.battleAttributes) {
-    if (mainAttributes.contains[id]) {
+    if (mainAttributes.contains(id)) {
       attributes[id] = random.nearInt(kBattleAttributesValueMajor)
     } else {
       attributes[id] = random.distantInt(kBattleAttributesValueBase)
@@ -462,11 +462,18 @@ function getCharacterMovableTerrainKinds(character) {
 /// 也不会检查角色是否有足够的技能点
 /// 升级天赋时，并不会立刻影响角色数据，
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
-function characterSetPassive(character, dataId, {level = 1}) {
+/// rank 是词条数值中 rankIncrement 的境界来源，由词条的来源决定：
+/// 物品（装备/丹药）词条应传入物品自身的境界；
+/// 天赋树节点的词条应传入节点自身数据中记录的 rank；
+/// 缺省为 0（无 rank 贡献），不按角色境界计算
+/// 同名词条的 level 与 rank 贡献都会累加（rank 总和记录在 passiveData.rank），
+/// 因此多件装备的同名词条可以叠加，卸下时减去对应贡献
+function characterSetPassive(character, dataId, {level = 1, rank}) {
   if (level == 0) {
     engine.warning('Character set passive error: level is zero, dataId: ${dataId}')
     level = 1
   }
+  rank ??= 0
   if (character.passives[dataId] == null) {
     if (level < 0) {
       engine.warning('Could not found passive dataId [${dataId}] on character for decrease!')
@@ -480,6 +487,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
       level: level,
       maxLevel: passiveRawData.maxLevel,
       description: passiveRawData.description,
+      rank: rank,
     )
     if (passiveRawData.increment != null || passiveRawData.rankIncrement != null) {
       passiveData.increment = passiveRawData.increment
@@ -488,7 +496,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
+      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: rank).round()
     }
     character.passives[dataId] = passiveData
   } else {
@@ -500,11 +508,13 @@ function characterSetPassive(character, dataId, {level = 1}) {
       }
       delete character.passives[dataId]
     } else {
+      // rank 贡献按增减方向累加（旧存档的词条可能没有 rank 字段，按 0 处理）
+      passiveData.rank = (passiveData.rank ?? 0) + (level > 0 ? rank : -rank)
       let passiveLevel = passiveData.level
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
+      passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: passiveData.rank).round()
     }
   }
 }
@@ -632,7 +642,7 @@ function characterEquip(entity, item, { index }) {
   let equipped = false
   // 如果有空位就装备在空位上
   if (index == null) {
-    for (const i in range(kEquipmentMax + 1)) {
+    for (const i in range(kEquipmentMax)) {
       if (entity.equipments[i] == null) {
         entity.equipments[i] = item.id
         item.equippedPosition = i
@@ -660,7 +670,8 @@ function characterEquip(entity, item, { index }) {
   if (equipped) {
     if (item.affixes is List) {
       for (final passiveData in item.affixes) {
-        characterSetPassive(entity, passiveData.id, level: passiveData.level ?? 1)
+        // 装备词条的 rankIncrement 按装备自身的境界计算
+        characterSetPassive(entity, passiveData.id, level: passiveData.level ?? 1, rank: item.rank)
       }
       // 重新计算角色状态值
       characterCalculateStats(entity, rejuvenate: false)
@@ -677,12 +688,12 @@ function characterEquip(entity, item, { index }) {
 
 function characterUnequip(entity, item) {
   assert(item.equippedPosition != null)
-  hero.equipments[item.equippedPosition] = null
+  entity.equipments[item.equippedPosition] = null
   delete item.equippedPosition
 
   if (item.affixes is List) {
     for (final passiveData in item.affixes) {
-      characterSetPassive(entity, passiveData.id, level: -(passiveData.level ?? 1))
+      characterSetPassive(entity, passiveData.id, level: -(passiveData.level ?? 1), rank: item.rank)
     }
     // 重新计算角色状态值
     characterCalculateStats(entity, rejuvenate: false)
@@ -740,11 +751,14 @@ function characterFirstEquippedKind(entity, kind) {
 /// 修改从丹药中获得的被动属性
 /// 相同的属性会被覆盖
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
-function characterSetEphemeralPassive(character, dataId, {level = 1}) {
+/// rank 的含义同 characterSetPassive：丹药词条按丹药自身的境界计算，
+/// 缺省为 0（无 rank 贡献），不按角色境界计算
+function characterSetEphemeralPassive(character, dataId, {level = 1, rank}) {
   if (level == 0) {
     engine.warning('Character gain passive error: level is zero')
     return
   }
+  rank ??= 0
   final passiveRawData = game.passives[dataId]
   assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
   final passiveData = PassiveData(
@@ -752,6 +766,7 @@ function characterSetEphemeralPassive(character, dataId, {level = 1}) {
     priority: passiveRawData.priority ?? 0,
     level: level,
     description: passiveRawData.description,
+    rank: rank,
   )
   if (passiveRawData.increment != null || passiveRawData.rankIncrement != null) {
     passiveData.increment = passiveRawData.increment
@@ -760,7 +775,7 @@ function characterSetEphemeralPassive(character, dataId, {level = 1}) {
     if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
       passiveLevel = passiveData.maxLevel
     }
-    passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: character.rank).round()
+    passiveData.value = calcAffixValue(passiveData, level: passiveLevel, rank: rank).round()
   }
   character.ephemeralPassives[dataId] = passiveData
 }
@@ -780,12 +795,12 @@ function characterConsumePotion(entity, item) {
       }
     }
     else: {
-      characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level)
+      characterSetEphemeralPassive(entity, mainAffix.id, level: mainAffix.level, rank: item.rank)
     }
   }
 
   for (final passiveData in item.affixes.skip(1)) {
-    characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level)
+    characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level, rank: item.rank)
   }
   // 重新计算角色状态值
   characterCalculateStats(entity, rejuvenate: false)

@@ -67,7 +67,7 @@
     image: "battlecard/illustration/unique_draw_cards.png",
     animation: {
       startup: "spell_buff",
-      sound: "spell-of-healing-876",
+      sound: "spell-of-healing-876.mp3",
     },
     script: "draw_cards",
     keywords: ["exhaustResource"],
@@ -94,6 +94,7 @@
     kind: "xinfa",
     cardType: "xinfa",
     rank: 1,
+    isUnique: true,
     description: "affix_energy_positive_life",
     keywords: ["status_energy_positive_life"],
     image: "battlecard/illustration/unique_vigor.png",
@@ -116,6 +117,7 @@
     cardType: "curse",
     kind: "power_word",
     rank: 4,
+    isUnique: true,
     description: "affix_opponent_reduce_resist_all",
     image: "battlecard/illustration/unique_reduce_resist_all.png",
     animation: {
@@ -484,7 +486,7 @@
     ],
   },
   dodge_nimble_defend: {
-    id: "affix_dodge_nimble_defend",
+    id: "dodge_nimble_defend",
     uniqueIds: ["dodge_nimble", "defend"],
     category: "buff",
     kind: "qinggong",
@@ -668,7 +670,6 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "ice",
-    elementResist: "ice",
     description: "affix_attack_unarmed_ice",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
@@ -699,7 +700,6 @@
     rank: 1,
     cardType: "unarmed",
     damageType: "lightning",
-    elementResist: "lightning",
     description: "affix_attack_unarmed_lightning",
     image: "battlecard/illustration/punch_attack.png",
     animation: {
@@ -1054,7 +1054,7 @@
     rank: 1,
     cardType: "weapon",
     damageType: "chi",
-    description: "affix_attack_weapon_multiple_exhaust_rage",
+    description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/sabre_attack.png",
     animation: {
       startup: ["before_melee_startup", "melee_startup"],
@@ -2088,7 +2088,7 @@
     cardType: "weapon",
     damageType: "physical",
     rank: 1,
-    description: "affix_attack_weapon_multiple_exhaust_karma",
+    description: "affix_attack_weapon_multiple",
     image: "battlecard/illustration/bow_attack.png",
     animation: {
       startup: "bow_attack",
@@ -2143,7 +2143,7 @@
     rank: 1,
     cardType: "curse",
     damageType: "psychic",
-    description: "affix_attack_curse_exhaust_karma",
+    description: "affix_attack_curse",
     image: "battlecard/illustration/vitality_power_word_attack.png",
     animation: {
       startup: "spell_attack",
@@ -2211,6 +2211,7 @@
   opponent_debuff_crit: {
     id: "opponent_debuff_crit",
     uniqueIds: ["opponent_debuff_crit"],
+    genre: "vitality",
     category: "buff",
     kind: "power_word",
     rank: 1,
@@ -2236,6 +2237,7 @@
   opponent_debuff_ward: {
     id: "opponent_debuff_ward",
     uniqueIds: ["opponent_debuff_ward"],
+    genre: "vitality",
     category: "buff",
     kind: "power_word",
     rank: 2,
@@ -2261,6 +2263,7 @@
   opponent_debuff_shield: {
     id: "opponent_debuff_shield",
     uniqueIds: ["opponent_debuff_shield"],
+    genre: "vitality",
     category: "buff",
     kind: "power_word",
     rank: 3,
@@ -2286,6 +2289,7 @@
   opponent_reduce_resist_poison: {
     id: "opponent_reduce_resist_poison",
     uniqueIds: ["opponent_reduce_resist"],
+    genre: "vitality",
     category: "buff",
     kind: "power_word",
     rank: 2,

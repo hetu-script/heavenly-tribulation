@@ -297,7 +297,7 @@ function _updateAffixUniqueIds(card) {
   for (final affix in card.affixes) {
     if (affix.isMain) {
       if (affix.uniqueIds is List) {
-        card.affixUniqueIds.addAll(affix.uniqueId)
+        card.affixUniqueIds.addAll(affix.uniqueIds)
       } else if (affix.uniqueId is string) {
         card.affixUniqueIds.add(affix.uniqueId)
       }

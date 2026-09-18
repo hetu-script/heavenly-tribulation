@@ -88,7 +88,7 @@ struct Equipment {
         }
       }
       mainAffix.level = this.level
-      mainAffix.value = calcAffixValue(mainAffix, level: this.level, rank: this.rank).floor()
+      mainAffix.value = calcAffixValue(mainAffix, level: this.level, rank: this.rank).round()
     }
     this.affixes.add(mainAffix)
     // this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
@@ -130,7 +130,7 @@ struct Equipment {
               }
             }
             affix.level = getRandomLevel(minAffixLevel, this.level)
-            affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).floor()
+            affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).round()
           }
           this.affixes.add(affix)
           this.affixUniqueIds.add(affix.uniqueId ?? affix.id)

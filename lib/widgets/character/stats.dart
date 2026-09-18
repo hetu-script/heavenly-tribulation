@@ -136,8 +136,7 @@ class _CharacterStatsState extends State<CharacterStats> {
       valueString = value > baseValue
           ? '<yellow>$value%</>'
           : (value < baseValue ? '<red>$value%</>' : '$value%');
-      description = engine.locale('${id}_description');
-      '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
+      description = '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
     } else if (id.endsWith('Threshold')) {
       valueString = value < baseValue ? '<yellow>$value</>' : value.toString();
       description = engine.locale('${id}_description');

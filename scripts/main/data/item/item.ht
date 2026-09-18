@@ -144,7 +144,7 @@ function createItemById(id, {amount, rank, level}) {
           }
         }
         affix.level = getRandomLevel(minAffixLevel, item.level)
-        affix.value = calcAffixValue(affix, level: affix.level, rank: item.rank).floor()
+        affix.value = calcAffixValue(affix, level: affix.level, rank: item.rank).round()
       }
       item.affixes.add(affix)
     }

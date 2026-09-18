@@ -12,6 +12,7 @@ struct PassiveData {
     increment,
     rankIncrement,
     description,
+    rank,
   }) {
     assert(id != null && description != null)
     this.id = id
@@ -21,6 +22,8 @@ struct PassiveData {
     this.increment = increment
     this.rankIncrement = rankIncrement
     this.description = description
+    // rankIncrement 词条的 rank 贡献总和（多件同名词条装备叠加时累加，卸下时减去）
+    this.rank = rank ?? 0
   }
 }
 
@@ -820,7 +823,7 @@ namespace Player {
 
   /// 聚灵阵冥想 — 根据类别和境界生成随机 buff 并赋予玩家
   /// type: 'attack' | 'buff' | 'attribute' | 'energy'
-  /// rank: 角色当前境界
+  /// rank: 聚灵阵的发展度（境界）
   function getExpArrayBuff(type, rank) {
     assert(hero != null)
     
@@ -849,7 +852,7 @@ namespace Player {
       level = getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
     }
 
-    characterSetEphemeralPassive(hero, affix.id, level: level)
+    characterSetEphemeralPassive(hero, affix.id, level: level, rank: rank)
     engine.info('聚灵阵赋予buff: ${affix.id} lv${level}')
   }
 }

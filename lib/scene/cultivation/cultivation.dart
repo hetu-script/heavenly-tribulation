@@ -1025,7 +1025,8 @@ class CultivationScene extends Scene with HasCursorState {
     }
 
     // 调用 Hetu 生成并赋予该类别的随机 buff
-    final int rank = character['rank'] as int;
+    // buff 的 rank 来源是聚灵阵的发展度（境界），而非角色境界
+    final int rank = location?['development'] ?? 0;
     engine.hetu.invoke(
       'getExpArrayBuff',
       namespace: 'Player',

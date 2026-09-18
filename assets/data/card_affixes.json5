@@ -258,6 +258,24 @@
       },
     ],
   },
+  
+  // 获得无极之气
+  energy_positive_ultimate: {
+    id: "energy_positive_ultimate",
+    uniqueId: "energy_positive_ultimate",
+    categories: ["buff", "attack"],
+    rank: 4,
+    description: "affix_energy_positive_ultimate",
+    keywords: ["status_energy_positive_ultimate"],
+    buffId: "energy_positive_ultimate",
+    script: "self_buff",
+    priority: -1,
+    valueData: [
+      {
+        rankIncrement: 1,
+      },
+    ],
+  },
 
   // 临时升级手牌中的其他卡牌(buff)
 
