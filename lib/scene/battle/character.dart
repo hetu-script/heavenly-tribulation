@@ -919,11 +919,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (isCrit) {
         int critMultiplier =
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
-        // 衰气：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
+        // 不幸：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
         // 按层循环消耗，直到倍率降为 100% 或衰气耗尽
         while (critMultiplier > 100 &&
             opponent!.hasStatusEffect('debuff_crit') > 0) {
-          critMultiplier -= 50;
+          critMultiplier -= 25;
           if (critMultiplier < 100) critMultiplier = 100;
           opponent!.removeStatusEffect('debuff_crit', amount: 1);
         }

@@ -229,9 +229,8 @@
     categories: ["buff", "attack"],
     rank: 4,
     description: "affix_opponent_reduce_resist_all",
-    keywords: ["status_vulnerable"],
-    buffId: "vulnerable",
-    script: "opponent_debuff",
+    keywords: ["status_resist"],
+    script: "reduce_resist_all",
     priority: -1,
     valueData: [
       {
@@ -258,7 +257,7 @@
       },
     ],
   },
-  
+
   // 获得无极之气
   energy_positive_ultimate: {
     id: "energy_positive_ultimate",

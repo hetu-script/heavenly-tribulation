@@ -327,7 +327,7 @@
     id: "penetration",
     title: "status_penetration",
     description: "status_penetration_description",
-    icon: "icon/status/permanent/penetration_weapon.png",
+    icon: "icon/status/permanent/penetration.png",
     isPermanent: true,
   },
 
@@ -716,7 +716,7 @@
     cardType: "curse",
     callbacks: ["self_doing_damage"],
   },
-  // 虚无之气
+  // 虚空之气
   // 无极之气对应的阴气，保留为资源（图标运行时反色显示）
   energy_negative_ultimate: {
     id: "energy_negative_ultimate",

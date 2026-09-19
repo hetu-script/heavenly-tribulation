@@ -93,6 +93,7 @@ flutter:
     - assets/images/cultivation/skill/more/
     - assets/images/cursor/
     - assets/images/icon/
+    - assets/images/icon/cost/
     - assets/images/icon/skill/
     - assets/images/icon/status/
     - assets/images/icon/status/permanent/

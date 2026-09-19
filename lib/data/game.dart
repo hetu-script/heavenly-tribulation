@@ -1392,25 +1392,25 @@ final class GameData with ChangeNotifier {
     }
 
     // 有色费用（过渡期方案：卡面 pip 渲染暂缓，以文本行附加在描述区，见计划 §6.1）
-    final qiCost = cardData['qiCost'];
-    if (qiCost is Map && qiCost.isNotEmpty) {
-      final parts = <String>[];
-      qiCost.forEach((color, amount) {
-        final statusId = kCostColorStatusIds[color];
-        if (statusId != null) {
-          parts.add('${engine.locale('status_$statusId')}×$amount');
-        }
-      });
-      if (parts.isNotEmpty) {
-        final line = engine.locale('battlecard_qiCost_hint', interpolations: [
-          parts.join(engine.locale('enumeration_separator'))
-        ]);
-        description.writeln(line);
-        if (showAffixes && isIdentified) {
-          extraDescription.writeln(line);
-        }
-      }
-    }
+    // final qiCost = cardData['qiCost'];
+    // if (qiCost is Map && qiCost.isNotEmpty) {
+    //   final parts = <String>[];
+    //   qiCost.forEach((color, amount) {
+    //     final statusId = kCostColorStatusIds[color];
+    //     if (statusId != null) {
+    //       parts.add('${engine.locale('status_$statusId')}×$amount');
+    //     }
+    //   });
+    //   if (parts.isNotEmpty) {
+    //     final line = engine.locale('battlecard_qiCost_hint', interpolations: [
+    //       parts.join(engine.locale('enumeration_separator'))
+    //     ]);
+    //     description.writeln(line);
+    //     if (showAffixes && isIdentified) {
+    //       extraDescription.writeln(line);
+    //     }
+    //   }
+    // }
 
     if (!isIdentified) {
       description.writeln('<red>${engine.locale('unidentified')}</>');
