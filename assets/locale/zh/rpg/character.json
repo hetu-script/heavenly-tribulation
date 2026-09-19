@@ -26,7 +26,7 @@
   "waterMoveStaminaCost_description": "在水上移动一格所需要的体力。",
   "meditateTimeCost": "冥想时间",
   "meditateTimeCost_description": "打坐时每次点击冥想气泡所需要的时间 tick。",
-  "expCollectEfficiency": "修为经验获取",
+  "expCollectEfficiency": "修为获取",
   "expCollectEfficiency_description": "影响你通过战斗获取的修为经验数量。",
   "workEfficiency": "工作效率",
   "workEfficiency_description": "影响你打工、生产时获取的资源数量。",

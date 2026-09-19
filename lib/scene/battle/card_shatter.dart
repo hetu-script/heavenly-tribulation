@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// 卡牌碎裂动画的碎片粒子（易逝卡牌打出后碎裂消失用，见 plan/scroll_card.md）
+/// 卡牌碎裂动画的碎片粒子（消耗卡牌打出后碎裂消失用，见 plan/scroll_card.md）
 class _CardFragment extends PositionComponent {
   _CardFragment({
     required super.position,
@@ -42,8 +42,8 @@ class _CardFragment extends PositionComponent {
     if (_lifetime > _maxLifetime * 0.4) {
       final fadeProgress =
           (_lifetime - _maxLifetime * 0.4) / (_maxLifetime * 0.6);
-      _paint.color = color
-          .withAlpha(((1 - fadeProgress).clamp(0.0, 1.0) * 255).toInt());
+      _paint.color =
+          color.withAlpha(((1 - fadeProgress).clamp(0.0, 1.0) * 255).toInt());
     }
 
     if (_lifetime > _maxLifetime) {

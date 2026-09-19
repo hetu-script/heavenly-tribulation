@@ -12,8 +12,8 @@
   "deckbuilding_collect_all": "全部收下",
 
   "deckbuilding_limit": "最少卡牌数",
-  "deckbuilding_limit_ephemeral": "易逝卡牌数量",
-  "deckbuilding_limit_hint": "提升境界会增加允许的最少卡牌数，以及易逝卡牌和持续牌的数量。",
+  "deckbuilding_limit_ephemeral": "消耗卡牌数量",
+  "deckbuilding_limit_hint": "提升境界会增加允许的最少卡牌数，以及消耗卡牌的数量。",
 
   "deckbuilding_requirement_not_met": "不可用",
   "deckbuilding_already_in_battle_deck": "该卡牌已在出战卡组中！",
@@ -21,7 +21,7 @@
   "deckbuilding_deck_is_full": "卡牌数量已达到当前境界上限！",
   "deckbuilding_card_unidentified": "需要要先鉴定才能将卡牌加入卡组！",
   "deckbuilding_ongoing_card_limit": "持续牌数量已达到当前境界允许上限！",
-  "deckbuilding_ephemeral_card_limit": "易逝卡牌数量已达到上限！",
+  "deckbuilding_ephemeral_card_limit": "消耗卡牌数量已达到上限！",
 
   "deckbuilding_emtpy": "卡组是空的！",
   "deckbuilding_cards_not_enough": "未满足卡组卡牌数量需求！",

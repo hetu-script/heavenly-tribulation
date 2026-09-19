@@ -17,7 +17,7 @@
   "cursedItemHint": "禁制: 装备后无法取下",
   "cardpackHint": "点击右键使用以获取功法",
   "currentCharges": "当前充能次数: {0}∕{1}",
-  "shardsPerCharge": "每次充能消耗: {0} 灵石",
+  "shardsPerCharge": "每次充能花费: {0} 灵石",
 
   "basePriceFactor": "全部",
   "sellPriceFactor": "卖出",
@@ -100,10 +100,10 @@
   "scroll_paper_fragment": "符纸碎片",
   "flavortext_scroll_paper_fragment": "20 个符纸碎片可以合成一个符纸。",
   "scroll_paper": "符纸",
-  "flavortext_scroll_paper": "用来将功法卡牌制作为符箓的材料。符箓卡牌将移除所有装备和境界需求，但有次数限制，使用完毕后会消失。制作符箓会消耗原本的卡牌。",
+  "flavortext_scroll_paper": "用来复制功法卡牌制作符箓的材料。符箓卡牌在战斗中是消耗牌，且有次数限制。",
 
   "dungeon_ticket": "秘境石",
-  "flavortext_dungeon_ticket": "进入高阶秘境需要消耗对应品级的秘境石。",
+  "flavortext_dungeon_ticket": "进入高阶秘境需要花费对应品级的秘境石。",
 
   "rare_scroll": "凝气符箓",
   "epic_scroll": "筑基符箓",

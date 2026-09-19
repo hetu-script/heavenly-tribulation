@@ -153,7 +153,7 @@ namespace Player {
   }
 
   /// 将卡牌复制转化为符箓：原卡保留，副本（由 Dart 侧深拷贝后传入）加入卡库，
-  /// 并消耗 1 张空白符纸。符箓是易逝卡牌：战斗中打出后即碎裂消失，
+  /// 并消耗 1 张空白符纸。符箓是消耗卡牌：战斗中打出后即碎裂消失，
   /// 战斗结束时实际打出过的符箓使用次数 -1
   function craftScroll(newCardData, paper, { incurIncident = true }) {
     assert(hero != null)

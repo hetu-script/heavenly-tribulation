@@ -93,12 +93,13 @@
   "illustration_xinfa_rage": "心法·怒气",
   "illustration_xinfa_ultimate": "心法·无极之气",
 
-  "element_earth": "土",
-  "element_fire": "火",
-  "element_lightning": "雷",
-  "element_water": "水",
+  "element_metal": "金",
   "element_wood": "木",
+  "element_water": "水",
+  "element_fire": "火",
+  "element_earth": "土",
   "element_wind": "风",
+  "element_lightning": "雷",
 
   "exhaustResource": "费用",
   "exhaustResource_description": "除了基本的元气费用之外，某些卡牌还需要特定的有色气作为额外费用才能打出",

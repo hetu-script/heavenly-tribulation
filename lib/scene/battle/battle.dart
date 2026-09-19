@@ -1090,7 +1090,7 @@ class BattleScene extends Scene {
     card.showGlow = false;
 
     if (card.data['isEphemeral'] == true) {
-      // 易逝卡牌（符箓）：打出后碎裂消失，不进弃牌堆；
+      // 消耗卡牌（符箓）：打出后碎裂消失，不进弃牌堆；
       // 标记 usedInBattle 供战斗结束时的使用次数结算识别
       card.data['usedInBattle'] = true;
       world.add(CardShatterEffect(
@@ -1404,7 +1404,7 @@ class BattleScene extends Scene {
       clearEphemeralPassives(hero);
       clearEphemeralPassives(enemy);
 
-      // 易逝卡牌（符箓）计数结算：战斗中实际打出过的符箓使用次数 -1（未打出不扣）
+      // 消耗卡牌（符箓）计数结算：战斗中实际打出过的符箓使用次数 -1（未打出不扣）
       final usedScrollIds = <dynamic>[
         for (final card in heroDeck)
           if (card.data['isEphemeral'] == true &&

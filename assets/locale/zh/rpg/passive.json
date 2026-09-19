@@ -156,11 +156,13 @@
   "passive_dart_and_bow_attack_deal_pure_damage_description": "你的暗器和弓术攻击减少30%，并转为纯粹伤害",
   "passive_curse_deal_pure_damage_description": "咒术攻击减少30%，并转为纯粹伤害",
   "passive_gained_debuff_affect_opponent_description": "每当你获得负面效果时，对手获得同样的负面效果",
+
   "passive_upgradeRank_1_description": "提升修为时有概率触发凝气境天道试炼",
   "passive_upgradeRank_2_description": "提升修为时有概率触发筑基境天道试炼",
   "passive_upgradeRank_3_description": "提升修为时有概率触发结丹境天道试炼",
   "passive_upgradeRank_4_description": "提升修为时有概率触发元婴境天道试炼",
   "passive_upgradeRank_5_description": "提升修为时有概率触发化神境天道试炼",
+
   "passive_overheal_description": "生命 {0} (可超过上限)",
   "passive_tribulationCountReduce_description": "劫数 {0} (可变成负数)",
   "passive_decreaseTribulationDifficulty_description": "降低天道技能境界节点突破试炼的难度",
