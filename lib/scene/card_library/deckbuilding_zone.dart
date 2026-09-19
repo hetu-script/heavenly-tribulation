@@ -97,7 +97,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     for (final card in cards) {
       final warning = GameLogic.checkRequirements((card as CustomGameCard).data,
-          checkIdentified: true);
+          checkLevel: false);
       valid = warning == null;
     }
 
@@ -361,7 +361,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       return 'deckbuilding_unique_card_exists';
     }
     // 易逝卡牌（符箓等）数量上限
-    if (cardData['isEphemeral'] == true && ephemeralCount >= kDeckEphemeralCount) {
+    if (cardData['isEphemeral'] == true &&
+        ephemeralCount >= kDeckEphemeralCount) {
       return 'deckbuilding_ephemeral_card_limit';
     }
 

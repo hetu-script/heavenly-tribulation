@@ -43,21 +43,27 @@ const _kSkillButtonPriority = 40;
 
 /// 天赋树轨道半径，及轨道上的坐标点数量
 const kTrackRadius = [
-  (128, 5), // 0, 起始轨道
-  (213, 5), // 1,
-  (298, 10), // 2,
-  (384, 10), // 3,
-  (469, 20), // 4, 凝气轨道
-  (554, 20), // 5, 筑基轨道
-  (640, 40), // 6, 结丹轨道
-  (725, 20), // 7,
-  (810, 40), // 8,
-  (896, 20), // 9,
-  (981, 40), // 10,
-  (1066, 20), // 11,
-  (1152, 40), // 12,
-  // (1408)
-  // (1664)
+  (144, 5), // 0, 起始轨道
+  (216, 5), // 1,
+  (288, 10), // 2,
+  (360, 10), // 3,
+  (432, 20), // 4, 凝气轨道
+  (504, 20), // 5,
+  (576, 40), // 6,
+  (648, 20), // 7,
+  (720, 20), // 8, 筑基轨道
+  (792, 20), // 9,
+  (864, 20), // 10,
+  (936, 40), // 11,
+  (1008, 40), // 12, 结丹轨道
+  (1080, 40), // 13,
+  (1152, 20), // 14,
+  (1224, 40), // 15,
+  (1296, 40), // 16, 元婴轨道
+  (1368, 40), // 17,
+  (1440, 20), // 18,
+  (1512, 20), // 19,
+  (1584, 20), // 20, 化神轨道
 ];
 
 enum CultivationMode {
@@ -437,7 +443,11 @@ class CultivationScene extends Scene with HasCursorState {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
     final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-    final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
+    final String? warning = GameLogic.checkRequirements(
+      passiveTreeNodeData,
+      checkIdentified: false,
+      checkLevel: true,
+    );
 
     final skillDescription = StringBuffer();
 
@@ -1425,15 +1435,15 @@ class CultivationScene extends Scene with HasCursorState {
         final button = _skillButtons[nodeId]!;
         final connectedNodes = passiveTreeNodeData['connectedNodes'];
         if (connectedNodes is List) {
-          for (final positionId in connectedNodes) {
-            assert(positionId != nodeId);
-            final lineId1 = '$nodeId-$positionId';
-            final lineId2 = '$positionId-$nodeId';
+          for (final connectedNodeId in connectedNodes) {
+            assert(connectedNodeId != nodeId);
+            final lineId1 = '$nodeId-$connectedNodeId';
+            final lineId2 = '$connectedNodeId-$nodeId';
             if (_nodeConnections.containsKey(lineId1) ||
                 _nodeConnections.containsKey(lineId2)) {
               continue;
             }
-            final connectedButton = _skillButtons[positionId];
+            final connectedButton = _skillButtons[connectedNodeId];
             if (connectedButton != null) {
               final distance = math.sqrt(
                   math.pow(connectedButton.center.x - button.center.x, 2) +
@@ -1687,7 +1697,7 @@ class CultivationScene extends Scene with HasCursorState {
       GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       skillButton.isSelected = true;
       --character['skillPoints'];
-      character['rank'] = difficulty;
+      character['rank'] = difficulty + 1;
       updatePassivesDescription();
       updateInformation();
       // engine.play(GameSound.click);

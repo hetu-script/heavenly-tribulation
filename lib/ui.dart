@@ -3,7 +3,6 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:samsara/utils/math.dart';
 
 import 'data/common.dart';
@@ -191,6 +190,15 @@ final class Cursors {
   static const press = 'press';
   static const talk = 'talk';
   static const sandglass = 'sandglass';
+
+  static Map<String, String> data = {
+    'normal': 'assets/images/cursor/sword.png',
+    'click': 'assets/images/cursor/click.png',
+    'press': 'assets/images/cursor/press.png',
+    'drag': 'assets/images/cursor/drag.png',
+    'talk': 'assets/images/cursor/talk.png',
+    'sandglass': 'assets/images/cursor/sandglass.png'
+  };
 }
 
 class _GameCursor extends WidgetStateMouseCursor {
@@ -201,13 +209,13 @@ class _GameCursor extends WidgetStateMouseCursor {
   @override
   MouseCursor resolve(Set<WidgetState> states) {
     if (states.contains(WidgetState.hovered)) {
-      return FlutterCustomMemoryImageCursor(key: Cursors.click);
+      return const GameCursor(name: Cursors.click);
     } else if (states.contains(WidgetState.pressed)) {
-      return FlutterCustomMemoryImageCursor(key: Cursors.press);
+      return const GameCursor(name: Cursors.press);
     } else if (states.contains(WidgetState.dragged)) {
-      return FlutterCustomMemoryImageCursor(key: Cursors.drag);
+      return const GameCursor(name: Cursors.drag);
     } else {
-      return FlutterCustomMemoryImageCursor(key: Cursors.normal);
+      return const GameCursor(name: Cursors.normal);
     }
   }
 
@@ -216,10 +224,10 @@ class _GameCursor extends WidgetStateMouseCursor {
 }
 
 final class GameCursors {
-  static const hovered = FlutterCustomMemoryImageCursor(key: Cursors.click);
-  static const pressed = FlutterCustomMemoryImageCursor(key: Cursors.press);
-  static const dragged = FlutterCustomMemoryImageCursor(key: Cursors.drag);
-  static const normal = FlutterCustomMemoryImageCursor(key: Cursors.normal);
+  static const hovered = GameCursor(name: Cursors.click);
+  static const pressed = GameCursor(name: Cursors.press);
+  static const dragged = GameCursor(name: Cursors.drag);
+  static const normal = GameCursor(name: Cursors.normal);
 }
 
 final class GameUI {
@@ -556,7 +564,9 @@ final class GameUI {
   static final qiSlotSize = Vector2(40, 40);
   static const qiSlotCount = 6;
   static double get qiRowWidth =>
-      qiSlotCount * qiSlotSize.x + (qiSlotCount - 1) * smallIndent + largeIndent;
+      qiSlotCount * qiSlotSize.x +
+      (qiSlotCount - 1) * smallIndent +
+      largeIndent;
 
   // cultivation ui
   static late Vector2 cultivatorPosition;
@@ -758,8 +768,8 @@ final class GameUI {
         deckAndHandY - permanentStatusEffectIconSize.y - indent);
 
     // 资源气行：永久状态行上方单独一行；敌方为行右缘锚点（槽位从右向左排列）
-    p1QiBarPosition = Vector2(
-        indent, p1PermanentStatusPosition.y - qiSlotSize.y - indent);
+    p1QiBarPosition =
+        Vector2(indent, p1PermanentStatusPosition.y - qiSlotSize.y - indent);
     p2QiBarPosition = Vector2(size.x - indent - qiRowWidth,
         p1PermanentStatusPosition.y - qiSlotSize.y - indent);
 

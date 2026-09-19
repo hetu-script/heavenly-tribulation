@@ -288,7 +288,7 @@ class BattleScene extends Scene {
         final chargeExhausted =
             chargeData != null && (chargeData['current'] as num) <= 0;
         if (isHero &&
-            (GameLogic.checkRequirements(data, checkIdentified: true) != null ||
+            (GameLogic.checkRequirements(data, checkLevel: false) != null ||
                 chargeExhausted)) {
           _replacedCardCount++;
           cards.add(_createBlankCard());

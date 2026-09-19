@@ -2117,46 +2117,46 @@ void _characterRefundPassiveTreeNode(
 }
 
 void _characterAllocateSkills(dynamic character, {bool rejuvenate = true}) {
-  final genre = character['cultivationFavor'];
-  final style = character['cultivationStyle'];
-  final int rank = character['rank'];
-  final int level = character['level'];
+  // final genre = character['cultivationFavor'];
+  // final style = character['cultivationStyle'];
+  // final int rank = character['rank'];
+  // final int level = character['level'];
 
-  int count = 0;
-  final List<String>? rankPath = kCultivationRankPaths[genre];
-  if (rankPath == null) {
-    engine.warning('修炼流派 $genre 的 rankPath 不存在');
-  } else {
-    final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
-    assert(stylePath != null, 'genre: $genre, style: $style');
+  // int count = 0;
+  // final List<String>? rankPath = kCultivationRankPaths[genre];
+  // if (rankPath == null) {
+  //   engine.warning('修炼流派 $genre 的 rankPath 不存在');
+  // } else {
+  //   final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
+  //   assert(stylePath != null, 'genre: $genre, style: $style');
 
-    for (var i = 0; i < rank; ++i) {
-      assert(i < rankPath.length);
-      final nodeId = rankPath[i];
-      final unlocked =
-          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-      if (unlocked) {
-        count++;
-      }
-    }
+  //   for (var i = 0; i < rank; ++i) {
+  //     assert(i < rankPath.length);
+  //     final nodeId = rankPath[i];
+  //     final unlocked =
+  //         GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+  //     if (unlocked) {
+  //       count++;
+  //     }
+  //   }
 
-    for (var i = 0; i < level - rank; ++i) {
-      assert(i < stylePath!.length);
-      final nodeId = stylePath![i];
-      final unlocked =
-          GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-      if (unlocked) {
-        count++;
-      }
-    }
-  }
+  //   for (var i = 0; i < level - rank; ++i) {
+  //     assert(i < stylePath!.length);
+  //     final nodeId = stylePath![i];
+  //     final unlocked =
+  //         GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
+  //     if (unlocked) {
+  //       count++;
+  //     }
+  //   }
+  // }
 
-  engine.hetu.invoke('characterCalculateStats', positionalArgs: [
-    character
-  ], namedArgs: {
-    'rejuvenate': rejuvenate,
-  });
+  // engine.hetu.invoke('characterCalculateStats', positionalArgs: [
+  //   character
+  // ], namedArgs: {
+  //   'rejuvenate': rejuvenate,
+  // });
 
-  engine.info(
-      '${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
+  // engine.info(
+  //     '${character['name']} (rank: ${character['rank']}, level: ${character['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
 }

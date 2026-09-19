@@ -51,6 +51,9 @@ dependencies:
   flutter_markdown_plus: ^1.0.5
   display_metrics: ^2.2.1
   icons_launcher: ^3.0.3
+  ffi: ^2.2.0
+  win32: ^6.4.0
+  image: ^4.5.2
 
 dev_dependencies:
   flutter_test:

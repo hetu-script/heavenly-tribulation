@@ -70,14 +70,7 @@ void main() {
       await windowManager.focus();
     });
 
-    await engine.registerCursors({
-      'normal': 'assets/images/cursor/sword.png',
-      'click': 'assets/images/cursor/click.png',
-      'press': 'assets/images/cursor/press.png',
-      'drag': 'assets/images/cursor/drag.png',
-      'talk': 'assets/images/cursor/talk.png',
-      'sandglass': 'assets/images/cursor/sandglass.png',
-    });
+    await GameCursor.registerCursors(Cursors.data);
 
     runApp(
       MultiProvider(
@@ -102,15 +95,16 @@ void main() {
         ],
         child: fluent.FluentTheme(
           data: GameUI.fluentTheme,
-          child: MaterialApp(
-            scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
-            debugShowCheckedModeBanner: false,
-            theme: GameUI.darkMaterialTheme,
-            home: fluent.FlyoutTarget(
-              controller: globalFlyoutController,
-              child: MouseRegion(
-                cursor: GameUI.cursor,
-                child: DisplayMetricsWidget(
+          child: DisplayMetricsWidget(
+            child: MaterialApp(
+              scrollBehavior:
+                  NoThumbScrollBehavior().copyWith(scrollbars: false),
+              debugShowCheckedModeBanner: false,
+              theme: GameUI.darkMaterialTheme,
+              home: fluent.FlyoutTarget(
+                controller: globalFlyoutController,
+                child: MouseRegion(
+                  cursor: GameUI.cursor,
                   child: GameApp(key: mainKey),
                 ),
               ),

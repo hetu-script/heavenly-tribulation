@@ -584,24 +584,41 @@ final class GameLogic {
   /// 需求包括: 境界，流派，属性等等
   /// 如果满足需求，返回 null
   /// 否则返回一个包含了具体信息的富文本字符串
-  static String? checkRequirements(dynamic entityData,
-      {bool checkIdentified = false}) {
+  static String? checkRequirements(
+    dynamic entityData, {
+    bool checkIdentified = false,
+    bool checkRank = false,
+    bool checkLevel = false,
+  }) {
     final StringBuffer description = StringBuffer();
 
-    final label = 'red t6';
+    final label = 'bold red';
 
     if (checkIdentified && entityData['isIdentified'] != true) {
       return '<$label>${engine.locale('unidentified3')}</>';
     }
 
-    final heroRank = GameData.hero['rank'];
     bool requirementsMet = true;
-    final int? rankRequirement = entityData['rank'];
-    if (rankRequirement != null) {
-      if (heroRank < rankRequirement) {
-        requirementsMet = false;
-        description.writeln(
-            '<$label>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+    if (checkRank) {
+      final heroRank = GameData.hero['rank'];
+      final int? rankRequirement = entityData['rank'];
+      if (rankRequirement != null) {
+        if (heroRank < rankRequirement) {
+          requirementsMet = false;
+          description.writeln(
+              '<$label>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+        }
+      }
+    }
+    if (checkLevel) {
+      final heroLevel = GameData.hero['level'];
+      final int? levelRequirement = entityData['level'];
+      if (levelRequirement != null) {
+        if (heroLevel < levelRequirement) {
+          requirementsMet = false;
+          description.writeln(
+              '<$label>${engine.locale('level_requirement')}: $levelRequirement</>');
+        }
       }
     }
     final equipmentRequirement = entityData['equipment'];
@@ -936,7 +953,7 @@ final class GameLogic {
     }
 
     for (final card in cards) {
-      final valid = checkRequirements(card, checkIdentified: true);
+      final valid = checkRequirements(card, checkLevel: false);
       if (valid != null) {
         return 'deckbuilding_card_invalid';
       }

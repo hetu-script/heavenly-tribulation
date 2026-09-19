@@ -152,7 +152,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
         case FilterByOptions.all:
           card.isFiltered = false;
         case FilterByOptions.requirementsMet:
-          final requirementsMet = GameLogic.checkRequirements(card.data);
+          final requirementsMet =
+              GameLogic.checkRequirements(card.data, checkLevel: false);
           card.isFiltered = (requirementsMet != null);
         case FilterByOptions.categoryAttack:
           card.isFiltered = (card.data['category'] != 'attack');

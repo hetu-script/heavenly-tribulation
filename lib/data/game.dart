@@ -473,7 +473,8 @@ final class GameData with ChangeNotifier {
         String? title = passiveTreeNodeData['title'];
         if (title != null) {
           final nodeTitle = engine.locale(title);
-          nodeDescription.writeln('<bold yellow>$nodeTitle</>\n ');
+          final nodeRank = passiveTreeNodeData['rank'] ?? 0;
+          nodeDescription.writeln('<bold rank$nodeRank>$nodeTitle</>\n ');
           String? comment = passiveTreeNodeData['comment'];
           if (comment != null) {
             comment = engine.locale(comment);
@@ -1304,7 +1305,8 @@ final class GameData with ChangeNotifier {
     }
 
     if (showRequirement) {
-      String? requirementString = GameLogic.checkRequirements(cardData);
+      String? requirementString =
+          GameLogic.checkRequirements(cardData, checkLevel: false);
       if (requirementString != null) {
         extraDescription.writeln(kSeparateLine);
         extraDescription.writeln(requirementString);

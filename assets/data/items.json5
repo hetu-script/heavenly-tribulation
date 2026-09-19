@@ -231,4 +231,6 @@
     isIdentified: true,
     isUsable: true,
   },
+
+  /// 绝世装备
 }

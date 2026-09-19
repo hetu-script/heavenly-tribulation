@@ -443,7 +443,7 @@
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
     keywords: ["status_speed_quick"],
-    rank: 1,
+    rank: 3,
   },
   slowThreshold: {
     id: "slowThreshold",
@@ -453,7 +453,7 @@
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
     keywords: ["status_speed_slow"],
-    rank: 1,
+    rank: 3,
   },
   nimbleThreshold: {
     id: "nimbleThreshold",
@@ -463,7 +463,7 @@
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
     keywords: ["status_dodge_nimble"],
-    rank: 1,
+    rank: 3,
   },
   clumsyThreshold: {
     id: "clumsyThreshold",
@@ -473,7 +473,7 @@
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring"],
     keywords: ["status_dodge_clumsy"],
-    rank: 1,
+    rank: 3,
   },
 
   // 暴击阈值：物理伤害充能达到阈值后下一次物理伤害暴击，低者优

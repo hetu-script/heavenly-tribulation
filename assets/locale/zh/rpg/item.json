@@ -49,7 +49,7 @@
 
   "requirement": "需求",
   "rank_requirement": "境界需求",
-  "genre_requirement": "天道技能需求",
+  "level_requirement": "等级需求",
   "equipment_requirement": "装备需求",
   "attribute_requirement": "属性需求",
 
