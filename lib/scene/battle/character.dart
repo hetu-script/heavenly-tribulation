@@ -583,18 +583,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           cancelAmount = amount;
         }
         cancelAmount = math.min(cancelAmount, amount);
-        final int remaining = amount - cancelAmount;
         if (cancelAmount > 0) {
           removeStatusEffect(id, amount: cancelAmount);
         }
-        if (remaining > 0 &&
-            data['passives']['gained_debuff_affect_opponent'] != null) {
-          // 天赋：自己获得负面效果时，对手获得同样的负面效果
-          // （被抵消的部分不会传播；handleCallback: false 防止双方都有此天赋时无限循环，
-          // 同时被传播方无法再以辟邪等方式响应此次获得）
-          opponent!
-              .addStatusEffect(id, amount: remaining, handleCallback: false);
-        }
+        // final int remaining = amount - cancelAmount;
+        // if (remaining > 0 &&
+        //     data['passives']['gained_debuff_affect_opponent'] != null) {
+        //   // 天赋：自己获得负面效果时，对手获得同样的负面效果
+        //   // （被抵消的部分不会传播；handleCallback: false 防止双方都有此天赋时无限循环，
+        //   // 同时被传播方无法再以辟邪等方式响应此次获得）
+        //   opponent!
+        //       .addStatusEffect(id, amount: remaining, handleCallback: false);
+        // }
       }
     }
   }
@@ -1236,23 +1236,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   ///   deal_random_element_damage → 每层 5 点随机元素伤害（受对方抗性减免）
   /// ② 元气回血：每剩余 1 层回复 2% 生命上限（每层至少 1 点），不消耗层数
   void _settleTurnEndResources() {
-    final passives = data['passives'];
-    final manaCount = hasStatusEffect('energy_positive_spell');
-    if (manaCount > 0) {
-      if (passives['overflowed_mana_convert_to_vigor'] != null) {
-        removeStatusEffect('energy_positive_spell', force: true);
-        addStatusEffect('energy_positive_life', amount: manaCount);
-      } else if (passives['overflowed_mana_deal_random_element_damage'] !=
-          null) {
-        // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
-        final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
-        final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
-        final damage = (manaCount * 5 * factor).round();
-        if (damage > 0) {
-          opponent!.changeLife(-damage, damageType: damageType);
-        }
-      }
-    }
+    // final passives = data['passives'];
+    // final manaCount = hasStatusEffect('energy_positive_spell');
+    // if (manaCount > 0) {
+    //   if (passives['overflowed_mana_convert_to_vigor'] != null) {
+    //     removeStatusEffect('energy_positive_spell', force: true);
+    //     addStatusEffect('energy_positive_life', amount: manaCount);
+    //   } else if (passives['overflowed_mana_deal_random_element_damage'] !=
+    //       null) {
+    //     // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
+    //     final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
+    //     final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
+    //     final damage = (manaCount * 5 * factor).round();
+    //     if (damage > 0) {
+    //       opponent!.changeLife(-damage, damageType: damageType);
+    //     }
+    //   }
+    // }
 
     final vigor = hasStatusEffect('energy_positive_life');
     if (vigor > 0 && life < lifeMax) {

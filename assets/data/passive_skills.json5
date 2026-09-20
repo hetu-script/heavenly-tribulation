@@ -14,9 +14,15 @@
     isAttribute: true,
     isOpen: true,
   },
+  track_1_0: {
+    size: "small",
+    connectedNodes: ["track_0_0"],
+    isAttribute: true,
+    isOpen: true,
+  },
   track_2_0: {
     size: "small",
-    connectedNodes: ["track_0_0", "track_2_1", "track_2_9"],
+    connectedNodes: ["track_1_0"],
     isAttribute: true,
   },
   track_4_0: {
@@ -27,6 +33,11 @@
     title: "passivetree_swordcraft_rank_1",
     comment: "passivetree_swordcraft_rank_1_comment",
     passives: [
+      {
+        id: "spellcraft_rank_1",
+        description: "passive_spellcraft_rank_1_description",
+        level: 1,
+      },
       {
         id: "lifeMax",
         level: 40,
@@ -49,6 +60,11 @@
     comment: "passivetree_swordcraft_rank_2_comment",
     passives: [
       {
+        id: "spellcraft_rank_2",
+        description: "passive_spellcraft_rank_2_description",
+        level: 1,
+      },
+      {
         id: "lifeMax",
         level: 80,
       },
@@ -58,7 +74,7 @@
   },
   track_10_0: {
     size: "small",
-    connectedNodes: ["track_8_0"],
+    connectedNodes: ["track_8_0", "track_11_38"],
     isAttribute: true,
   },
   track_12_0: {
@@ -69,6 +85,11 @@
     title: "passivetree_swordcraft_rank_3",
     comment: "passivetree_swordcraft_rank_3_comment",
     passives: [
+      {
+        id: "spellcraft_rank_3",
+        description: "passive_spellcraft_rank_3_description",
+        level: 1,
+      },
       {
         id: "lifeMax",
         level: 120,
@@ -91,6 +112,11 @@
     comment: "passivetree_swordcraft_rank_4_comment",
     passives: [
       {
+        id: "spellcraft_rank_4",
+        description: "passive_spellcraft_rank_4_description",
+        level: 1,
+      },
+      {
         id: "lifeMax",
         level: 160,
       },
@@ -100,7 +126,7 @@
   },
   track_18_0: {
     size: "small",
-    connectedNodes: ["track_16_0", "track_18_19"],
+    connectedNodes: ["track_16_0", "track_19_19"],
     isAttribute: true,
   },
   track_20_0: {
@@ -112,6 +138,11 @@
     comment: "passivetree_swordcraft_rank_5_comment",
     passives: [
       {
+        id: "spellcraft_rank_5",
+        description: "passive_spellcraft_rank_5_description",
+        level: 1,
+      },
+      {
         id: "lifeMax",
         level: 200,
       },
@@ -121,88 +152,11 @@
   },
 
   // 御剑流右侧分支1
-  track_9_1: {
-    size: "small",
-    connectedNodes: ["track_8_0"],
-    isAttribute: true,
-  },
-
-  // 御剑流左侧分支1
-  track_9_19: {
-    size: "small",
-    connectedNodes: ["track_8_0"],
-    isAttribute: true,
-  },
-
-  // 御剑流右侧分支2
-  track_15_1: {
-    size: "small",
-    connectedNodes: ["track_14_0"],
-    isAttribute: true,
-  },
-
-  // 御剑流左侧分支2
-  track_15_39: {
-    size: "small",
-    connectedNodes: ["track_14_0"],
-    isAttribute: true,
-  },
-
-  // 御剑+悟道: 灵力主轴
-  track_2_1: {
-    size: "small",
-    connectedNodes: ["track_2_0", "track_2_2"],
-    isAttribute: true,
-  },
   track_3_1: {
     size: "small",
-    connectedNodes: ["track_2_1"],
+    connectedNodes: ["track_2_0"],
     isAttribute: true,
   },
-  track_4_2: {
-    size: "medium",
-    connectedNodes: ["track_3_1"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "enable_mana",
-      },
-      {
-        id: "spirituality",
-        level: 40,
-      },
-    ],
-  },
-  track_5_2: {
-    size: "small",
-    connectedNodes: ["track_4_2"],
-    isAttribute: true,
-  },
-  track_6_4: {
-    size: "small",
-    connectedNodes: ["track_5_2"],
-    isAttribute: true,
-  },
-  track_7_2: {
-    size: "small",
-    connectedNodes: ["track_6_4"],
-    isAttribute: true,
-  },
-  track_8_2: {
-    size: "medium",
-    connectedNodes: ["track_7_2"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spirituality",
-        level: 40,
-      },
-    ],
-  },
-
-  // 御剑+悟道: 灵气副轴·左(速度)
   track_4_1: {
     size: "small",
     connectedNodes: ["track_3_1"],
@@ -256,13 +210,9 @@
     connectedNodes: ["track_6_2"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    passives: [
-      {
-        id: "mana_is_also_chakra",
-      },
-    ],
+    passives: [],
   },
-  track_7_1: {
+  track_7_2: {
     size: "small",
     connectedNodes: ["track_6_2"],
     icon: "cultivation/skill/more/spellEnergy_selected.png",
@@ -275,1189 +225,15 @@
     ],
   },
 
-  // 御剑+悟道: 灵气副轴·右(法攻)
-  track_4_3: {
+  // 御剑流左侧分支1
+  track_3_19: {
     size: "small",
-    connectedNodes: ["track_3_1"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spellAttack",
-        level: 2,
-      },
-    ],
-  },
-  track_5_3: {
-    size: "small",
-    connectedNodes: ["track_4_3"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spellAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_6: {
-    size: "small",
-    connectedNodes: ["track_5_3"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spellAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_5: {
-    size: "medium",
-    connectedNodes: ["track_6_6"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spellAttack",
-        level: 10,
-      },
-    ],
-  },
-  track_6_7: {
-    size: "medium",
-    connectedNodes: ["track_6_6"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    passives: [
-      {
-        id: "overflowed_mana_deal_random_element_damage",
-      },
-    ],
-  },
-  track_7_3: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "spellAttack",
-        level: 4,
-      },
-    ],
-  },
-
-  // 悟道流派主轴
-  track_0_1: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
-  },
-  track_2_2: {
-    size: "small",
-    connectedNodes: ["track_0_1", "track_2_1", "track_2_3"],
+    connectedNodes: ["track_2_0"],
     isAttribute: true,
   },
-  track_4_4: {
-    size: "large",
-    connectedNodes: ["track_2_2"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_1",
-    comment: "passivetree_spellcraft_rank_1_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 40,
-      },
-    ],
-    level: 10,
-    rank: 1,
-  },
-  track_6_8: {
-    size: "small",
-    connectedNodes: ["track_4_4"],
-    isAttribute: true,
-  },
-  track_8_4: {
-    size: "large",
-    connectedNodes: ["track_6_8"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_2",
-    comment: "passivetree_spellcraft_rank_2_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 80,
-      },
-    ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_4: {
-    size: "small",
-    connectedNodes: ["track_8_4"],
-    isAttribute: true,
-  },
-  track_12_8: {
-    size: "large",
-    connectedNodes: ["track_10_4"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_3",
-    comment: "passivetree_spellcraft_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
-  },
-  track_14_4: {
-    size: "small",
-    connectedNodes: ["track_12_8"],
-    isAttribute: true,
-  },
-  track_16_8: {
-    size: "large",
-    connectedNodes: ["track_14_4"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_4",
-    comment: "passivetree_spellcraft_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
-    level: 40,
-    rank: 4,
-  },
-  track_18_4: {
-    size: "small",
-    connectedNodes: ["track_16_8", "track_18_3"],
-    isAttribute: true,
-  },
-  track_20_4: {
-    size: "large",
-    connectedNodes: ["track_18_4"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_5",
-    comment: "passivetree_spellcraft_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
-    level: 50,
-    rank: 5,
-  },
-
-  // 悟道+炼魂: 神识主轴
-  track_2_3: {
-    size: "small",
-    connectedNodes: ["track_2_2", "track_2_4"],
-    isAttribute: true,
-  },
-  track_3_3: {
-    size: "small",
-    connectedNodes: ["track_2_3"],
-    isAttribute: true,
-  },
-  track_4_6: {
-    size: "medium",
-    connectedNodes: ["track_3_3"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "enable_karma",
-      },
-      {
-        id: "willpower",
-        level: 40,
-      },
-    ],
-  },
-  track_5_6: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    isAttribute: true,
-  },
-  track_6_12: {
-    size: "small",
-    connectedNodes: ["track_5_6"],
-    isAttribute: true,
-  },
-  track_7_6: {
-    size: "small",
-    connectedNodes: ["track_6_12"],
-    isAttribute: true,
-  },
-  track_8_6: {
-    size: "medium",
-    connectedNodes: ["track_7_6"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "willpower",
-        level: 40,
-      },
-    ],
-  },
-
-  // 悟道+炼魂: 生命·元气副轴·左(四元素抗性)
-  track_4_5: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "fireResist",
-        level: 2,
-      },
-    ],
-  },
-  track_5_5: {
-    size: "small",
-    connectedNodes: ["track_4_5"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "iceResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_10: {
-    size: "small",
-    connectedNodes: ["track_5_5"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_11: {
-    size: "medium",
-    connectedNodes: ["track_6_10"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "poisonResist",
-        level: 10,
-      },
-    ],
-  },
-  track_6_9: {
-    size: "medium",
-    connectedNodes: ["track_6_10"],
-    icon: "cultivation/skill/spellcraft_selected.png",
-    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    passives: [
-      {
-        id: "overflowed_mana_convert_to_vigor",
-      },
-    ],
-  },
-  track_7_5: {
-    size: "small",
-    connectedNodes: ["track_6_10"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-
-  // 悟道+炼魂: 生命·元气副轴·右(四元素抗性)
-  track_4_7: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "fireResist",
-        level: 2,
-      },
-    ],
-  },
-  track_5_7: {
-    size: "small",
-    connectedNodes: ["track_4_7"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "iceResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_14: {
-    size: "small",
-    connectedNodes: ["track_5_7"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_13: {
-    size: "medium",
-    connectedNodes: ["track_6_14"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "poisonResist",
-        level: 10,
-      },
-    ],
-  },
-  track_6_15: {
-    size: "medium",
-    connectedNodes: ["track_6_14"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    passives: [
-      {
-        id: "gained_debuff_affect_opponent",
-      },
-    ],
-  },
-  track_7_7: {
-    size: "small",
-    connectedNodes: ["track_6_14"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-
-  // 炼魂流派主轴
-  track_0_2: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
-  },
-  track_2_4: {
-    size: "small",
-    connectedNodes: ["track_0_2", "track_2_3", "track_2_5"],
-    isAttribute: true,
-  },
-  track_4_8: {
-    size: "large",
-    connectedNodes: ["track_2_4"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_1",
-    comment: "passivetree_vitality_rank_1_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 40,
-      },
-    ],
-    level: 10,
-    rank: 1,
-  },
-  track_6_16: {
-    size: "small",
-    connectedNodes: ["track_4_8"],
-    isAttribute: true,
-  },
-  track_8_8: {
-    size: "large",
-    connectedNodes: ["track_6_16"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_2",
-    comment: "passivetree_vitality_rank_2_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 80,
-      },
-    ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_8: {
-    size: "small",
-    connectedNodes: ["track_8_8"],
-    isAttribute: true,
-  },
-  track_12_16: {
-    size: "large",
-    connectedNodes: ["track_10_8"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_3",
-    comment: "passivetree_vitality_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
-  },
-  track_14_8: {
-    size: "small",
-    connectedNodes: ["track_12_16"],
-    isAttribute: true,
-  },
-  track_16_16: {
-    size: "large",
-    connectedNodes: ["track_14_8"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_4",
-    comment: "passivetree_vitality_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
-    level: 40,
-    rank: 4,
-  },
-  track_18_8: {
-    size: "small",
-    connectedNodes: ["track_16_16", "track_18_7"],
-    isAttribute: true,
-  },
-  track_20_8: {
-    size: "large",
-    connectedNodes: ["track_18_8"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_5",
-    comment: "passivetree_vitality_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
-    level: 50,
-    rank: 5,
-  },
-
-  // 炼魂+法身: 念力主轴
-  track_2_5: {
-    size: "small",
-    connectedNodes: ["track_2_4", "track_2_6"],
-    isAttribute: true,
-  },
-  track_3_5: {
-    size: "small",
-    connectedNodes: ["track_2_5"],
-    isAttribute: true,
-  },
-  track_4_10: {
-    size: "medium",
-    connectedNodes: ["track_3_5"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "enable_ultimate",
-      },
-      {
-        id: "perception",
-        level: 40,
-      },
-    ],
-  },
-  track_5_10: {
-    size: "small",
-    connectedNodes: ["track_4_10"],
-    isAttribute: true,
-  },
-  track_6_20: {
-    size: "small",
-    connectedNodes: ["track_5_10"],
-    isAttribute: true,
-  },
-  track_7_10: {
-    size: "small",
-    connectedNodes: ["track_6_20"],
-    isAttribute: true,
-  },
-  track_8_10: {
-    size: "medium",
-    connectedNodes: ["track_7_10"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "perception",
-        level: 40,
-      },
-    ],
-  },
-
-  // 炼魂+法身: 辟邪副轴·左(四元素抗性)
-  track_4_9: {
-    size: "small",
-    connectedNodes: ["track_3_5"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "fireResist",
-        level: 2,
-      },
-    ],
-  },
-  track_5_9: {
-    size: "small",
-    connectedNodes: ["track_4_9"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "iceResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_18: {
-    size: "small",
-    connectedNodes: ["track_5_9"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-  track_6_19: {
-    size: "medium",
-    connectedNodes: ["track_6_18"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "poisonResist",
-        level: 10,
-      },
-    ],
-  },
-  track_6_17: {
-    size: "medium",
-    connectedNodes: ["track_6_18"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    passives: [
-      {
-        id: "dart_and_bow_attack_deal_pure_damage",
-      },
-    ],
-  },
-  track_7_9: {
-    size: "small",
-    connectedNodes: ["track_6_18"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "lightningResist",
-        level: 4,
-      },
-    ],
-  },
-
-  // 炼魂+法身: 辟邪副轴·右(咒术攻)
-  track_4_11: {
-    size: "small",
-    connectedNodes: ["track_3_5"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "curseAttack",
-        level: 2,
-      },
-    ],
-  },
-  track_5_11: {
-    size: "small",
-    connectedNodes: ["track_4_11"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "curseAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_22: {
-    size: "small",
-    connectedNodes: ["track_5_11"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "curseAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_21: {
-    size: "medium",
-    connectedNodes: ["track_6_22"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "curseAttack",
-        level: 10,
-      },
-    ],
-  },
-  track_6_23: {
-    size: "medium",
-    connectedNodes: ["track_6_22"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    passives: [
-      {
-        id: "curse_deal_pure_damage",
-      },
-    ],
-  },
-  track_7_11: {
-    size: "small",
-    connectedNodes: ["track_6_22"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "curseAttack",
-        level: 4,
-      },
-    ],
-  },
-
-  // 法身流派主轴
-  track_0_3: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
-  },
-  track_2_6: {
-    size: "small",
-    connectedNodes: ["track_0_3", "track_2_5", "track_2_7"],
-    isAttribute: true,
-  },
-  track_4_12: {
-    size: "large",
-    connectedNodes: ["track_2_6"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_1",
-    comment: "passivetree_avatar_rank_1_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 40,
-      },
-    ],
-    level: 10,
-    rank: 1,
-  },
-  track_6_24: {
-    size: "small",
-    connectedNodes: ["track_4_12"],
-    isAttribute: true,
-  },
-  track_8_12: {
-    size: "large",
-    connectedNodes: ["track_6_24"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_2",
-    comment: "passivetree_avatar_rank_2_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 80,
-      },
-    ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_12: {
-    size: "small",
-    connectedNodes: ["track_8_12"],
-    isAttribute: true,
-  },
-  track_12_24: {
-    size: "large",
-    connectedNodes: ["track_10_12"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_3",
-    comment: "passivetree_avatar_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
-  },
-  track_14_12: {
-    size: "small",
-    connectedNodes: ["track_12_24"],
-    isAttribute: true,
-  },
-  track_16_24: {
-    size: "large",
-    connectedNodes: ["track_14_12"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_4",
-    comment: "passivetree_avatar_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
-    level: 40,
-    rank: 4,
-  },
-  track_18_12: {
-    size: "small",
-    connectedNodes: ["track_16_24", "track_18_11"],
-    isAttribute: true,
-  },
-  track_20_12: {
-    size: "large",
-    connectedNodes: ["track_18_12"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_5",
-    comment: "passivetree_avatar_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
-    level: 50,
-    rank: 5,
-  },
-
-  // 法身+锻体: 体魄主轴
-  track_2_7: {
-    size: "small",
-    connectedNodes: ["track_2_6", "track_2_8"],
-    isAttribute: true,
-  },
-  track_3_7: {
-    size: "small",
-    connectedNodes: ["track_2_7"],
-    isAttribute: true,
-  },
-  track_4_14: {
-    size: "medium",
-    connectedNodes: ["track_3_7"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "enable_rage",
-      },
-      {
-        id: "strength",
-        level: 40,
-      },
-    ],
-  },
-  track_5_14: {
-    size: "small",
-    connectedNodes: ["track_4_14"],
-    isAttribute: true,
-  },
-  track_6_28: {
-    size: "small",
-    connectedNodes: ["track_5_14"],
-    isAttribute: true,
-  },
-  track_7_14: {
-    size: "small",
-    connectedNodes: ["track_6_28"],
-    isAttribute: true,
-  },
-  track_8_14: {
-    size: "medium",
-    connectedNodes: ["track_7_14"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "strength",
-        level: 40,
-      },
-    ],
-  },
-
-  // 法身+锻体: 怒气副轴·左(闪避)
-  track_4_13: {
-    size: "small",
-    connectedNodes: ["track_3_7"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "start_battle_with_dodge_nimble",
-        level: 5,
-      },
-    ],
-  },
-  track_5_13: {
-    size: "small",
-    connectedNodes: ["track_4_13"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "start_battle_with_dodge_nimble",
-        level: 5,
-      },
-    ],
-  },
-  track_6_26: {
-    size: "small",
-    connectedNodes: ["track_5_13"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "start_battle_with_dodge_nimble",
-        level: 5,
-      },
-    ],
-  },
-  track_6_25: {
-    size: "medium",
-    connectedNodes: ["track_6_26"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    passives: [
-      {
-        id: "weaponUnrestrictedEquip",
-      },
-    ],
-  },
-  track_6_27: {
-    size: "small",
-    connectedNodes: ["track_6_26"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "start_battle_with_dodge_nimble",
-        level: 5,
-      },
-    ],
-  },
-  track_7_13: {
-    size: "small",
-    connectedNodes: ["track_6_26"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "start_battle_with_dodge_nimble",
-        level: 5,
-      },
-    ],
-  },
-
-  // 法身+锻体: 怒气副轴·右(徒手攻)
-  track_4_15: {
-    size: "small",
-    connectedNodes: ["track_3_7"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "unarmedAttack",
-        level: 2,
-      },
-    ],
-  },
-  track_5_15: {
-    size: "small",
-    connectedNodes: ["track_4_15"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "unarmedAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_30: {
-    size: "small",
-    connectedNodes: ["track_5_15"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "unarmedAttack",
-        level: 4,
-      },
-    ],
-  },
-  track_6_29: {
-    size: "medium",
-    connectedNodes: ["track_6_30"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "unarmedAttack",
-        level: 10,
-      },
-    ],
-  },
-  track_6_31: {
-    size: "medium",
-    connectedNodes: ["track_6_30"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    passives: [
-      {
-        id: "exhaust_life_for_insufficient_rage",
-      },
-    ],
-  },
-  track_7_15: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "unarmedAttack",
-        level: 4,
-      },
-    ],
-  },
-
-  // 锻体流派主轴
-  track_0_4: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
-  },
-  track_2_8: {
-    size: "small",
-    connectedNodes: ["track_0_4", "track_2_7", "track_2_9"],
-    isAttribute: true,
-  },
-  track_4_16: {
-    size: "large",
-    connectedNodes: ["track_2_8"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_1",
-    comment: "passivetree_bodyforge_rank_1_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 40,
-      },
-    ],
-    level: 10,
-    rank: 1,
-  },
-  track_6_32: {
-    size: "small",
-    connectedNodes: ["track_4_16"],
-    isAttribute: true,
-  },
-  track_8_16: {
-    size: "large",
-    connectedNodes: ["track_6_32"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_2",
-    comment: "passivetree_bodyforge_rank_2_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 80,
-      },
-    ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_16: {
-    size: "small",
-    connectedNodes: ["track_8_16"],
-    isAttribute: true,
-  },
-  track_12_32: {
-    size: "large",
-    connectedNodes: ["track_10_16"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_3",
-    comment: "passivetree_bodyforge_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
-  },
-  track_14_16: {
-    size: "small",
-    connectedNodes: ["track_12_32"],
-    isAttribute: true,
-  },
-  track_16_32: {
-    size: "large",
-    connectedNodes: ["track_14_16"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_4",
-    comment: "passivetree_bodyforge_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
-    level: 40,
-    rank: 4,
-  },
-  track_18_16: {
-    size: "small",
-    connectedNodes: ["track_16_32", "track_18_15"],
-    isAttribute: true,
-  },
-  track_20_16: {
-    size: "large",
-    connectedNodes: ["track_18_16"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_5",
-    comment: "passivetree_bodyforge_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
-    level: 50,
-    rank: 5,
-  },
-
-  // 锻体+御剑: 身法主轴
-  track_2_9: {
-    size: "small",
-    connectedNodes: ["track_2_0", "track_2_8"],
-    isAttribute: true,
-  },
-  track_3_9: {
-    size: "small",
-    connectedNodes: ["track_2_9"],
-    isAttribute: true,
-  },
-  track_4_18: {
-    size: "medium",
-    connectedNodes: ["track_3_9"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "enable_chakra",
-      },
-      {
-        id: "dexterity",
-        level: 40,
-      },
-    ],
-  },
-  track_5_18: {
-    size: "small",
-    connectedNodes: ["track_2_9"],
-    isAttribute: true,
-  },
-  track_6_36: {
-    size: "small",
-    connectedNodes: ["track_3_9"],
-    isAttribute: true,
-  },
-  track_7_18: {
-    size: "small",
-    connectedNodes: ["track_6_36"],
-    isAttribute: true,
-  },
-  track_8_18: {
-    size: "medium",
-    connectedNodes: ["track_7_18"],
-    icon: "cultivation/skill/more/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-    passives: [
-      {
-        id: "dexterity",
-        level: 40,
-      },
-    ],
-  },
-
-  // 锻体+御剑: 剑气副轴·右(武器攻)
   track_4_19: {
     size: "small",
-    connectedNodes: ["track_3_9"],
+    connectedNodes: ["track_3_19"],
     icon: "cultivation/skill/more/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
@@ -1515,11 +291,1276 @@
       },
     ],
   },
+  track_7_38: {
+    size: "small",
+    connectedNodes: ["track_6_38"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "weaponAttack",
+        level: 4,
+      },
+    ],
+  },
+
+  // 御剑流右侧分支2
+  track_7_1: {
+    size: "small",
+    connectedNodes: ["track_6_0"],
+    isAttribute: true,
+  },
+  track_8_2: {
+    size: "small",
+    connectedNodes: ["track_7_1"],
+    isAttribute: true,
+  },
+
+  // 御剑流左侧分支2
+  track_7_39: {
+    size: "small",
+    connectedNodes: ["track_6_0"],
+    isAttribute: true,
+  },
+  track_8_38: {
+    size: "small",
+    connectedNodes: ["track_7_39"],
+    isAttribute: true,
+  },
+
+  // 御剑流右侧分支3
+  track_15_1: {
+    size: "small",
+    connectedNodes: ["track_14_0"],
+    isAttribute: true,
+  },
+
+  // 御剑流左侧分支3
+  track_15_39: {
+    size: "small",
+    connectedNodes: ["track_14_0"],
+    isAttribute: true,
+  },
+
+  // 御剑+悟道: 灵力主轴
+  track_2_1: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_3_2: {
+    size: "small",
+    connectedNodes: ["track_2_1"],
+    isAttribute: true,
+  },
+  track_4_2: {
+    size: "medium",
+    connectedNodes: ["track_3_2"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 40,
+      },
+    ],
+  },
+  track_5_2: {
+    size: "small",
+    connectedNodes: ["track_4_2"],
+    isAttribute: true,
+  },
+  track_6_4: {
+    size: "small",
+    connectedNodes: ["track_5_2"],
+    isAttribute: true,
+  },
+  track_7_4: {
+    size: "small",
+    connectedNodes: ["track_6_4"],
+    isAttribute: true,
+  },
+  track_8_4: {
+    size: "medium",
+    connectedNodes: ["track_7_4"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 40,
+      },
+    ],
+  },
+
+  // 御剑+悟道: 灵气副轴·右(法攻)
+  track_4_3: {
+    size: "small",
+    connectedNodes: ["track_3_3"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 2,
+      },
+    ],
+  },
+  track_5_3: {
+    size: "small",
+    connectedNodes: ["track_4_3"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_6: {
+    size: "small",
+    connectedNodes: ["track_5_3"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_5: {
+    size: "medium",
+    connectedNodes: ["track_6_6"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 10,
+      },
+    ],
+  },
+  track_6_7: {
+    size: "medium",
+    connectedNodes: ["track_6_6"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [],
+  },
+  track_7_6: {
+    size: "small",
+    connectedNodes: ["track_6_6"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 4,
+      },
+    ],
+  },
+
+  // 悟道流派主轴
+  track_0_1: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+    isOpen: true,
+  },
+  track_1_1: {
+    size: "small",
+    connectedNodes: ["track_0_1"],
+    isAttribute: true,
+    isOpen: true,
+  },
+  track_2_2: {
+    size: "small",
+    connectedNodes: ["track_1_1"],
+    isAttribute: true,
+  },
+  track_4_4: {
+    size: "large",
+    connectedNodes: ["track_2_2"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    title: "passivetree_spellcraft_rank_1",
+    comment: "passivetree_spellcraft_rank_1_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_6_8: {
+    size: "small",
+    connectedNodes: ["track_4_4"],
+    isAttribute: true,
+  },
+  track_8_8: {
+    size: "large",
+    connectedNodes: ["track_6_8"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    title: "passivetree_spellcraft_rank_2",
+    comment: "passivetree_spellcraft_rank_2_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 80,
+      },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_10_4: {
+    size: "small",
+    connectedNodes: ["track_8_8", "track_11_6"],
+    isAttribute: true,
+  },
+  track_12_8: {
+    size: "large",
+    connectedNodes: ["track_10_4"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    title: "passivetree_spellcraft_rank_3",
+    comment: "passivetree_spellcraft_rank_3_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 120,
+      },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_14_4: {
+    size: "small",
+    connectedNodes: ["track_12_8"],
+    isAttribute: true,
+  },
+  track_16_8: {
+    size: "large",
+    connectedNodes: ["track_14_4"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    title: "passivetree_spellcraft_rank_4",
+    comment: "passivetree_spellcraft_rank_4_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 160,
+      },
+    ],
+    level: 40,
+    rank: 4,
+  },
+  track_18_4: {
+    size: "small",
+    connectedNodes: ["track_16_8", "track_19_3"],
+    isAttribute: true,
+  },
+  track_20_4: {
+    size: "large",
+    connectedNodes: ["track_18_4"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    title: "passivetree_spellcraft_rank_5",
+    comment: "passivetree_spellcraft_rank_5_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 200,
+      },
+    ],
+    level: 50,
+    rank: 5,
+  },
+
+  // 悟道+炼魂: 神识主轴
+  track_2_3: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_3_6: {
+    size: "small",
+    connectedNodes: ["track_2_3"],
+    isAttribute: true,
+  },
+  track_4_6: {
+    size: "medium",
+    connectedNodes: ["track_3_6"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "willpower",
+        level: 40,
+      },
+    ],
+  },
+  track_5_6: {
+    size: "small",
+    connectedNodes: ["track_3_6"],
+    isAttribute: true,
+  },
+  track_6_12: {
+    size: "small",
+    connectedNodes: ["track_5_6"],
+    isAttribute: true,
+  },
+  track_7_12: {
+    size: "small",
+    connectedNodes: ["track_6_12"],
+    isAttribute: true,
+  },
+  track_8_12: {
+    size: "medium",
+    connectedNodes: ["track_7_12"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "willpower",
+        level: 40,
+      },
+    ],
+  },
+
+  // 悟道+炼魂: 生命·元气副轴·左(四元素抗性)
+  track_4_5: {
+    size: "small",
+    connectedNodes: ["track_3_5"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "fireResist",
+        level: 2,
+      },
+    ],
+  },
+  track_5_5: {
+    size: "small",
+    connectedNodes: ["track_4_5"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "iceResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_10: {
+    size: "small",
+    connectedNodes: ["track_5_5"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_11: {
+    size: "medium",
+    connectedNodes: ["track_6_10"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "poisonResist",
+        level: 10,
+      },
+    ],
+  },
+  track_6_9: {
+    size: "medium",
+    connectedNodes: ["track_6_10"],
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [],
+  },
+  track_7_10: {
+    size: "small",
+    connectedNodes: ["track_6_10"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+
+  // 悟道+炼魂: 生命·元气副轴·右(四元素抗性)
+  track_4_7: {
+    size: "small",
+    connectedNodes: ["track_3_7"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "fireResist",
+        level: 2,
+      },
+    ],
+  },
+  track_5_7: {
+    size: "small",
+    connectedNodes: ["track_4_7"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "iceResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_14: {
+    size: "small",
+    connectedNodes: ["track_5_7"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_13: {
+    size: "medium",
+    connectedNodes: ["track_6_14"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "poisonResist",
+        level: 10,
+      },
+    ],
+  },
+  track_6_15: {
+    size: "medium",
+    connectedNodes: ["track_6_14"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    passives: [],
+  },
+  track_7_14: {
+    size: "small",
+    connectedNodes: ["track_6_14"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+
+  // 炼魂流派主轴
+  track_0_2: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+    isOpen: true,
+  },
+  track_1_2: {
+    size: "small",
+    connectedNodes: ["track_0_2"],
+    isAttribute: true,
+  },
+  track_2_4: {
+    size: "small",
+    connectedNodes: ["track_1_2"],
+    isAttribute: true,
+  },
+  track_4_8: {
+    size: "large",
+    connectedNodes: ["track_2_4"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passivetree_vitality_rank_1",
+    comment: "passivetree_vitality_rank_1_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_6_16: {
+    size: "small",
+    connectedNodes: ["track_4_8"],
+    isAttribute: true,
+  },
+  track_8_16: {
+    size: "large",
+    connectedNodes: ["track_6_16"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passivetree_vitality_rank_2",
+    comment: "passivetree_vitality_rank_2_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 80,
+      },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_10_8: {
+    size: "small",
+    connectedNodes: ["track_8_16", "track_11_14"],
+    isAttribute: true,
+  },
+  track_12_16: {
+    size: "large",
+    connectedNodes: ["track_10_8"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passivetree_vitality_rank_3",
+    comment: "passivetree_vitality_rank_3_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 120,
+      },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_14_8: {
+    size: "small",
+    connectedNodes: ["track_12_16"],
+    isAttribute: true,
+  },
+  track_16_16: {
+    size: "large",
+    connectedNodes: ["track_14_8"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passivetree_vitality_rank_4",
+    comment: "passivetree_vitality_rank_4_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 160,
+      },
+    ],
+    level: 40,
+    rank: 4,
+  },
+  track_18_8: {
+    size: "small",
+    connectedNodes: ["track_16_16", "track_19_7"],
+    isAttribute: true,
+  },
+  track_20_8: {
+    size: "large",
+    connectedNodes: ["track_18_8"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passivetree_vitality_rank_5",
+    comment: "passivetree_vitality_rank_5_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 200,
+      },
+    ],
+    level: 50,
+    rank: 5,
+  },
+
+  // 炼魂+法身: 念力主轴
+  track_2_5: {
+    size: "small",
+    connectedNodes: [""],
+    isAttribute: true,
+  },
+  track_3_10: {
+    size: "small",
+    connectedNodes: ["track_2_5"],
+    isAttribute: true,
+  },
+  track_4_10: {
+    size: "medium",
+    connectedNodes: ["track_3_10"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "perception",
+        level: 40,
+      },
+    ],
+  },
+  track_5_10: {
+    size: "small",
+    connectedNodes: ["track_4_10"],
+    isAttribute: true,
+  },
+  track_6_20: {
+    size: "small",
+    connectedNodes: ["track_5_10"],
+    isAttribute: true,
+  },
+  track_7_20: {
+    size: "small",
+    connectedNodes: ["track_6_20"],
+    isAttribute: true,
+  },
+  track_8_20: {
+    size: "medium",
+    connectedNodes: ["track_7_20"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "perception",
+        level: 40,
+      },
+    ],
+  },
+
+  // 炼魂+法身: 辟邪副轴·左(四元素抗性)
+  track_4_9: {
+    size: "small",
+    connectedNodes: ["track_3_9"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "fireResist",
+        level: 2,
+      },
+    ],
+  },
+  track_5_9: {
+    size: "small",
+    connectedNodes: ["track_4_9"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "iceResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_18: {
+    size: "small",
+    connectedNodes: ["track_5_9"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+  track_6_19: {
+    size: "medium",
+    connectedNodes: ["track_6_18"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "poisonResist",
+        level: 10,
+      },
+    ],
+  },
+  track_6_17: {
+    size: "medium",
+    connectedNodes: ["track_6_18"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    passives: [],
+  },
+  track_7_18: {
+    size: "small",
+    connectedNodes: ["track_6_18"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "lightningResist",
+        level: 4,
+      },
+    ],
+  },
+
+  // 炼魂+法身: 辟邪副轴·右(咒术攻)
+  track_4_11: {
+    size: "small",
+    connectedNodes: ["track_3_11"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "curseAttack",
+        level: 2,
+      },
+    ],
+  },
+  track_5_11: {
+    size: "small",
+    connectedNodes: ["track_4_11"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "curseAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_22: {
+    size: "small",
+    connectedNodes: ["track_5_11"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "curseAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_21: {
+    size: "medium",
+    connectedNodes: ["track_6_22"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "curseAttack",
+        level: 10,
+      },
+    ],
+  },
+  track_6_23: {
+    size: "medium",
+    connectedNodes: ["track_6_22"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    passives: [],
+  },
+  track_7_22: {
+    size: "small",
+    connectedNodes: ["track_6_22"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "curseAttack",
+        level: 4,
+      },
+    ],
+  },
+
+  // 法身流派主轴
+  track_0_3: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+    isOpen: true,
+  },
+  track_1_3: {
+    size: "small",
+    connectedNodes: ["track_0_3"],
+    isAttribute: true,
+  },
+  track_2_6: {
+    size: "small",
+    connectedNodes: ["track_1_3"],
+    isAttribute: true,
+  },
+  track_4_12: {
+    size: "large",
+    connectedNodes: ["track_2_6"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passivetree_avatar_rank_1",
+    comment: "passivetree_avatar_rank_1_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_6_24: {
+    size: "small",
+    connectedNodes: ["track_4_12"],
+    isAttribute: true,
+  },
+  track_8_24: {
+    size: "large",
+    connectedNodes: ["track_6_24"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passivetree_avatar_rank_2",
+    comment: "passivetree_avatar_rank_2_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 80,
+      },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_10_12: {
+    size: "small",
+    connectedNodes: ["track_8_24", "track_11_22"],
+    isAttribute: true,
+  },
+  track_12_24: {
+    size: "large",
+    connectedNodes: ["track_10_12"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passivetree_avatar_rank_3",
+    comment: "passivetree_avatar_rank_3_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 120,
+      },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_14_12: {
+    size: "small",
+    connectedNodes: ["track_12_24"],
+    isAttribute: true,
+  },
+  track_16_24: {
+    size: "large",
+    connectedNodes: ["track_14_12"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passivetree_avatar_rank_4",
+    comment: "passivetree_avatar_rank_4_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 160,
+      },
+    ],
+    level: 40,
+    rank: 4,
+  },
+  track_18_12: {
+    size: "small",
+    connectedNodes: ["track_16_24", "track_19_11"],
+    isAttribute: true,
+  },
+  track_20_12: {
+    size: "large",
+    connectedNodes: ["track_18_12"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passivetree_avatar_rank_5",
+    comment: "passivetree_avatar_rank_5_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 200,
+      },
+    ],
+    level: 50,
+    rank: 5,
+  },
+
+  // 法身+锻体: 体魄主轴
+  track_2_7: {
+    size: "small",
+    connectedNodes: [""],
+    isAttribute: true,
+  },
+  track_3_14: {
+    size: "small",
+    connectedNodes: ["track_2_7"],
+    isAttribute: true,
+  },
+  track_4_14: {
+    size: "medium",
+    connectedNodes: ["track_3_14"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "strength",
+        level: 40,
+      },
+    ],
+  },
+  track_5_14: {
+    size: "small",
+    connectedNodes: ["track_4_14"],
+    isAttribute: true,
+  },
+  track_6_28: {
+    size: "small",
+    connectedNodes: ["track_5_14"],
+    isAttribute: true,
+  },
+  track_7_28: {
+    size: "small",
+    connectedNodes: ["track_6_28"],
+    isAttribute: true,
+  },
+  track_8_28: {
+    size: "medium",
+    connectedNodes: ["track_7_28"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "strength",
+        level: 40,
+      },
+    ],
+  },
+
+  // 法身+锻体: 怒气副轴·左(闪避)
+  track_4_13: {
+    size: "small",
+    connectedNodes: ["track_3_13"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "start_battle_with_dodge_nimble",
+        level: 5,
+      },
+    ],
+  },
+  track_5_13: {
+    size: "small",
+    connectedNodes: ["track_4_13"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "start_battle_with_dodge_nimble",
+        level: 5,
+      },
+    ],
+  },
+  track_6_26: {
+    size: "small",
+    connectedNodes: ["track_5_13"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "start_battle_with_dodge_nimble",
+        level: 5,
+      },
+    ],
+  },
+  track_6_25: {
+    size: "medium",
+    connectedNodes: ["track_6_26"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    passives: [
+      {
+        id: "weaponUnrestrictedEquip",
+      },
+    ],
+  },
+  track_6_27: {
+    size: "small",
+    connectedNodes: ["track_6_26"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "start_battle_with_dodge_nimble",
+        level: 5,
+      },
+    ],
+  },
+  track_7_26: {
+    size: "small",
+    connectedNodes: ["track_6_26"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "start_battle_with_dodge_nimble",
+        level: 5,
+      },
+    ],
+  },
+
+  // 法身+锻体: 怒气副轴·右(徒手攻)
+  track_4_15: {
+    size: "small",
+    connectedNodes: ["track_3_15"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "unarmedAttack",
+        level: 2,
+      },
+    ],
+  },
+  track_5_15: {
+    size: "small",
+    connectedNodes: ["track_4_15"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "unarmedAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_30: {
+    size: "small",
+    connectedNodes: ["track_5_15"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "unarmedAttack",
+        level: 4,
+      },
+    ],
+  },
+  track_6_29: {
+    size: "medium",
+    connectedNodes: ["track_6_30"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "unarmedAttack",
+        level: 10,
+      },
+    ],
+  },
+  track_6_31: {
+    size: "medium",
+    connectedNodes: ["track_6_30"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    passives: [],
+  },
+  track_7_30: {
+    size: "small",
+    connectedNodes: ["track_6_30"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "unarmedAttack",
+        level: 4,
+      },
+    ],
+  },
+
+  // 锻体流派主轴
+  track_0_4: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+    isOpen: true,
+  },
+  track_1_4: {
+    size: "small",
+    connectedNodes: ["track_0_4"],
+    isAttribute: true,
+  },
+  track_2_8: {
+    size: "small",
+    connectedNodes: ["track_1_4"],
+    isAttribute: true,
+  },
+  track_4_16: {
+    size: "large",
+    connectedNodes: ["track_2_8"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passivetree_bodyforge_rank_1",
+    comment: "passivetree_bodyforge_rank_1_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_6_32: {
+    size: "small",
+    connectedNodes: ["track_4_16"],
+    isAttribute: true,
+  },
+  track_8_32: {
+    size: "large",
+    connectedNodes: ["track_6_32"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passivetree_bodyforge_rank_2",
+    comment: "passivetree_bodyforge_rank_2_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 80,
+      },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_10_16: {
+    size: "small",
+    connectedNodes: ["track_8_32", "track_11_30"],
+    isAttribute: true,
+  },
+  track_12_32: {
+    size: "large",
+    connectedNodes: ["track_10_16"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passivetree_bodyforge_rank_3",
+    comment: "passivetree_bodyforge_rank_3_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 120,
+      },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_14_16: {
+    size: "small",
+    connectedNodes: ["track_12_32"],
+    isAttribute: true,
+  },
+  track_16_32: {
+    size: "large",
+    connectedNodes: ["track_14_16"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passivetree_bodyforge_rank_4",
+    comment: "passivetree_bodyforge_rank_4_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 160,
+      },
+    ],
+    level: 40,
+    rank: 4,
+  },
+  track_18_16: {
+    size: "small",
+    connectedNodes: ["track_16_32", "track_19_15"],
+    isAttribute: true,
+  },
+  track_20_16: {
+    size: "large",
+    connectedNodes: ["track_18_16"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passivetree_bodyforge_rank_5",
+    comment: "passivetree_bodyforge_rank_5_comment",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 200,
+      },
+    ],
+    level: 50,
+    rank: 5,
+  },
+
+  // 锻体+御剑: 身法主轴
+  track_2_9: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_3_18: {
+    size: "small",
+    connectedNodes: ["track_2_9"],
+    isAttribute: true,
+  },
+  track_4_18: {
+    size: "medium",
+    connectedNodes: ["track_3_18"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "dexterity",
+        level: 40,
+      },
+    ],
+  },
+  track_5_18: {
+    size: "small",
+    connectedNodes: ["track_2_9"],
+    isAttribute: true,
+  },
+  track_6_36: {
+    size: "small",
+    connectedNodes: ["track_3_18"],
+    isAttribute: true,
+  },
+  track_7_36: {
+    size: "small",
+    connectedNodes: ["track_6_36"],
+    isAttribute: true,
+  },
+  track_8_36: {
+    size: "medium",
+    connectedNodes: ["track_7_36"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "dexterity",
+        level: 40,
+      },
+    ],
+  },
 
   // 锻体+御剑: 剑气副轴·左(四元素抗性)
   track_4_17: {
     size: "small",
-    connectedNodes: ["track_3_9"],
+    connectedNodes: ["track_3_17"],
     icon: "cultivation/skill/more/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
@@ -1570,85 +1611,170 @@
     connectedNodes: ["track_6_34"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    passives: [],
+  },
+  track_7_34: {
+    size: "small",
+    connectedNodes: ["track_6_34"],
+    icon: "cultivation/skill/more/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
     passives: [
       {
-        id: "overflowed_chakra_debuff_affect_opponent",
+        id: "lightningResist",
+        level: 4,
       },
     ],
   },
 
+  // 中间层通道
+  track_11_2: {
+    size: "small",
+    connectedNodes: ["track_10_0"],
+    isAttribute: true,
+  },
+  track_10_2: {
+    size: "small",
+    connectedNodes: ["track_11_2"],
+    isAttribute: true,
+  },
+  track_11_6: {
+    size: "small",
+    connectedNodes: ["track_10_2"],
+    isAttribute: true,
+  },
+  track_11_10: {
+    size: "small",
+    connectedNodes: ["track_10_4"],
+    isAttribute: true,
+  },
+  track_10_6: {
+    size: "small",
+    connectedNodes: ["track_11_10"],
+    isAttribute: true,
+  },
+  track_11_14: {
+    size: "small",
+    connectedNodes: ["track_10_6"],
+    isAttribute: true,
+  },
+  track_11_18: {
+    size: "small",
+    connectedNodes: ["track_10_8"],
+    isAttribute: true,
+  },
+  track_10_10: {
+    size: "small",
+    connectedNodes: ["track_11_18"],
+    isAttribute: true,
+  },
+  track_11_22: {
+    size: "small",
+    connectedNodes: ["track_10_10"],
+    isAttribute: true,
+  },
+  track_11_26: {
+    size: "small",
+    connectedNodes: ["track_10_12"],
+    isAttribute: true,
+  },
+  track_10_14: {
+    size: "small",
+    connectedNodes: ["track_11_26"],
+    isAttribute: true,
+  },
+  track_11_30: {
+    size: "small",
+    connectedNodes: ["track_10_14"],
+    isAttribute: true,
+  },
+  track_11_34: {
+    size: "small",
+    connectedNodes: ["track_10_16"],
+    isAttribute: true,
+  },
+  track_10_18: {
+    size: "small",
+    connectedNodes: ["track_11_34"],
+    isAttribute: true,
+  },
+  track_11_38: {
+    size: "small",
+    connectedNodes: ["track_10_18"],
+    isAttribute: true,
+  },
+
   // 最外层通道
-  track_18_1: {
+  track_19_1: {
     size: "small",
     connectedNodes: ["track_18_0"],
     isAttribute: true,
   },
   track_18_2: {
     size: "small",
-    connectedNodes: ["track_18_1"],
+    connectedNodes: ["track_19_1"],
     isAttribute: true,
   },
-  track_18_3: {
+  track_19_3: {
     size: "small",
     connectedNodes: ["track_18_2"],
     isAttribute: true,
   },
-  track_18_5: {
+  track_19_5: {
     size: "small",
-    connectedNodes: ["track_18_4"],
+    connectedNodes: ["track_19_3"],
     isAttribute: true,
   },
   track_18_6: {
     size: "small",
-    connectedNodes: ["track_18_5"],
+    connectedNodes: ["track_19_5"],
     isAttribute: true,
   },
-  track_18_7: {
+  track_19_7: {
     size: "small",
     connectedNodes: ["track_18_6"],
     isAttribute: true,
   },
-  track_18_9: {
+  track_19_9: {
     size: "small",
     connectedNodes: ["track_18_8"],
     isAttribute: true,
   },
   track_18_10: {
     size: "small",
-    connectedNodes: ["track_18_9"],
+    connectedNodes: ["track_19_9"],
     isAttribute: true,
   },
-  track_18_11: {
+  track_19_11: {
     size: "small",
     connectedNodes: ["track_18_10"],
     isAttribute: true,
   },
-  track_18_13: {
+  track_19_13: {
     size: "small",
     connectedNodes: ["track_18_12"],
     isAttribute: true,
   },
   track_18_14: {
     size: "small",
-    connectedNodes: ["track_18_13"],
+    connectedNodes: ["track_19_13"],
     isAttribute: true,
   },
-  track_18_15: {
+  track_19_15: {
     size: "small",
     connectedNodes: ["track_18_14"],
     isAttribute: true,
   },
-  track_18_17: {
+  track_19_17: {
     size: "small",
     connectedNodes: ["track_18_16"],
     isAttribute: true,
   },
   track_18_18: {
     size: "small",
-    connectedNodes: ["track_18_17"],
+    connectedNodes: ["track_19_17"],
     isAttribute: true,
   },
-  track_18_19: {
+  track_19_19: {
     size: "small",
     connectedNodes: ["track_18_18"],
     isAttribute: true,

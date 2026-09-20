@@ -19,8 +19,8 @@
   "passivetree_spellcraft_rank_1": "凝气境悟道「太上感应」",
   "passivetree_spellcraft_rank_2": "筑基境悟道「元素共鸣」",
   "passivetree_spellcraft_rank_3": "结丹境悟道「天道循环」",
-  "passivetree_spellcraft_rank_4": "还婴境悟道「五行归元」",
-  "passivetree_spellcraft_rank_5": "化神境悟道「天人合道」",
+  "passivetree_spellcraft_rank_4": "还婴境悟道「阴阳五行」",
+  "passivetree_spellcraft_rank_5": "化神境悟道「万法归宗」",
 
   "passivetree_swordcraft_rank_1_comment": "匣中三尺鸣，寒芒初破空。",
   "passivetree_swordcraft_rank_2_comment": "踏罡步北斗，剑影随云动。",
@@ -30,8 +30,8 @@
   "passivetree_swordcraft_rank_1": "凝气境御剑「剑气凝形」",
   "passivetree_swordcraft_rank_2": "筑基境御剑「剑气连斩」",
   "passivetree_swordcraft_rank_3": "结丹境御剑「剑气化虹」",
-  "passivetree_swordcraft_rank_4": "还婴境御剑「万剑归宗」",
-  "passivetree_swordcraft_rank_5": "化神境御剑「剑气纵横」",
+  "passivetree_swordcraft_rank_4": "还婴境御剑「剑气纵横」",
+  "passivetree_swordcraft_rank_5": "化神境御剑「剑道千秋」",
 
   "passivetree_bodyforge_rank_1_comment": "肤若青铜铸，刀兵难伤身。",
   "passivetree_bodyforge_rank_2_comment": "臂肱立寒铁，脊背扛昆仑。",
@@ -42,7 +42,7 @@
   "passivetree_bodyforge_rank_2": "筑基境锻体「怒不可遏」",
   "passivetree_bodyforge_rank_3": "结丹境锻体「破釜沉舟」",
   "passivetree_bodyforge_rank_4": "还婴境锻体「血战到底」",
-  "passivetree_bodyforge_rank_5": "化神境锻体「天崩地裂」",
+  "passivetree_bodyforge_rank_5": "化神境锻体「崩天裂地」",
 
   "passivetree_avatar_rank_1_comment": "请得雷部将，金鞭破邪祟。",
   "passivetree_avatar_rank_2_comment": "元神化巨灵，三头六臂生。",

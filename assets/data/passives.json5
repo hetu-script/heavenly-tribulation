@@ -998,12 +998,13 @@
   },
 
   /// 天赋特殊词条
-  /// 这些词条是天道技能的关键节点，不会出现在装备上
-  enable_mana: {
-    id: "enable_mana",
-    description: "passive_enable_mana_description",
+  /// 这些词条是流派境界节点词条
+  spellcraft_rank_1: {
+    id: "spellcraft_rank_1",
+    description: "passive_spellcraft_rank_1description",
     priority: 3799,
   },
+
   enable_chakra: {
     id: "enable_chakra",
     description: "passive_enable_chakra_description",
@@ -1023,51 +1024,6 @@
     id: "enable_ultimate",
     description: "passive_enable_ultimate_description",
     priority: 3795,
-  },
-
-  overflowed_mana_deal_random_element_damage: {
-    id: "overflowed_mana_deal_random_element_damage",
-    description: "passive_overflowed_mana_deal_random_element_damage_description",
-    priority: 3699,
-  },
-  overflowed_mana_convert_to_vigor: {
-    id: "overflowed_mana_convert_to_vigor",
-    description: "passive_overflowed_mana_convert_to_vigor_description",
-    priority: 3698,
-  },
-  overflowed_chakra_debuff_affect_opponent: {
-    id: "overflowed_chakra_debuff_affect_opponent",
-    description: "passive_overflowed_chakra_debuff_affect_opponent_description",
-    priority: 3697,
-  },
-
-  mana_is_also_chakra: {
-    id: "mana_is_also_chakra",
-    description: "passive_mana_is_also_chakra_description",
-    priority: 3689,
-  },
-
-  exhaust_life_for_insufficient_rage: {
-    id: "exhaust_life_for_insufficient_rage",
-    description: "passive_exhaust_life_for_insufficient_rage_description",
-    priority: 3679,
-  },
-
-  dart_and_bow_attack_deal_pure_damage: {
-    id: "dart_and_bow_attack_deal_pure_damage",
-    description: "passive_dart_and_bow_attack_deal_pure_damage_description",
-    priority: 3669,
-  },
-  curse_deal_pure_damage: {
-    id: "curse_deal_pure_damage",
-    description: "passive_curse_deal_pure_damage_description",
-    priority: 3668,
-  },
-
-  gained_debuff_affect_opponent: {
-    id: "gained_debuff_affect_opponent",
-    description: "passive_gained_debuff_affect_opponent_description",
-    priority: 3659,
   },
 
   /// 装备数量相关

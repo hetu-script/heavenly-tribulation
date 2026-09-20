@@ -46,13 +46,13 @@ const kTrackRadius = [
   (144, 5), // 0, 起始轨道
   (216, 5), // 1,
   (288, 10), // 2,
-  (360, 10), // 3,
+  (360, 20), // 3,
   (432, 20), // 4, 凝气轨道
   (504, 20), // 5,
   (576, 40), // 6,
-  (648, 20), // 7,
-  (720, 20), // 8, 筑基轨道
-  (792, 20), // 9,
+  (648, 40), // 7,
+  (720, 40), // 8, 筑基轨道
+  (792, 40), // 9,
   (864, 20), // 10,
   (936, 40), // 11,
   (1008, 40), // 12, 结丹轨道
@@ -1277,10 +1277,10 @@ class CultivationScene extends Scene with HasCursorState {
       size: GameUI.cultivatorSize,
       priority: _kCultivatorPriority,
       lightConfig: LightConfig(
-        radius: 250,
-        blurBorder: 500,
+        radius: 150,
+        blurBorder: 50,
         shape: LightShape.circle,
-        lightCenter: GameUI.condensedPosition,
+        lightCenter: center,
       ),
     );
     cultivator.onTapUp = (button, position) async {
@@ -1320,6 +1320,7 @@ class CultivationScene extends Scene with HasCursorState {
       config: ScreenTextConfig(
         outlined: true,
         anchor: Anchor.topCenter,
+        textAlign: TextAlign.center,
         textStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -1379,6 +1380,7 @@ class CultivationScene extends Scene with HasCursorState {
         scene: this,
         target: cultivateButton,
         content: hint,
+        direction: HovertipDirection.topCenter,
       );
     };
     cultivateButton.onMouseExit = () {
@@ -1826,11 +1828,11 @@ class CultivationScene extends Scene with HasCursorState {
 
     final delta = details.scrollDelta.dy;
     if (delta > 0) {
-      if (camera.zoom > 0.4) {
+      if (camera.zoom > 0.2) {
         camera.zoom -= 0.1;
       }
     } else if (delta < 0) {
-      if (camera.zoom < 1) {
+      if (camera.zoom < 2) {
         camera.zoom += 0.1;
       }
     }

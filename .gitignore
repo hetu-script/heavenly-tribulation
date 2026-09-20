@@ -51,3 +51,5 @@ app.*.map.json
 
 # Non-Copyright image assets used by the game
 # !assets/images/animation/opensource/
+# Widget Preview related
+.widget_preview/
