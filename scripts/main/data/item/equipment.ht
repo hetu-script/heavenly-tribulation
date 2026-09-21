@@ -120,24 +120,26 @@ struct Equipment {
             return true
           })
           if (supportAffixes.isEmpty) {
-            throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+            engine.error('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+            break
+          } else {
+            final affix = Object.create(random.nextIterable(supportAffixes))
+            if (affix.increment != null || affix.rankIncrement != null) {
+              let minAffixLevel = 1
+              if (affix.increment != null) {
+                if (affix.increment > 0 && affix.increment < 1) {
+                  minAffixLevel = (1 / affix.increment).ceil()
+                } else if (affix.increment < 0 && affix.increment > -1) {
+                  minAffixLevel = (1 / -affix.increment).ceil()
+                }
+              }
+              affix.level = getRandomLevel(minAffixLevel, this.level)
+              affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).round()
+            }
+            this.affixes.add(affix)
+            this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
           }
           
-          final affix = Object.create(random.nextIterable(supportAffixes))
-          if (affix.increment != null || affix.rankIncrement != null) {
-            let minAffixLevel = 1
-            if (affix.increment != null) {
-              if (affix.increment > 0 && affix.increment < 1) {
-                minAffixLevel = (1 / affix.increment).ceil()
-              } else if (affix.increment < 0 && affix.increment > -1) {
-                minAffixLevel = (1 / -affix.increment).ceil()
-              }
-            }
-            affix.level = getRandomLevel(minAffixLevel, this.level)
-            affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).round()
-          }
-          this.affixes.add(affix)
-          this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
         }
       }
     } else {

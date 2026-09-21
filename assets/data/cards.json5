@@ -111,7 +111,7 @@
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
-    rank: 1,
+    rank: 2,
     isUnique: true,
     description: "affix_energy_positive_life",
     keywords: ["status_energy_positive_life"],
@@ -124,7 +124,7 @@
     script: "self_buff",
     valueData: [
       {
-        rankIncrement: 2,
+        increment: 0.05,
       },
     ],
   },
@@ -573,7 +573,7 @@
     valueData: [
       {
         base: 1,
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },
@@ -597,7 +597,7 @@
     valueData: [
       {
         base: 1,
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },
@@ -621,7 +621,7 @@
     valueData: [
       {
         base: 1,
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },
@@ -644,8 +644,7 @@
     script: "self_buff",
     valueData: [
       {
-        base: 1,
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },

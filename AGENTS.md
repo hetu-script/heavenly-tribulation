@@ -144,6 +144,8 @@ HTStruct 类似 Javascript 中的 object ，可以在运行时动态增删属性
 
 脚本入口: `scripts/main/main.ht`。编译后输出到 `assets/mods/main.mod`。
 
+**重要**: 脚本中的数据对象的类型是 `HTStruct`，在Dart侧，目前的项目中大部分时间使用 dynamic 类型来处理，并且可以像Map那样用 `[]` 来访问属性。
+
 - `scripts/main/binding/` — Dart↔Hetu 桥接
 - `scripts/main/data/` — 数据定义（稀有度、常量、角色/物品/地点/门派）
 - `scripts/main/cardgame/` — 卡牌战斗逻辑

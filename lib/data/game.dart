@@ -1129,11 +1129,7 @@ final class GameData with ChangeNotifier {
         num? value = affix['value'];
         bool isAfflicted = false;
         if (value != null) {
-          if (affix['id'].endsWith('Cost')) {
-            isAfflicted = value > 0;
-          } else {
-            isAfflicted = value < 0;
-          }
+          isAfflicted = value < 0 && affix['isDecrement'] != true;
           descriptionString =
               descriptionString.interpolate(['${value < 0 ? '' : '+'}$value']);
         }

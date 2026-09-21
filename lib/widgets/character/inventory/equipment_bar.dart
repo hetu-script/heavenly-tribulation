@@ -38,7 +38,7 @@ class EquipmentBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final hoverState = context.read<HoverContentState>();
 
-    final equipments = character['equipments'] as Map;
+    final equipments = character['equipments'];
     // 装备栏固定显示全部格子，超出当前境界可用数量的格子为锁定态
     final int unlockedSlotCount = equipmentSlotCount(character['rank'] ?? 0);
 

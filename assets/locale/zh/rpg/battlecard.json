@@ -138,7 +138,7 @@
   "affix_dodge_nimble": "闪避 +{0}",
   "affix_speed_quick_defend": "速度 +{0}, 护甲 +{1}",
   "affix_dodge_nimble_defend": "闪避 +{0}, 护甲 +{1}",
-  "affix_buff_crit": "幸运 +{0}",
+  "affix_buff_crit": "下次物理伤害必定暴击",
   "affix_buff_ward": "辟邪 +{0}",
   "affix_buff_shield": "护盾 +{0}",
 

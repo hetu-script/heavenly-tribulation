@@ -73,7 +73,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        maxLevel: 0,
       },
     ],
   },
@@ -91,7 +91,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
     ],
   },
@@ -109,7 +109,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.1,
+        increment: 0.05,
       },
     ],
   },
@@ -253,7 +253,7 @@
     priority: -1,
     valueData: [
       {
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },
@@ -271,7 +271,7 @@
     priority: -1,
     valueData: [
       {
-        rankIncrement: 1,
+        increment: 0.05,
       },
     ],
   },
