@@ -27,6 +27,9 @@
   // animation.overlays 叠加动画（爆炸效果等，可选）
   // animation.sound 动画播放时的声音效果
   // script: 调用的脚本函数的id
+  // 费用：无色 cost 与有色 qiCost 各自独立走阶梯 L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3），
+  // 由代码自动推导（card.ht _updateCardCost / game.dart deriveBattleCardCost），无需在数据中填写；
+  // qiCost 可显式指定有色费用（固定数值或 {base, rankIncrement} 公式），缺省时按流派色自动推导
   // equipment: 装备需求
   // valueData:
   // 实际的数值会在游戏中实际创建时才添加到这里

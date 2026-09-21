@@ -129,10 +129,14 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
       if (widgetCards.isEmpty) {
         _warning = engine.locale('prebattle_no_decks');
       } else {
-        final String? info =
-            GameLogic.checkDeckRequirement(widgetCards.map((widget) {
-          return widget.data;
-        }));
+        final String? info = GameLogic.checkDeckRequirement(
+          widgetCards.map((widget) {
+            return widget.data;
+          }),
+          rank: character['rank'],
+          deckMinSizeReduce:
+              character['stats']['deckMinSizeReduce'] ?? 0,
+        );
         _warning = info != null ? engine.locale(info) : null;
       }
     }

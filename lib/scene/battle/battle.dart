@@ -305,7 +305,12 @@ class BattleScene extends Scene {
       await deck.sortCards(animated: false);
 
       if (isHero) {
-        _missingCardCount = math.max(0, kBattleDeckSize - cards.length);
+        final deckMinSize = GameLogic.getDeckMinSizeForRank(
+          character['rank'],
+          deckMinSizeReduce:
+              character['stats']['deckMinSizeReduce'] ?? 0,
+        );
+        _missingCardCount = math.max(0, deckMinSize - cards.length);
         for (var i = 0; i < _missingCardCount; i++) {
           cards.add(_createBlankCard());
         }
@@ -1196,9 +1201,8 @@ class BattleScene extends Scene {
       final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
-      final drawCount =
-          GameLogic.getHandLimitForRank(currentCharacter.data['rank'])['limit']
-              as int;
+      final drawCount = kBattleDrawCount +
+          ((currentCharacter.data['stats']['battleDrawBonus'] ?? 0) as int);
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
 
@@ -1214,7 +1218,7 @@ class BattleScene extends Scene {
           currentCharacter.turnFlags['skipTurn'] == true;
 
       // ② 统一生命周期：清空上回合残留的所有阳气（阴气永久存在；煞气未用量返回 karma 池）
-      // ③ 结算本回合新产出（元气 rank+3 / 剑气 / 怒气 / 灵气 / 煞气池提取）
+      // ③ 结算本回合新产出（元气 kBattleBaseEnergy+词条加成 / 剑气 / 怒气 / 灵气 / 煞气池提取）
       // 顺序显式保证：先清空残留，再结算产出
       // 各角色第一次行动保留战斗开始时获得的阳气；从下一次行动开始正常清理。
       // 资源气行显示由 addStatusEffect/removeStatusEffect 的钩子自动刷新

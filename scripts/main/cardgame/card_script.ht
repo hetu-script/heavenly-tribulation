@@ -64,49 +64,49 @@ namespace CardScript {
   }
 
   /// 获得速度和防御
-  async function speed_quick_defend(self, opponent, affix, mainAffix) {
+  function speed_quick_defend(self, opponent, affix, mainAffix) {
     self.addStatusEffect('speed_quick', amount: affix.value[0])
     self.addStatusEffect('defense', amount: affix.value[1])
   }
   /// 获得闪避和防御
-  async function dodge_nimble_defend(self, opponent, affix, mainAffix) {
+  function dodge_nimble_defend(self, opponent, affix, mainAffix) {
     self.addStatusEffect('dodge_nimble', amount: affix.value[0])
     self.addStatusEffect('defense', amount: affix.value[1])
   }
 
   /// 提升生命上限
-  async function buff_lifemax(self, opponent, affix, mainAffix) {
+  function buff_lifemax(self, opponent, affix, mainAffix) {
     self.setLifeMax(self.lifeMax + affix.value[0], rejuvenate: true)
   }
   /// 降低对手生命上限
-  async function debuff_lifemax(self, opponent, affix, mainAffix) {
+  function debuff_lifemax(self, opponent, affix, mainAffix) {
     opponent.setLifeMax(opponent.lifeMax - affix.value[0])
   }
 
   /// 加持
 
   /// 获得生命
-  async function heal(self, opponent, affix, mainAffix) {
-    await self.changeLife(affix.value[0], isHeal: true)
+  function heal(self, opponent, affix, mainAffix) {
+    self.changeLife(affix.value[0], isHeal: true)
   }
   /// 回复生命上限百分比的生命，可以超过上限
-  async function heal_lifeMax(self, opponent, affix, mainAffix) {
+  function heal_lifeMax(self, opponent, affix, mainAffix) {
     final regen = (affix.value[0] / 100 * self.lifeMax).round()
     self.changeLife(regen, isHeal: true)
   }
   
   /// 获得增益
-  async function self_buff(self, opponent, affix, mainAffix) {
+  function self_buff(self, opponent, affix, mainAffix) {
     self.addStatusEffect(affix.buffId, amount: affix.value[0])
   }
   
   /// 对手获得减益
-  async function opponent_debuff(self, opponent, affix, mainAffix) {
+  function opponent_debuff(self, opponent, affix, mainAffix) {
     opponent.addStatusEffect(affix.buffId, amount: affix.value[0])
   }
 
   /// 降低对手全部元素抗性（以弱点形式附加，与抗性互相抵消）
-  async function reduce_resist_all(self, opponent, affix, mainAffix) {
+  function reduce_resist_all(self, opponent, affix, mainAffix) {
     for (var elementResist in ['fire', 'ice', 'lightning', 'poison']) {
       opponent.addStatusEffect('weakness_${elementResist}', amount: affix.value[0])
     }
@@ -115,7 +115,7 @@ namespace CardScript {
   /// 攻击额外词条
 
   /// 攻击后每造成10点伤害回复生命
-  async function by_damage_heal(self, opponent, affix, mainAffix) {
+  function by_damage_heal(self, opponent, affix, mainAffix) {
     final cardDamage = self.cardFlags.damage.total ?? 0
     if (cardDamage < 10) return
     final amount = (cardDamage / 10).floor()
@@ -123,7 +123,7 @@ namespace CardScript {
   }
 
   /// 攻击后每造成10点伤害获得防御
-  async function by_damage_defend(self, opponent, affix, mainAffix) {
+  function by_damage_defend(self, opponent, affix, mainAffix) {
     final cardDamage = self.cardFlags.damage.total ?? 0
     if (cardDamage < 10) return
     final amount = (cardDamage / 10).floor()
@@ -131,7 +131,7 @@ namespace CardScript {
   }
 
   /// 根据属性提升伤害
-  async function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
+  function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
     final amount = self.data.stats[affix.attributeId] * 0.005
     self.cardFlags.damage.percentageChange1 += amount
   }

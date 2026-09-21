@@ -935,20 +935,19 @@ final class GameLogic {
     return completer.future;
   }
 
-  // 返回值依次是: 卡组下限，消耗牌上限，持续牌上限
-  static Map<String, int> getHandLimitForRank(int rank) {
+  /// 卡组构筑下限：kBattleDeckSize + rank × 2（plan/battle_resource_rework.md 第四节）。
+  /// deckMinSizeReduce 为装备词条 deckMinSizeReduce 的 stats 值（通常为负），
+  /// 减免后下限不低于 kBattleDeckSize。
+  static int getDeckMinSizeForRank(int rank, {int deckMinSizeReduce = 0}) {
     assert(rank >= 0);
-    final limit = rank + 3;
-    final ongoingMax = (rank + 1) ~/ 3 + 1;
-    return {
-      'limit': limit,
-      'ongoingMax': ongoingMax,
-      // 'ephemeralMax': ephemeralMax,
-    };
+    return math.max(
+        kBattleDeckSize, kBattleDeckSize + rank * 2 + deckMinSizeReduce);
   }
 
-  static String? checkDeckRequirement(Iterable<dynamic> cards) {
-    if (cards.length < kBattleDeckSize) {
+  static String? checkDeckRequirement(Iterable<dynamic> cards,
+      {int rank = 0, int deckMinSizeReduce = 0}) {
+    if (cards.length <
+        getDeckMinSizeForRank(rank, deckMinSizeReduce: deckMinSizeReduce)) {
       return 'deckbuilding_cards_not_enough';
     }
 

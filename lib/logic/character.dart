@@ -717,8 +717,8 @@ Future<void> _heroEnrollSect(dynamic sect, dynamic npc) async {
       engine.hetu.invoke('generateBattleDeck', positionalArgs: [
         enemy
       ], namedArgs: {
-        'cardInfoList':
-            List.generate(kBattleDeckSize, (_) => {'affixId': 'placeholder'}),
+        'cardInfoList': List.generate(GameLogic.getDeckMinSizeForRank(0),
+            (_) => {'affixId': 'placeholder'}),
       });
       engine.context.read<EnemyState>().show(
         enemy,

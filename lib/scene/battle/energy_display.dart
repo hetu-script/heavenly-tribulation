@@ -6,6 +6,7 @@ import 'package:samsara/components/ui/hovertip.dart';
 
 import '../../global.dart';
 import '../../data/game.dart';
+import '../../data/common.dart';
 import '../../ui.dart';
 import 'character.dart';
 import 'status_effect.dart' show kNegativeQiInvertMatrix;
@@ -20,7 +21,7 @@ const _kQiSlots = [
   ('energy_positive_ultimate', 'energy_negative_ultimate'),
 ];
 
-/// 元气（无色费用池）的阳气 id，该槽位恒显并显示上限（rank + 3，纯显示参照，可超出）
+/// 元气（无色费用池）的阳气 id，该槽位恒显并显示上限（kBattleBaseEnergy + 词条加成，纯显示参照，可超出）
 const _kVigorStatusId = 'energy_positive_life';
 
 /// 单个资源气槽位：阴阳净值显示（阴气以反色图标显示），悬浮提示说明
@@ -110,7 +111,7 @@ class _QiSlot extends GameComponent with HandlesGesture {
 
 /// 资源气行：统一管理所有资源气（6 阳 6 阴）的显示，
 /// 位于永久状态行上方单独一行（plan/qi_display.md）。
-/// 元气恒显并显示上限（rank + 3，纯显示参照，可超出）；
+/// 元气恒显并显示上限（kBattleBaseEnergy + 词条加成，纯显示参照，可超出）；
 /// 其余气只在持有时显示；无极之气与前五色之间有额外间隔。
 class EnergyDisplay extends GameComponent {
   EnergyDisplay({
@@ -146,8 +147,10 @@ class EnergyDisplay extends GameComponent {
       final slot = _slots[i];
       final yang = character.hasStatusEffect(slot.yangId);
       final yin = character.hasStatusEffect(slot.yinId);
-      final max =
-          slot.alwaysVisible ? (character.data['rank'] as int) + 3 : 0;
+      final max = slot.alwaysVisible
+          ? kBattleBaseEnergy +
+              ((character.data['stats']['battleEnergyBonus'] ?? 0) as int)
+          : 0;
       slot.updateQi(yang, yin, max: max);
       if (!slot.isVisible) continue;
       // 无极之气与前五色之间加大间隔

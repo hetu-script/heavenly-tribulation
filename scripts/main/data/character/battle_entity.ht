@@ -348,6 +348,11 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.workStaminaCost = (character.workStaminaCost * (1 + character.passives.workStaminaCost?.value / 100) * (1 + character.ephemeralPassives.workStaminaCost?.value / 100)).toFixed(2)
   character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.ephemeralPassives.craftMaterialCost?.value / 100)).toFixed(2)
 
+  // 战斗资源词条（仅限装备；ephemeral 读取保留以兼容旧存档，新词条不进临时增益池）
+  character.stats.battleEnergyBonus = character.passives.battleEnergyBonus?.value + character.ephemeralPassives.battleEnergyBonus?.value
+  character.stats.battleDrawBonus = character.passives.battleDrawBonus?.value + character.ephemeralPassives.battleDrawBonus?.value
+  character.stats.deckMinSizeReduce = character.passives.deckMinSizeReduce?.value + character.ephemeralPassives.deckMinSizeReduce?.value
+
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.ephemeralPassives.unarmedAttack?.value
   character.stats.weaponAttack = character.passives.weaponAttack?.value + character.ephemeralPassives.weaponAttack?.value
   character.stats.spellAttack = character.passives.spellAttack?.value + character.ephemeralPassives.spellAttack?.value
@@ -555,9 +560,9 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
         affixId: info.affixId,
         kind: info.kind,
         genre: info.genre,
-        rank: info.rank ?? character.rank,
+        rank: info.rank,
         maxOutLevel: maxOutLevel,
-        maxRank: info.maxRank,
+        maxRank: info.maxRank ?? character.rank,
         isIdentified: info.isIdentified ?? false,
       )
       deck.add(card)
@@ -567,7 +572,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
     let weaponKind2 = random.nextIterable(kBattleCardWeaponKinds)
     let buffs = []
     let attacks = []
-    for (var i in range(Constants.battleDeckSize)) {
+    for (var i in range(getDeckMinSizeForRank(character.rank))) {
       let genre = character.rank > 0 ? character.cultivationFavor : null
       final isBuff = random.nextDouble() < 0.35
       let kind
@@ -600,13 +605,15 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
         category: kindRoll < 0.35 ? null : (isBuff ? 'buff' : 'attack'),
         genre: genre,
         kind: kind,
-        rank: character.rank,
+        // distantInt 偏向低境界：防止 NPC 卡手（低境界卡费用低、无使用门槛）
+        maxRank: character.rank,
         isIdentified: false,
       )
       deck.add(card)
     }
     
-    final equipment = Equipment(kind: weaponKind ?? weaponKind2, rank: character.rank)
+    // 装备境界均匀随机（物品无卡手问题，无需低境界偏向）
+    final equipment = Equipment(kind: weaponKind ?? weaponKind2, rank: random.nextInt(character.rank + 1))
     characterEquip(character, equipment)
   }
   for (final card in deck) {

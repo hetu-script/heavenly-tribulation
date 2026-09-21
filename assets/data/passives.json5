@@ -1058,6 +1058,35 @@
     rank: 3,
   },
 
+  // 战斗资源词条：仅限装备（不加 isPotionMain/isEphemeral，
+  // 不进丹药与聚灵阵临时增益池）；天赋树节点无视用途标记，仍可使用
+  battleEnergyBonus: {
+    id: "battleEnergyBonus",
+    description: "passive_battleEnergyBonus_description",
+    priority: 3497,
+    increment: 1,
+    isEquipmentExtraAffix: true,
+    kinds: ["amulet", "ring", "pearl"],
+  },
+  battleDrawBonus: {
+    id: "battleDrawBonus",
+    description: "passive_battleDrawBonus_description",
+    priority: 3496,
+    increment: 1,
+    isEquipmentExtraAffix: true,
+    kinds: ["amulet", "ring", "pearl"],
+    rank: 2,
+  },
+  deckMinSizeReduce: {
+    id: "deckMinSizeReduce",
+    description: "passive_deckMinSizeReduce_description",
+    priority: 3495,
+    increment: -1,
+    isEquipmentExtraAffix: true,
+    kinds: ["pearl", "amulet"],
+    rank: 3,
+  },
+
   // 非战斗属性
   tribulationCountMax: {
     id: "tribulationCountMax",

@@ -245,7 +245,6 @@
   //     因为 isUnstackable 会使运行时 item.id 变为随机 UID，
   //     唯一性检查只能用 uniqueId 字段，不能用 item.id
   //   isIdentified: false   // 必须！绝世装备默认未鉴定，需使用鉴定卷轴
-  //   rarity: 通常为 'arcane'，rank 可不写（由 rarity 推导）
   //   affixes: [词条id...]  // 词条 id 固定，level/value 生成时随机 roll
   //   name / flavortext / icon: 本地化键与图标路径
   // 可选字段:
@@ -253,6 +252,7 @@
   // 模板:
   // example_unique_sword: {
   //   id: "example_unique_sword",
+  //   uniqueId: "example_unique_sword",
   //   name: "example_unique_sword",
   //   flavortext: "flavortext_example_unique_sword",
   //   type: "equipment",
@@ -263,7 +263,6 @@
   //   isEquippable: true,
   //   isUnstackable: true,
   //   isUnique: true,
-  //   uniqueId: "example_unique_sword",
   //   isIdentified: false,
   //   affixes: ["equipment_sword", "increase_damage_sword", ...],
   // },

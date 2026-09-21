@@ -33,6 +33,10 @@ const kStats = [
 
 const kMoreStats = [
   'divider',
+  'battleEnergyBonus',
+  'battleDrawBonus',
+  'deckMinSizeReduce',
+  'divider',
   'critThreshold',
   'critMultiplier',
   'ailmentThreshold',
@@ -56,8 +60,6 @@ const kMoreStats = [
   'workEfficiency',
   'craftMaterialCost',
 ];
-
-const kNonBattleItemsLength = 4;
 
 class CharacterStats extends StatefulWidget {
   const CharacterStats({
@@ -136,7 +138,8 @@ class _CharacterStatsState extends State<CharacterStats> {
       valueString = value > baseValue
           ? '<yellow>$value%</>'
           : (value < baseValue ? '<red>$value%</>' : '$value%');
-      description = '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
+      description =
+          '${engine.locale('${id}_description')}\n${engine.locale('${id}Max')}: $maxString%';
     } else if (id.endsWith('Threshold')) {
       valueString = value < baseValue ? '<yellow>$value</>' : value.toString();
       description = engine.locale('${id}_description');
@@ -171,7 +174,7 @@ class _CharacterStatsState extends State<CharacterStats> {
           ? '<yellow>$valueString</>'
           : valueString;
     } else {
-      if (id.endsWith('Cost')) {
+      if (id.endsWith('Cost') || id.endsWith('Reduce')) {
         valueString = value < baseValue
             ? '<yellow>$value</>'
             : (value > baseValue ? '<red>$value</>' : '$value');

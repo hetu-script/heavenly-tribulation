@@ -47,6 +47,12 @@
   "wisdom": "悟性",
   "luck": "运气",
 
+  "battleEnergyBonus": "每回合元气",
+  "battleDrawBonus": "每回合抽牌",
+  "battleDrawBonus_description": "每回合开始时额外抽取的卡牌数量。",
+  "battleEnergyBonus_description": "每回合开始时额外获得的元气数量。",
+  "deckMinSizeReduce": "卡组数量下限",
+  "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（不会低于 10）。",
   "dexterity": "身法",
   "dexterity_description": "御剑流派主属性。增加先手概率，降低偷窃难度。",
   "spirituality": "灵力",

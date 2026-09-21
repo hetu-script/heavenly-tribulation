@@ -361,7 +361,7 @@ const kGenreToAttribute = {
   'avatar': 'perception',
 };
 
-/// 流派 → 费用色映射（战斗费用系统重构，见 plan-battle_qi_cost_rework.md §3.2）
+/// 流派 → 费用色映射（战斗费用系统，见 plan/battle_resource_rework.md 第一节）
 /// 法身（avatar）为怒气 + 煞气双色，对半拆；奇数时无色少 1
 const kGenreCostColors = {
   'spellcraft': ['spell'],
@@ -1367,6 +1367,12 @@ const kLifeRestoreRateAfterBattle = 0.25;
 
 /// 战斗中牌库的固定大小
 const kBattleDeckSize = 10;
+
+/// 战斗每回合元气（无色费用池）基础产出（plan/battle_resource_rework.md 第二节）
+const kBattleBaseEnergy = 3;
+
+/// 战斗每回合基础抽牌数量（plan/battle_resource_rework.md 第三节）
+const kBattleDrawCount = 5;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;

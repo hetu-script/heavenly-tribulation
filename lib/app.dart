@@ -335,9 +335,9 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'getHandLimitForRank',
+        'getDeckMinSizeForRank',
         ({positionalArgs, namedArgs}) =>
-            GameLogic.getHandLimitForRank(positionalArgs.first),
+            GameLogic.getDeckMinSizeForRank(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('estimateItemPriceByKind', (

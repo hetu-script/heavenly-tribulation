@@ -1233,7 +1233,7 @@ function characterSteal(character, target, entries) {
 
 function characterInitItems(character, categories, amount, { isIdentified = true }) {
   for (var i in range(amount)) {
-    let itemRank = random.nearInt(character.rank + 1)
+    let itemRank = random.nextInt(character.rank + 1)
     final category = random.nextIterable(categories)
     if (category == kItemCategoryCardpack) {
       final item = Cardpack(rank: itemRank)
@@ -1249,8 +1249,8 @@ function characterInitItems(character, categories, amount, { isIdentified = true
       final item = createItemById(category)
       entityAcquire(character, item, incurIncident: false)
     } else if (kRankedPrototypeItems.contains(category)) {
-      assert(rank > 0);
-      itemRank = itemRank.clamp(1, rank)
+      assert(character.rank > 0);
+      itemRank = itemRank.clamp(1, character.rank)
       final item = createItemById(category, rank: itemRank)
       entityAcquire(character, item, incurIncident: false)
     }

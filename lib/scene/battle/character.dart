@@ -150,7 +150,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   final BattleDeckZone deckZone;
 
   /// 元气（无色费用）= energy_positive_life 状态层数（§4.1：energy 计数器已归一为状态）。
-  /// 回合开始获得 rank + 3 层，支付无色费用移除对应层数，回合结束按剩余层数回血。
+  /// 回合开始获得固定基准（kBattleBaseEnergy）+ 词条加成的层数，支付无色费用移除对应层数，回合结束按剩余层数回血。
   int get energy => hasStatusEffect('energy_positive_life');
 
   /// 本回合打出的武器牌数量（含攻击与加持；回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
@@ -619,13 +619,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
-  /// 元气 rank + 3（获得时与持有的死气自然对冲）；剑气/怒气按滞后一轮模型结算；
+  /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）；
+  /// 剑气/怒气按滞后一轮模型结算；
   /// 煞气从 karma 池提取；灵气节点加成缺省 0（§7 天赋树落地后补充）。
   void produceTurnStartResources() {
-    final int rank = data['rank'];
-
     // 元气 = 无色费用池（§4.1）
-    addStatusEffect('energy_positive_life', amount: rank + 3);
+    final int energyBonus =
+        (data['stats']['battleEnergyBonus'] ?? 0) as int;
+    addStatusEffect('energy_positive_life',
+        amount: kBattleBaseEnergy + energyBonus);
 
     // 灵气：enable_mana
     // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充（§4.4）

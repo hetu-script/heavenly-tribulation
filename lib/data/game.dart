@@ -517,11 +517,11 @@ final class GameData with ChangeNotifier {
     _isInitted = true;
   }
 
-  /// 校验卡牌有色费用 qiCost 数据（见 plan-battle_qi_cost_rework.md §3.1）：
+  /// 校验卡牌有色费用 qiCost 数据（见 plan/battle_resource_rework.md 第一节）：
   /// 1. 费用色合法性：非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色
   /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算）
-  /// 3. ΣqiCost ≤ rank + 1（超出时无色费用会被 clamp 为 0）
-  /// 4. 数据显式给出 cost 时：cost + ΣqiCost = rank + 1
+  /// 3. ΣqiCost > L(rank) + 1（L(rank) = rank ~/ 2 + 1）时给出软警告（非常规定价）；
+  ///    无色 cost 固定为 L(rank)，不再被有色挤压
   /// 数据问题只警告，不中断加载
   static void _validateBattleCardCostColored() {
     for (final cardData in battleCards.values) {
@@ -540,7 +540,7 @@ final class GameData with ChangeNotifier {
         continue;
       }
       final int rank = rankValue.toInt();
-      final int totalCost = rank + 1;
+      final int costLadder = rank ~/ 2 + 1;
 
       final bool isUnique = cardData['isUnique'] == true;
       int coloredCostSum = 0;
@@ -570,17 +570,9 @@ final class GameData with ChangeNotifier {
         coloredCostSum += amount;
       }
 
-      if (coloredCostSum > totalCost) {
-        engine.warning('卡牌 [$cardId] 的 ΣqiCost($coloredCostSum) 超出总费用'
-            ' rank + 1($totalCost)，无色费用将被 clamp 为 0');
-      }
-
-      // 数据显式给出 cost 时校验总费用不变量
-      final explicitCost = cardData['cost'];
-      if (explicitCost is num &&
-          explicitCost.toInt() + coloredCostSum != totalCost) {
-        engine.warning('卡牌 [$cardId] 的费用不变量不满足：'
-            'cost($explicitCost) + ΣqiCost($coloredCostSum) != rank + 1($totalCost)');
+      if (coloredCostSum > costLadder + 1) {
+        engine.warning('卡牌 [$cardId] 的 ΣqiCost($coloredCostSum) 明显超出'
+            '有色费用阶梯 L(rank)($costLadder)，属于非常规定价');
       }
     }
   }
@@ -1463,42 +1455,35 @@ final class GameData with ChangeNotifier {
     return 0;
   }
 
-  /// 推导卡牌费用（见 plan-battle_qi_cost_rework.md §3.1）：
-  /// 总费用 = rank + 1 = 无色 cost + ΣqiCost。
+  /// 推导卡牌费用（见 plan/battle_resource_rework.md 第一节）：
+  /// 无色 cost 与有色 qiCost 各自独立走阶梯 L(rank) = rank ~/ 2 + 1
+  /// （rank0-1 → 1、rank2-3 → 2、rank4-5 → 3）。
   /// 显式 qiCost 优先（条目可为固定数值或 {base, rankIncrement} 公式）；
-  /// 缺省推导：无流派卡全无色，
-  /// 有流派卡 有色 = ⌈(rank+1)/2⌉（颜色由 kGenreCostColors 决定，多色对半拆、
-  /// 余数给列表首位，即法身奇数时多出的一点给 unarmed）、无色 = ⌊(rank+1)/2⌋。
-  /// 与 scripts/main/cardgame/card.ht 中 BattleCard 构造器的推导逻辑保持一致。
+  /// 缺省推导：无流派卡无有色费用，有流派卡有色 = L(rank)
+  /// （颜色由 kGenreCostColors 决定，多色对半拆、余数给列表首位，
+  /// 即法身奇数时多出的一点给 unarmed）。
+  /// 与 scripts/main/cardgame/card.ht 中 _updateCardCost 的推导逻辑保持一致。
   static (int, Map<String, int>) deriveBattleCardCost(dynamic cardData) {
     final int rank = (cardData['rank'] as num).toInt();
-    final int totalCost = rank + 1;
+    final int cost = rank ~/ 2 + 1;
 
     final explicit = cardData['qiCost'];
     if (explicit is Map && explicit.isNotEmpty) {
       final colored = <String, int>{};
-      int sum = 0;
       explicit.forEach((key, value) {
         final amount = _deriveQiCostAmount(value, rank);
         if (amount > 0) {
           colored[key as String] = amount;
-          sum += amount;
         }
       });
-      // 有色超出总费用时无色 clamp 为 0（_validateBattleCardCostColored 会对此报警）
-      return (math.max(0, totalCost - sum), colored);
-    }
-
-    // rank 0（总费用 1）一律全无色：唯一一 pip 若有色，无产气手段的角色等于死卡
-    if (rank == 0) {
-      return (totalCost, const <String, int>{});
+      return (cost, colored);
     }
 
     final colors = kGenreCostColors[cardData['genre'] as String?];
-    final coloredTotal = colors != null ? (totalCost + 1) ~/ 2 : 0;
     final colored = <String, int>{};
-    if (coloredTotal > 0) {
-      final half = coloredTotal ~/ colors!.length;
+    if (colors != null) {
+      final coloredTotal = cost;
+      final half = coloredTotal ~/ colors.length;
       final remainder = coloredTotal % colors.length;
       for (var i = 0; i < colors.length; ++i) {
         final amount = half + (i < remainder ? 1 : 0);
@@ -1507,7 +1492,7 @@ final class GameData with ChangeNotifier {
         }
       }
     }
-    return (totalCost - coloredTotal, colored);
+    return (cost, colored);
   }
 
   /// 卡牌标题：符箓等带使用次数（chargeData）的卡牌追加 (current/max)

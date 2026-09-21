@@ -128,7 +128,11 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           piledCardSize: GameUI.deckbuildingCardSize,
           pileOffset: GameUI.deckbuildingZonePileOffset,
           borderRadius: 20.0,
-          limit: kBattleDeckSize,
+          limit: GameLogic.getDeckMinSizeForRank(
+            GameData.hero['rank'],
+            deckMinSizeReduce:
+                GameData.hero['stats']['deckMinSizeReduce'] ?? 0,
+          ),
         ) {
     title ??= engine.locale('untitled');
 
