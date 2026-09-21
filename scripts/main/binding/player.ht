@@ -404,6 +404,13 @@ namespace Player {
     return characterFirstEquippedKind(hero, kind)
   }
 
+  /// 检查是否已装备某个 uniqueId 的绝世装备
+  function equippedUnique(uniqueId) {
+    assert(hero != null)
+
+    return characterEquippedUnique(hero, uniqueId)
+  }
+
   function unequip(item) {
     assert(hero != null)
     characterUnequip(hero, item)

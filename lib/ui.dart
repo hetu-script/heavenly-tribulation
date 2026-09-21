@@ -553,7 +553,7 @@ final class GameUI {
   static Vector2 battleCharacterAvatarSize = Vector2(100.0, 100.0);
 
   static final Vector2 equipmentsBarSize =
-      Vector2(32 * (kEquipmentMax + 3), 30);
+      Vector2(32 * (kEquipmentSlotMax + 3), 30);
 
   static final heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
   static final statusEffectIconSize = Vector2(24, 24);

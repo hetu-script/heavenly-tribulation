@@ -130,6 +130,12 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
       }
     } else if (tabIndex == 1) {
       if (itemData['category'] != kItemCategoryExtractedAffix) {
+        // 绝世装备不能进行词条析取
+        if (itemData['isUnique'] == true) {
+          dialog.pushDialog('craft_unique_equipment_forbidden_hint');
+          dialog.execute();
+          return;
+        }
         engine.play('sword-sheathed-178549.mp3');
         selectedEquipment = itemData;
         selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);

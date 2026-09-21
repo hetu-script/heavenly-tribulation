@@ -106,6 +106,17 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
                 }
               }
             }
+            // 绝世装备：同一 uniqueId 同时只能装备一件
+            if (itemData['isUnique'] == true) {
+              final hasDuplicatedUnique = engine.hetu.invoke('equippedUnique',
+                  namespace: 'Player',
+                  positionalArgs: [itemData['uniqueId']]);
+              if (hasDuplicatedUnique == true) {
+                dialog.pushDialog('hint_uniqueEquipmentExists');
+                dialog.execute();
+                return;
+              }
+            }
             engine.play('sword-sheathed-178549.mp3');
             engine.hetu.invoke('equip',
                 namespace: 'Player', positionalArgs: [itemData]);

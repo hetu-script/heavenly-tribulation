@@ -891,6 +891,7 @@
   "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
+  "hint_uniqueEquipmentExists": "同种的绝世装备只能装备一件。",
   "hint_itemFullyCharged": "这件物品已经充能完毕了。",
 
   "hint_notEnough_money": "你没有足够的铜钱。",

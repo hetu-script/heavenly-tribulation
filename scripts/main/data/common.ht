@@ -28,7 +28,8 @@ const kTerrainKindRoad = 'road';
 const kTerrainKindCity = 'city';
 
 const kCultivationRankMax = 5;
-const kEquipmentMax = 5;
+// 装备栏固定 8 格，可用栏位数随境界提升（见 equipmentSlotCount）
+const kEquipmentSlotMax = 8;
 const kFameRankMax = 5;
 const kJobRankMax = 5;
 
@@ -131,6 +132,11 @@ const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 function getRandomLevel(min, max) {
   if (min >= max) return min
   return  min + random.nextInt(max - min + 1)
+}
+
+/// 当前境界可用的装备栏位数：rank + 3（无境界 3，化神 8）
+function equipmentSlotCount(rank) {
+  return Math.min(rank + 3, kEquipmentSlotMax)
 }
 
 /// 计算词条数值：value = base + increment × level + rankIncrement × rank

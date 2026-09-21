@@ -232,5 +232,39 @@
     isUsable: true,
   },
 
-  /// 绝世装备
+  /// 绝世装备（unique equipment）约定：
+  // 词条 id 固定（affixes 列表），词条的 level/value 生成时仍随机 roll
+  // 同一 uniqueId 的绝世装备同时只能装备一件；获得时默认未鉴定
+  // 必须字段:
+  //   type: 'equipment'
+  //   category / kind: 必须为合法装备类别与种类（参考 Constants.equipmentCategoryKinds）
+  //   isEquippable: true
+  //   isUnstackable: true   // 必须！否则重复获得时会在背包堆叠
+  //   isUnique: true
+  //   uniqueId: 去重键，必须等于本条目 id（键名）。
+  //     因为 isUnstackable 会使运行时 item.id 变为随机 UID，
+  //     唯一性检查只能用 uniqueId 字段，不能用 item.id
+  //   isIdentified: false   // 必须！绝世装备默认未鉴定，需使用鉴定卷轴
+  //   rarity: 通常为 'arcane'，rank 可不写（由 rarity 推导）
+  //   affixes: [词条id...]  // 词条 id 固定，level/value 生成时随机 roll
+  //   name / flavortext / icon: 本地化键与图标路径
+  // 可选字段:
+  //   isUntradable / isCursed 等通用物品字段
+  // 模板:
+  // example_unique_sword: {
+  //   id: "example_unique_sword",
+  //   name: "example_unique_sword",
+  //   flavortext: "flavortext_example_unique_sword",
+  //   type: "equipment",
+  //   category: "weapon",
+  //   kind: "sword",
+  //   rarity: "arcane",
+  //   icon: "item/equipment/sword.png",
+  //   isEquippable: true,
+  //   isUnstackable: true,
+  //   isUnique: true,
+  //   uniqueId: "example_unique_sword",
+  //   isIdentified: false,
+  //   affixes: ["equipment_sword", "increase_damage_sword", ...],
+  // },
 }

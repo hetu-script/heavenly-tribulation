@@ -406,9 +406,16 @@ const kDeckEphemeralCount = 3;
 const kScrollMaxCharges = 3;
 
 const kCultivationRankMax = 5;
-const kEquipmentMax = 5;
+// 装备栏固定 8 格，可用栏位数随境界提升（见 equipmentSlotCount）
+const kEquipmentSlotMax = 8;
 const kFameRankMax = 5;
 const kJobRankMax = 5;
+
+/// 当前境界可用的装备栏位数：rank + 3（无境界 3，化神 8）
+int equipmentSlotCount(int rank) {
+  final count = rank + 3;
+  return count > kEquipmentSlotMax ? kEquipmentSlotMax : count;
+}
 
 const kRestrictedEquipmentCategories = {
   'weapon',

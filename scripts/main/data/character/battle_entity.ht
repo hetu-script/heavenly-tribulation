@@ -149,7 +149,7 @@ struct BattleEntity {
     // 身上携带的普通物品，每一个都是单独生成，无法堆叠
     this.inventory = {}
 
-    // 装备栏的位置是固定的 7 个
+    // 装备栏固定 8 格，可用栏位数随境界提升（见 equipmentSlotCount）
     // 装备栏只能装备法宝，获得其佩戴效果
     // key 是 0-7 的数字，代表第几栏，
     // value 是 物品的 id，物品的具体数据在角色的 inventory 中
@@ -160,7 +160,8 @@ struct BattleEntity {
       '3': null,
       '4': null,
       '5': null,
-      // '6': null,
+      '6': null,
+      '7': null,
     }
 
     // 随角色移动的其他角色，这里只保存id
@@ -623,7 +624,7 @@ function generateBattleDeck(character, { maxOutLevel = false, cardInfoList }) {
 
 function characterEquip(entity, item, { index }) {
   assert(entity.entityType == kEntityTypeBattleEntity || entity.entityType == kEntityTypeCharacter, entity.entityType)
-  assert(index == null || (index >= 0 && index <= kEquipmentMax))
+  assert(index == null || (index >= 0 && index < equipmentSlotCount(entity.rank)))
 
   if (entity.inventory[item.id] == null) {
     // engine.warning('${item.name} 不在${entity.name}的物品栏中，无法装备。')
@@ -639,10 +640,17 @@ function characterEquip(entity, item, { index }) {
     return false
   }
 
+  // 绝世装备：同一 uniqueId 同时只能装备一件
+  if (item.isUnique == true &&
+      characterEquippedUnique(entity, item.uniqueId, excludeItemId: item.id)) {
+    engine.warning('${entity.name} 已经装备了同种的绝世装备，无法重复装备。')
+    return false
+  }
+
   let equipped = false
-  // 如果有空位就装备在空位上
+  // 如果有空位就装备在空位上（仅使用当前境界已解锁的栏位）
   if (index == null) {
-    for (const i in range(kEquipmentMax)) {
+    for (const i in range(equipmentSlotCount(entity.rank))) {
       if (entity.equipments[i] == null) {
         entity.equipments[i] = item.id
         item.equippedPosition = i
@@ -712,6 +720,21 @@ function characterEquippedCategory(entity, category) {
     }
   }
   return count
+}
+
+/// 检查是否已装备某个 uniqueId 的绝世装备
+/// excludeItemId 用于排除物品自身（比如它已经装备在身上时）
+function characterEquippedUnique(entity, uniqueId, { excludeItemId }) {
+  if (uniqueId == null) return false
+  for (final itemId in entity.equipments.values) {
+    if (itemId == null) continue
+    if (excludeItemId != null && itemId == excludeItemId) continue
+    final item = entity.inventory[itemId]
+    if (item.uniqueId != null && item.uniqueId == uniqueId) {
+      return true
+    }
+  }
+  return false
 }
 
 function characterFirstEquippedCategory(entity, category) {

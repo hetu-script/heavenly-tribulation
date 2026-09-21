@@ -130,6 +130,7 @@ function createItemById(id, {amount, rank, level}) {
   if (item.affixes is List) {
     let affixes = item.affixes.toList()
     item.affixes = []
+    item.affixUniqueIds = Set()
     for (final id in affixes) {
       final affixRawData = game.passives[id]
       assert(affixRawData != null)
@@ -147,6 +148,11 @@ function createItemById(id, {amount, rank, level}) {
         affix.value = calcAffixValue(affix, level: affix.level, rank: item.rank).round()
       }
       item.affixes.add(affix)
+      if (affix.uniqueIds is List) {
+        item.affixUniqueIds.addAll(affix.uniqueIds)
+      } else {
+        item.affixUniqueIds.add(affix.uniqueId ?? affix.id)
+      }
     }
   }
 
