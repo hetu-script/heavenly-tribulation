@@ -168,9 +168,9 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 **脚本调用 Dart**：
 在 `lib/app.dart` 中通过 `bindExternalFunction` 注册外部函数，命名空间包括：
 
-- `dialog::*` — 对话框操作（`pushDialog`、`pushSelection`、`pushBackground` 等）
-- `Game::*` — 游戏逻辑（`updateGame`、`showBattle`、`showMerchant`、`promptJournal` 等）
-- `debug::*` — 调试功能（`reloadGameData`）
+- `debug*` — 调试功能（`reloadGameData`）
+- `dialog*` — 对话框操作（`pushDialog`、`pushSelection`、`pushBackground` 等）
+- `Game*` — 游戏逻辑（`updateGame`、`showBattle`、`showMerchant`、`promptJournal` 等）
 
 **外部类绑定**：
 
@@ -213,3 +213,4 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 - `TODO.md` — 待实现功能
 - `NEXT.md` — 开发路线图
 - `KNOWN_ISSUES.md` — 已知BUG清单
+- `DESIGN_NOTE.md` - 注意事项
