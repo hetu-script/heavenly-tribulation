@@ -79,7 +79,6 @@
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
-    rank: 0,
     isUnique: true,
     description: "affix_draw_cards",
     image: "battlecard/illustration/unique_draw_cards.png",
