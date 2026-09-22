@@ -546,8 +546,7 @@ final class GameData with ChangeNotifier {
 
       final String cardId = cardData['id'];
       if (coloredCost is! Map) {
-        engine.warning(
-            '卡牌 [$cardId] 的 coloredCost 字段必须是映射，当前值: $coloredCost');
+        engine.warning('卡牌 [$cardId] 的 coloredCost 字段必须是映射，当前值: $coloredCost');
         continue;
       }
 
@@ -569,7 +568,10 @@ final class GameData with ChangeNotifier {
             color != kColorlessCostColorId &&
             !kCostColorStatusIds.containsKey(color)) {
           engine.warning('卡牌 [$cardId] 的 coloredCost 含有非法费用色 [$color]，'
-              '非绝世卡的费用色只能属于 ${[kColorlessCostColorId, ...kCostColorStatusIds.keys]}');
+              '非绝世卡的费用色只能属于 ${[
+            kColorlessCostColorId,
+            ...kCostColorStatusIds.keys
+          ]}');
         }
         // 条目可以是固定数值，或 {base, rankIncrement} 公式（按卡牌境界折算）
         final int amount;
@@ -1506,25 +1508,28 @@ final class GameData with ChangeNotifier {
       backSpriteId: 'battlecard/cardback.png',
       title: title,
       // 标题左对齐，左缘对齐到原流派图标位，右界避开费用行
-      titleRelativePaddings: const EdgeInsets.fromLTRB(0.049, 0.05, 0.35, 0.865),
+      titleRelativePaddings:
+          const EdgeInsets.fromLTRB(0.049, 0.05, 0.35, 0.865),
       titleConfig: ScreenTextConfig(
         anchor: Anchor.centerLeft,
         outlined: true,
+        textAlign: TextAlign.left,
         textStyle: TextStyle(
           color: getColorFromRank(rank),
           fontFamily: GameUI.fontFamilyKaiti,
-          fontSize: 14.0,
+          fontSize: 8.0,
         ),
       ),
       descriptionRelativePaddings:
           const EdgeInsets.fromLTRB(0.108, 0.55, 0.108, 0.08),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.bottomCenter,
+        outlined: true,
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 8.0,
           color: Colors.white,
-          shadows: kTextShadows,
+          // shadows: kTextShadows,
         ),
         textAlign: TextAlign.center,
         overflow: ScreenTextOverflow.wordwrap,
