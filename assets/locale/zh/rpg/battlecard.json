@@ -104,7 +104,6 @@
   "exhaustResource": "费用",
   "exhaustResource_description": "除了基本的元气费用之外，某些卡牌还需要特定的有色气作为额外费用才能打出",
 
-  "battlecard_qiCost_hint": "费用：{0}",
   "battlecard_cost_lacking_hint": "{0}不足：需要 {1}，拥有 {2}",
 
   "affix_draw_cards": "抽取 {1} 张牌",

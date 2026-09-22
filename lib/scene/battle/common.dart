@@ -1,6 +1,6 @@
 const kTopLayerAnimationPriority = 500;
 
-/// 6 种资源阴气的状态 id（净值 UI：图标运行时反色显示，见计划 §5）
+/// 6 种资源阴气的状态 id（净值 UI：图标运行时反色显示）
 const kNegativeResourceQi = {
   'energy_negative_life',
   'energy_negative_spell',

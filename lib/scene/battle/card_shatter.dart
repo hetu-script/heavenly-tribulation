@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-/// 卡牌碎裂动画的碎片粒子（消耗卡牌打出后碎裂消失用，见 plan/scroll_card.md）
+/// 卡牌碎裂动画的碎片粒子（消耗卡牌打出后碎裂消失用）
 class _CardFragment extends PositionComponent {
   _CardFragment({
     required super.position,

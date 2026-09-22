@@ -27,9 +27,9 @@
   // animation.overlays 叠加动画（爆炸效果等，可选）
   // animation.sound 动画播放时的声音效果
   // script: 调用的脚本函数的id
-  // 费用：无色 cost 与有色 qiCost 各自独立走阶梯 L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3），
-  // 由代码自动推导（card.ht _updateCardCost / game.dart deriveBattleCardCost），无需在数据中填写；
-  // qiCost 可显式指定有色费用（固定数值或 {base, rankIncrement} 公式），缺省时按流派色自动推导
+  // 费用：元气（life）与有色费用各自独立走阶梯 L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3），
+  // 由代码自动推导（card.ht updateCardCost），无需在数据中填写；
+  // coloredCost 可显式指定费用（固定数值或 {base, rankIncrement} 公式；life 键显式指定元气费用），缺省时按流派色自动推导有色部分
   // equipment: 装备需求
   // valueData:
   // 实际的数值会在游戏中实际创建时才添加到这里
@@ -668,7 +668,7 @@
     },
     buffId: "weakness_fire",
     script: "attack_debuff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -698,7 +698,7 @@
     },
     buffId: "weakness_ice",
     script: "attack_debuff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -728,7 +728,7 @@
     },
     buffId: "weakness_lightning",
     script: "attack_debuff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -760,7 +760,7 @@
     },
     buffId: "speed_slow",
     script: "attack_debuff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_speed_slow"],
     valueData: [
       {
@@ -792,7 +792,7 @@
       sound: "small-rock-break-194553.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 25,
@@ -820,7 +820,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 15,
@@ -847,7 +847,7 @@
       sound: "fireball-whoosh-5-179129.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 21,
@@ -875,7 +875,7 @@
     },
     buffId: "dodge_clumsy",
     script: "attack_debuff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_dodge_clumsy"],
     valueData: [
       {
@@ -905,7 +905,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -933,7 +933,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "speed_quick_defend",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -965,7 +965,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "heal_lifeMax",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 0,
@@ -993,7 +993,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1021,7 +1021,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 6,
@@ -1052,7 +1052,7 @@
     },
     buffId: "vulnerable",
     script: "attack_debuff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 16,
@@ -1081,7 +1081,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sabre",
     valueData: [
       {
@@ -1114,7 +1114,7 @@
     },
     buffId: "speed_slow",
     script: "attack_debuff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 10,
@@ -1143,7 +1143,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1168,7 +1168,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1193,7 +1193,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "sabre",
     valueData: [
@@ -1218,7 +1218,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1246,7 +1246,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1280,7 +1280,7 @@
     },
     buffId: "vulnerable",
     script: "attack_debuff",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -1311,7 +1311,7 @@
     },
     buffId: "dodge_clumsy",
     script: "attack_debuff",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 10,
@@ -1340,7 +1340,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1371,7 +1371,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1397,7 +1397,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1423,7 +1423,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1450,7 +1450,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1482,7 +1482,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1509,7 +1509,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1536,7 +1536,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "sword",
     valueData: [
       {
@@ -1562,7 +1562,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1587,7 +1587,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1612,7 +1612,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1638,7 +1638,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1663,7 +1663,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1691,7 +1691,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    qiCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1721,7 +1721,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "speed_quick_defend",
-    qiCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense", "status_speed_quick"],
     valueData: [
       {
@@ -1753,7 +1753,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 6,
@@ -1783,7 +1783,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "staff",
     valueData: [
       {
@@ -1814,7 +1814,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "spear",
     valueData: [
       {
@@ -1845,7 +1845,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 22,
@@ -1870,7 +1870,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1895,7 +1895,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "staff",
     valueData: [
@@ -1921,7 +1921,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "spear",
     valueData: [
@@ -1947,7 +1947,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "dodge_nimble_defend",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1979,7 +1979,7 @@
     },
     buffId: "buff_crit",
     script: "self_buff",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -2006,7 +2006,7 @@
     },
     buffId: "buff_ward",
     script: "self_buff",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -2033,7 +2033,7 @@
     },
     buffId: "buff_shield",
     script: "self_buff",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -2060,7 +2060,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 3,
@@ -2089,7 +2089,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "dart",
     valueData: [
       {
@@ -2118,7 +2118,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "bow",
     valueData: [
       {
@@ -2149,7 +2149,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2175,7 +2175,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 22,
@@ -2198,7 +2198,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "buff_lifemax",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 0,
@@ -2223,7 +2223,7 @@
       sound: "magic-smite-6012.mp3",
     },
     script: "debuff_lifemax",
-    qiCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 0,

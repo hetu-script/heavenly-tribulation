@@ -35,6 +35,7 @@ external abstract class Constants {
   static get genreToAttribute;
   static get genreCostColors;
   static get costColorStatusIds;
+  static get colorlessCostColorId;
   static get wildcardStatusId;
   static get debuffs;
   static get scrollMaxCharges;

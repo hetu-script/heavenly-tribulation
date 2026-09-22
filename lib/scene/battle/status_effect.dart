@@ -10,7 +10,7 @@ import '../../data/game.dart';
 import '../../ui.dart';
 import 'common.dart';
 
-/// 资源阴气图标的反色矩阵（净值 UI，见计划 §5：同一图标的反色版本，不出新图）
+/// 资源阴气图标的反色矩阵（净值 UI：同一图标的反色版本，不出新图）
 const List<double> kNegativeQiInvertMatrix = [
   -1, 0, 0, 0, 255, //
   0, -1, 0, 0, 255,

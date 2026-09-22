@@ -79,6 +79,8 @@ class Constants extends HTExternalClass {
         return kGenreCostColors;
       case 'Constants.costColorStatusIds':
         return kCostColorStatusIds;
+      case 'Constants.colorlessCostColorId':
+        return kColorlessCostColorId;
       case 'Constants.wildcardStatusId':
         return kWildcardStatusId;
       case 'Constants.debuffs':

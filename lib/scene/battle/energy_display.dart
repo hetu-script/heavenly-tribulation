@@ -110,7 +110,7 @@ class _QiSlot extends GameComponent with HandlesGesture {
 }
 
 /// 资源气行：统一管理所有资源气（6 阳 6 阴）的显示，
-/// 位于永久状态行上方单独一行（plan/qi_display.md）。
+/// 位于永久状态行上方单独一行。
 /// 元气恒显并显示上限（kBattleBaseEnergy + 词条加成，纯显示参照，可超出）；
 /// 其余气只在持有时显示；无极之气与前五色之间有额外间隔。
 class EnergyDisplay extends GameComponent {

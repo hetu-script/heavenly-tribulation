@@ -149,15 +149,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   final BattleDeckZone deckZone;
 
-  /// 元气（无色费用）= energy_positive_life 状态层数（§4.1：energy 计数器已归一为状态）。
+  /// 元气（无色费用）= energy_positive_life 状态层数。
   /// 回合开始获得固定基准（kBattleBaseEnergy）+ 词条加成的层数，支付无色费用移除对应层数，回合结束按剩余层数回血。
   int get energy => hasStatusEffect('energy_positive_life');
 
-  /// 本回合打出的武器牌数量（含攻击与加持；回合开始时结转为上回合数据后清零，§4.2 剑气产出依据）
+  /// 本回合打出的武器牌数量（含攻击与加持；回合开始时结转为上回合数据后清零）
   int weaponCardsPlayed = 0;
   int lastTurnWeaponCards = 0;
 
-  /// 本回合自身受到的伤害（回合开始时结转为上回合数据后清零，§4.3 怒气产出依据）
+  /// 本回合自身受到的伤害（回合开始时结转为上回合数据后清零）
   int damageTaken = 0;
   int lastTurnDamageTaken = 0;
 
@@ -600,8 +600,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 清空所有阳气（资源生命周期：阳气持有至持有者的下个回合开始）。
-  /// 阴气永久存在，直到被对应阳气对冲抵消（plan/qi_display.md 共识 4），不在此清空。
-  /// 煞气（energy_positive_curse）未用量返回 karma 池（§4.5）；其余阳气直接移除。
+  /// 阴气永久存在，直到被对应阳气对冲抵消，不在此清空。
+  /// 煞气（energy_positive_curse）未用量返回 karma 池；其余阳气直接移除。
   /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用；
   /// 每个角色在本场战斗中的第一次行动会跳过调用，以保留战初阳气。
   void clearResourceEffects() {
@@ -619,34 +619,34 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
-  /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）；
+  /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）（获得时与持有的死气自然对冲）；
   /// 剑气/怒气按滞后一轮模型结算；
-  /// 煞气从 karma 池提取；灵气节点加成缺省 0（§7 天赋树落地后补充）。
+  /// 煞气从 karma 池提取；灵气节点加成缺省 0（待天赋树落地后补充）。
   void produceTurnStartResources() {
-    // 元气 = 无色费用池（§4.1）
+    // 元气 = 无色费用池
     final int energyBonus =
         (data['stats']['battleEnergyBonus'] ?? 0) as int;
     addStatusEffect('energy_positive_life',
         amount: kBattleBaseEnergy + energyBonus);
 
     // 灵气：enable_mana
-    // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充（§4.4）
+    // 悟道节点回合产出加成缺省 1，天赋树落地后在此补充
     if (data['passives']['enable_mana'] != null) {
       addStatusEffect('energy_positive_spell', amount: 1);
     }
 
-    // 剑气：上回合打出的武器牌数量（§4.2；节点加成缺省 0，预留读取位）
+    // 剑气：上回合打出的武器牌数量（节点加成缺省 0，预留读取位）
     if (data['passives']['enable_chakra'] != null && lastTurnWeaponCards > 0) {
       addStatusEffect('energy_positive_weapon', amount: lastTurnWeaponCards);
     }
 
-    // 怒气：上回合自身受到的伤害 ÷ 10（§4.3；节点加成缺省 0，预留读取位）
+    // 怒气：上回合自身受到的伤害 ÷ 10（节点加成缺省 0，预留读取位）
     if (data['passives']['enable_rage'] != null && lastTurnDamageTaken > 0) {
       addStatusEffect('energy_positive_unarmed',
           amount: lastTurnDamageTaken ~/ 10);
     }
 
-    // 煞气：从 karma 池提取 min(karmaMax, max(1, 池存量 ~/ 10))（§4.5；提取节点加成缺省 0，预留）
+    // 煞气：从 karma 池提取 min(karmaMax, max(1, 池存量 ~/ 10))（提取节点加成缺省 0，预留）
     if (data['passives']['enable_karma'] != null) {
       final int karma = data['karma'];
       if (karma > 0) {
@@ -989,7 +989,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       opponent!.cardFlags['damage']['total'] += finalDamage;
       opponent!.turnFlags['totalDamage'] += finalDamage;
-      // 怒气滞后产出模型的数据源（§4.3）：累计自身本回合实际受到的伤害
+      // 怒气滞后产出模型的数据源：累计自身本回合实际受到的伤害
       damageTaken += finalDamage;
 
       // 暴击充能：检查触发在先、充能在后，因此充满阈值的这次物理伤害
@@ -1147,7 +1147,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['damageType'] = mainAffix['damageType'];
 
-    // 剑气滞后产出模型的数据源（§4.2）：累计本回合打出的武器牌数量
+    // 剑气滞后产出模型的数据源：累计本回合打出的武器牌数量
     if (mainAffix['cardType'] == 'weapon') {
       weaponCardsPlayed += 1;
     }
@@ -1232,7 +1232,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血——
-  /// 转化出的元气层数可赶上同回合回血，见 §4.6/§4.1）：
+  /// 转化出的元气层数可赶上同回合回血）：
   /// ① 灵气按剩余层数触发 overflowed_mana_* 天赋（增益型）：
   ///   convert_to_vigor → 剩余灵气 1:1 转为元气；
   ///   deal_random_element_damage → 每层 5 点随机元素伤害（受对方抗性减免）
@@ -1271,7 +1271,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 返回值true表示获得一个额外回合
   Future<void> onEndTurn() async {
     // 回合结束资源结算（顺序显式保证：先灵气溢出利用，后元气回血——
-    // 灵气转化出的元气层数可赶上同回合回血，见 §4.6/§4.1）
+    // 灵气转化出的元气层数可赶上同回合回血）
     _settleTurnEndResources();
 
     handleStatusEffectCallback('self_turn_end');

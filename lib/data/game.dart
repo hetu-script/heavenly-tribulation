@@ -514,29 +514,46 @@ final class GameData with ChangeNotifier {
       passiveTreeNodeData['description'] = nodeDescription.toString();
     }
 
+    // 注册彩色费用图标（颜色 id → 图标 sprite，与气状态图标同源，所有卡牌共享）
+    // life（元气）也注册：无色费用同样以图标形式渲染
+    final costColorIconStatusIds = <String, String>{
+      kColorlessCostColorId: 'energy_positive_life',
+      ...kCostColorStatusIds,
+      'ultimate': kWildcardStatusId,
+    };
+    for (final entry in costColorIconStatusIds.entries) {
+      final icon = statusEffects[entry.value]?['icon'];
+      if (icon != null) {
+        await CustomGameCard.registerColoredCostSprite(entry.key,
+            spriteId: icon);
+      }
+    }
+
     _isInitted = true;
   }
 
-  /// 校验卡牌有色费用 qiCost 数据（见 plan/battle_resource_rework.md 第一节）：
-  /// 1. 费用色合法性：非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色
+  /// 校验卡牌有色费用 coloredCost 数据（见 plan/battle_resource_rework.md 第一节）：
+  /// 1. 费用色合法性：非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色与 life（元气）
   /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算）
-  /// 3. ΣqiCost > L(rank) + 1（L(rank) = rank ~/ 2 + 1）时给出软警告（非常规定价）；
-  ///    无色 cost 固定为 L(rank)，不再被有色挤压
+  /// 3. Σ有色 > L(rank) + 1（L(rank) = rank ~/ 2 + 1）时给出软警告（非常规定价）；
+  ///    元气 life 固定为 L(rank)，不再被有色挤压；显式 life（覆盖阶梯推导）
+  ///    与 L(rank) 不一致时同样给出软警告
   /// 数据问题只警告，不中断加载
   static void _validateBattleCardCostColored() {
     for (final cardData in battleCards.values) {
-      final qiCost = cardData['qiCost'];
-      if (qiCost == null) continue;
+      final coloredCost = cardData['coloredCost'];
+      if (coloredCost == null) continue;
 
       final String cardId = cardData['id'];
-      if (qiCost is! Map) {
-        engine.warning('卡牌 [$cardId] 的 qiCost 字段必须是映射，当前值: $qiCost');
+      if (coloredCost is! Map) {
+        engine.warning(
+            '卡牌 [$cardId] 的 coloredCost 字段必须是映射，当前值: $coloredCost');
         continue;
       }
 
       final rankValue = cardData['rank'];
       if (rankValue is! num) {
-        engine.warning('卡牌 [$cardId] 缺少有效的 rank 字段，跳过 qiCost 校验');
+        engine.warning('卡牌 [$cardId] 缺少有效的 rank 字段，跳过 coloredCost 校验');
         continue;
       }
       final int rank = rankValue.toInt();
@@ -544,12 +561,15 @@ final class GameData with ChangeNotifier {
 
       final bool isUnique = cardData['isUnique'] == true;
       int coloredCostSum = 0;
-      for (final entry in qiCost.entries) {
+      int? explicitLife;
+      for (final entry in coloredCost.entries) {
         final color = entry.key;
         final value = entry.value;
-        if (!isUnique && !kCostColorStatusIds.containsKey(color)) {
-          engine.warning('卡牌 [$cardId] 的 qiCost 含有非法费用色 [$color]，'
-              '非绝世卡的费用色只能属于 ${kCostColorStatusIds.keys.toList()}');
+        if (!isUnique &&
+            color != kColorlessCostColorId &&
+            !kCostColorStatusIds.containsKey(color)) {
+          engine.warning('卡牌 [$cardId] 的 coloredCost 含有非法费用色 [$color]，'
+              '非绝世卡的费用色只能属于 ${[kColorlessCostColorId, ...kCostColorStatusIds.keys]}');
         }
         // 条目可以是固定数值，或 {base, rankIncrement} 公式（按卡牌境界折算）
         final int amount;
@@ -558,21 +578,30 @@ final class GameData with ChangeNotifier {
         } else if (value is Map &&
             value['base'] is num &&
             value['rankIncrement'] is num) {
-          amount = _deriveQiCostAmount(value, rank);
+          amount = _deriveColoredCostAmount(value, rank);
         } else {
-          engine.warning('卡牌 [$cardId] 的 qiCost [$color] 数值非法: $value');
+          engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 数值非法: $value');
           continue;
         }
         if (amount < 0) {
-          engine.warning('卡牌 [$cardId] 的 qiCost [$color] 折算后为负数: $amount');
+          engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 折算后为负数: $amount');
           continue;
         }
-        coloredCostSum += amount;
+        if (color == kColorlessCostColorId) {
+          explicitLife = amount;
+        } else {
+          coloredCostSum += amount;
+        }
       }
 
       if (coloredCostSum > costLadder + 1) {
-        engine.warning('卡牌 [$cardId] 的 ΣqiCost($coloredCostSum) 明显超出'
+        engine.warning('卡牌 [$cardId] 的 ΣcoloredCost($coloredCostSum) 明显超出'
             '有色费用阶梯 L(rank)($costLadder)，属于非常规定价');
+      }
+      // 显式 life 覆盖阶梯推导：与 L(rank) 不一致时给出软警告（非常规定价）
+      if (explicitLife != null && explicitLife != costLadder) {
+        engine.warning('卡牌 [$cardId] 的显式元气费用($explicitLife)'
+            '与费用阶梯 L(rank)($costLadder) 不一致，属于非常规定价');
       }
     }
   }
@@ -1381,27 +1410,6 @@ final class GameData with ChangeNotifier {
       }
     }
 
-    // 有色费用（过渡期方案：卡面 pip 渲染暂缓，以文本行附加在描述区，见计划 §6.1）
-    // final qiCost = cardData['qiCost'];
-    // if (qiCost is Map && qiCost.isNotEmpty) {
-    //   final parts = <String>[];
-    //   qiCost.forEach((color, amount) {
-    //     final statusId = kCostColorStatusIds[color];
-    //     if (statusId != null) {
-    //       parts.add('${engine.locale('status_$statusId')}×$amount');
-    //     }
-    //   });
-    //   if (parts.isNotEmpty) {
-    //     final line = engine.locale('battlecard_qiCost_hint', interpolations: [
-    //       parts.join(engine.locale('enumeration_separator'))
-    //     ]);
-    //     description.writeln(line);
-    //     if (showAffixes && isIdentified) {
-    //       extraDescription.writeln(line);
-    //     }
-    //   }
-    // }
-
     if (!isIdentified) {
       description.writeln('<red>${engine.locale('unidentified')}</>');
       extraDescription.writeln('<red>${engine.locale('unidentified')}</>');
@@ -1440,55 +1448,16 @@ final class GameData with ChangeNotifier {
 
   /// 计算单条有色费用的实际数值：条目可以是固定数值，
   /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)）。
-  /// 与 scripts/main/cardgame/card.ht 的 _calcQiCostAmount 保持一致。
-  static int _deriveQiCostAmount(dynamic valueData, int rank) {
+  /// 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 [] 访问。
+  /// 与 scripts/main/cardgame/card.ht 的 _calcColoredCostAmount 保持一致。
+  static int _deriveColoredCostAmount(dynamic valueData, int rank) {
     if (valueData is num) return valueData.floor();
-    if (valueData is Map) {
+    if (valueData != null) {
       final base = (valueData['base'] as num?) ?? 0;
       final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
       return (base + rankIncrement * rank).floor();
     }
     return 0;
-  }
-
-  /// 推导卡牌费用（见 plan/battle_resource_rework.md 第一节）：
-  /// 无色 cost 与有色 qiCost 各自独立走阶梯 L(rank) = rank ~/ 2 + 1
-  /// （rank0-1 → 1、rank2-3 → 2、rank4-5 → 3）。
-  /// 显式 qiCost 优先（条目可为固定数值或 {base, rankIncrement} 公式）；
-  /// 缺省推导：无流派卡无有色费用，有流派卡有色 = L(rank)
-  /// （颜色由 kGenreCostColors 决定，多色对半拆、余数给列表首位，
-  /// 即法身奇数时多出的一点给 unarmed）。
-  /// 与 scripts/main/cardgame/card.ht 中 _updateCardCost 的推导逻辑保持一致。
-  static (int, Map<String, int>) deriveBattleCardCost(dynamic cardData) {
-    final int rank = (cardData['rank'] as num).toInt();
-    final int cost = rank ~/ 2 + 1;
-
-    final explicit = cardData['qiCost'];
-    if (explicit is Map && explicit.isNotEmpty) {
-      final colored = <String, int>{};
-      explicit.forEach((key, value) {
-        final amount = _deriveQiCostAmount(value, rank);
-        if (amount > 0) {
-          colored[key as String] = amount;
-        }
-      });
-      return (cost, colored);
-    }
-
-    final colors = kGenreCostColors[cardData['genre'] as String?];
-    final colored = <String, int>{};
-    if (colors != null) {
-      final coloredTotal = cost;
-      final half = coloredTotal ~/ colors.length;
-      final remainder = coloredTotal % colors.length;
-      for (var i = 0; i < colors.length; ++i) {
-        final amount = half + (i < remainder ? 1 : 0);
-        if (amount > 0) {
-          colored[colors[i]] = amount;
-        }
-      }
-    }
-    return (cost, colored);
   }
 
   /// 卡牌标题：符箓等带使用次数（chargeData）的卡牌追加 (current/max)
@@ -1518,10 +1487,9 @@ final class GameData with ChangeNotifier {
     final isUnique = cardData['isUnique'] == true;
     final rarityColor = RankedColors.values[rarity] ?? RankedColors.common;
 
-    // 写入费用数据（无色 cost + 有色 qiCost），供卡面显示与战斗支付读取
-    final (cost, qiCost) = deriveBattleCardCost(cardData);
-    cardData['cost'] = cost;
-    cardData['qiCost'] = qiCost;
+    // 重算卡牌费用并写入 cardData['coloredCost']（含元气 life），供卡面显示与战斗支付读取；
+    // 费用推导的唯一实现是 hetu 侧 updateCardCost（卡牌生成/破境/动态改费均调用之）
+    engine.hetu.invoke('updateCardCost', positionalArgs: [cardData]);
 
     final (description, _) = getBattleCardDescription(cardData);
 
@@ -1537,9 +1505,10 @@ final class GameData with ChangeNotifier {
           const EdgeInsets.fromLTRB(0.0622, 0.135, 0.0622, 0.216),
       backSpriteId: 'battlecard/cardback.png',
       title: title,
-      titleRelativePaddings: const EdgeInsets.fromLTRB(0.2, 0.05, 0.2, 0.865),
+      // 标题左对齐，左缘对齐到原流派图标位，右界避开费用行
+      titleRelativePaddings: const EdgeInsets.fromLTRB(0.049, 0.05, 0.35, 0.865),
       titleConfig: ScreenTextConfig(
-        anchor: Anchor.center,
+        anchor: Anchor.centerLeft,
         outlined: true,
         textStyle: TextStyle(
           color: getColorFromRank(rank),
@@ -1561,27 +1530,34 @@ final class GameData with ChangeNotifier {
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description,
-      cost: cost,
-      // 全有色卡（cost == 0 且 qiCost 非空）隐藏无色费用徽章，避免显示 "0"
-      //（卡面 pip 渲染随美术设计人工完成，过渡期以描述区"另需"行展示有色费用）
-      showCostNumber: cost > 0 || qiCost.isEmpty,
-      costIconSpriteId: (cost > 0 || qiCost.isEmpty)
-          ? 'cultivation/cultivation$rank.png'
-          : null,
-      costIconRelativePaddings:
+      // 费用行：右上角起向左紧排，compact 模式（每色一个图标 + 数量数字），
+      // 元气（life）在基准位置（最右），有色图标依次在左
+      coloredCostIconRelativePaddings:
           const EdgeInsets.fromLTRB(0.789, 0.04, 0.049, 0.841),
-      costNumberTextConfig: ScreenTextConfig(
-        anchor: Anchor.topCenter,
+      coloredCostDirection: ColoredCostDirection.left,
+      coloredCostIconMargin: 0,
+      coloredCostLayout: ColoredCostLayout.compact,
+      // 数量数字样式与战斗资源行（energy_display）对齐
+      coloredCostNumberTextConfig: const ScreenTextConfig(
+        anchor: Anchor.bottomRight,
         outlined: true,
         textStyle: TextStyle(
-          fontFamily: GameUI.fontFamilyBlack,
-          fontSize: 14.0,
+          fontFamily: GameUI.fontFamilyKaiti,
+          color: Colors.white,
+          fontSize: 12.0,
+          fontWeight: FontWeight.bold,
         ),
       ),
+      // 境界徽章（复用稀有度图标槽位，rank 与 rarity 一一对应）：
+      // 右侧竖列，费用行下方
+      rarityIconSpriteId: 'cultivation/cultivation$rank.png',
+      rarityIconRelativePaddings:
+          const EdgeInsets.fromLTRB(0.789, 0.17, 0.049, 0.711),
+      // 流派图标：右侧竖列，境界徽章下方，与境界徽章同尺寸
       showGenreIcon: true,
       genreIconSpriteId: genre == null ? null : 'battlecard/genre_$genre.png',
       genreIconRelativePaddings:
-          const EdgeInsets.fromLTRB(0.049, 0.04, 0.789, 0.841),
+          const EdgeInsets.fromLTRB(0.789, 0.30, 0.049, 0.581),
       glowSpriteId: 'battlecard/glow3.png',
       glowColor: rarityColor,
     );

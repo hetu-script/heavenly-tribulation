@@ -468,7 +468,7 @@ class BattleScene extends Scene {
       enableInteraction: true,
     );
     heroHandZone.onCardSelected = onPlayerSelectedCard;
-    // 置灰卡牌的悬浮提示附加缺少资源信息（§6.2；可支付的卡牌缺失列表为空，原样展示）
+    // 置灰卡牌的悬浮提示附加缺少资源信息（可支付的卡牌缺失列表为空，原样展示）
     heroHandZone.onHoverDescription = (card, description) {
       if (_cardQueue.contains(card)) return description;
       final missing = _missingCostReport(card);
@@ -826,19 +826,22 @@ class BattleScene extends Scene {
     }
   }
 
-  /// 卡牌的有色费用（颜色 → 数量），无则空表
+  /// 卡牌费用（颜色 → 数量，含元气 life），无则空表。
+  /// 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 keys/[] 访问。
   Map<String, int> _cardCostColored(CustomGameCard card) {
-    final qiCost = card.data['qiCost'];
-    if (qiCost is Map) {
-      return qiCost
-          .map((key, value) => MapEntry('$key', (value as num).toInt()));
+    final coloredCost = card.data['coloredCost'];
+    if (coloredCost == null) return const {};
+    final result = <String, int>{};
+    for (final key in coloredCost.keys) {
+      final value = coloredCost[key];
+      if (value is num) result['$key'] = value.toInt();
     }
-    return const {};
+    return result;
   }
 
   /// 检查能否支付卡牌费用（全有或全无）。
   /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
-  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限（共识 5）。
+  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
     var colorlessNeed = 0;
@@ -846,10 +849,14 @@ class BattleScene extends Scene {
     final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
 
     void accumulate(CustomGameCard c) {
-      colorlessNeed += c.cost;
       for (final entry in _cardCostColored(c).entries) {
-        coloredNeeds[entry.key] =
-            (coloredNeeds[entry.key] ?? 0) + entry.value + voidQi;
+        if (entry.key == kColorlessCostColorId) {
+          // 元气（无色费用）：不受虚空之气增费，也不能用无极之气补齐
+          colorlessNeed += entry.value;
+        } else {
+          coloredNeeds[entry.key] =
+              (coloredNeeds[entry.key] ?? 0) + entry.value + voidQi;
+        }
       }
     }
 
@@ -874,16 +881,18 @@ class BattleScene extends Scene {
   }
 
   /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣无极之气。
-  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限（共识 5）。
+  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
   /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
   /// 返回 false 且不扣除任何费用。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
-    final colorlessNeed = card.cost;
+    final cardCost = _cardCostColored(card);
+    final colorlessNeed = cardCost[kColorlessCostColorId] ?? 0;
 
     final pending = <(String, int)>[];
     var ultimateNeed = 0;
     final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
-    for (final entry in _cardCostColored(card).entries) {
+    for (final entry in cardCost.entries) {
+      if (entry.key == kColorlessCostColorId) continue;
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
       final need = entry.value + voidQi;
@@ -915,7 +924,7 @@ class BattleScene extends Scene {
       character.removeStatusEffect(kWildcardStatusId, amount: ultimateNeed);
     }
 
-    // 支付反馈（计划 §6.2）：有色费用按气种弹出负量跳字（无极抵扣单独标注）
+    // 支付反馈：有色费用按气种弹出负量跳字（无极抵扣单独标注）
     for (final (statusId, amount) in pending) {
       if (amount > 0) {
         character.addHintText('${engine.locale('status_$statusId')} -$amount',
@@ -937,7 +946,7 @@ class BattleScene extends Scene {
     if (display.isLoaded) display.refresh(character);
   }
 
-  /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰（§6.2 可打出高亮）。
+  /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰。
   /// 非己方回合全部置灰。置灰通过 isEnabled 切换 invalid paint（卡面灰度、文字半透明），
   /// 只影响绘图不影响交互：悬浮提示仍可用，打出由 _enqueueCard 的费用硬检查拦截。
   void refreshHandAffordability() {
@@ -955,7 +964,7 @@ class BattleScene extends Scene {
   /// 有色需求含虚空之气增费（每层 +1，无上限）。
   String _missingCostReport(CustomGameCard card) {
     final lines = <String>[];
-    final colorlessNeed = card.cost;
+    final colorlessNeed = _cardCostColored(card)[kColorlessCostColorId] ?? 0;
     if (colorlessNeed > hero.energy) {
       lines.add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
         engine.locale('status_energy_positive_life'),
@@ -1252,10 +1261,6 @@ class BattleScene extends Scene {
             (battleResult == null && !_isRestarting && !_endPlayerTurn)) {
           // 等待队列处理器空闲
           // if (!_isProcessingQueue && _cardQueue.isEmpty) {
-          // 检查是否还有可打出的卡牌
-          // final affordableCards = heroHandZone.cards
-          //     .where((c) => (c as CustomGameCard).cost <= hero.energy)
-          //     .toList();
 
           // if (affordableCards.isEmpty) {
           //   // 没有可打出的卡牌，自动结束回合

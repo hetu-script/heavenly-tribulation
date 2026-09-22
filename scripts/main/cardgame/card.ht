@@ -2,46 +2,61 @@
 /// 计算单条有色费用的实际数值：条目可以是固定数值，
 /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
 /// 例如 {base: 0.5, rankIncrement: 0.5} → rank1-2 费用 1，rank3-4 费用 2，rank5 费用 3
-function _calcQiCostAmount(valueData, rank) {
+function _calcColoredCostAmount(valueData, rank) {
   if (valueData is num) return valueData.floor()
   return calcAffixValue(valueData, level: 0, rank: rank).floor()
 }
 
-/// 计算/重算卡牌费用：无色 cost 与有色 qiCost 各自独立走阶梯
-/// L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3）。
-/// 显式 qiCost 优先（条目可为固定数值或公式）；缺省推导：无流派卡无有色费用，
-/// 有流派卡有色 = L(rank)（颜色由流派决定，多色对半拆，余数给列表首位）
-/// 与 Dart 侧 GameData.deriveBattleCardCost 保持一致
+/// 费用阶梯：L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3）
 function _costLadder(rank) {
   return (rank / 2).floor() + 1
 }
 
-function _updateCardCost(card) {
+/// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md 第一节）：
+/// 元气（life）与有色费用各自独立走阶梯 L(rank)，统一保存在 coloredCost。
+/// 显式 coloredCost 优先（条目可为固定数值或公式，显式 life 覆盖阶梯推导）；
+/// 缺省推导：无流派卡无有色费用，有流派卡有色 = L(rank)
+/// （颜色由流派决定，多色对半拆，余数给列表首位）。
+/// coloredCost 含 life 键且 life 在首位（渲染时元气在费用行基准位置）。
+/// 卡牌生成/破境/动态改费后调用；
+/// Dart 侧（如 createBattleCard）通过 engine.hetu.invoke('updateCardCost') 调用
+function updateCardCost(card) {
   const mainAffix = card.affixes.first
-  const explicitCostColored = mainAffix.qiCost
-  card.cost = _costLadder(card.rank)
-  card.qiCost = {}
+  const explicitCostColored = mainAffix.coloredCost
+  let colored = {}
+  let explicitLife = null
   if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
     for (final color in explicitCostColored.keys) {
-      final amount = _calcQiCostAmount(explicitCostColored[color], card.rank)
+      final amount = _calcColoredCostAmount(explicitCostColored[color], card.rank)
       if (amount > 0) {
-        card.qiCost[color] = amount
+        if (color == Constants.colorlessCostColorId) {
+          explicitLife = amount
+        } else {
+          colored[color] = amount
+        }
       }
     }
   } else {
     final colors = Constants.genreCostColors[card.genre]
     if (colors != null) {
-      final coloredTotal = card.cost
+      final coloredTotal = _costLadder(card.rank)
       // 多色对半拆，余数给列表首位（法身奇数时多出的一点给 unarmed）
       final half = (coloredTotal / colors.length).floor()
       final remainder = coloredTotal % colors.length
       for (var i = 0; i < colors.length; ++i) {
         final amount = half + (i < remainder ? 1 : 0)
         if (amount > 0) {
-          card.qiCost[colors[i]] = amount
+          colored[colors[i]] = amount
         }
       }
     }
+  }
+  final life = explicitLife ?? _costLadder(card.rank)
+  // life 在首位：渲染时元气在费用行基准位置（最右）
+  card.coloredCost = {}
+  card.coloredCost[Constants.colorlessCostColorId] = life
+  for (final color in colored.keys) {
+    card.coloredCost[color] = colored[color]
   }
 }
 
@@ -179,9 +194,9 @@ struct BattleCard {
     this.equipment = mainAffix.equipment
     this.requirement = mainAffix.requirement
 
-    // 费用：无色 cost 与有色 qiCost 各自独立走阶梯 L(rank)（见 _costLadder）
-    // 显式 qiCost 优先；缺省推导规则与 Dart 侧 GameData.deriveBattleCardCost 保持一致
-    _updateCardCost(this)
+    // 费用：元气（life）与有色费用各自独立走阶梯 L(rank)（见 _costLadder），统一保存在 coloredCost
+    // 显式 coloredCost 优先，缺省按流派推导
+    updateCardCost(this)
 
     final minLevel = minLevelForRank(this.rank)
     final maxLevel = maxLevelForRank(this.rank)
@@ -551,8 +566,8 @@ function upgradeRank(card, materialRank) {
   card.rank += 1
   card.affixes.first.rank = card.rank
 
-  // 破境后重算费用：有色费用公式随新境界折算，无色费用相应增减
-  _updateCardCost(card)
+  // 破境后重算费用：有色费用公式随新境界折算，元气费用相应增减
+  updateCardCost(card)
 
   final minLevel = minLevelForRank(card.rank)
   final maxLevel = maxLevelForRank(card.rank)

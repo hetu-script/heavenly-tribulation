@@ -382,6 +382,11 @@ const kCostColorStatusIds = {
 /// 万能费用色（无极之气）的状态 id，可支付任意有色费用
 const kWildcardStatusId = 'energy_positive_ultimate';
 
+/// 无色费用（元气）在 coloredCost 映射中的颜色 id
+/// 元气也作为费用图标之一渲染，但支付规则与有色费用不同：
+/// 不受虚空之气增费，也不能用无极之气补齐
+const kColorlessCostColorId = 'life';
+
 /// 战斗负面效果池：邪祟（debuff_ward）回合开始随机施加、治疗时随机驱散的抽取池
 /// 通过 Constants.debuffs 导出到脚本侧
 const kDebuffs = [
