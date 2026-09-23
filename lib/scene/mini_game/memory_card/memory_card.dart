@@ -287,15 +287,13 @@ class MemoryCardGame extends Scene with HasCursorState {
       preferredSize: GameUI.battleCardSize,
       spriteId: 'battlecard/border4.png',
       illustrationSpriteId: 'battlecard/illustration/$illustrationId.png',
-      illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.074, 0.135, 0.074, 0.235),
+      illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
       backSpriteId: 'battlecard/cardback.png',
       isFlipped: true,
       showTitle: false,
       showDescription: true,
       description: engine.locale('illustration_$illustrationId'),
-      descriptionRelativePaddings:
-          const EdgeInsets.fromLTRB(0.108, 0.735, 0.108, 0.08),
+      descriptionRelativeRect: const Rect.fromLTWH(0.811, 0.04, 0.135, 0.1),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.center,
         textStyle: TextStyle(

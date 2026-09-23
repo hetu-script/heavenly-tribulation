@@ -614,7 +614,8 @@ final class GameData with ChangeNotifier {
       }
 
       // 模型校验：流派卡 Σ有色 == rank 且不含元气；中立卡（含法身）life == rank+1 且不含有色
-      final bool isColoredGenre = kGenreCostColors.containsKey(cardData['genre']);
+      final bool isColoredGenre =
+          kGenreCostColors.containsKey(cardData['genre']);
       if (isColoredGenre) {
         if (coloredCostSum != rank || hasLifeKey) {
           engine.warning('卡牌 [$cardId] 费用与单资源模型不符：流派卡应为 '
@@ -1013,8 +1014,8 @@ final class GameData with ChangeNotifier {
       focusedOffset: Vector2(
           -(GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
           GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
-      illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
+      illustrationRelativeRect:
+          const Rect.fromLTWH(0.0428, 0.025, 0.9144, 0.95),
       illustrationSpriteId: spriteId,
     );
     card.onMouseEnter = () {
@@ -1518,21 +1519,17 @@ final class GameData with ChangeNotifier {
 
     final (description, _) = getBattleCardDescription(cardData);
 
-    return CustomGameCard(
+    final card = CustomGameCard(
       id: id,
       // uniqueId: id,
       data: cardData,
       preferredSize: GameUI.deckbuildingCardSize,
       spriteId:
           isUnique ? 'battlecard/border_unique.png' : 'battlecard/border.png',
-      illustrationSpriteId: image,
-      illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.0622, 0.135, 0.0622, 0.216),
       backSpriteId: 'battlecard/cardback.png',
       title: title,
       // 标题左对齐，左缘对齐到原流派图标位，右界避开费用行
-      titleRelativePaddings:
-          const EdgeInsets.fromLTRB(0.049, 0.05, 0.35, 0.865),
+      titleRelativeRect: const Rect.fromLTWH(0.1, 0.07, 0.703, 0.045),
       titleConfig: ScreenTextConfig(
         anchor: Anchor.centerLeft,
         outlined: true,
@@ -1540,11 +1537,12 @@ final class GameData with ChangeNotifier {
         textStyle: TextStyle(
           color: getColorFromRank(rank),
           fontFamily: GameUI.fontFamilyKaiti,
-          fontSize: 8.0,
+          fontSize: 10.0,
         ),
       ),
-      descriptionRelativePaddings:
-          const EdgeInsets.fromLTRB(0.108, 0.55, 0.108, 0.08),
+      illustrationSpriteId: image,
+      illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
+      descriptionRelativeRect: const Rect.fromLTWH(0.076, 0.682, 0.849, 0.26),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         outlined: true,
@@ -1558,16 +1556,16 @@ final class GameData with ChangeNotifier {
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description,
+      descriptionBackgroundSpriteId: 'battlecard/description_background.png',
       // 费用行：右上角起向左紧排，compact 模式（每色一个图标 + 数量数字），
       // 元气（life）在基准位置（最右），有色图标依次在左
-      coloredCostIconRelativePaddings:
-          const EdgeInsets.fromLTRB(0.789, 0.04, 0.049, 0.841),
+      coloredCostIconRelativeRect: const Rect.fromLTWH(0.811, 0.04, 0.135, 0.1),
       coloredCostDirection: ColoredCostDirection.left,
       coloredCostIconMargin: 0,
       coloredCostLayout: ColoredCostLayout.compact,
       // 数量数字样式与战斗资源行（energy_display）对齐
       coloredCostNumberTextConfig: const ScreenTextConfig(
-        anchor: Anchor.bottomRight,
+        anchor: Anchor.center,
         outlined: true,
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
@@ -1579,16 +1577,16 @@ final class GameData with ChangeNotifier {
       // 境界徽章（复用稀有度图标槽位，rank 与 rarity 一一对应）：
       // 右侧竖列，费用行下方
       rarityIconSpriteId: 'cultivation/cultivation$rank.png',
-      rarityIconRelativePaddings:
-          const EdgeInsets.fromLTRB(0.789, 0.17, 0.049, 0.711),
+      rarityIconRelativeRect: const Rect.fromLTWH(0.811, 0.16, 0.135, 0.1),
       // 流派图标：右侧竖列，境界徽章下方，与境界徽章同尺寸
       showGenreIcon: true,
       genreIconSpriteId: genre == null ? null : 'battlecard/genre_$genre.png',
-      genreIconRelativePaddings:
-          const EdgeInsets.fromLTRB(0.789, 0.30, 0.049, 0.581),
+      genreIconRelativeRect: const Rect.fromLTWH(0.811, 0.28, 0.135, 0.1),
       glowSpriteId: 'battlecard/glow3.png',
       glowColor: rarityColor,
     );
+
+    return card;
   }
 
   static String getQuestBriefDescription(dynamic quest) {

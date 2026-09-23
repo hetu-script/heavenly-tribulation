@@ -99,8 +99,8 @@
   "passive_boots_unrestricted_equip_description": "可以同时装备多种靴子",
   "passive_vehicle_unrestricted_equip_description": "可以同时装备多种载具",
 
-  "passive_battleEnergyBonus_description": "每回合元气 +{0}",
-  "passive_battleDrawBonus_description": "每回合抽牌 +{0}",
+  "passive_battleEnergyBonus_description": "每回合元气 {0}",
+  "passive_battleDrawBonus_description": "每回合抽牌 {0}",
   "passive_deckMinSizeReduce_description": "卡组数量下限 {0}",
   "passive_tribulationCountMax_description": "劫数上限增加 {0}",
   "passive_monthlyIdentifyCardsMax_description": "每月可探查对手手牌数量 {0}",

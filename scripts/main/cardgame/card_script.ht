@@ -116,9 +116,15 @@ namespace CardScript {
   }
 
   /// 降低对手全部元素抗性（以弱点形式附加，与抗性互相抵消）
-  function reduce_resist_all(self, opponent, affix, mainAffix) {
+  function opponent_reduce_resist_all(self, opponent, affix, mainAffix) {
     for (var elementResist in ['fire', 'ice', 'lightning', 'poison']) {
       opponent.addStatusEffect('weakness_${elementResist}', amount: affix.value[0])
+    }
+  }
+
+  function opponent_weaken_attack_all(self, opponent, affix, mainAffix) {
+    for (var attackType in ['unarmed', 'weapon', 'spell', 'curse']) {
+      opponent.addStatusEffect('weaken_${elementResist}', amount: affix.value[0])
     }
   }
 

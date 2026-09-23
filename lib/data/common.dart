@@ -485,7 +485,7 @@ final class Rarities {
     rank: 3,
     probability: 0.09,
     name: 'rare',
-    color: '#8D66C4',
+    color: '#A485D0',
   );
 
   /// 极品 金

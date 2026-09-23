@@ -264,7 +264,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
   /// 只计算确定性部分（与 takeDamage 同顺序）：增强/削弱净值 → 元素抗性/弱点 →
-  /// 暴击（豪气必暴或暴击计数器满阈值，扣除衰气减倍率）、异常（豪气必异常或异常计数器满阈值）；
+  /// 暴击（豪气必暴或暴击计数器满阈值，扣除不幸减倍率）、异常（豪气必异常或异常计数器满阈值）；
   /// 不计算护甲、穿透与脚本回调类修正。
   /// 返回 (伤害, 是否暴击, 异常层数)；非攻击类词条返回 null。
   (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
@@ -299,7 +299,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       damage = (damage * (1 - 0.01 * getElementalResist(damageType))).round();
     }
 
-    // 暴击（豪气必暴，或暴击计数器满阈值）：物理伤害按暴击倍率计算，衰气按层循环扣除（同 takeDamage）
+    // 暴击（豪气必暴，或暴击计数器满阈值）：物理伤害按暴击倍率计算，不幸按层循环扣除（同 takeDamage）
     bool isCrit = false;
     if (damage > 0 && damageType == 'physical') {
       final attackerStats = attacker.data['stats'];
@@ -624,8 +624,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 滞后产出所需的 lastTurnWeaponCards / lastTurnDamageTaken 统计仍然保留）。
   void produceTurnStartResources() {
     // 元气 = 无色费用池
-    final int energyBonus =
-        (data['stats']['battleEnergyBonus'] ?? 0) as int;
+    final int energyBonus = (data['stats']['battleEnergyBonus'] ?? 0) as int;
     addStatusEffect('energy_positive_life',
         amount: kBattleBaseEnergy + energyBonus);
   }
@@ -892,7 +891,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         int critMultiplier =
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
         // 不幸：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
-        // 按层循环消耗，直到倍率降为 100% 或衰气耗尽
+        // 按层循环消耗，直到倍率降为 100% 或不幸耗尽
         while (critMultiplier > 100 &&
             opponent!.hasStatusEffect('debuff_crit') > 0) {
           critMultiplier -= 25;
@@ -989,7 +988,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
       // 不幸：攻击方有不幸时按层抵消其赋予的元素异常，
-      // 直到异常全部抵消或衰气耗尽
+      // 直到异常全部抵消或不幸耗尽
       if (stacks > 0) {
         final int negated =
             math.min(stacks, opponent!.hasStatusEffect('debuff_crit'));

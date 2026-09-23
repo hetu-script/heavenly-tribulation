@@ -206,8 +206,8 @@ namespace StatusScript {
     }
   }
   // 不幸（debuff_crit）的效果在 Dart 侧 takeDamage 中结算，双效果：
-  // 暴击分支：每层使本次暴击倍率 -25%（下限 100%），按层循环消耗至倍率 100% 或衰气耗尽
-  // 异常分支：持有衰气的攻击方赋予元素异常时按层抵消（1 层衰气抵消 1 层异常）
+  // 暴击分支：每层使本次暴击倍率 -25%（下限 100%），按层循环消耗至倍率 100% 或不幸耗尽
+  // 异常分支：持有不幸的攻击方赋予元素异常时按层抵消（1 层不幸抵消 1 层异常）
 
   /// 邪祟：回合开始时，消耗 1 层邪祟并获得 1 层随机负面效果（从 Constants.debuffs 池抽取）
   function debuff_ward_self_turn_start(self, opponent, effect, details) {

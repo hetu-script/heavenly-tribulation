@@ -173,7 +173,7 @@
     id: "opponent_debuff_crit",
     uniqueId: "opponent_debuff_crit",
     categories: ["buff", "attack"],
-    rank: 1,
+    rank: 2,
     description: "affix_opponent_debuff_crit",
     keywords: ["status_debuff_crit"],
     buffId: "debuff_crit",
@@ -191,7 +191,7 @@
     id: "opponent_debuff_ward",
     uniqueId: "opponent_debuff_ward",
     categories: ["buff", "attack"],
-    rank: 2,
+    rank: 3,
     description: "affix_opponent_debuff_ward",
     keywords: ["status_debuff_ward"],
     buffId: "debuff_ward",
@@ -209,7 +209,7 @@
     id: "opponent_debuff_shield",
     uniqueId: "opponent_debuff_shield",
     categories: ["buff", "attack"],
-    rank: 3,
+    rank: 4,
     description: "affix_opponent_debuff_shield",
     keywords: ["status_debuff_shield"],
     buffId: "debuff_shield",
@@ -218,7 +218,7 @@
     valueData: [
       {
         base: 1,
-        increment: 0.05,
+        maxLevel: 0,
       },
     ],
   },
@@ -230,12 +230,29 @@
     rank: 4,
     description: "affix_opponent_reduce_resist_all",
     keywords: ["status_resist"],
-    script: "reduce_resist_all",
+    script: "opponent_reduce_resist_all",
     priority: -1,
     valueData: [
       {
         base: 1,
         increment: 0.1,
+      },
+    ],
+  },
+  // 对手降低攻击力
+  opponent_weaken_attack_all: {
+    id: "opponent_weaken_attack_all",
+    uniqueId: "opponent_weaken_attack_all",
+    categories: ["buff", "attack"],
+    rank: 4,
+    description: "affix_opponent_weaken_attack_all",
+    keywords: ["opponent_weaken"],
+    script: "opponent_weaken_attack_all",
+    priority: -1,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
       },
     ],
   },
@@ -291,6 +308,21 @@
   //     {
   //       base: 1,
   //       increment: 0.1,
+  //     },
+  //   ],
+  // },
+
+  // card_penetration: {
+  //   id: "card_penetration",
+  //   uniqueId: "card_penetration",
+  //   categories: ["attack"],
+  //   description: "affix_card_penetration",
+  //   script: "card_penetration",
+  //   rank: 1,
+  //   valueData: [
+  //     {
+  //       base: 1,
+  //       increment: 0.5,
   //     },
   //   ],
   // },

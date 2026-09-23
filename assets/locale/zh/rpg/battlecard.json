@@ -177,9 +177,17 @@
   "affix_by_damage_heal": "每造成 10 伤害: 回复 {0} 生命",
   "affix_by_damage_defend": "每造成 10 伤害: 护甲 +{0}",
 
-  "affix_opponent_reduce_resist_fire": "对手火焰抗性 -{0}（持续本场战斗）",
-  "affix_opponent_reduce_resist_ice": "对手寒冰抗性 -{0}（持续本场战斗）",
-  "affix_opponent_reduce_resist_lightning": "对手雷电抗性 -{0}（持续本场战斗）",
-  "affix_opponent_reduce_resist_poison": "对手毒素抗性 -{0}（持续本场战斗）",
-  "affix_opponent_reduce_resist_all": "对手元素抗性 -{0}（持续本场战斗）"
+  "affix_card_penetration": "本次攻击时护甲穿透 +{0}%",
+
+  "affix_opponent_reduce_resist_fire": "对手火焰抗性 -{0}%",
+  "affix_opponent_reduce_resist_ice": "对手寒冰抗性 -{0}%",
+  "affix_opponent_reduce_resist_lightning": "对手雷电抗性 -{0}%",
+  "affix_opponent_reduce_resist_poison": "对手毒素抗性 -{0}%",
+  "affix_opponent_reduce_resist_all": "对手元素抗性 -{0}%",
+
+  "affix_opponent_weaken_attack_unarmed": "对手徒手攻击力 -{0}%",
+  "affix_opponent_weaken_attack_weapon": "对手武器攻击力 -{0}%",
+  "affix_opponent_weaken_attack_spell": "对手法术攻击力 -{0}%",
+  "affix_opponent_weaken_attack_curse": "对手咒术攻击力 -{0}%",
+  "affix_opponent_weaken_attack_all": "对手攻击力 -{0}%"
 }
