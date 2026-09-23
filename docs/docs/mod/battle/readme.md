@@ -5,16 +5,16 @@
 3. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
 4. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
 5. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消）
-6. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus / 剑气=上回合所有武器牌数，包括攻击与加持 /
-   怒气=上回合受伤÷10 / 灵气获取天赋+1 / 煞气从业力池提取），刷新能量瓶
+6. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus；
+   有色气产出已随 enable_* 清理移除，待新天赋树初始节点落地，见 plan/battle_resource_rework.md），刷新能量瓶
 7. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
 8. 出牌阶段（若标记跳过则略过本阶段）：
    - 玩家：点击卡牌 → `_enqueueCard`（`heroTurn` 守卫 + 费用硬检查，含队列占用）
      → `_processCardQueue` 依次 `_playCard`（`_payCardCost` 支付：
      无色扣元气层数，有色先扣本色气、缺口自动扣无极之气）→ 弃牌
    - 敌方：循环 `_canPayCardCost` 过滤可支付手牌 → AI 选牌 → 支付并出牌，直至无牌可出
-9. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧进行回合结束资源结算
-   （灵气溢出天赋 → 元气回血），再派发其余回合结束回调
+9. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧调用回合结束资源结算钩子
+   `_settleTurnEndResources`（当前为空；元气回血已移除，保留给悟道境界节点的灵气溢出互动），再派发其余回合结束回调
 10. 检查战斗结果；若未结束，读取额外回合标记，`clearHand()` 弃掉本回合手牌
 11. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
 
@@ -94,11 +94,14 @@
 | ---------- | ---- | -------------- |
 | `overflow` | 入   | 溢出的资源层数 |
 
-返回值 true 表示保留溢出部分。当前无注册者；灵气溢出天赋的实际触发点为
-回合结束资源结算（Dart 侧，按剩余层数，先灵气溢出、后元气回血）。
+返回值 true 表示保留溢出部分。当前无注册者；灵气溢出天赋的设计以注释形式
+保留在回合结束资源结算钩子 `_settleTurnEndResources` 中（待悟道境界节点启用；元气回血已移除）。
 
-**费用（新费用体系）**：打出卡牌前做硬检查——无色费用 ≤ 元气层数，
-每色需求 ≤ 本色存量 + 无极存量；虚空之气使所有有色费用 +1/层（无上限，唯一的增费机制）。
+**费用（单资源模型，见 plan/battle_resource_rework.md）**：每张卡只花一种资源——
+流派卡 = rank 点流派色（悟道=灵气/御剑=剑气/锻体=怒气/炼魂=煞气），中立卡（含法身）= rank+1 点元气；
+费用在数据层显式写入 coloredCost（含 life 键；显式 life: 0 = 免费卡）。
+打出前做硬检查——无色费用 ≤ 元气层数，每色需求 ≤ 本色存量 + 无极存量；
+虚空之气使所有有色费用 +1/层（无上限，唯一的增费机制）。
 其他阴气对费用的影响通过阴阳对冲体现（阴气抵消阳气，阳气不足则无法支付）。
 支付时先扣本色气、缺口自动扣无极之气（`kWildcardStatusId`）。
 
@@ -139,3 +142,15 @@
 | `guaranteedCrit`            | 下一次物理攻击必定暴击（幸运）                          | energy_positive_crit 脚本 |
 | `guaranteedAilment`         | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（幸运） | energy_positive_crit 脚本 |
 | `totalDamage`               | 本回合造成的总伤害（戾气结算用）                        | takeDamage 累加           |
+
+---
+
+# 绝世卡牌约定
+
+- 绝世卡牌（主词条数据 `isUnique: true`）使用**固定名字**，不按 kind 随机生成：
+  卡名以 `uniquecard_{主词条id}` 为本地化键，保存在 `assets/locale/zh/rpg/battlecard.json`。
+  **新增绝世卡牌时必须同步添加该键**，否则卡名会显示为原始键名。
+- 绝世卡牌的额外词条是预定义的：主词条数据的 `affixes` 列表按境界顺序解锁
+  （总数 = rank + 1），词条 id 来自 `card_affixes.json5`。
+- 绝世卡牌不能进行灵宝/神照/真定/坐忘精炼，只能混元（重 roll 词条数值）与破境。
+- 卡组中只能放入一张相同 uniqueId 的绝世卡牌；生成时默认未鉴定，需要鉴定卷轴鉴定后使用。

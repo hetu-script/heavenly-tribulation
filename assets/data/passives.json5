@@ -1009,27 +1009,6 @@
     priority: 3799,
   },
 
-  enable_chakra: {
-    id: "enable_chakra",
-    description: "passive_enable_chakra_description",
-    priority: 3798,
-  },
-  enable_rage: {
-    id: "enable_rage",
-    description: "passive_enable_rage_description",
-    priority: 3797,
-  },
-  enable_karma: {
-    id: "enable_karma",
-    description: "passive_enable_karma_description",
-    priority: 3796,
-  },
-  enable_ultimate: {
-    id: "enable_ultimate",
-    description: "passive_enable_ultimate_description",
-    priority: 3795,
-  },
-
   /// 装备数量相关
   weaponUnrestrictedEquip: {
     id: "weaponUnrestrictedEquip",

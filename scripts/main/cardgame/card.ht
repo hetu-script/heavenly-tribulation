@@ -1,62 +1,53 @@
 
-/// 计算单条有色费用的实际数值：条目可以是固定数值，
+/// 计算单条费用的实际数值：条目可以是固定数值，
 /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
-/// 例如 {base: 0.5, rankIncrement: 0.5} → rank1-2 费用 1，rank3-4 费用 2，rank5 费用 3
-function _calcColoredCostAmount(valueData, rank) {
+/// 例如标准公式 {base: 0, rankIncrement: 1} → 费用 = rank，{base: 1, rankIncrement: 1} → 费用 = rank+1
+function _calcCostAmount(valueData, rank) {
   if (valueData is num) return valueData.floor()
   return calcAffixValue(valueData, level: 0, rank: rank).floor()
 }
 
-/// 费用阶梯：L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3）
-function _costLadder(rank) {
-  return (rank / 2).floor() + 1
-}
-
-/// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md 第一节）：
-/// 元气（life）与有色费用各自独立走阶梯 L(rank)，统一保存在 coloredCost。
-/// 显式 coloredCost 优先（条目可为固定数值或公式，显式 life 覆盖阶梯推导）；
-/// 缺省推导：无流派卡无有色费用，有流派卡有色 = L(rank)
-/// （颜色由流派决定，多色对半拆，余数给列表首位）。
-/// coloredCost 含 life 键且 life 在首位（渲染时元气在费用行基准位置）。
+/// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md）：
+/// 单资源模型——流派卡 = rank 点流派色，中立卡（含法身）= rank+1 点元气（life）。
+/// 数据层约定全部显式写 coloredCost（含 life 键），本函数只做公式求值并写入
+/// card.coloredCost；显式条目"键存在即采纳"（显式 0 = 免费，不写入费用表）。
+/// 缺省兜底（数据层不应依赖）：有流派色时推导 rank 点有色（多色对半拆，余数给首位），
+/// 无流派色（含法身）推导 rank+1 点元气。
+/// card.coloredCost 中 life 键始终在首位（渲染时元气在费用行基准位置）。
 /// 卡牌生成/破境/动态改费后调用；
 /// Dart 侧（如 createBattleCard）通过 engine.hetu.invoke('updateCardCost') 调用
 function updateCardCost(card) {
-  const mainAffix = card.affixes.first
-  const explicitCostColored = mainAffix.coloredCost
-  let colored = {}
-  let explicitLife = null
+  const explicitCostColored = card.affixes.first.coloredCost
+  final costs = {}
   if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
     for (final color in explicitCostColored.keys) {
-      final amount = _calcColoredCostAmount(explicitCostColored[color], card.rank)
-      if (amount > 0) {
-        if (color == Constants.colorlessCostColorId) {
-          explicitLife = amount
-        } else {
-          colored[color] = amount
-        }
-      }
+      costs[color] = _calcCostAmount(explicitCostColored[color], card.rank)
     }
   } else {
     final colors = Constants.genreCostColors[card.genre]
     if (colors != null) {
-      final coloredTotal = _costLadder(card.rank)
-      // 多色对半拆，余数给列表首位（法身奇数时多出的一点给 unarmed）
-      final half = (coloredTotal / colors.length).floor()
-      final remainder = coloredTotal % colors.length
+      // 兜底：有色总计 = rank，多色对半拆、余数给列表首位
+      final half = (card.rank / colors.length).floor()
+      final remainder = card.rank % colors.length
       for (var i = 0; i < colors.length; ++i) {
-        final amount = half + (i < remainder ? 1 : 0)
-        if (amount > 0) {
-          colored[colors[i]] = amount
-        }
+        costs[colors[i]] = half + (i < remainder ? 1 : 0)
       }
+    } else {
+      costs[Constants.colorlessCostColorId] = card.rank + 1
     }
   }
-  final life = explicitLife ?? _costLadder(card.rank)
-  // life 在首位：渲染时元气在费用行基准位置（最右）
+  // life 在首位：渲染时元气在费用行基准位置（最右）；0 值条目不写入（显式 0 = 免费）
   card.coloredCost = {}
-  card.coloredCost[Constants.colorlessCostColorId] = life
-  for (final color in colored.keys) {
-    card.coloredCost[color] = colored[color]
+  final life = costs[Constants.colorlessCostColorId]
+  if (life != null && life > 0) {
+    card.coloredCost[Constants.colorlessCostColorId] = life
+  }
+  for (final color in costs.keys) {
+    if (color == Constants.colorlessCostColorId) continue
+    final amount = costs[color]
+    if (amount > 0) {
+      card.coloredCost[color] = amount
+    }
   }
 }
 
@@ -182,7 +173,11 @@ struct BattleCard {
     this.isIdentified = isIdentified ?? !this.isUnique
 
     this.affixes = [mainAffix]
-    if (mainAffix.kind != null) {
+    if (this.isUnique) {
+      // 绝世卡牌使用固定名字，而非按 kind 随机生成：
+      // 以 uniquecard_{主词条id} 为键，保存在 assets/locale/zh/rpg/battlecard.json
+      this.name = engine.locale('uniquecard_${mainAffix.id}')
+    } else if (mainAffix.kind != null) {
       this.name = generateSkillName(kind: mainAffix.kind)
     } else {
       this.name = engine.locale(mainAffix.id)
@@ -194,8 +189,7 @@ struct BattleCard {
     this.equipment = mainAffix.equipment
     this.requirement = mainAffix.requirement
 
-    // 费用：元气（life）与有色费用各自独立走阶梯 L(rank)（见 _costLadder），统一保存在 coloredCost
-    // 显式 coloredCost 优先，缺省按流派推导
+    // 费用：单资源模型（见 plan/battle_resource_rework.md），数据层显式 coloredCost，此处求值写入卡牌实例
     updateCardCost(this)
 
     final minLevel = minLevelForRank(this.rank)

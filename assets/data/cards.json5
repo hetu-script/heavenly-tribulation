@@ -27,9 +27,13 @@
   // animation.overlays 叠加动画（爆炸效果等，可选）
   // animation.sound 动画播放时的声音效果
   // script: 调用的脚本函数的id
-  // 费用：元气（life）与有色费用各自独立走阶梯 L(rank) = ⌊rank/2⌋+1（rank0-1 → 1、rank2-3 → 2、rank4-5 → 3），
-  // 由代码自动推导（card.ht updateCardCost），无需在数据中填写；
-  // coloredCost 可显式指定费用（固定数值或 {base, rankIncrement} 公式；life 键显式指定元气费用），缺省时按流派色自动推导有色部分
+  // 费用（单资源模型，详见 plan/battle_resource_rework.md）：
+  // 每张卡只花一种资源——流派卡 = rank 点流派色（悟道spell/御剑weapon/锻体unarmed/炼魂curse），
+  // 中立卡（无流派，含法身avatar）= rank+1 点元气（life）。
+  // 所有卡必须在数据中显式写 coloredCost（含 life 键），代码不再自动推导（仅有兜底）：
+  // 标准公式——流派色 {base: 0, rankIncrement: 1}（= rank）；元气 {base: 1, rankIncrement: 1}（= rank+1）；
+  // 条目也可以是固定数值（特例）；显式 life: 0 表示永远 0 费（免费卡）。
+  // 多色/混费卡不禁止（未来设计），校验只给软警告
   // equipment: 装备需求
   // valueData:
   // 实际的数值会在游戏中实际创建时才添加到这里
@@ -41,7 +45,10 @@
   // isUnique:
   // 绝世卡牌，属性列表固定，但数值在范围内随机。
   // 绝世卡牌只能在卡组中放入一张
-  // isExalted:
+  // 绝世卡牌的名字固定（不按 kind 随机生成）：以 uniquecard_{主词条id} 为键，
+  // 保存在 assets/locale/zh/rpg/battlecard.json 中；新增绝世卡牌时必须同步添加该键，
+  // 否则卡名会显示为原始键名
+  // isExalted:（未实现，暂缓——目前仅是设计构想，无任何代码实现）
   // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
   // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
   // 2, 卡牌的词条等级全部提升20%
@@ -52,6 +59,7 @@
   // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
   placeholder: {
     id: "placeholder",
+    coloredCost: { life: 0 },
     description: "placeholder_description",
     image: "battlecard/illustration/blank_default.png",
     isUnpackable: true,
@@ -61,6 +69,7 @@
   // 效果为基础拳法：固定造成 角色境界 × 5 的伤害（脚本 attack_rank_scaled 读取角色境界）
   blank_default: {
     id: "blank_default",
+    coloredCost: { life: 0 },
     category: "attack",
     kind: "punch",
     cardType: "unarmed",
@@ -88,6 +97,7 @@
     },
     script: "draw_cards",
     keywords: ["exhaustResource"],
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -121,6 +131,7 @@
     },
     buffId: "energy_positive_life",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         increment: 0.05,
@@ -144,10 +155,37 @@
     },
     script: "reduce_resist_all",
     keywords: ["status_resist"],
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 5,
         increment: 0.25,
+      },
+    ],
+  },
+
+  // 归元功：消耗所有元气治疗（永远 0 费、最低 rank1 的特例卡，见 plan/battle_resource_rework.md）
+  // 每点元气回复 生命上限 × 词条值% 的生命（词条值为百分数 = 10 × 等级；插画临时复用中立治疗卡）
+  heal_vigor_all: {
+    id: "heal_vigor_all",
+    uniqueIds: ["heal_vigor_all"],
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 1,
+    isUnique: true,
+    description: "affix_heal_vigor_all",
+    image: "battlecard/illustration/xinfa_heal.png",
+    animation: {
+      startup: ["spell_buff"],
+      overlays: ["restore_life"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "heal_vigor_all",
+    coloredCost: { life: 0 },
+    valueData: [
+      {
+        increment: 10,
       },
     ],
   },
@@ -169,6 +207,7 @@
     },
     script: "attack",
     equipment: null,
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 7,
@@ -191,6 +230,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -214,6 +254,7 @@
     },
     script: "attack",
     equipment: "sword",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 11,
@@ -237,6 +278,7 @@
     },
     script: "attack",
     equipment: "sabre",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 12,
@@ -260,6 +302,7 @@
     },
     script: "attack",
     equipment: "spear",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 13,
@@ -283,6 +326,7 @@
     },
     script: "attack",
     equipment: "staff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 9,
@@ -304,6 +348,7 @@
     },
     script: "attack",
     equipment: "bow",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 10,
@@ -326,6 +371,7 @@
     },
     script: "attack_multiple",
     equipment: "dart",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 6,
@@ -355,6 +401,7 @@
     },
     buffId: "defense",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 5,
@@ -377,6 +424,7 @@
     },
     buffId: "defense",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 6,
@@ -401,6 +449,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "sabre",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -424,6 +473,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "sword",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 7,
@@ -447,6 +497,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "spear",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 9,
@@ -470,6 +521,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "staff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 10,
@@ -492,6 +544,7 @@
     },
     script: "speed_quick_defend",
     keywords: ["status_speed_quick", "status_defense"],
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -517,6 +570,7 @@
     },
     script: "dodge_nimble_defend",
     keywords: ["status_dodge_nimble", "status_defense"],
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -536,6 +590,7 @@
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
+    rank: 1,
     description: "affix_heal",
     image: "battlecard/illustration/xinfa_heal.png",
     animation: {
@@ -544,6 +599,7 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "heal",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -569,6 +625,7 @@
     },
     buffId: "energy_positive_spell",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -593,6 +650,7 @@
     },
     buffId: "energy_positive_weapon",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -617,6 +675,7 @@
     },
     buffId: "energy_positive_unarmed",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -641,6 +700,7 @@
     },
     buffId: "energy_positive_ultimate",
     script: "self_buff",
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         increment: 0.05,
@@ -667,7 +727,7 @@
     },
     buffId: "weakness_fire",
     script: "attack_debuff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -697,7 +757,7 @@
     },
     buffId: "weakness_ice",
     script: "attack_debuff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -727,7 +787,7 @@
     },
     buffId: "weakness_lightning",
     script: "attack_debuff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -759,7 +819,7 @@
     },
     buffId: "speed_slow",
     script: "attack_debuff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_speed_slow"],
     valueData: [
       {
@@ -791,7 +851,7 @@
       sound: "small-rock-break-194553.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 25,
@@ -819,7 +879,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 15,
@@ -846,7 +906,7 @@
       sound: "fireball-whoosh-5-179129.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 21,
@@ -874,7 +934,7 @@
     },
     buffId: "dodge_clumsy",
     script: "attack_debuff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_dodge_clumsy"],
     valueData: [
       {
@@ -904,7 +964,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -932,7 +992,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "speed_quick_defend",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -964,7 +1024,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "heal_lifeMax",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 0,
@@ -992,7 +1052,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1020,7 +1080,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 6,
@@ -1051,7 +1111,7 @@
     },
     buffId: "vulnerable",
     script: "attack_debuff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 16,
@@ -1080,7 +1140,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     equipment: "sabre",
     valueData: [
       {
@@ -1113,7 +1173,7 @@
     },
     buffId: "speed_slow",
     script: "attack_debuff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 10,
@@ -1142,7 +1202,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1167,7 +1227,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1192,7 +1252,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     equipment: "sabre",
     valueData: [
@@ -1217,7 +1277,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1245,7 +1305,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { unarmed: { base: 0, rankIncrement: 1 } },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1279,7 +1339,7 @@
     },
     buffId: "vulnerable",
     script: "attack_debuff",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -1310,7 +1370,7 @@
     },
     buffId: "dodge_clumsy",
     script: "attack_debuff",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 10,
@@ -1339,7 +1399,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1370,7 +1430,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1396,7 +1456,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1422,7 +1482,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1449,7 +1509,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1470,7 +1530,7 @@
     kind: "flying_sword",
     cardType: "spell",
     damageType: "fire",
-    elementType: "element_metal",
+    elementType: "element_fire",
     rank: 1,
     description: "affix_attack_spell_fire",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
@@ -1481,7 +1541,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1497,7 +1557,7 @@
     kind: "flying_sword",
     cardType: "spell",
     damageType: "ice",
-    elementType: "element_metal",
+    elementType: "element_water",
     rank: 1,
     description: "affix_attack_spell_ice",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
@@ -1508,7 +1568,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1524,7 +1584,7 @@
     kind: "flying_sword",
     cardType: "spell",
     damageType: "lightning",
-    elementType: "element_metal",
+    elementType: "element_lightning",
     rank: 1,
     description: "affix_attack_spell_lightning",
     image: "battlecard/illustration/swordcraft_flying_sword_attack.png",
@@ -1535,7 +1595,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "attack",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     equipment: "sword",
     valueData: [
       {
@@ -1561,7 +1621,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1586,7 +1646,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1611,7 +1671,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1637,7 +1697,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     equipment: "sword",
     valueData: [
@@ -1662,7 +1722,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_defend",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     keywords: ["status_speed_quick", "status_defense"],
     valueData: [
       {
@@ -1690,7 +1750,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_defend",
-    coloredCost: { spell: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_dodge_nimble", "status_defense"],
     valueData: [
       {
@@ -1720,7 +1780,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "speed_quick_defend",
-    coloredCost: { weapon: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { weapon: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense", "status_speed_quick"],
     valueData: [
       {
@@ -1752,7 +1812,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 6,
@@ -1782,7 +1842,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     equipment: "staff",
     valueData: [
       {
@@ -1813,7 +1873,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     equipment: "spear",
     valueData: [
       {
@@ -1844,7 +1904,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 22,
@@ -1869,7 +1929,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1894,7 +1954,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { unarmed: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     keywords: ["status_defense"],
     equipment: "staff",
     valueData: [
@@ -1920,7 +1980,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     keywords: ["status_defense"],
     equipment: "spear",
     valueData: [
@@ -1946,7 +2006,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "dodge_nimble_defend",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -1978,7 +2038,7 @@
     },
     buffId: "buff_crit",
     script: "self_buff",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -2005,7 +2065,7 @@
     },
     buffId: "buff_ward",
     script: "self_buff",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -2032,7 +2092,7 @@
     },
     buffId: "buff_shield",
     script: "self_buff",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { life: { base: 1, rankIncrement: 1 } },
     valueData: [
       {
         base: 1,
@@ -2059,7 +2119,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 3,
@@ -2088,7 +2148,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     equipment: "dart",
     valueData: [
       {
@@ -2117,7 +2177,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     equipment: "bow",
     valueData: [
       {
@@ -2148,7 +2208,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2174,7 +2234,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 22,
@@ -2197,7 +2257,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     script: "buff_lifemax",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 0,
@@ -2222,7 +2282,7 @@
       sound: "magic-smite-6012.mp3",
     },
     script: "debuff_lifemax",
-    coloredCost: { curse: { base: 0.5, rankIncrement: 0.5 } },
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 0,
@@ -2249,6 +2309,7 @@
     buffId: "debuff_crit",
     script: "opponent_debuff",
     keywords: ["status_debuff_crit"],
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,
@@ -2275,6 +2336,7 @@
     buffId: "debuff_ward",
     script: "opponent_debuff",
     keywords: ["status_debuff_ward"],
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 3,
@@ -2301,6 +2363,7 @@
     buffId: "debuff_shield",
     script: "opponent_debuff",
     keywords: ["status_debuff_shield"],
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 2,
@@ -2325,6 +2388,7 @@
     buffId: "weakness_poison",
     script: "opponent_debuff",
     keywords: ["status_resist"],
+    coloredCost: { curse: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
         base: 8,

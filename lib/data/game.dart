@@ -532,12 +532,13 @@ final class GameData with ChangeNotifier {
     _isInitted = true;
   }
 
-  /// 校验卡牌有色费用 coloredCost 数据（见 plan/battle_resource_rework.md 第一节）：
+  /// 校验卡牌费用 coloredCost 数据（见 plan/battle_resource_rework.md 单资源模型）：
   /// 1. 费用色合法性：非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色与 life（元气）
-  /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算）
-  /// 3. Σ有色 > L(rank) + 1（L(rank) = rank ~/ 2 + 1）时给出软警告（非常规定价）；
-  ///    元气 life 固定为 L(rank)，不再被有色挤压；显式 life（覆盖阶梯推导）
-  ///    与 L(rank) 不一致时同样给出软警告
+  /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算；rank 缺失按 0 折算）
+  /// 3. 模型校验（软警告）：流派卡（genre ∈ kGenreCostColors）期望 Σ有色 == rank 且不含元气；
+  ///    中立卡（无流派 / 法身 avatar / 其他）期望元气 life == rank+1 且不含有色
+  /// 4. 例外：全部条目折算为 0 的免费卡跳过模型校验；
+  ///    混费（元气+有色并存）与多色卡不禁止（未来设计），只给软警告
   /// 数据问题只警告，不中断加载
   static void _validateBattleCardCostColored() {
     for (final cardData in battleCards.values) {
@@ -550,17 +551,15 @@ final class GameData with ChangeNotifier {
         continue;
       }
 
-      final rankValue = cardData['rank'];
-      if (rankValue is! num) {
-        engine.warning('卡牌 [$cardId] 缺少有效的 rank 字段，跳过 coloredCost 校验');
-        continue;
-      }
-      final int rank = rankValue.toInt();
-      final int costLadder = rank ~/ 2 + 1;
+      // rank 缺失按 0 折算（中立基础卡常无 rank 字段）
+      final int rank = (cardData['rank'] as num?)?.toInt() ?? 0;
 
       final bool isUnique = cardData['isUnique'] == true;
       int coloredCostSum = 0;
-      int? explicitLife;
+      int lifeAmount = 0;
+      var hasLifeKey = false;
+      final coloredColors = <String>{};
+      var malformed = false;
       for (final entry in coloredCost.entries) {
         final color = entry.key;
         final value = entry.value;
@@ -583,27 +582,51 @@ final class GameData with ChangeNotifier {
           amount = _deriveColoredCostAmount(value, rank);
         } else {
           engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 数值非法: $value');
+          malformed = true;
           continue;
         }
         if (amount < 0) {
           engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 折算后为负数: $amount');
+          malformed = true;
           continue;
         }
         if (color == kColorlessCostColorId) {
-          explicitLife = amount;
+          hasLifeKey = true;
+          lifeAmount = amount;
         } else {
           coloredCostSum += amount;
+          coloredColors.add(color);
         }
       }
+      if (malformed) continue;
 
-      if (coloredCostSum > costLadder + 1) {
-        engine.warning('卡牌 [$cardId] 的 ΣcoloredCost($coloredCostSum) 明显超出'
-            '有色费用阶梯 L(rank)($costLadder)，属于非常规定价');
+      // 免费卡（全部条目折算为 0）：显式设计，跳过模型校验
+      if (lifeAmount == 0 && coloredCostSum == 0) continue;
+
+      // 混费与多色：未来设计，软警告
+      if (lifeAmount > 0 && coloredCostSum > 0) {
+        engine.warning('卡牌 [$cardId] 同时含有元气与有色费用（混费），'
+            '单资源模型下应只含一种');
       }
-      // 显式 life 覆盖阶梯推导：与 L(rank) 不一致时给出软警告（非常规定价）
-      if (explicitLife != null && explicitLife != costLadder) {
-        engine.warning('卡牌 [$cardId] 的显式元气费用($explicitLife)'
-            '与费用阶梯 L(rank)($costLadder) 不一致，属于非常规定价');
+      if (coloredColors.length > 1) {
+        engine.warning('卡牌 [$cardId] 含有 ${coloredColors.length} 种有色费用（多色卡），'
+            '单资源模型下应只为单色');
+      }
+
+      // 模型校验：流派卡 Σ有色 == rank 且不含元气；中立卡（含法身）life == rank+1 且不含有色
+      final bool isColoredGenre = kGenreCostColors.containsKey(cardData['genre']);
+      if (isColoredGenre) {
+        if (coloredCostSum != rank || hasLifeKey) {
+          engine.warning('卡牌 [$cardId] 费用与单资源模型不符：流派卡应为 '
+              'Σ有色 == rank($rank) 且不含元气，当前 Σ有色($coloredCostSum)'
+              '${hasLifeKey ? ' 含元气($lifeAmount)' : ''}');
+        }
+      } else {
+        if (lifeAmount != rank + 1 || coloredCostSum > 0) {
+          engine.warning('卡牌 [$cardId] 费用与单资源模型不符：中立卡应为 '
+              '元气 == rank+1(${rank + 1}) 且不含有色，当前 元气($lifeAmount)'
+              '${coloredCostSum > 0 ? ' 含有色($coloredCostSum)' : ''}');
+        }
       }
     }
   }

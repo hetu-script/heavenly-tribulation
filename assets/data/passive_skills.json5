@@ -35,7 +35,7 @@
     passives: [
       {
         id: "spellcraft_rank_1",
-        description: "passive_spellcraft_rank_1_description",
+        description: "passive_swordcraft_rank_1_description",
         level: 1,
       },
       {
@@ -60,8 +60,8 @@
     comment: "passivetree_swordcraft_rank_2_comment",
     passives: [
       {
-        id: "spellcraft_rank_2",
-        description: "passive_spellcraft_rank_2_description",
+        id: "swordcraft_rank_2",
+        description: "passive_swordcraft_rank_2_description",
         level: 1,
       },
       {
@@ -86,8 +86,8 @@
     comment: "passivetree_swordcraft_rank_3_comment",
     passives: [
       {
-        id: "spellcraft_rank_3",
-        description: "passive_spellcraft_rank_3_description",
+        id: "swordcraft_rank_3",
+        description: "passive_swordcraft_rank_3_description",
         level: 1,
       },
       {
@@ -112,8 +112,8 @@
     comment: "passivetree_swordcraft_rank_4_comment",
     passives: [
       {
-        id: "spellcraft_rank_4",
-        description: "passive_spellcraft_rank_4_description",
+        id: "swordcraft_rank_4",
+        description: "passive_swordcraft_rank_4_description",
         level: 1,
       },
       {
@@ -138,8 +138,8 @@
     comment: "passivetree_swordcraft_rank_5_comment",
     passives: [
       {
-        id: "spellcraft_rank_5",
-        description: "passive_spellcraft_rank_5_description",
+        id: "swordcraft_rank_5",
+        description: "passive_swordcraft_rank_5_description",
         level: 1,
       },
       {

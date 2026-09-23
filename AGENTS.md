@@ -1,6 +1,20 @@
-# About Dart
+# Important
+
+## About Dart
 
 Remember: In mordern Dart, non-empty case clauses jump to the end of the switch after completion. They do not require a break statement.
+
+## About Plan
+
+All plan files save to the plan/ directory in the project, for user's review purpose.
+
+## About Validate
+
+Use `python build.py` to validate the script.
+Use `flutter anylyze` to validate the dart.
+No need for actual build.
+
+This project is still in progress, so no need to consider save/data/api backward compatibility.
 
 # 项目: 天道奇劫 (Heavenly Tribulation)
 

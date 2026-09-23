@@ -7,3 +7,5 @@
 UI侧的装备显示和互动在： @lib/widgets/character 下包括 物品打造 item_craft.dart 以及物品和装备栏 stats_and_items.dart。
 
 目前只是规划阶段，只需要理解现有系统，不要修改任何文件。如果在这个过程中你发现了某些错误，可以顺便暂时记录下来。
+
+在装备生成时，在确定物品类型后 用 final uniqueData = createItemById('uniqueId') Object.assign(this, uniqueData) 来生成绝世装备，并将普通装备的生成放在else分支。

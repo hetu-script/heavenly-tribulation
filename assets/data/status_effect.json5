@@ -582,8 +582,8 @@
   },
 
   // 元气: 无色费用池。回合开始获得固定基准（kBattleBaseEnergy）+ 词条加成层数，支付无色费用移除层数；
-  // 回合结束每剩余 1 层回复 2% 生命上限（每层至少 1 点），下个回合开始时清空
-  // 某些地方简称为 vigor
+  // 元气：无色费用资源，支付元气（life）费用；某些地方简称为 vigor
+  // 下个回合开始时清空（统一生命周期）
   energy_positive_life: {
     id: "energy_positive_life",
     title: "status_energy_positive_life",
@@ -608,7 +608,7 @@
   },
   // 剑气
   // 某些地方简称为 chakra
-  // 产出 = 上回合打出的武器攻击牌数量（需 enable_chakra）；下个回合开始时清空
+  // 产出规则待新天赋树落地（旧设计：上回合打出的武器牌数量）；下个回合开始时清空
   energy_positive_weapon: {
     id: "energy_positive_weapon",
     title: "status_energy_positive_weapon",
@@ -621,7 +621,7 @@
   },
   // 怒气
   // 某些地方简称为 rage
-  // 产出 = 上回合自身受到的伤害 ÷ 10（需 enable_rage）；下个回合开始时清空
+  // 产出规则待新天赋树落地（旧设计：上回合自身受到的伤害 ÷ 10）；下个回合开始时清空
   // 保留风险代价：每层使自身受到的伤害 +5%（对方回合同样生效）
   energy_positive_unarmed: {
     id: "energy_positive_unarmed",

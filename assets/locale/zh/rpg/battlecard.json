@@ -16,6 +16,7 @@
   "uniquecard_draw_cards": "参玄功",
   "uniquecard_energy_positive_life": "先天功",
   "uniquecard_opponent_reduce_resist_all": "分心诀",
+  "uniquecard_heal_vigor_all": "归元功",
 
   "battlecard_punch": "拳法",
   "battlecard_kick": "腿法",
@@ -102,7 +103,7 @@
   "element_lightning": "雷",
 
   "exhaustResource": "费用",
-  "exhaustResource_description": "除了基本的元气费用之外，某些卡牌还需要特定的有色气作为额外费用才能打出",
+  "exhaustResource_description": "每张卡牌只需一种资源才能打出：流派卡牌支付对应的有色气（灵气/剑气/怒气/煞气），中立卡牌支付元气",
 
   "battlecard_cost_lacking_hint": "{0}不足：需要 {1}，拥有 {2}",
 
@@ -132,6 +133,7 @@
   "affix_attack_curse_psychic": "咒术攻击造成 {0} 精神伤害",
 
   "affix_heal": "生命 +{0}",
+  "affix_heal_vigor_all": "消耗所有元气，每点元气回复生命上限 {0}% 的生命",
   "affix_defend": "护甲 +{0}",
   "affix_speed_quick": "速度 +{0}",
   "affix_dodge_nimble": "闪避 +{0}",

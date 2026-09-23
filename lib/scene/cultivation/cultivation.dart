@@ -1419,8 +1419,13 @@ class CultivationScene extends Scene with HasCursorState {
     for (var i = 0; i < kTrackRadius.length; i++) {
       final radius = kTrackRadius[i].$1;
       final count = kTrackRadius[i].$2;
+      // 天赋盘整体逆时针旋转 1/10 圆（angleOffset -36°）：御剑主轴从正上方移到左上方，
+      // 法身主轴（原左下 126° 方向）变为垂直向下。只改变节点位置，track id 不变
       final track = generateDividingPointsOnCircle(
-          center: center, radius: radius.toDouble(), number: count);
+          center: center,
+          radius: radius.toDouble(),
+          number: count,
+          angleOffset: -36.0);
       for (var j = 0; j < track.length; j++) {
         final id = 'track_${i}_$j';
         _addSkillButton(

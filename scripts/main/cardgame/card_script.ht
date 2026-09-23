@@ -94,6 +94,16 @@ namespace CardScript {
     final regen = (affix.value[0] / 100 * self.lifeMax).round()
     self.changeLife(regen, isHeal: true)
   }
+
+  /// 归元功（绝世）：消耗自身所有元气，每点元气回复 生命上限 × 词条值% 的生命
+  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用（见 plan/battle_resource_rework.md）
+  function heal_vigor_all(self, opponent, affix, mainAffix) {
+    final vigor = self.hasStatusEffect('energy_positive_life')
+    if (vigor <= 0) return
+    self.removeStatusEffect('energy_positive_life', amount: vigor)
+    final regen = (affix.value[0] / 100 * vigor * self.lifeMax).round()
+    if (regen > 0) self.changeLife(regen, isHeal: true)
+  }
   
   /// 获得增益
   function self_buff(self, opponent, affix, mainAffix) {

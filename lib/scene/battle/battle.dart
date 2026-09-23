@@ -218,13 +218,6 @@ class BattleScene extends Scene {
             amount: value.toInt(), handleCallback: false);
       }
     }
-
-    // 灵力每 10 点: 战斗开始时获得 1 点灵气
-    final int initialMana = character.data['stats']['spirituality'] ~/ 10;
-    if (initialMana > 0) {
-      character.addStatusEffect('energy_positive_spell',
-          amount: initialMana, handleCallback: false);
-    }
   }
 
   Map<String, int> _prepareStatus(
@@ -1393,10 +1386,8 @@ class BattleScene extends Scene {
       enemy.setState(kDefeatState);
 
       if (!isPractice) {
-        // 如果开启了煞气天赋，战胜对手后增加 5 点煞气
-        if (heroData['passives']['enable_karma'] != null) {
-          heroData['karma'] += 5;
-        }
+        // 战斗胜利后业力池 +5（煞气的提取权限由流派天赋节点决定）
+        heroData['karma'] += 5;
       }
     } else {
       battleResult = false;
