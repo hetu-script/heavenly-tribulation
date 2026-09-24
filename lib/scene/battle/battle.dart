@@ -801,10 +801,13 @@ class BattleScene extends Scene {
   /// 预测值与原值的比较着色由 getBattleCardDescription(withPrediction) 完成
   void refreshHandCardDescriptions() {
     for (final card in heroHandZone.cards) {
-      final cardData = (card as CustomGameCard).data;
+      final customCard = card as CustomGameCard;
+      final cardData = customCard.data;
+      // 气增伤预测需要本牌费用以模拟扣费后剩余层数（见 predictDamage）
+      final cardCost = _cardCostColored(customCard);
       for (final affix in cardData['affixes']) {
         // 英雄手牌的攻击目标是敌方，预测以敌方为防守方计算
-        final predicted = enemy.predictDamage(hero, affix);
+        final predicted = enemy.predictDamage(hero, affix, cardCost: cardCost);
         affix['predictedValue'] = predicted?.$1;
         affix['predictedCrit'] = predicted?.$2;
         affix['predictedAilment'] = predicted?.$3;
@@ -929,6 +932,16 @@ class BattleScene extends Scene {
           '${engine.locale('status_$kWildcardStatusId')} -$ultimateNeed',
           color: getResourceColor(kWildcardStatusId));
     }
+
+    // 记录本次实际支付明细（键 = 状态 id，值 = 实际扣除层数，含无极抵扣），
+    // 供费用返还等词条脚本读取；每条出牌路径都经过此处，每次出牌无条件覆写
+    final paidCost = <String, int>{};
+    if (colorlessNeed > 0) paidCost['energy_positive_life'] = colorlessNeed;
+    for (final (statusId, amount) in pending) {
+      if (amount > 0) paidCost[statusId] = amount;
+    }
+    if (ultimateNeed > 0) paidCost[kWildcardStatusId] = ultimateNeed;
+    character.cardFlags['paidCost'] = paidCost;
     return true;
   }
 

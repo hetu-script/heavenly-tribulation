@@ -16,7 +16,7 @@
   "uniquecard_draw_cards": "参玄功",
   "uniquecard_energy_positive_life": "先天功",
   "uniquecard_opponent_reduce_resist_all": "分心诀",
-  "uniquecard_heal_vigor_all": "归元功",
+  "uniquecard_heal_vigor_all": "气疗术",
 
   "battlecard_punch": "拳法",
   "battlecard_kick": "腿法",
@@ -151,11 +151,13 @@
   "affix_opponent_debuff_shield": "对手破绽 +{0}",
 
   "affix_energy_positive_life": "元气 +{0}",
-  "affix_energy_positive_spell": "灵气 +{0}",
-  "affix_energy_positive_weapon": "剑气 +{0}",
-  "affix_energy_positive_unarmed": "怒气 +{0}",
-  "affix_energy_positive_curse": "煞气 +{0}",
-  "affix_energy_positive_ultimate": "无极之气 +{0}",
+
+  "affix_convert_vigor_spell": "消耗所有元气，每点元气转化为 1 点灵气",
+  "affix_convert_vigor_weapon": "消耗所有元气，每点元气转化为 1 点剑气",
+  "affix_convert_vigor_unarmed": "消耗所有元气，每点元气转化为 1 点怒气",
+  "affix_convert_vigor_curse": "消耗所有元气，每点元气转化为 1 点煞气",
+  "affix_convert_vigor_ultimate": "消耗所有元气，每 2 点元气转化为 1 点无极之气（向下取整）",
+  "affix_refund_cost": "打出后返还此牌所消耗的气",
 
   "affix_opponent_energy_negative_life": "对手死气 +{0}",
   "affix_opponent_energy_negative_spell": "对手逆灵之气 +{0}",

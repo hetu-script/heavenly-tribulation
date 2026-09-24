@@ -263,11 +263,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
-  /// 只计算确定性部分（与 takeDamage 同顺序）：增强/削弱净值 → 元素抗性/弱点 →
+  /// 只计算确定性部分（与 takeDamage 同顺序）：气增伤（按 [cardCost] 模拟扣费后
+  /// 剩余层数，本色气/无极 ±5 每层）→ 增强/削弱净值 → 元素抗性/弱点 →
   /// 暴击（豪气必暴或暴击计数器满阈值，扣除不幸减倍率）、异常（豪气必异常或异常计数器满阈值）；
-  /// 不计算护甲、穿透与脚本回调类修正。
+  /// 不计算护甲、穿透与其他脚本回调类修正。
   /// 返回 (伤害, 是否暴击, 异常层数)；非攻击类词条返回 null。
-  (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix) {
+  (int, bool, int)? predictDamage(BattleCharacter attacker, dynamic affix,
+      {Map<String, int>? cardCost}) {
     if (affix['category'] != 'attack') return null;
 
     final value = affix['value'];
@@ -282,8 +284,43 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     int damage = (value[0] as num).toInt();
 
-    // 乘区1：攻击增强/削弱净值，下限 kDamagePercentageMin（同 takeDamage）
     final String? cardType = affix['cardType'];
+
+    // 气增伤（与 takeDamage 的 doing_damage 回调同口径）：按 cardCost 模拟支付后的
+    // 剩余层数 ±5/层；本色先扣、缺口扣无极，虚空之气既增费也减伤
+    if (cardType != null) {
+      final int voidQi = attacker.hasStatusEffect('energy_negative_ultimate');
+      // 模拟扣费后的各色气存量（惰性读取，未被费用触及的色即当前值）
+      final simulated = <String, int>{};
+      int ownAfter(String statusId) =>
+          simulated[statusId] ??= attacker.hasStatusEffect(statusId);
+      ownAfter(kWildcardStatusId);
+      if (cardCost != null) {
+        for (final entry in cardCost.entries) {
+          if (entry.key == kColorlessCostColorId) continue;
+          final String? yangId = kCostColorStatusIds[entry.key];
+          if (yangId == null) continue;
+          final int need = entry.value + voidQi;
+          if (yangId == kWildcardStatusId) {
+            simulated[kWildcardStatusId] =
+                math.max(0, ownAfter(kWildcardStatusId) - need);
+          } else {
+            final int ownPaid = math.min(ownAfter(yangId), need);
+            simulated[yangId] = ownAfter(yangId) - ownPaid;
+            simulated[kWildcardStatusId] =
+                math.max(0, ownAfter(kWildcardStatusId) - (need - ownPaid));
+          }
+        }
+      }
+      damage += 5 *
+          (ownAfter('energy_positive_$cardType') +
+              ownAfter(kWildcardStatusId) -
+              attacker.hasStatusEffect('energy_negative_$cardType') -
+              voidQi);
+      if (damage < 0) damage = 0;
+    }
+
+    // 乘区1：攻击增强/削弱净值，下限 kDamagePercentageMin（同 takeDamage）
     if (cardType != null) {
       final int enhanceNet = attacker.hasStatusEffect('enhance_$cardType') -
           attacker.hasStatusEffect('weaken_$cardType');
@@ -311,7 +348,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
         final int consumed = math.min(attacker.hasStatusEffect('debuff_crit'),
             ((critMultiplier - 100) / 50).ceil());
-        critMultiplier -= 50 * consumed;
+        critMultiplier -= 25 * consumed;
         if (critMultiplier < 100) critMultiplier = 100;
         damage = (damage * critMultiplier / 100).round();
         isCrit = true;

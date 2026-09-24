@@ -257,40 +257,15 @@
     ],
   },
 
-  // 获得元气
-  energy_positive_life: {
-    id: "energy_positive_life",
-    uniqueId: "energy_positive_life",
+  // 返还本牌消耗的气（按实际支付量，含无极抵扣部分；无 priority = 主词条后执行）
+  // 依赖 Dart 侧支付时写入 cardFlags.paidCost（见 plan/battle_qi_conversion.md）
+  refund_cost: {
+    id: "refund_cost",
+    uniqueId: "refund_cost",
     categories: ["buff", "attack"],
-    rank: 1,
-    description: "affix_energy_positive_life",
-    keywords: ["status_energy_positive_life"],
-    buffId: "energy_positive_life",
-    script: "self_buff",
-    priority: -1,
-    valueData: [
-      {
-        increment: 0.05,
-      },
-    ],
-  },
-
-  // 获得无极之气
-  energy_positive_ultimate: {
-    id: "energy_positive_ultimate",
-    uniqueId: "energy_positive_ultimate",
-    categories: ["buff", "attack"],
-    rank: 4,
-    description: "affix_energy_positive_ultimate",
-    keywords: ["status_energy_positive_ultimate"],
-    buffId: "energy_positive_ultimate",
-    script: "self_buff",
-    priority: -1,
-    valueData: [
-      {
-        increment: 0.05,
-      },
-    ],
+    rank: 3,
+    description: "affix_refund_cost",
+    script: "refund_cost",
   },
 
   // 临时升级手牌中的其他卡牌(buff)

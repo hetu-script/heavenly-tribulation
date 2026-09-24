@@ -127,6 +127,7 @@
 | `cardType` / `damageType` | 主词条的卡牌类型 / 伤害类型                       |
 | `damage.total`            | 本张牌已造成的总伤害（takeDamage 累加）           |
 | `damage.penetration` 等   | 脚本可写入（如正气消耗后 +0.2），出牌时合并进伤害 |
+| `paidCost`                | 本张牌实际支付明细（状态 id → 实际扣除层数，含元气与无极抵扣；0 费卡为空表），支付时写入，费用返还词条读取 |
 
 ## turnFlags 字段（回合期间，`角色.turnFlags`）
 

@@ -104,6 +104,28 @@ namespace CardScript {
     final regen = (affix.value[0] / 100 * vigor * self.lifeMax).round()
     if (regen > 0) self.changeLife(regen, isHeal: true)
   }
+
+  /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气（见 plan/battle_qi_conversion.md）
+  /// 词条值 100 = 1:1（四色）；50 = 1:0.5（无极，向下取整，不足 2 点元气无产出）
+  /// 模板同 heal_vigor_all：消耗走效果而非费用，费用恒 0
+  function convert_vigor_all(self, opponent, affix, mainAffix) {
+    final vigor = self.hasStatusEffect('energy_positive_life')
+    if (vigor <= 0) return
+    self.removeStatusEffect('energy_positive_life', amount: vigor)
+    final amount = (vigor * affix.value[0] / 100).floor()
+    if (amount > 0) self.addStatusEffect(affix.buffId, amount: amount)
+  }
+
+  /// 费用返还（额外词条）：按此牌实际支付量返还全部所消耗的气
+  /// 依赖 Dart 侧在支付时写入 self.cardFlags['paidCost']（键 = 状态 id，值 = 实际扣除层数）
+  function refund_cost(self, opponent, affix, mainAffix) {
+    final paidCost = self.cardFlags['paidCost']
+    if (paidCost == null) return
+    for (final statusId in paidCost.keys) {
+      final amount = paidCost[statusId]
+      if (amount > 0) self.addStatusEffect(statusId, amount: amount)
+    }
+  }
   
   /// 获得增益
   function self_buff(self, opponent, affix, mainAffix) {
@@ -124,7 +146,7 @@ namespace CardScript {
 
   function opponent_weaken_attack_all(self, opponent, affix, mainAffix) {
     for (var attackType in ['unarmed', 'weapon', 'spell', 'curse']) {
-      opponent.addStatusEffect('weaken_${elementResist}', amount: affix.value[0])
+      opponent.addStatusEffect('weaken_${attackType}', amount: affix.value[0])
     }
   }
 
