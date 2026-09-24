@@ -31,6 +31,8 @@
   "staggering": "踉跄！",
   "defensePersisted": "护甲保持！",
   "karmaPoolReturnHint": "煞气×{0} 返回煞气池",
+  "scryHint": "观星：选择一张牌加入手牌",
+  "cardUpgradedHint": "{0} 升级了",
 
   "wooden_dummy": "木人",
 

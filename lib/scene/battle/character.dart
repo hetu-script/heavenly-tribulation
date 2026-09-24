@@ -657,13 +657,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
   /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）（获得时与持有的死气自然对冲）。
-  /// 各流派有色气的产出规则由天赋树流派初始节点提供（待新天赋树落地后在此补充，
+  /// 悟道凝气「太上感应」（spellcraft_rank_1）：每 10 点灵力获得 1 点灵气。
+  /// 其余流派有色气的产出规则由各自流派境界节点提供（待后续流派重构时补充，
   /// 滞后产出所需的 lastTurnWeaponCards / lastTurnDamageTaken 统计仍然保留）。
   void produceTurnStartResources() {
     // 元气 = 无色费用池
     final int energyBonus = (data['stats']['battleEnergyBonus'] ?? 0) as int;
     addStatusEffect('energy_positive_life',
         amount: kBattleBaseEnergy + energyBonus);
+
+    // 悟道凝气「太上感应」：灵力每 10 点转化为 1 点灵气
+    if (data['passives']['spellcraft_rank_1'] != null) {
+      final int spirituality = (data['stats']['spirituality'] ?? 0) as int;
+      final int spellEnergy = spirituality ~/ 10;
+      if (spellEnergy > 0) {
+        addStatusEffect('energy_positive_spell', amount: spellEnergy);
+      }
+    }
   }
 
   dynamic _invokeScript(StatusEffect effect, String callbackId,
@@ -1035,7 +1045,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
       if (stacks > 0) {
-        final ailmentId = 'element_dot_$damageType';
+        final ailmentId = 'ailment_$damageType';
         addStatusEffect(ailmentId, amount: stacks);
         // 写入施加方的异常伤害倍率（以最后一次触发为准）
         _statusEffects[ailmentId]?.data['ailmentMultiplier'] =
@@ -1107,8 +1117,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
   Future<void> onUseCard(CustomGameCard card) async {
     _sw.start();
-    // 重置 cardFlags
+    // 重置 cardFlags；paidCost 由 _payCardCost 在刚刚的支付中写入，需要保留给词条脚本读取
+    final paidCost = cardFlags['paidCost'];
     cardFlags.clear();
+    if (paidCost != null) {
+      cardFlags['paidCost'] = paidCost;
+    }
 
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
@@ -1218,6 +1232,25 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       );
     }
 
+    // 悟道分支的元素牌联动（抱真守一 / 五行轮转）
+    if (_isElementCardData(mainAffix)) {
+      final passives = data['passives'];
+      // 抱真守一（spellcraft_branch_shouyi）：手牌里随机一张元素牌获得升级
+      if (passives['spellcraft_branch_shouyi'] != null) {
+        await _upgradeRandomElementCardInHand();
+      }
+      // 五行轮转（spellcraft_branch_wuxing）：本回合每使用一种不同的元素牌，灵气 +1
+      if (passives['spellcraft_branch_wuxing'] != null) {
+        final usedElements = turnFlags.putIfAbsent(
+            'usedElements', () => <String>{}) as Set<String>;
+        final elementKey =
+            (mainAffix['elementType'] ?? mainAffix['damageType']) as String?;
+        if (elementKey != null && usedElements.add(elementKey)) {
+          addStatusEffect('energy_positive_spell', amount: 1);
+        }
+      }
+    }
+
     if (mainAffix['category'] == 'attack') {
       // 触发自己发动攻击后的效果
       handleStatusEffectCallback('self_attacked');
@@ -1237,35 +1270,50 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     handleStatusEffectCallback('self_used_card');
   }
 
-  /// 回合结束资源结算钩子（当前为空实现）。
-  /// 元气回血已移除（见 plan/battle_resource_rework.md）；本钩子保留给
-  /// 悟道流派境界节点的灵气溢出互动（overflowed_mana_* 天赋，设计如下，暂未启用）：
-  /// 灵气按剩余层数触发 overflowed_mana_* 天赋（增益型）：
-  ///   convert_to_vigor → 剩余灵气 1:1 转为元气；
-  ///   deal_random_element_damage → 每层 5 点随机元素伤害（受对方抗性减免）
+  /// 回合结束资源结算：悟道结丹「阴阳五行」（spellcraft_rank_3）。
+  /// 回合结束时，未使用的灵气每层造成 5 点随机元素伤害（火/冰/雷随机，受对方对应抗性减免）；
+  /// 该伤害是资源转化而非攻击，直接 changeLife 结算。灵气本身在持有者下个回合开始时统一清空。
+  /// （元气回血已移除，见 plan/battle_resource_rework.md）
   void _settleTurnEndResources() {
-    // final passives = data['passives'];
-    // final manaCount = hasStatusEffect('energy_positive_spell');
-    // if (manaCount > 0) {
-    //   if (passives['overflowed_mana_convert_to_vigor'] != null) {
-    //     removeStatusEffect('energy_positive_spell', force: true);
-    //     addStatusEffect('energy_positive_life', amount: manaCount);
-    //   } else if (passives['overflowed_mana_deal_random_element_damage'] !=
-    //       null) {
-    //     // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
-    //     final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
-    //     final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
-    //     final damage = (manaCount * 5 * factor).round();
-    //     if (damage > 0) {
-    //       opponent!.changeLife(-damage, damageType: damageType);
-    //     }
-    //   }
-    // }
+    if (data['passives']['spellcraft_rank_3'] == null) return;
+
+    final manaCount = hasStatusEffect('energy_positive_spell');
+    if (manaCount <= 0) return;
+
+    // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
+    final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
+    final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
+    final damage = (manaCount * 5 * factor).round();
+    if (damage > 0) {
+      opponent!.changeLife(-damage, damageType: damageType);
+    }
+  }
+
+  /// 悟道还婴「五气朝元」（spellcraft_rank_4）：
+  /// 每个回合开始时，按 御水术→御火术→土遁→御风术→雷法 的顺序轮流获得对应套路的伤害增强
+  /// （increase_damage_* 永久状态，1 层 = +1%），先移除上轮所授层数，再授予本轮。
+  /// 在 battle.dart 的 _startTurn 中于回合开始注入之后显式调用。
+  void handleWuxingRotation() {
+    if (data['passives']['spellcraft_rank_4'] == null) return;
+
+    final last = data['wuxingRotation'];
+    if (last != null) {
+      removeStatusEffect(last['statusId'], amount: last['amount']);
+      data['wuxingRotation'] = null;
+    }
+    final kind =
+        kWuxingRotationKinds[(turnCount - 1) % kWuxingRotationKinds.length];
+    final statusId = 'increase_damage_$kind';
+    addStatusEffect(statusId, amount: kWuxingEnhanceAmount);
+    data['wuxingRotation'] = {
+      'statusId': statusId,
+      'amount': kWuxingEnhanceAmount,
+    };
   }
 
   /// 返回值true表示获得一个额外回合
   Future<void> onEndTurn() async {
-    // 回合结束资源结算钩子（当前为空；悟道境界节点的灵气溢出互动将挂在这里）
+    // 回合结束资源结算（悟道结丹「阴阳五行」的灵气溢出伤害等）
     _settleTurnEndResources();
 
     handleStatusEffectCallback('self_turn_end');
@@ -1296,6 +1344,50 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     } else {
       await battleScene.drawCardsToHand(battleScene.enemyDeckZone,
           battleScene.enemyDiscardZone, battleScene.enemyHandZone, count);
+    }
+  }
+
+  /// 紫微斗数（悟道分支「返朴归元」授予卡）：
+  /// 抽 1 张牌，如果是法术攻击牌（cardType == spell 且 category == attack），将其费用改为 0。
+  Future<void> ziweiDoushu() async {
+    final battleScene = game as BattleScene;
+    await drawCards(1);
+    if (battleScene.lastDrawnCards.isEmpty) return;
+    final cardData = battleScene.lastDrawnCards.last.data;
+    if (cardData['cardType'] == 'spell' && cardData['category'] == 'attack') {
+      cardData['coloredCost'] = {};
+      if (isHero) {
+        battleScene.refreshHandCardDescriptions();
+        battleScene.refreshHandAffordability();
+      }
+    }
+  }
+
+  /// 元素牌判定：elementType 非空（七元素标记，激活数据层的 elementType 字段），
+  /// 或伤害类型属于火/冰/雷/毒（兼容未标 elementType 的旧卡）。
+  bool _isElementCardData(dynamic cardData) {
+    if (cardData['elementType'] != null) return true;
+    return const {'fire', 'ice', 'lightning', 'poison'}
+        .contains(cardData['damageType']);
+  }
+
+  /// 抱真守一（悟道分支）：从手牌区随机取一张元素牌，经 hetu upgradeCard 升级
+  /// （等级 +1 并按公式重算主词条数值；战斗用牌是深拷贝，不影响卡库）。
+  Future<void> _upgradeRandomElementCardInHand() async {
+    final battleScene = game as BattleScene;
+    final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;
+    final candidates = hand.cards
+        .where((card) =>
+            _isElementCardData((card as CustomGameCard).data['affixes'][0]))
+        .toList();
+    if (candidates.isEmpty) return;
+    final card =
+        candidates[random.nextInt(candidates.length)] as CustomGameCard;
+    engine.hetu.invoke('upgradeCard', positionalArgs: [card.data]);
+    addHintText(engine.locale('cardUpgradedHint',
+        interpolations: [card.data['name']]));
+    if (isHero) {
+      battleScene.refreshHandCardDescriptions();
     }
   }
 }

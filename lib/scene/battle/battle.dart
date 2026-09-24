@@ -33,6 +33,9 @@ import '../../widgets/character/profile.dart';
 
 const kBattleRoundLimit = 8;
 
+/// 观星展示卡牌的渲染优先级（高于手牌与按钮，低于屏障 UI 10100）
+const kScryOverlayPriority = 10050;
+
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermanentEffects = {
   'unarmedAttack': ('enhance_unarmed', 'weaken_unarmed'),
@@ -155,6 +158,12 @@ class BattleScene extends Scene {
 
   // 结束回合标志
   bool _endPlayerTurn = false;
+
+  // 观星进行中标志（期间禁止点选手牌）
+  bool _isScrying = false;
+
+  // 最近一次 drawCardsToHand 抽到的牌（紫微斗数等需要检视所抽卡牌的效果使用）
+  final List<CustomGameCard> lastDrawnCards = [];
 
   bool _isRestarting = false;
 
@@ -293,6 +302,19 @@ class BattleScene extends Scene {
         cards.add(card);
         world.add(card);
         deck.tryAddCard(card);
+      }
+
+      // 悟道筑基「天道循环」（spellcraft_rank_2）：悟道牌灵气费用 -1（下限 0）
+      if (character['passives']['spellcraft_rank_2'] != null) {
+        for (final card in cards) {
+          final cardData = card.data;
+          if (cardData['genre'] != 'spellcraft') continue;
+          final cost = cardData['coloredCost'];
+          final spellCost = cost?['spell'];
+          if (spellCost is num && spellCost > 0) {
+            cost['spell'] = spellCost - 1;
+          }
+        }
       }
 
       await deck.sortCards(animated: false);
@@ -442,6 +464,19 @@ class BattleScene extends Scene {
 
     heroDeck = await getDeck(heroData, heroDeckZone, isHero: true);
 
+    // 悟道化神「万法归宗」（spellcraft_rank_5）：战斗开始后将「绝世·万法归宗」洗入牌库
+    if (heroData['passives']['spellcraft_rank_5'] != null) {
+      final wanfaData = engine.hetu.invoke('BattleCard',
+          namedArgs: {'affixId': 'wanfa_guizong', 'isIdentified': true});
+      final card = GameData.createBattleCard(wanfaData, deepCopyData: true);
+      card.isFlipped = true;
+      card.enableGesture = false;
+      world.add(card);
+      heroDeckZone.tryAddCard(card);
+      heroDeckZone.shuffle();
+      await heroDeckZone.sortCards(animated: false);
+    }
+
     heroDiscardZone = DiscardZone(
       position: GameUI.p1BattleDiscardZonePosition,
       reverseX: false,
@@ -471,6 +506,17 @@ class BattleScene extends Scene {
       return description;
     };
     world.add(heroHandZone);
+
+    // 悟道分支「返朴归元」（spellcraft_branch_guiyuan）：战斗开始后将「紫微斗数」加入手牌
+    if (heroData['passives']['spellcraft_branch_guiyuan'] != null) {
+      final ziweiData = engine.hetu.invoke('BattleCard',
+          namedArgs: {'affixId': 'ziwei_doushu', 'isIdentified': true});
+      final card = GameData.createBattleCard(ziweiData, deepCopyData: true);
+      card.isFlipped = false;
+      world.add(card);
+      heroHandZone.tryAddCard(card);
+      await heroHandZone.sortCards();
+    }
 
     final String heroSkinId = heroData['skin'];
     final String heroGenre = heroData['cultivationFavor'];
@@ -717,9 +763,15 @@ class BattleScene extends Scene {
     refreshHandCardDescriptions();
   }
 
+  /// 清空手牌进弃牌堆。
+  /// [keepRetained] 为 true 时，带有 retain 标记（保留）的卡牌留在手牌中；
+  /// 回合结束调用时应传 true，战斗重开清理时传 false（全部回库）。
   Future<void> clearHand(HandZone hand, DiscardZone discard,
-      {bool animated = true}) async {
+      {bool animated = true, bool keepRetained = false}) async {
     for (final card in hand.cards.reversed.toList()) {
+      if (keepRetained && (card as CustomGameCard).data['retain'] == true) {
+        continue;
+      }
       card.isFlipped = true;
       card.clearInteraction();
       discard.tryAddCard(card);
@@ -776,12 +828,15 @@ class BattleScene extends Scene {
     int count,
   ) async {
     int drawn = 0;
+    lastDrawnCards.clear();
     while (drawn < count) {
       if (deck.cards.isEmpty) {
         if (discard.cards.isEmpty) break;
         await shuffleDiscardIntoDeck(deck, discard);
       }
-      hand.tryAddCard(deck.cards.last, sort: true);
+      final card = deck.cards.last as CustomGameCard;
+      hand.tryAddCard(card, sort: true);
+      lastDrawnCards.add(card);
       drawn++;
     }
     if (hand == heroHandZone) {
@@ -794,6 +849,90 @@ class BattleScene extends Scene {
       refreshHandCardDescriptions();
     }
     return drawn;
+  }
+
+  /// 观星：查看牌库顶 [count] 张牌，选一张加入手牌，其余按原顺序放回牌库底。
+  /// 英雄：在场景中央展示牌面并等待点选（期间 _isScrying 禁止点选手牌）；
+  /// 敌方（预留，NPC 无天赋树暂不会触发）：自动取牌库顶张。
+  /// 牌库空时先重洗弃牌堆，仍无牌可观则直接返回。
+  Future<void> scry(
+    BattleDeckZone deck,
+    DiscardZone discard,
+    HandZone hand, {
+    int count = kScryCardCount,
+  }) async {
+    if (deck.cards.isEmpty) {
+      if (discard.cards.isEmpty) return;
+      await shuffleDiscardIntoDeck(deck, discard);
+    }
+    final actualCount = math.min(count, deck.cards.length);
+    // 牌库顶 = cards 列表末尾；取出后保持 列表顺序 == index 的不变量
+    final scried = deck.cards
+        .sublist(deck.cards.length - actualCount)
+        .cast<CustomGameCard>();
+    deck.cards.removeRange(deck.cards.length - actualCount, deck.cards.length);
+    for (var i = 0; i < deck.cards.length; ++i) {
+      deck.cards[i].index = i;
+    }
+
+    late final CustomGameCard chosen;
+    if (currentCharacter.isHero) {
+      _isScrying = true;
+      currentCharacter.addHintText(engine.locale('scryHint'),
+          color: Colors.lightBlue);
+      final completer = Completer<CustomGameCard>();
+      final cardSize = GameUI.battleCardFocusedSize;
+      final totalWidth =
+          actualCount * cardSize.x + (actualCount - 1) * GameUI.smallIndent;
+      final startX = GameUI.center.x - totalWidth / 2 + cardSize.x / 2;
+      for (var i = 0; i < scried.length; ++i) {
+        final card = scried[i];
+        card.isFlipped = false;
+        // 牌库卡在 getDeck 中被禁用手势，展示期间需要重新启用才能点选
+        card.enableGesture = true;
+        card.preferredPriority = kScryOverlayPriority;
+        card.resetPriority();
+        final target = Vector2(
+            startX + i * (cardSize.x + GameUI.smallIndent), GameUI.center.y);
+        card.moveTo(duration: 0.3, toPosition: target, toSize: cardSize);
+        card.onTapUp = (button, position) {
+          if (!completer.isCompleted) completer.complete(card);
+        };
+        card.onMouseEnter = () => card.showGlow = true;
+        card.onMouseExit = () => card.showGlow = false;
+      }
+      chosen = await completer.future;
+      for (final card in scried) {
+        card.showGlow = false;
+        card.clearInteraction();
+      }
+      _isScrying = false;
+    } else {
+      chosen = scried.last;
+    }
+
+    // 选中卡加入手牌（区域排序时会重设其优先级与位置）
+    chosen.isFlipped = !currentCharacter.isHero;
+    hand.tryAddCard(chosen);
+    await hand.sortCards();
+
+    // 其余按原相对顺序放回牌库底（列表头部）
+    var insertIndex = 0;
+    for (final card in scried) {
+      if (identical(card, chosen)) continue;
+      card.isFlipped = true;
+      deck.cards.insert(insertIndex++, card);
+      card.pile = deck;
+    }
+    for (var i = 0; i < deck.cards.length; ++i) {
+      deck.cards[i].index = i;
+    }
+    await deck.sortCards();
+
+    if (currentCharacter.isHero) {
+      refreshHandCardDescriptions();
+      refreshHandAffordability();
+    }
   }
 
   /// 刷新英雄手牌所有卡牌的卡面描述：
@@ -1136,6 +1275,9 @@ class BattleScene extends Scene {
   }
 
   void onPlayerSelectedCard(CustomGameCard? card) {
+    // 观星进行中禁止点选手牌
+    if (_isScrying) return;
+
     // null 表示结束回合
     if (card == null) {
       _endPlayerTurn = true;
@@ -1254,6 +1396,15 @@ class BattleScene extends Scene {
       // 新产出已结算，刷新手牌置灰状态
       refreshHandAffordability();
 
+      // 悟道还婴「五气朝元」：轮转获得五种套路的伤害增强
+      currentCharacter.handleWuxingRotation();
+
+      // 悟道分支「天道推演」：每回合开始时观星一次
+      if (currentCharacter.data['passives']['spellcraft_branch_tiandao'] !=
+          null) {
+        await scry(deckZone, discardZone, handZone);
+      }
+
       if (skipPlayPhase) {
         endTurnButton.isEnabled = false;
       } else if (heroTurn) {
@@ -1340,7 +1491,7 @@ class BattleScene extends Scene {
       // // 回合结束注入的状态（如施加给对方的弱点）会影响预测数值
       // refreshHandCardDescriptions();
 
-      await clearHand(handZone, discardZone);
+      await clearHand(handZone, discardZone, keepRetained: true);
     } while (extraTurn);
 
     heroTurn = !heroTurn;

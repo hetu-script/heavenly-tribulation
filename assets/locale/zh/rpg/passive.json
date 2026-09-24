@@ -1,9 +1,14 @@
 {
-  "passive_spellcraft_rank_1_description": "回合开始时 +1 灵气",
+  "passive_spellcraft_rank_1_description": "回合开始时，每 10 点灵力获得 1 点灵气",
   "passive_spellcraft_rank_2_description": "悟道牌灵气费用 -1",
-  "passive_spellcraft_rank_3_description": "回合结束时可以保留灵气到下个回合",
-  "passive_spellcraft_rank_4_description": "回合结束时未使用的灵气会造成随机元素伤害",
+  "passive_spellcraft_rank_3_description": "回合结束时，未使用的灵气每层造成 5 点随机元素伤害",
+  "passive_spellcraft_rank_4_description": "每个回合开始时，轮流获得御水术、御火术、土遁、御风术、雷法的伤害 +10%",
   "passive_spellcraft_rank_5_description": "战斗开始后将「绝世·万法归宗」洗入你的牌库",
+
+  "passive_spellcraft_branch_guiyuan_description": "返朴归元：战斗开始后，将「紫微斗数」加入你的手牌",
+  "passive_spellcraft_branch_tiandao_description": "天道推演：每个回合开始时观星一次（查看牌库顶 3 张牌，选一张入手，其余沉底）",
+  "passive_spellcraft_branch_shouyi_description": "抱真守一：使用元素牌后，手牌里随机一张元素牌获得升级",
+  "passive_spellcraft_branch_wuxing_description": "五行轮转：每个回合中，每使用一种不同的元素牌，获得 1 点灵气",
 
   "passive_swordcraft_rank_1_description": "战斗开始时 +3 剑气",
   "passive_swordcraft_rank_2_description": "御剑牌剑气费用 -1",

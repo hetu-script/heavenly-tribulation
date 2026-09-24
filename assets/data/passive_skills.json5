@@ -32,12 +32,8 @@
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
     title: "passivetree_swordcraft_rank_1",
     comment: "passivetree_swordcraft_rank_1_comment",
+    // 御剑境界词条（swordcraft_rank_*）待御剑流派重构时补充，此前误引用的 spellcraft_rank_1 已移除
     passives: [
-      {
-        id: "spellcraft_rank_1",
-        description: "passive_swordcraft_rank_1_description",
-        level: 1,
-      },
       {
         id: "lifeMax",
         level: 40,
@@ -53,7 +49,7 @@
   },
   track_8_0: {
     size: "large",
-    connectedNodes: ["track_10_0"],
+    connectedNodes: ["track_6_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
     title: "passivetree_swordcraft_rank_2",
@@ -489,6 +485,9 @@
     comment: "passivetree_spellcraft_rank_1_comment",
     passives: [
       {
+        id: "spellcraft_rank_1",
+      },
+      {
         id: "lifeMax",
         level: 40,
       },
@@ -509,6 +508,9 @@
     title: "passivetree_spellcraft_rank_2",
     comment: "passivetree_spellcraft_rank_2_comment",
     passives: [
+      {
+        id: "spellcraft_rank_2",
+      },
       {
         id: "lifeMax",
         level: 80,
@@ -531,6 +533,9 @@
     comment: "passivetree_spellcraft_rank_3_comment",
     passives: [
       {
+        id: "spellcraft_rank_3",
+      },
+      {
         id: "lifeMax",
         level: 120,
       },
@@ -552,6 +557,9 @@
     comment: "passivetree_spellcraft_rank_4_comment",
     passives: [
       {
+        id: "spellcraft_rank_4",
+      },
+      {
         id: "lifeMax",
         level: 160,
       },
@@ -572,6 +580,9 @@
     title: "passivetree_spellcraft_rank_5",
     comment: "passivetree_spellcraft_rank_5_comment",
     passives: [
+      {
+        id: "spellcraft_rank_5",
+      },
       {
         id: "lifeMax",
         level: 200,

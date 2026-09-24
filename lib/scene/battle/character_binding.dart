@@ -95,6 +95,9 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'drawCards':
         return ({object, positionalArgs, namedArgs}) =>
             character.drawCards(positionalArgs.first);
+      case 'ziweiDoushu':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.ziweiDoushu();
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);
     }

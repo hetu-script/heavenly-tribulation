@@ -1377,7 +1377,7 @@ final class GameData with ChangeNotifier {
         if (predictedAilment > 0) {
           display += '(${engine.locale('predictedAilmentHint').interpolate([
                 predictedAilment,
-                engine.locale('status_element_dot_${affix['damageType']}')
+                engine.locale('status_ailment_${affix['damageType']}')
               ])})';
         }
         if (predicted > original) {

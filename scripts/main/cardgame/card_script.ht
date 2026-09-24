@@ -13,6 +13,31 @@ namespace CardScript {
   function draw_cards(self, opponent, affix, mainAffix) {
     self.drawCards(affix.value[0])
   }
+
+  /// 紫微斗数（悟道分支「返朴归元」授予卡）：抽 1 张牌，如果是法术攻击牌，将其费用改为 0
+  /// 效果在 Dart 侧兑现（需要检视并修改所抽卡牌的数据与卡面）
+  function ziwei_doushu(self, opponent, affix, mainAffix) {
+    self.ziweiDoushu()
+  }
+
+  /// 万法归宗（悟道化神境界节点洗入牌库的绝世卡）：
+  /// 打出时耗尽全部灵气（含已支付的 10 点费用），根据实际耗费的灵气数量造成雷电伤害
+  function wanfa_guizong(self, opponent, affix, mainAffix) {
+    final paid = self.cardFlags['paidCost']?['energy_positive_spell'] ?? 0
+    final remaining = self.hasStatusEffect('energy_positive_spell')
+    if (remaining > 0) {
+      self.removeStatusEffect('energy_positive_spell', amount: remaining)
+    }
+    final total = paid + remaining
+    if (total <= 0) return
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: total * affix.value[0],
+    })
+  }
   
   /// ------------------------------------------------------------
   /// 主词条

@@ -396,13 +396,13 @@ const kDebuffs = [
   'debuff_crit',
   'debuff_ward',
   'debuff_shield',
-  'injury_external',
-  'injury_internal',
-  'injury_hallucination',
-  'element_dot_fire',
-  'element_dot_lightning',
-  'element_dot_ice',
-  'element_dot_poison',
+  'ailment_bleeding',
+  'ailment_internal_injury',
+  'ailment_hallucination',
+  'ailment_fire',
+  'ailment_lightning',
+  'ailment_ice',
+  'ailment_poison',
 ];
 
 const kDeckEphemeralCount = 3;
@@ -1378,6 +1378,21 @@ const kBattleBaseEnergy = 3;
 
 /// 战斗每回合基础抽牌数量（plan/battle_resource_rework.md 第三节）
 const kBattleDrawCount = 5;
+
+/// 观星默认查看的牌库顶卡牌数量（悟道分支「天道推演」；绝世装备可加成）
+const kScryCardCount = 3;
+
+/// 悟道还婴「五气朝元」轮转增强的套路顺序（依次授予对应 increase_damage_* 永久状态）
+const kWuxingRotationKinds = [
+  'waterbend',
+  'firebend',
+  'earthbend',
+  'airbend',
+  'lightning_control',
+];
+
+/// 悟道还婴「五气朝元」每回合授予的 increase_damage_* 层数（1 层 = +1%）
+const kWuxingEnhanceAmount = 10;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;

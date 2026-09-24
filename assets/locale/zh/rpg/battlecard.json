@@ -17,6 +17,8 @@
   "uniquecard_energy_positive_life": "先天功",
   "uniquecard_opponent_reduce_resist_all": "分心诀",
   "uniquecard_heal_vigor_all": "气疗术",
+  "uniquecard_ziwei_doushu": "紫微斗数",
+  "uniquecard_wanfa_guizong": "万法归宗",
 
   "battlecard_punch": "拳法",
   "battlecard_kick": "腿法",
@@ -108,6 +110,8 @@
   "battlecard_cost_lacking_hint": "{0}不足：需要 {1}，拥有 {2}",
 
   "affix_draw_cards": "抽取 {1} 张牌",
+  "affix_ziwei_doushu": "保留，消耗。抽 1 张牌，如果是法术攻击牌，将其费用改为 0",
+  "affix_wanfa_guizong": "保留。耗费 10+X 点灵气（打出时耗尽全部灵气），每点灵气造成 {0} 雷电伤害",
 
   "affix_attack_unarmed": "徒手攻击造成 {0} 物理伤害",
   "affix_attack_unarmed_vulnerable": "徒手攻击造成 {0} 物理伤害\n对手易伤 +{1}",

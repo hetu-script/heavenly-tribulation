@@ -500,83 +500,85 @@
     isDebuff: true,
   },
 
-  // 伤势
-  // 流血: 使用攻击牌后失去生命（治疗时的随机驱散由 Dart 侧 changeLife 统一处理）
-  injury_external: {
-    id: "injury_external",
-    title: "status_injury_external",
-    description: "status_injury_external_description",
-    icon: "icon/status/injury_external.png",
-    script: "injury_external",
+  // 元素异常（伤势类）：使用特定类别卡牌时失去生命（治疗时的随机驱散由 Dart 侧 changeLife 统一处理）
+  // 流血（金）: 使用攻击牌后失去生命
+  ailment_bleeding: {
+    id: "ailment_bleeding",
+    title: "status_ailment_bleeding",
+    description: "status_ailment_bleeding_description",
+    icon: "icon/status/ailment_bleeding.png",
+    script: "ailment_bleeding",
     isDebuff: true,
     callbacks: ["self_attacked"],
   },
-  injury_internal: {
-    id: "injury_internal",
-    title: "status_injury_internal",
-    description: "status_injury_internal_description",
-    icon: "icon/status/injury_internal.png",
-    script: "injury_internal",
+  // 内伤（土）: 使用加持牌后失去生命
+  ailment_internal_injury: {
+    id: "ailment_internal_injury",
+    title: "status_ailment_internal_injury",
+    description: "status_ailment_internal_injury_description",
+    icon: "icon/status/ailment_internal_injury.png",
+    script: "ailment_internal_injury",
     isDebuff: true,
-    callbacks: ["self_used_card", "self_gained_energy_positive"],
+    callbacks: ["self_used_card"],
   },
-  injury_hallucination: {
-    id: "injury_hallucination",
-    title: "status_injury_hallucination",
-    description: "status_injury_hallucination_description",
-    icon: "icon/status/injury_hallucination.png",
-    script: "injury_hallucination",
+  // 幻觉（风）: 回合开始时每层转化为 1 点缓慢，并耗尽层数
+  ailment_hallucination: {
+    id: "ailment_hallucination",
+    title: "status_ailment_hallucination",
+    description: "status_ailment_hallucination_description",
+    icon: "icon/status/ailment_hallucination.png",
+    script: "ailment_hallucination",
     isDebuff: true,
-    callbacks: ["self_turn_start", "self_gained_energy_positive"],
+    callbacks: ["self_turn_start"],
   },
 
-  // 元素持续伤害（DOT）：统一参数化脚本 element_dot
+  // 元素异常（持续伤害类）：统一参数化脚本 ailment
   // dotDamage = 固定伤害数值（感电为脚本内随机 1~10）；移除逻辑全部内联进脚本
-  // 点燃：回合开始时受到固定 5 点火焰伤害，同时移除 1 层（层数=剩余触发次数）
-  element_dot_fire: {
-    id: "element_dot_fire",
-    title: "status_element_dot_fire",
-    description: "status_element_dot_fire_description",
-    icon: "icon/status/element_dot_fire.png",
+  // 点燃（火）：回合开始时受到固定 5 点火焰伤害，同时移除 1 层（层数=剩余触发次数）
+  ailment_fire: {
+    id: "ailment_fire",
+    title: "status_ailment_fire",
+    description: "status_ailment_fire_description",
+    icon: "icon/status/ailment_fire.png",
     damageType: "fire",
     dotDamage: 5,
-    script: "element_dot",
+    script: "ailment",
     isDebuff: true,
     callbacks: ["self_turn_start"],
   },
-  // 感电：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
-  element_dot_lightning: {
-    id: "element_dot_lightning",
-    title: "status_element_dot_lightning",
-    description: "status_element_dot_lightning_description",
-    icon: "icon/status/element_dot_lightning.png",
+  // 感电（雷）：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
+  ailment_lightning: {
+    id: "ailment_lightning",
+    title: "status_ailment_lightning",
+    description: "status_ailment_lightning_description",
+    icon: "icon/status/ailment_lightning.png",
     damageType: "lightning",
     dotDamage: 0,
-    script: "element_dot",
+    script: "ailment",
     isDebuff: true,
     callbacks: ["self_turn_start"],
   },
-  // 冰缓：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并分别随机转化为缓慢或迟钝
-  element_dot_ice: {
-    id: "element_dot_ice",
-    title: "status_element_dot_ice",
-    description: "status_element_dot_ice_description",
-    icon: "icon/status/element_dot_ice.png",
+  // 冰缓（水）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并转化为迟钝
+  ailment_ice: {
+    id: "ailment_ice",
+    title: "status_ailment_ice",
+    description: "status_ailment_ice_description",
+    icon: "icon/status/ailment_ice.png",
     damageType: "ice",
     dotDamage: 1,
-    script: "element_dot",
+    script: "ailment",
     isDebuff: true,
     callbacks: ["self_turn_end"],
   },
-  // 中毒：回合结束时受到固定 5 点毒素伤害，不自动移除；治疗时驱散 1 层（与流血同规则）
-  element_dot_poison: {
-    id: "element_dot_poison",
-    title: "status_element_dot_poison",
-    description: "status_element_dot_poison_description",
-    icon: "icon/status/element_dot_poison.png",
+  // 中毒（木）：回合结束时受到固定 5 点毒素伤害，并移除 1 层
+  ailment_poison: {
+    id: "ailment_poison",
+    title: "status_ailment_poison",
+    description: "status_ailment_poison_description",
+    icon: "icon/status/ailment_poison.png",
     damageType: "poison",
     dotDamage: 5,
-    script: "element_dot",
+    script: "ailment",
     isDebuff: true,
     callbacks: ["self_turn_end"],
   },

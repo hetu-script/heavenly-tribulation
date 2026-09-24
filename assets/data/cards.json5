@@ -55,6 +55,10 @@
   // 3, 卡牌费用变成3点无色
   // isUnpackable:
   // 不会出现在卡包中
+  // retain:（可选）
+  // 保留：回合结束时此牌留在手牌中，不进入弃牌堆
+  // isEphemeral:（可选）
+  // 消耗：打出后碎裂，移出本场战斗
 
   // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
   placeholder: {
@@ -78,6 +82,61 @@
     image: "battlecard/illustration/punch_attack.png",
     script: "attack_rank_scaled",
     isUnpackable: true,
+  },
+
+  // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
+  // 紫微斗数：悟道分支「返朴归元」的战斗授予卡
+  // 保留，消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0（脚本 ziwei_doushu，效果在 Dart 侧兑现）
+  ziwei_doushu: {
+    id: "ziwei_doushu",
+    uniqueIds: ["ziwei_doushu"],
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    isUnique: true,
+    isUnpackable: true,
+    retain: true,
+    isEphemeral: true,
+    description: "affix_ziwei_doushu",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "ziwei_doushu",
+    coloredCost: { life: 0 },
+  },
+
+  // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
+  // 保留。耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 wanfa_guizong）
+  wanfa_guizong: {
+    id: "wanfa_guizong",
+    uniqueIds: ["wanfa_guizong"],
+    category: "attack",
+    genre: "spellcraft",
+    kind: "lightning_control",
+    cardType: "spell",
+    damageType: "lightning",
+    elementType: "element_lightning",
+    rank: 5,
+    isUnique: true,
+    isUnpackable: true,
+    retain: true,
+    description: "affix_wanfa_guizong",
+    image: "battlecard/illustration/spellcraft_lightning_attack.png",
+    animation: {
+      startup: ["spell_attack"],
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "wanfa_guizong",
+    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
+    valueData: [
+      {
+        base: 8,
+        increment: 0.1,
+      },
+    ],
   },
 
   // ------------绝世·加持------------

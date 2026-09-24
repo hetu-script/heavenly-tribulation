@@ -27,13 +27,11 @@
 
 /// 对方/自己获得阳气后 opponent/self_gained_energy_positive
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
-/// 对方/自己获得伤势后 opponent/self_gained_injury
 
 /// 对方/自己资源溢出时 opponent/self_overflowed_energy
 
 /// 对方/自己获得阳气后 opponent/self_gained_energy_positive
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
-/// 对方/自己获得伤势后 opponent/self_gained_injury
 
 /// 对方/自己使用卡牌时 opponent/self_using_card
 /// 对方/自己使用卡牌后 opponent/self_used_card
@@ -228,46 +226,33 @@ namespace StatusScript {
   }
 
 
-  function injury_external_self_attacked(self, opponent, effect, details) {
+  /// 流血（金）：使用攻击牌后，每层失去 5 点生命
+  function ailment_bleeding_self_attacked(self, opponent, effect, details) {
     self.changeLife(-effect.amount * 5)
   }
 
-  function injury_internal_self_used_card(self, opponent, effect, details) {
+  /// 内伤（土）：使用加持牌后，每层失去 5 点生命
+  function ailment_internal_injury_self_used_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'buff') return
 
     self.changeLife(-effect.amount * 5)
   }
 
-  /// 内伤：每次获得元气时，减少 1 层内伤
-  function injury_internal_self_gained_energy_positive(self, opponent, effect, details) {
-    if (details.id != 'energy_positive_life') return
-    self.removeStatusEffect(effect.id, amount: 1)
+  /// 幻觉（风）：回合开始时，每层转化为 1 点缓慢，并耗尽层数
+  function ailment_hallucination_self_turn_start(self, opponent, effect, details) {
+    self.addStatusEffect('speed_slow', amount: effect.amount)
+    self.removeStatusEffect(effect.id)
   }
 
-  function injury_hallucination_self_turn_start(self, opponent, effect, details) {
-    final isSlow = random.nextBool()
-    if (isSlow) {
-      self.addStatusEffect('speed_slow', amount: 1)
-    } else {
-      self.addStatusEffect('dodge_clumsy', amount: 1)
-    }
-  }
-
-  /// 幻觉：每次获得灵气（含无极之气）时，减少 1 层幻觉
-  function injury_hallucination_self_gained_energy_positive(self, opponent, effect, details) {
-    if (details.id != 'energy_positive_spell' && details.id != 'energy_positive_ultimate') return
-    self.removeStatusEffect(effect.id, amount: 1)
-  }
-
-  /// 元素持续伤害（DOT）统一脚本
+  /// 元素异常（持续伤害类）统一脚本
   /// 伤害受对应元素抗性减免（抗性净值由 getElementalResist 给出，含全元素抗性，上限 75%，允许负抗性加深），
   /// 并受施加方的元素异常伤害倍率（ailmentMultiplier）放大
   /// 点燃（火）：回合开始时受到固定 5 点火焰伤害，同时消耗 1 层（层数=剩余触发次数）
   /// 感电（雷）：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
-  /// 冰缓（冰）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并分别随机转化为缓慢或迟钝
-  /// 中毒（毒）：回合结束时受到固定 5 点毒素伤害，不自动消耗
+  /// 冰缓（水）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并转化为迟钝
+  /// 中毒（木）：回合结束时受到固定 5 点毒素伤害，并移除 1 层
   /// （DOT 与其他负面效果一样，由 Dart 侧 changeLife 在治疗时统一随机驱散）
-  function element_dot_self_turn_start(self, opponent, effect, details) {
+  function ailment_self_turn_start(self, opponent, effect, details) {
     final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
     final multiplier = (effect.ailmentMultiplier ?? 100) / 100
     if (effect.damageType == 'lightning') {
@@ -283,23 +268,20 @@ namespace StatusScript {
     }
   }
 
-  function element_dot_self_turn_end(self, opponent, effect, details) {
+  function ailment_self_turn_end(self, opponent, effect, details) {
     final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
     final multiplier = (effect.ailmentMultiplier ?? 100) / 100
     if (effect.damageType == 'ice') {
       for (final i in range(effect.amount)) {
         final dmg = (effect.dotDamage * multiplier * factor).round()
         if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
-        if (random.nextBool()) {
-          self.addStatusEffect('speed_slow', amount: 1)
-        } else {
-          self.addStatusEffect('dodge_clumsy', amount: 1)
-        }
+        self.addStatusEffect('dodge_clumsy', amount: 1)
       }
       self.removeStatusEffect(effect.id)
     } else if (effect.damageType == 'poison') {
       final dmg = (effect.dotDamage * multiplier * factor).round()
       if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
+      self.removeStatusEffect(effect.id, amount: 1)
     }
   }
 

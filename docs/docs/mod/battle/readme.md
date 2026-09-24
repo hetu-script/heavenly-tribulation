@@ -58,7 +58,6 @@
 | `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                                                                                                   |
 | `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                        |
 | `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                     |
-| `self/opponent_gained_injury`                              | 获得伤势后                                                                                                                                                                        |
 | `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（Dart 侧回合结束资源结算），该派发保留但为空转 |
 | `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                                   |
 | `self/opponent_attacked`                                   | 使用攻击牌后                                                                                                                                                                      |
