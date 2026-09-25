@@ -387,4 +387,38 @@
     script: "for_attribute_increase_damage",
     rank: 1,
   },
+
+  // ------------额外词条·时机回调------------
+  // 时机回调词条：效果不挂在打出时，而是挂在 callbacks 声明的时机上
+  // （函数名 = {script}_{时机}，契约见 docs/docs/mod/battle/card/readme.md）
+
+  // 保留（御剑流派专属）：入手时（added_to_hand）给卡牌添加 isRetained 标记，
+  // 回合结束清理手牌时留在手牌中；打出时无效果
+  retain: {
+    id: "retain",
+    uniqueId: "retain",
+    categories: ["buff", "attack"],
+    genres: ["swordcraft"],
+    rank: 2,
+    description: "affix_retain",
+    script: "retain",
+    callbacks: ["added_to_hand"],
+  },
+  // 观星（悟道流派专属）：打出时观星 value[0] 张牌
+  // （查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发）
+  scry: {
+    id: "scry",
+    uniqueId: "scry",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 2,
+    description: "affix_scry",
+    script: "scry",
+    valueData: [
+      {
+        base: 2,
+        increment: 0.2,
+      },
+    ],
+  },
 }

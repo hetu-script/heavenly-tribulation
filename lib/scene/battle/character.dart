@@ -1190,7 +1190,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       engine.hetu.invoke(
         scriptId,
         namespace: 'CardScript',
-        positionalArgs: [this, opponent, affix, mainAffix],
+        positionalArgs: [this, opponent, card.data, affix],
       );
     }
 
@@ -1208,7 +1208,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       engine.hetu.invoke(
         mainScriptId,
         namespace: 'CardScript',
-        positionalArgs: [this, opponent, mainAffix, mainAffix],
+        positionalArgs: [this, opponent, card.data, mainAffix],
       );
     }
 
@@ -1228,7 +1228,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       engine.hetu.invoke(
         scriptId,
         namespace: 'CardScript',
-        positionalArgs: [this, opponent, affix, mainAffix],
+        positionalArgs: [this, opponent, card.data, affix],
       );
     }
 

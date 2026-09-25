@@ -1,32 +1,202 @@
 // import 'battle_character.ht'
 
-/// 卡牌的每个词条都对应一个异步async脚本。
-/// 这个脚本将会在这张牌被打出时invoke
-
+/// ------------------------------------------------------------
+/// CardScript：卡牌词条脚本命名空间
+/// ------------------------------------------------------------
+/// 所有词条脚本的签名统一为 (self, opponent, card, affix)：
+///   self / opponent —— 出牌方 / 对方的战斗角色（BattleCharacter 外部类）
+///   card  —— 卡牌数据本体（BattleCard struct），可读写其字段（如 card.isRetained）；
+///            主词条经 card.affixes[0] 访问（kind / cardType / damageType 等以它为准）
+///   affix —— 本词条数据（可读 value / buffId / 自定义字段）
+///
+/// 打出时（on-play）：
+/// 每个词条都可以有一个打出时脚本，函数名 = 词条数据的 script 字段，
+/// 在这张牌被打出时 invoke。
+/// 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）
+///   → 其余额外词条（按 priority 降序）。
+///
+/// 时机回调：
+/// 词条数据声明 callbacks 列表后，会在对应时机调用 {script}_{时机} 函数，签名相同。
+/// 现有时机：added_to_hand（卡牌进入手牌区时）。
+/// 声明了 callbacks 的词条仍需 script 字段作为函数名前缀；
+/// 打出时无效果的词条需提供同名空函数占位（见 retain）。
+///
+/// 契约详情见 docs/docs/mod/battle/card/readme.md
+/// ------------------------------------------------------------
 namespace CardScript {
 
   /// ------------------------------------------------------------
-  /// 绝世词条
+  /// 牌库操作
   /// ------------------------------------------------------------
+
   /// 抽牌。
   /// 数据层可在词条上附带条件子表（字段：category / genre / cardType / kind / elementType 任意组合）：
   /// filter —— 从牌库中抽取完全符合全部指定字段的卡牌；
   /// reduceCost —— 抽到的牌若完全符合全部指定字段，费用降为 0
   /// （如悟道分支授予卡「紫微斗数」：reduceCost: { category: 'attack', cardType: 'spell' }）
-  function draw_cards(self, opponent, affix, mainAffix) {
+  function draw_cards(self, opponent, card, affix) {
     self.drawCards(affix.value[0], options: affix)
   }
 
   /// 观星：查看牌库顶 N 张牌（N = value[0]，缺省 3 张；不足则全显），
   /// 选一张放回牌库顶，其余进弃牌堆。牌库为空时不触发（观星不触发洗牌）。
-  /// 打出时触发；天赋分支「天道推演」的免费观星在回合开始抽牌前触发（Dart 侧直接调用）。
-  function scry(self, opponent, affix, mainAffix) {
+  /// 打出时触发（含悟道专属额外词条 scry）；
+  /// 天赋分支「天道推演」的免费观星在回合开始抽牌前触发（Dart 侧直接调用，不经过本函数）。
+  function scry(self, opponent, card, affix) {
     self.scry(count: affix.value?[0])
   }
 
+  /// ------------------------------------------------------------
+  /// 攻击
+  /// ------------------------------------------------------------
+
+  /// 攻击
+  function attack(self, opponent, card, affix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: affix.value[0],
+    })
+  }
+  /// 多次攻击
+  function attack_multiple(self, opponent, card, affix) {
+    for (final i in range(affix.value[1])) {
+      opponent.takeDamage({
+        isMain: true,
+        kind: affix.kind,
+        cardType: affix.cardType,
+        damageType: affix.damageType,
+        baseValue: affix.value[0],
+      })
+    }
+  }
+  /// 攻击附带施加减益
+  function attack_debuff(self, opponent, card, affix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: affix.value[0],
+    })
+    opponent.addStatusEffect(affix.buffId, amount: affix.value[1])
+  }
+
+  /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
+  /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
+  function attack_rank_scaled(self, opponent, card, affix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: self.data.rank * 5,
+    })
+  }
+
+  /// ------------------------------------------------------------
+  /// 增益 / 减益
+  /// ------------------------------------------------------------
+
+  /// 获得速度和防御
+  function speed_quick_defend(self, opponent, card, affix) {
+    self.addStatusEffect('speed_quick', amount: affix.value[0])
+    self.addStatusEffect('defense', amount: affix.value[1])
+  }
+  /// 获得闪避和防御
+  function dodge_nimble_defend(self, opponent, card, affix) {
+    self.addStatusEffect('dodge_nimble', amount: affix.value[0])
+    self.addStatusEffect('defense', amount: affix.value[1])
+  }
+
+  /// 提升生命上限
+  function buff_lifemax(self, opponent, card, affix) {
+    self.setLifeMax(self.lifeMax + affix.value[0], rejuvenate: true)
+  }
+  /// 降低对手生命上限
+  function debuff_lifemax(self, opponent, card, affix) {
+    opponent.setLifeMax(opponent.lifeMax - affix.value[0])
+  }
+
+  /// 获得生命
+  function heal(self, opponent, card, affix) {
+    self.changeLife(affix.value[0], isHeal: true)
+  }
+  /// 回复生命上限百分比的生命，可以超过上限
+  function heal_lifeMax(self, opponent, card, affix) {
+    final regen = (affix.value[0] / 100 * self.lifeMax).round()
+    self.changeLife(regen, isHeal: true)
+  }
+
+  /// 获得增益
+  function self_buff(self, opponent, card, affix) {
+    self.addStatusEffect(affix.buffId, amount: affix.value[0])
+  }
+
+  /// 对手获得减益
+  function opponent_debuff(self, opponent, card, affix) {
+    opponent.addStatusEffect(affix.buffId, amount: affix.value[0])
+  }
+
+  /// 降低对手全部元素抗性（以弱点形式附加，与抗性互相抵消）
+  function opponent_reduce_resist_all(self, opponent, card, affix) {
+    for (var elementResist in ['fire', 'ice', 'lightning', 'poison']) {
+      opponent.addStatusEffect('weakness_${elementResist}', amount: affix.value[0])
+    }
+  }
+
+  /// 降低对手全部类型的攻击力
+  function opponent_weaken_attack_all(self, opponent, card, affix) {
+    for (var attackType in ['unarmed', 'weapon', 'spell', 'curse']) {
+      opponent.addStatusEffect('weaken_${attackType}', amount: affix.value[0])
+    }
+  }
+
+  /// ------------------------------------------------------------
+  /// 资源转化
+  /// ------------------------------------------------------------
+
+  /// 归元功（绝世）：消耗自身所有元气，每点元气回复 生命上限 × 词条值% 的生命
+  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用（见 plan/battle_resource_rework.md）
+  function heal_vigor_all(self, opponent, card, affix) {
+    final vigor = self.hasStatusEffect('energy_positive_life')
+    if (vigor <= 0) return
+    self.removeStatusEffect('energy_positive_life', amount: vigor)
+    final regen = (affix.value[0] / 100 * vigor * self.lifeMax).round()
+    if (regen > 0) self.changeLife(regen, isHeal: true)
+  }
+
+  /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气（见 plan/battle_qi_conversion.md）
+  /// 词条值 100 = 1:1（四色）；50 = 1:0.5（无极，向下取整，不足 2 点元气无产出）
+  /// 模板同 heal_vigor_all：消耗走效果而非费用，费用恒 0
+  function convert_vigor_all(self, opponent, card, affix) {
+    final vigor = self.hasStatusEffect('energy_positive_life')
+    if (vigor <= 0) return
+    self.removeStatusEffect('energy_positive_life', amount: vigor)
+    final amount = (vigor * affix.value[0] / 100).floor()
+    if (amount > 0) self.addStatusEffect(affix.buffId, amount: amount)
+  }
+
+  /// 费用返还（额外词条）：按此牌实际支付量返还全部所消耗的气
+  /// 依赖 Dart 侧在支付时写入 self.cardFlags['paidCost']（键 = 状态 id，值 = 实际扣除层数）
+  function refund_cost(self, opponent, card, affix) {
+    final paidCost = self.cardFlags['paidCost']
+    if (paidCost == null) return
+    for (final statusId in paidCost.keys) {
+      final amount = paidCost[statusId]
+      if (amount > 0) self.addStatusEffect(statusId, amount: amount)
+    }
+  }
+
+  /// ------------------------------------------------------------
+  /// 绝世卡专属
+  /// ------------------------------------------------------------
+
   /// 万法归宗（悟道化神境界节点洗入牌库的绝世卡）：
   /// 打出时耗尽全部灵气（含已支付的 10 点费用），根据实际耗费的灵气数量造成雷电伤害
-  function spellcraft_ultimate_spell(self, opponent, affix, mainAffix) {
+  function spellcraft_ultimate_spell(self, opponent, card, affix) {
     final paid = self.cardFlags['paidCost']?['energy_positive_spell'] ?? 0
     final remaining = self.hasStatusEffect('energy_positive_spell')
     if (remaining > 0) {
@@ -42,147 +212,13 @@ namespace CardScript {
       baseValue: total * affix.value[0],
     })
   }
-  
+
   /// ------------------------------------------------------------
-  /// 主词条
+  /// 攻击联动（额外词条）
   /// ------------------------------------------------------------
-  /// 攻击
-  function attack(self, opponent, affix, mainAffix) {
-    opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: affix.value[0],
-    })
-  }
-  /// 多次攻击
-  function attack_multiple(self, opponent, affix, mainAffix) {
-    for (final i in range(affix.value[1])) {
-      opponent.takeDamage({
-        isMain: true,
-        kind: affix.kind,
-        cardType: affix.cardType,
-        damageType: affix.damageType,
-        baseValue: affix.value[0],
-      })
-    }
-  }
-  /// 攻击附带施加减益
-  function attack_debuff(self, opponent, affix, mainAffix) {
-    opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: affix.value[0],
-    })
-    opponent.addStatusEffect(affix.buffId, amount: affix.value[1])
-  }
-
-  /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
-  /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
-  function attack_rank_scaled(self, opponent, affix, mainAffix) {
-    opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: self.data.rank * 5,
-    })
-  }
-
-  /// 获得速度和防御
-  function speed_quick_defend(self, opponent, affix, mainAffix) {
-    self.addStatusEffect('speed_quick', amount: affix.value[0])
-    self.addStatusEffect('defense', amount: affix.value[1])
-  }
-  /// 获得闪避和防御
-  function dodge_nimble_defend(self, opponent, affix, mainAffix) {
-    self.addStatusEffect('dodge_nimble', amount: affix.value[0])
-    self.addStatusEffect('defense', amount: affix.value[1])
-  }
-
-  /// 提升生命上限
-  function buff_lifemax(self, opponent, affix, mainAffix) {
-    self.setLifeMax(self.lifeMax + affix.value[0], rejuvenate: true)
-  }
-  /// 降低对手生命上限
-  function debuff_lifemax(self, opponent, affix, mainAffix) {
-    opponent.setLifeMax(opponent.lifeMax - affix.value[0])
-  }
-
-  /// 加持
-
-  /// 获得生命
-  function heal(self, opponent, affix, mainAffix) {
-    self.changeLife(affix.value[0], isHeal: true)
-  }
-  /// 回复生命上限百分比的生命，可以超过上限
-  function heal_lifeMax(self, opponent, affix, mainAffix) {
-    final regen = (affix.value[0] / 100 * self.lifeMax).round()
-    self.changeLife(regen, isHeal: true)
-  }
-
-  /// 归元功（绝世）：消耗自身所有元气，每点元气回复 生命上限 × 词条值% 的生命
-  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用（见 plan/battle_resource_rework.md）
-  function heal_vigor_all(self, opponent, affix, mainAffix) {
-    final vigor = self.hasStatusEffect('energy_positive_life')
-    if (vigor <= 0) return
-    self.removeStatusEffect('energy_positive_life', amount: vigor)
-    final regen = (affix.value[0] / 100 * vigor * self.lifeMax).round()
-    if (regen > 0) self.changeLife(regen, isHeal: true)
-  }
-
-  /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气（见 plan/battle_qi_conversion.md）
-  /// 词条值 100 = 1:1（四色）；50 = 1:0.5（无极，向下取整，不足 2 点元气无产出）
-  /// 模板同 heal_vigor_all：消耗走效果而非费用，费用恒 0
-  function convert_vigor_all(self, opponent, affix, mainAffix) {
-    final vigor = self.hasStatusEffect('energy_positive_life')
-    if (vigor <= 0) return
-    self.removeStatusEffect('energy_positive_life', amount: vigor)
-    final amount = (vigor * affix.value[0] / 100).floor()
-    if (amount > 0) self.addStatusEffect(affix.buffId, amount: amount)
-  }
-
-  /// 费用返还（额外词条）：按此牌实际支付量返还全部所消耗的气
-  /// 依赖 Dart 侧在支付时写入 self.cardFlags['paidCost']（键 = 状态 id，值 = 实际扣除层数）
-  function refund_cost(self, opponent, affix, mainAffix) {
-    final paidCost = self.cardFlags['paidCost']
-    if (paidCost == null) return
-    for (final statusId in paidCost.keys) {
-      final amount = paidCost[statusId]
-      if (amount > 0) self.addStatusEffect(statusId, amount: amount)
-    }
-  }
-  
-  /// 获得增益
-  function self_buff(self, opponent, affix, mainAffix) {
-    self.addStatusEffect(affix.buffId, amount: affix.value[0])
-  }
-  
-  /// 对手获得减益
-  function opponent_debuff(self, opponent, affix, mainAffix) {
-    opponent.addStatusEffect(affix.buffId, amount: affix.value[0])
-  }
-
-  /// 降低对手全部元素抗性（以弱点形式附加，与抗性互相抵消）
-  function opponent_reduce_resist_all(self, opponent, affix, mainAffix) {
-    for (var elementResist in ['fire', 'ice', 'lightning', 'poison']) {
-      opponent.addStatusEffect('weakness_${elementResist}', amount: affix.value[0])
-    }
-  }
-
-  function opponent_weaken_attack_all(self, opponent, affix, mainAffix) {
-    for (var attackType in ['unarmed', 'weapon', 'spell', 'curse']) {
-      opponent.addStatusEffect('weaken_${attackType}', amount: affix.value[0])
-    }
-  }
-
-  /// 攻击额外词条
 
   /// 攻击后每造成10点伤害回复生命
-  function by_damage_heal(self, opponent, affix, mainAffix) {
+  function by_damage_heal(self, opponent, card, affix) {
     final cardDamage = self.cardFlags.damage.total ?? 0
     if (cardDamage < 10) return
     final amount = (cardDamage / 10).floor()
@@ -190,7 +226,7 @@ namespace CardScript {
   }
 
   /// 攻击后每造成10点伤害获得防御
-  function by_damage_defend(self, opponent, affix, mainAffix) {
+  function by_damage_defend(self, opponent, card, affix) {
     final cardDamage = self.cardFlags.damage.total ?? 0
     if (cardDamage < 10) return
     final amount = (cardDamage / 10).floor()
@@ -198,9 +234,23 @@ namespace CardScript {
   }
 
   /// 根据属性提升伤害
-  function for_attribute_increase_damage(self, opponent, affix, mainAffix) {
+  function for_attribute_increase_damage(self, opponent, card, affix) {
     final amount = self.data.stats[affix.attributeId] * 0.005
     self.cardFlags.damage.percentageChange1 += amount
+  }
+
+  /// ------------------------------------------------------------
+  /// 时机回调
+  /// ------------------------------------------------------------
+
+  /// 保留（御剑流派专属词条）的打出时占位函数：
+  /// 效果挂在 added_to_hand 回调上，打出时无效果
+  function retain(self, opponent, card, affix) {}
+
+  /// 保留：入手时给卡牌添加 isRetained 标记，
+  /// 回合结束清理手牌时（clearHand keepRetained）留在手牌中
+  function retain_added_to_hand(self, opponent, card, affix) {
+    card.isRetained = true
   }
 
 }

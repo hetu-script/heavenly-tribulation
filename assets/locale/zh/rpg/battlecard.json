@@ -109,9 +109,9 @@
 
   "battlecard_cost_lacking_hint": "{0}不足：需要 {1}，拥有 {2}",
 
-  "affix_draw_cards": "抽取 {1} 张牌",
-  "affix_spellcraft_draw_cards_reduce_cost": "保留，消耗。抽 1 张牌，如果是法术攻击牌，将其费用改为 0",
-  "affix_spellcraft_ultimate_spell": "保留。耗费 10+X 点灵气（打出时耗尽全部灵气），每点灵气造成 {0} 雷电伤害",
+  "affix_draw_cards": "抽取 {0} 张牌",
+  "affix_spellcraft_draw_cards_reduce_cost": "消耗。抽 1 张牌，如果是法术攻击牌，将其费用改为 0",
+  "affix_spellcraft_ultimate_spell": "耗费 10+X 点灵气（打出时耗尽全部灵气），每点灵气造成 {0} 雷电伤害",
 
   "affix_attack_unarmed": "徒手攻击造成 {0} 物理伤害",
   "affix_attack_unarmed_vulnerable": "徒手攻击造成 {0} 物理伤害\n对手易伤 +{1}",
@@ -162,6 +162,9 @@
   "affix_convert_vigor_curse": "消耗所有元气，每点元气转化为 1 点煞气",
   "affix_convert_vigor_ultimate": "消耗所有元气，每 2 点元气转化为 1 点无极之气（向下取整）",
   "affix_refund_cost": "打出后返还此牌所消耗的气",
+
+  "affix_retain": "保留：回合结束时不弃牌",
+  "affix_scry": "观星 {0} 张牌",
 
   "affix_opponent_energy_negative_life": "对手死气 +{0}",
   "affix_opponent_energy_negative_spell": "对手逆灵之气 +{0}",

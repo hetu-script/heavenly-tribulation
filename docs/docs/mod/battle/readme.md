@@ -6,7 +6,7 @@
 4. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
 5. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消）
 6. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus；
-   有色气产出已随 enable_* 清理移除，待新天赋树初始节点落地，见 plan/battle_resource_rework.md），刷新能量瓶
+   有色气产出已随 enable\_\* 清理移除，待新天赋树初始节点落地，见 plan/battle_resource_rework.md），刷新能量瓶
 7. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
 8. 出牌阶段（若标记跳过则略过本阶段）：
    - 玩家：点击卡牌 → `_enqueueCard`（`heroTurn` 守卫 + 费用硬检查，含队列占用）
@@ -41,48 +41,48 @@
 - 状态回调必须是**非阻塞**函数（不能 async）。
 - 一个事件触发时，遍历持有者全部状态，声明了该时机（`callbacks` 字段）的才会执行；
   执行顺序：**永久状态 → 资源状态（阴阳气）→ 其他状态**。
-- 卡牌脚本：命名空间 `CardScript`（主词条，签名 `(self, opponent, affix, mainAffix)`）/
-  `priority` 为负数的额外词条在主词条**之前**执行，其余按 priority 降序执行。
+- 卡牌脚本：命名空间 `CardScript`（统一签名 `(self, opponent, card, affix)`，
+  主词条经 `card.affixes[0]` 访问），
+  `priority` 为负数的额外词条在主词条**之前**执行，其余按 priority 降序执行；
+  打出之外的词条时机回调（`callbacks` 字段，如入手 `added_to_hand`）见
+  [卡牌词条回调](card/readme.md)（`docs/docs/mod/battle/card/readme.md`）。
 - `details` 是一个共享 Map，**既是入参也是出参**：脚本写入的修正值会被 Dart 侧读取。
 
 ## 回调时机清单
 
-| 时机                                                       | 说明                                                                                                                                                                              |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                                                                                                                           |
-| `self/opponent_deck_start` / `self/opponent_deck_end`      | 自己/对方卡组第一张牌、最后一张牌                                                                                                                                                 |
-| `self/opponent_consumed`                                   | 使用消耗牌后                                                                                                                                                                      |
-| `self/opponent_heal`                                       | 恢复生命时（仅 changeLife 的 isHeal 分支触发）                                                                                                                                    |
-| `self/opponent_doing_damage`                               | 造成伤害时（可修改 damageDetails）                                                                                                                                                |
-| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                                                                                                           |
-| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                                                                                                   |
-| `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                        |
-| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                     |
+| 时机                                                       | 说明                                                                                                                                                                       |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                                                                                                                    |
+|                                                            | `self/opponent_doing_damage`                                                                                                                                               | 造成伤害时（可修改 damageDetails） |
+| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                                                                                                    |
+| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                                                                                            |
+| `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                 |
+| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                                                     |
 | `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（Dart 侧回合结束资源结算），该派发保留但为空转 |
-| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                                   |
-| `self/opponent_attacked`                                   | 使用攻击牌后                                                                                                                                                                      |
-| `self/opponent_use_card_kind_*`                            | 使用特定流派（kind）卡牌时                                                                                                                                                        |
-| `self/opponent_use_card_genre_*`                           | 使用特定学类（genre）卡牌时                                                                                                                                                       |
-| `self/opponent_extra_turn`                                 | 再次行动时                                                                                                                                                                        |
+| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                            |
+| `self/opponent_attacked`                                   | 使用攻击牌后                                                                                                                                                               |
+| `self/opponent_use_card_kind_*`                            | 使用特定流派（kind）卡牌时                                                                                                                                                 |
+| `self/opponent_use_card_genre_*`                           | 使用特定学类（genre）卡牌时                                                                                                                                                |
+| `self/opponent_extra_turn`                                 | 再次行动时                                                                                                                                                                 |
 
 ## damageDetails 键（伤害事件）
 
 伤害结算公式：`(baseValue + baseChange) × (1 + percentageChange1) × (1 + percentageChange2) × (1 + percentageChange3)`，
 之后依次结算暴击（仅物理）、护甲（仅物理/真气）。乘区 1 最小值为 -0.75。
 
-| 键                                 | 方向 | 含义                                                      |
-| ---------------------------------- | ---- | --------------------------------------------------------- |
-| `kind` / `cardType` / `damageType` | 入   | 攻击流派 / 卡牌类型 / 伤害类型                            |
-| `baseValue`                        | 入   | 伤害基础值                                                |
-| `isMain`                           | 入   | 是否来自主词条攻击（false 表示状态或额外词条造成的伤害）  |
-| `baseChange`                       | 出   | 基础值修正（数值加减）                                    |
-| `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75） |
-| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）              |
-| `percentageChange3`                | 出   | 乘区 3：预留                                              |
+| 键                                 | 方向 | 含义                                                                                                     |
+| ---------------------------------- | ---- | -------------------------------------------------------------------------------------------------------- |
+| `kind` / `cardType` / `damageType` | 入   | 攻击流派 / 卡牌类型 / 伤害类型                                                                           |
+| `baseValue`                        | 入   | 伤害基础值                                                                                               |
+| `isMain`                           | 入   | 是否来自主词条攻击（false 表示状态或额外词条造成的伤害）                                                 |
+| `baseChange`                       | 出   | 基础值修正（数值加减）                                                                                   |
+| `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75）                                                |
+| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）                                                             |
+| `percentageChange3`                | 出   | 乘区 3：预留                                                                                             |
 | `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
-| `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                              |
-| `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                             |
-| `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                           |
+| `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                                                                             |
+| `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                                                                            |
+| `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                                                                          |
 
 注意：攻击方的 `cardFlags['damage']` 中的 `baseChange/percentageChange*/penetration`
 会在 takeDamage 开始时合并进 damageDetails。
@@ -119,13 +119,13 @@
 
 每次出牌时重置并写入：
 
-| 字段                      | 含义                                              |
-| ------------------------- | ------------------------------------------------- |
-| `category`                | attack / buff                                     |
-| `genre` / `kind`          | 学类 / 流派                                       |
-| `cardType` / `damageType` | 主词条的卡牌类型 / 伤害类型                       |
-| `damage.total`            | 本张牌已造成的总伤害（takeDamage 累加）           |
-| `damage.penetration` 等   | 脚本可写入（如正气消耗后 +0.2），出牌时合并进伤害 |
+| 字段                      | 含义                                                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `category`                | attack / buff                                                                                              |
+| `genre` / `kind`          | 学类 / 流派                                                                                                |
+| `cardType` / `damageType` | 主词条的卡牌类型 / 伤害类型                                                                                |
+| `damage.total`            | 本张牌已造成的总伤害（takeDamage 累加）                                                                    |
+| `damage.penetration` 等   | 脚本可写入（如正气消耗后 +0.2），出牌时合并进伤害                                                          |
 | `paidCost`                | 本张牌实际支付明细（状态 id → 实际扣除层数，含元气与无极抵扣；0 费卡为空表），支付时写入，费用返还词条读取 |
 
 ## turnFlags 字段（回合期间，`角色.turnFlags`）

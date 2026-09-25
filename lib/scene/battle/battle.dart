@@ -527,19 +527,6 @@ class BattleScene extends Scene {
     };
     world.add(heroHandZone);
 
-    // 悟道分支「返朴归元」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」加入手牌
-    if (heroData['passives']['skilltree_branch_draw_1'] != null) {
-      final grantedData = engine.hetu.invoke('BattleCard', namedArgs: {
-        'affixId': 'spellcraft_draw_cards_reduce_cost',
-        'isIdentified': true
-      });
-      final card = GameData.createBattleCard(grantedData, deepCopyData: true);
-      card.isFlipped = false;
-      world.add(card);
-      heroHandZone.tryAddCard(card);
-      await heroHandZone.sortCards();
-    }
-
     final String heroSkinId = heroData['skin'];
     final String heroGenre = heroData['cultivationFavor'];
     final Set<String> heroAnimationStates = {};
@@ -724,6 +711,38 @@ class BattleScene extends Scene {
     // 将弃牌堆和手牌区的卡牌归还牌库
     await _returnAllCardsToDecks();
 
+    // 悟道分支「返朴归元」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」加入手牌。
+    // 必须在归还全部卡牌之后授予，否则会被洗回牌库；
+    // 战斗重开时卡牌可能已在牌库/弃牌堆中（或已打出碎裂移出战斗），
+    // 先查找再决定是否重新创建，避免重复授予。
+    if (heroData['passives']['skilltree_branch_draw_1'] != null) {
+      CustomGameCard? granted;
+      for (final zone in [heroHandZone, heroDeckZone, heroDiscardZone]) {
+        for (final c in zone.cards) {
+          final card = c as CustomGameCard;
+          if (card.data['uniqueId'] == 'spellcraft_draw_cards_reduce_cost') {
+            granted = card;
+            break;
+          }
+        }
+        if (granted != null) break;
+      }
+      if (granted == null) {
+        granted = GameData.createBattleCard(
+          engine.hetu.invoke('BattleCard', namedArgs: {
+            'affixId': 'spellcraft_draw_cards_reduce_cost',
+            'isIdentified': true
+          }),
+          deepCopyData: true,
+        );
+        world.add(granted);
+      }
+      granted.isFlipped = false;
+      heroHandZone.tryAddCard(granted);
+      handleCardAffixCallback('added_to_hand', granted, hero);
+      await heroHandZone.sortCards();
+    }
+
     /// 根据身法加权随机决定先手，偷袭时英雄直接先手
     if (isSneakAttack) {
       isFirsthand = true;
@@ -786,12 +805,14 @@ class BattleScene extends Scene {
   }
 
   /// 清空手牌进弃牌堆。
-  /// [keepRetained] 为 true 时，带有 isRetain 标记（保留）的卡牌留在手牌中；
+  /// [keepRetained] 为 true 时，带有 isRetained 标记（保留）的卡牌留在手牌中；
+  /// isRetained 由卡牌词条的入手回调动态写入（如御剑专属词条 retain，
+  /// 见 added_to_hand 时机，契约见 docs/docs/mod/battle/card/readme.md）。
   /// 回合结束调用时应传 true，战斗重开清理时传 false（全部回库）。
   Future<void> clearHand(HandZone hand, DiscardZone discard,
       {bool animated = true, bool keepRetained = false}) async {
     for (final card in hand.cards.reversed.toList()) {
-      if (keepRetained && (card as CustomGameCard).data['isRetain'] == true) {
+      if (keepRetained && (card as CustomGameCard).data['isRetained'] == true) {
         continue;
       }
       card.isFlipped = true;
@@ -883,6 +904,10 @@ class BattleScene extends Scene {
       if (card != null) {
         hand.tryAddCard(card, sort: true);
 
+        // 入手回调时机（added_to_hand）：如保留词条在此写入 isRetained 标记
+        handleCardAffixCallback(
+            'added_to_hand', card, hand == heroHandZone ? hero : enemy);
+
         // 减费：完全符合 reduceCost 全部指定字段的卡牌费用降为 0
         if (reduceCost != null &&
             matchCardCriteria(card.data['affixes'][0], reduceCost)) {
@@ -913,6 +938,26 @@ class BattleScene extends Scene {
       if (matchCardCriteria(card.data['affixes'][0], criteria)) return card;
     }
     return null;
+  }
+
+  /// 卡牌词条回调派发（契约见 docs/docs/mod/battle/card/readme.md）：
+  /// 遍历卡牌全部词条（含主词条），词条数据的 callbacks 列表声明了 [timing] 的，
+  /// 调用 CardScript 命名空间下的 `{script}_{timing}` 函数，
+  /// 签名与打出时一致：(self, opponent, card, affix)。
+  void handleCardAffixCallback(
+      String timing, CustomGameCard card, BattleCharacter character) {
+    final List affixes = card.data['affixes'];
+    for (final affix in affixes) {
+      final scriptId = affix['script'];
+      if (scriptId == null) continue;
+      final callbacks = affix['callbacks'];
+      if (callbacks is! List || !callbacks.contains(timing)) continue;
+      engine.hetu.invoke(
+        '${scriptId}_$timing',
+        namespace: 'CardScript',
+        positionalArgs: [character, character.opponent, card.data, affix],
+      );
+    }
   }
 
   /// 观星：查看牌库顶 [count] 张牌（不足则全显），选一张放回牌库顶，其余进弃牌堆。
