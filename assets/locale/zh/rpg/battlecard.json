@@ -105,12 +105,12 @@
   "element_lightning": "雷",
 
   "exhaustResource": "费用",
-  "exhaustResource_description": "每张卡牌只需一种资源才能打出：流派卡牌支付对应的有色气（灵气/剑气/怒气/煞气），中立卡牌支付元气",
+  "exhaustResource_description": "每张卡牌只需一种资源才能打出: 流派卡牌支付对应的有色气（灵气/剑气/怒气/煞气），中立卡牌支付元气",
 
-  "battlecard_cost_lacking_hint": "{0}不足：需要 {1}，拥有 {2}",
+  "battlecard_cost_lacking_hint": "{0}不足: 需要 {1}，拥有 {2}",
 
   "affix_draw_cards": "抽取 {0} 张牌",
-  "affix_spellcraft_draw_cards_reduce_cost": "消耗。抽 1 张牌，如果是法术攻击牌，将其费用改为 0",
+  "affix_spellcraft_draw_cards_reduce_cost": "消耗\n抽 1 张牌，如果是法术攻击牌，将其费用改为 0",
   "affix_spellcraft_ultimate_spell": "耗费 10+X 点灵气（打出时耗尽全部灵气），每点灵气造成 {0} 雷电伤害",
 
   "affix_attack_unarmed": "徒手攻击造成 {0} 物理伤害",
@@ -163,8 +163,10 @@
   "affix_convert_vigor_ultimate": "消耗所有元气，每 2 点元气转化为 1 点无极之气（向下取整）",
   "affix_refund_cost": "打出后返还此牌所消耗的气",
 
-  "affix_retain": "保留：回合结束时不弃牌",
-  "affix_scry": "观星 {0} 张牌",
+  "affix_retain": "保留",
+  "affix_retain_description": "回合结束时若未使用，此牌留在手牌中，不进入弃牌区",
+  "affix_scry": "观星",
+  "affix_scry_description": "查看牌库顶 3 张牌，选择一张后，将其余卡牌放入弃牌区",
 
   "affix_opponent_energy_negative_life": "对手死气 +{0}",
   "affix_opponent_energy_negative_spell": "对手逆灵之气 +{0}",

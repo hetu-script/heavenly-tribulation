@@ -403,6 +403,7 @@
     description: "affix_retain",
     script: "retain",
     callbacks: ["added_to_hand"],
+    keywords: ["affix_retain"],
   },
   // 观星（悟道流派专属）：打出时观星 value[0] 张牌
   // （查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发）
@@ -416,9 +417,10 @@
     script: "scry",
     valueData: [
       {
-        base: 2,
-        increment: 0.2,
+        base: 3,
+        maxLevel: 0,
       },
     ],
+    keywords: ["affix_scry"],
   },
 }

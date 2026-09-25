@@ -402,12 +402,10 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
     character.stats.poisonResist = character.stats.poisonResistMax
   }
 
-  // 神识每 20 点: 速度和闪避阈值 -1
-  character.stats.quickThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.quickThreshold?.value + character.ephemeralPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  // 念力每 20 点: 缓慢和迟钝阈值 +1
-  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.slowThreshold?.value + character.ephemeralPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold - character.stats.perception ~/ 20 + character.passives.nimbleThreshold?.value + character.ephemeralPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
-  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.stats.willpower ~/ 20 + character.passives.clumsyThreshold?.value + character.ephemeralPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.quickThreshold = (Constants.baseTurnActionThreshold + character.passives.quickThreshold?.value + character.ephemeralPassives.quickThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.slowThreshold = (Constants.baseTurnActionThreshold + character.passives.slowThreshold?.value + character.ephemeralPassives.slowThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.nimbleThreshold = (Constants.baseTurnActionThreshold + character.passives.nimbleThreshold?.value + character.ephemeralPassives.nimbleThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
+  character.stats.clumsyThreshold = (Constants.baseTurnActionThreshold + character.passives.clumsyThreshold?.value + character.ephemeralPassives.clumsyThreshold?.value).clamp(Constants.minTurnActionThreshold, Constants.maxTurnActionThreshold)
 
   if (rejuvenate) {
     setCharacterLife(character, character.stats.lifeMax)

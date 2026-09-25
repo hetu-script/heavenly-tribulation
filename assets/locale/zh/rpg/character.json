@@ -8,16 +8,15 @@
   "rank_description": "提升境界可以提升修为等级上限，还可以让你使用更多法宝和战斗卡牌，以及解锁更多关键的天道技能。",
 
   "dexterity": "身法",
-  "dexterity_description": "御剑流派主属性。增加先手概率，降低偷窃难度。",
+  "dexterity_description": "增加先手概率，降低偷窃难度。\n御剑流凝气境：每 10 点身法，战斗开始时获得 1 点剑气。",
   "spirituality": "灵力",
-  "spirituality_description": "悟道流派主属性。每 10 点灵力: 战斗开始时获得 1 点灵气。",
+  "spirituality_description": "悟道流凝气境：每 10 点灵力，回合开始时获得 1 点灵气。",
   "willpower": "念力",
-  "willpower_description": "炼魂流派主属性。每 10 点念力: 每回合煞气提取量 +1；每 20 点念力: 缓慢和迟钝阈值 +1 (最大 15)。",
+  "willpower_description": "炼魂流凝气境：每 5 点念力，战斗开始时的煞气提取量 +1。",
   "perception": "神识",
-  "perception_description": "法身流派主属性。每 1 点神识: 每个月可探查对手手牌 +1；每 20 点神识: 速度和闪避阈值 -1 (最小 5)。",
+  "perception_description": "法身流凝气境：每 25 点神识: 每回合获得的元气 +1",
   "strength": "体魄",
-  "strength_description": "锻体流派主属性。每 1 点体魄: 战斗时生命上限 +1，材料载重 +1。",
-
+  "strength_description": "每 1 点体魄: 战斗时生命上限 +1，材料载重 +1。\n锻体流凝气境：每 10 点体魄，战斗开始时获得 1 点怒气。",
 
   "tribulationCount": "劫数",
   "tribulationCountMax": "劫数上限",
@@ -65,7 +64,7 @@
   "battleEnergyBonus_description": "每回合开始时额外获得的元气数量。",
   "deckMinSizeReduce": "卡组数量下限",
   "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（不会低于 10）。",
-  
+
   "unarmedAttack": "徒手攻击",
   "unarmedAttack_description": "每点使你的徒手攻击伤害增加 1%。",
   "weaponAttack": "武器攻击",

@@ -184,8 +184,8 @@
   },
 
   // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
-  // 紫微斗数：悟道分支「返朴归元」的战斗授予卡
-  // 消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0
+  // 紫微斗数：分支「紫微斗数」的战斗授予卡
+  // 消耗。抽一张牌，将其费用改为 0
   // （复用抽牌脚本 draw_cards，减费条件由 reduceCost 子表驱动，效果在 Dart 侧兑现；
   // 预定义额外词条 retain 提供保留：入手时添加 isRetained 标记，回合结束不弃牌）
   spellcraft_draw_cards_reduce_cost: {
@@ -205,7 +205,7 @@
     },
     script: "draw_cards",
     coloredCost: { life: 0 },
-    reduceCost: { category: "attack", cardType: "spell" },
+    reduceCost: {},
     valueData: [
       {
         base: 1,

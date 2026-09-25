@@ -50,7 +50,7 @@ const kCardCriteriaFields = [
 /// criteria 为 Map 或 HTStruct（故为 dynamic）；仅 [kCardCriteriaFields] 中的
 /// 非空字段参与匹配，其余键忽略。criteria 为空视为无条件（恒为 true）。
 bool matchCardCriteria(dynamic affixData, dynamic criteria) {
-  if (criteria == null) return true;
+  if (criteria == null || criteria.isEmpty) return true;
   for (final field in kCardCriteriaFields) {
     final expected = criteria[field];
     if (expected != null && affixData[field] != expected) return false;

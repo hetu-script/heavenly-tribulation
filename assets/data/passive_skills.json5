@@ -183,7 +183,7 @@
     isAttribute: true,
   },
   track_6_1: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_2"],
     isAttribute: true,
   },
@@ -215,12 +215,12 @@
     isAttribute: true,
   },
   track_6_37: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_38"],
     isAttribute: true,
   },
   track_6_39: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_38"],
     isAttribute: true,
   },
@@ -269,18 +269,13 @@
   },
 
   // 御剑+悟道: 灵力主轴
-  track_2_1: {
+  track_3_2: {
     size: "small",
     connectedNodes: [],
     isAttribute: true,
   },
-  track_3_2: {
-    size: "small",
-    connectedNodes: ["track_2_1"],
-    isAttribute: true,
-  },
   track_4_2: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_3_2"],
     isAttribute: true,
   },
@@ -300,7 +295,7 @@
     isAttribute: true,
   },
   track_8_4: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_7_4"],
     isAttribute: true,
   },
@@ -322,12 +317,12 @@
     isAttribute: true,
   },
   track_6_5: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_6"],
     isAttribute: true,
   },
   track_6_7: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_6"],
     isAttribute: true,
   },
@@ -472,18 +467,13 @@
   },
 
   // 悟道+炼魂: 神识主轴
-  track_2_3: {
+  track_3_6: {
     size: "small",
     connectedNodes: [],
     isAttribute: true,
   },
-  track_3_6: {
-    size: "small",
-    connectedNodes: ["track_2_3"],
-    isAttribute: true,
-  },
   track_4_6: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_3_6"],
     isAttribute: true,
   },
@@ -503,7 +493,7 @@
     isAttribute: true,
   },
   track_8_12: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_7_12"],
     isAttribute: true,
   },
@@ -525,12 +515,12 @@
     isAttribute: true,
   },
   track_6_11: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_10"],
     isAttribute: true,
   },
   track_6_9: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_10"],
     isAttribute: true,
   },
@@ -557,12 +547,12 @@
     isAttribute: true,
   },
   track_6_13: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_14"],
     isAttribute: true,
   },
   track_6_15: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_14"],
     isAttribute: true,
   },
@@ -691,18 +681,13 @@
   },
 
   // 炼魂+法身: 念力主轴
-  track_2_5: {
-    size: "small",
-    connectedNodes: [""],
-    isAttribute: true,
-  },
   track_3_10: {
     size: "small",
-    connectedNodes: ["track_2_5"],
+    connectedNodes: [],
     isAttribute: true,
   },
   track_4_10: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_3_10"],
     isAttribute: true,
   },
@@ -722,7 +707,7 @@
     isAttribute: true,
   },
   track_8_20: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_7_20"],
     isAttribute: true,
   },
@@ -744,12 +729,12 @@
     isAttribute: true,
   },
   track_6_19: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_18"],
     isAttribute: true,
   },
   track_6_17: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_18"],
     isAttribute: true,
   },
@@ -776,12 +761,12 @@
     isAttribute: true,
   },
   track_6_21: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_22"],
     isAttribute: true,
   },
   track_6_23: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_22"],
     isAttribute: true,
   },
@@ -910,18 +895,13 @@
   },
 
   // 法身+锻体: 体魄主轴
-  track_2_7: {
-    size: "small",
-    connectedNodes: [""],
-    isAttribute: true,
-  },
   track_3_14: {
     size: "small",
-    connectedNodes: ["track_2_7"],
+    connectedNodes: [],
     isAttribute: true,
   },
   track_4_14: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_3_14"],
     isAttribute: true,
   },
@@ -941,7 +921,7 @@
     isAttribute: true,
   },
   track_8_28: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_7_28"],
     isAttribute: true,
   },
@@ -963,7 +943,7 @@
     isAttribute: true,
   },
   track_6_25: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_26"],
     isAttribute: true,
   },
@@ -995,12 +975,12 @@
     isAttribute: true,
   },
   track_6_29: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_30"],
     isAttribute: true,
   },
   track_6_31: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_30"],
     isAttribute: true,
   },
@@ -1129,18 +1109,13 @@
   },
 
   // 锻体+御剑: 身法主轴
-  track_2_9: {
+  track_3_18: {
     size: "small",
     connectedNodes: [],
     isAttribute: true,
   },
-  track_3_18: {
-    size: "small",
-    connectedNodes: ["track_2_9"],
-    isAttribute: true,
-  },
   track_4_18: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_3_18"],
     isAttribute: true,
   },
@@ -1160,7 +1135,7 @@
     isAttribute: true,
   },
   track_8_36: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_7_36"],
     isAttribute: true,
   },
@@ -1182,12 +1157,12 @@
     isAttribute: true,
   },
   track_6_35: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_34"],
     isAttribute: true,
   },
   track_6_33: {
-    size: "medium",
+    size: "small",
     connectedNodes: ["track_6_34"],
     isAttribute: true,
   },
