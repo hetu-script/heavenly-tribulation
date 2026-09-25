@@ -1,6 +1,9 @@
 {
   // id:
-  // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+  // uniqueIds
+  // 非null的词条的uniqueId只会在一张卡牌上出现一次。不会和主词条已有的,uniqueIds列表重复
+  // uniqueId
+  // 只有绝世卡牌有单独的uniqueId，这决定了卡牌
   // category:
   // 类别，分为攻击（attack），加持（buff）两种
   // genre:
@@ -15,9 +18,10 @@
   // 使用卡牌需要符合境界要求
   // 境界影响卡牌的额外词条数量和种类以及卡牌等级上限
   // damageType:
-  // 伤害类型，一共五种，物理，真气，元素，精神，纯粹
+  // 伤害类型，一共八种，物理，真气，精神，冰，火，雷，毒，纯粹
   // elementType: null,
   // 元素类型，只有悟道流法术拥有元素类型，会和某些天赋、道具、卡牌产生互动。
+  // 元素类型包含七种：金，木，水，火，土，风，雷
   // buffId: null,
   // 增益或减益的ID，对应status_effect.jon5中的数据id
   // image:卡牌插画
@@ -42,12 +46,6 @@
   // value: [0]
   // 实际值=base+level*increment
   // 每个值可能有自己的maxLevel
-  // isUnique:
-  // 绝世卡牌，属性列表固定，但数值在范围内随机。
-  // 绝世卡牌只能在卡组中放入一张
-  // 绝世卡牌的名字固定（不按 kind 随机生成）：以 uniquecard_{主词条id} 为键，
-  // 保存在 assets/locale/zh/rpg/battlecard.json 中；新增绝世卡牌时必须同步添加该键，
-  // 否则卡名会显示为原始键名
   // isExalted:（未实现，暂缓——目前仅是设计构想，无任何代码实现）
   // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
   // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
@@ -55,10 +53,13 @@
   // 3, 卡牌费用变成3点无色
   // isUnpackable:
   // 不会出现在卡包中
-  // retain:（可选）
-  // 保留：回合结束时此牌留在手牌中，不进入弃牌堆
   // isEphemeral:（可选）
   // 消耗：打出后碎裂，移出本场战斗
+  // isUnique:
+  // 绝世卡牌，属性列表固定，但数值在范围内随机。
+  // 绝世卡牌只能在卡组中放入一张
+  // 绝世卡牌的名字固定（不按 kind 随机生成）：以 uniquecard_{主词条id} 为键，
+  // 保存在 assets/locale/zh/rpg/battlecard.json 中；新增绝世卡牌时必须同步添加该键，
 
   // 占位卡：什么都不做（木人/练习模式填充卡组用，木人没有攻击动画）
   placeholder: {
@@ -84,74 +85,10 @@
     isUnpackable: true,
   },
 
-  // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
-  // 紫微斗数：悟道分支「返朴归元」的战斗授予卡
-  // 保留，消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0
-  // （复用抽牌脚本 draw_cards，减费条件由 reduceCost 子表驱动，效果在 Dart 侧兑现）
-  spellcraft_draw_cards_reduce_cost: {
-    id: "spellcraft_draw_cards_reduce_cost",
-    uniqueIds: ["spellcraft_draw_cards_reduce_cost"],
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    cardType: "xinfa",
-    isUnique: true,
-    isUnpackable: true,
-    retain: true,
-    isEphemeral: true,
-    description: "affix_spellcraft_draw_cards_reduce_cost",
-    image: "battlecard/illustration/unique_draw_cards.png",
-    animation: {
-      startup: ["spell_buff"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "draw_cards",
-    coloredCost: { life: 0 },
-    reduceCost: { category: "attack", cardType: "spell" },
-    valueData: [
-      {
-        base: 1,
-        increment: 0,
-      },
-    ],
-  },
-
-  // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
-  // 保留。耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
-  spellcraft_ultimate_spell: {
-    id: "spellcraft_ultimate_spell",
-    uniqueIds: ["spellcraft_ultimate_spell"],
-    category: "attack",
-    genre: "spellcraft",
-    kind: "lightning_control",
-    cardType: "spell",
-    damageType: "lightning",
-    elementType: "element_lightning",
-    rank: 5,
-    isUnique: true,
-    isUnpackable: true,
-    retain: true,
-    description: "affix_spellcraft_ultimate_spell",
-    image: "battlecard/illustration/spellcraft_lightning_attack.png",
-    animation: {
-      startup: ["spell_attack"],
-      sound: "magic-smite-6012.mp3",
-    },
-    script: "spellcraft_ultimate_spell",
-    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
-    valueData: [
-      {
-        base: 8,
-        increment: 0.1,
-      },
-    ],
-  },
-
   // ------------绝世·加持------------
   // 抽牌
   draw_cards: {
     id: "draw_cards",
-    uniqueIds: ["draw_cards"],
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
@@ -175,7 +112,6 @@
   // 获得元气
   energy_positive_life: {
     id: "energy_positive_life",
-    uniqueIds: ["energy_positive_life"],
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
@@ -200,7 +136,6 @@
   // 降低全抗
   opponent_reduce_resist_all: {
     id: "opponent_reduce_resist_all",
-    uniqueIds: ["opponent_reduce_resist"],
     category: "buff",
     cardType: "curse",
     kind: "power_word",
@@ -226,7 +161,6 @@
   // 每点元气回复 生命上限 × 词条值% 的生命（词条值为百分数 = 10 × 等级；插画临时复用中立治疗卡）
   heal_vigor_all: {
     id: "heal_vigor_all",
-    uniqueIds: ["heal_vigor_all"],
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
@@ -245,6 +179,66 @@
       {
         base: 5,
         increment: 0.2,
+      },
+    ],
+  },
+
+  // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
+  // 紫微斗数：悟道分支「返朴归元」的战斗授予卡
+  // 保留，消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0
+  // （复用抽牌脚本 draw_cards，减费条件由 reduceCost 子表驱动，效果在 Dart 侧兑现）
+  spellcraft_draw_cards_reduce_cost: {
+    id: "spellcraft_draw_cards_reduce_cost",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    isUnique: true,
+    isUnpackable: true,
+    isEphemeral: true,
+    description: "affix_spellcraft_draw_cards_reduce_cost",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "draw_cards",
+    coloredCost: { life: 0 },
+    reduceCost: { category: "attack", cardType: "spell" },
+    valueData: [
+      {
+        base: 1,
+        increment: 0,
+      },
+    ],
+    affixes: ["retain"],
+  },
+
+  // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
+  // 耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
+  spellcraft_ultimate_spell: {
+    id: "spellcraft_ultimate_spell",
+    category: "attack",
+    genre: "spellcraft",
+    kind: "lightning_control",
+    cardType: "spell",
+    damageType: "lightning",
+    elementType: "element_lightning",
+    rank: 5,
+    isUnique: true,
+    isUnpackable: true,
+    description: "affix_spellcraft_ultimate_spell",
+    image: "battlecard/illustration/spellcraft_lightning_attack.png",
+    animation: {
+      startup: ["spell_attack"],
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "spellcraft_ultimate_spell",
+    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
+    valueData: [
+      {
+        base: 8,
+        increment: 0.1,
       },
     ],
   },

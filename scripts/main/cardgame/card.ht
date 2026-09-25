@@ -175,13 +175,8 @@ struct BattleCard {
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
     this.rank = mainAffix.rank = mainAffixRank
     // 数据层卡牌定义上的标记合并到卡牌实例（Dart 侧读取 card.data 上的这些字段）：
-    // isEphemeral（消耗：打出后碎裂移出战斗）、retain（保留：回合结束留在手牌）
-    if (mainAffix.isEphemeral == true) {
-      this.isEphemeral = true
-    }
-    if (mainAffix.retain == true) {
-      this.retain = true
-    }
+    // isEphemeral（消耗：打出后碎裂移出战斗）
+    this.isEphemeral = mainAffix.isEphemeral ?? false
     this.isUnique = mainAffix.isUnique ?? false
     if (this.isUnique) {
       this.uniqueId = mainAffix.uniqueId ?? mainAffix.id
@@ -225,10 +220,8 @@ struct BattleCard {
     _updateAffixValue(this, mainAffix)
 
     final affixUniqueIds = []
-    if (mainAffix.uniqueIds) {
+    if (mainAffix.uniqueIds is List) {
       affixUniqueIds.addAll(mainAffix.uniqueIds)
-    } else if (mainAffix.uniqueId) {
-      affixUniqueIds.add(mainAffix.uniqueId)
     }
 
     this.affixUniqueIds = affixUniqueIds
@@ -331,19 +324,23 @@ function _addAffixToCard(card, affix, rank, {index}) {
 }
 
 function _updateAffixUniqueIds(card) {
-  card.affixUniqueIds = Set()
   card.keywords = Set()
+  if (!card.isUnique) {
+    card.affixUniqueIds = Set()
+  }
   for (final affix in card.affixes) {
-    if (affix.isMain) {
-      if (affix.uniqueIds is List) {
-        card.affixUniqueIds.addAll(affix.uniqueIds)
+    card.keywords.addAll(affix.keywords ?? [])
+    if (!card.isUnique) {
+      if (affix.isMain) {
+        if (affix.uniqueIds is List) {
+          card.affixUniqueIds.addAll(affix.uniqueIds)
+        } else if (affix.uniqueId is string) {
+          card.affixUniqueIds.add(affix.uniqueId)
+        }
       } else if (affix.uniqueId is string) {
         card.affixUniqueIds.add(affix.uniqueId)
       }
-    } else if (affix.uniqueId is string) {
-      card.affixUniqueIds.add(affix.uniqueId)
     }
-    card.keywords.addAll(affix.keywords ?? [])
   }
 }
 

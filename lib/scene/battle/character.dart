@@ -776,10 +776,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (hp > life) {
       if (isHeal) {
-        // 触发对方恢复生命时的效果
-        opponent!.handleStatusEffectCallback('opponent_heal');
-        // 触发自己恢复生命时的效果
-        handleStatusEffectCallback('self_heal');
+        // // 触发对方恢复生命时的效果
+        // opponent!.handleStatusEffectCallback('opponent_heal');
+        // // 触发自己恢复生命时的效果
+        // handleStatusEffectCallback('self_heal');
 
         // 治疗驱散：随机移除一层持有的负面效果（kDebuffs 池，含伤势与元素 DOT）
         final heldDebuffs = _statusEffects.values
@@ -1256,6 +1256,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       handleStatusEffectCallback('self_attacked');
       // 触发对方被发动攻击后的效果
       opponent!.handleStatusEffectCallback('opponent_attacked');
+    } else if (mainAffix['category'] == 'buff') {
+      // 触发自己发动加持后的效果
+      handleStatusEffectCallback('self_buffed');
+      // 触发对方被发动加持后的效果
+      opponent!.handleStatusEffectCallback('opponent_buffed');
     }
 
     final delta = _sw.elapsedMilliseconds;
@@ -1370,15 +1375,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 元素牌判定：elementType 非空（七元素标记，激活数据层的 elementType 字段），
-  /// 或伤害类型属于火/冰/雷/毒（兼容未标 elementType 的旧卡）。
   bool _isElementCardData(dynamic cardData) {
     if (cardData['elementType'] != null) return true;
-    return const {'fire', 'ice', 'lightning', 'poison'}
-        .contains(cardData['damageType']);
+    // return const {'fire', 'ice', 'lightning', 'poison'}
+    //     .contains(cardData['damageType']);
+    return false;
   }
 
   /// 抱真守一（悟道分支）：从手牌区随机取一张元素牌，经 hetu upgradeCard 升级
   /// （等级 +1 并按公式重算主词条数值；战斗用牌是深拷贝，不影响卡库）。
+  /// TODO: 放大然后缩小卡牌，动画提示被升级
   Future<void> _upgradeRandomElementCardInHand() async {
     final battleScene = game as BattleScene;
     final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;

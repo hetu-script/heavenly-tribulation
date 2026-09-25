@@ -786,12 +786,12 @@ class BattleScene extends Scene {
   }
 
   /// 清空手牌进弃牌堆。
-  /// [keepRetained] 为 true 时，带有 retain 标记（保留）的卡牌留在手牌中；
+  /// [keepRetained] 为 true 时，带有 isRetain 标记（保留）的卡牌留在手牌中；
   /// 回合结束调用时应传 true，战斗重开清理时传 false（全部回库）。
   Future<void> clearHand(HandZone hand, DiscardZone discard,
       {bool animated = true, bool keepRetained = false}) async {
     for (final card in hand.cards.reversed.toList()) {
-      if (keepRetained && (card as CustomGameCard).data['retain'] == true) {
+      if (keepRetained && (card as CustomGameCard).data['isRetain'] == true) {
         continue;
       }
       card.isFlipped = true;
