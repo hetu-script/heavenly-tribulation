@@ -24,16 +24,12 @@ function updateCardCost(card) {
       costs[color] = _calcCostAmount(explicitCostColored[color], card.rank)
     }
   } else {
-    final colors = Constants.genreCostColors[card.genre]
+    // 兜底：有色费用 = rank，无色费用 = ((card.rank + 1) / 2).floor()
+    final color = Constants.genreColoredCost[card.genre]
     if (colors != null) {
-      // 兜底：有色总计 = rank，多色对半拆、余数给列表首位
-      final half = (card.rank / colors.length).floor()
-      final remainder = card.rank % colors.length
-      for (var i = 0; i < colors.length; ++i) {
-        costs[colors[i]] = half + (i < remainder ? 1 : 0)
-      }
+      costs[color] = card.rank
     } else {
-      costs[Constants.colorlessCostColorId] = card.rank + 1
+      costs[Constants.colorlessCostColorId] = ((card.rank + 1) / 2).floor()
     }
   }
   // life 在首位：渲染时元气在费用行基准位置（最右）；0 值条目不写入（显式 0 = 免费）

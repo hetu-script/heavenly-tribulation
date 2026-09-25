@@ -364,11 +364,11 @@ const kGenreToAttribute = {
 /// 流派 → 费用色映射（战斗费用系统，见 plan/battle_resource_rework.md 单资源模型）
 /// 仅用于缺省兜底推导（数据层约定所有卡显式写 coloredCost）；
 /// 法身（avatar）无有色气产出、基础卡组花元气，故不在表中
-const kGenreCostColors = {
-  'spellcraft': ['spell'],
-  'swordcraft': ['weapon'],
-  'bodyforge': ['unarmed'],
-  'vitality': ['curse'],
+const kGenreColoredCost = {
+  'spellcraft': 'spell',
+  'swordcraft': 'weapon',
+  'bodyforge': 'unarmed',
+  'vitality': 'curse',
 };
 
 /// 费用色 → 阳气状态 id 映射（基础卡的有色费用仅限这 4 色）

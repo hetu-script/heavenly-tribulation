@@ -615,7 +615,7 @@ final class GameData with ChangeNotifier {
 
       // 模型校验：流派卡 Σ有色 == rank 且不含元气；中立卡（含法身）life == rank+1 且不含有色
       final bool isColoredGenre =
-          kGenreCostColors.containsKey(cardData['genre']);
+          kGenreColoredCost.containsKey(cardData['genre']);
       if (isColoredGenre) {
         if (coloredCostSum != rank || hasLifeKey) {
           engine.warning('卡牌 [$cardId] 费用与单资源模型不符：流派卡应为 '

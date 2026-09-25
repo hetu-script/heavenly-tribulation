@@ -75,8 +75,8 @@ class Constants extends HTExternalClass {
         return kAttributeToGenre;
       case 'Constants.genreToAttribute':
         return kGenreToAttribute;
-      case 'Constants.genreCostColors':
-        return kGenreCostColors;
+      case 'Constants.genreColoredCost':
+        return kGenreColoredCost;
       case 'Constants.costColorStatusIds':
         return kCostColorStatusIds;
       case 'Constants.colorlessCostColorId':

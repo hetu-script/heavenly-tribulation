@@ -126,7 +126,7 @@
 
 ### 步骤 4：新卡牌数据（cards.json5 + battlecard.json）
 
-头部注释登记新字段 `retain`（保留：回合结束不弃牌）。参照现有 isUnique 卡（85-175 行区段）新增：
+头部注释登记新字段 `isRetain`（保留：回合结束不弃牌）。参照现有 isUnique 卡（85-175 行区段）新增：
 
 - `spellcraft_draw_cards_reduce_cost` 紫微斗数：genre spellcraft、category buff、`retain: true`、`isEphemeral: true`（消耗=打出碎裂）、`coloredCost: {life: 0}`、script `spellcraft_draw_cards_reduce_cost`。**确认其不进入随机生成池**（参照 blank_default 的排除方式，必要时在 BattleCard 构造器过滤）。
 - `spellcraft_ultimate_spell` 万法归宗：genre spellcraft、category attack、cardType spell、kind lightning_control、damageType lightning、isUnique、`retain: true`、`coloredCost: {spell: {base: 10, rankIncrement: 0}}`、script `spellcraft_ultimate_spell`、valueData 提供每层灵气伤害（base 8 起步，数值可调）。

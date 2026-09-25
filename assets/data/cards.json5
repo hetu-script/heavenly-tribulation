@@ -101,7 +101,7 @@
     },
     script: "draw_cards",
     keywords: ["exhaustResource"],
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -149,7 +149,7 @@
     },
     script: "reduce_resist_all",
     keywords: ["status_resist"],
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 5,
@@ -260,7 +260,7 @@
     },
     script: "attack",
     equipment: null,
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 7,
@@ -283,7 +283,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -307,7 +307,7 @@
     },
     script: "attack",
     equipment: "sword",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 11,
@@ -331,7 +331,7 @@
     },
     script: "attack",
     equipment: "sabre",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 12,
@@ -355,7 +355,7 @@
     },
     script: "attack",
     equipment: "spear",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 13,
@@ -379,7 +379,7 @@
     },
     script: "attack",
     equipment: "staff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 9,
@@ -401,7 +401,7 @@
     },
     script: "attack",
     equipment: "bow",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 10,
@@ -424,7 +424,7 @@
     },
     script: "attack_multiple",
     equipment: "dart",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 6,
@@ -454,7 +454,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 5,
@@ -477,7 +477,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 6,
@@ -502,7 +502,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "sabre",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -526,7 +526,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "sword",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 7,
@@ -550,7 +550,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "spear",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 9,
@@ -574,7 +574,7 @@
     buffId: "defense",
     script: "self_buff",
     equipment: "staff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 10,
@@ -597,7 +597,7 @@
     },
     script: "speed_quick_defend",
     keywords: ["status_speed_quick", "status_defense"],
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -623,7 +623,7 @@
     },
     script: "dodge_nimble_defend",
     keywords: ["status_dodge_nimble", "status_defense"],
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -652,7 +652,7 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "heal",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 8,
@@ -1886,7 +1886,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 6,
@@ -1916,7 +1916,7 @@
       sound: "punch-or-kick-sound-effect-1-239696.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "staff",
     valueData: [
       {
@@ -1947,7 +1947,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     equipment: "spear",
     valueData: [
       {
@@ -1978,7 +1978,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 22,
@@ -2003,7 +2003,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2028,7 +2028,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "staff",
     valueData: [
@@ -2054,7 +2054,7 @@
     },
     buffId: "defense",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     equipment: "spear",
     valueData: [
@@ -2080,7 +2080,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "dodge_nimble_defend",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     keywords: ["status_defense"],
     valueData: [
       {
@@ -2112,7 +2112,7 @@
     },
     buffId: "buff_crit",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -2139,7 +2139,7 @@
     },
     buffId: "buff_ward",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
@@ -2166,7 +2166,7 @@
     },
     buffId: "buff_shield",
     script: "self_buff",
-    coloredCost: { life: { base: 1, rankIncrement: 1 } },
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
