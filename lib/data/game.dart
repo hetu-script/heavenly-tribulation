@@ -131,6 +131,10 @@ final class GameData with ChangeNotifier {
   static final Map<String, dynamic> items = {};
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveSkills = {};
+
+  /// 天赋树无向邻接表（由 passiveSkills 的 connectedNodes 派生，每条边双向登记，
+  /// 数据上每条边只需在任意一端写一次）
+  static final Map<String, List<String>> passiveSkillsAdjacency = {};
   static final Map<String, dynamic> craftables = {};
   static final Map<String, dynamic> journals = {};
   static final Map<String, dynamic> quests = {};
@@ -330,6 +334,18 @@ final class GameData with ChangeNotifier {
     final passiveSkillsDataString =
         await rootBundle.loadString('assets/data/passive_skills.json5');
     passiveSkills.addAll(JSON5.parse(passiveSkillsDataString));
+
+    // 构建天赋树无向邻接表：对每条 connectedNodes 边同时登记反向，
+    // 解锁开放判断与退点连通性检查均以该表为准
+    passiveSkillsAdjacency.clear();
+    for (final entry in passiveSkills.entries) {
+      final List? connected = entry.value['connectedNodes'];
+      if (connected == null) continue;
+      for (final other in connected) {
+        passiveSkillsAdjacency.putIfAbsent(entry.key, () => []).add(other);
+        passiveSkillsAdjacency.putIfAbsent(other, () => []).add(entry.key);
+      }
+    }
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');

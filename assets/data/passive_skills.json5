@@ -27,7 +27,6 @@
     size: "small",
     connectedNodes: ["track_0_0"],
     isAttribute: true,
-    isOpen: true,
   },
   track_2_0: {
     size: "small",
@@ -343,7 +342,6 @@
     size: "small",
     connectedNodes: ["track_0_1"],
     isAttribute: true,
-    isOpen: true,
   },
   track_2_2: {
     size: "small",

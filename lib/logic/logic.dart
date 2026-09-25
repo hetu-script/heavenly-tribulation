@@ -1408,6 +1408,10 @@ final class GameLogic {
           dynamic character, String nodeId) =>
       _characterRefundPassiveTreeNode(character, nodeId);
 
+  /// 检查退回某个天赋树节点后，剩余已解锁节点是否仍全部与入口连通
+  static bool checkPassiveTreeRefundable(dynamic character, String nodeId) =>
+      _checkPassiveTreeRefundable(character, nodeId);
+
   static void characterAllocateSkills(dynamic character,
           {bool rejuvenate = true}) =>
       _characterAllocateSkills(character, rejuvenate: rejuvenate);

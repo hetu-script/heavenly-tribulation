@@ -2116,6 +2116,34 @@ void _characterRefundPassiveTreeNode(
   unlockedNodes.remove(nodeId);
 }
 
+/// 检查退回 [nodeId] 后，[character] 剩余已解锁的天赋树节点
+/// 是否仍然全部与根节点（入口节点）连通。
+/// 沿无向邻接表（GameData.passiveSkillsAdjacency）从所有已解锁根节点做 BFS，
+/// 覆盖全部剩余节点才可退。纯检查函数，不修改任何数据。
+bool _checkPassiveTreeRefundable(dynamic character, String nodeId) {
+  final unlockedNodes = character['unlockedPassiveTreeNodes'];
+  if (!unlockedNodes.contains(nodeId)) return false;
+
+  final remaining = unlockedNodes.keys.where((id) => id != nodeId).toSet();
+  if (remaining.isEmpty) return true;
+
+  // 从所有已解锁的根节点（入口）出发做无向 BFS
+  final visited = <String>{};
+  final stack = <String>[
+    for (final id in remaining)
+      if (GameData.passiveSkills[id]?['isOpen'] == true) id,
+  ];
+  while (stack.isNotEmpty) {
+    final current = stack.removeLast();
+    if (!visited.add(current)) continue;
+    for (final adjacent
+        in GameData.passiveSkillsAdjacency[current] ?? const <String>[]) {
+      if (remaining.contains(adjacent)) stack.add(adjacent);
+    }
+  }
+  return visited.length == remaining.length;
+}
+
 void _characterAllocateSkills(dynamic character, {bool rejuvenate = true}) {
   // final genre = character['cultivationFavor'];
   // final style = character['cultivationStyle'];

@@ -129,6 +129,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
+  json5:
+    dependency: "direct main"
+    description:
+      name: json5
+      sha256: b67d6e06c9e225c8277d3c43f796677af7975a2a2b0669ff12ba38ff466a31f4
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.8.2"
   lints:
     dependency: "direct dev"
     description:

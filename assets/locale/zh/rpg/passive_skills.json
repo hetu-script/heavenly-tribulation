@@ -7,6 +7,8 @@
   "passivetree_points_hint": "<red>不可用: 可分配天道技能点数不足。</>",
 
   "passivetree_rank_node_no_refund_hint": "境界节点不可退回。",
+  "passivetree_entry_locked_hint": "<red>不可用: 已选定流派起点。如需更换流派，请先退回全部已解锁节点。</>",
+  "passivetree_disconnect_refund_hint": "<red>不可退回: 退回后将有已解锁节点与流派起点失去连接。</>",
 
   "passivetree_passives_description_title": "从技能和装备中获得的属性",
   "passivetree_ephemeral_passives_description_title": "临时获得的属性",
