@@ -7,7 +7,7 @@
   // 流派，御剑，悟道，炼魂等，如果为null表示无流派
   // 流派仅表示获得方法，使用时并无限制
   // cardType:
-  // 卡牌类型，一共七种，徒手，武器，身法，心法，道法，咒语，神通(divinity)
+  // 卡牌类型，一共七种，徒手，武器，法术，咒语，身法，心法，神通(divinity)
   // kind:
   // kind决定了卡牌名字类型，例如剑法，咒语等等
   // 虽然并非强制，但多数时候kind和战斗动画也是对应的
@@ -86,10 +86,11 @@
 
   // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
   // 紫微斗数：悟道分支「返朴归元」的战斗授予卡
-  // 保留，消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0（脚本 ziwei_doushu，效果在 Dart 侧兑现）
-  ziwei_doushu: {
-    id: "ziwei_doushu",
-    uniqueIds: ["ziwei_doushu"],
+  // 保留，消耗。抽一张牌，如果是法术攻击牌，将其费用改为 0
+  // （复用抽牌脚本 draw_cards，减费条件由 reduceCost 子表驱动，效果在 Dart 侧兑现）
+  spellcraft_draw_cards_reduce_cost: {
+    id: "spellcraft_draw_cards_reduce_cost",
+    uniqueIds: ["spellcraft_draw_cards_reduce_cost"],
     category: "buff",
     genre: "spellcraft",
     kind: "xinfa",
@@ -98,21 +99,28 @@
     isUnpackable: true,
     retain: true,
     isEphemeral: true,
-    description: "affix_ziwei_doushu",
+    description: "affix_spellcraft_draw_cards_reduce_cost",
     image: "battlecard/illustration/unique_draw_cards.png",
     animation: {
       startup: ["spell_buff"],
       sound: "spell-of-healing-876.mp3",
     },
-    script: "ziwei_doushu",
+    script: "draw_cards",
     coloredCost: { life: 0 },
+    reduceCost: { category: "attack", cardType: "spell" },
+    valueData: [
+      {
+        base: 1,
+        increment: 0,
+      },
+    ],
   },
 
   // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
-  // 保留。耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 wanfa_guizong）
-  wanfa_guizong: {
-    id: "wanfa_guizong",
-    uniqueIds: ["wanfa_guizong"],
+  // 保留。耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
+  spellcraft_ultimate_spell: {
+    id: "spellcraft_ultimate_spell",
+    uniqueIds: ["spellcraft_ultimate_spell"],
     category: "attack",
     genre: "spellcraft",
     kind: "lightning_control",
@@ -123,13 +131,13 @@
     isUnique: true,
     isUnpackable: true,
     retain: true,
-    description: "affix_wanfa_guizong",
+    description: "affix_spellcraft_ultimate_spell",
     image: "battlecard/illustration/spellcraft_lightning_attack.png",
     animation: {
       startup: ["spell_attack"],
       sound: "magic-smite-6012.mp3",
     },
-    script: "wanfa_guizong",
+    script: "spellcraft_ultimate_spell",
     coloredCost: { spell: { base: 10, rankIncrement: 0 } },
     valueData: [
       {

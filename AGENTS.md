@@ -16,6 +16,10 @@ No need for actual build.
 
 This project is still in progress, so no need to consider save/data/api backward compatibility.
 
+## About Code
+
+这是一个中国风游戏项目，但我们要尽量避免在代码和数据中使用拼音。使用对应的英文含义代替作为命名。本地化字符串是中国风味即可。
+
 # 项目: 天道奇劫 (Heavenly Tribulation)
 
 **天道奇劫** 是一款仙侠题材的 RPG 游戏，融合了 Roguelike、卡牌战斗、经营建设和大地图探索玩法。设计灵感来源于《太阁立志传》《弈仙牌》《Battle Brothers》《Slay the Spire》等作品。

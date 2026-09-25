@@ -1235,12 +1235,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 悟道分支的元素牌联动（抱真守一 / 五行轮转）
     if (_isElementCardData(mainAffix)) {
       final passives = data['passives'];
-      // 抱真守一（spellcraft_branch_shouyi）：手牌里随机一张元素牌获得升级
-      if (passives['spellcraft_branch_shouyi'] != null) {
+      // 抱真守一（skilltree_branch_element_1）：手牌里随机一张元素牌获得升级
+      if (passives['skilltree_branch_element_1'] != null) {
         await _upgradeRandomElementCardInHand();
       }
-      // 五行轮转（spellcraft_branch_wuxing）：本回合每使用一种不同的元素牌，灵气 +1
-      if (passives['spellcraft_branch_wuxing'] != null) {
+      // 五行轮转（skilltree_branch_element_2）：本回合每使用一种不同的元素牌，灵气 +1
+      if (passives['skilltree_branch_element_2'] != null) {
         final usedElements = turnFlags.putIfAbsent(
             'usedElements', () => <String>{}) as Set<String>;
         final elementKey =
@@ -1293,21 +1293,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 每个回合开始时，按 御水术→御火术→土遁→御风术→雷法 的顺序轮流获得对应套路的伤害增强
   /// （increase_damage_* 永久状态，1 层 = +1%），先移除上轮所授层数，再授予本轮。
   /// 在 battle.dart 的 _startTurn 中于回合开始注入之后显式调用。
-  void handleWuxingRotation() {
+  void handleElementRotation() {
     if (data['passives']['spellcraft_rank_4'] == null) return;
 
-    final last = data['wuxingRotation'];
+    final last = data['elementRotation'];
     if (last != null) {
       removeStatusEffect(last['statusId'], amount: last['amount']);
-      data['wuxingRotation'] = null;
+      data['elementRotation'] = null;
     }
     final kind =
-        kWuxingRotationKinds[(turnCount - 1) % kWuxingRotationKinds.length];
+        kElementRotationKinds[(turnCount - 1) % kElementRotationKinds.length];
     final statusId = 'increase_damage_$kind';
-    addStatusEffect(statusId, amount: kWuxingEnhanceAmount);
-    data['wuxingRotation'] = {
+    addStatusEffect(statusId, amount: kElementEnhanceAmount);
+    data['elementRotation'] = {
       'statusId': statusId,
-      'amount': kWuxingEnhanceAmount,
+      'amount': kElementEnhanceAmount,
     };
   }
 
@@ -1335,31 +1335,37 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  Future<void> drawCards(int count) async {
+  /// 抽 [count] 张牌。[options] 为数据层附带的可选条件表（Map 或 HTStruct，故为 dynamic），
+  /// 支持 filter / reduceCost 子表（字段：category / genre / cardType / kind / elementType）：
+  /// filter 从牌库抽取完全符合全部指定字段的卡牌；reduceCost 使抽到的符合卡牌费用降为 0。
+  /// 匹配规则详见 BattleScene.drawCardsToHand。
+  Future<void> drawCards(int count, {dynamic options}) async {
     final battleScene = game as BattleScene;
 
     if (isHero) {
       await battleScene.drawCardsToHand(battleScene.heroDeckZone,
-          battleScene.heroDiscardZone, battleScene.heroHandZone, count);
+          battleScene.heroDiscardZone, battleScene.heroHandZone, count,
+          filter: options?['filter'], reduceCost: options?['reduceCost']);
     } else {
       await battleScene.drawCardsToHand(battleScene.enemyDeckZone,
-          battleScene.enemyDiscardZone, battleScene.enemyHandZone, count);
+          battleScene.enemyDiscardZone, battleScene.enemyHandZone, count,
+          filter: options?['filter'], reduceCost: options?['reduceCost']);
     }
   }
 
-  /// 紫微斗数（悟道分支「返朴归元」授予卡）：
-  /// 抽 1 张牌，如果是法术攻击牌（cardType == spell 且 category == attack），将其费用改为 0。
-  Future<void> ziweiDoushu() async {
+  /// 观星（卡牌词条）：查看牌库顶 [count] 张牌（缺省为 kScryCardCount），
+  /// 选一张放回牌库顶，其余进弃牌堆。牌库为空时不触发（观星不洗牌）。
+  /// 天赋分支「天道推演」的免费观星在回合开始抽牌前由 BattleScene 直接触发。
+  Future<void> scry({int? count}) async {
     final battleScene = game as BattleScene;
-    await drawCards(1);
-    if (battleScene.lastDrawnCards.isEmpty) return;
-    final cardData = battleScene.lastDrawnCards.last.data;
-    if (cardData['cardType'] == 'spell' && cardData['category'] == 'attack') {
-      cardData['coloredCost'] = {};
-      if (isHero) {
-        battleScene.refreshHandCardDescriptions();
-        battleScene.refreshHandAffordability();
-      }
+    if (isHero) {
+      await battleScene.scry(
+          battleScene.heroDeckZone, battleScene.heroDiscardZone,
+          count: count);
+    } else {
+      await battleScene.scry(
+          battleScene.enemyDeckZone, battleScene.enemyDiscardZone,
+          count: count);
     }
   }
 
@@ -1384,10 +1390,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final card =
         candidates[random.nextInt(candidates.length)] as CustomGameCard;
     engine.hetu.invoke('upgradeCard', positionalArgs: [card.data]);
-    addHintText(engine.locale('cardUpgradedHint',
-        interpolations: [card.data['name']]));
+    addHintText(
+        engine.locale('cardUpgradedHint', interpolations: [card.data['name']]));
     if (isHero) {
-      battleScene.refreshHandCardDescriptions();
+      battleScene.refreshHandCardDescription();
     }
   }
 }

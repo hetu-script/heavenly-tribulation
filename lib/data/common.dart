@@ -1383,7 +1383,7 @@ const kBattleDrawCount = 5;
 const kScryCardCount = 3;
 
 /// 悟道还婴「五气朝元」轮转增强的套路顺序（依次授予对应 increase_damage_* 永久状态）
-const kWuxingRotationKinds = [
+const kElementRotationKinds = [
   'waterbend',
   'firebend',
   'earthbend',
@@ -1392,7 +1392,7 @@ const kWuxingRotationKinds = [
 ];
 
 /// 悟道还婴「五气朝元」每回合授予的 increase_damage_* 层数（1 层 = +1%）
-const kWuxingEnhanceAmount = 10;
+const kElementEnhanceAmount = 10;
 
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;

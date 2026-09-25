@@ -8,21 +8,25 @@ namespace CardScript {
   /// ------------------------------------------------------------
   /// 绝世词条
   /// ------------------------------------------------------------
-  /// 抽牌
-
+  /// 抽牌。
+  /// 数据层可在词条上附带条件子表（字段：category / genre / cardType / kind / elementType 任意组合）：
+  /// filter —— 从牌库中抽取完全符合全部指定字段的卡牌；
+  /// reduceCost —— 抽到的牌若完全符合全部指定字段，费用降为 0
+  /// （如悟道分支授予卡「紫微斗数」：reduceCost: { category: 'attack', cardType: 'spell' }）
   function draw_cards(self, opponent, affix, mainAffix) {
-    self.drawCards(affix.value[0])
+    self.drawCards(affix.value[0], options: affix)
   }
 
-  /// 紫微斗数（悟道分支「返朴归元」授予卡）：抽 1 张牌，如果是法术攻击牌，将其费用改为 0
-  /// 效果在 Dart 侧兑现（需要检视并修改所抽卡牌的数据与卡面）
-  function ziwei_doushu(self, opponent, affix, mainAffix) {
-    self.ziweiDoushu()
+  /// 观星：查看牌库顶 N 张牌（N = value[0]，缺省 3 张；不足则全显），
+  /// 选一张放回牌库顶，其余进弃牌堆。牌库为空时不触发（观星不触发洗牌）。
+  /// 打出时触发；天赋分支「天道推演」的免费观星在回合开始抽牌前触发（Dart 侧直接调用）。
+  function scry(self, opponent, affix, mainAffix) {
+    self.scry(count: affix.value?[0])
   }
 
   /// 万法归宗（悟道化神境界节点洗入牌库的绝世卡）：
   /// 打出时耗尽全部灵气（含已支付的 10 点费用），根据实际耗费的灵气数量造成雷电伤害
-  function wanfa_guizong(self, opponent, affix, mainAffix) {
+  function spellcraft_ultimate_spell(self, opponent, affix, mainAffix) {
     final paid = self.cardFlags['paidCost']?['energy_positive_spell'] ?? 0
     final remaining = self.hasStatusEffect('energy_positive_spell')
     if (remaining > 0) {

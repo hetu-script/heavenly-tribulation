@@ -1030,24 +1030,24 @@
   },
 
   /// 流派分支节点词条（标记型；暂不进天赋树，待后续手动排布分支走向）
-  spellcraft_branch_guiyuan: {
-    id: "spellcraft_branch_guiyuan",
-    description: "passive_spellcraft_branch_guiyuan_description",
+  skilltree_branch_draw_1: {
+    id: "skilltree_branch_draw_1",
+    description: "passive_skilltree_branch_draw_1_description",
     priority: 3794,
   },
-  spellcraft_branch_tiandao: {
-    id: "spellcraft_branch_tiandao",
-    description: "passive_spellcraft_branch_tiandao_description",
+  skilltree_branch_draw_2: {
+    id: "skilltree_branch_draw_2",
+    description: "passive_skilltree_branch_draw_2_description",
     priority: 3793,
   },
-  spellcraft_branch_shouyi: {
-    id: "spellcraft_branch_shouyi",
-    description: "passive_spellcraft_branch_shouyi_description",
+  skilltree_branch_element_1: {
+    id: "skilltree_branch_element_1",
+    description: "passive_skilltree_branch_element_1_description",
     priority: 3792,
   },
-  spellcraft_branch_wuxing: {
-    id: "spellcraft_branch_wuxing",
-    description: "passive_spellcraft_branch_wuxing_description",
+  skilltree_branch_element_2: {
+    id: "skilltree_branch_element_2",
+    description: "passive_skilltree_branch_element_2_description",
     priority: 3791,
   },
 

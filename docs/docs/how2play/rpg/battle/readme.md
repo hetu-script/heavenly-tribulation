@@ -28,17 +28,19 @@
 
 # 卡牌类型
 
-一共七种，徒手，武器，身法，心法，道法，咒语，神通(divinity)
+一共七种，徒手，武器，法术，咒语，身法，心法，神通(divinity)
 
 | 名称 | cardType |
 | ---- | -------- |
-| 功法 | unarmed  |
-| 器法 | weapon   |
+| 徒手 | unarmed  |
+| 武器 | weapon   |
+| 法术 | spell    |
+| 咒语 | curse    |
 | 身法 | shenfa   |
 | 心法 | xinfa    |
-| 道法 | spell    |
-| 咒语 | curse    |
 | 神通 | divinity |
+
+其中徒手，武器，法术和咒语拥有攻击牌，因此也有对应的攻击力增加的词条和属性。
 
 # 绝世卡牌
 

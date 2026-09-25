@@ -49,6 +49,15 @@ function updateCardCost(card) {
       card.coloredCost[color] = amount
     }
   }
+
+  // 原始费用基线：供卡面费用行对比变色（增红减黄；减至 0 仍显示图标与黄色 0）。
+  // 破境重算费用时基线随之更新；战斗内动态改费（悟道减费、紫微斗数减费等）直接改
+  // coloredCost、不经过本函数，基线不受影响
+  final baseline = {}
+  for (final color in card.coloredCost.keys) {
+    baseline[color] = card.coloredCost[color]
+  }
+  card.originalColoredCost = baseline
 }
 
 function getCardRankUpProbability(rank) {
@@ -165,6 +174,14 @@ struct BattleCard {
     mainAffix.isMain = true
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
     this.rank = mainAffix.rank = mainAffixRank
+    // 数据层卡牌定义上的标记合并到卡牌实例（Dart 侧读取 card.data 上的这些字段）：
+    // isEphemeral（消耗：打出后碎裂移出战斗）、retain（保留：回合结束留在手牌）
+    if (mainAffix.isEphemeral == true) {
+      this.isEphemeral = true
+    }
+    if (mainAffix.retain == true) {
+      this.retain = true
+    }
     this.isUnique = mainAffix.isUnique ?? false
     if (this.isUnique) {
       this.uniqueId = mainAffix.uniqueId ?? mainAffix.id

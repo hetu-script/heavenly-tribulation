@@ -43,5 +43,11 @@ external class BattleCharacter {
 
   function addStatusEffect(effectId: string, {amount: integer})
 
-  function drawCards(count: integer)
+  /// options：可选条件表，支持 filter / reduceCost 子表
+  /// （字段：category / genre / cardType / kind / elementType，见 CardScript.draw_cards）
+  function drawCards(count: integer, {options})
+
+  /// 观星：查看牌库顶 count 张牌（缺省为 3），选一张放回牌库顶，其余进弃牌堆；
+  /// 牌库为空时不触发（观星不触发洗牌）
+  function scry({count: integer})
 }

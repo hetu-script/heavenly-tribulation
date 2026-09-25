@@ -8,6 +8,7 @@ import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/components/sprite_component2.dart';
+import 'package:samsara/components/ui/rich_text_component.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -35,6 +36,27 @@ const kBattleRoundLimit = 8;
 
 /// 观星展示卡牌的渲染优先级（高于手牌与按钮，低于屏障 UI 10100）
 const kScryOverlayPriority = 10050;
+
+/// 卡牌条件匹配支持的字段（抽牌的 filter / reduceCost 等数据表使用）
+const kCardCriteriaFields = [
+  'category',
+  'genre',
+  'cardType',
+  'kind',
+  'elementType',
+];
+
+/// 检查词条数据（卡牌主词条）是否完全符合 [criteria] 中指定的全部字段。
+/// criteria 为 Map 或 HTStruct（故为 dynamic）；仅 [kCardCriteriaFields] 中的
+/// 非空字段参与匹配，其余键忽略。criteria 为空视为无条件（恒为 true）。
+bool matchCardCriteria(dynamic affixData, dynamic criteria) {
+  if (criteria == null) return true;
+  for (final field in kCardCriteriaFields) {
+    final expected = criteria[field];
+    if (expected != null && affixData[field] != expected) return false;
+  }
+  return true;
+}
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermanentEffects = {
@@ -161,9 +183,6 @@ class BattleScene extends Scene {
 
   // 观星进行中标志（期间禁止点选手牌）
   bool _isScrying = false;
-
-  // 最近一次 drawCardsToHand 抽到的牌（紫微斗数等需要检视所抽卡牌的效果使用）
-  final List<CustomGameCard> lastDrawnCards = [];
 
   bool _isRestarting = false;
 
@@ -322,8 +341,7 @@ class BattleScene extends Scene {
       if (isHero) {
         final deckMinSize = GameLogic.getDeckMinSizeForRank(
           character['rank'],
-          deckMinSizeReduce:
-              character['stats']['deckMinSizeReduce'] ?? 0,
+          deckMinSizeReduce: character['stats']['deckMinSizeReduce'] ?? 0,
         );
         _missingCardCount = math.max(0, deckMinSize - cards.length);
         for (var i = 0; i < _missingCardCount; i++) {
@@ -466,9 +484,11 @@ class BattleScene extends Scene {
 
     // 悟道化神「万法归宗」（spellcraft_rank_5）：战斗开始后将「绝世·万法归宗」洗入牌库
     if (heroData['passives']['spellcraft_rank_5'] != null) {
-      final wanfaData = engine.hetu.invoke('BattleCard',
-          namedArgs: {'affixId': 'wanfa_guizong', 'isIdentified': true});
-      final card = GameData.createBattleCard(wanfaData, deepCopyData: true);
+      final ultimateData = engine.hetu.invoke('BattleCard', namedArgs: {
+        'affixId': 'spellcraft_ultimate_spell',
+        'isIdentified': true
+      });
+      final card = GameData.createBattleCard(ultimateData, deepCopyData: true);
       card.isFlipped = true;
       card.enableGesture = false;
       world.add(card);
@@ -507,11 +527,13 @@ class BattleScene extends Scene {
     };
     world.add(heroHandZone);
 
-    // 悟道分支「返朴归元」（spellcraft_branch_guiyuan）：战斗开始后将「紫微斗数」加入手牌
-    if (heroData['passives']['spellcraft_branch_guiyuan'] != null) {
-      final ziweiData = engine.hetu.invoke('BattleCard',
-          namedArgs: {'affixId': 'ziwei_doushu', 'isIdentified': true});
-      final card = GameData.createBattleCard(ziweiData, deepCopyData: true);
+    // 悟道分支「返朴归元」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」加入手牌
+    if (heroData['passives']['skilltree_branch_draw_1'] != null) {
+      final grantedData = engine.hetu.invoke('BattleCard', namedArgs: {
+        'affixId': 'spellcraft_draw_cards_reduce_cost',
+        'isIdentified': true
+      });
+      final card = GameData.createBattleCard(grantedData, deepCopyData: true);
       card.isFlipped = false;
       world.add(card);
       heroHandZone.tryAddCard(card);
@@ -760,7 +782,7 @@ class BattleScene extends Scene {
 
     await onBattleStart?.call();
 
-    refreshHandCardDescriptions();
+    refreshHandCardDescription();
   }
 
   /// 清空手牌进弃牌堆。
@@ -821,49 +843,95 @@ class BattleScene extends Scene {
     await deck.sortCards(animated: animated);
   }
 
+  /// 从牌库抽 [count] 张牌到手牌（牌库空时重洗弃牌堆）。
+  /// [filter] / [reduceCost] 为数据层附带的条件表（Map 或 HTStruct，故为 dynamic），
+  /// 支持字段见 [kCardCriteriaFields]（任意组合，未指定的字段忽略）：
+  /// - filter：只抽取【完全符合】全部指定字段的卡牌（按牌库顶向下顺序）；
+  /// - reduceCost：抽到的牌若【完全符合】全部指定字段，费用降为 0。
+  /// 字段匹配以卡牌主词条（affixes 首个）数据为准。
   Future<int> drawCardsToHand(
     BattleDeckZone deck,
     DiscardZone discard,
     HandZone hand,
-    int count,
-  ) async {
+    int count, {
+    dynamic filter,
+    dynamic reduceCost,
+  }) async {
     int drawn = 0;
-    lastDrawnCards.clear();
+    bool costReduced = false;
     while (drawn < count) {
       if (deck.cards.isEmpty) {
         if (discard.cards.isEmpty) break;
         await shuffleDiscardIntoDeck(deck, discard);
       }
-      final card = deck.cards.last as CustomGameCard;
-      hand.tryAddCard(card, sort: true);
-      lastDrawnCards.add(card);
-      drawn++;
-    }
-    if (hand == heroHandZone) {
-      for (final card in hand.cards) {
-        card.isFlipped = false;
+      if (deck.cards.isEmpty) break;
+
+      CustomGameCard? card;
+      if (filter != null) {
+        // 过滤抽牌：整库无匹配时重洗弃牌堆后再检视一次，仍无匹配即结束（避免死循环）
+        card = _findDeckCardMatching(deck.cards, filter);
+        // if (found == null) {
+        //   if (discard.cards.isEmpty) break;
+        //   await shuffleDiscardIntoDeck(deck, discard);
+        //   found = _findDeckCardMatching(deck.cards, filter);
+        //   if (found == null) break;
+        // }
+        // card = found;
+      } else {
+        card = deck.cards.last as CustomGameCard;
+      }
+      if (card != null) {
+        hand.tryAddCard(card, sort: true);
+
+        // 减费：完全符合 reduceCost 全部指定字段的卡牌费用降为 0
+        if (reduceCost != null &&
+            matchCardCriteria(card.data['affixes'][0], reduceCost)) {
+          card.data['coloredCost'] = {};
+          costReduced = true;
+        }
+        if (hand == heroHandZone) {
+          card.isFlipped = false;
+          _refreshHandCardDescription(card);
+          if (costReduced) {
+            _refreshHandAffordability(card);
+          }
+        }
+
+        drawn++;
       }
     }
-    await hand.sortCards();
-    if (hand == heroHandZone) {
-      refreshHandCardDescriptions();
+    if (drawn > 0) {
+      await hand.sortCards();
     }
     return drawn;
   }
 
-  /// 观星：查看牌库顶 [count] 张牌，选一张加入手牌，其余按原顺序放回牌库底。
+  /// 从牌库顶（cards 列表末尾）向下找第一张完全符合 [criteria] 的卡牌
+  CustomGameCard? _findDeckCardMatching(List<dynamic> cards, dynamic criteria) {
+    for (var i = cards.length - 1; i >= 0; --i) {
+      final card = cards[i] as CustomGameCard;
+      if (matchCardCriteria(card.data['affixes'][0], criteria)) return card;
+    }
+    return null;
+  }
+
+  /// 观星：查看牌库顶 [count] 张牌（不足则全显），选一张放回牌库顶，其余进弃牌堆。
+  /// 牌库为空时不触发——观星永不触发洗牌（洗牌只发生在抽牌阶段）。
   /// 英雄：在场景中央展示牌面并等待点选（期间 _isScrying 禁止点选手牌）；
   /// 敌方（预留，NPC 无天赋树暂不会触发）：自动取牌库顶张。
-  /// 牌库空时先重洗弃牌堆，仍无牌可观则直接返回。
   Future<void> scry(
     BattleDeckZone deck,
-    DiscardZone discard,
-    HandZone hand, {
-    int count = kScryCardCount,
+    DiscardZone discard, {
+    int? count,
   }) async {
+    count ??= kScryCardCount;
     if (deck.cards.isEmpty) {
-      if (discard.cards.isEmpty) return;
-      await shuffleDiscardIntoDeck(deck, discard);
+      // 牌库为空即无星可观
+      if (currentCharacter.isHero) {
+        currentCharacter.addHintText(engine.locale('scryNoCardsHint'),
+            color: Colors.grey);
+      }
+      return;
     }
     final actualCount = math.min(count, deck.cards.length);
     // 牌库顶 = cards 列表末尾；取出后保持 列表顺序 == index 的不变量
@@ -875,16 +943,38 @@ class BattleScene extends Scene {
       deck.cards[i].index = i;
     }
 
+    // 双方统一在角色头顶提示观星发动；具体操作说明显示在选牌界面内
+    currentCharacter.addHintText(engine.locale('scryHint'),
+        color: Colors.lightBlue);
+
     late final CustomGameCard chosen;
     if (currentCharacter.isHero) {
       _isScrying = true;
-      currentCharacter.addHintText(engine.locale('scryHint'),
-          color: Colors.lightBlue);
       final completer = Completer<CustomGameCard>();
       final cardSize = GameUI.battleCardFocusedSize;
       final totalWidth =
           actualCount * cardSize.x + (actualCount - 1) * GameUI.smallIndent;
       final startX = GameUI.center.x - totalWidth / 2 + cardSize.x / 2;
+      // 选牌界面上方的操作说明（与卡牌同层，选牌结束后移除）
+      final instruction = RichTextComponent(
+        position: Vector2(GameUI.center.x,
+            GameUI.center.y - cardSize.y / 2 - GameUI.smallIndent * 2),
+        size: Vector2(totalWidth, 30),
+        anchor: Anchor.bottomCenter,
+        priority: kScryOverlayPriority,
+        text: engine.locale('scryPickHint'),
+        config: ScreenTextConfig(
+          anchor: Anchor.center,
+          outlined: true,
+          textStyle: TextStyle(
+            fontFamily: GameUI.fontFamilyKaiti,
+            fontSize: 14.0,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+      camera.viewport.add(instruction);
       for (var i = 0; i < scried.length; ++i) {
         final card = scried[i];
         card.isFlipped = false;
@@ -902,6 +992,7 @@ class BattleScene extends Scene {
         card.onMouseExit = () => card.showGlow = false;
       }
       chosen = await completer.future;
+      instruction.removeFromParent();
       for (final card in scried) {
         card.showGlow = false;
         card.clearInteraction();
@@ -911,53 +1002,45 @@ class BattleScene extends Scene {
       chosen = scried.last;
     }
 
-    // 选中卡加入手牌（区域排序时会重设其优先级与位置）
-    chosen.isFlipped = !currentCharacter.isHero;
-    hand.tryAddCard(chosen);
-    await hand.sortCards();
-
-    // 其余按原相对顺序放回牌库底（列表头部）
-    var insertIndex = 0;
+    // 选中卡放回牌库顶（tryAddCard 默认追加到 cards 列表末尾即牌库顶），未选卡进弃牌堆
+    chosen.isFlipped = true;
+    deck.tryAddCard(chosen);
     for (final card in scried) {
       if (identical(card, chosen)) continue;
       card.isFlipped = true;
-      deck.cards.insert(insertIndex++, card);
-      card.pile = deck;
-    }
-    for (var i = 0; i < deck.cards.length; ++i) {
-      deck.cards[i].index = i;
+      discard.tryAddCard(card);
     }
     await deck.sortCards();
+    await discard.sortCards();
+  }
 
-    if (currentCharacter.isHero) {
-      refreshHandCardDescriptions();
-      refreshHandAffordability();
+  void _refreshHandCardDescription(CustomGameCard card) {
+    final cardData = card.data;
+    // 气增伤预测需要本牌费用以模拟扣费后剩余层数（见 predictDamage）
+    final cardCost = _cardCostColored(card);
+    for (final affix in cardData['affixes']) {
+      // 英雄手牌的攻击目标是敌方，预测以敌方为防守方计算
+      final predicted = enemy.predictDamage(hero, affix, cardCost: cardCost);
+      affix['predictedValue'] = predicted?.$1;
+      affix['predictedCrit'] = predicted?.$2;
+      affix['predictedAilment'] = predicted?.$3;
     }
+    final (description, _) = GameData.getBattleCardDescription(
+      cardData,
+      showRequirement: false,
+      isDetailed: false,
+      withPrediction: true,
+    );
+    card.description = description;
   }
 
   /// 刷新英雄手牌所有卡牌的卡面描述：
   /// 逐词条计算伤害预测值并写入词条数据（原始 value 不动），
   /// 预测值与原值的比较着色由 getBattleCardDescription(withPrediction) 完成
-  void refreshHandCardDescriptions() {
+  void refreshHandCardDescription() {
     for (final card in heroHandZone.cards) {
       final customCard = card as CustomGameCard;
-      final cardData = customCard.data;
-      // 气增伤预测需要本牌费用以模拟扣费后剩余层数（见 predictDamage）
-      final cardCost = _cardCostColored(customCard);
-      for (final affix in cardData['affixes']) {
-        // 英雄手牌的攻击目标是敌方，预测以敌方为防守方计算
-        final predicted = enemy.predictDamage(hero, affix, cardCost: cardCost);
-        affix['predictedValue'] = predicted?.$1;
-        affix['predictedCrit'] = predicted?.$2;
-        affix['predictedAilment'] = predicted?.$3;
-      }
-      final (description, _) = GameData.getBattleCardDescription(
-        cardData,
-        showRequirement: false,
-        isDetailed: false,
-        withPrediction: true,
-      );
-      card.description = description;
+      _refreshHandCardDescription(customCard);
     }
   }
 
@@ -1091,16 +1174,20 @@ class BattleScene extends Scene {
     if (display.isLoaded) display.refresh(character);
   }
 
+  void _refreshHandAffordability(CustomGameCard card) {
+    final grayed = !heroTurn ||
+        (!_cardQueue.contains(card) &&
+            !_canPayCardCost(hero, card, _cardQueue.toList()));
+    card.isEnabled = !grayed;
+  }
+
   /// 刷新手牌置灰状态：不满足费用（含队列占用）的非已入队卡牌置灰。
   /// 非己方回合全部置灰。置灰通过 isEnabled 切换 invalid paint（卡面灰度、文字半透明），
   /// 只影响绘图不影响交互：悬浮提示仍可用，打出由 _enqueueCard 的费用硬检查拦截。
   void refreshHandAffordability() {
     for (final c in heroHandZone.cards) {
       final card = c as CustomGameCard;
-      final grayed = !heroTurn ||
-          (!_cardQueue.contains(card) &&
-              !_canPayCardCost(hero, card, _cardQueue.toList()));
-      card.isEnabled = !grayed;
+      _refreshHandAffordability(card);
     }
   }
 
@@ -1235,7 +1322,7 @@ class BattleScene extends Scene {
       // 入队时已保证可支付，此处失败属意外情况：退回手牌并中断本次打出
       heroHandZone.tryAddCard(card);
       await heroHandZone.sortCards();
-      refreshHandCardDescriptions();
+      refreshHandCardDescription();
       return;
     }
     heroHandZone.energy = hero.energy;
@@ -1267,7 +1354,7 @@ class BattleScene extends Scene {
     // 当前卡牌完整结算并处理去向后立即检查胜负，避免队列中的后续卡牌继续执行。
     _checkBattleResult();
 
-    refreshHandCardDescriptions();
+    refreshHandCardDescription();
     // 资源已扣除，刷新置灰状态
     refreshHandAffordability();
 
@@ -1358,6 +1445,13 @@ class BattleScene extends Scene {
       final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
+      // 悟道分支「天道推演」：每回合开始时（抽牌阶段之前）观星一次，
+      // 选中的牌置于牌库顶，随本回合抽牌入手
+      if (currentCharacter.data['passives']['skilltree_branch_draw_2'] !=
+          null) {
+        await scry(deckZone, discardZone);
+      }
+
       final drawCount = kBattleDrawCount +
           ((currentCharacter.data['stats']['battleDrawBonus'] ?? 0) as int);
       final drawn =
@@ -1392,18 +1486,12 @@ class BattleScene extends Scene {
             amount: value, handleCallback: false);
       }
       // 回合开始注入的状态（如施加给对方的弱点）会影响预测数值
-      refreshHandCardDescriptions();
+      refreshHandCardDescription();
       // 新产出已结算，刷新手牌置灰状态
       refreshHandAffordability();
 
       // 悟道还婴「五气朝元」：轮转获得五种套路的伤害增强
-      currentCharacter.handleWuxingRotation();
-
-      // 悟道分支「天道推演」：每回合开始时观星一次
-      if (currentCharacter.data['passives']['spellcraft_branch_tiandao'] !=
-          null) {
-        await scry(deckZone, discardZone, handZone);
-      }
+      currentCharacter.handleElementRotation();
 
       if (skipPlayPhase) {
         endTurnButton.isEnabled = false;
@@ -1465,7 +1553,7 @@ class BattleScene extends Scene {
           if (_checkBattleResult()) break;
         }
         // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
-        refreshHandCardDescriptions();
+        refreshHandCardDescription();
       }
 
       if (_isRestarting || _checkBattleResult()) return;
