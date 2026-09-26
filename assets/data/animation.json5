@@ -25,6 +25,12 @@
       height: 112.0,
       stepTime: 0.1,
     },
+    stone_shield: {
+      spriteSheet: "overlay/stone_shield.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
     falling_stone: {
       spriteSheet: "overlay/falling_stone.png",
       width: 320.0,

@@ -41,105 +41,93 @@
 
 ### 数值标定参考（公式 ×1.3^rank）
 
-| rank | 底数倍率 | 说明 |
-|---|---|---|
-| 1 凝气 | ×1.3 | 入门词条 |
-| 2 筑基 | ×1.69 | 达成循环 |
-| 3 结丹 | ×2.20 | 中端爆发 |
-| 4 还婴 | ×2.86 | 高端机制 |
-| 5 化神 | ×3.71 | 终极大招 |
+| rank   | 底数倍率 | 说明     |
+| ------ | -------- | -------- |
+| 1 凝气 | ×1.3     | 入门词条 |
+| 2 筑基 | ×1.69    | 达成循环 |
+| 3 结丹 | ×2.20    | 中端爆发 |
+| 4 还婴 | ×2.86    | 高端机制 |
+| 5 化神 | ×3.71    | 终极大招 |
 
 ---
 
-## 现有词条（保留，标注 rank）
+## 现有词条
 
 ### 主词条（cards.json5）
 
 #### 攻击
 
-| id | rank | kind | cardType | 说明 |
-|---|---|---|---|---|
-| punch_attack_exhaust_mana_fire/ice/lightning | 1 | punch | unarmed | 三系 exhaustion 拳（攻击+弱点） |
-| wind_blade | 1 | airbend | spell | 风刃（物理+缓慢） |
-| falling_stone | 1 | earthbend | spell | 落石（物理） |
-| ice_block | 2 | waterbend | spell | 冰块（冰伤） |
-| fireball | 2 | firebend | spell | 火球（火伤） |
-| lightning | 2 | lightning_control | spell | 雷击（雷伤+迟钝） |
+| id                                           | rank | kind      | cardType | 说明                            |
+| -------------------------------------------- | ---- | --------- | -------- | ------------------------------- |
+| punch_attack_exhaust_mana_fire/ice/lightning | 1    | punch     | unarmed  | 三系 exhaustion 拳（攻击+弱点） |
+| wind_blade                                   | 1    | airbend   | spell    | 风刃（物理+自身速度）           |
+| ice_block                                    | 2    | waterbend | spell    | 冰块（冰伤）                    |
+| fireball                                     | 2    | firebend  | spell    | 火球（火伤）                    |
 
 #### 加持
 
-| id | rank | kind | cardType | 说明 |
-|---|---|---|---|---|
-| punch_defend_exhaust_mana | 1 | punch | unarmed | 拳防御 |
-| wind_buff | 2 | airbend | spell | 迅捷+防御 |
-| wood_defense | 2 | plant_control | spell | 木防御 |
-| wood_heal | 3 | plant_control | spell | 百分比治疗 |
+| id                        | rank | kind    | cardType | 说明        |
+| ------------------------- | ---- | ------- | -------- | ----------- |
+| punch_defend_exhaust_mana | 1    | punch   | unarmed  | 拳防御      |
+| wind_buff                 | 2    | airbend | spell    | 速度，+护甲 |
 
 ### 额外词条（card_affixes.json5）
 
-| id | rank | 说明 |
-|---|---|---|
-| for_spirituality_increase_damage | 1 | 灵力增伤 |
-| upgrade_hand_cards_spellcraft | 1 | 升级手牌悟道卡 |
-| scry | 2 | 观星 |
-
+| id                               | rank | 说明           |
+| -------------------------------- | ---- | -------------- |
+| for_spirituality_increase_damage | 1    | 灵力增伤       |
+| upgrade_hand_cards_spellcraft    | 1    | 升级手牌悟道卡 |
+| scry                             | 2    | 观星           |
 
 ## 新增主词条（补 rank2-4，含数值参考）
 
 ### 攻击
 
-| id | rank | kind | cardType | damageType | 效果 | valueData 参考 |
-|---|---|---|---|---|---|---|
-| `stone_spike` | 2 | earthbend | spell | physical | **石笋**：物理伤，若有护甲则伤害 +X% | `[{base:20, increment:2.0}, {base:30, increment:3.0}]` |
-| `tidal_surge` | 2 | waterbend | spell | ice | **怒涛**：冰伤，若手牌中元素牌≥3 张，伤害 +X% | `[{base:18, increment:1.8}, {base:25, increment:2.5}]`（基础伤 / 加成%） |
-| `fire_nova` | 3 | firebend | spell | fire | **烈焰风暴**：耗尽所有灵气，每点灵气造成 X 火伤 | `[{base:4, increment:0.3}]`（X=每灵气伤害；10 灵气 ≈ 40~90 基础，随灵气数放大） |
-| `wind_shear` | 3 | airbend | spell | physical | **风切**：多段物理伤，段数 = value[1] | `[{base:7, increment:0.7}, {base:3, maxLevel:0}]`（每段 / 段数） |
-| `chain_lightning` | 4 | lightning_control | spell | lightning | **连环雷**：造成 N 段雷伤，段数 = 本回合已使用的不同元素种数（上限 value[1]） | `[{base:12, increment:1.2}, {base:4, maxLevel:0}]`（每段伤 / 段数上限） |
+| id                | rank | kind              | cardType | damageType | 效果                                                              | valueData 参考                                                          |
+| ----------------- | ---- | ----------------- | -------- | ---------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------- |
+| `wind_shear`      | 3    | airbend           | spell    | physical   | 多段物理伤，段数 = 当前速度                                       | `[{base:7, increment:0.7}, {base:3, maxLevel:0}]`（每段 / 段数）        |
+| `chain_lightning` | 3    | lightning_control | spell    | lightning  | 造成 N 段雷伤，段数 = 本回合已使用的不同元素种数（上限 value[1]） | `[{base:12, increment:1.2}, {base:4, maxLevel:0}]`（每段伤 / 段数上限） | `（基础伤 / 加成%） |
+| `tidal_surge`     | 4    | waterbend         | spell    | ice        | 若手牌中元素牌≥3 张，伤害 +X%                                     | `[{base:18, increment:1.8}, {base:25, increment:2.5}]                   |
+| `stone_spike`     | 4    | earthbend         | spell    | physical   | 物理伤，每有1点护甲则伤害 +1%                                     | `[{base:20, increment:1}]`                                              |
+| `fire_storm`      | 5    | firebend          | spell    | fire       | 耗尽所有灵气，每点灵气造成 X 火伤                                 | `[{base:8, increment:0.4}]`                                             |
 
 ### 加持
 
-| id | rank | kind | cardType | 效果 | valueData 参考 |
-|---|---|---|---|---|---|
-| `stone_armor` | 2 | earthbend | spell | **岩甲**：获得 = 当前灵气 ×X 的护甲 | `[{base:2, increment:0.15}]`（X=每灵气护甲；5 灵气 ≈ 10~26 甲） |
-| `mana_surge` | 2 | xinfa | xinfa | **灵潮**：获得 X 灵气 | `[{base:3, increment:0.2}]`（直接补灵气，服务万法归宗门槛） |
-| `wood_regrow` | 3 | plant_control | spell | **回春**：治疗 X，并移除自身 1 层元素异常 | `[{base:15, increment:1.5}]` |
-| `wind_haste` | 3 | airbend | spell | **疾风**：速度 +X，抽 1 张牌 | `[{base:2, increment:0.15}]`（速度 + 过牌） |
-
+| id             | rank | kind          | cardType | 效果                            | valueData 参考                              |
+| -------------- | ---- | ------------- | -------- | ------------------------------- | ------------------------------------------- |
+| `stone_shield` | 1    | earthbend     | spell    | 获得 = 当前灵气 ×X 的护甲       | `[{base:3, increment:0.15}]`                |
+| `wind_haste`   | 1    | airbend       | spell    | 速度 +X，抽 X 张牌              | `[{base:2, increment:0.15}]`（速度 + 过牌） |
+| `mana_surge`   | 2    | xinfa         | xinfa    | 将当前元气全部转化为灵气        | 费用恒为0                                   |
+| `wood_regrow`  | 3    | plant_control | spell    | 治疗 X，并移除自身 1 层元素异常 | `[{base:15, increment:1.5}]`                |
 
 ## 新增额外词条（补流派专属，含数值参考）
 
 > 均为 `genres: ["spellcraft"]`，categories 按需。
 
-| id | rank | categories | 效果 | valueData 参考 |
-|---|---|---|---|---|
-| `attune` | 1 | buff,attack | **同调**：入手时若与牌库顶牌同元素，本牌费用 -1（callbacks: added_to_hand） | 无数值（机制词条） |
-| `spirit_attune` | 1 | buff,attack | **灵契**：本牌伤害 +X（X = 灵力 ÷ 20，固定加成） | `[{base:1, increment:0.1}]`（灵力二次收益，配合太上感应） |
-| `ailment_spread` | 3 | attack | **蚀骨**：造成的元素异常层数 +X | `[{base:1, increment:0.1}]`（DOT 层数加成，呼应绝世卡"按异常种类得灵气"） |
-| `mana_burst` | 2 | attack | **灵爆**：若打出时灵气≥5，本牌伤害 +X% | `[{base:25, increment:2.0}]`（灵气囤积阈值奖励） |
-| `on_element_draw` | 2 | buff,attack | **引灵**：使用元素牌后抽 1 张（每回合至多 value[0] 次） | `[{base:1, maxLevel:0}]`（限次防无限） |
-| `elemental_focus` | 3 | attack | **专注**：若上一张牌与本牌同元素，本牌伤害 +X% | `[{base:30, increment:2.5}]`（专注路线，与轮转对立） |
-| `cycle_bonus` | 3 | attack | **轮转**：若本回合已使用过与本牌不同的元素牌，本牌伤害 +X% | `[{base:20, increment:1.8}]`（轮转路线） |
-| `mana_battery` | 4 | buff | **蓄灵**：回合结束保留 1 点未用灵气到下回合（低配版绝世装备） | `[{base:1, increment:0.05}]`（限量保留，不占绝世位） |
+| id                | rank | categories  | 效果                                                                  | valueData 参考                                                            |
+| ----------------- | ---- | ----------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `attune`          | 1    | buff,attack | 入手时若手牌中有其他同系元素，本牌费用 -1（callbacks: added_to_hand） | 无数值（机制词条）                                                        |
+| `mana_burst`      | 1    | attack      | 若打出时灵气≥5，本牌伤害 +X%                                          | `[{base:25, increment:2.0}]`（灵气囤积阈值奖励）                          |
+| `on_element_draw` | 2    | buff,attack | 上一张牌如果是元素牌，抽 1 张牌（每回合至多 value[0] 次）             | `[{base:1, maxLevel:0}]`（限次防无限）                                    |
+| `ailment_spread`  | 2    | attack      | 本次攻击必然造成元素异常，且异常层数 +X                               | `[{base:1, increment:0.1}]`（DOT 层数加成，呼应绝世卡"按异常种类得灵气"） |
+| `elemental_focus` | 3    | attack      | 若上一张牌与本牌同元素，本牌伤害 +X%                                  | `[{base:30, increment:2.5}]`（专注路线，与轮转对立）                      |
+| `cycle_bonus`     | 3    | attack      | 若本回合已使用过与本牌不同的元素牌，本牌伤害 +X%                      | `[{base:20, increment:1.8}]`（轮转路线）                                  |
+| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气（低配版绝世装备）                               | `[{base:1, increment:0.05}]`                                              |
 
 ## 绝世卡牌
 
-
-| 卡名 | rank | kind | 效果 | 设计意图 |
-|---|---|---|---|---|
-| **蓄灵诀** | 3 | xinfa | 对手每有一种元素异常，你获得 1 灵气（上限 value[0]） | 异常种类→灵气，服务万法归宗门槛；与 ailment_spread 联动 |
-| **一气化三清** | 4 | xinfa | 选择一种元素，本回合你的该元素牌伤害 +X% | 专注路线爆发，让单元素构筑有终局手段 |
-| **五雷轰顶** | 4 | lightning_control | 雷伤，本回合每使用过一种不同元素，额外追加一段雷伤 | 轮转路线爆发，chain_lightning 的绝世版 |
-| **太上忘情** | 5 | xinfa | 本回合你的灵气不会随回合结束清空（突破统一生命周期，仅此一回合） | 终局囤积特例，配合万法归宗跨回合攒爆发；极稀有 |
-
+| 卡名           | rank | kind  | 效果                                                             | 设计意图                                                |
+| -------------- | ---- | ----- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| **蓄灵诀**     | 3    | xinfa | 对手每有一种元素异常，你获得 1 灵气（上限 value[0]）             | 异常种类→灵气，服务万法归宗门槛；与 ailment_spread 联动 |
+| **一气化三清** | 4    | xinfa | 选择一种元素，本回合你的该元素牌伤害 +X%                         | 专注路线爆发，让单元素构筑有终局手段                    |
+| **太上忘情**   | 5    | xinfa | 本回合你的灵气不会随回合结束清空（突破统一生命周期，仅此一回合） | 终局囤积特例，配合万法归宗跨回合攒爆发；极稀有          |
 
 ## 绝世装备
 
-| 装备 | 部位 | 效果 | 设计意图 |
-|---|---|---|---|
-| **蓄灵佩** | 饰品(pearl) | 每个回合结束时，至多保留 2 点未使用的灵气到下回合 | 万法归宗门槛的稳定路径（平滑累积）；规则特例，占绝世装备位 |
-| **五行珠** | 饰品(pearl) | 你造成的元素异常层数 +2 | 强化 DOT，间接服务蓄灵诀的异常种类计数 |
-| **天机盘** | 法器 | 观星时额外查看 1 张 |
-| **聚灵旗** | 法器 | 战斗开始时获得 3 灵气 | 首回合爆发，缩短万法归宗暖机 |
-| **玄武印** | 法器 | 你每有一种未使用的有色气（灵/剑/怒/煞），回合开始获得 1 元气 | 跨流派的资源转化，鼓励单一流派专注（不碰其他色气则无收益） |
-
-
+| 装备       | 部位        | 效果                                                         | 设计意图                                                   |
+| ---------- | ----------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| **蓄灵佩** | 饰品(pearl) | 每个回合结束时，至多保留 2 点未使用的灵气到下回合            | 万法归宗门槛的稳定路径（平滑累积）；规则特例，占绝世装备位 |
+| **五行珠** | 饰品(pearl) | 你造成的元素异常层数 +2                                      | 强化 DOT，间接服务蓄灵诀的异常种类计数                     |
+| **天机盘** | 法器        | 观星时额外查看 1 张                                          |
+| **聚灵旗** | 法器        | 战斗开始时获得 3 灵气                                        | 首回合爆发，缩短万法归宗暖机                               |
+| **玄武印** | 法器        | 你每有一种未使用的有色气（灵/剑/怒/煞），回合开始获得 1 元气 | 跨流派的资源转化，鼓励单一流派专注（不碰其他色气则无收益） |

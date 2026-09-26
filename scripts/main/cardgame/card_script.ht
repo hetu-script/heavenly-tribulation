@@ -72,6 +72,19 @@ namespace CardScript {
       })
     }
   }
+
+  /// 攻击附带施加增益
+  function attack_buff(self, opponent, card, affix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: affix.value[0],
+    })
+    self.addStatusEffect(affix.buffId, amount: affix.value[1])
+  }
+
   /// 攻击附带施加减益
   function attack_debuff(self, opponent, card, affix) {
     opponent.takeDamage({
