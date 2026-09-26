@@ -25,3 +25,7 @@
 目前正在计划进行悟道流派主词条整理。 @plan/skill_tree/spellcraft_main_affix_rework.md
 
 请阅读相关文档。如果你准备好执行 @plan/skill_tree/spellcraft_main_affix_rework.md 的话，告诉我。另外，执行中遇到任何不缺定的问题都可以先问我。
+
+---
+
+在生成卡牌主词条之前，我们需要为每个新的主词条增加卡牌插画，可以调用 skill 完成，注意同步更新 kBattleCardIllustrations 以及 battlecard.json 本地化文件中的 illustration_xxx 系列。这两个和新插画有关的操作也可以同步到 battlecard-content skill 中，我之前写那个skill时候漏了。以后只要创建了新插画，都要同步这两个地方。
