@@ -10,6 +10,8 @@
 
 @plan/battle_card_equipment_overview.md 这个文档可以让你从总体上理解本项目中和卡牌战斗有关的部分。目前你只需要理解现有系统，不要修改任何文件。稍后我会发给你更具体的指示。
 
+请留意 battlecard-content 这个 skill 稍后可能会有相关的任务和它有关。
+
 ---
 
 
