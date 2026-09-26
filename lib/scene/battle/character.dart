@@ -1395,7 +1395,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (candidates.isEmpty) return;
     final card =
         candidates[random.nextInt(candidates.length)] as CustomGameCard;
-    engine.hetu.invoke('upgradeCard', positionalArgs: [card.data]);
+    engine.hetu.invoke('upgradeCard',
+        positionalArgs: [card.data], namedArgs: {'inBattle': true});
     addHintText(
         engine.locale('cardUpgradedHint', interpolations: [card.data['name']]));
     if (isHero) {

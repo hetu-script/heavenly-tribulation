@@ -2,9 +2,10 @@
 /// 计算单条费用的实际数值：条目可以是固定数值，
 /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
 /// 例如标准公式 {base: 0, rankIncrement: 1} → 费用 = rank，{base: 1, rankIncrement: 1} → 费用 = rank+1
+/// 走独立的 calcCostValue（与词条数值的境界指数公式脱钩，费用只按 rank 线性缩放）
 function _calcCostAmount(valueData, rank) {
   if (valueData is num) return valueData.floor()
-  return calcAffixValue(valueData, level: 0, rank: rank).floor()
+  return calcCostValue(valueData, rank).floor()
 }
 
 /// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md）：
@@ -616,11 +617,15 @@ function upgradeRank(card, materialRank) {
 
 /// 升级卡牌等级
 /// 这个操作并非打造操作，而是某些卡牌词条效果可能会用到
-function upgradeCard(card) {
-  final maxLevel = maxLevelForRank(card.rank)
-  if (card.level < maxLevel) {
-    card.level += 1
+/// 永久路径（打造/养剑等持久化场景）clamp 在等级上限；
+/// 战斗内临时路径传 inBattle: true，允许突破上限（战斗用牌是深拷贝，临时升级不污染卡库，
+/// 增量线性有界）。新指数公式下 +1 级相对提升全境界恒定（≈ increment/base），无需保底补偿。
+function upgradeCard(card, {inBattle: bool = false}) {
+  if (!inBattle) {
+    final maxLevel = maxLevelForRank(card.rank)
+    if (card.level >= maxLevel) return
   }
+  card.level += 1
   _updateAffixValue(card, card.affixes.first)
 }
 

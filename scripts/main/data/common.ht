@@ -139,15 +139,35 @@ function equipmentSlotCount(rank) {
   return Math.min(rank + 3, kEquipmentSlotMax)
 }
 
-/// 计算词条数值：value = base + increment × level + rankIncrement × rank
-/// increment 按等级缩放；rankIncrement 按境界缩放（化神 rank 5 时为 5 倍），
-/// 用于按等级只能写出极小数值的强力词条（见 DESIGN_NOTE.md，
-/// 天赋树节点不应使用 rankIncrement 词条）
+/// 境界底数指数：每破一境，词条的「底数+等级项」整体 ×rankBaseScale
+/// （化神 rank5 底数 ≈ rank0 的 1.3^5 ≈ 3.7 倍；见 plan/affix_value_formula_rework.md）
+const rankBaseScale = 1.3
+
+/// 计算词条数值（境界指数公式）：
+/// value = (base + increment × (level − minLevelForRank(rank))) × rankBaseScale ^ rank + rankIncrement × rank
+/// 「底数+等级项」作为一体按境界指数缩放——含义 = 该词条在 rank0 时值 base + increment×等级，每破一境整体 ×rankBaseScale。
+/// +1 级相对提升全境界恒定（≈ increment/base），绝对增量随境界放大，战斗中升级在任何境界都有感。
+/// level < minLevelForRank(rank) 时相对等级按 0 计（不出现负增量）。
+/// increment 按本境界内等级缩放；rankIncrement 按境界线性叠加，用于强力词条（见 DESIGN_NOTE.md，
+/// 天赋树节点不应使用 rankIncrement 词条；天赋节点调用时应传 rank: 0 让 increment×level 全额生效）
+/// 费用计算不走此函数（见 calcCostValue），以免被境界指数影响节奏。
 function calcAffixValue(affix, {level = 1, rank = 0}) {
   final base = affix.base ?? 0
   final increment = affix.increment ?? 0
   final rankIncrement = affix.rankIncrement ?? 0
-  return base + increment * level + rankIncrement * rank
+  final minLevel = minLevelForRank(rank)
+  final relativeLevel = Math.max(0, level - minLevel)
+  final scaled = base + increment * relativeLevel
+  return scaled * Math.pow(rankBaseScale, rank) + rankIncrement * rank
+}
+
+/// 计算费用数值（独立函数，与词条数值公式脱钩）：cost = base + rankIncrement × rank
+/// 费用是节奏机制（rank / rank+1 阶梯），不随词条数值的境界指数缩放；
+/// level 恒为 0（费用由 rank 决定）。两函数分离，词条数值公式迭代不影响费用。
+function calcCostValue(valueData, rank) {
+  final base = valueData.base ?? 0
+  final rankIncrement = valueData.rankIncrement ?? 0
+  return base + rankIncrement * rank
 }
 
 function getCultivationRankName(character) {
