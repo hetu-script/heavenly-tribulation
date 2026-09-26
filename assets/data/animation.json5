@@ -13,6 +13,12 @@
       height: 112.0,
       stepTime: 0.1,
     },
+    water_buff: {
+      spriteSheet: "overlay/water_buff.png",
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
     wind_buff: {
       spriteSheet: "overlay/wind_buff.png",
       width: 80.0,
@@ -43,8 +49,20 @@
       height: 112.0,
       stepTime: 0.1,
     },
-    wind_blade: {
-      spriteSheet: "overlay/wind_blade.png",
+    wind_storm: {
+      spriteSheet: "overlay/wind_storm.png",
+      width: 320.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
+    ice_storm: {
+      spriteSheet: "overlay/ice_storm.png",
+      width: 320.0,
+      height: 112.0,
+      stepTime: 0.1,
+    },
+    fire_storm: {
+      spriteSheet: "overlay/fire_storm.png",
       width: 320.0,
       height: 112.0,
       stepTime: 0.1,

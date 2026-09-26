@@ -10,15 +10,15 @@
 ///   affix —— 本词条数据（可读 value / buffId / 自定义字段）
 ///
 /// 打出时（on-play）：
-/// 每个词条都可以有一个打出时脚本，函数名 = 词条数据的 script 字段，
-/// 在这张牌被打出时 invoke。
+/// 每个词条的 scripts 字段是脚本函数名数组，打出时按数组顺序逐个 invoke，
+/// 多个基础效果因此可以自由组合（如 scripts: ["attack", "opponent_debuff"]）。
 /// 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）
 ///   → 其余额外词条（按 priority 降序）。
 ///
 /// 时机回调：
-/// 词条数据声明 callbacks 列表后，会在对应时机调用 {script}_{时机} 函数，签名相同。
+/// 词条数据声明 callbacks 列表后，会在对应时机按 scripts 数组顺序调用 {script}_{时机} 函数，签名相同。
 /// 现有时机：added_to_hand（卡牌进入手牌区时）。
-/// 声明了 callbacks 的词条仍需 script 字段作为函数名前缀；
+/// 声明了 callbacks 的词条仍需 scripts 字段作为函数名前缀；
 /// 打出时无效果的词条需提供同名空函数占位（见 retain）。
 ///
 /// 契约详情见 docs/docs/mod/battle/card/readme.md
@@ -73,6 +73,22 @@ namespace CardScript {
     }
   }
 
+  /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
+  /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
+  function attack_rank_scaled(self, opponent, card, affix) {
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: self.data.rank * 5,
+    })
+  }
+
+  /// ------------------------------------------------------------
+  /// 增益 / 减益
+  /// ------------------------------------------------------------
+
   /// 攻击附带施加增益
   function attack_buff(self, opponent, card, affix) {
     opponent.takeDamage({
@@ -97,22 +113,6 @@ namespace CardScript {
     opponent.addStatusEffect(affix.buffId, amount: affix.value[1])
   }
 
-  /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
-  /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
-  function attack_rank_scaled(self, opponent, card, affix) {
-    opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: self.data.rank * 5,
-    })
-  }
-
-  /// ------------------------------------------------------------
-  /// 增益 / 减益
-  /// ------------------------------------------------------------
-
   /// 获得速度和防御
   function speed_quick_defend(self, opponent, card, affix) {
     self.addStatusEffect('speed_quick', amount: affix.value[0])
@@ -122,6 +122,33 @@ namespace CardScript {
   function dodge_nimble_defend(self, opponent, card, affix) {
     self.addStatusEffect('dodge_nimble', amount: affix.value[0])
     self.addStatusEffect('defense', amount: affix.value[1])
+  }
+
+  /// ------------------------------------------------------------
+  /// 原子函数（新增保留：单一状态、值取下标 0，供后续自由组合使用）
+  /// ------------------------------------------------------------
+
+  /// 迅捷 +value[0]
+  function speed_quick(self, opponent, card, affix) {
+    self.addStatusEffect('speed_quick', amount: affix.value[0])
+  }
+  /// 闪避 +value[0]
+  function dodge_nimble(self, opponent, card, affix) {
+    self.addStatusEffect('dodge_nimble', amount: affix.value[0])
+  }
+  /// 护甲 +value[0]
+  function defend(self, opponent, card, affix) {
+    self.addStatusEffect('defense', amount: affix.value[0])
+  }
+
+  /// 石盾术（悟道·stone_shield）：获得 = 当前灵气层数 ×value[0] 的护甲，
+  /// 灵气层数上限 value[1]（超出的灵气不转化）
+  function gain_defense_by_mana(self, opponent, card, affix) {
+    final mana = self.hasStatusEffect('energy_positive_spell')
+    if (mana <= 0) return
+    final cap = affix.value?[1] ?? mana
+    final gain = (Math.min(mana, cap) * affix.value[0]).round()
+    if (gain > 0) self.addStatusEffect('defense', amount: gain)
   }
 
   /// 提升生命上限

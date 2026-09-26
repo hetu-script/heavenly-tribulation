@@ -51,27 +51,11 @@
 
 ---
 
-## 现有词条
+## 主词条整理
 
-### 主词条（cards.json5）
+参考 spellcraft_main_affix_rework.md
 
-#### 攻击
-
-| id                                           | rank | kind      | cardType | 说明                            |
-| -------------------------------------------- | ---- | --------- | -------- | ------------------------------- |
-| punch_attack_exhaust_mana_fire/ice/lightning | 1    | punch     | unarmed  | 三系 exhaustion 拳（攻击+弱点） |
-| wind_blade                                   | 1    | airbend   | spell    | 风刃（物理+自身速度）           |
-| ice_block                                    | 2    | waterbend | spell    | 冰块（冰伤）                    |
-| fireball                                     | 2    | firebend  | spell    | 火球（火伤）                    |
-
-#### 加持
-
-| id                        | rank | kind    | cardType | 说明        |
-| ------------------------- | ---- | ------- | -------- | ----------- |
-| punch_defend_exhaust_mana | 1    | punch   | unarmed  | 拳防御      |
-| wind_buff                 | 2    | airbend | spell    | 速度，+护甲 |
-
-### 额外词条（card_affixes.json5）
+## 当前额外词条（card_affixes.json5）
 
 | id                               | rank | 说明           |
 | -------------------------------- | ---- | -------------- |
@@ -79,40 +63,19 @@
 | upgrade_hand_cards_spellcraft    | 1    | 升级手牌悟道卡 |
 | scry                             | 2    | 观星           |
 
-## 新增主词条（补 rank2-4，含数值参考）
-
-### 攻击
-
-| id                | rank | kind              | cardType | damageType | 效果                                                              | valueData 参考                                                          |
-| ----------------- | ---- | ----------------- | -------- | ---------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------- |
-| `wind_shear`      | 3    | airbend           | spell    | physical   | 多段物理伤，段数 = 当前速度                                       | `[{base:7, increment:0.7}, {base:3, maxLevel:0}]`（每段 / 段数）        |
-| `chain_lightning` | 3    | lightning_control | spell    | lightning  | 造成 N 段雷伤，段数 = 本回合已使用的不同元素种数（上限 value[1]） | `[{base:12, increment:1.2}, {base:4, maxLevel:0}]`（每段伤 / 段数上限） | `（基础伤 / 加成%） |
-| `tidal_surge`     | 4    | waterbend         | spell    | ice        | 若手牌中元素牌≥3 张，伤害 +X%                                     | `[{base:18, increment:1.8}, {base:25, increment:2.5}]                   |
-| `stone_spike`     | 4    | earthbend         | spell    | physical   | 物理伤，每有1点护甲则伤害 +1%                                     | `[{base:20, increment:1}]`                                              |
-| `fire_storm`      | 5    | firebend          | spell    | fire       | 耗尽所有灵气，每点灵气造成 X 火伤                                 | `[{base:8, increment:0.4}]`                                             |
-
-### 加持
-
-| id             | rank | kind          | cardType | 效果                            | valueData 参考                              |
-| -------------- | ---- | ------------- | -------- | ------------------------------- | ------------------------------------------- |
-| `stone_shield` | 1    | earthbend     | spell    | 获得 = 当前灵气 ×X 的护甲       | `[{base:3, increment:0.15}]`                |
-| `wind_haste`   | 1    | airbend       | spell    | 速度 +X，抽 X 张牌              | `[{base:2, increment:0.15}]`（速度 + 过牌） |
-| `mana_surge`   | 2    | xinfa         | xinfa    | 将当前元气全部转化为灵气        | 费用恒为0                                   |
-| `wood_regrow`  | 3    | plant_control | spell    | 治疗 X，并移除自身 1 层元素异常 | `[{base:15, increment:1.5}]`                |
-
 ## 新增额外词条（补流派专属，含数值参考）
 
 > 均为 `genres: ["spellcraft"]`，categories 按需。
 
-| id                | rank | categories  | 效果                                                                  | valueData 参考                                                            |
-| ----------------- | ---- | ----------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `attune`          | 1    | buff,attack | 入手时若手牌中有其他同系元素，本牌费用 -1（callbacks: added_to_hand） | 无数值（机制词条）                                                        |
-| `mana_burst`      | 1    | attack      | 若打出时灵气≥5，本牌伤害 +X%                                          | `[{base:25, increment:2.0}]`（灵气囤积阈值奖励）                          |
-| `on_element_draw` | 2    | buff,attack | 上一张牌如果是元素牌，抽 1 张牌（每回合至多 value[0] 次）             | `[{base:1, maxLevel:0}]`（限次防无限）                                    |
-| `ailment_spread`  | 2    | attack      | 本次攻击必然造成元素异常，且异常层数 +X                               | `[{base:1, increment:0.1}]`（DOT 层数加成，呼应绝世卡"按异常种类得灵气"） |
-| `elemental_focus` | 3    | attack      | 若上一张牌与本牌同元素，本牌伤害 +X%                                  | `[{base:30, increment:2.5}]`（专注路线，与轮转对立）                      |
-| `cycle_bonus`     | 3    | attack      | 若本回合已使用过与本牌不同的元素牌，本牌伤害 +X%                      | `[{base:20, increment:1.8}]`（轮转路线）                                  |
-| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气（低配版绝世装备）                               | `[{base:1, increment:0.05}]`                                              |
+| id                | rank | categories  | 效果                                                                  | valueData 参考               |
+| ----------------- | ---- | ----------- | --------------------------------------------------------------------- | ---------------------------- |
+| `attune`          | 1    | buff,attack | 入手时若手牌中有其他同系元素，本牌费用 -1（callbacks: added_to_hand） | 无数值（机制词条）           |
+| `on_element_draw` | 2    | buff,attack | 上一张牌如果是元素牌，抽 1 张牌（每回合至多 value[0] 次）             | `[{base:1, maxLevel:0}]`     |
+| `mana_burst`      | 1    | attack      | 若打出时灵气≥5，本牌伤害 +X%                                          | `[{base:25, increment:2.0}]` |
+| `ailment_spread`  | 2    | attack      | 本次攻击必然造成元素异常，且异常层数 +X                               | `[{base:1, increment:0.1}]`  |
+| `elemental_focus` | 3    | attack      | 若上一张牌与本牌同元素，本牌伤害 +X%                                  | `[{base:30, increment:2.5}]` |
+| `cycle_bonus`     | 3    | attack      | 若本回合已使用过与本牌不同的元素牌，本牌伤害 +X%                      | `[{base:20, increment:1.8}]` |
+| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气（低配版绝世装备）                               | `[{base:1, increment:0.05}]` |
 
 ## 绝世卡牌
 
