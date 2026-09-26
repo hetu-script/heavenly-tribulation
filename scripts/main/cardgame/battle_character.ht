@@ -54,4 +54,8 @@ external class BattleCharacter {
   /// 升级手牌：随机升级手牌中 count 张符合 options 条件（category/genre/cardType/kind/elementType）
   /// 的卡牌各 +1 级（inBattle，可突破上限，深拷贝不污染卡库）
   function upgradeHandCards(count: integer, {options})
+
+  /// 获取手牌：返回手牌中完全符合 options 条件（category/genre/cardType/kind/elementType，
+  /// 与 upgradeHandCards 同口径；为空则返回全部）的卡牌 data 列表
+  function getHandCards({options}) -> List
 }

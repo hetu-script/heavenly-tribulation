@@ -51,9 +51,33 @@
 
 ---
 
-## 主词条整理
+## 主词条（16 张随机池卡，已实现）
 
-参考 spellcraft_main_affix_rework.md
+### 攻击（11）
+
+| id                                  | rank | kind              | 元素 | damageType | 效果                                                                 | script                           | valueData                             |
+| ----------------------------------- | ---- | ----------------- | ---- | ---------- | -------------------------------------------------------------------- | -------------------------------- | ------------------------------------- |
+| punch_attack_exhaust_mana_fire      | 1    | punch             | 火   | fire       | 火伤+火弱点                                                          | attack_debuff                    | [{8, 0.8}, {4, 0.4}]                  |
+| punch_attack_exhaust_mana_ice       | 1    | punch             | 水   | ice        | 冰伤+冰弱点                                                          | attack_debuff                    | [{8, 0.8}, {4, 0.4}]                  |
+| punch_attack_exhaust_mana_lightning | 1    | punch             | 雷   | lightning  | 雷伤+雷弱点                                                          | attack_debuff                    | [{8, 0.8}, {4, 0.4}]                  |
+| wind_blade                          | 1    | airbend           | 风   | physical   | 物理伤+自身迅捷                                                      | attack_buff                      | [{15, 1.5}, {1, 0.2}]                 |
+| fireball                            | 2    | firebend          | 火   | fire       | 火伤                                                                 | attack                           | [{21, 2.1}]                           |
+| ice_block                           | 2    | waterbend         | 水   | ice        | 冰伤                                                                 | attack                           | [{15, 1.5}]                           |
+| chain_lightning                     | 3    | lightning_control | 雷   | lightning  | 段数=本回合已用元素种数（含本牌），每段雷伤                          | attack_multiple_by_used_elements | [{17, 1.5}]                           |
+| wind_storm                          | 3    | airbend           | 风   | physical   | 2 段物理伤+迟钝                                                      | attack_multiple_debuff           | [{9, 0.9}, {2, maxLevel:0}, {1, 0.2}] |
+| falling_stone                       | 4    | earthbend         | 土   | physical   | 物理伤，灵气≥6 本牌伤害 +{1}%（resourceId/resourceThreshold 参数化） | attack_with_energy_count_check   | [{18, 1.8}, {50, maxLevel:0}]         |
+| ice_storm                           | 4    | waterbend         | 水   | ice        | 段数=手牌中元素牌数（filter: {elementType: true}），每段冰伤         | attack_multiple_by_cards_in_hand | [{7, 0.7}]                            |
+| fire_storm                          | 5    | firebend          | 火   | fire       | 耗尽剩余灵气（resourceId），每点造成火伤                             | attack_exhaust_energy            | [{4, 0.4}]                            |
+
+### 加持（5）
+
+| id                        | rank | kind      | 元素 | 效果                                                                 | script               | valueData                     |
+| ------------------------- | ---- | --------- | ---- | -------------------------------------------------------------------- | -------------------- | ----------------------------- |
+| punch_defend_exhaust_mana | 1    | punch     | 无   | 护甲                                                                 | self_buff            | [{12, 0.6}]                   |
+| stone_shield              | 1    | earthbend | 土   | 护甲 = 当前灵气 ×{0}（至多转化 {1} 点灵气）                          | gain_defense_by_mana | [{3, 0.15}, {15, maxLevel:0}] |
+| wind_haste                | 1    | airbend   | 风   | 迅捷+护甲                                                            | speed_quick_defend   | [{1, 0.2}, {8, 0.4}]          |
+| mana_surge                | 2    | xinfa     | 无   | 元气 1:1 转化为灵气（费用恒 0，与中立卡 energy_positive_spell 并存） | convert_vigor_all    | [{100}]                       |
+| water_mend                | 3    | waterbend | 水   | 治疗并移除自身全部元素异常（debuffs 列表 = 7 种 ailment\_\*）        | heal_remove_debuffs  | [{18, 1.8}]                   |
 
 ## 当前额外词条（card_affixes.json5）
 
@@ -87,10 +111,10 @@
 
 ## 绝世装备
 
-| 装备       | 部位        | 效果                                                         | 设计意图                                                   |
-| ---------- | ----------- | ------------------------------------------------------------ | ---------------------------------------------------------- |
-| **蓄灵佩** | 饰品(pearl) | 每个回合结束时，至多保留 2 点未使用的灵气到下回合            | 万法归宗门槛的稳定路径（平滑累积）；规则特例，占绝世装备位 |
-| **五行珠** | 饰品(pearl) | 你造成的元素异常层数 +2                                      | 强化 DOT，间接服务蓄灵诀的异常种类计数                     |
-| **天机盘** | 法器        | 观星时额外查看 1 张                                          |
-| **聚灵旗** | 法器        | 战斗开始时获得 3 灵气                                        | 首回合爆发，缩短万法归宗暖机                               |
-| **玄武印** | 法器        | 你每有一种未使用的有色气（灵/剑/怒/煞），回合开始获得 1 元气 | 跨流派的资源转化，鼓励单一流派专注（不碰其他色气则无收益） |
+| 装备       | 部位         | 效果                                                         | 设计意图                                                   |
+| ---------- | ------------ | ------------------------------------------------------------ | ---------------------------------------------------------- |
+| **蓄灵佩** | 饰品(amulet) | 每个回合结束时，至多保留 2 点未使用的灵气到下回合            | 万法归宗门槛的稳定路径（平滑累积）；规则特例，占绝世装备位 |
+| **五行珠** | 饰品(amulet) | 你造成的元素异常层数 +2                                      | 强化 DOT，间接服务蓄灵诀的异常种类计数                     |
+| **天机盘** | 法器         | 观星时额外查看 1 张                                          |
+| **聚灵旗** | 法器         | 战斗开始时获得 3 灵气                                        | 首回合爆发，缩短万法归宗暖机                               |
+| **玄武印** | 法器         | 你每有一种未使用的有色气（灵/剑/怒/煞），回合开始获得 1 元气 | 跨流派的资源转化，鼓励单一流派专注（不碰其他色气则无收益） |

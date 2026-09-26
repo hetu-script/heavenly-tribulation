@@ -98,6 +98,12 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'scry':
         return ({object, positionalArgs, namedArgs}) =>
             character.scry(count: namedArgs['count']);
+      case 'upgradeHandCards':
+        return ({object, positionalArgs, namedArgs}) => character
+            .upgradeHandCards(positionalArgs.first, options: namedArgs['options']);
+      case 'getHandCards':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.getHandCards(options: namedArgs['options']);
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);
     }

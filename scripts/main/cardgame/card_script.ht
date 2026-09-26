@@ -73,6 +73,95 @@ namespace CardScript {
     }
   }
 
+  /// 多段攻击并在结束后施加减益（如 wind_storm 风雷破）：
+  /// 段数 = value[1]，每段 value[0] 伤害；全部命中后对手获得 buffId 状态 value[2] 层
+  function attack_multiple_debuff(self, opponent, card, affix) {
+    for (final i in range(affix.value[1])) {
+      opponent.takeDamage({
+        isMain: true,
+        kind: affix.kind,
+        cardType: affix.cardType,
+        damageType: affix.damageType,
+        baseValue: affix.value[0],
+      })
+    }
+    opponent.addStatusEffect(affix.buffId, amount: affix.value[2])
+  }
+
+  /// 按元素种数的多段攻击（如 chain_lightning 连环闪电）：
+  /// 段数 = 本回合已使用的不同元素种数（含本牌元素），至少 1 段，每段 value[0] 伤害。
+  /// 已用元素读 turnFlags['usedElements']（Map，Dart 侧在元素牌结算后无条件记录，
+  /// 与五行轮转分支同款键）；本牌元素按 elementType ?? damageType 补充去重
+  function attack_multiple_by_used_elements(self, opponent, card, affix) {
+    final usedElements = self.turnFlags['usedElements']
+    var count = 0
+    if (usedElements != null) count = usedElements.keys.length
+    final ownElement = affix.elementType ?? affix.damageType
+    if (ownElement != null &&
+        (usedElements == null || !(ownElement in usedElements.keys))) {
+      count += 1
+    }
+    if (count < 1) count = 1
+    for (final i in range(count)) {
+      opponent.takeDamage({
+        isMain: true,
+        kind: affix.kind,
+        cardType: affix.cardType,
+        damageType: affix.damageType,
+        baseValue: affix.value[0],
+      })
+    }
+  }
+
+  /// 按手牌计数的多段攻击（如 ice_storm 寒冰风暴，通用）：
+  /// 段数 = 手牌中完全符合 affix.filter 条件的卡牌数（条件口径同 matchCardCriteria，
+  /// 如 filter: { elementType: true } 匹配任意元素牌），每段 value[0] 伤害
+  function attack_multiple_by_cards_in_hand(self, opponent, card, affix) {
+    final cards = self.getHandCards(options: affix.filter)
+    for (final i in range(cards.length)) {
+      opponent.takeDamage({
+        isMain: true,
+        kind: affix.kind,
+        cardType: affix.cardType,
+        damageType: affix.damageType,
+        baseValue: affix.value[0],
+      })
+    }
+  }
+
+  /// 资源门槛增伤攻击（通用，如 falling_stone 陨星术）：
+  /// affix.resourceId 指定的资源气层数 ≥ affix.resourceThreshold（缺省 1）时，
+  /// 本次伤害 +value[1]%（乘区1，直接写入 takeDamage 明细），随后造成 value[0] 伤害
+  function attack_with_energy_count_check(self, opponent, card, affix) {
+    final details = {
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: affix.value[0],
+    }
+    if (self.hasStatusEffect(affix.resourceId) >= (affix.resourceThreshold ?? 1)) {
+      details.percentageChange1 = affix.value[1] / 100
+    }
+    opponent.takeDamage(details)
+  }
+
+  /// 耗尽资源攻击（通用，如 fire_storm 焚天烈焰）：
+  /// 耗尽 affix.resourceId 指定的全部剩余资源气（不含已支付的费用），
+  /// 每点造成 value[0] 伤害（模板同 spellcraft_ultimate_spell）
+  function attack_exhaust_energy(self, opponent, card, affix) {
+    final remaining = self.hasStatusEffect(affix.resourceId)
+    if (remaining <= 0) return
+    self.removeStatusEffect(affix.resourceId, amount: remaining)
+    opponent.takeDamage({
+      isMain: true,
+      kind: affix.kind,
+      cardType: affix.cardType,
+      damageType: affix.damageType,
+      baseValue: remaining * affix.value[0],
+    })
+  }
+
   /// 基础拳法（默认卡）：固定造成 角色境界 × 5 的伤害
   /// 数值读取角色境界而非卡牌境界，无法用 valueData 表达，故用脚本
   function attack_rank_scaled(self, opponent, card, affix) {
@@ -168,6 +257,16 @@ namespace CardScript {
   function heal_lifeMax(self, opponent, card, affix) {
     final regen = (affix.value[0] / 100 * self.lifeMax).round()
     self.changeLife(regen, isHeal: true)
+  }
+
+  /// 治疗并移除自身减益（如 water_mend 甘霖术）：
+  /// 回复 value[0] 生命，并整层移除 affix.debuffs 列表中的全部状态
+  function heal_remove_debuffs(self, opponent, card, affix) {
+    self.changeLife(affix.value[0], isHeal: true)
+    for (final debuffId in affix.debuffs) {
+      final amount = self.hasStatusEffect(debuffId)
+      if (amount > 0) self.removeStatusEffect(debuffId, amount: amount)
+    }
   }
 
   /// 获得增益

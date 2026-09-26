@@ -1239,13 +1239,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (passives['skilltree_branch_element_1'] != null) {
         await _upgradeRandomElementCardInHand();
       }
-      // 五行轮转（skilltree_branch_element_2）：本回合每使用一种不同的元素牌，灵气 +1
-      if (passives['skilltree_branch_element_2'] != null) {
-        final usedElements = turnFlags.putIfAbsent(
-            'usedElements', () => <String>{}) as Set<String>;
-        final elementKey =
-            (mainAffix['elementType'] ?? mainAffix['damageType']) as String?;
-        if (elementKey != null && usedElements.add(elementKey)) {
+      // 元素牌使用记录（无条件记录，chain_lightning 等词条按本回合元素种数结算）：
+      // turnFlags['usedElements'] 为 Map<元素键, 使用次数>，回合开始清空
+      final usedElements = turnFlags.putIfAbsent(
+          'usedElements', () => <String, int>{}) as Map<String, int>;
+      final elementKey =
+          (mainAffix['elementType'] ?? mainAffix['damageType']) as String?;
+      if (elementKey != null) {
+        final isNewElement = !usedElements.containsKey(elementKey);
+        usedElements[elementKey] = (usedElements[elementKey] ?? 0) + 1;
+        // 五行轮转（skilltree_branch_element_2）：本回合每使用一种不同的元素牌，灵气 +1
+        if (isNewElement && passives['skilltree_branch_element_2'] != null) {
           addStatusEffect('energy_positive_spell', amount: 1);
         }
       }
@@ -1409,6 +1413,20 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (isHero) {
       battleScene.refreshHandCardDescription();
     }
+  }
+
+  /// 获取手牌（卡牌词条 attack_multiple_by_cards_in_hand 等调用）：返回手牌区中
+  /// 完全符合 [options] 条件（category/genre/cardType/kind/elementType，见 matchCardCriteria；
+  /// 某字段值为 true 表示「该字段非空即可」，如 elementType: true 匹配任意元素牌）的
+  /// 卡牌 data 列表。匹配以卡牌主词条数据为准；options 为空时返回全部手牌。
+  List getHandCards({dynamic options}) {
+    final battleScene = game as BattleScene;
+    final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;
+    return hand.cards
+        .where((c) =>
+            matchCardCriteria((c as CustomGameCard).data['affixes'][0], options))
+        .map((c) => (c as CustomGameCard).data)
+        .toList();
   }
 
   /// 抱真守一（悟道分支）：升级手牌中 1 张元素牌（elementType 非空），
