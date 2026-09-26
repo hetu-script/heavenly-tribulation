@@ -99,7 +99,7 @@
 | `ailment_spread`  | 2    | attack      | 本次攻击必然造成元素异常，且异常层数 +X                               | `[{base:1, increment:0.1}]`  |
 | `elemental_focus` | 3    | attack      | 若上一张牌与本牌同元素，本牌伤害 +X%                                  | `[{base:30, increment:2.5}]` |
 | `cycle_bonus`     | 3    | attack      | 若本回合已使用过与本牌不同的元素牌，本牌伤害 +X%                      | `[{base:20, increment:1.8}]` |
-| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气（低配版绝世装备）                               | `[{base:1, increment:0.05}]` |
+| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气                                                 | `[{base:1, increment:0.02}]` |
 
 ## 绝世卡牌
 
