@@ -50,4 +50,8 @@ external class BattleCharacter {
   /// 观星：查看牌库顶 count 张牌（缺省为 3），选一张放回牌库顶，其余进弃牌堆；
   /// 牌库为空时不触发（观星不触发洗牌）
   function scry({count: integer})
+
+  /// 升级手牌：随机升级手牌中 count 张符合 options 条件（category/genre/cardType/kind/elementType）
+  /// 的卡牌各 +1 级（inBattle，可突破上限，深拷贝不污染卡库）
+  function upgradeHandCards(count: integer, {options})
 }

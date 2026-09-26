@@ -104,9 +104,6 @@
   "element_wind": "风",
   "element_lightning": "雷",
 
-  "exhaustResource": "费用",
-  "exhaustResource_description": "每张卡牌只需一种资源才能打出: 流派卡牌支付对应的有色气（灵气/剑气/怒气/煞气），中立卡牌支付元气",
-
   "battlecard_cost_lacking_hint": "{0}不足: 需要 {1}，拥有 {2}",
 
   "affix_draw_cards": "抽取 {0} 张牌",
@@ -187,6 +184,18 @@
 
   "affix_by_damage_heal": "每造成 10 伤害: 回复 {0} 生命",
   "affix_by_damage_defend": "每造成 10 伤害: 护甲 +{0}",
+
+  "affix_upgrade_card": "升级",
+  "affix_upgrade_card_description": "打出后此牌等级 +1（可突破等级上限，仅本场战斗有效）",
+
+  "affix_upgrade_hand_cards": "升级手牌",
+  "affix_upgrade_hand_cards_spellcraft": "随机一张悟道手牌等级 +1",
+  "affix_upgrade_hand_cards_swordcraft": "随机一张御剑手牌等级 +1",
+  "affix_upgrade_hand_cards_bodyforge": "随机一张锻体手牌等级 +1",
+  "affix_upgrade_hand_cards_vitality": "随机一张炼魂手牌等级 +1",
+  "affix_upgrade_hand_cards_avatar": "随机一张法身手牌等级 +1",
+
+  "affix_draw_cards_neutral": "抽 1 张牌",
 
   "affix_card_penetration": "本次攻击时护甲穿透 +{0}%",
 

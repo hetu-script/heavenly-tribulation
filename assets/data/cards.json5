@@ -100,7 +100,6 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "draw_cards",
-    keywords: ["exhaustResource"],
     coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {

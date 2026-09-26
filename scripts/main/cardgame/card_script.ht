@@ -243,6 +243,24 @@ namespace CardScript {
   /// 时机回调
   /// ------------------------------------------------------------
 
+  /// 升级（中立额外词条）：打出后本牌等级 +1（value[0] 级，当前固定 1）。
+  /// 战斗内临时升级（inBattle: true），可突破卡牌等级上限；
+  /// 战斗用牌是深拷贝，临时升级不污染卡库。
+  function upgrade_card(self, opponent, card, affix) {
+    final levels = affix.value?[0] ?? 1
+    for (final i in range(levels)) {
+      upgradeCard(card, inBattle: true)
+    }
+  }
+
+  /// 升级手牌（中立额外词条）：随机升级手牌中 value[0] 张符合词条条件的卡牌各 +1 级。
+  /// 数据层在词条上附带条件子表（字段：category / genre / cardType / kind / elementType 任意组合），
+  /// 与 draw_cards 的 filter 同口径（如流派专属词条：filter: { genre: 'spellcraft' }）。
+  /// 战斗内临时升级（可突破上限，深拷贝不污染卡库）。
+  function upgrade_hand_cards(self, opponent, card, affix) {
+    self.upgradeHandCards(affix.value[0], options: affix.filter)
+  }
+
   /// 保留（御剑流派专属词条）的打出时占位函数：
   /// 效果挂在 added_to_hand 回调上，打出时无效果
   function retain(self, opponent, card, affix) {}

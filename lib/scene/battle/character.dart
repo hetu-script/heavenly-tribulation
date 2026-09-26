@@ -1382,25 +1382,38 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return false;
   }
 
-  /// 抱真守一（悟道分支）：从手牌区随机取一张元素牌，经 hetu upgradeCard 升级
-  /// （等级 +1 并按公式重算主词条数值；战斗用牌是深拷贝，不影响卡库）。
+  /// 升级手牌（卡牌词条 upgrade_hand_cards / 抱真守一等调用）：从手牌区随机取 [count] 张
+  /// 完全符合 [options] 条件（category/genre/cardType/kind/elementType，见 matchCardCriteria；
+  /// 某字段值为 true 表示「该字段非空即可」，如 elementType: true 匹配任意元素牌）的卡牌，
+  /// 各经 hetu upgradeCard 升级 +1 级（inBattle: true，可突破上限，深拷贝不污染卡库）。
+  /// 匹配以卡牌主词条数据为准。手牌中无符合卡时不生效。
   /// TODO: 放大然后缩小卡牌，动画提示被升级
-  Future<void> _upgradeRandomElementCardInHand() async {
+  Future<void> upgradeHandCards(int count, {dynamic options}) async {
     final battleScene = game as BattleScene;
     final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;
     final candidates = hand.cards
-        .where((card) =>
-            _isElementCardData((card as CustomGameCard).data['affixes'][0]))
+        .where((c) =>
+            matchCardCriteria((c as CustomGameCard).data['affixes'][0], options))
+        .cast<CustomGameCard>()
         .toList();
     if (candidates.isEmpty) return;
-    final card =
-        candidates[random.nextInt(candidates.length)] as CustomGameCard;
-    engine.hetu.invoke('upgradeCard',
-        positionalArgs: [card.data], namedArgs: {'inBattle': true});
-    addHintText(
-        engine.locale('cardUpgradedHint', interpolations: [card.data['name']]));
+    candidates.shuffle(random);
+    final n = count < candidates.length ? count : candidates.length;
+    for (var i = 0; i < n; ++i) {
+      final card = candidates[i];
+      engine.hetu.invoke('upgradeCard',
+          positionalArgs: [card.data], namedArgs: {'inBattle': true});
+      addHintText(engine.locale('cardUpgradedHint',
+          interpolations: [card.data['name']]));
+    }
     if (isHero) {
       battleScene.refreshHandCardDescription();
     }
+  }
+
+  /// 抱真守一（悟道分支）：升级手牌中 1 张元素牌（elementType 非空），
+  /// 统一走 upgradeHandCards（与 upgrade_hand_cards 词条同一入口）。
+  Future<void> _upgradeRandomElementCardInHand() async {
+    await upgradeHandCards(1, options: {'elementType': true});
   }
 }

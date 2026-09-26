@@ -271,21 +271,6 @@
   // 临时升级手牌中的其他卡牌(buff)
 
   // ------------额外词条·攻击------------
-  // 临时升级卡牌(attack)
-  // upgrade_card: {
-  //   id: "upgrade_card",
-  //   uniqueId: "upgrade_card",
-  //   categories: ["buff", "attack"],
-  //   rank: 1,
-  //   description: "affix_upgrade_card",
-  //   script: "upgrade_card",
-  //   valueData: [
-  //     {
-  //       base: 1,
-  //       increment: 0.1,
-  //     },
-  //   ],
-  // },
 
   // card_penetration: {
   //   id: "card_penetration",
@@ -301,6 +286,135 @@
   //     },
   //   ],
   // },
+
+  // 抽牌（中立）：打出后从牌库顶抽 1 张牌（无任何条件，value 恒 1）
+  // 中立随机抽牌，区别于各流派的精准/条件抽牌；复用 draw_cards 脚本（无 filter）
+  draw_cards_neutral: {
+    id: "draw_cards_neutral",
+    uniqueId: "draw_cards_neutral",
+    categories: ["buff", "attack"],
+    rank: 1,
+    description: "affix_draw_cards_neutral",
+    keywords: ["affix_draw_cards_neutral"],
+    script: "draw_cards",
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+
+  // 升级：打出后本牌等级 +1（战斗内临时升级，可突破卡牌等级上限；
+  // 深拷贝不污染卡库；新指数公式下 +1 级相对提升全境界恒定有感）
+  // valueData 首值固定为 1（升级级数），maxLevel: 0 表示不随词条等级缩放
+  upgrade_card: {
+    id: "upgrade_card",
+    uniqueId: "upgrade_card",
+    categories: ["buff", "attack"],
+    rank: 1,
+    description: "affix_upgrade_card",
+    keywords: ["affix_upgrade_card"],
+    script: "upgrade_card",
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+
+  // 升级手牌（流派专属·悟道）：随机升级手牌中 1 张悟道卡 +1 级
+  // 条件子表 filter 与 draw_cards 同口径；当前应用仅限按流派过滤且只升级 1 张（value 恒 1）
+  upgrade_hand_cards_spellcraft: {
+    id: "upgrade_hand_cards_spellcraft",
+    uniqueId: "upgrade_hand_cards_spellcraft",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_spellcraft",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "spellcraft" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+  // 升级手牌（流派专属·御剑）
+  upgrade_hand_cards_swordcraft: {
+    id: "upgrade_hand_cards_swordcraft",
+    uniqueId: "upgrade_hand_cards_swordcraft",
+    categories: ["buff", "attack"],
+    genres: ["swordcraft"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_swordcraft",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "swordcraft" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+  // 升级手牌（流派专属·锻体）
+  upgrade_hand_cards_bodyforge: {
+    id: "upgrade_hand_cards_bodyforge",
+    uniqueId: "upgrade_hand_cards_bodyforge",
+    categories: ["buff", "attack"],
+    genres: ["bodyforge"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_bodyforge",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "bodyforge" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+  // 升级手牌（流派专属·炼魂）
+  upgrade_hand_cards_vitality: {
+    id: "upgrade_hand_cards_vitality",
+    uniqueId: "upgrade_hand_cards_vitality",
+    categories: ["buff", "attack"],
+    genres: ["vitality"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_vitality",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "vitality" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
+  // 升级手牌（流派专属·法身）
+  upgrade_hand_cards_avatar: {
+    id: "upgrade_hand_cards_avatar",
+    uniqueId: "upgrade_hand_cards_avatar",
+    categories: ["buff", "attack"],
+    genres: ["avatar"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_avatar",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "avatar" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+  },
 
   by_damage_heal: {
     id: "by_damage_heal",

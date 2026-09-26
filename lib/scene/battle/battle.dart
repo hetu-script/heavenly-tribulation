@@ -49,11 +49,18 @@ const kCardCriteriaFields = [
 /// 检查词条数据（卡牌主词条）是否完全符合 [criteria] 中指定的全部字段。
 /// criteria 为 Map 或 HTStruct（故为 dynamic）；仅 [kCardCriteriaFields] 中的
 /// 非空字段参与匹配，其余键忽略。criteria 为空视为无条件（恒为 true）。
+/// 某字段值为 true 表示「该字段非空即可」（任意值），用于匹配元素牌（elementType: true）等。
 bool matchCardCriteria(dynamic affixData, dynamic criteria) {
   if (criteria == null || criteria.isEmpty) return true;
   for (final field in kCardCriteriaFields) {
     final expected = criteria[field];
-    if (expected != null && affixData[field] != expected) return false;
+    if (expected == null) continue;
+    // true 表示「该字段非空」（如 elementType: true 匹配任意元素牌）
+    if (expected == true) {
+      if (affixData[field] == null) return false;
+      continue;
+    }
+    if (affixData[field] != expected) return false;
   }
   return true;
 }
@@ -889,18 +896,20 @@ class BattleScene extends Scene {
 
       CustomGameCard? card;
       if (filter != null) {
-        // 过滤抽牌：整库无匹配时重洗弃牌堆后再检视一次，仍无匹配即结束（避免死循环）
+        // 过滤抽牌：deck 无匹配时，仅当弃牌堆中存在匹配牌才洗牌（无匹配直接结束，避免死循环）
         card = _findDeckCardMatching(deck.cards, filter);
-        // if (found == null) {
-        //   if (discard.cards.isEmpty) break;
-        //   await shuffleDiscardIntoDeck(deck, discard);
-        //   found = _findDeckCardMatching(deck.cards, filter);
-        //   if (found == null) break;
-        // }
-        // card = found;
+        if (card == null) {
+          if (discard.cards.isEmpty ||
+              _findDeckCardMatching(discard.cards, filter) == null) {
+            break;
+          }
+          await shuffleDiscardIntoDeck(deck, discard);
+          card = _findDeckCardMatching(deck.cards, filter);
+        }
       } else {
         card = deck.cards.last as CustomGameCard;
       }
+      // card 必非 null（无匹配时已在上方 break），此处仅为类型收窄
       if (card != null) {
         hand.tryAddCard(card, sort: true);
 
