@@ -85,6 +85,8 @@ class Constants extends HTExternalClass {
         return kWildcardStatusId;
       case 'Constants.debuffs':
         return kDebuffs;
+      case 'Constants.elementAilments':
+        return kElementAilmentIds;
       case 'Constants.scrollMaxCharges':
         return kScrollMaxCharges;
       case 'Constants.battleDeckSize':

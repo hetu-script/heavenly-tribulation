@@ -405,6 +405,22 @@ const kDebuffs = [
   'ailment_poison',
 ];
 
+/// 元素 → 元素异常的映射（对应关系以本地化 status_element_ailment_description 为准）：
+/// 金:流血、木:中毒、水:冰缓（ailment_ice）、火:点燃（ailment_fire）、土:内伤、
+/// 风:幻觉、雷:感电。
+/// 供 ailment_spread / attack_multiple_ailment 等词条脚本直接施加元素异常查表
+/// （不经 takeDamage 的异常计数器，必然施加）。
+/// 通过 Constants.elementAilments 导出到脚本侧
+const kElementAilmentIds = {
+  'element_metal': 'ailment_bleeding',
+  'element_wood': 'ailment_poison',
+  'element_water': 'ailment_ice',
+  'element_fire': 'ailment_fire',
+  'element_earth': 'ailment_internal_injury',
+  'element_wind': 'ailment_hallucination',
+  'element_lightning': 'ailment_lightning',
+};
+
 const kDeckEphemeralCount = 3;
 
 /// 符箓的使用次数上限（与 ephemeral 卡组上限数值相同纯属巧合，两者是独立概念）
@@ -1391,9 +1407,6 @@ const kElementRotationKinds = [
   'lightning_control',
 ];
 
-/// 悟道还婴「五气朝元」每回合授予的 increase_damage_* 层数（1 层 = +1%）
-const kElementEnhanceAmount = 10;
-
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;
 
@@ -2175,8 +2188,10 @@ const kBattleCardIllustrations = {
   "swordcraft_xinfa",
   "talisman",
   "unique_draw_cards",
-  "unique_vigor",
+  "unique_element_ailments",
   "unique_reduce_resist_all",
+  "unique_scry_draw",
+  "unique_vigor",
   "vitality_power_word_attack",
   "vitality_power_word_defend",
   "xinfa_chakra",

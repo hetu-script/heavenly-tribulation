@@ -36,6 +36,11 @@ description: |
   （通用 / 攻击 / 时机回调）。
 - 稀有度/境界：用 `rank` 字段（0~5），不是 rarity。
 - 注释用中文。
+- **新插画**：图片放 `assets/images/battlecard/illustration/`（可用 image-gen skill 生成；
+  绝世卡必须使用专门插画，不复用通用图）。文件名（无扩展名）即插画 id，需同步两处：
+  ① `lib/data/common.dart` 的 `kBattleCardIllustrations`（按字母序插入，记忆翻牌小游戏使用）；
+  ② `assets/locale/zh/rpg/battlecard.json` 的 `"illustration_{插画id}": "插画名"`（按字母序，
+  如 `"illustration_unique_scry_draw": "绝世·天机术"`）。
 
 ### B. 脚本层（card_script.ht）
 
@@ -70,12 +75,7 @@ description: |
 
 改完必须重新编译脚本并检查：
 
-```
-"C:/Users/Administrator/AppData/Local/Dart/install/bin/hetu.bat" compile scripts/main/main.ht assets/mods/main.mod
-flutter analyze   # 若改了 dart
-```
-
-（`python build.py` 在 Windows 下对 hetu 的调用有 PATH 问题，直接用上面的 hetu.bat 路径。）
+（`python build.py` 在 Windows 下对 hetu 的调用可能有 PATH 问题，如果失败可以调用系统环境变量中dart install的绝对路径的hetu.bat。）
 
 ## 2. 主词条（cards.json5）字段详解
 
@@ -92,7 +92,7 @@ punch_attack: {
   rank: 1,                       // 使用境界门槛 0~5，省略=0
   description: "affix_attack_unarmed",  // 本地化键
   keywords: ["status_defense"],  // 悬浮提示关联
-  image: "battlecard/illustration/punch_attack.png",
+  image: "battlecard/illustration/punch_attack.png",  // 新插画需同步 kBattleCardIllustrations + illustration_xxx（见 1.A）
   animation: {                   // 战斗动画
     startup: ["before_melee_startup", "melee_startup"],  // 前摇（数组）
     recovery: ["melee_recovery"],   // 后摇（可选）
@@ -206,6 +206,7 @@ function upgrade_hand_cards(self, opponent, card, affix) {
 - [ ] valueData 与脚本读的 value[i] 数量对应。
 - [ ] 本地化：affix_xxx（+_description）、uniquecard_xxx（绝世卡）、status 引用存在。
 - [ ] 绝世卡：isUnique + affixes 列表 + uniquecard_ 卡名；天赋授予加 isUnpackable。
+- [ ] 新插画：已同步 `kBattleCardIllustrations` 与 battlecard.json 的 `illustration_xxx`。
 - [ ] 数值符合新指数公式（increment 按本境界内等级，全境界 +1 级有感）。
 - [ ] 重新编译 main.mod 通过；改动 dart 则 flutter analyze 通过。
 

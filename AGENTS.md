@@ -217,6 +217,8 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 - 事件回调函数通常为 `async`
 - 修改脚本后必须重新运行 `python build.py` 生成 `.mod` 文件
 
+（`python build.py` 在 Windows 下对 hetu 的调用可能有 PATH 问题，如果失败可以调用系统环境变量中dart install的绝对路径的hetu.bat。）
+
 ### 游戏数据（JSON5）
 
 - 所有数据文件为顶层对象，以实体 ID 为键

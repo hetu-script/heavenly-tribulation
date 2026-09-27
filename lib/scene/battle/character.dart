@@ -674,6 +674,19 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         addStatusEffect('energy_positive_spell', amount: spellEnergy);
       }
     }
+
+    // 授予上回合「下回合获得资源」词条（gain_resource_next_turn）蓄势的资源：
+    // 取出并清空标记（键 = 资源气状态 id，值 = 层数），非正数跳过。
+    // 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 keys/[] 访问
+    final pendingResources = turnFlags.remove('pendingResources');
+    if (pendingResources != null) {
+      for (final key in pendingResources.keys) {
+        final amount = pendingResources[key];
+        if (amount is num && amount > 0) {
+          addStatusEffect('$key', amount: amount.toInt());
+        }
+      }
+    }
   }
 
   dynamic _invokeScript(StatusEffect effect, String callbackId,
@@ -1087,7 +1100,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   Future<void> onStartTurn({bool isExtra = false}) async {
     // 重置 turnFlags
+    // pendingResources（下回合产出时授予的资源标记）是唯一跨清空保留的键：
+    // 清空前暂存、清空后放回；授予延迟到 produceTurnStartResources 末尾
+    // （onStartTurn 之后紧跟 clearResourceEffects，提前授予会被当场冲掉）
+    final pendingResources = turnFlags['pendingResources'];
     turnFlags.clear();
+    if (pendingResources != null) {
+      turnFlags['pendingResources'] = pendingResources;
+    }
     // 重置主词条本回合累计伤害计数
     turnFlags['totalDamage'] = 0;
     // isExtra 表示这是某些机制触发的再次行动回合
@@ -1187,7 +1207,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final affix in beforeMain) {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
-      engine.hetu.invoke(
+      // 统一 await 词条脚本：async 脚本（如天机术 scry_then_draw 内部 await 观星）
+      // 会挂起结算流程直至完成，保证词条间与收尾流程的执行顺序；
+      // 同步脚本的 await 是空操作
+      await engine.hetu.invoke(
         scriptId,
         namespace: 'CardScript',
         positionalArgs: [this, opponent, card.data, affix],
@@ -1205,7 +1228,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         overlays: animation['overlays'],
         sound: animation['sound'],
       );
-      engine.hetu.invoke(
+      await engine.hetu.invoke(
         mainScriptId,
         namespace: 'CardScript',
         positionalArgs: [this, opponent, card.data, mainAffix],
@@ -1225,7 +1248,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final affix in afterMain) {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
-      engine.hetu.invoke(
+      await engine.hetu.invoke(
         scriptId,
         namespace: 'CardScript',
         positionalArgs: [this, opponent, card.data, affix],
@@ -1233,11 +1256,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     // 悟道分支的元素牌联动（抱真守一 / 五行轮转）
-    if (_isElementCardData(mainAffix)) {
+    final elementType = mainAffix['elementType'];
+    if (elementType != null) {
       final passives = data['passives'];
       // 抱真守一（skilltree_branch_element_1）：手牌里随机一张元素牌获得升级
       if (passives['skilltree_branch_element_1'] != null) {
-        await _upgradeRandomElementCardInHand();
+        await _upgradeRandomElementCardInHand(elementType);
       }
       // 元素牌使用记录（无条件记录，chain_lightning 等词条按本回合元素种数结算）：
       // turnFlags['usedElements'] 为 Map<元素键, 使用次数>，回合开始清空
@@ -1254,6 +1278,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
     }
+
+    // 无条件记录本回合上一张打出的牌（CustomGameCard 引用，非字段副本）：
+    // 记录点在所有词条脚本之后 → priority<0 的词条读到的是真正的「上一张打出的牌」；
+    // turnFlags 回合开始清空 → 「上一张打出的牌」限定本回合
+    turnFlags['lastUsedCard'] = card;
 
     if (mainAffix['category'] == 'attack') {
       // 触发自己发动攻击后的效果
@@ -1300,7 +1329,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 悟道还婴「五气朝元」（spellcraft_rank_4）：
   /// 每个回合开始时，按 御水术→御火术→土遁→御风术→雷法 的顺序轮流获得对应套路的伤害增强
-  /// （increase_damage_* 永久状态，1 层 = +1%），先移除上轮所授层数，再授予本轮。
+  /// （increase_damage_* 永久状态，1 层 = +1%），增强层数 = 自身灵力属性的一半，
+  /// 先移除上轮所授层数，再授予本轮。
   /// 在 battle.dart 的 _startTurn 中于回合开始注入之后显式调用。
   void handleElementRotation() {
     if (data['passives']['spellcraft_rank_4'] == null) return;
@@ -1310,13 +1340,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       removeStatusEffect(last['statusId'], amount: last['amount']);
       data['elementRotation'] = null;
     }
+    final int amount = ((data['stats']['spirituality'] ?? 0) as int) ~/ 2;
+    if (amount <= 0) return;
     final kind =
         kElementRotationKinds[(turnCount - 1) % kElementRotationKinds.length];
     final statusId = 'increase_damage_$kind';
-    addStatusEffect(statusId, amount: kElementEnhanceAmount);
+    addStatusEffect(statusId, amount: amount);
     data['elementRotation'] = {
       'statusId': statusId,
-      'amount': kElementEnhanceAmount,
+      'amount': amount,
     };
   }
 
@@ -1378,14 +1410,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 元素牌判定：elementType 非空（七元素标记，激活数据层的 elementType 字段），
-  bool _isElementCardData(dynamic cardData) {
-    if (cardData['elementType'] != null) return true;
-    // return const {'fire', 'ice', 'lightning', 'poison'}
-    //     .contains(cardData['damageType']);
-    return false;
-  }
-
   /// 升级手牌（卡牌词条 upgrade_hand_cards / 抱真守一等调用）：从手牌区随机取 [count] 张
   /// 完全符合 [options] 条件（category/genre/cardType/kind/elementType，见 matchCardCriteria；
   /// 某字段值为 true 表示「该字段非空即可」，如 elementType: true 匹配任意元素牌）的卡牌，
@@ -1429,9 +1453,25 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         .toList();
   }
 
+  /// 本回合上一张打出的牌（主词条）是否完全符合 criteria 条件（支持 filterNon 反选）。
+  /// 上一张打出的牌以 CustomGameCard 引用记录于 turnFlags['lastUsedCard']
+  /// （onUseCard 末尾无条件写入，回合开始随 turnFlags 清空）；
+  /// 每回合首张打出的牌无上一张，条件不成立
+  bool matchLastUsedCard(dynamic criteria) {
+    final last = turnFlags['lastUsedCard'];
+    if (last is! CustomGameCard) return false;
+    return matchCardCriteria(last.data['affixes'][0], criteria);
+  }
+
+  /// 本回合上一张打出的牌的完整数据（BattleCard struct），无则 null
+  dynamic getLastUsedCard() {
+    final last = turnFlags['lastUsedCard'];
+    return (last as CustomGameCard?)?.data;
+  }
+
   /// 抱真守一（悟道分支）：升级手牌中 1 张元素牌（elementType 非空），
   /// 统一走 upgradeHandCards（与 upgrade_hand_cards 词条同一入口）。
-  Future<void> _upgradeRandomElementCardInHand() async {
-    await upgradeHandCards(1, options: {'elementType': true});
+  Future<void> _upgradeRandomElementCardInHand([String? elementType]) async {
+    await upgradeHandCards(1, options: {'elementType': elementType});
   }
 }

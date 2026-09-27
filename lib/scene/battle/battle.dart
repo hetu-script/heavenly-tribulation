@@ -48,8 +48,11 @@ const kCardCriteriaFields = [
 
 /// 检查词条数据（卡牌主词条）是否完全符合 [criteria] 中指定的全部字段。
 /// criteria 为 Map 或 HTStruct（故为 dynamic）；仅 [kCardCriteriaFields] 中的
-/// 非空字段参与匹配，其余键忽略。criteria 为空视为无条件（恒为 true）。
+/// 非空字段参与匹配，其余键忽略（含 filterNon 子表，单独处理）。
+/// criteria 为空视为无条件（恒为 true）。
 /// 某字段值为 true 表示「该字段非空即可」（任意值），用于匹配元素牌（elementType: true）等。
+/// criteria 可含 filterNon 反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；
+/// 值 true 表示「该字段必须为空」（与正选 true =「非空即可」对称）。
 bool matchCardCriteria(dynamic affixData, dynamic criteria) {
   if (criteria == null || criteria.isEmpty) return true;
   for (final field in kCardCriteriaFields) {
@@ -61,6 +64,19 @@ bool matchCardCriteria(dynamic affixData, dynamic criteria) {
       continue;
     }
     if (affixData[field] != expected) return false;
+  }
+  // 反选子表：字段值不得等于指定值；true 表示该字段必须为空
+  final filterNon = criteria['filterNon'];
+  if (filterNon != null) {
+    for (final field in kCardCriteriaFields) {
+      final unexpected = filterNon[field];
+      if (unexpected == null) continue;
+      if (unexpected == true) {
+        if (affixData[field] != null) return false;
+        continue;
+      }
+      if (affixData[field] == unexpected) return false;
+    }
   }
   return true;
 }
@@ -718,36 +734,36 @@ class BattleScene extends Scene {
     // 将弃牌堆和手牌区的卡牌归还牌库
     await _returnAllCardsToDecks();
 
-    // 悟道分支「返朴归元」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」加入手牌。
-    // 必须在归还全部卡牌之后授予，否则会被洗回牌库；
-    // 战斗重开时卡牌可能已在牌库/弃牌堆中（或已打出碎裂移出战斗），
-    // 先查找再决定是否重新创建，避免重复授予。
+    // 悟道分支「紫微斗数」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」洗入牌库。
+    // 必须在归还全部卡牌之后处理，此时已有卡牌都已回到牌库；
+    // 战斗重开时卡牌可能已打出碎裂移出战斗，先查找再决定是否重新创建，避免重复授予。
     if (heroData['passives']['skilltree_branch_draw_1'] != null) {
-      CustomGameCard? granted;
+      bool granted = false;
       for (final zone in [heroHandZone, heroDeckZone, heroDiscardZone]) {
         for (final c in zone.cards) {
           final card = c as CustomGameCard;
           if (card.data['uniqueId'] == 'spellcraft_draw_cards_reduce_cost') {
-            granted = card;
+            granted = true;
             break;
           }
         }
-        if (granted != null) break;
+        if (granted) break;
       }
-      if (granted == null) {
-        granted = GameData.createBattleCard(
+      if (!granted) {
+        final card = GameData.createBattleCard(
           engine.hetu.invoke('BattleCard', namedArgs: {
             'affixId': 'spellcraft_draw_cards_reduce_cost',
             'isIdentified': true
           }),
           deepCopyData: true,
         );
-        world.add(granted);
+        card.isFlipped = true;
+        card.enableGesture = false;
+        world.add(card);
+        heroDeckZone.tryAddCard(card);
+        heroDeckZone.shuffle();
+        await heroDeckZone.sortCards(animated: false);
       }
-      granted.isFlipped = false;
-      heroHandZone.tryAddCard(granted);
-      handleCardAffixCallback('added_to_hand', granted, hero);
-      await heroHandZone.sortCards();
     }
 
     /// 根据身法加权随机决定先手，偷袭时英雄直接先手
@@ -815,6 +831,7 @@ class BattleScene extends Scene {
   /// [keepRetained] 为 true 时，带有 isRetained 标记（保留）的卡牌留在手牌中；
   /// isRetained 由卡牌词条的入手回调动态写入（如御剑专属词条 retain，
   /// 见 added_to_hand 时机，契约见 docs/docs/mod/battle/card/readme.md）。
+  /// 实际离手的卡牌会派发 removed_from_hand 回调（如悟道专属词条 attune 在此还原费用）。
   /// 回合结束调用时应传 true，战斗重开清理时传 false（全部回库）。
   Future<void> clearHand(HandZone hand, DiscardZone discard,
       {bool animated = true, bool keepRetained = false}) async {
@@ -824,6 +841,9 @@ class BattleScene extends Scene {
       }
       card.isFlipped = true;
       card.clearInteraction();
+      // 离手回调时机（removed_from_hand）
+      handleCardAffixCallback('removed_from_hand', card as CustomGameCard,
+          hand == heroHandZone ? hero : enemy);
       discard.tryAddCard(card);
     }
     await discard.sortCards(animated: animated);
@@ -1114,17 +1134,24 @@ class BattleScene extends Scene {
   /// 检查能否支付卡牌费用（全有或全无）。
   /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
   /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止无极之气抵扣，
+  /// 必须本色气全额支付，其需求单独累计校验。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
     var colorlessNeed = 0;
     final coloredNeeds = <String, int>{};
+    final forbiddenNeeds = <String, int>{};
     final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
 
     void accumulate(CustomGameCard c) {
+      final forbidden = c.data['isWildcardCostForbidden'] == true;
       for (final entry in _cardCostColored(c).entries) {
         if (entry.key == kColorlessCostColorId) {
           // 元气（无色费用）：不受虚空之气增费，也不能用无极之气补齐
           colorlessNeed += entry.value;
+        } else if (forbidden) {
+          forbiddenNeeds[entry.key] =
+              (forbiddenNeeds[entry.key] ?? 0) + entry.value + voidQi;
         } else {
           coloredNeeds[entry.key] =
               (coloredNeeds[entry.key] ?? 0) + entry.value + voidQi;
@@ -1141,27 +1168,35 @@ class BattleScene extends Scene {
 
     if (colorlessNeed > character.energy) return false;
 
-    // 有色费用：每色先扣本色气，缺口由无极之气补齐（无极全色共享，按各颜色缺口之和校验）
+    // 有色费用：每色先扣本色气，缺口由无极之气补齐（无极全色共享，按各颜色缺口之和校验）；
+    // 禁抵扣需求优先占用本色气存量，且必须被全额覆盖
     var ultimateNeed = 0;
-    for (final entry in coloredNeeds.entries) {
-      final yangId = kCostColorStatusIds[entry.key];
+    final colors = {...coloredNeeds.keys, ...forbiddenNeeds.keys};
+    for (final color in colors) {
+      final yangId = kCostColorStatusIds[color];
       if (yangId == null) continue;
-      ultimateNeed +=
-          math.max(0, entry.value - character.hasStatusEffect(yangId));
+      final stock = character.hasStatusEffect(yangId);
+      final forbidden = forbiddenNeeds[color] ?? 0;
+      if (forbidden > stock) return false;
+      ultimateNeed += math.max(0, (coloredNeeds[color] ?? 0) - (stock - forbidden));
     }
     return ultimateNeed <= character.hasStatusEffect(kWildcardStatusId);
   }
 
   /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣无极之气。
   /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止无极之气抵扣，
+  /// 本色气不足即支付失败（调用前的 _canPayCardCost 已保证不会发生）。
   /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
   /// 返回 false 且不扣除任何费用。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
     final cardCost = _cardCostColored(card);
     final colorlessNeed = cardCost[kColorlessCostColorId] ?? 0;
+    final bool wildcardForbidden = card.data['isWildcardCostForbidden'] == true;
 
     final pending = <(String, int)>[];
     var ultimateNeed = 0;
+    var forbiddenShortfall = 0;
     final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
     for (final entry in cardCost.entries) {
       if (entry.key == kColorlessCostColorId) continue;
@@ -1170,10 +1205,16 @@ class BattleScene extends Scene {
       final need = entry.value + voidQi;
       final ownPaid = math.min(character.hasStatusEffect(yangId), need);
       pending.add((yangId, ownPaid));
-      ultimateNeed += need - ownPaid;
+      if (wildcardForbidden) {
+        // 禁抵扣：缺口不进无极之气，记为支付失败条件
+        forbiddenShortfall += need - ownPaid;
+      } else {
+        ultimateNeed += need - ownPaid;
+      }
     }
 
     if (colorlessNeed > character.energy ||
+        forbiddenShortfall > 0 ||
         ultimateNeed > character.hasStatusEffect(kWildcardStatusId)) {
       engine.warning('卡牌 [${card.data['name']}] 支付失败：资源不足');
       return false;
@@ -1246,7 +1287,8 @@ class BattleScene extends Scene {
   }
 
   /// 生成卡牌缺少资源的悬浮提示文本（每行一种缺少的资源）。
-  /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）。
+  /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）；
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）禁止无极抵扣，"拥有"只计本色存量。
   /// 有色需求含虚空之气增费（每层 +1，无上限）。
   String _missingCostReport(CustomGameCard card) {
     final lines = <String>[];
@@ -1258,7 +1300,9 @@ class BattleScene extends Scene {
         hero.energy,
       ]));
     }
-    final ultimateStock = hero.hasStatusEffect(kWildcardStatusId);
+    final bool wildcardForbidden = card.data['isWildcardCostForbidden'] == true;
+    final ultimateStock =
+        wildcardForbidden ? 0 : hero.hasStatusEffect(kWildcardStatusId);
     final int voidQi = hero.hasStatusEffect('energy_negative_ultimate');
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
@@ -1382,6 +1426,9 @@ class BattleScene extends Scene {
     heroHandZone.energy = hero.energy;
 
     card.clearInteraction();
+    // 离手回调时机（removed_from_hand）：支付成功后卡牌正式离开手牌区，
+    // 如调息词条在此还原费用（支付失败退回手牌的异常路径不触发）
+    handleCardAffixCallback('removed_from_hand', card, hero);
     // 2. 卡牌结算
     await hero.onUseCard(card);
 
@@ -1586,18 +1633,32 @@ class BattleScene extends Scene {
           if (affordable.isEmpty) break;
 
           final selectedCard = _enemySelectCard(affordable);
-          _payCardCost(currentCharacter, selectedCard);
+          // 出牌前从手牌区移除（与英雄同口径），避免结算中误算本牌
+          // （如 ice_storm 段数含本牌、upgradeHandCards 选中本牌）
+          handZone.removeCardByUniqueId(selectedCard.uniqueId,
+              updateIndex: false);
+          if (!_payCardCost(currentCharacter, selectedCard)) {
+            // affordable 已保证可支付，此处失败属意外情况：退回手牌并中断出牌
+            handZone.tryAddCard(selectedCard);
+            break;
+          }
+
+          // 离手回调时机（removed_from_hand）：与英雄出牌同口径
+          handleCardAffixCallback(
+              'removed_from_hand', selectedCard, currentCharacter);
 
           selectedCard.isFlipped = false;
           await currentCharacter.onUseCard(selectedCard);
           selectedCard.isFlipped = true;
           if (selectedCard.data['isEphemeral'] == true) {
+            // 消耗卡牌（符箓）：打出后碎裂消失，不进弃牌堆；
+            // 卡牌已从手牌区移除（pile 为空），与英雄同口径直接移出场景
             world.add(CardShatterEffect(
               position: selectedCard.absolutePosition,
               size: selectedCard.size.clone(),
               priority: kTopLayerAnimationPriority,
             ));
-            selectedCard.removeFromPile(removeFromGame: true);
+            selectedCard.removeFromParent();
           } else {
             discardZone.tryAddCard(selectedCard);
             await discardZone.sortCards();
@@ -1606,6 +1667,8 @@ class BattleScene extends Scene {
           // 当前卡牌完整结算并处理去向后终止已分出胜负的战斗。
           if (_checkBattleResult()) break;
         }
+        // 出牌循环中逐个移除未更新序号，统一补齐手牌区 index 并重排
+        handZone.updateIndices();
         // 敌方出牌后状态可能已变化（如施加给英雄的削弱），刷新手牌预测
         refreshHandCardDescription();
       }

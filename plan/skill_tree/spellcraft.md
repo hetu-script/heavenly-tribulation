@@ -16,16 +16,16 @@
 - 凝气：「太上感应」回合开始时每10点灵力获得1点灵气
 - 筑基：「天道循环」悟道牌灵气费用 -1
 - 结丹：「阴阳五行」回合结束时未使用的灵气每层对对手造成 5 点随机元素伤害
-- 还婴：「五气朝元」每个回合开始时，你会轮流获得御水术，御火术，土遁，御风术和雷法的攻击力增强。
-- 化神：「万法归宗」战斗开始后将「绝世·万法归宗」洗入你的牌库。万法归宗：保留，耗费10+X点灵气，并根据实际耗费的灵气数量造成雷元素伤害。
+- 还婴：「五气朝元」每个回合开始时，你会轮流获得御水术，御火术，土遁，御风术和雷法的攻击力增强（增强百分比 = 自身灵力的一半）
+- 化神：「万法归宗」战斗开始后将「绝世·万法归宗」洗入你的牌库。万法归宗：耗费10+X点灵气（费用不受减费影响，且不能以无极之气抵扣，必须全额以灵气支付），并根据实际耗费的灵气数量造成雷元素伤害。
 
 ### 分支节点（已实现，待连线）
 
-「紫微斗数」：战斗开始后，将「紫微斗数」加入你的手牌。「紫微斗数」：保留，消耗。抽一张牌，将其费用改为0
+「紫微斗数」：战斗开始后，将「紫微斗数」洗入你的牌库。「紫微斗数」：消耗。抽一张牌，将其费用改为0
 
 「天道推演」：每回合开始时（抽牌阶段之前）观星一次
 
-「抱真守一」：使用元素牌后，手牌里随机一张元素牌获得升级
+「抱真守一」：使用元素牌后，手牌里随机一张相同元素牌获得升级
 
 「五行轮转」：每使用一种不同的元素牌，灵气+1
 
@@ -64,8 +64,8 @@
 | fireball                            | 2    | firebend          | 火   | fire       | 火伤                                                                 | attack                           | [{21, 2.1}]                           |
 | ice_block                           | 2    | waterbend         | 水   | ice        | 冰伤                                                                 | attack                           | [{15, 1.5}]                           |
 | chain_lightning                     | 3    | lightning_control | 雷   | lightning  | 段数=本回合已用元素种数（含本牌），每段雷伤                          | attack_multiple_by_used_elements | [{17, 1.5}]                           |
-| wind_storm                          | 3    | airbend           | 风   | physical   | 2 段物理伤+迟钝                                                      | attack_multiple_debuff           | [{9, 0.9}, {2, maxLevel:0}, {1, 0.2}] |
-| falling_stone                       | 4    | earthbend         | 土   | physical   | 物理伤，灵气≥6 本牌伤害 +{1}%（resourceId/resourceThreshold 参数化） | attack_with_energy_count_check   | [{18, 1.8}, {50, maxLevel:0}]         |
+| wind_storm                          | 3    | airbend           | 风   | physical   | 2 段物理伤+幻觉（不经计数器，直接附加；调整见额外词条计划 §8）       | attack_multiple_ailment（新）    | [{9, 0.9}, {2, maxLevel:0}, {1, 0.1}] |
+| falling_stone                       | 4    | earthbend         | 土   | physical   | 物理伤+内伤 {2} 层；灵气≥6 本牌伤害 +{1}%（调整见额外词条计划 §8）   | attack_with_energy_count_check（扩展异常尾部） | [{18, 1.8}, {50, maxLevel:0}, {2, maxLevel:0}] |
 | ice_storm                           | 4    | waterbend         | 水   | ice        | 段数=手牌中元素牌数（filter: {elementType: true}），每段冰伤         | attack_multiple_by_cards_in_hand | [{7, 0.7}]                            |
 | fire_storm                          | 5    | firebend          | 火   | fire       | 耗尽剩余灵气（resourceId），每点造成火伤                             | attack_exhaust_energy            | [{4, 0.4}]                            |
 
@@ -90,22 +90,25 @@
 ## 新增额外词条（补流派专属，含数值参考）
 
 > 均为 `genres: ["spellcraft"]`，categories 按需。
+> **词条 id 用流派风味名**（各流派可有自己 id 的词条）；**script 用通用函数名**，
+> 具体的资源 id、过滤条件、阈值放在 affix 数据中，供其他流派复用同一套脚本。
 
-| id                | rank | categories  | 效果                                                                  | valueData 参考               |
-| ----------------- | ---- | ----------- | --------------------------------------------------------------------- | ---------------------------- |
-| `attune`          | 1    | buff,attack | 入手时若手牌中有其他同系元素，本牌费用 -1（callbacks: added_to_hand） | 无数值（机制词条）           |
-| `on_element_draw` | 2    | buff,attack | 上一张牌如果是元素牌，抽 1 张牌（每回合至多 value[0] 次）             | `[{base:1, maxLevel:0}]`     |
-| `mana_burst`      | 1    | attack      | 若打出时灵气≥5，本牌伤害 +X%                                          | `[{base:25, increment:2.0}]` |
-| `ailment_spread`  | 2    | attack      | 本次攻击必然造成元素异常，且异常层数 +X                               | `[{base:1, increment:0.1}]`  |
-| `elemental_focus` | 3    | attack      | 若上一张牌与本牌同元素，本牌伤害 +X%                                  | `[{base:30, increment:2.5}]` |
-| `cycle_bonus`     | 3    | attack      | 若本回合已使用过与本牌不同的元素牌，本牌伤害 +X%                      | `[{base:20, increment:1.8}]` |
-| `mana_battery`    | 4    | buff        | 下回合获得X点额外灵气                                                 | `[{base:1, increment:0.02}]` |
+| id                | script | rank | categories  | 效果                                                                  | 关键数据 | valueData 参考               |
+| ----------------- | ------ | ---- | ----------- | --------------------------------------------------------------------- | -------- | ---------------------------- |
+| `attune`          | `reduce_cost_by_cards_in_hand` | 1 | buff,attack | 若手牌中有其他同元素牌，本牌费用 -1（入手时检测减费，离开手牌区还原；callbacks: added_to_hand + removed_from_hand） | filter: {elementType: 'self'}；require: {elementType: true} | 无数值（机制词条，缺省 -1）  |
+| `elemental_focus` | `increase_damage_by_last_card_used` | 2 | attack | 若上一张打出的牌与本牌是相同元素，本牌伤害 +{0}% | filter: {elementType: 'self'}；require: {elementType: true}；priority: -1 | `[{base:30, increment:2.5}]` |
+| `ailment_spread`  | `ailment_spread` | 2    | attack      | 给对方施加 {0} 层本牌元素对应的元素异常（必然施加，不经异常计数器；元素→异常映射见 Constants.elementAilments）      | require: {elementType: true} | `[{base:1, increment:0.1}]`  |
+| `cycle_draw`      | `draw_by_last_card_used` | 3 | buff,attack | 若上一张打出的牌与本牌是不同元素，抽 {0} 张牌（轮转路线，与专注奖励互斥） | filter: {elementType: true, filterNon: {elementType: 'self'}}；require: {elementType: true} | `[{base:1, maxLevel:0}]`     |
+| `mana_burst`      | `increase_damage_by_energy_count` | 3 | attack | 若打出时灵气 ≥5 层，本牌伤害 +{0}% | resourceId: energy_positive_spell；resourceThreshold: 5；priority: -1 | `[{base:25, increment:2.0}]` |
+| `mana_battery`    | `gain_resource_next_turn` | 4 | buff | 下回合产出阶段额外获得 {0} 点灵气 | resourceId: energy_positive_spell | `[{base:1, increment:0.02}]` |
 
 ## 绝世卡牌
 
 | 卡名           | rank | kind  | 效果                                                             | 设计意图                                                |
 | -------------- | ---- | ----- | ---------------------------------------------------------------- | ------------------------------------------------------- |
-| **蓄灵诀**     | 3    | xinfa | 对手每有一种元素异常，你获得 1 灵气（上限 value[0]）             | 异常种类→灵气，服务万法归宗门槛；与 ailment_spread 联动 |
+| **天机术**     | 1    | xinfa | 观星 {0} 张牌（比标准 3 张更深），然后抽 1 张牌（已实现：`spellcraft_scry_draw`，固定词条 scry/retain/upgrade_hand_cards_spellcraft/mana_battery） | 规划主题身份证：自选最优牌入手，服务凑灵气/凑元素；与紫微斗数（随机）差异化 |
+| **相生相克**   | 2    | xinfa | 对对手施加随机元素异常，种数 = 本回合已使用元素种数（至少 1 种），每种 {0} 层（不经异常计数器）（已实现：`spellcraft_ailments_by_used_elements`，固定词条 retain/mana_battery/scry/upgrade_hand_cards_spellcraft） | 轮转路线循环卡，与 chain_lightning 共用 usedElements，为蓄灵诀铺垫异常种类 |
+| **蓄灵诀**     | 3    | xinfa | 对手每有一种元素异常，你获得 1 灵气           | 异常种类→灵气，服务万法归宗门槛；与 ailment_spread 联动 |
 | **一气化三清** | 4    | xinfa | 选择一种元素，本回合你的该元素牌伤害 +X%                         | 专注路线爆发，让单元素构筑有终局手段                    |
 | **太上忘情**   | 5    | xinfa | 本回合你的灵气不会随回合结束清空（突破统一生命周期，仅此一回合） | 终局囤积特例，配合万法归宗跨回合攒爆发；极稀有          |
 

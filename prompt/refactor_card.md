@@ -12,19 +12,26 @@
 
 ---
 
-@plan/battle_card_equipment_overview2.md 这个文档可以让你从总体上理解本项目中和卡牌战斗有关的部分。目前你只需要理解现有系统，不要修改任何文件。稍后我会发给你更具体的指示。
+@plan/battle_card_equipment_overview2.md 这个文档可以让你从总体上理解本项目中和卡牌战斗有关的部分。目前你只需要理解现有系统，不要修改任何文件。稍后我会发给你更具体的指示。同时也请留意 battlecard-content 这个 skill 稍后的任务会和它有关。
 
-请留意 battlecard-content 这个 skill 稍后可能会有相关的任务和它有关。
+我们目前正在进行各个流派的重构，包括天赋树，卡牌词条，装备等等。
+
+相关计划在 @plan/skill_tree/ 下。
+
+目前我们正在进行悟道流派，spellcraft.md。
+
+目前我们已经完成了境界节点，分支节点，以及流派主词条的整理和设计。现在我们准备进行额外词条的设计。我们需要单独为这个步骤写一个计划。
 
 ---
 
-目前我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道。 @plan/skill_tree/spellcraft.md
+@plan/battle_card_equipment_overview2.md 这个文档可以让你从总体上理解本项目中和卡牌战斗有关的部分。目前你只需要理解现有系统，不要修改任何文件。稍后我会发给你更具体的指示。同时也请留意 battlecard-content 这个 skill 稍后的任务会和它有关。
 
-目前我已经完成了境界节点，分叉节点的工作。
+目前我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道流派的开发。 @plan/skill_tree/spellcraft.md
 
-目前正在计划进行悟道流派主词条整理。 @plan/skill_tree/spellcraft_main_affix_rework.md
+目前我已经完成了悟道流派的境界节点，分叉节点，主词条和额外词条的整理工作。请阅读相关文档。并审查现有代码。理解相关流程。
 
-请阅读相关文档。如果你准备好执行 @plan/skill_tree/spellcraft_main_affix_rework.md 的话，告诉我。另外，执行中遇到任何不缺定的问题都可以先问我。
+在这个过程中，如果你认为有任何bug可以记录下来，另外如果有值得补充进入玩法文档 @docs/docs/how2play/rpg/battle/card/readme.md 的内容可以记录下来。有值得补充进入模组开发文档 @docs/docs/mod/battle/card/readme.md 的脚本细节也可以记录下来。
+
 
 ---
 

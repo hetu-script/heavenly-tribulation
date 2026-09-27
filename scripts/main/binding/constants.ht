@@ -38,6 +38,7 @@ external abstract class Constants {
   static get colorlessCostColorId;
   static get wildcardStatusId;
   static get debuffs;
+  static get elementAilments;
   static get scrollMaxCharges;
   static get battleDeckSize;
   static get attackTypes;

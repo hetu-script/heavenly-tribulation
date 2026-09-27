@@ -14,6 +14,10 @@
 /// 多个基础效果因此可以自由组合（如 scripts: ["attack", "opponent_debuff"]）。
 /// 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）
 ///   → 其余额外词条（按 priority 降序）。
+/// Dart 侧对每个词条脚本统一 await（同步脚本的 await 是空操作）；
+/// 调用了异步 BattleCharacter 方法（drawCards / scry / upgradeHandCards）的脚本
+/// 必须声明 async 并 await（如 draw_cards / scry / scry_then_draw），
+/// 否则该方法会脱离结算顺序异步执行。
 ///
 /// 时机回调：
 /// 词条数据声明 callbacks 列表后，会在对应时机按 scripts 数组顺序调用 {script}_{时机} 函数，签名相同。
@@ -33,17 +37,19 @@ namespace CardScript {
   /// 数据层可在词条上附带条件子表（字段：category / genre / cardType / kind / elementType 任意组合）：
   /// filter —— 从牌库中抽取完全符合全部指定字段的卡牌；
   /// reduceCost —— 抽到的牌若完全符合全部指定字段，费用降为 0
-  /// （如悟道分支授予卡「紫微斗数」：reduceCost: { category: 'attack', cardType: 'spell' }）
-  function draw_cards(self, opponent, card, affix) {
-    self.drawCards(affix.value[0], options: affix)
+  /// （如悟道分支授予卡「紫微斗数」：reduceCost: {} 空条件表 = 抽到的任意牌费用降为 0）
+  /// async：await 抽牌完成，保证后续词条读到抽牌后的手牌
+  async function draw_cards(self, opponent, card, affix) {
+    await self.drawCards(affix.value[0], options: affix)
   }
 
   /// 观星：查看牌库顶 N 张牌（N = value[0]，缺省 3 张；不足则全显），
   /// 选一张放回牌库顶，其余进弃牌堆。牌库为空时不触发（观星不触发洗牌）。
   /// 打出时触发（含悟道专属额外词条 scry）；
   /// 天赋分支「天道推演」的免费观星在回合开始抽牌前触发（Dart 侧直接调用，不经过本函数）。
-  function scry(self, opponent, card, affix) {
-    self.scry(count: affix.value?[0])
+  /// async：await 观星交互完成，后续词条与结算在选牌之后继续
+  async function scry(self, opponent, card, affix) {
+    await self.scry(count: affix.value?[0])
   }
 
   /// ------------------------------------------------------------
@@ -86,6 +92,25 @@ namespace CardScript {
       })
     }
     opponent.addStatusEffect(affix.buffId, amount: affix.value[2])
+  }
+
+  /// 多段攻击并在结束后按元素映射附加元素异常（如 wind_storm 风雷破，主词条用）：
+  /// 段数 = value[1]，每段 value[0] 伤害；全部命中后对手获得
+  /// Constants.elementAilments[本牌元素] 对应的元素异常 value[2] 层
+  /// （不经异常计数器，必然施加，见 plan/skill_tree/spellcraft_extra_affix_rework.md §8）
+  function attack_multiple_ailment(self, opponent, card, affix) {
+    for (final i in range(affix.value[1])) {
+      opponent.takeDamage({
+        isMain: true,
+        kind: affix.kind,
+        cardType: affix.cardType,
+        damageType: affix.damageType,
+        baseValue: affix.value[0],
+      })
+    }
+    final ailmentId = Constants.elementAilments[affix.elementType]
+    if (ailmentId == null) return
+    opponent.addStatusEffect(ailmentId, amount: affix.value[2])
   }
 
   /// 按元素种数的多段攻击（如 chain_lightning 连环闪电）：
@@ -131,7 +156,9 @@ namespace CardScript {
 
   /// 资源门槛增伤攻击（通用，如 falling_stone 陨星术）：
   /// affix.resourceId 指定的资源气层数 ≥ affix.resourceThreshold（缺省 1）时，
-  /// 本次伤害 +value[1]%（乘区1，直接写入 takeDamage 明细），随后造成 value[0] 伤害
+  /// 本次伤害 +value[1]%（乘区1，直接写入 takeDamage 明细），随后造成 value[0] 伤害。
+  /// 可选尾部：affix.value 有第 3 元素时，按元素映射（Constants.elementAilments）为对手
+  /// 附加本牌元素对应元素异常 value[2] 层（不经异常计数器，必然施加，见词条计划 §8）
   function attack_with_energy_count_check(self, opponent, card, affix) {
     final details = {
       isMain: true,
@@ -144,6 +171,13 @@ namespace CardScript {
       details.percentageChange1 = affix.value[1] / 100
     }
     opponent.takeDamage(details)
+    // 可选尾部：value[2] 存在时按元素映射附加元素异常
+    if (affix.value.length > 2) {
+      final ailmentId = Constants.elementAilments[affix.elementType]
+      if (ailmentId != null) {
+        opponent.addStatusEffect(ailmentId, amount: affix.value[2])
+      }
+    }
   }
 
   /// 耗尽资源攻击（通用，如 fire_storm 焚天烈焰）：
@@ -352,6 +386,35 @@ namespace CardScript {
     })
   }
 
+  /// 天机术（悟道绝世）：观星 value[0] 张（缺省 5），随后抽 1 张牌。
+  /// await 保证观星选中的牌置于牌库顶后才抽牌（正好将其入手）；
+  /// Dart 侧统一 await 词条脚本，观星交互期间出牌结算暂停（契约见文件头注释）
+  async function scry_then_draw(self, opponent, card, affix) {
+    await self.scry(count: affix.value?[0])
+    await self.drawCards(1)
+  }
+
+  /// 相生相克（悟道绝世）：对对手施加随机元素异常，
+  /// 种数 = 本回合已使用的元素种数（读 turnFlags['usedElements']，至少 1 种），
+  /// 每种 value[0] 层。不经异常计数器，必然施加；
+  /// 种类按 Constants.elementAilments 映射表不重复抽取
+  function ailments_by_used_elements(self, opponent, card, affix) {
+    final usedElements = self.turnFlags['usedElements']
+    var count = 0
+    if (usedElements != null) count = usedElements.keys.length
+    if (count < 1) count = 1
+    final pool = []
+    for (final key in Constants.elementAilments.keys) {
+      pool.add(Constants.elementAilments[key])
+    }
+    for (final i in range(count)) {
+      if (pool.isEmpty) break
+      final ailmentId = random.nextIterable(pool)
+      opponent.addStatusEffect(ailmentId, amount: affix.value[0])
+      pool.remove(ailmentId)
+    }
+  }
+
   /// ------------------------------------------------------------
   /// 攻击联动（额外词条）
   /// ------------------------------------------------------------
@@ -379,6 +442,132 @@ namespace CardScript {
   }
 
   /// ------------------------------------------------------------
+  /// 悟道流派专属（额外词条）
+  /// ------------------------------------------------------------
+
+  /// 解析条件模板中的 'self' 占位：把条件表（含 filterNon 反选子表）中值为
+  /// 字符串 'self' 的项替换为本牌主词条（card.affixes[0]）同名字段的值，
+  /// 返回新的条件表（不改动词条数据本身）。
+  /// 任一 'self' 解析为 null（本牌无该字段，如非元素牌的 elementType）时返回 null，
+  /// 调用方视为条件不成立，效果不触发——同元素/不同元素两类词条共用一套模板
+  function _resolveCriteriaSelf(criteria, card) {
+    if (criteria == null) return null
+    final mainAffix = card.affixes[0]
+    final resolved = {}
+    for (final field in criteria.keys) {
+      final value = criteria[field]
+      if (field == 'filterNon' && value != null) {
+        final resolvedNon = {}
+        for (final nonField in value.keys) {
+          final nonValue = value[nonField]
+          resolvedNon[nonField] =
+              nonValue == 'self' ? mainAffix[nonField] : nonValue
+        }
+        resolved['filterNon'] = resolvedNon
+      } else {
+        resolved[field] = value == 'self' ? mainAffix[field] : value
+      }
+    }
+    for (final field in resolved.keys) {
+      final value = resolved[field]
+      if (value == null) return null
+      if (field == 'filterNon') {
+        for (final nonField in value.keys) {
+          if (value[nonField] == null) return null
+        }
+      }
+    }
+    return resolved
+  }
+
+  /// 调息（悟道专属词条 attune）的打出时占位函数：
+  /// 效果挂在 added_to_hand（入手检测减费）与 removed_from_hand（离手还原）回调上，打出时无效果
+  function reduce_cost_by_cards_in_hand(self, opponent, card, affix) {}
+
+  /// 调息：入手时若手牌中有其他同元素牌（filter 中的 'self' 占位解析为本牌元素），
+  /// 本牌 coloredCost 第一个正值费用 -value[0]（缺省 1，不低于 0）。
+  /// 本牌入手后自身必在匹配集中，数量 ≥2 才存在「其他」同系牌。
+  /// 实际减费量记录在 card.costReduction（{color, amount}），离开手牌区时按记录还原；
+  /// 只改 card.coloredCost 展示值，originalColoredCost 基线不动，卡面自动呈减费黄色
+  function reduce_cost_by_cards_in_hand_added_to_hand(self, opponent, card, affix) {
+    // 幂等：已带减费记录的卡再次入手（如洗牌后重新抽到前未正常离手）先还原再重新检测
+    reduce_cost_by_cards_in_hand_removed_from_hand(self, opponent, card, affix)
+    final criteria = _resolveCriteriaSelf(affix.filter, card)
+    if (criteria == null) return
+    final cards = self.getHandCards(options: criteria)
+    if (cards.length < 2) return
+    final reduce = affix.value?[0] ?? 1
+    for (final key in card.coloredCost.keys) {
+      if (card.coloredCost[key] > 0) {
+        final applied = Math.min(reduce, card.coloredCost[key])
+        card.coloredCost[key] -= applied
+        card.costReduction = { color: key, amount: applied }
+        break
+      }
+    }
+  }
+
+  /// 调息：离开手牌区时（打出/回合结束弃置/战斗重开回库）按记录还原本牌费用
+  function reduce_cost_by_cards_in_hand_removed_from_hand(self, opponent, card, affix) {
+    final record = card.costReduction
+    if (record == null) return
+    card.coloredCost[record.color] =
+        (card.coloredCost[record.color] ?? 0) + record.amount
+    card.costReduction = null
+  }
+
+  /// 专注（悟道专属词条 elemental_focus）：若上一张打出的牌与本牌同元素
+  /// （filter 中的 'self' 占位解析为本牌元素），本牌伤害 +value[0]%（乘区1）。
+  /// 上一张牌经 matchLastUsedCard 读取 turnFlags['lastUsedCard']，限定本回合
+  function increase_damage_by_last_card_used(self, opponent, card, affix) {
+    final criteria = _resolveCriteriaSelf(affix.filter, card)
+    if (criteria == null) return
+    if (!self.matchLastUsedCard(criteria)) return
+    self.cardFlags.damage.percentageChange1 += affix.value[0] / 100
+  }
+
+  /// 侵染（悟道专属词条 ailment_spread）：给对方施加 value[0] 层本牌元素对应的
+  /// 元素异常（Constants.elementAilments 查表；require 限定元素牌即保证映射有值）。
+  /// 直接施加，不经异常计数器，必然生效（见词条计划 §6）
+  function ailment_spread(self, opponent, card, affix) {
+    final ailmentId = Constants.elementAilments[card.affixes[0].elementType]
+    if (ailmentId == null) return
+    opponent.addStatusEffect(ailmentId, amount: affix.value[0])
+  }
+
+  /// 轮转（悟道专属词条 cycle_draw）：若上一张打出的牌与本牌不同元素
+  /// （正选 elementType: true + 反选 filterNon: {elementType: 'self'}），
+  /// 抽 value[0] 张牌（轮转路线，与专注奖励互斥）
+  /// async：await 抽牌完成，保证后续词条读到抽牌后的手牌
+  async function draw_by_last_card_used(self, opponent, card, affix) {
+    final criteria = _resolveCriteriaSelf(affix.filter, card)
+    if (criteria == null) return
+    if (!self.matchLastUsedCard(criteria)) return
+    await self.drawCards(affix.value[0])
+  }
+
+  /// 灵气爆发（悟道专属词条 mana_burst）：打出时灵气（affix.resourceId）层数 ≥
+  /// affix.resourceThreshold（缺省 1）时，本牌伤害 +value[0]%（乘区1）
+  function increase_damage_by_energy_count(self, opponent, card, affix) {
+    if (self.hasStatusEffect(affix.resourceId) >= (affix.resourceThreshold ?? 1)) {
+      self.cardFlags.damage.percentageChange1 += affix.value[0] / 100
+    }
+  }
+
+  /// 蓄灵（悟道专属词条 mana_battery）：下回合产出阶段额外获得 value[0] 点
+  /// 灵气（affix.resourceId）。以 turnFlags['pendingResources'] 子表为跨回合标记
+  /// （键 = 资源气状态 id，值 = 累加层数），回合开始清空 turnFlags 时保留，
+  /// produceTurnStartResources 末尾取出授予（见词条计划 §5）
+  function gain_resource_next_turn(self, opponent, card, affix) {
+    var pending = self.turnFlags['pendingResources']
+    if (pending == null) {
+      pending = {}
+      self.turnFlags['pendingResources'] = pending
+    }
+    pending[affix.resourceId] = (pending[affix.resourceId] ?? 0) + affix.value[0]
+  }
+
+  /// ------------------------------------------------------------
   /// 时机回调
   /// ------------------------------------------------------------
 
@@ -396,8 +585,9 @@ namespace CardScript {
   /// 数据层在词条上附带条件子表（字段：category / genre / cardType / kind / elementType 任意组合），
   /// 与 draw_cards 的 filter 同口径（如流派专属词条：filter: { genre: 'spellcraft' }）。
   /// 战斗内临时升级（可突破上限，深拷贝不污染卡库）。
-  function upgrade_hand_cards(self, opponent, card, affix) {
-    self.upgradeHandCards(affix.value[0], options: affix.filter)
+  /// async：await 升级完成（含提示跳字与卡面刷新）
+  async function upgrade_hand_cards(self, opponent, card, affix) {
+    await self.upgradeHandCards(affix.value[0], options: affix.filter)
   }
 
   /// 保留（御剑流派专属词条）的打出时占位函数：

@@ -104,6 +104,12 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'getHandCards':
         return ({object, positionalArgs, namedArgs}) =>
             character.getHandCards(options: namedArgs['options']);
+      case 'matchLastUsedCard':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.matchLastUsedCard(positionalArgs.first);
+      case 'getLastUsedCard':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.getLastUsedCard();
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);
     }

@@ -172,9 +172,11 @@ struct BattleCard {
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
     this.rank = mainAffix.rank = mainAffixRank
     // 数据层卡牌定义上的标记合并到卡牌实例（Dart 侧读取 card.data 上的这些字段）：
-    // isEphemeral（消耗：打出后碎裂移出战斗）
+    // isEphemeral（消耗：打出后碎裂移出战斗）、
+    // isWildcardCostForbidden（费用禁止以无极之气抵扣，必须本色气全额支付，如绝世·万法归宗）
     this.isEphemeral = mainAffix.isEphemeral ?? false
     this.isUnique = mainAffix.isUnique ?? false
+    this.isWildcardCostForbidden = mainAffix.isWildcardCostForbidden ?? false
     if (this.isUnique) {
       this.uniqueId = mainAffix.uniqueId ?? mainAffix.id
     }
@@ -248,6 +250,34 @@ function _getSupportAffixes(card) {
     }
     if (affix.rank > card.rank) {
       continue
+    }
+    // 生成侧 require 过滤：词条可声明 require 子表，以主词条（card.affixes[0]）字段为准
+    // 做生成前过滤——值 true = 该字段非空（如 require: {elementType: true} 限定元素牌）；
+    // 值为数组 = 字段值 ∈ 数组；其余 = 等值匹配。不满足则跳过该词条
+    if (affix.require != null) {
+      final mainAffix = card.affixes[0]
+      var required = true
+      for (final field in affix.require.keys) {
+        final expected = affix.require[field]
+        final actual = mainAffix[field]
+        if (expected is List) {
+          if (!expected.contains(actual)) {
+            required = false
+            break
+          }
+        } else if (expected == true) {
+          if (actual == null) {
+            required = false
+            break
+          }
+        } else if (actual != expected) {
+          required = false
+          break
+        }
+      }
+      if (!required) {
+        continue
+      }
     }
     affixes.add(affix)
   }
