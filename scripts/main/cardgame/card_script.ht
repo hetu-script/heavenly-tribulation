@@ -480,10 +480,6 @@ namespace CardScript {
     return resolved
   }
 
-  /// 调息（悟道专属词条 attune）的打出时占位函数：
-  /// 效果挂在 added_to_hand（入手检测减费）与 removed_from_hand（离手还原）回调上，打出时无效果
-  function reduce_cost_by_cards_in_hand(self, opponent, card, affix) {}
-
   /// 调息：入手时若手牌中有其他同元素牌（filter 中的 'self' 占位解析为本牌元素），
   /// 本牌 coloredCost 第一个正值费用 -value[0]（缺省 1，不低于 0）。
   /// 本牌入手后自身必在匹配集中，数量 ≥2 才存在「其他」同系牌。
@@ -589,10 +585,6 @@ namespace CardScript {
   async function upgrade_hand_cards(self, opponent, card, affix) {
     await self.upgradeHandCards(affix.value[0], options: affix.filter)
   }
-
-  /// 保留（御剑流派专属词条）的打出时占位函数：
-  /// 效果挂在 added_to_hand 回调上，打出时无效果
-  function retain(self, opponent, card, affix) {}
 
   /// 保留：入手时给卡牌添加 isRetained 标记，
   /// 回合结束清理手牌时（clearHand keepRetained）留在手牌中

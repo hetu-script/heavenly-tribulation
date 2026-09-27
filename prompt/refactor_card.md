@@ -28,11 +28,6 @@
 
 目前我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道流派的开发。 @plan/skill_tree/spellcraft.md
 
-目前我已经完成了悟道流派的境界节点，分叉节点，主词条和额外词条的整理工作。请阅读相关文档。并审查现有代码。理解相关流程。
+目前我已经完成了悟道流派的境界节点，分叉节点，主词条，额外词条，以及前两个绝世卡牌的整理工作。
 
-在这个过程中，如果你认为有任何bug可以记录下来，另外如果有值得补充进入玩法文档 @docs/docs/how2play/rpg/battle/card/readme.md 的内容可以记录下来。有值得补充进入模组开发文档 @docs/docs/mod/battle/card/readme.md 的脚本细节也可以记录下来。
-
-
----
-
-在生成卡牌主词条之前，我们需要为每个新的主词条增加卡牌插画，可以调用 skill 完成，注意同步更新 kBattleCardIllustrations 以及 battlecard.json 本地化文件中的 illustration_xxx 系列。这两个和新插画有关的操作也可以同步到 battlecard-content skill 中，我之前写那个skill时候漏了。以后只要创建了新插画，都要同步这两个地方。
+请理解相关流程。审查现有代码，数据和文档。

@@ -182,67 +182,6 @@
     ],
   },
 
-  // ------------天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
-  // 紫微斗数：分支「紫微斗数」的战斗授予卡，战斗开始后洗入牌库
-  // 消耗。抽一张牌，将其费用改为 0
-  // （复用抽牌脚本 draw_cards，reduceCost 空条件表 = 抽到的任意牌费用降为 0，效果在 Dart 侧兑现）
-  spellcraft_draw_cards_reduce_cost: {
-    id: "spellcraft_draw_cards_reduce_cost",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    cardType: "xinfa",
-    isUnique: true,
-    isUnpackable: true,
-    isEphemeral: true,
-    description: "affix_spellcraft_draw_cards_reduce_cost",
-    image: "battlecard/illustration/unique_draw_cards.png",
-    animation: {
-      startup: ["spell_buff"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "draw_cards",
-    coloredCost: { life: 0 },
-    reduceCost: {},
-    valueData: [
-      {
-        base: 1,
-        increment: 0,
-      },
-    ],
-  },
-
-  // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
-  // 耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
-  // 费用特例：不受减费影响（洗入发生在组牌减费之后），且禁止以无极之气抵扣，必须全额以灵气支付
-  spellcraft_ultimate_spell: {
-    id: "spellcraft_ultimate_spell",
-    category: "attack",
-    genre: "spellcraft",
-    kind: "lightning_control",
-    cardType: "spell",
-    damageType: "lightning",
-    elementType: "element_lightning",
-    rank: 5,
-    isUnique: true,
-    isUnpackable: true,
-    isWildcardCostForbidden: true,
-    description: "affix_spellcraft_ultimate_spell",
-    image: "battlecard/illustration/spellcraft_lightning_attack.png",
-    animation: {
-      startup: ["spell_attack"],
-      sound: "magic-smite-6012.mp3",
-    },
-    script: "spellcraft_ultimate_spell",
-    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
-    valueData: [
-      {
-        base: 8,
-        increment: 0.1,
-      },
-    ],
-  },
-
   // ------------通用·攻击------------
   punch_attack: {
     id: "punch_attack",
@@ -782,63 +721,6 @@
     ],
   },
 
-  // ------------悟道·绝世------------
-  // 天机术：规划主题核心卡——观星 value[0] 张（比标准 3 张更深），随后抽 1 张牌
-  // （观星选中的牌置于牌库顶，正好被随后的抽牌入手；脚本 scry_then_draw 以 await 保证时序）
-  spellcraft_scry_draw: {
-    id: "spellcraft_scry_draw",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    isUnique: true,
-    description: "affix_spellcraft_scry_draw",
-    keywords: ["affix_scry"],
-    image: "battlecard/illustration/unique_scry_draw.png",
-    animation: {
-      startup: ["spell_buff"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "scry_then_draw",
-    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
-    valueData: [
-      {
-        base: 5,
-        maxLevel: 0,
-      },
-    ],
-    affixes: ["scry", "retain", "upgrade_hand_cards_spellcraft", "mana_battery"],
-  },
-  // 相生相克：轮转路线循环卡——对对手施加随机元素异常，
-  // 种数 = 本回合已使用的元素种数（至少 1 种），不经异常计数器；
-  // 与 chain_lightning 共用 usedElements 计数，为结丹绝世「蓄灵诀」铺垫异常种类
-  spellcraft_ailments_by_used_elements: {
-    id: "spellcraft_ailments_by_used_elements",
-    category: "buff",
-    genre: "spellcraft",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 2,
-    isUnique: true,
-    description: "affix_spellcraft_ailments_by_used_elements",
-    keywords: ["status_element_ailment"],
-    image: "battlecard/illustration/unique_element_ailments.png",
-    animation: {
-      startup: ["spell_attack"],
-      sound: "magic-smite-6012.mp3",
-    },
-    script: "ailments_by_used_elements",
-    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
-    valueData: [
-      {
-        base: 1,
-        maxLevel: 0,
-      },
-    ],
-    affixes: ["retain", "mana_battery", "scry", "upgrade_hand_cards_spellcraft"],
-  },
-
   // ------------悟道·攻击------------
   punch_attack_exhaust_mana_fire: {
     id: "punch_attack_exhaust_mana_fire",
@@ -1324,6 +1206,124 @@
       {
         base: 18,
         increment: 1.8,
+      },
+    ],
+  },
+
+  // ------------悟道·绝世------------
+  // 天机术：规划主题核心卡——观星 value[0] 张（比标准 3 张更深），随后抽 1 张牌
+  // （观星选中的牌置于牌库顶，正好被随后的抽牌入手；脚本 scry_then_draw 以 await 保证时序）
+  spellcraft_scry_draw: {
+    id: "spellcraft_scry_draw",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 1,
+    isUnique: true,
+    description: "affix_spellcraft_scry_draw",
+    keywords: ["affix_scry"],
+    image: "battlecard/illustration/unique_scry_draw.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "scry_then_draw",
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    valueData: [
+      {
+        base: 3,
+        maxLevel: 0,
+      },
+    ],
+    affixes: [],
+  },
+  // 相生相克：轮转路线循环卡——对对手施加随机元素异常，
+  // 种数 = 本回合已使用的元素种数（至少 1 种），不经异常计数器；
+  // 与 chain_lightning 共用 usedElements 计数，为结丹绝世「蓄灵诀」铺垫异常种类
+  spellcraft_ailments_by_used_elements: {
+    id: "spellcraft_ailments_by_used_elements",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 2,
+    isUnique: true,
+    description: "affix_spellcraft_ailments_by_used_elements",
+    keywords: ["status_element_ailment"],
+    image: "battlecard/illustration/unique_element_ailments.png",
+    animation: {
+      startup: ["spell_attack"],
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "ailments_by_used_elements",
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+    affixes: [],
+  },
+
+  // ------------悟道·天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
+  // 紫微斗数：分支「紫微斗数」的战斗授予卡，战斗开始后洗入牌库
+  // 消耗。抽一张牌，将其费用改为 0
+  // （复用抽牌脚本 draw_cards，reduceCost 空条件表 = 抽到的任意牌费用降为 0，效果在 Dart 侧兑现）
+  spellcraft_draw_cards_reduce_cost: {
+    id: "spellcraft_draw_cards_reduce_cost",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    isUnique: true,
+    isUnpackable: true,
+    isEphemeral: true,
+    description: "affix_spellcraft_draw_cards_reduce_cost",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "draw_cards",
+    coloredCost: { life: 0 },
+    reduceCost: {},
+    valueData: [
+      {
+        base: 1,
+        increment: 0,
+      },
+    ],
+  },
+
+  // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
+  // 耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
+  // 费用特例：不受减费影响（洗入发生在组牌减费之后），且禁止以无极之气抵扣，必须全额以灵气支付
+  spellcraft_ultimate_spell: {
+    id: "spellcraft_ultimate_spell",
+    category: "attack",
+    genre: "spellcraft",
+    kind: "lightning_control",
+    cardType: "spell",
+    damageType: "lightning",
+    elementType: "element_lightning",
+    rank: 5,
+    isUnique: true,
+    isUnpackable: true,
+    isWildcardCostForbidden: true,
+    description: "affix_spellcraft_ultimate_spell",
+    image: "battlecard/illustration/spellcraft_lightning_attack.png",
+    animation: {
+      startup: ["spell_attack"],
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "spellcraft_ultimate_spell",
+    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
+    valueData: [
+      {
+        base: 8,
+        increment: 0.1,
       },
     ],
   },
