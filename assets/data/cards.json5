@@ -600,126 +600,126 @@
     ],
   },
 
-  // 元气转化灵气（0 费耗尽制 1:1，见 plan/battle_qi_conversion.md）
-  energy_positive_spell: {
-    id: "energy_positive_spell",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    description: "affix_convert_vigor_spell",
-    keywords: ["status_energy_positive_spell"],
-    image: "battlecard/illustration/xinfa_mana.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_spell",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 100,
-      },
-    ],
-  },
-  // 元气转化剑气（0 费耗尽制 1:1）
-  energy_positive_weapon: {
-    id: "energy_positive_weapon",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    description: "affix_convert_vigor_weapon",
-    keywords: ["status_energy_positive_weapon"],
-    image: "battlecard/illustration/xinfa_chakra.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_weapon",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 100,
-      },
-    ],
-  },
-  // 元气转化怒气（0 费耗尽制 1:1）
-  energy_positive_unarmed: {
-    id: "energy_positive_unarmed",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    description: "affix_convert_vigor_unarmed",
-    keywords: ["status_energy_positive_unarmed"],
-    image: "battlecard/illustration/xinfa_rage.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_unarmed",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 100,
-      },
-    ],
-  },
-  // 元气转化煞气（0 费耗尽制 1:1；插画 xinfa_karma.png 暂缺，另行制作）
-  energy_positive_curse: {
-    id: "energy_positive_curse",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    description: "affix_convert_vigor_curse",
-    keywords: ["status_energy_positive_curse"],
-    image: "battlecard/illustration/xinfa_karma.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_curse",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 100,
-      },
-    ],
-  },
-  // 元气转化无极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
-  energy_positive_ultimate: {
-    id: "energy_positive_ultimate",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 3,
-    description: "affix_convert_vigor_ultimate",
-    keywords: ["status_energy_positive_ultimate"],
-    image: "battlecard/illustration/xinfa_ultimate.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_ultimate",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 50,
-      },
-    ],
-  },
+  // // 元气转化灵气（0 费耗尽制 1:1，见 plan/battle_qi_conversion.md）
+  // energy_positive_spell: {
+  //   id: "energy_positive_spell",
+  //   category: "buff",
+  //   kind: "xinfa",
+  //   cardType: "xinfa",
+  //   rank: 5,
+  //   description: "affix_convert_vigor_spell",
+  //   keywords: ["status_energy_positive_spell"],
+  //   image: "battlecard/illustration/xinfa_mana.png",
+  //   animation: {
+  //     startup: ["spell_buff"],
+  //     overlays: ["restore_mana"],
+  //     sound: "spell-of-healing-876.mp3",
+  //   },
+  //   buffId: "energy_positive_spell",
+  //   script: "convert_vigor_all",
+  //   coloredCost: { life: 0 },
+  //   valueData: [
+  //     {
+  //       base: 100,
+  //     },
+  //   ],
+  // },
+  // // 元气转化剑气（0 费耗尽制 1:1）
+  // energy_positive_weapon: {
+  //   id: "energy_positive_weapon",
+  //   category: "buff",
+  //   kind: "xinfa",
+  //   cardType: "xinfa",
+  //   rank: 5,
+  //   description: "affix_convert_vigor_weapon",
+  //   keywords: ["status_energy_positive_weapon"],
+  //   image: "battlecard/illustration/xinfa_chakra.png",
+  //   animation: {
+  //     startup: ["spell_buff"],
+  //     overlays: ["restore_mana"],
+  //     sound: "spell-of-healing-876.mp3",
+  //   },
+  //   buffId: "energy_positive_weapon",
+  //   script: "convert_vigor_all",
+  //   coloredCost: { life: 0 },
+  //   valueData: [
+  //     {
+  //       base: 100,
+  //     },
+  //   ],
+  // },
+  // // 元气转化怒气（0 费耗尽制 1:1）
+  // energy_positive_unarmed: {
+  //   id: "energy_positive_unarmed",
+  //   category: "buff",
+  //   kind: "xinfa",
+  //   cardType: "xinfa",
+  //   rank: 5,
+  //   description: "affix_convert_vigor_unarmed",
+  //   keywords: ["status_energy_positive_unarmed"],
+  //   image: "battlecard/illustration/xinfa_rage.png",
+  //   animation: {
+  //     startup: ["spell_buff"],
+  //     overlays: ["restore_mana"],
+  //     sound: "spell-of-healing-876.mp3",
+  //   },
+  //   buffId: "energy_positive_unarmed",
+  //   script: "convert_vigor_all",
+  //   coloredCost: { life: 0 },
+  //   valueData: [
+  //     {
+  //       base: 100,
+  //     },
+  //   ],
+  // },
+  // // 元气转化煞气（0 费耗尽制 1:1；插画 xinfa_karma.png 暂缺，另行制作）
+  // energy_positive_curse: {
+  //   id: "energy_positive_curse",
+  //   category: "buff",
+  //   kind: "xinfa",
+  //   cardType: "xinfa",
+  //   rank: 5,
+  //   description: "affix_convert_vigor_curse",
+  //   keywords: ["status_energy_positive_curse"],
+  //   image: "battlecard/illustration/xinfa_karma.png",
+  //   animation: {
+  //     startup: ["spell_buff"],
+  //     overlays: ["restore_mana"],
+  //     sound: "spell-of-healing-876.mp3",
+  //   },
+  //   buffId: "energy_positive_curse",
+  //   script: "convert_vigor_all",
+  //   coloredCost: { life: 0 },
+  //   valueData: [
+  //     {
+  //       base: 100,
+  //     },
+  //   ],
+  // },
+  // // 元气转化无极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
+  // energy_positive_ultimate: {
+  //   id: "energy_positive_ultimate",
+  //   category: "buff",
+  //   kind: "xinfa",
+  //   cardType: "xinfa",
+  //   rank: 5,
+  //   description: "affix_convert_vigor_ultimate",
+  //   keywords: ["status_energy_positive_ultimate"],
+  //   image: "battlecard/illustration/xinfa_ultimate.png",
+  //   animation: {
+  //     startup: ["spell_buff"],
+  //     overlays: ["restore_mana"],
+  //     sound: "spell-of-healing-876.mp3",
+  //   },
+  //   buffId: "energy_positive_ultimate",
+  //   script: "convert_vigor_all",
+  //   coloredCost: { life: 0 },
+  //   valueData: [
+  //     {
+  //       base: 50,
+  //     },
+  //   ],
+  // },
 
   // ------------悟道·攻击------------
   punch_attack_exhaust_mana_fire: {

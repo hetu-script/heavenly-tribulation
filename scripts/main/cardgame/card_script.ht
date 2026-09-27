@@ -445,7 +445,7 @@ namespace CardScript {
   /// 悟道流派专属（额外词条）
   /// ------------------------------------------------------------
 
-  /// 解析条件模板中的 'self' 占位：把条件表（含 filterNon 反选子表）中值为
+  /// 解析条件模板中的 'self' 占位：把条件表（含 not 反选子表）中值为
   /// 字符串 'self' 的项替换为本牌主词条（card.affixes[0]）同名字段的值，
   /// 返回新的条件表（不改动词条数据本身）。
   /// 任一 'self' 解析为 null（本牌无该字段，如非元素牌的 elementType）时返回 null，
@@ -456,14 +456,14 @@ namespace CardScript {
     final resolved = {}
     for (final field in criteria.keys) {
       final value = criteria[field]
-      if (field == 'filterNon' && value != null) {
+      if (field == 'not' && value != null) {
         final resolvedNon = {}
         for (final nonField in value.keys) {
           final nonValue = value[nonField]
           resolvedNon[nonField] =
               nonValue == 'self' ? mainAffix[nonField] : nonValue
         }
-        resolved['filterNon'] = resolvedNon
+        resolved['not'] = resolvedNon
       } else {
         resolved[field] = value == 'self' ? mainAffix[field] : value
       }
@@ -471,7 +471,7 @@ namespace CardScript {
     for (final field in resolved.keys) {
       final value = resolved[field]
       if (value == null) return null
-      if (field == 'filterNon') {
+      if (field == 'not') {
         for (final nonField in value.keys) {
           if (value[nonField] == null) return null
         }
@@ -532,7 +532,7 @@ namespace CardScript {
   }
 
   /// 轮转（悟道专属词条 cycle_draw）：若上一张打出的牌与本牌不同元素
-  /// （正选 elementType: true + 反选 filterNon: {elementType: 'self'}），
+  /// （正选 elementType: true + 反选 not: {elementType: 'self'}），
   /// 抽 value[0] 张牌（轮转路线，与专注奖励互斥）
   /// async：await 抽牌完成，保证后续词条读到抽牌后的手牌
   async function draw_by_last_card_used(self, opponent, card, affix) {

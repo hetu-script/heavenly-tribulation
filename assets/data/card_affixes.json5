@@ -324,25 +324,6 @@
     ],
   },
 
-  // 升级手牌（流派专属·悟道）：随机升级手牌中 1 张悟道卡 +1 级
-  // 条件子表 filter 与 draw_cards 同口径；当前应用仅限按流派过滤且只升级 1 张（value 恒 1）
-  upgrade_hand_cards_spellcraft: {
-    id: "upgrade_hand_cards_spellcraft",
-    uniqueId: "upgrade_hand_cards_spellcraft",
-    categories: ["buff", "attack"],
-    genres: ["spellcraft"],
-    rank: 1,
-    description: "affix_upgrade_hand_cards_spellcraft",
-    keywords: ["affix_upgrade_hand_cards"],
-    script: "upgrade_hand_cards",
-    filter: { genre: "spellcraft" },
-    valueData: [
-      {
-        base: 1,
-        maxLevel: 0,
-      },
-    ],
-  },
   // 升级手牌（流派专属·御剑）
   upgrade_hand_cards_swordcraft: {
     id: "upgrade_hand_cards_swordcraft",
@@ -446,17 +427,6 @@
     ],
   },
 
-  for_spirituality_increase_damage: {
-    id: "for_spirituality_increase_damage",
-    uniqueId: "for_spirituality_increase_damage",
-    categories: ["attack"],
-    genres: ["spellcraft"],
-    attributeId: "spirituality",
-    priority: -1,
-    description: "affix_for_spirituality_increase_damage",
-    script: "for_attribute_increase_damage",
-    rank: 1,
-  },
   for_dexterity_increase_damage: {
     id: "for_dexterity_increase_damage",
     uniqueId: "for_dexterity_increase_damage",
@@ -502,10 +472,6 @@
     rank: 1,
   },
 
-  // ------------额外词条·时机回调------------
-  // 时机回调词条：效果不挂在打出时，而是挂在 callbacks 声明的时机上
-  // （函数名 = {script}_{时机}，契约见 docs/docs/mod/battle/card/readme.md）
-
   // 保留（御剑流派专属）：入手时（added_to_hand）给卡牌添加 isRetained 标记，
   // 回合结束清理手牌时留在手牌中；打出时无效果
   retain: {
@@ -518,6 +484,44 @@
     script: "retain",
     callbacks: ["added_to_hand"],
     keywords: ["affix_retain"],
+  },
+
+  // ------------额外词条·悟道流派专属------------
+  // 悟道（spellcraft）流派专属词条：
+  // 词条 id 用流派风味名，script 用通用函数名；资源 id、过滤条件、阈值放词条数据，
+  // 其他流派后续可复用同一套脚本函数。
+  // 4 条元素相关词条（attune / elemental_focus / ailment_spread / cycle_draw）均带
+  // require: {elementType: true}，生成侧过滤，不落到无元素卡上成为废词条
+
+  for_spirituality_increase_damage: {
+    id: "for_spirituality_increase_damage",
+    uniqueId: "for_spirituality_increase_damage",
+    categories: ["attack"],
+    genres: ["spellcraft"],
+    attributeId: "spirituality",
+    priority: -1,
+    description: "affix_for_spirituality_increase_damage",
+    script: "for_attribute_increase_damage",
+    rank: 1,
+  },
+  // 升级手牌（流派专属·悟道）：随机升级手牌中 1 张悟道卡 +1 级
+  // 条件子表 filter 与 draw_cards 同口径；当前应用仅限按流派过滤且只升级 1 张（value 恒 1）
+  upgrade_hand_cards_spellcraft: {
+    id: "upgrade_hand_cards_spellcraft",
+    uniqueId: "upgrade_hand_cards_spellcraft",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 1,
+    description: "affix_upgrade_hand_cards_spellcraft",
+    keywords: ["affix_upgrade_hand_cards"],
+    script: "upgrade_hand_cards",
+    filter: { genre: "spellcraft" },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
   },
   // 观星（悟道流派专属）：打出时观星 value[0] 张牌
   // （查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发）
@@ -537,14 +541,6 @@
     ],
     keywords: ["affix_scry"],
   },
-
-  // ------------额外词条·悟道流派专属------------
-  // 悟道（spellcraft）流派专属词条（见 plan/skill_tree/spellcraft_extra_affix_rework.md）：
-  // 词条 id 用流派风味名，script 用通用函数名；资源 id、过滤条件、阈值放词条数据，
-  // 其他流派后续可复用同一套脚本函数。
-  // 4 条元素相关词条（attune / elemental_focus / ailment_spread / cycle_draw）均带
-  // require: {elementType: true}，生成侧过滤，不落到无元素卡上成为废词条
-
   // 调息：若手牌中有其他同元素牌，本牌费用 -1（入手时检测减费，离开手牌区时还原；
   // 数值省略，脚本缺省 -1）；filter 中的 'self' 占位由脚本解析为本牌元素
   attune: {
@@ -600,7 +596,7 @@
     keywords: ["affix_ailment_spread"],
   },
   // 轮转：若上一张打出的牌与本牌不同元素，抽 {0} 张牌（正选任意元素牌 +
-  // 反选 filterNon 排除本牌元素；与专注奖励互斥）
+  // 反选 not 排除本牌元素；与专注奖励互斥）
   cycle_draw: {
     id: "cycle_draw",
     uniqueId: "cycle_draw",
@@ -609,7 +605,7 @@
     rank: 3,
     description: "affix_cycle_draw",
     script: "draw_by_last_card_used",
-    filter: { elementType: true, filterNon: { elementType: "self" } },
+    filter: { elementType: true, not: { elementType: "self" } },
     require: { elementType: true },
     valueData: [
       {

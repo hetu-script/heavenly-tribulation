@@ -56,10 +56,10 @@ external class BattleCharacter {
   function upgradeHandCards(count: integer, {options})
 
   /// 获取手牌：返回手牌中完全符合 options 条件（category/genre/cardType/kind/elementType，
-  /// 与 upgradeHandCards 同口径，支持 filterNon 反选子表；为空则返回全部）的卡牌 data 列表
+  /// 与 upgradeHandCards 同口径，支持 not 反选子表；为空则返回全部）的卡牌 data 列表
   function getHandCards({options}) -> List
 
-  /// 本回合上一张打出的牌（主词条）是否完全符合 criteria 条件（支持 filterNon 反选）。
+  /// 本回合上一张打出的牌（主词条）是否完全符合 criteria 条件（支持 not 反选）。
   /// 上一张打出的牌以 CustomGameCard 引用记录于 turnFlags['lastUsedCard']
   function matchLastUsedCard(criteria) -> bool
 

@@ -48,10 +48,10 @@ const kCardCriteriaFields = [
 
 /// 检查词条数据（卡牌主词条）是否完全符合 [criteria] 中指定的全部字段。
 /// criteria 为 Map 或 HTStruct（故为 dynamic）；仅 [kCardCriteriaFields] 中的
-/// 非空字段参与匹配，其余键忽略（含 filterNon 子表，单独处理）。
+/// 非空字段参与匹配，其余键忽略（含 not 子表，单独处理）。
 /// criteria 为空视为无条件（恒为 true）。
 /// 某字段值为 true 表示「该字段非空即可」（任意值），用于匹配元素牌（elementType: true）等。
-/// criteria 可含 filterNon 反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；
+/// criteria 可含 not 反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；
 /// 值 true 表示「该字段必须为空」（与正选 true =「非空即可」对称）。
 bool matchCardCriteria(dynamic affixData, dynamic criteria) {
   if (criteria == null || criteria.isEmpty) return true;
@@ -66,10 +66,10 @@ bool matchCardCriteria(dynamic affixData, dynamic criteria) {
     if (affixData[field] != expected) return false;
   }
   // 反选子表：字段值不得等于指定值；true 表示该字段必须为空
-  final filterNon = criteria['filterNon'];
-  if (filterNon != null) {
+  final not = criteria['not'];
+  if (not != null) {
     for (final field in kCardCriteriaFields) {
-      final unexpected = filterNon[field];
+      final unexpected = not[field];
       if (unexpected == null) continue;
       if (unexpected == true) {
         if (affixData[field] != null) return false;
@@ -1178,7 +1178,8 @@ class BattleScene extends Scene {
       final stock = character.hasStatusEffect(yangId);
       final forbidden = forbiddenNeeds[color] ?? 0;
       if (forbidden > stock) return false;
-      ultimateNeed += math.max(0, (coloredNeeds[color] ?? 0) - (stock - forbidden));
+      ultimateNeed +=
+          math.max(0, (coloredNeeds[color] ?? 0) - (stock - forbidden));
     }
     return ultimateNeed <= character.hasStatusEffect(kWildcardStatusId);
   }

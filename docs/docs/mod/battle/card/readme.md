@@ -96,7 +96,6 @@ function retain_added_to_hand(self, opponent, card, affix) {
 
 - 词条没有 `script` 字段则不参与任何回调（含打出）。
 - 声明了 `callbacks` 的词条仍然需要 `script` 字段作为函数名前缀；
-  打出时无效果的词条需提供同名空函数占位（如 `CardScript.retain`），否则打出时会报错。
 - 派发时遍历卡牌的全部词条（含主词条），主词条也可以声明 `callbacks`。
 
 ### 时机清单
@@ -123,126 +122,29 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `uniqueId`                | 同名限制：一张卡上同 uniqueId 的词条最多一个                                                                                                                                            |
 | `rank`                    | 词条出现的最低卡牌境界                                                                                                                                                                  |
 | `filter`                  | 条件子表（category/genre/cardType/kind/elementType 任意组合），脚本传给 matchCardCriteria 系 API；某字段值为 `true` 表示「该字段非空即可」                                              |
-| `filterNon`               | `filter` 内的反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；值 `true` 表示「该字段必须为空」（与正选 `true` =「非空即可」对称）。见下文「条件子表与占位约定」                  |
+| `not`                     | `filter` 内的反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；值 `true` 表示「该字段必须为空」（与正选 `true` =「非空即可」对称）。见下文「条件子表与占位约定」                  |
 | `require`                 | 生成侧过滤子表：以主词条（`card.affixes[0]`）字段为准——值 `true` = 该字段非空、值为数组 = 字段值 ∈ 数组、其余 = 等值匹配；不满足则生成时跳过该词条。见下文「条件子表与占位约定」        |
 | `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_exhaust_energy` / `attack_with_energy_count_check` 等脚本读取 |
 | `resourceThreshold`       | 资源门槛层数（缺省 1），与 `resourceId` 配套；达到门槛才生效                                                                                                                            |
 | `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` 读取并整层移除（如 water_mend 甘霖术列全部 7 种元素异常）                                                                                           |
 | `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以无极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |
 
----
-
-## 现有脚本清单
-
-整理自 `card_script.ht`，按用途分组：
-
-### 牌库操作
-
-| 函数             | 效果                                                                                                                                                                                                 |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `draw_cards`     | 抽 `value[0]` 张牌；词条可附 `filter` / `reduceCost` 条件子表（字段：category/genre/cardType/kind/elementType）                                                                                      |
-| `scry`           | 观星 `value[0]` 张（缺省 3）：查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发                                                                                                        |
-| `scry_then_draw` | 观星 `value[0]` 张（缺省 5），随后抽 1 张牌（观星选中牌置顶后被正好抽回；如天机术）。**async 函数**：内部 `await` 保证时序；Dart 侧统一 await 词条脚本，观星交互期间结算暂停（契约见上文「打出时」） |
-
-### 攻击
-
-| 函数                               | 效果                                                                                                                                                                                                                                            |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `attack`                           | 造成 `value[0]` 伤害                                                                                                                                                                                                                            |
-| `attack_multiple`                  | 造成 `value[0]` 伤害 × `value[1]` 次                                                                                                                                                                                                            |
-| `attack_buff`                      | 造成 `value[0]` 伤害，自身获得 `buffId` 增益 `value[1]` 层                                                                                                                                                                                      |
-| `attack_debuff`                    | 造成 `value[0]` 伤害，对手获得 `buffId` 减益 `value[1]` 层                                                                                                                                                                                      |
-| `attack_multiple_debuff`           | 造成 `value[0]` 伤害 × `value[1]` 次，随后对手获得 `buffId` 减益 `value[2]` 层                                                                                                                                                                  |
-| `attack_multiple_ailment`          | 造成 `value[0]` 伤害 × `value[1]` 次，随后按元素映射（`Constants.elementAilments`）附加本牌元素异常 `value[2]` 层（不经异常计数器，必然施加；如 wind_storm 风雷破）                                                                             |
-| `attack_multiple_by_used_elements` | 段数 = 本回合已使用的不同元素种数（含本牌，读 `turnFlags['usedElements']`，至少 1 段），每段 `value[0]` 伤害（如 chain_lightning 连环闪电；`usedElements` 契约见下文）                                                                          |
-| `attack_multiple_by_cards_in_hand` | 段数 = 手牌中完全符合 `affix.filter` 条件的卡牌数（如 `filter: {elementType: true}` 匹配任意元素牌；不含打出的本牌——双方出牌前均已移出手牌区），每段 `value[0]` 伤害（如 ice_storm 寒冰风暴）                                                   |
-| `attack_with_energy_count_check`   | `resourceId` 资源气层数 ≥ `resourceThreshold`（缺省 1）时本次伤害 +`value[1]`%（乘区1，写入 takeDamage 明细），造成 `value[0]` 伤害；可选尾部：`value` 有第 3 元素时按元素映射附加元素异常 `value[2]` 层（不经计数器；如 falling_stone 陨星术） |
-| `attack_exhaust_energy`            | 耗尽 `resourceId` 指定的全部剩余资源气（不含已支付费用），每点造成 `value[0]` 伤害（如 fire_storm 焚天烈焰）                                                                                                                                    |
-| `attack_rank_scaled`               | 造成 角色境界 × 5 伤害（默认卡基础拳法用）                                                                                                                                                                                                      |
-
-### 增益 / 减益
-
-| 函数                                      | 效果                                                                                                    |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `speed_quick_defend`                      | 自身速度 +`value[0]`，护甲 +`value[1]`                                                                  |
-| `dodge_nimble_defend`                     | 自身闪避 +`value[0]`，护甲 +`value[1]`                                                                  |
-| `speed_quick` / `dodge_nimble` / `defend` | 原子函数：单一状态 +`value[0]`（速度/闪避/护甲），供数据层自由组合                                      |
-| `gain_defense_by_mana`                    | 获得 = 当前灵气层数 ×`value[0]` 的护甲（灵气层数上限 `value[1]`，超出的不转化；如 stone_shield 岩甲术） |
-| `buff_lifemax`                            | 自身生命上限 +`value[0]`（并回复等量生命）                                                              |
-| `debuff_lifemax`                          | 对手生命上限 -`value[0]`                                                                                |
-| `heal`                                    | 自身生命 +`value[0]`                                                                                    |
-| `heal_lifeMax`                            | 回复生命上限 `value[0]`% 的生命（可超过上限）                                                           |
-| `heal_remove_debuffs`                     | 回复 `value[0]` 生命，并整层移除 `debuffs` 列表中的全部状态（如 water_mend 甘霖术）                     |
-| `self_buff`                               | 自身获得 `buffId` 增益 `value[0]` 层                                                                    |
-| `opponent_debuff`                         | 对手获得 `buffId` 减益 `value[0]` 层                                                                    |
-| `opponent_reduce_resist_all`              | 对手全部元素抗性 -`value[0]`（以弱点形式附加）                                                          |
-| `opponent_weaken_attack_all`              | 对手全部类型攻击力 -`value[0]`                                                                          |
-
-### 资源转化
-
-| 函数                | 效果                                                                                |
-| ------------------- | ----------------------------------------------------------------------------------- |
-| `heal_vigor_all`    | 消耗所有元气，每点回复生命上限 × `value[0]`% 的生命（归元功，费用恒 0，消耗走效果） |
-| `convert_vigor_all` | 消耗所有元气，按 `value[0]`% 转化为 `buffId` 指定的气（费用恒 0，消耗走效果）       |
-| `refund_cost`       | 按本牌实际支付量返还所消耗的气（读取 `cardFlags.paidCost`）                         |
-
-### 绝世卡专属
-
-| 函数                        | 效果                                                                                                                                                                                                |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `spellcraft_ultimate_spell` | 万法归宗：耗尽全部灵气（含已付费用），每点灵气造成 `value[0]` 雷电伤害                                                                                                                              |
-| `ailments_by_used_elements` | 相生相克：对对手施加随机元素异常，种数 = 本回合已使用元素种数（读 `turnFlags['usedElements']`，至少 1 种），每种 `value[0]` 层；种类按 `Constants.elementAilments` 映射表不重复抽取，不经异常计数器 |
-
-### 攻击联动（额外词条）
-
-| 函数                            | 效果                                            |
-| ------------------------------- | ----------------------------------------------- |
-| `by_damage_heal`                | 本牌每造成 10 点伤害，自身生命 +`value[0]`      |
-| `by_damage_defend`              | 本牌每造成 10 点伤害，自身护甲 +`value[0]`      |
-| `for_attribute_increase_damage` | 按 `attributeId` 属性提升伤害（每点属性 +0.5%） |
-
-### 时机回调
-
-| 函数                                             | 时机                | 效果                                                                                                                                                                                          |
-| ------------------------------------------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `retain_added_to_hand`                           | `added_to_hand`     | 保留（御剑专属词条）：给卡牌添加 `isRetained` 标记，回合结束清理手牌时留在手牌中                                                                                                              |
-| `reduce_cost_by_cards_in_hand_added_to_hand`     | `added_to_hand`     | 调息（悟道专属词条 attune）：入手时若手牌中有其他同元素牌，本牌费用 -`value[0]`（缺省 1，不低于 0）；实际减费量记录在 `card.costReduction`（{color, amount}），先按记录还原再重新检测（幂等） |
-| `reduce_cost_by_cards_in_hand_removed_from_hand` | `removed_from_hand` | 调息：离开手牌区时按 `card.costReduction` 记录还原本牌费用                                                                                                                                    |
-
-### 悟道流派专属（额外词条）
-
-词条 id 用流派风味名（`attune` / `elemental_focus` / `ailment_spread` / `cycle_draw` / `mana_burst` / `mana_battery`），
-script 用通用函数名；资源 id、过滤条件、阈值放词条数据，其他流派后续可复用同一套脚本函数
-（数据见 `assets/data/card_affixes.json5`，设计见 `plan/skill_tree/spellcraft_extra_affix_rework.md`）。
-
-| 函数                                | 效果                                                                                                         |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `increase_damage_by_last_card_used` | 上一张打出的牌与本牌同元素（`filter` 的 `'self'` 解析为本牌元素）时，本牌伤害 +`value[0]`%（乘区1）          |
-| `ailment_spread`                    | 给对方施加 `value[0]` 层本牌元素对应的元素异常（`Constants.elementAilments` 查表；直接施加，不经异常计数器） |
-| `draw_by_last_card_used`            | 上一张打出的牌与本牌不同元素（`filterNon` 反选排除本牌元素）时，抽 `value[0]` 张牌                           |
-| `increase_damage_by_energy_count`   | 打出时 `resourceId` 资源气层数 ≥ `resourceThreshold`（缺省 1）时，本牌伤害 +`value[0]`%（乘区1）             |
-| `gain_resource_next_turn`           | 下回合产出阶段额外获得 `value[0]` 层 `resourceId` 资源气（`turnFlags['pendingResources']` 标记，见下文）     |
-
----
-
 ## 条件子表与占位约定
 
-悟道流派词条引入的通用机制，其他流派复用同一套脚本函数时同样适用。
-
-### filterNon 反选子表
+### not 反选子表
 
 `filter` 条件子表（及一切走 `matchCardCriteria` 的入口：抽牌的 `filter` / `reduceCost`、
-`getHandCards`、`upgradeHandCards`、`matchLastUsedCard`）支持可选 `filterNon` 反选子表：
+`getHandCards`、`upgradeHandCards`、`matchLastUsedCard`）支持可选 `not` 反选子表：
 其中每个字段要求卡牌该字段值**不等于**指定值；值 `true` 表示「该字段必须为空」
-（与正选 `true` =「非空即可」对称）。`filterNon` 键不在匹配字段表内，正选循环自然忽略，单独处理。
+（与正选 `true` =「非空即可」对称）。`not` 键不在匹配字段表内，正选循环自然忽略，单独处理。
 
-例：`{elementType: true, filterNon: {elementType: "element_fire"}}` = 是元素牌但不是火系。
+例：`{elementType: true, not: {elementType: "element_fire"}}` = 是元素牌但不是火系。
 
 ### 'self' 占位
 
-`filter` / `filterNon` 中的字符串值 `'self'` 表示「**本牌主词条同名字段的值**」，
+`filter` / `not` 中的字符串值 `'self'` 表示「**本牌主词条同名字段的值**」，
 由 `CardScript._resolveCriteriaSelf(criteria, card)` 在执行前解析成具体条件表
-（返回新表，不改动词条数据；`filterNon` 子表同样处理）。
+（返回新表，不改动词条数据；`not` 子表同样处理）。
 任一 `'self'` 解析为 null（本牌无该字段，如非元素牌的 `elementType`）时整体返回 null，
 调用脚本视为**条件不成立**，效果不触发——同元素（专注）/ 不同元素（轮转）两类词条共用一套模板。
 
@@ -263,7 +165,7 @@ script 用通用函数名；资源 id、过滤条件、阈值放词条数据，�
 （CustomGameCard 引用，非字段副本）：
 
 - `self.matchLastUsedCard(criteria)` —— 本回合上一张打出的牌（主词条）是否完全符合
-  criteria 条件（支持 `filterNon` 反选）；
+  criteria 条件（支持 `not` 反选）；
 - `self.getLastUsedCard()` —— 本回合上一张打出的牌的完整数据（BattleCard struct），无则 null。
 
 `turnFlags` 回合开始清空 → 「上一张打出的牌」限定本回合；每回合首张打出的牌无上一张，

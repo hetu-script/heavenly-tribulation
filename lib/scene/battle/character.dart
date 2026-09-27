@@ -1420,8 +1420,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final battleScene = game as BattleScene;
     final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;
     final candidates = hand.cards
-        .where((c) =>
-            matchCardCriteria((c as CustomGameCard).data['affixes'][0], options))
+        .where((c) => matchCardCriteria(
+            (c as CustomGameCard).data['affixes'][0], options))
         .cast<CustomGameCard>()
         .toList();
     if (candidates.isEmpty) return;
@@ -1431,8 +1431,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final card = candidates[i];
       engine.hetu.invoke('upgradeCard',
           positionalArgs: [card.data], namedArgs: {'inBattle': true});
-      addHintText(engine.locale('cardUpgradedHint',
-          interpolations: [card.data['name']]));
+      addHintText(engine
+          .locale('cardUpgradedHint', interpolations: [card.data['name']]));
     }
     if (isHero) {
       battleScene.refreshHandCardDescription();
@@ -1447,13 +1447,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final battleScene = game as BattleScene;
     final hand = isHero ? battleScene.heroHandZone : battleScene.enemyHandZone;
     return hand.cards
-        .where((c) =>
-            matchCardCriteria((c as CustomGameCard).data['affixes'][0], options))
+        .where((c) => matchCardCriteria(
+            (c as CustomGameCard).data['affixes'][0], options))
         .map((c) => (c as CustomGameCard).data)
         .toList();
   }
 
-  /// 本回合上一张打出的牌（主词条）是否完全符合 criteria 条件（支持 filterNon 反选）。
+  /// 本回合上一张打出的牌（主词条）是否完全符合 criteria 条件（支持 not 反选）。
   /// 上一张打出的牌以 CustomGameCard 引用记录于 turnFlags['lastUsedCard']
   /// （onUseCard 末尾无条件写入，回合开始随 turnFlags 清空）；
   /// 每回合首张打出的牌无上一张，条件不成立
