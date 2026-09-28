@@ -149,15 +149,15 @@
   "status_energy_negative": "阴气",
   "status_energy_negative_description": "阴气包括: 死气、逆灵之气、止戈之气、非战之气、无心之气、虚空之气。",
   "status_energy_negative_life": "死气",
-  "status_energy_negative_life_description": "回合开始时移除 1 层死气，失去 5% 生命上限的生命。",
+  "status_energy_negative_life_description": "回合开始时消耗一层，使你失去 5% 生命上限的生命，且抵消 1 点你获得的元气。",
   "status_energy_negative_spell": "逆灵之气",
-  "status_energy_negative_spell_description": "每层使你的法术攻击伤害 -5；灵气 -1。",
+  "status_energy_negative_spell_description": "抵消你获得的灵气。",
   "status_energy_negative_weapon": "止戈之气",
-  "status_energy_negative_weapon_description": "每层使你的武器攻击伤害 -5；剑气 -1。",
+  "status_energy_negative_weapon_description": "抵消你获得的剑气。",
   "status_energy_negative_unarmed": "非战之气",
-  "status_energy_negative_unarmed_description": "每层使你的徒手攻击伤害 -5；怒气 -1。",
+  "status_energy_negative_unarmed_description": "抵消你获得的怒气。",
   "status_energy_negative_curse": "无心之气",
-  "status_energy_negative_curse_description": "每层使你的咒术攻击伤害 -5；煞气 -1。",
+  "status_energy_negative_curse_description": "抵消你获得的煞气。",
   "status_energy_negative_ultimate": "虚空之气",
   "status_energy_negative_ultimate_description": "每层使你的所有攻击伤害 -5，并使所有有色费用 +1；只能被无极之气抵消。",
   "status_debuff_tribulation": "劫气",
@@ -169,5 +169,5 @@
   "status_buff_element_amplify_lightning": "三清法相·雷",
   "status_buff_element_amplify_lightning_description": "一气化三清所化法相。每层使造成的雷系伤害 +1%（独立乘区）；持有者的回合结束时移除。",
   "status_buff_handcards_to_mana": "太上忘情",
-  "status_buff_handcards_to_mana_description": "执念尽舍，灵气自生。回合结束时，每有一张手牌受到 5 点纯粹伤害；下回合产出阶段每有一张手牌额外获得 1 点灵气。"
+  "status_buff_handcards_to_mana_description": "执念尽舍，灵气自生。回合结束时每有一张手牌：受到 10 点纯粹伤害并在下回合额外获得 1 点灵气。"
 }

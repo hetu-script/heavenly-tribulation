@@ -43,7 +43,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器，核心职责：
   category/kind/genre/rank 过滤 + 绝世两段式 roll：uniqueCardChance 概率从 isUnique 池抽），再从
   game.battleCardAffixes（card_affixes.json5）按境界额度随机补额外词条（getMinMaxExtraAffixCount，无
   境界 0 个 → 化神 4-6 个），词条等级在境界等级区间内随机（minLevelForRank/maxLevelForRank），数值由
-  calcCardAffixValue(base + increment×level, rank) 计算。
+  calculateCardAffixValue(base + increment×level, rank) 计算。
 - 绝世卡：isUnique + uniqueId，词条固定（主词条 affixes 列表按 rank+1 顺序解锁），未鉴定不可用，命名
   走 uniquecard\_{id} 本地化键。
 - 费用：updateCardCost 是唯一实现——显式 coloredCost 条目（数值或 {base, rankIncrement} 公式）求值写
@@ -80,7 +80,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器，核心职责：
 - StatusScript 命名空间：函数名 = {statusId}_{时机}，签名 (self, opponent, effect, details)，必须非
   阻塞。时机体系很丰富（双方各自的
   turn_start/turn_end/doing_damage/taking_damage/gained_debuff/using_card/used_card/attacked/buffed/
-  extra_turn/use_card_genre__/use*card_kind*_）。实现了：kind 系增伤、速度/闪避四阈值状态（迅捷→额外
+  extra_turn/use_card_genre\_\_/use*card_kind*_）。实现了：kind 系增伤、速度/闪避四阈值状态（迅捷→额外
   回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤、幸运（必暴击/必异常
   ）、辟邪、护盾、破绽、邪祟、七种元素异常（火/雷回合开始、冰/毒回合结束 + 流血/内伤/幻觉）、资源气
   增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血。
@@ -88,7 +88,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器，核心职责：
 
 ### 5. 本地化（assets/locale/zh/rpg/）
 
-- battlecard.json：kind 名（battlecard*\*）、绝世卡名（uniquecard*_）、词条描述（affix\__）、插画名等
+- battlecard.json：kind 名（battlecard*\*）、绝世卡名（uniquecard*\_）、词条描述（affix\_\_）、插画名等
   。
 - battle.json：战斗内提示（先手/后手回血/观星/暴击预测/缺卡替换等）。
 - status*effect.json：status*{id} 名称 + status\_{id}\_description 描述。

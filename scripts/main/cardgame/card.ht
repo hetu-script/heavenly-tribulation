@@ -2,10 +2,10 @@
 /// 计算单条费用的实际数值：条目可以是固定数值，
 /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
 /// 例如标准公式 {base: 0, rankIncrement: 1} → 费用 = rank，{base: 1, rankIncrement: 1} → 费用 = rank+1
-/// 走独立的 calcCostValue（与词条数值的境界指数公式脱钩，费用只按 rank 线性缩放）
+/// 走独立的 calculateCostValue（与词条数值的境界指数公式脱钩，费用只按 rank 线性缩放）
 function _calcCostAmount(valueData, rank) {
   if (valueData is num) return valueData.floor()
-  return calcCostValue(valueData, rank).floor()
+  return calculateCostValue(valueData, rank).floor()
 }
 
 /// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md）：
@@ -88,7 +88,7 @@ struct BattleCard {
       if (maxRank == 0) {
         this.rank = 0
       } else {
-        this.rank = random.distantInt(maxRank + 1)
+        this.rank = random.nextInt(maxRank + 1)
       }
     } else {
       this.rank = 0
@@ -301,8 +301,8 @@ function _updateAffixValue(card, affix) {
     let values = []
     for (final valueData in affix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
-      final value = calcCardAffixValue(valueData, level: valueLevel, rank: affix.rank)
-      values.add(value.floor())
+      final value = calculateCardAffixValue(valueData, level: valueLevel, rank: affix.rank).floor()
+      values.add(value)
     }
     // if (affix.requirement && affix.requirement.isNotEmpty) {
     //   for (final reqData in mainAffix.requirement.values) {
@@ -318,14 +318,11 @@ function _randomizeAffixLevel(card, affix) {
   if (affix.valueData is List) {
     let levelMin = minLevelForRank(affix.rank)
     let levelMax = maxLevelForRank(affix.rank)
-    if (affix.maxLevel) {
-      levelMax = Math.min(levelMax, affix.maxLevel)
-    }
     affix.level = getRandomLevel(levelMin, levelMax)
     let values = []
     for (final valueData in affix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
-      let value = calcCardAffixValue(valueData, level: valueLevel, rank: affix.rank)
+      let value = calculateCardAffixValue(valueData, level: valueLevel, rank: affix.rank)
       values.add(value.floor())
     }
     affix.value = values

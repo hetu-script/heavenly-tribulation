@@ -499,7 +499,7 @@ function characterSetPassive(character, dataId, {level = 1, rank}) {
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = calcPassiveAffixValue(passiveData, level: passiveLevel).round()
+      passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel).round()
     }
     character.passives[dataId] = passiveData
   } else {
@@ -515,7 +515,7 @@ function characterSetPassive(character, dataId, {level = 1, rank}) {
       if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = calcPassiveAffixValue(passiveData, level: passiveLevel).round()
+      passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel).round()
     }
   }
 }
@@ -799,7 +799,7 @@ function characterSetEphemeralPassive(character, dataId, {level = 1, rank}) {
     if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
       passiveLevel = passiveData.maxLevel
     }
-    passiveData.value = calcPassiveAffixValue(passiveData, level: passiveLevel).round()
+    passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel).round()
   }
   character.ephemeralPassives[dataId] = passiveData
 }

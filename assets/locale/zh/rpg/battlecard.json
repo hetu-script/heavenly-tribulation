@@ -123,7 +123,7 @@
   "affix_spellcraft_ailments_by_used_elements": "对双方施加随机元素异常，种数等于本回合已使用的元素种数（至少 1 种），每种 {0} 层（不经异常计数器）",
   "affix_spellcraft_element_amplify": "抉择一种元素（水/火/雷）：本回合双方造成的该元素伤害 +{0}%（独立乘区）",
   "affix_spellcraft_ailments_to_mana": "自身每有一种元素异常，获得 {0} 点灵气",
-  "affix_spellcraft_handcards_to_mana": "回合结束时，每有一张手牌受到 5 点纯粹伤害；下回合产出阶段每有一张手牌额外获得 {0} 点灵气",
+  "affix_spellcraft_handcards_to_mana": "回合结束时，每有一张手牌受到 {0} 点纯粹伤害；下回合产出阶段每有一张手牌额外获得 {1} 点灵气",
   "element_choice_water": "水",
   "element_choice_water_description": "本回合双方造成的水系伤害增加",
   "element_choice_fire": "火",

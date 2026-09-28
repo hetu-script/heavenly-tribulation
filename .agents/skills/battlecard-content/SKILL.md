@@ -119,13 +119,13 @@ punch_attack: {
 - **中立卡（含法身）** = rank+1 点元气：`coloredCost: { life: {base:1, rankIncrement:1} }`
   或 `{ life: {base:0.5, rankIncrement:0.5} }`。
 - **免费卡**：`coloredCost: { life: 0 }`（显式 0）。
-- 费用公式与词条数值**脱钩**：`calcCostValue` = `base + rankIncrement×rank`（独立线性，不被指数影响）。
+- 费用公式与词条数值**脱钩**：`calculateCostValue` = `base + rankIncrement×rank`（独立线性，不被指数影响）。
 - 条目可为固定数值（如 `{ life: 0 }`、`{ spell: 10 }`）或 `{base, rankIncrement}` 公式。
 
 ### 数值 valueData
 
 - 数组，每个元素对应 `affix.value[i]`。
-- `value = (base + increment×(等级 − 本境界下限)) × 1.3^境界 + rankIncrement×境界`（见 `calcCardAffixValue`）。
+- `value = (base + increment×(等级 − 本境界下限)) × 1.3^境界 + rankIncrement×境界`（见 `calculateCardAffixValue`）。
 - 词条等级 = 卡牌等级（主词条）或境界区间内随机（额外词条）。
 - `increment` 按本境界内等级缩放（+1 级相对提升区间起点 ≈ increment/base，全境界恒定有感）。
 - `maxLevel: 0` 表示该值不随词条等级缩放（固定 base）。
@@ -201,7 +201,7 @@ function upgrade_hand_cards(self, opponent, card, affix) {
 
 - [ ] id = 键名，snake_case，英文含义（不用拼音）。
 - [ ] category/kind/cardType/damageType/genre/rank 填对（攻击卡必填 damageType）。
-- [ ] 费用符合单资源模型（流派色 or 元气），用 calcCostValue 语义。
+- [ ] 费用符合单资源模型（流派色 or 元气），用 calculateCostValue 语义。
 - [ ] script 函数在 CardScript 存在且签名正确；时机回调有 `{script}_{时机}` + 占位函数。
 - [ ] valueData 与脚本读的 value[i] 数量对应。
 - [ ] 本地化：affix_xxx（+\_description）、uniquecard_xxx（绝世卡）、status 引用存在。
