@@ -1085,39 +1085,6 @@
       },
     ],
   },
-  // 岩甲术：获得 = 当前灵气 ×{0} 的护甲（至多转化 {1} 点灵气）
-  stone_shield: {
-    id: "stone_shield",
-    uniqueIds: ["defend"],
-    category: "buff",
-    genre: "spellcraft",
-    kind: "earthbend",
-    cardType: "spell",
-    elementType: "element_earth",
-    rank: 1,
-    description: "affix_defend_by_mana",
-    image: "battlecard/illustration/spellcraft_earth_defend.png",
-    animation: {
-      startup: ["spell_attack"],
-      recovery: ["spell_attack_recovery"],
-      overlays: ["stone_shield"],
-      sound: "buffer-spell-88994.mp3",
-    },
-    buffId: "defense",
-    script: "gain_defense_by_mana",
-    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
-    keywords: ["status_defense"],
-    valueData: [
-      {
-        base: 3,
-        increment: 0.15,
-      },
-      {
-        base: 15,
-        maxLevel: 0,
-      },
-    ],
-  },
   wind_haste: {
     id: "wind_haste",
     uniqueIds: ["speed_quick", "defend"],
@@ -1126,7 +1093,7 @@
     kind: "airbend",
     cardType: "spell",
     elementType: "element_wind",
-    rank: 1,
+    rank: 2,
     description: "affix_speed_quick_defend",
     image: "battlecard/illustration/spellcraft_wind_defend.png",
     animation: {
@@ -1146,31 +1113,6 @@
       {
         base: 8,
         increment: 0.4,
-      },
-    ],
-  },
-  // 灵气涌动：元气 1:1 转化为灵气（悟道专属版，费用恒 0，与中立卡 energy_positive_spell 并存）
-  mana_surge: {
-    id: "mana_surge",
-    genre: "spellcraft",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 2,
-    description: "affix_convert_vigor_spell",
-    keywords: ["status_energy_positive_spell"],
-    image: "battlecard/illustration/xinfa_mana.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_spell",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 100,
       },
     ],
   },
@@ -1209,10 +1151,70 @@
       },
     ],
   },
+  // 岩甲术：获得 = 当前灵气 ×{0} 的护甲（至多转化 {1} 点灵气）
+  stone_shield: {
+    id: "stone_shield",
+    uniqueIds: ["defend"],
+    category: "buff",
+    genre: "spellcraft",
+    kind: "earthbend",
+    cardType: "spell",
+    elementType: "element_earth",
+    rank: 4,
+    description: "affix_defend_by_mana",
+    image: "battlecard/illustration/spellcraft_earth_defend.png",
+    animation: {
+      startup: ["spell_attack"],
+      recovery: ["spell_attack_recovery"],
+      overlays: ["stone_shield"],
+      sound: "buffer-spell-88994.mp3",
+    },
+    buffId: "defense",
+    script: "gain_defense_by_mana",
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    keywords: ["status_defense"],
+    valueData: [
+      {
+        base: 3,
+        increment: 0.15,
+      },
+      {
+        base: 15,
+        maxLevel: 0,
+      },
+    ],
+  },
+  // 灵气涌动：元气 1:1 转化为灵气（悟道专属版，费用恒 0，与中立卡 energy_positive_spell 并存）
+  mana_surge: {
+    id: "mana_surge",
+    genre: "spellcraft",
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 5,
+    description: "affix_convert_vigor_spell",
+    keywords: ["status_energy_positive_spell"],
+    image: "battlecard/illustration/xinfa_mana.png",
+    animation: {
+      startup: ["spell_buff"],
+      overlays: ["restore_mana"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_spell",
+    script: "convert_vigor_all",
+    coloredCost: { life: 0 },
+    valueData: [
+      {
+        base: 100,
+      },
+    ],
+  },
 
   // ------------悟道·绝世------------
   // 天机术：规划主题核心卡——观星 value[0] 张（比标准 3 张更深），随后抽 1 张牌
   // （观星选中的牌置于牌库顶，正好被随后的抽牌入手；脚本 scry_then_draw 以 await 保证时序）
+  // 抉择代价（scryOptions）：本场战斗中选中的牌费用 -1，其余被检视的牌费用 +1；
+  // 未选牌进弃牌堆，加费在洗牌后兑现（Dart 侧 scry 结算，只改 coloredCost 不动基线，卡面自动变色）
   spellcraft_scry_draw: {
     id: "spellcraft_scry_draw",
     category: "buff",
@@ -1229,6 +1231,7 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "scry_then_draw",
+    scryOptions: { chosenCostChange: -1, othersCostChange: 1 },
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
@@ -1238,9 +1241,9 @@
     ],
     affixes: [],
   },
-  // 相生相克：轮转路线循环卡——对对手施加随机元素异常，
+  // 相生相克：轮转路线循环卡——对双方施加随机元素异常（applyToSelf），
   // 种数 = 本回合已使用的元素种数（至少 1 种），不经异常计数器；
-  // 与 chain_lightning 共用 usedElements 计数，为结丹绝世「蓄灵诀」铺垫异常种类
+  // 对称效果、不对称收益：自异常是蓄灵诀引擎的燃料、可被水疗术清除；敌方无此配合时纯受害
   spellcraft_ailments_by_used_elements: {
     id: "spellcraft_ailments_by_used_elements",
     category: "buff",
@@ -1257,6 +1260,7 @@
       sound: "magic-smite-6012.mp3",
     },
     script: "ailments_by_used_elements",
+    applyToSelf: true,
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
@@ -1265,6 +1269,139 @@
       },
     ],
     affixes: [],
+  },
+  // 一气化三清：抉择水/火/雷之一（discover 临时元素卡），本回合双方造成的该元素伤害 +value[0]%
+  // （独立乘区 percentageChange2，不走乘区1攻击力；三清法相状态持有者的回合结束时移除——
+  //  敌方的实例在其下个回合结束前持续生效，正是「对称效果」的代价面）
+  spellcraft_element_amplify: {
+    id: "spellcraft_element_amplify",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 3,
+    isUnique: true,
+    description: "affix_spellcraft_element_amplify",
+    keywords: [
+      "status_buff_element_amplify_water",
+      "status_buff_element_amplify_fire",
+      "status_buff_element_amplify_lightning",
+    ],
+    image: "battlecard/illustration/unique_element_amplify.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "discover_element_amplify",
+    discoverOptions: {
+      hint: "discoverElementHint",
+      choices: [
+        { key: "element_water", cardId: "element_choice_water" },
+        { key: "element_fire", cardId: "element_choice_fire" },
+        { key: "element_lightning", cardId: "element_choice_lightning" },
+      ],
+    },
+    elementStatusMap: {
+      element_water: "buff_element_amplify_water",
+      element_fire: "buff_element_amplify_fire",
+      element_lightning: "buff_element_amplify_lightning",
+    },
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    valueData: [
+      {
+        base: 20,
+        increment: 2,
+      },
+    ],
+    affixes: [],
+  },
+  // 蓄灵诀：自异常引擎核心——自身每有一种元素异常（七种查表），获得 value[0] 点灵气
+  // （与相生相克的自异常段、水疗术的清场形成引擎循环；上限 7 种 = 7×value[0] 灵气，服务万法归宗门槛）
+  spellcraft_ailments_to_mana: {
+    id: "spellcraft_ailments_to_mana",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 4,
+    isUnique: true,
+    description: "affix_spellcraft_ailments_to_mana",
+    keywords: ["status_energy_positive_spell"],
+    image: "battlecard/illustration/unique_ailments_to_mana.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "gain_mana_by_self_ailments",
+    resourceId: "energy_positive_spell",
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+    affixes: [],
+  },
+  // 太上忘情：获得状态「太上忘情」——回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
+  // （固定值 5，写在状态数据中，不随境界缩放；本地化描述同步写死，改动时需同步），
+  // 下回合产出阶段每有一张手牌额外获得 value[0] 点灵气（pendingResources 跨回合机制）
+  spellcraft_handcards_to_mana: {
+    id: "spellcraft_handcards_to_mana",
+    category: "buff",
+    genre: "spellcraft",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 5,
+    isUnique: true,
+    description: "affix_spellcraft_handcards_to_mana",
+    keywords: ["status_buff_handcards_to_mana"],
+    image: "battlecard/illustration/unique_handcards_to_mana.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "self_buff",
+    buffId: "buff_handcards_to_mana",
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+    affixes: [],
+  },
+
+  // ------------抉择临时卡（仅 discover 抉择 UI 使用，不进任何卡池/牌库）------------
+  // 一气化三清的元素抉择：水/火/雷。无 kind，卡名直接取 locale(词条id)；插画不注册
+  // kBattleCardIllustrations（避免混入记忆翻牌小游戏卡池）
+  element_choice_water: {
+    id: "element_choice_water",
+    category: "buff",
+    cardType: "divinity",
+    description: "element_choice_water_description",
+    image: "battlecard/illustration/element_choice_water.png",
+    coloredCost: { life: 0 },
+    isUnpackable: true,
+  },
+  element_choice_fire: {
+    id: "element_choice_fire",
+    category: "buff",
+    cardType: "divinity",
+    description: "element_choice_fire_description",
+    image: "battlecard/illustration/element_choice_fire.png",
+    coloredCost: { life: 0 },
+    isUnpackable: true,
+  },
+  element_choice_lightning: {
+    id: "element_choice_lightning",
+    category: "buff",
+    cardType: "divinity",
+    description: "element_choice_lightning_description",
+    image: "battlecard/illustration/element_choice_lightning.png",
+    coloredCost: { life: 0 },
+    isUnpackable: true,
   },
 
   // ------------悟道·天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------

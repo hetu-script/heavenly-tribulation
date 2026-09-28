@@ -389,15 +389,18 @@ namespace CardScript {
   /// 天机术（悟道绝世）：观星 value[0] 张（缺省 5），随后抽 1 张牌。
   /// await 保证观星选中的牌置于牌库顶后才抽牌（正好将其入手）；
   /// Dart 侧统一 await 词条脚本，观星交互期间出牌结算暂停（契约见文件头注释）
+  /// affix.scryOptions 可选费用修正（{chosenCostChange, othersCostChange}）：
+  /// 选中减费/未选加费，本场战斗内生效（未选牌进弃牌堆，加费洗牌后兑现）
   async function scry_then_draw(self, opponent, card, affix) {
-    await self.scry(count: affix.value?[0])
+    await self.scry(count: affix.value?[0], options: affix.scryOptions)
     await self.drawCards(1)
   }
 
-  /// 相生相克（悟道绝世）：对对手施加随机元素异常，
+  /// 相生相克（悟道绝世）：对双方施加随机元素异常（affix.applyToSelf 时自身同受），
   /// 种数 = 本回合已使用的元素种数（读 turnFlags['usedElements']，至少 1 种），
   /// 每种 value[0] 层。不经异常计数器，必然施加；
   /// 种类按 Constants.elementAilments 映射表不重复抽取
+  /// 对称效果、不对称收益：自异常是蓄灵诀引擎的燃料、可被水疗术清除
   function ailments_by_used_elements(self, opponent, card, affix) {
     final usedElements = self.turnFlags['usedElements']
     var count = 0
@@ -411,8 +414,35 @@ namespace CardScript {
       if (pool.isEmpty) break
       final ailmentId = random.nextIterable(pool)
       opponent.addStatusEffect(ailmentId, amount: affix.value[0])
+      if (affix.applyToSelf == true) {
+        self.addStatusEffect(ailmentId, amount: affix.value[0])
+      }
       pool.remove(ailmentId)
     }
+  }
+
+  /// 一气化三清（悟道绝世）：抉择水/火/雷之一（discover 临时元素卡），
+  /// 使双方获得对应元素的三清法相状态（value[0]%，独立乘区2，持有者回合结束移除）。
+  /// affix.discoverOptions = {hint, choices: [{key, cardId}]}；
+  /// affix.elementStatusMap = {抉择key: 状态id}。敌方抉择由 Dart 侧随机完成
+  async function discover_element_amplify(self, opponent, card, affix) {
+    final chosen = await self.discover(options: affix.discoverOptions)
+    if (chosen == null) return
+    final statusId = affix.elementStatusMap[chosen]
+    if (statusId == null) return
+    self.addStatusEffect(statusId, amount: affix.value[0])
+    opponent.addStatusEffect(statusId, amount: affix.value[0])
+  }
+
+  /// 蓄灵诀（悟道绝世）：自身每有一种元素异常（Constants.elementAilments 七种查表），
+  /// 获得 value[0] 层 affix.resourceId 资源（灵气）。上限 7 种，服务万法归宗门槛
+  function gain_mana_by_self_ailments(self, opponent, card, affix) {
+    var count = 0
+    for (final key in Constants.elementAilments.keys) {
+      if (self.hasStatusEffect(Constants.elementAilments[key]) > 0) count += 1
+    }
+    if (count <= 0) return
+    self.addStatusEffect(affix.resourceId, amount: count * affix.value[0])
   }
 
   /// ------------------------------------------------------------

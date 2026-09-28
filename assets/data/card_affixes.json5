@@ -12,6 +12,7 @@
       {
         base: 1,
         increment: 0.25,
+        
       },
     ],
   },
@@ -293,7 +294,7 @@
     id: "draw_cards_neutral",
     uniqueId: "draw_cards_neutral",
     categories: ["buff", "attack"],
-    rank: 1,
+    rank: 3,
     description: "affix_draw_cards_neutral",
     keywords: ["affix_draw_cards_neutral"],
     script: "draw_cards",
@@ -493,17 +494,6 @@
   // 4 条元素相关词条（attune / elemental_focus / ailment_spread / cycle_draw）均带
   // require: {elementType: true}，生成侧过滤，不落到无元素卡上成为废词条
 
-  for_spirituality_increase_damage: {
-    id: "for_spirituality_increase_damage",
-    uniqueId: "for_spirituality_increase_damage",
-    categories: ["attack"],
-    genres: ["spellcraft"],
-    attributeId: "spirituality",
-    priority: -1,
-    description: "affix_for_spirituality_increase_damage",
-    script: "for_attribute_increase_damage",
-    rank: 1,
-  },
   // 升级手牌（流派专属·悟道）：随机升级手牌中 1 张悟道卡 +1 级
   // 条件子表 filter 与 draw_cards 同口径；当前应用仅限按流派过滤且只升级 1 张（value 恒 1）
   upgrade_hand_cards_spellcraft: {
@@ -523,24 +513,6 @@
       },
     ],
   },
-  // 观星（悟道流派专属）：打出时观星 value[0] 张牌
-  // （查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发）
-  scry: {
-    id: "scry",
-    uniqueId: "scry",
-    categories: ["buff", "attack"],
-    genres: ["spellcraft"],
-    rank: 2,
-    description: "affix_scry",
-    script: "scry",
-    valueData: [
-      {
-        base: 3,
-        maxLevel: 0,
-      },
-    ],
-    keywords: ["affix_scry"],
-  },
   // 调息：若手牌中有其他同元素牌，本牌费用 -1（入手时检测减费，离开手牌区时还原；
   // 数值省略，脚本缺省 -1）；filter 中的 'self' 占位由脚本解析为本牌元素
   attune: {
@@ -548,13 +520,43 @@
     uniqueId: "attune",
     categories: ["buff", "attack"],
     genres: ["spellcraft"],
-    rank: 1,
+    rank: 2,
     description: "affix_attune",
     script: "reduce_cost_by_cards_in_hand",
     callbacks: ["added_to_hand", "removed_from_hand"],
     filter: { elementType: "self" },
     require: { elementType: true },
     keywords: ["affix_attune"],
+  },
+  // 侵染：给对方施加 {0} 层本牌元素对应的元素异常（直接施加，不经异常计数器；
+  // 元素→异常映射见 Constants.elementAilments）
+  ailment_spread: {
+    id: "ailment_spread",
+    uniqueId: "ailment_spread",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 2,
+    description: "affix_ailment_spread",
+    script: "ailment_spread",
+    require: { elementType: true },
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
+    ],
+    keywords: ["affix_ailment_spread"],
+  },
+  for_spirituality_increase_damage: {
+    id: "for_spirituality_increase_damage",
+    uniqueId: "for_spirituality_increase_damage",
+    categories: ["attack"],
+    genres: ["spellcraft"],
+    attributeId: "spirituality",
+    priority: -1,
+    description: "affix_for_spirituality_increase_damage",
+    script: "for_attribute_increase_damage",
+    rank: 1,
   },
   // 专注：若上一张打出的牌与本牌同元素，本牌伤害 +{0}%（专注路线，priority<0 先于主词条）
   elemental_focus: {
@@ -576,45 +578,6 @@
     ],
     keywords: ["affix_elemental_focus"],
   },
-  // 侵染：给对方施加 {0} 层本牌元素对应的元素异常（直接施加，不经异常计数器；
-  // 元素→异常映射见 Constants.elementAilments）
-  ailment_spread: {
-    id: "ailment_spread",
-    uniqueId: "ailment_spread",
-    categories: ["attack"],
-    genres: ["spellcraft"],
-    rank: 2,
-    description: "affix_ailment_spread",
-    script: "ailment_spread",
-    require: { elementType: true },
-    valueData: [
-      {
-        base: 1,
-        increment: 0.1,
-      },
-    ],
-    keywords: ["affix_ailment_spread"],
-  },
-  // 轮转：若上一张打出的牌与本牌不同元素，抽 {0} 张牌（正选任意元素牌 +
-  // 反选 not 排除本牌元素；与专注奖励互斥）
-  cycle_draw: {
-    id: "cycle_draw",
-    uniqueId: "cycle_draw",
-    categories: ["buff", "attack"],
-    genres: ["spellcraft"],
-    rank: 3,
-    description: "affix_cycle_draw",
-    script: "draw_by_last_card_used",
-    filter: { elementType: true, not: { elementType: "self" } },
-    require: { elementType: true },
-    valueData: [
-      {
-        base: 1,
-        maxLevel: 0,
-      },
-    ],
-    keywords: ["affix_cycle_draw"],
-  },
   // 灵气爆发：打出时灵气（resourceId）≥ resourceThreshold 层，本牌伤害 +{0}%
   // （priority<0 先于主词条；门槛 5 直接写进本地化文案）
   mana_burst: {
@@ -635,6 +598,44 @@
       },
     ],
     keywords: ["affix_mana_burst"],
+  },
+  // 观星（悟道流派专属）：打出时观星 value[0] 张牌
+  // （查看牌库顶 N 张，选一张放回牌库顶，其余进弃牌堆；牌库为空不触发）
+  scry: {
+    id: "scry",
+    uniqueId: "scry",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 2,
+    description: "affix_scry",
+    script: "scry",
+    valueData: [
+      {
+        base: 3,
+        maxLevel: 0,
+      },
+    ],
+    keywords: ["affix_scry"],
+  },
+  // 轮转：若上一张打出的牌与本牌不同元素，抽 {0} 张牌（正选任意元素牌 +
+  // 反选 not 排除本牌元素；与专注奖励互斥）
+  cycle_draw: {
+    id: "cycle_draw",
+    uniqueId: "cycle_draw",
+    categories: ["buff", "attack"],
+    genres: ["spellcraft"],
+    rank: 3,
+    description: "affix_cycle_draw",
+    script: "draw_by_last_card_used",
+    filter: { elementType: true, not: { elementType: "self" } },
+    require: { elementType: true },
+    valueData: [
+      {
+        base: 1,
+        maxLevel: 0,
+      },
+    ],
+    keywords: ["affix_cycle_draw"],
   },
   // 蓄灵：下回合产出阶段额外获得 {0} 点灵气（resourceId）；
   // 以 turnFlags['pendingResources'] 为跨回合标记，产出阶段统一授予

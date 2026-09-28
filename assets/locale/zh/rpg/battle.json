@@ -34,6 +34,8 @@
   "scryHint": "观星！",
   "scryPickHint": "选择一张牌放回牌库顶，其余进入弃牌堆",
   "scryNoCardsHint": "牌库空空，无星可观",
+  "discoverPickHint": "抉择其一",
+  "discoverElementHint": "一气化三清——选择要皈依的元素",
   "cardUpgradedHint": "{0} 升级了",
 
   "wooden_dummy": "木人",

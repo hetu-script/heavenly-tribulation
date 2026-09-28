@@ -993,10 +993,13 @@ class BattleScene extends Scene {
   /// 牌库为空时不触发——观星永不触发洗牌（洗牌只发生在抽牌阶段）。
   /// 英雄：在场景中央展示牌面并等待点选（期间 _isScrying 禁止点选手牌）；
   /// 敌方（预留，NPC 无天赋树暂不会触发）：自动取牌库顶张。
+  /// [options] 为词条数据附带的可选表：chosenCostChange/othersCostChange（天机术），
+  /// 在选牌结算后修正选中/未选卡的费用（本场战斗内生效，未选卡进弃牌堆、洗牌后兑现）。
   Future<void> scry(
     BattleDeckZone deck,
     DiscardZone discard, {
     int? count,
+    dynamic options,
   }) async {
     count ??= kScryCardCount;
     if (deck.cards.isEmpty) {
@@ -1084,8 +1087,120 @@ class BattleScene extends Scene {
       card.isFlipped = true;
       discard.tryAddCard(card);
     }
+
+    // 天机术等词条的费用修正：选中卡减费、未选卡加费（未选卡已进弃牌堆，加费洗牌后兑现）
+    final chosenCostChange = options?['chosenCostChange'];
+    if (chosenCostChange is num) {
+      _modifyCardCostByDelta(chosen.data, chosenCostChange.toInt());
+    }
+    final othersCostChange = options?['othersCostChange'];
+    if (othersCostChange is num) {
+      for (final card in scried) {
+        if (identical(card, chosen)) continue;
+        _modifyCardCostByDelta(card.data, othersCostChange.toInt());
+      }
+    }
+
     await deck.sortCards();
     await discard.sortCards();
+  }
+
+  /// 修正卡牌费用（天机术「错失的代价」等）：对 coloredCost 第一个条目加减 [delta]
+  /// （下限 0）；coloredCost 为空（免费卡）且 delta 为正时新增元气条目。
+  /// 只改 coloredCost，originalColoredCost 基线不动，卡面费用行自动对比变色（增红减黄）。
+  /// 战斗内卡牌均为深拷贝，修改不污染卡库
+  void _modifyCardCostByDelta(dynamic cardData, int delta) {
+    final cost = cardData['coloredCost'];
+    if (cost == null) return;
+    if (cost.isEmpty) {
+      if (delta > 0) cost[kColorlessCostColorId] = delta;
+      return;
+    }
+    final key = cost.keys.first;
+    final value = cost[key];
+    if (value is! num) return;
+    final modified = value.toInt() + delta;
+    cost[key] = modified < 0 ? 0 : modified;
+  }
+
+  /// 抉择（悟道绝世「一气化三清」等）：中央展示 [options] 的 choices 临时卡
+  /// （每项 {key, cardId}，cardId 为 cards.json5 中 isUnpackable 的临时卡），
+  /// 点选后返回选中项的 key；临时卡不进牌库/弃牌堆，选择后即销毁。
+  /// 期间与观星共用 _isScrying 锁禁止点选手牌。
+  /// 敌方（无交互能力）：随机选择——AI 不理解对称代价，见 plan/skill_tree/spellcraft.md。
+  Future<String?> discover({dynamic options, required bool isHero}) async {
+    final List? choices = options?['choices'];
+    if (choices == null || choices.isEmpty) return null;
+
+    final String chosenKey;
+    if (isHero) {
+      // 生成临时抉择卡（简化卡面：元素图腾插画 + 简单文字）
+      final tempCards = <CustomGameCard>[];
+      for (final choice in choices) {
+        final cardData = engine.hetu
+            .invoke('BattleCard', namedArgs: {'affixId': choice['cardId']});
+        final card = GameData.createBattleCard(cardData, deepCopyData: true);
+        tempCards.add(card);
+      }
+
+      _isScrying = true;
+      final completer = Completer<CustomGameCard>();
+      final cardSize = GameUI.battleCardFocusedSize;
+      final totalWidth = tempCards.length * cardSize.x +
+          (tempCards.length - 1) * GameUI.smallIndent;
+      final startX = GameUI.center.x - totalWidth / 2 + cardSize.x / 2;
+      // 选牌界面上方的操作说明（与卡牌同层，选牌结束后移除）
+      final instruction = RichTextComponent(
+        position: Vector2(GameUI.center.x,
+            GameUI.center.y - cardSize.y / 2 - GameUI.smallIndent * 2),
+        size: Vector2(totalWidth, 30),
+        anchor: Anchor.bottomCenter,
+        priority: kScryOverlayPriority,
+        text: engine.locale(options?['hint'] ?? 'discoverPickHint'),
+        config: ScreenTextConfig(
+          anchor: Anchor.center,
+          outlined: true,
+          textStyle: TextStyle(
+            fontFamily: GameUI.fontFamilyKaiti,
+            fontSize: 14.0,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+      camera.viewport.add(instruction);
+      for (var i = 0; i < tempCards.length; ++i) {
+        final card = tempCards[i];
+        world.add(card);
+        card.isFlipped = false;
+        card.enableGesture = true;
+        card.preferredPriority = kScryOverlayPriority;
+        card.resetPriority();
+        final target = Vector2(
+            startX + i * (cardSize.x + GameUI.smallIndent), GameUI.center.y);
+        card.moveTo(duration: 0.3, toPosition: target, toSize: cardSize);
+        card.onTapUp = (button, position) {
+          if (!completer.isCompleted) completer.complete(card);
+        };
+        card.onMouseEnter = () => card.showGlow = true;
+        card.onMouseExit = () => card.showGlow = false;
+      }
+      final chosen = await completer.future;
+      chosenKey = choices[tempCards.indexOf(chosen)]['key'] as String;
+      instruction.removeFromParent();
+      // 临时卡选择后即销毁，不进任何牌区
+      for (final card in tempCards) {
+        card.showGlow = false;
+        card.clearInteraction();
+        card.removeFromParent();
+      }
+      _isScrying = false;
+    } else {
+      // 敌方随机抉择
+      chosenKey = choices[BattleCharacter.random.nextInt(choices.length)]['key']
+          as String;
+    }
+    return chosenKey;
   }
 
   void _refreshHandCardDescription(CustomGameCard card) {

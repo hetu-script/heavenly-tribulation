@@ -367,4 +367,35 @@ namespace StatusScript {
 
     self.removeStatusEffect(effect.id, amount: 1)
   }
+
+  /// 三清法相（悟道绝世「一气化三清」授予，双方获得）：持有者造成 effect.damageType
+  /// 匹配的伤害时，每层 +1%（独立乘区2，不走乘区1攻击力）；
+  /// 持有者回合结束时移除——敌方的实例在其下个回合结束前持续生效，正是对称效果的代价面
+  function element_amplify_self_doing_damage(self, opponent, effect, details) {
+    if (details.damageType != effect.damageType) return
+    details.percentageChange2 += 0.01 * effect.amount
+  }
+
+  function element_amplify_self_turn_end(self, opponent, effect, details) {
+    self.removeStatusEffect(effect.id)
+  }
+
+  /// 太上忘情（悟道绝世授予）：回合结束时，每有一张手牌受到 effect.damagePerCard 点
+  /// 纯粹伤害（固定值不随境界缩放）；下回合产出阶段每有一张手牌额外获得
+  /// effect.amount 层 effect.resourceId 资源（pendingResources 是 turnFlags 清空中
+  /// 唯一跨回合保留的键）。触发后移除。状态脚本必须非 async，getHandCards/changeLife 均同步
+  function handcards_to_mana_self_turn_end(self, opponent, effect, details) {
+    final handCount = self.getHandCards().length
+    if (handCount > 0) {
+      self.changeLife(-effect.damagePerCard * handCount, damageType: 'pure')
+      var pending = self.turnFlags['pendingResources']
+      if (pending == null) {
+        pending = {}
+        self.turnFlags['pendingResources'] = pending
+      }
+      pending[effect.resourceId] =
+          (pending[effect.resourceId] ?? 0) + effect.amount * handCount
+    }
+    self.removeStatusEffect(effect.id)
+  }
 }

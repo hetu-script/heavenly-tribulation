@@ -741,4 +741,49 @@
     isDebuff: true,
     callbacks: ["self_turn_start"],
   },
+
+  // ------------悟道绝世卡状态------------
+  // 三清法相·水/火/雷（绝世「一气化三清」抉择授予，双方都会获得）：
+  // 持有者造成 damageType 匹配的伤害时，每层 +1%（独立乘区2，不走乘区1攻击力）；
+  // 持有者回合结束时移除——敌方的实例在其下个回合结束前持续生效，正是对称效果的代价面
+  buff_element_amplify_water: {
+    id: "buff_element_amplify_water",
+    title: "status_buff_element_amplify_water",
+    description: "status_buff_element_amplify_water_description",
+    icon: "icon/status/ailment_ice.png",
+    damageType: "ice",
+    script: "element_amplify",
+    callbacks: ["self_doing_damage", "self_turn_end"],
+  },
+  buff_element_amplify_fire: {
+    id: "buff_element_amplify_fire",
+    title: "status_buff_element_amplify_fire",
+    description: "status_buff_element_amplify_fire_description",
+    icon: "icon/status/ailment_fire.png",
+    damageType: "fire",
+    script: "element_amplify",
+    callbacks: ["self_doing_damage", "self_turn_end"],
+  },
+  buff_element_amplify_lightning: {
+    id: "buff_element_amplify_lightning",
+    title: "status_buff_element_amplify_lightning",
+    description: "status_buff_element_amplify_lightning_description",
+    icon: "icon/status/ailment_lightning.png",
+    damageType: "lightning",
+    script: "element_amplify",
+    callbacks: ["self_doing_damage", "self_turn_end"],
+  },
+  // 太上忘情（悟道绝世授予）：回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
+  // （固定值不随境界缩放），下回合产出阶段每有一张手牌额外获得 amount 层 resourceId
+  // 资源（pendingResources 跨回合机制）；触发后移除
+  buff_handcards_to_mana: {
+    id: "buff_handcards_to_mana",
+    title: "status_buff_handcards_to_mana",
+    description: "status_buff_handcards_to_mana_description",
+    icon: "icon/status/ailment_hallucination.png",
+    script: "handcards_to_mana",
+    damagePerCard: 5,
+    resourceId: "energy_positive_spell",
+    callbacks: ["self_turn_end"],
+  },
 }

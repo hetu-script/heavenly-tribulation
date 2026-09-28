@@ -83,31 +83,86 @@
 
 | id                               | script                              | rank | categories  | 效果                                                                                                                | 关键数据                                                                              | valueData 参考               |
 | -------------------------------- | ----------------------------------- | ---- | ----------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------- |
-| upgrade_hand_cards_spellcraft    | upgrade_hand_cards                  | 1    | buff,attack | 升级手牌悟道卡                                                                                                      |                                                                                       |                              |
+| `upgrade_hand_cards_spellcraft`    | `upgrade_hand_cards`                  | 1    | buff,attack | 升级手牌悟道卡                                                                                                      |                                                                                       |                              |
 | `attune`                         | `reduce_cost_by_cards_in_hand`      | 2    | buff,attack | 若手牌中有其他同元素牌，本牌费用 -1（入手时检测减费，离开手牌区还原；callbacks: added_to_hand + removed_from_hand） | filter: {elementType: 'self'}；require: {elementType: true}                           | 无数值（机制词条，缺省 -1）  |
 | `ailment_spread`                 | `ailment_spread`                    | 3    | buff,attack | 给对方施加 {0} 层本牌元素对应的元素异常（必然施加，不经异常计数器；元素→异常映射见 Constants.elementAilments）      | require: {elementType: true}                                                          | `[{base:1, increment:0.1}]`  |
-| for_spirituality_increase_damage | for_attribute_increase_damage       | 2    | attack      | 灵力增伤                                                                                                            |                                                                                       |                              |
-| `elemental_focus`                | `increase_damage_by_last_card_used` | 3    | attack      | 若上一张打出的牌与本牌是相同元素，本牌伤害 +{0}%                                                                    | filter: {elementType: 'self'}；require: {elementType: true}；priority: -1             | `[{base:30, increment:2.5}]` |
-| `mana_burst`                     | `increase_damage_by_energy_count`   | 4    | attack      | 若打出时灵气 ≥5 层，本牌伤害 +{0}%                                                                                  | resourceId: energy_positive_spell；resourceThreshold: 5；priority: -1                 | `[{base:25, increment:2.0}]` |
-| scry                             | scry                                | 2    | buff        | 观星                                                                                                                |                                                                                       |                              |
+| `for_spirituality_increase_damage` | `for_attribute_increase_damage`       | 1    | attack      | 灵力增伤                                                                                                            |                                                                                       |                              |
+| `elemental_focus`                | `increase_damage_by_last_card_used` | 2    | attack      | 若上一张打出的牌与本牌是相同元素，本牌伤害 +{0}%                                                                    | filter: {elementType: 'self'}；require: {elementType: true}；priority: -1             | `[{base:30, increment:2.5}]` |
+| `mana_burst`                     | `increase_damage_by_energy_count`   | 3    | attack      | 若打出时灵气 ≥5 层，本牌伤害 +{0}%                                                                                  | resourceId: energy_positive_spell；resourceThreshold: 5；priority: -1                 | `[{base:25, increment:2.0}]` |
+| `scry`                             | `scry`                                | 2    | buff        | 观星                                                                                                                |                                                                                       |                              |
 | `cycle_draw`                     | `draw_by_last_card_used`            | 3    | buff        | 若上一张打出的牌与本牌是不同元素，抽 {0} 张牌（轮转路线，与专注奖励互斥）                                           | filter: {elementType: true, not: {elementType: 'self'}}；require: {elementType: true} | `[{base:1, maxLevel:0}]`     |
 | `mana_battery`                   | `gain_resource_next_turn`           | 4    | buff        | 下回合产出阶段额外获得 {0} 点灵气                                                                                   | resourceId: energy_positive_spell                                                     | `[{base:1, increment:0.02}]` |
 
+## 绝世设计总原则
+
+> 适用于全部流派的绝世卡牌与绝世装备（本轮悟道重构首次确立）。
+
+1. **正反双段式**：每个绝世 = 强正面 + 限制/代价。目标是"对特定构筑是核心/毕业装，对其他构筑明确排斥"，避免全民通用的纯强度膨胀。
+2. **卡牌负面可尖锐，装备走限制/权衡**：牌库中的卡抽到时才兑现，负面是偶发的，可以做重；装备常驻生效被持续感知，且栏位本身已是隐性机会成本，不宜再叠数值惩罚。
+3. **负面类型优先级**：方向性限制（流派软锁、机制互斥）> 对称效果（双方受益/受害，构筑使其不对称）> 自伤/自异常（可被构筑转化为资源）> 纯数值税（避免）。
+4. **流派锁一律软限制**（非本流派牌费用 +X），不做硬卡组限制：NPC 与玩家同系统同池，NPC 卡组生成不过滤流派，硬限制对 NPC 无法自洽；软限制对双方自动生效。
+5. **AI 不感知负面**：NPC 使用绝世可能坑自己，这是"系统平等、理解不平等"的叙事特性（玩家从 NPC 手中夺取绝世，战利品未必合身），不做 AI 特判。
+6. **数值规则**：正面数值走 calcAffixValue 境界指数公式；负面写固定机制，不随等级/境界缩放（避免破境后负面被指数放大）。
+7. **秘境联动（预留）**：绝世池未来作为秘境玩法的关键抉择与主要产出（秘境内可试用、结束限量带出），详见后续秘境设计文档。
+
 ## 绝世卡牌
 
-| 卡名           | rank | kind  | 效果                                                                                            | 设计意图                                                                   |
-| -------------- | ---- | ----- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **天机术**     | 1    | xinfa | 观星，然后抽 1 张牌                                                                             | 自选最优牌入手，服务凑灵气/凑元素；与紫微斗数（随机）差异化                |
-| **相生相克**   | 2    | xinfa | 对对手施加随机元素异常，种数 = 本回合已使用元素种数（至少 1 种），每种 {0} 层（不经异常计数器） | 轮转路线循环卡，与 chain_lightning 共用 usedElements，为蓄灵诀铺垫异常种类 |
-| **蓄灵诀**     | 3    | xinfa | 对手每有一种元素异常，你获得 1 灵气                                                             | 异常种类→灵气，服务万法归宗门槛；与 ailment_spread 联动                    |
-| **一气化三清** | 4    | xinfa | 选择一种元素，本回合你的该元素牌伤害 +X%                                                        | 专注路线爆发，让单元素构筑有终局手段                                       |
-| **太上忘情**   | 5    | xinfa | 本回合你的灵气不会随回合结束清空（突破统一生命周期，仅此一回合）                                | 终局囤积特例，配合万法归宗跨回合攒爆发；极稀有                             |
+暂时不设计这些绝世卡牌的额外词条，只设计主词条。
+
+| 卡名           | rank | kind  | 效果                                                                                                          | 设计意图                                                                                       |
+| -------------- | ---- | ----- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **天机术**     | 1    | xinfa | 观星 3 张，随后抽 1 张牌；本场战斗中，观星选中的牌费用 -1，其余被检视的牌费用 +1                              | 规划主题核心；"被放弃的未来更加昂贵"——未选牌进弃牌堆，加费在洗牌后兑现，是延迟代价             |
+| **相生相克**   | 2    | xinfa | 对**双方**施加随机元素异常：种数 = 本回合已使用元素种数（至少 1 种），每种 {0} 层（不经异常计数器）            | 对称效果、不对称收益——自异常是蓄灵诀引擎的燃料、可被水疗术清除；敌方无此配合时纯受害           |
+| **一气化三清** | 3    | xinfa | 以「抉择」方式选定一种元素（水/火/雷：中央展示三张临时元素卡点选其一，类炉石 Discover）：本回合**双方**造成的该元素伤害 +{0}%（独立乘区，不走攻击力）                        | 专注路线爆发；对称增伤在单元素构筑中恒为净收益                                                 |
+| **蓄灵诀**     | 4    | xinfa | **自身**每有一种元素异常，获得 1 点灵气                                                                        | 自异常引擎核心：相生相克铺异常 → 蓄灵诀转灵气 → 水疗术清场；上限 7 种 = 7 灵气，服务万法归宗门槛 |
+| **太上忘情**   | 5    | xinfa | 回合结束时，每有一张手牌受到 {0} 点纯粹伤害；下回合产出阶段，每有一张手牌额外获得 {1} 点灵气                  | 跨回合蓄爆（服务万法归宗），但不破坏资源统一生命周期；与抽牌手段天然牵制——攥牌越多反噬越重     |
+
+### 绝世卡实现注记
+
+- **天机术**：需扩展 Dart 侧 scry 支持对选中/未选中卡的费用修正（选中减费可复用 draw_cards 的 reduceCost 兑现路径；未选中加费作用于弃牌堆卡，洗牌后生效）。观星 UI 应预览费用变色（originalColoredCost 基线机制已有）。减费数值建议固定 ±1，不随等级缩放。
+- **相生相克**：现有脚本 `ailments_by_used_elements` 增加 self 段即可，工作量小。
+- **一气化三清**（拟定 id：`spellcraft_element_amplify`）：抉择 UI 方案已定——复用观星的中央展示选牌模式（battle.dart scry）与卡包展示的卡牌摆位（card_library.dart `onOpenCardpack`）：打出后中央展示三张临时元素卡（仅简单文字 + 元素图腾插画），点选期间锁定手牌交互（同 `_isScrying` 模式），选择后临时卡销毁、不进牌库/弃牌堆。BattleCharacter 需新增 discover 类外部方法并在 battle_character.ht 声明。增伤侧：新增状态 + `self_doing_damage` 钩子，按 damageType 过滤（水/火/雷与 ice/fire/lightning 一一对应）；独立乘区建议新增 `percentageChange2` 字段，避免与既有乘区混淆。
+- **蓄灵诀**（拟定 id：`spellcraft_ailments_to_mana`）：纯脚本——循环 Constants.elementAilments 七种异常用 `hasStatusEffect` 计数即可，无需新 API。
+- **太上忘情**（拟定 id：`spellcraft_handcards_to_mana`）：纯脚本零 Dart 改动——新状态 + `self_turn_end` 钩子：`getHandCards()` 计数 → `changeLife` 自伤 → 写 `turnFlags['pendingResources']`（gain_resource_next_turn 同机制，character.dart:681 于下回合产出阶段授予）。
+
+### 插画清单（本次执行）
+
+已有插画（设计变更后仍切题，无需重生成）：
+
+- 天机术 `unique_scry_draw.png`、相生相克 `unique_element_ailments.png`
+
+已生成 6 张（image-gen skill，2025-07-25 生成完毕）：
+
+- `unique_element_amplify.png` — 一气化三清卡面
+- `unique_ailments_to_mana.png` — 蓄灵诀卡面
+- `unique_handcards_to_mana.png` — 太上忘情卡面
+- `element_choice_water.png` / `element_choice_fire.png` / `element_choice_lightning.png` — 一气化三清抉择临时卡的元素图腾（简洁构图、中心留白）
+
+注：三张绝世卡面实施时需按 battlecard-content 流程注册 `kBattleCardIllustrations` 与 `illustration_*` 本地化键；三张抉择临时卡仅作战斗内 UI 资源，**不**注册进 `kBattleCardIllustrations`（避免混入记忆翻牌小游戏卡池）。
 
 ## 绝世装备
 
-| 装备       | kind   | rank | 效果                                              | 设计意图                                                   |
-| ---------- | ------ | ---- | ------------------------------------------------- | ---------------------------------------------------------- |
-| **天机盘** | 法器   | 1    | 观星时额外查看 1 张                               |                                                            |
-| **五行珠** | amulet | 2    | 你造成的元素异常层数 +2                           | 强化 DOT，间接服务蓄灵诀的异常种类计数                     |
-| **蓄灵佩** | amulet | 4    | 每个回合结束时，至多保留 2 点未使用的灵气到下回合 | 万法归宗门槛的稳定路径（平滑累积）；规则特例，占绝世装备位 |
-| **聚灵旗** | 法器   | 5    | 回合开始时时灵气 + 2                              |                                                            |
+| 装备       | kind   | rank | 效果                                                                          | 设计意图                                                                               |
+| ---------- | ------ | ---- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **窥天镜** | 法器   | 1    | 观星时额外查看 2 张；每次观星对自身随机施加 2 种不同的元素异常（各 1 层）     | "看得越多，心神越乱"；异常喂养蓄灵诀引擎，半正半负                                     |
+| **五行珠** | amulet | 2    | 你造成的元素异常层数 +2；你**受到**的元素异常层数 +2                          | 五行导体，异常双向放大；自异常构筑中是第二个正面                                       |
+| **天机盘** | 法器   | 3    | 回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌，本回合费用 +1              | 确定性的过牌引擎（原 50% 随机改为稳定）；软流派锁——混编卡组被课税，纯悟道无感          |
+| **蓄灵佩** | amulet | 4    | 回合结束时至多保留 2 点未使用的灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害 | 灵气淤积、经脉受损；储灵服务万法归宗跨回合蓄爆。保留的灵气不触发阴阳五行结算（写入描述） |
+| **聚灵旗** | 法器   | 5    | 回合开始时灵气 +3；你打出的非悟道牌费用 +2                                    | rank 5 的 all-in 信号——软流派锁最强形态，纯悟道构筑的旗帜                              |
+
+> 注：五行珠 / 蓄灵佩 / 聚灵旗 为草案待确认；各数值（异常层数、自伤点数、灵气量）均为初稿，待实测校准。
+
+### 绝世装备实现注记
+
+- **窥天镜**：观星深度 +2 走 scry count 参数（已有）；"观星后自施 2 种随机元素异常"需装备被动挂钩观星结算（Dart 侧观星完成后触发）。
+- **天机盘**：需"本回合临时费用"机制——attune 是按手牌区进出回调；此处是抽到后本回合内 +1、回合结束还原，需 Dart 侧支持临时费用修正与清理。
+- **蓄灵佩**：回合结束资源结算处（character.dart `_settleTurnEndResources`）处理保留灵气与自伤；属 Dart 侧装备被动。
+- **聚灵旗**：回合开始灵气 +3 为 Dart 被动；非悟道牌费用 +2 可参照天道循环（spellcraft_rank_2，battle.dart:349）的组牌阶段费用修正路径。
+
+## 技术核查结论（2025 年重构期间验证）
+
+- **负数词条**：`calcAffixValue`（scripts/main/data/common.ht:154）支持负 base/increment/rankIncrement；等级低于境界下限时按 0 计（不出现负增量）。UI 负值标红已有（game.dart:1203，`isAfflicted = value < 0`）。
+- **观星规则**（battle.dart:992）：选中卡放回牌库顶，未选中卡进弃牌堆，观星永不触发洗牌。
+- **伤害乘区**：状态钩子 `self_doing_damage` 可写 `details.baseChange`（加算）/ `details.percentageChange1`（乘区）；details 携带 kind/cardType/damageType。
+- **跨回合资源**：`turnFlags['pendingResources']` 是 turnFlags 回合清空中唯一保留的键，下回合产出阶段授予（character.dart:681/1103）。
+- **手牌/状态查询 API**：`getHandCards({options})`（空条件 = 全部手牌）、`hasStatusEffect(id)` 返回层数、`matchLastUsedCard(criteria)`、`getLastUsedCard()`。

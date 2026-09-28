@@ -96,8 +96,11 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return ({object, positionalArgs, namedArgs}) => character
             .drawCards(positionalArgs.first, options: namedArgs['options']);
       case 'scry':
+        return ({object, positionalArgs, namedArgs}) => character.scry(
+            count: namedArgs['count'], options: namedArgs['options']);
+      case 'discover':
         return ({object, positionalArgs, namedArgs}) =>
-            character.scry(count: namedArgs['count']);
+            character.discover(options: namedArgs['options']);
       case 'upgradeHandCards':
         return ({object, positionalArgs, namedArgs}) => character
             .upgradeHandCards(positionalArgs.first, options: namedArgs['options']);

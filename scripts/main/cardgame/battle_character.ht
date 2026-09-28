@@ -48,8 +48,13 @@ external class BattleCharacter {
   function drawCards(count: integer, {options})
 
   /// 观星：查看牌库顶 count 张牌（缺省为 3），选一张放回牌库顶，其余进弃牌堆；
-  /// 牌库为空时不触发（观星不触发洗牌）
-  function scry({count: integer})
+  /// 牌库为空时不触发（观星不触发洗牌）。
+  /// options 可选费用修正表：{chosenCostChange, othersCostChange}（天机术），本场战斗内生效
+  function scry({count: integer, options})
+
+  /// 抉择：中央展示 options.choices 临时卡（每项 {key, cardId}）点选其一，
+  /// 返回选中项的 key（敌方随机选择）；临时卡不进牌库/弃牌堆，选择后即销毁
+  async function discover({options}) -> string
 
   /// 升级手牌：随机升级手牌中 count 张符合 options 条件（category/genre/cardType/kind/elementType）
   /// 的卡牌各 +1 级（inBattle，可突破上限，深拷贝不污染卡库）

@@ -1397,17 +1397,27 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 观星（卡牌词条）：查看牌库顶 [count] 张牌（缺省为 kScryCardCount），
   /// 选一张放回牌库顶，其余进弃牌堆。牌库为空时不触发（观星不洗牌）。
   /// 天赋分支「天道推演」的免费观星在回合开始抽牌前由 BattleScene 直接触发。
-  Future<void> scry({int? count}) async {
+  /// [options] 为词条数据附带的可选表（chosenCostChange/othersCostChange 费用修正，
+  /// 见 BattleScene.scry）。
+  Future<void> scry({int? count, dynamic options}) async {
     final battleScene = game as BattleScene;
     if (isHero) {
       await battleScene.scry(
           battleScene.heroDeckZone, battleScene.heroDiscardZone,
-          count: count);
+          count: count, options: options);
     } else {
       await battleScene.scry(
           battleScene.enemyDeckZone, battleScene.enemyDiscardZone,
-          count: count);
+          count: count, options: options);
     }
+  }
+
+  /// 抉择（卡牌词条 discover_element_amplify 等调用）：中央展示 options.choices
+  /// 临时卡（每项 {key, cardId}，cardId 为 cards.json5 中 isUnpackable 的临时卡），
+  /// 点选后返回选中项的 key；临时卡不进牌库/弃牌堆，选择后即销毁（见 BattleScene.discover）。
+  Future<String?> discover({dynamic options}) async {
+    final battleScene = game as BattleScene;
+    return battleScene.discover(options: options, isHero: isHero);
   }
 
   /// 升级手牌（卡牌词条 upgrade_hand_cards / 抱真守一等调用）：从手牌区随机取 [count] 张
