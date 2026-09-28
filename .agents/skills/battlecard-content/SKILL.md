@@ -15,12 +15,12 @@ description: |
 
 ## 0. 快速决策：我该改哪个文件？
 
-| 需求 | 主词条(cards.json5) | 额外词条(card_affixes.json5) |
-|---|---|---|
-| 一种**新卡牌**（有自己的卡面/动画/身份） | ✅ 新增 | |
-| 给卡牌**附加一个效果**（可随机出现在多类卡上） | | ✅ 新增 |
-| **绝世卡**（固定词条组合的稀有卡） | ✅ isUnique + affixes 列表 | （预定义词条若不存在也需新增） |
-| 新**效果机制** | 配套写 CardScript 函数 | 配套写 CardScript 函数 |
+| 需求                                           | 主词条(cards.json5)        | 额外词条(card_affixes.json5)   |
+| ---------------------------------------------- | -------------------------- | ------------------------------ |
+| 一种**新卡牌**（有自己的卡面/动画/身份）       | ✅ 新增                    |                                |
+| 给卡牌**附加一个效果**（可随机出现在多类卡上） |                            | ✅ 新增                        |
+| **绝世卡**（固定词条组合的稀有卡）             | ✅ isUnique + affixes 列表 | （预定义词条若不存在也需新增） |
+| 新**效果机制**                                 | 配套写 CardScript 函数     | 配套写 CardScript 函数         |
 
 - **主词条**（cards.json5）：一张卡的"本体"。决定 category/kind/cardType/damageType/插画/动画/费用/主数值。
 - **额外词条**（card_affixes.json5）：可随机附加到卡上的修饰。决定附加效果。必须能泛用于多类卡。
@@ -125,7 +125,7 @@ punch_attack: {
 ### 数值 valueData
 
 - 数组，每个元素对应 `affix.value[i]`。
-- `value = (base + increment×(等级 − 本境界下限)) × 1.3^境界 + rankIncrement×境界`（见 `calcAffixValue`）。
+- `value = (base + increment×(等级 − 本境界下限)) × 1.3^境界 + rankIncrement×境界`（见 `calcCardAffixValue`）。
 - 词条等级 = 卡牌等级（主词条）或境界区间内随机（额外词条）。
 - `increment` 按本境界内等级缩放（+1 级相对提升区间起点 ≈ increment/base，全境界恒定有感）。
 - `maxLevel: 0` 表示该值不随词条等级缩放（固定 base）。
@@ -155,7 +155,7 @@ upgrade_card: {
 - 额外词条通过 `_getSupportAffixes` 匹配：categories 包含卡的 category、genres 包含卡的 genre、
   rank ≤ 卡的 rank、uniqueId 未被占用。
 - **中立词条**：不写 `genres`，所有流派卡都可能 roll 到。
-- **流派专属**：写 `genres: ["xxx"]`（如 retain→swordcraft、scry→spellcraft、for_*_increase_damage→各流派）。
+- **流派专属**：写 `genres: ["xxx"]`（如 retain→swordcraft、scry→spellcraft、for\_\*\_increase_damage→各流派）。
 
 ## 4. 绝世卡（isUnique）
 
@@ -204,8 +204,8 @@ function upgrade_hand_cards(self, opponent, card, affix) {
 - [ ] 费用符合单资源模型（流派色 or 元气），用 calcCostValue 语义。
 - [ ] script 函数在 CardScript 存在且签名正确；时机回调有 `{script}_{时机}` + 占位函数。
 - [ ] valueData 与脚本读的 value[i] 数量对应。
-- [ ] 本地化：affix_xxx（+_description）、uniquecard_xxx（绝世卡）、status 引用存在。
-- [ ] 绝世卡：isUnique + affixes 列表 + uniquecard_ 卡名；天赋授予加 isUnpackable。
+- [ ] 本地化：affix_xxx（+\_description）、uniquecard_xxx（绝世卡）、status 引用存在。
+- [ ] 绝世卡：isUnique + affixes 列表 + uniquecard\_ 卡名；天赋授予加 isUnpackable。
 - [ ] 新插画：已同步 `kBattleCardIllustrations` 与 battlecard.json 的 `illustration_xxx`。
 - [ ] 数值符合新指数公式（increment 按本境界内等级，全境界 +1 级有感）。
 - [ ] 重新编译 main.mod 通过；改动 dart 则 flutter analyze 通过。

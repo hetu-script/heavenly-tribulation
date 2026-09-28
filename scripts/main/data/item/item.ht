@@ -145,7 +145,7 @@ function createItemById(id, {amount, rank, level}) {
           }
         }
         affix.level = getRandomLevel(minAffixLevel, item.level)
-        affix.value = calcAffixValue(affix, level: affix.level, rank: item.rank).round()
+        affix.value = calcPassiveAffixValue(affix, level: affix.level).round()
       }
       item.affixes.add(affix)
       if (affix.uniqueIds is List) {

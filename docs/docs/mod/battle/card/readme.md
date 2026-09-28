@@ -114,7 +114,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `script`                  | `CardScript` 中的函数名（打出时调用；时机回调为 `{script}_{时机}`）                                                                                                                     |
 | `callbacks`               | 额外响应的时机列表（见上方时机清单）                                                                                                                                                    |
 | `priority`                | 额外词条执行顺序：负数在主词条**之前**执行，其余在主词条之后按降序执行                                                                                                                  |
-| `valueData`               | 数值表（`base` / `increment` / `rankIncrement` / `maxLevel`），由 `calcAffixValue` 求值为 `value` 列表                                                                                  |
+| `valueData`               | 数值表（`base` / `increment` / `rankIncrement` / `maxLevel`），由 `calcCardAffixValue` 求值为 `value` 列表                                                                              |
 | `buffId`                  | `self_buff` / `opponent_debuff` / `attack_debuff` 等脚本读取的状态 id                                                                                                                   |
 | `keywords`                | 卡面附加说明的本地化标签（悬浮提示中展开为「标签 - 说明」）                                                                                                                             |
 | `categories`              | 额外词条可附加的卡牌类别（`attack` / `buff`）                                                                                                                                           |

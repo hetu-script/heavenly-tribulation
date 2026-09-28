@@ -88,7 +88,7 @@ struct Equipment {
         }
       }
       mainAffix.level = this.level
-      mainAffix.value = calcAffixValue(mainAffix, level: this.level, rank: this.rank).round()
+      mainAffix.value = calcPassiveAffixValue(mainAffix, level: this.level).round()
     }
     this.affixes.add(mainAffix)
     if (mainAffix.uniqueIds is List) {
@@ -120,7 +120,7 @@ struct Equipment {
             return true
           })
           if (supportAffixes.isEmpty) {
-            engine.error('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+            engine.error('Found no support affix for item: category: ${this.category}, kind: ${this.kind}')
             break
           } else {
             final affix = Object.create(random.nextIterable(supportAffixes))
@@ -134,7 +134,7 @@ struct Equipment {
                 }
               }
               affix.level = getRandomLevel(minAffixLevel, this.level)
-              affix.value = calcAffixValue(affix, level: affix.level, rank: this.rank).round()
+              affix.value = calcPassiveAffixValue(affix, level: affix.level).round()
             }
             this.affixes.add(affix)
             this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
