@@ -17,6 +17,8 @@
     output_dir    (可选) 保存目录，缺省时保存到当前工作目录
     --gemini      (可选) 强制使用 Gemini 后端（默认使用 GPT）
     --no-style    (可选) 仅 gen 模式有效：忽略 prompt.md 的默认风格语句
+    --transparent (可选) 仅 GPT gen 模式有效：向 API 传入 background: transparent，
+                  生成透明背景图片
 
 环境变量:
     IMAGE_TOKEN_GPT     GPT 后端的 API 访问令牌（默认后端，必须提前设置）
@@ -163,21 +165,24 @@ def fetch_gpt_image(session, resp):
     return base64.b64decode(data["b64_json"]), ".png"
 
 
-def call_gpt_gen(prompt, token):
-    """调用 GPT images/generations 接口文生图。"""
+def call_gpt_gen(prompt, token, transparent=False):
+    """调用 GPT images/generations 接口文生图；transparent 时请求透明背景。"""
     session = make_session()
+    payload = {
+        "model": GPT_MODEL,
+        "prompt": prompt,
+        "size": GPT_SIZE,
+        "quality": GPT_GEN_QUALITY,
+        "response_format": "url",
+    }
+    if transparent:
+        payload["background"] = "transparent"
     resp = request_with_retry(
         session,
         "post",
         GPT_GEN_URL,
         headers={"Authorization": bearer(token), "Content-Type": "application/json"},
-        json={
-            "model": GPT_MODEL,
-            "prompt": prompt,
-            "size": GPT_SIZE,
-            "quality": GPT_GEN_QUALITY,
-            "response_format": "url",
-        },
+        json=payload,
     )
     if resp is None or not check_response(resp):
         return None
@@ -222,6 +227,9 @@ def main() -> int:
     no_style = "--no-style" in args
     if no_style:
         args.remove("--no-style")
+    transparent = "--transparent" in args
+    if transparent:
+        args.remove("--transparent")
 
     # 首个位置参数决定模式：edit 为编辑；gen 可省略（默认生成）
     mode = "gen"
@@ -304,7 +312,7 @@ def main() -> int:
         if use_gemini:
             result = call_gemini(prompt, token)
         else:
-            result = call_gpt_gen(prompt, token)
+            result = call_gpt_gen(prompt, token, transparent=transparent)
     if result is None:
         return 1
     image_bytes, ext = result

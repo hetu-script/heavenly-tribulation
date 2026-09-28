@@ -173,7 +173,7 @@ struct BattleCard {
     this.rank = mainAffix.rank = mainAffixRank
     // 数据层卡牌定义上的标记合并到卡牌实例（Dart 侧读取 card.data 上的这些字段）：
     // isEphemeral（消耗：打出后碎裂移出战斗）、
-    // isWildcardCostForbidden（费用禁止以无极之气抵扣，必须本色气全额支付，如绝世·万法归宗）
+    // isWildcardCostForbidden（费用禁止以太极之气抵扣，必须本色气全额支付，如绝世·万法归宗）
     this.isEphemeral = mainAffix.isEphemeral ?? false
     this.isUnique = mainAffix.isUnique ?? false
     this.isWildcardCostForbidden = mainAffix.isWildcardCostForbidden ?? false

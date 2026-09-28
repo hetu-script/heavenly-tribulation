@@ -115,9 +115,11 @@ const kStatusOnCircumstance = {
   'buff_crit',
   'buff_ward',
   'buff_shield',
+  'buff_all_damage',
   'debuff_crit',
   'debuff_ward',
   'debuff_shield',
+  'debuff_all_damage',
   'energy_positive_life',
   'energy_positive_spell',
   'energy_positive_weapon',
@@ -205,7 +207,7 @@ class BattleScene extends Scene {
   bool _endPlayerTurn = false;
 
   // 观星进行中标志（期间禁止点选手牌）
-  bool _isScrying = false;
+  bool _handInteractionDisabled = false;
 
   bool _isRestarting = false;
 
@@ -991,7 +993,7 @@ class BattleScene extends Scene {
 
   /// 观星：查看牌库顶 [count] 张牌（不足则全显），选一张放回牌库顶，其余进弃牌堆。
   /// 牌库为空时不触发——观星永不触发洗牌（洗牌只发生在抽牌阶段）。
-  /// 英雄：在场景中央展示牌面并等待点选（期间 _isScrying 禁止点选手牌）；
+  /// 英雄：在场景中央展示牌面并等待点选（期间 _handInteractionDisabled 禁止点选手牌）；
   /// 敌方（预留，NPC 无天赋树暂不会触发）：自动取牌库顶张。
   /// [options] 为词条数据附带的可选表：chosenCostChange/othersCostChange（天机术），
   /// 在选牌结算后修正选中/未选卡的费用（本场战斗内生效，未选卡进弃牌堆、洗牌后兑现）。
@@ -1026,7 +1028,7 @@ class BattleScene extends Scene {
 
     late final CustomGameCard chosen;
     if (currentCharacter.isHero) {
-      _isScrying = true;
+      _handInteractionDisabled = true;
       final completer = Completer<CustomGameCard>();
       final cardSize = GameUI.battleCardFocusedSize;
       final totalWidth =
@@ -1074,7 +1076,7 @@ class BattleScene extends Scene {
         card.showGlow = false;
         card.clearInteraction();
       }
-      _isScrying = false;
+      _handInteractionDisabled = false;
     } else {
       chosen = scried.last;
     }
@@ -1126,7 +1128,7 @@ class BattleScene extends Scene {
   /// 抉择（悟道绝世「一气化三清」等）：中央展示 [options] 的 choices 临时卡
   /// （每项 {key, cardId}，cardId 为 cards.json5 中 isUnpackable 的临时卡），
   /// 点选后返回选中项的 key；临时卡不进牌库/弃牌堆，选择后即销毁。
-  /// 期间与观星共用 _isScrying 锁禁止点选手牌。
+  /// 期间与观星共用 _handInteractionDisabled 锁禁止点选手牌。
   /// 敌方（无交互能力）：随机选择——AI 不理解对称代价，见 plan/skill_tree/spellcraft.md。
   Future<String?> discover({dynamic options, required bool isHero}) async {
     final List? choices = options?['choices'];
@@ -1143,7 +1145,7 @@ class BattleScene extends Scene {
         tempCards.add(card);
       }
 
-      _isScrying = true;
+      _handInteractionDisabled = true;
       final completer = Completer<CustomGameCard>();
       final cardSize = GameUI.battleCardFocusedSize;
       final totalWidth = tempCards.length * cardSize.x +
@@ -1194,7 +1196,7 @@ class BattleScene extends Scene {
         card.clearInteraction();
         card.removeFromParent();
       }
-      _isScrying = false;
+      _handInteractionDisabled = false;
     } else {
       // 敌方随机抉择
       chosenKey = choices[BattleCharacter.random.nextInt(choices.length)]['key']
@@ -1248,28 +1250,26 @@ class BattleScene extends Scene {
 
   /// 检查能否支付卡牌费用（全有或全无）。
   /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
-  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
-  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止无极之气抵扣，
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止太极之气抵扣，
   /// 必须本色气全额支付，其需求单独累计校验。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
     var colorlessNeed = 0;
     final coloredNeeds = <String, int>{};
     final forbiddenNeeds = <String, int>{};
-    final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
 
     void accumulate(CustomGameCard c) {
       final forbidden = c.data['isWildcardCostForbidden'] == true;
       for (final entry in _cardCostColored(c).entries) {
         if (entry.key == kColorlessCostColorId) {
-          // 元气（无色费用）：不受虚空之气增费，也不能用无极之气补齐
+          // 元气（无色费用）：不能用太极之气补齐
           colorlessNeed += entry.value;
         } else if (forbidden) {
           forbiddenNeeds[entry.key] =
-              (forbiddenNeeds[entry.key] ?? 0) + entry.value + voidQi;
+              (forbiddenNeeds[entry.key] ?? 0) + entry.value;
         } else {
           coloredNeeds[entry.key] =
-              (coloredNeeds[entry.key] ?? 0) + entry.value + voidQi;
+              (coloredNeeds[entry.key] ?? 0) + entry.value;
         }
       }
     }
@@ -1283,7 +1283,7 @@ class BattleScene extends Scene {
 
     if (colorlessNeed > character.energy) return false;
 
-    // 有色费用：每色先扣本色气，缺口由无极之气补齐（无极全色共享，按各颜色缺口之和校验）；
+    // 有色费用：每色先扣本色气，缺口由太极之气补齐（太极全色共享，按各颜色缺口之和校验）；
     // 禁抵扣需求优先占用本色气存量，且必须被全额覆盖
     var ultimateNeed = 0;
     final colors = {...coloredNeeds.keys, ...forbiddenNeeds.keys};
@@ -1299,9 +1299,8 @@ class BattleScene extends Scene {
     return ultimateNeed <= character.hasStatusEffect(kWildcardStatusId);
   }
 
-  /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣无极之气。
-  /// 虚空之气（energy_negative_ultimate）每层使所有有色费用 +1，无上限。
-  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止无极之气抵扣，
+  /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣太极之气。
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止太极之气抵扣，
   /// 本色气不足即支付失败（调用前的 _canPayCardCost 已保证不会发生）。
   /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
   /// 返回 false 且不扣除任何费用。
@@ -1313,16 +1312,15 @@ class BattleScene extends Scene {
     final pending = <(String, int)>[];
     var ultimateNeed = 0;
     var forbiddenShortfall = 0;
-    final int voidQi = character.hasStatusEffect('energy_negative_ultimate');
     for (final entry in cardCost.entries) {
       if (entry.key == kColorlessCostColorId) continue;
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = entry.value + voidQi;
+      final need = entry.value;
       final ownPaid = math.min(character.hasStatusEffect(yangId), need);
       pending.add((yangId, ownPaid));
       if (wildcardForbidden) {
-        // 禁抵扣：缺口不进无极之气，记为支付失败条件
+        // 禁抵扣：缺口不进太极之气，记为支付失败条件
         forbiddenShortfall += need - ownPaid;
       } else {
         ultimateNeed += need - ownPaid;
@@ -1353,7 +1351,7 @@ class BattleScene extends Scene {
       character.removeStatusEffect(kWildcardStatusId, amount: ultimateNeed);
     }
 
-    // 支付反馈：有色费用按气种弹出负量跳字（无极抵扣单独标注）
+    // 支付反馈：有色费用按气种弹出负量跳字（太极抵扣单独标注）
     for (final (statusId, amount) in pending) {
       if (amount > 0) {
         character.addHintText('${engine.locale('status_$statusId')} -$amount',
@@ -1366,7 +1364,7 @@ class BattleScene extends Scene {
           color: getResourceColor(kWildcardStatusId));
     }
 
-    // 记录本次实际支付明细（键 = 状态 id，值 = 实际扣除层数，含无极抵扣），
+    // 记录本次实际支付明细（键 = 状态 id，值 = 实际扣除层数，含太极抵扣），
     // 供费用返还等词条脚本读取；每条出牌路径都经过此处，每次出牌无条件覆写
     final paidCost = <String, int>{};
     if (colorlessNeed > 0) paidCost['energy_positive_life'] = colorlessNeed;
@@ -1403,9 +1401,8 @@ class BattleScene extends Scene {
   }
 
   /// 生成卡牌缺少资源的悬浮提示文本（每行一种缺少的资源）。
-  /// "拥有"按 本色存量 + 无极存量 计算（无极可抵任意有色费用）；
-  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）禁止无极抵扣，"拥有"只计本色存量。
-  /// 有色需求含虚空之气增费（每层 +1，无上限）。
+  /// "拥有"按 本色存量 + 太极存量 计算（太极可抵任意有色费用）；
+  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）禁止太极抵扣，"拥有"只计本色存量。
   String _missingCostReport(CustomGameCard card) {
     final lines = <String>[];
     final colorlessNeed = _cardCostColored(card)[kColorlessCostColorId] ?? 0;
@@ -1419,11 +1416,10 @@ class BattleScene extends Scene {
     final bool wildcardForbidden = card.data['isWildcardCostForbidden'] == true;
     final ultimateStock =
         wildcardForbidden ? 0 : hero.hasStatusEffect(kWildcardStatusId);
-    final int voidQi = hero.hasStatusEffect('energy_negative_ultimate');
     for (final entry in _cardCostColored(card).entries) {
       final yangId = kCostColorStatusIds[entry.key];
       if (yangId == null) continue;
-      final need = entry.value + voidQi;
+      final need = entry.value;
       final stock = hero.hasStatusEffect(yangId) + ultimateStock;
       if (need > stock) {
         lines
@@ -1531,7 +1527,7 @@ class BattleScene extends Scene {
   Future<void> _playCard(CustomGameCard card) async {
     engine.info('开始打出卡牌: ${card.data['name']}');
 
-    // 1. 扣除费用（无色能量 + 有色气，先本色后无极）
+    // 1. 扣除费用（无色能量 + 有色气，先本色后太极）
     if (!_payCardCost(hero, card)) {
       // 入队时已保证可支付，此处失败属意外情况：退回手牌并中断本次打出
       heroHandZone.tryAddCard(card);
@@ -1580,7 +1576,7 @@ class BattleScene extends Scene {
 
   void onPlayerSelectedCard(CustomGameCard? card) {
     // 观星进行中禁止点选手牌
-    if (_isScrying) return;
+    if (_handInteractionDisabled) return;
 
     // null 表示结束回合
     if (card == null) {
@@ -1674,7 +1670,7 @@ class BattleScene extends Scene {
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
 
-      // ① 回合开始回调（死气/劫气/DOT/缓慢/幻觉等；其中死气消耗 1 层失去 10% 生命）
+      // ① 回合开始回调（死气/劫气/DOT/缓慢/幻觉等；其中死气消耗 1 层失去 5% 生命上限的生命）
       await currentCharacter.onStartTurn(isExtra: extraTurn);
 
       extraTurn = false;

@@ -135,6 +135,7 @@
   "passive_start_battle_with_buff_crit_description": "战斗开始时 {0} 幸运",
   "passive_start_battle_with_buff_ward_description": "战斗开始时 {0} 辟邪",
   "passive_start_battle_with_buff_shield_description": "战斗开始时 {0} 护盾",
+  "passive_start_battle_with_buff_all_damage_description": "战斗开始时 {0} 无极之气",
 
   "passive_start_battle_with_opponent_vulnerable_description": "战斗开始时对手易伤 {0}",
   "passive_start_battle_with_opponent_speed_slow_description": "战斗开始时对手缓慢 {0}",
@@ -142,19 +143,20 @@
   "passive_start_battle_with_opponent_debuff_crit_description": "战斗开始时对手 {0} 不幸",
   "passive_start_battle_with_opponent_debuff_ward_description": "战斗开始时对手 {0} 邪祟",
   "passive_start_battle_with_opponent_debuff_shield_description": "战斗开始时对手 {0} 破绽",
+  "passive_start_battle_with_opponent_debuff_all_damage_description": "战斗开始时对手 {0} 虚空之气",
 
   "passive_start_battle_with_opponent_energy_negative_life_description": "战斗开始时对手 {0} 死气",
   "passive_start_battle_with_opponent_energy_negative_spell_description": "战斗开始时对手 {0} 逆灵之气",
   "passive_start_battle_with_opponent_energy_negative_weapon_description": "战斗开始时对手 {0} 止戈之气",
   "passive_start_battle_with_opponent_energy_negative_unarmed_description": "战斗开始时对手 {0} 非战之气",
   "passive_start_battle_with_opponent_energy_negative_curse_description": "战斗开始时对手 {0} 无心之气",
-  "passive_start_battle_with_opponent_energy_negative_ultimate_description": "战斗开始时对手 {0} 虚空之气",
+  "passive_start_battle_with_opponent_energy_negative_ultimate_description": "战斗开始时对手 {0} 混沌之气",
 
   "passive_start_turn_with_energy_positive_life_description": "回合开始时 {0} 元气",
   "passive_start_turn_with_energy_positive_spell_description": "回合开始时 {0} 灵气",
   "passive_start_turn_with_energy_positive_weapon_description": "回合开始时 {0} 剑气",
   "passive_start_turn_with_energy_positive_unarmed_description": "回合开始时 {0} 怒气",
-  "passive_start_turn_with_energy_positive_ultimate_description": "回合开始时 {0} 无极之气",
+  "passive_start_turn_with_energy_positive_ultimate_description": "回合开始时 {0} 太极之气",
 
   "passive_upgradeRank_1_description": "提升修为时有概率触发凝气境天道试炼",
   "passive_upgradeRank_2_description": "提升修为时有概率触发筑基境天道试炼",

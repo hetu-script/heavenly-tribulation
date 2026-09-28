@@ -127,7 +127,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_exhaust_energy` / `attack_with_energy_count_check` 等脚本读取 |
 | `resourceThreshold`       | 资源门槛层数（缺省 1），与 `resourceId` 配套；达到门槛才生效                                                                                                                            |
 | `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` 读取并整层移除（如 water_mend 甘霖术列全部 7 种元素异常）                                                                                           |
-| `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以无极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |
+| `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |
 
 ## 条件子表与占位约定
 

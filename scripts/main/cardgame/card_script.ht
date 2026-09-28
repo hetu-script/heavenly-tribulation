@@ -342,7 +342,7 @@ namespace CardScript {
   }
 
   /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气（见 plan/battle_qi_conversion.md）
-  /// 词条值 100 = 1:1（四色）；50 = 1:0.5（无极，向下取整，不足 2 点元气无产出）
+  /// 词条值 100 = 1:1（四色）；50 = 1:0.5（太极，向下取整，不足 2 点元气无产出）
   /// 模板同 heal_vigor_all：消耗走效果而非费用，费用恒 0
   function convert_vigor_all(self, opponent, card, affix) {
     final vigor = self.hasStatusEffect('energy_positive_life')

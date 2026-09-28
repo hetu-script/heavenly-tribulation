@@ -696,30 +696,31 @@
   //     },
   //   ],
   // },
-  // // 元气转化无极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
-  // energy_positive_ultimate: {
-  //   id: "energy_positive_ultimate",
-  //   category: "buff",
-  //   kind: "xinfa",
-  //   cardType: "xinfa",
-  //   rank: 5,
-  //   description: "affix_convert_vigor_ultimate",
-  //   keywords: ["status_energy_positive_ultimate"],
-  //   image: "battlecard/illustration/xinfa_ultimate.png",
-  //   animation: {
-  //     startup: ["spell_buff"],
-  //     overlays: ["restore_mana"],
-  //     sound: "spell-of-healing-876.mp3",
-  //   },
-  //   buffId: "energy_positive_ultimate",
-  //   script: "convert_vigor_all",
-  //   coloredCost: { life: 0 },
-  //   valueData: [
-  //     {
-  //       base: 50,
-  //     },
-  //   ],
-  // },
+  // 元气转化太极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
+  // 插画暂用心法通用图占位，太极专属插画待生成
+  energy_positive_ultimate: {
+    id: "energy_positive_ultimate",
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 5,
+    description: "affix_convert_vigor_ultimate",
+    keywords: ["status_energy_positive_ultimate"],
+    image: "battlecard/illustration/xinfa_heal.png",
+    animation: {
+      startup: ["spell_buff"],
+      overlays: ["restore_mana"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_ultimate",
+    script: "convert_vigor_all",
+    coloredCost: { life: 0 },
+    valueData: [
+      {
+        base: 50,
+      },
+    ],
+  },
 
   // ------------悟道·攻击------------
   punch_attack_exhaust_mana_fire: {
@@ -1440,7 +1441,7 @@
 
   // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
   // 耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
-  // 费用特例：不受减费影响（洗入发生在组牌减费之后），且禁止以无极之气抵扣，必须全额以灵气支付
+  // 费用特例：不受减费影响（洗入发生在组牌减费之后），且禁止以太极之气抵扣，必须全额以灵气支付
   spellcraft_ultimate_spell: {
     id: "spellcraft_ultimate_spell",
     category: "attack",

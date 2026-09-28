@@ -104,7 +104,7 @@
   "illustration_xinfa_heal": "心法·治疗",
   "illustration_xinfa_mana": "心法·灵气",
   "illustration_xinfa_rage": "心法·怒气",
-  "illustration_xinfa_ultimate": "心法·无极之气",
+  "illustration_xinfa_ultimate": "心法·太极之气",
 
   "element_metal": "金",
   "element_wood": "木",
@@ -186,7 +186,7 @@
   "affix_convert_vigor_weapon": "消耗所有元气，每点元气转化为 1 点剑气",
   "affix_convert_vigor_unarmed": "消耗所有元气，每点元气转化为 1 点怒气",
   "affix_convert_vigor_curse": "消耗所有元气，每点元气转化为 1 点煞气",
-  "affix_convert_vigor_ultimate": "消耗所有元气，每 2 点元气转化为 1 点无极之气（向下取整）",
+  "affix_convert_vigor_ultimate": "消耗所有元气，每 2 点元气转化为 1 点太极之气（向下取整）",
   "affix_refund_cost": "打出后返还此牌所消耗的气",
 
   "affix_retain": "保留",
@@ -206,7 +206,9 @@
   "affix_opponent_energy_negative_weapon": "对手止戈之气 +{0}",
   "affix_opponent_energy_negative_unarmed": "对手非战之气 +{0}",
   "affix_opponent_energy_negative_curse": "对手无心之气 +{0}",
-  "affix_opponent_energy_negative_ultimate": "对手虚空之气 +{0}",
+
+  "affix_infuse_all_damage_up": "无极之气 +{0}",
+  "affix_infuse_opponent_all_damage_down": "对手虚空之气 +{0}",
 
   "affix_overheal": "回复 {0}% 生命 (可超过上限)",
   "affix_buff_lifemax": "自身生命及生命上限 +{0}",

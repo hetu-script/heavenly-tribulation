@@ -282,37 +282,9 @@ namespace StatusScript {
   // }
 
 
-  function energy_positive_spell_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange += effect.amount * 5
-  }
-
-  function energy_positive_weapon_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange += effect.amount * 5
-  }
-
-  function energy_positive_unarmed_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange += effect.amount * 5
-  }
-
   /// 每点怒气使自身受到的伤害 +5%
   function energy_positive_unarmed_self_taking_damage(self, opponent, effect, details) {
     details.percentageChange1 += 0.05 * effect.amount
-  }
-
-  function energy_positive_curse_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange += effect.amount * 5
-  }
-
-  function energy_positive_ultimate_self_doing_damage(self, opponent, effect, details) {
-    details.baseChange += effect.amount * 5
   }
 
   function energy_negative_life_self_turn_start(self, opponent, effect, details) {
@@ -320,6 +292,17 @@ namespace StatusScript {
     self.changeLife(lost)
 
     self.removeStatusEffect(effect.id, amount: 1)
+  }
+
+  /// 无极之气：每层使造成的所有伤害 +5
+  /// （普通状态而非资源气：永久保留，不参与每回合清空；与虚空之气互相抵消）
+  function buff_all_damage_self_doing_damage(self, opponent, effect, details) {
+    details.baseChange += effect.amount * 5
+  }
+
+  /// 虚空之气：每层使造成的所有伤害 -5（与无极之气互相抵消）
+  function debuff_all_damage_self_doing_damage(self, opponent, effect, details) {
+    details.baseChange -= effect.amount * 5
   }
 
   /// 戾气：回合结束时，若造成了伤害，消耗 1 层并失去伤害值 10% 的生命（穿透的是自身）
@@ -331,34 +314,6 @@ namespace StatusScript {
     
   //   self.removeStatusEffect(effect.id, amount: 1)
   // }
-
-  function energy_negative_spell_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange -= effect.amount * 5
-  }
-
-  function energy_negative_weapon_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange -= effect.amount * 5
-  }
-
-  function energy_negative_unarmed_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange -= effect.amount * 5
-  }
-
-  function energy_negative_curse_self_doing_damage(self, opponent, effect, details) {
-    if (details.cardType != effect.cardType) return
-
-    details.baseChange -= effect.amount * 5
-  }
-
-  function energy_negative_ultimate_self_doing_damage(self, opponent, effect, details) {
-    details.baseChange -= effect.amount * 5
-  }
 
   /// 劫气：回合开始时消耗 1 层，失去 10% 生命上限的生命
   function debuff_tribulation_self_turn_start(self, opponent, effect, details) {

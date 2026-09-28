@@ -729,6 +729,22 @@
     keywords: ["status_buff_shield"],
     rank: 4,
   },
+  // 无极之气（普通状态：永久保留，每层所有伤害 +5；与虚空之气互相抵消）
+  start_battle_with_buff_all_damage: {
+    id: "start_battle_with_buff_all_damage",
+    uniqueId: "start_battle_with_buff_all_damage",
+    description: "passive_start_battle_with_buff_all_damage_description",
+    priority: 4193,
+    increment: 0.02,
+    isEquipmentExtraAffix: true,
+    isEquipmentMain: true,
+    isPotionMain: true,
+    isEphemeral: true,
+    ephemeralType: "attack",
+    kinds: ["pearl"],
+    keywords: ["status_buff_all_damage"],
+    rank: 3,
+  },
 
   // 战斗开始时对手获得负面效果
   // 易伤
@@ -822,6 +838,22 @@
     keywords: ["status_debuff_shield"],
     rank: 4,
   },
+  // 虚空之气（普通状态：每层所有伤害 -5；只能被无极之气抵消）
+  start_battle_with_opponent_debuff_all_damage: {
+    id: "start_battle_with_opponent_debuff_all_damage",
+    uniqueId: "start_battle_with_opponent_debuff_all_damage",
+    description: "passive_start_battle_with_opponent_debuff_all_damage_description",
+    priority: 4093,
+    increment: 0.02,
+    isEquipmentExtraAffix: true,
+    isEquipmentMain: true,
+    isPotionMain: true,
+    isEphemeral: true,
+    ephemeralType: "defense",
+    kinds: ["pearl"],
+    keywords: ["status_debuff_all_damage"],
+    rank: 4,
+  },
 
   // 战斗开始时对手获得阴气
   // 死气
@@ -904,7 +936,7 @@
     keywords: ["status_energy_negative_curse"],
     rank: 4,
   },
-  // 虚空之气
+  // 混沌之气
   start_battle_with_opponent_energy_negative_ultimate: {
     id: "start_battle_with_opponent_energy_negative_ultimate",
     uniqueId: "start_battle_with_opponent_energy_negative_ultimate",
@@ -986,7 +1018,7 @@
     keywords: ["status_energy_positive_unarmed"],
     rank: 4,
   },
-  // 无极之气
+  // 太极之气
   start_turn_with_energy_positive_ultimate: {
     id: "start_turn_with_energy_positive_ultimate",
     uniqueId: "start_turn_with_energy_positive_ultimate",

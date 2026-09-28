@@ -606,7 +606,6 @@
     script: "energy_positive_spell",
     isResource: true,
     cardType: "spell",
-    callbacks: ["self_doing_damage"],
   },
   // 剑气
   // 某些地方简称为 chakra
@@ -619,7 +618,6 @@
     script: "energy_positive_weapon",
     isResource: true,
     cardType: "weapon",
-    callbacks: ["self_doing_damage"],
   },
   // 怒气
   // 某些地方简称为 rage
@@ -633,7 +631,7 @@
     script: "energy_positive_unarmed",
     isResource: true,
     cardType: "unarmed",
-    callbacks: ["self_doing_damage", "self_taking_damage"],
+    callbacks: ["self_taking_damage"],
   },
   // 煞气
   // 某些地方简称为 karma
@@ -645,9 +643,8 @@
     script: "energy_positive_curse",
     isResource: true,
     cardType: "curse",
-    callbacks: ["self_doing_damage"],
   },
-  // 无极之气
+  // 太极之气
   // 万能费用色，可支付任意有色费用
   energy_positive_ultimate: {
     id: "energy_positive_ultimate",
@@ -656,7 +653,6 @@
     icon: "icon/cost/qi_ultimate.png",
     script: "energy_positive_ultimate",
     isResource: true,
-    callbacks: ["self_doing_damage"],
   },
 
   // 死气: 回合开始时失去生命
@@ -680,7 +676,6 @@
     script: "energy_negative_spell",
     isResource: true,
     cardType: "spell",
-    callbacks: ["self_doing_damage"],
   },
   // 止戈之气
   // 剑气对应的阴气，保留为资源（图标运行时反色显示）
@@ -692,7 +687,6 @@
     script: "energy_negative_weapon",
     isResource: true,
     cardType: "weapon",
-    callbacks: ["self_doing_damage"],
   },
   // 非战之气
   // 怒气对应的阴气，保留为资源（图标运行时反色显示）
@@ -704,7 +698,6 @@
     script: "energy_negative_unarmed",
     isResource: true,
     cardType: "unarmed",
-    callbacks: ["self_doing_damage"],
   },
   // 无心之气
   // 煞气对应的阴气，保留为资源（图标运行时反色显示）
@@ -716,10 +709,10 @@
     script: "energy_negative_curse",
     isResource: true,
     cardType: "curse",
-    callbacks: ["self_doing_damage"],
   },
-  // 虚空之气
-  // 无极之气对应的阴气，保留为资源（图标运行时反色显示）
+  // 混沌之气
+  // 万能封锁：抵消持有者获得的四色阳气（灵气/剑气/怒气/煞气，施加时立即抵消当前持有，
+  // 之后抵消新获得；元气不受影响）；与太极之气遵循阴阳对冲（同对不同时持有）
   energy_negative_ultimate: {
     id: "energy_negative_ultimate",
     title: "status_energy_negative_ultimate",
@@ -727,7 +720,6 @@
     icon: "icon/cost/qi_ultimate.png",
     script: "energy_negative_ultimate",
     isResource: true,
-    callbacks: ["self_doing_damage"],
   },
 
   // 劫气：战斗拖得太久时天道降下的惩罚（软狂暴状态，非资源）
@@ -740,6 +732,30 @@
     script: "debuff_tribulation",
     isDebuff: true,
     callbacks: ["self_turn_start"],
+  },
+
+  // ------------攻击轴状态（普通状态，非资源气）------------
+
+  // 无极之气：每层使造成的所有伤害 +5。
+  // 曾经是万能费用资源气（旧 id energy_positive_ultimate 已由太极之气沿用），
+  // 现为普通状态：永久保留，不参与每回合清空；与虚空之气互相抵消（kOppositeStatus）
+  buff_all_damage: {
+    id: "buff_all_damage",
+    title: "status_buff_all_damage",
+    description: "status_buff_all_damage_description",
+    icon: "icon/status/buff_all_damage.png",
+    script: "buff_all_damage",
+    callbacks: ["self_doing_damage"],
+  },
+  // 虚空之气：每层使造成的所有伤害 -5；与无极之气互相抵消
+  debuff_all_damage: {
+    id: "debuff_all_damage",
+    title: "status_debuff_all_damage",
+    description: "status_debuff_all_damage_description",
+    icon: "icon/status/debuff_all_damage.png",
+    script: "debuff_all_damage",
+    isDebuff: true,
+    callbacks: ["self_doing_damage"],
   },
 
   // ------------悟道绝世卡状态------------

@@ -18,7 +18,7 @@ This project is still in progress, so no need to consider save/data/api backward
 
 ## About Code
 
-这是一个中国风游戏项目，但我们要尽量避免在代码和数据中使用拼音。使用对应的英文含义代替作为命名。本地化字符串是中国风味即可。
+这是一个中国风游戏项目，但我们要尽量避免在代码和数据中使用拼音。使用对应的英文含义代替作为命名。本地化字符串是中国风味即可。唯一的例外是具体的资源的文件名可以是拼音，例如图片资源的名字。
 
 # 项目: 天道奇劫 (Heavenly Tribulation)
 

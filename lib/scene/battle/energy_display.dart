@@ -11,7 +11,7 @@ import '../../ui.dart';
 import 'character.dart';
 import 'status_effect.dart' show kNegativeQiInvertMatrix;
 
-/// 资源气槽位配置：按 元气/灵/剑/怒/煞/无极 顺序，(阳气 id, 阴气 id)
+/// 资源气槽位配置：按 元气/灵/剑/怒/煞/太极 顺序，(阳气 id, 阴气 id)
 const _kQiSlots = [
   ('energy_positive_life', 'energy_negative_life'),
   ('energy_positive_spell', 'energy_negative_spell'),
@@ -112,7 +112,7 @@ class _QiSlot extends GameComponent with HandlesGesture {
 /// 资源气行：统一管理所有资源气（6 阳 6 阴）的显示，
 /// 位于永久状态行上方单独一行。
 /// 元气恒显并显示上限（kBattleBaseEnergy + 词条加成，纯显示参照，可超出）；
-/// 其余气只在持有时显示；无极之气与前五色之间有额外间隔。
+/// 其余气只在持有时显示；太极之气与前五色之间有额外间隔。
 class EnergyDisplay extends GameComponent {
   EnergyDisplay({
     required super.position,
@@ -153,7 +153,7 @@ class EnergyDisplay extends GameComponent {
           : 0;
       slot.updateQi(yang, yin, max: max);
       if (!slot.isVisible) continue;
-      // 无极之气与前五色之间加大间隔
+      // 太极之气与前五色之间加大间隔
       if (i == _kQiSlots.length - 1) {
         offsetX += isHero ? GameUI.largeIndent : -GameUI.largeIndent;
       }

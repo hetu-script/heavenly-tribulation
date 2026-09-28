@@ -55,23 +55,25 @@
   "potion_start_battle_with_buff_crit": "幸运",
   "potion_start_battle_with_buff_ward": "辟邪",
   "potion_start_battle_with_buff_shield": "护盾",
+  "potion_start_battle_with_buff_all_damage": "无极之气",
   "potion_start_battle_with_opponent_vulnerable": "易伤",
   "potion_start_battle_with_opponent_speed_slow": "缓慢",
   "potion_start_battle_with_opponent_dodge_clumsy": "迟钝",
   "potion_start_battle_with_opponent_debuff_crit": "不幸",
   "potion_start_battle_with_opponent_debuff_ward": "邪祟",
   "potion_start_battle_with_opponent_debuff_shield": "破绽",
+  "potion_start_battle_with_opponent_debuff_all_damage": "虚空之气",
 
   "potion_start_battle_with_opponent_energy_negative_life": "死气",
   "potion_start_battle_with_opponent_energy_negative_spell": "逆灵之气",
   "potion_start_battle_with_opponent_energy_negative_weapon": "止戈之气",
   "potion_start_battle_with_opponent_energy_negative_unarmed": "非战之气",
   "potion_start_battle_with_opponent_energy_negative_curse": "无心之气",
-  "potion_start_battle_with_opponent_energy_negative_ultimate": "虚空之气",
+  "potion_start_battle_with_opponent_energy_negative_ultimate": "混沌之气",
 
   "potion_start_turn_with_energy_postive_life": "元气",
   "potion_start_turn_with_energy_postive_spell": "灵气",
   "potion_start_turn_with_energy_postive_weapon": "剑气",
   "potion_start_turn_with_energy_postive_unarmed": "怒气",
-  "potion_start_turn_with_energy_postive_ultimate": "无极之气"
+  "potion_start_turn_with_energy_postive_ultimate": "太极之气"
 }

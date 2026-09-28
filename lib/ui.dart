@@ -560,7 +560,7 @@ final class GameUI {
   static final permanentStatusEffectIconSize = Vector2(48, 48);
   static const resourceBarHeight = 10.0;
 
-  /// 资源气行槽位尺寸与整行宽度（6 槽位 + 间距 + 无极前的额外间隔）
+  /// 资源气行槽位尺寸与整行宽度（6 槽位 + 间距 + 太极前的额外间隔）
   static final qiSlotSize = Vector2(40, 40);
   static const qiSlotCount = 6;
   static double get qiRowWidth =>

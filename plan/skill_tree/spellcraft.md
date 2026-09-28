@@ -109,7 +109,7 @@
 
 - **天机术**：需扩展 Dart 侧 scry 支持对选中/未选中卡的费用修正（选中减费可复用 draw_cards 的 reduceCost 兑现路径；未选中加费作用于弃牌堆卡，洗牌后生效）。观星 UI 应预览费用变色（originalColoredCost 基线机制已有）。减费数值建议固定 ±1，不随等级缩放。
 - **相生相克**：现有脚本 `ailments_by_used_elements` 增加 self 段即可，工作量小。
-- **一气化三清**（拟定 id：`spellcraft_element_amplify`）：抉择 UI 方案已定——复用观星的中央展示选牌模式（battle.dart scry）与卡包展示的卡牌摆位（card_library.dart `onOpenCardpack`）：打出后中央展示三张临时元素卡（仅简单文字 + 元素图腾插画），点选期间锁定手牌交互（同 `_isScrying` 模式），选择后临时卡销毁、不进牌库/弃牌堆。BattleCharacter 需新增 discover 类外部方法并在 battle_character.ht 声明。增伤侧：新增状态 + `self_doing_damage` 钩子，按 damageType 过滤（水/火/雷与 ice/fire/lightning 一一对应）；独立乘区建议新增 `percentageChange2` 字段，避免与既有乘区混淆。
+- **一气化三清**（拟定 id：`spellcraft_element_amplify`）：抉择 UI 方案已定——复用观星的中央展示选牌模式（battle.dart scry）与卡包展示的卡牌摆位（card_library.dart `onOpenCardpack`）：打出后中央展示三张临时元素卡（仅简单文字 + 元素图腾插画），点选期间锁定手牌交互（同 `_handInteractionDisabled` 模式），选择后临时卡销毁、不进牌库/弃牌堆。BattleCharacter 需新增 discover 类外部方法并在 battle_character.ht 声明。增伤侧：新增状态 + `self_doing_damage` 钩子，按 damageType 过滤（水/火/雷与 ice/fire/lightning 一一对应）；独立乘区建议新增 `percentageChange2` 字段，避免与既有乘区混淆。
 - **蓄灵诀**（拟定 id：`spellcraft_ailments_to_mana`）：纯脚本——循环 Constants.elementAilments 七种异常用 `hasStatusEffect` 计数即可，无需新 API。
 - **太上忘情**（拟定 id：`spellcraft_handcards_to_mana`）：纯脚本零 Dart 改动——新状态 + `self_turn_end` 钩子：`getHandCards()` 计数 → `changeLife` 自伤 → 写 `turnFlags['pendingResources']`（gain_resource_next_turn 同机制，character.dart:681 于下回合产出阶段授予）。
 

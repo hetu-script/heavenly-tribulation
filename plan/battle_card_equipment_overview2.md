@@ -26,7 +26,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器，核心职责：
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，
   把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由
   GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
-- 观星（scry）：中央展示牌库顶 N 张，玩家点选一张放回牌库顶，其余进弃牌堆；\_isScrying 期间禁止手牌交
+- 观星（scry）：中央展示牌库顶 N 张，玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交
   互；永不触发洗牌。
 - 战斗前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性
   （persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareStatus 处理
