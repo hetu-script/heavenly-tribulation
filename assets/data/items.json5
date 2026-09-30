@@ -233,7 +233,9 @@
   },
 
   /// 绝世装备（unique equipment）约定：
-  // 词条 id 固定（affixes 列表），词条的 level/value 生成时仍随机 roll
+  // 词条 id 固定（affixes 列表，第一个词条为主词条）；
+  // 生成时按 rank + 1 顺序解锁列表词条（与绝世卡同规则，见 createItemById），
+  // 词条的 level/value 生成时仍随机 roll
   // 同一 uniqueId 的绝世装备同时只能装备一件；获得时默认未鉴定
   // 必须字段:
   //   type: 'equipment'
@@ -245,7 +247,8 @@
   //     因为 isUnstackable 会使运行时 item.id 变为随机 UID，
   //     唯一性检查只能用 uniqueId 字段，不能用 item.id
   //   isIdentified: false   // 必须！绝世装备默认未鉴定，需使用鉴定卷轴
-  //   affixes: [词条id...]  // 词条 id 固定，level/value 生成时随机 roll
+  //   rank: 1~5             // 境界需求；显式写 rank、不写 rarity（rarity 会覆盖 rank 推导）
+  //   affixes: [词条id...]  // 第一个为主词条，按 rank + 1 解锁
   //   name / flavortext / icon: 本地化键与图标路径
   // 可选字段:
   //   isUntradable / isCursed 等通用物品字段
@@ -266,4 +269,95 @@
   //   isIdentified: false,
   //   affixes: ["equipment_sword", "increase_damage_sword", ...],
   // },
+
+  // ------------悟道流派绝世装备（见 plan/skill_tree/spellcraft_equipment.md）------------
+  // 图标暂用占位路径，后续替换为专属图标
+  // 词条说明：affixes 第一个词条为主词条；生成时按 rank + 1 解锁列表词条（见 createItemById）
+  // 显式写 rank（境界需求，稀有度由 rankToRarity 推导）；不写 rarity（rarity 会覆盖 rank 推导）
+
+  // 窥天镜（rank1）：观星额外查看 2 张，但窥得越多心神越乱
+  heaven_peeking_mirror: {
+    id: "heaven_peeking_mirror",
+    uniqueId: "heaven_peeking_mirror",
+    name: "heaven_peeking_mirror",
+    flavortext: "flavortext_heaven_peeking_mirror",
+    type: "equipment",
+    category: "talisman",
+    kind: "pearl",
+    rank: 1,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: ["heaven_peeking_mirror"],
+  },
+  // 五行珠（rank2）：五行导体，元素异常双向放大
+  five_elements_pearl: {
+    id: "five_elements_pearl",
+    uniqueId: "five_elements_pearl",
+    name: "five_elements_pearl",
+    flavortext: "flavortext_five_elements_pearl",
+    type: "equipment",
+    category: "jewelry",
+    kind: "amulet",
+    rank: 2,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: ["five_elements_pearl"],
+  },
+  // 天机盘（rank3）：回合开始额外抽牌，混编卡组被课税
+  heavenly_mechanism_disc: {
+    id: "heavenly_mechanism_disc",
+    uniqueId: "heavenly_mechanism_disc",
+    name: "heavenly_mechanism_disc",
+    flavortext: "flavortext_heavenly_mechanism_disc",
+    type: "equipment",
+    category: "talisman",
+    kind: "pearl",
+    rank: 3,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: ["turnStartExtraDraw"],
+  },
+  // 蓄灵佩（rank4）：灵气淤积保留，经脉受损
+  spirit_storing_amulet: {
+    id: "spirit_storing_amulet",
+    uniqueId: "spirit_storing_amulet",
+    name: "spirit_storing_amulet",
+    flavortext: "flavortext_spirit_storing_amulet",
+    type: "equipment",
+    category: "jewelry",
+    kind: "amulet",
+    rank: 4,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: ["energyRetainSpell"],
+  },
+  // 聚灵旗（rank5）：all-in 的纯悟道旗帜
+  spirit_gathering_banner: {
+    id: "spirit_gathering_banner",
+    uniqueId: "spirit_gathering_banner",
+    name: "spirit_gathering_banner",
+    flavortext: "flavortext_spirit_gathering_banner",
+    type: "equipment",
+    category: "talisman",
+    kind: "pearl",
+    rank: 5,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: ["spirit_gathering_banner"],
+  },
 }

@@ -570,7 +570,7 @@
     uniqueId: "ailment_spread",
     categories: ["buff", "attack"],
     genres: ["spellcraft"],
-    rank: 2,
+    rank: 3,
     description: "affix_ailment_spread",
     script: "ailment_spread",
     require: { elementType: true },
@@ -639,7 +639,7 @@
   scry: {
     id: "scry",
     uniqueId: "scry",
-    categories: ["buff", "attack"],
+    categories: ["buff"],
     genres: ["spellcraft"],
     rank: 2,
     description: "affix_scry",
@@ -657,7 +657,7 @@
   cycle_draw: {
     id: "cycle_draw",
     uniqueId: "cycle_draw",
-    categories: ["buff", "attack"],
+    categories: ["attack"],
     genres: ["spellcraft"],
     rank: 3,
     description: "affix_cycle_draw",

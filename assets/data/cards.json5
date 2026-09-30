@@ -1169,6 +1169,7 @@
       sound: "buffer-spell-88994.mp3",
     },
     buffId: "defense",
+    resourceId: "energy_positive_spell",
     script: "gain_defense_by_mana",
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     keywords: ["status_defense"],

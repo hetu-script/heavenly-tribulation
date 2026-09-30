@@ -165,6 +165,9 @@
   "craftmaterial_rerollAffix": "混元丹",
   "flavortext_craftmaterial_rerollAffix": "用于功法卡牌: 重置所有词条等级。\n直接服用: 移除所有增益∕减益效果。",
 
+  "craftmaterial_upgradeRank_fragment": "破镜残韵",
+  "flavortext_craftmaterial_upgradeRank_fragment": "20 个破镜残韵可以合成一个破镜丹。",
+
   "craftmaterial_upgradeRank": "破镜丹",
 
   "craftmaterial_upgradeRank1": "凝气丹",
@@ -172,5 +175,20 @@
   "craftmaterial_upgradeRank3": "结丹丹",
   "craftmaterial_upgradeRank4": "还婴丹",
   "craftmaterial_upgradeRank5": "化神丹",
-  "flavortext_craftmaterial_upgradeRank": "用于功法卡牌: 提升境界。\n直接服用: 降低天道技能境界节点突破试炼的难度。"
+  "flavortext_craftmaterial_upgradeRank": "用于功法卡牌: 提升境界。\n直接服用: 降低天道技能境界节点突破试炼的难度。",
+
+  "heaven_peeking_mirror": "窥天镜",
+  "flavortext_heaven_peeking_mirror": "观星时额外查看 2 张牌；每次观星后，对自身随机施加 2 种元素异常（各 1 层）。\n窥得越多，心神越乱。",
+
+  "five_elements_pearl": "五行珠",
+  "flavortext_five_elements_pearl": "你造成的元素异常层数 +2；你受到的元素异常层数 +2。\n五行导体，异常双向放大。",
+
+  "heavenly_mechanism_disc": "天机盘",
+  "flavortext_heavenly_mechanism_disc": "回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌，本回合费用 +1（保留跨回合的牌，加费在其保留至的下回合开始时还原）。\n天机虽妙，杂学误道。",
+
+  "spirit_storing_amulet": "蓄灵佩",
+  "flavortext_spirit_storing_amulet": "回合结束时至多保留 2 点未使用的悟道灵气到下回合（保留的灵气不触发阴阳五行结算）；每保留 1 点，下回合开始受到 3 点纯粹伤害。\n灵气淤积，经脉受损。",
+
+  "spirit_gathering_banner": "聚灵旗",
+  "flavortext_spirit_gathering_banner": "回合开始时悟道灵气 +3；你打出的非悟道牌费用 +2。\n聚灵为旗，向道而生。"
 }

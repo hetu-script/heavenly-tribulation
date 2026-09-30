@@ -45,7 +45,9 @@ external class BattleCharacter {
     force: bool = false,
   }) -> integer
 
-  function addStatusEffect(effectId: string, {amount: integer})
+  /// source：施加方角色（缺省 opponent），供元素异常层数修正
+  /// （施加方 ailmentInflictBonus + 承受方 ailmentReceiveBonus）的归属判定
+  function addStatusEffect(effectId: string, {amount: integer, source})
 
   /// options：可选条件表，支持 filter / reduceCost 子表
   /// （字段：category / genre / cardType / kind / elementType，见 CardScript.draw_cards）

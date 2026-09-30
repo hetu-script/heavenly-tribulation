@@ -106,7 +106,6 @@
 
   "passive_battleEnergyBonus_description": "每回合元气 {0}",
   "passive_battleDrawBonus_description": "每回合抽牌 {0}",
-  "passive_scryBonus_description": "观星深度 {0}",
   "passive_deckMinSizeReduce_description": "卡组数量下限 {0}",
   "passive_tribulationCountMax_description": "劫数上限增加 {0}",
   "passive_monthlyIdentifyCardsMax_description": "每月可探查对手手牌数量 {0}",
@@ -175,5 +174,11 @@
   "passive_crit_threshold_description": "暴击阈值 {0}",
   "passive_crit_multiplier_description": "暴击伤害 {0}%",
   "passive_ailment_threshold_description": "元素异常阈值 {0}",
-  "passive_ailment_multiplier_description": "元素异常伤害 {0}%"
+  "passive_ailment_multiplier_description": "元素异常伤害 {0}%",
+
+  "passive_heaven_peeking_mirror_description": "观星时额外查看 2 张牌；每次观星后，对自身随机施加 2 种元素异常（各 1 层）",
+  "passive_five_elements_pearl_description": "你造成的元素异常层数 +2；你受到的元素异常层数 +2",
+  "passive_turnStartExtraDraw_description": "回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌本回合费用 +1",
+  "passive_energyRetainSpell_description": "回合结束时至多保留 2 点悟道灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害",
+  "passive_spirit_gathering_banner_description": "回合开始时悟道灵气 +3；你打出的非悟道牌费用 +2"
 }

@@ -99,6 +99,9 @@ function retain_added_to_hand(self, opponent, card, affix) {
 - 词条没有 `script` 字段则不参与任何回调（含打出）。
 - 声明了 `callbacks` 的词条仍然需要 `script` 字段作为函数名前缀；
 - 派发时遍历卡牌的全部词条（含主词条），主词条也可以声明 `callbacks`。
+- 函数存在性规则：打出时对每个带 `script` 的**额外词条**无条件 invoke 基名，基名允许缺省
+  （纯回调词条），缺失时忽略并由解释器日志告警一次（`ignoreUndefined`）；
+  **主词条**基名与声明的 `{script}_{时机}` 回调函数必须存在，缺失会抛出脚本错误并中断结算。
 
 ### 时机清单
 
@@ -126,7 +129,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `filter`                  | 条件子表（category/genre/cardType/kind/elementType 任意组合），脚本传给 matchCardCriteria 系 API；某字段值为 `true` 表示「该字段非空即可」                                              |
 | `not`                     | `filter` 内的反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；值 `true` 表示「该字段必须为空」（与正选 `true` =「非空即可」对称）。见下文「条件子表与占位约定」                  |
 | `require`                 | 生成侧过滤子表：以主词条（`card.affixes[0]`）字段为准——值 `true` = 该字段非空、值为数组 = 字段值 ∈ 数组、其余 = 等值匹配；不满足则生成时跳过该词条。见下文「条件子表与占位约定」        |
-| `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_exhaust_energy` / `attack_with_energy_count_check` 等脚本读取 |
+| `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_exhaust_energy` / `attack_with_energy_count_check` / `gain_defense_by_mana` 等脚本读取 |
 | `resourceThreshold`       | 资源门槛层数（缺省 1），与 `resourceId` 配套；达到门槛才生效                                                                                                                            |
 | `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` 读取并整层移除（如 water_mend 甘霖术列全部 7 种元素异常）                                                                                           |
 | `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |

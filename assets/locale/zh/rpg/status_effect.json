@@ -183,5 +183,11 @@
   "status_skilltree_branch_element_2": "五行轮转",
   "status_skilltree_branch_element_2_description": "每使用一种本回合尚未使用过的元素牌，获得 1 点灵气。",
   "status_spellcraft_rank_1": "太上感应",
-  "status_spellcraft_rank_1_description": "回合开始时，每 10 点灵力获得 1 点灵气。"
+  "status_spellcraft_rank_1_description": "回合开始时，每 10 点灵力获得 1 点灵气。",
+
+  "status_scry_self_ailments": "窥天",
+  "status_scry_self_ailments_description": "每次观星后，对自身随机施加 2 种不同的元素异常（各 1 层）。窥得越多，心神越乱。",
+
+  "status_turn_start_mana_bonus": "聚灵",
+  "status_turn_start_mana_bonus_description": "回合开始时，获得 3 点悟道灵气。"
 }

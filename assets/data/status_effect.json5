@@ -435,7 +435,7 @@
     id: "vulnerable",
     title: "status_vulnerable",
     description: "status_vulnerable_description",
-    icon: "icon/status/vulnerable_physical.png",
+    icon: "icon/status/vulnerable.png",
     script: "vulnerable",
     priority: 1505,
     isDebuff: true,
@@ -661,7 +661,7 @@
     id: "energy_negative_life",
     title: "status_energy_negative_life",
     description: "status_energy_negative_life_description",
-    icon: "icon/status/decay.png",
+    icon: "icon/cost/qi_basic.png",
     script: "energy_negative_life",
     isResource: true,
     callbacks: ["self_turn_start"],
@@ -873,5 +873,32 @@
     callbacks: ["self_produce_resources"],
     spiritualityPer: 10,
     resourceId: "energy_positive_spell",
+  },
+
+  // ------------悟道绝世装备状态（见 plan/skill_tree/spellcraft_equipment.md）------------
+  // 图标暂用占位路径，后续替换为专属图标
+
+  // 窥天镜：每次观星结算后，对自身随机施加 2 种不重复的元素异常（各 1 层）
+  // （source 传自身，配合五行珠时「造成+受到」双向放大）
+  scry_self_ailments: {
+    id: "scry_self_ailments",
+    title: "status_scry_self_ailments",
+    description: "status_scry_self_ailments_description",
+    icon: "item/unknown.png",
+    isPermanent: true,
+    script: "scry_self_ailments",
+    callbacks: ["self_scry"],
+  },
+  // 聚灵旗：回合产出阶段获得 manaBonus 层悟道灵气
+  // （数值写在状态数据，本地化描述同步写死，改动时需同步）
+  turn_start_mana_bonus: {
+    id: "turn_start_mana_bonus",
+    title: "status_turn_start_mana_bonus",
+    description: "status_turn_start_mana_bonus_description",
+    icon: "item/unknown.png",
+    isPermanent: true,
+    script: "turn_start_mana_bonus",
+    callbacks: ["self_produce_resources"],
+    manaBonus: 3,
   },
 }

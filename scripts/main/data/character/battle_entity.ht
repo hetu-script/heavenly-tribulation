@@ -352,8 +352,18 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.battleEnergyBonus = character.passives.battleEnergyBonus?.value + character.ephemeralPassives.battleEnergyBonus?.value
   character.stats.battleDrawBonus = character.passives.battleDrawBonus?.value + character.ephemeralPassives.battleDrawBonus?.value
   character.stats.deckMinSizeReduce = character.passives.deckMinSizeReduce?.value + character.ephemeralPassives.deckMinSizeReduce?.value
-  // 观星深度：每次观星额外查看的张数（战斗侧 scry 读取，见 plan/battle_script_migration.md）
-  character.stats.scryBonus = character.passives.scryBonus?.value + character.ephemeralPassives.scryBonus?.value
+  // 通用 stats 直加（词条数据声明 statsBonus: {statsId: 数值}，绝世装备主词条等固定词条用）：
+  // 观星深度 scryBonus（战斗侧 scry 读取）、元素异常层数修正 ailmentInflictBonus / ailmentReceiveBonus
+  //（战斗侧 addStatusEffect 读取）等
+  for (final source in [character.passives, character.ephemeralPassives]) {
+    for (final passiveData in source.values) {
+      final statsBonus = passiveData['statsBonus']
+      if (statsBonus == null) continue
+      for (final statId in statsBonus.keys) {
+        character.stats[statId] = (character.stats[statId] ?? 0) + statsBonus[statId]
+      }
+    }
+  }
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.ephemeralPassives.unarmedAttack?.value
   character.stats.weaponAttack = character.passives.weaponAttack?.value + character.ephemeralPassives.weaponAttack?.value
@@ -505,8 +515,9 @@ function characterSetPassive(character, dataId, {level = 1, rank}) {
     }
     // 通用机制字段透传（战斗侧按字段数据驱动，见 plan/battle_script_migration.md）：
     // battleStatus 战斗状态绑定 / deckCostReduction 组牌费用修正 / shuffleIntoDeck 洗入牌库 /
-    // turnStartScry 回合开始观星 / energyRetain 资源保留
-    for (final field in ['battleStatus', 'deckCostReduction', 'shuffleIntoDeck', 'turnStartScry', 'energyRetain']) {
+    // turnStartScry 回合开始观星 / energyRetain 资源保留 / turnStartExtraDraw 回合开始额外抽牌 /
+    // statsBonus 通用 stats 直加（绝世装备主词条等固定词条用）
+    for (final field in ['battleStatus', 'deckCostReduction', 'shuffleIntoDeck', 'turnStartScry', 'energyRetain', 'turnStartExtraDraw', 'statsBonus']) {
       final fieldValue = passiveRawData[field]
       if (fieldValue != null) {
         passiveData[field] = fieldValue

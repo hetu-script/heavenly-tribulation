@@ -1142,16 +1142,12 @@
     description: "passive_battleEnergyBonus_description",
     priority: 3497,
     increment: 1,
-    isEquipmentExtraAffix: true,
-    kinds: ["amulet", "ring", "pearl"],
   },
   battleDrawBonus: {
     id: "battleDrawBonus",
     description: "passive_battleDrawBonus_description",
     priority: 3496,
     increment: 1,
-    isEquipmentExtraAffix: true,
-    kinds: ["amulet", "ring", "pearl"],
     rank: 2,
   },
   deckMinSizeReduce: {
@@ -1160,17 +1156,6 @@
     priority: 3495,
     increment: -1,
     isDecrement: true,
-    isEquipmentExtraAffix: true,
-    kinds: ["pearl", "amulet"],
-    rank: 3,
-  },
-  // 观星深度：每次观星额外查看的张数（战斗侧 scry 读取 stats.scryBonus；
-  // 绝世装备「窥天镜」等授予，不进随机词条池）
-  scryBonus: {
-    id: "scryBonus",
-    description: "passive_scryBonus_description",
-    priority: 3494,
-    increment: 1,
   },
 
   // 非战斗属性
@@ -1340,6 +1325,50 @@
     rank: 1,
   },
 
+  /// 绝世装备专用词条（悟道流派，见 plan/skill_tree/spellcraft_equipment.md）
+  /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，按 rank+1 解锁），
+  /// 不进随机词条池，不写 isEquipmentMain/isEquipmentExtraAffix 等用途标记
+  // 窥天镜（rank1）主词条：观星额外查看 2 张；每次观星结算后对自身随机施加 2 种元素异常（各 1 层）
+  // （观星深度走 statsBonus 直加 stats；自施异常由 battleStatus 授予永久状态，行为在状态脚本实现）
+  heaven_peeking_mirror: {
+    id: "heaven_peeking_mirror",
+    description: "passive_heaven_peeking_mirror_description",
+    priority: 3493,
+    battleStatus: "scry_self_ailments",
+    statsBonus: { scryBonus: 2 },
+  },
+  // 五行珠（rank2）主词条：你造成的元素异常层数 +2；你受到的元素异常层数 +2（statsBonus 双向直加）
+  five_elements_pearl: {
+    id: "five_elements_pearl",
+    description: "passive_five_elements_pearl_description",
+    priority: 3492,
+    statsBonus: { ailmentInflictBonus: 2, ailmentReceiveBonus: 2 },
+  },
+  // 天机盘（rank3）主词条：回合开始抽牌阶段额外抽 1 张；通过此效果抽到的非悟道牌本回合费用 +1
+  // （战斗侧抽牌阶段读取，见 battle.dart；costIncrease 只作用于本回合）
+  turnStartExtraDraw: {
+    id: "turnStartExtraDraw",
+    description: "passive_turnStartExtraDraw_description",
+    priority: 3490,
+    turnStartExtraDraw: { count: 1, costIncrease: { amount: 1, notGenres: ["spellcraft"] } },
+  },
+  // 蓄灵佩（rank4）主词条：回合结束时至多保留 2 点悟道灵气到下回合，每保留 1 点下回合开始受到 3 点纯粹伤害
+  // （战斗侧回合结束资源保留读取，见 character.dart energyRetain）
+  energyRetainSpell: {
+    id: "energyRetainSpell",
+    description: "passive_energyRetainSpell_description",
+    priority: 3489,
+    kinds: ["amulet"],
+    energyRetain: { resourceId: "energy_positive_spell", max: 2, costPerPoint: 3, costDamageType: "pure" },
+  },
+  // 聚灵旗（rank5）主词条：回合产出阶段悟道灵气 +3（永久状态实现）；非悟道牌费用 +2（组牌阶段应用）
+  spirit_gathering_banner: {
+    id: "spirit_gathering_banner",
+    description: "passive_spirit_gathering_banner_description",
+    priority: 3488,
+    battleStatus: "turn_start_mana_bonus",
+    deckCostReduction: { color: "all", amount: -2, notGenres: ["spellcraft"] },
+  },
   // 地牢玩法中的debuff
   // TODO: 只能使用某个流派的卡牌
 }

@@ -1861,7 +1861,7 @@ const kBattleCardKinds = {
   'xinfa',
   'airbend',
   'firebend',
-  // 'waterbend',
+   'waterbend',
   'lightning_control',
   'earthbend',
   'plant_control',

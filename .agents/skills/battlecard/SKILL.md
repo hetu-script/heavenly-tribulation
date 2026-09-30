@@ -1,5 +1,5 @@
 ---
-name: battlecard-content
+name: battlecard
 description: |
   在《天道奇劫》中创建/修改战斗卡牌内容（普通卡牌、绝世卡牌、卡牌词条）时使用。
   涵盖三层联动：数据（assets/data/cards.json5 主词条 / card_affixes.json5 额外词条）、
@@ -51,7 +51,8 @@ description: |
   - `affix`：本词条数据，读 `affix.value`（数值数组）、`affix.buffId` 等自定义字段。
 - 数值读取：`affix.value[0]`、`affix.value[1]`…（与 valueData 数组一一对应）。
 - **时机回调词条**（非打出时触发）：数据加 `callbacks: ["added_to_hand"]` 等列表，
-  脚本提供 `{script}_{时机}` 函数（如 `retain_added_to_hand`），并保留同名占位函数。
+  脚本提供 `{script}_{时机}` 函数（如 `retain_added_to_hand`）；打出时基名函数可缺省
+  （引擎以 ignoreUndefined 调用，缺失时忽略并日志告警一次），声明的时机回调函数必须存在（缺失会抛错中断结算）。
 - **条件过滤词条**：参照 `draw_cards`，数据加 `filter: { genre/cardType/... }` 子表，
   脚本把 `affix.filter` 作为 options 传给对应的 BattleCharacter 方法
   （如 `upgrade_hand_cards` → `self.upgradeHandCards(n, options: affix.filter)`）；
@@ -166,6 +167,14 @@ upgrade_card: {
 - 不能进行灵宝/神照/真定/坐忘精炼，但可混元（重roll数值）和破境。
 - 天赋授予型绝世卡再加 `isUnpackable: true`（不进随机池），由代码显式 `invoke('BattleCard', affixId: ...)` 发放。
 
+### 绝世设计原则
+
+> 适用于全部流派的绝世卡牌与绝世装备。
+
+1. **正反双段式**：每个绝世 = 强正面 + 限制/代价。目标是"对特定构筑是核心/毕业装，对其他构筑则会有额外限制"，避免全民通用的纯强度装备。
+2. **负面类型优先级**：方向性限制（流派软锁、机制互斥）> 对称效果（双方受益/受害，构筑使其不对称）> 自伤/自异常（可被构筑转化为资源）> 纯数值惩罚（避免）。
+3. **流派锁可以是软限制**（非本流派牌费用 +X），增加宽容度，允许多流派玩法。
+
 ## 5. 常用 CardScript 模板
 
 ```hetu
@@ -202,7 +211,7 @@ function upgrade_hand_cards(self, opponent, card, affix) {
 - [ ] id = 键名，snake_case，英文含义（不用拼音）。
 - [ ] category/kind/cardType/damageType/genre/rank 填对（攻击卡必填 damageType）。
 - [ ] 费用符合单资源模型（流派色 or 元气），用 calculateCostValue 语义。
-- [ ] script 函数在 CardScript 存在且签名正确；时机回调有 `{script}_{时机}` + 占位函数。
+- [ ] script 函数在 CardScript 存在且签名正确；声明的时机回调有对应 `{script}_{时机}` 函数（纯回调词条基名可缺省，无需占位函数）。
 - [ ] valueData 与脚本读的 value[i] 数量对应。
 - [ ] 本地化：affix_xxx（+\_description）、uniquecard_xxx（绝世卡）、status 引用存在。
 - [ ] 绝世卡：isUnique + affixes 列表 + uniquecard\_ 卡名；天赋授予加 isUnpackable。

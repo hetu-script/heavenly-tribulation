@@ -121,6 +121,7 @@ flutter:
     - assets/images/item/consumable/potion/
     - assets/images/item/craft/
     - assets/images/item/equipment/
+    - assets/images/item/equipment/unique/
     - assets/images/item/material/
     - assets/images/location/
     - assets/images/location/card/

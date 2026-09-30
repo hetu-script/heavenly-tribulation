@@ -367,6 +367,9 @@ class BattleScene extends Scene {
       // 组牌费用修正（被动 deckCostReduction 字段，数据驱动）：
       // {color, amount, genres?, notGenres?} —— 对匹配卡牌的 color 色费用减 amount
       // （下限 0；amount 为负即加费，如聚灵旗 notGenres 软流派锁）。
+      // color 为 'all' 时命中卡 coloredCost 的首个条目（单资源模型正常只有一条）；
+      // 加费方向允许作用于显式 0 费条目（0 → -amount）——显式 0 不写入 coloredCost
+      // （见 updateCardCost），空表时回退主词条显式费用的首个条目键。
       // 悟道筑基「天道循环」：deckCostReduction: {color: 'spell', amount: 1, genres: ['spellcraft']}
       for (final passiveData in character['passives'].values) {
         final rule = passiveData['deckCostReduction'];
@@ -382,9 +385,29 @@ class BattleScene extends Scene {
           if (genres is List && !genres.contains(genre)) continue;
           if (notGenres is List && notGenres.contains(genre)) continue;
           final cost = cardData['coloredCost'];
-          final value = cost?[color];
-          if (value is num && value > 0) {
-            cost[color] = math.max(0, value - amount);
+          if (cost == null) continue;
+          if (color == 'all') {
+            if (cost.isNotEmpty) {
+              final key = cost.keys.first;
+              final value = cost[key];
+              if (value is! num) continue;
+              if (amount < 0) {
+                cost[key] = value - amount;
+              } else if (value > 0) {
+                cost[key] = math.max(0, value - amount);
+              }
+            } else if (amount < 0) {
+              // 显式 0 费卡：coloredCost 为空表，用主词条显式费用的首个条目键起费
+              final explicit = cardData['affixes'][0]['coloredCost'];
+              if (explicit != null && explicit.isNotEmpty) {
+                cost[explicit.keys.first] = -amount;
+              }
+            }
+          } else {
+            final value = cost[color];
+            if (value is num && value > 0) {
+              cost[color] = math.max(0, value - amount);
+            }
           }
         }
       }
@@ -866,13 +889,63 @@ class BattleScene extends Scene {
       }
       card.isFlipped = true;
       card.clearInteraction();
+      // 还原「本回合临时费用」记录（turnCostIncrease，与下方 removed_from_hand 派发同循环）
+      _restoreTurnCostIncrease(card as CustomGameCard);
       // 离手回调时机（removed_from_hand）
-      handleCardAffixCallback('removed_from_hand', card as CustomGameCard,
+      handleCardAffixCallback('removed_from_hand', card,
           hand == heroHandZone ? hero : enemy);
       discard.tryAddCard(card);
     }
     await discard.sortCards(animated: animated);
     return;
+  }
+
+  /// 回合开始额外抽牌（turnStartExtraDraw）的临时加费：对 [card] 的 coloredCost
+  /// 首个条目 +[amount]（允许 0 → amount，故免费卡也可被加费；coloredCost 为空表时
+  /// 回退主词条显式费用的首个条目键，与 getDeck 的 color: 'all' 加费同口径）。
+  /// 增费记录写入 card.data['turnCostIncrease']（{color, amount}），originalColoredCost
+  /// 基线不动，卡面费用行自然对比呈增费红色；记录由 clearHand / removed_from_hand /
+  /// 回合开始手牌巡检按还原。主词条 genre 命中 [notGenres] 的卡跳过（matchCardCriteria 同口径）。
+  /// 返回是否实际加费（命中 notGenres 或无费用条目时为 false）。
+  bool _applyTurnCostIncrease(CustomGameCard card, int amount,
+      {dynamic notGenres}) {
+    if (amount == 0) return false;
+    final cardData = card.data;
+    final genre = cardData['affixes'][0]['genre'];
+    if (notGenres is List && notGenres.contains(genre)) return false;
+    final cost = cardData['coloredCost'];
+    if (cost == null) return false;
+    String color;
+    num value = 0;
+    if (cost.isNotEmpty) {
+      color = cost.keys.first;
+      final current = cost[color];
+      if (current is num) value = current;
+    } else {
+      final explicit = cardData['affixes'][0]['coloredCost'];
+      if (explicit == null || explicit.isEmpty) return false;
+      color = explicit.keys.first;
+    }
+    cost[color] = value + amount;
+    cardData['turnCostIncrease'] = {'color': color, 'amount': amount};
+    return true;
+  }
+
+  /// 还原卡牌的「本回合临时费用」增费记录（turnCostIncrease）：按记录把 coloredCost
+  /// 对应条目减回去并删除记录键；无记录则无副作用。
+  void _restoreTurnCostIncrease(CustomGameCard card) {
+    final record = card.data['turnCostIncrease'];
+    if (record == null) return;
+    final color = record['color'];
+    final amount = record['amount'];
+    final cost = card.data['coloredCost'];
+    if (color is String && amount is num && cost != null) {
+      final value = cost[color];
+      if (value is num) {
+        cost[color] = value - amount;
+      }
+    }
+    card.data.remove('turnCostIncrease');
   }
 
   Future<void> _startBattle() async {
@@ -1573,6 +1646,8 @@ class BattleScene extends Scene {
     // 离手回调时机（removed_from_hand）：支付成功后卡牌正式离开手牌区，
     // 如调息词条在此还原费用（支付失败退回手牌的异常路径不触发）
     handleCardAffixCallback('removed_from_hand', card, hero);
+    // 还原「本回合临时费用」记录（turnCostIncrease），避免增费随卡进入弃牌堆
+    _restoreTurnCostIncrease(card);
     // 2. 卡牌结算
     await hero.onUseCard(card);
 
@@ -1690,6 +1765,19 @@ class BattleScene extends Scene {
       final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
+      // 回合开始手牌巡检：还原残留的「本回合临时费用」记录（turnCostIncrease）。
+      // 上回合被保留（retain）的牌可能带增费跨回合（含额外回合），此处统一还原并删记录，
+      // 保证「本回合费用」语义严格（契约见 docs/docs/mod/battle/readme.md）。
+      for (final card in handZone.cards) {
+        if ((card as CustomGameCard).data['turnCostIncrease'] != null) {
+          _restoreTurnCostIncrease(card);
+          if (handZone == heroHandZone) {
+            _refreshHandCardDescription(card);
+            _refreshHandAffordability(card);
+          }
+        }
+      }
+
       // 回合开始观星（被动 turnStartScry 字段，数据驱动：悟道分支「天道推演」等）：
       // 每回合开始时（抽牌阶段之前）观星 N 张，选中的牌置于牌库顶，随本回合抽牌入手
       int turnStartScryCount = 0;
@@ -1705,6 +1793,55 @@ class BattleScene extends Scene {
           ((currentCharacter.data['stats']['battleDrawBonus'] ?? 0) as int);
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
+
+      // 回合开始额外抽牌（被动 turnStartExtraDraw 字段，数据驱动：绝世装备「天机盘」等）：
+      // 正常抽牌后逐张补抽 count 张（多来源累加）；通过此效果抽到的牌，
+      // 主词条 genre 未命中 costIncrease.notGenres 的，coloredCost 首个条目
+      // 本回合 +amount（允许 0 → amount），增费记录写在 card.data['turnCostIncrease']，
+      // 弃牌（clearHand）/出牌（removed_from_hand）/跨回合保留（回合开始手牌巡检）时按记录还原，
+      // 保证「本回合费用」语义严格。
+      int extraDrawCount = 0;
+      var extraCostAmount = 0;
+      dynamic extraCostNotGenres;
+      for (final passiveData in currentCharacter.data['passives'].values) {
+        final rule = passiveData['turnStartExtraDraw'];
+        if (rule == null) continue;
+        final count = rule['count'];
+        if (count is num && count > 0) extraDrawCount += count.toInt();
+        final costIncrease = rule['costIncrease'];
+        if (costIncrease != null) {
+          final amount = costIncrease['amount'];
+          if (amount is num && amount != 0) {
+            extraCostAmount = amount.toInt();
+            extraCostNotGenres = costIncrease['notGenres'];
+          }
+        }
+      }
+      for (var i = 0; i < extraDrawCount; ++i) {
+        final handIdsBefore = {
+          for (final c in handZone.cards) (c as CustomGameCard).uniqueId
+        };
+        final extraDrawn =
+            await drawCardsToHand(deckZone, discardZone, handZone, 1);
+        if (extraDrawn == 0) break;
+        // 逐张补抽后从手牌区找出新入手的卡（drawCardsToHand 会立即排序，位置不固定）
+        CustomGameCard? extraCard;
+        for (final c in handZone.cards) {
+          if (!handIdsBefore.contains((c as CustomGameCard).uniqueId)) {
+            extraCard = c;
+            break;
+          }
+        }
+        if (extraCard == null) continue;
+        // 防御：卡上若残留旧记录（异常路径未还原），先还原再重新加费，避免叠加
+        _restoreTurnCostIncrease(extraCard);
+        if (_applyTurnCostIncrease(extraCard, extraCostAmount,
+                notGenres: extraCostNotGenres) &&
+            handZone == heroHandZone) {
+          _refreshHandCardDescription(extraCard);
+          _refreshHandAffordability(extraCard);
+        }
+      }
 
       // ① 回合开始回调（死气/劫气/DOT/缓慢/幻觉等；其中死气消耗 1 层失去 5% 生命上限的生命）
       await currentCharacter.onStartTurn(isExtra: extraTurn);
@@ -1791,6 +1928,8 @@ class BattleScene extends Scene {
           // 离手回调时机（removed_from_hand）：与英雄出牌同口径
           handleCardAffixCallback(
               'removed_from_hand', selectedCard, currentCharacter);
+          // 还原「本回合临时费用」记录（turnCostIncrease），避免增费随卡进入弃牌堆
+          _restoreTurnCostIncrease(selectedCard);
 
           selectedCard.isFlipped = false;
           await currentCharacter.onUseCard(selectedCard);

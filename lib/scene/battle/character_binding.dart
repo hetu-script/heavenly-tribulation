@@ -93,7 +93,8 @@ class BattleCharacterClassBinding extends HTExternalClass {
             );
       case 'addStatusEffect':
         return ({object, positionalArgs, namedArgs}) => character
-            .addStatusEffect(positionalArgs[0], amount: namedArgs['amount']);
+            .addStatusEffect(positionalArgs[0],
+                amount: namedArgs['amount'], source: namedArgs['source']);
       case 'drawCards':
         return ({object, positionalArgs, namedArgs}) => character
             .drawCards(positionalArgs.first, options: namedArgs['options']);

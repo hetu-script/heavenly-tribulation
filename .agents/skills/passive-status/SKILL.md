@@ -116,12 +116,21 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 
 战斗内消费点（Dart 机制）读 `character.data['stats']['{id}']`（如观星深度、资源保留等参数）。
 
-## 7. 验证（必做）
+## 7. 战斗交互
+
+天赋与装备的战斗互动统一走**状态回调总线**（`handleStatusEffectCallback`）；不要做装备版逐词条回调扫描——装备在战斗中无活实例（战前已折算进 stats/passives）：
+
+- 行为型效果（战斗中反复触发）→ 被动携带 `battleStatus` 字段，战斗开始授予永久状态，行为在 `status_script.ht` 实现；状态数据可携带自定义参数字段（如 `damageType`、`damagePerCard`）。其他通用机制字段：`deckCostReduction`（组牌费用）、`shuffleIntoDeck`（洗入牌库）、`turnStartScry`（回合开始观星）、`energyRetain`（资源保留），契约见 `docs/docs/mod/battle/readme.md`。
+- 参数型效果（观星深度、费用修正、资源保留等）与纯属性/单值修改（攻防、抗性、伤害增加等）→ 非状态，由 Dart 机制读取 stats/被动字段；纯属性走 stats 聚合管线（`kStatsToPermanentEffects` 图标仅展示净值，无回调）。
+- 状态脚本必须**非阻塞、不可交互**（不调用返回 Future 的 API）
+- 永久状态默认可见：图标 + tooltip 是效果解释渠道。
+
+## 8. 验证（必做）
 
 - 脚本改动：`python build.py` 重新编译 `.mod`（hetu PATH 问题时用 dart install 绝对路径的 hetu.bat）。
 - Dart 改动：`flutter analyze`。
 
-## 8. 自查清单
+## 9. 自查清单
 
 - [ ] 先过第 0 节分流：只有反复触发的行为型效果才建状态。
 - [ ] 状态型五层同步：状态数据 / 状态脚本 / 本地化 / 图标 / 被动绑定。

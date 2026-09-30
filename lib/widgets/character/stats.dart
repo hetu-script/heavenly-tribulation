@@ -37,6 +37,8 @@ const kMoreStats = [
   'battleDrawBonus',
   'deckMinSizeReduce',
   'scryBonus',
+  'ailmentInflictBonus',
+  'ailmentReceiveBonus',
   'divider',
   'critThreshold',
   'critMultiplier',

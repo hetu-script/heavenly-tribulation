@@ -129,9 +129,16 @@ function createItemById(id, {amount, rank, level}) {
 
   if (item.affixes is List) {
     let affixes = item.affixes.toList()
+    // 绝世装备与绝世卡同规则：affixes 第一个词条为主词条，
+    // 生成时按境界解锁列表前 rank + 1 个（装备破境暂未实现，解锁数在生成时固定）
+    let unlockCount = affixes.length
+    if (item.isUnique == true) {
+      unlockCount = Math.min(affixes.length, item.rank + 1)
+    }
     item.affixes = []
     item.affixUniqueIds = Set()
-    for (final id in affixes) {
+    for (var i = 0; i < unlockCount; ++i) {
+      final id = affixes[i]
       final affixRawData = game.passives[id]
       assert(affixRawData != null)
       final affix = Object.create(affixRawData)

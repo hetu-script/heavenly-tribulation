@@ -339,6 +339,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         ailmentStacks = damage ~/ 10;
         ailmentStacks -=
             math.min(ailmentStacks, attacker.hasStatusEffect('debuff_crit'));
+        // 元素异常层数修正（与 addStatusEffect 同口径）：
+        // 施加方 ailmentInflictBonus + 承受方 ailmentReceiveBonus
+        ailmentStacks += ((attacker.data['stats']?['ailmentInflictBonus'] ?? 0)
+                    as num)
+                .toInt() +
+            ((data['stats']?['ailmentReceiveBonus'] ?? 0) as num).toInt();
+        if (ailmentStacks < 0) ailmentStacks = 0;
       }
     }
 
@@ -469,12 +476,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return removedAmount;
   }
 
-  void addStatusEffect(String id, {int? amount, bool handleCallback = true}) {
+  /// [source] 为施加方（缺省 [opponent]，即对方施加；脚本可显式传 self 表示自施），
+  /// 供元素异常层数修正（ailmentInflictBonus / ailmentReceiveBonus，五行珠等词条）归属判定。
+  void addStatusEffect(String id,
+      {int? amount, BattleCharacter? source, bool handleCallback = true}) {
     if (amount == null || amount <= 0) {
       engine.error('Status effect [$id] added with amount <= 0, set to 1');
       amount = 1;
     }
     assert(amount > 0);
+    source ??= opponent;
     if (!GameData.statusEffects.containsKey(id)) {
       engine.error('Status effect [$id] not found!');
       return;
@@ -493,6 +504,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         amount -= toBeRemoved;
         if (amount <= 0) return;
       }
+    }
+
+    // 元素异常层数修正（装备词条 stats 管线，五行珠等）：施加方 ailmentInflictBonus +
+    // 承受方（本方）ailmentReceiveBonus，各自缺省 0；修正后层数 <= 0 则静默不施加。
+    // 位于累层之前，两条异常施加路径（takeDamage 计数器与脚本直施）均汇入本函数，天然统一。
+    if (id.startsWith('ailment_')) {
+      amount += ((source?.data['stats']?['ailmentInflictBonus'] ?? 0) as num)
+              .toInt() +
+          ((data['stats']?['ailmentReceiveBonus'] ?? 0) as num).toInt();
+      if (amount <= 0) return;
     }
 
     bool isNewlyAdded = false;
@@ -1252,8 +1273,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 统一 await 词条脚本：async 脚本（如天机术 scry_then_draw 内部 await 观星）
       // 会挂起结算流程直至完成，保证词条间与收尾流程的执行顺序；
       // 同步脚本的 await 是空操作
+      // ignoreUndefined：纯回调词条（如调息/保留）没有打出时基函数，
+      // 缺失时忽略并由解释器日志告警一次
       await engine.hetu.invoke(
         scriptId,
+        ignoreUndefined: true,
         namespace: 'CardScript',
         positionalArgs: [this, opponent, card.data, affix],
       );
@@ -1290,8 +1314,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final affix in afterMain) {
       final scriptId = affix['script'];
       if (scriptId == null) continue;
+      // ignoreUndefined：与 beforeMain 同口径，纯回调词条无打出时基函数
       await engine.hetu.invoke(
         scriptId,
+        ignoreUndefined: true,
         namespace: 'CardScript',
         positionalArgs: [this, opponent, card.data, affix],
       );

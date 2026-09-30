@@ -21,9 +21,11 @@
 ///
 /// 时机回调：
 /// 词条数据声明 callbacks 列表后，会在对应时机按 scripts 数组顺序调用 {script}_{时机} 函数，签名相同。
-/// 现有时机：added_to_hand（卡牌进入手牌区时）。
+/// 现有时机：added_to_hand（进入手牌区时）、removed_from_hand（离开手牌区时）。
 /// 声明了 callbacks 的词条仍需 scripts 字段作为函数名前缀；
-/// 打出时无效果的词条需提供同名空函数占位（见 retain）。
+/// 声明的时机回调函数必须存在（缺失会抛出脚本错误并中断结算）；
+/// 额外词条打出时的基名函数允许缺省（纯回调词条，如调息 attune / 保留 retain），
+/// Dart 侧以 ignoreUndefined 调用，函数不存在时忽略并告警一次；主词条基名函数必须存在。
 ///
 /// 契约详情见 docs/docs/mod/battle/card/readme.md
 /// ------------------------------------------------------------
@@ -264,14 +266,18 @@ namespace CardScript {
     self.addStatusEffect('defense', amount: affix.value[0])
   }
 
-  /// 石盾术（悟道·stone_shield）：获得 = 当前灵气层数 ×value[0] 的护甲，
-  /// 灵气层数上限 value[1]（超出的灵气不转化）
+  /// 石盾术（悟道·stone_shield）：消耗 affix.resourceId 指定的资源气（缺省灵气），
+  /// 至多消耗 value[1] 点，每点转化为 value[0] 点护甲（buffId 指定状态，缺省 defense）
   function gain_defense_by_mana(self, opponent, card, affix) {
-    final mana = self.hasStatusEffect('energy_positive_spell')
+    final resourceId = affix.resourceId ?? 'energy_positive_spell'
+    final mana = self.hasStatusEffect(resourceId)
     if (mana <= 0) return
     final cap = affix.value?[1] ?? mana
-    final gain = (Math.min(mana, cap) * affix.value[0]).round()
-    if (gain > 0) self.addStatusEffect('defense', amount: gain)
+    final consume = Math.min(mana, cap)
+    if (consume <= 0) return
+    self.removeStatusEffect(resourceId, amount: consume)
+    final gain = (consume * affix.value[0]).round()
+    if (gain > 0) self.addStatusEffect(affix.buffId ?? 'defense', amount: gain)
   }
 
   /// 提升生命上限

@@ -165,7 +165,7 @@
   "affix_heal_water_mend": "回复 {0} 生命，移除自身全部元素异常",
   "affix_heal_vigor_all": "消耗所有元气，每点元气回复生命上限 {0}% 的生命",
   "affix_defend": "护甲 +{0}",
-  "affix_defend_by_mana": "获得相当于当前灵气 ×{0} 的护甲（至多转化 {1} 点灵气）",
+  "affix_defend_by_mana": "消耗至多 {1} 点灵气，每点灵气转化为 {0} 点护甲",
   "affix_speed_quick": "速度 +{0}",
   "affix_dodge_nimble": "闪避 +{0}",
   "affix_speed_quick_defend": "速度 +{0}, 护甲 +{1}",
@@ -196,11 +196,17 @@
   "affix_scry_description": "查看牌库顶 3 张牌，选择一张后，将其余卡牌放入弃牌区",
 
   "affix_attune": "若手牌中有其他同元素牌：本牌费用 -1",
+  "affix_attune_description": "此牌进入手牌时检测：手牌中存在其他同元素牌则本牌费用 -1，不再满足时费用复原",
   "affix_elemental_focus": "若上一张打出的牌与本牌元素相同：本牌伤害 +{0}%",
+  "affix_elemental_focus_description": "专注：连续打出同元素牌时伤害提升；与「轮转」不会同时触发",
   "affix_ailment_spread": "给对方施加 {0} 层本牌元素对应的元素异常",
+  "affix_ailment_spread_description": "不经异常计数器，必定附加。元素对应异常：金→流血、木→中毒、水→冰缓、火→点燃、土→内伤、风→幻觉、雷→感电",
   "affix_cycle_draw": "若上一张打出的牌与本牌元素不同：抽 {0} 张牌",
+  "affix_cycle_draw_description": "轮转：交替打出不同元素的牌时获得抽牌；与「专注」不会同时触发",
   "affix_mana_burst": "打出时若灵气不少于 5 层：本牌伤害 +{0}%",
+  "affix_mana_burst_description": "灵气当回合产出、当回合耗尽；在灵气充盈时打出可获得额外伤害",
   "affix_mana_battery": "下个回合获得 {0} 点灵气",
+  "affix_mana_battery_description": "灵气于下回合的产出阶段额外获得，与当回合正常产出叠加",
 
   "affix_opponent_energy_negative_life": "对手死气 +{0}",
   "affix_opponent_energy_negative_spell": "对手逆灵之气 +{0}",
@@ -228,6 +234,7 @@
   "affix_upgrade_card_description": "打出后此牌等级 +1（可突破等级上限，仅本场战斗有效）",
 
   "affix_upgrade_hand_cards": "升级手牌",
+  "affix_upgrade_hand_cards_description": "随机使手牌中符合条件的卡牌等级 +1（仅本场战斗有效）",
   "affix_upgrade_hand_cards_spellcraft": "随机一张悟道手牌等级 +1",
   "affix_upgrade_hand_cards_swordcraft": "随机一张御剑手牌等级 +1",
   "affix_upgrade_hand_cards_bodyforge": "随机一张锻体手牌等级 +1",
@@ -235,6 +242,7 @@
   "affix_upgrade_hand_cards_avatar": "随机一张法身手牌等级 +1",
 
   "affix_draw_cards_neutral": "抽 1 张牌",
+  "affix_draw_cards_neutral_description": "打出此牌时，从牌库抽 1 张牌加入手牌",
 
   "affix_card_penetration": "本次攻击时护甲穿透 +{0}%",
 
@@ -248,5 +256,8 @@
   "affix_opponent_weaken_attack_weapon": "对手武器攻击力 -{0}%",
   "affix_opponent_weaken_attack_spell": "对手法术攻击力 -{0}%",
   "affix_opponent_weaken_attack_curse": "对手咒术攻击力 -{0}%",
-  "affix_opponent_weaken_attack_all": "对手攻击力 -{0}%"
+  "affix_opponent_weaken_attack_all": "对手攻击力 -{0}%",
+
+  "opponent_weaken": "攻击削弱",
+  "opponent_weaken_description": "使对手同时获得徒手/武器/法术/咒术四种攻击削弱，每层使其对应类型攻击伤害 -1%（至多 -75%，与同类型攻击增强相互抵消）"
 }

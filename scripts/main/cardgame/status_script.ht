@@ -412,4 +412,31 @@ namespace StatusScript {
       self.addStatusEffect(effect.resourceId, amount: amount)
     }
   }
+
+  /// 窥天镜（绝世装备状态）：每次观星结算后，从元素异常表（Constants.elementAilments
+  /// 的值域，共 7 种）中随机抽取 2 种不重复的元素异常，对自身各施加 1 层。
+  /// source 显式传自身：配合五行珠时自施异常走「造成+受到」双向放大
+  function scry_self_ailments_self_scry(self, opponent, effect, details) {
+    final ailmentIds = []
+    for (final id in Constants.elementAilments.values) {
+      ailmentIds.add(id)
+    }
+    final chosen = []
+    while (chosen.length < 2) {
+      final id = random.nextIterable(ailmentIds)
+      if (!chosen.contains(id)) {
+        chosen.add(id)
+      }
+    }
+    for (final id in chosen) {
+      self.addStatusEffect(id, amount: 1, source: self)
+    }
+  }
+
+  /// 聚灵旗（绝世装备状态）：回合产出阶段，获得 effect.manaBonus 层悟道灵气。
+  /// 必须挂产出阶段时机（self_produce_resources）：更早时机授予的灵气会被
+  /// clearResourceEffects 当残留清空（同 supreme_sensing 的约束）
+  function turn_start_mana_bonus_self_produce_resources(self, opponent, effect, details) {
+    self.addStatusEffect('energy_positive_spell', amount: effect.manaBonus ?? 3)
+  }
 }
