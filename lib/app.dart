@@ -22,7 +22,7 @@ import 'scene/cultivation/cultivation.dart';
 import 'logic/logic.dart';
 import 'scene/common.dart';
 import 'widgets/timeflow.dart';
-import 'data/constants.dart';
+import 'data/binding.dart';
 import 'scene/loading_screen.dart';
 import 'data/common.dart';
 import 'data/game.dart';

@@ -38,7 +38,7 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:heavenly_tribulation/data/common_data.dart';
+import 'package:heavenly_tribulation/data/constants.dart';
 import 'package:json5/json5.dart';
 import 'package:path/path.dart' as p;
 
