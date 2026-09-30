@@ -167,7 +167,9 @@ namespace StatusScript {
     self.removeStatusEffect(effect.id, amount: 1)
 
     // 从负面效果池中随机选择一个
-    final debuffId = random.nextIterable(Constants.debuffs)
+    final debuffs = Constants.debuffs.toList()
+    debuffs.remove('debuff_ward')
+    final debuffId = random.nextIterable(debuffs)
     self.addStatusEffect(debuffId, amount: 1)
   }
 

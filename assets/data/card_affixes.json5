@@ -278,6 +278,7 @@
     keywords: ["status_buff_all_damage"],
     script: "self_buff",
     buffId: "buff_all_damage",
+    priority: -1,
     valueData: [
       {
         base: 1,
@@ -285,6 +286,7 @@
       },
     ],
   },
+
   // 虚空侵蚀：给对手施加虚空之气（每层所有伤害 -5，与无极之气互相抵消）
   infuse_opponent_all_damage_down: {
     id: "infuse_opponent_all_damage_down",
@@ -295,6 +297,7 @@
     keywords: ["status_debuff_all_damage"],
     script: "opponent_debuff",
     buffId: "debuff_all_damage",
+    priority: -1,
     valueData: [
       {
         base: 1,

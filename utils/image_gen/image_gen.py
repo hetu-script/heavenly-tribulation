@@ -10,13 +10,15 @@
     gen           生成图片（默认模式，可省略不写）
     edit          编辑图片：以参考图为基础进行修改
     source_images (edit 必填) 参考图路径，多张用英文逗号分隔；支持 jpg/jpeg/png/webp/gif
-    prompt        (必填) 提示词。gen 模式下会自动附加同目录 prompt.md 中的
+    prompt        (必填) 提示词。gen 模式下会自动附加同目录 style.md 中的
                   风格语句（以空格分隔），用于统一美术风格
     filename      (可选) 保存的文件名（不含扩展名，扩展名按返回图片格式自动选择）。
                   gen 缺省为 日期时间+随机数；edit 缺省为 原文件名_edit+日期时间+随机数
     output_dir    (可选) 保存目录，缺省时保存到当前工作目录
     --gemini      (可选) 强制使用 Gemini 后端（默认使用 GPT）
-    --no-style    (可选) 仅 gen 模式有效：忽略 prompt.md 的默认风格语句
+    --no-style    (可选) 仅 gen 模式有效：不附加风格语句
+    --style=<file> (可选) 仅 gen 模式有效：指定风格语句文件（同目录下），
+                  缺省为 style.md；与 --no-style 互斥
     --transparent (可选) 仅 GPT gen 模式有效：向 API 传入 background: transparent，
                   生成透明背景图片
 
@@ -99,9 +101,9 @@ def bearer(token: str) -> str:
     return token if token.lower().startswith("bearer ") else f"Bearer {token}"
 
 
-def load_style_prompt() -> str:
-    """读取同目录下 prompt.md 的默认风格语句；文件不存在或为空时返回空串。"""
-    style_path = Path(__file__).resolve().parent / "prompt.md"
+def load_style_prompt(style_file: str = "style.md") -> str:
+    """读取同目录下指定的风格语句文件；文件不存在或为空时返回空串。"""
+    style_path = Path(__file__).resolve().parent / style_file
     if style_path.is_file():
         return style_path.read_text(encoding="utf-8").strip()
     return ""
@@ -231,6 +233,26 @@ def main() -> int:
     if transparent:
         args.remove("--transparent")
 
+    # --style=<file> 指定风格语句文件（同目录下），缺省 style.md；与 --no-style 互斥
+    style_file = "style.md"
+    style_args = [arg for arg in args if arg.startswith("--style=")]
+    if style_args:
+        if len(style_args) > 1:
+            print("错误: --style 只能指定一次。", file=sys.stderr)
+            return 1
+        style_file = style_args[0][len("--style="):].strip()
+        args.remove(style_args[0])
+        if not style_file:
+            print("错误: --style 缺少文件名。", file=sys.stderr)
+            return 1
+        if no_style:
+            print("错误: --style 与 --no-style 不能同时使用。", file=sys.stderr)
+            return 1
+        style_path = Path(__file__).resolve().parent / style_file
+        if not style_path.is_file():
+            print(f"错误: 找不到风格语句文件: {style_path}", file=sys.stderr)
+            return 1
+
     # 首个位置参数决定模式：edit 为编辑；gen 可省略（默认生成）
     mode = "gen"
     if args and args[0] == "edit":
@@ -272,9 +294,9 @@ def main() -> int:
         return 1
     prompt = args[0]
 
-    # gen 模式下附加 prompt.md 默认风格语句（--no-style 可忽略）
+    # gen 模式下附加风格语句（默认 style.md，可用 --style 指定其他文件，--no-style 可忽略）
     if mode == "gen" and not no_style:
-        style_prompt = load_style_prompt()
+        style_prompt = load_style_prompt(style_file)
         if style_prompt:
             prompt = f"{prompt} {style_prompt}"
 
