@@ -445,14 +445,6 @@ function hasObject(id: string, {worldId}) {
   return atWorld.objects[id] != null
 }
 
-function getNameFromId(id, [orElse = 'null']) {
-  if (id != null) {
-    return id.split('.').last
-  } else {
-    return engine.locale(orElse)
-  }
-}
-
 async function onNewGame() {
   game.isNewGame = false
   await onWorldEvent('onNewGame')

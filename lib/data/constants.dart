@@ -1,233 +1,333 @@
-import 'package:hetu_script/errors.dart';
-import 'package:hetu_script/binding.dart';
+// 卡牌类型
+const kCardTypes = {
+  'unarmed',
+  'weapon',
+  'spell',
+  'curse',
+  'shenfa',
+  'xinfa',
+  'divinity',
+};
 
-import 'common.dart';
+// 临时状态类型（聚灵阵）
+const kEphemeralTypes = {'attack', 'defense', 'attribute', 'energy'};
 
-/// 脚本从这个类中获取常量值
-class Constants extends HTExternalClass {
-  Constants() : super('Constants');
+/// items.json5 的合法物品类型（见文件头注释）
+const kItemTypes = {
+  'consumable',
+  'equipment',
+  'craftmaterial',
+  'miscellaneous'
+};
 
-  @override
-  dynamic memberGet(String id,
-      {String? from, bool isRecursive = false, bool ignoreUndefined = false}) {
-    switch (id) {
-      case 'Constants.worldSizeByScale':
-        return kWorldWidthByScale;
-      case 'Constants.rankToRarity':
-        return kRankToRarity;
-      case 'Constants.races':
-        return kRaces;
-      case 'Constants.raceMainAttributes':
-        return kRaceMainAttributes;
-      case 'Constants.baseMeditateSpeed':
-        return kBaseMeditateSpeed;
-      case 'Constants.basePlainMoveSpeed':
-        return kBasePlainMoveSpeed;
-      case 'Constants.baseMountainMoveSpeed':
-        return kBaseMountainMoveSpeed;
-      case 'Constants.baseWaterMoveSpeed':
-        return kBaseWaterMoveSpeed;
-      case 'Constants.baseMountainMoveStaminaCost':
-        return kBaseMountainMoveStaminaCost;
-      case 'Constants.baseWaterMoveStaminaCost':
-        return kBaseWaterMoveStaminaCost;
-      case 'Constants.baseLife':
-        return kBaseLife;
-      case 'Constants.baseLifePerLevel':
-        return kBaseLifePerLevel;
-      case 'Constants.baseLightRadius':
-        return kBaseLightRadius;
-      case 'Constants.baseMonthlyIdentifyCardsMax':
-        return kBaseMonthlyIdentifyCardsMax;
-      case 'Constants.baseResistMax':
-        return kBaseResistMax;
-      case 'Constants.baseCritThreshold':
-        return kBaseCritThreshold;
-      case 'Constants.baseCritMultiplier':
-        return kBaseCritMultiplier;
-      case 'Constants.baseAilmentThreshold':
-        return kBaseAilmentThreshold;
-      case 'Constants.uniqueCardChance':
-        return kUniqueCardChance;
-      case 'Constants.baseAilmentMultiplier':
-        return kBaseAilmentMultiplier;
-      case 'Constants.baseTurnActionThreshold':
-        return kBaseTurnActionThreshold;
-      case 'Constants.maxTurnActionThreshold':
-        return kMaxTurnActionThreshold;
-      case 'Constants.minTurnActionThreshold':
-        return kMinTurnActionThreshold;
-      case 'Constants.maxChargeThreshold':
-        return kMaxChargeThreshold;
-      case 'Constants.minChargeThreshold':
-        return kMinChargeThreshold;
-      case 'Constants.npcIds':
-        return kNpcIds;
-      case 'Constants.personalities':
-        return kPersonalities;
-      case 'Constants.attributes':
-        return kAttributes;
-      case 'Constants.nonBattleAttributes':
-        return kNonBattleAttributes;
-      case 'Constants.battleAttributes':
-        return kBattleAttributes;
-      case 'Constants.attributeToGenre':
-        return kAttributeToGenre;
-      case 'Constants.genreToAttribute':
-        return kGenreToAttribute;
-      case 'Constants.genreColoredCost':
-        return kGenreColoredCost;
-      case 'Constants.costColorStatusIds':
-        return kCostColorStatusIds;
-      case 'Constants.colorlessCostColorId':
-        return kColorlessCostColorId;
-      case 'Constants.wildcardStatusId':
-        return kWildcardStatusId;
-      case 'Constants.debuffs':
-        return kDebuffs;
-      case 'Constants.elementAilments':
-        return kElementAilmentIds;
-      case 'Constants.scrollMaxCharges':
-        return kScrollMaxCharges;
-      case 'Constants.battleDeckSize':
-        return kBattleDeckSize;
-      case 'Constants.attackTypes':
-        return kAttackTypes;
-      case 'Constants.damageTypes':
-        return kDamageTypes;
-      case 'Constants.sectCategories':
-        return kSectCategories;
-      case 'Constants.cultivationGenres':
-        return kCultivationGenres;
-      case 'Constants.battleCardGenres':
-        return kBattleCardGenres;
-      case 'Constants.materialKinds':
-        return kMaterialKinds;
-      case 'Constants.nonCurrencyMaterialKinds':
-        return kNonCurrencyMaterialKinds;
-      case 'Constants.naturalResourceKinds':
-        return kNaturalResourceKinds;
-      case 'Constants.terrainKindToNaturalResources':
-        return kTerrainKindToNaturalResources;
-      case 'Constants.cultivationStyles':
-        return kCultivationStyles;
-      case 'Constants.locationCityKinds':
-        return kLocationCityKinds;
-      case 'Constants.locationSiteKinds':
-        return kLocationSiteKinds;
-      case 'Constants.siteKindToNpcId':
-        return kSiteKindToNpcId;
-      case 'Constants.siteKindsWorkable':
-        return kSiteKindsWorkable;
-      case 'Constants.siteKindToAttribute':
-        return kSiteKindToAttribute;
-      case 'Constants.siteKindsManagable':
-        return kSiteKindsManagable;
-      case 'Constants.siteKindsBuildable':
-        return kSiteKindsBuildable;
-      case 'Constants.siteKindsTradable':
-        return kSiteKindsTradable;
-      case 'Constants.productionSiteKinds':
-        return kProductionSiteKinds;
-      case 'Constants.sectCategoryToSiteKind':
-        return kSectCategoryToSiteKind;
-      case 'Constants.sectCategoryExpansionRate':
-        return kSectCategoryExpansionRate;
-      case 'Constants.sectGenreToSiteKinds':
-        return kSectGenreToSiteKinds;
-      case 'Constants.sitePriority':
-        return kSitePriority;
-      case 'Constants.ticksPerTime':
-        return kTicksPerTime;
-      case 'Constants.timesPerDay':
-        return kTimesPerDay;
-      case 'Constants.ticksPerDay':
-        return kTicksPerDay;
-      case 'Constants.daysPerMonth':
-        return kDaysPerMonth;
-      case 'Constants.ticksPerMonth':
-        return kTicksPerMonth;
-      case 'Constants.daysPerYear':
-        return kDaysPerYear;
-      case 'Constants.monthsPerYear':
-        return kMonthsPerYear;
-      case 'Constants.ticksPerYear':
-        return kTicksPerYear;
-      case 'Constants.baseBuyRate':
-        return kBuyRateBase;
-      case 'Constants.baseSellRate':
-        return kSellRateBase;
-      case 'Constants.minSellRate':
-        return kMinSellRate;
-      case 'Constants.minBuyRate':
-        return kMinBuyRate;
-      case 'Constants.materialBasePrice':
-        return kMaterialPrice;
-      case 'Constants.basePriceByKind':
-        return kBasePriceByKind;
-      case 'Constants.itemWithAffixKinds':
-        return kItemWithAffixKinds;
-      case 'Constants.terrainKindsLand':
-        return kTerrainKindsLand;
-      case 'Constants.terrainKindsWater':
-        return kTerrainKindsWater;
-      case 'Constants.terrainKindsMountain':
-        return kTerrainKindsMountain;
-      case 'Constants.terrainKindsAll':
-        return kTerrainKindsAll;
-      case 'Constants.battleCardGenreAttacks':
-        return kBattleCardGenreAttacks;
-      case 'Constants.battleCardGenreBuffs':
-        return kBattleCardGenreBuffs;
-      case 'Constants.battleCardKinds':
-        return kBattleCardKinds;
-      case 'Constants.titleToJobRank':
-        return kTitleToJobRank;
-      case 'Constants.cultivationRankToTitle':
-        return kCultivationRankToTitle;
-      case 'Constants.titleToAlternativeTitle':
-        return kTitleToAlternativeTitle;
-      case 'Constants.equipmentCategoryKinds':
-        return kEquipmentCategoryKinds;
-      case 'Constants.equipmentKinds':
-        return kEquipmentKinds;
-      case 'Constants.terrainKindToEnemyEncounterRate':
-        return kTerrainKindToEnemyEncounterRate;
-      case 'Constants.enemyEncounterQuests':
-        return kEnemyEncounterQuests;
-      case 'Constants.fragmentGainFromDismantle':
-        return kFragmentGainFromDismantle;
-      case 'Constants.scrollCardUseLimit':
-        return kScrollCardUseLimit;
-      case 'Constants.arenaWagerBase':
-        return kArenaWagerBase;
-      case 'Constants.arenaWagerMultipliers':
-        return kArenaWagerMultipliers;
-      case 'Constants.diplomacyScoreAllyThreshold':
-        return kDiplomacyScoreAllyThreshold;
-      case 'Constants.diplomacyScorePactThreshold':
-        return kDiplomacyScorePactThreshold;
-      case 'Constants.diplomacyScoreEnemyThreshold':
-        return kDiplomacyScoreEnemyThreshold;
-      case 'Constants.diplomacyDefaultScore':
-        return kDiplomacyDefaultScore;
-      case 'Constants.diplomacyScoreWarBystander':
-        return kDiplomacyScoreWarBystander;
-      case 'Constants.diplomacyScoreWarDeclare':
-        return kDiplomacyScoreWarDeclare;
-      case 'Constants.diplomacyScoreOccupyCity':
-        return kDiplomacyScoreOccupyCity;
-      case 'Constants.diplomacyScoreLoseCity':
-        return kDiplomacyScoreLoseCity;
-      case 'Constants.diplomacyScoreMemberKilled':
-        return kDiplomacyScoreMemberKilled;
-      case 'Constants.diplomacyScoreHelpComplete':
-        return kDiplomacyScoreHelpComplete;
-      case 'Constants.diplomacyTypes':
-        return kDiplomacyTypes;
+/// 战斗属性决定了角色战斗流派
+const kBattleAttributes = [
+  'spirituality',
+  'dexterity',
+  'strength',
+  'willpower',
+  'perception',
+];
 
-      default:
-        if (!ignoreUndefined) throw HTError.undefined(id);
-    }
-  }
+const kAttributeToGenre = {
+  'spirituality': 'spellcraft',
+  'dexterity': 'swordcraft',
+  'strength': 'bodyforge',
+  'willpower': 'vitality',
+  'perception': 'avatar',
+};
+
+const kGenreToAttribute = {
+  'spellcraft': 'spirituality',
+  'swordcraft': 'dexterity',
+  'bodyforge': 'strength',
+  'vitality': 'willpower',
+  'avatar': 'perception',
+};
+
+/// 流派 → 费用色映射（战斗费用系统，见 plan/battle_resource_rework.md 单资源模型）
+/// 仅用于缺省兜底推导（数据层约定所有卡显式写 coloredCost）；
+/// 法身（avatar）无有色气产出、基础卡组花元气，故不在表中
+const kGenreColoredCost = {
+  'spellcraft': 'spell',
+  'swordcraft': 'weapon',
+  'bodyforge': 'unarmed',
+  'vitality': 'curse',
+};
+
+/// 费用色 → 阳气状态 id 映射（基础卡的有色费用仅限这 4 色）
+const kCostColorStatusIds = {
+  'spell': 'energy_positive_spell',
+  'weapon': 'energy_positive_weapon',
+  'unarmed': 'energy_positive_unarmed',
+  'curse': 'energy_positive_curse',
+};
+
+/// 万能费用色（太极之气）的状态 id，可支付任意有色费用
+const kWildcardStatusId = 'energy_positive_ultimate';
+
+/// 无色费用（元气）在 coloredCost 映射中的颜色 id
+/// 元气也作为费用图标之一渲染，但支付规则与有色费用不同：
+/// 不能用太极之气补齐
+const kColorlessCostColorId = 'life';
+
+/// 战斗负面效果池：邪祟（debuff_ward）回合开始随机施加、治疗时随机驱散的抽取池
+/// 通过 Constants.debuffs 导出到脚本侧
+const kDebuffs = [
+  'speed_slow',
+  'dodge_clumsy',
+  'vulnerable',
+  'debuff_crit',
+  'debuff_ward',
+  'debuff_shield',
+  'ailment_bleeding',
+  'ailment_internal_injury',
+  'ailment_hallucination',
+  'ailment_fire',
+  'ailment_lightning',
+  'ailment_ice',
+  'ailment_poison',
+];
+
+/// 元素 → 元素异常的映射（对应关系以本地化 status_element_ailment_description 为准）：
+/// 金:流血、木:中毒、水:冰缓（ailment_ice）、火:点燃（ailment_fire）、土:内伤、
+/// 风:幻觉、雷:感电。
+/// 供 ailment_spread / attack_multiple_ailment 等词条脚本直接施加元素异常查表
+/// （不经 takeDamage 的异常计数器，必然施加）。
+/// 通过 Constants.elementAilments 导出到脚本侧
+const kElementAilmentIds = {
+  'element_metal': 'ailment_bleeding',
+  'element_wood': 'ailment_poison',
+  'element_water': 'ailment_ice',
+  'element_fire': 'ailment_fire',
+  'element_earth': 'ailment_internal_injury',
+  'element_wind': 'ailment_hallucination',
+  'element_lightning': 'ailment_lightning',
+};
+
+/// 元素类型集合
+final kElementTypes = kElementAilmentIds.keys.toSet();
+
+const kRarityNames = {
+  'common',
+  'rare',
+  'epic',
+  'legendary',
+  'mythic',
+  'arcane',
+};
+
+const kCultivationGenres = {
+  'swordcraft',
+  'spellcraft',
+  'bodyforge',
+  'avatar',
+  'vitality',
+};
+
+const kBattleCardCategories = {
+  'attack',
+  'buff',
+};
+
+const kBattleCardGenres = {
+  'neutral',
+  'swordcraft',
+  'spellcraft',
+  'bodyforge',
+  'avatar',
+  'vitality',
+};
+
+final class AttackType {
+  static const unarmed = 'unarmed';
+  static const weapon = 'weapon';
+  static const spell = 'spell';
+  static const curse = 'curse';
 }
+
+const List<String> kAttackTypes = [
+  AttackType.unarmed,
+  AttackType.weapon,
+  AttackType.spell,
+  AttackType.curse,
+];
+
+final class DamageType {
+  static const physical = 'physical';
+  static const chi = 'chi';
+  static const psychic = 'psychic';
+  static const fire = 'fire';
+  static const ice = 'ice';
+  static const lightning = 'lightning';
+  static const poison = 'poison';
+  static const pure = 'pure';
+}
+
+const List<String> kDamageTypes = [
+  DamageType.physical,
+  DamageType.chi,
+  DamageType.psychic,
+  DamageType.fire,
+  DamageType.ice,
+  DamageType.lightning,
+  DamageType.poison,
+  DamageType.pure,
+];
+
+const kBattleCardGenreAttacks = {
+  // 怒气
+  'bodyforge': {
+    'punch',
+    'kick',
+    'qinna',
+  },
+  // 灵气、剑气
+  'swordcraft': {
+    'punch',
+    'flying_sword',
+    'dianxue',
+  },
+  // 灵气
+  'spellcraft': {
+    'punch',
+    'airbend',
+    'firebend',
+    'lightning_control',
+    // 'waterbend',
+  },
+  // 煞气
+  'vitality': {
+    'punch',
+    'power_word',
+  },
+  // 煞气、怒气
+  'avatar': {
+    'kick',
+    'sigil',
+  },
+};
+
+const kBattleCardGenreBuffs = {
+  // 怒气
+  'bodyforge': {
+    'xinfa',
+    'punch',
+    'kick',
+    'shenfa',
+    'qinggong',
+  },
+  // 灵气、剑气
+  'swordcraft': {
+    'xinfa',
+    'kick',
+    'flying_sword',
+    'shenfa',
+    'qinggong',
+  },
+  // 灵气
+  'spellcraft': {
+    'xinfa',
+    'punch',
+    'airbend',
+    'plant_control',
+    // 'waterbend',
+  },
+  // 煞气
+  'vitality': {
+    'xinfa',
+    'punch',
+    'power_word',
+    // 'music',
+  },
+  // 煞气、怒气
+  'avatar': {
+    'xinfa',
+    'kick',
+    'scripture',
+  },
+};
+
+const kBattleCardKinds = {
+  'punch',
+  'kick',
+  'qinna',
+  'dianxue',
+  'sabre',
+  'spear',
+  'sword',
+  'staff',
+  'bow',
+  'dart',
+  'flying_sword',
+  'shenfa',
+  'qinggong',
+  'xinfa',
+  'airbend',
+  'firebend',
+  'waterbend',
+  'lightning_control',
+  'earthbend',
+  'plant_control',
+  'sigil',
+  'power_word',
+  'scripture',
+  // 'music',
+  // 'array',
+  // 'illusion',
+};
+
+const kEquipmentCategoryKinds = {
+  // 所有武器的category都是weapon
+  'weapon': [
+    'sword',
+    'sabre',
+    'spear',
+    'staff',
+    'bow',
+    'dart',
+  ],
+  'shield': [
+    'shield',
+  ],
+  'armor': [
+    'armor',
+    //'robe',
+  ],
+  'gloves': [
+    'gloves',
+  ],
+  'helmet': [
+    'helmet',
+    // 'coronet',
+  ],
+  'boots': [
+    'boots',
+  ],
+  'vehicle': [
+    'ship',
+    // 'aircraft',
+  ],
+  // 所有首饰的 category 都是 jewelry
+  'jewelry': [
+    'ring',
+    'amulet',
+    // 'belt',
+  ],
+  'talisman': [
+    'pearl',
+  ],
+};
+
+final kEquipmentKinds = [
+  ...kEquipmentCategoryKinds['weapon']!,
+  ...kEquipmentCategoryKinds['shield']!,
+  ...kEquipmentCategoryKinds['armor']!,
+  ...kEquipmentCategoryKinds['gloves']!,
+  ...kEquipmentCategoryKinds['helmet']!,
+  ...kEquipmentCategoryKinds['boots']!,
+  ...kEquipmentCategoryKinds['vehicle']!,
+  // ...kEquipmentCategoryKinds['aircraft']!,
+  ...kEquipmentCategoryKinds['jewelry']!,
+  ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman
+];

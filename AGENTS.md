@@ -14,12 +14,12 @@ Use `python build.py` to validate the script.
 Use `flutter analyze` to validate the dart.
 No need for actual build.
 
-Use the data validators in `utils/data_validate/` to validate game data (run from `utils/`, optionally pass the project root as an argument):
+Use the data validators in `utils/data_validate/` to validate game data (run from the project root, optionally pass the project root as an argument):
 
-- `dart run data_validate/game_data_validate.dart` — checks `cards.json5` / `card_affixes.json5` / `passives.json5` / `status_effect.json5` / `items.json5`: id consistency, locale keys, script function existence (per the callback contract), dangling references, enum/structure formats, valueData placeholders, icon/image files, item conventions (type/rarity/rank, ranked-name locale keys, unique equipment rules). Errors set exit code 1; warnings don't. Run it after changing any of these data files.
-- `dart run data_validate/passive_tree_validate.dart` — connectivity check for `passive_skills.json5` (talent tree).
+- `dart run utils/data_validate/game_data_validate.dart` — checks `cards.json5` / `card_affixes.json5` / `passives.json5` / `status_effect.json5` / `items.json5`: id consistency, locale keys, script function existence (per the callback contract), dangling references, enum/structure formats, valueData placeholders, icon/image files, item conventions (type/rarity/rank, ranked-name locale keys, unique equipment rules). Errors set exit code 1; warnings don't. Run it after changing any of these data files.
+- `dart run utils/data_validate/passive_tree_validate.dart` — connectivity check for `passive_skills.json5` (talent tree).
 
-The validators hardcode the game's data contracts (enum sets, callback contracts, mechanism/item fields). When a change introduces a new data structure or field convention, sync the validator's tables/rules in the same change — otherwise new content silently escapes validation.
+The validators share enum/identifier sets with the runtime by importing `lib/data/common_data.dart` (the pure-constant split of `lib/data/common.dart` — common.dart transitively imports dart:ui and cannot run on a plain Dart VM, so keep common_data.dart free of Flutter/engine imports). Structural contract tables that exist only as data/script conventions (callback contracts, mechanism field shapes, cardType/filter keys, item flags) remain hardcoded in the validators — sync them in the same change when introducing a new data structure or field convention, otherwise new content silently escapes validation.
 
 This project is still in progress, so no need to consider save/data/api backward compatibility.
 

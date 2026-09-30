@@ -1,7 +1,8 @@
 /// 游戏数据一致性校验工具
 ///
-/// 用法:
-///   dart run data_validate/game_data_validate.dart [项目根目录]
+/// 用法（从项目根目录运行）:
+///   dart run utils/data_validate/game_data_validate.dart [项目根目录]
+///   未指定项目根目录时默认当前目录。
 ///
 /// 校验文件:
 ///   assets/data/cards.json5 / card_affixes.json5 / passives.json5 / status_effect.json5 / items.json5
@@ -37,95 +38,19 @@ library;
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:heavenly_tribulation/data/common_data.dart';
 import 'package:json5/json5.dart';
 import 'package:path/path.dart' as p;
 
 // ---------------------------------------------------------------------------
-// 常量表（与 lib/data/common.dart、数据文件头部注释保持一致；改动需同步）
+// 常量表
+// 枚举/标识符集合直接共享主项目常量（lib/data/common_data.dart）；
+// 仅存在于数据与脚本契约中的结构（cardType、filter 键、脚本必需字段、
+// 物品类型/标记等）在本地维护——引入新的数据结构或字段约定时需同步（见 AGENTS.md）
 // ---------------------------------------------------------------------------
 
-const kCategories = {'attack', 'buff'};
-
-const kGenres = {
-  'neutral',
-  'swordcraft',
-  'spellcraft',
-  'bodyforge',
-  'avatar',
-  'vitality',
-};
-
-const kCardTypes = {
-  'unarmed',
-  'weapon',
-  'spell',
-  'curse',
-  'shenfa',
-  'xinfa',
-  'divinity',
-};
-
-const kDamageTypes = {
-  'physical',
-  'chi',
-  'psychic',
-  'fire',
-  'ice',
-  'lightning',
-  'poison',
-  'pure',
-};
-
-const kElementTypes = {
-  'element_metal',
-  'element_wood',
-  'element_water',
-  'element_fire',
-  'element_earth',
-  'element_wind',
-  'element_lightning',
-};
-
 /// coloredCost 的合法颜色键（元气 life + 四流派色；太极之气是支付手段而非费用色）
-const kCostColors = {'life', 'spell', 'weapon', 'unarmed', 'curse'};
-
-const kEphemeralTypes = {'attack', 'defense', 'attribute', 'energy'};
-
-/// 常见属性 id（for_attribute_increase_damage 的 attributeId；表外仅提示）
-const kAttributeIds = {
-  'strength',
-  'dexterity',
-  'spirituality',
-  'willpower',
-  'perception',
-};
-
-/// 与 kBattleCardKinds 同步（该常量表维护较松，表外仅提示）
-const kCardKinds = {
-  'punch',
-  'kick',
-  'qinna',
-  'dianxue',
-  'sabre',
-  'spear',
-  'sword',
-  'staff',
-  'bow',
-  'dart',
-  'flying_sword',
-  'shenfa',
-  'qinggong',
-  'xinfa',
-  'airbend',
-  'firebend',
-  'waterbend',
-  'lightning_control',
-  'earthbend',
-  'plant_control',
-  'sigil',
-  'power_word',
-  'scripture',
-};
+final kCostColors = {kColorlessCostColorId, ...kCostColorStatusIds.keys};
 
 /// filter / not / require 条件子表允许的字段（见 docs/docs/mod/battle/card/readme.md）
 const kFilterKeys = {'category', 'genre', 'cardType', 'kind', 'elementType'};
@@ -145,29 +70,6 @@ const kScriptRequiredFields = {
   'gain_resource_next_turn': ['resourceId'],
   'attack_exhaust_energy': ['resourceId'],
   'attack_with_energy_count_check': ['resourceId'],
-};
-
-/// items.json5 的合法物品类型（见文件头注释）
-const kItemTypes = {
-  'consumable',
-  'equipment',
-  'craftmaterial',
-  'miscellaneous'
-};
-
-const kRarities = {'common', 'rare', 'epic', 'legendary', 'mythic', 'arcane'};
-
-/// 与 kEquipmentCategoryKinds（lib/data/common.dart）同步，改动需同步
-const kEquipmentCategoryKinds = {
-  'weapon': {'sword', 'sabre', 'spear', 'staff', 'bow', 'dart'},
-  'shield': {'shield'},
-  'armor': {'armor'},
-  'gloves': {'gloves'},
-  'helmet': {'helmet'},
-  'boots': {'boots'},
-  'vehicle': {'ship'},
-  'jewelry': {'ring', 'amulet'},
-  'talisman': {'pearl'},
 };
 
 /// 已知物品布尔标记（表外 is* 字段仅提示——可能是拼写错误，如 isEquipable）
@@ -321,7 +223,7 @@ void checkLocaleKey(dynamic key, String ctx, {bool required = true}) {
 }
 
 /// 枚举字段合法性
-void checkEnum(dynamic value, Set<String> allowed, String ctx,
+void checkEnum(dynamic value, Iterable<String> allowed, String ctx,
     {bool warnOnly = false}) {
   if (value == null) return;
   if (value is! String || !allowed.contains(value)) {
@@ -578,16 +480,16 @@ void validateCards(Map<String, dynamic> cards) {
         warn('卡牌缺 category', '$ctx: 占位卡合法，其余请确认');
       }
     } else {
-      checkEnum(data['category'], kCategories, '$ctx.category');
+      checkEnum(data['category'], kBattleCardCategories, '$ctx.category');
     }
     if (data['category'] == 'attack' && data['damageType'] == null) {
       err('攻击卡缺 damageType', ctx);
     }
     checkEnum(data['damageType'], kDamageTypes, '$ctx.damageType');
     checkEnum(data['cardType'], kCardTypes, '$ctx.cardType');
-    checkEnum(data['genre'], kGenres, '$ctx.genre');
+    checkEnum(data['genre'], kBattleCardGenres, '$ctx.genre');
     checkEnum(data['elementType'], kElementTypes, '$ctx.elementType');
-    checkEnum(data['kind'], kCardKinds, '$ctx.kind', warnOnly: true);
+    checkEnum(data['kind'], kBattleCardKinds, '$ctx.kind', warnOnly: true);
     checkNumber(data['rank'], '$ctx.rank', min: 0, max: 5);
 
     // 费用：单资源模型，颜色键合法；值为数值或 {base, rankIncrement} 公式
@@ -674,18 +576,18 @@ void validateCardAffixes(Map<String, dynamic> affixes) {
       err('词条缺 categories', '$ctx: 期望非空列表（attack/buff）');
     } else {
       for (final c in categories) {
-        checkEnum(c, kCategories, '$ctx.categories');
+        checkEnum(c, kBattleCardCategories, '$ctx.categories');
       }
     }
     final genres = data['genres'];
     if (genres is List) {
       for (final g in genres) {
-        checkEnum(g, kGenres, '$ctx.genres');
+        checkEnum(g, kBattleCardGenres, '$ctx.genres');
       }
     }
     checkNumber(data['rank'], '$ctx.rank', min: 0, max: 5);
     checkNumber(data['priority'], '$ctx.priority');
-    checkEnum(data['attributeId'], kAttributeIds, '$ctx.attributeId',
+    checkEnum(data['attributeId'], kBattleAttributes, '$ctx.attributeId',
         warnOnly: true);
 
     checkCardScript(data, ctx, isMainAffix: false);
@@ -742,7 +644,7 @@ void validatePassives(Map<String, dynamic> passives) {
           final genres = costReduction[field];
           if (genres is List) {
             for (final g in genres) {
-              checkEnum(g, kGenres, '$ctx.deckCostReduction.$field');
+              checkEnum(g, kBattleCardGenres, '$ctx.deckCostReduction.$field');
             }
           }
         }
@@ -785,7 +687,7 @@ void validatePassives(Map<String, dynamic> passives) {
             final notGenres = costIncrease['notGenres'];
             if (notGenres is List) {
               for (final g in notGenres) {
-                checkEnum(g, kGenres,
+                checkEnum(g, kBattleCardGenres,
                     '$ctx.turnStartExtraDraw.costIncrease.notGenres');
               }
             }
@@ -870,7 +772,7 @@ void validateItems(Map<String, dynamic> items) {
       }
     }
 
-    checkEnum(data['rarity'], kRarities, '$ctx.rarity');
+    checkEnum(data['rarity'], kRarityNames, '$ctx.rarity');
     checkNumber(data['rank'], '$ctx.rank', min: 0, max: 5);
     checkNumber(data['level'], '$ctx.level', min: 0);
     checkNumber(data['price'], '$ctx.price', min: 0);

@@ -1,7 +1,7 @@
 /// 天赋树（assets/data/passive_skills.json5）连通性校验工具
 ///
-/// 用法:
-///   dart run data_validate/passive_tree_validate.dart [数据文件路径]
+/// 用法（从项目根目录运行）:
+///   dart run utils/data_validate/passive_tree_validate.dart [数据文件路径]
 ///
 /// 检查项:
 ///   1. 入口节点完整性: track_0_* 应为 5 个且均为 isOpen: true；
