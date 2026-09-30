@@ -118,6 +118,7 @@ const kCardKinds = {
   'xinfa',
   'airbend',
   'firebend',
+  'waterbend',
   'lightning_control',
   'earthbend',
   'plant_control',
@@ -147,7 +148,12 @@ const kScriptRequiredFields = {
 };
 
 /// items.json5 的合法物品类型（见文件头注释）
-const kItemTypes = {'consumable', 'equipment', 'craftmaterial', 'miscellaneous'};
+const kItemTypes = {
+  'consumable',
+  'equipment',
+  'craftmaterial',
+  'miscellaneous'
+};
 
 const kRarities = {'common', 'rare', 'epic', 'legendary', 'mythic', 'arcane'};
 
@@ -398,9 +404,8 @@ void checkValueDataPlaceholders(Map data, String ctx) {
   final descKey = data['description'];
   final text = descKey is String ? localeTexts[descKey] : null;
   if (text == null) return; // 键缺失已在本地化检查中报告
-  final indices = RegExp(r'\{(\d+)\}')
-      .allMatches(text)
-      .map((m) => int.parse(m.group(1)!));
+  final indices =
+      RegExp(r'\{(\d+)\}').allMatches(text).map((m) => int.parse(m.group(1)!));
   if (indices.isEmpty) return;
   final valueCount = (data['valueData'] as List?)?.length ?? 0;
   final maxIndex = indices.reduce((a, b) => a > b ? a : b);
@@ -602,7 +607,8 @@ void validateCards(Map<String, dynamic> cards) {
         if (v is Map && v['base'] is num) {
           checkNumber(v['rankIncrement'], '$ctx.coloredCost.${costEntry.key}');
         } else {
-          err('费用结构非法', '$ctx.coloredCost.${costEntry.key}: 期望数值或 {base, rankIncrement}');
+          err('费用结构非法',
+              '$ctx.coloredCost.${costEntry.key}: 期望数值或 {base, rankIncrement}');
         }
       }
     }
@@ -752,8 +758,8 @@ void validatePassives(Map<String, dynamic> passives) {
         checkStatusRef(
             energyRetain['resourceId'], '$ctx.energyRetain.resourceId');
         checkNumber(energyRetain['max'], '$ctx.energyRetain.max', min: 1);
-        checkNumber(energyRetain['costPerPoint'],
-            '$ctx.energyRetain.costPerPoint',
+        checkNumber(
+            energyRetain['costPerPoint'], '$ctx.energyRetain.costPerPoint',
             min: 0);
         checkEnum(energyRetain['costDamageType'], kDamageTypes,
             '$ctx.energyRetain.costDamageType');
@@ -979,7 +985,8 @@ void main(List<String> arguments) {
   final effects = loadJson5('assets/data/status_effect.json5');
   final items = loadJson5('assets/data/items.json5');
   localeTexts = loadLocaleTexts();
-  cardScriptFuncs = extractScriptFunctions('scripts/main/cardgame/card_script.ht');
+  cardScriptFuncs =
+      extractScriptFunctions('scripts/main/cardgame/card_script.ht');
   statusScriptFuncs =
       extractScriptFunctions('scripts/main/cardgame/status_script.ht');
   statusTimings = extractCallbackTimings(

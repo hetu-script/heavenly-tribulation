@@ -273,17 +273,16 @@ class BattleScene extends Scene {
     }
 
     // 被动的战斗状态绑定（battleStatus 字段）：战斗开始授予对应状态。
-    // 天赋境界/分支节点与装备词条的统一绑定入口（见 plan/battle_script_migration.md）；
-    // 状态数据自带 isPermanent 等标记；标记型被动无 value 时授予 1 层
-    for (final source in const ['passives', 'ephemeralPassives']) {
-      final passives = character.data[source];
-      if (passives == null) continue;
-      for (final passiveData in passives.values) {
-        final statusId = passiveData['battleStatus'];
+    // 天赋境界/分支节点与装备词条的统一绑定入口；双来源已按
+    // {状态id: 层数} 聚合进 stats.battleStatus（见 battle_entity.ht characterCalculateStats）；
+    // 状态数据自带 isPermanent 等标记
+    final battleStatuses = character.data['stats']?['battleStatus'];
+    if (battleStatuses != null) {
+      for (final statusId in battleStatuses.keys) {
         if (statusId is! String) continue;
-        final value = passiveData['value'];
+        final amount = battleStatuses[statusId];
         character.addStatusEffect(statusId,
-            amount: (value is num && value > 0) ? value.toInt() : 1,
+            amount: (amount is num && amount > 0) ? amount.toInt() : 1,
             handleCallback: false);
       }
     }
@@ -364,16 +363,15 @@ class BattleScene extends Scene {
         deck.tryAddCard(card);
       }
 
-      // 组牌费用修正（被动 deckCostReduction 字段，数据驱动）：
+      // 组牌费用修正（被动 deckCostReduction 字段，数据驱动；
+      // 双来源已聚合进 stats.deckCostReduction 规则列表，见 battle_entity.ht）：
       // {color, amount, genres?, notGenres?} —— 对匹配卡牌的 color 色费用减 amount
       // （下限 0；amount 为负即加费，如聚灵旗 notGenres 软流派锁）。
       // color 为 'all' 时命中卡 coloredCost 的首个条目（单资源模型正常只有一条）；
       // 加费方向允许作用于显式 0 费条目（0 → -amount）——显式 0 不写入 coloredCost
       // （见 updateCardCost），空表时回退主词条显式费用的首个条目键。
       // 悟道筑基「天道循环」：deckCostReduction: {color: 'spell', amount: 1, genres: ['spellcraft']}
-      for (final passiveData in character['passives'].values) {
-        final rule = passiveData['deckCostReduction'];
-        if (rule == null) continue;
+      for (final rule in character['stats']?['deckCostReduction'] ?? const []) {
         final color = rule['color'];
         final amount = rule['amount'];
         if (color is! String || amount is! num || amount == 0) continue;
@@ -772,7 +770,8 @@ class BattleScene extends Scene {
     // 将弃牌堆和手牌区的卡牌归还牌库
     await _returnAllCardsToDecks();
 
-    // 战斗开始洗入牌库（被动 shuffleIntoDeck 字段，数据驱动：万法归宗、紫微斗数等授予卡）。
+    // 战斗开始洗入牌库（被动 shuffleIntoDeck 字段，数据驱动：万法归宗、紫微斗数等授予卡；
+    // 双来源已聚合进 stats.shuffleIntoDeck 卡牌 id 列表，见 battle_entity.ht）。
     // 必须在归还全部卡牌之后处理，此时已有卡牌都已回到牌库；
     // 战斗重开时卡牌可能已打出碎裂移出战斗，按主词条 id 在各区域查找，已存在则不重复授予。
     for (final (characterData, handZone, deckZone, discardZone) in [
@@ -780,9 +779,8 @@ class BattleScene extends Scene {
       (enemyData, enemyHandZone, enemyDeckZone, enemyDiscardZone),
     ]) {
       var addedAny = false;
-      for (final passiveData in characterData['passives'].values) {
-        final cardIds = passiveData['shuffleIntoDeck'];
-        if (cardIds is! List) continue;
+      final cardIds = characterData['stats']?['shuffleIntoDeck'];
+      if (cardIds is List) {
         for (final cardId in cardIds) {
           bool granted = false;
           for (final zone in [handZone, deckZone, discardZone]) {
@@ -1778,13 +1776,12 @@ class BattleScene extends Scene {
         }
       }
 
-      // 回合开始观星（被动 turnStartScry 字段，数据驱动：悟道分支「天道推演」等）：
+      // 回合开始观星（被动 turnStartScry 字段，数据驱动：悟道分支「天道推演」等；
+      // 双来源已求和聚合进 stats.turnStartScry，见 battle_entity.ht）：
       // 每回合开始时（抽牌阶段之前）观星 N 张，选中的牌置于牌库顶，随本回合抽牌入手
-      int turnStartScryCount = 0;
-      for (final passiveData in currentCharacter.data['passives'].values) {
-        final value = passiveData['turnStartScry'];
-        if (value is num && value > 0) turnStartScryCount += value.toInt();
-      }
+      final turnStartScryCount =
+          (currentCharacter.data['stats']?['turnStartScry'] as num?)?.toInt() ??
+              0;
       if (turnStartScryCount > 0) {
         await scry(deckZone, discardZone, count: turnStartScryCount);
       }
@@ -1794,8 +1791,9 @@ class BattleScene extends Scene {
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
 
-      // 回合开始额外抽牌（被动 turnStartExtraDraw 字段，数据驱动：绝世装备「天机盘」等）：
-      // 正常抽牌后逐张补抽 count 张（多来源累加）；通过此效果抽到的牌，
+      // 回合开始额外抽牌（被动 turnStartExtraDraw 字段，数据驱动：绝世装备「天机盘」等；
+      // 双来源已聚合进 stats.turnStartExtraDraw，count 求和、costIncrease 后者覆盖，
+      // 见 battle_entity.ht）：正常抽牌后逐张补抽 count 张；通过此效果抽到的牌，
       // 主词条 genre 未命中 costIncrease.notGenres 的，coloredCost 首个条目
       // 本回合 +amount（允许 0 → amount），增费记录写在 card.data['turnCostIncrease']，
       // 弃牌（clearHand）/出牌（removed_from_hand）/跨回合保留（回合开始手牌巡检）时按记录还原，
@@ -1803,12 +1801,11 @@ class BattleScene extends Scene {
       int extraDrawCount = 0;
       var extraCostAmount = 0;
       dynamic extraCostNotGenres;
-      for (final passiveData in currentCharacter.data['passives'].values) {
-        final rule = passiveData['turnStartExtraDraw'];
-        if (rule == null) continue;
-        final count = rule['count'];
-        if (count is num && count > 0) extraDrawCount += count.toInt();
-        final costIncrease = rule['costIncrease'];
+      final extraDrawRule = currentCharacter.data['stats']?['turnStartExtraDraw'];
+      if (extraDrawRule != null) {
+        final count = extraDrawRule['count'];
+        if (count is num && count > 0) extraDrawCount = count.toInt();
+        final costIncrease = extraDrawRule['costIncrease'];
         if (costIncrease != null) {
           final amount = costIncrease['amount'];
           if (amount is num && amount != 0) {

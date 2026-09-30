@@ -667,30 +667,25 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 资源保留（被动 energyRetain 字段，绝世装备「蓄灵佩」等）：匹配的阳气至多保留
   /// max 层到下回合，每保留 1 层立即受到 costPerPoint 点 costDamageType（缺省纯粹）伤害；
   /// 保留的存量不触发回合结束的溢出类结算（由对应内容脚本自行扣除，见阴阳五行）。
+  /// 双来源合并（上限取大、代价取首个配置）已在 characterCalculateStats 聚合进
+  /// stats.energyRetain（{resourceId: {max, costPerPoint, costDamageType}}，见 battle_entity.ht）。
   /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用；
   /// 每个角色在本场战斗中的第一次行动会跳过调用，以保留战初阳气。
   void clearResourceEffects() {
-    // 收集本角色被动中的资源保留条目：{resourceId: (max, costPerPoint, costDamageType)}
+    // 读取聚合后的资源保留条目：{resourceId: (max, costPerPoint, costDamageType)}
     final retains = <String, (int, num, String)>{};
-    for (final source in const ['passives', 'ephemeralPassives']) {
-      final passives = data[source];
-      if (passives == null) continue;
-      for (final passiveData in passives.values) {
-        final retain = passiveData['energyRetain'];
-        if (retain == null) continue;
-        final resourceId = retain['resourceId'];
-        final max = retain['max'];
-        if (resourceId is! String || max is! num || max <= 0) continue;
-        final costPerPoint = retain['costPerPoint'] ?? 0;
-        final costDamageType = retain['costDamageType'] ?? 'pure';
-        final existing = retains[resourceId];
-        // 多来源同名资源保留：上限取大者，代价取首个非零配置
-        if (existing == null) {
-          retains[resourceId] = (max.toInt(), costPerPoint, costDamageType);
-        } else if (max.toInt() > existing.$1) {
-          retains[resourceId] =
-              (max.toInt(), existing.$2, existing.$3);
-        }
+    final retainRules = data['stats']?['energyRetain'];
+    if (retainRules != null) {
+      for (final resourceId in retainRules.keys) {
+        if (resourceId is! String) continue;
+        final rule = retainRules[resourceId];
+        final max = rule['max'];
+        if (max is! num || max <= 0) continue;
+        retains[resourceId] = (
+          max.toInt(),
+          rule['costPerPoint'] ?? 0,
+          rule['costDamageType'] ?? 'pure',
+        );
       }
     }
 

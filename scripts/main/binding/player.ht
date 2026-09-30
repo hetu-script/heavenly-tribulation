@@ -3,30 +3,6 @@ const kSlowThreshold = 10
 const kNimbleThreshold = 10
 const kClumsyThreshold = 10
 
-struct PassiveData {
-  constructor ({
-    id,
-    priority,
-    level,
-    value,
-    increment,
-    rankIncrement,
-    description,
-    rank,
-  }) {
-    assert(id != null && description != null)
-    this.id = id
-    this.priority = priority ?? 0
-    this.level = level ?? 0
-    this.value = value
-    this.increment = increment
-    this.rankIncrement = rankIncrement
-    this.description = description
-    // rankIncrement 词条的 rank 贡献总和（多件同名词条装备叠加时累加，卸下时减去）
-    this.rank = rank ?? 0
-  }
-}
-
 const _kMaxActiveJournal = 5
 
 namespace Player {
@@ -905,7 +881,7 @@ namespace Player {
       level = getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
     }
 
-    characterSetEphemeralPassive(hero, affix.id, level: level, rank: rank)
+    characterSetEphemeralPassive(hero, affix.id, level: level)
     engine.info('聚灵阵赋予buff: ${affix.id} lv${level}')
   }
 }

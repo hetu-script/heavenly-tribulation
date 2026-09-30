@@ -21,7 +21,7 @@ description: |
   给后续额外词条留出解锁位。
 
 现成样板（先读再改）：悟道五件 `items.json5:276-360` + `passives.json5` 绝世装备专用区
-（窥天镜/五行珠/天机盘/蓄灵佩/聚灵旗），实施记录见 `plan/skill_tree/spellcraft_equipment.md`。
+（窥天镜/五行珠/天机盘/蓄灵佩/聚灵旗）。
 
 ## 0. 设计原则
 
@@ -30,11 +30,11 @@ description: |
 
 分流判断（详表见 passive-status skill §0）：
 
-| 效果类型 | 做法 |
-| --- | --- |
-| 行为型（时机 X 反复触发做 Y） | 永久状态 + 状态脚本（passive-status skill 五层流程），词条带 `battleStatus` |
-| 参数型（观星深度、费用修正、资源保留、异常层数等） | 机制字段 / `statsBonus` 直加（本技能 §2） |
-| 纯属性/单值修改（攻防、抗性、伤害增加） | stats 聚合管线（新 stat 见 passive-status skill §6） |
+| 效果类型                                           | 做法                                                                        |
+| -------------------------------------------------- | --------------------------------------------------------------------------- |
+| 行为型（时机 X 反复触发做 Y）                      | 永久状态 + 状态脚本（passive-status skill 五层流程），词条带 `battleStatus` |
+| 参数型（观星深度、费用修正、资源保留、异常层数等） | 机制字段 / `statsBonus` 直加（本技能 §2）                                   |
+| 纯属性/单值修改（攻防、抗性、伤害增加）            | stats 聚合管线（新 stat 见 passive-status skill §6）                        |
 
 ## 1. 装备数据（items.json5）
 
@@ -71,15 +71,15 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 
 机制字段（契约以 `docs/docs/mod/battle/readme.md` 被动字段表为准）：
 
-| 字段 | 形态 | 语义 |
-| --- | --- | --- |
-| `battleStatus` | 状态 id | 战斗开始授予永久状态（行为在 status_script.ht，走 passive-status skill 流程） |
-| `deckCostReduction` | `{color, amount, genres?, notGenres?}` | 组牌费修；amount 负 = 加费；`color: 'all'` 命中首个费用条目 |
-| `shuffleIntoDeck` | `[卡牌主词条 id]` | 战斗开始洗入牌库 |
-| `turnStartScry` | 整数 | 每回合开始抽牌前观星 N |
-| `energyRetain` | `{resourceId, max, costPerPoint?, costDamageType?}` | 回合结束资源保留 + 每点代价 |
-| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}` | 额外抽牌 + 命中牌本回合临时加费 |
-| `statsBonus` | `{statsId: 数值}` | **通用 stats 直加**（观星深度 scryBonus、异常层数 ailmentInflictBonus 等），固定词条喂 stats 的首选通道 |
+| 字段                 | 形态                                                | 语义                                                                                                    |
+| -------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `battleStatus`       | 状态 id                                             | 战斗开始授予永久状态（行为在 status_script.ht，走 passive-status skill 流程）                           |
+| `deckCostReduction`  | `{color, amount, genres?, notGenres?}`              | 组牌费修；amount 负 = 加费；`color: 'all'` 命中首个费用条目                                             |
+| `shuffleIntoDeck`    | `[卡牌主词条 id]`                                   | 战斗开始洗入牌库                                                                                        |
+| `turnStartScry`      | 整数                                                | 每回合开始抽牌前观星 N                                                                                  |
+| `energyRetain`       | `{resourceId, max, costPerPoint?, costDamageType?}` | 回合结束资源保留 + 每点代价                                                                             |
+| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}`      | 额外抽牌 + 命中牌本回合临时加费                                                                         |
+| `statsBonus`         | `{statsId: 数值}`                                   | **通用 stats 直加**（观星深度 scryBonus、异常层数 ailmentInflictBonus 等），固定词条喂 stats 的首选通道 |
 
 - 词条注释标「绝世装备专用，不进随机词条池」，**不写** `isEquipmentMain`/`isEquipmentExtraAffix`。
 - 数值定值：机制字段内嵌数值（如 energyRetain 的 max）；stats 用 `statsBonus` 直加；

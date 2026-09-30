@@ -2070,9 +2070,6 @@ bool _characterUnlockPassiveTreeNode(
         positionalArgs: [character, data['id']],
         namedArgs: {
           'level': data['level'] ?? 1,
-          // rankIncrement 词条的 rank 来源记录在词条条目自身，
-          // 不按角色境界计算；目前词条数据尚无 rank 字段，缺省为 0
-          'rank': data['rank'] ?? 0,
         },
       );
     }
@@ -2107,8 +2104,6 @@ void _characterRefundPassiveTreeNode(
         positionalArgs: [character, data['id']],
         namedArgs: {
           'level': -(data['level'] ?? 1),
-          // 与解锁时对称，rank 来源同样取自词条条目自身
-          'rank': data['rank'] ?? 0,
         },
       );
     }

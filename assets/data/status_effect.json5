@@ -807,8 +807,22 @@
 
   // ------------悟道境界节点状态------------
 
-  // 阴阳五行（悟道结丹境界节点）：回合结束时，未使用的灵气（resourceId）每层对对手造成
-  // damagePerStack 点随机元素伤害（火/冰/雷随机，受对方对应抗性减免）。
+  // 太上感应（悟道凝气境界节点）：回合产出阶段，每 spiritualityPer 点灵力获得 1 层
+  // resourceId 资源（数值写在状态数据，本地化描述同步写死，改动时需同步）
+  spellcraft_rank_1: {
+    id: "spellcraft_rank_1",
+    title: "status_spellcraft_rank_1",
+    description: "status_spellcraft_rank_1_description",
+    icon: "icon/status/permanent/spellcraft_rank_1.png",
+    isPermanent: true,
+    script: "supreme_sensing",
+    callbacks: ["self_produce_resources"],
+    spiritualityPer: 10,
+    resourceId: "energy_positive_spell",
+  },
+
+  // 阴阳五行（悟道结丹境界节点）：回合结束时，未使用的灵气（resourceId）对对手造成
+  // 随机元素伤害（火/冰/雷随机，受对方对应抗性减免），剩余灵气越多伤害越多。
   // 数值写在状态数据（damagePerStack），本地化描述同步写死，改动时需同步；
   // 资源保留（被动 energyRetain 字段，蓄灵佩等）保留到下回合的灵气不触发本结算
   spellcraft_rank_3: {
@@ -861,21 +875,7 @@
     resourceId: "energy_positive_spell",
   },
 
-  // 太上感应（悟道凝气境界节点）：回合产出阶段，每 spiritualityPer 点灵力获得 1 层
-  // resourceId 资源（数值写在状态数据，本地化描述同步写死，改动时需同步）
-  spellcraft_rank_1: {
-    id: "spellcraft_rank_1",
-    title: "status_spellcraft_rank_1",
-    description: "status_spellcraft_rank_1_description",
-    icon: "icon/status/permanent/spellcraft_rank_1.png",
-    isPermanent: true,
-    script: "supreme_sensing",
-    callbacks: ["self_produce_resources"],
-    spiritualityPer: 10,
-    resourceId: "energy_positive_spell",
-  },
-
-  // ------------悟道绝世装备状态（见 plan/skill_tree/spellcraft_equipment.md）------------
+  // ------------悟道绝世装备状态------------
   // 图标暂用占位路径，后续替换为专属图标
 
   // 窥天镜：每次观星结算后，对自身随机施加 2 种不重复的元素异常（各 1 层）

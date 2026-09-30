@@ -12,7 +12,6 @@
       {
         base: 1,
         increment: 0.25,
-        
       },
     ],
   },
@@ -657,7 +656,7 @@
   cycle_draw: {
     id: "cycle_draw",
     uniqueId: "cycle_draw",
-    categories: ["attack"],
+    categories: ["buff"],
     genres: ["spellcraft"],
     rank: 3,
     description: "affix_cycle_draw",

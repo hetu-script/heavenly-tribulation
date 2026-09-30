@@ -270,7 +270,7 @@
   //   affixes: ["equipment_sword", "increase_damage_sword", ...],
   // },
 
-  // ------------悟道流派绝世装备（见 plan/skill_tree/spellcraft_equipment.md）------------
+  // ------------悟道流派绝世装备------------
   // 图标暂用占位路径，后续替换为专属图标
   // 词条说明：affixes 第一个词条为主词条；生成时按 rank + 1 解锁列表词条（见 createItemById）
   // 显式写 rank（境界需求，稀有度由 rankToRarity 推导）；不写 rarity（rarity 会覆盖 rank 推导）

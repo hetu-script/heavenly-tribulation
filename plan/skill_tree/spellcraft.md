@@ -72,7 +72,7 @@
 | punch_defend_exhaust_mana | 1    | punch     | 无   | 护甲                                                                 | self_buff            | [{12, 0.6}]                   |
 | wind_haste                | 2    | airbend   | 风   | 迅捷+护甲                                                            | speed_quick_defend   | [{1, 0.2}, {8, 0.4}]          |
 | water_mend                | 3    | waterbend | 水   | 治疗并移除自身全部元素异常（debuffs 列表 = 7 种 ailment\_\*）        | heal_remove_debuffs  | [{18, 1.8}]                   |
-| stone_shield              | 4    | earthbend | 土   | 消耗至多 {1} 点灵气，每点转化为 {0} 点护甲                            | gain_defense_by_mana | [{3, 0.15}, {15, maxLevel:0}] |
+| stone_shield              | 4    | earthbend | 土   | 消耗至多 {1} 点灵气，每点转化为 {0} 点护甲                           | gain_defense_by_mana | [{3, 0.15}, {15, maxLevel:0}] |
 | mana_surge                | 5    | xinfa     | 无   | 元气 1:1 转化为灵气（费用恒 0，与中立卡 energy_positive_spell 并存） | convert_vigor_all    | [{100}]                       |
 
 ## 额外词条（card_affixes.json5）
@@ -130,7 +130,7 @@
 
 ## 绝世装备
 
-> 实施计划与机制分析见 `plan/skill_tree/spellcraft_equipment.md`（机制现状：energyRetain/scryBonus/self_scry 等通道已就绪，仅需 3 处小体量 Dart 扩展）。
+机制现状：energyRetain/scryBonus/self_scry 等通道已就绪，仅需 3 处小体量 Dart 扩展。
 
 | 装备       | kind   | rank | 效果                                                                                  | 设计意图                                                                                 |
 | ---------- | ------ | ---- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |

@@ -1325,7 +1325,7 @@
     rank: 1,
   },
 
-  /// 绝世装备专用词条（悟道流派，见 plan/skill_tree/spellcraft_equipment.md）
+  /// 绝世装备专用词条
   /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，按 rank+1 解锁），
   /// 不进随机词条池，不写 isEquipmentMain/isEquipmentExtraAffix 等用途标记
   // 窥天镜（rank1）主词条：观星额外查看 2 张；每次观星结算后对自身随机施加 2 种元素异常（各 1 层）
@@ -1350,7 +1350,10 @@
     id: "turnStartExtraDraw",
     description: "passive_turnStartExtraDraw_description",
     priority: 3490,
-    turnStartExtraDraw: { count: 1, costIncrease: { amount: 1, notGenres: ["spellcraft"] } },
+    turnStartExtraDraw: {
+      count: 1,
+      costIncrease: { amount: 1, notGenres: ["spellcraft"] },
+    },
   },
   // 蓄灵佩（rank4）主词条：回合结束时至多保留 2 点悟道灵气到下回合，每保留 1 点下回合开始受到 3 点纯粹伤害
   // （战斗侧回合结束资源保留读取，见 character.dart energyRetain）
@@ -1359,7 +1362,12 @@
     description: "passive_energyRetainSpell_description",
     priority: 3489,
     kinds: ["amulet"],
-    energyRetain: { resourceId: "energy_positive_spell", max: 2, costPerPoint: 3, costDamageType: "pure" },
+    energyRetain: {
+      resourceId: "energy_positive_spell",
+      max: 2,
+      costPerPoint: 3,
+      costDamageType: "pure",
+    },
   },
   // 聚灵旗（rank5）主词条：回合产出阶段悟道灵气 +3（永久状态实现）；非悟道牌费用 +2（组牌阶段应用）
   spirit_gathering_banner: {

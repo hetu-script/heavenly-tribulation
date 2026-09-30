@@ -39,6 +39,7 @@ const kMoreStats = [
   'scryBonus',
   'ailmentInflictBonus',
   'ailmentReceiveBonus',
+  'turnStartScry',
   'divider',
   'critThreshold',
   'critMultiplier',

@@ -66,6 +66,8 @@
   "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（不会低于 10）。",
   "scryBonus": "观星深度",
   "scryBonus_description": "每次观星时额外查看的卡牌数量。",
+  "turnStartScry": "回合开始观星",
+  "turnStartScry_description": "每个回合开始时（抽牌阶段之前）观星的卡牌数量。",
 
   "unarmedAttack": "徒手攻击",
   "unarmedAttack_description": "每点使你的徒手攻击伤害增加 1%。",
