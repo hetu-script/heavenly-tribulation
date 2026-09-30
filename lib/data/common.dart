@@ -3,7 +3,7 @@ import 'package:fast_noise/fast_noise.dart';
 import 'package:samsara/colors.dart';
 
 // 纯数据契约常量（枚举集合、id 映射）拆分为独立文件以便命令行工具引用
-export 'common_data.dart';
+export 'constants.dart';
 
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
