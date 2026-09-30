@@ -173,5 +173,15 @@
   "status_buff_element_amplify_lightning": "三清法相·雷",
   "status_buff_element_amplify_lightning_description": "一气化三清所化法相。每层使造成的雷系伤害 +1%（独立乘区）；持有者的回合结束时移除。",
   "status_buff_handcards_to_mana": "太上忘情",
-  "status_buff_handcards_to_mana_description": "执念尽舍，灵气自生。回合结束时每有一张手牌：受到 10 点纯粹伤害并在下回合额外获得 1 点灵气。"
+  "status_buff_handcards_to_mana_description": "执念尽舍，灵气自生。回合结束时每有一张手牌：受到 10 点纯粹伤害并在下回合额外获得 1 点灵气。",
+  "status_spellcraft_rank_3": "阴阳五行",
+  "status_spellcraft_rank_3_description": "回合结束时，每层未使用的灵气对对手造成 5 点随机元素伤害（火/冰/雷，受对方抗性减免）。",
+  "status_spellcraft_rank_4": "五气朝元",
+  "status_spellcraft_rank_4_description": "每个回合开始时，轮流获得一种套路的伤害增强（御水术→御火术→土遁→御风术→雷法），层数等于自身灵力的一半。",
+  "status_skilltree_branch_element_1": "抱真守一",
+  "status_skilltree_branch_element_1_description": "使用元素牌后，手牌里随机一张相同元素牌等级 +1。",
+  "status_skilltree_branch_element_2": "五行轮转",
+  "status_skilltree_branch_element_2_description": "每使用一种本回合尚未使用过的元素牌，获得 1 点灵气。",
+  "status_spellcraft_rank_1": "太上感应",
+  "status_spellcraft_rank_1_description": "回合开始时，每 10 点灵力获得 1 点灵气。"
 }

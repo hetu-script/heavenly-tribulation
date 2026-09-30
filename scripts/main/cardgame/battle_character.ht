@@ -1,5 +1,6 @@
-/// 回合结束资源结算已由 Dart 侧 BattleCharacter._settleTurnEndResources 处理
-/// （先灵气溢出利用，后元气回血，顺序显式保证）
+/// 战斗角色外部类声明（Dart 侧 BattleCharacter 的脚本 API 面）。
+/// 回合结束资源结算（阴阳五行灵气溢出伤害等）已迁移至状态脚本
+/// （见 plan/battle_script_migration.md 阶段 2）
 
 external class BattleCharacter {
   get data
@@ -11,6 +12,9 @@ external class BattleCharacter {
   get life
 
   get lifeMax
+
+  /// 本场战斗中该角色已开始的回合计数（含当前回合；回合开始时递增）
+  get turnCount
 
   function setLifeMax(value: integer, {rejuvenate: bool = false})
 
@@ -70,4 +74,9 @@ external class BattleCharacter {
 
   /// 本回合上一张打出的牌的完整数据（BattleCard struct），无则 null
   function getLastUsedCard()
+
+  /// 回合级临时费用修正：对卡牌（data，经 getHandCards 获取）的 coloredCost
+  /// 第一个正值条目加减 delta（减费下限 0），本角色回合结束时自动还原；
+  /// 卡面费用行自动对比变色（增红减黄）
+  function applyTurnCostModifier(cardData, {delta: integer})
 }

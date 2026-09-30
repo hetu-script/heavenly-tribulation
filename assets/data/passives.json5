@@ -1041,26 +1041,36 @@
     id: "spellcraft_rank_1",
     description: "passive_spellcraft_rank_1_description",
     priority: 3799,
+    // 太上感应：战斗开始授予同名永久状态，行为在状态脚本实现（supreme_sensing）
+    battleStatus: "spellcraft_rank_1",
   },
   spellcraft_rank_2: {
     id: "spellcraft_rank_2",
     description: "passive_spellcraft_rank_2_description",
     priority: 3798,
+    // 天道循环：悟道牌灵气费用 -1（组牌阶段统一应用，见 battle.dart getDeck）
+    deckCostReduction: { color: "spell", amount: 1, genres: ["spellcraft"] },
   },
   spellcraft_rank_3: {
     id: "spellcraft_rank_3",
     description: "passive_spellcraft_rank_3_description",
     priority: 3797,
+    // 阴阳五行：战斗开始授予同名永久状态，行为在状态脚本实现（yin_yang_five_elements）
+    battleStatus: "spellcraft_rank_3",
   },
   spellcraft_rank_4: {
     id: "spellcraft_rank_4",
     description: "passive_spellcraft_rank_4_description",
     priority: 3796,
+    // 五气朝元：战斗开始授予同名永久状态，行为在状态脚本实现（five_qi_convergence）
+    battleStatus: "spellcraft_rank_4",
   },
   spellcraft_rank_5: {
     id: "spellcraft_rank_5",
     description: "passive_spellcraft_rank_5_description",
     priority: 3795,
+    // 万法归宗：战斗开始后将「绝世·万法归宗」洗入牌库（见 battle.dart _startBattle）
+    shuffleIntoDeck: ["spellcraft_ultimate_spell"],
   },
 
   /// 流派分支节点词条（标记型；暂不进天赋树，待后续手动排布分支走向）
@@ -1068,21 +1078,29 @@
     id: "skilltree_branch_draw_1",
     description: "passive_skilltree_branch_draw_1_description",
     priority: 3794,
+    // 紫微斗数：战斗开始后将「紫微斗数」洗入牌库（见 battle.dart _startBattle）
+    shuffleIntoDeck: ["spellcraft_draw_cards_reduce_cost"],
   },
   skilltree_branch_draw_2: {
     id: "skilltree_branch_draw_2",
     description: "passive_skilltree_branch_draw_2_description",
     priority: 3793,
+    // 天道推演：每个回合开始时（抽牌阶段之前）观星 3 张（见 battle.dart _startTurn）
+    turnStartScry: 3,
   },
   skilltree_branch_element_1: {
     id: "skilltree_branch_element_1",
     description: "passive_skilltree_branch_element_1_description",
     priority: 3792,
+    // 抱真守一：战斗开始授予同名永久状态，行为在状态脚本实现（embrace_simplicity）
+    battleStatus: "skilltree_branch_element_1",
   },
   skilltree_branch_element_2: {
     id: "skilltree_branch_element_2",
     description: "passive_skilltree_branch_element_2_description",
     priority: 3791,
+    // 五行轮转：战斗开始授予同名永久状态，行为在状态脚本实现（element_cycle）
+    battleStatus: "skilltree_branch_element_2",
   },
 
   /// 装备数量相关
@@ -1145,6 +1163,14 @@
     isEquipmentExtraAffix: true,
     kinds: ["pearl", "amulet"],
     rank: 3,
+  },
+  // 观星深度：每次观星额外查看的张数（战斗侧 scry 读取 stats.scryBonus；
+  // 绝世装备「窥天镜」等授予，不进随机词条池）
+  scryBonus: {
+    id: "scryBonus",
+    description: "passive_scryBonus_description",
+    priority: 3494,
+    increment: 1,
   },
 
   // 非战斗属性

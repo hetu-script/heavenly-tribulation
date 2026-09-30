@@ -271,6 +271,22 @@ class BattleScene extends Scene {
             amount: value.toInt(), handleCallback: false);
       }
     }
+
+    // 被动的战斗状态绑定（battleStatus 字段）：战斗开始授予对应状态。
+    // 天赋境界/分支节点与装备词条的统一绑定入口（见 plan/battle_script_migration.md）；
+    // 状态数据自带 isPermanent 等标记；标记型被动无 value 时授予 1 层
+    for (final source in const ['passives', 'ephemeralPassives']) {
+      final passives = character.data[source];
+      if (passives == null) continue;
+      for (final passiveData in passives.values) {
+        final statusId = passiveData['battleStatus'];
+        if (statusId is! String) continue;
+        final value = passiveData['value'];
+        character.addStatusEffect(statusId,
+            amount: (value is num && value > 0) ? value.toInt() : 1,
+            handleCallback: false);
+      }
+    }
   }
 
   Map<String, int> _prepareStatus(
@@ -348,15 +364,27 @@ class BattleScene extends Scene {
         deck.tryAddCard(card);
       }
 
-      // 悟道筑基「天道循环」（spellcraft_rank_2）：悟道牌灵气费用 -1（下限 0）
-      if (character['passives']['spellcraft_rank_2'] != null) {
+      // 组牌费用修正（被动 deckCostReduction 字段，数据驱动）：
+      // {color, amount, genres?, notGenres?} —— 对匹配卡牌的 color 色费用减 amount
+      // （下限 0；amount 为负即加费，如聚灵旗 notGenres 软流派锁）。
+      // 悟道筑基「天道循环」：deckCostReduction: {color: 'spell', amount: 1, genres: ['spellcraft']}
+      for (final passiveData in character['passives'].values) {
+        final rule = passiveData['deckCostReduction'];
+        if (rule == null) continue;
+        final color = rule['color'];
+        final amount = rule['amount'];
+        if (color is! String || amount is! num || amount == 0) continue;
+        final genres = rule['genres'];
+        final notGenres = rule['notGenres'];
         for (final card in cards) {
           final cardData = card.data;
-          if (cardData['genre'] != 'spellcraft') continue;
+          final genre = cardData['genre'];
+          if (genres is List && !genres.contains(genre)) continue;
+          if (notGenres is List && notGenres.contains(genre)) continue;
           final cost = cardData['coloredCost'];
-          final spellCost = cost?['spell'];
-          if (spellCost is num && spellCost > 0) {
-            cost['spell'] = spellCost - 1;
+          final value = cost?[color];
+          if (value is num && value > 0) {
+            cost[color] = math.max(0, value - amount);
           }
         }
       }
@@ -506,21 +534,6 @@ class BattleScene extends Scene {
     world.add(heroDeckZone);
 
     heroDeck = await getDeck(heroData, heroDeckZone, isHero: true);
-
-    // 悟道化神「万法归宗」（spellcraft_rank_5）：战斗开始后将「绝世·万法归宗」洗入牌库
-    if (heroData['passives']['spellcraft_rank_5'] != null) {
-      final ultimateData = engine.hetu.invoke('BattleCard', namedArgs: {
-        'affixId': 'spellcraft_ultimate_spell',
-        'isIdentified': true
-      });
-      final card = GameData.createBattleCard(ultimateData, deepCopyData: true);
-      card.isFlipped = true;
-      card.enableGesture = false;
-      world.add(card);
-      heroDeckZone.tryAddCard(card);
-      heroDeckZone.shuffle();
-      await heroDeckZone.sortCards(animated: false);
-    }
 
     heroDiscardZone = DiscardZone(
       position: GameUI.p1BattleDiscardZonePosition,
@@ -736,35 +749,45 @@ class BattleScene extends Scene {
     // 将弃牌堆和手牌区的卡牌归还牌库
     await _returnAllCardsToDecks();
 
-    // 悟道分支「紫微斗数」（skilltree_branch_draw_1）：战斗开始后将「紫微斗数」洗入牌库。
+    // 战斗开始洗入牌库（被动 shuffleIntoDeck 字段，数据驱动：万法归宗、紫微斗数等授予卡）。
     // 必须在归还全部卡牌之后处理，此时已有卡牌都已回到牌库；
-    // 战斗重开时卡牌可能已打出碎裂移出战斗，先查找再决定是否重新创建，避免重复授予。
-    if (heroData['passives']['skilltree_branch_draw_1'] != null) {
-      bool granted = false;
-      for (final zone in [heroHandZone, heroDeckZone, heroDiscardZone]) {
-        for (final c in zone.cards) {
-          final card = c as CustomGameCard;
-          if (card.data['uniqueId'] == 'spellcraft_draw_cards_reduce_cost') {
-            granted = true;
-            break;
+    // 战斗重开时卡牌可能已打出碎裂移出战斗，按主词条 id 在各区域查找，已存在则不重复授予。
+    for (final (characterData, handZone, deckZone, discardZone) in [
+      (heroData, heroHandZone, heroDeckZone, heroDiscardZone),
+      (enemyData, enemyHandZone, enemyDeckZone, enemyDiscardZone),
+    ]) {
+      var addedAny = false;
+      for (final passiveData in characterData['passives'].values) {
+        final cardIds = passiveData['shuffleIntoDeck'];
+        if (cardIds is! List) continue;
+        for (final cardId in cardIds) {
+          bool granted = false;
+          for (final zone in [handZone, deckZone, discardZone]) {
+            for (final c in zone.cards) {
+              final card = c as CustomGameCard;
+              if (card.data['affixes']?[0]?['id'] == cardId) {
+                granted = true;
+                break;
+              }
+            }
+            if (granted) break;
           }
+          if (granted) continue;
+          final card = GameData.createBattleCard(
+            engine.hetu.invoke('BattleCard',
+                namedArgs: {'affixId': cardId, 'isIdentified': true}),
+            deepCopyData: true,
+          );
+          card.isFlipped = true;
+          card.enableGesture = false;
+          world.add(card);
+          deckZone.tryAddCard(card);
+          addedAny = true;
         }
-        if (granted) break;
       }
-      if (!granted) {
-        final card = GameData.createBattleCard(
-          engine.hetu.invoke('BattleCard', namedArgs: {
-            'affixId': 'spellcraft_draw_cards_reduce_cost',
-            'isIdentified': true
-          }),
-          deepCopyData: true,
-        );
-        card.isFlipped = true;
-        card.enableGesture = false;
-        world.add(card);
-        heroDeckZone.tryAddCard(card);
-        heroDeckZone.shuffle();
-        await heroDeckZone.sortCards(animated: false);
+      if (addedAny) {
+        deckZone.shuffle();
+        await deckZone.sortCards(animated: false);
       }
     }
 
@@ -1004,6 +1027,8 @@ class BattleScene extends Scene {
     dynamic options,
   }) async {
     count ??= kScryCardCount;
+    // 观星深度加成（scryBonus 属性，绝世装备「窥天镜」等）：每次观星额外查看的张数
+    count += (currentCharacter.data['stats']['scryBonus'] ?? 0) as int;
     if (deck.cards.isEmpty) {
       // 牌库为空即无星可观
       if (currentCharacter.isHero) {
@@ -1102,6 +1127,13 @@ class BattleScene extends Scene {
         _modifyCardCostByDelta(card.data, othersCostChange.toInt());
       }
     }
+
+    // 观星结算回调时机（self_scry）：窥天镜等「观星后触发」的效果挂这个时机
+    // （details 携带本次查看张数与选中卡数据）
+    currentCharacter.handleStatusEffectCallback('self_scry', {
+      'count': actualCount,
+      'chosen': chosen.data,
+    });
 
     await deck.sortCards();
     await discard.sortCards();
@@ -1658,11 +1690,15 @@ class BattleScene extends Scene {
       final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
-      // 悟道分支「天道推演」：每回合开始时（抽牌阶段之前）观星一次，
-      // 选中的牌置于牌库顶，随本回合抽牌入手
-      if (currentCharacter.data['passives']['skilltree_branch_draw_2'] !=
-          null) {
-        await scry(deckZone, discardZone);
+      // 回合开始观星（被动 turnStartScry 字段，数据驱动：悟道分支「天道推演」等）：
+      // 每回合开始时（抽牌阶段之前）观星 N 张，选中的牌置于牌库顶，随本回合抽牌入手
+      int turnStartScryCount = 0;
+      for (final passiveData in currentCharacter.data['passives'].values) {
+        final value = passiveData['turnStartScry'];
+        if (value is num && value > 0) turnStartScryCount += value.toInt();
+      }
+      if (turnStartScryCount > 0) {
+        await scry(deckZone, discardZone, count: turnStartScryCount);
       }
 
       final drawCount = kBattleDrawCount +
@@ -1702,9 +1738,6 @@ class BattleScene extends Scene {
       refreshHandCardDescription();
       // 新产出已结算，刷新手牌置灰状态
       refreshHandAffordability();
-
-      // 悟道还婴「五气朝元」：轮转获得五种套路的伤害增强
-      currentCharacter.handleElementRotation();
 
       if (skipPlayPhase) {
         endTurnButton.isEnabled = false;

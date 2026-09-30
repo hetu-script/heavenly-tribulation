@@ -51,11 +51,13 @@ function attack(self, opponent, card, affix) {
 3. `priority < 0` 的额外词条（按 priority 降序）——可能在主词条之前生效的增益
 4. 主词条（先播放 `animation`，再执行脚本）
 5. `priority >= 0` 的额外词条（按 priority 降序）——可读取主词条造成的伤害等联动
-6. 元素牌联动（抱真守一 / 五行轮转）、`self_attacked` / `self_buffed` 等收尾回调
+6. 元素牌使用记录（`turnFlags['usedElements']`，元素牌无条件记录，供 chain_lightning 等词条
+   与五行轮转等状态结算本回合元素种数）、`self_attacked` / `self_buffed` 等收尾回调
 7. 无条件记录 `turnFlags['lastUsedCard'] = card`（本回合上一张打出的牌引用，
    供 `matchLastUsedCard` / `getLastUsedCard` 读取，见下文「上一张打出的牌」；
    记录点在所有词条脚本之后 → priority<0 的词条读到的是真正的「上一张」）
-8. 派发状态回调 `opponent_used_card` / `self_used_card`
+8. 派发状态回调 `opponent_used_card` / `self_used_card`（抱真守一 / 五行轮转等元素牌联动
+   以状态脚本挂在此时机，经 `getLastUsedCard()` 读取刚打出的牌）
 
 **Dart 侧对每个词条脚本统一 `await`**（同步脚本的 await 是空操作）。因此调用了
 异步 BattleCharacter 方法（`drawCards` / `scry` / `upgradeHandCards`）的词条脚本

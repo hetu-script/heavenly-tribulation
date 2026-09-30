@@ -22,6 +22,8 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return character.life;
       case 'lifeMax':
         return character.lifeMax;
+      case 'turnCount':
+        return character.turnCount;
       case 'setLifeMax':
         return ({object, positionalArgs, namedArgs}) {
           character.setLifeMax(positionalArgs.first,
@@ -113,6 +115,10 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'getLastUsedCard':
         return ({object, positionalArgs, namedArgs}) =>
             character.getLastUsedCard();
+      case 'applyTurnCostModifier':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.applyTurnCostModifier(
+                positionalArgs.first, namedArgs['delta'] ?? 0);
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);
     }

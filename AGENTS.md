@@ -196,6 +196,19 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 - `lib/data/constants.dart` — 将 Dart 常量导出到 Hetu
 - `scripts/main/binding/constants.ht` — Hetu 侧声明常量结构
 
+### 战斗内容分层（卡牌 / 天赋 / 装备）
+
+- **Dart = 机制层**：回合骨架与阶段顺序、费用模型与支付、回调分发总线、卡牌过滤引擎、交互 UI（观星/抉择）、动画、卡牌生命周期。Dart 代码中不应出现具体内容 id（卡牌/装备/天赋）；新增机制必须参数化、由数据字段驱动。
+- **Hetu = 内容层**：一切"在时机 X 用数值 Y 做 Z"的行为，通过 BattleCharacter 外部类 API（`scripts/main/cardgame/battle_character.ht`）组合实现。
+- **JSON5 = 绑定与参数**：内容 id → 脚本函数 + 数值/过滤条件/阈值。
+
+天赋与装备的战斗互动统一走**状态回调总线**（`handleStatusEffectCallback`）；不要做装备版逐词条回调扫描——装备在战斗中无活实例（战前已折算进 stats/passives），永久状态就是装备级持久效果的载体：
+
+- 行为型效果（战斗中反复触发）→ 被动携带 `battleStatus` 字段，战斗开始授予永久状态，行为在 `status_script.ht` 实现；状态数据可携带自定义参数字段（如 `damageType`、`damagePerCard`）。其他通用机制字段：`deckCostReduction`（组牌费用）、`shuffleIntoDeck`（洗入牌库）、`turnStartScry`（回合开始观星）、`energyRetain`（资源保留），契约见 `docs/docs/mod/battle/readme.md`。
+- 参数型效果（观星深度、费用修正、资源保留等）与纯属性/单值修改（攻防、抗性、伤害增加等）→ 非状态，由 Dart 机制读取 stats/被动字段；纯属性走 stats 聚合管线（`kStatsToPermanentEffects` 图标仅展示净值，无回调）。
+- 状态脚本必须**非阻塞、不可交互**（不调用返回 Future 的 API）；交互式效果走卡牌词条的 async 路径。
+- 永久状态默认可见：图标 + tooltip 是效果解释渠道。
+
 ## 代码风格
 
 ### Dart 代码
@@ -225,6 +238,18 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 - ID 使用 `snake_case`
 - 通用字段: `id`（必须与键名一致）、`description`（本地化键）、`rarity`
 - 稀有度取值: `common` / `rare` / `epic` / `legendary` / `mythic` / `arcane`
+
+## 设计笔记（DESIGN NOTE）
+
+### 绝世设计总原则
+
+> 适用于全部流派的绝世卡牌与绝世装备。
+
+1. **正反双段式**：每个绝世 = 强正面 + 限制/代价。目标是"对特定构筑是核心/毕业装，对其他构筑则会有额外限制"，避免全民通用的纯强度装备。
+2. **卡牌负面可尖锐，装备走限制/权衡**：牌库中的卡抽到时才兑现，负面是偶发的，可以做重；装备常驻生效被持续感知，且栏位本身已是隐性机会成本，不宜再叠数值惩罚。
+3. **负面类型优先级**：方向性限制（流派软锁、机制互斥）> 对称效果（双方受益/受害，构筑使其不对称）> 自伤/自异常（可被构筑转化为资源）> 纯数值惩罚（避免）。
+4. **流派锁可以是软限制**（非本流派牌费用 +X），增加宽容度，允许多流派玩法。
+
 
 ## 开发路线参考
 

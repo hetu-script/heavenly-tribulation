@@ -804,4 +804,74 @@
     resourceId: "energy_positive_spell",
     callbacks: ["self_turn_end"],
   },
+
+  // ------------悟道境界节点状态------------
+
+  // 阴阳五行（悟道结丹境界节点）：回合结束时，未使用的灵气（resourceId）每层对对手造成
+  // damagePerStack 点随机元素伤害（火/冰/雷随机，受对方对应抗性减免）。
+  // 数值写在状态数据（damagePerStack），本地化描述同步写死，改动时需同步；
+  // 资源保留（被动 energyRetain 字段，蓄灵佩等）保留到下回合的灵气不触发本结算
+  spellcraft_rank_3: {
+    id: "spellcraft_rank_3",
+    title: "status_spellcraft_rank_3",
+    description: "status_spellcraft_rank_3_description",
+    icon: "icon/status/permanent/spellcraft_rank_3.png",
+    isPermanent: true,
+    script: "yin_yang_five_elements",
+    callbacks: ["self_turn_end"],
+    damagePerStack: 5,
+    resourceId: "energy_positive_spell",
+  },
+
+  // 五气朝元（悟道还婴境界节点）：每个回合开始时，轮流获得 御水术/御火术/土遁/御风术/雷法 的
+  // 伤害增强（increase_damage_* 永久状态，1 层 = +1%），层数 = 自身灵力的一半；
+  // 先移除上轮所授层数，再授予本轮（轮转记录存于角色数据 elementRotation）
+  spellcraft_rank_4: {
+    id: "spellcraft_rank_4",
+    title: "status_spellcraft_rank_4",
+    description: "status_spellcraft_rank_4_description",
+    icon: "icon/status/permanent/spellcraft_rank_4.png",
+    isPermanent: true,
+    script: "five_qi_convergence",
+    callbacks: ["self_turn_start"],
+  },
+
+  // ------------流派分支节点状态------------
+
+  // 抱真守一（悟道/御剑共享分支节点）：使用元素牌后，手牌里随机一张相同元素牌获得升级
+  skilltree_branch_element_1: {
+    id: "skilltree_branch_element_1",
+    title: "status_skilltree_branch_element_1",
+    description: "status_skilltree_branch_element_1_description",
+    icon: "icon/status/permanent/skilltree_branch_element_1.png",
+    isPermanent: true,
+    script: "embrace_simplicity",
+    callbacks: ["self_used_card"],
+  },
+  // 五行轮转（悟道/御剑共享分支节点）：本回合每使用一种不同的元素牌，
+  // 获得 amount 层 resourceId 资源（数值写在状态数据，本地化描述同步写死，改动时需同步）
+  skilltree_branch_element_2: {
+    id: "skilltree_branch_element_2",
+    title: "status_skilltree_branch_element_2",
+    description: "status_skilltree_branch_element_2_description",
+    icon: "icon/status/permanent/skilltree_branch_element_2.png",
+    isPermanent: true,
+    script: "element_cycle",
+    callbacks: ["self_used_card"],
+    resourceId: "energy_positive_spell",
+  },
+
+  // 太上感应（悟道凝气境界节点）：回合产出阶段，每 spiritualityPer 点灵力获得 1 层
+  // resourceId 资源（数值写在状态数据，本地化描述同步写死，改动时需同步）
+  spellcraft_rank_1: {
+    id: "spellcraft_rank_1",
+    title: "status_spellcraft_rank_1",
+    description: "status_spellcraft_rank_1_description",
+    icon: "icon/status/permanent/spellcraft_rank_1.png",
+    isPermanent: true,
+    script: "supreme_sensing",
+    callbacks: ["self_produce_resources"],
+    spiritualityPer: 10,
+    resourceId: "energy_positive_spell",
+  },
 }

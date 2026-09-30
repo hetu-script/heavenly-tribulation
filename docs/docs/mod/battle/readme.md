@@ -1,22 +1,25 @@
 **玩家回合（heroTurn == true）与敌方回合（heroTurn == false）共用同一套流程（`_startTurn`）：**
 
-1. 摸牌：`drawCardsToHand()`
-2. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
-3. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
-4. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
-5. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消）
-6. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus；
-   有色气产出已随 enable\_\* 清理移除，待新天赋树初始节点落地，见 plan/battle_resource_rework.md），刷新能量瓶
-7. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
-8. 出牌阶段（若标记跳过则略过本阶段）：
+1. 回合开始观星（被动 `turnStartScry` 字段，如悟道分支「天道推演」）：抽牌阶段之前观星 N 张，选中的牌置于牌库顶随本回合抽牌入手
+2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）
+3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
+4. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
+5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
+6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消；
+   被动 `energyRetain` 字段匹配的阳气可至多保留 max 层到下回合，每保留 1 层结算一次代价伤害）
+7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus；
+   有色气产出由流派境界节点状态脚本挂在 `self_produce_resources` 时机提供，如悟道「太上感应」），
+   末尾派发 `self/opponent_produce_resources` 回调，刷新能量瓶
+8. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
+9. 出牌阶段（若标记跳过则略过本阶段）：
    - 玩家：点击卡牌 → `_enqueueCard`（`heroTurn` 守卫 + 费用硬检查，含队列占用）
      → `_processCardQueue` 依次 `_playCard`（`_payCardCost` 支付：
      无色扣元气层数，有色先扣本色气、缺口自动扣太极之气）→ 弃牌
    - 敌方：循环 `_canPayCardCost` 过滤可支付手牌 → AI 选牌 → 支付并出牌，直至无牌可出
-9. 执行 `currentCharacter.onEndTurn()`：先由 Dart 侧调用回合结束资源结算钩子
-   `_settleTurnEndResources`（当前为空；元气回血已移除，保留给悟道境界节点的灵气溢出互动），再派发其余回合结束回调
-10. 检查战斗结果；若未结束，读取额外回合标记，`clearHand()` 弃掉本回合手牌
-11. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
+10. 执行 `currentCharacter.onEndTurn()`：先还原回合级临时费用修正（`applyTurnCostModifier` 的记录），
+    再派发回合结束回调（`self/opponent_turn_end`，悟道「阴阳五行」的灵气溢出伤害等挂这里）
+11. 检查战斗结果；若未结束，读取额外回合标记，`clearHand()` 弃掉本回合手牌
+12. 切换回合（`heroTurn = !heroTurn`），非己方回合整手置灰
 
 额外回合（`turnFlags.extraTurn`）重复 1-10 后才会切换回合。每张牌完整结算并处理去向后也会检查战斗结果，已分出胜负时不再执行队列中的后续牌。
 
@@ -50,20 +53,22 @@
 
 ## 回调时机清单
 
-| 时机                                                       | 说明                                                                                                                                                                       |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                                                                                                                    |
-|                                                            | `self/opponent_doing_damage`                                                                                                                                               | 造成伤害时（可修改 damageDetails） |
-| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                                                                                                    |
-| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                                                                                            |
-| `self/opponent_gained_energy_positive`                     | 获得阳气后                                                                                                                                                                 |
-| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                                                                                                     |
-| `self/opponent_overflowed_energy`                          | 资源溢出时（details 含 overflow；返回 true 表示保留溢出值）。**当前无状态注册该时机**：溢出天赋已改为回合结束按剩余层数触发（Dart 侧回合结束资源结算），该派发保留但为空转 |
-| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                                                                                            |
-| `self/opponent_attacked`                                   | 使用攻击牌后                                                                                                                                                               |
-| `self/opponent_use_card_kind_*`                            | 使用特定流派（kind）卡牌时                                                                                                                                                 |
-| `self/opponent_use_card_genre_*`                           | 使用特定学类（genre）卡牌时                                                                                                                                                |
-| `self/opponent_extra_turn`                                 | 再次行动时                                                                                                                                                                 |
+| 时机                                                       | 说明                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                                           |
+| `self/opponent_produce_resources`                          | 自己/对方回合资源产出阶段结束时（产出型效果挂这里；更早时机授予的阳气会被清残留冲掉）             |
+| `self_scry`                                                | 自己观星结算后（details 携带 `{count, chosen}`）                                                  |
+| `self/opponent_doing_damage`                               | 造成伤害时（可修改 damageDetails）                                                                |
+| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                           |
+| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                   |
+| `self/opponent_gained_energy_positive`                     | 获得阳气后（details 携带 `{id, amount}`）                                                         |
+| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                            |
+| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                   |
+| `self/opponent_attacked` / `self/opponent_buffed`          | 使用攻击牌 / 加持牌后                                                                             |
+
+按流派（genre）/套路（kind）细分用牌行为的现行模式：挂通用时机（如 `self_doing_damage`、`self_used_card`），
+在脚本内按 `details.kind` / `getLastUsedCard()` 判定（参考 `increase_damage_*`、`element_cycle`）。
+（`use_card_genre_*` / `use_card_kind_*` / `extra_turn` / `overflowed_energy` 等专用时机已无 Dart 派发点，停用。）
 
 ## damageDetails 键（伤害事件）
 
@@ -77,7 +82,7 @@
 | `isMain`                           | 入   | 是否来自主词条攻击（false 表示状态或额外词条造成的伤害）                                                 |
 | `baseChange`                       | 出   | 基础值修正（数值加减）                                                                                   |
 | `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75）                                                |
-| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）                                                             |
+| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）、三清法相元素增伤（每层 +1%）                               |
 | `percentageChange3`                | 出   | 乘区 3：预留                                                                                             |
 | `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
 | `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                                                                             |
@@ -87,14 +92,21 @@
 注意：攻击方的 `cardFlags['damage']` 中的 `baseChange/percentageChange*/penetration`
 会在 takeDamage 开始时合并进 damageDetails。
 
-## buffDetails 键（资源溢出事件）
+## 被动的战斗机制字段（passives.json5）
 
-| 键         | 方向 | 含义           |
-| ---------- | ---- | -------------- |
-| `overflow` | 入   | 溢出的资源层数 |
+天赋与装备词条（同为 `game.passives` 数据）可通过以下字段驱动通用战斗机制
+（字段由 `characterSetPassive` / `characterSetEphemeralPassive` 透传，Dart 侧按字段读取，不识别内容 id）：
 
-返回值 true 表示保留溢出部分。当前无注册者；灵气溢出天赋的设计以注释形式
-保留在回合结束资源结算钩子 `_settleTurnEndResources` 中（待悟道境界节点启用；元气回血已移除）。
+| 字段                | 类型                                               | 机制                                                                                                  |
+| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `battleStatus`      | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                  |
+| `deckCostReduction` | `{color, amount, genres?, notGenres?}`             | 组牌阶段匹配卡牌的 color 色费用减 amount（下限 0；amount 为负即加费，如聚灵旗软流派锁）                |
+| `shuffleIntoDeck`   | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                              |
+| `turnStartScry`     | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                           |
+| `energyRetain`      | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）          |
+
+参数型效果另可经 stats 属性管线新增属性（如观星深度 `scryBonus`），
+聚合与面板显示见 `.agents/skills/passive-status` 第 6 节。
 
 **费用（单资源模型，见 plan/battle_resource_rework.md）**：每张卡只花一种资源——
 流派卡 = rank 点流派色（悟道=灵气/御剑=剑气/锻体=怒气/炼魂=煞气），中立卡（含法身）= rank+1 点元气；

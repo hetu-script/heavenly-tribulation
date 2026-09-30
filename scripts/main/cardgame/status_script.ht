@@ -8,59 +8,28 @@
 /// 战斗角色对象上的 cardFlags 保存了此角色此回合打出的卡牌的一些参数
 /// details 则是此次脚本事件本身的参数（如果有的话）
 
-/// 触发时机包括: 
+/// 触发时机包括（以 Dart 侧 handleStatusEffectCallback 实际分发点为准）: 
 /// 对方/自己回合开始时 opponent/self_turn_start
 /// 对方/自己回合结束时 opponent/self_turn_end
+/// 对方/自己回合资源产出阶段结束时 opponent/self_produce_resources
+/// （产出型效果必须挂这里；更早时机授予的阳气会被 clearResourceEffects 当残留清空）
+/// 自己观星结算后 self_scry（details 携带 {count, chosen}）
 
 /// 对方/自己造成伤害时 opponent/self_doing_damage
+/// 对方/自己造成伤害后 opponent/self_done_damage
 /// 对方/自己受到伤害时 opponent/self_taking_damage
+/// 对方/自己受到伤害后 opponent/self_taken_damage
 
 /// 对方/自己获得负面效果后 opponent/self_gained_debuff
 /// 对方/自己获得阳气后 opponent/self_gained_energy_positive
-/// 对方/自己资源溢出时 opponent/self_overflowed_energy
 
-/// 对方/自己使用卡牌时 opponent/self_using_card
 /// 对方/自己使用卡牌时 opponent/self_using_card
 /// 对方/自己使用卡牌后 opponent/self_used_card
 /// 对方/自己使用攻击牌后 opponent/self_attacked
 /// 对方/自己使用加持牌后 opponent/self_buffed
 
-/// 对方/自己再次行动时 opponent/self_extra_turn
-
-/// 对方/自己使用御剑时 opponent/self_use_card_genre_swordcraft
-/// 对方/自己使用悟道时 opponent/self_use_card_genre_spellcraft
-/// 对方/自己使用锻体时 opponent/self_use_card_genre_bodyforge
-/// 对方/自己使用化神时 opponent/self_use_card_genre_avatar
-/// 对方/自己使用炼魂时 opponent/self_use_card_genre_vitality
-
-/// 对方/自己使用拳法时 opponent/self_use_card_kind_punch
-/// 对方/自己使用腿法时 opponent/self_use_card_kind_
-/// 对方/自己使用剑法时 opponent/self_use_card_kind_
-/// 对方/自己使用刀法时 opponent/self_use_card_kind_
-/// 对方/自己使用枪法时 opponent/self_use_card_kind_
-/// 对方/自己使用棍法时 opponent/self_use_card_kind_
-/// 对方/自己使用弓术时 opponent/self_use_card_kind_
-/// 对方/自己使用御剑术时 opponent/self_use_card_kind_
-/// 对方/自己使用擒拿时 opponent/self_use_card_kind_
-/// 对方/自己使用点穴时 opponent/self_use_card_kind_
-/// 对方/自己使用御火术时 opponent/self_use_card_kind_
-/// 对方/自己使用御风术时 opponent/self_use_card_kind_
-/// 对方/自己使用雷法时 opponent/self_use_card_kind_
-/// 对方/自己使用咒术时 opponent/self_use_card_kind_
-/// 对方/自己使用暗器时 opponent/self_use_card_kind_
-/// 对方/自己使用暗器时 opponent/self_use_card_kind_
-/// 对方/自己使用暗器时 opponent/self_use_card_kind_
-/// 对方/自己使用身法时 opponent/self_use_card_kind_
-/// 对方/自己使用心法时 opponent/self_use_card_kind_
-/// 对方/自己使用御水术时 opponent/self_use_card_kind_
-/// 对方/自己使用土遁术时 opponent/self_use_card_kind_
-/// 对方/自己使用木遁术时 opponent/self_use_card_kind_
-/// 对方/自己使用经藏时 opponent/self_use_card_kind_
-/// 对方/自己使用乐曲时 opponent/self_use_card_kind_
-/// 对方/自己使用幻术时 opponent/self_use_card_kind_
-/// 对方/自己使用阵法时 opponent/self_use_card_kind_
-/// 对方/自己使用丹药时 opponent/self_use_card_kind_
-/// 对方/自己使用符箓时 opponent/self_use_card_kind_
+/// 按流派/套路细粒度区分的现行模式：挂上述通用时机，在脚本内按
+/// details.kind / details.cardType / getLastUsedCard() 等判定（见 increase_damage 等）
 
 namespace StatusScript {
 
@@ -352,5 +321,95 @@ namespace StatusScript {
           (pending[effect.resourceId] ?? 0) + effect.amount * handCount
     }
     self.removeStatusEffect(effect.id)
+  }
+
+  /// 阴阳五行（悟道结丹境界节点状态）：回合结束时，未使用的灵气（effect.resourceId）
+  /// 每层对对手造成 effect.damagePerStack 点随机元素伤害（火/冰/雷随机，受对方抗性减免）。
+  /// 资源转化而非攻击，直接 changeLife 结算（状态脚本非阻塞，不走 async 的 takeDamage）；
+  /// 资源保留（被动 energyRetain 字段，蓄灵佩等）保留到下回合的灵气不触发本结算
+  function yin_yang_five_elements_self_turn_end(self, opponent, effect, details) {
+    var mana = self.hasStatusEffect(effect.resourceId)
+    if (mana <= 0) return
+    // 扣除将被保留到下回合的部分（见 character.dart clearResourceEffects 的资源保留机制）
+    for (final source in ['passives', 'ephemeralPassives']) {
+      final passives = self.data[source]
+      if (passives == null) continue
+      for (final key in passives.keys) {
+        final retain = passives[key]['energyRetain']
+        if (retain == null) continue
+        if (retain['resourceId'] != effect.resourceId) continue
+        final retainMax = retain['max'] ?? 0
+        if (retainMax > 0) mana -= Math.min(mana, retainMax)
+      }
+    }
+    if (mana <= 0) return
+    final damageTypes = ['fire', 'ice', 'lightning']
+    final damageType = damageTypes[random.nextInt(damageTypes.length)]
+    final factor = 1 - 0.01 * opponent.getElementalResist(damageType)
+    final damage = (mana * effect.damagePerStack * factor).round()
+    if (damage > 0) {
+      opponent.changeLife(-damage, damageType: damageType)
+    }
+  }
+
+  /// 五气朝元（悟道还婴境界节点状态）：每个回合开始时，按 御水术→御火术→土遁→御风术→雷法
+  /// 的顺序轮流获得对应套路的伤害增强（increase_damage_* 永久状态，1 层 = +1%），
+  /// 增强层数 = 自身灵力属性的一半；先移除上轮所授层数，再授予本轮。
+  /// 轮转记录存于角色数据 elementRotation（跨回合持久；turnCount 每场战斗重置，即每场从御水术重新开始）
+  function five_qi_convergence_self_turn_start(self, opponent, effect, details) {
+    const kinds = ['waterbend', 'firebend', 'earthbend', 'airbend', 'lightning_control']
+    final last = self.data['elementRotation']
+    if (last != null) {
+      self.removeStatusEffect(last['statusId'], amount: last['amount'])
+      self.data['elementRotation'] = null
+    }
+    final amount = (self.data.stats['spirituality'] ?? 0) ~/ 2
+    if (amount <= 0) return
+    final kind = kinds[(self.turnCount - 1) % kinds.length]
+    final statusId = 'increase_damage_${kind}'
+    self.addStatusEffect(statusId, amount: amount)
+    self.data['elementRotation'] = {
+      'statusId': statusId,
+      'amount': amount,
+    }
+  }
+
+  /// 抱真守一（悟道/御剑共享分支节点状态）：使用元素牌后，手牌里随机一张相同元素牌获得升级。
+  /// upgradeHandCards 的 Dart 实现体内无 await（升级、跳字、刷新均同步完成），
+  /// 状态脚本不 await 调用是安全的（async 仅为签名约定，见 plan/battle_script_migration.md 2.13）
+  function embrace_simplicity_self_used_card(self, opponent, effect, details) {
+    final card = self.getLastUsedCard()
+    if (card == null) return
+    final elementType = card['affixes'][0]['elementType']
+    if (elementType == null) return
+    self.upgradeHandCards(1, options: { 'elementType': elementType })
+  }
+
+  /// 五行轮转（悟道/御剑共享分支节点状态）：本回合每使用一种不同的元素牌，
+  /// 获得 effect.amount 层 effect.resourceId 资源（灵气）。
+  /// 判定依据 turnFlags['usedElements']（Dart 侧 onUseCard 对元素牌无条件记录，
+  /// 记录点早于 self_used_card 分发）：该元素计数为 1 即本回合首次使用
+  function element_cycle_self_used_card(self, opponent, effect, details) {
+    final card = self.getLastUsedCard()
+    if (card == null) return
+    final elementType = card['affixes'][0]['elementType']
+    if (elementType == null) return
+    final usedElements = self.turnFlags['usedElements']
+    if (usedElements == null) return
+    if (usedElements[elementType] == 1) {
+      self.addStatusEffect(effect.resourceId, amount: effect.amount)
+    }
+  }
+
+  /// 太上感应（悟道凝气境界节点状态）：回合产出阶段，每 effect.spiritualityPer 点灵力
+  /// 获得 1 层 effect.resourceId 资源（灵气）。
+  /// 必须挂产出阶段时机（self_produce_resources）：更早时机（如 self_turn_start）授予的
+  /// 阳气会被随后的 clearResourceEffects 当残留清空（见 character.dart produceTurnStartResources）
+  function supreme_sensing_self_produce_resources(self, opponent, effect, details) {
+    final spirituality = self.data.stats['spirituality'] ?? 0
+    final amount = spirituality ~/ effect.spiritualityPer
+    if (amount > 0) {
+      self.addStatusEffect(effect.resourceId, amount: amount)
+    }
   }
 }

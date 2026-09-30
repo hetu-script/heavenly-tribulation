@@ -862,9 +862,8 @@
     animation: {
       startup: ["spell_attack"],
       recovery: ["spell_attack_recovery"],
-      // 占位音效，暂无冰系专属资源
       overlays: ["ice_block"],
-      sound: "wind-1-44149.mp3",
+      sound: "small-rock-break-194553.mp3",
     },
     script: "attack",
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
@@ -1018,7 +1017,6 @@
     animation: {
       startup: ["spell_attack"],
       recovery: ["spell_attack_recovery"],
-      // 占位音效，暂无冰系专属资源
       overlays: ["ice_storm"],
       sound: "wind-1-44149.mp3",
     },
@@ -1048,7 +1046,7 @@
       startup: ["spell_attack"],
       recovery: ["spell_attack_recovery"],
       overlays: ["fire_storm"],
-      sound: "fireball-whoosh-5-179129.mp3",
+      sound: "wind-1-44149.mp3",
     },
     script: "attack_exhaust_energy",
     resourceId: "energy_positive_spell",
@@ -1455,7 +1453,7 @@
     isUnpackable: true,
     isWildcardCostForbidden: true,
     description: "affix_spellcraft_ultimate_spell",
-    image: "battlecard/illustration/spellcraft_lightning_attack.png",
+    image: "battlecard/illustration/unique_ultimate_spell.png",
     animation: {
       startup: ["spell_attack"],
       sound: "magic-smite-6012.mp3",

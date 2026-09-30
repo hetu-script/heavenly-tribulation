@@ -97,7 +97,7 @@ namespace CardScript {
   /// 多段攻击并在结束后按元素映射附加元素异常（如 wind_storm 风雷破，主词条用）：
   /// 段数 = value[1]，每段 value[0] 伤害；全部命中后对手获得
   /// Constants.elementAilments[本牌元素] 对应的元素异常 value[2] 层
-  /// （不经异常计数器，必然施加，见 plan/skill_tree/spellcraft_extra_affix_rework.md §8）
+  /// （不经异常计数器）
   function attack_multiple_ailment(self, opponent, card, affix) {
     for (final i in range(affix.value[1])) {
       opponent.takeDamage({
@@ -158,7 +158,7 @@ namespace CardScript {
   /// affix.resourceId 指定的资源气层数 ≥ affix.resourceThreshold（缺省 1）时，
   /// 本次伤害 +value[1]%（乘区1，直接写入 takeDamage 明细），随后造成 value[0] 伤害。
   /// 可选尾部：affix.value 有第 3 元素时，按元素映射（Constants.elementAilments）为对手
-  /// 附加本牌元素对应元素异常 value[2] 层（不经异常计数器，必然施加，见词条计划 §8）
+  /// 附加本牌元素对应元素异常 value[2] 层（不经异常计数器，必然施加，见 plan/skill_tree/spellcraft.md）
   function attack_with_energy_count_check(self, opponent, card, affix) {
     final details = {
       isMain: true,
@@ -332,7 +332,7 @@ namespace CardScript {
   /// ------------------------------------------------------------
 
   /// 归元功（绝世）：消耗自身所有元气，每点元气回复 生命上限 × 词条值% 的生命
-  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用（见 plan/battle_resource_rework.md）
+  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用
   function heal_vigor_all(self, opponent, card, affix) {
     final vigor = self.hasStatusEffect('energy_positive_life')
     if (vigor <= 0) return
@@ -341,7 +341,7 @@ namespace CardScript {
     if (regen > 0) self.changeLife(regen, isHeal: true)
   }
 
-  /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气（见 plan/battle_qi_conversion.md）
+  /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气
   /// 词条值 100 = 1:1（四色）；50 = 1:0.5（太极，向下取整，不足 2 点元气无产出）
   /// 模板同 heal_vigor_all：消耗走效果而非费用，费用恒 0
   function convert_vigor_all(self, opponent, card, affix) {
@@ -554,7 +554,7 @@ namespace CardScript {
 
   /// 侵染（悟道专属词条 ailment_spread）：给对方施加 value[0] 层本牌元素对应的
   /// 元素异常（Constants.elementAilments 查表；require 限定元素牌即保证映射有值）。
-  /// 直接施加，不经异常计数器，必然生效（见词条计划 §6）
+  /// 直接施加，不经异常计数器，必然生效（见 plan/skill_tree/spellcraft.md）
   function ailment_spread(self, opponent, card, affix) {
     final ailmentId = Constants.elementAilments[card.affixes[0].elementType]
     if (ailmentId == null) return
@@ -583,7 +583,7 @@ namespace CardScript {
   /// 蓄灵（悟道专属词条 mana_battery）：下回合产出阶段额外获得 value[0] 点
   /// 灵气（affix.resourceId）。以 turnFlags['pendingResources'] 子表为跨回合标记
   /// （键 = 资源气状态 id，值 = 累加层数），回合开始清空 turnFlags 时保留，
-  /// produceTurnStartResources 末尾取出授予（见词条计划 §5）
+  /// produceTurnStartResources 末尾取出授予（见 character.dart 产出阶段结算）
   function gain_resource_next_turn(self, opponent, card, affix) {
     var pending = self.turnFlags['pendingResources']
     if (pending == null) {

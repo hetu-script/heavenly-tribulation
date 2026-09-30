@@ -411,7 +411,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     bool doRemove = true;
     if (_statusEffects.containsKey(id)) {
       existEffect = _statusEffects[id]!;
-      assert(!existEffect.isPermanent);
       assert(existEffect.amount > 0);
 
       if (amount != null) {
@@ -644,9 +643,36 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 清空所有阳气（资源生命周期：阳气持有至持有者的下个回合开始）。
   /// 阴气永久存在，直到被对应阳气对冲抵消，不在此清空。
   /// 煞气（energy_positive_curse）未用量返回 karma 池；其余阳气直接移除。
+  /// 资源保留（被动 energyRetain 字段，绝世装备「蓄灵佩」等）：匹配的阳气至多保留
+  /// max 层到下回合，每保留 1 层立即受到 costPerPoint 点 costDamageType（缺省纯粹）伤害；
+  /// 保留的存量不触发回合结束的溢出类结算（由对应内容脚本自行扣除，见阴阳五行）。
   /// 由 battle.dart 在回合开始时于回合开始回调之后、产出结算之前显式调用；
   /// 每个角色在本场战斗中的第一次行动会跳过调用，以保留战初阳气。
   void clearResourceEffects() {
+    // 收集本角色被动中的资源保留条目：{resourceId: (max, costPerPoint, costDamageType)}
+    final retains = <String, (int, num, String)>{};
+    for (final source in const ['passives', 'ephemeralPassives']) {
+      final passives = data[source];
+      if (passives == null) continue;
+      for (final passiveData in passives.values) {
+        final retain = passiveData['energyRetain'];
+        if (retain == null) continue;
+        final resourceId = retain['resourceId'];
+        final max = retain['max'];
+        if (resourceId is! String || max is! num || max <= 0) continue;
+        final costPerPoint = retain['costPerPoint'] ?? 0;
+        final costDamageType = retain['costDamageType'] ?? 'pure';
+        final existing = retains[resourceId];
+        // 多来源同名资源保留：上限取大者，代价取首个非零配置
+        if (existing == null) {
+          retains[resourceId] = (max.toInt(), costPerPoint, costDamageType);
+        } else if (max.toInt() > existing.$1) {
+          retains[resourceId] =
+              (max.toInt(), existing.$2, existing.$3);
+        }
+      }
+    }
+
     for (final effect in resourceEffects) {
       if (isNegativeResourceQi(effect.id)) continue;
       if (effect.id == 'energy_positive_curse' && effect.amount > 0) {
@@ -656,29 +682,34 @@ class BattleCharacter extends GameComponent with AnimationStateController {
                 .locale('karmaPoolReturnHint', interpolations: [effect.amount]),
             color: Colors.purple);
       }
-      removeStatusEffect(effect.id, force: true);
+      final retain = retains[effect.id];
+      final retainAmount =
+          retain == null ? 0 : math.min(effect.amount, retain.$1);
+      if (retainAmount > 0) {
+        // 保留的层数不移除；每保留 1 层结算一次保留代价（下回合开始扣血，
+        // 即蓄灵佩「灵气淤积、经脉受损」的兑现点）
+        final costPerPoint = retain!.$2;
+        if (costPerPoint > 0) {
+          changeLife(-(retainAmount * costPerPoint).round(),
+              damageType: retain.$3);
+        }
+        removeStatusEffect(effect.id,
+            amount: effect.amount - retainAmount, force: true);
+      } else {
+        removeStatusEffect(effect.id, force: true);
+      }
     }
   }
 
   /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
   /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）（获得时与持有的死气自然对冲）。
-  /// 悟道凝气「太上感应」（spellcraft_rank_1）：每 10 点灵力获得 1 点灵气。
-  /// 其余流派有色气的产出规则由各自流派境界节点提供（待后续流派重构时补充，
-  /// 滞后产出所需的 lastTurnWeaponCards / lastTurnDamageTaken 统计仍然保留）。
+  /// 流派有色气的产出规则由各自流派境界节点的状态脚本提供（挂 self_produce_resources 时机，
+  /// 如悟道凝气「太上感应」；滞后产出所需的 lastTurnWeaponCards / lastTurnDamageTaken 统计仍然保留）。
   void produceTurnStartResources() {
     // 元气 = 无色费用池
     final int energyBonus = (data['stats']['battleEnergyBonus'] ?? 0) as int;
     addStatusEffect('energy_positive_life',
         amount: kBattleBaseEnergy + energyBonus);
-
-    // 悟道凝气「太上感应」：灵力每 10 点转化为 1 点灵气
-    if (data['passives']['spellcraft_rank_1'] != null) {
-      final int spirituality = (data['stats']['spirituality'] ?? 0) as int;
-      final int spellEnergy = spirituality ~/ 10;
-      if (spellEnergy > 0) {
-        addStatusEffect('energy_positive_spell', amount: spellEnergy);
-      }
-    }
 
     // 授予上回合「下回合获得资源」词条（gain_resource_next_turn）蓄势的资源：
     // 取出并清空标记（键 = 资源气状态 id，值 = 层数），非正数跳过。
@@ -692,6 +723,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
     }
+
+    // 产出阶段回调时机（produce_resources）：在所有产出结算完毕之后分发。
+    // 早于本阶段的回调（如 self_turn_start）授予的阳气会被随后的 clearResourceEffects
+    // 当残留清空，产出型效果（太上感应、聚灵旗等）必须挂这个时机
+    opponent!.handleStatusEffectCallback('opponent_produce_resources');
+    handleStatusEffectCallback('self_produce_resources');
   }
 
   dynamic _invokeScript(StatusEffect effect, String callbackId,
@@ -1260,28 +1297,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       );
     }
 
-    // 悟道分支的元素牌联动（抱真守一 / 五行轮转）
+    // 元素牌使用记录（无条件记录，chain_lightning 等词条与五行轮转等状态按本回合元素种数结算）：
+    // turnFlags['usedElements'] 为 Map<元素键, 使用次数>，回合开始清空
     final elementType = mainAffix['elementType'];
     if (elementType != null) {
-      final passives = data['passives'];
-      // 抱真守一（skilltree_branch_element_1）：手牌里随机一张元素牌获得升级
-      if (passives['skilltree_branch_element_1'] != null) {
-        await _upgradeRandomElementCardInHand(elementType);
-      }
-      // 元素牌使用记录（无条件记录，chain_lightning 等词条按本回合元素种数结算）：
-      // turnFlags['usedElements'] 为 Map<元素键, 使用次数>，回合开始清空
       final usedElements = turnFlags.putIfAbsent(
           'usedElements', () => <String, int>{}) as Map<String, int>;
-      final elementKey =
-          (mainAffix['elementType'] ?? mainAffix['damageType']) as String?;
-      if (elementKey != null) {
-        final isNewElement = !usedElements.containsKey(elementKey);
-        usedElements[elementKey] = (usedElements[elementKey] ?? 0) + 1;
-        // 五行轮转（skilltree_branch_element_2）：本回合每使用一种不同的元素牌，灵气 +1
-        if (isNewElement && passives['skilltree_branch_element_2'] != null) {
-          addStatusEffect('energy_positive_spell', amount: 1);
-        }
-      }
+      usedElements[elementType] = (usedElements[elementType] ?? 0) + 1;
     }
 
     // 无条件记录本回合上一张打出的牌（CustomGameCard 引用，非字段副本）：
@@ -1313,54 +1335,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     handleStatusEffectCallback('self_used_card');
   }
 
-  /// 回合结束资源结算：悟道结丹「阴阳五行」（spellcraft_rank_3）。
-  /// 回合结束时，未使用的灵气每层造成 5 点随机元素伤害（火/冰/雷随机，受对方对应抗性减免）；
-  /// 该伤害是资源转化而非攻击，直接 changeLife 结算。灵气本身在持有者下个回合开始时统一清空。
-  /// （元气回血已移除，见 plan/battle_resource_rework.md）
-  void _settleTurnEndResources() {
-    if (data['passives']['spellcraft_rank_3'] == null) return;
-
-    final manaCount = hasStatusEffect('energy_positive_spell');
-    if (manaCount <= 0) return;
-
-    // 随机选择火/冰/雷之一作为伤害类型；抗性系数由 getElementalResist 给出（上限 75%）
-    final damageType = ['fire', 'ice', 'lightning'][random.nextInt(3)];
-    final factor = 1 - 0.01 * opponent!.getElementalResist(damageType);
-    final damage = (manaCount * 5 * factor).round();
-    if (damage > 0) {
-      opponent!.changeLife(-damage, damageType: damageType);
-    }
-  }
-
-  /// 悟道还婴「五气朝元」（spellcraft_rank_4）：
-  /// 每个回合开始时，按 御水术→御火术→土遁→御风术→雷法 的顺序轮流获得对应套路的伤害增强
-  /// （increase_damage_* 永久状态，1 层 = +1%），增强层数 = 自身灵力属性的一半，
-  /// 先移除上轮所授层数，再授予本轮。
-  /// 在 battle.dart 的 _startTurn 中于回合开始注入之后显式调用。
-  void handleElementRotation() {
-    if (data['passives']['spellcraft_rank_4'] == null) return;
-
-    final last = data['elementRotation'];
-    if (last != null) {
-      removeStatusEffect(last['statusId'], amount: last['amount']);
-      data['elementRotation'] = null;
-    }
-    final int amount = ((data['stats']['spirituality'] ?? 0) as int) ~/ 2;
-    if (amount <= 0) return;
-    final kind =
-        kElementRotationKinds[(turnCount - 1) % kElementRotationKinds.length];
-    final statusId = 'increase_damage_$kind';
-    addStatusEffect(statusId, amount: amount);
-    data['elementRotation'] = {
-      'statusId': statusId,
-      'amount': amount,
-    };
-  }
-
   /// 返回值true表示获得一个额外回合
   Future<void> onEndTurn() async {
-    // 回合结束资源结算（悟道结丹「阴阳五行」的灵气溢出伤害等）
-    _settleTurnEndResources();
+    // 还原回合级临时费用修正（applyTurnCostModifier 的记录，见天机盘设计）
+    restoreTurnCostModifiers();
 
     handleStatusEffectCallback('self_turn_end');
     opponent!.handleStatusEffectCallback('opponent_turn_end');
@@ -1484,9 +1462,50 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return (last as CustomGameCard?)?.data;
   }
 
-  /// 抱真守一（悟道分支）：升级手牌中 1 张元素牌（elementType 非空），
-  /// 统一走 upgradeHandCards（与 upgrade_hand_cards 词条同一入口）。
-  Future<void> _upgradeRandomElementCardInHand([String? elementType]) async {
-    await upgradeHandCards(1, options: {'elementType': elementType});
+  /// 回合级临时费用修正记录：{data: 卡牌数据, color: 费用色, amount: 实际修正量（含正负）}
+  final List<Map<String, dynamic>> _turnCostRecords = [];
+
+  /// 回合级临时费用修正（「本回合费用 ±X」类效果的机制层，见天机盘设计）：
+  /// 对卡牌 coloredCost 第一个正值条目加减 [delta]（减费下限 0；
+  /// 免费卡（coloredCost 为空）且 delta 为正时新增元气条目）。
+  /// 修正记录到 [_turnCostRecords]，本角色回合结束时统一还原（onEndTurn）；
+  /// 只改 coloredCost，originalColoredCost 基线不动，卡面费用行自动对比变色（增红减黄）。
+  /// 战斗内卡牌均为深拷贝，还原前卡牌即使已离开战斗（如符箓碎裂）也无副作用。
+  /// 脚本侧经 getHandCards 拿到卡牌 data 后调用本方法。
+  void applyTurnCostModifier(dynamic cardData, int delta) {
+    if (cardData == null || delta == 0) return;
+    final cost = cardData['coloredCost'];
+    if (cost == null) return;
+    if (cost.isEmpty) {
+      if (delta > 0) {
+        cost[kColorlessCostColorId] = delta;
+        _turnCostRecords.add(
+            {'data': cardData, 'color': kColorlessCostColorId, 'amount': delta});
+      }
+      return;
+    }
+    final key = cost.keys.first;
+    final value = cost[key];
+    if (value is! num) return;
+    // 减费时实际修正量不超过现有值（下限 0）
+    final applied =
+        delta < 0 ? -math.min(-delta, value.toInt()) : delta;
+    if (applied == 0) return;
+    cost[key] = value.toInt() + applied;
+    _turnCostRecords.add({'data': cardData, 'color': key, 'amount': applied});
+  }
+
+  /// 还原本回合全部临时费用修正（onEndTurn 调用；战斗重开归还卡牌时由场景侧兜底）
+  void restoreTurnCostModifiers() {
+    for (final record in _turnCostRecords) {
+      final cost = record['data']?['coloredCost'];
+      if (cost == null) continue;
+      final color = record['color'];
+      final value = cost[color];
+      if (value is! num) continue;
+      // 逆运算还原，下限 0（新增的元气条目还原后留 0 值条目，等价于免费卡，无害）
+      cost[color] = math.max(0, value - (record['amount'] as int));
+    }
+    _turnCostRecords.clear();
   }
 }

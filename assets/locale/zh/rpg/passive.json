@@ -106,6 +106,7 @@
 
   "passive_battleEnergyBonus_description": "每回合元气 {0}",
   "passive_battleDrawBonus_description": "每回合抽牌 {0}",
+  "passive_scryBonus_description": "观星深度 {0}",
   "passive_deckMinSizeReduce_description": "卡组数量下限 {0}",
   "passive_tribulationCountMax_description": "劫数上限增加 {0}",
   "passive_monthlyIdentifyCardsMax_description": "每月可探查对手手牌数量 {0}",
