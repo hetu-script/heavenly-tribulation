@@ -105,29 +105,6 @@
 | **蓄灵诀**     | 4    | xinfa | **自身**每有一种元素异常，获得 1 点灵气                                                                                                               | 自异常引擎核心：相生相克铺异常 → 蓄灵诀转灵气 → 水疗术清场；上限 7 种 = 7 灵气，服务万法归宗门槛 |
 | **太上忘情**   | 5    | xinfa | 回合结束时，每有一张手牌受到 {0} 点纯粹伤害；下回合产出阶段，每有一张手牌额外获得 {1} 点灵气                                                          | 跨回合蓄爆（服务万法归宗），但不破坏资源统一生命周期；与抽牌手段天然牵制——攥牌越多反噬越重       |
 
-### 绝世卡实现注记
-
-- **天机术**：需扩展 Dart 侧 scry 支持对选中/未选中卡的费用修正（选中减费可复用 draw_cards 的 reduceCost 兑现路径；未选中加费作用于弃牌堆卡，洗牌后生效）。观星 UI 应预览费用变色（originalColoredCost 基线机制已有）。减费数值建议固定 ±1，不随等级缩放。
-- **相生相克**：现有脚本 `ailments_by_used_elements` 增加 self 段即可，工作量小。
-- **一气化三清**（拟定 id：`spellcraft_element_amplify`）：抉择 UI 方案已定——复用观星的中央展示选牌模式（battle.dart scry）与卡包展示的卡牌摆位（card_library.dart `onOpenCardpack`）：打出后中央展示三张临时元素卡（仅简单文字 + 元素图腾插画），点选期间锁定手牌交互（同 `_handInteractionDisabled` 模式），选择后临时卡销毁、不进牌库/弃牌堆。BattleCharacter 需新增 discover 类外部方法并在 battle_character.ht 声明。增伤侧：新增状态 + `self_doing_damage` 钩子，按 damageType 过滤（水/火/雷与 ice/fire/lightning 一一对应）；独立乘区建议新增 `percentageChange2` 字段，避免与既有乘区混淆。
-- **蓄灵诀**（拟定 id：`spellcraft_ailments_to_mana`）：纯脚本——循环 Constants.elementAilments 七种异常用 `hasStatusEffect` 计数即可，无需新 API。
-- **太上忘情**（拟定 id：`spellcraft_handcards_to_mana`）：纯脚本零 Dart 改动——新状态 + `self_turn_end` 钩子：`getHandCards()` 计数 → `changeLife` 自伤 → 写 `turnFlags['pendingResources']`（gain_resource_next_turn 同机制，character.dart:681 于下回合产出阶段授予）。
-
-### 插画清单（本次执行）
-
-已有插画（设计变更后仍切题，无需重生成）：
-
-- 天机术 `unique_scry_draw.png`、相生相克 `unique_element_ailments.png`
-
-已生成 6 张（image-gen skill，2025-07-25 生成完毕）：
-
-- `unique_element_amplify.png` — 一气化三清卡面
-- `unique_ailments_to_mana.png` — 蓄灵诀卡面
-- `unique_handcards_to_mana.png` — 太上忘情卡面
-- `element_choice_water.png` / `element_choice_fire.png` / `element_choice_lightning.png` — 一气化三清抉择临时卡的元素图腾（简洁构图、中心留白）
-
-注：三张绝世卡面实施时需按 battlecard-content 流程注册 `kBattleCardIllustrations` 与 `illustration_*` 本地化键；三张抉择临时卡仅作战斗内 UI 资源，**不**注册进 `kBattleCardIllustrations`（避免混入记忆翻牌小游戏卡池）。
-
 ## 绝世装备
 
 机制现状：energyRetain/scryBonus/self_scry 等通道已就绪，仅需 3 处小体量 Dart 扩展。
@@ -139,10 +116,3 @@
 | **天机盘** | 法器   | 3    | 回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌，本回合费用 +1                      | 确定性的过牌引擎（原 50% 随机改为稳定）；软流派锁——混编卡组被课税，纯悟道无感            |
 | **蓄灵佩** | amulet | 4    | 回合结束时至多保留 2 点未使用的灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害 | 灵气淤积、经脉受损；储灵服务万法归宗跨回合蓄爆。保留的灵气不触发阴阳五行结算（写入描述） |
 | **聚灵旗** | 法器   | 5    | 回合开始时灵气 +3；你打出的非悟道牌费用 +2                                            | rank 5 的 all-in 信号——软流派锁最强形态，纯悟道构筑的旗帜                                |
-
-### 绝世装备实现注记
-
-- **窥天镜**：观星深度 +2 走 scry count 参数（已有）；"观星后自施 2 种随机元素异常"需装备被动挂钩观星结算（Dart 侧观星完成后触发）。
-- **天机盘**：需"本回合临时费用"机制——attune 是按手牌区进出回调；此处是抽到后本回合内 +1、回合结束还原，需 Dart 侧支持临时费用修正与清理。
-- **蓄灵佩**：回合结束资源结算处（character.dart `_settleTurnEndResources`）处理保留灵气与自伤；属 Dart 侧装备被动。
-- **聚灵旗**：回合开始灵气 +3 为 Dart 被动；非悟道牌费用 +2 可参照天道循环（spellcraft_rank_2，battle.dart:349）的组牌阶段费用修正路径。

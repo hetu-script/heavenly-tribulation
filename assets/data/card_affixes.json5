@@ -225,7 +225,7 @@
   // 对手降低全抗
   opponent_reduce_resist_all: {
     id: "opponent_reduce_resist_all",
-    uniqueId: "opponent_reduce_resist",
+    uniqueId: "opponent_reduce_resist_all",
     categories: ["buff", "attack"],
     rank: 4,
     description: "affix_opponent_reduce_resist_all",

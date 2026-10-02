@@ -197,7 +197,7 @@ namespace StatusScript {
 
   /// 幻觉（风）：回合开始时，每层转化为 1 点缓慢，并耗尽层数
   function ailment_hallucination_self_turn_start(self, opponent, effect, details) {
-    self.addStatusEffect('speed_slow', amount: effect.amount)
+    self.addStatusEffect('speed_slow', amount: 1)
     self.removeStatusEffect(effect.id)
   }
 
@@ -388,7 +388,7 @@ namespace StatusScript {
   }
 
   /// 五行轮转（悟道/御剑共享分支节点状态）：本回合每使用一种不同的元素牌，
-  /// 获得 effect.amount 层 effect.resourceId 资源（灵气）。
+  /// 获得 1 层 effect.resourceId 资源（灵气）。
   /// 判定依据 turnFlags['usedElements']（Dart 侧 onUseCard 对元素牌无条件记录，
   /// 记录点早于 self_used_card 分发）：该元素计数为 1 即本回合首次使用
   function element_cycle_self_used_card(self, opponent, effect, details) {
@@ -399,7 +399,7 @@ namespace StatusScript {
     final usedElements = self.turnFlags['usedElements']
     if (usedElements == null) return
     if (usedElements[elementType] == 1) {
-      self.addStatusEffect(effect.resourceId, amount: effect.amount)
+      self.addStatusEffect(effect.resourceId, amount: 1)
     }
   }
 
