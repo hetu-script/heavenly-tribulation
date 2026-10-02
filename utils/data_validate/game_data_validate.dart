@@ -68,7 +68,7 @@ const kScriptRequiredFields = {
   'for_attribute_increase_damage': ['attributeId'],
   'increase_damage_by_energy_count': ['resourceId'],
   'gain_resource_next_turn': ['resourceId'],
-  'attack_exhaust_energy': ['resourceId'],
+  'attack_by_paid_resource': ['resourceId'],
   'attack_with_energy_count_check': ['resourceId'],
 };
 
@@ -505,9 +505,19 @@ void validateCards(Map<String, dynamic> cards) {
       for (final costEntry in cost.entries) {
         checkEnum(costEntry.key, kCostColors, '$ctx.coloredCost 颜色');
         final v = costEntry.value;
-        if (v is num) continue;
+        if (v is num) {
+          checkNumber(v, '$ctx.coloredCost.${costEntry.key}', min: 0);
+          continue;
+        }
         if (v is Map && v['base'] is num) {
-          checkNumber(v['rankIncrement'], '$ctx.coloredCost.${costEntry.key}');
+          checkNumber(v['base'], '$ctx.coloredCost.${costEntry.key}.base',
+              min: 0);
+          checkNumber(v['rankIncrement'],
+              '$ctx.coloredCost.${costEntry.key}.rankIncrement');
+          if (v['isDynamic'] != null && v['isDynamic'] is! bool) {
+            err('Invalid isDynamic',
+                '$ctx.coloredCost.${costEntry.key}: expected bool');
+          }
         } else {
           err('费用结构非法',
               '$ctx.coloredCost.${costEntry.key}: 期望数值或 {base, rankIncrement}');
@@ -516,6 +526,10 @@ void validateCards(Map<String, dynamic> cards) {
     }
 
     // 绝世卡：固定词条列表与卡名本地化
+    if (data['isWildcardCostForbidden'] != null &&
+        data['isWildcardCostForbidden'] is! bool) {
+      err('Invalid isWildcardCostForbidden', '$ctx: expected bool');
+    }
     if (data['isUnique'] == true) {
       checkLocaleKey('uniquecard_$key', '$ctx 绝世卡名');
     }

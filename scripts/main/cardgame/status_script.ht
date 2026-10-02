@@ -308,7 +308,7 @@ namespace StatusScript {
 
   /// 太上忘情（悟道绝世授予）：回合结束时，每有一张手牌受到 effect.damagePerCard 点
   /// 纯粹伤害（固定值不随境界缩放）；下回合产出阶段每有一张手牌额外获得
-  /// effect.amount 层 effect.resourceId 资源（pendingResources 是 turnFlags 清空中
+  /// effect.resourcePerCard 层 effect.resourceId 资源（pendingResources 是 turnFlags 清空中
   /// 唯一跨回合保留的键）。触发后移除。状态脚本必须非 async，getHandCards/changeLife 均同步
   function handcards_to_mana_self_turn_end(self, opponent, effect, details) {
     final handCount = self.getHandCards().length
@@ -320,7 +320,7 @@ namespace StatusScript {
         self.turnFlags['pendingResources'] = pending
       }
       pending[effect.resourceId] =
-          (pending[effect.resourceId] ?? 0) + effect.amount * handCount
+          (pending[effect.resourceId] ?? 0) + effect.resourcePerCard * handCount
     }
     self.removeStatusEffect(effect.id)
   }

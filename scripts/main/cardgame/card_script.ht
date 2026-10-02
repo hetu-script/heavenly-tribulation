@@ -182,19 +182,16 @@ namespace CardScript {
     }
   }
 
-  /// 耗尽资源攻击（通用，如 fire_storm 焚天烈焰）：
-  /// 耗尽 affix.resourceId 指定的全部剩余资源气（不含已支付的费用），
-  /// 每点造成 value[0] 伤害（模板同 spellcraft_ultimate_spell）
-  function attack_exhaust_energy(self, opponent, card, affix) {
-    final remaining = self.hasStatusEffect(affix.resourceId)
-    if (remaining <= 0) return
-    self.removeStatusEffect(affix.resourceId, amount: remaining)
+  /// 动态费用在支付阶段结算；按实际支付的本色气计算伤害，不重复扣气。
+  function attack_by_paid_resource(self, opponent, card, affix) {
+    final paid = self.cardFlags['paidCost']?[affix.resourceId] ?? 0
+    if (paid <= 0) return
     opponent.takeDamage({
       isMain: true,
       kind: affix.kind,
       cardType: affix.cardType,
       damageType: affix.damageType,
-      baseValue: remaining * affix.value[0],
+      baseValue: paid * affix.value[0],
     })
   }
 
@@ -373,24 +370,6 @@ namespace CardScript {
   /// 绝世卡专属
   /// ------------------------------------------------------------
 
-  /// 万法归宗（悟道化神境界节点洗入牌库的绝世卡）：
-  /// 打出时耗尽全部灵气（含已支付的 10 点费用），根据实际耗费的灵气数量造成雷电伤害
-  function spellcraft_ultimate_spell(self, opponent, card, affix) {
-    final paid = self.cardFlags['paidCost']?['energy_positive_spell'] ?? 0
-    final remaining = self.hasStatusEffect('energy_positive_spell')
-    if (remaining > 0) {
-      self.removeStatusEffect('energy_positive_spell', amount: remaining)
-    }
-    final total = paid + remaining
-    if (total <= 0) return
-    opponent.takeDamage({
-      isMain: true,
-      kind: affix.kind,
-      cardType: affix.cardType,
-      damageType: affix.damageType,
-      baseValue: total * affix.value[0],
-    })
-  }
 
   /// 天机术（悟道绝世）：观星 value[0] 张（缺省 5），随后抽 1 张牌。
   /// await 保证观星选中的牌置于牌库顶后才抽牌（正好将其入手）；
@@ -530,7 +509,7 @@ namespace CardScript {
     if (cards.length < 2) return
     final reduce = affix.value?[0] ?? 1
     for (final key in card.coloredCost.keys) {
-      if (card.coloredCost[key] > 0) {
+      if (card.coloredCost[key] is num && card.coloredCost[key] > 0) {
         final applied = Math.min(reduce, card.coloredCost[key])
         card.coloredCost[key] -= applied
         card.costReduction = { color: key, amount: applied }

@@ -15,7 +15,7 @@
   // isUnstackable 是否不可堆叠
   // isUsable 是否可使用
   // isCombinable 是否可合成，通常是用碎片组合成完整物品
-  // isEquipable 是否可装备
+  // isEquippable 是否可装备
   // isCursed 是否被诅咒，诅咒的物品装备后不能卸下
   // isCorrupted 是否被腐化，腐化的物品不能通过打造来修改属性
   // isAfflicted 是否被污染，污染的物品主词条是负面属性

@@ -28,6 +28,7 @@ import '../common.dart';
 import '../../data/game.dart';
 import '../../data/common.dart';
 import 'common.dart';
+import 'card_cost.dart';
 import '../../state/states.dart';
 import 'equipments_bar.dart';
 import '../../widgets/character/profile.dart';
@@ -386,26 +387,15 @@ class BattleScene extends Scene {
           if (cost == null) continue;
           if (color == 'all') {
             if (cost.isNotEmpty) {
-              final key = cost.keys.first;
-              final value = cost[key];
-              if (value is! num) continue;
-              if (amount < 0) {
-                cost[key] = value - amount;
-              } else if (value > 0) {
-                cost[key] = math.max(0, value - amount);
-              }
+              modifyCardCost(cost, cost.keys.first, -amount.toInt());
             } else if (amount < 0) {
-              // 显式 0 费卡：coloredCost 为空表，用主词条显式费用的首个条目键起费
               final explicit = cardData['affixes'][0]['coloredCost'];
               if (explicit != null && explicit.isNotEmpty) {
-                cost[explicit.keys.first] = -amount;
+                modifyCardCost(cost, explicit.keys.first, -amount.toInt());
               }
             }
-          } else {
-            final value = cost[color];
-            if (value is num && value > 0) {
-              cost[color] = math.max(0, value - amount);
-            }
+          } else if (cost[color] != null) {
+            modifyCardCost(cost, color, -amount.toInt());
           }
         }
       }
@@ -890,8 +880,8 @@ class BattleScene extends Scene {
       // 还原「本回合临时费用」记录（turnCostIncrease，与下方 removed_from_hand 派发同循环）
       _restoreTurnCostIncrease(card as CustomGameCard);
       // 离手回调时机（removed_from_hand）
-      handleCardAffixCallback('removed_from_hand', card,
-          hand == heroHandZone ? hero : enemy);
+      handleCardAffixCallback(
+          'removed_from_hand', card, hand == heroHandZone ? hero : enemy);
       discard.tryAddCard(card);
     }
     await discard.sortCards(animated: animated);
@@ -914,18 +904,16 @@ class BattleScene extends Scene {
     final cost = cardData['coloredCost'];
     if (cost == null) return false;
     String color;
-    num value = 0;
     if (cost.isNotEmpty) {
       color = cost.keys.first;
-      final current = cost[color];
-      if (current is num) value = current;
     } else {
       final explicit = cardData['affixes'][0]['coloredCost'];
       if (explicit == null || explicit.isEmpty) return false;
       color = explicit.keys.first;
     }
-    cost[color] = value + amount;
-    cardData['turnCostIncrease'] = {'color': color, 'amount': amount};
+    final applied = modifyCardCost(cost, color, amount);
+    if (applied == 0) return false;
+    cardData['turnCostIncrease'] = {'color': color, 'amount': applied};
     return true;
   }
 
@@ -938,10 +926,7 @@ class BattleScene extends Scene {
     final amount = record['amount'];
     final cost = card.data['coloredCost'];
     if (color is String && amount is num && cost != null) {
-      final value = cost[color];
-      if (value is num) {
-        cost[color] = value - amount;
-      }
+      modifyCardCost(cost, color, -amount.toInt(), restoring: true);
     }
     card.data.remove('turnCostIncrease');
   }
@@ -1033,10 +1018,10 @@ class BattleScene extends Scene {
         handleCardAffixCallback(
             'added_to_hand', card, hand == heroHandZone ? hero : enemy);
 
-        // 减费：完全符合 reduceCost 全部指定字段的卡牌费用降为 0
+        // 减费：普通费用降为 0，动态条目保留门槛与 X。
         if (reduceCost != null &&
             matchCardCriteria(card.data['affixes'][0], reduceCost)) {
-          card.data['coloredCost'] = {};
+          clearReducibleCardCosts(card.data['coloredCost']);
           costReduced = true;
         }
         if (hand == heroHandZone) {
@@ -1221,11 +1206,7 @@ class BattleScene extends Scene {
       if (delta > 0) cost[kColorlessCostColorId] = delta;
       return;
     }
-    final key = cost.keys.first;
-    final value = cost[key];
-    if (value is! num) return;
-    final modified = value.toInt() + delta;
-    cost[key] = modified < 0 ? 0 : modified;
+    modifyCardCost(cost, cost.keys.first, delta);
   }
 
   /// 抉择（悟道绝世「一气化三清」等）：中央展示 [options] 的 choices 临时卡
@@ -1338,7 +1319,7 @@ class BattleScene extends Scene {
     }
   }
 
-  /// 卡牌费用（颜色 → 数量，含元气 life），无则空表。
+  /// 卡牌最低费用（颜色 → 数量），供单位伤害预测读取。
   /// 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 keys/[] 访问。
   Map<String, int> _cardCostColored(CustomGameCard card) {
     final coloredCost = card.data['coloredCost'];
@@ -1346,136 +1327,52 @@ class BattleScene extends Scene {
     final result = <String, int>{};
     for (final key in coloredCost.keys) {
       final value = coloredCost[key];
-      if (value is num) result['$key'] = value.toInt();
+      result['$key'] = cardCostBase(value);
     }
     return result;
   }
 
-  /// 检查能否支付卡牌费用（全有或全无）。
-  /// [queued] 为已入队待打出的卡牌，其费用与当前卡一并计入（入队时的资源预占）。
-  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止太极之气抵扣，
-  /// 必须本色气全额支付，其需求单独累计校验。
+  /// 当前可用于支付的资源余额。
+  Map<String, int> _resourceStock(BattleCharacter character) => {
+        'energy_positive_life': character.energy,
+        for (final id in kCostColorStatusIds.values)
+          id: character.hasStatusEffect(id),
+        kWildcardStatusId: character.hasStatusEffect(kWildcardStatusId),
+      };
+
+  /// 按队列顺序模拟支付；动态费用预占全部本色气，不提前运行内容效果。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
-    var colorlessNeed = 0;
-    final coloredNeeds = <String, int>{};
-    final forbiddenNeeds = <String, int>{};
-
-    void accumulate(CustomGameCard c) {
-      final forbidden = c.data['isWildcardCostForbidden'] == true;
-      for (final entry in _cardCostColored(c).entries) {
-        if (entry.key == kColorlessCostColorId) {
-          // 元气（无色费用）：不能用太极之气补齐
-          colorlessNeed += entry.value;
-        } else if (forbidden) {
-          forbiddenNeeds[entry.key] =
-              (forbiddenNeeds[entry.key] ?? 0) + entry.value;
-        } else {
-          coloredNeeds[entry.key] =
-              (coloredNeeds[entry.key] ?? 0) + entry.value;
-        }
+    final stock = _resourceStock(character);
+    for (final candidate in [...?queued, card]) {
+      final payment = calculateCardPayment(candidate.data['coloredCost'], stock,
+          wildcardForbidden: candidate.data['isWildcardCostForbidden'] == true);
+      if (payment.missing.isNotEmpty) return false;
+      for (final entry in payment.paid.entries) {
+        stock[entry.key] = (stock[entry.key] ?? 0) - entry.value;
       }
     }
-
-    if (queued != null) {
-      for (final queuedCard in queued) {
-        accumulate(queuedCard);
-      }
-    }
-    accumulate(card);
-
-    if (colorlessNeed > character.energy) return false;
-
-    // 有色费用：每色先扣本色气，缺口由太极之气补齐（太极全色共享，按各颜色缺口之和校验）；
-    // 禁抵扣需求优先占用本色气存量，且必须被全额覆盖
-    var ultimateNeed = 0;
-    final colors = {...coloredNeeds.keys, ...forbiddenNeeds.keys};
-    for (final color in colors) {
-      final yangId = kCostColorStatusIds[color];
-      if (yangId == null) continue;
-      final stock = character.hasStatusEffect(yangId);
-      final forbidden = forbiddenNeeds[color] ?? 0;
-      if (forbidden > stock) return false;
-      ultimateNeed +=
-          math.max(0, (coloredNeeds[color] ?? 0) - (stock - forbidden));
-    }
-    return ultimateNeed <= character.hasStatusEffect(kWildcardStatusId);
+    return true;
   }
 
-  /// 支付卡牌费用：无色扣能量，有色先扣本色气、缺口自动扣太极之气。
-  /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）的有色费用禁止太极之气抵扣，
-  /// 本色气不足即支付失败（调用前的 _canPayCardCost 已保证不会发生）。
-  /// 调用前须已通过 _canPayCardCost 检查；支付失败（资源被中途消耗等意外情况）时
-  /// 返回 false 且不扣除任何费用。
+  /// 支付与预占共用计算规则；动态费用在此耗尽资源并记录实际 paidCost。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
-    final cardCost = _cardCostColored(card);
-    final colorlessNeed = cardCost[kColorlessCostColorId] ?? 0;
-    final bool wildcardForbidden = card.data['isWildcardCostForbidden'] == true;
-
-    final pending = <(String, int)>[];
-    var ultimateNeed = 0;
-    var forbiddenShortfall = 0;
-    for (final entry in cardCost.entries) {
-      if (entry.key == kColorlessCostColorId) continue;
-      final yangId = kCostColorStatusIds[entry.key];
-      if (yangId == null) continue;
-      final need = entry.value;
-      final ownPaid = math.min(character.hasStatusEffect(yangId), need);
-      pending.add((yangId, ownPaid));
-      if (wildcardForbidden) {
-        // 禁抵扣：缺口不进太极之气，记为支付失败条件
-        forbiddenShortfall += need - ownPaid;
-      } else {
-        ultimateNeed += need - ownPaid;
-      }
-    }
-
-    if (colorlessNeed > character.energy ||
-        forbiddenShortfall > 0 ||
-        ultimateNeed > character.hasStatusEffect(kWildcardStatusId)) {
+    final payment = calculateCardPayment(
+        card.data['coloredCost'], _resourceStock(character),
+        wildcardForbidden: card.data['isWildcardCostForbidden'] == true);
+    if (payment.missing.isNotEmpty) {
       engine.warning('卡牌 [${card.data['name']}] 支付失败：资源不足');
       return false;
     }
-
-    // 无色费用 = 移除元气（energy_positive_life）状态层数；
-    // 入队检查与上方校验已保证存量充足，资源类的全有或全无语义不会截断
-    // 资源气行显示由 removeStatusEffect 的钩子自动刷新
-    if (colorlessNeed > 0) {
-      character.removeStatusEffect('energy_positive_life',
-          amount: colorlessNeed);
-    }
-
-    for (final (statusId, amount) in pending) {
-      if (amount > 0) {
-        character.removeStatusEffect(statusId, amount: amount);
+    for (final entry in payment.paid.entries) {
+      character.removeStatusEffect(entry.key, amount: entry.value);
+      if (entry.key != 'energy_positive_life') {
+        character.addHintText(
+            '${engine.locale('status_${entry.key}')} -${entry.value}',
+            color: getResourceColor(entry.key));
       }
     }
-    if (ultimateNeed > 0) {
-      character.removeStatusEffect(kWildcardStatusId, amount: ultimateNeed);
-    }
-
-    // 支付反馈：有色费用按气种弹出负量跳字（太极抵扣单独标注）
-    for (final (statusId, amount) in pending) {
-      if (amount > 0) {
-        character.addHintText('${engine.locale('status_$statusId')} -$amount',
-            color: getResourceColor(statusId));
-      }
-    }
-    if (ultimateNeed > 0) {
-      character.addHintText(
-          '${engine.locale('status_$kWildcardStatusId')} -$ultimateNeed',
-          color: getResourceColor(kWildcardStatusId));
-    }
-
-    // 记录本次实际支付明细（键 = 状态 id，值 = 实际扣除层数，含太极抵扣），
-    // 供费用返还等词条脚本读取；每条出牌路径都经过此处，每次出牌无条件覆写
-    final paidCost = <String, int>{};
-    if (colorlessNeed > 0) paidCost['energy_positive_life'] = colorlessNeed;
-    for (final (statusId, amount) in pending) {
-      if (amount > 0) paidCost[statusId] = amount;
-    }
-    if (ultimateNeed > 0) paidCost[kWildcardStatusId] = ultimateNeed;
-    character.cardFlags['paidCost'] = paidCost;
+    character.cardFlags['paidCost'] = payment.paid;
     return true;
   }
 
@@ -1507,33 +1404,16 @@ class BattleScene extends Scene {
   /// "拥有"按 本色存量 + 太极存量 计算（太极可抵任意有色费用）；
   /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）禁止太极抵扣，"拥有"只计本色存量。
   String _missingCostReport(CustomGameCard card) {
-    final lines = <String>[];
-    final colorlessNeed = _cardCostColored(card)[kColorlessCostColorId] ?? 0;
-    if (colorlessNeed > hero.energy) {
-      lines.add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
-        engine.locale('status_energy_positive_life'),
-        colorlessNeed,
-        hero.energy,
-      ]));
-    }
-    final bool wildcardForbidden = card.data['isWildcardCostForbidden'] == true;
-    final ultimateStock =
-        wildcardForbidden ? 0 : hero.hasStatusEffect(kWildcardStatusId);
-    for (final entry in _cardCostColored(card).entries) {
-      final yangId = kCostColorStatusIds[entry.key];
-      if (yangId == null) continue;
-      final need = entry.value;
-      final stock = hero.hasStatusEffect(yangId) + ultimateStock;
-      if (need > stock) {
-        lines
-            .add(engine.locale('battlecard_cost_lacking_hint', interpolations: [
-          engine.locale('status_$yangId'),
-          need,
-          stock,
-        ]));
-      }
-    }
-    return lines.join('\n');
+    final payment = calculateCardPayment(
+        card.data['coloredCost'], _resourceStock(hero),
+        wildcardForbidden: card.data['isWildcardCostForbidden'] == true);
+    return payment.missing.entries.map((entry) {
+      return engine.locale('battlecard_cost_lacking_hint', interpolations: [
+        engine.locale('status_${entry.key}'),
+        entry.value.$1,
+        entry.value.$2,
+      ]);
+    }).join('\n');
   }
 
   /// 将卡牌加入待打出队列
@@ -1801,7 +1681,8 @@ class BattleScene extends Scene {
       int extraDrawCount = 0;
       var extraCostAmount = 0;
       dynamic extraCostNotGenres;
-      final extraDrawRule = currentCharacter.data['stats']?['turnStartExtraDraw'];
+      final extraDrawRule =
+          currentCharacter.data['stats']?['turnStartExtraDraw'];
       if (extraDrawRule != null) {
         final count = extraDrawRule['count'];
         if (count is num && count > 0) extraDrawCount = count.toInt();
@@ -1902,8 +1783,7 @@ class BattleScene extends Scene {
       } else {
         while (!_isRestarting &&
             battleResult == null &&
-            handZone.cards.isNotEmpty &&
-            currentCharacter.energy > 0) {
+            handZone.cards.isNotEmpty) {
           final affordable = handZone.cards
               .where(
                   (c) => _canPayCardCost(currentCharacter, c as CustomGameCard))

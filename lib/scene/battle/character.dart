@@ -13,6 +13,7 @@ import '../../ui.dart';
 // import '../../logic/logic.dart';
 import 'status_effect.dart';
 import 'common.dart';
+import 'card_cost.dart';
 import 'battle.dart';
 
 const kMinCardDisplayDuration = 1000;
@@ -341,10 +342,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             math.min(ailmentStacks, attacker.hasStatusEffect('debuff_crit'));
         // 元素异常层数修正（与 addStatusEffect 同口径）：
         // 施加方 ailmentInflictBonus + 承受方 ailmentReceiveBonus
-        ailmentStacks += ((attacker.data['stats']?['ailmentInflictBonus'] ?? 0)
-                    as num)
-                .toInt() +
-            ((data['stats']?['ailmentReceiveBonus'] ?? 0) as num).toInt();
+        ailmentStacks +=
+            ((attacker.data['stats']?['ailmentInflictBonus'] ?? 0) as num)
+                    .toInt() +
+                ((data['stats']?['ailmentReceiveBonus'] ?? 0) as num).toInt();
         if (ailmentStacks < 0) ailmentStacks = 0;
       }
     }
@@ -1500,19 +1501,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (cost.isEmpty) {
       if (delta > 0) {
         cost[kColorlessCostColorId] = delta;
-        _turnCostRecords.add(
-            {'data': cardData, 'color': kColorlessCostColorId, 'amount': delta});
+        _turnCostRecords.add({
+          'data': cardData,
+          'color': kColorlessCostColorId,
+          'amount': delta
+        });
       }
       return;
     }
     final key = cost.keys.first;
-    final value = cost[key];
-    if (value is! num) return;
-    // 减费时实际修正量不超过现有值（下限 0）
-    final applied =
-        delta < 0 ? -math.min(-delta, value.toInt()) : delta;
+    final applied = modifyCardCost(cost, key, delta);
     if (applied == 0) return;
-    cost[key] = value.toInt() + applied;
     _turnCostRecords.add({'data': cardData, 'color': key, 'amount': applied});
   }
 
@@ -1522,10 +1521,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       final cost = record['data']?['coloredCost'];
       if (cost == null) continue;
       final color = record['color'];
-      final value = cost[color];
-      if (value is! num) continue;
-      // 逆运算还原，下限 0（新增的元气条目还原后留 0 值条目，等价于免费卡，无害）
-      cost[color] = math.max(0, value - (record['amount'] as int));
+      modifyCardCost(cost, color, -(record['amount'] as int), restoring: true);
     }
     _turnCostRecords.clear();
   }

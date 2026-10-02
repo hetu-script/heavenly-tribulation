@@ -576,6 +576,7 @@ final class GameData with ChangeNotifier {
       var hasLifeKey = false;
       final coloredColors = <String>{};
       var malformed = false;
+      var hasDynamicCost = false;
       for (final entry in coloredCost.entries) {
         final color = entry.key;
         final value = entry.value;
@@ -594,8 +595,10 @@ final class GameData with ChangeNotifier {
           amount = value.floor();
         } else if (value is Map &&
             value['base'] is num &&
-            value['rankIncrement'] is num) {
+            (value['rankIncrement'] == null || value['rankIncrement'] is num) &&
+            (value['isDynamic'] == null || value['isDynamic'] is bool)) {
           amount = _deriveColoredCostAmount(value, rank);
+          hasDynamicCost |= value['isDynamic'] == true;
         } else {
           engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 数值非法: $value');
           malformed = true;
@@ -614,7 +617,7 @@ final class GameData with ChangeNotifier {
           coloredColors.add(color);
         }
       }
-      if (malformed) continue;
+      if (malformed || hasDynamicCost) continue;
 
       // 免费卡（全部条目折算为 0）：显式设计，跳过模型校验
       if (lifeAmount == 0 && coloredCostSum == 0) continue;

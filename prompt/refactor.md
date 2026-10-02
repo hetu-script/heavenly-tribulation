@@ -10,7 +10,7 @@
 
 ---
 
-@plan/battle_card_equipment_overview2.md 这个文档可以让你从总体上理解本项目中和卡牌战斗有关的部分。
+@plan/battle_system_overview.md 这个文档可以让你从总体上理解本项目中和战斗有关的部分。
 
 目前我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道流派的开发。 @plan/skill_tree/spellcraft.md
 

@@ -14,8 +14,8 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
   - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + battleEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
-- 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到能量耗尽或手牌空。
-- 费用系统（单资源模型）：\_cardCostColored 读 coloredCost；无色（life=元气）不受虚空之气影响也不能用无极抵扣；有色先扣本色气（kCostColorStatusIds 映射），缺口用无极之气（kWildcardStatusId）补齐；虚空之气每层 +1 有色费用；isWildcardCostForbidden 禁用无极抵扣（万法归宗）。支付明细写入 cardFlags['paidCost']，供 refund_cost / spellcraft_ultimate_spell 等词条读取。置灰仅影响绘图，悬浮提示由 \_missingCostReport 生成缺资源明细。
+- 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
+- 费用系统（单资源模型）：card_cost.dart 共用支付计算；元气不能以太极抵扣，有色先扣本色气、缺口用太极补齐；isWildcardCostForbidden 禁止抵扣。动态条目 {base, isDynamic:true} 达到门槛后耗尽本色气，统一豁免减费及置零。队列按顺序模拟资源预占，实际支付明细写入 cardFlags['paidCost']，供 refund_cost / attack_by_paid_resource 读取。置灰与缺资源提示使用同一规则。
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由 GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
 - 观星 scry（:1094）：中央展示牌库顶 N 张（N = 传入 count + scryBonus），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（:1202，窥天镜）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
@@ -47,7 +47,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）→ 其余额外词条（按 priority 降序）。
 - Dart 对每个词条脚本统一 await；调用异步 API（drawCards / scry / upgradeHandCards / discover）的脚本必须声明 async 并 await，否则脱离结算顺序。
 - 时机回调：词条声明 callbacks 列表后，在对应时机调用 {script}\_{时机} 函数（现有时机：added_to_hand / removed_from_hand）；声明的回调函数必须存在（缺失抛错中断结算）；额外词条的打出时基名函数可缺省（ignoreUndefined，告警一次），主词条基名必须存在。契约详见 docs/docs/mod/battle/card/readme.md。
-- 功能分组：牌库操作（draw_cards 带 filter/reduceCost、scry、scry_then_draw）；攻击（attack / attack_multiple / attack_debuff / attack_buff / attack_multiple_ailment / attack_multiple_by_used_elements / attack_multiple_by_cards_in_hand / attack_with_energy_count_check / attack_exhaust_energy / attack_rank_scaled）；增益减益（self_buff / opponent_debuff / 降全抗 / 降全攻 / 生命上限 / heal / heal_lifeMax / heal_remove_debuffs / gain_defense_by_mana）；资源转化（heal_vigor_all / convert_vigor_all / refund_cost）；绝世专属（spellcraft_ultimate_spell / scry_then_draw / ailments_by_used_elements / discover_element_amplify / gain_mana_by_self_ailments）；攻击联动（by_damage_heal / by_damage_defend / for_attribute_increase_damage / increase_damage_by_last_card_used / increase_damage_by_energy_count）；时机回调与其他（retain / attune / upgrade_card / upgrade_hand_cards / gain_resource_next_turn / draw_by_last_card_used / ailment_spread）。
+- 功能分组：牌库操作（draw_cards 带 filter/reduceCost、scry、scry_then_draw）；攻击（attack / attack_multiple / attack_debuff / attack_buff / attack_multiple_ailment / attack_multiple_by_used_elements / attack_multiple_by_cards_in_hand / attack_with_energy_count_check / attack_by_paid_resource / attack_rank_scaled）；增益减益（self_buff / opponent_debuff / 降全抗 / 降全攻 / 生命上限 / heal / heal_lifeMax / heal_remove_debuffs / gain_defense_by_mana）；资源转化（heal_vigor_all / convert_vigor_all / refund_cost）；绝世专属（attack_by_paid_resource / scry_then_draw / ailments_by_used_elements / discover_element_amplify / gain_mana_by_self_ailments）；攻击联动（by_damage_heal / by_damage_defend / for_attribute_increase_damage / increase_damage_by_last_card_used / increase_damage_by_energy_count）；时机回调与其他（retain / attune / upgrade_card / upgrade_hand_cards / gain_resource_next_turn / draw_by_last_card_used / ailment_spread）。
 
 ### 4.2 status_script.ht —— StatusScript 命名空间
 
@@ -133,7 +133,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ## 8. 本地化（assets/locale/zh/rpg/）
 
-- battlecard.json：kind 名（battlecard*\*）、绝世卡名（uniquecard*_）、卡牌词条描述（affix\__，数值占位 {0}{1}）、插画名（illustration\_\*，需同步 lib/data/common.dart 的 kBattleCardIllustrations）。
+- battlecard.json：kind 名（battlecard*\*）、绝世卡名（uniquecard*\_）、卡牌词条描述（affix\_\_，数值占位 {0}{1}）、插画名（illustration\_\*，需同步 lib/data/common.dart 的 kBattleCardIllustrations）。
 - battle.json：战斗内提示（先手/后手回血/观星/暴击预测/缺卡替换等）。
 - status*effect.json：status*{id} 名称 + status\_{id}\_description 描述。
 - item.json：装备名 {id} + flavortext*{id}（写清机制与代价）；passive.json：passive*{id}\_description（词条效果行，键名无机械转换规则，camelCase 原样保留或手写 snake_case）。
@@ -155,8 +155,9 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ## 11. 悟道流派落地现状
 
+- 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，队列按顺序预占，敌方按可支付手牌出牌，不再依赖元气余额。
+
 - 境界节点 5 个（已上树、主轴连通）：太上感应（spellcraft_rank_1，灵力÷10 产灵气）/ 天道循环（rank_2，deckCostReduction 悟道牌 -1）/ 阴阳五行（rank_3，回合结束未用灵气溢出伤害，扣除 energyRetain 保留部分）/ 五气朝元（rank_4，五元素攻击增强轮转）/ 万法归宗（rank_5，shuffleIntoDeck 洗入绝世卡）。
 - 分支节点 4 个（已实现、待连线上树）：紫微斗数（skilltree_branch_draw_1，洗入授予卡）/ 天道推演（draw_2，turnStartScry 3）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
 - 卡牌：主词条 16 张（cards.json5:726-1211）+ 绝世卡 5 张（:1218-1378）+ 天赋授予卡 2 张（:1415-1470）+ 一气化三清抉择临时卡 3 张（:1383-1409，不进卡池）；额外词条 9 个（card_affixes.json5:527-695）。
 - 绝世装备 5 件（items.json5:273-362 + passives.json5:1328-1379）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。
-- 已知问题：element_cycle（五行轮转状态）数据缺 amount 字段，每次触发记一条错误日志后兜底为 1（功能正确，待补）；三张元素拳卡缺 keywords: ["status_resist"]（可选补强）。

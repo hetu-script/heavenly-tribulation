@@ -371,7 +371,6 @@
       },
       {
         base: 2,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -743,6 +742,7 @@
     buffId: "weakness_fire",
     script: "attack_debuff",
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    keywords: ["status_resist"],
     valueData: [
       {
         base: 8,
@@ -774,6 +774,7 @@
     buffId: "weakness_ice",
     script: "attack_debuff",
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    keywords: ["status_resist"],
     valueData: [
       {
         base: 8,
@@ -805,6 +806,7 @@
     buffId: "weakness_lightning",
     script: "attack_debuff",
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    keywords: ["status_resist"],
     valueData: [
       {
         base: 8,
@@ -1048,9 +1050,9 @@
       overlays: ["fire_storm"],
       sound: "wind-1-44149.mp3",
     },
-    script: "attack_exhaust_energy",
+    script: "attack_by_paid_resource",
     resourceId: "energy_positive_spell",
-    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    coloredCost: { spell: { base: 0, isDynamic: true } },
     valueData: [
       {
         base: 4,
@@ -1366,10 +1368,6 @@
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
-        base: 10,
-        maxLevel: 0,
-      },
-      {
         base: 1,
         maxLevel: 0,
       },
@@ -1439,8 +1437,8 @@
   },
 
   // 万法归宗：悟道化神境界节点洗入牌库的绝世卡
-  // 耗费 10+X 点灵气（打出时耗尽全部灵气），根据实际耗费的灵气数量造成雷电伤害（脚本 spellcraft_ultimate_spell）
-  // 费用特例：不受减费影响（洗入发生在组牌减费之后），且禁止以太极之气抵扣，必须全额以灵气支付
+  // 耗费 10+X 点灵气，支付阶段耗尽全部灵气，脚本按 paidCost 计算雷电伤害
+  // 动态费用统一不参与减费，禁止以太极之气抵扣，必须全额以灵气支付
   spellcraft_ultimate_spell: {
     id: "spellcraft_ultimate_spell",
     category: "attack",
@@ -1459,8 +1457,9 @@
       startup: ["spell_attack"],
       sound: "magic-smite-6012.mp3",
     },
-    script: "spellcraft_ultimate_spell",
-    coloredCost: { spell: { base: 10, rankIncrement: 0 } },
+    script: "attack_by_paid_resource",
+    resourceId: "energy_positive_spell",
+    coloredCost: { spell: { base: 10, isDynamic: true } },
     valueData: [
       {
         base: 8,
@@ -1495,7 +1494,6 @@
       },
       {
         base: 2,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -1556,7 +1554,6 @@
       },
       {
         base: 2,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -1815,7 +1812,6 @@
       },
       {
         base: 3,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2227,7 +2223,6 @@
       },
       {
         base: 4,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2258,7 +2253,6 @@
       },
       {
         base: 2,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2289,7 +2283,6 @@
       },
       {
         base: 2,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2534,7 +2527,6 @@
       },
       {
         base: 4,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2564,7 +2556,6 @@
       },
       {
         base: 4,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2593,7 +2584,6 @@
       },
       {
         base: 4,
-        increment: 0,
         maxLevel: 0,
       },
     ],
@@ -2834,7 +2824,7 @@
   },
   opponent_reduce_resist_poison: {
     id: "opponent_reduce_resist_poison",
-    uniqueIds: ["opponent_reduce_resist"],
+    uniqueIds: ["opponent_reduce_resist_all"],
     genre: "vitality",
     category: "buff",
     kind: "power_word",

@@ -792,7 +792,7 @@
   },
 
   // 太上忘情（悟道绝世授予）：回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
-  // （固定值不随境界缩放），下回合产出阶段每有一张手牌额外获得 amount 层 resourceId
+  // （固定值不随境界缩放），下回合产出阶段每有一张手牌额外获得 resourcePerCard 层 resourceId
   // 资源（pendingResources 跨回合机制）；触发后移除
   buff_handcards_to_mana: {
     id: "buff_handcards_to_mana",
@@ -801,6 +801,7 @@
     icon: "icon/status/handcards_to_mana.png",
     script: "handcards_to_mana",
     damagePerCard: 10,
+    resourcePerCard: 1,
     resourceId: "energy_positive_spell",
     callbacks: ["self_turn_end"],
   },

@@ -73,7 +73,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -218,7 +218,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -282,7 +282,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -301,7 +301,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -338,14 +338,14 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
 
   // 升级：打出后本牌等级 +1（战斗内临时升级，可突破卡牌等级上限；
   // 深拷贝不污染卡库；新指数公式下 +1 级相对提升全境界恒定有感）
-  // valueData 首值固定为 1（升级级数），maxLevel: 0 表示不随词条等级缩放
+  // valueData 首值固定为 1（升级级数），isFixed: true 表示不随词条等级缩放
   upgrade_card: {
     id: "upgrade_card",
     uniqueId: "upgrade_card",
@@ -357,7 +357,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -376,7 +376,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -394,7 +394,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -412,7 +412,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -430,7 +430,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -546,7 +546,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
   },
@@ -649,7 +649,7 @@
     valueData: [
       {
         base: 3,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
     keywords: ["affix_scry"],
@@ -669,7 +669,7 @@
     valueData: [
       {
         base: 1,
-        maxLevel: 0,
+        isFixed: true,
       },
     ],
     keywords: ["affix_cycle_draw"],

@@ -129,12 +129,29 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `filter`                  | 条件子表（category/genre/cardType/kind/elementType 任意组合），脚本传给 matchCardCriteria 系 API；某字段值为 `true` 表示「该字段非空即可」                                              |
 | `not`                     | `filter` 内的反选子表：其中每个字段要求卡牌该字段值**不等于**指定值；值 `true` 表示「该字段必须为空」（与正选 `true` =「非空即可」对称）。见下文「条件子表与占位约定」                  |
 | `require`                 | 生成侧过滤子表：以主词条（`card.affixes[0]`）字段为准——值 `true` = 该字段非空、值为数组 = 字段值 ∈ 数组、其余 = 等值匹配；不满足则生成时跳过该词条。见下文「条件子表与占位约定」        |
-| `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_exhaust_energy` / `attack_with_energy_count_check` / `gain_defense_by_mana` 等脚本读取 |
+| `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_by_paid_resource` / `attack_with_energy_count_check` / `gain_defense_by_mana` 等脚本读取 |
 | `resourceThreshold`       | 资源门槛层数（缺省 1），与 `resourceId` 配套；达到门槛才生效                                                                                                                            |
 | `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` 读取并整层移除（如 water_mend 甘霖术列全部 7 种元素异常）                                                                                           |
 | `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |
 
 ## 条件子表与占位约定
+
+### 动态费用 coloredCost
+
+数据条目支持 `{base, rankIncrement?, isDynamic?}`，`rankIncrement` 默认 0。
+普通条目求值为整数；动态条目求值为 `{base: 最低门槛, isDynamic: true}`，并深拷贝到
+`originalColoredCost` 作为显示基线。动态 base 为 0 仍保留，卡面显示 `X`；正数显示 `N+X`。
+
+动态费用不参与任何减费或费用置零。加费提高最低门槛，临时加费到期还原基础门槛。
+支付时达到门槛后耗尽对应资源，太极只补最低门槛缺口，不随 X 一并耗尽；
+`isWildcardCostForbidden` 可禁止该抵扣。X 允许为 0。
+
+资源在词条及状态的用牌回调之前支付，实际扣除量记录在 `cardFlags['paidCost']`。
+`attack_by_paid_resource` 读取 `affix.resourceId` 的实际支付量乘以 `value[0]` 造成伤害，
+支付量为 0 时跳过伤害；效果结算中新获得的气不会再次扣除。
+队列按顺序模拟支付，动态费用预占执行到该位置时的全部本色气。
+
+Samsara 沿用现有绘制位置和字号显示 `X` / `N+X`，本次不处理文字溢出。
 
 ### not 反选子表
 

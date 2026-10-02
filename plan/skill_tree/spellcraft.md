@@ -49,6 +49,11 @@
 
 ## 主词条（cards.json5）
 
+动态费用约定：焚天烈焰为 `{spell: {base: 0, isDynamic: true}}`，显示 X；万法归宗为
+`{spell: {base: 10, isDynamic: true}}`，显示 10+X。两者在支付阶段消耗全部当前灵气，
+不参与减费，使用 `attack_by_paid_resource` 按实际支付量计算伤害；焚天烈焰允许 X=0。
+万法归宗继续禁止太极抵扣。加费提高最低支付门槛。
+
 ### 攻击（11）
 
 | id                                  | rank | kind              | 元素 | damageType | 效果                                                               | script                                         | valueData                                      |
@@ -63,7 +68,7 @@
 | wind_storm                          | 3    | airbend           | 风   | physical   | 2 段物理伤+幻觉（不经计数器，直接附加；调整见额外词条计划 §8）     | attack_multiple_ailment（新）                  | [{9, 0.9}, {2, maxLevel:0}, {1, 0.1}]          |
 | falling_stone                       | 4    | earthbend         | 土   | physical   | 物理伤+内伤 {2} 层；灵气≥6 本牌伤害 +{1}%（调整见额外词条计划 §8） | attack_with_energy_count_check（扩展异常尾部） | [{18, 1.8}, {50, maxLevel:0}, {2, maxLevel:0}] |
 | ice_storm                           | 4    | waterbend         | 水   | ice        | 段数=手牌中元素牌数（filter: {elementType: true}），每段冰伤       | attack_multiple_by_cards_in_hand               | [{7, 0.7}]                                     |
-| fire_storm                          | 5    | firebend          | 火   | fire       | 耗尽剩余灵气（resourceId），每点造成火伤                           | attack_exhaust_energy                          | [{4, 0.4}]                                     |
+| fire_storm                          | 5    | firebend          | 火   | fire       | 耗尽剩余灵气（resourceId），每点造成火伤                           | attack_by_paid_resource                          | [{4, 0.4}]                                     |
 
 ### 加持（5）
 

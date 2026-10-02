@@ -11,7 +11,7 @@ function _calcCostAmount(valueData, rank) {
 /// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md）：
 /// 单资源模型——流派卡 = rank 点流派色，中立卡（含法身）= rank+1 点元气（life）。
 /// 数据层约定全部显式写 coloredCost（含 life 键），本函数只做公式求值并写入
-/// card.coloredCost；显式条目"键存在即采纳"（显式 0 = 免费，不写入费用表）。
+/// card.coloredCost；普通显式 0 = 免费，动态条目即使 base 为 0 也保留为 X。
 /// 缺省兜底（数据层不应依赖）：有流派色时推导 rank 点有色（多色对半拆，余数给首位），
 /// 无流派色（含法身）推导 rank+1 点元气。
 /// card.coloredCost 中 life 键始终在首位（渲染时元气在费用行基准位置）。
@@ -22,27 +22,33 @@ function updateCardCost(card) {
   final costs = {}
   if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
     for (final color in explicitCostColored.keys) {
-      costs[color] = _calcCostAmount(explicitCostColored[color], card.rank)
+      final entry = explicitCostColored[color]
+      final amount = _calcCostAmount(entry, card.rank)
+      if (entry is num || entry.isDynamic != true) {
+        costs[color] = amount
+      } else {
+        costs[color] = { base: amount, isDynamic: true }
+      }
     }
   } else {
     // 兜底：有色费用 = rank，无色费用 = ((card.rank + 1) / 2).floor()
     final color = Constants.genreColoredCost[card.genre]
-    if (colors != null) {
+    if (color != null) {
       costs[color] = card.rank
     } else {
       costs[Constants.colorlessCostColorId] = ((card.rank + 1) / 2).floor()
     }
   }
-  // life 在首位：渲染时元气在费用行基准位置（最右）；0 值条目不写入（显式 0 = 免费）
+  // life 在首位：渲染时元气在费用行基准位置（最右）；普通 0 值条目不写入，动态 0 保留为 X
   card.coloredCost = {}
   final life = costs[Constants.colorlessCostColorId]
-  if (life != null && life > 0) {
+  if (life != null && (life is! num || life > 0)) {
     card.coloredCost[Constants.colorlessCostColorId] = life
   }
   for (final color in costs.keys) {
     if (color == Constants.colorlessCostColorId) continue
     final amount = costs[color]
-    if (amount > 0) {
+    if (amount is! num || amount > 0) {
       card.coloredCost[color] = amount
     }
   }
@@ -52,7 +58,12 @@ function updateCardCost(card) {
   // coloredCost、不经过本函数，基线不受影响
   final baseline = {}
   for (final color in card.coloredCost.keys) {
-    baseline[color] = card.coloredCost[color]
+    final entry = card.coloredCost[color]
+    if (entry is num) {
+      baseline[color] = entry
+    } else {
+      baseline[color] = { base: entry.base, isDynamic: true }
+    }
   }
   card.originalColoredCost = baseline
 }
