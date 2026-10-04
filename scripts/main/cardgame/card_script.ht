@@ -377,7 +377,7 @@ namespace CardScript {
   /// affix.scryOptions 可选费用修正（{chosenCostChange, othersCostChange}）：
   /// 选中减费/未选加费，本场战斗内生效（未选牌进弃牌堆，加费洗牌后兑现）
   async function scry_then_draw(self, opponent, card, affix) {
-    await self.scry(count: affix.value?[0], options: affix.scryOptions)
+    await self.scry(count: affix.value?[0])
     await self.drawCards(1)
   }
 

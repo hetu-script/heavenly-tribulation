@@ -259,14 +259,14 @@
 
   // 返还本牌消耗的气（按实际支付量，含太极抵扣部分；无 priority = 主词条后执行）
   // 依赖 Dart 侧支付时写入 cardFlags.paidCost（见 plan/battle_qi_conversion.md）
-  refund_cost: {
-    id: "refund_cost",
-    uniqueId: "refund_cost",
-    categories: ["buff", "attack"],
-    rank: 3,
-    description: "affix_refund_cost",
-    script: "refund_cost",
-  },
+  // refund_cost: {
+  //   id: "refund_cost",
+  //   uniqueId: "refund_cost",
+  //   categories: ["buff", "attack"],
+  //   rank: 3,
+  //   description: "affix_refund_cost",
+  //   script: "refund_cost",
+  // },
 
   // 无极真言：打出时获得无极之气（每层所有伤害 +5，永久保留的普通状态，rank 3 起进入卡池）
   infuse_all_damage_up: {

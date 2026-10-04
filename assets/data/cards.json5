@@ -10,7 +10,7 @@
   // 流派，御剑，悟道，炼魂等，如果为null表示无流派
   // 流派仅表示获得方法，使用时并无限制
   // cardType:
-  // 卡牌类型，一共七种，徒手，武器，法术，咒语，身法，心法，神通(divinity)
+  // 卡牌类型，一共七种，徒手，身法，武器，法术，咒语，心法，神通(divinity)
   // kind:
   // kind决定了卡牌名字类型，例如剑法，咒语等等
   // 虽然并非强制，但多数时候kind和战斗动画也是对应的
@@ -599,30 +599,31 @@
     ],
   },
 
-  // // 元气转化灵气（0 费耗尽制 1:1，见 plan/battle_qi_conversion.md）
-  // energy_positive_spell: {
-  //   id: "energy_positive_spell",
-  //   category: "buff",
-  //   kind: "xinfa",
-  //   cardType: "xinfa",
-  //   rank: 5,
-  //   description: "affix_convert_vigor_spell",
-  //   keywords: ["status_energy_positive_spell"],
-  //   image: "battlecard/illustration/xinfa_mana.png",
-  //   animation: {
-  //     startup: ["spell_buff"],
-  //     overlays: ["restore_mana"],
-  //     sound: "spell-of-healing-876.mp3",
-  //   },
-  //   buffId: "energy_positive_spell",
-  //   script: "convert_vigor_all",
-  //   coloredCost: { life: 0 },
-  //   valueData: [
-  //     {
-  //       base: 100,
-  //     },
-  //   ],
-  // },
+  // 元气转化太极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
+  // 插画暂用心法通用图占位，太极专属插画待生成
+  energy_positive_ultimate: {
+    id: "energy_positive_ultimate",
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 3,
+    description: "affix_convert_vigor_ultimate",
+    keywords: ["status_energy_positive_ultimate"],
+    image: "battlecard/illustration/xinfa_heal.png",
+    animation: {
+      startup: ["spell_buff"],
+      overlays: ["restore_mana"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    buffId: "energy_positive_ultimate",
+    script: "convert_vigor_all",
+    coloredCost: { life: 0 },
+    valueData: [
+      {
+        base: 50,
+      },
+    ],
+  },
   // // 元气转化剑气（0 费耗尽制 1:1）
   // energy_positive_weapon: {
   //   id: "energy_positive_weapon",
@@ -695,31 +696,6 @@
   //     },
   //   ],
   // },
-  // 元气转化太极之气（0 费耗尽制 1:0.5 向下取整，不足 2 点元气无产出）
-  // 插画暂用心法通用图占位，太极专属插画待生成
-  energy_positive_ultimate: {
-    id: "energy_positive_ultimate",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 5,
-    description: "affix_convert_vigor_ultimate",
-    keywords: ["status_energy_positive_ultimate"],
-    image: "battlecard/illustration/xinfa_heal.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_mana"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    buffId: "energy_positive_ultimate",
-    script: "convert_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 50,
-      },
-    ],
-  },
 
   // ------------悟道·攻击------------
   punch_attack_exhaust_mana_fire: {
@@ -1186,7 +1162,7 @@
       },
     ],
   },
-  // 灵气涌动：元气 1:1 转化为灵气（悟道专属版，费用恒 0，与中立卡 energy_positive_spell 并存）
+  // 灵气涌动：元气 1:1 转化为灵气（费用恒 0）
   mana_surge: {
     id: "mana_surge",
     genre: "spellcraft",
@@ -1215,7 +1191,6 @@
   // ------------悟道·绝世------------
   // 天机术：规划主题核心卡——观星 value[0] 张，随后抽 1 张牌
   // （观星选中的牌置于牌库顶，正好被随后的抽牌入手；脚本 scry_then_draw 以 await 保证时序）
-  // 抉择代价（scryOptions）：本场战斗中选中的牌费用 -1，其余被检视的牌费用 +1；
   // 未选牌进弃牌堆，加费在洗牌后兑现（Dart 侧 scry 结算，只改 coloredCost 不动基线，卡面自动变色）
   spellcraft_scry_draw: {
     id: "spellcraft_scry_draw",
@@ -1233,7 +1208,7 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "scry_then_draw",
-    scryOptions: { chosenCostChange: -1, othersCostChange: 1 },
+    // scryOptions: { chosenCostChange: -1, othersCostChange: 1 },
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
@@ -1380,29 +1355,23 @@
   // kBattleCardIllustrations（避免混入记忆翻牌小游戏卡池）
   element_choice_water: {
     id: "element_choice_water",
-    category: "buff",
-    cardType: "divinity",
     description: "element_choice_water_description",
     image: "battlecard/illustration/element_choice_water.png",
-    coloredCost: { life: 0 },
+    coloredCost: { },
     isUnpackable: true,
   },
   element_choice_fire: {
     id: "element_choice_fire",
-    category: "buff",
-    cardType: "divinity",
     description: "element_choice_fire_description",
     image: "battlecard/illustration/element_choice_fire.png",
-    coloredCost: { life: 0 },
+    coloredCost: { },
     isUnpackable: true,
   },
   element_choice_lightning: {
     id: "element_choice_lightning",
-    category: "buff",
-    cardType: "divinity",
     description: "element_choice_lightning_description",
     image: "battlecard/illustration/element_choice_lightning.png",
-    coloredCost: { life: 0 },
+    coloredCost: { },
     isUnpackable: true,
   },
 

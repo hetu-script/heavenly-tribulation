@@ -834,7 +834,7 @@
     isPermanent: true,
     script: "yin_yang_five_elements",
     callbacks: ["self_turn_end"],
-    damagePerStack: 5,
+    damagePerStack: 10,
     resourceId: "energy_positive_spell",
   },
 
