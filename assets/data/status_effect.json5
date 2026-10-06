@@ -322,7 +322,7 @@
     isPermanent: true,
   },
 
-  // 护甲穿透：每层无视 1% 护甲，只作用于物理和真气伤害
+  // 护甲穿透：每层无视 1% 护甲，只作用于物理、无属性和真气伤害
   penetration: {
     id: "penetration",
     title: "status_penetration",
@@ -416,7 +416,7 @@
 
   // 所有类型的防御: 回合开始时减半，受到攻击时抵消伤害
   // 计算伤害时，防御的优先级是最高的
-  // 护甲：唯一防御类型，只抵挡物理伤害（真气自带50%穿透）
+  // 护甲：唯一防御类型，抵挡物理、无属性和真气伤害（真气穿透 = 目标内伤层数 ×5%）
   // 抵扣结算在 Dart 侧 takeDamage 乘区后进行，脚本只负责回合开始衰减
   defense: {
     id: "defense",
@@ -534,7 +534,7 @@
 
   // 元素异常（持续伤害类）：统一参数化脚本 ailment
   // dotDamage = 固定伤害数值（感电为脚本内随机 1~10）；移除逻辑全部内联进脚本
-  // 点燃（火）：回合开始时受到固定 5 点火焰伤害，同时移除 1 层（层数=剩余触发次数）
+  // 点燃（火）：回合开始时耗尽所有层数，每层受到固定 5 点火焰伤害（每层单独跳字）
   ailment_fire: {
     id: "ailment_fire",
     title: "status_ailment_fire",
@@ -558,7 +558,7 @@
     isDebuff: true,
     callbacks: ["self_turn_start"],
   },
-  // 冰缓（水）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并转化为迟钝
+  // 冰缓（水）：回合结束时消耗 1 层，受到 1 点寒冰伤害，并转化为 1 层迟钝
   ailment_ice: {
     id: "ailment_ice",
     title: "status_ailment_ice",
@@ -864,7 +864,7 @@
     callbacks: ["self_used_card"],
   },
   // 五行轮转（悟道/御剑共享分支节点）：本回合每使用一种不同的元素牌，
-  // 获得 amount 层 resourceId 资源（数值写在状态数据，本地化描述同步写死，改动时需同步）
+  // 获得 1 层 resourceId 资源
   skilltree_branch_element_2: {
     id: "skilltree_branch_element_2",
     title: "status_skilltree_branch_element_2",

@@ -2,22 +2,22 @@
 
 ## 修改
 
-  悟道流派：water_mend：至多移除 x { base: 3, inrement: 0.15 } 层元素异常，每移除一层异常，获得 {base: 4, increment: 0.1} 生命 unique_ids: ["for_element_dots_heal"]
+悟道流派：water_mend：至多移除 x { base: 3, inrement: 0.15 } 层元素异常，每移除一层异常，获得 {base: 4, increment: 0.1} 生命 unique_ids: ["for_element_ailment_heal"]
 
 ## 增加
 
-  悟道流派：eartch_mend：至多移除 x { base: 3, inrement: 0.15 } 层元素异常，每移除一层异常，获得 {base: 6, increment: 0.15} 护甲 unique_ids: ["for_element_dots_defend"]
+悟道流派：eartch_mend：至多移除 x { base: 3, inrement: 0.15 } 层元素异常，每移除一层异常，获得 {base: 6, increment: 0.15} 护甲 unique_ids: ["for_element_ailment_defend"]
 
 # 额外词条
 
 ## 修改
 
-  悟道流派：reduce_cost_by_cards_in_hand 应该是在每次手牌变化时都会重新计算，时机应该类似现有的卡牌费用计算的那些场合。
+悟道流派：reduce_cost_by_cards_in_hand 应该是在每次手牌变化时都会重新计算，时机应该类似现有的卡牌费用计算的那些场合。
 
 ## 增加
 
-  悟道流派：自身每有一层任意元素异常，获得 {base: 4, increment: 0.1} 生命 使用unique_id: "for_element_dots_heal"，不会出现在water_mend上。
-  悟道流派：自身每有一层任意元素异常，获得 {base: 6, increment: 0.15} 护甲 使用unique_id: "for_element_dots_defend"，不会出现在water_mend上。
+悟道流派：自身每有一层任意元素异常，获得 {base: 4, increment: 0.1} 生命 使用unique_id: "for_element_ailment_heal"，不会出现在water_mend上。
+悟道流派：自身每有一层任意元素异常，获得 {base: 6, increment: 0.15} 护甲 使用unique_id: "for_element_ailment_defend"，不会出现在water_mend上。
 
 ## 绝世卡牌专属额外词条
 
@@ -37,7 +37,6 @@
 ### 万法归宗
 
 固定额外词条列表：
-
 
 ### 天机术
 

@@ -108,6 +108,20 @@ const kElementAilmentIds = {
 /// 元素类型集合
 final kElementTypes = kElementAilmentIds.keys.toSet();
 
+/// 爆发元素 → 转化态伤害类型的映射（plan/damage_type_rework.md 2.4）：
+/// 火→fire、水→ice、雷→lightning、木→poison。
+/// 卡牌印刷伤害类型统一为无属性（ordinary）；潜伏元素在本表中的攻击卡，
+/// 当对方持有对应元素异常（查 kElementAilmentIds）时，转化为对应元素伤害结算并消耗 1 层；
+/// 异常充能/幸运必异常也以本表为口径（与是否处于转化态无关）。
+/// 金/土/风为控制元素，不在本表（其异常是收益本体，不触发转化）。
+/// 通过 Constants.elementDamageTypes 导出到脚本侧
+const kElementDamageTypes = {
+  'element_fire': 'fire',
+  'element_water': 'ice',
+  'element_lightning': 'lightning',
+  'element_wood': 'poison',
+};
+
 const kRarityNames = {
   'common',
   'rare',
@@ -154,9 +168,16 @@ const List<String> kAttackTypes = [
 ];
 
 final class DamageType {
+  // 物理：拳脚兵刃等无元素武技（elementType 为空的攻击卡），
+  // 与护甲全额交互，唯一可暴击的伤害类型
   static const physical = 'physical';
+  // 无属性：元素卡的未转化形态（含金/土/风控制元素卡的常驻形态），
+  // 与护甲全额交互，不参与暴击
+  static const ordinary = 'ordinary';
   static const chi = 'chi';
   static const psychic = 'psychic';
+  // 四种元素伤害只作为战斗内转化态存在（见 kElementDamageTypes），
+  // 数据层卡牌不再直接印刷这些伤害类型
   static const fire = 'fire';
   static const ice = 'ice';
   static const lightning = 'lightning';
@@ -166,6 +187,7 @@ final class DamageType {
 
 const List<String> kDamageTypes = [
   DamageType.physical,
+  DamageType.ordinary,
   DamageType.chi,
   DamageType.psychic,
   DamageType.fire,

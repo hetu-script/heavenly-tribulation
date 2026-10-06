@@ -408,7 +408,7 @@
     keywords: ["status_persistent"],
     kinds: ["armor", "gloves", "boots", "helmet", "shield"],
   },
-  // 护甲穿透：只作用于物理和真气伤害
+  // 护甲穿透：只作用于物理、无属性和真气伤害
   penetration: {
     id: "penetration",
     description: "passive_penetration_description",

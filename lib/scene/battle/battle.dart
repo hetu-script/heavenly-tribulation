@@ -1291,6 +1291,24 @@ class BattleScene extends Scene {
 
   void _refreshHandCardDescription(CustomGameCard card) {
     final cardData = card.data;
+    // 元素转化（plan/damage_type_rework.md 2.2）：潜伏元素（火/水/雷/木）的攻击卡，
+    // 敌方持有对应元素异常时卡面转化为对应元素伤害（无视护甲/吃抗性/不暴击），
+    // 否则还原为无属性。幂等，每次从元素映射重算；结算真值在 BattleCharacter.onUseCard。
+    final mainAffix = cardData['affixes'][0];
+    final latentDamageType = kElementDamageTypes[mainAffix['elementType']];
+    String? transformHint;
+    if (latentDamageType != null && mainAffix['damageType'] != null) {
+      final ailmentId = kElementAilmentIds[mainAffix['elementType']]!;
+      final damageTypeName = engine.locale(latentDamageType);
+      final ailmentName = engine.locale('status_$ailmentId');
+      if (enemy.hasStatusEffect(ailmentId) > 0) {
+        mainAffix['damageType'] = latentDamageType;
+        transformHint = '<yellow>${engine.locale('transformedElementHint').interpolate([damageTypeName, ailmentName])}</>';
+      } else {
+        mainAffix['damageType'] = DamageType.ordinary;
+        transformHint = '<grey>${engine.locale('latentElementHint').interpolate([damageTypeName, ailmentName])}</>';
+      }
+    }
     // 气增伤预测需要本牌费用以模拟扣费后剩余层数（见 predictDamage）
     final cardCost = _cardCostColored(card);
     for (final affix in cardData['affixes']) {
@@ -1306,7 +1324,8 @@ class BattleScene extends Scene {
       isDetailed: false,
       withPrediction: true,
     );
-    card.description = description;
+    card.description =
+        transformHint == null ? description : '$description\n$transformHint';
   }
 
   /// 刷新英雄手牌所有卡牌的卡面描述：

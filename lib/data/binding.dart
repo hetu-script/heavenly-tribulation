@@ -87,6 +87,8 @@ class Constants extends HTExternalClass {
         return kDebuffs;
       case 'Constants.elementAilments':
         return kElementAilmentIds;
+      case 'Constants.elementDamageTypes':
+        return kElementDamageTypes;
       case 'Constants.scrollMaxCharges':
         return kScrollMaxCharges;
       case 'Constants.battleDeckSize':

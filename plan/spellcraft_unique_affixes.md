@@ -1,6 +1,6 @@
 # 悟道·绝世卡牌与绝世装备·额外词条设计
 
-> 本文承接 `plan/skill_tree/spellcraft.md`（流派总设计）与 `plan/skill_tree/spellcraft_affixes.md`（用户初步想法）。
+> 本文承接 `plan/skill_tree/spellcraft.md`（流派总设计）。
 > 目标：把悟道 7 张绝世卡牌与 5 件绝世装备的固定额外词条补完，并补充可进入随机池的通用主词条 / 额外词条。
 > 现有系统事实（已逐行核对代码）见 §0；设计原则见 §1；卡牌词条见 §2；装备词条见 §3；补充内容见 §4；落地清单见 §5。
 
@@ -19,10 +19,10 @@
 
 ### 0.2 卡牌与装备的词条成长不同构
 
-| | 解锁规则 | 能否成长 |
-| --- | --- | --- |
+|          | 解锁规则                                                                              | 能否成长                                        |
+| -------- | ------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | 绝世卡牌 | `_addPredefinedAffixes`（`card.ht:413-430`）：`targetCount = min(列表长度, rank + 1)` | **能**。破境每次再解 1 条（`card.ht:631` 重调） |
-| 绝世装备 | `createItemById`（`item.ht:130-137`）：`unlockCount = min(列表长度, item.rank + 1)` | **不能**。装备破境未实现，解锁数在生成时固定 |
+| 绝世装备 | `createItemById`（`item.ht:130-137`）：`unlockCount = min(列表长度, item.rank + 1)`   | **不能**。装备破境未实现，解锁数在生成时固定    |
 
 这条差异决定了两个列表的写法：
 
@@ -31,13 +31,13 @@
 
 ### 0.3 装备额外词条槽位（世界不再加）
 
-| 装备 | rank | 词条总数上限 | **额外词条槽** |
-| --- | --- | --- | --- |
-| 窥天镜 | 1 | 2 | **1** |
-| 五行珠 | 2 | 3 | **2** |
-| 天机盘 | 3 | 4 | **3** |
-| 蓄灵佩 | 4 | 5 | **4** |
-| 聚灵旗 | 5 | 6 | **5** |
+| 装备   | rank | 词条总数上限 | **额外词条槽** |
+| ------ | ---- | ------------ | -------------- |
+| 窥天镜 | 1    | 2            | **1**          |
+| 五行珠 | 2    | 3            | **2**          |
+| 天机盘 | 3    | 4            | **3**          |
+| 蓄灵佩 | 4    | 5            | **4**          |
+| 聚灵旗 | 5    | 6            | **5**          |
 
 装备额外词条写在 `passives.json5`（与天赋同池），不走 `card_affixes.json5`。**槽位写不满是常态**，不必凑数。
 
@@ -76,8 +76,7 @@
 `Constants.elementAilments`（`common.dart`）定义了 **7 种元素**：金/木/水/火/土/风/雷。
 但当前悟道主词条只用了 **5 种**（火/水/雷/风/土），**金、木没有主词条**。
 而一气化三清的抉择只提供 **水/火/雷** 三种增幅状态。
-
-→ §4 会补木系主词条，并处理这处不对称。
+目前的计划中，金属性元素属于御剑的飞剑术的属性，而木属性元素属于炼魂流派的毒系攻击的属性。
 
 ---
 
@@ -99,17 +98,18 @@
 
 7 张卡的现状与目标：
 
-| 卡 | 数据层 rank | 可解词条数 | `affixes` 现状 |
-| --- | --- | --- | --- |
-| 天机术 `spellcraft_scry_draw` | 1 | 1 → 5（破境成长） | `[]` |
-| 相生相克 `spellcraft_ailments_by_used_elements` | 2 | 2 → 5 | `[]` |
-| 一气化三清 `spellcraft_element_amplify` | 3 | 3 → 5 | `[]` |
-| 蓄灵诀 `spellcraft_ailments_to_mana` | 4 | 4 → 5 | `[]` |
-| 太上忘情 `spellcraft_handcards_to_mana` | 5 | 5 | `[]` |
-| 紫微斗数 `spellcraft_draw_cards_reduce_cost` | **无 rank 字段** | 1 → 5 | **无该键** |
-| 万法归宗 `spellcraft_ultimate_spell` | 5 | 5 | **无该键** |
+| 卡                                              | 数据层 rank      | 可解词条数        | `affixes` 现状 |
+| ----------------------------------------------- | ---------------- | ----------------- | -------------- |
+| 天机术 `spellcraft_scry_draw`                   | 1                | 1 → 5（破境成长） | `[]`           |
+| 相生相克 `spellcraft_ailments_by_used_elements` | 2                | 2 → 5             | `[]`           |
+| 一气化三清 `spellcraft_element_amplify`         | 3                | 3 → 5             | `[]`           |
+| 蓄灵诀 `spellcraft_ailments_to_mana`            | 4                | 4 → 5             | `[]`           |
+| 太上忘情 `spellcraft_handcards_to_mana`         | 5                | 5                 | `[]`           |
+| 紫微斗数 `spellcraft_draw_cards_reduce_cost`    | **无 rank 字段** | 1 → 5             | **无该键**     |
+| 万法归宗 `spellcraft_ultimate_spell`            | 5                | 5                 | **无该键**     |
 
 > ⚠️ **两处需先修**：
+>
 > 1. `紫微斗数` 缺 `rank`。它由分支节点 `shuffleIntoDeck` 发放，而 `affixId` 路径**短路了全部过滤**（`card.ht:121`），所以 `this.rank` 保持构造默认值 **0**（`card.ht:107`），`targetCount = min(len, 1) = 1`——**只会解出主词条，一个额外词条都不给**。必须显式补 `rank: N`。按照设计，紫微斗数的rank等同于角色当前境界。
 > 2. `万法归宗` 已有 `rank: 5`，但缺 `affixes` 键，同样解不出词条。
 
@@ -125,26 +125,25 @@
 
 约定字段（均为 `card_affixes.json5` 词条顶层，`script` 可缺省、`callbacks: []`，仅作数据被主脚本读取）：
 
-| 字段 | 含义 |
-| --- | --- |
-| `scryBonus` | 本牌观星时额外查看 N 张 |
-| `scryPickBonus` | 本牌观星时可选 N+ 张 |
-| `scryUpgradeChosen` | 本牌观星选中的牌等级 +1 |
-| `scryRetainChosen` | 本牌观星选中的牌获得保留 |
-| `scryChosenCostChange` | 本牌观星选中牌费用变化 |
-| `scryOthersCostChange` | 本牌观星未选牌费用变化 |
+| 字段                   | 含义                     |
+| ---------------------- | ------------------------ |
+| `scryBonus`            | 本牌观星时额外查看 N 张  |
+| `scryChosenCostChange` | 本牌观星选中牌费用变化   |
+| `scryRetainChosen`     | 本牌观星选中的牌获得保留 |
+| `scryUpgradeChosen`    | 本牌观星选中的牌等级 +1  |
+| `scryPickBonus`        | 本牌观星时可选 N+ 张     |
 
 主脚本（如 `scry_then_draw`）遍历 `card.affixes[1..]` 累加这些字段，一次性传给 `self.scry(...)`，由 Dart 侧统一兑现。
 
 **固定词条列表**（按解锁顺序）：
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 1 | `spellcraft_scry_draw_affix_1` | **落子**：本牌观星时额外查看 {0} 张 | `scryBonus: 2` |
-| 2 | rank 2 | `spellcraft_scry_draw_affix_2` | **星移**：本牌观星选中的牌费用 -1 | `scryChosenCostChange: -1` |
-| 3 | rank 3 | `spellcraft_scry_draw_affix_3` | **留观**：本牌观星选中的牌获得保留 | `scryRetainChosen: true` |
-| 4 | rank 4 | `spellcraft_scry_draw_affix_4` | **窥命**：本牌观星选中的牌等级 +1 | `scryUpgradeChosen: true` |
-| 5 | rank 5 | `spellcraft_scry_draw_affix_6` | **星算**：本牌观星可选 {0} 张（展示张数不变） | `scryPickBonus: 1` |
+| #   | 解禁   | id                             | 效果                                          | 数据                       |
+| --- | ------ | ------------------------------ | --------------------------------------------- | -------------------------- |
+| 1   | 自带   | `spellcraft_scry_draw_affix_1` | **落子**：本牌观星时额外查看 {0} 张           | `scryBonus: X`             |
+| 2   | rank 2 | `spellcraft_scry_draw_affix_2` | **星移**：本牌观星选中的牌费用 -{0}           | `scryChosenCostChange: -X` |
+| 3   | rank 3 | `spellcraft_scry_draw_affix_3` | **留观**：本牌观星选中的牌获得保留            | `scryRetainChosen: true`   |
+| 4   | rank 4 | `spellcraft_scry_draw_affix_4` | **窥命**：本牌观星选中的牌等级 +{0}           | `scryUpgradeChosen: X`     |
+| 5   | rank 5 | `spellcraft_scry_draw_affix_5` | **星算**：本牌观星可选 {0} 张（展示张数不变） | `scryPickBonus: X`         |
 
 **设计说明**：
 
@@ -154,13 +153,13 @@
 
 主词条不变：对**双方**施加随机元素异常，种数 = 本回合已用元素种数。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 2 | `spellcraft_ailments_used_affix_1` | **相生**：本回合每使用过一种元素，本次施加层数 +{0} | `valueData: [{base: 0.5, increment: 0.05}]` |
-| 2 | rank 3 | `spellcraft_ailments_used_affix_2` | **五行归序**：自身持有 {0} 种以上不同元素异常时，获得 1 点灵气 | `valueData: [{base: 3}]`（固定值） |
-| 3 | rank 4 | `spellcraft_ailments_used_affix_3` | **清浊相生**：打出时移除自身 1 层任意元素异常，抽 1 张牌 | — |
-| 4 | rank 5 | `spellcraft_ailments_used_affix_4` | **乱象**：若对手已持有本次将施加的异常，则该异常额外 +1 层 | — |
-| 5 | rank 6 | `spellcraft_ailments_used_affix_5` | **化劫**：本场战斗中，每移除 1 层自身元素异常，获得 3 点护甲 | 需永久状态承载 |
+| #   | 解禁   | id                                 | 效果                                                           | 数据                                        |
+| --- | ------ | ---------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
+| 1   | 自带   | `spellcraft_ailments_used_affix_1` | **相生**：本回合每使用过一种元素，本次施加层数 +{0}            | `valueData: [{base: 0.5, increment: 0.05}]` |
+| 2   | 自带   | `spellcraft_ailments_used_affix_2` | **五行归序**：自身持有 {0} 种以上不同元素异常时，获得 1 点灵气 | `valueData: [{base: 3}]`（固定值）          |
+| 3   | rank 3 | `spellcraft_ailments_used_affix_3` | **清浊相生**：打出时移除自身 1 层任意元素异常，抽 1 张牌       | —                                           |
+| 4   | rank 4 | `spellcraft_ailments_used_affix_4` | **乱象**：若对手已持有本次将施加的异常，则该异常额外 +1 层     | —                                           |
+| 5   | rank 5 | `spellcraft_ailments_used_affix_5` | **化劫**：本场战斗中，每移除 1 层自身元素异常，获得 3 点护甲   | 需永久状态承载                              |
 
 **设计说明**：`attack_debuff` / `ailments_by_used_elements` 系的通用脚本可以传"额外层数"参数，不必新写整套。`_3` 与 `water_mend`（清除全部异常）形成对照：相生相克自己清一层换抽牌，是自异常引擎的**微调节流阀**，避免异常堆到必须用水疗术清场。
 
@@ -170,12 +169,12 @@
 
 主词条不变：抉择水/火/雷之一，本回合双方造成的该元素伤害 +{0}%。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 3 | `spellcraft_element_amplify_affix_1` | **三清护体**：抉择后，本回合首次受到伤害时获得 {0} 点护盾 | `valueData: [{base: 1}]` |
-| 2 | rank 4 | `spellcraft_element_amplify_affix_2` | **同气相求**：对手使用所选元素牌时，你获得 1 点灵气 | 需状态承载 |
-| 3 | rank 5 | `spellcraft_element_amplify_affix_3` | **一气先行**：抉择后，本回合打出的第一张所选元素牌费用 -1 | 复用 `applyTurnCostModifier`（现有零调用方通道） |
-| 4 | rank 6 | `spellcraft_element_amplify_affix_4` | **三清回响**：打出时每有 1 点未使用的灵气，本次增幅 +2% | — |
+| #   | 解禁   | id                                   | 效果                                                 | 数据                                             |
+| --- | ------ | ------------------------------------ | ---------------------------------------------------- | ------------------------------------------------ |
+| 1   | 自带   | `spellcraft_element_amplify_affix_1` | **三清护体**：抉择后，下一次受到该元素伤害时恢复生命 | `valueData: [{base: 1}]`                         |
+| 2   | rank 4 | `spellcraft_element_amplify_affix_2` | **同气相求**：对手使用所选元素牌时，你获得 1 点灵气  | 需状态承载                                       |
+| 3   | rank 5 | `spellcraft_element_amplify_affix_3` | **一气先行**：抉择后，本回合下一张所选元素牌费用 -1  | 复用 `applyTurnCostModifier`（现有零调用方通道） |
+| 4   | rank 6 | `spellcraft_element_amplify_affix_4` | **三清回响**：打出时每有 1 点灵气，本次增幅 +5%      | —                                                |
 
 **设计说明**：`_2` 是**专门针对"对称效果被 AI 低估"的补偿**——敌方不会主动规划元素路线，导致"双方增伤"实际上恒偏向玩家。这条让对手**无意中**使用该元素时给玩家补偿，把不对称从"白拿"变成"有来有回"。
 
@@ -185,11 +184,11 @@
 
 ⚠️ **不要再加"异常层数增加"或"异常转灵气"的效果**——现有组合（相生相克 + 窥天镜 + 五行珠 + 蓄灵诀）已经是一条强引擎，继续叠加会让它从"构筑选择"变成"必选组合"。这个方向要加的是**消耗、转化、防御**。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 4 | `spellcraft_ailments_to_mana_affix_1` | **纳气之后**：若本次获得 ≥{0} 点灵气，获得 {1} 点护甲 | `valueData: [{base: 3}, {base: 12, increment: 0.6}]` |
-| 2 | rank 5 | `spellcraft_ailments_to_mana_affix_2` | **化浊为清**：打出后移除自身 1 种元素异常，抽 1 张牌 | — |
-| 3 | rank 6 | `spellcraft_ailments_to_mana_affix_3` | **七情归一**：自身持有 {0} 种以上不同元素异常时，额外获得 1 点太极之气 | `valueData: [{base: 5}]` |
+| #   | 解禁   | id                                    | 效果                                                                   | 数据                                                 |
+| --- | ------ | ------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1   | rank 4 | `spellcraft_ailments_to_mana_affix_1` | **纳气之后**：若本次获得 ≥{0} 点灵气，获得 {1} 点护甲                  | `valueData: [{base: 3}, {base: 12, increment: 0.6}]` |
+| 2   | rank 5 | `spellcraft_ailments_to_mana_affix_2` | **化浊为清**：打出后移除自身 1 种元素异常，抽 1 张牌                   | —                                                    |
+| 3   | rank 6 | `spellcraft_ailments_to_mana_affix_3` | **七情归一**：自身持有 {0} 种以上不同元素异常时，额外获得 1 点太极之气 | `valueData: [{base: 5}]`                             |
 
 **设计说明**：太极之气（`kWildcardStatusId`）是万能抵扣资源，用它做顶层奖励既有价值又自带限制（灵气不能靠它支付）。`_1` 把"灵气爆发"转成生存，让引擎回合不至于裸奔。
 
@@ -199,11 +198,11 @@
 
 **关键约束**：它的主词条是 `self_buff` 授予状态（`buff_handcards_to_mana`），额外词条的作用时机有分歧——**打出的瞬间**（CardScript）还是**状态结算时**（StatusScript）。两者都可做，但要明确。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 5 | `spellcraft_handcards_to_mana_affix_1` | **舍念**：本牌施加的「太上忘情」状态，每张手牌的纯粹伤害 -{0} 点 | `valueData: [{base: 3}]` |
-| 2 | rank 6 | `spellcraft_handcards_to_mana_affix_2` | **静心**：本牌施加的状态，下回合额外灵气 +{0} | `valueData: [{base: 1}]` |
-| 3 | rank 6 | `spellcraft_handcards_to_mana_affix_3` | **忘我**：本牌结算后，下回合第一张悟道牌伤害 +{0}% | `valueData: [{base: 30, increment: 2.5}]` |
+| #   | 解禁   | id                                     | 效果                                                             | 数据                                      |
+| --- | ------ | -------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
+| 1   | rank 5 | `spellcraft_handcards_to_mana_affix_1` | **舍念**：本牌施加的「太上忘情」状态，每张手牌的纯粹伤害 -{0} 点 | `valueData: [{base: 3}]`                  |
+| 2   | rank 6 | `spellcraft_handcards_to_mana_affix_2` | **静心**：本牌施加的状态，下回合额外灵气 +{0}                    | `valueData: [{base: 1}]`                  |
+| 3   | rank 6 | `spellcraft_handcards_to_mana_affix_3` | **忘我**：本牌结算后，下回合第一张悟道牌伤害 +{0}%               | `valueData: [{base: 30, increment: 2.5}]` |
 
 **设计说明**：`_1` 是**解绑**——把"高风险高回报"调成"中风险中回报"，给不敢攥牌的构筑一条路。**不建议**给太上忘情配 `draw_cards_neutral` 或 `mana_battery`：那会同时扩大手牌收益和灵气收益，风险会瞬间消失。
 
@@ -213,14 +212,13 @@
 
 ⚠️ **先补 `rank` 字段**，否则解不出额外词条（见 §2 开头的警告）。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 1 | `spellcraft_draw_cards_affix_1` | **定星**：抽到的牌等级 +1 | — |
-| 2 | rank 2 | `spellcraft_draw_cards_affix_2` | **留命**：抽到的牌获得保留 | — |
-| 3 | rank 3 | `spellcraft_draw_cards_affix_3` | **星移**：若抽到悟道牌，获得 1 点灵气 | — |
-| 4 | rank 4 | `spellcraft_draw_cards_affix_4` | **获得防御**（通用，可复用中立 `defend`） | 建议直接用中立词条而非专属 |
-| 5 | rank 5 | `spellcraft_draw_cards_affix_5` | **观测**：抽牌前先观星 1 张 | — |
-| 6 | rank 6 | `spellcraft_draw_cards_affix_6` | **逆天改命**：若抽到的不是悟道牌，额外抽 1 张 | — |
+| #   | 解禁   | id                              | 效果                                          | 数据                       |
+| --- | ------ | ------------------------------- | --------------------------------------------- | -------------------------- |
+| 1   | rank 1 | `spellcraft_draw_cards_affix_1` | **定星**：抽到的牌等级 +1                     | —                          |
+| 2   | rank 2 | `spellcraft_draw_cards_affix_2` | **留命**：抽到的牌获得保留                    | —                          |
+| 3   | rank 3 | `spellcraft_draw_cards_affix_3` | **星移**：若抽到悟道牌，获得 1 点灵气         | —                          |
+| 4   | rank 4 | `spellcraft_draw_cards_affix_4` | **获得防御**（通用，可复用中立 `defend`）     | 建议直接用中立词条而非专属 |
+| 6   | rank 5 | `spellcraft_draw_cards_affix_5` | **逆天改命**：若抽到的不是悟道牌，额外抽 1 张 | —                          |
 
 **设计说明**：
 
@@ -234,14 +232,14 @@
 
 ⚠️ **先补 `affixes` 键**。rank 5 可解 6 条，掉落即全部生效。
 
-| # | 解禁 | id | 效果 | 数据 |
-| --- | --- | --- | --- | --- |
-| 1 | rank 5 | `spellcraft_ultimate_spell_affix_1` | **雷行九霄**：若对手已持有感电，本次每点灵气的伤害 +{0}% | `valueData: [{base: 20, increment: 2}]` |
-| 2 | rank 6 | `spellcraft_ultimate_spell_affix_2` | **一法破万法**：本回合每使用过一种元素，本牌伤害 +{0}% | `valueData: [{base: 8, increment: 1}]` |
-| 3 | rank 6 | `spellcraft_ultimate_spell_affix_3` | **万法余波**：实际支付超过 10 点的每点灵气，获得 {0} 点护甲 | `valueData: [{base: 5}]` |
-| 4 | rank 6 | `spellcraft_ultimate_spell_affix_4` | **雷霆余烬**：若本牌击杀目标，返还 {0}% 已支付灵气 | `valueData: [{base: 50}]` |
-| 5 | rank 6 | `spellcraft_ultimate_spell_affix_5` | **无极不渡**：本牌不能被任何费用返还效果影响；打出后获得 {0} 点护甲 | `valueData: [{base: 20}]` |
-| 6 | rank 6 | `spellcraft_ultimate_spell_affix_6` | **归宗之后**：打出后抽 1 张牌，但下回合第一张牌费用 +1 | — |
+| #   | 解禁   | id                                  | 效果                                                                | 数据                                    |
+| --- | ------ | ----------------------------------- | ------------------------------------------------------------------- | --------------------------------------- |
+| 1   | rank 5 | `spellcraft_ultimate_spell_affix_1` | **雷行九霄**：若对手已持有感电，本次每点灵气的伤害 +{0}%            | `valueData: [{base: 20, increment: 2}]` |
+| 2   | rank 6 | `spellcraft_ultimate_spell_affix_2` | **一法破万法**：本回合每使用过一种元素，本牌伤害 +{0}%              | `valueData: [{base: 8, increment: 1}]`  |
+| 3   | rank 6 | `spellcraft_ultimate_spell_affix_3` | **万法余波**：实际支付超过 10 点的每点灵气，获得 {0} 点护甲         | `valueData: [{base: 5}]`                |
+| 4   | rank 6 | `spellcraft_ultimate_spell_affix_4` | **雷霆余烬**：若本牌击杀目标，返还 {0}% 已支付灵气                  | `valueData: [{base: 50}]`               |
+| 5   | rank 6 | `spellcraft_ultimate_spell_affix_5` | **无极不渡**：本牌不能被任何费用返还效果影响；打出后获得 {0} 点护甲 | `valueData: [{base: 20}]`               |
+| 6   | rank 6 | `spellcraft_ultimate_spell_affix_6` | **归宗之后**：打出后抽 1 张牌，但下回合第一张牌费用 +1              | —                                       |
 
 **设计说明**：
 
@@ -261,9 +259,9 @@
 
 主词条：观星额外查看 2 张；每次观星后自身随机获得 2 种元素异常。
 
-| 槽 | id | 效果 | 取舍 |
-| --- | --- | --- | --- |
-| 1 | `heaven_peeking_mirror_extra` | **窥命**：观星选中的牌等级 +1 | 强化"看得越多，能拿的越好"，与主词条的异常代价形成正面对冲 |
+| 槽  | id                            | 效果                          | 取舍                                                       |
+| --- | ----------------------------- | ----------------------------- | ---------------------------------------------------------- |
+| 1   | `heaven_peeking_mirror_extra` | **窥命**：观星选中的牌等级 +1 | 强化"看得越多，能拿的越好"，与主词条的异常代价形成正面对冲 |
 
 **未采纳的方向**（留作备选）：观星时手牌同元素牌每张使本牌费用 -1、观星时按已用元素种类获得灵气。两者都偏离"观星深度"这个主轴。
 
@@ -271,10 +269,10 @@
 
 主词条：你造成的元素异常层数 +2；你受到的元素异常层数 +2。
 
-| 槽 | id | 效果 |
-| --- | --- | --- |
-| 1 | `five_elements_pearl_extra_1` | **同源**：你造成的元素异常层数 {0}；你受到的元素异常层数 {0} |
-| 2 | `five_elements_pearl_extra_2` | **相济**：每回合第一次获得元素异常时，获得 1 点灵气 |
+| 槽  | id                            | 效果                                                         |
+| --- | ----------------------------- | ------------------------------------------------------------ |
+| 1   | `five_elements_pearl_extra_1` | **同源**：你造成的元素异常层数 {0}；你受到的元素异常层数 {0} |
+| 2   | `five_elements_pearl_extra_2` | **相济**：每回合第一次获得元素异常时，获得 1 点灵气          |
 
 **设计说明**：`_2` 把"受异常"从纯代价转成收益，是自异常引擎的第二个正面。这在对称效果被 AI 低估的前提下尤其重要。
 
@@ -282,11 +280,11 @@
 
 主词条：回合开始额外抽 1 张；通过此效果抽到的非悟道牌本回合费用 +1。
 
-| 槽 | id | 效果 |
-| --- | --- | --- |
-| 1 | `heavenly_mechanism_disc_extra_1` | **推演**：回合开始观星 {0} 张 | 
-| 2 | `heavenly_mechanism_disc_extra_2` | **锁星**：观星选中的牌费用 -{0} |
-| 3 | `heavenly_mechanism_disc_extra_3` | **软锁强化**：非悟道牌费用 +{0}（与主词条的课税叠加） |
+| 槽  | id                                | 效果                                                  |
+| --- | --------------------------------- | ----------------------------------------------------- |
+| 1   | `heavenly_mechanism_disc_extra_1` | **推演**：回合开始观星 {0} 张                         |
+| 2   | `heavenly_mechanism_disc_extra_2` | **锁星**：观星选中的牌费用 -{0}                       |
+| 3   | `heavenly_mechanism_disc_extra_3` | **软锁强化**：非悟道牌费用 +{0}（与主词条的课税叠加） |
 
 **设计说明**：`_1` 直接用现成机制字段 `turnStartScry`。`_3` 是"软流派锁最强形态"的延伸，rank 3 装备给到 +1 已足够。
 
@@ -294,12 +292,12 @@
 
 主词条：回合结束至多保留 2 点灵气；每保留 1 点，下回合开始受到 3 点纯粹伤害。
 
-| 槽 | id | 效果 |
-| --- | --- | --- |
-| 1 | `spirit_storing_amulet_extra_1` | **扩储**：保留上限 +{0} |
-| 2 | `spirit_storing_amulet_extra_2` | **温养**：每保留 1 点的代价伤害 -{0} |
-| 3 | `spirit_storing_amulet_extra_3` | **余韵**：每保留 1 点，下回合额外获得 {0} 点灵气 |
-| 4 | `spirit_storing_amulet_extra_4` | **淤积**：保留的灵气每点使本回合首次受到的伤害 -{0} |
+| 槽  | id                              | 效果                                                |
+| --- | ------------------------------- | --------------------------------------------------- |
+| 1   | `spirit_storing_amulet_extra_1` | **扩储**：保留上限 +{0}                             |
+| 2   | `spirit_storing_amulet_extra_2` | **温养**：每保留 1 点的代价伤害 -{0}                |
+| 3   | `spirit_storing_amulet_extra_3` | **余韵**：每保留 1 点，下回合额外获得 {0} 点灵气    |
+| 4   | `spirit_storing_amulet_extra_4` | **淤积**：保留的灵气每点使本回合首次受到的伤害 -{0} |
 
 **设计说明**：`_1` 与 `_2` 分别放松"上限"和"代价"两个约束，是玩家最容易感知的强化方向。**注意**：保留的灵气不触发阴阳五行结算（`status_script.ht:332-346` 已处理），这条语义要写进装备文案。
 
@@ -307,13 +305,13 @@
 
 主词条：回合开始时灵气 +3；你打出的非悟道牌费用 +2。
 
-| 槽 | id | 效果 |
-| --- | --- | --- |
-| 1 | `spirit_gathering_banner_extra_1` | **旗鼓**：回合开始灵气 +{0} |
-| 2 | `spirit_gathering_banner_extra_2` | **纯道**：每打出一张悟道牌，本回合灵气 +{0}（每回合限 1 次） |
-| 3 | `spirit_gathering_banner_extra_3` | **斥外**：你受到的非悟道来源伤害 -{0} |
-| 4 | `spirit_gathering_banner_extra_4` | **聚气成势**：灵气达到 {0} 时，本回合受到的伤害 -{1}% |
-| 5 | `spirit_gathering_banner_extra_5` | **一炁**：回合结束时，若灵气为 0，获得 {0} 点护甲 |
+| 槽  | id                                | 效果                                                         |
+| --- | --------------------------------- | ------------------------------------------------------------ |
+| 1   | `spirit_gathering_banner_extra_1` | **旗鼓**：回合开始灵气 +{0}                                  |
+| 2   | `spirit_gathering_banner_extra_2` | **纯道**：每打出一张悟道牌，本回合灵气 +{0}（每回合限 1 次） |
+| 3   | `spirit_gathering_banner_extra_3` | **斥外**：你受到的非悟道来源伤害 -{0}                        |
+| 4   | `spirit_gathering_banner_extra_4` | **聚气成势**：灵气达到 {0} 时，本回合受到的伤害 -{1}%        |
+| 5   | `spirit_gathering_banner_extra_5` | **一炁**：回合结束时，若灵气为 0，获得 {0} 点护甲            |
 
 **设计说明**：`_2` 与 `_5` 服务万法归宗的凑气目标。`_3`/`_4` 是纯悟道构筑的生存补偿——它为了 +3 灵气付出了"非悟道牌 +2 费"的代价，容易被杂牌构筑惩罚，需要防守面。
 
@@ -321,19 +319,7 @@
 
 ## 4. 可补充进现有设计的内容
 
-### 4.1 补木系主词条（填补元素空缺）
-
-现状：悟道 5 种元素有主词条（火/水/雷/风/土），**金、木没有**。而 `Constants.elementAilments` 定义了 7 种。
-
-木对应 `ailment_poison`（DoT，回合结束时中毒伤害）。建议补一张木系主词条卡：
-
-| id | rank | kind | 元素 | damageType | cardType | 效果 | script | valueData |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `vine_bind` | 3 | woodbend | 木 | poison | spell | 毒伤，并施加中毒 {1} 层（不经计数器） | `attack_with_energy_count_check` 已支持可选异常尾部 | `[{14, 1.4}, {60}, {2}]` |
-
-> `attack_with_energy_count_check` 的 value[2] 尾部已经会按 `Constants.elementAilments[elementType]` 施加异常，木 → 中毒，**无需新脚本**。
-
-### 4.2 补"清异常"主词条
+### 4.1 补"清异常"主词条
 
 `water_mend`（甘霖术）现在"回复生命 + 移除自身**全部**元素异常"。用户草案提到要改成"至多移除 x 层，每移除一层获得生命" —— **这需要新脚本**，因为 `heal_remove_debuffs`（`card_script.ht:301-307`）是整层清空、不计数。
 
@@ -346,29 +332,29 @@
 
 改造后的 `water_mend` 词条：
 
-| 字段 | 值 |
-| --- | --- |
-| `script` | `heal_remove_debuffs_by_stack` |
-| `valueData[0]` | `{base: 4, increment: 0.1}`（每层治疗） |
+| 字段           | 值                                           |
+| -------------- | -------------------------------------------- |
+| `script`       | `heal_remove_debuffs_by_stack`               |
+| `valueData[0]` | `{base: 4, increment: 0.1}`（每层治疗）      |
 | `valueData[1]` | `{base: 3, increment: 0.15}`（至多移除层数） |
-| `uniqueIds` | `["for_element_dots_heal"]` |
+| `uniqueIds`    | `["for_element_ailment_heal"]`               |
 
-### 4.3 补护甲版清异常卡
+### 4.2 补护甲版清异常卡
 
 用户草案的 `earth_mend`（注意原文拼写为 `eartch_mend`）目前**不存在**。建议作为土系加持卡加入：
 
-| id | rank | kind | 元素 | cardType | 效果 | script | valueData |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `earth_mend` | 3 | earthbend | 土 | spell | 至多移除 {1} 层元素异常，每移除 1 层获得 {0} 点护甲 | `defend_remove_debuffs_by_stack` | `[{base: 6, increment: 0.15}, {base: 3, increment: 0.15}]` |
+| id           | rank | kind      | 元素 | cardType | 效果                                                | script                           | valueData                                                  |
+| ------------ | ---- | --------- | ---- | -------- | --------------------------------------------------- | -------------------------------- | ---------------------------------------------------------- |
+| `earth_mend` | 3    | earthbend | 土   | spell    | 至多移除 {1} 层元素异常，每移除 1 层获得 {0} 点护甲 | `defend_remove_debuffs_by_stack` | `[{base: 6, increment: 0.15}, {base: 3, increment: 0.15}]` |
 
-`uniqueIds: ["for_element_dots_defend"]`，与 `water_mend` 的互斥去重（`card.ht:232-237` / `:259`）。
+`uniqueIds: ["for_element_ailment_defend"]`，与 `water_mend` 的互斥去重（`card.ht:232-237` / `:259`）。
 
-### 4.4 补两条额外词条（元素异常 → 生命/护甲）
+### 4.3 补两条额外词条（元素异常 → 生命/护甲）
 
-| id | script（建议新建） | rank | categories | genres | 效果 | uniqueId |
-| --- | --- | --- | --- | --- | --- | --- |
-| `element_dots_heal` | `gain_life_by_self_ailments` | 3 | buff, attack | spellcraft | 打出时自身每有 1 层任意元素异常，回复 {0} 生命 | `for_element_dots_heal` |
-| `element_dots_defend` | `gain_defend_by_self_ailments` | 3 | buff, attack | spellcraft | 打出时自身每有 1 层任意元素异常，获得 {0} 护甲 | `for_element_dots_defend` |
+| id                       | script（建议新建）             | rank | categories   | genres     | 效果                                           | uniqueId                     |
+| ------------------------ | ------------------------------ | ---- | ------------ | ---------- | ---------------------------------------------- | ---------------------------- |
+| `element_ailment_heal`   | `gain_life_by_self_ailments`   | 3    | buff, attack | spellcraft | 打出时自身每有 1 层任意元素异常，回复 {0} 生命 | `for_element_ailment_heal`   |
+| `element_ailment_defend` | `gain_defend_by_self_ailments` | 3    | buff, attack | spellcraft | 打出时自身每有 1 层任意元素异常，获得 {0} 护甲 | `for_element_ailment_defend` |
 
 > ⚠️ **语义澄清**：作为**卡牌额外词条**，它只能是**打出时一次性结算**（CardScript 是 on-play）。如果你想的是"持续生效"，那属于 `passives.json5` 的装备/天赋词条，不是卡牌词条。二者不要混。
 >
@@ -376,7 +362,7 @@
 >
 > ⚠️ **多用复数 `uniqueIds: [...]`**。种子阶段（`card.ht:232-237`）只读复数形式，singular 的 `uniqueId` 只有在重建阶段（`:371`）才有回退。
 
-### 4.5 补"调息"（attune）的重算缺口
+### 4.4 补"调息"（attune）的重算缺口
 
 `spellcraft_affixes.md:15` 记录的待办已确认属实：`reduce_cost_by_cards_in_hand` 只在**进入/离开手牌的那张牌自己**身上重算（`added_to_hand` 1 个派发点、`removed_from_hand` 3 个）。
 
@@ -384,7 +370,7 @@
 
 修复方向（需 Dart 侧改动，属机制层）：在 `handleCardAffixCallback` 的 `added_to_hand` / `removed_from_hand` 派发之后，对**手牌区其余卡牌**补跑一次这两个时机的回调。注意**幂等**——`_added_to_hand` 已经内建了幂等撤销（`card_script.ht:505`），可以安全重复调用。
 
-### 4.6 三处小体量 Dart 扩展（`spellcraft.md:115` 提到，此处细化）
+### 4.5 三处小体量 Dart 扩展（`spellcraft.md:115` 提到，此处细化）
 
 1. **观星修饰字段**（§2.1 的 6 个字段）——在 `BattleScene.scry` 里消费，或让主脚本收集后传参。
 2. **`scryPickBonus` 多选**（仅当决定做 §2.1 的第 6 条时）——需 `Completer<List<CustomGameCard>>` + 确认动作 + 剩余次数提示。

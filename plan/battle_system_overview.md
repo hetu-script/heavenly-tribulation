@@ -53,7 +53,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {statusId}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn*start / turn_end / doing_damage / taking_damage / gained_debuff / using_card / used_card / attacked / buffed / extra_turn / use_card_genre*_ / use*card_kind*_，以及 self_produce_resources（产出阶段，如太上感应）等。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（火/雷回合开始、冰/毒回合结束 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / turn_start_mana_bonus）等。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / turn_start_mana_bonus）等。
 - 状态数据在 assets/data/status*effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status*{id} + status\_{id}\_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -146,7 +146,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ## 10. 文档现状（docs/ 与实现的对照）
 
-- docs/docs/how2play/rpg/battle/readme.md：完整规则体系——16 种攻击 kind / 14 种加持 kind 表、五流派资源表、八伤害类型及对策（物理-护甲可暴击、真气-50%穿透、四元素-抗性上限75%、精神-念力对抗、纯粹-无对策）、暴击/异常双充能计数器（阈值基础10、5-15）、幸运/不幸语义、资源回合节奏、软狂暴劫气。
+- docs/docs/how2play/rpg/battle/readme.md：完整规则体系——16 种攻击 kind / 14 种加持 kind 表、五流派资源表、伤害类型及对策（物理-护甲可暴击、无属性-护甲不暴击（元素卡未转化态）、真气-内伤层数×5%穿透且伤害附内伤、四元素-转化态无视护甲吃抗性、精神-念力对抗、纯粹-无对策）、暴击/异常双充能计数器（阈值基础10、5-15）、幸运/不幸语义、资源回合节奏、软狂暴劫气。
 - docs/docs/how2play/rpg/battle/card/readme.md：费用阶梯、词条等级/卡牌等级/境界关系、六种精炼、绝世卡、符箓、易逝。
 - docs/docs/how2play/rpg/battle/resource/readme.md：6 阳 6 阴资源气对、阴阳对冲净值显示、统一生命周期（对方回合期间保留可见）、产出模型、溢出原则、流派资源不对称软限制。
 - docs/docs/mod/battle/readme.md：被动机制字段契约表（7 个字段与透传白名单一一对应，最可靠的契约文档）；docs/docs/mod/battle/card/readme.md：词条脚本回调契约。

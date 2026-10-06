@@ -123,16 +123,17 @@ namespace StatusScript {
     self.removeStatusEffect('vulnerable', percentage: 0.5)
   }
 
-  /// 幸运：使用物理伤害或者元素伤害牌时，消耗 1 层：
-  /// 物理伤害 → 本张卡牌必定暴击；元素伤害 → 本张卡牌必定造成异常（每满 10 点伤害 1 层）
+  /// 幸运：使用攻击牌时消耗 1 层（按卡牌身份二选一，与是否处于转化态无关）：
+  /// 潜伏元素牌（火/水/雷/木）→ 本张卡牌必定造成异常（每满 10 点伤害 1 层）；
+  /// 物理伤害牌 → 本张卡牌必定暴击。
+  /// 无属性元素卡（含金/土/风）与真气牌：不触发、不消耗（控制异常的施加走脚本直施，不经充能）
   function buff_crit_self_using_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'attack') return
 
-    final damageType = self.cardFlags.damageType
-    if (damageType == 'physical') {
-      self.turnFlags.guaranteedCrit = true
-    } else if (damageType == 'fire' || damageType == 'ice' || damageType == 'lightning' || damageType == 'poison') {
+    if (Constants.elementDamageTypes[self.cardFlags['elementType']] != null) {
       self.turnFlags.guaranteedAilment = true
+    } else if (self.cardFlags.damageType == 'physical') {
+      self.turnFlags.guaranteedCrit = true
     } else {
       return
     }
@@ -204,10 +205,11 @@ namespace StatusScript {
   /// 元素异常（持续伤害类）统一脚本
   /// 伤害受对应元素抗性减免（抗性净值由 getElementalResist 给出，含全元素抗性，上限 75%，允许负抗性加深），
   /// 并受施加方的元素异常伤害倍率（ailmentMultiplier）放大
-  /// 点燃（火）：回合开始时受到固定 5 点火焰伤害，同时消耗 1 层（层数=剩余触发次数）
+  /// 点燃（火）：回合开始时耗尽所有层数，每层受到固定 5 点火焰伤害（每层单独跳字）
   /// 感电（雷）：回合开始时耗尽所有层数，每层随机受到 1~10 点雷电伤害（每层单独跳字）
-  /// 冰缓（水）：回合结束时耗尽所有层数，每层受到 1 点寒冰伤害，并转化为迟钝
+  /// 冰缓（水）：回合结束时消耗 1 层，受到 1 点寒冰伤害，并转化为 1 层迟钝
   /// 中毒（木）：回合结束时受到固定 5 点毒素伤害，并移除 1 层
+  /// （爆发对：火/雷回合开始耗尽；绵长对：冰/毒回合结束滴注——火烧尽、电放完，冰寒侵骨、毒素缠绵）
   /// （DOT 与其他负面效果一样，由 Dart 侧 changeLife 在治疗时统一随机驱散）
   function ailment_self_turn_start(self, opponent, effect, details) {
     final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
@@ -219,9 +221,11 @@ namespace StatusScript {
       }
       self.removeStatusEffect(effect.id)
     } else if (effect.damageType == 'fire') {
-      final dmg = (effect.dotDamage * multiplier * factor).round()
-      if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
-      self.removeStatusEffect(effect.id, amount: 1)
+      for (final i in range(effect.amount)) {
+        final dmg = (effect.dotDamage * multiplier * factor).round()
+        if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
+      }
+      self.removeStatusEffect(effect.id)
     }
   }
 
@@ -229,12 +233,11 @@ namespace StatusScript {
     final factor = 1 - 0.01 * self.getElementalResist(effect.damageType)
     final multiplier = (effect.ailmentMultiplier ?? 100) / 100
     if (effect.damageType == 'ice') {
-      for (final i in range(effect.amount)) {
-        final dmg = (effect.dotDamage * multiplier * factor).round()
-        if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
-        self.addStatusEffect('dodge_clumsy', amount: 1)
-      }
-      self.removeStatusEffect(effect.id)
+      // 每回合结束只消耗 1 层：1 点寒冰伤害并转化 1 层迟钝（绵长干扰，层数可跨回合存留）
+      final dmg = (effect.dotDamage * multiplier * factor).round()
+      if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
+      self.addStatusEffect('dodge_clumsy', amount: 1)
+      self.removeStatusEffect(effect.id, amount: 1)
     } else if (effect.damageType == 'poison') {
       final dmg = (effect.dotDamage * multiplier * factor).round()
       if (dmg > 0) self.changeLife(-dmg, damageType: effect.damageType)
@@ -242,10 +245,10 @@ namespace StatusScript {
     }
   }
 
-  /// 正气：使用物理或真气伤害的攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
+  /// 正气：使用无属性或真气伤害的攻击牌时消耗 1 层，本张卡牌获得 20% 防御穿透
   // function energy_positive_penetrate_self_using_card(self, opponent, effect, details) {
   //   if (self.cardFlags.category != 'attack') return
-  //   if (self.cardFlags.damageType != 'physical' && self.cardFlags.damageType != 'chi') return
+  //   if (self.cardFlags.damageType != 'ordinary' && self.cardFlags.damageType != 'chi') return
   //   if (self.hasStatusEffect('energy_positive_penetrate') <= 0) return
 
   //   self.cardFlags.damage.penetration = (self.cardFlags.damage.penetration ?? 0) + 0.2

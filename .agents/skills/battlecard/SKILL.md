@@ -88,7 +88,7 @@ punch_attack: {
   genre: "spellcraft",           // 流派：spellcraft/swordcraft/bodyforge/vitality/avatar；省略=中立
   kind: "punch",                 // 命名/动画类别（拳/腿/剑/…/xinfa/shenfa/…）
   cardType: "unarmed",           // 七类：unarmed/weapon/spell/curse/shenfa/xinfa/divinity
-  damageType: "physical",        // 攻击卡必填：physical/chi/fire/ice/lightning/poison/psychic/pure
+  damageType: "physical",        // 攻击卡必填：physical/ordinary/chi/fire/ice/lightning/poison/psychic/pure（elementType 非空的攻击卡必须为 ordinary）
   elementType: "element_fire",   // 悟道元素卡：element_fire/ice/lightning/...
   rank: 1,                       // 使用境界门槛 0~5，省略=0
   description: "affix_attack_unarmed",  // 本地化键
@@ -129,7 +129,7 @@ punch_attack: {
 - `value = (base + increment×(等级 − 本境界下限)) × 1.3^境界 + rankIncrement×境界`（见 `calculateCardAffixValue`）。
 - 词条等级 = 卡牌等级（主词条）或境界区间内随机（额外词条）。
 - `increment` 按本境界内等级缩放（+1 级相对提升区间起点 ≈ increment/base，全境界恒定有感）。
-- `maxLevel: 0` 表示该值不随词条等级缩放（固定 base）。
+- `isFixed: true` 表示该值不随词条等级缩放（固定 base）。
 - 多值词条（如 attack_multiple 的伤害+次数）用多个元素。
 - 固定数值读法：数值词条必有 valueData；纯机制词条（无数值）可省略，脚本里写死逻辑。
 
@@ -149,7 +149,7 @@ upgrade_card: {
   callbacks: ["added_to_hand"],    // 可选：时机回调（非打出时触发）
   buffId: "defense",               // 可选：施加的状态 id（self_buff/opponent_debuff 用）
   attributeId: "dexterity",        // 可选：for_attribute_increase_damage 用
-  valueData: [ { base: 1, maxLevel: 0 } ],
+  valueData: [ { base: 1, isFixed: true } ],
 },
 ```
 

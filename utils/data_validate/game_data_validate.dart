@@ -489,6 +489,13 @@ void validateCards(Map<String, dynamic> cards) {
     checkEnum(data['cardType'], kCardTypes, '$ctx.cardType');
     checkEnum(data['genre'], kBattleCardGenres, '$ctx.genre');
     checkEnum(data['elementType'], kElementTypes, '$ctx.elementType');
+    // 元素转化契约：带元素类型的攻击卡，印刷伤害类型必须为无属性（ordinary），
+    // 元素伤害只由战斗内转化机制产生（plan/damage_type_rework.md 2.2）
+    if (data['elementType'] != null &&
+        data['category'] == 'attack' &&
+        data['damageType'] != DamageType.ordinary) {
+      err('元素攻击卡的 damageType 必须为 ordinary（元素伤害由战斗内转化产生）', ctx);
+    }
     checkEnum(data['kind'], kBattleCardKinds, '$ctx.kind', warnOnly: true);
     checkNumber(data['rank'], '$ctx.rank', min: 0, max: 5);
 

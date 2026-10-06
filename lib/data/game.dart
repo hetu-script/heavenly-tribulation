@@ -1396,7 +1396,8 @@ final class GameData with ChangeNotifier {
         if (predictedAilment > 0) {
           display += '(${engine.locale('predictedAilmentHint').interpolate([
                 predictedAilment,
-                engine.locale('status_ailment_${affix['damageType']}')
+                engine.locale(
+                    'status_${kElementAilmentIds[affix['elementType']]}')
               ])})';
         }
         if (predicted > original) {
@@ -1561,7 +1562,7 @@ final class GameData with ChangeNotifier {
       ),
       illustrationSpriteId: image,
       illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
-      descriptionRelativeRect: const Rect.fromLTWH(0.076, 0.682, 0.849, 0.26),
+      descriptionRelativeRect: const Rect.fromLTWH(0.076, 0.760, 0.849, 0.14),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         outlined: true,

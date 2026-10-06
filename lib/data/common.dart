@@ -1214,7 +1214,7 @@ const kBaseTurnActionThreshold = 10;
 const kMaxTurnActionThreshold = 15;
 const kMinTurnActionThreshold = 5;
 
-/// 基础暴击阈值（点数制）：造成物理伤害累计充能，满阈值后下一次物理伤害暴击
+/// 基础暴击阈值（点数制）：造成无属性伤害累计充能，满阈值后下一次无属性伤害暴击
 const kBaseCritThreshold = 10;
 
 /// 基础元素异常阈值（点数制）：造成元素伤害累计充能，满阈值后下一次元素伤害造成异常

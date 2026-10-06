@@ -27,6 +27,8 @@
   "critHint": "暴击！",
   "critPredictedHint": "暴击",
   "predictedAilmentHint": "造成{0}层{1}",
+  "latentElementHint": "（若目标持有「{1}」，本牌转化为{0}伤害）",
+  "transformedElementHint": "（已转化为{0}伤害：无视护甲，打出时消耗 1 层「{1}」）",
   "invincible": "免伤！",
   "staggering": "踉跄！",
   "defensePersisted": "护甲保持！",

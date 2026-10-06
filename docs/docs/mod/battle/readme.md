@@ -73,7 +73,7 @@
 ## damageDetails 键（伤害事件）
 
 伤害结算公式：`(baseValue + baseChange) × (1 + percentageChange1) × (1 + percentageChange2) × (1 + percentageChange3)`，
-之后依次结算暴击（仅物理）、护甲（仅物理/真气）。乘区 1 最小值为 -0.75。
+之后依次结算暴击（仅物理）、护甲（仅物理/无属性/真气）。乘区 1 最小值为 -0.75。
 
 | 键                                 | 方向 | 含义                                                                                                     |
 | ---------------------------------- | ---- | -------------------------------------------------------------------------------------------------------- |
@@ -84,7 +84,7 @@
 | `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75）                                                |
 | `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）、三清法相元素增伤（每层 +1%）                               |
 | `percentageChange3`                | 出   | 乘区 3：预留                                                                                             |
-| `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/真气；真气自带 0.5）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
+| `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/无属性/真气；真气 = 目标内伤层数 ×5%）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
 | `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                                                                             |
 | `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                                                                            |
 | `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                                                                          |
@@ -158,7 +158,7 @@
 | `extraTurn`                 | 获得额外回合（迅捷达到阈值）                            | speed_quick 脚本          |
 | `invincible` / `staggering` | 闪避/迟钝达到阈值后的免伤/踉跄                          | dodge_nimble/clumsy 脚本  |
 | `defensePersisted`          | 护甲保留标记（有 persistent 状态）                      | defense 脚本              |
-| `guaranteedCrit`            | 下一次物理攻击必定暴击（幸运）                          | energy_positive_crit 脚本 |
+| `guaranteedCrit`            | 下一次无属性攻击必定暴击（幸运）                        | energy_positive_crit 脚本 |
 | `guaranteedAilment`         | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（幸运） | energy_positive_crit 脚本 |
 | `totalDamage`               | 本回合造成的总伤害（戾气结算用）                        | takeDamage 累加           |
 

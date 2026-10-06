@@ -21,6 +21,8 @@ const kDamagePercentageMin = -0.75;
 
 Color getDamageColor(String damageType) {
   return switch (damageType) {
+    'physical' => Colors.cyan,
+    'ordinary' => Colors.grey,
     'chi' => Colors.purple,
     'fire' => Colors.deepOrange,
     'ice' => Colors.lightBlueAccent,
@@ -282,6 +284,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         damageType == 'ice' ||
         damageType == 'lightning' ||
         damageType == 'poison';
+    // 潜伏元素（火/水/雷/木）：异常充能/预告以卡牌的元素身份为口径，
+    // 与该次命中是否处于转化态无关（plan/damage_type_rework.md 2.3）
+    final String? latentDamageType = kElementDamageTypes[affix['elementType']];
 
     int damage = (value[0] as num).toInt();
 
@@ -310,7 +315,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       damage = (damage * (1 - 0.01 * getElementalResist(damageType))).round();
     }
 
-    // 暴击（豪气必暴，或暴击计数器满阈值）：物理伤害按暴击倍率计算，不幸按层循环扣除（同 takeDamage）
+    // 暴击（豪气必暴，或暴击计数器满阈值）：物理伤害按暴击倍率计算，
+    // 元素牌的无属性形态不暴击；不幸按层循环扣除（同 takeDamage）
     bool isCrit = false;
     if (damage > 0 && damageType == 'physical') {
       final attackerStats = attacker.data['stats'];
@@ -329,9 +335,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    // 异常（幸运必异常，或异常计数器满阈值）：元素伤害固定每满 10 点 1 层，不幸逐层抵消（同 takeDamage）
+    // 异常（幸运必异常，或异常计数器满阈值）：潜伏元素牌固定每满 10 点 1 层，不幸逐层抵消（同 takeDamage）
     int ailmentStacks = 0;
-    if (damage > 0 && isElemental) {
+    if (damage > 0 && latentDamageType != null) {
       final attackerStats = attacker.data['stats'];
       final int ailmentThreshold =
           (attackerStats['ailmentThreshold'] ?? kBaseAilmentThreshold).toInt();
@@ -988,7 +994,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       finalDamage = (finalDamage * (1 - 0.01 * resist)).round();
     }
 
-    // 暴击：只有物理伤害可以暴击，独立乘区，在护甲扣除之前计入
+    // 暴击：只有物理伤害（无元素的纯武技牌）可以暴击——元素牌的无属性形态
+    // 不参与暴击（见 plan/damage_type_rework.md 2.1），独立乘区，在护甲扣除之前计入
     // 计数器机制：攻击方 crit_charge 达到 critThreshold 时，本次伤害消耗阈值层数并暴击；
     // 豪气（guaranteedCrit）走独立路径，必定暴击且不消耗计数器
     damageDetails['isCritical'] = false;
@@ -1025,14 +1032,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 护甲在所有乘区结算完毕后，按数值抵扣最终伤害（杀戮尖塔式）
     // 阶段1重构：原先由 defense_self_taking_damage 脚本在乘区前扣除，
     // 会导致攻击方的增伤乘区放大护甲吸收量
-    if (finalDamage > 0 && (damageType == 'physical' || damageType == 'chi')) {
+    if (finalDamage > 0 &&
+        (damageType == 'physical' ||
+            damageType == 'ordinary' ||
+            damageType == 'chi')) {
       // final defenseId = 'defense_${damageDetails['damageType']}';
       // if (hasStatusEffect(defenseId) > 0) {
       if (hasStatusEffect('defense') > 0) {
         num penetration = (damageDetails['penetration'] ?? 0.0) as num;
-        // 真气伤害自带 50% 防御穿透（伤害类型固有规则）
+        // 真气穿透 = 防守方内伤层数 × 5%（无常驻穿透；内伤同时是真气的穿透标尺，
+        // 见 plan/damage_type_rework.md 2.6）
         if (damageDetails['damageType'] == 'chi') {
-          penetration += 0.5;
+          penetration += 0.05 * hasStatusEffect('ailment_internal_injury');
         }
         penetration = penetration.clamp(0.0, 1.0);
         final int toBeBlocked = (finalDamage * (1 - penetration)).round();
@@ -1087,10 +1098,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    // 元素异常触发：火/冰/雷/毒共享计数器，攻击方 ailment_charge 达到 ailmentThreshold 时，
-    // 本次伤害消耗阈值层数并造成异常，层数为每满 10 点最终伤害 1 层，类别取本次伤害的元素
-    // 豪气：元素攻击必定造成异常（独立路径，不消耗计数器，豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
-    if (finalDamage > 0 && isElemental) {
+    // 元素异常触发：潜伏元素（火/水/雷/木）共享计数器——以卡牌的元素身份为口径
+    // （经 cardFlags['elementType'] 读取），与该次命中是否处于转化态无关：
+    // 未转化的元素牌以无属性结算时同样充能，这是转化机制的自举前提
+    // （见 plan/damage_type_rework.md 2.3）。
+    // 攻击方 ailment_charge 达到 ailmentThreshold 时，本次伤害消耗阈值层数并造成异常，
+    // 层数为每满 10 点最终伤害 1 层，类别取卡牌的潜伏元素
+    // 豪气：潜伏元素牌必定造成异常（独立路径，不消耗计数器，豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
+    final String? latentDamageType =
+        kElementDamageTypes[opponent!.cardFlags['elementType']];
+    if (finalDamage > 0 && latentDamageType != null) {
       final attackerStats = opponent!.data['stats'];
       int stacks = 0;
       if (opponent!.turnFlags['guaranteedAilment'] == true) {
@@ -1117,7 +1134,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
       if (stacks > 0) {
-        final ailmentId = 'ailment_$damageType';
+        final ailmentId = 'ailment_$latentDamageType';
         addStatusEffect(ailmentId, amount: stacks);
         // 写入施加方的异常伤害倍率（以最后一次触发为准）
         _statusEffects[ailmentId]?.data['ailmentMultiplier'] =
@@ -1127,6 +1144,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       // 异常充能同暴击充能：先使用伤害前已有层数判断触发，再为本次实际元素伤害 +1
       opponent!.addStatusEffect('ailment_charge');
+    }
+
+    // 真气渗透：实际造成伤害时，每满 10 点给对方附加 1 层内伤（不经异常计数器，
+    // 不受不幸影响；走标准施加路径，辟邪与 ailmentInflictBonus/ailmentReceiveBonus 同口径修正）
+    if (finalDamage > 0 && damageType == 'chi') {
+      final int injuryStacks = finalDamage ~/ 10;
+      if (injuryStacks > 0) {
+        addStatusEffect('ailment_internal_injury', amount: injuryStacks);
+      }
     }
 
     damageDetails['finalDamage'] = finalDamage;
@@ -1244,6 +1270,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     };
 
     cardFlags['cardType'] = mainAffix['cardType'];
+    cardFlags['elementType'] = mainAffix['elementType'];
+
+    // 元素转化（结算真值，plan/damage_type_rework.md 2.2）：
+    // 潜伏元素（火/水/雷/木）的攻击卡，在对方持有对应异常时以对应元素伤害结算，
+    // 并由对方消耗 1 层该异常（按牌不按段）；否则以无属性结算。
+    // 手牌中的转化仅是显示/预测（battle.dart 手牌刷新），此处为双方统一的结算口径。
+    final String? latentDamageType =
+        kElementDamageTypes[mainAffix['elementType']];
+    if (latentDamageType != null && mainAffix['damageType'] != null) {
+      final ailmentId = kElementAilmentIds[mainAffix['elementType']]!;
+      if (opponent!.hasStatusEffect(ailmentId) > 0) {
+        mainAffix['damageType'] = latentDamageType;
+        opponent!.removeStatusEffect(ailmentId, amount: 1);
+      } else {
+        mainAffix['damageType'] = DamageType.ordinary;
+      }
+    }
     cardFlags['damageType'] = mainAffix['damageType'];
 
     // 剑气滞后产出模型的数据源：累计本回合打出的武器牌数量
