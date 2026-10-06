@@ -26,7 +26,7 @@
 
 这条差异决定了两个列表的写法：
 
-- **卡牌**的 `affixes` 列表是"投资路线图"——第 1、2 条必须让卡在到达下限 rank 时就成立、就可辨识；后面的条目是给毕业形态的。
+- **卡牌**的 `affixes` 列表是"投资路线图"——第 1 条必须让卡在到达下限 rank 时就成立、就可辨识；后面的条目是给毕业形态的。
 - **装备**的 `affixes` 列表是"固定成品"——rank 1 只有 2 个槽（主词条 + **1 个**额外词条），写完就定死，不可能再加。所以每件装备的额外词条必须**只放一条**，且必须是该装备最该有的那一条。
 
 ### 0.3 装备额外词条槽位（世界不再加）
@@ -48,16 +48,15 @@
 - **装备词条**：`calculatePassiveAffixValue = (base ?? 0) + increment × level`（`common.ht:167-172`），**无境界指数**。装备词条的 level 在 `[minAffixLevel, item.level]` 随机 roll，`minAffixLevel` 由 `increment` 反推（`|increment| < 1` 时 = `ceil(1/|increment|)`，`item.ht:142-149`）。
   → **装备词条想要确定值，就用机制字段内嵌数值或 `statsBonus`，不要用 `base + increment`。**
 
-### 0.5 两个已知的失效字段
+### 0.5 一个Pitfall
 
-- **`maxLevel: 0` 不生效**。hetu 把 `0` 当 falsy，`valueData.maxLevel ? ... : ...`（`card.ht:313`）走 else 分支 = 不设上限。现有数据里 `maxLevel: 0` 之所以"看起来管用"，是因为这些条目**同时省略了 increment/rankIncrement**，值恰好退化成 `base × 1.3^rank`。**本文档统一用"省略 increment"来表达固定值，不再写 `maxLevel: 0`。**
-- **`isFixed: true` 对卡牌词条无效**。`calculateCardAffixValue` 支持它，但两个调用点（`card.ht:315`、`:336`）都不传。**本文档不写 `isFixed`。**
+- **`maxLevel: 0` 不生效**。hetu 把 `0` 当 falsy，`valueData.maxLevel ? ... : ...`（`card.ht:313`）走 else 分支 = 不设上限。如果要达到`maxLevel: 0`的效果，需要条目**同时省略 increment/rankIncrement，或者将其全部设置为0**，此时值退化成 `base × 1.3^rank`。**本文档统一用"省略 increment/rankIncrement"来表达固定值，不写 `maxLevel: 0`。**
 
 ### 0.6 专属词条标记需要一行代码
 
-`card_affixes.json5` 加 `isExclusive`（建议用这个名而不是 `isUnique`，避免与主词条的"这是绝世卡"语义撞车）目前**会被静默忽略**：运行时 `_getSupportAffixes`（`card.ht:249-301`）不读它，校验器 `validateCardAffixes` 也没有未知键扫描。
+`card_affixes.json5` 加 `inUnpackable`（建议用这个名表示绝世专属词条而不是 `isUnique`，避免与主词条的"这是绝世卡"语义撞车）目前**会被静默忽略**：运行时 `_getSupportAffixes`（`card.ht:249-301`）不读它，校验器 `validateCardAffixes` 也没有未知键扫描。
 
-好消息是**只需改一处**：绝世卡的固定词条走 `_addPredefinedAffixes`，它**完全不调用 ` _getSupportAffixes`**，天生免疫。所以在 `_getSupportAffixes` 加一行 `if (affix.isExclusive == true) continue` 即可，不必在解禁路径上开洞。
+好消息是**只需改一处**：绝世卡的固定词条走 `_addPredefinedAffixes`，它**完全不调用 ` _getSupportAffixes`**，天生免疫。所以在 `_getSupportAffixes` 加一行 `if (affix.inUnpackable == true) continue` 即可，不必在解禁路径上开洞。
 
 字段必须放**词条顶层**——放进 `filter`/`require` 会被校验器 `checkCriteria`（`game_data_validate.dart:424-458`）硬报错。
 
@@ -102,16 +101,16 @@
 
 | 卡 | 数据层 rank | 可解词条数 | `affixes` 现状 |
 | --- | --- | --- | --- |
-| 天机术 `spellcraft_scry_draw` | 1 | 2 → 6（破境成长） | `[]` |
-| 相生相克 `spellcraft_ailments_by_used_elements` | 2 | 3 → 6 | `[]` |
-| 一气化三清 `spellcraft_element_amplify` | 3 | 4 → 6 | `[]` |
-| 蓄灵诀 `spellcraft_ailments_to_mana` | 4 | 5 → 6 | `[]` |
-| 太上忘情 `spellcraft_handcards_to_mana` | 5 | 6 | `[]` |
-| 紫微斗数 `spellcraft_draw_cards_reduce_cost` | **无 rank 字段** | 1 → 6 | **无该键** |
-| 万法归宗 `spellcraft_ultimate_spell` | 5 | 6 | **无该键** |
+| 天机术 `spellcraft_scry_draw` | 1 | 1 → 5（破境成长） | `[]` |
+| 相生相克 `spellcraft_ailments_by_used_elements` | 2 | 2 → 5 | `[]` |
+| 一气化三清 `spellcraft_element_amplify` | 3 | 3 → 5 | `[]` |
+| 蓄灵诀 `spellcraft_ailments_to_mana` | 4 | 4 → 5 | `[]` |
+| 太上忘情 `spellcraft_handcards_to_mana` | 5 | 5 | `[]` |
+| 紫微斗数 `spellcraft_draw_cards_reduce_cost` | **无 rank 字段** | 1 → 5 | **无该键** |
+| 万法归宗 `spellcraft_ultimate_spell` | 5 | 5 | **无该键** |
 
 > ⚠️ **两处需先修**：
-> 1. `紫微斗数` 缺 `rank`。它由分支节点 `shuffleIntoDeck` 发放，而 `affixId` 路径**短路了全部过滤**（`card.ht:121`），所以 `this.rank` 保持构造默认值 **0**（`card.ht:107`），`targetCount = min(len, 1) = 1`——**只会解出主词条，一个额外词条都不给**。必须显式补 `rank: N`。
+> 1. `紫微斗数` 缺 `rank`。它由分支节点 `shuffleIntoDeck` 发放，而 `affixId` 路径**短路了全部过滤**（`card.ht:121`），所以 `this.rank` 保持构造默认值 **0**（`card.ht:107`），`targetCount = min(len, 1) = 1`——**只会解出主词条，一个额外词条都不给**。必须显式补 `rank: N`。按照设计，紫微斗数的rank等同于角色当前境界。
 > 2. `万法归宗` 已有 `rank: 5`，但缺 `affixes` 键，同样解不出词条。
 
 ### 2.1 天机术（rank 1，规划主题）
@@ -145,14 +144,11 @@
 | 2 | rank 2 | `spellcraft_scry_draw_affix_2` | **星移**：本牌观星选中的牌费用 -1 | `scryChosenCostChange: -1` |
 | 3 | rank 3 | `spellcraft_scry_draw_affix_3` | **留观**：本牌观星选中的牌获得保留 | `scryRetainChosen: true` |
 | 4 | rank 4 | `spellcraft_scry_draw_affix_4` | **窥命**：本牌观星选中的牌等级 +1 | `scryUpgradeChosen: true` |
-| 5 | rank 5 | `spellcraft_scry_draw_affix_5` | **弃星成算**：本牌观星时，未选中的牌每有 2 张，获得 1 点灵气 | 新机制，需 Dart 侧在 scry 结算时按 `actualCount - 1` 授予 |
-| 6 | rank 6 | `spellcraft_scry_draw_affix_6` | **星算**：本牌观星可选 {0} 张（展示张数不变） | `scryPickBonus: 1` |
+| 5 | rank 5 | `spellcraft_scry_draw_affix_6` | **星算**：本牌观星可选 {0} 张（展示张数不变） | `scryPickBonus: 1` |
 
 **设计说明**：
 
-- 原草案的「此牌费用 -2」被替换为「星移」。天机术 rank 1 费用 = 1 灵气，减 2 会下溢到 0，是纯浪费；而"选中牌费用 -1"才是它真正的主题收益。
-- `_6` 的**多选**是本批设计里唯一的重工程（当前 `Completer<CustomGameCard>` 单选、展示数 == 可选数）。放在**最后一个解锁位**（rank 6），这样即使暂时不做，掉落与破境都不会缺内容。若最终决定砍掉，前 5 条自成体系。
-- `_5` 的"弃星成算"是**代价转补偿**——呼应天机术 lore"被放弃的未来更加昂贵"：丢弃的未来越多，补偿越大。
+- `_5` 的**多选**是本批设计里唯一的重工程（当前 `Completer<CustomGameCard>` 单选、展示数 == 可选数）。
 
 ### 2.2 相生相克（rank 2，轮转/自异常主题）
 
@@ -369,8 +365,6 @@
 
 ### 4.4 补两条额外词条（元素异常 → 生命/护甲）
 
-用户草案的两条，修正后：
-
 | id | script（建议新建） | rank | categories | genres | 效果 | uniqueId |
 | --- | --- | --- | --- | --- | --- | --- |
 | `element_dots_heal` | `gain_life_by_self_ailments` | 3 | buff, attack | spellcraft | 打出时自身每有 1 层任意元素异常，回复 {0} 生命 | `for_element_dots_heal` |
@@ -393,8 +387,7 @@
 ### 4.6 三处小体量 Dart 扩展（`spellcraft.md:115` 提到，此处细化）
 
 1. **观星修饰字段**（§2.1 的 6 个字段）——在 `BattleScene.scry` 里消费，或让主脚本收集后传参。
-2. **动态费用的 `X` / `N+X` 渲染**——这是 **`spellcraft.md:115` 没提到的第四处**，但万法归宗的可读性完全依赖它。经核实，`samsara-engine/lib/cardgame/custom_card.dart:443/457/463` 全是 `is! num` 判断，动态条目（HTStruct）被**直接丢弃**，所以焚天烈焰与万法归宗目前**根本不显示费用数字**。文档（`docs/docs/mod/battle/card/readme.md:143`）描述的 X / N+X 在代码里不存在。
-3. **`scryPickBonus` 多选**（仅当决定做 §2.1 的第 6 条时）——需 `Completer<List<CustomGameCard>>` + 确认动作 + 剩余次数提示。
+2. **`scryPickBonus` 多选**（仅当决定做 §2.1 的第 6 条时）——需 `Completer<List<CustomGameCard>>` + 确认动作 + 剩余次数提示。
 
 ---
 
@@ -403,7 +396,7 @@
 ### 5.1 数据文件改动
 
 - `assets/data/cards.json5`：补 `紫微斗数` 的 `rank` 与 `affixes`；补 `万法归宗` 的 `affixes`；7 张绝世卡填入固定词条 id 列表；`water_mend` 改 script 与 valueData；新增 `earth_mend` / `vine_bind`。
-- `assets/data/card_affixes.json5`：新增约 25 条专属词条（带 `isExclusive`）；新增 2 条元素异常转生命/护甲词条。
+- `assets/data/card_affixes.json5`：新增约 25 条专属词条（带 `inUnpackable`）；新增 2 条元素异常转生命/护甲词条。
 - `assets/data/passives.json5`：新增 15 条装备额外词条（5 件 × 至多对应槽位）。
 - `assets/data/items.json5`：5 件绝世装备的 `affixes` 列表追加额外词条 id。
 - `assets/data/status_effect.json5`：新增相生相克 `_5`、一气化三清 `_2` 所需的状态。
@@ -412,7 +405,7 @@
 
 - `scripts/main/cardgame/card_script.ht`：观星修饰字段的收集与传递；`heal_remove_debuffs_by_stack`、`defend_remove_debuffs_by_stack`、`gain_life_by_self_ailments`、`gain_defend_by_self_ailments`、万法余波、弃星成算。
 - `scripts/main/cardgame/status_script.ht`：新增/改动的状态行为。
-- `scripts/main/cardgame/card.ht`：`_getSupportAffixes` 加 `isExclusive` 守卫（**一行**）。
+- `scripts/main/cardgame/card.ht`：`_getSupportAffixes` 加 `inUnpackable` 守卫（**一行**）。
 
 ### 5.3 本地化
 
@@ -428,25 +421,6 @@
 
 **已知风险**：
 
-1. **`紫微斗数` 的 rank**——不补则一个额外词条都不解锁，且不会有报错（静默）。这是最容易被漏掉的一处。
-2. **`uniqueIds` 的顺序依赖**——词条必须先于引用它的主词条存在，否则校验器报悬空引用。
-3. **装备槽位写不满是正常状态**——不要为了填满而塞入偏离主轴的词条；rank 1 的窥天镜只有一个槽。
-4. **观星多选（§2.1 `_6`）是唯一的重工程**，放在最后解锁位，可延后或砍掉。
-5. **数值标定的锚点缺失**——化神期「灵力」的实际成长曲线决定了 `太上感应` 能产多少灵气，进而决定 rank 5 卡牌的费用约束强度。这个数字未定时，本文档的 `valueData` 只能给量级参考。
-
----
-
-## 附：与用户既有想法的对照
-
-| 用户原文（`spellcraft_affixes.md`） | 本文档处理 |
-| --- | --- |
-| `water_mend` 改为"至多移除 x 层，每层治疗" | §4.2 采纳，需新脚本 |
-| `eartch_mend` 至多移除 x 层，每层护甲 | §4.3 采纳，修正拼写为 `earth_mend` |
-| `reduce_cost_by_cards_in_hand` 应在手牌变化时重算 | §4.5 确认属实，给出修复方向 |
-| 两条"每层元素异常获得生命/护甲" | §4.4 采纳，澄清 on-play 语义与顺序依赖 |
-| 紫微斗数主词条改为"抽一张法术牌" | §2.6 采纳 |
-| 紫微斗数固定列表（含"此牌费用 -2"） | §2.6 采纳大部分；**"费用 -2"删除**（在该卡上是空操作） |
-| 天机术主词条"观星 3 张，抽 1 张" | §2.1 采纳，改为抽**法术牌** |
-| 天机术固定列表 6 条 | §2.1 采纳并补齐命名与数值；新增星移/落子/窥命/弃星成算 |
-| 万法归宗固定列表（空） | §2.7 补完 6 条 |
-| "可以给 card_affixes 增加 isUnique 判断专属词条" | §0.6 采纳，建议改名 `isExclusive`，只需一行代码 |
+1. **`uniqueIds` 的顺序依赖**——词条必须先于引用它的主词条存在，否则校验器报悬空引用。
+2. **观星多选（§2.1 `_5`）是唯一的重工程**，放在最后解锁位，可延后或砍掉。
+3. **数值标定的锚点缺失**——化神期「灵力」的实际成长曲线决定了 `太上感应` 能产多少灵气，进而决定 rank 5 卡牌的费用约束强度。这个数字未定时，本文档的 `valueData` 只能给量级参考。

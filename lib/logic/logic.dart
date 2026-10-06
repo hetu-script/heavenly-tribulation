@@ -541,14 +541,10 @@ final class GameLogic {
   /// ```
   static Map<String, int> getMinMaxExtraAffixCount(int rank) {
     assert(rank >= 0 && rank <= kCultivationRankMax);
-    int minExtra = rank;
-    int maxExtra = rank + 1;
+    int minExtra = (rank / 2).ceil();
+    int maxExtra = math.min((rank + 1), 5);
     int minGreater = 0;
-    int maxGreater = 0;
-    if (rank > 2) {
-      minGreater = rank - 3;
-      maxGreater = rank - 2;
-    }
+    int maxGreater = (rank - 3).clamp(0, rank).toInt();
     return {
       'minExtra': minExtra,
       'maxExtra': maxExtra,
