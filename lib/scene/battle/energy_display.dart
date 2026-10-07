@@ -104,8 +104,7 @@ class _QiSlot extends GameComponent with HandlesGesture {
       _sprite?.render(canvas, size: size);
     }
     final text = alwaysVisible ? '$_amount/$_max' : '$_amount';
-    drawScreenText(canvas, text,
-        config: _countTextConfig.copyWith(size: size));
+    drawScreenText(canvas, text, config: _countTextConfig.copyWith(size: size));
   }
 }
 
@@ -149,7 +148,7 @@ class EnergyDisplay extends GameComponent {
       final yin = character.hasStatusEffect(slot.yinId);
       final max = slot.alwaysVisible
           ? kBattleBaseEnergy +
-              ((character.data['stats']['battleEnergyBonus'] ?? 0) as int)
+              ((character.data['stats']['basicEnergyBonus'] ?? 0) as int)
           : 0;
       slot.updateQi(yang, yin, max: max);
       if (!slot.isVisible) continue;

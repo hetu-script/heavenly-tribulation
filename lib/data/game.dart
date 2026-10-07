@@ -1533,6 +1533,14 @@ final class GameData with ChangeNotifier {
 
     final (description, _) = getBattleCardDescription(cardData);
 
+    final Set<String> tags = {};
+    tags.add(engine.locale(cardData['category']));
+    tags.add(engine.locale(cardData['cardType']));
+    tags.add(engine.locale('kind_${cardData['kind']}'));
+    if (cardData['elementType'] != null) {
+      tags.add(engine.locale(cardData['elementType']));
+    }
+
     final card = CustomGameCard(
       id: id,
       // uniqueId: id,
@@ -1554,6 +1562,19 @@ final class GameData with ChangeNotifier {
           fontSize: 10.0,
         ),
       ),
+      tags: tags,
+      tagsRelativeRect: const Rect.fromLTWH(0.135, 0.91, 0.73, 0.03),
+      tagsConfig: ScreenTextConfig(
+        anchor: Anchor.centerLeft,
+        outlined: true,
+        textAlign: TextAlign.center,
+        textStyle: TextStyle(
+          color: Colors.white,
+          fontFamily: GameUI.fontFamilyKaiti,
+          fontSize: 8.0,
+        ),
+      ),
+      tagsSeparator: '～',
       illustrationSpriteId: image,
       illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
       descriptionRelativeRect: const Rect.fromLTWH(0.076, 0.760, 0.849, 0.14),
@@ -1647,8 +1668,7 @@ final class GameData with ChangeNotifier {
           final rankString =
               engine.locale('cultivationRank_$rank') + engine.locale('rank2');
           final genreString = genre != null ? engine.locale(genre) : '';
-          final kindString =
-              kind != null ? engine.locale('battlecard_$kind') : '';
+          final kindString = kind != null ? engine.locale('kind_$kind') : '';
           final name =
               rankString + genreString + kindString + engine.locale('cardpack');
           desc.writeln('$name × $amount');

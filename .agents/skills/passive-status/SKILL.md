@@ -15,6 +15,7 @@ description: |
 一次落地 = **状态数据 + 状态脚本 + 本地化 + 图标 + 被动绑定**，五层同步，缺一不可。
 
 现成样板（先读再改）：
+
 - 太上忘情 `buff_handcards_to_mana`（`self_turn_end` + 自定义字段 `damagePerCard`/`resourceId`）
 - 三清法相 `buff_element_amplify_*`（`self_doing_damage` + 自定义字段 `damageType`，独立乘区2）
 
@@ -22,11 +23,11 @@ description: |
 
 **只有战斗中反复触发的行为效果才制作永久状态。** 三类效果的分流：
 
-| 效果类型                                                         | 做法                                                                                          |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| 行为型（时机 X 反复触发做 Y：扣血/上状态/转资源/抽牌）           | 永久状态 + 状态脚本（本技能流程）                                                             |
-| 参数型（观星深度、费用修正、资源保留上限、异常层数修正等）       | **不做状态**；Dart 机制读 stats/被动字段（stats 管线见第 6 节，机制清单见 `plan/battle_script_migration.md` 阶段 1） |
-| 纯属性/单值修改（攻防、抗性、流派伤害增加等装备词条式被动）      | **不做状态**；stats 聚合管线自动处理（`battle_entity.ht` → `kStatsToPermanentEffects` 转图标，图标仅展示净值，无回调；新增 stat 见第 6 节） |
+| 效果类型                                                    | 做法                                                                                                                                        |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 行为型（时机 X 反复触发做 Y：扣血/上状态/转资源/抽牌）      | 永久状态 + 状态脚本（本技能流程）                                                                                                           |
+| 参数型（观星深度、费用修正、资源保留上限、异常层数修正等）  | **不做状态**；Dart 机制读 stats/被动字段（stats 管线见第 6 节，机制清单见 `plan/battle_script_migration.md` 阶段 1）                        |
+| 纯属性/单值修改（攻防、抗性、流派伤害增加等装备词条式被动） | **不做状态**；stats 聚合管线自动处理（`battle_entity.ht` → `kStatsToPermanentEffects` 转图标，图标仅展示净值，无回调；新增 stat 见第 6 节） |
 
 一件天赋/装备可以同时有参数半 + 状态半（如窥天镜 = 观星深度参数 + 观星后自施异常状态）。
 
@@ -100,9 +101,9 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 
 ## 6. 参数/属性型效果：stats 管线完整链路
 
-参数型/纯属性效果需要新增 stat 时，同步以下五处（样板：`battleEnergyBonus` 每回合元气）：
+参数型/纯属性效果需要新增 stat 时，同步以下五处（样板：`basicEnergyBonus` 每回合元气）：
 
-1. **词条定义** `assets/data/passives.json5`：词条 id 即 stat id（同名约定，如 `battleEnergyBonus`），`description` 键供装备/天赋界面显示词条效果。
+1. **词条定义** `assets/data/passives.json5`：词条 id 即 stat id（同名约定，如 `basicEnergyBonus`），`description` 键供装备/天赋界面显示词条效果。
 2. **词条本地化** `assets/locale/zh/rpg/passive.json`：`passive_{id}_description`，数值占位 `{0}`。
 3. **stats 聚合** `scripts/main/data/character/battle_entity.ht` 的 `characterCalculateStats()`：加一行聚合。纯加成：
    `character.stats.{id} = character.passives.{id}?.value + character.ephemeralPassives.{id}?.value`；

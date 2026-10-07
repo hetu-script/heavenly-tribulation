@@ -11,7 +11,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 战斗流程（\_startBattle 循环 → \_onBattleStart → \_startTurn → \_onBattleEnd）：
   - 先手按身法加权随机（0.5 + (heroDex - enemyDex)/100），偷袭直接先手；后手方补偿回血至上限。
   - 软狂暴：roundCount > 8 后每个普通行动回合开始前叠 1 层劫气（回合开始回调扣 10% 生命上限）。
-  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + battleEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
+  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
@@ -82,7 +82,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 数值公式：calculatePassiveAffixValue = (base??0) + increment×level（maxLevel 封顶）——属性词条只有 increment 无 base；与卡牌的境界指数公式（calculateCardAffixValue）是两套。isDecrement 标记负向词条。
 - uniqueId 互斥组（同组词条一件装备只能 roll 到一个，如 increase*damage*\* 共享 uniqueId）；priority 全文件递减排序。
 - 机制字段（7 个，契约见 docs/docs/mod/battle/readme.md:95-108）：battleStatus（战斗开始授予永久状态，行为在 status_script.ht）/ deckCostReduction{color, amount, genres?, notGenres?}（组牌费修，amount 负=加费，color:'all' 命中首个费用条目）/ shuffleIntoDeck[卡牌主词条 id] / turnStartScry N / turnStartExtraDraw{count, costIncrease?{amount, notGenres?}} / energyRetain{resourceId, max, costPerPoint?, costDamageType?}（回合结束资源保留+每点代价）/ statsBonus{statsId: 数值}（stats 直加，scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等）。
-- 机制字段之外的普通数值词条（battleEnergyBonus / battleDrawBonus / deckMinSizeReduce）不在白名单，走 .value 数值。
+- 机制字段之外的普通数值词条（basicEnergyBonus / battleDrawBonus / deckMinSizeReduce）不在白名单，走 .value 数值。
 - 绝世装备专用词条区（passives.json5:1328-1379）：不写用途标记、不进随机词条池，数值定值内嵌机制字段；一件装备的逻辑效果合并为一条主词条（多机制字段共存），affixes 只写主词条、给后续额外词条留出解锁位。
 
 ### 5.3 装备→战斗联动链路
@@ -93,7 +93,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 聚合（characterCalculateStats :392-468，passives + ephemeralPassives 双来源）：battleStatus 按状态 id 合并、层数累加；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加进 character.stats。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
-  - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；battleEnergyBonus → produceTurnStartResources（:726）。
+  - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
 - 战斗内展示：EquipmentsBar（lib/scene/battle/equipments_bar.dart）固定 8 格只读图标+rank 边框，仅悬停提示（物品/属性/流派被动说明），战斗中不可穿脱；战前整备另有 EquipmentBar（prebattle.dart）。
 
 ### 5.4 装备 UI（Dart）：lib/widgets/character/

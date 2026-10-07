@@ -177,6 +177,7 @@ struct BattleCard {
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
     mainAffix.isMain = true
     final mainAffixRank = Math.max(mainAffix.rank, this.rank)
+    this.cardType = mainAffix.cardType
     this.rank = mainAffix.rank = mainAffixRank
     // 数据层卡牌定义上的标记合并到卡牌实例（Dart 侧读取 card.data 上的这些字段）：
     // isEphemeral（消耗：打出后碎裂移出战斗）、
@@ -228,6 +229,8 @@ struct BattleCard {
     final affixUniqueIds = []
     if (mainAffix.uniqueIds is List) {
       affixUniqueIds.addAll(mainAffix.uniqueIds)
+    } else if (mainAffix.uniqueId is string) {
+      affixUniqueIds.add(mainAffix.uniqueId)
     }
 
     this.affixUniqueIds = affixUniqueIds
@@ -695,7 +698,7 @@ struct Cardpack {
     this.id = crypto.randomUID(withTime: true)
     final rankString = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
     final genreString = genre != null ? engine.locale(genre) : ''
-    final kindString = kind != null ? engine.locale('battlecard_${kind}') : ''
+    final kindString = kind != null ? engine.locale('kind_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
     this.icon = 'item/craft/cardpack.png'
     

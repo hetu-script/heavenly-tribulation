@@ -1,34 +1,30 @@
 {
-  // id:
   // uniqueIds
-  // 非null的词条的uniqueId只会在一张卡牌上出现一次。不会和主词条已有的,uniqueIds列表重复
-  // uniqueId
-  // 只有绝世卡牌有单独的uniqueId，这决定了卡牌
+  // 相同uniqueId的词条只会在一张卡牌上出现一次。不会和主词条已有的,uniqueIds列表重复
   // category:
   // 类别，分为攻击（attack），加持（buff）两种
+  // cardType:
+  // 卡牌类型，一共七种，徒手，武器，法术，咒语，身法，心法，神通(divinity)
+  // kind:
+  // kind决定了卡牌名字类型，例如剑法，咒语等等
+  // 多数时候kind和战斗动画也是对应的
   // genre:
   // 流派，御剑，悟道，炼魂等，如果为null表示无流派
   // 流派仅表示获得方法，使用时并无限制
-  // cardType:
-  // 卡牌类型，一共七种，徒手，身法，武器，法术，咒语，心法，神通(divinity)
-  // kind:
-  // kind决定了卡牌名字类型，例如剑法，咒语等等
-  // 虽然并非强制，但多数时候kind和战斗动画也是对应的
   // rank:
   // 使用卡牌需要符合境界要求
   // 境界影响卡牌的额外词条数量和种类以及卡牌等级上限
   // damageType:
   // 伤害类型：
-  // 物理（physical，拳脚兵刃等无元素武技，唯一可暴击）、
-  // 无属性（ordinary，元素卡的未转化形态/控制元素卡的常驻形态，不暴击）、
-  // 真气（chi，穿透=目标内伤层数×5%）、精神（psychic）、纯粹（pure）；
-  // 火/冰/雷/毒不再直接印刷——潜伏元素（火/水/雷/木）的攻击卡印 ordinary，
-  // 在目标持有对应异常时转化为对应元素伤害结算（无视护甲、吃抗性、不暴击，
-  // 每张牌耗 1 层对应异常）。
-  // 契约：elementType 非空的攻击卡 damageType 必须为 ordinary
+  // 无属性（ordinary，不暴击）、
+  // 物理（physical，拳脚兵刃等武技，可暴击）、
+  // 寒冰/火焰/雷电/毒素（ice/fire/lightning/poison）
+  // 真气（chi，自带穿透=目标内伤层数×5%，自带附加内伤=本次造成伤害除以10）、
+  // 精神（psychic）、
+  // 纯粹（pure）；
   // elementType: null,
-  // 元素类型，只有悟道流法术拥有元素类型，会和某些天赋、道具、卡牌产生互动。
-  // 元素类型包含七种：金，木，水，火，土，风，雷（火/水/雷/木为爆发元素，参与转化；金/土/风为控制元素）
+  // 元素类型会和某些天赋、道具、卡牌产生互动。
+  // 元素类型包含七种：金，木，水，火，土，风，雷
   // buffId: null,
   // 增益或减益的ID，对应status_effect.jon5中的数据id
   // image:卡牌插画
@@ -531,8 +527,8 @@
     id: "speed_quick_defend",
     uniqueIds: ["speed_quick", "defend"],
     category: "buff",
-    kind: "shenfa",
-    cardType: "shenfa",
+    kind: "qinggong",
+    cardType: "qinggong",
     description: "affix_speed_quick_defend",
     image: "battlecard/illustration/quick.png",
     animation: {
@@ -557,7 +553,7 @@
     id: "dodge_nimble_defend",
     uniqueIds: ["dodge_nimble", "defend"],
     category: "buff",
-    kind: "qinggong",
+    kind: "shenfa",
     cardType: "shenfa",
     description: "affix_dodge_nimble_defend",
     image: "battlecard/illustration/nimble.png",
@@ -1216,7 +1212,7 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "scry_then_draw",
-    // scryOptions: { chosenCostChange: -1, othersCostChange: 1 },
+    scryOptions: {}, // 由本卡牌词条在打出时动态修改
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
@@ -1648,8 +1644,8 @@
     uniqueIds: ["speed_quick", "defend"],
     genre: "bodyforge",
     category: "buff",
-    kind: "shenfa",
-    cardType: "shenfa",
+    kind: "qinggong",
+    cardType: "qinggong",
     rank: 1,
     description: "affix_speed_quick_defend",
     image: "battlecard/illustration/quick.png",
@@ -1676,7 +1672,7 @@
     uniqueIds: ["dodge_nimble", "defend"],
     genre: "bodyforge",
     category: "buff",
-    kind: "qinggong",
+    kind: "shenfa",
     cardType: "shenfa",
     rank: 1,
     description: "affix_dodge_nimble_defend",
@@ -2094,8 +2090,8 @@
     uniqueIds: ["speed_quick", "defend"],
     genre: "swordcraft",
     category: "buff",
-    kind: "shenfa",
-    cardType: "shenfa",
+    kind: "qinggong",
+    cardType: "qinggong",
     rank: 1,
     description: "affix_speed_quick_defend",
     image: "battlecard/illustration/quick.png",
@@ -2122,7 +2118,7 @@
     uniqueIds: ["dodge_nimble", "defend"],
     genre: "swordcraft",
     category: "buff",
-    kind: "qinggong",
+    kind: "shenfa",
     cardType: "shenfa",
     rank: 1,
     description: "affix_dodge_nimble_defend",

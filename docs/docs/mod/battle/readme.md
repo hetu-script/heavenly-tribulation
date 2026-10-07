@@ -7,7 +7,7 @@
 5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
 6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消；
    被动 `energyRetain` 字段匹配的阳气可至多保留 max 层到下回合，每保留 1 层结算一次代价伤害）
-7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 battleEnergyBonus；
+7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 basicEnergyBonus；
    有色气产出由流派境界节点状态脚本挂在 `self_produce_resources` 时机提供，如悟道「太上感应」），
    末尾派发 `self/opponent_produce_resources` 回调，刷新能量瓶
 8. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
@@ -53,18 +53,18 @@
 
 ## 回调时机清单
 
-| 时机                                                       | 说明                                                                                              |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                                           |
-| `self/opponent_produce_resources`                          | 自己/对方回合资源产出阶段结束时（产出型效果挂这里；更早时机授予的阳气会被清残留冲掉）             |
-| `self_scry`                                                | 自己观星结算后（details 携带 `{count, chosen}`）                                                  |
-| `self/opponent_doing_damage`                               | 造成伤害时（可修改 damageDetails）                                                                |
-| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                                           |
-| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                                   |
-| `self/opponent_gained_energy_positive`                     | 获得阳气后（details 携带 `{id, amount}`）                                                         |
-| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                            |
-| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                                   |
-| `self/opponent_attacked` / `self/opponent_buffed`          | 使用攻击牌 / 加持牌后                                                                             |
+| 时机                                                       | 说明                                                                                  |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `self/opponent_turn_start` / `self/opponent_turn_end`      | 自己/对方回合开始、结束                                                               |
+| `self/opponent_produce_resources`                          | 自己/对方回合资源产出阶段结束时（产出型效果挂这里；更早时机授予的阳气会被清残留冲掉） |
+| `self_scry`                                                | 自己观星结算后（details 携带 `{count, chosen}`）                                      |
+| `self/opponent_doing_damage`                               | 造成伤害时（可修改 damageDetails）                                                    |
+| `self/opponent_taking_damage`                              | 受到伤害时（可修改 damageDetails，可写入 cancelDamage）                               |
+| `self/opponent_done_damage` / `self/opponent_taken_damage` | 造成/受到伤害后                                                                       |
+| `self/opponent_gained_energy_positive`                     | 获得阳气后（details 携带 `{id, amount}`）                                             |
+| `self/opponent_gained_debuff`                              | 获得负面效果后（一次获得多层只触发一次；可写入 cancelAmount 按层抵消）                |
+| `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                       |
+| `self/opponent_attacked` / `self/opponent_buffed`          | 使用攻击牌 / 加持牌后                                                                 |
 
 按流派（genre）/套路（kind）细分用牌行为的现行模式：挂通用时机（如 `self_doing_damage`、`self_used_card`），
 在脚本内按 `details.kind` / `getLastUsedCard()` 判定（参考 `increase_damage_*`、`element_cycle`）。
@@ -75,19 +75,19 @@
 伤害结算公式：`(baseValue + baseChange) × (1 + percentageChange1) × (1 + percentageChange2) × (1 + percentageChange3)`，
 之后依次结算暴击（仅物理）、护甲（仅物理/无属性/真气）。乘区 1 最小值为 -0.75。
 
-| 键                                 | 方向 | 含义                                                                                                     |
-| ---------------------------------- | ---- | -------------------------------------------------------------------------------------------------------- |
-| `kind` / `cardType` / `damageType` | 入   | 攻击流派 / 卡牌类型 / 伤害类型                                                                           |
-| `baseValue`                        | 入   | 伤害基础值                                                                                               |
-| `isMain`                           | 入   | 是否来自主词条攻击（false 表示状态或额外词条造成的伤害）                                                 |
-| `baseChange`                       | 出   | 基础值修正（数值加减）                                                                                   |
-| `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75）                                                |
-| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）、三清法相元素增伤（每层 +1%）                               |
-| `percentageChange3`                | 出   | 乘区 3：预留                                                                                             |
+| 键                                 | 方向 | 含义                                                                                                                       |
+| ---------------------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------- |
+| `kind` / `cardType` / `damageType` | 入   | 攻击流派 / 卡牌类型 / 伤害类型                                                                                             |
+| `baseValue`                        | 入   | 伤害基础值                                                                                                                 |
+| `isMain`                           | 入   | 是否来自主词条攻击（false 表示状态或额外词条造成的伤害）                                                                   |
+| `baseChange`                       | 出   | 基础值修正（数值加减）                                                                                                     |
+| `percentageChange1`                | 出   | 乘区 1：攻击增强/削弱、抗性、弱点、伤害增加（下限 -0.75）                                                                  |
+| `percentageChange2`                | 出   | 乘区 2：闪避免疫（-0.75）、迟钝踉跄（+0.75）、三清法相元素增伤（每层 +1%）                                                 |
+| `percentageChange3`                | 出   | 乘区 3：预留                                                                                                               |
 | `penetration`                      | 出   | 防御穿透 0~1（只作用于物理/无属性/真气；真气 = 目标内伤层数 ×5%）；攻击方的 penetration 永久状态（由属性转换）每层额外 +1% |
-| `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                                                                             |
-| `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                                                                            |
-| `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                                                                          |
+| `cancelDamage`                     | 出   | 写 true 取消本次伤害（护盾）                                                                                               |
+| `isCritical`                       | 回   | takeDamage 写入：本次是否暴击                                                                                              |
+| `blocked` / `blockedAmount`        | 回   | takeDamage 写入：被护甲抵消的量                                                                                            |
 
 注意：攻击方的 `cardFlags['damage']` 中的 `baseChange/percentageChange*/penetration`
 会在 takeDamage 开始时合并进 damageDetails。
@@ -97,15 +97,15 @@
 天赋与装备词条（同为 `game.passives` 数据）可通过以下字段驱动通用战斗机制
 （字段由 `characterSetPassive` / `characterSetEphemeralPassive` 透传，Dart 侧按字段读取，不识别内容 id）：
 
-| 字段                | 类型                                               | 机制                                                                                                  |
-| ------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `battleStatus`      | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                  |
-| `deckCostReduction` | `{color, amount, genres?, notGenres?}`             | 组牌阶段匹配卡牌的 color 色费用减 amount（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount） |
-| `shuffleIntoDeck`   | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                              |
-| `turnStartScry`     | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                           |
-| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}`    | 回合开始正常抽牌后额外抽 count 张（多来源累加）；通过此效果抽到、且主词条 genre 未命中 notGenres 的卡，coloredCost 首个条目本回合 +amount（允许 0 → amount），增费记录写在卡上，弃牌/出牌/下回合开始（保留卡巡检）时还原（天机盘） |
-| `energyRetain`      | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）          |
-| `statsBonus`        | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（如 scryBonus 观星深度、ailmentInflictBonus/ailmentReceiveBonus 元素异常层数修正；绝世装备主词条等固定词条用） |
+| 字段                 | 类型                                               | 机制                                                                                                                                                                                                                               |
+| -------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `battleStatus`       | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                                                                                                                                              |
+| `deckCostReduction`  | `{color, amount, genres?, notGenres?}`             | 组牌阶段匹配卡牌的 color 色费用减 amount（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount）                                              |
+| `shuffleIntoDeck`    | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                                                                                                                                                         |
+| `turnStartScry`      | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                                                                                                                                                      |
+| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}`     | 回合开始正常抽牌后额外抽 count 张（多来源累加）；通过此效果抽到、且主词条 genre 未命中 notGenres 的卡，coloredCost 首个条目本回合 +amount（允许 0 → amount），增费记录写在卡上，弃牌/出牌/下回合开始（保留卡巡检）时还原（天机盘） |
+| `energyRetain`       | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）                                                                                                                                     |
+| `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（如 scryBonus 观星深度、ailmentInflictBonus/ailmentReceiveBonus 元素异常层数修正；绝世装备主词条等固定词条用）                                                                 |
 
 参数型效果另可经 stats 属性管线新增属性（如观星深度 `scryBonus`），
 聚合与面板显示见 `.agents/skills/passive-status` 第 6 节。

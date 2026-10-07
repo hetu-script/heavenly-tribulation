@@ -725,12 +725,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 回合开始资源产出（统一生命周期：在 clearResourceEffects 之后调用，顺序显式保证）。
-  /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（battleEnergyBonus）（获得时与持有的死气自然对冲）。
+  /// 元气 = 固定基准 kBattleBaseEnergy + 装备词条加成（basicEnergyBonus）（获得时与持有的死气自然对冲）。
   /// 流派有色气的产出规则由各自流派境界节点的状态脚本提供（挂 self_produce_resources 时机，
   /// 如悟道凝气「太上感应」；滞后产出所需的 lastTurnWeaponCards / lastTurnDamageTaken 统计仍然保留）。
   void produceTurnStartResources() {
     // 元气 = 无色费用池
-    final int energyBonus = (data['stats']['battleEnergyBonus'] ?? 0) as int;
+    final int energyBonus = (data['stats']['basicEnergyBonus'] ?? 0) as int;
     addStatusEffect('energy_positive_life',
         amount: kBattleBaseEnergy + energyBonus);
 

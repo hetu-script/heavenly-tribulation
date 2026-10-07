@@ -88,7 +88,7 @@ punch_attack: {
   genre: "spellcraft",           // 流派：spellcraft/swordcraft/bodyforge/vitality/avatar；省略=中立
   kind: "punch",                 // 命名/动画类别（拳/腿/剑/…/xinfa/shenfa/…）
   cardType: "unarmed",           // 七类：unarmed/weapon/spell/curse/shenfa/xinfa/divinity
-  damageType: "physical",        // 攻击卡必填：physical/ordinary/chi/fire/ice/lightning/poison/psychic/pure（elementType 非空的攻击卡必须为 ordinary）
+  damageType: "physical",        // 攻击卡必填：physical/ordinary/chi/fire/ice/lightning/poison/psychic/pure
   elementType: "element_fire",   // 悟道元素卡：element_fire/ice/lightning/...
   rank: 1,                       // 使用境界门槛 0~5，省略=0
   description: "affix_attack_unarmed",  // 本地化键

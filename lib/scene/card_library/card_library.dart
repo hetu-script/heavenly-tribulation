@@ -763,8 +763,7 @@ class CardLibraryScene extends Scene {
     final scrollCard = craftingCard!;
 
     final result = engine.hetu.invoke('rechargeScroll',
-        namespace: 'Player',
-        positionalArgs: [scrollCard.data['id'], paper]);
+        namespace: 'Player', positionalArgs: [scrollCard.data['id'], paper]);
 
     if (result != null) {
       // 返回的是提示文本的 locale 键
@@ -1260,11 +1259,11 @@ class CardLibraryScene extends Scene {
             engine.locale('kind_spear'): FilterByOptions.kind_spear,
             engine.locale('kind_bow'): FilterByOptions.kind_bow,
             engine.locale('kind_dart'): FilterByOptions.kind_dart,
-            engine.locale('kind_shenfa'): FilterByOptions.kind_shenfa,
             engine.locale('kind_qinggong'): FilterByOptions.kind_qinggong,
+            engine.locale('kind_shenfa'): FilterByOptions.kind_shenfa,
             engine.locale('kind_xinfa'): FilterByOptions.kind_xinfa,
           },
-          engine.locale('sorcery'): {
+          engine.locale('spell'): {
             engine.locale('kind_flying_sword'):
                 FilterByOptions.kind_flying_sword,
             engine.locale('kind_airbend'): FilterByOptions.kind_airbend,

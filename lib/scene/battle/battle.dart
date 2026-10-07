@@ -1074,7 +1074,15 @@ class BattleScene extends Scene {
   /// 牌库为空时不触发——观星永不触发洗牌（洗牌只发生在抽牌阶段）。
   /// 英雄：在场景中央展示牌面并等待点选（期间 _handInteractionDisabled 禁止点选手牌）；
   /// 敌方（预留，NPC 无天赋树暂不会触发）：自动取牌库顶张。
-  /// [options] 为词条数据附带的可选表：chosenCostChange/othersCostChange（天机术），
+  /// [options] 为词条数据附带的可选表：
+  /// | 字段   | 含义                                                        |
+  /// | ------------------ | ----------------------------------------------------------- |
+  /// | `scryBonus`        | 本牌观星时额外查看 N 张 (和角色stats中的属性同名，叠加计算) |
+  /// | `pickBonus`        | 本牌观星时可选 +N 张                                        |
+  /// | `retainChosen`     | 本牌观星选中的牌获得保留                                    |
+  /// | `upgradeChosen`    | 本牌观星选中的牌等级 +1                                     |
+  /// | `chosenCostChange` | 本牌观星选中牌费用变化                                      |
+  /// | `othersCostChange` | 本牌观星未选中牌费用变化                                    |
   /// 在选牌结算后修正选中/未选卡的费用（本场战斗内生效，未选卡进弃牌堆、洗牌后兑现）。
   Future<void> scry(
     BattleDeckZone deck,
@@ -1303,10 +1311,18 @@ class BattleScene extends Scene {
       final ailmentName = engine.locale('status_$ailmentId');
       if (enemy.hasStatusEffect(ailmentId) > 0) {
         mainAffix['damageType'] = latentDamageType;
-        transformHint = '<yellow>${engine.locale('transformedElementHint').interpolate([damageTypeName, ailmentName])}</>';
+        transformHint =
+            '<yellow>${engine.locale('transformedElementHint').interpolate([
+              damageTypeName,
+              ailmentName
+            ])}</>';
       } else {
         mainAffix['damageType'] = DamageType.ordinary;
-        transformHint = '<grey>${engine.locale('latentElementHint').interpolate([damageTypeName, ailmentName])}</>';
+        transformHint =
+            '<grey>${engine.locale('latentElementHint').interpolate([
+              damageTypeName,
+              ailmentName
+            ])}</>';
       }
     }
     // 气增伤预测需要本牌费用以模拟扣费后剩余层数（见 predictDamage）
