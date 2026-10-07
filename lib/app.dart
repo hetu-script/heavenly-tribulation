@@ -329,6 +329,33 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'calculateCardAffixValue',
+        ({positionalArgs, namedArgs}) => GameLogic.calculateCardAffixValue(
+            positionalArgs.first,
+            level: namedArgs['level'] ?? 0,
+            rank: namedArgs['rank'] ?? 0),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'calculatePassiveAffixValue',
+        ({positionalArgs, namedArgs}) => GameLogic.calculatePassiveAffixValue(
+            positionalArgs.first,
+            level: namedArgs['level'] ?? 0),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'calculateCostValue',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.calculateCostValue(positionalArgs[0], positionalArgs[1]),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'calculateItemBasePrice',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.calculateItemBasePrice(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'getTribulationCountForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getTribulationCountForRank(positionalArgs.first),

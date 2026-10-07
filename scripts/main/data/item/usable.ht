@@ -181,7 +181,7 @@ struct Potion {
         }
       }
       mainAffix.level = this.level
-      mainAffix.value = calculatePassiveAffixValue(mainAffix, level: this.level).round()
+      mainAffix.value = calculatePassiveAffixValue(mainAffix, level: this.level)
     }
     this.affixes.add(mainAffix)
 
@@ -218,7 +218,7 @@ struct Potion {
             }
           }
           affix.level = getRandomLevel(minAffixLevel, this.level)
-          affix.value = calculatePassiveAffixValue(affix, level: affix.level).round()
+          affix.value = calculatePassiveAffixValue(affix, level: affix.level)
         }
         this.affixes.add(affix)
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)

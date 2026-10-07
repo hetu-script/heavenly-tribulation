@@ -117,10 +117,9 @@ punch_attack: {
 - 单资源模型：一张卡只花一种资源。
 - **流派卡** = rank 点流派色：`coloredCost: { spell: {base:0, rankIncrement:1} }`
   （悟道→spell / 御剑→weapon / 锻体→unarmed / 炼魂→curse）。
-- **中立卡（含法身）** = rank+1 点元气：`coloredCost: { life: {base:1, rankIncrement:1} }`
-  或 `{ life: {base:0.5, rankIncrement:0.5} }`。
+- **中立卡（含法身）** = ceil((rank+1)/2) 点元气（1,1,2,2,3,3）：`coloredCost: { life: {base:0.5, rankIncrement:0.5} }`。
 - **免费卡**：`coloredCost: { life: 0 }`（显式 0）。
-- 费用公式与词条数值**脱钩**：`calculateCostValue` = `base + rankIncrement×rank`（独立线性，不被指数影响）。
+- 费用公式与词条数值**脱钩**：`calculateCostValue` = `ceil(base + rankIncrement×rank)`（独立线性，不被指数影响）。
 - 条目可为固定数值（如 `{ life: 0 }`、`{ spell: 10 }`）或 `{base, rankIncrement}` 公式。
 
 ### 数值 valueData

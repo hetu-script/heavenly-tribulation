@@ -18,12 +18,13 @@
   // 使用卡牌需要符合境界要求
   // 境界影响卡牌的额外词条数量和种类以及卡牌等级上限
   // damageType:
-  // 伤害类型：物理（physical，拳脚兵刃等无元素武技，唯一可暴击）、
+  // 伤害类型：
+  // 物理（physical，拳脚兵刃等无元素武技，唯一可暴击）、
   // 无属性（ordinary，元素卡的未转化形态/控制元素卡的常驻形态，不暴击）、
   // 真气（chi，穿透=目标内伤层数×5%）、精神（psychic）、纯粹（pure）；
   // 火/冰/雷/毒不再直接印刷——潜伏元素（火/水/雷/木）的攻击卡印 ordinary，
   // 在目标持有对应异常时转化为对应元素伤害结算（无视护甲、吃抗性、不暴击，
-  // 每张牌耗 1 层对应异常），见 plan/damage_type_rework.md。
+  // 每张牌耗 1 层对应异常）。
   // 契约：elementType 非空的攻击卡 damageType 必须为 ordinary
   // elementType: null,
   // 元素类型，只有悟道流法术拥有元素类型，会和某些天赋、道具、卡牌产生互动。
@@ -39,10 +40,11 @@
   // script: 调用的脚本函数的id
   // 费用（单资源模型，详见 plan/battle_resource_rework.md）：
   // 每张卡只花一种资源——流派卡 = rank 点流派色（悟道spell/御剑weapon/锻体unarmed/炼魂curse），
-  // 中立卡（无流派，含法身avatar）= rank+1 点元气（life）。
+  // 中立卡（无流派，含法身avatar）= ceil((rank+1)/2) 点元气（life，即 1,1,2,2,3,3；
+  // 元气每回合固定产出且无额外获取途径，中立卡保持低价）。
   // 所有卡必须在数据中显式写 coloredCost（含 life 键），代码不再自动推导（仅有兜底）：
-  // 标准公式——流派色 {base: 0, rankIncrement: 1}（= rank）；元气 {base: 1, rankIncrement: 1}（= rank+1）；
-  // 条目也可以是固定数值（特例）；显式 life: 0 表示永远 0 费（免费卡）。
+  // 标准公式——流派色 {base: 0, rankIncrement: 1}（= rank）；元气 {base: 0.5, rankIncrement: 0.5}（= ceil((rank+1)/2)）；
+  // 公式经 calculateCostValue 求值并 ceil 取整；条目也可以是固定数值（特例）；显式 life: 0 表示永远 0 费（免费卡）。
   // 多色/混费卡不禁止（未来设计），校验只给软警告
   // equipment: 装备需求
   // valueData:

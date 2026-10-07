@@ -26,16 +26,16 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - BattleCard struct：暗黑式随机生成——从 game.battleCards（cards.json5）筛主词条（按 category/kind/genre/rank 过滤 + 绝世两段式 roll：uniqueCardChance 概率从 isUnique 池抽），再从 game.battleCardAffixes（card_affixes.json5）按境界随机补额外词条。
 - 额外词条数量：getMinMaxExtraAffixCount（logic.dart:542，卡牌/装备/丹药共用）= minExtra rank、maxExtra rank+1（无境界 0-1 个 → 化神 5-6 个）。minGreater/maxGreater（太古词条）有计算但全仓库无消费方，未实现。
-- 词条等级在境界区间内随机：minLevelForRank = rank×10，maxLevelForRank = (rank+2)×10−5。数值由 calculateCardAffixValue（common.ht:146）计算：(base + increment×(等级−本境界下限)) × 1.3^rank（+ rankIncrement×rank）；maxLevel: 0 表示固定 base 不随等级缩放。
+- 词条等级在境界区间内随机：minLevelForRank = rank×10，maxLevelForRank = (rank+2)×10−5。数值由 calculateCardAffixValue（GameLogic，logic.dart；经 app.dart 绑定回脚本全局调用）计算：(base + increment×(等级−本境界下限)) × 1.3^rank（+ rankIncrement×rank），函数内 floor；isFixed: true 表示固定 base 不随等级缩放。
 - 绝世卡：isUnique + uniqueId，词条固定（affixes 列表按 rank+1 顺序解锁），未鉴定不可用，命名走 uniquecard\_{id} 本地化键；天赋授予型再加 isUnpackable（不进卡包/随机池），由代码显式 invoke('BattleCard', affixId: ...) 发放。
-- 费用：updateCardCost 是唯一实现——显式 coloredCost 条目（数值或 {base, rankIncrement} 公式）求值写入，life 键排首位，同时记录 originalColoredCost 基线供卡面变色（增红减黄）；破境重算更新基线，战斗内动态改费不更新基线。
+- 费用：updateCardCost 是唯一写入入口——显式 coloredCost 条目（数值或 {base, rankIncrement} 公式）经 calculateCostValue（GameLogic；固定数值 floor、公式 ceil）求值写入，life 键排首位，同时记录 originalColoredCost 基线供卡面变色（增红减黄）；破境重算更新基线，战斗内动态改费不更新基线。
 - 打造操作：addAffix（灵宝）/ replaceAffix（神照）/ freezeAffix（真定）/ removeAffix（坐忘）/ rerollAffix（混元）/ upgradeRank（破境，绝世卡保留全部词条并解锁下一个预定义词条，普通卡只保留主词条+锁定词条再重 roll）/ upgradeCard；全部对绝世卡禁用（破境/混元除外），返回本地化错误键。
 - Cardpack struct：卡包物品，3 张牌（1 张定向 + 2 张随机）。
 
 ## 3. 卡牌数据层（JSON5）
 
 - cards.json5：分区清晰——占位/默认卡 → 绝世·加持 → 绝世·悟道 → 抉择临时卡 → 天赋授予卡（紫微斗数/万法归宗，isUnpackable）→ 通用/悟道/锻体/御剑/法身/炼魂各自的攻击与加持。字段约定：category（attack/buff）、genre（流派，省略=中立）、cardType（七类：unarmed/weapon/spell/curse/shenfa/xinfa/divinity）、kind（命名/动画类别）、damageType（八种，攻击卡必填）、elementType、equipment（装备需求）、rank（境界门槛 0~5）、coloredCost、valueData（{base, increment, maxLevel?}）、animation（startup/recovery/actions/overlays/sound）、script、keywords、isUnique/isEphemeral/isUnpackable。
-  - 费用惯例：流派卡 = rank 点流派色（悟道 {spell:{base:0,rankIncrement:1}} / 御剑 weapon / 锻体 unarmed / 炼魂 curse）；中立卡（含法身）= rank+1 点元气 life；免费卡显式 {life: 0}。
+  - 费用惯例：流派卡 = rank 点流派色（悟道 {spell:{base:0,rankIncrement:1}} / 御剑 weapon / 锻体 unarmed / 炼魂 curse）；中立卡（含法身）= {life:{base:0.5,rankIncrement:0.5}}（calculateCostValue 内 ceil，即 1,1,2,2,3,3）；免费卡显式 {life: 0}。
 - card_affixes.json5（额外词条池）：通用增益（护甲/速度/闪避/治疗）、buff 系、debuff 系、伤害联动、时机回调词条（retain/scry/attune，带 callbacks 列表）。过滤维度：categories + genres + rank + uniqueId 去重（含主词条 uniqueIds 预留位）。机制字段平铺在词条上：filter / require / resourceId / resourceThreshold / buffId / attributeId / priority / callbacks 等。
   - filter 条件口径（matchCardCriteria，battle.dart）：category/genre/cardType/kind/elementType + not 反选子表；draw_cards 的 filter/reduceCost、upgrade_hand_cards、getHandCards、matchLastUsedCard 共用同一口径。字符串 'self' 是占位符，由 CardScript.\_resolveCriteriaSelf（card_script.ht:489）解析为本牌主词条同名字段的值，解析出 null 则条件不成立、效果不触发。
 
@@ -129,6 +129,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 7. 常量同步（Dart ↔ Hetu）
 
 - lib/data/common.dart 是常量唯一来源（kCamelCase）；lib/data/constants.dart 经 HTExternalClass 导出；scripts/main/binding/constants.ht 在脚本侧声明；脚本中以 Constants.xxx 访问（如 Constants.elementAilments / equipmentCategoryKinds / rankToRarity / basePriceByKind）。
+- 数值公式同属 Dart 机制层：calculateCardAffixValue / calculatePassiveAffixValue / calculateCostValue / calculateItemBasePrice 实现于 GameLogic（logic.dart），经 app.dart bindExternalFunction 绑定、scripts/main/logic/logic.ht 声明 external，脚本侧全局直调（同 minLevelForRank / getMinMaxExtraAffixCount 等先例）；hetu item.ht 的 calculatePrice 只是写回 item.price 的薄壳。
 - lib/data/common_data.dart 是纯常量拆分（供校验器在纯 Dart VM 下 import，不能引入 Flutter/dart:ui）；结构契约表（回调契约、机制字段形状、cardType/filter 键等）硬编码在校验器中，新增数据约定时需同步校验器。
 
 ## 8. 本地化（assets/locale/zh/rpg/）

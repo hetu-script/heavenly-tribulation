@@ -345,6 +345,11 @@ const kDeckEphemeralCount = 3;
 const kScrollMaxCharges = 3;
 
 const kCultivationRankMax = 5;
+
+/// 卡牌词条数值的境界底数指数：每破一境，词条的「底数+等级项」整体 × kRankBaseScale
+/// （化神 rank5 底数 ≈ rank0 的 1.3^5 ≈ 3.7 倍；见 plan/affix_value_formula_rework.md）
+/// 仅 GameLogic.calculateCardAffixValue 使用，不导出到脚本侧
+const kRankBaseScale = 1.3;
 // 装备栏固定 8 格，可用栏位数随境界提升（见 equipmentSlotCount）
 const kEquipmentSlotMax = 8;
 const kFameRankMax = 5;

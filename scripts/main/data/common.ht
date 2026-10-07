@@ -139,45 +139,10 @@ function equipmentSlotCount(rank) {
   return Math.min(rank + 3, kEquipmentSlotMax)
 }
 
-/// 境界底数指数：每破一境，词条的「底数+等级项」整体 × _kRankBaseScale
-/// （化神 rank5 底数 ≈ rank0 的 1.3^5 ≈ 3.7 倍；见 plan/affix_value_formula_rework.md）
-const _kRankBaseScale = 1.3
-
-/// 计算卡牌词条数值：
-/// value = (base + increment × (level − minLevelForRank(rank))) × _kRankBaseScale ^ rank + rankIncrement × rank
-/// 「底数+等级项」作为一体按境界指数缩放——含义 = 该词条在 rank0 时值 base + increment×等级，每破一境整体 × _kRankBaseScale
-/// +1 级相对提升全境界恒定（≈ increment/base），绝对增量随境界放大，战斗中升级在任何境界都有感。
-/// level < minLevelForRank(rank) 时相对等级按 0 计（不出现负增量）。
-/// increment 按本境界内等级缩放；rankIncrement 按境界线性叠加，用于强力词条
-function calculateCardAffixValue(valueData, {level = 0, rank = 0}) {
-  final base = valueData.base ?? 0
-  if (valueData.isFixed) {
-    return base
-  } else {
-    final increment = valueData.increment ?? 0
-    final rankIncrement = valueData.rankIncrement ?? 0
-    final minLevel = minLevelForRank(rank)
-    final relativeLevel = Math.max(0, level - minLevel)
-    final scaled = base + increment * relativeLevel
-    return scaled * Math.pow(_kRankBaseScale, rank) + rankIncrement * rank
-  }
-}
-
-/// 计算天赋和装备的词条数值
-function calculatePassiveAffixValue(valueData, {level = 0}) {
-  final base = valueData.base ?? 0
-  final increment = valueData.increment ?? 0
-  final result = base + increment * level
-  return result
-}
-
-/// 计算费用数值
-function calculateCostValue(valueData, rank) {
-  final base = valueData.base ?? 0
-  final rankIncrement = valueData.rankIncrement ?? 0
-  final result = base + rankIncrement * rank
-  return result
-}
+// 词条/费用数值公式统一为 Dart 机制层实现（lib/logic/logic.dart GameLogic，
+// 境界底数指数常量 kRankBaseScale 在 lib/data/common.dart）：
+// calculateCardAffixValue / calculatePassiveAffixValue / calculateCostValue，
+// 经 app.dart 绑定为全局外部函数，声明见 scripts/main/logic/logic.ht
 
 function getCultivationRankName(character) {
   return engine.locale('cultivationRank_${character.rank}')

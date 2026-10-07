@@ -16,11 +16,21 @@ external function maxCityCountForSectDevelopment(development) -> integer
 
 external function getMinMaxExtraAffixCount(rank) -> Map
 
+/// 词条/费用数值公式（GameLogic 实现，见 lib/logic/logic.dart）
+external function calculateCardAffixValue(valueData, {level = 0, rank = 0}) -> integer
+
+external function calculatePassiveAffixValue(valueData, {level = 0}) -> integer
+
+external function calculateCostValue(valueData, rank) -> integer
+
 external function getTribulationCountForRank(rank) -> integer
 
 external function getDeckMinSizeForRank(rank) -> integer
 
 // external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
+
+/// 物品基础价格公式（GameLogic 实现）；item.ht 的 calculatePrice 写回 item.price
+external function calculateItemBasePrice(item) -> integer
 
 external function estimateItemPriceByKind(kind, rank, {range = 'normal'}) -> integer
 

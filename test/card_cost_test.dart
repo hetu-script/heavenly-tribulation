@@ -3,23 +3,36 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:heavenly_tribulation/scene/battle/card_cost.dart';
+import 'package:heavenly_tribulation/logic/logic.dart';
 
 void main() {
   const mana = 'energy_positive_spell';
   const wildcard = 'energy_positive_ultimate';
 
-  test('真实 Hetu 费用求值保留动态零费用，基线独立，Dart 可读取 HTStruct', () {
+  /// 费用公式唯一实现是 GameLogic.calculateCostValue（Dart 机制层）；
+  /// 测试用 hetu 实例绑定同名外部函数，使真实 updateCardCost 脚本可端到端求值
+  Hetu createHetu() {
     final hetu = Hetu()..init();
+    hetu.interpreter.bindExternalFunction(
+        'calculateCostValue',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.calculateCostValue(positionalArgs[0], positionalArgs[1]),
+        override: true);
+    return hetu;
+  }
+
+  String loadUpdateCardCostSource() {
     final cardSource = File('scripts/main/cardgame/card.ht').readAsStringSync();
-    final costSource = cardSource.substring(
+    return cardSource.substring(
         0, cardSource.indexOf('function getCardRankUpProbability'));
-    final commonSource = File('scripts/main/data/common.ht').readAsStringSync();
-    final formulaStart = commonSource.indexOf('function calculateCostValue(');
-    final formulaEnd = commonSource.indexOf('\n}', formulaStart) + 2;
+  }
+
+  test('真实 Hetu 费用求值保留动态零费用，基线独立，Dart 可读取 HTStruct', () {
+    final hetu = createHetu();
     hetu.eval('''
+      external function calculateCostValue(valueData, rank)
       final Constants = { colorlessCostColorId: 'life' }
-      ${commonSource.substring(formulaStart, formulaEnd)}
-      $costSource
+      ${loadUpdateCardCostSource()}
       final card = {
         rank: 5,
         affixes: [{coloredCost: {spell: {base: 0, isDynamic: true}}}],
@@ -38,6 +51,34 @@ void main() {
     hetu.eval(
         'card.affixes[0].coloredCost.spell.base = 10\nupdateCardCost(card)');
     expect(cardCostBase(card['coloredCost']['spell']), 10);
+  });
+
+  test('中立卡费用模型：ceil((rank+1)/2) = 1,1,2,2,3,3，rank0 不为 0 费', () {
+    // Dart 直调（公式唯一实现）
+    expect(
+        [
+          for (var rank = 0; rank <= 5; rank++)
+            GameLogic.calculateCostValue(
+                {'base': 0.5, 'rankIncrement': 0.5}, rank)
+        ],
+        [1, 1, 2, 2, 3, 3]);
+    // Hetu 端到端：真实 updateCardCost 脚本经外部函数绑定求值
+    final hetu = createHetu();
+    hetu.eval('''
+      external function calculateCostValue(valueData, rank)
+      final Constants = { colorlessCostColorId: 'life' }
+      ${loadUpdateCardCostSource()}
+      final results = []
+      for (final rank in range(6)) {
+        final card = {
+          rank: rank,
+          affixes: [{coloredCost: {life: {base: 0.5, rankIncrement: 0.5}}}],
+        }
+        updateCardCost(card)
+        results.add(card.coloredCost.life)
+      }
+    ''');
+    expect(hetu.fetch('results'), [1, 1, 2, 2, 3, 3]);
   });
 
   test('真实伤害脚本消费 paidCost，不再次耗尽后来获得的气', () {

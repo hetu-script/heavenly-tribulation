@@ -508,9 +508,15 @@ final class GameData with ChangeNotifier {
             assert(passiveRawData != null, 'passiveData: $passiveData');
             description = engine.locale(passiveRawData['description']);
             if (passiveRawData['increment'] != null) {
-              final int level = passiveData['level'];
-              final num increment = passiveRawData['increment'];
-              final int value = (level * increment).round();
+              // 与战斗侧同口径：maxLevel 封顶后按统一公式计算（GameLogic，hetu 侧同源）
+              int level = passiveData['level'];
+              final maxLevel = passiveRawData['maxLevel'];
+              if (maxLevel is num && level > maxLevel) {
+                level = maxLevel.toInt();
+              }
+              final int value = GameLogic.calculatePassiveAffixValue(
+                  passiveRawData,
+                  level: level);
               description =
                   description.interpolate(['${value < 0 ? '' : '+'}$value']);
             }
@@ -550,9 +556,9 @@ final class GameData with ChangeNotifier {
 
   /// 校验卡牌费用 coloredCost 数据（见 plan/battle_resource_rework.md 单资源模型）：
   /// 1. 费用色合法性：非绝世卡的费用色只能属于 spell/weapon/unarmed/curse 四色与 life（元气）
-  /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算；rank 缺失按 0 折算）
+  /// 2. 条目合法性：固定数值，或 {base, rankIncrement} 公式（按卡牌 rank 折算，ceil 取整；rank 缺失按 0 折算）
   /// 3. 模型校验（软警告）：流派卡（genre ∈ kGenreCostColors）期望 Σ有色 == rank 且不含元气；
-  ///    中立卡（无流派 / 法身 avatar / 其他）期望元气 life == rank+1 且不含有色
+  ///    中立卡（无流派 / 法身 avatar / 其他）期望元气 life == ceil((rank+1)/2)（即 1,1,2,2,3,3）且不含有色
   /// 4. 例外：全部条目折算为 0 的免费卡跳过模型校验；
   ///    混费（元气+有色并存）与多色卡不禁止（未来设计），只给软警告
   /// 数据问题只警告，不中断加载
@@ -597,7 +603,7 @@ final class GameData with ChangeNotifier {
             value['base'] is num &&
             (value['rankIncrement'] == null || value['rankIncrement'] is num) &&
             (value['isDynamic'] == null || value['isDynamic'] is bool)) {
-          amount = _deriveColoredCostAmount(value, rank);
+          amount = GameLogic.calculateCostValue(value, rank);
           hasDynamicCost |= value['isDynamic'] == true;
         } else {
           engine.warning('卡牌 [$cardId] 的 coloredCost [$color] 数值非法: $value');
@@ -632,7 +638,7 @@ final class GameData with ChangeNotifier {
             '单资源模型下应只为单色');
       }
 
-      // 模型校验：流派卡 Σ有色 == rank 且不含元气；中立卡（含法身）life == rank+1 且不含有色
+      // 模型校验：流派卡 Σ有色 == rank 且不含元气；中立卡（含法身）life == ceil((rank+1)/2) 且不含有色
       final bool isColoredGenre =
           kGenreColoredCost.containsKey(cardData['genre']);
       if (isColoredGenre) {
@@ -642,9 +648,11 @@ final class GameData with ChangeNotifier {
               '${hasLifeKey ? ' 含元气($lifeAmount)' : ''}');
         }
       } else {
-        if (lifeAmount != rank + 1 || coloredCostSum > 0) {
+        // 中立卡费用模型 1,1,2,2,3,3（元气每回合固定产出且无额外获取途径）
+        final expectedLife = ((rank + 1) / 2).ceil();
+        if (lifeAmount != expectedLife || coloredCostSum > 0) {
           engine.warning('卡牌 [$cardId] 费用与单资源模型不符：中立卡应为 '
-              '元气 == rank+1(${rank + 1}) 且不含有色，当前 元气($lifeAmount)'
+              '元气 == ceil((rank+1)/2)($expectedLife) 且不含有色，当前 元气($lifeAmount)'
               '${coloredCostSum > 0 ? ' 含有色($coloredCostSum)' : ''}');
         }
       }
@@ -1490,20 +1498,6 @@ final class GameData with ChangeNotifier {
     );
 
     return cardData;
-  }
-
-  /// 计算单条有色费用的实际数值：条目可以是固定数值，
-  /// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)）。
-  /// 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 [] 访问。
-  /// 与 scripts/main/cardgame/card.ht 的 _calcColoredCostAmount 保持一致。
-  static int _deriveColoredCostAmount(dynamic valueData, int rank) {
-    if (valueData is num) return valueData.floor();
-    if (valueData != null) {
-      final base = (valueData['base'] as num?) ?? 0;
-      final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
-      return (base + rankIncrement * rank).floor();
-    }
-    return 0;
   }
 
   /// 卡牌标题：符箓等带使用次数（chargeData）的卡牌追加 (current/max)

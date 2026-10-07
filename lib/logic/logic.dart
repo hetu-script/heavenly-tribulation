@@ -553,6 +553,52 @@ final class GameLogic {
     };
   }
 
+  /// 卡牌词条数值（函数内 floor 取整，保证返回整数）：
+  /// value = (base + increment × (level − minLevelForRank(rank))) × kRankBaseScale ^ rank + rankIncrement × rank
+  /// 「底数+等级项」作为一体按境界指数缩放——含义 = 该词条在 rank0 时值 base + increment×等级，
+  /// 每破一境整体 × kRankBaseScale；+1 级相对提升全境界恒定（≈ increment/base），
+  /// 绝对增量随境界放大，战斗中升级在任何境界都有感。
+  /// level < minLevelForRank(rank) 时相对等级按 0 计（不出现负增量）；
+  /// increment 按本境界内等级缩放，rankIncrement 按境界线性叠加（用于强力词条）；
+  /// isFixed 词条不随等级缩放，直接返回 floor(base)。
+  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
+  static int calculateCardAffixValue(dynamic valueData,
+      {int level = 0, int rank = 0}) {
+    final base = (valueData['base'] as num?) ?? 0;
+    if (valueData['isFixed'] == true) {
+      return base.floor();
+    }
+    final increment = (valueData['increment'] as num?) ?? 0;
+    final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
+    final int relativeLevel = math.max(0, level - minLevelForRank(rank));
+    final num scaled = base + increment * relativeLevel;
+    return (scaled * math.pow(kRankBaseScale, rank) + rankIncrement * rank)
+        .floor();
+  }
+
+  /// 天赋和装备的词条数值（函数内 round 取整，保证返回整数）：base + increment × level。
+  /// maxLevel 封顶由调用方在传入 level 前处理（见 battle_entity.ht characterSetPassive）。
+  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
+  static int calculatePassiveAffixValue(dynamic valueData, {int level = 0}) {
+    final base = (valueData['base'] as num?) ?? 0;
+    final increment = (valueData['increment'] as num?) ?? 0;
+    return (base + increment * level).round();
+  }
+
+  /// 费用数值（函数内取整，保证返回整数）：固定数值条目 floor 返回；
+  /// {base, rankIncrement} 公式条目 ceil(base + rankIncrement × rank)。
+  /// 与词条数值的境界指数公式脱钩，费用只按 rank 线性缩放。
+  /// 元气每回合固定产出（kBattleBaseEnergy）且无额外获取途径，中立卡费用模型
+  /// 为 ceil((rank+1)/2) = 1,1,2,2,3,3——rank0 不得折算为 0 费
+  /// （配合数据层标准公式 {base: 0.5, rankIncrement: 0.5} 即得该曲线）。
+  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
+  static int calculateCostValue(dynamic valueData, int rank) {
+    if (valueData is num) return valueData.floor();
+    final base = (valueData['base'] as num?) ?? 0;
+    final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
+    return (base + rankIncrement * rank).ceil();
+  }
+
   static int getTribulationCountForRank(int rank) {
     if (rank <= 0) {
       return -1;
@@ -790,6 +836,38 @@ final class GameLogic {
     }
   }
 
+  /// 物品基础价格核心公式（[calculateItemBasePrice] 与 [estimateItemPriceByKind] 共用）：
+  /// 词条类物品（kItemWithAffixKinds）= (rank²+1) × (level+1) × (词条列表长度+1) × kind 基准价；
+  /// 其他物品 = (rank²+1) × kind 基准价。未知 kind 告警并使用 kUnknownItemPrice
+  static int _itemBasePriceCore(
+      String? kind, int rank, int level, int affixListLength) {
+    int? basePrice = kBasePriceByKind[kind];
+    if (basePrice == null) {
+      engine.warning('found no base price for item kind: $kind');
+      basePrice = kUnknownItemPrice;
+    }
+    if (kItemWithAffixKinds.contains(kind)) {
+      return (rank * rank + 1) *
+          (level + 1) *
+          (affixListLength + 1) *
+          basePrice;
+    }
+    return (rank * rank + 1) * basePrice;
+  }
+
+  /// 物品实例的基础价格（词条列表长度即 item.affixes.length，含主词条）。
+  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht），
+  /// item.ht 的 calculatePrice 调用之并写回 item.price
+  static int calculateItemBasePrice(dynamic item) {
+    final String? kind = item['kind'];
+    final int rank = (item['rank'] as num?)?.toInt() ?? 0;
+    final int level = (item['level'] as num?)?.toInt() ?? 0;
+    final int affixListLength = (item['affixes'] as List?)?.length ?? 0;
+    return _itemBasePriceCore(kind, rank, level, affixListLength);
+  }
+
+  /// 按 kind 与 rank 估算物品价格（无需物品实例）；
+  /// 词条列表长度按 主词条 1 + 额外词条数（境界区间 minExtra~maxExtra 按 range 取档）估算
   static int estimateItemPriceByKind(
     String kind,
     int rank, {
@@ -798,13 +876,6 @@ final class GameLogic {
   }) {
     assert(kEstimatePriceRange.contains(range));
     int price;
-    int basePrice;
-    if (kBasePriceByKind.containsKey(kind)) {
-      basePrice = kBasePriceByKind[kind]!;
-    } else {
-      engine.warning('Unknown item price, kind: $kind, using default price');
-      basePrice = kUnknownItemPrice;
-    }
     if (kItemWithAffixKinds.contains(kind)) {
       final minLevel = minLevelForRank(rank);
       final maxLevel = maxLevelForRank(rank);
@@ -812,23 +883,23 @@ final class GameLogic {
       final int minExtra = extraAffixCount['minExtra']!;
       final int maxExtra = extraAffixCount['maxExtra']!;
       int level;
-      int affixCount;
+      int affixListLength;
       switch (range) {
         case 'cheap':
           level = minLevel;
-          affixCount = minExtra;
+          affixListLength = 1 + minExtra;
         case 'normal':
           level = (minLevel + maxLevel) ~/ 2;
-          affixCount = (minExtra + maxExtra) ~/ 2;
+          affixListLength = 1 + (minExtra + maxExtra) ~/ 2;
         case 'expensive':
           level = maxLevel;
-          affixCount = maxExtra;
+          affixListLength = 1 + maxExtra;
         default:
           throw ('estimatedPrice range should be `cheap`, `normal`, or `expensive`: $range');
       }
-      price = (rank * rank + 1) * (level + 1) * (affixCount + 1) * basePrice;
+      price = _itemBasePriceCore(kind, rank, level, affixListLength);
     } else {
-      price = (rank * rank + 1) * basePrice;
+      price = _itemBasePriceCore(kind, rank, 0, 0);
     }
 
     if (useShard) {

@@ -609,7 +609,7 @@ function _createPassiveData(dataId, {level = 1}) {
     if (passiveData.maxLevel != null && passiveData.level > passiveData.maxLevel) {
       passiveLevel = passiveData.maxLevel
     }
-    passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel).round()
+    passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel)
   }
   for (final field in _kPassiveMechanismFields) {
     final fieldValue = passiveRawData[field]
@@ -650,7 +650,7 @@ function characterSetPassive(character, dataId, {level = 1}) {
       if (passiveData.maxLevel != null && passiveData.level > passiveData.maxLevel) {
         passiveLevel = passiveData.maxLevel
       }
-      passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel).round()
+      passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel)
     }
   }
 }

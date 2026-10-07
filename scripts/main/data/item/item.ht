@@ -53,18 +53,11 @@ const kEstimatePriceFactor = 0.8;
 
 // const kItemExtraAffixMinLevel = minLevelForRank(1);
 
-const kUnknownItemBasePrice = 100;
-
+/// 计算物品基础价格并写回 item.price（隐式返回该价格，供 item.price ??= calculatePrice(item) 使用）。
+/// 公式在 Dart 机制层 GameLogic.calculateItemBasePrice（与 estimateItemPriceByKind 同源共用核心），
+/// 经 app.dart 绑定为外部函数（声明见 scripts/main/logic/logic.ht）
 function calculatePrice(item) {
-  if (!Constants.basePriceByKind.containsKey(item.kind)) {
-    engine.warning('found no base price for item kind: ${item.kind}')
-  }
-  if (Constants.itemWithAffixKinds.contains(item.kind)) {
-    item.price = (item.rank * item.rank + 1) * (item.level + 1) *
-      (item.affixes?.length ?? 0 + 1) * (Constants.basePriceByKind[item.kind] ?? kUnknownItemBasePrice)
-  } else {
-    item.price = (item.rank * item.rank + 1) * (Constants.basePriceByKind[item.kind] ?? kUnknownItemBasePrice)
-  }
+  item.price = calculateItemBasePrice(item)
 }
 
 function convertMoneyToShard(money) {
@@ -152,7 +145,7 @@ function createItemById(id, {amount, rank, level}) {
           }
         }
         affix.level = getRandomLevel(minAffixLevel, item.level)
-        affix.value = calculatePassiveAffixValue(affix, level: affix.level).round()
+        affix.value = calculatePassiveAffixValue(affix, level: affix.level)
       }
       item.affixes.add(affix)
       if (affix.uniqueIds is List) {

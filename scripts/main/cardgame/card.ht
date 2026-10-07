@@ -1,19 +1,15 @@
 
-/// 计算单条费用的实际数值：条目可以是固定数值，
-/// 也可以是 {base, rankIncrement} 公式（floor(base + rankIncrement × rank)，随卡牌境界缩放），
-/// 例如标准公式 {base: 0, rankIncrement: 1} → 费用 = rank，{base: 1, rankIncrement: 1} → 费用 = rank+1
-/// 走独立的 calculateCostValue（与词条数值的境界指数公式脱钩，费用只按 rank 线性缩放）
-function _calcCostAmount(valueData, rank) {
-  if (valueData is num) return valueData.floor()
-  return calculateCostValue(valueData, rank).floor()
-}
-
 /// 计算/重算卡牌费用（唯一实现，公开函数；见 plan/battle_resource_rework.md）：
-/// 单资源模型——流派卡 = rank 点流派色，中立卡（含法身）= rank+1 点元气（life）。
+/// 单资源模型——流派卡 = rank 点流派色，中立卡（含法身）= ceil((rank+1)/2) 点元气（life，
+/// 即 1,1,2,2,3,3；元气每回合固定产出且无额外获取途径，中立卡保持低价）。
 /// 数据层约定全部显式写 coloredCost（含 life 键），本函数只做公式求值并写入
 /// card.coloredCost；普通显式 0 = 免费，动态条目即使 base 为 0 也保留为 X。
+/// 费用条目可以是固定数值，也可以是 {base, rankIncrement} 公式（随卡牌境界线性缩放，
+/// 与词条数值的境界指数公式脱钩），求值统一走 calculateCostValue（GameLogic 外部函数，
+/// 声明见 scripts/main/logic/logic.ht；示例：{base: 0, rankIncrement: 1} → 费用 = rank，
+/// {base: 0.5, rankIncrement: 0.5} → ceil((rank+1)/2)）。
 /// 缺省兜底（数据层不应依赖）：有流派色时推导 rank 点有色（多色对半拆，余数给首位），
-/// 无流派色（含法身）推导 rank+1 点元气。
+/// 无流派色（含法身）推导 ceil((rank+1)/2) 点元气。
 /// card.coloredCost 中 life 键始终在首位（渲染时元气在费用行基准位置）。
 /// 卡牌生成/破境/动态改费后调用；
 /// Dart 侧（如 createBattleCard）通过 engine.hetu.invoke('updateCardCost') 调用
@@ -23,7 +19,7 @@ function updateCardCost(card) {
   if (explicitCostColored != null && explicitCostColored.isNotEmpty) {
     for (final color in explicitCostColored.keys) {
       final entry = explicitCostColored[color]
-      final amount = _calcCostAmount(entry, card.rank)
+      final amount = calculateCostValue(entry, card.rank)
       if (entry is num || entry.isDynamic != true) {
         costs[color] = amount
       } else {
@@ -31,12 +27,12 @@ function updateCardCost(card) {
       }
     }
   } else {
-    // 兜底：有色费用 = rank，无色费用 = ((card.rank + 1) / 2).floor()
+    // 兜底：有色费用 = rank，无色费用 = ((card.rank + 1) / 2).ceil()
     final color = Constants.genreColoredCost[card.genre]
     if (color != null) {
       costs[color] = card.rank
     } else {
-      costs[Constants.colorlessCostColorId] = ((card.rank + 1) / 2).floor()
+      costs[Constants.colorlessCostColorId] = ((card.rank + 1) / 2).ceil()
     }
   }
   // life 在首位：渲染时元气在费用行基准位置（最右）；普通 0 值条目不写入，动态 0 保留为 X
@@ -311,7 +307,7 @@ function _updateAffixValue(card, affix) {
   if (affix.valueData is List) {
     let values = []
     for (final valueData in affix.valueData) {
-      final value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank).floor()
+      final value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank)
       values.add(value)
     }
     // if (affix.requirement && affix.requirement.isNotEmpty) {
@@ -331,7 +327,7 @@ function _randomizeAffixLevel(card, affix) {
     affix.level = getRandomLevel(levelMin, levelMax)
     let values = []
     for (final valueData in affix.valueData) {
-      let value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank).floor()
+      let value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank)
       values.add(value)
     }
     affix.value = values
@@ -409,12 +405,12 @@ function _addExtraAffixes(card) {
 }
 
 /// 绝世卡牌的额外词条是固定的
-/// 按主词条数据中预定义的词条 id 列表顺序解锁，总数为 rank + 1 个
+/// 按主词条数据中预定义的词条 id 列表顺序解锁，总数为 rank 个
 function _addPredefinedAffixes(card) {
   final predefinedAffixIds = card.affixes.first.affixes
   if (predefinedAffixIds is! List) return
 
-  final targetCount = Math.min(predefinedAffixIds.length, card.rank + 1)
+  final targetCount = Math.min(predefinedAffixIds.length, card.rank)
   for (var i = card.affixes.length - 1; i < targetCount; ++i) {
     final affixId = predefinedAffixIds[i]
     final prototype = game.battleCardAffixes[affixId]
