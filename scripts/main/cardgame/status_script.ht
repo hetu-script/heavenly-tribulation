@@ -124,13 +124,13 @@ namespace StatusScript {
   }
 
   /// 幸运：使用攻击牌时消耗 1 层（按卡牌身份二选一，与是否处于转化态无关）：
-  /// 潜伏元素牌（火/水/雷/木）→ 本张卡牌必定造成异常（每满 10 点伤害 1 层）；
-  /// 物理伤害牌 → 本张卡牌必定暴击。
-  /// 无属性元素卡（含金/土/风）与真气牌：不触发、不消耗（控制异常的施加走脚本直施，不经充能）
+  /// 元素牌（七元素，含金/土/风控制元素——其异常经同一计数器施加）→
+  /// 本张卡牌必定造成异常（每满 10 点伤害 1 层）；物理伤害牌 → 本张卡牌必定暴击。
+  /// 真气牌等非元素牌：不触发、不消耗（真气的内伤走自身路径，不经此判定）
   function buff_crit_self_using_card(self, opponent, effect, details) {
     if (self.cardFlags.category != 'attack') return
 
-    if (Constants.elementDamageTypes[self.cardFlags['elementType']] != null) {
+    if (Constants.elementAilments[self.cardFlags['elementType']] != null) {
       self.turnFlags.guaranteedAilment = true
     } else if (self.cardFlags.damageType == 'physical') {
       self.turnFlags.guaranteedCrit = true

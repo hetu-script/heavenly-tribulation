@@ -111,9 +111,9 @@ final kElementTypes = kElementAilmentIds.keys.toSet();
 /// 爆发元素 → 转化态伤害类型的映射（plan/damage_type_rework.md 2.4）：
 /// 火→fire、水→ice、雷→lightning、木→poison。
 /// 卡牌印刷伤害类型统一为无属性（ordinary）；潜伏元素在本表中的攻击卡，
-/// 当对方持有对应元素异常（查 kElementAilmentIds）时，转化为对应元素伤害结算并消耗 1 层；
-/// 异常充能/幸运必异常也以本表为口径（与是否处于转化态无关）。
-/// 金/土/风为控制元素，不在本表（其异常是收益本体，不触发转化）。
+/// 当对方持有对应元素异常（查 kElementAilmentIds）时，转化为对应元素伤害结算并消耗 1 层。
+/// 本表只决定伤害类型转化；异常充能/幸运必异常的口径是 kElementAilmentIds（七元素）——
+/// 金/土/风为控制元素，不在本表（永不转化，但其异常照常经计数器施加，异常是收益本体）。
 /// 通过 Constants.elementDamageTypes 导出到脚本侧
 const kElementDamageTypes = {
   'element_fire': 'fire',

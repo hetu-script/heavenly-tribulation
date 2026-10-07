@@ -111,7 +111,7 @@
 
 > ⚠️ **两处需先修**：
 >
-> 1. `紫微斗数` 缺 `rank`。它由分支节点 `shuffleIntoDeck` 发放，而 `affixId` 路径**短路了全部过滤**（`card.ht:121`），所以 `this.rank` 保持构造默认值 **0**（`card.ht:107`），`targetCount = min(len, 1) = 1`——**只会解出主词条，一个额外词条都不给**。必须显式补 `rank: N`。按照设计，紫微斗数的rank等同于角色当前境界。
+> 1. `紫微斗数` 缺 `rank`。它由分支节点 `shuffleIntoDeck` 发放，而 `affixId` 路径**短路了全部过滤**（`card.ht:121`），所以 `this.rank` 保持构造默认值 **0**（`card.ht:107`），`targetCount = min(len, 1) = 1`——**只会解出主词条，一个额外词条都不给**。必须显式补 `rank: N`。按照设计，紫微斗数的rank等同于角色当前境界，这一点应该在将该牌洗入牌库时赋予。
 > 2. `万法归宗` 已有 `rank: 5`，但缺 `affixes` 键，同样解不出词条。
 
 ### 2.1 天机术（rank 1，规划主题）
@@ -152,15 +152,15 @@
 
 ### 2.2 相生相克（rank 2，轮转/自异常主题）
 
-主词条不变：对**双方**施加随机元素异常，种数 = 本回合已用元素种数。
+主词条不变：对**双方**施加随机元素异常，层数 = 本回合已用元素种数。
 
 | #   | 解禁   | id                                 | 效果                                                           | 数据                                        |
 | --- | ------ | ---------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
-| 1   | 自带   | `spellcraft_ailments_used_affix_1` | **相生**：本回合每使用过一种元素，本次施加层数 +{0}            | `valueData: [{base: 0.5, increment: 0.05}]` |
-| 2   | 自带   | `spellcraft_ailments_used_affix_2` | **五行归序**：自身持有 {0} 种以上不同元素异常时，获得 1 点灵气 | `valueData: [{base: 3}]`（固定值）          |
-| 3   | rank 3 | `spellcraft_ailments_used_affix_3` | **清浊相生**：打出时移除自身 1 层任意元素异常，抽 1 张牌       | —                                           |
-| 4   | rank 4 | `spellcraft_ailments_used_affix_4` | **乱象**：若对手已持有本次将施加的异常，则该异常额外 +1 层     | —                                           |
-| 5   | rank 5 | `spellcraft_ailments_used_affix_5` | **化劫**：本场战斗中，每移除 1 层自身元素异常，获得 3 点护甲   | 需永久状态承载                              |
+| 1   | 自带   | `spellcraft_ailments_used_affix_1` | **相生**：本回合每使用过一种元素，本次施加层数 +1            | `valueData: [{base: 1, isFixed: true}]` |
+| 2   | 自带   | `spellcraft_ailments_used_affix_2` | **五行归序**：自身持有 {0} 种以上不同元素异常时，获得 1 点灵气 | `valueData: [{base: 3, isFixed: true}]`          |
+| 3   | rank 3 | `spellcraft_ailments_used_affix_3` | **清浊相生**：自身持有 {0} 种以上不同元素异常时，抽 1 张牌       | `valueData: [{base: 3, increment: 0.1}]`                                     |
+| 4   | rank 4 | `spellcraft_ailments_used_affix_4` | **乱象**：若对手已持有本次将施加的异常，则该异常额外 +2 层     | —                                           |
+| 5   | rank 5 | `spellcraft_ailments_used_affix_5` | **化劫**：移除自身所有元素异常（包括刚获得的），每层获得 3 点护甲   |                             |
 
 **设计说明**：`attack_debuff` / `ailments_by_used_elements` 系的通用脚本可以传"额外层数"参数，不必新写整套。`_3` 与 `water_mend`（清除全部异常）形成对照：相生相克自己清一层换抽牌，是自异常引擎的**微调节流阀**，避免异常堆到必须用水疗术清场。
 
@@ -172,8 +172,8 @@
 
 | #   | 解禁   | id                                   | 效果                                                 | 数据                                             |
 | --- | ------ | ------------------------------------ | ---------------------------------------------------- | ------------------------------------------------ |
-| 1   | 自带   | `spellcraft_element_amplify_affix_1` | **三清护体**：抉择后，下一次受到该元素伤害时恢复生命 | `valueData: [{base: 1}]`                         |
-| 2   | rank 4 | `spellcraft_element_amplify_affix_2` | **同气相求**：对手使用所选元素牌时，你获得 1 点灵气  | 需状态承载                                       |
+| 1   | 自带   | `spellcraft_element_amplify_affix_1` | **三清护体**：抉择后，下一次受到该元素伤害时获得护盾 | `valueData: [{base: 1}]`                         |
+| 2   | rank 4 | `spellcraft_element_amplify_affix_2` | **同气相求**：对手的下个回合使用你所选元素牌时，你的下个回合额外获得 1 点灵气  | 需状态承载                                       |
 | 3   | rank 5 | `spellcraft_element_amplify_affix_3` | **一气先行**：抉择后，本回合下一张所选元素牌费用 -1  | 复用 `applyTurnCostModifier`（现有零调用方通道） |
 | 4   | rank 6 | `spellcraft_element_amplify_affix_4` | **三清回响**：打出时每有 1 点灵气，本次增幅 +5%      | —                                                |
 
@@ -187,9 +187,9 @@
 
 | #   | 解禁   | id                                    | 效果                                                                   | 数据                                                 |
 | --- | ------ | ------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
-| 1   | rank 4 | `spellcraft_ailments_to_mana_affix_1` | **纳气之后**：若本次获得 ≥{0} 点灵气，获得 {1} 点护甲                  | `valueData: [{base: 3}, {base: 12, increment: 0.6}]` |
-| 2   | rank 5 | `spellcraft_ailments_to_mana_affix_2` | **化浊为清**：打出后移除自身 1 种元素异常，抽 1 张牌                   | —                                                    |
-| 3   | rank 6 | `spellcraft_ailments_to_mana_affix_3` | **七情归一**：自身持有 {0} 种以上不同元素异常时，额外获得 1 点太极之气 | `valueData: [{base: 5}]`                             |
+| 1   | 自带 | `spellcraft_ailments_to_mana_affix_1` | **纳气之后**：若本次获得 ≥{0} 点灵气，每点灵气使你获得 {1} 点护甲                  | `valueData: [{base: 3}, {base: 12, increment: 0.6}]` |
+| 2   |  自带 | `spellcraft_ailments_to_mana_affix_2` | **化浊为清**：打出后移除自身 1 种元素异常，抽 1 张牌                   | —                                                    |
+| 3   | rank 5 | `spellcraft_ailments_to_mana_affix_3` | **七情归一**：自身持有 {0} 种以上不同元素异常时，额外获得 1 点太极之气 | `valueData: [{base: 5}]`                             |
 
 **设计说明**：太极之气（`kWildcardStatusId`）是万能抵扣资源，用它做顶层奖励既有价值又自带限制（灵气不能靠它支付）。`_1` 把"灵气爆发"转成生存，让引擎回合不至于裸奔。
 
@@ -376,7 +376,6 @@
 1. **观星修饰字段**（§2.1 的 6 个字段）——在 `BattleScene.scry` 里消费，或让主脚本收集后传参。
 2. **`scryPickBonus` 多选**（仅当决定做 §2.1 的第 6 条时）——需 `Completer<List<CustomGameCard>>` + 确认动作 + 剩余次数提示。
 
----
 
 ## 5. 落地清单与风险
 

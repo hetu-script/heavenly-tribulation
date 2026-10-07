@@ -284,9 +284,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         damageType == 'ice' ||
         damageType == 'lightning' ||
         damageType == 'poison';
-    // 潜伏元素（火/水/雷/木）：异常充能/预告以卡牌的元素身份为口径，
+    // 七元素（含金/土/风控制元素）：异常充能/预告以卡牌的元素身份为口径，
     // 与该次命中是否处于转化态无关（plan/damage_type_rework.md 2.3）
-    final String? latentDamageType = kElementDamageTypes[affix['elementType']];
+    final String? ailmentId = kElementAilmentIds[affix['elementType']];
 
     int damage = (value[0] as num).toInt();
 
@@ -335,9 +335,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    // 异常（幸运必异常，或异常计数器满阈值）：潜伏元素牌固定每满 10 点 1 层，不幸逐层抵消（同 takeDamage）
+    // 异常（幸运必异常，或异常计数器满阈值）：元素牌固定每满 10 点 1 层，不幸逐层抵消（同 takeDamage）
     int ailmentStacks = 0;
-    if (damage > 0 && latentDamageType != null) {
+    if (damage > 0 && ailmentId != null) {
       final attackerStats = attacker.data['stats'];
       final int ailmentThreshold =
           (attackerStats['ailmentThreshold'] ?? kBaseAilmentThreshold).toInt();
@@ -1098,16 +1098,18 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    // 元素异常触发：潜伏元素（火/水/雷/木）共享计数器——以卡牌的元素身份为口径
-    // （经 cardFlags['elementType'] 读取），与该次命中是否处于转化态无关：
+    // 元素异常触发：七元素共享计数器——以卡牌的元素身份为口径（经 cardFlags['elementType']
+    // 读取 kElementAilmentIds），与该次命中是否处于转化态无关：
     // 未转化的元素牌以无属性结算时同样充能，这是转化机制的自举前提
-    // （见 plan/damage_type_rework.md 2.3）。
+    // （见 plan/damage_type_rework.md 2.3）。金/土/风控制元素不在 kElementDamageTypes，
+    // 其卡牌永远以无属性结算（不转化、不破甲），但照常充能并触发对应异常
+    // （流血/内伤/幻觉——异常本身是收益）。
     // 攻击方 ailment_charge 达到 ailmentThreshold 时，本次伤害消耗阈值层数并造成异常，
-    // 层数为每满 10 点最终伤害 1 层，类别取卡牌的潜伏元素
-    // 豪气：潜伏元素牌必定造成异常（独立路径，不消耗计数器，豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
-    final String? latentDamageType =
-        kElementDamageTypes[opponent!.cardFlags['elementType']];
-    if (finalDamage > 0 && latentDamageType != null) {
+    // 层数为每满 10 点最终伤害 1 层，类别取卡牌的元素
+    // 豪气：元素牌必定造成异常（独立路径，不消耗计数器，豪气的消耗在出牌时的状态脚本中完成，这里只清除标记）
+    final String? ailmentId =
+        kElementAilmentIds[opponent!.cardFlags['elementType']];
+    if (finalDamage > 0 && ailmentId != null) {
       final attackerStats = opponent!.data['stats'];
       int stacks = 0;
       if (opponent!.turnFlags['guaranteedAilment'] == true) {
@@ -1134,9 +1136,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         }
       }
       if (stacks > 0) {
-        final ailmentId = 'ailment_$latentDamageType';
         addStatusEffect(ailmentId, amount: stacks);
-        // 写入施加方的异常伤害倍率（以最后一次触发为准）
+        // 写入施加方的异常伤害倍率（以最后一次触发为准；仅 DOT 类异常消费该字段）
         _statusEffects[ailmentId]?.data['ailmentMultiplier'] =
             (attackerStats['ailmentMultiplier'] ?? kBaseAilmentMultiplier)
                 .toInt();
