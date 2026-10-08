@@ -3,14 +3,12 @@ import 'dart:math' as math;
 
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-// import 'package:quiver/iterables.dart';
+import 'package:samsara/effect.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
-// import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:flame/components.dart';
-import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/components/sprite_component2.dart';
 
 import '../../../global.dart';

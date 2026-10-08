@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
+import 'package:samsara/effect.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/components/ui/progress_indicator.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
@@ -15,7 +16,6 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
-import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 
 import '../../global.dart';

@@ -3,13 +3,12 @@ import 'dart:async';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
+import 'package:samsara/effect.dart';
 import 'package:flutter/material.dart' hide Image;
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:json5/json5.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:samsara/components/sprite_component2.dart';
-import 'package:samsara/effect/confetti.dart';
-import 'package:samsara/effect/fade.dart';
 import 'package:flame/effects.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 

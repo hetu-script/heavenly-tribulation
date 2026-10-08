@@ -4,7 +4,6 @@ import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -520,7 +519,7 @@ class CardLibraryScene extends Scene {
     Hovertip.show(
       scene: this,
       position: Vector2(
-          GameUI.craftCardPosition.x - kHovertipDefautWidth - GameUI.indent,
+          GameUI.craftCardPosition.x - kHovertipDefaultWidth - GameUI.indent,
           GameUI.craftCardPosition.y + GameUI.indent),
       content: description,
       config: ScreenTextConfig(

@@ -5,8 +5,8 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
+import 'package:samsara/effect.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
-import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/components/sprite_component2.dart';
 
 import '../../particles/light_point.dart';

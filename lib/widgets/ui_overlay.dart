@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:samsara/widgets/ui/mouse_region2.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:samsara/hover_info.dart';
-import 'package:samsara/game_dialog/avatar.dart';
 import 'package:samsara/game_dialog.dart';
 
 import 'character/profile.dart';

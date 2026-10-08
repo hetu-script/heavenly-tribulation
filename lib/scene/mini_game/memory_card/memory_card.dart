@@ -6,9 +6,9 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/components/ui/sprite_button.dart';
-import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/components/ui/rich_text_component.dart';
+import 'package:samsara/effect.dart';
 
 import '../../cursor_state.dart';
 import '../../common.dart';
