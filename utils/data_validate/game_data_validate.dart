@@ -21,6 +21,9 @@
 ///      ephemeralType / rank 等枚举与取值范围；coloredCost / filter / valueData /
 ///      deckCostReduction（含 color: 'all' 与负值加费）/ energyRetain / turnStartExtraDraw 结构
 ///   6. 数值占位: 描述文本中的 {N} 下标必须小于 valueData 长度
+///   （卡牌词条的纯数据机制字段——scryOptions / statusParams / guardValue 等修饰字段、
+///    drawnUpgrade 等、inUnpackable 池外化标记——不做结构校验，
+///    契约见 plan/spellcraft_uniquecard_affixes.md 与 docs/docs/mod/battle/card/readme.md）
 ///   7. 资源文件: image / icon 指向的文件必须存在于 assets/images/
 ///   8. 物品（items.json5，createItemById 语义）: type/rarity/rank/icon/category/kind、
 ///      isRankedName 境界名本地化键、布尔标记类型与未知 is* 标记（提示）、
@@ -65,11 +68,18 @@ const kScriptRequiredFields = {
   'attack_debuff': ['buffId'],
   'convert_vigor_all': ['buffId'],
   'heal_remove_debuffs': ['debuffs'],
+  'heal_remove_debuffs_by_stack': ['debuffs'],
+  'defend_remove_debuffs_by_stack': ['debuffs'],
   'for_attribute_increase_damage': ['attributeId'],
   'increase_damage_by_energy_count': ['resourceId'],
   'gain_resource_next_turn': ['resourceId'],
   'attack_by_paid_resource': ['resourceId'],
   'attack_with_energy_count_check': ['resourceId'],
+  'gain_resource_by_self_ailment_kinds': ['resourceId', 'threshold'],
+  'draw_and_self_buff': ['buffId'],
+  'ailment_by_excess_paid': ['buffId'],
+  'damage_boost_if_opponent_status': ['buffId'],
+  'retain_random_card_with_filter': ['filter'],
 };
 
 /// 已知物品布尔标记（表外 is* 字段仅提示——可能是拼写错误，如 isEquipable）

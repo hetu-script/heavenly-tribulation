@@ -46,8 +46,10 @@ external class BattleCharacter {
   }) -> integer
 
   /// source：施加方角色（缺省 opponent），供元素异常层数修正
-  /// （施加方 ailmentInflictBonus + 承受方 ailmentReceiveBonus）的归属判定
-  function addStatusEffect(effectId: string, {amount: integer, source})
+  /// （施加方 ailmentInflictBonus + 承受方 ailmentReceiveBonus）的归属判定；
+  /// params：状态实例参数覆盖表（写入实例数据副本——数值键按增量叠加、其余直接覆盖，
+  /// 如太上忘情词条经 apply_status_params 修正所授状态的 damagePerCard）
+  function addStatusEffect(effectId: string, {amount: integer, source, params})
 
   /// options：可选条件表，支持 filter / reduceCost 子表
   /// （字段：category / genre / cardType / kind / elementType，见 CardScript.draw_cards）

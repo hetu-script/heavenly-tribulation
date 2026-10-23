@@ -249,6 +249,10 @@ function _getSupportAffixes(card) {
   let affixes = []
   for (final affix of game.battleCardAffixes) {
     assert(affix.uniqueId != null)
+    // 绝世卡专属词条（inUnpackable）不进随机额外词条池，只能由绝世卡的预定义列表固定授予
+    if (affix.inUnpackable == true) {
+      continue
+    }
     if (!affix.categories.contains(card.category)) {
       continue
     }

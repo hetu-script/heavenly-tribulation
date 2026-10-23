@@ -15,7 +15,7 @@ description: |
 
 - **装备词条与天赋词条同通道汇合**（`character.passives`），战斗侧只读被动数据，装备在战斗中无活实例。
 - **绝世装备 = items.json5 prototype + 固定 affixes 列表**：第一个词条是主词条，
-  生成时按 `rank + 1` 顺序解锁（与绝世卡同规则，见 `createItemById` item.ht:130）；
+  生成时解锁列表前 `rank + 1` 条（列表含主词条，即**额外词条 = rank 条**，与绝世卡同规则，见 `createItemById` item.ht:130）；
   装备破境（升境）未实现，解锁数在生成时固定。
 - **一件装备的逻辑效果合并为一条主词条**（见第 2 节），affixes 列表当前只写主词条，
   给后续额外词条留出解锁位。

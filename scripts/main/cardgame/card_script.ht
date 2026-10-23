@@ -306,9 +306,14 @@ namespace CardScript {
     }
   }
 
-  /// 获得增益
+  /// 获得增益。
+  /// statusParams 通道：priority<0 的额外词条可先把修正写入 self.cardFlags['statusParams']
+  /// （见 apply_status_params），本函数授予状态时经 addStatusEffect 的 params 参数
+  /// 合并进状态实例数据副本（如太上忘情的舍念/静心修正所授状态的 damagePerCard/resourcePerCard）
   function self_buff(self, opponent, card, affix) {
-    self.addStatusEffect(affix.buffId, amount: affix.value[0])
+    final params = self.cardFlags['statusParams']
+    self.addStatusEffect(affix.buffId, amount: affix.value[0], params: params)
+    if (params != null) self.cardFlags['statusParams'] = null
   }
 
   /// 对手获得减益
@@ -371,19 +376,41 @@ namespace CardScript {
   /// ------------------------------------------------------------
 
 
+  /// 收集本牌全部词条（含主词条）携带的 scryOptions 子表并合并：
+  /// 数值键累加、布尔键取真（天机术的观星修饰词条为纯数据，不参与打出时脚本执行）
+  function _collectScryOptions(card) {
+    final merged = {}
+    for (final affix in card.affixes) {
+      final opts = affix.scryOptions
+      if (opts == null) continue
+      for (final key in opts.keys) {
+        final value = opts[key]
+        if (value is bool) {
+          if (value) merged[key] = true
+        } else if (value is num) {
+          merged[key] = (merged[key] ?? 0) + value
+        }
+      }
+    }
+    return merged
+  }
+
   /// 天机术（悟道绝世）：观星 value[0] 张（缺省 5），随后抽 1 张牌。
   /// await 保证观星选中的牌置于牌库顶后才抽牌（正好将其入手）；
   /// Dart 侧统一 await 词条脚本，观星交互期间出牌结算暂停（契约见文件头注释）
-  /// affix.scryOptions 可选费用修正（{chosenCostChange, othersCostChange}）：
-  /// 选中减费/未选加费，本场战斗内生效（未选牌进弃牌堆，加费洗牌后兑现）
+  /// scryOptions 支持键：chosenCostChange / othersCostChange（选中减费/未选加费，
+  /// 本场战斗内生效，未选牌进弃牌堆，加费洗牌后兑现）、upgradeChosen（选中牌等级+N）、
+  /// retainChosen（选中牌获得保留）、scryBonus（本次观星额外查看 N 张，与全局 stats 叠加）
   async function scry_then_draw(self, opponent, card, affix) {
-    await self.scry(count: affix.value?[0], option: affix.scryOptions)
+    final options = _collectScryOptions(card)
+    await self.scry(count: affix.value?[0], options: options)
     await self.drawCards(1)
   }
 
   /// 相生相克（悟道绝世）：对双方施加随机元素异常（affix.applyToSelf 时自身同受），
   /// 种数 = 本回合已使用的元素种数（读 turnFlags['usedElements']，至少 1 种），
-  /// 每种 value[0] 层。不经异常计数器，必然施加；
+  /// 每种 value[0] 层 + cardFlags['ailmentBonusPerElement'] × 种数 的加成层数
+  /// （专属词条 ailment_bonus_per_element 以 priority<0 预先写入）。不经异常计数器，必然施加；
   /// 种类按 Constants.elementAilments 映射表不重复抽取
   /// 对称效果、不对称收益：自异常是蓄灵诀引擎的燃料、可被水疗术清除
   function ailments_by_used_elements(self, opponent, card, affix) {
@@ -391,6 +418,8 @@ namespace CardScript {
     var count = 0
     if (usedElements != null) count = usedElements.keys.length
     if (count < 1) count = 1
+    final bonus = self.cardFlags['ailmentBonusPerElement'] ?? 0
+    final layers = affix.value[0] + bonus * count
     final pool = []
     for (final key in Constants.elementAilments.keys) {
       pool.add(Constants.elementAilments[key])
@@ -398,9 +427,9 @@ namespace CardScript {
     for (final i in range(count)) {
       if (pool.isEmpty) break
       final ailmentId = random.nextIterable(pool)
-      opponent.addStatusEffect(ailmentId, amount: affix.value[0])
+      opponent.addStatusEffect(ailmentId, amount: layers)
       if (affix.applyToSelf == true) {
-        self.addStatusEffect(ailmentId, amount: affix.value[0])
+        self.addStatusEffect(ailmentId, amount: layers)
       }
       pool.remove(ailmentId)
     }
@@ -410,24 +439,70 @@ namespace CardScript {
   /// 使双方获得对应元素的三清法相状态（value[0]%，独立乘区2，持有者回合结束移除）。
   /// affix.discoverOptions = {hint, choices: [{key, cardId}]}；
   /// affix.elementStatusMap = {抉择key: 状态id}。敌方抉择由 Dart 侧随机完成
+  ///
+  /// 额外词条为纯数据修饰字段（本函数收集，仅写入**自己**的状态实例——
+  /// 对称增幅是主词条的代价面，修饰是对自己的对冲，见 plan/spellcraft_uniquecard_affixes.md）：
+  ///   guardValue —— 下次受到所选元素伤害时获得护盾层数（兑现一次后消耗）
+  ///   chosenDamageTakenReduce —— 本回合受到所选元素伤害 -N%
+  ///   mirrorMana —— 对手使用所选元素牌后，自己下回合产出 +N 灵气
+  ///   chosenCostReduce —— 抉择后本回合手牌中所选元素牌费用 +N（负数为减费）
+  ///   amplifyPerMana —— 打出时每有 1 点灵气，本次增幅 +N%
   async function discover_element_amplify(self, opponent, card, affix) {
+    // 收集额外词条的修饰字段（纯数据词条，无 script）
+    var guardValue = 0
+    var damageTakenReduce = 0
+    var mirrorMana = 0
+    var chosenCostReduce = 0
+    var amplifyPerMana = 0
+    for (var i = 1; i < card.affixes.length; ++i) {
+      final extra = card.affixes[i]
+      guardValue += extra.guardValue ?? 0
+      damageTakenReduce += extra.chosenDamageTakenReduce ?? 0
+      mirrorMana += extra.mirrorMana ?? 0
+      chosenCostReduce += extra.chosenCostReduce ?? 0
+      amplifyPerMana += extra.amplifyPerMana ?? 0
+    }
     final chosen = await self.discover(options: affix.discoverOptions)
     if (chosen == null) return
     final statusId = affix.elementStatusMap[chosen]
     if (statusId == null) return
-    self.addStatusEffect(statusId, amount: affix.value[0])
-    opponent.addStatusEffect(statusId, amount: affix.value[0])
+    var amount = affix.value[0]
+    // 打出时每有 1 点灵气，本次增幅 +amplifyPerMana%（普通费用卡，支付后余量可读）
+    if (amplifyPerMana > 0) {
+      amount += self.hasStatusEffect('energy_positive_spell') * amplifyPerMana
+    }
+    // 状态实例参数（params 通道，写入实例数据副本）：chosenElement 供 mirrorMana 判定
+    var params
+    if (guardValue > 0 || damageTakenReduce > 0 || mirrorMana > 0) {
+      params = { 'chosenElement': chosen }
+      if (guardValue > 0) params['guardValue'] = guardValue
+      if (damageTakenReduce > 0) params['chosenDamageTakenReduce'] = damageTakenReduce
+      if (mirrorMana > 0) params['mirrorMana'] = mirrorMana
+    }
+    self.addStatusEffect(statusId, amount: amount, params: params)
+    opponent.addStatusEffect(statusId, amount: amount)
+    // 抉择后本回合手牌中所选元素牌费用修正（回合级临时费修，回合结束自动还原）
+    if (chosenCostReduce != 0) {
+      final cards = self.getHandCards(options: { 'elementType': chosen })
+      for (final cardData in cards) {
+        self.applyTurnCostModifier(cardData, delta: chosenCostReduce)
+      }
+    }
   }
 
   /// 蓄灵诀（悟道绝世）：自身每有一种元素异常（Constants.elementAilments 七种查表），
-  /// 获得 value[0] 层 affix.resourceId 资源（灵气）。上限 7 种，服务万法归宗门槛
+  /// 获得 value[0] 层 affix.resourceId 资源（灵气）。上限 7 种，服务万法归宗门槛。
+  /// 本次获得数写入 cardFlags['lastManaGained']（纳气之后/灵气回响/反噬成道等额外词条读取；
+  /// 未获得时也写 0，避免读到上一次打出的残留）
   function gain_mana_by_self_ailments(self, opponent, card, affix) {
     var count = 0
     for (final key in Constants.elementAilments.keys) {
       if (self.hasStatusEffect(Constants.elementAilments[key]) > 0) count += 1
     }
+    final gained = count * affix.value[0]
+    self.cardFlags['lastManaGained'] = gained
     if (count <= 0) return
-    self.addStatusEffect(affix.resourceId, amount: count * affix.value[0])
+    self.addStatusEffect(affix.resourceId, amount: gained)
   }
 
   /// ------------------------------------------------------------
@@ -605,6 +680,324 @@ namespace CardScript {
   /// 回合结束清理手牌时（clearHand keepRetained）留在手牌中
   function retain_added_to_hand(self, opponent, card, affix) {
     card.isRetained = true
+  }
+
+  /// ------------------------------------------------------------
+  /// 悟道绝世卡固定词条（专属，inUnpackable 池外化）
+  /// ------------------------------------------------------------
+
+  /// 向 pendingEffects 跨回合队列追加一条延迟效果（turnFlags 清空中跨回合保留，
+  /// 与 pendingResources 同机制；消费点：produceTurnStartResources 结算 pendingSelfDamage、
+  /// onUseCard 结算 genreDamageBonus，见 character.dart）
+  function _addPendingEffect(self, effect) {
+    var pending = self.turnFlags['pendingEffects']
+    if (pending == null) {
+      pending = []
+      self.turnFlags['pendingEffects'] = pending
+    }
+    pending.add(effect)
+  }
+
+  /// 计算本牌动态费用的超额支付量：cardFlags['paidCost'][resourceId]（缺省灵气）
+  /// 减去门槛——affix.threshold 优先，缺省读主词条 coloredCost 首键的 base
+  /// （万法归宗的 10 点最低门槛）。无费用/未达门槛时为 0
+  function _excessPaidResource(self, card, affix) {
+    final resourceId = affix.resourceId ?? 'energy_positive_spell'
+    final paid = self.cardFlags['paidCost']?[resourceId] ?? 0
+    if (paid <= 0) return 0
+    var threshold = affix.threshold
+    if (threshold == null) {
+      threshold = 0
+      final costs = card.affixes[0].coloredCost
+      if (costs != null && costs.isNotEmpty) {
+        final first = costs[costs.keys.first]
+        if (first is num) {
+          threshold = first
+        } else if (first != null && first['base'] != null) {
+          threshold = first['base']
+        } else {
+          threshold = 0
+        }
+      }
+    }
+    final excess = paid - threshold
+    return excess > 0 ? excess : 0
+  }
+
+  /// 相生相克_1（priority<0，先于主词条）：按本回合已用元素种数把加成写入
+  /// cardFlags['ailmentBonusPerElement']，主词条 ailments_by_used_elements 读取叠加
+  /// （不含本牌——相生相克为心法无元素）
+  function ailment_bonus_per_element(self, opponent, card, affix) {
+    final usedElements = self.turnFlags['usedElements']
+    var count = 0
+    if (usedElements != null) count = usedElements.keys.length
+    self.cardFlags['ailmentBonusPerElement'] = count * (affix.value?[0] ?? 1)
+  }
+
+  /// 纳气之后（蓄灵诀_1）：主词条本次获得的灵气（cardFlags['lastManaGained']）
+  /// ≥ value[0] 时，每点获得 value[1] 护甲
+  function mana_gained_to_defense(self, opponent, card, affix) {
+    final gained = self.cardFlags['lastManaGained'] ?? 0
+    if (gained < affix.value[0]) return
+    self.addStatusEffect('defense', amount: gained * affix.value[1])
+  }
+
+  /// 灵气回响（蓄灵诀_4）：主词条本次获得灵气 ≥ 1 时，本回合手牌中 affix.genre
+  /// （缺省悟道）流派牌费用 -1（applyTurnCostModifier 回合级临时费修，回合结束自动还原）
+  function mana_gained_cost_reduce(self, opponent, card, affix) {
+    final gained = self.cardFlags['lastManaGained'] ?? 0
+    if (gained < 1) return
+    final cards = self.getHandCards(options: { 'genre': affix.genre ?? 'spellcraft' })
+    for (final cardData in cards) {
+      self.applyTurnCostModifier(cardData, delta: -1)
+    }
+  }
+
+  /// 反噬成道（蓄灵诀_5）：主词条本次获得灵气 ≥ value[0] 时，下回合开始受到
+  /// 获得数 × value[1] 点纯粹伤害，且下回合首张悟道牌伤害 +value[2]%
+  function backlash_path(self, opponent, card, affix) {
+    final gained = self.cardFlags['lastManaGained'] ?? 0
+    if (gained < affix.value[0]) return
+    _addPendingEffect(self, {
+      'type': 'pendingSelfDamage',
+      'amount': gained * affix.value[1],
+      'damageType': 'pure',
+    })
+    _addPendingEffect(self, {
+      'type': 'genreDamageBonus',
+      'genre': affix.genre ?? 'spellcraft',
+      'percent': affix.value[2],
+      'oneShot': true,
+    })
+  }
+
+  /// 状态参数修正（太上忘情_1/_2，priority<0 先于主词条）：把 affix.statusParams
+  /// 并入 self.cardFlags['statusParams']（数值键累加），供随后的主词条 self_buff
+  /// 授予状态时经 params 通道合并进状态实例
+  function apply_status_params(self, opponent, card, affix) {
+    if (affix.statusParams == null) return
+    var params = self.cardFlags['statusParams']
+    if (params == null) {
+      params = {}
+      self.cardFlags['statusParams'] = params
+    }
+    for (final key in affix.statusParams.keys) {
+      final value = affix.statusParams[key]
+      if (value is num) {
+        params[key] = (params[key] ?? 0) + value
+      } else {
+        params[key] = value
+      }
+    }
+  }
+
+  /// 忘我（太上忘情_3）：本牌结算后，下回合第一张 affix.genre（缺省悟道）流派牌
+  /// 伤害 +value[0]%（pendingEffects 的 genreDamageBonus，下回合首张对应流派牌打出时消耗）
+  function pending_genre_damage_bonus(self, opponent, card, affix) {
+    _addPendingEffect(self, {
+      'type': 'genreDamageBonus',
+      'genre': affix.genre ?? 'spellcraft',
+      'percent': affix.value[0],
+      'oneShot': true,
+    })
+  }
+
+  /// 藏锋（太上忘情_4）：手牌中随机一张符合 affix.filter 的牌获得保留（isRetained）
+  function retain_random_card_with_filter(self, opponent, card, affix) {
+    final cards = self.getHandCards(options: affix.filter)
+    if (cards.isEmpty) return
+    final chosen = random.nextIterable(cards)
+    chosen.isRetained = true
+  }
+
+  /// 紫微斗数（悟道分支授予卡）主词条：抽 value[0] 张法术牌（affix.filter）
+  /// 并费用降为 0（affix.reduceCost 空条件表；动态费用条目豁免不归零），
+  /// 再按额外词条的纯数据修饰字段对抽到的第一张牌兑现（lastDrawnCards 由 Dart 侧
+  /// drawCardsToHand 每次抽牌覆盖记录）：
+  ///   drawnUpgrade —— 抽到的牌等级 +N
+  ///   drawnRetain —— 抽到的牌获得保留
+  ///   drawnManaIfGenre {genre, resourceId, count} —— 抽到对应流派牌获得 N 层资源
+  ///   drawnExtraDrawIfNotGenre {genre, count} —— 未抽到对应流派则额外抽 N 张（不再归零）
+  async function ziwei_draw(self, opponent, card, affix) {
+    await self.drawCards(affix.value?[0] ?? 1, options: affix)
+    final drawn = self.cardFlags['lastDrawnCards']
+    if (drawn == null || drawn.isEmpty) return
+    final drawnCard = drawn[0]
+    var manaCount = 0
+    var manaResourceId = 'energy_positive_spell'
+    var extraDrawCount = 0
+    for (var i = 1; i < card.affixes.length; ++i) {
+      final extra = card.affixes[i]
+      final upgradeLevels = extra.drawnUpgrade ?? 0
+      for (final j in range(upgradeLevels)) {
+        upgradeCard(drawnCard, inBattle: true)
+      }
+      if (extra.drawnRetain == true) {
+        drawnCard.isRetained = true
+      }
+      final manaRule = extra.drawnManaIfGenre
+      if (manaRule != null && drawnCard.affixes[0].genre == manaRule['genre']) {
+        manaCount += manaRule['count'] ?? 1
+        manaResourceId = manaRule['resourceId'] ?? manaResourceId
+      }
+      final extraRule = extra.drawnExtraDrawIfNotGenre
+      if (extraRule != null && drawnCard.affixes[0].genre != extraRule['genre']) {
+        extraDrawCount += extraRule['count'] ?? 1
+      }
+    }
+    if (manaCount > 0) {
+      self.addStatusEffect(manaResourceId, amount: manaCount)
+    }
+    // 全部修饰兑现完毕后才额外抽牌（lastDrawnCards 每次抽牌覆盖写，额外抽会冲掉记录）
+    if (extraDrawCount > 0) {
+      await self.drawCards(extraDrawCount)
+    }
+  }
+
+  /// 落雷击顶（万法归宗_1，priority<0 先于伤害结算）：实际支付灵气超过门槛的部分，
+  /// 每点对对手施加 1 层 affix.buffId（感电）。先铺异常后结算伤害——
+  /// 本次伤害即按元素转化（无视护甲）兑现，剩余层数在对手回合开始耗尽为 DOT
+  function ailment_by_excess_paid(self, opponent, card, affix) {
+    final excess = _excessPaidResource(self, card, affix)
+    if (excess <= 0) return
+    opponent.addStatusEffect(affix.buffId, amount: excess)
+  }
+
+  /// 万法余波（万法归宗_2）：实际支付灵气超过门槛的部分，每点获得 value[0] 护甲
+  function defend_by_excess_paid(self, opponent, card, affix) {
+    final excess = _excessPaidResource(self, card, affix)
+    if (excess <= 0) return
+    self.addStatusEffect('defense', amount: excess * affix.value[0])
+  }
+
+  /// 雷行九霄（万法归宗_3，priority<0）：对手持有 affix.buffId（感电）时，
+  /// 本牌伤害 +value[0]%（乘区1）
+  function damage_boost_if_opponent_status(self, opponent, card, affix) {
+    if (opponent.hasStatusEffect(affix.buffId) <= 0) return
+    self.cardFlags.damage.percentageChange1 += affix.value[0] / 100
+  }
+
+  /// 一法破万法（万法归宗_4，priority<0）：本回合每使用过一种元素，本牌伤害
+  /// +value[0]%（乘区1）。usedElements 记录点在全部词条脚本之后，此处读到的不含
+  /// 本牌——按 chain_lightning 同口径把本牌元素（elementType ?? damageType）补充去重
+  function increase_damage_by_used_elements(self, opponent, card, affix) {
+    final usedElements = self.turnFlags['usedElements']
+    var count = 0
+    if (usedElements != null) count = usedElements.keys.length
+    final mainAffix = card.affixes[0]
+    final ownElement = mainAffix.elementType ?? mainAffix.damageType
+    if (ownElement != null &&
+        (usedElements == null || !(ownElement in usedElements.keys))) {
+      count += 1
+    }
+    if (count <= 0) return
+    self.cardFlags.damage.percentageChange1 += count * affix.value[0] / 100
+  }
+
+  /// 归宗之后（万法归宗_5）：抽 value[0] 张牌并使其费用降为 0（options 传
+  /// {reduceCost: {}} 空条件表；动态费用条目豁免不归零），随后自施 affix.buffId
+  /// value[1] 层（逆灵之气——阴气永久存在，直到被对应阳气对冲抵消；
+  /// isResource 非 isDebuff，辟邪无法抵消）
+  async function draw_and_self_buff(self, opponent, card, affix) {
+    await self.drawCards(affix.value[0], options: { 'reduceCost': {} })
+    self.addStatusEffect(affix.buffId, amount: affix.value[1], source: self)
+  }
+
+  /// ------------------------------------------------------------
+  /// 悟道公共新词条（自异常引擎配套）
+  /// ------------------------------------------------------------
+
+  /// 化浊为清（cleanse_draw）：移除自身随机 1 种元素异常（整种移除，
+  /// Constants.elementAilments 值集判定），随后抽 1 张牌。自异常引擎的节流阀
+  async function cleanse_draw(self, opponent, card, affix) {
+    final held = []
+    for (final id in Constants.elementAilments.values) {
+      if (self.hasStatusEffect(id) > 0) held.add(id)
+    }
+    if (held.isNotEmpty) {
+      final id = random.nextIterable(held)
+      self.removeStatusEffect(id, amount: self.hasStatusEffect(id))
+    }
+    await self.drawCards(affix.value?[0] ?? 1)
+  }
+
+  /// 自身持有元素异常种数 ≥ affix.threshold 时，获得 affix.count 层 affix.resourceId
+  /// （相生相克_3 / 蓄灵诀_3 七情归一共用，仅词条数据不同）
+  function gain_resource_by_self_ailment_kinds(self, opponent, card, affix) {
+    var kinds = 0
+    for (final id in Constants.elementAilments.values) {
+      if (self.hasStatusEffect(id) > 0) kinds += 1
+    }
+    if (kinds < (affix.threshold ?? 1)) return
+    self.addStatusEffect(affix.resourceId, amount: affix.count ?? 1)
+  }
+
+  /// 自身持有元素异常种数 ≥ affix.threshold 时，抽 affix.count 张牌（相生相克_5）
+  async function draw_by_self_ailment_kinds(self, opponent, card, affix) {
+    var kinds = 0
+    for (final id in Constants.elementAilments.values) {
+      if (self.hasStatusEffect(id) > 0) kinds += 1
+    }
+    if (kinds < (affix.threshold ?? 1)) return
+    await self.drawCards(affix.count ?? 1)
+  }
+
+  /// 自身每有 1 层元素异常（按层计），获得 value[0] 护甲（for_element_ailment_defend）
+  function defend_by_self_ailments(self, opponent, card, affix) {
+    var layers = 0
+    for (final id in Constants.elementAilments.values) {
+      layers += self.hasStatusEffect(id)
+    }
+    if (layers <= 0) return
+    self.addStatusEffect('defense', amount: layers * affix.value[0])
+  }
+
+  /// 自身每有 1 层元素异常（按层计），回复 value[0] 生命（for_element_ailment_heal）。
+  /// 先按当前层数计数结算治疗量，再执行治疗——changeLife 会随机驱散一层负面
+  /// （含元素异常），顺序反了数值会被自己的治疗吃掉
+  function heal_by_self_ailments(self, opponent, card, affix) {
+    var layers = 0
+    for (final id in Constants.elementAilments.values) {
+      layers += self.hasStatusEffect(id)
+    }
+    if (layers <= 0) return
+    self.changeLife(layers * affix.value[0], isHeal: true)
+  }
+
+  /// 按层移除减益并治疗（甘霖术改造）：至多移除 value[1] 层（跨 affix.debuffs 列表
+  /// 合计，按列表顺序逐个结算），每实际移除 1 层回复 value[0] 生命
+  /// （removeStatusEffect 返回实际移除层数，据此计数）
+  function heal_remove_debuffs_by_stack(self, opponent, card, affix) {
+    var budget = affix.value[1]
+    var removed = 0
+    for (final debuffId in affix.debuffs) {
+      if (budget <= 0) break
+      final r = self.removeStatusEffect(debuffId, amount: budget)
+      removed += r
+      budget -= r
+    }
+    if (removed > 0) self.changeLife(removed * affix.value[0], isHeal: true)
+  }
+
+  /// 按层移除减益并获得护甲（earth_mend）：至多移除 value[1] 层（跨 affix.debuffs
+  /// 列表合计），每实际移除 1 层获得 value[0] 护甲
+  function defend_remove_debuffs_by_stack(self, opponent, card, affix) {
+    var budget = affix.value[1]
+    var removed = 0
+    for (final debuffId in affix.debuffs) {
+      if (budget <= 0) break
+      final r = self.removeStatusEffect(debuffId, amount: budget)
+      removed += r
+      budget -= r
+    }
+    if (removed > 0) self.addStatusEffect('defense', amount: removed * affix.value[0])
+  }
+
+  /// 无情（中立公共词条 hand_size_defend）：打出时手牌数 ≥ value[1]，获得 value[0] 护甲
+  function defend_by_hand_count(self, opponent, card, affix) {
+    final handCount = self.getHandCards().length
+    if (handCount < affix.value[1]) return
+    self.addStatusEffect('defense', amount: affix.value[0])
   }
 
 }

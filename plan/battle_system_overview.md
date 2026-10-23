@@ -27,7 +27,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - BattleCard struct：暗黑式随机生成——从 game.battleCards（cards.json5）筛主词条（按 category/kind/genre/rank 过滤 + 绝世两段式 roll：uniqueCardChance 概率从 isUnique 池抽），再从 game.battleCardAffixes（card_affixes.json5）按境界随机补额外词条。
 - 额外词条数量：getMinMaxExtraAffixCount（logic.dart:542，卡牌/装备/丹药共用）= minExtra rank、maxExtra rank+1（无境界 0-1 个 → 化神 5-6 个）。minGreater/maxGreater（太古词条）有计算但全仓库无消费方，未实现。
 - 词条等级在境界区间内随机：minLevelForRank = rank×10，maxLevelForRank = (rank+2)×10−5。数值由 calculateCardAffixValue（GameLogic，logic.dart；经 app.dart 绑定回脚本全局调用）计算：(base + increment×(等级−本境界下限)) × 1.3^rank（+ rankIncrement×rank），函数内 floor；isFixed: true 表示固定 base 不随等级缩放。
-- 绝世卡：isUnique + uniqueId，词条固定（affixes 列表按 rank+1 顺序解锁），未鉴定不可用，命名走 uniquecard\_{id} 本地化键；天赋授予型再加 isUnpackable（不进卡包/随机池），由代码显式 invoke('BattleCard', affixId: ...) 发放。
+- 绝世卡：isUnique + uniqueId，词条固定（affixes 列表按 rank 顺序解锁，额外词条总数 = rank），未鉴定不可用，命名走 uniquecard\_{id} 本地化键；天赋授予型再加 isUnpackable（不进卡包/随机池），由代码显式 invoke('BattleCard', affixId: ...) 发放。
 - 费用：updateCardCost 是唯一写入入口——显式 coloredCost 条目（数值或 {base, rankIncrement} 公式）经 calculateCostValue（GameLogic；固定数值 floor、公式 ceil）求值写入，life 键排首位，同时记录 originalColoredCost 基线供卡面变色（增红减黄）；破境重算更新基线，战斗内动态改费不更新基线。
 - 打造操作：addAffix（灵宝）/ replaceAffix（神照）/ freezeAffix（真定）/ removeAffix（坐忘）/ rerollAffix（混元）/ upgradeRank（破境，绝世卡保留全部词条并解锁下一个预定义词条，普通卡只保留主词条+锁定词条再重 roll）/ upgradeCard；全部对绝世卡禁用（破境/混元除外），返回本地化错误键。
 - Cardpack struct：卡包物品，3 张牌（1 张定向 + 2 张随机）。
@@ -69,7 +69,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - item.ht：
   - 分类常量：type（equipment/consumable/cardpack/craftmaterial/miscellaneous，物品栏筛选用）× category（小类别，决定装备数量限制与 onUseItem 分支）× kind（具体种类，决定命名/图标/词条过滤）。
   - createItemById(id, {amount, rank, level})（item.ht:75）：从 game.items（items.json5）prototype Object.create；isRankedItem 由 rank 推导 rarity 并按境界命名；普通物品 rarity↔rank 互推——两者都写时 rarity 优先（rarity:"arcane" 会压成 rank 5），故绝世装备只写 rank。isUnstackable 使运行时 id 变随机 UID，唯一性检查只能用 uniqueId。
-  - 词条实例化（item.ht:130-163）：绝世（isUnique）按 min(词条数, rank+1) 解锁 affixes 列表前 N 条（与绝世卡同规则；装备破境未实现，解锁数生成时固定）；词条有 increment/rankIncrement 才 roll level（increment 绝对值<1 时 minAffixLevel=ceil(1/|increment|)）并用 calculatePassiveAffixValue 算 value；机制型词条无 increment，跳过 roll，数值定值内嵌在机制字段里。affixUniqueIds 收集 uniqueIds/uniqueId 供互斥去重。
+  - 词条实例化（item.ht:130-163）：绝世（isUnique）按 min(列表长度, rank+1) 解锁 affixes 列表前 N 条（列表含主词条，故额外词条 = rank 条，与绝世卡"总数 = rank"同规则；装备破境未实现，解锁数生成时固定）；词条有 increment/rankIncrement 才 roll level（increment 绝对值<1 时 minAffixLevel=ceil(1/|increment|)）并用 calculatePassiveAffixValue 算 value；机制型词条无 increment，跳过 roll，数值定值内嵌在机制字段里。affixUniqueIds 收集 uniqueIds/uniqueId 供互斥去重。
   - calculatePrice：itemWithAffixKinds 按 (rank²+1)×(level+1)×(词条数+1)×basePriceByKind 计价。
   - createLoot（item.ht:534）：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口。
 - equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机（同卡牌 minLevelForRank/maxLevelForRank）；主词条（equipment.ht:72-82）过滤 isEquipmentMain ∧ kinds 含本 kind ∧ affix.rank≤装备 rank 随机取一、level=装备 level；额外词条（:103-144）数量同 getMinMaxExtraAffixCount，逐条过滤 isEquipmentExtraAffix ∧ uniqueId 互斥 ∧ kinds ∧ rank，level=getRandomLevel(minAffixLevel, 装备 level)。

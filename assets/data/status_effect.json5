@@ -770,7 +770,7 @@
     icon: "icon/status/amplify_water.png",
     damageType: "ice",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end"],
+    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
   },
   buff_element_amplify_fire: {
     id: "buff_element_amplify_fire",
@@ -779,7 +779,7 @@
     icon: "icon/status/amplify_fire.png",
     damageType: "fire",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end"],
+    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
   },
   buff_element_amplify_lightning: {
     id: "buff_element_amplify_lightning",
@@ -788,7 +788,7 @@
     icon: "icon/status/amplify_lightning.png",
     damageType: "lightning",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end"],
+    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
   },
 
   // 太上忘情（悟道绝世授予）：回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害

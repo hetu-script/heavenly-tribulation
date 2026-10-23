@@ -1096,7 +1096,7 @@
       },
     ],
   },
-  // 甘霖术：治疗并移除自身全部元素异常
+  // 甘霖术：至多移除 {1} 层元素异常（按 debuffs 列表顺序结算），每移除 1 层回复 {0} 点生命
   water_mend: {
     id: "water_mend",
     genre: "spellcraft",
@@ -1106,6 +1106,7 @@
     elementType: "element_water",
     rank: 3,
     description: "affix_heal_water_mend",
+    uniqueIds: ["for_element_ailment_heal"],
     image: "battlecard/illustration/spellcraft_water_defend.png",
     animation: {
       startup: ["spell_attack"],
@@ -1113,7 +1114,7 @@
       overlays: ["water_buff"],
       sound: "spell-of-healing-876.mp3",
     },
-    script: "heal_remove_debuffs",
+    script: "heal_remove_debuffs_by_stack",
     debuffs: [
       "ailment_fire",
       "ailment_ice",
@@ -1126,8 +1127,53 @@
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
-        base: 18,
-        increment: 1.8,
+        base: 4,
+        increment: 0.1,
+      },
+      {
+        base: 3,
+        increment: 0.15,
+      },
+    ],
+  },
+  // 厚土诀：至多移除 {1} 层元素异常（按 debuffs 列表顺序结算），每移除 1 层获得 {0} 点护甲
+  earth_mend: {
+    id: "earth_mend",
+    genre: "spellcraft",
+    category: "buff",
+    kind: "earthbend",
+    cardType: "spell",
+    elementType: "element_earth",
+    rank: 3,
+    description: "affix_earth_mend",
+    image: "battlecard/illustration/spellcraft_earth_defend.png",
+    animation: {
+      startup: ["spell_attack"],
+      recovery: ["spell_attack_recovery"],
+      overlays: ["stone_shield"],
+      sound: "buffer-spell-88994.mp3",
+    },
+    script: "defend_remove_debuffs_by_stack",
+    debuffs: [
+      "ailment_fire",
+      "ailment_ice",
+      "ailment_lightning",
+      "ailment_poison",
+      "ailment_bleeding",
+      "ailment_internal_injury",
+      "ailment_hallucination",
+    ],
+    coloredCost: { spell: { base: 0, rankIncrement: 1 } },
+    uniqueIds: ["for_element_ailment_defend"],
+    keywords: ["status_defense"],
+    valueData: [
+      {
+        base: 6,
+        increment: 0.15,
+      },
+      {
+        base: 3,
+        increment: 0.15,
       },
     ],
   },
@@ -1212,7 +1258,6 @@
       sound: "spell-of-healing-876.mp3",
     },
     script: "scry_then_draw",
-    scryOptions: {}, // 由本卡牌词条在打出时动态修改
     coloredCost: { spell: { base: 0, rankIncrement: 1 } },
     valueData: [
       {
@@ -1220,7 +1265,13 @@
         isFixed: true,
       },
     ],
-    affixes: [],
+    affixes: [
+      "spellcraft_scry_draw_affix_1",
+      "spellcraft_scry_draw_affix_2",
+      "spellcraft_scry_draw_affix_3",
+      "spellcraft_scry_draw_affix_4",
+      "spellcraft_scry_draw_affix_5",
+    ],
   },
   // 相生相克：轮转路线循环卡——对双方施加随机元素异常（applyToSelf），
   // 种数 = 本回合已使用的元素种数（至少 1 种），不经异常计数器；
@@ -1249,7 +1300,13 @@
         isFixed: true,
       },
     ],
-    affixes: [],
+    affixes: [
+      "spellcraft_ailments_by_used_elements_affix_1",
+      "cleanse_draw",
+      "ailment_kinds_to_mana",
+      "for_element_ailment_defend",
+      "draw_by_self_ailment_kinds",
+    ],
   },
   // 一气化三清：抉择水/火/雷之一（discover 临时元素卡），本回合双方造成的该元素伤害 +value[0]%
   // （独立乘区 percentageChange2，不走乘区1攻击力；三清法相状态持有者的回合结束时移除——
@@ -1294,7 +1351,13 @@
         increment: 2,
       },
     ],
-    affixes: [],
+    affixes: [
+      "spellcraft_element_amplify_affix_1",
+      "spellcraft_element_amplify_affix_2",
+      "spellcraft_element_amplify_affix_3",
+      "spellcraft_element_amplify_affix_4",
+      "spellcraft_element_amplify_affix_5",
+    ],
   },
   // 蓄灵诀：自异常引擎核心——自身每有一种元素异常（七种查表），获得 value[0] 点灵气
   // （与相生相克的自异常段、水疗术的清场形成引擎循环；上限 7 种 = 7×value[0] 灵气，服务万法归宗门槛）
@@ -1322,7 +1385,13 @@
         isFixed: true,
       },
     ],
-    affixes: [],
+    affixes: [
+      "spellcraft_ailments_to_mana_affix_1",
+      "cleanse_draw",
+      "ailment_kinds_to_ultimate",
+      "spellcraft_ailments_to_mana_affix_4",
+      "spellcraft_ailments_to_mana_affix_5",
+    ],
   },
   // 太上忘情：获得状态「太上忘情」——回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
   // （固定值 10，写在词条和状态数据中，不随境界缩放；本地化描述同步写死，改动时需同步），
@@ -1351,7 +1420,13 @@
         isFixed: true,
       },
     ],
-    affixes: [],
+    affixes: [
+      "spellcraft_handcards_to_mana_affix_1",
+      "spellcraft_handcards_to_mana_affix_2",
+      "spellcraft_handcards_to_mana_affix_3",
+      "spellcraft_handcards_to_mana_affix_4",
+      "hand_size_defend",
+    ],
   },
 
   // ------------抉择临时卡（仅 discover 抉择 UI 使用，不进任何卡池/牌库）------------
@@ -1381,14 +1456,16 @@
 
   // ------------悟道·天赋授予卡（isUnpackable，不进入随机生成池与卡包）------------
   // 紫微斗数：分支「紫微斗数」的战斗授予卡，战斗开始后洗入牌库
-  // 消耗。抽一张牌，将其费用改为 0
-  // （复用抽牌脚本 draw_cards，reduceCost 空条件表 = 抽到的任意牌费用降为 0，效果在 Dart 侧兑现）
+  // 消耗。抽一张法术牌，将其费用变为 0（动态费用不受影响）
+  // （主脚本 ziwei_draw：filter 限定法术牌，reduceCost 空条件表归零；专属词条的纯数据
+  //  修饰字段对抽到的第一张牌兑现，洗入时 rank = 角色境界，效果在 Dart 侧兑现）
   spellcraft_draw_cards_reduce_cost: {
     id: "spellcraft_draw_cards_reduce_cost",
     category: "buff",
     genre: "spellcraft",
     kind: "xinfa",
     cardType: "xinfa",
+    rank: 1,
     isUnique: true,
     isUnpackable: true,
     isEphemeral: true,
@@ -1398,7 +1475,8 @@
       startup: ["spell_buff"],
       sound: "spell-of-healing-876.mp3",
     },
-    script: "draw_cards",
+    script: "ziwei_draw",
+    filter: { cardType: "spell" },
     coloredCost: { life: 0 },
     reduceCost: {},
     valueData: [
@@ -1406,6 +1484,13 @@
         base: 1,
         increment: 0,
       },
+    ],
+    affixes: [
+      "defend",
+      "spellcraft_draw_cards_affix_1",
+      "spellcraft_draw_cards_affix_2",
+      "spellcraft_draw_cards_affix_3",
+      "spellcraft_draw_cards_affix_4",
     ],
   },
 
@@ -1438,6 +1523,13 @@
         base: 8,
         increment: 0.1,
       },
+    ],
+    affixes: [
+      "spellcraft_ultimate_spell_affix_1",
+      "spellcraft_ultimate_spell_affix_2",
+      "spellcraft_ultimate_spell_affix_3",
+      "spellcraft_ultimate_spell_affix_4",
+      "spellcraft_ultimate_spell_affix_5",
     ],
   },
 

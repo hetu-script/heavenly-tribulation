@@ -159,7 +159,7 @@ upgrade_card: {
 
 ## 4. 绝世卡（isUnique）
 
-- 主词条加 `isUnique: true` + `affixes: ["额外词条id", ...]`（按境界 rank+1 顺序解锁的固定词条）。
+- 主词条加 `isUnique: true` + `affixes: ["额外词条id", ...]`（按境界顺序解锁的固定词条，额外词条总数 = rank）。
 - 固定卡名：本地化 `uniquecard_{主词条id}`。
 - 生成时默认未鉴定（`isIdentified` 由 isUnique 推导为 false），需鉴定卷轴。
 - 卡组中同 uniqueId 只能放一张。

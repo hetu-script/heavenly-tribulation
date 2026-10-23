@@ -170,6 +170,6 @@
   卡名以 `uniquecard_{主词条id}` 为本地化键，保存在 `assets/locale/zh/rpg/battlecard.json`。
   **新增绝世卡牌时必须同步添加该键**，否则卡名会显示为原始键名。
 - 绝世卡牌的额外词条是预定义的：主词条数据的 `affixes` 列表按境界顺序解锁
-  （总数 = rank + 1），词条 id 来自 `card_affixes.json5`。
+  （额外词条总数 = rank），词条 id 来自 `card_affixes.json5`。
 - 绝世卡牌不能进行灵宝/神照/真定/坐忘精炼，只能混元（重 roll 词条数值）与破境。
 - 卡组中只能放入一张相同 uniqueId 的绝世卡牌；生成时默认未鉴定，需要鉴定卷轴鉴定后使用。

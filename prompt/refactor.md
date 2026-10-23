@@ -10,8 +10,11 @@
 
 ---
 
-@plan/battle_system_overview.md 这个文档可以让你从总体上理解本项目中和战斗有关的部分。请你理解现有系统，审查现有代码，这中间不要修改任何文件。稍后我会发给你更具体的指示。
+@plan/battle_system_overview.md 这个文档可以让你从总体上理解本项目中和战斗有关的部分。请你理解现有设计，系统和代码，这中间不要修改任何文件。稍后我会发给你更具体的指示。
 
 我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道流派的开发。 @plan/skill_tree/spellcraft.md
 
 我已经完成了悟道流派的境界节点，分叉节点，主词条，额外词条，以及绝世卡牌的整理工作。
+
+目前正在设计绝世卡牌的额外词条 @plan/spellcraft_uniquecard_affixes.md ，以及绝世装备的额外词条 @plan/spellcraft_uniqueequipment_affixes.md
+

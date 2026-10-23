@@ -309,6 +309,41 @@ namespace StatusScript {
     self.removeStatusEffect(effect.id)
   }
 
+  /// 三清法相扩展字段（一气化三清额外词条经 addStatusEffect params 写入实例数据）：
+  /// guardValue —— 持有者下次受到对应元素伤害时获得 buff_shield 护盾 N 层（兑现一次后消耗）；
+  /// chosenDamageTakenReduce —— 持有者受到对应元素伤害 -N%（乘区2，不消耗）
+  function element_amplify_self_taking_damage(self, opponent, effect, details) {
+    if (details.damageType != effect.damageType) return
+    final reduce = effect.chosenDamageTakenReduce
+    if (reduce != null && reduce > 0) {
+      details.percentageChange2 -= reduce / 100
+    }
+    final guard = effect.guardValue
+    if (guard != null && guard > 0) {
+      self.addStatusEffect('buff_shield', amount: guard)
+      effect.guardValue = 0
+    }
+  }
+
+  /// 三清法相扩展字段：mirrorMana —— 对手使用所选元素（effect.chosenElement）的牌后，
+  /// 持有者下回合产出阶段 +N 灵气（pendingResources 跨回合通道，产出阶段授予才存活）
+  function element_amplify_opponent_used_card(self, opponent, effect, details) {
+    final mirror = effect.mirrorMana
+    if (mirror == null || mirror <= 0) return
+    final element = effect.chosenElement
+    if (element == null) return
+    final usedCard = opponent.getLastUsedCard()
+    if (usedCard == null) return
+    if (usedCard['affixes'][0]['elementType'] != element) return
+    var pending = self.turnFlags['pendingResources']
+    if (pending == null) {
+      pending = {}
+      self.turnFlags['pendingResources'] = pending
+    }
+    pending['energy_positive_spell'] =
+        (pending['energy_positive_spell'] ?? 0) + mirror
+  }
+
   /// 太上忘情（悟道绝世授予）：回合结束时，每有一张手牌受到 effect.damagePerCard 点
   /// 纯粹伤害（固定值不随境界缩放）；下回合产出阶段每有一张手牌额外获得
   /// effect.resourcePerCard 层 effect.resourceId 资源（pendingResources 是 turnFlags 清空中

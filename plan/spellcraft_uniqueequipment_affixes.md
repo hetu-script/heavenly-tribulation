@@ -1,135 +1,168 @@
-1. **纳气之后**：本牌获得灵气后，下一张悟道牌伤害提高。
-2. **蓄而不发**：本牌获得至少 3 点灵气时，获得防御。
-3. **化浊为清**：本牌结算后移除自身一种异常，并抽 1 张牌。
-4. **灵气回响**：本牌获得灵气后，下一张牌费用减少 1。
-5. **七情归一**：自身拥有五种以上不同异常时，获得少量太极之气。
-6. **反噬成道**：本牌获得的灵气越多，下回合开始受到的纯粹伤害越高，同时获得额外伤害加成。
+# 悟道·绝世装备 额外词条设计（定稿）
 
-最后一个比较适合高境界绝世卡，但数值必须谨慎。
-
-### 太上忘情
-
-太上忘情的核心是“手牌越多，当前回合越痛苦，下回合资源越多”。额外词条应强化手牌取舍，不应继续单纯增加抽牌。
-
-候选：
-
-1. **忘我**：本牌结算后，下回合第一张悟道牌伤害提高。
-2. **藏锋**：本回合结束时，手牌中一张随机悟道牌获得保留。
-3. **无情**：若手牌数量达到阈值，本牌额外获得防御。
-4. **舍念**：每回合一次，可以让一张手牌不参与本牌的伤害结算，但减少对应灵气收益。
-5. **静心**：本牌结算后移除一个自身负面状态。
-6. **忘情渡劫**：若本牌结算造成的纯粹伤害使自身生命低于阈值，下回合获得额外灵气。
-
-不建议给太上忘情搭配 `draw_cards_neutral` 或 `mana_battery`，否则它会同时扩大手牌收益和灵气收益，风险会迅速消失。
-
-### 紫微斗数
-
-紫微斗数更适合“立即获得一张合适的牌”。
-
-候选：
-
-1. **定星**：抽到的牌获得升级。
-2. **留命**：抽到的牌获得保留。
-3. **星移**：若抽到悟道牌，额外获得 1 点灵气。
-4. **命数已定**：抽到的普通牌费用变为 0 后，本回合不能再次被费用增加。
-5. **观测**：抽牌前先观星 1 张。
-6. **逆天改命**：抽到的牌若不是悟道牌，额外抽 1 张，但第二张牌不能费用归零。
-
-这里应明确动态费用不参与费用归零，否则会和目前的动态费用规则冲突。
-
-### 万法归宗
-
-万法归宗的主效果已经是非常强的动态消耗爆发，额外词条不要再提供 `refund_cost`。
-
-候选：
-
-1. **雷行九霄**：实际支付灵气达到阈值时，附加感电。
-2. **万法余波**：超过最低门槛的每点灵气提供少量护甲或元素异常。
-3. **归宗之后**：打出后抽 1 张牌，但下回合第一张牌费用增加。
-4. **一法破万法**：若本回合已经使用三种元素，本牌伤害提高。
-5. **雷霆余烬**：若本牌击败目标，返还少量灵气或获得护盾。
-6. **无极不渡**：本牌不能被任何费用返还效果影响，但打出后获得防御。
-
-最推荐的是：
-
-> 雷行九霄 + 万法余波 + 一法破万法
-
-它们都围绕“支付多少灵气、之前如何规划”展开，不会把万法归宗变成无代价核弹。
-
-## 3. 绝世装备的额外词条
-
-| 装备   | rank | 词条总数上限 | **额外词条槽** |
-| ------ | ---- | ------------ | -------------- |
-| 窥天镜 | 1    | 2            | **1**          |
-| 五行珠 | 2    | 3            | **2**          |
-| 天机盘 | 3    | 4            | **3**          |
-| 蓄灵佩 | 4    | 5            | **4**          |
-| 聚灵旗 | 5    | 6            | **5**          |
-
-写在 `passives.json5` 的「绝世装备专用词条」区，经 `items.json5` 的 `affixes` 列表引用。**装备破境未实现，槽位在生成时固定**（§0.2）。
-
-装备额外词条是**锦上添花**——不是构筑成立的必要条件。
-
-- **装备词条**：`calculatePassiveAffixValue = (base ?? 0) + increment × level`（`common.ht:167-172`），**无境界指数**。装备词条的 level 在 `[minAffixLevel, item.level]` 随机 roll，`minAffixLevel` 由 `increment` 反推（`|increment| < 1` 时 = `ceil(1/|increment|)`，`item.ht:142-149`）。
-- **装备词条想要确定值，就用机制字段内嵌数值或 `statsBonus`，不要用 `base + increment`。**
-
-### 3.1 窥天镜（rank 1）
-
-主词条：观星额外查看 2 张；每次观星后自身随机获得 2 种元素异常。
-
-| 槽  | id  | 效果                | 取舍                                                       |
-| --- | --- | ------------------- | ---------------------------------------------------------- |
-| 1   |     | 观星选中的牌等级 +1 | 强化"看得越多，能拿的越好"，与主词条的异常代价形成正面对冲 |
-
-**未采纳的方向**（留作备选）：观星时手牌同元素牌每张使本牌费用 -1、观星时按已用元素种类获得灵气。两者都偏离"观星深度"这个主轴。
-
-### 3.2 五行珠（rank 2）
-
-主词条：你造成的元素异常层数 +2；你受到的元素异常层数 +2。
-
-| 槽  | id                            | 效果                                               |
-| --- | ----------------------------- | -------------------------------------------------- |
-| 1   | `five_elements_pearl_extra_1` | 你造成的元素异常层数 {0}；你受到的元素异常层数 {0} |
-| 2   | `five_elements_pearl_extra_2` | 每回合第一次获得元素异常时，获得 1 点灵气          |
-
-**设计说明**：`_2` 把"受异常"从纯代价转成收益，是自异常引擎的第二个正面。这在对称效果被 AI 低估的前提下尤其重要。
-
-### 3.3 天机盘（rank 3）
-
-主词条：回合开始额外抽 1 张；通过此效果抽到的非悟道牌本回合费用 +1。
-
-| 槽  | id                                | 效果                                    |
-| --- | --------------------------------- | --------------------------------------- |
-| 2   | `heavenly_mechanism_disc_extra_2` | 观星选中的牌费用 -{0}                   |
-| 3   | `heavenly_mechanism_disc_extra_3` | 非悟道牌费用 +{0}（与主词条的课税叠加） |
-
-**设计说明**：`_1` 直接用现成机制字段 `turnStartScry`。`_3` 是"软流派锁最强形态"的延伸，rank 3 装备给到 +1 已足够。
-
-### 3.4 蓄灵佩（rank 4）
-
-主词条：回合结束至多保留 2 点灵气；每保留 1 点，下回合开始受到 3 点纯粹伤害。
-
-| 槽  | id                              | 效果                                      |
-| --- | ------------------------------- | ----------------------------------------- |
-| 1   | `spirit_storing_amulet_extra_1` | 保留上限 +{0}                             |
-| 2   | `spirit_storing_amulet_extra_2` | 每保留 1 点的代价伤害 -{0}                |
-| 3   | `spirit_storing_amulet_extra_3` | 每保留 1 点，下回合额外获得 {0} 点灵气    |
-| 4   | `spirit_storing_amulet_extra_4` | 保留的灵气每点使本回合首次受到的伤害 -{0} |
-
-**设计说明**：`_1` 与 `_2` 分别放松"上限"和"代价"两个约束，是玩家最容易感知的强化方向。**注意**：保留的灵气不触发阴阳五行结算（`status_script.ht:332-346` 已处理），这条语义要写进装备文案。
-
-### 3.5 聚灵旗（rank 5）
-
-主词条：回合开始时灵气 +3；你打出的非悟道牌费用 +2。
-
-| 槽  | id                                | 效果                                                         |
-| --- | --------------------------------- | ------------------------------------------------------------ |
-| 1   | `spirit_gathering_banner_extra_1` | **旗鼓**：回合开始灵气 +{0}                                  |
-| 2   | `spirit_gathering_banner_extra_2` | **纯道**：每打出一张悟道牌，本回合灵气 +{0}（每回合限 1 次） |
-| 3   | `spirit_gathering_banner_extra_3` | **斥外**：你受到的非悟道来源伤害 -{0}                        |
-| 4   | `spirit_gathering_banner_extra_4` | **聚气成势**：灵气达到 {0} 时，本回合受到的伤害 -{1}%        |
-| 5   | `spirit_gathering_banner_extra_5` | **一炁**：回合结束时，若灵气为 0，获得 {0} 点护甲            |
-
-**设计说明**：`_2` 与 `_5` 服务万法归宗的凑气目标。`_3`/`_4` 是纯悟道构筑的生存补偿——它为了 +3 灵气付出了"非悟道牌 +2 费"的代价，容易被杂牌构筑惩罚，需要防守面。
+> 承接 `plan/skill_tree/spellcraft.md`（流派总设计）与 `plan/spellcraft_uniquecard_affixes.md`（绝世卡词条定稿）。
+> 本文定稿 5 件绝世装备各 5 条固定额外词条，**全部使用公共词条**（结论与理由见 §1）。
+> 旧稿开头的四张绝世卡候选词条（蓄灵诀/太上忘情/紫微斗数/万法归宗）已并入卡牌文档定稿，本文不再保留。
 
 ---
+
+## 0. 实现事实（装备侧，已逐行核对）
+
+- **解锁规则**：`createItemById`（`item.ht:127-130`）：`unlockCount = min(affixes 列表长度（含主词条）, item.rank + 1)`，**装备破境未实现，解锁数在生成时固定**。
+  → **rank N 的装备永远只有前 N 条额外词条生效**，第 N+1 条起为休眠内容（待破境系统）。本文按"每件 5 条"设计，**列表顺序 = 优先级顺序**：
+  - 窥天镜 rank 1 → 生效 1 条；五行珠 rank 2 → 2 条；天机盘 rank 3 → 3 条；蓄灵佩 rank 4 → 4 条；聚灵旗 rank 5 → 5 条全生效。
+- **数值**：`calculatePassiveAffixValue = (base ?? 0) + increment × level`（**无境界指数**）；level 在 `[minAffixLevel, item.level]` 随机 roll（`|increment| < 1` 时 `minAffixLevel = ceil(1/|increment|)`，`item.ht:141-145`）；**机制型词条（无 increment 且无 rankIncrement）跳过 roll**，数值定值内嵌在机制字段里。
+  → **要确定值就用机制字段 / statsBonus 内嵌定值；引用现有随机池词条则接受 level 方差**（如 spirituality 在 rank 2 装备上 roll 出 0.5×(20~35) 的灵力，方差不小，见 §4 风险 3）。
+  → **风险**：绝世装备掉落发放时若未显式传 `level`，词条 roll 区间行为需实现时确认（`item.ht:147`）。
+- **通道**：装备词条只能经透传白名单 `_kPassiveMechanismFields`（`battle_entity.ht:583-591`：`battleStatus` / `deckCostReduction` / `shuffleIntoDeck` / `turnStartScry` / `turnStartExtraDraw` / `energyRetain` / `statsBonus`）+ 普通属性值聚合进战斗（`characterCalculateStats`）。
+- 聚合规则：battleStatus 按状态 id 合并层数累加；deckCostReduction 规则列表拼接全部生效；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价取首个配置）；statsBonus 逐键累加。
+
+---
+
+## 1. 结论：同意全部使用公共词条
+
+用户意见：装备额外词条不做专属。我同意，且认为装备比卡牌**更适合**公共化：
+
+1. **技术上装备没有"中间结果"可消费**。卡牌词条可以读"本牌观星选中的牌 / 实际支付的灵气 / 施加的状态参数"，这类词条有必须专属的理由（见卡牌文档 §1 原则 3）；装备词条一切行为都经由全局聚合通道（§0 白名单）兑现，任何词条挂在任何装备上行为一致——专属化不会带来任何表达力，只会制造 25 个一次性 id。
+2. **内容经济上更优**：新机制词条做成公共 id，未来其他流派绝世装备、甚至天赋树节点都可以直接引用（天赋树引用 passive id 时无视用途标记）。
+3. **构筑协同可见**：玩家看到熟悉词条出现在不同装备上，更容易形成"这件装备和我构筑里 X 的配合"的判断。
+
+**但"公共"需要三层语义**，本文按此执行：
+
+| 层 | 含义 | 判定 |
+| --- | --- | --- |
+| A | **复用现有随机池词条**（如 `battleDrawBonus` `persistent`） | 首选，零新内容成本 |
+| B | **新共享词条，进随机池**（写 `isEquipmentExtraAffix` + kinds/rank 门控） | 效果对任意构筑成立（观星深度、异常层数修正等通用机制） |
+| C | **新共享词条，不进随机池**（不写用途标记，id 可被固定列表/天赋树引用） | 涉及**流派色资源产消**或**流派费修**——其他流派 roll 到就是死词条或纯负面 |
+
+即：公共 ≠ 必须进随机池。C 层词条对其他流派绝世装备同样可用（例如未来某流派想要"非本流派牌 +1 费"的软锁词条，直接引用 `non_spellcraft_tax` 的换流派变体思路即可——届时再参数化流派字段）。
+
+---
+
+## 2. 五件装备定稿（各 5 条，列表顺序 = 解锁顺序）
+
+### 2.1 窥天镜 `heaven_peeking_mirror`（rank 1，talisman/pearl）
+
+主词条：观星额外查看 1 张（statsBonus scryBonus+2）；每次观星后自身随机获得 2 种元素异常（battleStatus `scry_self_ailments`）。
+rank 1 → **只有第 1 条生效**，其余 4 条休眠。
+
+| 槽 | 词条 id | 层 | 效果 | 取舍说明 |
+| --- | --- | --- | --- | --- |
+| 1 | `spirituality` | A（现有） | 灵力 +increment×level | 灵力经太上感应转化为灵气产能 |
+| 2 | `scry_focus` | B（新） | 观星额外查看 1 张（statsBonus `{scryBonus: 1}`） | 唯一生效位必须直接强化主词条："看得越多，能拿的越好" |
+| 3 | `ailment_ward` | B（新） | 你受到的元素异常层数 -1（statsBonus `{ailmentReceiveBonus: -1}`） | 对冲主词条的自异常代价；修正后 ≤0 静默不施加（`character.dart:516-524`） |
+| 4 | `ailment_to_mana_echo` | C（新） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把主词条的自异常接入蓄灵诀引擎（新状态 `first_ailment_to_mana`） |
+| 5 | `turn_start_scry_minor` | B（新） | 每回合开始时观星 1 张（turnStartScry: 1） | 与天道推演分支同通道、数值减半版 |
+
+### 2.2 五行珠 `five_elements_pearl`（rank 2，jewelry/amulet）
+
+主词条：你造成的元素异常层数 +2；你受到的元素异常层数 +2（statsBonus 双向）。
+rank 2 → 前 2 条生效。
+
+| 槽 | 词条 id | 层 | 效果 | 取舍说明 |
+| --- | --- | --- | --- | --- |
+| 1 | `ailmentMultiplier` | A（现有） | 元素异常伤害 +increment×level% | 双向放大器的"造成"侧直接受益 |
+| 2 | `ailmentThreshold` | A（现有） | 元素异常充能阈值降低 | 同上，让施加更频繁；rank 3 门控只限随机池，固定列表不受限 |
+| 3 | `ailment_inflict_focus` | B（新） | 你造成的元素异常层数 +1（statsBonus `{ailmentInflictBonus: 1}`） | 主词条同方向再加强 |
+| 4 | `ailment_to_mana_echo` | C（新，与窥天镜共用） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把"受到 +2"从纯代价转成收益 |
+| 5 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+
+- 注：`ailment_to_mana_echo` 同时出现在窥天镜 `_3` 与五行珠 `_4`；两件同时装备时 battleStatus 按状态 id 合并、层数不累加触发次数（每回合仍只触发一次）——可接受的边际递减，避免双份引擎。
+
+### 2.3 天机盘 `heavenly_mechanism_disc`（rank 3，talisman/pearl）
+
+主词条：回合开始额外抽 1 张（`turnStartExtraDraw`）；经此抽到的非悟道牌本回合费用 +1（costIncrease，抽到时的回合级课税）。
+rank 3 → 前 3 条生效。
+
+| 槽 | 词条 id | 层 | 效果 | 取舍说明 |
+| --- | --- | --- | --- | --- |
+| 1 | `non_spellcraft_tax` | C（新） | 你的非悟道牌费用 +1（deckCostReduction `{color: all, amount: -1, notGenres: [spellcraft]}`，组牌阶段永久课税） | 软流派锁延伸；与主词条的"抽到时课税"是**两个通道**，可叠加 |
+| 2 | `scry_focus` | B（新） | 观星额外查看 1 张 | — |
+| 3 | `battleDrawBonus` | A（现有） | 战斗抽牌数 +increment×level | 直接加强过牌引擎主词条 |
+| 4 | `deckMinSizeReduce` | A（现有） | 牌库下限 -increment×level | 精简牌库提高引擎浓度 |
+| 5 | `turn_start_scry_minor` | B（新，与窥天镜共用） | 每回合开始时观星 1 张 | 过牌+规划是同一主题的两面 |
+
+### 2.4 蓄灵佩 `spirit_storing_amulet`（rank 4，jewelry/amulet）
+
+主词条：回合结束至多保留 2 点灵气（energyRetain）；每保留 1 点下回合开始受 3 点纯粹伤害。
+rank 4 → 前 4 条生效。
+
+| 槽 | 词条 id | 层 | 效果 | 取舍说明 |
+| --- | --- | --- | --- | --- |
+| 1 | `spirituality` | A（现有） | 灵力 +increment×level | 灵力→太上感应→灵气产能，直接喂保留池 |
+| 2 | `basicEnergyBonus` | A（现有） | 回合元气 +increment×level | 元气经灵气涌动 1:1 转灵气 |
+| 3 | `spell_mana_trickle` | C（新） | 回合产出阶段灵气 +1（新状态 `turn_start_spell_mana_1`，复用 `turn_start_mana_bonus` 脚本、manaBonus 改为 1） | 稳定的灵气细流 |
+| 4 | `lifeMax` | A（现有） | 生命上限 +increment×level | 缓冲保留代价（3 点纯粹/点） |
+| 5 | `persistent` | A（现有） | 护甲保留 | 蓄灵回合不挨打崩盘，呼应"蓄势不动" |
+
+- energyRetain 按 resourceId 合并时 max 取大、代价取首个配置（§0）——**无法用第二个 energyRetain 词条叠加保留上限**，故本装备的强化全部走"产能 + 生存"两侧，不动保留机制本身。
+
+### 2.5 聚灵旗 `spirit_gathering_banner`（rank 5，talisman/pearl）
+
+主词条：回合产出阶段灵气 +3（battleStatus `turn_start_mana_bonus`）；非悟道牌费用 +2（deckCostReduction）。
+rank 5 → 5 条全生效。
+
+| 槽 | 词条 id | 层 | 效果 | 取舍说明 |
+| --- | --- | --- | --- | --- |
+| 1 | `mana_threshold_guard` | C（新） | **聚气成势**：灵气 ≥5 时，受到的伤害 -20%（新状态，self_taking_damage 时机读灵气存量） | 攥灵气等万法归宗的回合不再裸奔 |
+| 2 | `mana_empty_defend` | C（新） | **一炁**：回合结束时若灵气为 0，获得 8 点护甲（新状态，self_turn_end 时机） | 与 `_1` 互补：全打空也有兜底，鼓励"敢花" |
+| 3 | `turnStartExtraDraw` | A（现有**共享 id 直接复用**） | 回合开始额外抽 1 张（附带非悟道牌抽到时 +1 费，与主词条课税叠加） | 天机盘主词条同 id——公共化的最佳示范：纯悟道构筑中课税无感，过牌纯白拿 |
+| 4 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+| 5 | `spellcraft_cost_down` | C（新） | 悟道牌费用 -1（deckCostReduction `{color: spell, amount: 1, genres: [spellcraft]}`，同天道循环节点） | rank 5 的 all-in 信号补强：纯悟道构筑全面降费 |
+
+- 聚灵旗与天机盘同时装备时：`turnStartExtraDraw` count 求和为 +2 抽，costIncrease 配置相同无冲突（§0 聚合规则）。
+
+---
+
+## 3. 新增内容汇总
+
+### 3.1 新增公共词条（passives.json5，写在「绝世装备专用词条」区之后）
+
+| id | 机制字段 | 层 | 用途标记 / kinds / rank | 说明 |
+| --- | --- | --- | --- | --- |
+| `scry_focus` | `statsBonus: {scryBonus: 1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 1 | 观星深度 +1 |
+| `ailment_ward` | `statsBonus: {ailmentReceiveBonus: -1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 受到的元素异常 -1 |
+| `ailment_inflict_focus` | `statsBonus: {ailmentInflictBonus: 1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 造成的元素异常 +1 |
+| `turn_start_scry_minor` | `turnStartScry: 1` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 回合开始观星 1 |
+| `ailment_to_mana_echo` | `battleStatus: first_ailment_to_mana` | C | 不写用途标记 | 首次获异常→灵气 |
+| `spell_mana_trickle` | `battleStatus: turn_start_spell_mana_1` | C | 不写用途标记 | 回合灵气 +1 |
+| `non_spellcraft_tax` | `deckCostReduction: {color: all, amount: -1, notGenres: [spellcraft]}` | C | 不写用途标记 | 非悟道牌 +1 费 |
+| `spellcraft_cost_down` | `deckCostReduction: {color: spell, amount: 1, genres: [spellcraft]}` | C | 不写用途标记 | 悟道牌 -1 费 |
+| `mana_threshold_guard` | `battleStatus: mana_threshold_guard` | C | 不写用途标记 | 聚气成势 |
+| `mana_empty_defend` | `battleStatus: mana_empty_defend` | C | 不写用途标记 | 一炁 |
+
+### 3.2 新增状态（status_effect.json5）
+
+| 状态 id | script | callbacks | 数据 | 行为 |
+| --- | --- | --- | --- | --- |
+| `first_ailment_to_mana` | `first_ailment_to_mana`（新建） | `["self_gained_debuff"]` | resourceId: energy_positive_spell | 每回合第一次获得元素异常时 +1 灵气（turnFlags 记每回合一次；需判定是否元素异常——查 Constants.elementAilments 值集） |
+| `turn_start_spell_mana_1` | `turn_start_mana_bonus`（**复用现有脚本**） | `["self_produce_resources"]` | manaBonus: 1 | 纯数据变体，零脚本成本 |
+| `mana_threshold_guard` | `mana_threshold_guard`（新建） | `["self_taking_damage"]` | threshold: 5, reductionPercent: 20, resourceId: energy_positive_spell | 灵气≥阈值时受伤 -20% |
+| `mana_empty_defend` | `mana_empty_defend`（新建） | `["self_turn_end"]` | defense: 8, resourceId: energy_positive_spell | 回合结束灵气为 0 → +8 护甲 |
+
+全部机制字段（battleStatus/turnStartScry/deckCostReduction/statsBonus）均为白名单已有形状，**无需扩展 `_kPassiveMechanismFields`**；statsBonus 的 3 个键（scryBonus/ailmentInflictBonus/ailmentReceiveBonus）Dart 侧消费点已存在。
+
+### 3.3 items.json5 改动
+
+5 件装备的 `affixes` 列表在主词条后追加对应词条 id（§2 各表顺序）。其余字段不变。
+
+---
+
+## 4. 落地清单与风险
+
+### 4.1 清单
+
+- `assets/data/passives.json5`：新增 10 条公共词条（§3.1）。
+- `assets/data/items.json5`：5 件装备 `affixes` 列表追加（§3.3）。
+- `assets/data/status_effect.json5`：新增 4 个状态（§3.2）。
+- `scripts/main/cardgame/status_script.ht`：新建 `first_ailment_to_mana` / `mana_threshold_guard` / `mana_empty_defend` 三个脚本函数（`turn_start_spell_mana_1` 复用现有脚本）。
+- 本地化：`passive.json`（10 条 `passive_*_description`）、`status_effect.json`（4 组名称+描述）；装备 flavortext 若需提及词条位再更新 `item.json`。
+- 校验：`game_data_validate.dart` 保持 0 错误（本批无新机制字段形状，校验器契约表无需改动）；`python build.py` 重编译。
+
+### 4.2 风险
+
+1. **休眠内容占比**：窥天镜 4/5、五行珠 3/5 的词条在装备破境实现前永不生效。这是有意的前瞻设计；若想立即全生效，需要把"装备破境"排上日程，或接受低境界装备只配少量词条。
+2. **B 层词条进池后的平衡**：`scry_focus`/`turn_start_scry_minor` 对非悟道构筑接近死词条（无观星手段时），但观星至少还有中立 `scry` 词条与天道推演分支可得，定为"窄但非死"。若实装后池子体验变差，可降级为 C 层。
+3. **引用现有池词条的数值方差**：level 在境界区间内随机（§0），`spirituality`/`battleDrawBonus` 等在高 rank 装备上数值波动大；若实测过强，给这些引用条目显式收敛 level 区间或改为机制字段定值。
+4. **跌落发放时未传 level** 的行为需实现时确认（`item.ht:147`），否则词条 roll 区间不确定。
+5. `ailment_ward` 使受到异常 -1，与五行珠主词条"受到 +2"同穿时净 +1——有意为之的对冲组合，文案需写清。

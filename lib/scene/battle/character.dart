@@ -486,7 +486,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// [source] 为施加方（缺省 [opponent]，即对方施加；脚本可显式传 self 表示自施），
   /// 供元素异常层数修正（ailmentInflictBonus / ailmentReceiveBonus，五行珠等词条）归属判定。
   void addStatusEffect(String id,
-      {int? amount, BattleCharacter? source, bool handleCallback = true}) {
+      {int? amount,
+      BattleCharacter? source,
+      bool handleCallback = true,
+      dynamic params}) {
     if (amount == null || amount <= 0) {
       engine.error('Status effect [$id] added with amount <= 0, set to 1');
       amount = 1;
@@ -603,6 +606,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         removeStatusEffect('energy_negative_ultimate', amount: eaten);
       }
       if (effect.amount <= 0) return;
+    }
+
+    // 状态实例参数覆盖（太上忘情 statusParams 等）：写入实例数据副本
+    // （data 是深拷贝，不污染全局原型），状态脚本读取实例字段时即得覆盖值。
+    // 数值键按增量叠加（舍念 damagePerCard: -3 → 默认 10-3=7），其余直接覆盖
+    if (params != null) {
+      for (final key in params.keys) {
+        final value = params[key];
+        final existing = effect.data[key];
+        if (value is num && existing is num) {
+          effect.data[key] = existing + value;
+        } else {
+          effect.data[key] = value;
+        }
+      }
     }
 
     if (effect.isResource) {
@@ -743,6 +761,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         final amount = pendingResources[key];
         if (amount is num && amount > 0) {
           addStatusEffect('$key', amount: amount.toInt());
+        }
+      }
+    }
+
+    // pendingEffects 跨回合延迟效果（反噬成道等的 pendingSelfDamage）在此结算：
+    // 必须排在 clearResourceEffects 之后（与 pendingResources 同阶段），过早会被清残留冲掉。
+    // 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 [] 访问
+    final pendingEffects = turnFlags['pendingEffects'];
+    if (pendingEffects is List) {
+      for (var i = pendingEffects.length - 1; i >= 0; --i) {
+        final effect = pendingEffects[i];
+        if (effect['type'] == 'pendingSelfDamage') {
+          final amount = (effect['amount'] as num?)?.round() ?? 0;
+          if (amount > 0) {
+            changeLife(-amount, damageType: effect['damageType'] ?? 'pure');
+          }
+          pendingEffects.removeAt(i);
         }
       }
     }
@@ -1190,9 +1225,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 清空前暂存、清空后放回；授予延迟到 produceTurnStartResources 末尾
     // （onStartTurn 之后紧跟 clearResourceEffects，提前授予会被当场冲掉）
     final pendingResources = turnFlags['pendingResources'];
+    final pendingEffects = turnFlags['pendingEffects'];
     turnFlags.clear();
     if (pendingResources != null) {
       turnFlags['pendingResources'] = pendingResources;
+    }
+    // pendingEffects（跨回合延迟效果队列：genreDamageBonus / pendingSelfDamage）同样跨清空保留；
+    // 消费点：produceTurnStartResources（自伤）与 onUseCard（流派增伤）
+    if (pendingEffects != null) {
+      turnFlags['pendingEffects'] = pendingEffects;
     }
     // 重置主词条本回合累计伤害计数
     turnFlags['totalDamage'] = 0;
@@ -1269,6 +1310,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       'percentageChange3': 0.0,
       'penetration': 0.0,
     };
+
+    // 跨回合延迟效果：下回合首张对应流派牌增伤（忘我/反噬成道），命中写入乘区 1 并消耗
+    _consumePendingGenreDamageBonus(genre);
 
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['elementType'] = mainAffix['elementType'];
@@ -1568,5 +1612,27 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       modifyCardCost(cost, color, -(record['amount'] as int), restoring: true);
     }
     _turnCostRecords.clear();
+  }
+
+  /// 消费 pendingEffects 中的流派增伤效果（「下回合首张某流派牌伤害 +X%」，忘我/反噬成道）：
+  /// 匹配主词条 genre 时把百分比写入乘区 1（percentageChange1），并从队列移除（一次性）。
+  /// 数据可能是 Map 或河图 struct，不做类型检查，按约定直接用 [] 访问。
+  void _consumePendingGenreDamageBonus(dynamic genre) {
+    if (genre == null) return;
+    final pending = turnFlags['pendingEffects'];
+    if (pending is! List) return;
+    for (var i = 0; i < pending.length; ++i) {
+      final effect = pending[i];
+      if (effect['type'] == 'genreDamageBonus' && effect['genre'] == genre) {
+        final percent = (effect['percent'] as num?) ?? 0;
+        cardFlags['damage']['percentageChange1'] += percent / 100;
+        pending.removeAt(i);
+        addHintText(
+            engine.locale('pendingGenreDamageBonusHint',
+                interpolations: [percent.round()]),
+            color: Colors.orange);
+        break;
+      }
+    }
   }
 }

@@ -1336,7 +1336,7 @@
   },
 
   /// 绝世装备专用词条
-  /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，按 rank+1 解锁），
+  /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，生成时解锁前 rank+1 条，即额外词条 = rank 条），
   /// 不进随机词条池，不写 isEquipmentMain/isEquipmentExtraAffix 等用途标记
   // 窥天镜（rank1）主词条：观星额外查看 2 张；每次观星结算后对自身随机施加 2 种元素异常（各 1 层）
   // （观星深度走 statsBonus 直加 stats；自施异常由 battleStatus 授予永久状态，行为在状态脚本实现）

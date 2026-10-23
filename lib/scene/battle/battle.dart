@@ -146,22 +146,26 @@ class BattleScene extends Scene {
 
   final String backgroundImageId;
 
-  late final SpriteComponent2 background;
+  late SpriteComponent2 background;
 
   late final SpriteComponent versusIcon;
-  late final SpriteButton heroIcon, enemyIcon;
-  late final EquipmentsBar heroEquipments, enemyEquipments;
+  late SpriteButton heroIcon, enemyIcon;
+  late EquipmentsBar heroEquipments, enemyEquipments;
 
-  late final SpriteComponent2 victoryPrompt, defeatPrompt;
+  late SpriteComponent2 victoryPrompt, defeatPrompt;
 
-  late final BattleCharacter hero, enemy;
-  late final BattleDeckZone heroDeckZone, enemyDeckZone;
-  late final DiscardZone heroDiscardZone, enemyDiscardZone;
-  late final HandZone heroHandZone, enemyHandZone;
-  late final EnergyDisplay heroEnergyDisplay, enemyEnergyDisplay;
-  late final SpriteButton endTurnButton;
+  late BattleCharacter hero, enemy;
+  late BattleDeckZone heroDeckZone, enemyDeckZone;
+  late DiscardZone heroDiscardZone, enemyDiscardZone;
+  late HandZone heroHandZone, enemyHandZone;
+  late EnergyDisplay heroEnergyDisplay, enemyEnergyDisplay;
+  late SpriteButton endTurnButton;
   final dynamic heroData, enemyData;
-  late final List<CustomGameCard> heroDeck, enemyDeck;
+  late List<CustomGameCard> heroDeck, enemyDeck;
+
+  /// 战斗组件登记表：_assembleBattle 重建时逐一登记，重新开始时按此整批销毁
+  /// （卡牌是区域组件的子节点，随区域一并移除）
+  final List<Component> _battleComponents = [];
 
   final bool isSneakAttack;
   final bool isPractice;
@@ -177,7 +181,7 @@ class BattleScene extends Scene {
 
   bool? battleResult;
 
-  late final SpriteButton endButton;
+  late SpriteButton endButton;
 
   bool battleStarted = false;
   bool battleEnded = false;
@@ -457,6 +461,14 @@ class BattleScene extends Scene {
 
     fps = FpsComponent();
 
+    await _assembleBattle();
+  }
+
+  /// 从角色数据组装全部战斗组件与卡组（卡组经 getDeck 重新生成、角色重新实例化）；
+  /// 重新开始时先 _teardownBattle 销毁、再调用本方法重建——战斗内对卡牌/角色的
+  /// 一切临时修改（观星费改、保留标记、战斗内升级、回合级费修等）随旧实例销毁，
+  /// 无需逐项复位
+  Future<void> _assembleBattle() async {
     background = SpriteComponent2(
       spriteId: backgroundImageId,
       anchor: Anchor.center,
@@ -736,7 +748,41 @@ class BattleScene extends Scene {
     };
     camera.viewport.add(endTurnButton);
 
+    // 登记全部战斗组件（重新开始时按此整批销毁重建；
+    // 卡牌是区域组件的子节点，随区域一并移除）
+    _battleComponents
+      ..clear()
+      ..addAll([
+        background,
+        heroIcon,
+        enemyIcon,
+        heroEquipments,
+        enemyEquipments,
+        victoryPrompt,
+        defeatPrompt,
+        heroDeckZone,
+        heroDiscardZone,
+        heroEnergyDisplay,
+        heroHandZone,
+        hero,
+        enemyDeckZone,
+        enemyDiscardZone,
+        enemyEnergyDisplay,
+        enemyHandZone,
+        enemy,
+        endButton,
+        endTurnButton,
+      ]);
+
     // showStartPrompt();
+  }
+
+  /// 销毁全部已登记的战斗组件（重新开始的重建路径调用）
+  void _teardownBattle() {
+    for (final component in _battleComponents) {
+      component.removeFromParent();
+    }
+    _battleComponents.clear();
   }
 
   // Future<void> showStartPrompt() async {
@@ -748,6 +794,8 @@ class BattleScene extends Scene {
     battleStarted = true;
     battleEnded = false;
     battleResult = null;
+    // 回合计数随每场战斗重置（软狂暴劫气阈值以它为口径）
+    roundCount = 0;
     hero.reset();
     enemy.reset();
 
@@ -784,9 +832,13 @@ class BattleScene extends Scene {
             if (granted) break;
           }
           if (granted) continue;
+          // 紫微斗数等授予卡的强度随授予时机：rank 取角色当前境界（词条解锁数 = rank）
           final card = GameData.createBattleCard(
-            engine.hetu.invoke('BattleCard',
-                namedArgs: {'affixId': cardId, 'isIdentified': true}),
+            engine.hetu.invoke('BattleCard', namedArgs: {
+              'affixId': cardId,
+              'isIdentified': true,
+              'rank': characterData['rank'],
+            }),
             deepCopyData: true,
           );
           card.isFlipped = true;
@@ -884,6 +936,11 @@ class BattleScene extends Scene {
           'removed_from_hand', card, hand == heroHandZone ? hero : enemy);
       discard.tryAddCard(card);
     }
+    // 清手牌后，仍留在手中的牌（保留卡）按新的手牌构成重算调息类词条（幂等）
+    for (final card in hand.cards) {
+      handleCardAffixCallback('added_to_hand', card as CustomGameCard,
+          hand == heroHandZone ? hero : enemy);
+    }
     await discard.sortCards(animated: animated);
     return;
   }
@@ -939,7 +996,11 @@ class BattleScene extends Scene {
         _isProcessingQueue = false;
         _endPlayerTurn = false;
 
-        await _returnAllCardsToDecks();
+        // 从角色数据彻底重建战斗组件与卡组：卡牌/角色全部重新实例化，
+        // 战斗内一切临时修改随旧实例销毁，无需逐项复位
+        _teardownBattle();
+        await _assembleBattle();
+
         _isRestarting = false;
         battleStarted = false;
       }
@@ -988,6 +1049,10 @@ class BattleScene extends Scene {
   }) async {
     int drawn = 0;
     bool costReduced = false;
+    // 本批入手的牌记录到 cardFlags['lastDrawnCards']（紫微斗数等「抽到的牌」修饰词条读取；
+    // 每次调用覆盖写，即使一张都没抽到也清空）
+    final character = hand == heroHandZone ? hero : enemy;
+    character.cardFlags['lastDrawnCards'] = <dynamic>[];
     while (drawn < count) {
       if (deck.cards.isEmpty) {
         if (discard.cards.isEmpty) break;
@@ -1017,6 +1082,14 @@ class BattleScene extends Scene {
         // 入手回调时机（added_to_hand）：如保留词条在此写入 isRetained 标记
         handleCardAffixCallback(
             'added_to_hand', card, hand == heroHandZone ? hero : enemy);
+        // 调息类词条按手牌构成增减费：新牌入手后，其余手牌补跑入手回调做全量重算
+        // （调息 added 回调内建"先还原再检测"幂等，重复调用安全）
+        for (final other in hand.cards) {
+          if (identical(other, card)) continue;
+          handleCardAffixCallback('added_to_hand', other as CustomGameCard,
+              hand == heroHandZone ? hero : enemy);
+        }
+        character.cardFlags['lastDrawnCards'].add(card.data);
 
         // 减费：普通费用降为 0，动态条目保留门槛与 X。
         if (reduceCost != null &&
@@ -1037,6 +1110,10 @@ class BattleScene extends Scene {
     }
     if (drawn > 0) {
       await hand.sortCards();
+      if (hand == heroHandZone) {
+        // 级联重算可能改变了其他手牌的费用与描述，统一刷新
+        refreshHandCardDescription();
+      }
     }
     return drawn;
   }
@@ -1082,7 +1159,7 @@ class BattleScene extends Scene {
   /// | `retainChosen`     | 本牌观星选中的牌获得保留                                    |
   /// | `upgradeChosen`    | 本牌观星选中的牌等级 +1                                     |
   /// | `chosenCostChange` | 本牌观星选中牌费用变化                                      |
-  /// | `othersCostChange` | 本牌观星未选中牌费用变化                                    |
+  /// | `othersCostChange` | 本牌观星未选中牌费用变化（加费不叠加：同一卡本场只生效一次）|
   /// 在选牌结算后修正选中/未选卡的费用（本场战斗内生效，未选卡进弃牌堆、洗牌后兑现）。
   Future<void> scry(
     BattleDeckZone deck,
@@ -1093,6 +1170,9 @@ class BattleScene extends Scene {
     count ??= kScryCardCount;
     // 观星深度加成（scryBonus 属性，绝世装备「窥天镜」等）：每次观星额外查看的张数
     count += (currentCharacter.data['stats']['scryBonus'] ?? 0) as int;
+    // 本牌词条附带的观星深度（天机术 scryOptions.scryBonus），与全局 stats.scryBonus 叠加
+    final localScryBonus = options?['scryBonus'];
+    if (localScryBonus is num) count += localScryBonus.toInt();
     if (deck.cards.isEmpty) {
       // 牌库为空即无星可观
       if (currentCharacter.isHero) {
@@ -1188,8 +1268,25 @@ class BattleScene extends Scene {
     if (othersCostChange is num) {
       for (final card in scried) {
         if (identical(card, chosen)) continue;
+        // 未选牌加费不叠加：同一卡本场战斗只被加费一次（标记位幂等）——
+        // 否则高频观星会把牌库滚成高费牌堆，观星本身沦为负收益
+        if (card.data['scryOthersCostApplied'] == true) continue;
+        card.data['scryOthersCostApplied'] = true;
         _modifyCardCostByDelta(card.data, othersCostChange.toInt());
       }
+    }
+
+    // 选中卡升级（天机术词条）：升级路径同 upgradeHandCards（inBattle 临时升级，可突破上限）
+    final upgradeChosen = options?['upgradeChosen'];
+    if (upgradeChosen is num && upgradeChosen > 0) {
+      for (var i = 0; i < upgradeChosen.toInt(); ++i) {
+        engine.hetu.invoke('upgradeCard',
+            positionalArgs: [chosen.data], namedArgs: {'inBattle': true});
+      }
+    }
+    // 选中卡获得保留（天机术词条）：回合结束清手牌时留在手牌
+    if (options?['retainChosen'] == true) {
+      chosen.data['isRetained'] = true;
     }
 
     // 观星结算回调时机（self_scry）：窥天镜等「观星后触发」的效果挂这个时机
@@ -1559,6 +1656,10 @@ class BattleScene extends Scene {
     // 离手回调时机（removed_from_hand）：支付成功后卡牌正式离开手牌区，
     // 如调息词条在此还原费用（支付失败退回手牌的异常路径不触发）
     handleCardAffixCallback('removed_from_hand', card, hero);
+    // 本牌离手后，其余手牌按新的手牌构成重算调息类词条（幂等）
+    for (final other in heroHandZone.cards) {
+      handleCardAffixCallback('added_to_hand', other as CustomGameCard, hero);
+    }
     // 还原「本回合临时费用」记录（turnCostIncrease），避免增费随卡进入弃牌堆
     _restoreTurnCostIncrease(card);
     // 2. 卡牌结算
@@ -1840,6 +1941,11 @@ class BattleScene extends Scene {
           // 离手回调时机（removed_from_hand）：与英雄出牌同口径
           handleCardAffixCallback(
               'removed_from_hand', selectedCard, currentCharacter);
+          // 本牌离手后，其余手牌按新的手牌构成重算调息类词条（幂等）
+          for (final other in handZone.cards) {
+            handleCardAffixCallback(
+                'added_to_hand', other as CustomGameCard, currentCharacter);
+          }
           // 还原「本回合临时费用」记录（turnCostIncrease），避免增费随卡进入弃牌堆
           _restoreTurnCostIncrease(selectedCard);
 
@@ -2044,10 +2150,18 @@ class BattleScene extends Scene {
                         onSelectedItem: (String? item) async {
                           switch (item) {
                             case 'restart':
+                              // 观星/抉择交互进行中禁止重开（交互的 Completer 不随重建
+                              // 兑现，主循环会悬挂在等待点上）
+                              if (_handInteractionDisabled) return;
                               if (battleEnded) {
-                                victoryPrompt.isVisible = false;
-                                defeatPrompt.isVisible = false;
-                                endButton.isVisible = false;
+                                // 战后重开：全量重建并复位战斗结果后再重进主循环——
+                                // 否则 _startBattle 重入会重复执行 _onBattleEnd 的写回
+                                // （业力池/符箓次数/生命恢复）
+                                _teardownBattle();
+                                await _assembleBattle();
+                                battleResult = null;
+                                battleStarted = false;
+                                battleEnded = false;
                                 _startBattle();
                               } else if (battleStarted) {
                                 _isRestarting = true;
