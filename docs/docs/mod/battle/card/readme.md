@@ -48,15 +48,18 @@ function attack(self, opponent, card, affix) {
 
 1. 写入 `cardFlags`（category / genre / kind / cardType / damageType / damage 累计表）
 2. 派发状态回调 `opponent_using_card` / `self_using_card`
-3. `priority < 0` 的额外词条（按 priority 降序）——可能在主词条之前生效的增益
-4. 主词条（先播放 `animation`，再执行脚本）
-5. `priority >= 0` 的额外词条（按 priority 降序）——可读取主词条造成的伤害等联动
-6. 元素牌使用记录（`turnFlags['usedElements']`，元素牌无条件记录，供 chain_lightning 等词条
+3. `priority < 0` 的额外词条（按 priority 降序）——可能在主词条之前生效的增益；
+   有依赖关系的词条必须显式使用不同 priority，不能依赖同优先级的排序结果
+4. 元素转化：负优先级词条结算完毕后，按对方当前持有的对应异常决定最终 damageType；
+   转化成功时消耗 1 层异常，并更新 `cardFlags['damageType']`。因此落雷击顶等词条可让本次伤害立即转化
+5. 主词条（先播放 `animation`，再执行脚本）
+6. `priority >= 0` 的额外词条（按 priority 降序）——可读取主词条造成的伤害等联动
+7. 元素牌使用记录（`turnFlags['usedElements']`，元素牌无条件记录，供 chain_lightning 等词条
    与五行轮转等状态结算本回合元素种数）、`self_attacked` / `self_buffed` 等收尾回调
-7. 无条件记录 `turnFlags['lastUsedCard'] = card`（本回合上一张打出的牌引用，
+8. 无条件记录 `turnFlags['lastUsedCard'] = card`（本回合上一张打出的牌引用，
    供 `matchLastUsedCard` / `getLastUsedCard` 读取，见下文「上一张打出的牌」；
    记录点在所有词条脚本之后 → priority<0 的词条读到的是真正的「上一张」）
-8. 派发状态回调 `opponent_used_card` / `self_used_card`（抱真守一 / 五行轮转等元素牌联动
+9. 派发状态回调 `opponent_used_card` / `self_used_card`（抱真守一 / 五行轮转等元素牌联动
    以状态脚本挂在此时机，经 `getLastUsedCard()` 读取刚打出的牌）
 
 **Dart 侧对每个词条脚本统一 `await`**（同步脚本的 await 是空操作）。因此调用了
@@ -131,8 +134,50 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `require`                 | 生成侧过滤子表：以主词条（`card.affixes[0]`）字段为准——值 `true` = 该字段非空、值为数组 = 字段值 ∈ 数组、其余 = 等值匹配；不满足则生成时跳过该词条。见下文「条件子表与占位约定」        |
 | `resourceId`              | 资源气状态 id（如 `energy_positive_spell` 灵气），`increase_damage_by_energy_count` / `gain_resource_next_turn` / `attack_by_paid_resource` / `attack_with_energy_count_check` / `gain_defense_by_mana` 等脚本读取 |
 | `resourceThreshold`       | 资源门槛层数（缺省 1），与 `resourceId` 配套；达到门槛才生效                                                                                                                            |
-| `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` 读取并整层移除（如 water_mend 甘霖术列全部 7 种元素异常）                                                                                           |
-| `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗）                                                                                             |
+| `debuffs`                 | 状态 id 列表，`heal_remove_debuffs` / `heal_remove_debuffs_by_stack` 等脚本读取 |
+| `genre`                   | 单词条流派参数，供回合级流派费修、跨回合流派增伤等脚本读取；与随机池过滤字段 `genres` 区分 |
+| `threshold` / `count`     | 通用门槛 / 次数参数；元素异常种数判定、条件抽牌等脚本读取 |
+| `inUnpackable`            | 额外词条为 `true` 时不进入随机额外词条池，只能由绝世卡预定义列表固定授予；主词条沿用“不进卡包/随机池”语义 |
+| `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗） |
+
+### 纯数据修饰字段
+
+无 `script` 的词条不参与打出回调；宿主主脚本可遍历 `card.affixes`，收集这些字段后兑现。
+所有机制字段均由主词条与额外词条共用校验器检查结构、类型和嵌套引用。
+
+**观星 `scryOptions`**（`scry_then_draw` 汇总；数值键累加、布尔键取真）：
+
+| 键 | 类型 | 含义 |
+| --- | --- | --- |
+| `chosenCostChange` / `othersCostChange` | 数值 | 选中 / 未选牌费用变化；未选牌加费以卡上标记保证本场战斗只生效一次 |
+| `upgradeChosen` | 数值 | 选中牌战斗内升级 N 级 |
+| `retainChosen` | 布尔 | 选中牌获得保留 |
+| `scryBonus` | 数值 | 本次观星额外查看 N 张，与角色 `stats.scryBonus` 累加 |
+
+**元素抉择**：主词条 `discoverOptions` 为 `{hint, choices: [{key, cardId}]}`，
+`elementStatusMap` 为 `{元素key: 状态id}`。`discover_element_amplify` 收集以下额外词条字段：
+
+| 字段 | 类型 | 含义 |
+| --- | --- | --- |
+| `guardValue` | 数值 | 下次受到所选元素伤害时获得 N 层护盾，兑现后消耗 |
+| `chosenDamageTakenReduce` | 数值 | 本回合受到所选元素伤害 -N%，不消耗 |
+| `mirrorMana` | 数值 | 对手使用所选元素牌后，自己下回合产出 +N 灵气 |
+| `chosenCostReduce` | 数值 | 本回合手牌中所选元素牌费用 +N（负数即减费） |
+| `amplifyPerMana` | 数值 | 打出时每点灵气使**自身**增幅 +N%；对方只获得主词条基础增幅 |
+
+**抽牌修饰**（`ziwei_draw` 对 `lastDrawnCards[0]` 兑现，全部修饰完成后才处理额外抽牌）：
+
+| 字段 | 类型 | 含义 |
+| --- | --- | --- |
+| `drawnUpgrade` | 数值 | 抽到的牌战斗内升级 N 级 |
+| `drawnRetain` | 布尔 | 抽到的牌获得保留 |
+| `drawnManaIfGenre` | `{genre, resourceId, count?}` | 抽到指定流派牌时获得 count 层 resourceId（缺省 1） |
+| `drawnExtraDrawIfNotGenre` | `{genre, count?}` | 未抽到指定流派牌时额外抽 count 张（缺省 1），不再套用首张修饰 |
+
+**状态实例参数 `statusParams`**：负优先级词条通过 `apply_status_params` 把子表累计到
+`cardFlags['statusParams']`；`self_buff` 授予状态时经 `addStatusEffect(params:)` 合并并清空。
+数值键按增量叠加（如默认 10 加 -3 得 7），字符串和布尔直接覆盖。状态脚本读取实例字段，
+从而只修改本次所授状态，不污染全局状态原型。
 
 ## 条件子表与占位约定
 
@@ -201,18 +246,20 @@ Dart 侧在元素牌（主词条 `elementType` 非空）结算完毕后无条件
 因此打出中的本牌不在表中，`attack_multiple_by_used_elements` 等脚本需自行把本牌元素
 补充去重（含本牌至少 1 段）。该键与悟道分支「五行轮转」（每种新元素灵气 +1）共用。
 
-### turnFlags['pendingResources'] 生命周期
+### 抽牌 / 产能中间结果与跨回合效果
 
-「下回合获得资源」类词条（如悟道 `mana_battery`）以 `turnFlags['pendingResources']`
-（Map，键 = 资源气状态 id，值 = 累加层数）为跨回合标记，脚本直接读写 `self.turnFlags`：
-
-- **写入**：词条脚本在 `pendingResources` 子表上对 `resourceId` 键累加层数；
-- **存活**：`onStartTurn` 在 `turnFlags.clear()` 之前暂存该键、清空后放回
-  —— 它是 turnFlags 中唯一跨清空保留的键（`reset()` 走统一清空，不保留）；
-- **消费**：`produceTurnStartResources()` 末尾取出（remove）并逐个
-  `addStatusEffect(statusId, amount)` 授予（非正数跳过）。
-  授予不能提前到回合开始时：onStartTurn 之后紧跟 `clearResourceEffects()`
-  （清上回合残留阳气），提前授予会被当场冲掉；只有产出阶段（排在清残留之后）授予才能存活。
+- `cardFlags['lastDrawnCards']`：Dart 在每次 `drawCardsToHand` 开始时覆盖为空列表，
+  再按实际入手顺序记录卡牌数据；一张未抽到时也保持空列表。紫微斗数先读完首张修饰，
+  再执行可能覆盖该记录的额外抽牌。
+- `cardFlags['lastManaGained']`：蓄灵诀主词条写入本次计算的灵气获得数，未获得也写 0，
+  供纳气之后、灵气回响、反噬成道读取，避免吃到上一次打出的残留。
+- `turnFlags['pendingResources']`：下回合资源表，键为资源状态 id、值为累加层数。
+  `onStartTurn` 清空前暂存并放回，`produceTurnStartResources` 取出并授予（非正数跳过）。
+  必须延迟到清空残留之后的产出阶段，提前授予会被 `clearResourceEffects` 冲掉。
+- `turnFlags['pendingEffects']`：跨回合效果队列，与 `pendingResources` 一样跨回合开始清空保留。
+  `{type: 'genreDamageBonus', genre, percent, oneShot: true}` 在下回合首张匹配流派牌打出时消费；
+  `{type: 'pendingSelfDamage', amount, damageType}` 在下回合产出阶段消费并移除。
+  战斗重置（`reset()`）统一清空这两类标记。
 
 ### Constants.elementAilments 元素异常映射
 

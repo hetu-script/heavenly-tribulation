@@ -20,10 +20,9 @@
 ///   5. 格式: category / genre / cardType / damageType / elementType / cost 颜色 /
 ///      ephemeralType / rank 等枚举与取值范围；coloredCost / filter / valueData /
 ///      deckCostReduction（含 color: 'all' 与负值加费）/ energyRetain / turnStartExtraDraw 结构
-///   6. 数值占位: 描述文本中的 {N} 下标必须小于 valueData 长度
-///   （卡牌词条的纯数据机制字段——scryOptions / statusParams / guardValue 等修饰字段、
-///    drawnUpgrade 等、inUnpackable 池外化标记——不做结构校验，
-///    契约见 plan/spellcraft_uniquecard_affixes.md 与 docs/docs/mod/battle/card/readme.md）
+///   6. 数值占位: 描述文本中的 {N} 下标必须小于 valueData 长度；
+///      卡牌纯数据机制字段（scryOptions / statusParams / 抉择与抽牌修饰字段等）
+///      检查结构、类型、枚举及嵌套引用，契约见 docs/docs/mod/battle/card/readme.md
 ///   7. 资源文件: image / icon 指向的文件必须存在于 assets/images/
 ///   8. 物品（items.json5，createItemById 语义）: type/rarity/rank/icon/category/kind、
 ///      isRankedName 境界名本地化键、布尔标记类型与未知 is* 标记（提示）、
@@ -365,6 +364,7 @@ void checkScriptContract(Map data, String ctx) {
 /// 额外词条无 callbacks 时基名必须存在；声明 callbacks 后基名可缺省，
 /// 但每个 {script}_{时机} 必须存在，时机名必须在 Dart 侧实际分发。
 void checkCardScript(Map data, String ctx, {required bool isMainAffix}) {
+  checkCardMechanismFields(data, ctx);
   final script = data['script'];
   final callbacks =
       (data['callbacks'] as List?)?.whereType<String>().toList() ?? const [];
@@ -464,6 +464,166 @@ void checkCriteria(Map data, String ctx) {
   }
   if (data['require'] is Map) {
     checkTable(data['require'] as Map, '$ctx.require', allowSelf: false);
+  }
+  if (data['reduceCost'] is Map) {
+    checkTable(data['reduceCost'] as Map, '$ctx.reduceCost', allowSelf: true);
+  }
+}
+
+/// 卡牌主词条与额外词条共用的纯数据机制字段。
+/// 这些字段不由 Dart 直接消费，而是经 CardScript 收集后兑现，需单独校验结构与嵌套引用。
+void checkCardMechanismFields(Map data, String ctx) {
+  if (data['inUnpackable'] != null && data['inUnpackable'] is! bool) {
+    err('字段类型非法', '$ctx.inUnpackable: 期望布尔');
+  }
+  if (data['drawnRetain'] != null && data['drawnRetain'] is! bool) {
+    err('字段类型非法', '$ctx.drawnRetain: 期望布尔');
+  }
+  checkEnum(data['genre'], kBattleCardGenres, '$ctx.genre');
+  checkNumber(data['threshold'], '$ctx.threshold', min: 0);
+  checkNumber(data['count'], '$ctx.count', min: 1);
+  for (final field in [
+    'guardValue',
+    'mirrorMana',
+    'chosenCostReduce',
+    'amplifyPerMana',
+    'chosenDamageTakenReduce',
+    'drawnUpgrade',
+  ]) {
+    checkNumber(data[field], '$ctx.$field');
+  }
+
+  final scryOptions = data['scryOptions'];
+  if (scryOptions != null) {
+    if (scryOptions is! Map) {
+      err('字段类型非法', '$ctx.scryOptions: 期望表');
+    } else {
+      const numericKeys = {
+        'chosenCostChange',
+        'othersCostChange',
+        'upgradeChosen',
+        'scryBonus',
+      };
+      const allowedKeys = {...numericKeys, 'retainChosen'};
+      for (final entry in scryOptions.entries) {
+        final key = entry.key;
+        final optionCtx = '$ctx.scryOptions.$key';
+        if (!allowedKeys.contains(key)) {
+          err('scryOptions 字段未知', '$optionCtx（允许: ${allowedKeys.join('/')}）');
+        } else if (numericKeys.contains(key)) {
+          checkNumber(entry.value, optionCtx);
+        } else if (entry.value is! bool) {
+          err('字段类型非法', '$optionCtx: 期望布尔');
+        }
+      }
+    }
+  }
+
+  final statusParams = data['statusParams'];
+  if (statusParams != null) {
+    if (statusParams is! Map) {
+      err('字段类型非法', '$ctx.statusParams: 期望表');
+    } else {
+      for (final entry in statusParams.entries) {
+        final value = entry.value;
+        if (value is! num && value is! String && value is! bool) {
+          err('statusParams 参数类型非法',
+              '$ctx.statusParams.${entry.key}: 期望数值/字符串/布尔');
+        }
+      }
+      checkNumber(
+          statusParams['damagePerCard'], '$ctx.statusParams.damagePerCard');
+      checkNumber(
+          statusParams['resourcePerCard'], '$ctx.statusParams.resourcePerCard');
+    }
+  }
+
+  void checkGenreRule(dynamic rule, String ruleCtx,
+      {required bool withResource}) {
+    if (rule == null) return;
+    if (rule is! Map) {
+      err('字段类型非法', '$ruleCtx: 期望表');
+      return;
+    }
+    const resourceKeys = {'genre', 'resourceId', 'count'};
+    const extraDrawKeys = {'genre', 'count'};
+    final allowedKeys = withResource ? resourceKeys : extraDrawKeys;
+    for (final key in rule.keys) {
+      if (!allowedKeys.contains(key)) {
+        err('抽牌修饰字段未知', '$ruleCtx: $key（允许: ${allowedKeys.join('/')}）');
+      }
+    }
+    if (rule['genre'] == null) {
+      err('抽牌修饰字段缺失', '$ruleCtx: 需要 genre');
+    }
+    checkEnum(rule['genre'], kBattleCardGenres, '$ruleCtx.genre');
+    checkNumber(rule['count'], '$ruleCtx.count', min: 1);
+    if (withResource) {
+      if (rule['resourceId'] == null) {
+        err('抽牌修饰字段缺失', '$ruleCtx: 需要 resourceId');
+      }
+      checkStatusRef(rule['resourceId'], '$ruleCtx.resourceId');
+    }
+  }
+
+  checkGenreRule(data['drawnManaIfGenre'], '$ctx.drawnManaIfGenre',
+      withResource: true);
+  checkGenreRule(
+      data['drawnExtraDrawIfNotGenre'], '$ctx.drawnExtraDrawIfNotGenre',
+      withResource: false);
+
+  final discoverOptions = data['discoverOptions'];
+  if (discoverOptions != null) {
+    if (discoverOptions is! Map) {
+      err('字段类型非法', '$ctx.discoverOptions: 期望表');
+    } else {
+      for (final key in discoverOptions.keys) {
+        if (key != 'hint' && key != 'choices') {
+          err('discoverOptions 字段未知', '$ctx.discoverOptions: $key');
+        }
+      }
+      if (discoverOptions['hint'] != null &&
+          discoverOptions['hint'] is! String) {
+        err('字段类型非法', '$ctx.discoverOptions.hint: 期望字符串');
+      }
+      final choices = discoverOptions['choices'];
+      if (choices is! List || choices.isEmpty) {
+        err('discoverOptions 结构非法', '$ctx.discoverOptions.choices: 期望非空列表');
+      } else {
+        for (var i = 0; i < choices.length; ++i) {
+          final choice = choices[i];
+          final choiceCtx = '$ctx.discoverOptions.choices[$i]';
+          if (choice is! Map) {
+            err('discoverOptions 结构非法', '$choiceCtx: 期望 {key, cardId}');
+            continue;
+          }
+          for (final key in choice.keys) {
+            if (key != 'key' && key != 'cardId') {
+              err('discoverOptions 字段未知', '$choiceCtx: $key');
+            }
+          }
+          if (choice['key'] is! String) {
+            err('discoverOptions 结构非法', '$choiceCtx.key: 期望字符串');
+          }
+          final cardId = choice['cardId'];
+          if (cardId is! String || !cardIds.contains(cardId)) {
+            err('悬空引用（抉择卡不存在）', '$choiceCtx.cardId: $cardId');
+          }
+        }
+      }
+    }
+  }
+
+  final elementStatusMap = data['elementStatusMap'];
+  if (elementStatusMap != null) {
+    if (elementStatusMap is! Map) {
+      err('字段类型非法', '$ctx.elementStatusMap: 期望表');
+    } else {
+      for (final entry in elementStatusMap.entries) {
+        checkEnum(entry.key, kElementTypes, '$ctx.elementStatusMap 元素');
+        checkStatusRef(entry.value, '$ctx.elementStatusMap.${entry.key}');
+      }
+    }
   }
 }
 

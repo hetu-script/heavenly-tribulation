@@ -1221,8 +1221,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   Future<void> onStartTurn({bool isExtra = false}) async {
     // 重置 turnFlags
-    // pendingResources（下回合产出时授予的资源标记）是唯一跨清空保留的键：
-    // 清空前暂存、清空后放回；授予延迟到 produceTurnStartResources 末尾
+    // pendingResources（下回合产出时授予的资源标记）与 pendingEffects 跨清空保留：
+    // 清空前暂存、清空后放回；资源授予延迟到 produceTurnStartResources 末尾
     // （onStartTurn 之后紧跟 clearResourceEffects，提前授予会被当场冲掉）
     final pendingResources = turnFlags['pendingResources'];
     final pendingEffects = turnFlags['pendingEffects'];
@@ -1316,22 +1316,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     cardFlags['cardType'] = mainAffix['cardType'];
     cardFlags['elementType'] = mainAffix['elementType'];
-
-    // 元素转化（结算真值，plan/damage_type_rework.md 2.2）：
-    // 潜伏元素（火/水/雷/木）的攻击卡，在对方持有对应异常时以对应元素伤害结算，
-    // 并由对方消耗 1 层该异常（按牌不按段）；否则以无属性结算。
-    // 手牌中的转化仅是显示/预测（battle.dart 手牌刷新），此处为双方统一的结算口径。
-    final String? latentDamageType =
-        kElementDamageTypes[mainAffix['elementType']];
-    if (latentDamageType != null && mainAffix['damageType'] != null) {
-      final ailmentId = kElementAilmentIds[mainAffix['elementType']]!;
-      if (opponent!.hasStatusEffect(ailmentId) > 0) {
-        mainAffix['damageType'] = latentDamageType;
-        opponent!.removeStatusEffect(ailmentId, amount: 1);
-      } else {
-        mainAffix['damageType'] = DamageType.ordinary;
-      }
-    }
     cardFlags['damageType'] = mainAffix['damageType'];
 
     // 剑气滞后产出模型的数据源：累计本回合打出的武器牌数量
@@ -1366,6 +1350,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         positionalArgs: [this, opponent, card.data, affix],
       );
     }
+
+    // 元素转化（结算真值，plan/damage_type_rework.md 2.2）：
+    // 负优先级词条可先施加对应异常（如落雷击顶），随后再统一判定本次转化。
+    // 潜伏元素（火/水/雷/木）的攻击卡，在对方持有对应异常时以对应元素伤害结算，
+    // 并由对方消耗 1 层该异常（按牌不按段）；否则以无属性结算。
+    // 手牌中的转化仅是显示/预测（battle.dart 手牌刷新），此处为双方统一的结算口径。
+    final String? latentDamageType =
+        kElementDamageTypes[mainAffix['elementType']];
+    if (latentDamageType != null && mainAffix['damageType'] != null) {
+      final ailmentId = kElementAilmentIds[mainAffix['elementType']]!;
+      if (opponent!.hasStatusEffect(ailmentId) > 0) {
+        mainAffix['damageType'] = latentDamageType;
+        opponent!.removeStatusEffect(ailmentId, amount: 1);
+      } else {
+        mainAffix['damageType'] = DamageType.ordinary;
+      }
+    }
+    cardFlags['damageType'] = mainAffix['damageType'];
 
     // 处理主词条
     final mainScriptId = mainAffix['script'];

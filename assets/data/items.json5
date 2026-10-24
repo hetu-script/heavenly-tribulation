@@ -283,7 +283,13 @@
     isUnstackable: true,
     isUnique: true,
     isIdentified: false,
-    affixes: ["heaven_peeking_mirror"],
+    affixes: [
+      "spirituality",
+      "scry_focus",
+      "turn_start_scry_minor",
+      "ailment_ward",
+      "ailment_to_mana_echo",
+    ],
   },
   // 五行珠（rank2）：五行导体，元素异常双向放大
   five_elements_pearl: {
@@ -300,7 +306,13 @@
     isUnstackable: true,
     isUnique: true,
     isIdentified: false,
-    affixes: ["five_elements_pearl"],
+    affixes: [
+      "spirituality",
+      "ailmentMultiplier",
+      "ailmentThreshold",
+      "ailment_inflict_focus",
+      "ailment_to_mana_echo",
+    ],
   },
   // 天机盘（rank3）：回合开始额外抽牌，混编卡组被课税
   heavenly_mechanism_disc: {
@@ -317,7 +329,13 @@
     isUnstackable: true,
     isUnique: true,
     isIdentified: false,
-    affixes: ["turnStartExtraDraw"],
+    affixes: [
+      "non_spellcraft_tax",
+      "scry_focus",
+      "turn_start_scry_minor",
+      "deckMinSizeReduce",
+      "battleDrawBonus",
+    ],
   },
   // 蓄灵佩（rank4）：灵气淤积保留，经脉受损
   spirit_storing_amulet: {
@@ -334,7 +352,13 @@
     isUnstackable: true,
     isUnique: true,
     isIdentified: false,
-    affixes: ["energyRetainSpell"],
+    affixes: [
+      "spirituality",
+      "lifeMax",
+      "persistent",
+      "basicEnergyBonus",
+      "spell_mana_trickle",
+    ],
   },
   // 聚灵旗（rank5）：all-in 的纯悟道旗帜
   spirit_gathering_banner: {
@@ -351,6 +375,12 @@
     isUnstackable: true,
     isUnique: true,
     isIdentified: false,
-    affixes: ["spirit_gathering_banner"],
+    affixes: [
+      "spirituality",
+      "mana_threshold_guard",
+      "mana_empty_defend",
+      "spellcraft_cost_down",
+      "turnStartExtraDraw",
+    ],
   },
 }

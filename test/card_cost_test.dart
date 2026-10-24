@@ -55,13 +55,17 @@ void main() {
 
   test('中立卡费用模型：ceil((rank+1)/2) = 1,1,2,2,3,3，rank0 不为 0 费', () {
     // Dart 直调（公式唯一实现）
-    expect(
-        [
-          for (var rank = 0; rank <= 5; rank++)
-            GameLogic.calculateCostValue(
-                {'base': 0.5, 'rankIncrement': 0.5}, rank)
-        ],
-        [1, 1, 2, 2, 3, 3]);
+    expect([
+      for (var rank = 0; rank <= 5; rank++)
+        GameLogic.calculateCostValue({'base': 0.5, 'rankIncrement': 0.5}, rank)
+    ], [
+      1,
+      1,
+      2,
+      2,
+      3,
+      3
+    ]);
     // Hetu 端到端：真实 updateCardCost 脚本经外部函数绑定求值
     final hetu = createHetu();
     hetu.eval('''
@@ -100,6 +104,43 @@ void main() {
       [opponent.hits[0], opponent.hits.length, self.mana]
     ''');
     expect(result, [28, 1, 2]);
+  });
+
+  test('一气化三清的灵气共鸣只强化打出方', () async {
+    final hetu = Hetu()..init();
+    hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
+    hetu.eval('''
+      final self = {
+        statuses: [],
+        hasStatusEffect: function(id) { return 2 },
+        discover: function({options}) { return 'element_fire' },
+        addStatusEffect: function(id, {amount, params}) {
+          this.statuses.add({id: id, amount: amount, params: params})
+        },
+      }
+      final opponent = {
+        statuses: [],
+        addStatusEffect: function(id, {amount}) {
+          this.statuses.add({id: id, amount: amount})
+        },
+      }
+      final card = {
+        affixes: [
+          {
+            value: [20],
+            discoverOptions: {},
+            elementStatusMap: {element_fire: 'buff_element_amplify_fire'},
+          },
+          {amplifyPerMana: 5},
+        ],
+      }
+      function testAmplify() async {
+        await CardScript.discover_element_amplify(
+          self, opponent, card, card.affixes[0])
+        return [self.statuses[0].amount, opponent.statuses[0].amount]
+      }
+    ''');
+    expect(await hetu.invoke('testAmplify'), [30, 20]);
   });
 
   test('X 支付全部本色气，允许零气，不耗尽太极', () {

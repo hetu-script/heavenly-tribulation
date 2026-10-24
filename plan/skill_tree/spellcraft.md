@@ -70,15 +70,16 @@
 | ice_storm                           | 4    | waterbend         | 水   | ice        | 段数=手牌中元素牌数（filter: {elementType: true}），每段冰伤       | attack_multiple_by_cards_in_hand               | [{7, 0.7}]                                     |
 | fire_storm                          | 5    | firebend          | 火   | fire       | 耗尽剩余灵气（resourceId），每点造成火伤                           | attack_by_paid_resource                          | [{4, 0.4}]                                     |
 
-### 加持（5）
+### 加持（6）
 
-| id                        | rank | kind      | 元素 | 效果                                                                 | script               | valueData                     |
-| ------------------------- | ---- | --------- | ---- | -------------------------------------------------------------------- | -------------------- | ----------------------------- |
-| punch_defend_exhaust_mana | 1    | punch     | 无   | 护甲                                                                 | self_buff            | [{12, 0.6}]                   |
-| wind_haste                | 2    | airbend   | 风   | 迅捷+护甲                                                            | speed_quick_defend   | [{1, 0.2}, {8, 0.4}]          |
-| water_mend                | 3    | waterbend | 水   | 治疗并移除自身全部元素异常（debuffs 列表 = 7 种 ailment\_\*）        | heal_remove_debuffs  | [{18, 1.8}]                   |
-| stone_shield              | 4    | earthbend | 土   | 消耗至多 {1} 点灵气，每点转化为 {0} 点护甲                           | gain_defense_by_mana | [{3, 0.15}, {15, maxLevel:0}] |
-| mana_surge                | 5    | xinfa     | 无   | 元气 1:1 转化为灵气（费用恒 0，与中立卡 energy_positive_spell 并存） | convert_vigor_all    | [{100}]                       |
+| id                        | rank | kind      | 元素 | 效果                                                                 | script                        | valueData                          |
+| ------------------------- | ---- | --------- | ---- | -------------------------------------------------------------------- | ----------------------------- | ---------------------------------- |
+| punch_defend_exhaust_mana | 1    | punch     | 无   | 护甲                                                                 | self_buff                     | [{12, 0.6}]                        |
+| wind_haste                | 2    | airbend   | 风   | 迅捷+护甲                                                            | speed_quick_defend            | [{1, 0.2}, {8, 0.4}]               |
+| water_mend                | 3    | waterbend | 水   | 至多移除 {1} 层元素异常，每移除 1 层回复 {0} 点生命                  | heal_remove_debuffs_by_stack  | [{4, 0.1}, {3, 0.15}]              |
+| earth_mend                | 3    | earthbend | 土   | 至多移除 {1} 层元素异常，每移除 1 层获得 {0} 点护甲                  | defend_remove_debuffs_by_stack | [{6, 0.15}, {3, 0.15}]             |
+| stone_shield              | 4    | earthbend | 土   | 消耗至多 {1} 点灵气，每点转化为 {0} 点护甲                           | gain_defense_by_mana          | [{3, 0.15}, {15, maxLevel:0}]      |
+| mana_surge                | 5    | xinfa     | 无   | 元气 1:1 转化为灵气（费用恒 0，与中立卡 energy_positive_spell 并存） | convert_vigor_all             | [{100}]                            |
 
 ## 额外词条（card_affixes.json5）
 
@@ -100,24 +101,276 @@
 
 ## 绝世卡牌
 
-暂时不设计这些绝世卡牌的额外词条，只设计主词条。
+悟道共有 7 张绝世卡：5 张境界梯度卡，以及由天赋授予的紫微斗数、万法归宗。
+卡牌线的数据、脚本和本地化已落地；战斗内完整 walkthrough 尚待执行，已知实现偏差见文末。
 
-| 卡名           | rank | kind  | 效果                                                                                                                                                  | 设计意图                                                                                         |
-| -------------- | ---- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| **天机术**     | 1    | xinfa | 观星 3 张，随后抽 1 张牌                        | 规划主题核心；"被放弃的未来更加昂贵"——未选牌进弃牌堆，加费在洗牌后兑现，是延迟代价               |
-| **相生相克**   | 2    | xinfa | 对**双方**施加随机元素异常：种数 = 本回合已使用元素种数（至少 1 种），每种 {0} 层（不经异常计数器）                                                   | 对称效果、不对称收益——自异常是蓄灵诀引擎的燃料、可被水疗术清除；敌方无此配合时纯受害             |
-| **一气化三清** | 3    | xinfa | 以「抉择」方式选定一种元素（水/火/雷：中央展示三张临时元素卡点选其一，类炉石 Discover）：本回合**双方**造成的该元素伤害 +{0}%（独立乘区，不走攻击力） | 专注路线爆发；对称增伤在单元素构筑中恒为净收益                                                   |
-| **蓄灵诀**     | 4    | xinfa | **自身**每有一种元素异常，获得 1 点灵气                                                                                                               | 自异常引擎核心：相生相克铺异常 → 蓄灵诀转灵气 → 水疗术清场；上限 7 种 = 7 灵气，服务万法归宗门槛 |
-| **太上忘情**   | 5    | xinfa | 回合结束时，每有一张手牌受到 {0} 点纯粹伤害；下回合产出阶段，每有一张手牌额外获得 {1} 点灵气                                                          | 跨回合蓄爆（服务万法归宗），但不破坏资源统一生命周期；与抽牌手段天然牵制——攥牌越多反噬越重       |
+### 固定词条规则
+
+- 主词条的 `affixes` 只列额外词条，按列表顺序随卡牌境界解锁，**额外词条总数 = rank**。
+  rank 1~4 的卡通过破境继续解锁；rank 5 的太上忘情、万法归宗生成时即解锁全部 5 条。
+- 紫微斗数由分支洗入时以角色当前境界生成，数据层以 rank 1 兜底，因此词条数也随授予境界增长。
+- 消费主词条中间结果（观星选牌、实际支付、本次产能、所授状态参数等）的词条必须专属，
+  顶层写 `inUnpackable: true`，不进入随机额外词条池。通用效果优先复用或新增公共词条。
+- 列表顺序就是投资路线：低境界先形成卡牌自身特色，高境界再强化联动、取舍和终局爆发。
+- 支付先于全部词条脚本。动态费用卡的词条读取 `paidCost`；灵气门槛类词条不能按支付前存量理解。
+
+### 天机术 `spellcraft_scry_draw`（rank 1，规划）
+
+主词条：观星 3 张，随后抽 1 张牌。被选牌置于牌库顶并由后续抽牌入手；未选牌进入弃牌堆。
+5 条修饰由主脚本汇总为 `scryOptions`，未选牌加费在同一卡上每场战斗只生效一次。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_scry_draw_affix_1` 余星蒙尘 | 专属 | 观星未选中的牌费用 +1 |
+| 2 | `spellcraft_scry_draw_affix_2` 摘星 | 专属 | 观星选中的牌等级 +1 |
+| 3 | `spellcraft_scry_draw_affix_3` 星引 | 专属 | 观星选中的牌费用 -1 |
+| 4 | `spellcraft_scry_draw_affix_4` 星驻 | 专属 | 观星选中的牌获得保留 |
+| 5 | `spellcraft_scry_draw_affix_5` 窥天机 | 专属 | 本次观星额外查看 2 张 |
+
+设计意图：规划主题核心；被放弃的未来更加昂贵，但加费延迟到弃牌重洗后兑现。
+
+### 相生相克 `spellcraft_ailments_by_used_elements`（rank 2，轮转/自异常）
+
+主词条：对双方施加随机元素异常，种数 = 本回合已使用元素种数（至少 1），每种 {0} 层，
+不经异常计数器。对称效果通过自异常构筑形成不对称收益。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_ailments_by_used_elements_affix_1` 五行相激 | 专属 | 本回合每使用过一种元素，本次每种异常的施加层数 +{0} |
+| 2 | `cleanse_draw` 化浊为清 | 公共·悟道 | 移除自身随机 1 种元素异常，抽 {0} 张牌 |
+| 3 | `ailment_kinds_to_mana` 以毒攻毒 | 公共·悟道 | 自身持有不少于 3 种元素异常时，获得 1 点灵气 |
+| 4 | `for_element_ailment_defend` 以厄为铠 | 公共·悟道 | 自身每有 1 层元素异常，获得 {0} 点护甲 |
+| 5 | `draw_by_self_ailment_kinds` 处变不惊 | 公共·悟道 | 自身持有不少于 3 种元素异常时，抽 1 张牌 |
+
+设计意图：铺异常、留异常获益与清异常换抽牌形成节流取舍；不要只把自异常当纯代价。
+
+### 一气化三清 `spellcraft_element_amplify`（rank 3，元素专注）
+
+主词条：抉择水/火/雷之一，本回合双方造成的该元素伤害 +{0}%，使用独立乘区。
+修饰字段写入状态实例；减费由脚本筛选手牌后逐卡调用回合级费修。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_element_amplify_affix_1` 灵台守一 | 专属 | 下一次受到所选元素伤害时获得 1 层护盾，兑现后消耗 |
+| 2 | `spellcraft_element_amplify_affix_2` 借力导气 | 专属 | 对手使用所选元素牌后，下回合产出阶段 +1 灵气 |
+| 3 | `spellcraft_element_amplify_affix_3` 元素亲和 | 专属 | 本回合手牌中所选元素牌费用 -1 |
+| 4 | `spellcraft_element_amplify_affix_4` 灵气共鸣 | 专属 | 打出时每有 1 点灵气，本次增幅 +5% |
+| 5 | `spellcraft_element_amplify_affix_5` 三清护体 | 专属 | 本回合受到所选元素伤害 -30%，不消耗 |
+
+设计意图：专注路线爆发；防御修饰用于对冲双方共同增伤的代价，借力导气只作锦上添花。
+
+### 蓄灵诀 `spellcraft_ailments_to_mana`（rank 4，自异常转灵气）
+
+主词条：自身每有一种元素异常，获得 {0} 点灵气；七种异常全部持有即 7 点。
+本次实际获得数写入 `lastManaGained`，供后续词条消费。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_ailments_to_mana_affix_1` 纳气之后 | 专属 | 若本次获得不少于 {0} 点灵气，每点获得 {1} 点护甲 |
+| 2 | `cleanse_draw` 化浊为清 | 公共·悟道 | 移除自身随机 1 种元素异常，抽 {0} 张牌 |
+| 3 | `ailment_kinds_to_ultimate` 七情归一 | 公共·悟道 | 自身持有不少于 5 种元素异常时，获得 1 点太极之气 |
+| 4 | `spellcraft_ailments_to_mana_affix_4` 灵气回响 | 专属 | 若本次获得灵气，本回合手牌中悟道牌费用 -1 |
+| 5 | `spellcraft_ailments_to_mana_affix_5` 反噬成道 | 专属 | 若本次获得不少于 {0} 点灵气，下回合开始受到获得数 ×{1} 点纯粹伤害，且下回合首张悟道牌伤害 +{2}% |
+
+设计意图：相生相克铺异常 → 蓄灵诀转灵气 → 万法归宗爆发；清异常提高稳定性，留异常追求上限。
+治疗会随机驱散一层负面，也会侵蚀自异常燃料。
+
+### 太上忘情 `spellcraft_handcards_to_mana`（rank 5，手牌取舍）
+
+主词条：获得「太上忘情」状态——回合结束时每有一张手牌受到 10 点纯粹伤害；
+下回合产出阶段每有一张手牌额外获得 1 点灵气，触发后移除。
+舍念、静心通过 `statusParams` 修正本次所授状态实例。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_handcards_to_mana_affix_1` 舍念 | 专属 | 本牌施加的状态，每张手牌的纯粹伤害 -3 |
+| 2 | `spellcraft_handcards_to_mana_affix_2` 静心 | 专属 | 本牌施加的状态，每张手牌的额外灵气 +1 |
+| 3 | `spellcraft_handcards_to_mana_affix_3` 忘我 | 专属 | 下回合第一张悟道牌伤害 +{0}% |
+| 4 | `spellcraft_handcards_to_mana_affix_4` 藏锋 | 专属 | 手牌中随机一张悟道牌获得保留 |
+| 5 | `hand_size_defend` 无情 | 公共·中立 | 若手牌数不少于 {1}，获得 {0} 点护甲 |
+
+设计意图：跨回合蓄爆但不改变资源统一生命周期；保留和抽牌同时放大反噬与次回合收益。
+不再配置同时扩大手牌与灵气收益的抽牌、下回合灵气词条。
+
+### 紫微斗数 `spellcraft_draw_cards_reduce_cost`（rank = 授予时角色境界）
+
+主词条：消耗，抽 1 张法术牌并将其费用降为 0；动态费用条目不参与归零。
+`isEphemeral`、`isUnpackable`；洗入时 rank = 角色当前境界。先完成首张牌的全部修饰，
+再处理额外抽牌，避免 `lastDrawnCards` 被覆盖。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `defend` | 公共·现有中立 | 获得 {0} 点护甲 |
+| 2 | `spellcraft_draw_cards_affix_1` 定星 | 专属 | 抽到的牌等级 +1 |
+| 3 | `spellcraft_draw_cards_affix_2` 留命 | 专属 | 抽到的牌获得保留 |
+| 4 | `spellcraft_draw_cards_affix_3` 星移 | 专属 | 若抽到悟道牌，获得 1 点灵气 |
+| 5 | `spellcraft_draw_cards_affix_4` 逆天改命 | 专属 | 若抽到的不是悟道牌，额外抽 1 张；第二张不再归零 |
+
+设计意图：定向获得法术牌，词条数随授予境界成长；免费主牌不再配置无意义的自身减费词条。
+
+### 万法归宗 `spellcraft_ultimate_spell`（rank 5，终局爆发）
+
+主词条：耗费 10+X 点灵气，禁止太极抵扣且动态费用不受减费；
+按 `paidCost` 中实际支付的灵气，每点造成 {0} 点雷电伤害。超额量 = 实际支付灵气 − 10。
+
+| 解锁 rank | 词条 | 类型 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spellcraft_ultimate_spell_affix_1` 落雷击顶 | 专属 | 超额部分每点对对手施加 1 层感电 |
+| 2 | `spellcraft_ultimate_spell_affix_2` 万法余波 | 专属 | 超额部分每点获得 {0} 点护甲 |
+| 3 | `spellcraft_ultimate_spell_affix_3` 雷行九霄 | 专属 | 若对手已持有感电，本牌伤害 +{0}% |
+| 4 | `spellcraft_ultimate_spell_affix_4` 一法破万法 | 专属 | 本回合每使用过一种元素，本牌伤害 +{0}%；实现口径含本牌雷元素 |
+| 5 | `spellcraft_ultimate_spell_affix_5` 归宗之后 | 专属 | 抽 {0} 张牌并使其费用变为 0（动态费用除外），自身获得 {1} 点逆灵之气 |
+
+设计意图：超额支付同时转化为进攻、防御与后续节奏；逆灵之气是资源而非减益，辟邪不能抵消。
+落雷击顶与雷行九霄本意为“本次铺垫”和“事前铺设”双档配合，当前时序偏差见文末。
+
+### 绝世卡配套公共内容
+
+- 甘霖术 `water_mend` 已改为 `heal_remove_debuffs_by_stack`：至多移除 {1} 层元素异常，
+  每层回复 {0} 生命；与 `for_element_ailment_heal` 通过 uniqueId 互斥。
+- 新增厚土诀 `earth_mend`（rank 3）：至多移除 {1} 层元素异常，每层获得 {0} 护甲；
+  与 `for_element_ailment_defend` 互斥。
+- 本批 7 条公共额外词条：`cleanse_draw`、`ailment_kinds_to_mana`、
+  `ailment_kinds_to_ultimate`、`draw_by_self_ailment_kinds`、`for_element_ailment_heal`、
+  `for_element_ailment_defend`、`hand_size_defend`。前 6 条限悟道，最后 1 条为中立。
+- 已落地的通用机制：观星修饰合并、`lastDrawnCards`、`pendingEffects`、状态实例参数覆盖、
+  动态费用实际支付读取，以及专属额外词条的随机池隔离。
 
 ## 绝世装备
 
-机制现状：energyRetain/scryBonus/self_scry 等通道已就绪，仅需 3 处小体量 Dart 扩展。
+5 件装备的主词条和战斗机制通道已经存在；**额外词条线尚未完成**。
+当前 `items.json5` 的列表误将主词条替换为额外词条，并引用了尚未定义的公共词条，
+因此以下表格是合并后的目标设计，不代表当前数据已经可用。具体待办见文末。
 
-| 装备       | kind   | rank | 效果                                                                                  | 设计意图                                                                                 |
-| ---------- | ------ | ---- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| **窥天镜** | 法器   | 1    | 观星时额外查看 2 张；每次观星对自身随机施加 2 种不同的元素异常（各 1 层）             | "看得越多，心神越乱"；异常喂养蓄灵诀引擎，半正半负                                       |
-| **五行珠** | amulet | 2    | 你造成的元素异常层数 +2；你**受到**的元素异常层数 +2                                  | 五行导体，异常双向放大；自异常构筑中是第二个正面                                         |
-| **天机盘** | 法器   | 3    | 回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌，本回合费用 +1                      | 确定性的过牌引擎（原 50% 随机改为稳定）；软流派锁——混编卡组被课税，纯悟道无感            |
-| **蓄灵佩** | amulet | 4    | 回合结束时至多保留 2 点未使用的灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害 | 灵气淤积、经脉受损；储灵服务万法归宗跨回合蓄爆。保留的灵气不触发阴阳五行结算（写入描述） |
-| **聚灵旗** | 法器   | 5    | 回合开始时灵气 +3；你打出的非悟道牌费用 +2                                            | rank 5 的 all-in 信号——软流派锁最强形态，纯悟道构筑的旗帜                                |
+### 固定词条与公共化规则
+
+- `affixes[0]` 必须是主词条。生成时解锁前 `rank + 1` 条（含主词条），即**额外词条 = rank**。
+- 装备破境尚未实现，解锁数在生成时固定：窥天镜只生效第 1 条额外词条，五行珠前 2 条，
+  天机盘前 3 条，蓄灵佩前 4 条，聚灵旗 5 条全部生效；后续槽位是休眠内容。
+- 装备额外词条全部公共化，不制造一次性专属 id：
+  - A：复用现有随机池词条，如 `spirituality`、`battleDrawBonus`。
+  - B：新共享词条并进入随机池，配置 `isEquipmentExtraAffix`、kinds 和 rank。
+  - C：新共享词条但不进随机池；用于流派资源或流派费修，可被固定列表和天赋直接引用。
+- 固定数值优先写入机制字段或 `statsBonus`；复用随机池词条则接受 `base + increment × level`
+  及生成等级带来的方差。装备所有效果仍经既有被动聚合和白名单通道，无需新增 Dart 机制字段。
+
+### 窥天镜 `heaven_peeking_mirror`（rank 1，talisman/pearl）
+
+主词条 `heaven_peeking_mirror`：观星额外查看 2 张；每次观星后自身随机获得 2 种元素异常（各 1 层）。
+按解锁规则，仅第 1 条额外词条生效。
+
+| 槽 | 词条 | 层 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spirituality` | A | 灵力 +increment×level，经太上感应转化为灵气产能 |
+| 2 | `scry_focus` | B | 观星额外查看 1 张 |
+| 3 | `turn_start_scry_minor` | B | 每回合开始时观星 1 张 |
+| 4 | `ailment_ward` | B | 受到的元素异常层数 -1 |
+| 5 | `ailment_to_mana_echo` | C | 每回合第一次获得元素异常时，获得 1 点灵气 |
+
+设计意图：“看得越多，心神越乱”；自异常既可喂养蓄灵诀，也可用后续词条对冲。
+
+### 五行珠 `five_elements_pearl`（rank 2，jewelry/amulet）
+
+主词条 `five_elements_pearl`：造成的元素异常层数 +2；受到的元素异常层数 +2。
+按解锁规则，前 2 条额外词条应生效。
+
+| 槽 | 词条 | 层 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spirituality` | A | 灵力 +increment×level |
+| 2 | `ailmentMultiplier` | A | 元素异常伤害 +increment×level% |
+| 3 | `ailmentThreshold` | A | 元素异常充能阈值降低 |
+| 4 | `ailment_inflict_focus` | B | 造成的元素异常层数 +1 |
+| 5 | `ailment_to_mana_echo` | C | 每回合第一次获得元素异常时，获得 1 点灵气 |
+
+设计意图：双向异常放大器；与窥天镜共用首次异常转灵气时，每回合仍只触发一次。
+
+### 天机盘 `heavenly_mechanism_disc`（rank 3，talisman/pearl）
+
+主词条 `turnStartExtraDraw`：回合开始额外抽 1 张；通过此效果抽到的非悟道牌本回合费用 +1。
+按解锁规则，前 3 条额外词条应生效。
+
+| 槽 | 词条 | 层 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `non_spellcraft_tax` | C | 非悟道牌费用 +1（组牌阶段，与主词条的抽牌课税可叠加） |
+| 2 | `scry_focus` | B | 观星额外查看 1 张 |
+| 3 | `turn_start_scry_minor` | B | 每回合开始时观星 1 张 |
+| 4 | `deckMinSizeReduce` | A | 牌库下限 -increment×level |
+| 5 | `battleDrawBonus` | A | 战斗抽牌数 +increment×level |
+
+设计意图：稳定过牌与规划；组牌课税和抽牌课税是两条独立通道，纯悟道构筑均不受罚。
+
+### 蓄灵佩 `spirit_storing_amulet`（rank 4，jewelry/amulet）
+
+主词条 `energyRetainSpell`：至多保留 2 点未使用灵气到下回合；每保留 1 点，
+下回合开始受到 3 点纯粹伤害。保留部分不触发阴阳五行结算。按解锁规则，前 4 条额外词条应生效。
+
+| 槽 | 词条 | 层 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spirituality` | A | 灵力 +increment×level，增加保留池的来源 |
+| 2 | `lifeMax` | A | 生命上限 +increment×level，缓冲保留代价 |
+| 3 | `persistent` | A | 护甲保留，强化蓄势回合的生存 |
+| 4 | `basicEnergyBonus` | A | 回合元气 +increment×level，可经灵气涌动转化为灵气 |
+| 5 | `spell_mana_trickle` | C | 回合产出阶段灵气 +1 |
+
+设计意图：服务万法归宗的跨回合蓄爆。`energyRetain` 多来源按上限取大、代价取首个配置，
+不能用第二个同资源保留词条叠加上限，因此额外强化全部走产能与生存。
+
+### 聚灵旗 `spirit_gathering_banner`（rank 5，talisman/pearl）
+
+主词条 `spirit_gathering_banner`：回合产出阶段灵气 +3；非悟道牌费用 +2。5 条额外词条全部生效。
+
+| 槽 | 词条 | 层 | 效果 |
+| --- | --- | --- | --- |
+| 1 | `spirituality` | A | 灵力 +increment×level |
+| 2 | `mana_threshold_guard` 聚气成势 | C | 灵气不少于 5 时，受到的伤害 -20% |
+| 3 | `mana_empty_defend` 一炁 | C | 回合结束时若灵气为 0，获得 8 点护甲 |
+| 4 | `spellcraft_cost_down` | C | 悟道牌费用 -1，与天道循环同通道 |
+| 5 | `turnStartExtraDraw` | A·共享主词条复用 | 回合开始额外抽 1 张；抽到的非悟道牌本回合费用 +1 |
+
+设计意图：纯悟道 all-in；攥灵气有防御，花空灵气有兜底。与天机盘同穿时额外抽牌数相加，
+课税配置相同，不发生冲突。
+
+### 装备新增公共词条与状态
+
+| 词条 | 机制 | 分层与用途 |
+| --- | --- | --- |
+| `scry_focus` | `statsBonus: {scryBonus: 1}` | B；amulet/ring/pearl，rank 1 |
+| `ailment_ward` | `statsBonus: {ailmentReceiveBonus: -1}` | B；amulet/ring/pearl，rank 2 |
+| `ailment_inflict_focus` | `statsBonus: {ailmentInflictBonus: 1}` | B；amulet/ring/pearl，rank 2 |
+| `turn_start_scry_minor` | `turnStartScry: 1` | B；amulet/ring/pearl，rank 2 |
+| `ailment_to_mana_echo` | `battleStatus: first_ailment_to_mana` | C；不进随机池 |
+| `spell_mana_trickle` | `battleStatus: turn_start_spell_mana_1` | C；不进随机池 |
+| `non_spellcraft_tax` | `deckCostReduction: {color: all, amount: -1, notGenres: [spellcraft]}` | C；不进随机池 |
+| `spellcraft_cost_down` | `deckCostReduction: {color: spell, amount: 1, genres: [spellcraft]}` | C；不进随机池 |
+| `mana_threshold_guard` | `battleStatus: mana_threshold_guard` | C；不进随机池 |
+| `mana_empty_defend` | `battleStatus: mana_empty_defend` | C；不进随机池 |
+
+需要新增的 4 个状态：`first_ailment_to_mana`（每回合首次获得元素异常转 1 灵气）、
+`turn_start_spell_mana_1`（复用 `turn_start_mana_bonus`，`manaBonus: 1`）、
+`mana_threshold_guard`（灵气 ≥5 时受伤 -20%）、`mana_empty_defend`（回合结束灵气为 0 时 +8 护甲）。
+其中后三个行为参数均写在状态数据中。
+
+## 当前完成情况与待修问题
+
+### 绝世卡牌
+
+- 7 张卡的固定词条、配套公共词条、脚本、状态扩展和本地化已落地；
+  前置修复（专属词条池外化、观星参数名、调息全手牌重算）也已完成。
+- 万法归宗结算顺序已修正：负优先级词条全部结束后、主词条前统一判定元素转化并消耗 1 层异常；
+  落雷击顶因此可以让本次伤害立即转化。
+- 万法归宗的词条依赖顺序已显式固定：雷行九霄 -1、一法破万法 -2、落雷击顶 -3。
+  雷行九霄只响应打出前已有的感电，不再受同优先级不稳定排序影响。
+- 一气化三清的灵气共鸣已改为只强化打出方，对方仅获得主词条基础增幅。
+- 天机术主描述已收敛为观星与抽牌，费用修正等效果只由对应额外词条描述。
+- 新卡词条机制字段已补入 mod 契约文档；校验器已覆盖字段结构、类型、枚举和嵌套引用。
+- 战斗内 walkthrough 尚未执行，不能仅凭静态检查和脚本编译认定所有交互已验收。
+
+### 绝世装备
+
+- 5 个主词条仍定义在 `passives.json5`，其状态脚本、机制消费和主词条本地化已经存在。
+- 当前 `items.json5` 需要把 5 个主词条 id 恢复到各列表首位，再追加上述额外词条；
+  否则主效果丢失，且解锁窗口会多算一条。
+- 10 条公共词条、4 个状态、3 个新状态脚本及对应本地化尚未实现；
+  当前装备列表存在 13 个悬空被动引用，生成这些装备会失败。
+- 聚灵旗的目标顺序统一为槽 4 = `spellcraft_cost_down`、槽 5 = `turnStartExtraDraw`。
+- 装备破境、固定词条等级收敛、掉落时 level 的明确传递仍是后续工作；低 rank 装备的休眠词条属于前瞻设计。

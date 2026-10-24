@@ -446,7 +446,7 @@ namespace CardScript {
   ///   chosenDamageTakenReduce —— 本回合受到所选元素伤害 -N%
   ///   mirrorMana —— 对手使用所选元素牌后，自己下回合产出 +N 灵气
   ///   chosenCostReduce —— 抉择后本回合手牌中所选元素牌费用 +N（负数为减费）
-  ///   amplifyPerMana —— 打出时每有 1 点灵气，本次增幅 +N%
+  ///   amplifyPerMana —— 打出时每有 1 点灵气，自身本次增幅 +N%（对方只获得基础增幅）
   async function discover_element_amplify(self, opponent, card, affix) {
     // 收集额外词条的修饰字段（纯数据词条，无 script）
     var guardValue = 0
@@ -466,10 +466,11 @@ namespace CardScript {
     if (chosen == null) return
     final statusId = affix.elementStatusMap[chosen]
     if (statusId == null) return
-    var amount = affix.value[0]
-    // 打出时每有 1 点灵气，本次增幅 +amplifyPerMana%（普通费用卡，支付后余量可读）
+    final baseAmount = affix.value[0]
+    var selfAmount = baseAmount
+    // 灵气共鸣只强化打出方；对方保留主词条的对称基础增幅
     if (amplifyPerMana > 0) {
-      amount += self.hasStatusEffect('energy_positive_spell') * amplifyPerMana
+      selfAmount += self.hasStatusEffect('energy_positive_spell') * amplifyPerMana
     }
     // 状态实例参数（params 通道，写入实例数据副本）：chosenElement 供 mirrorMana 判定
     var params
@@ -479,8 +480,8 @@ namespace CardScript {
       if (damageTakenReduce > 0) params['chosenDamageTakenReduce'] = damageTakenReduce
       if (mirrorMana > 0) params['mirrorMana'] = mirrorMana
     }
-    self.addStatusEffect(statusId, amount: amount, params: params)
-    opponent.addStatusEffect(statusId, amount: amount)
+    self.addStatusEffect(statusId, amount: selfAmount, params: params)
+    opponent.addStatusEffect(statusId, amount: baseAmount)
     // 抉择后本回合手牌中所选元素牌费用修正（回合级临时费修，回合结束自动还原）
     if (chosenCostReduce != 0) {
       final cards = self.getHandCards(options: { 'elementType': chosen })
@@ -854,9 +855,9 @@ namespace CardScript {
     }
   }
 
-  /// 落雷击顶（万法归宗_1，priority<0 先于伤害结算）：实际支付灵气超过门槛的部分，
-  /// 每点对对手施加 1 层 affix.buffId（感电）。先铺异常后结算伤害——
-  /// 本次伤害即按元素转化（无视护甲）兑现，剩余层数在对手回合开始耗尽为 DOT
+  /// 落雷击顶（万法归宗_1，priority=-3 后于雷行九霄）：实际支付灵气超过门槛的部分，
+  /// 每点对对手施加 1 层 affix.buffId（感电）。全部负优先级词条结束后、主词条伤害前
+  /// 统一判定元素转化，故本次伤害可无视护甲，剩余层数在对手回合开始耗尽为 DOT
   function ailment_by_excess_paid(self, opponent, card, affix) {
     final excess = _excessPaidResource(self, card, affix)
     if (excess <= 0) return

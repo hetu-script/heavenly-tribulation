@@ -50,9 +50,9 @@ rank 1 → **只有第 1 条生效**，其余 4 条休眠。
 | --- | --- | --- | --- | --- |
 | 1 | `spirituality` | A（现有） | 灵力 +increment×level | 灵力经太上感应转化为灵气产能 |
 | 2 | `scry_focus` | B（新） | 观星额外查看 1 张（statsBonus `{scryBonus: 1}`） | 唯一生效位必须直接强化主词条："看得越多，能拿的越好" |
-| 3 | `ailment_ward` | B（新） | 你受到的元素异常层数 -1（statsBonus `{ailmentReceiveBonus: -1}`） | 对冲主词条的自异常代价；修正后 ≤0 静默不施加（`character.dart:516-524`） |
-| 4 | `ailment_to_mana_echo` | C（新） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把主词条的自异常接入蓄灵诀引擎（新状态 `first_ailment_to_mana`） |
-| 5 | `turn_start_scry_minor` | B（新） | 每回合开始时观星 1 张（turnStartScry: 1） | 与天道推演分支同通道、数值减半版 |
+| 3 | `turn_start_scry_minor` | B（新） | 每回合开始时观星 1 张（turnStartScry: 1） | 与天道推演分支同通道、数值减半版 |
+| 4 | `ailment_ward` | B（新） | 你受到的元素异常层数 -1（statsBonus `{ailmentReceiveBonus: -1}`） | 对冲主词条的自异常代价；修正后 ≤0 静默不施加（`character.dart:516-524`） |
+| 5 | `ailment_to_mana_echo` | C（新） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把主词条的自异常接入蓄灵诀引擎（新状态 `first_ailment_to_mana`） |
 
 ### 2.2 五行珠 `five_elements_pearl`（rank 2，jewelry/amulet）
 
@@ -61,11 +61,11 @@ rank 2 → 前 2 条生效。
 
 | 槽 | 词条 id | 层 | 效果 | 取舍说明 |
 | --- | --- | --- | --- | --- |
-| 1 | `ailmentMultiplier` | A（现有） | 元素异常伤害 +increment×level% | 双向放大器的"造成"侧直接受益 |
-| 2 | `ailmentThreshold` | A（现有） | 元素异常充能阈值降低 | 同上，让施加更频繁；rank 3 门控只限随机池，固定列表不受限 |
-| 3 | `ailment_inflict_focus` | B（新） | 你造成的元素异常层数 +1（statsBonus `{ailmentInflictBonus: 1}`） | 主词条同方向再加强 |
-| 4 | `ailment_to_mana_echo` | C（新，与窥天镜共用） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把"受到 +2"从纯代价转成收益 |
-| 5 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+| 1 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+| 2 | `ailmentMultiplier` | A（现有） | 元素异常伤害 +increment×level% | 双向放大器的"造成"侧直接受益 |
+| 3 | `ailmentThreshold` | A（现有） | 元素异常充能阈值降低 | 同上，让施加更频繁；rank 3 门控只限随机池，固定列表不受限 |
+| 4 | `ailment_inflict_focus` | B（新） | 你造成的元素异常层数 +1（statsBonus `{ailmentInflictBonus: 1}`） | 主词条同方向再加强 |
+| 5 | `ailment_to_mana_echo` | C（新，与窥天镜共用） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把"受到 +2"从纯代价转成收益 |
 
 - 注：`ailment_to_mana_echo` 同时出现在窥天镜 `_3` 与五行珠 `_4`；两件同时装备时 battleStatus 按状态 id 合并、层数不累加触发次数（每回合仍只触发一次）——可接受的边际递减，避免双份引擎。
 
@@ -78,9 +78,9 @@ rank 3 → 前 3 条生效。
 | --- | --- | --- | --- | --- |
 | 1 | `non_spellcraft_tax` | C（新） | 你的非悟道牌费用 +1（deckCostReduction `{color: all, amount: -1, notGenres: [spellcraft]}`，组牌阶段永久课税） | 软流派锁延伸；与主词条的"抽到时课税"是**两个通道**，可叠加 |
 | 2 | `scry_focus` | B（新） | 观星额外查看 1 张 | — |
-| 3 | `battleDrawBonus` | A（现有） | 战斗抽牌数 +increment×level | 直接加强过牌引擎主词条 |
+| 3 | `turn_start_scry_minor` | B（新，与窥天镜共用） | 每回合开始时观星 1 张 | 过牌+规划是同一主题的两面 |
 | 4 | `deckMinSizeReduce` | A（现有） | 牌库下限 -increment×level | 精简牌库提高引擎浓度 |
-| 5 | `turn_start_scry_minor` | B（新，与窥天镜共用） | 每回合开始时观星 1 张 | 过牌+规划是同一主题的两面 |
+| 5 | `battleDrawBonus` | A（现有） | 战斗抽牌数 +increment×level | 直接加强过牌引擎主词条 |
 
 ### 2.4 蓄灵佩 `spirit_storing_amulet`（rank 4，jewelry/amulet）
 
@@ -90,10 +90,10 @@ rank 4 → 前 4 条生效。
 | 槽 | 词条 id | 层 | 效果 | 取舍说明 |
 | --- | --- | --- | --- | --- |
 | 1 | `spirituality` | A（现有） | 灵力 +increment×level | 灵力→太上感应→灵气产能，直接喂保留池 |
-| 2 | `basicEnergyBonus` | A（现有） | 回合元气 +increment×level | 元气经灵气涌动 1:1 转灵气 |
-| 3 | `spell_mana_trickle` | C（新） | 回合产出阶段灵气 +1（新状态 `turn_start_spell_mana_1`，复用 `turn_start_mana_bonus` 脚本、manaBonus 改为 1） | 稳定的灵气细流 |
-| 4 | `lifeMax` | A（现有） | 生命上限 +increment×level | 缓冲保留代价（3 点纯粹/点） |
-| 5 | `persistent` | A（现有） | 护甲保留 | 蓄灵回合不挨打崩盘，呼应"蓄势不动" |
+| 2 | `lifeMax` | A（现有） | 生命上限 +increment×level | 缓冲保留代价（3 点纯粹/点） |
+| 3 | `persistent` | A（现有） | 护甲保留 | 蓄灵回合不挨打崩盘，呼应"蓄势不动" |
+| 4 | `basicEnergyBonus` | A（现有） | 回合元气 +increment×level | 元气经灵气涌动 1:1 转灵气 |
+| 5 | `spell_mana_trickle` | C（新） | 回合产出阶段灵气 +1（新状态 `turn_start_spell_mana_1`，复用 `turn_start_mana_bonus` 脚本、manaBonus 改为 1） | 稳定的灵气细流 |
 
 - energyRetain 按 resourceId 合并时 max 取大、代价取首个配置（§0）——**无法用第二个 energyRetain 词条叠加保留上限**，故本装备的强化全部走"产能 + 生存"两侧，不动保留机制本身。
 
@@ -104,11 +104,11 @@ rank 5 → 5 条全生效。
 
 | 槽 | 词条 id | 层 | 效果 | 取舍说明 |
 | --- | --- | --- | --- | --- |
-| 1 | `mana_threshold_guard` | C（新） | **聚气成势**：灵气 ≥5 时，受到的伤害 -20%（新状态，self_taking_damage 时机读灵气存量） | 攥灵气等万法归宗的回合不再裸奔 |
-| 2 | `mana_empty_defend` | C（新） | **一炁**：回合结束时若灵气为 0，获得 8 点护甲（新状态，self_turn_end 时机） | 与 `_1` 互补：全打空也有兜底，鼓励"敢花" |
-| 3 | `turnStartExtraDraw` | A（现有**共享 id 直接复用**） | 回合开始额外抽 1 张（附带非悟道牌抽到时 +1 费，与主词条课税叠加） | 天机盘主词条同 id——公共化的最佳示范：纯悟道构筑中课税无感，过牌纯白拿 |
-| 4 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+| 1 | `spirituality` | A（现有） | 灵力 +increment×level | — |
+| 2 | `mana_threshold_guard` | C（新） | **聚气成势**：灵气 ≥5 时，受到的伤害 -20%（新状态，self_taking_damage 时机读灵气存量） | 攥灵气等万法归宗的回合不再裸奔 |
+| 3 | `mana_empty_defend` | C（新） | **一炁**：回合结束时若灵气为 0，获得 8 点护甲（新状态，self_turn_end 时机） | 与 `_1` 互补：全打空也有兜底，鼓励"敢花" |
 | 5 | `spellcraft_cost_down` | C（新） | 悟道牌费用 -1（deckCostReduction `{color: spell, amount: 1, genres: [spellcraft]}`，同天道循环节点） | rank 5 的 all-in 信号补强：纯悟道构筑全面降费 |
+| 4 | `turnStartExtraDraw` | A（现有**共享 id 直接复用**） | 回合开始额外抽 1 张（附带非悟道牌抽到时 +1 费，与主词条课税叠加） | 天机盘主词条同 id——公共化的最佳示范：纯悟道构筑中课税无感，过牌纯白拿 |
 
 - 聚灵旗与天机盘同时装备时：`turnStartExtraDraw` count 求和为 +2 抽，costIncrease 配置相同无冲突（§0 聚合规则）。
 

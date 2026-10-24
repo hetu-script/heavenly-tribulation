@@ -47,6 +47,7 @@
 - 卡牌脚本：命名空间 `CardScript`（统一签名 `(self, opponent, card, affix)`，
   主词条经 `card.affixes[0]` 访问），
   `priority` 为负数的额外词条在主词条**之前**执行，其余按 priority 降序执行；
+  全部负优先级词条结束后、主词条前统一判定元素转化并消耗对应异常；
   打出之外的词条时机回调（`callbacks` 字段，如入手 `added_to_hand`）见
   [卡牌词条回调](card/readme.md)（`docs/docs/mod/battle/card/readme.md`）。
 - `details` 是一个共享 Map，**既是入参也是出参**：脚本写入的修正值会被 Dart 侧读取。
@@ -146,6 +147,9 @@
 | `damage.total`            | 本张牌已造成的总伤害（takeDamage 累加）                                                                    |
 | `damage.penetration` 等   | 脚本可写入（如正气消耗后 +0.2），出牌时合并进伤害                                                          |
 | `paidCost`                | 本张牌实际支付明细（状态 id → 实际扣除层数，含元气与太极抵扣；0 费卡为空表），支付时写入，费用返还词条读取 |
+| `lastDrawnCards`          | 最近一次 `drawCardsToHand` 实际入手的卡牌数据列表；每次抽牌调用覆盖写，紫微斗数等抽牌修饰读取 |
+| `lastManaGained`          | 蓄灵诀主词条本次计算的灵气获得数（未获得也写 0），供同牌后续词条读取 |
+| `statusParams`            | 负优先级词条累计的状态实例参数修正；`self_buff` 授予状态时消费并清空，数值按增量相加，其他类型覆盖 |
 
 ## turnFlags 字段（回合期间，`角色.turnFlags`）
 
@@ -161,6 +165,8 @@
 | `guaranteedCrit`            | 下一次无属性攻击必定暴击（幸运）                        | energy_positive_crit 脚本 |
 | `guaranteedAilment`         | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（幸运） | energy_positive_crit 脚本 |
 | `totalDamage`               | 本回合造成的总伤害（戾气结算用）                        | takeDamage 累加           |
+| `pendingResources`          | 下回合产出阶段授予的资源表；跨回合开始清空保留，产出时取出并消费 | 卡牌 / 状态脚本           |
+| `pendingEffects`            | 跨回合效果队列：`genreDamageBonus` 在下张匹配流派牌打出时消费，`pendingSelfDamage` 在下回合产出阶段消费 | 卡牌脚本                  |
 
 ---
 

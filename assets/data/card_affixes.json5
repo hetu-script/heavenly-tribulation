@@ -1067,7 +1067,8 @@
     categories: ["attack"],
     description: "affix_spellcraft_ultimate_spell_affix_1",
     script: "ailment_by_excess_paid",
-    priority: -1,
+    // 在雷行九霄完成事前异常判定后施加，再由主词条前的元素转化消费
+    priority: -3,
     buffId: "ailment_lightning",
     keywords: ["status_ailment_lightning"],
     inUnpackable: true,
@@ -1095,6 +1096,7 @@
     categories: ["attack"],
     description: "affix_spellcraft_ultimate_spell_affix_3",
     script: "damage_boost_if_opponent_status",
+    // 先于落雷击顶执行，只响应打出前已经存在的感电
     priority: -1,
     buffId: "ailment_lightning",
     valueData: [
@@ -1113,7 +1115,7 @@
     categories: ["attack"],
     description: "affix_spellcraft_ultimate_spell_affix_4",
     script: "increase_damage_by_used_elements",
-    priority: -1,
+    priority: -2,
     valueData: [
       {
         base: 8,
