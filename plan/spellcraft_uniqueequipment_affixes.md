@@ -23,7 +23,7 @@
 
 用户意见：装备额外词条不做专属。我同意，且认为装备比卡牌**更适合**公共化：
 
-1. **技术上装备没有"中间结果"可消费**。卡牌词条可以读"本牌观星选中的牌 / 实际支付的灵气 / 施加的状态参数"，这类词条有必须专属的理由（见卡牌文档 §1 原则 3）；装备词条一切行为都经由全局聚合通道（§0 白名单）兑现，任何词条挂在任何装备上行为一致——专属化不会带来任何表达力，只会制造 25 个一次性 id。
+1. **技术上装备没有"本牌中间结果"可消费**。卡牌词条可以读"本牌观星选中的牌 / 实际支付的灵气 / 施加的状态参数"，这类词条有必须专属的理由（见卡牌文档 §1 原则 3）；装备则通过全局聚合通道和 `self_scry` 等公共事件兑现行为，同一词条挂在任何装备上行为一致，无需制造 25 个一次性 id。
 2. **内容经济上更优**：新机制词条做成公共 id，未来其他流派绝世装备、甚至天赋树节点都可以直接引用（天赋树引用 passive id 时无视用途标记）。
 3. **构筑协同可见**：玩家看到熟悉词条出现在不同装备上，更容易形成"这件装备和我构筑里 X 的配合"的判断。
 
@@ -32,8 +32,8 @@
 | 层 | 含义 | 判定 |
 | --- | --- | --- |
 | A | **复用现有随机池词条**（如 `battleDrawBonus` `persistent`） | 首选，零新内容成本 |
-| B | **新共享词条，进随机池**（写 `isEquipmentExtraAffix` + kinds/rank 门控） | 效果对任意构筑成立（观星深度、异常层数修正等通用机制） |
-| C | **新共享词条，不进随机池**（不写用途标记，id 可被固定列表/天赋树引用） | 涉及**流派色资源产消**或**流派费修**——其他流派 roll 到就是死词条或纯负面 |
+| B | **新共享词条，进随机池**（写 `isEquipmentExtraAffix` + kinds/rank 门控） | 效果对较多构筑能立即产生价值（如异常层数修正等通用机制） |
+| C | **新共享词条，不进随机池**（不写用途标记，id 可被固定列表/天赋树引用） | 涉及流派资源/费修，或依赖外部触发源、容易饱和、只服务特定构筑的词条 |
 
 即：公共 ≠ 必须进随机池。C 层词条对其他流派绝世装备同样可用（例如未来某流派想要"非本流派牌 +1 费"的软锁词条，直接引用 `non_spellcraft_tax` 的换流派变体思路即可——届时再参数化流派字段）。
 
@@ -43,14 +43,14 @@
 
 ### 2.1 窥天镜 `heaven_peeking_mirror`（rank 1，talisman/pearl）
 
-主词条：观星额外查看 1 张（statsBonus scryBonus+2）；每次观星后自身随机获得 2 种元素异常（battleStatus `scry_self_ailments`）。
+主词条：观星额外查看 2 张（statsBonus scryBonus+2）；每次观星后自身随机获得 2 种元素异常（battleStatus `scry_self_ailments`）。
 rank 1 → **只有第 1 条生效**，其余 4 条休眠。
 
 | 槽 | 词条 id | 层 | 效果 | 取舍说明 |
 | --- | --- | --- | --- | --- |
 | 1 | `spirituality` | A（现有） | 灵力 +increment×level | 灵力经太上感应转化为灵气产能 |
-| 2 | `scry_focus` | B（新） | 观星额外查看 1 张（statsBonus `{scryBonus: 1}`） | 唯一生效位必须直接强化主词条："看得越多，能拿的越好" |
-| 3 | `turn_start_scry_minor` | B（新） | 每回合开始时观星 1 张（turnStartScry: 1） | 与天道推演分支同通道、数值减半版 |
+| 2 | `scry_focus` | C（新） | 观星额外查看 1 张（statsBonus `{scryBonus: 1}`） | 唯一生效位必须直接强化主词条："看得越多，能拿的越好" |
+| 3 | `scry_retention` | C（新） | 每回合第一次观星后，选中的牌获得保留（battleStatus `scry_retention`） | 由天道推演或卡牌提供观星触发源，装备负责观星后的手牌规划 |
 | 4 | `ailment_ward` | B（新） | 你受到的元素异常层数 -1（statsBonus `{ailmentReceiveBonus: -1}`） | 对冲主词条的自异常代价；修正后 ≤0 静默不施加（`character.dart:516-524`） |
 | 5 | `ailment_to_mana_echo` | C（新） | 每回合你第一次获得元素异常时，获得 1 点灵气 | 把主词条的自异常接入蓄灵诀引擎（新状态 `first_ailment_to_mana`） |
 
@@ -77,8 +77,8 @@ rank 3 → 前 3 条生效。
 | 槽 | 词条 id | 层 | 效果 | 取舍说明 |
 | --- | --- | --- | --- | --- |
 | 1 | `non_spellcraft_tax` | C（新） | 你的非悟道牌费用 +1（deckCostReduction `{color: all, amount: -1, notGenres: [spellcraft]}`，组牌阶段永久课税） | 软流派锁延伸；与主词条的"抽到时课税"是**两个通道**，可叠加 |
-| 2 | `scry_focus` | B（新） | 观星额外查看 1 张 | — |
-| 3 | `turn_start_scry_minor` | B（新，与窥天镜共用） | 每回合开始时观星 1 张 | 过牌+规划是同一主题的两面 |
+| 2 | `scry_focus` | C（新） | 观星额外查看 1 张 | — |
+| 3 | `scry_retention` | C（新，与窥天镜共用） | 每回合第一次观星后，选中的牌获得保留 | 过牌+规划是同一主题的两面 |
 | 4 | `deckMinSizeReduce` | A（现有） | 牌库下限 -increment×level | 精简牌库提高引擎浓度 |
 | 5 | `battleDrawBonus` | A（现有） | 战斗抽牌数 +increment×level | 直接加强过牌引擎主词条 |
 
@@ -107,8 +107,8 @@ rank 5 → 5 条全生效。
 | 1 | `spirituality` | A（现有） | 灵力 +increment×level | — |
 | 2 | `mana_threshold_guard` | C（新） | **聚气成势**：灵气 ≥5 时，受到的伤害 -20%（新状态，self_taking_damage 时机读灵气存量） | 攥灵气等万法归宗的回合不再裸奔 |
 | 3 | `mana_empty_defend` | C（新） | **一炁**：回合结束时若灵气为 0，获得 8 点护甲（新状态，self_turn_end 时机） | 与 `_1` 互补：全打空也有兜底，鼓励"敢花" |
-| 5 | `spellcraft_cost_down` | C（新） | 悟道牌费用 -1（deckCostReduction `{color: spell, amount: 1, genres: [spellcraft]}`，同天道循环节点） | rank 5 的 all-in 信号补强：纯悟道构筑全面降费 |
-| 4 | `turnStartExtraDraw` | A（现有**共享 id 直接复用**） | 回合开始额外抽 1 张（附带非悟道牌抽到时 +1 费，与主词条课税叠加） | 天机盘主词条同 id——公共化的最佳示范：纯悟道构筑中课税无感，过牌纯白拿 |
+| 4 | `spellcraft_cost_down` | C（新） | 悟道牌费用 -1（deckCostReduction `{color: spell, amount: 1, genres: [spellcraft]}`，同天道循环节点） | rank 5 的 all-in 信号补强：纯悟道构筑全面降费 |
+| 5 | `turnStartExtraDraw` | A（现有**共享 id 直接复用**） | 回合开始额外抽 1 张（附带非悟道牌抽到时 +1 费，与主词条课税叠加） | 天机盘主词条同 id——公共化的最佳示范：纯悟道构筑中课税无感，过牌纯白拿 |
 
 - 聚灵旗与天机盘同时装备时：`turnStartExtraDraw` count 求和为 +2 抽，costIncrease 配置相同无冲突（§0 聚合规则）。
 
@@ -120,10 +120,10 @@ rank 5 → 5 条全生效。
 
 | id | 机制字段 | 层 | 用途标记 / kinds / rank | 说明 |
 | --- | --- | --- | --- | --- |
-| `scry_focus` | `statsBonus: {scryBonus: 1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 1 | 观星深度 +1 |
 | `ailment_ward` | `statsBonus: {ailmentReceiveBonus: -1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 受到的元素异常 -1 |
 | `ailment_inflict_focus` | `statsBonus: {ailmentInflictBonus: 1}` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 造成的元素异常 +1 |
-| `turn_start_scry_minor` | `turnStartScry: 1` | B | isEquipmentExtraAffix；kinds [amulet, ring, pearl]；rank 2 | 回合开始观星 1 |
+| `scry_focus` | `statsBonus: {scryBonus: 1}` | C | 不写用途标记 | 观星深度 +1；依赖外部观星触发源，最多查看 5 张 |
+| `scry_retention` | `battleStatus: scry_retention` | C | 不写用途标记 | 每回合首次观星后，选中牌获得保留 |
 | `ailment_to_mana_echo` | `battleStatus: first_ailment_to_mana` | C | 不写用途标记 | 首次获异常→灵气 |
 | `spell_mana_trickle` | `battleStatus: turn_start_spell_mana_1` | C | 不写用途标记 | 回合灵气 +1 |
 | `non_spellcraft_tax` | `deckCostReduction: {color: all, amount: -1, notGenres: [spellcraft]}` | C | 不写用途标记 | 非悟道牌 +1 费 |
@@ -135,12 +135,13 @@ rank 5 → 5 条全生效。
 
 | 状态 id | script | callbacks | 数据 | 行为 |
 | --- | --- | --- | --- | --- |
+| `scry_retention` | `scry_retention`（新建） | `["self_scry"]` | 无额外参数 | 每回合第一次观星后，令 `details.chosen.isRetained = true`；turnFlags 记每回合一次 |
 | `first_ailment_to_mana` | `first_ailment_to_mana`（新建） | `["self_gained_debuff"]` | resourceId: energy_positive_spell | 每回合第一次获得元素异常时 +1 灵气（turnFlags 记每回合一次；需判定是否元素异常——查 Constants.elementAilments 值集） |
 | `turn_start_spell_mana_1` | `turn_start_mana_bonus`（**复用现有脚本**） | `["self_produce_resources"]` | manaBonus: 1 | 纯数据变体，零脚本成本 |
 | `mana_threshold_guard` | `mana_threshold_guard`（新建） | `["self_taking_damage"]` | threshold: 5, reductionPercent: 20, resourceId: energy_positive_spell | 灵气≥阈值时受伤 -20% |
 | `mana_empty_defend` | `mana_empty_defend`（新建） | `["self_turn_end"]` | defense: 8, resourceId: energy_positive_spell | 回合结束灵气为 0 → +8 护甲 |
 
-全部机制字段（battleStatus/turnStartScry/deckCostReduction/statsBonus）均为白名单已有形状，**无需扩展 `_kPassiveMechanismFields`**；statsBonus 的 3 个键（scryBonus/ailmentInflictBonus/ailmentReceiveBonus）Dart 侧消费点已存在。
+全部机制字段（battleStatus/turnStartExtraDraw/deckCostReduction/statsBonus）均为白名单已有形状，`self_scry` 已提供 `details.chosen`，**无需扩展 `_kPassiveMechanismFields`**；statsBonus 的 3 个键（scryBonus/ailmentInflictBonus/ailmentReceiveBonus）Dart 侧消费点已存在。另需修改现有 Dart `scry` 入口，将合计所有加成后的最终查看数限制为最多 5 张。
 
 ### 3.3 items.json5 改动
 
@@ -152,17 +153,19 @@ rank 5 → 5 条全生效。
 
 ### 4.1 清单
 
+- `lib/data/common.dart` / `lib/scene/battle/battle.dart`：新增观星上限常量，在所有深度加成合计后将查看数钳制为最多 5 张，再按牌库剩余数截断。
 - `assets/data/passives.json5`：新增 10 条公共词条（§3.1）。
 - `assets/data/items.json5`：5 件装备 `affixes` 列表追加（§3.3）。
-- `assets/data/status_effect.json5`：新增 4 个状态（§3.2）。
-- `scripts/main/cardgame/status_script.ht`：新建 `first_ailment_to_mana` / `mana_threshold_guard` / `mana_empty_defend` 三个脚本函数（`turn_start_spell_mana_1` 复用现有脚本）。
-- 本地化：`passive.json`（10 条 `passive_*_description`）、`status_effect.json`（4 组名称+描述）；装备 flavortext 若需提及词条位再更新 `item.json`。
-- 校验：`game_data_validate.dart` 保持 0 错误（本批无新机制字段形状，校验器契约表无需改动）；`python build.py` 重编译。
+- `assets/data/status_effect.json5`：新增 5 个状态（§3.2）。
+- `scripts/main/cardgame/status_script.ht`：新建 `scry_retention` / `first_ailment_to_mana` / `mana_threshold_guard` / `mana_empty_defend` 四个脚本函数（`turn_start_spell_mana_1` 复用现有脚本）。
+- 本地化：`passive.json`（10 条 `passive_*_description`）、`status_effect.json`（5 组名称+描述）；装备 flavortext 若需提及词条位再更新 `item.json`。
+- 校验：`game_data_validate.dart` 保持 0 错误（本批无新机制字段形状，校验器契约表无需改动）；`python build.py` 重编译；`flutter analyze` 检查 Dart 改动。
 
 ### 4.2 风险
 
 1. **休眠内容占比**：窥天镜 4/5、五行珠 3/5 的词条在装备破境实现前永不生效。这是有意的前瞻设计；若想立即全生效，需要把"装备破境"排上日程，或接受低境界装备只配少量词条。
-2. **B 层词条进池后的平衡**：`scry_focus`/`turn_start_scry_minor` 对非悟道构筑接近死词条（无观星手段时），但观星至少还有中立 `scry` 词条与天道推演分支可得，定为"窄但非死"。若实装后池子体验变差，可降级为 C 层。
+2. **随机池与固定引用分层**：B 层仅保留 `ailment_ward`/`ailment_inflict_focus` 两条较通用词条。`scry_focus`/`scry_retention` 自身不提供观星触发源，且前者受 5 张上限饱和，定为 C 层，只通过固定列表或未来的天赋引用，避免随机池出现暂时或长期无效的词条。
 3. **引用现有池词条的数值方差**：level 在境界区间内随机（§0），`spirituality`/`battleDrawBonus` 等在高 rank 装备上数值波动大；若实测过强，给这些引用条目显式收敛 level 区间或改为机制字段定值。
 4. **跌落发放时未传 level** 的行为需实现时确认（`item.ht:147`），否则词条 roll 区间不确定。
 5. `ailment_ward` 使受到异常 -1，与五行珠主词条"受到 +2"同穿时净 +1——有意为之的对冲组合，文案需写清。
+6. **观星深度饱和**：所有加成合计后最多查看 5 张，超出部分不转化为第二次观星或其他收益；`scry_focus` 在已达上限时不再增加查看数，文案与验收需明确。

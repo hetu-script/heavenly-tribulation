@@ -39,6 +39,7 @@
   "discoverPickHint": "抉择其一",
   "discoverElementHint": "一气化三清——选择要皈依的元素",
   "cardUpgradedHint": "{0} 升级了",
+  "handSizeMaxReachedHint": "手牌已满！",
   "pendingGenreDamageBonusHint": "气机牵引：下回合第一张悟道牌伤害 +{0}%",
 
   "wooden_dummy": "木人",

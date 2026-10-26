@@ -1251,6 +1251,9 @@ const kBattleBaseEnergy = 3;
 /// 战斗每回合基础抽牌数量（plan/battle_resource_rework.md 第三节）
 const kBattleDrawCount = 5;
 
+/// 战斗手牌默认上限，可通过 handSizeMax 属性修正
+const kBattleHandSizeMax = 10;
+
 /// 观星默认查看的牌库顶卡牌数量（悟道分支「天道推演」；绝世装备可加成）
 const kScryCardCount = 3;
 

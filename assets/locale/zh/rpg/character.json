@@ -62,6 +62,8 @@
   "basicEnergyBonus_description": "每回合开始时额外获得的元气数量。",
   "battleDrawBonus": "每回合抽牌",
   "battleDrawBonus_description": "每回合开始时额外抽取的卡牌数量。",
+  "handSizeMax": "手牌上限",
+  "handSizeMax_description": "战斗中最多可持有的手牌数量；达到上限后，继续抽牌不会发生。",
   "deckMinSizeReduce": "卡组数量下限",
   "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（不会低于 10）。",
   "scryBonus": "观星深度",

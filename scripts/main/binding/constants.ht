@@ -18,6 +18,7 @@ external abstract class Constants {
   static get baseCritThreshold;
   static get baseCritMultiplier;
   static get baseAilmentThreshold;
+  static get battleHandSizeMax;
   static get uniqueCardChance;
   static get baseAilmentMultiplier;
   static get baseTurnActionThreshold;

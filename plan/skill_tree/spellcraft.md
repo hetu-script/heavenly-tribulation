@@ -102,7 +102,6 @@
 ## 绝世卡牌
 
 悟道共有 7 张绝世卡：5 张境界梯度卡，以及由天赋授予的紫微斗数、万法归宗。
-卡牌线的数据、脚本和本地化已落地；战斗内完整 walkthrough 尚待执行，已知实现偏差见文末。
 
 ### 固定词条规则
 
@@ -224,23 +223,7 @@
 设计意图：超额支付同时转化为进攻、防御与后续节奏；逆灵之气是资源而非减益，辟邪不能抵消。
 落雷击顶与雷行九霄本意为“本次铺垫”和“事前铺设”双档配合，当前时序偏差见文末。
 
-### 绝世卡配套公共内容
-
-- 甘霖术 `water_mend` 已改为 `heal_remove_debuffs_by_stack`：至多移除 {1} 层元素异常，
-  每层回复 {0} 生命；与 `for_element_ailment_heal` 通过 uniqueId 互斥。
-- 新增厚土诀 `earth_mend`（rank 3）：至多移除 {1} 层元素异常，每层获得 {0} 护甲；
-  与 `for_element_ailment_defend` 互斥。
-- 本批 7 条公共额外词条：`cleanse_draw`、`ailment_kinds_to_mana`、
-  `ailment_kinds_to_ultimate`、`draw_by_self_ailment_kinds`、`for_element_ailment_heal`、
-  `for_element_ailment_defend`、`hand_size_defend`。前 6 条限悟道，最后 1 条为中立。
-- 已落地的通用机制：观星修饰合并、`lastDrawnCards`、`pendingEffects`、状态实例参数覆盖、
-  动态费用实际支付读取，以及专属额外词条的随机池隔离。
-
 ## 绝世装备
-
-5 件装备的主词条和战斗机制通道已经存在；**额外词条线尚未完成**。
-当前 `items.json5` 的列表误将主词条替换为额外词条，并引用了尚未定义的公共词条，
-因此以下表格是合并后的目标设计，不代表当前数据已经可用。具体待办见文末。
 
 ### 固定词条与公共化规则
 
@@ -253,6 +236,8 @@
   - C：新共享词条但不进随机池；用于流派资源或流派费修，可被固定列表和天赋直接引用。
 - 固定数值优先写入机制字段或 `statsBonus`；复用随机池词条则接受 `base + increment × level`
   及生成等级带来的方差。装备所有效果仍经既有被动聚合和白名单通道，无需新增 Dart 机制字段。
+- 观星最终查看数量上限为 5：先合计基础数量、全局 `scryBonus` 与卡牌局部加成，再按 5 和牌库剩余数截断。
+  达到上限后额外深度饱和，观星后修饰不受影响；需在 Dart `scry` 入口统一实现。
 
 ### 窥天镜 `heaven_peeking_mirror`（rank 1，talisman/pearl）
 
@@ -262,8 +247,8 @@
 | 槽 | 词条 | 层 | 效果 |
 | --- | --- | --- | --- |
 | 1 | `spirituality` | A | 灵力 +increment×level，经太上感应转化为灵气产能 |
-| 2 | `scry_focus` | B | 观星额外查看 1 张 |
-| 3 | `turn_start_scry_minor` | B | 每回合开始时观星 1 张 |
+| 2 | `scry_focus` | C | 观星额外查看 1 张 |
+| 3 | `scry_retention` | C | 每回合第一次观星后，选中的牌获得保留 |
 | 4 | `ailment_ward` | B | 受到的元素异常层数 -1 |
 | 5 | `ailment_to_mana_echo` | C | 每回合第一次获得元素异常时，获得 1 点灵气 |
 
@@ -292,8 +277,8 @@
 | 槽 | 词条 | 层 | 效果 |
 | --- | --- | --- | --- |
 | 1 | `non_spellcraft_tax` | C | 非悟道牌费用 +1（组牌阶段，与主词条的抽牌课税可叠加） |
-| 2 | `scry_focus` | B | 观星额外查看 1 张 |
-| 3 | `turn_start_scry_minor` | B | 每回合开始时观星 1 张 |
+| 2 | `scry_focus` | C | 观星额外查看 1 张 |
+| 3 | `scry_retention` | C | 每回合第一次观星后，选中的牌获得保留 |
 | 4 | `deckMinSizeReduce` | A | 牌库下限 -increment×level |
 | 5 | `battleDrawBonus` | A | 战斗抽牌数 +increment×level |
 
@@ -332,12 +317,15 @@
 
 ### 装备新增公共词条与状态
 
+观星分工：天道推演等天赋提供触发源，装备只提供观星深度与观星后修饰，不再通过装备复制回合开始观星。
+`scry_focus` 与 `scry_retention` 均为 C 层，不进入随机池：前者依赖观星触发源且最多查看 5 张会饱和，后者同样需要外部触发源。
+
 | 词条 | 机制 | 分层与用途 |
 | --- | --- | --- |
-| `scry_focus` | `statsBonus: {scryBonus: 1}` | B；amulet/ring/pearl，rank 1 |
 | `ailment_ward` | `statsBonus: {ailmentReceiveBonus: -1}` | B；amulet/ring/pearl，rank 2 |
 | `ailment_inflict_focus` | `statsBonus: {ailmentInflictBonus: 1}` | B；amulet/ring/pearl，rank 2 |
-| `turn_start_scry_minor` | `turnStartScry: 1` | B；amulet/ring/pearl，rank 2 |
+| `scry_focus` | `statsBonus: {scryBonus: 1}` | C；不进随机池 |
+| `scry_retention` | `battleStatus: scry_retention` | C；不进随机池 |
 | `ailment_to_mana_echo` | `battleStatus: first_ailment_to_mana` | C；不进随机池 |
 | `spell_mana_trickle` | `battleStatus: turn_start_spell_mana_1` | C；不进随机池 |
 | `non_spellcraft_tax` | `deckCostReduction: {color: all, amount: -1, notGenres: [spellcraft]}` | C；不进随机池 |
@@ -345,32 +333,8 @@
 | `mana_threshold_guard` | `battleStatus: mana_threshold_guard` | C；不进随机池 |
 | `mana_empty_defend` | `battleStatus: mana_empty_defend` | C；不进随机池 |
 
-需要新增的 4 个状态：`first_ailment_to_mana`（每回合首次获得元素异常转 1 灵气）、
+需要新增的 5 个状态：`scry_retention`（每回合首次观星后，选中牌获得保留）、
+`first_ailment_to_mana`（每回合首次获得元素异常转 1 灵气）、
 `turn_start_spell_mana_1`（复用 `turn_start_mana_bonus`，`manaBonus: 1`）、
 `mana_threshold_guard`（灵气 ≥5 时受伤 -20%）、`mana_empty_defend`（回合结束灵气为 0 时 +8 护甲）。
-其中后三个行为参数均写在状态数据中。
-
-## 当前完成情况与待修问题
-
-### 绝世卡牌
-
-- 7 张卡的固定词条、配套公共词条、脚本、状态扩展和本地化已落地；
-  前置修复（专属词条池外化、观星参数名、调息全手牌重算）也已完成。
-- 万法归宗结算顺序已修正：负优先级词条全部结束后、主词条前统一判定元素转化并消耗 1 层异常；
-  落雷击顶因此可以让本次伤害立即转化。
-- 万法归宗的词条依赖顺序已显式固定：雷行九霄 -1、一法破万法 -2、落雷击顶 -3。
-  雷行九霄只响应打出前已有的感电，不再受同优先级不稳定排序影响。
-- 一气化三清的灵气共鸣已改为只强化打出方，对方仅获得主词条基础增幅。
-- 天机术主描述已收敛为观星与抽牌，费用修正等效果只由对应额外词条描述。
-- 新卡词条机制字段已补入 mod 契约文档；校验器已覆盖字段结构、类型、枚举和嵌套引用。
-- 战斗内 walkthrough 尚未执行，不能仅凭静态检查和脚本编译认定所有交互已验收。
-
-### 绝世装备
-
-- 5 个主词条仍定义在 `passives.json5`，其状态脚本、机制消费和主词条本地化已经存在。
-- 当前 `items.json5` 需要把 5 个主词条 id 恢复到各列表首位，再追加上述额外词条；
-  否则主效果丢失，且解锁窗口会多算一条。
-- 10 条公共词条、4 个状态、3 个新状态脚本及对应本地化尚未实现；
-  当前装备列表存在 13 个悬空被动引用，生成这些装备会失败。
-- 聚灵旗的目标顺序统一为槽 4 = `spellcraft_cost_down`、槽 5 = `turnStartExtraDraw`。
-- 装备破境、固定词条等级收敛、掉落时 level 的明确传递仍是后续工作；低 rank 装备的休眠词条属于前瞻设计。
+其中有参数的行为均写在状态数据中；观星保留直接读取 `self_scry` 提供的选中牌。

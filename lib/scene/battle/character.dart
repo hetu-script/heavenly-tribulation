@@ -327,7 +327,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         int critMultiplier =
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
         final int consumed = math.min(attacker.hasStatusEffect('debuff_crit'),
-            ((critMultiplier - 100) / 50).ceil());
+            ((critMultiplier - 100) / 25).ceil());
         critMultiplier -= 25 * consumed;
         if (critMultiplier < 100) critMultiplier = 100;
         damage = (damage * critMultiplier / 100).round();
@@ -1051,7 +1051,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       if (isCrit) {
         int critMultiplier =
             (attackerStats['critMultiplier'] ?? kBaseCritMultiplier).toInt();
-        // 不幸：每层使本次暴击倍率 -50%（暴击倍率下限 100%），
+        // 不幸：每层使本次暴击倍率 -25%（暴击倍率下限 100%），
         // 按层循环消耗，直到倍率降为 100% 或不幸耗尽
         while (critMultiplier > 100 &&
             opponent!.hasStatusEffect('debuff_crit') > 0) {

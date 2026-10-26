@@ -2,13 +2,13 @@
 
 @lib/scene/battle/battle.dart 这是一个类似杀戮尖塔的玩法游戏场景。但做了一些修改，比如卡牌是用类似暗黑破坏神的词缀系统随机生成的 (数据 @scripts/main/cardgame/card.ht 主词缀 @assets/data/cards.json5 额外词缀 @assets/data/card_affixes.json5 )。卡牌脚本 @scripts/main/cardgame/card_script.ht, 状态数据：@assets/data/status_effect.json5 状态脚本 @scripts/main/cardgame/status_script.ht。另外以上这些都使用了本地化字符串，(@assets/locale/zh/rpg/)。 同时关于这些系统我也写了文档，位置在 @docs/docs/how2play/rpg/
 
-请你理解现有设计，系统和代码，不用修改任何文件。如果你在梳理的过程中发现了bug或者不一致，可以暂时记录下来之后报告给我。
+请你理解现有设计，系统和代码，不用修改任何文件。如果你在梳理的过程中发现了问题，也可以暂时记录下来之后报告给我。
 
 我正在重构各个流派的关键天赋，卡牌和装备，以形成各个流派的特色风味和玩法。设计文件在 @plan/skill_tree 下。目前我正在进行悟道流派的开发。 @plan/skill_tree/spellcraft.md 
 
-我们目前已经完成了悟道流派的境界节点，分叉节点，主词条，额外词条，绝世卡牌和绝世装备的整理工作。
+我们目前已经完成了悟道流派的境界节点，分叉节点，主词条，额外词条，绝世卡牌的整理工作。
 
-在你理解了以上系统之后，请继续阅读 @plan/spellcraft_uniquecard_affixes.md 和 @plan/spellcraft_uniqueequipment_affixes.md 以及 @plan/spellcraft_affixes_implementation.md ，确认他们的完成情况，并将绝世卡牌和绝世装备的相关内容合并整理到 @plan/skill_tree/spellcraft.md中。
+在你理解了以上系统之后，请继续阅读 @plan/spellcraft_uniqueequipment_affixes.md 和@plan/spellcraft_uniqueequipment_affixes_implementation.md 这是下一步要进行得工作，为悟道流派的绝世装备实现额外词条的相关内容。
 
 ---
 

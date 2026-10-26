@@ -35,6 +35,7 @@ const kMoreStats = [
   'divider',
   'basicEnergyBonus',
   'battleDrawBonus',
+  'handSizeMax',
   'deckMinSizeReduce',
   'scryBonus',
   'ailmentInflictBonus',

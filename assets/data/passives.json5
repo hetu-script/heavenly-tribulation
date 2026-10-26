@@ -1387,6 +1387,16 @@
     battleStatus: "turn_start_mana_bonus",
     deckCostReduction: { color: "all", amount: -2, notGenres: ["spellcraft"] },
   },
+  // 手牌上限：固定 +1，不参与数值词条等级 roll
+  handSizeMax: {
+    id: "handSizeMax",
+    description: "passive_handSizeMax_description",
+    priority: 3487,
+    statsBonus: { handSizeMax: 1 },
+    isEquipmentExtraAffix: true,
+    kinds: ["pearl"],
+    rank: 3,
+  },
   // 地牢玩法中的debuff
   // TODO: 只能使用某个流派的卡牌
 }

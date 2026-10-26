@@ -11,7 +11,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 战斗流程（\_startBattle 循环 → \_onBattleStart → \_startTurn → \_onBattleEnd）：
   - 先手按身法加权随机（0.5 + (heroDex - enemyDex)/100），偷袭直接先手；后手方补偿回血至上限。
   - 软狂暴：roundCount > 8 后每个普通行动回合开始前叠 1 层劫气（回合开始回调扣 10% 生命上限）。
-  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
+  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。

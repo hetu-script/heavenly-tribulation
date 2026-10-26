@@ -376,6 +376,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.basicEnergyBonus = character.passives.basicEnergyBonus?.value + character.ephemeralPassives.basicEnergyBonus?.value
   character.stats.battleDrawBonus = character.passives.battleDrawBonus?.value + character.ephemeralPassives.battleDrawBonus?.value
   character.stats.deckMinSizeReduce = character.passives.deckMinSizeReduce?.value + character.ephemeralPassives.deckMinSizeReduce?.value
+  character.stats.handSizeMax = Constants.battleHandSizeMax
   // 通用 stats 直加（词条数据声明 statsBonus: {statsId: 数值}，绝世装备主词条等固定词条用）：
   // 观星深度 scryBonus（战斗侧 scry 读取）、元素异常层数修正 ailmentInflictBonus / ailmentReceiveBonus
   //（战斗侧 addStatusEffect 读取）等

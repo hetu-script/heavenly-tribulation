@@ -29,6 +29,7 @@ import '../../data/game.dart';
 import '../../data/common.dart';
 import 'common.dart';
 import 'card_cost.dart';
+import 'hand_size.dart';
 import '../../state/states.dart';
 import 'equipments_bar.dart';
 import '../../widgets/character/profile.dart';
@@ -1034,6 +1035,8 @@ class BattleScene extends Scene {
   }
 
   /// 从牌库抽 [count] 张牌到手牌（牌库空时重洗弃牌堆）。
+  /// 实际抽牌数受 handSizeMax 限制；达到上限后剩余抽牌不发生，卡牌留在原区域，
+  /// 不洗牌、不进弃牌堆，也不触发入手/离手回调或「抽到的牌」修饰。
   /// [filter] / [reduceCost] 为数据层附带的条件表（Map 或 HTStruct，故为 dynamic），
   /// 支持字段见 [kCardCriteriaFields]（任意组合，未指定的字段忽略）：
   /// - filter：只抽取【完全符合】全部指定字段的卡牌（按牌库顶向下顺序）；
@@ -1053,7 +1056,15 @@ class BattleScene extends Scene {
     // 每次调用覆盖写，即使一张都没抽到也清空）
     final character = hand == heroHandZone ? hero : enemy;
     character.cardFlags['lastDrawnCards'] = <dynamic>[];
-    while (drawn < count) {
+    final handSizeMax =
+        (character.data['stats']?['handSizeMax'] as num?)?.toInt() ??
+            kBattleHandSizeMax;
+    final drawLimit = getDrawableCardCount(
+      requestedCount: count,
+      currentHandSize: hand.cards.length,
+      handSizeMax: handSizeMax,
+    );
+    while (drawn < drawLimit) {
       if (deck.cards.isEmpty) {
         if (discard.cards.isEmpty) break;
         await shuffleDiscardIntoDeck(deck, discard);
@@ -1114,6 +1125,11 @@ class BattleScene extends Scene {
         // 级联重算可能改变了其他手牌的费用与描述，统一刷新
         refreshHandCardDescription();
       }
+    }
+    if (hand == heroHandZone &&
+        drawn < count &&
+        hand.cards.length >= handSizeMax) {
+      character.addHintText(engine.locale('handSizeMaxReachedHint'));
     }
     return drawn;
   }
@@ -1550,8 +1566,8 @@ class BattleScene extends Scene {
 
   /// 将卡牌加入待打出队列
   void _enqueueCard(CustomGameCard card) {
-    // 只能在自己的回合入队（统一生命周期下资源跨对方回合保留，仅作展示）
-    if (!heroTurn || battleResult != null) return;
+    // 只能在自己的回合且尚未请求结束回合时入队
+    if (!heroTurn || _endPlayerTurn || battleResult != null) return;
 
     // 验证不重复入队
     if (_cardQueue.contains(card)) return;
@@ -1590,10 +1606,7 @@ class BattleScene extends Scene {
     try {
       while (_cardQueue.isNotEmpty) {
         // 检查中断条件
-        if (_isRestarting ||
-            battleEnded ||
-            battleResult != null ||
-            _endPlayerTurn) {
+        if (_isRestarting || battleEnded || battleResult != null) {
           break;
         }
 
@@ -1875,8 +1888,12 @@ class BattleScene extends Scene {
       // 资源气行显示由 addStatusEffect/removeStatusEffect 的钩子自动刷新
       if (!isFirstAction) {
         currentCharacter.clearResourceEffects();
+        // 资源保留的代价可能致死，不再继续产出或出牌阶段。
+        if (_checkBattleResult()) return;
       }
       currentCharacter.produceTurnStartResources();
+      // 延迟自伤与产出阶段回调同样可能致死。
+      if (_checkBattleResult()) return;
 
       final opponentStatus =
           _prepareStatus(currentCharacter, StatusCircumstances.start_turn);

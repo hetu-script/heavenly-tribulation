@@ -7,11 +7,11 @@
 当前工作区只修改了 `items.json5` 的额外词条列表，且存在两个阻断问题：
 
 1. 5 件装备原主词条被替换而非保留，导致主效果丢失、解锁窗口多算一条。
-2. 10 条公共被动、4 个状态、3 个状态脚本及对应本地化尚未实现，当前有 13 个悬空被动引用。
+2. 10 条公共被动、5 个状态、4 个状态脚本及对应本地化尚未实现，当前有 13 个悬空被动引用。
 
 另一个前置问题是：`createItemById` 只做 `item.level ??= level`，未传 level 时数值词条会执行 `getRandomLevel(minAffixLevel, null)`。原主词条都是机制型所以未暴露；加入 `spirituality` 等数值词条后必须先修复。
 
-本方案不新增 Dart 战斗机制字段。所需 `battleStatus` / `statsBonus` / `turnStartScry` / `turnStartExtraDraw` / `deckCostReduction` 均已在透传白名单和聚合、消费链路中实现。
+本方案不新增 Dart 战斗机制字段，但需要修改现有 Dart 观星入口以限制最多查看 5 张。所需 `battleStatus` / `statsBonus` / `turnStartExtraDraw` / `deckCostReduction` 均已在透传白名单和聚合、消费链路中实现；观星保留直接使用现有 `self_scry` 回调的 `details.chosen`。观星分工定为：天道推演等天赋提供触发源，装备提供观星深度与观星后修饰，不再由装备复制 `turnStartScry`。
 
 ## 阶段 0：修复物品等级与解锁前提
 
@@ -25,7 +25,15 @@
 
 验收：5 件装备不显式传 level 也能生成；数值词条 level 落在本境界区间，机制词条仍跳过 level roll。
 
-## 阶段 1：落地 4 个永久状态及脚本
+## 阶段 1：限制观星上限并落地 5 个永久状态及脚本
+
+### `lib/data/common.dart` / `lib/scene/battle/battle.dart`
+
+- 在 `kScryCardCount` 附近新增 `kScryCardCountMax = 5`，作为所有观星入口共用的最终查看上限。
+- `scry` 必须在合计基础数量、角色 `stats.scryBonus` 与 `options.scryBonus` 之后执行 `count = math.min(count, kScryCardCountMax)`，再按牌库剩余数计算 `actualCount`。
+- 上限同时约束 `turnStartScry`、卡牌观星和其他调用方；空牌库仍在取牌前直接返回，不分发 `self_scry`。
+- 当前 UI 已按 `actualCount` 动态布局，钳制后最多 5 张即可，不另做固定位置布局重写。
+- 达到 5 张后额外 `scry_focus` 等深度加成饱和，不改为触发第二次观星，也不影响 `scry_retention` 等观星后修饰。
 
 ### `assets/data/status_effect.json5`
 
@@ -33,6 +41,7 @@
 
 | 状态 | script / callback | 参数与行为 |
 | --- | --- | --- |
+| `scry_retention` | `scry_retention` / `self_scry` | 无额外参数；每回合首次观星后，选中牌获得保留 |
 | `first_ailment_to_mana` | `first_ailment_to_mana` / `self_gained_debuff` | `resourceId: energy_positive_spell`；每回合首次元素异常获得事件 +1 灵气 |
 | `turn_start_spell_mana_1` | 复用 `turn_start_mana_bonus` / `self_produce_resources` | `manaBonus: 1`；产出阶段 +1 灵气 |
 | `mana_threshold_guard` | `mana_threshold_guard` / `self_taking_damage` | `resourceId: energy_positive_spell`、`threshold: 5`、`reductionPercent: 20`；达标受伤 -20% |
@@ -42,8 +51,12 @@
 
 ### `scripts/main/cardgame/status_script.ht`
 
-新增 3 个非 async 函数：
+新增 4 个非 async 函数：
 
+- `scry_retention_self_scry`
+  - 用独立 `turnFlags` 标记保证每回合最多触发一次；额外回合按既有 turnFlags 重置规则重新计算。
+  - 读取 `details.chosen`，设置 `details.chosen.isRetained = true`；空牌库不会分发 `self_scry`，无需补触发。
+  - 多个 `scry_retention` 来源合并为同一状态，仍只保留本次观星选中牌，不叠加次数。
 - `first_ailment_to_mana_self_gained_debuff`
   - 用 `Constants.elementAilments.values` 判定 `details.id` 是否元素异常。
   - 用独立 `turnFlags` 标记保证每回合最多触发一次；额外回合按既有 turnFlags 重置规则重新计算。
@@ -59,8 +72,8 @@
 
 ### 图标与本地化
 
-- 按 passive-status 规范，用 image-gen 的 Gemini + `--no-style` 生成 4 个无文字徽章，缩放为 150×150，并用 ReadMediaFile 检查小尺寸可辨性。
-- `assets/locale/zh/rpg/status_effect.json`：补 4 组 `status_*` 名称与描述，写清触发时机和数值。
+- 按 passive-status 规范，用 image-gen 的 Gemini + `--no-style` 生成 5 个无文字徽章，缩放为 150×150，并用 ReadMediaFile 检查小尺寸可辨性。
+- `assets/locale/zh/rpg/status_effect.json`：补 5 组 `status_*` 名称与描述，写清触发时机和数值。
 
 ## 阶段 2：新增 10 条公共被动词条
 
@@ -68,19 +81,19 @@
 
 放在绝世装备主词条区之后，priority 从 3487 起递减，避免与现有词条冲突。
 
-B 层（进随机池）统一写 `isEquipmentExtraAffix: true`、`kinds: ["amulet", "ring", "pearl"]`：
+B 层 2 条（进随机池）统一写 `isEquipmentExtraAffix: true`、`kinds: ["amulet", "ring", "pearl"]`：
 
 | id | rank | 机制 |
 | --- | --- | --- |
-| `scry_focus` | 1 | `statsBonus: {scryBonus: 1}` |
 | `ailment_ward` | 2 | `statsBonus: {ailmentReceiveBonus: -1}` |
 | `ailment_inflict_focus` | 2 | `statsBonus: {ailmentInflictBonus: 1}` |
-| `turn_start_scry_minor` | 2 | `turnStartScry: 1` |
 
-C 层（可被固定列表/天赋引用，但不进随机池）不写用途标记：
+C 层 8 条（可被固定列表/天赋引用，但不进随机池）不写用途标记：
 
 | id | 机制 |
 | --- | --- |
+| `scry_focus` | `statsBonus: {scryBonus: 1}` |
+| `scry_retention` | `battleStatus: scry_retention` |
 | `ailment_to_mana_echo` | `battleStatus: first_ailment_to_mana` |
 | `spell_mana_trickle` | `battleStatus: turn_start_spell_mana_1` |
 | `non_spellcraft_tax` | `deckCostReduction: {color: all, amount: -1, notGenres: [spellcraft]}` |
@@ -102,9 +115,9 @@ C 层（可被固定列表/天赋引用，但不进随机池）不写用途标�
 
 | 装备 | 完整 affixes 顺序 | 生成时生效 |
 | --- | --- | --- |
-| 窥天镜 | `heaven_peeking_mirror` → `spirituality` → `scry_focus` → `turn_start_scry_minor` → `ailment_ward` → `ailment_to_mana_echo` | rank 1：主 + 前 1 条，共 2 条 |
+| 窥天镜 | `heaven_peeking_mirror` → `spirituality` → `scry_focus` → `scry_retention` → `ailment_ward` → `ailment_to_mana_echo` | rank 1：主 + 前 1 条，共 2 条 |
 | 五行珠 | `five_elements_pearl` → `spirituality` → `ailmentMultiplier` → `ailmentThreshold` → `ailment_inflict_focus` → `ailment_to_mana_echo` | rank 2：主 + 前 2 条，共 3 条 |
-| 天机盘 | `turnStartExtraDraw` → `non_spellcraft_tax` → `scry_focus` → `turn_start_scry_minor` → `deckMinSizeReduce` → `battleDrawBonus` | rank 3：主 + 前 3 条，共 4 条 |
+| 天机盘 | `turnStartExtraDraw` → `non_spellcraft_tax` → `scry_focus` → `scry_retention` → `deckMinSizeReduce` → `battleDrawBonus` | rank 3：主 + 前 3 条，共 4 条 |
 | 蓄灵佩 | `energyRetainSpell` → `spirituality` → `lifeMax` → `persistent` → `basicEnergyBonus` → `spell_mana_trickle` | rank 4：主 + 前 4 条，共 5 条 |
 | 聚灵旗 | `spirit_gathering_banner` → `spirituality` → `mana_threshold_guard` → `mana_empty_defend` → `spellcraft_cost_down` → `turnStartExtraDraw` | rank 5：主 + 5 条，共 6 条 |
 
@@ -114,34 +127,37 @@ C 层（可被固定列表/天赋引用，但不进随机池）不写用途标�
 
 ### 自动化测试
 
-项目已有 Flutter/Hetu 测试，新增 `test/unique_equipment_test.dart`，直接执行真实 Hetu 状态脚本和物品生成路径：
+项目已有 Flutter/Hetu 测试，新增 `test/unique_equipment_test.dart`，直接执行真实 Hetu 状态脚本和物品生成路径，并为 Dart 观星数量钳制补充测试：
 
 1. **生成与解锁**：5 件装备均不传 level 创建；断言主词条 id、实例词条总数和前 N 条顺序，prototype 仍保留完整 6 条。
-2. **首次异常转灵气**：非元素 debuff 不触发；同回合两次元素异常只产 1 灵气；清理 turnFlags 后可再次触发。
-3. **聚气成势**：灵气 4 不减伤，灵气 5 时乘区 2 为 -0.20。
-4. **一炁**：回合结束灵气 0 获得 8 护甲，灵气非 0 不获得。
-5. **灵气细流**：复用脚本在产出阶段获得 1 灵气。
-6. **聚合组合**：两个 `ailment_to_mana_echo` 来源仍只触发一次；聚灵旗与天机盘的 `turnStartExtraDraw` count 合计为 2，costIncrease 不冲突。
+2. **观星上限**：合计深度 6 且牌库不少于 6 张时只查看 5 张；合计深度超过牌库数时查看全部剩余牌；空牌库不展示也不分发 `self_scry`。
+3. **观星保留**：同回合两次 `self_scry` 只处理第一次的选中牌；选中牌写入 `isRetained`；清理 turnFlags 后可再次触发。
+4. **首次异常转灵气**：非元素 debuff 不触发；同回合两次元素异常只产 1 灵气；清理 turnFlags 后可再次触发。
+5. **聚气成势**：灵气 4 不减伤，灵气 5 时乘区 2 为 -0.20。
+6. **一炁**：回合结束灵气 0 获得 8 护甲，灵气非 0 不获得。
+7. **灵气细流**：复用脚本在产出阶段获得 1 灵气。
+8. **聚合组合**：两个 `scry_retention` 或 `ailment_to_mana_echo` 来源仍只触发一次；聚灵旗与天机盘的 `turnStartExtraDraw` count 合计为 2，costIncrease 不冲突。
 
 若物品生成测试需要的完整游戏上下文过重，优先做真实 `createItemById` 的轻量 Hetu 测试夹具，不用仅检查 JSON 文本的测试代替。
 
 ### 文档
 
-- `plan/spellcraft_uniqueequipment_affixes.md`：修正窥天镜“额外查看 1 张（实际 +2）”和聚灵旗槽号 4/5；记录 level 兜底与完成状态。
+- `plan/spellcraft_uniqueequipment_affixes.md`：记录 level 兜底与完成状态。
 - `plan/skill_tree/spellcraft.md`：将装备线待办更新为实际完成情况，保留装备破境、数值方差等后续风险。
-- `plan/battle_system_overview.md`：更新 5 件装备已含固定额外词条的现状。
-- 无新 Dart 机制字段，因此不改 `_kPassiveMechanismFields`，也不需要扩展 mod 被动字段契约表或校验器字段形状。
+- `plan/battle_system_overview.md`：更新 5 件装备已含固定额外词条的现状，并记录观星最多查看 5 张。
+- 相关玩家与 mod 文档补充观星上限；无新 Dart 机制字段，因此不改 `_kPassiveMechanismFields`，也不需要扩展被动字段契约表或校验器字段形状。
 
 ## 阶段 5：验收
 
 依次执行：
 
-1. `flutter test`：全部测试通过，含新装备/状态用例。
-2. `dart run utils/data_validate/game_data_validate.dart`：本批 13 个悬空引用全部消失；当前另有 3 个既存 `qinggong` 枚举错误，不在本批擅自修改，因此预期从 16 错降为 3 错。
+1. `flutter test`：全部测试通过，含新装备/状态与观星上限用例。
+2. `dart run utils/data_validate/game_data_validate.dart`：本批 13 个悬空引用全部消失，校验达到 0 错误。
 3. 使用本机绝对路径 `C:/Users/Administrator/AppData/Local/Dart/install/bin/hetu.bat` 编译 main/story；`python build.py` 的 PATH 失败不作为跳过编译的理由。
 4. `flutter analyze`：无新增 error（当前 7 条既存 unnecessary_import info 分开报告）。
 5. 战斗 walkthrough：
    - 窥天镜只有主词条 + spirituality，观星深度/自异常正确；高阶词条不误解锁。
+   - 天道推演提供观星触发源时，`scry_focus` 正常增加深度；合计深度超过 5 时仍只展示 5 张，不发起第二次观星；`scry_retention` 每回合只令第一次观星的选中牌获得保留，装备不再额外发起回合开始观星。
    - 五行珠双向异常修正、异常伤害与阈值生效；与窥天镜同穿首次异常产能每回合一次。
    - 天机盘组牌课税与额外抽牌课税可叠加；纯悟道牌不受罚。
    - 蓄灵佩保留上限与纯粹伤害正确，spell_mana_trickle 仍休眠。
@@ -152,5 +168,4 @@ C 层（可被固定列表/天赋引用，但不进随机池）不写用途标�
 
 - 装备破境、重铸、低境界休眠词条提前解锁。
 - 重新平衡现有 A 层词条的等级方差；先按定稿接受 roll，walkthrough 后再决定是否收敛。
-- 修复既有 `qinggong` 枚举错误或绝世卡牌的其他工作。
-- 为已有两个装备状态重制图标；本批只保证新增 4 个状态五层同步。
+- 为已有两个装备状态重制图标；本批只保证新增 5 个状态五层同步。

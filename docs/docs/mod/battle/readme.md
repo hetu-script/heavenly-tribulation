@@ -1,7 +1,9 @@
 **玩家回合（heroTurn == true）与敌方回合（heroTurn == false）共用同一套流程（`_startTurn`）：**
 
 1. 回合开始观星（被动 `turnStartScry` 字段，如悟道分支「天道推演」）：抽牌阶段之前观星 N 张，选中的牌置于牌库顶随本回合抽牌入手
-2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）
+2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）。
+   实际数量受 `stats.handSizeMax`（默认 `kBattleHandSizeMax = 10`）限制；满手后剩余抽牌不发生，
+   不洗牌/弃牌、不触发入手回调、不写入 `lastDrawnCards`，未实际抽到的牌也不接受抽牌费修
 3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
 4. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
 5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
