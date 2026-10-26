@@ -30,6 +30,7 @@ import '../../data/common.dart';
 import 'common.dart';
 import 'card_cost.dart';
 import 'hand_size.dart';
+import 'scry.dart';
 import '../../state/states.dart';
 import 'equipments_bar.dart';
 import '../../widgets/character/profile.dart';
@@ -1189,6 +1190,7 @@ class BattleScene extends Scene {
     // 本牌词条附带的观星深度（天机术 scryOptions.scryBonus），与全局 stats.scryBonus 叠加
     final localScryBonus = options?['scryBonus'];
     if (localScryBonus is num) count += localScryBonus.toInt();
+    count = math.min(count, kScryCardCountMax);
     if (deck.cards.isEmpty) {
       // 牌库为空即无星可观
       if (currentCharacter.isHero) {
@@ -1197,7 +1199,8 @@ class BattleScene extends Scene {
       }
       return;
     }
-    final actualCount = math.min(count, deck.cards.length);
+    final actualCount =
+        getScryCardCount(count: count, deckSize: deck.cards.length);
     // 牌库顶 = cards 列表末尾；取出后保持 列表顺序 == index 的不变量
     final scried = deck.cards
         .sublist(deck.cards.length - actualCount)

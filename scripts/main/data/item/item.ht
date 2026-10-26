@@ -121,6 +121,9 @@ function createItemById(id, {amount, rank, level}) {
   // game.items[item.id] = item
 
   if (item.affixes is List) {
+    if (item.level == null) {
+      item.level = getRandomLevel(minLevelForRank(item.rank), maxLevelForRank(item.rank))
+    }
     let affixes = item.affixes.toList()
     // 绝世装备与绝世卡同规则：affixes 第一个词条为主词条，
     // 生成时按境界解锁列表前 rank + 1 个（装备破境暂未实现，解锁数在生成时固定）

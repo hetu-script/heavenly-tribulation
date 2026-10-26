@@ -284,9 +284,10 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
+      "heaven_peeking_mirror",
       "spirituality",
       "scry_focus",
-      "turn_start_scry_minor",
+      "scry_retention",
       "ailment_ward",
       "ailment_to_mana_echo",
     ],
@@ -307,6 +308,7 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
+      "five_elements_pearl",
       "spirituality",
       "ailmentMultiplier",
       "ailmentThreshold",
@@ -330,9 +332,10 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
+      "turnStartExtraDraw",
       "non_spellcraft_tax",
       "scry_focus",
-      "turn_start_scry_minor",
+      "scry_retention",
       "deckMinSizeReduce",
       "battleDrawBonus",
     ],
@@ -353,6 +356,7 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
+      "energyRetainSpell",
       "spirituality",
       "lifeMax",
       "persistent",
@@ -376,6 +380,7 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
+      "spirit_gathering_banner",
       "spirituality",
       "mana_threshold_guard",
       "mana_empty_defend",

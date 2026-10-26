@@ -152,7 +152,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `chosenCostChange` / `othersCostChange` | 数值 | 选中 / 未选牌费用变化；未选牌加费以卡上标记保证本场战斗只生效一次 |
 | `upgradeChosen` | 数值 | 选中牌战斗内升级 N 级 |
 | `retainChosen` | 布尔 | 选中牌获得保留 |
-| `scryBonus` | 数值 | 本次观星额外查看 N 张，与角色 `stats.scryBonus` 累加 |
+| `scryBonus` | 数值 | 本次观星额外查看 N 张，与角色 `stats.scryBonus` 累加；合计后最多查看 5 张 |
 
 **元素抉择**：主词条 `discoverOptions` 为 `{hint, choices: [{key, cardId}]}`，
 `elementStatusMap` 为 `{元素key: 状态id}`。`discover_element_amplify` 收集以下额外词条字段：

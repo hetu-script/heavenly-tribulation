@@ -1257,6 +1257,9 @@ const kBattleHandSizeMax = 10;
 /// 观星默认查看的牌库顶卡牌数量（悟道分支「天道推演」；绝世装备可加成）
 const kScryCardCount = 3;
 
+/// 观星合计全部深度加成后的最终查看上限
+const kScryCardCountMax = 5;
+
 /// 战斗中使用的卡牌使用过的数量的阈值
 const kBattleCardsCount = 16;
 

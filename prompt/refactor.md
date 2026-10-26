@@ -8,7 +8,7 @@
 
 我们目前已经完成了悟道流派的境界节点，分叉节点，主词条，额外词条，绝世卡牌的整理工作。
 
-在你理解了以上系统之后，请继续阅读 @plan/spellcraft_uniqueequipment_affixes.md 和@plan/spellcraft_uniqueequipment_affixes_implementation.md 这是下一步要进行得工作，为悟道流派的绝世装备实现额外词条的相关内容。
+悟道流派绝世装备额外词条的相关内容也已汇总在 @plan/skill_tree/spellcraft.md。
 
 ---
 

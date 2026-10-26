@@ -1397,6 +1397,76 @@
     kinds: ["pearl"],
     rank: 3,
   },
+
+  /// 悟道绝世装备固定额外词条与共享词条
+  // B 层：进入普通装备随机池
+  ailment_ward: {
+    id: "ailment_ward",
+    description: "passive_ailment_ward_description",
+    priority: 3486,
+    statsBonus: { ailmentReceiveBonus: -1 },
+    isEquipmentExtraAffix: true,
+    kinds: ["amulet", "ring", "pearl"],
+    rank: 2,
+  },
+  ailment_inflict_focus: {
+    id: "ailment_inflict_focus",
+    description: "passive_ailment_inflict_focus_description",
+    priority: 3485,
+    statsBonus: { ailmentInflictBonus: 1 },
+    isEquipmentExtraAffix: true,
+    kinds: ["amulet", "ring", "pearl"],
+    rank: 2,
+  },
+  // C 层：仅供固定列表或天赋引用，不写用途标记，不进随机池
+  scry_focus: {
+    id: "scry_focus",
+    description: "passive_scry_focus_description",
+    priority: 3484,
+    statsBonus: { scryBonus: 1 },
+  },
+  scry_retention: {
+    id: "scry_retention",
+    description: "passive_scry_retention_description",
+    priority: 3483,
+    battleStatus: "scry_retention",
+  },
+  ailment_to_mana_echo: {
+    id: "ailment_to_mana_echo",
+    description: "passive_ailment_to_mana_echo_description",
+    priority: 3482,
+    battleStatus: "first_ailment_to_mana",
+  },
+  spell_mana_trickle: {
+    id: "spell_mana_trickle",
+    description: "passive_spell_mana_trickle_description",
+    priority: 3481,
+    battleStatus: "turn_start_spell_mana_1",
+  },
+  non_spellcraft_tax: {
+    id: "non_spellcraft_tax",
+    description: "passive_non_spellcraft_tax_description",
+    priority: 3480,
+    deckCostReduction: { color: "all", amount: -1, notGenres: ["spellcraft"] },
+  },
+  spellcraft_cost_down: {
+    id: "spellcraft_cost_down",
+    description: "passive_spellcraft_cost_down_description",
+    priority: 3479,
+    deckCostReduction: { color: "spell", amount: 1, genres: ["spellcraft"] },
+  },
+  mana_threshold_guard: {
+    id: "mana_threshold_guard",
+    description: "passive_mana_threshold_guard_description",
+    priority: 3478,
+    battleStatus: "mana_threshold_guard",
+  },
+  mana_empty_defend: {
+    id: "mana_empty_defend",
+    description: "passive_mana_empty_defend_description",
+    priority: 3477,
+    battleStatus: "mana_empty_defend",
+  },
   // 地牢玩法中的debuff
   // TODO: 只能使用某个流派的卡牌
 }

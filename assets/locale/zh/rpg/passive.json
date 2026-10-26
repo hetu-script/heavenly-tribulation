@@ -181,5 +181,15 @@
   "passive_turnStartExtraDraw_description": "回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌本回合费用 +1",
   "passive_energyRetainSpell_description": "回合结束时至多保留 2 点悟道灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害",
   "passive_spirit_gathering_banner_description": "回合开始时悟道灵气 +3；你打出的非悟道牌费用 +2",
-  "passive_handSizeMax_description": "手牌上限 +1"
+  "passive_handSizeMax_description": "手牌上限 +1",
+  "passive_ailment_ward_description": "受到的元素异常层数 -1",
+  "passive_ailment_inflict_focus_description": "造成的元素异常层数 +1",
+  "passive_scry_focus_description": "观星额外查看 1 张牌（最多查看 5 张）",
+  "passive_scry_retention_description": "每回合第一次观星后，选中的牌获得保留",
+  "passive_ailment_to_mana_echo_description": "每回合第一次获得元素异常时，获得 1 点灵气",
+  "passive_spell_mana_trickle_description": "回合产出阶段灵气 +1",
+  "passive_non_spellcraft_tax_description": "非悟道牌费用 +1",
+  "passive_spellcraft_cost_down_description": "悟道牌灵气费用 -1",
+  "passive_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%",
+  "passive_mana_empty_defend_description": "回合结束时若灵气为 0，获得 8 点护甲"
 }

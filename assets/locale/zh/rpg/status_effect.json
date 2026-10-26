@@ -189,5 +189,16 @@
   "status_scry_self_ailments_description": "每次观星后，对自身随机施加 2 种不同的元素异常（各 1 层）。窥得越多，心神越乱。",
 
   "status_turn_start_mana_bonus": "聚灵",
-  "status_turn_start_mana_bonus_description": "回合开始时，获得 3 点悟道灵气。"
+  "status_turn_start_mana_bonus_description": "回合开始时，获得 3 点悟道灵气。",
+
+  "status_scry_retention": "观星留存",
+  "status_scry_retention_description": "每回合第一次观星后，选中的牌获得保留。",
+  "status_first_ailment_to_mana": "化厄为灵",
+  "status_first_ailment_to_mana_description": "每回合第一次获得元素异常时，获得 1 点灵气。",
+  "status_turn_start_spell_mana_1": "灵气细流",
+  "status_turn_start_spell_mana_1_description": "回合产出阶段，获得 1 点灵气。",
+  "status_mana_threshold_guard": "聚气成势",
+  "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。",
+  "status_mana_empty_defend": "一炁",
+  "status_mana_empty_defend_description": "回合结束时，若灵气为 0，获得 8 点护甲。"
 }

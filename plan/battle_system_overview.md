@@ -17,7 +17,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
 - 费用系统（单资源模型）：card_cost.dart 共用支付计算；元气不能以太极抵扣，有色先扣本色气、缺口用太极补齐；isWildcardCostForbidden 禁止抵扣。动态条目 {base, isDynamic:true} 达到门槛后耗尽本色气，统一豁免减费及置零。队列按顺序模拟资源预占，实际支付明细写入 cardFlags['paidCost']，供 refund_cost / attack_by_paid_resource 读取。置灰与缺资源提示使用同一规则。
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由 GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
-- 观星 scry（:1094）：中央展示牌库顶 N 张（N = 传入 count + scryBonus），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（:1202，窥天镜）。
+- 观星 scry：中央展示牌库顶 N 张（合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
 - 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（:366 组牌阶段减/加费，下限 0）；shuffleIntoDeck → \_startBattle（:773 手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry → \_startTurn（:1779 抽牌前观星）；turnStartExtraDraw → \_startTurn（:1794 补抽 + \_applyTurnCostIncrease 本回合临时加费、回合结束还原）；符箓（isEphemeral）打出碎裂 + usedInBattle 标记 → 战后 settleScrollCharges 扣次数；无效卡/缺卡替换为 blank_default 默认卡。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
@@ -83,7 +83,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - uniqueId 互斥组（同组词条一件装备只能 roll 到一个，如 increase*damage*\* 共享 uniqueId）；priority 全文件递减排序。
 - 机制字段（7 个，契约见 docs/docs/mod/battle/readme.md:95-108）：battleStatus（战斗开始授予永久状态，行为在 status_script.ht）/ deckCostReduction{color, amount, genres?, notGenres?}（组牌费修，amount 负=加费，color:'all' 命中首个费用条目）/ shuffleIntoDeck[卡牌主词条 id] / turnStartScry N / turnStartExtraDraw{count, costIncrease?{amount, notGenres?}} / energyRetain{resourceId, max, costPerPoint?, costDamageType?}（回合结束资源保留+每点代价）/ statsBonus{statsId: 数值}（stats 直加，scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等）。
 - 机制字段之外的普通数值词条（basicEnergyBonus / battleDrawBonus / deckMinSizeReduce）不在白名单，走 .value 数值。
-- 绝世装备专用词条区（passives.json5:1328-1379）：不写用途标记、不进随机词条池，数值定值内嵌机制字段；一件装备的逻辑效果合并为一条主词条（多机制字段共存），affixes 只写主词条、给后续额外词条留出解锁位。
+- 绝世装备词条区：主词条合并一件装备的逻辑效果（多机制字段共存）；五件悟道装备均已配置 1 主 + 5 固定额外词条，生成时解锁前 rank+1 条，后续槽位休眠。额外词条分 A（复用现有随机池）/ B（新共享且进随机池）/ C（新共享但不进随机池）三层；C 层不写用途标记。
 
 ### 5.3 装备→战斗联动链路
 
@@ -111,7 +111,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ### 5.6 绝世装备
 
-- 数据约定（items.json5:235-271 模板注释 + :273-362 悟道五件）：显式写 rank（不写 rarity）、uniqueId == id、isUnstackable、isUnique、isIdentified: false（默认未鉴定）、affixes 首条为主词条、图标初期占位 item/unknown.png。同一 uniqueId 同时只能装备一件。
+- 数据约定：显式写 rank（不写 rarity）、uniqueId == id、isUnstackable、isUnique、isIdentified: false（默认未鉴定）、affixes 首条为主词条、装备图标初期占位 item/unknown.png。同一 uniqueId 同时只能装备一件。五件悟道装备均为 1 主 + 5 固定额外词条；createItemById 未传 level 时按 rank 境界区间补默认等级，生成时只解锁前 rank+1 条。
 - 悟道五件（装备 → 词条 → 机制）：
   - 窥天镜 heaven_peeking_mirror（rank1，talisman/pearl）→ battleStatus: scry_self_ailments（观星后自施 2 种元素异常）+ statsBonus: {scryBonus: 2}
   - 五行珠 five_elements_pearl（rank2，amulet）→ statsBonus: {ailmentInflictBonus: 2, ailmentReceiveBonus: 2}

@@ -69,6 +69,9 @@
 | `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                       |
 | `self/opponent_attacked` / `self/opponent_buffed`          | 使用攻击牌 / 加持牌后                                                                 |
 
+观星入口合计基础数量、全局 `stats.scryBonus` 与卡牌局部 `scryOptions.scryBonus` 后，
+最终查看数最多为 `kScryCardCountMax = 5`，再按牌库剩余数截断；空牌库不分发 `self_scry`。
+
 按流派（genre）/套路（kind）细分用牌行为的现行模式：挂通用时机（如 `self_doing_damage`、`self_used_card`），
 在脚本内按 `details.kind` / `getLastUsedCard()` 判定（参考 `increase_damage_*`、`element_cycle`）。
 （`use_card_genre_*` / `use_card_kind_*` / `extra_turn` / `overflowed_energy` 等专用时机已无 Dart 派发点，停用。）

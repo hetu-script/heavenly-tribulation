@@ -902,4 +902,61 @@
     callbacks: ["self_produce_resources"],
     manaBonus: 3,
   },
+  // 观星留存：每回合第一次观星后，选中牌获得保留
+  scry_retention: {
+    id: "scry_retention",
+    title: "status_scry_retention",
+    description: "status_scry_retention_description",
+    icon: "icon/status/permanent/scry_retention.png",
+    isPermanent: true,
+    script: "scry_retention",
+    callbacks: ["self_scry"],
+  },
+  // 化厄为灵：每回合第一次获得元素异常时，获得 1 层 resourceId 资源
+  first_ailment_to_mana: {
+    id: "first_ailment_to_mana",
+    title: "status_first_ailment_to_mana",
+    description: "status_first_ailment_to_mana_description",
+    icon: "icon/status/permanent/first_ailment_to_mana.png",
+    isPermanent: true,
+    script: "first_ailment_to_mana",
+    callbacks: ["self_gained_debuff"],
+    resourceId: "energy_positive_spell",
+  },
+  // 灵气细流：回合产出阶段获得 1 点灵气，复用聚灵脚本
+  turn_start_spell_mana_1: {
+    id: "turn_start_spell_mana_1",
+    title: "status_turn_start_spell_mana_1",
+    description: "status_turn_start_spell_mana_1_description",
+    icon: "icon/status/permanent/turn_start_spell_mana_1.png",
+    isPermanent: true,
+    script: "turn_start_mana_bonus",
+    callbacks: ["self_produce_resources"],
+    manaBonus: 1,
+  },
+  // 聚气成势：灵气达到阈值时，受到的伤害按乘区2降低
+  mana_threshold_guard: {
+    id: "mana_threshold_guard",
+    title: "status_mana_threshold_guard",
+    description: "status_mana_threshold_guard_description",
+    icon: "icon/status/permanent/mana_threshold_guard.png",
+    isPermanent: true,
+    script: "mana_threshold_guard",
+    callbacks: ["self_taking_damage"],
+    resourceId: "energy_positive_spell",
+    threshold: 5,
+    reductionPercent: 20,
+  },
+  // 一炁：回合结束时灵气为 0，获得护甲
+  mana_empty_defend: {
+    id: "mana_empty_defend",
+    title: "status_mana_empty_defend",
+    description: "status_mana_empty_defend_description",
+    icon: "icon/status/permanent/mana_empty_defend.png",
+    isPermanent: true,
+    script: "mana_empty_defend",
+    callbacks: ["self_turn_end"],
+    resourceId: "energy_positive_spell",
+    defense: 8,
+  },
 }

@@ -479,4 +479,32 @@ namespace StatusScript {
   function turn_start_mana_bonus_self_produce_resources(self, opponent, effect, details) {
     self.addStatusEffect('energy_positive_spell', amount: effect.manaBonus ?? 3)
   }
+
+  /// 观星留存：每回合第一次观星后，选中牌获得保留
+  function scry_retention_self_scry(self, opponent, effect, details) {
+    if (self.turnFlags['scryRetentionTriggered'] == true) return
+    self.turnFlags['scryRetentionTriggered'] = true
+    details['chosen'].isRetained = true
+  }
+
+  /// 化厄为灵：每回合第一次获得元素异常时，获得 1 层资源
+  /// 获得事件先于辟邪抵消结算，修正后层数 <=0 时不会进入本回调
+  function first_ailment_to_mana_self_gained_debuff(self, opponent, effect, details) {
+    if (self.turnFlags['firstAilmentToManaTriggered'] == true) return
+    if (!Constants.elementAilments.values.contains(details['id'])) return
+    self.turnFlags['firstAilmentToManaTriggered'] = true
+    self.addStatusEffect(effect.resourceId, amount: 1)
+  }
+
+  /// 聚气成势：灵气达到阈值时，受到的伤害按独立乘区2降低
+  function mana_threshold_guard_self_taking_damage(self, opponent, effect, details) {
+    if (self.hasStatusEffect(effect.resourceId) < effect.threshold) return
+    details.percentageChange2 -= effect.reductionPercent / 100
+  }
+
+  /// 一炁：回合结束时灵气为 0，获得护甲
+  function mana_empty_defend_self_turn_end(self, opponent, effect, details) {
+    if (self.hasStatusEffect(effect.resourceId) > 0) return
+    self.addStatusEffect('defense', amount: effect.defense)
+  }
 }
