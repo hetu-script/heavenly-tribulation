@@ -130,7 +130,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - lib/data/common.dart 是常量唯一来源（kCamelCase）；lib/data/constants.dart 经 HTExternalClass 导出；scripts/main/binding/constants.ht 在脚本侧声明；脚本中以 Constants.xxx 访问（如 Constants.elementAilments / equipmentCategoryKinds / rankToRarity / basePriceByKind）。
 - 数值公式同属 Dart 机制层：calculateCardAffixValue / calculatePassiveAffixValue / calculateCostValue / calculateItemBasePrice 实现于 GameLogic（logic.dart），经 app.dart bindExternalFunction 绑定、scripts/main/logic/logic.ht 声明 external，脚本侧全局直调（同 minLevelForRank / getMinMaxExtraAffixCount 等先例）；hetu item.ht 的 calculatePrice 只是写回 item.price 的薄壳。
-- lib/data/common_data.dart 是纯常量拆分（供校验器在纯 Dart VM 下 import，不能引入 Flutter/dart:ui）；结构契约表（回调契约、机制字段形状、cardType/filter 键等）硬编码在校验器中，新增数据约定时需同步校验器。
+- lib/data/constants.dart 是纯常量模块，由 lib/data/common.dart 导出（供校验器在纯 Dart VM 下 import，不能引入 Flutter/dart:ui）；结构契约表（回调契约、机制字段形状、cardType/filter 键等）硬编码在校验器中，新增数据约定时需同步校验器。
 
 ## 8. 本地化（assets/locale/zh/rpg/）
 
