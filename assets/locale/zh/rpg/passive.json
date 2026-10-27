@@ -161,7 +161,7 @@
   "passive_upgradeRank_1_description": "提升修为时有概率触发凝气境天道试炼",
   "passive_upgradeRank_2_description": "提升修为时有概率触发筑基境天道试炼",
   "passive_upgradeRank_3_description": "提升修为时有概率触发结丹境天道试炼",
-  "passive_upgradeRank_4_description": "提升修为时有概率触发元婴境天道试炼",
+  "passive_upgradeRank_4_description": "提升修为时有概率触发还婴境天道试炼",
   "passive_upgradeRank_5_description": "提升修为时有概率触发化神境天道试炼",
 
   "passive_overheal_description": "生命 {0} (可超过上限)",
