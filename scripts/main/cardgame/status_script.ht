@@ -370,17 +370,11 @@ namespace StatusScript {
   function yin_yang_five_elements_self_turn_end(self, opponent, effect, details) {
     var mana = self.hasStatusEffect(effect.resourceId)
     if (mana <= 0) return
-    // 扣除将被保留到下回合的部分（见 character.dart clearResourceEffects 的资源保留机制）
-    for (final source in ['passives', 'ephemeralPassives']) {
-      final passives = self.data[source]
-      if (passives == null) continue
-      for (final key in passives.keys) {
-        final retain = passives[key]['energyRetain']
-        if (retain == null) continue
-        if (retain['resourceId'] != effect.resourceId) continue
-        final retainMax = retain['max'] ?? 0
-        if (retainMax > 0) mana -= Math.min(mana, retainMax)
-      }
+    // 与回合开始资源清理读取同一份聚合后的保留配置
+    final retain = self.data.stats.energyRetain?[effect.resourceId]
+    if (retain != null) {
+      final retainMax = retain['max'] ?? 0
+      if (retainMax > 0) mana -= Math.min(mana, retainMax)
     }
     if (mana <= 0) return
     final damageTypes = ['fire', 'ice', 'lightning']

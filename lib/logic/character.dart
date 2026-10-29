@@ -2057,19 +2057,29 @@ bool _characterUnlockPassiveTreeNode(
     // 属性点类的node，记录的是选择的具体属性的名字
     unlockedNodes[nodeId] = selectedAttributeId;
     engine.hetu.invoke(
-      'characterSetPassive',
+      'characterAddPassiveSourceById',
       positionalArgs: [character, selectedAttributeId],
-      namedArgs: {'level': kPassiveTreeAttributeAnyLevel},
+      namedArgs: {
+        'level': kPassiveTreeAttributeAnyLevel,
+        'sourceKey': 'passive_tree:$nodeId:$selectedAttributeId',
+        'sourceType': 'passive_tree',
+        'sourceId': nodeId,
+      },
     );
   } else {
     unlockedNodes[nodeId] = true;
     final List nodePassiveData = passiveTreeNodeData['passives'];
-    for (final data in nodePassiveData) {
+    for (var i = 0; i < nodePassiveData.length; ++i) {
+      final data = nodePassiveData[i];
       engine.hetu.invoke(
-        'characterSetPassive',
+        'characterAddPassiveSourceById',
         positionalArgs: [character, data['id']],
         namedArgs: {
           'level': data['level'] ?? 1,
+          'sourceKey': 'passive_tree:$nodeId:${data['id']}',
+          'sourceType': 'passive_tree',
+          'sourceId': nodeId,
+          'affixIndex': i,
         },
       );
     }
@@ -2082,32 +2092,11 @@ void _characterRefundPassiveTreeNode(
   dynamic character,
   String nodeId,
 ) {
-  final passiveTreeNodeData = GameData.passiveSkills[nodeId];
   final unlockedNodes = character['unlockedPassiveTreeNodes'];
-  bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-
-  if (isAttribute) {
-    final attributeId = unlockedNodes[nodeId];
-    assert(kBattleAttributes.contains(attributeId));
-    // engine.hetu.invoke('refundPassive',
-    //     namespace: 'Player', positionalArgs: ['lifeMax']);
-    engine.hetu.invoke(
-      'characterSetPassive',
-      positionalArgs: [character, attributeId],
-      namedArgs: {'level': -kPassiveTreeAttributeAnyLevel},
-    );
-  } else {
-    final List nodePassiveData = passiveTreeNodeData['passives'];
-    for (final data in nodePassiveData) {
-      engine.hetu.invoke(
-        'characterSetPassive',
-        positionalArgs: [character, data['id']],
-        namedArgs: {
-          'level': -(data['level'] ?? 1),
-        },
-      );
-    }
-  }
+  engine.hetu.invoke(
+    'characterRemovePassiveSourcesByOwner',
+    positionalArgs: [character, 'passive_tree', nodeId],
+  );
   unlockedNodes.remove(nodeId);
 }
 

@@ -335,6 +335,16 @@ class BattleScene extends Scene {
         }
         opponentPrebattleStatus[statusId] = value;
       }
+      final ephemeralData = character.data['ephemeralPassives'][passiveId];
+      if (ephemeralData != null) {
+        int? value = ephemeralData['value'];
+        if (value == null) {
+          engine.warning('ephemeralData $ephemeralData has no field `value`!');
+          value = 1;
+        }
+        opponentPrebattleStatus[statusId] =
+            (opponentPrebattleStatus[statusId] ?? 0) + value;
+      }
     }
     return opponentPrebattleStatus;
   }
@@ -2054,16 +2064,8 @@ class BattleScene extends Scene {
   }
 
   void clearEphemeralPassives(BattleCharacter character) {
-    final ephemeralPassives = character.data['ephemeralPassives'];
-    final toBeRemovedEphemeralPassives = [];
-    for (final passiveId in ephemeralPassives.keys) {
-      if (ephemeralPassives[passiveId]['isPermanent'] != true) {
-        toBeRemovedEphemeralPassives.add(passiveId);
-      }
-    }
-    for (final passiveId in toBeRemovedEphemeralPassives) {
-      ephemeralPassives.remove(passiveId);
-    }
+    engine.hetu.invoke(
+        'characterClearEphemeralPassives', positionalArgs: [character.data]);
     engine.hetu
         .invoke('characterCalculateStats', positionalArgs: [character.data]);
   }

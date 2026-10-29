@@ -48,9 +48,8 @@ const kBattleCardGenreWeaponKinds = {
   'avatar': ['staff', 'spear'],
 };
 
-/// 被动词条数据：装备/天赋树（passives）与丹药/聚灵阵临时增益（ephemeralPassives）共用。
-/// 机制字段（battleStatus 等）在创建时从原始数据透传，
-/// 由 characterCalculateStats 聚合进 stats 后供战斗侧统一读取。
+/// 被动词条聚合结果：由 passivesRaw / ephemeralPassivesRaw 全量派生。
+/// level 仅用于展示，value 是同 ID 全部来源的未取整贡献汇总后再取整的结果。
 struct PassiveData {
   constructor ({
     id,
@@ -58,8 +57,8 @@ struct PassiveData {
     level,
     value,
     increment,
-    maxLevel,
     description,
+    sourceCount,
   }) {
     assert(id != null && description != null)
     this.id = id
@@ -67,8 +66,8 @@ struct PassiveData {
     this.level = level ?? 0
     this.value = value
     this.increment = increment
-    this.maxLevel = maxLevel
     this.description = description
+    this.sourceCount = sourceCount ?? 0
   }
 }
 
@@ -226,10 +225,12 @@ struct BattleEntity {
     // 对于其他节点，值是 true
     this.unlockedPassiveTreeNodes = {}
 
-    // 从装备或者天赋树中获得的被动加成，key是词条id
-    this.passives = {}
+    // 永久/临时被动的唯一真值：Map<被动id, Map<sourceKey, 完整来源快照>>
+    this.passivesRaw = {}
+    this.ephemeralPassivesRaw = {}
 
-    // 临时被动加成，临时性加成将会在战斗结束时移除
+    // 由 Raw 全量派生的聚合结果，业务代码不得直接修改
+    this.passives = {}
     this.ephemeralPassives = {}
 
     // 在秘境中获得的被动加成，将会在离开秘境时移除
@@ -305,9 +306,9 @@ function getMainAttribute(character) {
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括: 生命、伤害、防御等。
 function characterCalculateStats(character, { reset = false, rejuvenate = false}) {
-  if (reset) {
-    character.stats = {}
-  }
+  characterRecalculatePassives(character)
+  // stats 全部为派生数据，每次从干净对象重建，避免 statsBonus 等重复累计。
+  character.stats = {}
 
   character.lifeMax = Constants.baseLife + character.level * Constants.baseLifePerLevel
   character.battleLifeMax = character.lifeMax + character.strength
@@ -377,82 +378,91 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.battleDrawBonus = character.passives.battleDrawBonus?.value + character.ephemeralPassives.battleDrawBonus?.value
   character.stats.deckMinSizeReduce = character.passives.deckMinSizeReduce?.value + character.ephemeralPassives.deckMinSizeReduce?.value
   character.stats.handSizeMax = Constants.battleHandSizeMax
-  // 通用 stats 直加（词条数据声明 statsBonus: {statsId: 数值}，绝世装备主词条等固定词条用）：
-  // 观星深度 scryBonus（战斗侧 scry 读取）、元素异常层数修正 ailmentInflictBonus / ailmentReceiveBonus
-  //（战斗侧 addStatusEffect 读取）等
-  for (final source in [character.passives, character.ephemeralPassives]) {
-    for (final passiveData in source.values) {
-      final statsBonus = passiveData['statsBonus']
-      if (statsBonus == null) continue
-      for (final statId in statsBonus.keys) {
-        character.stats[statId] = (character.stats[statId] ?? 0) + statsBonus[statId]
+  // 通用 stats 直加：遍历全部原始来源；stats 已在函数开头重建，不会重复累计。
+  for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
+    for (final sources in raw.values) {
+      for (final passiveData in sources.values) {
+        final statsBonus = passiveData['statsBonus']
+        if (statsBonus == null) continue
+        for (final statId in statsBonus.keys) {
+          character.stats[statId] = (character.stats[statId] ?? 0) + statsBonus[statId]
+        }
       }
     }
   }
 
-  // 战斗机制字段聚合：passives + ephemeralPassives 双来源合并进 stats，
-  // Dart 战斗侧统一从 stats 读取（修改 passives 后必须重新执行本函数才会生效）：
-  // battleStatus 战斗开始授予状态（{状态id: 层数}，无 value 的标记型词条计 1 层）；
-  // deckCostReduction 组牌费用修正（规则列表，按来源顺序拼接）；
-  // shuffleIntoDeck 战斗开始洗入牌库（卡牌 id 列表拼接）；
-  // turnStartScry 回合开始观星张数（求和）；
-  // turnStartExtraDraw 回合开始额外抽牌（count 求和，costIncrease 多来源时后者覆盖）；
-  // energyRetain 资源保留（按 resourceId 合并：上限取大，代价沿用首个配置）
+  // 战斗机制按来源聚合；battleStatus 的普通原型绑定在同名被动内只计一次，
+  // 数值层数读取永久与临时聚合值之和，其他机制按各自契约消费全部来源。
   final battleStatusMap = {}
+  final battleStatusBindings = {}
   final deckCostReductionRules = []
   final shuffleIntoDeckIds = []
   let turnStartScryTotal = 0
   let extraDrawCount = 0
   let extraDrawCostIncrease
   final energyRetainMap = {}
-  for (final source in [character.passives, character.ephemeralPassives]) {
-    for (final passiveData in source.values) {
-      final battleStatus = passiveData['battleStatus']
-      if (battleStatus != null) {
-        final value = passiveData['value']
-        battleStatusMap[battleStatus] = (battleStatusMap[battleStatus] ?? 0) +
-            (value != null && value > 0 ? value : 1)
-      }
-      final deckCostReduction = passiveData['deckCostReduction']
-      if (deckCostReduction != null) {
-        deckCostReductionRules.add(deckCostReduction)
-      }
-      final shuffleIntoDeck = passiveData['shuffleIntoDeck']
-      if (shuffleIntoDeck != null) {
-        shuffleIntoDeckIds.addAll(shuffleIntoDeck)
-      }
-      final turnStartScry = passiveData['turnStartScry']
-      if (turnStartScry != null && turnStartScry > 0) {
-        turnStartScryTotal += turnStartScry
-      }
-      final turnStartExtraDraw = passiveData['turnStartExtraDraw']
-      if (turnStartExtraDraw != null) {
-        final count = turnStartExtraDraw['count']
-        if (count != null && count > 0) {
-          extraDrawCount += count
+  for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
+    for (final dataId in raw.keys) {
+      final sources = raw[dataId]
+      for (final passiveData in sources.values) {
+        final battleStatus = passiveData['battleStatus']
+        if (battleStatus != null) {
+          battleStatusBindings['${dataId}:${battleStatus}'] = {
+            dataId: dataId,
+            statusId: battleStatus,
+          }
         }
-        if (turnStartExtraDraw['costIncrease'] != null) {
-          extraDrawCostIncrease = turnStartExtraDraw['costIncrease']
+        final deckCostReduction = passiveData['deckCostReduction']
+        if (deckCostReduction != null) {
+          deckCostReductionRules.add(deckCostReduction)
         }
-      }
-      final energyRetain = passiveData['energyRetain']
-      if (energyRetain != null) {
-        final resourceId = energyRetain['resourceId']
-        final max = energyRetain['max']
-        if (resourceId != null && max != null && max > 0) {
-          final existing = energyRetainMap[resourceId]
-          if (existing == null) {
-            energyRetainMap[resourceId] = {
-              max: max,
-              costPerPoint: energyRetain['costPerPoint'] ?? 0,
-              costDamageType: energyRetain['costDamageType'] ?? 'pure',
+        final shuffleIntoDeck = passiveData['shuffleIntoDeck']
+        if (shuffleIntoDeck != null) {
+          shuffleIntoDeckIds.addAll(shuffleIntoDeck)
+        }
+        final turnStartScry = passiveData['turnStartScry']
+        if (turnStartScry != null && turnStartScry > 0) {
+          turnStartScryTotal += turnStartScry
+        }
+        final turnStartExtraDraw = passiveData['turnStartExtraDraw']
+        if (turnStartExtraDraw != null) {
+          final count = turnStartExtraDraw['count']
+          if (count != null && count > 0) {
+            extraDrawCount += count
+          }
+          if (turnStartExtraDraw['costIncrease'] != null) {
+            extraDrawCostIncrease = turnStartExtraDraw['costIncrease']
+          }
+        }
+        final energyRetain = passiveData['energyRetain']
+        if (energyRetain != null) {
+          final resourceId = energyRetain['resourceId']
+          final max = energyRetain['max']
+          if (resourceId != null && max != null && max > 0) {
+            final existing = energyRetainMap[resourceId]
+            if (existing == null) {
+              energyRetainMap[resourceId] = {
+                max: max,
+                costPerPoint: energyRetain['costPerPoint'] ?? 0,
+                costDamageType: energyRetain['costDamageType'] ?? 'pure',
+              }
+            } else if (max > existing.max) {
+              existing.max = max
             }
-          } else if (max > existing.max) {
-            existing.max = max
           }
         }
       }
     }
+  }
+  for (final binding in battleStatusBindings.values) {
+    final dataId = binding.dataId
+    final permanentValue = character.passives[dataId]?.value
+    final ephemeralValue = character.ephemeralPassives[dataId]?.value
+    var value = 0
+    if (permanentValue != null) value += permanentValue
+    if (ephemeralValue != null) value += ephemeralValue
+    battleStatusMap[binding.statusId] =
+        (battleStatusMap[binding.statusId] ?? 0) + (value > 0 ? value : 1)
   }
   character.stats.battleStatus = battleStatusMap
   character.stats.deckCostReduction = deckCostReductionRules
@@ -576,106 +586,144 @@ function getCharacterMovableTerrainKinds(character) {
   }
 }
 
-/// 被动的战斗机制字段透传列表（战斗侧按字段数据驱动，
-/// 由 characterCalculateStats 聚合进 stats 后供 Dart 统一读取）：
-/// battleStatus 战斗状态绑定 / deckCostReduction 组牌费用修正 / shuffleIntoDeck 洗入牌库 /
-/// turnStartScry 回合开始观星 / turnStartExtraDraw 回合开始额外抽牌 / energyRetain 资源保留 /
-/// statsBonus 通用 stats 直加
-const _kPassiveMechanismFields = [
-  'battleStatus',
-  'deckCostReduction',
-  'shuffleIntoDeck',
-  'turnStartScry',
-  'turnStartExtraDraw',
-  'energyRetain',
-  'statsBonus',
-]
+/// 创建一条独立的被动来源快照。Object.create 会深拷贝自有字段及嵌套配置，
+/// 聚合只读取快照自有字段，不通过原型链补取数值或机制。
+function _createPassiveSource(data, {
+  sourceKey,
+  sourceType,
+  sourceId,
+  affixIndex,
+  isMain,
+  level,
+}) {
+  final source = Object.create(data)
+  source.sourceKey = sourceKey
+  source.sourceType = sourceType
+  source.sourceId = sourceId
+  source.affixIndex = affixIndex
+  source.isMain = isMain ?? (affixIndex != null && affixIndex == 0)
+  source.level = level ?? data.level ?? 1
+  return source
+}
 
-/// 从 game.passives 原始数据创建 PassiveData（characterSetPassive 与
-/// characterSetEphemeralPassive 共用）：复制 priority/maxLevel/description，
-/// 按 increment × level 计算 value（maxLevel 封顶），并透传机制字段
-function _createPassiveData(dataId, {level = 1}) {
-  final passiveRawData = game.passives[dataId]
-  assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
-  final passiveData = PassiveData(
-    id: dataId,
-    priority: passiveRawData.priority ?? 0,
+function characterAddPassiveSource(character, source, {isEphemeral = false}) {
+  assert(source.id != null && source.sourceKey != null)
+  assert(source.sourceType != null && source.sourceId != null)
+  final raw = isEphemeral ? character.ephemeralPassivesRaw : character.passivesRaw
+  raw[source.id] ??= {}
+  raw[source.id][source.sourceKey] = source
+}
+
+function characterAddPassiveSourceById(character, dataId, {
+  level = 1,
+  sourceKey,
+  sourceType,
+  sourceId,
+  affixIndex,
+  isMain,
+  isEphemeral = false,
+}) {
+  final data = game.passives[dataId]
+  assert(data != null, 'passive data not found! id: ${dataId}')
+  final source = _createPassiveSource(data,
+    sourceKey: sourceKey,
+    sourceType: sourceType,
+    sourceId: sourceId,
+    affixIndex: affixIndex,
+    isMain: isMain,
     level: level,
-    maxLevel: passiveRawData.maxLevel,
-    description: passiveRawData.description,
   )
-  if (passiveRawData.increment != null) {
-    passiveData.increment = passiveRawData.increment
-    let passiveLevel = passiveData.level
-    if (passiveData.maxLevel != null && passiveData.level > passiveData.maxLevel) {
-      passiveLevel = passiveData.maxLevel
-    }
-    passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel)
-  }
-  for (final field in _kPassiveMechanismFields) {
-    final fieldValue = passiveRawData[field]
-    if (fieldValue != null) {
-      passiveData[field] = fieldValue
-    }
-  }
-  return passiveData
+  characterAddPassiveSource(character, source, isEphemeral: isEphemeral)
 }
 
-/// 提升或降低天赋技能等级
-/// 注意此函数调用时并不会检测天赋树节点位置和链接情况
-/// 也不会检查角色是否有足够的技能点
-/// 升级天赋时，并不会立刻影响角色数据，
-/// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
-/// 同名词条的 level 贡献会累加，多件装备的同名词条可以叠加，卸下时减去对应贡献
-function characterSetPassive(character, dataId, {level = 1}) {
-  if (level == 0) {
-    engine.warning('Character set passive error: level is zero, dataId: ${dataId}')
-    level = 1
-  }
-  if (character.passives[dataId] == null) {
-    if (level < 0) {
-      engine.warning('Could not found passive dataId [${dataId}] on character for decrease!')
-      return
-    }
-    character.passives[dataId] = _createPassiveData(dataId, level: level)
-  } else {
-    final passiveData = character.passives[dataId]
-    passiveData.level += level
-    if (passiveData.level <= 0) {
-      if (passiveData.level < 0) {
-        engine.warning('decrease passive level below zero, dataId: ${dataId}')
+function characterRemovePassiveSource(character, dataId, sourceKey, {isEphemeral = false}) {
+  final raw = isEphemeral ? character.ephemeralPassivesRaw : character.passivesRaw
+  final sources = raw[dataId]
+  if (sources == null) return
+  delete sources[sourceKey]
+  if (sources.isEmpty) delete raw[dataId]
+}
+
+function characterRemovePassiveSourcesByOwner(character, sourceType, sourceId, {isEphemeral = false}) {
+  final raw = isEphemeral ? character.ephemeralPassivesRaw : character.passivesRaw
+  for (final dataId in raw.keys.toList()) {
+    final sources = raw[dataId]
+    for (final sourceKey in sources.keys.toList()) {
+      final source = sources[sourceKey]
+      if (source.sourceType == sourceType && source.sourceId == sourceId) {
+        delete sources[sourceKey]
       }
-      delete character.passives[dataId]
-    } else {
-      let passiveLevel = passiveData.level
-      if (passiveData.maxLevel != null && passiveData.level > passiveData.maxLevel) {
-        passiveLevel = passiveData.maxLevel
-      }
-      passiveData.value = calculatePassiveAffixValue(passiveData, level: passiveLevel)
     }
+    if (sources.isEmpty) delete raw[dataId]
   }
 }
 
-/// 降低天赋技能等级
-// function characterRefundPassive(character, dataId, {level = 1}) {
-//   if (level == 0) {
-//     engine.warning('refund passive error: level is zero')
-//     return
-//   }
-//   if (character.passives[dataId] == null) {
-//     engine.warning('dataId [${dataId}] not found on character passives data for refund!')
-//     return
-//   }
-//   final passiveData = character.passives[dataId]
-//   passiveData.level -= level
-//   if (passiveData.value != null) {
-//     let passiveLevel = passiveData.level
-//     if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
-//       passiveLevel = passiveData.maxLevel
-//     }
-//     passiveData.value = (passiveData.increment * passiveLevel).round()
-//   }
-// }
+function _recalculatePassiveGroup(raw) {
+  final result = {}
+  for (final dataId in raw.keys) {
+    final sources = raw[dataId]
+    if (sources.isEmpty) continue
+    final first = sources.values.first
+    var levelTotal = 0
+    var valueTotal = 0.0
+    var hasValue = false
+    for (final source in sources.values) {
+      levelTotal += source.level ?? 1
+      if (source.base != null || source.increment != null) {
+        hasValue = true
+        valueTotal += calculatePassiveAffixContribution(source, level: source.level ?? 1)
+      }
+    }
+    result[dataId] = PassiveData(
+      id: dataId,
+      priority: first.priority ?? 0,
+      level: levelTotal,
+      value: hasValue ? valueTotal.round() : null,
+      increment: first.increment,
+      description: first.description,
+      sourceCount: sources.length,
+    )
+  }
+  return result
+}
+
+/// 从两组 Raw 全量重建最终 Map；最终 Map 仅供查询和展示，不作为来源真值。
+function characterRecalculatePassives(character) {
+  character.passives = _recalculatePassiveGroup(character.passivesRaw)
+  character.ephemeralPassives = _recalculatePassiveGroup(character.ephemeralPassivesRaw)
+}
+
+function _addEquipmentPassiveSources(character, item) {
+  if (item.affixes is! List) return
+  for (var i = 0; i < item.affixes.length; ++i) {
+    final source = _createPassiveSource(item.affixes[i],
+      sourceKey: 'equipment:${item.id}:${i}',
+      sourceType: 'equipment',
+      sourceId: item.id,
+      affixIndex: i,
+    )
+    characterAddPassiveSource(character, source)
+  }
+}
+
+/// 已装备物品的词条或等级变化后，按装备 UID 全量同步对应来源。
+function characterRefreshEquipmentPassives(character, item) {
+  characterRemovePassiveSourcesByOwner(character, 'equipment', item.id)
+  _addEquipmentPassiveSources(character, item)
+}
+
+function characterClearEphemeralPassives(character) {
+  final raw = character.ephemeralPassivesRaw
+  for (final dataId in raw.keys.toList()) {
+    final sources = raw[dataId]
+    for (final sourceKey in sources.keys.toList()) {
+      if (sources[sourceKey].isPermanent != true) {
+        delete sources[sourceKey]
+      }
+    }
+    if (sources.isEmpty) delete raw[dataId]
+  }
+}
 
 /// 检查角色是否拥有某个天赋技能，并将其数据返回
 function characterHasPassive(character, dataId) {
@@ -815,9 +863,7 @@ function characterEquip(entity, item, { index }) {
 
   if (equipped) {
     if (item.affixes is List) {
-      for (final passiveData in item.affixes) {
-        characterSetPassive(entity, passiveData.id, level: passiveData.level ?? 1)
-      }
+      _addEquipmentPassiveSources(entity, item)
       // 重新计算角色状态值
       characterCalculateStats(entity, rejuvenate: false)
     }
@@ -837,9 +883,7 @@ function characterUnequip(entity, item) {
   delete item.equippedPosition
 
   if (item.affixes is List) {
-    for (final passiveData in item.affixes) {
-      characterSetPassive(entity, passiveData.id, level: -(passiveData.level ?? 1))
-    }
+    characterRemovePassiveSourcesByOwner(entity, 'equipment', item.id)
     // 重新计算角色状态值
     characterCalculateStats(entity, rejuvenate: false)
   }
@@ -908,15 +952,21 @@ function characterFirstEquippedKind(entity, kind) {
   return null
 }
 
-/// 修改从丹药中获得的被动属性
-/// 相同的属性会被覆盖
-/// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
+/// 写入单条临时被动；同 ID 使用稳定 sourceKey，保持原有覆盖语义。
+/// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来。
 function characterSetEphemeralPassive(character, dataId, {level = 1}) {
   if (level == 0) {
     engine.warning('Character gain passive error: level is zero')
     return
   }
-  character.ephemeralPassives[dataId] = _createPassiveData(dataId, level: level)
+  characterAddPassiveSourceById(character, dataId,
+    level: level,
+    sourceKey: 'script:ephemeral:${dataId}',
+    sourceType: 'script',
+    sourceId: 'ephemeral',
+    isMain: false,
+    isEphemeral: true,
+  )
 }
 
 function characterConsumePotion(entity, item) {

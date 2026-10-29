@@ -79,7 +79,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ### 5.2 装备词条池：passives.json5（与天赋共享）
 
 - 用途标记布尔字段区分词条池：isEquipmentMain / isEquipmentExtraAffix / isToolExtraAffix / isPotionMain / isEphemeral（+ephemeralType）；天赋树节点无视用途标记直接引用 id；rank 门槛只对装备/丹药生效。同一词条可叠加多个标记（如 elementalResist 同时是装备主词条+额外词条+临时增益词条）。
-- 数值公式：calculatePassiveAffixValue = (base??0) + increment×level（maxLevel 封顶）——属性词条只有 increment 无 base；与卡牌的境界指数公式（calculateCardAffixValue）是两套。isDecrement 标记负向词条。
+- 数值公式：物品生成与单来源展示使用 calculatePassiveAffixValue = round((base??0) + increment×level)；角色聚合改用 calculatePassiveAffixContribution 计算各来源未取整贡献，同 ID 汇总后统一 round 一次——属性词条只有 increment 无 base；与卡牌的境界指数公式（calculateCardAffixValue）是两套。isDecrement 标记负向词条。
 - uniqueId 互斥组（同组词条一件装备只能 roll 到一个，如 increase*damage*\* 共享 uniqueId）；priority 全文件递减排序。
 - 机制字段（7 个，契约见 docs/docs/mod/battle/readme.md:95-108）：battleStatus（战斗开始授予永久状态，行为在 status_script.ht）/ deckCostReduction{color, amount, genres?, notGenres?}（组牌费修，amount 负=加费，color:'all' 命中首个费用条目）/ shuffleIntoDeck[卡牌主词条 id] / turnStartScry N / turnStartExtraDraw{count, costIncrease?{amount, notGenres?}} / energyRetain{resourceId, max, costPerPoint?, costDamageType?}（回合结束资源保留+每点代价）/ statsBonus{statsId: 数值}（stats 直加，scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等）。
 - 机制字段之外的普通数值词条（basicEnergyBonus / battleDrawBonus / deckMinSizeReduce）不在白名单，走 .value 数值。
@@ -87,10 +87,10 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ### 5.3 装备→战斗联动链路
 
-- 穿脱（battle_entity.ht:762-847）：characterEquip 校验（在 inventory、isEquippable、空栏位 equipmentSlotCount=rank+3 封顶 8、绝世 uniqueId 唯一）→ 遍历 item.affixes 逐条 characterSetPassive(entity, id, level)（:629-656，同名词条 level 贡献累加、卸下减对应贡献）写入 character.passives 副本 → characterCalculateStats 重算（改 passives 后必须重算才生效）。UI 调用链：stats_and_item.dart 右键菜单 → Player.equip/unequip（player.ht:352-356, :390-393）。
+- 穿脱（battle_entity.ht）：characterEquip 校验（在 inventory、isEquippable、空栏位 equipmentSlotCount=rank+3 封顶 8、绝世 uniqueId 唯一）→ 遍历 item.affixes，通过 Object.create 深拷贝完整词条快照，以 `equipment:{装备UID}:{词条位置}` 为 sourceKey 写入 character.passivesRaw；卸下时按 sourceType + 装备 UID 精确删除该装备全部来源 → characterCalculateStats 重算。已装备物品词条变化通过 characterRefreshEquipmentPassives 同步。UI 调用链：stats_and_item.dart 右键菜单 → Player.equip/unequip（player.ht）。
 - 类别限制只在 UI 层：kRestrictedEquipmentCategories（common.dart:359-367，weapon/shield/armor/gloves/helmet/boots/vehicle 七类）已装备同类时拒绝，除非角色有 ${category}UnrestrictedEquip 被动；characterEquip 内部不查类别。
-- 透传白名单 \_kPassiveMechanismFields（battle_entity.ht:583-591）：7 个机制字段经 \_createPassiveData（:596-621）挂到 PassiveData（HTStruct 动态属性，结构体本身不声明），漏加则字段永远到不了战斗侧。
-- 聚合（characterCalculateStats :392-468，passives + ephemeralPassives 双来源）：battleStatus 按状态 id 合并、层数累加；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加进 character.stats。
+- 被动真值与派生结果：passivesRaw / ephemeralPassivesRaw 均为 `Map<被动id, Map<sourceKey, 完整来源快照>>`，是唯一来源真值；passives / ephemeralPassives 由 characterRecalculatePassives 全量重建，只供查询与展示，业务代码不得直接写入。普通数值逐来源计算未取整贡献，同 ID 汇总后统一 round 一次；合计 level 仅用于展示。
+- 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
   - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
@@ -124,12 +124,12 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
 - 境界节点：passives.json5:1038-1074（spellcraft_rank_1~5 等，纯标记 + 机制字段），树节点附带 lifeMax 40×rank；悟道主轴已连通（track_4_4 → track_8_8 → track_12_8 → track_16_8 → track_20_4）。
 - 分支节点：passives.json5:1076-1104（skilltree*branch*\* 中性 id，设计上可多流派共享）；悟道的 4 个已实现但暂未上树连线。
-- 学天赋与穿装备同通道：characterSetPassive → characterCalculateStats（见 5.3），战斗侧只读被动数据。
+- 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。旧 characterSetPassive 正负等级接口已移除。
 
 ## 7. 常量同步（Dart ↔ Hetu）
 
 - lib/data/common.dart 是常量唯一来源（kCamelCase）；lib/data/constants.dart 经 HTExternalClass 导出；scripts/main/binding/constants.ht 在脚本侧声明；脚本中以 Constants.xxx 访问（如 Constants.elementAilments / equipmentCategoryKinds / rankToRarity / basePriceByKind）。
-- 数值公式同属 Dart 机制层：calculateCardAffixValue / calculatePassiveAffixValue / calculateCostValue / calculateItemBasePrice 实现于 GameLogic（logic.dart），经 app.dart bindExternalFunction 绑定、scripts/main/logic/logic.ht 声明 external，脚本侧全局直调（同 minLevelForRank / getMinMaxExtraAffixCount 等先例）；hetu item.ht 的 calculatePrice 只是写回 item.price 的薄壳。
+- 数值公式同属 Dart 机制层：calculateCardAffixValue / calculatePassiveAffixValue / calculatePassiveAffixContribution / calculateCostValue / calculateItemBasePrice 实现于 GameLogic（logic.dart），经 app.dart bindExternalFunction 绑定、scripts/main/logic/logic.ht 声明 external，脚本侧全局直调（同 minLevelForRank / getMinMaxExtraAffixCount 等先例）；hetu item.ht 的 calculatePrice 只是写回 item.price 的薄壳。
 - lib/data/constants.dart 是纯常量模块，由 lib/data/common.dart 导出（供校验器在纯 Dart VM 下 import，不能引入 Flutter/dart:ui）；结构契约表（回调契约、机制字段形状、cardType/filter 键等）硬编码在校验器中，新增数据约定时需同步校验器。
 
 ## 8. 本地化（assets/locale/zh/rpg/）

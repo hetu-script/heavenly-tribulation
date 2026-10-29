@@ -321,22 +321,28 @@ void main() {
         return character.stats
       }
       final character = {
-        passives: {
+        passivesRaw: {
           first: {
-            battleStatus: 'scry_retention',
-            turnStartExtraDraw: {
-              count: 1,
-              costIncrease: {amount: 1, notGenres: ['spellcraft']},
+            'equipment:item-a:0': {
+              battleStatus: 'scry_retention',
+              turnStartExtraDraw: {
+                count: 1,
+                costIncrease: {amount: 1, notGenres: ['spellcraft']},
+              },
             },
           },
           second: {
-            battleStatus: 'scry_retention',
-            turnStartExtraDraw: {
-              count: 1,
-              costIncrease: {amount: 1, notGenres: ['spellcraft']},
+            'equipment:item-b:0': {
+              battleStatus: 'scry_retention',
+              turnStartExtraDraw: {
+                count: 1,
+                costIncrease: {amount: 1, notGenres: ['spellcraft']},
+              },
             },
           },
         },
+        ephemeralPassivesRaw: {},
+        passives: {},
         ephemeralPassives: {},
         stats: {},
       }

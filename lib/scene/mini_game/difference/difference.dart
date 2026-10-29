@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:samsara/effect.dart';
 import 'package:flutter/material.dart' hide Image;
 // import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:json5/json5.dart';

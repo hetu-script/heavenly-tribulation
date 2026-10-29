@@ -344,6 +344,13 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'calculatePassiveAffixContribution',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.calculatePassiveAffixContribution(positionalArgs.first,
+                level: namedArgs['level'] ?? 0),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'calculateCostValue',
         ({positionalArgs, namedArgs}) =>
             GameLogic.calculateCostValue(positionalArgs[0], positionalArgs[1]),

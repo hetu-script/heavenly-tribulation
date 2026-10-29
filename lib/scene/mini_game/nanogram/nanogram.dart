@@ -6,7 +6,6 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
-import 'package:samsara/effect/confetti.dart';
 import 'package:samsara/components/ui/rich_text_component.dart';
 import 'package:samsara/components/sprite_component2.dart';
 

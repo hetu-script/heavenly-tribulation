@@ -576,13 +576,19 @@ final class GameLogic {
         .floor();
   }
 
-  /// 天赋和装备的词条数值（函数内 round 取整，保证返回整数）：base + increment × level。
-  /// maxLevel 封顶由调用方在传入 level 前处理（见 battle_entity.ht characterSetPassive）。
+  /// 单个被动来源的未取整数值贡献：base + increment × level。
+  /// 同 ID 多来源应分别调用本函数，汇总后统一取整，不逐来源提前取整。
   /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
-  static int calculatePassiveAffixValue(dynamic valueData, {int level = 0}) {
+  static num calculatePassiveAffixContribution(dynamic valueData,
+      {num level = 0}) {
     final base = (valueData['base'] as num?) ?? 0;
     final increment = (valueData['increment'] as num?) ?? 0;
-    return (base + increment * level).round();
+    return base + increment * level;
+  }
+
+  /// 物品生成等单来源展示场景的被动词条数值。
+  static int calculatePassiveAffixValue(dynamic valueData, {int level = 0}) {
+    return calculatePassiveAffixContribution(valueData, level: level).round();
   }
 
   /// 费用数值（函数内取整，保证返回整数）：固定数值条目 floor 返回；

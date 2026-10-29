@@ -9,7 +9,6 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/effect/camera_shake.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:samsara/widgets/ui/menu_builder.dart';
 import 'package:samsara/hover_info.dart';

@@ -21,6 +21,8 @@ external function calculateCardAffixValue(valueData, {level = 0, rank = 0}) -> i
 
 external function calculatePassiveAffixValue(valueData, {level = 0}) -> integer
 
+external function calculatePassiveAffixContribution(valueData, {level = 0}) -> number
+
 external function calculateCostValue(valueData, rank) -> integer
 
 external function getTribulationCountForRank(rank) -> integer

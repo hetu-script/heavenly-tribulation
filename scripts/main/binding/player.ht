@@ -606,14 +606,20 @@ namespace Player {
     // )
   }
 
-  function gainPassive(dataId, {level = 1}) {
-    assert(hero != null)
-    characterSetPassive(hero, dataId, level: level)
+  function gainPassive(dataId, {level = 1, sourceId}) {
+    assert(hero != null && sourceId != null)
+    characterAddPassiveSourceById(hero, dataId,
+      level: level,
+      sourceKey: 'script:${sourceId}:${dataId}',
+      sourceType: 'script',
+      sourceId: sourceId,
+      isMain: false,
+    )
   }
 
-  function refundPassive(dataId, {level = 1}) {
-    assert(hero != null)
-    characterSetPassive(hero, dataId, level: -level)
+  function refundPassive(dataId, {sourceId}) {
+    assert(hero != null && sourceId != null)
+    characterRemovePassiveSource(hero, dataId, 'script:${sourceId}:${dataId}')
   }
 
   function hasPassive(dataId) {
@@ -882,6 +888,7 @@ namespace Player {
     }
 
     characterSetEphemeralPassive(hero, affix.id, level: level)
+    characterCalculateStats(hero)
     engine.info('聚灵阵赋予buff: ${affix.id} lv${level}')
   }
 }
