@@ -694,6 +694,24 @@
     keywords: ["affix_mana_battery"],
   },
 
+  // 一法破万法：本回合每使用过一种元素，本牌伤害 +{0}%
+  cycle_enhance: {
+    id: "cycle_enhance",
+    uniqueId: "cycle_enhance",
+    categories: ["attack"],
+    genres: ["spellcraft"],
+    rank: 4,
+    description: "affix_cycle_enhance",
+    script: "increase_damage_by_used_elements",
+    priority: -2,
+    valueData: [
+      {
+        base: 8,
+        increment: 1,
+      },
+    ],
+  },
+
   // ------------额外词条·悟道绝世卡专属------------
   // 悟道绝世卡的固定词条：顶层 inUnpackable: true（永不进入随机词条池），不写 genres；
   // 纯数据词条（无 script）由宿主卡主脚本在打出时收集 scryOptions / 修饰字段后兑现
@@ -1106,22 +1124,6 @@
       },
     ],
     keywords: ["status_ailment_lightning"],
-    inUnpackable: true,
-  },
-  // 一法破万法：本回合每使用过一种元素，本牌伤害 +{0}%
-  spellcraft_ultimate_spell_affix_4: {
-    id: "spellcraft_ultimate_spell_affix_4",
-    uniqueId: "spellcraft_ultimate_spell_affix_4",
-    categories: ["attack"],
-    description: "affix_spellcraft_ultimate_spell_affix_4",
-    script: "increase_damage_by_used_elements",
-    priority: -2,
-    valueData: [
-      {
-        base: 8,
-        increment: 1,
-      },
-    ],
     inUnpackable: true,
   },
   // 归宗之后：打出后抽 {0} 张牌并使其费用变为 0（动态费用不受影响），但你获得 {1} 点逆灵之气

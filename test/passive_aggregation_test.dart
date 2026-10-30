@@ -35,6 +35,10 @@ void main() {
           'description': 'passive_dexterity_description',
           'increment': 0.5,
         },
+        'decreaseTribulationDifficulty': {
+          'id': 'decreaseTribulationDifficulty',
+          'description': 'passive_decreaseTribulationDifficulty_description',
+        },
       },
     });
     hetu.assign('Constants', {
@@ -63,6 +67,15 @@ void main() {
     hetu.eval('''
       external function calculatePassiveAffixContribution(valueData, {level = 0}) -> number
       external function getTribulationCountForRank(rank) -> integer
+      final kItemCategoryPotion = 'potion'
+      final engine = {
+        info: function(message) {},
+        warning: function(message) {},
+      }
+      function entityLose(entity, item, {amount = 1}) {
+        delete entity.inventory[item.id]
+        return true
+      }
       ${loadPassiveSource()}
     ''');
     return hetu;
@@ -301,5 +314,54 @@ void main() {
     expect(character['passives']['battle_status_test']['value'], 1);
     expect(character['stats']['battleStatus'].length, 1);
     expect(character['stats']['battleStatus']['test_status'], 1);
+  });
+
+  test('治疗丹药通过真实服用入口恢复生命并消耗物品', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      character.life = 50.0
+      character.inventory = {}
+      final potion = {
+        id: 'potion-heal',
+        name: '治疗丹药',
+        category: kItemCategoryPotion,
+        affixes: [
+          {id: 'heal', value: 20, level: 1},
+        ],
+      }
+      character.inventory[potion.id] = potion
+      characterCalculateStats(character)
+      characterConsumePotion(character, potion)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['life'], 70.0);
+    expect(character['inventory'], isEmpty);
+  });
+
+  test('渡劫减难写入临时聚合并在消费时精确移除来源', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      characterSetEphemeralPassive(character, 'decreaseTribulationDifficulty')
+      characterCalculateStats(character)
+    ''');
+    dynamic character = hetu.fetch('character');
+    expect(
+        character['ephemeralPassives']['decreaseTribulationDifficulty'],
+        isNotNull);
+
+    hetu.eval('''
+      characterRemovePassiveSource(character, 'decreaseTribulationDifficulty',
+        'script:ephemeral:decreaseTribulationDifficulty', isEphemeral: true)
+      characterCalculateStats(character)
+    ''');
+    character = hetu.fetch('character');
+    expect(character['ephemeralPassivesRaw']['decreaseTribulationDifficulty'],
+        isNull);
+    expect(character['ephemeralPassives']['decreaseTribulationDifficulty'],
+        isNull);
   });
 }

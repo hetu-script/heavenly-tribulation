@@ -1773,9 +1773,20 @@ class CultivationScene extends Scene with HasCursorState {
     int level = levelMax;
 
     bool isDifficultyDecreased = false;
-    if (GameData.hero['passives']['decreaseTribulationDifficulty'] != null) {
+    if (GameData.hero['ephemeralPassives']['decreaseTribulationDifficulty'] !=
+        null) {
       isDifficultyDecreased = true;
-      GameData.hero['passives'].remove('decreaseTribulationDifficulty');
+      engine.hetu.invoke(
+        'characterRemovePassiveSource',
+        positionalArgs: [
+          GameData.hero,
+          'decreaseTribulationDifficulty',
+          'script:ephemeral:decreaseTribulationDifficulty',
+        ],
+        namedArgs: {'isEphemeral': true},
+      );
+      engine.hetu.invoke('characterCalculateStats',
+          positionalArgs: [GameData.hero]);
       dialog.pushDialog('tribulation_difficulty_decreased');
       await dialog.execute();
     }

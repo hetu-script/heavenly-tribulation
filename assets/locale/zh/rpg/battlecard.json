@@ -205,6 +205,8 @@
   "affix_ailment_spread_description": "不经异常计数器，必定附加。元素对应异常：金→流血、木→中毒、水→冰缓、火→点燃、土→内伤、风→幻觉、雷→感电",
   "affix_cycle_draw": "若上一张打出的牌与本牌元素不同：抽 {0} 张牌",
   "affix_cycle_draw_description": "轮转：交替打出不同元素的牌时获得抽牌；与「专注」不会同时触发",
+  "affix_cycle_enhance": "一法破万法：本回合每使用过一种元素，本牌伤害 +{0}%",
+  "affix_cycle_enhance_description": "一法破万法：用过的元素皆是大道注脚，归宗一刻层层叠加",
   "affix_mana_burst": "打出时若灵气不少于 5 层：本牌伤害 +{0}%",
   "affix_mana_burst_description": "灵气当回合产出、当回合耗尽；在灵气充盈时打出可获得额外伤害",
   "affix_mana_battery": "下个回合获得 {0} 点灵气",
@@ -281,8 +283,6 @@
   "affix_spellcraft_ultimate_spell_affix_2_description": "万法余波：灵气的浪潮退去后，余波凝为护体之壁",
   "affix_spellcraft_ultimate_spell_affix_3": "雷行九霄：若对手已持有感电，本牌伤害 +{0}%",
   "affix_spellcraft_ultimate_spell_affix_3_description": "雷行九霄：对手感电未消，此雷乘势直上九霄，威力更增",
-  "affix_spellcraft_ultimate_spell_affix_4": "一法破万法：本回合每使用过一种元素，本牌伤害 +{0}%",
-  "affix_spellcraft_ultimate_spell_affix_4_description": "一法破万法：用过的元素皆是大道注脚，归宗一刻层层叠加",
   "affix_spellcraft_ultimate_spell_affix_5": "归宗之后：打出后抽 {0} 张牌并使其费用变为 0（动态费用不受影响），但你获得 {1} 点逆灵之气",
   "affix_spellcraft_ultimate_spell_affix_5_description": "归宗之后：万法归宗后抽牌一张并化去其费，但逆灵之气的阴影随之而来",
 

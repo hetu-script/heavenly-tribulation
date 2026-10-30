@@ -230,8 +230,6 @@ engine.hetu.invoke('functionName', positionalArgs: [...], namedArgs: {...});
 - 事件回调函数通常为 `async`
 - 修改脚本后必须重新运行 `python build.py` 生成 `.mod` 文件
 
-注意因为 git bash 环境不能直接使用 hetu 命令，需要改为使用 hetu.bat 的完整文件名才能调用 hetu 命令行工具。
-
 ### 游戏数据（JSON5）
 
 - 所有数据文件为顶层对象，以实体 ID 为键

@@ -75,6 +75,7 @@
 | `mana_burst` | 3 | 攻击 | 若打出时灵气不少于 5 点，本牌伤害 +{0}%。 |
 | `cycle_draw` | 3 | 加持 | 若上一张打出的牌与本牌元素不同，抽 {0} 张牌。 |
 | `mana_battery` | 4 | 加持 | 下回合产出阶段额外获得 {0} 点灵气。 |
+| `cycle_enhance` | 4 | 攻击 | 本回合每使用过一种元素，本牌伤害 +{0}%。 |
 
 ## 绝世卡牌
 
@@ -166,7 +167,7 @@
 | 1 | `spellcraft_ultimate_spell_affix_1` 落雷击顶 | 超额部分每点对对手施加 1 层感电，可使本次攻击立即发生元素转化。 |
 | 2 | `spellcraft_ultimate_spell_affix_2` 万法余波 | 超额部分每点获得 {0} 点护甲。 |
 | 3 | `spellcraft_ultimate_spell_affix_3` 雷行九霄 | 若对手在打出前已持有感电，本牌伤害 +{0}%。 |
-| 4 | `spellcraft_ultimate_spell_affix_4` 一法破万法 | 本回合每使用过一种元素，本牌伤害 +{0}%，含本牌雷元素。 |
+| 4 | `cycle_enhance` 一法破万法 | 本回合每使用过一种元素，本牌伤害 +{0}%，含本牌雷元素。 |
 | 5 | `spellcraft_ultimate_spell_affix_5` 归宗之后 | 抽 {0} 张牌并使其费用变为 0（动态费用除外），自身获得 {1} 点逆灵之气。 |
 
 逆灵之气属于资源而非减益，不能被辟邪抵消。

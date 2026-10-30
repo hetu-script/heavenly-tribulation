@@ -1348,6 +1348,8 @@ final class GameLogic {
               GameData.hero,
               'decreaseTribulationDifficulty'
             ]);
+            engine.hetu.invoke('characterCalculateStats',
+                positionalArgs: [GameData.hero]);
         }
       case 'craftmaterial_upgradeRank':
         engine.play(GameSound.drink);
@@ -1355,6 +1357,8 @@ final class GameLogic {
           'characterSetEphemeralPassive',
           positionalArgs: [GameData.hero, 'decreaseTribulationDifficulty'],
         );
+        engine.hetu.invoke('characterCalculateStats',
+            positionalArgs: [GameData.hero]);
         engine.hetu.invoke('lose',
             namespace: 'Player',
             positionalArgs: [itemData],

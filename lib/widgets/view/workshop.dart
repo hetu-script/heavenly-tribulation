@@ -162,12 +162,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     final selectedAffixes =
         selectedAffixesForCraft.where((affix) => affix != null);
 
-    final affixes = [];
-    for (final affixItem in selectedAffixes) {
-      final affix = affixItem['affixes'][0];
-      assert(affix != null);
-      affixes.add(affix);
-    }
+    final affixes = selectedAffixes.toList();
 
     final equipment = engine.hetu.invoke('Equipment', namedArgs: {
       'kind': selectedCraftKind,
