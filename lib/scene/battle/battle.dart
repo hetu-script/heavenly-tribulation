@@ -284,12 +284,14 @@ class BattleScene extends Scene {
     // {状态id: 层数} 聚合进 stats.battleStatus（见 battle_entity.ht characterCalculateStats）；
     // 状态数据自带 isPermanent 等标记
     final battleStatuses = character.data['stats']?['battleStatus'];
+    final battleStatusParams = character.data['stats']?['battleStatusParams'];
     if (battleStatuses != null) {
       for (final statusId in battleStatuses.keys) {
         if (statusId is! String) continue;
         final amount = battleStatuses[statusId];
         character.addStatusEffect(statusId,
             amount: (amount is num && amount > 0) ? amount.toInt() : 1,
+            params: battleStatusParams?[statusId],
             handleCallback: false);
       }
     }
@@ -1169,7 +1171,12 @@ class BattleScene extends Scene {
       engine.hetu.invoke(
         '${scriptId}_$timing',
         namespace: 'CardScript',
-        positionalArgs: [character, character.opponent, card.data, affix],
+        positionalArgs: [
+          character,
+          character.opponent,
+          card.data,
+          engine.hetu.invoke('resolveGreaterAffix', positionalArgs: [affix])
+        ],
       );
     }
   }

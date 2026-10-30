@@ -104,7 +104,6 @@
   "passive_boots_unrestricted_equip_description": "可以同时装备多种靴子",
   "passive_vehicle_unrestricted_equip_description": "可以同时装备多种载具",
 
-  "passive_basicEnergyBonus_description": "每回合元气 {0}",
   "passive_battleDrawBonus_description": "每回合抽牌 {0}",
   "passive_deckMinSizeReduce_description": "卡组数量下限 {0}",
   "passive_tribulationCountMax_description": "劫数上限增加 {0}",
@@ -186,11 +185,21 @@
   "passive_ailment_ward_description": "受到的元素异常层数 -1",
   "passive_ailment_inflict_focus_description": "造成的元素异常层数 +1",
   "passive_scry_focus_description": "观星额外查看 1 张牌（最多查看 5 张）",
-  "passive_scry_retention_description": "每回合第一次观星后，选中的牌获得保留",
   "passive_ailment_to_mana_echo_description": "每回合第一次获得元素异常时，获得 1 点灵气",
   "passive_spell_mana_trickle_description": "回合产出阶段灵气 +1",
   "passive_non_spellcraft_tax_description": "非悟道牌费用 +1",
   "passive_spellcraft_cost_down_description": "悟道牌灵气费用 -1",
   "passive_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%",
-  "passive_mana_empty_defend_description": "回合结束时若灵气为 0，获得 8 点护甲"
+  "passive_scry_upgrade_description": "每回合第一次观星后，选中的牌等级 +1",
+  "passive_handSizeMax_greater_description": "手牌上限 +2",
+  "passive_ailment_ward_greater_description": "受到的元素异常层数 -2",
+  "passive_ailment_inflict_focus_greater_description": "造成的元素异常层数 +2",
+  "passive_scry_focus_greater_description": "观星额外查看 2 张牌（最多查看 5 张）",
+  "passive_scry_upgrade_greater_description": "每回合第一次观星后，选中的牌等级 +2",
+  "passive_ailment_to_mana_echo_greater_description": "每回合第一次获得元素异常时，获得 2 点灵气",
+  "passive_spell_mana_trickle_greater_description": "回合产出阶段灵气 +2",
+  "passive_non_spellcraft_tax_greater_description": "非悟道牌费用 +0（不再增加费用）",
+  "passive_spellcraft_cost_down_greater_description": "悟道牌灵气费用 -2",
+  "passive_mana_threshold_guard_greater_description": "灵气不少于 5 点时，受到的伤害 -30%",
+  "passive_turnStartExtraDraw_greater_description": "回合开始时额外抽 2 张牌；通过此效果抽到的非悟道牌本回合费用 +1"
 }

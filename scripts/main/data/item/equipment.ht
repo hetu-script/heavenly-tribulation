@@ -72,7 +72,7 @@ struct Equipment {
     final mainAffixes = game.passives.values.where((affix) {
       if (!affix.isEquipmentMain) return false
       if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
-      if (affix.rank > this.rank) return false
+      if ((affix.rank ?? 0) > this.rank) return false
       return true
     })
     if (mainAffixes.isEmpty) {
@@ -115,7 +115,7 @@ struct Equipment {
             if (this.affixUniqueIds.contains(affix.id) ||
               (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
             if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
-            if (affix.rank > this.rank) return false
+            if ((affix.rank ?? 0) > this.rank) return false
             return true
           })
           if (supportAffixes.isEmpty) {
@@ -139,13 +139,28 @@ struct Equipment {
         }
       }
     } else {
+      final countInfo = getMinMaxExtraAffixCount(this.rank)
       for (final affixData in affixes) {
         final affix = Object.create(affixData)
+        final sourceRank = affix.sourceRank
+        if (sourceRank != null && sourceRank > this.rank) {
+          throw('Extracted affix source rank exceeds target equipment rank: ${affix.id}')
+        }
+        if (affix.isGreater == true) {
+          final greaterCount = this.affixes.where((entry) => entry.isGreater == true).length
+          if (greaterCount >= countInfo.maxGreater) {
+            throw('Too many greater affixes for target equipment: ${affix.id}')
+          }
+          if (sourceRank != null) affix.level = maxLevelForRank(sourceRank)
+          affix.value = calculatePassiveAffixValue(affix,
+            level: affix.level, isGreater: true)
+        }
         this.affixes.add(affix)
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
       }
     }
 
+    _rollGreaterPassiveAffixes(this, Constants.greaterAffixGenerationChance)
     calculatePrice(this)
 
     this.experienced = []

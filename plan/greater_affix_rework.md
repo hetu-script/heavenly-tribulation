@@ -1,5 +1,7 @@
 # 卡牌、装备与丹药词条数量及太古词条重构计划
 
+> 状态：阶段一～四已实现并完成验证；丹药与聚灵阵的临时配置整体替换按独立计划后续实施。
+>
 > 本文只规划词条系统重构，不包含御剑流派本身的机制设计与落地。
 >
 > 本文负责卡牌、装备和丹药的词条生成、数值、打造、展示及永久被动聚合。丹药服用与聚灵阵产生的临时增益如何替换、生效和清除，统一由 `plan/exp_array_greater_affix_rework.md` 规划；本文不定义同 ID 临时被动覆盖规则。
@@ -92,6 +94,11 @@
 禁止对所有 `value` 和机制字段统一乘以 1.5。每个词条原型通过可选 `greater` 表显式声明自己是否可太古以及如何强化：
 
 ```json5
+example_default_affix: {
+  // 仅对 value[0] 应用 kDefaultGreaterAffixFactor（当前 1.5）
+  greater: true,
+},
+
 example_numeric_affix: {
   // 其他词条字段……
   greater: {
@@ -121,6 +128,7 @@ example_mechanism_affix: {
 
 规则：
 
+- `greater: true` 是默认强化简写，仅对 `value[0]` 应用 `kDefaultGreaterAffixFactor`（当前 1.5）；只能用于具有普通数值来源的词条。
 - `greater.values` 与 `valueData` 按下标对应，支持 `multiply`、`add`、`set`；缺省下标不改变数值。
 - 默认强化为满级普通值 ×1.5，但只有显式配置的词条才可太古。
 - 卡牌先按现有 `calculateCardAffixValue` 得出满级普通值，再应用 `greater.values`，最后沿用卡牌公式的 `floor` 取整；装备与丹药按 2.6 节先计算未取整普通贡献并应用同一配置，不在每个来源上提前取整。均不修改普通公式的基本结构。
@@ -444,20 +452,37 @@ greaterAffixes: [
 
 ### 5.8 文档同步
 
-至少更新：
+文档是各阶段的交付与验收内容，不作为最后可选的清理工作。实现对应机制时同步更新；阶段五只做全文一致性检查，不集中到末期补写。
 
-- `assets/data/cards.json5` 顶部旧 `isExalted` 构想注释，统一为本次 `isGreater` 规则。
-- `docs/docs/how2play/rpg/battle/card/readme.md`：数量表、太古获得/数值/锁定/破境、绝世成长。
-- `docs/docs/how2play/rpg/item/equipment/readme.md`：普通装备数量、生成太古、主词条不参与太古、绝世装备固定成长。
-- `docs/docs/how2play/rpg/item/consumable/readme.md`：普通丹药数量与生成太古。
-- `docs/docs/mod/battle/card/readme.md`：`greater`、`greaterAffixes`、`greater.description` 数据契约与脚本消费规则。
-- `plan/battle_system_overview.md`：普通卡牌、装备与丹药数量公式、绝世结构和太古实现状态。
+#### 玩家文档（`docs/docs/how2play/`）
+
+只说明玩家实际可见的规则，不展开内部数据结构：
+
+- `rpg/battle/card/readme.md`：普通卡牌额外词条数量表、太古获得方式、满级与数值、自动锁定、灵宝/神照/混元/真定/坐忘/破境、绝世卡“两次解锁＋三次固定太古”，以及首项费用 ±1、指定颜色费用与动态费用豁免。
+- `rpg/item/equipment/readme.md`：普通装备数量与太古生成、主词条不参与太古、绝世装备固定成长、太古提取及 `sourceRank`/填槽限制。
+- `rpg/item/consumable/readme.md`：普通丹药数量、太古生成与展示；若同期实现丹药快照服用或临时配置替换，同步对应服用规则。
+- `rpg/craft/readme.md`：混元“全体重随＋单次太古判定”、破境保留全部已有词条、灵宝满槽判定、太古提取与打造。
+- `rpg/cultivation/genre/spellcraft.md`：悟道绝世卡牌与绝世装备迁移后的实际效果。
+- `rpg/cultivation/readme.md`：仅在实施聚灵阵计划时更新，不作为前四个阶段的必需项。
+
+#### MOD 作者文档（`docs/docs/mod/`）
+
+与对应代码和校验器同时更新，准确记录数据契约、消费方与聚合规则：
+
+- `battle/card/readme.md`：`greater.values` 的 `add/multiply/set`、`greater.data` 的累加、`greater.alt` 的替换、`greaterAffixes`、`isGreater/isFreezed`、满级计算、描述切换、脚本消费、随机多张保留、观星连续升级、首项费用修正与动态费用豁免。
+- `battle/readme.md`：Raw 来源的太古快照、未取整贡献与统一取整、`battleStatusParams` 聚合与 `addStatusEffect(params:)` 透传、机制字段不统一缩放、牌库独立绝对下限。
+
+#### 项目内指引与总览
+
+- `assets/data/cards.json5` 顶部旧 `isExalted` 构想注释统一为本次 `isGreater` 规则。
+- `.agents/skills/battlecard/SKILL.md`：同步新的额外词条数量、太古规则、绝世固定成长和相关校验要求，清除“0～6 个额外词条”“绝世额外词条总数等于境界”等旧约定。
+- `.agents/context/battle_system.md`：普通卡牌、装备与丹药数量公式、绝世结构和太古实现状态。
 - `plan/demo_scope.md`：仅同步太古条目是否已进入本期范围，不扩大其他 DEMO 内容。
 - 悟道设计文档及本地化中受固定成长迁移影响的描述。
 
 ## 6. 分阶段实施顺序
 
-本文保留为太古重构的总计划，长度主要来自悟道绝世内容迁移清单，不再继续拆成更多计划文件。实际执行按以下阶段交付；每个阶段先完成实现、测试和验收，再进入下一阶段，避免一次性修改全部系统与数据。
+本文保留为太古重构的总计划，长度主要来自悟道绝世内容迁移清单，不再继续拆成更多计划文件。实际执行按以下阶段交付；每个阶段先完成实现、数据、校验、测试、对应文档和验收，再进入下一阶段，避免一次性修改全部系统与数据。各阶段应同步的文档按 5.8 节对应范围执行，不得集中到末期补写。
 
 ### 阶段一：公共数量、数值与运行时模型
 
@@ -578,4 +603,4 @@ python build.py
 - 太古的惩罚移除与机制参数变化通过 `greater.description` 正确展示，不在普通状态提前出现；牌库下限使用独立绝对下限。
 - 永久被动按来源未取整贡献聚合并按被动 ID 一次取整，主词条普通贡献与额外词条太古修正在穿脱、退点后均正确；`maxLevel` 字段及封顶逻辑全部移除。
 - 太古提取词条保留完整快照，填入时校验目标 rank 与太古上限且不重新判定。
-- 数据校验、静态分析、脚本编译及完整测试通过，相关文档与本地化已同步。
+- 数据校验、静态分析、脚本编译及完整测试通过，相关本地化已同步；5.8 节所列玩家文档、MOD 作者文档、项目内指引与总览均已按对应阶段更新，并完成全文一致性检查。

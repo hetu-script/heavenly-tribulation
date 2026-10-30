@@ -48,11 +48,10 @@
   // 主词条等级始终和卡牌等级一致
   // level: 0,
   // value: [0]
-  // isExalted:（未实现，暂缓——目前仅是设计构想，无任何代码实现）
-  // 圣化效果（只有化神卡牌可以圣化，圣化只能进行一次）：
-  // 1, 获得一个可以突破数量限制的额外词条，词条是圣化专属列表中随机获得。
-  // 2, 卡牌的词条等级全部提升20%
-  // 3, 卡牌费用变成3点无色
+  // greater:（额外词条可选）true 表示对 value[0] 应用常量默认倍率；表形式的 values 控制指定下标，
+  // data 累加既有机制参数，alt 替换指定机制字段，description 为可选太古专用描述；本阶段只强化原有效果。
+  // greaterAffixes:（绝世卡主词条可选）rank 3～5 依次将三个固定额外词条太古化。
+  // isGreater: 运行时太古品质；isFreezed: 卡牌打造保护标记，太古时自动锁定。
   // isUnpackable:
   // 不会出现在卡包中
   // isEphemeral:（可选）
@@ -1268,9 +1267,12 @@
     affixes: [
       "spellcraft_scry_draw_affix_1",
       "spellcraft_scry_draw_affix_2",
-      "spellcraft_scry_draw_affix_3",
-      "spellcraft_scry_draw_affix_4",
       "spellcraft_scry_draw_affix_5",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_scry_draw_affix_5" },
+      { rank: 4, affixId: "spellcraft_scry_draw_affix_2" },
+      { rank: 5, affixId: "spellcraft_scry_draw_affix_1" },
     ],
   },
   // 相生相克：轮转路线循环卡——对双方施加随机元素异常（applyToSelf），
@@ -1304,8 +1306,11 @@
       "spellcraft_ailments_by_used_elements_affix_1",
       "cleanse_draw",
       "ailment_kinds_to_mana",
-      "for_element_ailment_defend",
-      "draw_by_self_ailment_kinds",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_ailments_by_used_elements_affix_1" },
+      { rank: 4, affixId: "ailment_kinds_to_mana" },
+      { rank: 5, affixId: "cleanse_draw" },
     ],
   },
   // 一气化三清：抉择水/火/雷之一（discover 临时元素卡），本回合双方造成的该元素伤害 +value[0]%
@@ -1352,11 +1357,14 @@
       },
     ],
     affixes: [
-      "spellcraft_element_amplify_affix_1",
-      "spellcraft_element_amplify_affix_2",
       "spellcraft_element_amplify_affix_3",
       "spellcraft_element_amplify_affix_4",
       "spellcraft_element_amplify_affix_5",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_element_amplify_affix_5" },
+      { rank: 4, affixId: "spellcraft_element_amplify_affix_4" },
+      { rank: 5, affixId: "spellcraft_element_amplify_affix_3" },
     ],
   },
   // 蓄灵诀：自异常引擎核心——自身每有一种元素异常（七种查表），获得 value[0] 点灵气
@@ -1387,10 +1395,13 @@
     ],
     affixes: [
       "spellcraft_ailments_to_mana_affix_1",
-      "cleanse_draw",
-      "ailment_kinds_to_ultimate",
       "spellcraft_ailments_to_mana_affix_4",
       "spellcraft_ailments_to_mana_affix_5",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_ailments_to_mana_affix_1" },
+      { rank: 4, affixId: "spellcraft_ailments_to_mana_affix_5" },
+      { rank: 5, affixId: "spellcraft_ailments_to_mana_affix_4" },
     ],
   },
   // 太上忘情：获得状态「太上忘情」——回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
@@ -1423,9 +1434,12 @@
     affixes: [
       "spellcraft_handcards_to_mana_affix_1",
       "spellcraft_handcards_to_mana_affix_2",
-      "spellcraft_handcards_to_mana_affix_3",
       "spellcraft_handcards_to_mana_affix_4",
-      "hand_size_defend",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_handcards_to_mana_affix_2" },
+      { rank: 4, affixId: "spellcraft_handcards_to_mana_affix_4" },
+      { rank: 5, affixId: "spellcraft_handcards_to_mana_affix_1" },
     ],
   },
 
@@ -1486,11 +1500,14 @@
       },
     ],
     affixes: [
-      "defend",
       "spellcraft_draw_cards_affix_1",
-      "spellcraft_draw_cards_affix_2",
       "spellcraft_draw_cards_affix_3",
       "spellcraft_draw_cards_affix_4",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_draw_cards_affix_1" },
+      { rank: 4, affixId: "spellcraft_draw_cards_affix_3" },
+      { rank: 5, affixId: "spellcraft_draw_cards_affix_4" },
     ],
   },
 
@@ -1526,10 +1543,13 @@
     ],
     affixes: [
       "spellcraft_ultimate_spell_affix_1",
-      "spellcraft_ultimate_spell_affix_2",
-      "spellcraft_ultimate_spell_affix_3",
       "cycle_enhance",
       "spellcraft_ultimate_spell_affix_5",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "spellcraft_ultimate_spell_affix_1" },
+      { rank: 4, affixId: "cycle_enhance" },
+      { rank: 5, affixId: "spellcraft_ultimate_spell_affix_5" },
     ],
   },
 

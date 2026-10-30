@@ -159,7 +159,7 @@ struct Potion {
     if (this.mainAffixId == null) {
       final mainAffixes = game.passives.values.where((affix) {
         if (!affix.isPotionMain) return false
-        if (affix.rank > this.rank) return false
+        if ((affix.rank ?? 0) > this.rank) return false
         return true
       })
       if (mainAffixes.isEmpty) {
@@ -200,7 +200,7 @@ struct Potion {
           if (!affix.isEphemeral) return false
           if (this.affixUniqueIds.contains(affix.id) ||
             (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
-          if (affix.rank > this.rank) return false
+          if ((affix.rank ?? 0) > this.rank) return false
           return true
         })
         if (supportAffixes.isEmpty) {
@@ -224,7 +224,8 @@ struct Potion {
         this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
       }
     }
-    
+
+    _rollGreaterPassiveAffixes(this, Constants.greaterAffixGenerationChance)
     calculatePrice(this)
 
     this.experienced = []

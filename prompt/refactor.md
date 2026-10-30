@@ -1,4 +1,4 @@
-@plan/battle_system_overview.md 这个文档可以让你从总体上理解本项目中和战斗有关的部分。
+@.agents/context/battle_system.md 这个文档可以让你从总体上理解本项目中和战斗有关的部分。
 
 @lib/scene/battle/battle.dart 这是一个类似杀戮尖塔的玩法游戏场景。但做了一些修改，比如卡牌是用类似暗黑破坏神的词缀系统随机生成的 (数据 @scripts/main/cardgame/card.ht 主词缀 @assets/data/cards.json5 额外词缀 @assets/data/card_affixes.json5 )。卡牌脚本 @scripts/main/cardgame/card_script.ht, 状态数据：@assets/data/status_effect.json5 状态脚本 @scripts/main/cardgame/status_script.ht。另外以上这些都使用了本地化字符串，(@assets/locale/zh/rpg/)。 同时关于这些系统我也写了文档，位置在 @docs/docs/how2play/rpg/
 
@@ -6,11 +6,13 @@
 
 我们目前已经完成了悟道流派（spellcraft）的境界节点词条和关键分叉节点词条，流派卡牌的主词条和额外词条，绝世卡牌和绝世装备的整理工作。但目前尚未给技能树节点分配词条。接下来我们原本要设计御剑流派（swordcraft），御剑的计划文档也已经近乎整理完毕，只是尚未实施。而其他三个流派的计划尚处于草案，也未有任何代码实现。
 
-但在设计各个流派的过程中，我有一些新想法，打算重构目前的词条系统。目前我准备了几个新计划，分别是 @plan/greater_affix_rework.md 和 @greater_affix_content_design.md 以及 @plan/exp_array_greater_affix_rework.md。
+但在设计各个流派的过程中，我有一些新想法，打算重构目前的词条系统。目前我准备了几个新计划，分别是 @plan/greater_affix_rework.md 和 @plan/greater_affix_content_design.md 以及 @plan/exp_array_greater_affix_rework.md。
 
-请在理解现有设计，系统和代码，不用修改任何文件的基础上，评估新计划。如果你在梳理的过程中发现了已有的问题，也可以暂时记录下来之后报告给我。
+目前 @plan/greater_affix_rework.md 和 @plan/greater_affix_content_design.md 这两个文档的内容已经完成。
 
-如果你认为目前实施 greater_affix_rework.md 和 greater_affix_content_design.md 的时机已经成熟，可以告诉我。
+请在理解现有设计，系统和代码，不用修改任何文件的基础上，评估审查本次修改。
+
+如果你认为目前实施 @plan/exp_array_greater_affix_rework.md 的时机已经成熟，可以告诉我。
 
 ---
 
@@ -18,5 +20,10 @@
 
 ---
 
-我有一个关于之前的费用系统的问题。之前的某次重构中，我修改了费用的数据表达方式，允许多色费用的存在，但实际实现上，仍是以单色费用为主。然后在此基础上，我们会有一些效果涉及到加费和减费。我想让你确认，我们现在是如何实现的加费和减费，和我们现有的费用机制是如何相互作用的？未来如果允许出现多色牌，那么如何对应实现加费和减费？
+单一卡组问题
 
+哪些词条没有太古选项？
+
+关于hetu初始化时的特殊配置，是否要写在AGENTS.md里面，避免之后写测试时候踩坑？
+
+删除除了破镜丹之外，直接服用打造材料时的效果。

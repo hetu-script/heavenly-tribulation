@@ -14,6 +14,7 @@
         increment: 0.25,
       },
     ],
+    greater: true,
   },
   speed_quick: {
     id: "speed_quick",
@@ -29,6 +30,7 @@
         increment: 0.2,
       },
     ],
+    greater: true,
   },
   dodge_nimble: {
     id: "dodge_nimble",
@@ -44,6 +46,7 @@
         increment: 0.2,
       },
     ],
+    greater: true,
   },
   // 回复生命
   heal: {
@@ -58,6 +61,7 @@
         increment: 0.5,
       },
     ],
+    greater: true,
   },
   // 获得幸运
   buff_crit: {
@@ -76,6 +80,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 获得辟邪
   buff_ward: {
@@ -94,6 +101,7 @@
         increment: 0.05,
       },
     ],
+    greater: true,
   },
   // 获得护盾
   buff_shield: {
@@ -112,6 +120,7 @@
         increment: 0.05,
       },
     ],
+    greater: true,
   },
 
   // 对手获得易伤
@@ -131,6 +140,7 @@
         increment: 0.2,
       },
     ],
+    greater: true,
   },
   // 对手获得缓慢
   opponent_debuff_speed_slow: {
@@ -149,6 +159,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 对手获得迟钝
   opponent_debuff_dodge_clumsy: {
@@ -167,6 +178,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 对手获得不幸
   opponent_debuff_crit: {
@@ -185,6 +197,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 对手获得邪祟
   opponent_debuff_ward: {
@@ -203,6 +216,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 对手获得破绽
   opponent_debuff_shield: {
@@ -221,6 +235,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 对手降低全抗
   opponent_reduce_resist_all: {
@@ -238,6 +255,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 对手降低攻击力
   opponent_weaken_attack_all: {
@@ -255,6 +273,7 @@
         increment: 0.2,
       },
     ],
+    greater: true,
   },
 
   // 返还本牌消耗的气（按实际支付量，含太极抵扣部分；无 priority = 主词条后执行）
@@ -285,6 +304,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
 
   // 虚空侵蚀：给对手施加虚空之气（每层所有伤害 -5，与无极之气互相抵消）
@@ -304,6 +326,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
 
   // 临时升级手牌中的其他卡牌(buff)
@@ -341,6 +366,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
 
   // 升级：打出后本牌等级 +1（战斗内临时升级，可突破卡牌等级上限；
@@ -360,6 +388,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
 
   // 升级手牌（流派专属·御剑）
@@ -379,6 +410,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 升级手牌（流派专属·锻体）
   upgrade_hand_cards_bodyforge: {
@@ -397,6 +431,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 升级手牌（流派专属·炼魂）
   upgrade_hand_cards_vitality: {
@@ -415,6 +452,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 升级手牌（流派专属·法身）
   upgrade_hand_cards_avatar: {
@@ -433,6 +473,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
 
   by_damage_heal: {
@@ -448,6 +491,7 @@
         increment: 0.3,
       },
     ],
+    greater: true,
   },
   by_damage_defend: {
     id: "by_damage_defend",
@@ -463,6 +507,7 @@
         increment: 0.15,
       },
     ],
+    greater: true,
   },
 
   for_dexterity_increase_damage: {
@@ -475,6 +520,9 @@
     description: "affix_for_dexterity_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
+    greater: {
+      data: { attributeRate: 0.0075 },
+    },
   },
   for_strength_increase_damage: {
     id: "for_strength_increase_damage",
@@ -486,6 +534,9 @@
     description: "affix_for_strength_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
+    greater: {
+      data: { attributeRate: 0.0075 },
+    },
   },
   for_willpower_increase_damage: {
     id: "for_willpower_increase_damage",
@@ -497,6 +548,9 @@
     description: "affix_for_willpower_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
+    greater: {
+      data: { attributeRate: 0.0075 },
+    },
   },
   for_perception_increase_damage: {
     id: "for_perception_increase_damage",
@@ -508,6 +562,9 @@
     description: "affix_for_perception_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
+    greater: {
+      data: { attributeRate: 0.0075 },
+    },
   },
 
   // 保留（御剑流派专属）：入手时（added_to_hand）给卡牌添加 isRetained 标记，
@@ -549,6 +606,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 调息：若手牌中有其他同元素牌，本牌费用 -1（入手时检测减费，离开手牌区时还原；
   // 数值省略，脚本缺省 -1）；filter 中的 'self' 占位由脚本解析为本牌元素
@@ -564,6 +624,10 @@
     filter: { elementType: "self" },
     require: { elementType: true },
     keywords: ["affix_attune"],
+    greater: {
+      data: { costDelta: -1 },
+      description: "affix_attune_greater",
+    },
   },
   // 侵染：给对方施加 {0} 层本牌元素对应的元素异常（直接施加，不经异常计数器；
   // 元素→异常映射见 Constants.elementAilments）
@@ -582,6 +646,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
     keywords: ["affix_ailment_spread"],
   },
   for_spirituality_increase_damage: {
@@ -594,6 +659,9 @@
     description: "affix_for_spirituality_increase_damage",
     script: "for_attribute_increase_damage",
     rank: 1,
+    greater: {
+      data: { attributeRate: 0.0075 },
+    },
   },
   // 专注：若上一张打出的牌与本牌同元素，本牌伤害 +{0}%（专注路线，priority<0 先于主词条）
   elemental_focus: {
@@ -613,6 +681,7 @@
         increment: 2.5,
       },
     ],
+    greater: true,
     keywords: ["affix_elemental_focus"],
   },
   // 灵气爆发：打出时灵气（resourceId）≥ resourceThreshold 层，本牌伤害 +{0}%
@@ -634,6 +703,7 @@
         increment: 2.0,
       },
     ],
+    greater: true,
     keywords: ["affix_mana_burst"],
   },
   // 观星（悟道流派专属）：打出时观星 value[0] 张牌
@@ -652,6 +722,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
     keywords: ["affix_scry"],
   },
   // 轮转：若上一张打出的牌与本牌不同元素，抽 {0} 张牌（正选任意元素牌 +
@@ -672,6 +745,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
     keywords: ["affix_cycle_draw"],
   },
   // 蓄灵：下回合产出阶段额外获得 {0} 点灵气（resourceId）；
@@ -691,6 +767,7 @@
         increment: 0.02,
       },
     ],
+    greater: true,
     keywords: ["affix_mana_battery"],
   },
 
@@ -710,6 +787,7 @@
         increment: 1,
       },
     ],
+    greater: true,
   },
 
   // ------------额外词条·悟道绝世卡专属------------
@@ -723,6 +801,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_scry_draw_affix_1",
     scryOptions: { othersCostChange: 1 },
+    greater: {
+      alt: { scryOptions: { othersCostChange: 0 } },
+      description: "affix_spellcraft_scry_draw_affix_1_greater",
+    },
     inUnpackable: true,
   },
   // 摘星：观星选中的牌等级 +1
@@ -732,33 +814,23 @@
     categories: ["buff"],
     description: "affix_spellcraft_scry_draw_affix_2",
     scryOptions: { upgradeChosen: 1 },
+    greater: {
+      data: { scryOptions: { upgradeChosen: 1 } },
+      description: "affix_spellcraft_scry_draw_affix_2_greater",
+    },
     inUnpackable: true,
   },
-  // 星引：观星选中的牌费用 -1
-  spellcraft_scry_draw_affix_3: {
-    id: "spellcraft_scry_draw_affix_3",
-    uniqueId: "spellcraft_scry_draw_affix_3",
-    categories: ["buff"],
-    description: "affix_spellcraft_scry_draw_affix_3",
-    scryOptions: { chosenCostChange: -1 },
-    inUnpackable: true,
-  },
-  // 星驻：观星选中的牌获得保留
-  spellcraft_scry_draw_affix_4: {
-    id: "spellcraft_scry_draw_affix_4",
-    uniqueId: "spellcraft_scry_draw_affix_4",
-    categories: ["buff"],
-    description: "affix_spellcraft_scry_draw_affix_4",
-    scryOptions: { retainChosen: true },
-    inUnpackable: true,
-  },
-  // 窥天机：观星时额外查看 2 张
+  // 窥天机：观星时额外查看 1 张
   spellcraft_scry_draw_affix_5: {
     id: "spellcraft_scry_draw_affix_5",
     uniqueId: "spellcraft_scry_draw_affix_5",
     categories: ["buff"],
     description: "affix_spellcraft_scry_draw_affix_5",
-    scryOptions: { scryBonus: 2 },
+    scryOptions: { scryBonus: 1 },
+    greater: {
+      data: { scryOptions: { scryBonus: 1 } },
+      description: "affix_spellcraft_scry_draw_affix_5_greater",
+    },
     inUnpackable: true,
   },
 
@@ -776,6 +848,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
     inUnpackable: true,
   },
 
@@ -797,6 +872,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
   },
   // 以毒攻毒：自身持有不少于 3 种元素异常时，获得 1 点灵气
   ailment_kinds_to_mana: {
@@ -810,6 +888,10 @@
     threshold: 3,
     resourceId: "energy_positive_spell",
     count: 1,
+    greater: {
+      data: { count: 1 },
+      description: "affix_ailment_kinds_to_mana_greater",
+    },
   },
   // 处变不惊：自身持有不少于 3 种元素异常时，抽 1 张牌
   draw_by_self_ailment_kinds: {
@@ -822,6 +904,10 @@
     script: "draw_by_self_ailment_kinds",
     threshold: 3,
     count: 1,
+    greater: {
+      data: { count: 1 },
+      description: "affix_draw_by_self_ailment_kinds_greater",
+    },
   },
   // 以厄为铠：自身每有 1 层元素异常，获得 {0} 点护甲
   for_element_ailment_defend: {
@@ -838,6 +924,7 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
   // 苦厄生津：自身每有 1 层元素异常，回复 {0} 点生命
   for_element_ailment_heal: {
@@ -854,28 +941,9 @@
         increment: 0.1,
       },
     ],
+    greater: true,
   },
 
-  // 灵台守一：抉择后，下一次受到所选元素伤害时获得 1 层护盾
-  spellcraft_element_amplify_affix_1: {
-    id: "spellcraft_element_amplify_affix_1",
-    uniqueId: "spellcraft_element_amplify_affix_1",
-    categories: ["buff"],
-    description: "affix_spellcraft_element_amplify_affix_1",
-    guardValue: 1,
-    keywords: ["status_buff_shield"],
-    inUnpackable: true,
-  },
-  // 借力导气：对手使用所选元素的牌后，你下回合产出 +1 灵气
-  spellcraft_element_amplify_affix_2: {
-    id: "spellcraft_element_amplify_affix_2",
-    uniqueId: "spellcraft_element_amplify_affix_2",
-    categories: ["buff"],
-    description: "affix_spellcraft_element_amplify_affix_2",
-    mirrorMana: 1,
-    keywords: ["status_energy_positive_spell"],
-    inUnpackable: true,
-  },
   // 元素亲和：抉择后，本回合手牌中所选元素牌费用 -1
   spellcraft_element_amplify_affix_3: {
     id: "spellcraft_element_amplify_affix_3",
@@ -883,6 +951,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_element_amplify_affix_3",
     chosenCostReduce: -1,
+    greater: {
+      data: { chosenCostReduce: -1 },
+      description: "affix_spellcraft_element_amplify_affix_3_greater",
+    },
     inUnpackable: true,
   },
   // 灵气共鸣：打出时每有 1 点灵气，本次增幅 +5%
@@ -892,6 +964,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_element_amplify_affix_4",
     amplifyPerMana: 5,
+    greater: {
+      data: { amplifyPerMana: 5 },
+      description: "affix_spellcraft_element_amplify_affix_4_greater",
+    },
     inUnpackable: true,
   },
   // 三清护体：本回合受到所选元素的伤害 -30%
@@ -901,6 +977,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_element_amplify_affix_5",
     chosenDamageTakenReduce: 30,
+    greater: {
+      data: { chosenDamageTakenReduce: 15 },
+      description: "affix_spellcraft_element_amplify_affix_5_greater",
+    },
     inUnpackable: true,
   },
 
@@ -921,6 +1001,9 @@
         increment: 0.6,
       },
     ],
+    greater: {
+      values: [null, { mode: "multiply", factor: 1.5 }],
+    },
     keywords: ["status_defense"],
     inUnpackable: true,
   },
@@ -936,6 +1019,10 @@
     threshold: 5,
     resourceId: "energy_positive_ultimate",
     count: 1,
+    greater: {
+      data: { count: 1 },
+      description: "affix_ailment_kinds_to_ultimate_greater",
+    },
   },
   // 灵气回响：若本次获得灵气，本回合手牌中悟道牌费用 -1
   spellcraft_ailments_to_mana_affix_4: {
@@ -945,6 +1032,10 @@
     description: "affix_spellcraft_ailments_to_mana_affix_4",
     script: "mana_gained_cost_reduce",
     genre: "spellcraft",
+    greater: {
+      data: { costDelta: -1 },
+      description: "affix_spellcraft_ailments_to_mana_affix_4_greater",
+    },
     inUnpackable: true,
   },
   // 反噬成道：若本次获得不少于 {0} 点灵气，下回合开始受到获得数 ×{1} 点纯粹伤害，
@@ -970,6 +1061,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [null, null, { mode: "set", amount: 30 }],
+    },
     inUnpackable: true,
   },
 
@@ -982,6 +1076,10 @@
     script: "apply_status_params",
     priority: -1,
     statusParams: { damagePerCard: -3 },
+    greater: {
+      data: { statusParams: { damagePerCard: -2 } },
+      description: "affix_spellcraft_handcards_to_mana_affix_1_greater",
+    },
     inUnpackable: true,
   },
   // 静心：本牌施加的太上忘情，每张手牌的额外灵气 +1
@@ -993,22 +1091,10 @@
     script: "apply_status_params",
     priority: -1,
     statusParams: { resourcePerCard: 1 },
-    inUnpackable: true,
-  },
-  // 忘我：本牌结算后，下回合第一张悟道牌伤害 +{0}%
-  spellcraft_handcards_to_mana_affix_3: {
-    id: "spellcraft_handcards_to_mana_affix_3",
-    uniqueId: "spellcraft_handcards_to_mana_affix_3",
-    categories: ["buff"],
-    description: "affix_spellcraft_handcards_to_mana_affix_3",
-    script: "pending_genre_damage_bonus",
-    genre: "spellcraft",
-    valueData: [
-      {
-        base: 30,
-        increment: 2.5,
-      },
-    ],
+    greater: {
+      data: { statusParams: { resourcePerCard: 1 } },
+      description: "affix_spellcraft_handcards_to_mana_affix_2_greater",
+    },
     inUnpackable: true,
   },
   // 藏锋：打出时，手牌中随机一张悟道牌获得保留
@@ -1019,6 +1105,11 @@
     description: "affix_spellcraft_handcards_to_mana_affix_4",
     script: "retain_random_card_with_filter",
     filter: { genre: "spellcraft" },
+    valueData: [{ base: 1, isFixed: true }],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+      description: "affix_spellcraft_handcards_to_mana_affix_4_greater",
+    },
     inUnpackable: true,
   },
   // 无情：打出时若手牌数不少于 {1}，获得 {0} 点护甲
@@ -1039,6 +1130,7 @@
         isFixed: true,
       },
     ],
+    greater: true,
   },
 
   // 定星：抽到的牌等级 +1
@@ -1048,15 +1140,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_draw_cards_affix_1",
     drawnUpgrade: 1,
-    inUnpackable: true,
-  },
-  // 留命：抽到的牌获得保留
-  spellcraft_draw_cards_affix_2: {
-    id: "spellcraft_draw_cards_affix_2",
-    uniqueId: "spellcraft_draw_cards_affix_2",
-    categories: ["buff"],
-    description: "affix_spellcraft_draw_cards_affix_2",
-    drawnRetain: true,
+    greater: {
+      data: { drawnUpgrade: 1 },
+      description: "affix_spellcraft_draw_cards_affix_1_greater",
+    },
     inUnpackable: true,
   },
   // 星移：若抽到悟道牌，获得 1 点灵气
@@ -1066,6 +1153,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_draw_cards_affix_3",
     drawnManaIfGenre: { genre: "spellcraft", resourceId: "energy_positive_spell", count: 1 },
+    greater: {
+      data: { drawnManaIfGenre: { count: 1 } },
+      description: "affix_spellcraft_draw_cards_affix_3_greater",
+    },
     inUnpackable: true,
   },
   // 逆天改命：若抽到的不是悟道牌，额外抽 1 张牌（费用不再归零）
@@ -1075,6 +1166,10 @@
     categories: ["buff"],
     description: "affix_spellcraft_draw_cards_affix_4",
     drawnExtraDrawIfNotGenre: { genre: "spellcraft", count: 1 },
+    greater: {
+      data: { drawnExtraDrawIfNotGenre: { count: 1 } },
+      description: "affix_spellcraft_draw_cards_affix_4_greater",
+    },
     inUnpackable: true,
   },
 
@@ -1089,41 +1184,10 @@
     priority: -3,
     buffId: "ailment_lightning",
     keywords: ["status_ailment_lightning"],
-    inUnpackable: true,
-  },
-  // 万法余波：实际支付超过 10 点的每点灵气，获得 {0} 点护甲
-  spellcraft_ultimate_spell_affix_2: {
-    id: "spellcraft_ultimate_spell_affix_2",
-    uniqueId: "spellcraft_ultimate_spell_affix_2",
-    categories: ["attack"],
-    description: "affix_spellcraft_ultimate_spell_affix_2",
-    script: "defend_by_excess_paid",
-    valueData: [
-      {
-        base: 5,
-        isFixed: true,
-      },
-    ],
-    keywords: ["status_defense"],
-    inUnpackable: true,
-  },
-  // 雷行九霄：若对手已持有感电，本牌伤害 +{0}%
-  spellcraft_ultimate_spell_affix_3: {
-    id: "spellcraft_ultimate_spell_affix_3",
-    uniqueId: "spellcraft_ultimate_spell_affix_3",
-    categories: ["attack"],
-    description: "affix_spellcraft_ultimate_spell_affix_3",
-    script: "damage_boost_if_opponent_status",
-    // 先于落雷击顶执行，只响应打出前已经存在的感电
-    priority: -1,
-    buffId: "ailment_lightning",
-    valueData: [
-      {
-        base: 20,
-        increment: 2,
-      },
-    ],
-    keywords: ["status_ailment_lightning"],
+    greater: {
+      data: { ailmentPerExcess: 1 },
+      description: "affix_spellcraft_ultimate_spell_affix_1_greater",
+    },
     inUnpackable: true,
   },
   // 归宗之后：打出后抽 {0} 张牌并使其费用变为 0（动态费用不受影响），但你获得 {1} 点逆灵之气
@@ -1144,6 +1208,9 @@
         isFixed: true,
       },
     ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
     keywords: ["status_energy_negative_spell"],
     inUnpackable: true,
   },

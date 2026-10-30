@@ -395,6 +395,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   // 数值层数读取永久与临时聚合值之和，其他机制按各自契约消费全部来源。
   final battleStatusMap = {}
   final battleStatusBindings = {}
+  final battleStatusParams = {}
   final deckCostReductionRules = []
   final shuffleIntoDeckIds = []
   let turnStartScryTotal = 0
@@ -410,6 +411,27 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
           battleStatusBindings['${dataId}:${battleStatus}'] = {
             dataId: dataId,
             statusId: battleStatus,
+          }
+          final params = passiveData['statusParams']
+          if (params != null) {
+            var target = battleStatusParams[battleStatus]
+            if (target == null) {
+              target = {}
+              battleStatusParams[battleStatus] = target
+            }
+            for (final key in params.keys) {
+              final value = params[key]
+              final existing = target[key]
+              if (value is num && existing is num) {
+                target[key] = existing + value
+              } else if (value is bool && existing is bool) {
+                target[key] = existing || value
+              } else if (existing != null && existing != value) {
+                engine.warning('Conflicting battleStatus params: ${battleStatus}.${key}')
+              } else {
+                target[key] = value
+              }
+            }
           }
         }
         final deckCostReduction = passiveData['deckCostReduction']
@@ -465,6 +487,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
         (battleStatusMap[binding.statusId] ?? 0) + (value > 0 ? value : 1)
   }
   character.stats.battleStatus = battleStatusMap
+  character.stats.battleStatusParams = battleStatusParams
   character.stats.deckCostReduction = deckCostReductionRules
   character.stats.shuffleIntoDeck = shuffleIntoDeckIds
   character.stats.turnStartScry = turnStartScryTotal
@@ -596,7 +619,7 @@ function _createPassiveSource(data, {
   isMain,
   level,
 }) {
-  final source = Object.create(data)
+  final source = Object.create(resolveGreaterAffix(data))
   source.sourceKey = sourceKey
   source.sourceType = sourceType
   source.sourceId = sourceId
@@ -671,7 +694,9 @@ function _recalculatePassiveGroup(raw) {
       levelTotal += source.level ?? 1
       if (source.base != null || source.increment != null) {
         hasValue = true
-        valueTotal += calculatePassiveAffixContribution(source, level: source.level ?? 1)
+        valueTotal += calculatePassiveAffixContribution(source,
+          level: source.level ?? 1,
+          isGreater: source.isGreater == true && source.isMain != true)
       }
     }
     result[dataId] = PassiveData(
@@ -969,6 +994,16 @@ function characterSetEphemeralPassive(character, dataId, {level = 1}) {
   )
 }
 
+function _addPotionPassiveSnapshot(entity, item, affix, affixIndex) {
+  final source = _createPassiveSource(affix,
+    sourceKey: 'potion:${affix.id}',
+    sourceType: 'potion',
+    sourceId: item.id,
+    affixIndex: affixIndex,
+  )
+  characterAddPassiveSource(entity, source, isEphemeral: true)
+}
+
 function characterConsumePotion(entity, item) {
   assert(item.category == kItemCategoryPotion)
 
@@ -988,13 +1023,17 @@ function characterConsumePotion(entity, item) {
         setCharacterLife(entity, targetLife, overflow: true)
       }
     }
-    else: {
+    case 'decreaseTribulationDifficulty': {
+      // 保留渡劫消费时的精确移除键；普通丹药主词条不参与太古。
       characterSetEphemeralPassive(entity, mainAffix.id, level: mainAffix.level)
+    }
+    else: {
+      _addPotionPassiveSnapshot(entity, item, mainAffix, 0)
     }
   }
 
-  for (final passiveData in item.affixes.skip(1)) {
-    characterSetEphemeralPassive(entity, passiveData.id, level: passiveData.level)
+  for (var i = 1; i < item.affixes.length; ++i) {
+    _addPotionPassiveSnapshot(entity, item, item.affixes[i], i)
   }
   // 重新计算角色状态值
   characterCalculateStats(entity, rejuvenate: false)

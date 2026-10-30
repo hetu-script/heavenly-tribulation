@@ -65,6 +65,49 @@ function convertMoneyToShard(money) {
   return amount < 1 ? 1 : amount
 }
 
+function _markPassiveAffixGreater(item, affix) {
+  affix.isGreater = true
+  affix.level = maxLevelForRank(item.rank)
+  if (affix.base != null || affix.increment != null || affix.rankIncrement != null) {
+    affix.value = calculatePassiveAffixValue(affix,
+      level: affix.level, isGreater: true)
+  }
+}
+
+function _rollGreaterPassiveAffixes(item, chance) {
+  final candidates = []
+  for (var i = 1; i < item.affixes.length; ++i) {
+    final affix = item.affixes[i]
+    if (affix.isGreater ?? false) continue
+    if (affix.greater == null) continue
+    candidates.add(affix)
+  }
+  candidates.shuffle()
+  final countInfo = getMinMaxExtraAffixCount(item.rank)
+  for (final affix in candidates) {
+    final greaterCount = item.affixes.where((entry) => entry.isGreater == true).length
+    if (greaterCount >= countInfo.maxGreater) break
+    if (random.nextDouble() < chance) {
+      _markPassiveAffixGreater(item, affix)
+    }
+  }
+}
+
+function _applyItemPredefinedGreaterAffixes(item) {
+  final growth = item.greaterAffixes
+  if (growth is! List) return
+  for (final entry in growth) {
+    if (entry.rank > item.rank) continue
+    final matches = item.affixes.where((affix) => affix.id == entry.affixId)
+    if (matches.isEmpty) {
+      engine.warning('Found no unlocked greater affix for item: [${item.uniqueId ?? item.id}], affixId: ${entry.affixId}')
+      continue
+    }
+    final affix = matches.first
+    if (affix.isGreater != true) _markPassiveAffixGreater(item, affix)
+  }
+}
+
 function createItemById(id, {amount, rank, level}) {
   // TODO: 如果id不存在，则获得一个「未知物品」
   final prototype = game.items[id]
@@ -125,11 +168,11 @@ function createItemById(id, {amount, rank, level}) {
       item.level = getRandomLevel(minLevelForRank(item.rank), maxLevelForRank(item.rank))
     }
     let affixes = item.affixes.toList()
-    // 绝世装备与绝世卡同规则：affixes 第一个词条为主词条，
-    // 生成时按境界解锁列表前 rank + 1 个（装备破境暂未实现，解锁数在生成时固定）
+    // 绝世装备首条为主词条，额外词条最多 3 条，再按 greaterAffixes 成长。
     let unlockCount = affixes.length
     if (item.isUnique == true) {
-      unlockCount = Math.min(affixes.length, item.rank + 1)
+      unlockCount = Math.min(affixes.length, item.rank + 1,
+        Constants.maxNormalExtraAffixCount + 1)
     }
     item.affixes = []
     item.affixUniqueIds = Set()
@@ -156,6 +199,9 @@ function createItemById(id, {amount, rank, level}) {
       } else {
         item.affixUniqueIds.add(affix.uniqueId ?? affix.id)
       }
+    }
+    if (item.isUnique == true) {
+      _applyItemPredefinedGreaterAffixes(item)
     }
   }
 

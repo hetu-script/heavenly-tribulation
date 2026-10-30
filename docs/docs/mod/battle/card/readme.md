@@ -122,7 +122,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `script`                  | `CardScript` 中的函数名（打出时调用；时机回调为 `{script}_{时机}`）                                                                                                                     |
 | `callbacks`               | 额外响应的时机列表（见上方时机清单）                                                                                                                                                    |
 | `priority`                | 额外词条执行顺序：负数在主词条**之前**执行，其余在主词条之后按降序执行                                                                                                                  |
-| `valueData`               | 数值表（`base` / `increment` / `rankIncrement` / `maxLevel`），由 `calculateCardAffixValue` 求值为 `value` 列表                                                                         |
+| `valueData`               | 数值表（`base` / `increment` / `rankIncrement`），由 `calculateCardAffixValue` 求值为 `value` 列表                                                                                     |
 | `buffId`                  | `self_buff` / `opponent_debuff` / `attack_debuff` 等脚本读取的状态 id                                                                                                                   |
 | `keywords`                | 卡面附加说明的本地化标签（悬浮提示中展开为「标签 - 说明」）                                                                                                                             |
 | `categories`              | 额外词条可附加的卡牌类别（`attack` / `buff`）                                                                                                                                           |
@@ -139,6 +139,33 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | `threshold` / `count`     | 通用门槛 / 次数参数；元素异常种数判定、条件抽牌等脚本读取 |
 | `inUnpackable`            | 额外词条为 `true` 时不进入随机额外词条池，只能由绝世卡预定义列表固定授予；主词条沿用“不进卡包/随机池”语义 |
 | `isWildcardCostForbidden` | 主词条标记（合并到卡牌实例）：费用禁止以太极之气抵扣，必须本色气全额支付（如绝世·万法归宗） |
+
+### 太古词条 `greater`
+
+额外词条可通过可选 `greater` 声明太古强化；主词条不参与。没有 `greater` 的词条不能成为太古。
+`greater: true` 是默认倍率简写，只对 `value[0]` 应用常量 `kDefaultGreaterAffixFactor`（当前 1.5）；它只能用于有普通数值来源的词条。复杂配置仍使用表形式：
+
+```json5
+greater: {
+  values: [
+    null, // 下标 0 不强化
+    { mode: "multiply", factor: 1.5 }, // 下标 1
+    { mode: "add", amount: 1 }, // 下标 2
+    { mode: "set", amount: 30 }, // 下标 3
+  ],
+  data: { scryOptions: { upgradeChosen: 1 } },
+  alt: { scryOptions: { othersCostChange: 0 } },
+  description: "affix_example_greater",
+},
+```
+
+- `values` 与 `valueData` 按下标对应，`null` 表示不强化；卡牌先按当前境界满级计算普通值，再应用配置并 `floor`。
+- `data` 只累加既有数值或写入原机制尚缺的参数；`alt` 只替换列出的末端字段，适用于移除惩罚。二者不能配置同一路径，也不能追加普通词条没有的新机制。
+- `description` 是可选的太古专用本地化键；普通描述不能提前展示太古效果。
+- 运行时由 `resolveGreaterAffix` 从词条副本生成一次生效配置，先应用 `data`、再应用 `alt`，不修改公共原型。脚本派发和宿主脚本收集纯数据词条时都使用该入口；已解析快照带 `isGreaterResolved`，不会重复累加。
+- 绝世主词条另用 `greaterAffixes: [{rank, affixId}]` 指定 rank 3～5 的固定太古成长，目标必须已经解锁且带合法 `greater`。
+
+未指定颜色的费用 ±1 表示修改 `coloredCost` 首个条目；指定颜色时只修改对应条目。动态条目不参与减费和置零，加费只提高其最低门槛。
 
 ### 纯数据修饰字段
 

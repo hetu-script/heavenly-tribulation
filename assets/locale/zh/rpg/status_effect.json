@@ -191,14 +191,12 @@
   "status_turn_start_mana_bonus": "聚灵",
   "status_turn_start_mana_bonus_description": "回合开始时，获得 3 点悟道灵气。",
 
-  "status_scry_retention": "观星留存",
-  "status_scry_retention_description": "每回合第一次观星后，选中的牌获得保留。",
+  "status_scry_upgrade": "观星升级",
+  "status_scry_upgrade_description": "每回合第一次观星后，选中的牌等级 +1。",
   "status_first_ailment_to_mana": "化厄为灵",
   "status_first_ailment_to_mana_description": "每回合第一次获得元素异常时，获得 1 点灵气。",
   "status_turn_start_spell_mana_1": "灵气细流",
   "status_turn_start_spell_mana_1_description": "回合产出阶段，获得 1 点灵气。",
   "status_mana_threshold_guard": "聚气成势",
-  "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。",
-  "status_mana_empty_defend": "一炁",
-  "status_mana_empty_defend_description": "回合结束时，若灵气为 0，获得 8 点护甲。"
+  "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。"
 }

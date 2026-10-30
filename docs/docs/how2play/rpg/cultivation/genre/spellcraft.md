@@ -79,56 +79,60 @@
 
 ## 绝世卡牌
 
-绝世卡牌的词条 ID 固定，额外词条数量等于卡牌境界，并按列表顺序解锁。
+绝世卡牌最多有 3 个固定额外词条，凝气解锁 2 个、筑基解锁 3 个，结丹/还婴/化神依次将三个已有词条太古化。
 绝世卡牌需要鉴定，同一 `uniqueId` 在卡组中只能放入一张。
 
 ### 天机术 `spellcraft_scry_draw`
 
 观星 3 张，随后抽 1 张牌。选中牌置于牌库顶并由后续抽牌入手，未选牌进入弃牌堆。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
 | 1 | `spellcraft_scry_draw_affix_1` 余星蒙尘 | 观星未选中的牌费用 +1；同一张牌每场战斗只生效一次。 |
 | 2 | `spellcraft_scry_draw_affix_2` 摘星 | 观星选中的牌等级 +1。 |
-| 3 | `spellcraft_scry_draw_affix_3` 星引 | 观星选中的牌费用 -1。 |
-| 4 | `spellcraft_scry_draw_affix_4` 星驻 | 观星选中的牌获得保留。 |
-| 5 | `spellcraft_scry_draw_affix_5` 窥天机 | 本次观星额外查看 2 张。 |
+| 2 | `spellcraft_scry_draw_affix_5` 窥天机 | 本次观星额外查看 1 张。 |
+| 3 | `spellcraft_scry_draw_affix_5`（太古） | 本次观星额外查看 2 张。 |
+| 4 | `spellcraft_scry_draw_affix_2`（太古） | 观星选中的牌等级 +2。 |
+| 5 | `spellcraft_scry_draw_affix_1`（太古） | 未选牌费用由 +1 变为 +0，移除负面效果。 |
 
 ### 相生相克 `spellcraft_ailments_by_used_elements`
 
 对双方施加随机元素异常，种数等于本回合已使用的元素种数，至少 1 种；每种 {0} 层，不经异常计数器。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
 | 1 | `spellcraft_ailments_by_used_elements_affix_1` 五行相激 | 本回合每使用过一种元素，本次每种异常的施加层数 +{0}。 |
 | 2 | `cleanse_draw` 化浊为清 | 移除自身随机 1 种元素异常，抽 {0} 张牌。 |
-| 3 | `ailment_kinds_to_mana` 以毒攻毒 | 自身持有不少于 3 种元素异常时，获得 1 点灵气。 |
-| 4 | `for_element_ailment_defend` 以厄为铠 | 自身每有 1 层元素异常，获得 {0} 点护甲。 |
-| 5 | `draw_by_self_ailment_kinds` 处变不惊 | 自身持有不少于 3 种元素异常时，抽 1 张牌。 |
+| 2 | `ailment_kinds_to_mana` 以毒攻毒 | 自身持有不少于 3 种元素异常时，获得 1 点灵气。 |
+| 3 | `spellcraft_ailments_by_used_elements_affix_1`（太古） | 每种已用元素提供的异常层数加成由 1 提至 2。 |
+| 4 | `ailment_kinds_to_mana`（太古） | 达标时获得灵气由 1 点提至 2 点。 |
+| 5 | `cleanse_draw`（太古） | 抽牌数由 1 张提至 2 张，清除异常数量不变。 |
 
 ### 一气化三清 `spellcraft_element_amplify`
 
 抉择水、火、雷之一，本回合双方造成的该元素伤害 +{0}%，使用独立乘区。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
-| 1 | `spellcraft_element_amplify_affix_1` 灵台守一 | 下一次受到所选元素伤害时获得 1 层护盾，兑现后消耗。 |
-| 2 | `spellcraft_element_amplify_affix_2` 借力导气 | 对手使用所选元素牌后，自己下回合产出阶段 +1 灵气。 |
-| 3 | `spellcraft_element_amplify_affix_3` 元素亲和 | 本回合手牌中所选元素牌费用 -1。 |
-| 4 | `spellcraft_element_amplify_affix_4` 灵气共鸣 | 打出时每有 1 点灵气，自身本次增幅 +5%；对方只获得基础增幅。 |
-| 5 | `spellcraft_element_amplify_affix_5` 三清护体 | 本回合受到所选元素伤害 -30%，不消耗。 |
+| 1 | `spellcraft_element_amplify_affix_3` 元素亲和 | 本回合手牌中所选元素牌费用 -1。 |
+| 2 | `spellcraft_element_amplify_affix_4` 灵气共鸣 | 打出时每有 1 点灵气，自身本次增幅 +5%；对方只获得基础增幅。 |
+| 2 | `spellcraft_element_amplify_affix_5` 三清护体 | 本回合受到所选元素伤害 -30%，不消耗。 |
+| 3 | `spellcraft_element_amplify_affix_5`（太古） | 所选元素减伤由 30% 提至 45%。 |
+| 4 | `spellcraft_element_amplify_affix_4`（太古） | 每点灵气提供的自身增幅由 5% 提至 10%。 |
+| 5 | `spellcraft_element_amplify_affix_3`（太古） | 所选元素手牌费用由 -1 提至 -2。 |
 
 ### 蓄灵诀 `spellcraft_ailments_to_mana`
 
 自身每有一种元素异常，获得 {0} 点灵气。后续词条读取本次实际获得的灵气数量。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
 | 1 | `spellcraft_ailments_to_mana_affix_1` 纳气之后 | 若本次获得不少于 {0} 点灵气，每点获得 {1} 点护甲。 |
-| 2 | `cleanse_draw` 化浊为清 | 移除自身随机 1 种元素异常，抽 {0} 张牌。 |
-| 3 | `ailment_kinds_to_ultimate` 七情归一 | 自身持有不少于 5 种元素异常时，获得 1 点太极之气。 |
-| 4 | `spellcraft_ailments_to_mana_affix_4` 灵气回响 | 若本次获得灵气，本回合手牌中悟道牌费用 -1。 |
-| 5 | `spellcraft_ailments_to_mana_affix_5` 反噬成道 | 若本次获得不少于 {0} 点灵气，下回合开始受到获得数 ×{1} 点纯粹伤害，且下回合首张悟道牌伤害 +{2}%。 |
+| 2 | `spellcraft_ailments_to_mana_affix_4` 灵气回响 | 若本次获得灵气，本回合手牌中悟道牌费用 -1。 |
+| 2 | `spellcraft_ailments_to_mana_affix_5` 反噬成道 | 若本次获得不少于 {0} 点灵气，下回合开始受到获得数 ×{1} 点纯粹伤害，且下回合首张悟道牌伤害 +{2}%。 |
+| 3 | `spellcraft_ailments_to_mana_affix_1`（太古） | 每点灵气转化的护甲数值提高，3 点门槛不变。 |
+| 4 | `spellcraft_ailments_to_mana_affix_5`（太古） | 下回合首张悟道牌增伤由 15% 提至 30%，门槛与延迟自伤不变。 |
+| 5 | `spellcraft_ailments_to_mana_affix_4`（太古） | 悟道手牌费用由 -1 提至 -2。 |
 
 治疗会随机驱散一层负面效果，也可能因此减少可用的自身异常。
 
@@ -136,46 +140,49 @@
 
 获得「太上忘情」状态：回合结束时，每有一张手牌受到 10 点纯粹伤害；下回合产出阶段，每有一张手牌额外获得 1 点灵气。触发后移除该状态。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
 | 1 | `spellcraft_handcards_to_mana_affix_1` 舍念 | 本牌施加的状态，每张手牌的纯粹伤害 -3。 |
 | 2 | `spellcraft_handcards_to_mana_affix_2` 静心 | 本牌施加的状态，每张手牌的额外灵气 +1。 |
-| 3 | `spellcraft_handcards_to_mana_affix_3` 忘我 | 下回合第一张悟道牌伤害 +{0}%。 |
-| 4 | `spellcraft_handcards_to_mana_affix_4` 藏锋 | 手牌中随机一张悟道牌获得保留。 |
-| 5 | `hand_size_defend` 无情 | 若手牌数不少于 {1}，获得 {0} 点护甲。 |
+| 2 | `spellcraft_handcards_to_mana_affix_4` 藏锋 | 手牌中随机一张悟道牌获得保留。 |
+| 3 | `spellcraft_handcards_to_mana_affix_2`（太古） | 每张手牌的额外灵气由 +1 提至 +2。 |
+| 4 | `spellcraft_handcards_to_mana_affix_4`（太古） | 随机 2 张悟道手牌获得保留，目标不重复。 |
+| 5 | `spellcraft_handcards_to_mana_affix_1`（太古） | 每张手牌的纯粹伤害修正由 -3 提至 -5。 |
 
 ### 紫微斗数 `spellcraft_draw_cards_reduce_cost`
 
 消耗。抽 1 张法术牌并将其费用降为 0；动态费用条目不参与归零。
 该牌由分支节点洗入，境界与额外词条数量随授予时的角色境界决定。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
-| 1 | `defend` | 获得 {0} 点护甲。 |
-| 2 | `spellcraft_draw_cards_affix_1` 定星 | 抽到的牌等级 +1。 |
-| 3 | `spellcraft_draw_cards_affix_2` 留命 | 抽到的牌获得保留。 |
-| 4 | `spellcraft_draw_cards_affix_3` 星移 | 若抽到悟道牌，获得 1 点灵气。 |
-| 5 | `spellcraft_draw_cards_affix_4` 逆天改命 | 若抽到的不是悟道牌，额外抽 1 张；第二张不再归零。 |
+| 1 | `spellcraft_draw_cards_affix_1` 定星 | 抽到的牌等级 +1。 |
+| 2 | `spellcraft_draw_cards_affix_3` 星移 | 若抽到悟道牌，获得 1 点灵气。 |
+| 2 | `spellcraft_draw_cards_affix_4` 逆天改命 | 若抽到的不是悟道牌，额外抽 1 张；第二张不再归零。 |
+| 3 | `spellcraft_draw_cards_affix_1`（太古） | 抽到的牌升 2 级。 |
+| 4 | `spellcraft_draw_cards_affix_3`（太古） | 抽到悟道牌时灵气获得量由 1 提至 2。 |
+| 5 | `spellcraft_draw_cards_affix_4`（太古） | 未抽到悟道牌时额外抽 2 张，额外抽到的牌均不归零费用。 |
 
 ### 万法归宗 `spellcraft_ultimate_spell`
 
 耗费 10+X 点灵气，耗尽全部灵气；不受减费影响，不能以太极之气抵扣。
 每点实际支付的灵气造成 {0} 点伤害，超额支付量为实际支付灵气减去 10。
 
-| 解锁境界 | 额外词条 | 效果 |
+| 解锁/太古境界 | 词条 | 效果 |
 | --- | --- | --- |
 | 1 | `spellcraft_ultimate_spell_affix_1` 落雷击顶 | 超额部分每点对对手施加 1 层感电，可使本次攻击立即发生元素转化。 |
-| 2 | `spellcraft_ultimate_spell_affix_2` 万法余波 | 超额部分每点获得 {0} 点护甲。 |
-| 3 | `spellcraft_ultimate_spell_affix_3` 雷行九霄 | 若对手在打出前已持有感电，本牌伤害 +{0}%。 |
-| 4 | `cycle_enhance` 一法破万法 | 本回合每使用过一种元素，本牌伤害 +{0}%，含本牌雷元素。 |
-| 5 | `spellcraft_ultimate_spell_affix_5` 归宗之后 | 抽 {0} 张牌并使其费用变为 0（动态费用除外），自身获得 {1} 点逆灵之气。 |
+| 2 | `cycle_enhance` 一法破万法 | 本回合每使用过一种元素，本牌伤害 +{0}%，含本牌雷元素。 |
+| 2 | `spellcraft_ultimate_spell_affix_5` 归宗之后 | 抽 {0} 张牌并使其费用变为 0（动态费用除外），自身获得 {1} 点逆灵之气。 |
+| 3 | `spellcraft_ultimate_spell_affix_1`（太古） | 超额部分每点施加 2 层感电。 |
+| 4 | `cycle_enhance`（太古） | 本回合每种已用元素提供的伤害百分比 ×1.5。 |
+| 5 | `spellcraft_ultimate_spell_affix_5`（太古） | 抽牌由 1 张提至 2 张，逆灵之气层数不变。 |
 
 逆灵之气属于资源而非减益，不能被辟邪抵消。
 
 ## 绝世装备
 
-绝世装备的词条 ID 固定，首条为主词条，每件装备均包含五条额外词条。
-词条后标注的境界表示其解锁顺序；生成装备时，只会获得不超过装备境界的额外词条。
+绝世装备的词条 ID 固定，首条为主词条，主词条之后最多有 3 个固定额外词条。
+凝气解锁 2 个、筑基解锁 3 个，结丹/还婴/化神依次将三个已有词条太古化。
 同种绝世装备只能装备一件，获得后需要鉴定。
 
 属性类词条的数值随词条等级变化，机制类效果按说明固定生效。
@@ -183,51 +190,56 @@
 ### 窥天镜 `heaven_peeking_mirror`（凝气）
 
 - **主效果**：观星额外查看 2 张；每次观星后，自身随机获得 2 种不同的元素异常，各 1 层。
-- `spirituality`（凝气）：灵力提高，数值随词条等级变化。
 - `scry_focus`（筑基）：观星额外查看 1 张，仍受最多 5 张的上限约束。
-- `scry_retention`（结丹）：每回合第一次观星后，选中的牌获得保留。
-- `ailment_ward`（还婴）：受到的元素异常层数 -1。
-- `ailment_to_mana_echo`（化神）：每回合第一次获得元素异常时，获得 1 点灵气。
+- `scry_upgrade`（筑基）：每回合第一次观星后，选中的牌等级 +1。
+- `ailment_to_mana_echo`（筑基）：每回合第一次获得元素异常时，获得 1 点灵气。
+- `scry_upgrade`（结丹·太古）：选中牌升 2 级。
+- `scry_focus`（还婴·太古）：观星深度加成由 1 提高至 2。
+- `ailment_to_mana_echo`（化神·太古）：首次获得元素异常时的灵气由 1 提高至 2。
 
 观星由天道推演或卡牌等效果触发。窥天镜只增加观星深度并提供观星后效果，不会自行发起回合开始观星。
 
 ### 五行珠 `five_elements_pearl`（筑基）
 
 - **主效果**：造成的元素异常层数 +2；受到的元素异常层数 +2。
-- `spirituality`（凝气）：灵力提高，数值随词条等级变化。
 - `ailmentMultiplier`（筑基）：元素异常伤害提高，数值随词条等级变化。
-- `ailmentThreshold`（结丹）：元素异常充能阈值降低。
-- `ailment_inflict_focus`（还婴）：造成的元素异常层数 +1。
-- `ailment_to_mana_echo`（化神）：每回合第一次获得元素异常时，获得 1 点灵气。
+- `ailmentThreshold`（筑基）：元素异常充能阈值降低。
+- `ailment_inflict_focus`（筑基）：造成的元素异常层数 +1。
+- `ailment_inflict_focus`（结丹·太古）：造成的元素异常层数 +2。
+- `ailmentThreshold`（还婴·太古）：进一步降低元素异常充能阈值，仍受下限约束。
+- `ailmentMultiplier`（化神·太古）：元素异常伤害数值 ×1.5。
 
 ### 天机盘 `heavenly_mechanism_disc`（结丹）
 
 - **主效果**：回合开始额外抽 1 张；通过此效果抽到的非悟道牌，本回合费用 +1。
 - `non_spellcraft_tax`（凝气）：非悟道牌费用 +1，与主词条的抽牌课税可以叠加。
-- `scry_focus`（筑基）：观星额外查看 1 张，仍受最多 5 张的上限约束。
-- `scry_retention`（结丹）：每回合第一次观星后，选中的牌获得保留。
-- `deckMinSizeReduce`（还婴）：牌库下限降低，数值随词条等级变化。
-- `battleDrawBonus`（化神）：每回合抽牌数增加，数值随词条等级变化。
+- `deckMinSizeReduce`（筑基）：牌库下限降低，数值随词条等级变化。
+- `battleDrawBonus`（筑基）：每回合抽牌数增加，数值随词条等级变化。
+- `battleDrawBonus`（结丹·太古）：每回合抽牌数 ×1.5，不追加手牌上限。
+- `deckMinSizeReduce`（还婴·太古）：进一步降低牌库下限，仍受全局绝对下限约束。
+- `non_spellcraft_tax`（化神·太古）：非悟道牌费用由 +1 降低到 +0，降低惩罚。
 
 纯悟道构筑不会受到非悟道课税。手牌已满时不会发生额外抽牌，也不会产生对应的抽牌课税。
 
 ### 蓄灵佩 `spirit_storing_amulet`（还婴）
 
 - **主效果**：至多保留 2 点未使用灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害。保留的灵气不触发阴阳五行结算。
-- `spirituality`（凝气）：灵力提高，数值随词条等级变化。
 - `lifeMax`（筑基）：生命上限提高，数值随词条等级变化。
-- `persistent`（结丹）：提高回合开始时保留的护甲比例。
-- `basicEnergyBonus`（还婴）：每回合元气提高，数值随词条等级变化。
-- `spell_mana_trickle`（化神）：回合产出阶段灵气 +1。
+- `persistent`（筑基）：提高回合开始时保留的护甲比例。
+- `spell_mana_trickle`（筑基）：回合产出阶段灵气 +1。
+- `lifeMax`（结丹·太古）：生命上限数值 ×1.5。
+- `persistent`（还婴·太古）：护甲保持数值 ×1.5。
+- `spell_mana_trickle`（化神·太古）：回合灵气产出由 1 提高至 2。
 
 ### 聚灵旗 `spirit_gathering_banner`（化神）
 
 - **主效果**：回合产出阶段灵气 +3；非悟道牌费用 +2。
-- `spirituality`（凝气）：灵力提高，数值随词条等级变化。
 - `mana_threshold_guard` 聚气成势（筑基）：灵气不少于 5 点时，受到的伤害 -20%。
-- `mana_empty_defend` 一炁（结丹）：回合结束时若灵气为 0，获得 8 点护甲。
-- `spellcraft_cost_down`（还婴）：悟道牌灵气费用 -1，与天道循环叠加。
-- `turnStartExtraDraw`（化神）：回合开始额外抽 1 张；通过此效果抽到的非悟道牌，本回合费用 +1。
+- `spellcraft_cost_down`（筑基）：悟道牌灵气费用 -1，与天道循环叠加。
+- `turnStartExtraDraw`（筑基）：回合开始额外抽 1 张；通过此效果抽到的非悟道牌，本回合费用 +1。
+- `mana_threshold_guard`（结丹·太古）：伤害减免由 20% 提高至 30%，灵气阈值不变。
+- `spellcraft_cost_down`（还婴·太古）：悟道牌费用 -2。
+- `turnStartExtraDraw`（化神·太古）：回合开始额外抽 2 张，抽牌课税规则不变。
 
 聚灵旗与天机盘同时装备时，回合开始额外抽牌数合计为 2；两份抽牌课税规则相同。
 
@@ -240,13 +252,12 @@
 | `ailment_ward` | 受到的元素异常层数 -1。 | 筑基起，项链、指环、法珠 |
 | `ailment_inflict_focus` | 造成的元素异常层数 +1。 | 筑基起，项链、指环、法珠 |
 | `scry_focus` | 观星额外查看 1 张，受最多 5 张的上限约束。 | 不进入 |
-| `scry_retention` | 每回合第一次观星后，选中的牌获得保留。 | 不进入 |
+| `scry_upgrade` | 每回合第一次观星后，选中的牌等级 +1。 | 不进入 |
 | `ailment_to_mana_echo` | 每回合第一次获得元素异常时，获得 1 点灵气。 | 不进入 |
 | `spell_mana_trickle` | 回合产出阶段灵气 +1。 | 不进入 |
 | `non_spellcraft_tax` | 非悟道牌费用 +1。 | 不进入 |
 | `spellcraft_cost_down` | 悟道牌灵气费用 -1。 | 不进入 |
 | `mana_threshold_guard` | 灵气不少于 5 点时，受到的伤害 -20%。 | 不进入 |
-| `mana_empty_defend` | 回合结束时若灵气为 0，获得 8 点护甲。 | 不进入 |
 
-多个 `scry_retention` 或 `ailment_to_mana_echo` 来源不会增加每回合的触发次数。
+多个 `scry_upgrade` 或 `ailment_to_mana_echo` 来源不会增加每回合的触发次数。
 `ailment_to_mana_echo` 在获得元素异常时触发，早于辟邪的抵消结算；若修正后的异常层数不大于 0，则不会触发。

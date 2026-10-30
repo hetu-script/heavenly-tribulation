@@ -150,6 +150,25 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   }
 
   void craftEquipment() {
+    final targetRank = kRaritiesToRank[selectedCraftRarity]!;
+    final countInfo = GameLogic.getMinMaxExtraAffixCount(targetRank);
+    var greaterCount = 0;
+    for (final affix in selectedAffixesForCraft) {
+      if (affix == null) continue;
+      final sourceRank = affix['sourceRank'];
+      if (sourceRank is num && sourceRank > targetRank) {
+        dialog.pushDialog('craft_extracted_affix_sourceRank_warning');
+        dialog.execute();
+        return;
+      }
+      if (affix['isGreater'] == true) greaterCount++;
+    }
+    if (greaterCount > countInfo['maxGreater']!) {
+      dialog.pushDialog('craft_greater_affix_limit_warning');
+      dialog.execute();
+      return;
+    }
+
     final result =
         GameLogic.heroExhaustMaterials(selectedCraftItemRequirements);
 

@@ -22,7 +22,9 @@ struct ExtractedAffix {
     this.stackSize = 1
     
     this.level = level ?? affix.level
-    this.affixes = [affix]
+    this.sourceRank = this.rank
+    affix.sourceRank = this.rank
+    this.affixes = [Object.create(affix)]
     
     this.isIdentified = true
   }

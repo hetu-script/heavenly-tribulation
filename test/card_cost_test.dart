@@ -27,6 +27,13 @@ void main() {
         0, cardSource.indexOf('function getCardRankUpProbability'));
   }
 
+  String loadGreaterHelper() {
+    final source = File('scripts/main/logic/logic.ht').readAsStringSync();
+    final start = source.indexOf('function _mergeGreaterMechanismData');
+    final end = source.indexOf('const _kMoneyRewardRate', start);
+    return source.substring(start, end);
+  }
+
   test('真实 Hetu 费用求值保留动态零费用，基线独立，Dart 可读取 HTStruct', () {
     final hetu = createHetu();
     hetu.eval('''
@@ -87,6 +94,7 @@ void main() {
 
   test('真实伤害脚本消费 paidCost，不再次耗尽后来获得的气', () {
     final hetu = Hetu()..init();
+    hetu.eval(loadGreaterHelper());
     hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
     final result = hetu.eval('''
       final self = {cardFlags: {paidCost: {energy_positive_spell: 7}}, mana: 2}
@@ -108,6 +116,7 @@ void main() {
 
   test('一气化三清的灵气共鸣只强化打出方', () async {
     final hetu = Hetu()..init();
+    hetu.eval(loadGreaterHelper());
     hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
     hetu.eval('''
       final self = {

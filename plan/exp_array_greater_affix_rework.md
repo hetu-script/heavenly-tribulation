@@ -225,7 +225,7 @@
 - `utils/data_validate/game_data_validate.dart`
 - `docs/docs/how2play/rpg/item/consumable/readme.md`
 - `docs/docs/how2play/rpg/cultivation/readme.md`
-- `plan/battle_system_overview.md`
+- `.agents/context/battle_system.md`
 
 步骤：
 

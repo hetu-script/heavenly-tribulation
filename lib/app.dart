@@ -333,21 +333,24 @@ class _GameAppState extends State<GameApp> {
         ({positionalArgs, namedArgs}) => GameLogic.calculateCardAffixValue(
             positionalArgs.first,
             level: namedArgs['level'] ?? 0,
-            rank: namedArgs['rank'] ?? 0),
+            rank: namedArgs['rank'] ?? 0,
+            greater: namedArgs['greater']),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'calculatePassiveAffixValue',
         ({positionalArgs, namedArgs}) => GameLogic.calculatePassiveAffixValue(
             positionalArgs.first,
-            level: namedArgs['level'] ?? 0),
+            level: namedArgs['level'] ?? 0,
+            isGreater: namedArgs['isGreater'] ?? false),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'calculatePassiveAffixContribution',
         ({positionalArgs, namedArgs}) =>
             GameLogic.calculatePassiveAffixContribution(positionalArgs.first,
-                level: namedArgs['level'] ?? 0),
+                level: namedArgs['level'] ?? 0,
+                isGreater: namedArgs['isGreater'] ?? false),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(

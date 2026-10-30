@@ -227,8 +227,8 @@
 
   /// 绝世装备（unique equipment）约定：
   // 词条 id 固定（affixes 列表，第一个词条为主词条）；
-  // 生成时解锁列表前 rank + 1 条（列表含主词条，即额外词条 = rank 条，与绝世卡同规则，见 createItemById），
-  // 词条的 level/value 生成时仍随机 roll
+  // 主词条之后最多 3 个固定额外词条，rank 1/2 解锁 2/3 条；greaterAffixes 在 rank 3～5 依次太古化。
+  // 词条的 level/value 生成时仍随机 roll，太古额外词条取来源装备 rank 满级
   // 同一 uniqueId 的绝世装备同时只能装备一件；获得时默认未鉴定
   // 必须字段:
   //   type: 'equipment'
@@ -241,7 +241,8 @@
   //     唯一性检查只能用 uniqueId 字段，不能用 item.id
   //   isIdentified: false   // 必须！绝世装备默认未鉴定，需使用鉴定卷轴
   //   rank: 1~5             // 境界需求；显式写 rank、不写 rarity（rarity 会覆盖 rank 推导）
-  //   affixes: [词条id...]  // 第一个为主词条，生成时解锁前 rank + 1 条（含主词条，即额外词条 = rank 条）
+  //   affixes: [词条id...]  // 第一个为主词条；主词条之后最多 3 个固定额外词条，rank 1/2 解锁 2/3 条
+  //   greaterAffixes: [{rank: 3, affixId: "..."}, {rank: 4, ...}, {rank: 5, ...}] // 依次太古化三个额外词条
   //   name / flavortext / icon: 本地化键与图标路径
   // 可选字段:
   //   isUntradable / isCursed 等通用物品字段
@@ -254,7 +255,7 @@
   //   type: "equipment",
   //   category: "weapon",
   //   kind: "sword",
-  //   rarity: "arcane",
+  //   rank: 5,
   //   icon: "item/equipment/sword.png",
   //   isEquippable: true,
   //   isUnstackable: true,
@@ -265,7 +266,7 @@
 
   // ------------悟道流派绝世装备------------
   // 图标暂用占位路径，后续替换为专属图标
-  // 词条说明：affixes 第一个词条为主词条；生成时解锁列表前 rank + 1 条（含主词条，即额外词条 = rank 条；见 createItemById）
+  // 词条说明：affixes 第一个词条为主词条；主词条之后最多 3 条，rank 1/2 解锁 2/3 条，rank 3～5 固定太古成长
   // 显式写 rank（境界需求，稀有度由 rankToRarity 推导）；不写 rarity（rarity 会覆盖 rank 推导）
 
   // 窥天镜（rank1）：观星额外查看 2 张，但窥得越多心神越乱
@@ -285,11 +286,14 @@
     isIdentified: false,
     affixes: [
       "heaven_peeking_mirror",
-      "spirituality",
       "scry_focus",
-      "scry_retention",
-      "ailment_ward",
+      "scry_upgrade",
       "ailment_to_mana_echo",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "scry_upgrade" },
+      { rank: 4, affixId: "scry_focus" },
+      { rank: 5, affixId: "ailment_to_mana_echo" },
     ],
   },
   // 五行珠（rank2）：五行导体，元素异常双向放大
@@ -309,11 +313,14 @@
     isIdentified: false,
     affixes: [
       "five_elements_pearl",
-      "spirituality",
       "ailmentMultiplier",
       "ailmentThreshold",
       "ailment_inflict_focus",
-      "ailment_to_mana_echo",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "ailment_inflict_focus" },
+      { rank: 4, affixId: "ailmentThreshold" },
+      { rank: 5, affixId: "ailmentMultiplier" },
     ],
   },
   // 天机盘（rank3）：回合开始额外抽牌，混编卡组被课税
@@ -334,10 +341,13 @@
     affixes: [
       "turnStartExtraDraw",
       "non_spellcraft_tax",
-      "scry_focus",
-      "scry_retention",
       "deckMinSizeReduce",
       "battleDrawBonus",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "battleDrawBonus" },
+      { rank: 4, affixId: "deckMinSizeReduce" },
+      { rank: 5, affixId: "non_spellcraft_tax" },
     ],
   },
   // 蓄灵佩（rank4）：灵气淤积保留，经脉受损
@@ -357,11 +367,14 @@
     isIdentified: false,
     affixes: [
       "energyRetainSpell",
-      "spirituality",
       "lifeMax",
       "persistent",
-      "basicEnergyBonus",
       "spell_mana_trickle",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "lifeMax" },
+      { rank: 4, affixId: "persistent" },
+      { rank: 5, affixId: "spell_mana_trickle" },
     ],
   },
   // 聚灵旗（rank5）：all-in 的纯悟道旗帜
@@ -381,11 +394,14 @@
     isIdentified: false,
     affixes: [
       "spirit_gathering_banner",
-      "spirituality",
       "mana_threshold_guard",
-      "mana_empty_defend",
       "spellcraft_cost_down",
       "turnStartExtraDraw",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "mana_threshold_guard" },
+      { rank: 4, affixId: "spellcraft_cost_down" },
+      { rank: 5, affixId: "turnStartExtraDraw" },
     ],
   },
 }

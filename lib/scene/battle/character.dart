@@ -1347,7 +1347,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         scriptId,
         ignoreUndefined: true,
         namespace: 'CardScript',
-        positionalArgs: [this, opponent, card.data, affix],
+        positionalArgs: [
+          this,
+          opponent,
+          card.data,
+          engine.hetu.invoke('resolveGreaterAffix', positionalArgs: [affix])
+        ],
       );
     }
 
@@ -1405,7 +1410,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         scriptId,
         ignoreUndefined: true,
         namespace: 'CardScript',
-        positionalArgs: [this, opponent, card.data, affix],
+        positionalArgs: [
+          this,
+          opponent,
+          card.data,
+          engine.hetu.invoke('resolveGreaterAffix', positionalArgs: [affix])
+        ],
       );
     }
 

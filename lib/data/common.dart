@@ -1242,8 +1242,21 @@ const kTerrainKindsAll = [
 /// 战斗结束后生命恢复比例计算时，
 const kLifeRestoreRateAfterBattle = 0.25;
 
-/// 战斗中牌库的固定大小
+/// 战斗中牌库大小的基准值
 const kBattleDeckSize = 10;
+
+/// 牌库下限修正后允许达到的绝对最小值
+const kBattleDeckSizeAbsoluteMin = 5;
+
+/// 普通卡牌、装备与丹药的额外词条上限
+const kMaxNormalExtraAffixCount = 3;
+
+/// 太古词条生成与打造概率
+const kGreaterAffixGenerationChance = 0.05;
+const kGreaterAffixCraftChance = 0.05;
+const kGreaterAffixRankUpChance = 0.25;
+const kRankUpExtraAffixChance = 0.25;
+const kDefaultGreaterAffixFactor = 1.5;
 
 /// 战斗每回合元气（无色费用池）基础产出（plan/battle_resource_rework.md 第二节）
 const kBattleBaseEnergy = 3;

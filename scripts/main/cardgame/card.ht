@@ -112,7 +112,7 @@ struct BattleCard {
 
     // 注意: 主词条数据的genre是字符串，但额外词条的genre是字符串数组
     let mainAffixes = game.battleCards.values.where( (affix) {
-      if (affixId) {
+      if (affixId != null) {
         return affix.id == affixId
       } else {
         if (affix.isUnpackable) return false
@@ -149,7 +149,7 @@ struct BattleCard {
       // 去掉 kind 限制再试一次
       engine.warning('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}, try again without kind limit')
       mainAffixes = game.battleCards.values.where( (affix) {
-        if (affixId) {
+        if (affixId != null) {
           return affix.id == affixId
         } else {
           if (affix.isUnpackable) return false
@@ -239,6 +239,7 @@ struct BattleCard {
       _addPredefinedAffixes(this)
     } else {
       _addExtraAffixes(this)
+      _rollGreaterAffixes(this, Constants.greaterAffixGenerationChance)
     }
 
     _updateAffixUniqueIds(this)
@@ -262,7 +263,7 @@ function _getSupportAffixes(card) {
     if (card.affixUniqueIds.contains(affix.uniqueId)) {
       continue
     }
-    if (affix.rank > card.rank) {
+    if ((affix.rank ?? 0) > card.rank) {
       continue
     }
     // 生成侧 require 过滤：词条可声明 require 子表，以主词条（card.affixes[0]）字段为准
@@ -304,44 +305,98 @@ function _getSupportAffixes(card) {
 }
 
 function _updateAffixValue(card, affix) {
-  // 主词条的等级由卡牌等级唯一决定；这个函数只按已有等级重算数值，不隐式重随
+  // 主词条等级跟随卡牌；太古额外词条始终取来源卡牌当前境界满级。
   if (affix.isMain) {
     affix.level = card.level
+  } else if (affix.isGreater == true) {
+    affix.level = maxLevelForRank(card.rank)
   } else if (affix.level == null) {
     affix.level = card.level
   }
 
   if (affix.valueData is List) {
-    let values = []
-    for (final valueData in affix.valueData) {
-      final value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank)
-      values.add(value)
+    final values = []
+    final greaterValues = affix.isGreater == true && affix.greater != true
+        ? affix.greater?.values
+        : null
+    for (var i = 0; i < affix.valueData.length; ++i) {
+      var greater
+      if (affix.isGreater == true && affix.greater == true && i == 0) {
+        greater = { mode: 'multiply', factor: Constants.defaultGreaterAffixFactor }
+      } else if (greaterValues is List && i < greaterValues.length) {
+        greater = greaterValues[i]
+      }
+      values.add(calculateCardAffixValue(affix.valueData[i],
+        level: affix.level, rank: affix.rank, greater: greater))
     }
-    // if (affix.requirement && affix.requirement.isNotEmpty) {
-    //   for (final reqData in mainAffix.requirement.values) {
-    //     final value = reqData.base + reqData.increment * mainAffix.level
-    //     reqData.value = value.round()
-    //   }
-    // }
     affix.value = values
   }
 }
 
 function _randomizeAffixLevel(card, affix) {
+  if (affix.isGreater == true) {
+    _updateAffixValue(card, affix)
+    return
+  }
   if (affix.valueData is List) {
-    let levelMin = minLevelForRank(affix.rank)
-    let levelMax = maxLevelForRank(affix.rank)
+    final levelMin = minLevelForRank(affix.rank)
+    final levelMax = maxLevelForRank(affix.rank)
     affix.level = getRandomLevel(levelMin, levelMax)
-    let values = []
-    for (final valueData in affix.valueData) {
-      let value = calculateCardAffixValue(valueData, level: affix.level, rank: affix.rank)
-      values.add(value)
-    }
-    affix.value = values
+    _updateAffixValue(card, affix)
   } else {
-    // 对于没有 valueData 的词条，意味着是非数值词条，等级永远是 1
     affix.level = 1
   }
+}
+
+function _greaterAffixCandidates(card) {
+  final candidates = []
+  for (var i = 1; i < card.affixes.length; ++i) {
+    final affix = card.affixes[i]
+    if (affix.isGreater ?? false) continue
+    if (affix.greater == null) continue
+    candidates.add(affix)
+  }
+  return candidates
+}
+
+function _canAddGreaterAffix(card) {
+  final countInfo = getMinMaxExtraAffixCount(card.rank)
+  final greaterCount = card.affixes.where((affix) => affix.isGreater == true).length
+  return greaterCount < countInfo.maxGreater && _greaterAffixCandidates(card).isNotEmpty
+}
+
+function _markAffixGreater(card, affix) {
+  assert(affix.isMain != true && affix.greater != null)
+  affix.isGreater = true
+  affix.isFreezed = true
+  affix.rank = card.rank
+  _updateAffixValue(card, affix)
+}
+
+function _rollSingleGreaterAffix(card, chance, {affix}) {
+  if (!_canAddGreaterAffix(card)) return false
+  if (affix != null && (affix.isMain == true || affix.isGreater == true || affix.greater == null)) return false
+  if (random.nextDouble() >= chance) return false
+  final target = affix ?? random.nextIterable(_greaterAffixCandidates(card))
+  _markAffixGreater(card, target)
+  return true
+}
+
+function _rollGreaterAffixes(card, chance) {
+  if (!_canAddGreaterAffix(card)) return false
+  final candidates = _greaterAffixCandidates(card)
+  candidates.shuffle()
+  final countInfo = getMinMaxExtraAffixCount(card.rank)
+  var marked = false
+  for (final affix in candidates) {
+    final greaterCount = card.affixes.where((entry) => entry.isGreater == true).length
+    if (greaterCount >= countInfo.maxGreater) break
+    if (random.nextDouble() < chance) {
+      _markAffixGreater(card, affix)
+      marked = true
+    }
+  }
+  return marked
 }
 
 function _addAffixToCard(card, affix, rank, {index}) {
@@ -411,13 +466,29 @@ function _addExtraAffixes(card) {
   }
 }
 
-/// 绝世卡牌的额外词条是固定的
-/// 按主词条数据中预定义的词条 id 列表顺序解锁，总数为 rank 个
+function _applyPredefinedGreaterAffixes(card) {
+  final growth = card.affixes.first.greaterAffixes
+  if (growth is! List) return
+  for (final entry in growth) {
+    if (entry.rank > card.rank) continue
+    final matches = card.affixes.where((affix) {
+      return affix.isMain != true && affix.id == entry.affixId
+    })
+    if (matches.isEmpty) {
+      engine.warning('Found no unlocked greater affix for unique card: [${card.affixes.first.id}], affixId: ${entry.affixId}')
+      continue
+    }
+    final affix = matches.first
+    if (affix.isGreater != true) _markAffixGreater(card, affix)
+  }
+}
+
+/// 绝世卡牌最多解锁三个固定额外词条，再按境界应用固定太古成长。
 function _addPredefinedAffixes(card) {
   final predefinedAffixIds = card.affixes.first.affixes
   if (predefinedAffixIds is! List) return
 
-  final targetCount = Math.min(predefinedAffixIds.length, card.rank)
+  final targetCount = Math.min(predefinedAffixIds.length, card.rank + 1, Constants.maxNormalExtraAffixCount)
   for (var i = card.affixes.length - 1; i < targetCount; ++i) {
     final affixId = predefinedAffixIds[i]
     final prototype = game.battleCardAffixes[affixId]
@@ -428,6 +499,7 @@ function _addPredefinedAffixes(card) {
     final affix = Object.create(prototype)
     _addAffixToCard(card, affix, card.rank)
   }
+  _applyPredefinedGreaterAffixes(card)
 }
 
 // function identifyCard(card) {
@@ -441,35 +513,41 @@ function _addPredefinedAffixes(card) {
 //   return null
 // }
 
-/// 增加一个额外词条
-/// materialRank 为打造材料的境界，决定新词条的隐藏境界
+function _addRandomExtraAffix(card, materialRank, {index}) {
+  final supportAffixes = _getSupportAffixes(card)
+  if (supportAffixes.isEmpty) {
+    throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')
+  }
+  final affix = Object.create(random.nextIterable(supportAffixes))
+  _addAffixToCard(card, affix, materialRank, index: index)
+  return affix
+}
+
+/// 灵宝：优先补槽；满三条且结丹后只进行一次太古判定。
 function addAffix(card, materialRank, {index}) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
 
-  if (index == null) {
-    let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
-    // 这里判断的时候要 +1 因为主词条本身也在 length 中
-    if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
-      return engine.locale('craft_addAffix_warning')
+  if (index != null) {
+    _addRandomExtraAffix(card, materialRank, index: index)
+    return null
+  }
+
+  final countInfo = getMinMaxExtraAffixCount(card.rank)
+  if (card.affixes.length >= countInfo.maxExtra + 1) {
+    if (card.rank >= 3 && card.affixes.length >= Constants.maxNormalExtraAffixCount + 1) {
+      _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance)
+      return null
     }
+    return engine.locale('craft_addAffix_warning')
   }
 
-  let supportAffixes = _getSupportAffixes(card)
-  if (supportAffixes.isEmpty) {
-    throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
-  }
-  final affix = Object.create(random.nextIterable(supportAffixes))
-
-  _addAffixToCard(card, affix, materialRank, index: index)
-
-  // 这里显式返回空值表明成功执行
+  _addRandomExtraAffix(card, materialRank)
   return null
 }
 
-/// 替换一个额外词条
-/// materialRank 为打造材料的境界，决定新词条的隐藏境界
+/// 替换一个额外词条，随后只对本次新词条进行一次太古判定。
 function replaceAffix(card, materialRank) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
@@ -483,31 +561,30 @@ function replaceAffix(card, materialRank) {
   }
   extraAffixes.sort((a, b) => a.rank.compareTo(b.rank))
 
-
   final rank = extraAffixes.first.rank
   final availableAffixes = extraAffixes.where( (affix) => affix.rank == rank)
   final targetAffix = random.nextIterable(availableAffixes)
-
   final index = card.affixes.indexOf(targetAffix)
 
-  addAffix(card, materialRank, index: index)
+  final newAffix = _addRandomExtraAffix(card, materialRank, index: index)
+  if (newAffix.isGreater != true) {
+    _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance, affix: newAffix)
+  }
 
   _updateAffixUniqueIds(card)
-
-  // 这里显式返回空值表明成功执行
   return null
 }
 
 /// 锁定一个额外词条
 /// 已锁定词条数量决定所需真定丹的最低境界: 
-/// 0个已锁定 → rank>=1, 1个已锁定 → rank>=2, 以此类推，最多5个
+/// 0个已锁定 → rank>=1, 1个已锁定 → rank>=2, 以此类推，最多3个
 function freezeAffix(card, materialRank) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
 
   final frozenCount = card.affixes.where( (affix) => affix.isFreezed == true ).length
-  if (frozenCount >= kCultivationRankMax) {
+  if (frozenCount >= Constants.maxNormalExtraAffixCount) {
     return engine.locale('craft_freezeAffix_warning_maxCount')
   }
 
@@ -583,7 +660,8 @@ function rerollAffix(card, materialRank) {
     _randomizeAffixLevel(card, affix)
   }
 
-  // 这里显式返回空值表明成功执行
+  // 全体数值重随后只进行一次独立太古判定。
+  _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance)
   return null
 }
 
@@ -631,21 +709,18 @@ function upgradeRank(card, materialRank) {
     }
     _addPredefinedAffixes(card)
   } else {
-    // 保留主词条和被锁定的词条
-    final freezedAffixes = card.affixes.where( (affix) {
-      return (!affix.isMain && affix.isFreezed)
-    })
-    card.affixes = [card.affixes.first, ...freezedAffixes]
+    // 普通破境保留全部词条；普通词条保留当前等级，太古自动满级。
     for (final affix in card.affixes) {
       affix.rank = card.rank
-      if (affix.isMain) {
-        _updateAffixValue(card, affix)
-      } else {
-        _randomizeAffixLevel(card, affix)
-      }
+      _updateAffixValue(card, affix)
     }
 
-    _addExtraAffixes(card)
+    final countInfo = getMinMaxExtraAffixCount(card.rank)
+    if (card.affixes.length < countInfo.maxExtra + 1 &&
+        random.nextDouble() < Constants.rankUpExtraAffixChance) {
+      _addRandomExtraAffix(card, card.rank)
+    }
+    _rollGreaterAffixes(card, Constants.greaterAffixRankUpChance)
   }
   
   _updateAffixUniqueIds(card)

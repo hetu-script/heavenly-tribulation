@@ -17,11 +17,11 @@ external function maxCityCountForSectDevelopment(development) -> integer
 external function getMinMaxExtraAffixCount(rank) -> Map
 
 /// 词条/费用数值公式（GameLogic 实现，见 lib/logic/logic.dart）
-external function calculateCardAffixValue(valueData, {level = 0, rank = 0}) -> integer
+external function calculateCardAffixValue(valueData, {level = 0, rank = 0, greater}) -> integer
 
-external function calculatePassiveAffixValue(valueData, {level = 0}) -> integer
+external function calculatePassiveAffixValue(valueData, {level = 0, isGreater = false}) -> integer
 
-external function calculatePassiveAffixContribution(valueData, {level = 0}) -> number
+external function calculatePassiveAffixContribution(valueData, {level = 0, isGreater = false}) -> number
 
 external function calculateCostValue(valueData, rank) -> integer
 
@@ -42,6 +42,48 @@ external function generateZone(world)
 
 /// 计算NPC在大地图上的移动路径，如果大地图场景不存在则返回null
 external async function calculateNpcRoute(worldId, fromX, fromY, toX, toY)
+
+/// 太古机制配置合并：只处理显式声明的 data/alt 字段，不修改公共原型。
+function _mergeGreaterMechanismData(target, data, {alternative = false}) {
+  for (final key in data.keys) {
+    final value = data[key]
+    final isTable = value != null && value is! num && value is! string && value is! bool && value is! List
+    if (isTable) {
+      target[key] ??= {}
+      _mergeGreaterMechanismData(target[key], value, alternative: alternative)
+      continue
+    }
+    if (alternative) {
+      target[key] = value
+    } else if (value is num && target[key] is num) {
+      target[key] += value
+    } else if (value is bool && target[key] is bool) {
+      target[key] = target[key] || value
+    } else {
+      target[key] = value
+    }
+  }
+}
+
+/// 生成一次太古生效配置；普通词条和主词条直接返回原对象。
+function resolveGreaterAffix(affix) {
+  if (affix == null || affix.isGreater != true || affix.isMain == true || affix.isGreaterResolved == true) return affix
+  final resolved = Object.create(affix)
+  resolved.isGreaterResolved = true
+  if (affix.greater == true) {
+    resolved.description = affix.description
+    return resolved
+  }
+  final greater = affix.greater
+  if (greater?.data != null) {
+    _mergeGreaterMechanismData(resolved, greater.data)
+  }
+  if (greater?.alt != null) {
+    _mergeGreaterMechanismData(resolved, greater.alt, alternative: true)
+  }
+  resolved.description = greater?.description ?? affix.description
+  return resolved
+}
 
 const _kMoneyRewardRate = 0.4
 const kRewardProbabilityExppack = 1.0

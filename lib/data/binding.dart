@@ -95,6 +95,20 @@ class Constants extends HTExternalClass {
         return kScrollMaxCharges;
       case 'Constants.battleDeckSize':
         return kBattleDeckSize;
+      case 'Constants.battleDeckSizeAbsoluteMin':
+        return kBattleDeckSizeAbsoluteMin;
+      case 'Constants.maxNormalExtraAffixCount':
+        return kMaxNormalExtraAffixCount;
+      case 'Constants.greaterAffixGenerationChance':
+        return kGreaterAffixGenerationChance;
+      case 'Constants.greaterAffixCraftChance':
+        return kGreaterAffixCraftChance;
+      case 'Constants.greaterAffixRankUpChance':
+        return kGreaterAffixRankUpChance;
+      case 'Constants.rankUpExtraAffixChance':
+        return kRankUpExtraAffixChance;
+      case 'Constants.defaultGreaterAffixFactor':
+        return kDefaultGreaterAffixFactor;
       case 'Constants.attackTypes':
         return kAttackTypes;
       case 'Constants.damageTypes':

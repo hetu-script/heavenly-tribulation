@@ -11,14 +11,27 @@ void main() {
     return source.substring(source.indexOf('struct PassiveData'));
   }
 
+  String loadGreaterHelper() {
+    final source = File('scripts/main/logic/logic.ht').readAsStringSync();
+    final start = source.indexOf('function _mergeGreaterMechanismData');
+    final end = source.indexOf('const _kMoneyRewardRate', start);
+    return source.substring(start, end);
+  }
+
   Hetu createHetu() {
-    final hetu = Hetu()..init();
+    final hetu = Hetu(
+      config: HetuConfig(
+        allowImplicitNullToZeroConversion: true,
+        allowImplicitEmptyValueToFalseConversion: true,
+      ),
+    )..init();
     hetu.interpreter.bindExternalFunction(
       'calculatePassiveAffixContribution',
       ({positionalArgs, namedArgs}) =>
           GameLogic.calculatePassiveAffixContribution(
         positionalArgs.first,
         level: namedArgs['level'] ?? 0,
+        isGreater: namedArgs['isGreater'] ?? false,
       ),
       override: true,
     );
@@ -65,7 +78,7 @@ void main() {
       'maxTurnActionThreshold': 15,
     });
     hetu.eval('''
-      external function calculatePassiveAffixContribution(valueData, {level = 0}) -> number
+      external function calculatePassiveAffixContribution(valueData, {level = 0, isGreater = false}) -> number
       external function getTribulationCountForRank(rank) -> integer
       final kItemCategoryPotion = 'potion'
       final engine = {
@@ -76,6 +89,7 @@ void main() {
         delete entity.inventory[item.id]
         return true
       }
+      ${loadGreaterHelper()}
       ${loadPassiveSource()}
     ''');
     return hetu;
@@ -363,5 +377,107 @@ void main() {
         isNull);
     expect(character['ephemeralPassives']['decreaseTribulationDifficulty'],
         isNull);
+  });
+
+  test('主词条不吃太古加成，普通与太古额外来源分别贡献', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    hetu.eval('''
+      final affix = {
+        id: 'dexterity',
+        description: 'passive_dexterity_description',
+        increment: 0.5,
+        greater: true,
+      }
+      final mainAffix = _createPassiveSource(affix,
+        sourceKey: 'equipment:item-a:0', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 0)
+      mainAffix.isGreater = true
+      mainAffix.level = 10
+      final normalAffix = _createPassiveSource(affix,
+        sourceKey: 'equipment:item-a:1', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 1)
+      normalAffix.level = 10
+      final greaterAffix = _createPassiveSource(affix,
+        sourceKey: 'equipment:item-a:2', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 2)
+      greaterAffix.isGreater = true
+      greaterAffix.level = 45
+      characterAddPassiveSource(character, mainAffix)
+      characterAddPassiveSource(character, normalAffix)
+      characterAddPassiveSource(character, greaterAffix)
+      characterRecalculatePassives(character)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['passives']['dexterity']['value'], 44);
+  });
+
+  test('alt 只替换生效快照，状态参数按来源累加', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      final affix = {
+        id: 'non_spellcraft_tax',
+        description: 'passive_non_spellcraft_tax_description',
+        deckCostReduction: {color: 'all', amount: -1},
+        isGreater: true,
+        greater: {alt: {deckCostReduction: {amount: 0}}},
+      }
+      characterAddPassiveSource(character, _createPassiveSource(affix,
+        sourceKey: 'equipment:item-a:1', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 1))
+      final manaAffix = {
+        id: 'ailment_to_mana_echo',
+        description: 'passive_ailment_to_mana_echo_description',
+        battleStatus: 'first_ailment_to_mana',
+        statusParams: {manaBonus: 1},
+        isGreater: true,
+        greater: true,
+      }
+      characterAddPassiveSource(character, _createPassiveSource(manaAffix,
+        sourceKey: 'equipment:item-a:1', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 1))
+      characterAddPassiveSource(character, _createPassiveSource(manaAffix,
+        sourceKey: 'equipment:item-b:1', sourceType: 'equipment', sourceId: 'item-b', affixIndex: 1))
+      characterCalculateStats(character)
+    ''');
+    final character = hetu.fetch('character');
+    final affix = hetu.fetch('affix');
+    expect(affix['deckCostReduction']['amount'], -1);
+    expect(character['stats']['deckCostReduction'][0]['amount'], 0);
+    expect(character['stats']['battleStatusParams']['first_ailment_to_mana']
+        ['manaBonus'], 2);
+    expect(character['stats']['battleStatus']['first_ailment_to_mana'], 1);
+  });
+
+  test('太古丹药经真实服用入口保留完整快照并生效', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      character.life = 50.0
+      character.inventory = {}
+      final potion = {
+        id: 'potion-greater',
+        name: '太古丹药',
+        category: kItemCategoryPotion,
+        affixes: [
+          {id: 'heal', value: 20, level: 1},
+          {
+            id: 'dexterity',
+            description: 'passive_dexterity_description',
+            increment: 0.5,
+            greater: true,
+            isGreater: true,
+            level: 45,
+          },
+        ],
+      }
+      character.inventory[potion.id] = potion
+      characterCalculateStats(character)
+      characterConsumePotion(character, potion)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['life'], 70.0);
+    expect(character['ephemeralPassives']['dexterity']['value'], 34);
+    expect(character['ephemeralPassivesRaw']['dexterity']['potion:dexterity']
+        ['isGreater'], true);
+    expect(character['inventory'], isEmpty);
   });
 }

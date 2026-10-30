@@ -121,6 +121,8 @@ late final Set<String> affixIds;
 late final Set<String> affixUniqueIds;
 late final Set<String> statusIds;
 late final Set<String> passiveIds;
+late final Map<String, dynamic> cardAffixData;
+late final Map<String, dynamic> passiveData;
 late final Set<String> cardScriptFuncs;
 late final Set<String> statusScriptFuncs;
 late final Set<String> statusTimings;
@@ -343,6 +345,238 @@ void checkValueDataShape(Map data, String ctx) {
     checkNumber(item['base'], '$ctx.valueData[$i].base');
     checkNumber(item['increment'], '$ctx.valueData[$i].increment');
     checkNumber(item['maxLevel'], '$ctx.valueData[$i].maxLevel', min: 0);
+  }
+}
+
+const _greaterMechanismContract = <String, dynamic>{
+  'attributeRate': 'number',
+  'costDelta': 'number',
+  'ailmentPerExcess': 'number',
+  'upgradeChosen': 'number',
+  'count': 'number',
+  'scryOptions': {
+    'chosenCostChange': 'number',
+    'othersCostChange': 'number',
+    'upgradeChosen': 'number',
+    'scryBonus': 'number',
+    'retainChosen': 'bool',
+  },
+  'chosenCostReduce': 'number',
+  'amplifyPerMana': 'number',
+  'chosenDamageTakenReduce': 'number',
+  'statusParams': null,
+  'drawnUpgrade': 'number',
+  'drawnManaIfGenre': {'count': 'number'},
+  'drawnExtraDrawIfNotGenre': {'count': 'number'},
+  'statsBonus': null,
+  'deckCostReduction': {'amount': 'number'},
+  'turnStartExtraDraw': {'count': 'number'},
+};
+
+void checkGreaterMechanismShape(
+    Map data, String ctx, Map<String, dynamic> contract) {
+  for (final entry in data.entries) {
+    final key = entry.key;
+    final value = entry.value;
+    final fieldCtx = '$ctx.$key';
+    if (!contract.containsKey(key)) {
+      err('greater 机制字段未登记', fieldCtx);
+      continue;
+    }
+    final expected = contract[key];
+    if (expected == null) {
+      if (value is! Map) {
+        err('greater 机制字段类型非法', '$fieldCtx: 期望表');
+      } else {
+        for (final nested in value.entries) {
+          if (nested.value is! num &&
+              nested.value is! bool &&
+              nested.value is! String) {
+            err('greater 参数类型非法', '$fieldCtx.${nested.key}');
+          }
+        }
+      }
+    } else if (expected is Map<String, dynamic>) {
+      if (value is! Map) {
+        err('greater 机制字段类型非法', '$fieldCtx: 期望表');
+      } else {
+        checkGreaterMechanismShape(value, fieldCtx, expected);
+      }
+    } else if (expected == 'number' && value is! num) {
+      err('greater 机制字段类型非法', '$fieldCtx: 期望数值');
+    } else if (expected == 'bool' && value is! bool) {
+      err('greater 机制字段类型非法', '$fieldCtx: 期望布尔');
+    }
+  }
+}
+
+void collectGreaterPaths(Map data, String prefix, Set<String> paths) {
+  for (final entry in data.entries) {
+    final path = prefix.isEmpty ? '${entry.key}' : '$prefix.${entry.key}';
+    paths.add(path);
+    if (entry.value is Map) {
+      collectGreaterPaths(entry.value as Map, path, paths);
+    }
+  }
+}
+
+void checkGreaterAltTargets(Map alt, Map original, String ctx) {
+  for (final entry in alt.entries) {
+    final key = entry.key;
+    final value = entry.value;
+    final fieldCtx = '$ctx.$key';
+    final originalValue = original[key];
+    if (value is Map) {
+      if (originalValue is! Map) {
+        err('greater.alt 不能新增普通机制', fieldCtx);
+      } else {
+        checkGreaterAltTargets(value, originalValue, fieldCtx);
+      }
+    } else if (originalValue == null) {
+      err('greater.alt 不能新增普通机制', fieldCtx);
+    }
+  }
+}
+
+void checkGreater(Map data, String ctx, {bool passiveScalar = false}) {
+  final greater = data['greater'];
+  if (greater == null) return;
+  if (greater == true) {
+    if (passiveScalar && data['base'] == null && data['increment'] == null) {
+      err('无数值来源的被动不得使用 greater: true', ctx);
+    }
+    if (!passiveScalar && data['valueData'] is! List) {
+      err('无 valueData 的卡牌词条不得使用 greater: true', ctx);
+    }
+    return;
+  }
+  if (greater is! Map) {
+    err('greater 结构非法', '$ctx.greater: 期望表');
+    return;
+  }
+  final values = greater['values'];
+  final mechanism = greater['data'];
+  final alt = greater['alt'];
+  if ((values == null || values is List && values.isEmpty) &&
+      (mechanism == null || mechanism is Map && mechanism.isEmpty) &&
+      (alt == null || alt is Map && alt.isEmpty)) {
+    err('greater 缺少实际强化', '$ctx.greater: 需要 values/data/alt 至少一项');
+  }
+  if (values != null) {
+    if (values is! List) {
+      err('greater.values 结构非法', '$ctx.greater.values: 期望列表');
+    } else {
+      final valueCount = passiveScalar
+          ? 1
+          : (data['valueData'] as List?)?.length ?? 0;
+      if (passiveScalar && data['base'] == null && data['increment'] == null) {
+        err('无数值来源的被动不得配置 greater.values', ctx);
+      }
+      if (!passiveScalar && data['valueData'] is! List) {
+        err('无 valueData 的卡牌词条不得配置 greater.values', ctx);
+      }
+      for (var i = 0; i < values.length; i++) {
+        final config = values[i];
+        final valueCtx = '$ctx.greater.values[$i]';
+        if (i >= valueCount) {
+          err('greater.values 下标越界', valueCtx);
+          continue;
+        }
+        if (config == null) continue;
+        if (config is! Map) {
+          err('greater.values 结构非法', valueCtx);
+          continue;
+        }
+        checkEnum(config['mode'], const {'multiply', 'add', 'set'}, valueCtx);
+        if (config['mode'] == 'multiply') {
+          checkNumber(config['factor'], '$valueCtx.factor');
+        } else {
+          checkNumber(config['amount'], '$valueCtx.amount');
+        }
+      }
+    }
+  }
+  final dataPaths = <String>{};
+  final altPaths = <String>{};
+  if (mechanism != null) {
+    if (mechanism is! Map || mechanism.isEmpty) {
+      err('greater.data 结构非法', '$ctx.greater.data: 期望非空表');
+    } else {
+      checkGreaterMechanismShape(
+          mechanism, '$ctx.greater.data', _greaterMechanismContract);
+      collectGreaterPaths(mechanism, '', dataPaths);
+    }
+  }
+  if (alt != null) {
+    if (alt is! Map || alt.isEmpty) {
+      err('greater.alt 结构非法', '$ctx.greater.alt: 期望非空表');
+    } else {
+      checkGreaterMechanismShape(alt, '$ctx.greater.alt', _greaterMechanismContract);
+      collectGreaterPaths(alt, '', altPaths);
+      checkGreaterAltTargets(alt, data, '$ctx.greater.alt');
+    }
+  }
+  final conflict = dataPaths.intersection(altPaths);
+  if (conflict.isNotEmpty) {
+    err('greater.data/alt 路径冲突', '$ctx: ${conflict.join(', ')}');
+  }
+  if (greater['description'] != null) {
+    checkLocaleKey(greater['description'], '$ctx.greater.description');
+  }
+}
+
+void checkGreaterAffixGrowth(Map data, String ctx,
+    Map<String, dynamic> affixPool, Map<String, dynamic> passivePool,
+    {bool equipment = false}) {
+  final affixes = data['affixes'];
+  if (data['isUnique'] == true && affixes is List) {
+    final extraCount = affixes.length - (equipment ? 1 : 0);
+    if (extraCount > 3) {
+      err('绝世固定额外词条超过 3 条', '$ctx.affixes: $extraCount');
+    }
+    if (extraCount > 0) {
+      for (final id in affixes.skip(equipment ? 1 : 0)) {
+        final affix = passivePool[id];
+        if (affix is Map && affix['greater'] == null) {
+          err('绝世固定词条缺 greater', '$ctx.affixes: $id');
+        }
+      }
+    }
+    final growth = data['greaterAffixes'];
+    if (extraCount > 0 && (growth is! List || growth.length != 3)) {
+      err('绝世固定成长必须为 3 条 greaterAffixes', ctx);
+      return;
+    }
+    if (growth is! List) return;
+    final targets = <String>{};
+    for (var i = 0; i < growth.length; i++) {
+      final entry = growth[i];
+      final growthCtx = '$ctx.greaterAffixes[$i]';
+      if (entry is! Map) {
+        err('greaterAffixes 结构非法', growthCtx);
+        continue;
+      }
+      final rank = entry['rank'];
+      final id = entry['affixId'];
+      if (rank != i + 3) {
+        err('greaterAffixes 境界顺序非法', '$growthCtx: 期望 rank ${i + 3}');
+      }
+      if (id is! String || !affixes.contains(id)) {
+        err('greaterAffixes 目标不在固定列表', '$growthCtx: $id');
+        continue;
+      }
+      if (!targets.add(id)) {
+        err('greaterAffixes 目标重复', '$growthCtx: $id');
+      }
+      final affix = passivePool[id];
+      if (affix is! Map || affix['greater'] == null) {
+        err('greaterAffixes 目标缺合法 greater', '$growthCtx: $id');
+      }
+      final index = affixes.indexOf(id);
+      if (rank is num && index >= rank + (equipment ? 1 : 0)) {
+        err('greaterAffixes 目标在该境界尚未解锁', '$growthCtx: $id');
+      }
+    }
   }
 }
 
@@ -715,6 +949,7 @@ void validateCards(Map<String, dynamic> cards) {
         }
       }
     }
+    checkGreaterAffixGrowth(data, ctx, cardAffixData, cardAffixData);
     final uniqueIds = data['uniqueIds'];
     if (uniqueIds is List) {
       for (final id in uniqueIds) {
@@ -785,6 +1020,7 @@ void validateCardAffixes(Map<String, dynamic> affixes) {
     checkValueDataShape(data, ctx);
     checkValueDataPlaceholders(data, ctx);
     checkCriteria(data, ctx);
+    checkGreater(data, ctx);
   }
 }
 
@@ -806,6 +1042,10 @@ void validatePassives(Map<String, dynamic> passives) {
     checkNumber(data['base'], '$ctx.base');
     checkNumber(data['priority'], '$ctx.priority');
     checkNumber(data['turnStartScry'], '$ctx.turnStartScry', min: 1);
+    if (data['maxLevel'] != null) {
+      err('被动不再支持 maxLevel', ctx);
+    }
+    checkGreater(data, ctx, passiveScalar: true);
 
     checkStatusRef(data['battleStatus'], '$ctx.battleStatus');
 
@@ -1002,6 +1242,7 @@ void validateItems(Map<String, dynamic> items) {
     }
 
     // 绝世装备约定（见 items.json5 模板注释）
+    checkGreaterAffixGrowth(data, ctx, passiveData, passiveData, equipment: true);
     if (data['isUnique'] == true) {
       if (data['uniqueId'] != key) {
         err('绝世装备 uniqueId 必须等于键名', '$ctx: ${data['uniqueId']}');
@@ -1096,6 +1337,8 @@ void main(List<String> arguments) {
   };
   statusIds = effects.keys.toSet();
   passiveIds = passives.keys.toSet();
+  cardAffixData = affixes;
+  passiveData = passives;
 
   print('cards: ${cards.length}，affixes: ${affixes.length}，'
       'passives: ${passives.length}，status: ${effects.length}，items: ${items.length}');

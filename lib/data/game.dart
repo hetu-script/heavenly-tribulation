@@ -508,12 +508,7 @@ final class GameData with ChangeNotifier {
             assert(passiveRawData != null, 'passiveData: $passiveData');
             description = engine.locale(passiveRawData['description']);
             if (passiveRawData['increment'] != null) {
-              // 与战斗侧同口径：maxLevel 封顶后按统一公式计算（GameLogic，hetu 侧同源）
-              int level = passiveData['level'];
-              final maxLevel = passiveRawData['maxLevel'];
-              if (maxLevel is num && level > maxLevel) {
-                level = maxLevel.toInt();
-              }
+              final int level = passiveData['level'];
               final int value = GameLogic.calculatePassiveAffixValue(
                   passiveRawData,
                   level: level);
@@ -1207,7 +1202,10 @@ final class GameData with ChangeNotifier {
     if (affixes is List && affixes.isNotEmpty) {
       for (var i = 0; i < affixes.length; i++) {
         final affix = affixes[i];
-        String descriptionString = engine.locale(affix['description']);
+        final descriptionKey = i > 0 && affix['isGreater'] == true
+            ? (affix['greater']?['description'] ?? affix['description'])
+            : affix['description'];
+        String descriptionString = engine.locale(descriptionKey);
         num? value = affix['value'];
         bool isAfflicted = false;
         if (value != null) {
@@ -1231,7 +1229,9 @@ final class GameData with ChangeNotifier {
           descriptionString = '$descriptionString $levelString';
         }
 
-        if (isAfflicted) {
+        if (i > 0 && affix['isGreater'] == true) {
+          extraDescription.writeln('<yellow>$kAffixLeading2 $descriptionString</>');
+        } else if (isAfflicted) {
           extraDescription.writeln('<red>$descriptionString</>');
         } else {
           if (i == 0) {
@@ -1388,7 +1388,10 @@ final class GameData with ChangeNotifier {
       if (!isIdentified) continue;
 
       final affix = affixes[i];
-      final affixDescriptionRaw = engine.locale(affix['description']);
+      final descriptionKey = i > 0 && affix['isGreater'] == true
+          ? (affix['greater']?['description'] ?? affix['description'])
+          : affix['description'];
+      final affixDescriptionRaw = engine.locale(descriptionKey);
       // 战斗中的伤害预测值（由 BattleScene 刷新时写入词条数据）：
       // 与原始静态值比较，高于原值黄色、低于红色；必暴/必异常加括号标注
       dynamic affixValues = affix['value'];
@@ -1443,7 +1446,9 @@ final class GameData with ChangeNotifier {
             }
           }
           // line = '$kSeparateDot$line';
-          if (affix['isFreezed'] == true) {
+          if (affix['isGreater'] == true) {
+            line = '<yellow>$kAffixLeading2 $line</>';
+          } else if (affix['isFreezed'] == true) {
             line = '<lightGreen>$line</>';
           } else {
             line = '<lightBlue>$line</>';

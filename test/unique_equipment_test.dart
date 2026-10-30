@@ -62,6 +62,7 @@ void main() {
       final Constants = {
         rankToRarity: ['common', 'rare', 'epic', 'legendary', 'mythic', 'arcane'],
         materialBasePrice: {},
+        maxNormalExtraAffixCount: 3,
       }
       final kRarity = {
         common: {rank: 0, color: 0},
@@ -105,44 +106,41 @@ void main() {
     final expected = <String, List<String>>{
       'heaven_peeking_mirror': [
         'heaven_peeking_mirror',
-        'spirituality',
         'scry_focus',
-        'scry_retention',
-        'ailment_ward',
+        'scry_upgrade',
         'ailment_to_mana_echo',
       ],
       'five_elements_pearl': [
         'five_elements_pearl',
-        'spirituality',
         'ailmentMultiplier',
         'ailmentThreshold',
         'ailment_inflict_focus',
-        'ailment_to_mana_echo',
       ],
       'heavenly_mechanism_disc': [
         'turnStartExtraDraw',
         'non_spellcraft_tax',
-        'scry_focus',
-        'scry_retention',
         'deckMinSizeReduce',
         'battleDrawBonus',
       ],
       'spirit_storing_amulet': [
         'energyRetainSpell',
-        'spirituality',
         'lifeMax',
         'persistent',
-        'basicEnergyBonus',
         'spell_mana_trickle',
       ],
       'spirit_gathering_banner': [
         'spirit_gathering_banner',
-        'spirituality',
         'mana_threshold_guard',
-        'mana_empty_defend',
         'spellcraft_cost_down',
         'turnStartExtraDraw',
       ],
+    };
+    final expectedGreater = <String, int>{
+      'heaven_peeking_mirror': 0,
+      'five_elements_pearl': 0,
+      'heavenly_mechanism_disc': 1,
+      'spirit_storing_amulet': 2,
+      'spirit_gathering_banner': 3,
     };
 
     for (final entry in expected.entries) {
@@ -153,7 +151,10 @@ void main() {
       final affixes = item['affixes'] as List;
       expect(affixes.map((affix) => affix['id']),
           orderedEquals(entry.value.take(rank + 1)));
-      expect(prototype['affixes'], hasLength(6));
+      expect(prototype['affixes'], hasLength(4));
+      expect(affixes[0]['isGreater'], isNot(true));
+      expect(affixes.where((affix) => affix['isGreater'] == true),
+          hasLength(expectedGreater[id]!));
       expect(
           item['level'],
           inInclusiveRange(GameLogic.minLevelForRank(rank),
@@ -163,11 +164,17 @@ void main() {
         final raw = passives[affix['id']];
         final increment = raw['increment'];
         if (increment is num) {
-          final minAffixLevel =
-              increment.abs() < 1 ? (1 / increment.abs()).ceil() : 1;
-          expect(affix['level'],
-              inInclusiveRange(minAffixLevel, item['level'] as int));
+          if (affix['isGreater'] == true) {
+            expect(affix['level'], GameLogic.maxLevelForRank(rank));
+          } else {
+            final minAffixLevel =
+                increment.abs() < 1 ? (1 / increment.abs()).ceil() : 1;
+            expect(affix['level'],
+                inInclusiveRange(minAffixLevel, item['level'] as int));
+          }
           expect(affix['value'], isNotNull);
+        } else if (affix['isGreater'] == true) {
+          expect(affix['level'], GameLogic.maxLevelForRank(rank));
         } else {
           expect(affix['level'], isNull);
         }
@@ -192,22 +199,23 @@ void main() {
     expect(getScryCardCount(count: 3, deckSize: 0), 0);
   });
 
-  test('观星保留每回合只处理第一次选中牌', () {
+  test('观星升级每回合只处理第一次选中牌且支持连续升级', () {
     final hetu = createStatusHetu();
     final result = hetu.eval('''
+      function upgradeCard(card, {inBattle = false}) { card.level += 1 }
       final self = {turnFlags: {}}
-      final first = {chosen: {isRetained: false}}
-      final second = {chosen: {isRetained: false}}
-      StatusScript.scry_retention_self_scry(self, null, {}, first)
-      StatusScript.scry_retention_self_scry(self, null, {}, second)
-      final beforeReset = [first.chosen.isRetained, second.chosen.isRetained]
+      final first = {chosen: {level: 0}}
+      final second = {chosen: {level: 0}}
+      StatusScript.scry_upgrade_self_scry(self, null, {upgradeChosen: 1}, first)
+      StatusScript.scry_upgrade_self_scry(self, null, {upgradeChosen: 1}, second)
+      final beforeReset = [first.chosen.level, second.chosen.level]
       self.turnFlags = {}
-      StatusScript.scry_retention_self_scry(self, null, {}, second)
-      [beforeReset, second.chosen.isRetained]
+      StatusScript.scry_upgrade_self_scry(self, null, {upgradeChosen: 2}, second)
+      [beforeReset, second.chosen.level]
     ''');
     expect(result, [
-      [true, false],
-      true,
+      [1, 0],
+      2,
     ]);
   });
 
@@ -264,28 +272,6 @@ void main() {
     ''');
     expect(result[0], 0);
     expect(result[1], closeTo(-0.2, 1e-9));
-  });
-
-  test('一炁只在回合结束灵气为 0 时获得 8 护甲', () {
-    final hetu = createStatusHetu();
-    final result = hetu.eval('''
-      final self = {
-        mana: 0,
-        gains: [],
-        hasStatusEffect: function(id) { return this.mana },
-        addStatusEffect: function(id, {amount}) {
-          this.gains.add([id, amount])
-        },
-      }
-      final effect = {resourceId: 'energy_positive_spell', defense: 8}
-      StatusScript.mana_empty_defend_self_turn_end(self, null, effect, {})
-      self.mana = 1
-      StatusScript.mana_empty_defend_self_turn_end(self, null, effect, {})
-      self.gains
-    ''');
-    expect(result, [
-      ['defense', 8],
-    ]);
   });
 
   test('灵气细流复用产出阶段脚本获得 1 灵气', () {

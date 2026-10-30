@@ -23,6 +23,17 @@ The validators share enum/identifier sets with the runtime by importing `lib/dat
 
 This project is still in progress, so no need to consider save/data/api backward compatibility.
 
+## About Documentation
+
+修改游戏机制、数据字段、生成/打造规则或脚本回调契约时，必须在同一变更中同步相关文档，不作为事后的可选补充：
+
+- `docs/docs/how2play/`：更新玩家可见的规则与玩法说明。
+- `docs/docs/mod/`：更新 MOD 数据字段、脚本回调和运行时消费契约。
+- `.agents/context/battle_system.md`：战斗系统当前实现与跨 session 上下文；涉及战斗机制或实现状态时同步。
+- `.agents/skills/`：相关技能中包含旧规则或内容制作约定时同步。
+
+只更新受影响的文档；各实施计划应列出具体同步范围。未实施的设计保存在 `plan/`，不要提前写入当前实现总览。
+
 ## About Code
 
 这是一个中国风游戏项目，但我们要尽量避免在代码和数据中使用拼音。使用对应的英文含义代替作为命名。本地化字符串是中国风味即可。唯一的例外是具体的资源的文件名可以是拼音，例如图片资源的名字。

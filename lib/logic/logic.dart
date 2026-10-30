@@ -530,21 +530,18 @@ final class GameLogic {
     return development * development * development + 1;
   }
 
-  /// 获取额外词条数量，卡牌和装备共用一个算法
-  /// ```
-  /// {
-  ///   'minExtra': minExtra,
-  ///   'maxExtra': maxExtra,
-  ///   'minGreater': minGreater,
-  ///   'maxGreater': maxGreater
-  /// }
-  /// ```
+  /// 获取额外词条数量，卡牌、装备和丹药共用一个算法。
   static Map<String, int> getMinMaxExtraAffixCount(int rank) {
     assert(rank >= 0 && rank <= kCultivationRankMax);
-    int minExtra = (rank / 2).ceil();
-    int maxExtra = math.min((rank + 1), 5);
-    int minGreater = 0;
-    int maxGreater = (rank - 3).clamp(0, rank).toInt();
+    const minExtra = 0;
+    final maxExtra = switch (rank) {
+      0 => 1,
+      1 => 2,
+      _ => kMaxNormalExtraAffixCount,
+    };
+    const minGreater = 0;
+    final maxGreater =
+        (rank - 2).clamp(0, kMaxNormalExtraAffixCount).toInt();
     return {
       'minExtra': minExtra,
       'maxExtra': maxExtra,
@@ -553,42 +550,58 @@ final class GameLogic {
     };
   }
 
-  /// 卡牌词条数值（函数内 floor 取整，保证返回整数）：
-  /// value = (base + increment × (level − minLevelForRank(rank))) × kRankBaseScale ^ rank + rankIncrement × rank
-  /// 「底数+等级项」作为一体按境界指数缩放——含义 = 该词条在 rank0 时值 base + increment×等级，
-  /// 每破一境整体 × kRankBaseScale；+1 级相对提升全境界恒定（≈ increment/base），
-  /// 绝对增量随境界放大，战斗中升级在任何境界都有感。
-  /// level < minLevelForRank(rank) 时相对等级按 0 计（不出现负增量）；
-  /// increment 按本境界内等级缩放，rankIncrement 按境界线性叠加（用于强力词条）；
-  /// isFixed 词条不随等级缩放，直接返回 floor(base)。
-  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
-  static int calculateCardAffixValue(dynamic valueData,
-      {int level = 0, int rank = 0}) {
-    final base = (valueData['base'] as num?) ?? 0;
-    if (valueData['isFixed'] == true) {
-      return base.floor();
+  static num _applyGreaterAffixValue(num value, dynamic config) {
+    if (config == null) return value;
+    switch (config['mode']) {
+      case 'multiply':
+        return value * ((config['factor'] as num?) ?? 1);
+      case 'add':
+        return value + ((config['amount'] as num?) ?? 0);
+      case 'set':
+        return (config['amount'] as num?) ?? value;
+      default:
+        throw ArgumentError('Unknown greater affix mode: ${config['mode']}');
     }
-    final increment = (valueData['increment'] as num?) ?? 0;
-    final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
-    final int relativeLevel = math.max(0, level - minLevelForRank(rank));
-    final num scaled = base + increment * relativeLevel;
-    return (scaled * math.pow(kRankBaseScale, rank) + rankIncrement * rank)
-        .floor();
   }
 
-  /// 单个被动来源的未取整数值贡献：base + increment × level。
-  /// 同 ID 多来源应分别调用本函数，汇总后统一取整，不逐来源提前取整。
-  /// 经 app.dart 绑定为 hetu 全局外部函数（声明见 scripts/main/logic/logic.ht）
+  /// 卡牌词条普通数值经 floor 取整；传入 greater 配置时只对该配置应用一次强化。
+  static int calculateCardAffixValue(dynamic valueData,
+      {int level = 0, int rank = 0, dynamic greater}) {
+    final base = (valueData['base'] as num?) ?? 0;
+    late final num value;
+    if (valueData['isFixed'] == true) {
+      value = base;
+    } else {
+      final increment = (valueData['increment'] as num?) ?? 0;
+      final rankIncrement = (valueData['rankIncrement'] as num?) ?? 0;
+      final int relativeLevel = math.max(0, level - minLevelForRank(rank));
+      final num scaled = base + increment * relativeLevel;
+      value = scaled * math.pow(kRankBaseScale, rank) + rankIncrement * rank;
+    }
+    return _applyGreaterAffixValue(value, greater).floor();
+  }
+
+  /// 单个被动来源的未取整贡献；太古只转换当前来源，不在此处提前取整。
   static num calculatePassiveAffixContribution(dynamic valueData,
-      {num level = 0}) {
+      {num level = 0, bool isGreater = false}) {
     final base = (valueData['base'] as num?) ?? 0;
     final increment = (valueData['increment'] as num?) ?? 0;
-    return base + increment * level;
+    final value = base + increment * level;
+    if (!isGreater) return value;
+    if (valueData['greater'] == true) {
+      return value * kDefaultGreaterAffixFactor;
+    }
+    final values = valueData['greater']?['values'];
+    if (values is! List || values.isEmpty) return value;
+    return _applyGreaterAffixValue(value, values.first);
   }
 
   /// 物品生成等单来源展示场景的被动词条数值。
-  static int calculatePassiveAffixValue(dynamic valueData, {int level = 0}) {
-    return calculatePassiveAffixContribution(valueData, level: level).round();
+  static int calculatePassiveAffixValue(dynamic valueData,
+      {int level = 0, bool isGreater = false}) {
+    return calculatePassiveAffixContribution(valueData,
+            level: level, isGreater: isGreater)
+        .round();
   }
 
   /// 费用数值（函数内取整，保证返回整数）：固定数值条目 floor 返回；
@@ -1008,13 +1021,11 @@ final class GameLogic {
     return completer.future;
   }
 
-  /// 卡组构筑下限：kBattleDeckSize + rank × 2（plan/battle_resource_rework.md 第四节）。
-  /// deckMinSizeReduce 为装备词条 deckMinSizeReduce 的 stats 值（通常为负），
-  /// 减免后下限不低于 kBattleDeckSize。
+  /// 卡组构筑下限：kBattleDeckSize + rank × 2，修正后不低于独立绝对下限。
   static int getDeckMinSizeForRank(int rank, {int deckMinSizeReduce = 0}) {
     assert(rank >= 0);
-    return math.max(
-        kBattleDeckSize, kBattleDeckSize + rank * 2 + deckMinSizeReduce);
+    return math.max(kBattleDeckSizeAbsoluteMin,
+        kBattleDeckSize + rank * 2 + deckMinSizeReduce);
   }
 
   static String? checkDeckRequirement(Iterable<dynamic> cards,

@@ -10,7 +10,7 @@ description: |
 
 # 战斗卡牌内容创建技能
 
-本项目战斗卡牌 = 暗黑式词缀系统。一张卡 = 1 个主词条（决定卡的身份）+ 0~6 个额外词条（随机/固定）。
+本项目战斗卡牌 = 暗黑式词缀系统。一张卡 = 1 个主词条（决定卡的身份）+ 0~3 个额外词条（随机/固定），额外词条可具有太古品质。
 创建任何卡牌内容都必须**三层同步**：数据、脚本、本地化，缺一不可。
 
 ## 0. 快速决策：我该改哪个文件？
@@ -157,9 +157,19 @@ upgrade_card: {
 - **中立词条**：不写 `genres`，所有流派卡都可能 roll 到。
 - **流派专属**：写 `genres: ["xxx"]`（如 retain→swordcraft、scry→spellcraft、for\_\*\_increase_damage→各流派）。
 
+### 太古词条（greater）
+
+- 额外词条可选 `greater`：`greater: true` 表示仅对 `value[0]` 应用常量默认倍率；
+  `values` 按下标使用 `multiply/add/set`，`null` 表示不强化；
+  `data` 累加既有机制参数，`alt` 替换指定字段，`description` 为可选太古专用描述。
+- 太古只强化原有效果，不追加新机制；主词条不参与。太古取来源卡牌当前境界满级，自动 `isFreezed`。
+- 普通构造、灵宝/神照/混元判定为 5%，破境新增与太古分别为 25%；普通额外词条上限 3，rank 3～5 太古上限 1/2/3。
+- 纯机制字段必须已有消费方，并同步 `docs/docs/mod/battle/card/readme.md` 与校验器；不允许只有配置无效果。
+
 ## 4. 绝世卡（isUnique）
 
-- 主词条加 `isUnique: true` + `affixes: ["额外词条id", ...]`（按境界顺序解锁的固定词条，额外词条总数 = rank）。
+- 主词条加 `isUnique: true` + 最多 3 条固定额外词条 `affixes`，rank 1/2 解锁 2/3 条。
+- 另加 `greaterAffixes: [{rank: 3, affixId: ...}, {rank: 4, ...}, {rank: 5, ...}]`，依次将三个已解锁词条太古化；目标必须带合法 `greater`。
 - 固定卡名：本地化 `uniquecard_{主词条id}`。
 - 生成时默认未鉴定（`isIdentified` 由 isUnique 推导为 false），需鉴定卷轴。
 - 卡组中同 uniqueId 只能放一张。

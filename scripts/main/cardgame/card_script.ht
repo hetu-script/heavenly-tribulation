@@ -380,7 +380,8 @@ namespace CardScript {
   /// 数值键累加、布尔键取真（天机术的观星修饰词条为纯数据，不参与打出时脚本执行）
   function _collectScryOptions(card) {
     final merged = {}
-    for (final affix in card.affixes) {
+    for (final rawAffix in card.affixes) {
+      final affix = resolveGreaterAffix(rawAffix)
       final opts = affix.scryOptions
       if (opts == null) continue
       for (final key in opts.keys) {
@@ -455,7 +456,7 @@ namespace CardScript {
     var chosenCostReduce = 0
     var amplifyPerMana = 0
     for (var i = 1; i < card.affixes.length; ++i) {
-      final extra = card.affixes[i]
+      final extra = resolveGreaterAffix(card.affixes[i])
       guardValue += extra.guardValue ?? 0
       damageTakenReduce += extra.chosenDamageTakenReduce ?? 0
       mirrorMana += extra.mirrorMana ?? 0
@@ -528,7 +529,7 @@ namespace CardScript {
 
   /// 根据属性提升伤害
   function for_attribute_increase_damage(self, opponent, card, affix) {
-    final amount = self.data.stats[affix.attributeId] * 0.005
+    final amount = self.data.stats[affix.attributeId] * (affix.attributeRate ?? 0.005)
     self.cardFlags.damage.percentageChange1 += amount
   }
 
@@ -583,7 +584,7 @@ namespace CardScript {
     if (criteria == null) return
     final cards = self.getHandCards(options: criteria)
     if (cards.length < 2) return
-    final reduce = affix.value?[0] ?? 1
+    final reduce = (affix.value?[0] ?? 1) - (affix.costDelta ?? 0)
     for (final key in card.coloredCost.keys) {
       if (card.coloredCost[key] is num && card.coloredCost[key] > 0) {
         final applied = Math.min(reduce, card.coloredCost[key])
@@ -749,8 +750,9 @@ namespace CardScript {
     final gained = self.cardFlags['lastManaGained'] ?? 0
     if (gained < 1) return
     final cards = self.getHandCards(options: { 'genre': affix.genre ?? 'spellcraft' })
+    final reduce = 1 - (affix.costDelta ?? 0)
     for (final cardData in cards) {
-      self.applyTurnCostModifier(cardData, delta: -1)
+      self.applyTurnCostModifier(cardData, delta: -reduce)
     }
   }
 
@@ -803,12 +805,15 @@ namespace CardScript {
     })
   }
 
-  /// 藏锋（太上忘情_4）：手牌中随机一张符合 affix.filter 的牌获得保留（isRetained）
+  /// 藏锋（太上忘情_4）：随机 N 张符合 affix.filter 的手牌获得保留，目标不重复。
   function retain_random_card_with_filter(self, opponent, card, affix) {
     final cards = self.getHandCards(options: affix.filter)
-    if (cards.isEmpty) return
-    final chosen = random.nextIterable(cards)
-    chosen.isRetained = true
+    final count = affix.value?[0] ?? 1
+    for (var i = 0; i < count && cards.isNotEmpty; ++i) {
+      final chosen = random.nextIterable(cards)
+      chosen.isRetained = true
+      cards.remove(chosen)
+    }
   }
 
   /// 紫微斗数（悟道分支授予卡）主词条：抽 value[0] 张法术牌（affix.filter）
@@ -828,7 +833,7 @@ namespace CardScript {
     var manaResourceId = 'energy_positive_spell'
     var extraDrawCount = 0
     for (var i = 1; i < card.affixes.length; ++i) {
-      final extra = card.affixes[i]
+      final extra = resolveGreaterAffix(card.affixes[i])
       final upgradeLevels = extra.drawnUpgrade ?? 0
       for (final j in range(upgradeLevels)) {
         upgradeCard(drawnCard, inBattle: true)
@@ -861,7 +866,8 @@ namespace CardScript {
   function ailment_by_excess_paid(self, opponent, card, affix) {
     final excess = _excessPaidResource(self, card, affix)
     if (excess <= 0) return
-    opponent.addStatusEffect(affix.buffId, amount: excess)
+    opponent.addStatusEffect(affix.buffId,
+      amount: excess * (1 + (affix.ailmentPerExcess ?? 0)))
   }
 
   /// 万法余波（万法归宗_2）：实际支付灵气超过门槛的部分，每点获得 value[0] 护甲

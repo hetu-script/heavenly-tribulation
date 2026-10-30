@@ -1,12 +1,12 @@
 # 现有卡牌与被动额外词条逐条太古设计计划
 
-> 状态：待审核，暂不修改运行数据或脚本。
+> 状态：已实现并完成验证；`greater: true` 已用于默认倍率简写。
 >
 > 本文是 `plan/greater_affix_rework.md` 的内容设计子计划，覆盖当前 `card_affixes.json5` 全部 73 条卡牌额外词条，以及 `passives.json5` 中 76 条装备/丹药临时额外词条和 12 条绝世装备专用额外词条。主词条不参与太古；`main` 固有数值方案仍按 `plan/main_affix_value_design.md` 另行审核，不在本文实施。
 
 ## 1. 标记与通用规则
 
-- `×N[i]`：`greater.values[i] = {mode: "multiply", factor: N}`，本文使用 N = 1.5 或 0.5。
+- `×N[i]`：`greater.values[i] = {mode: "multiply", factor: N}`，本文使用 N = 1.5 或 0.5；`×1.5[0]` 可简写为 `greater: true`，表示对 `value[0]` 应用常量 `kDefaultGreaterAffixFactor`。
 - `+N[i]`：`greater.values[i] = {mode: "add", amount: N}`。
 - `=N[i]`：`greater.values[i] = {mode: "set", amount: N}`。
 - `D:...`：写入 `greater.data`，用于累加数值或写入原机制尚缺的参数，必须由表中指定的脚本消费；涉及效果变化时同步配置 `greater.description`。

@@ -1,6 +1,8 @@
 # 战斗·卡牌·装备系统总览
 
-> 本文从总体上记录与卡牌战斗相关的系统（战斗流程、卡牌、装备、天赋），供后续工作查阅。
+> 本文用于跨 session 的 AI 与开发上下文，从总体上记录战斗流程、卡牌、装备和天赋的当前实现及代码/数据链路。
+> 只写已经实现的状态，不提前写入未实施设计；重构与内容计划仍放在 `plan/`。玩家规则见 `docs/docs/how2play/`，MOD 数据与脚本契约见 `docs/docs/mod/`。
+> 修改相关机制后必须在同一变更中同步本文。引用优先使用文件与函数名，精确行号仅作辅助，可能随代码调整失效。
 > 分层原则：**Dart = 机制层**（回合骨架与阶段顺序、费用模型与支付、回调分发总线、卡牌过滤引擎、交互 UI、动画、卡牌生命周期）；**Hetu = 内容层**（一切"在时机 X 用数值 Y 做 Z"的行为）；**JSON5 = 绑定与参数**（内容 id → 脚本函数 + 数值/过滤条件/阈值）。Dart 代码中不应出现具体内容 id（卡牌/装备/天赋），新机制必须参数化、由数据字段驱动。
 
 ## 1. 战斗场景层（Dart）：lib/scene/battle/battle.dart
@@ -25,11 +27,12 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 2. 卡牌数据模型（Hetu）：scripts/main/cardgame/card.ht
 
 - BattleCard struct：暗黑式随机生成——从 game.battleCards（cards.json5）筛主词条（按 category/kind/genre/rank 过滤 + 绝世两段式 roll：uniqueCardChance 概率从 isUnique 池抽），再从 game.battleCardAffixes（card_affixes.json5）按境界随机补额外词条。
-- 额外词条数量：getMinMaxExtraAffixCount（logic.dart:542，卡牌/装备/丹药共用）= minExtra rank、maxExtra rank+1（无境界 0-1 个 → 化神 5-6 个）。minGreater/maxGreater（太古词条）有计算但全仓库无消费方，未实现。
-- 词条等级在境界区间内随机：minLevelForRank = rank×10，maxLevelForRank = (rank+2)×10−5。数值由 calculateCardAffixValue（GameLogic，logic.dart；经 app.dart 绑定回脚本全局调用）计算：(base + increment×(等级−本境界下限)) × 1.3^rank（+ rankIncrement×rank），函数内 floor；isFixed: true 表示固定 base 不随等级缩放。
-- 绝世卡：isUnique + uniqueId，词条固定（affixes 列表按 rank 顺序解锁，额外词条总数 = rank），未鉴定不可用，命名走 uniquecard\_{id} 本地化键；天赋授予型再加 isUnpackable（不进卡包/随机池），由代码显式 invoke('BattleCard', affixId: ...) 发放。
+- 额外词条数量：getMinMaxExtraAffixCount（GameLogic，卡牌/装备/丹药共用）= minExtra 始终 0，maxExtra 为 rank 0～2 的 1/2/3、rank 3～5 固定 3；太古上限 rank 0～2 为 0、rank 3～5 为 1/2/3，太古不占新槽位。
+- 词条等级在境界区间内随机：minLevelForRank = rank×10，maxLevelForRank = (rank+2)×10−5。普通数值由 calculateCardAffixValue 计算：(base + increment×(等级−本境界下限)) × 1.3^rank（+ rankIncrement×rank），函数内 floor；isFixed: true 表示固定 base。太古额外词条取来源卡牌 rank 满级，再按 greater.values 指定下标应用 multiply/add/set；主词条不参与。
+- 太古机制：extra affix 原型通过 greater 声明 values/data/alt 与可选 description；`greater: true` 是对 `value[0]` 应用常量默认倍率的简写。resolveGreaterAffix 深拷贝并一次性合并 data（数值累加）和 alt（替换指定字段），脚本与被动来源复用，主词条和已解析快照不重复处理。普通构造、灵宝/神照/混元 5%，破境新增与太古各 25%；太古自动 isFreezed，普通真定最多 3 条。
+- 绝世卡：isUnique + uniqueId，affixes 最多 3 条固定额外词条，rank 1/2 解锁 2/3 条，greaterAffixes 在 rank 3～5 依次太古化；主词条不参与。未鉴定不可用，命名走 uniquecard\_{id} 本地化键；天赋授予型再加 isUnpackable。
 - 费用：updateCardCost 是唯一写入入口——显式 coloredCost 条目（数值或 {base, rankIncrement} 公式）经 calculateCostValue（GameLogic；固定数值 floor、公式 ceil）求值写入，life 键排首位，同时记录 originalColoredCost 基线供卡面变色（增红减黄）；破境重算更新基线，战斗内动态改费不更新基线。
-- 打造操作：addAffix（灵宝）/ replaceAffix（神照）/ freezeAffix（真定）/ removeAffix（坐忘）/ rerollAffix（混元）/ upgradeRank（破境，绝世卡保留全部词条并解锁下一个预定义词条，普通卡只保留主词条+锁定词条再重 roll）/ upgradeCard；全部对绝世卡禁用（破境/混元除外），返回本地化错误键。
+- 打造操作：灵宝优先补槽，满 3 条且结丹后单次太古判定；神照替换后只判定新词条；混元先全体重随再单次判定并随机选一条；普通破境保留全部词条和当前等级，太古自动满级，空槽有一次 25% 新增机会，随后逐条 25% 太古判定。符箓继承太古快照。
 - Cardpack struct：卡包物品，3 张牌（1 张定向 + 2 张随机）。
 
 ## 3. 卡牌数据层（JSON5）
@@ -68,29 +71,28 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - item.ht：
   - 分类常量：type（equipment/consumable/cardpack/craftmaterial/miscellaneous，物品栏筛选用）× category（小类别，决定装备数量限制与 onUseItem 分支）× kind（具体种类，决定命名/图标/词条过滤）。
-  - createItemById(id, {amount, rank, level})（item.ht:75）：从 game.items（items.json5）prototype Object.create；isRankedItem 由 rank 推导 rarity 并按境界命名；普通物品 rarity↔rank 互推——两者都写时 rarity 优先（rarity:"arcane" 会压成 rank 5），故绝世装备只写 rank。isUnstackable 使运行时 id 变随机 UID，唯一性检查只能用 uniqueId。
-  - 词条实例化（item.ht:130-163）：绝世（isUnique）按 min(列表长度, rank+1) 解锁 affixes 列表前 N 条（列表含主词条，故额外词条 = rank 条，与绝世卡"总数 = rank"同规则；装备破境未实现，解锁数生成时固定）；词条有 increment/rankIncrement 才 roll level（increment 绝对值<1 时 minAffixLevel=ceil(1/|increment|)）并用 calculatePassiveAffixValue 算 value；机制型词条无 increment，跳过 roll，数值定值内嵌在机制字段里。affixUniqueIds 收集 uniqueIds/uniqueId 供互斥去重。
+  - createItemById(id, {amount, rank, level})：从 game.items（items.json5）prototype Object.create；isRankedItem 由 rank 推导 rarity 并按境界命名；普通物品 rarity↔rank 互推——两者都写时 rarity 优先，故绝世装备只写 rank。isUnstackable 使运行时 id 变随机 UID，唯一性检查只能用 uniqueId。
+  - 词条实例化：绝世首条为主词条，之后按 min(rank+1, 3) 解锁最多 3 条额外词条，再按 greaterAffixes 在 rank 3～5 固定太古化；普通数值按 calculatePassiveAffixValue 计算，太古额外词条取来源物品 rank 满级后按 greater 配置强化。装备破境未实现。
   - calculatePrice：itemWithAffixKinds 按 (rank²+1)×(level+1)×(词条数+1)×basePriceByKind 计价。
-  - createLoot（item.ht:534）：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口。
-- equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机（同卡牌 minLevelForRank/maxLevelForRank）；主词条（equipment.ht:72-82）过滤 isEquipmentMain ∧ kinds 含本 kind ∧ affix.rank≤装备 rank 随机取一、level=装备 level；额外词条（:103-144）数量同 getMinMaxExtraAffixCount，逐条过滤 isEquipmentExtraAffix ∧ uniqueId 互斥 ∧ kinds ∧ rank，level=getRandomLevel(minAffixLevel, 装备 level)。
-- extracted_affix.ht：ExtractedAffix——精炼产物，单词条物品（category=extracted_affix），打造时填充词条槽。
-- usable.ht：可使用物品（丹药/卷轴等，onUseItem 分支；丹药词条 roll 法与装备相同）。
+  - createLoot：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口。
+- equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机；主词条过滤 isEquipmentMain ∧ kinds ∧ rank，额外词条过滤 isEquipmentExtraAffix ∧ uniqueId ∧ kinds ∧ rank。数量同 getMinMaxExtraAffixCount，生成完成后以 5% 对合格额外词条进行太古判定，主词条不参与。
+- extracted_affix.ht：ExtractedAffix——精炼产物，单词条物品。保存完整快照和 sourceRank；填槽要求 sourceRank≤目标 rank 且不超过目标太古上限，已有太古不重新判定，普通提取词条仍可参与后续判定。
+- usable.ht：可使用物品（丹药/卷轴等，onUseItem 分支；丹药词条 roll 法与装备相同，构造完成后进行同类太古判定。characterConsumePotion 以 potion:{affixId} 为 sourceKey 写入完整快照，保留现有同 ID 覆盖语义；decreaseTribulationDifficulty 仍走原精确移除键）。
 
 ### 5.2 装备词条池：passives.json5（与天赋共享）
 
 - 用途标记布尔字段区分词条池：isEquipmentMain / isEquipmentExtraAffix / isToolExtraAffix / isPotionMain / isEphemeral（+ephemeralType）；天赋树节点无视用途标记直接引用 id；rank 门槛只对装备/丹药生效。同一词条可叠加多个标记（如 elementalResist 同时是装备主词条+额外词条+临时增益词条）。
-- 数值公式：物品生成与单来源展示使用 calculatePassiveAffixValue = round((base??0) + increment×level)；角色聚合改用 calculatePassiveAffixContribution 计算各来源未取整贡献，同 ID 汇总后统一 round 一次——属性词条只有 increment 无 base；与卡牌的境界指数公式（calculateCardAffixValue）是两套。isDecrement 标记负向词条。
+- 数值公式：普通来源使用 calculatePassiveAffixContribution = (base??0) + increment×level；同 ID 汇总未取整贡献后统一 round 一次。太古额外来源取物品 rank 满级并按 greater.values 转换当前贡献；`greater: true` 是对 value[0] 应用常量默认倍率。isDecrement 标记负向词条。
 - uniqueId 互斥组（同组词条一件装备只能 roll 到一个，如 increase*damage*\* 共享 uniqueId）；priority 全文件递减排序。
-- 机制字段（7 个，契约见 docs/docs/mod/battle/readme.md:95-108）：battleStatus（战斗开始授予永久状态，行为在 status_script.ht）/ deckCostReduction{color, amount, genres?, notGenres?}（组牌费修，amount 负=加费，color:'all' 命中首个费用条目）/ shuffleIntoDeck[卡牌主词条 id] / turnStartScry N / turnStartExtraDraw{count, costIncrease?{amount, notGenres?}} / energyRetain{resourceId, max, costPerPoint?, costDamageType?}（回合结束资源保留+每点代价）/ statsBonus{statsId: 数值}（stats 直加，scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等）。
-- 机制字段之外的普通数值词条（basicEnergyBonus / battleDrawBonus / deckMinSizeReduce）不在白名单，走 .value 数值。
-- 绝世装备词条区：主词条合并一件装备的逻辑效果（多机制字段共存）；五件悟道装备均已配置 1 主 + 5 固定额外词条，生成时解锁前 rank+1 条，后续槽位休眠。额外词条分 A（复用现有随机池）/ B（新共享且进随机池）/ C（新共享但不进随机池）三层；C 层不写用途标记。
+- 机制字段（契约见 docs/docs/mod/battle/readme.md）：battleStatus / deckCostReduction / shuffleIntoDeck / turnStartScry / turnStartExtraDraw / energyRetain / statsBonus；battleStatusParams 同步聚合数值、布尔和字符串参数，战前经 addStatusEffect(params:) 写入状态实例。greater.data 只累加既有参数，greater.alt 只替换指定字段，不追加新机制。
+- 绝世装备词条区：主词条合并一件装备的逻辑效果（多机制字段共存）；五件悟道装备均为 1 主 + 3 固定额外词条，rank 1/2 解锁 2/3 条，rank 3～5 按 greaterAffixes 固定太古化。
 
 ### 5.3 装备→战斗联动链路
 
 - 穿脱（battle_entity.ht）：characterEquip 校验（在 inventory、isEquippable、空栏位 equipmentSlotCount=rank+3 封顶 8、绝世 uniqueId 唯一）→ 遍历 item.affixes，通过 Object.create 深拷贝完整词条快照，以 `equipment:{装备UID}:{词条位置}` 为 sourceKey 写入 character.passivesRaw；卸下时按 sourceType + 装备 UID 精确删除该装备全部来源 → characterCalculateStats 重算。已装备物品词条变化通过 characterRefreshEquipmentPassives 同步。UI 调用链：stats_and_item.dart 右键菜单 → Player.equip/unequip（player.ht）。
 - 类别限制只在 UI 层：kRestrictedEquipmentCategories（common.dart:359-367，weapon/shield/armor/gloves/helmet/boots/vehicle 七类）已装备同类时拒绝，除非角色有 ${category}UnrestrictedEquip 被动；characterEquip 内部不查类别。
 - 被动真值与派生结果：passivesRaw / ephemeralPassivesRaw 均为 `Map<被动id, Map<sourceKey, 完整来源快照>>`，是唯一来源真值；passives / ephemeralPassives 由 characterRecalculatePassives 全量重建，只供查询与展示，业务代码不得直接写入。普通数值逐来源计算未取整贡献，同 ID 汇总后统一 round 一次；合计 level 仅用于展示。
-- 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。
+- 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；battleStatusParams 的数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
   - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
