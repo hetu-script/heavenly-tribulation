@@ -286,14 +286,14 @@
     isIdentified: false,
     affixes: [
       "heaven_peeking_mirror",
-      "scry_focus",
       "scry_upgrade",
-      "ailment_to_mana_echo",
+      "scry_shield",
+      "scry_mana",
     ],
     greaterAffixes: [
       { rank: 3, affixId: "scry_upgrade" },
-      { rank: 4, affixId: "scry_focus" },
-      { rank: 5, affixId: "ailment_to_mana_echo" },
+      { rank: 4, affixId: "scry_shield" },
+      { rank: 5, affixId: "scry_mana" },
     ],
   },
   // 五行珠（rank2）：五行导体，元素异常双向放大
@@ -323,7 +323,7 @@
       { rank: 5, affixId: "ailmentMultiplier" },
     ],
   },
-  // 天机盘（rank3）：回合开始额外抽牌，混编卡组被课税
+  // 天机盘（rank3）：固定降低牌库下限，混编卡组被课税
   heavenly_mechanism_disc: {
     id: "heavenly_mechanism_disc",
     uniqueId: "heavenly_mechanism_disc",
@@ -339,15 +339,15 @@
     isUnique: true,
     isIdentified: false,
     affixes: [
-      "turnStartExtraDraw",
-      "non_spellcraft_tax",
-      "deckMinSizeReduce",
+      "heavenly_mechanism_disc",
       "battleDrawBonus",
+      "handSizeMax",
+      "spellcraft_cost_down",
     ],
     greaterAffixes: [
       { rank: 3, affixId: "battleDrawBonus" },
-      { rank: 4, affixId: "deckMinSizeReduce" },
-      { rank: 5, affixId: "non_spellcraft_tax" },
+      { rank: 4, affixId: "handSizeMax" },
+      { rank: 5, affixId: "spellcraft_cost_down" },
     ],
   },
   // 蓄灵佩（rank4）：灵气淤积保留，经脉受损

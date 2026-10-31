@@ -306,10 +306,15 @@
   "affix_debuff_lifemax": "对手生命上限 -{0}",
 
   "affix_for_spirituality_increase_damage": "每有 1 点灵力: 伤害增加 0.5%",
+  "affix_for_spirituality_increase_damage_greater": "每有 1 点灵力: 伤害增加 0.75%",
   "affix_for_dexterity_increase_damage": "每有 1 点身法: 伤害增加 0.5%",
+  "affix_for_dexterity_increase_damage_greater": "每有 1 点身法: 伤害增加 0.75%",
   "affix_for_strength_increase_damage": "每有 1 点体魄: 伤害增加 0.5%",
+  "affix_for_strength_increase_damage_greater": "每有 1 点体魄: 伤害增加 0.75%",
   "affix_for_willpower_increase_damage": "每有 1 点念力: 伤害增加 0.5%",
+  "affix_for_willpower_increase_damage_greater": "每有 1 点念力: 伤害增加 0.75%",
   "affix_for_perception_increase_damage": "每有 1 点神识: 伤害增加 0.5%",
+  "affix_for_perception_increase_damage_greater": "每有 1 点神识: 伤害增加 0.75%",
 
   "affix_by_damage_heal": "每造成 10 伤害: 回复 {0} 生命",
   "affix_by_damage_defend": "每造成 10 伤害: 护甲 +{0}",

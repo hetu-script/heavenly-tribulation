@@ -647,7 +647,8 @@ function rerollAffix(card, materialRank) {
     return (!affix.isMain && affix.isFreezed != true && affix.valueData != null)
   })
 
-  if (extraAffixes.isEmpty) {
+  // 纯机制词条没有数值可重随，但仍可能进行一次合法的太古判定。
+  if (extraAffixes.isEmpty && !_canAddGreaterAffix(card)) {
     return engine.locale('craft_rerollAffix_warning')
   }
   

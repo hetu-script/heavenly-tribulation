@@ -65,7 +65,7 @@
   "handSizeMax": "手牌上限",
   "handSizeMax_description": "战斗中最多可持有的手牌数量；达到上限后，继续抽牌不会发生。",
   "deckMinSizeReduce": "卡组数量下限",
-  "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（不会低于 10）。",
+  "deckMinSizeReduce_description": "卡组构筑所需的最少卡牌数量减少量（最终下限不会低于 5）。",
   "scryBonus": "观星深度",
   "scryBonus_description": "每次观星时额外查看的卡牌数量。",
   "turnStartScry": "回合开始观星",

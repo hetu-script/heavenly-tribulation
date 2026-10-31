@@ -230,6 +230,19 @@ void main() {
     expect(card['affixes'].where((affix) => affix['isGreater'] == true), hasLength(1));
   });
 
+  test('混元只有纯机制可变词条时仍执行太古判定', () {
+    final hetu = createCardHetu();
+    final result = hetu.eval('''
+      final card = BattleCard(affixId: 'fireball', rank: 3)
+      card.affixes = [card.affixes.first]
+      final attune = Object.create(game.battleCardAffixes.attune)
+      card.affixes.add(attune)
+      final warning = rerollAffix(card, 3)
+      [warning, attune.valueData, attune.isGreater, attune.isFreezed]
+    ''');
+    expect(result, [null, null, true, true]);
+  });
+
   test('rank 0 普通卡构造不产生太古', () {
     final hetu = createCardHetu();
     final card = hetu.invoke('BattleCard', namedArgs: {

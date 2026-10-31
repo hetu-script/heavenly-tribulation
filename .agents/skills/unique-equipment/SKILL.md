@@ -16,8 +16,7 @@ description: |
 - **装备词条与天赋词条同通道汇合**（`character.passives`），战斗侧只读被动数据，装备在战斗中无活实例。
 - **绝世装备 = items.json5 prototype + 固定 affixes 列表**：第一个词条是主词条，主词条之后最多 3 条固定额外词条，
   rank 1/2 解锁 2/3 条；`greaterAffixes` 在 rank 3～5 依次将三个已有词条太古化，主词条不参与。装备破境（升境）未实现。
-- **一件装备的逻辑效果合并为一条主词条**（见第 2 节），affixes 列表当前只写主词条，
-  给后续额外词条留出解锁位。
+- **一件装备的逻辑效果合并为一条主词条**（见第 2 节），主词条之后按固定成长列出最多 3 条额外词条。
 
 现成样板（先读再改）：悟道五件 `items.json5:276-360` + `passives.json5` 绝世装备专用区
 （窥天镜/五行珠/天机盘/蓄灵佩/聚灵旗）。
@@ -126,7 +125,7 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 
 - [ ] 效果已按 §0 分流（行为→状态 / 参数→机制字段或 statsBonus / 纯属性→stats 管线）。
 - [ ] 装备显式写 `rank`（1~5）且**没有**写 `rarity`；`uniqueId == id`；`isUnstackable/isUnique/isIdentified: false` 齐全。
-- [ ] affixes 第一个为主词条；词条数 ≤ rank+1 时生成即全量生效。
+- [ ] affixes 第一个为主词条；rank 1/2 分别解锁 2/3 条额外词条，rank 3～5 固定太古。
 - [ ] 单件装备的逻辑效果已合并为一条词条（多机制字段共存）；标注「不进随机词条池」。
 - [ ] 机制字段在 `docs/docs/mod/battle/readme.md` 契约表中存在；新机制已五处同步（§3）。
 - [ ] stats 直加走 `statsBonus`；新 stat 走 passive-status §6 五处同步。

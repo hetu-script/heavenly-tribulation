@@ -59,6 +59,13 @@
   "exparray_hint_round": "第 {0} 轮冥想开始……",
   "exparray_hint_complete": "冥想完成！",
   "exparray_hint_insufficient_shard": "灵石不足，无法启动聚灵阵。",
+  "exparray_category_exhausted": "此类别本次已无可获得的新增益，请改选其他类别。",
+  "exparray_pending_title": "本次待生效配置",
+  "exparray_refine_hint": "选择一条增益进行凝炼，或放弃凝炼。",
+  "exparray_refine_skip": "放弃凝炼",
+  "exparray_final_prompt": "当前生效配置：\n{0}\n\n本次待生效配置：\n{1}\n\n确认以新配置整体替换旧的非永久战前配置吗？",
+  "battlePreparationReplacePrompt": "将整体替换当前 {0} 条非永久战前增益，永久效果和独立临时效果不受影响。是否继续？",
+  "battlePreparationReplaceGreaterPrompt": "将整体替换当前 {0} 条非永久战前增益，其中包含 {1} 条太古增益。永久效果和独立临时效果不受影响。是否继续？",
 
   "exparray_phrase_attack_1": "攻伐之道",
   "exparray_phrase_attack_2": "凌厉攻势",

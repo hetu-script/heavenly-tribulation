@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
+import 'package:json5/json5.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
 
 void main() {
@@ -51,6 +52,7 @@ void main() {
         'decreaseTribulationDifficulty': {
           'id': 'decreaseTribulationDifficulty',
           'description': 'passive_decreaseTribulationDifficulty_description',
+          'ephemeralScope': 'standalone',
         },
       },
     });
@@ -81,6 +83,8 @@ void main() {
       external function calculatePassiveAffixContribution(valueData, {level = 0, isGreater = false}) -> number
       external function getTribulationCountForRank(rank) -> integer
       final kItemCategoryPotion = 'potion'
+      final kEphemeralScopeBattlePreparation = 'battle_preparation'
+      final kEphemeralScopeStandalone = 'standalone'
       final engine = {
         info: function(message) {},
         warning: function(message) {},
@@ -363,8 +367,7 @@ void main() {
       characterCalculateStats(character)
     ''');
     dynamic character = hetu.fetch('character');
-    expect(
-        character['ephemeralPassives']['decreaseTribulationDifficulty'],
+    expect(character['ephemeralPassives']['decreaseTribulationDifficulty'],
         isNotNull);
 
     hetu.eval('''
@@ -415,8 +418,8 @@ void main() {
     addNeutralStats(hetu);
     hetu.eval('''
       final affix = {
-        id: 'non_spellcraft_tax',
-        description: 'passive_non_spellcraft_tax_description',
+        id: 'cost_tax_test',
+        description: 'passive_cost_tax_test_description',
         deckCostReduction: {color: 'all', amount: -1},
         isGreater: true,
         greater: {alt: {deckCostReduction: {amount: 0}}},
@@ -424,9 +427,9 @@ void main() {
       characterAddPassiveSource(character, _createPassiveSource(affix,
         sourceKey: 'equipment:item-a:1', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 1))
       final manaAffix = {
-        id: 'ailment_to_mana_echo',
-        description: 'passive_ailment_to_mana_echo_description',
-        battleStatus: 'first_ailment_to_mana',
+        id: 'scry_mana',
+        description: 'passive_scry_mana_description',
+        battleStatus: 'scry_mana',
         statusParams: {manaBonus: 1},
         isGreater: true,
         greater: true,
@@ -441,9 +444,167 @@ void main() {
     final affix = hetu.fetch('affix');
     expect(affix['deckCostReduction']['amount'], -1);
     expect(character['stats']['deckCostReduction'][0]['amount'], 0);
-    expect(character['stats']['battleStatusParams']['first_ailment_to_mana']
-        ['manaBonus'], 2);
-    expect(character['stats']['battleStatus']['first_ailment_to_mana'], 1);
+    expect(
+        character['stats']['battleStatusParams']['scry_mana']['manaBonus'], 2);
+    expect(character['stats']['battleStatus']['scry_mana'], 1);
+  });
+
+  test('真实 scry_upgrade 太古配置经聚合和状态默认值合并后升级 2 级', () {
+    final passives = Map<String, dynamic>.from(
+        json5Decode(File('assets/data/passives.json5').readAsStringSync())
+            as Map);
+    final affix = Map<String, dynamic>.from(passives['scry_upgrade'] as Map);
+    affix['isGreater'] = true;
+    final hetu = createHetu();
+    hetu.eval('var scryUpgrade;');
+    hetu.assign('scryUpgrade', affix);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final chosen = hetu.eval('''
+      ${File('scripts/main/cardgame/status_script.ht').readAsStringSync()}
+      function upgradeCard(card, {inBattle = false}) { card.level += 1 }
+      characterAddPassiveSource(character, _createPassiveSource(scryUpgrade,
+        sourceKey: 'equipment:mirror:2', sourceType: 'equipment', sourceId: 'mirror', affixIndex: 2))
+      characterCalculateStats(character)
+      final params = character.stats.battleStatusParams.scry_upgrade
+      final effect = {upgradeChosen: 1 + params.upgradeChosen}
+      final self = {turnCount: 1}
+      final chosen = {level: 0}
+      StatusScript.scry_upgrade_self_scry(self, null, effect, {chosen: chosen})
+      [params.upgradeChosen, chosen]
+    ''');
+    expect(chosen[0], 1);
+    expect(chosen[1]['level'], 2);
+    expect(affix['greater']['data']['statusParams']['upgradeChosen'], 1);
+    expect(affix['greater']['data']['upgradeChosen'], isNull);
+  });
+
+  test('天机盘主词条通过 statsBonus 固定降低牌库下限并保留混编加费', () {
+    final passives = Map<String, dynamic>.from(
+        json5Decode(File('assets/data/passives.json5').readAsStringSync())
+            as Map);
+    final hetu = createHetu();
+    hetu.eval('var discMain;');
+    hetu.assign('discMain', passives['heavenly_mechanism_disc']);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final stats = hetu.eval('''
+      characterAddPassiveSource(character, _createPassiveSource(discMain,
+        sourceKey: 'equipment:disc:0', sourceType: 'equipment', sourceId: 'disc', affixIndex: 0))
+      characterCalculateStats(character)
+      character.stats
+    ''');
+    expect(stats['deckMinSizeReduce'], -2);
+    expect(stats['deckCostReduction'][0]['amount'], -1);
+    expect(stats['deckCostReduction'][0]['notGenres'], ['spellcraft']);
+    expect(
+        GameLogic.getDeckMinSizeForRank(3,
+            deckMinSizeReduce: stats['deckMinSizeReduce'] as int),
+        14);
+  });
+
+  test('整体替换仅清除非永久战前配置并保留永久和独立来源', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      characterSetEphemeralPassive(character, 'dexterity', level: 1)
+      final permanentAffix = {
+        id: 'persistent', description: 'passive_persistent_description',
+        increment: 0.5, isPermanent: true,
+      }
+      characterAddPassiveSource(character, _createPassiveSource(permanentAffix,
+        sourceKey: 'potion:permanent:0', sourceType: 'potion', sourceId: 'permanent', affixIndex: 0),
+        isEphemeral: true)
+      characterSetEphemeralPassive(character, 'decreaseTribulationDifficulty')
+      final newAffix = {
+        id: 'dexterity', description: 'passive_dexterity_description',
+        increment: 0.5, level: 4,
+        sourceKey: 'exp_array:batch-a:0', sourceType: 'exp_array',
+        sourceId: 'batch-a', affixIndex: 0,
+      }
+      characterReplaceBattlePreparationPassives(character, [newAffix])
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['ephemeralPassivesRaw']['dexterity'].keys,
+        ['exp_array:batch-a:0']);
+    expect(character['ephemeralPassives']['dexterity']['value'], 2);
+    expect(character['ephemeralPassivesRaw']['persistent'], isNotNull);
+    expect(character['ephemeralPassivesRaw']['decreaseTribulationDifficulty'],
+        isNotNull);
+    expect(
+        character['ephemeralPassivesRaw']['decreaseTribulationDifficulty']
+            .values
+            .first['ephemeralScope'],
+        'standalone');
+    final summary = hetu.invoke('characterGetBattlePreparationSummary',
+        positionalArgs: [character]);
+    expect(summary['count'], 1);
+    expect(summary['greaterCount'], 0);
+  });
+
+  test('仅主词条丹药只精确更新同 ID 战前来源并保留其他配置', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      final otherAffix = {
+        id: 'persistent', description: 'passive_persistent_description',
+        increment: 0.5, level: 2,
+        sourceKey: 'potion:other:0', sourceType: 'potion', sourceId: 'other', affixIndex: 0,
+      }
+      characterAddPassiveSource(character, _createPassiveSource(otherAffix,
+        sourceKey: 'potion:other:0', sourceType: 'potion', sourceId: 'other', affixIndex: 0),
+        isEphemeral: true)
+      characterSetEphemeralPassive(character, 'decreaseTribulationDifficulty')
+      character.life = 50.0
+      character.inventory = {}
+      final potion = {
+        id: 'potion-new', name: '身法丹', category: kItemCategoryPotion,
+        affixes: [
+          {id: 'dexterity', description: 'passive_dexterity_description', increment: 0.5, level: 4},
+        ],
+      }
+      character.inventory[potion.id] = potion
+      characterConsumePotion(character, potion)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['ephemeralPassivesRaw']['dexterity'].keys,
+        ['potion:potion-new:0']);
+    expect(character['ephemeralPassives']['dexterity']['value'], 2);
+    expect(character['ephemeralPassivesRaw']['persistent'], isNotNull);
+    expect(character['ephemeralPassivesRaw']['decreaseTribulationDifficulty'],
+        isNotNull);
+    expect(character['inventory'], isEmpty);
+  });
+
+  test('含额外词条丹药的整体替换不影响独立主效果', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      characterSetEphemeralPassive(character, 'dexterity', level: 1)
+      character.inventory = {}
+      final potion = {
+        id: 'potion-tribulation', name: '渡劫丹', category: kItemCategoryPotion,
+        affixes: [
+          {id: 'decreaseTribulationDifficulty', description: 'passive_decreaseTribulationDifficulty_description', level: 1},
+          {id: 'persistent', description: 'passive_persistent_description', increment: 0.5, level: 2},
+        ],
+      }
+      character.inventory[potion.id] = potion
+      characterConsumePotion(character, potion)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['ephemeralPassivesRaw']['dexterity'], isNull);
+    expect(character['ephemeralPassivesRaw']['persistent'].keys,
+        ['potion:potion-tribulation:1']);
+    expect(
+        character['ephemeralPassivesRaw']['decreaseTribulationDifficulty']
+            .values
+            .first['ephemeralScope'],
+        'standalone');
+    expect(character['inventory'], isEmpty);
   });
 
   test('太古丹药经真实服用入口保留完整快照并生效', () {
@@ -476,8 +637,10 @@ void main() {
     final character = hetu.fetch('character');
     expect(character['life'], 70.0);
     expect(character['ephemeralPassives']['dexterity']['value'], 34);
-    expect(character['ephemeralPassivesRaw']['dexterity']['potion:dexterity']
-        ['isGreater'], true);
+    expect(
+        character['ephemeralPassivesRaw']['dexterity']
+            ['potion:potion-greater:1']['isGreater'],
+        true);
     expect(character['inventory'], isEmpty);
   });
 }

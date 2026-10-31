@@ -540,8 +540,7 @@ final class GameLogic {
       _ => kMaxNormalExtraAffixCount,
     };
     const minGreater = 0;
-    final maxGreater =
-        (rank - 2).clamp(0, kMaxNormalExtraAffixCount).toInt();
+    final maxGreater = (rank - 2).clamp(0, kMaxNormalExtraAffixCount).toInt();
     return {
       'minExtra': minExtra,
       'maxExtra': maxExtra,
@@ -1289,6 +1288,30 @@ final class GameLogic {
         .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
   }
 
+  static Future<bool> confirmBattlePreparationReplacement() async {
+    final summary = engine.hetu.invoke(
+      'characterGetBattlePreparationSummary',
+      positionalArgs: [GameData.hero],
+    );
+    final count = summary['count'] as int;
+    if (count == 0) return true;
+
+    final greaterCount = summary['greaterCount'] as int;
+    dialog.pushDialog(
+      greaterCount > 0
+          ? 'battlePreparationReplaceGreaterPrompt'
+          : 'battlePreparationReplacePrompt',
+      interpolations: [count, greaterCount],
+    );
+    await dialog.execute();
+    dialog.pushSelection('battlePreparationReplaceConfirm', [
+      'confirm',
+      'cancel',
+    ]);
+    await dialog.execute();
+    return dialog.checkSelected('battlePreparationReplaceConfirm') == 'confirm';
+  }
+
   static void onUseItem(dynamic itemData) async {
     final isIdentified = itemData['isIdentified'] == true;
     if (!isIdentified) {
@@ -1337,6 +1360,10 @@ final class GameLogic {
         );
         engine.play(GameSound.pickup);
       case kItemCategoryPotion:
+        if ((itemData['affixes'] as List).length > 1 &&
+            !await confirmBattlePreparationReplacement()) {
+          return;
+        }
         engine.play(GameSound.drink);
         engine.hetu.invoke(
           'consumePotion',
@@ -1368,8 +1395,8 @@ final class GameLogic {
           'characterSetEphemeralPassive',
           positionalArgs: [GameData.hero, 'decreaseTribulationDifficulty'],
         );
-        engine.hetu.invoke('characterCalculateStats',
-            positionalArgs: [GameData.hero]);
+        engine.hetu
+            .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
         engine.hetu.invoke('lose',
             namespace: 'Player',
             positionalArgs: [itemData],

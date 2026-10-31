@@ -1037,6 +1037,8 @@ void validatePassives(Map<String, dynamic> passives) {
     checkId(data, key, ctx);
     checkLocaleKey(data['description'], '$ctx.description');
     checkEnum(data['ephemeralType'], kEphemeralTypes, '$ctx.ephemeralType');
+    checkEnum(data['ephemeralScope'],
+        const {'battle_preparation', 'standalone'}, '$ctx.ephemeralScope');
     checkNumber(data['rank'], '$ctx.rank', min: 0, max: 5);
     checkNumber(data['increment'], '$ctx.increment');
     checkNumber(data['base'], '$ctx.base');

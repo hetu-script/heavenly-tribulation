@@ -522,6 +522,7 @@
     rank: 1,
     greater: {
       data: { attributeRate: 0.0075 },
+      description: "affix_for_dexterity_increase_damage_greater",
     },
   },
   for_strength_increase_damage: {
@@ -536,6 +537,7 @@
     rank: 1,
     greater: {
       data: { attributeRate: 0.0075 },
+      description: "affix_for_strength_increase_damage_greater",
     },
   },
   for_willpower_increase_damage: {
@@ -550,6 +552,7 @@
     rank: 1,
     greater: {
       data: { attributeRate: 0.0075 },
+      description: "affix_for_willpower_increase_damage_greater",
     },
   },
   for_perception_increase_damage: {
@@ -564,6 +567,7 @@
     rank: 1,
     greater: {
       data: { attributeRate: 0.0075 },
+      description: "affix_for_perception_increase_damage_greater",
     },
   },
 
@@ -661,6 +665,7 @@
     rank: 1,
     greater: {
       data: { attributeRate: 0.0075 },
+      description: "affix_for_spirituality_increase_damage_greater",
     },
   },
   // 专注：若上一张打出的牌与本牌同元素，本牌伤害 +{0}%（专注路线，priority<0 先于主词条）

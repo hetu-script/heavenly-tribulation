@@ -109,10 +109,11 @@ namespace Player {
   }
 
   /// 从物品库中复制并获取一个物品
-  async function acquireById(id, { amount = 1, incurIncident = true }) {
+  async function acquireById(id, { amount = 1, rank, level, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
-    final item = entityAcquireById(hero, id, amount: amount, incurIncident: incurIncident)
+    final item = entityAcquireById(hero, id,
+      amount: amount, rank: rank, level: level, incurIncident: incurIncident)
     await onGameEvent('onAcquire', item)
     return item
   }
@@ -856,24 +857,24 @@ namespace Player {
     }
   }
 
-  /// 聚灵阵冥想 — 根据类别和境界生成随机 buff 并赋予玩家
-  /// type: 'attack' | 'buff' | 'attribute' | 'energy'
-  /// rank: 聚灵阵的发展度（境界）
-  function getExpArrayBuff(type, rank) {
+  /// 聚灵阵冥想 — 返回独立词条实例，不修改英雄正式被动。
+  /// type: 'attack' | 'defense' | 'attribute' | 'energy'
+  /// rank: 聚灵阵的发展度（境界）；excludeIds: 本批次已获得的词条 ID
+  function getExpArrayBuff(type, rank, {excludeIds}) {
     assert(hero != null)
-    
+    final excluded = excludeIds ?? []
     final supportAffixes = game.passives.values.where((affix) {
       if (!affix.isEphemeral) return false
       if (affix.ephemeralType != type) return false
-      if (affix.rank > rank) return false
+      if ((affix.rank ?? 0) > rank) return false
+      if (excluded.contains(affix.id)) return false
       return true
     })
-    if (supportAffixes.isEmpty) {
-      throw('Found no support affix for exp array buff, type: ${type}, rank: ${rank}')
-    }
+    if (supportAffixes.isEmpty) return null
 
-    final affix = random.nextIterable(supportAffixes)
-    let level = 1
+    final affix = Object.create(random.nextIterable(supportAffixes))
+    affix.isMain = false
+    affix.ephemeralScope = kEphemeralScopeBattlePreparation
     if (affix.increment != null) {
       let minAffixLevel = 1
       if (affix.increment > 0 && affix.increment < 1) {
@@ -881,15 +882,36 @@ namespace Player {
       } else if (affix.increment < 0 && affix.increment > -1) {
         minAffixLevel = (1 / -affix.increment).ceil()
       }
-      let minLevel = minLevelForRank(rank)
-      let maxLevel = maxLevelForRank(rank)
-      
-      level = getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
+      final minLevel = minLevelForRank(rank)
+      final maxLevel = maxLevelForRank(rank)
+      affix.level = getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
     }
+    if (affix.base != null || affix.increment != null || affix.rankIncrement != null) {
+      affix.value = calculatePassiveAffixValue(affix, level: affix.level ?? 1)
+    }
+    return affix
+  }
 
-    characterSetEphemeralPassive(hero, affix.id, level: level)
-    characterCalculateStats(hero)
-    engine.info('聚灵阵赋予buff: ${affix.id} lv${level}')
+  /// 在副本上计算太古预览；最终取整后没有数值或机制提升时返回 null。
+  function getExpArrayGreaterPreview(affix, rank) {
+    if (affix.isGreater == true || affix.greater == null) return null
+    final preview = Object.create(affix)
+    preview.isGreater = true
+    preview.level = maxLevelForRank(rank)
+    if (preview.base != null || preview.increment != null || preview.rankIncrement != null) {
+      preview.value = calculatePassiveAffixValue(preview,
+        level: preview.level, isGreater: true)
+    }
+    final greater = affix.greater
+    final hasMechanismChange = greater is Map &&
+      ((greater.data is Map && greater.data.isNotEmpty) ||
+       (greater.alt is Map && greater.alt.isNotEmpty))
+    if (!hasMechanismChange && preview.value == affix.value) return null
+    return preview
+  }
+
+  function upgradeExpArrayBuffToGreater(affix, rank) {
+    return getExpArrayGreaterPreview(affix, rank)
   }
 }
 

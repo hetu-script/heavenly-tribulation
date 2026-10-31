@@ -48,6 +48,9 @@ const kBattleCardGenreWeaponKinds = {
   'avatar': ['staff', 'spear'],
 };
 
+const kEphemeralScopeBattlePreparation = 'battle_preparation'
+const kEphemeralScopeStandalone = 'standalone'
+
 /// 被动词条聚合结果：由 passivesRaw / ephemeralPassivesRaw 全量派生。
 /// level 仅用于展示，value 是同 ID 全部来源的未取整贡献汇总后再取整的结果。
 struct PassiveData {
@@ -618,6 +621,7 @@ function _createPassiveSource(data, {
   affixIndex,
   isMain,
   level,
+  ephemeralScope,
 }) {
   final source = Object.create(resolveGreaterAffix(data))
   source.sourceKey = sourceKey
@@ -626,12 +630,16 @@ function _createPassiveSource(data, {
   source.affixIndex = affixIndex
   source.isMain = isMain ?? (affixIndex != null && affixIndex == 0)
   source.level = level ?? data.level ?? 1
+  source.ephemeralScope = ephemeralScope ?? data.ephemeralScope
   return source
 }
 
 function characterAddPassiveSource(character, source, {isEphemeral = false}) {
   assert(source.id != null && source.sourceKey != null)
   assert(source.sourceType != null && source.sourceId != null)
+  if (isEphemeral) {
+    source.ephemeralScope ??= kEphemeralScopeBattlePreparation
+  }
   final raw = isEphemeral ? character.ephemeralPassivesRaw : character.passivesRaw
   raw[source.id] ??= {}
   raw[source.id][source.sourceKey] = source
@@ -645,6 +653,7 @@ function characterAddPassiveSourceById(character, dataId, {
   affixIndex,
   isMain,
   isEphemeral = false,
+  ephemeralScope,
 }) {
   final data = game.passives[dataId]
   assert(data != null, 'passive data not found! id: ${dataId}')
@@ -655,8 +664,65 @@ function characterAddPassiveSourceById(character, dataId, {
     affixIndex: affixIndex,
     isMain: isMain,
     level: level,
+    ephemeralScope: ephemeralScope,
   )
   characterAddPassiveSource(character, source, isEphemeral: isEphemeral)
+}
+
+function characterGetBattlePreparationSummary(character) {
+  var count = 0
+  var greaterCount = 0
+  for (final sources in character.ephemeralPassivesRaw.values) {
+    for (final source in sources.values) {
+      if (source.isPermanent == true) continue
+      if ((source.ephemeralScope ?? kEphemeralScopeBattlePreparation) !=
+          kEphemeralScopeBattlePreparation) continue
+      ++count
+      if (source.isGreater == true) ++greaterCount
+    }
+  }
+  return {count: count, greaterCount: greaterCount}
+}
+
+function _removeBattlePreparationSources(character, {dataId}) {
+  final raw = character.ephemeralPassivesRaw
+  for (final id in raw.keys.toList()) {
+    if (dataId != null && id != dataId) continue
+    final sources = raw[id]
+    for (final sourceKey in sources.keys.toList()) {
+      final source = sources[sourceKey]
+      if (source.isPermanent != true &&
+          (source.ephemeralScope ?? kEphemeralScopeBattlePreparation) ==
+              kEphemeralScopeBattlePreparation) {
+        delete sources[sourceKey]
+      }
+    }
+    if (sources.isEmpty) delete raw[id]
+  }
+}
+
+/// 先构建全部新快照，再整体替换非永久战前配置；永久与独立临时来源保留。
+function characterReplaceBattlePreparationPassives(character, newPassives) {
+  final prepared = []
+  for (final entry in newPassives) {
+    assert(entry.id != null && entry.sourceKey != null)
+    assert(entry.sourceType != null && entry.sourceId != null)
+    prepared.add(_createPassiveSource(entry,
+      sourceKey: entry.sourceKey,
+      sourceType: entry.sourceType,
+      sourceId: entry.sourceId,
+      affixIndex: entry.affixIndex,
+      isMain: entry.isMain,
+      level: entry.level,
+      ephemeralScope: kEphemeralScopeBattlePreparation,
+    ))
+  }
+  _removeBattlePreparationSources(character)
+  for (final source in prepared) {
+    characterAddPassiveSource(character, source, isEphemeral: true)
+  }
+  characterCalculateStats(character, rejuvenate: false)
+  return true
 }
 
 function characterRemovePassiveSource(character, dataId, sourceKey, {isEphemeral = false}) {
@@ -978,8 +1044,8 @@ function characterFirstEquippedKind(entity, kind) {
 }
 
 /// 写入单条临时被动；同 ID 使用稳定 sourceKey，保持原有覆盖语义。
-/// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来。
-function characterSetEphemeralPassive(character, dataId, {level = 1}) {
+/// 未显式分类时读取原型 scope，仍未分类则归为战前配置。
+function characterSetEphemeralPassive(character, dataId, {level = 1, ephemeralScope}) {
   if (level == 0) {
     engine.warning('Character gain passive error: level is zero')
     return
@@ -991,17 +1057,18 @@ function characterSetEphemeralPassive(character, dataId, {level = 1}) {
     sourceId: 'ephemeral',
     isMain: false,
     isEphemeral: true,
+    ephemeralScope: ephemeralScope,
   )
 }
 
-function _addPotionPassiveSnapshot(entity, item, affix, affixIndex) {
-  final source = _createPassiveSource(affix,
-    sourceKey: 'potion:${affix.id}',
+function _createPotionPassiveSnapshot(item, affix, affixIndex) {
+  return _createPassiveSource(affix,
+    sourceKey: 'potion:${item.id}:${affixIndex}',
     sourceType: 'potion',
     sourceId: item.id,
     affixIndex: affixIndex,
+    ephemeralScope: kEphemeralScopeBattlePreparation,
   )
-  characterAddPassiveSource(entity, source, isEphemeral: true)
 }
 
 function characterConsumePotion(entity, item) {
@@ -1009,6 +1076,8 @@ function characterConsumePotion(entity, item) {
 
   engine.info('${entity.name}服用了${item.name}')
 
+  final hasExtraAffixes = item.affixes.length > 1
+  final newPassives = []
   final mainAffix = item.affixes.first
   switch (mainAffix.id) {
     case 'heal': {
@@ -1024,19 +1093,31 @@ function characterConsumePotion(entity, item) {
       }
     }
     case 'decreaseTribulationDifficulty': {
-      // 保留渡劫消费时的精确移除键；普通丹药主词条不参与太古。
-      characterSetEphemeralPassive(entity, mainAffix.id, level: mainAffix.level)
+      // 独立效果不加入战前配置批次，保留渡劫消费时的精确移除键。
+      characterSetEphemeralPassive(entity, mainAffix.id,
+        level: mainAffix.level, ephemeralScope: kEphemeralScopeStandalone)
     }
     else: {
-      _addPotionPassiveSnapshot(entity, item, mainAffix, 0)
+      final snapshot = _createPotionPassiveSnapshot(item, mainAffix, 0)
+      if (hasExtraAffixes) {
+        newPassives.add(snapshot)
+      } else {
+        // 仅主词条丹药只精确更新同 ID 旧战前来源，不影响其他配置。
+        _removeBattlePreparationSources(entity, dataId: mainAffix.id)
+        characterAddPassiveSource(entity, snapshot, isEphemeral: true)
+      }
     }
   }
 
   for (var i = 1; i < item.affixes.length; ++i) {
-    _addPotionPassiveSnapshot(entity, item, item.affixes[i], i)
+    newPassives.add(_createPotionPassiveSnapshot(item, item.affixes[i], i))
   }
-  // 重新计算角色状态值
-  characterCalculateStats(entity, rejuvenate: false)
+  if (hasExtraAffixes) {
+    characterReplaceBattlePreparationPassives(entity, newPassives)
+  } else {
+    characterCalculateStats(entity, rejuvenate: false)
+  }
 
   entityLose(entity, item)
+  return true
 }

@@ -474,22 +474,40 @@ namespace StatusScript {
     self.addStatusEffect('energy_positive_spell', amount: effect.manaBonus ?? 3)
   }
 
-  /// 观星升级：每回合第一次观星后，选中牌按 upgradeChosen 连续升级。
+  /// 观星效果以 turnCount 记录触发回合；回合开始观星后 turnFlags 仍会清空。
   function scry_upgrade_self_scry(self, opponent, effect, details) {
-    if (self.turnFlags['scryUpgradeTriggered'] == true) return
-    self.turnFlags['scryUpgradeTriggered'] = true
+    if (effect.lastScryUpgradeTurn == self.turnCount) return
+    effect.lastScryUpgradeTurn = self.turnCount
     for (final i in range(effect.upgradeChosen ?? 1)) {
       upgradeCard(details['chosen'], inBattle: true)
     }
   }
 
-  /// 化厄为灵：每回合第一次获得元素异常时，获得 1 层资源
-  /// 获得事件先于辟邪抵消结算，修正后层数 <=0 时不会进入本回调
-  function first_ailment_to_mana_self_gained_debuff(self, opponent, effect, details) {
-    if (self.turnFlags['firstAilmentToManaTriggered'] == true) return
-    if (!Constants.elementAilments.values.contains(details['id'])) return
-    self.turnFlags['firstAilmentToManaTriggered'] = true
-    self.addStatusEffect(effect.resourceId, amount: effect.manaBonus ?? 1)
+  function scry_shield_self_scry(self, opponent, effect, details) {
+    if (effect.lastScryShieldTurn == self.turnCount) return
+    effect.lastScryShieldTurn = self.turnCount
+    self.addStatusEffect('buff_shield', amount: effect.shieldAmount ?? 1)
+  }
+
+  function scry_mana_self_scry(self, opponent, effect, details) {
+    if (effect.lastScryManaTurn == self.turnCount) return
+    effect.lastScryManaTurn = self.turnCount
+    final amount = effect.manaBonus ?? 1
+    if (effect.lastResourceProductionTurn == self.turnCount) {
+      self.addStatusEffect(effect.resourceId, amount: amount)
+      return
+    }
+    // 回合开始观星早于残留资源清理，登记到本次产出阶段获得。
+    var pending = self.turnFlags['pendingResources']
+    if (pending == null) {
+      pending = {}
+      self.turnFlags['pendingResources'] = pending
+    }
+    pending[effect.resourceId] = (pending[effect.resourceId] ?? 0) + amount
+  }
+
+  function scry_mana_self_produce_resources(self, opponent, effect, details) {
+    effect.lastResourceProductionTurn = self.turnCount
   }
 
   /// 聚气成势：灵气达到阈值时，受到的伤害按独立乘区2降低

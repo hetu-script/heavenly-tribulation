@@ -139,7 +139,7 @@
   "flavortext_craftmaterial_addAffix_fragment": "20 个灵宝残韵可以合成一个灵宝丹。",
 
   "craftmaterial_addAffix": "灵宝丹",
-  "flavortext_craftmaterial_addAffix": "用于功法卡牌: 增加一个额外词条。\n凝气境最多有两个额外词条。每高一境界，额外词条上限 +1。\n直接服用: 获得1-5个随机增益∕减益效果。",
+  "flavortext_craftmaterial_addAffix": "用于功法卡牌: 优先增加一个额外词条，最多 3 条。\n已有 3 个额外词条且达到结丹后，改为进行一次 5% 的太古判定。\n直接服用: 获得1-5个随机增益∕减益效果。",
 
   "craftmaterial_replaceAffix_fragment": "神照残韵",
   "flavortext_craftmaterial_replaceAffix_fragment": "20 个神照残韵可以合成一个神照丹。",
@@ -184,7 +184,7 @@
   "flavortext_five_elements_pearl": "你造成的元素异常层数 +2；你受到的元素异常层数 +2。\n五行导体，异常双向放大。",
 
   "heavenly_mechanism_disc": "天机盘",
-  "flavortext_heavenly_mechanism_disc": "回合开始时额外抽 1 张牌；通过此效果抽到的非悟道牌，本回合费用 +1（保留跨回合的牌，加费在其保留至的下回合开始时还原）。\n天机虽妙，杂学误道。",
+  "flavortext_heavenly_mechanism_disc": "牌库数量下限 -2；非悟道牌费用 +1。\n天机虽妙，杂学误道。",
 
   "spirit_storing_amulet": "蓄灵佩",
   "flavortext_spirit_storing_amulet": "回合结束时至多保留 2 点未使用的悟道灵气到下回合（保留的灵气不触发阴阳五行结算）；每保留 1 点，下回合开始受到 3 点纯粹伤害。\n灵气淤积，经脉受损。",

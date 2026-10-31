@@ -1115,6 +1115,19 @@ final class GameData with ChangeNotifier {
     return desc.toString();
   }
 
+  static String getPassiveAffixDescription(dynamic affix) {
+    final isGreater = affix['isGreater'] == true;
+    final descriptionKey = isGreater
+        ? (affix['greater']?['description'] ?? affix['description'])
+        : affix['description'];
+    String description = engine.locale(descriptionKey);
+    final value = affix['value'];
+    if (value != null) {
+      description = description.interpolate(['${value < 0 ? '' : '+'}$value']);
+    }
+    return isGreater ? '<yellow>$kAffixLeading2 $description</>' : description;
+  }
+
   static String getItemDescription(
     dynamic itemData, {
     bool isInventory = false,
@@ -1230,7 +1243,8 @@ final class GameData with ChangeNotifier {
         }
 
         if (i > 0 && affix['isGreater'] == true) {
-          extraDescription.writeln('<yellow>$kAffixLeading2 $descriptionString</>');
+          extraDescription
+              .writeln('<yellow>$kAffixLeading2 $descriptionString</>');
         } else if (isAfflicted) {
           extraDescription.writeln('<red>$descriptionString</>');
         } else {

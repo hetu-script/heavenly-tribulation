@@ -23,6 +23,7 @@ import '../../ui.dart';
 import '../../data/game.dart';
 import '../common.dart';
 import '../particles/light_trail.dart';
+import 'exp_array.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
@@ -179,7 +180,7 @@ class CultivationScene extends Scene with HasCursorState {
   late final SpriteButton collectButton;
 
   // 冥想共享状态（问道碑和聚灵阵共用，同一时间只会有一种模式在运行）
-  /// 0=聚光阶段, 1=选文阶段, -1=空闲
+  /// 0=聚光阶段, 1=选文阶段, 2=凝炼阶段, -1=空闲
   int _meditatePhase = -1;
   int _meditateRound = 0;
   int _meditateLightCollected = 0;
@@ -190,7 +191,10 @@ class CultivationScene extends Scene with HasCursorState {
 
   // 聚灵阵专用状态
   int _expArrayMaxRounds = 1;
-  final List<String> _expArrayGrantedBuffs = [];
+  final Set<String> _expArrayGrantedBuffIds = {};
+  String? _expArrayBatchId;
+  final List<dynamic> _expArrayPendingAffixes = [];
+  final List<(dynamic, dynamic)> _expArrayRefineCandidates = [];
 
   late final SpriteComponent2 barrier;
 
@@ -206,8 +210,10 @@ class CultivationScene extends Scene with HasCursorState {
 
   void setMeditateState(CultivationMode state) {
     if (state == CultivationMode.none) {
+      final hadPendingBatch = _expArrayBatchId != null;
       isMeditating = false;
       _resetMeditation();
+      if (hadPendingBatch) updatePassivesDescription();
     } else {
       isMeditating = true;
     }
@@ -856,6 +862,10 @@ class CultivationScene extends Scene with HasCursorState {
     _meditateLightCollected = 0;
     _meditateTargetColor = null;
     _meditateVibrateTimer = 0;
+    _expArrayBatchId = null;
+    _expArrayGrantedBuffIds.clear();
+    _expArrayPendingAffixes.clear();
+    _expArrayRefineCandidates.clear();
   }
 
   /// 冥想中每次交互触发的时间流逝
@@ -987,10 +997,11 @@ class CultivationScene extends Scene with HasCursorState {
 
   /// 开始一次完整的聚灵阵冥想
   void _startExpArrayMeditation() async {
+    if (!await GameLogic.confirmBattlePreparationReplacement()) return;
+
     final int development = location?['development'] ?? 0;
     final int cost = development + 1;
-
-    int exhausted = engine.hetu.invoke(
+    final int exhausted = engine.hetu.invoke(
       'exhaust',
       namespace: 'Player',
       positionalArgs: ['shard', cost],
@@ -1002,8 +1013,11 @@ class CultivationScene extends Scene with HasCursorState {
     }
 
     _meditateRound = 0;
-    _expArrayMaxRounds = development + 1;
-    _expArrayGrantedBuffs.clear();
+    _expArrayMaxRounds = getExpArrayMaxRounds(development);
+    _expArrayBatchId = '${DateTime.now().microsecondsSinceEpoch}';
+    _expArrayGrantedBuffIds.clear();
+    _expArrayPendingAffixes.clear();
+    _expArrayRefineCandidates.clear();
     setMeditateState(mode);
 
     hint(
@@ -1011,7 +1025,6 @@ class CultivationScene extends Scene with HasCursorState {
       duration: 3,
       color: Colors.amberAccent,
     );
-
     _startLightPhase();
   }
 
@@ -1028,7 +1041,6 @@ class CultivationScene extends Scene with HasCursorState {
 
     final validPhrases = selectValidPhrases(kExpArrayCategoryPhrases, random);
     final nonsensePhrases = selectNonsensePhrases(random);
-
     final allOptions = <(String, String?)>[];
     for (final entry in validPhrases) {
       allOptions.add((entry.key, entry.value));
@@ -1040,16 +1052,12 @@ class CultivationScene extends Scene with HasCursorState {
 
     final positions = generateDividingPointsOnCircle(
         center: center, radius: 150, number: allOptions.length);
-
     for (var i = 0; i < allOptions.length; i++) {
       final (localeKey, value) = allOptions[i];
-      final text = engine.locale(localeKey);
-      final pos = positions[i].position;
-
       final phrase = SpriteButton(
         spriteId: 'ui/button.png',
-        text: text,
-        position: pos,
+        text: engine.locale(localeKey),
+        position: positions[i].position,
         size: GameUI.buttonSizeSmall,
         anchor: Anchor.center,
         priority: _kLightPriority + 5,
@@ -1073,23 +1081,31 @@ class CultivationScene extends Scene with HasCursorState {
       return;
     }
 
-    // 调用 Hetu 生成并赋予该类别的随机 buff
-    // buff 的 rank 来源是聚灵阵的发展度（境界），而非角色境界
     final int rank = location?['development'] ?? 0;
-    engine.hetu.invoke(
+    final affix = engine.hetu.invoke(
       'getExpArrayBuff',
       namespace: 'Player',
       positionalArgs: [value, rank],
+      namedArgs: {'excludeIds': _expArrayGrantedBuffIds.toList()},
     );
+    if (affix == null) {
+      hint(
+        engine.locale('exparray_category_exhausted'),
+        duration: 2,
+        color: Colors.amberAccent,
+      );
+      return;
+    }
 
+    _expArrayPendingAffixes.add(affix);
+    _expArrayGrantedBuffIds.add(affix['id'] as String);
     hint(
-      engine.locale('meditate_buff_acquired'),
+      '${engine.locale('meditate_buff_acquired')}\n'
+      '${GameData.getPassiveAffixDescription(affix)}',
       color: Colors.lightGreenAccent,
     );
     engine.play(GameSound.click);
     _advanceTime();
-
-    _expArrayGrantedBuffs.add(value);
     _meditateRound++;
 
     if (_meditateRound >= _expArrayMaxRounds) {
@@ -1103,13 +1119,154 @@ class CultivationScene extends Scene with HasCursorState {
       );
       _startLightPhase();
     }
-    updatePassivesDescription();
+    _updateExpArrayPendingDescription();
   }
 
-  /// 聚灵阵冥想成功完成
+  void _updateExpArrayPendingDescription() {
+    updatePassivesDescription();
+    if (_expArrayPendingAffixes.isEmpty) return;
+    final description = StringBuffer(_cultivatorDescription)
+      ..writeln('\n<yellow>${engine.locale('exparray_pending_title')}</>');
+    for (final affix in _expArrayPendingAffixes) {
+      description.writeln(GameData.getPassiveAffixDescription(affix));
+    }
+    _cultivatorDescription = description.toString();
+  }
+
+  /// 普通轮次完成，结丹后先进行可选凝炼，再最终确认。
   void _expArrayMeditationComplete() {
+    final int development = location?['development'] ?? 0;
+    if (development >= 3) {
+      _startExpArrayRefinePhase();
+    } else {
+      _confirmExpArrayMeditation();
+    }
+  }
+
+  void _startExpArrayRefinePhase() {
     _clearMeditateComponents();
-    _meditatePhase = -1;
+    _expArrayRefineCandidates.clear();
+    final int rank = location?['development'] ?? 0;
+    for (final affix in _expArrayPendingAffixes) {
+      final preview = engine.hetu.invoke(
+        'getExpArrayGreaterPreview',
+        namespace: 'Player',
+        positionalArgs: [affix, rank],
+      );
+      if (preview != null) {
+        _expArrayRefineCandidates.add((affix, preview));
+      }
+    }
+    if (_expArrayRefineCandidates.isEmpty) {
+      _confirmExpArrayMeditation();
+      return;
+    }
+
+    _meditatePhase = 2;
+    hint(
+      engine.locale('exparray_refine_hint'),
+      duration: 3,
+      color: Colors.amberAccent,
+    );
+    final positions = generateDividingPointsOnCircle(
+        center: center,
+        radius: 150,
+        number: _expArrayRefineCandidates.length + 1);
+    for (var i = 0; i < _expArrayRefineCandidates.length; i++) {
+      final (original, preview) = _expArrayRefineCandidates[i];
+      final phrase = SpriteButton(
+        spriteId: 'ui/button.png',
+        text: '${GameData.getPassiveAffixDescription(original)}\n'
+            '→ ${GameData.getPassiveAffixDescription(preview)}',
+        position: positions[i].position,
+        size: GameUI.buttonSizeSmall,
+        anchor: Anchor.center,
+        priority: _kLightPriority + 5,
+      );
+      phrase.onTap = (_, __) {
+        _onExpArrayRefineTap(original, preview);
+      };
+      _meditatePhrases.add(phrase);
+      world.add(phrase);
+    }
+
+    final skip = SpriteButton(
+      spriteId: 'ui/button.png',
+      text: engine.locale('exparray_refine_skip'),
+      position: positions.last.position,
+      size: GameUI.buttonSizeSmall,
+      anchor: Anchor.center,
+      priority: _kLightPriority + 5,
+    );
+    skip.onTap = (_, __) {
+      _confirmExpArrayMeditation();
+    };
+    _meditatePhrases.add(skip);
+    world.add(skip);
+  }
+
+  void _onExpArrayRefineTap(dynamic original, dynamic preview) {
+    if (_meditatePhase != 2) return;
+    final index = _expArrayPendingAffixes.indexOf(original);
+    if (index < 0) return;
+    _expArrayPendingAffixes[index] = preview;
+    _updateExpArrayPendingDescription();
+    _confirmExpArrayMeditation();
+  }
+
+  String _currentBattlePreparationDescription() {
+    final lines = <String>[];
+    final raw = GameData.hero['ephemeralPassivesRaw'];
+    for (final sources in raw.values) {
+      for (final source in sources.values) {
+        if (source['isPermanent'] == true) continue;
+        if ((source['ephemeralScope'] ?? 'battle_preparation') !=
+            'battle_preparation') {
+          continue;
+        }
+        lines.add(GameData.getPassiveAffixDescription(source));
+      }
+    }
+    return lines.isEmpty ? '—' : lines.join('\n');
+  }
+
+  String _pendingBattlePreparationDescription() {
+    if (_expArrayPendingAffixes.isEmpty) return '—';
+    return _expArrayPendingAffixes
+        .map(GameData.getPassiveAffixDescription)
+        .join('\n');
+  }
+
+  /// 最终确认成功后才整体替换；取消只丢弃本批次，旧配置不变。
+  void _confirmExpArrayMeditation() async {
+    _clearMeditateComponents();
+    dialog.pushDialog(
+      'exparray_final_prompt',
+      interpolations: [
+        _currentBattlePreparationDescription(),
+        _pendingBattlePreparationDescription(),
+      ],
+    );
+    await dialog.execute();
+    dialog.pushSelection('expArrayFinalConfirm', ['confirm', 'cancel']);
+    await dialog.execute();
+    if (dialog.checkSelected('expArrayFinalConfirm') != 'confirm') {
+      setMeditateState(CultivationMode.none);
+      return;
+    }
+
+    final batchId = _expArrayBatchId!;
+    for (var i = 0; i < _expArrayPendingAffixes.length; i++) {
+      final affix = _expArrayPendingAffixes[i];
+      affix['sourceKey'] = 'exp_array:$batchId:$i';
+      affix['sourceType'] = 'exp_array';
+      affix['sourceId'] = batchId;
+      affix['affixIndex'] = i;
+    }
+    engine.hetu.invoke(
+      'characterReplaceBattlePreparationPassives',
+      positionalArgs: [GameData.hero, _expArrayPendingAffixes],
+    );
     hint(
       engine.locale('exparray_hint_complete'),
       duration: 3,
@@ -1785,8 +1942,8 @@ class CultivationScene extends Scene with HasCursorState {
         ],
         namedArgs: {'isEphemeral': true},
       );
-      engine.hetu.invoke('characterCalculateStats',
-          positionalArgs: [GameData.hero]);
+      engine.hetu
+          .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
       dialog.pushDialog('tribulation_difficulty_decreased');
       await dialog.execute();
     }

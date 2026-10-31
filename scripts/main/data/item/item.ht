@@ -144,7 +144,11 @@ function createItemById(id, {amount, rank, level}) {
       assert(kRarity.containsKey(item.rarity))
       item.rank = kRarity[item.rarity].rank
     } else if (item.rank != null) {
-      item.rank = item.rank.clamp(0, kCultivationRankMax)
+      final minimumRank = item.rank.clamp(0, kCultivationRankMax)
+      // 绝世装备的原型境界是最低生成境界，奖励可以显式指定更高境界。
+      item.rank = item.isUnique == true && rank != null
+        ? Math.max(minimumRank, rank.clamp(0, kCultivationRankMax))
+        : minimumRank
       item.rarity = Constants.rankToRarity[item.rank]
     } else {
       item.rank = 0
@@ -168,10 +172,10 @@ function createItemById(id, {amount, rank, level}) {
       item.level = getRandomLevel(minLevelForRank(item.rank), maxLevelForRank(item.rank))
     }
     let affixes = item.affixes.toList()
-    // 绝世装备首条为主词条，额外词条最多 3 条，再按 greaterAffixes 成长。
+    // 绝世装备首条为主词条，rank 1/2 分别解锁 2/3 条额外词条，再按 greaterAffixes 成长。
     let unlockCount = affixes.length
     if (item.isUnique == true) {
-      unlockCount = Math.min(affixes.length, item.rank + 1,
+      unlockCount = Math.min(affixes.length, item.rank + 2,
         Constants.maxNormalExtraAffixCount + 1)
     }
     item.affixes = []
@@ -414,10 +418,10 @@ function entityAcquireAll(entity, items, { incurIncident = true }) {
   }
 }
 
-function entityAcquireById(entity, id, { amount = 1, incurIncident = true }) {
+function entityAcquireById(entity, id, { amount = 1, rank, level, incurIncident = true }) {
   assert(amount > 0)
 
-  final item = createItemById(id)
+  final item = createItemById(id, rank: rank, level: level)
 
   entity.inventory[item.id] = item
   item.ownerId = entity.id
@@ -634,8 +638,9 @@ function createLoot(itemsInfo: List) {
       }
       'prototype': {
         final itemId = itemInfo.id ?? itemInfo.kind
-        assert(game.items.contains(itemId), 'prototype item not found: ${itemId}')
-        final created = createItemById(itemId, amount: amount)
+        assert(game.items[itemId] != null, 'prototype item not found: ${itemId}')
+        final created = createItemById(itemId,
+          amount: amount, rank: itemInfo.rank, level: itemInfo.level)
         items.add(created)
       }
     }

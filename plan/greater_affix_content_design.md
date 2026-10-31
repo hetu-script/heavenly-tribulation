@@ -238,26 +238,26 @@
 
 | ID | 处理与太古方案 | 最终效果与消费说明 |
 | --- | --- | --- |
-| `scry_focus` | `D:statsBonus.scryBonus += 1` | 观星深度由 +1 提至 +2，仍受观星上限约束。 |
-| `scry_retention` | **由新词条 `scry_upgrade` 替代** | 原观星保留不符合天机镜固定成长；无其他引用时删除原 ID。`scry_upgrade` 普通使每回合首次观星选中牌升 1 级，太古 `D:upgradeChosen += 1` 提至升 2 级，由新的观星状态脚本消费。 |
-| `ailment_to_mana_echo` | `D:statusParams.manaBonus += 1` | 每回合首次获得元素异常时灵气由 1 点提至 2 点；`first_ailment_to_mana` 改为读取实例加成。 |
-| `non_spellcraft_tax` | `A:deckCostReduction.amount = 0` | 非悟道牌费用由 +1 改为 +0，即移除课税；太古时替换原规则而非继续叠加。 |
-| `deckMinSizeReduce` | `×1.5[0]` | 进一步降低牌库下限；`getDeckMinSizeForRank` 改用独立的全局绝对下限截断，不再以基准牌库大小作为最低值。 |
-| `battleDrawBonus` | `×1.5[0]` | 进一步增加每回合抽牌数，不追加手牌上限或其他机制；实际抽牌仍按现有手牌空间截断。 |
+| `scry_shield` | `D:statusParams.shieldAmount += 1` | 每回合首次观星获得护盾由 1 层提至 2 层，由观星状态脚本消费。 |
+| `scry_retention` | **由新词条 `scry_upgrade` 替代** | 原观星保留不符合窥天镜固定成长；无其他引用时删除原 ID。`scry_upgrade` 普通使每回合首次观星选中牌升 1 级，太古 `D:statusParams.upgradeChosen += 1` 提至升 2 级。 |
+| `scry_mana` | `D:statusParams.manaBonus += 1` | 每回合首次观星获得灵气由 1 点提至 2 点；回合开始观星登记到本次产出阶段，行动中观星直接获得。 |
+| `non_spellcraft_tax` | **并入天机盘主词条，不制作太古** | 与固定牌库下限共同构成主词条，保留非悟道牌费用 +1 的构筑限制。 |
+| `deckMinSizeReduce` | **并入天机盘主词条，不制作太古** | 通过 `statsBonus.deckMinSizeReduce = -2` 固定生效，不再随等级放大。 |
+| `battleDrawBonus` | 普通值固定为 1；`+1[0]` | 每回合抽牌普通 +1、太古 +2，避免等级倍率超出手牌实际上限。 |
 | `basicEnergyBonus` | **移除出绝世固定列表，不制作太古** | 当前不进普通随机池；蓄灵佩迁移后无其他引用时删除。 |
 | `spell_mana_trickle` | `D:statusParams.manaBonus += 1` | 每回合产出灵气由 1 点提至 2 点，复用 `turn_start_mana_bonus`。 |
 | `mana_threshold_guard` | `D:statusParams.reductionPercent += 10` | 灵气不少于 5 点的门槛不变，减伤由 20% 提至 30%。 |
 | `mana_empty_defend` | **移除出绝世固定列表，不制作太古** | 聚灵旗迁移后无其他引用时删除。 |
 | `spellcraft_cost_down` | `D:deckCostReduction.amount += 1` | 悟道牌费用由 -1 提至 -2，仍按规则列表聚合并受动态费用豁免约束。 |
-| `turnStartExtraDraw` | `D:turnStartExtraDraw.count += 1` | 回合开始额外抽牌由 1 张提至 2 张，非悟道牌加费规则不变；天机盘作为主词条使用时仍不参与太古。 |
+| `turnStartExtraDraw` | `D:turnStartExtraDraw.count += 1` | 回合开始额外抽牌由 1 张提至 2 张，非悟道牌加费规则不变；聚灵旗固定额外词条使用。 |
 
 ### 4.2 五件悟道绝世装备的固定太古顺序
 
 | 装备 | rank 3 | rank 4 | rank 5 |
 | --- | --- | --- | --- |
-| 窥天镜 | `scry_upgrade`：选中牌升 2 级 | `scry_focus`：观星深度 +2 | `ailment_to_mana_echo`：首次异常产灵 2 点 |
+| 窥天镜 | `scry_upgrade`：选中牌升 2 级 | `scry_shield`：观星护盾 2 层 | `scry_mana`：观星产灵 2 点 |
 | 五行珠 | `ailment_inflict_focus`：造成异常修正由 +1 提至 +2 | `ailmentThreshold`：阈值贡献 ×1.5，仍受下限 | `ailmentMultiplier`：异常伤害 ×1.5 |
-| 天机盘 | `battleDrawBonus`：抽牌数 ×1.5 | `deckMinSizeReduce`：下限贡献 ×1.5，仍受全局绝对下限约束 | `non_spellcraft_tax`：非悟道课税降为 0 |
+| 天机盘 | `battleDrawBonus`：每回合抽牌 +2 | `handSizeMax`：手牌上限 +2 | `spellcraft_cost_down`：悟道牌费用 -2 |
 | 蓄灵佩 | `lifeMax`：生命上限 ×1.5 | `persistent`：护甲保持 ×1.5 | `spell_mana_trickle`：回合产灵 2 点 |
 | 聚灵旗 | `mana_threshold_guard`：减伤 30%，阈值不变 | `spellcraft_cost_down`：悟道牌费用 -2 | `turnStartExtraDraw`：额外抽 2 张，课税不变 |
 
@@ -267,12 +267,12 @@
 
 1. **低增量取整**：初始护盾、无极/虚空/混沌等词条使用 +1 而非乘 1.5，避免太古前后最终整数相同。
 2. **负向词条方向**：`slowThreshold`、`clumsyThreshold` 是自身惩罚，采用 ×0.5；对手缓慢、迟钝等仍采用 ×1.5。
-3. **系统上下限**：牌库下限使用独立的全局绝对下限，允许太古继续降低但不能无限突破；抽牌只增加请求数量，仍按现有手牌空间截断；观星仍遵守最多查看数量。
+3. **系统上下限**：牌库下限使用独立的全局绝对下限；天机盘的牌库修正收归固定主词条，不参与太古。抽牌只增加请求数量，仍按现有手牌空间截断；观星仍遵守最多查看数量。
 4. **次数与阈值**：升级、抽牌、资源、费用使用整数加法或定值；获得门槛、异常种数门槛和延迟自伤不随太古放大。
 5. **机制消费**：本文所有 `D/A` 字段都要登记进数据校验和 MOD 契约，并由对应 CardScript、状态脚本或被动聚合入口实际消费。
 6. **文案**：移除惩罚或普通文案无法表达的机制参数变化必须配置 `greater.description`；普通描述不得提前展示太古效果。
 7. **移除引用**：标记“移除”的词条先检查随机池、绝世列表、天赋树和测试引用，确认无引用后再删除，不强制为淘汰内容制作太古。
-8. **待审核的数值重点**：一气化三清每点灵气增幅由 5% 提至 10%、太上忘情自伤修正由 -3 提至 -5、天机盘抽牌与牌库下限倍率，这三组对构筑强度影响最大，建议优先审核。
+8. **数值复核结果**：一气化三清与太上忘情沿用表内方案；天机盘抽牌改用固定 +1/+2，牌库修正收归主词条并固定为 -2，避免原始倍率被手牌或牌库上限吞没。
 
 ## 6. 覆盖清单
 

@@ -1239,17 +1239,12 @@
     id: "battleDrawBonus",
     description: "passive_battleDrawBonus_description",
     priority: 3496,
-    increment: 1,
-    greater: true,
+    base: 1,
+    increment: 0,
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
     rank: 2,
-  },
-  deckMinSizeReduce: {
-    id: "deckMinSizeReduce",
-    description: "passive_deckMinSizeReduce_description",
-    priority: 3495,
-    increment: -1,
-    greater: true,
-    isDecrement: true,
   },
 
   // 非战斗属性
@@ -1423,11 +1418,12 @@
     description: "passive_decreaseTribulationDifficulty_description",
     priority: 3197,
     isPotionMain: true,
+    ephemeralScope: "standalone",
     rank: 1,
   },
 
   /// 绝世装备专用词条
-  /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，生成时解锁前 rank+1 条，即额外词条 = rank 条），
+  /// 固定词条：由绝世装备 prototype 的 affixes 列表固定授予（第一个为主词条，rank 1/2 解锁 2/3 条额外词条），
   /// 不进随机词条池，不写 isEquipmentMain/isEquipmentExtraAffix 等用途标记
   // 窥天镜（rank1）主词条：观星额外查看 2 张；每次观星结算后对自身随机施加 2 种元素异常（各 1 层）
   // （观星深度走 statsBonus 直加 stats；自施异常由 battleStatus 授予永久状态，行为在状态脚本实现）
@@ -1445,8 +1441,15 @@
     priority: 3492,
     statsBonus: { ailmentInflictBonus: 2, ailmentReceiveBonus: 2 },
   },
-  // 天机盘（rank3）主词条：回合开始抽牌阶段额外抽 1 张；通过此效果抽到的非悟道牌本回合费用 +1
-  // （战斗侧抽牌阶段读取，见 battle.dart；costIncrease 只作用于本回合）
+  // 天机盘（rank3）主词条：固定牌库下限 -2；非悟道牌费用 +1，不参与太古
+  heavenly_mechanism_disc: {
+    id: "heavenly_mechanism_disc",
+    description: "passive_heavenly_mechanism_disc_description",
+    priority: 3491,
+    statsBonus: { deckMinSizeReduce: -2 },
+    deckCostReduction: { color: "all", amount: -1, notGenres: ["spellcraft"] },
+  },
+  // 聚灵旗固定额外词条：回合开始额外抽牌，混编卡牌本回合加费
   turnStartExtraDraw: {
     id: "turnStartExtraDraw",
     description: "passive_turnStartExtraDraw_description",
@@ -1526,14 +1529,14 @@
     rank: 2,
   },
   // C 层：仅供固定列表或天赋引用，不写用途标记，不进随机池
-  scry_focus: {
-    id: "scry_focus",
-    description: "passive_scry_focus_description",
+  scry_shield: {
+    id: "scry_shield",
+    description: "passive_scry_shield_description",
     priority: 3484,
-    statsBonus: { scryBonus: 1 },
+    battleStatus: "scry_shield",
     greater: {
-      data: { statsBonus: { scryBonus: 1 } },
-      description: "passive_scry_focus_greater_description",
+      data: { statusParams: { shieldAmount: 1 } },
+      description: "passive_scry_shield_greater_description",
     },
   },
   scry_upgrade: {
@@ -1542,18 +1545,18 @@
     priority: 3483,
     battleStatus: "scry_upgrade",
     greater: {
-      data: { upgradeChosen: 1 },
+      data: { statusParams: { upgradeChosen: 1 } },
       description: "passive_scry_upgrade_greater_description",
     },
   },
-  ailment_to_mana_echo: {
-    id: "ailment_to_mana_echo",
-    description: "passive_ailment_to_mana_echo_description",
+  scry_mana: {
+    id: "scry_mana",
+    description: "passive_scry_mana_description",
     priority: 3482,
-    battleStatus: "first_ailment_to_mana",
+    battleStatus: "scry_mana",
     greater: {
       data: { statusParams: { manaBonus: 1 } },
-      description: "passive_ailment_to_mana_echo_greater_description",
+      description: "passive_scry_mana_greater_description",
     },
   },
   spell_mana_trickle: {
@@ -1564,16 +1567,6 @@
     greater: {
       data: { statusParams: { manaBonus: 1 } },
       description: "passive_spell_mana_trickle_greater_description",
-    },
-  },
-  non_spellcraft_tax: {
-    id: "non_spellcraft_tax",
-    description: "passive_non_spellcraft_tax_description",
-    priority: 3480,
-    deckCostReduction: { color: "all", amount: -1, notGenres: ["spellcraft"] },
-    greater: {
-      alt: { deckCostReduction: { amount: 0 } },
-      description: "passive_non_spellcraft_tax_greater_description",
     },
   },
   spellcraft_cost_down: {

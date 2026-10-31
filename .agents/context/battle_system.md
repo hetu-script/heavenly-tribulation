@@ -56,7 +56,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {statusId}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn*start / turn_end / doing_damage / taking_damage / gained_debuff / using_card / used_card / attacked / buffed / extra_turn / use_card_genre*_ / use*card_kind*_，以及 self_produce_resources（产出阶段，如太上感应）等。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / turn_start_mana_bonus）等。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus）等；每回合首次观星效果以 turnCount 记录触发回合，回合开始观星产灵登记到本次产出阶段。
 - 状态数据在 assets/data/status*effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status*{id} + status\_{id}\_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -71,13 +71,13 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - item.ht：
   - 分类常量：type（equipment/consumable/cardpack/craftmaterial/miscellaneous，物品栏筛选用）× category（小类别，决定装备数量限制与 onUseItem 分支）× kind（具体种类，决定命名/图标/词条过滤）。
-  - createItemById(id, {amount, rank, level})：从 game.items（items.json5）prototype Object.create；isRankedItem 由 rank 推导 rarity 并按境界命名；普通物品 rarity↔rank 互推——两者都写时 rarity 优先，故绝世装备只写 rank。isUnstackable 使运行时 id 变随机 UID，唯一性检查只能用 uniqueId。
-  - 词条实例化：绝世首条为主词条，之后按 min(rank+1, 3) 解锁最多 3 条额外词条，再按 greaterAffixes 在 rank 3～5 固定太古化；普通数值按 calculatePassiveAffixValue 计算，太古额外词条取来源物品 rank 满级后按 greater 配置强化。装备破境未实现。
+  - createItemById(id, {amount, rank, level})：从 game.items（items.json5）prototype Object.create；isRankedItem 由 rank 推导 rarity 并按境界命名；普通物品 rarity↔rank 互推——两者都写时 rarity 优先，故绝世装备只写 rank。绝世原型 rank 是最低生成境界，允许显式传入更高 rank，较低值忽略。isUnstackable 使运行时 id 变随机 UID，唯一性检查只能用 uniqueId。
+  - 词条实例化：绝世首条为主词条，rank 1/2 解锁 2/3 条固定额外词条，再按 greaterAffixes 在 rank 3～5 固定太古化；普通数值按 calculatePassiveAffixValue 计算，太古额外词条取来源物品 rank 满级后按 greater 配置强化。装备破境未实现。
   - calculatePrice：itemWithAffixKinds 按 (rank²+1)×(level+1)×(词条数+1)×basePriceByKind 计价。
-  - createLoot：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口。
+  - createLoot：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口；prototype 分支透传可选 rank/level。
 - equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机；主词条过滤 isEquipmentMain ∧ kinds ∧ rank，额外词条过滤 isEquipmentExtraAffix ∧ uniqueId ∧ kinds ∧ rank。数量同 getMinMaxExtraAffixCount，生成完成后以 5% 对合格额外词条进行太古判定，主词条不参与。
 - extracted_affix.ht：ExtractedAffix——精炼产物，单词条物品。保存完整快照和 sourceRank；填槽要求 sourceRank≤目标 rank 且不超过目标太古上限，已有太古不重新判定，普通提取词条仍可参与后续判定。
-- usable.ht：可使用物品（丹药/卷轴等，onUseItem 分支；丹药词条 roll 法与装备相同，构造完成后进行同类太古判定。characterConsumePotion 以 potion:{affixId} 为 sourceKey 写入完整快照，保留现有同 ID 覆盖语义；decreaseTribulationDifficulty 仍走原精确移除键）。
+- usable.ht：可使用物品（丹药/卷轴等，onUseItem 分支；丹药词条 roll 法与装备相同，构造完成后进行同类太古判定。characterConsumePotion 按 affixes 数量区分：含额外词条时以 potion:{itemId}:{affixIndex} 为 sourceKey 整体替换非永久战前配置；仅主词条时保留其他配置并精确更新同 ID 来源。decreaseTribulationDifficulty 为 standalone 独立效果，不参与批次替换）。
 
 ### 5.2 装备词条池：passives.json5（与天赋共享）
 
@@ -93,6 +93,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 类别限制只在 UI 层：kRestrictedEquipmentCategories（common.dart:359-367，weapon/shield/armor/gloves/helmet/boots/vehicle 七类）已装备同类时拒绝，除非角色有 ${category}UnrestrictedEquip 被动；characterEquip 内部不查类别。
 - 被动真值与派生结果：passivesRaw / ephemeralPassivesRaw 均为 `Map<被动id, Map<sourceKey, 完整来源快照>>`，是唯一来源真值；passives / ephemeralPassives 由 characterRecalculatePassives 全量重建，只供查询与展示，业务代码不得直接写入。普通数值逐来源计算未取整贡献，同 ID 汇总后统一 round 一次；合计 level 仅用于展示。
 - 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；battleStatusParams 的数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；deckCostReduction 规则列表按来源拼接全部生效；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 求和；turnStartExtraDraw count 求和、costIncrease 后者覆盖；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。
+- 临时配置：临时来源以 ephemeralScope 区分 battle_preparation / standalone，缺省归战前配置。characterReplaceBattlePreparationPassives 先构建快照再原子替换非永久战前来源，永久与独立效果保留；characterGetBattlePreparationSummary 提供替换确认计数。聚灵阵 getExpArrayBuff 只返回深拷贝实例，场景保存 batchId 和待生效列表，最终确认后才提交；结丹后以 getExpArrayGreaterPreview 在副本上预览并凝炼一条临时太古。战斗结束仍清除全部非永久临时来源。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
   - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
@@ -113,11 +114,11 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ### 5.6 绝世装备
 
-- 数据约定：显式写 rank（不写 rarity）、uniqueId == id、isUnstackable、isUnique、isIdentified: false（默认未鉴定）、affixes 首条为主词条、装备图标初期占位 item/unknown.png。同一 uniqueId 同时只能装备一件。五件悟道装备均为 1 主 + 5 固定额外词条；createItemById 未传 level 时按 rank 境界区间补默认等级，生成时只解锁前 rank+1 条。
-- 悟道五件（装备 → 词条 → 机制）：
-  - 窥天镜 heaven_peeking_mirror（rank1，talisman/pearl）→ battleStatus: scry_self_ailments（观星后自施 2 种元素异常）+ statsBonus: {scryBonus: 2}
+- 数据约定：显式写 rank（不写 rarity）、uniqueId == id、isUnstackable、isUnique、isIdentified: false（默认未鉴定）、affixes 首条为主词条、装备图标初期占位 item/unknown.png。同一 uniqueId 同时只能装备一件。五件悟道装备均为 1 主 + 3 固定额外词条；原型 rank 是最低生成境界，rank 1/2 解锁 2/3 条额外词条，rank 3～5 固定太古；createItemById 未传 level 时按实际 rank 境界区间补默认等级。
+- 悟道五件（装备 → 主词条机制）：
+  - 窥天镜 heaven_peeking_mirror（rank1，talisman/pearl）→ battleStatus: scry_self_ailments（观星后自施 2 种元素异常）+ statsBonus: {scryBonus: 2}；额外词条为每回合首次观星升级选中牌、获得护盾、获得灵气。
   - 五行珠 five_elements_pearl（rank2，amulet）→ statsBonus: {ailmentInflictBonus: 2, ailmentReceiveBonus: 2}
-  - 天机盘 heavenly_mechanism_disc（rank3，talisman/pearl）→ turnStartExtraDraw: {count: 1, costIncrease: {amount: 1, notGenres: [spellcraft]}}
+  - 天机盘 heavenly_mechanism_disc（rank3，talisman/pearl）→ statsBonus: {deckMinSizeReduce: -2} + deckCostReduction 非悟道牌加费；额外词条为固定每回合抽牌、手牌上限、悟道减费。
   - 蓄灵佩 spirit_storing_amulet（rank4，amulet）→ energyRetain: {resourceId: energy_positive_spell, max: 2, costPerPoint: 3, costDamageType: pure}
   - 聚灵旗 spirit_gathering_banner（rank5，talisman/pearl）→ battleStatus: turn_start_mana_bonus + deckCostReduction: {color: all, amount: -2, notGenres: [spellcraft]}
 
@@ -153,7 +154,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - docs/docs/how2play/rpg/battle/card/readme.md：费用阶梯、词条等级/卡牌等级/境界关系、六种精炼、绝世卡、符箓、易逝。
 - docs/docs/how2play/rpg/battle/resource/readme.md：6 阳 6 阴资源气对、阴阳对冲净值显示、统一生命周期（对方回合期间保留可见）、产出模型、溢出原则、流派资源不对称软限制。
 - docs/docs/mod/battle/readme.md：被动机制字段契约表（7 个字段与透传白名单一一对应，最可靠的契约文档）；docs/docs/mod/battle/card/readme.md：词条脚本回调契约。
-- docs/docs/how2play/rpg/item/equipment/readme.md 一致项：词条与天赋同池、境界-栏位表、绝世规则、精炼销毁原装备、打造额外词条固定上限。偏差：稀有度-词条数表过时（实现 minExtra=rank/maxExtra=rank+1，即凡品 0-1 … 神品 5-6）；太古词条（✶）未实现；「绝世仍可重铸」未实现；未写精炼只能提取额外词条、产物 ExtractedAffix 可用于打造；打造实际即时完成（无耗时/等待）；类型限制实现为 7 类（含 shield/gloves/vehicle）且 UnrestrictedEquip 被动可豁免，文档列 6 类未提豁免；生产工具（斧/锤/耙/锄/针）与 aircraft/belt 未实现。
+- docs/docs/how2play/rpg/item/equipment/readme.md：词条数量、太古、绝世固定成长、额外词条提取与 ExtractedAffix 填槽已同步。仍有偏差：「绝世仍可重铸」未实现；打造实际即时完成而文档写可等待；类型限制实现为 7 类（含 shield/gloves/vehicle）且有 UnrestrictedEquip 豁免，文档列 6 类未提豁免；生产工具（斧/锤/耙/锄/针）与 aircraft/belt 未实现。
 - docs/docs/how2play/rpg/craft/readme.md 属愿景描述：图纸系统不存在、材料不能直接附加词条（装备打造只吃 ExtractedAffix）、打造不耗时；卡牌六种精炼已实现但文档未写。
 
 ## 11. 悟道流派落地现状
