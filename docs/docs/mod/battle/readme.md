@@ -114,15 +114,20 @@
 | 字段                 | 类型                                               | 机制                                                                                                                                                                                                                               |
 | -------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `battleStatus`       | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                                                                                                                                              |
-| `deckCostReduction`  | `{color, amount, genres?, notGenres?}`             | 组牌阶段匹配卡牌的 color 色费用减 amount（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount）                                              |
+| `deckCostReduction`  | `{color, amount, genres?, notGenres?}`             | 组牌阶段按卡合计全部命中规则后统一修正（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount）                  |
 | `shuffleIntoDeck`    | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                                                                                                                                                         |
 | `turnStartScry`      | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                                                                                                                                                      |
-| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}`     | 回合开始正常抽牌后额外抽 count 张（多来源累加）；通过此效果抽到、且主词条 genre 未命中 notGenres 的卡，coloredCost 首个条目本回合 +amount（允许 0 → amount），增费记录写在卡上，弃牌/出牌/下回合开始（保留卡巡检）时还原（天机盘） |
+| `turnStartExtraDraw` | `{count}`                                           | 回合开始正常抽牌后额外抽 count 张（多来源累加），仍受手牌上限约束                                                                                                                                                                     |
 | `energyRetain`       | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）                                                                                                                                     |
 | `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（如 scryBonus 观星深度、ailmentInflictBonus/ailmentReceiveBonus 元素异常层数修正；绝世装备主词条等固定词条用）                                                                 |
 
 参数型效果另可经 stats 属性管线新增属性（如观星深度 `scryBonus`），
 聚合与面板显示见 `.agents/skills/passive-status` 第 6 节。
+
+聚合 `PassiveData` 只保存 `id/priority/value/description/sourceCount`，来源等级与公式参数只留在 Raw。
+普通数值描述直接使用最终 `value` 替换 `{0}`。机制词条可用 `descriptionParams` 声明插值路径，
+支持 `statsBonus.*`、`deckCostReduction.amount`、`turnStartExtraDraw.count` 与 `battleStatus.*`；
+显示层从 Raw 来源汇总机制值，状态参数采用“状态原型默认值 + 聚合增量”，因此普通/太古混合来源也显示最终生效值。
 
 **被动太古**：`greater.values` 只转换对应额外来源的普通贡献，主词条不应用；`greater.data` 累加既有参数，`greater.alt` 替换指定字段，不追加新机制。来源快照由 `resolveGreaterAffix` 一次性生成，不能修改公共原型或重复累加。
 `battleStatusParams` 与 `battleStatus` 同步聚合，数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；战前通过 `addStatusEffect(params:)` 写入状态实例。

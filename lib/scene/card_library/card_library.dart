@@ -602,8 +602,11 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.anvil);
 
+      final resultHint =
+          craftingCard!.data['craftResultHint'] ?? 'craft_${operationId}_hint';
+      craftingCard!.data.remove('craftResultHint');
       addHintText(
-        engine.locale('craft_${operationId}_hint'),
+        engine.locale(resultHint),
         position: craftingCard!.center,
         offsetY: 30.0,
         textStyle: TextStyle(

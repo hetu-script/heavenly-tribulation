@@ -228,4 +228,46 @@ void main() {
     expect(calculateCardPayment({'life': 1}, {mana: 2}).missing, isNotEmpty);
     expect(calculateCardPayment({}, {}).missing, isEmpty);
   });
+
+  test('组牌费用先合计后钳制，规则顺序不影响结果', () {
+    final taxFirst = {
+      'genre': 'spellcraft',
+      'coloredCost': <String, dynamic>{'spell': 0},
+      'affixes': [
+        {
+          'coloredCost': <String, dynamic>{'spell': 0}
+        }
+      ],
+    };
+    final reductionFirst = {
+      'genre': 'spellcraft',
+      'coloredCost': <String, dynamic>{'spell': 0},
+      'affixes': [
+        {
+          'coloredCost': <String, dynamic>{'spell': 0}
+        }
+      ],
+    };
+    final tax = {'color': 'all', 'amount': -1};
+    final reduction = {
+      'color': 'spell',
+      'amount': 1,
+      'genres': ['spellcraft']
+    };
+    applyDeckCostReductionRules([taxFirst], [tax, reduction]);
+    applyDeckCostReductionRules([reductionFirst], [reduction, tax]);
+    expect((taxFirst['coloredCost'] as dynamic)['spell'], 0);
+    expect((reductionFirst['coloredCost'] as dynamic)['spell'], 0);
+
+    final dynamicCard = {
+      'coloredCost': <String, dynamic>{
+        'spell': {'base': 0, 'isDynamic': true}
+      },
+      'affixes': [
+        {'coloredCost': <String, dynamic>{}}
+      ],
+    };
+    applyDeckCostReductionRules([dynamicCard], [tax, reduction]);
+    expect(cardCostBase((dynamicCard['coloredCost'] as dynamic)['spell']), 1);
+  });
 }

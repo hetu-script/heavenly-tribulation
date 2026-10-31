@@ -249,7 +249,7 @@
 | `mana_threshold_guard` | `D:statusParams.reductionPercent += 10` | 灵气不少于 5 点的门槛不变，减伤由 20% 提至 30%。 |
 | `mana_empty_defend` | **移除出绝世固定列表，不制作太古** | 聚灵旗迁移后无其他引用时删除。 |
 | `spellcraft_cost_down` | `D:deckCostReduction.amount += 1` | 悟道牌费用由 -1 提至 -2，仍按规则列表聚合并受动态费用豁免约束。 |
-| `turnStartExtraDraw` | `D:turnStartExtraDraw.count += 1` | 回合开始额外抽牌由 1 张提至 2 张，非悟道牌加费规则不变；聚灵旗固定额外词条使用。 |
+| `turnStartExtraDraw` | `D:turnStartExtraDraw.count += 1` | 回合开始额外抽牌由 1 张提至 2 张；聚灵旗固定额外词条使用。 |
 
 ### 4.2 五件悟道绝世装备的固定太古顺序
 
@@ -259,7 +259,7 @@
 | 五行珠 | `ailment_inflict_focus`：造成异常修正由 +1 提至 +2 | `ailmentThreshold`：阈值贡献 ×1.5，仍受下限 | `ailmentMultiplier`：异常伤害 ×1.5 |
 | 天机盘 | `battleDrawBonus`：每回合抽牌 +2 | `handSizeMax`：手牌上限 +2 | `spellcraft_cost_down`：悟道牌费用 -2 |
 | 蓄灵佩 | `lifeMax`：生命上限 ×1.5 | `persistent`：护甲保持 ×1.5 | `spell_mana_trickle`：回合产灵 2 点 |
-| 聚灵旗 | `mana_threshold_guard`：减伤 30%，阈值不变 | `spellcraft_cost_down`：悟道牌费用 -2 | `turnStartExtraDraw`：额外抽 2 张，课税不变 |
+| 聚灵旗 | `mana_threshold_guard`：减伤 30%，阈值不变 | `spellcraft_cost_down`：悟道牌费用 -2 | `turnStartExtraDraw`：额外抽 2 张 |
 
 五件装备的固定太古均只强化原有效果，不再为随机池与固定列表中的同一词条设计不同的太古机制。
 

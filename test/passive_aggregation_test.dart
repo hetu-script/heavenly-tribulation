@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:json5/json5.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
+import 'package:heavenly_tribulation/data/game.dart';
+import 'package:heavenly_tribulation/global.dart';
 
 void main() {
   String loadPassiveSource() {
@@ -189,7 +191,8 @@ void main() {
     ''');
     dynamic character = hetu.fetch('character');
     expect(character['passives']['dexterity']['value'], 1);
-    expect(character['passives']['dexterity']['level'], 2);
+    expect(character['passives']['dexterity']['level'], isNull);
+    expect(character['passives']['dexterity']['increment'], isNull);
     expect(character['passives']['dexterity']['sourceCount'], 2);
 
     hetu.eval('''
@@ -209,12 +212,11 @@ void main() {
       final affix = {
         id: 'turnStartExtraDraw',
         description: 'passive_turnStartExtraDraw_description',
-        turnStartExtraDraw: {count: 1, costIncrease: {amount: 1}},
+        turnStartExtraDraw: {count: 1},
       }
       final source = _createPassiveSource(affix,
         sourceKey: 'equipment:item-a:0', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 0)
       source.turnStartExtraDraw.count = 2
-      source.turnStartExtraDraw.costIncrease.amount = 3
       characterAddPassiveSource(character, source)
       characterAddPassiveSource(character, source)
     ''');
@@ -222,7 +224,6 @@ void main() {
     final affix = hetu.fetch('affix');
     expect(character['passivesRaw']['turnStartExtraDraw'].length, 1);
     expect(affix['turnStartExtraDraw']['count'], 1);
-    expect(affix['turnStartExtraDraw']['costIncrease']['amount'], 1);
   });
 
   test('重复机制来源正确聚合，装备刷新和重算保持幂等', () {
@@ -236,7 +237,6 @@ void main() {
         statsBonus: {scryBonus: 1},
         turnStartExtraDraw: {
           count: 1,
-          costIncrease: {amount: 1, notGenres: ['spellcraft']},
         },
       }
       final itemA = {
@@ -642,5 +642,85 @@ void main() {
             ['potion:potion-greater:1']['isGreater'],
         true);
     expect(character['inventory'], isEmpty);
+  });
+
+  test('混合普通与太古来源使用最终机制参数生成描述', () {
+    engine.loadLocaleDataFromJSON({
+      'zh': {
+        'languageId': 'zh',
+        'passive_handSizeMax_description': '手牌上限 +{0}',
+        'passive_scry_upgrade_description': '每回合第一次观星后，选中的牌等级 +{0}',
+      }
+    });
+    GameData.passives.addAll({
+      'handSizeMax': {
+        'id': 'handSizeMax',
+        'description': 'passive_handSizeMax_description',
+        'descriptionParams': ['statsBonus.handSizeMax'],
+      },
+      'scry_upgrade': {
+        'id': 'scry_upgrade',
+        'description': 'passive_scry_upgrade_description',
+        'descriptionParams': ['battleStatus.upgradeChosen'],
+      },
+    });
+    GameData.statusEffects['scry_upgrade'] = {'upgradeChosen': 1};
+    try {
+      final character = {
+        'passives': {
+          'handSizeMax': {
+            'id': 'handSizeMax',
+            'description': 'passive_handSizeMax_greater_description',
+            'priority': 2,
+            'value': null,
+          },
+          'scry_upgrade': {
+            'id': 'scry_upgrade',
+            'description': 'passive_scry_upgrade_greater_description',
+            'priority': 1,
+            'value': null,
+          },
+        },
+        'passivesRaw': {
+          'handSizeMax': {
+            'equipment:normal:1': {
+              'statsBonus': {'handSizeMax': 1}
+            },
+            'equipment:greater:1': {
+              'statsBonus': {'handSizeMax': 2}
+            },
+          },
+          'scry_upgrade': {
+            'equipment:normal:1': {'battleStatus': 'scry_upgrade'},
+            'equipment:greater:1': {'battleStatus': 'scry_upgrade'},
+          },
+        },
+        'ephemeralPassives': <String, dynamic>{},
+        'ephemeralPassivesRaw': <String, dynamic>{},
+        'stats': {
+          'battleStatusParams': {
+            'scry_upgrade': {'upgradeChosen': 1}
+          }
+        },
+      };
+      final description = GameData.getPassivesDescription(character: character);
+      expect(description, contains('手牌上限 +3'));
+      expect(description, contains('选中的牌等级 +2'));
+      expect(description, isNot(contains('greater_description')));
+
+      final greaterAffix = {
+        'id': 'handSizeMax',
+        'description': 'passive_handSizeMax_description',
+        'isGreater': true,
+        'greater': true,
+        'statsBonus': {'handSizeMax': 2},
+      };
+      expect(GameData.getPassiveAffixDescription(greaterAffix),
+          contains('手牌上限 +2'));
+    } finally {
+      GameData.passives.remove('handSizeMax');
+      GameData.passives.remove('scry_upgrade');
+      GameData.statusEffects.remove('scry_upgrade');
+    }
   });
 }

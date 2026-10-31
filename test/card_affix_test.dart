@@ -8,7 +8,10 @@ import 'package:heavenly_tribulation/logic/logic.dart';
 void main() {
   test('额外词条与太古数量按境界增长', () {
     expect(
-      [for (var rank = 0; rank <= 5; rank++) GameLogic.getMinMaxExtraAffixCount(rank)],
+      [
+        for (var rank = 0; rank <= 5; rank++)
+          GameLogic.getMinMaxExtraAffixCount(rank)
+      ],
       [
         {'minExtra': 0, 'maxExtra': 1, 'minGreater': 0, 'maxGreater': 0},
         {'minExtra': 0, 'maxExtra': 2, 'minGreater': 0, 'maxGreater': 0},
@@ -108,8 +111,8 @@ void main() {
   });
 
   Hetu createCardHetu() {
-    Map<String, dynamic> loadData(String path) =>
-        Map<String, dynamic>.from(json5Decode(File(path).readAsStringSync()) as Map);
+    Map<String, dynamic> loadData(String path) => Map<String, dynamic>.from(
+        json5Decode(File(path).readAsStringSync()) as Map);
     final cards = loadData('assets/data/cards.json5');
     final affixes = loadData('assets/data/card_affixes.json5');
     final hetu = Hetu(
@@ -208,13 +211,15 @@ void main() {
       'rank': 2,
     });
     expect(card['affixes'], hasLength(4));
-    expect(card['affixes'].where((affix) => affix['isGreater'] == true), isEmpty);
+    expect(
+        card['affixes'].where((affix) => affix['isGreater'] == true), isEmpty);
 
     final originalIds = card['affixes'].map((affix) => affix['id']).toList();
     hetu.invoke('upgradeRank', positionalArgs: [card, 3]);
     expect(card['rank'], 3);
     expect(card['affixes'].map((affix) => affix['id']).toList(), originalIds);
-    final greater = card['affixes'].singleWhere((affix) => affix['isGreater'] == true);
+    final greater =
+        card['affixes'].singleWhere((affix) => affix['isGreater'] == true);
     expect(greater['isFreezed'], true);
     expect(greater['rank'], 3);
     expect(greater['level'], GameLogic.maxLevelForRank(3));
@@ -222,12 +227,15 @@ void main() {
     final affixCount = card['affixes'].length;
     final result = hetu.invoke('addAffix', positionalArgs: [card, 3]);
     expect(result, isNull);
+    expect(card['craftResultHint'], 'craft_addAffix_greater_failed_hint');
     expect(card['affixes'], hasLength(affixCount));
-    expect(card['affixes'].where((affix) => affix['isGreater'] == true), hasLength(1));
+    expect(card['affixes'].where((affix) => affix['isGreater'] == true),
+        hasLength(1));
 
     hetu.invoke('rerollAffix', positionalArgs: [card, 3]);
     expect(card['affixes'], hasLength(affixCount));
-    expect(card['affixes'].where((affix) => affix['isGreater'] == true), hasLength(1));
+    expect(card['affixes'].where((affix) => affix['isGreater'] == true),
+        hasLength(1));
   });
 
   test('混元只有纯机制可变词条时仍执行太古判定', () {
@@ -249,7 +257,8 @@ void main() {
       'affixId': 'blank_default',
       'rank': 0,
     });
-    expect(card['affixes'].where((affix) => affix['isGreater'] == true), isEmpty);
+    expect(
+        card['affixes'].where((affix) => affix['isGreater'] == true), isEmpty);
   });
 
   test('普通卡直接生成只在结丹后产生太古并使用满级强化值', () {
@@ -259,7 +268,8 @@ void main() {
       'rank': 3,
     });
     expect(card['affixes'], hasLength(4));
-    final greater = card['affixes'].singleWhere((affix) => affix['isGreater'] == true);
+    final greater =
+        card['affixes'].singleWhere((affix) => affix['isGreater'] == true);
     final valueData = greater['valueData'][0];
     final expected = GameLogic.calculateCardAffixValue(
       valueData,
@@ -292,7 +302,8 @@ void main() {
       });
       expect(card['affixes'], hasLength(4), reason: id);
       expect(card['affixes'][0]['isGreater'], isNot(true), reason: id);
-      expect(card['affixes'].skip(1).every((affix) => affix['isGreater'] == true),
+      expect(
+          card['affixes'].skip(1).every((affix) => affix['isGreater'] == true),
           isTrue,
           reason: id);
     }
@@ -312,9 +323,12 @@ void main() {
     for (var rank = 1; rank <= 5; rank++) {
       expect(card['affixes'].skip(1).map((affix) => affix['id']).toList(),
           expectedIds.take(rank + 1 > 3 ? 3 : rank + 1));
-      expect(card['affixes'].skip(1).where((affix) => affix['isGreater'] == true),
+      expect(
+          card['affixes'].skip(1).where((affix) => affix['isGreater'] == true),
           hasLength(rank < 3 ? 0 : rank - 2));
-      if (rank < 5) hetu.invoke('upgradeRank', positionalArgs: [card, rank + 1]);
+      if (rank < 5) {
+        hetu.invoke('upgradeRank', positionalArgs: [card, rank + 1]);
+      }
     }
   });
 }

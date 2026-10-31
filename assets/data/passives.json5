@@ -1449,18 +1449,17 @@
     statsBonus: { deckMinSizeReduce: -2 },
     deckCostReduction: { color: "all", amount: -1, notGenres: ["spellcraft"] },
   },
-  // 聚灵旗固定额外词条：回合开始额外抽牌，混编卡牌本回合加费
+  // 聚灵旗固定额外词条：回合开始额外抽牌
   turnStartExtraDraw: {
     id: "turnStartExtraDraw",
     description: "passive_turnStartExtraDraw_description",
+    descriptionParams: ["turnStartExtraDraw.count"],
     priority: 3490,
     turnStartExtraDraw: {
       count: 1,
-      costIncrease: { amount: 1, notGenres: ["spellcraft"] },
     },
     greater: {
       data: { turnStartExtraDraw: { count: 1 } },
-      description: "passive_turnStartExtraDraw_greater_description",
     },
   },
   // 蓄灵佩（rank4）主词条：回合结束时至多保留 2 点悟道灵气到下回合，每保留 1 点下回合开始受到 3 点纯粹伤害
@@ -1489,11 +1488,11 @@
   handSizeMax: {
     id: "handSizeMax",
     description: "passive_handSizeMax_description",
+    descriptionParams: ["statsBonus.handSizeMax"],
     priority: 3487,
     statsBonus: { handSizeMax: 1 },
     greater: {
       data: { statsBonus: { handSizeMax: 1 } },
-      description: "passive_handSizeMax_greater_description",
     },
     isEquipmentExtraAffix: true,
     kinds: ["pearl"],
@@ -1505,11 +1504,11 @@
   ailment_ward: {
     id: "ailment_ward",
     description: "passive_ailment_ward_description",
+    descriptionParams: ["statsBonus.ailmentReceiveBonus"],
     priority: 3486,
     statsBonus: { ailmentReceiveBonus: -1 },
     greater: {
       data: { statsBonus: { ailmentReceiveBonus: -1 } },
-      description: "passive_ailment_ward_greater_description",
     },
     isEquipmentExtraAffix: true,
     kinds: ["amulet", "ring", "pearl"],
@@ -1518,11 +1517,11 @@
   ailment_inflict_focus: {
     id: "ailment_inflict_focus",
     description: "passive_ailment_inflict_focus_description",
+    descriptionParams: ["statsBonus.ailmentInflictBonus"],
     priority: 3485,
     statsBonus: { ailmentInflictBonus: 1 },
     greater: {
       data: { statsBonus: { ailmentInflictBonus: 1 } },
-      description: "passive_ailment_inflict_focus_greater_description",
     },
     isEquipmentExtraAffix: true,
     kinds: ["amulet", "ring", "pearl"],
@@ -1532,61 +1531,61 @@
   scry_shield: {
     id: "scry_shield",
     description: "passive_scry_shield_description",
+    descriptionParams: ["battleStatus.shieldAmount"],
     priority: 3484,
     battleStatus: "scry_shield",
     greater: {
       data: { statusParams: { shieldAmount: 1 } },
-      description: "passive_scry_shield_greater_description",
     },
   },
   scry_upgrade: {
     id: "scry_upgrade",
     description: "passive_scry_upgrade_description",
+    descriptionParams: ["battleStatus.upgradeChosen"],
     priority: 3483,
     battleStatus: "scry_upgrade",
     greater: {
       data: { statusParams: { upgradeChosen: 1 } },
-      description: "passive_scry_upgrade_greater_description",
     },
   },
   scry_mana: {
     id: "scry_mana",
     description: "passive_scry_mana_description",
+    descriptionParams: ["battleStatus.manaBonus"],
     priority: 3482,
     battleStatus: "scry_mana",
     greater: {
       data: { statusParams: { manaBonus: 1 } },
-      description: "passive_scry_mana_greater_description",
     },
   },
   spell_mana_trickle: {
     id: "spell_mana_trickle",
     description: "passive_spell_mana_trickle_description",
+    descriptionParams: ["battleStatus.manaBonus"],
     priority: 3481,
     battleStatus: "turn_start_spell_mana_1",
     greater: {
       data: { statusParams: { manaBonus: 1 } },
-      description: "passive_spell_mana_trickle_greater_description",
     },
   },
   spellcraft_cost_down: {
     id: "spellcraft_cost_down",
     description: "passive_spellcraft_cost_down_description",
+    descriptionParams: ["deckCostReduction.amount"],
     priority: 3479,
     deckCostReduction: { color: "spell", amount: 1, genres: ["spellcraft"] },
     greater: {
       data: { deckCostReduction: { amount: 1 } },
-      description: "passive_spellcraft_cost_down_greater_description",
     },
   },
   mana_threshold_guard: {
     id: "mana_threshold_guard",
     description: "passive_mana_threshold_guard_description",
+    descriptionParams: ["battleStatus.reductionPercent", "battleStatus.threshold"],
     priority: 3478,
     battleStatus: "mana_threshold_guard",
     greater: {
       data: { statusParams: { reductionPercent: 10 } },
-      description: "passive_mana_threshold_guard_greater_description",
     },
   },
   // 地牢玩法中的debuff

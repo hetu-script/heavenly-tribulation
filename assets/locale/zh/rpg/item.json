@@ -112,7 +112,7 @@
   "arcane_scroll": "化神符箓",
 
   "potion": "丹药",
-  "flavortext_potion": "获得一些立即生效的效果，以及一些会在下一次战斗后消失的临时增益。",
+  "flavortext_potion": "获得一些立即生效的效果，以及一些会在下一次战斗后消失的临时增益。\n含额外词条时，以整组词条替换当前非永久战前增益；仅主词条时保留其他战前增益，并替换同 ID 的旧临时效果。",
 
   "identify_scroll": "鉴定符",
   "flavortext_identify_scroll": "揭示一些属性未知的物品的词条。",

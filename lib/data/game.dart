@@ -1049,7 +1049,71 @@ final class GameData with ChangeNotifier {
     return card;
   }
 
-  static String _getPassivesDescription(dynamic passivesData) {
+  static dynamic _getPassiveDescriptionParam(
+      Iterable sources, String path, dynamic battleStatusParams) {
+    final parts = path.split('.');
+    if (parts.length != 2) return null;
+    final mechanism = parts[0];
+    final parameter = parts[1];
+
+    if (mechanism == 'battleStatus') {
+      String? statusId;
+      for (final source in sources) {
+        final id = source['battleStatus'];
+        if (id is String) {
+          statusId = id;
+          break;
+        }
+      }
+      if (statusId == null) return null;
+      final baseValue = statusEffects[statusId]?[parameter];
+      final modifier = battleStatusParams?[statusId]?[parameter];
+      if (baseValue is num && modifier is num) {
+        return baseValue + modifier;
+      }
+      return modifier ?? baseValue;
+    }
+
+    num total = 0;
+    var found = false;
+    for (final source in sources) {
+      final value = source[mechanism]?[parameter];
+      if (value is num) {
+        total += value;
+        found = true;
+      }
+    }
+    return found ? total : null;
+  }
+
+  static String _formatPassiveDescription(
+      dynamic data, Iterable sources, dynamic battleStatusParams,
+      {String? descriptionKey}) {
+    final prototype = passives[data['id']];
+    final description = engine.locale(
+        descriptionKey ?? prototype?['description'] ?? data['description']);
+    final params = prototype?['descriptionParams'];
+    if (params is List) {
+      final values = [
+        for (final path in params)
+          if (path is String)
+            _getPassiveDescriptionParam(sources, path, battleStatusParams)
+      ];
+      if (values.length == params.length &&
+          values.every((value) => value != null)) {
+        return description.interpolate(values);
+      }
+      return description;
+    }
+    final value = data['value'];
+    if (value != null) {
+      return description.interpolate(['${value < 0 ? '' : '+'}$value']);
+    }
+    return description;
+  }
+
+  static String _getPassivesDescription(
+      dynamic character, dynamic passivesData, dynamic rawData) {
     final builder = StringBuffer();
     if (passivesData.isEmpty) {
       builder.writeln('<grey>${engine.locale('none')}</>');
@@ -1062,23 +1126,11 @@ final class GameData with ChangeNotifier {
             .compareTo((data1['priority'] ?? 0) as int);
       });
       for (final skillData in skillList) {
-        bool isAfflicted = false;
-        String description;
-        if ((skillData['id'] as String).endsWith('_rank')) {
-          final int rank = skillData['level'];
-          assert(rank > 0);
-          final rankString = engine.locale('cultivationRank_$rank');
-          description = engine
-              .locale(skillData['description'], interpolations: [rankString]);
-        } else {
-          description = engine.locale(skillData['description']);
-          final value = skillData['value'];
-          if (value != null) {
-            isAfflicted = value < 0;
-            description =
-                description.interpolate(['${isAfflicted ? '' : '+'}$value']);
-          }
-        }
+        final value = skillData['value'];
+        final isAfflicted = value != null && value < 0;
+        final sources = rawData?[skillData['id']]?.values ?? const [];
+        final description = _formatPassiveDescription(
+            skillData, sources, character['stats']?['battleStatusParams']);
         if (isAfflicted) {
           builder.writeln('<red>$description</>');
         } else {
@@ -1099,9 +1151,10 @@ final class GameData with ChangeNotifier {
       desc.writeln('$title\n ');
     }
 
-    final passivesDescription = _getPassivesDescription(character['passives']);
-    final ephemeralPassivesDescription =
-        _getPassivesDescription(character['ephemeralPassives']);
+    final passivesDescription = _getPassivesDescription(
+        character, character['passives'], character['passivesRaw']);
+    final ephemeralPassivesDescription = _getPassivesDescription(character,
+        character['ephemeralPassives'], character['ephemeralPassivesRaw']);
 
     desc.writeln(
         '${engine.locale('passivetree_passives_description_title')}\n ');
@@ -1118,13 +1171,17 @@ final class GameData with ChangeNotifier {
   static String getPassiveAffixDescription(dynamic affix) {
     final isGreater = affix['isGreater'] == true;
     final descriptionKey = isGreater
-        ? (affix['greater']?['description'] ?? affix['description'])
+        ? ((affix['greater'] is Map ? affix['greater']['description'] : null) ??
+            affix['description'])
         : affix['description'];
-    String description = engine.locale(descriptionKey);
-    final value = affix['value'];
-    if (value != null) {
-      description = description.interpolate(['${value < 0 ? '' : '+'}$value']);
-    }
+    final battleStatus = affix['battleStatus'];
+    final statusParams = battleStatus == null
+        ? null
+        : {
+            battleStatus: affix['statusParams'],
+          };
+    final description = _formatPassiveDescription(affix, [affix], statusParams,
+        descriptionKey: descriptionKey);
     return isGreater ? '<yellow>$kAffixLeading2 $description</>' : description;
   }
 
@@ -1216,16 +1273,23 @@ final class GameData with ChangeNotifier {
       for (var i = 0; i < affixes.length; i++) {
         final affix = affixes[i];
         final descriptionKey = i > 0 && affix['isGreater'] == true
-            ? (affix['greater']?['description'] ?? affix['description'])
+            ? ((affix['greater'] is Map
+                    ? affix['greater']['description']
+                    : null) ??
+                affix['description'])
             : affix['description'];
-        String descriptionString = engine.locale(descriptionKey);
+        final battleStatus = affix['battleStatus'];
+        final statusParams = battleStatus == null
+            ? null
+            : {
+                battleStatus: affix['statusParams'],
+              };
+        String descriptionString = _formatPassiveDescription(
+            affix, [affix], statusParams,
+            descriptionKey: descriptionKey);
         num? value = affix['value'];
-        bool isAfflicted = false;
-        if (value != null) {
-          isAfflicted = value < 0 && affix['isDecrement'] != true;
-          descriptionString =
-              descriptionString.interpolate(['${value < 0 ? '' : '+'}$value']);
-        }
+        bool isAfflicted =
+            value != null && value < 0 && affix['isDecrement'] != true;
         final passiveRawData = passives[affix['id']];
         final List? keywords = passiveRawData['keywords'];
         if (keywords != null && keywords.isNotEmpty) {
@@ -1403,7 +1467,10 @@ final class GameData with ChangeNotifier {
 
       final affix = affixes[i];
       final descriptionKey = i > 0 && affix['isGreater'] == true
-          ? (affix['greater']?['description'] ?? affix['description'])
+          ? ((affix['greater'] is Map
+                  ? affix['greater']['description']
+                  : null) ??
+              affix['description'])
           : affix['description'];
       final affixDescriptionRaw = engine.locale(descriptionKey);
       // 战斗中的伤害预测值（由 BattleScene 刷新时写入词条数据）：

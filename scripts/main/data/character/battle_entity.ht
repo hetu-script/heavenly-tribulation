@@ -52,23 +52,19 @@ const kEphemeralScopeBattlePreparation = 'battle_preparation'
 const kEphemeralScopeStandalone = 'standalone'
 
 /// 被动词条聚合结果：由 passivesRaw / ephemeralPassivesRaw 全量派生。
-/// level 仅用于展示，value 是同 ID 全部来源的未取整贡献汇总后再取整的结果。
+/// value 是同 ID 全部来源的未取整贡献汇总后再取整的结果；来源等级与公式只保留在 Raw。
 struct PassiveData {
   constructor ({
     id,
     priority,
-    level,
     value,
-    increment,
     description,
     sourceCount,
   }) {
     assert(id != null && description != null)
     this.id = id
     this.priority = priority ?? 0
-    this.level = level ?? 0
     this.value = value
-    this.increment = increment
     this.description = description
     this.sourceCount = sourceCount ?? 0
   }
@@ -403,7 +399,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   final shuffleIntoDeckIds = []
   let turnStartScryTotal = 0
   let extraDrawCount = 0
-  let extraDrawCostIncrease
   final energyRetainMap = {}
   for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
     for (final dataId in raw.keys) {
@@ -455,9 +450,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
           if (count != null && count > 0) {
             extraDrawCount += count
           }
-          if (turnStartExtraDraw['costIncrease'] != null) {
-            extraDrawCostIncrease = turnStartExtraDraw['costIncrease']
-          }
         }
         final energyRetain = passiveData['energyRetain']
         if (energyRetain != null) {
@@ -497,7 +489,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   if (extraDrawCount > 0) {
     character.stats.turnStartExtraDraw = {
       count: extraDrawCount,
-      costIncrease: extraDrawCostIncrease,
     }
   } else {
     character.stats.turnStartExtraDraw = null
@@ -753,11 +744,9 @@ function _recalculatePassiveGroup(raw) {
     final sources = raw[dataId]
     if (sources.isEmpty) continue
     final first = sources.values.first
-    var levelTotal = 0
     var valueTotal = 0.0
     var hasValue = false
     for (final source in sources.values) {
-      levelTotal += source.level ?? 1
       if (source.base != null || source.increment != null) {
         hasValue = true
         valueTotal += calculatePassiveAffixContribution(source,
@@ -768,9 +757,7 @@ function _recalculatePassiveGroup(raw) {
     result[dataId] = PassiveData(
       id: dataId,
       priority: first.priority ?? 0,
-      level: levelTotal,
       value: hasValue ? valueTotal.round() : null,
-      increment: first.increment,
       description: first.description,
       sourceCount: sources.length,
     )

@@ -537,7 +537,8 @@ function addAffix(card, materialRank, {index}) {
   final countInfo = getMinMaxExtraAffixCount(card.rank)
   if (card.affixes.length >= countInfo.maxExtra + 1) {
     if (card.rank >= 3 && card.affixes.length >= Constants.maxNormalExtraAffixCount + 1) {
-      _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance)
+      final succeeded = _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance)
+      if (!succeeded) card.craftResultHint = 'craft_addAffix_greater_failed_hint'
       return null
     }
     return engine.locale('craft_addAffix_warning')

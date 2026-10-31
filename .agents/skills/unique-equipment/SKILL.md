@@ -76,7 +76,7 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 | `shuffleIntoDeck`    | `[卡牌主词条 id]`                                   | 战斗开始洗入牌库                                                                                        |
 | `turnStartScry`      | 整数                                                | 每回合开始抽牌前观星 N                                                                                  |
 | `energyRetain`       | `{resourceId, max, costPerPoint?, costDamageType?}` | 回合结束资源保留 + 每点代价                                                                             |
-| `turnStartExtraDraw` | `{count, costIncrease?: {amount, notGenres?}}`      | 额外抽牌 + 命中牌本回合临时加费                                                                         |
+| `turnStartExtraDraw` | `{count}`                                           | 额外抽牌，多来源 count 累加，仍受手牌上限约束                                                         |
 | `statsBonus`         | `{statsId: 数值}`                                   | **通用 stats 直加**（观星深度 scryBonus、异常层数 ailmentInflictBonus 等），固定词条喂 stats 的首选通道 |
 
 - 词条注释标「绝世装备专用，不进随机词条池」，**不写** `isEquipmentMain`/`isEquipmentExtraAffix`。

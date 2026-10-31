@@ -231,7 +231,7 @@
 
 步骤：
 
-1. 角色的 `_getPassivesDescription` 只显示聚合后的最终属性，不显示 `✶`、太古颜色或 `greater.description`，也无需向 `PassiveData` 增加太古品质字段。
+1. 角色的 `_getPassivesDescription` 使用原型普通描述和最终生效参数：数值词条以聚合 `value` 插值，机制词条通过 `descriptionParams` 读取最终机制值；不显示 `✶`、太古颜色，也不直接选用某个来源的 `greater.description`，无需向 `PassiveData` 增加太古品质字段。
 2. 丹药物品、待生效配置和凝炼候选显示来源词条的当前描述与太古预览，明确本次只能选一条；这些预览读取 affix 快照，而不是角色聚合结果。
 3. 增加整体替换、仅主词条保留、入口与最终替换确认、凝炼、放弃、成功、无候选和类别耗尽等本地化文本。
 4. 与主计划共用 `greater` 结构校验，只有描述没有实际效果的词条不得进入凝炼候选。

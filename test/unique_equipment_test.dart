@@ -206,22 +206,19 @@ void main() {
       expect(item['rarity'], 'arcane');
       expect(item['affixes'], hasLength(4));
       expect(item['affixes'][0]['isGreater'], isNot(true));
-      expect(
-          item['affixes']
-              .where((affix) => affix['isGreater'] == true),
+      expect(item['affixes'].where((affix) => affix['isGreater'] == true),
           hasLength(3));
       expect(
           item['level'],
-          inInclusiveRange(GameLogic.minLevelForRank(5),
-              GameLogic.maxLevelForRank(5)));
+          inInclusiveRange(
+              GameLogic.minLevelForRank(5), GameLogic.maxLevelForRank(5)));
     }
 
     final loot = hetu.eval('''
       createLoot([{type: 'prototype', id: 'heaven_peeking_mirror', rank: 5}])
     ''');
     expect(loot.first['rank'], 5);
-    expect(
-        loot.first['affixes'].where((affix) => affix['isGreater'] == true),
+    expect(loot.first['affixes'].where((affix) => affix['isGreater'] == true),
         hasLength(3));
   });
 
@@ -230,8 +227,8 @@ void main() {
       loadData('assets/data/items.json5'),
       loadData('assets/data/passives.json5'),
     );
-    final item = hetu.invoke('createItemById',
-        positionalArgs: ['heavenly_mechanism_disc']);
+    final item = hetu
+        .invoke('createItemById', positionalArgs: ['heavenly_mechanism_disc']);
     expect(item['affixes'][0]['statsBonus']['deckMinSizeReduce'], -2);
     expect(item['affixes'][0]['greater'], isNull);
     expect(item['affixes'][1]['isGreater'], true);
@@ -394,19 +391,13 @@ void main() {
           first: {
             'equipment:item-a:0': {
               battleStatus: 'scry_retention',
-              turnStartExtraDraw: {
-                count: 1,
-                costIncrease: {amount: 1, notGenres: ['spellcraft']},
-              },
+              turnStartExtraDraw: {count: 1},
             },
           },
           second: {
             'equipment:item-b:0': {
               battleStatus: 'scry_retention',
-              turnStartExtraDraw: {
-                count: 1,
-                costIncrease: {amount: 1, notGenres: ['spellcraft']},
-              },
+              turnStartExtraDraw: {count: 1},
             },
           },
         },
@@ -418,9 +409,7 @@ void main() {
       aggregateForTest(character)
     ''');
     expect(result['turnStartExtraDraw']['count'], 2);
-    expect(result['turnStartExtraDraw']['costIncrease']['amount'], 1);
-    expect(result['turnStartExtraDraw']['costIncrease']['notGenres'],
-        ['spellcraft']);
+    expect(result['turnStartExtraDraw']['costIncrease'], isNull);
     expect(result['battleStatus']['scry_retention'], 2);
   });
 }

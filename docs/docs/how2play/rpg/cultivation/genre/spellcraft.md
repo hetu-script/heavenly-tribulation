@@ -236,10 +236,10 @@
 - **主效果**：回合产出阶段灵气 +3；非悟道牌费用 +2。
 - `mana_threshold_guard` 聚气成势（筑基）：灵气不少于 5 点时，受到的伤害 -20%。
 - `spellcraft_cost_down`（筑基）：悟道牌灵气费用 -1，与天道循环叠加。
-- `turnStartExtraDraw`（筑基）：回合开始额外抽 1 张；通过此效果抽到的非悟道牌，本回合费用 +1。
+- `turnStartExtraDraw`（筑基）：回合开始额外抽 1 张。
 - `mana_threshold_guard`（结丹·太古）：伤害减免由 20% 提高至 30%，灵气阈值不变。
 - `spellcraft_cost_down`（还婴·太古）：悟道牌费用 -2。
-- `turnStartExtraDraw`（化神·太古）：回合开始额外抽 2 张，抽牌课税规则不变。
+- `turnStartExtraDraw`（化神·太古）：回合开始额外抽 2 张。
 
 聚灵旗的回合开始额外抽牌与天机盘的每回合抽牌加成都受手牌上限约束。
 

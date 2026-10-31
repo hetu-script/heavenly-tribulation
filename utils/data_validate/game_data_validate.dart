@@ -466,9 +466,8 @@ void checkGreater(Map data, String ctx, {bool passiveScalar = false}) {
     if (values is! List) {
       err('greater.values 结构非法', '$ctx.greater.values: 期望列表');
     } else {
-      final valueCount = passiveScalar
-          ? 1
-          : (data['valueData'] as List?)?.length ?? 0;
+      final valueCount =
+          passiveScalar ? 1 : (data['valueData'] as List?)?.length ?? 0;
       if (passiveScalar && data['base'] == null && data['increment'] == null) {
         err('无数值来源的被动不得配置 greater.values', ctx);
       }
@@ -511,7 +510,8 @@ void checkGreater(Map data, String ctx, {bool passiveScalar = false}) {
     if (alt is! Map || alt.isEmpty) {
       err('greater.alt 结构非法', '$ctx.greater.alt: 期望非空表');
     } else {
-      checkGreaterMechanismShape(alt, '$ctx.greater.alt', _greaterMechanismContract);
+      checkGreaterMechanismShape(
+          alt, '$ctx.greater.alt', _greaterMechanismContract);
       collectGreaterPaths(alt, '', altPaths);
       checkGreaterAltTargets(alt, data, '$ctx.greater.alt');
     }
@@ -1049,6 +1049,32 @@ void validatePassives(Map<String, dynamic> passives) {
     }
     checkGreater(data, ctx, passiveScalar: true);
 
+    final descriptionParams = data['descriptionParams'];
+    if (descriptionParams != null) {
+      if (descriptionParams is! List || descriptionParams.isEmpty) {
+        err('描述参数必须是非空路径列表', '$ctx.descriptionParams');
+      } else {
+        for (final path in descriptionParams) {
+          if (path is! String) {
+            err('描述参数路径必须是字符串', '$ctx.descriptionParams');
+            continue;
+          }
+          final parts = path.split('.');
+          if (parts.length != 2 ||
+              !const {
+                'statsBonus',
+                'deckCostReduction',
+                'turnStartExtraDraw',
+                'battleStatus',
+              }.contains(parts.first)) {
+            err('描述参数路径未登记', '$ctx.descriptionParams: $path');
+          } else if (data[parts.first] == null) {
+            err('描述参数引用了词条不具备的机制', '$ctx.descriptionParams: $path');
+          }
+        }
+      }
+    }
+
     checkStatusRef(data['battleStatus'], '$ctx.battleStatus');
 
     final shuffleIntoDeck = data['shuffleIntoDeck'];
@@ -1098,7 +1124,7 @@ void validatePassives(Map<String, dynamic> passives) {
       }
     }
 
-    // 回合开始额外抽牌（天机盘）：{count, costIncrease?: {amount, notGenres?}}
+    // 回合开始额外抽牌：{count}
     final extraDraw = data['turnStartExtraDraw'];
     if (extraDraw != null) {
       if (extraDraw is! Map) {
@@ -1106,23 +1132,6 @@ void validatePassives(Map<String, dynamic> passives) {
       } else {
         checkNumber(extraDraw['count'], '$ctx.turnStartExtraDraw.count',
             min: 1);
-        final costIncrease = extraDraw['costIncrease'];
-        if (costIncrease != null) {
-          if (costIncrease is! Map) {
-            err('字段类型非法', '$ctx.turnStartExtraDraw.costIncrease: 期望表');
-          } else {
-            checkNumber(costIncrease['amount'],
-                '$ctx.turnStartExtraDraw.costIncrease.amount',
-                min: 1);
-            final notGenres = costIncrease['notGenres'];
-            if (notGenres is List) {
-              for (final g in notGenres) {
-                checkEnum(g, kBattleCardGenres,
-                    '$ctx.turnStartExtraDraw.costIncrease.notGenres');
-              }
-            }
-          }
-        }
       }
     }
 
@@ -1244,7 +1253,8 @@ void validateItems(Map<String, dynamic> items) {
     }
 
     // 绝世装备约定（见 items.json5 模板注释）
-    checkGreaterAffixGrowth(data, ctx, passiveData, passiveData, equipment: true);
+    checkGreaterAffixGrowth(data, ctx, passiveData, passiveData,
+        equipment: true);
     if (data['isUnique'] == true) {
       if (data['uniqueId'] != key) {
         err('绝世装备 uniqueId 必须等于键名', '$ctx: ${data['uniqueId']}');
