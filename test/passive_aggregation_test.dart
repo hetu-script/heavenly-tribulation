@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
-import 'package:json5/json5.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
+
+import 'support/hetu_test_utils.dart';
 import 'package:heavenly_tribulation/data/game.dart';
 import 'package:heavenly_tribulation/global.dart';
 
@@ -22,22 +23,8 @@ void main() {
   }
 
   Hetu createHetu() {
-    final hetu = Hetu(
-      config: HetuConfig(
-        allowImplicitNullToZeroConversion: true,
-        allowImplicitEmptyValueToFalseConversion: true,
-      ),
-    )..init();
-    hetu.interpreter.bindExternalFunction(
-      'calculatePassiveAffixContribution',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.calculatePassiveAffixContribution(
-        positionalArgs.first,
-        level: namedArgs['level'] ?? 0,
-        isGreater: namedArgs['isGreater'] ?? false,
-      ),
-      override: true,
-    );
+    final hetu = createTestHetu(relaxedConversions: true);
+    bindGameLogicFunctions(hetu);
     hetu.interpreter.bindExternalFunction(
       'getTribulationCountForRank',
       ({positionalArgs, namedArgs}) => -1,
@@ -82,8 +69,7 @@ void main() {
       'maxTurnActionThreshold': 15,
     });
     hetu.eval('''
-      external function calculatePassiveAffixContribution(valueData, {level = 0, isGreater = false}) -> number
-      external function getTribulationCountForRank(rank) -> integer
+      $kGameLogicExternalDeclarations
       final kItemCategoryPotion = 'potion'
       final kEphemeralScopeBattlePreparation = 'battle_preparation'
       final kEphemeralScopeStandalone = 'standalone'
@@ -450,9 +436,8 @@ void main() {
   });
 
   test('真实 scry_upgrade 太古配置经聚合和状态默认值合并后升级 2 级', () {
-    final passives = Map<String, dynamic>.from(
-        json5Decode(File('assets/data/passives.json5').readAsStringSync())
-            as Map);
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
     final affix = Map<String, dynamic>.from(passives['scry_upgrade'] as Map);
     affix['isGreater'] = true;
     final hetu = createHetu();
@@ -480,9 +465,8 @@ void main() {
   });
 
   test('天机盘主词条通过 statsBonus 固定降低牌库下限并保留混编加费', () {
-    final passives = Map<String, dynamic>.from(
-        json5Decode(File('assets/data/passives.json5').readAsStringSync())
-            as Map);
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
     final hetu = createHetu();
     hetu.eval('var discMain;');
     hetu.assign('discMain', passives['heavenly_mechanism_disc']);

@@ -5,6 +5,8 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:heavenly_tribulation/scene/battle/card_cost.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
 
+import 'support/hetu_test_utils.dart';
+
 void main() {
   const mana = 'energy_positive_spell';
   const wildcard = 'energy_positive_ultimate';
@@ -12,12 +14,8 @@ void main() {
   /// 费用公式唯一实现是 GameLogic.calculateCostValue（Dart 机制层）；
   /// 测试用 hetu 实例绑定同名外部函数，使真实 updateCardCost 脚本可端到端求值
   Hetu createHetu() {
-    final hetu = Hetu()..init();
-    hetu.interpreter.bindExternalFunction(
-        'calculateCostValue',
-        ({positionalArgs, namedArgs}) =>
-            GameLogic.calculateCostValue(positionalArgs[0], positionalArgs[1]),
-        override: true);
+    final hetu = createTestHetu();
+    bindGameLogicFunctions(hetu);
     return hetu;
   }
 
@@ -37,7 +35,7 @@ void main() {
   test('真实 Hetu 费用求值保留动态零费用，基线独立，Dart 可读取 HTStruct', () {
     final hetu = createHetu();
     hetu.eval('''
-      external function calculateCostValue(valueData, rank)
+      $kGameLogicExternalDeclarations
       final Constants = { colorlessCostColorId: 'life' }
       ${loadUpdateCardCostSource()}
       final card = {
@@ -76,7 +74,7 @@ void main() {
     // Hetu 端到端：真实 updateCardCost 脚本经外部函数绑定求值
     final hetu = createHetu();
     hetu.eval('''
-      external function calculateCostValue(valueData, rank)
+      $kGameLogicExternalDeclarations
       final Constants = { colorlessCostColorId: 'life' }
       ${loadUpdateCardCostSource()}
       final results = []
@@ -93,7 +91,7 @@ void main() {
   });
 
   test('真实伤害脚本消费 paidCost，不再次耗尽后来获得的气', () {
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
     hetu.eval(loadGreaterHelper());
     hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
     final result = hetu.eval('''
@@ -115,7 +113,7 @@ void main() {
   });
 
   test('一气化三清的灵气共鸣只强化打出方', () async {
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
     hetu.eval(loadGreaterHelper());
     hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
     hetu.eval('''

@@ -2,58 +2,25 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
-import 'package:json5/json5.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
+
+import 'support/hetu_test_utils.dart';
 
 void main() {
   Hetu createItemHetu() {
-    final passives = Map<String, dynamic>.from(
-        json5Decode(File('assets/data/passives.json5').readAsStringSync()) as Map);
-    final itemSource = File('scripts/main/data/item/item.ht').readAsStringSync();
+    final passives = loadJson5File('assets/data/passives.json5');
+    final itemSource =
+        File('scripts/main/data/item/item.ht').readAsStringSync();
     final helper = itemSource.substring(
       itemSource.indexOf('function _markPassiveAffixGreater'),
       itemSource.indexOf('function createItemById'),
     );
-    final hetu = Hetu(
-      config: HetuConfig(
-        allowImplicitNullToZeroConversion: true,
-        allowImplicitEmptyValueToFalseConversion: true,
-      ),
-    )..init();
-    hetu.interpreter.bindExternalFunction(
-      'calculatePassiveAffixValue',
-      ({positionalArgs, namedArgs}) => GameLogic.calculatePassiveAffixValue(
-        positionalArgs.first,
-        level: namedArgs['level'] ?? 0,
-        isGreater: namedArgs['isGreater'] ?? false,
-      ),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'getMinMaxExtraAffixCount',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.getMinMaxExtraAffixCount(positionalArgs.first),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'minLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.minLevelForRank(positionalArgs.first),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'maxLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.maxLevelForRank(positionalArgs.first),
-      override: true,
-    );
+    final hetu = createTestHetu(relaxedConversions: true);
+    bindGameLogicFunctions(hetu);
     hetu.eval('var game;');
     hetu.assign('game', {'passives': passives});
     hetu.eval('''
-      external function calculatePassiveAffixValue(valueData, {level = 0, isGreater = false}) -> integer
-      external function getMinMaxExtraAffixCount(rank) -> Map
-      external function minLevelForRank(rank) -> integer
-      external function maxLevelForRank(rank) -> integer
+      $kGameLogicExternalDeclarations
       final kEntityTypeItem = 'item'
       final kCultivationRankMax = 5
       final kRarityCommon = 'common'
@@ -106,22 +73,27 @@ void main() {
 
   test('普通装备真实构造：最多三条额外词条，主词条不太古，额外词条满级强化', () {
     final hetu = createItemHetu();
-    final item = hetu.invoke('Equipment', namedArgs: {'kind': 'pearl', 'rank': 3});
+    final item =
+        hetu.invoke('Equipment', namedArgs: {'kind': 'pearl', 'rank': 3});
     expect(item['affixes'], hasLength(4));
     expect(item['affixes'][0]['isGreater'], isNot(true));
-    final greater = item['affixes'].singleWhere((affix) => affix['isGreater'] == true);
+    final greater =
+        item['affixes'].singleWhere((affix) => affix['isGreater'] == true);
     expect(greater['level'], GameLogic.maxLevelForRank(3));
     expect(greater['value'], 34);
-    expect(item['affixes'].where((affix) => affix['isGreater'] == true), hasLength(1));
+    expect(item['affixes'].where((affix) => affix['isGreater'] == true),
+        hasLength(1));
   });
 
   test('普通丹药真实构造保留太古额外词条且主效果不被强化', () {
     final hetu = createItemHetu();
-    final item = hetu.invoke('Potion', namedArgs: {'mainAffixId': 'heal', 'rank': 3});
+    final item =
+        hetu.invoke('Potion', namedArgs: {'mainAffixId': 'heal', 'rank': 3});
     expect(item['affixes'], hasLength(4));
     expect(item['affixes'][0]['isGreater'], isNot(true));
     expect(item['affixes'][0]['value'], 60);
-    final greater = item['affixes'].singleWhere((affix) => affix['isGreater'] == true);
+    final greater =
+        item['affixes'].singleWhere((affix) => affix['isGreater'] == true);
     expect(greater['level'], GameLogic.maxLevelForRank(3));
     expect(greater['value'], 34);
   });
@@ -145,7 +117,8 @@ void main() {
     expect(extracted['sourceRank'], 3);
     expect(extracted['affixes'][0]['sourceRank'], 3);
     expect(identical(extracted['affixes'][0], hetu.fetch('affix')), isFalse);
-    expect(item['affixes'].where((affix) => affix['isGreater'] == true), hasLength(1));
+    expect(item['affixes'].where((affix) => affix['isGreater'] == true),
+        hasLength(1));
     expect(item['affixes'][1]['level'], GameLogic.maxLevelForRank(3));
     expect(item['affixes'][1]['value'], 34);
   });

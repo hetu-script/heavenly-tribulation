@@ -98,6 +98,27 @@
 注意：攻击方的 `cardFlags['damage']` 中的 `baseChange/percentageChange*/penetration`
 会在 takeDamage 开始时合并进 damageDetails。
 
+## 词条生成、数值与来源快照
+
+普通卡牌、装备和丹药共用 `GameLogic.getMinMaxExtraAffixCount(rank)`；主词条不计入额外词条数量，且不会太古化。
+
+| rank | 额外词条总数 | 太古上限 |
+| ---: | ---: | ---: |
+| 0 | 0～1 | 0 |
+| 1 | 0～2 | 0 |
+| 2 | 0～3 | 0 |
+| 3 | 0～3 | 1 |
+| 4 | 0～3 | 2 |
+| 5 | 0～3 | 3 |
+
+随机生成允许 0 条额外词条；主动打造装备固定取当前境界上限。普通构造、灵宝满槽、神照新词条和混元判定的太古概率均为 5%；卡牌破境的新增词条概率与逐条太古判定概率均为 25%。太古只作用于有合法 `greater` 的额外词条，取来源对象当前 rank 满级后按配置转换；主词条即使与额外词条共享原型，也只使用普通数值和普通描述。
+
+卡牌数值由 `calculateCardAffixValue` 计算：`(base + increment × 相对等级) × 1.3^rank + rankIncrement × rank`，最终 `floor`；`isFixed` 表示不随等级缩放。被动普通贡献由 `calculatePassiveAffixContribution` 按 `base + increment × level` 计算，不再支持 `maxLevel`；同 ID 的永久或临时来源分别汇总未取整贡献后统一 `round` 一次。Raw 来源保留等级、公式、`isMain/isGreater/greater` 与机制快照，聚合 `PassiveData` 不反推来源等级。
+
+绝世卡牌与绝世装备均为最多 3 条固定额外词条：rank 1/2 解锁 2/3 条，rank 3～5 按 `greaterAffixes` 依次太古化。绝世装备原型的 rank 是最低生成境界，允许生成更高境界实例并一次性应用已达成的成长。
+
+`ExtractedAffix` 只能来自装备额外词条，保存完整快照与 `sourceRank`。填槽要求 `sourceRank` 不高于目标装备 rank，已有太古计入目标太古上限且不重新判定；普通提取词条仍可参与目标装备生成后的太古判定。
+
 ## 被动的战斗机制字段（passives.json5）
 
 天赋与装备词条（同为 `game.passives` 数据）可通过以下字段驱动通用战斗机制。

@@ -2,17 +2,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
-import 'package:json5/json5.dart';
-
 import 'package:heavenly_tribulation/data/common.dart';
+
+import 'support/hetu_test_utils.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
 import 'package:heavenly_tribulation/scene/battle/scry.dart';
 
 void main() {
-  Map<String, dynamic> loadData(String path) {
-    return Map<String, dynamic>.from(
-        json5Decode(File(path).readAsStringSync()) as Map);
-  }
+  Map<String, dynamic> loadData(String path) => loadJson5File(path);
 
   String loadItemConstructorSource() {
     final source = File('scripts/main/data/item/item.ht').readAsStringSync();
@@ -33,34 +30,15 @@ void main() {
       prototype['isRankedItem'] ??= false;
       prototype['isUntradable'] ??= false;
     }
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
+    bindGameLogicFunctions(hetu);
     hetu.interpreter.bindExternalFunction(
         'calculateItemBasePrice', ({positionalArgs, namedArgs}) => 1,
-        override: true);
-    hetu.interpreter.bindExternalFunction(
-        'calculatePassiveAffixValue',
-        ({positionalArgs, namedArgs}) => GameLogic.calculatePassiveAffixValue(
-            positionalArgs[0],
-            level: namedArgs['level'] ?? 0,
-            isGreater: namedArgs['isGreater'] ?? false),
-        override: true);
-    hetu.interpreter.bindExternalFunction(
-        'minLevelForRank',
-        ({positionalArgs, namedArgs}) =>
-            GameLogic.minLevelForRank(positionalArgs[0]),
-        override: true);
-    hetu.interpreter.bindExternalFunction(
-        'maxLevelForRank',
-        ({positionalArgs, namedArgs}) =>
-            GameLogic.maxLevelForRank(positionalArgs[0]),
         override: true);
     hetu.eval('var game');
     hetu.assign('game', {'items': items, 'passives': passives});
     hetu.eval('''
-      external function calculateItemBasePrice(item) -> integer
-      external function calculatePassiveAffixValue(valueData, {level = 0, isGreater = false}) -> integer
-      external function minLevelForRank(rank) -> integer
-      external function maxLevelForRank(rank) -> integer
+      $kGameLogicExternalDeclarations
 
       final kEntityTypeItem = 'item'
       final kRarityCommon = 'common'
@@ -98,7 +76,7 @@ void main() {
   }
 
   Hetu createStatusHetu() {
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
     hetu.eval('var Constants');
     hetu.assign('Constants', {'elementAilments': kElementAilmentIds});
     hetu.eval(
@@ -380,7 +358,7 @@ void main() {
     final start = source.indexOf(startMarker);
     final end = source.indexOf(endMarker, start) + endMarker.length;
     final aggregationSource = source.substring(start, end);
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
     final result = hetu.eval('''
       function aggregateForTest(character) {
         $aggregationSource

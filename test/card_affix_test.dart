@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
-import 'package:json5/json5.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
+
+import 'support/hetu_test_utils.dart';
 
 void main() {
   test('额外词条与太古数量按境界增长', () {
@@ -81,7 +82,7 @@ void main() {
     final source = File('scripts/main/logic/logic.ht').readAsStringSync();
     final start = source.indexOf('function _mergeGreaterMechanismData');
     final end = source.indexOf('const _kMoneyRewardRate', start);
-    final hetu = Hetu()..init();
+    final hetu = createTestHetu();
     final result = hetu.eval('''
       ${source.substring(start, end)}
       final original = {
@@ -111,61 +112,17 @@ void main() {
   });
 
   Hetu createCardHetu() {
-    Map<String, dynamic> loadData(String path) => Map<String, dynamic>.from(
-        json5Decode(File(path).readAsStringSync()) as Map);
-    final cards = loadData('assets/data/cards.json5');
-    final affixes = loadData('assets/data/card_affixes.json5');
-    final hetu = Hetu(
-      config: HetuConfig(
-        allowImplicitNullToZeroConversion: true,
-        allowImplicitEmptyValueToFalseConversion: true,
-      ),
-    )..init();
-    hetu.interpreter.bindExternalFunction(
-      'calculateCostValue',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.calculateCostValue(positionalArgs[0], positionalArgs[1]),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'calculateCardAffixValue',
-      ({positionalArgs, namedArgs}) => GameLogic.calculateCardAffixValue(
-        positionalArgs.first,
-        level: namedArgs['level'] ?? 0,
-        rank: namedArgs['rank'] ?? 0,
-        greater: namedArgs['greater'],
-      ),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'getMinMaxExtraAffixCount',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.getMinMaxExtraAffixCount(positionalArgs.first),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'minLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.minLevelForRank(positionalArgs.first),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'maxLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.maxLevelForRank(positionalArgs.first),
-      override: true,
-    );
+    final cards = loadJson5File('assets/data/cards.json5');
+    final affixes = loadJson5File('assets/data/card_affixes.json5');
+    final hetu = createTestHetu(relaxedConversions: true);
+    bindGameLogicFunctions(hetu);
     hetu.eval('var game;');
     hetu.assign('game', {
       'battleCards': cards,
       'battleCardAffixes': affixes,
     });
     hetu.eval('''
-      external function calculateCostValue(valueData, rank) -> integer
-      external function calculateCardAffixValue(valueData, {level = 0, rank = 0, greater}) -> integer
-      external function getMinMaxExtraAffixCount(rank) -> Map
-      external function minLevelForRank(rank) -> integer
-      external function maxLevelForRank(rank) -> integer
+      $kGameLogicExternalDeclarations
       final kEntityTypeBattleCard = 'battle_card'
       final kEntityTypeItem = 'item'
       final kCultivationRankMax = 5

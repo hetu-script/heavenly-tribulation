@@ -83,6 +83,9 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 - 数值定值：机制字段内嵌数值（如 energyRetain 的 max）；stats 用 `statsBonus` 直加；
   需要随等级缩放的数值词条才用 `base + increment×level`（`base:N, increment:0` 即恒定值）。
 - 词条本地化 `passive.json`：`passive_{id}_description`，数值占位 `{0}`。
+- 机制数值会随普通/太古或多来源变化时，在词条上声明 `descriptionParams`：
+  支持 `statsBonus.*`、`deckCostReduction.amount`、`turnStartExtraDraw.count`、`battleStatus.*`。
+  普通、太古与角色聚合说明复用同一本地化模板，由显示层插入最终生效值；只有文案结构变化才另配 `greater.description`。
 - 需要**新机制字段**时走第 3 节；需要**新 stat** 时走 passive-status skill §6 五处同步。
 
 ## 3. 新机制字段落地清单（现有字段表达不了时）

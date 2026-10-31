@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
-import 'package:json5/json5.dart';
-
 import 'package:heavenly_tribulation/logic/logic.dart';
+
+import 'support/hetu_test_utils.dart';
 import 'package:heavenly_tribulation/scene/cultivation/exp_array.dart';
 
 void main() {
@@ -16,33 +16,8 @@ void main() {
   }
 
   Hetu createHetu(Map<String, dynamic> passives) {
-    final hetu = Hetu(
-      config: HetuConfig(
-        allowImplicitNullToZeroConversion: true,
-        allowImplicitEmptyValueToFalseConversion: true,
-      ),
-    )..init();
-    hetu.interpreter.bindExternalFunction(
-      'calculatePassiveAffixValue',
-      ({positionalArgs, namedArgs}) => GameLogic.calculatePassiveAffixValue(
-        positionalArgs.first,
-        level: namedArgs['level'] ?? 0,
-        isGreater: namedArgs['isGreater'] ?? false,
-      ),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'minLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.minLevelForRank(positionalArgs.first),
-      override: true,
-    );
-    hetu.interpreter.bindExternalFunction(
-      'maxLevelForRank',
-      ({positionalArgs, namedArgs}) =>
-          GameLogic.maxLevelForRank(positionalArgs.first),
-      override: true,
-    );
+    final hetu = createTestHetu(relaxedConversions: true);
+    bindGameLogicFunctions(hetu);
     hetu.eval('var game; var hero;');
     hetu.assign('game', {'passives': passives});
     hetu.assign('hero', {
@@ -51,9 +26,7 @@ void main() {
       'stats': <String, dynamic>{},
     });
     hetu.eval('''
-      external function calculatePassiveAffixValue(valueData, {level = 0, isGreater = false}) -> integer
-      external function minLevelForRank(rank) -> integer
-      external function maxLevelForRank(rank) -> integer
+      $kGameLogicExternalDeclarations
       final kEphemeralScopeBattlePreparation = 'battle_preparation'
       final random = {
         nextIterable: function(values) { return values.first },
@@ -65,9 +38,7 @@ void main() {
   }
 
   Map<String, dynamic> loadPassives() {
-    return Map<String, dynamic>.from(
-        json5Decode(File('assets/data/passives.json5').readAsStringSync())
-            as Map);
+    return loadJson5File('assets/data/passives.json5');
   }
 
   test('聚灵阵轮数在 0～5 发展度分别为 1、2、3、3、3、3', () {

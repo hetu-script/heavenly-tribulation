@@ -2,13 +2,13 @@
 
 > 状态：仅记录设计方向，暂不实施。
 >
-> 本文用于替代 `plan/greater_affix_rework.md` 中“共享被动原型作为主词条时，默认复用 `greater.values`”的构想。后续制定逐词条太古方案和实施太古重构前，应先审核本文，再同步修改主计划。
+> 本文用于替代旧太古重构方案中“共享被动原型作为主词条时，默认复用 `greater.values`”的构想。后续制定逐词条太古方案时，应先审核本文，并以 `docs/docs/mod/battle/readme.md` 的现行契约为准。
 
 ## 1. 背景
 
 装备与丹药的主词条和额外词条可能引用同一个被动原型，并采用相同的普通数值公式。额外词条太古化后，可能出现同名太古额外词条数值高于主词条的情况。
 
-为让主词条具有基础强度优势，`greater_affix_rework.md` 曾规定：共享原型担任主词条时，在当前物品等级下复用 `greater.values`，但不获得太古品质、不设为满级，也不消费 `greater.data` 或 `greater.description`。
+为让主词条具有基础强度优势，旧方案曾规定：共享原型担任主词条时，在当前物品等级下复用 `greater.values`，但不获得太古品质、不设为满级，也不消费 `greater.data` 或 `greater.description`。
 
 这个做法把两个独立概念耦合在一起：
 
@@ -88,7 +88,7 @@ example_attribute: {
 
 本文暂不修改代码或数据。未来若采纳 `main` 方案，应至少同步：
 
-- `plan/greater_affix_rework.md`：删除主词条复用 `greater.values` 的规则，改为显式 `main` 数值配置；
+- `docs/docs/mod/battle/readme.md`：删除主词条复用 `greater.values` 的规则，改为显式 `main` 数值配置；
 - `assets/data/passives.json5`：只为确有主词条强度差异的共享原型配置 `main`，不要求所有主词条统一加成；
 - `scripts/main/data/item/equipment.ht`、`usable.ht` 与被动来源计算入口：按词条在物品中的实际角色选择公式；
 - `lib/logic/logic.dart`：保持普通贡献逐来源计算、同 ID 汇总后一次取整，不因 `main` 引入另一套聚合规则；

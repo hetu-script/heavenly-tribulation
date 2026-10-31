@@ -190,8 +190,8 @@
 ### 窥天镜 `heaven_peeking_mirror`（凝气）
 
 - **主效果**：观星额外查看 2 张；每次观星后，自身随机获得 2 种不同的元素异常，各 1 层。
-- `scry_upgrade`（凝气）：每回合第一次观星后，选中的牌等级 +1。
-- `scry_shield`（凝气）：每回合第一次观星后，获得 1 层护盾。
+- `scry_upgrade`：每回合第一次观星后，选中的牌等级 +1。
+- `scry_shield`：每回合第一次观星后，获得 1 层护盾。
 - `scry_mana`（筑基）：每回合第一次观星后，获得 1 点灵气。
 - `scry_upgrade`（结丹·太古）：选中牌升 2 级。
 - `scry_shield`（还婴·太古）：获得 2 层护盾。
@@ -202,9 +202,9 @@
 ### 五行珠 `five_elements_pearl`（筑基）
 
 - **主效果**：造成的元素异常层数 +2；受到的元素异常层数 +2。
-- `ailmentMultiplier`（筑基）：元素异常伤害提高，数值随词条等级变化。
-- `ailmentThreshold`（筑基）：元素异常充能阈值降低。
-- `ailment_inflict_focus`（筑基）：造成的元素异常层数 +1。
+- `ailmentMultiplier`：元素异常伤害提高，数值随词条等级变化。
+- `ailmentThreshold`：元素异常充能阈值降低。
+- `ailment_inflict_focus`：造成的元素异常层数 +1。
 - `ailment_inflict_focus`（结丹·太古）：造成的元素异常层数 +2。
 - `ailmentThreshold`（还婴·太古）：进一步降低元素异常充能阈值，仍受下限约束。
 - `ailmentMultiplier`（化神·太古）：元素异常伤害数值 ×1.5。
@@ -212,9 +212,9 @@
 ### 天机盘 `heavenly_mechanism_disc`（结丹）
 
 - **主效果**：牌库数量下限固定 -2，不随等级放大、不参与太古；非悟道牌费用 +1。
-- `battleDrawBonus`（凝气）：每回合抽牌固定 +1。
-- `handSizeMax`（凝气）：手牌上限 +1。
-- `spellcraft_cost_down`（筑基）：悟道牌灵气费用 -1，与天道循环叠加。
+- `battleDrawBonus`：每回合抽牌固定 +1。
+- `handSizeMax`：手牌上限 +1。
+- `spellcraft_cost_down`：悟道牌灵气费用 -1，与天道循环叠加。
 - `battleDrawBonus`（结丹·太古）：每回合抽牌固定 +2。
 - `handSizeMax`（还婴·太古）：手牌上限 +2。
 - `spellcraft_cost_down`（化神·太古）：悟道牌灵气费用 -2。
@@ -224,9 +224,9 @@
 ### 蓄灵佩 `spirit_storing_amulet`（还婴）
 
 - **主效果**：至多保留 2 点未使用灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害。保留的灵气不触发阴阳五行结算。
-- `lifeMax`（筑基）：生命上限提高，数值随词条等级变化。
-- `persistent`（筑基）：提高回合开始时保留的护甲比例。
-- `spell_mana_trickle`（筑基）：回合产出阶段灵气 +1。
+- `lifeMax`：生命上限提高，数值随词条等级变化。
+- `persistent`：提高回合开始时保留的护甲比例。
+- `spell_mana_trickle`：回合产出阶段灵气 +1。
 - `lifeMax`（结丹·太古）：生命上限数值 ×1.5。
 - `persistent`（还婴·太古）：护甲保持数值 ×1.5。
 - `spell_mana_trickle`（化神·太古）：回合灵气产出由 1 提高至 2。
@@ -234,9 +234,9 @@
 ### 聚灵旗 `spirit_gathering_banner`（化神）
 
 - **主效果**：回合产出阶段灵气 +3；非悟道牌费用 +2。
-- `mana_threshold_guard` 聚气成势（筑基）：灵气不少于 5 点时，受到的伤害 -20%。
-- `spellcraft_cost_down`（筑基）：悟道牌灵气费用 -1，与天道循环叠加。
-- `turnStartExtraDraw`（筑基）：回合开始额外抽 1 张。
+- `mana_threshold_guard` ：灵气不少于 5 点时，受到的伤害 -20%。
+- `spellcraft_cost_down`：悟道牌灵气费用 -1，与天道循环叠加。
+- `turnStartExtraDraw`：回合开始额外抽 1 张。
 - `mana_threshold_guard`（结丹·太古）：伤害减免由 20% 提高至 30%，灵气阈值不变。
 - `spellcraft_cost_down`（还婴·太古）：悟道牌费用 -2。
 - `turnStartExtraDraw`（化神·太古）：回合开始额外抽 2 张。
