@@ -162,7 +162,7 @@ upgrade_card: {
 - 额外词条可选 `greater`：`greater: true` 表示仅对 `value[0]` 应用常量默认倍率；
   `values` 按下标使用 `multiply/add/set`，`null` 表示不强化；
   `data` 累加既有机制参数，`alt` 替换指定字段，`description` 为可选太古专用描述。
-- 太古只强化原有效果，不追加新机制；主词条不参与。太古取来源卡牌当前境界满级，自动 `isFreezed`。
+- 太古原则上只强化原有效果；唯一例外是御剑 `retain`，太古通过 `upgradeOnRetained` 在真正跨回合保留时使本场战斗等级 +1。主词条不参与；太古取来源卡牌当前境界满级，自动 `isFreezed`。
 - 普通构造、灵宝/神照/混元判定为 5%，破境新增与太古分别为 25%；普通额外词条上限 3，rank 3～5 太古上限 1/2/3。
 - 纯机制字段必须已有消费方，并同步 `docs/docs/mod/battle/card/readme.md` 与校验器；不允许只有配置无效果。
 

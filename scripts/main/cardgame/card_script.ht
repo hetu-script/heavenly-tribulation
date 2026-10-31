@@ -684,6 +684,13 @@ namespace CardScript {
     card.isRetained = true
   }
 
+  /// 太古保留：只有在回合结束真正因保留而跨回合时升级，避免入手重算反复触发。
+  function retain_retained_turn_end(self, opponent, card, affix) {
+    for (final i in range(affix.upgradeOnRetained ?? 0)) {
+      upgradeCard(card, inBattle: true)
+    }
+  }
+
   /// ------------------------------------------------------------
   /// 悟道绝世卡固定词条（专属，inUnpackable 池外化）
   /// ------------------------------------------------------------

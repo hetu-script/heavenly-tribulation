@@ -331,4 +331,42 @@ void main() {
       }
     }
   });
+
+  test('太古保留只在跨回合回调中进行战斗内升级', () {
+    final hetu = createCardHetu();
+    final source = File('scripts/main/logic/logic.ht').readAsStringSync();
+    final start = source.indexOf('function _mergeGreaterMechanismData');
+    final end = source.indexOf('const _kMoneyRewardRate', start);
+    final result = hetu.eval('''
+      ${source.substring(start, end)}
+      ${File('scripts/main/cardgame/card_script.ht').readAsStringSync()}
+      final card = BattleCard(affixId: 'blank_default', rank: 3)
+      final normal = Object.create(game.battleCardAffixes.retain)
+      final greater = Object.create(game.battleCardAffixes.retain)
+      greater.isGreater = true
+      greater.rank = card.rank
+      final resolved = resolveGreaterAffix(greater)
+      CardScript.retain_added_to_hand(null, null, card, normal)
+      final normalAddedLevel = card.level
+      CardScript.retain_retained_turn_end(null, null, card, normal)
+      final normalTurnEndLevel = card.level
+      CardScript.retain_added_to_hand(null, null, card, resolved)
+      final greaterAddedLevel = card.level
+      CardScript.retain_retained_turn_end(null, null, card, resolved)
+      [
+        normalAddedLevel,
+        normalTurnEndLevel,
+        greaterAddedLevel,
+        card.level,
+        card.isRetained,
+        resolved.upgradeOnRetained,
+      ]
+    ''');
+    final initialLevel = result[0];
+    expect(result[1], initialLevel);
+    expect(result[2], initialLevel);
+    expect(result[3], initialLevel + 1);
+    expect(result[4], true);
+    expect(result[5], 1);
+  });
 }

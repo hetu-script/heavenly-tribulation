@@ -914,6 +914,9 @@ class BattleScene extends Scene {
       {bool animated = true, bool keepRetained = false}) async {
     for (final card in hand.cards.reversed.toList()) {
       if (keepRetained && (card as CustomGameCard).data['isRetained'] == true) {
+        // 真正因保留而跨回合时才派发，避免入手重算造成重复升级。
+        handleCardAffixCallback(
+            'retained_turn_end', card, hand == heroHandZone ? hero : enemy);
         continue;
       }
       card.isFlipped = true;

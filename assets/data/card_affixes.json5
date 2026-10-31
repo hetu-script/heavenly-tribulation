@@ -572,7 +572,7 @@
   },
 
   // 保留（御剑流派专属）：入手时（added_to_hand）给卡牌添加 isRetained 标记，
-  // 回合结束清理手牌时留在手牌中；打出时无效果
+  // 回合结束清理手牌时留在手牌中；太古在真正跨回合保留时额外升级 1 级
   retain: {
     id: "retain",
     uniqueId: "retain",
@@ -581,8 +581,12 @@
     rank: 2,
     description: "affix_retain",
     script: "retain",
-    callbacks: ["added_to_hand"],
+    callbacks: ["added_to_hand", "retained_turn_end"],
     keywords: ["affix_retain"],
+    greater: {
+      data: { upgradeOnRetained: 1 },
+      description: "affix_retain_greater",
+    },
   },
 
   // ------------额外词条·悟道流派专属------------

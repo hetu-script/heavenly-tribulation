@@ -366,6 +366,7 @@ const _greaterMechanismContract = <String, dynamic>{
   'chosenDamageTakenReduce': 'number',
   'statusParams': null,
   'drawnUpgrade': 'number',
+  'upgradeOnRetained': 'number',
   'drawnManaIfGenre': {'count': 'number'},
   'drawnExtraDrawIfNotGenre': {'count': 'number'},
   'statsBonus': null,

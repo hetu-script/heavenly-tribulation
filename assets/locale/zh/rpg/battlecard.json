@@ -194,6 +194,7 @@
 
   "affix_retain": "保留",
   "affix_retain_description": "回合结束时若未使用，此牌留在手牌中，不进入弃牌区",
+  "affix_retain_greater": "回合结束时，若此牌因保留留在手牌中，本场战斗内等级 +1",
   "affix_scry": "观星",
   "affix_scry_description": "查看牌库顶 3 张牌，选择一张后，将其余卡牌放入弃牌区",
 
