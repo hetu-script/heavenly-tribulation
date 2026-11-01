@@ -225,7 +225,7 @@ struct Potion {
       }
     }
 
-    _rollGreaterPassiveAffixes(this, Constants.greaterAffixGenerationChance)
+    rollGreaterPassiveAffixes(this, Constants.greaterAffixGenerationChance)
     calculatePrice(this)
 
     this.experienced = []
