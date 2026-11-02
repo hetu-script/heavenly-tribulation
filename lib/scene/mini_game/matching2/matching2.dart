@@ -9,6 +9,7 @@ import 'package:flame/flame.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/components/sprite_component2.dart';
+import 'package:samsara/effect.dart';
 
 import '../../../global.dart';
 import '../../../ui.dart';

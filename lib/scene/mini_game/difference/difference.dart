@@ -10,6 +10,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:flame/effects.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
+import 'package:samsara/effect.dart';
 
 import '../../../ui.dart';
 import '../../../global.dart';

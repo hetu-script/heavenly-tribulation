@@ -7,6 +7,7 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
 import 'package:samsara/components/sprite_component2.dart';
+import 'package:samsara/effect.dart';
 
 import '../../particles/light_point.dart';
 import '../../../global.dart';

@@ -16,6 +16,7 @@ import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
 import 'package:samsara/cardgame/cardgame.dart';
+import 'package:samsara/effect.dart';
 
 import '../../global.dart';
 import '../../logic/logic.dart';
@@ -53,17 +54,17 @@ const kTrackRadius = [
   (648, 40), // 7,
   (720, 40), // 8, 筑基轨道
   (792, 40), // 9,
-  (864, 20), // 10,
+  (864, 40), // 10,
   (936, 40), // 11,
   (1008, 40), // 12, 结丹轨道
   (1080, 40), // 13,
-  (1152, 20), // 14,
+  (1152, 40), // 14,
   (1224, 40), // 15,
   (1296, 40), // 16, 还婴轨道
   (1368, 40), // 17,
-  (1440, 20), // 18,
-  (1512, 20), // 19,
-  (1584, 20), // 20, 化神轨道
+  (1440, 40), // 18,
+  (1512, 40), // 19,
+  (1584, 40), // 20, 化神轨道
 ];
 
 enum CultivationMode {
@@ -2009,7 +2010,9 @@ class CultivationScene extends Scene with HasCursorState {
   void onTapDown(int pointer, int button, TapDownDetails details) {
     super.onTapDown(pointer, button, details);
 
-    cursorState = MouseCursorState.drag;
+    if (tappingComponent == null) {
+      cursorState = MouseCursorState.drag;
+    }
     Hovertip.hideAll();
   }
 
@@ -2024,7 +2027,9 @@ class CultivationScene extends Scene with HasCursorState {
   void onDragUpdate(int pointer, int button, DragUpdateDetails details) {
     super.onDragUpdate(pointer, button, details);
 
-    camera.moveBy(-details.delta.toVector2() / camera.zoom);
+    if (draggingComponent == null) {
+      camera.moveBy(-details.delta.toVector2() / camera.zoom);
+    }
   }
 
   @override

@@ -42,6 +42,9 @@
     comment: "passivetree_swordcraft_rank_1_comment",
     // 御剑境界词条（swordcraft_rank_*）待御剑流派重构时补充，此前误引用的 spellcraft_rank_1 已移除
     passives: [
+      // {
+      //   id: "swordcraft_rank_1",
+      // },
       {
         id: "lifeMax",
         level: 40,
@@ -63,11 +66,9 @@
     title: "passivetree_swordcraft_rank_2",
     comment: "passivetree_swordcraft_rank_2_comment",
     passives: [
-      {
-        id: "swordcraft_rank_2",
-        description: "passive_swordcraft_rank_2_description",
-        level: 1,
-      },
+      // {
+      //   id: "swordcraft_rank_2",
+      // },
       {
         id: "lifeMax",
         level: 80,
@@ -78,7 +79,7 @@
   },
   track_10_0: {
     size: "small",
-    connectedNodes: ["track_8_0", "track_11_38"],
+    connectedNodes: ["track_8_0"],
     isAttribute: true,
   },
   track_12_0: {
@@ -89,11 +90,9 @@
     title: "passivetree_swordcraft_rank_3",
     comment: "passivetree_swordcraft_rank_3_comment",
     passives: [
-      {
-        id: "swordcraft_rank_3",
-        description: "passive_swordcraft_rank_3_description",
-        level: 1,
-      },
+      // {
+      //   id: "swordcraft_rank_3",
+      // },
       {
         id: "lifeMax",
         level: 120,
@@ -115,11 +114,9 @@
     title: "passivetree_swordcraft_rank_4",
     comment: "passivetree_swordcraft_rank_4_comment",
     passives: [
-      {
-        id: "swordcraft_rank_4",
-        description: "passive_swordcraft_rank_4_description",
-        level: 1,
-      },
+      // {
+      //   id: "swordcraft_rank_4",
+      // },
       {
         id: "lifeMax",
         level: 160,
@@ -130,7 +127,7 @@
   },
   track_18_0: {
     size: "small",
-    connectedNodes: ["track_16_0", "track_19_19"],
+    connectedNodes: ["track_16_0"],
     isAttribute: true,
   },
   track_20_0: {
@@ -141,11 +138,9 @@
     title: "passivetree_swordcraft_rank_5",
     comment: "passivetree_swordcraft_rank_5_comment",
     passives: [
-      {
-        id: "swordcraft_rank_5",
-        description: "passive_swordcraft_rank_5_description",
-        level: 1,
-      },
+      // {
+      //   id: "swordcraft_rank_5",
+      // },
       {
         id: "lifeMax",
         level: 200,
@@ -192,7 +187,7 @@
     isAttribute: true,
   },
 
-  // 御剑流左侧分支1
+  // 御剑左侧分支1
   track_3_19: {
     size: "small",
     connectedNodes: ["track_2_0"],
@@ -229,19 +224,7 @@
     isAttribute: true,
   },
 
-  // 御剑流右侧分支2
-  track_7_1: {
-    size: "small",
-    connectedNodes: ["track_6_0"],
-    isAttribute: true,
-  },
-  track_8_2: {
-    size: "small",
-    connectedNodes: ["track_7_1"],
-    isAttribute: true,
-  },
-
-  // 御剑流左侧分支2
+  // 御剑左侧分支2
   track_7_39: {
     size: "small",
     connectedNodes: ["track_6_0"],
@@ -253,82 +236,97 @@
     isAttribute: true,
   },
 
-  // 御剑流右侧分支3
-  track_15_1: {
+  // 御剑右侧分支2
+  track_7_1: {
     size: "small",
-    connectedNodes: ["track_14_0"],
+    connectedNodes: ["track_6_0"],
     isAttribute: true,
   },
+  track_8_2: {
+    size: "small",
+    connectedNodes: ["track_7_1"],
+    isAttribute: true,
+  },
+  track_8_3: {
+    size: "small",
+    connectedNodes: ["track_8_2"],
+    isAttribute: true,
+  },
+  track_9_4: {
+    size: "small",
+    connectedNodes: ["track_8_3"],
+    isAttribute: true,
+  },
+  track_8_5: {
+    size: "small",
+    connectedNodes: ["track_9_4", "track_8_6"],
+    isAttribute: true,
+  },
+  track_7_4: {
+    size: "small",
+    connectedNodes: ["track_8_5"],
+    isAttribute: true,
+  },
+  track_8_4: {
+    size: "medium",
+    connectedNodes: ["track_7_4"],
+    icon: "cultivation/skill/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "skilltree_branch_element_1",
+      },
+    ],
+  },
 
-  // 御剑流左侧分支3
+  // 御剑左侧分支3
   track_15_39: {
     size: "small",
     connectedNodes: ["track_14_0"],
     isAttribute: true,
   },
 
-  // 御剑+悟道: 灵力主轴
-  track_3_2: {
+  // 御剑右侧分支3
+  track_15_1: {
     size: "small",
-    connectedNodes: [],
+    connectedNodes: ["track_14_0"],
     isAttribute: true,
   },
-  track_4_2: {
+  track_16_2: {
     size: "small",
-    connectedNodes: ["track_3_2"],
+    connectedNodes: ["track_14_0"],
     isAttribute: true,
   },
-  track_5_2: {
+  track_16_3: {
     size: "small",
-    connectedNodes: ["track_4_2"],
+    connectedNodes: ["track_16_2"],
     isAttribute: true,
   },
-  track_6_4: {
+  track_17_4: {
     size: "small",
-    connectedNodes: ["track_5_2"],
+    connectedNodes: ["track_16_3"],
     isAttribute: true,
   },
-  track_7_4: {
+  track_16_5: {
     size: "small",
-    connectedNodes: ["track_6_4"],
+    connectedNodes: ["track_17_4"],
     isAttribute: true,
   },
-  track_8_4: {
+  track_15_4: {
     size: "small",
+    connectedNodes: ["track_16_5"],
+    isAttribute: true,
+  },
+  track_16_4: {
+    size: "medium",
     connectedNodes: ["track_7_4"],
-    isAttribute: true,
-  },
-
-  // 御剑+悟道: 灵气副轴·右(法攻)
-  track_4_3: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    isAttribute: true,
-  },
-  track_5_3: {
-    size: "small",
-    connectedNodes: ["track_4_3"],
-    isAttribute: true,
-  },
-  track_6_6: {
-    size: "small",
-    connectedNodes: ["track_5_3"],
-    isAttribute: true,
-  },
-  track_6_5: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    isAttribute: true,
-  },
-  track_6_7: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    isAttribute: true,
-  },
-  track_7_6: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    passives: [
+      {
+        id: "skilltree_branch_element_2",
+      },
+    ],
   },
 
   // 悟道流派主轴
@@ -391,14 +389,14 @@
     level: 20,
     rank: 2,
   },
-  track_10_4: {
+  track_10_8: {
     size: "small",
-    connectedNodes: ["track_8_8", "track_11_6"],
+    connectedNodes: ["track_8_8"],
     isAttribute: true,
   },
   track_12_8: {
     size: "large",
-    connectedNodes: ["track_10_4"],
+    connectedNodes: ["track_10_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
     title: "passivetree_spellcraft_rank_3",
@@ -415,14 +413,14 @@
     level: 30,
     rank: 3,
   },
-  track_14_4: {
+  track_14_8: {
     size: "small",
     connectedNodes: ["track_12_8"],
     isAttribute: true,
   },
   track_16_8: {
     size: "large",
-    connectedNodes: ["track_14_4"],
+    connectedNodes: ["track_14_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
     title: "passivetree_spellcraft_rank_4",
@@ -439,14 +437,14 @@
     level: 40,
     rank: 4,
   },
-  track_18_4: {
+  track_18_8: {
     size: "small",
-    connectedNodes: ["track_16_8", "track_19_3"],
+    connectedNodes: ["track_16_8"],
     isAttribute: true,
   },
-  track_20_4: {
+  track_20_8: {
     size: "large",
-    connectedNodes: ["track_18_4"],
+    connectedNodes: ["track_18_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
     title: "passivetree_spellcraft_rank_5",
@@ -464,39 +462,49 @@
     rank: 5,
   },
 
-  // 悟道+炼魂: 神识主轴
-  track_3_6: {
+  // 悟道左侧分支1
+  track_3_3: {
     size: "small",
-    connectedNodes: [],
+    connectedNodes: ["track_2_2"],
     isAttribute: true,
   },
-  track_4_6: {
+  track_4_3: {
     size: "small",
-    connectedNodes: ["track_3_6"],
+    connectedNodes: ["track_3_3"],
     isAttribute: true,
   },
-  track_5_6: {
+  track_5_3: {
     size: "small",
-    connectedNodes: ["track_3_6"],
+    connectedNodes: ["track_4_3"],
     isAttribute: true,
   },
-  track_6_12: {
+  track_6_6: {
     size: "small",
-    connectedNodes: ["track_5_6"],
+    connectedNodes: ["track_5_3"],
     isAttribute: true,
   },
-  track_7_12: {
+  track_6_5: {
     size: "small",
-    connectedNodes: ["track_6_12"],
+    connectedNodes: ["track_6_6"],
     isAttribute: true,
   },
-  track_8_12: {
+  track_6_7: {
     size: "small",
-    connectedNodes: ["track_7_12"],
+    connectedNodes: ["track_6_6"],
+    isAttribute: true,
+  },
+  track_7_6: {
+    size: "small",
+    connectedNodes: ["track_6_6"],
     isAttribute: true,
   },
 
-  // 悟道+炼魂: 生命·元气副轴·左(四元素抗性)
+  // 悟道右侧分支1
+  track_3_5: {
+    size: "small",
+    connectedNodes: ["track_2_2"],
+    isAttribute: true,
+  },
   track_4_5: {
     size: "small",
     connectedNodes: ["track_3_5"],
@@ -525,6 +533,30 @@
   track_7_10: {
     size: "small",
     connectedNodes: ["track_6_10"],
+    isAttribute: true,
+  },
+
+  // 悟道左侧分支2
+  track_7_7: {
+    size: "small",
+    connectedNodes: ["track_6_8"],
+    isAttribute: true,
+  },
+  track_8_6: {
+    size: "small",
+    connectedNodes: ["track_7_7"],
+    isAttribute: true,
+  },
+
+  // 悟道右侧分支2
+  track_7_9: {
+    size: "small",
+    connectedNodes: ["track_6_8"],
+    isAttribute: true,
+  },
+  track_8_10: {
+    size: "small",
+    connectedNodes: ["track_7_9"],
     isAttribute: true,
   },
 
@@ -614,14 +646,14 @@
     level: 20,
     rank: 2,
   },
-  track_10_8: {
+  track_10_16: {
     size: "small",
-    connectedNodes: ["track_8_16", "track_11_14"],
+    connectedNodes: ["track_8_16"],
     isAttribute: true,
   },
   track_12_16: {
     size: "large",
-    connectedNodes: ["track_10_8"],
+    connectedNodes: ["track_10_16"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
     title: "passivetree_vitality_rank_3",
@@ -635,14 +667,14 @@
     level: 30,
     rank: 3,
   },
-  track_14_8: {
+  track_14_16: {
     size: "small",
     connectedNodes: ["track_12_16"],
     isAttribute: true,
   },
   track_16_16: {
     size: "large",
-    connectedNodes: ["track_14_8"],
+    connectedNodes: ["track_14_16"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
     title: "passivetree_vitality_rank_4",
@@ -656,14 +688,14 @@
     level: 40,
     rank: 4,
   },
-  track_18_8: {
+  track_18_16: {
     size: "small",
-    connectedNodes: ["track_16_16", "track_19_7"],
+    connectedNodes: ["track_16_16"],
     isAttribute: true,
   },
-  track_20_8: {
+  track_20_16: {
     size: "large",
-    connectedNodes: ["track_18_8"],
+    connectedNodes: ["track_18_16"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
     title: "passivetree_vitality_rank_5",
@@ -676,38 +708,6 @@
     ],
     level: 50,
     rank: 5,
-  },
-
-  // 炼魂+法身: 念力主轴
-  track_3_10: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-  },
-  track_4_10: {
-    size: "small",
-    connectedNodes: ["track_3_10"],
-    isAttribute: true,
-  },
-  track_5_10: {
-    size: "small",
-    connectedNodes: ["track_4_10"],
-    isAttribute: true,
-  },
-  track_6_20: {
-    size: "small",
-    connectedNodes: ["track_5_10"],
-    isAttribute: true,
-  },
-  track_7_20: {
-    size: "small",
-    connectedNodes: ["track_6_20"],
-    isAttribute: true,
-  },
-  track_8_20: {
-    size: "small",
-    connectedNodes: ["track_7_20"],
-    isAttribute: true,
   },
 
   // 炼魂+法身: 辟邪副轴·左(四元素抗性)
@@ -828,14 +828,14 @@
     level: 20,
     rank: 2,
   },
-  track_10_12: {
+  track_10_24: {
     size: "small",
-    connectedNodes: ["track_8_24", "track_11_22"],
+    connectedNodes: ["track_8_24"],
     isAttribute: true,
   },
   track_12_24: {
     size: "large",
-    connectedNodes: ["track_10_12"],
+    connectedNodes: ["track_10_24"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
     title: "passivetree_avatar_rank_3",
@@ -849,14 +849,14 @@
     level: 30,
     rank: 3,
   },
-  track_14_12: {
+  track_14_24: {
     size: "small",
     connectedNodes: ["track_12_24"],
     isAttribute: true,
   },
   track_16_24: {
     size: "large",
-    connectedNodes: ["track_14_12"],
+    connectedNodes: ["track_14_24"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
     title: "passivetree_avatar_rank_4",
@@ -870,14 +870,14 @@
     level: 40,
     rank: 4,
   },
-  track_18_12: {
+  track_18_24: {
     size: "small",
-    connectedNodes: ["track_16_24", "track_19_11"],
+    connectedNodes: ["track_16_24"],
     isAttribute: true,
   },
-  track_20_12: {
+  track_20_24: {
     size: "large",
-    connectedNodes: ["track_18_12"],
+    connectedNodes: ["track_18_24"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
     title: "passivetree_avatar_rank_5",
@@ -890,38 +890,6 @@
     ],
     level: 50,
     rank: 5,
-  },
-
-  // 法身+锻体: 体魄主轴
-  track_3_14: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-  },
-  track_4_14: {
-    size: "small",
-    connectedNodes: ["track_3_14"],
-    isAttribute: true,
-  },
-  track_5_14: {
-    size: "small",
-    connectedNodes: ["track_4_14"],
-    isAttribute: true,
-  },
-  track_6_28: {
-    size: "small",
-    connectedNodes: ["track_5_14"],
-    isAttribute: true,
-  },
-  track_7_28: {
-    size: "small",
-    connectedNodes: ["track_6_28"],
-    isAttribute: true,
-  },
-  track_8_28: {
-    size: "small",
-    connectedNodes: ["track_7_28"],
-    isAttribute: true,
   },
 
   // 法身+锻体: 怒气副轴·左(闪避)
@@ -1042,14 +1010,14 @@
     level: 20,
     rank: 2,
   },
-  track_10_16: {
+  track_10_32: {
     size: "small",
-    connectedNodes: ["track_8_32", "track_11_30"],
+    connectedNodes: ["track_8_32"],
     isAttribute: true,
   },
   track_12_32: {
     size: "large",
-    connectedNodes: ["track_10_16"],
+    connectedNodes: ["track_10_32"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
     title: "passivetree_bodyforge_rank_3",
@@ -1063,14 +1031,14 @@
     level: 30,
     rank: 3,
   },
-  track_14_16: {
+  track_14_32: {
     size: "small",
     connectedNodes: ["track_12_32"],
     isAttribute: true,
   },
   track_16_32: {
     size: "large",
-    connectedNodes: ["track_14_16"],
+    connectedNodes: ["track_14_32"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
     title: "passivetree_bodyforge_rank_4",
@@ -1084,14 +1052,14 @@
     level: 40,
     rank: 4,
   },
-  track_18_16: {
+  track_18_32: {
     size: "small",
-    connectedNodes: ["track_16_32", "track_19_15"],
+    connectedNodes: ["track_16_32"],
     isAttribute: true,
   },
-  track_20_16: {
+  track_20_32: {
     size: "large",
-    connectedNodes: ["track_18_16"],
+    connectedNodes: ["track_18_32"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
     title: "passivetree_bodyforge_rank_5",
@@ -1104,38 +1072,6 @@
     ],
     level: 50,
     rank: 5,
-  },
-
-  // 锻体+御剑: 身法主轴
-  track_3_18: {
-    size: "small",
-    connectedNodes: [],
-    isAttribute: true,
-  },
-  track_4_18: {
-    size: "small",
-    connectedNodes: ["track_3_18"],
-    isAttribute: true,
-  },
-  track_5_18: {
-    size: "small",
-    connectedNodes: ["track_2_9"],
-    isAttribute: true,
-  },
-  track_6_36: {
-    size: "small",
-    connectedNodes: ["track_3_18"],
-    isAttribute: true,
-  },
-  track_7_36: {
-    size: "small",
-    connectedNodes: ["track_6_36"],
-    isAttribute: true,
-  },
-  track_8_36: {
-    size: "small",
-    connectedNodes: ["track_7_36"],
-    isAttribute: true,
   },
 
   // 锻体+御剑: 剑气副轴·左(四元素抗性)
@@ -1167,160 +1103,6 @@
   track_7_34: {
     size: "small",
     connectedNodes: ["track_6_34"],
-    isAttribute: true,
-  },
-
-  // 中间层通道
-  track_11_2: {
-    size: "small",
-    connectedNodes: ["track_10_0"],
-    isAttribute: true,
-  },
-  track_10_2: {
-    size: "small",
-    connectedNodes: ["track_11_2"],
-    isAttribute: true,
-  },
-  track_11_6: {
-    size: "small",
-    connectedNodes: ["track_10_2"],
-    isAttribute: true,
-  },
-  track_11_10: {
-    size: "small",
-    connectedNodes: ["track_10_4"],
-    isAttribute: true,
-  },
-  track_10_6: {
-    size: "small",
-    connectedNodes: ["track_11_10"],
-    isAttribute: true,
-  },
-  track_11_14: {
-    size: "small",
-    connectedNodes: ["track_10_6"],
-    isAttribute: true,
-  },
-  track_11_18: {
-    size: "small",
-    connectedNodes: ["track_10_8"],
-    isAttribute: true,
-  },
-  track_10_10: {
-    size: "small",
-    connectedNodes: ["track_11_18"],
-    isAttribute: true,
-  },
-  track_11_22: {
-    size: "small",
-    connectedNodes: ["track_10_10"],
-    isAttribute: true,
-  },
-  track_11_26: {
-    size: "small",
-    connectedNodes: ["track_10_12"],
-    isAttribute: true,
-  },
-  track_10_14: {
-    size: "small",
-    connectedNodes: ["track_11_26"],
-    isAttribute: true,
-  },
-  track_11_30: {
-    size: "small",
-    connectedNodes: ["track_10_14"],
-    isAttribute: true,
-  },
-  track_11_34: {
-    size: "small",
-    connectedNodes: ["track_10_16"],
-    isAttribute: true,
-  },
-  track_10_18: {
-    size: "small",
-    connectedNodes: ["track_11_34"],
-    isAttribute: true,
-  },
-  track_11_38: {
-    size: "small",
-    connectedNodes: ["track_10_18"],
-    isAttribute: true,
-  },
-
-  // 最外层通道
-  track_19_1: {
-    size: "small",
-    connectedNodes: ["track_18_0"],
-    isAttribute: true,
-  },
-  track_18_2: {
-    size: "small",
-    connectedNodes: ["track_19_1"],
-    isAttribute: true,
-  },
-  track_19_3: {
-    size: "small",
-    connectedNodes: ["track_18_2"],
-    isAttribute: true,
-  },
-  track_19_5: {
-    size: "small",
-    connectedNodes: ["track_19_3"],
-    isAttribute: true,
-  },
-  track_18_6: {
-    size: "small",
-    connectedNodes: ["track_19_5"],
-    isAttribute: true,
-  },
-  track_19_7: {
-    size: "small",
-    connectedNodes: ["track_18_6"],
-    isAttribute: true,
-  },
-  track_19_9: {
-    size: "small",
-    connectedNodes: ["track_18_8"],
-    isAttribute: true,
-  },
-  track_18_10: {
-    size: "small",
-    connectedNodes: ["track_19_9"],
-    isAttribute: true,
-  },
-  track_19_11: {
-    size: "small",
-    connectedNodes: ["track_18_10"],
-    isAttribute: true,
-  },
-  track_19_13: {
-    size: "small",
-    connectedNodes: ["track_18_12"],
-    isAttribute: true,
-  },
-  track_18_14: {
-    size: "small",
-    connectedNodes: ["track_19_13"],
-    isAttribute: true,
-  },
-  track_19_15: {
-    size: "small",
-    connectedNodes: ["track_18_14"],
-    isAttribute: true,
-  },
-  track_19_17: {
-    size: "small",
-    connectedNodes: ["track_18_16"],
-    isAttribute: true,
-  },
-  track_18_18: {
-    size: "small",
-    connectedNodes: ["track_19_17"],
-    isAttribute: true,
-  },
-  track_19_19: {
-    size: "small",
-    connectedNodes: ["track_18_18"],
     isAttribute: true,
   },
 }
