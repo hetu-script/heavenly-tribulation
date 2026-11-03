@@ -38,6 +38,7 @@ class EquipmentsBar extends GameComponent {
       if (itemData == null) return;
       engine.context.read<HoverContentState>().show(
             rect: spriteButton.toAbsoluteRect(),
+            textAlign: TextAlign.left,
             data: buildItemHoverInfo(itemData),
           );
     };

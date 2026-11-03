@@ -1667,13 +1667,14 @@ final class GameData with ChangeNotifier {
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         outlined: true,
+        padding: EdgeInsets.only(left: 10.0, right: 10.0),
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 8.0,
           color: Colors.white,
           // shadows: kTextShadows,
         ),
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.left,
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description,

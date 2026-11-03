@@ -1577,6 +1577,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
       onMouseEnter: (itemData, rect) {
         context.read<HoverContentState>().show(
               rect: rect,
+              textAlign: TextAlign.left,
               contentBuilder: (isDetailed) => buildItemHoverInfo(
                 entry.itemData,
                 inventoryType: inventoryType,

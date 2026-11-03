@@ -84,28 +84,37 @@
     image: "battlecard/illustration/punch_attack.png",
     script: "attack_rank_scaled",
     isUnpackable: true,
-  },
-
-  // ------------绝世·加持------------
-  // 抽牌
-  draw_cards: {
-    id: "draw_cards",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    isUnique: true,
-    description: "affix_draw_cards",
-    image: "battlecard/illustration/unique_draw_cards.png",
-    animation: {
-      startup: ["spell_buff"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "draw_cards",
-    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
     valueData: [
       {
         base: 1,
-        increment: 0.05,
+        increment: 0.5,
+      },
+    ],
+  },
+
+  // ------------绝世·加持------------
+  // 消耗所有元气治疗（永远 0 费，显示为 X）
+  // 每点元气回复 生命上限 × 词条值% 的生命（词条值为百分数 = 10 × 等级；插画临时复用中立治疗卡）
+  heal_vigor_all: {
+    id: "heal_vigor_all",
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 1,
+    isUnique: true,
+    description: "affix_heal_vigor_all",
+    image: "battlecard/illustration/xinfa_heal.png",
+    animation: {
+      startup: ["spell_buff"],
+      overlays: ["restore_life"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "heal_vigor_all",
+    coloredCost: { life: 0 },
+    valueData: [
+      {
+        base: 5,
+        increment: 0.2,
       },
     ],
   },
@@ -133,6 +142,29 @@
       },
     ],
   },
+  // 抽牌
+  draw_cards: {
+    id: "draw_cards",
+    category: "buff",
+    kind: "xinfa",
+    cardType: "xinfa",
+    rank: 3,
+    isUnique: true,
+    description: "affix_draw_cards",
+    image: "battlecard/illustration/unique_draw_cards.png",
+    animation: {
+      startup: ["spell_buff"],
+      sound: "spell-of-healing-876.mp3",
+    },
+    script: "draw_cards",
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
+    valueData: [
+      {
+        base: 1,
+        increment: 0.05,
+      },
+    ],
+  },
   // 降低全抗
   opponent_reduce_resist_all: {
     id: "opponent_reduce_resist_all",
@@ -154,31 +186,6 @@
       {
         base: 5,
         increment: 0.25,
-      },
-    ],
-  },
-  // 归元功：消耗所有元气治疗（永远 0 费、最低 rank1 的特例卡，见 plan/battle_resource_rework.md）
-  // 每点元气回复 生命上限 × 词条值% 的生命（词条值为百分数 = 10 × 等级；插画临时复用中立治疗卡）
-  heal_vigor_all: {
-    id: "heal_vigor_all",
-    category: "buff",
-    kind: "xinfa",
-    cardType: "xinfa",
-    rank: 1,
-    isUnique: true,
-    description: "affix_heal_vigor_all",
-    image: "battlecard/illustration/xinfa_heal.png",
-    animation: {
-      startup: ["spell_buff"],
-      overlays: ["restore_life"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "heal_vigor_all",
-    coloredCost: { life: 0 },
-    valueData: [
-      {
-        base: 5,
-        increment: 0.2,
       },
     ],
   },

@@ -176,6 +176,7 @@ class _AlchemyDialogState extends State<AlchemyDialog> {
                           if (itemData == null) return;
                           context.read<HoverContentState>().show(
                                 rect: rect,
+                                textAlign: TextAlign.left,
                                 contentBuilder: (isDetailed) =>
                                     buildItemHoverInfo(
                                   itemData,

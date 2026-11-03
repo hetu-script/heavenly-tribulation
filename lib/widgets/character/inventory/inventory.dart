@@ -113,6 +113,7 @@ class _InventoryState extends State<Inventory> {
                     : null;
             hoverState.show(
               rect: rect,
+              textAlign: TextAlign.left,
               contentBuilder: (isDetailed) => buildItemHoverInfo(
                 itemData,
                 inventoryType: widget.inventoryType,

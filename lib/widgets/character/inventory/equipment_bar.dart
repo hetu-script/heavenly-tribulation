@@ -67,6 +67,7 @@ class EquipmentBar extends StatelessWidget {
           onMouseEnter: (itemData, rect) {
             hoverState.show(
               rect: rect,
+              textAlign: TextAlign.left,
               contentBuilder: (isDetailed) => buildItemHoverInfo(
                 itemData,
                 inventoryType: inventoryType,

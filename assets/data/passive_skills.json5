@@ -294,22 +294,12 @@
   },
   track_16_2: {
     size: "small",
-    connectedNodes: ["track_14_0"],
+    connectedNodes: ["track_15_1"],
     isAttribute: true,
   },
   track_16_3: {
     size: "small",
     connectedNodes: ["track_16_2"],
-    isAttribute: true,
-  },
-  track_17_4: {
-    size: "small",
-    connectedNodes: ["track_16_3"],
-    isAttribute: true,
-  },
-  track_16_5: {
-    size: "small",
-    connectedNodes: ["track_17_4"],
     isAttribute: true,
   },
   track_15_4: {
@@ -319,7 +309,7 @@
   },
   track_16_4: {
     size: "medium",
-    connectedNodes: ["track_7_4"],
+    connectedNodes: ["track_15_4", "track_17_4"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     passives: [
@@ -560,35 +550,37 @@
     isAttribute: true,
   },
 
-  // 悟道+炼魂: 生命·元气副轴·右(四元素抗性)
-  track_4_7: {
+  // 悟道左侧分支3
+  track_15_7: {
     size: "small",
-    connectedNodes: ["track_3_7"],
+    connectedNodes: ["track_6_8"],
     isAttribute: true,
   },
-  track_5_7: {
+  track_16_6: {
     size: "small",
-    connectedNodes: ["track_4_7"],
+    connectedNodes: ["track_15_7"],
     isAttribute: true,
   },
-  track_6_14: {
+  track_16_5: {
     size: "small",
-    connectedNodes: ["track_5_7"],
+    connectedNodes: ["track_16_6"],
     isAttribute: true,
   },
-  track_6_13: {
+  track_17_4: {
     size: "small",
-    connectedNodes: ["track_6_14"],
+    connectedNodes: ["track_16_5"],
     isAttribute: true,
   },
-  track_6_15: {
+
+  // 悟道右侧分支3
+  track_15_9: {
     size: "small",
-    connectedNodes: ["track_6_14"],
+    connectedNodes: ["track_6_8"],
     isAttribute: true,
   },
-  track_7_14: {
+  track_16_10: {
     size: "small",
-    connectedNodes: ["track_6_14"],
+    connectedNodes: ["track_15_9"],
     isAttribute: true,
   },
 
@@ -710,7 +702,39 @@
     rank: 5,
   },
 
-  // 炼魂+法身: 辟邪副轴·左(四元素抗性)
+  // 炼魂左侧分支1
+  track_4_7: {
+    size: "small",
+    connectedNodes: ["track_3_7"],
+    isAttribute: true,
+  },
+  track_5_7: {
+    size: "small",
+    connectedNodes: ["track_4_7"],
+    isAttribute: true,
+  },
+  track_6_14: {
+    size: "small",
+    connectedNodes: ["track_5_7"],
+    isAttribute: true,
+  },
+  track_6_13: {
+    size: "small",
+    connectedNodes: ["track_6_14"],
+    isAttribute: true,
+  },
+  track_6_15: {
+    size: "small",
+    connectedNodes: ["track_6_14"],
+    isAttribute: true,
+  },
+  track_7_14: {
+    size: "small",
+    connectedNodes: ["track_6_14"],
+    isAttribute: true,
+  },
+
+  // 炼魂右侧分支1
   track_4_9: {
     size: "small",
     connectedNodes: ["track_3_9"],
@@ -739,38 +763,6 @@
   track_7_18: {
     size: "small",
     connectedNodes: ["track_6_18"],
-    isAttribute: true,
-  },
-
-  // 炼魂+法身: 辟邪副轴·右(咒术攻)
-  track_4_11: {
-    size: "small",
-    connectedNodes: ["track_3_11"],
-    isAttribute: true,
-  },
-  track_5_11: {
-    size: "small",
-    connectedNodes: ["track_4_11"],
-    isAttribute: true,
-  },
-  track_6_22: {
-    size: "small",
-    connectedNodes: ["track_5_11"],
-    isAttribute: true,
-  },
-  track_6_21: {
-    size: "small",
-    connectedNodes: ["track_6_22"],
-    isAttribute: true,
-  },
-  track_6_23: {
-    size: "small",
-    connectedNodes: ["track_6_22"],
-    isAttribute: true,
-  },
-  track_7_22: {
-    size: "small",
-    connectedNodes: ["track_6_22"],
     isAttribute: true,
   },
 
@@ -892,7 +884,39 @@
     rank: 5,
   },
 
-  // 法身+锻体: 怒气副轴·左(闪避)
+  // 法身左侧分支1
+  track_4_11: {
+    size: "small",
+    connectedNodes: ["track_3_11"],
+    isAttribute: true,
+  },
+  track_5_11: {
+    size: "small",
+    connectedNodes: ["track_4_11"],
+    isAttribute: true,
+  },
+  track_6_22: {
+    size: "small",
+    connectedNodes: ["track_5_11"],
+    isAttribute: true,
+  },
+  track_6_21: {
+    size: "small",
+    connectedNodes: ["track_6_22"],
+    isAttribute: true,
+  },
+  track_6_23: {
+    size: "small",
+    connectedNodes: ["track_6_22"],
+    isAttribute: true,
+  },
+  track_7_22: {
+    size: "small",
+    connectedNodes: ["track_6_22"],
+    isAttribute: true,
+  },
+
+  // 法身右侧分支1
   track_4_13: {
     size: "small",
     connectedNodes: ["track_3_13"],
@@ -921,38 +945,6 @@
   track_7_26: {
     size: "small",
     connectedNodes: ["track_6_26"],
-    isAttribute: true,
-  },
-
-  // 法身+锻体: 怒气副轴·右(徒手攻)
-  track_4_15: {
-    size: "small",
-    connectedNodes: ["track_3_15"],
-    isAttribute: true,
-  },
-  track_5_15: {
-    size: "small",
-    connectedNodes: ["track_4_15"],
-    isAttribute: true,
-  },
-  track_6_30: {
-    size: "small",
-    connectedNodes: ["track_5_15"],
-    isAttribute: true,
-  },
-  track_6_29: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
-    isAttribute: true,
-  },
-  track_6_31: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
-    isAttribute: true,
-  },
-  track_7_30: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
     isAttribute: true,
   },
 
@@ -1074,7 +1066,39 @@
     rank: 5,
   },
 
-  // 锻体+御剑: 剑气副轴·左(四元素抗性)
+  // 锻体左侧分支1
+  track_4_15: {
+    size: "small",
+    connectedNodes: ["track_3_15"],
+    isAttribute: true,
+  },
+  track_5_15: {
+    size: "small",
+    connectedNodes: ["track_4_15"],
+    isAttribute: true,
+  },
+  track_6_30: {
+    size: "small",
+    connectedNodes: ["track_5_15"],
+    isAttribute: true,
+  },
+  track_6_29: {
+    size: "small",
+    connectedNodes: ["track_6_30"],
+    isAttribute: true,
+  },
+  track_6_31: {
+    size: "small",
+    connectedNodes: ["track_6_30"],
+    isAttribute: true,
+  },
+  track_7_30: {
+    size: "small",
+    connectedNodes: ["track_6_30"],
+    isAttribute: true,
+  },
+
+  // 锻体右侧分支1
   track_4_17: {
     size: "small",
     connectedNodes: ["track_3_17"],

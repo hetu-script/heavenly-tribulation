@@ -1,1 +1,1 @@
-drawn in bold comic book illustration style, thick black outlines, cel-shaded flat colors, high contrast, vibrant colors
+drawn in bold comic book illustration style, thick black outlines, cel-shaded flat colors, high contrast, vibrant colors, simplistic and minimalism, clean image without any watermarks, logos and signatures.

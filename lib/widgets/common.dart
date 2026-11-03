@@ -17,6 +17,7 @@ void previewCard(
   final inventoryType = isLibrary ? InventoryType.player : InventoryType.none;
   state.show(
     rect: rect,
+    textAlign: TextAlign.left,
     direction: direction ?? HoverContentDirection.rightTop,
     contentBuilder: (isDetailed) => buildItemHoverInfo(
       cardData,

@@ -323,6 +323,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                     if (itemData == null) return;
                                     context.read<HoverContentState>().show(
                                           rect: rect,
+                                          textAlign: TextAlign.left,
                                           contentBuilder: (isDetailed) =>
                                               buildItemHoverInfo(
                                             itemData,
@@ -359,6 +360,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                                 .read<HoverContentState>()
                                                 .show(
                                                   rect: rect,
+                                                  textAlign: TextAlign.left,
                                                   contentBuilder:
                                                       (isDetailed) =>
                                                           buildItemHoverInfo(
@@ -492,6 +494,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                               onMouseEnter: (itemData, rect) {
                                 context.read<HoverContentState>().show(
                                       rect: rect,
+                                      textAlign: TextAlign.left,
                                       contentBuilder: (isDetailed) =>
                                           buildItemHoverInfo(
                                         itemData,

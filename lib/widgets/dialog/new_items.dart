@@ -58,6 +58,7 @@ class NewItems extends StatelessWidget {
                           onMouseEnter: (itemData, rect) {
                             context.read<HoverContentState>().show(
                                   rect: rect,
+                                  textAlign: TextAlign.left,
                                   data: buildItemHoverInfo(itemData,
                                       inventoryType: InventoryType.none),
                                 );
