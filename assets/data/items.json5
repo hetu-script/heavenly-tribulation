@@ -227,7 +227,7 @@
 
   /// 绝世装备（unique equipment）约定：
   // 词条 id 固定（affixes 列表，第一个词条为主词条）；
-  // 主词条之后最多 3 个固定额外词条，rank 1/2 解锁 2/3 条；greaterAffixes 在 rank 3～5 依次太古化。
+  // 主词条之后固定 3 个额外词条，rank 1/2 解锁 2/3 条；greaterAffixes 在 rank 3～5 依次太古化。
   // 词条的 level/value 生成时仍随机 roll，太古额外词条取来源装备 rank 满级
   // 同一 uniqueId 的绝世装备同时只能装备一件；获得时默认未鉴定
   // 必须字段:
@@ -241,7 +241,7 @@
   //     唯一性检查只能用 uniqueId 字段，不能用 item.id
   //   isIdentified: false   // 必须！绝世装备默认未鉴定，需使用鉴定卷轴
   //   rank: 1~5             // 境界需求；显式写 rank、不写 rarity（rarity 会覆盖 rank 推导）
-  //   affixes: [词条id...]  // 第一个为主词条；主词条之后最多 3 个固定额外词条，rank 1/2 解锁 2/3 条
+  //   affixes: [词条id...]  // 第一个为主词条；主词条之后固定 3 个额外词条，rank 1/2 解锁 2/3 条
   //   greaterAffixes: [{rank: 3, affixId: "..."}, {rank: 4, ...}, {rank: 5, ...}] // 依次太古化三个额外词条
   //   name / flavortext / icon: 本地化键与图标路径
   // 可选字段:

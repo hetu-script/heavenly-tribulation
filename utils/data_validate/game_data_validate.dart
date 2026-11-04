@@ -79,6 +79,9 @@ const kScriptRequiredFields = {
   'ailment_by_excess_paid': ['buffId'],
   'damage_boost_if_opponent_status': ['buffId'],
   'retain_random_card_with_filter': ['filter'],
+  'gain_status_by_energy_count': ['resourceId', 'resourceThreshold', 'buffId'],
+  'gain_status_and_resource': ['buffId', 'resourceId'],
+  'gain_status_by_vigor_consumed': ['buffId'],
 };
 
 /// 已知物品布尔标记（表外 is* 字段仅提示——可能是拼写错误，如 isEquipable）
@@ -367,6 +370,7 @@ const _greaterMechanismContract = <String, dynamic>{
   'statusParams': null,
   'drawnUpgrade': 'number',
   'upgradeOnRetained': 'number',
+  'statusAmount': 'number',
   'drawnManaIfGenre': {'count': 'number'},
   'drawnExtraDrawIfNotGenre': {'count': 'number'},
   'statsBonus': null,
@@ -529,54 +533,58 @@ void checkGreater(Map data, String ctx, {bool passiveScalar = false}) {
 void checkGreaterAffixGrowth(Map data, String ctx,
     Map<String, dynamic> affixPool, Map<String, dynamic> passivePool,
     {bool equipment = false}) {
+  if (data['isUnique'] != true) return;
   final affixes = data['affixes'];
-  if (data['isUnique'] == true && affixes is List) {
-    final extraCount = affixes.length - (equipment ? 1 : 0);
-    if (extraCount > 3) {
-      err('绝世固定额外词条超过 3 条', '$ctx.affixes: $extraCount');
+  if (affixes is! List) {
+    err('绝世固定词条必须为列表', '$ctx.affixes');
+    return;
+  }
+  final extraCount = affixes.length - (equipment ? 1 : 0);
+  if (extraCount != 3) {
+    err('绝世固定额外词条必须恰好 3 条', '$ctx.affixes: $extraCount');
+  }
+  final fixedIds = <String>{};
+  for (final id in affixes.skip(equipment ? 1 : 0)) {
+    if (!fixedIds.add(id)) {
+      err('绝世固定词条重复', '$ctx.affixes: $id');
     }
-    if (extraCount > 0) {
-      for (final id in affixes.skip(equipment ? 1 : 0)) {
-        final affix = passivePool[id];
-        if (affix is Map && affix['greater'] == null) {
-          err('绝世固定词条缺 greater', '$ctx.affixes: $id');
-        }
-      }
+    final affix = passivePool[id];
+    if (affix is Map && affix['greater'] == null) {
+      err('绝世固定词条缺 greater', '$ctx.affixes: $id');
     }
-    final growth = data['greaterAffixes'];
-    if (extraCount > 0 && (growth is! List || growth.length != 3)) {
-      err('绝世固定成长必须为 3 条 greaterAffixes', ctx);
-      return;
+  }
+  final growth = data['greaterAffixes'];
+  if (growth is! List || growth.length != 3) {
+    err('绝世固定成长必须为 3 条 greaterAffixes', ctx);
+    return;
+  }
+  final targets = <String>{};
+  for (var i = 0; i < growth.length; i++) {
+    final entry = growth[i];
+    final growthCtx = '$ctx.greaterAffixes[$i]';
+    if (entry is! Map) {
+      err('greaterAffixes 结构非法', growthCtx);
+      continue;
     }
-    if (growth is! List) return;
-    final targets = <String>{};
-    for (var i = 0; i < growth.length; i++) {
-      final entry = growth[i];
-      final growthCtx = '$ctx.greaterAffixes[$i]';
-      if (entry is! Map) {
-        err('greaterAffixes 结构非法', growthCtx);
-        continue;
-      }
-      final rank = entry['rank'];
-      final id = entry['affixId'];
-      if (rank != i + 3) {
-        err('greaterAffixes 境界顺序非法', '$growthCtx: 期望 rank ${i + 3}');
-      }
-      if (id is! String || !affixes.contains(id)) {
-        err('greaterAffixes 目标不在固定列表', '$growthCtx: $id');
-        continue;
-      }
-      if (!targets.add(id)) {
-        err('greaterAffixes 目标重复', '$growthCtx: $id');
-      }
-      final affix = passivePool[id];
-      if (affix is! Map || affix['greater'] == null) {
-        err('greaterAffixes 目标缺合法 greater', '$growthCtx: $id');
-      }
-      final index = affixes.indexOf(id);
-      if (rank is num && index >= rank + (equipment ? 1 : 0)) {
-        err('greaterAffixes 目标在该境界尚未解锁', '$growthCtx: $id');
-      }
+    final rank = entry['rank'];
+    final id = entry['affixId'];
+    if (rank != i + 3) {
+      err('greaterAffixes 境界顺序非法', '$growthCtx: 期望 rank ${i + 3}');
+    }
+    if (id is! String || !affixes.contains(id)) {
+      err('greaterAffixes 目标不在固定列表', '$growthCtx: $id');
+      continue;
+    }
+    if (!targets.add(id)) {
+      err('greaterAffixes 目标重复', '$growthCtx: $id');
+    }
+    final affix = passivePool[id];
+    if (affix is! Map || affix['greater'] == null) {
+      err('greaterAffixes 目标缺合法 greater', '$growthCtx: $id');
+    }
+    final index = affixes.indexOf(id);
+    if (rank is num && index >= rank + (equipment ? 1 : 0)) {
+      err('greaterAffixes 目标在该境界尚未解锁', '$growthCtx: $id');
     }
   }
 }

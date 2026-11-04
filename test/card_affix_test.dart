@@ -326,4 +326,67 @@ void main() {
     expect(result[4], true);
     expect(result[5], 1);
   });
+
+  test('六张中立绝世卡均为三条固定额外词条且化神全部太古', () {
+    final hetu = createCardHetu();
+    final ids = [
+      'heal_vigor_all',
+      'energy_positive_life',
+      'opponent_reduce_resist_all',
+      'draw_cards',
+      'neutral_mutual_assault',
+      'neutral_ultimate_life',
+    ];
+    for (final id in ids) {
+      final card = hetu.invoke('BattleCard', namedArgs: {
+        'affixId': id,
+        'rank': 5,
+      });
+      expect(card['affixes'], hasLength(4), reason: id);
+      expect(card['affixes'][0]['isGreater'], isNot(true), reason: id);
+      expect(
+          card['affixes'].skip(1).every((affix) => affix['isGreater'] == true),
+          isTrue,
+          reason: id);
+    }
+  });
+
+  test('归元功逐境解锁固定词条，高起始境界卡直接应用已达成长', () {
+    final hetu = createCardHetu();
+    final growth = hetu.eval('''
+      final result = []
+      for (final rank in range(6)) {
+        final card = BattleCard(affixId: 'heal_vigor_all', rank: rank)
+        result.add([
+          card.affixes.length,
+          card.affixes.where((affix) => affix.isGreater == true).length,
+        ])
+      }
+      final distraction = BattleCard(affixId: 'opponent_reduce_resist_all', rank: 2)
+      final profound = BattleCard(affixId: 'draw_cards', rank: 3)
+      final assault = BattleCard(affixId: 'neutral_mutual_assault', rank: 4)
+      final ultimate = BattleCard(affixId: 'neutral_ultimate_life', rank: 5)
+      [
+        result,
+        distraction.affixes.where((affix) => affix.isGreater == true).length,
+        profound.affixes[2].isGreater,
+        assault.coloredCost.life,
+        ultimate.coloredCost.life.base,
+        assault.affixes[1].value[0],
+      ]
+    ''');
+    expect(growth[0], [
+      [2, 0],
+      [3, 0],
+      [4, 0],
+      [4, 1],
+      [4, 2],
+      [4, 3],
+    ]);
+    expect(growth[1], 0);
+    expect(growth[2], true);
+    expect(growth[3], 3);
+    expect(growth[4], 3);
+    expect(growth[5], 5);
+  });
 }

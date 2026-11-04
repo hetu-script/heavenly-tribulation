@@ -112,15 +112,18 @@ namespace StatusScript {
     self.removeStatusEffect('defense', percentage: percentage)
   }
 
-  /// 易伤：受到任何伤害时消耗，增加等量伤害（不分类型的单一状态）
+  /// 易伤：攻击牌造成的每段伤害增加等同于层数的基础值，整牌结算后由对方用牌回调统一消耗。
+  /// 仅限正在结算的攻击牌；持续伤害、异常与其他非卡牌伤害不触发，也不消耗。
   function vulnerable_self_taking_damage(self, opponent, effect, details) {
+    if (opponent.cardFlags['isResolvingCard'] != true) return
+    if (opponent.cardFlags['category'] != 'attack') return
     details.baseChange += effect.amount
-    self.removeStatusEffect('vulnerable')
   }
 
-  /// 易伤：回合结束时减半
-  function vulnerable_self_turn_end(self, opponent, effect, details) {
-    self.removeStatusEffect('vulnerable', percentage: 0.5)
+  /// 整张攻击牌结算完毕后消耗全部易伤，包括未造成实际伤害或被护盾抵消的攻击牌。
+  function vulnerable_opponent_used_card(self, opponent, effect, details) {
+    if (opponent.cardFlags['category'] != 'attack') return
+    self.removeStatusEffect(effect.id)
   }
 
   /// 幸运：使用攻击牌时消耗 1 层（按卡牌身份二选一，与是否处于转化态无关）：

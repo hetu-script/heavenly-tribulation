@@ -93,14 +93,13 @@
   },
 
   // ------------绝世·加持------------
-  // 消耗所有元气治疗（永远 0 费，显示为 X）
-  // 每点元气回复 生命上限 × 词条值% 的生命（词条值为百分数 = 10 × 等级；插画临时复用中立治疗卡）
+  // 归元功：消耗所有元气治疗，后续词条读取本次实际消耗量
   heal_vigor_all: {
     id: "heal_vigor_all",
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
-    rank: 1,
+    rank: 0,
     isUnique: true,
     description: "affix_heal_vigor_all",
     image: "battlecard/illustration/xinfa_heal.png",
@@ -117,14 +116,24 @@
         increment: 0.2,
       },
     ],
+    affixes: [
+      "qi_heal_armor",
+      "qi_heal_cleanse",
+      "qi_heal_shield",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "qi_heal_armor" },
+      { rank: 4, affixId: "qi_heal_cleanse" },
+      { rank: 5, affixId: "qi_heal_shield" },
+    ],
   },
-  // 获得元气
+  // 先天功：获得元气，达到门槛后获得护甲与太极，并以死气抑制下回合产出
   energy_positive_life: {
     id: "energy_positive_life",
     category: "buff",
     kind: "xinfa",
     cardType: "xinfa",
-    rank: 2,
+    rank: 1,
     isUnique: true,
     description: "affix_energy_positive_life",
     keywords: ["status_energy_positive_life"],
@@ -141,8 +150,18 @@
         increment: 0.05,
       },
     ],
+    affixes: [
+      "vigor_threshold_defend",
+      "innate_conversion",
+      "innate_recoil",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "innate_recoil" },
+      { rank: 4, affixId: "innate_conversion" },
+      { rank: 5, affixId: "vigor_threshold_defend" },
+    ],
   },
-  // 抽牌
+  // 参玄功：只升级并减费主词条抽到的牌，最后额外抽牌
   draw_cards: {
     id: "draw_cards",
     category: "buff",
@@ -164,14 +183,24 @@
         increment: 0.05,
       },
     ],
+    affixes: [
+      "draw_cards_upgrade",
+      "draw_cards_cost_reduction",
+      "draw_cards_neutral",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "draw_cards_cost_reduction" },
+      { rank: 4, affixId: "draw_cards_upgrade" },
+      { rank: 5, affixId: "draw_cards_neutral" },
+    ],
   },
-  // 降低全抗
+  // 分心诀：降低全抗，并组合全攻击削弱、易伤与破绽
   opponent_reduce_resist_all: {
     id: "opponent_reduce_resist_all",
     category: "buff",
     cardType: "curse",
     kind: "power_word",
-    rank: 4,
+    rank: 2,
     isUnique: true,
     description: "affix_opponent_reduce_resist_all",
     image: "battlecard/illustration/unique_reduce_resist_all.png",
@@ -187,6 +216,96 @@
         base: 5,
         increment: 0.25,
       },
+    ],
+    affixes: [
+      "opponent_weaken_attack_all",
+      "opponent_vulnerable",
+      "opponent_debuff_shield",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "opponent_debuff_shield" },
+      { rank: 4, affixId: "opponent_vulnerable" },
+      { rank: 5, affixId: "opponent_weaken_attack_all" },
+    ],
+  },
+
+  // ------------绝世·攻击------------
+  // 狭路相逢：三段物理攻击，双方易伤形成进攻窗口与反击风险
+  neutral_mutual_assault: {
+    id: "neutral_mutual_assault",
+    category: "attack",
+    kind: "punch",
+    cardType: "unarmed",
+    damageType: "physical",
+    rank: 4,
+    isUnique: true,
+    description: "affix_neutral_mutual_assault",
+    keywords: ["status_vulnerable"],
+    image: "battlecard/illustration/unique_mutual_assault.png",
+    animation: {
+      startup: ["before_melee_startup", "melee_startup"],
+      recovery: ["melee_recovery", "after_melee_recovery"],
+      actions: ["punch_attack"],
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
+    script: "attack_multiple",
+    coloredCost: { life: { base: 0.5, rankIncrement: 0.5 } },
+    valueData: [
+      {
+        base: 8,
+        increment: 0.8,
+      },
+      {
+        base: 3,
+        isFixed: true,
+      },
+    ],
+    affixes: [
+      "mutual_assault_self_vulnerable",
+      "opponent_vulnerable",
+      "defend",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "defend" },
+      { rank: 4, affixId: "opponent_vulnerable" },
+      { rank: 5, affixId: "mutual_assault_self_vulnerable" },
+    ],
+  },
+  // 万化归墟：耗费 3+X 点元气，以实际支付量造成纯粹伤害
+  neutral_ultimate_life: {
+    id: "neutral_ultimate_life",
+    category: "attack",
+    kind: "power_word",
+    cardType: "curse",
+    damageType: "pure",
+    rank: 5,
+    isUnique: true,
+    description: "affix_neutral_ultimate_life",
+    image: "battlecard/illustration/unique_ultimate_life.png",
+    animation: {
+      startup: ["spell_attack"],
+      recovery: ["spell_attack_recovery"],
+      overlays: ["lightning"],
+      sound: "magic-smite-6012.mp3",
+    },
+    script: "attack_by_paid_resource",
+    resourceId: "energy_positive_life",
+    coloredCost: { life: { base: 3, isDynamic: true } },
+    valueData: [
+      {
+        base: 3,
+        increment: 0.3,
+      },
+    ],
+    affixes: [
+      "life_ultimate_defense",
+      "life_ultimate_battery",
+      "life_ultimate_drawback",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "life_ultimate_defense" },
+      { rank: 4, affixId: "life_ultimate_battery" },
+      { rank: 5, affixId: "life_ultimate_drawback" },
     ],
   },
 

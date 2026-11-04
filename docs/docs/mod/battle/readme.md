@@ -7,7 +7,7 @@
 3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
 4. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
 5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
-6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后所有阳气在下次行动开始清空；煞气未用量返回业力池；阴气永久存在，直到被对应阳气对冲抵消；
+6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后除太极外的阳气在下次行动开始清空；煞气未用量返回业力池；阴气与太极永久存在，直到被支付或被对应阴气对冲抵消；
    被动 `energyRetain` 字段匹配的阳气可至多保留 max 层到下回合，每保留 1 层结算一次代价伤害）
 7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 basicEnergyBonus；
    有色气产出由流派境界节点状态脚本挂在 `self_produce_resources` 时机提供，如悟道「太上感应」），
@@ -115,7 +115,7 @@
 
 卡牌数值由 `calculateCardAffixValue` 计算：`(base + increment × 相对等级) × 1.3^rank + rankIncrement × rank`，最终 `floor`；`isFixed` 表示不随等级缩放。被动普通贡献由 `calculatePassiveAffixContribution` 按 `base + increment × level` 计算，不再支持 `maxLevel`；同 ID 的永久或临时来源分别汇总未取整贡献后统一 `round` 一次。Raw 来源保留等级、公式、`isMain/isGreater/greater` 与机制快照，聚合 `PassiveData` 不反推来源等级。
 
-绝世卡牌与绝世装备均为最多 3 条固定额外词条：rank 1/2 解锁 2/3 条，rank 3～5 按 `greaterAffixes` 依次太古化。绝世装备原型的 rank 是最低生成境界，允许生成更高境界实例并一次性应用已达成的成长。
+绝世卡牌与绝世装备均为恰好 3 条固定额外词条：rank 1/2 解锁 2/3 条，rank 3～5 按 `greaterAffixes` 依次太古化。绝世装备原型的 rank 是最低生成境界，允许生成更高境界实例并一次性应用已达成的成长。
 
 `ExtractedAffix` 只能来自装备额外词条，保存完整快照与 `sourceRank`。填槽要求 `sourceRank` 不高于目标装备 rank，已有太古计入目标太古上限且不重新判定；普通提取词条仍可参与目标装备生成后的太古判定。
 
@@ -185,6 +185,7 @@
 | 字段                      | 含义                                                                                                       |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `category`                | attack / buff                                                                                              |
+| `isResolvingCard`         | 当前是否正在结算卡牌；易伤等效果据此排除非卡牌伤害，整牌收尾回调完成后置回 false                          |
 | `genre` / `kind`          | 学类 / 流派                                                                                                |
 | `cardType` / `damageType` | 主词条的卡牌类型 / 伤害类型                                                                                |
 | `damage.total`            | 本张牌已造成的总伤害（takeDamage 累加）                                                                    |
@@ -192,6 +193,7 @@
 | `paidCost`                | 本张牌实际支付明细（状态 id → 实际扣除层数，含元气与太极抵扣；0 费卡为空表），支付时写入，费用返还词条读取 |
 | `lastDrawnCards`          | 最近一次 `drawCardsToHand` 实际入手的卡牌数据列表；每次抽牌调用覆盖写，紫微斗数等抽牌修饰读取 |
 | `lastManaGained`          | 蓄灵诀主词条本次计算的灵气获得数（未获得也写 0），供同牌后续词条读取 |
+| `lastVigorConsumed`       | 归元功主词条本次实际消耗的元气数（无消耗也写 0），供护甲、额外净化与护盾词条读取 |
 | `statusParams`            | 负优先级词条累计的状态实例参数修正；`self_buff` 授予状态时消费并清空，数值按增量相加，其他类型覆盖 |
 
 ## turnFlags 字段（回合期间，`角色.turnFlags`）

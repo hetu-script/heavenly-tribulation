@@ -101,7 +101,7 @@
   "status_defense": "护甲",
   "status_defense_description": "当你受到物理、无属性或真气伤害时，每移除 1 层减少 1 点伤害。每个回合开始时护甲减半。",
   "status_vulnerable": "易伤",
-  "status_vulnerable_description": "当你受到任意一种伤害时，移除所有易伤，每层增加 1 点伤害。",
+  "status_vulnerable_description": "攻击牌对你造成的每段伤害增加等同于易伤层数的基础值；整张攻击牌结算后移除全部易伤，不会随回合结束衰减。",
 
   "status_element_ailment": "元素异常",
   "status_element_ailment_description": "造成元素伤害会积累异常阈值。阈值满10点后，下一次元素伤害移除充能并为对手附加一种负面效果。元素异常包括：「金：流血」，「木：中毒」，「水：冰缓」，「火：点燃」，「土：内伤」，「风：幻觉」，「雷：感电」",
@@ -121,7 +121,7 @@
   "status_ailment_hallucination_description": "回合开始时，每层幻觉转化为 1 点缓慢。",
 
   "status_buff_crit": "幸运",
-  "status_buff_crit_description": "使用无属性攻击牌时，移除 1 层幸运，使本张卡牌必定暴击；使用元素攻击牌时，移除 1 层幸运，使本张卡牌必定造成元素异常（每满 10 点伤害 1 层）。",
+  "status_buff_crit_description": "使用物理攻击牌时，移除 1 层幸运，使本张卡牌必定暴击；使用元素攻击牌时，移除 1 层幸运，使本张卡牌必定造成元素异常（每满 10 点伤害 1 层）。",
   "status_buff_ward": "辟邪",
   "status_buff_ward_description": "当你获得负面效果时，每层辟邪抵消 1 层负面效果。",
   "status_buff_shield": "护盾",
@@ -145,7 +145,7 @@
   "status_energy_positive_curse": "煞气",
   "status_energy_positive_curse_description": "炼魂的费用资源，用于支付煞气费用；战斗开始时从业力池带入，未用量在清空时返回业力池。",
   "status_energy_positive_ultimate": "太极之气",
-  "status_energy_positive_ultimate_description": "万能费用。支付任意有色费用时，不足的部分自动以太极之气抵扣；下个回合开始时清空。",
+  "status_energy_positive_ultimate_description": "万能费用。支付任意有色费用时，不足的部分自动以太极之气抵扣；永久保留，仅因支付或与混沌之气对冲而减少。",
   "status_energy_negative": "阴气",
   "status_energy_negative_description": "阴气包括: 死气、逆灵之气、止戈之气、非战之气、无心之气、混沌之气。",
   "status_energy_negative_life": "死气",

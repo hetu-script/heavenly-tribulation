@@ -168,7 +168,7 @@ upgrade_card: {
 
 ## 4. 绝世卡（isUnique）
 
-- 主词条加 `isUnique: true` + 最多 3 条固定额外词条 `affixes`，rank 1/2 解锁 2/3 条。
+- 主词条加 `isUnique: true` + 恰好 3 条固定额外词条 `affixes`，rank 1/2 解锁 2/3 条。
 - 另加 `greaterAffixes: [{rank: 3, affixId: ...}, {rank: 4, ...}, {rank: 5, ...}]`，依次将三个已解锁词条太古化；目标必须带合法 `greater`。
 - 固定卡名：本地化 `uniquecard_{主词条id}`。
 - 生成时默认未鉴定（`isIdentified` 由 isUnique 推导为 false），需鉴定卷轴。

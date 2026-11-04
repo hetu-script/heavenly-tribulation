@@ -266,7 +266,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 预测 [attacker] 的词条 [affix] 对自己造成的伤害。
-  /// 只计算确定性部分（与 takeDamage 同顺序）：无极/虚空（每层 ±5）→
+  /// 只计算确定性部分（与 takeDamage 同顺序）：无极/虚空（每层 ±5）→ 易伤 →
   /// 增强/削弱净值 → 元素抗性/弱点 →
   /// 暴击（豪气必暴或暴击计数器满阈值，扣除不幸减倍率）、异常（豪气必异常或异常计数器满阈值）；
   /// 不计算护甲、穿透与其他脚本回调类修正。
@@ -298,6 +298,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         (attacker.hasStatusEffect('buff_all_damage') -
             attacker.hasStatusEffect('debuff_all_damage'));
     if (damage < 0) damage = 0;
+
+    // 易伤：攻击牌的每一段都增加当前层数，整牌结算后才消耗（同 takeDamage）
+    damage += hasStatusEffect('vulnerable');
 
     // 乘区1：攻击增强/削弱净值，下限 kDamagePercentageMin（同 takeDamage）
     if (cardType != null) {
@@ -686,8 +689,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 清空所有阳气（资源生命周期：阳气持有至持有者的下个回合开始）。
-  /// 阴气永久存在，直到被对应阳气对冲抵消，不在此清空。
+  /// 清空除太极外的阳气（资源生命周期：这些阳气持有至持有者的下个回合开始）。
+  /// 阴气与太极之气永久存在，直到被支付或被对应阴气对冲抵消，不在此清空。
   /// 煞气（energy_positive_curse）未用量返回 karma 池；其余阳气直接移除。
   /// 资源保留（被动 energyRetain 字段，绝世装备「蓄灵佩」等）：匹配的阳气至多保留
   /// max 层到下回合，每保留 1 层立即受到 costPerPoint 点 costDamageType（缺省纯粹）伤害；
@@ -715,7 +718,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     for (final effect in resourceEffects) {
-      if (isNegativeResourceQi(effect.id)) continue;
+      if (!shouldClearResourceAtTurnStart(effect.id)) continue;
       if (effect.id == 'energy_positive_curse' && effect.amount > 0) {
         data['karma'] += effect.amount;
         addHintText(
@@ -1270,6 +1273,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (paidCost != null) {
       cardFlags['paidCost'] = paidCost;
     }
+    cardFlags['isResolvingCard'] = true;
 
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
@@ -1455,6 +1459,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     opponent!.handleStatusEffectCallback('opponent_used_card');
     handleStatusEffectCallback('self_used_card');
+    cardFlags['isResolvingCard'] = false;
   }
 
   /// 返回值true表示获得一个额外回合

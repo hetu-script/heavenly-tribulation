@@ -1,3 +1,5 @@
+import '../../data/constants.dart';
+
 const kTopLayerAnimationPriority = 500;
 
 /// 6 种资源阴气的状态 id（净值 UI：图标运行时反色显示）
@@ -13,6 +15,10 @@ const kNegativeResourceQi = {
 /// 是否为资源阴气（阴阳对冲保证同对阴阳不会同时持有，阴气显示为对应阳气的反色图标）
 bool isNegativeResourceQi(String statusId) =>
     kNegativeResourceQi.contains(statusId);
+
+/// 回合开始是否清空该资源：其余阳气清空，阴气与太极之气永久保留
+bool shouldClearResourceAtTurnStart(String statusId) =>
+    !isNegativeResourceQi(statusId) && statusId != kWildcardStatusId;
 
 const kOppositeStatus = {
   'enhance_unarmed': 'weaken_unarmed',

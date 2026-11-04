@@ -1778,7 +1778,7 @@ class BattleScene extends Scene {
       final skipPlayPhase = (drawn == 0 && handZone.cards.isEmpty) ||
           currentCharacter.turnFlags['skipTurn'] == true;
 
-      // ② 统一生命周期：清空上回合残留的所有阳气（阴气永久存在；煞气未用量返回 karma 池）
+      // ② 统一生命周期：清空上回合残留的阳气，太极除外（阴气与太极永久存在；煞气未用量返回 karma 池）
       // ③ 结算本回合新产出（元气 kBattleBaseEnergy+词条加成 / 剑气 / 怒气 / 灵气 / 煞气池提取）
       // 顺序显式保证：先清空残留，再结算产出
       // 各角色第一次行动保留战斗开始时获得的阳气；从下一次行动开始正常清理。

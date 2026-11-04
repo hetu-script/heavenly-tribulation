@@ -429,8 +429,7 @@
     callbacks: ["self_turn_start"],
   },
 
-  // 易伤：受到任何伤害时移除并增加等量伤害（不分类型的单一状态）
-  // 回合结束时减半
+  // 易伤：攻击牌的每段伤害增加等同于层数的基础值，整牌结算后全部消耗，不随回合衰减
   vulnerable: {
     id: "vulnerable",
     title: "status_vulnerable",
@@ -439,7 +438,7 @@
     script: "vulnerable",
     priority: 1505,
     isDebuff: true,
-    callbacks: ["self_taking_damage", "self_turn_end"],
+    callbacks: ["self_taking_damage", "opponent_used_card"],
   },
 
   // 幸运: 使用物理攻击牌时移除 1 层，使本张卡牌必定暴击（普通状态，非资源）
@@ -645,7 +644,7 @@
     cardType: "curse",
   },
   // 太极之气
-  // 万能费用色，可支付任意有色费用
+  // 万能费用色，可支付任意有色费用；永久保留，仅因支付或与混沌之气对冲而减少
   energy_positive_ultimate: {
     id: "energy_positive_ultimate",
     title: "status_energy_positive_ultimate",

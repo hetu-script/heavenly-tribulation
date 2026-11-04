@@ -10,8 +10,8 @@
 ///   affix —— 本词条数据（可读 value / buffId / 自定义字段）
 ///
 /// 打出时（on-play）：
-/// 每个词条的 scripts 字段是脚本函数名数组，打出时按数组顺序逐个 invoke，
-/// 多个基础效果因此可以自由组合（如 scripts: ["attack", "opponent_debuff"]）。
+/// 每个词条的 script 字段是单个脚本函数名字符串，打出时 invoke 一次。
+/// 一张卡牌通过多个词条组合基础效果（如主词条攻击、额外词条施加减益）。
 /// 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）
 ///   → 其余额外词条（按 priority 降序）。
 /// Dart 侧对每个词条脚本统一 await（同步脚本的 await 是空操作）；
@@ -20,9 +20,10 @@
 /// 否则该方法会脱离结算顺序异步执行。
 ///
 /// 时机回调：
-/// 词条数据声明 callbacks 列表后，会在对应时机按 scripts 数组顺序调用 {script}_{时机} 函数，签名相同。
-/// 现有时机：added_to_hand（进入手牌区时）、removed_from_hand（离开手牌区时）。
-/// 声明了 callbacks 的词条仍需 scripts 字段作为函数名前缀；
+/// 词条数据声明 callbacks 列表后，会在对应时机调用 {script}_{时机} 函数，签名相同。
+/// 现有时机：added_to_hand（进入手牌区时）、removed_from_hand（离开手牌区时）、
+/// retained_turn_end（卡牌真正因保留跨回合时）。
+/// 声明了 callbacks 的词条仍需 script 字段作为函数名前缀；
 /// 声明的时机回调函数必须存在（缺失会抛出脚本错误并中断结算）；
 /// 额外词条打出时的基名函数允许缺省（纯回调词条，如调息 attune / 保留 retain），
 /// Dart 侧以 ignoreUndefined 调用，函数不存在时忽略并告警一次；主词条基名函数必须存在。
@@ -340,13 +341,75 @@ namespace CardScript {
   /// ------------------------------------------------------------
 
   /// 归元功（绝世）：消耗自身所有元气，每点元气回复 生命上限 × 词条值% 的生命
-  /// 词条值为百分数（10 × 等级）；费用恒 0，消耗走效果而非费用
+  /// 消耗前记录本次实际消耗量，供后续固定词条结算；无元气时也明确写 0
   function heal_vigor_all(self, opponent, card, affix) {
     final vigor = self.hasStatusEffect('energy_positive_life')
+    self.cardFlags['lastVigorConsumed'] = vigor
     if (vigor <= 0) return
     self.removeStatusEffect('energy_positive_life', amount: vigor)
     final regen = (affix.value[0] / 100 * vigor * self.lifeMax).round()
     if (regen > 0) self.changeLife(regen, isHeal: true)
+  }
+
+  /// 归元：本次元气消耗达到门槛后，每点消耗转化为护甲
+  function defend_by_vigor_consumed(self, opponent, card, affix) {
+    final consumed = self.cardFlags['lastVigorConsumed'] ?? 0
+    if (consumed < (affix.threshold ?? 3)) return
+    self.addStatusEffect(affix.buffId ?? 'defense', amount: consumed * affix.value[0])
+  }
+
+  /// 涤体：本次元气消耗达到门槛后，随机移除可驱散的普通负面状态
+  function cleanse_by_vigor_consumed(self, opponent, card, affix) {
+    final consumed = self.cardFlags['lastVigorConsumed'] ?? 0
+    if (consumed < (affix.threshold ?? 3)) return
+    final held = []
+    for (final id in Constants.debuffs) {
+      if (self.hasStatusEffect(id) > 0) held.add(id)
+    }
+    for (var i = 0; i < (affix.count ?? 1) && held.isNotEmpty; ++i) {
+      final id = random.nextIterable(held)
+      self.removeStatusEffect(id, amount: 1)
+      if (self.hasStatusEffect(id) <= 0) held.remove(id)
+    }
+  }
+
+  /// 归元护体：本次元气消耗达到门槛后授予指定状态
+  function gain_status_by_vigor_consumed(self, opponent, card, affix) {
+    final consumed = self.cardFlags['lastVigorConsumed'] ?? 0
+    if (consumed < (affix.threshold ?? 3)) return
+    self.addStatusEffect(affix.buffId, amount: affix.count ?? 1)
+  }
+
+  /// 指定资源达到阈值后授予状态，不移除资源；数量可取数值、count 或缺省 1
+  function gain_status_by_energy_count(self, opponent, card, affix) {
+    if (self.hasStatusEffect(affix.resourceId) < (affix.resourceThreshold ?? 1)) return
+    self.addStatusEffect(affix.buffId,
+      amount: affix.value?[0] ?? affix.count ?? 1)
+  }
+
+  /// 组合授予一个普通状态与一个资源状态，用于先天反噬等固定组合
+  function gain_status_and_resource(self, opponent, card, affix) {
+    self.addStatusEffect(affix.buffId, amount: affix.statusAmount ?? 1)
+    self.addStatusEffect(affix.resourceId,
+      amount: affix.resourceAmount ?? 1, source: self)
+  }
+
+  /// 参悟：主词条实际抽到的每张牌进行战斗内升级
+  function draw_cards_upgrade(self, opponent, card, affix) {
+    final drawn = self.cardFlags['lastDrawnCards'] ?? []
+    for (final drawnCard in drawn) {
+      for (var i = 0; i < (affix.value?[0] ?? 1); ++i) {
+        upgradeCard(drawnCard, inBattle: true)
+      }
+    }
+  }
+
+  /// 豁然：主词条实际抽到的每张牌获得当回合费用修正，动态费用继续豁免
+  function draw_cards_cost_reduction(self, opponent, card, affix) {
+    final drawn = self.cardFlags['lastDrawnCards'] ?? []
+    for (final drawnCard in drawn) {
+      self.applyTurnCostModifier(drawnCard, delta: -(affix.value?[0] ?? 1))
+    }
   }
 
   /// 气转换（中立主词条）：消耗自身所有元气，按 词条值% 的比例转化为目标气

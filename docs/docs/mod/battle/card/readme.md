@@ -207,6 +207,13 @@ greater: {
 数值键按增量叠加（如默认 10 加 -3 得 7），字符串和布尔直接覆盖。状态脚本读取实例字段，
 从而只修改本次所授状态，不污染全局状态原型。
 
+### 中立绝世卡中间结果与修饰
+
+- `heal_vigor_all` 在移除元气前写入 `cardFlags['lastVigorConsumed']`（无元气也为 0）。归元功后续词条按该值与 `threshold` 结算护甲、随机净化和护盾；满血不影响这些额外效果。
+- `gain_status_by_energy_count` 是通用资源门槛授予脚本：读取 `resourceId / resourceThreshold / buffId`，授予 `value[0] ?? count ?? 1` 层状态，不移除资源。先天功的护甲与太极分别设置 `priority: 20 / 10`，随后由 `gain_status_and_resource` 授予护盾和死气。
+- 参玄功的 `draw_cards_upgrade` 与 `draw_cards_cost_reduction` 遍历本牌主抽牌产生的 `lastDrawnCards`，分别设置 `priority: 20 / 10`；`draw_cards_neutral` 最后执行，额外抽牌不获得前两条修饰。
+- 万化归墟主词条与超额护甲词条均显式使用 `resourceId: energy_positive_life`；`defend_by_excess_paid` 按实际支付元气减去动态门槛计算超额部分，不能使用缺省灵气。
+
 ## 条件子表与占位约定
 
 ### 动态费用 coloredCost

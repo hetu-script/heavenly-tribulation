@@ -371,6 +371,247 @@
     },
   },
 
+  // ------------额外词条·中立绝世卡------------
+
+  // 归元：本次消耗至少 3 点元气时，每点消耗提供护甲
+  qi_heal_armor: {
+    id: "qi_heal_armor",
+    uniqueId: "qi_heal_armor",
+    categories: ["buff"],
+    description: "affix_qi_heal_armor",
+    keywords: ["status_defense"],
+    script: "defend_by_vigor_consumed",
+    threshold: 3,
+    buffId: "defense",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.15,
+      },
+    ],
+    greater: true,
+    inUnpackable: true,
+  },
+  // 涤体：本次消耗至少 3 点元气时，额外随机移除普通负面状态
+  qi_heal_cleanse: {
+    id: "qi_heal_cleanse",
+    uniqueId: "qi_heal_cleanse",
+    categories: ["buff"],
+    description: "affix_qi_heal_cleanse",
+    script: "cleanse_by_vigor_consumed",
+    threshold: 3,
+    count: 1,
+    greater: {
+      data: { count: 1 },
+      description: "affix_qi_heal_cleanse_greater",
+    },
+    inUnpackable: true,
+  },
+  // 归元护体：本次消耗至少 3 点元气时获得护盾
+  qi_heal_shield: {
+    id: "qi_heal_shield",
+    uniqueId: "qi_heal_shield",
+    categories: ["buff"],
+    description: "affix_qi_heal_shield",
+    keywords: ["status_buff_shield"],
+    script: "gain_status_by_vigor_consumed",
+    threshold: 3,
+    buffId: "buff_shield",
+    count: 1,
+    greater: {
+      data: { count: 1 },
+      description: "affix_qi_heal_shield_greater",
+    },
+    inUnpackable: true,
+  },
+
+  // 元气护体：当前元气达到 3 点时获得护甲
+  vigor_threshold_defend: {
+    id: "vigor_threshold_defend",
+    uniqueId: "vigor_threshold_defend",
+    categories: ["buff"],
+    rank: 2,
+    description: "affix_vigor_threshold_defend",
+    keywords: ["status_defense"],
+    script: "gain_status_by_energy_count",
+    resourceId: "energy_positive_life",
+    resourceThreshold: 3,
+    buffId: "defense",
+    priority: 20,
+    valueData: [
+      {
+        base: 3,
+        increment: 0.15,
+      },
+    ],
+    greater: true,
+  },
+  // 先天化太极：当前元气达到 3 点时额外获得太极，不消耗元气
+  innate_conversion: {
+    id: "innate_conversion",
+    uniqueId: "innate_conversion",
+    categories: ["buff"],
+    description: "affix_innate_conversion",
+    keywords: ["status_energy_positive_ultimate"],
+    script: "gain_status_by_energy_count",
+    resourceId: "energy_positive_life",
+    resourceThreshold: 3,
+    buffId: "energy_positive_ultimate",
+    count: 1,
+    priority: 10,
+    greater: {
+      data: { count: 1 },
+      description: "affix_innate_conversion_greater",
+    },
+    inUnpackable: true,
+  },
+  // 先天反噬：获得护盾与死气，太古只增加护盾
+  innate_recoil: {
+    id: "innate_recoil",
+    uniqueId: "innate_recoil",
+    categories: ["buff"],
+    description: "affix_innate_recoil",
+    keywords: ["status_buff_shield", "status_energy_negative_life"],
+    script: "gain_status_and_resource",
+    buffId: "buff_shield",
+    statusAmount: 2,
+    resourceId: "energy_negative_life",
+    resourceAmount: 1,
+    greater: {
+      data: { statusAmount: 1 },
+      description: "affix_innate_recoil_greater",
+    },
+    inUnpackable: true,
+  },
+
+  // 参悟：主词条实际抽到的牌等级提升
+  draw_cards_upgrade: {
+    id: "draw_cards_upgrade",
+    uniqueId: "draw_cards_upgrade",
+    categories: ["buff"],
+    description: "affix_draw_cards_upgrade",
+    script: "draw_cards_upgrade",
+    priority: 20,
+    valueData: [
+      {
+        base: 1,
+        isFixed: true,
+      },
+    ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+      description: "affix_draw_cards_upgrade_greater",
+    },
+    inUnpackable: true,
+  },
+  // 豁然：主词条实际抽到的牌本回合减费
+  draw_cards_cost_reduction: {
+    id: "draw_cards_cost_reduction",
+    uniqueId: "draw_cards_cost_reduction",
+    categories: ["buff"],
+    description: "affix_draw_cards_cost_reduction",
+    script: "draw_cards_cost_reduction",
+    priority: 10,
+    valueData: [
+      {
+        base: 1,
+        isFixed: true,
+      },
+    ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+      description: "affix_draw_cards_cost_reduction_greater",
+    },
+    inUnpackable: true,
+  },
+
+  // 互伤：狭路相逢的固定代价，太古降低自身易伤
+  mutual_assault_self_vulnerable: {
+    id: "mutual_assault_self_vulnerable",
+    uniqueId: "mutual_assault_self_vulnerable",
+    categories: ["attack"],
+    description: "affix_mutual_assault_self_vulnerable",
+    keywords: ["status_vulnerable"],
+    script: "self_buff",
+    buffId: "vulnerable",
+    valueData: [
+      {
+        base: 5,
+        isFixed: true,
+      },
+    ],
+    greater: {
+      values: [{ mode: "set", amount: 2 }],
+      description: "affix_mutual_assault_self_vulnerable_greater",
+    },
+    inUnpackable: true,
+  },
+
+  // 归墟余势：超额支付的每点元气转化为护甲
+  life_ultimate_defense: {
+    id: "life_ultimate_defense",
+    uniqueId: "life_ultimate_defense",
+    categories: ["attack"],
+    description: "affix_life_ultimate_defense",
+    keywords: ["status_defense"],
+    script: "defend_by_excess_paid",
+    resourceId: "energy_positive_life",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.15,
+      },
+    ],
+    greater: true,
+    inUnpackable: true,
+  },
+  // 薪火相续：下回合产出阶段额外获得元气
+  life_ultimate_battery: {
+    id: "life_ultimate_battery",
+    uniqueId: "life_ultimate_battery",
+    categories: ["attack"],
+    description: "affix_life_ultimate_battery",
+    keywords: ["status_energy_positive_life"],
+    script: "gain_resource_next_turn",
+    resourceId: "energy_positive_life",
+    valueData: [
+      {
+        base: 2,
+        isFixed: true,
+      },
+    ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+      description: "affix_life_ultimate_battery_greater",
+    },
+    inUnpackable: true,
+  },
+  // 归墟余劫：抽牌并置零普通费用，同时获得死气
+  life_ultimate_drawback: {
+    id: "life_ultimate_drawback",
+    uniqueId: "life_ultimate_drawback",
+    categories: ["attack"],
+    description: "affix_life_ultimate_drawback",
+    keywords: ["status_energy_negative_life"],
+    script: "draw_and_self_buff",
+    buffId: "energy_negative_life",
+    valueData: [
+      {
+        base: 1,
+        isFixed: true,
+      },
+      {
+        base: 2,
+        isFixed: true,
+      },
+    ],
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+      description: "affix_life_ultimate_drawback_greater",
+    },
+    inUnpackable: true,
+  },
+
   // 升级：打出后本牌等级 +1（战斗内临时升级，可突破卡牌等级上限；
   // 深拷贝不污染卡库；新指数公式下 +1 级相对提升全境界恒定有感）
   // valueData 首值固定为 1（升级级数），isFixed: true 表示不随词条等级缩放
