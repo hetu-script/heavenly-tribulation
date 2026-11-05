@@ -13,7 +13,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 战斗流程（\_startBattle 循环 → \_onBattleStart → \_startTurn → \_onBattleEnd）：
   - 先手按身法加权随机（0.5 + (heroDex - enemyDex)/100），偷袭直接先手；后手方补偿回血至上限。
   - 软狂暴：roundCount > 8 后每个普通行动回合开始前叠 1 层劫气（回合开始回调扣 10% 生命上限）。
-  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/死气/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
+  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus；先与死气对冲，仍有死气则扣 5% 生命上限且不自动消耗）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
@@ -47,7 +47,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ### 4.1 card_script.ht —— CardScript 命名空间
 
 - 统一签名 (self, opponent, card, affix)；词条 script 字段是单个函数名字符串，每个词条打出时 invoke 一次。card 为卡牌本体（主词条经 card.affixes[0] 访问），affix 为本词条数据（affix.value[i] 对应 valueData[i]）。
-- 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 元素转化判定（消费 1 层对应异常）→ 主词条（先播放动画）→ 其余额外词条（按 priority 降序）。有依赖关系的词条使用不同 priority 显式排序，因此落雷击顶可让本次伤害立即转化，雷行九霄只响应事前已有的感电。
+- 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 元素转化判定（消费 1 层对应异常）→ 主词条（先播放动画）→ 其余额外词条（按 priority 降序）。有依赖关系的词条使用不同 priority 显式排序，因此落雷击顶可让本次伤害立即转化，雷行九霄只响应事前已有的感电。通用 opponent_debuff 词条不写负优先级，统一在主词条结算后施加对手状态，作为后续攻击的铺垫。
 - Dart 对每个词条脚本统一 await；调用异步 API（drawCards / scry / upgradeHandCards / discover）的脚本必须声明 async 并 await，否则脱离结算顺序。
 - 时机回调：词条声明 callbacks 列表后，在对应时机调用 {script}\_{时机} 函数（现有时机：added_to_hand / removed_from_hand / retained_turn_end）；声明的回调函数必须存在（缺失抛错中断结算）；额外词条的打出时基名函数可缺省（ignoreUndefined，告警一次），主词条基名必须存在。太古 retain 是唯一追加新效果的例外：真正跨回合保留时战斗内升级 1 级，额外回合同样触发。契约详见 docs/docs/mod/battle/card/readme.md。
 - 功能分组：牌库操作（draw_cards 带 filter/reduceCost、scry、scry_then_draw）；攻击（attack / attack_multiple / attack_debuff / attack_buff / attack_multiple_ailment / attack_multiple_by_used_elements / attack_multiple_by_cards_in_hand / attack_with_energy_count_check / attack_by_paid_resource / attack_rank_scaled）；增益减益（self_buff / opponent_debuff / 降全抗 / 降全攻 / 生命上限 / heal / heal_lifeMax / heal_remove_debuffs / gain_defense_by_mana）；资源转化（heal_vigor_all / convert_vigor_all / refund_cost）；绝世专属（attack_by_paid_resource / scry_then_draw / ailments_by_used_elements / discover_element_amplify / gain_mana_by_self_ailments）；攻击联动（by_damage_heal / by_damage_defend / for_attribute_increase_damage / increase_damage_by_last_card_used / increase_damage_by_energy_count）；时机回调与其他（retain / attune / upgrade_card / upgrade_hand_cards / gain_resource_next_turn / draw_by_last_card_used / ailment_spread）。
@@ -56,7 +56,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {script}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn_start / turn_end / doing_damage / taking_damage / done_damage / taken_damage / gained_debuff / gained_energy_positive / using_card / used_card / attacked / buffed，以及 self_scry、self_produce_resources（产出阶段，如太上感应）等；以 Dart 实际分发点为准。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus）等；每回合首次观星效果以 turnCount 记录触发回合，回合开始观星产灵登记到本次产出阶段。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；每回合首次观星效果以 turnCount 记录触发回合，回合开始观星产灵登记到本次产出阶段。
 - 状态数据在 assets/data/status_effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status_{id} + status_{id}_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -121,6 +121,9 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
   - 天机盘 heavenly_mechanism_disc（rank3，talisman/pearl）→ statsBonus: {deckMinSizeReduce: -2} + deckCostReduction 非悟道牌加费；额外词条为固定每回合抽牌、手牌上限、悟道减费。
   - 蓄灵佩 spirit_storing_amulet（rank4，amulet）→ energyRetain: {resourceId: energy_positive_spell, max: 2, costPerPoint: 3, costDamageType: pure}
   - 聚灵旗 spirit_gathering_banner（rank5，talisman/pearl）→ battleStatus: turn_start_mana_bonus + deckCostReduction: {color: all, amount: -2, notGenres: [spellcraft]}
+- 中立两件（装备 → 主词条机制）：
+  - 乾坤戒 cosmos_ring（rank1，jewelry/ring）→ statsBonus: {handSizeMax: 2, battleDrawBonus: -1}；固定额外词条为元气产出、手牌上限和元气保留，太古时保留上限 2、手牌加成 2、元气产出 2。
+  - 无极佩 limitless_amulet（rank3，jewelry/amulet）→ battleStatus: neutral_card_limitless（每回合首张中立加持牌授予 1 层无极）+ deckCostReduction 五种流派牌加费；固定额外词条为战初无极、穿透和暴击阈值。
 
 ## 6. 天赋树
 
@@ -166,10 +169,11 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 卡牌：主词条 16 张（cards.json5:726-1211）+ 绝世卡 5 张（:1218-1378）+ 天赋授予卡 2 张（:1415-1470）+ 一气化三清抉择临时卡 3 张（:1383-1409，不进卡池）；额外词条 10 个（card_affixes.json5:527-713）。
 - 绝世装备 5 件（items.json5:273-362 + passives.json5:1328-1379）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。
 
-## 12. 中立绝世卡落地现状
+## 12. 中立绝世卡与装备落地现状
 
 - 六张中立绝世卡覆盖 rank 0～5：归元功（0，耗元气治疗）/ 先天功（1，元气与太极）/ 分心诀（2，全抗与通用减益）/ 参玄功（3，主抽牌升级与减费）/ 狭路相逢（4，双方易伤的三段物理攻击，标准费用 3 元气）/ 万化归墟（5，3+X 元气纯粹伤害）。六张均为 1 主 + 3 固定额外词条，rank 3～5 依次太古化。
-- `heal_vigor_all` 记录 `cardFlags['lastVigorConsumed']`，后续词条按实际消耗结算护甲、随机净化与护盾；先天功通过通用资源门槛脚本授予护甲和太极，再获得护盾与死气，太极转化不消耗元气。
+- `heal_vigor_all` 记录 `cardFlags['lastVigorConsumed']`，后续词条按实际消耗结算护甲、随机净化与护盾；先天功通过通用资源门槛脚本授予护甲和太极，再获得护盾与死气，太极转化不消耗元气。死气在元气产出对冲后仍持有才扣 5% 生命上限，不自动消耗。
 - 参玄功以 priority 20/10/0 保证“主抽牌升级 → 主抽牌减费 → 额外抽牌”，额外抽牌不获得前两条修饰；万化归墟主词条与超额护甲均显式读取 `energy_positive_life`。
 - 新卡插画为 `unique_mutual_assault.png` / `unique_ultimate_life.png`，已登记 `kBattleCardIllustrations` 与 `illustration_` 本地化。
+- 两件中立绝世装备为乾坤戒（rank1，抽牌 -1 换手牌空间、元气产出与付费保留）和无极佩（rank3，每回合首张中立加持牌获得无极，五流派牌加费）。无极状态图标为 `icon/status/permanent/neutral_card_limitless.png`。
 - 绝世卡与绝世装备的数据校验均要求恰好 3 条固定额外词条与 3 条 rank 3/4/5 太古成长，不再允许缺失或以“最多 3 条”兜底。

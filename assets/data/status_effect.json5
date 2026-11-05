@@ -654,7 +654,7 @@
     isResource: true,
   },
 
-  // 死气: 回合开始时失去生命
+  // 死气：元气产出与阴阳对冲后，仍有剩余时失去生命，不自动消耗层数
   // 元气对应的阴气，保留为资源（仅通过卡牌/效果互动施加，不再自动叠层）
   energy_negative_life: {
     id: "energy_negative_life",
@@ -663,7 +663,7 @@
     icon: "icon/cost/qi_basic.png",
     script: "energy_negative_life",
     isResource: true,
-    callbacks: ["self_turn_start"],
+    callbacks: ["self_produce_resources"],
   },
   // 逆灵之气
   // 灵气对应的阴气，保留为资源（图标运行时反色显示）
@@ -958,5 +958,19 @@
     resourceId: "energy_positive_spell",
     threshold: 5,
     reductionPercent: 20,
+  },
+
+  // ------------中立绝世装备状态------------
+  // 无极佩：每回合首张实际打出的中立加持牌使自身获得无极之气
+  neutral_card_limitless: {
+    id: "neutral_card_limitless",
+    title: "status_neutral_card_limitless",
+    description: "status_neutral_card_limitless_description",
+    icon: "icon/status/permanent/neutral_card_limitless.png",
+    isPermanent: true,
+    script: "neutral_card_limitless",
+    callbacks: ["self_used_card"],
+    buffId: "buff_all_damage",
+    statusAmount: 1,
   },
 }

@@ -266,7 +266,7 @@
 
   // ------------悟道流派绝世装备------------
   // 图标暂用占位路径，后续替换为专属图标
-  // 词条说明：affixes 第一个词条为主词条；主词条之后最多 3 条，rank 1/2 解锁 2/3 条，rank 3～5 固定太古成长
+  // 词条说明：affixes 第一个词条为主词条；主词条之后恰好 3 条，rank 1/2 解锁 2/3 条，rank 3～5 固定太古成长
   // 显式写 rank（境界需求，稀有度由 rankToRarity 推导）；不写 rarity（rarity 会覆盖 rank 推导）
 
   // 窥天镜（rank1）：观星额外查看 2 张，但窥得越多心神越乱
@@ -402,6 +402,62 @@
       { rank: 3, affixId: "mana_threshold_guard" },
       { rank: 4, affixId: "spellcraft_cost_down" },
       { rank: 5, affixId: "turnStartExtraDraw" },
+    ],
+  },
+
+  // 乾坤戒（rank1）：以正常抽牌减少换取手牌空间、元气产出与保留
+  cosmos_ring: {
+    id: "cosmos_ring",
+    uniqueId: "cosmos_ring",
+    name: "cosmos_ring",
+    flavortext: "flavortext_cosmos_ring",
+    type: "equipment",
+    category: "jewelry",
+    kind: "ring",
+    rank: 1,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: [
+      "cosmos_ring",
+      "basicEnergyBonus",
+      "handSizeMax",
+      "energyRetainLife",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "energyRetainLife" },
+      { rank: 4, affixId: "handSizeMax" },
+      { rank: 5, affixId: "basicEnergyBonus" },
+    ],
+  },
+
+  // 无极佩（rank3）：以中立加持牌积蓄无极，五种流派卡牌加费
+  limitless_amulet: {
+    id: "limitless_amulet",
+    uniqueId: "limitless_amulet",
+    name: "limitless_amulet",
+    flavortext: "flavortext_limitless_amulet",
+    type: "equipment",
+    category: "jewelry",
+    kind: "amulet",
+    rank: 3,
+    icon: "item/unknown.png",
+    isEquippable: true,
+    isUnstackable: true,
+    isUnique: true,
+    isIdentified: false,
+    affixes: [
+      "limitless_amulet",
+      "start_battle_with_buff_all_damage",
+      "penetration",
+      "critThreshold",
+    ],
+    greaterAffixes: [
+      { rank: 3, affixId: "start_battle_with_buff_all_damage" },
+      { rank: 4, affixId: "penetration" },
+      { rank: 5, affixId: "critThreshold" },
     ],
   },
 }

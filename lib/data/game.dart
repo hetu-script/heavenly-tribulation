@@ -10,6 +10,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
+import 'package:samsara/richtext.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/markdown_wiki.dart';
 import 'package:samsara/tilemap/tilemap.dart';
@@ -116,6 +117,19 @@ final class GameSound {
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 final class GameData with ChangeNotifier {
+  /// 战斗费用色 → 对应阳气状态 id。除现有元气与四色流派费用外，
+  /// ultimate 预留给未来可能出现的太极费用显示；新增费用色时需同步本表并注册图标。
+  static const Map<String, String> _kBattleCardCostColorStatusIds = {
+    kColorlessCostColorId: 'energy_positive_life',
+    'spell': 'energy_positive_spell',
+    'weapon': 'energy_positive_weapon',
+    'unarmed': 'energy_positive_unarmed',
+    'curse': 'energy_positive_curse',
+    'ultimate': kWildcardStatusId,
+  };
+
+  static String _battleCardCostIconId(String color) => 'battlecard_cost_$color';
+
   static final Map<String, dynamic> animations = {};
   static final Map<String, SpriteSheet> spriteSheets = {};
   static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
@@ -532,17 +546,13 @@ final class GameData with ChangeNotifier {
     }
 
     // 注册彩色费用图标（颜色 id → 图标 sprite，与气状态图标同源，所有卡牌共享）
-    // life（元气）也注册：无色费用同样以图标形式渲染
-    final costColorIconStatusIds = <String, String>{
-      kColorlessCostColorId: 'energy_positive_life',
-      ...kCostColorStatusIds,
-      'ultimate': kWildcardStatusId,
-    };
-    for (final entry in costColorIconStatusIds.entries) {
+    // life（元气）也注册：无色费用同样以图标形式渲染；同时注册给浮窗富文本使用。
+    for (final entry in _kBattleCardCostColorStatusIds.entries) {
       final icon = statusEffects[entry.value]?['icon'];
       if (icon != null) {
         await CustomGameCard.registerColoredCostSprite(entry.key,
             spriteId: icon);
+        RichTextIcons.register(_battleCardCostIconId(entry.key), icon);
       }
     }
 
@@ -1408,6 +1418,38 @@ final class GameData with ChangeNotifier {
     return out;
   }
 
+  /// 浮窗费用说明行：按 coloredCost 的条目顺序列出，未来多色/混费卡无需改代码。
+  /// 富文本不支持图标与数字叠加，因此每项显式写成「资源名`<icon>`（数量）」。
+  static String _getBattleCardCostDescription(dynamic cardData) {
+    final label = '<grey>${engine.locale('cost')}:</>';
+    final coloredCost = cardData['coloredCost'];
+    if (coloredCost == null || coloredCost.isEmpty) {
+      return '$label ${engine.locale('none')}';
+    }
+
+    final entries = <String>[];
+    for (final entry in coloredCost.entries) {
+      final color = entry.key.toString();
+      final costEntry = entry.value;
+      final base = costEntry is num
+          ? costEntry.toInt()
+          : ((costEntry?['base'] as num?)?.toInt() ?? 0);
+      final dynamicCost = costEntry != null &&
+          costEntry is! num &&
+          costEntry['isDynamic'] == true;
+      final amount = dynamicCost ? (base == 0 ? 'X' : '$base+X') : '$base';
+
+      final statusId = _kBattleCardCostColorStatusIds[color];
+      final resourceName = statusId != null
+          ? engine.locale('status_$statusId')
+          : engine.locale(color);
+      final iconId = _battleCardCostIconId(color);
+      final icon = RichTextIcons.contains(iconId) ? '<icon=$iconId></>' : '';
+      entries.add('$resourceName$icon（$amount）');
+    }
+    return '$label ${entries.join('、')}';
+  }
+
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是卡牌悬浮提示
   /// withPrediction 为 true 时，词条上的战斗伤害预测值（predictedValue 等，
   /// 由 BattleScene 刷新时写入）会替换原始数值显示并按差异着色
@@ -1435,16 +1477,17 @@ final class GameData with ChangeNotifier {
     String titleString = isDetailed
         ? '<bold rank$cardRank t7>$title ($levelPrefix $cardLevel)</>'
         : '<bold rank$cardRank t7>$title</>';
-    final rankString =
-        '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
     final genreString =
         '<grey>${engine.locale('genre')}: ${engine.locale(cardData['genre'])}, </>';
+    final rankString =
+        '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
     final categoryString =
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     if (showAffixes) {
       extraDescription.writeln(titleString);
-      extraDescription.writeln('$rankString$genreString$categoryString');
+      extraDescription.writeln('$genreString$rankString$categoryString');
+      extraDescription.writeln(_getBattleCardCostDescription(cardData));
     }
 
     if (engine.config.developMode && showDebugId) {
@@ -1503,12 +1546,15 @@ final class GameData with ChangeNotifier {
       final affixDescription =
           affixDescriptionRaw.interpolate(affixValues).split(RegExp('\n'));
 
+      // 分割线用于分隔主词条区块与额外词条，而不是分隔主词条内部的每一行。
+      if (i == 0 && showAffixes && isIdentified) {
+        extraDescription.writeln(kSeparateLine);
+      }
       for (var line in affixDescription) {
         if (i == 0) {
           line = '<bold>$line</>';
           description.writeln(line);
           if (showAffixes && isIdentified) {
-            extraDescription.writeln(kSeparateLine);
             extraDescription.writeln(line);
           }
         } else {
@@ -1649,9 +1695,9 @@ final class GameData with ChangeNotifier {
         ),
       ),
       tags: tags,
-      tagsRelativeRect: const Rect.fromLTWH(0.135, 0.91, 0.73, 0.03),
+      tagsRelativeRect: const Rect.fromLTWH(0.135, 0.92, 0.73, 0.03),
       tagsConfig: ScreenTextConfig(
-        anchor: Anchor.centerLeft,
+        anchor: Anchor.bottomCenter,
         outlined: true,
         textAlign: TextAlign.center,
         textStyle: TextStyle(

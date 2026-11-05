@@ -212,12 +212,12 @@
   "affix_buff_ward": "辟邪 +{0}",
   "affix_buff_shield": "护盾 +{0}",
 
-  "affix_opponent_vulnerable": "对手易伤 +{0}",
-  "affix_opponent_speed_slow": "对手缓慢 +{0}",
-  "affix_opponent_dodge_clumsy": "对手迟钝 +{0}",
-  "affix_opponent_debuff_crit": "对手不幸 +{0}",
-  "affix_opponent_debuff_ward": "对手邪祟 +{0}",
-  "affix_opponent_debuff_shield": "对手破绽 +{0}",
+  "affix_opponent_vulnerable": "本牌结算后，对手易伤 +{0}",
+  "affix_opponent_speed_slow": "本牌结算后，对手缓慢 +{0}",
+  "affix_opponent_dodge_clumsy": "本牌结算后，对手迟钝 +{0}",
+  "affix_opponent_debuff_crit": "本牌结算后，对手不幸 +{0}",
+  "affix_opponent_debuff_ward": "本牌结算后，对手邪祟 +{0}",
+  "affix_opponent_debuff_shield": "本牌结算后，对手破绽 +{0}",
 
   "affix_energy_positive_life": "元气 +{0}",
 
@@ -336,7 +336,7 @@
   "affix_opponent_energy_negative_curse": "对手无心之气 +{0}",
 
   "affix_infuse_all_damage_up": "无极之气 +{0}",
-  "affix_infuse_opponent_all_damage_down": "对手虚空之气 +{0}",
+  "affix_infuse_opponent_all_damage_down": "本牌结算后，对手虚空之气 +{0}",
 
   "affix_overheal": "回复 {0}% 生命 (可超过上限)",
   "affix_buff_lifemax": "自身生命及生命上限 +{0}",

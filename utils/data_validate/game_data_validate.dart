@@ -376,6 +376,7 @@ const _greaterMechanismContract = <String, dynamic>{
   'statsBonus': null,
   'deckCostReduction': {'amount': 'number'},
   'turnStartExtraDraw': {'count': 'number'},
+  'energyRetain': {'max': 'number'},
 };
 
 void checkGreaterMechanismShape(

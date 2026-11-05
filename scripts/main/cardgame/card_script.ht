@@ -13,7 +13,8 @@
 /// 每个词条的 script 字段是单个脚本函数名字符串，打出时 invoke 一次。
 /// 一张卡牌通过多个词条组合基础效果（如主词条攻击、额外词条施加减益）。
 /// 执行顺序：priority < 0 的额外词条（按 priority 降序）→ 主词条（先播放动画）
-///   → 其余额外词条（按 priority 降序）。
+///   → 其余额外词条（按 priority 降序）。通用 opponent_debuff 词条不写负优先级，
+///   统一在主词条结算后给对手施加状态，避免本牌攻击立即兑现这些减益。
 /// Dart 侧对每个词条脚本统一 await（同步脚本的 await 是空操作）；
 /// 调用了异步 BattleCharacter 方法（drawCards / scry / upgradeHandCards）的脚本
 /// 必须声明 async 并 await（如 draw_cards / scry / scry_then_draw），

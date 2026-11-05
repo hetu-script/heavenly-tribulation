@@ -4,12 +4,13 @@
 2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）。
    实际数量受 `stats.handSizeMax`（默认 `kBattleHandSizeMax = 10`）限制；满手后剩余抽牌不发生，
    不洗牌/弃牌、不触发入手回调、不写入 `lastDrawnCards`，未实际抽到的牌也不接受抽牌费修
-3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（死气/劫气失去生命、元素 DOT、缓慢跳过判定等）
+3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（劫气失去生命、元素 DOT、缓慢跳过判定等；死气改在产出阶段结算）
 4. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
 5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
 6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后除太极外的阳气在下次行动开始清空；煞气未用量返回业力池；阴气与太极永久存在，直到被支付或被对应阴气对冲抵消；
    被动 `energyRetain` 字段匹配的阳气可至多保留 max 层到下回合，每保留 1 层结算一次代价伤害）
 7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 basicEnergyBonus；
+   元气先与死气对冲，若抵消后仍持有死气则失去 5% 生命上限，死气不自动消耗；
    有色气产出由流派境界节点状态脚本挂在 `self_produce_resources` 时机提供，如悟道「太上感应」），
    末尾派发 `self/opponent_produce_resources` 回调，刷新能量瓶
 8. start_turn 被动注入（施加给对方的状态），刷新手牌预测与置灰状态
@@ -74,6 +75,8 @@
 
 按流派（genre）/套路（kind）细分用牌行为的现行模式：挂通用时机（如 `self_doing_damage`、`self_used_card`），
 在脚本内按 `details.kind` / `getLastUsedCard()` 判定（参考 `increase_damage_*`、`element_cycle`）。
+无极佩的 `neutral_card_limitless` 也挂在 `self_used_card`：仅当刚打出牌的主词条 `genre` 为空且
+`category == buff` 时，按状态数据的 `buffId / statusAmount` 授予无极；以 `turnCount` 限制每回合一次。
 （`use_card_genre_*` / `use_card_kind_*` / `extra_turn` / `overflowed_energy` 等专用时机已无 Dart 派发点，停用。）
 
 ## damageDetails 键（伤害事件）
@@ -220,7 +223,7 @@
 - 绝世卡牌（主词条数据 `isUnique: true`）使用**固定名字**，不按 kind 随机生成：
   卡名以 `uniquecard_{主词条id}` 为本地化键，保存在 `assets/locale/zh/rpg/battlecard.json`。
   **新增绝世卡牌时必须同步添加该键**，否则卡名会显示为原始键名。
-- 绝世卡牌最多有 3 个预定义额外词条：rank 1/2 解锁 2/3 条，`greaterAffixes`
+- 绝世卡牌恰好有 3 个预定义额外词条：rank 1/2 解锁 2/3 条，`greaterAffixes`
   在 rank 3～5 依次将三个已有词条太古化，词条 id 来自 `card_affixes.json5`。
 - 绝世卡牌不能进行灵宝/神照/真定/坐忘精炼，只能混元（重 roll 词条数值）与破境。
 - 卡组中只能放入一张相同 uniqueId 的绝世卡牌；生成时默认未鉴定，需要鉴定卷轴鉴定后使用。

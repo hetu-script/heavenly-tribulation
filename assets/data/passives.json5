@@ -1588,6 +1588,54 @@
       data: { statusParams: { reductionPercent: 10 } },
     },
   },
+
+  /// 中立绝世装备固定词条，不进随机词条池
+  // 乾坤戒主词条：手牌上限 +2，每回合正常抽牌 -1
+  cosmos_ring: {
+    id: "cosmos_ring",
+    description: "passive_cosmos_ring_description",
+    priority: 3477,
+    statsBonus: { handSizeMax: 2, battleDrawBonus: -1 },
+  },
+  // 乾坤戒固定额外词条：每回合元气产出 +1
+  basicEnergyBonus: {
+    id: "basicEnergyBonus",
+    description: "passive_basicEnergyBonus_description",
+    priority: 3476,
+    base: 1,
+    increment: 0,
+    greater: {
+      values: [{ mode: "add", amount: 1 }],
+    },
+  },
+  // 乾坤戒固定额外词条：保留元气并承受纯粹伤害，太古只提高保留上限
+  energyRetainLife: {
+    id: "energyRetainLife",
+    description: "passive_energyRetainLife_description",
+    priority: 3475,
+    energyRetain: {
+      resourceId: "energy_positive_life",
+      max: 1,
+      costPerPoint: 2,
+      costDamageType: "pure",
+    },
+    greater: {
+      data: { energyRetain: { max: 1 } },
+      description: "passive_energyRetainLife_greater_description",
+    },
+  },
+  // 无极佩主词条：每回合首张中立加持牌授予无极，五种流派卡牌费用 +1
+  limitless_amulet: {
+    id: "limitless_amulet",
+    description: "passive_limitless_amulet_description",
+    priority: 3474,
+    battleStatus: "neutral_card_limitless",
+    deckCostReduction: {
+      color: "all",
+      amount: -1,
+      genres: ["spellcraft", "swordcraft", "bodyforge", "vitality", "avatar"],
+    },
+  },
   // 地牢玩法中的debuff
   // TODO: 只能使用某个流派的卡牌
 }

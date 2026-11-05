@@ -149,7 +149,7 @@
   "status_energy_negative": "阴气",
   "status_energy_negative_description": "阴气包括: 死气、逆灵之气、止戈之气、非战之气、无心之气、混沌之气。",
   "status_energy_negative_life": "死气",
-  "status_energy_negative_life_description": "回合开始时消耗一层，使你失去 5% 生命上限的生命，且抵消 1 点你获得的元气。",
+  "status_energy_negative_life_description": "抵消你获得的元气。元气产出与阴阳对冲结算后，若仍持有死气，使你失去 5% 生命上限的生命；死气不会自动消耗。",
   "status_energy_negative_spell": "逆灵之气",
   "status_energy_negative_spell_description": "抵消你获得的灵气。",
   "status_energy_negative_weapon": "止戈之气",
@@ -200,5 +200,7 @@
   "status_turn_start_spell_mana_1": "灵气细流",
   "status_turn_start_spell_mana_1_description": "回合产出阶段，获得 1 点灵气。",
   "status_mana_threshold_guard": "聚气成势",
-  "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。"
+  "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。",
+  "status_neutral_card_limitless": "无极共鸣",
+  "status_neutral_card_limitless_description": "每回合首张实际打出的中立加持牌使你获得 1 层无极之气；流派牌与中立攻击牌不会消耗此次机会。"
 }

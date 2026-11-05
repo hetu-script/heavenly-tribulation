@@ -187,6 +187,11 @@
   "passive_spell_mana_trickle_description": "回合产出阶段灵气 +{0}",
   "passive_spellcraft_cost_down_description": "悟道牌灵气费用 -{0}",
   "passive_mana_threshold_guard_description": "灵气不少于 {1} 点时，受到的伤害 -{0}%",
+  "passive_cosmos_ring_description": "手牌上限 +2；每回合正常抽牌 -1",
+  "passive_basicEnergyBonus_description": "每回合元气产出 +{0}",
+  "passive_energyRetainLife_description": "至多保留 1 点元气到下回合；每保留 1 点，下回合开始受到 2 点纯粹伤害",
+  "passive_energyRetainLife_greater_description": "至多保留 2 点元气到下回合；每保留 1 点，下回合开始受到 2 点纯粹伤害",
+  "passive_limitless_amulet_description": "每回合首张中立加持牌使你获得 1 层无极之气；五种流派卡牌费用 +1",
   "passive_scry_upgrade_description": "每回合第一次观星后，选中的牌等级 +{0}",
   "passive_scry_shield_description": "每回合第一次观星后，获得 {0} 层护盾",
   "passive_scry_mana_description": "每回合第一次观星后，获得 {0} 点灵气"

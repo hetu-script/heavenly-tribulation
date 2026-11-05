@@ -304,7 +304,7 @@
   },
   track_15_4: {
     size: "small",
-    connectedNodes: ["track_16_5"],
+    connectedNodes: ["track_16_3"],
     isAttribute: true,
   },
   track_16_4: {
@@ -553,7 +553,7 @@
   // 悟道左侧分支3
   track_15_7: {
     size: "small",
-    connectedNodes: ["track_6_8"],
+    connectedNodes: ["track_14_8"],
     isAttribute: true,
   },
   track_16_6: {
@@ -575,7 +575,7 @@
   // 悟道右侧分支3
   track_15_9: {
     size: "small",
-    connectedNodes: ["track_6_8"],
+    connectedNodes: ["track_14_8"],
     isAttribute: true,
   },
   track_16_10: {

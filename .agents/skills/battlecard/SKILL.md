@@ -57,7 +57,7 @@ description: |
   脚本把 `affix.filter` 作为 options 传给对应的 BattleCharacter 方法
   （如 `upgrade_hand_cards` → `self.upgradeHandCards(n, options: affix.filter)`）；
   匹配字段见 `matchCardCriteria`（battle.dart），且需在 battle_character.ht 声明该方法。
-- 词条脚本必须能独立生效；执行顺序由 `priority` 控制（priority<0 的额外词条先于主词条）。
+- 词条脚本必须能独立生效；执行顺序由 `priority` 控制（priority<0 的额外词条先于主词条）。通用 `opponent_debuff` 词条不写负优先级，统一在主词条结算后施加对手状态。
 - 可用 API（BattleCharacter 外部类）：`takeDamage` `addStatusEffect` `removeStatusEffect`
   `changeLife` `setLifeMax` `hasStatusEffect` `drawCards` `scry` `upgradeHandCards` `addHintText`
   `turnFlags` `cardFlags` 等。

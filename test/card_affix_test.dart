@@ -389,4 +389,29 @@ void main() {
     expect(growth[4], 3);
     expect(growth[5], 5);
   });
+
+  test('通用对手减益词条统一在主词条后施加', () {
+    final affixes = loadJson5File('assets/data/card_affixes.json5');
+    final descriptions = loadJson5File('assets/locale/zh/rpg/battlecard.json');
+    final debuffIds = <String>[
+      for (final entry in affixes.entries)
+        if (entry.value['script'] == 'opponent_debuff') entry.key,
+    ];
+    expect(debuffIds, hasLength(7));
+    for (final id in debuffIds) {
+      expect(affixes[id]['priority'] ?? 0, greaterThanOrEqualTo(0), reason: id);
+      expect(descriptions[affixes[id]['description']], contains('本牌结算后'),
+          reason: id);
+    }
+
+    final hetu = createCardHetu();
+    final assault = hetu.invoke('BattleCard', namedArgs: {
+      'affixId': 'neutral_mutual_assault',
+      'rank': 4,
+    });
+    for (final affix in (assault['affixes'] as List).skip(1)) {
+      expect(affix['priority'] ?? 0, greaterThanOrEqualTo(0),
+          reason: affix['id']);
+    }
+  });
 }

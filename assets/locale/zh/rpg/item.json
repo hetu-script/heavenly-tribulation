@@ -190,5 +190,11 @@
   "flavortext_spirit_storing_amulet": "回合结束时至多保留 2 点未使用的悟道灵气到下回合（保留的灵气不触发阴阳五行结算）；每保留 1 点，下回合开始受到 3 点纯粹伤害。\n灵气淤积，经脉受损。",
 
   "spirit_gathering_banner": "聚灵旗",
-  "flavortext_spirit_gathering_banner": "回合开始时悟道灵气 +3；你打出的非悟道牌费用 +2。\n聚灵为旗，向道而生。"
+  "flavortext_spirit_gathering_banner": "回合开始时悟道灵气 +3；你打出的非悟道牌费用 +2。\n聚灵为旗，向道而生。",
+
+  "cosmos_ring": "乾坤戒",
+  "flavortext_cosmos_ring": "手牌上限 +2，每回合正常抽牌 -1。\n戒中自有乾坤，纳气藏牌，却以血脉为代价。",
+
+  "limitless_amulet": "无极佩",
+  "flavortext_limitless_amulet": "每回合首张中立加持牌使你获得 1 层无极之气；五种流派卡牌费用 +1，法身牌也属于流派牌。\n守中抱一，方能无极。"
 }

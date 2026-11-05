@@ -1,6 +1,6 @@
 # 中立绝世卡牌与装备实施计划
 
-> 状态：仅实施规划，尚未执行。
+> 状态：卡牌、两件装备及死气结算调整已实施；装备破境不在本次范围内。
 > 内容、词条 ID、固定成长与数值口径以 `plan/neutral_uniques.md` 为准；本文负责把设计映射到代码、数据、脚本、本地化、校验器和测试。
 > 本阶段不直接修改运行时代码、游戏数据或美术资源。
 
@@ -39,7 +39,7 @@
 | 元气产出 | `basicEnergyBonus` 的 stats 聚合、战斗消费、面板与属性本地化已经存在 |
 | 战初无极、穿透、暴击阈值 | 现有 `start_battle_with_buff_all_damage`、`penetration`、`critThreshold` |
 | 流派加费 | `deckCostReduction: {color: 'all', amount: -1, genres: [...]}` |
-| 每回合首张中立卡授予无极 | 现有 `self_used_card` 状态回调与 `turnCount`，只需新增永久状态 |
+| 每回合首张中立加持牌授予无极 | 现有 `self_used_card` 状态回调与 `turnCount`，只需新增永久状态 |
 
 ## 3. 卡牌脚本契约
 
@@ -91,7 +91,7 @@
 
 两张新卡不新增 Dart 机制：
 
-- 狭路相逢复用 `attack_multiple`，固定 3 段；`opponent_vulnerable` 在主攻击前生效，自身易伤与护甲在主攻击后生效。`mutual_assault_self_vulnerable` 复用 `self_buff`，普通值 5，太古通过 `greater.values` 设置为 2。
+- 狭路相逢复用 `attack_multiple`，固定 3 段；`opponent_vulnerable` 沿用通用 `opponent_debuff` 规则，在主攻击结算后施加，自身易伤与护甲也在主攻击后生效。`mutual_assault_self_vulnerable` 复用 `self_buff`，普通值 5，太古通过 `greater.values` 设置为 2。
 - 万化归墟复用 `attack_by_paid_resource`，主词条与 `life_ultimate_defense` 都显式写 `resourceId: energy_positive_life`。超额护甲读取实际支付元气减去 3，不能读取脚本缺省的灵气。
 - `life_ultimate_battery` 复用 `gain_resource_next_turn`；`life_ultimate_drawback` 复用 `draw_and_self_buff`，死气层数不随太古增加。
 
@@ -119,9 +119,9 @@ cosmos_ring / basicEnergyBonus / handSizeMax / energyRetainLife
 新增永久状态 `neutral_card_limitless`：
 
 - 数据字段：`buffId: buff_all_damage`、`statusAmount: 1`、`isPermanent: true`、`callbacks: [self_used_card]`。
-- 状态脚本读取 `self.getLastUsedCard()`；主词条 `genre` 非空时直接返回，法身 `avatar` 也按流派卡处理。
+- 状态脚本读取 `self.getLastUsedCard()`；主词条 `genre` 非空或 `category != buff` 时直接返回，法身 `avatar` 也按流派卡处理。
 - 本回合已经成功触发过时直接返回；回合标记记录在状态实例上，以 `self.turnCount` 区分普通回合与额外回合。
-- 只有实际打出中立卡后才记录触发回合并授予无极；先打出流派卡不消耗本回合机会。
+- 只有实际打出中立加持牌后才记录触发回合并授予无极；先打出流派牌或中立攻击牌不消耗本回合机会。
 - 状态脚本保持同步、非阻塞，只调用 `addStatusEffect`，不调用异步 API。
 
 无极佩主被动 `limitless_amulet` 同时携带：
@@ -220,7 +220,7 @@ cosmos_ring / basicEnergyBonus / handSizeMax / energyRetainLife
 ### 构造与成长
 
 - 六张卡均为 1 主 + 3 固定额外词条，rank 0/1/2 解锁数量正确，rank 3/4/5 太古顺序正确。
-- 两件装备均为 1 主 + 3 固定额外词条，高起始境界直接生成与逐级成长结果一致。
+- 两件装备均为 1 主 + 3 固定额外词条；分别创建不同 rank 的独立实例，解锁与太古结果正确。装备破境未实现，不作逐级破境验收。
 - 主词条永不太古，所有太古目标都有合法配置。
 - 缺少、超过或重复固定词条，以及错误太古目标均被校验器拒绝。
 
@@ -230,14 +230,14 @@ cosmos_ring / basicEnergyBonus / handSizeMax / energyRetainLife
 - 先天功的护甲与太极分别检查 3 点门槛，太极转化不减少元气；死气不被辟邪抵消，太古只强化指定部分。
 - 分心诀在 rank 2 初始具有全部三条减益，易伤、破绽和全攻击削弱按各自规则生效。
 - 参玄功只升级和减费主抽牌；额外抽牌不获得修饰，动态费用不归零，手牌上限约束保持一致。
-- 狭路相逢固定三段，敌方易伤先于攻击、自身易伤后于攻击；rank 5 自身易伤为 2 层。
+- 狭路相逢固定三段；攻击结算后才施加双方易伤，本牌不会读取刚获得的敌方易伤；rank 5 自身易伤为 2 层。
 - 万化归墟只按实际支付元气造成伤害；超额护甲、下回合元气和死气互不混淆，太极不能支付元气费用。
 
 ### 装备行为
 
 - 乾坤戒正确聚合成手牌上限 +2、正常抽牌 -1；额外词条解锁后数值与太古结果正确。
 - 元气保留只处理 `energy_positive_life`，每点造成 2 点纯粹伤害；太极不参与该保留规则。
-- 无极佩只响应主词条 `genre` 为空的中立卡，法身卡不触发；先打出流派卡不消耗机会，每回合最多一次，额外回合重新计算。
+- 无极佩只响应主词条 `genre` 为空且 `category == buff` 的中立加持牌，法身牌和中立攻击牌不触发；先打出这些牌不消耗机会，每回合最多一次，额外回合重新计算。
 - 无极佩对五种流派卡加费，普通费用与动态门槛分别遵守现有规则，中立卡不加费。
 - 战初无极、穿透和暴击阈值按境界成长，暴击阈值仍受全局上下限约束。
 
@@ -246,9 +246,9 @@ cosmos_ring / basicEnergyBonus / handSizeMax / energyRetainLife
 至少执行以下实际 `BattleScene` 验证，不只检查数据构造：
 
 1. 参玄功主抽牌升级/减费后再额外抽牌，确认目标与执行顺序正确。
-2. 先天功获得元气与太极后支付有色费用，下一回合检查死气对冲；太极按现行规则永久保留。
+2. 先天功获得元气与太极后支付有色费用，下一回合检查死气先对冲、后扣血且不自动消耗；太极按现行规则永久保留。
 3. 乾坤戒保留元气并结算纯粹伤害，随后用于万化归墟的 3+X 支付。
-4. 无极佩在连续中立卡、流派卡、法身卡和额外回合场景下只按约定触发，无极正确进入每段伤害。
+4. 无极佩在连续中立加持牌、中立攻击牌、流派牌、法身牌和额外回合场景下只按约定触发，新增无极不追溯强化触发牌。
 
 ## 9. 文档同步与验证命令
 

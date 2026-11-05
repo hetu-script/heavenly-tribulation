@@ -53,7 +53,9 @@ function attack(self, opponent, card, affix) {
 4. 元素转化：负优先级词条结算完毕后，按对方当前持有的对应异常决定最终 damageType；
    转化成功时消耗 1 层异常，并更新 `cardFlags['damageType']`。因此落雷击顶等词条可让本次伤害立即转化
 5. 主词条（先播放 `animation`，再执行脚本）
-6. `priority >= 0` 的额外词条（按 priority 降序）——可读取主词条造成的伤害等联动
+6. `priority >= 0` 的额外词条（按 priority 降序）——可读取主词条造成的伤害等联动；
+   通用 `opponent_debuff` 词条统一在本阶段施加对手状态，作为后续攻击的铺垫，
+   易伤、破绽等不会在主攻击前临时附加并被本牌立即消耗
 7. 元素牌使用记录（`turnFlags['usedElements']`，元素牌无条件记录，供 chain_lightning 等词条
    与五行轮转等状态结算本回合元素种数）、`self_attacked` / `self_buffed` 等收尾回调
 8. 无条件记录 `turnFlags['lastUsedCard'] = card`（本回合上一张打出的牌引用，
@@ -122,7 +124,7 @@ function retain_added_to_hand(self, opponent, card, affix) {
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `script`                  | `CardScript` 中的函数名（打出时调用；时机回调为 `{script}_{时机}`）                                                                                                                     |
 | `callbacks`               | 额外响应的时机列表（见上方时机清单）                                                                                                                                                    |
-| `priority`                | 额外词条执行顺序：负数在主词条**之前**执行，其余在主词条之后按降序执行                                                                                                                  |
+| `priority`                | 额外词条执行顺序：负数在主词条**之前**执行，其余在主词条之后按降序执行；通用 `opponent_debuff` 默认为主词条后施加                                                                      |
 | `valueData`               | 数值表（`base` / `increment` / `rankIncrement`），由 `calculateCardAffixValue` 求值为 `value` 列表                                                                                     |
 | `buffId`                  | `self_buff` / `opponent_debuff` / `attack_debuff` 等脚本读取的状态 id                                                                                                                   |
 | `keywords`                | 卡面附加说明的本地化标签（悬浮提示中展开为「标签 - 说明」）                                                                                                                             |

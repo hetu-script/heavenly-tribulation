@@ -264,11 +264,11 @@ namespace StatusScript {
     details.percentageChange1 += 0.05 * effect.amount
   }
 
-  function energy_negative_life_self_turn_start(self, opponent, effect, details) {
+  /// 死气：元气产出与阴阳对冲结算后，仍持有死气时失去 5% 生命上限；不自动消耗层数
+  function energy_negative_life_self_produce_resources(self, opponent, effect, details) {
+    if (effect.amount <= 0) return
     let lost = -(self.lifeMax * 0.05).ceil()
     self.changeLife(lost)
-
-    self.removeStatusEffect(effect.id, amount: 1)
   }
 
   /// 无极之气：每层使造成的所有伤害 +5
@@ -517,5 +517,16 @@ namespace StatusScript {
   function mana_threshold_guard_self_taking_damage(self, opponent, effect, details) {
     if (self.hasStatusEffect(effect.resourceId) < effect.threshold) return
     details.percentageChange2 -= effect.reductionPercent / 100
+  }
+
+  /// 无极佩：每回合首张实际打出的中立加持牌授予无极；流派牌不消耗本回合机会
+  function neutral_card_limitless_self_used_card(self, opponent, effect, details) {
+    final card = self.getLastUsedCard()
+    if (card == null) return
+    final mainAffix = card['affixes'][0]
+    if (mainAffix['genre'] != null || mainAffix['category'] != 'buff') return
+    if (effect.lastLimitlessTurn == self.turnCount) return
+    effect.lastLimitlessTurn = self.turnCount
+    self.addStatusEffect(effect.buffId, amount: effect.statusAmount ?? 1)
   }
 }

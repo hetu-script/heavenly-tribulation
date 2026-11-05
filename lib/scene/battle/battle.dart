@@ -1767,7 +1767,7 @@ class BattleScene extends Scene {
             deckZone, discardZone, handZone, extraDrawCount.toInt());
       }
 
-      // ① 回合开始回调（死气/劫气/DOT/缓慢/幻觉等；其中死气消耗 1 层失去 5% 生命上限的生命）
+      // ① 回合开始回调（劫气/DOT/缓慢/幻觉等；死气改在元气产出与对冲后结算）
       await currentCharacter.onStartTurn(isExtra: extraTurn);
 
       extraTurn = false;

@@ -7,6 +7,7 @@ import 'package:heavenly_tribulation/data/common.dart';
 import 'support/hetu_test_utils.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
 import 'package:heavenly_tribulation/scene/battle/scry.dart';
+import 'package:heavenly_tribulation/scene/battle/card_cost.dart';
 
 void main() {
   Map<String, dynamic> loadData(String path) => loadJson5File(path);
@@ -84,7 +85,7 @@ void main() {
     return hetu;
   }
 
-  test('五件绝世装备经真实 createItemById 生成并正确解锁', () {
+  test('七件绝世装备经真实 createItemById 生成并正确解锁', () {
     final items = loadData('assets/data/items.json5');
     final passives = loadData('assets/data/passives.json5');
     final hetu = createItemHetu(items, passives);
@@ -119,6 +120,18 @@ void main() {
         'spellcraft_cost_down',
         'turnStartExtraDraw',
       ],
+      'cosmos_ring': [
+        'cosmos_ring',
+        'basicEnergyBonus',
+        'handSizeMax',
+        'energyRetainLife',
+      ],
+      'limitless_amulet': [
+        'limitless_amulet',
+        'start_battle_with_buff_all_damage',
+        'penetration',
+        'critThreshold',
+      ],
     };
     final expectedGreater = <String, int>{
       'heaven_peeking_mirror': 0,
@@ -126,6 +139,8 @@ void main() {
       'heavenly_mechanism_disc': 1,
       'spirit_storing_amulet': 2,
       'spirit_gathering_banner': 3,
+      'cosmos_ring': 0,
+      'limitless_amulet': 1,
     };
 
     for (final entry in expected.entries) {
@@ -347,6 +362,126 @@ void main() {
     ''');
     expect(result, [
       ['energy_positive_spell', 1],
+    ]);
+  });
+
+  test('乾坤戒按境界获得元气、手牌与保留成长', () {
+    final hetu = createItemHetu(
+      loadData('assets/data/items.json5'),
+      loadData('assets/data/passives.json5'),
+    );
+    final rank2 = hetu.invoke('createItemById',
+        positionalArgs: ['cosmos_ring'], namedArgs: {'rank': 2});
+    expect(rank2['affixes'], hasLength(4));
+    expect(rank2['affixes'][3]['energyRetain']['max'], 1);
+    expect(rank2['affixes'][3]['isGreater'], isNot(true));
+
+    final rank5 = hetu.invoke('createItemById',
+        positionalArgs: ['cosmos_ring'], namedArgs: {'rank': 5});
+    final affixes = rank5['affixes'] as List;
+    expect(affixes[0]['statsBonus']['handSizeMax'], 2);
+    expect(affixes[0]['statsBonus']['battleDrawBonus'], -1);
+    expect(affixes[1]['value'], 2);
+    expect(affixes[2]['isGreater'], true);
+    expect(affixes[2]['greater']['data']['statsBonus']['handSizeMax'], 1);
+    expect(affixes[3]['isGreater'], true);
+    expect(affixes[3]['greater']['data']['energyRetain']['max'], 1);
+    expect(affixes[3]['energyRetain']['costPerPoint'], 2);
+  });
+
+  test('无极佩主状态与固定额外词条按境界成长', () {
+    final hetu = createItemHetu(
+      loadData('assets/data/items.json5'),
+      loadData('assets/data/passives.json5'),
+    );
+    final rank3 =
+        hetu.invoke('createItemById', positionalArgs: ['limitless_amulet']);
+    expect(rank3['affixes'], hasLength(4));
+    expect(rank3['affixes'][0]['battleStatus'], 'neutral_card_limitless');
+    expect(rank3['affixes'][1]['isGreater'], true);
+    expect(rank3['affixes'][2]['isGreater'], isNot(true));
+    expect(rank3['affixes'][3]['isGreater'], isNot(true));
+
+    final rank5 = hetu.invoke('createItemById',
+        positionalArgs: ['limitless_amulet'], namedArgs: {'rank': 5});
+    expect(rank5['affixes'][2]['isGreater'], true);
+    expect(rank5['affixes'][3]['isGreater'], true);
+  });
+
+  test('无极佩只对五种流派牌加费并提高动态门槛', () {
+    final passives = loadData('assets/data/passives.json5');
+    final rule = passives['limitless_amulet']['deckCostReduction'];
+    final cards = <Map<String, dynamic>>[
+      {
+        'genre': 'spellcraft',
+        'coloredCost': {'spell': 2}
+      },
+      {
+        'genre': 'swordcraft',
+        'coloredCost': {'weapon': 2}
+      },
+      {
+        'genre': 'bodyforge',
+        'coloredCost': {'unarmed': 2}
+      },
+      {
+        'genre': 'vitality',
+        'coloredCost': {'curse': 2}
+      },
+      {
+        'genre': 'avatar',
+        'coloredCost': {
+          'life': {'base': 3, 'isDynamic': true}
+        }
+      },
+      {
+        'genre': null,
+        'coloredCost': {'life': 1}
+      },
+    ];
+    applyDeckCostReductionRules(cards, [rule]);
+    for (final card in cards.take(4)) {
+      final color = (card['coloredCost'] as Map).keys.first;
+      expect(card['coloredCost'][color], 3, reason: card['genre']);
+    }
+    expect(cards[4]['coloredCost']['life']['base'], 4);
+    expect(cards[5]['coloredCost']['life'], 1);
+  });
+
+  test('无极佩每回合只响应第一张中立加持牌', () {
+    final hetu = createStatusHetu();
+    final result = hetu.eval('''
+      final self = {
+        turnCount: 1,
+        card: null,
+        gains: [],
+        getLastUsedCard: function() { return this.card },
+        addStatusEffect: function(id, {amount, source, params}) {
+          this.gains.add([id, amount])
+        },
+      }
+      final effect = {buffId: 'buff_all_damage', statusAmount: 1}
+      self.card = {affixes: [{genre: 'spellcraft', category: 'buff'}]}
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      self.card = {affixes: [{genre: null, category: 'attack'}]}
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      self.card = {affixes: [{genre: 'avatar', category: 'buff'}]}
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      self.card = {affixes: [{genre: null, category: 'buff'}]}
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      final firstTurnGains = self.gains.length
+      self.turnCount += 1
+      StatusScript.neutral_card_limitless_self_used_card(self, null, effect, {})
+      [firstTurnGains, self.gains, effect.lastLimitlessTurn]
+    ''');
+    expect(result, [
+      1,
+      [
+        ['buff_all_damage', 1],
+        ['buff_all_damage', 1],
+      ],
+      2,
     ]);
   });
 
