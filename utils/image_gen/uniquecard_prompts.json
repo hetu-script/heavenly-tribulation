@@ -1,0 +1,105 @@
+{
+  "name": "heavenly-tribulation-unique-card-illustrations",
+  "generator": "gpt-image",
+  "styleFile": "utils/image_gen/style.md",
+  "note": "fullPrompt 是按当前项目用法拼接的完整提示词：prompt + 空格 + style。迁移到其他图片服务时可直接使用 fullPrompt，也可按服务习惯拆分参数。",
+  "style": "in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature.",
+  "illustrations": [
+    {
+      "id": "xinfa_heal",
+      "cardIds": ["heal_vigor_all"],
+      "cardName": "归元功",
+      "image": "battlecard/illustration/xinfa_heal.png",
+      "prompt": "A young Chinese xianxia cultivator sitting cross-legged in quiet meditation, breathing in calm white-gold vitality that forms one simple spiral around the body, hands resting on knees, soft green-white glow at the chest, distant pale mountain, centered composition, strong silhouette",
+      "fullPrompt": "A young Chinese xianxia cultivator sitting cross-legged in quiet meditation, breathing in calm white-gold vitality that forms one simple spiral around the body, hands resting on knees, soft green-white glow at the chest, distant pale mountain, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_vigor",
+      "cardIds": ["energy_positive_life"],
+      "cardName": "先天功",
+      "image": "battlecard/illustration/unique_vigor.png",
+      "prompt": "A young Chinese xianxia cultivator standing at dawn with arms gently open, a clear sphere of pure white-gold primal qi rising from the lower abdomen, simple warm sunrise gradient and one distant mountain ridge, centered composition, strong silhouette",
+      "fullPrompt": "A young Chinese xianxia cultivator standing at dawn with arms gently open, a clear sphere of pure white-gold primal qi rising from the lower abdomen, simple warm sunrise gradient and one distant mountain ridge, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_draw_cards",
+      "cardIds": ["draw_cards", "spellcraft_draw_cards_reduce_cost"],
+      "cardName": "参玄功 / 紫微斗数",
+      "image": "battlecard/illustration/unique_draw_cards.png",
+      "prompt": "A young Chinese scholar cultivator holding one glowing blank spirit card, three simple rectangular talisman cards floating in a clean arc before him, calm expression, quiet study atmosphere with empty pale background, centered composition, strong silhouette",
+      "fullPrompt": "A young Chinese scholar cultivator holding one glowing blank spirit card, three simple rectangular talisman cards floating in a clean arc before him, calm expression, quiet study atmosphere with empty pale background, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_reduce_resist_all",
+      "cardIds": ["opponent_reduce_resist_all"],
+      "cardName": "分心诀",
+      "image": "battlecard/illustration/unique_reduce_resist_all.png",
+      "prompt": "A male Chinese curse master in modest dark ceremonial robes extending two fingers toward a translucent spherical barrier divided into four clean quadrants of red fire, blue ice, purple lightning and green poison, cracks spreading from the center, restrained dignified pose, clean empty background, centered composition, strong silhouette",
+      "fullPrompt": "A male Chinese curse master in modest dark ceremonial robes extending two fingers toward a translucent spherical barrier divided into four clean quadrants of red fire, blue ice, purple lightning and green poison, cracks spreading from the center, restrained dignified pose, clean empty background, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_mutual_assault",
+      "cardIds": ["neutral_mutual_assault"],
+      "cardName": "狭路相逢",
+      "image": "battlecard/illustration/unique_mutual_assault.png",
+      "prompt": "Two Chinese martial cultivators in simple robes confronting each other on a narrow mountain path, one driving a direct open-palm strike while the other braces to counter, dynamic diagonal composition, only two figures, clean misty background, strong silhouettes",
+      "fullPrompt": "Two Chinese martial cultivators in simple robes confronting each other on a narrow mountain path, one driving a direct open-palm strike while the other braces to counter, dynamic diagonal composition, only two figures, clean misty background, strong silhouettes in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_ultimate_life",
+      "cardIds": ["neutral_ultimate_life"],
+      "cardName": "万化归墟",
+      "image": "battlecard/illustration/unique_ultimate_life.png",
+      "prompt": "A robed Chinese xianxia cultivator raising both hands as broad streams of white-gold energy spiral downward into a small black void sphere between the palms, surrounding space fading into quiet emptiness, solemn expression, centered composition, strong silhouette",
+      "fullPrompt": "A robed Chinese xianxia cultivator raising both hands as broad streams of white-gold energy spiral downward into a small black void sphere between the palms, surrounding space fading into quiet emptiness, solemn expression, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_scry_draw",
+      "cardIds": ["spellcraft_scry_draw"],
+      "cardName": "天机术",
+      "image": "battlecard/illustration/unique_scry_draw.png",
+      "prompt": "A young Chinese astrologer cultivator beneath a clear night sky, holding an open star chart with both hands, a few large calm stars connected by one clean circular celestial orbit above the chart, serene focused expression, distant empty horizon, centered composition, strong silhouette",
+      "fullPrompt": "A young Chinese astrologer cultivator beneath a clear night sky, holding an open star chart with both hands, a few large calm stars connected by one clean circular celestial orbit above the chart, serene focused expression, distant empty horizon, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_element_ailments",
+      "cardIds": ["spellcraft_ailments_by_used_elements"],
+      "cardName": "相生相克",
+      "image": "battlecard/illustration/unique_element_ailments.png",
+      "prompt": "A standing Chinese xianxia cultivator calmly extending one open hand while five broad elemental ribbons of orange flame, blue water, purple lightning, green poison and ochre earth form a balanced circular cycle around the body, clean pale background, centered composition, strong silhouette",
+      "fullPrompt": "A standing Chinese xianxia cultivator calmly extending one open hand while five broad elemental ribbons of orange flame, blue water, purple lightning, green poison and ochre earth form a balanced circular cycle around the body, clean pale background, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_element_amplify",
+      "cardIds": ["spellcraft_element_amplify"],
+      "cardName": "一气化三清",
+      "image": "battlecard/illustration/unique_element_amplify.png",
+      "prompt": "A Chinese xianxia cultivator standing between three distinct translucent elemental avatars of blue water, red fire and purple lightning, arranged symmetrically as if one body is dividing into three, a glowing three-element talisman floating at the center, clean pale background, centered composition, strong silhouette",
+      "fullPrompt": "A Chinese xianxia cultivator standing between three distinct translucent elemental avatars of blue water, red fire and purple lightning, arranged symmetrically as if one body is dividing into three, a glowing three-element talisman floating at the center, clean pale background, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_ailments_to_mana",
+      "cardIds": ["spellcraft_ailments_to_mana"],
+      "cardName": "蓄灵诀",
+      "image": "battlecard/illustration/unique_ailments_to_mana.png",
+      "prompt": "A young Chinese xianxia cultivator in flowing pale blue and white robes seated in quiet meditation, hands cupped in front of the chest holding one luminous pearl of spiritual energy; a few broad, clean ribbons of flame, water, lightning, poison mist and earth energy converge clearly into the pearl; calm misty background with only one distant soft mountain silhouette; serene expression; centered composition; strong silhouette",
+      "fullPrompt": "A young Chinese xianxia cultivator in flowing pale blue and white robes seated in quiet meditation, hands cupped in front of the chest holding one luminous pearl of spiritual energy; a few broad, clean ribbons of flame, water, lightning, poison mist and earth energy converge clearly into the pearl; calm misty background with only one distant soft mountain silhouette; serene expression; centered composition; strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_handcards_to_mana",
+      "cardIds": ["spellcraft_handcards_to_mana"],
+      "cardName": "太上忘情",
+      "image": "battlecard/illustration/unique_handcards_to_mana.png",
+      "prompt": "A serene white-robed Chinese cultivator releasing five simple rectangular talisman cards from one open hand, the cards dissolving into a single clear blue stream of spiritual energy, calm expression, clean empty background, centered composition, strong silhouette",
+      "fullPrompt": "A serene white-robed Chinese cultivator releasing five simple rectangular talisman cards from one open hand, the cards dissolving into a single clear blue stream of spiritual energy, calm expression, clean empty background, centered composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    },
+    {
+      "id": "unique_ultimate_spell",
+      "cardIds": ["spellcraft_ultimate_spell"],
+      "cardName": "万法归宗",
+      "image": "battlecard/illustration/unique_ultimate_spell.png",
+      "prompt": "A Chinese spellcaster thrusting one palm forward, a massive clean violet-white lightning bolt narrowing into a single point before the hand, flowing robes pushed backward, empty sky background, dynamic but clear composition, strong silhouette",
+      "fullPrompt": "A Chinese spellcaster thrusting one palm forward, a massive clean violet-white lightning bolt narrowing into a single point before the hand, flowing robes pushed backward, empty sky background, dynamic but clear composition, strong silhouette in a fantasy xianxia RPG game world set in ancient China, polished digital gongbi-style hand-drawn illustration, fine controlled continuous line art, elegant smooth outlines with clean unbroken strokes, detailed but uncluttered rendering, flat layered traditional Chinese colors, subtle cel shading, refined flowing drapery, strong readable silhouette, clean and simple background with large areas of quiet negative space, focused single-subject composition, restrained use of magic effects, minimal environmental details, no dry-brush texture, no broken ink strokes, no frayed edges, no floating light particles, no sparks, no debris, no fragments, no magical clutter, no text, no watermark, no logo, no signature."
+    }
+  ]
+}

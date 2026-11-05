@@ -262,14 +262,29 @@
     connectedNodes: ["track_9_4", "track_8_6"],
     isAttribute: true,
   },
-  track_7_4: {
+  track_8_4: {
     size: "small",
-    connectedNodes: ["track_8_5"],
+    connectedNodes: ["track_9_4"],
     isAttribute: true,
   },
-  track_8_4: {
-    size: "medium",
+  track_7_4: {
+    size: "small",
+    connectedNodes: ["track_8_4"],
+    isAttribute: true,
+  },
+  track_6_4: {
+    size: "small",
     connectedNodes: ["track_7_4"],
+    isAttribute: true,
+  },
+  track_5_2: {
+    size: "small",
+    connectedNodes: ["track_6_4"],
+    isAttribute: true,
+  },
+  track_4_2: {
+    size: "medium",
+    connectedNodes: ["track_5_2"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     passives: [
@@ -468,24 +483,24 @@
     connectedNodes: ["track_4_3"],
     isAttribute: true,
   },
-  track_6_6: {
+  track_6_7: {
     size: "small",
     connectedNodes: ["track_5_3"],
     isAttribute: true,
   },
-  track_6_5: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    isAttribute: true,
-  },
-  track_6_7: {
-    size: "small",
-    connectedNodes: ["track_6_6"],
-    isAttribute: true,
-  },
   track_7_6: {
     size: "small",
-    connectedNodes: ["track_6_6"],
+    connectedNodes: ["track_6_7"],
+    isAttribute: true,
+  },
+  track_6_5: {
+    size: "small",
+    connectedNodes: ["track_7_6"],
+    isAttribute: true,
+  },
+  track_6_6: {
+    size: "small",
+    connectedNodes: ["track_6_5"],
     isAttribute: true,
   },
 
@@ -505,24 +520,24 @@
     connectedNodes: ["track_4_5"],
     isAttribute: true,
   },
-  track_6_10: {
+  track_6_11: {
     size: "small",
     connectedNodes: ["track_5_5"],
     isAttribute: true,
   },
-  track_6_11: {
+  track_7_10: {
     size: "small",
-    connectedNodes: ["track_6_10"],
+    connectedNodes: ["track_6_11"],
     isAttribute: true,
   },
   track_6_9: {
     size: "small",
-    connectedNodes: ["track_6_10"],
+    connectedNodes: ["track_7_10"],
     isAttribute: true,
   },
-  track_7_10: {
+  track_6_10: {
     size: "small",
-    connectedNodes: ["track_6_10"],
+    connectedNodes: ["track_6_9"],
     isAttribute: true,
   },
 
