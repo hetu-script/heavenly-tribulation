@@ -143,7 +143,7 @@
 | `turnStartScry`      | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                                                                                                                                                      |
 | `turnStartExtraDraw` | `{count}`                                           | 回合开始正常抽牌后额外抽 count 张（多来源累加），仍受手牌上限约束                                                                                                                                                                     |
 | `energyRetain`       | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）                                                                                                                                     |
-| `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（如 scryBonus 观星深度、ailmentInflictBonus/ailmentReceiveBonus 元素异常层数修正；绝世装备主词条等固定词条用）                                                                 |
+| `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（分工约定见下文「stats 聚合的两条通道」）                                                                                                                                     |
 
 参数型效果另可经 stats 属性管线新增属性（如观星深度 `scryBonus`），
 聚合与面板显示见 `.agents/skills/passive-status` 第 6 节。
@@ -152,6 +152,30 @@
 普通数值描述直接使用最终 `value` 替换 `{0}`。机制词条可用 `descriptionParams` 声明插值路径，
 支持 `statsBonus.*`、`deckCostReduction.amount`、`turnStartExtraDraw.count` 与 `battleStatus.*`；
 显示层从 Raw 来源汇总机制值，状态参数采用“状态原型默认值 + 聚合增量”，因此普通/太古混合来源也显示最终生效值。
+
+### stats 聚合的两条通道（分工约定）
+
+`characterCalculateStats` 通过两条通道把词条写入 `character.stats`，选择规则固定，内容作者不要混用：
+
+1. **按名绑定（显式聚合行）**：服务核心 stat——基础属性（灵力/身法等）与有基础值或非平凡公式的派生 stat
+   （百分比乘法、属性联动、条件分支，如 `plainMoveSpeed`、`karmaMax`）。
+   引用方式：词条 id 与 stat 同名（如 `spirituality`），由绑定行决定基础值与公式。
+   新增这类 stat 必须改 `characterCalculateStats`（机制层改动），仅限真正需要公式的 stat。
+2. **statsBonus 直加（通用循环）**：服务纯加值派生 stat——无独立基础值、纯加法聚合
+   （如 `scryBonus`、`ailmentInflictBonus/ailmentReceiveBonus`、`handSizeMax`）。
+   引用方式：词条上写 `statsBonus` 载荷；循环遍历永久与临时全部来源；
+   **无来源时 stats 中不存在该键，Dart 消费点必须 `?? 0`**。
+   新增这类 stat 零管道改动，派生 stat 一律优先走此通道。
+3. **多效果合并词条**（绝世装备主词条等"自身有效果 + 附带属性加成"的形态）：
+   主效果用各自机制字段，附带属性一律走 `statsBonus`（一个词条 id 只能有一种主身份）。
+
+**存量不一致（待清理）**：`basicEnergyBonus`、`battleDrawBonus` 两个词条目前走按名绑定，
+与同为纯加值 stat 的 `handSizeMax`/`ailment_ward`（走 statsBonus）表达不一致；
+且二者 `increment: 0` 为定值，迁移无缩放损失。拟改为 statsBonus 载荷并删除对应绑定行。
+`deckMinSizeReduce` 的绑定行是死代码（passives 无同名词条，实际仅经天机盘 statsBonus 生效），拟直接删除。
+消费点均已 `?? 0`（battle.dart / character.dart / energy_display.dart），迁移无需改消费点。
+另注意：statsBonus 载荷为固定字面量，不支持词条等级缩放；若未来纯加值词条需要随等级缩放，
+需先在循环中加入占位符解析（当前无此需求）。
 
 **被动太古**：`greater.values` 只转换对应额外来源的普通贡献，主词条不应用；`greater.data` 累加既有参数，`greater.alt` 替换指定字段，不追加新机制。来源快照由 `resolveGreaterAffix` 一次性生成，不能修改公共原型或重复累加。
 `battleStatusParams` 与 `battleStatus` 同步聚合，数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；战前通过 `addStatusEffect(params:)` 写入状态实例。
