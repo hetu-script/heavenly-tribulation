@@ -175,7 +175,7 @@
   "passive_ailment_threshold_description": "元素异常阈值 {0}",
   "passive_ailment_multiplier_description": "元素异常伤害 {0}%",
 
-  "passive_heaven_peeking_mirror_description": "观星时额外查看 2 张牌；每次观星后，对自身随机施加 2 种元素异常（各 1 层）",
+  "passive_heaven_peeking_mirror_description": "观星时额外查看 2 张牌；每回合第一次观星后，对自身随机施加 2 种元素异常（各 1 层）",
   "passive_five_elements_pearl_description": "你造成的元素异常层数 +2；你受到的元素异常层数 +2",
   "passive_heavenly_mechanism_disc_description": "牌库数量下限 -2；非悟道牌费用 +1",
   "passive_turnStartExtraDraw_description": "回合开始时额外抽 {0} 张牌",
@@ -193,6 +193,8 @@
   "passive_energyRetainLife_greater_description": "至多保留 2 点元气到下回合；每保留 1 点，下回合开始受到 2 点纯粹伤害",
   "passive_limitless_amulet_description": "每回合首张中立加持牌使你获得 1 层无极之气；五种流派卡牌费用 +1",
   "passive_scry_upgrade_description": "每回合第一次观星后，选中的牌等级 +{0}",
+  "passive_spellcraft_side_5_description": "回合开始时，双方分别随机获得 1 层元素异常",
+  "passive_spellcraft_side_6_description": "上回合使用过至少 3 种不同元素的牌时，本次产出阶段获得 2 点灵气",
   "passive_scry_shield_description": "每回合第一次观星后，获得 {0} 层护盾",
   "passive_scry_mana_description": "每回合第一次观星后，获得 {0} 点灵气"
 }

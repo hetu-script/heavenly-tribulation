@@ -45,7 +45,7 @@ void main() {
         },
       },
     });
-    hetu.assign('Constants', {
+    hetu.assign('Constants', <String, dynamic>{
       'baseLife': 100,
       'baseLifePerLevel': 10,
       'baseResistMax': 75,
@@ -435,7 +435,7 @@ void main() {
     expect(character['stats']['battleStatus']['scry_mana'], 1);
   });
 
-  test('真实 scry_upgrade 太古配置经聚合和状态默认值合并后升级 2 级', () {
+  test('真实 scry_upgrade 太古配置在普通来源基础上升级 2 级', () {
     final passives =
         Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
     final affix = Map<String, dynamic>.from(passives['scry_upgrade'] as Map);
@@ -452,16 +452,98 @@ void main() {
         sourceKey: 'equipment:mirror:2', sourceType: 'equipment', sourceId: 'mirror', affixIndex: 2))
       characterCalculateStats(character)
       final params = character.stats.battleStatusParams.scry_upgrade
-      final effect = {upgradeChosen: 1 + params.upgradeChosen}
+      final effect = {upgradeChosen: params.upgradeChosen}
       final self = {turnCount: 1}
       final chosen = {level: 0}
       StatusScript.scry_upgrade_self_scry(self, null, effect, {chosen: chosen})
       [params.upgradeChosen, chosen]
     ''');
-    expect(chosen[0], 1);
+    expect(chosen[0], 2);
     expect(chosen[1]['level'], 2);
     expect(affix['greater']['data']['statusParams']['upgradeChosen'], 1);
     expect(affix['greater']['data']['upgradeChosen'], isNull);
+  });
+
+  test('多个同名 scry_upgrade 来源忽略等级并简单相加', () {
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final hetu = createHetu();
+    hetu.eval('var scryUpgrade;');
+    hetu.assign('scryUpgrade', passives['scry_upgrade']);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final chosen = hetu.eval('''
+      ${File('scripts/main/cardgame/status_script.ht').readAsStringSync()}
+      function upgradeCard(card, {inBattle = false}) { card.level += 1 }
+      characterAddPassiveSource(character, _createPassiveSource(scryUpgrade,
+        level: 1, sourceKey: 'equipment:mirror:2',
+        sourceType: 'equipment', sourceId: 'mirror'))
+      characterAddPassiveSource(character, _createPassiveSource(scryUpgrade,
+        level: 50, sourceKey: 'passive_tree:side:scry_upgrade',
+        sourceType: 'passive_tree', sourceId: 'side'))
+      characterCalculateStats(character)
+      final effect = {
+        upgradeChosen: character.stats.battleStatusParams.scry_upgrade.upgradeChosen,
+      }
+      final self = {turnCount: 1}
+      final chosen = {level: 0}
+      StatusScript.scry_upgrade_self_scry(self, null, effect, {chosen: chosen})
+      chosen
+    ''');
+    expect(chosen['level'], 2);
+  });
+
+  test('驭灵分别施加异常，天人合一只在跨回合达标后产灵一次', () {
+    final statuses = Map<String, dynamic>.from(
+        loadJson5File('assets/data/status_effect.json5'));
+    final hetu = createHetu();
+    hetu.eval('var channelingEffect; var unityEffect;');
+    hetu.assign('channelingEffect', statuses['spellcraft_side_5']);
+    hetu.assign('unityEffect', statuses['spellcraft_side_6']);
+    final result = hetu.eval('''
+      ${File('scripts/main/cardgame/status_script.ht').readAsStringSync()}
+      final random = {
+        nextIterable: function(values) { return values.first },
+      }
+      Constants.elementAilments = {element_fire: 'ailment_fire'}
+      final self = {
+        turnFlags: {},
+        gains: [],
+        addStatusEffect: function(id, {amount, source}) {
+          this.gains.add([id, amount])
+        },
+      }
+      final opponent = {
+        gains: [],
+        addStatusEffect: function(id, {amount, source}) {
+          this.gains.add([id, amount])
+        },
+      }
+      StatusScript.elemental_channeling_self_turn_start(
+        self, opponent, channelingEffect, {})
+
+      self.turnFlags.usedElements = {element_fire: 1, element_water: 1}
+      StatusScript.unity_with_heaven_self_turn_end(self, opponent, unityEffect, {})
+      StatusScript.unity_with_heaven_self_produce_resources(
+        self, opponent, unityEffect, {})
+      final belowThreshold = self.gains.length
+
+      self.turnFlags.usedElements = {
+        element_fire: 1, element_water: 1, element_wind: 1,
+      }
+      StatusScript.unity_with_heaven_self_turn_end(self, opponent, unityEffect, {})
+      StatusScript.unity_with_heaven_self_produce_resources(
+        self, opponent, unityEffect, {})
+      StatusScript.unity_with_heaven_self_produce_resources(
+        self, opponent, unityEffect, {})
+      [self.gains, opponent.gains, belowThreshold, unityEffect.lastTurnElementCount]
+    ''');
+    expect(result[0][0], ['ailment_fire', 1]);
+    expect(result[1][0], ['ailment_fire', 1]);
+    expect(result[2], 1);
+    expect(result[0][1], ['energy_positive_spell', 2]);
+    expect(result[0].length, 2);
+    expect(result[3], 0);
   });
 
   test('天机盘主词条通过 statsBonus 固定降低牌库下限并保留混编加费', () {
@@ -648,7 +730,7 @@ void main() {
         'descriptionParams': ['battleStatus.upgradeChosen'],
       },
     });
-    GameData.statusEffects['scry_upgrade'] = {'upgradeChosen': 1};
+    GameData.statusEffects['scry_upgrade'] = {'upgradeChosen': 0};
     try {
       final character = {
         'passives': {
@@ -683,7 +765,7 @@ void main() {
         'ephemeralPassivesRaw': <String, dynamic>{},
         'stats': {
           'battleStatusParams': {
-            'scry_upgrade': {'upgradeChosen': 1}
+            'scry_upgrade': {'upgradeChosen': 2}
           }
         },
       };

@@ -56,7 +56,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {script}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn_start / turn_end / doing_damage / taking_damage / done_damage / taken_damage / gained_debuff / gained_energy_positive / using_card / used_card / attacked / buffed，以及 self_scry、self_produce_resources（产出阶段，如太上感应）等；以 Dart 实际分发点为准。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；每回合首次观星效果以 turnCount 记录触发回合，回合开始观星产灵登记到本次产出阶段。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。
 - 状态数据在 assets/data/status_effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status_{id} + status_{id}_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -130,6 +130,8 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
 - 境界节点：passives.json5:1038-1074（spellcraft_rank_1~5 等，纯标记 + 机制字段），树节点附带 lifeMax 40×rank；悟道主轴已连通（track_4_4 → track_8_8 → track_12_8 → track_16_8 → track_20_4）。
 - 分支节点：passives.json5:1076-1104（skilltree*branch*\* 中性 id，设计上可多流派共享）；悟道的 4 个已实现但暂未上树连线。
+- 悟道独占节点：养气诀直接引用 spirituality level 50、静心诀引用 spellAttack level 30、观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40；驭灵与天人合一分别新增 spellcraft_side_5/6 永久状态。六者均尚未上树。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
+- scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
 - 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。旧 characterSetPassive 正负等级接口已移除。
 
 ## 7. 常量同步（Dart ↔ Hetu）

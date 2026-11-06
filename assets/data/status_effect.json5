@@ -875,10 +875,35 @@
     resourceId: "energy_positive_spell",
   },
 
+  // 驭灵：回合开始时，双方分别随机获得 statusAmount 层元素异常；暂复用五气朝元图标
+  spellcraft_side_5: {
+    id: "spellcraft_side_5",
+    title: "status_spellcraft_side_5",
+    description: "status_spellcraft_side_5_description",
+    icon: "icon/status/permanent/spellcraft_rank_4.png",
+    isPermanent: true,
+    script: "elemental_channeling",
+    callbacks: ["self_turn_start"],
+    statusAmount: 1,
+  },
+  // 天人合一：回合结束记录元素种数，下一次产出阶段达到门槛后获得灵气；暂复用太上感应图标
+  spellcraft_side_6: {
+    id: "spellcraft_side_6",
+    title: "status_spellcraft_side_6",
+    description: "status_spellcraft_side_6_description",
+    icon: "icon/status/permanent/spellcraft_rank_1.png",
+    isPermanent: true,
+    script: "unity_with_heaven",
+    callbacks: ["self_turn_end", "self_produce_resources"],
+    requiredElementCount: 3,
+    resourceId: "energy_positive_spell",
+    resourceAmount: 2,
+  },
+
   // ------------悟道绝世装备状态------------
   // 图标暂用占位路径，后续替换为专属图标
 
-  // 窥天镜：每次观星结算后，对自身随机施加 2 种不重复的元素异常（各 1 层）
+  // 窥天镜：每回合第一次观星结算后，对自身随机施加 2 种不重复的元素异常（各 1 层）
   // （source 传自身，配合五行珠时「造成+受到」双向放大）
   scry_self_ailments: {
     id: "scry_self_ailments",
@@ -901,7 +926,7 @@
     callbacks: ["self_produce_resources"],
     manaBonus: 3,
   },
-  // 观星升级：每回合第一次观星后，选中牌等级提升
+  // 观星升级：每回合第一次观星后，选中牌等级提升；升级量完全由被动来源参数提供
   scry_upgrade: {
     id: "scry_upgrade",
     title: "status_scry_upgrade",
@@ -910,7 +935,7 @@
     isPermanent: true,
     script: "scry_upgrade",
     callbacks: ["self_scry"],
-    upgradeChosen: 1,
+    upgradeChosen: 0,
   },
   // 观星护盾：每回合第一次观星后获得护盾
   scry_shield: {

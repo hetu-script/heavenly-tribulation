@@ -1201,6 +1201,22 @@
     battleStatus: "skilltree_branch_element_2",
   },
 
+  /// 悟道独占分支节点；观微直接复用 scry_upgrade，其余数值节点引用既有属性词条
+  // 驭灵：回合开始时，双方分别随机获得 1 层元素异常
+  spellcraft_side_5: {
+    id: "spellcraft_side_5",
+    description: "passive_spellcraft_side_5_description",
+    priority: 3789,
+    battleStatus: "spellcraft_side_5",
+  },
+  // 天人合一：上回合使用至少 3 种元素牌时，本次产出阶段获得 2 点灵气
+  spellcraft_side_6: {
+    id: "spellcraft_side_6",
+    description: "passive_spellcraft_side_6_description",
+    priority: 3788,
+    battleStatus: "spellcraft_side_6",
+  },
+
   /// 装备数量相关
   weaponUnrestrictedEquip: {
     id: "weaponUnrestrictedEquip",
@@ -1544,6 +1560,8 @@
     descriptionParams: ["battleStatus.upgradeChosen"],
     priority: 3483,
     battleStatus: "scry_upgrade",
+    // 每个普通来源 +1；同名来源逐条累加，太古再 +1，词条等级不参与
+    statusParams: { upgradeChosen: 1 },
     greater: {
       data: { statusParams: { upgradeChosen: 1 } },
     },

@@ -179,6 +179,7 @@
 
 **被动太古**：`greater.values` 只转换对应额外来源的普通贡献，主词条不应用；`greater.data` 累加既有参数，`greater.alt` 替换指定字段，不追加新机制。来源快照由 `resolveGreaterAffix` 一次性生成，不能修改公共原型或重复累加。
 `battleStatusParams` 与 `battleStatus` 同步聚合，数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；战前通过 `addStatusEffect(params:)` 写入状态实例。
+`scry_upgrade` 忽略被动等级，升级量完全读取聚合后的 `statusParams.upgradeChosen`：每个普通来源 +1，太古来源再 +1，同名来源简单相加；状态原型默认值为 0，不额外提供基础升级。
 牌库下限使用独立的绝对最小值 `kBattleDeckSizeAbsoluteMin`（当前 5），不再以基准牌库大小作为最低值。
 
 **费用（单资源模型，见 plan/battle_resource_rework.md）**：每张卡只花一种资源——

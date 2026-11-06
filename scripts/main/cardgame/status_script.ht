@@ -438,6 +438,29 @@ namespace StatusScript {
     }
   }
 
+  /// 驭灵：双方分别随机获得一种元素异常；自施异常显式记录自身来源。
+  function elemental_channeling_self_turn_start(self, opponent, effect, details) {
+    final ailmentIds = []
+    for (final id in Constants.elementAilments.values) {
+      ailmentIds.add(id)
+    }
+    final amount = effect.statusAmount ?? 1
+    self.addStatusEffect(random.nextIterable(ailmentIds), amount: amount, source: self)
+    opponent.addStatusEffect(random.nextIterable(ailmentIds), amount: amount, source: self)
+  }
+
+  /// 天人合一：回合结束保存本次行动的元素种数，下一次产出阶段结算。
+  function unity_with_heaven_self_turn_end(self, opponent, effect, details) {
+    final usedElements = self.turnFlags['usedElements']
+    effect.lastTurnElementCount = usedElements?.keys.length ?? 0
+  }
+
+  function unity_with_heaven_self_produce_resources(self, opponent, effect, details) {
+    if ((effect.lastTurnElementCount ?? 0) < effect.requiredElementCount) return
+    self.addStatusEffect(effect.resourceId, amount: effect.resourceAmount)
+    effect.lastTurnElementCount = 0
+  }
+
   /// 太上感应（悟道凝气境界节点状态）：回合产出阶段，每 effect.spiritualityPer 点灵力
   /// 获得 1 层 effect.resourceId 资源（灵气）。
   /// 必须挂产出阶段时机（self_produce_resources）：更早时机（如 self_turn_start）授予的
@@ -450,10 +473,12 @@ namespace StatusScript {
     }
   }
 
-  /// 窥天镜（绝世装备状态）：每次观星结算后，从元素异常表（Constants.elementAilments
-  /// 的值域，共 7 种）中随机抽取 2 种不重复的元素异常，对自身各施加 1 层。
+  /// 窥天镜（绝世装备状态）：每回合第一次观星结算后，从元素异常表
+  /// （Constants.elementAilments 的值域，共 7 种）随机抽取 2 种不重复异常，对自身各施加 1 层。
   /// source 显式传自身：配合五行珠时自施异常走「造成+受到」双向放大
   function scry_self_ailments_self_scry(self, opponent, effect, details) {
+    if (effect.lastScryAilmentsTurn == self.turnCount) return
+    effect.lastScryAilmentsTurn = self.turnCount
     final ailmentIds = []
     for (final id in Constants.elementAilments.values) {
       ailmentIds.add(id)
@@ -481,7 +506,8 @@ namespace StatusScript {
   function scry_upgrade_self_scry(self, opponent, effect, details) {
     if (effect.lastScryUpgradeTurn == self.turnCount) return
     effect.lastScryUpgradeTurn = self.turnCount
-    for (final i in range(effect.upgradeChosen ?? 1)) {
+    // 普通来源各提供 1，太古来源再提供 1；同名来源通过 statusParams 直接相加。
+    for (final i in range(effect.upgradeChosen ?? 0)) {
       upgradeCard(details['chosen'], inBattle: true)
     }
   }

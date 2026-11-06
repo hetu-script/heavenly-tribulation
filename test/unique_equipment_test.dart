@@ -268,6 +268,35 @@ void main() {
     ]);
   });
 
+  test('窥天镜自异常每回合只在第一次观星后触发', () {
+    final hetu = createStatusHetu();
+    final result = hetu.eval('''
+      var nextIndex = 0
+      final random = {
+        nextIterable: function(values) {
+          final value = values[nextIndex % values.length]
+          nextIndex += 1
+          return value
+        },
+      }
+      final self = {
+        turnCount: 1,
+        gains: [],
+        addStatusEffect: function(id, {amount, source}) {
+          this.gains.add([id, amount])
+        },
+      }
+      final effect = {}
+      StatusScript.scry_self_ailments_self_scry(self, null, effect, {})
+      StatusScript.scry_self_ailments_self_scry(self, null, effect, {})
+      final firstTurn = self.gains.length
+      self.turnCount += 1
+      StatusScript.scry_self_ailments_self_scry(self, null, effect, {})
+      [firstTurn, self.gains.length]
+    ''');
+    expect(result, [2, 4]);
+  });
+
   test('观星护盾每回合只触发一次且太古参数生效', () {
     final hetu = createStatusHetu();
     final result = hetu.eval('''
