@@ -169,6 +169,10 @@
 3. **多效果合并词条**（绝世装备主词条等"自身有效果 + 附带属性加成"的形态）：
    主效果用各自机制字段，附带属性一律走 `statsBonus`（一个词条 id 只能有一种主身份）。
 
+装备解锁不通过被动词条实现：卡牌装备需求直接检查英雄装备栏中物品的 `kind`，地形移动同样读取已装备种类。
+武器以 `weaponAttack` 为固定主词条，靴子与船分别以 `mountainMoveSpeed` / `waterMoveSpeed` 为固定主词条；这些词条与其他来源按同 ID 正常聚合，不另设显示规则。
+普通装备的风味文本优先使用 `flavortext_<kind>`，未配置时回退到 `flavortext_<category>`。
+
 **存量不一致（待清理）**：`basicEnergyBonus`、`battleDrawBonus` 两个词条目前走按名绑定，
 与同为纯加值 stat 的 `handSizeMax`/`ailment_ward`（走 statsBonus）表达不一致；
 且二者 `increment: 0` 为定值，迁移无缩放损失。拟改为 statsBonus 载荷并删除对应绑定行。

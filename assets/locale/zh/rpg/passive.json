@@ -34,16 +34,6 @@
   "passive_vitality_rank_4_description": "每次你造成伤害时，有 20% 的几率将其转化为纯粹伤害",
   "passive_vitality_rank_5_description": "战斗开始后将「绝世·业火红莲」洗入你的牌库",
 
-  "passive_equipment_sword_description": "可以使用剑法和御剑术",
-  "passive_equipment_sabre_description": "可以使用刀法",
-  "passive_equipment_spear_description": "可以使用枪法",
-  "passive_equipment_staff_description": "可以使用棍法",
-  "passive_equipment_bow_description": "可以使用弓术",
-  "passive_equipment_dart_description": "可以使用暗器功法",
-  "passive_equipment_poison_description": "可以使用毒术",
-  "passive_equipment_music_description": "可以演奏乐曲",
-  "passive_equipment_boots_description": "可以在山地地形上移动",
-  "passive_equipment_ship_description": "可以在水面地形上移动",
   "passive_enable_toolbar_cultivation_description": "允许在任何地方打开修炼界面",
   "passive_enable_cultivate_description": "允许在任何地方打坐聚灵",
   "passive_enable_toolbar_library_description": "允许在任何地方打开功法图录",
@@ -79,7 +69,7 @@
 
   "passive_all_attack_description": "所有攻击 {0}",
   "passive_unarmed_attack_description": "徒手攻击 {0}",
-  "passive_weapon_attack_description": "武器攻击 {0}",
+  "passive_weapon_attack_description": "武器攻击力 {0}%",
   "passive_spell_attack_description": "法术攻击 {0}",
   "passive_curse_attack_description": "咒术攻击 {0}",
 

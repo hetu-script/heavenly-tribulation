@@ -5,7 +5,6 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
 
 import 'support/hetu_test_utils.dart';
-import 'package:heavenly_tribulation/scene/cultivation/exp_array.dart';
 
 void main() {
   String loadExpArraySource() {
@@ -42,7 +41,8 @@ void main() {
   }
 
   test('聚灵阵轮数在 0～5 发展度分别为 1、2、3、3、3、3', () {
-    expect(List.generate(6, getExpArrayMaxRounds), [1, 2, 3, 3, 3, 3]);
+    expect(
+        List.generate(6, GameLogic.getExpArrayMaxRounds), [1, 2, 3, 3, 3, 3]);
   });
 
   test('词条生成返回独立实例、不写英雄并支持同批排除与类别耗尽', () {

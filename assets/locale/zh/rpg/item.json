@@ -63,6 +63,12 @@
   "dart": "飞镖",
 
   "flavortext_weapon": "在普通人和修真者中都很流行的兵器。",
+  "flavortext_sword": "剑身清鸣，锋芒内蕴。装备后可使用剑法和御剑术。",
+  "flavortext_sabre": "刀锋沉厚，势大力沉。装备后可使用刀法。",
+  "flavortext_spear": "长枪如龙，进退有度。装备后可使用枪法。",
+  "flavortext_staff": "棍影横扫，刚柔并济。装备后可使用棍法。",
+  "flavortext_bow": "弓开秋月，箭去流星。装备后可使用弓术。",
+  "flavortext_dart": "袖藏飞星，伤人无形。装备后可使用飞镖术。",
 
   "armor": "护甲",
   "flavortext_armor": "可以在战斗中保护身体的装备。",
@@ -73,12 +79,13 @@
   "shield": "盾牌",
   "flavortext_shield": "可以在战斗中保护身体的装备。",
   "boots": "鞋子",
-  "flavortext_boots": "长途跋涉时必须的装备。",
+  "flavortext_boots": "登山履险，如履平地。装备后可进入山地地形。",
 
   "vehicle": "载具",
   "flavortext_vehicle": "长途跋涉时必须的装备。",
 
   "ship": "船只",
+  "flavortext_ship": "凌波渡水，乘风破浪。装备后可进入水面地形。",
   "aircraft": "飞行器",
 
   "amulet": "项链",

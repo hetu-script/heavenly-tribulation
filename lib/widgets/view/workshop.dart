@@ -106,6 +106,13 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     assert(itemData['type'] == 'equipment');
     if (tabIndex == 0) {
       if (itemData['category'] == kItemCategoryExtractedAffix) {
+        final affix = itemData['affixes'][0];
+        final kinds = affix['kinds'];
+        if (kinds is List && !kinds.contains(selectedCraftKind)) {
+          dialog.pushDialog('craft_affix_equipment_kind_mismatch_hint');
+          dialog.execute();
+          return;
+        }
         bool isUnselected = true;
         for (var i = 0; i < extraAffixCount; ++i) {
           if (selectedAffixesForCraft[i] == itemData['affixes'][0]) {
@@ -155,6 +162,12 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     var greaterCount = 0;
     for (final affix in selectedAffixesForCraft) {
       if (affix == null) continue;
+      final kinds = affix['kinds'];
+      if (kinds is List && !kinds.contains(selectedCraftKind)) {
+        dialog.pushDialog('craft_affix_equipment_kind_mismatch_hint');
+        dialog.execute();
+        return;
+      }
       final sourceRank = affix['sourceRank'];
       if (sourceRank is num && sourceRank > targetRank) {
         dialog.pushDialog('craft_extracted_affix_sourceRank_warning');

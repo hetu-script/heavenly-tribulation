@@ -547,7 +547,7 @@ namespace Player {
     hero.exp -= expRequirement
     ++hero.level
     hero.expForLevel = expForLevel(hero.level)
-    hero.skillPoints += 1
+    hero.skillPoints += Constants.passiveSkillPointsPerLevel
 
     const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
       hero.name,

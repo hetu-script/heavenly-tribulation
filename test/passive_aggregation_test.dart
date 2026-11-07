@@ -43,6 +43,11 @@ void main() {
           'description': 'passive_decreaseTribulationDifficulty_description',
           'ephemeralScope': 'standalone',
         },
+        'weaponAttack': {
+          'id': 'weaponAttack',
+          'description': 'passive_weapon_attack_description',
+          'increment': 0.5,
+        },
       },
     });
     hetu.assign('Constants', <String, dynamic>{
@@ -189,6 +194,24 @@ void main() {
     expect(character['passivesRaw']['dexterity'].length, 1);
     expect(character['passives']['dexterity']['value'], 1);
     expect(character['passives']['dexterity']['sourceCount'], 1);
+  });
+
+  test('武器主词条与其他来源按同一 weaponAttack ID 聚合', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    hetu.eval('''
+      characterAddPassiveSource(character, _createPassiveSource(game.passives.weaponAttack,
+        level: 20, sourceKey: 'equipment:sword:0', sourceType: 'equipment',
+        sourceId: 'sword', affixIndex: 0))
+      characterAddPassiveSource(character, _createPassiveSource(game.passives.weaponAttack,
+        level: 4, sourceKey: 'equipment:other:1', sourceType: 'equipment',
+        sourceId: 'other', affixIndex: 1))
+      characterCalculateStats(character)
+    ''');
+    final character = hetu.fetch('character');
+    expect(character['passives']['weaponAttack']['value'], 12);
+    expect(character['passives']['weaponAttack']['sourceCount'], 2);
+    expect(character['stats']['weaponAttack'], 12);
   });
 
   test('sourceKey 天然幂等，快照嵌套机制配置与原型独立', () {

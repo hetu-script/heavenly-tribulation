@@ -33,9 +33,14 @@
     connectedNodes: ["track_1_0"],
     isAttribute: true,
   },
+  track_3_0: {
+    size: "small",
+    connectedNodes: ["track_2_0"],
+    isAttribute: true,
+  },
   track_4_0: {
     size: "large",
-    connectedNodes: ["track_2_0"],
+    connectedNodes: ["track_3_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
     title: "passivetree_swordcraft_rank_1",
@@ -151,9 +156,14 @@
   },
 
   // 御剑流右侧分支1
+  track_2_1: {
+    size: "small",
+    connectedNodes: ["track_3_1"],
+    isAttribute: true,
+  },
   track_3_1: {
     size: "small",
-    connectedNodes: ["track_2_0"],
+    connectedNodes: ["track_3_0"],
     isAttribute: true,
   },
   track_4_1: {
@@ -188,9 +198,14 @@
   },
 
   // 御剑左侧分支1
+  track_2_19: {
+    size: "small",
+    connectedNodes: ["track_3_19"],
+    isAttribute: true,
+  },
   track_3_19: {
     size: "small",
-    connectedNodes: ["track_2_0"],
+    connectedNodes: ["track_3_0"],
     isAttribute: true,
   },
   track_4_19: {
@@ -255,11 +270,6 @@
   track_9_4: {
     size: "small",
     connectedNodes: ["track_8_3"],
-    isAttribute: true,
-  },
-  track_8_5: {
-    size: "small",
-    connectedNodes: ["track_9_4", "track_8_6"],
     isAttribute: true,
   },
   track_8_4: {
@@ -346,14 +356,19 @@
     connectedNodes: ["track_0_1"],
     isAttribute: true,
   },
-  track_2_2: {
+  track_2_4: {
     size: "small",
     connectedNodes: ["track_1_1"],
     isAttribute: true,
   },
+  track_3_4: {
+    size: "small",
+    connectedNodes: ["track_2_4"],
+    isAttribute: true,
+  },
   track_4_4: {
     size: "large",
-    connectedNodes: ["track_2_2"],
+    connectedNodes: ["track_3_4"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
     title: "passivetree_spellcraft_rank_1",
@@ -470,7 +485,7 @@
   // 悟道左侧分支1
   track_3_3: {
     size: "small",
-    connectedNodes: ["track_2_2"],
+    connectedNodes: ["track_3_4"],
     isAttribute: true,
   },
   track_4_3: {
@@ -478,14 +493,14 @@
     connectedNodes: ["track_3_3"],
     isAttribute: true,
   },
-  track_5_6: {
+  track_5_7: {
     size: "small",
     connectedNodes: ["track_4_3"],
     isAttribute: true,
   },
   track_6_7: {
     size: "small",
-    connectedNodes: ["track_5_6"],
+    connectedNodes: ["track_5_7"],
     isAttribute: true,
   },
   track_7_6: {
@@ -498,16 +513,21 @@
     connectedNodes: ["track_7_6"],
     isAttribute: true,
   },
-  track_6_6: {
+  track_5_6: {
     size: "small",
     connectedNodes: ["track_6_5"],
+    isAttribute: true,
+  },
+  track_6_6: {
+    size: "small",
+    connectedNodes: ["track_5_6"],
     isAttribute: true,
   },
 
   // 悟道右侧分支1
   track_3_5: {
     size: "small",
-    connectedNodes: ["track_2_2"],
+    connectedNodes: ["track_3_4"],
     isAttribute: true,
   },
   track_4_5: {
@@ -515,14 +535,14 @@
     connectedNodes: ["track_3_5"],
     isAttribute: true,
   },
-  track_5_10: {
+  track_5_11: {
     size: "small",
     connectedNodes: ["track_4_5"],
     isAttribute: true,
   },
   track_6_11: {
     size: "small",
-    connectedNodes: ["track_5_10"],
+    connectedNodes: ["track_5_11"],
     isAttribute: true,
   },
   track_7_10: {
@@ -535,21 +555,31 @@
     connectedNodes: ["track_7_10"],
     isAttribute: true,
   },
-  track_6_10: {
+  track_5_10: {
     size: "small",
     connectedNodes: ["track_6_9"],
     isAttribute: true,
   },
+  track_6_10: {
+    size: "small",
+    connectedNodes: ["track_5_10"],
+    isAttribute: true,
+  },
 
   // 悟道左侧分支2
-  track_7_7: {
+  track_8_7: {
     size: "small",
     connectedNodes: ["track_6_8"],
     isAttribute: true,
   },
-  track_8_6: {
+  track_9_6: {
     size: "small",
-    connectedNodes: ["track_7_7"],
+    connectedNodes: ["track_8_7"],
+    isAttribute: true,
+  },
+  track_9_5: {
+    size: "small",
+    connectedNodes: ["track_9_6"],
     isAttribute: true,
   },
 
@@ -611,14 +641,19 @@
     connectedNodes: ["track_0_2"],
     isAttribute: true,
   },
-  track_2_4: {
+  track_2_8: {
     size: "small",
     connectedNodes: ["track_1_2"],
     isAttribute: true,
   },
+  track_3_8: {
+    size: "small",
+    connectedNodes: ["track_2_8"],
+    isAttribute: true,
+  },
   track_4_8: {
     size: "large",
-    connectedNodes: ["track_2_4"],
+    connectedNodes: ["track_3_8"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
     title: "passivetree_vitality_rank_1",
@@ -718,6 +753,16 @@
   },
 
   // 炼魂左侧分支1
+  track_2_7: {
+    size: "small",
+    connectedNodes: ["track_3_7"],
+    isAttribute: true,
+  },
+  track_3_7: {
+    size: "small",
+    connectedNodes: ["track_3_8"],
+    isAttribute: true,
+  },
   track_4_7: {
     size: "small",
     connectedNodes: ["track_3_7"],
@@ -733,23 +778,33 @@
     connectedNodes: ["track_5_14"],
     isAttribute: true,
   },
-  track_6_13: {
-    size: "small",
-    connectedNodes: ["track_6_14"],
-    isAttribute: true,
-  },
-  track_6_15: {
-    size: "small",
-    connectedNodes: ["track_6_14"],
-    isAttribute: true,
-  },
   track_7_14: {
     size: "small",
     connectedNodes: ["track_6_14"],
     isAttribute: true,
   },
+  track_6_13: {
+    size: "small",
+    connectedNodes: ["track_5_14"],
+    isAttribute: true,
+  },
+  track_6_15: {
+    size: "small",
+    connectedNodes: ["track_5_14"],
+    isAttribute: true,
+  },
 
   // 炼魂右侧分支1
+  track_2_9: {
+    size: "small",
+    connectedNodes: ["track_3_9"],
+    isAttribute: true,
+  },
+  track_3_9: {
+    size: "small",
+    connectedNodes: ["track_3_8"],
+    isAttribute: true,
+  },
   track_4_9: {
     size: "small",
     connectedNodes: ["track_3_9"],
@@ -765,19 +820,19 @@
     connectedNodes: ["track_5_18"],
     isAttribute: true,
   },
-  track_6_19: {
-    size: "small",
-    connectedNodes: ["track_6_18"],
-    isAttribute: true,
-  },
-  track_6_17: {
-    size: "small",
-    connectedNodes: ["track_6_18"],
-    isAttribute: true,
-  },
   track_7_18: {
     size: "small",
     connectedNodes: ["track_6_18"],
+    isAttribute: true,
+  },
+  track_5_17: {
+    size: "small",
+    connectedNodes: ["track_5_18"],
+    isAttribute: true,
+  },
+  track_5_19: {
+    size: "small",
+    connectedNodes: ["track_5_18"],
     isAttribute: true,
   },
 
@@ -793,14 +848,19 @@
     connectedNodes: ["track_0_3"],
     isAttribute: true,
   },
-  track_2_6: {
+  track_2_12: {
     size: "small",
     connectedNodes: ["track_1_3"],
     isAttribute: true,
   },
+  track_3_12: {
+    size: "small",
+    connectedNodes: ["track_2_12"],
+    isAttribute: true,
+  },
   track_4_12: {
     size: "large",
-    connectedNodes: ["track_2_6"],
+    connectedNodes: ["track_3_12"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
     title: "passivetree_avatar_rank_1",
@@ -900,6 +960,16 @@
   },
 
   // 法身左侧分支1
+  track_2_11: {
+    size: "small",
+    connectedNodes: ["track_3_11"],
+    isAttribute: true,
+  },
+  track_3_11: {
+    size: "small",
+    connectedNodes: ["track_3_12"],
+    isAttribute: true,
+  },
   track_4_11: {
     size: "small",
     connectedNodes: ["track_3_11"],
@@ -910,28 +980,38 @@
     connectedNodes: ["track_4_11"],
     isAttribute: true,
   },
-  track_6_22: {
+  track_6_21: {
     size: "small",
     connectedNodes: ["track_5_22"],
     isAttribute: true,
   },
-  track_6_21: {
-    size: "small",
-    connectedNodes: ["track_6_22"],
-    isAttribute: true,
-  },
   track_6_23: {
     size: "small",
-    connectedNodes: ["track_6_22"],
+    connectedNodes: ["track_5_22"],
     isAttribute: true,
   },
   track_7_22: {
     size: "small",
-    connectedNodes: ["track_6_22"],
+    connectedNodes: ["track_6_21", "track_6_23"],
+    isAttribute: true,
+  },
+  track_6_22: {
+    size: "small",
+    connectedNodes: ["track_7_22"],
     isAttribute: true,
   },
 
   // 法身右侧分支1
+  track_2_13: {
+    size: "small",
+    connectedNodes: ["track_3_13"],
+    isAttribute: true,
+  },
+  track_3_13: {
+    size: "small",
+    connectedNodes: ["track_3_12"],
+    isAttribute: true,
+  },
   track_4_13: {
     size: "small",
     connectedNodes: ["track_3_13"],
@@ -942,24 +1022,24 @@
     connectedNodes: ["track_4_13"],
     isAttribute: true,
   },
-  track_6_26: {
+  track_6_25: {
     size: "small",
     connectedNodes: ["track_5_26"],
     isAttribute: true,
   },
-  track_6_25: {
-    size: "small",
-    connectedNodes: ["track_6_26"],
-    isAttribute: true,
-  },
   track_6_27: {
     size: "small",
-    connectedNodes: ["track_6_26"],
+    connectedNodes: ["track_5_26"],
     isAttribute: true,
   },
   track_7_26: {
     size: "small",
-    connectedNodes: ["track_6_26"],
+    connectedNodes: ["track_6_25", "track_6_27"],
+    isAttribute: true,
+  },
+  track_6_26: {
+    size: "small",
+    connectedNodes: ["track_7_26"],
     isAttribute: true,
   },
 
@@ -975,14 +1055,19 @@
     connectedNodes: ["track_0_4"],
     isAttribute: true,
   },
-  track_2_8: {
+  track_2_16: {
     size: "small",
     connectedNodes: ["track_1_4"],
     isAttribute: true,
   },
+  track_3_16: {
+    size: "small",
+    connectedNodes: ["track_2_16"],
+    isAttribute: true,
+  },
   track_4_16: {
     size: "large",
-    connectedNodes: ["track_2_8"],
+    connectedNodes: ["track_3_16"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
     title: "passivetree_bodyforge_rank_1",
@@ -1082,6 +1167,11 @@
   },
 
   // 锻体左侧分支1
+  track_3_15: {
+    size: "small",
+    connectedNodes: ["track_3_16"],
+    isAttribute: true,
+  },
   track_4_15: {
     size: "small",
     connectedNodes: ["track_3_15"],
@@ -1097,23 +1187,33 @@
     connectedNodes: ["track_5_30"],
     isAttribute: true,
   },
-  track_6_29: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
-    isAttribute: true,
-  },
-  track_6_31: {
-    size: "small",
-    connectedNodes: ["track_6_30"],
-    isAttribute: true,
-  },
   track_7_30: {
     size: "small",
     connectedNodes: ["track_6_30"],
     isAttribute: true,
   },
+  track_7_29: {
+    size: "small",
+    connectedNodes: ["track_7_30"],
+    isAttribute: true,
+  },
+  track_6_29: {
+    size: "small",
+    connectedNodes: ["track_7_29"],
+    isAttribute: true,
+  },
+  track_5_29: {
+    size: "small",
+    connectedNodes: ["track_6_29", "track_4_15"],
+    isAttribute: true,
+  },
 
   // 锻体右侧分支1
+  track_3_17: {
+    size: "small",
+    connectedNodes: ["track_3_16"],
+    isAttribute: true,
+  },
   track_4_17: {
     size: "small",
     connectedNodes: ["track_3_17"],
@@ -1129,19 +1229,24 @@
     connectedNodes: ["track_5_34"],
     isAttribute: true,
   },
-  track_6_35: {
+  track_7_34: {
     size: "small",
     connectedNodes: ["track_6_34"],
+    isAttribute: true,
+  },
+  track_7_33: {
+    size: "small",
+    connectedNodes: ["track_7_34"],
     isAttribute: true,
   },
   track_6_33: {
     size: "small",
-    connectedNodes: ["track_6_34"],
+    connectedNodes: ["track_7_33"],
     isAttribute: true,
   },
-  track_7_34: {
+  track_5_33: {
     size: "small",
-    connectedNodes: ["track_6_34"],
+    connectedNodes: ["track_6_33", "track_4_17"],
     isAttribute: true,
   },
 }

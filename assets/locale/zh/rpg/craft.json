@@ -17,6 +17,7 @@
   "craft_upgradeRank_description": "提升功法的境界并保留全部已有词条。\n普通词条保留当前等级，太古词条自动升至新境界满级。\n若仍有空槽，有25%概率新增一个词条；随后每个合格的非太古额外词条有25%概率成为太古。\n破境丹的境界必须大于功法的当前境界才能使用。",
   "craft_addAffix_warning": "当前功法已经拥有最大数量的额外词条！",
   "craft_extracted_affix_sourceRank_warning": "提取词条的来源境界高于目标装备，无法填入！",
+  "craft_affix_equipment_kind_mismatch_hint": "该词条与当前打造的装备种类不匹配，无法填入！",
   "craft_greater_affix_limit_warning": "目标装备的太古词条数量已达到当前境界上限！",
   "craft_addAffix_warning_materialRank": "灵宝丹的境界必须大于等于功法的境界！",
   "craft_rerollAffix_warning": "当前功法没有可以重置数值的额外词条！",

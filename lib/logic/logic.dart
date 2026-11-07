@@ -549,6 +549,11 @@ final class GameLogic {
     };
   }
 
+  static int getExpArrayMaxRounds(int development) {
+    assert(development >= 0);
+    return (development + 1).clamp(1, 3);
+  }
+
   static num _applyGreaterAffixValue(num value, dynamic config) {
     if (config == null) return value;
     switch (config['mode']) {
@@ -683,12 +688,21 @@ final class GameLogic {
     }
     final equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
+      bool hasEquippedKind(String kind) {
+        for (final itemId in GameData.hero['equipments'].values) {
+          if (itemId == null) continue;
+          final item = GameData.hero['inventory'][itemId];
+          if (item?['kind'] == kind) return true;
+        }
+        return false;
+      }
+
       if (equipmentRequirement is List) {
         bool hasAnyEquipment = false;
         for (final req in equipmentRequirement) {
           assert(req is String,
               'Invalid equipment requirement on card data: [$req]');
-          if (GameData.hero['passives']['equipment_$req'] != null) {
+          if (hasEquippedKind(req)) {
             hasAnyEquipment = true;
             break;
           }
@@ -701,8 +715,7 @@ final class GameLogic {
       } else {
         assert(equipmentRequirement is String,
             'Invalid equipment requirement on card data: [$equipmentRequirement]');
-        if (GameData.hero['passives']['equipment_$equipmentRequirement'] ==
-            null) {
+        if (!hasEquippedKind(equipmentRequirement)) {
           requirementsMet = false;
           description.writeln(
               '<$label>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');

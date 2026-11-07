@@ -38,14 +38,24 @@ void main() {
       }
       final Constants = {
         rankToRarity: ['common', 'rare', 'epic', 'legendary', 'mythic', 'arcane'],
-        equipmentCategoryKinds: {talisman: ['pearl'], jewelry: ['amulet']},
-        equipmentKinds: ['pearl', 'amulet'],
+        equipmentCategoryKinds: {
+          weapon: ['sword', 'sabre', 'spear', 'staff', 'bow', 'dart'],
+          boots: ['boots'],
+          vehicle: ['ship'],
+          talisman: ['pearl'],
+          jewelry: ['amulet'],
+        },
+        equipmentKinds: [
+          'sword', 'sabre', 'spear', 'staff', 'bow', 'dart',
+          'boots', 'ship', 'pearl', 'amulet',
+        ],
         maxNormalExtraAffixCount: 3,
         greaterAffixGenerationChance: 0.05,
         materialBasePrice: {},
       }
       final engine = {
         locale: function(id, {interpolations}) { return id },
+        hasLocaleKey: function(id) { return id == 'flavortext_sword' },
         warning: function(message) {},
         error: function(message) {},
         info: function(message) {},
@@ -121,5 +131,43 @@ void main() {
         hasLength(1));
     expect(item['affixes'][1]['level'], GameLogic.maxLevelForRank(3));
     expect(item['affixes'][1]['value'], 34);
+  });
+
+  test('武器与移动装备使用普通主词条，额外词条不能跨种类填槽', () {
+    final hetu = createItemHetu();
+    final passives = loadJson5File('assets/data/passives.json5');
+    for (final kind in ['sword', 'sabre', 'spear', 'staff', 'bow', 'dart']) {
+      final item =
+          hetu.invoke('Equipment', namedArgs: {'kind': kind, 'rank': 1});
+      expect(item['affixes'][0]['id'], 'weaponAttack', reason: kind);
+      expect(item['affixes'][0]['value'], 5, reason: kind);
+    }
+
+    final boots =
+        hetu.invoke('Equipment', namedArgs: {'kind': 'boots', 'rank': 1});
+    final ship =
+        hetu.invoke('Equipment', namedArgs: {'kind': 'ship', 'rank': 1});
+    expect(boots['affixes'], isNotEmpty);
+    expect(ship['affixes'], isNotEmpty);
+    expect(passives['mountainMoveSpeed']['isEquipmentMain'], isTrue);
+    expect(passives['waterMoveSpeed']['isEquipmentMain'], isTrue);
+
+    final item = hetu.invoke('Equipment', namedArgs: {
+      'kind': 'sword',
+      'rank': 1,
+      'affixes': [passives['increase_damage_sword']],
+    });
+    expect(item['flavortext'], 'flavortext_sword');
+    expect(item['affixes'][0]['id'], 'weaponAttack');
+    expect(item['affixes'][1]['id'], 'increase_damage_sword');
+
+    expect(
+      () => hetu.invoke('Equipment', namedArgs: {
+        'kind': 'sabre',
+        'rank': 1,
+        'affixes': [passives['increase_damage_sword']],
+      }),
+      throwsA(anything),
+    );
   });
 }

@@ -96,8 +96,11 @@ struct Equipment {
       this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
     }
     
-    // 在 category 赋值之后才能获取风味文本
-    this.flavortext = flavortext ?? engine.locale('flavortext_${this.category}')
+    // 具体装备种类的风味文本优先，未配置时使用装备类别文本
+    let flavortextId = 'flavortext_${this.category}'
+    final kindFlavortextId = 'flavortext_${this.kind}'
+    if (engine.hasLocaleKey(kindFlavortextId)) flavortextId = kindFlavortextId
+    this.flavortext = flavortext ?? engine.locale(flavortextId)
 
     if (affixes == null) {
       // 根据境界，生成额外词条
@@ -142,6 +145,9 @@ struct Equipment {
       final countInfo = getMinMaxExtraAffixCount(this.rank)
       for (final affixData in affixes) {
         final affix = Object.create(affixData)
+        if (affix.kinds is List && !affix.kinds.contains(this.kind)) {
+          throw('Affix ${affix.id} is incompatible with equipment kind: ${this.kind}')
+        }
         final sourceRank = affix.sourceRank
         if (sourceRank != null && sourceRank > this.rank) {
           throw('Extracted affix source rank exceeds target equipment rank: ${affix.id}')

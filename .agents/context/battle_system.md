@@ -75,8 +75,8 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
   - 词条实例化：绝世首条为主词条，rank 1/2 解锁 2/3 条固定额外词条，再按 greaterAffixes 在 rank 3～5 固定太古化；普通数值按 calculatePassiveAffixValue 计算，太古额外词条取来源物品 rank 满级后按 greater 配置强化。装备破境未实现。
   - calculatePrice：itemWithAffixKinds 按 (rank²+1)×(level+1)×(词条数+1)×basePriceByKind 计价。
   - createLoot：八种奖励配置（exp/material/equipment/cardpack/potion/contribution/credit/prototype）的统一发放入口；prototype 分支透传可选 rank/level。
-- equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机；主词条过滤 isEquipmentMain ∧ kinds ∧ rank，额外词条过滤 isEquipmentExtraAffix ∧ uniqueId ∧ kinds ∧ rank。数量同 getMinMaxExtraAffixCount，生成完成后以 5% 对合格额外词条进行太古判定，主词条不参与。
-- extracted_affix.ht：ExtractedAffix——精炼产物，单词条物品。保存完整快照和 sourceRank；填槽要求 sourceRank≤目标 rank 且不超过目标太古上限，已有太古不重新判定，普通提取词条仍可参与后续判定。
+- equipment.ht（Equipment struct，普通随机装备主流程）：category/kind 缺省时从 Constants.equipmentCategoryKinds 反查/随机；level 在境界区间内随机；主词条过滤 isEquipmentMain ∧ kinds ∧ rank，额外词条过滤 isEquipmentExtraAffix ∧ uniqueId ∧ kinds ∧ rank。数量同 getMinMaxExtraAffixCount，生成完成后以 5% 对合格额外词条进行太古判定，主词条不参与。武器固定主词条为 weaponAttack，靴子/船分别为 mountainMoveSpeed/waterMoveSpeed；功法与地形解锁直接读取已装备 kind，不再使用 equipment_* 被动。风味文本优先按 kind、缺省按 category；显式额外词条填槽强制校验 kinds。
+- extracted_affix.ht：ExtractedAffix——精炼产物，单词条物品。保存完整快照和 sourceRank；填槽要求词条 kinds 包含目标装备 kind、sourceRank≤目标 rank 且不超过目标太古上限，已有太古不重新判定，普通提取词条仍可参与后续判定。工坊选择与打造执行前均检查种类。
 - usable.ht：可使用物品（丹药/卷轴等，onUseItem 分支；丹药词条 roll 法与装备相同，构造完成后进行同类太古判定。characterConsumePotion 按 affixes 数量区分：含额外词条时以 potion:{itemId}:{affixIndex} 为 sourceKey 整体替换非永久战前配置；仅主词条时保留其他配置并精确更新同 ID 来源。decreaseTribulationDifficulty 为 standalone 独立效果，不参与批次替换）。
 
 ### 5.2 装备词条池：passives.json5（与天赋共享）
@@ -97,7 +97,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
   - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
-- 战斗内展示：EquipmentsBar（lib/scene/battle/equipments_bar.dart）固定 8 格只读图标+rank 边框，仅悬停提示（物品/属性/流派被动说明），战斗中不可穿脱；战前整备另有 EquipmentBar（prebattle.dart）。
+- 战斗内展示：EquipmentsBar（lib/scene/battle/equipments_bar.dart）固定 8 格只读图标+rank 边框，仅悬停提示（物品/属性/流派被动说明），战斗中不可穿脱；战前整备另有 EquipmentBar（prebattle.dart）。被动描述统一按聚合后的词条 ID 与数值显示，无武器攻击力特例。
 
 ### 5.4 装备 UI（Dart）：lib/widgets/character/
 

@@ -49,6 +49,8 @@ class Constants extends HTExternalClass {
         return kBaseAilmentThreshold;
       case 'Constants.battleHandSizeMax':
         return kBattleHandSizeMax;
+      case 'Constants.passiveSkillPointsPerLevel':
+        return kPassiveSkillPointsPerLevel;
       case 'Constants.uniqueCardChance':
         return kUniqueCardChance;
       case 'Constants.baseAilmentMultiplier':

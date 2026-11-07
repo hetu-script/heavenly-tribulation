@@ -11,72 +11,6 @@
   /// isEphemeral: true 表示属于临时增益额外词条
   /// ephemeralType: {'attack', 'defense', 'attribute', 'energy'} 表示临时增益的类型，影响显示和排序
 
-  /// 装备固定词条，解锁对应装备需求的卡牌
-  /// 对于该类型武器，这些是固定有的，所以 isEquipmentExtraAffix 是 false
-  equipment_sword: {
-    id: "equipment_sword",
-    description: "passive_equipment_sword_description",
-    isEquipmentMain: true,
-    kinds: ["sword"],
-    priority: 4899,
-  },
-  equipment_sabre: {
-    id: "equipment_sabre",
-    description: "passive_equipment_sabre_description",
-    isEquipmentMain: true,
-    kinds: ["sabre"],
-    priority: 4898,
-  },
-  equipment_spear: {
-    id: "equipment_spear",
-    description: "passive_equipment_spear_description",
-    isEquipmentMain: true,
-    kinds: ["spear"],
-    priority: 4897,
-  },
-  equipment_staff: {
-    id: "equipment_staff",
-    description: "passive_equipment_staff_description",
-    isEquipmentMain: true,
-    kinds: ["staff"],
-    priority: 4896,
-  },
-  equipment_bow: {
-    id: "equipment_bow",
-    description: "passive_equipment_bow_description",
-    isEquipmentMain: true,
-    kinds: ["bow"],
-    priority: 4895,
-  },
-  equipment_dart: {
-    id: "equipment_dart",
-    description: "passive_equipment_dart_description",
-    isEquipmentMain: true,
-    kinds: ["dart"],
-    priority: 4894,
-  },
-  equipment_music: {
-    id: "equipment_music",
-    description: "passive_equipment_music_description",
-    isEquipmentMain: true,
-    kinds: ["pipa"],
-    priority: 4893,
-  },
-  equipment_boots: {
-    id: "equipment_boots",
-    description: "passive_equipment_boots_description",
-    isEquipmentMain: true,
-    kinds: ["boots"],
-    priority: 4892,
-  },
-  equipment_ship: {
-    id: "equipment_ship",
-    description: "passive_equipment_ship_description",
-    isEquipmentMain: true,
-    kinds: ["ship"],
-    priority: 4891,
-  },
-
   /// 下面这些词条既会出现在天赋树上，也会出现在装备上
   /// 伤害增加
   increase_damage_punch: {
@@ -269,6 +203,7 @@
     priority: 4648,
     increment: 0.5,
     greater: true,
+    isEquipmentMain: true,
     isEquipmentExtraAffix: true,
     isEphemeral: true,
     ephemeralType: "attack",
@@ -1302,6 +1237,7 @@
     description: "passive_mountainMoveSpeed_description",
     priority: 3395,
     increment: 1,
+    isEquipmentMain: true,
     isToolExtraAffix: true,
     kinds: ["boots"],
     keywords: ["mountainMoveSpeed"],
@@ -1311,6 +1247,7 @@
     description: "passive_waterMoveSpeed_description",
     priority: 3394,
     increment: 1,
+    isEquipmentMain: true,
     isToolExtraAffix: true,
     kinds: ["ship"],
     keywords: ["waterMoveSpeed"],

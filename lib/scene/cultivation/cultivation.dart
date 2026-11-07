@@ -45,7 +45,7 @@ const _kSkillButtonPriority = 40;
 const kTrackRadius = [
   (144, 5), // 0, 起始轨道
   (216, 5), // 1,
-  (288, 10), // 2,
+  (288, 20), // 2,
   (360, 20), // 3,
   (432, 20), // 4, 凝气轨道
   (504, 40), // 5,
@@ -151,11 +151,6 @@ const kExpArrayCategoryPhrases = {
   'exparray_phrase_energy_1': 'energy',
   'exparray_phrase_energy_2': 'energy',
 };
-
-int getExpArrayMaxRounds(int development) {
-  assert(development >= 0);
-  return (development + 1).clamp(1, 3);
-}
 
 class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
@@ -385,6 +380,8 @@ class CultivationScene extends Scene with HasCursorState {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
     final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+    final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+    final isRankNode = rankRequirement > 0;
 
     if (button == kPrimaryButton) {
       if (isLearned || !isOpen) return;
@@ -405,16 +402,16 @@ class CultivationScene extends Scene with HasCursorState {
       // }
 
       if (!isEditorMode) {
-        if (character['skillPoints'] <= 0) {
+        // 境界节点免费，普通节点仍消耗 1 点
+        if (!isRankNode && character['skillPoints'] <= 0) {
           dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
           dialog.execute();
           return;
         }
 
         // 境界节点: 触发突破试炼
-        final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement == character['rank'] + 1) {
-          tryTribulation(skillButton, nodeId);
+          await tryTribulation(skillButton, nodeId);
           return;
         }
       }
@@ -439,7 +436,7 @@ class CultivationScene extends Scene with HasCursorState {
         GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       }
       skillButton.isSelected = true;
-      if (!isEditorMode) {
+      if (!isEditorMode && !isRankNode) {
         --character['skillPoints'];
       }
 
@@ -538,14 +535,11 @@ class CultivationScene extends Scene with HasCursorState {
       } else if (isOpen) {
         final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement > 0 && character['rank'] < rankRequirement) {
-          // 境界节点: 需要突破试炼
-          if (character['skillPoints'] > 0 || isEditorMode) {
-            skillDescription.writeln(engine.locale('passivetree_rank_hint'));
-          } else {
-            skillDescription
-                .writeln(engine.locale('passivetree_rank_no_points_hint'));
-          }
-        } else if (character['skillPoints'] > 0 || isEditorMode) {
+          // 境界节点: 需要突破试炼，不消耗天赋点
+          skillDescription.writeln(engine.locale('passivetree_rank_hint'));
+        } else if (rankRequirement > 0 ||
+            character['skillPoints'] > 0 ||
+            isEditorMode) {
           skillDescription.writeln(engine.locale('passivetree_unlock_hint'));
         } else {
           skillDescription.writeln(engine.locale('passivetree_points_hint'));
@@ -1018,7 +1012,7 @@ class CultivationScene extends Scene with HasCursorState {
     }
 
     _meditateRound = 0;
-    _expArrayMaxRounds = getExpArrayMaxRounds(development);
+    _expArrayMaxRounds = GameLogic.getExpArrayMaxRounds(development);
     _expArrayBatchId = '${DateTime.now().microsecondsSinceEpoch}';
     _expArrayGrantedBuffIds.clear();
     _expArrayPendingAffixes.clear();
@@ -1877,12 +1871,6 @@ class CultivationScene extends Scene with HasCursorState {
     int difficulty = character['rank'];
     assert(difficulty == (passiveTreeNodeData['rank'] as int) - 1);
 
-    if (character['skillPoints'] <= 0) {
-      dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
-      dialog.execute();
-      return;
-    }
-
     // 教程提示
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['tribulation'] != true) {
@@ -1904,7 +1892,6 @@ class CultivationScene extends Scene with HasCursorState {
     void onTribulationSuccess() {
       GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       skillButton.isSelected = true;
-      --character['skillPoints'];
       character['rank'] = difficulty + 1;
       updatePassivesDescription();
       updateInformation();

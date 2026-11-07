@@ -17,7 +17,7 @@ namespace debug {
       id: 'hero',
       level: level,
       rank: rank,
-      skillPoints: level,
+      skillPoints: level * Constants.passiveSkillPointsPerLevel,
     )
 
     setHero('hero')
