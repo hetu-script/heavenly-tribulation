@@ -161,14 +161,14 @@
     connectedNodes: ["track_3_1"],
     isAttribute: true,
   },
-  track_5_1: {
+  track_5_2: {
     size: "small",
     connectedNodes: ["track_4_1"],
     isAttribute: true,
   },
   track_6_2: {
     size: "small",
-    connectedNodes: ["track_5_1"],
+    connectedNodes: ["track_5_2"],
     isAttribute: true,
   },
   track_6_3: {
@@ -198,14 +198,14 @@
     connectedNodes: ["track_3_19"],
     isAttribute: true,
   },
-  track_5_19: {
+  track_5_38: {
     size: "small",
     connectedNodes: ["track_4_19"],
     isAttribute: true,
   },
   track_6_38: {
     size: "small",
-    connectedNodes: ["track_5_19"],
+    connectedNodes: ["track_5_38"],
     isAttribute: true,
   },
   track_6_37: {
@@ -277,14 +277,14 @@
     connectedNodes: ["track_7_4"],
     isAttribute: true,
   },
-  track_5_2: {
+  track_5_4: {
     size: "small",
     connectedNodes: ["track_6_4"],
     isAttribute: true,
   },
   track_4_2: {
     size: "medium",
-    connectedNodes: ["track_5_2"],
+    connectedNodes: ["track_5_4"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     passives: [
@@ -478,14 +478,14 @@
     connectedNodes: ["track_3_3"],
     isAttribute: true,
   },
-  track_5_3: {
+  track_5_6: {
     size: "small",
     connectedNodes: ["track_4_3"],
     isAttribute: true,
   },
   track_6_7: {
     size: "small",
-    connectedNodes: ["track_5_3"],
+    connectedNodes: ["track_5_6"],
     isAttribute: true,
   },
   track_7_6: {
@@ -515,14 +515,14 @@
     connectedNodes: ["track_3_5"],
     isAttribute: true,
   },
-  track_5_5: {
+  track_5_10: {
     size: "small",
     connectedNodes: ["track_4_5"],
     isAttribute: true,
   },
   track_6_11: {
     size: "small",
-    connectedNodes: ["track_5_5"],
+    connectedNodes: ["track_5_10"],
     isAttribute: true,
   },
   track_7_10: {
@@ -723,14 +723,14 @@
     connectedNodes: ["track_3_7"],
     isAttribute: true,
   },
-  track_5_7: {
+  track_5_14: {
     size: "small",
     connectedNodes: ["track_4_7"],
     isAttribute: true,
   },
   track_6_14: {
     size: "small",
-    connectedNodes: ["track_5_7"],
+    connectedNodes: ["track_5_14"],
     isAttribute: true,
   },
   track_6_13: {
@@ -755,14 +755,14 @@
     connectedNodes: ["track_3_9"],
     isAttribute: true,
   },
-  track_5_9: {
+  track_5_18: {
     size: "small",
     connectedNodes: ["track_4_9"],
     isAttribute: true,
   },
   track_6_18: {
     size: "small",
-    connectedNodes: ["track_5_9"],
+    connectedNodes: ["track_5_18"],
     isAttribute: true,
   },
   track_6_19: {
@@ -905,14 +905,14 @@
     connectedNodes: ["track_3_11"],
     isAttribute: true,
   },
-  track_5_11: {
+  track_5_22: {
     size: "small",
     connectedNodes: ["track_4_11"],
     isAttribute: true,
   },
   track_6_22: {
     size: "small",
-    connectedNodes: ["track_5_11"],
+    connectedNodes: ["track_5_22"],
     isAttribute: true,
   },
   track_6_21: {
@@ -937,14 +937,14 @@
     connectedNodes: ["track_3_13"],
     isAttribute: true,
   },
-  track_5_13: {
+  track_5_26: {
     size: "small",
     connectedNodes: ["track_4_13"],
     isAttribute: true,
   },
   track_6_26: {
     size: "small",
-    connectedNodes: ["track_5_13"],
+    connectedNodes: ["track_5_26"],
     isAttribute: true,
   },
   track_6_25: {
@@ -1087,14 +1087,14 @@
     connectedNodes: ["track_3_15"],
     isAttribute: true,
   },
-  track_5_15: {
+  track_5_30: {
     size: "small",
     connectedNodes: ["track_4_15"],
     isAttribute: true,
   },
   track_6_30: {
     size: "small",
-    connectedNodes: ["track_5_15"],
+    connectedNodes: ["track_5_30"],
     isAttribute: true,
   },
   track_6_29: {
@@ -1119,14 +1119,14 @@
     connectedNodes: ["track_3_17"],
     isAttribute: true,
   },
-  track_5_17: {
+  track_5_34: {
     size: "small",
     connectedNodes: ["track_4_17"],
     isAttribute: true,
   },
   track_6_34: {
     size: "small",
-    connectedNodes: ["track_5_17"],
+    connectedNodes: ["track_5_34"],
     isAttribute: true,
   },
   track_6_35: {

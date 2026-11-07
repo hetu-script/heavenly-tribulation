@@ -24,7 +24,6 @@ import '../../ui.dart';
 import '../../data/game.dart';
 import '../common.dart';
 import '../particles/light_trail.dart';
-import 'exp_array.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
@@ -49,7 +48,7 @@ const kTrackRadius = [
   (288, 10), // 2,
   (360, 20), // 3,
   (432, 20), // 4, 凝气轨道
-  (504, 20), // 5,
+  (504, 40), // 5,
   (576, 40), // 6,
   (648, 40), // 7,
   (720, 40), // 8, 筑基轨道
@@ -152,6 +151,11 @@ const kExpArrayCategoryPhrases = {
   'exparray_phrase_energy_1': 'energy',
   'exparray_phrase_energy_2': 'energy',
 };
+
+int getExpArrayMaxRounds(int development) {
+  assert(development >= 0);
+  return (development + 1).clamp(1, 3);
+}
 
 class CultivationScene extends Scene with HasCursorState {
   CultivationScene({
