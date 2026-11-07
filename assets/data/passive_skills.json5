@@ -252,29 +252,85 @@
   },
 
   // 御剑右侧分支2
-  track_7_1: {
+  track_8_1: {
     size: "small",
     connectedNodes: ["track_6_0"],
     isAttribute: true,
   },
-  track_8_2: {
+  track_9_2: {
     size: "small",
-    connectedNodes: ["track_7_1"],
+    connectedNodes: ["track_8_1"],
     isAttribute: true,
   },
-  track_8_3: {
+  track_9_3: {
     size: "small",
-    connectedNodes: ["track_8_2"],
+    connectedNodes: ["track_9_2"],
     isAttribute: true,
   },
-  track_9_4: {
+
+  // 御剑左侧分支3
+  track_15_39: {
     size: "small",
-    connectedNodes: ["track_8_3"],
+    connectedNodes: ["track_14_0"],
     isAttribute: true,
   },
+
+  // 御剑右侧分支3
+  track_14_1: {
+    size: "small",
+    connectedNodes: ["track_14_0"],
+    isAttribute: true,
+  },
+  track_14_2: {
+    size: "small",
+    connectedNodes: ["track_14_1"],
+    isAttribute: true,
+  },
+  track_14_3: {
+    size: "small",
+    connectedNodes: ["track_14_2"],
+    isAttribute: true,
+  },
+  track_15_3: {
+    size: "small",
+    connectedNodes: ["track_14_3"],
+    isAttribute: true,
+  },
+  track_14_4: {
+    size: "small",
+    connectedNodes: ["track_15_3"],
+    isAttribute: true,
+  },
+  track_13_5: {
+    size: "small",
+    connectedNodes: ["track_14_4"],
+    isAttribute: true,
+  },
+  track_14_5: {
+    size: "small",
+    connectedNodes: ["track_13_5"],
+    isAttribute: true,
+  },
+  track_15_4: {
+    size: "small",
+    connectedNodes: ["track_14_5"],
+    isAttribute: true,
+  },
+  track_16_3: {
+    size: "small",
+    connectedNodes: ["track_15_4"],
+    isAttribute: true,
+  },
+  track_17_3: {
+    size: "small",
+    connectedNodes: ["track_16_3"],
+    isAttribute: true,
+  },
+
+  // 御剑和悟道共用分支1
   track_8_4: {
     size: "small",
-    connectedNodes: ["track_9_4"],
+    connectedNodes: ["track_9_3", "track_9_5"],
     isAttribute: true,
   },
   track_7_4: {
@@ -304,37 +360,10 @@
     ],
   },
 
-  // 御剑左侧分支3
-  track_15_39: {
-    size: "small",
-    connectedNodes: ["track_14_0"],
-    isAttribute: true,
-  },
-
-  // 御剑右侧分支3
-  track_15_1: {
-    size: "small",
-    connectedNodes: ["track_14_0"],
-    isAttribute: true,
-  },
-  track_16_2: {
-    size: "small",
-    connectedNodes: ["track_15_1"],
-    isAttribute: true,
-  },
-  track_16_3: {
-    size: "small",
-    connectedNodes: ["track_16_2"],
-    isAttribute: true,
-  },
-  track_15_4: {
-    size: "small",
-    connectedNodes: ["track_16_3"],
-    isAttribute: true,
-  },
+  // 御剑和悟道共用分支2
   track_16_4: {
     size: "medium",
-    connectedNodes: ["track_15_4", "track_17_4"],
+    connectedNodes: ["track_17_3", "track_15_5"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     passives: [
@@ -596,22 +625,52 @@
   },
 
   // 悟道左侧分支3
-  track_15_7: {
+  track_16_7: {
     size: "small",
     connectedNodes: ["track_14_8"],
     isAttribute: true,
   },
-  track_16_6: {
+  track_17_6: {
     size: "small",
-    connectedNodes: ["track_15_7"],
+    connectedNodes: ["track_16_7"],
     isAttribute: true,
   },
-  track_16_5: {
+  track_18_5: {
+    size: "small",
+    connectedNodes: ["track_17_6"],
+    isAttribute: true,
+  },
+  track_17_5: {
     size: "small",
     connectedNodes: ["track_16_6"],
     isAttribute: true,
   },
+  track_18_4: {
+    size: "small",
+    connectedNodes: ["track_17_5"],
+    isAttribute: true,
+  },
+  track_19_3: {
+    size: "small",
+    connectedNodes: ["track_18_4"],
+    isAttribute: true,
+  },
+  track_18_3: {
+    size: "small",
+    connectedNodes: ["track_19_3"],
+    isAttribute: true,
+  },
   track_17_4: {
+    size: "small",
+    connectedNodes: ["track_18_3"],
+    isAttribute: true,
+  },
+  track_16_5: {
+    size: "small",
+    connectedNodes: ["track_17_4"],
+    isAttribute: true,
+  },
+  track_15_5: {
     size: "small",
     connectedNodes: ["track_16_5"],
     isAttribute: true,
@@ -825,12 +884,12 @@
     connectedNodes: ["track_6_18"],
     isAttribute: true,
   },
-  track_5_17: {
+  track_6_17: {
     size: "small",
     connectedNodes: ["track_5_18"],
     isAttribute: true,
   },
-  track_5_19: {
+  track_6_19: {
     size: "small",
     connectedNodes: ["track_5_18"],
     isAttribute: true,

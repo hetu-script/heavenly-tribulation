@@ -196,7 +196,7 @@ void main() {
     expect(character['passives']['dexterity']['sourceCount'], 1);
   });
 
-  test('武器主词条与其他来源按同一 weaponAttack ID 聚合', () {
+  test('武器攻击力不同来源按同一 weaponAttack ID 聚合', () {
     final hetu = createHetu();
     initializeCharacter(hetu);
     hetu.eval('''

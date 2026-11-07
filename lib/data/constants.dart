@@ -201,32 +201,28 @@ const List<String> kDamageTypes = [
 ];
 
 const kBattleCardGenreAttacks = {
-  // 怒气
   'bodyforge': {
     'punch',
     'kick',
     'qinna',
   },
-  // 灵气、剑气
   'swordcraft': {
     'punch',
     'flying_sword',
     'dianxue',
   },
-  // 灵气
   'spellcraft': {
     'punch',
     'airbend',
     'firebend',
     'lightning_control',
-    // 'waterbend',
+    'waterbend',
   },
-  // 煞气
   'vitality': {
     'punch',
     'power_word',
+    'plant_control',
   },
-  // 煞气、怒气
   'avatar': {
     'kick',
     'sigil',
@@ -234,7 +230,6 @@ const kBattleCardGenreAttacks = {
 };
 
 const kBattleCardGenreBuffs = {
-  // 怒气
   'bodyforge': {
     'xinfa',
     'punch',
@@ -242,7 +237,6 @@ const kBattleCardGenreBuffs = {
     'shenfa',
     'qinggong',
   },
-  // 灵气、剑气
   'swordcraft': {
     'xinfa',
     'kick',
@@ -250,21 +244,18 @@ const kBattleCardGenreBuffs = {
     'shenfa',
     'qinggong',
   },
-  // 灵气
   'spellcraft': {
     'xinfa',
     'punch',
     'airbend',
-    // 'waterbend',
+    'waterbend',
   },
-  // 煞气
   'vitality': {
     'xinfa',
     'punch',
     'power_word',
     // 'music',
   },
-  // 煞气、怒气
   'avatar': {
     'xinfa',
     'kick',

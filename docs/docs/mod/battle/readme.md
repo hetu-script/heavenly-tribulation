@@ -170,7 +170,7 @@
    主效果用各自机制字段，附带属性一律走 `statsBonus`（一个词条 id 只能有一种主身份）。
 
 装备解锁不通过被动词条实现：卡牌装备需求直接检查英雄装备栏中物品的 `kind`，地形移动同样读取已装备种类。
-武器以 `weaponAttack` 为固定主词条，靴子与船分别以 `mountainMoveSpeed` / `waterMoveSpeed` 为固定主词条；这些词条与其他来源按同 ID 正常聚合，不另设显示规则。
+六种武器分别以对应的 `increase_damage_<kind>` 为主词条；通用 `weaponAttack` 不进入主词条池。靴子与船的主词条池分别包含 `mountainMoveSpeed` / `waterMoveSpeed`；所有词条与其他来源按同 ID 正常聚合，不另设显示规则。
 普通装备的风味文本优先使用 `flavortext_<kind>`，未配置时回退到 `flavortext_<category>`。
 
 **存量不一致（待清理）**：`basicEnergyBonus`、`battleDrawBonus` 两个词条目前走按名绑定，

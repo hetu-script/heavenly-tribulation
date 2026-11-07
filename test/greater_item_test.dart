@@ -139,7 +139,7 @@ void main() {
     for (final kind in ['sword', 'sabre', 'spear', 'staff', 'bow', 'dart']) {
       final item =
           hetu.invoke('Equipment', namedArgs: {'kind': kind, 'rank': 1});
-      expect(item['affixes'][0]['id'], 'weaponAttack', reason: kind);
+      expect(item['affixes'][0]['id'], 'increase_damage_$kind', reason: kind);
       expect(item['affixes'][0]['value'], 5, reason: kind);
     }
 
@@ -155,11 +155,11 @@ void main() {
     final item = hetu.invoke('Equipment', namedArgs: {
       'kind': 'sword',
       'rank': 1,
-      'affixes': [passives['increase_damage_sword']],
+      'affixes': [passives['weaponAttack']],
     });
     expect(item['flavortext'], 'flavortext_sword');
-    expect(item['affixes'][0]['id'], 'weaponAttack');
-    expect(item['affixes'][1]['id'], 'increase_damage_sword');
+    expect(item['affixes'][0]['id'], 'increase_damage_sword');
+    expect(item['affixes'][1]['id'], 'weaponAttack');
 
     expect(
       () => hetu.invoke('Equipment', namedArgs: {

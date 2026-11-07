@@ -261,7 +261,7 @@
   //   isUnstackable: true,
   //   isUnique: true,
   //   isIdentified: false,
-  //   affixes: ["weaponAttack", "increase_damage_sword", ...],
+  //   affixes: ["increase_damage_sword", "weaponAttack", ...],
   // },
 
   // ------------悟道流派绝世装备------------

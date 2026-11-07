@@ -479,7 +479,7 @@ final class GameLogic {
   /// 计算某个境界的最低等级
   static int minLevelForRank(int rank) {
     assert(rank >= 0);
-    return rank == 0 ? 0 : (rank * 10);
+    return rank * 10;
   }
 
   /// 计算某个境界的最高等级
