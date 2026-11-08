@@ -74,7 +74,7 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 | `battleStatus`       | 状态 id                                             | 战斗开始授予永久状态（行为在 status_script.ht，走 passive-status skill 流程）                           |
 | `deckCostReduction`  | `{color, amount, genres?, notGenres?}`              | 组牌费修；amount 负 = 加费；`color: 'all'` 命中首个费用条目                                             |
 | `shuffleIntoDeck`    | `[卡牌主词条 id]`                                   | 战斗开始洗入牌库                                                                                        |
-| `turnStartScry`      | 整数                                                | 每回合开始抽牌前观星 N                                                                                  |
+| `turnStartScry`      | `true`                                              | 每回合开始抽牌前观星一次；数量共用普通观星规则，多来源不累加                                            |
 | `energyRetain`       | `{resourceId, max, costPerPoint?, costDamageType?}` | 回合结束资源保留 + 每点代价                                                                             |
 | `turnStartExtraDraw` | `{count}`                                           | 额外抽牌，多来源 count 累加，仍受手牌上限约束                                                         |
 | `statsBonus`         | `{statsId: 数值}`                                   | **通用 stats 直加**（观星深度 scryBonus、异常层数 ailmentInflictBonus 等），固定词条喂 stats 的首选通道 |

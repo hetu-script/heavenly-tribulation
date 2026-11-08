@@ -1053,7 +1053,9 @@ void validatePassives(Map<String, dynamic> passives) {
     checkNumber(data['increment'], '$ctx.increment');
     checkNumber(data['base'], '$ctx.base');
     checkNumber(data['priority'], '$ctx.priority');
-    checkNumber(data['turnStartScry'], '$ctx.turnStartScry', min: 1);
+    if (data['turnStartScry'] != null && data['turnStartScry'] != true) {
+      err('字段类型非法', '$ctx.turnStartScry: 只能为 true');
+    }
     if (data['maxLevel'] != null) {
       err('被动不再支持 maxLevel', ctx);
     }

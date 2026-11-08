@@ -46,24 +46,23 @@ const kTrackRadius = [
   (144, 5), // 0, 起始轨道
   (216, 5), // 1,
   (288, 20), // 2,
-  (360, 20), // 3,
-  (432, 20), // 4, 凝气轨道
+  (360, 20), // 3, 凝气轨道
+  (432, 20), // 4,
   (504, 40), // 5,
   (576, 40), // 6,
-  (648, 40), // 7,
-  (720, 40), // 8, 筑基轨道
+  (648, 40), // 7, 筑基轨道
+  (720, 40), // 8,
   (792, 40), // 9,
   (864, 40), // 10,
-  (936, 40), // 11,
-  (1008, 40), // 12, 结丹轨道
+  (936, 40), // 11, 结丹轨道
+  (1008, 40), // 12,
   (1080, 40), // 13,
   (1152, 40), // 14,
-  (1224, 40), // 15,
-  (1296, 40), // 16, 还婴轨道
+  (1224, 40), // 15, 还婴轨道
+  (1296, 40), // 16,
   (1368, 40), // 17,
   (1440, 40), // 18,
-  (1512, 40), // 19,
-  (1584, 40), // 20, 化神轨道
+  (1512, 40), // 19, 化神轨道
 ];
 
 enum CultivationMode {
@@ -389,7 +388,7 @@ class CultivationScene extends Scene with HasCursorState {
 
       // 流派入口节点：已分配过节点后不可再选其他流派的入口
       if (_isEntryNodeBlocked(nodeId)) {
-        dialog.pushDialog('passivetree_entry_locked_hint');
+        dialog.pushDialog('passiveskill_entry_locked_hint');
         dialog.execute();
         return;
       }
@@ -447,26 +446,19 @@ class CultivationScene extends Scene with HasCursorState {
     } else if (button == kSecondaryButton) {
       if (!isLearned) return;
 
-      // 境界节点不可退点
-      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-      if (rankRequirement > 0) {
-        dialog.pushDialog('passivetree_rank_node_no_refund_hint');
-        dialog.execute();
-        return;
-      }
-
       Hovertip.hide(skillButton);
 
       // 退回后将导致其他已解锁节点与入口失去连接，则不能退点
       if (!isEditorMode &&
           !GameLogic.checkPassiveTreeRefundable(character, nodeId)) {
-        dialog.pushDialog('passivetree_disconnect_refund_hint');
+        dialog.pushDialog('passiveskill_disconnect_refund_hint');
         dialog.execute();
         return;
       }
 
       skillButton.isSelected = false;
-      if (!isEditorMode) {
+      // 境界节点免费，退回时不返还天赋点；角色境界不受退点影响
+      if (!isEditorMode && !isRankNode) {
         ++character['skillPoints'];
       }
 
@@ -498,7 +490,7 @@ class CultivationScene extends Scene with HasCursorState {
       // 只有已经学习过的属性节点需要特殊处理
       // 其他情况下的节点描述文字已经在游戏载入时预先生成过了
       skillDescription.writeln(
-          '<bold yellow>${engine.locale('passivetree_attribute_any')}</>');
+          '<bold yellow>${engine.locale('passiveskill_attribute_any')}</>');
       skillDescription.writeln(' ');
 
       final attributeId = character['unlockedPassiveTreeNodes'][nodeId];
@@ -517,35 +509,35 @@ class CultivationScene extends Scene with HasCursorState {
     skillDescription.writeln(' ');
     if (isLearned) {
       final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-      if (rankRequirement > 0) {
-        skillDescription
-            .writeln(engine.locale('passivetree_rank_node_no_refund_hint'));
-      } else if (!isEditorMode &&
+      if (!isEditorMode &&
           !GameLogic.checkPassiveTreeRefundable(character, nodeId)) {
         skillDescription
-            .writeln(engine.locale('passivetree_disconnect_refund_hint'));
+            .writeln(engine.locale('passiveskill_disconnect_refund_hint'));
+      } else if (rankRequirement > 0) {
+        skillDescription
+            .writeln(engine.locale('passiveskill_rank_refund_hint'));
       } else {
-        skillDescription.writeln(engine.locale('passivetree_refund_hint'));
+        skillDescription.writeln(engine.locale('passiveskill_refund_hint'));
       }
     } else {
       if (_isEntryNodeBlocked(nodeId)) {
         // 其他流派的入口节点：已选定流派后不可再选
         skillDescription
-            .writeln(engine.locale('passivetree_entry_locked_hint'));
+            .writeln(engine.locale('passiveskill_entry_locked_hint'));
       } else if (isOpen) {
         final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement > 0 && character['rank'] < rankRequirement) {
           // 境界节点: 需要突破试炼，不消耗天赋点
-          skillDescription.writeln(engine.locale('passivetree_rank_hint'));
+          skillDescription.writeln(engine.locale('passiveskill_rank_hint'));
         } else if (rankRequirement > 0 ||
             character['skillPoints'] > 0 ||
             isEditorMode) {
-          skillDescription.writeln(engine.locale('passivetree_unlock_hint'));
+          skillDescription.writeln(engine.locale('passiveskill_unlock_hint'));
         } else {
-          skillDescription.writeln(engine.locale('passivetree_points_hint'));
+          skillDescription.writeln(engine.locale('passiveskill_points_hint'));
         }
       } else {
-        skillDescription.writeln(engine.locale('passivetree_locked_hint'));
+        skillDescription.writeln(engine.locale('passiveskill_locked_hint'));
       }
     }
 
@@ -573,7 +565,7 @@ class CultivationScene extends Scene with HasCursorState {
           anchor: Anchor.center,
           position: position,
           size: GameUI.skillButtonSizeSmall,
-          spriteId: 'cultivation/skill/wip.png',
+          spriteId: 'cultivation/talent_background.png',
           isVisible: false,
           priority: _kSkillButtonPriority,
         );
@@ -1638,7 +1630,8 @@ class CultivationScene extends Scene with HasCursorState {
         final connectedNodes = passiveTreeNodeData['connectedNodes'];
         if (connectedNodes is List) {
           for (final connectedNodeId in connectedNodes) {
-            assert(connectedNodeId != nodeId);
+            assert(connectedNodeId != nodeId,
+                'Circular dependency, nodeId: $nodeId');
             final lineId1 = '$nodeId-$connectedNodeId';
             final lineId2 = '$connectedNodeId-$nodeId';
             if (_nodeConnections.containsKey(lineId1) ||
@@ -1875,13 +1868,13 @@ class CultivationScene extends Scene with HasCursorState {
     if (GameData.game['enableTutorial'] == true) {
       if (GameData.flags['tutorial']['tribulation'] != true) {
         GameData.flags['tutorial']['tribulation'] = true;
-        dialog.pushDialog('passivetree_tribulation_intro');
+        dialog.pushDialog('passiveskill_tribulation_intro');
         await dialog.execute();
       }
     }
 
     // 选择试炼方式
-    dialog.pushDialog('passivetree_tribulation_prompt2');
+    dialog.pushDialog('passiveskill_tribulation_prompt2');
     await dialog.execute();
 
     dialog.pushSelection('tribulationMethod', ['yes', 'forgetIt']);
@@ -1950,7 +1943,7 @@ class CultivationScene extends Scene with HasCursorState {
       if (result) {
         onTribulationSuccess();
       } else {
-        dialog.pushDialog('passivetree_tribulation_fail');
+        dialog.pushDialog('passiveskill_tribulation_fail');
         dialog.execute();
       }
     });
@@ -1966,7 +1959,7 @@ class CultivationScene extends Scene with HasCursorState {
     //       if (won) {
     //         onTribulationSuccess();
     //       } else {
-    //         dialog.pushDialog('passivetree_tribulation_fail');
+    //         dialog.pushDialog('passiveskill_tribulation_fail');
     //         dialog.execute();
     //       }
     //     },

@@ -1,6 +1,6 @@
 **玩家回合（heroTurn == true）与敌方回合（heroTurn == false）共用同一套流程（`_startTurn`）：**
 
-1. 回合开始观星（被动 `turnStartScry` 字段，如悟道分支「天道推演」）：抽牌阶段之前观星 N 张，选中的牌置于牌库顶随本回合抽牌入手
+1. 回合开始观星（被动 `turnStartScry: true`，如悟道分支「天道推演」）：抽牌阶段之前观星一次，选中的牌置于牌库顶随本回合抽牌入手
 2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）。
    实际数量受 `stats.handSizeMax`（默认 `kBattleHandSizeMax = 10`）限制；满手后剩余抽牌不发生，
    不洗牌/弃牌、不触发入手回调、不写入 `lastDrawnCards`，未实际抽到的牌也不接受抽牌费修
@@ -70,8 +70,9 @@
 | `self/opponent_using_card` / `self/opponent_used_card`     | 使用卡牌时 / 后                                                                       |
 | `self/opponent_attacked` / `self/opponent_buffed`          | 使用攻击牌 / 加持牌后                                                                 |
 
-观星入口合计基础数量、全局 `stats.scryBonus` 与卡牌局部 `scryOptions.scryBonus` 后，
-最终查看数最多为 `kScryCardCountMax = 5`，再按牌库剩余数截断；空牌库不分发 `self_scry`。
+观星入口合计基础数量（默认 `kScryCardCount = 3`）、全局 `stats.scryBonus` 与卡牌局部
+`scryOptions.scryBonus` 后，最终查看数最多为 `kScryCardCountMax = 5`，再按牌库剩余数截断；
+`turnStartScry` 只决定是否观星，不携带数量，也不使用卡牌局部加成；空牌库不分发 `self_scry`。
 
 按流派（genre）/套路（kind）细分用牌行为的现行模式：挂通用时机（如 `self_doing_damage`、`self_used_card`），
 在脚本内按 `details.kind` / `getLastUsedCard()` 判定（参考 `increase_damage_*`、`element_cycle`）。
@@ -140,7 +141,7 @@
 | `battleStatus`       | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                                                                                                                                              |
 | `deckCostReduction`  | `{color, amount, genres?, notGenres?}`             | 组牌阶段按卡合计全部命中规则后统一修正（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount）                  |
 | `shuffleIntoDeck`    | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                                                                                                                                                         |
-| `turnStartScry`      | 整数                                               | 每回合开始时（抽牌前）观星 N 张（多来源累加）                                                                                                                                                                                      |
+| `turnStartScry`      | `true`                                             | 每回合开始时（抽牌前）观星一次；数量共用普通观星的默认值与 `scryBonus`，多来源不累加                                                                                                                                                |
 | `turnStartExtraDraw` | `{count}`                                           | 回合开始正常抽牌后额外抽 count 张（多来源累加），仍受手牌上限约束                                                                                                                                                                     |
 | `energyRetain`       | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）                                                                                                                                     |
 | `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（分工约定见下文「stats 聚合的两条通道」）                                                                                                                                     |

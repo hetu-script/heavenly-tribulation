@@ -1112,33 +1112,33 @@
   },
 
   /// 流派分支节点词条（标记型；暂不进天赋树，待后续手动排布分支走向）
-  skilltree_branch_draw_1: {
-    id: "skilltree_branch_draw_1",
-    description: "passive_skilltree_branch_draw_1_description",
+  key_branch_draw_1: {
+    id: "key_branch_draw_1",
+    description: "passive_key_branch_draw_1_description",
     priority: 3794,
     // 紫微斗数：战斗开始后将「紫微斗数」洗入牌库（见 battle.dart _startBattle）
     shuffleIntoDeck: ["spellcraft_draw_cards_reduce_cost"],
   },
-  skilltree_branch_draw_2: {
-    id: "skilltree_branch_draw_2",
-    description: "passive_skilltree_branch_draw_2_description",
+  key_branch_draw_2: {
+    id: "key_branch_draw_2",
+    description: "passive_key_branch_draw_2_description",
     priority: 3793,
-    // 天道推演：每个回合开始时（抽牌阶段之前）观星 3 张（见 battle.dart _startTurn）
-    turnStartScry: 3,
+    // 天道推演：每个回合开始时（抽牌阶段之前）观星一次；数量共用普通观星规则（见 battle.dart _startTurn）
+    turnStartScry: true,
   },
-  skilltree_branch_element_1: {
-    id: "skilltree_branch_element_1",
-    description: "passive_skilltree_branch_element_1_description",
+  key_branch_element_1: {
+    id: "key_branch_element_1",
+    description: "passive_key_branch_element_1_description",
     priority: 3792,
     // 抱真守一：战斗开始授予同名永久状态，行为在状态脚本实现（embrace_simplicity）
-    battleStatus: "skilltree_branch_element_1",
+    battleStatus: "key_branch_element_1",
   },
-  skilltree_branch_element_2: {
-    id: "skilltree_branch_element_2",
-    description: "passive_skilltree_branch_element_2_description",
+  key_branch_element_2: {
+    id: "key_branch_element_2",
+    description: "passive_key_branch_element_2_description",
     priority: 3791,
     // 五行轮转：战斗开始授予同名永久状态，行为在状态脚本实现（element_cycle）
-    battleStatus: "skilltree_branch_element_2",
+    battleStatus: "key_branch_element_2",
   },
 
   /// 悟道独占分支节点；观微直接复用 scry_upgrade，其余数值节点引用既有属性词条
@@ -1541,7 +1541,10 @@
   mana_threshold_guard: {
     id: "mana_threshold_guard",
     description: "passive_mana_threshold_guard_description",
-    descriptionParams: ["battleStatus.reductionPercent", "battleStatus.threshold"],
+    descriptionParams: [
+      "battleStatus.reductionPercent",
+      "battleStatus.threshold",
+    ],
     priority: 3478,
     battleStatus: "mana_threshold_guard",
     greater: {

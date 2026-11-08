@@ -1743,14 +1743,11 @@ class BattleScene extends Scene {
       final isFirstAction = currentCharacter.turnCount == 0;
       currentCharacter.turnCount += 1;
 
-      // 回合开始观星（被动 turnStartScry 字段，数据驱动：悟道分支「天道推演」等；
-      // 双来源已求和聚合进 stats.turnStartScry，见 battle_entity.ht）：
-      // 每回合开始时（抽牌阶段之前）观星 N 张，选中的牌置于牌库顶，随本回合抽牌入手
-      final turnStartScryCount =
-          (currentCharacter.data['stats']?['turnStartScry'] as num?)?.toInt() ??
-              0;
-      if (turnStartScryCount > 0) {
-        await scry(deckZone, discardZone, count: turnStartScryCount);
+      // 回合开始观星（被动 turnStartScry 布尔开关，数据驱动：悟道分支「天道推演」等；
+      // 多来源按 OR 聚合，见 battle_entity.ht）：每回合开始时（抽牌阶段之前）观星一次。
+      // 数量与普通观星共用默认值和 scryBonus，选中的牌置于牌库顶，随本回合抽牌入手。
+      if (currentCharacter.data['stats']?['turnStartScry'] == true) {
+        await scry(deckZone, discardZone);
       }
 
       final drawCount = kBattleDrawCount +

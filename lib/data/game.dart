@@ -492,9 +492,9 @@ final class GameData with ChangeNotifier {
 
       if (isAttribute) {
         // nodeDescription.writeln(
-        //     '<bold yellow>${engine.locale('passivetree_attribute_any')}</>\n ');
+        //     '<bold yellow>${engine.locale('passiveskill_attribute_any')}</>\n ');
         String description =
-            engine.locale('passivetree_attribute_any_description');
+            engine.locale('passiveskill_attribute_any_description');
         List<String> lines = description.split('\n');
         for (final line in lines) {
           nodeDescription.writeln('<lightBlue>$line</>');
@@ -1167,12 +1167,12 @@ final class GameData with ChangeNotifier {
         character['ephemeralPassives'], character['ephemeralPassivesRaw']);
 
     desc.writeln(
-        '${engine.locale('passivetree_passives_description_title')}\n ');
+        '${engine.locale('passiveskill_passives_description_title')}\n ');
     desc.writeln(passivesDescription);
     desc.writeln(' ');
 
     desc.writeln(
-        '${engine.locale('passivetree_ephemeral_passives_description_title')}\n ');
+        '${engine.locale('passiveskill_ephemeral_passives_description_title')}\n ');
     desc.writeln(ephemeralPassivesDescription);
 
     return desc.toString();

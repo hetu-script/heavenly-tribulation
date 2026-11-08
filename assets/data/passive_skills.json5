@@ -20,192 +20,269 @@
   track_0_0: {
     size: "small",
     connectedNodes: [],
-    isAttribute: true,
     isOpen: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_1_0: {
     size: "small",
     connectedNodes: ["track_0_0"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_2_0: {
     size: "small",
     connectedNodes: ["track_1_0"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_3_0: {
-    size: "small",
-    connectedNodes: ["track_2_0"],
-    isAttribute: true,
-  },
-  track_4_0: {
     size: "large",
-    connectedNodes: ["track_3_0"],
+    connectedNodes: ["track_2_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "passivetree_swordcraft_rank_1",
-    comment: "passivetree_swordcraft_rank_1_comment",
-    // 御剑境界词条（swordcraft_rank_*）待御剑流派重构时补充，此前误引用的 spellcraft_rank_1 已移除
+    title: "passiveskill_swordcraft_rank_1",
+    comment: "passiveskill_swordcraft_rank_1_comment",
     passives: [
       // {
       //   id: "swordcraft_rank_1",
       // },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_4_0: {
+    size: "small",
+    connectedNodes: ["track_3_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_5_0: {
+    size: "small",
+    connectedNodes: ["track_4_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_6_0: {
+    size: "small",
+    connectedNodes: ["track_5_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_7_0: {
+    size: "large",
+    connectedNodes: ["track_6_0"],
+    icon: "cultivation/skill/swordcraft_selected.png",
+    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
+    title: "passiveskill_swordcraft_rank_2",
+    comment: "passiveskill_swordcraft_rank_2_comment",
+    passives: [
+      // {
+      //   id: "swordcraft_rank_2",
+      // },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_8_0: {
+    size: "small",
+    connectedNodes: ["track_7_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_9_0: {
+    size: "small",
+    connectedNodes: ["track_8_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_10_0: {
+    size: "small",
+    connectedNodes: ["track_9_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_11_0: {
+    size: "large",
+    connectedNodes: ["track_10_0"],
+    icon: "cultivation/skill/swordcraft_selected.png",
+    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
+    title: "passiveskill_swordcraft_rank_3",
+    comment: "passiveskill_swordcraft_rank_3_comment",
+    passives: [
+      // {
+      //   id: "swordcraft_rank_3",
+      // },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_12_0: {
+    size: "small",
+    connectedNodes: ["track_11_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
       {
         id: "lifeMax",
         level: 40,
       },
     ],
-    level: 10,
-    rank: 1,
   },
-  track_6_0: {
+  track_13_0: {
     size: "small",
-    connectedNodes: ["track_4_0"],
-    isAttribute: true,
-  },
-  track_8_0: {
-    size: "large",
-    connectedNodes: ["track_6_0"],
-    icon: "cultivation/skill/swordcraft_selected.png",
-    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "passivetree_swordcraft_rank_2",
-    comment: "passivetree_swordcraft_rank_2_comment",
+    connectedNodes: ["track_12_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
-      // {
-      //   id: "swordcraft_rank_2",
-      // },
       {
         id: "lifeMax",
-        level: 80,
+        level: 40,
       },
     ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_0: {
-    size: "small",
-    connectedNodes: ["track_8_0"],
-    isAttribute: true,
-  },
-  track_12_0: {
-    size: "large",
-    connectedNodes: ["track_10_0"],
-    icon: "cultivation/skill/swordcraft_selected.png",
-    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "passivetree_swordcraft_rank_3",
-    comment: "passivetree_swordcraft_rank_3_comment",
-    passives: [
-      // {
-      //   id: "swordcraft_rank_3",
-      // },
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
   },
   track_14_0: {
     size: "small",
-    connectedNodes: ["track_12_0"],
-    isAttribute: true,
+    connectedNodes: ["track_13_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
   },
-  track_16_0: {
+  track_15_0: {
     size: "large",
     connectedNodes: ["track_14_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "passivetree_swordcraft_rank_4",
-    comment: "passivetree_swordcraft_rank_4_comment",
+    title: "passiveskill_swordcraft_rank_4",
+    comment: "passiveskill_swordcraft_rank_4_comment",
     passives: [
       // {
       //   id: "swordcraft_rank_4",
       // },
-      {
-        id: "lifeMax",
-        level: 160,
-      },
     ],
     level: 40,
     rank: 4,
   },
-  track_18_0: {
+  track_16_0: {
+    size: "small",
+    connectedNodes: ["track_15_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_17_0: {
     size: "small",
     connectedNodes: ["track_16_0"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
   },
-  track_20_0: {
+  track_18_0: {
+    size: "small",
+    connectedNodes: ["track_17_0"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_19_0: {
     size: "large",
     connectedNodes: ["track_18_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "passivetree_swordcraft_rank_5",
-    comment: "passivetree_swordcraft_rank_5_comment",
+    title: "passiveskill_swordcraft_rank_5",
+    comment: "passiveskill_swordcraft_rank_5_comment",
     passives: [
       // {
       //   id: "swordcraft_rank_5",
       // },
-      {
-        id: "lifeMax",
-        level: 200,
-      },
     ],
     level: 50,
     rank: 5,
   },
 
-  // 御剑流右侧分支1
-  track_2_1: {
-    size: "small",
-    connectedNodes: ["track_3_1"],
-    isAttribute: true,
-  },
-  track_3_1: {
-    size: "small",
-    connectedNodes: ["track_3_0"],
-    isAttribute: true,
-  },
-  track_4_1: {
-    size: "small",
-    connectedNodes: ["track_3_1"],
-    isAttribute: true,
-  },
-  track_5_2: {
-    size: "small",
-    connectedNodes: ["track_4_1"],
-    isAttribute: true,
-  },
-  track_6_2: {
-    size: "small",
-    connectedNodes: ["track_5_2"],
-    isAttribute: true,
-  },
-  track_6_3: {
-    size: "small",
-    connectedNodes: ["track_6_2"],
-    isAttribute: true,
-  },
-  track_6_1: {
-    size: "small",
-    connectedNodes: ["track_6_2"],
-    isAttribute: true,
-  },
-  track_7_2: {
-    size: "small",
-    connectedNodes: ["track_6_2"],
-    isAttribute: true,
-  },
-
   // 御剑左侧分支1
   track_2_19: {
     size: "small",
-    connectedNodes: ["track_3_19"],
+    connectedNodes: ["track_2_0"],
     isAttribute: true,
   },
   track_3_19: {
     size: "small",
-    connectedNodes: ["track_3_0"],
+    connectedNodes: ["track_2_19"],
     isAttribute: true,
   },
   track_4_19: {
@@ -218,24 +295,86 @@
     connectedNodes: ["track_4_19"],
     isAttribute: true,
   },
-  track_6_38: {
+  track_5_37: {
     size: "small",
     connectedNodes: ["track_5_38"],
     isAttribute: true,
   },
   track_6_37: {
     size: "small",
-    connectedNodes: ["track_6_38"],
+    connectedNodes: ["track_5_37"],
+    isAttribute: true,
+  },
+  track_5_39: {
+    size: "small",
+    connectedNodes: ["track_5_38"],
     isAttribute: true,
   },
   track_6_39: {
     size: "small",
-    connectedNodes: ["track_6_38"],
+    connectedNodes: ["track_5_39"],
+    isAttribute: true,
+  },
+  track_6_38: {
+    size: "small",
+    connectedNodes: ["track_6_37", "track_6_39"],
     isAttribute: true,
   },
   track_7_38: {
     size: "small",
     connectedNodes: ["track_6_38"],
+    isAttribute: true,
+  },
+
+  // 御剑流右侧分支1
+  track_2_1: {
+    size: "small",
+    connectedNodes: ["track_2_0"],
+    isAttribute: true,
+  },
+  track_3_1: {
+    size: "small",
+    connectedNodes: ["track_2_1"],
+    isAttribute: true,
+  },
+  track_4_1: {
+    size: "small",
+    connectedNodes: ["track_3_1"],
+    isAttribute: true,
+  },
+  track_5_2: {
+    size: "small",
+    connectedNodes: ["track_4_1"],
+    isAttribute: true,
+  },
+  track_5_1: {
+    size: "small",
+    connectedNodes: ["track_5_2"],
+    isAttribute: true,
+  },
+  track_6_1: {
+    size: "small",
+    connectedNodes: ["track_5_1"],
+    isAttribute: true,
+  },
+  track_5_3: {
+    size: "small",
+    connectedNodes: ["track_5_2"],
+    isAttribute: true,
+  },
+  track_6_3: {
+    size: "small",
+    connectedNodes: ["track_5_3"],
+    isAttribute: true,
+  },
+  track_6_2: {
+    size: "small",
+    connectedNodes: ["track_6_1", "track_6_3"],
+    isAttribute: true,
+  },
+  track_7_2: {
+    size: "small",
+    connectedNodes: ["track_6_2"],
     isAttribute: true,
   },
 
@@ -252,19 +391,19 @@
   },
 
   // 御剑右侧分支2
-  track_8_1: {
+  track_7_1: {
     size: "small",
     connectedNodes: ["track_6_0"],
     isAttribute: true,
   },
-  track_9_2: {
+  track_8_2: {
     size: "small",
-    connectedNodes: ["track_8_1"],
+    connectedNodes: ["track_7_1"],
     isAttribute: true,
   },
   track_9_3: {
     size: "small",
-    connectedNodes: ["track_9_2"],
+    connectedNodes: ["track_8_2"],
     isAttribute: true,
   },
 
@@ -328,34 +467,40 @@
   },
 
   // 御剑和悟道共用分支1
-  track_8_4: {
+  track_10_4: {
     size: "small",
     connectedNodes: ["track_9_3", "track_9_5"],
     isAttribute: true,
   },
+  track_9_4: {
+    size: "small",
+    connectedNodes: ["track_10_4"],
+    isAttribute: true,
+  },
+  track_8_3: {
+    size: "small",
+    connectedNodes: ["track_9_4"],
+    isAttribute: true,
+  },
+  track_8_5: {
+    size: "small",
+    connectedNodes: ["track_9_4"],
+    isAttribute: true,
+  },
   track_7_4: {
     size: "small",
-    connectedNodes: ["track_8_4"],
+    connectedNodes: ["track_8_3", "track_8_5"],
     isAttribute: true,
   },
-  track_6_4: {
-    size: "small",
-    connectedNodes: ["track_7_4"],
-    isAttribute: true,
-  },
-  track_5_4: {
-    size: "small",
-    connectedNodes: ["track_6_4"],
-    isAttribute: true,
-  },
-  track_4_2: {
+  track_8_4: {
     size: "medium",
-    connectedNodes: ["track_5_4"],
+    connectedNodes: ["track_7_4"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    title: "passiveskill_key_branch_element_1",
     passives: [
       {
-        id: "skilltree_branch_element_1",
+        id: "key_branch_element_1",
       },
     ],
   },
@@ -366,9 +511,10 @@
     connectedNodes: ["track_17_3", "track_15_5"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    title: "passiveskill_key_branch_element_2",
     passives: [
       {
-        id: "skilltree_branch_element_2",
+        id: "key_branch_element_2",
       },
     ],
   },
@@ -377,134 +523,254 @@
   track_0_1: {
     size: "small",
     connectedNodes: [],
-    isAttribute: true,
     isOpen: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_1_1: {
     size: "small",
     connectedNodes: ["track_0_1"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_2_4: {
     size: "small",
     connectedNodes: ["track_1_1"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_3_4: {
-    size: "small",
-    connectedNodes: ["track_2_4"],
-    isAttribute: true,
-  },
-  track_4_4: {
     size: "large",
-    connectedNodes: ["track_3_4"],
+    connectedNodes: ["track_2_4"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_1",
-    comment: "passivetree_spellcraft_rank_1_comment",
+    title: "passiveskill_spellcraft_rank_1",
+    comment: "passiveskill_spellcraft_rank_1_comment",
     passives: [
       {
         id: "spellcraft_rank_1",
-      },
-      {
-        id: "lifeMax",
-        level: 40,
       },
     ],
     level: 10,
     rank: 1,
   },
-  track_6_8: {
+  track_4_4: {
+    size: "small",
+    connectedNodes: ["track_3_4"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_5_8: {
     size: "small",
     connectedNodes: ["track_4_4"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
   },
-  track_8_8: {
+  track_6_8: {
+    size: "small",
+    connectedNodes: ["track_5_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_7_8: {
     size: "large",
     connectedNodes: ["track_6_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_2",
-    comment: "passivetree_spellcraft_rank_2_comment",
+    title: "passiveskill_spellcraft_rank_2",
+    comment: "passiveskill_spellcraft_rank_2_comment",
     passives: [
       {
         id: "spellcraft_rank_2",
-      },
-      {
-        id: "lifeMax",
-        level: 80,
       },
     ],
     level: 20,
     rank: 2,
   },
-  track_10_8: {
+  track_8_8: {
+    size: "small",
+    connectedNodes: ["track_7_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_9_8: {
     size: "small",
     connectedNodes: ["track_8_8"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
   },
-  track_12_8: {
+  track_10_8: {
+    size: "small",
+    connectedNodes: ["track_9_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_11_8: {
     size: "large",
     connectedNodes: ["track_10_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_3",
-    comment: "passivetree_spellcraft_rank_3_comment",
+    title: "passiveskill_spellcraft_rank_3",
+    comment: "passiveskill_spellcraft_rank_3_comment",
     passives: [
       {
         id: "spellcraft_rank_3",
-      },
-      {
-        id: "lifeMax",
-        level: 120,
       },
     ],
     level: 30,
     rank: 3,
   },
-  track_14_8: {
+  track_12_8: {
+    size: "small",
+    connectedNodes: ["track_11_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+  },
+  track_13_8: {
     size: "small",
     connectedNodes: ["track_12_8"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
   },
-  track_16_8: {
+  track_14_8: {
+    size: "small",
+    connectedNodes: ["track_13_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
+  },
+  track_15_8: {
     size: "large",
     connectedNodes: ["track_14_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_4",
-    comment: "passivetree_spellcraft_rank_4_comment",
+    title: "passiveskill_spellcraft_rank_4",
+    comment: "passiveskill_spellcraft_rank_4_comment",
     passives: [
       {
         id: "spellcraft_rank_4",
-      },
-      {
-        id: "lifeMax",
-        level: 160,
       },
     ],
     level: 40,
     rank: 4,
   },
-  track_18_8: {
+  track_16_8: {
+    size: "small",
+    connectedNodes: ["track_15_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_17_8: {
     size: "small",
     connectedNodes: ["track_16_8"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
   },
-  track_20_8: {
+  track_18_8: {
+    size: "small",
+    connectedNodes: ["track_17_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_19_8: {
     size: "large",
     connectedNodes: ["track_18_8"],
     icon: "cultivation/skill/spellcraft_selected.png",
     unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
-    title: "passivetree_spellcraft_rank_5",
-    comment: "passivetree_spellcraft_rank_5_comment",
+    title: "passiveskill_spellcraft_rank_5",
+    comment: "passiveskill_spellcraft_rank_5_comment",
     passives: [
       {
         id: "spellcraft_rank_5",
-      },
-      {
-        id: "lifeMax",
-        level: 200,
       },
     ],
     level: 50,
@@ -512,9 +778,14 @@
   },
 
   // 悟道左侧分支1
+  track_2_3: {
+    size: "small",
+    connectedNodes: ["track_2_4"],
+    isAttribute: true,
+  },
   track_3_3: {
     size: "small",
-    connectedNodes: ["track_3_4"],
+    connectedNodes: ["track_2_3"],
     isAttribute: true,
   },
   track_4_3: {
@@ -542,9 +813,14 @@
     connectedNodes: ["track_7_6"],
     isAttribute: true,
   },
-  track_5_6: {
+  track_5_5: {
     size: "small",
     connectedNodes: ["track_6_5"],
+    isAttribute: true,
+  },
+  track_5_6: {
+    size: "small",
+    connectedNodes: ["track_5_5"],
     isAttribute: true,
   },
   track_6_6: {
@@ -554,9 +830,14 @@
   },
 
   // 悟道右侧分支1
+  track_2_5: {
+    size: "small",
+    connectedNodes: ["track_2_4"],
+    isAttribute: true,
+  },
   track_3_5: {
     size: "small",
-    connectedNodes: ["track_3_4"],
+    connectedNodes: ["track_2_5"],
     isAttribute: true,
   },
   track_4_5: {
@@ -584,9 +865,14 @@
     connectedNodes: ["track_7_10"],
     isAttribute: true,
   },
-  track_5_10: {
+  track_5_9: {
     size: "small",
     connectedNodes: ["track_6_9"],
+    isAttribute: true,
+  },
+  track_5_10: {
+    size: "small",
+    connectedNodes: ["track_5_9"],
     isAttribute: true,
   },
   track_6_10: {
@@ -596,19 +882,19 @@
   },
 
   // 悟道左侧分支2
-  track_8_7: {
+  track_7_7: {
     size: "small",
     connectedNodes: ["track_6_8"],
     isAttribute: true,
   },
-  track_9_6: {
+  track_8_6: {
     size: "small",
-    connectedNodes: ["track_8_7"],
+    connectedNodes: ["track_7_7"],
     isAttribute: true,
   },
   track_9_5: {
     size: "small",
-    connectedNodes: ["track_9_6"],
+    connectedNodes: ["track_8_6"],
     isAttribute: true,
   },
 
@@ -642,7 +928,7 @@
   },
   track_17_5: {
     size: "small",
-    connectedNodes: ["track_16_6"],
+    connectedNodes: ["track_18_5"],
     isAttribute: true,
   },
   track_18_4: {
@@ -688,124 +974,376 @@
     isAttribute: true,
   },
 
+  // 悟道和炼魂共用分支1
+  track_10_11: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_10_12: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_10_13: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_9_11: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_9_13: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_8_11: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_8_12: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_8_13: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_9_12: {
+    size: "medium",
+    connectedNodes: [
+      "track_8_11",
+      "track_8_12",
+      "track_8_13",
+      "track_9_11",
+      "track_9_13",
+      "track_10_11",
+      "track_10_12",
+      "track_10_13",
+    ],
+    icon: "cultivation/skill/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    title: "passiveskill_key_branch_draw_1",
+    passives: [
+      {
+        id: "key_branch_draw_1",
+      },
+    ],
+  },
+
+  // 悟道和炼魂共用分支2
+  track_15_12: {
+    size: "small",
+    connectedNodes: [],
+    isAttribute: true,
+  },
+  track_16_11: {
+    size: "small",
+    connectedNodes: ["track_15_12"],
+    isAttribute: true,
+  },
+  track_17_11: {
+    size: "small",
+    connectedNodes: ["track_16_11"],
+    isAttribute: true,
+  },
+  track_18_11: {
+    size: "small",
+    connectedNodes: ["track_17_11"],
+    isAttribute: true,
+  },
+  track_16_13: {
+    size: "small",
+    connectedNodes: ["track_15_12"],
+    isAttribute: true,
+  },
+  track_17_13: {
+    size: "small",
+    connectedNodes: ["track_16_13"],
+    isAttribute: true,
+  },
+  track_18_13: {
+    size: "small",
+    connectedNodes: ["track_17_13"],
+    isAttribute: true,
+  },
+  track_17_12: {
+    size: "small",
+    connectedNodes: ["track_18_11", "track_18_13"],
+    isAttribute: true,
+  },
+  track_16_12: {
+    size: "medium",
+    connectedNodes: ["track_15_12"],
+    icon: "cultivation/skill/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    title: "passiveskill_key_branch_draw_2",
+    passives: [
+      {
+        id: "key_branch_draw_2",
+      },
+    ],
+  },
+
   // 炼魂流派主轴
   track_0_2: {
     size: "small",
     connectedNodes: [],
-    isAttribute: true,
     isOpen: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_1_2: {
     size: "small",
     connectedNodes: ["track_0_2"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_2_8: {
     size: "small",
     connectedNodes: ["track_1_2"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_3_8: {
-    size: "small",
-    connectedNodes: ["track_2_8"],
-    isAttribute: true,
-  },
-  track_4_8: {
     size: "large",
-    connectedNodes: ["track_3_8"],
+    connectedNodes: ["track_2_8"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_1",
-    comment: "passivetree_vitality_rank_1_comment",
+    title: "passiveskill_vitality_rank_1",
+    comment: "passiveskill_vitality_rank_1_comment",
+    passives: [
+      // {
+      //   id: "vitality_rank_1",
+      // },
+    ],
+    level: 10,
+    rank: 1,
+  },
+  track_4_8: {
+    size: "small",
+    connectedNodes: ["track_3_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_5_16: {
+    size: "small",
+    connectedNodes: ["track_4_8"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_6_16: {
+    size: "small",
+    connectedNodes: ["track_5_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_7_16: {
+    size: "large",
+    connectedNodes: ["track_6_16"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passiveskill_vitality_rank_2",
+    comment: "passiveskill_vitality_rank_2_comment",
+    passives: [
+      // {
+      //   id: "vitality_rank_2",
+      // },
+    ],
+    level: 20,
+    rank: 2,
+  },
+  track_8_16: {
+    size: "small",
+    connectedNodes: ["track_7_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_9_16: {
+    size: "small",
+    connectedNodes: ["track_8_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_10_16: {
+    size: "small",
+    connectedNodes: ["track_9_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_11_16: {
+    size: "large",
+    connectedNodes: ["track_10_16"],
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    title: "passiveskill_vitality_rank_3",
+    comment: "passiveskill_vitality_rank_3_comment",
+    passives: [
+      // {
+      //   id: "vitality_rank_3",
+      // },
+    ],
+    level: 30,
+    rank: 3,
+  },
+  track_12_16: {
+    size: "small",
+    connectedNodes: ["track_11_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
         level: 40,
       },
     ],
-    level: 10,
-    rank: 1,
   },
-  track_6_16: {
+  track_13_16: {
     size: "small",
-    connectedNodes: ["track_4_8"],
-    isAttribute: true,
-  },
-  track_8_16: {
-    size: "large",
-    connectedNodes: ["track_6_16"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_2",
-    comment: "passivetree_vitality_rank_2_comment",
+    connectedNodes: ["track_12_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
-        level: 80,
+        level: 40,
       },
     ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_16: {
-    size: "small",
-    connectedNodes: ["track_8_16"],
-    isAttribute: true,
-  },
-  track_12_16: {
-    size: "large",
-    connectedNodes: ["track_10_16"],
-    icon: "cultivation/skill/vitality_selected.png",
-    unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_3",
-    comment: "passivetree_vitality_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
   },
   track_14_16: {
     size: "small",
-    connectedNodes: ["track_12_16"],
-    isAttribute: true,
+    connectedNodes: ["track_13_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
   },
-  track_16_16: {
+  track_15_16: {
     size: "large",
     connectedNodes: ["track_14_16"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_4",
-    comment: "passivetree_vitality_rank_4_comment",
+    title: "passiveskill_vitality_rank_4",
+    comment: "passiveskill_vitality_rank_4_comment",
     passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
+      // {
+      //   id: "vitality_rank_4",
+      // },
     ],
     level: 40,
     rank: 4,
   },
-  track_18_16: {
+  track_16_16: {
+    size: "small",
+    connectedNodes: ["track_15_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_17_16: {
     size: "small",
     connectedNodes: ["track_16_16"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
   },
-  track_20_16: {
+  track_18_16: {
+    size: "small",
+    connectedNodes: ["track_17_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_19_16: {
     size: "large",
     connectedNodes: ["track_18_16"],
     icon: "cultivation/skill/vitality_selected.png",
     unselectedIcon: "cultivation/skill/vitality_unselected.png",
-    title: "passivetree_vitality_rank_5",
-    comment: "passivetree_vitality_rank_5_comment",
+    title: "passiveskill_vitality_rank_5",
+    comment: "passiveskill_vitality_rank_5_comment",
     passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
+      // {
+      //   id: "vitality_rank_5",
+      // },
     ],
     level: 50,
     rank: 5,
@@ -814,12 +1352,12 @@
   // 炼魂左侧分支1
   track_2_7: {
     size: "small",
-    connectedNodes: ["track_3_7"],
+    connectedNodes: ["track_2_8"],
     isAttribute: true,
   },
   track_3_7: {
     size: "small",
-    connectedNodes: ["track_3_8"],
+    connectedNodes: ["track_2_7"],
     isAttribute: true,
   },
   track_4_7: {
@@ -842,26 +1380,36 @@
     connectedNodes: ["track_6_14"],
     isAttribute: true,
   },
+  track_5_13: {
+    size: "small",
+    connectedNodes: ["track_4_7"],
+    isAttribute: true,
+  },
   track_6_13: {
     size: "small",
-    connectedNodes: ["track_5_14"],
+    connectedNodes: ["track_5_13"],
+    isAttribute: true,
+  },
+  track_5_15: {
+    size: "small",
+    connectedNodes: ["track_4_7"],
     isAttribute: true,
   },
   track_6_15: {
     size: "small",
-    connectedNodes: ["track_5_14"],
+    connectedNodes: ["track_5_15"],
     isAttribute: true,
   },
 
   // 炼魂右侧分支1
   track_2_9: {
     size: "small",
-    connectedNodes: ["track_3_9"],
+    connectedNodes: ["track_2_8"],
     isAttribute: true,
   },
   track_3_9: {
     size: "small",
-    connectedNodes: ["track_3_8"],
+    connectedNodes: ["track_2_9"],
     isAttribute: true,
   },
   track_4_9: {
@@ -884,14 +1432,24 @@
     connectedNodes: ["track_6_18"],
     isAttribute: true,
   },
+  track_5_17: {
+    size: "small",
+    connectedNodes: ["track_4_9"],
+    isAttribute: true,
+  },
   track_6_17: {
     size: "small",
-    connectedNodes: ["track_5_18"],
+    connectedNodes: ["track_5_17"],
+    isAttribute: true,
+  },
+  track_5_19: {
+    size: "small",
+    connectedNodes: ["track_4_9"],
     isAttribute: true,
   },
   track_6_19: {
     size: "small",
-    connectedNodes: ["track_5_18"],
+    connectedNodes: ["track_5_19"],
     isAttribute: true,
   },
 
@@ -899,121 +1457,236 @@
   track_0_3: {
     size: "small",
     connectedNodes: [],
-    isAttribute: true,
     isOpen: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_1_3: {
     size: "small",
     connectedNodes: ["track_0_3"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_2_12: {
     size: "small",
     connectedNodes: ["track_1_3"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_3_12: {
-    size: "small",
-    connectedNodes: ["track_2_12"],
-    isAttribute: true,
-  },
-  track_4_12: {
     size: "large",
-    connectedNodes: ["track_3_12"],
+    connectedNodes: ["track_2_12"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_1",
-    comment: "passivetree_avatar_rank_1_comment",
+    title: "passiveskill_avatar_rank_1",
+    comment: "passiveskill_avatar_rank_1_comment",
+    passives: [],
+    level: 10,
+    rank: 1,
+  },
+  track_4_12: {
+    size: "small",
+    connectedNodes: ["track_3_12"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_5_24: {
+    size: "small",
+    connectedNodes: ["track_4_12"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_6_24: {
+    size: "small",
+    connectedNodes: ["track_5_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_7_24: {
+    size: "large",
+    connectedNodes: ["track_6_24"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passiveskill_avatar_rank_2",
+    comment: "passiveskill_avatar_rank_2_comment",
+    passives: [],
+    level: 20,
+    rank: 2,
+  },
+  track_8_24: {
+    size: "small",
+    connectedNodes: ["track_7_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_9_24: {
+    size: "small",
+    connectedNodes: ["track_8_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_10_24: {
+    size: "small",
+    connectedNodes: ["track_9_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_11_24: {
+    size: "large",
+    connectedNodes: ["track_10_24"],
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    title: "passiveskill_avatar_rank_3",
+    comment: "passiveskill_avatar_rank_3_comment",
+    passives: [],
+    level: 30,
+    rank: 3,
+  },
+  track_12_24: {
+    size: "small",
+    connectedNodes: ["track_11_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
         level: 40,
       },
     ],
-    level: 10,
-    rank: 1,
   },
-  track_6_24: {
+  track_13_24: {
     size: "small",
-    connectedNodes: ["track_4_12"],
-    isAttribute: true,
-  },
-  track_8_24: {
-    size: "large",
-    connectedNodes: ["track_6_24"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_2",
-    comment: "passivetree_avatar_rank_2_comment",
+    connectedNodes: ["track_12_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
-        level: 80,
+        level: 40,
       },
     ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_24: {
-    size: "small",
-    connectedNodes: ["track_8_24"],
-    isAttribute: true,
-  },
-  track_12_24: {
-    size: "large",
-    connectedNodes: ["track_10_24"],
-    icon: "cultivation/skill/avatar_selected.png",
-    unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_3",
-    comment: "passivetree_avatar_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
   },
   track_14_24: {
     size: "small",
-    connectedNodes: ["track_12_24"],
-    isAttribute: true,
+    connectedNodes: ["track_13_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
   },
-  track_16_24: {
+  track_15_24: {
     size: "large",
     connectedNodes: ["track_14_24"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_4",
-    comment: "passivetree_avatar_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
+    title: "passiveskill_avatar_rank_4",
+    comment: "passiveskill_avatar_rank_4_comment",
+    passives: [],
     level: 40,
     rank: 4,
   },
-  track_18_24: {
+  track_16_24: {
+    size: "small",
+    connectedNodes: ["track_15_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_17_24: {
     size: "small",
     connectedNodes: ["track_16_24"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
   },
-  track_20_24: {
+  track_18_24: {
+    size: "small",
+    connectedNodes: ["track_17_24"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_19_24: {
     size: "large",
     connectedNodes: ["track_18_24"],
     icon: "cultivation/skill/avatar_selected.png",
     unselectedIcon: "cultivation/skill/avatar_unselected.png",
-    title: "passivetree_avatar_rank_5",
-    comment: "passivetree_avatar_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
+    title: "passiveskill_avatar_rank_5",
+    comment: "passiveskill_avatar_rank_5_comment",
+    passives: [],
     level: 50,
     rank: 5,
   },
@@ -1021,12 +1694,12 @@
   // 法身左侧分支1
   track_2_11: {
     size: "small",
-    connectedNodes: ["track_3_11"],
+    connectedNodes: ["track_2_12"],
     isAttribute: true,
   },
   track_3_11: {
     size: "small",
-    connectedNodes: ["track_3_12"],
+    connectedNodes: ["track_2_11"],
     isAttribute: true,
   },
   track_4_11: {
@@ -1044,14 +1717,24 @@
     connectedNodes: ["track_5_22"],
     isAttribute: true,
   },
+  track_7_21: {
+    size: "small",
+    connectedNodes: ["track_6_21"],
+    isAttribute: true,
+  },
   track_6_23: {
     size: "small",
     connectedNodes: ["track_5_22"],
     isAttribute: true,
   },
+  track_7_23: {
+    size: "small",
+    connectedNodes: ["track_6_23"],
+    isAttribute: true,
+  },
   track_7_22: {
     size: "small",
-    connectedNodes: ["track_6_21", "track_6_23"],
+    connectedNodes: ["track_7_21", "track_7_23"],
     isAttribute: true,
   },
   track_6_22: {
@@ -1063,12 +1746,12 @@
   // 法身右侧分支1
   track_2_13: {
     size: "small",
-    connectedNodes: ["track_3_13"],
+    connectedNodes: ["track_2_12"],
     isAttribute: true,
   },
   track_3_13: {
     size: "small",
-    connectedNodes: ["track_3_12"],
+    connectedNodes: ["track_2_13"],
     isAttribute: true,
   },
   track_4_13: {
@@ -1086,14 +1769,24 @@
     connectedNodes: ["track_5_26"],
     isAttribute: true,
   },
+  track_7_25: {
+    size: "small",
+    connectedNodes: ["track_6_25"],
+    isAttribute: true,
+  },
   track_6_27: {
     size: "small",
     connectedNodes: ["track_5_26"],
     isAttribute: true,
   },
+  track_7_27: {
+    size: "small",
+    connectedNodes: ["track_6_27"],
+    isAttribute: true,
+  },
   track_7_26: {
     size: "small",
-    connectedNodes: ["track_6_25", "track_6_27"],
+    connectedNodes: ["track_7_25", "track_7_27"],
     isAttribute: true,
   },
   track_6_26: {
@@ -1106,134 +1799,259 @@
   track_0_4: {
     size: "small",
     connectedNodes: [],
-    isAttribute: true,
     isOpen: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_1_4: {
     size: "small",
     connectedNodes: ["track_0_4"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_2_16: {
     size: "small",
     connectedNodes: ["track_1_4"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 10,
+      },
+    ],
   },
   track_3_16: {
-    size: "small",
-    connectedNodes: ["track_2_16"],
-    isAttribute: true,
-  },
-  track_4_16: {
     size: "large",
-    connectedNodes: ["track_3_16"],
+    connectedNodes: ["track_2_16"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_1",
-    comment: "passivetree_bodyforge_rank_1_comment",
+    title: "passiveskill_bodyforge_rank_1",
+    comment: "passiveskill_bodyforge_rank_1_comment",
+    passives: [],
+    level: 10,
+    rank: 1,
+  },
+  track_4_16: {
+    size: "small",
+    connectedNodes: ["track_3_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_5_32: {
+    size: "small",
+    connectedNodes: ["track_4_16"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_6_32: {
+    size: "small",
+    connectedNodes: ["track_5_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 20,
+      },
+    ],
+  },
+  track_7_32: {
+    size: "large",
+    connectedNodes: ["track_6_32"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passiveskill_bodyforge_rank_2",
+    comment: "passiveskill_bodyforge_rank_2_comment",
+    passives: [],
+    level: 20,
+    rank: 2,
+  },
+  track_8_32: {
+    size: "small",
+    connectedNodes: ["track_7_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_9_32: {
+    size: "small",
+    connectedNodes: ["track_8_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_10_32: {
+    size: "small",
+    connectedNodes: ["track_9_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 30,
+      },
+    ],
+  },
+  track_11_32: {
+    size: "large",
+    connectedNodes: ["track_10_32"],
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    title: "passiveskill_bodyforge_rank_3",
+    comment: "passiveskill_bodyforge_rank_3_comment",
+    passives: [],
+    level: 30,
+    rank: 3,
+  },
+  track_12_32: {
+    size: "small",
+    connectedNodes: ["track_11_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
         level: 40,
       },
     ],
-    level: 10,
-    rank: 1,
   },
-  track_6_32: {
+  track_13_32: {
     size: "small",
-    connectedNodes: ["track_4_16"],
-    isAttribute: true,
-  },
-  track_8_32: {
-    size: "large",
-    connectedNodes: ["track_6_32"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_2",
-    comment: "passivetree_bodyforge_rank_2_comment",
+    connectedNodes: ["track_12_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
     passives: [
       {
         id: "lifeMax",
-        level: 80,
+        level: 40,
       },
     ],
-    level: 20,
-    rank: 2,
-  },
-  track_10_32: {
-    size: "small",
-    connectedNodes: ["track_8_32"],
-    isAttribute: true,
-  },
-  track_12_32: {
-    size: "large",
-    connectedNodes: ["track_10_32"],
-    icon: "cultivation/skill/bodyforge_selected.png",
-    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_3",
-    comment: "passivetree_bodyforge_rank_3_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 120,
-      },
-    ],
-    level: 30,
-    rank: 3,
   },
   track_14_32: {
     size: "small",
-    connectedNodes: ["track_12_32"],
-    isAttribute: true,
+    connectedNodes: ["track_13_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 40,
+      },
+    ],
   },
-  track_16_32: {
+  track_15_32: {
     size: "large",
     connectedNodes: ["track_14_32"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_4",
-    comment: "passivetree_bodyforge_rank_4_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 160,
-      },
-    ],
+    title: "passiveskill_bodyforge_rank_4",
+    comment: "passiveskill_bodyforge_rank_4_comment",
+    passives: [],
     level: 40,
     rank: 4,
   },
-  track_18_32: {
+  track_16_32: {
+    size: "small",
+    connectedNodes: ["track_15_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_17_32: {
     size: "small",
     connectedNodes: ["track_16_32"],
-    isAttribute: true,
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
   },
-  track_20_32: {
+  track_18_32: {
+    size: "small",
+    connectedNodes: ["track_17_32"],
+    icon: "cultivation/skill/lotus_selected.png",
+    unselectedIcon: "cultivation/skill/lotus_unselected.png",
+    passives: [
+      {
+        id: "lifeMax",
+        level: 50,
+      },
+    ],
+  },
+  track_19_32: {
     size: "large",
     connectedNodes: ["track_18_32"],
     icon: "cultivation/skill/bodyforge_selected.png",
     unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
-    title: "passivetree_bodyforge_rank_5",
-    comment: "passivetree_bodyforge_rank_5_comment",
-    passives: [
-      {
-        id: "lifeMax",
-        level: 200,
-      },
-    ],
+    title: "passiveskill_bodyforge_rank_5",
+    comment: "passiveskill_bodyforge_rank_5_comment",
+    passives: [],
     level: 50,
     rank: 5,
   },
 
   // 锻体左侧分支1
+  track_2_15: {
+    size: "small",
+    connectedNodes: ["track_2_16"],
+    isAttribute: true,
+  },
   track_3_15: {
     size: "small",
-    connectedNodes: ["track_3_16"],
+    connectedNodes: ["track_2_15"],
     isAttribute: true,
   },
   track_4_15: {
     size: "small",
     connectedNodes: ["track_3_15"],
+    isAttribute: true,
+  },
+  track_5_31: {
+    size: "small",
+    connectedNodes: ["track_4_15"],
     isAttribute: true,
   },
   track_5_30: {
@@ -1268,14 +2086,24 @@
   },
 
   // 锻体右侧分支1
+  track_2_17: {
+    size: "small",
+    connectedNodes: ["track_2_16"],
+    isAttribute: true,
+  },
   track_3_17: {
     size: "small",
-    connectedNodes: ["track_3_16"],
+    connectedNodes: ["track_2_17"],
     isAttribute: true,
   },
   track_4_17: {
     size: "small",
     connectedNodes: ["track_3_17"],
+    isAttribute: true,
+  },
+  track_5_35: {
+    size: "small",
+    connectedNodes: ["track_4_17"],
     isAttribute: true,
   },
   track_5_34: {

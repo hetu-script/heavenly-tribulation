@@ -22,22 +22,22 @@
 
 ## 2. 当前可复用能力
 
-| 设计需求 | 当前实现与复用方式 |
-| --- | --- |
-| 御剑牌减费 | `deckCostReduction`，参照 `spellcraft_rank_2` |
-| 化神洗入剑道千秋 | `shuffleIntoDeck`，参照 `spellcraft_rank_5` |
-| 下回合剑气 | `turnFlags.pendingResources`，在产出阶段统一授予 |
-| 本回合用牌统计 | `turnFlags` 与 `self_used_card`，参照五行轮转 |
-| 动态费用与实际支付 | `calculateCardPayment` 与 `cardFlags.paidCost` |
+| 设计需求             | 当前实现与复用方式                                                          |
+| -------------------- | --------------------------------------------------------------------------- |
+| 御剑牌减费           | `deckCostReduction`，参照 `spellcraft_rank_2`                               |
+| 化神洗入剑道千秋     | `shuffleIntoDeck`，参照 `spellcraft_rank_5`                                 |
+| 下回合剑气           | `turnFlags.pendingResources`，在产出阶段统一授予                            |
+| 本回合用牌统计       | `turnFlags` 与 `self_used_card`，参照五行轮转                               |
+| 动态费用与实际支付   | `calculateCardPayment` 与 `cardFlags.paidCost`                              |
 | 普通抽牌、置零和升级 | `drawCardsToHand`、`clearReducibleCardCosts`、`upgradeCard(inBattle: true)` |
-| 保留与太古保留升级 | `added_to_hand` / `retained_turn_end` 回调及现有 `retain` 词条 |
-| 身法增伤 | `for_attribute_increase_damage` |
-| 资源门槛增伤 | `increase_damage_by_energy_count`，资源 id 改为剑气 |
-| 元素异常 | `ailment_spread` 与 `require: {elementType: true}` |
-| 元气转剑气 | `convert_vigor_all`，目标资源改为 `energy_positive_weapon` |
-| 元素共享分支 | 现有 `skilltree_branch_element_1/2`，不重复实现 |
-| 绝世固定成长 | `affixes` + `greaterAffixes`，rank 1/2 解锁，rank 3～5 太古 |
-| 装备行为 | `battleStatus` + 永久状态脚本；参数行为使用机制字段或 `statsBonus` |
+| 保留与太古保留升级   | `added_to_hand` / `retained_turn_end` 回调及现有 `retain` 词条              |
+| 身法增伤             | `for_attribute_increase_damage`                                             |
+| 资源门槛增伤         | `increase_damage_by_energy_count`，资源 id 改为剑气                         |
+| 元素异常             | `ailment_spread` 与 `require: {elementType: true}`                          |
+| 元气转剑气           | `convert_vigor_all`，目标资源改为 `energy_positive_weapon`                  |
+| 元素共享分支         | 现有 `key_branch_element_1/2`，不重复实现                                   |
+| 绝世固定成长         | `affixes` + `greaterAffixes`，rank 1/2 解锁，rank 3～5 太古                 |
+| 装备行为             | `battleStatus` + 永久状态脚本；参数行为使用机制字段或 `statsBonus`          |
 
 ## 3. 新公共机制契约
 

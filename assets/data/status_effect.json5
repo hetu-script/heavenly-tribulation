@@ -769,7 +769,12 @@
     icon: "icon/status/amplify_water.png",
     damageType: "ice",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
+    callbacks: [
+      "self_doing_damage",
+      "self_turn_end",
+      "self_taking_damage",
+      "opponent_used_card",
+    ],
   },
   buff_element_amplify_fire: {
     id: "buff_element_amplify_fire",
@@ -778,7 +783,12 @@
     icon: "icon/status/amplify_fire.png",
     damageType: "fire",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
+    callbacks: [
+      "self_doing_damage",
+      "self_turn_end",
+      "self_taking_damage",
+      "opponent_used_card",
+    ],
   },
   buff_element_amplify_lightning: {
     id: "buff_element_amplify_lightning",
@@ -787,7 +797,12 @@
     icon: "icon/status/amplify_lightning.png",
     damageType: "lightning",
     script: "element_amplify",
-    callbacks: ["self_doing_damage", "self_turn_end", "self_taking_damage", "opponent_used_card"],
+    callbacks: [
+      "self_doing_damage",
+      "self_turn_end",
+      "self_taking_damage",
+      "opponent_used_card",
+    ],
   },
 
   // 太上忘情（悟道绝世授予）：回合结束时每有一张手牌受到 damagePerCard 点纯粹伤害
@@ -853,22 +868,22 @@
   // ------------流派分支节点状态------------
 
   // 抱真守一（悟道/御剑共享分支节点）：使用元素牌后，手牌里随机一张相同元素牌获得升级
-  skilltree_branch_element_1: {
-    id: "skilltree_branch_element_1",
-    title: "status_skilltree_branch_element_1",
-    description: "status_skilltree_branch_element_1_description",
-    icon: "icon/status/permanent/skilltree_branch_element_1.png",
+  key_branch_element_1: {
+    id: "key_branch_element_1",
+    title: "status_key_branch_element_1",
+    description: "status_key_branch_element_1_description",
+    icon: "icon/status/permanent/key_branch_element_1.png",
     isPermanent: true,
     script: "embrace_simplicity",
     callbacks: ["self_used_card"],
   },
   // 五行轮转（悟道/御剑共享分支节点）：本回合每使用一种不同的元素牌，
   // 获得 1 层 resourceId 资源
-  skilltree_branch_element_2: {
-    id: "skilltree_branch_element_2",
-    title: "status_skilltree_branch_element_2",
-    description: "status_skilltree_branch_element_2_description",
-    icon: "icon/status/permanent/skilltree_branch_element_2.png",
+  key_branch_element_2: {
+    id: "key_branch_element_2",
+    title: "status_key_branch_element_2",
+    description: "status_key_branch_element_2_description",
+    icon: "icon/status/permanent/key_branch_element_2.png",
     isPermanent: true,
     script: "element_cycle",
     callbacks: ["self_used_card"],

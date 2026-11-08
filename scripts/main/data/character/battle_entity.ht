@@ -397,7 +397,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   final battleStatusParams = {}
   final deckCostReductionRules = []
   final shuffleIntoDeckIds = []
-  let turnStartScryTotal = 0
+  let turnStartScryEnabled = false
   let extraDrawCount = 0
   final energyRetainMap = {}
   for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
@@ -440,9 +440,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
         if (shuffleIntoDeck != null) {
           shuffleIntoDeckIds.addAll(shuffleIntoDeck)
         }
-        final turnStartScry = passiveData['turnStartScry']
-        if (turnStartScry != null && turnStartScry > 0) {
-          turnStartScryTotal += turnStartScry
+        if (passiveData['turnStartScry'] == true) {
+          turnStartScryEnabled = true
         }
         final turnStartExtraDraw = passiveData['turnStartExtraDraw']
         if (turnStartExtraDraw != null) {
@@ -485,7 +484,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.battleStatusParams = battleStatusParams
   character.stats.deckCostReduction = deckCostReductionRules
   character.stats.shuffleIntoDeck = shuffleIntoDeckIds
-  character.stats.turnStartScry = turnStartScryTotal
+  character.stats.turnStartScry = turnStartScryEnabled
   if (extraDrawCount > 0) {
     character.stats.turnStartExtraDraw = {
       count: extraDrawCount,
