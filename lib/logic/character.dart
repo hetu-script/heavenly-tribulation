@@ -2100,6 +2100,20 @@ void _characterRefundPassiveTreeNode(
   unlockedNodes.remove(nodeId);
 }
 
+/// 尚未解锁任何节点时仅开放流派入口；之后所有节点（包括其他流派入口）
+/// 都统一按无向邻接判断，只有与已解锁节点相邻时才开放。
+bool _checkPassiveTreeNodeOpen(dynamic character, String nodeId) {
+  final unlockedNodes = character['unlockedPassiveTreeNodes'];
+  if (unlockedNodes.isEmpty) {
+    return GameData.passiveSkills[nodeId]?['isOpen'] ?? false;
+  }
+  for (final adjacent
+      in GameData.passiveSkillsAdjacency[nodeId] ?? const <String>[]) {
+    if (unlockedNodes[adjacent] != null) return true;
+  }
+  return false;
+}
+
 /// 检查退回 [nodeId] 后，[character] 剩余已解锁的天赋树节点
 /// 是否仍然全部与根节点（入口节点）连通。
 /// 沿无向邻接表（GameData.passiveSkillsAdjacency）从所有已解锁根节点做 BFS，

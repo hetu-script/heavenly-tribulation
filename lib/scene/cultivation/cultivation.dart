@@ -313,42 +313,11 @@ class CultivationScene extends Scene with HasCursorState {
     );
   }
 
-  /// 五个流派入口节点
-  static const _kEntryNodeIds = {
-    'track_0_0',
-    'track_0_1',
-    'track_0_2',
-    'track_0_3',
-    'track_0_4',
-  };
-
-  /// 入口节点锁定判断：仅玩家英雄、非编辑器模式下生效。
-  /// 已经分配过任何节点后，其余流派入口不可再选；
-  /// 退回全部节点后重新可选
-  bool _isEntryNodeBlocked(String nodeId) {
-    if (isEditorMode) return false;
-    if (character['id'] != GameData.hero['id']) return false;
-    if (!_kEntryNodeIds.contains(nodeId)) return false;
-    return (character['unlockedPassiveTreeNodes'] as HTStruct).isNotEmpty;
-  }
-
   /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
   (bool, bool) checkPassiveStatus(String nodeId) {
-    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     final unlockedNodes = character['unlockedPassiveTreeNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(nodeId);
-    // 入口节点（isOpen: true）恒开放；
-    // 其余节点按无向邻接判断：任一相邻节点已解锁即开放
-    bool isOpen = passiveTreeNodeData?['isOpen'] ?? false;
-    if (!isOpen) {
-      for (final adjacent
-          in GameData.passiveSkillsAdjacency[nodeId] ?? const <String>[]) {
-        if (unlockedNodes.contains(adjacent)) {
-          isOpen = true;
-          break;
-        }
-      }
-    }
+    final isOpen = GameLogic.checkPassiveTreeNodeOpen(character, nodeId);
     return (isLearned, isOpen);
   }
 
@@ -383,15 +352,13 @@ class CultivationScene extends Scene with HasCursorState {
     final isRankNode = rankRequirement > 0;
 
     if (button == kPrimaryButton) {
-      if (isLearned || !isOpen) return;
-      Hovertip.hide(skillButton);
-
-      // 流派入口节点：已分配过节点后不可再选其他流派的入口
-      if (_isEntryNodeBlocked(nodeId)) {
-        dialog.pushDialog('passiveskill_entry_locked_hint');
+      if (isLearned) return;
+      if (!isOpen) {
+        dialog.pushDialog('passiveskill_locked_hint');
         dialog.execute();
         return;
       }
+      Hovertip.hide(skillButton);
 
       // final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
       // if (warning != null) {
@@ -520,11 +487,7 @@ class CultivationScene extends Scene with HasCursorState {
         skillDescription.writeln(engine.locale('passiveskill_refund_hint'));
       }
     } else {
-      if (_isEntryNodeBlocked(nodeId)) {
-        // 其他流派的入口节点：已选定流派后不可再选
-        skillDescription
-            .writeln(engine.locale('passiveskill_entry_locked_hint'));
-      } else if (isOpen) {
+      if (isOpen) {
         final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
         if (rankRequirement > 0 && character['rank'] < rankRequirement) {
           // 境界节点: 需要突破试炼，不消耗天赋点

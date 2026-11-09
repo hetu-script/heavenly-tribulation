@@ -1536,6 +1536,10 @@ final class GameLogic {
           dynamic character, String nodeId) =>
       _characterRefundPassiveTreeNode(character, nodeId);
 
+  /// 尚未加点时仅开放流派入口；之后所有节点统一按邻接关系开放
+  static bool checkPassiveTreeNodeOpen(dynamic character, String nodeId) =>
+      _checkPassiveTreeNodeOpen(character, nodeId);
+
   /// 检查退回某个天赋树节点后，剩余已解锁节点是否仍全部与入口连通
   static bool checkPassiveTreeRefundable(dynamic character, String nodeId) =>
       _checkPassiveTreeRefundable(character, nodeId);

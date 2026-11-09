@@ -14,7 +14,7 @@ void main() {
     return source.substring(start, end);
   }
 
-  test('真实 levelUp 脚本每次升级获得两点，经验不足时不发点数', () {
+  test('真实 levelUp 脚本每次升级获得一点，经验不足时不发点数', () {
     final hetu = createTestHetu(relaxedConversions: true);
     bindGameLogicFunctions(hetu);
     hetu.interpreter.bindExternalFunction(
@@ -48,14 +48,14 @@ void main() {
 
     dynamic hero = hetu.fetch('hero');
     expect(hero['level'], 1);
-    expect(hero['skillPoints'], 3);
+    expect(hero['skillPoints'], 2);
     expect(hero['exp'], 5);
     expect(hero['expForLevel'], GameLogic.expForLevel(1));
 
     hetu.eval('levelUp(incurIncident: false)');
     hero = hetu.fetch('hero');
     expect(hero['level'], 1);
-    expect(hero['skillPoints'], 3);
+    expect(hero['skillPoints'], 2);
     expect(hero['exp'], 5);
   });
 }
