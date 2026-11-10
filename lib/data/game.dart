@@ -153,6 +153,8 @@ final class GameData with ChangeNotifier {
   static final Map<String, dynamic> journals = {};
   static final Map<String, dynamic> quests = {};
   static final Map<String, dynamic> maps = {};
+  static final Map<String, dynamic> dungeonScenes = {};
+  static final Map<String, dynamic> dungeonRoutes = {};
 
   static final Map<String, (String, String)> attributeNames = {};
   static final Map<String, String> sectCategoryNames = {};
@@ -323,6 +325,14 @@ final class GameData with ChangeNotifier {
     final mapsDataString =
         await rootBundle.loadString('assets/data/maps.json5');
     maps.addAll(JSON5.parse(mapsDataString));
+
+    final dungeonScenesDataString =
+        await rootBundle.loadString('assets/data/dungeon_scenes.json5');
+    dungeonScenes.addAll(JSON5.parse(dungeonScenesDataString));
+
+    final dungeonRoutesDataString =
+        await rootBundle.loadString('assets/data/dungeon_routes.json5');
+    dungeonRoutes.addAll(JSON5.parse(dungeonRoutesDataString));
 
     final mapComponentsDataString =
         await rootBundle.loadString('assets/data/map_components.json5');

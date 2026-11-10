@@ -1347,11 +1347,18 @@ final class GameLogic {
     }
     switch (itemData['category']) {
       case kItemCategoryCardpack:
+        if (engine.scene?.id == Scenes.dungeon) {
+          dialog.pushDialog('hint_cardpackOnlyCamp');
+          await dialog.execute();
+          return;
+        }
+        final canCraft = engine.scene?.id == Scenes.mainmenu ||
+            engine.scene?.id == Scenes.camp;
         engine.context.read<ViewPanelState>().toogle(ViewPanels.statsAndItem);
         engine.pushScene(Scenes.library, arguments: {
           'cardpacks': {itemData},
-          'enableCardCraft': engine.scene?.id == Scenes.mainmenu,
-          'enableScrollCraft': engine.scene?.id == Scenes.mainmenu,
+          'enableCardCraft': canCraft,
+          'enableScrollCraft': canCraft,
         });
       case kItemCategoryIdentifyScroll:
         engine.context.read<ViewPanelState>().toogle(ViewPanels.statsAndItem);

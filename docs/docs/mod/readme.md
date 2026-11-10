@@ -137,3 +137,15 @@ async function onEnterTerritory(terrain, sect)
 /// 在地牢中点击某个地图上的可互动物体时触发
 async function onInteractMapObject(object, terrain)
 ```
+
+# 场景链秘境数据
+
+当前无尽模式使用 `assets/data/dungeon_scenes.json5` 与 `assets/data/dungeon_routes.json5`：
+
+- 场景条目以 ID 为键，公共字段为 `id`、`kind`、`title`、`description`、`background`；`kind` 支持 `battle`、`elite`、`boss`、`merchant`、`rest`。
+- 战斗房间使用 `enemy` 配置 `name`、`levelBonus`、`isElite`、`genre`，使用 `reward` 内嵌 `createReward()` 的概率与数量参数。
+- 商人房间使用 `merchant.kinds` 指定随机商人池，`itemCount` 指定库存数量；当前支持 `smith`、`enchanter`、`pharmacist`、`bookDealer`。
+- 休息房间使用 `actor` 配置名称和头像，`actions` 中 `{id, kind: 'restore', amount}` 表示按最大生命比例恢复一次。
+- 路线条目只包含 `id` 和有序 `sceneIds`；所有引用必须指向已定义场景。
+
+运行时持久状态保存在 `game.flags.dungeon`，包含 `routeId`、`currentSceneIndex`、`rooms`、战斗待结算状态以及每房的奖励与搜刮状态。内容工厂位于 `scripts/main/event/scene_dungeon.ht`：`createSceneDungeonRun()`、`createSceneDungeonRoom()`、`createSceneDungeonRewards()`、`useSceneDungeonRest()`。Dart 控制器负责路线与交互，不在 Dart 中写死具体房间内容。

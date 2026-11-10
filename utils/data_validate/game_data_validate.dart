@@ -6,6 +6,7 @@
 ///
 /// 校验文件:
 ///   assets/data/cards.json5 / card_affixes.json5 / passives.json5 / status_effect.json5 / items.json5
+///   dungeon_scenes.json5 / dungeon_routes.json5（场景链路线引用、房间结构、本地化与图片）
 ///
 /// 检查项（错误，影响退出码）:
 ///   1. id 一致性: 条目 id 字段必须等于键名
@@ -43,6 +44,8 @@ import 'dart:io';
 import 'package:heavenly_tribulation/data/constants.dart';
 import 'package:json5/json5.dart';
 import 'package:path/path.dart' as p;
+
+import 'dungeon_data_validate.dart';
 
 // ---------------------------------------------------------------------------
 // 常量表
@@ -1377,6 +1380,10 @@ void main(List<String> arguments) {
   validatePassives(passives);
   validateStatusEffects(effects);
   validateItems(items);
+  final dungeonErrors = validateDungeonData(root, localeTexts);
+  if (dungeonErrors.isNotEmpty) {
+    _errors['场景链秘境数据'] = dungeonErrors;
+  }
 
   // ---- 汇总输出 ----
   var errorCount = 0;

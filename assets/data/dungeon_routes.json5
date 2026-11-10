@@ -1,0 +1,14 @@
+{
+  spellcraft_intro: {
+    id: 'spellcraft_intro',
+    sceneIds: [
+      'spellcraft_gate',
+      'spellcraft_gallery',
+      'spellcraft_merchant',
+      'spellcraft_sanctum',
+      'spellcraft_elite',
+      'spellcraft_depths',
+      'spellcraft_boss',
+    ],
+  },
+}

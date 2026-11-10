@@ -13,6 +13,8 @@ import '../../global.dart';
 import '../../logic/logic.dart';
 import '../../state/states.dart';
 import '../../ui.dart';
+import '../../widgets/dialog/dungeon_start.dart';
+import 'dungeon_controller.dart';
 import '../common.dart';
 import '../cursor_state.dart';
 import '../world/widgets/drop_menu.dart';
@@ -139,11 +141,20 @@ class CampScene extends Scene with HasCursorState {
       image: 'camp_start',
       position: GameUI.siteExitCardPositon,
       inPile: false,
-      onTap: () {
-        engine.pushScene(
-          Scenes.dungeon,
-          constructorId: Scenes.dungeon,
-        );
+      onTap: () async {
+        final choice = await DungeonStartDialog.show(engine.context);
+        if (choice == DungeonStartChoice.adjust) {
+          engine.pushScene(Scenes.library, arguments: {
+            'enableCardCraft': true,
+            'enableScrollCraft': true,
+          });
+        } else if (choice == DungeonStartChoice.start) {
+          DungeonController.startRun();
+          await engine.pushScene(
+            Scenes.dungeon,
+            constructorId: Scenes.dungeon,
+          );
+        }
       },
     );
     _siteList.sortCards(animated: false);
