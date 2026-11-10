@@ -70,6 +70,7 @@ class EquipmentBar extends StatelessWidget {
               textAlign: TextAlign.left,
               contentBuilder: (isDetailed) => buildItemHoverInfo(
                 itemData,
+                character: character,
                 inventoryType: inventoryType,
                 isDetailed: isDetailed,
               ),

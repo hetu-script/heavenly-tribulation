@@ -321,7 +321,7 @@
     isAttribute: true,
   },
   track_7_38: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_38"],
     isAttribute: true,
   },
@@ -373,7 +373,7 @@
     isAttribute: true,
   },
   track_7_2: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_2"],
     isAttribute: true,
   },
@@ -986,7 +986,7 @@
     isAttribute: true,
   },
   track_6_10: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_5_10"],
     isAttribute: true,
   },
@@ -1760,7 +1760,7 @@
     isAttribute: true,
   },
   track_7_14: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_14"],
     isAttribute: true,
   },
@@ -1812,7 +1812,7 @@
     isAttribute: true,
   },
   track_7_18: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_18"],
     isAttribute: true,
   },
@@ -2175,7 +2175,7 @@
     isAttribute: true,
   },
   track_6_22: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_7_22"],
     isAttribute: true,
   },
@@ -2227,7 +2227,7 @@
     isAttribute: true,
   },
   track_6_26: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_7_26"],
     isAttribute: true,
   },
@@ -2502,7 +2502,7 @@
     isAttribute: true,
   },
   track_7_30: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_30"],
     isAttribute: true,
   },
@@ -2554,7 +2554,7 @@
     isAttribute: true,
   },
   track_7_34: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_6_34"],
     isAttribute: true,
   },

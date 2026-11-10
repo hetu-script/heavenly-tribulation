@@ -61,6 +61,7 @@ heaven_peeking_mirror: {
 - id 用 snake_case 英文含义（禁止拼音）。
 - 词条等级/数值在生成时按 item.level 随机 roll——固定值词条用第 2 节的定值手段规避。
 - prototype 的 affixes 只支持**字符串 id 列表**（不能逐条指定 level/value）。
+- 默认按 `kind` 继承装备属性要求；可用可选 `attributeRequirement: {attribute, base, factor}` 按字段覆盖。生成后的实例使用最终 `attributes`，`isInvalid` 仅是玩家装备后的派生状态，不写入原型。
 
 ## 2. 词条设计（passives.json5）——主词条合并原则
 

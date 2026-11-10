@@ -135,7 +135,8 @@ final class DungeonController {
       final library = enemy['cardLibrary'];
       for (final cardId in decks[deckIndex]['cards']) {
         final card = library[cardId];
-        if (card != null && GameLogic.checkCardRequirements(card) == null) {
+        if (card != null &&
+            GameLogic.checkCardRequirements(card, character: enemy) == null) {
           candidates.add(card);
         }
       }

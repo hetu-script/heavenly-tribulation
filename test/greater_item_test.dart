@@ -170,4 +170,34 @@ void main() {
       throwsA(anything),
     );
   });
+
+  test('注入词条不能重复，并且需要保留兼容的主词条', () {
+    final hetu = createItemHetu();
+    final passives = loadJson5File('assets/data/passives.json5');
+
+    expect(
+      () => hetu.invoke('Equipment', namedArgs: {
+        'kind': 'pearl',
+        'rank': 1,
+        'affixes': [passives['dexterity'], passives['dexterity']],
+      }),
+      throwsA(anything),
+    );
+    expect(
+      () => hetu.invoke('Equipment', namedArgs: {
+        'kind': 'sword',
+        'rank': 1,
+        'affixes': [passives['increase_damage_sword']],
+      }),
+      throwsA(anything),
+    );
+
+    final item = hetu.invoke('Equipment', namedArgs: {
+      'kind': 'pearl',
+      'rank': 1,
+      'affixes': [passives['persistent']],
+    });
+    expect(item['affixes'][0]['id'], isNot('persistent'));
+    expect(item['affixes'][1]['id'], 'persistent');
+  });
 }

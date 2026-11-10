@@ -322,13 +322,13 @@ namespace Player {
   function equippedCategory(category) {
     assert(hero != null)
     
-    return characterEquippedCategory(hero, category)
+    return characterEquippedCategory(hero, category, activeOnly: false)
   }
   
   function firstEquippedCategory(category) {
     assert(hero != null)
     
-    return characterfirstEquippedCategory(hero, category)
+    return characterFirstEquippedCategory(hero, category)
   }
 
   function equippedKind(kind) {

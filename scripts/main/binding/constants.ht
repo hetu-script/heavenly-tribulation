@@ -106,6 +106,7 @@ external abstract class Constants {
 
   static get equipmentCategoryKinds;
   static get equipmentKinds;
+  static get equipmentAttributeRequirementProfiles;
   static get terrainKindToEnemyEncounterRate;
   static get enemyEncounterQuests;
 

@@ -43,7 +43,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   String selectedCraftRarity = kRarityNames.first;
   dynamic selectedCraftItemRequirements;
   int extraAffixCount = 0;
-  final List<dynamic> selectedAffixesForCraft =
+  final List<dynamic> selectedAffixItemsForCraft =
       List.generate(6, (index) => null);
 
   dynamic craftedEquipment;
@@ -99,7 +99,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
     }
     final extraAffixConfig = GameLogic.getMinMaxExtraAffixCount(rank);
     extraAffixCount = extraAffixConfig['maxExtra'] as int;
-    selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
+    selectedAffixItemsForCraft.fillRange(0, kMaxAffixCount, null);
   }
 
   void onInventoryItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
@@ -115,8 +115,8 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
         }
         bool isUnselected = true;
         for (var i = 0; i < extraAffixCount; ++i) {
-          if (selectedAffixesForCraft[i] == itemData['affixes'][0]) {
-            selectedAffixesForCraft[i] = null;
+          if (selectedAffixItemsForCraft[i] == itemData) {
+            selectedAffixItemsForCraft[i] = null;
             isUnselected = false;
             updateInfo();
             setState(() {});
@@ -125,9 +125,9 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
         }
         if (isUnselected) {
           for (var i = 0; i < extraAffixCount; ++i) {
-            if (selectedAffixesForCraft[i] == null) {
+            if (selectedAffixItemsForCraft[i] == null) {
               engine.play('sword-sheathed-178549.mp3');
-              selectedAffixesForCraft[i] = itemData['affixes'][0];
+              selectedAffixItemsForCraft[i] = itemData;
               updateInfo();
               setState(() {});
               break;
@@ -146,6 +146,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
         engine.play('sword-sheathed-178549.mp3');
         selectedEquipment = itemData;
         selectedEquipmentAffixes = (itemData['affixes'] as List).sublist(1);
+        selectedAffix = null;
         updateInfo();
         setState(() {});
       }
@@ -159,9 +160,12 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
   void craftEquipment() {
     final targetRank = kRaritiesToRank[selectedCraftRarity]!;
     final countInfo = GameLogic.getMinMaxExtraAffixCount(targetRank);
+    final selectedItems =
+        selectedAffixItemsForCraft.where((item) => item != null).toList();
+    final affixUniqueIds = <dynamic>{};
     var greaterCount = 0;
-    for (final affix in selectedAffixesForCraft) {
-      if (affix == null) continue;
+    for (final itemData in selectedItems) {
+      final affix = itemData['affixes'][0];
       final kinds = affix['kinds'];
       if (kinds is List && !kinds.contains(selectedCraftKind)) {
         dialog.pushDialog('craft_affix_equipment_kind_mismatch_hint');
@@ -175,9 +179,36 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
         return;
       }
       if (affix['isGreater'] == true) greaterCount++;
+
+      final uniqueIds = affix['uniqueIds'] is Iterable
+          ? affix['uniqueIds'] as Iterable
+          : [affix['uniqueId'] ?? affix['id']];
+      for (final uniqueId in uniqueIds) {
+        if (!affixUniqueIds.add(uniqueId)) {
+          dialog.pushDialog('craft_duplicate_affix_hint');
+          dialog.execute();
+          return;
+        }
+      }
     }
     if (greaterCount > countInfo['maxGreater']!) {
       dialog.pushDialog('craft_greater_affix_limit_warning');
+      dialog.execute();
+      return;
+    }
+
+    final hasCompatibleMainAffix = GameData.passives.values.any((affix) {
+      if (affix['isEquipmentMain'] != true) return false;
+      final kinds = affix['kinds'];
+      if (kinds is List && !kinds.contains(selectedCraftKind)) return false;
+      if ((affix['rank'] ?? 0) > targetRank) return false;
+      final uniqueIds = affix['uniqueIds'] is Iterable
+          ? affix['uniqueIds'] as Iterable
+          : [affix['uniqueId'] ?? affix['id']];
+      return !uniqueIds.any(affixUniqueIds.contains);
+    });
+    if (!hasCompatibleMainAffix) {
+      dialog.pushDialog('craft_no_compatible_main_affix_hint');
       dialog.execute();
       return;
     }
@@ -191,17 +222,19 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
       return;
     }
 
-    final selectedAffixes =
-        selectedAffixesForCraft.where((affix) => affix != null);
-
-    final affixes = selectedAffixes.toList();
-
+    final affixes = [
+      for (final itemData in selectedItems) itemData['affixes'][0]
+    ];
     final equipment = engine.hetu.invoke('Equipment', namedArgs: {
       'kind': selectedCraftKind,
-      'rank': kRaritiesToRank[selectedCraftRarity],
+      'rank': targetRank,
       'affixes': affixes,
     });
 
+    for (final itemData in selectedItems) {
+      engine.hetu
+          .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
+    }
     engine.play(GameSound.anvil);
 
     craftedEquipment = equipment;
@@ -209,7 +242,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
       widget.locationData['craftedEquipment'] = equipment;
     }
 
-    selectedAffixesForCraft.fillRange(0, kMaxAffixCount, null);
+    selectedAffixItemsForCraft.fillRange(0, kMaxAffixCount, null);
     updateInfo();
     setState(() {});
   }
@@ -273,7 +306,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
       selectedItemIds.add(selectedEquipment['id']);
     }
     int affixCount = 0;
-    for (final affix in selectedAffixesForCraft) {
+    for (final affix in selectedAffixItemsForCraft) {
       if (affix != null) {
         ++affixCount;
         selectedItemIds.add(affix['id']);
@@ -367,7 +400,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                             horizontal: 2),
                                         child: ItemGrid(
                                           itemData:
-                                              selectedAffixesForCraft[index],
+                                              selectedAffixItemsForCraft[index],
                                           onMouseEnter: (itemData, rect) {
                                             context
                                                 .read<HoverContentState>()
@@ -390,12 +423,12 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                                 .hide();
                                           },
                                           onSecondaryTapped: (_, __) {
-                                            if (selectedAffixesForCraft[
+                                            if (selectedAffixItemsForCraft[
                                                     index] !=
                                                 null) {
                                               engine.play(GameSound.put);
-                                              selectedAffixesForCraft[index] =
-                                                  null;
+                                              selectedAffixItemsForCraft[
+                                                  index] = null;
                                               updateInfo();
                                               setState(() {});
                                             }
@@ -526,6 +559,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                   engine.play(GameSound.put);
                                   selectedEquipment = null;
                                   selectedEquipmentAffixes = [];
+                                  selectedAffix = null;
                                   updateInfo();
                                   setState(() {});
                                 }
@@ -546,6 +580,7 @@ class _WorkshopDialogState extends State<WorkshopDialog> {
                                 const EdgeInsets.only(top: 10.0, bottom: 5.0),
                             child: fluent.Button(
                               onPressed: extractedAffix == null &&
+                                      selectedEquipment != null &&
                                       selectedAffix != null
                                   ? extractAffix
                                   : null,

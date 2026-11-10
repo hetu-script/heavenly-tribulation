@@ -30,7 +30,7 @@ void main() {
       ({positionalArgs, namedArgs}) => -1,
       override: true,
     );
-    hetu.eval('var game; var Constants;');
+    hetu.eval('var game; var Constants; var hero;');
     hetu.assign('game', {
       'passives': {
         'dexterity': {
@@ -76,6 +76,8 @@ void main() {
     hetu.eval('''
       $kGameLogicExternalDeclarations
       final kItemCategoryPotion = 'potion'
+      final kEntityTypeBattleEntity = 'battle_entity'
+      final kEntityTypeCharacter = 'character'
       final kEphemeralScopeBattlePreparation = 'battle_preparation'
       final kEphemeralScopeStandalone = 'standalone'
       final engine = {
@@ -86,6 +88,7 @@ void main() {
         delete entity.inventory[item.id]
         return true
       }
+      function equipmentSlotCount(rank) { return 8 }
       ${loadGreaterHelper()}
       ${loadPassiveSource()}
     ''');
@@ -110,7 +113,10 @@ void main() {
         passives: {},
         ephemeralPassives: {},
         stats: {},
+        inventory: {},
+        equipments: {},
       }
+      hero = character
     ''');
   }
 
@@ -848,5 +854,116 @@ void main() {
       characterCalculateStats(character)
     ''');
     expect(hetu.fetch('character')['stats']['turnStartScry'], false);
+  });
+
+  test('装备随常驻属性失效和恢复，NPC 始终有效且来源不重复', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    final result = hetu.eval('''
+      final item = {
+        id: 'item-a',
+        kind: 'sword',
+        equippedPosition: 0,
+        attributes: {dexterity: 10},
+        affixes: [
+          {
+            id: 'dexterity',
+            description: 'passive_dexterity_description',
+            increment: 0.5,
+            level: 10,
+          },
+          {
+            id: 'turnStartExtraDraw',
+            description: 'passive_turnStartExtraDraw_description',
+            turnStartExtraDraw: {count: 1},
+          },
+        ],
+      }
+      character.inventory[item.id] = item
+      character.equipments = {'0': item.id}
+      _addEquipmentPassiveSources(character, item)
+      characterCalculateStats(character)
+      final invalid = {
+        isInvalid: item.isInvalid,
+        attribute: character.stats.dexterity,
+        passive: character.passives.dexterity?.value,
+        rawCount: character.passivesRaw.dexterity.length,
+        extraDraw: character.stats.turnStartExtraDraw,
+      }
+
+      character.dexterity = 10
+      characterCalculateStats(character)
+      final restored = {
+        isInvalid: item.isInvalid,
+        attribute: character.stats.dexterity,
+        passive: character.passives.dexterity.value,
+        rawCount: character.passivesRaw.dexterity.length,
+        extraDraw: character.stats.turnStartExtraDraw.count,
+      }
+
+      hero = {}
+      character.dexterity = 0
+      characterCalculateStats(character)
+      final npc = {
+        isInvalid: item.isInvalid,
+        attribute: character.stats.dexterity,
+        passive: character.passives.dexterity.value,
+        rawCount: character.passivesRaw.dexterity.length,
+        extraDraw: character.stats.turnStartExtraDraw.count,
+      }
+      [invalid, restored, npc]
+    ''');
+    final expected = [
+      {
+        'isInvalid': true,
+        'attribute': 0,
+        'passive': null,
+        'rawCount': 1,
+        'extraDraw': null,
+      },
+      {
+        'isInvalid': false,
+        'attribute': 15,
+        'passive': 5,
+        'rawCount': 1,
+        'extraDraw': 1,
+      },
+      {
+        'isInvalid': false,
+        'attribute': 5,
+        'passive': 5,
+        'rawCount': 1,
+        'extraDraw': 1,
+      },
+    ];
+    for (var i = 0; i < expected.length; ++i) {
+      for (final entry in expected[i].entries) {
+        expect(result[i][entry.key], entry.value, reason: '$i.${entry.key}');
+      }
+    }
+  });
+
+  test('玩家装备入口拒绝属性不达标物品，NPC 直接装备', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    final result = hetu.eval('''
+      character.entityType = 'character'
+      character.name = '测试角色'
+      final item = {
+        id: 'requirement-item',
+        entityType: 'item',
+        name: '测试装备',
+        isEquippable: true,
+        attributes: {dexterity: 10},
+        affixes: [],
+      }
+      final playerResult = characterEquip(character, item)
+      final playerSlot = character.equipments['0']
+      hero = {}
+      character.inventory[item.id] = item
+      final npcResult = characterEquip(character, item)
+      [playerResult, playerSlot, npcResult, character.equipments['0'], item.isInvalid]
+    ''');
+    expect(result, [false, null, true, 'requirement-item', false]);
   });
 }

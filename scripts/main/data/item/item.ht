@@ -209,6 +209,12 @@ function createItemById(id, {amount, rank, level}) {
     }
   }
 
+  if (item.isEquippable == true) {
+    item.level ??= getRandomLevel(minLevelForRank(item.rank), maxLevelForRank(item.rank))
+    item.attributes = calculateEquipmentAttributeRequirements(item.kind, item.level,
+      override: item.attributeRequirement)
+  }
+
   item.isIdentified ??= true
   
   if (!item.isUntradable) {

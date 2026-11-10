@@ -18,6 +18,8 @@
   "craft_addAffix_warning": "当前功法已经拥有最大数量的额外词条！",
   "craft_extracted_affix_sourceRank_warning": "提取词条的来源境界高于目标装备，无法填入！",
   "craft_affix_equipment_kind_mismatch_hint": "该词条与当前打造的装备种类不匹配，无法填入！",
+  "craft_duplicate_affix_hint": "不能重复注入相同词条！",
+  "craft_no_compatible_main_affix_hint": "注入词条与所有可用主词条冲突，无法打造该装备！",
   "craft_greater_affix_limit_warning": "目标装备的太古词条数量已达到当前境界上限！",
   "craft_rerollAffix_warning": "当前功法没有可以重置数值的额外词条！",
   "craft_replaceAffix_warning": "当前功法没有可以替换的额外词条！",

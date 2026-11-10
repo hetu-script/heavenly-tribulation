@@ -5,6 +5,7 @@ import 'package:heavenly_tribulation/widgets/common.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/sprite_button.dart';
+import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/hover_info.dart';
 
 import '../../ui.dart';
@@ -32,14 +33,21 @@ class EquipmentsBar extends GameComponent {
       size: Vector2(kItemGridSize, kItemGridSize),
       spriteId: itemData?['icon'],
       borderSpriteId: 'item/grid_rank${itemData?['rank'] ?? 0}.png',
+      color: itemData?['isInvalid'] == true ? Colors.red : null,
       paint: paint,
     );
+    if (itemData?['isInvalid'] == true) {
+      spriteButton.add(SpriteComponent2(
+        spriteId: 'item/invalid.png',
+        size: spriteButton.size,
+      ));
+    }
     spriteButton.onMouseEnter = () {
       if (itemData == null) return;
       engine.context.read<HoverContentState>().show(
             rect: spriteButton.toAbsoluteRect(),
             textAlign: TextAlign.left,
-            data: buildItemHoverInfo(itemData),
+            data: buildItemHoverInfo(itemData, character: character),
           );
     };
     spriteButton.onMouseExit = () {

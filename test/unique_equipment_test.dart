@@ -159,6 +159,10 @@ void main() {
           item['level'],
           inInclusiveRange(GameLogic.minLevelForRank(rank),
               GameLogic.maxLevelForRank(rank)));
+      expect(
+          item['attributes'],
+          GameLogic.calculateEquipmentAttributeRequirements(
+              item['kind'], item['level']));
 
       for (final affix in affixes) {
         final raw = passives[affix['id']];
@@ -524,6 +528,7 @@ void main() {
     final aggregationSource = source.substring(start, end);
     final hetu = createTestHetu();
     final result = hetu.eval('''
+      function characterIsPassiveSourceActive(character, source) { return true }
       function aggregateForTest(character) {
         $aggregationSource
         return character.stats

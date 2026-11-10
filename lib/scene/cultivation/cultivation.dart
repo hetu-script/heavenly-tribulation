@@ -621,10 +621,10 @@ class CultivationScene extends Scene with HasCursorState {
   }
 
   void updatePassivesDescription() {
+    engine.hetu.invoke('calculateStats', namespace: 'Player');
+
     _cultivatorDescription =
         GameData.getPassivesDescription(character: character);
-
-    engine.hetu.invoke('calculateStats', namespace: 'Player');
   }
 
   void updateTimeOfDay() {

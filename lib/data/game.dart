@@ -1216,6 +1216,7 @@ final class GameData with ChangeNotifier {
 
   static String getItemDescription(
     dynamic itemData, {
+    dynamic character,
     bool isInventory = false,
     bool isCrafting = false,
     dynamic priceFactor,
@@ -1268,6 +1269,31 @@ final class GameData with ChangeNotifier {
           .writeln('<grey>[${itemData['id']}]</> - press `ctrl+c` to copy');
     }
     description.writeln('$rarityString$typeString$priceString');
+
+    final attributeRequirements = itemData['attributes'];
+    if (attributeRequirements != null) {
+      final requirementCharacter = character ?? GameData.hero;
+      final failures = engine.hetu.invoke('characterGetItemRequirementFailures',
+          positionalArgs: [requirementCharacter, itemData]);
+      for (final attributeId in kBattleAttributes) {
+        final required = attributeRequirements[attributeId];
+        if (required == null) continue;
+        final current = engine.hetu.invoke('characterGetPermanentAttribute',
+            positionalArgs: [requirementCharacter, attributeId]);
+        final isMet = failures[attributeId] == null;
+        description.writeln(
+            '<${isMet ? 'grey' : 'red'}>${engine.locale('attribute_requirement')}: '
+            '${engine.locale(attributeId)} $current/$required</>');
+      }
+      if (requirementCharacter != GameData.hero) {
+        description.writeln(
+            '<grey>${engine.locale('npc_equipment_requirement_ignored')}</>');
+      }
+      if (itemData['isInvalid'] == true) {
+        description
+            .writeln('<red>${engine.locale('equipment_invalid_hint')}</>');
+      }
+    }
 
     // description.writeln(kSeparateLine);
     final flavortext = itemData['flavortext'];

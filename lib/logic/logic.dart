@@ -530,6 +530,19 @@ final class GameLogic {
     return development * development * development + 1;
   }
 
+  static Map<String, int> calculateEquipmentAttributeRequirements(
+    String kind,
+    int level, {
+    dynamic override,
+  }) {
+    final profile = kEquipmentAttributeRequirementProfiles[kind];
+    if (profile == null) return const {};
+    final attribute = override?['attribute'] ?? profile['attribute'];
+    final base = (override?['base'] ?? profile['base']) as num;
+    final factor = (override?['factor'] ?? profile['factor']) as num;
+    return {attribute as String: base.toInt() + (level * factor).ceil()};
+  }
+
   /// 获取额外词条数量，卡牌、装备和丹药共用一个算法。
   static Map<String, int> getMinMaxExtraAffixCount(int rank) {
     assert(rank >= 0 && rank <= kCultivationRankMax);
@@ -646,20 +659,23 @@ final class GameLogic {
           perAvailableDaysTillMonthEnd: perAvailableDaysTillMonthEnd);
 
   /// 卡牌境界只影响强度与费用，不作为使用限制；等级也不作为硬限制。
-  static String? checkCardRequirements(dynamic cardData) {
-    return checkRequirements(cardData, checkRank: false, checkLevel: false);
+  static String? checkCardRequirements(dynamic cardData, {dynamic character}) {
+    return checkRequirements(cardData,
+        character: character, checkRank: false, checkLevel: false);
   }
 
-  /// 检查英雄是否满足某个对象的需求
+  /// 检查角色是否满足某个对象的需求
   /// 需求包括: 境界，流派，属性等等
   /// 如果满足需求，返回 null
   /// 否则返回一个包含了具体信息的富文本字符串
   static String? checkRequirements(
     dynamic entityData, {
+    dynamic character,
     bool checkIdentified = false,
     bool checkRank = false,
     bool checkLevel = false,
   }) {
+    character ??= GameData.hero;
     final StringBuffer description = StringBuffer();
 
     final label = 'bold red';
@@ -670,10 +686,10 @@ final class GameLogic {
 
     bool requirementsMet = true;
     if (checkRank) {
-      final heroRank = GameData.hero['rank'];
+      final characterRank = character['rank'];
       final int? rankRequirement = entityData['rank'];
       if (rankRequirement != null) {
-        if (heroRank < rankRequirement) {
+        if (characterRank < rankRequirement) {
           requirementsMet = false;
           description.writeln(
               '<$label>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
@@ -681,10 +697,10 @@ final class GameLogic {
       }
     }
     if (checkLevel) {
-      final heroLevel = GameData.hero['level'];
+      final characterLevel = character['level'];
       final int? levelRequirement = entityData['level'];
       if (levelRequirement != null) {
-        if (heroLevel < levelRequirement) {
+        if (characterLevel < levelRequirement) {
           requirementsMet = false;
           description.writeln(
               '<$label>${engine.locale('level_requirement')}: $levelRequirement</>');
@@ -694,9 +710,12 @@ final class GameLogic {
     final equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
       bool hasEquippedKind(String kind) {
-        for (final itemId in GameData.hero['equipments'].values) {
+        for (final itemId in character['equipments'].values) {
           if (itemId == null) continue;
-          final item = GameData.hero['inventory'][itemId];
+          final item = character['inventory'][itemId];
+          if (item?['equippedPosition'] == null || item?['isInvalid'] == true) {
+            continue;
+          }
           if (item?['kind'] == kind) return true;
         }
         return false;
@@ -732,7 +751,7 @@ final class GameLogic {
       for (final attr in kBattleAttributes) {
         final int? attrRequirement = attributesRequirement[attr];
         if (attrRequirement == null) continue;
-        final int attrValue = GameData.hero['stats'][attr];
+        final int attrValue = character['stats'][attr];
         if (attrValue < attrRequirement) {
           requirementsMet = false;
           description.writeln(

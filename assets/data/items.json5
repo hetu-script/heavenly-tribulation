@@ -234,6 +234,7 @@
   //   name / flavortext / icon: 本地化键与图标路径
   // 可选字段:
   //   isUntradable / isCursed 等通用物品字段
+  //   attributeRequirement: {attribute, base, factor} 按字段覆盖 kind 的默认属性要求
   // 模板:
   // example_unique_sword: {
   //   id: "example_unique_sword",

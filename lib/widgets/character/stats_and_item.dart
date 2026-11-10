@@ -54,6 +54,8 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
   }
 
   void onItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
+    if (_characterData['id'] != GameData.hero['id']) return;
+
     showFluentMenu(
       cursor: GameUI.cursor,
       position: screenPosition,
@@ -109,17 +111,21 @@ class _CharacterStatsAndItemState extends State<CharacterStatsAndItem> {
             // 绝世装备：同一 uniqueId 同时只能装备一件
             if (itemData['isUnique'] == true) {
               final hasDuplicatedUnique = engine.hetu.invoke('equippedUnique',
-                  namespace: 'Player',
-                  positionalArgs: [itemData['uniqueId']]);
+                  namespace: 'Player', positionalArgs: [itemData['uniqueId']]);
               if (hasDuplicatedUnique == true) {
                 dialog.pushDialog('hint_uniqueEquipmentExists');
                 dialog.execute();
                 return;
               }
             }
-            engine.play('sword-sheathed-178549.mp3');
-            engine.hetu.invoke('equip',
+            final equipped = engine.hetu.invoke('equip',
                 namespace: 'Player', positionalArgs: [itemData]);
+            if (equipped != true) {
+              dialog.pushDialog('hint_equipmentRequirementsNotMet');
+              dialog.execute();
+              return;
+            }
+            engine.play('sword-sheathed-178549.mp3');
             engine.emit(GameEvents.heroPassivesUpdated);
             setState(() {});
           case ItemPopUpMenuItems.use:

@@ -1169,6 +1169,19 @@ void validatePassives(Map<String, dynamic> passives) {
 
 /// items.json5 校验（createItemById 语义，见 scripts/main/data/item/item.ht）
 void validateItems(Map<String, dynamic> items) {
+  for (final kind in kEquipmentKinds) {
+    if (!kEquipmentAttributeRequirementProfiles.containsKey(kind)) {
+      err('装备缺属性要求配置', 'kind: $kind');
+    }
+  }
+  for (final entry in kEquipmentAttributeRequirementProfiles.entries) {
+    final attribute = entry.value['attribute'];
+    if (attribute is! String || !kBattleAttributes.contains(attribute)) {
+      err('装备要求属性未知', '${entry.key}.attribute: $attribute');
+    }
+    checkNumber(entry.value['base'], '${entry.key}.base', min: 0);
+    checkNumber(entry.value['factor'], '${entry.key}.factor', min: 0);
+  }
   for (final entry in items.entries) {
     final key = entry.key;
     final ctx = 'items.$key';
@@ -1223,6 +1236,22 @@ void validateItems(Map<String, dynamic> items) {
         } else if (!kEquipmentCategoryKinds[category]!.contains(kind)) {
           err('装备 kind 与类别不匹配', '$ctx: $category/$kind');
         }
+      }
+    }
+
+    final requirementOverride = data['attributeRequirement'];
+    if (requirementOverride != null) {
+      if (data['isEquippable'] != true || requirementOverride is! Map) {
+        err('装备属性要求覆盖结构非法', '$ctx.attributeRequirement');
+      } else {
+        final attribute = requirementOverride['attribute'];
+        if (attribute is! String || !kBattleAttributes.contains(attribute)) {
+          err('装备要求属性未知', '$ctx.attributeRequirement.attribute');
+        }
+        checkNumber(requirementOverride['base'], '$ctx.attributeRequirement.base',
+            min: 0);
+        checkNumber(requirementOverride['factor'],
+            '$ctx.attributeRequirement.factor', min: 0);
       }
     }
 

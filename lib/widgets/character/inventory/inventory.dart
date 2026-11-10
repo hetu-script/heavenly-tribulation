@@ -117,6 +117,7 @@ class _InventoryState extends State<Inventory> {
               textAlign: TextAlign.left,
               contentBuilder: (isDetailed) => buildItemHoverInfo(
                 itemData,
+                character: widget.character,
                 inventoryType: widget.inventoryType,
                 isDetailed: isDetailed,
                 priceFactor: priceFactor,

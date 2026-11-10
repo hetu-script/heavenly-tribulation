@@ -14,9 +14,6 @@ const kLozenge = '◊';
 const kAffixLeading = '◆';
 const kAffixLeading2 = '✶';
 
-/// Unicode Character "∕" (U+2215)
-const kSlash = '∕';
-
 const kGameVersion = '0.0.1';
 
 const kGameSaveFileExtension = '.tdqjgame';

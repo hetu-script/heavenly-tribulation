@@ -339,6 +339,14 @@ class _GameAppState extends State<GameApp> {
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
+        'calculateEquipmentAttributeRequirements',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.calculateEquipmentAttributeRequirements(
+                positionalArgs[0], positionalArgs[1],
+                override: namedArgs['override']),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
         'calculateCardAffixValue',
         ({positionalArgs, namedArgs}) => GameLogic.calculateCardAffixValue(
             positionalArgs.first,

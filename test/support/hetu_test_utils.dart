@@ -12,6 +12,7 @@ external function calculatePassiveAffixValue(valueData, {level = 0, isGreater = 
 external function calculatePassiveAffixContribution(valueData, {level = 0, isGreater = false}) -> number
 external function calculateItemBasePrice(item) -> integer
 external function getMinMaxExtraAffixCount(rank) -> Map
+external function calculateEquipmentAttributeRequirements(kind, level, {override}) -> Map
 external function minLevelForRank(rank) -> integer
 external function maxLevelForRank(rank) -> integer
 external function getTribulationCountForRank(rank) -> integer
@@ -70,6 +71,12 @@ void bindGameLogicFunctions(Hetu hetu) {
       'getMinMaxExtraAffixCount',
       ({positionalArgs, namedArgs}) =>
           GameLogic.getMinMaxExtraAffixCount(positionalArgs.first));
+  bind(
+      'calculateEquipmentAttributeRequirements',
+      ({positionalArgs, namedArgs}) =>
+          GameLogic.calculateEquipmentAttributeRequirements(
+              positionalArgs[0], positionalArgs[1],
+              override: namedArgs['override']));
   bind(
       'minLevelForRank',
       ({positionalArgs, namedArgs}) =>

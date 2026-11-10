@@ -16,6 +16,8 @@ external function maxCityCountForSectDevelopment(development) -> integer
 
 external function getMinMaxExtraAffixCount(rank) -> Map
 
+external function calculateEquipmentAttributeRequirements(kind, level, {override}) -> Map
+
 /// 词条/费用数值公式（GameLogic 实现，见 lib/logic/logic.dart）
 external function calculateCardAffixValue(valueData, {level = 0, rank = 0, greater}) -> integer
 

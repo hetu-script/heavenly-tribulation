@@ -279,6 +279,7 @@ function setHero(id: string) {
 
   game.heroId = id
   hero = game.characters[id]
+  characterCalculateStats(hero)
   game.flags.monthly = HeroMonthly()
   engine.info('设置当前玩家人物为 [${hero.name}]。')
 

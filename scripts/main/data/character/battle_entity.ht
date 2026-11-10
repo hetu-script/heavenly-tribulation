@@ -302,9 +302,53 @@ function getMainAttribute(character) {
   return maxAttr
 }
 
+function characterGetPermanentAttribute(character, attributeId) {
+  var value = character[attributeId] ?? 0
+  final sources = character.passivesRaw[attributeId]
+  if (sources != null) {
+    for (final source in sources.values) {
+      if (source.sourceType == 'equipment') continue
+      if (source.base != null || source.increment != null) {
+        value += calculatePassiveAffixContribution(source,
+          level: source.level ?? 1,
+          isGreater: source.isGreater == true && source.isMain != true)
+      }
+    }
+  }
+  return value.round()
+}
+
+function characterGetItemRequirementFailures(character, item) {
+  final failures = {}
+  if (character != hero) return failures
+  final requirements = item.attributes
+  if (requirements == null) return failures
+  for (final attributeId in requirements.keys) {
+    final required = requirements[attributeId]
+    final current = characterGetPermanentAttribute(character, attributeId)
+    if (current < required) {
+      failures[attributeId] = {current: current, required: required}
+    }
+  }
+  return failures
+}
+
+function characterRefreshEquipmentValidity(character) {
+  final equipments = character.equipments
+  if (equipments == null) return
+  for (final itemId in equipments.values) {
+    if (itemId == null) continue
+    final item = character.inventory[itemId]
+    if (item == null) continue
+    item.isInvalid = character == hero &&
+      characterGetItemRequirementFailures(character, item).isNotEmpty
+  }
+}
+
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括: 生命、伤害、防御等。
 function characterCalculateStats(character, { reset = false, rejuvenate = false}) {
+  characterRefreshEquipmentValidity(character)
   characterRecalculatePassives(character)
   // stats 全部为派生数据，每次从干净对象重建，避免 statsBonus 等重复累计。
   character.stats = {}
@@ -381,6 +425,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
     for (final sources in raw.values) {
       for (final passiveData in sources.values) {
+        if (!characterIsPassiveSourceActive(character, passiveData)) continue
         final statsBonus = passiveData['statsBonus']
         if (statsBonus == null) continue
         for (final statId in statsBonus.keys) {
@@ -404,6 +449,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
     for (final dataId in raw.keys) {
       final sources = raw[dataId]
       for (final passiveData in sources.values) {
+        if (!characterIsPassiveSourceActive(character, passiveData)) continue
         final battleStatus = passiveData['battleStatus']
         if (battleStatus != null) {
           battleStatusBindings['${dataId}:${battleStatus}'] = {
@@ -737,15 +783,24 @@ function characterRemovePassiveSourcesByOwner(character, sourceType, sourceId, {
   }
 }
 
-function _recalculatePassiveGroup(raw) {
+function characterIsPassiveSourceActive(character, source) {
+  if (source.sourceType != 'equipment') return true
+  return character.inventory[source.sourceId]?.isInvalid != true
+}
+
+function _recalculatePassiveGroup(character, raw) {
   final result = {}
   for (final dataId in raw.keys) {
     final sources = raw[dataId]
     if (sources.isEmpty) continue
-    final first = sources.values.first
+    let first
     var valueTotal = 0.0
     var hasValue = false
+    var sourceCount = 0
     for (final source in sources.values) {
+      if (!characterIsPassiveSourceActive(character, source)) continue
+      first ??= source
+      ++sourceCount
       if (source.base != null || source.increment != null) {
         hasValue = true
         valueTotal += calculatePassiveAffixContribution(source,
@@ -753,12 +808,13 @@ function _recalculatePassiveGroup(raw) {
           isGreater: source.isGreater == true && source.isMain != true)
       }
     }
+    if (first == null) continue
     result[dataId] = PassiveData(
       id: dataId,
       priority: first.priority ?? 0,
       value: hasValue ? valueTotal.round() : null,
       description: first.description,
-      sourceCount: sources.length,
+      sourceCount: sourceCount,
     )
   }
   return result
@@ -766,8 +822,8 @@ function _recalculatePassiveGroup(raw) {
 
 /// 从两组 Raw 全量重建最终 Map；最终 Map 仅供查询和展示，不作为来源真值。
 function characterRecalculatePassives(character) {
-  character.passives = _recalculatePassiveGroup(character.passivesRaw)
-  character.ephemeralPassives = _recalculatePassiveGroup(character.ephemeralPassivesRaw)
+  character.passives = _recalculatePassiveGroup(character, character.passivesRaw)
+  character.ephemeralPassives = _recalculatePassiveGroup(character, character.ephemeralPassivesRaw)
 }
 
 function _addEquipmentPassiveSources(character, item) {
@@ -889,11 +945,6 @@ function characterEquip(entity, item, { index }) {
   assert(entity.entityType == kEntityTypeBattleEntity || entity.entityType == kEntityTypeCharacter, entity.entityType)
   assert(index == null || (index >= 0 && index < equipmentSlotCount(entity.rank)))
 
-  if (entity.inventory[item.id] == null) {
-    // engine.warning('${item.name} 不在${entity.name}的物品栏中，无法装备。')
-    item = entityAcquire(entity, item, incurIncident: false)
-  }
-
   if (!item.isEquippable) {
     engine.warning('${item.name} 无法装备。')
     return false
@@ -901,6 +952,15 @@ function characterEquip(entity, item, { index }) {
   if (item.equippedPosition) {
     engine.warning('${item.name} 已经在装备中了。')
     return false
+  }
+  if (entity == hero && characterGetItemRequirementFailures(entity, item).isNotEmpty) {
+    engine.warning('${entity.name} 的属性不满足 ${item.name} 的装备要求。')
+    return false
+  }
+
+  if (entity.inventory[item.id] == null) {
+    // engine.warning('${item.name} 不在${entity.name}的物品栏中，无法装备。')
+    item = entityAcquire(entity, item, incurIncident: false)
   }
 
   // 绝世装备：同一 uniqueId 同时只能装备一件
@@ -939,6 +999,7 @@ function characterEquip(entity, item, { index }) {
   // }
 
   if (equipped) {
+    item.isInvalid = false
     if (item.affixes is List) {
       _addEquipmentPassiveSources(entity, item)
       // 重新计算角色状态值
@@ -958,6 +1019,7 @@ function characterUnequip(entity, item) {
   assert(item.equippedPosition != null)
   entity.equipments[item.equippedPosition] = null
   delete item.equippedPosition
+  item.isInvalid = false
 
   if (item.affixes is List) {
     characterRemovePassiveSourcesByOwner(entity, 'equipment', item.id)
@@ -968,11 +1030,16 @@ function characterUnequip(entity, item) {
   engine.info('${entity.name}取下了${item.name}')
 }
 
-function characterEquippedCategory(entity, category) {
+function characterIsEquipmentActive(character, item) {
+  return item?.equippedPosition != null && item.isInvalid != true
+}
+
+function characterEquippedCategory(entity, category, {activeOnly = true}) {
   let count = 0
   for (final itemId in entity.equipments.values) {
     if (itemId == null) continue
     final item = entity.inventory[itemId]
+    if (activeOnly && !characterIsEquipmentActive(entity, item)) continue
     if (item.category == category) {
       ++count
     }
@@ -999,7 +1066,7 @@ function characterFirstEquippedCategory(entity, category) {
   for (final itemId in entity.equipments.values) {
     if (itemId == null) continue
     final item = entity.inventory[itemId]
-    if (item.category == category) {
+    if (item.category == category && characterIsEquipmentActive(entity, item)) {
       return item
     }
   }
@@ -1011,7 +1078,7 @@ function characterEquippedKind(entity, kind) {
   for (final itemId in entity.equipments.values) {
     if (itemId == null) continue
     final item = entity.inventory[itemId]
-    if (item.kind == kind) {
+    if (item.kind == kind && characterIsEquipmentActive(entity, item)) {
       ++count
     }
   }
@@ -1022,7 +1089,7 @@ function characterFirstEquippedKind(entity, kind) {
   for (final itemId in entity.equipments.values) {
     if (itemId == null) continue
     final item = entity.inventory[itemId]
-    if (item.kind == kind) {
+    if (item.kind == kind && characterIsEquipmentActive(entity, item)) {
       return item
     }
   }

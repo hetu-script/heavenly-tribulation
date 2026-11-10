@@ -47,6 +47,7 @@ class ItemGrid extends StatelessWidget {
     final int rank = itemData?['rank'] ?? 0;
 
     final isEquipped = itemData?['equippedPosition'] != null;
+    final isInvalid = isEquipped && itemData?['isInvalid'] == true;
 
     return Material(
       type: MaterialType.transparency,
@@ -82,9 +83,11 @@ class ItemGrid extends StatelessWidget {
                     borderRadius: GameUI.borderRadius,
                     border: Border.all(
                       width: 2.0,
-                      color: isSelected
-                          ? (borderColor ?? Colors.yellow)
-                          : Colors.transparent,
+                      color: isInvalid
+                          ? Colors.red
+                          : isSelected
+                              ? (borderColor ?? Colors.yellow)
+                              : Colors.transparent,
                     ),
                     image: DecorationImage(
                       fit: BoxFit.contain,
@@ -105,6 +108,13 @@ class ItemGrid extends StatelessWidget {
                     borderWidth: 0.0,
                   ),
                 if (child != null) child!,
+                if (isInvalid)
+                  Positioned.fill(
+                    child: Image(
+                      fit: BoxFit.contain,
+                      image: const AssetImage('assets/images/item/invalid.png'),
+                    ),
+                  ),
                 if (showStackNumber && stackSize > 1)
                   Positioned(
                     right: 0,

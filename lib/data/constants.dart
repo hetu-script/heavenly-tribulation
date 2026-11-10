@@ -346,3 +346,21 @@ final kEquipmentKinds = [
   ...kEquipmentCategoryKinds['jewelry']!,
   ...kEquipmentCategoryKinds['talisman']!, // 非以上四种的物品都算作法器 talisman
 ];
+
+const kEquipmentAttributeRequirementProfiles = <String, Map<String, dynamic>>{
+  'sword': {'attribute': 'dexterity', 'base': 0, 'factor': 1.5},
+  'sabre': {'attribute': 'strength', 'base': 0, 'factor': 1.5},
+  'spear': {'attribute': 'perception', 'base': 0, 'factor': 1.5},
+  'staff': {'attribute': 'perception', 'base': 0, 'factor': 1.25},
+  'bow': {'attribute': 'willpower', 'base': 0, 'factor': 1.25},
+  'dart': {'attribute': 'willpower', 'base': 0, 'factor': 1.5},
+  'pearl': {'attribute': 'spirituality', 'base': 0, 'factor': 1.5},
+  'shield': {'attribute': 'strength', 'base': 0, 'factor': 1.0},
+  'armor': {'attribute': 'strength', 'base': 0, 'factor': 1.25},
+  'gloves': {'attribute': 'dexterity', 'base': 0, 'factor': 1.0},
+  'helmet': {'attribute': 'willpower', 'base': 0, 'factor': 1.0},
+  'boots': {'attribute': 'dexterity', 'base': 0, 'factor': 1.25},
+  'ship': {'attribute': 'perception', 'base': 0, 'factor': 1.0},
+  'ring': {'attribute': 'spirituality', 'base': 0, 'factor': 1.0},
+  'amulet': {'attribute': 'spirituality', 'base': 0, 'factor': 1.25},
+};

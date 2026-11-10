@@ -65,14 +65,39 @@ struct Equipment {
     level ??= getRandomLevel(minLevel, maxLevel)
     // 这里要再判断一次，因为可能是从外部传入的 level
     this.level = level.clamp(Math.max(1, minLevel), maxLevel)
+    this.attributes = calculateEquipmentAttributeRequirements(this.kind, this.level)
 
     this.affixes = []
     this.affixUniqueIds = Set()
+    final providedAffixUniqueIds = Set()
+    if (affixes != null) {
+      for (final affixData in affixes) {
+        let uniqueIds
+        if (affixData.uniqueIds is List) {
+          uniqueIds = affixData.uniqueIds
+        } else {
+          uniqueIds = [affixData.uniqueId ?? affixData.id]
+        }
+        for (final uniqueId in uniqueIds) {
+          if (providedAffixUniqueIds.contains(uniqueId)) {
+            throw('Duplicate affix for target equipment: ${affixData.id}')
+          }
+          providedAffixUniqueIds.add(uniqueId)
+        }
+      }
+    }
     let mainAffix
     final mainAffixes = game.passives.values.where((affix) {
       if (!affix.isEquipmentMain) return false
       if (affix.kinds is List && !affix.kinds.contains(this.kind)) return false
       if ((affix.rank ?? 0) > this.rank) return false
+      if (providedAffixUniqueIds.contains(affix.id) ||
+        (affix.uniqueId != null && providedAffixUniqueIds.contains(affix.uniqueId))) return false
+      if (affix.uniqueIds is List) {
+        for (final uniqueId in affix.uniqueIds) {
+          if (providedAffixUniqueIds.contains(uniqueId)) return false
+        }
+      }
       return true
     })
     if (mainAffixes.isEmpty) {
@@ -161,8 +186,19 @@ struct Equipment {
           affix.value = calculatePassiveAffixValue(affix,
             level: affix.level, isGreater: true)
         }
+        let uniqueIds
+        if (affix.uniqueIds is List) {
+          uniqueIds = affix.uniqueIds
+        } else {
+          uniqueIds = [affix.uniqueId ?? affix.id]
+        }
+        for (final uniqueId in uniqueIds) {
+          if (this.affixUniqueIds.contains(uniqueId)) {
+            throw('Duplicate affix for target equipment: ${affix.id}')
+          }
+        }
         this.affixes.add(affix)
-        this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
+        this.affixUniqueIds.addAll(uniqueIds)
       }
     }
 

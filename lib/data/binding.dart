@@ -209,6 +209,8 @@ class Constants extends HTExternalClass {
         return kEquipmentCategoryKinds;
       case 'Constants.equipmentKinds':
         return kEquipmentKinds;
+      case 'Constants.equipmentAttributeRequirementProfiles':
+        return kEquipmentAttributeRequirementProfiles;
       case 'Constants.terrainKindToEnemyEncounterRate':
         return kTerrainKindToEnemyEncounterRate;
       case 'Constants.enemyEncounterQuests':

@@ -117,6 +117,7 @@ enum InventoryType {
 
 String? buildItemHoverInfo(
   dynamic data, {
+  dynamic character,
   dynamic priceFactor,
   InventoryType inventoryType = InventoryType.none,
   bool isDetailed = false,
@@ -132,17 +133,20 @@ String? buildItemHoverInfo(
         case InventoryType.npc:
           description = GameData.getItemDescription(
             data,
+            character: character,
             isDetailed: isDetailed,
           );
         case InventoryType.player:
           description = GameData.getItemDescription(
             data,
+            character: character,
             isInventory: true,
             isDetailed: isDetailed,
           );
         case InventoryType.crafting:
           description = GameData.getItemDescription(
             data,
+            character: character,
             isInventory: true,
             isCrafting: true,
             isDetailed: isDetailed,
@@ -150,6 +154,7 @@ String? buildItemHoverInfo(
         case InventoryType.customer:
           description = GameData.getItemDescription(
             data,
+            character: character,
             priceFactor: priceFactor,
             isSell: true,
             isDetailed: isDetailed,
@@ -157,6 +162,7 @@ String? buildItemHoverInfo(
         case InventoryType.merchant:
           description = GameData.getItemDescription(
             data,
+            character: character,
             priceFactor: priceFactor,
             isSell: false,
             isDetailed: isDetailed,
