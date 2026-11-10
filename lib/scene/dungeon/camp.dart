@@ -10,6 +10,7 @@ import 'package:samsara/samsara.dart';
 
 import '../../data/game.dart';
 import '../../global.dart';
+import '../../logic/logic.dart';
 import '../../state/states.dart';
 import '../../ui.dart';
 import '../common.dart';
@@ -36,14 +37,16 @@ class CampScene extends Scene with HasCursorState {
   void _addSiteCard({
     required String id,
     required String title,
-    required String image,
+    String? image,
+    String? spriteId,
     Vector2? position,
     bool inPile = true,
     required FutureOr<void> Function() onTap,
   }) {
+    assert(image != null || spriteId != null);
     final card = GameData.createSiteCard(
       id: id,
-      spriteId: 'dungeon/card/$image.jpg',
+      spriteId: spriteId ?? 'dungeon/card/$image.jpg',
       title: title,
       position: position,
       onPreviewed: _onPreviewSiteCard,
@@ -84,7 +87,7 @@ class CampScene extends Scene with HasCursorState {
       onTap: () {
         engine.pushScene(Scenes.library, arguments: {
           'enableCardCraft': true,
-          'enableScrollCraft': false,
+          'enableScrollCraft': true,
         });
       },
     );
@@ -123,13 +126,24 @@ class CampScene extends Scene with HasCursorState {
       },
     );
     _addSiteCard(
-      id: 'exit',
-      title: engine.locale('exit'),
-      image: 'advance',
+      id: 'warehouse',
+      title: engine.locale('storage'),
+      spriteId: 'location/card/depositBox.png',
+      onTap: () {
+        GameLogic.openDepositBox(GameData.hero['warehouse']);
+      },
+    );
+    _addSiteCard(
+      id: 'start',
+      title: engine.locale('startDungeon'),
+      image: 'camp_start',
       position: GameUI.siteExitCardPositon,
       inPile: false,
       onTap: () {
-        engine.popScene(clearCache: true);
+        engine.pushScene(
+          Scenes.dungeon,
+          constructorId: Scenes.dungeon,
+        );
       },
     );
     _siteList.sortCards(animated: false);

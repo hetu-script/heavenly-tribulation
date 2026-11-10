@@ -42,7 +42,6 @@ external abstract class Constants {
   static get debuffs;
   static get elementAilments;
   static get elementDamageTypes;
-  static get scrollMaxCharges;
   static get battleDeckSize;
   static get battleDeckSizeAbsoluteMin;
   static get maxNormalExtraAffixCount;

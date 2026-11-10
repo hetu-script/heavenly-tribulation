@@ -21,7 +21,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由 GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
 - 观星 scry：中央展示牌库顶 N 张（缺省 3 张，合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
-- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）打出碎裂 + usedInBattle 标记 → 战后 settleScrollCharges 扣次数；无效卡/缺卡替换为 blank_default 默认卡。
+- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
 
 ## 2. 卡牌数据模型（Hetu）：scripts/main/cardgame/card.ht

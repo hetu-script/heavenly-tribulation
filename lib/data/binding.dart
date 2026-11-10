@@ -93,8 +93,6 @@ class Constants extends HTExternalClass {
         return kElementAilmentIds;
       case 'Constants.elementDamageTypes':
         return kElementDamageTypes;
-      case 'Constants.scrollMaxCharges':
-        return kScrollMaxCharges;
       case 'Constants.battleDeckSize':
         return kBattleDeckSize;
       case 'Constants.battleDeckSizeAbsoluteMin':

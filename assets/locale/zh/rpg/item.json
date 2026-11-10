@@ -107,7 +107,7 @@
   "scroll_paper_fragment": "符纸碎片",
   "flavortext_scroll_paper_fragment": "20 个符纸碎片可以合成一个符纸。",
   "scroll_paper": "符纸",
-  "flavortext_scroll_paper": "用来复制功法卡牌制作符箓的材料。符箓卡牌在战斗中是消耗牌，且有次数限制。",
+  "flavortext_scroll_paper": "用来复制功法卡牌制作符箓的材料。符箓在每场战斗中打出后消耗，不进入弃牌堆。",
 
   "dungeon_ticket": "秘境石",
   "flavortext_dungeon_ticket": "进入高阶秘境需要花费对应品级的秘境石。",

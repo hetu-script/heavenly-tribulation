@@ -130,8 +130,7 @@ namespace Player {
   }
 
   /// 将卡牌复制转化为符箓：原卡保留，副本（由 Dart 侧深拷贝后传入）加入卡库，
-  /// 并消耗 1 张空白符纸。符箓是消耗卡牌：战斗中打出后即碎裂消失，
-  /// 战斗结束时实际打出过的符箓使用次数 -1
+  /// 并消耗 1 张空白符纸。符箓在每场战斗中打出后碎裂消失，不进入弃牌堆。
   function craftScroll(newCardData, paper, { incurIncident = true }) {
     assert(hero != null)
     assert(newCardData != null)
@@ -146,10 +145,6 @@ namespace Player {
     newCardData.rank = 0
     newCardData.equipment = null
     newCardData.isEphemeral = true
-    newCardData.chargeData = {
-      current: Constants.scrollMaxCharges,
-      max: Constants.scrollMaxCharges,
-    }
     // rank 0：总费用 1，全元气
     newCardData.coloredCost = {}
     newCardData.coloredCost[Constants.colorlessCostColorId] = 1
@@ -168,39 +163,6 @@ namespace Player {
       )
     } else {
       engine.info(incidentContent)
-    }
-  }
-
-  /// 用 1 张空白符纸为符箓补充 1 次使用次数
-  /// 返回值参照打造函数的约定：null 表示成功，否则为提示文本的 locale 键
-  function rechargeScroll(cardId, paper) {
-    assert(hero != null)
-    final card = hero.cardLibrary[cardId]
-    assert(card != null && card.chargeData != null, 'rechargeScroll: not a scroll card: ${cardId}')
-
-    if (card.chargeData.current >= card.chargeData.max) {
-      return 'craft_rechargeScroll_warning_full'
-    }
-
-    // 消耗空白符纸
-    lose(paper)
-
-    card.chargeData.current += 1
-
-    // 这里显式返回空值表明成功执行
-    return null
-  }
-
-  /// 战斗结束结算：战斗中实际打出过的符箓使用次数 -1（未打出的不扣）
-  function settleScrollCharges(usedCardIds) {
-    assert(hero != null)
-    for (final cardId in usedCardIds) {
-      final card = hero.cardLibrary[cardId]
-      if (card == null || card.chargeData == null) continue
-      card.chargeData.current -= 1
-      if (card.chargeData.current < 0) {
-        card.chargeData.current = 0
-      }
     }
   }
     

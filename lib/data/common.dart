@@ -341,9 +341,6 @@ const kNonBattleAttributes = [
 
 const kDeckEphemeralCount = 3;
 
-/// 符箓的使用次数上限（与 ephemeral 卡组上限数值相同纯属巧合，两者是独立概念）
-const kScrollMaxCharges = 3;
-
 const kCultivationRankMax = 5;
 
 /// 卡牌词条数值的境界底数指数：每破一境，词条的「底数+等级项」整体 × kRankBaseScale

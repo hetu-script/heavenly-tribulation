@@ -18,6 +18,7 @@ import 'scene/battle/character_binding.dart';
 import 'ui.dart';
 import 'scene/location/location.dart';
 import 'scene/dungeon/camp.dart';
+import 'scene/dungeon/dungeon.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'logic/logic.dart';
@@ -129,6 +130,10 @@ class _GameAppState extends State<GameApp> {
 
     engine.registerSceneConstructor(Scenes.camp, (arguments) async {
       return CampScene();
+    });
+
+    engine.registerSceneConstructor(Scenes.dungeon, (arguments) async {
+      return DungeonScene();
     });
 
     engine.registerSceneConstructor(Scenes.location, (arguments) async {

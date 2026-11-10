@@ -562,22 +562,18 @@ class CardLibraryScene extends Scene {
 
       // 鉴定成功后刷新打造界面，显示该卡牌可用的全部打造道具
       final craftMode = _craftModeForCard(craftingCard!.data);
-      if (craftMode != null) {
-        engine.context.read<CraftState>().setCrafting(true,
-            rank: craftingCard!.data['rank'], craftMode: craftMode);
-      }
+      engine.context.read<CraftState>().setCrafting(
+            craftMode != null,
+            rank: craftingCard!.data['rank'],
+            craftMode: craftMode ?? CraftMode.affix,
+          );
       return;
     }
 
     final kind = craftmeterialData['kind'] as String;
 
     if (kind == 'scroll_paper') {
-      // 符纸用在符箓上=补充使用次数；用在普通卡上=转化为符箓
-      if (craftingCard!.data['genre'] == 'scroll') {
-        rechargeScroll(craftmeterialData);
-      } else {
-        craftScroll(craftmeterialData);
-      }
+      craftScroll(craftmeterialData);
       return;
     }
 
@@ -647,11 +643,11 @@ class CardLibraryScene extends Scene {
   }
 
   /// 根据卡牌状态决定打造界面的道具过滤模式：
-  /// 未鉴定只显示鉴定卷轴；符箓只显示空白符纸（用于补充使用次数）；
+  /// 未鉴定只显示鉴定卷轴；符箓没有后续打造操作；
   /// 其余按场景开启的打造功能过滤
   CraftMode? _craftModeForCard(dynamic cardData) {
     if (cardData['isIdentified'] != true) return CraftMode.identify;
-    if (cardData['genre'] == 'scroll') return CraftMode.scroll;
+    if (cardData['genre'] == 'scroll') return null;
     if (enableCardCraft && enableScrollCraft) return CraftMode.all;
     if (enableCardCraft) return CraftMode.affix;
     if (enableScrollCraft) return CraftMode.scroll;
@@ -673,12 +669,12 @@ class CardLibraryScene extends Scene {
     dismantleButton.isEnabled = !isScroll;
 
     final craftMode = _craftModeForCard(card.data);
-    if (craftMode != null) {
-      engine.context.read<CraftState>().setCrafting(true,
+    engine.context.read<CraftState>().setCrafting(
+          craftMode != null,
           // 鉴定卷轴不过滤境界
           rank: craftMode == CraftMode.identify ? null : card.data['rank'],
-          craftMode: craftMode);
-    }
+          craftMode: craftMode ?? CraftMode.affix,
+        );
 
     final clone = card.clone();
     craftingCard = clone;
@@ -740,55 +736,11 @@ class CardLibraryScene extends Scene {
     dismantleButton.isEnabled = false;
     showCraftingCardInfo();
 
-    // 符箓只显示符纸（用于补充次数），刷新打造道具过滤
-    final craftMode = _craftModeForCard(newCardData);
-    if (craftMode != null) {
-      engine.context.read<CraftState>().setCrafting(true,
-          rank: craftMode == CraftMode.identify ? null : newCardData['rank'],
-          craftMode: craftMode);
-    }
+    engine.context.read<CraftState>().setCrafting(false);
 
     addHintText(
       engine.locale('craft_scroll_hint'),
       position: craftingCard!.center,
-      offsetY: 30.0,
-      textStyle: TextStyle(
-        fontFamily: GameUI.fontFamilyKaiti,
-      ),
-      horizontalVariation: 0.0,
-      verticalVariation: 0.0,
-    );
-
-    engine.play(GameSound.writing);
-  }
-
-  /// 用空白符纸为符箓补充 1 次使用次数
-  void rechargeScroll(dynamic paper) {
-    assert(craftingCard != null);
-    final scrollCard = craftingCard!;
-
-    final result = engine.hetu.invoke('rechargeScroll',
-        namespace: 'Player', positionalArgs: [scrollCard.data['id'], paper]);
-
-    if (result != null) {
-      // 返回的是提示文本的 locale 键
-      dialog.pushDialog(result);
-      dialog.execute();
-      return;
-    }
-
-    // 更新卡面标题上的使用次数 (current/max)
-    final data = scrollCard.data;
-    scrollCard.title = GameData.getBattleCardTitle(data);
-    final libraryCard = libraryZone.library[data['id']];
-    if (libraryCard != null) {
-      libraryCard.title = scrollCard.title;
-    }
-    showCraftingCardInfo();
-
-    addHintText(
-      engine.locale('craft_rechargeScroll_hint'),
-      position: scrollCard.center,
       offsetY: 30.0,
       textStyle: TextStyle(
         fontFamily: GameUI.fontFamilyKaiti,

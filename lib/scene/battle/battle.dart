@@ -363,13 +363,7 @@ class BattleScene extends Scene {
       for (final id in cardIds) {
         final data = character['cardLibrary'][id];
         assert(data != null);
-        // 次数耗尽的符箓（chargeData.current <= 0）与其他无效卡一样替换为默认卡
-        final chargeData = data['chargeData'];
-        final chargeExhausted =
-            chargeData != null && (chargeData['current'] as num) <= 0;
-        if (isHero &&
-            (GameLogic.checkRequirements(data, checkLevel: false) != null ||
-                chargeExhausted)) {
+        if (isHero && GameLogic.checkCardRequirements(data) != null) {
           _replacedCardCount++;
           cards.add(_createBlankCard());
           continue;
@@ -1634,9 +1628,7 @@ class BattleScene extends Scene {
     card.showGlow = false;
 
     if (card.data['isEphemeral'] == true) {
-      // 消耗卡牌（符箓）：打出后碎裂消失，不进弃牌堆；
-      // 标记 usedInBattle 供战斗结束时的使用次数结算识别
-      card.data['usedInBattle'] = true;
+      // 消耗卡牌（符箓）：打出后碎裂消失，不进弃牌堆
       world.add(CardShatterEffect(
         position: card.absolutePosition,
         size: card.size.clone(),
@@ -1975,19 +1967,6 @@ class BattleScene extends Scene {
     if (!isPractice) {
       clearEphemeralPassives(hero);
       clearEphemeralPassives(enemy);
-
-      // 消耗卡牌（符箓）计数结算：战斗中实际打出过的符箓使用次数 -1（未打出不扣）
-      final usedScrollIds = <dynamic>[
-        for (final card in heroDeck)
-          if (card.data['isEphemeral'] == true &&
-              card.data['usedInBattle'] == true)
-            card.data['id']
-      ];
-      if (usedScrollIds.isNotEmpty) {
-        engine.hetu.invoke('settleScrollCharges',
-            namespace: 'Player', positionalArgs: [usedScrollIds]);
-        engine.clearCachedScene(Scenes.library);
-      }
     }
 
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(roundCount);

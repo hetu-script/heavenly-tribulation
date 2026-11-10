@@ -19,6 +19,12 @@ namespace debug {
       rank: rank,
       skillPoints: level * Constants.passiveSkillPointsPerLevel,
     )
+    hero.warehouse = {
+      id: 'hero_warehouse',
+      name: engine.locale('storage'),
+      inventory: {},
+      materials: {},
+    }
 
     setHero('hero')
     final pack = Cardpack(

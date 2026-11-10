@@ -96,9 +96,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cards.length < limit) valid = false;
 
     for (final card in cards) {
-      final warning = GameLogic.checkRequirements((card as CustomGameCard).data,
-          checkLevel: false);
-      valid = warning == null;
+      final warning =
+          GameLogic.checkCardRequirements((card as CustomGameCard).data);
+      if (warning != null) return false;
     }
 
     return valid;
@@ -130,8 +130,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           borderRadius: 20.0,
           limit: GameLogic.getDeckMinSizeForRank(
             GameData.hero['rank'],
-            deckMinSizeReduce:
-                GameData.hero['stats']['deckMinSizeReduce'] ?? 0,
+            deckMinSizeReduce: GameData.hero['stats']['deckMinSizeReduce'] ?? 0,
           ),
         ) {
     title ??= engine.locale('untitled');

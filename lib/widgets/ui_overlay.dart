@@ -56,6 +56,7 @@ class GameUIOverlay extends StatefulWidget {
     super.key,
     this.enableLibrary = true,
     this.enableCultivation = true,
+    this.cultivationArguments,
     this.showHero = true,
     this.showNpcs = false,
     this.showJournal = false,
@@ -66,6 +67,7 @@ class GameUIOverlay extends StatefulWidget {
 
   final bool enableLibrary;
   final bool enableCultivation;
+  final Map<String, dynamic>? cultivationArguments;
   final bool showHero;
   final bool showNpcs;
   final bool showJournal;
@@ -516,7 +518,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     .pushScene(Scenes.cultivation, arguments: {
                                   'mode': engine.scene?.id == Scenes.mainmenu
                                       ? 'exparray'
-                                      : null
+                                      : null,
+                                  ...?widget.cultivationArguments,
                                 });
                               },
                               onEnter: (rect) {

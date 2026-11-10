@@ -645,6 +645,11 @@ final class GameLogic {
       _checkRented(location,
           perAvailableDaysTillMonthEnd: perAvailableDaysTillMonthEnd);
 
+  /// 卡牌境界只影响强度与费用，不作为使用限制；等级也不作为硬限制。
+  static String? checkCardRequirements(dynamic cardData) {
+    return checkRequirements(cardData, checkRank: false, checkLevel: false);
+  }
+
   /// 检查英雄是否满足某个对象的需求
   /// 需求包括: 境界，流派，属性等等
   /// 如果满足需求，返回 null
@@ -1051,7 +1056,7 @@ final class GameLogic {
     }
 
     for (final card in cards) {
-      final valid = checkRequirements(card, checkLevel: false);
+      final valid = checkCardRequirements(card);
       if (valid != null) {
         return 'deckbuilding_card_invalid';
       }

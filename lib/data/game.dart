@@ -1505,8 +1505,7 @@ final class GameData with ChangeNotifier {
     }
 
     if (showRequirement) {
-      String? requirementString =
-          GameLogic.checkRequirements(cardData, checkLevel: false);
+      String? requirementString = GameLogic.checkCardRequirements(cardData);
       if (requirementString != null) {
         extraDescription.writeln(kSeparateLine);
         extraDescription.writeln(requirementString);
@@ -1641,7 +1640,7 @@ final class GameData with ChangeNotifier {
     return cardData;
   }
 
-  /// 卡牌标题：符箓等带使用次数（chargeData）的卡牌追加 (current/max)
+  /// 卡牌标题：带使用次数（chargeData）的卡牌追加 (current/max)
   static String getBattleCardTitle(dynamic cardData) {
     String title = cardData['name'];
     final chargeData = cardData['chargeData'];

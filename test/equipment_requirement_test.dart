@@ -31,4 +31,25 @@ void main() {
       GameData.hero = previousHero;
     }
   });
+
+  test('卡牌境界不是使用限制，其他系统的显式境界检查不受影响', () {
+    final previousHero = GameData.hero;
+    try {
+      GameData.hero = {
+        'rank': 0,
+        'level': 0,
+        'equipments': <String, dynamic>{},
+        'inventory': <String, dynamic>{},
+      };
+      final card = {'rank': 5};
+
+      expect(GameLogic.checkCardRequirements(card), isNull);
+      expect(
+        GameLogic.checkRequirements(card, checkRank: true),
+        isNotNull,
+      );
+    } finally {
+      GameData.hero = previousHero;
+    }
+  });
 }

@@ -13,6 +13,7 @@ final class Scenes {
   static const worldmap = 'worldmap';
   static const location = 'location';
   static const camp = 'camp';
+  static const dungeon = 'dungeon';
   static const battle = 'battle';
 
   static const matchingGame = 'matching_game';
