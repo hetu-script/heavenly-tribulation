@@ -1,23 +1,56 @@
 ---
 name: image-gen
-description: 调用图片 API（默认 GPT，可选 Gemini、Seedream）生成或编辑图片并保存到本地。当用户要求生成、绘制、创作图片（如角色立绘、场景图、卡牌插画、道具图标等美术资源），或要求基于现有图片进行修改、编辑、局部替换、多图融合时使用。
+description: 调用图片 API（默认 GPT，可选 Gemini、Seedream）生成或编辑图片，或使用本地 Python 压缩图片、调整尺寸。当用户要求生成、绘制、创作图片（如角色立绘、场景图、卡牌插画、道具图标等美术资源），基于现有图片进行修改、编辑、局部替换、多图融合，或压缩、缩放图片时使用。
 ---
 
-# 图片生成 / 编辑（GPT 默认，可选 Gemini / Seedream）
+# 图片生成 / 编辑 / 压缩（GPT 默认，可选 Gemini / Seedream）
 
-统一脚本：`utils/image_gen/image_gen.py`
+生成与编辑脚本：`utils/image_gen/image_gen.py`
+本地压缩脚本：`utils/image_gen/image_compress.py`
 
 - 默认使用 **GPT**（gpt-image-2.5）。
 - 加 `--gemini` 强制使用 Gemini 后端。
 - 加 `--seedream` 强制使用火山方舟 Seedream 图片模型（默认 `pro`，可用参数切换 `flash`）。
 - 支持文生图与参考图编辑两种模式；本 skill 只包含图片能力，不包含视频生成。
+- 压缩与缩放完全在本地执行，不调用图片 API。
 
 ## 前置条件
 
 - GPT：环境变量 `IMAGE_TOKEN_GPT`
 - Gemini：环境变量 `IMAGE_TOKEN_GEMINI`
 - Seedream：环境变量 `RELAY_API_KEY_CN`，未设置时使用 `ARK_API_KEY` 兜底
-- Python 依赖：`requests`
+- 生成与编辑的 Python 依赖：`requests`
+- 本地压缩的 Python 依赖：`Pillow`
+
+## 压缩与缩放图片
+
+在项目根目录下执行：
+
+```bash
+python utils/image_gen/image_compress.py <输入图片> [输出文件或已有目录] \
+  [--width 像素] [--height 像素] [--quality 1-100] [--format jpeg|png|webp] \
+  [--allow-upscale] [--overwrite]
+```
+
+- 不指定输出路径时，在原图旁生成 `原文件名_compressed.扩展名`；已有文件不会被覆盖，除非传入 `--overwrite`。
+- `--width` 与 `--height` 是最大目标尺寸，始终保留宽高比；只指定一个时按比例计算另一个，同时指定时缩放到两者范围内。
+- 默认只缩小、不放大；需要放大时使用 `--allow-upscale`。
+- `--quality` 默认 85，仅影响 JPEG/WebP；PNG 使用无损压缩。
+- 输出格式默认按输出扩展名或原图格式判断，也可用 `--format` 强制指定。
+- 透明图片转为 JPEG 时使用白色背景；PNG/WebP 保留透明通道。
+- 成功时打印输出图片的完整绝对路径、尺寸变化和文件大小变化；压缩后可读取图片检查尺寸与画质。
+
+```bash
+# 等比例缩放到 1024×1024 范围内，并转为质量 80 的 JPEG
+python utils/image_gen/image_compress.py assets/images/example.png assets/images/example.jpg \
+  --width 1024 --height 1024 --quality 80
+
+# 高度缩小到 150 像素，宽度自动计算；覆盖已有输出
+python utils/image_gen/image_compress.py input.png output.png --height 150 --overwrite
+
+# 保持尺寸，仅重新压缩为 WebP
+python utils/image_gen/image_compress.py input.png --format webp --quality 85
+```
 
 ## 生成图片
 

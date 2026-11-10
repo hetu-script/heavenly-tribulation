@@ -93,11 +93,17 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.Button(
-                        onPressed: () {
-                          setMenuState(MenuStates.miniGame);
+                        onPressed: () async {
+                          final SaveInfo? info = await showDialog<SaveInfo?>(
+                            context: context,
+                            builder: (context) => const LoadGameDialog(),
+                          );
+                          if (info == null) return;
+                          setMenuState(MenuStates.main);
+                          GameData.loadGame(info);
                         },
                         child: Label(
-                          engine.locale('miniGames'),
+                          engine.locale('load'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
@@ -268,17 +274,11 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.Button(
-                        onPressed: () async {
-                          final SaveInfo? info = await showDialog<SaveInfo?>(
-                            context: context,
-                            builder: (context) => const LoadGameDialog(),
-                          );
-                          if (info == null) return;
-                          setMenuState(MenuStates.main);
-                          GameData.loadGame(info);
+                        onPressed: () {
+                          setMenuState(MenuStates.miniGame);
                         },
                         child: Label(
-                          engine.locale('load'),
+                          engine.locale('miniGames'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
@@ -364,7 +364,7 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: fluent.Button(
                         onPressed: () {
-                          setMenuState(MenuStates.main);
+                          setMenuState(MenuStates.game);
                         },
                         child: Label(
                           engine.locale('goBack'),

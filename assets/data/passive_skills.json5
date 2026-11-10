@@ -412,14 +412,14 @@
     isAttribute: true,
   },
 
-  // 御剑左侧分支3
+  // 御剑左侧分支4
   track_15_39: {
     size: "small",
     connectedNodes: ["track_14_0"],
     isAttribute: true,
   },
 
-  // 御剑右侧分支3
+  // 御剑右侧分支4
   track_14_1: {
     size: "small",
     connectedNodes: ["track_14_0"],
@@ -435,11 +435,6 @@
     connectedNodes: ["track_14_2"],
     isAttribute: true,
   },
-  track_14_4: {
-    size: "small",
-    connectedNodes: ["track_14_3"],
-    isAttribute: true,
-  },
 
   // 御剑和悟道共用分支1
   track_8_4: {
@@ -452,11 +447,6 @@
     connectedNodes: ["track_8_4"],
     isAttribute: true,
   },
-  track_10_4: {
-    size: "small",
-    connectedNodes: ["track_9_4"],
-    isAttribute: true,
-  },
   track_10_3: {
     size: "small",
     connectedNodes: ["track_9_4"],
@@ -467,6 +457,11 @@
     connectedNodes: ["track_10_3"],
     isAttribute: true,
   },
+  track_12_3: {
+    size: "small",
+    connectedNodes: ["track_11_3"],
+    isAttribute: true,
+  },
   track_10_5: {
     size: "small",
     connectedNodes: ["track_9_4"],
@@ -474,17 +469,22 @@
   },
   track_11_5: {
     size: "small",
-    connectedNodes: ["track_10_5"],
+    connectedNodes: ["track_10_4", "track_10_5"],
     isAttribute: true,
   },
-  track_12_4: {
+  track_12_5: {
     size: "small",
-    connectedNodes: ["track_11_3", "track_11_5"],
+    connectedNodes: ["track_11_5"],
+    isAttribute: true,
+  },
+  track_10_4: {
+    size: "small",
+    connectedNodes: [],
     isAttribute: true,
   },
   track_11_4: {
     size: "medium",
-    connectedNodes: ["track_12_4"],
+    connectedNodes: ["track_10_4"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     title: "passiveskill_key_branch_element_1",
@@ -494,12 +494,89 @@
       },
     ],
   },
+  track_12_4: {
+    size: "small",
+    connectedNodes: ["track_11_3", "track_11_4"],
+    isAttribute: true,
+  },
+  track_13_4: {
+    size: "small",
+    connectedNodes: ["track_12_3", "track_12_5", "track_14_3", "track_14_5"],
+    isAttribute: true,
+  },
+  track_7_4: {
+    size: "medium",
+    connectedNodes: ["track_6_4"],
+    isAttribute: true,
+  },
+  track_7_3: {
+    size: "small",
+    connectedNodes: ["track_8_3"],
+    isAttribute: true,
+  },
+  track_7_5: {
+    size: "small",
+    connectedNodes: ["track_8_5"],
+    isAttribute: true,
+  },
+  track_6_4: {
+    size: "small",
+    connectedNodes: ["track_7_3", "track_7_5"],
+    isAttribute: true,
+  },
+  track_5_4: {
+    size: "small",
+    connectedNodes: ["track_6_4"],
+    isAttribute: true,
+  },
+  track_4_2: {
+    size: "small",
+    connectedNodes: ["track_5_4"],
+    isAttribute: true,
+  },
+  track_3_2: {
+    size: "medium",
+    connectedNodes: ["track_4_2"],
+    isAttribute: true,
+  },
 
   // 御剑和悟道共用分支2
-  track_14_5: {
+  track_14_4: {
     size: "small",
-    connectedNodes: ["track_14_6", "track_14_4"],
+    connectedNodes: ["track_17_3", "track_17_5"],
     isAttribute: true,
+  },
+  track_15_4: {
+    size: "small",
+    connectedNodes: ["track_17_3", "track_17_5"],
+    isAttribute: true,
+  },
+  track_16_4: {
+    size: "small",
+    connectedNodes: ["track_17_3", "track_17_5"],
+    isAttribute: true,
+  },
+  track_17_4: {
+    size: "small",
+    connectedNodes: ["track_17_3", "track_17_5"],
+    isAttribute: true,
+  },
+  track_18_4: {
+    size: "small",
+    connectedNodes: ["track_17_3", "track_17_5"],
+    isAttribute: true,
+  },
+  track_19_4: {
+    size: "medium",
+    connectedNodes: ["track_17_3", "track_17_5"],
+    icon: "cultivation/skill/spellEnergy_selected.png",
+    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
+    title: "passiveskill_key_branch_element_2",
+    passives: [
+      {
+        id: "key_branch_element_2",
+      },
+    ],
   },
   track_15_5: {
     size: "small",
@@ -516,57 +593,39 @@
     connectedNodes: ["track_15_5"],
     isAttribute: true,
   },
-  track_19_4: {
-    size: "small",
-    connectedNodes: ["track_17_5"],
-    isAttribute: true,
-  },
-  track_18_4: {
-    size: "small",
-    connectedNodes: ["track_17_5"],
-    isAttribute: true,
-  },
-  track_17_4: {
-    size: "small",
-    connectedNodes: ["track_17_5"],
-    isAttribute: true,
-  },
-  track_16_4: {
-    size: "small",
-    connectedNodes: ["track_17_5"],
-    isAttribute: true,
-  },
-  track_15_4: {
-    size: "small",
-    connectedNodes: ["track_17_5"],
-    isAttribute: true,
-  },
-  track_17_3: {
-    size: "medium",
-    connectedNodes: [
-      "track_19_4",
-      "track_18_4",
-      "track_17_4",
-      "track_16_4",
-      "track_15_4",
-    ],
-    icon: "cultivation/skill/spellEnergy_selected.png",
-    unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
-    title: "passiveskill_key_branch_element_2",
-    passives: [
-      {
-        id: "key_branch_element_2",
-      },
-    ],
-  },
   track_18_6: {
     size: "small",
     connectedNodes: ["track_17_5"],
     isAttribute: true,
   },
-  track_16_6: {
+  track_17_6: {
     size: "small",
     connectedNodes: ["track_17_5"],
+    isAttribute: true,
+  },
+  track_15_3: {
+    size: "small",
+    connectedNodes: ["track_14_3"],
+    isAttribute: true,
+  },
+  track_16_3: {
+    size: "small",
+    connectedNodes: ["track_15_3"],
+    isAttribute: true,
+  },
+  track_17_3: {
+    size: "small",
+    connectedNodes: ["track_15_3"],
+    isAttribute: true,
+  },
+  track_18_2: {
+    size: "small",
+    connectedNodes: ["track_17_3"],
+    isAttribute: true,
+  },
+  track_17_2: {
+    size: "small",
+    connectedNodes: ["track_17_3"],
     isAttribute: true,
   },
 
@@ -875,7 +934,7 @@
     isAttribute: true,
   },
   track_6_6: {
-    size: "small",
+    size: "medium",
     connectedNodes: ["track_5_6"],
     isAttribute: true,
   },
@@ -982,6 +1041,110 @@
   },
 
   // 悟道左侧分支3
+  track_11_7: {
+    size: "small",
+    connectedNodes: ["track_10_8"],
+    isAttribute: true,
+  },
+  track_11_6: {
+    size: "small",
+    connectedNodes: ["track_11_7"],
+    isAttribute: true,
+  },
+  track_10_6: {
+    size: "small",
+    connectedNodes: ["track_11_6"],
+    isAttribute: true,
+  },
+  track_9_6: {
+    size: "small",
+    connectedNodes: ["track_10_6"],
+    isAttribute: true,
+  },
+  track_9_7: {
+    size: "small",
+    connectedNodes: ["track_9_6"],
+    isAttribute: true,
+  },
+  track_10_7: {
+    size: "medium",
+    connectedNodes: ["track_9_7"],
+    isAttribute: true,
+  },
+  track_12_6: {
+    size: "small",
+    connectedNodes: ["track_11_6"],
+    isAttribute: true,
+  },
+  track_13_6: {
+    size: "small",
+    connectedNodes: ["track_12_6"],
+    isAttribute: true,
+  },
+  track_13_7: {
+    size: "small",
+    connectedNodes: ["track_13_6"],
+    isAttribute: true,
+  },
+  track_12_7: {
+    size: "medium",
+    connectedNodes: ["track_13_7"],
+    isAttribute: true,
+  },
+
+  // 悟道右侧分支3
+  track_11_9: {
+    size: "small",
+    connectedNodes: ["track_10_8"],
+    isAttribute: true,
+  },
+  track_11_10: {
+    size: "small",
+    connectedNodes: ["track_11_9"],
+    isAttribute: true,
+  },
+  track_10_10: {
+    size: "small",
+    connectedNodes: ["track_11_10"],
+    isAttribute: true,
+  },
+  track_10_9: {
+    size: "small",
+    connectedNodes: ["track_10_10"],
+    isAttribute: true,
+  },
+  track_9_9: {
+    size: "small",
+    connectedNodes: ["track_10_9"],
+    isAttribute: true,
+  },
+  track_8_9: {
+    size: "medium",
+    connectedNodes: ["track_9_9"],
+    isAttribute: true,
+  },
+  track_12_10: {
+    size: "small",
+    connectedNodes: ["track_11_10"],
+    isAttribute: true,
+  },
+  track_13_10: {
+    size: "small",
+    connectedNodes: ["track_12_10"],
+    isAttribute: true,
+  },
+  track_13_9: {
+    size: "small",
+    connectedNodes: ["track_13_10"],
+    isAttribute: true,
+  },
+  track_12_9: {
+    size: "medium",
+    connectedNodes: ["track_13_9"],
+    isAttribute: true,
+  },
+
+  // 悟道左侧分支4
   track_14_7: {
     size: "small",
     connectedNodes: ["track_14_8"],
@@ -992,16 +1155,115 @@
     connectedNodes: ["track_14_7"],
     isAttribute: true,
   },
+  track_14_5: {
+    size: "small",
+    connectedNodes: ["track_14_6"],
+    isAttribute: true,
+  },
 
-  // 悟道右侧分支3
-  track_15_9: {
+  // 悟道右侧分支4
+  track_14_9: {
     size: "small",
     connectedNodes: ["track_14_8"],
     isAttribute: true,
   },
+  track_14_10: {
+    size: "small",
+    connectedNodes: ["track_14_9"],
+    isAttribute: true,
+  },
+  track_13_11: {
+    size: "small",
+    connectedNodes: ["track_14_10"],
+    isAttribute: true,
+  },
+  track_14_11: {
+    size: "small",
+    connectedNodes: ["track_13_11", "track_13_12"],
+    isAttribute: true,
+  },
+
+  // 悟道左侧分支5
+  track_18_7: {
+    size: "small",
+    connectedNodes: ["track_18_8"],
+    isAttribute: true,
+  },
+  track_19_7: {
+    size: "small",
+    connectedNodes: ["track_18_7"],
+    isAttribute: true,
+  },
+  track_19_6: {
+    size: "small",
+    connectedNodes: ["track_19_7"],
+    isAttribute: true,
+  },
+  track_19_5: {
+    size: "small",
+    connectedNodes: ["track_19_6"],
+    isAttribute: true,
+  },
+  track_18_5: {
+    size: "medium",
+    connectedNodes: ["track_19_5"],
+    isAttribute: true,
+  },
+  track_17_7: {
+    size: "small",
+    connectedNodes: ["track_18_7"],
+    isAttribute: true,
+  },
+  track_16_7: {
+    size: "small",
+    connectedNodes: ["track_17_7"],
+    isAttribute: true,
+  },
+  track_15_7: {
+    size: "small",
+    connectedNodes: ["track_16_7"],
+    isAttribute: true,
+  },
+  track_15_6: {
+    size: "small",
+    connectedNodes: ["track_15_7"],
+    isAttribute: true,
+  },
+  track_16_6: {
+    size: "medium",
+    connectedNodes: ["track_15_6"],
+    isAttribute: true,
+  },
+
+  // 悟道右侧分支5
+  track_18_9: {
+    size: "small",
+    connectedNodes: ["track_18_8"],
+    isAttribute: true,
+  },
   track_16_10: {
     size: "small",
+    connectedNodes: ["track_18_9"],
+    isAttribute: true,
+  },
+  track_15_10: {
+    size: "small",
+    connectedNodes: ["track_16_10"],
+    isAttribute: true,
+  },
+  track_15_9: {
+    size: "small",
+    connectedNodes: ["track_15_10"],
+    isAttribute: true,
+  },
+  track_16_9: {
+    size: "small",
     connectedNodes: ["track_15_9"],
+    isAttribute: true,
+  },
+  track_17_9: {
+    size: "medium",
+    connectedNodes: ["track_16_9"],
     isAttribute: true,
   },
   track_17_10: {
@@ -1009,46 +1271,36 @@
     connectedNodes: ["track_16_10"],
     isAttribute: true,
   },
-  track_19_11: {
+  track_18_10: {
     size: "small",
     connectedNodes: ["track_17_10"],
+    isAttribute: true,
+  },
+  track_19_10: {
+    size: "small",
+    connectedNodes: ["track_18_10"],
+    isAttribute: true,
+  },
+  track_19_9: {
+    size: "medium",
+    connectedNodes: ["track_19_10"],
     isAttribute: true,
   },
 
   // 悟道和炼魂共用分支1
   track_12_12: {
     size: "small",
-    connectedNodes: ["track_11_11", "track_11_13"],
+    connectedNodes: [
+      "track_11_11",
+      "track_11_13",
+      "track_13_11",
+      "track_13_13",
+    ],
     isAttribute: true,
   },
   track_11_12: {
-    size: "small",
-    connectedNodes: ["track_12_12"],
-    isAttribute: true,
-  },
-  track_10_12: {
-    size: "small",
-    connectedNodes: ["track_11_12"],
-    isAttribute: true,
-  },
-  track_9_12: {
-    size: "small",
-    connectedNodes: ["track_10_12"],
-    isAttribute: true,
-  },
-  track_8_11: {
-    size: "small",
-    connectedNodes: ["track_9_12"],
-    isAttribute: true,
-  },
-  track_8_13: {
-    size: "small",
-    connectedNodes: ["track_9_12"],
-    isAttribute: true,
-  },
-  track_8_12: {
     size: "medium",
-    connectedNodes: ["track_8_11", "track_8_13"],
+    connectedNodes: ["track_12_12"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     title: "passiveskill_key_branch_draw_1",
@@ -1058,51 +1310,111 @@
       },
     ],
   },
+  track_10_12: {
+    size: "small",
+    connectedNodes: ["track_10_11", "track_11_12", "track_10_13"],
+    isAttribute: true,
+  },
+  track_9_12: {
+    size: "small",
+    connectedNodes: ["track_10_12"],
+    isAttribute: true,
+  },
+  track_8_12: {
+    size: "small",
+    connectedNodes: ["track_9_12"],
+    isAttribute: true,
+  },
+  track_7_12: {
+    size: "medium",
+    connectedNodes: ["track_8_12"],
+    isAttribute: true,
+  },
+  track_6_12: {
+    size: "small",
+    connectedNodes: ["track_7_11", "track_7_12", "track_7_13"],
+    isAttribute: true,
+  },
+  track_5_12: {
+    size: "small",
+    connectedNodes: ["track_6_12"],
+    isAttribute: true,
+  },
+  track_4_6: {
+    size: "small",
+    connectedNodes: ["track_5_12"],
+    isAttribute: true,
+  },
+  track_3_6: {
+    size: "medium",
+    connectedNodes: ["track_4_6"],
+    isAttribute: true,
+  },
+  track_9_11: {
+    size: "small",
+    connectedNodes: ["track_10_11"],
+    isAttribute: true,
+  },
+  track_8_11: {
+    size: "small",
+    connectedNodes: ["track_7_11"],
+    isAttribute: true,
+  },
+  track_7_11: {
+    size: "small",
+    connectedNodes: ["track_8_10"],
+    isAttribute: true,
+  },
+  track_9_13: {
+    size: "small",
+    connectedNodes: ["track_10_13"],
+    isAttribute: true,
+  },
+  track_8_13: {
+    size: "small",
+    connectedNodes: ["track_7_13"],
+    isAttribute: true,
+  },
+  track_7_13: {
+    size: "small",
+    connectedNodes: ["track_8_14"],
+    isAttribute: true,
+  },
 
   // 悟道和炼魂共用分支2
+  track_13_12: {
+    size: "small",
+    connectedNodes: ["track_12_12"],
+    isAttribute: true,
+  },
+  track_14_12: {
+    size: "small",
+    connectedNodes: ["track_13_12"],
+    isAttribute: true,
+  },
   track_15_12: {
     size: "small",
-    connectedNodes: [],
+    connectedNodes: ["track_14_12"],
     isAttribute: true,
   },
-  track_16_11: {
+  track_16_12: {
     size: "small",
     connectedNodes: ["track_15_12"],
-    isAttribute: true,
-  },
-  track_17_11: {
-    size: "small",
-    connectedNodes: ["track_16_11"],
-    isAttribute: true,
-  },
-  track_18_11: {
-    size: "small",
-    connectedNodes: ["track_17_11"],
-    isAttribute: true,
-  },
-  track_16_13: {
-    size: "small",
-    connectedNodes: ["track_15_12"],
-    isAttribute: true,
-  },
-  track_17_13: {
-    size: "small",
-    connectedNodes: ["track_16_13"],
-    isAttribute: true,
-  },
-  track_18_13: {
-    size: "small",
-    connectedNodes: ["track_17_13"],
     isAttribute: true,
   },
   track_17_12: {
     size: "small",
-    connectedNodes: ["track_18_11", "track_18_13"],
+    connectedNodes: ["track_16_12"],
     isAttribute: true,
   },
-  track_16_12: {
+  track_18_12: {
+    size: "small",
+    connectedNodes: ["track_17_12"],
+    isAttribute: true,
+  },
+  track_19_12: {
     size: "medium",
-    connectedNodes: ["track_15_12"],
+    connectedNodes: ["track_18_12"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     title: "passiveskill_key_branch_draw_2",
@@ -1111,6 +1423,56 @@
         id: "key_branch_draw_2",
       },
     ],
+  },
+  track_15_11: {
+    size: "small",
+    connectedNodes: ["track_14_11", "track_14_12"],
+    isAttribute: true,
+  },
+  track_16_11: {
+    size: "small",
+    connectedNodes: ["track_15_11", "track_15_12"],
+    isAttribute: true,
+  },
+  track_17_11: {
+    size: "small",
+    connectedNodes: ["track_16_11", "track_16_12"],
+    isAttribute: true,
+  },
+  track_18_11: {
+    size: "small",
+    connectedNodes: ["track_17_11", "track_17_12"],
+    isAttribute: true,
+  },
+  track_19_11: {
+    size: "small",
+    connectedNodes: ["track_18_11", "track_18_12"],
+    isAttribute: true,
+  },
+  track_15_13: {
+    size: "small",
+    connectedNodes: ["track_14_13", "track_14_12"],
+    isAttribute: true,
+  },
+  track_16_13: {
+    size: "small",
+    connectedNodes: ["track_15_13", "track_15_12"],
+    isAttribute: true,
+  },
+  track_17_13: {
+    size: "small",
+    connectedNodes: ["track_16_13", "track_16_12"],
+    isAttribute: true,
+  },
+  track_18_13: {
+    size: "small",
+    connectedNodes: ["track_17_13", "track_17_12"],
+    isAttribute: true,
+  },
+  track_19_13: {
+    size: "small",
+    connectedNodes: ["track_18_13", "track_18_12"],
+    isAttribute: true,
   },
 
   // 炼魂流派主轴
@@ -1503,6 +1865,30 @@
   },
 
   // 炼魂右侧分支2
+
+  // 炼魂左侧分支4
+  track_14_15: {
+    size: "small",
+    connectedNodes: ["track_14_16"],
+    isAttribute: true,
+  },
+  track_14_14: {
+    size: "small",
+    connectedNodes: ["track_14_15"],
+    isAttribute: true,
+  },
+  track_13_13: {
+    size: "small",
+    connectedNodes: ["track_14_14"],
+    isAttribute: true,
+  },
+  track_14_13: {
+    size: "small",
+    connectedNodes: ["track_13_13", "track_13_12"],
+    isAttribute: true,
+  },
+
+  // 炼魂右侧分支4
 
   // 法身流派主轴
   track_0_3: {
