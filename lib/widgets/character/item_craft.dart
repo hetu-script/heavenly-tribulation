@@ -42,6 +42,7 @@ class _ItemCraftState extends State<ItemCraft> {
     }
     if (widget.rank != null) {
       filter['minRank'] = widget.rank;
+      filter['includeUnranked'] = true;
     }
 
     return Positioned(

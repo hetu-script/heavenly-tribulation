@@ -586,8 +586,11 @@ class CardLibraryScene extends Scene {
     assert(kCardCraftOperations.contains(operationId),
         'Unknown card crafting operation: $operationId');
 
-    final result = engine.hetu.invoke(operationId,
-        positionalArgs: [craftingCard!.data, craftmeterialData['rank']]);
+    final arguments = <dynamic>[craftingCard!.data];
+    if (operationId == 'upgradeRank') {
+      arguments.add(craftmeterialData['rank']);
+    }
+    final result = engine.hetu.invoke(operationId, positionalArgs: arguments);
 
     if (result != null) {
       // 返回的是提示的文本信息

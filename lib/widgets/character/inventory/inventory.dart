@@ -56,6 +56,7 @@ class Inventory extends StatefulWidget {
   /// - `rank`（int）: 精确匹配境界等级
   /// - `minRank`（int）: 最低境界等级（含）
   /// - `maxRank`（int）: 最高境界等级（含）
+  /// - `includeUnranked`（bool）: 使用 `minRank` 时仍保留境界为 0 的物品
   /// - `type`（String）: 物品类型，如 `'equipment'`、`'craftmaterial'` 等
   /// - `category`（String）: 物品类别，如 `'weapon'`、`'armor'` 等
   /// - `kind`（String）: 物品种类，如 `'sword'`、`'shard'` 等

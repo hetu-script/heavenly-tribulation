@@ -513,24 +513,24 @@ function _addPredefinedAffixes(card) {
 //   return null
 // }
 
-function _addRandomExtraAffix(card, materialRank, {index}) {
+function _addRandomExtraAffix(card, rank, {index}) {
   final supportAffixes = _getSupportAffixes(card)
   if (supportAffixes.isEmpty) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')
   }
   final affix = Object.create(random.nextIterable(supportAffixes))
-  _addAffixToCard(card, affix, materialRank, index: index)
+  _addAffixToCard(card, affix, rank, index: index)
   return affix
 }
 
 /// 灵宝：优先补槽；满三条且结丹后只进行一次太古判定。
-function addAffix(card, materialRank, {index}) {
+function addAffix(card, {index}) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
 
   if (index != null) {
-    _addRandomExtraAffix(card, materialRank, index: index)
+    _addRandomExtraAffix(card, card.rank, index: index)
     return null
   }
 
@@ -544,12 +544,12 @@ function addAffix(card, materialRank, {index}) {
     return engine.locale('craft_addAffix_warning')
   }
 
-  _addRandomExtraAffix(card, materialRank)
+  _addRandomExtraAffix(card, card.rank)
   return null
 }
 
 /// 替换一个额外词条，随后只对本次新词条进行一次太古判定。
-function replaceAffix(card, materialRank) {
+function replaceAffix(card) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
@@ -567,7 +567,7 @@ function replaceAffix(card, materialRank) {
   final targetAffix = random.nextIterable(availableAffixes)
   final index = card.affixes.indexOf(targetAffix)
 
-  final newAffix = _addRandomExtraAffix(card, materialRank, index: index)
+  final newAffix = _addRandomExtraAffix(card, card.rank, index: index)
   if (newAffix.isGreater != true) {
     _rollSingleGreaterAffix(card, Constants.greaterAffixCraftChance, affix: newAffix)
   }
@@ -576,10 +576,8 @@ function replaceAffix(card, materialRank) {
   return null
 }
 
-/// 锁定一个额外词条
-/// 已锁定词条数量决定所需真定丹的最低境界: 
-/// 0个已锁定 → rank>=1, 1个已锁定 → rank>=2, 以此类推，最多3个
-function freezeAffix(card, materialRank) {
+/// 随机锁定一个额外词条，最多锁定3个。
+function freezeAffix(card) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
@@ -587,12 +585,6 @@ function freezeAffix(card, materialRank) {
   final frozenCount = card.affixes.where( (affix) => affix.isFreezed == true ).length
   if (frozenCount >= Constants.maxNormalExtraAffixCount) {
     return engine.locale('craft_freezeAffix_warning_maxCount')
-  }
-
-  final requiredRank = frozenCount + 1
-  if (materialRank < requiredRank) {
-    return engine.locale('craft_freezeAffix_warning_materialRank',
-      interpolations: [engine.locale('cultivationRank_${requiredRank}')])
   }
 
   final extraAffixes = card.affixes.where( (affix) {
@@ -613,13 +605,13 @@ function freezeAffix(card, materialRank) {
   return null
 }
 
-function removeAffix(card, materialRank) {
+function removeAffix(card) {
   if (card.isUnique == true) {
     return engine.locale('craft_unique_forbidden_hint')
   }
 
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && !affix.isFreezed && affix.rank <= materialRank)
+    return (!affix.isMain && !affix.isFreezed)
   }).toList()
   if (extraAffixes.isEmpty) {
     return engine.locale('craft_removeAffix_warning')
@@ -639,11 +631,7 @@ function removeAffix(card, materialRank) {
 }
 
 /// 重置卡牌的数值
-function rerollAffix(card, materialRank) {
-  if (materialRank < card.rank) {
-    return engine.locale('craft_rerollAffix_warning_materialRank')
-  }
-
+function rerollAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
     return (!affix.isMain && affix.isFreezed != true && affix.valueData != null)
   })

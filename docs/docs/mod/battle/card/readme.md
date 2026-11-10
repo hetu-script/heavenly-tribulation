@@ -309,3 +309,10 @@ Dart 侧在元素牌（主词条 `elementType` 非空）结算完毕后无条件
 可选尾部等词条脚本**直接施加**元素异常查表——不经 takeDamage 的异常计数器，必然生效，
 对抗面是辟邪（buff_ward 按层抵消获得的负面效果）；异常计数器保持 damageType 口径
 （火/冰/雷/毒），幸运/不幸语义不变（决议见 `plan/skill_tree/spellcraft_extra_affix_rework.md` §7）。
+
+## 打造材料的境界契约
+
+- `addAffix(card)`、`replaceAffix(card)`、`freezeAffix(card)`、`removeAffix(card)`、`rerollAffix(card)` 不接收材料境界；新增或替换词条直接使用 `card.rank`，其余规则由卡牌与词条状态决定。
+- `upgradeRank(card, materialRank)` 保留材料境界检查，要求 `materialRank > card.rank`。
+- 灵宝、神照、真定、坐忘、混元及其碎片，以及符纸和符纸碎片，不设置 `isRankedItem`；破镜丹与破镜残韵继续设置该字段，破镜丹同时使用 `isRankedName`。
+- 材料面板的 `minRank` 用于隐藏低境界破镜丹；同时设置 `includeUnranked: true`，避免境界为 0 的通用材料被过滤。

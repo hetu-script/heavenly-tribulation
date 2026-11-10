@@ -952,6 +952,7 @@ final class GameLogic {
     final int? minRank = filter?['minRank'];
     final int? maxRank = filter?['maxRank'];
     final int? rank = filter?['rank'];
+    final bool includeUnranked = filter?['includeUnranked'] ?? false;
     final String? type = filter?['type'];
     final String? category = filter?['category'];
     final String? kind = filter?['kind'];
@@ -966,7 +967,9 @@ final class GameLogic {
       if (rank != null && itemData['rank'] != rank) {
         continue;
       }
-      if (minRank != null && itemData['rank'] < minRank) {
+      if (minRank != null &&
+          itemData['rank'] < minRank &&
+          !(includeUnranked && itemData['rank'] == 0)) {
         continue;
       }
       if (maxRank != null && itemData['rank'] > maxRank) {

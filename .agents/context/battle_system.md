@@ -103,7 +103,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - stats_and_item.dart（CharacterStatsAndItem）：EquipmentBar（竖排装备栏）+ CharacterStats（属性面板）+ Inventory（背包）三联；右键菜单 equip/unequip/use/charge/discard，前置校验（未鉴定/诅咒/类别限制/绝世重复）。
 - inventory/：equipment_bar.dart（角色面板装备栏）、inventory.dart + item_grid.dart（背包格子）、material.dart（材料栏）；merchant/ 交易界面。
-- item_craft.dart（ItemCraft）：材料选择面板——CraftMode.affix/scroll/identify/all 决定 category 过滤（craftmaterial_affix/scroll_paper/identify_scroll/全部），可选 rank 下限；右键发 GameEvents.craftMaterialSelected 供工坊场景消费，本身不含打造逻辑。
+- item_craft.dart（ItemCraft）：材料选择面板——CraftMode.affix/scroll/identify/all 决定 category 过滤（craftmaterial_affix/scroll_paper/identify_scroll/全部），可选 rank 下限；设置 minRank 时同时使用 includeUnranked 保留无境界通用材料，低境界破镜丹仍被过滤；右键发 GameEvents.craftMaterialSelected 供工坊场景消费，本身不含打造逻辑。
 - stats.dart 的 kMoreStats 展示 scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等数值属性；纯机制开关 turnStartScry 不进入属性列表。
 
 ### 5.5 打造与精炼（lib/widgets/view/workshop.dart）

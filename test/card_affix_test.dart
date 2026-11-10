@@ -3,10 +3,29 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:heavenly_tribulation/logic/logic.dart';
+import 'package:heavenly_tribulation/widgets/character/inventory/inventory.dart';
 
 import 'support/hetu_test_utils.dart';
 
 void main() {
+  test('材料境界过滤保留通用材料并排除低境界破镜丹', () {
+    final hero = {
+      'inventory': {
+        'common': {'id': 'common', 'rank': 0},
+        'low': {'id': 'low', 'rank': 1},
+        'high': {'id': 'high', 'rank': 3},
+      },
+    };
+
+    final items = GameLogic.getFilteredItems(
+      hero,
+      inventoryType: InventoryType.crafting,
+      filter: {'minRank': 2, 'includeUnranked': true},
+    );
+
+    expect(items.map((item) => item['id']), ['common', 'high']);
+  });
+
   test('额外词条与太古数量按境界增长', () {
     expect(
       [
@@ -172,6 +191,9 @@ void main() {
         card['affixes'].where((affix) => affix['isGreater'] == true), isEmpty);
 
     final originalIds = card['affixes'].map((affix) => affix['id']).toList();
+    final rankWarning = hetu.invoke('upgradeRank', positionalArgs: [card, 2]);
+    expect(rankWarning, 'craft_upgradeRank_warning_materialRank');
+    expect(card['rank'], 2);
     hetu.invoke('upgradeRank', positionalArgs: [card, 3]);
     expect(card['rank'], 3);
     expect(card['affixes'].map((affix) => affix['id']).toList(), originalIds);
@@ -182,14 +204,14 @@ void main() {
     expect(greater['level'], GameLogic.maxLevelForRank(3));
 
     final affixCount = card['affixes'].length;
-    final result = hetu.invoke('addAffix', positionalArgs: [card, 3]);
+    final result = hetu.invoke('addAffix', positionalArgs: [card]);
     expect(result, isNull);
     expect(card['craftResultHint'], 'craft_addAffix_greater_failed_hint');
     expect(card['affixes'], hasLength(affixCount));
     expect(card['affixes'].where((affix) => affix['isGreater'] == true),
         hasLength(1));
 
-    hetu.invoke('rerollAffix', positionalArgs: [card, 3]);
+    hetu.invoke('rerollAffix', positionalArgs: [card]);
     expect(card['affixes'], hasLength(affixCount));
     expect(card['affixes'].where((affix) => affix['isGreater'] == true),
         hasLength(1));
@@ -202,7 +224,7 @@ void main() {
       card.affixes = [card.affixes.first]
       final attune = Object.create(game.battleCardAffixes.attune)
       card.affixes.add(attune)
-      final warning = rerollAffix(card, 3)
+      final warning = rerollAffix(card)
       [warning, attune.valueData, attune.isGreater, attune.isFreezed]
     ''');
     expect(result, [null, null, true, true]);
