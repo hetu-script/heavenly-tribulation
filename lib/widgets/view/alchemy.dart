@@ -21,7 +21,7 @@ import '../common.dart';
 class AlchemyDialog extends StatefulWidget {
   const AlchemyDialog({
     super.key,
-    required this.locationData,
+    this.locationData,
     this.development,
   });
 

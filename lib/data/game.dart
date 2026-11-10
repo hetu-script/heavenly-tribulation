@@ -895,15 +895,24 @@ final class GameData with ChangeNotifier {
           );
         }
       }
-    } else {
+    } else if (info.currentWorldId != null) {
       await engine.pushScene(
-        info.currentWorldId,
+        info.currentWorldId!,
         constructorId: Scenes.worldmap,
         arguments: {
           'id': info.currentWorldId,
           'savePath': info.savePath,
           'method': 'load',
         },
+        onAfterLoaded: () {
+          engine.setLoading(false);
+          completer.complete();
+        },
+      );
+    } else {
+      await engine.pushScene(
+        Scenes.camp,
+        constructorId: Scenes.camp,
         onAfterLoaded: () {
           engine.setLoading(false);
           completer.complete();

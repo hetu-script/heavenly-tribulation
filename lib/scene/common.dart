@@ -12,6 +12,7 @@ final class Scenes {
   static const cultivation = 'cultivation';
   static const worldmap = 'worldmap';
   static const location = 'location';
+  static const camp = 'camp';
   static const battle = 'battle';
 
   static const matchingGame = 'matching_game';

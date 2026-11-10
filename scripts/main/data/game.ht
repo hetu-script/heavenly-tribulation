@@ -228,11 +228,13 @@ function loadGameFromJsonData({
 
   universe = Object.create(universeData)
   history = Object.create(historyData)
-  world = universe[game.currentWorldId]
+  world = game.currentWorldId != null ? universe[game.currentWorldId] : null
 
-  assert(world != null, 'world id null, currentWorldId: ${game.currentWorldId}')
-  
-  engine.info('当前世界: [${world.id}]')
+  if (world != null) {
+    engine.info('当前世界: [${world.id}]')
+  } else {
+    engine.info('当前游戏没有世界数据')
+  }
 
   if (game.heroId != null) {
     assert(game.characters.containsKey(game.heroId))

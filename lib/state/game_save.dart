@@ -24,7 +24,7 @@ extension MeaningfulString on DateTime {
   }
 }
 
-Future<SaveInfo> createSaveInfo(String currentWorldId,
+Future<SaveInfo> createSaveInfo(String? currentWorldId,
     [String? saveName]) async {
   saveName ??= randomUID();
   final directory = await path.getApplicationDocumentsDirectory();
@@ -40,7 +40,7 @@ Future<SaveInfo> createSaveInfo(String currentWorldId,
 class SaveInfo {
   final String savePath;
   final String saveName;
-  String currentWorldId;
+  String? currentWorldId;
   String? timestamp;
 
   SaveInfo({
@@ -115,7 +115,7 @@ class GameSavesState with ChangeNotifier {
     }
   }
 
-  Future<SaveInfo?> saveGame(String worldId, [String? saveName]) async {
+  Future<SaveInfo?> saveGame(String? worldId, [String? saveName]) async {
     try {
       late SaveInfo info;
       if (saveName != null && saves.containsKey(saveName)) {

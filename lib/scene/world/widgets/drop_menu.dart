@@ -118,7 +118,7 @@ class _DropMenuButtonState extends State<DropMenuButton> {
   final menuController = fluent.FlyoutController();
 
   void _save(String saveName) async {
-    String worldId = GameData.world['id'];
+    final String? worldId = GameData.game['currentWorldId'];
     final saveInfo =
         await context.read<GameSavesState>().saveGame(worldId, saveName);
     if (saveInfo != null) {

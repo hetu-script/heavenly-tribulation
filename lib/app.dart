@@ -17,6 +17,7 @@ import 'scene/card_library/card_library.dart';
 import 'scene/battle/character_binding.dart';
 import 'ui.dart';
 import 'scene/location/location.dart';
+import 'scene/dungeon/camp.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'logic/logic.dart';
@@ -124,6 +125,10 @@ class _GameAppState extends State<GameApp> {
         backgroundImageId:
             arguments['background'] ?? 'battle/scene/plain_day.png',
       );
+    });
+
+    engine.registerSceneConstructor(Scenes.camp, (arguments) async {
+      return CampScene();
     });
 
     engine.registerSceneConstructor(Scenes.location, (arguments) async {

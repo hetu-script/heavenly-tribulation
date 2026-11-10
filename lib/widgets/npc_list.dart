@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/global.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +12,14 @@ import '../logic/logic.dart';
 import '../state/game_state.dart';
 
 class NpcList extends StatefulWidget {
-  const NpcList({super.key});
+  const NpcList({
+    super.key,
+    this.onInteract,
+    this.showNamesWithoutMeeting = false,
+  });
+
+  final FutureOr<void> Function(dynamic character)? onInteract;
+  final bool showNamesWithoutMeeting;
 
   @override
   State<NpcList> createState() => _NpcListState();
@@ -34,8 +43,6 @@ class _NpcListState extends State<NpcList> {
     length = availableSpaceY ~/ GameUI.avatarSize;
   }
 
-  void setStartIndex(int index) {}
-
   @override
   Widget build(BuildContext context) {
     if (GameData.hero == null) {
@@ -50,19 +57,28 @@ class _NpcListState extends State<NpcList> {
         child: Avatar(
           imageId: character['icon'],
           color: GameUI.foregroundColor,
-          name: (haveMet != null) ? character['name'] : '???',
+          name: (widget.showNamesWithoutMeeting || haveMet != null)
+              ? character['name']
+              : '???',
           size: const Size(100, 100),
           data: character,
-          onPressed: (character) => GameLogic.onInteractCharacter(character),
+          onPressed: (character) {
+            final onInteract = widget.onInteract;
+            if (onInteract != null) {
+              onInteract(character);
+            } else {
+              GameLogic.onInteractCharacter(character);
+            }
+          },
         ),
       );
     }).toList();
 
+    final maxStart =
+        characters.length > length ? characters.length - length : 0;
+    if (start > maxStart) start = maxStart;
     end = start + length;
-
-    if (end >= characters.length) {
-      end = characters.length;
-    }
+    if (end > characters.length) end = characters.length;
 
     return Material(
       type: MaterialType.transparency,

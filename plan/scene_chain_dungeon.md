@@ -1,376 +1,389 @@
 # 场景链地牢：Location／NPCList 复用与实施计划
 
-> 状态：实施规划，尚未执行。
+> 状态：阶段 1 已部分实施，包括随机角色入口、初始 `CampScene`、NPC／功能界面解耦和无世界存档基础；`DungeonScene`、固定路线流程、战斗门控与难度循环尚未实施。具体路线与美术明细见 `plan/scene_chain_content.md`。
 >
-> 目标依据：`plan/demo_scope.md`。当前版本采用“固定营地 + 场景链秘境”，不再以六边形世界或六边形随机地牢承载核心玩法。
+> 目标依据：`plan/demo_scope.md`。当前版本采用“初始营地 + 场景链秘境”，不以六边形世界或六边形随机地牢承载核心玩法。
 >
-> 本文只规划现有能力复用、必要的新机制和落地顺序，不要求最终天赋树排布或五流派内容已经完成。
->
-> 后续可选的格子房间放置、体力、门锁与只读地图扩展见 `plan/grid_dungeon.md`，不构成本计划首版场景链的前置依赖。
+> 后续可选的格子房间扩展见 `plan/grid_dungeon.md`，不构成本计划首版场景链的前置依赖。
 
 ## 1. 结论与目标
 
-现有 Location、NPCList、对话、战斗和奖励系统足以支撑新地牢的大部分表现与交互，但应采用**组件级和内容工厂级复用**，而不是把完整地牢强行塞进 Location 的世界地点模型。
+现有 Location、NPCList、对话、战斗和奖励系统足以支撑新地牢的大部分表现与交互，但应采用**组件级和内容工厂级复用**，而不是把地牢塞进 Location 的世界地点模型。
 
 推荐结构：
 
 - 新建轻量 `CampScene` 与 `DungeonScene`，直接组合现有背景、场景卡和 UI Overlay。
-- 由 Hetu 定义并初始化 `DungeonRun`，作为 HTStruct 保存在 `game.flags.dungeon`，统一管理当局场景、路线、奖励和结算；Dart 不另建重复的持久状态对象。
+- 由 Hetu 定义并初始化 `DungeonRun`，作为 HTStruct 保存在 `game.flags.dungeon`，统一管理当局场景、固定路线、难度、奖励和流程状态；Dart 不另建重复的持久状态对象。
 - 复用 `BattleEntity`、战斗场景、对话、商人、物品与奖励生成，但不复用会写入世界坐标和世界对象的 `ObjectEnemy`、`ObjectMerchant` 等包装。
-- 营地持久档案与当局角色分离；失败时丢弃当局角色并恢复营地档案，永久卡牌、永久装备、历史最高境界和解锁不受影响。
+- 整个游戏只有一个当前英雄及其角色数据。营地和秘境直接读取、修改同一个英雄，不创建营地档案、当局角色或双份资产。
+- 卡牌、装备、材料、金钱、经验和境界均在获得时直接写入当前英雄并持久保存。`isDungeonCard` 只是为未来沙盒融合预留的卡牌实例标记，DEMO 不据此清除卡牌。
+- 秘境失败即结束本次游戏并返回主菜单，不删除既有存档；玩家可以读取存档，或重新开始并创建新的随机角色。
+- Boss 胜利后英雄仍留在秘境中，可继续挑战更高难度，不返回营地，不做战利品入库或当局角色销毁。
 - 存档系统正式支持“无六边形世界”的营地／秘境流程，不创建空白世界作为绕过方案。
 
 首个可玩目标：
 
-> 悟道初始卡组 → 按固定顺序进入普通战斗与营地 → 精英与 Boss → 返回营地入库；另验证失败重开只重置当局临时内容并保留永久资产与最高境界。
+> 点击无尽模式 → 随机创建角色并进入初始营地 → 选择有效初始卡组 → 按固定顺序完成普通战斗、商人、营地、精英与 Boss → 保留同一角色和全部资产并开启更高难度；另验证失败后返回主菜单、读取存档可恢复失败前的进度。
 
-## 2. 现有能力与复用判断
+## 2. 已确认的角色、资产与胜负规则
 
-### 2.1 Location 场景外壳
+### 2.1 角色创建
 
-`lib/scene/location/location.dart` 已提供：
+首版不制作英雄创建或角色选择界面。每次从主菜单点击“无尽模式”时：
 
-- 全屏插画背景：`LocationScene.onLoad`，约 `:272-279`。
-- 基于 `PiledZone` 的场景卡队列、聚焦与展开：约 `:281-289`。
-- 固定位置的退出卡：约 `:291-323`。
-- `GameUIOverlay` 接入 NPC、日志和功能按钮：约 `:379-399`。
-- 场景进入回调与脚本侧 `location` 上下文：约 `:332-369`。
+1. 创建一份无六边形世界的新游戏数据；
+2. 使用与当前 `debug.generateHero()` 相同的方式随机创建一个角色；
+3. 首版从等级 0、境界 0 开始，跳过角色创建和角色选择；
+4. 直接进入第一个 `CampScene`。
+
+角色命名、外观、流派选择和正式创建流程另行规划，不在本计划中扩展。
+
+### 2.2 单一角色与资产
+
+- `game.heroId` 始终指向当前唯一英雄，营地与秘境之间不切换英雄对象。
+- 初始卡组、装备和后续奖励都直接使用该英雄的 `cardLibrary`、`battleDecks`、`inventory`、`equipments` 与 `materials`。
+- 不建立 `game.camp`、`CampProfile`、永久卡库副本、当局卡组副本或装备深拷贝。
+- 不需要 `highestRank`；当前英雄的 `rank` 就是已突破境界，突破成功后直接保存在英雄上。
+- 永久卡获得时不需要额外入库；它已经在当前英雄的卡牌库中。永久升级也直接修改原卡牌实例。
+- `isDungeonCard` 缺省为 `false`，不与 `isEphemeral` 或 `isUnpackable` 混用；DEMO 仅保存该标记，不执行失败清除、额外入库或卡面分流。
+
+### 2.3 战斗失败与主动放弃
+
+- 战斗失败或主动放弃即结束当前游戏进程中的这次冒险，返回主菜单。
+- 不执行失败回血、返回营地、角色销毁、卡牌清除、装备销毁或战利品回滚。
+- 不自动覆盖或删除既有存档。读取冒险中的存档可以恢复到对应场景边界。
+- 再次点击无尽模式会创建新游戏和新的随机角色，不延续上一局的等级、天赋或资产。
+
+### 2.4 Boss 与更高难度
+
+- Boss 胜利后立即保留全部奖励和突破结果，当前英雄继续处于秘境模式。
+- Boss 场景提供“挑战更高难度”，确认后增加 `difficulty`，将 `currentSceneIndex` 重置到路线起点，并按新难度生成新一批敌人、商人和奖励。
+- 同一难度内回访、场景恢复和读档不得重 roll；只有明确开始下一难度时才重新生成路线实例内容。
+- 首版不提供 Boss 后返回营地、收益入库或撤离结算。
+
+## 3. 现有能力与复用判断
+
+### 3.1 Location 场景外壳
 
 可直接复用：
 
-- `PiledZone` 与现有布局参数；
-- `GameData.createSiteCard` / `createSiteCardByData`，见 `lib/data/game.dart:1004-1060`；
+- 全屏插画背景、`PiledZone` 队列、聚焦和展开布局；
+- `GameData.createSiteCard` / `createSiteCardByData`；
 - 背景、卡片聚焦、鼠标指针和 Hover 的交互模式；
 - `GameUIOverlay` 的现有面板和 NPC 区域。
 
-不应直接复用 Location 的世界职责：
+不直接复用 Location 的世界职责：
 
 - `_loadSites()` 中按城市／建筑 kind 硬编码的功能分发；
 - `worldId`、`worldPosition` 和退出时的世界坐标写回；
 - `GameData.getLocation()`、`GameData.getNpcsAtLocation()` 对全局沙盒数据的依赖；
-- 进入时推进游戏时间、更新任务和门派地点的默认行为；
-- `Location` 构造函数对 `game.locations`、门派、城市和世界地标的写入。
+- 进入时推进游戏时间、更新任务和门派地点的默认行为。
 
-因此不继承 `LocationScene`，也不为地牢伪造 `Location` 对象。第一阶段由 `DungeonScene`／`CampScene` 直接组合通用组件；暂不为了少量背景和卡区代码提前建立复杂继承层。
+因此不继承 `LocationScene`，也不为地牢伪造 `Location` 对象。
 
-### 2.2 NPCList 与 NPC 互动
+### 3.2 NPCList 与 NPC 互动
 
-`lib/widgets/npc_list.dart` 已提供：
+需要支持：
 
-- 监听 `GameState.npcs` 并显示头像列表；
-- 超出可见数量时逐项上下滚动；
-- 点击后统一进入 `GameLogic.onInteractCharacter()`。
+- 可选 `onInteract` 回调，默认仍调用 `GameLogic.onInteractCharacter()`；
+- 可选名称显示策略，功能 NPC 不依赖 `haveMet`；
+- NPC 数量变化后 clamp／重置滚动起点；
+- 离开营地或地牢场景时清空 `GameState.npcs`，避免泄漏到战斗或下一场景。
 
-`GameUIOverlay` 已在 `lib/widgets/ui_overlay.dart:645-646` 挂载该列表。
+### 3.3 战斗、敌人与奖励
 
-可复用：
+- `EnemyState.show()`、战前准备面板和 `BattleScene` 的显式 `heroData` / `enemyData` / `onBattleEnd` 可直接复用。
+- 敌人直接由 `BattleEntity` 与 `generateBattleDeck()` 创建，不调用 `ObjectEnemy`。
+- `createReward()` 生成的奖励直接通过 `Player.acquire()` 进入当前英雄，不经过待入库或营地结算。
+- 战斗结束回调只负责当前场景胜负、奖励领取状态和固定路线门控，不操作六边形地图。
+- 所有奖励生成结果在展示前保存到 `game.flags.dungeon`，重复回调和读档不得重复发奖。
 
-- NPC 头像、名称和列表展示；
-- `GameState.updateNpcs()` / `hideNpc()`；
-- 对话系统的 `dialog.pushDialog`、`pushSelection` 和背景切换；
-- 现有角色对话入口中需要保留的“交谈、查看信息、交易”等能力。
+### 3.4 商人、工坊与修炼的无世界适配
 
-需要小幅改造：
+已核对的现有耦合与适配方式：
 
-- 为 `NpcList` 增加可选的 `onInteract` 回调，默认仍调用现有 `GameLogic.onInteractCharacter`。
-- 营地功能 NPC 和地牢事件 NPC 使用该回调进入各自的动作分发，不默认弹出偷窃、攻击、赠送、门派关系等沙盒社交选项。
-- 增加可选的名称显示策略，功能 NPC 不依赖 `haveMet` 才显示名字。
-- 列表更新或场景切换时 clamp／重置滚动起点，避免 NPC 数量减少后 `sublist` 越界。
-- 离开场景时清空 `GameState.npcs`，防止上一个场景的 NPC 泄漏到战斗或下一场景。
+- 商人：`MerchantDialog` 可以直接消费包含 `inventory` 和 `materials` 的 `BattleEntity`，使用 `MerchantType.none`，关闭补货和偷窃；不要求 Location、门派或世界坐标。商人由独立工厂创建并调用 `characterInitItems()`，不调用 `ObjectMerchant`。
+- 装备工坊：`WorkshopDialog` 已允许 `locationData == null`，但 `GameUIOverlay` 需要透传可选 `development`，以限制可打造稀有度；无 Location 时不把未领取成品写入地点。
+- 炼丹：`AlchemyDialog.locationData` 改为可选，并由 Overlay 透传 `development`。
+- 修炼：`CultivationScene` 已支持通过 `mode` 而不是 Location 选择模式，并具有显式 `development` 和 `advanceTime` 参数。当前只允许从初始营地功能卡进入，传入 `advanceTime: false`；秘境不提供修炼入口。
+- 卡牌库与符箓工坊：只允许从初始营地功能卡进入。`DungeonScene` 的 `GameUIOverlay` 必须设置 `enableLibrary: false`、`enableCultivation: false`，休息房间也不得提供绕道入口。
+- 休息：不调用依赖真实 Location、房租和世界时间的 `GameLogic.heroRest()`；由场景数据提供受控恢复动作。
 
-### 2.3 战斗、战前与奖励
+## 4. 目标场景结构
 
-可直接复用：
+### 4.1 场景栈与房间抽象
 
-- `EnemyState.show()` 与战前准备面板，见 `lib/state/character.dart:14-60`。
-- `BattleScene` 已支持显式传入 `heroData`、`enemyData`、背景和 `onBattleEnd`，见 `lib/app.dart:115-126`。
-- `BattleEntity` 与 `generateBattleDeck()` 创建敌人和卡组。
-- `createReward()` 生成经验、金钱、装备、卡包、丹药和材料，见 `scripts/main/logic/logic.ht:154-288`。
-- `GameLogic.promptItems()` 展示奖励。
-- `MerchantState.show()` 与现有交易界面。
-- 卡牌库、修炼、装备和工坊等已经存在的功能界面。
+使用 Samsara 场景栈管理根场景和全屏功能界面，但**不为路线中的每个房间分别创建 Flame Scene**。整次秘境只创建一个持续存在的 `DungeonScene`，房间切换只替换背景、NPC、功能卡和当前可用动作。
 
-需要新建或拆分：
+场景栈结构：
 
-- 敌人直接由 `BattleEntity` 创建，不调用 `ObjectEnemy`，后者会设置世界坐标并写入 `world.objects`。
-- 商人由不依赖 `world` 的工厂创建，可复用 `characterInitItems()`；不调用 `ObjectMerchant`。
-- 战斗结束回调只负责标记当前场景胜负和生成待结算奖励，不在回调中直接操作六边形地图。
-- 奖励先进入当局角色的可用资产；永久卡牌获得后立即写入永久卡库，其他允许保留的装备、材料和解锁在 Boss／撤离结算时转入营地仓库。
-- 当前 `Player.acquire()` 会写入全局 hero，使用时必须确保全局 hero 已指向当局角色，不能提前写入营地持久档案。
+```text
+MainMenuScene
+  → CampScene                 初始准备
+      → CardLibraryScene      功法与精炼，仅营地
+      → CultivationScene      修炼，仅营地
+  → DungeonScene              整次秘境只创建一个
+      → BattleScene           战斗时临时 push
+      → 其他秘境功能界面      不包含卡牌库与修炼
+```
 
-### 2.4 现有六边形秘境的内容迁移
+战斗结束后回到同一个 `DungeonScene`，不得因返回房间而重新生成敌人、商人、商品或奖励。商人等模态界面继续使用现有 Overlay。
 
-`scripts/main/event/dungeon.ht` 首版迁移敌人、营地与随机商人内容：
+房间采用**统一数据模型 + 按类型分派动作处理器**，不为 `battle`、`merchant`、`rest` 等类型分别继承 Scene，也不把所有类型逻辑堆进一个巨型房间类：
 
-- 普通敌人、精英和 Boss 的流派、等级、境界与卡组配置；
-- 普通／精英／Boss 的奖励概率差异；
-- 营地中的休息、修炼、卡牌库与精炼功能组合；
-- 随机商人类型、商品类别、价格与库存生成规则；
-- 战斗胜利后生成奖励并允许继续前进的流程。
+- JSON5 房间模板：定义类型、标题、背景、卡图、敌人、商人池、奖励和动作参数；
+- 运行时房间实例：作为 HTStruct 保存在 `game.flags.dungeon`，记录生成结果、完成状态和设施使用状态，不复制成另一份 Dart 持久对象；
+- Dart 房间视图：根据当前房间实例装配共同外壳；
+- Dart 动作处理器：按 `kind` 分派战斗、交易和设施行为。
 
-旧地图的 `encounter`／灵泉、宝箱和随机路线暂不迁移。旧版房间数量也不作为新 DEMO 的内容目标，只选取差异明确的内容组成固定路线。
+`battle`、`elite` 与 `boss` 共用战斗处理器，区别来自数据配置；Boss 仅额外提供胜利后的下一难度动作。统一的是房间生命周期与交互协议，具体机制仍由类型处理器负责，避免在场景类中堆积大型 switch。
 
-不迁移：
+只有房间确实需要独立摄像机、碰撞、持续更新或复杂空间交互时，才允许临时 push 专用 Flame Scene；当前静态插画与功能卡房间不具备这种需求。未来格子模式也复用相同房间实例和动作处理器，只替换导航与地图展示。
 
-- 地块坐标、传送门对象和地图对象增删；
-- `World.lightUpAllTiles()`、地图重建和场景切换至 `worldmap`；
-- 以 `room` 直接驱动六边形地图生成的实现；
-- 旧门票、门派租用和世界时间限制；
-- 旧的失败回血与世界死亡处理。
+### 4.2 初始营地
 
-## 3. 目标场景结构
+`CampScene` 使用固定营地插画，提供首批准备功能：
 
-### 3.1 固定营地
+- 开始秘境；
+- 初始卡组确认；
+- 装备配置、工坊与炼丹；
+- 修炼、基础教学与存档。
 
-`CampScene` 使用一张固定或少量差分的营地插画，功能 NPC 显示在现有 NPC 列表中，主要功能也可以同时提供场景卡入口。
+营地只是新游戏起点，不是每局失败或 Boss 后的返回点。开始秘境、卡牌库、装备工坊、炼丹和修炼等设施统一使用底部功能卡入口，不放入 NPCList。营地首版不需要功能 NPC；未来即使增加 NPC，也不提供移动、生产、日程或完整沙盒社交菜单。
 
-首批只实现：
+### 4.3 固定路线地牢场景
 
-- 开始秘境与难度选择；
-- 初始流派、卡组和携带装备；
-- 装备仓库与有限升级；
-- 卡牌／词条／配方解锁；
-- 基础交易或材料管理；
-- 教学与存档。
+`DungeonScene` 每次只展示一个当前房间：
 
-NPC 不移动、不生产、不推进日程，也不提供完整沙盒社交菜单。
+1. 插画背景与房间标题；
+2. 左上角 `NPCList` 中的当前敌人、商人或设施角色；
+3. 左下角的下一房间卡，以及右下角的返回前一房间卡；
+4. 由 `currentSceneIndex` 和房间实例决定可执行动作。
 
-### 3.2 固定路线地牢场景
+进入房间时不自动打开战前界面，也不立即进入战斗。首版房间内容主要通过 NPC 交互触发：
 
-`DungeonScene` 每次只展示一个当前场景：
+- 敌人未击败：点击敌人后通过对话选择是否战斗，确认后才打开现有战前准备界面；
+- 敌人已击败：NPC 头像替换为宝箱，点击后领取该房间尚未领取的奖励；
+- 商人：点击后打开交易界面，可以关闭、回访并再次交易，库存保持首次生成后的当前状态；
+- 休息角色：点击后通过对话执行恢复；首版不提供聚灵、功法、修炼或卡牌库动作。
 
-1. 插画背景与场景标题；
-2. 当前敌人、商人或营地功能；
-3. 战斗、交易、休息、精炼或修炼等当前场景操作；
-4. 完成后按固定路线的 `currentSceneIndex` 进入下一场景。
+战斗胜利时生成并保存奖励，将 `battleWon` 设为 `true`，同时显示下一房间卡。**奖励领取不阻塞前进**：玩家可以暂时离开，之后通过返回卡回到房间，再点击宝箱领取。每个房间奖励只能领取一次；回访已领取房间不会重新生成或再次发放。
 
-首条路线只使用：
+导航规则：
 
-- `battle`：普通战斗；
-- `elite`：精英战斗；
-- `merchant`：随机商人；
-- `rest`：营地中的治疗、精炼或修炼；
-- `boss`：阶段 Boss 与返回营地结算。
+- 下一房间卡位于左下角；普通战斗、精英与 Boss 必须 `battleWon == true` 才显示，商人与休息房间始终显示；
+- 返回前一房间卡位于右下角，`currentSceneIndex > 0` 时保留可用，包括当前敌人尚未击败时；
+- 前进与后退只修改 `currentSceneIndex` 并切换房间实例，不销毁整次秘境的 `DungeonScene`；
+- 回访敌人、商人和休息房间时读取原有实例，不重 roll 敌人、卡组、商品、库存、奖励或设施使用状态；
+- Boss 胜利后显示下一难度卡，奖励是否领取不影响难度解锁。
 
-推荐首条固定顺序为：
+首条路线只使用 `battle`、`elite`、`merchant`、`rest`、`boss`。固定顺序、敌人等级、奖励配置和逐场景资源见 `plan/scene_chain_content.md`。首版不提供随机路线、候选房间、格子地图、六边形地图或地图解密。
 
-> 普通战斗 → 普通战斗 → 随机商人 → 营地 → 精英 → 普通战斗 → Boss。
+### 4.4 代码职责
 
-商人的出现位置固定，具体商人类型、商品和库存在进入场景时生成并保存。普通、精英和 Boss 战斗必须胜利才能前进；商人与营地完成后继续前进；Boss 胜利后提供返回营地。首版不提供下一场景卡选择、随机候选房间、房间类型选择或格子地图。
+`lib/scene/dungeon/` 按职责组织：
 
-不提供六边形地图、后退移动、地图迷雾、传送门坐标或地图解密。
+- `camp.dart`：初始营地；
+- `dungeon.dart`：统一 Flame Scene 外壳，不负责具体房间规则；
+- `dungeon_controller.dart`：路线、前进门控、奖励幂等和难度推进；
+- `dungeon_room_view.dart`：根据当前房间实例装配背景、NPC 和功能卡；
+- `room_actions.dart` 或少量类型处理器：战斗、交易与设施动作。
 
-## 4. 数据与职责分层
+场景组件不得各自修改路线索引、重复发奖或直接复制房间持久状态。
 
-首版采用 **Dart 流程控制 + JSON5 内容数据 + 现有 Hetu 内容工厂**。不新建地牢专属脚本层，也不默认提供 `onEnter`、`onComplete` 等场景脚本回调。
+## 5. 数据与职责分层
 
-### 4.1 场景与固定路线数据
+首版采用 **Dart 流程控制 + JSON5 内容数据 + 现有 Hetu 内容工厂**。不新建地牢专属脚本流程层，也不默认提供 `onEnter`、`onComplete` 等场景脚本回调。
 
-新增两份数据：
+### 5.1 场景与固定路线数据
 
-- `assets/data/dungeon_scenes.json5`：场景模板，使用顶层对象和 snake_case ID。
-- `assets/data/dungeon_routes.json5`：固定路线，每条以 ID 为键，包含有序的 `sceneIds` 列表。
+新增：
 
-首版场景字段控制在：
+- `assets/data/dungeon_scenes.json5`：场景模板，顶层对象和 snake_case ID；
+- `assets/data/dungeon_routes.json5`：固定路线，每条以 ID 为键，包含有序 `sceneIds`。
+
+场景字段控制在：
 
 - `id`、`kind`、`title`、`description`；
-- `background`、`cardImage`；
-- 可选的敌人配置或敌人池引用；
-- 可选的随机商人类型池、商品类别与库存配置；
-- 奖励配置引用；
-- 营地休息、精炼或修炼所需的受控动作类型与参数，由 Dart 统一消费。
+- `background`；
+- `enemy`：等级修正、精英标记、流派和卡组参数；
+- `merchant`：商人类型池、商品类别、数量和价格参数；
+- `reward`：直接内嵌旧版 `createReward()` 的概率与数量参数；
+- `actions`：休息恢复等受控动作类型与参数；首版不包含精炼、修炼或卡牌库入口。
 
-首版路线只规定场景顺序，不包含候选房间、权重、门锁或空间位置。实际敌人、商人类型、商品、库存、卡牌词条、装备和奖励内容在进入场景时生成或读取已保存结果，避免重复进入或读档时重 roll；场景顺序本身不随机。
+战斗房间示例：
 
-MOD 主要通过新增场景、固定路线、插画、敌人、商人、奖励池和本地化数据扩展内容，不需要为普通场景编写脚本。首版不建立通用脚本动作语言；只有未来出现确实无法由现有字段表达的复杂事件时，才按实际需要增加特定回调。
+```json5
+spellcraft_gate: {
+  id: 'spellcraft_gate',
+  kind: 'battle',
+  title: 'spellcraft_gate',
+  description: 'spellcraft_gate_description',
+  background: 'dungeon/background/spellcraft_gate.jpg',
+  enemy: {
+    name: 'dungeonGuard',
+    levelBonus: 1,
+    isElite: false,
+    genre: 'spellcraft',
+  },
+  reward: {
+    exp: {chance: 1.0},
+    money: {chance: 1.0},
+    equipment: {chance: 0.25, amount: 1},
+    cardpack: {chance: 0.4, amount: 1},
+    potion: {chance: 0.25, amount: 1},
+    affixMaterial: {chance: 0.2, amount: 1},
+  },
+}
+```
 
-### 4.2 Dart 机制与内容流程层
+商人房间使用 `merchant: {kinds: ['smith', 'enchanter', 'pharmacist', 'bookDealer'], itemCount: 5, money: 500000}`，具体类别映射沿用旧版内容。休息房间使用 `actions` 列表，不为每种动作增加脚本回调。
 
-负责：
+路线示例：
 
-- 场景装配与固定路线加载；
-- 当前场景完成状态与前进硬门控；
-- 按 `currentSceneIndex` 前进和 Boss 终点；
-- 营地功能交互与受控动作；
-- 战斗开始与结束回调、奖励待结算状态和场景切换；
-- 奖励领取、永久卡入库、装备结算与最高境界记录；
-- 当局状态、营地状态和存档恢复；
-- 通用 UI 与交互锁，防止连点造成重复战斗或重复领奖。
+```json5
+spellcraft_intro: {
+  id: 'spellcraft_intro',
+  sceneIds: [
+    'spellcraft_gate',
+    'spellcraft_gallery',
+    'spellcraft_merchant',
+    'spellcraft_sanctum',
+    'spellcraft_elite',
+    'spellcraft_depths',
+    'spellcraft_boss',
+  ],
+}
+```
 
-Dart 通过 `dynamic` 和 `[]` 直接读取、修改 HTStruct，不复制其字段到另一份 Dart 持久对象。UI 通知复用 `GameState.currentDungeon` 与 `updateDungeon()`，持久真值仍只有 `game.flags.dungeon`。
+路线只规定场景顺序，不包含候选房间、权重、门锁或空间位置。敌人、商人类型、商品、库存和奖励在首次进入房间时生成；战斗奖励在胜利时生成。所有结果写入对应房间实例，之后只读取已保存结果。
 
-Dart 中不出现具体敌人、场景、路线或奖励内容 ID；具体内容通过 JSON5 引用和参数选择。
+### 5.2 Dart
 
-### 4.3 Hetu 数据结构、初始化与内容工厂
+负责场景装配、固定路线加载、完成状态、前进硬门控、战斗回调、奖励幂等、难度推进、场景恢复和通用交互锁。
 
-Hetu 负责定义和初始化可序列化的数据，不控制地牢流程：
+Dart 通过 `dynamic` 和 `[]` 直接读取、修改 HTStruct，不复制字段到另一份 Dart 持久对象。UI 通知复用 `GameState.currentDungeon` 与 `updateDungeon()`，持久真值仍只有 `game.flags.dungeon`。Dart 中不出现具体敌人、场景、路线或奖励内容 ID。
 
-- `DungeonRun`：构造当局默认值并写入 `game.flags.dungeon`；
-- `CampProfile`：构造永久卡库、装备仓库、解锁与 `highestRank`，保存在正式字段 `game.camp`，不作为临时 flags；
-- 当局角色、初始卡组和初始装备深拷贝的创建函数；
-- 永久卡与地牢卡的生成和 `isDungeonCard` 标记；
+### 5.3 Hetu 与 JSON5
+
+Hetu 负责：
+
+- `DungeonRun` 初始化并写入 `game.flags.dungeon`；
 - `BattleEntity` 与 `generateBattleDeck()` 创建敌人和卡组；
-- `createReward()` 生成奖励；
-- 卡牌、装备和物品创建函数；
-- `characterInitItems()` 等商品与角色内容工厂；
-- 现有角色、卡组和物品规则所需的处理函数。
+- 无世界商人创建与 `characterInitItems()`；
+- `createReward()`、卡牌、装备和物品工厂。
 
-不编写地牢专属流程脚本。如果未来确需新增复杂脚本行为，必须单独定义其异步边界、存档语义、校验和文档，不把脚本回调作为每个场景的默认字段。
+JSON5 负责场景、路线、数值参数、图片和本地化绑定。新增数据校验检查 ID、枚举、动作参数、图片、引用和本地化键，并同步 `docs/docs/mod/` 契约。
 
-### 4.4 JSON5 与本地化
+## 6. 当局状态与存档
 
-- 场景及选项文本进入现有 `assets/locale/zh/rpg/dungeon.json`，必要时按既有结构补充键。
-- 场景与路线数据校验加入 `utils/data_validate/game_data_validate.dart`：检查 ID、枚举、受控动作类型与参数、图片文件、敌人／商人／营地／奖励引用和本地化键。
-- 新字段与动作类型同步写入 `docs/docs/mod/` 对应契约文档。
+### 6.1 DungeonRun 与房间实例
 
-## 5. 当局状态、营地档案与失败规则
+`game.flags.dungeon` 至少保存：
 
-### 5.1 当局状态
+- 当局 seed、`mode: scene_chain`；
+- 当前秘境 `rank`、`level`、`levelMax`；
+- 固定路线 `routeId` 与 `currentSceneIndex`；
+- 以路线索引字符串为键的 `rooms`，保存所有已经访问的房间；
+- 全局 `active`、`battlePending` 和交互锁所需的流程状态。
 
-由 Hetu 定义 `DungeonRun` 并初始化到 `game.flags.dungeon`，至少保存：
+房间实例建议结构：
 
-- 当局 seed、模式、难度与目标境界；
-- 固定路线 ID、`currentSceneIndex`、当前场景 ID 和场景完成状态；
-- 当前敌人、商人类型、商品库存、营地动作结果与奖励的生成结果引用；
-- 待领奖、待结算和已入库状态；
-- `active`、`battle_pending`、`reward_pending`、`completed` 等必要流程状态；
-- 可选的 `originWorldId`、`originLocationId` 与 `returnMode: camp | location`，供未来沙盒融合时返回来源地点。
+```text
+rooms: {
+  '0': {
+    sceneId,
+    actor,              // 敌人、商人或设施角色；商人库存直接保存在 actor 中
+    enemy,              // 战斗房间使用的 BattleEntity
+    battleWon: false,
+    rewards: null,      // 胜利时生成一次
+    rewardClaimed: false,
+    actionUses: {},     // 恢复等设施的使用次数
+  },
+}
+```
 
-首版不保存候选场景、门锁、体力或格子地图状态。
+`rewardPending` 由 `rewards != null && !rewardClaimed` 派生，不另存容易失同步的布尔值。宝箱头像、下一房间卡和商人交互也由房间实例派生。首版不保存候选房间、门锁、体力、格子地图、待入库战利品或第二份角色资产。
 
-该位置复用现有 game HTStruct 序列化通道，但不要求兼容旧六边形地牢字段或旧存档。Dart 只通过 dynamic 修改该对象，不另建 `DungeonRunState` 或复制数据。
+状态转换集中在 Dart 地牢控制器中。战斗回调只设置战斗结果并生成奖励；领奖只修改对应房间的 `rewardClaimed`；前进与后退只修改 `currentSceneIndex`，不得清空其他房间实例。
 
-状态转换必须集中在 Dart 地牢控制器中，场景组件不得各自修改路线索引或重复发放奖励。
+### 6.2 难度与境界推进
 
-### 5.2 营地持久档案
+沿用旧版 `DungeonFlags` 和 `nextLevel` 的层级结构，但取消门票和旧地图入口：
 
-营地档案保存：
+- 开始秘境时 `rank` 取当前英雄境界，`level = 0`；
+- `levelMax = rank * 2 + 1`，`minEnemyLevel = minLevelForRank(rank)`；
+- 房间敌人等级为 `minEnemyLevel + level + enemy.levelBonus`；
+- 首轮路线各房间的 `levelBonus` 见 `plan/scene_chain_content.md`；
+- Boss 后若 `level < levelMax`，则 `level += 1`；否则在尚未达到内容上限时 `rank += 1`、`level = 0` 并重新计算 `levelMax`；
+- 每次进入新难度都重置 `currentSceneIndex = 0` 并创建新的 `rooms`，同一英雄和全部资产保持不变；
+- 达到当前内容上限后显示完成反馈，不继续无限增加数值。
 
-- 永久装备与仓库；
-- 永久卡库，以及卡牌、词条、配方、流派与难度解锁；
-- 金钱和已入库材料；
-- 营地功能和有限局外升级；
-- 历史最高境界 `highestRank`；
-- 初始卡组与携带装备配置。
+### 6.3 无世界保存与恢复
 
-卡牌实例通过 `isDungeonCard` 标记地牢专属卡牌，缺省为 `false`；现有卡牌数据默认就是永久卡牌，无需批量修改。永久卡牌获得后立即写入永久卡库，失败也保留；`isDungeonCard: true` 的卡牌只在当前当局存在，当局结束时清除，并可使用额外卡面图标标明身份。`isDungeonCard` 不复用打出消耗的 `isEphemeral`，也不承担禁止进入卡包池的 `isUnpackable` 语义。
+`game.flags.dungeon` 随整个 game HTStruct 自动序列化，场景栈继续保存构造 ID 与可序列化参数，不新增独立地牢存档文件。
 
-初始卡组只能从永久卡库组建，数量固定为当前有效卡组下限，例如无境界为 10 张，并复用 `GameLogic.getDeckMinSizeForRank()` 计算。进入秘境时创建独立的当局角色，初始装备和卡组使用深拷贝，避免当局精炼、符箓消耗或战斗内修改污染营地档案。
+只有位于普通 `CampScene` 或 `DungeonScene` 时才能保存，由右上角现有 `DropMenuButton` 提供。战斗、战前准备、对话、奖励领取、商人交易、卡牌库、修炼、工坊和其他模态界面中不提供保存操作；需要返回普通场景后再保存。
 
-突破试炼成功后立即更新 `highestRank`。下一局从 `minLevelForRank(highestRank)` 开始，并重新分配按该等级获得的天赋点。营地设施不逐个保存境界，统一从 `highestRank` 派生商品、打造和功能所需的设施境界。
+无场景记录时按英雄是否处于秘境回退到 `DungeonScene` 或 `CampScene`。恢复 `DungeonScene` 时根据 `routeId`、`currentSceneIndex` 和 `rooms` 还原当前房间，不重新生成任何已有结果。`hero.dungeonId` 仅作为秘境模式与读档恢复标记，Boss 胜利后继续保留。
 
-战斗和物品界面可以继续使用 `GameData.hero`，但进入当局时必须明确将其指向当局角色；返回营地后恢复为营地角色。不得依靠场景退出时偶然保留的对象引用决定资产归属。
-
-### 5.3 胜利、撤离与失败
-
-- Boss／明确撤离结算：将允许保留的当局装备、材料和解锁转入营地档案，再销毁当局角色；永久卡牌已在获得时写入卡库，不重复入库。
-- 失败或主动放弃：清除地牢专属卡牌、当局临时强化、天赋和未结算战利品，永久卡牌、永久装备、已入库资产与 `highestRank` 保留。
-- 下一局从 `highestRank` 对应的最低等级开始，而不是固定从 0 级或上一局当前等级开始。
-- 已有永久装备和永久卡牌永不因失败丢失。
-- 重复点击、读档或重复回调不得重复入库；入库操作必须幂等。
-- 失败重开使用新的当局角色和新的场景序列，不沿用上一局的地牢卡牌、天赋分配或临时等级进度。
-
-## 6. 场景注册、主菜单与存档改造
-
-### 场景注册
-
-- 在 `lib/scene/common.dart` 增加 `camp` 与新的 `dungeon` 场景构造 ID。
-- 在 `lib/app.dart` 注册对应构造函数。
-- 新模式稳定后，将主菜单现有“无尽模式”的六边形入口替换为营地入口；旧六边形地牢仅保留开发用途，不与新模式共享流程状态。
-
-### 无世界创建、保存与恢复
-
-主菜单现有流程已经会创建空游戏和角色，但不会因此生成六边形世界：`lib/scene/mainmenu/mainmenu_scene.dart:28-43`、`scripts/main/data/game.ht:192-208`。`GameData.createGame()` 也只有收到非空 `mainWorldId` 才进入世界场景，见 `lib/data/game.dart:743-752`。新模式直接复用这一流程，不创建空白世界。
-
-`game.flags.dungeon` 会随整个 game HTStruct 自动序列化，场景栈也已保存构造 ID 与可序列化参数，见 `lib/state/game_save.dart:118-198`。不需要新增地牢存档文件或独立序列化器。
-
-角色增加可空 `dungeonId` 作为当前处于地牢的标记：
-
-- 进入时写入非空值；当前只判断是否存在，不用它查找副本地图。
-- 不因此清除原有 `worldId`／`locationId`，未来沙盒融合仍需来源信息。
-- 离开、失败或结算后清除；NPC 不需要该字段。
-
-读档恢复按以下优先级：
-
-1. `hero.dungeonId != null` 且 `game.flags.dungeon != null`：恢复 `DungeonScene`，根据 run 中的当前场景与生成快照还原具体场景。
-2. 存在有效场景栈：按现有机制恢复 `CampScene`、`DungeonScene` 或其他场景。
-3. 存在有效 `currentWorldId`：沿用六边形世界恢复。
-4. 以上皆无：回退到 `CampScene`，不再默认进入 `WorldMapScene`。
-
-需要消除的现有非空世界假设：
-
-- `loadGameFromJsonData()` 只在存在 `currentWorldId` 时读取和记录 world，否则允许 `world = null`，移除 `scripts/main/data/game.ht:229-235` 的强制断言。
-- `SaveInfo.currentWorldId` 与存档列表允许空值，显示模式或根场景，而不是伪造世界 ID。
-- 新保存入口不得像 `lib/scene/world/widgets/drop_menu.dart:120-123` 一样读取 `GameData.world['id']`；保存接口直接使用可空的当前世界 ID。
-- 无场景记录的回退按上述根场景规则处理，不固定调用世界地图。
-
-战斗暂不支持存档恢复到半途；只能在场景边界、营地或明确的结算点保存。当局 RNG、当前场景生成结果和已生成奖励均保存在 `game.flags.dungeon`，避免读档重 roll。
+已实现的空世界存档基础包括：`loadGameFromJsonData()` 允许 `world == null`，`SaveInfo.currentWorldId` 与保存接口允许空值，保存入口不直接读取 `GameData.world['id']`。当局 RNG、所有房间实例和未领取奖励均随存档保存，避免读档重 roll 或重复领奖。
 
 ## 7. 分阶段实施顺序
 
-### 阶段 1：通用场景外壳
+### 阶段 1：通用场景外壳与入口
 
-- 新建 `DungeonScene`，组合背景、`PiledZone`、场景卡和 `GameUIOverlay`。
-- 为 `NpcList` 增加可选互动回调、名称策略和滚动范围修复。
-- 实现一个无战斗营地测试场景：休息或功能 NPC 交互 → 场景完成 → 按固定顺序进入下一场景。
-- 验证不读写世界坐标、不推进世界时间、不依赖 `GameData.getLocation()`。
+- 新建 `CampScene` 和 `DungeonScene` 外壳，组合背景、`PiledZone`、场景卡与 `GameUIOverlay`。
+- 改造 `NpcList`，完成商人、工坊、炼丹和修炼的无 Location 适配。
+- 无尽模式入口每次创建新游戏和随机角色，直接进入初始营地。
 
 ### 阶段 2：当局流程与战斗门控
 
-- 由 Hetu 定义并初始化 `DungeonRun` 到 `game.flags.dungeon`，Dart 以 dynamic 接管状态转换和场景数据加载。
-- 接入普通战斗、战前准备、胜利奖励与固定顺序前进。
-- 完成奖励待领取与重复点击防护。
-- 实现普通战斗 → 随机商人 → 营地 → 精英的基本序列，商人类型与库存只生成一次。
+- 初始化 `DungeonRun`，接入普通战斗、战前准备、直接奖励与固定顺序前进。
+- 完成奖励领取和重复点击防护。
+- 打通普通战斗 → 随机商人 → 休息 → 精英的基本序列，商人与库存只生成一次。
 
-### 阶段 3：Boss、失败与营地闭环
+### 阶段 3：Boss 与难度循环
 
-- 新建 `CampScene` 与持久档案。
-- 接入永久卡库、固定下限初始卡组、装备与卡组深拷贝和当局角色创建。
-- 实现 Boss 返回、收益入库、失败重置和主动放弃。
-- 实现永久卡牌获得即入库、突破成功更新 `highestRank` 和设施境界派生。
-- 验证永久卡牌与装备保留，地牢卡牌、天赋和临时等级进度清除，下一局从最高境界最低等级开始。
+- 接入完整固定路线、Boss 和胜利奖励。
+- Boss 后保留同一英雄和全部资产，开启更高难度并重新生成路线实例。
+- 实现失败与主动放弃返回主菜单，以及读取既有存档恢复。
 
 ### 阶段 4：存档与内容补齐
 
-- 复用 `game.flags.dungeon` 的现有序列化，完成无世界读档、场景边界恢复、`hero.dungeonId` 根场景判断与 RNG 状态恢复。
-- 从旧地牢迁移普通敌人、精英、Boss、营地与随机商人配置；旧 `encounter`／灵泉暂不迁移。
-- 接入悟道垂直切片所需固定路线、敌人、奖励和 Boss。
-- 完成数据校验、本地化、文档与操作提示。
+- 完成无世界保存、场景边界恢复、`hero.dungeonId` 根场景判断与 RNG 状态恢复。
+- 按 `plan/scene_chain_content.md` 落地路线、敌人、奖励和本地化。
+- 完成数据校验、文档与操作提示。
 
 ### 阶段 5：整合与后续扩展
 
-- 替换主菜单旧无尽模式入口。
 - 统一场景插画、选项卡、音效和反馈。
-- 再进行御剑及其他流派扩展，不在场景框架阶段等待五流派内容。
+- 再扩展御剑及其他流派，不在场景框架阶段等待五流派内容。
 
 ## 8. 测试与验收
 
 ### 数据与单元测试
 
-- 场景 ID、路线引用、受控动作类型与参数、图片和本地化校验无错误。
-- 同一场景生成结果在保存前后一致，敌人、商人与奖励不会因刷新或读档重 roll。
-- 战斗未完成时不能前进；完成后不能重复领奖或重复推进 `currentSceneIndex`。
-- 固定路线的场景顺序、Boss 终点与营地位置符合数据配置。
-- 永久卡牌与地牢卡牌按 `isDungeonCard` 正确分流，缺省字段视为永久卡，永久卡入库幂等，初始卡组数量等于当前有效下限。
-- 突破成功只提升而不降低 `highestRank`；下一局等级、天赋点和设施境界按该境界正确重建。
-- 无世界读档允许 `world == null`；`hero.dungeonId` 只在进入时写入并在离开时清除，恢复时不会误进世界地图或丢失来源地点。
+- 场景 ID、路线引用、动作参数、图片和本地化校验无错误。
+- 同一房间实例在保存前后一致，敌人、商人与奖励不会因前进、回访或读档重 roll。
+- 战斗未完成时不能前进；胜利后即使尚未领奖也能前进；每个房间只能领取一次奖励。
+- 同一英雄的卡牌、装备、材料、天赋与境界在营地、秘境和读档后保持一致，不存在双份资产。
+- 初始卡组数量等于当前有效下限，秘境中不能切换、创建或删除卡组；删牌低于下限时按现有规则以默认卡补齐。
+- 难度按旧版层数推进，达到 `levelMax` 后提升秘境境界并重建路线实例。
+- 无世界读档允许 `world == null`，根场景与当前房间恢复正确。
 - NPC 列表数量变化后无滚动越界，场景退出后无 NPC 残留。
 
 ### 真实场景集成验证
 
-至少实际执行以下流程：
-
-1. 营地使用永久卡库组成固定下限的悟道初始卡组并选择装备 → 进入秘境，确认写入 `hero.dungeonId`。
-2. 普通战斗胜利 → 分别获得永久与地牢卡牌／装备 → 按固定顺序进入下一场景。
-3. 随机商人交易与营地交互 → 继续前进 → 精英与 Boss；回访或读档时商人类型和库存不重置。
-4. 突破试炼成功 → `highestRank` 与营地设施境界提升 → 下一局从该境界最低等级开始。
-5. Boss 返回营地 → 新装备和材料入库 → 永久卡牌可重新组入下一局初始卡组，并清除 `hero.dungeonId`。
-6. 另一局战斗失败或主动放弃 → 地牢卡牌、天赋和临时等级进度清除 → 永久卡牌、装备、解锁与最高境界保留，并清除 `hero.dungeonId`。
-7. 在营地、战斗前后场景边界和 Boss 结算点分别保存／读档，确认状态一致、根场景恢复正确且无重复奖励。
+1. 每次点击无尽模式都会创建新的随机角色并进入初始营地，不出现角色创建界面。
+2. 开始秘境 → 点击敌人并确认战斗 → 胜利后出现前进卡且 NPC 变为宝箱 → 不领奖直接前进 → 返回后领取奖励。
+3. 商人交易 → 离开并回访后再次交易，商人类型与剩余库存不重置；休息设施状态同样保留。
+4. 突破成功后当前英雄境界直接提升，下一难度继续使用同一英雄。
+5. Boss 胜利 → 按旧版层数／境界规则开启更高难度 → 全部卡牌、装备、材料与金钱保留。
+6. 战斗失败或主动放弃 → 返回主菜单 → 可读取既有存档；再次开始则创建新角色。
+7. 在营地和普通秘境房间保存／读档，确认当前房间、全部房间实例和未领取奖励一致；战斗与模态界面中不能保存。
 
 ### 标准验证命令
-
-按实际改动运行：
 
 ```bash
 python build.py
@@ -383,90 +396,19 @@ flutter test
 
 实施各阶段时同步：
 
-- `plan/demo_scope.md`：仅在实际范围或规则变化时更新。
-- `docs/docs/how2play/rpg/encounter/`、`dungeon/` 或对应现有页面：固定路线、前进、Boss、失败与入库规则。
-- `docs/docs/mod/`：场景与路线数据字段、受控动作类型、现有内容工厂复用和生成结果保存契约；首版不记录未提供的场景脚本回调。
-- `.agents/context/battle_system.md`：仅在战斗进入、奖励或写回机制变化时更新。
-- 相关 `.agents/skills/`：仅在既有内容制作约定变化时更新。
-
-未实施的长期六边形门派模拟不写进当前实现文档。
+- `plan/demo_scope.md`、`plan/dungeon_deck_lock.md`：单一角色、资产保留、失败与难度规则；
+- `docs/docs/how2play/rpg/encounter/`、`dungeon/` 或对应页面：固定路线、前进、Boss、失败与存档规则；
+- `docs/docs/mod/`：场景与路线字段、受控动作、内容工厂和生成结果保存契约；
+- `.agents/context/battle_system.md`：战斗进入、奖励或写回机制变化时更新；
+- 相关 `.agents/skills/`：既有内容制作约定变化时更新。
 
 ## 10. 明确不在本计划内
 
-- 下一场景卡选择、随机候选房间和随机路线；
-- 格子地图、房间放置、体力与门锁，详见后续 `plan/grid_dungeon.md`；
-- 旧地图 `encounter`／灵泉、宝箱和独立地图事件；
-- 六边形地图、空间迷宫、地图解密和寻路；
-- 沙盒世界、世界时间、门派、任务与 NPC 日程；
-- 营地生产、劳力、建筑维护和经营链；
-- 完整 NPC 社交、偷窃、赠送和攻击菜单；
-- 多人队伍、复杂营地建设和无限局外属性；
-- 五流派全部最终内容、最终天赋树排布和最终美术；
-- 战斗中中途存档与恢复。
-
-本计划的完成标准不是场景数量，而是现有组件能够支撑一条完整、可保存、可失败重开、可长期成长的场景链秘境闭环。
-
-## 11. 待确认的实现契约
-
-> 本节用于后续评审，尚未成为已确认规则，也不作为当前实施依据。确认后再移入对应章节。
-
-### 11.1 角色对象与初始化顺序
-
-待明确营地角色与当局角色的 ID、存储位置和切换时机。建议采用：
-
-> `createGame()` → 初始化 `game.camp` → 创建营地角色与永久卡库 → 开始秘境时创建独立的 `runHeroId` → 将 `game.heroId` 指向当局角色并写入 `hero.dungeonId`。
-
-返回营地、失败或 Boss 结算后，销毁当局角色并恢复营地角色引用。读档时必须恢复正确的 `game.heroId`，不能遗留指向已销毁当局对象的引用。
-
-### 11.2 永久卡牌的获得与副本关系
-
-待确认永久奖励是否采用“永久档案 + 当局副本”的双实例模型。建议：
-
-- 永久奖励写入永久卡库，同时向当局提供一张具有新实例 ID 的副本；
-- 副本记录来源卡或来源奖励 ID；
-- 同一奖励在领奖、读档和战斗回调中只能入库一次；
-- 地牢卡只进入当局，不生成永久档案；
-- 明确卡包、复制、天赋授予、抉择和临时生成卡的 `isDungeonCard` 规则。
-
-必须覆盖“永久卡已入库，读档后重复获得”的幂等测试。
-
-### 11.3 物品消耗与结算
-
-待明确：
-
-- 初始永久装备使用副本，原装备不因失败丢失；
-- 当局新装备在 Boss／撤离时才入库；
-- 丹药、符箓和材料在当局中消耗后不恢复；
-- 当局精炼初始装备副本是否只影响当局；
-- 失败时未结算物品的具体清除范围。
-
-### 11.4 固定路线内容映射表
-
-数据迁移前，为路线的每个位置补充：
-
-- 新场景 ID 与场景类型；
-- 对应的旧地牢内容来源；
-- 敌人或随机商人生成配置；
-- 奖励配置与营地动作；
-- 背景与占位图；
-- 是否允许突破、修炼或精炼。
-
-尤其需要明确普通敌人池、随机商人类型池以及精英和 Boss 的境界与等级。
-
-### 11.5 需要提前验证的界面耦合
-
-在实施早期验证：
-
-- 商人界面能否在不提供 Location、门派和世界坐标的情况下运行；
-- 修炼与工坊界面是否只修改当局角色，是否会要求世界时间或真实 Location。
-
-若耦合暂时无法低成本解除，首版可先只保留休息、卡组和装备操作，不强行接入全部功能。
-
-### 11.6 新游戏入口
-
-待明确新模式使用独立的“新游戏”入口，而不是复用主菜单 debug 游戏：
-
-- 只提供存档名、必要 seed 与教程选项；
-- 不显示世界规模、NPC 数量或地图风格；
-- 创建后直接进入 `CampScene`；
-- 不与沙盒存档共用需要世界数据的创建参数。
+- 英雄创建、英雄选择和正式新游戏配置界面；
+- 营地／当局双角色、永久资产副本、入库结算、失败清档或地牢卡清除；
+- Boss 后返回营地或撤离；
+- 下一场景卡选择、随机路线和格子地图；
+- 六边形地图、空间迷宫、寻路和地图解密；
+- 沙盒世界时间、门派、任务、NPC 日程与完整社交；
+- 战斗中中途存档与恢复；
+- 五流派最终内容量和最终美术。

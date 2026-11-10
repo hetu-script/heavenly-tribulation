@@ -166,6 +166,8 @@ class CultivationScene extends Scene with HasCursorState {
   final bool isEditorMode;
 
   dynamic location;
+  int development = 0;
+  bool advanceTime = true;
 
   late CultivationMode mode;
 
@@ -639,9 +641,7 @@ class CultivationScene extends Scene with HasCursorState {
       case 1:
         return kDaoSteleGenrePhrases;
       case 2:
-        assert(location != null);
-        int maxRank =
-            math.min(character['rank'] as int, location['development'] as int);
+        int maxRank = math.min(character['rank'] as int, development);
         return Map.fromEntries(
           kDaoSteleRarityPhrases.entries
               .where((e) => (kRaritiesToRank[e.value] ?? 0) <= maxRank),
@@ -824,7 +824,6 @@ class CultivationScene extends Scene with HasCursorState {
 
   /// 冥想中每次交互触发的时间流逝
   Future<void> _advanceTime() async {
-    final int development = location?['development'] ?? 0;
     final double developmentBonus = 1.0 + development * 0.25;
     int meditateSpeed = GameData.hero['stats']['meditateSpeed'];
     int timeCost = math.max(
@@ -832,8 +831,10 @@ class CultivationScene extends Scene with HasCursorState {
 
     updateInformation();
 
-    GameLogic.updateGame(ticks: timeCost);
-    updateTimeOfDay();
+    if (advanceTime) {
+      GameLogic.updateGame(ticks: timeCost);
+      updateTimeOfDay();
+    }
   }
 
   // ── 问道碑冥想 ──
@@ -953,7 +954,6 @@ class CultivationScene extends Scene with HasCursorState {
   void _startExpArrayMeditation() async {
     if (!await GameLogic.confirmBattlePreparationReplacement()) return;
 
-    final int development = location?['development'] ?? 0;
     final int cost = development + 1;
     final int exhausted = engine.hetu.invoke(
       'exhaust',
@@ -1035,7 +1035,7 @@ class CultivationScene extends Scene with HasCursorState {
       return;
     }
 
-    final int rank = location?['development'] ?? 0;
+    final int rank = development;
     final affix = engine.hetu.invoke(
       'getExpArrayBuff',
       namespace: 'Player',
@@ -1089,7 +1089,6 @@ class CultivationScene extends Scene with HasCursorState {
 
   /// 普通轮次完成，结丹后先进行可选凝炼，再最终确认。
   void _expArrayMeditationComplete() {
-    final int development = location?['development'] ?? 0;
     if (development >= 3) {
       _startExpArrayRefinePhase();
     } else {
@@ -1100,7 +1099,7 @@ class CultivationScene extends Scene with HasCursorState {
   void _startExpArrayRefinePhase() {
     _clearMeditateComponents();
     _expArrayRefineCandidates.clear();
-    final int rank = location?['development'] ?? 0;
+    final int rank = development;
     for (final affix in _expArrayPendingAffixes) {
       final preview = engine.hetu.invoke(
         'getExpArrayGreaterPreview',
@@ -1746,9 +1745,8 @@ class CultivationScene extends Scene with HasCursorState {
       character = GameData.hero;
     }
 
-    if (arguments['location'] != null) {
-      location = arguments['location'];
-
+    location = arguments['location'];
+    if (location != null) {
       final kind = location?['kind'] ?? location?['category'];
       if (kind == 'daostele') {
         mode = CultivationMode.daostele;
@@ -1766,6 +1764,11 @@ class CultivationScene extends Scene with HasCursorState {
         mode = CultivationMode.none;
       }
     }
+
+    development = arguments['development'] as int? ??
+        (location?['development'] as int?) ??
+        0;
+    advanceTime = arguments['advanceTime'] as bool? ?? true;
 
     engine.addEventListener(Scenes.cultivation, GameEvents.keyBoardEvent,
         (event) {
@@ -1792,6 +1795,7 @@ class CultivationScene extends Scene with HasCursorState {
     Hovertip.hideAll();
 
     cultivateButton.isEnabled = mode != CultivationMode.none;
+    timeOfDaySprite.isVisible = advanceTime;
 
     updateUnlockedNode();
     updatePassivesDescription();

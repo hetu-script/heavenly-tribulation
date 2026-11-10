@@ -94,6 +94,9 @@ flutter:
     - assets/images/cultivation/
     - assets/images/cultivation/skill/
     - assets/images/cursor/
+    - assets/images/dungeon/
+    - assets/images/dungeon/background/
+    - assets/images/dungeon/card/
     - assets/images/icon/
     - assets/images/icon/cost/
     - assets/images/icon/skill/

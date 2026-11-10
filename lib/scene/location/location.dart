@@ -372,6 +372,7 @@ class LocationScene extends Scene with HasCursorState {
   void onEnd() {
     super.onEnd();
 
+    gameState.updateNpcs([]);
     engine.hetu.assign('location', null);
   }
 

@@ -59,6 +59,8 @@ class GameUIOverlay extends StatefulWidget {
     this.showHero = true,
     this.showNpcs = false,
     this.showJournal = false,
+    this.onNpcInteract,
+    this.showNpcNamesWithoutMeeting = false,
     this.actions,
   });
 
@@ -67,6 +69,8 @@ class GameUIOverlay extends StatefulWidget {
   final bool showHero;
   final bool showNpcs;
   final bool showJournal;
+  final void Function(dynamic character)? onNpcInteract;
+  final bool showNpcNamesWithoutMeeting;
   final List<Widget>? actions;
 
   @override
@@ -284,9 +288,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             isViewPanel: true,
           ));
         case ViewPanels.workbench:
-          panels.add(WorkshopDialog(locationData: arguments?['location']));
+          panels.add(WorkshopDialog(
+            locationData: arguments?['location'],
+            development: arguments?['development'],
+          ));
         case ViewPanels.alchemy:
-          panels.add(AlchemyDialog(locationData: arguments?['location']));
+          panels.add(AlchemyDialog(
+            locationData: arguments?['location'],
+            development: arguments?['development'],
+          ));
       }
     }
 
@@ -643,7 +653,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 child: Row(children: widget.actions!),
               ),
             if (widget.showNpcs)
-              Positioned(left: 5, top: 100, child: NpcList()),
+              Positioned(
+                left: 5,
+                top: 100,
+                child: NpcList(
+                  onInteract: widget.onNpcInteract,
+                  showNamesWithoutMeeting: widget.showNpcNamesWithoutMeeting,
+                ),
+              ),
             if (enemyData != null && showPrebattle)
               PreBattleDialog(
                 hero: hero,

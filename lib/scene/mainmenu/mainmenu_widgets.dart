@@ -176,16 +176,18 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                               const Duration(milliseconds: 250));
                           await engine.clearAllCachedScene(
                               except: Scenes.mainmenu, triggerOnStart: false);
-                          engine.hetu.invoke('resetDungeon', namedArgs: {
-                            'rank': GameData.hero['rank'],
-                          });
+                          await GameData.createGame(
+                            'endless',
+                            seed: DateTime.now().millisecondsSinceEpoch,
+                          );
+                          await engine.hetu.invoke(
+                            'generateHero',
+                            namespace: 'debug',
+                            namedArgs: {'rank': 0, 'level': 0},
+                          );
                           engine.pushScene(
-                            'dungeon_1',
-                            constructorId: Scenes.worldmap,
-                            arguments: {
-                              'id': 'dungeon_1',
-                              'method': 'load',
-                            },
+                            Scenes.camp,
+                            constructorId: Scenes.camp,
                             onAfterLoaded: () {
                               engine.setLoading(false);
                             },

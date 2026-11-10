@@ -78,7 +78,9 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                                 info.saveName,
                                               ),
                                               Text(
-                                                info.currentWorldId,
+                                                info.currentWorldId ??
+                                                    engine
+                                                        .locale('endlessMode'),
                                               ),
                                               Text(
                                                 info.timestamp!,
