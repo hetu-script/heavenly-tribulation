@@ -1,4 +1,6 @@
-@plan/demo_scope.md 这是当前项目 Demo 目标的总体定位、范围与边界
+请根据下面我给出的相关文件，理解现有设计，系统和代码，如果你感觉之前的代码，文档，数据有问题，也可以给出你的意见，不过暂时不用修改任何文件。
+
+因为这个项目比较复杂，你当下可以不用深入各个系统的具体实现细节。只是从总体上了解项目的结构和代码、数据、脚本的关系等等。如果你认为有必要深入了解的也可以现在看看。
 
 ---
 
@@ -50,28 +52,21 @@ UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和
 
 在设计其他流派之前，我们还需要完善悟道的天赋树，我们打算先以悟道这单独一个流派出发。跑通一个地牢秘境玩法的完整循环。
 
-秘境玩法的计划是： @plan/scene_chain_dungeon.md 
+秘境玩法的计划是： @plan/scene_chain_dungeon.md
 秘境卡组锁定、卡牌生命周期与永久卡库的相关约定： @plan/dungeon_deck_lock.md
 后续可选的格子房间扩展： @plan/grid_dungeon.md
 
 插画背景、功能卡和 Location 场景外壳： @lib/scene/location/location.dart
 NPC 列表与互动入口: @lib/widgets/npc_list.dart
 游戏创建、保存与读档: @lib/state/game_save.dart @lib/data/game.dart @scripts/main/data/game.ht
-旧六边形地牢的遭遇、敌人、商人和奖励设计参考。 @scripts/main/event/dungeon.ht 
+旧六边形地牢的遭遇、敌人、商人和奖励设计参考。 @scripts/main/event/dungeon.ht
 @scripts/main/world/dungeon.ht
 未来格子地图绘制参考: @lib/scene/mini_game/mouse_maze/mouse_maze.dart
 
-目前这个秘境玩法已经完成了步骤三。
-
 ---
 
-请理解现有设计，系统和代码，如果你感觉之前的代码，文档，数据有问题，也可以给出你的意见，不过暂时不用修改任何文件。
-
-因为这个项目比较复杂，你当下可以不用深入各个系统的具体实现细节。只是从总体上了解项目的结构和代码、数据、脚本的关系等等。如果你认为有必要深入了解的也可以现在看看。
-
-如果你认为我们已经准备好进行步骤四，可以告诉我。
+@plan/demo_scope.md 这是当前项目 Demo 目标的总体定位、范围与边界
 
 ---
 
 绝世卡牌是一种特殊的卡牌，词条id是固定的。但目前我们除了手动生成，并没有获得绝世卡牌的方法。我们一方面要修改card.ht的代码，在随机获取主词条时判断绝世卡牌的特殊逻辑。另外我们也要修改cardpack的逻辑，以及 @lib/scene/card_library/ 中的逻辑，允许卡包中以较低概率 (0.8%左右，此概率应该保存为常量)开出绝世卡牌。需要检查绝世卡牌的rank，卡包是开不出来比自己境界高，或者和卡包本身的流派和种类不符的绝世卡牌的。
-

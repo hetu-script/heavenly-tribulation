@@ -474,8 +474,9 @@ namespace CardScript {
 
   /// 相生相克（悟道绝世）：对双方施加随机元素异常（affix.applyToSelf 时自身同受），
   /// 种数 = 本回合已使用的元素种数（读 turnFlags['usedElements']，至少 1 种），
-  /// 每种 value[0] 层 + cardFlags['ailmentBonusPerElement'] × 种数 的加成层数
-  /// （专属词条 ailment_bonus_per_element 以 priority<0 预先写入）。不经异常计数器，必然施加；
+  /// 每种 value[0] 层 + cardFlags['ailmentBonusPerElement'] 的加成层数
+  /// （专属词条 ailment_bonus_per_element 已按元素种数计算加成，并以 priority<0 预先写入）。
+  /// 不经异常计数器，必然施加；
   /// 种类按 Constants.elementAilments 映射表不重复抽取
   /// 对称效果、不对称收益：自异常是蓄灵诀引擎的燃料、可被水疗术清除
   function ailments_by_used_elements(self, opponent, card, affix) {
@@ -484,7 +485,7 @@ namespace CardScript {
     if (usedElements != null) count = usedElements.keys.length
     if (count < 1) count = 1
     final bonus = self.cardFlags['ailmentBonusPerElement'] ?? 0
-    final layers = affix.value[0] + bonus * count
+    final layers = affix.value[0] + bonus
     final pool = []
     for (final key in Constants.elementAilments.keys) {
       pool.add(Constants.elementAilments[key])

@@ -150,6 +150,53 @@ void main() {
     expect(await hetu.invoke('testAmplify'), [30, 20]);
   });
 
+  test('相生相克按元素种数线性增加双方异常层数', () {
+    final hetu = createTestHetu();
+    hetu.eval(loadGreaterHelper());
+    hetu.eval(File('scripts/main/cardgame/card_script.ht').readAsStringSync());
+    final result = hetu.eval('''
+      final Constants = {
+        elementAilments: {
+          element_fire: 'ailment_fire',
+          element_water: 'ailment_ice',
+          element_lightning: 'ailment_lightning',
+        },
+      }
+      final random = {nextIterable: function(values) { return values.first }}
+      final self = {
+        turnFlags: {usedElements: {
+          element_fire: 1, element_water: 1, element_lightning: 1,
+        }},
+        cardFlags: {},
+        statuses: [],
+        addStatusEffect: function(id, {amount, source, params}) {
+          this.statuses.add({id: id, amount: amount})
+        },
+      }
+      final opponent = {
+        statuses: [],
+        addStatusEffect: function(id, {amount, source, params}) {
+          this.statuses.add({id: id, amount: amount})
+        },
+      }
+      final card = {
+        affixes: [{value: [1], applyToSelf: true}, {value: [1]}],
+      }
+      CardScript.ailment_bonus_per_element(
+        self, opponent, card, card.affixes[1])
+      CardScript.ailments_by_used_elements(
+        self, opponent, card, card.affixes[0])
+      [
+        self.cardFlags.ailmentBonusPerElement,
+        self.statuses.length,
+        self.statuses[0].amount,
+        opponent.statuses.length,
+        opponent.statuses[0].amount,
+      ]
+    ''');
+    expect(result, [3, 3, 4, 3, 4]);
+  });
+
   test('X 支付全部本色气，允许零气，不耗尽太极', () {
     final costs = {
       'spell': {'base': 0, 'isDynamic': true}
@@ -193,6 +240,30 @@ void main() {
       stock[entry.key] = stock[entry.key]! - entry.value;
     }
     expect(calculateCardPayment({'spell': 1}, stock).missing, isNotEmpty);
+  });
+
+  test('队列预占后的缺费结果与直接支付检查一致', () {
+    final queued = [
+      {
+        'coloredCost': {'spell': 2},
+        'isWildcardCostForbidden': false,
+      }
+    ];
+    final rejected = calculateQueuedCardPayment(
+      {'spell': 2},
+      queued,
+      {mana: 3},
+    );
+    expect(rejected.missing, {mana: (2, 1)});
+    expect(rejected.paid, isEmpty);
+
+    final accepted = calculateQueuedCardPayment(
+      {'spell': 1},
+      queued,
+      {mana: 3},
+    );
+    expect(accepted.missing, isEmpty);
+    expect(accepted.paid, {mana: 1});
   });
 
   test('动态减费豁免、加费与还原保留 X；普通减费保持下限', () {

@@ -5,8 +5,8 @@
   "passive_spellcraft_rank_4_description": "每个回合开始时，轮流获得御水术、御火术、土遁、御风术、雷法的伤害增强，增强百分比等于自身灵力的一半",
   "passive_spellcraft_rank_5_description": "战斗开始后将「绝世·万法归宗」洗入你的牌库",
 
-  "passive_key_branch_draw_1_description": "战斗开始后，将「紫微斗数」洗入你的牌库",
-  "passive_key_branch_draw_2_description": "每个回合开始时观星一次",
+  "passive_key_branch_draw_1_description": "每个回合开始时观星一次",
+  "passive_key_branch_draw_2_description": "战斗开始后将「紫微斗数」洗入牌库",
   "passive_key_branch_element_1_description": "使用元素牌后，手牌里随机一张同系元素牌获得升级",
   "passive_key_branch_element_2_description": "每使用一种不同的元素牌，获得 1 点灵气",
 
@@ -59,6 +59,7 @@
   "passive_increase_damage_staff_description": "棍法伤害 {0}%",
   "passive_increase_damage_bow_description": "弓术伤害 {0}%",
   "passive_increase_damage_dart_description": "飞镖术伤害 {0}%",
+  "passive_increase_damage_flying_sword_description": "御剑术伤害 {0}%",
   "passive_increase_damage_airbend_description": "御风术伤害 {0}%",
   "passive_increase_damage_earthbend_description": "土遁术伤害 {0}%",
   "passive_increase_damage_waterbend_description": "御水术伤害 {0}%",
@@ -114,7 +115,7 @@
   "passive_strength_description": "体魄 {0}",
   "passive_willpower_description": "念力 {0}",
   "passive_perception_description": "神识 {0}",
-  "passive_life_max_description": "生命上限 {0}",
+  "passive_life_max_description": "体力上限 {0}",
   "passive_karma_max_description": "每回合煞气提取量 {0}",
 
   "passive_start_battle_with_defense_description": "战斗开始时护甲 {0}",

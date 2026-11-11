@@ -822,7 +822,7 @@ void main() {
   test('回合开始观星是布尔开关，多来源不累加观星数量', () {
     final passives =
         Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
-    final affix = passives['key_branch_draw_2'];
+    final affix = passives['key_branch_draw_1'];
     expect(affix['turnStartScry'], true);
 
     final hetu = createHetu();
@@ -832,25 +832,25 @@ void main() {
     addNeutralStats(hetu);
     hetu.eval('''
       characterAddPassiveSource(character, _createPassiveSource(scrySwitch,
-        sourceKey: 'passive_tree:test-a:key_branch_draw_2',
+        sourceKey: 'passive_tree:test-a:key_branch_draw_1',
         sourceType: 'passive_tree', sourceId: 'test-a'))
       characterAddPassiveSource(character, _createPassiveSource(scrySwitch,
-        sourceKey: 'passive_tree:test-b:key_branch_draw_2',
+        sourceKey: 'passive_tree:test-b:key_branch_draw_1',
         sourceType: 'passive_tree', sourceId: 'test-b'))
       characterCalculateStats(character)
     ''');
     expect(hetu.fetch('character')['stats']['turnStartScry'], true);
 
     hetu.eval('''
-      characterRemovePassiveSource(character, 'key_branch_draw_2',
-        'passive_tree:test-a:key_branch_draw_2')
+      characterRemovePassiveSource(character, 'key_branch_draw_1',
+        'passive_tree:test-a:key_branch_draw_1')
       characterCalculateStats(character)
     ''');
     expect(hetu.fetch('character')['stats']['turnStartScry'], true);
 
     hetu.eval('''
-      characterRemovePassiveSource(character, 'key_branch_draw_2',
-        'passive_tree:test-b:key_branch_draw_2')
+      characterRemovePassiveSource(character, 'key_branch_draw_1',
+        'passive_tree:test-b:key_branch_draw_1')
       characterCalculateStats(character)
     ''');
     expect(hetu.fetch('character')['stats']['turnStartScry'], false);

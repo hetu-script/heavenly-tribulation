@@ -240,8 +240,8 @@
 | `extraTurn`                 | 获得额外回合（迅捷达到阈值）                            | speed_quick 脚本          |
 | `invincible` / `staggering` | 闪避/迟钝达到阈值后的免伤/踉跄                          | dodge_nimble/clumsy 脚本  |
 | `defensePersisted`          | 护甲保留标记（有 persistent 状态）                      | defense 脚本              |
-| `guaranteedCrit`            | 下一次无属性攻击必定暴击（幸运）                        | energy_positive_crit 脚本 |
-| `guaranteedAilment`         | 下一次元素攻击必定造成异常，每满 10 点伤害 1 层（幸运） | energy_positive_crit 脚本 |
+| `guaranteedCrit`            | 下一张物理攻击牌必定暴击（幸运）                        | buff_crit 脚本 |
+| `guaranteedAilment`         | 下一张元素攻击牌必定造成异常，每满 10 点伤害 1 层（幸运） | buff_crit 脚本 |
 | `totalDamage`               | 本回合造成的总伤害（戾气结算用）                        | takeDamage 累加           |
 | `pendingResources`          | 下回合产出阶段授予的资源表；跨回合开始清空保留，产出时取出并消费 | 卡牌 / 状态脚本           |
 | `pendingEffects`            | 跨回合效果队列：`genreDamageBonus` 在下张匹配流派牌打出时消费，`pendingSelfDamage` 在下回合产出阶段消费 | 卡牌脚本                  |

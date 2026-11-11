@@ -128,9 +128,9 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 6. 天赋树
 
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
-- 境界节点：passives.json5:1038-1074（spellcraft_rank_1~5 等，纯标记 + 机制字段），树节点附带 lifeMax 40×rank；悟道主轴已连通（track_4_4 → track_8_8 → track_12_8 → track_16_8 → track_20_4）。
-- 分支节点：passives.json5:1076-1104（skilltree*branch*\* 中性 id，设计上可多流派共享）；悟道的 4 个已实现但暂未上树连线。
-- 悟道独占节点：养气诀直接引用 spirituality level 50、静心诀引用 spellAttack level 30、观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40；驭灵与天人合一分别新增 spellcraft_side_5/6 永久状态。六者均尚未上树。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
+- 境界节点：spellcraft_rank_1~5 为纯标记 + 机制字段，悟道主轴的 rank 节点 track_3_4 → track_7_8 → track_11_8 → track_15_8 → track_19_8 已连通，中间节点提供 lifeMax 等属性。
+- 分支节点：key_branch_* 使用中性 id，设计上可多流派共享；悟道的 4 个关键分支均已实现并进入当前天赋树。
+- 悟道独占节点：养气诀直接引用 spirituality level 30、静心诀引用 spellAttack level 30，二者已上树；观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40，驭灵与天人合一分别使用 spellcraft_side_5/6 永久状态，这四者已实现但尚未分配到树中。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
 - scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
 - 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。普通与境界节点均消耗并返还 1 天赋点；境界节点只通过 `checkRequirements(..., checkRank: true)` 检查现有 rank，不再触发突破试炼，退点不降低角色 rank。旧 characterSetPassive 正负等级接口已移除。
 
@@ -150,26 +150,26 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 9. 校验与构建
 
 - dart run utils/data_validate/game_data_validate.dart —— cards/card_affixes/passives/status_effect/items 的 id/引用/本地化/结构/绝世约定检查（当前 0 错误）。
-- dart run utils/data_validate/passive_tree_validate.dart —— 天赋树连通性（当前未通过：9 个悬空引用 + 78 个不可达节点，含悟道副轴骨架，属历史遗留，待天赋树排布时清理）。
+- dart run utils/data_validate/passive_tree_validate.dart —— 天赋树连通性（当前通过：全部已定义节点均可从入口到达）。
 - python build.py —— 编译 Hetu 脚本到 assets/mods/（Windows 下 hetu 可能有 PATH 问题，可用 dart install 绝对路径的 hetu.bat）；flutter analyze 验证 Dart。
 
 ## 10. 文档现状（docs/ 与实现的对照）
 
 - docs/docs/how2play/rpg/battle/readme.md：完整规则体系——16 种攻击 kind / 14 种加持 kind 表、五流派资源表、伤害类型及对策（物理-护甲可暴击、无属性-护甲不暴击（元素卡未转化态）、真气-内伤层数×5%穿透且伤害附内伤、四元素-转化态无视护甲吃抗性、精神-念力对抗、纯粹-无对策）、暴击/异常双充能计数器（阈值基础10、5-15）、幸运/不幸语义、资源回合节奏、软狂暴劫气。
-- docs/docs/how2play/rpg/battle/card/readme.md：费用阶梯、词条等级/卡牌等级/境界关系、六种精炼、绝世卡、符箓、易逝。
-- docs/docs/how2play/rpg/battle/resource/readme.md：6 阳 6 阴资源气对、阴阳对冲净值显示、统一生命周期（对方回合期间保留可见）、产出模型、溢出原则、流派资源不对称软限制。
+- docs/docs/how2play/rpg/battle/card/readme.md：费用阶梯、词条等级/卡牌等级/境界关系、六种精炼、绝世卡、符箓、易逝；卡牌使用需求与 category/cardType 已按当前实现同步。
+- docs/docs/how2play/rpg/battle/resource/readme.md：6 阳 6 阴资源气对、阴阳对冲净值显示、统一生命周期（对方回合期间保留可见）、产出模型、溢出原则、流派资源不对称软限制；悟道已实现的产出与其他流派的规划已分开标注。
 - docs/docs/mod/battle/readme.md：被动机制字段契约表（7 个字段与透传白名单一一对应，最可靠的契约文档）；docs/docs/mod/battle/card/readme.md：词条脚本回调契约。
-- docs/docs/how2play/rpg/item/equipment/readme.md：词条数量、太古、绝世固定成长、额外词条提取与 ExtractedAffix 填槽已同步。仍有偏差：「绝世仍可重铸」未实现；打造实际即时完成而文档写可等待；类型限制实现为 7 类（含 shield/gloves/vehicle）且有 UnrestrictedEquip 豁免，文档列 6 类未提豁免；生产工具（斧/锤/耙/锄/针）与 aircraft/belt 未实现。
-- docs/docs/how2play/rpg/craft/readme.md 属愿景描述：图纸系统不存在、材料不能直接附加词条（装备打造只吃 ExtractedAffix）、打造不耗时；卡牌六种精炼已实现但文档未写。
+- docs/docs/how2play/rpg/item/equipment/readme.md：词条数量、太古、绝世固定成长、额外词条提取、即时打造、7 类装备数量限制与 UnrestrictedEquip 豁免均已同步；装备破境/重铸、生产工具、飞行载具和腰带明确标为未实现或规划。
+- docs/docs/how2play/rpg/craft/readme.md：当前即时打造与 ExtractedAffix 填槽规则和长期图纸/材料规划已分开，卡牌六种精炼规则已记录。
 
 ## 11. 悟道流派落地现状
 
-- 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，队列按顺序预占，敌方按可支付手牌出牌，不再依赖元气余额。
+- 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，calculateQueuedCardPayment 统一队列预占、置灰与缺资源提示，敌方按可支付手牌出牌，不再依赖元气余额。
 
 - 境界节点 5 个（已上树、主轴连通）：太上感应（spellcraft_rank_1，灵力÷10 产灵气）/ 天道循环（rank_2，deckCostReduction 悟道牌 -1）/ 阴阳五行（rank_3，回合结束未用灵气溢出伤害，扣除 energyRetain 保留部分）/ 五气朝元（rank_4，五元素攻击增强轮转）/ 万法归宗（rank_5，shuffleIntoDeck 洗入绝世卡）。
-- 分支节点 4 个（已实现、待连线上树）：紫微斗数（key_branch_draw_1，洗入授予卡）/ 天道推演（draw_2，turnStartScry: true）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
-- 卡牌：主词条 16 张（cards.json5:726-1211）+ 绝世卡 5 张（:1218-1378）+ 天赋授予卡 2 张（:1415-1470）+ 一气化三清抉择临时卡 3 张（:1383-1409，不进卡池）；额外词条 10 个（card_affixes.json5:527-713）。
-- 绝世装备 5 件（items.json5:273-362 + passives.json5:1328-1379）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。
+- 分支节点 4 个（已实现并上树）：天道推演（key_branch_draw_1，turnStartScry: true）/ 紫微斗数（draw_2，洗入授予卡）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
+- 卡牌：普通主词条 17 张 + 常规绝世卡 5 张 + 天赋授予卡 2 张 + 一气化三清抉择临时卡 3 张（不进卡池）；普通随机额外词条 16 条，其中 6 条属于自异常转化体系。相生相克的专属词条按本回合已用元素种数线性增加双方异常层数。
+- 绝世装备 5 件（items.json5 + passives.json5）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。
 
 ## 12. 中立绝世卡与装备落地现状
 

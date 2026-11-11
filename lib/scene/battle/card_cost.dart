@@ -108,3 +108,30 @@ int modifyCardCost(dynamic costs, String color, int delta,
   }
   return (paid: missing.isEmpty ? paid : <String, int>{}, missing: missing);
 }
+
+/// 先按顺序模拟队列中卡牌的支付，再检查当前卡牌。
+/// 置灰与缺资源提示共用此入口，保证队列预占口径一致。
+({Map<String, int> paid, Map<String, (int, int)> missing})
+    calculateQueuedCardPayment(
+  dynamic costs,
+  Iterable<dynamic> queuedCards,
+  Map<String, int> resources, {
+  bool wildcardForbidden = false,
+}) {
+  final stock = Map<String, int>.of(resources);
+  for (final cardData in queuedCards) {
+    final queuedPayment = calculateCardPayment(
+      cardData['coloredCost'],
+      stock,
+      wildcardForbidden: cardData['isWildcardCostForbidden'] == true,
+    );
+    if (queuedPayment.missing.isNotEmpty) {
+      return (paid: <String, int>{}, missing: queuedPayment.missing);
+    }
+    for (final entry in queuedPayment.paid.entries) {
+      stock[entry.key] = (stock[entry.key] ?? 0) - entry.value;
+    }
+  }
+  return calculateCardPayment(costs, stock,
+      wildcardForbidden: wildcardForbidden);
+}

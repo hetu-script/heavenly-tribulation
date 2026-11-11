@@ -1438,16 +1438,13 @@ class BattleScene extends Scene {
   /// 按队列顺序模拟支付；动态费用预占全部本色气，不提前运行内容效果。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
-    final stock = _resourceStock(character);
-    for (final candidate in [...?queued, card]) {
-      final payment = calculateCardPayment(candidate.data['coloredCost'], stock,
-          wildcardForbidden: candidate.data['isWildcardCostForbidden'] == true);
-      if (payment.missing.isNotEmpty) return false;
-      for (final entry in payment.paid.entries) {
-        stock[entry.key] = (stock[entry.key] ?? 0) - entry.value;
-      }
-    }
-    return true;
+    final payment = calculateQueuedCardPayment(
+      card.data['coloredCost'],
+      (queued ?? const <CustomGameCard>[]).map((candidate) => candidate.data),
+      _resourceStock(character),
+      wildcardForbidden: card.data['isWildcardCostForbidden'] == true,
+    );
+    return payment.missing.isEmpty;
   }
 
   /// 支付与预占共用计算规则；动态费用在此耗尽资源并记录实际 paidCost。
@@ -1496,12 +1493,15 @@ class BattleScene extends Scene {
   }
 
   /// 生成卡牌缺少资源的悬浮提示文本（每行一种缺少的资源）。
-  /// "拥有"按 本色存量 + 太极存量 计算（太极可抵任意有色费用）；
+  /// 先扣除队列中卡牌的预占，再按本色存量 + 太极存量计算"拥有"；
   /// isWildcardCostForbidden 卡牌（如绝世·万法归宗）禁止太极抵扣，"拥有"只计本色存量。
   String _missingCostReport(CustomGameCard card) {
-    final payment = calculateCardPayment(
-        card.data['coloredCost'], _resourceStock(hero),
-        wildcardForbidden: card.data['isWildcardCostForbidden'] == true);
+    final payment = calculateQueuedCardPayment(
+      card.data['coloredCost'],
+      _cardQueue.map((candidate) => candidate.data),
+      _resourceStock(hero),
+      wildcardForbidden: card.data['isWildcardCostForbidden'] == true,
+    );
     return payment.missing.entries.map((entry) {
       return engine.locale('battlecard_cost_lacking_hint', interpolations: [
         engine.locale('status_${entry.key}'),

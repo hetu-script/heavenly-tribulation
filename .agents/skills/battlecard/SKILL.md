@@ -90,7 +90,7 @@ punch_attack: {
   cardType: "unarmed",           // 七类：unarmed/weapon/spell/curse/shenfa/xinfa/divinity
   damageType: "physical",        // 攻击卡必填：physical/ordinary/chi/fire/ice/lightning/poison/psychic/pure
   elementType: "element_fire",   // 悟道元素卡：element_fire/ice/lightning/...
-  rank: 1,                       // 使用境界门槛 0~5，省略=0
+  rank: 1,                       // 生成与数值境界 0~5，不是卡牌使用限制，省略=0
   description: "affix_attack_unarmed",  // 本地化键
   keywords: ["status_defense"],  // 悬浮提示关联
   image: "battlecard/illustration/punch_attack.png",  // 新插画需同步 kBattleCardIllustrations + illustration_xxx（见 1.A）

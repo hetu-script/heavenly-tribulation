@@ -119,11 +119,22 @@
     isEquipmentExtraAffix: true,
     kinds: ["dart"],
   },
+  increase_damage_flying_sword: {
+    id: "increase_damage_flying_sword",
+    uniqueId: "increase_damage",
+    description: "passive_increase_damage_flying_sword_description",
+    priority: 4789,
+    increment: 0.5,
+    greater: true,
+    isEquipmentMain: true,
+    isEquipmentExtraAffix: true,
+    kinds: ["sword"],
+  },
   increase_damage_airbend: {
     id: "increase_damage_airbend",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_airbend_description",
-    priority: 4789,
+    priority: 4788,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -133,7 +144,7 @@
     id: "increase_damage_earthbend",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_earthbend_description",
-    priority: 4788,
+    priority: 4787,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -143,7 +154,7 @@
     id: "increase_damage_waterbend",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_waterbend_description",
-    priority: 4787,
+    priority: 4786,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -153,7 +164,7 @@
     id: "increase_damage_firebend",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_firebend_description",
-    priority: 4786,
+    priority: 4785,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -163,7 +174,7 @@
     id: "increase_damage_lightning_control",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_lightning_control_description",
-    priority: 4785,
+    priority: 4784,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -173,7 +184,7 @@
     id: "increase_damage_sigil",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_sigil_description",
-    priority: 4784,
+    priority: 4783,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -183,7 +194,7 @@
     id: "increase_damage_power_word",
     uniqueId: "increase_damage",
     description: "passive_increase_damage_power_word_description",
-    priority: 4783,
+    priority: 4782,
     increment: 0.5,
     greater: true,
     isEquipmentExtraAffix: true,
@@ -425,7 +436,7 @@
     isDecrement: true,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring", "pearl"],
-    keywords: ["status_speed_quick"],
+    keywords: ["quickThreshold"],
     rank: 3,
   },
   slowThreshold: {
@@ -438,7 +449,7 @@
     },
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring", "pearl"],
-    keywords: ["status_speed_slow"],
+    keywords: ["slowThreshold"],
     rank: 3,
   },
   nimbleThreshold: {
@@ -450,7 +461,7 @@
     isDecrement: true,
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring", "pearl"],
-    keywords: ["status_dodge_nimble"],
+    keywords: ["nimbleThreshold"],
     rank: 3,
   },
   clumsyThreshold: {
@@ -463,7 +474,7 @@
     },
     isEquipmentExtraAffix: true,
     kinds: ["boots", "amulet", "ring", "pearl"],
-    keywords: ["status_dodge_clumsy"],
+    keywords: ["clumsyThreshold"],
     rank: 3,
   },
 
@@ -488,7 +499,7 @@
       "ring",
       "pearl",
     ],
-    keywords: ["status_buff_crit"],
+    keywords: ["critThreshold"],
     rank: 3,
   },
   // 暴击倍率：只有物理伤害可以暴击
@@ -513,7 +524,7 @@
       "ring",
       "pearl",
     ],
-    keywords: ["status_buff_crit"],
+    keywords: ["critMultiplier"],
   },
   // 元素异常阈值：四元素共享充能达到阈值后下一次元素伤害造成异常，低者优
   ailmentThreshold: {
@@ -525,7 +536,7 @@
     isDecrement: true,
     isEquipmentExtraAffix: true,
     kinds: ["gloves", "amulet", "ring", "pearl", "pearl"],
-    keywords: ["status_element_ailment"],
+    keywords: ["ailmentThreshold"],
     rank: 3,
   },
   // 元素异常伤害：放大施加的元素持续伤害
@@ -539,7 +550,7 @@
     isEphemeral: true,
     ephemeralType: "attack",
     kinds: ["gloves", "amulet", "ring", "pearl", "pearl"],
-    keywords: ["status_element_ailment"],
+    keywords: ["ailmentMultiplier"],
   },
 
   /// 属性点类被动的 id 和该属性同名
@@ -1116,15 +1127,15 @@
     id: "key_branch_draw_1",
     description: "passive_key_branch_draw_1_description",
     priority: 3794,
-    // 紫微斗数：战斗开始后将「紫微斗数」洗入牌库（见 battle.dart _startBattle）
-    shuffleIntoDeck: ["spellcraft_draw_cards_reduce_cost"],
+    // 天道推演：每个回合开始时（抽牌阶段之前）观星一次；数量共用普通观星规则（见 battle.dart _startTurn）
+    turnStartScry: true,
   },
   key_branch_draw_2: {
     id: "key_branch_draw_2",
     description: "passive_key_branch_draw_2_description",
     priority: 3793,
-    // 天道推演：每个回合开始时（抽牌阶段之前）观星一次；数量共用普通观星规则（见 battle.dart _startTurn）
-    turnStartScry: true,
+    // 紫微斗数：战斗开始后将「紫微斗数」洗入牌库（见 battle.dart _startBattle）
+    shuffleIntoDeck: ["spellcraft_draw_cards_reduce_cost"],
   },
   key_branch_element_1: {
     id: "key_branch_element_1",
@@ -1496,6 +1507,16 @@
       data: { statusParams: { shieldAmount: 1 } },
     },
   },
+  scry_mana: {
+    id: "scry_mana",
+    description: "passive_scry_mana_description",
+    descriptionParams: ["battleStatus.manaBonus"],
+    priority: 3482,
+    battleStatus: "scry_mana",
+    greater: {
+      data: { statusParams: { manaBonus: 1 } },
+    },
+  },
   scry_upgrade: {
     id: "scry_upgrade",
     description: "passive_scry_upgrade_description",
@@ -1506,16 +1527,6 @@
     statusParams: { upgradeChosen: 1 },
     greater: {
       data: { statusParams: { upgradeChosen: 1 } },
-    },
-  },
-  scry_mana: {
-    id: "scry_mana",
-    description: "passive_scry_mana_description",
-    descriptionParams: ["battleStatus.manaBonus"],
-    priority: 3482,
-    battleStatus: "scry_mana",
-    greater: {
-      data: { statusParams: { manaBonus: 1 } },
     },
   },
   spell_mana_trickle: {

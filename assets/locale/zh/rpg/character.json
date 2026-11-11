@@ -3,7 +3,7 @@
 
   "cultivationLevel": "修为等级",
   "cultivationLevel2": "修为",
-  "level_description": "通过打坐，战斗，游历，冥想等行动获取经验后，在修炼界面提升修为等级。每个修为等级使你<yellow>生命上限 +5，天道技能点 +1</>。修为等级的上限由当前境界决定。",
+  "level_description": "通过打坐，战斗，游历，冥想等行动获取经验后，在修炼界面提升修为等级。每个修为等级使你<yellow>体力上限 +5，天道技能点 +1</>。修为等级的上限由当前境界决定。",
   "cultivationRank": "境界",
   "rank_description": "提升境界可以提升修为等级上限，还可以让你使用更多法宝和战斗卡牌，以及解锁更多关键的天道技能。",
 
@@ -16,7 +16,7 @@
   "perception": "神识",
   "perception_description": "法身流凝气境：每 25 点神识: 每回合获得的元气 +1",
   "strength": "体魄",
-  "strength_description": "每 1 点体魄: 战斗时生命上限 +1，材料载重 +1。\n锻体流凝气境：每 10 点体魄，战斗开始时获得 1 点怒气。",
+  "strength_description": "每 1 点体魄: 生命上限 +1，材料载重 +1。\n锻体流凝气境：每 10 点体魄，战斗开始时获得 1 点怒气。",
 
   "tribulationCount": "劫数",
   "tribulationCountMax": "劫数上限",
@@ -95,12 +95,12 @@
   "poisonResistMax": "毒素抗性上限",
 
   "critThreshold": "暴击阈值",
-  "critThreshold_description": "基础为 10。每造成一次物理伤害积累 1 点暴击充能，充能达到阈值后，下一次物理伤害移除阈值数量的充能并暴击。\n阈值最大 15，最小 5。",
+  "critThreshold_description": "基础为 10，最大 15，最小 5。每次造成物理伤害积累 1 点暴击充能，充能达到阈值后，下一次物理伤害移除阈值数量的充能并暴击。",
   "critMultiplier": "暴击伤害",
   "critMultiplier_description": "基础为 150%。只有物理伤害可以暴击。",
 
   "ailmentThreshold": "元素异常阈值",
-  "ailmentThreshold_description": "基础为 10。每造成一次元素伤害积累 1 点异常充能（火、冰、雷、毒共享），充能达到阈值后，下一次元素伤害移除阈值数量的充能并造成元素异常。\n阈值最大 15，最小 5。",
+  "ailmentThreshold_description": "基础为 10，最大 15，最小 5。每次造成任意元素伤害积累 1 点异常充能，充能达到阈值后，下一次元素伤害移除阈值数量的充能并造成元素异常。",
   "ailmentMultiplier": "元素异常伤害",
   "ailmentMultiplier_description": "基础为 100%。放大你施加的元素异常造成的伤害。",
   "ailmentInflictBonus": "元素异常施加",
