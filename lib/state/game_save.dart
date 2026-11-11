@@ -12,7 +12,7 @@ import 'package:json5/json5.dart';
 import '../global.dart';
 import '../data/common.dart';
 import '../data/game.dart';
-import '../data/game_random.dart';
+import '../data/random.dart';
 import '../scene/common.dart';
 
 extension MeaningfulString on DateTime {
@@ -130,7 +130,7 @@ class GameSavesState with ChangeNotifier {
       info.currentWorldId = worldId;
 
       final random = GameData.random;
-      if (random is GameRandom) {
+      if (random is SerializableRandom) {
         GameData.game['randomState'] = random.state;
       }
       final gameJSONData = (GameData.game as HTStruct).toJSON();

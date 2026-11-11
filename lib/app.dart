@@ -28,7 +28,7 @@ import 'data/binding.dart';
 import 'scene/loading_screen.dart';
 import 'data/common.dart';
 import 'data/game.dart';
-import 'data/game_random.dart';
+import 'data/random.dart';
 import 'scene/mini_game/matching/matching.dart';
 import 'scene/mini_game/matching2/matching2.dart';
 import 'scene/mini_game/difference/difference.dart';
@@ -94,7 +94,7 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter
         .bindExternalClass(GameRandomClassBinding(), override: true);
     engine.hetu.interpreter.bindExternalReflection(
-      (object) => object is GameRandom ? 'Random' : null,
+      (object) => object is SerializableRandom ? 'Random' : null,
     );
 
     engine.hetu.invoke('build', positionalArgs: [context]);

@@ -6,10 +6,10 @@ import 'package:hetu_script/binding.dart';
 const _kUint32Mask = 0xFFFFFFFF;
 const _kUint32Range = 0x100000000;
 
-class GameRandom {
+class SerializableRandom implements math.Random {
   int _state;
 
-  GameRandom([int? seed])
+  SerializableRandom([int? seed])
       : _state = _normalizeSeed(seed ?? DateTime.now().microsecondsSinceEpoch);
 
   static int _normalizeSeed(int seed) {
@@ -33,6 +33,7 @@ class GameRandom {
     return _state;
   }
 
+  @override
   int nextInt(int max) {
     if (max <= 0 || max > _kUint32Range) {
       throw RangeError.range(max, 1, _kUint32Range, 'max');
@@ -40,8 +41,10 @@ class GameRandom {
     return _nextUint32() % max;
   }
 
+  @override
   double nextDouble() => _nextUint32() / _kUint32Range;
 
+  @override
   bool nextBool() => (_nextUint32() & 1) == 0;
 
   bool nextBoolBiased(double input, double target) {
@@ -102,7 +105,7 @@ class GameRandomClassBinding extends HTExternalClass {
   dynamic memberGet(String id,
       {String? from, bool isRecursive = false, bool ignoreUndefined = false}) {
     if (id == 'Random') {
-      return ({positionalArgs, namedArgs}) => GameRandom(
+      return ({positionalArgs, namedArgs}) => SerializableRandom(
             positionalArgs.isEmpty ? null : positionalArgs.first,
           );
     }
@@ -112,7 +115,7 @@ class GameRandomClassBinding extends HTExternalClass {
   @override
   dynamic instanceMemberGet(dynamic instance, String id,
       {bool ignoreUndefined = false}) {
-    final random = instance as GameRandom;
+    final random = instance as SerializableRandom;
     switch (id) {
       case 'state':
         return random.state;
@@ -162,7 +165,7 @@ class GameRandomClassBinding extends HTExternalClass {
   void instanceMemberSet(dynamic instance, String id, dynamic value,
       {bool ignoreUndefined = false}) {
     if (id == 'state') {
-      (instance as GameRandom).state = (value as num).toInt();
+      (instance as SerializableRandom).state = (value as num).toInt();
       return;
     }
     if (!ignoreUndefined) throw HTError.undefined(id);

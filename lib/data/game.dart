@@ -23,7 +23,7 @@ import '../scene/common.dart';
 import '../logic/logic.dart';
 import '../state/game_save.dart';
 import '../scene/world/world.dart';
-import 'game_random.dart';
+import 'random.dart';
 import 'prompt.dart';
 import '../state/game_state.dart';
 
@@ -785,7 +785,7 @@ final class GameData with ChangeNotifier {
     hero = engine.hetu.fetch('hero');
     random = engine.hetu.fetch('random');
     final savedRandomState = game['randomState'];
-    if (random is GameRandom && savedRandomState is num) {
+    if (random is SerializableRandom && savedRandomState is num) {
       random.state = savedRandomState.toInt();
     }
 
