@@ -29,7 +29,7 @@ const kBattleAttributes = [
   'perception',
 ];
 
-/// 每次修为等级提升获得的天赋点数；普通节点消耗 1 点，境界节点免费
+/// 每次修为等级提升获得的天赋点数；所有天赋节点消耗 1 点
 const kPassiveSkillPointsPerLevel = 1;
 
 const kAttributeToGenre = {

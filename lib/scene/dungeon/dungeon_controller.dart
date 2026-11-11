@@ -1,6 +1,7 @@
 import 'package:hetu_script/utils/collection.dart' as utils;
 import 'package:hetu_script/utils/uid.dart';
 
+import '../../data/common.dart';
 import '../../data/game.dart';
 import '../../global.dart';
 import '../../logic/logic.dart';
@@ -146,10 +147,17 @@ final class DungeonController {
     return room['scavengeCandidates'];
   }
 
-  static dynamic createDungeonCardCopy(dynamic selectedCard) {
+  static dynamic createDungeonCardCopy(
+    dynamic selectedCard, {
+    bool isDungeonCard = true,
+  }) {
     final card = utils.deepCopy(selectedCard);
     card['id'] = randomUID();
-    card['isDungeonCard'] = true;
+    if (isDungeonCard) {
+      card['isDungeonCard'] = true;
+    } else {
+      card.remove('isDungeonCard');
+    }
     return card;
   }
 
@@ -157,14 +165,20 @@ final class DungeonController {
     final room = currentRoom;
     if (room['scavengeResolved'] == true) return;
     if (selectedCard != null) {
-      final card = createDungeonCardCopy(selectedCard);
+      final isBoss = currentScene?['kind'] == 'boss';
+      final card = createDungeonCardCopy(
+        selectedCard,
+        isDungeonCard: !isBoss,
+      );
       engine.hetu.invoke(
         'acquireCard',
         namespace: 'Player',
         positionalArgs: [card],
       );
-      final deckIndex = GameData.hero['battleDeckIndex'] as int;
-      GameData.hero['battleDecks'][deckIndex]['cards'].add(card['id']);
+      if (!isBoss) {
+        final deckIndex = GameData.hero['battleDeckIndex'] as int;
+        GameData.hero['battleDecks'][deckIndex]['cards'].add(card['id']);
+      }
     }
     room['scavengeResolved'] = true;
   }
@@ -176,8 +190,132 @@ final class DungeonController {
     ) as bool;
   }
 
-  static void leaveAfterFailure() {
-    engine.hetu.invoke('leaveSceneDungeonAfterFailure');
-    gameState.isInteractable = true;
+  static bool canAbandon() {
+    return run['active'] == true && !canReturnCamp();
+  }
+
+  static dynamic finishRun(String outcome) {
+    final summary = engine.hetu.invoke(
+      'settleSceneDungeonRun',
+      namedArgs: {'outcome': outcome},
+    );
+    if (summary != null) {
+      gameState.isInteractable = true;
+    }
+    return summary;
+  }
+
+  static dynamic findBreakthroughPill(int targetRank) {
+    for (final item in GameData.hero['inventory'].values) {
+      if (item['kind'] == 'craftmaterial_upgradeRank' &&
+          item['rank'] == targetRank) {
+        return item;
+      }
+    }
+    return null;
+  }
+
+  static void syncDungeonAfterBreakthrough() {
+    final newRank = GameData.hero['rank'] as int;
+    final dungeon = GameData.game['flags']['dungeon'] ??= {};
+    dungeon['rank'] = newRank;
+    dungeon['level'] = 0;
+    dungeon['levelMax'] = newRank * 2 + 1;
+  }
+
+  static Future<void> startBreakthroughTrial() async {
+    final hero = GameData.hero;
+    final currentRank = hero['rank'] as int;
+    if (currentRank >= kCultivationRankMax) {
+      dialog.pushDialog('breakthroughMaxRank');
+      await dialog.execute();
+      return;
+    }
+
+    final targetRank = currentRank + 1;
+    final targetRankName = engine.locale('cultivationRank_$targetRank');
+    final requiredLevel = GameLogic.minLevelForRank(targetRank);
+    if ((hero['level'] as int) < requiredLevel) {
+      dialog.pushDialog('breakthroughLevelRequirement', interpolations: [
+        targetRankName,
+        hero['level'],
+        requiredLevel,
+      ]);
+      await dialog.execute();
+      return;
+    }
+
+    var pill = findBreakthroughPill(targetRank);
+    if (pill == null) {
+      dialog.pushDialog('breakthroughPillRequirement', interpolations: [
+        targetRankName,
+        engine.locale('craftmaterial_upgradeRank$targetRank'),
+      ]);
+      await dialog.execute();
+      return;
+    }
+
+    dialog.pushDialog('breakthroughTrialPrompt', interpolations: [
+      targetRankName,
+      requiredLevel,
+      pill['name'],
+    ]);
+    dialog.pushSelection('breakthroughTrialConfirm', ['confirm', 'cancel']);
+    await dialog.execute();
+    if (dialog.checkSelected('breakthroughTrialConfirm') != 'confirm') return;
+
+    pill = findBreakthroughPill(targetRank);
+    if (pill == null) {
+      dialog.pushDialog('breakthroughPillRequirement', interpolations: [
+        targetRankName,
+        engine.locale('craftmaterial_upgradeRank$targetRank'),
+      ]);
+      await dialog.execute();
+      return;
+    }
+    engine.hetu.invoke(
+      'lose',
+      namespace: 'Player',
+      positionalArgs: [pill],
+      namedArgs: {'amount': 1},
+    );
+    gameState.updateUI();
+
+    GameLogic.showTribulation(
+      GameLogic.maxLevelForRank(currentRank),
+      currentRank,
+      onResult: (result) async {
+        if (!result) {
+          dialog.pushDialog('breakthroughTrialFailure', interpolations: [
+            pill['name'],
+          ]);
+          await dialog.execute();
+          return;
+        }
+
+        engine.hetu.invoke(
+          'rankUp',
+          namespace: 'Player',
+          namedArgs: {'incurIncident': false},
+        );
+        syncDungeonAfterBreakthrough();
+        final newRank = GameData.hero['rank'] as int;
+        final dungeon = GameData.game['flags']['dungeon'];
+        engine.hetu.invoke(
+          'characterCalculateStats',
+          positionalArgs: [GameData.hero],
+        );
+        gameState.updateUI();
+        gameState.updateDungeon(dungeon);
+        await engine.hetu.invoke(
+          'onGameEvent',
+          positionalArgs: ['onHeroRankUp'],
+        );
+        dialog.pushDialog('breakthroughTrialSuccess', interpolations: [
+          engine.locale('cultivationRank_$newRank'),
+        ]);
+        await dialog.execute();
+      },
+    );
   }
 }

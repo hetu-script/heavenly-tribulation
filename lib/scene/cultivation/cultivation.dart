@@ -16,7 +16,6 @@ import 'package:hetu_script/values.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/hover_info.dart';
 import 'package:samsara/cardgame/cardgame.dart';
-import 'package:samsara/effect.dart';
 
 import '../../global.dart';
 import '../../logic/logic.dart';
@@ -27,7 +26,6 @@ import '../particles/light_trail.dart';
 import '../../state/states.dart';
 import '../../data/common.dart';
 import '../cursor_state.dart';
-import '../mini_game/common.dart';
 import '../../game_events.dart';
 import '../../widgets/common.dart';
 
@@ -199,12 +197,6 @@ class CultivationScene extends Scene with HasCursorState {
 
   late final SpriteComponent2 barrier;
 
-  late final SpriteComponent newRankPrompt;
-
-  late final SpriteButton rankInfo;
-
-  late final SpriteButton confirm;
-
   late final Timer timer;
 
   bool isMeditating = false;
@@ -350,8 +342,6 @@ class CultivationScene extends Scene with HasCursorState {
     final (isLearned, isOpen) = checkPassiveStatus(nodeId);
     final passiveTreeNodeData = GameData.passiveSkills[nodeId];
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-    final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-    final isRankNode = rankRequirement > 0;
 
     if (button == kPrimaryButton) {
       if (isLearned) return;
@@ -362,24 +352,19 @@ class CultivationScene extends Scene with HasCursorState {
       }
       Hovertip.hide(skillButton);
 
-      // final String? warning = GameLogic.checkRequirements(passiveTreeNodeData);
-      // if (warning != null) {
-      //   dialog.pushDialog('hint_requirementNotMetForSkill$warning');
-      //   dialog.execute();
-      //   return;
-      // }
-
       if (!isEditorMode) {
-        // 境界节点免费，普通节点仍消耗 1 点
-        if (!isRankNode && character['skillPoints'] <= 0) {
-          dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
-          dialog.execute();
+        final warning = GameLogic.checkRequirements(
+          passiveTreeNodeData,
+          character: character,
+          checkRank: true,
+        );
+        if (warning != null) {
+          hint(warning, color: GameColors.lightRed);
           return;
         }
-
-        // 境界节点: 触发突破试炼
-        if (rankRequirement == character['rank'] + 1) {
-          await tryTribulation(skillButton, nodeId);
+        if (character['skillPoints'] <= 0) {
+          dialog.pushDialog('hint_notEnoughPassiveSkillPoints');
+          dialog.execute();
           return;
         }
       }
@@ -404,7 +389,7 @@ class CultivationScene extends Scene with HasCursorState {
         GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
       }
       skillButton.isSelected = true;
-      if (!isEditorMode && !isRankNode) {
+      if (!isEditorMode) {
         --character['skillPoints'];
       }
 
@@ -426,8 +411,7 @@ class CultivationScene extends Scene with HasCursorState {
       }
 
       skillButton.isSelected = false;
-      // 境界节点免费，退回时不返还天赋点；角色境界不受退点影响
-      if (!isEditorMode && !isRankNode) {
+      if (!isEditorMode) {
         ++character['skillPoints'];
       }
 
@@ -445,8 +429,8 @@ class CultivationScene extends Scene with HasCursorState {
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
     final String? warning = GameLogic.checkRequirements(
       passiveTreeNodeData,
-      checkIdentified: false,
-      checkLevel: true,
+      character: character,
+      checkRank: true,
     );
 
     final skillDescription = StringBuffer();
@@ -477,28 +461,18 @@ class CultivationScene extends Scene with HasCursorState {
 
     skillDescription.writeln(' ');
     if (isLearned) {
-      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
       if (!isEditorMode &&
           !GameLogic.checkPassiveTreeRefundable(character, nodeId)) {
         skillDescription
             .writeln(engine.locale('passiveskill_disconnect_refund_hint'));
-      } else if (rankRequirement > 0) {
-        skillDescription
-            .writeln(engine.locale('passiveskill_rank_refund_hint'));
       } else {
         skillDescription.writeln(engine.locale('passiveskill_refund_hint'));
       }
     } else {
       if (isOpen) {
-        final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-        if (rankRequirement > 0 && character['rank'] < rankRequirement) {
-          // 境界节点: 需要突破试炼，不消耗天赋点
-          skillDescription.writeln(engine.locale('passiveskill_rank_hint'));
-        } else if (rankRequirement > 0 ||
-            character['skillPoints'] > 0 ||
-            isEditorMode) {
+        if (warning == null && (character['skillPoints'] > 0 || isEditorMode)) {
           skillDescription.writeln(engine.locale('passiveskill_unlock_hint'));
-        } else {
+        } else if (warning == null) {
           skillDescription.writeln(engine.locale('passiveskill_points_hint'));
         }
       } else {
@@ -1326,59 +1300,6 @@ class CultivationScene extends Scene with HasCursorState {
     );
     camera.viewport.add(barrier);
 
-    newRankPrompt = SpriteComponent(
-      anchor: Anchor.center,
-      position: Vector2(center.x, center.y - 125),
-      sprite: await Sprite.load('rank_up.png'),
-      size: Vector2(800.0, 220.0),
-      priority: _kBarrierPriority,
-    );
-
-    rankInfo = SpriteButton(
-      anchor: Anchor.center,
-      position: center,
-      size: Vector2(125.0, 125.0),
-      isVisible: false,
-      priority: _kBarrierPriority,
-    );
-    rankInfo.onMouseEnter = () {
-      Hovertip.show(
-        scene: this,
-        target: rankInfo,
-        direction: HovertipDirection.topCenter,
-        config: ScreenTextConfig(textAlign: TextAlign.center),
-        content: engine
-            .locale('cultivationRank_${GameData.hero['rank']}_description'),
-      );
-    };
-    rankInfo.onMouseExit = () {
-      Hovertip.hide(rankInfo);
-    };
-    camera.viewport.add(rankInfo);
-
-    confirm = SpriteButton(
-      spriteId: 'ui/button2.png',
-      size: GameUI.buttonSizeMedium,
-      anchor: Anchor.center,
-      position: Vector2(
-          center.x,
-          newRankPrompt.bottomRight.y +
-              GameUI.buttonSizeMedium.y +
-              GameUI.largeIndent),
-      text: engine.locale('confirm'),
-      isVisible: false,
-      priority: _kBarrierPriority,
-    );
-    confirm.onTap = (_, __) async {
-      newRankPrompt.removeFromParent();
-      barrier.isVisible = false;
-      rankInfo.isVisible = false;
-      confirm.isVisible = false;
-      // 通知教程系统境界突破成功
-      await engine.hetu.invoke('onGameEvent', positionalArgs: ['onHeroRankUp']);
-    };
-    camera.viewport.add(confirm);
-
     collectButton = SpriteButton(
       spriteId: 'ui/button2.png',
       size: GameUI.buttonSizeMedium,
@@ -1819,119 +1740,6 @@ class CultivationScene extends Scene with HasCursorState {
     await onEnterScene?.call();
 
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
-  }
-
-  /// 点击境界节点时触发突破试炼
-  Future<void> tryTribulation(SpriteButton skillButton, String nodeId) async {
-    assert(!isEditorMode);
-
-    final passiveTreeNodeData = GameData.passiveSkills[nodeId];
-    if (passiveTreeNodeData == null) return;
-
-    int difficulty = character['rank'];
-    assert(difficulty == (passiveTreeNodeData['rank'] as int) - 1);
-
-    // 教程提示
-    if (GameData.game['enableTutorial'] == true) {
-      if (GameData.flags['tutorial']['tribulation'] != true) {
-        GameData.flags['tutorial']['tribulation'] = true;
-        dialog.pushDialog('passiveskill_tribulation_intro');
-        await dialog.execute();
-      }
-    }
-
-    // 选择试炼方式
-    dialog.pushDialog('passiveskill_tribulation_prompt2');
-    await dialog.execute();
-
-    dialog.pushSelection('tribulationMethod', ['yes', 'forgetIt']);
-    await dialog.execute();
-    final selected = dialog.checkSelected('tribulationMethod');
-    if (selected == null || selected == 'forgetIt') return;
-
-    void onTribulationSuccess() {
-      GameLogic.characterUnlockPassiveTreeNode(character, nodeId);
-      skillButton.isSelected = true;
-      character['rank'] = difficulty + 1;
-      updatePassivesDescription();
-      updateInformation();
-      // engine.play(GameSound.click);
-      barrier.isVisible = true;
-      camera.viewport.add(newRankPrompt);
-      rankInfo.tryLoadSprite(
-          spriteId: 'cultivation/cultivation$difficulty.png');
-      rankInfo.isVisible = true;
-      confirm.isVisible = true;
-      engine.play(GameSound.ascension);
-
-      final celebration = ConfettiEffect(
-        position: Vector2.zero(),
-        size: size,
-        priority: kConfettiPriority,
-      );
-      camera.viewport.add(celebration);
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        confirm.isVisible = true;
-      });
-    }
-
-    // if (selected == 'tribulation_martial') {
-    // 进入天道战斗
-    int levelMax = GameLogic.maxLevelForRank(difficulty);
-    int level = levelMax;
-
-    bool isDifficultyDecreased = false;
-    if (GameData.hero['ephemeralPassives']['decreaseTribulationDifficulty'] !=
-        null) {
-      isDifficultyDecreased = true;
-      engine.hetu.invoke(
-        'characterRemovePassiveSource',
-        positionalArgs: [
-          GameData.hero,
-          'decreaseTribulationDifficulty',
-          'script:ephemeral:decreaseTribulationDifficulty',
-        ],
-        namedArgs: {'isEphemeral': true},
-      );
-      engine.hetu
-          .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
-      dialog.pushDialog('tribulation_difficulty_decreased');
-      await dialog.execute();
-    }
-
-    if (isDifficultyDecreased) {
-      level -= 5;
-    }
-
-    level = level.clamp(0, levelMax);
-
-    GameLogic.showTribulation(level, difficulty, onResult: (bool result) {
-      if (result) {
-        onTribulationSuccess();
-      } else {
-        dialog.pushDialog('passiveskill_tribulation_fail');
-        dialog.execute();
-      }
-    });
-    // } else if (selected == 'tribulation_literary') {
-    //   // 随机进入一种小游戏。难度和节点本身的境界有关。
-    //   final sceneId =
-    //       kMiniGameScenes[math.Random().nextInt(kMiniGameScenes.length)];
-
-    //   final miniGameDifficulty = MiniGameDifficulty.values[difficulty];
-    //   engine.pushScene(sceneId, arguments: {
-    //     'difficulty': miniGameDifficulty.name,
-    //     'onGameEnd': (bool won) {
-    //       if (won) {
-    //         onTribulationSuccess();
-    //       } else {
-    //         dialog.pushDialog('passiveskill_tribulation_fail');
-    //         dialog.execute();
-    //       }
-    //     },
-    //   });
-    // }
   }
 
   /// 处理角色升级相关逻辑

@@ -15,6 +15,7 @@ class DungeonScavengeComponent extends PositionComponent {
     required this.onSelected,
     required this.onSkip,
     required this.onClose,
+    this.isPermanent = false,
   }) : super(
           size: GameUI.size,
           priority: 10050,
@@ -24,6 +25,7 @@ class DungeonScavengeComponent extends PositionComponent {
   final void Function(dynamic card) onSelected;
   final VoidCallback onSkip;
   final VoidCallback onClose;
+  final bool isPermanent;
 
   @override
   Future<void> onLoad() async {
@@ -38,7 +40,7 @@ class DungeonScavengeComponent extends PositionComponent {
       position: Vector2(GameUI.center.x, GameUI.center.y - 260),
       anchor: Anchor.center,
       text:
-          '${engine.locale('scavengeTitle')}\n${engine.locale('scavengeHint')}',
+          '${engine.locale(isPermanent ? 'scavengePermanentTitle' : 'scavengeTitle')}\n${engine.locale(isPermanent ? 'scavengePermanentHint' : 'scavengeHint')}',
       config: ScreenTextConfig(
         anchor: Anchor.center,
         outlined: true,

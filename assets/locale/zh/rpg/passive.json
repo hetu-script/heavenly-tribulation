@@ -155,7 +155,7 @@
   "passive_heal_description": "恢复生命 {0}",
   "passive_overheal_description": "生命 {0} (可超过上限)",
   "passive_tribulationCountReduce_description": "劫数 {0} (可变成负数)",
-  "passive_decreaseTribulationDifficulty_description": "降低天道技能境界节点突破试炼的难度",
+  "passive_decreaseTribulationDifficulty_description": "降低天道突破试炼的难度",
   "passive_quick_threshold_description": "速度阈值 {0}",
   "passive_slow_threshold_description": "缓慢阈值 {0}",
   "passive_nimble_threshold_description": "闪避阈值 {0}",

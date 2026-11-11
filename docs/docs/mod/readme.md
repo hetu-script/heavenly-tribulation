@@ -149,3 +149,9 @@ async function onInteractMapObject(object, terrain)
 - 路线条目只包含 `id` 和有序 `sceneIds`；所有引用必须指向已定义场景。
 
 运行时持久状态保存在 `game.flags.dungeon`，包含 `routeId`、`currentSceneIndex`、`rooms`、战斗待结算状态以及每房的奖励与搜刮状态。内容工厂位于 `scripts/main/event/scene_dungeon.ht`：`createSceneDungeonRun()`、`createSceneDungeonRoom()`、`createSceneDungeonRewards()`、`useSceneDungeonRest()`。Dart 控制器负责路线与交互，不在 Dart 中写死具体房间内容。
+
+普通搜刮复制卡写入 `cardLibrary` 与当前 `battleDecks[battleDeckIndex]`，并设置 `isDungeonCard`；Boss 搜刮复制卡只写入 `cardLibrary`，不设置该标记。`settleSceneDungeonRun({outcome})` 统一处理 `victory`、`failure`、`abandon` 三种结算，以 `active` 保证幂等：胜利推进层级，其他结果清零层级；全部结果清理当前卡组与卡库中的地牢卡，非胜利结果还删除未装备、未入库的物品并清空随身材料。装备栏 ID 对应的背包物品、仓库和永久卡保留。
+
+## 随机数与存档
+
+核心模组中的全局 `random` 使用项目内可序列化的 `Random` 实现，既有 `nextInt`、`nextDouble`、`nextBool`、`nextIterable`、`nearInt`、`distantInt` 和 `shuffle` 等调用方式不变。内部状态由 Dart 在保存时写入 `game.randomState`，读档时结合 `game.seed` 自动恢复；内容脚本无需也不应手动改写这两个存档字段。

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
@@ -83,6 +85,7 @@ class _ViewModeMenuButtonState extends State<ViewModeMenuButton> {
 }
 
 enum DropMenuItems {
+  abandonDungeon,
   save,
   saveAs,
   load,
@@ -104,11 +107,14 @@ class DropMenuButton extends StatefulWidget {
     super.key,
     this.isEditorMode = false,
     this.map,
+    this.onAbandonDungeon,
   });
 
   final bool isEditorMode;
 
   final TileMap? map;
+
+  final FutureOr<void> Function()? onAbandonDungeon;
 
   @override
   State<DropMenuButton> createState() => _DropMenuButtonState();
@@ -149,6 +155,9 @@ class _DropMenuButtonState extends State<DropMenuButton> {
               cursor: GameUI.cursor,
               controller: menuController,
               items: {
+                if (widget.onAbandonDungeon != null)
+                  engine.locale('abandonDungeon'):
+                      DropMenuItems.abandonDungeon,
                 engine.locale('save'): DropMenuItems.save,
                 engine.locale('saveAs'): DropMenuItems.saveAs,
                 engine.locale('load'): DropMenuItems.load,
@@ -173,6 +182,8 @@ class _DropMenuButtonState extends State<DropMenuButton> {
               },
               onSelectedItem: (DropMenuItems item) async {
                 switch (item) {
+                  case DropMenuItems.abandonDungeon:
+                    await widget.onAbandonDungeon?.call();
                   case DropMenuItems.save:
                     widget.map?.saveComponentsFrameData();
                     String saveName = GameData.game['saveName'];

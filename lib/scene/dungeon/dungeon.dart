@@ -16,6 +16,7 @@ import '../../ui.dart';
 import '../common.dart';
 import '../cursor_state.dart';
 import '../world/widgets/drop_menu.dart';
+import '../../widgets/dialog/confirm.dart';
 import 'dungeon_controller.dart';
 import 'scavenge.dart';
 
@@ -118,17 +119,28 @@ class DungeonScene extends Scene with HasCursorState {
         },
       );
     }
+    final canReturnCamp = DungeonController.canReturnCamp();
     if (index > 0) {
       _addSiteCard(
         id: 'previous_room',
         title: engine.locale('previousRoom'),
         image: 'previous_room',
-        position: GameUI.siteExitCardPositon,
-        inPile: false,
+        position: canReturnCamp ? null : GameUI.siteExitCardPositon,
+        inPile: canReturnCamp,
         onTap: () async {
           DungeonController.goToRoom(index - 1);
           await _showCurrentRoom();
         },
+      );
+    }
+    if (canReturnCamp) {
+      _addSiteCard(
+        id: 'return_camp',
+        title: engine.locale('returnCamp'),
+        image: 'camp_start',
+        position: GameUI.siteExitCardPositon,
+        inPile: false,
+        onTap: () => _finishRunAndReturn('victory'),
       );
     }
     _siteList.sortCards(animated: false);
@@ -214,6 +226,7 @@ class DungeonScene extends Scene with HasCursorState {
     engine.context.read<HoverContentState>().hide();
     _scavenge = DungeonScavengeComponent(
       candidates: candidates,
+      isPermanent: DungeonController.currentScene?['kind'] == 'boss',
       onSelected: (card) {
         DungeonController.resolveScavenge(selectedCard: card);
         _hideScavenge();
@@ -239,6 +252,35 @@ class DungeonScene extends Scene with HasCursorState {
     engine.context.read<HoverContentState>().hide();
   }
 
+  Future<void> _finishRunAndReturn(String outcome) async {
+    final summary = DungeonController.finishRun(outcome);
+    if (summary == null) return;
+    await engine.popScene(clearCache: true);
+    dialog.pushDialog(
+      'dungeonSettlement_${summary['outcome']}',
+      interpolations: [
+        summary['previousLevel'],
+        summary['level'],
+        summary['removedDungeonCardCount'],
+        summary['removedInventoryItemCount'],
+      ],
+    );
+    await dialog.execute();
+  }
+
+  Future<void> _abandonRun() async {
+    if (!DungeonController.canAbandon()) return;
+    final confirmed = await showDialog<bool?>(
+      context: engine.context,
+      builder: (context) => ConfirmDialog(
+        description: engine.locale('dungeonAbandonConfirm'),
+      ),
+    );
+    if (confirmed == true) {
+      await _finishRunAndReturn('abandon');
+    }
+  }
+
   Future<void> _settleBattleResult() async {
     final result = DungeonController.run['battleResult'];
     if (result == true) {
@@ -248,10 +290,7 @@ class DungeonScene extends Scene with HasCursorState {
       }
       await _showScavenge();
     } else if (result == false) {
-      DungeonController.leaveAfterFailure();
-      dialog.pushDialog('hint_dungeonFailed');
-      await dialog.execute();
-      await engine.popScene(clearCache: true);
+      await _finishRunAndReturn('failure');
     }
   }
 
@@ -302,8 +341,12 @@ class DungeonScene extends Scene with HasCursorState {
           actions: [
             ValueListenableBuilder<bool>(
               valueListenable: _scavengeVisible,
-              builder: (context, visible, _) =>
-                  visible ? const SizedBox.shrink() : DropMenuButton(),
+              builder: (context, visible, _) => visible
+                  ? const SizedBox.shrink()
+                  : DropMenuButton(
+                      onAbandonDungeon:
+                          DungeonController.canAbandon() ? _abandonRun : null,
+                    ),
             ),
           ],
         ),

@@ -1,8 +1,9 @@
 let random
 
 function setRandomSeed([seed: integer]) {
-  game.seed = seed ?? Random().nextInt(1 << 32)
-  random = Random(seed)
+  final actualSeed = seed ?? Random().nextInt(1 << 32)
+  game.seed = actualSeed
+  random = Random(actualSeed)
   return random
 }
 

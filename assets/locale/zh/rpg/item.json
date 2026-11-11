@@ -184,7 +184,7 @@
   "craftmaterial_upgradeRank3": "结丹丹",
   "craftmaterial_upgradeRank4": "还婴丹",
   "craftmaterial_upgradeRank5": "化神丹",
-  "flavortext_craftmaterial_upgradeRank": "用于功法卡牌: 提升境界。\n直接服用: 降低天道技能境界节点突破试炼的难度。",
+  "flavortext_craftmaterial_upgradeRank": "用于功法卡牌: 提升境界。\n角色突破: 在营地突破试炼设施中消耗目标境界对应的丹药。",
 
   "heaven_peeking_mirror": "窥天镜",
   "flavortext_heaven_peeking_mirror": "观星时额外查看 2 张牌；每回合第一次观星后，对自身随机施加 2 种元素异常（各 1 层）。\n窥得越多，心神越乱。",

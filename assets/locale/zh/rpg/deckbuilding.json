@@ -11,9 +11,9 @@
   "deckbuilding_identify_all": "全部翻开",
   "deckbuilding_collect_all": "全部收下",
 
-  "deckbuilding_limit": "最少卡牌数",
+  "deckbuilding_limit": "出战卡组上限",
   "deckbuilding_limit_ephemeral": "消耗卡牌数量",
-  "deckbuilding_limit_hint": "提升境界会增加允许的最少卡牌数，以及消耗卡牌的数量。",
+  "deckbuilding_limit_hint": "提升境界会提高出战卡组数量上限；不足时战斗中由默认卡补位，秘境地牢卡可以突破上限。",
 
   "deckbuilding_requirement_not_met": "不可用",
   "deckbuilding_already_in_battle_deck": "该卡牌已在出战卡组中！",

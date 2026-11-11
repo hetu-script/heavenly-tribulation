@@ -23,6 +23,7 @@ import '../scene/common.dart';
 import '../logic/logic.dart';
 import '../state/game_save.dart';
 import '../scene/world/world.dart';
+import 'game_random.dart';
 import 'prompt.dart';
 import '../state/game_state.dart';
 
@@ -173,7 +174,7 @@ final class GameData with ChangeNotifier {
 
   static Iterable<String> get worldIds => universe?.keys ?? const [];
 
-  static math.Random random = math.Random();
+  static dynamic random = math.Random();
 
   static dynamic getTerrainById(int index, {String? worldId}) {
     worldId ??= world['id'];
@@ -777,6 +778,17 @@ final class GameData with ChangeNotifier {
       'historyData': historyData,
     });
 
+    game = engine.hetu.fetch('game');
+    flags = game['flags'];
+    universe = engine.hetu.fetch('universe');
+    history = engine.hetu.fetch('history');
+    hero = engine.hetu.fetch('hero');
+    random = engine.hetu.fetch('random');
+    final savedRandomState = game['randomState'];
+    if (random is GameRandom && savedRandomState is num) {
+      random.state = savedRandomState.toInt();
+    }
+
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
@@ -801,13 +813,6 @@ final class GameData with ChangeNotifier {
     }
     engine.loadSceneConstructorIds(constructorIds);
     engine.loadSceneArguments(argumentIds);
-
-    game = engine.hetu.fetch('game');
-    flags = game['flags'];
-    universe = engine.hetu.fetch('universe');
-    history = engine.hetu.fetch('history');
-    hero = engine.hetu.fetch('hero');
-    random = engine.hetu.fetch('random');
 
     return sceneIds;
   }

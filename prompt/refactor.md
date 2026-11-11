@@ -48,11 +48,20 @@ UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和
 
 目前御剑的计划文档已经近乎整理完毕，只是尚未实施。而其他三个流派的计划尚处于草案，也未有任何代码实现。
 
-在设计其他流派之前，我们还需要完善悟道的天赋树，并先以悟道这单独一个流派出发。跑通一个地牢秘境玩法的完整循环。
+在设计其他流派之前，我们还需要完善悟道的天赋树，我们打算先以悟道这单独一个流派出发。跑通一个地牢秘境玩法的完整循环。
 
 秘境玩法的计划是： @plan/scene_chain_dungeon.md 
 秘境卡组锁定、卡牌生命周期与永久卡库的相关约定： @plan/dungeon_deck_lock.md
 后续可选的格子房间扩展： @plan/grid_dungeon.md
+
+插画背景、功能卡和 Location 场景外壳： @lib/scene/location/location.dart
+NPC 列表与互动入口: @lib/widgets/npc_list.dart
+游戏创建、保存与读档: @lib/state/game_save.dart @lib/data/game.dart @scripts/main/data/game.ht
+旧六边形地牢的遭遇、敌人、商人和奖励设计参考。 @scripts/main/event/dungeon.ht 
+@scripts/main/world/dungeon.ht
+未来格子地图绘制参考: @lib/scene/mini_game/mouse_maze/mouse_maze.dart
+
+目前这个秘境玩法已经完成了步骤三。
 
 ---
 
@@ -60,7 +69,7 @@ UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和
 
 因为这个项目比较复杂，你当下可以不用深入各个系统的具体实现细节。只是从总体上了解项目的结构和代码、数据、脚本的关系等等。如果你认为有必要深入了解的也可以现在看看。
 
-之后我可能对这整个项目的一些细节，或者设计提问。
+如果你认为我们已经准备好进行步骤四，可以告诉我。
 
 ---
 

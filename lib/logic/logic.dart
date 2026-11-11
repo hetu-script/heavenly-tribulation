@@ -1418,6 +1418,11 @@ final class GameLogic {
           positionalArgs: [itemData],
         );
       case kItemCategoryAffixMaterial:
+        if (itemData['kind'] == 'craftmaterial_upgradeRank') {
+          dialog.pushDialog('hint_upgradeRankOnlyBreakthrough');
+          await dialog.execute();
+          return;
+        }
         engine.play(GameSound.drink);
         switch (itemData['kind']) {
           // TODO: 丹药效果
@@ -1428,26 +1433,7 @@ final class GameLogic {
           case 'craftmaterial_removeAffix':
           case 'craftmaterial_rerollAffix':
             break;
-          case 'craftmaterial_upgradeRank':
-            engine.hetu.invoke('characterSetEphemeralPassive', positionalArgs: [
-              GameData.hero,
-              'decreaseTribulationDifficulty'
-            ]);
-            engine.hetu.invoke('characterCalculateStats',
-                positionalArgs: [GameData.hero]);
         }
-      case 'craftmaterial_upgradeRank':
-        engine.play(GameSound.drink);
-        engine.hetu.invoke(
-          'characterSetEphemeralPassive',
-          positionalArgs: [GameData.hero, 'decreaseTribulationDifficulty'],
-        );
-        engine.hetu
-            .invoke('characterCalculateStats', positionalArgs: [GameData.hero]);
-        engine.hetu.invoke('lose',
-            namespace: 'Player',
-            positionalArgs: [itemData],
-            namedArgs: {'amount': 1});
     }
   }
 

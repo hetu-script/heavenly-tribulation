@@ -114,12 +114,70 @@ function useSceneDungeonRest(room, action) {
 }
 
 function clearSceneDungeonBattleResult() {
-  game.flags.dungeon.battleResult = null
-  game.flags.dungeon.battleRoomIndex = null
+  delete game.flags.dungeon['battleResult']
+  delete game.flags.dungeon['battleRoomIndex']
 }
 
-function leaveSceneDungeonAfterFailure() {
+/// 统一跨轮结算：胜利、失败与主动放弃共用，active 保证幂等。
+/// 返回本次结算摘要；已结算或不存在进行中的秘境时返回 null。
+function settleSceneDungeonRun({outcome}) {
+  assert(outcome == 'victory' || outcome == 'failure' || outcome == 'abandon')
+  final run = game.flags.dungeon
+  if (run == null || run.active != true) return null
+
+  final previousLevel = run.level ?? 0
+  final dungeonCardIds = []
+  for (final card in hero.cardLibrary.values) {
+    if (card.isDungeonCard == true) {
+      dungeonCardIds.add(card.id)
+    }
+  }
+
+  final deckIndex = hero.battleDeckIndex
+  if (deckIndex >= 0 && deckIndex < hero.battleDecks.length) {
+    final cards = hero.battleDecks[deckIndex].cards
+    cards.removeWhere((cardId) => dungeonCardIds.contains(cardId))
+  }
+  for (final cardId in dungeonCardIds) {
+    delete hero.cardLibrary[cardId]
+  }
+
+  var removedInventoryItemCount = 0
+  var clearedMaterialKinds = 0
+  if (outcome != 'victory') {
+    final equippedItemIds = Set()
+    for (final itemId in hero.equipments.values) {
+      if (itemId != null) equippedItemIds.add(itemId)
+    }
+    for (final itemId in hero.inventory.keys.toList()) {
+      if (!equippedItemIds.contains(itemId)) {
+        delete hero.inventory[itemId]
+        removedInventoryItemCount += 1
+      }
+    }
+    clearedMaterialKinds = hero.materials.keys.length
+    hero.materials.clear()
+  }
+
+  if (outcome == 'victory') {
+    final levelMax = run.levelMax ?? run.rank * 2 + 1
+    run.level = Math.min(previousLevel + 1, levelMax)
+  } else {
+    run.level = 0
+  }
+
+  run.rooms.clear()
+  run.currentSceneIndex = 0
   clearSceneDungeonBattleResult()
-  game.flags.dungeon.active = false
-  hero.dungeonId = null
+  run.active = false
+  delete hero['dungeonId']
+
+  return {
+    outcome: outcome,
+    previousLevel: previousLevel,
+    level: run.level,
+    removedDungeonCardCount: dungeonCardIds.length,
+    removedInventoryItemCount: removedInventoryItemCount,
+    clearedMaterialKinds: clearedMaterialKinds,
+  }
 }

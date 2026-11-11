@@ -6,7 +6,7 @@ import '../../global.dart';
 import '../../scene/dungeon/dungeon_controller.dart';
 import '../ui/responsive_view.dart';
 
-enum DungeonStartChoice { start, adjust }
+enum DungeonStartChoice { start, adjust, warehouse }
 
 class DungeonStartDialog extends StatelessWidget {
   const DungeonStartDialog({super.key});
@@ -29,7 +29,7 @@ class DungeonStartDialog extends StatelessWidget {
 
     return ResponsiveView(
       width: 440,
-      height: 310,
+      height: 380,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -49,10 +49,22 @@ class DungeonStartDialog extends StatelessWidget {
                     ? engine.locale('dungeonDefaultFillHint')
                     : engine.locale('dungeonNoAvailableDeck'),
               ),
+              const SizedBox(height: 16),
+              Text(
+                engine.locale('dungeonStartLossWarning'),
+                style: const TextStyle(color: Colors.redAccent),
+              ),
               const Spacer(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  fluent.Button(
+                    onPressed: () => Navigator.pop(
+                      context,
+                      DungeonStartChoice.warehouse,
+                    ),
+                    child: Text(engine.locale('openWarehouse')),
+                  ),
                   fluent.Button(
                     onPressed: () => Navigator.pop(
                       context,

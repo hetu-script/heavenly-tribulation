@@ -128,6 +128,12 @@ class CampScene extends Scene with HasCursorState {
       },
     );
     _addSiteCard(
+      id: 'breakthrough',
+      title: engine.locale('breakthroughTrial'),
+      image: 'camp_breakthrough',
+      onTap: DungeonController.startBreakthroughTrial,
+    );
+    _addSiteCard(
       id: 'warehouse',
       title: engine.locale('storage'),
       spriteId: 'location/card/depositBox.png',
@@ -148,6 +154,8 @@ class CampScene extends Scene with HasCursorState {
             'enableCardCraft': true,
             'enableScrollCraft': true,
           });
+        } else if (choice == DungeonStartChoice.warehouse) {
+          GameLogic.openDepositBox(GameData.hero['warehouse']);
         } else if (choice == DungeonStartChoice.start) {
           DungeonController.startRun();
           await engine.pushScene(

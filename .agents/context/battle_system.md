@@ -132,7 +132,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 分支节点：passives.json5:1076-1104（skilltree*branch*\* 中性 id，设计上可多流派共享）；悟道的 4 个已实现但暂未上树连线。
 - 悟道独占节点：养气诀直接引用 spirituality level 50、静心诀引用 spellAttack level 30、观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40；驭灵与天人合一分别新增 spellcraft_side_5/6 永久状态。六者均尚未上树。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
 - scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
-- 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。境界节点也可退点，但不返还天赋点、不降低角色 rank；重新解锁同境界节点沿用现有 rank 判断，无需再次试炼。旧 characterSetPassive 正负等级接口已移除。
+- 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。普通与境界节点均消耗并返还 1 天赋点；境界节点只通过 `checkRequirements(..., checkRank: true)` 检查现有 rank，不再触发突破试炼，退点不降低角色 rank。旧 characterSetPassive 正负等级接口已移除。
 
 ## 7. 常量同步（Dart ↔ Hetu）
 
@@ -179,3 +179,13 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 新卡插画为 `unique_mutual_assault.png` / `unique_ultimate_life.png`，已登记 `kBattleCardIllustrations` 与 `illustration_` 本地化。
 - 两件中立绝世装备为乾坤戒（rank1，抽牌 -1 换手牌空间、元气产出与付费保留）和无极佩（rank3，每回合首张中立加持牌获得无极，五流派牌加费）。无极状态图标为 `icon/status/permanent/neutral_card_limitless.png`。
 - 绝世卡与绝世装备的数据校验均要求恰好 3 条固定额外词条与 3 条 rank 3/4/5 太古成长，不再允许缺失或以“最多 3 条”兜底。
+
+## 13. 场景链秘境与战斗结算衔接
+
+- 战斗入口与房间状态由 `lib/scene/dungeon/dungeon.dart` 和 `dungeon_controller.dart` 管理。普通敌人与精英胜利后发放一次普通奖励，再从敌人实际出战卡组固定抽取最多三张搜刮候选；选择结果写入 `cardLibrary` 与当前 `battleDecks[battleDeckIndex]`，并标记 `isDungeonCard`。
+- Boss 使用相同的候选持久化与三选一 Component，但 `scavenge.dart` 显示永久功法提示；所选复制卡只进入 `cardLibrary`，不设置 `isDungeonCard`，也不加入本轮出战卡组。Boss 胜利后提供返回营地卡，未完成搜刮不妨碍返回。
+- 秘境之外的永久卡组由 `DeckBuildingZone.tryAddCard` 通过 `PiledZone.isFull` 执行数量上限，秘境地牢卡直接写入当前卡组时可突破上限，不足数量继续由 `BattleScene.getDeck()` 的默认卡补位。
+- `scripts/main/event/scene_dungeon.ht` 的 `settleSceneDungeonRun({outcome})` 统一处理 `victory/failure/abandon`，以 `active` 保证幂等：胜利层级 `min(level+1, levelMax)`，失败与主动放弃层级归零；所有结果从卡库与当前卡组移除地牢卡并清空本轮房间与待结算状态。失败与放弃还删除未装备、未入库的背包物品并清空 `hero.materials`，装备栏 ID 对应的背包本体（含 `isInvalid` 装备）、仓库与永久卡保留。
+- 普通秘境右上角 `DropMenuButton` 通过可选 `onAbandonDungeon` 在保存游戏前提供主动放弃，Boss 已胜利时不再提供失败式放弃。胜利、失败和放弃均在实际结算并 `popScene()` 返回营地后显示结果对话框；开始秘境确认框提前提示随身物品、铜钱和灵石的损失规则，并可打开仓库或调整卡组。
+- 营地突破设施由 `DungeonController.startBreakthroughTrial()` 处理：要求 `hero.level >= minLevelForRank(hero.rank + 1)` 且随身背包存在同目标 rank 的 `craftmaterial_upgradeRank`，分别用游戏对话框提示缺项；确认后消耗 1 颗并复用 `GameLogic.showTribulation()`。失败无其他惩罚，成功后通过 `Player.rankUp()` 提升境界，不同步解锁天赋节点，并同步 dungeon rank、level=0、levelMax。
+- 普通营地与秘境保存场景栈和完整房间实例；`lib/data/game_random.dart` 提供与既有 Random API 对齐的可序列化随机数生成器，保存时写入 `game.randomState`，读档时按 seed 重建并恢复内部状态。
