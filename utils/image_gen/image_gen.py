@@ -60,7 +60,7 @@ GEMINI_IMAGE_SIZE = "1K"
 # ---- GPT 后端配置 ----
 GPT_GEN_URL = "https://img-api.apinebula.ai/v1/images/generations"
 GPT_EDIT_URL = "https://img-api.apinebula.ai/v1/images/edits"
-GPT_MODEL = "gpt-image-2.5"
+GPT_MODEL = "gpt-image-2.6"
 GPT_SIZE = "1024x1024"
 GPT_GEN_QUALITY = "medium"  # low / medium / high
 GPT_EDIT_QUALITY = "high"

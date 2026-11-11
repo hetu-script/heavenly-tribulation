@@ -187,5 +187,6 @@
   "passive_spellcraft_side_5_description": "回合开始时，双方分别随机获得 1 层元素异常",
   "passive_spellcraft_side_6_description": "上回合使用过至少 3 种不同元素的牌时，本次产出阶段获得 2 点灵气",
   "passive_scry_shield_description": "每回合第一次观星后，获得 {0} 层护盾",
-  "passive_scry_mana_description": "每回合第一次观星后，获得 {0} 点灵气"
+  "passive_scry_mana_description": "每回合第一次观星后，获得 {0} 点灵气",
+  "passive_scry_all_damage_description": "每回合第一次观星后，获得 {0} 层无极之气"
 }

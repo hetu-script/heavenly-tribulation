@@ -21,6 +21,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由 GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
 - 观星 scry：中央展示牌库顶 N 张（缺省 3 张，合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
+- 永久状态显示分组：状态数据以 displayGroup 声明 scry / kind_damage / elemental_resist / attack_type 四组；BattleCharacter 保留全部逻辑状态和原回调遍历，StatusEffectGroup 只合并场景图标并在悬停时实时列出成员。组成员全部移除或清空状态时销毁分组组件，不合计异质层数。
 - 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
 
@@ -56,7 +57,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {script}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn_start / turn_end / doing_damage / taking_damage / done_damage / taken_damage / gained_debuff / gained_energy_positive / using_card / used_card / attacked / buffed，以及 self_scry、self_produce_resources（产出阶段，如太上感应）等；以 Dart 实际分发点为准。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、无极、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。scry_all_damage 的被动、脚本、图标与测试已完成，尚未分配到技能树。
 - 状态数据在 assets/data/status*effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status*{id} + status\_{id}\_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）

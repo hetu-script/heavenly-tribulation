@@ -52,6 +52,7 @@ spellcraft_rank_3: {
 ```
 
 - `icon` 路径相对 `assets/images/`；永久状态图标固定放 `icon/status/permanent/` 子目录。
+  有合法 `displayGroup` 的成员省略 `icon`，统一使用分组配置图标；未分组状态必须提供 `icon`。
 - 常用标记：`isPermanent`（永久）/ `isOngoing`（限回合）/ `isUnique`（唯一）/ `isResource`（资源气）。
 
 ## 2. 状态脚本（status_script.ht）
@@ -124,7 +125,9 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 - 行为型效果（战斗中反复触发）→ 被动携带 `battleStatus` 字段，战斗开始授予永久状态，行为在 `status_script.ht` 实现；状态数据可携带自定义参数字段（如 `damageType`、`damagePerCard`）。其他通用机制字段：`deckCostReduction`（组牌费用）、`shuffleIntoDeck`（洗入牌库）、`turnStartScry`（回合开始观星）、`energyRetain`（资源保留），契约见 `docs/docs/mod/battle/readme.md`。
 - 参数型效果（观星深度、费用修正、资源保留等）与纯属性/单值修改（攻防、抗性、伤害增加等）→ 非状态，由 Dart 机制读取 stats/被动字段；纯属性走 stats 聚合管线（`kStatsToPermanentEffects` 图标仅展示净值，无回调）。
 - 状态脚本必须**非阻塞、不可交互**（不调用返回 Future 的 API）
-- 永久状态默认可见：图标 + tooltip 是效果解释渠道。
+- 永久状态默认可见：图标 + tooltip 是效果解释渠道。同类状态可在 `status_effect.json5` 声明
+  `displayGroup` 合并显示；分组只影响图标与悬停明细，不合并逻辑状态。现有分组与 UI 配置见
+  `lib/scene/battle/status_effect_group.dart`，新增分组时同步本地化、图标、校验器和 MOD 契约。
 
 ## 8. 验证（必做）
 

@@ -12,6 +12,7 @@ import 'battledeck_zone.dart';
 import '../../ui.dart';
 // import '../../logic/logic.dart';
 import 'status_effect.dart';
+import 'status_effect_group.dart';
 import 'common.dart';
 import 'card_cost.dart';
 import 'battle.dart';
@@ -147,6 +148,23 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final list =
         _statusEffects.values.where((element) => element.isPermanent).toList();
     list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
+  }
+
+  final Map<String, StatusEffectGroup> _permanentEffectGroups = {};
+
+  List<BorderComponent> get permanentDisplayEffects {
+    final list = <BorderComponent>[
+      for (final effect in permanentEffects)
+        if (effect.displayGroup == null ||
+            !_permanentEffectGroups.containsKey(effect.displayGroup))
+          effect,
+      ..._permanentEffectGroups.values,
+    ];
+    int priorityOf(BorderComponent item) => item is StatusEffect
+        ? item.effectPriority
+        : (item as StatusEffectGroup).effectPriority;
+    list.sort((a, b) => priorityOf(b).compareTo(priorityOf(a)));
     return list;
   }
 
@@ -388,8 +406,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   void reArrangePermanentEffects() {
     final iconStep =
         GameUI.permanentStatusEffectIconSize.x + GameUI.smallIndent;
-    for (var i = 0; i < permanentEffects.length; ++i) {
-      final effect = permanentEffects.elementAt(i);
+    final displayEffects = permanentDisplayEffects;
+    for (var i = 0; i < displayEffects.length; ++i) {
+      final effect = displayEffects[i];
       if (isHero) {
         effect.position = Vector2(
           GameUI.p1PermanentStatusPosition.x + i * iconStep,
@@ -408,8 +427,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     for (final effect in _statusEffects.values) {
       effect.removeFromParent();
     }
+    for (final group in _permanentEffectGroups.values) {
+      group.removeFromParent();
+    }
 
     _statusEffects.clear();
+    _permanentEffectGroups.clear();
 
     // 资源气行同步清空
     (game as BattleScene).refreshQiDisplay(isHero);
@@ -462,6 +485,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         if (existEffect.amount <= 0) {
           _statusEffects.remove(existEffect.id);
           existEffect.removeFromParent();
+          final groupId = existEffect.displayGroup;
+          final group = _permanentEffectGroups[groupId];
+          if (group != null) {
+            group.removeEffect(existEffect);
+            if (group.isEmpty) {
+              _permanentEffectGroups.remove(groupId);
+              group.removeFromParent();
+            }
+          }
         }
 
         if (existEffect.isPermanent) {
@@ -630,12 +662,31 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 资源气不再以状态图标显示，由 EnergyDisplay 资源气行统一呈现
       (game as BattleScene).refreshQiDisplay(isHero);
     } else if (isNewlyAdded && !effect.isHidden) {
-      game.world.add(effect);
-
-      if (effect.isPermanent) {
+      final groupId = effect.displayGroup;
+      final groupConfig = effect.isPermanent && groupId != null
+          ? kStatusDisplayGroups[groupId]
+          : null;
+      if (groupId != null && groupConfig != null) {
+        var group = _permanentEffectGroups[groupId];
+        if (group == null) {
+          group = StatusEffectGroup(
+            config: groupConfig,
+            effect: effect,
+            anchor: isHero ? Anchor.topLeft : Anchor.topRight,
+          );
+          _permanentEffectGroups[groupId] = group;
+          game.world.add(group);
+        } else {
+          group.addEffect(effect);
+        }
         reArrangePermanentEffects();
       } else {
-        reArrangeOtherEffects();
+        game.world.add(effect);
+        if (effect.isPermanent) {
+          reArrangePermanentEffects();
+        } else {
+          reArrangeOtherEffects();
+        }
       }
     }
 

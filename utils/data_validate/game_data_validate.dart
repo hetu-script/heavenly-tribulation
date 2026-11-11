@@ -62,6 +62,14 @@ const kFilterKeys = {'category', 'genre', 'cardType', 'kind', 'elementType'};
 
 const kAnimationKeys = {'startup', 'recovery', 'actions', 'overlays', 'sound'};
 
+/// 永久状态的纯显示分组；成员归属在 status_effect.json5 中声明
+const kStatusDisplayGroupIds = {
+  'scry',
+  'kind_damage',
+  'elemental_resist',
+  'attack_type',
+};
+
 /// 脚本必需的数据字段（缺失会在运行时报错或静默失效）
 const kScriptRequiredFields = {
   'self_buff': ['buffId'],
@@ -1248,10 +1256,12 @@ void validateItems(Map<String, dynamic> items) {
         if (attribute is! String || !kBattleAttributes.contains(attribute)) {
           err('装备要求属性未知', '$ctx.attributeRequirement.attribute');
         }
-        checkNumber(requirementOverride['base'], '$ctx.attributeRequirement.base',
+        checkNumber(
+            requirementOverride['base'], '$ctx.attributeRequirement.base',
             min: 0);
-        checkNumber(requirementOverride['factor'],
-            '$ctx.attributeRequirement.factor', min: 0);
+        checkNumber(
+            requirementOverride['factor'], '$ctx.attributeRequirement.factor',
+            min: 0);
       }
     }
 
@@ -1336,11 +1346,23 @@ void validateStatusEffects(Map<String, dynamic> effects) {
     checkLocaleKey(data['title'], '$ctx.title');
     checkLocaleKey(data['description'], '$ctx.description');
 
-    // 文件头注释约定：所有状态都必定有图标
-    if (data['icon'] == null) {
-      err('状态缺 icon', ctx);
+    final displayGroup = data['displayGroup'];
+    if (displayGroup != null) {
+      if (displayGroup is! String ||
+          !kStatusDisplayGroupIds.contains(displayGroup)) {
+        err('状态显示分组未知', '$ctx.displayGroup: $displayGroup');
+      }
+      if (data['isPermanent'] != true) {
+        err('显示分组仅用于永久状态', '$ctx.displayGroup');
+      }
+    }
+
+    // 分组成员使用分组配置的统一图标；其他状态必须自行提供图标
+    final icon = data['icon'];
+    if (icon == null) {
+      if (displayGroup == null) err('未分组状态缺 icon', ctx);
     } else {
-      checkImageFile(data['icon'], '$ctx.icon');
+      checkImageFile(icon, '$ctx.icon');
     }
 
     checkEnum(data['cardType'], kCardTypes, '$ctx.cardType');

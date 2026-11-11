@@ -522,6 +522,128 @@ void main() {
     expect(chosen['level'], 2);
   });
 
+  test('观星无极按普通、太古与混合来源结算，每回合只触发一次', () {
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final statuses = Map<String, dynamic>.from(
+        loadJson5File('assets/data/status_effect.json5'));
+
+    dynamic run(String mode) {
+      final hetu = createHetu();
+      hetu.eval(
+          'var scryAllDamage; var scryAllDamageGreater; var statusPrototype; var mode;');
+      hetu.assign('scryAllDamage', passives['scry_all_damage']);
+      final greater =
+          Map<String, dynamic>.from(passives['scry_all_damage'] as Map);
+      greater['isGreater'] = true;
+      hetu.assign('scryAllDamageGreater', greater);
+      hetu.assign('statusPrototype', statuses['scry_all_damage']);
+      hetu.assign('mode', mode);
+      initializeCharacter(hetu);
+      addNeutralStats(hetu);
+      return hetu.eval('''
+        ${File('scripts/main/cardgame/status_script.ht').readAsStringSync()}
+        if (mode == 'normal' || mode == 'mixed') {
+          characterAddPassiveSource(character, _createPassiveSource(scryAllDamage,
+            sourceKey: 'equipment:normal:1', sourceType: 'equipment', sourceId: 'normal'))
+        }
+        if (mode == 'greater' || mode == 'mixed') {
+          characterAddPassiveSource(character, _createPassiveSource(scryAllDamageGreater,
+            sourceKey: 'equipment:greater:1', sourceType: 'equipment', sourceId: 'greater'))
+        }
+        characterCalculateStats(character)
+        final modifier = character.stats.battleStatusParams?['scry_all_damage']?['statusAmount'] ?? 0
+        final effect = {
+          buffId: statusPrototype.buffId,
+          statusAmount: statusPrototype.statusAmount + modifier,
+        }
+        final self = {
+          turnCount: 1,
+          gains: [],
+          addStatusEffect: function(id, {amount}) {
+            this.gains.add([id, amount])
+          },
+        }
+        StatusScript.scry_all_damage_self_scry(self, null, effect, {})
+        StatusScript.scry_all_damage_self_scry(self, null, effect, {})
+        self.turnCount = 2
+        StatusScript.scry_all_damage_self_scry(self, null, effect, {})
+        {
+          modifier: modifier,
+          gains: self.gains,
+          statusCount: character.stats.battleStatus.scry_all_damage,
+        }
+      ''', namedArgs: {'mode': mode});
+    }
+
+    final normal = run('normal');
+    expect(normal['modifier'], 0);
+    expect(normal['gains'], [
+      ['buff_all_damage', 1],
+      ['buff_all_damage', 1],
+    ]);
+    expect(normal['statusCount'], 1);
+
+    final greater = run('greater');
+    expect(greater['modifier'], 1);
+    expect(greater['gains'], [
+      ['buff_all_damage', 2],
+      ['buff_all_damage', 2],
+    ]);
+
+    final mixed = run('mixed');
+    expect(mixed['modifier'], 1);
+    expect(mixed['gains'], [
+      ['buff_all_damage', 2],
+      ['buff_all_damage', 2],
+    ]);
+    expect(mixed['statusCount'], 1);
+  });
+
+  test('观星无极使用聚合后的状态参数生成描述', () {
+    engine.loadLocaleDataFromJSON({
+      'zh': {
+        'languageId': 'zh',
+        'passive_scry_all_damage_description': '每回合第一次观星后，获得 {0} 层无极之气',
+      }
+    });
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final statuses = Map<String, dynamic>.from(
+        loadJson5File('assets/data/status_effect.json5'));
+    GameData.passives['scry_all_damage'] = passives['scry_all_damage'];
+    GameData.statusEffects['scry_all_damage'] = statuses['scry_all_damage'];
+    try {
+      final description = GameData.getPassivesDescription(character: {
+        'passives': {
+          'scry_all_damage': {
+            'id': 'scry_all_damage',
+            'description': 'passive_scry_all_damage_description',
+            'priority': 1,
+            'value': null,
+          },
+        },
+        'passivesRaw': {
+          'scry_all_damage': {
+            'equipment:normal:1': {'battleStatus': 'scry_all_damage'},
+            'equipment:greater:1': {'battleStatus': 'scry_all_damage'},
+          },
+        },
+        'ephemeralPassives': <String, dynamic>{},
+        'ephemeralPassivesRaw': <String, dynamic>{},
+        'stats': {
+          'battleStatusParams': {
+            'scry_all_damage': {'statusAmount': 1}
+          }
+        },
+      });
+      expect(description, contains('获得 2 层无极之气'));
+    } finally {
+      GameData.passives.remove('scry_all_damage');
+      GameData.statusEffects.remove('scry_all_damage');
+    }
+  });
+
   test('驭灵分别施加异常，天人合一只在跨回合达标后产灵一次', () {
     final statuses = Map<String, dynamic>.from(
         loadJson5File('assets/data/status_effect.json5'));

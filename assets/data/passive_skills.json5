@@ -1291,13 +1291,8 @@
     isAttribute: true,
   },
   track_8_12: {
-    size: "small",
-    connectedNodes: ["track_9_12"],
-    isAttribute: true,
-  },
-  track_7_12: {
     size: "medium",
-    connectedNodes: ["track_8_12"],
+    connectedNodes: ["track_9_12"],
     icon: "cultivation/skill/spellEnergy_selected.png",
     unselectedIcon: "cultivation/skill/spellEnergy_unselected.png",
     title: "passiveskill_key_branch_draw_1",
@@ -1307,9 +1302,14 @@
       },
     ],
   },
+  track_7_12: {
+    size: "medium",
+    connectedNodes: [],
+    isAttribute: true,
+  },
   track_6_12: {
     size: "small",
-    connectedNodes: ["track_7_11", "track_7_13"],
+    connectedNodes: ["track_7_11", "track_7_12", "track_7_13"],
     isAttribute: true,
   },
   track_5_12: {

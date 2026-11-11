@@ -518,6 +518,13 @@ namespace StatusScript {
     self.addStatusEffect('buff_shield', amount: effect.shieldAmount ?? 1)
   }
 
+  /// 观星无极：每回合第一次观星后获得无极之气，层数由被动来源参数决定
+  function scry_all_damage_self_scry(self, opponent, effect, details) {
+    if (effect.lastScryAllDamageTurn == self.turnCount) return
+    effect.lastScryAllDamageTurn = self.turnCount
+    self.addStatusEffect(effect.buffId, amount: effect.statusAmount ?? 1)
+  }
+
   function scry_mana_self_scry(self, opponent, effect, details) {
     if (effect.lastScryManaTurn == self.turnCount) return
     effect.lastScryManaTurn = self.turnCount

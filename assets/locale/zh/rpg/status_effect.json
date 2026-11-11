@@ -201,10 +201,20 @@
   "status_scry_shield_description": "每回合第一次观星后，获得 1 层护盾。",
   "status_scry_mana": "观星产灵",
   "status_scry_mana_description": "每回合第一次观星后，获得 1 点灵气。",
+  "status_scry_all_damage": "观星无极",
+  "status_scry_all_damage_description": "每回合第一次观星后，获得无极之气。",
   "status_turn_start_spell_mana_1": "灵气细流",
   "status_turn_start_spell_mana_1_description": "回合产出阶段，获得 1 点灵气。",
   "status_mana_threshold_guard": "聚气成势",
   "status_mana_threshold_guard_description": "灵气不少于 5 点时，受到的伤害 -20%（独立乘区）。",
   "status_neutral_card_limitless": "无极共鸣",
-  "status_neutral_card_limitless_description": "每回合首张实际打出的中立加持牌使你获得 1 层无极之气；流派牌与中立攻击牌不会消耗此次机会。"
+  "status_neutral_card_limitless_description": "每回合首张实际打出的中立加持牌使你获得 1 层无极之气；流派牌与中立攻击牌不会消耗此次机会。",
+  "status_display_group_scry": "观星",
+  "status_display_group_scry_description": "当前拥有的观星相关效果如下。各效果仍按自身规则结算。",
+  "status_display_group_kind_damage": "套路增伤",
+  "status_display_group_kind_damage_description": "每层使对应套路的伤害提高 1%。当前拥有的套路加成如下。",
+  "status_display_group_elemental_resist": "元素抗性",
+  "status_display_group_elemental_resist_description": "抗性减少对应元素伤害，弱点则加深对应元素伤害。当前效果如下。",
+  "status_display_group_attack_type": "类型攻击",
+  "status_display_group_attack_type_description": "每层使对应卡牌类型的攻击伤害提高或降低 1%。当前效果如下。"
 }

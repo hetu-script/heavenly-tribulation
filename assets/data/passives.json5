@@ -1529,6 +1529,17 @@
       data: { statusParams: { upgradeChosen: 1 } },
     },
   },
+  // 观星无极：每回合第一次观星后获得无极之气，太古增加 1 层
+  scry_all_damage: {
+    id: "scry_all_damage",
+    description: "passive_scry_all_damage_description",
+    descriptionParams: ["battleStatus.statusAmount"],
+    priority: 3480,
+    battleStatus: "scry_all_damage",
+    greater: {
+      data: { statusParams: { statusAmount: 1 } },
+    },
+  },
   spell_mana_trickle: {
     id: "spell_mana_trickle",
     description: "passive_spell_mana_trickle_description",

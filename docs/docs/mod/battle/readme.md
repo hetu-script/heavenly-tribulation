@@ -55,6 +55,17 @@
   [卡牌词条回调](card/readme.md)（`docs/docs/mod/battle/card/readme.md`）。
 - `details` 是一个共享 Map，**既是入参也是出参**：脚本写入的修正值会被 Dart 侧读取。
 
+### 永久状态显示分组
+
+`status_effect.json5` 的永久状态可用可选 `displayGroup` 声明纯显示分组。同组状态仍分别保存在
+`BattleCharacter._statusEffects` 中并独立执行回调，只在屏幕上合并为一个图标；悬停时按当前成员生成明细。
+该字段不改变状态层数、参数聚合、互斥、执行顺序或每回合触发次数。
+
+当前分组为 `scry`、`kind_damage`、`elemental_resist`、`attack_type`。新增分组时同步
+`lib/scene/battle/status_effect_group.dart` 的 UI 配置、分组名称/说明本地化、图标与数据校验器；
+新增成员只需在状态数据中声明已有分组 ID，成员自身省略 `icon`；未分组状态仍必须提供 `icon`。
+分组图标不显示异质成员的层数总和。
+
 ## 回调时机清单
 
 | 时机                                                       | 说明                                                                                  |

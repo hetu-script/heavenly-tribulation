@@ -63,6 +63,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   bool get isPermanent => data['isPermanent'] ?? false;
   bool get isOngoing => data['isOngoing'] ?? false;
   bool get isUnique => data['isUnique'] ?? false;
+  String? get displayGroup => data['displayGroup'];
   int get effectPriority => data['priority'] ?? 0;
   List get callbacks => data['callbacks'] ?? [];
 
@@ -121,6 +122,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   @override
   void render(Canvas canvas) {
+    if (spriteId == null) return;
     if (isNegativeResourceQi(id)) {
       // 资源阴气：以对应阳气的反色版本显示（阴阳净值 UI）
       _invertPaint ??= Paint()
