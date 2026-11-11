@@ -26,6 +26,7 @@ enum MenuStates {
   editor,
   game,
   miniGame,
+  miniGameDifficulty,
 }
 
 class MainMenuWidgets extends StatefulWidget {
@@ -41,6 +42,7 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
   // dynamic _heroData;
 
   MenuStates _state = MenuStates.main;
+  String? _selectedMiniGameSceneId;
   void setMenuState(MenuStates state) {
     setState(() {
       _state = state;
@@ -310,47 +312,9 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                       Padding(
                         padding: const EdgeInsets.only(top: 20.0),
                         child: fluent.Button(
-                          onPressed: () async {
-                            final difficulty = await showDialog<String>(
-                              context: context,
-                              builder: (context) => fluent.ContentDialog(
-                                title: Text(engine.locale(entry.value)),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    for (final diff
-                                        in MiniGameDifficulty.values)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 8.0),
-                                        child: fluent.Button(
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(diff.name);
-                                          },
-                                          child: Label(
-                                            engine.locale(diff.name),
-                                            width: 150.0,
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                actions: [
-                                  fluent.Button(
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(),
-                                    child: Text(engine.locale('goBack')),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (difficulty == null) return;
-                            engine.pushScene(
-                              entry.key,
-                              arguments: {'difficulty': difficulty},
-                            );
+                          onPressed: () {
+                            _selectedMiniGameSceneId = entry.key;
+                            setMenuState(MenuStates.miniGameDifficulty);
                           },
                           child: Label(
                             engine.locale(entry.value),
@@ -365,6 +329,45 @@ class _MainMenuWidgetsState extends State<MainMenuWidgets> {
                       child: fluent.Button(
                         onPressed: () {
                           setMenuState(MenuStates.game);
+                        },
+                        child: Label(
+                          engine.locale('goBack'),
+                          width: 150.0,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ],
+                MenuStates.miniGameDifficulty => [
+                    for (final difficulty in MiniGameDifficulty.values)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20.0),
+                        child: fluent.Button(
+                          onPressed: () {
+                            final sceneId = _selectedMiniGameSceneId;
+                            if (sceneId == null) {
+                              setMenuState(MenuStates.miniGame);
+                              return;
+                            }
+                            setMenuState(MenuStates.miniGame);
+                            engine.pushScene(
+                              sceneId,
+                              arguments: {'difficulty': difficulty.name},
+                            );
+                          },
+                          child: Label(
+                            engine.locale(difficulty.name),
+                            width: 150.0,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: fluent.Button(
+                        onPressed: () {
+                          setMenuState(MenuStates.miniGame);
                         },
                         child: Label(
                           engine.locale('goBack'),

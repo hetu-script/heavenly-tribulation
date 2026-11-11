@@ -103,8 +103,6 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     // final money = (hero?['materials']['money'] ?? 0).toString();
     // final shard = (hero?['materials']['shard'] ?? 0).toString();
 
-    final hoverContent = context.watch<HoverContentState>().content;
-
     final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
     final battleBackground = context.watch<EnemyState>().background;
@@ -736,11 +734,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               selectionButtonStyle: FluentButtonStyles.slim,
               selectionTextStyle: TextStyles.bodyLarge,
             ),
-            if (hoverContent != null)
-              HoverInfo(
-                hoverContent,
-                backgroundColor: GameUI.backgroundColor2,
-              ),
+            HoverInfo.fromState(
+              backgroundColor: GameUI.backgroundColor2,
+            ),
           ],
         ),
       ),
