@@ -682,7 +682,12 @@ struct Character {
       tongmenIds: [],
     }
 
-    // this.titleId = null
+    this.warehouse = {
+      id: 'hero_warehouse',
+      name: engine.locale('storage'),
+      inventory: {},
+      materials: {},
+    }
     
     /// 每个角色的家是一个单例对象。
     /// 尽管角色可以在多个地点拥有家，但指向的都是同一个场景

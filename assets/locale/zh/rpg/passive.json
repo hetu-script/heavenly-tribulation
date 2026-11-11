@@ -68,11 +68,11 @@
   "passive_increase_damage_sigil_description": "印法伤害 {0}%",
   "passive_increase_damage_power_word_description": "真言术伤害 {0}%",
 
-  "passive_all_attack_description": "所有攻击 {0}",
-  "passive_unarmed_attack_description": "徒手攻击 {0}",
-  "passive_weapon_attack_description": "武器攻击力 {0}%",
-  "passive_spell_attack_description": "法术攻击 {0}",
-  "passive_curse_attack_description": "咒术攻击 {0}",
+  "passive_all_attack_description": "所有攻击 {0}%",
+  "passive_unarmed_attack_description": "徒手攻击 {0}%",
+  "passive_weapon_attack_description": "武器攻击 {0}%",
+  "passive_spell_attack_description": "法术攻击 {0}%",
+  "passive_curse_attack_description": "咒术攻击 {0}%",
 
   "passive_elemental_resist_description": "所有抗性 {0}%",
   "passive_fire_resist_description": "火焰抗性 {0}%",

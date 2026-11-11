@@ -526,23 +526,7 @@ final class GameData with ChangeNotifier {
         assert(
             passivesData is List, 'passiveTreeNodeData: $passiveTreeNodeData');
         for (final passiveData in passivesData) {
-          final String dataId = passiveData['id'];
-          String? description = passiveData['description'];
-          if (description == null) {
-            final passiveRawData = GameData.passives[dataId];
-            assert(passiveRawData != null, 'passiveData: $passiveData');
-            description = engine.locale(passiveRawData['description']);
-            if (passiveRawData['increment'] != null) {
-              final int level = passiveData['level'];
-              final int value = GameLogic.calculatePassiveAffixValue(
-                  passiveRawData,
-                  level: level);
-              description =
-                  description.interpolate(['${value < 0 ? '' : '+'}$value']);
-            }
-          } else {
-            description = engine.locale(description);
-          }
+          final description = getPassiveTreeAffixDescription(passiveData);
           nodeDescription.writeln('<lightBlue>$description</>');
         }
       }
@@ -1200,6 +1184,29 @@ final class GameData with ChangeNotifier {
     desc.writeln(ephemeralPassivesDescription);
 
     return desc.toString();
+  }
+
+  static String getPassiveTreeAffixDescription(dynamic passiveData) {
+    final String dataId = passiveData['id'];
+    final customDescription = passiveData['description'];
+    if (customDescription != null) return engine.locale(customDescription);
+
+    final passiveRawData = passives[dataId];
+    assert(passiveRawData != null, 'passiveData: $passiveData');
+    if (passiveRawData['descriptionParams'] is List) {
+      return getPassiveAffixDescription(passiveRawData);
+    }
+
+    String description = engine.locale(passiveRawData['description']);
+    if (passiveRawData['increment'] != null) {
+      final int level = passiveData['level'];
+      final int value = GameLogic.calculatePassiveAffixValue(
+        passiveRawData,
+        level: level,
+      );
+      description = description.interpolate(['${value < 0 ? '' : '+'}$value']);
+    }
+    return description;
   }
 
   static String getPassiveAffixDescription(dynamic affix) {
