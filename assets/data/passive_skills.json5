@@ -7,15 +7,6 @@
   /// 节点 id 的命名规则:
   /// track_{轨道位置编号}_{圆弧位置编号}
 
-  // icon: "cultivation/skill/more/spellEnergy_selected.png",
-  // unselectedIcon: "cultivation/skill/more/spellEnergy_unselected.png",
-  // passives: [
-  //   {
-  //     id: "willpower",
-  //     level: 40,
-  //   },
-  // ],
-
   // 御剑流派主轴
   track_0_0: {
     size: "small",
@@ -66,7 +57,6 @@
       //   id: "swordcraft_rank_1",
       // },
     ],
-    level: 10,
     rank: 1,
   },
   track_4_0: {
@@ -117,7 +107,6 @@
       //   id: "swordcraft_rank_2",
       // },
     ],
-    level: 20,
     rank: 2,
   },
   track_8_0: {
@@ -168,7 +157,6 @@
       //   id: "swordcraft_rank_3",
       // },
     ],
-    level: 30,
     rank: 3,
   },
   track_12_0: {
@@ -219,7 +207,6 @@
       //   id: "swordcraft_rank_4",
       // },
     ],
-    level: 40,
     rank: 4,
   },
   track_16_0: {
@@ -270,7 +257,6 @@
       //   id: "swordcraft_rank_5",
       // },
     ],
-    level: 50,
     rank: 5,
   },
 
@@ -679,7 +665,6 @@
         id: "spellcraft_rank_1",
       },
     ],
-    level: 10,
     rank: 1,
   },
   track_4_4: {
@@ -730,7 +715,6 @@
         id: "spellcraft_rank_2",
       },
     ],
-    level: 20,
     rank: 2,
   },
   track_8_8: {
@@ -781,7 +765,6 @@
         id: "spellcraft_rank_3",
       },
     ],
-    level: 30,
     rank: 3,
   },
   track_12_8: {
@@ -832,7 +815,6 @@
         id: "spellcraft_rank_4",
       },
     ],
-    level: 40,
     rank: 4,
   },
   track_16_8: {
@@ -883,7 +865,6 @@
         id: "spellcraft_rank_5",
       },
     ],
-    level: 50,
     rank: 5,
   },
 
@@ -916,27 +897,62 @@
   track_7_6: {
     size: "small",
     connectedNodes: ["track_6_7"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 10,
+      },
+    ],
   },
   track_6_5: {
     size: "small",
     connectedNodes: ["track_7_6"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 10,
+      },
+    ],
   },
   track_5_5: {
     size: "small",
     connectedNodes: ["track_6_5"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 10,
+      },
+    ],
   },
   track_5_6: {
     size: "small",
     connectedNodes: ["track_5_5"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 10,
+      },
+    ],
   },
   track_6_6: {
     size: "medium",
     connectedNodes: ["track_5_6"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spirituality",
+        level: 30,
+      },
+    ],
   },
 
   // 悟道右侧分支1
@@ -968,27 +984,62 @@
   track_7_10: {
     size: "small",
     connectedNodes: ["track_6_11"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 10,
+      },
+    ],
   },
   track_6_9: {
     size: "small",
     connectedNodes: ["track_7_10"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 10,
+      },
+    ],
   },
   track_5_9: {
     size: "small",
     connectedNodes: ["track_6_9"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 10,
+      },
+    ],
   },
   track_5_10: {
     size: "small",
     connectedNodes: ["track_5_9"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 10,
+      },
+    ],
   },
   track_6_10: {
     size: "medium",
     connectedNodes: ["track_5_10"],
-    isAttribute: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "spellAttack",
+        level: 30,
+      },
+    ],
   },
 
   // 悟道左侧分支2
@@ -1525,7 +1576,6 @@
       //   id: "vitality_rank_1",
       // },
     ],
-    level: 10,
     rank: 1,
   },
   track_4_8: {
@@ -1576,7 +1626,6 @@
       //   id: "vitality_rank_2",
       // },
     ],
-    level: 20,
     rank: 2,
   },
   track_8_16: {
@@ -1627,7 +1676,6 @@
       //   id: "vitality_rank_3",
       // },
     ],
-    level: 30,
     rank: 3,
   },
   track_12_16: {
@@ -1678,7 +1726,6 @@
       //   id: "vitality_rank_4",
       // },
     ],
-    level: 40,
     rank: 4,
   },
   track_16_16: {
@@ -1729,7 +1776,6 @@
       //   id: "vitality_rank_5",
       // },
     ],
-    level: 50,
     rank: 5,
   },
 
@@ -1936,7 +1982,6 @@
     title: "passiveskill_avatar_rank_1",
     comment: "passiveskill_avatar_rank_1_comment",
     passives: [],
-    level: 10,
     rank: 1,
   },
   track_4_12: {
@@ -1983,7 +2028,6 @@
     title: "passiveskill_avatar_rank_2",
     comment: "passiveskill_avatar_rank_2_comment",
     passives: [],
-    level: 20,
     rank: 2,
   },
   track_8_24: {
@@ -2030,7 +2074,6 @@
     title: "passiveskill_avatar_rank_3",
     comment: "passiveskill_avatar_rank_3_comment",
     passives: [],
-    level: 30,
     rank: 3,
   },
   track_12_24: {
@@ -2077,7 +2120,6 @@
     title: "passiveskill_avatar_rank_4",
     comment: "passiveskill_avatar_rank_4_comment",
     passives: [],
-    level: 40,
     rank: 4,
   },
   track_16_24: {
@@ -2124,7 +2166,6 @@
     title: "passiveskill_avatar_rank_5",
     comment: "passiveskill_avatar_rank_5_comment",
     passives: [],
-    level: 50,
     rank: 5,
   },
 
@@ -2278,7 +2319,6 @@
     title: "passiveskill_bodyforge_rank_1",
     comment: "passiveskill_bodyforge_rank_1_comment",
     passives: [],
-    level: 10,
     rank: 1,
   },
   track_4_16: {
@@ -2325,7 +2365,6 @@
     title: "passiveskill_bodyforge_rank_2",
     comment: "passiveskill_bodyforge_rank_2_comment",
     passives: [],
-    level: 20,
     rank: 2,
   },
   track_8_32: {
@@ -2372,7 +2411,6 @@
     title: "passiveskill_bodyforge_rank_3",
     comment: "passiveskill_bodyforge_rank_3_comment",
     passives: [],
-    level: 30,
     rank: 3,
   },
   track_12_32: {
@@ -2419,7 +2457,6 @@
     title: "passiveskill_bodyforge_rank_4",
     comment: "passiveskill_bodyforge_rank_4_comment",
     passives: [],
-    level: 40,
     rank: 4,
   },
   track_16_32: {
@@ -2466,7 +2503,6 @@
     title: "passiveskill_bodyforge_rank_5",
     comment: "passiveskill_bodyforge_rank_5_comment",
     passives: [],
-    level: 50,
     rank: 5,
   },
 

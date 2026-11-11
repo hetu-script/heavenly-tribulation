@@ -66,6 +66,8 @@ void main() {
         'sceneIds': ['test_room'],
       };
       final enemy = {
+        'equipments': <String, dynamic>{},
+        'inventory': <String, dynamic>{},
         'battleDeckIndex': 0,
         'battleDecks': [
           {

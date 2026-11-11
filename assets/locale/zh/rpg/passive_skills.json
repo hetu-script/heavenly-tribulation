@@ -73,7 +73,7 @@
   "passiveskill_key_branch_draw_2": "天道推演",
 
   "passiveskill_attribute_any": "属性",
-  "passiveskill_attribute_any_description": "任选一个战斗属性 + 5",
+  "passiveskill_attribute_any_description": "任选一个战斗属性 + 3",
 
   "passiveskill_tribulation_intro": "此乃天道技能中的流派境界节点。需要通过一场突破试炼才能解锁。\n试炼方式分为文试和武试。武试需要战胜天道感应所化的幻象法身。文试则需要通过小游戏的测试。\n境界节点可以退回，但不会降低角色境界；再次解锁同境界节点无需再次试炼。试炼失败不会消耗技能点。",
   "passiveskill_tribulation_prompt": "你即将挑战突破试炼。请选择试炼方式。",

@@ -1,4 +1,4 @@
-这是当前游戏项目的装备系统： @scripts/main/data/item 主要用脚本写成。
+这是当前的装备系统： @scripts/main/data/item 主要用脚本写成。
 
 文档在： @docs/docs/how2play/rpg/item/equipment 但文档可能不全或者和实现不一致
 

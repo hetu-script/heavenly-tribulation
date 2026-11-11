@@ -1,0 +1,228 @@
+# 悟道分支被动词条候选池与位置建议
+
+> 状态：设计参考，未实施。
+>
+> 数据来源：`assets/data/passives.json5`、`plan/skill_tree/spellcraft.md`。
+> 本文整理当前已经存在、可以被天赋树直接引用的被动词条，并给出位置建议；不代表全部进入最终天赋树。
+> 词条数值按当前数据描述，`level` 仅用于说明数值量级，不是最终平衡结论。
+
+## 1. 位置与分支口径
+
+### 距离
+
+- **近**：凝气前、入口附近或分支浅层。适合基础属性、单套路增伤、少量战初效果和基础防御。
+- **中**：筑基至结丹前后的分支中段。适合穿透、观星转化、异常专精、手牌与抽牌、轻量资源规则。
+- **远**：还婴外层或需要明显绕路才能到达的位置。适合灵气保留、双向异常、额外观星收益和构筑规则。
+- **极远**：化神前、最外层或需要放弃其他分支的高机会成本位置。适合纯悟道课税、终局元素规则和高强度资源引擎。
+
+当前 DEMO 优先验证结丹及以下内容；“远／极远”主要是后续排布参考，不应阻塞悟道垂直切片。
+
+### 相邻流派
+
+按现有规划，悟道左侧连接炼魂，右侧连接御剑：
+
+- **悟道独占**：灵力、灵气、纯悟道卡组、悟道专属观星和资源规则。
+- **御剑侧**：单元素直伤、元素剑、穿透、身法、多元素攻击节奏。
+- **炼魂侧**：异常、自异常、减益、观星与抽牌规划，以及少量夺气／阴气选项。
+- **通用**：生命、护甲、抗性、手牌等可以服务多种构筑的词条；通用不代表必须成为跨流派共享终点。
+
+现有结构约定：境界 2、4 之前的分支位连接共享节点；境界 1、3、5 之前为悟道独占死路节点。本文只建议内容类型，不预先指定新的 `track_*` 坐标。
+
+## 2. 现有规划基线
+
+以下词条已经在 `spellcraft.md` 中有明确位置或公共候选定位。新增排布时应先保留其分工，避免重复填同类效果。
+
+| 词条 ID | 当前效果 | 建议位置 | 定位 |
+| --- | --- | --- | --- |
+| `key_branch_draw_1` | 战初洗入紫微斗数 | 炼魂侧共享，既定 | 抽牌与减费规划 |
+| `key_branch_draw_2` | 每回合抽牌前观星 | 炼魂侧共享，既定 | 观星发动机 |
+| `key_branch_element_1` | 使用元素牌后升级手牌同元素牌 | 御剑侧共享，既定 | 单元素专注 |
+| `key_branch_element_2` | 每首次使用一种元素获得灵气 | 御剑侧共享，既定 | 多元素轮转 |
+| `spirituality` | 每级灵力 +0.5；现方案 level 50 = +25 | 凝气前·悟道独占左，既定 | 主属性放大 |
+| `spellAttack` | 每级法术攻击 +0.5%；现方案 level 30 = +15% | 凝气前·悟道独占右，既定 | 泛用法术直伤 |
+| `scry_upgrade` | 每回合首次观星后升级选中牌 | 结丹前·悟道独占左，既定 | 观星转化 |
+| `ailmentThreshold` | 每级异常阈值 -0.05；现方案 level 40 = -2 | 结丹前·悟道独占右，既定 | 异常频率 |
+| `spellcraft_side_5` | 回合开始双方随机获得元素异常 | 化神前·悟道独占左，既定 | 自异常终局规则 |
+| `spellcraft_side_6` | 上回合使用至少 3 种元素，本次产出灵气 +2 | 化神前·悟道独占右，既定 | 多元素终局规则 |
+| `ailment_ward` | 受到的元素异常层数 -1 | 中，炼魂侧或悟道独占 | 自异常防护 |
+| `ailment_inflict_focus` | 造成的元素异常层数 +1 | 中，炼魂侧 | 异常层数 |
+| `handSizeMax` | 手牌上限 +1 | 中，通用 | 手牌空间 |
+| `scry_shield` | 每回合首次观星后获得护盾 | 中／远，炼魂侧或悟道独占 | 观星防御 |
+| `scry_mana` | 每回合首次观星后获得灵气 | 中／远，炼魂侧或悟道独占 | 观星资源 |
+| `spell_mana_trickle` | 回合产出阶段灵气 +1 | 中，悟道独占 | 稳定资源 |
+| `battleDrawBonus` | 每回合正常抽牌 +1 | 中，通用 | 抽牌 |
+| `spellcraft_cost_down` | 悟道牌灵气费用 -1 | 远，悟道独占 | 永久减费；防止大量 0 费 |
+| `mana_threshold_guard` | 灵气不少于 5 时受伤 -20% | 远，悟道独占 | 保留灵气的防御回报 |
+
+## 3. 主属性、攻击与元素专精
+
+| 词条 ID | 当前数值／效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `dexterity` | 每级身法 +0.5 | 近／中，御剑侧 | 补装备需求、先手和御剑混修；自由属性节点已能提供时不需大量重复 |
+| `willpower` | 每级念力 +0.5 | 近／中，炼魂侧 | 补暗器等装备需求和炼魂混修 |
+| `strength` | 每级体魄 +0.5 | 近，通用，低优先级 | 生命和装备需求；不符合主要相邻分支时不必定向放置 |
+| `perception` | 每级神识 +0.5 | 近，通用，低优先级 | 装备需求和部分非战斗用途；不建议占用关键节点 |
+| `unarmedAttack` | 每级徒手攻击 +0.5% | 近，悟道独占或御剑侧 | 仅服务对应 `cardType` 的拳法混合构筑，后期价值有限 |
+| `increase_damage_punch` | 每级拳法伤害 +0.5% | 近，悟道独占 | 按 `kind` 强化拳法；放置前核对目标拳法卡的 `kind/cardType` |
+| `increase_damage_sword` | 每级剑法和御剑术伤害 +0.5% | 近／中，御剑侧 | 同时覆盖 `sword/flying_sword`，适合元素剑共享构筑 |
+| `weaponAttack` | 每级武器攻击 +0.5% | 近，御剑侧，低优先级 | 只覆盖 `cardType: weapon`，不覆盖法术类型的飞剑 |
+| `increase_damage_firebend` | 每级御火术伤害 +0.5% | 近／中，御剑侧或悟道独占 | 单元素专精 |
+| `increase_damage_waterbend` | 每级御水术伤害 +0.5% | 近／中，御剑侧或悟道独占 | 单元素专精 |
+| `increase_damage_airbend` | 每级御风术伤害 +0.5% | 近／中，御剑侧或悟道独占 | 单元素专精，可与迅捷分支相邻 |
+| `increase_damage_earthbend` | 每级土遁术伤害 +0.5% | 近／中，御剑侧或悟道独占 | 单元素专精，可与护甲分支相邻 |
+| `increase_damage_lightning_control` | 每级雷法伤害 +0.5% | 近／中，御剑侧或悟道独占 | 单元素专精，可与多段／轮转分支相邻 |
+| `penetration` | 每级护甲穿透 +0.5% | 中，御剑侧 | 只作用于物理、无属性和真气；适合控制元素、未转化攻击和拳法，不强化已转化元素伤害 |
+| `critThreshold` | 每级暴击阈值 -0.05 | 中，悟道独占拳法，限定 | 仅物理伤害有效；不做泛用悟道节点 |
+| `critMultiplier` | 每级暴击倍率 +2% | 中，悟道独占拳法，限定 | 与 `critThreshold` 同属物理专用构筑 |
+
+单套路增伤与 `spellAttack` 的区别是前者要求玩家实际携带对应套路。建议每条元素分支只重点支持一至两种套路，不要将五种增伤平均铺满所有路径。
+
+## 4. 观星、抽牌与手牌
+
+| 词条 ID | 当前效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `scry_upgrade` | 每回合首次观星后升级选中牌 | 中／远，炼魂侧或悟道独占 | 已有观微规划；额外来源增加升级量而非触发次数 |
+| `scry_shield` | 每回合首次观星后获得护盾 | 中／远，炼魂侧或悟道独占 | 观星防御转化 |
+| `scry_mana` | 每回合首次观星后获得灵气 | 中／远，炼魂侧或悟道独占 | 观星资源转化 |
+| `battleDrawBonus` | 每回合正常抽牌 +1 | 中，通用 | 稳定但较泛用 |
+| `turnStartExtraDraw` | 回合开始额外抽 1 张 | 远，炼魂侧或通用 | 多来源数量相加；适合远端支撑节点 |
+| `handSizeMax` | 手牌上限 +1 | 中，通用 | 支持观星、保留和多手牌构筑 |
+| `heaven_peeking_mirror` | 观星深度 +2；每回合首次观星后自施 2 种元素异常 | 远／极远，炼魂侧或悟道独占 | 同时包含观星和自异常规则，不应再放得过浅 |
+
+观星节点需要稳定的观星入口才有价值。没有天道推演、卡牌观星或其他触发来源时，单独放置观星后效果会形成死节点。
+
+## 5. 灵气、元气与纯悟道资源规则
+
+| 词条 ID | 当前效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `spell_mana_trickle` | 回合产出阶段灵气 +1 | 中，悟道独占 | 稳定、易理解的基础资源节点 |
+| `start_turn_with_energy_positive_spell` | 每级回合开始灵气 +0.05 | 中／远，悟道独占 | level 20 = 每回合 +1；与 `spell_mana_trickle` 二选一作为主要数值入口即可 |
+| `spellcraft_cost_down` | 悟道牌灵气费用 -1 | 远，悟道独占 | 与境界和装备减费叠加，需检查低境界牌大量变 0 费 |
+| `energyRetainSpell` | 至多保留 2 点灵气，每点下回合开始受 3 点纯粹伤害 | 远，悟道独占 | 改变灵气消费与阴阳五行溢出的取舍；保留上限多来源取大而非相加 |
+| `mana_threshold_guard` | 灵气不少于 5 时受伤 -20% | 远，悟道独占 | 与灵气保留形成防御构筑 |
+| `start_turn_with_energy_positive_life` | 每级回合开始元气 +0.05 | 中，通用 | 支持 `mana_surge`、中立卡和元气消耗牌 |
+| `basicEnergyBonus` | 每回合元气 +1 | 中／远，通用 | 与乾坤戒共享词条；适合元气副构筑，不是悟道核心必选项 |
+| `energyRetainLife` | 至多保留 1 点元气，每点代价 2 点纯粹伤害 | 远，通用 | 服务跨回合元气规划；保留上限同样不叠加 |
+| `start_turn_with_energy_positive_ultimate` | 每级回合开始太极之气 +0.02 | 极远，通用，低优先级 | level 50 = +1；通用性太强且会削弱有色费用差异，不建议作为悟道特色 |
+| `start_turn_with_energy_positive_weapon` | 每级回合开始剑气 +0.05 | 远，御剑侧，限定 | 仅用于明确的元素剑／气剑混修，不应成为纯悟道资源来源 |
+| `start_turn_with_energy_positive_unarmed` | 每级回合开始怒气 +0.05 | 不建议 | 与悟道及其两侧共享主题都较弱 |
+| `heavenly_mechanism_disc` | 牌库下限 -2，非悟道牌费用 +1 | 极远，悟道独占 | 纯悟道卡组规则；会影响营地永久构筑，必须清楚展示代价 |
+| `spirit_gathering_banner` | 回合产出灵气 +3，非悟道牌费用 +2 | 极远，悟道独占 | 高强度纯悟道终点，不适合浅层或普通填充节点 |
+
+## 6. 元素异常、减益与自异常
+
+| 词条 ID | 当前效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `ailmentThreshold` | 每级异常充能阈值 -0.05 | 中／远，炼魂侧或悟道独占 | 提高异常频率，受全局阈值上下限约束 |
+| `ailmentMultiplier` | 每级异常伤害 +5% | 中，炼魂侧 | level 2 = +10%；与阈值降低分别强化频率和伤害 |
+| `ailment_ward` | 受到的元素异常层数 -1 | 中，炼魂侧或悟道独占 | 自异常防护，不增强进攻 |
+| `ailment_inflict_focus` | 造成的元素异常层数 +1 | 中，炼魂侧 | 直接提高异常收益 |
+| `five_elements_pearl` | 造成和受到的元素异常层数均 +2 | 远／极远，炼魂侧或悟道独占 | 高风险自异常规则，适合作为分支关键节点 |
+| `spellcraft_side_5` | 回合开始双方随机获得元素异常 | 极远，悟道独占，既定 | 驭灵；可喂给自异常联动 |
+| `spellcraft_side_6` | 多元素达标后产出灵气 +2 | 极远，悟道独占，既定 | 天人合一；多元素终局规则 |
+| `start_battle_with_buff_crit` | 每级战初幸运 +0.1 | 近／中，炼魂侧 | level 10 = 1 层；元素牌必异常，可加速首轮异常转化 |
+| `start_battle_with_opponent_vulnerable` | 每级战初对手易伤 +0.5 | 近／中，炼魂侧 | 为第一轮攻击铺垫，泛用但易懂 |
+| `start_battle_with_opponent_debuff_crit` | 每级战初对手不幸 +0.05 | 中，炼魂侧 | 抑制敌方暴击和元素异常 |
+| `start_battle_with_opponent_debuff_ward` | 每级战初对手邪祟 +0.05 | 中／远，炼魂侧 | 持续制造负面状态 |
+| `start_battle_with_opponent_debuff_shield` | 每级战初对手破绽 +0.025 | 远，炼魂侧 | 为单轮爆发提供窗口 |
+| `start_battle_with_opponent_debuff_all_damage` | 每级战初对手虚空之气 +0.02 | 远，炼魂侧 | 每层使对手造成伤害 -5，通用性强，注意数值 |
+| `start_battle_with_opponent_energy_negative_life` | 每级战初对手死气 +0.05 | 远，炼魂侧，限定 | 抑制元气并造成后续压力，偏炼魂夺气主题 |
+| `start_battle_with_opponent_energy_negative_spell` | 每级战初对手逆灵之气 +0.05 | 远，炼魂侧，限定 | 主要针对悟道敌人，对局适用范围较窄 |
+| `start_battle_with_opponent_energy_negative_weapon` | 每级战初对手止戈之气 +0.05 | 远，炼魂侧，限定 | 主要针对御剑敌人 |
+| `start_battle_with_opponent_energy_negative_unarmed` | 每级战初对手非战之气 +0.05 | 远，炼魂侧，限定 | 主要针对锻体敌人 |
+| `start_battle_with_opponent_energy_negative_curse` | 每级战初对手无心之气 +0.05 | 远，炼魂侧，限定 | 主要针对炼魂敌人 |
+| `start_battle_with_opponent_energy_negative_ultimate` | 每级战初对手混沌之气 +0.02 | 极远，炼魂侧，限定 | 同时压制多色资源和太极，强度高且泛用，谨慎使用 |
+
+对手阴气系列更偏炼魂的“夺气／失能”方向，不建议为了填满悟道分支而整套引入；选择时应考虑当前秘境敌人是否真的会使用对应资源。
+
+## 7. 防御、抗性与身法
+
+| 词条 ID | 当前数值／效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `lifeMax` | 每级生命上限 +0.5 | 近，通用 | 稳定填充，不作为特色关键节点 |
+| `start_battle_with_defense` | 每级战初护甲 +0.5 | 近，通用 | 简单防御，适合早期 |
+| `persistent` | 每级护甲保持 +0.5% | 中，悟道独占或通用 | 支持土遁、护甲和下回合爆发 |
+| `elementalResist` | 每级全元素抗性 +0.25% | 近／中，通用 | 泛用元素防御 |
+| `fireResist` | 每级火焰抗性 +0.5% | 近／中，对应元素分支 | 单元素防御，也可提高自异常容错 |
+| `iceResist` | 每级寒冰抗性 +0.5% | 近／中，对应元素分支 | 同上 |
+| `lightningResist` | 每级雷电抗性 +0.5% | 近／中，对应元素分支 | 同上 |
+| `poisonResist` | 每级毒素抗性 +0.5% | 近／中，炼魂侧 | 适合毒与异常方向 |
+| `elementalResistMax` | 每级全元素抗性上限 +0.5% | 远，通用，限定 | 只有抗性接近上限时才有价值，不宜单独放置 |
+| `fireResistMax` | 每级火焰抗性上限 +0.5% | 远，对应元素分支，限定 | 同上 |
+| `iceResistMax` | 每级寒冰抗性上限 +0.5% | 远，对应元素分支，限定 | 同上 |
+| `lightningResistMax` | 每级雷电抗性上限 +0.5% | 远，对应元素分支，限定 | 同上 |
+| `poisonResistMax` | 每级毒素抗性上限 +0.5% | 远，炼魂侧，限定 | 同上 |
+| `start_battle_with_buff_ward` | 每级战初辟邪 +0.05 | 中，通用或炼魂侧 | 抵消一次负面效果，适合异常高压对局 |
+| `start_battle_with_buff_shield` | 每级战初护盾 +0.025 | 远，通用 | 抵挡一次非纯粹伤害 |
+| `start_battle_with_buff_all_damage` | 每级战初无极之气 +0.02 | 远，通用 | 每层所有伤害 +5，强度高且泛用，不作为悟道特色首选 |
+| `start_battle_with_speed_quick` | 每级战初迅捷 +0.1 | 近／中，御剑侧 | 身法与额外回合方向 |
+| `start_battle_with_dodge_nimble` | 每级战初闪避 +0.1 | 近／中，御剑侧 | 身法与飘忽方向 |
+| `quickThreshold` | 每级迅捷阈值 -0.05 | 远，御剑侧 | 额外回合会重复资源和每回合效果，需控制降低幅度 |
+| `nimbleThreshold` | 每级闪避阈值 -0.05 | 远，御剑侧 | 防御向身法节点 |
+| `start_battle_with_opponent_speed_slow` | 每级战初对手缓慢 +0.1 | 中，御剑侧或炼魂侧 | 速度控制 |
+| `start_battle_with_opponent_dodge_clumsy` | 每级战初对手迟钝 +0.1 | 中，御剑侧或炼魂侧 | 易伤与控制辅助 |
+
+`slowThreshold`、`clumsyThreshold` 也可被天赋树引用，但它们主要改变自身缓慢／迟钝阈值，和悟道核心构筑的关系较弱，因此不列入优先候选。
+
+## 8. 中立绝世装备词条
+
+| 词条 ID | 当前效果 | 建议位置 | 适用说明 |
+| --- | --- | --- | --- |
+| `cosmos_ring` | 手牌上限 +2，正常抽牌 -1 | 远，通用，限定 | 有明确代价的手牌规则；只有需要大手牌构筑时才考虑 |
+| `limitless_amulet` | 每回合首张中立加持牌获得无极，五流派牌费用 +1 | 不建议放在悟道分支 | 对纯悟道主要是惩罚，更适合中立构筑 |
+
+## 9. 推荐的实际筛选顺序
+
+### 近：先补足基础构筑差异
+
+- 悟道独占：`spirituality`、`spellAttack`、一种单套路增伤、`lifeMax`。
+- 御剑侧：`increase_damage_sword`、一种元素套路增伤、`start_battle_with_speed_quick`。
+- 炼魂侧：`start_battle_with_buff_crit`、`start_battle_with_opponent_vulnerable`。
+- 通用：`start_battle_with_defense`、单元素抗性。
+
+### 中：形成可感知的构筑方向
+
+- 御剑侧：`penetration`、另一套路增伤、`start_battle_with_dodge_nimble`。
+- 炼魂侧：`ailmentMultiplier`、`ailment_inflict_focus`、`scry_shield`、`scry_mana`。
+- 悟道独占：`persistent`、`spell_mana_trickle`、`handSizeMax`。
+- 通用：`battleDrawBonus`、`elementalResist`。
+
+### 远：提供规则变化
+
+- `energyRetainSpell`
+- `mana_threshold_guard`
+- `five_elements_pearl`
+- `heaven_peeking_mirror`
+- `turnStartExtraDraw`
+- `quickThreshold` 或 `nimbleThreshold`
+- 少量对手阴气／减益，仅限炼魂侧且当前敌人内容能够利用时
+
+### 极远：保留给终局风味
+
+- `heavenly_mechanism_disc`
+- `spirit_gathering_banner`
+- `spellcraft_side_5`
+- `spellcraft_side_6`
+
+## 10. 复用与叠加注意事项
+
+- 天赋树可以无视词条的装备用途标记和 `rank` 直接引用 ID；这不代表所有词条挂上后就一定有意义。
+- 同名 `battleStatus` 不应默认理解为多次独立触发。观星后效果仍以每回合首次观星为限，数值是否累加取决于 `statusParams` 聚合。
+- `scry_upgrade`、`scry_shield`、`scry_mana` 多来源增加的是对应数值，不是每回合触发次数。
+- `energyRetainSpell` 与 `energyRetainLife` 的保留上限取较大值，不是相加；它们更适合作为装备的替代获取途径。
+- `turnStartExtraDraw` 的抽牌数量可以累加，但仍受手牌上限约束。
+- `deckCostReduction` 规则会叠加，永久减费过多会使低境界悟道牌变成 0 费。
+- 纯悟道课税类主词条与装备同时存在时，减牌库、资源产出和非悟道加费不能笼统假设都翻倍，应按各机制的聚合规则逐项验证。
+- 远端复用绝世装备词条是允许的，但“远”应体现为真实的路径投资与机会成本，而不只是坐标稍远、最终仍能顺手点取。
+
+## 11. 不纳入当前悟道候选池的词条
+
+以下词条即使能被天赋树直接引用，也不建议用于当前悟道分支：
+
+- 其他流派专属攻击：`curseAttack`、`increase_damage_sigil`、`increase_damage_power_word`，以及与当前共享构筑无关的武器／徒手套路增伤。
+- `karmaMax`：属于炼魂煞气池体系，除非明确制作炼魂共享节点。
+- 装备类别数量解锁：`weaponUnrestrictedEquip`、`armorUnrestrictedEquip`、`helmetUnrestrictedEquip`、`bootsUnrestrictedEquip`、`vehicleUnrestrictedEquip`。
+- 非战斗与沙盒词条：移动速度、移动消耗、工具效率、工作效率、负重、每月鉴定次数、劫数上限等。
+- 功能解锁：`enable_toolbar_*`、`enable_cultivate`、`enable_cardcraft`、`enable_scrollcraft`。
+- 丹药专用词条：`heal`、`overheal`、`tribulationCountReduce`、`decreaseTribulationDifficulty`；挂到天赋树不应被当作会自动产生对应使用效果的通用机制。
+- 与当前 DEMO 核心循环无关的长期扩展词条。

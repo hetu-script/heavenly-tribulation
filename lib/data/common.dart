@@ -1164,7 +1164,7 @@ const kUntradableItemKinds = {
 
 const kMaxAffixCount = 6;
 
-const kPassiveTreeAttributeAnyLevel = 10;
+const kPassiveTreeAttributeAnyLevel = 6;
 
 /// 不同种族的属性偏向
 const kRaceMainAttributes = {
