@@ -1097,7 +1097,11 @@
     description: "passive_key_branch_spellcraft_discount_description",
     priority: 3798,
     // 天道循环：每回合第一张悟道牌灵气费用 -1，支付前生效
-    firstCardCostReduction: { color: "spell", amount: 1, genres: ["spellcraft"] },
+    firstCardCostReduction: {
+      color: "spell",
+      amount: 1,
+      genres: ["spellcraft"],
+    },
   },
   key_branch_spellcraft_overflow: {
     id: "key_branch_spellcraft_overflow",
@@ -1122,16 +1126,16 @@
   },
 
   /// 流派分支节点词条（标记型；暂不进天赋树，待后续手动排布分支走向）
-  key_branch_draw_1: {
-    id: "key_branch_draw_1",
-    description: "passive_key_branch_draw_1_description",
+  key_branch_scry: {
+    id: "key_branch_scry",
+    description: "passive_key_branch_scry_description",
     priority: 3794,
     // 天道推演：每个回合开始时（抽牌阶段之前）观星一次；数量共用普通观星规则（见 battle.dart _startTurn）
     turnStartScry: true,
   },
-  key_branch_draw_2: {
-    id: "key_branch_draw_2",
-    description: "passive_key_branch_draw_2_description",
+  key_branch_draw: {
+    id: "key_branch_draw",
+    description: "passive_key_branch_draw_description",
     priority: 3793,
     // 紫微斗数：战斗开始后将「紫微斗数」洗入牌库（见 battle.dart _startBattle）
     shuffleIntoDeck: ["spellcraft_draw_cards_reduce_cost"],

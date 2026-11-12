@@ -51,8 +51,8 @@
 | `battleDrawBonus`       | 每回合正常抽牌 +1                          | 中，通用                 |
 | `spellcraft_cost_down`  | 悟道牌灵气费用 -1                          | 远，悟道独占             |
 | `mana_threshold_guard`  | 灵气不少于 5 时受伤 -20%                   | 远，悟道独占             |
-| `key_branch_draw_1`     | 每回合抽牌前观星                           | 炼魂侧共享，既定         |
-| `key_branch_draw_2`     | 战初洗入紫微斗数                           | 炼魂侧共享，既定         |
+| `key_branch_scry`       | 每回合抽牌前观星                           | 炼魂侧共享，既定         |
+| `key_branch_draw`       | 战初洗入紫微斗数                           | 炼魂侧共享，既定         |
 
 ## 3. 主属性、攻击与元素专精
 

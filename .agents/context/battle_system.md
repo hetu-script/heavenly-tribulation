@@ -129,8 +129,8 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 6. 天赋树
 
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
-- 悟道入口/关键节点重构：新词条为 key_branch_spellcraft_entry / discount / overflow / rotation / ultimate，分别提供每回合 1 灵气、每回合首张悟道牌减费、剩余灵气伤害、套路增伤轮转和洗入万法归宗。旧 spellcraft_rank_* 已删除；passive_skills.json5 本轮刻意未改，旧引用等待人工排布时处理。
-- 分支节点：key_branch_* 使用中性 id，设计上可多流派共享；悟道的 4 个关键分支均已实现并进入当前天赋树。
+- 悟道入口/关键节点重构：新词条为 key*branch_spellcraft_entry / discount / overflow / rotation / ultimate，分别提供每回合 1 灵气、每回合首张悟道牌减费、剩余灵气伤害、套路增伤轮转和洗入万法归宗。旧 spellcraft_rank*\* 已删除；passive_skills.json5 本轮刻意未改，旧引用等待人工排布时处理。
+- 分支节点：key*branch*\* 使用中性 id，设计上可多流派共享；悟道的 4 个关键分支均已实现并进入当前天赋树。
 - 悟道独占节点：养气诀直接引用 spirituality level 30、静心诀引用 spellAttack level 30，二者已上树；观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40，驭灵与天人合一分别使用 spellcraft_side_5/6 永久状态，这四者已实现但尚未分配到树中。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
 - scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
 - 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。普通与境界节点均消耗并返还 1 天赋点；境界节点只通过 `checkRequirements(..., checkRank: true)` 检查现有 rank，不再触发突破试炼，退点不降低角色 rank。旧 characterSetPassive 正负等级接口已移除。
@@ -150,7 +150,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ## 9. 校验与构建
 
-- dart run utils/data_validate/game_data_validate.dart —— cards/card_affixes/passives/status_effect/items 的 id/引用/本地化/结构/绝世约定检查（当前通过）。passive_skills.json5 的旧 spellcraft_rank_* 引用由后续人工排树清理。
+- dart run utils/data*validate/game_data_validate.dart —— cards/card_affixes/passives/status_effect/items 的 id/引用/本地化/结构/绝世约定检查（当前通过）。passive_skills.json5 的旧 spellcraft_rank*\* 引用由后续人工排树清理。
 - dart run utils/data_validate/passive_tree_validate.dart —— 天赋树连通性（当前通过：全部已定义节点均可从入口到达）。
 - python build.py —— 编译 Hetu 脚本到 assets/mods/（Windows 下 hetu 可能有 PATH 问题，可用 dart install 绝对路径的 hetu.bat）；flutter analyze 验证 Dart。
 
@@ -168,7 +168,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，calculateQueuedCardPayment 统一队列预占、置灰与缺资源提示，敌方按可支付手牌出牌，不再依赖元气余额。
 
 - 入口与原境界节点 5 个已完成词条层重构，但尚未接入当前天赋树：太上感应（key_branch_spellcraft_entry，每次行动固定产 1 灵气，复用 turn_start_spell_mana_1）/ 天道循环（discount，firstCardCostReduction 每回合首张悟道牌 -1）/ 阴阳五行（overflow，回合结束未保留灵气溢出伤害）/ 五气朝元（rotation，五元素攻击增强轮转）/ 万法归宗（ultimate，shuffleIntoDeck 洗入绝世卡）。
-- 分支节点 4 个（已实现并上树）：天道推演（key_branch_draw_1，turnStartScry: true）/ 紫微斗数（draw_2，洗入授予卡）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
+- 分支节点 4 个（已实现并上树）：天道推演（key_branch_scry，turnStartScry: true）/ 紫微斗数（draw_2，洗入授予卡）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
 - 卡牌：普通主词条 17 张 + 常规绝世卡 5 张 + 天赋授予卡 2 张 + 一气化三清抉择临时卡 3 张（不进卡池）；普通随机额外词条 16 条，其中 6 条属于自异常转化体系。相生相克的专属词条按本回合已用元素种数线性增加双方异常层数。
 - 绝世装备 5 件（items.json5 + passives.json5）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。
 
