@@ -995,13 +995,14 @@
     rank: 5,
   },
 
-  // 回合开始时获得额外阳气
-  // 元气
-  start_turn_with_energy_positive_life: {
-    id: "start_turn_with_energy_positive_life",
-    uniqueId: "start_turn_with_energy_positive_life",
-    description: "passive_start_turn_with_energy_positive_life_description",
+  // 等级缩放的额外阳气；固定来源使用不带 _affix 的同名资源词条
+  turn_start_gain_vigor_affix: {
+    id: "turn_start_gain_vigor_affix",
+    uniqueId: "turn_start_gain_vigor_affix",
+    description: "passive_turn_start_gain_vigor_description",
     priority: 3899,
+    battleStatus: "turn_start_gain_vigor",
+    battleStatusValueParam: "resourceAmount",
     increment: 0.05,
     greater: true,
     // isEquipmentExtraAffix: true,
@@ -1013,12 +1014,13 @@
     keywords: ["status_energy_positive_life"],
     rank: 3,
   },
-  // 灵气
-  start_turn_with_energy_positive_spell: {
-    id: "start_turn_with_energy_positive_spell",
-    uniqueId: "start_turn_with_energy_positive_spell",
-    description: "passive_start_turn_with_energy_positive_spell_description",
+  turn_start_gain_mana_affix: {
+    id: "turn_start_gain_mana_affix",
+    uniqueId: "turn_start_gain_mana_affix",
+    description: "passive_turn_start_gain_mana_description",
     priority: 3898,
+    battleStatus: "turn_start_gain_mana",
+    battleStatusValueParam: "resourceAmount",
     increment: 0.05,
     greater: true,
     // isEquipmentExtraAffix: true,
@@ -1030,12 +1032,13 @@
     keywords: ["status_energy_positive_spell"],
     rank: 4,
   },
-  // 剑气
-  start_turn_with_energy_positive_weapon: {
-    id: "start_turn_with_energy_positive_weapon",
-    uniqueId: "start_turn_with_energy_positive_weapon",
-    description: "passive_start_turn_with_energy_positive_weapon_description",
+  turn_start_gain_chakra_affix: {
+    id: "turn_start_gain_chakra_affix",
+    uniqueId: "turn_start_gain_chakra_affix",
+    description: "passive_turn_start_gain_chakra_description",
     priority: 3897,
+    battleStatus: "turn_start_gain_chakra",
+    battleStatusValueParam: "resourceAmount",
     increment: 0.05,
     greater: true,
     // isEquipmentExtraAffix: true,
@@ -1047,12 +1050,13 @@
     keywords: ["status_energy_positive_weapon"],
     rank: 4,
   },
-  // 怒气
-  start_turn_with_energy_positive_unarmed: {
-    id: "start_turn_with_energy_positive_unarmed",
-    uniqueId: "start_turn_with_energy_positive_unarmed",
-    description: "passive_start_turn_with_energy_positive_unarmed_description",
+  turn_start_gain_rage_affix: {
+    id: "turn_start_gain_rage_affix",
+    uniqueId: "turn_start_gain_rage_affix",
+    description: "passive_turn_start_gain_rage_description",
     priority: 3896,
+    battleStatus: "turn_start_gain_rage",
+    battleStatusValueParam: "resourceAmount",
     increment: 0.05,
     greater: true,
     // isEquipmentExtraAffix: true,
@@ -1064,12 +1068,28 @@
     keywords: ["status_energy_positive_unarmed"],
     rank: 4,
   },
-  // 太极之气
-  start_turn_with_energy_positive_ultimate: {
-    id: "start_turn_with_energy_positive_ultimate",
-    uniqueId: "start_turn_with_energy_positive_ultimate",
-    description: "passive_start_turn_with_energy_positive_ultimate_description",
+  turn_start_gain_karma_affix: {
+    id: "turn_start_gain_karma_affix",
+    uniqueId: "turn_start_gain_karma_affix",
+    description: "passive_turn_start_gain_karma_description",
     priority: 3895,
+    battleStatus: "turn_start_gain_karma",
+    battleStatusValueParam: "resourceAmount",
+    increment: 0.05,
+    greater: true,
+    isEphemeral: true,
+    ephemeralType: "energy",
+    kinds: ["pearl"],
+    keywords: ["status_energy_positive_curse"],
+    rank: 4,
+  },
+  turn_start_gain_ultimate_affix: {
+    id: "turn_start_gain_ultimate_affix",
+    uniqueId: "turn_start_gain_ultimate_affix",
+    description: "passive_turn_start_gain_ultimate_description",
+    priority: 3894,
+    battleStatus: "turn_start_gain_ultimate",
+    battleStatusValueParam: "resourceAmount",
     increment: 0.02,
     greater: {
       values: [{ mode: "add", amount: 1 }],
@@ -1084,14 +1104,64 @@
     rank: 5,
   },
 
-  /// 悟道入口与关键节点词条
-  key_branch_spellcraft_entry: {
-    id: "key_branch_spellcraft_entry",
-    description: "passive_key_branch_spellcraft_entry_description",
-    priority: 3799,
-    // 太上感应：每次行动产出阶段固定获得 1 点灵气，复用现有产灵状态
-    battleStatus: "turn_start_spell_mana_1",
+  /// 流派入口与固定资源产出词条；同一来源 ID 可叠加，数值通过状态参数聚合
+  turn_start_gain_mana: {
+    id: "turn_start_gain_mana",
+    description: "passive_turn_start_gain_mana_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
+    priority: 3804,
+    battleStatus: "turn_start_gain_mana",
+    statusParams: { resourceAmount: 1 },
+    greater: {
+      data: { statusParams: { resourceAmount: 1 } },
+    },
   },
+  turn_start_gain_chakra: {
+    id: "turn_start_gain_chakra",
+    description: "passive_turn_start_gain_chakra_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
+    priority: 3803,
+    battleStatus: "turn_start_gain_chakra",
+    statusParams: { resourceAmount: 1 },
+    greater: {
+      data: { statusParams: { resourceAmount: 1 } },
+    },
+  },
+  turn_start_gain_rage: {
+    id: "turn_start_gain_rage",
+    description: "passive_turn_start_gain_rage_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
+    priority: 3802,
+    battleStatus: "turn_start_gain_rage",
+    statusParams: { resourceAmount: 1 },
+    greater: {
+      data: { statusParams: { resourceAmount: 1 } },
+    },
+  },
+  turn_start_gain_karma: {
+    id: "turn_start_gain_karma",
+    description: "passive_turn_start_gain_karma_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
+    priority: 3801,
+    battleStatus: "turn_start_gain_karma",
+    statusParams: { resourceAmount: 1 },
+    greater: {
+      data: { statusParams: { resourceAmount: 1 } },
+    },
+  },
+  turn_start_gain_vigor: {
+    id: "turn_start_gain_vigor",
+    description: "passive_turn_start_gain_vigor_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
+    priority: 3800,
+    battleStatus: "turn_start_gain_vigor",
+    statusParams: { resourceAmount: 1 },
+    greater: {
+      data: { statusParams: { resourceAmount: 1 } },
+    },
+  },
+
+  /// 悟道关键节点词条
   key_branch_spellcraft_discount: {
     id: "key_branch_spellcraft_discount",
     description: "passive_key_branch_spellcraft_discount_description",
@@ -1106,16 +1176,20 @@
   key_branch_spellcraft_overflow: {
     id: "key_branch_spellcraft_overflow",
     description: "passive_key_branch_spellcraft_overflow_description",
+    descriptionParams: ["battleStatus.damagePerStack"],
     priority: 3797,
-    // 阴阳五行：战斗开始授予同名永久状态，行为在状态脚本实现（yin_yang_five_elements）
+    // 阴阳五行：每个来源使每层未保留灵气的伤害 +10
     battleStatus: "key_branch_spellcraft_overflow",
+    statusParams: { damagePerStack: 10 },
   },
   key_branch_spellcraft_rotation: {
     id: "key_branch_spellcraft_rotation",
     description: "passive_key_branch_spellcraft_rotation_description",
+    descriptionParams: ["battleStatus.rotationMultiplier"],
     priority: 3796,
-    // 五气朝元：战斗开始授予同名永久状态，行为在状态脚本实现（five_qi_convergence）
+    // 五气朝元：每个来源使轮转增伤倍率 +1
     battleStatus: "key_branch_spellcraft_rotation",
+    statusParams: { rotationMultiplier: 1 },
   },
   key_branch_spellcraft_ultimate: {
     id: "key_branch_spellcraft_ultimate",
@@ -1143,32 +1217,40 @@
   key_branch_element_1: {
     id: "key_branch_element_1",
     description: "passive_key_branch_element_1_description",
+    descriptionParams: ["battleStatus.upgradeCount"],
     priority: 3792,
-    // 抱真守一：战斗开始授予同名永久状态，行为在状态脚本实现（embrace_simplicity）
+    // 抱真守一：每个来源额外升级 1 张同元素手牌
     battleStatus: "key_branch_element_1",
+    statusParams: { upgradeCount: 1 },
   },
   key_branch_element_2: {
     id: "key_branch_element_2",
     description: "passive_key_branch_element_2_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
     priority: 3791,
-    // 五行轮转：战斗开始授予同名永久状态，行为在状态脚本实现（element_cycle）
+    // 五行轮转：每个来源使每种新元素额外提供 1 点灵气
     battleStatus: "key_branch_element_2",
+    statusParams: { resourceAmount: 1 },
   },
 
   /// 悟道独占分支节点；观微直接复用 scry_upgrade，其余数值节点引用既有属性词条
-  // 驭灵：回合开始时，双方分别随机获得 1 层元素异常
+  // 驭灵：每个来源使双方随机异常的层数 +1
   spellcraft_side_5: {
     id: "spellcraft_side_5",
     description: "passive_spellcraft_side_5_description",
+    descriptionParams: ["battleStatus.statusAmount"],
     priority: 3789,
     battleStatus: "spellcraft_side_5",
+    statusParams: { statusAmount: 1 },
   },
-  // 天人合一：上回合使用至少 3 种元素牌时，本次产出阶段获得 2 点灵气
+  // 天人合一：每个来源使达标后的灵气 +2
   spellcraft_side_6: {
     id: "spellcraft_side_6",
     description: "passive_spellcraft_side_6_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
     priority: 3788,
     battleStatus: "spellcraft_side_6",
+    statusParams: { resourceAmount: 2 },
   },
 
   /// 装备数量相关
@@ -1452,8 +1534,10 @@
   spirit_gathering_banner: {
     id: "spirit_gathering_banner",
     description: "passive_spirit_gathering_banner_description",
+    descriptionParams: ["battleStatus.resourceAmount"],
     priority: 3488,
-    battleStatus: "turn_start_mana_bonus",
+    battleStatus: "turn_start_gain_mana",
+    statusParams: { resourceAmount: 3 },
     deckCostReduction: { color: "all", amount: -2, notGenres: ["spellcraft"] },
   },
   // 手牌上限：固定 +1，不参与数值词条等级 roll
@@ -1506,6 +1590,7 @@
     descriptionParams: ["battleStatus.shieldAmount"],
     priority: 3484,
     battleStatus: "scry_shield",
+    statusParams: { shieldAmount: 1 },
     greater: {
       data: { statusParams: { shieldAmount: 1 } },
     },
@@ -1516,6 +1601,7 @@
     descriptionParams: ["battleStatus.manaBonus"],
     priority: 3482,
     battleStatus: "scry_mana",
+    statusParams: { manaBonus: 1 },
     greater: {
       data: { statusParams: { manaBonus: 1 } },
     },
@@ -1539,18 +1625,9 @@
     descriptionParams: ["battleStatus.statusAmount"],
     priority: 3480,
     battleStatus: "scry_all_damage",
+    statusParams: { statusAmount: 1 },
     greater: {
       data: { statusParams: { statusAmount: 1 } },
-    },
-  },
-  spell_mana_trickle: {
-    id: "spell_mana_trickle",
-    description: "passive_spell_mana_trickle_description",
-    descriptionParams: ["battleStatus.manaBonus"],
-    priority: 3481,
-    battleStatus: "turn_start_spell_mana_1",
-    greater: {
-      data: { statusParams: { manaBonus: 1 } },
     },
   },
   spellcraft_cost_down: {
@@ -1585,17 +1662,6 @@
     priority: 3477,
     statsBonus: { handSizeMax: 2, battleDrawBonus: -1 },
   },
-  // 乾坤戒固定额外词条：每回合元气产出 +1
-  basicEnergyBonus: {
-    id: "basicEnergyBonus",
-    description: "passive_basicEnergyBonus_description",
-    priority: 3476,
-    base: 1,
-    increment: 0,
-    greater: {
-      values: [{ mode: "add", amount: 1 }],
-    },
-  },
   // 乾坤戒固定额外词条：保留元气并承受纯粹伤害，太古只提高保留上限
   energyRetainLife: {
     id: "energyRetainLife",
@@ -1616,8 +1682,10 @@
   limitless_amulet: {
     id: "limitless_amulet",
     description: "passive_limitless_amulet_description",
+    descriptionParams: ["battleStatus.statusAmount"],
     priority: 3474,
     battleStatus: "neutral_card_limitless",
+    statusParams: { statusAmount: 1 },
     deckCostReduction: {
       color: "all",
       amount: -1,

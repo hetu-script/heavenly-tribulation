@@ -77,7 +77,7 @@ void main() {
     expect(
         hetu.invoke('getExpArrayBuff', positionalArgs: ['energy', 2]), isNull);
     final affix = hetu.invoke('getExpArrayBuff', positionalArgs: ['energy', 3]);
-    expect(affix['id'], 'start_turn_with_energy_positive_life');
+    expect(affix['id'], 'turn_start_gain_vigor_affix');
     expect(affix['value'], isNotNull);
   });
 

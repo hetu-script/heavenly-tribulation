@@ -358,12 +358,12 @@
       "energyRetainSpell",
       "lifeMax",
       "persistent",
-      "spell_mana_trickle",
+      "turn_start_gain_mana",
     ],
     greaterAffixes: [
       { rank: 3, affixId: "lifeMax" },
       { rank: 4, affixId: "persistent" },
-      { rank: 5, affixId: "spell_mana_trickle" },
+      { rank: 5, affixId: "turn_start_gain_mana" },
     ],
   },
   // 聚灵旗（rank5）：all-in 的纯悟道旗帜
@@ -411,14 +411,14 @@
     isIdentified: false,
     affixes: [
       "cosmos_ring",
-      "basicEnergyBonus",
+      "turn_start_gain_vigor",
       "handSizeMax",
       "energyRetainLife",
     ],
     greaterAffixes: [
       { rank: 3, affixId: "energyRetainLife" },
       { rank: 4, affixId: "handSizeMax" },
-      { rank: 5, affixId: "basicEnergyBonus" },
+      { rank: 5, affixId: "turn_start_gain_vigor" },
     ],
   },
 

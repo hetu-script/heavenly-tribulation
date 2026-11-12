@@ -148,7 +148,8 @@ class EnergyDisplay extends GameComponent {
       final yin = character.hasStatusEffect(slot.yinId);
       final max = slot.alwaysVisible
           ? kBattleBaseEnergy +
-              ((character.data['stats']['basicEnergyBonus'] ?? 0) as int)
+              getTurnStartResourceAmount(
+                  character.data, 'turn_start_gain_vigor')
           : 0;
       slot.updateQi(yang, yin, max: max);
       if (!slot.isVisible) continue;

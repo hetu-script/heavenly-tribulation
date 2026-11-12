@@ -47,7 +47,7 @@
 | `scry_upgrade`          | 每回合首次观星后升级选中牌                 | 结丹前·悟道独占左，既定  |
 | `scry_shield`           | 每回合首次观星后获得护盾                   | 中／远，炼魂侧或悟道独占 |
 | `scry_mana`             | 每回合首次观星后获得灵气                   | 中／远，炼魂侧或悟道独占 |
-| `spell_mana_trickle`    | 回合产出阶段灵气 +1                        | 中，悟道独占             |
+| `turn_start_gain_mana`    | 回合产出阶段灵气 +1                        | 中，悟道独占             |
 | `battleDrawBonus`       | 每回合正常抽牌 +1                          | 中，通用                 |
 | `spellcraft_cost_down`  | 悟道牌灵气费用 -1                          | 远，悟道独占             |
 | `mana_threshold_guard`  | 灵气不少于 5 时受伤 -20%                   | 远，悟道独占             |
@@ -95,17 +95,17 @@
 
 | 词条 ID                                    | 当前效果                                         | 建议位置             | 适用说明                                                                 |
 | ------------------------------------------ | ------------------------------------------------ | -------------------- | ------------------------------------------------------------------------ |
-| `spell_mana_trickle`                       | 回合产出阶段灵气 +1                              | 中，悟道独占         | 稳定、易理解的基础资源节点                                               |
-| `start_turn_with_energy_positive_spell`    | 每级回合开始灵气 +0.05                           | 中／远，悟道独占     | level 20 = 每回合 +1；与 `spell_mana_trickle` 二选一作为主要数值入口即可 |
+| `turn_start_gain_mana`                       | 回合产出阶段灵气 +1                              | 中，悟道独占         | 稳定、易理解的基础资源节点                                               |
+| `turn_start_gain_mana_affix`               | 每级回合开始灵气 +0.05                           | 中／远，悟道独占     | level 20 = 每回合 +1；可与 `turn_start_gain_mana` 等固定来源叠加 |
 | `spellcraft_cost_down`                     | 悟道牌灵气费用 -1                                | 远，悟道独占         | 与境界和装备减费叠加，需检查低境界牌大量变 0 费                          |
 | `energyRetainSpell`                        | 至多保留 2 点灵气，每点下回合开始受 3 点纯粹伤害 | 远，悟道独占         | 改变灵气消费与阴阳五行溢出的取舍；保留上限多来源取大而非相加             |
 | `mana_threshold_guard`                     | 灵气不少于 5 时受伤 -20%                         | 远，悟道独占         | 与灵气保留形成防御构筑                                                   |
-| `start_turn_with_energy_positive_life`     | 每级回合开始元气 +0.05                           | 中，通用             | 支持 `mana_surge`、中立卡和元气消耗牌                                    |
-| `basicEnergyBonus`                         | 每回合元气 +1                                    | 中／远，通用         | 与乾坤戒共享词条；适合元气副构筑，不是悟道核心必选项                     |
+| `turn_start_gain_vigor_affix`              | 每级回合开始元气 +0.05                           | 中，通用             | 支持 `mana_surge`、中立卡和元气消耗牌                                    |
+| `turn_start_gain_vigor`                    | 每回合元气 +1                                    | 中／远，通用         | 与乾坤戒共享词条；适合元气副构筑，不是悟道核心必选项                     |
 | `energyRetainLife`                         | 至多保留 1 点元气，每点代价 2 点纯粹伤害         | 远，通用             | 服务跨回合元气规划；保留上限同样不叠加                                   |
-| `start_turn_with_energy_positive_ultimate` | 每级回合开始太极之气 +0.02                       | 极远，通用，低优先级 | level 50 = +1；通用性太强且会削弱有色费用差异，不建议作为悟道特色        |
-| `start_turn_with_energy_positive_weapon`   | 每级回合开始剑气 +0.05                           | 远，御剑侧，限定     | 仅用于明确的元素剑／气剑混修，不应成为纯悟道资源来源                     |
-| `start_turn_with_energy_positive_unarmed`  | 每级回合开始怒气 +0.05                           | 不建议               | 与悟道及其两侧共享主题都较弱                                             |
+| `turn_start_gain_ultimate_affix`           | 每级回合开始太极之气 +0.02                       | 极远，通用，低优先级 | level 50 = +1；通用性太强且会削弱有色费用差异，不建议作为悟道特色        |
+| `turn_start_gain_chakra_affix`             | 每级回合开始剑气 +0.05                           | 远，御剑侧，限定     | 仅用于明确的元素剑／气剑混修，不应成为纯悟道资源来源                     |
+| `turn_start_gain_rage_affix`               | 每级回合开始怒气 +0.05                           | 不建议               | 与悟道及其两侧共享主题都较弱                                             |
 | `heavenly_mechanism_disc`                  | 牌库下限 -2，非悟道牌费用 +1                     | 极远，悟道独占       | 纯悟道卡组规则；会影响营地永久构筑，必须清楚展示代价                     |
 | `spirit_gathering_banner`                  | 回合产出灵气 +3，非悟道牌费用 +2                 | 极远，悟道独占       | 高强度纯悟道终点，不适合浅层或普通填充节点                               |
 
@@ -184,7 +184,7 @@
 
 - 御剑侧：`penetration`、另一套路增伤、`start_battle_with_dodge_nimble`。
 - 炼魂侧：`ailmentMultiplier`、`ailment_inflict_focus`、`scry_shield`、`scry_mana`。
-- 悟道独占：`persistent`、`spell_mana_trickle`、`handSizeMax`。
+- 悟道独占：`persistent`、`turn_start_gain_mana`、`handSizeMax`。
 - 通用：`battleDrawBonus`、`elementalResist`。
 
 ### 远：提供规则变化
@@ -208,7 +208,10 @@
 
 - 天赋树可以无视词条的装备用途标记和 `rank` 直接引用 ID；这不代表所有词条挂上后就一定有意义。
 - 同名 `battleStatus` 不应默认理解为多次独立触发。观星后效果仍以每回合首次观星为限，数值是否累加取决于 `statusParams` 聚合。
+- `turn_start_gain_*` 固定资源词条按来源累加 `resourceAmount`；入口、装备和聚灵旗的不同数值可以叠加。
+- `turn_start_gain_*_affix` 保留等级缩放，通过 `battleStatusValueParam` 把聚合 `value` 映射到同一参数，与固定来源叠加。
 - `scry_upgrade`、`scry_shield`、`scry_mana` 多来源增加的是对应数值，不是每回合触发次数。
+- 阴阳五行、五气朝元、抱真守一、五行轮转、驭灵、天人合一、观星无极与无极佩均按普通来源累加参数；聚气成势与窥天镜不叠加。
 - `energyRetainSpell` 与 `energyRetainLife` 的保留上限取较大值，不是相加；它们更适合作为装备的替代获取途径。
 - `turnStartExtraDraw` 的抽牌数量可以累加，但仍受手牌上限约束。
 - `deckCostReduction` 规则会叠加，永久减费过多会使低境界悟道牌变成 0 费。

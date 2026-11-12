@@ -112,7 +112,7 @@ void main() {
         'energyRetainSpell',
         'lifeMax',
         'persistent',
-        'spell_mana_trickle',
+        'turn_start_gain_mana',
       ],
       'spirit_gathering_banner': [
         'spirit_gathering_banner',
@@ -122,7 +122,7 @@ void main() {
       ],
       'cosmos_ring': [
         'cosmos_ring',
-        'basicEnergyBonus',
+        'turn_start_gain_vigor',
         'handSizeMax',
         'energyRetainLife',
       ],
@@ -380,8 +380,11 @@ void main() {
     expect(result[1], closeTo(-0.2, 1e-9));
   });
 
-  test('灵气细流复用产出阶段脚本获得 1 灵气', () {
+  test('通用产出脚本按状态参数产出六种资源', () {
+    final statuses = loadData('assets/data/status_effect.json5');
     final hetu = createStatusHetu();
+    hetu.eval('var statusData;');
+    hetu.assign('statusData', statuses);
     final result = hetu.eval('''
       final self = {
         gains: [],
@@ -389,13 +392,64 @@ void main() {
           this.gains.add([id, amount])
         },
       }
-      StatusScript.turn_start_mana_bonus_self_produce_resources(
-        self, null, {manaBonus: 1}, {})
+      for (final id in [
+        'turn_start_gain_mana',
+        'turn_start_gain_chakra',
+        'turn_start_gain_rage',
+        'turn_start_gain_karma',
+        'turn_start_gain_vigor',
+        'turn_start_gain_ultimate',
+      ]) {
+        final effect = statusData[id]
+        effect.resourceAmount = 2
+        StatusScript.turn_start_gain_resource_self_produce_resources(
+          self, null, effect, {})
+      }
       self.gains
     ''');
     expect(result, [
-      ['energy_positive_spell', 1],
+      ['energy_positive_spell', 2],
+      ['energy_positive_weapon', 2],
+      ['energy_positive_unarmed', 2],
+      ['energy_positive_curse', 2],
+      ['energy_positive_life', 2],
+      ['energy_positive_ultimate', 2],
     ]);
+  });
+
+  test('轮转与元素分支按叠加参数执行实际效果', () {
+    final hetu = createStatusHetu();
+    final result = hetu.eval('''
+      final self = {
+        turnCount: 1,
+        turnFlags: {usedElements: {element_fire: 1}},
+        data: {stats: {spirituality: 30}, elementRotation: null},
+        gains: [],
+        upgrades: [],
+        addStatusEffect: function(id, {amount, source}) {
+          this.gains.add([id, amount])
+        },
+        removeStatusEffect: function(id, {amount}) {},
+        getLastUsedCard: function() {
+          return {affixes: [{elementType: 'element_fire'}]}
+        },
+        upgradeHandCards: function(count, {options}) {
+          this.upgrades.add(count)
+        },
+      }
+      StatusScript.five_qi_convergence_self_turn_start(
+        self, null, {rotationMultiplier: 2}, {})
+      StatusScript.embrace_simplicity_self_used_card(
+        self, null, {upgradeCount: 2}, {})
+      StatusScript.element_cycle_self_used_card(
+        self, null, {resourceId: 'energy_positive_spell', resourceAmount: 2}, {})
+      [self.gains, self.upgrades]
+    ''');
+    expect(result[0], [
+      ['increase_damage_waterbend', 30],
+      ['energy_positive_spell', 2],
+    ]);
+    expect(result[1], [2]);
   });
 
   test('乾坤戒按境界获得元气、手牌与保留成长', () {
@@ -414,7 +468,10 @@ void main() {
     final affixes = rank5['affixes'] as List;
     expect(affixes[0]['statsBonus']['handSizeMax'], 2);
     expect(affixes[0]['statsBonus']['battleDrawBonus'], -1);
-    expect(affixes[1]['value'], 2);
+    expect(affixes[1]['battleStatus'], 'turn_start_gain_vigor');
+    expect(affixes[1]['statusParams']['resourceAmount'], 1);
+    expect(affixes[1]['isGreater'], true);
+    expect(affixes[1]['greater']['data']['statusParams']['resourceAmount'], 1);
     expect(affixes[2]['isGreater'], true);
     expect(affixes[2]['greater']['data']['statsBonus']['handSizeMax'], 1);
     expect(affixes[3]['isGreater'], true);

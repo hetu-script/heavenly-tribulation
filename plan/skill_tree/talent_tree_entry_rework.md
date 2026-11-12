@@ -295,26 +295,26 @@
 
 | 原词条 | 新词条 | 新定位与效果 |
 | --- | --- | --- |
-| `spellcraft_rank_1` | `key_branch_spellcraft_entry` | 悟道入口；每次行动产出阶段固定获得 1 点灵气，不再按灵力产气。 |
+| `spellcraft_rank_1` | `turn_start_gain_mana` | 悟道入口；每次行动产出阶段固定获得 1 点灵气，不再按灵力产气。 |
 | `spellcraft_rank_2` | `key_branch_spellcraft_discount` | 普通关键节点；每回合第一张悟道牌费用 -1，不再对整个卡组永久减费。 |
 | `spellcraft_rank_3` | `key_branch_spellcraft_overflow` | 普通关键节点；保留未保留灵气的回合结束元素伤害。 |
 | `spellcraft_rank_4` | `key_branch_spellcraft_rotation` | 普通关键节点；保留五类套路增伤轮转，灵力缩放属于该节点的具体内容。 |
 | `spellcraft_rank_5` | `key_branch_spellcraft_ultimate` | 普通关键节点；保留战斗开始洗入万法归宗。 |
 
-悟道入口新增独立被动词条，但复用现有每回合 1 点灵气状态 `turn_start_spell_mana_1`，不重复实现状态脚本。其他四个节点按各自效果复用或扩展现有通用机制。
+悟道入口与原灵气细流合并为共享被动 `turn_start_gain_mana`。所有固定资源产出共用参数化状态与脚本，每个普通来源提供 1 点；聚灵旗等独立被动通过不同参数提供更高数值，并与其他来源累加。其他四个节点按各自效果复用或扩展现有通用机制。
 
 本阶段不修改 `passive_skills.json5`，也不保留旧 `spellcraft_rank_*` 词条。现有树中的旧引用属于预期过渡状态；入口位置、旧节点取舍、境界字段清理和跨流派连线均在后续人工排布时统一处理。
 
 ### 阶段 2：其他四个流派入口词条
 
-统一规划以下入口词条，均在每次行动产出阶段提供 1 点费用：
+统一使用以下入口词条，均在每次行动产出阶段提供 1 点费用：
 
-- `key_branch_swordcraft_entry`：剑气；
-- `key_branch_vitality_entry`：煞气；
-- `key_branch_bodyforge_entry`：怒气；
-- `key_avatar_entry`：额外 1 点元气。
+- `turn_start_gain_chakra`：剑气；
+- `turn_start_gain_karma`：煞气；
+- `turn_start_gain_rage`：怒气；
+- `turn_start_gain_vigor`：额外 1 点元气。
 
-实施时使用同一套参数化资源产出能力，不为四个入口复制四份不同脚本。炼魂场外煞气池作为后续独立机制接入，不改变入口的每回合保底。
+五种资源使用同一套参数化产出脚本和 `turn_start_resource` 显示分组，不为各入口复制不同脚本。炼魂场外煞气池作为后续独立机制接入，不改变入口的每回合保底。
 
 ### 阶段 3：通用费用节点与属性分工
 

@@ -9,7 +9,7 @@
 5. 记录是否跳过出牌阶段（`turnFlags.skipTurn` 或空手空库），但不跳过资源与回合结束结算
 6. 清空资源：`clearResourceEffects()`（每个角色第一次行动保留战初阳气；以后除太极外的阳气在下次行动开始清空；煞气未用量返回业力池；阴气与太极永久存在，直到被支付或被对应阴气对冲抵消；
    被动 `energyRetain` 字段匹配的阳气可至多保留 max 层到下回合，每保留 1 层结算一次代价伤害）
-7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy + 装备词条加成 basicEnergyBonus；
+7. 产出结算：`produceTurnStartResources()`（元气 = 固定基准 kBattleBaseEnergy，额外元气由 turn_start_gain_vigor 提供；
    元气先与死气对冲，若抵消后仍持有死气则失去 5% 生命上限，死气不自动消耗；
    有色气产出由流派入口或关键节点状态挂在 `self_produce_resources` 时机提供，如悟道入口「太上感应」每回合固定提供 1 点灵气），
    末尾派发 `self/opponent_produce_resources` 回调，刷新能量瓶
@@ -61,10 +61,15 @@
 `BattleCharacter._statusEffects` 中并独立执行回调，只在屏幕上合并为一个图标；悬停时按当前成员生成明细。
 该字段不改变状态层数、参数聚合、互斥、执行顺序或每回合触发次数。
 
-当前分组为 `scry`、`kind_damage`、`elemental_resist`、`attack_type`。新增分组时同步
+当前分组为 `scry`、`kind_damage`、`elemental_resist`、`attack_type`、`turn_start_resource`。新增分组时同步
 `lib/scene/battle/status_effect_group.dart` 的 UI 配置、分组名称/说明本地化、图标与数据校验器；
 新增成员只需在状态数据中声明已有分组 ID，成员自身省略 `icon`；未分组状态仍必须提供 `icon`。
 分组图标不显示异质成员的层数总和。
+
+`turn_start_resource` 使用 `parameterList` 模式，按各状态的 `resourceAmount` 显示最终产出值。六种资源状态
+`turn_start_gain_mana/chakra/rage/karma/vigor/ultimate` 共用 `turn_start_gain_resource` 脚本和分组图标，分别通过
+`resourceId` 指定灵气、剑气、怒气、煞气、元气、太极之气。状态原型 `resourceAmount` 为 0，普通共享被动提供 1，
+聚灵旗等独立被动可提供 3；所有有效来源经 `battleStatusParams` 累加，分组只合并显示，不改变资源独立结算。
 
 ## 回调时机清单
 
@@ -150,6 +155,7 @@
 | 字段                 | 类型                                               | 机制                                                                                                                                                                                                                               |
 | -------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `battleStatus`       | 状态 id                                            | 战斗开始授予对应永久状态（行为在状态脚本实现；天赋境界/分支节点与装备词条的统一入口）                                                                                                                                              |
+| `battleStatusValueParam` | 状态参数名                                      | 将同 ID 聚合后的被动 `value` 累加到 `battleStatusParams[状态id][参数名]`；用于把等级缩放贡献并入统一状态，需同时声明 `battleStatus`                                                                                  |
 | `deckCostReduction`  | `{color, amount, genres?, notGenres?}`             | 组牌阶段按卡合计全部命中规则后统一修正（下限 0；amount 为负即加费，如聚灵旗软流派锁）；`color: 'all'` 时命中卡 coloredCost 首个条目，加费方向允许作用于显式 0 费条目（0 → -amount）                  |
 | `firstCardCostReduction` | `{color, amount, genres?, notGenres?}`         | 每次行动第一张匹配卡牌在支付前减 amount 费（下限 0，动态费用豁免）；全部命中且未消耗的规则共同生效，实际支付成功后消耗；队列预占按顺序模拟，额外行动重置                  |
 | `shuffleIntoDeck`    | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                                                                                                                                                         |
@@ -186,17 +192,20 @@
 六种武器分别以对应的 `increase_damage_<kind>` 为主词条；通用 `weaponAttack` 不进入主词条池。靴子与船的主词条池分别包含 `mountainMoveSpeed` / `waterMoveSpeed`；所有词条与其他来源按同 ID 正常聚合，不另设显示规则。
 普通装备的风味文本优先使用 `flavortext_<kind>`，未配置时回退到 `flavortext_<category>`。
 
-**存量不一致（待清理）**：`basicEnergyBonus`、`battleDrawBonus` 两个词条目前走按名绑定，
+**存量不一致（待清理）**：`battleDrawBonus` 目前走按名绑定，
 与同为纯加值 stat 的 `handSizeMax`/`ailment_ward`（走 statsBonus）表达不一致；
-且二者 `increment: 0` 为定值，迁移无缩放损失。拟改为 statsBonus 载荷并删除对应绑定行。
+其 `increment: 0` 为定值，迁移无缩放损失。拟改为 statsBonus 载荷并删除对应绑定行。
 `deckMinSizeReduce` 的绑定行是死代码（passives 无同名词条，实际仅经天机盘 statsBonus 生效），拟直接删除。
-消费点均已 `?? 0`（battle.dart / character.dart / energy_display.dart），迁移无需改消费点。
+原 `basicEnergyBonus` 已删除，元气基础产出固定为 3，额外产出统一读取 `turn_start_gain_vigor` 的 `resourceAmount`；
+属性面板通过 `kTurnStartResourceStatusIds` 和 `getTurnStartResourceAmount` 直接展示六种资源参数。
 另注意：statsBonus 载荷为固定字面量，不支持词条等级缩放；若未来纯加值词条需要随等级缩放，
 需先在循环中加入占位符解析（当前无此需求）。
 
 **被动太古**：`greater.values` 只转换对应额外来源的普通贡献，主词条不应用；`greater.data` 累加既有参数，`greater.alt` 替换指定字段，不追加新机制。来源快照由 `resolveGreaterAffix` 一次性生成，不能修改公共原型或重复累加。
 `battleStatusParams` 与 `battleStatus` 同步聚合，数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；战前通过 `addStatusEffect(params:)` 写入状态实例。
+`battleStatusValueParam` 额外把同 ID 被动聚合后的 `value` 累加到指定状态参数，使固定 `statusParams` 与等级缩放贡献可以合并到同一最终值。
 `scry_upgrade` 忽略被动等级，升级量完全读取聚合后的 `statusParams.upgradeChosen`：每个普通来源 +1，太古来源再 +1，同名来源简单相加；状态原型默认值为 0，不额外提供基础升级。
+`scry_shield`、`scry_mana`、`scry_all_damage`、`key_branch_element_1/2`、`spellcraft_side_5/6`、`key_branch_spellcraft_overflow/rotation`、`limitless_amulet` 同样按普通来源参数叠加，状态原型对应数值均为 0。`mana_threshold_guard` 与 `heaven_peeking_mirror` 明确不叠加；观星次数、保留上限与洗入卡牌仍使用原有互斥规则。
 牌库下限使用独立的绝对最小值 `kBattleDeckSizeAbsoluteMin`（当前 5），不再以基准牌库大小作为最低值。
 
 **费用（单资源模型，见 plan/battle_resource_rework.md）**：每张卡只花一种资源——

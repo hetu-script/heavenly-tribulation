@@ -102,9 +102,9 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 
 ## 6. 参数/属性型效果：stats 管线完整链路
 
-参数型/纯属性效果需要新增 stat 时，同步以下五处（样板：`basicEnergyBonus` 每回合元气）：
+参数型/纯属性效果需要新增 stat 时，同步以下五处（样板：`battleDrawBonus` 每回合元气）：
 
-1. **词条定义** `assets/data/passives.json5`：词条 id 即 stat id（同名约定，如 `basicEnergyBonus`），`description` 键供装备/天赋界面显示词条效果。
+1. **词条定义** `assets/data/passives.json5`：词条 id 即 stat id（同名约定，如 `battleDrawBonus`），`description` 键供装备/天赋界面显示词条效果。
 2. **词条本地化** `assets/locale/zh/rpg/passive.json`：`passive_{id}_description`，数值占位 `{0}`。
 3. **stats 聚合** `scripts/main/data/character/battle_entity.ht` 的 `characterCalculateStats()`：加一行聚合。纯加成：
    `character.stats.{id} = character.passives.{id}?.value + character.ephemeralPassives.{id}?.value`；

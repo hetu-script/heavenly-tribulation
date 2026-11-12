@@ -13,7 +13,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 战斗流程（\_startBattle 循环 → \_onBattleStart → \_startTurn → \_onBattleEnd）：
   - 先手按身法加权随机（0.5 + (heroDex - enemyDex)/100），偷袭直接先手；后手方补偿回血至上限。
   - 软狂暴：roundCount > 8 后每个普通行动回合开始前叠 1 层劫气（回合开始回调扣 10% 生命上限）。
-  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy + basicEnergyBonus；先与死气对冲，仍有死气则扣 5% 生命上限且不自动消耗）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
+  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy，额外产出由统一资源状态提供；先与死气对冲，仍有死气则扣 5% 生命上限且不自动消耗）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
@@ -21,7 +21,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 伤害预测：refreshHandCardDescription 逐词条调用 enemy.predictDamage(hero, affix, cardCost: ...)，把 predictedValue/predictedCrit/predictedAilment 写进词条数据，由 GameData.getBattleCardDescription(withPrediction: true) 渲染着色对比。
 - 观星 scry：中央展示牌库顶 N 张（缺省 3 张，合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
-- 永久状态显示分组：状态数据以 displayGroup 声明 scry / kind_damage / elemental_resist / attack_type 四组；BattleCharacter 保留全部逻辑状态和原回调遍历，StatusEffectGroup 只合并场景图标并在悬停时实时列出成员。组成员全部移除或清空状态时销毁分组组件，不合计异质层数。
+- 永久状态显示分组：状态数据以 displayGroup 声明 scry / kind_damage / elemental_resist / attack_type / turn_start_resource 五组；BattleCharacter 保留全部逻辑状态和原回调遍历，StatusEffectGroup 只合并场景图标并在悬停时实时列出成员。组成员全部移除或清空状态时销毁分组组件，不合计异质层数；turn_start_resource 使用 parameterList 按 resourceAmount 显示各资源最终产出值。
 - 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；firstCardCostReduction → 支付与队列预占（每次行动首张匹配牌减费，支付成功后消耗，动态费用豁免）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
 
@@ -57,7 +57,8 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {script}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn_start / turn_end / doing_damage / taking_damage / done_damage / taken_damage / gained_debuff / gained_energy_positive / using_card / used_card / attacked / buffed，以及 self_scry、self_produce_resources（产出阶段，如太上感应）等；以 Dart 实际分发点为准。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道入口与关键节点（turn_start_spell_mana_1 / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、无极、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。scry_all_damage 的被动、脚本、图标与测试已完成，尚未分配到技能树。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道入口与关键节点（turn_start_gain_mana / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_gain_mana / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、无极、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。scry_all_damage 的被动、脚本、图标与测试已完成，尚未分配到技能树。
+- 固定资源产出：turn_start_gain_mana/chakra/rage/karma/vigor/ultimate 六种状态共用 turn_start_gain_resource 脚本，resourceId 决定资源种类，resourceAmount 决定最终产出；普通共享词条每个来源 +1，聚灵旗独立提供 +3，全部经 statusParams 累加；旧 turn_start_gain_*_affix 缩放词条通过 battleStatusValueParam 把聚合 value 映射到同一参数，固定与等级来源可叠加。
 - 状态数据在 assets/data/status*effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status*{id} + status\_{id}\_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -97,7 +98,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 临时配置：临时来源以 ephemeralScope 区分 battle_preparation / standalone，缺省归战前配置。characterReplaceBattlePreparationPassives 先构建快照再原子替换非永久战前来源，永久与独立效果保留；characterGetBattlePreparationSummary 提供替换确认计数。聚灵阵 getExpArrayBuff 只返回深拷贝实例，场景保存 batchId 和待生效列表，最终确认后才提交；结丹后以 getExpArrayGreaterPreview 在副本上预览并凝炼一条临时太古。战斗结束仍清除全部非永久临时来源。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
-  - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；basicEnergyBonus → produceTurnStartResources（:726）。
+  - character.dart：energyRetain → clearResourceEffects（:667，保留+每点代价伤害，每角色本场首次行动跳过）；ailmentInflictBonus/ailmentReceiveBonus → 异常计数器（:342）与 addStatusEffect 直施（:509）两路径同口径修正（修正后 ≤0 静默不施加）；turn_start_gain_vigor → 元气额外产出，基础元气固定为 kBattleBaseEnergy。
 - 战斗内展示：EquipmentsBar（lib/scene/battle/equipments_bar.dart）固定 8 格只读图标+rank 边框，仅悬停提示（物品/属性/流派被动说明），战斗中不可穿脱；战前整备另有 EquipmentBar（prebattle.dart）。被动描述统一按聚合后的词条 ID 与数值显示，无武器攻击力特例。
 
 ### 5.4 装备 UI（Dart）：lib/widgets/character/
@@ -105,7 +106,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - stats_and_item.dart（CharacterStatsAndItem）：EquipmentBar（竖排装备栏）+ CharacterStats（属性面板）+ Inventory（背包）三联；右键菜单 equip/unequip/use/charge/discard，前置校验（未鉴定/诅咒/类别限制/绝世重复）。
 - inventory/：equipment_bar.dart（角色面板装备栏）、inventory.dart + item_grid.dart（背包格子）、material.dart（材料栏）；merchant/ 交易界面。
 - item_craft.dart（ItemCraft）：材料选择面板——CraftMode.affix/scroll/identify/all 决定 category 过滤（craftmaterial_affix/scroll_paper/identify_scroll/全部），可选 rank 下限；设置 minRank 时同时使用 includeUnranked 保留无境界通用材料，低境界破镜丹仍被过滤；右键发 GameEvents.craftMaterialSelected 供工坊场景消费，本身不含打造逻辑。
-- stats.dart 的 kMoreStats 展示 scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等数值属性；纯机制开关 turnStartScry 不进入属性列表。
+- stats.dart 的 kMoreStats 展示六种 turn_start_gain_* 资源产出及 scryBonus / ailmentInflictBonus / ailmentReceiveBonus 等数值属性；资源项通过 getTurnStartResourceAmount 直接读取 battleStatusParams.resourceAmount，不再设置 basicEnergyBonus 等平行 stat；纯机制开关 turnStartScry 不进入属性列表。
 
 ### 5.5 打造与精炼（lib/widgets/view/workshop.dart）
 
@@ -121,7 +122,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
   - 五行珠 five_elements_pearl（rank2，amulet）→ statsBonus: {ailmentInflictBonus: 2, ailmentReceiveBonus: 2}
   - 天机盘 heavenly_mechanism_disc（rank3，talisman/pearl）→ statsBonus: {deckMinSizeReduce: -2} + deckCostReduction 非悟道牌加费；额外词条为固定每回合抽牌、手牌上限、悟道减费。
   - 蓄灵佩 spirit_storing_amulet（rank4，amulet）→ energyRetain: {resourceId: energy_positive_spell, max: 2, costPerPoint: 3, costDamageType: pure}
-  - 聚灵旗 spirit_gathering_banner（rank5，talisman/pearl）→ battleStatus: turn_start_mana_bonus + deckCostReduction: {color: all, amount: -2, notGenres: [spellcraft]}
+  - 聚灵旗 spirit_gathering_banner（rank5，talisman/pearl）→ battleStatus: turn_start_gain_mana + deckCostReduction: {color: all, amount: -2, notGenres: [spellcraft]}
 - 中立两件（装备 → 主词条机制）：
   - 乾坤戒 cosmos_ring（rank1，jewelry/ring）→ statsBonus: {handSizeMax: 2, battleDrawBonus: -1}；固定额外词条为元气产出、手牌上限和元气保留，太古时保留上限 2、手牌加成 2、元气产出 2。
   - 无极佩 limitless_amulet（rank3，jewelry/amulet）→ battleStatus: neutral_card_limitless（每回合首张中立加持牌授予 1 层无极）+ deckCostReduction 五种流派牌加费；固定额外词条为战初无极、穿透和暴击阈值。
@@ -129,10 +130,12 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 6. 天赋树
 
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
-- 悟道入口/关键节点重构：新词条为 key*branch_spellcraft_entry / discount / overflow / rotation / ultimate，分别提供每回合 1 灵气、每回合首张悟道牌减费、剩余灵气伤害、套路增伤轮转和洗入万法归宗。旧 spellcraft_rank*\* 已删除；passive_skills.json5 本轮刻意未改，旧引用等待人工排布时处理。
+- 流派入口共享资源词条：turn_start_gain_mana/chakra/rage/karma/vigor 分别提供灵气、剑气、怒气、煞气、元气，普通来源每个 +1；悟道原入口与灵气细流已合并为 turn_start_gain_mana，乾坤戒也改用 turn_start_gain_vigor。
+- 悟道关键节点重构：新词条为 turn_start_gain_mana / key_branch_spellcraft_discount / overflow / rotation / ultimate，分别提供每回合 1 灵气、每回合首张悟道牌减费、剩余灵气伤害、套路增伤轮转和洗入万法归宗。旧 spellcraft_rank*\* 已删除；passive_skills.json5 本轮刻意未改，旧引用等待人工排布时处理。
 - 分支节点：key*branch*\* 使用中性 id，设计上可多流派共享；悟道的 4 个关键分支均已实现并进入当前天赋树。
 - 悟道独占节点：养气诀直接引用 spirituality level 30、静心诀引用 spellAttack level 30，二者已上树；观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40，驭灵与天人合一分别使用 spellcraft_side_5/6 永久状态，这四者已实现但尚未分配到树中。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
 - scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
+- 可叠加状态统一采用“触发次数不增、单次数值累加”：scry_shield/mana/all_damage、key_branch_element_1/2、spellcraft_side_5/6、key_branch_spellcraft_overflow/rotation、limitless_amulet 的普通来源均提供对应 statusParams，聚灵旗 resourceAmount 也可叠加；mana_threshold_guard 与 heaven_peeking_mirror 明确不叠加。
 - 学天赋与穿装备共用 Raw 来源模型：天赋以 `passive_tree:{节点ID}:{被动ID}` 为 sourceKey 写入，退点按节点 ID 移除；随后 characterCalculateStats 重建聚合结果（见 5.3），战斗侧只读派生被动数据。普通与境界节点均消耗并返还 1 天赋点；境界节点只通过 `checkRequirements(..., checkRank: true)` 检查现有 rank，不再触发突破试炼，退点不降低角色 rank。旧 characterSetPassive 正负等级接口已移除。
 
 ## 7. 常量同步（Dart ↔ Hetu）
@@ -167,7 +170,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，calculateQueuedCardPayment 统一队列预占、置灰与缺资源提示，敌方按可支付手牌出牌，不再依赖元气余额。
 
-- 入口与原境界节点 5 个已完成词条层重构，但尚未接入当前天赋树：太上感应（key_branch_spellcraft_entry，每次行动固定产 1 灵气，复用 turn_start_spell_mana_1）/ 天道循环（discount，firstCardCostReduction 每回合首张悟道牌 -1）/ 阴阳五行（overflow，回合结束未保留灵气溢出伤害）/ 五气朝元（rotation，五元素攻击增强轮转）/ 万法归宗（ultimate，shuffleIntoDeck 洗入绝世卡）。
+- 入口与原境界节点 5 个已完成词条层重构，但尚未接入当前天赋树：太上感应（turn_start_gain_mana，每次行动固定产 1 灵气，复用 turn_start_gain_mana）/ 天道循环（discount，firstCardCostReduction 每回合首张悟道牌 -1）/ 阴阳五行（overflow，回合结束未保留灵气溢出伤害）/ 五气朝元（rotation，五元素攻击增强轮转）/ 万法归宗（ultimate，shuffleIntoDeck 洗入绝世卡）。
 - 分支节点 4 个（已实现并上树）：天道推演（key_branch_scry，turnStartScry: true）/ 紫微斗数（draw_2，洗入授予卡）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
 - 卡牌：普通主词条 17 张 + 常规绝世卡 5 张 + 天赋授予卡 2 张 + 一气化三清抉择临时卡 3 张（不进卡池）；普通随机额外词条 16 条，其中 6 条属于自异常转化体系。相生相克的专属词条按本回合已用元素种数线性增加双方异常层数。
 - 绝世装备 5 件（items.json5 + passives.json5）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。

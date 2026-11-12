@@ -1765,22 +1765,20 @@ final class GameData with ChangeNotifier {
       tagsSeparator: '～',
       illustrationSpriteId: image,
       illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
-      descriptionRelativeRect: const Rect.fromLTWH(0.076, 0.760, 0.849, 0.14),
+      descriptionRelativeRect: const Rect.fromLTWH(0.1, 0.645, 0.77, 0.215),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         outlined: true,
-        padding: EdgeInsets.only(left: 10.0, right: 10.0),
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
           fontSize: 8.0,
           color: Colors.white,
-          // shadows: kTextShadows,
         ),
         textAlign: TextAlign.left,
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description,
-      descriptionBackgroundSpriteId: 'battlecard/description_background.png',
+      // descriptionBackgroundSpriteId: 'battlecard/description_background.png',
       // 费用行：右上角起向左紧排，compact 模式（每色一个图标 + 数量数字），
       // 元气（life）在基准位置（最右），有色图标依次在左
       coloredCostIconRelativeRect: const Rect.fromLTWH(0.811, 0.04, 0.135, 0.1),

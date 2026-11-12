@@ -33,7 +33,7 @@ const kStats = [
 
 const kMoreStats = [
   'divider',
-  'basicEnergyBonus',
+  ...kTurnStartResourceStatusIds,
   'battleDrawBonus',
   'handSizeMax',
   'deckMinSizeReduce',
@@ -89,8 +89,11 @@ class _CharacterStatsState extends State<CharacterStats> {
   Widget _buildStatsLabel(String id, dynamic character) {
     if (id == 'divider') return const Divider();
 
-    final num baseValue = character[id] ?? 0;
-    final num value = character['stats'][id] ?? baseValue;
+    final isTurnStartResource = kTurnStartResourceStatusIds.contains(id);
+    final num baseValue = isTurnStartResource ? 0 : character[id] ?? 0;
+    final num value = isTurnStartResource
+        ? getTurnStartResourceAmount(character, id)
+        : character['stats'][id] ?? baseValue;
 
     String idString = engine.locale(id);
     String valueString;
@@ -126,6 +129,9 @@ class _CharacterStatsState extends State<CharacterStats> {
               : '$karmaMaxValue%');
       description =
           '${engine.locale('${id}_description')}\n${engine.locale('karmaMax')}: $karmaMaxValueString';
+    } else if (isTurnStartResource) {
+      valueString = value > 0 ? '<yellow>$value</>' : '$value';
+      description = engine.locale('${id}_description');
     } else if (id.endsWith('Attack')) {
       valueString = value > baseValue
           ? '<yellow>$value%</>'

@@ -68,6 +68,7 @@ const kStatusDisplayGroupIds = {
   'kind_damage',
   'elemental_resist',
   'attack_type',
+  'turn_start_resource',
 };
 
 /// 脚本必需的数据字段（缺失会在运行时报错或静默失效）
@@ -93,6 +94,7 @@ const kScriptRequiredFields = {
   'gain_status_by_energy_count': ['resourceId', 'resourceThreshold', 'buffId'],
   'gain_status_and_resource': ['buffId', 'resourceId'],
   'gain_status_by_vigor_consumed': ['buffId'],
+  'turn_start_gain_resource': ['resourceId'],
 };
 
 /// 已知物品布尔标记（表外 is* 字段仅提示——可能是拼写错误，如 isEquipable）
@@ -1100,6 +1102,15 @@ void validatePassives(Map<String, dynamic> passives) {
     }
 
     checkStatusRef(data['battleStatus'], '$ctx.battleStatus');
+    final battleStatusValueParam = data['battleStatusValueParam'];
+    if (battleStatusValueParam != null) {
+      if (battleStatusValueParam is! String || battleStatusValueParam.isEmpty) {
+        err('状态数值映射参数必须是非空字符串', '$ctx.battleStatusValueParam');
+      }
+      if (data['battleStatus'] == null) {
+        err('状态数值映射必须同时声明 battleStatus', '$ctx.battleStatusValueParam');
+      }
+    }
 
     final shuffleIntoDeck = data['shuffleIntoDeck'];
     if (shuffleIntoDeck is List) {

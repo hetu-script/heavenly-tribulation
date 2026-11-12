@@ -10,6 +10,7 @@ import 'status_effect.dart';
 enum StatusDisplayGroupHoverMode {
   effectList,
   valueList,
+  parameterList,
 }
 
 final class StatusDisplayGroupConfig {
@@ -19,6 +20,8 @@ final class StatusDisplayGroupConfig {
   final String description;
   final int priority;
   final StatusDisplayGroupHoverMode hoverMode;
+  final String? valueParameter;
+  final String valueSuffix;
 
   const StatusDisplayGroupConfig({
     required this.id,
@@ -27,6 +30,8 @@ final class StatusDisplayGroupConfig {
     required this.description,
     required this.hoverMode,
     this.priority = 0,
+    this.valueParameter,
+    this.valueSuffix = '',
   });
 }
 
@@ -58,6 +63,14 @@ const kStatusDisplayGroups = <String, StatusDisplayGroupConfig>{
     title: 'status_display_group_attack_type',
     description: 'status_display_group_attack_type_description',
     hoverMode: StatusDisplayGroupHoverMode.valueList,
+  ),
+  'turn_start_resource': StatusDisplayGroupConfig(
+    id: 'turn_start_resource',
+    icon: 'icon/status/permanent/turn_start_resource.png',
+    title: 'status_display_group_turn_start_resource',
+    description: 'status_display_group_turn_start_resource_description',
+    hoverMode: StatusDisplayGroupHoverMode.parameterList,
+    valueParameter: 'resourceAmount',
   ),
 };
 
@@ -115,12 +128,16 @@ class StatusEffectGroup extends BorderComponent with HandlesGesture {
       });
     for (final effect in sorted) {
       final title = engine.locale(effect.data['title']);
-      if (config.hoverMode == StatusDisplayGroupHoverMode.valueList) {
-        buffer.write('\n$title：${effect.amount}%');
-      } else {
-        buffer.write(
-          '\n$title\n${engine.locale(effect.data['description'])}',
-        );
+      switch (config.hoverMode) {
+        case StatusDisplayGroupHoverMode.valueList:
+          buffer.write('\n$title：${effect.amount}%');
+        case StatusDisplayGroupHoverMode.parameterList:
+          final value = effect.data[config.valueParameter] ?? 0;
+          buffer.write('\n$title：$value${config.valueSuffix}');
+        case StatusDisplayGroupHoverMode.effectList:
+          buffer.write(
+            '\n$title\n${engine.locale(effect.data['description'])}',
+          );
       }
     }
     return buffer.toString();

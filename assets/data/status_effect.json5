@@ -835,12 +835,12 @@
     isPermanent: true,
     script: "yin_yang_five_elements",
     callbacks: ["self_turn_end"],
-    damagePerStack: 10,
+    damagePerStack: 0,
     resourceId: "energy_positive_spell",
   },
 
   // 五气朝元：每个回合开始时，轮流获得 御水术/御火术/土遁/御风术/雷法 的
-  // 伤害增强（increase_damage_* 永久状态，1 层 = +1%），层数 = 自身灵力的一半；
+  // 伤害增强（increase_damage_* 永久状态，1 层 = +1%），层数 = 自身灵力的一半 × rotationMultiplier；
   // 先移除上轮所授层数，再授予本轮（轮转记录存于角色数据 elementRotation）
   key_branch_spellcraft_rotation: {
     id: "key_branch_spellcraft_rotation",
@@ -850,11 +850,12 @@
     isPermanent: true,
     script: "five_qi_convergence",
     callbacks: ["self_turn_start"],
+    rotationMultiplier: 0,
   },
 
   // ------------流派分支节点状态------------
 
-  // 抱真守一（悟道/御剑共享分支节点）：使用元素牌后，手牌里随机一张相同元素牌获得升级
+  // 抱真守一（悟道/御剑共享分支节点）：使用元素牌后，手牌里随机 upgradeCount 张相同元素牌获得升级
   key_branch_element_1: {
     id: "key_branch_element_1",
     title: "status_key_branch_element_1",
@@ -863,9 +864,10 @@
     isPermanent: true,
     script: "embrace_simplicity",
     callbacks: ["self_used_card"],
+    upgradeCount: 0,
   },
   // 五行轮转（悟道/御剑共享分支节点）：本回合每使用一种不同的元素牌，
-  // 获得 1 层 resourceId 资源
+  // 获得 resourceAmount 层 resourceId 资源
   key_branch_element_2: {
     id: "key_branch_element_2",
     title: "status_key_branch_element_2",
@@ -875,6 +877,7 @@
     script: "element_cycle",
     callbacks: ["self_used_card"],
     resourceId: "energy_positive_spell",
+    resourceAmount: 0,
   },
 
   // 驭灵：回合开始时，双方分别随机获得 statusAmount 层元素异常；暂复用五气朝元图标
@@ -886,7 +889,7 @@
     isPermanent: true,
     script: "elemental_channeling",
     callbacks: ["self_turn_start"],
-    statusAmount: 1,
+    statusAmount: 0,
   },
   // 天人合一：回合结束记录元素种数，下一次产出阶段达到门槛后获得灵气；暂复用太上感应图标
   spellcraft_side_6: {
@@ -899,7 +902,7 @@
     callbacks: ["self_turn_end", "self_produce_resources"],
     requiredElementCount: 3,
     resourceId: "energy_positive_spell",
-    resourceAmount: 2,
+    resourceAmount: 0,
   },
 
   // ------------悟道绝世装备状态------------
@@ -916,17 +919,72 @@
     script: "scry_self_ailments",
     callbacks: ["self_scry"],
   },
-  // 聚灵旗：回合产出阶段获得 manaBonus 层悟道灵气
-  // （数值写在状态数据，本地化描述同步写死，改动时需同步）
-  turn_start_mana_bonus: {
-    id: "turn_start_mana_bonus",
-    title: "status_turn_start_mana_bonus",
-    description: "status_turn_start_mana_bonus_description",
-    icon: "item/unknown.png",
+  // 固定资源产出：所有来源共享同一状态，数值由 statusParams 累加
+  turn_start_gain_mana: {
+    id: "turn_start_gain_mana",
+    title: "status_turn_start_gain_mana",
+    description: "status_turn_start_gain_mana_description",
+    displayGroup: "turn_start_resource",
     isPermanent: true,
-    script: "turn_start_mana_bonus",
+    script: "turn_start_gain_resource",
     callbacks: ["self_produce_resources"],
-    manaBonus: 3,
+    resourceId: "energy_positive_spell",
+    resourceAmount: 0,
+  },
+  turn_start_gain_chakra: {
+    id: "turn_start_gain_chakra",
+    title: "status_turn_start_gain_chakra",
+    description: "status_turn_start_gain_chakra_description",
+    displayGroup: "turn_start_resource",
+    isPermanent: true,
+    script: "turn_start_gain_resource",
+    callbacks: ["self_produce_resources"],
+    resourceId: "energy_positive_weapon",
+    resourceAmount: 0,
+  },
+  turn_start_gain_rage: {
+    id: "turn_start_gain_rage",
+    title: "status_turn_start_gain_rage",
+    description: "status_turn_start_gain_rage_description",
+    displayGroup: "turn_start_resource",
+    isPermanent: true,
+    script: "turn_start_gain_resource",
+    callbacks: ["self_produce_resources"],
+    resourceId: "energy_positive_unarmed",
+    resourceAmount: 0,
+  },
+  turn_start_gain_karma: {
+    id: "turn_start_gain_karma",
+    title: "status_turn_start_gain_karma",
+    description: "status_turn_start_gain_karma_description",
+    displayGroup: "turn_start_resource",
+    isPermanent: true,
+    script: "turn_start_gain_resource",
+    callbacks: ["self_produce_resources"],
+    resourceId: "energy_positive_curse",
+    resourceAmount: 0,
+  },
+  turn_start_gain_vigor: {
+    id: "turn_start_gain_vigor",
+    title: "status_turn_start_gain_vigor",
+    description: "status_turn_start_gain_vigor_description",
+    displayGroup: "turn_start_resource",
+    isPermanent: true,
+    script: "turn_start_gain_resource",
+    callbacks: ["self_produce_resources"],
+    resourceId: "energy_positive_life",
+    resourceAmount: 0,
+  },
+  turn_start_gain_ultimate: {
+    id: "turn_start_gain_ultimate",
+    title: "status_turn_start_gain_ultimate",
+    description: "status_turn_start_gain_ultimate_description",
+    displayGroup: "turn_start_resource",
+    isPermanent: true,
+    script: "turn_start_gain_resource",
+    callbacks: ["self_produce_resources"],
+    resourceId: "energy_positive_ultimate",
+    resourceAmount: 0,
   },
   // 观星升级：每回合第一次观星后，选中牌等级提升；升级量完全由被动来源参数提供
   scry_upgrade: {
@@ -939,7 +997,7 @@
     callbacks: ["self_scry"],
     upgradeChosen: 0,
   },
-  // 观星护盾：每回合第一次观星后获得护盾
+  // 观星护盾：每回合第一次观星后获得护盾，数值由被动来源参数提供
   scry_shield: {
     id: "scry_shield",
     title: "status_scry_shield",
@@ -948,7 +1006,7 @@
     isPermanent: true,
     script: "scry_shield",
     callbacks: ["self_scry"],
-    shieldAmount: 1,
+    shieldAmount: 0,
   },
   // 观星产灵：每回合第一次观星后获得灵气；回合开始观星延迟到本次产出阶段授予
   scry_mana: {
@@ -960,9 +1018,9 @@
     script: "scry_mana",
     callbacks: ["self_scry", "self_produce_resources"],
     resourceId: "energy_positive_spell",
-    manaBonus: 1,
+    manaBonus: 0,
   },
-  // 观星无极：每回合第一次观星后获得无极之气
+  // 观星无极：每回合第一次观星后获得无极之气，数值由被动来源参数提供
   scry_all_damage: {
     id: "scry_all_damage",
     title: "status_scry_all_damage",
@@ -972,18 +1030,7 @@
     script: "scry_all_damage",
     callbacks: ["self_scry"],
     buffId: "buff_all_damage",
-    statusAmount: 1,
-  },
-  // 灵气细流：回合产出阶段获得 1 点灵气，复用聚灵脚本
-  turn_start_spell_mana_1: {
-    id: "turn_start_spell_mana_1",
-    title: "status_turn_start_spell_mana_1",
-    description: "status_turn_start_spell_mana_1_description",
-    icon: "icon/status/permanent/turn_start_spell_mana_1.png",
-    isPermanent: true,
-    script: "turn_start_mana_bonus",
-    callbacks: ["self_produce_resources"],
-    manaBonus: 1,
+    statusAmount: 0,
   },
   // 聚气成势：灵气达到阈值时，受到的伤害按乘区2降低
   mana_threshold_guard: {
@@ -1010,6 +1057,6 @@
     script: "neutral_card_limitless",
     callbacks: ["self_used_card"],
     buffId: "buff_all_damage",
-    statusAmount: 1,
+    statusAmount: 0,
   },
 }

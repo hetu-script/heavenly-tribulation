@@ -604,7 +604,7 @@ void main() {
     }
 
     final normal = run('normal');
-    expect(normal['modifier'], 0);
+    expect(normal['modifier'], 1);
     expect(normal['gains'], [
       ['buff_all_damage', 1],
       ['buff_all_damage', 1],
@@ -612,17 +612,17 @@ void main() {
     expect(normal['statusCount'], 1);
 
     final greater = run('greater');
-    expect(greater['modifier'], 1);
+    expect(greater['modifier'], 2);
     expect(greater['gains'], [
       ['buff_all_damage', 2],
       ['buff_all_damage', 2],
     ]);
 
     final mixed = run('mixed');
-    expect(mixed['modifier'], 1);
+    expect(mixed['modifier'], 3);
     expect(mixed['gains'], [
-      ['buff_all_damage', 2],
-      ['buff_all_damage', 2],
+      ['buff_all_damage', 3],
+      ['buff_all_damage', 3],
     ]);
     expect(mixed['statusCount'], 1);
   });
@@ -660,7 +660,7 @@ void main() {
         'ephemeralPassivesRaw': <String, dynamic>{},
         'stats': {
           'battleStatusParams': {
-            'scry_all_damage': {'statusAmount': 1}
+            'scry_all_damage': {'statusAmount': 2}
           }
         },
       });
@@ -676,8 +676,14 @@ void main() {
         loadJson5File('assets/data/status_effect.json5'));
     final hetu = createHetu();
     hetu.eval('var channelingEffect; var unityEffect;');
-    hetu.assign('channelingEffect', statuses['spellcraft_side_5']);
-    hetu.assign('unityEffect', statuses['spellcraft_side_6']);
+    hetu.assign('channelingEffect', {
+      ...?statuses['spellcraft_side_5'],
+      'statusAmount': 1,
+    });
+    hetu.assign('unityEffect', {
+      ...?statuses['spellcraft_side_6'],
+      'resourceAmount': 2,
+    });
     final result = hetu.eval('''
       ${File('scripts/main/cardgame/status_script.ht').readAsStringSync()}
       final random = {
@@ -1114,5 +1120,107 @@ void main() {
       [playerResult, playerSlot, npcResult, character.equipments['0'], item.isInvalid]
     ''');
     expect(result, [false, null, true, 'requirement-item', false]);
+  });
+
+  test('固定资源被动按来源叠加且聚灵旗使用独立数值参数', () {
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final hetu = createHetu();
+    hetu.eval('var manaAffix; var bannerAffix;');
+    hetu.assign('manaAffix', passives['turn_start_gain_mana']);
+    hetu.assign('bannerAffix', passives['spirit_gathering_banner']);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final result = hetu.eval('''
+      characterAddPassiveSource(character, _createPassiveSource(manaAffix,
+        sourceKey: 'passive_tree:entry:mana', sourceType: 'passive_tree', sourceId: 'entry'))
+      characterAddPassiveSource(character, _createPassiveSource(manaAffix,
+        sourceKey: 'equipment:amulet:3', sourceType: 'equipment', sourceId: 'amulet', affixIndex: 3))
+      characterAddPassiveSource(character, _createPassiveSource(bannerAffix,
+        sourceKey: 'equipment:banner:0', sourceType: 'equipment', sourceId: 'banner', affixIndex: 0))
+      characterCalculateStats(character)
+      character.stats.battleStatusParams.turn_start_gain_mana.resourceAmount
+    ''');
+    expect(result, 5);
+  });
+
+  test('等级缩放资源与固定参数聚合到同一状态', () {
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final hetu = createHetu();
+    hetu.eval(
+        'var manaAffix; var spellAffix; var karmaAffix; var ultimateAffix; var bannerAffix;');
+    hetu.assign('manaAffix', passives['turn_start_gain_mana']);
+    hetu.assign('spellAffix', passives['turn_start_gain_mana_affix']);
+    hetu.assign('karmaAffix', passives['turn_start_gain_karma_affix']);
+    hetu.assign('ultimateAffix', passives['turn_start_gain_ultimate_affix']);
+    hetu.assign('bannerAffix', passives['spirit_gathering_banner']);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final result = hetu.eval('''
+      characterAddPassiveSource(character, _createPassiveSource(manaAffix,
+        sourceKey: 'passive_tree:entry:mana', sourceType: 'passive_tree', sourceId: 'entry'))
+      characterAddPassiveSource(character, _createPassiveSource(spellAffix,
+        level: 20, sourceKey: 'passive_tree:scaling:spell', sourceType: 'passive_tree', sourceId: 'scaling'))
+      characterAddPassiveSource(character, _createPassiveSource(bannerAffix,
+        sourceKey: 'equipment:banner:0', sourceType: 'equipment', sourceId: 'banner', affixIndex: 0))
+      characterAddPassiveSource(character, _createPassiveSource(karmaAffix,
+        level: 20, sourceKey: 'passive_tree:scaling:karma', sourceType: 'passive_tree', sourceId: 'scaling'))
+      characterAddPassiveSource(character, _createPassiveSource(ultimateAffix,
+        level: 50, sourceKey: 'passive_tree:scaling:ultimate', sourceType: 'passive_tree', sourceId: 'scaling'))
+      characterCalculateStats(character)
+      character.stats.battleStatusParams
+    ''');
+    expect(result['turn_start_gain_mana']['resourceAmount'], 5);
+    expect(result['turn_start_gain_karma']['resourceAmount'], 1);
+    expect(result['turn_start_gain_ultimate']['resourceAmount'], 1);
+  });
+
+  test('可叠加被动均按普通来源累计数值且排除项不叠加', () {
+    final passives =
+        Map<String, dynamic>.from(loadJson5File('assets/data/passives.json5'));
+    final hetu = createHetu();
+    hetu.eval('var passiveData;');
+    hetu.assign('passiveData', passives);
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    final result = hetu.eval(r'''
+      game = {passives: passiveData}
+      final cases = [
+        ['scry_shield', 'scry_shield', 'shieldAmount'],
+        ['scry_mana', 'scry_mana', 'manaBonus'],
+        ['scry_all_damage', 'scry_all_damage', 'statusAmount'],
+        ['key_branch_element_1', 'key_branch_element_1', 'upgradeCount'],
+        ['key_branch_element_2', 'key_branch_element_2', 'resourceAmount'],
+        ['spellcraft_side_5', 'spellcraft_side_5', 'statusAmount'],
+        ['spellcraft_side_6', 'spellcraft_side_6', 'resourceAmount'],
+        ['key_branch_spellcraft_overflow', 'key_branch_spellcraft_overflow', 'damagePerStack'],
+        ['key_branch_spellcraft_rotation', 'key_branch_spellcraft_rotation', 'rotationMultiplier'],
+        ['limitless_amulet', 'neutral_card_limitless', 'statusAmount'],
+        ['spirit_gathering_banner', 'turn_start_gain_mana', 'resourceAmount'],
+      ]
+      for (final entry in cases) {
+        final passive = passiveData[entry[0]]
+        characterAddPassiveSource(character, _createPassiveSource(passive,
+          sourceKey: 'passive_tree:${entry[0]}:a', sourceType: 'passive_tree', sourceId: 'a'))
+        characterAddPassiveSource(character, _createPassiveSource(passive,
+          sourceKey: 'passive_tree:${entry[0]}:b', sourceType: 'passive_tree', sourceId: 'b'))
+      }
+      characterCalculateStats(character)
+      character.stats.battleStatusParams
+    ''');
+    expect(result['scry_shield']['shieldAmount'], 2);
+    expect(result['scry_mana']['manaBonus'], 2);
+    expect(result['scry_all_damage']['statusAmount'], 2);
+    expect(result['key_branch_element_1']['upgradeCount'], 2);
+    expect(result['key_branch_element_2']['resourceAmount'], 2);
+    expect(result['spellcraft_side_5']['statusAmount'], 2);
+    expect(result['spellcraft_side_6']['resourceAmount'], 4);
+    expect(result['key_branch_spellcraft_overflow']['damagePerStack'], 20);
+    expect(result['key_branch_spellcraft_rotation']['rotationMultiplier'], 2);
+    expect(result['neutral_card_limitless']['statusAmount'], 2);
+    expect(result['turn_start_gain_mana']['resourceAmount'], 6);
+    expect(result['mana_threshold_guard'], isNull);
+    expect(result['scry_self_ailments'], isNull);
   });
 }

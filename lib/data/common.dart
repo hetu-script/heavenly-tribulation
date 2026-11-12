@@ -5,6 +5,20 @@ import 'package:samsara/colors.dart';
 // 纯数据契约常量（枚举集合、id 映射）拆分为独立文件以便命令行工具引用
 export 'constants.dart';
 
+const kTurnStartResourceStatusIds = [
+  'turn_start_gain_vigor',
+  'turn_start_gain_mana',
+  'turn_start_gain_chakra',
+  'turn_start_gain_rage',
+  'turn_start_gain_karma',
+  'turn_start_gain_ultimate',
+];
+
+int getTurnStartResourceAmount(dynamic character, String statusId) {
+  final params = character['stats']?['battleStatusParams']?[statusId];
+  return (params?['resourceAmount'] as num?)?.toInt() ?? 0;
+}
+
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
 

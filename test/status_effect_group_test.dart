@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/ui/hovertip.dart';
 import 'package:heavenly_tribulation/data/game.dart';
+import 'package:heavenly_tribulation/data/common.dart';
 import 'package:heavenly_tribulation/scene/battle/battle.dart';
 import 'package:heavenly_tribulation/scene/battle/battledeck_zone.dart';
 import 'package:heavenly_tribulation/scene/battle/character.dart';
@@ -53,6 +54,7 @@ void main() {
       'kind_damage': 17,
       'elemental_resist': 8,
       'attack_type': 8,
+      'turn_start_resource': 6,
     });
     for (final config in kStatusDisplayGroups.values) {
       expect(File('assets/images/${config.icon}').existsSync(), isTrue);
@@ -93,6 +95,37 @@ void main() {
 
     first.amount = 4;
     expect(group.description, contains('status_test_damage_a：4%'));
+  });
+
+  test('资源分组按成员参数显示最终产出值', () {
+    final first = createEffect('test_damage_a', 'turn_start_resource', 1);
+    final second = createEffect('test_damage_b', 'turn_start_resource', 1);
+    first.data['resourceAmount'] = 2;
+    second.data['resourceAmount'] = 4;
+    final group = StatusEffectGroup(
+      config: kStatusDisplayGroups['turn_start_resource']!,
+      effect: first,
+    );
+    group.addEffect(second);
+
+    expect(group.description, contains('status_test_damage_a：2'));
+    expect(group.description, contains('status_test_damage_b：4'));
+    expect(group.description, isNot(contains('2%')));
+  });
+
+  test('属性面板资源读取统一使用聚合后的状态参数', () {
+    final character = {
+      'stats': {
+        'battleStatusParams': {
+          'turn_start_gain_vigor': {'resourceAmount': 2},
+          'turn_start_gain_mana': {'resourceAmount': 5},
+        },
+      },
+    };
+    expect(kTurnStartResourceStatusIds, hasLength(6));
+    expect(getTurnStartResourceAmount(character, 'turn_start_gain_vigor'), 2);
+    expect(getTurnStartResourceAmount(character, 'turn_start_gain_mana'), 5);
+    expect(getTurnStartResourceAmount(character, 'turn_start_gain_chakra'), 0);
   });
 
   test('真实战斗角色按显示分组合并图标并保持逻辑状态独立', () async {
