@@ -1630,9 +1630,9 @@ final class GameData with ChangeNotifier {
           }
           // line = '$kSeparateDot$line';
           if (affix['isGreater'] == true) {
-            line = '<yellow>$kAffixLeading2 $line</>';
+            line = '<deepOrange>$kAffixLeading2 $line</>';
           } else if (affix['isFreezed'] == true) {
-            line = '<lightGreen>$line</>';
+            line = '<grey>$line</>';
           } else {
             line = '<lightBlue>$line</>';
           }
@@ -1754,7 +1754,7 @@ final class GameData with ChangeNotifier {
       tagsRelativeRect: const Rect.fromLTWH(0.135, 0.92, 0.73, 0.03),
       tagsConfig: ScreenTextConfig(
         anchor: Anchor.bottomCenter,
-        outlined: true,
+        // outlined: true,
         textAlign: TextAlign.center,
         textStyle: TextStyle(
           color: Colors.white,
@@ -1767,12 +1767,12 @@ final class GameData with ChangeNotifier {
       illustrationRelativeRect: const Rect.fromLTWH(0.0676, 0.14, 0.865, 0.640),
       descriptionRelativeRect: const Rect.fromLTWH(0.1, 0.645, 0.77, 0.215),
       descriptionConfig: const ScreenTextConfig(
-        anchor: Anchor.bottomCenter,
-        outlined: true,
+        anchor: Anchor.topLeft,
+        // outlined: true,
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
-          fontSize: 8.0,
-          color: Colors.white,
+          fontSize: 7.0,
+          color: Colors.black,
         ),
         textAlign: TextAlign.left,
         overflow: ScreenTextOverflow.wordwrap,
@@ -1787,7 +1787,7 @@ final class GameData with ChangeNotifier {
       coloredCostLayout: ColoredCostLayout.compact,
       // 数量数字样式与战斗资源行（energy_display）对齐
       coloredCostNumberTextConfig: const ScreenTextConfig(
-        anchor: Anchor.center,
+        anchor: Anchor.bottomCenter,
         outlined: true,
         textStyle: TextStyle(
           fontFamily: GameUI.fontFamilyKaiti,
