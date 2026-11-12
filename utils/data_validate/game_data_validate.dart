@@ -386,6 +386,7 @@ const _greaterMechanismContract = <String, dynamic>{
   'drawnExtraDrawIfNotGenre': {'count': 'number'},
   'statsBonus': null,
   'deckCostReduction': {'amount': 'number'},
+  'firstCardCostReduction': {'amount': 'number'},
   'turnStartExtraDraw': {'count': 'number'},
   'energyRetain': {'max': 'number'},
 };
@@ -1109,21 +1110,22 @@ void validatePassives(Map<String, dynamic> passives) {
       }
     }
 
-    final costReduction = data['deckCostReduction'];
-    if (costReduction != null) {
+    for (final mechanismId in ['deckCostReduction', 'firstCardCostReduction']) {
+      final costReduction = data[mechanismId];
+      if (costReduction == null) continue;
       if (costReduction is! Map) {
-        err('字段类型非法', '$ctx.deckCostReduction: 期望表');
+        err('字段类型非法', '$ctx.$mechanismId: 期望表');
       } else {
-        // color 除单色外允许 'all'（命中卡首个费用条目，聚灵旗软流派锁）
+        // color 除单色外允许 'all'（命中卡首个费用条目）
         checkEnum(costReduction['color'], {...kCostColors, 'all'},
-            '$ctx.deckCostReduction.color');
-        // amount 为负即加费，可正可负
-        checkNumber(costReduction['amount'], '$ctx.deckCostReduction.amount');
+            '$ctx.$mechanismId.color');
+        checkNumber(costReduction['amount'], '$ctx.$mechanismId.amount',
+            min: mechanismId == 'firstCardCostReduction' ? 1 : null);
         for (final field in ['genres', 'notGenres']) {
           final genres = costReduction[field];
           if (genres is List) {
             for (final g in genres) {
-              checkEnum(g, kBattleCardGenres, '$ctx.deckCostReduction.$field');
+              checkEnum(g, kBattleCardGenres, '$ctx.$mechanismId.$field');
             }
           }
         }

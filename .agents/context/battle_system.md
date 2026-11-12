@@ -22,7 +22,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 观星 scry：中央展示牌库顶 N 张（缺省 3 张，合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
 - 永久状态显示分组：状态数据以 displayGroup 声明 scry / kind_damage / elemental_resist / attack_type 四组；BattleCharacter 保留全部逻辑状态和原回调遍历，StatusEffectGroup 只合并场景图标并在悬停时实时列出成员。组成员全部移除或清空状态时销毁分组组件，不合计异质层数。
-- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
+- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；firstCardCostReduction → 支付与队列预占（每次行动首张匹配牌减费，支付成功后消耗，动态费用豁免）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
 
 ## 2. 卡牌数据模型（Hetu）：scripts/main/cardgame/card.ht
@@ -57,7 +57,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 函数名 = {script}\_{时机}，签名 (self, opponent, effect, details)，必须非阻塞。
 - 时机体系：双方各自的 turn_start / turn_end / doing_damage / taking_damage / done_damage / taken_damage / gained_debuff / gained_energy_positive / using_card / used_card / attacked / buffed，以及 self_scry、self_produce_resources（产出阶段，如太上感应）等；以 Dart 实际分发点为准。
-- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道境界节点（supreme_sensing / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、无极、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。scry_all_damage 的被动、脚本、图标与测试已完成，尚未分配到技能树。
+- 已实现：kind 系增伤、速度/闪避四阈值状态（迅捷→额外回合、缓慢→跳过、敏捷→免伤、迟钝→易伤75%）、护甲衰减（persistent 保留）、易伤（攻击牌每段增加层数点基础伤害、整牌后全部消耗、不随回合衰减）、幸运（必暴击/必异常）、辟邪、护盾、破绽、邪祟、七种元素异常（点燃/感电回合开始耗尽全层、冰缓/中毒回合结束移除 1 层 + 流血/内伤/幻觉）、资源气增伤减伤（每层 ±5）、怒气受伤 +5%/层、死气（元气产出对冲后仍持有则扣 5% 生命上限，不自动消耗）/劫气扣血、真气渗透（穿透 = 内伤层数 ×5%，伤害附内伤）、悟道入口与关键节点（turn_start_spell_mana_1 / yin_yang_five_elements / five_qi_convergence）与分支节点（embrace_simplicity / element_cycle）、绝世装备状态（scry_self_ailments / scry_upgrade / scry_shield / scry_mana / turn_start_mana_bonus / neutral_card_limitless）等；永久状态的观星后触发（升级、护盾、产灵、无极、窥天镜自异常）均以 turnCount 限制为每回合首次，回合开始观星产灵登记到本次产出阶段；观星深度与卡牌携带的 scryOptions 仍作用于每次观星。scry_all_damage 的被动、脚本、图标与测试已完成，尚未分配到技能树。
 - 状态数据在 assets/data/status*effect.json5（script 字段 + 机制参数），本地化在 status_effect.json（status*{id} + status\_{id}\_description）。
 
 ### 4.3 battle_character.ht —— BattleCharacter 外部类（Dart 绑定的脚本 API 面）
@@ -129,7 +129,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 ## 6. 天赋树
 
 - 天赋节点与装备词条同池（passives.json5），天赋树结构在 passive_skills.json5（节点引用 passive id，rank/位置/连线由树节点携带；passive 条目不写 rank，解锁时 level 缺省 ?? 1）。
-- 境界节点：spellcraft_rank_1~5 为纯标记 + 机制字段，悟道主轴的 rank 节点 track_3_4 → track_7_8 → track_11_8 → track_15_8 → track_19_8 已连通，中间节点提供 lifeMax 等属性。
+- 悟道入口/关键节点重构：新词条为 key_branch_spellcraft_entry / discount / overflow / rotation / ultimate，分别提供每回合 1 灵气、每回合首张悟道牌减费、剩余灵气伤害、套路增伤轮转和洗入万法归宗。旧 spellcraft_rank_* 已删除；passive_skills.json5 本轮刻意未改，旧引用等待人工排布时处理。
 - 分支节点：key_branch_* 使用中性 id，设计上可多流派共享；悟道的 4 个关键分支均已实现并进入当前天赋树。
 - 悟道独占节点：养气诀直接引用 spirituality level 30、静心诀引用 spellAttack level 30，二者已上树；观微直接引用 scry_upgrade、通灵引用 ailmentThreshold level 40，驭灵与天人合一分别使用 spellcraft_side_5/6 永久状态，这四者已实现但尚未分配到树中。驭灵在回合开始给双方分别直施随机元素异常；天人合一在回合结束记录元素种数，下一次产出阶段达标后获得 2 灵气。
 - scry_upgrade 忽略被动等级：每个普通来源通过 statusParams.upgradeChosen +1，太古再 +1，同名来源简单相加；状态原型为 0。每回合只在第一次观星后触发一次，窥天镜与观微同时存在时合计升 2 级。
@@ -150,7 +150,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 ## 9. 校验与构建
 
-- dart run utils/data_validate/game_data_validate.dart —— cards/card_affixes/passives/status_effect/items 的 id/引用/本地化/结构/绝世约定检查（当前 0 错误）。
+- dart run utils/data_validate/game_data_validate.dart —— cards/card_affixes/passives/status_effect/items 的 id/引用/本地化/结构/绝世约定检查（当前通过）。passive_skills.json5 的旧 spellcraft_rank_* 引用由后续人工排树清理。
 - dart run utils/data_validate/passive_tree_validate.dart —— 天赋树连通性（当前通过：全部已定义节点均可从入口到达）。
 - python build.py —— 编译 Hetu 脚本到 assets/mods/（Windows 下 hetu 可能有 PATH 问题，可用 dart install 绝对路径的 hetu.bat）；flutter analyze 验证 Dart。
 
@@ -167,7 +167,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 
 - 动态费用：焚天烈焰 `coloredCost: {spell: {base: 0, isDynamic: true}}`（X）；万法归宗 `base: 10`（10+X，禁止太极抵扣）。支付阶段耗尽对应气，两张牌以 `attack_by_paid_resource` 读取实际 paidCost 计算伤害。所有减费和置零入口豁免动态条目，加费提高最低门槛；Samsara 直接显示 X / N+X。费用公共逻辑在 `lib/scene/battle/card_cost.dart`，calculateQueuedCardPayment 统一队列预占、置灰与缺资源提示，敌方按可支付手牌出牌，不再依赖元气余额。
 
-- 境界节点 5 个（已上树、主轴连通）：太上感应（spellcraft_rank_1，灵力÷10 产灵气）/ 天道循环（rank_2，deckCostReduction 悟道牌 -1）/ 阴阳五行（rank_3，回合结束未用灵气溢出伤害，扣除 energyRetain 保留部分）/ 五气朝元（rank_4，五元素攻击增强轮转）/ 万法归宗（rank_5，shuffleIntoDeck 洗入绝世卡）。
+- 入口与原境界节点 5 个已完成词条层重构，但尚未接入当前天赋树：太上感应（key_branch_spellcraft_entry，每次行动固定产 1 灵气，复用 turn_start_spell_mana_1）/ 天道循环（discount，firstCardCostReduction 每回合首张悟道牌 -1）/ 阴阳五行（overflow，回合结束未保留灵气溢出伤害）/ 五气朝元（rotation，五元素攻击增强轮转）/ 万法归宗（ultimate，shuffleIntoDeck 洗入绝世卡）。
 - 分支节点 4 个（已实现并上树）：天道推演（key_branch_draw_1，turnStartScry: true）/ 紫微斗数（draw_2，洗入授予卡）/ 抱真守一（element_1，用元素牌后升级手牌同元素牌）/ 五行轮转（element_2，每种新元素 +1 灵气）。
 - 卡牌：普通主词条 17 张 + 常规绝世卡 5 张 + 天赋授予卡 2 张 + 一气化三清抉择临时卡 3 张（不进卡池）；普通随机额外词条 16 条，其中 6 条属于自异常转化体系。相生相克的专属词条按本回合已用元素种数线性增加双方异常层数。
 - 绝世装备 5 件（items.json5 + passives.json5）：窥天镜 / 五行珠 / 天机盘 / 蓄灵佩 / 聚灵旗。

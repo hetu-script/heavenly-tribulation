@@ -14,18 +14,6 @@
 
 ---
 
-这是当前的装备系统： @scripts/main/data/item 主要用脚本写成。
-
-文档在： @docs/docs/how2play/rpg/item/equipment 但文档可能不全或者和实现不一致
-
-装备的词条在： @assets/data/passives.json5 装备和天赋树共享这些词条。
-
-物品打造： @lib/widgets/view/workshop.dart
-
-UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和装备栏 stats_and_items.dart。
-
----
-
 @lib/scene/cultivation/cultivation.dart 这是一个用于角色升级，天赋树，聚灵阵和打坐的共用场景。但目前我们只针对天赋树部分代码进行重构。
 
 天赋树节点的词条定义在： @assets/data/passives.json5 （和装备词条共用），天赋树的节点形状则定义在 @assets/data/passive_skills.json5 里面。
@@ -51,6 +39,20 @@ UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和
 目前御剑的计划文档已经近乎整理完毕，只是尚未实施。而其他三个流派的计划尚处于草案，也未有任何代码实现。
 
 在设计其他流派之前，我们还需要完善悟道的天赋树，我们打算先以悟道这单独一个流派出发。跑通一个地牢秘境玩法的完整循环。
+
+---
+
+这是当前的装备系统： @scripts/main/data/item 主要用脚本写成。
+
+文档在： @docs/docs/how2play/rpg/item/equipment 但文档可能不全或者和实现不一致
+
+装备的词条在： @assets/data/passives.json5 装备和天赋树共享这些词条。
+
+物品打造： @lib/widgets/view/workshop.dart
+
+UI侧的装备显示和互动在： @lib/widgets/character 下，包括物品和装备栏 stats_and_items.dart。
+
+---
 
 秘境玩法的计划是： @plan/scene_chain_dungeon.md
 秘境卡组锁定、卡牌生命周期与永久卡库的相关约定： @plan/dungeon_deck_lock.md

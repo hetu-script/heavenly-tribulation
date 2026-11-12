@@ -461,18 +461,6 @@ namespace StatusScript {
     effect.lastTurnElementCount = 0
   }
 
-  /// 太上感应（悟道凝气境界节点状态）：回合产出阶段，每 effect.spiritualityPer 点灵力
-  /// 获得 1 层 effect.resourceId 资源（灵气）。
-  /// 必须挂产出阶段时机（self_produce_resources）：更早时机（如 self_turn_start）授予的
-  /// 阳气会被随后的 clearResourceEffects 当残留清空（见 character.dart produceTurnStartResources）
-  function supreme_sensing_self_produce_resources(self, opponent, effect, details) {
-    final spirituality = self.data.stats['spirituality'] ?? 0
-    final amount = spirituality ~/ effect.spiritualityPer
-    if (amount > 0) {
-      self.addStatusEffect(effect.resourceId, amount: amount)
-    }
-  }
-
   /// 窥天镜（绝世装备状态）：每回合第一次观星结算后，从元素异常表
   /// （Constants.elementAilments 的值域，共 7 种）随机抽取 2 种不重复异常，对自身各施加 1 层。
   /// source 显式传自身：配合五行珠时自施异常走「造成+受到」双向放大
@@ -497,7 +485,7 @@ namespace StatusScript {
 
   /// 聚灵旗（绝世装备状态）：回合产出阶段，获得 effect.manaBonus 层悟道灵气。
   /// 必须挂产出阶段时机（self_produce_resources）：更早时机授予的灵气会被
-  /// clearResourceEffects 当残留清空（同 supreme_sensing 的约束）
+  /// clearResourceEffects 当残留清空（所有产出型状态共用此约束）
   function turn_start_mana_bonus_self_produce_resources(self, opponent, effect, details) {
     self.addStatusEffect('energy_positive_spell', amount: effect.manaBonus ?? 3)
   }

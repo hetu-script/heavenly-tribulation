@@ -339,4 +339,76 @@ void main() {
     applyDeckCostReductionRules([dynamicCard], [tax, reduction]);
     expect(cardCostBase((dynamicCard['coloredCost'] as dynamic)['spell']), 1);
   });
+
+  test('首张减费支付前生效、可减至零且不修改原卡', () {
+    final card = {
+      'genre': 'spellcraft',
+      'coloredCost': <String, dynamic>{'spell': 2},
+    };
+    final rules = [
+      {
+        'color': 'spell',
+        'amount': 2,
+        'genres': ['spellcraft']
+      }
+    ];
+    final first = applyFirstCardCostReductionRules(card, rules, <int>{});
+    expect(first.costs['spell'], 0);
+    expect(first.appliedRules, {0});
+    expect((card['coloredCost'] as dynamic)['spell'], 2);
+    expect(calculateCardPayment(first.costs, {}).missing, isEmpty);
+
+    final later = applyFirstCardCostReductionRules(card, rules, {0});
+    expect(later.costs['spell'], 2);
+    expect(later.appliedRules, isEmpty);
+
+    final dynamicCard = {
+      'genre': 'spellcraft',
+      'coloredCost': <String, dynamic>{
+        'spell': {'base': 2, 'isDynamic': true}
+      },
+    };
+    final dynamicResult =
+        applyFirstCardCostReductionRules(dynamicCard, rules, <int>{});
+    expect(cardCostBase(dynamicResult.costs['spell']), 2);
+    expect(dynamicResult.appliedRules, isEmpty);
+  });
+
+  test('首张减费在出牌队列中按顺序预占且只消费一次', () {
+    final queued = [
+      {
+        'genre': 'spellcraft',
+        'coloredCost': <String, dynamic>{'spell': 2},
+      }
+    ];
+    final current = {
+      'genre': 'spellcraft',
+      'coloredCost': <String, dynamic>{'spell': 2},
+    };
+    final rules = [
+      {
+        'color': 'spell',
+        'amount': 1,
+        'genres': ['spellcraft']
+      }
+    ];
+    final accepted = calculateQueuedCardPayment(
+      current['coloredCost'],
+      queued,
+      {mana: 3},
+      cardData: current,
+      firstCardRules: rules,
+    );
+    expect(accepted.missing, isEmpty);
+    expect(accepted.paid, {mana: 2});
+
+    final rejected = calculateQueuedCardPayment(
+      current['coloredCost'],
+      queued,
+      {mana: 2},
+      cardData: current,
+      firstCardRules: rules,
+    );
+    expect(rejected.missing, {mana: (2, 1)});
+  });
 }

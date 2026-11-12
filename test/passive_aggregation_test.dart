@@ -294,6 +294,33 @@ void main() {
     expect(character['stats']['scryBonus'], 1);
   });
 
+  test('首张减费规则按来源聚合且重复重算幂等', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      final affix = {
+        id: 'key_branch_spellcraft_discount',
+        description: 'passive_key_branch_spellcraft_discount_description',
+        firstCardCostReduction: {
+          color: 'spell', amount: 1, genres: ['spellcraft'],
+        },
+      }
+      for (final sourceId in ['tree-a', 'tree-b']) {
+        characterAddPassiveSource(character, _createPassiveSource(affix,
+          sourceKey: 'passive_tree:' + sourceId,
+          sourceType: 'passive_tree', sourceId: sourceId))
+      }
+      characterCalculateStats(character)
+      characterCalculateStats(character)
+    ''');
+    final character = hetu.fetch('character');
+    final rules = character['stats']['firstCardCostReduction'];
+    expect(rules.length, 2);
+    expect(rules[0]['amount'], 1);
+    expect(rules[1]['genres'], ['spellcraft']);
+  });
+
   test('单条临时效果覆盖，战后只清除非永久来源', () {
     final hetu = createHetu();
     initializeCharacter(hetu);

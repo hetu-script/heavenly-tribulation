@@ -97,7 +97,11 @@ void main() {
 
   test('真实战斗角色按显示分组合并图标并保持逻辑状态独立', () async {
     final statuses = loadJson5File('assets/data/status_effect.json5');
-    const ids = ['scry_upgrade', 'scry_shield', 'spellcraft_rank_1'];
+    const ids = [
+      'scry_upgrade',
+      'scry_shield',
+      'key_branch_spellcraft_overflow'
+    ];
     for (final id in ids) {
       GameData.statusEffects[id] = statuses[id];
     }
@@ -125,7 +129,7 @@ void main() {
           amount: 1, handleCallback: false);
       character.addStatusEffect('scry_shield',
           amount: 1, handleCallback: false);
-      character.addStatusEffect('spellcraft_rank_1',
+      character.addStatusEffect('key_branch_spellcraft_overflow',
           amount: 1, handleCallback: false);
 
       expect(character.permanentEffects, hasLength(3));
@@ -146,7 +150,7 @@ void main() {
       expect(character.permanentDisplayEffects, hasLength(1));
       expect(character.permanentDisplayEffects.single, isA<StatusEffect>());
 
-      character.removeStatusEffect('spellcraft_rank_1', amount: 1);
+      character.removeStatusEffect('key_branch_spellcraft_overflow', amount: 1);
       expect(character.permanentDisplayEffects, isEmpty);
     } finally {
       for (final id in ids) {

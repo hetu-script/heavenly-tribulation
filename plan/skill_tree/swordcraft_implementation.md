@@ -24,8 +24,8 @@
 
 | 设计需求             | 当前实现与复用方式                                                          |
 | -------------------- | --------------------------------------------------------------------------- |
-| 御剑牌减费           | `deckCostReduction`，参照 `spellcraft_rank_2`                               |
-| 化神洗入剑道千秋     | `shuffleIntoDeck`，参照 `spellcraft_rank_5`                                 |
+| 御剑牌减费           | 永久减费参考 `deckCostReduction`；首张减费参考 `firstCardCostReduction` |
+| 化神洗入剑道千秋     | `shuffleIntoDeck`，参照 `key_branch_spellcraft_ultimate`                  |
 | 下回合剑气           | `turnFlags.pendingResources`，在产出阶段统一授予                            |
 | 本回合用牌统计       | `turnFlags` 与 `self_used_card`，参照五行轮转                               |
 | 动态费用与实际支付   | `calculateCardPayment` 与 `cardFlags.paidCost`                              |

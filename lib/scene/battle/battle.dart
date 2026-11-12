@@ -1435,6 +1435,19 @@ class BattleScene extends Scene {
         kWildcardStatusId: character.hasStatusEffect(kWildcardStatusId),
       };
 
+  Set<int> _usedFirstCardCostReductionRules(BattleCharacter character) {
+    final existing = character.turnFlags['usedFirstCardCostReductionRules'];
+    if (existing is Set<int>) return existing;
+    final used = <int>{};
+    if (existing is Set) {
+      for (final value in existing) {
+        if (value is num) used.add(value.toInt());
+      }
+    }
+    character.turnFlags['usedFirstCardCostReductionRules'] = used;
+    return used;
+  }
+
   /// 按队列顺序模拟支付；动态费用预占全部本色气，不提前运行内容效果。
   bool _canPayCardCost(BattleCharacter character, CustomGameCard card,
       [List<CustomGameCard>? queued]) {
@@ -1443,19 +1456,26 @@ class BattleScene extends Scene {
       (queued ?? const <CustomGameCard>[]).map((candidate) => candidate.data),
       _resourceStock(character),
       wildcardForbidden: card.data['isWildcardCostForbidden'] == true,
+      cardData: card.data,
+      firstCardRules: character.data['stats']?['firstCardCostReduction'],
+      usedFirstCardRules: _usedFirstCardCostReductionRules(character),
     );
     return payment.missing.isEmpty;
   }
 
   /// 支付与预占共用计算规则；动态费用在此耗尽资源并记录实际 paidCost。
   bool _payCardCost(BattleCharacter character, CustomGameCard card) {
+    final usedRules = _usedFirstCardCostReductionRules(character);
+    final discounted = applyFirstCardCostReductionRules(card.data,
+        character.data['stats']?['firstCardCostReduction'], usedRules);
     final payment = calculateCardPayment(
-        card.data['coloredCost'], _resourceStock(character),
+        discounted.costs, _resourceStock(character),
         wildcardForbidden: card.data['isWildcardCostForbidden'] == true);
     if (payment.missing.isNotEmpty) {
       engine.warning('卡牌 [${card.data['name']}] 支付失败：资源不足');
       return false;
     }
+    usedRules.addAll(discounted.appliedRules);
     for (final entry in payment.paid.entries) {
       character.removeStatusEffect(entry.key, amount: entry.value);
       if (entry.key != 'energy_positive_life') {
@@ -1501,6 +1521,9 @@ class BattleScene extends Scene {
       _cardQueue.map((candidate) => candidate.data),
       _resourceStock(hero),
       wildcardForbidden: card.data['isWildcardCostForbidden'] == true,
+      cardData: card.data,
+      firstCardRules: hero.data['stats']?['firstCardCostReduction'],
+      usedFirstCardRules: _usedFirstCardCostReductionRules(hero),
     );
     return payment.missing.entries.map((entry) {
       return engine.locale('battlecard_cost_lacking_hint', interpolations: [

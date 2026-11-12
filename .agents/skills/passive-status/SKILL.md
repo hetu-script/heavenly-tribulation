@@ -35,13 +35,13 @@ description: |
 
 - 顶层对象，键 = 状态 id（snake_case，英文含义），`id` 字段必须等于键名。
 - 与被动一对一绑定时状态 id 可直接复用被动 id，便于追溯。
-- 放在对应分区的注释区块下（无合适分区则新建，如「悟道境界节点状态」）。
+- 放在对应分区的注释区块下（无合适分区则新建，如「悟道关键节点状态」）。
 
 ```json5
-spellcraft_rank_3: {
-  id: "spellcraft_rank_3",
-  title: "status_spellcraft_rank_3",                 // 本地化键
-  description: "status_spellcraft_rank_3_description",
+key_branch_spellcraft_overflow: {
+  id: "key_branch_spellcraft_overflow",
+  title: "status_key_branch_spellcraft_overflow",                 // 本地化键
+  description: "status_key_branch_spellcraft_overflow_description",
   icon: "icon/status/permanent/spellcraft_rank_3.png",
   isPermanent: true,                                  // 永久状态：大图标绘于卡组上方，免回合末清理
   script: "yin_yang_five_elements",                   // StatusScript 函数前缀

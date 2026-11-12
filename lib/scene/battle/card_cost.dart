@@ -56,6 +56,51 @@ void applyDeckCostReductionRules(
   }
 }
 
+/// 计算每次行动首张匹配卡牌的费用，不修改原始卡牌数据。
+/// 所有尚未消耗的命中规则共同作用于这一张牌；动态费用仍豁免减费。
+({dynamic costs, Set<int> appliedRules}) applyFirstCardCostReductionRules(
+    dynamic cardData, dynamic rules, Set<int> usedRules) {
+  if (rules is! List || rules.isEmpty) {
+    return (costs: cardData['coloredCost'], appliedRules: <int>{});
+  }
+  final original = cardData['coloredCost'];
+  final costs = <String, dynamic>{};
+  if (original != null) {
+    for (final color in original.keys) {
+      final entry = original[color];
+      if (entry is num) {
+        costs['$color'] = entry;
+      } else {
+        final copiedEntry = <String, dynamic>{};
+        for (final key in entry.keys) {
+          copiedEntry['$key'] = entry[key];
+        }
+        costs['$color'] = copiedEntry;
+      }
+    }
+  }
+  final appliedRules = <int>{};
+  for (var i = 0; i < rules.length; ++i) {
+    if (usedRules.contains(i)) continue;
+    final rule = rules[i];
+    final amount = rule['amount'];
+    final color = rule['color'];
+    if (color is! String || amount is! num || amount <= 0) continue;
+    final genres = rule['genres'];
+    final notGenres = rule['notGenres'];
+    final genre = cardData['genre'];
+    if (genres is List && !genres.contains(genre)) continue;
+    if (notGenres is List && notGenres.contains(genre)) continue;
+    final targetColor =
+        color == 'all' && costs.isNotEmpty ? costs.keys.first : color;
+    if (costs[targetColor] == null) continue;
+    if (modifyCardCost(costs, targetColor, -amount.toInt()) != 0) {
+      appliedRules.add(i);
+    }
+  }
+  return (costs: costs, appliedRules: appliedRules);
+}
+
 /// 修改基础门槛，返回实际修正量；动态费用不参与减费。
 /// 还原旧修正时关闭减费豁免，避免临时加费永久累积。
 int modifyCardCost(dynamic costs, String color, int delta,
@@ -110,6 +155,7 @@ int modifyCardCost(dynamic costs, String color, int delta,
 }
 
 /// 先按顺序模拟队列中卡牌的支付，再检查当前卡牌。
+/// 首张减费在队列中同样按顺序消耗，避免多张匹配牌重复享受优惠。
 /// 置灰与缺资源提示共用此入口，保证队列预占口径一致。
 ({Map<String, int> paid, Map<String, (int, int)> missing})
     calculateQueuedCardPayment(
@@ -117,13 +163,20 @@ int modifyCardCost(dynamic costs, String color, int delta,
   Iterable<dynamic> queuedCards,
   Map<String, int> resources, {
   bool wildcardForbidden = false,
+  dynamic cardData,
+  dynamic firstCardRules,
+  Set<int> usedFirstCardRules = const <int>{},
 }) {
   final stock = Map<String, int>.of(resources);
-  for (final cardData in queuedCards) {
+  final simulatedUsedRules = Set<int>.of(usedFirstCardRules);
+  for (final queuedCardData in queuedCards) {
+    final discounted = applyFirstCardCostReductionRules(
+        queuedCardData, firstCardRules, simulatedUsedRules);
+    simulatedUsedRules.addAll(discounted.appliedRules);
     final queuedPayment = calculateCardPayment(
-      cardData['coloredCost'],
+      discounted.costs,
       stock,
-      wildcardForbidden: cardData['isWildcardCostForbidden'] == true,
+      wildcardForbidden: queuedCardData['isWildcardCostForbidden'] == true,
     );
     if (queuedPayment.missing.isNotEmpty) {
       return (paid: <String, int>{}, missing: queuedPayment.missing);
@@ -132,6 +185,8 @@ int modifyCardCost(dynamic costs, String color, int delta,
       stock[entry.key] = (stock[entry.key] ?? 0) - entry.value;
     }
   }
-  return calculateCardPayment(costs, stock,
+  final discounted = applyFirstCardCostReductionRules(
+      cardData ?? {'coloredCost': costs}, firstCardRules, simulatedUsedRules);
+  return calculateCardPayment(discounted.costs, stock,
       wildcardForbidden: wildcardForbidden);
 }

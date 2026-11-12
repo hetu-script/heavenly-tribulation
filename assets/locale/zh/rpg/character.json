@@ -10,7 +10,7 @@
   "dexterity": "身法",
   "dexterity_description": "增加先手概率，降低偷窃难度。\n御剑流凝气境：每 10 点身法，战斗开始时获得 1 点剑气。",
   "spirituality": "灵力",
-  "spirituality_description": "悟道流凝气境：每 10 点灵力，回合开始时获得 1 点灵气。",
+  "spirituality_description": "悟道入口「太上感应」：每次行动的产出阶段获得 1 点灵气。\n悟道关键节点「五气朝元」：增强数值等于自身灵力的一半。",
   "willpower": "念力",
   "willpower_description": "炼魂流凝气境：每 5 点念力，战斗开始时的煞气提取量 +1。",
   "perception": "神识",

@@ -441,6 +441,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   final battleStatusBindings = {}
   final battleStatusParams = {}
   final deckCostReductionRules = []
+  final firstCardCostReductionRules = []
   final shuffleIntoDeckIds = []
   let turnStartScryEnabled = false
   let extraDrawCount = 0
@@ -481,6 +482,10 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
         final deckCostReduction = passiveData['deckCostReduction']
         if (deckCostReduction != null) {
           deckCostReductionRules.add(deckCostReduction)
+        }
+        final firstCardCostReduction = passiveData['firstCardCostReduction']
+        if (firstCardCostReduction != null) {
+          firstCardCostReductionRules.add(firstCardCostReduction)
         }
         final shuffleIntoDeck = passiveData['shuffleIntoDeck']
         if (shuffleIntoDeck != null) {
@@ -529,6 +534,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.battleStatus = battleStatusMap
   character.stats.battleStatusParams = battleStatusParams
   character.stats.deckCostReduction = deckCostReductionRules
+  character.stats.firstCardCostReduction = firstCardCostReductionRules
   character.stats.shuffleIntoDeck = shuffleIntoDeckIds
   character.stats.turnStartScry = turnStartScryEnabled
   if (extraDrawCount > 0) {
