@@ -174,12 +174,7 @@ struct Potion {
       mainAffix = Object.create(passiveRawData)
     }
     if (mainAffix.increment != null || mainAffix.rankIncrement != null) {
-      if (mainAffix.increment != null && mainAffix.increment < 1) {
-        final minAffixLevel = (1 / mainAffix.increment).ceil()
-        if (this.level < minAffixLevel) {
-          this.level = minAffixLevel
-        }
-      }
+      this.level = Math.max(this.level, getPassiveAffixMinLevel(mainAffix))
       mainAffix.level = this.level
       mainAffix.value = calculatePassiveAffixValue(mainAffix, level: this.level)
     }
@@ -209,15 +204,7 @@ struct Potion {
         
         final affix = Object.create(random.nextIterable(supportAffixes))
         if (affix.increment != null || affix.rankIncrement != null) {
-          let minAffixLevel = 1
-          if (affix.increment != null) {
-            if (affix.increment > 0 && affix.increment < 1) {
-              minAffixLevel = (1 / affix.increment).ceil()
-            } else if (affix.increment < 0 && affix.increment > -1) {
-              minAffixLevel = (1 / -affix.increment).ceil()
-            }
-          }
-          affix.level = getRandomLevel(minAffixLevel, this.level)
+          affix.level = rollPassiveAffixLevel(affix, maxLevel: this.level)
           affix.value = calculatePassiveAffixValue(affix, level: affix.level)
         }
         this.affixes.add(affix)

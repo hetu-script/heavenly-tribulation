@@ -190,6 +190,8 @@
   "status_scry_self_ailments": "窥天",
   "status_scry_self_ailments_description": "每回合第一次观星后，对自身随机施加 2 种不同的元素异常（各 1 层）。窥得越多，心神越乱。",
 
+  "status_turn_start_draw": "抽牌修正",
+  "status_turn_start_draw_description": "每次行动开始时，所有正负抽牌修正合并结算，并与基础抽牌一次抽取。",
   "status_turn_start_gain_mana": "灵气",
   "status_turn_start_gain_mana_description": "每次行动的产出阶段获得灵气，数值由所有有效来源叠加。",
   "status_turn_start_gain_chakra": "剑气",

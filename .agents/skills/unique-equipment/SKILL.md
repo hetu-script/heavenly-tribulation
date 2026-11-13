@@ -77,7 +77,6 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
 | `shuffleIntoDeck`    | `[卡牌主词条 id]`                                   | 战斗开始洗入牌库                                                                                        |
 | `turnStartScry`      | `true`                                              | 每回合开始抽牌前观星一次；数量共用普通观星规则，多来源不累加                                            |
 | `energyRetain`       | `{resourceId, max, costPerPoint?, costDamageType?}` | 回合结束资源保留 + 每点代价                                                                             |
-| `turnStartExtraDraw` | `{count}`                                           | 额外抽牌，多来源 count 累加，仍受手牌上限约束                                                         |
 | `statsBonus`         | `{statsId: 数值}`                                   | **通用 stats 直加**（观星深度 scryBonus、异常层数 ailmentInflictBonus 等），固定词条喂 stats 的首选通道 |
 
 - 词条注释标「绝世装备专用，不进随机词条池」，**不写** `isEquipmentMain`/`isEquipmentExtraAffix`。
@@ -85,7 +84,7 @@ deckCostReduction + statsBonus 随意组合）；被拆开的词条是历史错�
   需要随等级缩放的数值词条才用 `base + increment×level`（`base:N, increment:0` 即恒定值）。
 - 词条本地化 `passive.json`：`passive_{id}_description`，数值占位 `{0}`。
 - 机制数值会随普通/太古或多来源变化时，在词条上声明 `descriptionParams`：
-  支持 `statsBonus.*`、`deckCostReduction.amount`、`turnStartExtraDraw.count`、`battleStatus.*`。
+  支持 `statsBonus.*`、`deckCostReduction.amount`、`battleStatus.*`。
   普通、太古与角色聚合说明复用同一本地化模板，由显示层插入最终生效值；只有文案结构变化才另配 `greater.description`。
 - 需要**新机制字段**时走第 3 节；需要**新 stat** 时走 passive-status skill §6 五处同步。
 

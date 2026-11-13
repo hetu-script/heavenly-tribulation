@@ -1,8 +1,8 @@
 **玩家回合（heroTurn == true）与敌方回合（heroTurn == false）共用同一套流程（`_startTurn`）：**
 
 1. 回合开始观星（被动 `turnStartScry: true`，如悟道分支「天道推演」）：抽牌阶段之前观星一次，选中的牌置于牌库顶随本回合抽牌入手
-2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + battleDrawBonus 属性）。
-   实际数量受 `stats.handSizeMax`（默认 `kBattleHandSizeMax = 10`）限制；满手后剩余抽牌不发生，
+2. 摸牌：`drawCardsToHand()`（张数 = kBattleDrawCount + `battleStatusParams.turn_start_draw.count`，展示用派生值为 battleDrawBonus）。
+   所有正常与额外抽牌修正合并为一批；实际数量受 `stats.handSizeMax`（默认 `kBattleHandSizeMax = 10`）限制；满手后剩余抽牌不发生，
    不洗牌/弃牌、不触发入手回调、不写入 `lastDrawnCards`，未实际抽到的牌也不接受抽牌费修
 3. 执行 `currentCharacter.onStartTurn()`：回合开始回调（劫气失去生命、元素 DOT、缓慢跳过判定等；死气改在产出阶段结算）
 4. 检查战斗结果：回合开始效果致死则立即结束，不进入后续阶段
@@ -160,16 +160,18 @@
 | `firstCardCostReduction` | `{color, amount, genres?, notGenres?}`         | 每次行动第一张匹配卡牌在支付前减 amount 费（下限 0，动态费用豁免）；全部命中且未消耗的规则共同生效，实际支付成功后消耗；队列预占按顺序模拟，额外行动重置                  |
 | `shuffleIntoDeck`    | `[卡牌主词条 id, ...]`                             | 战斗开始后洗入牌库（战斗重开去重，按主词条 id 查找已有卡）                                                                                                                                                                         |
 | `turnStartScry`      | `true`                                             | 每回合开始时（抽牌前）观星一次；数量共用普通观星的默认值与 `scryBonus`，多来源不累加                                                                                                                                                |
-| `turnStartExtraDraw` | `{count}`                                           | 回合开始正常抽牌后额外抽 count 张（多来源累加），仍受手牌上限约束                                                                                                                                                                     |
 | `energyRetain`       | `{resourceId, max, costPerPoint, costDamageType?}` | 回合开始清残留时该资源至多保留 max 层到下回合，每保留 1 层受到 costPerPoint 点伤害（缺省纯粹）                                                                                                                                     |
 | `statsBonus`         | `{statsId: 数值}`                                  | 通用 stats 直加：聚合时将各项累加进 character.stats（分工约定见下文「stats 聚合的两条通道」）                                                                                                                                     |
 
 参数型效果另可经 stats 属性管线新增属性（如观星深度 `scryBonus`），
 聚合与面板显示见 `.agents/skills/passive-status` 第 6 节。
+回合开始抽牌不再使用独立机制字段：`battleDrawBonus` 通过 `battleStatus: turn_start_draw` +
+`battleStatusValueParam: count` 映射普通/太古数值，乾坤戒等固定负修正通过 `statusParams.count`
+写入同一参数；Dart 将最终修正与基础抽牌合并为一次异步抽牌，不在状态脚本中执行。
 
 聚合 `PassiveData` 只保存 `id/priority/value/description/sourceCount`，来源等级与公式参数只留在 Raw。
 普通数值描述直接使用最终 `value` 替换 `{0}`。机制词条可用 `descriptionParams` 声明插值路径，
-支持 `statsBonus.*`、`deckCostReduction.amount`、`turnStartExtraDraw.count` 与 `battleStatus.*`；
+支持 `statsBonus.*`、`deckCostReduction.amount` 与 `battleStatus.*`；
 显示层从 Raw 来源汇总机制值，状态参数采用“状态原型默认值 + 聚合增量”，因此普通/太古混合来源也显示最终生效值。
 
 ### stats 聚合的两条通道（分工约定）
@@ -192,10 +194,9 @@
 六种武器分别以对应的 `increase_damage_<kind>` 为主词条；通用 `weaponAttack` 不进入主词条池。靴子与船的主词条池分别包含 `mountainMoveSpeed` / `waterMoveSpeed`；所有词条与其他来源按同 ID 正常聚合，不另设显示规则。
 普通装备的风味文本优先使用 `flavortext_<kind>`，未配置时回退到 `flavortext_<category>`。
 
-**存量不一致（待清理）**：`battleDrawBonus` 目前走按名绑定，
-与同为纯加值 stat 的 `handSizeMax`/`ailment_ward`（走 statsBonus）表达不一致；
-其 `increment: 0` 为定值，迁移无缩放损失。拟改为 statsBonus 载荷并删除对应绑定行。
-`deckMinSizeReduce` 的绑定行是死代码（passives 无同名词条，实际仅经天机盘 statsBonus 生效），拟直接删除。
+`battleDrawBonus` 已统一走 `turn_start_draw.count` 状态参数；`stats.battleDrawBonus` 仅保留为
+该参数的展示用派生值，不再从同名被动独立聚合，也不再存在 `turnStartExtraDraw` 平行管线。
+**存量不一致（待清理）**：`deckMinSizeReduce` 的绑定行是死代码（passives 无同名词条，实际仅经天机盘 statsBonus 生效），拟直接删除。
 原 `basicEnergyBonus` 已删除，元气基础产出固定为 3，额外产出统一读取 `turn_start_gain_vigor` 的 `resourceAmount`；
 属性面板通过 `kTurnStartResourceStatusIds` 和 `getTurnStartResourceAmount` 直接展示六种资源参数。
 另注意：statsBonus 载荷为固定字面量，不支持词条等级缩放；若未来纯加值词条需要随等级缩放，

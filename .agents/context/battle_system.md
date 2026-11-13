@@ -13,7 +13,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 战斗流程（\_startBattle 循环 → \_onBattleStart → \_startTurn → \_onBattleEnd）：
   - 先手按身法加权随机（0.5 + (heroDex - enemyDex)/100），偷袭直接先手；后手方补偿回血至上限。
   - 软狂暴：roundCount > 8 后每个普通行动回合开始前叠 1 层劫气（回合开始回调扣 10% 生命上限）。
-  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + battleDrawBonus，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy，额外产出由统一资源状态提供；先与死气对冲，仍有死气则扣 5% 生命上限且不自动消耗）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
+  - 回合内固定顺序：观星（turnStartScry，抽牌前）→ 抽牌（kBattleDrawCount + turn_start_draw.count，派生展示值为 battleDrawBonus；所有正负抽牌修正合并为一批，受 handSizeMax 手牌上限限制，默认 10；满手后剩余抽牌不发生，不洗牌/弃牌或触发抽牌回调）→ 回合开始回调（DOT/幻觉等）→ 清空上回合残留阳气（太极之气永久保留，不在此清空；每角色本场首次行动不清空；energyRetain 资源保留在此结算）→ 本回合资源产出（元气 = kBattleBaseEnergy，额外产出由统一资源状态提供；先与死气对冲，仍有死气则扣 5% 生命上限且不自动消耗）→ 出牌阶段 → 回合结束回调 → 清手牌（保留 isRetained 卡）→ 速度阈值触发的额外回合 do-while。
   - 胜负检查在每张牌结算完毕的边界进行（\_checkBattleResult），敌方优先死亡判英雄胜；回合上限 endBattleAfterRounds 默认 50。
 - 玩家出牌模型：队列制。点选手牌 → \_enqueueCard（费用预占硬检查 \_canPayCardCost，计入已入队卡）→ \_processCardQueue 异步逐张 \_playCard（支付 → hero.onUseCard(card) → 弃牌/符箓碎裂 CardShatterEffect）。结束回合按钮将 \_endPlayerTurn 置位。
 - 敌方 AI：简单策略——血量 <50% 优先 buff，否则优先 attack，逐张打到无可支付候选或手牌空。
@@ -22,7 +22,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 观星 scry：中央展示牌库顶 N 张（缺省 3 张，合计传入 count、全局 scryBonus 与局部 options.scryBonus 后最多 5 张，再按牌库剩余截断），玩家点选一张放回牌库顶，其余进弃牌堆；\_handInteractionDisabled 期间禁止手牌交互；永不触发洗牌；支持费用修正 options（天机术 scryOptions）；分发 self_scry 状态回调（窥天镜、观星留存）。
 - 战前准备：kStatsToPermanentEffects（攻防增减、四元素抗性/弱点）与纯增益属性（persistent/penetration/increase*damage*_）把角色 stats 转成永久状态图标；*prepareBattleStart（:275）按聚合后的 battleStatus 授予永久状态，并处理 start_battle_with*_ / start*turn_with*\* 被动（含 opponent\_ 前缀的给对方上状态版本）。
 - 永久状态显示分组：状态数据以 displayGroup 声明 scry / kind_damage / elemental_resist / attack_type / turn_start_resource 五组；BattleCharacter 保留全部逻辑状态和原回调遍历，StatusEffectGroup 只合并场景图标并在悬停时实时列出成员。组成员全部移除或清空状态时销毁分组组件，不合计异质层数；turn_start_resource 使用 parameterList 按 resourceAmount 显示各资源最终产出值。
-- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；firstCardCostReduction → 支付与队列预占（每次行动首张匹配牌减费，支付成功后消耗，动态费用豁免）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turnStartExtraDraw → \_startTurn（补抽，count 求和，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
+- 机制字段挂钩（全部数据驱动，无内容 id 硬编码）：deckCostReduction → getDeck（按卡合计全部命中规则后统一修正并钳制到 0）；firstCardCostReduction → 支付与队列预占（每次行动首张匹配牌减费，支付成功后消耗，动态费用豁免）；shuffleIntoDeck → \_startBattle（手牌/牌库/弃牌堆三区域查重后洗入，故后洗入的卡天然免疫组牌减费）；turnStartScry: true → \_startTurn（抽牌前观星一次，数量共用普通观星规则，不另带数字）；turn_start_draw.count → \_startTurn（所有正负抽牌修正与基础抽牌合并为一批，仍受手牌上限约束）；符箓（isEphemeral）每场战斗打出后碎裂，无跨战斗次数；装备／属性需求不满足的卡与缺卡替换为 blank_default 默认卡，卡牌境界、等级、流派和有色费用不构成替换条件。
 - 战后：胜负提示图、业力池 +5、清 ephemeral passives、按回合数比例回血、生命写回角色数据（setCharacterLife），最后 onBattleEnd 回调 + popScene。
 
 ## 2. 卡牌数据模型（Hetu）：scripts/main/cardgame/card.ht
@@ -86,7 +86,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 用途标记布尔字段区分词条池：isEquipmentMain / isEquipmentExtraAffix / isToolExtraAffix / isPotionMain / isEphemeral（+ephemeralType）；天赋树节点无视用途标记直接引用 id；rank 门槛只对装备/丹药生效。同一词条可叠加多个标记（如 elementalResist 同时是装备主词条+额外词条+临时增益词条）。
 - 数值公式：普通来源使用 calculatePassiveAffixContribution = (base??0) + increment×level；同 ID 汇总未取整贡献后统一 round 一次。太古额外来源取物品 rank 满级并按 greater.values 转换当前贡献；`greater: true` 是对 value[0] 应用常量默认倍率。isDecrement 标记负向词条。
 - uniqueId 互斥组（同组词条一件装备只能 roll 到一个，如 increase*damage*\* 共享 uniqueId）；priority 全文件递减排序。
-- 机制字段（契约见 docs/docs/mod/battle/readme.md）：battleStatus / deckCostReduction / shuffleIntoDeck / turnStartScry / turnStartExtraDraw / energyRetain / statsBonus；battleStatusParams 同步聚合数值、布尔和字符串参数，战前经 addStatusEffect(params:) 写入状态实例。greater.data 只累加既有参数，greater.alt 只替换指定字段，不追加新机制。
+- 机制字段（契约见 docs/docs/mod/battle/readme.md）：battleStatus / battleStatusValueParam / deckCostReduction / shuffleIntoDeck / turnStartScry / energyRetain / statsBonus；battleStatusParams 同步聚合数值、布尔和字符串参数，战前经 addStatusEffect(params:) 写入状态实例。greater.data 只累加既有参数，greater.alt 只替换指定字段，不追加新机制。
 - 绝世装备词条区：主词条合并一件装备的逻辑效果（多机制字段共存）；五件悟道装备均为 1 主 + 3 固定额外词条，rank 1/2 解锁 2/3 条，rank 3～5 按 greaterAffixes 固定太古化。
 
 ### 5.3 装备→战斗联动链路
@@ -94,7 +94,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
 - 穿脱（battle_entity.ht）：characterEquip 校验（在 inventory、isEquippable、空栏位 equipmentSlotCount=rank+3 封顶 8、绝世 uniqueId 唯一）→ 遍历 item.affixes，通过 Object.create 深拷贝完整词条快照，以 `equipment:{装备UID}:{词条位置}` 为 sourceKey 写入 character.passivesRaw；卸下时按 sourceType + 装备 UID 精确删除该装备全部来源 → characterCalculateStats 重算。已装备物品词条变化通过 characterRefreshEquipmentPassives 同步。UI 调用链：stats_and_item.dart 右键菜单 → Player.equip/unequip（player.ht）。
 - 类别限制只在 UI 层：kRestrictedEquipmentCategories（common.dart:359-367，weapon/shield/armor/gloves/helmet/boots/vehicle 七类）已装备同类时拒绝，除非角色有 ${category}UnrestrictedEquip 被动；characterEquip 内部不查类别。
 - 被动真值与派生结果：passivesRaw / ephemeralPassivesRaw 均为 `Map<被动id, Map<sourceKey, 完整来源快照>>`，是唯一来源真值；passives / ephemeralPassives 由 characterRecalculatePassives 全量重建，只供查询与展示，业务代码不得直接写入。普通数值逐来源计算未取整贡献，同 ID 汇总后统一 round 一次；PassiveData 只保留 id/priority/value/description/sourceCount，不再保存合计 level 或 increment。
-- 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；battleStatusParams 的数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；deckCostReduction 规则列表按来源拼接，战斗侧按卡合计后统一修正；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 布尔按 OR 合并；turnStartExtraDraw count 求和；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。角色聚合描述使用原型普通描述，数值以最终 value 插值；机制词条通过 descriptionParams 声明 statsBonus/deckCostReduction/turnStartExtraDraw/battleStatus 参数路径，由 GameData 用 Raw 来源与最终状态参数生成插值。
+- 聚合（characterCalculateStats，遍历两组 Raw）：battleStatus 的同名普通绑定只计一次、数值层数读取聚合值；battleStatusParams 的数值参数跨来源累加、布尔按 OR 合并、字符串要求一致；deckCostReduction 规则列表按来源拼接，战斗侧按卡合计后统一修正；shuffleIntoDeck 列表拼接（去重在战斗侧）；turnStartScry 布尔按 OR 合并；turn_start_draw.count 统一汇总普通/太古 battleStatusValueParam 与固定 statusParams 的正负修正，并派生 stats.battleDrawBonus 供展示与 Dart 抽牌读取；energyRetain 按 resourceId 合并（max 取大、代价沿用首个配置）；statsBonus 逐键累加。stats 每次从干净对象全量重建，重复重算不会重复累计。角色聚合描述使用原型普通描述，数值以最终 value 插值；机制词条通过 descriptionParams 声明 statsBonus/deckCostReduction/battleStatus 参数路径，由 GameData 用 Raw 来源与最终状态参数生成插值。
 - 临时配置：临时来源以 ephemeralScope 区分 battle_preparation / standalone，缺省归战前配置。characterReplaceBattlePreparationPassives 先构建快照再原子替换非永久战前来源，永久与独立效果保留；characterGetBattlePreparationSummary 提供替换确认计数。聚灵阵 getExpArrayBuff 只返回深拷贝实例，场景保存 batchId 和待生效列表，最终确认后才提交；结丹后以 getExpArrayGreaterPreview 在副本上预览并凝炼一条临时太古。战斗结束仍清除全部非永久临时来源。
 - Dart 消费点：
   - battle.dart：见 §1 机制字段挂钩。
@@ -124,7 +124,7 @@ BattleScene（Samsara Scene 子类）是战斗的总控制器。
   - 蓄灵佩 spirit_storing_amulet（rank4，amulet）→ energyRetain: {resourceId: energy_positive_spell, max: 2, costPerPoint: 3, costDamageType: pure}
   - 聚灵旗 spirit_gathering_banner（rank5，talisman/pearl）→ battleStatus: turn_start_gain_mana + deckCostReduction: {color: all, amount: -2, notGenres: [spellcraft]}
 - 中立两件（装备 → 主词条机制）：
-  - 乾坤戒 cosmos_ring（rank1，jewelry/ring）→ statsBonus: {handSizeMax: 2, battleDrawBonus: -1}；固定额外词条为元气产出、手牌上限和元气保留，太古时保留上限 2、手牌加成 2、元气产出 2。
+  - 乾坤戒 cosmos_ring（rank1，jewelry/ring）→ statsBonus: {handSizeMax: 2} + battleStatus: turn_start_draw + statusParams: {count: -1}；固定额外词条为元气产出、手牌上限和元气保留，太古时保留上限 2、手牌加成 2、元气产出 2。
   - 无极佩 limitless_amulet（rank3，jewelry/amulet）→ battleStatus: neutral_card_limitless（每回合首张中立加持牌授予 1 层无极）+ deckCostReduction 五种流派牌加费；固定额外词条为战初无极、穿透和暴击阈值。
 
 ## 6. 天赋树

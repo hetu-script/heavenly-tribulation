@@ -118,7 +118,7 @@ void main() {
         'spirit_gathering_banner',
         'mana_threshold_guard',
         'spellcraft_cost_down',
-        'turnStartExtraDraw',
+        'battleDrawBonus',
       ],
       'cosmos_ring': [
         'cosmos_ring',
@@ -467,7 +467,8 @@ void main() {
         positionalArgs: ['cosmos_ring'], namedArgs: {'rank': 5});
     final affixes = rank5['affixes'] as List;
     expect(affixes[0]['statsBonus']['handSizeMax'], 2);
-    expect(affixes[0]['statsBonus']['battleDrawBonus'], -1);
+    expect(affixes[0]['battleStatus'], 'turn_start_draw');
+    expect(affixes[0]['statusParams']['count'], -1);
     expect(affixes[1]['battleStatus'], 'turn_start_gain_vigor');
     expect(affixes[1]['statusParams']['resourceAmount'], 1);
     expect(affixes[1]['isGreater'], true);
@@ -575,7 +576,7 @@ void main() {
     ]);
   });
 
-  test('真实被动聚合叠加额外抽牌并合并同名战斗状态', () {
+  test('真实被动聚合叠加抽牌修正并合并同名战斗状态', () {
     final source =
         File('scripts/main/data/character/battle_entity.ht').readAsStringSync();
     const startMarker = '  final battleStatusMap = {}';
@@ -594,14 +595,14 @@ void main() {
         passivesRaw: {
           first: {
             'equipment:item-a:0': {
-              battleStatus: 'scry_retention',
-              turnStartExtraDraw: {count: 1},
+              battleStatus: 'turn_start_draw',
+              statusParams: {count: 1},
             },
           },
           second: {
             'equipment:item-b:0': {
-              battleStatus: 'scry_retention',
-              turnStartExtraDraw: {count: 1},
+              battleStatus: 'turn_start_draw',
+              statusParams: {count: 1},
             },
           },
         },
@@ -612,8 +613,9 @@ void main() {
       }
       aggregateForTest(character)
     ''');
-    expect(result['turnStartExtraDraw']['count'], 2);
-    expect(result['turnStartExtraDraw']['costIncrease'], isNull);
-    expect(result['battleStatus']['scry_retention'], 2);
+    expect(result['battleStatusParams']['turn_start_draw']['count'], 2);
+    expect(result['battleDrawBonus'], 2);
+    expect(result['turnStartExtraDraw'], isNull);
+    expect(result['battleStatus']['turn_start_draw'], 2);
   });
 }

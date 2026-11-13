@@ -1,38 +1,91 @@
 {
-  /// 天赋技能数据
-  /// 外面的key指技能点在天赋盘上的位置，每个位置固定在圆等分点上，通过算法计算出来准确的坐标
-  /// 技能数据里面的skillId有可能相同
-  /// 如果获得了多个skillId相同的技能，最终他们会累加到一起，累加后的value会合并
+  // 天赋技能数据
+  // 外面的key指技能点在天赋盘上的位置，每个位置固定在圆等分点上，通过算法计算出来准确的坐标
+  // 技能数据里面的skillId有可能相同
+  // 如果获得了多个skillId相同的技能，最终他们会累加到一起，累加后的value会合并
 
-  /// 节点 id 的命名规则:
-  /// track_{轨道位置编号}_{圆弧位置编号}
+  // 节点 id 的命名规则:
+  // track_{轨道位置编号}_{圆弧位置编号}
 
-  /// 数据示例:
-  /// track_x_x: {
-  ///   size: "small",
-  ///   connectedNodes: ["track_x_x"],
-  ///   icon: "cultivation/skill/passive_id.png",
-  ///   unselectedIcon: "cultivation/skill/passive_id.png",
-  ///   passives: [
-  ///     {
-  ///       id: "passive_id",
-  ///       level: 30,
-  ///     },
-  ///   ],
-  /// },
+  // 数据示例:
+  // track_x_x: {
+  //   size: "small",
+  //   connectedNodes: ["track_x_x"],
+  //   icon: "cultivation/skill/passive_id.png",
+  //   unselectedIcon: "cultivation/skill/passive_id.png",
+  //   passives: [
+  //     {
+  //       id: "passive_id",
+  //       level: 30,
+  //     },
+  //   ],
+  // },
 
-  /// 主轴1
+  // 主轴1
   track_0_0: {
+    isOpen: true,
     size: "medium",
     connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
+    icon: "cultivation/skill/spellcraft_selected.png",
+    unselectedIcon: "cultivation/skill/spellcraft_unselected.png",
+    passives: [
+      {
+        id: "turn_start_gain_mana",
+      },
+    ],
   },
   track_2_0: {
     size: "small",
     connectedNodes: ["track_0_0"],
     isAttribute: true,
   },
+  track_4_0: {
+    size: "small",
+    connectedNodes: ["track_2_0"],
+    isAttribute: true,
+  },
+  track_6_0: {
+    size: "small",
+    connectedNodes: ["track_4_0"],
+    isAttribute: true,
+  },
+  track_8_0: {
+    size: "small",
+    connectedNodes: ["track_6_0"],
+    isAttribute: true,
+  },
+  track_10_0: {
+    size: "small",
+    connectedNodes: ["track_10_38", "track_8_0"],
+    isAttribute: true,
+  },
+  track_12_0: {
+    size: "small",
+    connectedNodes: ["track_10_0"],
+    isAttribute: true,
+  },
+  track_14_0: {
+    size: "small",
+    connectedNodes: ["track_12_0"],
+    isAttribute: true,
+  },
+  track_16_0: {
+    size: "small",
+    connectedNodes: ["track_14_0"],
+    isAttribute: true,
+  },
+  track_18_0: {
+    size: "small",
+    connectedNodes: ["track_16_0"],
+    isAttribute: true,
+  },
+  track_20_0: {
+    size: "small",
+    connectedNodes: ["track_20_39", "track_18_0"],
+    isAttribute: true,
+  },
+
+  // 主轴1初始两侧分支
   track_3_19: {
     size: "small",
     connectedNodes: ["track_2_0"],
@@ -70,7 +123,7 @@
   },
   track_7_39: {
     size: "small",
-    connectedNodes: ["track_6_38", "track_6_39"],
+    connectedNodes: ["track_6_38", "track_6_39", "track_8_0"],
     isAttribute: true,
   },
   track_3_1: {
@@ -110,61 +163,22 @@
   },
   track_7_1: {
     size: "small",
-    connectedNodes: ["track_6_1", "track_6_2"],
-    isAttribute: true,
-  },
-  track_4_0: {
-    size: "small",
-    connectedNodes: ["track_2_0"],
-    isAttribute: true,
-  },
-  track_6_0: {
-    size: "small",
-    connectedNodes: ["track_4_0"],
-    isAttribute: true,
-  },
-  track_8_0: {
-    size: "small",
-    connectedNodes: ["track_6_0", "track_7_39", "track_7_1"],
-    isAttribute: true,
-  },
-  track_10_0: {
-    size: "small",
-    connectedNodes: ["track_10_38", "track_8_0"],
-    isAttribute: true,
-  },
-  track_12_0: {
-    size: "small",
-    connectedNodes: ["track_10_0"],
-    isAttribute: true,
-  },
-  track_14_0: {
-    size: "small",
-    connectedNodes: ["track_12_0"],
-    isAttribute: true,
-  },
-  track_16_0: {
-    size: "small",
-    connectedNodes: ["track_14_0"],
-    isAttribute: true,
-  },
-  track_18_0: {
-    size: "small",
-    connectedNodes: ["track_16_0"],
-    isAttribute: true,
-  },
-  track_20_0: {
-    size: "small",
-    connectedNodes: ["track_20_39", "track_18_0"],
+    connectedNodes: ["track_6_1", "track_6_2", "track_8_0"],
     isAttribute: true,
   },
 
-  /// 主轴2
+  // 主轴2
   track_0_1: {
+    isOpen: true,
     size: "medium",
     connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
+    icon: "cultivation/skill/vitality_selected.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+    passives: [
+      {
+        id: "turn_start_gain_karma",
+      },
+    ],
   },
   track_2_4: {
     size: "small",
@@ -217,12 +231,140 @@
     isAttribute: true,
   },
 
-  /// 主轴3
+  // 主轴2初始两侧分支
+  track_3_3: {
+    size: "small",
+    connectedNodes: ["track_2_4"],
+    isAttribute: true,
+  },
+  track_4_6: {
+    size: "small",
+    connectedNodes: ["track_3_3"],
+    isAttribute: true,
+  },
+  track_5_6: {
+    size: "small",
+    connectedNodes: ["track_4_6"],
+    isAttribute: true,
+  },
+  track_6_6: {
+    size: "small",
+    connectedNodes: ["track_5_6"],
+    isAttribute: true,
+  },
+  track_4_7: {
+    size: "small",
+    connectedNodes: ["track_3_3"],
+    isAttribute: true,
+  },
+  track_5_7: {
+    size: "small",
+    connectedNodes: ["track_4_7"],
+    isAttribute: true,
+  },
+  track_6_7: {
+    size: "small",
+    connectedNodes: ["track_5_7"],
+    isAttribute: true,
+  },
+  track_7_7: {
+    size: "small",
+    connectedNodes: ["track_6_6", "track_6_7", "track_8_8"],
+    isAttribute: true,
+  },
+  track_3_5: {
+    size: "small",
+    connectedNodes: ["track_2_4"],
+    isAttribute: true,
+  },
+  track_4_10: {
+    size: "small",
+    connectedNodes: ["track_3_5"],
+    isAttribute: true,
+  },
+  track_5_10: {
+    size: "small",
+    connectedNodes: ["track_4_10"],
+    isAttribute: true,
+  },
+  track_6_10: {
+    size: "small",
+    connectedNodes: ["track_5_10"],
+    isAttribute: true,
+  },
+  track_4_9: {
+    size: "small",
+    connectedNodes: ["track_3_5"],
+    isAttribute: true,
+  },
+  track_5_9: {
+    size: "small",
+    connectedNodes: ["track_4_9"],
+    isAttribute: true,
+  },
+  track_6_9: {
+    size: "small",
+    connectedNodes: ["track_5_9"],
+    isAttribute: true,
+  },
+  track_7_9: {
+    size: "small",
+    connectedNodes: ["track_6_9", "track_6_10", "track_8_8"],
+    isAttribute: true,
+  },
+  track_7_11: {
+    size: "small",
+    connectedNodes: ["track_8_12"],
+    isAttribute: true,
+  },
+  track_6_11: {
+    size: "small",
+    connectedNodes: ["track_7_11"],
+    isAttribute: true,
+  },
+  track_5_11: {
+    size: "small",
+    connectedNodes: ["track_6_11"],
+    isAttribute: true,
+  },
+  track_4_11: {
+    size: "small",
+    connectedNodes: ["track_5_11"],
+    isAttribute: true,
+  },
+  track_7_13: {
+    size: "small",
+    connectedNodes: ["track_8_12"],
+    isAttribute: true,
+  },
+  track_6_13: {
+    size: "small",
+    connectedNodes: ["track_7_13"],
+    isAttribute: true,
+  },
+  track_5_13: {
+    size: "small",
+    connectedNodes: ["track_6_13"],
+    isAttribute: true,
+  },
+  track_4_13: {
+    size: "small",
+    connectedNodes: ["track_5_13"],
+    isAttribute: true,
+  },
+
+  // 主轴3
   track_0_2: {
+    isOpen: true,
     size: "medium",
     connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
+    icon: "cultivation/skill/avatar_selected.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+    passives: [
+      {
+        id: "turn_start_gain_vigor",
+      },
+    ],
   },
   track_2_8: {
     size: "small",
@@ -275,12 +417,140 @@
     isAttribute: true,
   },
 
-  /// 主轴4
+  // 主轴3初始两侧分支
+  track_3_7: {
+    size: "small",
+    connectedNodes: ["track_2_8"],
+    isAttribute: true,
+  },
+  track_4_14: {
+    size: "small",
+    connectedNodes: ["track_3_7"],
+    isAttribute: true,
+  },
+  track_5_14: {
+    size: "small",
+    connectedNodes: ["track_4_14"],
+    isAttribute: true,
+  },
+  track_6_14: {
+    size: "small",
+    connectedNodes: ["track_5_14"],
+    isAttribute: true,
+  },
+  track_4_15: {
+    size: "small",
+    connectedNodes: ["track_3_7"],
+    isAttribute: true,
+  },
+  track_5_15: {
+    size: "small",
+    connectedNodes: ["track_4_15"],
+    isAttribute: true,
+  },
+  track_6_15: {
+    size: "small",
+    connectedNodes: ["track_5_15"],
+    isAttribute: true,
+  },
+  track_7_15: {
+    size: "small",
+    connectedNodes: ["track_6_14", "track_6_15", "track_8_16"],
+    isAttribute: true,
+  },
+  track_3_9: {
+    size: "small",
+    connectedNodes: ["track_2_8"],
+    isAttribute: true,
+  },
+  track_4_18: {
+    size: "small",
+    connectedNodes: ["track_3_9"],
+    isAttribute: true,
+  },
+  track_5_18: {
+    size: "small",
+    connectedNodes: ["track_4_18"],
+    isAttribute: true,
+  },
+  track_6_18: {
+    size: "small",
+    connectedNodes: ["track_5_18"],
+    isAttribute: true,
+  },
+  track_4_17: {
+    size: "small",
+    connectedNodes: ["track_3_9"],
+    isAttribute: true,
+  },
+  track_5_17: {
+    size: "small",
+    connectedNodes: ["track_4_17"],
+    isAttribute: true,
+  },
+  track_6_17: {
+    size: "small",
+    connectedNodes: ["track_5_17"],
+    isAttribute: true,
+  },
+  track_7_17: {
+    size: "small",
+    connectedNodes: ["track_6_17", "track_6_18", "track_8_16"],
+    isAttribute: true,
+  },
+  track_7_19: {
+    size: "small",
+    connectedNodes: ["track_8_20"],
+    isAttribute: true,
+  },
+  track_6_19: {
+    size: "small",
+    connectedNodes: ["track_7_19"],
+    isAttribute: true,
+  },
+  track_5_19: {
+    size: "small",
+    connectedNodes: ["track_6_19"],
+    isAttribute: true,
+  },
+  track_4_19: {
+    size: "small",
+    connectedNodes: ["track_5_19"],
+    isAttribute: true,
+  },
+  track_7_21: {
+    size: "small",
+    connectedNodes: ["track_8_20"],
+    isAttribute: true,
+  },
+  track_6_21: {
+    size: "small",
+    connectedNodes: ["track_7_21"],
+    isAttribute: true,
+  },
+  track_5_21: {
+    size: "small",
+    connectedNodes: ["track_6_21"],
+    isAttribute: true,
+  },
+  track_4_21: {
+    size: "small",
+    connectedNodes: ["track_5_21"],
+    isAttribute: true,
+  },
+
+  // 主轴4
   track_0_3: {
+    isOpen: true,
     size: "medium",
     connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
+    icon: "cultivation/skill/bodyforge_selected.png",
+    unselectedIcon: "cultivation/skill/bodyforge_unselected.png",
+    passives: [
+      {
+        id: "turn_start_gain_rage",
+      },
+    ],
   },
   track_2_12: {
     size: "small",
@@ -333,12 +603,140 @@
     isAttribute: true,
   },
 
-  /// 主轴5
+  // 主轴4初始两侧分支
+  track_3_11: {
+    size: "small",
+    connectedNodes: ["track_2_12"],
+    isAttribute: true,
+  },
+  track_4_22: {
+    size: "small",
+    connectedNodes: ["track_3_11"],
+    isAttribute: true,
+  },
+  track_5_22: {
+    size: "small",
+    connectedNodes: ["track_4_22"],
+    isAttribute: true,
+  },
+  track_6_22: {
+    size: "small",
+    connectedNodes: ["track_5_22"],
+    isAttribute: true,
+  },
+  track_4_23: {
+    size: "small",
+    connectedNodes: ["track_3_11"],
+    isAttribute: true,
+  },
+  track_5_23: {
+    size: "small",
+    connectedNodes: ["track_4_23"],
+    isAttribute: true,
+  },
+  track_6_23: {
+    size: "small",
+    connectedNodes: ["track_5_23"],
+    isAttribute: true,
+  },
+  track_7_23: {
+    size: "small",
+    connectedNodes: ["track_6_22", "track_6_23", "track_8_24"],
+    isAttribute: true,
+  },
+  track_3_13: {
+    size: "small",
+    connectedNodes: ["track_2_12"],
+    isAttribute: true,
+  },
+  track_4_26: {
+    size: "small",
+    connectedNodes: ["track_3_13"],
+    isAttribute: true,
+  },
+  track_5_26: {
+    size: "small",
+    connectedNodes: ["track_4_26"],
+    isAttribute: true,
+  },
+  track_6_26: {
+    size: "small",
+    connectedNodes: ["track_5_26"],
+    isAttribute: true,
+  },
+  track_4_25: {
+    size: "small",
+    connectedNodes: ["track_3_13"],
+    isAttribute: true,
+  },
+  track_5_25: {
+    size: "small",
+    connectedNodes: ["track_4_25"],
+    isAttribute: true,
+  },
+  track_6_25: {
+    size: "small",
+    connectedNodes: ["track_5_25"],
+    isAttribute: true,
+  },
+  track_7_25: {
+    size: "small",
+    connectedNodes: ["track_6_25", "track_6_26", "track_8_24"],
+    isAttribute: true,
+  },
+  track_7_27: {
+    size: "small",
+    connectedNodes: ["track_8_28"],
+    isAttribute: true,
+  },
+  track_6_27: {
+    size: "small",
+    connectedNodes: ["track_7_27"],
+    isAttribute: true,
+  },
+  track_5_27: {
+    size: "small",
+    connectedNodes: ["track_6_27"],
+    isAttribute: true,
+  },
+  track_4_27: {
+    size: "small",
+    connectedNodes: ["track_5_27"],
+    isAttribute: true,
+  },
+  track_7_29: {
+    size: "small",
+    connectedNodes: ["track_8_28"],
+    isAttribute: true,
+  },
+  track_6_29: {
+    size: "small",
+    connectedNodes: ["track_7_29"],
+    isAttribute: true,
+  },
+  track_5_29: {
+    size: "small",
+    connectedNodes: ["track_6_29"],
+    isAttribute: true,
+  },
+  track_4_29: {
+    size: "small",
+    connectedNodes: ["track_5_29"],
+    isAttribute: true,
+  },
+
+  // 主轴5
   track_0_4: {
+    isOpen: true,
     size: "medium",
     connectedNodes: [],
-    isAttribute: true,
-    isOpen: true,
+    icon: "cultivation/skill/swordcraft_selected.png",
+    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
+    passives: [
+      {
+        id: "turn_start_gain_chakra",
+      },
+    ],
   },
   track_2_16: {
     size: "small",
@@ -391,67 +789,230 @@
     isAttribute: true,
   },
 
+  // 主轴5初始两侧分支
+  track_3_15: {
+    size: "small",
+    connectedNodes: ["track_2_16"],
+    isAttribute: true,
+  },
+  track_4_30: {
+    size: "small",
+    connectedNodes: ["track_3_15"],
+    isAttribute: true,
+  },
+  track_5_30: {
+    size: "small",
+    connectedNodes: ["track_4_30"],
+    isAttribute: true,
+  },
+  track_6_30: {
+    size: "small",
+    connectedNodes: ["track_5_30"],
+    isAttribute: true,
+  },
+  track_4_31: {
+    size: "small",
+    connectedNodes: ["track_3_15"],
+    isAttribute: true,
+  },
+  track_5_31: {
+    size: "small",
+    connectedNodes: ["track_4_31"],
+    isAttribute: true,
+  },
+  track_6_31: {
+    size: "small",
+    connectedNodes: ["track_5_31"],
+    isAttribute: true,
+  },
+  track_7_31: {
+    size: "small",
+    connectedNodes: ["track_6_30", "track_6_31", "track_8_32"],
+    isAttribute: true,
+  },
+  track_3_17: {
+    size: "small",
+    connectedNodes: ["track_2_16"],
+    isAttribute: true,
+  },
+  track_4_34: {
+    size: "small",
+    connectedNodes: ["track_3_17"],
+    isAttribute: true,
+  },
+  track_5_34: {
+    size: "small",
+    connectedNodes: ["track_4_34"],
+    isAttribute: true,
+  },
+  track_6_34: {
+    size: "small",
+    connectedNodes: ["track_5_34"],
+    isAttribute: true,
+  },
+  track_4_33: {
+    size: "small",
+    connectedNodes: ["track_3_17"],
+    isAttribute: true,
+  },
+  track_5_33: {
+    size: "small",
+    connectedNodes: ["track_4_33"],
+    isAttribute: true,
+  },
+  track_6_33: {
+    size: "small",
+    connectedNodes: ["track_5_33"],
+    isAttribute: true,
+  },
+  track_7_33: {
+    size: "small",
+    connectedNodes: ["track_6_33", "track_6_34", "track_8_32"],
+    isAttribute: true,
+  },
+  track_7_35: {
+    size: "small",
+    connectedNodes: ["track_8_36"],
+    isAttribute: true,
+  },
+  track_6_35: {
+    size: "small",
+    connectedNodes: ["track_7_35"],
+    isAttribute: true,
+  },
+  track_5_35: {
+    size: "small",
+    connectedNodes: ["track_6_35"],
+    isAttribute: true,
+  },
+  track_4_35: {
+    size: "small",
+    connectedNodes: ["track_5_35"],
+    isAttribute: true,
+  },
+  track_7_37: {
+    size: "small",
+    connectedNodes: ["track_8_36"],
+    isAttribute: true,
+  },
+  track_6_37: {
+    size: "small",
+    connectedNodes: ["track_7_37"],
+    isAttribute: true,
+  },
+  track_5_37: {
+    size: "small",
+    connectedNodes: ["track_6_37"],
+    isAttribute: true,
+  },
+  track_4_37: {
+    size: "small",
+    connectedNodes: ["track_5_37"],
+    isAttribute: true,
+  },
+
   // 间轴1
-  track_8_4: {
+  track_9_4: {
     size: "small",
     connectedNodes: ["track_10_4"],
     isAttribute: true,
   },
-  track_6_4: {
-    size: "small",
-    connectedNodes: ["track_8_4"],
-    isAttribute: true,
-  },
-  track_4_4: {
-    size: "small",
-    connectedNodes: ["track_6_4"],
-    isAttribute: true,
-  },
   track_7_3: {
-    size: "small",
-    connectedNodes: ["track_8_4"],
-    isAttribute: true,
-  },
-  track_6_3: {
-    size: "small",
-    connectedNodes: ["track_7_3"],
-    isAttribute: true,
-  },
-  track_5_3: {
     size: "small",
     connectedNodes: ["track_6_3"],
     isAttribute: true,
   },
-  track_4_3: {
+  track_8_4: {
+    size: "medium",
+    connectedNodes: ["track_7_3"],
+    icon: "cultivation/skill/scry_selected.png",
+    unselectedIcon: "cultivation/skill/scry_unselected.png",
+    passives: [
+      {
+        id: "scry_mana",
+      },
+    ],
+  },
+  track_7_5: {
+    size: "small",
+    connectedNodes: ["track_9_4"],
+    isAttribute: true,
+  },
+  track_6_3: {
     size: "small",
     connectedNodes: ["track_5_3"],
     isAttribute: true,
   },
-  track_7_5: {
-    size: "small",
-    connectedNodes: ["track_8_4"],
-    isAttribute: true,
+  track_7_4: {
+    size: "medium",
+    connectedNodes: ["track_6_3"],
+    icon: "cultivation/skill/scry_selected.png",
+    unselectedIcon: "cultivation/skill/scry_unselected.png",
+    passives: [
+      {
+        id: "scry_all_damage",
+      },
+    ],
   },
   track_6_5: {
     size: "small",
     connectedNodes: ["track_7_5"],
     isAttribute: true,
   },
+  track_5_3: {
+    size: "small",
+    connectedNodes: ["track_4_3"],
+    isAttribute: true,
+  },
+  track_6_4: {
+    size: "medium",
+    connectedNodes: ["track_5_3"],
+    icon: "cultivation/skill/scry_selected.png",
+    unselectedIcon: "cultivation/skill/scry_unselected.png",
+    passives: [
+      {
+        id: "scry_shield",
+      },
+    ],
+  },
   track_5_5: {
     size: "small",
     connectedNodes: ["track_6_5"],
     isAttribute: true,
+  },
+  track_4_3: {
+    size: "small",
+    connectedNodes: ["track_3_2"],
+    isAttribute: true,
+  },
+  track_5_4: {
+    size: "medium",
+    connectedNodes: ["track_4_3"],
+    icon: "cultivation/skill/scry_selected.png",
+    unselectedIcon: "cultivation/skill/scry_unselected.png",
+    passives: [
+      {
+        id: "scry_upgrade",
+      },
+    ],
   },
   track_4_5: {
     size: "small",
     connectedNodes: ["track_5_5"],
     isAttribute: true,
   },
-  track_2_2: {
-    size: "medium",
-    connectedNodes: ["track_4_3", "track_4_4", "track_4_5"],
-    isAttribute: true,
+  track_3_2: {
+    size: "large",
+    connectedNodes: ["track_4_5"],
+    icon: "cultivation/skill/scry_selected.png",
+    unselectedIcon: "cultivation/skill/scry_unselected.png",
+    passives: [
+      {
+        id: "key_branch_scry",
+      },
+    ],
   },
+
   track_12_4: {
     size: "small",
     connectedNodes: ["track_10_4"],
@@ -489,7 +1050,7 @@
     connectedNodes: ["track_6_12"],
     isAttribute: true,
   },
-  track_2_6: {
+  track_3_6: {
     size: "medium",
     connectedNodes: ["track_4_12"],
     isAttribute: true,
@@ -531,7 +1092,7 @@
     connectedNodes: ["track_6_20"],
     isAttribute: true,
   },
-  track_2_10: {
+  track_3_10: {
     size: "medium",
     connectedNodes: ["track_4_20"],
     isAttribute: true,
@@ -573,7 +1134,7 @@
     connectedNodes: ["track_6_28"],
     isAttribute: true,
   },
-  track_2_14: {
+  track_3_14: {
     size: "medium",
     connectedNodes: ["track_4_28"],
     isAttribute: true,
@@ -615,7 +1176,7 @@
     connectedNodes: ["track_6_36"],
     isAttribute: true,
   },
-  track_2_18: {
+  track_3_18: {
     size: "medium",
     connectedNodes: ["track_4_36"],
     isAttribute: true,
@@ -859,7 +1420,7 @@
   },
   */
 
-  // 圆环1内侧分支1
+  // 圆环1内侧小圈1
   track_9_2: {
     size: "small",
     connectedNodes: ["track_10_2"],
@@ -896,7 +1457,7 @@
     isAttribute: true,
   },
 
-  // 圆环1内侧分支2
+  // 圆环1内侧小圈2
   track_9_6: {
     size: "small",
     connectedNodes: ["track_10_6"],
@@ -1278,129 +1839,7 @@
     isAttribute: true,
   },
 
-  // 扇区2：按扇区1同构复制的分支骨架
-  track_3_3: {
-    size: "small",
-    connectedNodes: ["track_2_4"],
-    isAttribute: true,
-  },
-  track_4_6: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    isAttribute: true,
-  },
-  track_5_6: {
-    size: "small",
-    connectedNodes: ["track_4_6"],
-    isAttribute: true,
-  },
-  track_6_6: {
-    size: "small",
-    connectedNodes: ["track_5_6"],
-    isAttribute: true,
-  },
-  track_4_7: {
-    size: "small",
-    connectedNodes: ["track_3_3"],
-    isAttribute: true,
-  },
-  track_5_7: {
-    size: "small",
-    connectedNodes: ["track_4_7"],
-    isAttribute: true,
-  },
-  track_6_7: {
-    size: "small",
-    connectedNodes: ["track_5_7"],
-    isAttribute: true,
-  },
-  track_7_7: {
-    size: "small",
-    connectedNodes: ["track_6_6", "track_6_7", "track_8_8"],
-    isAttribute: true,
-  },
-  track_3_5: {
-    size: "small",
-    connectedNodes: ["track_2_4"],
-    isAttribute: true,
-  },
-  track_4_10: {
-    size: "small",
-    connectedNodes: ["track_3_5"],
-    isAttribute: true,
-  },
-  track_5_10: {
-    size: "small",
-    connectedNodes: ["track_4_10"],
-    isAttribute: true,
-  },
-  track_6_10: {
-    size: "small",
-    connectedNodes: ["track_5_10"],
-    isAttribute: true,
-  },
-  track_4_9: {
-    size: "small",
-    connectedNodes: ["track_3_5"],
-    isAttribute: true,
-  },
-  track_5_9: {
-    size: "small",
-    connectedNodes: ["track_4_9"],
-    isAttribute: true,
-  },
-  track_6_9: {
-    size: "small",
-    connectedNodes: ["track_5_9"],
-    isAttribute: true,
-  },
-  track_7_9: {
-    size: "small",
-    connectedNodes: ["track_6_9", "track_6_10", "track_8_8"],
-    isAttribute: true,
-  },
-  track_7_11: {
-    size: "small",
-    connectedNodes: ["track_8_12"],
-    isAttribute: true,
-  },
-  track_6_11: {
-    size: "small",
-    connectedNodes: ["track_7_11"],
-    isAttribute: true,
-  },
-  track_5_11: {
-    size: "small",
-    connectedNodes: ["track_6_11"],
-    isAttribute: true,
-  },
-  track_4_11: {
-    size: "small",
-    connectedNodes: ["track_5_11", "track_2_6"],
-    isAttribute: true,
-  },
-  track_7_13: {
-    size: "small",
-    connectedNodes: ["track_8_12"],
-    isAttribute: true,
-  },
-  track_6_13: {
-    size: "small",
-    connectedNodes: ["track_7_13"],
-    isAttribute: true,
-  },
-  track_5_13: {
-    size: "small",
-    connectedNodes: ["track_6_13"],
-    isAttribute: true,
-  },
-  track_4_13: {
-    size: "small",
-    connectedNodes: ["track_5_13", "track_2_6"],
-    isAttribute: true,
-  },
-
-  // 扇区2：圆环1内侧小圈
+  // 圆环1内侧小圈3
   track_9_10: {
     size: "small",
     connectedNodes: ["track_10_10"],
@@ -1436,6 +1875,8 @@
     connectedNodes: ["track_7_10"],
     isAttribute: true,
   },
+
+  // 圆环1内侧小圈4
   track_9_14: {
     size: "small",
     connectedNodes: ["track_10_14"],
@@ -1472,7 +1913,7 @@
     isAttribute: true,
   },
 
-  // 扇区2：圆环1外侧小圈
+  // 圆环1外侧小圈3
   track_11_10: {
     size: "small",
     connectedNodes: ["track_10_10"],
@@ -1513,6 +1954,8 @@
     connectedNodes: ["track_13_10"],
     isAttribute: true,
   },
+
+  // 圆环1外侧小圈4
   track_11_14: {
     size: "small",
     connectedNodes: ["track_10_14"],
@@ -1554,7 +1997,7 @@
     isAttribute: true,
   },
 
-  // 扇区2：圆环2内侧小圈
+  // 圆环2内侧小圈3
   track_19_10: {
     size: "small",
     connectedNodes: ["track_20_10"],
@@ -1595,6 +2038,8 @@
     connectedNodes: ["track_17_10"],
     isAttribute: true,
   },
+
+  // 圆环2内侧小圈4
   track_19_14: {
     size: "small",
     connectedNodes: ["track_20_14"],
@@ -1636,129 +2081,7 @@
     isAttribute: true,
   },
 
-  // 扇区3：按扇区1同构复制的分支骨架
-  track_3_7: {
-    size: "small",
-    connectedNodes: ["track_2_8"],
-    isAttribute: true,
-  },
-  track_4_14: {
-    size: "small",
-    connectedNodes: ["track_3_7"],
-    isAttribute: true,
-  },
-  track_5_14: {
-    size: "small",
-    connectedNodes: ["track_4_14"],
-    isAttribute: true,
-  },
-  track_6_14: {
-    size: "small",
-    connectedNodes: ["track_5_14"],
-    isAttribute: true,
-  },
-  track_4_15: {
-    size: "small",
-    connectedNodes: ["track_3_7"],
-    isAttribute: true,
-  },
-  track_5_15: {
-    size: "small",
-    connectedNodes: ["track_4_15"],
-    isAttribute: true,
-  },
-  track_6_15: {
-    size: "small",
-    connectedNodes: ["track_5_15"],
-    isAttribute: true,
-  },
-  track_7_15: {
-    size: "small",
-    connectedNodes: ["track_6_14", "track_6_15", "track_8_16"],
-    isAttribute: true,
-  },
-  track_3_9: {
-    size: "small",
-    connectedNodes: ["track_2_8"],
-    isAttribute: true,
-  },
-  track_4_18: {
-    size: "small",
-    connectedNodes: ["track_3_9"],
-    isAttribute: true,
-  },
-  track_5_18: {
-    size: "small",
-    connectedNodes: ["track_4_18"],
-    isAttribute: true,
-  },
-  track_6_18: {
-    size: "small",
-    connectedNodes: ["track_5_18"],
-    isAttribute: true,
-  },
-  track_4_17: {
-    size: "small",
-    connectedNodes: ["track_3_9"],
-    isAttribute: true,
-  },
-  track_5_17: {
-    size: "small",
-    connectedNodes: ["track_4_17"],
-    isAttribute: true,
-  },
-  track_6_17: {
-    size: "small",
-    connectedNodes: ["track_5_17"],
-    isAttribute: true,
-  },
-  track_7_17: {
-    size: "small",
-    connectedNodes: ["track_6_17", "track_6_18", "track_8_16"],
-    isAttribute: true,
-  },
-  track_7_19: {
-    size: "small",
-    connectedNodes: ["track_8_20"],
-    isAttribute: true,
-  },
-  track_6_19: {
-    size: "small",
-    connectedNodes: ["track_7_19"],
-    isAttribute: true,
-  },
-  track_5_19: {
-    size: "small",
-    connectedNodes: ["track_6_19"],
-    isAttribute: true,
-  },
-  track_4_19: {
-    size: "small",
-    connectedNodes: ["track_5_19", "track_2_10"],
-    isAttribute: true,
-  },
-  track_7_21: {
-    size: "small",
-    connectedNodes: ["track_8_20"],
-    isAttribute: true,
-  },
-  track_6_21: {
-    size: "small",
-    connectedNodes: ["track_7_21"],
-    isAttribute: true,
-  },
-  track_5_21: {
-    size: "small",
-    connectedNodes: ["track_6_21"],
-    isAttribute: true,
-  },
-  track_4_21: {
-    size: "small",
-    connectedNodes: ["track_5_21", "track_2_10"],
-    isAttribute: true,
-  },
-
-  // 扇区3：圆环1内侧小圈
+  // 圆环1内侧小圈5
   track_9_18: {
     size: "small",
     connectedNodes: ["track_10_18"],
@@ -1794,6 +2117,8 @@
     connectedNodes: ["track_7_18"],
     isAttribute: true,
   },
+
+  // 圆环1内侧小圈6
   track_9_22: {
     size: "small",
     connectedNodes: ["track_10_22"],
@@ -1830,7 +2155,7 @@
     isAttribute: true,
   },
 
-  // 扇区3：圆环1外侧小圈
+  // 圆环1外侧小圈5
   track_11_18: {
     size: "small",
     connectedNodes: ["track_10_18"],
@@ -1871,6 +2196,8 @@
     connectedNodes: ["track_13_18"],
     isAttribute: true,
   },
+
+  // 圆环1外侧小圈6
   track_11_22: {
     size: "small",
     connectedNodes: ["track_10_22"],
@@ -1912,7 +2239,7 @@
     isAttribute: true,
   },
 
-  // 扇区3：圆环2内侧小圈
+  // 圆环2内侧小圈5
   track_19_18: {
     size: "small",
     connectedNodes: ["track_20_18"],
@@ -1953,6 +2280,8 @@
     connectedNodes: ["track_17_18"],
     isAttribute: true,
   },
+
+  // 圆环2内侧小圈6
   track_19_22: {
     size: "small",
     connectedNodes: ["track_20_22"],
@@ -1994,129 +2323,7 @@
     isAttribute: true,
   },
 
-  // 扇区4：按扇区1同构复制的分支骨架
-  track_3_11: {
-    size: "small",
-    connectedNodes: ["track_2_12"],
-    isAttribute: true,
-  },
-  track_4_22: {
-    size: "small",
-    connectedNodes: ["track_3_11"],
-    isAttribute: true,
-  },
-  track_5_22: {
-    size: "small",
-    connectedNodes: ["track_4_22"],
-    isAttribute: true,
-  },
-  track_6_22: {
-    size: "small",
-    connectedNodes: ["track_5_22"],
-    isAttribute: true,
-  },
-  track_4_23: {
-    size: "small",
-    connectedNodes: ["track_3_11"],
-    isAttribute: true,
-  },
-  track_5_23: {
-    size: "small",
-    connectedNodes: ["track_4_23"],
-    isAttribute: true,
-  },
-  track_6_23: {
-    size: "small",
-    connectedNodes: ["track_5_23"],
-    isAttribute: true,
-  },
-  track_7_23: {
-    size: "small",
-    connectedNodes: ["track_6_22", "track_6_23", "track_8_24"],
-    isAttribute: true,
-  },
-  track_3_13: {
-    size: "small",
-    connectedNodes: ["track_2_12"],
-    isAttribute: true,
-  },
-  track_4_26: {
-    size: "small",
-    connectedNodes: ["track_3_13"],
-    isAttribute: true,
-  },
-  track_5_26: {
-    size: "small",
-    connectedNodes: ["track_4_26"],
-    isAttribute: true,
-  },
-  track_6_26: {
-    size: "small",
-    connectedNodes: ["track_5_26"],
-    isAttribute: true,
-  },
-  track_4_25: {
-    size: "small",
-    connectedNodes: ["track_3_13"],
-    isAttribute: true,
-  },
-  track_5_25: {
-    size: "small",
-    connectedNodes: ["track_4_25"],
-    isAttribute: true,
-  },
-  track_6_25: {
-    size: "small",
-    connectedNodes: ["track_5_25"],
-    isAttribute: true,
-  },
-  track_7_25: {
-    size: "small",
-    connectedNodes: ["track_6_25", "track_6_26", "track_8_24"],
-    isAttribute: true,
-  },
-  track_7_27: {
-    size: "small",
-    connectedNodes: ["track_8_28"],
-    isAttribute: true,
-  },
-  track_6_27: {
-    size: "small",
-    connectedNodes: ["track_7_27"],
-    isAttribute: true,
-  },
-  track_5_27: {
-    size: "small",
-    connectedNodes: ["track_6_27"],
-    isAttribute: true,
-  },
-  track_4_27: {
-    size: "small",
-    connectedNodes: ["track_5_27", "track_2_14"],
-    isAttribute: true,
-  },
-  track_7_29: {
-    size: "small",
-    connectedNodes: ["track_8_28"],
-    isAttribute: true,
-  },
-  track_6_29: {
-    size: "small",
-    connectedNodes: ["track_7_29"],
-    isAttribute: true,
-  },
-  track_5_29: {
-    size: "small",
-    connectedNodes: ["track_6_29"],
-    isAttribute: true,
-  },
-  track_4_29: {
-    size: "small",
-    connectedNodes: ["track_5_29", "track_2_14"],
-    isAttribute: true,
-  },
-
-  // 扇区4：圆环1内侧小圈
+  // 圆环1内侧小圈7
   track_9_26: {
     size: "small",
     connectedNodes: ["track_10_26"],
@@ -2152,6 +2359,8 @@
     connectedNodes: ["track_7_26"],
     isAttribute: true,
   },
+
+  // 圆环1内侧小圈8
   track_9_30: {
     size: "small",
     connectedNodes: ["track_10_30"],
@@ -2188,7 +2397,7 @@
     isAttribute: true,
   },
 
-  // 扇区4：圆环1外侧小圈
+  // 圆环1外侧小圈7
   track_11_26: {
     size: "small",
     connectedNodes: ["track_10_26"],
@@ -2229,6 +2438,8 @@
     connectedNodes: ["track_13_26"],
     isAttribute: true,
   },
+
+  // 圆环1外侧小圈8
   track_11_30: {
     size: "small",
     connectedNodes: ["track_10_30"],
@@ -2270,7 +2481,7 @@
     isAttribute: true,
   },
 
-  // 扇区4：圆环2内侧小圈
+  // 圆环2内侧小圈7
   track_19_26: {
     size: "small",
     connectedNodes: ["track_20_26"],
@@ -2311,6 +2522,8 @@
     connectedNodes: ["track_17_26"],
     isAttribute: true,
   },
+
+  // 圆环2内侧小圈8
   track_19_30: {
     size: "small",
     connectedNodes: ["track_20_30"],
@@ -2352,129 +2565,7 @@
     isAttribute: true,
   },
 
-  // 扇区5：按扇区1同构复制的分支骨架
-  track_3_15: {
-    size: "small",
-    connectedNodes: ["track_2_16"],
-    isAttribute: true,
-  },
-  track_4_30: {
-    size: "small",
-    connectedNodes: ["track_3_15"],
-    isAttribute: true,
-  },
-  track_5_30: {
-    size: "small",
-    connectedNodes: ["track_4_30"],
-    isAttribute: true,
-  },
-  track_6_30: {
-    size: "small",
-    connectedNodes: ["track_5_30"],
-    isAttribute: true,
-  },
-  track_4_31: {
-    size: "small",
-    connectedNodes: ["track_3_15"],
-    isAttribute: true,
-  },
-  track_5_31: {
-    size: "small",
-    connectedNodes: ["track_4_31"],
-    isAttribute: true,
-  },
-  track_6_31: {
-    size: "small",
-    connectedNodes: ["track_5_31"],
-    isAttribute: true,
-  },
-  track_7_31: {
-    size: "small",
-    connectedNodes: ["track_6_30", "track_6_31", "track_8_32"],
-    isAttribute: true,
-  },
-  track_3_17: {
-    size: "small",
-    connectedNodes: ["track_2_16"],
-    isAttribute: true,
-  },
-  track_4_34: {
-    size: "small",
-    connectedNodes: ["track_3_17"],
-    isAttribute: true,
-  },
-  track_5_34: {
-    size: "small",
-    connectedNodes: ["track_4_34"],
-    isAttribute: true,
-  },
-  track_6_34: {
-    size: "small",
-    connectedNodes: ["track_5_34"],
-    isAttribute: true,
-  },
-  track_4_33: {
-    size: "small",
-    connectedNodes: ["track_3_17"],
-    isAttribute: true,
-  },
-  track_5_33: {
-    size: "small",
-    connectedNodes: ["track_4_33"],
-    isAttribute: true,
-  },
-  track_6_33: {
-    size: "small",
-    connectedNodes: ["track_5_33"],
-    isAttribute: true,
-  },
-  track_7_33: {
-    size: "small",
-    connectedNodes: ["track_6_33", "track_6_34", "track_8_32"],
-    isAttribute: true,
-  },
-  track_7_35: {
-    size: "small",
-    connectedNodes: ["track_8_36"],
-    isAttribute: true,
-  },
-  track_6_35: {
-    size: "small",
-    connectedNodes: ["track_7_35"],
-    isAttribute: true,
-  },
-  track_5_35: {
-    size: "small",
-    connectedNodes: ["track_6_35"],
-    isAttribute: true,
-  },
-  track_4_35: {
-    size: "small",
-    connectedNodes: ["track_5_35", "track_2_18"],
-    isAttribute: true,
-  },
-  track_7_37: {
-    size: "small",
-    connectedNodes: ["track_8_36"],
-    isAttribute: true,
-  },
-  track_6_37: {
-    size: "small",
-    connectedNodes: ["track_7_37"],
-    isAttribute: true,
-  },
-  track_5_37: {
-    size: "small",
-    connectedNodes: ["track_6_37"],
-    isAttribute: true,
-  },
-  track_4_37: {
-    size: "small",
-    connectedNodes: ["track_5_37", "track_2_18"],
-    isAttribute: true,
-  },
-
-  // 扇区5：圆环1内侧小圈
+  // 圆环1内侧小圈9
   track_9_34: {
     size: "small",
     connectedNodes: ["track_10_34"],
@@ -2510,6 +2601,8 @@
     connectedNodes: ["track_7_34"],
     isAttribute: true,
   },
+
+  // 圆环1内侧小圈10
   track_9_38: {
     size: "small",
     connectedNodes: ["track_10_38"],
@@ -2546,7 +2639,7 @@
     isAttribute: true,
   },
 
-  // 扇区5：圆环1外侧小圈
+  // 圆环1外侧小圈9
   track_11_34: {
     size: "small",
     connectedNodes: ["track_10_34"],
@@ -2587,6 +2680,8 @@
     connectedNodes: ["track_13_34"],
     isAttribute: true,
   },
+
+  // 圆环1外侧小圈10
   track_11_38: {
     size: "small",
     connectedNodes: ["track_10_38"],
@@ -2628,7 +2723,7 @@
     isAttribute: true,
   },
 
-  // 扇区5：圆环2内侧小圈
+  // 圆环2内侧小圈9
   track_19_34: {
     size: "small",
     connectedNodes: ["track_20_34"],
@@ -2669,6 +2764,8 @@
     connectedNodes: ["track_17_34"],
     isAttribute: true,
   },
+
+  // 圆环2内侧小圈10
   track_19_38: {
     size: "small",
     connectedNodes: ["track_20_38"],

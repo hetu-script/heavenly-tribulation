@@ -18,7 +18,7 @@ external function maxLevelForRank(rank) -> integer
 external function getTribulationCountForRank(rank) -> integer
 ''';
 
-Hetu createTestHetu({bool relaxedConversions = false}) {
+Hetu createTestHetu({bool relaxedConversions = true}) {
   final hetu = relaxedConversions
       ? Hetu(
           config: HetuConfig(

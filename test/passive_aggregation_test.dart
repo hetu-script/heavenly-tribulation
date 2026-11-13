@@ -225,20 +225,21 @@ void main() {
     initializeCharacter(hetu);
     hetu.eval('''
       final affix = {
-        id: 'turnStartExtraDraw',
-        description: 'passive_turnStartExtraDraw_description',
-        turnStartExtraDraw: {count: 1},
+        id: 'battleDrawBonus',
+        description: 'passive_battleDrawBonus_description',
+        battleStatus: 'turn_start_draw',
+        statusParams: {count: 1},
       }
       final source = _createPassiveSource(affix,
         sourceKey: 'equipment:item-a:0', sourceType: 'equipment', sourceId: 'item-a', affixIndex: 0)
-      source.turnStartExtraDraw.count = 2
+      source.statusParams.count = 2
       characterAddPassiveSource(character, source)
       characterAddPassiveSource(character, source)
     ''');
     final character = hetu.fetch('character');
     final affix = hetu.fetch('affix');
-    expect(character['passivesRaw']['turnStartExtraDraw'].length, 1);
-    expect(affix['turnStartExtraDraw']['count'], 1);
+    expect(character['passivesRaw']['battleDrawBonus'].length, 1);
+    expect(affix['statusParams']['count'], 1);
   });
 
   test('重复机制来源正确聚合，装备刷新和重算保持幂等', () {
@@ -247,12 +248,11 @@ void main() {
     addNeutralStats(hetu);
     hetu.eval('''
       final affix = {
-        id: 'turnStartExtraDraw',
-        description: 'passive_turnStartExtraDraw_description',
+        id: 'battleDrawBonus',
+        description: 'passive_battleDrawBonus_description',
         statsBonus: {scryBonus: 1},
-        turnStartExtraDraw: {
-          count: 1,
-        },
+        battleStatus: 'turn_start_draw',
+        statusParams: {count: 1},
       }
       final itemA = {
         id: 'item-a',
@@ -267,22 +267,24 @@ void main() {
       characterCalculateStats(character)
     ''');
     dynamic character = hetu.fetch('character');
-    expect(character['stats']['turnStartExtraDraw']['count'], 2);
+    expect(character['stats']['battleStatusParams']['turn_start_draw']['count'],
+        2);
+    expect(character['stats']['battleDrawBonus'], 2);
     expect(character['stats']['scryBonus'], 2);
 
     hetu.eval('characterCalculateStats(character)');
     character = hetu.fetch('character');
-    expect(character['stats']['turnStartExtraDraw']['count'], 2);
+    expect(character['stats']['battleDrawBonus'], 2);
     expect(character['stats']['scryBonus'], 2);
 
     hetu.eval('''
-      itemA.affixes[0].turnStartExtraDraw.count = 2
+      itemA.affixes[0].statusParams.count = 2
       characterRefreshEquipmentPassives(character, itemA)
       characterCalculateStats(character)
     ''');
     character = hetu.fetch('character');
-    expect(character['passivesRaw']['turnStartExtraDraw'].length, 2);
-    expect(character['stats']['turnStartExtraDraw']['count'], 3);
+    expect(character['passivesRaw']['battleDrawBonus'].length, 2);
+    expect(character['stats']['battleDrawBonus'], 3);
     expect(character['stats']['scryBonus'], 2);
 
     hetu.eval('''
@@ -290,8 +292,59 @@ void main() {
       characterCalculateStats(character)
     ''');
     character = hetu.fetch('character');
-    expect(character['stats']['turnStartExtraDraw']['count'], 1);
+    expect(character['stats']['battleDrawBonus'], 1);
     expect(character['stats']['scryBonus'], 1);
+  });
+
+  test('抽牌修正统一聚合普通、太古和负向来源', () {
+    final hetu = createHetu();
+    initializeCharacter(hetu);
+    addNeutralStats(hetu);
+    hetu.eval('''
+      final normal = {
+        id: 'battleDrawBonus',
+        description: 'passive_battleDrawBonus_description',
+        base: 1,
+        increment: 0,
+        battleStatus: 'turn_start_draw',
+        battleStatusValueParam: 'count',
+      }
+      final greater = {
+        id: 'battleDrawBonus',
+        description: 'passive_battleDrawBonus_description',
+        base: 1,
+        increment: 0,
+        isGreater: true,
+        greater: {values: [{mode: 'add', amount: 1}]},
+        battleStatus: 'turn_start_draw',
+        battleStatusValueParam: 'count',
+      }
+      final penalty = {
+        id: 'cosmos_ring',
+        description: 'passive_cosmos_ring_description',
+        battleStatus: 'turn_start_draw',
+        statusParams: {count: -1},
+      }
+      characterAddPassiveSource(character, _createPassiveSource(normal,
+        sourceKey: 'passive_tree:node:battleDrawBonus',
+        sourceType: 'passive_tree', sourceId: 'node', affixIndex: 1))
+      characterAddPassiveSource(character, _createPassiveSource(greater,
+        sourceKey: 'equipment:item-a:1',
+        sourceType: 'equipment', sourceId: 'item-a', affixIndex: 1))
+      characterAddPassiveSource(character, _createPassiveSource(penalty,
+        sourceKey: 'equipment:item-b:0',
+        sourceType: 'equipment', sourceId: 'item-b', affixIndex: 0))
+      characterCalculateStats(character)
+    ''');
+    dynamic character = hetu.fetch('character');
+    expect(character['passives']['battleDrawBonus']['value'], 3);
+    expect(character['stats']['battleStatusParams']['turn_start_draw']['count'],
+        2);
+    expect(character['stats']['battleDrawBonus'], 2);
+
+    hetu.eval('characterCalculateStats(character)');
+    character = hetu.fetch('character');
+    expect(character['stats']['battleDrawBonus'], 2);
   });
 
   test('首张减费规则按来源聚合且重复重算幂等', () {
@@ -1028,9 +1081,10 @@ void main() {
             level: 10,
           },
           {
-            id: 'turnStartExtraDraw',
-            description: 'passive_turnStartExtraDraw_description',
-            turnStartExtraDraw: {count: 1},
+            id: 'battleDrawBonus',
+            description: 'passive_battleDrawBonus_description',
+            battleStatus: 'turn_start_draw',
+            statusParams: {count: 1},
           },
         ],
       }
@@ -1043,7 +1097,7 @@ void main() {
         attribute: character.stats.dexterity,
         passive: character.passives.dexterity?.value,
         rawCount: character.passivesRaw.dexterity.length,
-        extraDraw: character.stats.turnStartExtraDraw,
+        extraDraw: character.stats.battleDrawBonus,
       }
 
       character.dexterity = 10
@@ -1053,7 +1107,7 @@ void main() {
         attribute: character.stats.dexterity,
         passive: character.passives.dexterity.value,
         rawCount: character.passivesRaw.dexterity.length,
-        extraDraw: character.stats.turnStartExtraDraw.count,
+        extraDraw: character.stats.battleDrawBonus,
       }
 
       hero = {}
@@ -1064,7 +1118,7 @@ void main() {
         attribute: character.stats.dexterity,
         passive: character.passives.dexterity.value,
         rawCount: character.passivesRaw.dexterity.length,
-        extraDraw: character.stats.turnStartExtraDraw.count,
+        extraDraw: character.stats.battleDrawBonus,
       }
       [invalid, restored, npc]
     ''');
@@ -1074,7 +1128,7 @@ void main() {
         'attribute': 0,
         'passive': null,
         'rawCount': 1,
-        'extraDraw': null,
+        'extraDraw': 0,
       },
       {
         'isInvalid': false,

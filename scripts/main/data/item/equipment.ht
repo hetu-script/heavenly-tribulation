@@ -106,12 +106,7 @@ struct Equipment {
 
     mainAffix = Object.create(random.nextIterable(mainAffixes))
     if (mainAffix.increment != null) {
-      let minAffixLevel = 1
-      if ((mainAffix.increment > 0 && mainAffix.increment < 1) ||
-        (mainAffix.increment < 0 && mainAffix.increment > -1)) {
-        minAffixLevel = (1 / mainAffix.increment).ceil().abs()
-      }
-      mainAffix.level = Math.max(this.level, minAffixLevel)
+      mainAffix.level = Math.max(this.level, getPassiveAffixMinLevel(mainAffix))
       mainAffix.value = calculatePassiveAffixValue(mainAffix, level: mainAffix.level)
     }
     this.affixes.add(mainAffix)
@@ -152,12 +147,7 @@ struct Equipment {
           } else {
             final affix = Object.create(random.nextIterable(supportAffixes))
             if (affix.increment != null) {
-              let minAffixLevel = 1
-              if ((affix.increment > 0 && affix.increment < 1) ||
-                (affix.increment < 0 && affix.increment > -1)) {
-                minAffixLevel = (1 / affix.increment).ceil().abs()
-              }
-              affix.level = getRandomLevel(minAffixLevel, this.level)
+              affix.level = rollPassiveAffixLevel(affix, maxLevel: this.level)
               affix.value = calculatePassiveAffixValue(affix, level: affix.level)
             }
             this.affixes.add(affix)

@@ -14,6 +14,13 @@ void main() {
     return source.substring(start, end);
   }
 
+  String loadPassiveAffixLevelHelpers() {
+    final source = File('scripts/main/data/item/item.ht').readAsStringSync();
+    final start = source.indexOf('function getPassiveAffixMinLevel');
+    final end = source.indexOf('function _markPassiveAffixGreater', start);
+    return source.substring(start, end);
+  }
+
   Hetu createHetu(Map<String, dynamic> passives) {
     final hetu = createTestHetu(relaxedConversions: true);
     bindGameLogicFunctions(hetu);
@@ -31,6 +38,7 @@ void main() {
         nextIterable: function(values) { return values.first },
       }
       function getRandomLevel(min, max) { return min }
+      ${loadPassiveAffixLevelHelpers()}
       ${loadExpArraySource()}
     ''');
     return hetu;
@@ -79,6 +87,21 @@ void main() {
     final affix = hetu.invoke('getExpArrayBuff', positionalArgs: ['energy', 3]);
     expect(affix['id'], 'turn_start_gain_vigor_affix');
     expect(affix['value'], isNotNull);
+  });
+
+  test('零基底小数词条使用自身最低等级且不依赖主词条', () {
+    final hetu = createHetu({
+      'test_energy': {
+        'id': 'test_energy',
+        'isEphemeral': true,
+        'ephemeralType': 'energy',
+        'base': 0,
+        'increment': 0.05,
+      },
+    });
+    final affix = hetu.invoke('getExpArrayBuff', positionalArgs: ['energy', 1]);
+    expect(affix['level'], 20);
+    expect(affix['value'], 1);
   });
 
   test('太古预览在副本上满级强化且不修改原实例或公共原型', () {

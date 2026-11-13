@@ -1760,19 +1760,11 @@ class BattleScene extends Scene {
         await scry(deckZone, discardZone);
       }
 
+      // 正常抽牌与额外抽牌统一为一批；正负修正均聚合到展示用派生值 battleDrawBonus。
       final drawCount = kBattleDrawCount +
           ((currentCharacter.data['stats']['battleDrawBonus'] ?? 0) as int);
       final drawn =
           await drawCardsToHand(deckZone, discardZone, handZone, drawCount);
-
-      // 回合开始额外抽牌：多来源 count 求和，仍受手牌上限约束。
-      final extraDrawRule =
-          currentCharacter.data['stats']?['turnStartExtraDraw'];
-      final extraDrawCount = extraDrawRule?['count'];
-      if (extraDrawCount is num && extraDrawCount > 0) {
-        await drawCardsToHand(
-            deckZone, discardZone, handZone, extraDrawCount.toInt());
-      }
 
       // ① 回合开始回调（劫气/DOT/缓慢/幻觉等；死气改在元气产出与对冲后结算）
       await currentCharacter.onStartTurn(isExtra: extraTurn);

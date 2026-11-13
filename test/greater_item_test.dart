@@ -12,7 +12,7 @@ void main() {
     final itemSource =
         File('scripts/main/data/item/item.ht').readAsStringSync();
     final helper = itemSource.substring(
-      itemSource.indexOf('function _markPassiveAffixGreater'),
+      itemSource.indexOf('function getPassiveAffixMinLevel'),
       itemSource.indexOf('function createItemById'),
     );
     final hetu = createTestHetu(relaxedConversions: true);

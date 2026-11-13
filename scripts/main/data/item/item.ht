@@ -65,6 +65,22 @@ function convertMoneyToShard(money) {
   return amount < 1 ? 1 : amount
 }
 
+/// 零基底、小数成长词条产生非零数值所需的最低等级；base 缺省按 0 处理。
+function getPassiveAffixMinLevel(affix) {
+  final base = affix.base ?? 0
+  final increment = affix.increment ?? 0
+  if (base == 0 && increment != 0 && increment.abs() < 1) {
+    return (1 / increment.abs()).ceil()
+  }
+  return 1
+}
+
+/// 在指定范围内随机词条等级，并应用词条自身的最低等级。
+function rollPassiveAffixLevel(affix, {minLevel = 1, maxLevel}) {
+  final minAffixLevel = getPassiveAffixMinLevel(affix)
+  return getRandomLevel(Math.max(minLevel, minAffixLevel), maxLevel)
+}
+
 function _markPassiveAffixGreater(item, affix) {
   affix.isGreater = true
   affix.level = maxLevelForRank(item.rank)
@@ -186,15 +202,7 @@ function createItemById(id, {amount, rank, level}) {
       assert(affixRawData != null)
       final affix = Object.create(affixRawData)
       if (affix.increment != null || affix.rankIncrement != null) {
-        let minAffixLevel = 1
-        if (affix.increment != null) {
-          if (affix.increment > 0 && affix.increment < 1) {
-            minAffixLevel = (1 / affix.increment).ceil()
-          } else if (affix.increment < 0 && affix.increment > -1) {
-            minAffixLevel = (1 / -affix.increment).ceil()
-          }
-        }
-        affix.level = getRandomLevel(minAffixLevel, item.level)
+        affix.level = rollPassiveAffixLevel(affix, maxLevel: item.level)
         affix.value = calculatePassiveAffixValue(affix, level: affix.level)
       }
       item.affixes.add(affix)

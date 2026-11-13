@@ -169,7 +169,6 @@
   "passive_heaven_peeking_mirror_description": "观星时额外查看 2 张牌；每回合第一次观星后，对自身随机施加 2 种元素异常（各 1 层）",
   "passive_five_elements_pearl_description": "你造成的元素异常层数 +2；你受到的元素异常层数 +2",
   "passive_heavenly_mechanism_disc_description": "牌库数量下限 -2；非悟道牌费用 +1",
-  "passive_turnStartExtraDraw_description": "回合开始时额外抽 {0} 张牌",
   "passive_energyRetainSpell_description": "回合结束时至多保留 2 点悟道灵气到下回合；每保留 1 点，下回合开始受到 3 点纯粹伤害",
   "passive_spirit_gathering_banner_description": "回合开始时悟道灵气 +{0}；你打出的非悟道牌费用 +2",
   "passive_handSizeMax_description": "手牌上限 +{0}",

@@ -102,13 +102,11 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 
 ## 6. 参数/属性型效果：stats 管线完整链路
 
-参数型/纯属性效果需要新增 stat 时，同步以下五处（样板：`battleDrawBonus` 每回合元气）：
+参数型/纯属性效果需要新增 stat 时，同步以下五处（固定纯加值可参照 `handSizeMax`）：
 
-1. **词条定义** `assets/data/passives.json5`：词条 id 即 stat id（同名约定，如 `battleDrawBonus`），`description` 键供装备/天赋界面显示词条效果。
+1. **词条定义** `assets/data/passives.json5`：纯属性词条通常以词条 id 作为 stat id，`description` 键供装备/天赋界面显示词条效果；需要把等级数值映射到统一状态时，声明 `battleStatus` 与 `battleStatusValueParam`（如 `battleDrawBonus`）。
 2. **词条本地化** `assets/locale/zh/rpg/passive.json`：`passive_{id}_description`，数值占位 `{0}`。
-3. **stats 聚合** `scripts/main/data/character/battle_entity.ht` 的 `characterCalculateStats()`：加一行聚合。纯加成：
-   `character.stats.{id} = character.passives.{id}?.value + character.ephemeralPassives.{id}?.value`；
-   有基底/上限的用定制公式（参照 `critThreshold` 的 clamp、`elementalResist` 折算进单抗）。
+3. **stats 聚合** `scripts/main/data/character/battle_entity.ht` 的 `characterCalculateStats()`：固定纯加值优先使用 `statsBonus`；有基底/上限的用定制公式（参照 `critThreshold` 的 clamp、`elementalResist` 折算进单抗）。普通/太古数值与固定正负来源需要合并时，统一聚合到 `battleStatusParams`（如 `turn_start_draw.count`），再生成展示用派生 stat，不建立平行管线。
    仅限装备的词条注意 ephemeral 临时增益池的注释约定（battle_entity.ht:351）。
 4. **属性面板** `lib/widgets/character/stats.dart`：id 注册进 `kStats` / `kMoreStats` 列表。
    格式化由 **id 后缀约定**驱动（`Attack`→%、`Resist`→%+上限、`Threshold`→低值高亮、
@@ -123,7 +121,7 @@ python -c "from PIL import Image; Image.open('assets/images/icon/status/permanen
 天赋与装备的战斗互动统一走**状态回调总线**（`handleStatusEffectCallback`）；不要做装备版逐词条回调扫描——装备在战斗中无活实例（战前已折算进 stats/passives）：
 
 - 行为型效果（战斗中反复触发）→ 被动携带 `battleStatus` 字段，战斗开始授予永久状态，行为在 `status_script.ht` 实现；状态数据可携带自定义参数字段（如 `damageType`、`damagePerCard`）。其他通用机制字段：`deckCostReduction`（组牌费用）、`shuffleIntoDeck`（洗入牌库）、`turnStartScry`（回合开始观星）、`energyRetain`（资源保留），契约见 `docs/docs/mod/battle/readme.md`。
-- 参数型效果（观星深度、费用修正、资源保留等）与纯属性/单值修改（攻防、抗性、伤害增加等）→ 非状态，由 Dart 机制读取 stats/被动字段；纯属性走 stats 聚合管线（`kStatsToPermanentEffects` 图标仅展示净值，无回调）。
+- 参数型效果（观星深度、费用修正、资源保留等）与纯属性/单值修改（攻防、抗性、伤害增加等）→ 由 Dart 机制读取 stats/被动字段；纯属性走 stats 聚合管线（`kStatsToPermanentEffects` 图标仅展示净值，无回调）。需要统一普通/太古数值与固定参数时，可用永久状态作为聚合与展示载体（如 `turn_start_draw`），但异步行为仍由 Dart 执行，不新增状态回调。
 - 状态脚本必须**非阻塞、不可交互**（不调用返回 Future 的 API）
 - 永久状态默认可见：图标 + tooltip 是效果解释渠道。同类状态可在 `status_effect.json5` 声明
   `displayGroup` 合并显示；分组只影响图标与悬停明细，不合并逻辑状态。现有分组与 UI 配置见

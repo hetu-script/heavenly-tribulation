@@ -539,7 +539,7 @@ class CultivationScene extends Scene with HasCursorState {
         position: position,
         size: buttonSize,
         spriteId: isAttribute
-            ? 'cultivation/skill/attribute_any_unselected.png'
+            ? 'cultivation/skill/attribute_unselected.png'
             : passiveTreeNodeData['unselectedIcon'],
         selectedSpriteId: passiveTreeNodeData['icon'],
         isVisible: false,

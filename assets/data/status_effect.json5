@@ -919,6 +919,15 @@
     script: "scry_self_ailments",
     callbacks: ["self_scry"],
   },
+  // 回合开始抽牌修正：正负来源统一聚合，Dart 合并为一次抽牌，无状态回调
+  turn_start_draw: {
+    id: "turn_start_draw",
+    title: "status_turn_start_draw",
+    description: "status_turn_start_draw_description",
+    icon: "icon/status/permanent/turn_start_draw.png",
+    isPermanent: true,
+    count: 0,
+  },
   // 固定资源产出：所有来源共享同一状态，数值由 statusParams 累加
   turn_start_gain_mana: {
     id: "turn_start_gain_mana",

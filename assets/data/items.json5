@@ -385,16 +385,16 @@
       "spirit_gathering_banner",
       "mana_threshold_guard",
       "spellcraft_cost_down",
-      "turnStartExtraDraw",
+      "battleDrawBonus",
     ],
     greaterAffixes: [
       { rank: 3, affixId: "mana_threshold_guard" },
       { rank: 4, affixId: "spellcraft_cost_down" },
-      { rank: 5, affixId: "turnStartExtraDraw" },
+      { rank: 5, affixId: "battleDrawBonus" },
     ],
   },
 
-  // 乾坤戒（rank1）：以正常抽牌减少换取手牌空间、元气产出与保留
+  // 乾坤戒（rank1）：以抽牌减少换取手牌空间、元气产出与保留
   cosmos_ring: {
     id: "cosmos_ring",
     uniqueId: "cosmos_ring",

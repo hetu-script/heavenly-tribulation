@@ -71,7 +71,7 @@
   "turn_start_gain_ultimate": "每回合太极之气",
   "turn_start_gain_ultimate_description": "每次行动产出阶段额外获得的太极之气数量，包含固定来源与等级缩放来源。",
   "battleDrawBonus": "每回合抽牌",
-  "battleDrawBonus_description": "每回合开始时额外抽取的卡牌数量。",
+  "battleDrawBonus_description": "每回合抽牌数量的修正值，所有正负来源统一累加。",
   "handSizeMax": "手牌上限",
   "handSizeMax_description": "战斗中最多可持有的手牌数量；达到上限后，继续抽牌不会发生。",
   "deckMinSizeReduce": "卡组数量下限",

@@ -20,7 +20,7 @@
 ///      affixes / uniqueIds / energyRetain.resourceId / items.affixes 指向不存在的目标
 ///   5. 格式: category / genre / cardType / damageType / elementType / cost 颜色 /
 ///      ephemeralType / rank 等枚举与取值范围；coloredCost / filter / valueData /
-///      deckCostReduction（含 color: 'all' 与负值加费）/ energyRetain / turnStartExtraDraw 结构
+///      deckCostReduction（含 color: 'all' 与负值加费）/ energyRetain 结构
 ///   6. 数值占位: 描述文本中的 {N} 下标必须小于 valueData 长度；
 ///      卡牌纯数据机制字段（scryOptions / statusParams / 抉择与抽牌修饰字段等）
 ///      检查结构、类型、枚举及嵌套引用，契约见 docs/docs/mod/battle/card/readme.md
@@ -389,7 +389,6 @@ const _greaterMechanismContract = <String, dynamic>{
   'statsBonus': null,
   'deckCostReduction': {'amount': 'number'},
   'firstCardCostReduction': {'amount': 'number'},
-  'turnStartExtraDraw': {'count': 'number'},
   'energyRetain': {'max': 'number'},
 };
 
@@ -1090,7 +1089,6 @@ void validatePassives(Map<String, dynamic> passives) {
               !const {
                 'statsBonus',
                 'deckCostReduction',
-                'turnStartExtraDraw',
                 'battleStatus',
               }.contains(parts.first)) {
             err('描述参数路径未登记', '$ctx.descriptionParams: $path');
@@ -1157,17 +1155,6 @@ void validatePassives(Map<String, dynamic> passives) {
             min: 0);
         checkEnum(energyRetain['costDamageType'], kDamageTypes,
             '$ctx.energyRetain.costDamageType');
-      }
-    }
-
-    // 回合开始额外抽牌：{count}
-    final extraDraw = data['turnStartExtraDraw'];
-    if (extraDraw != null) {
-      if (extraDraw is! Map) {
-        err('字段类型非法', '$ctx.turnStartExtraDraw: 期望表');
-      } else {
-        checkNumber(extraDraw['count'], '$ctx.turnStartExtraDraw.count',
-            min: 1);
       }
     }
 

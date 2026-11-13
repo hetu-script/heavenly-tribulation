@@ -417,7 +417,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.craftMaterialCost = (character.craftMaterialCost * (1 + character.passives.craftMaterialCost?.value / 100) * (1 + character.ephemeralPassives.craftMaterialCost?.value / 100)).toFixed(2)
 
   // 战斗资源词条（仅限装备；ephemeral 读取保留以兼容旧存档，新词条不进临时增益池）
-  character.stats.battleDrawBonus = character.passives.battleDrawBonus?.value + character.ephemeralPassives.battleDrawBonus?.value
   character.stats.deckMinSizeReduce = character.passives.deckMinSizeReduce?.value + character.ephemeralPassives.deckMinSizeReduce?.value
   character.stats.handSizeMax = Constants.battleHandSizeMax
   // 通用 stats 直加：遍历全部原始来源；stats 已在函数开头重建，不会重复累计。
@@ -443,7 +442,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   final firstCardCostReductionRules = []
   final shuffleIntoDeckIds = []
   let turnStartScryEnabled = false
-  let extraDrawCount = 0
   final energyRetainMap = {}
   for (final raw in [character.passivesRaw, character.ephemeralPassivesRaw]) {
     for (final dataId in raw.keys) {
@@ -493,13 +491,6 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
         }
         if (passiveData['turnStartScry'] == true) {
           turnStartScryEnabled = true
-        }
-        final turnStartExtraDraw = passiveData['turnStartExtraDraw']
-        if (turnStartExtraDraw != null) {
-          final count = turnStartExtraDraw['count']
-          if (count != null && count > 0) {
-            extraDrawCount += count
-          }
         }
         final energyRetain = passiveData['energyRetain']
         if (energyRetain != null) {
@@ -553,13 +544,8 @@ function characterCalculateStats(character, { reset = false, rejuvenate = false}
   character.stats.firstCardCostReduction = firstCardCostReductionRules
   character.stats.shuffleIntoDeck = shuffleIntoDeckIds
   character.stats.turnStartScry = turnStartScryEnabled
-  if (extraDrawCount > 0) {
-    character.stats.turnStartExtraDraw = {
-      count: extraDrawCount,
-    }
-  } else {
-    character.stats.turnStartExtraDraw = null
-  }
+  // 展示用派生值；抽牌修正的唯一真值是 battleStatusParams.turn_start_draw.count。
+  character.stats.battleDrawBonus = battleStatusParams.turn_start_draw?.count ?? 0
   character.stats.energyRetain = energyRetainMap
 
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value + character.ephemeralPassives.unarmedAttack?.value
